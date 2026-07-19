@@ -69,21 +69,21 @@ function PlaceLogo({ place }) {
 
   if (!domain || failed) {
     return (
-      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-        <Icon className="w-5 h-5" aria-hidden="true" />
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="w-4 h-4" aria-hidden="true" />
       </div>
     );
   }
   return (
-    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-muted border border-border overflow-hidden">
+    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted border border-border overflow-hidden">
       <img
         src={`${apiBase}/bios/discover/logo?domain=${encodeURIComponent(domain)}`}
         alt={`Logo ${place.name}`}
-        width={28}
-        height={28}
+        width={22}
+        height={22}
         loading="lazy"
         onError={() => setFailed(true)}
-        className="w-7 h-7 object-contain"
+        className="w-5.5 h-5.5 object-contain"
       />
     </div>
   );
@@ -504,37 +504,37 @@ export default function DiscoveryMap() {
         
         {/* Glassmorphic floating Search & Categories card */}
         {!loading && !error && (
-          <div className="absolute top-4 left-4 right-4 z-10 flex flex-col gap-2 max-w-md bg-white/80 dark:bg-zinc-950/80 border border-white/20 dark:border-white/5 backdrop-blur-md p-2.5 rounded-2xl shadow-lg">
+          <div className="absolute top-3 left-3 right-3 z-10 flex flex-col gap-1.5 max-w-md bg-white/80 dark:bg-zinc-950/80 border border-white/20 dark:border-white/5 backdrop-blur-md p-2 rounded-2xl shadow-lg">
             
             {/* Search Input Bar */}
-            <div className="relative flex items-center gap-2">
+            <div className="relative flex items-center gap-1.5">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
                 <input
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Tìm quán ăn, cà phê..."
-                  className="w-full min-h-[38px] pl-9 pr-4 rounded-xl bg-muted/60 border border-border/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 placeholder:text-muted-foreground"
+                  className="w-full h-8 pl-8 pr-4 rounded-lg bg-muted/60 border border-border/20 text-xs text-foreground focus:outline-none focus:ring-1.5 focus:ring-primary/30 placeholder:text-muted-foreground animate-none"
                 />
               </div>
               <button
                 onClick={refresh}
                 disabled={fetching || !userPos}
-                className="w-[38px] h-[38px] flex items-center justify-center rounded-xl border border-border/20 bg-muted/60 text-foreground hover:bg-muted/80 transition active:scale-95 disabled:opacity-50 shrink-0"
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-border/20 bg-muted/60 text-foreground hover:bg-muted/80 transition active:scale-95 disabled:opacity-50 shrink-0"
                 title="Làm mới gợi ý"
               >
-                <RefreshCw className={`w-4 h-4 ${fetching ? "animate-spin text-primary" : ""}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${fetching ? "animate-spin text-primary" : ""}`} />
               </button>
             </div>
 
             {/* Horizontal Scroll Categories */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 -mx-0.5 px-0.5">
               {CATEGORIES.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => { hapticSelect(); setCategory(c.id); }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition ${
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 transition ${
                     category === c.id
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted/50 text-foreground hover:bg-muted/80"
@@ -868,41 +868,41 @@ export default function DiscoveryMap() {
               key={p.id}
               data-place-id={p.id}
               onClick={() => selectPlace(p)}
-              className={`bg-card border rounded-2xl p-4 cursor-pointer transition shadow-sm ${
+              className={`bg-card border rounded-2xl p-3 cursor-pointer transition shadow-sm ${
                 active ? "border-primary ring-1 ring-primary/30" : "border-border hover:border-primary/40"
               }`}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-2.5">
                 <PlaceLogo place={p} />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11.5px] font-bold text-muted-foreground uppercase tracking-wide">
                       {CATEGORY_LABELS[p.category] || "Gợi ý"}
                     </span>
                     {p.openNow === true && (
-                      <span className="text-[13px] font-semibold text-success">Đang mở cửa</span>
+                      <span className="text-[11.5px] font-bold text-success bg-success/10 px-1.5 py-0.5 rounded-md">Đang mở</span>
                     )}
                     {p.openNow === false && (
-                      <span className="text-[13px] font-semibold text-destructive">Đã đóng cửa</span>
+                      <span className="text-[11.5px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded-md">Đã đóng</span>
                     )}
                   </div>
-                  <h3 className="text-[16px] font-bold text-foreground mt-0.5 truncate">{p.name}</h3>
+                  <h3 className="text-[14.5px] font-black text-foreground mt-0.5 truncate">{p.name}</h3>
                   {p.reasons?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    <div className="flex flex-wrap gap-1 mt-1">
                       {p.reasons.map((r) => (
-                        <span key={r} className="text-[12px] font-semibold text-primary bg-primary/10 rounded-full px-2.5 py-0.5">
+                        <span key={r} className="text-[10px] font-bold text-primary bg-primary/10 rounded-lg px-2 py-0.5">
                           {r}
                         </span>
                       ))}
                     </div>
                   )}
-                  <div className="flex items-center gap-2 mt-1 text-[14px] text-muted-foreground flex-wrap">
+                  <div className="flex items-center gap-1.5 mt-0.5 text-[12px] text-muted-foreground flex-wrap">
                     {p.rating != null ? (
-                      <span className="flex items-center gap-1 text-foreground font-medium">
-                        <Star className="w-4 h-4 text-primary" aria-hidden="true" />
+                      <span className="flex items-center gap-0.5 text-foreground font-bold">
+                        <Star className="w-3.5 h-3.5 fill-primary text-primary" aria-hidden="true" />
                         {p.rating}
                         {p.ratingCount != null && (
-                          <span className="text-muted-foreground font-normal">({p.ratingCount.toLocaleString("vi-VN")})</span>
+                          <span className="text-muted-foreground font-normal">({p.ratingCount})</span>
                         )}
                       </span>
                     ) : (
@@ -913,50 +913,36 @@ export default function DiscoveryMap() {
                         onClick={(e) => e.stopPropagation()}
                         className="text-primary underline underline-offset-2"
                       >
-                        Xem đánh giá trên Google
+                        Đánh giá
                       </a>
                     )}
                     {p.priceRange && <span>· {p.priceRange}</span>}
-                    <span>· {fmtDist(p.distM)}</span>
+                    <span>· Cách {fmtDist(p.distM)}</span>
                   </div>
                   {p.address && (
-                    <p className="text-[14px] text-muted-foreground mt-1 truncate">{p.address}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5 truncate">{p.address}</p>
                   )}
                   {p.services && (
-                    <p className="text-[14px] text-foreground mt-1.5">{p.services}</p>
+                    <p className="text-[12px] text-foreground/90 mt-1 line-clamp-1">{p.services}</p>
                   )}
                   {p.menu && active && (
-                    <div className="mt-2 bg-muted rounded-xl px-3 py-2">
-                      <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wide">Menu</p>
-                      <p className="text-[14px] text-foreground whitespace-pre-line mt-1">{p.menu}</p>
+                    <div className="mt-1.5 bg-muted/60 rounded-xl px-2.5 py-1.5">
+                      <p className="text-[10.5px] font-black text-muted-foreground uppercase tracking-wider">Menu</p>
+                      <p className="text-[12px] text-foreground whitespace-pre-line mt-0.5">{p.menu}</p>
                     </div>
-                  )}
-                  {p.phone && (
-                    <a
-                      href={`tel:${p.phone}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-block text-[14px] text-primary underline underline-offset-2 mt-1"
-                    >
-                      {p.phone}
-                    </a>
-                  )}
-                  {p.review && (
-                    <p className="text-[14px] text-muted-foreground mt-2 line-clamp-2 bg-muted rounded-xl px-3 py-2">
-                      “{p.review}”
-                    </p>
                   )}
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-1.5 mt-2.5">
                 <a
                   href={p.googleMapsUri || `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`}
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-primary text-primary-foreground text-[15px] font-medium hover:opacity-90 transition"
+                  className="flex-1 min-h-[34px] flex items-center justify-center gap-1 rounded-xl bg-primary text-primary-foreground text-[11px] font-black uppercase tracking-wider hover:opacity-90 transition"
                 >
-                  <Navigation className="w-4 h-4" aria-hidden="true" />
+                  <Navigation className="w-3 h-3" aria-hidden="true" />
                   Google Maps
                 </a>
                 <a
@@ -964,15 +950,15 @@ export default function DiscoveryMap() {
                   target="_blank"
                   rel="noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl bg-card border border-border text-foreground text-[15px] font-medium hover:bg-muted transition"
+                  className="flex-1 min-h-[34px] flex items-center justify-center gap-1 rounded-xl bg-card border border-border text-foreground text-[11px] font-black uppercase tracking-wider hover:bg-muted transition"
                 >
-                  <Compass className="w-4 h-4" aria-hidden="true" />
+                  <Compass className="w-3 h-3" aria-hidden="true" />
                   Apple Maps
                 </a>
                 {p.mine && (
                   <button
                     onClick={(e) => { e.stopPropagation(); deletePlace(p); }}
-                    className="min-h-[44px] px-4 rounded-xl border border-destructive/40 text-destructive text-[15px] font-medium hover:bg-destructive/10 transition"
+                    className="min-h-[34px] px-3 rounded-xl border border-destructive/40 text-destructive text-[11px] font-bold hover:bg-destructive/10 transition"
                   >
                     Xóa
                   </button>
