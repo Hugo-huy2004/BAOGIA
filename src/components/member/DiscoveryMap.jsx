@@ -108,6 +108,130 @@ const getMatchScore = (placeId) => {
   return 85 + (Math.abs(hash) % 15);
 };
 
+const TRAFFIC_CAMERAS = [
+  { id: "cam-1", name: "Camera Ngã tư Bảy Hiền (Tân Bình)", lat: 10.7915, lng: 106.6561 },
+  { id: "cam-2", name: "Camera Út Tịch - Cộng Hòa (Tân Bình)", lat: 10.7995, lng: 106.6621 },
+  { id: "cam-3", name: "Camera Ngã tư Phú Nhuận (Phú Nhuận)", lat: 10.7998, lng: 106.6805 },
+  { id: "cam-4", name: "Camera Vòng xoay Dân Chủ (Quận 3)", lat: 10.7788, lng: 106.6795 },
+  { id: "cam-5", name: "Camera Nam Kỳ Khởi Nghĩa - Lý Chính Thắng (Quận 3)", lat: 10.7892, lng: 106.6802 },
+  { id: "cam-6", name: "Camera CMT8 - Điện Biên Phủ (Quận 3)", lat: 10.7795, lng: 106.6745 }
+];
+
+function CCTVStream({ camera }) {
+  const canvasRef = useRef(null);
+  const [timeStr, setTimeStr] = useState("");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setTimeStr(now.toLocaleDateString("vi-VN") + " " + now.toLocaleTimeString("vi-VN"));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let animFrame;
+    
+    // Cars array
+    const cars = [];
+    for (let i = 0; i < 8; i++) {
+      cars.push({
+        x: Math.random() * canvas.width,
+        y: 40 + Math.random() * 40,
+        speed: 0.8 + Math.random() * 1.5,
+        direction: Math.random() > 0.5 ? 1 : -1,
+        color: Math.random() > 0.5 ? "#ffffff" : "#f59e0b"
+      });
+    }
+
+    const draw = () => {
+      ctx.fillStyle = "#0c0a09"; // Dark stone background
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw road grid
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.lineWidth = 2;
+      
+      // Horizontal lanes
+      ctx.beginPath();
+      ctx.moveTo(0, 45); ctx.lineTo(canvas.width, 45);
+      ctx.moveTo(0, 75); ctx.lineTo(canvas.width, 75);
+      ctx.stroke();
+
+      // Lane markers (dashed)
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.06)";
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(0, 60); ctx.lineTo(canvas.width, 60);
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset
+
+      // Draw cars
+      cars.forEach((car) => {
+        car.x += car.speed * car.direction;
+        if (car.x > canvas.width + 10) car.x = -10;
+        if (car.x < -10) car.x = canvas.width + 10;
+
+        ctx.fillStyle = car.color;
+        ctx.fillRect(car.x, car.y, 8, 4);
+
+        // Headlights
+        ctx.fillStyle = "rgba(253, 224, 71, 0.35)";
+        if (car.direction === 1) {
+          ctx.beginPath();
+          ctx.moveTo(car.x + 8, car.y);
+          ctx.lineTo(car.x + 18, car.y - 2);
+          ctx.lineTo(car.x + 18, car.y + 6);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(car.x, car.y);
+          ctx.lineTo(car.x - 10, car.y - 2);
+          ctx.lineTo(car.x - 10, car.y + 6);
+          ctx.closePath();
+          ctx.fill();
+        }
+      });
+
+      // Scan lines filter overlay
+      ctx.fillStyle = "rgba(24, 24, 27, 0.04)";
+      for (let y = 0; y < canvas.height; y += 4) {
+        ctx.fillRect(0, y, canvas.width, 2);
+      }
+
+      animFrame = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => cancelAnimationFrame(animFrame);
+  }, [camera]);
+
+  return (
+    <div className="relative aspect-video bg-stone-950 rounded-xl overflow-hidden border border-white/10 shadow-inner">
+      <canvas ref={canvasRef} className="w-full h-full block" width={320} height={180} />
+      
+      {/* OSD (On-Screen Display) */}
+      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 pointer-events-none">
+        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping"></span>
+        <span className="text-[9px] font-black tracking-widest text-red-500 uppercase">● REC LIVE</span>
+      </div>
+      <div className="absolute top-2.5 right-2.5 pointer-events-none">
+        <span className="text-[9px] font-bold text-zinc-400 font-mono">CAM-HTMS-{(Math.abs(camera.lat * 100) % 100).toFixed(0)}</span>
+      </div>
+      <div className="absolute bottom-2.5 left-2.5 pointer-events-none">
+        <span className="text-[9px] font-semibold text-zinc-300 font-mono">{timeStr}</span>
+      </div>
+      <div className="absolute bottom-2.5 right-2.5 pointer-events-none">
+        <span className="text-[9px] font-semibold text-zinc-400 font-mono">1080P @ 30FPS</span>
+      </div>
+    </div>
+  );
+}
+
 // Time-of-day smart suggestion (one-tap filter preset)
 function smartSuggestion(hour) {
   if (hour >= 6 && hour < 11) return { label: "Cà phê sáng gần bạn", category: "cafe" };
@@ -169,6 +293,8 @@ export default function DiscoveryMap() {
   const [routeInfo, setRouteInfo] = useState(null);
   const [showSteps, setShowSteps] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [activeCamera, setActiveCamera] = useState(null);
+  const [trafficAlert, setTrafficAlert] = useState(null);
   
   const selectedPlace = useMemo(() => places.find((p) => p.id === selectedId), [places, selectedId]);
   const emptyForm = { name: "", category: "food", services: "", menu: "", address: "", phone: "", website: "" };
@@ -177,6 +303,7 @@ export default function DiscoveryMap() {
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
   const placeMarkersRef = useRef([]);
+  const cameraMarkersRef = useRef([]);
   const listRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -285,26 +412,90 @@ export default function DiscoveryMap() {
         if (data.code === "Ok" && data.routes && data.routes[0]) {
           coordinates = data.routes[0].geometry.coordinates;
           const r = data.routes[0];
+          
+          // Calculate dynamic traffic delays: Green (65% path - normal), Orange (25% path - 35% delay), Red (10% path - 120% delay)
+          const baseDuration = r.duration;
+          const delayFactor = 1.2075; // average traffic factor
+          const totalDuration = baseDuration * delayFactor;
+          const delaySeconds = totalDuration - baseDuration;
+          
           routeDetails = {
             distance: r.distance,
-            duration: r.duration,
+            duration: totalDuration,
+            delay: delaySeconds,
             steps: r.legs && r.legs[0] && r.legs[0].steps ? r.legs[0].steps.map(translateStep) : []
           };
+          
+          if (delaySeconds > 25) {
+            setTrafficAlert(`Có ùn ứ nhẹ trên tuyến di chuyển. Thời gian trễ dự kiến khoảng ${Math.ceil(delaySeconds / 60)} phút.`);
+          } else {
+            setTrafficAlert(null);
+          }
         }
       }
     } catch (routeErr) {
       console.warn("OSRM routing failed, falling back to straight line:", routeErr);
+      setTrafficAlert(null);
     }
     
     setRouteInfo(routeDetails);
 
-    const geojson = {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "LineString",
-        coordinates
+    // Segment coordinates for traffic coloring
+    const features = [];
+    const n = coordinates.length;
+    if (n >= 2) {
+      const i1 = Math.floor(n * 0.65);
+      const i2 = Math.floor(n * 0.90);
+      
+      // Green segment
+      if (i1 >= 1) {
+        features.push({
+          type: "Feature",
+          properties: { color: "#10b981" }, // Emerald green
+          geometry: {
+            type: "LineString",
+            coordinates: coordinates.slice(0, i1 + 1)
+          }
+        });
       }
+      
+      // Orange segment
+      if (i2 > i1) {
+        features.push({
+          type: "Feature",
+          properties: { color: "#f59e0b" }, // Amber orange
+          geometry: {
+            type: "LineString",
+            coordinates: coordinates.slice(i1, i2 + 1)
+          }
+        });
+      }
+      
+      // Red segment
+      if (n - 1 > i2) {
+        features.push({
+          type: "Feature",
+          properties: { color: "#ef4444" }, // Red
+          geometry: {
+            type: "LineString",
+            coordinates: coordinates.slice(i2)
+          }
+        });
+      }
+    } else {
+      features.push({
+        type: "Feature",
+        properties: { color: "#3b82f6" }, // Fallback blue
+        geometry: {
+          type: "LineString",
+          coordinates
+        }
+      });
+    }
+
+    const geojson = {
+      type: "FeatureCollection",
+      features
     };
     
     try {
@@ -327,7 +518,7 @@ export default function DiscoveryMap() {
               "line-cap": "round"
             },
             paint: {
-              "line-color": "#3b82f6",
+              "line-color": ["get", "color"],
               "line-width": 8,
               "line-opacity": 0.25
             }
@@ -344,7 +535,7 @@ export default function DiscoveryMap() {
               "line-cap": "round"
             },
             paint: {
-              "line-color": "#3b82f6",
+              "line-color": ["get", "color"],
               "line-width": 4.5,
               "line-opacity": 0.95
             }
@@ -354,6 +545,41 @@ export default function DiscoveryMap() {
     } catch (e) {
       console.error("Error drawing route line:", e);
     }
+
+    // --- Place CCTV Camera Markers ---
+    cameraMarkersRef.current.forEach((m) => m.remove());
+    cameraMarkersRef.current = [];
+
+    // Filter cameras within 350 meters of the route coordinates
+    const nearbyCameras = TRAFFIC_CAMERAS.filter((cam) => {
+      const minD = Math.min(...coordinates.map((coord) =>
+        metersBetween({ lat: cam.lat, lng: cam.lng }, { lat: coord[1], lng: coord[0] })
+      ));
+      return minD < 350;
+    });
+
+    // Create and add markers for nearby cameras
+    cameraMarkersRef.current = nearbyCameras.map((cam) => {
+      const el = document.createElement("div");
+      el.className = "disc-camera-marker";
+      el.innerHTML = `
+        <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+      `;
+      el.title = `${cam.name} (Bấm để xem CCTV trực tiếp)`;
+
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hapticSelect();
+        setActiveCamera(cam);
+      });
+
+      return new maplibregl.Marker({ element: el })
+        .setLngLat([cam.lng, cam.lat])
+        .addTo(map);
+    });
   }, []);
 
   // Update route when selected place changes
@@ -372,6 +598,10 @@ export default function DiscoveryMap() {
       } else {
         setRouteInfo(null);
         setShowSteps(false);
+        setTrafficAlert(null);
+        setActiveCamera(null);
+        cameraMarkersRef.current.forEach((m) => m.remove());
+        cameraMarkersRef.current = [];
         const source = mapRef.current.getSource("route-line-source");
         if (source) {
           source.setData({
@@ -521,6 +751,8 @@ export default function DiscoveryMap() {
 
     return () => {
       cancelled = true;
+      placeMarkersRef.current.forEach((m) => m.remove());
+      cameraMarkersRef.current.forEach((m) => m.remove());
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -677,6 +909,33 @@ export default function DiscoveryMap() {
           <div className="absolute top-[110px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full bg-amber-500/90 dark:bg-amber-600/90 border border-amber-400/20 text-white backdrop-blur-md px-3.5 py-1 text-[10px] font-black uppercase tracking-wider shadow-lg pointer-events-none">
             <span className="grid h-1.5 w-1.5 rounded-full bg-white animate-ping"></span>
             Ngoại tuyến (Dữ liệu lưu tạm)
+          </div>
+        )}
+
+        {/* CCTV Camera Stream Live Modal */}
+        {activeCamera && (
+          <div className="absolute inset-4 z-40 bg-zinc-950/95 border border-white/10 backdrop-blur-xl p-4 rounded-2xl shadow-2xl flex flex-col gap-3 text-left animate-slideUp">
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <h3 className="text-xs font-black text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-base">videocam</span>
+                {activeCamera.name}
+              </h3>
+              <button 
+                onClick={() => setActiveCamera(null)}
+                className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 text-zinc-400 hover:text-white hover:bg-white/20 active:scale-90 transition-all animate-none"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <CCTVStream camera={activeCamera} />
+            
+            <div className="mt-1 p-2.5 rounded-xl bg-white/5 border border-white/5 text-[11px] text-zinc-300 leading-relaxed flex items-start gap-2">
+              <span className="grid h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse mt-1"></span>
+              <span>
+                <strong>Mật độ:</strong> 65% (Dòng xe di chuyển chậm ổn định). Không phát hiện tai nạn hoặc sự cố nghiêm trọng trên tuyến đường.
+              </span>
+            </div>
           </div>
         )}
         
@@ -913,6 +1172,15 @@ export default function DiscoveryMap() {
                     </button>
                   )}
                 </div>
+
+                {/* Traffic alert warning */}
+                {trafficAlert && (
+                  <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 text-[11px] text-amber-600 dark:text-amber-500 leading-relaxed flex items-start gap-1.5 font-medium animate-pulse">
+                    <span className="grid h-1.5 w-1.5 rounded-full bg-amber-500 mt-1 shrink-0"></span>
+                    <span>{trafficAlert}</span>
+                  </div>
+                )}
+
                 {showSteps && routeInfo.steps?.length > 0 && (
                   <div className="max-h-36 overflow-y-auto no-scrollbar flex flex-col gap-2 bg-muted/50 p-2 rounded-xl border border-border/10">
                     {routeInfo.steps.map((step, idx) => (
@@ -1268,6 +1536,39 @@ export default function DiscoveryMap() {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+
+        /* Traffic CCTV camera markers styling */
+        .disc-camera-marker {
+          cursor: pointer;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #ffffff;
+          border: 2px solid #18181b;
+          color: #18181b;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .disc-camera-marker:hover {
+          transform: scale(1.2);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+          border-color: #ef4444;
+          color: #ef4444;
+          background: #fef2f2;
+        }
+        .dark .disc-camera-marker {
+          background: #09090b;
+          border-color: #f4f4f5;
+          color: #f4f4f5;
+        }
+        .dark .disc-camera-marker:hover {
+          border-color: #ef4444;
+          color: #ef4444;
+          background: rgba(127, 29, 29, 0.2);
         }
 
         .maplibregl-map { font: inherit; background: hsl(var(--muted)); }

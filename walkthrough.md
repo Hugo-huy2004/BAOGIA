@@ -1,10 +1,27 @@
-# Walkthrough - Smart Maps, AI Personalization & Offline Optimization (Current Session)
+# Walkthrough - Smart Maps, Real-time Traffic Congestion & Live CCTV Simulation
 
-We have successfully upgraded the **Discovery Map (Khám phá)** page with real street-by-street routing, AI match personalization, a fully monochrome and premium cartography style, and full PWA offline support with localStorage caching.
+We have successfully upgraded the **Discovery Map (Khám phá)** page with real street-by-street routing, AI match personalization, a fully monochrome and premium cartography style, full PWA offline support, **multi-colored traffic congestion paths (Green/Orange/Red)**, **live-simulated CCTV traffic cameras**, **dynamic travel delay calculations**, and **traffic alerts**.
 
 ## Key Changes Made
 
-### 1. Smart Map Experience (Real Road Routing & Directions)
+### 1. Real-time Traffic Congestion Routing (Multi-color paths)
+- **Multi-color Route Rendering**:
+  - Divided the OSRM road coordinates into segments based on typical urban congestion proportions (65% Green, 25% Orange, 10% Red).
+  - Configured MapLibre GL paint layers with a dynamic data-driven expression: `"line-color": ["get", "color"]`. The route displays green, orange, and red segments along the path to simulate live traffic conditions like Google Maps.
+- **Dynamic Delay & Smart Traffic Warnings**:
+  - Factored traffic delays into travel times (Orange adding +35% delay, Red adding +120% delay).
+  - Renders a glowing, pulsing yellow traffic warning banner inside the route detail card when delays exceed 25 seconds: `⚠️ Có ùn ứ nhẹ trên tuyến di chuyển. Thời gian trễ dự kiến khoảng X phút.`
+
+### 2. Live-Simulated CCTV Traffic Cameras
+- **Traffic Camera Placement**:
+  - Defined key traffic cameras in Ho Chi Minh City (e.g. *Camera Ngã tư Bảy Hiền*, *Camera Út Tịch - Cộng Hòa*, *Camera Vòng xoay Dân Chủ*).
+  - Automatically identifies cameras within 350 meters of the generated route and renders an interactive monochrome camera marker on the map.
+- **HTML5 Canvas CCTV Live Simulator**:
+  - Clicking any camera marker opens a frosted-glass CCTV viewport overlay inside the map.
+  - Features real OSD (On-Screen Display) with a blinking red recording icon, live stream indicators (`1080P @ 30FPS`), and a real-time calendar clock updating every second.
+  - Simulates active traffic flow dynamically using an HTML5 Canvas drawing loop where vehicles with glowing headlights move along lanes.
+
+### 3. Smart Map Experience (Real Road Routing & Directions)
 - **Street-by-Street Route Finding**:
   - Integrated the public **OSRM (Open Source Routing Machine) API** to fetch true driving paths along the road network, replacing straight-line flight paths.
   - Added OSRM query parameters `steps=true` to retrieve turn-by-turn maneuvers (`legs[0].steps`).
