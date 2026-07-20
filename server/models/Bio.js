@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 
 const BioSchema = new mongoose.Schema(
   {
@@ -517,6 +518,14 @@ const BioSchema = new mongoose.Schema(
     hugoCoderRewardClaimed7: {
       type: Boolean,
       default: false
+    },
+    locationAnomaly: {
+      type: Boolean,
+      default: false
+    },
+    lastUserAgentHash: {
+      type: String,
+      default: ''
     }
   },
   { timestamps: true }
@@ -550,6 +559,66 @@ BioSchema.index(
   { birthdayVoucherCode: 1 },
   { partialFilterExpression: { birthdayVoucherCode: { $gt: '' } } }
 );
+
+const SENSITIVE_FIELDS = [
+  'height',
+  'weight',
+  'measurements',
+  'address',
+  'education',
+  'skills',
+  'jobTitle',
+  'birthday'
+];
+
+const SENSITIVE_VERIFICATION_FIELDS = [
+  'fullName',
+  'birthday',
+  'schoolLevel',
+  'schoolName',
+  'schoolIdCode',
+  'phoneZalo'
+];
+
+BioSchema.pre('save', function (next) {
+  for (const field of SENSITIVE_FIELDS) {
+    if (this.isModified(field) && typeof this[field] === 'string' && this[field]) {
+      this[field] = encryptText(this[field]);
+    }
+  }
+  if (this.verificationRequest) {
+    for (const field of SENSITIVE_VERIFICATION_FIELDS) {
+      if (this.isModified(`verificationRequest.${field}`) && typeof this.verificationRequest[field] === 'string' && this.verificationRequest[field]) {
+        this.verificationRequest[field] = encryptText(this.verificationRequest[field]);
+      }
+    }
+  }
+  next();
+});
+
+function decryptBioFields(doc) {
+  if (!doc) return;
+  for (const field of SENSITIVE_FIELDS) {
+    if (typeof doc[field] === 'string' && doc[field]) {
+      doc[field] = decryptText(doc[field]);
+    }
+  }
+  if (doc.verificationRequest) {
+    for (const field of SENSITIVE_VERIFICATION_FIELDS) {
+      if (typeof doc.verificationRequest[field] === 'string' && doc.verificationRequest[field]) {
+        doc.verificationRequest[field] = decryptText(doc.verificationRequest[field]);
+      }
+    }
+  }
+}
+
+BioSchema.post('init', function (doc) {
+  decryptBioFields(doc);
+});
+
+BioSchema.post('save', function (doc) {
+  decryptBioFields(doc);
+});
 
 const Bio = mongoose.model('Bio', BioSchema);
 

@@ -1,10 +1,11 @@
 import express from 'express';
 import Booking from '../models/Booking.js';
+import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // GET: Fetch all bookings (ordered by newest)
-router.get('/', async (req, res) => {
+router.get('/', requireAdmin, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
     res.json(bookings);
@@ -35,7 +36,7 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH: Toggle contacted status
-router.patch('/:id/contact', async (req, res) => {
+router.patch('/:id/contact', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { contacted } = req.body;
@@ -63,7 +64,7 @@ router.patch('/:id/contact', async (req, res) => {
 });
 
 // DELETE: Delete booking
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Booking.findByIdAndDelete(id);

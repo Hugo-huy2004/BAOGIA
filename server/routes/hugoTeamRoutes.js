@@ -523,4 +523,39 @@ router.post("/admin/devs/:email/messages/read", requireAdmin, async (req, res) =
   }
 });
 
+// Delete a developer from HugoTeam completely (admin)
+router.delete("/admin/devs/:email", requireAdmin, async (req, res) => {
+  try {
+    const deleted = await HugoTeamDev.findOneAndDelete({ email: req.params.email });
+    if (!deleted) return res.status(404).json({ error: "Không tìm thấy lập trình viên" });
+    res.json({ success: true, message: `Đã xóa lập trình viên ${deleted.name} khỏi HugoTeam.` });
+  } catch (error) {
+    console.error("DELETE admin dev error:", error);
+    res.status(500).json({ error: "Thao tác xóa lập trình viên thất bại" });
+  }
+});
+
+// Block/suspend/unblock developer in HugoTeam (admin)
+router.post("/admin/devs/:email/block", requireAdmin, async (req, res) => {
+  try {
+    const dev = await HugoTeamDev.findOne({ email: req.params.email });
+    if (!dev) return res.status(404).json({ error: "Không tìm thấy lập trình viên" });
+    
+    // Toggle active status/status
+    if (dev.status === "approved") {
+      dev.status = "rejected"; // Suspend status
+      await dev.save();
+      res.json({ success: true, message: `Đã đình chỉ/chặn lập trình viên ${dev.name}.`, status: dev.status });
+    } else {
+      dev.status = "approved";
+      dev.approvedAt = new Date();
+      await dev.save();
+      res.json({ success: true, message: `Đã khôi phục hoạt động cho lập trình viên ${dev.name}.`, status: dev.status });
+    }
+  } catch (error) {
+    console.error("POST block admin dev error:", error);
+    res.status(500).json({ error: "Thao tác chặn/đình chỉ lập trình viên thất bại" });
+  }
+});
+
 export default router;

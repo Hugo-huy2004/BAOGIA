@@ -1,6 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
 import IoTDevice from '../models/IoTDevice.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -9,12 +10,13 @@ function generateApiToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
-// POST /api/iot/devices — register a new IoT device (auth: member email in body)
-router.post('/devices', async (req, res) => {
+// POST /api/iot/devices — register a new IoT device (auth: member email in token)
+router.post('/devices', requireMember, async (req, res) => {
   try {
-    const { email, deviceName, deviceType } = req.body;
+    const { deviceName, deviceType } = req.body;
+    const email = req.memberEmail;
     if (!email || !deviceName || !deviceType) {
-      return res.status(400).json({ error: 'email, deviceName, and deviceType are required' });
+      return res.status(400).json({ error: 'deviceName and deviceType are required' });
     }
 
     const allowedTypes = ['wearable', 'health_monitor', 'smart_scale', 'blood_pressure'];
@@ -52,12 +54,12 @@ router.post('/devices', async (req, res) => {
   }
 });
 
-// GET /api/iot/devices — list all devices for a user (auth: email query param)
-router.get('/devices', async (req, res) => {
+// GET /api/iot/devices — list all devices for a user (auth: member email in token)
+router.get('/devices', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) {
-      return res.status(400).json({ error: 'email query parameter is required' });
+      return res.status(400).json({ error: 'Authentication required' });
     }
 
     const devices = await IoTDevice.find(
@@ -142,12 +144,13 @@ router.post('/vitals', async (req, res) => {
   }
 });
 
-// GET /api/iot/vitals — get recent vitals for the dashboard (auth: email + deviceId query params)
-router.get('/vitals', async (req, res) => {
+// GET /api/iot/vitals — get recent vitals for the dashboard (auth: member email in token)
+router.get('/vitals', requireMember, async (req, res) => {
   try {
-    const { email, deviceId, limit = 100 } = req.query;
+    const { deviceId, limit = 100 } = req.query;
+    const email = req.memberEmail;
     if (!email) {
-      return res.status(400).json({ error: 'email query parameter is required' });
+      return res.status(400).json({ error: 'Authentication required' });
     }
 
     const query = { email };
@@ -168,12 +171,12 @@ router.get('/vitals', async (req, res) => {
 });
 
 // DELETE /api/iot/devices/:deviceId — deregister a device
-router.delete('/devices/:deviceId', async (req, res) => {
+router.delete('/devices/:deviceId', requireMember, async (req, res) => {
   try {
     const { deviceId } = req.params;
-    const { email } = req.body;
+    const email = req.memberEmail;
     if (!email) {
-      return res.status(400).json({ error: 'email is required in request body' });
+      return res.status(400).json({ error: 'Authentication required' });
     }
 
     const result = await IoTDevice.findOneAndDelete({ deviceId, email });

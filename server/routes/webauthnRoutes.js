@@ -178,10 +178,20 @@ router.post('/login-verify', async (req, res) => {
     await cred.save();
 
     const bio = await Bio.findOne({ email });
+    
+    const cryptoMod = await import('crypto');
+    const ua = req.headers['user-agent'] || '';
+    const uaHash = cryptoMod.createHash('sha256').update(ua).digest('hex');
+    if (bio) {
+      bio.lastUserAgentHash = uaHash;
+      bio.locationAnomaly = false;
+      await bio.save();
+    }
+
     // A verified WebAuthn assertion is a full login — issue the same member
     // session token the Google flow gets, so API calls authenticate.
     const { signMemberToken } = await import('../middleware/authMiddleware.js');
-    const token = signMemberToken(email);
+    const token = signMemberToken(email, req);
     res.cookie('member_jwt', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

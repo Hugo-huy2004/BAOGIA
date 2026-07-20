@@ -198,21 +198,24 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
     // Nếu có targetEmail thì chỉ gửi cho đúng người đó. Nếu không, mới broadcast.
     const activeUsers = await Bio.find(
       isBroadcastAll ? { status: 'active' } : { status: 'active', email: normalizedTargetEmail },
-      'email'
+      'email displayName'
     );
     if (!activeUsers || activeUsers.length === 0) {
       return res.status(404).json({ error: isBroadcastAll ? 'Không tìm thấy người dùng hoạt động.' : 'Không tìm thấy thành viên active với email này.' });
     }
 
     // 1. Tạo InAppNotification cho từng người dùng
-    const notifications = activeUsers.map(user => ({
-      email: user.email,
-      type,
-      category,
-      title,
-      message,
-      actionUrl
-    }));
+    const notifications = activeUsers.map(user => {
+      const userDisplayName = user.displayName || 'Thành viên';
+      return {
+        email: user.email,
+        type,
+        category,
+        title: title.replace(/{{displayName}}/g, userDisplayName),
+        message: message.replace(/{{displayName}}/g, userDisplayName),
+        actionUrl
+      };
+    });
     await InAppNotification.insertMany(notifications);
     // insertMany() skips the schema's post-save prune hook — enforce the
     // 100-per-account cap manually for every user just notified.
@@ -227,15 +230,20 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
     let failedCount = 0;
 
     if (subscriptions.length > 0) {
-      const payload = JSON.stringify({
-        title: title,
-        body: message,
-        icon: '/image/avt7.png', // Default icon
-        url: actionUrl || '/'
-      });
+      const sendPromises = subscriptions.map(sub => {
+        const user = activeUsers.find(u => u.email === sub.email);
+        const userDisplayName = user ? (user.displayName || 'Thành viên') : 'Thành viên';
+        const userTitle = title.replace(/{{displayName}}/g, userDisplayName);
+        const userBody = message.replace(/{{displayName}}/g, userDisplayName);
 
-      const sendPromises = subscriptions.map(sub => 
-        webpush.sendNotification(sub.subscription, payload)
+        const payload = JSON.stringify({
+          title: userTitle,
+          body: userBody,
+          icon: '/image/avt7.png', // Default icon
+          url: actionUrl || '/'
+        });
+
+        return webpush.sendNotification(sub.subscription, payload)
           .then(() => sentCount++)
           .catch(err => {
             failedCount++;
@@ -244,8 +252,8 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
             if (err.statusCode === 410 || err.statusCode === 404) {
               return NotificationSubscription.deleteOne({ _id: sub._id });
             }
-          })
-      );
+          });
+      });
 
       await Promise.allSettled(sendPromises);
     }

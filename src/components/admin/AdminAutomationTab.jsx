@@ -98,7 +98,7 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
                     value={formData.title}
                     onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                    placeholder="VD: Cập nhật tính năng mới..."
+                    placeholder="VD: Chào {{displayName}}, cập nhật tính năng mới..."
                   />
                 </div>
 
@@ -110,8 +110,9 @@ export default function AdminAutomationTab({ showNotification, stats, users }) {
                     value={formData.message}
                     onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"
-                    placeholder="Nội dung chi tiết sẽ gửi đến người dùng..."
+                    placeholder="VD: Chào {{displayName}}, chúc bạn một ngày tốt lành..."
                   />
+                  <p className="text-[10px] text-amber-500 font-semibold mt-1">💡 Mẹo: Sử dụng thẻ &#123;&#123;displayName&#125;&#125; để tự động cá nhân hóa theo tên người nhận.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

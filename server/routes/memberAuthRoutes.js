@@ -64,7 +64,14 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
     const email = String(claims.email || '').toLowerCase();
     if (!email) return res.status(401).json({ error: 'Không đọc được email từ Google.' });
 
-    const token = signMemberToken(email);
+    const cryptoMod = await import('crypto');
+    const ua = req.headers['user-agent'] || '';
+    const uaHash = cryptoMod.createHash('sha256').update(ua).digest('hex');
+    const BioMod = (await import('../models/Bio.js')).default;
+    // Set lastUserAgentHash and clear locationAnomaly since they just re-logged in successfully
+    await BioMod.updateOne({ email }, { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } });
+
+    const token = signMemberToken(email, req);
     setMemberCookie(res, token);
 
     res.json({

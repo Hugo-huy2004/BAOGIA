@@ -10,15 +10,42 @@ import { sendAlert } from '../utils/alert.js';
 //   • alerting when calls start failing
 // Degrades gracefully to null (no AI) when GEMINI_API_KEY is missing.
 
-const KEY = () => process.env.GEMINI_API_KEY;
+// Centralized API Key Pool for rotation
+const KEYS = () => {
+  const list = [];
+  if (process.env.GEMINI_API_KEY) list.push(process.env.GEMINI_API_KEY);
+  if (process.env.GEMINI_API_KEY_2) list.push(process.env.GEMINI_API_KEY_2);
+  if (process.env.GEMINI_API_KEY_3) list.push(process.env.GEMINI_API_KEY_3);
+  for (let i = 4; i <= 10; i++) {
+    const k = process.env[`GEMINI_API_KEY_${i}`];
+    if (k) list.push(k);
+  }
+  return list;
+};
+
+let currentKeyIndex = 0;
+
+function getNextKey() {
+  const pool = KEYS();
+  if (pool.length === 0) return null;
+  const key = pool[currentKeyIndex % pool.length];
+  currentKeyIndex++;
+  return key;
+}
+
 const GEN_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const GEN_MODEL_LITE = process.env.GEMINI_MODEL_LITE || 'gemini-2.5-flash-lite';
 const EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || 'text-embedding-004';
 
-// Conservative free-tier defaults; override via env for a paid key. Read
-// dynamically (not frozen at import) so they're configurable/testable at runtime.
-const RPM_LIMIT = () => Number(process.env.GEMINI_RPM_LIMIT || 15);
-const RPD_LIMIT = () => Number(process.env.GEMINI_RPD_LIMIT || 200);
+// Conservative free-tier defaults scaled by number of keys in the pool.
+const RPM_LIMIT = () => {
+  const count = Math.max(1, KEYS().length);
+  return Number(process.env.GEMINI_RPM_LIMIT || (15 * count));
+};
+const RPD_LIMIT = () => {
+  const count = Math.max(1, KEYS().length);
+  return Number(process.env.GEMINI_RPD_LIMIT || (1500 * count));
+};
 const BACKOFF_BASE_MS = () => Number(process.env.GEMINI_BACKOFF_MS || 1500);
 const MAX_ATTEMPTS = 3;
 
@@ -68,37 +95,57 @@ async function rawFetch(url, body) {
 // interactive calls (HugoPSY, support, moderation) always attempt so background
 // work can never starve a user talking to the AI.
 export async function generateRaw({ contents, systemInstruction, generationConfig, model, cacheKey, cacheTtlMs = 0, lowPriority = false } = {}) {
-  const key = KEY();
-  if (!key) return null;
   if (cacheKey) { const c = cacheGet(cacheKey); if (c != null) return c; }
 
   const q = getQuotaStatus();
   if (lowPriority && q.saturated) { sendAlert('Gemini quota saturated (dropped low-priority call)', q); return null; }
-  // Auto-downgrade to the lite model once we cross 60% of a limit.
-  const chosen = model || (q.level >= 0.6 ? GEN_MODEL_LITE : GEN_MODEL);
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${chosen}:generateContent?key=${key}`;
-  const body = { contents, ...(systemInstruction ? { systemInstruction } : {}), ...(generationConfig ? { generationConfig } : {}) };
+
+  // List of free fallback models to try if the primary one is throttled/fails
+  const FREE_MODELS = [
+    model || (q.level >= 0.6 ? GEN_MODEL_LITE : GEN_MODEL),
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-8b'
+  ];
+  const uniqueModels = [...new Set(FREE_MODELS)];
 
   let lastErr;
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    try {
-      minuteHits.push(Date.now()); dayCount++;
-      const data = await rawFetch(url, body);
-      tokensToday += data?.usageMetadata?.totalTokenCount || 0;
-      consecFailures = 0;
-      const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-      if (cacheKey && cacheTtlMs > 0) cacheSet(cacheKey, text, cacheTtlMs);
-      return text;
-    } catch (e) {
-      lastErr = e; consecFailures++;
-      if ((e.status === 429 || e.status >= 500) && attempt < MAX_ATTEMPTS - 1) {
-        await sleep(Math.min(BACKOFF_BASE_MS() * 2 ** attempt, 8000) + Math.random() * 250);
-        continue;
+  for (const currentModel of uniqueModels) {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const key = getNextKey();
+      if (!key) {
+        lastErr = new Error('No API keys available in the pool');
+        break;
       }
-      break;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${key}`;
+      const body = { contents, ...(systemInstruction ? { systemInstruction } : {}), ...(generationConfig ? { generationConfig } : {}) };
+
+      try {
+        minuteHits.push(Date.now()); dayCount++;
+        const data = await rawFetch(url, body);
+        tokensToday += data?.usageMetadata?.totalTokenCount || 0;
+        consecFailures = 0;
+        const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+        if (cacheKey && cacheTtlMs > 0) cacheSet(cacheKey, text, cacheTtlMs);
+        return text;
+      } catch (e) {
+        lastErr = e; consecFailures++;
+        console.warn(`[AI Gateway] Model ${currentModel} failed with key (Status ${e.status}).`);
+        const isRetryable = e.status === 429 || e.status >= 500;
+        if (!isRetryable) {
+          return null; // Don't retry client errors like 400 Bad Request
+        }
+        if (attempt < MAX_ATTEMPTS - 1) {
+          await sleep(Math.min(BACKOFF_BASE_MS() * 2 ** attempt, 8000) + Math.random() * 250);
+          continue;
+        }
+        break; // Try next model
+      }
     }
   }
-  if (consecFailures >= 5) sendAlert('Gemini generate failing', { model: chosen, status: lastErr?.status, msg: lastErr?.message });
+
+  if (consecFailures >= 5) sendAlert('Gemini generate failing on all free models and keys', { status: lastErr?.status, msg: lastErr?.message });
   return null;
 }
 
@@ -115,30 +162,46 @@ export function generate(prompt, opts = {}) {
 
 // Embeddings go through the same quota accounting + cache.
 export async function embed(text) {
-  const key = KEY();
-  if (!key || !text) return null;
   const clean = String(text).replace(/\s+/g, ' ').trim().slice(0, 2000);
   if (!clean) return null;
   const ck = 'emb:' + clean;
   const cached = cacheGet(ck); if (cached) return cached;
 
   if (getQuotaStatus().saturated) return null;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${EMBED_MODEL}:embedContent?key=${key}`;
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-    try {
-      minuteHits.push(Date.now()); dayCount++;
-      const data = await rawFetch(url, { content: { parts: [{ text: clean }] } });
-      consecFailures = 0;
-      const vec = data?.embedding?.values || null;
-      if (vec) cacheSet(ck, vec, 24 * 60 * 60 * 1000);
-      return vec;
-    } catch (e) {
-      consecFailures++;
-      if ((e.status === 429 || e.status >= 500) && attempt < MAX_ATTEMPTS - 1) {
-        await sleep(Math.min(BACKOFF_BASE_MS() * 2 ** attempt, 6000));
-        continue;
+
+  const EMBED_MODELS = [EMBED_MODEL, 'text-embedding-004'];
+  const uniqueEmbedModels = [...new Set(EMBED_MODELS)];
+
+  let lastErr;
+  for (const currentModel of uniqueEmbedModels) {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const key = getNextKey();
+      if (!key) {
+        lastErr = new Error('No API keys available in the pool');
+        break;
       }
-      break;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:embedContent?key=${key}`;
+      try {
+        minuteHits.push(Date.now()); dayCount++;
+        const data = await rawFetch(url, { content: { parts: [{ text: clean }] } });
+        consecFailures = 0;
+        const vec = data?.embedding?.values || null;
+        if (vec) {
+          cacheSet(ck, vec, 24 * 60 * 60 * 1000);
+          return vec;
+        }
+      } catch (e) {
+        lastErr = e; consecFailures++;
+        const isRetryable = e.status === 429 || e.status >= 500;
+        if (!isRetryable) {
+          return null; // Don't retry client errors like 400 Bad Request
+        }
+        if (attempt < MAX_ATTEMPTS - 1) {
+          await sleep(Math.min(BACKOFF_BASE_MS() * 2 ** attempt, 6000));
+          continue;
+        }
+        break;
+      }
     }
   }
   return null;

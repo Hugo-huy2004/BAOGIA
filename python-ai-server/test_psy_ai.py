@@ -2,7 +2,10 @@ import urllib.request
 import json
 
 url = "http://127.0.0.1:8000/api/ai/chat"
-headers = {"Content-Type": "application/json"}
+headers = {
+    "Content-Type": "application/json",
+    "X-Internal-Key": "sec_4a7b219e831f24dcd93081e7d0fbe0d7"
+}
 payload = {
     "message": "Tớ đang cảm thấy cực kỳ stress vì kỳ thi cuối kỳ sắp tới, tớ học mãi mà không nhớ được gì cả...",
     "bio": {

@@ -25,7 +25,7 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
-  const [adminForm, setAdminForm] = useState({ username: "", password: "" });
+  const [adminForm, setAdminForm] = useState({ username: "admin", password: "" });
   const [adminFieldErrors, setAdminFieldErrors] = useState({ username: "", password: "" });
   const [adminSubmitting, setAdminSubmitting] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
@@ -194,22 +194,21 @@ export default function LoginPage() {
     setToast({ message: "", type: "" });
 
     const fieldErrors = {
-      username: adminForm.username.trim() ? "" : t("loginPage.adminForm.userRequired"),
       password: adminForm.password ? "" : t("loginPage.adminForm.passRequired")
     };
     setAdminFieldErrors(fieldErrors);
-    if (fieldErrors.username || fieldErrors.password) return;
+    if (fieldErrors.password) return;
 
     setAdminSubmitting(true);
     try {
-      const { session, error } = await loginAdmin(adminForm, { remember: rememberAdmin });
+      const { session, error } = await loginAdmin({ username: "admin", password: adminForm.password }, { remember: rememberAdmin });
       if (!session) {
         if (error === "network") {
           showToast(t("loginPage.toast.adminNetworkError"), "error");
         } else if (error === "server_error") {
           showToast(t("loginPage.toast.adminServerError"), "error");
         } else {
-          setAdminFieldErrors({ username: " ", password: " " });
+          setAdminFieldErrors({ username: "", password: " " });
           showToast(t("loginPage.toast.adminError"), "error");
         }
         return;
@@ -464,27 +463,7 @@ export default function LoginPage() {
                 <p className="text-[11px] text-muted-foreground">{t("loginPage.adminForm.desc")}</p>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.userLabel")}</label>
-                <input
-                  type="text"
-                  autoComplete="username"
-                  autoFocus
-                  value={adminForm.username}
-                  onChange={(e) => {
-                    setAdminForm((prev) => ({ ...prev, username: e.target.value }));
-                    setAdminFieldErrors((prev) => ({ ...prev, username: "" }));
-                  }}
-                  placeholder={t("loginPage.adminForm.userPlaceholder")}
-                  aria-invalid={Boolean(adminFieldErrors.username)}
-                  className={`w-full px-4 py-3 rounded-xl border bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 transition-all text-xs ${
-                    adminFieldErrors.username ? "border-destructive focus:ring-destructive" : "border-border/50 focus:ring-primary"
-                  }`}
-                />
-                {adminFieldErrors.username.trim() && (
-                  <p className="text-[10px] text-destructive pl-1">{adminFieldErrors.username}</p>
-                )}
-              </div>
+              {/* Password Only Admin Login Form */}
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.passLabel")}</label>

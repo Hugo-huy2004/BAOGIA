@@ -71,9 +71,10 @@ export async function claimCheckin(email) {
 
   const isFirstEver = !record.lastCheckinDate;
   const isConsecutive = record.lastCheckinDate === yesterdayStr(today);
+  const isNewWeekStart = record.claimedDaysThisWeek.length === 0;
 
-  if (!isFirstEver && !isConsecutive) {
-    // Gap detected — lock the rest of this week and reject this claim.
+  if (!isFirstEver && !isConsecutive && !isNewWeekStart) {
+    // Gap detected within the already started week — lock the rest of this week and reject this claim.
     record.weekLocked = true;
     record.consecutiveDays = 0;
     record.milestone14Awarded = false;
@@ -82,7 +83,7 @@ export async function claimCheckin(email) {
     throw new Error('Bạn đã bỏ lỡ điểm danh, chuỗi bị reset và bị khoá đến tuần sau.');
   }
 
-  record.consecutiveDays = isFirstEver ? 1 : record.consecutiveDays + 1;
+  record.consecutiveDays = isConsecutive ? record.consecutiveDays + 1 : 1;
   record.lastCheckinDate = today;
 
   const dayOfWeek = getDayOfWeek(today);
@@ -106,17 +107,31 @@ export async function claimCheckin(email) {
     ? `Điểm danh ngày ${dayOfWeek} (+${dailyReward} JOY) và mốc ${record.consecutiveDays} ngày liên tục (+${bonusAwarded} JOY)`
     : `Điểm danh ngày ${dayOfWeek} (+${dailyReward} JOY)`;
 
-  const { balance } = await awardJoy(email, totalReward, 'checkin', desc, { refId: today });
+  // Save the checkin record first to prevent TOCTOU race condition (double check-in)
   await record.save();
 
-  return {
-    dayOfWeek,
-    dailyReward,
-    bonusAwarded,
-    totalReward,
-    consecutiveDays: record.consecutiveDays,
-    newBalance: balance
-  };
+  try {
+    const { balance } = await awardJoy(email, totalReward, 'checkin', desc, { refId: today });
+    return {
+      dayOfWeek,
+      dailyReward,
+      bonusAwarded,
+      totalReward,
+      consecutiveDays: record.consecutiveDays,
+      newBalance: balance
+    };
+  } catch (error) {
+    // Rollback the checkin record lastCheckinDate in case awardJoy fails
+    record.lastCheckinDate = isFirstEver ? '' : yesterdayStr(today);
+    record.consecutiveDays = isFirstEver ? 0 : record.consecutiveDays - 1;
+    if (record.claimedDaysThisWeek.includes(dayOfWeek)) {
+      record.claimedDaysThisWeek = record.claimedDaysThisWeek.filter(d => d !== dayOfWeek);
+    }
+    if (record.consecutiveDays === 13 && record.milestone14Awarded) record.milestone14Awarded = false;
+    if (record.consecutiveDays === 29 && record.milestone30Awarded) record.milestone30Awarded = false;
+    await record.save();
+    throw error;
+  }
 }
 
 export async function getCheckinStatus(email) {

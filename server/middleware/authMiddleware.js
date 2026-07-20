@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { JWT_SECRET } from '../utils/secrets.js';
 
 const MEMBER_TOKEN_TTL = '14d';
@@ -35,8 +36,18 @@ export const requireAdmin = (req, res, next) => {
 
 // Signs the session token handed to a member after a server-verified login
 // (Google ID token exchange or WebAuthn assertion).
-export const signMemberToken = (email) =>
-  jwt.sign({ email: String(email).toLowerCase(), role: 'member' }, JWT_SECRET, { expiresIn: MEMBER_TOKEN_TTL });
+export const signMemberToken = (email, req = null) => {
+  let uaHash = '';
+  if (req) {
+    const ua = req.headers['user-agent'] || '';
+    uaHash = crypto.createHash('sha256').update(ua).digest('hex');
+  }
+  return jwt.sign(
+    { email: String(email).toLowerCase(), role: 'member', uaHash },
+    JWT_SECRET,
+    { expiresIn: MEMBER_TOKEN_TTL }
+  );
+};
 
 // Customer portal session — issued only after a valid loginCode exchange.
 // The token pins the holder to exactly one project; identity is the token's
@@ -75,7 +86,7 @@ export const requireCustomer = (req, res, next) => {
 // any email the client sends in query/body is ignored for identity purposes.
 // Admin tokens are also accepted (admin tools act on behalf of users); in that
 // case the client-supplied email is trusted and req.isAdminActor is set.
-export const requireMember = (req, res, next) => {
+export const requireMember = async (req, res, next) => {
   const token = extractToken(req, 'member_jwt') || extractToken(req, 'jwt');
 
   if (!token) {
@@ -87,6 +98,37 @@ export const requireMember = (req, res, next) => {
     if (decoded.role === 'member' && decoded.email) {
       req.memberEmail = decoded.email;
       req.member = decoded;
+
+      // Verify User-Agent device fingerprint if embedded in the token
+      if (decoded.uaHash) {
+        const currentUa = req.headers['user-agent'] || '';
+        const currentUaHash = crypto.createHash('sha256').update(currentUa).digest('hex');
+        if (decoded.uaHash !== currentUaHash) {
+          return res.status(401).json({ error: 'Thiết bị truy cập không trùng khớp với phiên đăng nhập. Vui lòng đăng nhập lại.' });
+        }
+      }
+
+      // Check server-side location anomaly block if database is connected
+      const bypassRoutes = [
+        '/api/bios/me/reset-trusted-location',
+        '/api/joy/verify-pin',
+        '/api/auth/member/logout'
+      ];
+      const isBypass = bypassRoutes.some(route => req.originalUrl?.startsWith(route));
+      if (!isBypass) {
+        const mongoose = (await import('mongoose')).default;
+        if (mongoose.connection.readyState === 1) {
+          const Bio = (await import('../models/Bio.js')).default;
+          const bio = await Bio.findOne({ email: decoded.email }, 'locationAnomaly').lean();
+          if (bio && bio.locationAnomaly) {
+            return res.status(401).json({
+              error: 'PHAT_HIEN_VI_TRI_BAT_THUONG',
+              message: 'Phát hiện vị trí truy cập bất thường. Vui lòng xác thực lại bằng mã PIN.'
+            });
+          }
+        }
+      }
+
       return next();
     }
     if (decoded.role === 'admin') {

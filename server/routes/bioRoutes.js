@@ -240,7 +240,7 @@ router.get('/', requireAdmin, async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
 
     // Run parallel counts & query
-    const [bios, totalMatched, totalCount, activeCount, lockedCount, pendingCount, rejectedCount, lifetimeCount] = await Promise.all([
+    const [bios, totalMatched, totalCount, activeCount, lockedCount, pendingCount, rejectedCount, lifetimeCount, locationAnomalyCount] = await Promise.all([
       Bio.find(query).sort(sortObj).skip(skip).limit(limitNum),
       Bio.countDocuments(query),
       Bio.countDocuments(),
@@ -248,7 +248,8 @@ router.get('/', requireAdmin, async (req, res) => {
       Bio.countDocuments({ status: 'locked' }),
       Bio.countDocuments({ status: 'pending' }),
       Bio.countDocuments({ status: 'rejected' }),
-      Bio.countDocuments({ expiresAt: null })
+      Bio.countDocuments({ expiresAt: null }),
+      Bio.countDocuments({ locationAnomaly: true })
     ]);
 
     res.json({
@@ -265,7 +266,8 @@ router.get('/', requireAdmin, async (req, res) => {
         locked: lockedCount,
         pending: pendingCount,
         rejected: rejectedCount,
-        lifetime: lifetimeCount
+        lifetime: lifetimeCount,
+        locationAnomaly: locationAnomalyCount
       }
     });
   } catch (error) {
@@ -707,28 +709,46 @@ router.post('/me/check-location', requireMember, checkLocationLimiter, async (re
       })();
     }
 
-    res.json({ success: true, anomaly: distance > 50, distanceKm: Math.round(distance) });
+    const isAnomaly = distance > 50;
+    if (isAnomaly) {
+      bio.locationAnomaly = true;
+      await bio.save();
+    }
+
+    res.json({ success: true, anomaly: isAnomaly, distanceKm: Math.round(distance) });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// POST /me/reset-trusted-location  { email, lat, lng } — member confirms
+// POST /me/reset-trusted-location  { email, lat, lng, pin } — member confirms
 // "yes this is really me, this is my new normal location" after a forced
 // re-login from an anomaly, so they aren't logged out again immediately.
 router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
   try {
-    const { lat, lng } = req.body;
+    const { lat, lng, pin } = req.body;
     const email = req.memberEmail;
     if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
       return res.status(400).json({ error: 'email, lat and lng are required' });
     }
-    const bio = await Bio.findOneAndUpdate(
-      { email },
-      { $set: { trustedLocation: { lat, lng, updatedAt: new Date() } } },
-      { new: true }
-    );
+
+    const bio = await Bio.findOne({ email });
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
+
+    if (bio.transactionPin) {
+      if (!pin) {
+        return res.status(400).json({ error: 'Xác thực mã PIN là bắt buộc để khôi phục vị trí.' });
+      }
+      const isValid = await comparePassword(String(pin), bio.transactionPin);
+      if (!isValid) {
+        return res.status(403).json({ error: 'Mã PIN xác thực không chính xác.' });
+      }
+    }
+
+    bio.trustedLocation = { lat, lng, updatedAt: new Date() };
+    bio.locationAnomaly = false; // Reset anomaly state
+    await bio.save();
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

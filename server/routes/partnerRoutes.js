@@ -1,6 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
 import Partner from '../models/Partner.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const ensurePartnerAccessToken = async (partner) => {
 };
 
 // GET: Fetch all partners
-router.get('/', async (req, res) => {
+router.get('/', requireMember, async (req, res) => {
   try {
     const partners = await Partner.find().sort({ createdAt: -1 });
     // Remove accessToken from public payload for security
@@ -58,7 +59,7 @@ router.get('/:id/access', async (req, res) => {
 });
 
 // GET: Fetch one partner for admin usage
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAdmin, async (req, res) => {
   try {
     const partner = await Partner.findById(req.params.id);
     if (!partner) {
@@ -71,7 +72,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST: Add a new partner
-router.post('/', async (req, res) => {
+router.post('/', requireAdmin, async (req, res) => {
   try {
     const { name, iframeUrl } = req.body;
     if (!name || !iframeUrl) {
@@ -86,7 +87,7 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE: Remove partner
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Partner.findByIdAndDelete(id);

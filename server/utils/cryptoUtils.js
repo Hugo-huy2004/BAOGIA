@@ -14,19 +14,28 @@ if (!rawSecret || !rawSecret.trim()) {
   }
 }
 
-const ENCRYPTION_KEY = crypto.scryptSync(rawSecret.trim(), 'salt', 32);
-const IV_LENGTH = 16; 
+// Keep the old key derivation for CBC backward compatibility
+const ENCRYPTION_KEY_CBC = crypto.scryptSync(rawSecret.trim(), 'salt', 32);
+
+// New key derivation for GCM with a more secure salt
+const GCM_SALT = process.env.CRYPTO_SALT || 'hugo_studio_secure_salt_2026';
+const ENCRYPTION_KEY_GCM = crypto.scryptSync(rawSecret.trim(), GCM_SALT, 32);
+
+const IV_LENGTH_GCM = 12;
 
 export const encryptText = (text) => {
   if (!text) return text;
   // If it's already encrypted (starts with 'enc:'), skip
   if (text.startsWith('enc:')) return text;
 
-  let iv = crypto.randomBytes(IV_LENGTH);
-  let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-  let encrypted = cipher.update(text);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-  return 'enc:' + iv.toString('hex') + ':' + encrypted.toString('hex');
+  let iv = crypto.randomBytes(IV_LENGTH_GCM);
+  let cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY_GCM, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  let tag = cipher.getAuthTag().toString('hex');
+
+  // Format: enc:gcm:<iv_hex>:<tag_hex>:<ciphertext_hex>
+  return 'enc:gcm:' + iv.toString('hex') + ':' + tag + ':' + encrypted;
 };
 
 export const decryptText = (text) => {
@@ -35,14 +44,38 @@ export const decryptText = (text) => {
   if (!text.startsWith('enc:')) return text;
 
   let textParts = text.split(':');
-  if (textParts.length !== 3) return text; // invalid format
   
-  let iv = Buffer.from(textParts[1], 'hex');
-  let encryptedText = Buffer.from(textParts[2], 'hex');
-  let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
-  let decrypted = decipher.update(encryptedText);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString();
+  // New AES-256-GCM format
+  if (textParts[1] === 'gcm') {
+    if (textParts.length !== 5) return text; // invalid GCM format
+    try {
+      let iv = Buffer.from(textParts[2], 'hex');
+      let tag = Buffer.from(textParts[3], 'hex');
+      let encryptedText = Buffer.from(textParts[4], 'hex');
+      let decipher = crypto.createDecipheriv('aes-256-gcm', ENCRYPTION_KEY_GCM, iv);
+      decipher.setAuthTag(tag);
+      let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
+    } catch (err) {
+      console.error('Failed to decrypt GCM ciphertext:', err.message);
+      return text;
+    }
+  }
+
+  // Fallback to old AES-256-CBC format
+  if (textParts.length !== 3) return text; // invalid CBC format
+  try {
+    let iv = Buffer.from(textParts[1], 'hex');
+    let encryptedText = Buffer.from(textParts[2], 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY_CBC, iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+  } catch (err) {
+    console.error('Failed to decrypt legacy CBC ciphertext:', err.message);
+    return text;
+  }
 };
 
 export const hashPassword = async (password) => {

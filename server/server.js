@@ -24,6 +24,7 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
+import { requireMember } from './middleware/authMiddleware.js';
 
 dotenv.config();
 
@@ -201,7 +202,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/coder-resources', coderResourceRoutes);
 app.use('/api/files', fileToolsRoutes);
 app.use('/api/companion', companionRoutes);
-app.use('/api/ai', aiProxyRoutes);
+app.use('/api/ai', requireMember, aiProxyRoutes);
 app.use('/api/customer-projects', customerRoutes);
 app.use('/api/payos', payosRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -316,7 +317,8 @@ wss.on('connection', (ws, req) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.role !== 'member' || !decoded.email) throw new Error('not a member token');
     email = decoded.email;
-  } catch {
+  } catch (err) {
+    console.error('[WS Auth Error] Verification failed:', err.message);
     ws.close(4001, 'Invalid or expired token');
     return;
   }

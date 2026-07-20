@@ -69,4 +69,9 @@ router.get('/client-events', requireAdmin, (req, res) => {
   res.json({ events: events.slice(-limit).reverse() });
 });
 
+router.post('/clean-events', requireAdmin, (req, res) => {
+  events.length = 0;
+  res.json({ success: true });
+});
+
 export default router;

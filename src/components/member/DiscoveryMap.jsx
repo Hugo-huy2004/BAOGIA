@@ -5,7 +5,7 @@ import { getCachedGeolocation } from "../../utils/geoCache.js";
 import {
   MapPin, Navigation, Compass, Loader2, RefreshCw, Star, Search,
   Clock, Map as MapIcon, LocateFixed, SlidersHorizontal,
-  UtensilsCrossed, Coffee, Gamepad2, X
+  UtensilsCrossed, Coffee, Gamepad2, X, Sparkles
 } from "lucide-react";
 import { hapticSelect } from "../../utils/haptics";
 import { notify } from "../../lib/notify";
@@ -232,6 +232,13 @@ function CCTVStream({ camera }) {
   );
 }
 
+const CATEGORY_FILTER_ICONS = {
+  "": Compass,
+  food: UtensilsCrossed,
+  cafe: Coffee,
+  play: Gamepad2
+};
+
 // Time-of-day smart suggestion (one-tap filter preset)
 function smartSuggestion(hour) {
   if (hour >= 6 && hour < 11) return { label: "Cà phê sáng gần bạn", category: "cafe" };
@@ -241,34 +248,12 @@ function smartSuggestion(hour) {
   return { label: "Chỗ chơi khuya còn mở", category: "play" };
 }
 
-// Brand logo via server favicon proxy (returns 204 when the site has no
-// favicon → onError → monochrome category icon; no 404 console noise).
+// Clean monochrome category icon for unified branding
 function PlaceLogo({ place }) {
-  const [failed, setFailed] = useState(false);
   const Icon = CATEGORY_ICONS[place.category] || MapPin;
-  let domain = "";
-  try {
-    if (place.website) domain = new URL(place.website).hostname;
-  } catch { /* invalid URL → icon fallback */ }
-
-  if (!domain || failed) {
-    return (
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-border/10">
-        <Icon className="w-4 h-4" aria-hidden="true" />
-      </div>
-    );
-  }
   return (
-    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-muted border border-border overflow-hidden">
-      <img
-        src={`${apiBase}/bios/discover/logo?domain=${encodeURIComponent(domain)}`}
-        alt={`Logo ${place.name}`}
-        width={22}
-        height={22}
-        loading="lazy"
-        onError={() => setFailed(true)}
-        className="w-5.5 h-5.5 object-contain"
-      />
+    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-border/20 shadow-sm transition-transform duration-200 hover:scale-105">
+      <Icon className="w-4.5 h-4.5" aria-hidden="true" />
     </div>
   );
 }
@@ -967,19 +952,23 @@ export default function DiscoveryMap() {
 
             {/* Horizontal Scroll Categories */}
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 -mx-0.5 px-0.5">
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => { hapticSelect(); setCategory(c.id); }}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 transition ${
-                    category === c.id
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted/50 text-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
+              {CATEGORIES.map((c) => {
+                const Icon = CATEGORY_FILTER_ICONS[c.id] || Compass;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => { hapticSelect(); setCategory(c.id); }}
+                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 transition flex items-center gap-1.5 ${
+                      category === c.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-muted/50 text-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {c.label}
+                  </button>
+                );
+              })}
             </div>
 
           </div>
@@ -1300,33 +1289,38 @@ export default function DiscoveryMap() {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => { hapticSelect(); setOpenOnly(!openOnly); }}
-              className={`min-h-[32px] px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition ${
+              className={`min-h-[32px] px-3 rounded-xl text-xs font-black uppercase tracking-wider border transition flex items-center gap-1.5 ${
                 openOnly
                   ? "bg-success/15 border-success/30 text-success"
                   : "bg-card border-border text-muted-foreground hover:text-foreground"
               }`}
             >
+              <Clock className="w-3.5 h-3.5" />
               Đang mở
             </button>
             
             <div className="flex items-center bg-muted/60 p-0.5 rounded-xl border border-border/20">
               {[
-                { id: "smart", label: "Hợp gu" },
-                { id: "dist", label: "Gần nhất" },
-                { id: "rating", label: "Đánh giá" }
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => { hapticSelect(); setSort(opt.id); }}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
-                    sort === opt.id
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
+                { id: "smart", label: "Hợp gu", icon: Sparkles },
+                { id: "dist", label: "Gần nhất", icon: Navigation },
+                { id: "rating", label: "Đánh giá", icon: Star }
+              ].map((opt) => {
+                const SortIcon = opt.icon;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => { hapticSelect(); setSort(opt.id); }}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                      sort === opt.id
+                        ? "bg-card text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <SortIcon className="w-3.5 h-3.5" />
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

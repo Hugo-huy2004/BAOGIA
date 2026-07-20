@@ -86,7 +86,7 @@ export default function AdminPanel() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalMatchedUsers, setTotalMatchedUsers] = useState(0);
   const isScrollAppendRef = useRef(false);
-  const [userStats, setUserStats] = useState({ total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 });
+  const [userStats, setUserStats] = useState({ total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0, locationAnomaly: 0 });
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -153,7 +153,7 @@ export default function AdminPanel() {
         isScrollAppendRef.current = false;
         setTotalPages(res.pagination.pages || 1);
         setTotalMatchedUsers(res.pagination.totalMatched || 0);
-        setUserStats(res.stats || { total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 });
+        setUserStats(res.stats || { total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0, locationAnomaly: 0 });
 
         setCounts(prev => ({ ...prev, users: res.stats.total || 0 }));
       } else if (Array.isArray(res)) {
@@ -167,7 +167,8 @@ export default function AdminPanel() {
           pending: res.filter(u => u.status === 'pending').length,
           rejected: res.filter(u => u.status === 'rejected').length,
           locked: res.filter(u => u.status === 'locked').length,
-          lifetime: res.filter(u => !u.expiresAt).length
+          lifetime: res.filter(u => !u.expiresAt).length,
+          locationAnomaly: res.filter(u => u.locationAnomaly === true).length
         };
         setUserStats(stats);
         setCounts(prev => ({ ...prev, users: stats.total }));

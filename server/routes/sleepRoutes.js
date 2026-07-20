@@ -8,8 +8,8 @@ const router = express.Router();
 // server/routes/aiProxyRoutes.js. Forward the analyze call server-to-server.
 const AI_SERVER_URL = process.env.AI_SERVER_URL || 'http://localhost:8000';
 
-// POST /api/sleep/analyze — proxy to the Python sleep analyzer
-router.post('/analyze', async (req, res) => {
+// POST /api/sleep/analyze — proxy to the Python sleep analyzer (auth: member token)
+router.post('/analyze', requireMember, async (req, res) => {
   try {
     const upstream = await fetch(`${AI_SERVER_URL}/api/sleep/analyze`, {
       method: 'POST',

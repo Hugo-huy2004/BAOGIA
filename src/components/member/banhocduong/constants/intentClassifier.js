@@ -1245,10 +1245,10 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
   if (!bestMatch) {
     const fuse = getFuseInstance();
     const results = fuse.search(cleanText);
-    if (results.length > 0 && results[0].score < 0.50) {
-      // Guard: if input is a single word or very short, require a much stricter match score (< 0.15)
+    if (results.length > 0 && results[0].score < 0.22) {
+      // Guard: if input is a single word or very short, require a much stricter match score (< 0.08)
       const isShort = cleanText.length <= 6 || !cleanText.includes(" ");
-      const maxAllowedScore = isShort ? 0.15 : 0.50;
+      const maxAllowedScore = isShort ? 0.08 : 0.22;
       if (results[0].score < maxAllowedScore) {
         const intentObj = INTENT_MAP[results[0].item.id];
         if (intentObj) {
@@ -1267,9 +1267,9 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
         getDiceSimilarity(cleanText, item.untoned)
       );
       if (score > highestScore) {
-        // Guard: if input is a single word or very short, require a much higher dice similarity (>= 0.85)
+        // Guard: if input is a single word or very short, require a much higher dice similarity (>= 0.88)
         const isShort = cleanText.length <= 6 || !cleanText.includes(" ");
-        const minAllowedScore = isShort ? 0.85 : 0.60;
+        const minAllowedScore = isShort ? 0.88 : 0.78;
         if (score >= minAllowedScore) {
           highestScore = score;
           bestMatch = item.intent;
@@ -1278,8 +1278,8 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     }
   }
 
-  // Hạ ngưỡng từ 0.72 xuống 0.60 để ưu tiên khớp intent cục bộ tối đa, tiết kiệm lượt gọi server AI
-  if (highestScore >= 0.60 && bestMatch) {
+  // Nâng ngưỡng từ 0.60 lên 0.78 để tránh bắt sai các câu hội thoại tự nhiên, nhường chỗ cho LLM thấu cảm
+  if (highestScore >= 0.78 && bestMatch) {
     const replyText = bestMatch.generateResponse(bio, historyLogs, updatedMemory);
 
     let companionUpdate = null;

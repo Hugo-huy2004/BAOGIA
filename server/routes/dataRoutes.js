@@ -226,7 +226,7 @@ router.patch('/', requireAdmin, async (req, res) => {
 import cloudinaryUtil from '../utils/cloudinary.js';
 
 // POST: Upload Ad Image
-router.post('/upload-ad', async (req, res) => {
+router.post('/upload-ad', requireAdmin, async (req, res) => {
   try {
     const { base64Str, oldUrl } = req.body;
     if (!base64Str) return res.status(400).json({ error: "Missing image data" });
@@ -239,7 +239,7 @@ router.post('/upload-ad', async (req, res) => {
 });
 
 // DELETE: Delete Ad Image
-router.delete('/delete-ad', async (req, res) => {
+router.delete('/delete-ad', requireAdmin, async (req, res) => {
   try {
     const { url } = req.body;
     if (url) {

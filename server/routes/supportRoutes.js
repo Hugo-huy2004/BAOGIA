@@ -1,6 +1,7 @@
 import express from 'express';
 import SupportTicket from '../models/SupportTicket.js';
 import { generateRaw as aiGenerateRaw } from '../services/aiGateway.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -207,7 +208,7 @@ router.post('/tickets', async (req, res) => {
 });
 
 // GET: Fetch all support tickets (Admin Only - in real system would check auth)
-router.get('/tickets', async (req, res) => {
+router.get('/tickets', requireAdmin, async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;
     const query = {};
@@ -242,7 +243,7 @@ router.get('/tickets', async (req, res) => {
 });
 
 // PATCH: Resolve a support ticket
-router.patch('/tickets/:id/resolve', async (req, res) => {
+router.patch('/tickets/:id/resolve', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const ticket = await SupportTicket.findByIdAndUpdate(
