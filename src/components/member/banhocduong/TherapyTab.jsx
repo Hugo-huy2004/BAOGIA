@@ -14,54 +14,9 @@ import MeditationTherapy from "./MeditationTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import { useJoyStore } from "../../../stores/joyStore";
-import { getAiUrl } from "../../../services/api";
-
 const apiBase = import.meta.env.VITE_API_URL || "/api";
-const AI_BASE = getAiUrl();
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 const UNLOCK_COST = 150;
-
-function ExpressiveWritingPanel({ onBack, onComplete }) {
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Bài viết tự do giúp bạn ghi lại cảm xúc trong vài phút để hạ nhịp căng thẳng.
-      </p>
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-muted text-sm font-semibold">Quay lại</button>
-        <button onClick={onComplete} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Hoàn thành</button>
-      </div>
-    </div>
-  );
-}
-
-function LightExercisePanel({ onBack, onComplete }) {
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Vận động nhẹ trong một vài phút để cơ thể bớt căng và đầu óc tỉnh hơn.
-      </p>
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-muted text-sm font-semibold">Quay lại</button>
-        <button onClick={onComplete} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Hoàn thành</button>
-      </div>
-    </div>
-  );
-}
-
-function SocialConnectionPanel({ onBack, onComplete }) {
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Kết nối với người thân hoặc bạn bè để giảm cảm giác một mình.
-      </p>
-      <div className="flex items-center gap-3">
-        <button onClick={onBack} className="px-4 py-2 rounded-xl bg-muted text-sm font-semibold">Quay lại</button>
-        <button onClick={onComplete} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">Hoàn thành</button>
-      </div>
-    </div>
-  );
-}
 
 // ─── Inline mini-panels ──────────────────────────────────────────────────────
 
@@ -322,7 +277,9 @@ function ActionPlanPanel({ bio, historyLogs, onBack, onComplete }) {
       setLoading(true);
       setError(null);
       try {
-        const r = await fetch(`${AI_BASE}/api/ai/therapy/action-plan`, {
+        // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
+        // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
+        const r = await fetch(`/api/ai/therapy/action-plan`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
           body: JSON.stringify({ historyLogs, bio }),
@@ -399,6 +356,253 @@ function ActionPlanPanel({ bio, historyLogs, onBack, onComplete }) {
 
 
 
+// ─── Expressive Writing Panel ─────────────────────────────────────────────────
+function ExpressiveWritingPanel({ onBack, onComplete }) {
+  const [step, setStep] = useState("setup"); // setup | writing | done
+  const [prompt, setPrompt] = useState("");
+  const [text, setText] = useState("");
+  const [seconds, setSeconds] = useState(0);
+  const timerRef = useRef(null);
+
+  const PROMPTS = [
+    "Hôm nay điều gì khiến cậu thấy biết ơn?",
+    "Viết về một khoảnh khắc khiến cậu mỉm cười gần đây.",
+    "Nếu có thể nói một lời với bản thân 5 năm trước, cậu sẽ nói gì?",
+    "Viết về một thử thách cậu đã vượt qua và bài học rút ra.",
+    "Cậu đang giữ điều gì trong lòng? Hãy viết ra để nhẹ nhõm hơn.",
+    "Viết một lá thư ngắn gửi người cậu yêu quý.",
+  ];
+
+  useEffect(() => {
+    if (step === "writing") {
+      timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [step]);
+
+  const startWriting = () => {
+    const chosen = prompt || PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+    setPrompt(chosen);
+    setStep("writing");
+    setSeconds(0);
+  };
+
+  const finishWriting = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setStep("done");
+    onComplete?.("Viết Cảm Xúc", `Đã viết ${text.split(/\s+/).filter(Boolean).length} từ trong ${Math.floor(seconds / 60)} phút`);
+  };
+
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  if (step === "done") {
+    return (
+      <div className="py-8 text-center space-y-4">
+        <div className="w-14 h-14 bg-pink-500/10 text-pink-500 rounded-full flex items-center justify-center mx-auto animate-bounce">
+          <Pencil className="w-7 h-7" />
+        </div>
+        <h3 className="text-sm font-black text-foreground">Hoàn thành viết cảm xúc!</h3>
+        <p className="text-[10.5px] text-muted-foreground font-bold">{wordCount} từ · {minutes} phút {secs}s</p>
+        <p className="text-[10px] text-zinc-400 font-bold">Bài viết của cậu đã được ghi nhận. Viết cảm xúc thường xuyên giúp giảm stress và tăng cường nhận thức.</p>
+        <button onClick={onBack} className="px-6 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all w-full">
+          Quay lại
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+        Viết cảm xúc (expressive writing) là phương pháp trị liệu được nghiên cứu khoa học giúp giảm cortisol, cải thiện giấc ngủ và tăng cường miễn dịch. Chỉ cần viết tự do 10–15 phút.
+      </p>
+      <div className="bg-pink-500/5 border border-pink-500/10 rounded-2xl p-3">
+        <p className="text-[10px] font-black uppercase text-pink-500 mb-2">Gợi ý chủ đề (chọn hoặc tự viết)</p>
+        <div className="flex flex-wrap gap-1.5">
+          {PROMPTS.slice(0, 4).map((p, i) => (
+            <button key={i} onClick={() => setPrompt(p)} className={`text-[9px] font-bold px-2.5 py-1.5 rounded-xl border transition-all ${prompt === p ? "bg-pink-500/20 border-pink-500 text-pink-500" : "border-border text-muted-foreground hover:bg-pink-500/5"}`}>
+              {p.slice(0, 30)}...
+            </button>
+          ))}
+        </div>
+      </div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Bắt đầu viết ở đây... Viết tự do, không cần đúng chính tả hay ngữ pháp."
+        className="w-full h-32 p-3 border border-border bg-card rounded-xl text-xs font-medium text-foreground outline-none focus:ring-2 ring-pink-500/30 resize-none"
+      />
+      <div className="flex items-center justify-between text-[9px] text-zinc-400 font-bold">
+        <span>{wordCount} từ · {minutes}:{String(secs).padStart(2, "0")}</span>
+        <span>Tối thiểu 50 từ để hoàn thành</span>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={onBack} className="px-4 py-2.5 rounded-xl border border-border text-[10px] font-bold text-muted-foreground hover:bg-muted transition-all">
+          Quay lại
+        </button>
+        <button onClick={startWriting} disabled={step === "writing"} className="flex-1 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all disabled:opacity-50">
+          {step === "writing" ? "Đang viết..." : "Bắt đầu viết"}
+        </button>
+        {step === "writing" && text.split(/\s+/).filter(Boolean).length >= 50 && (
+          <button onClick={finishWriting} className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all">
+            Hoàn thành
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Light Exercise Panel ─────────────────────────────────────────────────────
+function LightExercisePanel({ onBack, onComplete }) {
+  const [currentStep, setCurrentStep] = useState(-1); // -1 = intro
+  const [tick, setTick] = useState(0);
+  const timerRef = useRef(null);
+
+  const EXERCISES = [
+    { name: "Đứng lên vươn vai", duration: 30, desc: "Đứng dậy, giơ 2 tay lên trời, vươn giãn cơ thể", icon: "🧘" },
+    { name: "Xoay cổ nhẹ nhàng", duration: 20, desc: "Xoay cổ mỗi bên 5 lần, chậm rãi", icon: "🔄" },
+    { name: "Vẫy tay", duration: 20, desc: "Vẫy 2 tay thật nhanh trong 20 giây để kích thích máu lưu thông", icon: "👋" },
+    { name: "Đi bộ tại chỗ", duration: 40, desc: "Đi bộ nâng cao gối tại chỗ trong 40 giây", icon: "🚶" },
+    { name: "Xoay hông", duration: 20, desc: "Xoay hông mỗi bên 5 lần", icon: "🔄" },
+    { name: "Cúi gập người", duration: 25, desc: "Cúi gập người chạm mũi tên, giữ 10s", icon: "🙇" },
+    { name: "Shake toàn thân", duration: 15, desc: "Lắc lư toàn thân như đang nhảy múa tự do", icon: "💃" },
+  ];
+
+  const TOTAL_DURATION = EXERCISES.reduce((sum, e) => sum + e.duration, 0);
+
+  useEffect(() => {
+    if (currentStep < 0) return;
+    const exercise = EXERCISES[currentStep];
+    if (!exercise) return;
+
+    setTick(exercise.duration);
+    timerRef.current = setInterval(() => {
+      setTick(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          const next = currentStep + 1;
+          if (next >= EXERCISES.length) {
+            onComplete?.("Vận Động Nhẹ", `Hoàn thành ${EXERCISES.length} bài tập vận động`);
+          } else {
+            setCurrentStep(next);
+          }
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [currentStep]);
+
+  if (currentStep === -1) {
+    return (
+      <div className="space-y-4">
+        <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+          Vận động nhẹ nhàng giúp giải phóng endorphin, giảm hormone stress cortisol. Chỉ cần 5 phút mỗi ngày để cải thiện tâm trạng đáng kể.
+        </p>
+        <div className="space-y-2">
+          {EXERCISES.map((ex, i) => (
+            <div key={i} className="flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-3 py-2">
+              <span className="text-lg">{ex.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-black text-foreground">{ex.name}</p>
+                <p className="text-[9px] text-zinc-400 font-bold truncate">{ex.desc}</p>
+              </div>
+              <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{ex.duration}s</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[9px] text-zinc-400 font-bold text-center">Tổng thời gian: ~{Math.floor(TOTAL_DURATION / 60)} phút {TOTAL_DURATION % 60}s</p>
+        <button onClick={() => setCurrentStep(0)} className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95">
+          Bắt đầu vận động
+        </button>
+      </div>
+    );
+  }
+
+  const exercise = EXERCISES[currentStep];
+  if (!exercise) return null;
+
+  return (
+    <div className="flex flex-col items-center gap-6 py-4">
+      <div className="flex gap-1.5">
+        {EXERCISES.map((_, i) => (
+          <div key={i} className={`h-1.5 w-5 rounded-full transition-all ${i < currentStep ? "bg-emerald-500" : i === currentStep ? "bg-emerald-400" : "bg-muted"}`} />
+        ))}
+      </div>
+      <div className="text-5xl">{exercise.icon}</div>
+      <div className="w-24 h-24 rounded-full flex flex-col items-center justify-center border-4 border-emerald-400 bg-emerald-400/10">
+        <span className="text-3xl font-black text-foreground">{tick}</span>
+        <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">giây</span>
+      </div>
+      <div className="text-center space-y-1">
+        <p className="text-[13px] font-black text-foreground">{exercise.name}</p>
+        <p className="text-[10px] text-muted-foreground font-bold">{exercise.desc}</p>
+      </div>
+      <p className="text-[9px] text-zinc-400 font-bold">Bài {currentStep + 1} / {EXERCISES.length}</p>
+    </div>
+  );
+}
+
+// ─── Social Connection Panel ──────────────────────────────────────────────────
+function SocialConnectionPanel({ onBack, onComplete }) {
+  const [completedTasks, setCompletedTasks] = useState(new Set());
+
+  const TASKS = [
+    { id: "message", title: "Nhắn tin hỏi thăm 1 người bạn", desc: "Gửi một tin nhắn quan tâm đến người bạn cũ hoặc người thân.", icon: "💬", points: 10 },
+    { id: "call", title: "Gọi điện 5 phút", desc: "Gọi cho người thân hoặc bạn bè, chia sẻ điều tích cực.", icon: "📞", points: 15 },
+    { id: "hug", title: "ôm ai đó", desc: "Ôm bố mẹ, bạn thân, hoặc thú cưng trong 20 giây.", icon: "🤗", points: 10 },
+    { id: "compliment", title: "Khen ngợi 1 người", desc: "Nói hoặc viết một lời khen chân thành cho ai đó.", icon: "✨", points: 10 },
+    { id: "listen", title: "Lắng nghe 5 phút", desc: "Nghe ai đó chia sẻ mà không phán xét hay đưa lời khuyên.", icon: "👂", points: 15 },
+    { id: "gratitude", title: "Cảm ơn 1 người", desc: "Nói cảm ơn hoặc viết thư cảm ơn cho 1 người đã giúp đỡ.", icon: "🙏", points: 10 },
+  ];
+
+  const toggleTask = (id) => {
+    setCompletedTasks(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const totalPoints = TASKS.filter(t => completedTasks.has(t.id)).reduce((sum, t) => sum + t.points, 0);
+
+  return (
+    <div className="space-y-4">
+      <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
+        Kết nối xã hội tích cực là yếu tố bảo vệ sức khỏe tinh thần quan trọng nhất. Research cho thấy 3 mối quan hệ thân thiết đủ để giảm 50% nguy cơ trầm cảm.
+      </p>
+      <div className="space-y-2">
+        {TASKS.map(task => {
+          const done = completedTasks.has(task.id);
+          return (
+            <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-blue-500/10 border-blue-500/30" : "bg-card/50 border-border hover:bg-blue-500/5"}`}>
+              <span className="text-xl shrink-0">{task.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-[11px] font-black ${done ? "text-blue-600 dark:text-blue-400 line-through" : "text-foreground"}`}>{task.title}</p>
+                <p className="text-[9px] text-zinc-500 font-bold">{task.desc}</p>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[9px] font-black text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">+{task.points}</span>
+                {done ? <CheckCircle2 className="w-4 h-4 text-blue-500" /> : <Circle className="w-4 h-4 text-muted-foreground/70" />}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {completedTasks.size > 0 && (
+        <button onClick={() => onComplete?.("Kết Nối Xã Hội", `Hoàn thành ${completedTasks.size}/${TASKS.length} hoạt động kết nối`)} className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95">
+          Lưu hoạt động ({totalPoints} điểm)
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── Báo Cáo Tâm Lý Chuyên Sâu (paid, generates a printable clinical-style report) ──
 function DeepReportPanel({ bio, historyLogs, chatMessages, onBack }) {
   const { t } = useTranslation();
@@ -412,7 +616,9 @@ function DeepReportPanel({ bio, historyLogs, chatMessages, onBack }) {
       setLoading(true);
       setError(null);
       try {
-        const r = await fetch(`${AI_BASE}/api/ai/therapy/deep-report`, {
+        // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
+        // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
+        const r = await fetch(`/api/ai/therapy/deep-report`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
           body: JSON.stringify({ historyLogs, chatMessages, bio }),
@@ -509,11 +715,16 @@ function DeepReportPanel({ bio, historyLogs, chatMessages, onBack }) {
 
 const ALL_METHODS = [
   { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ)", category:"Thở",   duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing",  joyLockable:true  },
+  { id:"muscle",     Icon: Dumbbell,  name:"Thư Giãn Cơ PMR",  desc:"Kỹ thuật căng-thả 7 nhóm cơ giúp giảm lo âu tức thì", category:"Thư giãn", duration:"7 ph", gradient:"from-teal-500/10 to-teal-500/5", border:"border-teal-500/20 dark:border-teal-400/15", badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400", iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400", btn:"bg-teal-500 hover:bg-teal-600", lockKey:"breathing", joyLockable:true },
   { id:"soundscape", Icon: Headphones,name:"Âm Thanh Thiên Nhiên", desc:"Tự tạo không gian thư giãn với tiếng mưa, sóng biển, lửa trại", category:"Thư giãn", duration:"Tự do", gradient:"from-emerald-500/10 to-emerald-500/5", border:"border-emerald-500/20 dark:border-emerald-400/15", badge:"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", iconBg:"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", btn:"bg-emerald-500 hover:bg-emerald-600", lockKey:"soundscape", joyLockable:true },
   { id:"reading",    Icon: BookOpen,  name:"Đọc Truyện & Giải Mã Giấc Mơ AI", desc:"AI viết & kể truyện trị liệu, giải mã điềm báo giấc mơ", category:"AI · Đọc", duration:"10 ph", gradient:"from-indigo-500/10 to-indigo-500/5",  border:"border-indigo-500/20 dark:border-indigo-400/15",  badge:"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",  iconBg:"bg-indigo-500/15 text-indigo-600 dark:text-indigo-400", btn:"bg-indigo-500 hover:bg-indigo-600",  lockKey:"reading",    joyLockable:true  },
   { id:"meditation", Icon: Flame,     name:"Thiền Định Giọng Nói AI", desc:"Giọng dẫn thiền do AI soạn riêng theo mood hiện tại của bạn",  category:"AI · Thiền", duration:"10–20 ph", gradient:"from-teal-500/10 to-teal-500/5",      border:"border-teal-500/20 dark:border-teal-400/15",      badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400",        iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400",       btn:"bg-teal-500 hover:bg-teal-600",    lockKey:"meditation", joyLockable:true  },
   { id:"depression", Icon: Brain,     name:"CBT Worksheet & Lộ Trình", desc:"AI phân tích lịch sử chat, soạn bảng ghi suy nghĩ và lộ trình riêng", category:"AI · Nhận thức", duration:"15 ph", gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
+  { id:"writing",    Icon: Pencil,    name:"Viết Cảm Xúc",     desc:"Viết tự do 10-15 phút giúp giảm cortisol, cải thiện giấc ngủ", category:"Trị liệu", duration:"10–15 ph", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"writing", joyLockable:true },
+  { id:"exercise",   Icon: Dumbbell,  name:"Vận Động Nhẹ",     desc:"7 bài tập ngắn giúp giải phóng endorphin, giảm stress tức thì", category:"Vận động", duration:"5 ph", gradient:"from-orange-500/10 to-orange-500/5", border:"border-orange-500/20 dark:border-orange-400/15", badge:"bg-orange-500/10 text-orange-600 dark:text-orange-400", iconBg:"bg-orange-500/15 text-orange-600 dark:text-orange-400", btn:"bg-orange-500 hover:bg-orange-600", lockKey:"exercise", joyLockable:true },
+  { id:"social",     Icon: Users,     name:"Kết Nối Xã Hội",   desc:"6 hoạt động kết nối tích cực giúp giảm 50% nguy cơ trầm cảm", category:"Xã hội", duration:"Tùy chỉnh", gradient:"from-blue-500/10 to-blue-500/5", border:"border-blue-500/20 dark:border-blue-400/15", badge:"bg-blue-500/10 text-blue-600 dark:text-blue-400", iconBg:"bg-blue-500/15 text-blue-600 dark:text-blue-400", btn:"bg-blue-500 hover:bg-blue-600", lockKey:"social", joyLockable:true },
   { id:"deep_report", Icon: FileText, name:"Báo Cáo Sức Khỏe Tâm Lý Chuyên Sâu", desc:"Hồ sơ tổng hợp AI soạn để chia sẻ với chuyên gia thật, in/lưu PDF", category:"AI · Báo cáo", duration:"5 ph", gradient:"from-cyan-500/10 to-cyan-500/5", border:"border-cyan-500/20 dark:border-cyan-400/15", badge:"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", iconBg:"bg-cyan-500/15 text-cyan-600 dark:text-cyan-400", btn:"bg-cyan-500 hover:bg-cyan-600", lockKey:"deep_report", joyLockable:true },
+  { id:"action_plan", Icon: CalendarCheck, name:"Lộ Trình Hoạt Động Cá Nhân Hoá", desc:"AI thiết kế lộ trình 7 ngày kết hợp viết cảm xúc, vận động nhẹ & kết nối xã hội, riêng cho bạn", category:"AI · Lộ trình", duration:"7 ngày", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"action_plan", joyLockable:true },
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -653,7 +864,10 @@ export default function TherapyTab({
     deep_report: unlockedFeatures.includes("deep_report"),
     breathing: unlockedFeatures.includes("breathing"),
     soundscape: unlockedFeatures.includes("soundscape"),
-    basic: true,       // Viết Tự Do / Vận Động Nhẹ / Kết Nối Xã Hội — always free, no clinical data required
+    action_plan: unlockedFeatures.includes("action_plan"),
+    writing: unlockedFeatures.includes("writing"),
+    exercise: unlockedFeatures.includes("exercise"),
+    social: unlockedFeatures.includes("social"),
   };
 
   const isUnlocked = (method) => unlocked[method.lockKey] ?? false;
@@ -721,9 +935,52 @@ export default function TherapyTab({
   if (activePanel === "breath") return <BreathingTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
   if (activePanel === "depression") return <DepressionCbtTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} />;
   if (activePanel === "deep_report") return <DeepReportPanel bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} onBack={closePanel} />;
+  if (activePanel === "action_plan") return <ActionPlanPanel bio={bio} historyLogs={historyLogs} onBack={closePanel} onComplete={() => handleCompleteActivity("Lộ Trình Hoạt Động", "Cập nhật tiến độ lộ trình cá nhân hoá 7 ngày")} />;
+  if (activePanel === "writing") return (
+    <div className="p-4 pb-20 max-w-md mx-auto">
+      <div className="flex items-center gap-3 mb-4">
+        <button onClick={closePanel} className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95">
+          <ArrowLeft className="w-4 h-4 text-foreground/80" />
+        </button>
+        <div>
+          <p className="text-[12px] font-black text-foreground">Viết Cảm Xúc</p>
+          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-500">Trị liệu · 10–15 ph</span>
+        </div>
+      </div>
+      <ExpressiveWritingPanel onBack={closePanel} onComplete={handleCompleteActivity} />
+    </div>
+  );
+  if (activePanel === "exercise") return (
+    <div className="p-4 pb-20 max-w-md mx-auto">
+      <div className="flex items-center gap-3 mb-4">
+        <button onClick={closePanel} className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95">
+          <ArrowLeft className="w-4 h-4 text-foreground/80" />
+        </button>
+        <div>
+          <p className="text-[12px] font-black text-foreground">Vận Động Nhẹ</p>
+          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500">Vận động · 5 ph</span>
+        </div>
+      </div>
+      <LightExercisePanel onBack={closePanel} onComplete={handleCompleteActivity} />
+    </div>
+  );
+  if (activePanel === "social") return (
+    <div className="p-4 pb-20 max-w-md mx-auto">
+      <div className="flex items-center gap-3 mb-4">
+        <button onClick={closePanel} className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95">
+          <ArrowLeft className="w-4 h-4 text-foreground/80" />
+        </button>
+        <div>
+          <p className="text-[12px] font-black text-foreground">Kết Nối Xã Hội</p>
+          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500">Xã hội · Tùy chỉnh</span>
+        </div>
+      </div>
+      <SocialConnectionPanel onBack={closePanel} onComplete={handleCompleteActivity} />
+    </div>
+  );
 
   // ── Inline mini-panels ──
-  const inlinePanels = { soundscape: true, muscle: true, writing: true, exercise: true, social: true };
+  const inlinePanels = { soundscape: true, muscle: true };
   const showInline = activePanel && inlinePanels[activePanel];
 
   return (
@@ -984,24 +1241,6 @@ export default function TherapyTab({
               <MuscleRelaxPanel
                 onBack={closePanel}
                 onComplete={() => handleCompleteActivity("Thư Giãn Cơ (PMR)", "Hoàn thành bài tập căng–thả 7 nhóm cơ")}
-              />
-            )}
-            {activePanel === "writing" && (
-              <ExpressiveWritingPanel
-                onBack={closePanel}
-                onComplete={() => handleCompleteActivity("Viết Tự Do", "Hoàn thành bài viết biểu đạt cảm xúc 10 phút")}
-              />
-            )}
-            {activePanel === "exercise" && (
-              <LightExercisePanel
-                onBack={closePanel}
-                onComplete={() => handleCompleteActivity("Vận Động Nhẹ", "Hoàn thành ít nhất 1 bài tập vận động nhẹ")}
-              />
-            )}
-            {activePanel === "social" && (
-              <SocialConnectionPanel
-                onBack={closePanel}
-                onComplete={() => handleCompleteActivity("Kết Nối Xã Hội", "Chủ động kết nối với người thân / bạn bè")}
               />
             )}
           </motion.div>

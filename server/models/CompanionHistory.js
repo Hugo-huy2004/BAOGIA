@@ -131,6 +131,21 @@ const CompanionHistorySchema = new mongoose.Schema(
       wellnessScore: Number
     },
 
+    // Long-term semantic memory — one condensed "what matters to this user"
+    // digest per weekly report (see companionRoutes.js /report/weekly),
+    // embedded via server/services/embeddingService.js so early turns of a
+    // new chat session can recall relevant past context after the raw
+    // 7-day chatMessages window has rolled off. Capped to the most recent
+    // MAX_LONG_TERM_MEMORIES entries (see companionRoutes.js) to bound doc size.
+    longTermMemories: {
+      type: [{
+        summary: { type: String },
+        embedding: { type: [Number], default: [] },
+        createdAt: { type: Date, default: Date.now }
+      }],
+      default: []
+    },
+
     // Streak tracking
     streaks: {
       currentCheckinStreak: { type: Number, default: 0 },

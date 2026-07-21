@@ -84,6 +84,7 @@ class TestAnalysisRequest(BaseModel):
     clinical: Optional[List[Dict[str, Any]]] = None
     lang: Optional[str] = "vi"
     bio: Optional[Dict[str, Any]] = None
+    userId: Optional[str] = "unknown"
 
 class ProactivePushRequest(BaseModel):
     logs: List[Dict[str, Any]]
@@ -320,6 +321,26 @@ async def chat_stream(request: ChatRequest, req: Request):
     LLM_WEIGHT = 1
     try:
         client_identifier = _client_id(request.userId, req)
+        ip = _client_ip(req)
+
+        # Content moderation — same as /api/ai/chat (bypass was a security gap)
+        lock_minutes = warning_sentinel.get_lock_remaining_minutes(client_identifier, ip)
+        if lock_minutes > 0:
+            async def locked_stream():
+                yield f"data: {json.dumps({'text': _lock_message(lock_minutes), 'locked': True, 'lockMinutes': lock_minutes}, ensure_ascii=False)}\n\n"
+                await asyncio.sleep(0.1)
+            return StreamingResponse(locked_stream(), media_type="text/event-stream")
+
+        violation_type = warning_sentinel.detect_violation(request.message)
+        if violation_type:
+            result = warning_sentinel.check_and_warn(client_identifier, ip, violation_type)
+            async def warning_stream():
+                for idx, msg in enumerate(result["messages"]):
+                    text = msg if idx == 0 else f"|||{msg}"
+                    yield f"data: {json.dumps({'text': text, 'warning': True, 'locked': result.get('locked', False), 'warningCount': result.get('count', 0), 'lockMinutes': 180 if result.get('locked') else 0}, ensure_ascii=False)}\n\n"
+                    await asyncio.sleep(0.05)
+            return StreamingResponse(warning_stream(), media_type="text/event-stream")
+
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
         if remaining < LLM_WEIGHT:
             email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
@@ -368,6 +389,12 @@ async def chat_audio(
     userId: str = Form("unknown")
 ):
     try:
+        # Enforce 10 MB upload limit to prevent OOM attacks
+        MAX_AUDIO_BYTES = 10 * 1024 * 1024
+        audio_bytes = await file.read()
+        if len(audio_bytes) > MAX_AUDIO_BYTES:
+            raise HTTPException(status_code=413, detail="File audio quá lớn. Tối đa 10 MB.")
+
         client_identifier = _client_id(userId, req)
         action = "call" if isCallMode else "audio_chat"
         max_tokens = 5 if isCallMode else 3
@@ -379,7 +406,6 @@ async def chat_audio(
             if not await rate_limiter.consume_bonus_token(parsed_bio.get("email"), bonus_field):
                 return {"text": "Bạn đã sử dụng hết token trong ngày hôm nay. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
 
-        audio_bytes = await file.read()
         mime_type = file.content_type or "audio/webm"
         parsed_history = json.loads(history)
 
@@ -399,8 +425,12 @@ async def chat_audio(
 # ---------------------------------------------------------------------------
 
 @app.post("/api/ai/analyze-test")
-async def analyze_test(request: TestAnalysisRequest):
+async def analyze_test(request: TestAnalysisRequest, req: Request):
     try:
+        client_identifier = _client_id(request.userId or "unknown", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_analysis", 3)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota phân tích hôm nay. Vui lòng quay lại ngày mai.")
         analysis = await ai_service.analyze_test_results(
             test_name=request.testName,
             scores=request.scores,
@@ -410,6 +440,8 @@ async def analyze_test(request: TestAnalysisRequest):
             bio=request.bio
         )
         return {"analysis": analysis}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -437,15 +469,21 @@ async def analyze_report(file: UploadFile = File(...)):
 # ---------------------------------------------------------------------------
 
 @app.post("/api/ai/report/weekly")
-async def weekly_report(request: WeeklyReportRequest):
+async def weekly_report(request: WeeklyReportRequest, req: Request):
     """Tạo báo cáo sức khỏe tâm lý hàng tuần cho người dùng."""
     try:
+        client_identifier = _client_id(request.email or "unknown", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "weekly_report", 1)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota báo cáo tuần này.")
         result = await ai_service.generate_weekly_report(
             history_logs=request.historyLogs or [],
             chat_messages=request.chatMessages or [],
             bio=request.bio
         )
         return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -454,56 +492,86 @@ async def weekly_report(request: WeeklyReportRequest):
 # ---------------------------------------------------------------------------
 
 @app.post("/api/ai/therapy/story")
-async def therapeutic_story(request: TherapeuticStoryRequest):
+async def therapeutic_story(request: TherapeuticStoryRequest, req: Request):
     """"Đọc Truyện AI Trị Liệu" — truyện ngắn trị liệu cá nhân hoá theo mood thực."""
     try:
+        client_identifier = _client_id("therapy", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_story", 2)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
         return await ai_service.generate_therapeutic_story(
             mood=request.mood, context=request.context or "", bio=request.bio
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/ai/therapy/meditation-script")
-async def meditation_script(request: MeditationScriptRequest):
+async def meditation_script(request: MeditationScriptRequest, req: Request):
     """"Thiền Dẫn AI Cá Nhân Hoá" — script giọng dẫn thiền theo mood/dữ liệu thực."""
     try:
+        client_identifier = _client_id("therapy", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_meditation", 2)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
         return await ai_service.generate_meditation_script(
             mood=request.mood, context=request.context or "", bio=request.bio
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/ai/therapy/cbt-worksheet")
-async def cbt_worksheet(request: CbtWorksheetRequest):
+async def cbt_worksheet(request: CbtWorksheetRequest, req: Request):
     """"CBT Worksheet Cá Nhân Hoá" — bảng ghi nhận suy nghĩ CBT từ lịch sử chat/checkin thật."""
     try:
+        client_identifier = _client_id("therapy", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_cbt", 2)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
         return await ai_service.generate_cbt_worksheet(
             history_logs=request.historyLogs or [], chat_messages=request.chatMessages or [], bio=request.bio
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/ai/therapy/action-plan")
-async def action_plan(request: ActionPlanRequest):
+async def action_plan(request: ActionPlanRequest, req: Request):
     """"Lộ Trình Hoạt Động Cá Nhân Hoá" — gộp viết/vận động/kết nối thành kế hoạch 7 ngày."""
     try:
+        client_identifier = _client_id("therapy", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_action", 2)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
         return await ai_service.generate_action_plan(
             history_logs=request.historyLogs or [], bio=request.bio
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/ai/therapy/deep-report")
-async def deep_report(request: DeepReportRequest):
+async def deep_report(request: DeepReportRequest, req: Request):
     """"Báo Cáo Tâm Lý Chuyên Sâu" — hồ sơ tổng hợp chia sẻ được cho chuyên viên thật."""
     try:
+        client_identifier = _client_id("therapy", req)
+        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_deep", 2)
+        if not is_allowed:
+            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
         return await ai_service.generate_deep_report(
             history_logs=request.historyLogs or [], chat_messages=request.chatMessages or [], bio=request.bio
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -590,9 +658,25 @@ async def iot_websocket(websocket: WebSocket):
     """
     WebSocket endpoint for real-time IoT device data streaming.
     Devices push live vitals as JSON; server responds with AI analysis.
-    Payload: { "vitals": [{...}], "bio": {...} }
+    Payload: { "vitals": [{...}], "bio": {...}, "token": "internal-api-key" }
     """
     await websocket.accept()
+
+    # Authenticate: require X-Internal-Key in first message
+    try:
+        first_msg = await asyncio.wait_for(websocket.receive_text(), timeout=10)
+        payload = json.loads(first_msg)
+        token = payload.get("token")
+        expected_key = os.getenv("INTERNAL_API_KEY", "")
+        if not expected_key or token != expected_key:
+            await websocket.send_text(json.dumps({"type": "error", "message": "Authentication required"}))
+            await websocket.close(code=4001, reason="Unauthorized")
+            return
+    except (asyncio.TimeoutError, json.JSONDecodeError):
+        await websocket.send_text(json.dumps({"type": "error", "message": "Auth timeout"}))
+        await websocket.close(code=4001, reason="Auth timeout")
+        return
+
     try:
         while True:
             data = await websocket.receive_text()

@@ -22,7 +22,23 @@ import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogue
 
 // Short-label overrides for dialogue aspect chips (mobile space-saving).
 // Falls back to the full `a.text` from the tree if a key is missing.
-const ASPECT_LABELS = {};
+const ASPECT_LABELS = {
+  exam: "Thi cử",
+  breakup: "Chia tay",
+  family: "Gia đình",
+  friends: "Bạn bè",
+  burnout: "Kiệt sức",
+  loneliness: "Cô đơn",
+  anxiety: "Lo âu",
+  depression: "Trầm cảm",
+  self_esteem: "Tự trọng",
+  sleep: "Giấc ngủ",
+  social: "Xã hội",
+  grief: "Mất mát",
+  anger: "Giận dữ",
+  career: "Sự nghiệp",
+  health: "Sức khỏe",
+};
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 import { useJoyStore } from "../../../stores/joyStore";
 

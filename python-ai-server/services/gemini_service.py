@@ -382,6 +382,20 @@ class GeminiService:
         psych_profile = (bio or {}).get("psychProfile")
         psych_profile_block = psych_profile or "Chưa có đủ dữ liệu để nhận diện chủ đề/áp lực lặp lại."
 
+        # Semantically-recalled digests from PAST weekly reports (see
+        # generate_weekly_report's memoryDigest field + server/routes/aiProxyRoutes.js
+        # enrichWithLongTermMemory) — only populated near the start of a new
+        # session, and only when relevant to what {name} just opened with.
+        long_term_memories = (bio or {}).get("longTermMemories")
+        if isinstance(long_term_memories, list) and long_term_memories:
+            digest_lines = "\n".join(f"- {m}" for m in long_term_memories if isinstance(m, str) and m.strip())
+            long_term_memory_section = f"""
+        Ký ức xa hơn từ các phiên trò chuyện trước (được truy xuất vì có vẻ liên quan đến tin nhắn {name} vừa mở lời) — chỉ nhắc đến nếu THỰC SỰ khớp với những gì đang diễn ra, đừng liệt kê lại nguyên văn hay ép nhắc nếu không còn phù hợp:
+        {digest_lines}
+        """
+        else:
+            long_term_memory_section = ""
+
         return f"""
         Bạn là "Hugo Studio AI" (hay còn gọi là HugoPSY) - người bạn đồng hành tri kỷ, lắng nghe sâu sắc và hỗ trợ sức khỏe tinh thần học đường dành riêng cho học sinh, sinh viên Việt Nam.
         
@@ -437,7 +451,7 @@ class GeminiService:
 
         Hồ sơ tâm lý được đúc kết từ các lượt trò chuyện gần đây của {name} (chủ đề hay gây áp lực, tình trạng tình cảm, xu hướng cảm xúc) — hãy vận dụng để cá nhân hóa, KHÔNG đọc lại nguyên văn cho {name} nghe như đang liệt kê hồ sơ:
         {psych_profile_block}
-
+        {long_term_memory_section}
         Hệ thống bài test:
         {SYSTEM_TESTS_CONTEXT}
 
@@ -1754,6 +1768,7 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
         2. Xác định các mối lo ngại nổi bật (từ checkin, chat, test)
         3. Ghi nhận những thành tích, tiến bộ của người dùng
         4. Đề xuất các bước tiếp theo cụ thể và thực tế
+        5. Đúc kết một "ký ức dài hạn" — 1-2 câu cô đọng NHẤT về điều đang thực sự quan trọng với {name} lúc này (chủ đề lặp lại, mối quan tâm, mối quan hệ, tiến triển...). Viết ở NGÔI THỨ BA khách quan (không xưng "tớ"), súc tích như một ghi chú hồ sơ, vì câu này sẽ được dùng làm trí nhớ nền cho các phiên trò chuyện SAU NÀY khi {name} quay lại.
 
         Trả về JSON theo format:
         {{
@@ -1762,7 +1777,8 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
             "topConcerns": ["Mối lo ngại 1", "Mối lo ngại 2"],
             "achievements": ["Thành tích 1", "Thành tích 2"],
             "nextSteps": ["Bước tiếp theo 1", "Bước tiếp theo 2", "Bước tiếp theo 3"],
-            "wellnessScore": 70
+            "wellnessScore": 70,
+            "memoryDigest": "1-2 câu ghi chú ngôi thứ ba, ví dụ: 'Đang chịu áp lực thi cử nặng, đặc biệt lo về môn Toán. Mối quan hệ với bố mẹ đang căng thẳng vì kỳ vọng điểm số.'"
         }}
         """
 

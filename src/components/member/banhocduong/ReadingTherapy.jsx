@@ -4,9 +4,6 @@ import {
   Pause, Square, Headphones, RefreshCw, Book, Smile, Moon, Eye,
   AlertCircle, Frown, HeartCrack, BatteryLow, CloudRain, Waves, Flame, Music, Timer
 } from "lucide-react";
-import { getAiUrl } from "../../../services/api";
-
-const AI_BASE = getAiUrl();
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 const MOODS = [
@@ -133,7 +130,9 @@ export default function ReadingTherapy({ onBack, onCompleteActivity, showToast, 
         bio: bio
       };
       
-      const r = await fetch(`${AI_BASE}/api/ai/therapy/story`, {
+      // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
+      // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
+      const r = await fetch(`/api/ai/therapy/story`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -49,6 +49,17 @@ export default function CounselorBridge({ bio, onBookAppointment, showToast }) {
     <div className="space-y-5 text-left max-w-md mx-auto bg-gradient-to-br from-zinc-950 via-slate-900 to-primary/20 text-zinc-100 p-6 rounded-3xl border border-zinc-800/80 shadow-2xl relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
 
+      {/* Not-yet-implemented banner */}
+      <div className="relative z-10 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 flex gap-2">
+        <span className="material-symbols-outlined text-amber-400 text-lg shrink-0">construction</span>
+        <div>
+          <p className="text-[10.5px] font-black text-amber-400 uppercase tracking-wide">Tính năng đang phát triển</p>
+          <p className="text-[10px] text-zinc-300 font-bold leading-relaxed">
+            Hệ thống đặt lịch tham vấn chuyên gia sẽ sớm ra mắt. Hiện tại, cậu có thể liên hệ trực tiếp qua mục Hỗ trợ.
+          </p>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between border-b pb-2.5 border-zinc-800/60">
         <span className="text-[10px] font-black uppercase text-warning tracking-wider flex items-center gap-1">

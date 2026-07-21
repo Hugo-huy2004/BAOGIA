@@ -5,9 +5,6 @@ import {
   Moon, Zap, Heart, CloudRain, Waves, Flame, Music
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAiUrl } from "../../../services/api";
-
-const AI_BASE = getAiUrl();
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 const MEDITATION_MOODS = [
@@ -21,7 +18,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
   const [step, setStep] = useState("setup"); // 'setup' | 'loading' | 'meditating' | 'completed'
   const [selectedMood, setSelectedMood] = useState("lo âu");
   const [customContext, setCustomContext] = useState("");
-  const [phrases, setPhrrams] = useState([]);
+  const [phrases, setPhrases] = useState([]);
   
   // Session parameters
   const [currentPhraseIdx, setCurrentPhraseIdx] = useState(0);
@@ -130,7 +127,9 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
         bio: bio
       };
       
-      const r = await fetch(`${AI_BASE}/api/ai/therapy/meditation-script`, {
+      // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
+      // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
+      const r = await fetch(`/api/ai/therapy/meditation-script`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -146,7 +145,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
         throw new Error("Không nhận được kịch bản thiền.");
       }
       
-      setPhrrams(data.phrases);
+      setPhrases(data.phrases);
       setStep("meditating");
       setCurrentPhraseIdx(0);
       setSessionSeconds(0);
@@ -188,29 +187,33 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
     // Speak initial phrase
     speakPhrase(scriptPhrases[0]);
 
-    // Phrase iterator with gaps (speak phrase -> wait 12s -> speak next)
+    // Phrase iterator with adaptive gaps based on phrase length
+    // Short phrases (1-2 sentences) = ~10s, long phrases (3+) = up to 18s
+    const getInterval = (text) => Math.max(10000, Math.min(18000, text.length * 200));
+
     let curIdx = 0;
-    phraseTimerRef.current = setInterval(() => {
-      curIdx++;
-      if (curIdx >= scriptPhrases.length) {
-        // Meditation ends
-        setIsRunning(false);
-        stopTimers();
-        setStep("completed");
-        
-        // complete log
-        onCompleteActivity?.("Thiền Định AI", `Hoàn tất phiên thiền định chánh niệm cá nhân hóa.`);
-        showToast?.("Phiên thiền chánh niệm đã kết thúc. Hãy từ từ mở mắt ra và mỉm cười nhé!", "success");
-      } else {
-        setCurrentPhraseIdx(curIdx);
-        speakPhrase(scriptPhrases[curIdx]);
-      }
-    }, 12000); // 12 seconds per instruction phrase, which fits 1 or 2 breathing cycles
+    const scheduleNext = () => {
+      const interval = getInterval(scriptPhrases[curIdx] || "");
+      phraseTimerRef.current = setTimeout(() => {
+        curIdx++;
+        if (curIdx >= scriptPhrases.length) {
+          setIsRunning(false);
+          setStep("completed");
+          onCompleteActivity?.("Thiền Định AI", `Hoàn tất phiên thiền định chánh niệm cá nhân hóa.`);
+          showToast?.("Phiên thiền chánh niệm đã kết thúc. Hãy từ từ mở mắt ra và mỉm cười nhé!", "success");
+        } else {
+          setCurrentPhraseIdx(curIdx);
+          speakPhrase(scriptPhrases[curIdx]);
+          scheduleNext();
+        }
+      }, interval);
+    };
+    scheduleNext();
   };
 
   const stopTimers = () => {
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    if (phraseTimerRef.current) clearInterval(phraseTimerRef.current);
+    if (phraseTimerRef.current) clearTimeout(phraseTimerRef.current);
   };
 
   const handlePauseToggle = () => {
@@ -218,38 +221,43 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
       setIsRunning(false);
       stopTimers();
       window.speechSynthesis.cancel();
-      // pause all environmental audio
       Object.keys(audiosRef.current).forEach(key => {
         audiosRef.current[key].pause();
       });
     } else {
       setIsRunning(true);
-      // resume ambient tracks
       Object.keys(playingSounds).forEach(key => {
         if (playingSounds[key]) {
           audiosRef.current[key].play().catch(e => console.error(e));
         }
       });
-      // resume loops
       timerIntervalRef.current = setInterval(() => {
         setSessionSeconds(s => s + 1);
       }, 1000);
 
       speakPhrase(phrases[currentPhraseIdx]);
       let curIdx = currentPhraseIdx;
-      phraseTimerRef.current = setInterval(() => {
-        curIdx++;
-        if (curIdx >= phrases.length) {
-          setIsRunning(false);
-          stopTimers();
-          setStep("completed");
-          onCompleteActivity?.("Thiền Định AI", `Hoàn tất phiên thiền định chánh niệm.`);
-          showToast?.("Phiên thiền chánh niệm đã kết thúc.", "success");
-        } else {
-          setCurrentPhraseIdx(curIdx);
-          speakPhrase(phrases[curIdx]);
-        }
-      }, 12000);
+
+      const getInterval = (text) => Math.max(10000, Math.min(18000, text.length * 200));
+
+      const scheduleNext = () => {
+        const interval = getInterval(phrases[curIdx] || "");
+        phraseTimerRef.current = setTimeout(() => {
+          curIdx++;
+          if (curIdx >= phrases.length) {
+            setIsRunning(false);
+            stopTimers();
+            setStep("completed");
+            onCompleteActivity?.("Thiền Định AI", `Hoàn tất phiên thiền định chánh niệm.`);
+            showToast?.("Phiên thiền chánh niệm đã kết thúc.", "success");
+          } else {
+            setCurrentPhraseIdx(curIdx);
+            speakPhrase(phrases[curIdx]);
+            scheduleNext();
+          }
+        }, interval);
+      };
+      scheduleNext();
     }
   };
 
@@ -260,7 +268,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
       audiosRef.current[key].pause();
     });
     setStep("setup");
-    setPhrrams([]);
+    setPhrases([]);
     setCurrentPhraseIdx(0);
     setSessionSeconds(0);
     setIsRunning(false);

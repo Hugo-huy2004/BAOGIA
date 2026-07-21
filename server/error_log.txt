@@ -1,8 +1,0 @@
-MongoServerSelectionError: getaddrinfo ENOTFOUND ac-9rpidu7-shard-00-00.bue74qo.mongodb.net
-    at Topology.selectServer (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongodb/lib/sdam/topology.js:327:38)
-    at async tryOperation (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongodb/lib/operations/execute_operation.js:148:18)
-    at async executeOperation (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongodb/lib/operations/execute_operation.js:78:16)
-    at async Collection.findOneAndUpdate (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongodb/lib/collection.js:544:16)
-    at async model.Query._findOneAndUpdate (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongoose/lib/query.js:3536:13)
-    at async model.Query.exec (/Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/node_modules/mongoose/lib/query.js:4627:63)
-    at async file:///Users/wishpaxhugo/Documents/JOBS/PRICE_DOC/server/routes/companionRoutes.js:140:22

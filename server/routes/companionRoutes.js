@@ -9,6 +9,7 @@ import ScheduledPush from '../models/ScheduledPush.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { encryptText, decryptText } from '../utils/cryptoUtils.js';
+import { generateWeeklyReportForUser } from '../services/companionReportService.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -57,7 +58,10 @@ const UNLOCKABLE_FEATURES = {
   action_plan: { cost: 150, label: 'Lộ Trình Hoạt Động Cá Nhân Hoá' },
   deep_report: { cost: 150, label: 'Báo Cáo Tâm Lý Chuyên Sâu' },
   breathing: { cost: 150, label: 'Hít Thở 4-7-8' },
-  soundscape: { cost: 150, label: 'Âm Thanh Thiên Nhiên' }
+  soundscape: { cost: 150, label: 'Âm Thanh Thiên Nhiên' },
+  writing: { cost: 150, label: 'Viết Cảm Xúc' },
+  exercise: { cost: 150, label: 'Vận Động Nhẹ' },
+  social: { cost: 150, label: 'Kết Nối Xã Hội' }
 };
 
 // POST: Unlock a therapy sub-feature for 150 JOY (one-time, permanent per account)
@@ -598,67 +602,17 @@ router.post('/history/block', requireMember, async (req, res) => {
 // POST: Generate and save weekly wellness report
 router.post('/report/weekly', requireMember, async (req, res) => {
   try {
-    const { bio } = req.body;
     const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    const historyDoc = await CompanionHistory.findOne({ email });
-    if (!historyDoc) {
-      return res.status(404).json({ error: 'Companion history not found for this email' });
-    }
-
-    // Call Python AI server to generate the weekly report
-    const AI_SERVER = process.env.AI_SERVER_URL || 'http://localhost:8000';
-    const payload = {
-      email,
-      bio: {
-        ...(bio || {}),
-        historyLogs: historyDoc.historyLogs || [],
-        // Decrypt before sending to the AI report generator — messages are
-        // stored encrypted at rest, so the raw docs are ciphertext.
-        chatMessages: decryptChatMessages(historyDoc.chatMessages || [])
-      }
-    };
-
-    let report;
-    try {
-      const fetch = (await import('node-fetch')).default;
-      const aiResponse = await fetch(`${AI_SERVER}/api/ai/report/weekly`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
-        },
-        body: JSON.stringify(payload)
-      });
-      if (!aiResponse.ok) {
-        throw new Error(`AI server responded with ${aiResponse.status}`);
-      }
-      report = await aiResponse.json();
-    } catch (fetchErr) {
-      console.error('Failed to call AI weekly report endpoint:', fetchErr);
-      return res.status(502).json({ error: 'Could not reach AI server', detail: fetchErr.message });
-    }
-
-    // Save the report summary to lastWeeklyReport
-    await CompanionHistory.findOneAndUpdate(
-      { email },
-      {
-        $set: {
-          lastWeeklyReport: {
-            generatedAt: new Date(),
-            summary: report.summary || '',
-            moodTrend: report.moodTrend || 'unknown',
-            wellnessScore: report.wellnessScore || null
-          }
-        }
-      }
-    );
-
+    const { report } = await generateWeeklyReportForUser(email, req.body?.bio);
     res.json({ success: true, report });
   } catch (error) {
+    if (error.message === 'Companion history not found for this email') {
+      return res.status(404).json({ error: error.message });
+    }
     import('fs').then(fs => {
       fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
     }).catch(console.error);

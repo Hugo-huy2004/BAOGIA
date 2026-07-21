@@ -1,9 +1,9 @@
 /**
- * Lightweight metadata mirror of TherapyTab.jsx's ALL_METHODS (+ the 3
- * always-free panels), kept deliberately separate from that file — it has
- * heavy UI-only fields (Icon components, gradients) that have no business
- * being imported into the chat-intent matching logic. `id`/`lockKey`/`cost`
- * here MUST stay in sync with TherapyTab.jsx's ALL_METHODS if either changes.
+ * Lightweight metadata mirror of TherapyTab.jsx's ALL_METHODS, kept
+ * deliberately separate from that file — it has heavy UI-only fields (Icon
+ * components, gradients) that have no business being imported into the
+ * chat-intent matching logic. `id`/`lockKey`/`cost` here MUST stay in sync
+ * with TherapyTab.jsx's ALL_METHODS if either changes.
  *
  * Used by intentClassifier.js to recognize "tớ muốn tập thiền" style requests
  * in free chat and route them straight to the right therapy panel — or, if
@@ -22,12 +22,14 @@ export const THERAPY_METHODS = [
     keywords: ["cbt", "worksheet", "tri lieu tram cam", "bang ghi suy nghi", "lieu phap nhan thuc"] },
   { id: "deep_report", lockKey: "deep_report", name: "Báo Cáo Sức Khỏe Tâm Lý Chuyên Sâu", cost: 150, joyLockable: true,
     keywords: ["bao cao chuyen sau", "bao cao tam ly", "ho so gui chuyen gia", "bao cao suc khoe tam ly"] },
-  { id: "writing", lockKey: null, name: "Viết Tự Do", cost: 0, joyLockable: false,
-    keywords: ["viet tu do", "viet bieu dat cam xuc", "viet ra cam xuc", "nhat ky cam xuc"] },
-  { id: "exercise", lockKey: null, name: "Vận Động Nhẹ", cost: 0, joyLockable: false,
-    keywords: ["van dong nhe", "tap the duc nhe", "di bo nhe", "van dong co the"] },
-  { id: "social", lockKey: null, name: "Kết Nối Xã Hội", cost: 0, joyLockable: false,
-    keywords: ["ket noi xa hoi", "goi cho ban be", "tro chuyen voi nguoi than", "ket noi voi ai do"] },
+  { id: "action_plan", lockKey: "action_plan", name: "Lộ Trình Hoạt Động Cá Nhân Hoá", cost: 150, joyLockable: true,
+    keywords: ["lo trinh ca nhan hoa", "lo trinh hoat dong", "lo trinh 7 ngay", "ke hoach hoat dong", "lo trinh tu thay doi"] },
+  { id: "writing", lockKey: "writing", name: "Viết Cảm Xúc", cost: 150, joyLockable: true,
+    keywords: ["viet cam xuc", "viet tu do", "viet tri lieu", "viet nhat ky", "viet giam stress"] },
+  { id: "exercise", lockKey: "exercise", name: "Vận Động Nhẹ", cost: 150, joyLockable: true,
+    keywords: ["van dong nhe", "tap the duc", "tap luyen", "giai phong endorphin", "giam stress bang van dong"] },
+  { id: "social", lockKey: "social", name: "Kết Nối Xã Hội", cost: 150, joyLockable: true,
+    keywords: ["ket noi xa hoi", "ket noi ban be", "giao tiep", "ho tro xa hoi", "giam tram cam"] },
 ];
 
 /** Returns the first THERAPY_METHODS entry whose keyword appears in de-accented `cleanText`, or null. */

@@ -54,8 +54,23 @@ export function isCrisisText(cleanText) {
   if (explicit.test(cleanText)) return true;
   const firstPersonDeath = /\b(toi|to|minh|tao)\b[^.!?]{0,18}\b(muon|can|se|sap)?\s*chet\b(?!\s*(mat|doi|met|khat|cuoi|ngat|sieng|thui|di))/;
   const conditionalDeath = /\bneu\b[^.!?]{0,15}\b(toi|to|minh)\b[^.!?]{0,12}\bchet\b/;
-  return firstPersonDeath.test(cleanText) || conditionalDeath.test(cleanText);
+  if (firstPersonDeath.test(cleanText) || conditionalDeath.test(cleanText)) return true;
+  return crisisParaphrase.test(cleanText);
 }
+
+// Extra explicit paraphrasings the pattern above doesn't literally contain —
+// same deterministic substring/word-order matching as `explicit`, just anchored
+// on the distinctive content words of each phrasing (not whole-sentence
+// comparison). A PRIOR version of this used whole-sentence Dice-bigram fuzzy
+// matching, which false-triggered on ordinary messages that happened to share
+// common Vietnamese particles ("khong", "toi", "duoc", "nay"/"day") with a
+// corpus phrase — e.g. "khong dau, hom nay toi chuan bi duoc di choi day" (a
+// cheerful "no, I'm heading out today") scored 0.625 similarity against "to
+// khong xung dang duoc song tren doi nay" purely from filler-word overlap.
+// Regex avoids that failure mode entirely: it can only match if the actual
+// signal phrase is present, in order, so an unrelated sentence never trips it
+// no matter how many stray words it shares with a danger phrase.
+const crisisParaphrase = /(khong con ly do.{0,10}song|chan song (lam roi|qua|that su)|uoc gi.{0,15}bien mat khoi|moi thu (that su |)vo nghia|giai thoat khoi (tat ca|moi thu)|khong (con |)ai (se |)can (toi|to|minh)( nua| dau)?|khong ai (se |)nho (toi|to|minh)( nua| dau)|(la |)ganh nang cho (moi nguoi|gia dinh)|khong xung dang.{0,10}song|gia nhu (minh |to |)chua tung (duoc sinh ra|ton tai|xuat hien)|khong con suc.{0,10}chiu dung|nghi den (chuyen |viec |)ket thuc (moi thu|tat ca|cuoc doi))/;
 
 const SEVERITY_LABELS = { normal: "Ổn định", mild: "Nhẹ", moderate: "Trung bình", severe: "Cao", extremely_severe: "Rất cao" };
 function phq9Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; if (score <= 19) return "severe"; return "extremely_severe"; }

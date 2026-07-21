@@ -1,5 +1,6 @@
 import express from 'express';
 import JoyGiftCard from '../models/JoyGiftCard.js';
+import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 
@@ -72,6 +73,10 @@ router.post('/', requireAdmin, async (req, res) => {
 import InAppNotification from '../models/InAppNotification.js';
 
 // POST /api/joy-gift-cards/direct-add (admin) { email, amount, note }
+// `email` accepts an email address OR a phone number (the admin terminal UI
+// prompts for "Email hoặc SĐT") — resolve against Bio.email/contactEmail/phone
+// here so awardJoy() (which only looks up by email/contactEmail) gets a
+// pre-resolved doc instead of throwing BIO_NOT_FOUND on a valid phone lookup.
 router.post('/direct-add', requireAdmin, async (req, res) => {
   try {
     const { email, amount, note } = req.body;
@@ -80,22 +85,27 @@ router.post('/direct-add', requireAdmin, async (req, res) => {
     const numericAmount = Number(amount);
     if (numericAmount <= 0) return res.status(400).json({ error: 'Số lượng JOY phải lớn hơn 0' });
 
+    const identifier = String(email).trim();
+    const bio = await Bio.findOne({ $or: [{ email: identifier }, { contactEmail: identifier }, { phone: identifier }] });
+    if (!bio) return res.status(404).json({ error: `Không tìm thấy tài khoản khớp với "${identifier}" (đã thử email và số điện thoại).` });
+
     const { balance } = await awardJoy(
-      email,
+      bio.email,
       numericAmount,
       'admin_direct_add',
-      `Được tặng trực tiếp từ Admin: ${note || 'Không có ghi chú'}`
+      `Được tặng trực tiếp từ Admin: ${note || 'Không có ghi chú'}`,
+      { bioDoc: bio, skipSave: true }
     );
 
     await InAppNotification.create({
-      email,
+      email: bio.email,
       type: 'success',
       category: 'joy',
       title: 'Nhận điểm JOY thưởng',
       message: `Bạn vừa được Admin tặng trực tiếp ${numericAmount} JOY. ${note ? `Lý do: ${note}` : ''}`
     });
 
-    res.json({ success: true, balance, message: `Đã nạp ${numericAmount} JOY cho ${email}` });
+    res.json({ success: true, balance, message: `Đã nạp ${numericAmount} JOY cho ${bio.email}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
