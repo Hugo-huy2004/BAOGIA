@@ -142,6 +142,15 @@ GROQ_DEFAULT_MODELS = [
     "llama-3.1-8b-instant",
 ]
 
+# Independent free-tier provider — separate rate-limit pool from Groq/OpenRouter,
+# so it adds real burst headroom rather than just retrying the same shared quota.
+# Inert until CEREBRAS_API_KEY is set (see _provider_available guard below).
+CEREBRAS_DEFAULT_MODELS = [
+    "llama-3.3-70b",
+    "llama3.1-8b",
+    "qwen-3-32b",
+]
+
 CRISIS_TERMS = [
     "tu tu", "tu sat", "khong muon song", "muon chet", "chet di",
     "ket lieu", "tu lam hai", "tu hai", "rach tay", "nhay lau",
@@ -152,6 +161,11 @@ class GeminiService:
     def __init__(self):
         # Cập nhật sang gemini-2.5-flash để đảm bảo tương thích quota miễn phí
         self.model_name = "gemini-2.5-flash"
+        # Reserved for low-frequency, high-value reports only (deep_report,
+        # weekly_report) — Pro's free-tier RPD is far smaller than Flash's,
+        # so using it for live chat would collapse capacity. _generate_json_cascade
+        # tries Pro first and falls back to Flash if Pro's quota is exhausted.
+        self.model_name_deep = "gemini-2.5-pro"
         self.provider_cooldowns: dict[str, float] = {}
         self.provider_cooldown_seconds = int(os.getenv("AI_PROVIDER_COOLDOWN_SECONDS", "90"))
         self.allow_free_ai_fallback = os.getenv("HUGOPSY_ALLOW_FREE_AI_FALLBACK", "true").lower() in ("1", "true", "yes", "on")
@@ -185,6 +199,11 @@ class GeminiService:
         self.groq_models = [m.strip() for m in groq_models.split(",") if m.strip()] or GROQ_DEFAULT_MODELS
         if os.getenv("GROQ_API_KEY"):
             print(f"Đã bật Groq fallback với {len(self.groq_models)} model.")
+
+        cerebras_models = os.getenv("CEREBRAS_MODELS", "")
+        self.cerebras_models = [m.strip() for m in cerebras_models.split(",") if m.strip()] or CEREBRAS_DEFAULT_MODELS
+        if os.getenv("CEREBRAS_API_KEY"):
+            print(f"Đã bật Cerebras fallback với {len(self.cerebras_models)} model.")
 
     def _get_next_client(self) -> Any:
         if not self.api_keys:
@@ -360,6 +379,9 @@ class GeminiService:
         wellness_summary = (bio or {}).get("wellnessSummary")
         wellness_summary_block = wellness_summary or "Chưa có dữ liệu check-in/test gần đây."
 
+        psych_profile = (bio or {}).get("psychProfile")
+        psych_profile_block = psych_profile or "Chưa có đủ dữ liệu để nhận diện chủ đề/áp lực lặp lại."
+
         return f"""
         Bạn là "Hugo Studio AI" (hay còn gọi là HugoPSY) - người bạn đồng hành tri kỷ, lắng nghe sâu sắc và hỗ trợ sức khỏe tinh thần học đường dành riêng cho học sinh, sinh viên Việt Nam.
         
@@ -412,6 +434,9 @@ class GeminiService:
 
         Tóm tắt sức khỏe tinh thần gần đây của {name}:
         {wellness_summary_block}
+
+        Hồ sơ tâm lý được đúc kết từ các lượt trò chuyện gần đây của {name} (chủ đề hay gây áp lực, tình trạng tình cảm, xu hướng cảm xúc) — hãy vận dụng để cá nhân hóa, KHÔNG đọc lại nguyên văn cho {name} nghe như đang liệt kê hồ sơ:
+        {psych_profile_block}
 
         Hệ thống bài test:
         {SYSTEM_TESTS_CONTEXT}
@@ -566,6 +591,94 @@ class GeminiService:
         self._mark_provider_failure("groq")
         return
 
+    # Cerebras Cloud — OpenAI-compatible free tier, same shape as Groq above but
+    # a completely independent rate-limit pool (different provider), so it adds
+    # real burst headroom rather than retrying the same shared quota. No-op
+    # (silently skipped) until CEREBRAS_API_KEY is set.
+    async def _call_cerebras(self, messages: list, temperature: float = 0.7) -> str:
+        api_key = os.getenv("CEREBRAS_API_KEY", "")
+        if not api_key or not self.allow_free_ai_fallback or not self._provider_available("cerebras"):
+            return ""
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        url = "https://api.cerebras.ai/v1/chat/completions"
+
+        for model in self.cerebras_models:
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": 650,
+            }
+            try:
+                async with httpx.AsyncClient(timeout=22.0) as client:
+                    res = await client.post(url, headers=headers, json=payload)
+                    if res.status_code == 200:
+                        self._mark_provider_success("cerebras")
+                        data = res.json()
+                        return data["choices"][0]["message"]["content"]
+                    if res.status_code in (429, 500, 502, 503, 504):
+                        print(f"Cerebras temporary error ({model}) {res.status_code}: {res.text[:240]}")
+                        continue
+                    print(f"Cerebras error ({model}) {res.status_code}: {res.text[:240]}")
+            except Exception as e:
+                print(f"Cerebras exception ({model}): {e}")
+
+        self._mark_provider_failure("cerebras")
+        return ""
+
+    async def _call_cerebras_stream(self, messages: list, temperature: float = 0.7) -> AsyncGenerator[str, None]:
+        api_key = os.getenv("CEREBRAS_API_KEY", "")
+        if not api_key or not self.allow_free_ai_fallback or not self._provider_available("cerebras"):
+            return
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        url = "https://api.cerebras.ai/v1/chat/completions"
+
+        for model in self.cerebras_models:
+            payload = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": 650,
+                "stream": True,
+            }
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    async with client.stream("POST", url, headers=headers, json=payload) as response:
+                        if response.status_code != 200:
+                            err_text = (await response.aread()).decode("utf-8", "ignore")[:240]
+                            print(f"Cerebras stream error ({model}) {response.status_code}: {err_text}")
+                            continue
+
+                        self._mark_provider_success("cerebras")
+                        async for line in response.aiter_lines():
+                            line = line.strip()
+                            if not line or not line.startswith("data: "):
+                                continue
+                            data_str = line[6:]
+                            if data_str == "[DONE]":
+                                return
+                            try:
+                                data = json.loads(data_str)
+                                chunk_text = data["choices"][0]["delta"].get("content", "")
+                                if chunk_text:
+                                    yield f"data: {json.dumps({'text': chunk_text}, ensure_ascii=False)}\n\n"
+                            except Exception:
+                                continue
+                        return
+            except Exception as e:
+                print(f"Cerebras stream exception ({model}): {e}")
+
+        self._mark_provider_failure("cerebras")
+        return
+
     async def generate_chat_response(self, message: str, history: Optional[list] = None, bio: Optional[dict] = None, persona: str = 'companion') -> str:
         """
         Trò chuyện đồng hành cùng học sinh và sinh viên (persona='companion', mặc định)
@@ -588,6 +701,14 @@ class GeminiService:
                 )
                 if groq_reply:
                     return groq_reply
+
+                # Try Cerebras (independent free-tier pool, same speed class as Groq)
+                cerebras_reply = await self._call_cerebras(
+                    self._build_openai_messages(system_instruction, history, message),
+                    temperature=0.7
+                )
+                if cerebras_reply:
+                    return cerebras_reply
 
                 # Try OpenRouter
                 openrouter_reply = await self._openrouter_from(system_instruction, history, message)
@@ -625,12 +746,6 @@ class GeminiService:
                     continue
                 print(f"Lỗi gọi Gemini API (generate_chat_response): {err_str}")
 
-                # OpenRouter fallback
-                if persona == 'guide' or not self._is_crisis_text(message):
-                    openrouter_reply = await self._openrouter_from(system_instruction, history, message)
-                    if openrouter_reply:
-                        return openrouter_reply
-
                 # Groq fallback
                 if not self._is_crisis_text(message):
                     groq_reply = await self._call_groq(
@@ -640,14 +755,22 @@ class GeminiService:
                     if groq_reply:
                         return groq_reply
 
+                    cerebras_reply = await self._call_cerebras(
+                        self._build_openai_messages(system_instruction, history, message),
+                        temperature=0.7
+                    )
+                    if cerebras_reply:
+                        return cerebras_reply
+
+                # OpenRouter fallback
+                if persona == 'guide' or not self._is_crisis_text(message):
+                    openrouter_reply = await self._openrouter_from(system_instruction, history, message)
+                    if openrouter_reply:
+                        return openrouter_reply
+
                 raise RuntimeError("AI_UNAVAILABLE")
 
         # Keys loop ended without success — same fallback gating as above.
-        if persona == 'guide' or not self._is_crisis_text(message):
-            openrouter_reply = await self._openrouter_from(system_instruction, history, message)
-            if openrouter_reply:
-                return openrouter_reply
-
         if not self._is_crisis_text(message):
             groq_reply = await self._call_groq(
                 self._build_openai_messages(system_instruction, history, message),
@@ -655,6 +778,18 @@ class GeminiService:
             )
             if groq_reply:
                 return groq_reply
+
+            cerebras_reply = await self._call_cerebras(
+                self._build_openai_messages(system_instruction, history, message),
+                temperature=0.7
+            )
+            if cerebras_reply:
+                return cerebras_reply
+
+        if persona == 'guide' or not self._is_crisis_text(message):
+            openrouter_reply = await self._openrouter_from(system_instruction, history, message)
+            if openrouter_reply:
+                return openrouter_reply
 
         raise RuntimeError("AI_UNAVAILABLE")
 
@@ -672,6 +807,16 @@ class GeminiService:
                 sent = False
                 # Try Groq stream
                 async for chunk in self._call_groq_stream(
+                    self._build_openai_messages(system_instruction, history, message),
+                    temperature=0.7
+                ):
+                    sent = True
+                    yield chunk
+                if sent:
+                    return
+
+                # Try Cerebras stream (independent free-tier pool)
+                async for chunk in self._call_cerebras_stream(
                     self._build_openai_messages(system_instruction, history, message),
                     temperature=0.7
                 ):
@@ -736,6 +881,16 @@ class GeminiService:
                     if sent:
                         return
 
+                    # Try Cerebras stream (independent free-tier pool)
+                    async for chunk in self._call_cerebras_stream(
+                        self._build_openai_messages(system_instruction, history, message),
+                        temperature=0.7
+                    ):
+                        sent = True
+                        yield chunk
+                    if sent:
+                        return
+
                     # Try OpenRouter stream
                     async for chunk in self._call_openrouter_stream(
                         self._build_openai_messages(system_instruction, history, message),
@@ -755,6 +910,16 @@ class GeminiService:
             sent = False
             # Try Groq stream
             async for chunk in self._call_groq_stream(
+                self._build_openai_messages(system_instruction, history, message),
+                temperature=0.7
+            ):
+                sent = True
+                yield chunk
+            if sent:
+                return
+
+            # Try Cerebras stream (independent free-tier pool)
+            async for chunk in self._call_cerebras_stream(
                 self._build_openai_messages(system_instruction, history, message),
                 temperature=0.7
             ):
@@ -1527,6 +1692,39 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
         except Exception as e:
             return {"wellnessScore": 50, "insights": f"Lỗi phân tích: {str(e)}", "alerts": [], "recommendations": []}
 
+    async def _generate_json_cascade(self, system_instruction: str, prompt: str, temperature: float = 0.4, models: Optional[list] = None) -> Optional[dict]:
+        """
+        Try each model in `models` (default: Pro then Flash) across all
+        rotated API keys, returning the first successful JSON response.
+        Used only by low-frequency report generators where Pro's much
+        smaller free-tier quota is affordable — never for live chat.
+        """
+        client = self._ensure_client()
+        if not client:
+            return None
+        for model in models or [self.model_name_deep, self.model_name]:
+            max_retries = max(1, len(self.api_keys) if hasattr(self, 'api_keys') else 1)
+            for attempt in range(max_retries):
+                try:
+                    response = await client.aio.models.generate_content(
+                        model=model,
+                        contents=[prompt],
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_instruction,
+                            response_mime_type="application/json",
+                            temperature=temperature
+                        )
+                    )
+                    return json.loads(response.text)
+                except Exception as e:
+                    err_str = str(e)
+                    if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
+                        client = self._get_next_client()
+                        continue
+                    print(f"Lỗi gọi Gemini API ({model}): {err_str}")
+                    break  # this model exhausted/failed — try the next model in the cascade
+        return None
+
     async def generate_weekly_report(self, history_logs: list, chat_messages: list, bio: Optional[dict] = None) -> dict:
         """
         Tạo báo cáo sức khỏe tâm lý hàng tuần dựa trên lịch sử hoạt động.
@@ -1579,24 +1777,16 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
             "Tạo báo cáo sức khỏe tâm lý hàng tuần theo JSON."
         )
 
-        try:
-            response = await client.aio.models.generate_content(
-                model=self.model_name,
-                contents=[prompt],
-                config=types.GenerateContentConfig(
-                    system_instruction=system_instruction,
-                    response_mime_type="application/json"
-                )
-            )
-            return json.loads(response.text)
-        except Exception as e:
-            return {
-                "summary": f"Lỗi tạo báo cáo: {str(e)}",
-                "moodTrend": "unknown",
-                "topConcerns": [],
-                "achievements": [],
-                "nextSteps": []
-            }
+        result = await self._generate_json_cascade(system_instruction, prompt, temperature=0.5)
+        if result:
+            return result
+        return {
+            "summary": "Tớ chưa thể soạn báo cáo lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!",
+            "moodTrend": "unknown",
+            "topConcerns": [],
+            "achievements": [],
+            "nextSteps": []
+        }
 
     # ── Premium therapy features (150 JOY unlocks) ──────────────────────────
     # Each of these is intentionally a different MECHANIC, not a re-skin of the
@@ -1878,33 +2068,14 @@ Trả về JSON CHÍNH XÁC:
             "Hãy soạn báo cáo tổng hợp theo đúng yêu cầu."
         )
 
+        result = await self._generate_json_cascade(system_instruction, prompt, temperature=0.4)
+        if result:
+            return result
+
         fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.4)
         if fallback:
             return fallback
 
-        client = self._ensure_client()
-        if not client:
-            return {"error": "No API Key"}
-        max_retries = max(1, len(self.api_keys))
-        for attempt in range(max_retries):
-            try:
-                response = await client.aio.models.generate_content(
-                    model=self.model_name,
-                    contents=[prompt],
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        response_mime_type="application/json",
-                        temperature=0.4
-                    )
-                )
-                return json.loads(response.text)
-            except Exception as e:
-                err_str = str(e)
-                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
-                    client = self._get_next_client()
-                    continue
-                print(f"Lỗi gọi Gemini API (generate_deep_report): {err_str}")
-                return {"error": "Tớ chưa thể soạn báo cáo lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!"}
         return {"error": "Tất cả API Key đã bị quá tải, tớ chưa thể soạn báo cáo ngay lúc này. Cậu thử lại sau nhé!"}
 
     # Keep in sync with the `tier` field of INTENT_DATABASE in

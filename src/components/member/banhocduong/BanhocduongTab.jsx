@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import SubUtilityHeader from "../SubUtilityHeader";
 import ChatTab from "./ChatTab";
-import StoryTab from "./StoryTab";
 import TherapyTab from "./TherapyTab";
 import EvaluationTab from "./EvaluationTab";
 import SleepTracker from "./SleepTracker";
@@ -20,7 +19,6 @@ import EmergencySiren from "./EmergencySiren";
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
   { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
-  { id: 'story',      label: 'Cốt Truyện',icon: 'auto_stories',   grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
   { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
@@ -792,9 +790,6 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                       }
                     }}
                   />
-                )}
-                {effectiveSubTab === "story" && (
-                  <StoryTab bio={bio} />
                 )}
                 {effectiveSubTab === "therapy" && (
                   <TherapyTab

@@ -62,10 +62,10 @@ export function generatePersonalizedStory(bio) {
   return {
     companion: "aura",
     chapterTitle: "Khu Vườn Ánh Sáng",
-    narrative: `Hồ sơ của ${name} đang ở trạng thái cân bằng tuyệt vời. Aura đang bay lượn trên đồng cỏ xanh mướt, vẫy gọi cậu tiếp tục khám phá những trang sách cuộc đời nhiệm màu tiếp theo.`,
-    ctaLabel: "Đến thế giới Cốt Truyện",
+    narrative: `Hồ sơ của ${name} đang ở trạng thái cân bằng tuyệt vời. Aura đang bay lượn trên đồng cỏ xanh mướt, vẫy gọi cậu tiếp tục trò chuyện và khám phá hành trình tiếp theo.`,
+    ctaLabel: "Trò chuyện cùng Aura",
     targetTab: "utilities",
     targetSubTab: "psychology",
-    targetPsychTab: "story"
+    targetPsychTab: "chat"
   };
 }

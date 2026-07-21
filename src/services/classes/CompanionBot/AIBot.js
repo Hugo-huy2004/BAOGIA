@@ -1,6 +1,7 @@
 import BaseBot from "./BaseBot";
 import pLimit from "p-limit";
 import { buildLocalReply } from "./localFallback";
+import { loadSecureMemory } from "../../../components/member/banhocduong/utils/secureMemory";
 
 // Detect structured test-suggestion markers the server is asked to emit, e.g.
 // "[[SUGGEST:phq9,gad7]]". Falls back to the old keyword scan for older server
@@ -222,6 +223,50 @@ export default class AIBot extends BaseBot {
     return parts.join(" ");
   }
 
+  // secureMemory (src/components/member/banhocduong/utils/secureMemory.js) is
+  // tracked entirely client-side today and only ever consulted by the local
+  // (non-AI) intent classifier — the real Gemini conversation never saw it,
+  // so it re-diagnosed the user's stress triggers and relationship context
+  // from scratch every message. Condensing it into a short line here lets
+  // the AI carry that understanding across the whole conversation for free
+  // (no extra model calls, just a few more prompt tokens).
+  _buildPsychProfile() {
+    const TRIGGER_LABELS = {
+      family: "gia đình", studies: "học tập", peers: "bạn bè",
+      love: "tình cảm", health: "sức khoẻ/giấc ngủ"
+    };
+    const RELATIONSHIP_LABELS = {
+      single_recently_broken_up: "vừa chia tay gần đây",
+      in_relationship: "đang trong một mối quan hệ",
+      has_crush: "đang có tình cảm với ai đó (crush)"
+    };
+    try {
+      const memory = loadSecureMemory(this.bio);
+      if (!memory) return "";
+      const parts = [];
+
+      const triggers = (memory.stressTriggers || []).map(t => TRIGGER_LABELS[t]).filter(Boolean);
+      if (triggers.length > 0) parts.push(`Chủ đề hay gây áp lực gần đây: ${triggers.join(", ")}.`);
+
+      if (memory.relationshipStatus && RELATIONSHIP_LABELS[memory.relationshipStatus]) {
+        parts.push(`Tình trạng tình cảm: ${RELATIONSHIP_LABELS[memory.relationshipStatus]}.`);
+      }
+
+      const trend = memory.sentimentTrend;
+      if (Array.isArray(trend) && trend.length >= 3) {
+        const avg = trend.reduce((a, b) => a + b, 0) / trend.length;
+        if (avg <= -0.4) parts.push("Xu hướng cảm xúc vài lượt gần đây: nghiêng về tiêu cực.");
+        else if (avg >= 0.4) parts.push("Xu hướng cảm xúc vài lượt gần đây: nghiêng về tích cực.");
+      }
+
+      if (memory.examDate) parts.push(`Có mốc thi/deadline sắp tới: ${memory.examDate}.`);
+
+      return parts.join(" ");
+    } catch (_) {
+      return "";
+    }
+  }
+
   // Builds the ONLY bio payload ever sent to the third-party AI server
   // (Gemini/OpenRouter). Deliberately a strict allow-list, not the raw Bio
   // document — `this.bio` carries email, phone, address, exact birthday,
@@ -236,10 +281,12 @@ export default class AIBot extends BaseBot {
       if (year) age = new Date().getFullYear() - year;
     }
     const summary = this._buildWellnessSummary();
+    const psychProfile = this._buildPsychProfile();
     return {
       displayName: this.bio?.displayName || this.bio?.name || "",
       ...(age ? { age } : {}),
-      ...(summary ? { wellnessSummary: summary } : {})
+      ...(summary ? { wellnessSummary: summary } : {}),
+      ...(psychProfile ? { psychProfile } : {})
     };
   }
 
