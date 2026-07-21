@@ -789,7 +789,10 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
       : new Date().getHours();
 
     const [{ places, source }, interests, communityDocs] = await Promise.all([
-      discoverPlaces({ lat, lng, category, q }),
+      discoverPlaces({ lat, lng, category, q }).catch(err => {
+        console.warn('[Discovery] discoverPlaces failed:', err.message);
+        return { places: [], source: 'none' };
+      }),
       getTopInterests(req.memberEmail, 12).catch(() => []),
       CommunityPlace.find().lean().catch(() => [])
     ]);

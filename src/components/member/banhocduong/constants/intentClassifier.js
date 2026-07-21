@@ -119,6 +119,54 @@ function _rotate(id, variants) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// COMPOSITIONAL REPLY ENGINE
+// Instead of picking a whole pre-written sentence from a small fixed pool,
+// this reads lightweight signals out of the user's raw message (who's
+// involved, how intense the wording is) plus the rolling sentimentTrend
+// already tracked in secureMemory, then independently rotates an opener +
+// a validation + a follow-up question and stitches them together — so the
+// combinatorial space (opener × validation × question) is far larger than
+// any single fixed triplet, and replies can reference what the user actually
+// said instead of being context-blind templates.
+// ─────────────────────────────────────────────────────────────────────────────
+const WHO_PATTERNS = [
+  { who: "bố mẹ", regex: /\b(bo me|ba me|gia dinh)\b/ },
+  { who: "bạn bè", regex: /\b(ban than|ban be|dam ban)\b/ },
+  { who: "người yêu", regex: /\b(nguoi yeu|ny|ban trai|ban gai)\b/ },
+  { who: "thầy cô", regex: /\b(thay co|giao vien|giao su)\b/ },
+];
+
+function extractSignals(rawText) {
+  const clean = removeVietnameseTones(rawText || "");
+  const who = (WHO_PATTERNS.find((p) => p.regex.test(clean)) || {}).who || null;
+  const highIntensity = /\b(qua|rat|cuc ky|vo cung|kinh khung|khung khiep|khong chiu noi)\b/.test(clean);
+  return { who, highIntensity };
+}
+
+// slots: { openers, validations, questions } — each a short array of fragments.
+// Fragments may use {name} and {who} tokens; {who} resolves to "" when nothing
+// was detected in the raw message, so write openers where that still reads fine.
+function composeIntentReply({ id, name, rawText, memory, slots }) {
+  const { who, highIntensity } = extractSignals(rawText);
+  const fill = (s) => s.replace(/\{name\}/g, name).replace(/\{who\}/g, who ? ` với ${who}` : "");
+
+  const bubbles = [
+    fill(_rotate(`${id}_opener`, slots.openers)),
+    fill(_rotate(`${id}_validation`, slots.validations)),
+  ];
+
+  // If the user's mood has been trending down across several recent turns
+  // (not just this one message) and this message itself reads intense,
+  // acknowledge the streak instead of treating every message as an isolated blip.
+  if (memory?.sentimentTrend != null && memory.sentimentTrend < -0.35 && highIntensity) {
+    bubbles.push(`Tớ để ý mấy bữa nay tâm trạng ${name} nhìn chung cũng không dễ dàng gì — không phải chỉ mỗi chuyện này thôi đúng không?`);
+  }
+
+  bubbles.push(fill(_rotate(`${id}_question`, slots.questions)));
+  return bubbles;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // INTENT DATABASE
 // ─────────────────────────────────────────────────────────────────────────────
 export const INTENT_DATABASE = [
@@ -461,10 +509,29 @@ export const INTENT_DATABASE = [
       "mâu thuẫn với gia đình", "bố mẹ la mắng tớ", "tớ với gia đình không hợp",
       "gia đình tớ căng thẳng", "bố mẹ kỳ vọng quá nhiều"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Mâu thuẫn gia đình nhiều khi chỉ là 2 bên "nói chuyện khác kênh" — không hẳn không thương nhau.`, `Cảm giác bị áp đặt của ${name} hoàn toàn hợp lý mà.`, `Kể tớ nghe chuyện vừa xảy ra đi, gỡ rối cùng nhau nha.`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "family_conflict",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Mâu thuẫn{who} nhiều khi chỉ là hai bên "nói chuyện khác kênh" thôi — không hẳn là không thương nhau.`,
+          `Nhà mà cũng cãi nhau chan chát được thì đúng là một gia đình thật rồi đó {name} 😅, chỉ là lần này chắc đau hơn thường lệ.`,
+          `{name} ơi, bị áp đặt hoài đúng là ngộp thở thật đó — không phải cậu "khó chiều" đâu.`,
+        ],
+        validations: [
+          `Cảm giác bị áp đặt của {name} hoàn toàn hợp lý mà.`,
+          `Bố mẹ thương theo kiểu của họ, còn cậu cần được hiểu theo kiểu của cậu — hai điều đó nhiều khi không khớp nhịp với nhau.`,
+          `Có những nhà thương nhau bằng cách kỳ vọng, chứ không phải bằng cách hỏi han — dễ hiểu lầm lắm.`,
+        ],
+        questions: [
+          `Kể tớ nghe chuyện vừa xảy ra đi, gỡ rối cùng nhau nha.`,
+          `Trận này là về chuyện gì vậy, có phải kiểu chuyện muôn thuở không nè?`,
+          `Cậu đang cần bố mẹ hiểu điều gì nhất lúc này?`,
+        ],
+      },
+    }),
   },
   {
     id: "friendship_conflict",
@@ -474,10 +541,29 @@ export const INTENT_DATABASE = [
       "tớ bị cô lập trong lớp", "bạn thân nói xấu tớ", "tớ bị bạn bè tẩy chay",
       "tớ bị bully", "bạn bè xấu với tớ", "drama bạn bè"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Bị tẩy chay hay bully đau thiệt đó ${name} ơi 💙`, `Đây không phải lỗi của cậu — nhớ vậy nha.`, `Cậu đang an toàn không? Có nói với thầy cô hoặc người lớn tin tưởng chưa?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "friendship_conflict",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Bị tẩy chay hay bully đau thiệt đó {name} ơi 💙`,
+          `Bạn bè kiểu đó thì "mất" cũng chẳng tiếc gì đâu {name} — nhưng tớ biết lúc đang ở trong đó thì đau thật, không đùa được.`,
+          `{name} ơi, drama kiểu này mệt hơn cả deadline nữa — tớ hiểu.`,
+        ],
+        validations: [
+          `Đây không phải lỗi của cậu — nhớ vậy nha.`,
+          `Bị cô lập làm mình hay tự hỏi "có phải do mình" — không, phần lớn là do động lực nhóm, không phải vì cậu tệ.`,
+          `Cậu không cần "thắng" cuộc chiến này, chỉ cần được an toàn và có người đứng về phía cậu thôi.`,
+        ],
+        questions: [
+          `Cậu đang an toàn không? Có nói với thầy cô hoặc người lớn tin tưởng chưa?`,
+          `Chuyện đang diễn ra ở mức nào rồi, kể tớ nghe chi tiết hơn được không?`,
+          `Có ai — bạn khác, thầy cô, gia đình — đang ở cạnh cậu lúc này không?`,
+        ],
+      },
+    }),
   },
   {
     id: "breakup",
@@ -487,10 +573,29 @@ export const INTENT_DATABASE = [
       "tớ buồn vì chia tay", "tình cảm tan vỡ", "tớ bị người yêu bỏ",
       "chia tay đau lắm", "hết yêu rồi"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Chia tay giống như mất một phần kỳ vọng đã xây cùng nhau — buồn là chuyện đương nhiên ${name} ơi 🫂`, `Đừng ép bản thân "ổn ngay" đâu nha.`, `Điều gì đang làm cậu day dứt nhất về chuyện này?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "breakup",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Chia tay giống như mất một phần kỳ vọng đã xây cùng nhau — buồn là chuyện đương nhiên {name} ơi 🫂`,
+          `{name} ơi, tim vỡ không có phần mềm sửa lỗi nào chữa nhanh được đâu — cần thời gian thật sự.`,
+          `Nghe muốn ôm cậu một cái ghê {name} — chia tay dù ai chủ động cũng đau như nhau hết.`,
+        ],
+        validations: [
+          `Đừng ép bản thân "ổn ngay" đâu nha.`,
+          `Cứ khóc, cứ nghe nhạc buồn vài hôm cũng được, không ai bắt cậu phải "moved on" đúng deadline cả.`,
+          `Não cậu giờ chắc đang phát lại kỷ niệm liên tục đúng không — đó là bình thường, không phải cậu "làm quá" đâu.`,
+        ],
+        questions: [
+          `Điều gì đang làm cậu day dứt nhất về chuyện này?`,
+          `Cậu với người đó chia tay kiểu êm hay ồn ào vậy?`,
+          `Cậu đang nhớ nhất điều gì về người đó?`,
+        ],
+      },
+    }),
   },
   {
     id: "low_self_esteem",
@@ -500,10 +605,29 @@ export const INTENT_DATABASE = [
       "tớ không tin vào bản thân", "tớ ghét bản thân mình", "tớ cảm thấy mình thất bại",
       "tớ không đủ giỏi", "tớ không làm được gì"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Lúc buồn não hay "thổi phồng" lỗi sai và hạ giá trị bản thân — đó không phải sự thật về ${name} đâu.`, `Giá trị một người không nằm ở vài lần vấp ngã hay so sánh với ai.`, `Kể tớ nghe 1 điều — dù nhỏ xíu — cậu đã làm tốt gần đây đi?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "low_self_esteem",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Lúc buồn, não hay "thổi phồng" lỗi sai và hạ giá trị bản thân — đó không phải sự thật về {name} đâu.`,
+          `{name} ơi, cái giọng nói trong đầu đang chê bai cậu suốt ngày ấy — nó không phải là sự thật, nó chỉ là mệt mỏi đang lên tiếng thôi.`,
+          `Ai rồi cũng có lúc soi mình qua cái kính lúp lỗi lầm cả {name} à, kể cả những người cậu ngưỡng mộ nhất.`,
+        ],
+        validations: [
+          `Giá trị một người không nằm ở vài lần vấp ngã hay so sánh với ai.`,
+          `Cậu đang đánh giá cả con người mình chỉ bằng vài khoảnh khắc tệ nhất — không công bằng với chính cậu chút nào.`,
+          `Tự ti không có nghĩa là cậu thật sự kém — nó chỉ là cách bộ não đang cố "bảo vệ" cậu khỏi bị thất vọng thêm thôi.`,
+        ],
+        questions: [
+          `Kể tớ nghe 1 điều — dù nhỏ xíu — cậu đã làm tốt gần đây đi?`,
+          `Cái giọng chê bai đó đang nói gì với cậu vậy, thử kể tớ nghe nguyên văn xem?`,
+          `Có ai từng nói với cậu điều gì làm cậu tin vào chính mình hơn không?`,
+        ],
+      },
+    }),
   },
   {
     id: "procrastination",
@@ -513,10 +637,29 @@ export const INTENT_DATABASE = [
       "tớ cứ trì hoãn deadline", "tớ không muốn làm gì cả",
       "tớ mất động lực học tập", "chán làm bài quá", "cứ ôm việc không làm"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Trì hoãn thường không phải lười — mà là não đang "trốn" cảm giác sợ thất bại hoặc việc quá to đó ${name}.`, `Mẹo: chia ra bước đầu tiên cực ngắn (2 phút thôi) để lừa cảm giác quá tải.`, `Việc gì cậu đang ôm mà chưa chịu bắt đầu?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "procrastination",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Trì hoãn thường không phải lười — mà là não đang "trốn" cảm giác sợ thất bại hoặc việc quá to đó {name}.`,
+          `{name} với cái deadline đang nhìn nhau chằm chằm mà chưa ai chịu nhúc nhích trước hả 😅`,
+          `Não người trì hoãn giỏi nhất khoản "để mai tính" — không phải vì lười, mà vì việc đang cảm giác quá tải.`,
+        ],
+        validations: [
+          `Mẹo: chia ra bước đầu tiên cực ngắn (2 phút thôi) để lừa cảm giác quá tải.`,
+          `Không cần làm xong cả núi việc ngay — chỉ cần mở file ra thôi cũng đã là thắng rồi.`,
+          `Cậu không "vô kỷ luật" đâu — chỉ là bộ não đang chọn cảm giác dễ chịu ngắn hạn thay vì việc khó lâu dài, ai cũng vậy hết.`,
+        ],
+        questions: [
+          `Việc gì cậu đang ôm mà chưa chịu bắt đầu?`,
+          `Deadline gần nhất của cậu là bao giờ vậy?`,
+          `Phần nào của việc đó đang làm cậu ngán nhất — độ khó hay độ dài?`,
+        ],
+      },
+    }),
   },
   {
     id: "anger",
@@ -526,10 +669,29 @@ export const INTENT_DATABASE = [
       "tớ giận điên lên được", "tớ thấy ấm ức", "tớ khó chịu trong người",
       "tớ muốn đập phá", "tớ bức xúc lắm"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Giận thường là lớp vỏ ngoài che một cảm giác sâu hơn — bị tổn thương hay bất công — hoàn toàn bình thường ${name} ơi.`, `Trước khi phản ứng, hít sâu vài nhịp cho hệ thần kinh dịu lại đã nha.`, `Chuyện gì vừa xảy ra vậy?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "anger",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Giận thường là lớp vỏ ngoài che một cảm giác sâu hơn — bị tổn thương hay bất công — hoàn toàn bình thường {name} ơi.`,
+          `Nghe {name} đang "sôi" thật sự đó — cứ để tớ hứng cơn giận này thay vì nuốt nó vô bụng nha.`,
+          `Tức đến mức muốn đập phá thì chắc chắn có chuyện gì đó rất không công bằng vừa xảy ra với {name} rồi.`,
+        ],
+        validations: [
+          `Trước khi phản ứng, hít sâu vài nhịp cho hệ thần kinh dịu lại đã nha.`,
+          `Giận không xấu — chỉ là năng lượng cần chỗ thoát an toàn, đừng để nó quay ngược vào chính cậu.`,
+          `Cậu có quyền giận, chỉ cần đừng để nó biến thành điều khiến cậu hối hận sau này thôi.`,
+        ],
+        questions: [
+          `Chuyện gì vừa xảy ra vậy?`,
+          `Ai hoặc điều gì đang làm cậu tức đến vậy?`,
+          `Cậu cần xả hết ra hay cần tớ giúp tìm cách xử lý chuyện đó?`,
+        ],
+      },
+    }),
   },
   {
     id: "panic_attack",
@@ -552,10 +714,29 @@ export const INTENT_DATABASE = [
       "tớ không vượt qua được nỗi đau mất người thân", "tớ đang để tang",
       "mất đi người quan trọng", "người thân qua đời"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Tớ rất tiếc vì mất mát lớn này ${name} 🫂`, `Đau buồn không có "đúng tiến độ" — cậu được phép buồn bao lâu cậu cần.`, `Tớ ở đây nếu cậu muốn kể về người đó, hay chỉ cần ai ngồi cạnh im lặng cũng được.`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "grief",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Tớ rất tiếc vì mất mát lớn này {name} 🫂`,
+          `{name} ơi, tớ không biết nói gì cho đủ lúc này — chỉ muốn cậu biết là tớ đang ở đây.`,
+          `Mất một người quan trọng để lại một khoảng trống mà không lời nào lấp đầy được ngay {name} à.`,
+        ],
+        validations: [
+          `Đau buồn không có "đúng tiến độ" — cậu được phép buồn bao lâu cậu cần.`,
+          `Không có cách "đúng" để đau buồn cả — khóc, im lặng, hay thậm chí thấy tê liệt đều bình thường hết.`,
+          `Cậu không cần phải mạnh mẽ ngay lúc này đâu.`,
+        ],
+        questions: [
+          `Tớ ở đây nếu cậu muốn kể về người đó, hay chỉ cần ai ngồi cạnh im lặng cũng được.`,
+          `Cậu có muốn kể tớ nghe một kỷ niệm đẹp với người đó không?`,
+          `Ngay lúc này cậu cần điều gì nhất — được lắng nghe, hay chỉ cần yên tĩnh một chút?`,
+        ],
+      },
+    }),
   },
   {
     id: "future_anxiety",
@@ -565,10 +746,29 @@ export const INTENT_DATABASE = [
       "tớ lo lắng về định hướng nghề nghiệp", "tớ không biết mình muốn gì",
       "tớ sợ chọn sai ngành", "tương lai mờ mịt quá", "không biết làm gì sau này"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Hoang mang về tương lai ở tuổi cậu là cực kỳ bình thường — không ai bắt buộc phải biết hết ngay đâu ${name}.`, `Thay vì tìm câu trả lời "đúng tuyệt đối", cứ khám phá dần thôi.`, `Gần đây điều gì làm cậu thấy hứng thú hoặc tò mò nhất?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "future_anxiety",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Hoang mang về tương lai ở tuổi cậu là cực kỳ bình thường — không ai bắt buộc phải biết hết ngay đâu {name}.`,
+          `{name} ơi, ngay cả người 30 tuổi vẫn còn đang "định hướng lại" ấy — cậu không hề chậm chân đâu.`,
+          `Tương lai mờ mịt nghe đáng sợ, nhưng thật ra phần lớn tụi mình đều đang dò đường trong bóng tối cả thôi.`,
+        ],
+        validations: [
+          `Thay vì tìm câu trả lời "đúng tuyệt đối", cứ khám phá dần thôi.`,
+          `Không có "một con đường đúng duy nhất" — chỉ có những bước tiếp theo hợp lý mà thôi.`,
+          `Cảm giác áp lực phải "biết hết" ngay bây giờ là do xung quanh hối thúc, chứ không phải vì cậu có gì sai.`,
+        ],
+        questions: [
+          `Gần đây điều gì làm cậu thấy hứng thú hoặc tò mò nhất?`,
+          `Cậu đang lo nhất về chuyện chọn ngành, hay về việc chưa biết mình muốn gì?`,
+          `Nếu không sợ chọn sai, cậu sẽ thử điều gì trước?`,
+        ],
+      },
+    }),
   },
   {
     id: "checkin_feature",
@@ -1280,7 +1480,7 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
 
   // Nâng ngưỡng từ 0.60 lên 0.78 để tránh bắt sai các câu hội thoại tự nhiên, nhường chỗ cho LLM thấu cảm
   if (highestScore >= 0.78 && bestMatch) {
-    const replyText = bestMatch.generateResponse(bio, historyLogs, updatedMemory);
+    const replyText = bestMatch.generateResponse(bio, historyLogs, updatedMemory, text);
 
     let companionUpdate = null;
     const NEGATIVE_IDS = new Set([
