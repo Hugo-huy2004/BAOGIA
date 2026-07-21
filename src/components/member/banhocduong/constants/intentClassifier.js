@@ -155,10 +155,16 @@ function composeIntentReply({ id, name, rawText, memory, slots }) {
     fill(_rotate(`${id}_validation`, slots.validations)),
   ];
 
-  // If the user's mood has been trending down across several recent turns
-  // (not just this one message) and this message itself reads intense,
-  // acknowledge the streak instead of treating every message as an isolated blip.
-  if (memory?.sentimentTrend != null && memory.sentimentTrend < -0.35 && highIntensity) {
+  // sentimentTrend is an array of the last few interactions' scores (-1/0/1),
+  // not a precomputed average — average it here. If the user's mood has been
+  // trending down across several recent turns (not just this one message)
+  // and this message itself reads intense, acknowledge the streak instead of
+  // treating every message as an isolated blip.
+  const trend = memory?.sentimentTrend;
+  const trendAvg = Array.isArray(trend) && trend.length > 0
+    ? trend.reduce((a, b) => a + b, 0) / trend.length
+    : null;
+  if (trendAvg != null && trendAvg <= -0.6 && highIntensity) {
     bubbles.push(`Tớ để ý mấy bữa nay tâm trạng ${name} nhìn chung cũng không dễ dàng gì — không phải chỉ mỗi chuyện này thôi đúng không?`);
   }
 
@@ -845,10 +851,29 @@ export const INTENT_DATABASE = [
       "fomo quá", "tớ thấy mình không bằng ai", "người khác hơn tớ",
       "instagram làm tớ tủi thân"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Mạng xã hội chỉ "chiếu" highlight của người khác — mình lại so với cả cuộc đời họ, game đó không công bằng chút nào 😅`, `Hành trình của ${name} có nhịp riêng của nó, không cần sync với ai.`, `Gần đây cậu so sánh mình với ai — bạn học hay idol trên mạng?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "social_comparison",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Mạng xã hội chỉ "chiếu" highlight của người khác — mình lại so với cả cuộc đời họ, game đó không công bằng chút nào 😅`,
+          `{name} ơi, so cuộc đời thật của mình với cái "trailer" đã edit của người khác thì thua là cái chắc rồi 😩`,
+          `FOMO là cảm giác rất người — không phải vì {name} thiếu bản lĩnh đâu.`,
+        ],
+        validations: [
+          `Hành trình của {name} có nhịp riêng của nó, không cần sync với ai.`,
+          `Người ta cũng đang so sánh với ai đó khác thôi — vòng lặp này không ai thắng cả.`,
+          `Cái mình thấy trên mạng chỉ là 1% khoảnh khắc đẹp nhất họ chọn đăng — không phải cả bức tranh.`,
+        ],
+        questions: [
+          `Gần đây cậu so sánh mình với ai — bạn học hay idol trên mạng?`,
+          `Nếu tắt hết mạng xã hội một tuần, cậu nghĩ mình sẽ thấy nhẹ hơn không?`,
+          `Điều gì ở người đó đang làm cậu chạnh lòng nhất vậy?`,
+        ],
+      },
+    }),
   },
   {
     id: "perfectionism",
@@ -859,10 +884,29 @@ export const INTENT_DATABASE = [
       "tớ sợ thất bại nên không dám thử", "phải làm cho hoàn hảo",
       "không chịu được làm sai"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Cầu toàn thực ra là "trì hoãn được nguỵ trang" khéo lắm ${name}!`, `"Đủ tốt và hoàn thành" thường có giá trị hơn "hoàn hảo nhưng chưa bắt đầu" đó nha.`, `Điều gì đang khiến cậu chưa dám bắt tay vô?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "perfectionism",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Cầu toàn thực ra là "trì hoãn được nguỵ trang" khéo lắm {name} ơi!`,
+          `{name} đang đặt cho mình một tiêu chuẩn mà chính cậu cũng khó lòng đạt tới trong một lần thử đầu tiên đó.`,
+          `Sợ làm sai đến mức không dám bắt đầu — nghe quen lắm, gần như ai cầu toàn cũng vậy cả {name} à.`,
+        ],
+        validations: [
+          `"Đủ tốt và hoàn thành" thường có giá trị hơn "hoàn hảo nhưng chưa bắt đầu" đó nha.`,
+          `Không ai làm đúng ngay từ lần đầu cả — bản nháp xấu xí vẫn tốt hơn một trang giấy trắng.`,
+          `Áp lực hoàn hảo thường xuất phát từ nỗi sợ bị đánh giá, chứ không phải vì cậu thật sự cần hoàn hảo.`,
+        ],
+        questions: [
+          `Điều gì đang khiến cậu chưa dám bắt tay vô?`,
+          `Nếu cho phép mình làm "tạm ổn" thay vì "hoàn hảo", cậu nghĩ mình đã xong chưa?`,
+          `Cậu đang cầu toàn ở việc gì cụ thể vậy?`,
+        ],
+      },
+    }),
   },
   {
     id: "body_image",
@@ -873,10 +917,29 @@ export const INTENT_DATABASE = [
       "người ta xinh hơn tớ nhiều", "tớ tự ti về cân nặng",
       "tớ muốn giảm cân", "tớ thấy mình không xinh"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Tự ti ngoại hình rất phổ biến ở tuổi cậu — áp lực hình thể từ mạng xã hội và bạn bè nhiều lắm.`, `Nhưng cơ thể cậu đang làm rất nhiều thứ cho ${name} mỗi ngày, kể cả ngày cậu không thích nó.`, `Cảm giác này xuất phát từ đâu — có ai nói gì, hay tự so sánh với ai đó?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "body_image",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Tự ti ngoại hình rất phổ biến ở tuổi {name} — áp lực hình thể từ mạng xã hội và bạn bè nhiều lắm.`,
+          `{name} ơi, bộ lọc và góc chụp trên mạng đang âm thầm đặt ra một chuẩn mực chẳng ai đạt nổi ngoài đời thật đâu.`,
+          `Cảm giác không hài lòng với ngoại hình dễ trở thành cái loa to nhất trong đầu — nhưng nó không phải sự thật duy nhất về {name}.`,
+        ],
+        validations: [
+          `Cơ thể cậu đang làm rất nhiều thứ cho {name} mỗi ngày, kể cả ngày cậu không thích nó.`,
+          `Ngoại hình chỉ là một phần rất nhỏ trong những gì làm nên giá trị của cậu.`,
+          `Cậu không cần phải yêu cơ thể mình 100% mỗi ngày — chỉ cần đừng để nó trở thành lý do cậu ghét chính mình.`,
+        ],
+        questions: [
+          `Cảm giác này xuất phát từ đâu — có ai nói gì, hay tự so sánh với ai đó?`,
+          `Có phần nào trên cơ thể mà trước đây cậu từng thấy ổn với nó không?`,
+          `Điều này bắt đầu làm cậu khó chịu từ khi nào vậy?`,
+        ],
+      },
+    }),
   },
   {
     id: "phone_addiction",
@@ -886,10 +949,29 @@ export const INTENT_DATABASE = [
       "tớ lướt mạng xã hội quá nhiều", "nghiện game", "không thể bỏ điện thoại xuống",
       "tớ dùng điện thoại nhiều quá", "nghiện mạng xã hội", "screen time nhiều quá"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`${name} tự nhận ra điều này là bước đầu rất tỉnh táo rồi đó!`, `Điện thoại được thiết kế để gây nghiện — dopamine mỗi lần scroll là real khoa học luôn.`, `Thử "digital detox" nhỏ: đặt điện thoại sang phòng khác 30 phút. Cậu nghĩ mình chịu được không?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "phone_addiction",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `{name} tự nhận ra điều này là bước đầu rất tỉnh táo rồi đó!`,
+          `Cầm điện thoại lên "1 phút" rồi ngẩng đầu thấy đã trôi qua cả tiếng — chuyện này quen thuộc phết {name} nhỉ 😅`,
+          `Điện thoại được thiết kế để gây nghiện — dopamine mỗi lần scroll là real khoa học luôn, không phải do {name} yếu ý chí đâu.`,
+        ],
+        validations: [
+          `Mấy app đó thuê hẳn đội ngũ chuyên nghiên cứu cách giữ chân người dùng lâu nhất có thể — cậu đang đấu với cả một hệ thống, không phải chỉ mỗi bản thân.`,
+          `Nhận ra vấn đề đã là hơn một nửa chặng đường rồi đó {name}.`,
+          `Không cần cai tuyệt đối ngay — giảm dần vẫn tính là tiến bộ.`,
+        ],
+        questions: [
+          `Thử "digital detox" nhỏ: đặt điện thoại sang phòng khác 30 phút. Cậu nghĩ mình chịu được không?`,
+          `App nào đang "ngốn" thời gian của cậu nhiều nhất vậy?`,
+          `Cậu dùng điện thoại nhiều nhất vào lúc nào — học bài xong hay lúc buồn chán?`,
+        ],
+      },
+    }),
   },
   {
     id: "social_anxiety",
@@ -899,10 +981,29 @@ export const INTENT_DATABASE = [
       "tớ bị social anxiety", "tớ sợ ra ngoài", "tớ không dám phát biểu",
       "tớ sợ gặp người", "tớ ngại nói chuyện", "sợ bị mọi người nhìn"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Social anxiety là 1 trong những vấn đề phổ biến nhất ở giới trẻ — ${name} không một mình đâu nha.`, `Não đang "thổi phồng" mức độ người khác chú ý đến cậu — thực tế họ bận với chính họ hơn cậu nghĩ rất nhiều.`, `Tình huống nào đang làm cậu anxious nhất gần đây?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "social_anxiety",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Social anxiety là một trong những vấn đề phổ biến nhất ở giới trẻ — {name} không một mình đâu nha.`,
+          `{name} ơi, cảm giác như cả căn phòng đang soi mình — tớ hiểu áp lực đó nặng cỡ nào.`,
+          `Sợ bị phán xét đến mức ngại mở lời là chuyện rất nhiều người giấu kín, không phải chỉ riêng cậu đâu.`,
+        ],
+        validations: [
+          `Não đang "thổi phồng" mức độ người khác chú ý đến cậu — thực tế họ bận với chính họ hơn cậu nghĩ rất nhiều.`,
+          `Sự thật là gần như ai cũng đang quá bận lo về bản thân họ để soi cậu kỹ như cậu tưởng.`,
+          `Không cần phải "sửa" hết lo âu mới được phép sống bình thường — cứ đi từng bước nhỏ thôi.`,
+        ],
+        questions: [
+          `Tình huống nào đang làm cậu anxious nhất gần đây?`,
+          `Có phải trước đám đông, hay chỉ với người lạ thôi vậy?`,
+          `Lần gần nhất cậu vượt qua được một tình huống ngại như vậy là khi nào?`,
+        ],
+      },
+    }),
   },
   {
     id: "homesickness",
@@ -912,10 +1013,29 @@ export const INTENT_DATABASE = [
       "đi học xa nhà", "nhớ quê hương", "xa gia đình buồn lắm",
       "tớ nhớ nhà ghê lắm", "đi xa nhớ nhà"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Nhớ nhà là cảm giác nặng và thật lắm — không phải cậu yếu đâu ${name} ơi.`, `Xa nhà cũng đồng nghĩa với đang lớn và mở rộng thế giới — nhưng điều đó không làm nỗi nhớ bớt thật chút nào.`, `Gần đây cậu có gọi video về nhà chưa?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "homesickness",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Nhớ nhà là cảm giác nặng và thật lắm — không phải cậu yếu đâu {name} ơi.`,
+          `{name} ơi, mùi cơm mẹ nấu với cái giường quen thuộc ở nhà đúng là thứ không gì thay thế được thật.`,
+          `Xa nhà đợt đầu ai cũng tưởng mình mạnh mẽ, đến lúc nhớ nhà mới biết nó thấm cỡ nào {name} nhỉ.`,
+        ],
+        validations: [
+          `Xa nhà cũng đồng nghĩa với đang lớn và mở rộng thế giới — nhưng điều đó không làm nỗi nhớ bớt thật chút nào.`,
+          `Nhớ nhà không phải là dấu hiệu cậu chưa trưởng thành — ngược lại là khác, nó cho thấy cậu có một nơi để thương.`,
+          `Cảm giác này rồi sẽ dịu bớt theo thời gian, nhưng ngay lúc này cứ để mình được nhớ, không cần vội "quen".`,
+        ],
+        questions: [
+          `Gần đây cậu có gọi video về nhà chưa?`,
+          `Điều gì ở nhà làm cậu nhớ nhất — người, món ăn, hay chỉ là cảm giác quen thuộc?`,
+          `Cậu có góc nhỏ nào ở đây làm cậu thấy hơi giống nhà không?`,
+        ],
+      },
+    }),
   },
   {
     id: "first_love",
@@ -938,10 +1058,29 @@ export const INTENT_DATABASE = [
       "tớ ganh tị với người khác", "tớ ghét người thành công hơn tớ",
       "tớ ghen với người yêu cũ", "ghen tị là tốt hay xấu"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Ghen tị là cảm giác cực bình thường — não tự so sánh là bản năng sinh tồn đó ${name} ơi.`, `Cái quan trọng là cảm giác đó đang chỉ cho cậu thấy điều cậu thực sự muốn có là gì.`, `Cậu đang ghen vì điều gì — tình cảm, thành tích, hay ngoại hình?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "jealousy",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Ghen tị là cảm giác cực bình thường — não tự so sánh là bản năng sinh tồn đó {name} ơi.`,
+          `{name} ơi, thấy ghen tị không có nghĩa cậu là người xấu đâu — nó chỉ là một cảm xúc thôi, đừng tự trách quá.`,
+          `Cảm giác khó chịu khi thấy người khác có thứ mình muốn — ai cũng từng trải qua, kể cả những người trông "chill" nhất.`,
+        ],
+        validations: [
+          `Cái quan trọng là cảm giác đó đang chỉ cho cậu thấy điều cậu thực sự muốn có là gì.`,
+          `Ghen tị nếu nhìn đúng cách lại là một tấm bản đồ chỉ ra ước muốn thật sự của cậu.`,
+          `Không cần phải xấu hổ vì có cảm giác này — chỉ cần đừng để nó biến thành ghét bỏ người kia.`,
+        ],
+        questions: [
+          `Cậu đang ghen vì điều gì — tình cảm, thành tích, hay ngoại hình?`,
+          `Nếu có điều đó, cậu nghĩ cuộc sống mình sẽ khác thế nào?`,
+          `Người đó có làm gì trực tiếp với cậu không, hay chỉ là cảm giác so sánh thôi?`,
+        ],
+      },
+    }),
   },
   {
     id: "concentration",
@@ -951,10 +1090,29 @@ export const INTENT_DATABASE = [
       "tớ adhd", "tớ khó tập trung học", "đọc sách không vào đầu",
       "tớ cứ bị phân tâm", "không giữ được sự tập trung"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Khó tập trung không nhất thiết là ADHD — stress, thiếu ngủ và điện thoại cũng "phá focus" dữ dội lắm ${name}.`, `Thử Pomodoro: học 25 phút, nghỉ 5 phút, lặp lại. Dời điện thoại ra khỏi tầm nhìn trước.`, `Cậu đang học môn gì mà bị phân tâm nhiều nhất?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "concentration",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Khó tập trung không nhất thiết là ADHD — stress, thiếu ngủ và điện thoại cũng "phá focus" dữ dội lắm {name}.`,
+          `{name} ơi, đọc một trang mà đầu óc trôi đi đâu mất — cảm giác quen thuộc ghê, không phải mình cậu đâu.`,
+          `Não khó tập trung khi đang quá tải thông tin hoặc thiếu ngủ — không phải vì cậu "kém cỏi" gì cả.`,
+        ],
+        validations: [
+          `Thử Pomodoro: học 25 phút, nghỉ 5 phút, lặp lại. Dời điện thoại ra khỏi tầm nhìn trước.`,
+          `Một môi trường ít xao nhãng quan trọng hơn ý chí rất nhiều — đừng tự trách nếu chưa quen được.`,
+          `Chỉ cần tập trung tốt hơn một chút mỗi ngày là đã đủ tiến bộ rồi, không cần hoàn hảo ngay.`,
+        ],
+        questions: [
+          `Cậu đang học môn gì mà bị phân tâm nhiều nhất?`,
+          `Gần đây cậu ngủ đủ giấc không, đó thường là thủ phạm giấu mặt đó?`,
+          `Cậu thường bị phân tâm bởi điện thoại, hay chỉ là đầu óc tự trôi đi?`,
+        ],
+      },
+    }),
   },
   {
     id: "university_exam",
@@ -964,10 +1122,29 @@ export const INTENT_DATABASE = [
       "lo lắng thi tốt nghiệp", "áp lực thi đại học", "chọn trường đại học",
       "thi thpt", "điểm chuẩn đại học", "ôn thi đại học", "thi quốc gia"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Kỳ thi THPT là thử thách lớn thật — nhưng đây không phải "chung kết cuộc đời" như nhiều người nói đâu nha ${name}.`, `Dù kết quả thế nào cũng có nhiều con đường dẫn đến ước mơ của cậu — ngách khác thôi, không phải ngõ cụt.`, `Cậu đang ôn môn gì và phần nào làm cậu lo nhất?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "university_exam",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Kỳ thi THPT là thử thách lớn thật — nhưng đây không phải "chung kết cuộc đời" như nhiều người hay nói đâu nha {name}.`,
+          `{name} ơi, cả nhà trường lẫn xã hội hay biến kỳ thi này thành "một phát ăn cả" — áp lực đó không hề nhỏ.`,
+          `Ôn thi đại học đúng là một chặng dài hơi — mệt là chuyện dễ hiểu {name} à.`,
+        ],
+        validations: [
+          `Dù kết quả thế nào cũng có nhiều con đường dẫn đến ước mơ của cậu — ngách khác thôi, không phải ngõ cụt.`,
+          `Rất nhiều người thành công không đi đúng con đường họ vạch ra ở tuổi 18 — điểm số một kỳ thi không định đoạt cả đời cậu.`,
+          `Cố gắng hết sức là đủ rồi — không cần phải hoàn hảo mới xứng đáng.`,
+        ],
+        questions: [
+          `Cậu đang ôn môn gì và phần nào làm cậu lo nhất?`,
+          `Lịch ôn của cậu dạo này có cho mình khoảng nghỉ nào không?`,
+          `Nếu kết quả không như mong đợi, cậu nghĩ mình vẫn còn lựa chọn nào khác?`,
+        ],
+      },
+    }),
   },
   {
     id: "emptiness",
@@ -977,10 +1154,29 @@ export const INTENT_DATABASE = [
       "tớ không biết mình đang cảm gì", "không buồn không vui chỉ trống không",
       "empty quá", "tớ thấy mọi thứ vô nghĩa", "tớ thấy tê liệt cảm xúc"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Trống rỗng, không cảm gì — nghe có vẻ "ổn" nhưng thực ra là dạng mệt mỏi cảm xúc rất thật đó ${name}.`, `Đôi khi não "tắt cảm xúc" như một cơ chế tự bảo vệ khi đã quá tải rồi.`, `Cảm giác này bắt đầu từ khoảng bao lâu nay vậy?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "emptiness",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Trống rỗng, không cảm gì — nghe có vẻ "ổn" nhưng thực ra là dạng mệt mỏi cảm xúc rất thật đó {name}.`,
+          `{name} ơi, "không buồn không vui, chỉ trống không" đôi khi mệt hơn cả buồn thật sự — vì chẳng biết gọi tên nó là gì.`,
+          `Cảm giác tê liệt cảm xúc này nghe rất lạ, nhưng nó không hề hiếm gặp đâu {name} à.`,
+        ],
+        validations: [
+          `Đôi khi não "tắt cảm xúc" như một cơ chế tự bảo vệ khi đã quá tải rồi.`,
+          `Không cảm thấy gì không có nghĩa là cậu "vô cảm" — nó thường là dấu hiệu cậu đã gồng quá lâu.`,
+          `Cậu không cần phải ép mình "cảm thấy gì đó" ngay bây giờ — cứ để nó tự đến khi sẵn sàng.`,
+        ],
+        questions: [
+          `Cảm giác này bắt đầu từ khoảng bao lâu nay vậy?`,
+          `Có sự kiện nào gần đây khiến cậu bắt đầu thấy trống rỗng như vậy không?`,
+          `Trước đây có điều gì làm cậu thấy hứng thú mà giờ không còn nữa không?`,
+        ],
+      },
+    }),
   },
   {
     id: "overthinking",
@@ -990,10 +1186,29 @@ export const INTENT_DATABASE = [
       "tớ cứ lo vẩn vơ", "suy nghĩ lặp lại mãi", "không ngừng lo nghĩ",
       "tớ suy nghĩ lung tung", "não tớ cứ chạy mãi"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [`Overthink là não đang cố "kiểm soát" tương lai bằng cách dự đoán hết mọi kịch bản tệ — kiệt sức lắm đó ${name}.`, `Khi nhận ra mình đang vòng vòng, thử hỏi: "Điều tớ lo có xảy ra ngay lúc này không?" — nếu không, kéo về hiện tại nha.`, `Cậu hay overthink về chủ đề gì nhất — học hành, tình cảm, hay tương lai?`];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "overthinking",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Overthink là não đang cố "kiểm soát" tương lai bằng cách dự đoán hết mọi kịch bản tệ — kiệt sức lắm đó {name}.`,
+          `{name} ơi, cái vòng lặp suy nghĩ 100 lần cho cùng một chuyện chắc đang làm đầu cậu quay cuồng ghê lắm.`,
+          `Não overthink giống như mở 30 cái tab cùng lúc mà tab nào cũng đang load — mệt là phải {name} à.`,
+        ],
+        validations: [
+          `Khi nhận ra mình đang vòng vòng, thử hỏi: "Điều tớ lo có xảy ra ngay lúc này không?" — nếu không, kéo về hiện tại nha.`,
+          `Nghĩ nhiều không có nghĩa là nghĩ đúng — não đang lặp lại, không phải đang giải quyết vấn đề.`,
+          `Cậu không cần tìm ra câu trả lời hoàn hảo ngay bây giờ — cho phép mình tạm gác lại cũng được.`,
+        ],
+        questions: [
+          `Cậu hay overthink về chủ đề gì nhất — học hành, tình cảm, hay tương lai?`,
+          `Suy nghĩ nào đang lặp đi lặp lại nhiều nhất trong đầu cậu lúc này?`,
+          `Nếu viết hết những suy nghĩ đó ra giấy, cậu nghĩ đầu óc mình có nhẹ hơn không?`,
+        ],
+      },
+    }),
   },
   {
     id: "exercise_request",
@@ -1111,14 +1326,29 @@ export const INTENT_DATABASE = [
       "loay hoay", "khong biet minh muon gi", "ton tai vo nghia", "nhan sinh", "song de lam j",
       "chong chenh", "vo huong", "mat phuong huong", "khong co muc dich song"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Tớ nghe đây ${name}. Cảm giác chông chênh, tự hỏi "mình sống để làm gì" hay thấy mọi thứ vô nghĩa thực sự rất mệt mỏi và cô đơn.`,
-        `Thực ra, không có một "đáp án mẫu" nào cho ý nghĩa cuộc sống cả. Ý nghĩa không phải thứ có sẵn để đi tìm, mà là thứ mình tự định nghĩa qua những trải nghiệm nhỏ nhất mỗi ngày.`,
-        `Cậu đang cảm thấy chông chênh và mất phương hướng nhất ở điểm nào? Học tập, gia đình, hay định vị bản thân thế?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "existential_crisis",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Tớ nghe đây {name}. Cảm giác chông chênh, tự hỏi "mình sống để làm gì" hay thấy mọi thứ vô nghĩa thực sự rất mệt mỏi và cô đơn.`,
+          `{name} ơi, những câu hỏi kiểu "mình tồn tại để làm gì" nghe to tát nhưng thật ra gần như ai cũng từng tự hỏi mình như vậy.`,
+          `Mất phương hướng không có nghĩa là cậu đang đi sai — đôi khi nó chỉ là dấu hiệu cậu đang lớn lên và cần định nghĩa lại mọi thứ thôi.`,
+        ],
+        validations: [
+          `Thực ra, không có một "đáp án mẫu" nào cho ý nghĩa cuộc sống cả. Ý nghĩa không phải thứ có sẵn để đi tìm, mà là thứ mình tự định nghĩa qua những trải nghiệm nhỏ nhất mỗi ngày.`,
+          `Không cần phải tìm ra "mục đích lớn" ngay bây giờ — những điều nhỏ khiến cậu thấy dễ chịu mỗi ngày cũng đáng giá.`,
+          `Cảm giác vô nghĩa này thường đến khi mình quá mệt để cảm nhận ý nghĩa, chứ không phải vì cuộc sống thật sự vô nghĩa.`,
+        ],
+        questions: [
+          `Cậu đang cảm thấy chông chênh và mất phương hướng nhất ở điểm nào? Học tập, gia đình, hay định vị bản thân thế?`,
+          `Có điều gì — dù nhỏ — từng làm cậu thấy cuộc sống đáng sống không?`,
+          `Cảm giác này đến gần đây thôi hay đã kéo dài một thời gian rồi?`,
+        ],
+      },
+    }),
   },
   {
     id: "trauma",
@@ -1127,14 +1357,29 @@ export const INTENT_DATABASE = [
       "am anh qua khu", "ki uc dau buon", "truoc day tung bi", "sang chan tam ly", "trauma",
       "nhung chuyen cu", "flashback", "noi dau cu", "am anh", "chuyen qua khu", "chuyen ngay xua"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Tớ ôm cậu một cái thật chặt nha ${name} 🫂 Những tổn thương hay ký ức đau lòng trong quá khứ không phải là thứ dễ dàng trôi qua.`,
-        `Việc đột nhiên nhớ lại (flashback) hay thấy đau nhói là phản ứng tự nhiên khi vết thương lòng chưa được chữa lành hoàn toàn. Cậu không có lỗi gì cả.`,
-        `Tớ luôn ở đây để lắng nghe. Nếu cậu sẵn sàng, cậu có muốn chia sẻ một chút về ký ức đang làm cậu thấy nhói lòng nhất không?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "trauma",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Tớ ôm cậu một cái thật chặt nha {name} 🫂 Những tổn thương hay ký ức đau lòng trong quá khứ không phải là thứ dễ dàng trôi qua.`,
+          `{name} ơi, quá khứ đôi khi vẫn còn nguyên vẹn cảm giác đau như mới hôm qua — điều đó không có nghĩa là cậu chưa đủ mạnh mẽ.`,
+          `Nhắc lại chuyện cũ mà vẫn nhói — đó là dấu hiệu vết thương thật, không phải cậu đang "làm quá" đâu {name}.`,
+        ],
+        validations: [
+          `Việc đột nhiên nhớ lại (flashback) hay thấy đau nhói là phản ứng tự nhiên khi vết thương lòng chưa được chữa lành hoàn toàn. Cậu không có lỗi gì cả.`,
+          `Không có mốc thời gian bắt buộc nào để "vượt qua" một tổn thương cả — cậu được phép đi chậm theo nhịp của mình.`,
+          `Cậu không cần phải kể hết mọi chi tiết nếu chưa sẵn sàng — chỉ cần biết là tớ vẫn ở đây.`,
+        ],
+        questions: [
+          `Tớ luôn ở đây để lắng nghe. Nếu cậu sẵn sàng, cậu có muốn chia sẻ một chút về ký ức đang làm cậu thấy nhói lòng nhất không?`,
+          `Điều gì vừa gợi lại ký ức đó cho cậu vậy?`,
+          `Ngay lúc này cậu cần được lắng nghe, hay cần một cách nào đó để thấy an toàn hơn?`,
+        ],
+      },
+    }),
   },
   {
     id: "money_stress",
@@ -1144,14 +1389,29 @@ export const INTENT_DATABASE = [
       "kiem tien vat va", "het tien roi", "het tien tieu", "tu tuc tai chinh",
       "tien nong", "ap luc tien bac"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Tiền bạc thực sự là một áp lực cực kỳ thực tế và đè nặng lên vai ${name} đúng không?`,
-        `Vừa lo học hành vừa lo tài chính, hoặc thấy gia đình chật vật vì học phí chắc chắn khiến cậu thấy bất an và mệt mỏi.`,
-        `Gần đây cậu đang phải đối mặt với khoản chi tiêu hay khó khăn tài chính cụ thể nào thế? Kể tớ nghe xem có hướng gỡ rối nào không nha.`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "money_stress",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Tiền bạc thực sự là một áp lực cực kỳ thực tế và đè nặng lên vai {name} đúng không?`,
+          `{name} ơi, lo tiền là kiểu stress "âm ỉ" nhất — nó len vào mọi quyết định nhỏ trong ngày, mệt lắm.`,
+          `Vừa lo học vừa lo tiền cùng lúc đúng là quá sức chịu đựng bình thường của một người rồi {name} à.`,
+        ],
+        validations: [
+          `Vừa lo học hành vừa lo tài chính, hoặc thấy gia đình chật vật vì học phí chắc chắn khiến cậu thấy bất an và mệt mỏi.`,
+          `Áp lực tài chính không phải điều cậu "nên tự lo được hết" ở tuổi này — đây là gánh nặng thật sự, không phải cậu yếu kém.`,
+          `Cảm giác bất an vì tiền là hoàn toàn hợp lý, không có gì phải xấu hổ khi nói ra điều này cả.`,
+        ],
+        questions: [
+          `Gần đây cậu đang phải đối mặt với khoản chi tiêu hay khó khăn tài chính cụ thể nào thế? Kể tớ nghe xem có hướng gỡ rối nào không nha.`,
+          `Áp lực này đến từ học phí, chi tiêu hàng ngày, hay lo cho cả gia đình vậy?`,
+          `Cậu đã thử tâm sự chuyện này với ai trong nhà chưa?`,
+        ],
+      },
+    }),
   },
   {
     id: "imposter_syndrome",
@@ -1161,14 +1421,29 @@ export const INTENT_DATABASE = [
       "khong xung dang", "imposter", "to an may thoi", "khong gioi nhu ho nghi",
       "so bi phat hien kem coi"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Cảm giác lo sợ mọi người sẽ "phát hiện ra" mình không thực sự giỏi, hay nghĩ thành công chỉ là do ăn may... đó chính là Hội chứng kẻ giả mạo (Imposter Syndrome) đó ${name}.`,
-        `Thực tế, những người giỏi và cầu toàn lại là những người dễ bị cảm giác này nhất. Sự nỗ lực của cậu là có thật, kết quả cậu đạt được là xứng đáng!`,
-        `Điều gì gần đây đang làm cậu thấy nghi ngờ năng lực của bản thân mình nhất vậy?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "imposter_syndrome",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Cảm giác lo sợ mọi người sẽ "phát hiện ra" mình không thực sự giỏi, hay nghĩ thành công chỉ là do ăn may... đó chính là Hội chứng kẻ giả mạo (Imposter Syndrome) đó {name}.`,
+          `{name} ơi, càng giỏi mà càng thấy mình "chưa đủ giỏi" thì nghe nghịch lý, nhưng lại cực kỳ phổ biến đó.`,
+          `Cái cảm giác "sợ bị phát hiện là mình không xứng đáng" nghe quen không {name}? Rất nhiều người tài giỏi cũng mang nó theo mỗi ngày.`,
+        ],
+        validations: [
+          `Thực tế, những người giỏi và cầu toàn lại là những người dễ bị cảm giác này nhất. Sự nỗ lực của cậu là có thật, kết quả cậu đạt được là xứng đáng!`,
+          `May mắn có thể góp một phần, nhưng công sức và năng lực cậu bỏ ra để tận dụng cơ hội đó mới là thứ thật sự quan trọng.`,
+          `Nghi ngờ bản thân không có nghĩa là cậu thật sự kém — nó chỉ là một cảm giác, không phải bằng chứng.`,
+        ],
+        questions: [
+          `Điều gì gần đây đang làm cậu thấy nghi ngờ năng lực của bản thân mình nhất vậy?`,
+          `Có thành tích nào gần đây cậu đạt được mà lại tự nhủ "chắc do may mắn thôi" không?`,
+          `Nếu một người bạn thân đạt được điều cậu vừa làm, cậu có nói với họ y như vậy không?`,
+        ],
+      },
+    }),
   },
   {
     id: "pet_grief",
@@ -1177,14 +1452,29 @@ export const INTENT_DATABASE = [
       "cho chet", "meo chet", "thu cung qua doi", "mat pet", "mat cho meo",
       "thu cung mat", "nho thu cung", "mat em cun", "mat em meo"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Tớ xin chia buồn với cậu nha ${name} 🫂 Sự ra đi của một bạn thú cưng (pet) thực sự giống như việc mất đi một thành viên gia đình vậy.`,
-        `Nỗi đau này là hoàn toàn có thật và rất lớn, cậu có quyền được khóc, được nhớ thương em ấy mà không cần gượng ép bản thân phải quên đi ngay.`,
-        `Em ấy đã có một khoảng thời gian thật hạnh phúc khi được cậu yêu thương. Cậu có muốn kể cho tớ nghe kỷ niệm đáng yêu nhất của hai đứa không?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "pet_grief",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Tớ xin chia buồn với cậu nha {name} 🫂 Sự ra đi của một bạn thú cưng thực sự giống như việc mất đi một thành viên gia đình vậy.`,
+          `{name} ơi, tớ biết em ấy không chỉ là một con vật với cậu — mất đi một người bạn thân thiết như vậy đau thật sự.`,
+          `Nỗi đau khi mất thú cưng nhiều khi bị người khác xem nhẹ, nhưng với {name} thì nó hoàn toàn có thật và rất lớn.`,
+        ],
+        validations: [
+          `Nỗi đau này là hoàn toàn có thật và rất lớn, cậu có quyền được khóc, được nhớ thương em ấy mà không cần gượng ép bản thân phải quên đi ngay.`,
+          `Không ai có quyền nói "chỉ là một con vật thôi" — với cậu, em ấy là gia đình.`,
+          `Cậu được phép buồn bao lâu cậu cần, không có thời hạn nào cho việc này cả.`,
+        ],
+        questions: [
+          `Em ấy đã có một khoảng thời gian thật hạnh phúc khi được cậu yêu thương. Cậu có muốn kể cho tớ nghe kỷ niệm đáng yêu nhất của hai đứa không?`,
+          `Cậu và em ấy đã ở bên nhau bao lâu rồi?`,
+          `Ngay lúc này cậu cần điều gì nhất — được kể về em ấy, hay chỉ cần yên tĩnh một chút?`,
+        ],
+      },
+    }),
   },
   {
     id: "lgbtq_confusion",
@@ -1194,14 +1484,29 @@ export const INTENT_DATABASE = [
       "come out", "so bi ky thi tinh duc", "lgbt", "gay", "les", "lesbian",
       "comeout", "ban khoan gioi tinh", "tinh duc", "xu huong tinh duc"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Hành trình tìm hiểu và định vị bản thân (bao gồm cả xu hướng tính dục) cần thời gian và sự dịu dàng với chính mình ${name} ạ.`,
-        `Cậu không cần phải lập tức dán nhãn cho mình là ai. Việc băn khoăn, hoang mang hay sợ bị phán xét hoàn toàn là cảm xúc bình thường trên con đường tự khám phá.`,
-        `Cậu đang cảm thấy bối rối hay gặp áp lực từ đâu nhất? Bạn bè, gia đình hay chỉ là những mâu thuẫn bên trong cậu?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "lgbtq_confusion",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      slots: {
+        openers: [
+          `Hành trình tìm hiểu và định vị bản thân (bao gồm cả xu hướng tính dục) cần thời gian và sự dịu dàng với chính mình {name} ạ.`,
+          `{name} ơi, băn khoăn về giới tính hay xu hướng tính dục của mình là một phần rất con người của việc tự khám phá bản thân.`,
+          `Cảm giác hoang mang này không có gì "sai" cả {name} — nó chỉ là một chặng trong hành trình hiểu chính mình thôi.`,
+        ],
+        validations: [
+          `Cậu không cần phải lập tức dán nhãn cho mình là ai. Việc băn khoăn, hoang mang hay sợ bị phán xét hoàn toàn là cảm xúc bình thường trên con đường tự khám phá.`,
+          `Cậu có toàn quyền đi theo tốc độ của riêng mình, không ai được ép cậu phải "biết chắc" ngay.`,
+          `Dù cậu là ai, điều đó không làm cậu bớt xứng đáng được yêu thương và tôn trọng.`,
+        ],
+        questions: [
+          `Cậu đang cảm thấy bối rối hay gặp áp lực từ đâu nhất? Bạn bè, gia đình hay chỉ là những mâu thuẫn bên trong cậu?`,
+          `Cậu có ai — bạn bè hay người lớn nào — mà cậu cảm thấy an toàn để tâm sự chuyện này không?`,
+          `Điều gì đang làm cậu lo lắng nhất về việc này vậy?`,
+        ],
+      },
+    }),
   }
 ];
 
