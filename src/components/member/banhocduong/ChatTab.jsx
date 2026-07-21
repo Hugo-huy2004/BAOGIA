@@ -41,6 +41,28 @@ function pruneOldMessages(msgs) {
   });
 }
 
+const getAuraColors = (mood) => {
+  if (mood <= 2) {
+    return {
+      topRight: "bg-rose-400/25 dark:bg-rose-600/20",
+      middleLeft: "bg-orange-400/20 dark:bg-orange-600/15",
+      bottomRight: "bg-indigo-400/10 dark:bg-indigo-600/10"
+    };
+  } else if (mood === 3) {
+    return {
+      topRight: "bg-blue-400/20 dark:bg-blue-600/20",
+      middleLeft: "bg-purple-400/20 dark:bg-purple-600/15",
+      bottomRight: "bg-emerald-400/10 dark:bg-emerald-600/10"
+    };
+  } else {
+    return {
+      topRight: "bg-[#5856d6]/20 dark:bg-[#5856d6]/20",
+      middleLeft: "bg-violet-400/20 dark:bg-violet-600/15",
+      bottomRight: "bg-teal-400/15 dark:bg-teal-600/15"
+    };
+  }
+};
+
 export default function ChatTab({ 
   onNavigateToTab, 
   bio, 
@@ -58,6 +80,17 @@ export default function ChatTab({
 }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
+  const [currentMood, setCurrentMood] = useState(3);
+
+  useEffect(() => {
+    if (Array.isArray(historyLogs)) {
+      const checkins = historyLogs.filter(log => log.type === "checkin" && typeof log.mood === "number");
+      if (checkins.length > 0) {
+        const sorted = [...checkins].sort((a, b) => new Date(b.date) - new Date(a.date));
+        setCurrentMood(sorted[0].mood);
+      }
+    }
+  }, [historyLogs]);
   const [loading, setLoading] = useState(false);
   const [showTestsMenu, setShowTestsMenu] = useState(false);
   const [showTokenExchangeModal, setShowTokenExchangeModal] = useState(false);
@@ -236,6 +269,7 @@ export default function ChatTab({
 
   // Mood check-in handler — instant local response, no AI call, contextual therapy chips.
   const handleMoodSelect = useCallback((moodValue) => {
+    setCurrentMood(moodValue);
     setMoodCheckinDone(true);
     // Strip the picker from the init message so it saves cleanly to localStorage
     setMessages(prev => prev.map(m => m.id === "init" ? { ...m, type: undefined } : m));
@@ -1376,6 +1410,8 @@ export default function ChatTab({
         pushBotMessageChunks(matched.reply, {
           suggestPhq9: matched.suggestPhq9,
           suggestGad7: matched.suggestGad7,
+          showInlineBreathing: matched.showInlineBreathing,
+          showInlineCbt: matched.showInlineCbt,
           quickActions: matched.quickActions || null
         }).then(() => {
           setLoading(false);
@@ -1391,28 +1427,7 @@ export default function ChatTab({
       }, 600);
       return;
     }
-
-    // 2. Low-risk local-first reply — reduces AI/server cost and keeps common
-    // student support chats instant even during traffic spikes.
-    if (shouldAnswerLocally(text)) {
-      setInputText("");
-      const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
-      const localReply = createLocalSafetyReply(text);
-      setMessages(prev => [...prev, userMsg]);
-      setTypingLabel(getTypingLabel(text, null));
-      setLoading(true);
-      setTimeout(() => {
-        pushBotMessageChunks(localReply.reply, {
-          suggestPhq9: localReply.suggestPhq9,
-          suggestGad7: localReply.suggestGad7,
-          suggestWho5: localReply.suggestWho5,
-          suggestBigFive: localReply.suggestBigFive,
-        }).then(() => setLoading(false));
-      }, 500);
-      return;
-    }
-
-    // 3. Full conversational LLM — only reached when no local path fits.
+    // 2. Full conversational LLM — only reached when no local path fits.
     setInputText("");
     const userMsg = { id: `user-text-${Date.now()}`, sender: "user", text, time: new Date() };
     setMessages(prev => [...prev, userMsg]);
@@ -1483,6 +1498,8 @@ export default function ChatTab({
           suggestGad7: finalBotResponse.suggestGad7,
           suggestWho5: finalBotResponse.suggestWho5,
           suggestBigFive: finalBotResponse.suggestBigFive,
+          showInlineBreathing: finalBotResponse.showInlineBreathing,
+          showInlineCbt: finalBotResponse.showInlineCbt,
         }).then(() => setLoading(false));
       }
     );
@@ -1533,6 +1550,8 @@ export default function ChatTab({
     );
   }
 
+  const aura = getAuraColors(currentMood);
+
   return (
     <div ref={chatWrapperRef} className="flex flex-col flex-1 h-full min-h-0 bg-zinc-50/50 dark:bg-[#060609] animate-fadeIn relative overflow-hidden md:rounded-3xl shadow-sm dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
       
@@ -1541,17 +1560,17 @@ export default function ChatTab({
         <motion.div
           animate={{ x: [0, 20, 0], y: [0, -30, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-600/20 blur-[100px] rounded-full"
+          className={`absolute -top-32 -right-32 w-[500px] h-[500px] blur-[100px] rounded-full transition-colors duration-1000 ${aura.topRight}`}
         />
         <motion.div
           animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-1/4 -left-32 w-[400px] h-[400px] bg-purple-400/20 dark:bg-purple-600/20 blur-[120px] rounded-full"
+          className={`absolute top-1/4 -left-32 w-[400px] h-[400px] blur-[120px] rounded-full transition-colors duration-1000 ${aura.middleLeft}`}
         />
         <motion.div
           animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-          className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-emerald-400/10 dark:bg-emerald-600/10 blur-[100px] rounded-full"
+          className={`absolute bottom-1/4 right-1/4 w-[300px] h-[300px] blur-[100px] rounded-full transition-colors duration-1000 ${aura.bottomRight}`}
         />
       </div>
 

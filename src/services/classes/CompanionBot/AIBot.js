@@ -7,7 +7,14 @@ import { buildLocalReply } from "./localFallback";
 // builds that haven't adopted the marker yet.
 const SUGGEST_MARKER = /\[\[SUGGEST:\s*([a-z0-9,\s]+)\]\]/i;
 function extractSuggestions(text) {
-  const flags = { suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false };
+  const flags = {
+    suggestPhq9: false,
+    suggestGad7: false,
+    suggestWho5: false,
+    suggestBigFive: false,
+    showInlineBreathing: false,
+    showInlineCbt: false
+  };
   const m = text.match(SUGGEST_MARKER);
   if (m) {
     const ids = m[1].toLowerCase().split(",").map((s) => s.trim());
@@ -15,6 +22,8 @@ function extractSuggestions(text) {
     flags.suggestGad7 = ids.includes("gad7");
     flags.suggestWho5 = ids.includes("who5");
     flags.suggestBigFive = ids.includes("bigfive") || ids.includes("mmpi");
+    flags.showInlineBreathing = ids.includes("breathing") || ids.includes("breath");
+    flags.showInlineCbt = ids.includes("cbt") || ids.includes("cbt_card");
     return { flags, cleanText: text.replace(SUGGEST_MARKER, "").trim() };
   }
   // Legacy fallback: infer from mentioned test names in the reply prose.
@@ -22,7 +31,16 @@ function extractSuggestions(text) {
   flags.suggestGad7 = text.includes("GAD-7");
   flags.suggestWho5 = text.includes("WHO-5");
   flags.suggestBigFive = text.includes("Big Five") || text.includes("Nhân cách");
-  return { flags, cleanText: text };
+
+  // Dynamic keyword-based detection for interactive widgets
+  const lowerText = text.toLowerCase();
+  flags.showInlineBreathing = lowerText.includes("[[breathing]]") || lowerText.includes("hít thở 4-7-8") || lowerText.includes("bài tập thở");
+  flags.showInlineCbt = lowerText.includes("[[cbt]]") || lowerText.includes("thử thách suy nghĩ") || lowerText.includes("cbt nhật ký");
+
+  // Clean any explicit inline widget tags from the text
+  let cleanText = text.replace(/\[\[breathing\]\]/gi, "").replace(/\[\[cbt\]\]/gi, "").trim();
+
+  return { flags, cleanText };
 }
 
 // Module-level concurrency limiter — shared across all AIBot instances so

@@ -57,6 +57,7 @@ class RateLimitService:
                     return_document=ReturnDocument.AFTER
                 )
                 count = result["count"]
+                print(f"[Rate Limit] Check & Increment (Mongo): key={key}, count={count}, is_allowed={count <= max_tokens}")
                 return count <= max_tokens, count
             except Exception as e:
                 print(f"⚠️ Rate limit MongoDB error (falling back to memory): {e}")
@@ -65,6 +66,7 @@ class RateLimitService:
         # In-memory fallback
         _memory_store[key] += weight
         count = _memory_store[key]
+        print(f"[Rate Limit] Check & Increment (Memory): key={key}, count={count}, is_allowed={count <= max_tokens}")
         return count <= max_tokens, count
 
     async def get_remaining(self, user_id: str, action: str, max_tokens: int) -> int:
@@ -75,11 +77,15 @@ class RateLimitService:
             try:
                 doc = self.db.ai_rate_limits.find_one({"_id": key})
                 used = doc["count"] if doc else 0
-                return max(0, max_tokens - used)
-            except Exception:
-                pass
+                remaining = max(0, max_tokens - used)
+                print(f"[Rate Limit] Get Remaining (Mongo): key={key}, remaining={remaining}")
+                return remaining
+            except Exception as e:
+                print(f"⚠️ Rate limit get_remaining MongoDB error: {e}")
 
-        return max(0, max_tokens - _memory_store.get(key, 0))
+        remaining = max(0, max_tokens - _memory_store.get(key, 0))
+        print(f"[Rate Limit] Get Remaining (Memory): key={key}, remaining={remaining}")
+        return remaining
 
     async def consume_bonus_token(self, email: str, field: str) -> bool:
         """Atomically consume one purchased bonus token from Bio.<field>

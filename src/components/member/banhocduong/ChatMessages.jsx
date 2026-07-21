@@ -36,21 +36,49 @@ function InlineBreathingCircle() {
   }, [isActive]);
 
   const circleScale = phase === "inhale" ? 1.25 : phase === "hold" ? 1.25 : phase === "exhale" ? 0.85 : 1.0;
+  const outerPulse = phase === "hold" ? [1.25, 1.35, 1.25] : circleScale;
   const phaseLabel = phase === "inhale" ? "Hít Vào (4s)" : phase === "hold" ? "Nín Thở (7s)" : phase === "exhale" ? "Thở Ra (8s)" : "Hít thở 4-7-8";
 
   return (
-    <div className="mt-2 p-3.5 rounded-2xl bg-sky-50 dark:bg-sky-950/25 border border-sky-200/60 dark:border-sky-800/40 flex flex-col items-center gap-3 w-full max-w-[240px] text-foreground">
-      <div className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">Bài tập Thở 4-7-8</div>
-      <div className="w-16 h-16 rounded-full flex items-center justify-center bg-sky-500/10 border-2 border-sky-400 relative">
-        <motion.div className="absolute inset-0.5 rounded-full bg-sky-400/30"
-          animate={{ scale: circleScale }}
-          transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }} />
-        <span className="text-[12px] font-black text-sky-700 dark:text-sky-300 z-10">{isActive ? sec : "🧘"}</span>
+    <div className="mt-2 p-4 rounded-3xl bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent border border-sky-400/20 dark:border-sky-800/30 flex flex-col items-center gap-3.5 w-full max-w-[240px] shadow-sm backdrop-blur-md text-foreground">
+      <div className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider flex items-center gap-1">
+        <span className="material-symbols-outlined text-[10px] animate-pulse">air</span>
+        Bài tập Thở 4-7-8
       </div>
-      <p className="text-[10px] font-extrabold text-foreground/80 text-center h-4">{phaseLabel}</p>
+      <div className="w-20 h-20 rounded-full flex items-center justify-center relative bg-sky-500/5 dark:bg-sky-500/10">
+        {/* Outer glowing pulsing halo */}
+        <motion.div 
+          className="absolute inset-0 rounded-full bg-sky-400/10 dark:bg-sky-400/5 blur-[4px]"
+          animate={{ scale: outerPulse }}
+          transition={{ 
+            duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, 
+            ease: phase === "hold" ? "easeInOut" : "linear",
+            repeat: phase === "hold" ? Infinity : 0
+          }} 
+        />
+        {/* Middle breathing ring */}
+        <motion.div 
+          className="absolute inset-1 rounded-full bg-sky-400/20 dark:bg-sky-500/15 border border-sky-400/30"
+          animate={{ scale: circleScale }}
+          transition={{ duration: phase === "hold" ? 7 : phase === "exhale" ? 8 : 4, ease: "linear" }} 
+        />
+        {/* Inner solid counter circle */}
+        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 shadow-sm z-10">
+          <span className="text-[14px] font-black text-sky-700 dark:text-sky-300">
+            {isActive ? sec : "🧘"}
+          </span>
+        </div>
+      </div>
+      <p className="text-[10.5px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
+        {phaseLabel}
+      </p>
       <button type="button" onClick={isActive ? stopBreathing : startBreathing}
-        className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white transition-all active:scale-95 ${isActive ? "bg-zinc-400 dark:bg-zinc-700" : "bg-sky-500 hover:bg-sky-600"}`}>
-        {isActive ? "Dừng" : "Bắt đầu"}
+        className={`w-full py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-wider text-white transition-all active:scale-95 shadow-sm ${
+          isActive 
+            ? "bg-zinc-400 hover:bg-zinc-500 dark:bg-zinc-700 dark:hover:bg-zinc-600" 
+            : "bg-sky-500 hover:bg-sky-600 shadow-[0_2px_10px_rgba(14,165,233,0.3)]"
+        }`}>
+        {isActive ? "Dừng bài tập" : "Bắt đầu thở"}
       </button>
     </div>
   );
@@ -59,23 +87,42 @@ function InlineBreathingCircle() {
 function InlineCbtCard() {
   const [challenged, setChallenged] = React.useState(false);
   return (
-    <div className="mt-2 p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-2.5 w-full max-w-[240px]">
-      <div className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Thử thách Suy nghĩ (CBT)</div>
-      <div className="bg-card/90 p-2.5 rounded-xl border border-indigo-100/70 dark:border-zinc-800 shadow-sm">
-        <p className="text-[9px] font-black text-zinc-400 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
-        <p className="text-[11px] font-semibold text-foreground/80 mt-1">"Tớ cảm thấy mình thật vô dụng..."</p>
+    <div className="mt-2 p-4 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-indigo-500/5 to-transparent border border-indigo-200/60 dark:border-indigo-900/40 flex flex-col gap-3 w-full max-w-[240px] shadow-sm backdrop-blur-md">
+      <div className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider flex items-center gap-1">
+        <span className="material-symbols-outlined text-[10px]">psychology</span>
+        Thử thách Suy nghĩ (CBT)
+      </div>
+      <div className="bg-zinc-100/80 dark:bg-zinc-900/60 p-3 rounded-2xl border border-zinc-200/50 dark:border-zinc-800/40 shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)]">
+        <p className="text-[9px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Suy nghĩ tiêu cực:</p>
+        <p className="text-[11px] font-bold text-foreground/70 mt-1 italic leading-relaxed">"Tớ cảm thấy mình thật vô dụng..."</p>
       </div>
       <AnimatePresence mode="wait">
         {challenged ? (
-          <motion.div key="reframe" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-emerald-500/10 dark:bg-emerald-500/5 p-2.5 rounded-xl border border-emerald-500/20">
-            <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
-            <p className="text-[11px] font-bold text-foreground/80 mt-1 leading-relaxed">"Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."</p>
+          <motion.div 
+            key="reframe" 
+            initial={{ opacity: 0, scale: 0.95, y: 8 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 dark:from-emerald-500/5 dark:to-teal-500/0 p-3 rounded-2xl border border-emerald-500/30 dark:border-emerald-400/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+          >
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-emerald-500 text-[12px] animate-pulse">sparkles</span>
+              <p className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Góc nhìn cân bằng:</p>
+            </div>
+            <p className="text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 mt-1 leading-relaxed">
+              "Mình đang học và cố gắng từng ngày — điều đó không định nghĩa giá trị của mình."
+            </p>
           </motion.div>
         ) : (
-          <motion.button key="btn" type="button" onClick={() => setChallenged(true)}
-            className="w-full py-2 rounded-xl text-[10px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all active:scale-95 shadow-sm">
-            Thử thách suy nghĩ này
+          <motion.button 
+            key="btn" 
+            type="button" 
+            onClick={() => setChallenged(true)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full py-2.5 rounded-2xl text-[10px] font-black uppercase bg-indigo-500 hover:bg-indigo-600 text-white transition-all shadow-[0_2px_10px_rgba(99,102,241,0.3)]"
+          >
+            Thử thách suy nghĩ
           </motion.button>
         )}
       </AnimatePresence>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isInfrastructureErrorText, normalizeAiResponse } from "../utils/chatInfrastructure";
-import { shouldUseLocalFirstReply } from "../../../../services/classes/CompanionBot/localFallback";
+import { buildLocalReply } from "../../../../services/classes/CompanionBot/localFallback";
 
 describe("chat infrastructure fallback guard", () => {
   it("detects AI/server outage text before it reaches the chat bubble", () => {
@@ -30,8 +30,11 @@ describe("chat infrastructure fallback guard", () => {
     expect(result.reply).toBe(localReply.reply);
   });
 
-  it("keeps common student support messages local-first", () => {
-    expect(shouldUseLocalFirstReply("Hôm nay mình mệt và áp lực bài tập quá")).toBe(true);
-    expect(shouldUseLocalFirstReply("Phân tích kết quả DASS-42 này giúp mình")).toBe(false);
+  it("recommends interactive widgets based on emotions/keywords in local fallback", () => {
+    const stressReply = buildLocalReply("Hôm nay mình mệt và áp lực bài tập quá");
+    expect(stressReply.showInlineBreathing).toBe(true);
+
+    const cbtReply = buildLocalReply("Tớ cảm thấy mình thật vô dụng");
+    expect(cbtReply.showInlineCbt).toBe(true);
   });
 });

@@ -1,7 +1,11 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
 
 // Get secret key or use a fallback for local development
+if (!process.env.SECRET_KEY) {
+  dotenv.config();
+}
 const isProduction = process.env.NODE_ENV === 'production';
 let rawSecret = process.env.SECRET_KEY;
 if (!rawSecret || !rawSecret.trim()) {
@@ -20,6 +24,11 @@ const ENCRYPTION_KEY_CBC = crypto.scryptSync(rawSecret.trim(), 'salt', 32);
 // New key derivation for GCM with a more secure salt
 const GCM_SALT = process.env.CRYPTO_SALT || 'hugo_studio_secure_salt_2026';
 const ENCRYPTION_KEY_GCM = crypto.scryptSync(rawSecret.trim(), GCM_SALT, 32);
+
+// Fallback keys for backward compatibility with dev-only fallback secrets
+const FALLBACK_SECRET = 'HugoStudio_SuperSecretKey_2026';
+const FALLBACK_KEY_CBC = crypto.scryptSync(FALLBACK_SECRET, 'salt', 32);
+const FALLBACK_KEY_GCM = crypto.scryptSync(FALLBACK_SECRET, GCM_SALT, 32);
 
 const IV_LENGTH_GCM = 12;
 
@@ -58,8 +67,20 @@ export const decryptText = (text) => {
       decrypted += decipher.final('utf8');
       return decrypted;
     } catch (err) {
-      console.error('Failed to decrypt GCM ciphertext:', err.message);
-      return text;
+      // Retry GCM decryption using the fallback key
+      try {
+        let iv = Buffer.from(textParts[2], 'hex');
+        let tag = Buffer.from(textParts[3], 'hex');
+        let encryptedText = Buffer.from(textParts[4], 'hex');
+        let decipher = crypto.createDecipheriv('aes-256-gcm', FALLBACK_KEY_GCM, iv);
+        decipher.setAuthTag(tag);
+        let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+      } catch (fallbackErr) {
+        console.error('Failed to decrypt GCM ciphertext with both keys:', fallbackErr.message);
+        return text;
+      }
     }
   }
 
@@ -73,8 +94,18 @@ export const decryptText = (text) => {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
   } catch (err) {
-    console.error('Failed to decrypt legacy CBC ciphertext:', err.message);
-    return text;
+    // Retry CBC decryption using the fallback key
+    try {
+      let iv = Buffer.from(textParts[1], 'hex');
+      let encryptedText = Buffer.from(textParts[2], 'hex');
+      let decipher = crypto.createDecipheriv('aes-256-cbc', FALLBACK_KEY_CBC, iv);
+      let decrypted = decipher.update(encryptedText);
+      decrypted = Buffer.concat([decrypted, decipher.final()]);
+      return decrypted.toString();
+    } catch (fallbackErr) {
+      console.error('Failed to decrypt legacy CBC ciphertext with both keys:', fallbackErr.message);
+      return text;
+    }
   }
 };
 

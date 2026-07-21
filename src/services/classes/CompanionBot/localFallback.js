@@ -1,83 +1,52 @@
-// Smart local reply engine — the guarantee that HugoPSY ALWAYS answers, even
-// when the AI server is unreachable/overloaded. Instead of surfacing a raw
-// "connection error" (which breaks trust exactly when a user is opening up),
-// we compose a warm, context-aware reply from local knowledge:
-//
-//   1. crisis text        → immediate safety response + hotline (never skipped)
-//   2. keyword/topic match → getRandomResponse's curated topic banks
-//   3. reflective fallback → mirror the user's own words back as a question
-//
-// The user never learns the AI was down; the conversation simply continues.
-import { getRandomResponse } from "../../../components/member/banhocduong/constants/randomResponses";
+// Smart local fallback engine — the guarantee that HugoPSY ALWAYS answers, even
+// when the AI server is unreachable/overloaded. Used strictly as a reactive
+// fallback (network error, API limit) rather than proactively intercepting.
 import { isCrisisText, removeVietnameseTones } from "../../../components/member/banhocduong/constants/intentClassifier";
 import { CRISIS_HOTLINE_TEXT } from "../../../components/member/banhocduong/constants/hotlines";
 
-// Openers that keep replies feeling fresh across a long offline stretch.
 const REFLECTIVE_OPENERS = [
   "Tớ nghe cậu rồi",
-  "Cảm ơn cậu đã tin tưởng kể cho tớ",
-  "Tớ hiểu điều cậu đang nói",
+  "Cảm ơn cậu đã chia sẻ với tớ nhé",
+  "Tớ hiểu cảm giác đó của cậu",
   "Tớ đang ở đây cùng cậu",
-  "Điều cậu chia sẻ quan trọng với tớ",
+  "Điều cậu vừa nói rất đáng để lưu tâm",
 ];
 
 const REFLECTIVE_QUESTIONS = [
-  "Cậu có muốn kể thêm cho tớ nghe không?",
-  "Điều đó khiến cậu cảm thấy thế nào?",
-  "Cậu nghĩ điều gì đang tác động nhiều nhất đến cậu lúc này?",
-  "Cậu đã cảm thấy như vậy được bao lâu rồi?",
-  "Nếu được, cậu muốn mọi chuyện thay đổi theo hướng nào?",
+  "Cậu có thể nói thêm về điều này được không?",
+  "Cảm giác này có đang ảnh hưởng nhiều đến sinh hoạt của cậu không?",
+  "Có điều gì cụ thể xảy ra gần đây khiến cậu cảm thấy như vậy không?",
+  "Cậu nghĩ điều gì sẽ giúp cậu thấy dễ chịu hơn lúc này?",
 ];
 
-const LOCAL_FIRST_TERMS = [
-  "met", "stress", "ap luc", "chan", "buon", "co don", "lo lang", "so", "qua tai",
-  "hoc", "thi", "deadline", "diem", "bai tap", "truong",
-  "gia dinh", "ba me", "bo me", "ban be", "nguoi yeu", "chia tay",
-  "mat ngu", "kho ngu", "khoc", "tu ti", "that bai",
+const FALLBACK_SAD = [
+  "Nỗi buồn hay sự mỏi mệt là những cảm xúc rất bình thường của con người. Cậu không cần phải gồng mình tỏ ra ổn đâu. Tớ ở đây lắng nghe cậu.",
+  "Đôi khi việc cảm thấy không vui hay chán nản là tín hiệu cơ thể và tâm lý của cậu cần được nghỉ ngơi. Hãy cứ chậm lại một chút nhé.",
+  "Tớ nghe thấy nỗi buồn của cậu rồi. Hãy nhớ rằng cậu không phải đối diện với nó một mình."
 ];
 
-const COMPLEX_REQUEST_TERMS = [
-  "phan tich", "chan doan", "ke hoach", "lo trinh", "bao cao", "giai thich ket qua",
-  "dass", "phq", "gad", "who", "mmpi", "big five", "pdf", "anh", "benh an",
+const FALLBACK_STRESS = [
+  "Khi bị căng thẳng hay áp lực, hệ thần kinh của mình thường rơi vào trạng thái quá tải. Hãy dành ra 2 phút để hít thở sâu cùng tớ nhé.",
+  "Áp lực từ việc học hay cuộc sống đôi khi thật nặng nề. Cậu đang cố gắng rất nhiều rồi, hãy cho phép mình được nghỉ tay một chút nhé.",
+  "Căng thẳng kéo dài có thể khiến mọi thứ trở nên mờ mịt. Hãy cùng tớ reset lại tinh thần bằng một bài tập nhỏ nha."
 ];
 
-// Requests/questions must reach the real LLM — a canned empathy line answering
-// "tôi muốn liên kết với chế độ ngủ" is exactly what makes the bot feel dumb.
-const REQUEST_TERMS = [
-  "?", "muon", "lam sao", "the nao", "cach nao", "cach ", "giup", "huong dan",
-  "vi sao", "tai sao", "la gi", "o dau", "lien ket", "che do", "ket noi",
-  "mo ", "bat ", "tat ", "cai dat", "thiet lap", "co the",
+const FALLBACK_DEFAULT = [
+  "Cảm ơn cậu đã tin tưởng kể cho tớ nghe. Cậu có muốn tâm sự thêm về chuyện này không?",
+  "Tớ đang lắng nghe cậu đây. Dạo gần đây cuộc sống của cậu có nhiều thay đổi gì không?",
+  "Tớ nghe rõ rồi. Không sao hết, cứ từ từ chia sẻ với tớ mọi chuyện nhé."
 ];
 
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// A short phrase from the user's own message, cleaned of trailing punctuation,
-// so the reflective reply feels specifically about what they said.
 function extractTheme(text) {
   const cleaned = String(text || "").trim().replace(/[."!?…]+$/g, "");
   if (cleaned.length === 0 || cleaned.length > 60) return null;
   return cleaned;
 }
 
-export function shouldUseLocalFirstReply(userText = "") {
-  const raw = String(userText || "").trim();
-  if (!raw) return false;
-  const clean = removeVietnameseTones(raw).toLowerCase();
-  if (isCrisisText(clean)) return true;
-  if (raw.length > 120) return false;
-  if (COMPLEX_REQUEST_TERMS.some(term => clean.includes(term))) return false;
-  // Anything phrased as a question or request goes to the real LLM.
-  if (REQUEST_TERMS.some(term => clean.includes(term))) return false;
-  // Only short, plain emotional shares are answered locally. Everything else
-  // (the old "≤70 chars" catch-all is gone) reaches the AI so replies actually
-  // match what the user said.
-  return LOCAL_FIRST_TERMS.some(term => clean.includes(term));
-}
-
-// Returns the full reply object shape ChatTab's onDone expects, so a local
-// fallback is a drop-in for a real AI response.
 export function buildLocalReply(userText = "", { aspectId = null } = {}) {
   const clean = removeVietnameseTones(userText).toLowerCase();
 
@@ -88,32 +57,43 @@ export function buildLocalReply(userText = "", { aspectId = null } = {}) {
         CRISIS_HOTLINE_TEXT,
       isCrisis: true,
       suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false,
+      showInlineBreathing: false,
+      showInlineCbt: false,
       bioUpdate: null,
     };
   }
 
-  // Topic-matched empathy from the curated banks (stress/sad/sleep/…).
-  let reply = getRandomResponse(userText, aspectId);
+  // Determine fallback response pool based on keywords
+  let reply = "";
+  const isStress = /cang thang|stress|ap luc|qua tai|kiet suc|burn.?out|lo au|lo lang|so|hoang loan|anxiety|panic|met/.test(clean);
+  const isSad = /buon|khoc|dau|chan|te|toi|khong on|that vong|nan|co don|mot minh/.test(clean);
 
-  // Reflective layer ONLY when no topic bank matched (i.e. the reply came from
-  // the generic default pool) — and it now mirrors the user's own words so it
-  // stays about what they actually said, instead of replacing a good topical
-  // reply with a random canned opener (the old behaviour that felt off-topic).
-  const toned = (userText || "").toLowerCase();
-  const hasTopicMatch = /căng thẳng|stress|áp lực|quá tải|kiệt sức|lo âu|lo lắng|sợ|buồn|khóc|đau|chán|tệ|ngủ|bạn bè|người yêu|yêu|chia tay|học|thi|điểm|trường|gia đình|bố|mẹ|ba|má|cô đơn|một mình|vui|hạnh phúc|ổn|khỏe|tuyệt|động lực|lười/.test(toned);
-  const theme = extractTheme(userText);
-  if (!hasTopicMatch && theme && userText.length >= 12) {
-    reply = `${pick(REFLECTIVE_OPENERS)} — "${theme}". ${pick(REFLECTIVE_QUESTIONS)}`;
+  if (isStress) {
+    reply = pick(FALLBACK_STRESS);
+  } else if (isSad) {
+    reply = pick(FALLBACK_SAD);
+  } else {
+    const theme = extractTheme(userText);
+    if (theme && userText.length >= 12) {
+      reply = `${pick(REFLECTIVE_OPENERS)} — "${theme}". ${pick(REFLECTIVE_QUESTIONS)}`;
+    } else {
+      reply = pick(FALLBACK_DEFAULT);
+    }
   }
+
+  // Attach interactive widget recommendations
+  const showInlineBreathing = isStress;
+  const showInlineCbt = isSad || /tu ti|that bai|be tac|vo dung|khong bang ai|overthinking|suy nghi/.test(clean);
 
   return {
     reply,
     suggestPhq9: false, suggestGad7: false, suggestWho5: false, suggestBigFive: false,
+    showInlineBreathing,
+    showInlineCbt,
     bioUpdate: null,
   };
 }
 
-// Convenience for streaming callers: drive onChunk/onDone with a local reply.
 export function streamLocalReply(userText, onChunk, onDone, opts = {}) {
   const result = buildLocalReply(userText, opts);
   onChunk?.(result.reply);

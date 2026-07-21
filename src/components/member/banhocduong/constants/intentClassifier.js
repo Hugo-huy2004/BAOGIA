@@ -1312,12 +1312,17 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
       }
     }
 
+    const showInlineBreathing = new Set(["panic_attack", "anxiety", "future_anxiety", "burnout", "anger", "academic_stress"]).has(bestMatch.id);
+    const showInlineCbt = new Set(["low_self_esteem", "overthinking", "perfectionism", "social_comparison", "body_image", "imposter_syndrome"]).has(bestMatch.id);
+
     return {
       reply: replyText,
       id: bestMatch.id,
       tier: bestMatch.tier || "paid",
       suggestPhq9,
       suggestGad7,
+      showInlineBreathing,
+      showInlineCbt,
       quickActions: bestMatch.quickActions || null,
       quickReplies: INTENT_QUICK_REPLIES[bestMatch.id] || [],
       companionUpdate

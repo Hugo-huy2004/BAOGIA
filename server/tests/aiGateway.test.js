@@ -106,12 +106,22 @@ describe('aiGateway', () => {
   });
 
   it('returns null with no API key', async () => {
-    const saved = process.env.GEMINI_API_KEY;
-    delete process.env.GEMINI_API_KEY;
+    const savedKeys = {};
+    for (const key of Object.keys(process.env)) {
+      if (key.startsWith('GEMINI_API_KEY')) {
+        savedKeys[key] = process.env[key];
+        delete process.env[key];
+      }
+    }
+    
     global.fetch = vi.fn();
     expect(await generate('x')).toBeNull();
     expect(await embed('x')).toBeNull();
     expect(global.fetch).not.toHaveBeenCalled();
-    process.env.GEMINI_API_KEY = saved;
+    
+    // Restore saved keys
+    for (const key of Object.keys(savedKeys)) {
+      process.env[key] = savedKeys[key];
+    }
   });
 });

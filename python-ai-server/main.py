@@ -337,18 +337,20 @@ async def chat_stream(request: ChatRequest, req: Request):
 
         async def charged_stream():
             had_error = False
-            async for chunk in inner_generator:
-                if chunk.strip().startswith("data: "):
-                    try:
-                        payload = json.loads(chunk.strip()[6:])
-                        if isinstance(payload, dict) and "error" in payload:
-                            had_error = True
-                    except Exception:
-                        pass
-                yield chunk
-            # Only charge after a confirmed successful, error-free stream — errors never cost a token.
-            if not had_error:
-                await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=LLM_WEIGHT)
+            try:
+                async for chunk in inner_generator:
+                    if chunk.strip().startswith("data: "):
+                        try:
+                            payload = json.loads(chunk.strip()[6:])
+                            if isinstance(payload, dict) and "error" in payload:
+                                had_error = True
+                        except Exception:
+                            pass
+                    yield chunk
+            finally:
+                # Only charge after a confirmed successful, error-free stream — errors never cost a token.
+                if not had_error:
+                    await rate_limiter.check_and_increment(client_identifier, "chat", MAX_CHAT_TOKENS, weight=LLM_WEIGHT)
 
         return StreamingResponse(charged_stream(), media_type="text/event-stream")
     except Exception as e:
