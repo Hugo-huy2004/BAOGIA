@@ -2,6 +2,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Stethoscope, Heart } from "lucide-react";
 import TypewriterText from "./TypewriterText";
+import { THERAPY_METHODS } from "./constants/therapyMethods";
 
 // ─── Inline interactive widgets (unchanged logic) ────────────────────────────
 
@@ -191,7 +192,63 @@ function MoodCheckinCard({ onMoodSelect }) {
   );
 }
 
-function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone, onOpenVerification }) {
+function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, joyBalance }) {
+  const method = THERAPY_METHODS.find(m => m.lockKey === featureKey);
+  if (!method) return null;
+
+  const isUnlocking = unlockingMethodId === method.id;
+  const canAfford = (joyBalance ?? 0) >= method.cost;
+
+  return (
+    <div className="mt-2.5 p-4 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-200/50 dark:border-indigo-900/30 flex flex-col gap-3 w-full max-w-[260px] shadow-sm backdrop-blur-md">
+      <div className="flex items-center gap-1.5">
+        <div className="w-5 h-5 rounded-lg bg-indigo-500/15 flex items-center justify-center shrink-0">
+          <span className="material-symbols-outlined text-[12px] text-indigo-600 dark:text-indigo-400">shopping_bag</span>
+        </div>
+        <span className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Mở khóa Liệu pháp</span>
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-[12px] font-extrabold text-foreground leading-snug">{method.name}</p>
+        <p className="text-[10px] text-muted-foreground leading-normal">
+          Trải nghiệm trọn vẹn bài tập và lộ trình chuyên sâu giúp cậu cân bằng cảm xúc tốt hơn.
+        </p>
+      </div>
+      <div className="flex items-center justify-between gap-2 mt-1">
+        <div className="flex items-center gap-1">
+          <span className="text-[12px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
+          <span className="text-[9px] font-extrabold text-indigo-500 uppercase">JOY</span>
+        </div>
+        <motion.button
+          type="button"
+          whileHover={canAfford && !isUnlocking ? { scale: 1.02 } : {}}
+          whileTap={canAfford && !isUnlocking ? { scale: 0.98 } : {}}
+          onClick={() => {
+            if (canAfford) {
+              onUnlockFeature?.({ 
+                cost: method.cost, 
+                lockKey: method.lockKey, 
+                methodId: method.id, 
+                label: method.name 
+              });
+            }
+          }}
+          disabled={!canAfford || isUnlocking}
+          className={`px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-wider text-white transition-all shadow-sm ${
+            isUnlocking
+              ? "bg-zinc-400 dark:bg-zinc-700 cursor-wait"
+              : !canAfford
+              ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed shadow-none"
+              : "bg-indigo-500 hover:bg-indigo-600 shadow-[0_2px_10px_rgba(99,102,241,0.35)]"
+          }`}
+        >
+          {isUnlocking ? "Đang mở..." : !canAfford ? "Không đủ JOY" : "Mở khóa ngay"}
+        </motion.button>
+      </div>
+    </div>
+  );
+}
+
+function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone, onOpenVerification, joyBalance, unlockedFeatures = [] }) {
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
@@ -213,6 +270,24 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
       {/* Interactive widgets */}
       {msg.showInlineBreathing && <InlineBreathingCircle />}
       {msg.showInlineCbt && <InlineCbtCard />}
+
+      {/* Interactive buy card */}
+      {msg.showInlineBuy && (
+        unlockedFeatures.includes(msg.showInlineBuy) ? (
+          <div className="mt-2 px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black flex items-center gap-1.5 w-max">
+            <span className="material-symbols-outlined text-[12px] animate-pulse">check_circle</span>
+            Đã mở khóa liệu pháp này thành công!
+          </div>
+        ) : (
+          <InlinePurchaseCard 
+            featureKey={msg.showInlineBuy} 
+            onUnlockFeature={onUnlockFeature} 
+            unlockingMethodId={unlockingMethodId} 
+            joyBalance={joyBalance} 
+          />
+        )
+      )}
+
 
       {/* Mood check-in picker — only shown on the initial greeting message */}
       {msg.type === "mood_checkin" && !moodCheckinDone && (
@@ -366,6 +441,8 @@ function ChatMessages({
   moodCheckinDone,
   onOpenVerification,
   keyboardInset = 0,
+  joyBalance = 0,
+  unlockedFeatures = [],
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -451,7 +528,8 @@ function ChatMessages({
                           onStartTest={onStartTest}
                           onSelectDuration={onSelectDuration} onNavigateToTab={onNavigateToTab}
                           onUnlockFeature={onUnlockFeature} unlockingMethodId={unlockingMethodId}
-                          onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} onOpenVerification={onOpenVerification} />
+                          onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} onOpenVerification={onOpenVerification}
+                          joyBalance={joyBalance} unlockedFeatures={unlockedFeatures} />
                       : <UserBubble msg={msg} />}
                   </div>
                 </div>

@@ -6,6 +6,7 @@ import { buildLocalReply } from "./localFallback";
 // "[[SUGGEST:phq9,gad7]]". Falls back to the old keyword scan for older server
 // builds that haven't adopted the marker yet.
 const SUGGEST_MARKER = /\[\[SUGGEST:\s*([a-z0-9,\s]+)\]\]/i;
+const BUY_MARKER = /\[\[BUY:\s*([a-z0-9_]+)\]\]/i;
 function extractSuggestions(text) {
   const flags = {
     suggestPhq9: false,
@@ -13,9 +14,18 @@ function extractSuggestions(text) {
     suggestWho5: false,
     suggestBigFive: false,
     showInlineBreathing: false,
-    showInlineCbt: false
+    showInlineCbt: false,
+    showInlineBuy: null
   };
-  const m = text.match(SUGGEST_MARKER);
+
+  let cleanText = text;
+  const buyMatch = cleanText.match(BUY_MARKER);
+  if (buyMatch) {
+    flags.showInlineBuy = buyMatch[1].toLowerCase().trim();
+    cleanText = cleanText.replace(BUY_MARKER, "").trim();
+  }
+
+  const m = cleanText.match(SUGGEST_MARKER);
   if (m) {
     const ids = m[1].toLowerCase().split(",").map((s) => s.trim());
     flags.suggestPhq9 = ids.includes("phq9");
@@ -24,21 +34,21 @@ function extractSuggestions(text) {
     flags.suggestBigFive = ids.includes("bigfive") || ids.includes("mmpi");
     flags.showInlineBreathing = ids.includes("breathing") || ids.includes("breath");
     flags.showInlineCbt = ids.includes("cbt") || ids.includes("cbt_card");
-    return { flags, cleanText: text.replace(SUGGEST_MARKER, "").trim() };
+    return { flags, cleanText: cleanText.replace(SUGGEST_MARKER, "").trim() };
   }
   // Legacy fallback: infer from mentioned test names in the reply prose.
-  flags.suggestPhq9 = text.includes("PHQ-9");
-  flags.suggestGad7 = text.includes("GAD-7");
-  flags.suggestWho5 = text.includes("WHO-5");
-  flags.suggestBigFive = text.includes("Big Five") || text.includes("Nhân cách");
+  flags.suggestPhq9 = cleanText.includes("PHQ-9");
+  flags.suggestGad7 = cleanText.includes("GAD-7");
+  flags.suggestWho5 = cleanText.includes("WHO-5");
+  flags.suggestBigFive = cleanText.includes("Big Five") || cleanText.includes("Nhân cách");
 
   // Dynamic keyword-based detection for interactive widgets
-  const lowerText = text.toLowerCase();
+  const lowerText = cleanText.toLowerCase();
   flags.showInlineBreathing = lowerText.includes("[[breathing]]") || lowerText.includes("hít thở 4-7-8") || lowerText.includes("bài tập thở");
   flags.showInlineCbt = lowerText.includes("[[cbt]]") || lowerText.includes("thử thách suy nghĩ") || lowerText.includes("cbt nhật ký");
 
   // Clean any explicit inline widget tags from the text
-  let cleanText = text.replace(/\[\[breathing\]\]/gi, "").replace(/\[\[cbt\]\]/gi, "").trim();
+  cleanText = cleanText.replace(/\[\[breathing\]\]/gi, "").replace(/\[\[cbt\]\]/gi, "").trim();
 
   return { flags, cleanText };
 }

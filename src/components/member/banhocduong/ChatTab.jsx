@@ -1412,6 +1412,7 @@ export default function ChatTab({
           suggestGad7: matched.suggestGad7,
           showInlineBreathing: matched.showInlineBreathing,
           showInlineCbt: matched.showInlineCbt,
+          showInlineBuy: matched.showInlineBuy,
           quickActions: matched.quickActions || null
         }).then(() => {
           setLoading(false);
@@ -1500,6 +1501,7 @@ export default function ChatTab({
           suggestBigFive: finalBotResponse.suggestBigFive,
           showInlineBreathing: finalBotResponse.showInlineBreathing,
           showInlineCbt: finalBotResponse.showInlineCbt,
+          showInlineBuy: finalBotResponse.showInlineBuy,
         }).then(() => setLoading(false));
       }
     );
@@ -1615,18 +1617,59 @@ export default function ChatTab({
 
         {/* Right actions */}
         <div className="flex items-center gap-2 shrink-0">
-          {/* Token counter */}
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black transition-all ${
-            tokenLockMinutes > 0
-              ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-              : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 2
-              ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-              : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-          }`}
-            title={tokenLockMinutes > 0 ? `Khóa ~${tokenLockMinutes} phút` : `Token: ${remainingChatTokens + (bio?.bonusChatTokens || 0)}/${maxChatTokens}`}>
-            <span className="material-symbols-outlined text-[11px] drop-shadow-sm">{tokenLockMinutes > 0 ? "lock" : "bolt"}</span>
-            {tokenLockMinutes > 0 ? "Khóa" : `${remainingChatTokens + (bio?.bonusChatTokens || 0)}/${maxChatTokens}`}
-          </div>
+          {/* Token progress ring capsule */}
+          {(() => {
+            const totalTokens = remainingChatTokens + (bio?.bonusChatTokens || 0);
+            const percentage = Math.min(100, Math.max(0, (totalTokens / maxChatTokens) * 100));
+            const radius = 8;
+            const circumference = 2 * Math.PI * radius; // ~50.26
+            const strokeDashoffset = circumference - (percentage / 100) * circumference;
+            const colorClass = tokenLockMinutes > 0 
+              ? "text-red-500 dark:text-red-400" 
+              : totalTokens <= 5 
+              ? "text-orange-500 dark:text-orange-400 animate-pulse" 
+              : "text-sky-500 dark:text-sky-400";
+            
+            return (
+              <button 
+                type="button"
+                onClick={() => setShowTokenExchangeModal(true)}
+                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-[10px] font-black transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95`}
+                title={tokenLockMinutes > 0 ? `Bị khóa trong ~${tokenLockMinutes} phút` : `Token: ${totalTokens}/${maxChatTokens} (Click để đổi thêm)`}
+              >
+                <div className="relative w-4 h-4 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle 
+                      cx="8" 
+                      cy="8" 
+                      r={radius} 
+                      className="stroke-zinc-200 dark:stroke-zinc-800/60" 
+                      strokeWidth="1.5" 
+                      fill="transparent" 
+                    />
+                    <motion.circle 
+                      cx="8" 
+                      cy="8" 
+                      r={radius} 
+                      className={tokenLockMinutes > 0 ? "stroke-red-500" : totalTokens <= 5 ? "stroke-orange-500" : "stroke-sky-500"} 
+                      strokeWidth="1.5" 
+                      fill="transparent" 
+                      strokeDasharray={circumference}
+                      initial={{ strokeDashoffset: circumference }}
+                      animate={{ strokeDashoffset }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </svg>
+                  <span className={`absolute text-[8px] font-bold ${colorClass}`}>
+                    {tokenLockMinutes > 0 ? "🔒" : "⚡"}
+                  </span>
+                </div>
+                <span className="font-extrabold text-foreground/80">
+                  {tokenLockMinutes > 0 ? "Khóa" : `${totalTokens}/${maxChatTokens}`}
+                </span>
+              </button>
+            );
+          })()}
 
           {/* Re-test button (desktop, inside active journey) */}
           {healingActive && (
@@ -1732,6 +1775,8 @@ export default function ChatTab({
             moodCheckinDone={moodCheckinDone}
             keyboardInset={keyboardInset}
             onOpenVerification={openVerificationForm}
+            joyBalance={joyBalance}
+            unlockedFeatures={bio?.unlockedCompanionFeatures || []}
           />
         )}
         {chatMode === "test" && activeTest && (

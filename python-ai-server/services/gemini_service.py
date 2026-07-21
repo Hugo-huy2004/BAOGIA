@@ -354,6 +354,9 @@ class GeminiService:
         if mode == 'audio':
             audio_note = "\n        - Bạn đang giao tiếp qua GIỌNG NÓI. Phản hồi ngắn gọn, tự nhiên như đang nói chuyện thật. Tối đa 2-3 câu."
 
+        unlocked_features = (bio or {}).get("unlockedCompanionFeatures", [])
+        unlocked_features_str = ", ".join(unlocked_features) if unlocked_features else "Chưa có liệu pháp nào được mở khóa."
+
         return f"""
         Bạn là "Hugo Studio AI" (hay còn gọi là HugoPSY) - người bạn đồng hành tri kỷ, lắng nghe sâu sắc và hỗ trợ sức khỏe tinh thần học đường dành riêng cho học sinh, sinh viên Việt Nam.
         
@@ -384,6 +387,13 @@ class GeminiService:
         3. Gợi ý làm các bài test sức khỏe tinh thần phù hợp (PHQ-9, GAD-7, DASS-21, WHO-5) khi cuộc hội thoại bộc lộ triệu chứng lo âu, trầm cảm kéo dài.
         4. Giới thiệu nhẹ nhàng các liệu pháp sẵn có trên hệ thống (hít thở 4-7-8, thiền dẫn chánh niệm, CBT worksheet) để giúp họ tự điều hòa.
 
+        ĐỀ XUẤT MUA LIỆU PHÁP (dành cho các liệu pháp chưa mở khóa):
+        - Danh sách các liệu pháp {name} ĐÃ MỞ KHÓA: {unlocked_features_str}
+        - Nếu bạn muốn đề xuất một liệu pháp nằm ngoài danh sách trên (nghĩa là đang BỊ KHÓA), bạn hãy đóng vai trò người tư vấn chia sẻ lợi ích, hướng dẫn nhẹ nhàng về giá trị chữa lành của liệu pháp đó và chèn MỘT marker mua hàng ở cuối tin nhắn: [[BUY:lockKey]].
+        - Các lockKey hợp lệ: breathing (Hít thở 4-7-8), meditation (Thiền định), depression (CBT Worksheet), reading (Đọc truyện), soundscape (Âm thanh thiên nhiên), deep_report (Báo cáo chuyên sâu), action_plan (Lộ trình), unlimited_calls (Gọi thoại).
+        - Ví dụ: "Cậu có muốn thử tập thiền tĩnh tâm để lòng dịu lại không? Tớ nghĩ sẽ giúp ích cho cậu lúc này đó. [[BUY:meditation]]"
+        - Nếu liệu pháp đã mở khóa, hãy dùng marker [[SUGGEST:breathing]] (cho thở) hoặc [[SUGGEST:cbt]] (cho CBT) để hiện trực tiếp bài tập cho họ tự làm.
+
         ĐỀ XUẤT TEST (định dạng máy đọc): khi gợi ý bài test, hãy thêm MỘT marker duy nhất ở CUỐI câu: [[SUGGEST:phq9]] hoặc [[SUGGEST:gad7,who5]].
         Mã hợp lệ: phq9, gad7, who5, mmpi. TUYỆT ĐỐI không thêm marker nếu bạn không chủ đích đề xuất.
 
@@ -404,7 +414,6 @@ class GeminiService:
 
         {SYSTEM_PSYCHOLOGY_CONTEXT}
         """
-
     def _build_site_guide_system_instruction(self, bio: Optional[dict]) -> str:
         """
         System instruction cho Culi - trợ lý hướng dẫn sử dụng nền tảng Hugo Studio
