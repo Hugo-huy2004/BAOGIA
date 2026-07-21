@@ -405,14 +405,6 @@ export default function ChatTab({
     }
   }, [presetTest]);
 
-  // dialogStage only still exists for a handful of internal setDialogStage(...)
-  // writes deep in test/scan completion logic below — the guided dialogue-tree
-  // UI that used to read it (topic/severity chips) is gone (free-text + LLM
-  // intent only, per design), so nothing reads this value anymore. Left as
-  // dead state rather than touching every one of those call sites for zero
-  // behavior change.
-  const [dialogStage, setDialogStage] = useState(1);
-
   // chatMode: 'normal' | 'test' | 'scan'
   const [chatMode, setChatMode] = useState("normal");
   const [activeTest, setActiveTest] = useState(null);
@@ -632,7 +624,6 @@ export default function ChatTab({
       };
       setMessages((prev) => [...prev, userMsg, botMsg]);
     }
-    setDialogStage(0);
   }, [historyLogs, healingActive, onUpdateCompanionState, bio]);
 
   const handleStartTest = useCallback((testId) => {
@@ -920,7 +911,6 @@ export default function ChatTab({
               time: new Date(Date.now() + 5)
             };
             newMsgs.push(graduationMsg);
-            setDialogStage(0);
           } else {
             // Suggest extension
             const extendDays = days;
@@ -934,7 +924,6 @@ export default function ChatTab({
               recommendedDays: finalRecommendedDuration
             };
             newMsgs.push(extensionMsg);
-            setDialogStage(5);
           }
         } else {
           // Within active journey
@@ -956,7 +945,6 @@ export default function ChatTab({
               recommendedDays: finalRecommendedDuration
             };
             newMsgs.push(worseningMsg);
-            setDialogStage(5);
           } else if (isImproved) {
             // If there is progress/improvement, check if we can reduce remaining days slightly to motivate, while keeping the journey intact
             let reduceDays = 0;
@@ -977,7 +965,6 @@ export default function ChatTab({
                 recommendedDays: finalRecommendedDuration
               };
               newMsgs.push(progressMsg);
-              setDialogStage(5);
             } else {
               // Stable
               const stayMsg = {
@@ -987,7 +974,6 @@ export default function ChatTab({
                 time: new Date(Date.now() + 10)
               };
               newMsgs.push(stayMsg);
-              setDialogStage(0);
             }
           } else {
             // Stable
@@ -998,7 +984,6 @@ export default function ChatTab({
               time: new Date(Date.now() + 10)
             };
             newMsgs.push(stayMsg);
-            setDialogStage(0);
           }
         }
       } else {
@@ -1012,10 +997,8 @@ export default function ChatTab({
           recommendedDays: days
         };
         newMsgs.push(proposalMsg);
-        setDialogStage(5);
       }
     } else {
-      setDialogStage(0);
     }
 
     setMessages((prev) => [...prev, ...newMsgs]);
@@ -1182,7 +1165,6 @@ export default function ChatTab({
     }
 
     let proposalMsg = null;
-    let targetDialogStage = 5;
 
     if (healingActive) {
       const healingStartDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
@@ -1277,7 +1259,6 @@ export default function ChatTab({
             text: `🎉 **Ghi nhận Tiến trình Phục hồi Tuyệt vời**: Kết quả quét hồ sơ lâm sàng mới nhất cho thấy tình trạng của cậu chuyển biến rất tốt và đã ổn định trở lại! \n\nCậu đã kiên trì vượt qua **${progressDays} ngày** của lộ trình tự chữa lành một cách xuất sắc. Tớ rất tự hào về cậu! Cậu hoàn toàn đã sẵn sàng để **tốt nghiệp lộ trình đồng hành** này rồi nhé. Cậu hãy bấm sang tab **Trị Liệu** hoặc **Hồ Sơ** để thực hiện tốt nghiệp nha! 🌸`,
             time: new Date(Date.now() + 10)
           };
-          targetDialogStage = 0;
         } else {
           // Suggest extension
           const extendDays = recommendedDays;
@@ -1290,7 +1271,6 @@ export default function ChatTab({
             isCompanionSetup: true,
             recommendedDays: finalRecommendedDuration
           };
-          targetDialogStage = 5;
         }
       } else {
         // Within active journey
@@ -1306,7 +1286,6 @@ export default function ChatTab({
             isCompanionSetup: true,
             recommendedDays: finalRecommendedDuration
           };
-          targetDialogStage = 5;
         } else if (isImproved) {
           // Improvement
           let reduceDays = 0;
@@ -1336,7 +1315,6 @@ export default function ChatTab({
               isCompanionSetup: true,
               recommendedDays: finalRecommendedDuration
             };
-            targetDialogStage = 5;
           } else {
             proposalMsg = {
               id: `bot-proposal-${Date.now() + 10}`,
@@ -1344,7 +1322,6 @@ export default function ChatTab({
               text: `Kết quả quét bệnh án định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
               time: new Date(Date.now() + 10)
             };
-            targetDialogStage = 0;
           }
         } else {
           // Stable
@@ -1354,7 +1331,6 @@ export default function ChatTab({
             text: `Kết quả quét bệnh án định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
             time: new Date(Date.now() + 10)
           };
-          targetDialogStage = 0;
         }
       }
     } else {
@@ -1367,12 +1343,10 @@ export default function ChatTab({
         isCompanionSetup: true,
         recommendedDays: recommendedDays
       };
-      targetDialogStage = 5;
     }
 
     setMessages((prev) => [...prev, botMsg, ...(proposalMsg ? [proposalMsg] : [])]);
     setChatMode("normal");
-    setDialogStage(targetDialogStage);
   };
 
   // Free-text send: bypasses dialog tree, checks local intents, else calls LLM AI fallback.
@@ -1459,7 +1433,6 @@ export default function ChatTab({
       return;
     }
 
-    setDialogStage(0);
     const botMsgId = `bot-text-${Date.now()}`;
     const localSafetyReply = createLocalSafetyReply(text);
     await botManager.chatStream(

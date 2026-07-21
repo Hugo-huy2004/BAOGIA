@@ -5,6 +5,7 @@ import {
   Moon, Zap, Heart, CloudRain, Waves, Flame, Music
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getBestViVoice } from "./utils/getBestViVoice";
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 const MEDITATION_MOODS = [
@@ -83,29 +84,6 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
     };
   }, []);
 
-  const getBestViVoice = () => {
-    const viVoices = voices.filter(v => v.lang.startsWith("vi") || v.lang.includes("vi-VN"));
-    if (viVoices.length === 0) return null;
-
-    // Prioritize voices containing "nam" (male) or "male" or "Voice 2" (typically male Siri)
-    const maleVoice = viVoices.find(v => 
-      v.name.toLowerCase().includes("nam") || 
-      v.name.toLowerCase().includes("male") ||
-      v.name.includes("Voice 2")
-    );
-    if (maleVoice) return maleVoice;
-
-    // Fallback to premium voices
-    const premiumVoice = viVoices.find(v => v.name.includes("Siri") || v.name.includes("Premium") || v.name.includes("Natural"));
-    if (premiumVoice) return premiumVoice;
-
-    // Fallback to Google translator
-    const googleVoice = viVoices.find(v => v.name.includes("Google"));
-    if (googleVoice) return googleVoice;
-
-    return viVoices[0];
-  };
-
   const toggleSound = (key) => {
     const audio = audiosRef.current[key];
     if (playingSounds[key]) {
@@ -172,7 +150,7 @@ export default function MeditationTherapy({ onBack, onCompleteActivity, showToas
     utter.lang = "vi-VN";
     utter.rate = 0.72; // Extra slow rate for meditation breathing
     utter.pitch = 0.88; // Deep, relaxing male pitch
-    utter.voice = getBestViVoice();
+    utter.voice = getBestViVoice(voices);
     window.speechSynthesis.speak(utter);
   };
 

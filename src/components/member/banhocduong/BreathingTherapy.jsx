@@ -1,18 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Volume2, VolumeX, Wind, Dumbbell, RotateCcw, CloudRain, Waves, Bell, Music } from "lucide-react";
+import { getBestViVoice } from "./utils/getBestViVoice";
+import { MUSCLE_STEPS } from "./constants/pmrSteps";
 
 const BREATH_CUES = { inhale: "Hít vào", hold: "Giữ hơi", exhale: "Thở ra" };
-
-const MUSCLE_STEPS = [
-  { part: "Bàn tay & cẳng tay", cue: "Siết chặt nắm đấm tay, cảm nhận sức căng cơ..." },
-  { part: "Bắp tay", cue: "Gập khuỷu tay lại, căng bắp tay của cậu lên..." },
-  { part: "Vai & cổ", cue: "Nhún vai lên sát tai, giữ căng vùng vai gáy..." },
-  { part: "Mặt & trán", cue: "Nhíu trán, nheo mắt và mím chặt môi lại..." },
-  { part: "Bụng", cue: "Hóp bụng thật chặt, giữ căng cơ bụng..." },
-  { part: "Đùi & mông", cue: "Siết chặt cơ đùi và mông của cậu..." },
-  { part: "Bàn chân", cue: "Cuộn các ngón chân xuống dưới, cảm nhận lòng bàn chân căng ra..." },
-];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WEB AUDIO API SYNTHESIZER (100% self-contained, no network lag or broken assets)
@@ -159,23 +151,6 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
     };
   }, []);
 
-  const getBestViVoice = () => {
-    const viVoices = voices.filter(v => v.lang.startsWith("vi") || v.lang.includes("vi-VN"));
-    if (viVoices.length === 0) return null;
-    
-    const maleVoice = viVoices.find(v => 
-      v.name.toLowerCase().includes("nam") || 
-      v.name.toLowerCase().includes("male") ||
-      v.name.includes("Voice 2")
-    );
-    if (maleVoice) return maleVoice;
-
-    const premiumVoice = viVoices.find(v => v.name.includes("Siri") || v.name.includes("Premium") || v.name.includes("Natural"));
-    if (premiumVoice) return premiumVoice;
-
-    return viVoices[0];
-  };
-
   const speakText = (text) => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -183,7 +158,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
     utter.lang = "vi-VN";
     utter.rate = 0.82; 
     utter.pitch = 0.95; 
-    utter.voice = getBestViVoice();
+    utter.voice = getBestViVoice(voices);
     window.speechSynthesis.speak(utter);
   };
 

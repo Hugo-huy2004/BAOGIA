@@ -4,6 +4,7 @@ import {
   Pause, Square, Headphones, RefreshCw, Book, Smile, Moon, Eye,
   AlertCircle, Frown, HeartCrack, BatteryLow, CloudRain, Waves, Flame, Music, Timer
 } from "lucide-react";
+import { getBestViVoice } from "./utils/getBestViVoice";
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 const MOODS = [
@@ -86,29 +87,6 @@ export default function ReadingTherapy({ onBack, onCompleteActivity, showToast, 
     };
   }, []);
 
-  const getBestViVoice = () => {
-    const viVoices = voices.filter(v => v.lang.startsWith("vi") || v.lang.includes("vi-VN"));
-    if (viVoices.length === 0) return null;
-
-    // Prioritize voices containing "nam" (male) or "male" or "Voice 2" (typically male Siri)
-    const maleVoice = viVoices.find(v => 
-      v.name.toLowerCase().includes("nam") || 
-      v.name.toLowerCase().includes("male") ||
-      v.name.includes("Voice 2")
-    );
-    if (maleVoice) return maleVoice;
-
-    // Fallback to premium voices
-    const premiumVoice = viVoices.find(v => v.name.includes("Siri") || v.name.includes("Premium") || v.name.includes("Natural"));
-    if (premiumVoice) return premiumVoice;
-
-    // Fallback to Google translator
-    const googleVoice = viVoices.find(v => v.name.includes("Google"));
-    if (googleVoice) return googleVoice;
-
-    return viVoices[0];
-  };
-
   const toggleSound = (key) => {
     const audio = audiosRef.current[key];
     if (playingSounds[key]) {
@@ -181,7 +159,7 @@ export default function ReadingTherapy({ onBack, onCompleteActivity, showToast, 
     utter.lang = "vi-VN";
     utter.rate = narrationSpeed;
     utter.pitch = 0.9; // Deeper, warmer storytelling voice
-    utter.voice = getBestViVoice();
+    utter.voice = getBestViVoice(voices);
     
     utter.onend = () => {
       // automatically advance to next paragraph

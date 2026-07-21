@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  AlertTriangle, Clock, Calendar, TrendingDown, Activity,
-  User, Phone, Mail, Calendar as CalendarIcon,
+  AlertTriangle, Clock, TrendingDown, Activity,
+  User, Phone, Mail, Calendar,
   TrendingUp, Sparkles, ShieldCheck, ChevronDown, ChevronUp,
   Brain, Moon, Compass, Heart, Award, ArrowUpRight, CheckCircle2
 } from "lucide-react";
@@ -862,7 +862,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
             <p className="text-[10.5px] font-black text-foreground/80">{bio?.phone || "–"}</p>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/40 border border-border/40">
-            <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+            <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             <p className="text-[10.5px] font-black text-foreground/80">{bio?.dob || "–"}</p>
           </div>
         </div>
@@ -1193,7 +1193,7 @@ export default function EvaluationTab({ historyLogs: rawHistoryLogs, bio, onNavi
                   </div>
                 </div>
                 <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-muted/50">
-                  <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                   <div>
                     <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-wider">{t("companion.profile.birthday", "Ngày sinh")}</p>
                     <p className="text-[10px] font-bold text-foreground/80">{bio?.dob || "–"}</p>

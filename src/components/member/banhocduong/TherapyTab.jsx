@@ -14,6 +14,7 @@ import MeditationTherapy from "./MeditationTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import { useJoyStore } from "../../../stores/joyStore";
+import { MUSCLE_STEPS } from "./constants/pmrSteps";
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 const UNLOCK_COST = 150;
@@ -163,16 +164,6 @@ function SoundscapePanel({ onBack, onComplete }) {
     </div>
   );
 }
-
-const MUSCLE_STEPS = [
-  { part: "Bàn tay & cẳng tay", cue: "Siết chặt nắm đấm, giữ…" },
-  { part: "Bắp tay", cue: "Gập khuỷu tay, căng bắp tay…" },
-  { part: "Vai & cổ", cue: "Nhún vai lên tai, giữ…" },
-  { part: "Mặt & trán", cue: "Nhíu mày, nheo mắt, giữ…" },
-  { part: "Bụng", cue: "Hóp bụng thật chặt, giữ…" },
-  { part: "Đùi & mông", cue: "Siết chặt cơ đùi, giữ…" },
-  { part: "Bàn chân", cue: "Cuộn ngón chân xuống, giữ…" },
-];
 
 function MuscleRelaxPanel({ onBack, onComplete }) {
   const [step, setStep] = useState(-1); // -1 = intro
