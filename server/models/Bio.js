@@ -365,6 +365,13 @@ const BioSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    // Subset of installedUtilities that also gets a home-screen icon — an app
+    // can be installed (usable from Hugo Library) without cluttering the
+    // home screen if the member chose "library only" at install time.
+    homeScreenUtilities: {
+      type: [String],
+      default: []
+    },
     rentedThemes: {
       type: [{
         themeId: { type: String, required: true },

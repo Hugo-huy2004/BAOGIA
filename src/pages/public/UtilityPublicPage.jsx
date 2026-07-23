@@ -4,56 +4,69 @@ import { getMemberSession } from "../../services/authSession";
 import { dataApi } from "../../services/dataApi";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
+import { UniversalSessionGuard } from "../../utils/universalSessionGuard";
+
 const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/BanhocduongTab"));
 const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
+const HugoSkinTab = lazy(() => import("../../components/member/HugoSkinTab"));
+const ChessGame = lazy(() => import("../../components/chess/ChessGame"));
+
 const TITLES = {
   "banhocduong": "Bạn Học Đường - AI Trợ Lý Học Tập | Hugo Studio",
-  "therapy": "Trị Liệu Tâm Lý Cùng AI - Hugo PSY | Hugo Studio",
+  "therapy": "Hugo PSY - AI Trợ Lý Trị Liệu Tâm Lý | Hugo Studio",
+  "psychology": "Hugo PSY - AI Trợ Lý Trị Liệu Tâm Lý | Hugo Studio",
+  "hugoskin": "Hugo Skin - Phân Tích Da & Tỷ Lệ Vàng | Hugo Studio",
   "radio": "Hugo Radio - Trạm Phát Sóng Cảm Xúc",
   "aura": "Aura AI - Hình Nền Năng Lượng Độc Bản",
-  "ide": "Web IDE Cùng AI - Hugo Studio"
+  "ide": "Web IDE Cùng AI - Hugo Studio",
+  "arcade": "Hugo Arcade - Trò Chơi Giải Trí",
+  "helpdesk": "Hugo HelpDesk - Thẻ Thông Minh & Chữ Ký Email"
 };
 
 export default function UtilityPublicPage() {
   const { tool } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const session = getMemberSession();
-  const isAuthenticated = !!session?.email;
+  const [activeSession, setActiveSession] = useState(() => getMemberSession());
+  const isAuthenticated = !!activeSession?.email;
 
   const [bio, setBio] = useState(null);
-  const [loading, setLoading] = useState(isAuthenticated);
+  const [loading, setLoading] = useState(true);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      dataApi.getMemberBio(session.email, session.displayName, session.avatarUrl)
-        .then(res => {
-          if (res?.bio) setBio(res.bio);
-        })
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    }
-  }, [isAuthenticated, session]);
+    UniversalSessionGuard.getOrRefreshSession()
+      .then(validSession => {
+        if (validSession) {
+          setActiveSession(validSession);
+          return dataApi.getMemberBio(validSession.email, validSession.displayName, validSession.avatarUrl);
+        }
+      })
+      .then(res => {
+        if (res?.bio) setBio(res.bio);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   // Provide mock bio for guest mode if needed
   const player = useMemo(() => {
     if (bio) return bio;
-    if (session) return {
-      email: session.email,
-      displayName: session.displayName || session.name || session.email?.split("@")[0] || "Người chơi",
-      avatarUrl: session.avatarUrl || "",
+    if (activeSession) return {
+      email: activeSession.email,
+      displayName: activeSession.displayName || activeSession.name || activeSession.email?.split("@")[0] || "Người chơi",
+      avatarUrl: activeSession.avatarUrl || "",
     };
     return null;
-  }, [bio, session]);
+  }, [bio, activeSession]);
 
   const handleIntercept = (e) => {
     if (!isAuthenticated) {
-      e.stopPropagation();
-      e.preventDefault();
+      e?.stopPropagation?.();
+      e?.preventDefault?.();
       setShowLoginPrompt(true);
     }
   };
@@ -70,7 +83,6 @@ export default function UtilityPublicPage() {
     const commonProps = {
       bio: player,
       showToast: (msg, type) => {
-        // Simple toast fallback or ignore if not logged in
         if (!isAuthenticated && type !== 'error') setShowLoginPrompt(true);
       },
       isGuestMode: !isAuthenticated
@@ -80,13 +92,18 @@ export default function UtilityPublicPage() {
       case "banhocduong":
         return <BanhocduongTab {...commonProps} activeSubTab="chat" onSubTabChange={() => handleIntercept(new Event('click'))} sleepAutoDetect={{}} />;
       case "therapy":
+      case "psychology":
         return <TherapyTab {...commonProps} />;
+      case "hugoskin":
+        return <HugoSkinTab bio={player} showToast={commonProps.showToast} />;
       case "radio":
         return <MemberRadioTab />;
       case "aura":
         return <MemberAuraTab bio={player} setFormData={() => {}} handleSave={() => handleIntercept(new Event('click'))} showToast={commonProps.showToast} />;
       case "ide":
         return <MemberIdeTab />;
+      case "arcade":
+        return <ChessGame bio={player} onBack={() => navigate("/")} />;
       default:
         return (
           <div className="text-center py-20">

@@ -1,7 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 
-export default function SubUtilityHeader({ title, icon, colorClass, onBack }) {
+export default function SubUtilityHeader({ title, icon, colorClass, onBack, appId }) {
   const { t } = useTranslation();
   
   return (
@@ -15,9 +16,14 @@ export default function SubUtilityHeader({ title, icon, colorClass, onBack }) {
         </button>
       ) : <span />}
 
-      <div className="flex items-center gap-2">
-        <span className={`material-symbols-outlined text-base ${colorClass}`}>{icon}</span>
-        <h3 className="text-sm font-black uppercase tracking-wider text-foreground">{title}</h3>
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className={`material-symbols-outlined text-base ${colorClass}`}>{icon}</span>
+          <h3 className="text-sm font-black uppercase tracking-wider text-foreground">{title}</h3>
+        </div>
+
+        {/* Smart Standalone App Download Button */}
+        <StandaloneInstallButton appTitle={title} appId={appId} />
       </div>
     </div>
   );

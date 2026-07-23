@@ -4,6 +4,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientEdgeEngine } from "../../utils/clientEdgeEngine";
+import { IndexedDBStorage } from "../../utils/indexedDBStorage";
+import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
@@ -156,11 +158,21 @@ export default function HugoSkinTab() {
   };
 
   const fetchHistoryData = async () => {
+    // ⚡️ Local-First read 0ms từ IndexedDB trên thiết bị người dùng
+    try {
+      const localScans = await IndexedDBStorage.getAllSkinScans();
+      if (localScans && localScans.length > 0) {
+        setHistoryList(localScans);
+      }
+    } catch (e) {
+      console.warn("Lỗi nạp IndexedDB:", e);
+    }
+
     try {
       const res = await fetch(`${apiBase}/bios/me/skin-history`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        if (data?.skinHistory) {
+        if (data?.skinHistory && data.skinHistory.length > 0) {
           setHistoryList(data.skinHistory);
         }
       }
@@ -439,9 +451,14 @@ export default function HugoSkinTab() {
       updatedAt: new Date()
     };
 
-    // Client-Side Edge Execution: Hiển thị ngay tức thì (0ms latency)
+    // Client-Side Edge Execution: Hiển thị ngay tức thì (0ms latency) & Lưu IndexedDB
     setResult(skinAnalysisResult);
     ClientEdgeEngine.saveLocalFirst("latest_skin_analysis", skinAnalysisResult);
+    IndexedDBStorage.saveSkinScan(skinAnalysisResult).then(() => {
+      IndexedDBStorage.getAllSkinScans().then((scans) => {
+        if (scans && scans.length > 0) setHistoryList(scans);
+      });
+    });
 
     try {
       const res = await fetch(`${apiBase}/bios/me/skin-analysis`, {
@@ -536,14 +553,18 @@ export default function HugoSkinTab() {
     <div className="w-full flex flex-col gap-5 text-zinc-100 font-sans pb-12">
       {/* Clean Minimalist Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 backdrop-blur-md">
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-zinc-800 rounded-xl">
-            <Camera className="w-5 h-5 text-zinc-100" />
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-zinc-800 rounded-xl">
+              <Camera className="w-5 h-5 text-zinc-100" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-zinc-100 tracking-tight">HugoSkin</h1>
+              <p className="text-[11px] text-zinc-400">Phân tích sắc tố da & Tỷ lệ vàng 1.618</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-base font-bold text-zinc-100 tracking-tight">HugoSkin</h1>
-            <p className="text-[11px] text-zinc-400">Phân tích sắc tố da & Tỷ lệ vàng 1.618</p>
-          </div>
+          
+          <StandaloneInstallButton appTitle="HugoSkin" appId="hugoskin" />
         </div>
 
         {/* Clean Segmented Control Tabs */}

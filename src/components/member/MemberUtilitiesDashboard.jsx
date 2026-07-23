@@ -8,6 +8,7 @@ import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
 import WallpaperSelector from "./utilities/WallpaperSelector";
 import LibraryCatalog from "./utilities/LibraryCatalog";
+import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 
 // Dynamic On-Demand PWA App Storage Footprint (MB)
 export const APP_STORAGE_MB = {
@@ -261,6 +262,22 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     return saved ? JSON.parse(saved) : DEFAULT_SIZES;
   });
 
+  // Subset of installedApps that also gets a home-screen icon — see
+  // handleInstallApp's addToHome choice and syncHomeScreenApps below.
+  const [homeScreenApps, setHomeScreenApps] = useState(() => {
+    if (bio && Array.isArray(bio.homeScreenUtilities) && bio.homeScreenUtilities.length > 0) {
+      return bio.homeScreenUtilities;
+    }
+    const saved = localStorage.getItem("hugo_home_screen_utilities_v1");
+    if (saved) return JSON.parse(saved);
+    // No home-screen data saved yet (pre-migration) — fall back to "every
+    // installed app is on the home screen", matching behavior before this
+    // install-location choice existed, so nothing disappears on upgrade.
+    return bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0
+      ? bio.installedUtilities
+      : DEFAULT_INSTALLED;
+  });
+
   const [activeWallpaper, setActiveWallpaper] = useState(() => {
     return localStorage.getItem("hugo_wallpaper") || "default";
   });
@@ -327,6 +344,38 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   useEffect(() => {
     localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(installedApps));
   }, [installedApps]);
+
+  // Sync homeScreenApps with prop if bio updates asynchronously
+  useEffect(() => {
+    if (bio && Array.isArray(bio.homeScreenUtilities) && bio.homeScreenUtilities.length > 0) {
+      if (JSON.stringify(bio.homeScreenUtilities) !== JSON.stringify(homeScreenApps)) {
+        setHomeScreenApps(bio.homeScreenUtilities);
+      }
+    }
+  }, [bio]);
+
+  const syncHomeScreenApps = async (updatedApps) => {
+    let appsToSave = [...new Set(updatedApps)];
+    if (!appsToSave.includes("library")) appsToSave.unshift("library");
+    if (!appsToSave.includes("info")) appsToSave.push("info");
+    setHomeScreenApps(appsToSave);
+    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(appsToSave));
+
+    if (bio?._id) {
+      try {
+        const res = await memberService.updateMemberBio(bio._id, { homeScreenUtilities: appsToSave });
+        if (res?.bio && onBioUpdate) {
+          onBioUpdate(res.bio);
+        }
+      } catch (err) {
+        console.error("Failed to sync home-screen utilities to DB:", err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(homeScreenApps));
+  }, [homeScreenApps]);
 
   // Handle Dynamic Mobile Tab Bar Hiding
   useEffect(() => {
@@ -446,8 +495,15 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
 
 
-  const handleInstallApp = (appId) => {
+  // addToHome: true = also pin an icon to the home screen grid (default,
+  // matches the previous behavior); false = install into the Library only,
+  // still fully usable via "Mở" from there — same install mechanism either way.
+  const handleInstallApp = (appId, addToHome = true) => {
     if (downloadingAppId || downloadProgress[appId] !== undefined) return;
+    
+    // 🚀 Trigger 1-Tap Native PWA Add to Home Screen Prompt
+    triggerPWAInstallDirectly().catch(() => {});
+
     setDownloadingAppId(appId);
     setDownloadProgress((prev) => ({ ...prev, [appId]: 0 }));
 
@@ -483,6 +539,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
         setTimeout(() => {
           syncInstalledApps([...installedApps, appId]);
+          if (addToHome) syncHomeScreenApps([...homeScreenApps, appId]);
           setDownloadingAppId(null);
           setDownloadProgress((prev) => {
             const nextProgress = { ...prev };
@@ -725,8 +782,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   };
 
   const myAppsList = useMemo(() => {
-    return allUtilities.filter((util) => installedApps.includes(util.id));
-  }, [allUtilities, installedApps]);
+    return allUtilities.filter((util) => installedApps.includes(util.id) && homeScreenApps.includes(util.id));
+  }, [allUtilities, installedApps, homeScreenApps]);
 
   const libraryAppsList = useMemo(() => {
     return allUtilities.filter((util) => {
@@ -941,29 +998,21 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🏛️ VIEW: HUGO LIBRARY Component */}
       {activeTab === "library" && (
-        <div className="space-y-4 text-left">
-          <button
-            onClick={() => setActiveTab("my-apps")}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
-          >
-            <span className="material-symbols-outlined text-sm">arrow_back</span>
-            <span>Quay lại Tiện ích của tôi</span>
-          </button>
-          <LibraryCatalog
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            activeCategory={activeCategory}
-            setActiveCategory={setActiveCategory}
-            categories={categories}
-            libraryAppsList={libraryAppsList}
-            downloadingAppId={downloadingAppId}
-            downloadProgress={downloadProgress}
-            installedApps={installedApps}
-            handleInstallApp={handleInstallApp}
-            setSelectedUtility={setSelectedUtility}
-            gradients={GRADIENTS}
-          />
-        </div>
+        <LibraryCatalog
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          categories={categories}
+          libraryAppsList={libraryAppsList}
+          downloadingAppId={downloadingAppId}
+          downloadProgress={downloadProgress}
+          installedApps={installedApps}
+          handleInstallApp={handleInstallApp}
+          setSelectedUtility={setSelectedUtility}
+          gradients={GRADIENTS}
+          onBack={() => setActiveTab("my-apps")}
+        />
       )}
 
       {/* ⚙️ WIDGET CUSTOMIZER ACTION SHEET MODAL */}

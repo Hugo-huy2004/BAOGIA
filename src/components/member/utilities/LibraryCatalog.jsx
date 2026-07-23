@@ -1,5 +1,9 @@
 import { useState } from "react";
+import { RoutePrefetcher } from "../../../utils/routePrefetcher";
 
+// Kept in sync with the same map in MemberUtilitiesDashboard.jsx — not
+// imported from there to avoid a circular import (that file imports this
+// component as its default export).
 const APP_STORAGE_MB = {
   hugoskin: 2.8,
   ide: 4.5,
@@ -32,6 +36,28 @@ const DESCRIPTIONS = {
   joy_wallet: "Ví điện tử JOY cá nhân. Xem trực quan lịch sử thu chi, số dư tài khoản và thực hiện chuyển khoản nhanh bằng mã QR giữa các thành viên hệ thống."
 };
 
+// Per-app version shown instead of a star rating — kept in sync with the
+// app list in MemberUtilitiesDashboard.jsx (same "local copy" tradeoff as
+// APP_STORAGE_MB above, to avoid a circular import).
+const APP_VERSIONS = {
+  bio: "3.2.0",
+  ide: "2.8.1",
+  team: "1.4.0",
+  psychology: "4.1.0",
+  hugoskin: "2.0.3",
+  radio: "1.6.0",
+  helpdesk: "2.3.0",
+  handle: "1.9.0",
+  arcade: "3.5.0",
+  aura: "2.1.0",
+  deco: "1.7.0",
+  info: "1.0.0",
+  joy_wallet: "2.4.0"
+};
+
+const CATEGORY_LABELS = { edu: "Học tập", wellness: "Sức khỏe", tools: "Công cụ" };
+const categoryLabel = (cat) => CATEGORY_LABELS[cat] || "Giải trí";
+
 export default function LibraryCatalog({
   searchQuery,
   setSearchQuery,
@@ -48,6 +74,16 @@ export default function LibraryCatalog({
   onBack
 }) {
   const [selectedApp, setSelectedApp] = useState(null);
+  const [descExpanded, setDescExpanded] = useState(false);
+  // App awaiting a "where to install" choice — same handleInstallApp either
+  // way, only the addToHome flag differs (see MemberUtilitiesDashboard.jsx).
+  const [pendingInstallApp, setPendingInstallApp] = useState(null);
+
+  const confirmInstall = (addToHome) => {
+    if (!pendingInstallApp) return;
+    handleInstallApp(pendingInstallApp.id, addToHome);
+    setPendingInstallApp(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -118,24 +154,6 @@ export default function LibraryCatalog({
         )}
       </div>
 
-      {/* PWA Phone Memory Storage Status Banner */}
-      <div className="p-4 bg-card/45 border border-border/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-left backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg">smartphone</span>
-          </div>
-          <div>
-            <span className="text-xs font-bold text-foreground block">Bộ Nhớ PWA Điện Thoại (On-Demand Storage)</span>
-            <span className="text-[11px] text-muted-foreground">
-              Chưa tải = 0 MB • Chỉ khi bấm <strong>Tải</strong> mới sử dụng dung lượng lưu trữ trên điện thoại của bạn.
-            </span>
-          </div>
-        </div>
-        <div className="px-3.5 py-1.5 bg-muted/60 border border-border/40 rounded-xl text-xs font-black text-primary shrink-0">
-          {installedApps.reduce((sum, id) => sum + (APP_STORAGE_MB[id] || 2.0), 0).toFixed(1)} MB Đã Dùng ({installedApps.length}/{libraryAppsList.length} Apps)
-        </div>
-      </div>
-
       {/* Categories scroller - Apple Store style pills */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
         {categories.map((cat) => {
@@ -179,7 +197,9 @@ export default function LibraryCatalog({
             return (
               <div
                 key={app.id}
-                onClick={() => setSelectedApp(app)}
+                onMouseEnter={() => RoutePrefetcher.prefetchApp(app.id)}
+                onTouchStart={() => RoutePrefetcher.prefetchApp(app.id)}
+                onClick={() => { setSelectedApp(app); setDescExpanded(false); }}
                 className="cursor-pointer flex items-center justify-between p-5 bg-card/45 backdrop-blur-md border border-border/30 rounded-[28px] shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.99] transition-all duration-300"
               >
                 <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -203,9 +223,9 @@ export default function LibraryCatalog({
                       {app.subLabel}
                     </p>
                     <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-muted-foreground/80 flex-wrap">
-                      <span className="text-warning flex items-center font-black">★ {app.rating}</span>
+                      <span className="text-primary font-black">v{APP_VERSIONS[app.id] || "1.0.0"}</span>
                       <span>•</span>
-                      <span className="text-primary/90 font-black">{isInstalled ? `${(APP_STORAGE_MB[app.id] || 2.0).toFixed(1)} MB (Đã tải)` : "0 MB (Chưa tải)"}</span>
+                      <span>{app.users} active</span>
                     </div>
                   </div>
                 </div>
@@ -234,7 +254,7 @@ export default function LibraryCatalog({
                   ) : (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); handleInstallApp(app.id); }}
+                      onClick={(e) => { e.stopPropagation(); setPendingInstallApp(app); }}
                       className="w-[72px] h-[32px] flex items-center justify-center rounded-full bg-muted hover:bg-primary text-primary hover:text-white font-extrabold text-[11.5px] uppercase tracking-widest active:scale-95 transition-all duration-200 shadow-sm"
                     >
                       Tải
@@ -253,14 +273,14 @@ export default function LibraryCatalog({
           {/* Backdrop click close */}
           <div className="absolute inset-0" onClick={() => setSelectedApp(null)} />
 
-          <div className="relative w-full sm:max-w-xl bg-[#0b0f19] border-t sm:border border-white/10 rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl z-[510] max-h-[92vh] overflow-y-auto animate-slideUp text-left space-y-6">
+          <div className="relative w-full sm:max-w-xl bg-card border-t sm:border border-border rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl z-[510] max-h-[92vh] overflow-y-auto animate-slideUp text-left space-y-6">
             {/* Mobile Drag Indicator */}
-            <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-2 sm:hidden" />
+            <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-2 sm:hidden" />
 
             {/* Top Close Button */}
             <button
               onClick={() => setSelectedApp(null)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/95 flex items-center justify-center active:scale-95 transition-transform z-25"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-muted hover:bg-muted/70 text-foreground flex items-center justify-center active:scale-95 transition-transform z-25"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
@@ -269,28 +289,28 @@ export default function LibraryCatalog({
             <div className="flex gap-4 items-start pr-8">
               <div className={`w-20 h-20 rounded-[20px] bg-gradient-to-br ${gradients[selectedApp.tint] || gradients.indigo} flex items-center justify-center shadow-lg relative overflow-hidden shrink-0`}>
                 <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
-                <span className="material-symbols-outlined text-white text-[38px]" style={{ fontVariationSettings: "'FILL' 1" }}>{selectedApp.icon}</span>
+                <span className="material-symbols-outlined text-foreground text-[38px]" style={{ fontVariationSettings: "'FILL' 1" }}>{selectedApp.icon}</span>
               </div>
               <div className="min-w-0 flex-1 space-y-1.5 text-left">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-black text-white leading-snug">
+                  <h3 className="text-lg font-black text-foreground leading-snug">
                     {selectedApp.title}
                   </h3>
                   {selectedApp.badge && (
-                    <span className="px-2 py-0.5 text-[8px] font-black tracking-widest bg-white/10 border border-white/15 text-zinc-300 uppercase rounded-md leading-none select-none">
+                    <span className="px-2 py-0.5 text-[8px] font-black tracking-widest bg-muted border border-border text-foreground/80 uppercase rounded-md leading-none select-none">
                       {selectedApp.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 leading-normal">
+                <p className="text-xs text-muted-foreground leading-normal">
                   {selectedApp.subLabel}
                 </p>
                 <p className="text-[10px] text-blue-400 font-extrabold uppercase tracking-wider">
                   Hugo Studio Developer
                 </p>
 
-                {/* GET / OPEN Button in Header */}
-                <div className="pt-2">
+                {/* GET / OPEN / STANDALONE Buttons in Header */}
+                <div className="pt-2 flex flex-wrap items-center gap-2">
                   {installedApps.includes(selectedApp.id) ? (
                     <button
                       onClick={() => { setSelectedApp(null); setSelectedUtility(selectedApp.id); }}
@@ -299,72 +319,88 @@ export default function LibraryCatalog({
                       Mở ứng dụng
                     </button>
                   ) : downloadingAppId === selectedApp.id ? (
-                    <div className="inline-flex px-6 py-1.5 rounded-full bg-white/5 border border-white/10 items-center justify-center gap-2 select-none">
+                    <div className="inline-flex px-6 py-1.5 rounded-full bg-muted/60 border border-border items-center justify-center gap-2 select-none">
                       <div className="h-3 w-3 animate-spin rounded-full border border-primary border-t-transparent" />
                       <span className="text-[10px] font-black text-blue-400">{downloadProgress[selectedApp.id] || 0}%</span>
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleInstallApp(selectedApp.id)}
+                      onClick={() => setPendingInstallApp(selectedApp)}
                       className="px-6 py-1.5 rounded-full bg-primary text-white font-extrabold text-[11px] uppercase tracking-widest shadow-md shadow-primary/20 hover:opacity-90 active:scale-95 transition-all duration-200"
                     >
                       Tải về máy
                     </button>
                   )}
+
+                  <button
+                    onClick={() => {
+                      window.open(`/${selectedApp.id}`, '_blank');
+                    }}
+                    title="Mở ứng dụng này dưới dạng cửa sổ độc lập để tập trung làm việc"
+                    className="px-4 py-1.5 rounded-full bg-muted border border-border/50 text-foreground font-extrabold text-[10.5px] uppercase tracking-widest hover:bg-muted/80 active:scale-95 transition-all duration-200 flex items-center gap-1 shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+                    Tách App Độc Lập
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* 2. Apple Quick Stats Row */}
-            <div className="grid grid-cols-4 gap-2 py-3 border-y border-white/10 text-center">
+            <div className="grid grid-cols-4 gap-2 py-3 border-y border-border text-center">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Đánh giá</span>
-                <span className="text-sm font-black text-zinc-100 flex items-center justify-center gap-0.5">
-                  {selectedApp.rating} <span className="text-warning text-xs">★</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Phiên bản</span>
+                <span className="text-sm font-black text-foreground">{APP_VERSIONS[selectedApp.id] || "1.0.0"}</span>
+                <span className="text-[9px] text-muted-foreground/70 font-semibold block">Hiện tại</span>
+              </div>
+              <div className="space-y-1 border-l border-border">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Độ tuổi</span>
+                <span className="text-sm font-black text-foreground">12+</span>
+                <span className="text-[9px] text-muted-foreground/70 font-semibold block">Tuổi</span>
+              </div>
+              <div className="space-y-1 border-l border-border">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Kích thước</span>
+                <span className="text-sm font-black text-foreground">{(APP_STORAGE_MB[selectedApp.id] || 2.0).toFixed(1)}</span>
+                <span className="text-[9px] text-muted-foreground/70 font-semibold block">MB</span>
+              </div>
+              <div className="space-y-1 border-l border-border">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Thể loại</span>
+                <span className="text-sm font-black text-foreground uppercase text-[10px] tracking-wider truncate block">
+                  {categoryLabel(selectedApp.category)}
                 </span>
-                <span className="text-[9px] text-zinc-500 font-semibold block">98 lượt</span>
-              </div>
-              <div className="space-y-1 border-l border-white/10">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Độ tuổi</span>
-                <span className="text-sm font-black text-zinc-100">12+</span>
-                <span className="text-[9px] text-zinc-500 font-semibold block">Tuổi</span>
-              </div>
-              <div className="space-y-1 border-l border-white/10">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Người dùng</span>
-                <span className="text-sm font-black text-zinc-100">{selectedApp.users}</span>
-                <span className="text-[9px] text-zinc-500 font-semibold block">Hoạt động</span>
-              </div>
-              <div className="space-y-1 border-l border-white/10">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Thể loại</span>
-                <span className="text-sm font-black text-zinc-100 uppercase text-[10px] tracking-wider truncate block">
-                  {selectedApp.category === "edu" ? "Học tập" : selectedApp.category === "wellness" ? "Sức khỏe" : selectedApp.category === "tools" ? "Công cụ" : "Giải trí"}
-                </span>
-                <span className="text-[9px] text-zinc-500 font-semibold block">Tiện ích</span>
+                <span className="text-[9px] text-muted-foreground/70 font-semibold block">Tiện ích</span>
               </div>
             </div>
 
             {/* 3. What's New Row */}
             <div className="space-y-2 text-left">
               <div className="flex justify-between items-baseline">
-                <h4 className="text-[13px] font-black uppercase tracking-wider text-white">Có gì mới</h4>
-                <span className="text-[10px] text-zinc-500 font-bold">Phiên bản 2.5.0</span>
+                <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">Có gì mới</h4>
+                <span className="text-[10px] text-muted-foreground/70 font-bold">Phiên bản {APP_VERSIONS[selectedApp.id] || "1.0.0"}</span>
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed bg-white/5 border border-white/10 rounded-2xl p-4">
+              <p className="text-xs text-foreground/80 leading-relaxed bg-muted/60 border border-border rounded-2xl p-4">
                 Tối ưu hóa hiệu năng nạp trước (Hover Prefetching), khắc phục hoàn toàn hiện tượng trễ khi tải tài nguyên, căn chỉnh độ bo góc chuẩn Apple App Store.
               </p>
             </div>
 
             {/* 4. Detailed Description */}
-            <div className="space-y-2 text-left">
-              <h4 className="text-[13px] font-black uppercase tracking-wider text-white">Thông tin mô tả</h4>
-              <p className="text-xs text-zinc-300 leading-relaxed font-medium">
+            <div className="space-y-1.5 text-left">
+              <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">Thông tin mô tả</h4>
+              <p className={`text-xs text-foreground/80 leading-relaxed font-medium ${descExpanded ? "" : "line-clamp-3"}`}>
                 {DESCRIPTIONS[selectedApp.id] || "Ứng dụng tiện ích đa năng thuộc hệ sinh thái học tập và giải trí cao cấp Hugo Studio."}
               </p>
+              <button
+                type="button"
+                onClick={() => setDescExpanded((v) => !v)}
+                className="text-[11px] font-black text-primary active:opacity-70"
+              >
+                {descExpanded ? "Thu gọn" : "Xem thêm"}
+              </button>
             </div>
 
             {/* 5. Horizontal Preview/Screenshots Mockups */}
             <div className="space-y-2 text-left">
-              <h4 className="text-[13px] font-black uppercase tracking-wider text-white">Xem trước giao diện</h4>
+              <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">Xem trước giao diện</h4>
               <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2.5">
                 {[
                   { title: "Bàn Làm Việc", desc: "Tối ưu hóa hiển thị, tùy chỉnh kích thước đa dạng." },
@@ -376,7 +412,7 @@ export default function LibraryCatalog({
                     className={`w-[145px] h-[240px] rounded-2xl bg-gradient-to-br ${gradients[selectedApp.tint] || gradients.indigo} opacity-90 p-3.5 flex flex-col justify-between shrink-0 shadow-md relative overflow-hidden`}
                   >
                     {/* Mock Status Bar */}
-                    <div className="flex justify-between items-center text-[7px] text-white/80 font-black tracking-wider">
+                    <div className="flex justify-between items-center text-[7px] text-foreground/80 font-black tracking-wider">
                       <span>9:41</span>
                       <div className="flex gap-1 items-center">
                         <span className="material-symbols-outlined text-[7px]">wifi</span>
@@ -385,14 +421,14 @@ export default function LibraryCatalog({
                     </div>
 
                     {/* Mock Icon Center */}
-                    <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto my-auto shadow-sm">
-                      <span className="material-symbols-outlined text-white text-[20px]">{selectedApp.icon}</span>
+                    <div className="w-10 h-10 rounded-xl bg-muted backdrop-blur-md flex items-center justify-center mx-auto my-auto shadow-sm">
+                      <span className="material-symbols-outlined text-foreground text-[20px]">{selectedApp.icon}</span>
                     </div>
 
                     {/* Mock Footer Label */}
-                    <div className="space-y-1 text-left bg-black/30 backdrop-blur-md p-2 rounded-xl border border-white/10 w-full">
-                      <p className="text-[8px] font-black text-white leading-tight uppercase tracking-wider">{screen.title}</p>
-                      <p className="text-[6.5px] text-white/80 font-semibold leading-normal">{screen.desc}</p>
+                    <div className="space-y-1 text-left bg-black/30 backdrop-blur-md p-2 rounded-xl border border-border w-full">
+                      <p className="text-[8px] font-black text-foreground leading-tight uppercase tracking-wider">{screen.title}</p>
+                      <p className="text-[6.5px] text-foreground/80 font-semibold leading-normal">{screen.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -400,30 +436,72 @@ export default function LibraryCatalog({
             </div>
 
             {/* 6. Info Table */}
-            <div className="space-y-2 text-left pt-2 border-t border-white/10">
-              <h4 className="text-[13px] font-black uppercase tracking-wider text-white">Thông tin chi tiết</h4>
-              <div className="divide-y divide-white/10 text-xs">
+            <div className="space-y-2 text-left pt-2 border-t border-border">
+              <h4 className="text-[13px] font-black uppercase tracking-wider text-foreground">Thông tin chi tiết</h4>
+              <div className="divide-y divide-border text-xs">
                 <div className="flex justify-between py-2.5">
-                  <span className="text-zinc-450 font-semibold text-zinc-400">Nhà phát triển</span>
-                  <span className="text-zinc-200 font-bold">Hugo Studio</span>
+                  <span className="text-muted-foreground font-semibold">Nhà phát triển</span>
+                  <span className="text-foreground font-bold">Hugo Studio</span>
                 </div>
                 <div className="flex justify-between py-2.5">
-                  <span className="text-zinc-450 font-semibold text-zinc-400">Dung lượng</span>
-                  <span className="text-zinc-200 font-bold">12.4 MB</span>
+                  <span className="text-muted-foreground font-semibold">Dung lượng</span>
+                  <span className="text-foreground font-bold">{(APP_STORAGE_MB[selectedApp.id] || 2.0).toFixed(1)} MB</span>
                 </div>
                 <div className="flex justify-between py-2.5">
-                  <span className="text-zinc-450 font-semibold text-zinc-400">Tương thích</span>
-                  <span className="text-zinc-200 font-bold">iOS 15.0+ / Android 9.0+</span>
+                  <span className="text-muted-foreground font-semibold">Tương thích</span>
+                  <span className="text-foreground font-bold">iOS 15.0+ / Android 9.0+</span>
                 </div>
                 <div className="flex justify-between py-2.5">
-                  <span className="text-zinc-450 font-semibold text-zinc-400">Ngôn ngữ</span>
-                  <span className="text-zinc-200 font-bold">Tiếng Việt, Tiếng Anh</span>
+                  <span className="text-muted-foreground font-semibold">Ngôn ngữ</span>
+                  <span className="text-foreground font-bold">Tiếng Việt, Tiếng Anh</span>
                 </div>
                 <div className="flex justify-between py-2.5">
-                  <span className="text-zinc-450 font-semibold text-zinc-400">Bản quyền</span>
-                  <span className="text-zinc-200 font-bold">© 2026 Hugo Studio</span>
+                  <span className="text-muted-foreground font-semibold">Bản quyền</span>
+                  <span className="text-foreground font-bold">© 2026 Hugo Studio</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Install location choice — same handleInstallApp mechanism either
+          way, only whether it also gets a home-screen icon differs. */}
+      {pendingInstallApp && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[600] flex items-end sm:items-center justify-center p-4 animate-fadeIn">
+          <div className="absolute inset-0" onClick={() => setPendingInstallApp(null)} />
+          <div className="relative w-full sm:max-w-sm bg-card border border-border rounded-[28px] p-6 shadow-2xl space-y-4 text-center animate-slideUp">
+            <div className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${gradients[pendingInstallApp.tint] || gradients.indigo} flex items-center justify-center shadow-md`}>
+              <span className="material-symbols-outlined text-white text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>{pendingInstallApp.icon}</span>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-black text-foreground">Tải "{pendingInstallApp.title}" vào đâu?</p>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">Cả 2 lựa chọn đều cài đặt và dùng ứng dụng giống nhau, chỉ khác việc có icon riêng ở màn hình chính hay không.</p>
+            </div>
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => confirmInstall(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest shadow-md shadow-primary/20 hover:opacity-90 active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-base">add_to_home_screen</span>
+                Màn hình chính &amp; Thư viện
+              </button>
+              <button
+                type="button"
+                onClick={() => confirmInstall(false)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-muted border border-border text-foreground font-black text-xs uppercase tracking-widest hover:bg-muted/70 active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-base">apps</span>
+                Chỉ Thư Viện
+              </button>
+              <button
+                type="button"
+                onClick={() => setPendingInstallApp(null)}
+                className="w-full py-2 text-[11px] font-bold text-muted-foreground hover:text-foreground active:opacity-70"
+              >
+                Hủy
+              </button>
             </div>
           </div>
         </div>

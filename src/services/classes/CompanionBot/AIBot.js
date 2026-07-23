@@ -2,6 +2,7 @@ import BaseBot from "./BaseBot";
 import pLimit from "p-limit";
 import { buildLocalReply } from "./localFallback";
 import { loadSecureMemory } from "../../../components/member/banhocduong/utils/secureMemory";
+import { executeHybridRace } from "./hybridRaceEngine";
 
 // Detect structured test-suggestion markers the server is asked to emit, e.g.
 // "[[SUGGEST:phq9,gad7]]". Falls back to the old keyword scan for older server
@@ -404,8 +405,55 @@ export default class AIBot extends BaseBot {
     try {
       const userId = await this._aiUserId();
       
-      // Use AbortController to prevent long hangs or server offline messages.
-      // Falls back to local matching response instantly if connection hangs for 3.5 seconds.
+    const isPWAStandalone = typeof window !== "undefined" && (
+      window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true
+    );
+
+    if (isPWAStandalone) {
+      const hybridResult = await executeHybridRace({
+        userMessage: message,
+        opts: { bio: this.bio, historyLogs: this.historyLogs },
+        onChunk,
+        fetchCloudStream: async (timeoutMs) => {
+          const userId = await this._aiUserId();
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+          const res = await _streamLimit(() => fetch(`${API_URL}/chat/stream`, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "X-Internal-Key": INTERNAL_KEY
+            },
+            body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId }),
+            signal: controller.signal
+          })).finally(() => clearTimeout(timeoutId));
+
+          if (!res || !res.ok) throw new Error("Cloud stream timeout/failed");
+          
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let done = false, fullReply = "";
+
+          while (!done) {
+            const { value, done: rd } = await reader.read();
+            done = rd;
+            if (value) {
+              const text = decoder.decode(value, { stream: true });
+              fullReply += text;
+              onChunk?.(fullReply);
+            }
+          }
+          const { flags, cleanText } = extractSuggestions(fullReply);
+          return { reply: cleanText, ...flags };
+        }
+      });
+
+      this._replyCache.set(key, hybridResult);
+      onDone?.(hybridResult);
+      return;
+    }
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3500);
 

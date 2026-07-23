@@ -25,6 +25,10 @@ import DonationModal from "./components/ui/DonationModal";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { initGlobalHaptics } from "./utils/haptics";
 import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
+import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
+import { StorageSafeguard } from "./utils/storageSafeguard";
+import { PWAKeepAlive } from "./utils/pwaKeepAlive";
+import DynamicCapsuleBar from "./components/ui/DynamicCapsuleBar";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -57,6 +61,12 @@ const JoyPWA = lazy(() => import("./pages/JoyPWA"));
 function AppContent() {
   const location = useLocation();
   const { data } = useData();
+
+  useEffect(() => {
+    BackgroundSyncEngine.initListener();
+    StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
+    PWAKeepAlive.startKeepAlive();
+  }, []);
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
   const isPreviewRoute = location.pathname === "/preview";
@@ -124,6 +134,13 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
       
+      {/* Apple iOS Dynamic Island / Capsule Header Bar */}
+      {isPWA && (
+        <DynamicCapsuleBar
+          activeStatus={{ title: "Hugo Studio PWA Active • 120 FPS Edge AI", icon: "bolt" }}
+        />
+      )}
+
       {/* Static Top-Navigation Header bar */}
       {!hideNavbar && <Navbar />}
       
