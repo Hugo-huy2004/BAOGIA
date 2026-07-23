@@ -5,6 +5,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientEdgeEngine } from "../../utils/clientEdgeEngine";
 import { IndexedDBStorage } from "../../utils/indexedDBStorage";
+import { WebShareTargetHandler } from "../../utils/webShareTargetHandler";
 import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -112,6 +113,9 @@ export default function HugoSkinTab() {
     fetchBioData();
     fetchHistoryData();
     fetchChecklistData();
+    WebShareTargetHandler.initShareListener((sharedFile) => {
+      console.log("Đã tiếp nhận file ảnh từ Thư viện hệ điều hành:", sharedFile);
+    });
   }, []);
 
   useEffect(() => {

@@ -32,6 +32,7 @@ import { ApplePushNotificationManager } from "./utils/applePushNotificationManag
 import { WebGPUAccelerator } from "./utils/webgpuAccelerator";
 import DynamicCapsuleBar from "./components/ui/DynamicCapsuleBar";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
+import PWAInstallModal from "./components/ui/PWAInstallModal";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -278,6 +279,7 @@ export default function App() {
               <PWAInstallBanner />
               <PWAUpdatePrompt />
               <PWAUpdateBanner />
+              <PWAInstallModal />
               <DonationModal />
               <Toaster
                 position="top-center"

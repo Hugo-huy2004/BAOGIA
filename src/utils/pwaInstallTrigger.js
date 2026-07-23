@@ -42,11 +42,14 @@ export async function triggerPWAInstallDirectly(onShowIOSGuide) {
     }
   }
 
-  // Nếu là iOS hoặc trình duyệt chưa nổ event, mở Hướng dẫn 1-Tap iOS/Safari
-  if (isIOS && typeof onShowIOSGuide === "function") {
-    onShowIOSGuide();
-    return { installed: false, status: "ios_guided" };
+  // Nếu prompt chưa sẵn sàng hoặc trên iOS Safari, phát sự kiện mở Modal Hướng Dẫn Chuẩn Apple
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("show-pwa-install-guide"));
   }
 
-  return { installed: false, status: "prompt_unavailable" };
+  if (isIOS && typeof onShowIOSGuide === "function") {
+    onShowIOSGuide();
+  }
+
+  return { installed: false, status: "guide_shown" };
 }
