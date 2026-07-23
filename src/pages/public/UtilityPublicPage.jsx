@@ -5,6 +5,8 @@ import { dataApi } from "../../services/dataApi";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { UniversalSessionGuard } from "../../utils/universalSessionGuard";
+import { AISelfHealingEngine } from "../../utils/aiSelfHealingEngine";
+import AISelfHealingBoundary from "../../components/ui/AISelfHealingBoundary";
 
 const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/BanhocduongTab"));
 const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
@@ -38,6 +40,7 @@ export default function UtilityPublicPage() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
+    AISelfHealingEngine.initGlobalErrorCatchers();
     UniversalSessionGuard.getOrRefreshSession()
       .then(validSession => {
         if (validSession) {
@@ -122,7 +125,9 @@ export default function UtilityPublicPage() {
         </div>
       }
     >
-      {renderTool()}
+      <AISelfHealingBoundary>
+        {renderTool()}
+      </AISelfHealingBoundary>
     </Suspense>
   );
 

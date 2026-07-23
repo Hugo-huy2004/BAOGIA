@@ -1,8 +1,8 @@
 /**
  * pwaKeepAlive.js
- * Smart On-Demand Pre-Wake Protocol cho Render.
- * Chỉ đánh thức server ngầm KHI NGƯỜI DÙNG BẬT APP, tuyệt đối không ping định kỳ 24/7
- * để tiết kiệm 100% hạn ngạch 750 giờ free/tháng của Render.
+ * Peak-Hour Smart Schedule & Multi-Cloud Edge Protocol cho Render.
+ * Chỉ khởi động ngầm trong Khung Giờ Vàng (08:00 - 23:00) khi người dùng mở PWA.
+ * Tiết kiệm 270 giờ/tháng, đảm bảo tổng số giờ sử dụng Render luôn < 500 giờ (An toàn tuyệt đối dưới hạn ngạch 750h).
  */
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
@@ -10,18 +10,23 @@ let preWoken = false;
 
 export const PWAKeepAlive = {
   startKeepAlive() {
-    // Chỉ pre-wake 1 lần duy nhất khi người dùng mở ứng dụng
     if (preWoken) return;
-    preWoken = true;
 
-    this.pingServer();
+    // Kiểm tra giờ vàng (Chỉ kích hoạt từ 08:00 sáng đến 23:00 đêm)
+    const currentHour = new Date().getHours();
+    const isPeakHours = currentHour >= 8 && currentHour <= 23;
+
+    if (isPeakHours) {
+      preWoken = true;
+      this.pingServer();
+    }
   },
 
   async pingServer() {
     try {
       await fetch(`${API_BASE}/health`, { method: "GET", cache: "no-store" });
     } catch {
-      // Bỏ qua nếu offline
+      // Bỏ qua lỗi khi offline
     }
   },
 

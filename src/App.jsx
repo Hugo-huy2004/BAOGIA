@@ -29,6 +29,7 @@ import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import { PWAKeepAlive } from "./utils/pwaKeepAlive";
 import DynamicCapsuleBar from "./components/ui/DynamicCapsuleBar";
+import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -272,6 +273,7 @@ export default function App() {
               <AppContent />
               <PWAInstallBanner />
               <PWAUpdatePrompt />
+              <PWAUpdateBanner />
               <DonationModal />
               <Toaster
                 position="top-center"

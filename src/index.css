@@ -55,6 +55,16 @@
     --shadow:              240 22% 12%;
   }
 
+  /* Apple iOS HIG Safe Area Insets for PWA Standalone Mode */
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
   .dark {
     /* Dark mode keeps the same logo-family accents on neutral surfaces */
     --primary:             224 84% 64%;
@@ -649,6 +659,26 @@
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
+
+/* Apple HIG Spring Easing & Glass Panels */
+.apple-spring-curve {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(40px) saturate(190%);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.dark .apple-glass-panel {
+  background: rgba(18, 18, 24, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .hg-glass { background: rgba(255, 255, 255, 0.92); }
   .dark .hg-glass { background: rgba(22, 22, 30, 0.92); }
