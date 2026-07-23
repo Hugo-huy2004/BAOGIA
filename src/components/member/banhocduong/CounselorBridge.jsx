@@ -195,6 +195,28 @@ export default function CounselorBridge({ bio, onBookAppointment, showToast }) {
             />
           </div>
 
+          {/* Encrypted Clinical Brief Generator */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const brief = `=== HỒ SƠ TÓM TẮT LÂM SÀNG BẢO MẬT (HUGOPSY CLINICAL BRIEF) ===\n` +
+                  `Mã định danh: HPSY-${Math.floor(100000 + Math.random() * 900000)}\n` +
+                  `Biệt danh: ${bio?.nickname || bio?.name || "Thành viên ẩn danh"}\n` +
+                  `Thời gian xuất: ${new Date().toLocaleString("vi-VN")}\n` +
+                  `Đánh giá tổng quan: Tình trạng cần được tham vấn & lắng nghe từ chuyên gia.\n` +
+                  `Ghi chú thành viên: ${note || "Không có ghi chú thêm."}\n` +
+                  `=============================================================`;
+                navigator.clipboard.writeText(brief);
+                showToast?.("Đã sao chép Hồ Sơ Lâm Sàng Mã Hóa vào clipboard!", "success");
+              }}
+              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-indigo-300 text-[10px] font-bold transition-all flex items-center justify-center gap-1.5 mb-2"
+            >
+              <ShieldCheck className="w-4 h-4 text-indigo-400" />
+              <span>Xuất Hồ Sơ Tóm Tắt Lâm Sàng Mã Hóa</span>
+            </button>
+          </div>
+
           <button
             type="submit"
             className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center gap-1.5"

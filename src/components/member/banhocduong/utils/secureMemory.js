@@ -8,29 +8,46 @@
 
 const SALT = "HugoPSY_Secure_Salt_2026";
 
-// Simple client-side obfuscation to prevent plain-text reading of sensitive data from localStorage
+// Enhanced client-side obfuscation using Base64 & WebCrypto compatible UTF-8 XOR encryption
 function obfuscate(text, key) {
-  const encKey = key + SALT;
-  let result = "";
-  for (let i = 0; i < text.length; i++) {
-    const charCode = text.charCodeAt(i) ^ encKey.charCodeAt(i % encKey.length);
-    result += String.fromCharCode(charCode);
+  try {
+    const encKey = key + SALT;
+    const textBytes = new TextEncoder().encode(text);
+    const keyBytes = new TextEncoder().encode(encKey);
+    const resultBytes = new Uint8Array(textBytes.length);
+
+    for (let i = 0; i < textBytes.length; i++) {
+      resultBytes[i] = textBytes[i] ^ keyBytes[i % keyBytes.length];
+    }
+    
+    let binary = "";
+    for (let i = 0; i < resultBytes.byteLength; i++) {
+      binary += String.fromCharCode(resultBytes[i]);
+    }
+    return btoa(binary);
+  } catch (e) {
+    return btoa(unescape(encodeURIComponent(text)));
   }
-  return btoa(unescape(encodeURIComponent(result)));
 }
 
 function deobfuscate(encoded, key) {
   try {
     const encKey = key + SALT;
-    const text = decodeURIComponent(escape(atob(encoded)));
-    let result = "";
-    for (let i = 0; i < text.length; i++) {
-      const charCode = text.charCodeAt(i) ^ encKey.charCodeAt(i % encKey.length);
-      result += String.fromCharCode(charCode);
+    const binary = atob(encoded);
+    const resultBytes = new Uint8Array(binary.length);
+    const keyBytes = new TextEncoder().encode(encKey);
+
+    for (let i = 0; i < binary.length; i++) {
+      resultBytes[i] = binary.charCodeAt(i) ^ keyBytes[i % keyBytes.length];
     }
-    return result;
+
+    return new TextDecoder().decode(resultBytes);
   } catch (e) {
-    return null;
+    try {
+      return decodeURIComponent(escape(atob(encoded)));
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -41,28 +58,35 @@ function getSecurityKey(bio) {
 }
 
 export function loadSecureMemory(bio) {
+  const defaultMemory = {
+    name: bio?.displayName || null,
+    examDate: null,
+    stressTriggers: [],
+    relationshipStatus: null,
+    sentimentTrend: [0], // Moving average of sentiment scores (-1 to 1)
+    lastUpdated: null,
+  };
+  if (typeof localStorage === "undefined" || typeof localStorage.getItem !== "function") {
+    return defaultMemory;
+  }
   const key = getSecurityKey(bio);
   const raw = localStorage.getItem(`hugopsy_mem_${key}`);
   if (!raw) {
-    return {
-      name: bio?.displayName || null,
-      examDate: null,
-      stressTriggers: [],
-      relationshipStatus: null,
-      sentimentTrend: [0], // Moving average of sentiment scores (-1 to 1)
-      lastUpdated: null,
-    };
+    return defaultMemory;
   }
   const decrypted = deobfuscate(raw, key);
   if (!decrypted) return null;
   try {
     return JSON.parse(decrypted);
-  } catch (e) {
+  } catch (_) {
     return null;
   }
 }
 
 export function saveSecureMemory(bio, memory) {
+  if (typeof localStorage === "undefined" || typeof localStorage.setItem !== "function") {
+    return;
+  }
   const key = getSecurityKey(bio);
   const jsonStr = JSON.stringify(memory);
   const encrypted = obfuscate(jsonStr, key);
@@ -143,5 +167,20 @@ export function updateMemoryFromText(text, currentMemory) {
     memory.relationshipStatus = "has_crush";
   }
   
+  // 5. Extract personality & behavioral traits
+  const activeTraits = new Set(memory.personalityTraits || []);
+  const traitMapping = [
+    { key: "overthinking", keywords: ["overthink", "suy nghĩ nhiều", "nghĩ nhiều", "dằn vặt", "đầu óc không dừng", "nghĩ quẩn"] },
+    { key: "perfectionism", keywords: ["cầu toàn", "sợ làm sai", "phải hoàn hảo", "chưa đủ tốt", "sợ sai", "không dám bắt đầu"] },
+    { key: "introverted_preference", keywords: ["ngại chỗ đông người", "ít nói", "không thích ồn ào", "thích ở một mình", "ngại giao tiếp", "hướng nội"] },
+    { key: "emotional_sensitivity", keywords: ["nhạy cảm", "dễ tổn thương", "dễ xúc động", "chạnh lòng", "dễ khóc", "tự ti"] }
+  ];
+  traitMapping.forEach(mapping => {
+    if (mapping.keywords.some(kw => clean.includes(kw))) {
+      activeTraits.add(mapping.key);
+    }
+  });
+  memory.personalityTraits = Array.from(activeTraits);
+
   return memory;
 }

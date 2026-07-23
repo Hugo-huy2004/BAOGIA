@@ -1,6 +1,6 @@
 /**
  * Shared Vietnamese voice selector for Speech Synthesis.
- * Used by BreathingTherapy, MeditationTherapy, ReadingTherapy.
+ * Used by BreathingTherapy.
  *
  * @param {SpeechSynthesisVoice[]} voices - from window.speechSynthesis.getVoices()
  * @returns {SpeechSynthesisVoice|null}

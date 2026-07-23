@@ -1,22 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Lock, Unlock, BookOpen, Wind, Brain, ArrowLeft,
+  Lock, Unlock, Wind, Brain,
   Pencil, Dumbbell, Users, Flame, CheckCircle2, Circle,
-  Timer, ChevronRight, Sparkles, TrendingUp, FileText, CalendarCheck, Printer,
-  Headphones, Volume2, Award, MessageSquare, ClipboardList
+  ChevronRight, Sparkles, TrendingUp,
+  Headphones, Volume2, Award, MessageSquare, ClipboardList,
+  Activity, RefreshCw, Hand, Phone, Heart, Ear
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import BreathingTherapy from "./BreathingTherapy";
-import ReadingTherapy from "./ReadingTherapy";
-import MeditationTherapy from "./MeditationTherapy";
 import DepressionCbtTherapy from "./DepressionCbtTherapy";
+import TherapyPanelShell from "./components/TherapyPanelShell";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import { useJoyStore } from "../../../stores/joyStore";
-import { MUSCLE_STEPS } from "./constants/pmrSteps";
 const apiBase = import.meta.env.VITE_API_URL || "/api";
-const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 const UNLOCK_COST = 150;
 
 // ─── Inline mini-panels ──────────────────────────────────────────────────────
@@ -165,188 +162,6 @@ function SoundscapePanel({ onBack, onComplete }) {
   );
 }
 
-function MuscleRelaxPanel({ onBack, onComplete }) {
-  const [step, setStep] = useState(-1); // -1 = intro
-  const [phase, setPhase] = useState("tense"); // tense | relax
-  const [tick, setTick] = useState(0);
-  const timerRef = useRef(null);
-
-  const TENSE_SEC = 5;
-  const RELAX_SEC = 8;
-
-  const clearTimer = () => { if (timerRef.current) clearInterval(timerRef.current); };
-
-  const startStep = (idx) => {
-    clearTimer();
-    setStep(idx);
-    setPhase("tense");
-    setTick(TENSE_SEC);
-    timerRef.current = setInterval(() => {
-      setTick(t => {
-        if (t <= 1) {
-          clearInterval(timerRef.current);
-          setPhase("relax");
-          setTick(RELAX_SEC);
-          timerRef.current = setInterval(() => {
-            setTick(r => {
-              if (r <= 1) {
-                clearInterval(timerRef.current);
-                const next = idx + 1;
-                if (next >= MUSCLE_STEPS.length) {
-                  onComplete();
-                } else {
-                  startStep(next);
-                }
-                return 0;
-              }
-              return r - 1;
-            });
-          }, 1000);
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
-  };
-
-  useEffect(() => () => clearTimer(), []);
-
-  if (step === -1) {
-    return (
-      <div className="space-y-4">
-        <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">
-          Kỹ thuật PMR giúp giảm lo âu bằng cách căng — rồi thả lỏng từng nhóm cơ. Mỗi bước: căng 5 giây, thả 8 giây. Tổng ~7 phút.
-        </p>
-        <ul className="grid grid-cols-2 gap-2">
-          {MUSCLE_STEPS.map((s, i) => (
-            <div key={i} className="flex items-center gap-2 bg-teal-500/5 border border-teal-500/10 rounded-xl px-3 py-2">
-              <span className="w-5 h-5 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center text-[9px] font-black">{i + 1}</span>
-              <span className="text-[10px] font-bold text-foreground/80">{s.part}</span>
-            </div>
-          ))}
-        </ul>
-        <button onClick={() => startStep(0)} className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95">
-          Bắt đầu luyện tập
-        </button>
-      </div>
-    );
-  }
-
-  const current = MUSCLE_STEPS[step];
-  const isTense = phase === "tense";
-
-  return (
-    <div className="flex flex-col items-center gap-6 py-4">
-      <div className="flex gap-1.5">
-        {MUSCLE_STEPS.map((_, i) => (
-          <div key={i} className={`h-1.5 w-6 rounded-full transition-all ${i < step ? "bg-teal-500" : i === step ? "bg-teal-400" : "bg-muted"}`} />
-        ))}
-      </div>
-      <div className={`w-28 h-28 rounded-full flex flex-col items-center justify-center border-4 transition-all duration-700 ${isTense ? "border-red-400 bg-red-400/10 scale-110" : "border-teal-400 bg-teal-400/10 scale-100"}`}>
-        <span className="text-3xl font-black text-foreground">{tick}</span>
-        <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{isTense ? "Căng" : "Thả"}</span>
-      </div>
-      <div className="text-center space-y-1">
-        <p className="text-[13px] font-black text-foreground">{current.part}</p>
-        <p className="text-[10px] text-muted-foreground font-bold">{isTense ? current.cue : "Thở ra…  thả lỏng hoàn toàn…"}</p>
-      </div>
-      <p className="text-[9px] text-zinc-400 font-bold">Bước {step + 1} / {MUSCLE_STEPS.length}</p>
-    </div>
-  );
-}
-
-// ─── Lộ Trình Hoạt Động Cá Nhân Hoá (paid, merges writing+exercise+social) ──
-function ActionPlanPanel({ bio, historyLogs, onBack, onComplete }) {
-  const [plan, setPlan] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [completedDays, setCompletedDays] = useState(new Set());
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
-        // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
-        const r = await fetch(`/api/ai/therapy/action-plan`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
-          body: JSON.stringify({ historyLogs, bio }),
-        });
-        const data = await r.json();
-        if (cancelled) return;
-        if (data.error || !data.days) throw new Error(data.error || "Không thể tạo lộ trình lúc này.");
-        setPlan(data);
-      } catch (e) {
-        if (!cancelled) setError(e.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const pillarIcon = { writing: Pencil, movement: Dumbbell, social: Users };
-  const pillarColor = { writing: "text-pink-500 bg-pink-500/10", movement: "text-emerald-500 bg-emerald-500/10", social: "text-blue-500 bg-blue-500/10" };
-
-  const toggleDay = (day) => {
-    const next = new Set(completedDays);
-    if (next.has(day)) next.delete(day); else next.add(day);
-    setCompletedDays(next);
-  };
-
-  if (loading) {
-    return <div className="py-10 text-center text-[11px] text-zinc-400 font-bold">Đang tạo lộ trình cá nhân hoá cho cậu...</div>;
-  }
-  if (error || !plan) {
-    return (
-      <div className="py-6 text-center space-y-2">
-        <p className="text-[11px] text-rose-500 font-bold">{error || "Có lỗi xảy ra."}</p>
-        <button onClick={onBack} className="text-[10px] text-zinc-400 underline">Quay lại</button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-3">
-      <p className="text-[11px] text-muted-foreground font-bold leading-relaxed">{plan.week_theme}</p>
-      {(plan.days || []).map((d) => {
-        const Icon = pillarIcon[d.pillar] || Sparkles;
-        const done = completedDays.has(d.day);
-        return (
-          <button
-            key={d.day}
-            onClick={() => toggleDay(d.day)}
-            className={`w-full flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-pink-500/10 border-pink-500/30" : "bg-card/50 border-border"}`}
-          >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${pillarColor[d.pillar] || "text-zinc-500 bg-zinc-200/60"}`}>
-              <Icon className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">Ngày {d.day}</p>
-              <p className={`text-[11px] font-black ${done ? "text-pink-600 dark:text-pink-400 line-through" : "text-foreground"}`}>{d.title}</p>
-              <p className="text-[9.5px] text-zinc-500 font-bold leading-snug">{d.action}</p>
-            </div>
-            {done ? <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0" /> : <Circle className="w-4 h-4 text-muted-foreground/70 shrink-0" />}
-          </button>
-        );
-      })}
-      {completedDays.size > 0 && (
-        <button
-          onClick={() => onComplete()}
-          className="w-full py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
-        >
-          Lưu tiến độ ({completedDays.size}/7 ngày)
-        </button>
-      )}
-    </div>
-  );
-}
-
-
-
 // ─── Expressive Writing Panel ─────────────────────────────────────────────────
 function ExpressiveWritingPanel({ onBack, onComplete }) {
   const [step, setStep] = useState("setup"); // setup | writing | done
@@ -453,13 +268,13 @@ function LightExercisePanel({ onBack, onComplete }) {
   const timerRef = useRef(null);
 
   const EXERCISES = [
-    { name: "Đứng lên vươn vai", duration: 30, desc: "Đứng dậy, giơ 2 tay lên trời, vươn giãn cơ thể", icon: "🧘" },
-    { name: "Xoay cổ nhẹ nhàng", duration: 20, desc: "Xoay cổ mỗi bên 5 lần, chậm rãi", icon: "🔄" },
-    { name: "Vẫy tay", duration: 20, desc: "Vẫy 2 tay thật nhanh trong 20 giây để kích thích máu lưu thông", icon: "👋" },
-    { name: "Đi bộ tại chỗ", duration: 40, desc: "Đi bộ nâng cao gối tại chỗ trong 40 giây", icon: "🚶" },
-    { name: "Xoay hông", duration: 20, desc: "Xoay hông mỗi bên 5 lần", icon: "🔄" },
-    { name: "Cúi gập người", duration: 25, desc: "Cúi gập người chạm mũi tên, giữ 10s", icon: "🙇" },
-    { name: "Shake toàn thân", duration: 15, desc: "Lắc lư toàn thân như đang nhảy múa tự do", icon: "💃" },
+    { name: "Đứng lên vươn vai", duration: 30, desc: "Đứng dậy, giơ 2 tay lên trời, vươn giãn cơ thể", icon: Activity },
+    { name: "Xoay cổ nhẹ nhàng", duration: 20, desc: "Xoay cổ mỗi bên 5 lần, chậm rãi", icon: RefreshCw },
+    { name: "Vẫy tay", duration: 20, desc: "Vẫy 2 tay thật nhanh trong 20 giây để kích thích máu lưu thông", icon: Hand },
+    { name: "Đi bộ tại chỗ", duration: 40, desc: "Đi bộ nâng cao gối tại chỗ trong 40 giây", icon: Activity },
+    { name: "Xoay hông", duration: 20, desc: "Xoay hông mỗi bên 5 lần", icon: RefreshCw },
+    { name: "Cúi gập người", duration: 25, desc: "Cúi gập người chạm mũi tên, giữ 10s", icon: Dumbbell },
+    { name: "Shake toàn thân", duration: 15, desc: "Lắc lư toàn thân như đang nhảy múa tự do", icon: Flame },
   ];
 
   const TOTAL_DURATION = EXERCISES.reduce((sum, e) => sum + e.duration, 0);
@@ -496,16 +311,19 @@ function LightExercisePanel({ onBack, onComplete }) {
           Vận động nhẹ nhàng giúp giải phóng endorphin, giảm hormone stress cortisol. Chỉ cần 5 phút mỗi ngày để cải thiện tâm trạng đáng kể.
         </p>
         <div className="space-y-2">
-          {EXERCISES.map((ex, i) => (
-            <div key={i} className="flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-3 py-2">
-              <span className="text-lg">{ex.icon}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black text-foreground">{ex.name}</p>
-                <p className="text-[9px] text-zinc-400 font-bold truncate">{ex.desc}</p>
+          {EXERCISES.map((ex, i) => {
+            const Icon = ex.icon;
+            return (
+              <div key={i} className="flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-3 py-2">
+                <Icon className="w-5 h-5 text-emerald-500 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black text-foreground">{ex.name}</p>
+                  <p className="text-[9px] text-zinc-400 font-bold truncate">{ex.desc}</p>
+                </div>
+                <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{ex.duration}s</span>
               </div>
-              <span className="text-[9px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{ex.duration}s</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <p className="text-[9px] text-zinc-400 font-bold text-center">Tổng thời gian: ~{Math.floor(TOTAL_DURATION / 60)} phút {TOTAL_DURATION % 60}s</p>
         <button onClick={() => setCurrentStep(0)} className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider transition-all active:scale-95">
@@ -518,6 +336,8 @@ function LightExercisePanel({ onBack, onComplete }) {
   const exercise = EXERCISES[currentStep];
   if (!exercise) return null;
 
+  const ActiveIcon = exercise.icon;
+
   return (
     <div className="flex flex-col items-center gap-6 py-4">
       <div className="flex gap-1.5">
@@ -525,7 +345,9 @@ function LightExercisePanel({ onBack, onComplete }) {
           <div key={i} className={`h-1.5 w-5 rounded-full transition-all ${i < currentStep ? "bg-emerald-500" : i === currentStep ? "bg-emerald-400" : "bg-muted"}`} />
         ))}
       </div>
-      <div className="text-5xl">{exercise.icon}</div>
+      <div className="p-4 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
+        <ActiveIcon className="w-12 h-12 text-emerald-500" />
+      </div>
       <div className="w-24 h-24 rounded-full flex flex-col items-center justify-center border-4 border-emerald-400 bg-emerald-400/10">
         <span className="text-3xl font-black text-foreground">{tick}</span>
         <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">giây</span>
@@ -544,12 +366,12 @@ function SocialConnectionPanel({ onBack, onComplete }) {
   const [completedTasks, setCompletedTasks] = useState(new Set());
 
   const TASKS = [
-    { id: "message", title: "Nhắn tin hỏi thăm 1 người bạn", desc: "Gửi một tin nhắn quan tâm đến người bạn cũ hoặc người thân.", icon: "💬", points: 10 },
-    { id: "call", title: "Gọi điện 5 phút", desc: "Gọi cho người thân hoặc bạn bè, chia sẻ điều tích cực.", icon: "📞", points: 15 },
-    { id: "hug", title: "ôm ai đó", desc: "Ôm bố mẹ, bạn thân, hoặc thú cưng trong 20 giây.", icon: "🤗", points: 10 },
-    { id: "compliment", title: "Khen ngợi 1 người", desc: "Nói hoặc viết một lời khen chân thành cho ai đó.", icon: "✨", points: 10 },
-    { id: "listen", title: "Lắng nghe 5 phút", desc: "Nghe ai đó chia sẻ mà không phán xét hay đưa lời khuyên.", icon: "👂", points: 15 },
-    { id: "gratitude", title: "Cảm ơn 1 người", desc: "Nói cảm ơn hoặc viết thư cảm ơn cho 1 người đã giúp đỡ.", icon: "🙏", points: 10 },
+    { id: "message", title: "Nhắn tin hỏi thăm 1 người bạn", desc: "Gửi một tin nhắn quan tâm đến người bạn cũ hoặc người thân.", icon: MessageSquare, points: 10 },
+    { id: "call", title: "Gọi điện 5 phút", desc: "Gọi cho người thân hoặc bạn bè, chia sẻ điều tích cực.", icon: Phone, points: 15 },
+    { id: "hug", title: "Ôm ai đó", desc: "Ôm bố mẹ, bạn thân, hoặc thú cưng trong 20 giây.", icon: Heart, points: 10 },
+    { id: "compliment", title: "Khen ngợi 1 người", desc: "Nói hoặc viết một lời khen chân thành cho ai đó.", icon: Sparkles, points: 10 },
+    { id: "listen", title: "Lắng nghe 5 phút", desc: "Nghe ai đó chia sẻ mà không phán xét hay đưa lời khuyên.", icon: Ear, points: 15 },
+    { id: "gratitude", title: "Cảm ơn 1 người", desc: "Nói cảm ơn hoặc viết thư cảm ơn cho 1 người đã giúp đỡ.", icon: Heart, points: 10 },
   ];
 
   const toggleTask = (id) => {
@@ -570,9 +392,10 @@ function SocialConnectionPanel({ onBack, onComplete }) {
       <div className="space-y-2">
         {TASKS.map(task => {
           const done = completedTasks.has(task.id);
+          const Icon = task.icon;
           return (
             <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all active:scale-[0.98] ${done ? "bg-blue-500/10 border-blue-500/30" : "bg-card/50 border-border hover:bg-blue-500/5"}`}>
-              <span className="text-xl shrink-0">{task.icon}</span>
+              <Icon className="w-5 h-5 text-blue-500 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className={`text-[11px] font-black ${done ? "text-blue-600 dark:text-blue-400 line-through" : "text-foreground"}`}>{task.title}</p>
                 <p className="text-[9px] text-zinc-500 font-bold">{task.desc}</p>
@@ -594,128 +417,15 @@ function SocialConnectionPanel({ onBack, onComplete }) {
   );
 }
 
-// ─── Báo Cáo Tâm Lý Chuyên Sâu (paid, generates a printable clinical-style report) ──
-function DeepReportPanel({ bio, historyLogs, chatMessages, onBack }) {
-  const { t } = useTranslation();
-  const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
-        // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
-        const r = await fetch(`/api/ai/therapy/deep-report`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
-          body: JSON.stringify({ historyLogs, chatMessages, bio }),
-        });
-        const data = await r.json();
-        if (cancelled) return;
-        if (data.error) throw new Error(data.error);
-        setReport(data);
-      } catch (e) {
-        if (!cancelled) setError(e.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (loading) return (
-    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
-      <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
-        <button type="button" onClick={onBack} className="text-muted-foreground text-[10px] font-black uppercase tracking-wider hover:text-zinc-700">
-          Quay lại thẻ
-        </button>
-        <span className="text-[9.5px] font-black uppercase text-cyan-500">Báo cáo sức khỏe</span>
-      </div>
-      <div className="py-10 text-[11px] text-zinc-400 font-bold">Đang tổng hợp báo cáo...</div>
-    </div>
-  );
-
-  if (error || !report) {
-    return (
-      <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
-        <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
-          <button type="button" onClick={onBack} className="text-muted-foreground text-[10px] font-black uppercase tracking-wider hover:text-zinc-700">
-            Quay lại thẻ
-          </button>
-          <span className="text-[9.5px] font-black uppercase text-cyan-500">Báo cáo sức khỏe</span>
-        </div>
-        <p className="text-[11px] text-rose-500 font-bold py-6">{error || "Có lỗi xảy ra."}</p>
-      </div>
-    );
-  }
-
-  const Section = ({ title, children }) => (
-    <div className="space-y-1 text-left">
-      <p className="text-[9px] font-black uppercase tracking-wider text-zinc-400">{title}</p>
-      <div className="text-[11px] text-foreground font-medium leading-relaxed">{children}</div>
-    </div>
-  );
-
-  return (
-    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp">
-      <div className="flex items-center justify-between border-b pb-2 border-zinc-200/50">
-        <button type="button" onClick={onBack} className="text-muted-foreground text-[10px] font-black uppercase tracking-wider hover:text-zinc-700">
-          Quay lại thẻ
-        </button>
-        <span className="text-[9.5px] font-black uppercase text-cyan-500">Báo cáo sức khỏe</span>
-      </div>
-
-      <div className="space-y-4">
-        <div id="deep-report-print" className="space-y-4 bg-card rounded-2xl p-4 border border-border">
-          <Section title={`Báo cáo ngày ${report.report_date || ""}`}>{report.overview}</Section>
-          <Section title="Xu hướng tâm trạng">{report.mood_trend_summary}</Section>
-          <Section title="Tổng hợp test lâm sàng">{report.clinical_test_summary}</Section>
-          {report.risk_indicators?.length > 0 && (
-            <Section title="Chỉ số rủi ro">
-              <ul className="list-disc pl-4 space-y-0.5">{report.risk_indicators.map((r, i) => <li key={i}>{r}</li>)}</ul>
-            </Section>
-          )}
-          {report.strengths_and_progress?.length > 0 && (
-            <Section title="Điểm tích cực / tiến bộ">
-              <ul className="list-disc pl-4 space-y-0.5">{report.strengths_and_progress.map((r, i) => <li key={i}>{r}</li>)}</ul>
-            </Section>
-          )}
-          {report.recommendations_for_specialist?.length > 0 && (
-            <Section title="Gợi ý cho chuyên viên">
-              <ul className="list-disc pl-4 space-y-0.5">{report.recommendations_for_specialist.map((r, i) => <li key={i}>{r}</li>)}</ul>
-            </Section>
-          )}
-          <p className="text-[9px] text-zinc-400 italic pt-2 border-t border-border">{report.disclaimer}</p>
-        </div>
-        <button
-          onClick={() => window.print()}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-foreground text-background text-[10px] font-black uppercase tracking-wider transition-all active:scale-95"
-        >
-          <Printer className="w-4 h-4" /> In / Lưu PDF để gửi chuyên viên
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── Card definitions ─────────────────────────────────────────────────────────
 
 const ALL_METHODS = [
-  { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ)", category:"Thở",   duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing",  joyLockable:true  },
-  { id:"muscle",     Icon: Dumbbell,  name:"Thư Giãn Cơ PMR",  desc:"Kỹ thuật căng-thả 7 nhóm cơ giúp giảm lo âu tức thì", category:"Thư giãn", duration:"7 ph", gradient:"from-teal-500/10 to-teal-500/5", border:"border-teal-500/20 dark:border-teal-400/15", badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400", iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400", btn:"bg-teal-500 hover:bg-teal-600", lockKey:"breathing", joyLockable:true },
+  { id:"breath",     Icon: Wind,      name:"Hít Thở 4-7-8",    desc:"Làm dịu lo âu, nhịp tim nhanh tức thì (kèm Thư Giãn Cơ PMR)", category:"Thở",   duration:"5 ph",     gradient:"from-amber-500/10 to-amber-500/5",    border:"border-amber-500/20 dark:border-amber-400/15",    badge:"bg-amber-500/10 text-amber-600 dark:text-amber-400",     iconBg:"bg-amber-500/15 text-amber-600 dark:text-amber-400",    btn:"bg-amber-500 hover:bg-amber-600",  lockKey:"breathing",  joyLockable:true  },
   { id:"soundscape", Icon: Headphones,name:"Âm Thanh Thiên Nhiên", desc:"Tự tạo không gian thư giãn với tiếng mưa, sóng biển, lửa trại", category:"Thư giãn", duration:"Tự do", gradient:"from-emerald-500/10 to-emerald-500/5", border:"border-emerald-500/20 dark:border-emerald-400/15", badge:"bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", iconBg:"bg-emerald-500/15 text-emerald-600 dark:text-emerald-400", btn:"bg-emerald-500 hover:bg-emerald-600", lockKey:"soundscape", joyLockable:true },
-  { id:"reading",    Icon: BookOpen,  name:"Đọc Truyện & Giải Mã Giấc Mơ AI", desc:"AI viết & kể truyện trị liệu, giải mã điềm báo giấc mơ", category:"AI · Đọc", duration:"10 ph", gradient:"from-indigo-500/10 to-indigo-500/5",  border:"border-indigo-500/20 dark:border-indigo-400/15",  badge:"bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",  iconBg:"bg-indigo-500/15 text-indigo-600 dark:text-indigo-400", btn:"bg-indigo-500 hover:bg-indigo-600",  lockKey:"reading",    joyLockable:true  },
-  { id:"meditation", Icon: Flame,     name:"Thiền Định Giọng Nói AI", desc:"Giọng dẫn thiền do AI soạn riêng theo mood hiện tại của bạn",  category:"AI · Thiền", duration:"10–20 ph", gradient:"from-teal-500/10 to-teal-500/5",      border:"border-teal-500/20 dark:border-teal-400/15",      badge:"bg-teal-500/10 text-teal-600 dark:text-teal-400",        iconBg:"bg-teal-500/15 text-teal-600 dark:text-teal-400",       btn:"bg-teal-500 hover:bg-teal-600",    lockKey:"meditation", joyLockable:true  },
   { id:"depression", Icon: Brain,     name:"CBT Worksheet & Lộ Trình", desc:"AI phân tích lịch sử chat, soạn bảng ghi suy nghĩ và lộ trình riêng", category:"AI · Nhận thức", duration:"15 ph", gradient:"from-rose-500/10 to-rose-500/5",      border:"border-rose-500/20 dark:border-rose-400/15",      badge:"bg-rose-500/10 text-rose-600 dark:text-rose-400",        iconBg:"bg-rose-500/15 text-rose-600 dark:text-rose-400",       btn:"bg-rose-500 hover:bg-rose-600",    lockKey:"depression", joyLockable:true  },
   { id:"writing",    Icon: Pencil,    name:"Viết Cảm Xúc",     desc:"Viết tự do 10-15 phút giúp giảm cortisol, cải thiện giấc ngủ", category:"Trị liệu", duration:"10–15 ph", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"writing", joyLockable:true },
   { id:"exercise",   Icon: Dumbbell,  name:"Vận Động Nhẹ",     desc:"7 bài tập ngắn giúp giải phóng endorphin, giảm stress tức thì", category:"Vận động", duration:"5 ph", gradient:"from-orange-500/10 to-orange-500/5", border:"border-orange-500/20 dark:border-orange-400/15", badge:"bg-orange-500/10 text-orange-600 dark:text-orange-400", iconBg:"bg-orange-500/15 text-orange-600 dark:text-orange-400", btn:"bg-orange-500 hover:bg-orange-600", lockKey:"exercise", joyLockable:true },
   { id:"social",     Icon: Users,     name:"Kết Nối Xã Hội",   desc:"6 hoạt động kết nối tích cực giúp giảm 50% nguy cơ trầm cảm", category:"Xã hội", duration:"Tùy chỉnh", gradient:"from-blue-500/10 to-blue-500/5", border:"border-blue-500/20 dark:border-blue-400/15", badge:"bg-blue-500/10 text-blue-600 dark:text-blue-400", iconBg:"bg-blue-500/15 text-blue-600 dark:text-blue-400", btn:"bg-blue-500 hover:bg-blue-600", lockKey:"social", joyLockable:true },
-  { id:"deep_report", Icon: FileText, name:"Báo Cáo Sức Khỏe Tâm Lý Chuyên Sâu", desc:"Hồ sơ tổng hợp AI soạn để chia sẻ với chuyên gia thật, in/lưu PDF", category:"AI · Báo cáo", duration:"5 ph", gradient:"from-cyan-500/10 to-cyan-500/5", border:"border-cyan-500/20 dark:border-cyan-400/15", badge:"bg-cyan-500/10 text-cyan-600 dark:text-cyan-400", iconBg:"bg-cyan-500/15 text-cyan-600 dark:text-cyan-400", btn:"bg-cyan-500 hover:bg-cyan-600", lockKey:"deep_report", joyLockable:true },
-  { id:"action_plan", Icon: CalendarCheck, name:"Lộ Trình Hoạt Động Cá Nhân Hoá", desc:"AI thiết kế lộ trình 7 ngày kết hợp viết cảm xúc, vận động nhẹ & kết nối xã hội, riêng cho bạn", category:"AI · Lộ trình", duration:"7 ngày", gradient:"from-pink-500/10 to-pink-500/5", border:"border-pink-500/20 dark:border-pink-400/15", badge:"bg-pink-500/10 text-pink-600 dark:text-pink-400", iconBg:"bg-pink-500/15 text-pink-600 dark:text-pink-400", btn:"bg-pink-500 hover:bg-pink-600", lockKey:"action_plan", joyLockable:true },
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -849,13 +559,9 @@ export default function TherapyTab({
   };
 
   const unlocked = {
-    reading: unlockedFeatures.includes("reading"),
-    meditation: unlockedFeatures.includes("meditation"),
     depression: unlockedFeatures.includes("depression"),
-    deep_report: unlockedFeatures.includes("deep_report"),
     breathing: unlockedFeatures.includes("breathing"),
     soundscape: unlockedFeatures.includes("soundscape"),
-    action_plan: unlockedFeatures.includes("action_plan"),
     writing: unlockedFeatures.includes("writing"),
     exercise: unlockedFeatures.includes("exercise"),
     social: unlockedFeatures.includes("social"),
@@ -920,66 +626,35 @@ export default function TherapyTab({
 
   const activeMethod = ALL_METHODS.find(m => m.id === activePanel);
 
-  // ── Full-screen panels for external components ──
-  if (activePanel === "reading") return <ReadingTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} />;
-  if (activePanel === "meditation") return <MeditationTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} />;
-  if (activePanel === "breath") return <BreathingTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
-  if (activePanel === "depression") return <DepressionCbtTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} />;
-  if (activePanel === "deep_report") return <DeepReportPanel bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} onBack={closePanel} />;
-  if (activePanel === "action_plan") return <ActionPlanPanel bio={bio} historyLogs={historyLogs} onBack={closePanel} onComplete={() => handleCompleteActivity("Lộ Trình Hoạt Động", "Cập nhật tiến độ lộ trình cá nhân hoá 7 ngày")} />;
-  if (activePanel === "writing") return (
-    <div className="p-4 pb-20 max-w-md mx-auto">
-      <div className="flex items-center gap-3 mb-4">
-        <button onClick={closePanel} className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95">
-          <ArrowLeft className="w-4 h-4 text-foreground/80" />
-        </button>
-        <div>
-          <p className="text-[12px] font-black text-foreground">Viết Cảm Xúc</p>
-          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-500">Trị liệu · 10–15 ph</span>
-        </div>
-      </div>
-      <ExpressiveWritingPanel onBack={closePanel} onComplete={handleCompleteActivity} />
-    </div>
-  );
-  if (activePanel === "exercise") return (
-    <div className="p-4 pb-20 max-w-md mx-auto">
-      <div className="flex items-center gap-3 mb-4">
-        <button onClick={closePanel} className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95">
-          <ArrowLeft className="w-4 h-4 text-foreground/80" />
-        </button>
-        <div>
-          <p className="text-[12px] font-black text-foreground">Vận Động Nhẹ</p>
-          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500">Vận động · 5 ph</span>
-        </div>
-      </div>
-      <LightExercisePanel onBack={closePanel} onComplete={handleCompleteActivity} />
-    </div>
-  );
-  if (activePanel === "social") return (
-    <div className="p-4 pb-20 max-w-md mx-auto">
-      <div className="flex items-center gap-3 mb-4">
-        <button onClick={closePanel} className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95">
-          <ArrowLeft className="w-4 h-4 text-foreground/80" />
-        </button>
-        <div>
-          <p className="text-[12px] font-black text-foreground">Kết Nối Xã Hội</p>
-          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500">Xã hội · Tùy chỉnh</span>
-        </div>
-      </div>
-      <SocialConnectionPanel onBack={closePanel} onComplete={handleCompleteActivity} />
-    </div>
-  );
-
-  // ── Inline mini-panels ──
-  const inlinePanels = { soundscape: true, muscle: true };
-  const showInline = activePanel && inlinePanels[activePanel];
+  // ── Every panel now renders through the one shared shell (header, back
+  // button, theme-aware card) — see components/TherapyPanelShell.jsx ──
+  if (activeMethod) {
+    let content = null;
+    if (activePanel === "breath") {
+      content = <BreathingTherapy onCompleteActivity={handleCompleteActivity} showToast={showToast} />;
+    } else if (activePanel === "depression") {
+      content = <DepressionCbtTherapy onBack={closePanel} onCompleteActivity={handleCompleteActivity} showToast={showToast} bio={bio} historyLogs={historyLogs} chatMessages={chatMessages} />;
+    } else if (activePanel === "soundscape") {
+      content = <SoundscapePanel onBack={closePanel} onComplete={() => handleCompleteActivity("Âm Thanh Thiên Nhiên", "Thư giãn đầu óc với nhạc thiên nhiên")} />;
+    } else if (activePanel === "writing") {
+      content = <ExpressiveWritingPanel onBack={closePanel} onComplete={handleCompleteActivity} />;
+    } else if (activePanel === "exercise") {
+      content = <LightExercisePanel onBack={closePanel} onComplete={handleCompleteActivity} />;
+    } else if (activePanel === "social") {
+      content = <SocialConnectionPanel onBack={closePanel} onComplete={handleCompleteActivity} />;
+    }
+    return (
+      <TherapyPanelShell method={activeMethod} onBack={closePanel}>
+        {content}
+      </TherapyPanelShell>
+    );
+  }
 
   return (
     <div className="p-4 pb-20 space-y-4 animate-fadeIn">
 
       {/* Daily Challenges Widget */}
-      {!showInline && (
-        <div className="bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-transparent dark:from-amber-950/10 dark:via-zinc-900/5 rounded-3xl border border-amber-500/20 dark:border-amber-900/35 p-5 shadow-sm backdrop-blur-md space-y-4">
+      <div className="bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-transparent dark:from-amber-950/10 dark:via-zinc-900/5 rounded-3xl border border-amber-500/20 dark:border-amber-900/35 p-5 shadow-sm backdrop-blur-md space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-500">
@@ -1068,12 +743,10 @@ export default function TherapyTab({
               );
             })}
           </div>
-        </div>
-      )}
+      </div>
 
       {/* Stats bar */}
-      {!showInline && (
-        <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3">
           <div className="flex-1 flex items-center gap-2 bg-card/60 border border-border rounded-2xl px-4 py-2.5 backdrop-blur-sm">
             <TrendingUp className="w-4 h-4 text-indigo-500 shrink-0" />
             <div>
@@ -1095,14 +768,12 @@ export default function TherapyTab({
               <p className="text-[13px] font-black text-foreground">{ALL_METHODS.length} <span className="text-[10px] font-bold text-zinc-500">có sẵn</span></p>
             </div>
           </div>
-        </div>
-      )}
+      </div>
 
-      {/* Card grid — always visible: every method is now JOY-lockable (shows an
-          unlock button inline) except the "basic" clinical-gated methods, which
+      {/* Card grid — every method is now JOY-lockable (shows an unlock
+          button inline) except the "basic" clinical-gated methods, which
           keep their original earn-via-engagement lock. */}
-      {!showInline && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {ALL_METHODS.map((method) => {
             const ok = isUnlocked(method);
             const showJoyUnlock = method.joyLockable && !ok;
@@ -1186,57 +857,7 @@ export default function TherapyTab({
               </motion.div>
             );
           })}
-        </div>
-      )}
-
-      {/* Inline mini-panel wrapper */}
-      <AnimatePresence>
-        {showInline && activeMethod && (
-          <motion.div
-            key={activePanel}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className={`rounded-3xl border p-5 bg-gradient-to-br ${activeMethod.gradient} ${activeMethod.border} space-y-4 shadow-lg`}
-          >
-            {/* Panel header */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={closePanel}
-                className="p-2 rounded-xl bg-card/60 border border-border hover:bg-white dark:hover:bg-zinc-700 transition-all active:scale-95"
-              >
-                <ArrowLeft className="w-4 h-4 text-foreground/80" />
-              </button>
-              <div className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${activeMethod.iconBg}`}>
-                  <activeMethod.Icon className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-[12px] font-black text-foreground">{activeMethod.name}</p>
-                  <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${activeMethod.badge}`}>{activeMethod.category} · {activeMethod.duration}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="h-px bg-muted/60" />
-
-            {/* Panel content */}
-
-            {activePanel === "soundscape" && (
-              <SoundscapePanel
-                onBack={closePanel}
-                onComplete={() => handleCompleteActivity("Âm Thanh Thiên Nhiên", "Thư giãn đầu óc với nhạc thiên nhiên")}
-              />
-            )}
-            {activePanel === "muscle" && (
-              <MuscleRelaxPanel
-                onBack={closePanel}
-                onComplete={() => handleCompleteActivity("Thư Giãn Cơ (PMR)", "Hoàn thành bài tập căng–thả 7 nhóm cơ")}
-              />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
 
       {/* Invoice for a JOY-for-therapy exchange — see unlockReceipt above */}
       <AnimatePresence>

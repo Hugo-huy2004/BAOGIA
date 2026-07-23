@@ -47,7 +47,10 @@ export async function apiFetch(path, options = {}) {
     }
     throw new Error(`API Error ${res.status}: ${await res.text()}`)
   }
-  return res.json()
+  const ct = res.headers.get('content-type') || ''
+  if (ct.includes('application/json')) return res.json()
+  const text = await res.text()
+  try { return JSON.parse(text) } catch { return text }
 }
 
 export async function aiFetch(path, options = {}) {

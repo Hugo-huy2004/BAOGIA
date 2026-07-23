@@ -1,32 +1,32 @@
-import RandomBot from "./RandomBot";
 import AIBot from "./AIBot";
 
+/**
+ * BotManager: Central orchestrator and router for HugoPSY AI service.
+ */
 export default class BotManager {
   constructor(bio, historyLogs, healingActive, chatMessages = []) {
-    this.randomBot = new RandomBot(bio, historyLogs, healingActive, chatMessages);
     this.aiBot = new AIBot(bio, historyLogs, healingActive, chatMessages);
   }
 
-  /**
-   * Internal routing: Route 100% to AI Bot for full testing and interaction
-   */
   _route() {
     return this.aiBot;
   }
 
+  static getActiveBot(bio, historyLogs, healingActive, chatMessages) {
+    return new AIBot(bio, historyLogs, healingActive, chatMessages);
+  }
+
   async getGreeting() {
-    const bot = this._route();
-    return await bot.getGreeting();
+    return await this._route().getGreeting();
   }
 
   async getResponse(selectedItem, type) {
-    const bot = this._route();
-    return await bot.getResponse(selectedItem, type);
+    return await this._route().getResponse(selectedItem, type);
   }
 
   async streamResponse(selectedItem, type, onChunk, onDone) {
     const bot = this._route();
-    if (typeof bot.streamResponse === 'function') {
+    if (typeof bot.streamResponse === "function") {
       return await bot.streamResponse(selectedItem, type, onChunk, onDone);
     }
     const res = await bot.getResponse(selectedItem, type);
@@ -34,23 +34,21 @@ export default class BotManager {
   }
 
   async chat(message) {
-    const bot = this._route();
-    return await bot.chat(message);
+    return await this._route().chat(message);
   }
 
   async chatStream(message, onChunk, onDone) {
     const bot = this._route();
-    if (typeof bot.chatStream === 'function') {
+    if (typeof bot.chatStream === "function") {
       return await bot.chatStream(message, onChunk, onDone);
     }
-    // Fallback
     const res = await bot.chat(message);
     if (onDone) onDone(res);
   }
 
   async classifyIntent(message) {
     const bot = this._route();
-    if (typeof bot.classifyIntent === 'function') {
+    if (typeof bot.classifyIntent === "function") {
       return await bot.classifyIntent(message);
     }
     return { intent: "fallback" };
@@ -58,7 +56,7 @@ export default class BotManager {
 
   async getRemainingTokens() {
     const bot = this._route();
-    if (typeof bot.getRemainingTokens === 'function') {
+    if (typeof bot.getRemainingTokens === "function") {
       return await bot.getRemainingTokens();
     }
     return null;
@@ -66,17 +64,16 @@ export default class BotManager {
 
   logLocalMatch(message, intentId) {
     const bot = this._route();
-    if (typeof bot.logLocalMatch === 'function') {
+    if (typeof bot.logLocalMatch === "function") {
       bot.logLocalMatch(message, intentId);
     }
   }
 
   async chatAudio(audioBlob, isCallMode = false) {
     const bot = this._route();
-    if (typeof bot.chatAudio === 'function') {
-
+    if (typeof bot.chatAudio === "function") {
       return await bot.chatAudio(audioBlob, isCallMode);
     }
-    return { text: "Xin lỗi, tính năng gọi điện AI hiện đang bảo trì.", audio_base64: null };
+    return { text: "Xin lỗi, tính năng này đang bảo trì.", audio_base64: null };
   }
 }

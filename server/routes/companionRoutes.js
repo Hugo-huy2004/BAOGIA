@@ -254,9 +254,7 @@ router.get('/history', requireMember, async (req, res) => {
 
     res.json(historyForClient(historyDoc));
   } catch (error) {
-    import('fs').then(fs => {
-      fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
-    }).catch(console.error);
+    console.error('[companion/history]', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -479,9 +477,7 @@ router.post('/history', requireMember, async (req, res) => {
 
     res.json({ success: true, companionHistory: historyForClient(historyDoc) });
   } catch (error) {
-    import('fs').then(fs => {
-      fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
-    }).catch(console.error);
+    console.error('[companion/claim-challenge]', error);
     res.status(500).json({ error: error.message });
   }
 });

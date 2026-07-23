@@ -54,4 +54,53 @@ describe("composeIntentReply (via findMatchingIntent)", () => {
     expect(result?.id).toBe("family_conflict");
     expect(result.reply.some((b) => b.includes("bố mẹ"))).toBe(true);
   });
+
+  it("does not fire a fast-path intent when the keyword is negated", () => {
+    const bio = { displayName: "Phạm Văn Đức Negation Test" };
+    const result = findMatchingIntent("hôm nay tớ không buồn tí nào cả", bio, []);
+    expect(result?.id).not.toBe("sadness");
+  });
+
+  it("still fires the intent when the keyword is not negated", () => {
+    const bio = { displayName: "Phạm Văn Đức Negation Control" };
+    const result = findMatchingIntent("tớ buồn quá", bio, []);
+    expect(result?.id).toBe("sadness");
+  });
+
+  it("adds an extra grounding bubble for high-neuroticism users on intense messages", () => {
+    const bio = { displayName: "Vũ Thị Lan Neurotic Test" };
+    const historyLogs = [
+      { date: "2026-01-01", test: "bigfive", traits: { extraversion: 3, agreeableness: 3, conscientiousness: 3, neuroticism: 4.5, openness: 3 } },
+    ];
+    const result = findMatchingIntent("bố mẹ áp đặt tớ quá", bio, historyLogs);
+    expect(result?.id).toBe("family_conflict");
+    expect(result.reply.some((b) => b.includes("cảm nhận"))).toBe(true);
+  });
+
+  // Regression: "sleep" and "academic_stress" used to return a fixed 3-sentence
+  // script (no _rotate, ignoring rawText/memory entirely) — the exact "robotic,
+  // repeats itself" complaint. Now routed through composeIntentReply like the
+  // other emotional intents.
+  it("varies sleep replies across repeated matches instead of a fixed script", () => {
+    const bio = { displayName: "Đỗ Minh Khang Sleep Test" };
+    const seen = new Set();
+    for (let i = 0; i < 6; i++) {
+      const result = findMatchingIntent("tớ bị mất ngủ", bio, []);
+      expect(result?.id).toBe("sleep");
+      seen.add(result.reply.join(" | "));
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it("varies academic_stress replies and still injects the exam-date token", () => {
+    const bio = { displayName: "Ngô Thị Hà Exam Test" };
+    const seen = new Set();
+    for (let i = 0; i < 6; i++) {
+      const result = findMatchingIntent("áp lực học tập quá", bio, []);
+      expect(result?.id).toBe("academic_stress");
+      result.reply.forEach((b) => expect(b).not.toMatch(/\{exam\}/));
+      seen.add(result.reply.join(" | "));
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
 });

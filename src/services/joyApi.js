@@ -34,7 +34,9 @@ export async function searchJoyUser(q, email) {
 }
 
 export async function getJoyQrPayload(email) {
-  const res = await fetch(`${getApiUrl()}/joy/qr-payload?email=${encodeURIComponent(email)}`);
+  const res = await fetch(`${getApiUrl()}/joy/qr-payload?email=${encodeURIComponent(email)}`, {
+    credentials: "include"
+  });
   return parseOrThrow(res);
 }
 
@@ -83,7 +85,9 @@ export async function verifyTransactionPin(pin) {
 
 export async function fetchChallengeStatus(email) {
   try {
-    const res = await fetch(`${getApiUrl()}/companion/challenges-status?email=${encodeURIComponent(email)}`);
+    const res = await fetch(`${getApiUrl()}/companion/challenges-status?email=${encodeURIComponent(email)}`, {
+      credentials: "include"
+    });
     if (!res.ok) return [];
     const data = await res.json();
     return data.challenges || [];
@@ -96,7 +100,8 @@ export async function claimChallenge(email, challengeId) {
   const res = await fetch(`${getApiUrl()}/companion/claim-challenge`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, challengeId })
+    body: JSON.stringify({ email, challengeId }),
+    credentials: "include"
   });
   return parseOrThrow(res);
 }
@@ -105,7 +110,8 @@ export async function claimInfoBonus(email) {
   const res = await fetch(`${getApiUrl()}/joy/claim-info-bonus`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email })
+    body: JSON.stringify({ email }),
+    credentials: "include"
   });
   return parseOrThrow(res);
 }

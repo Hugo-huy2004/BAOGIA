@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Volume2 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -7,6 +7,8 @@ import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
 import ClinicScanner from "./ClinicScanner";
 import TherapyTab from "./TherapyTab";
+import EvaluationTab from "./EvaluationTab";
+import SleepTracker from "./SleepTracker";
 import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { CrisisSosCountdown } from "./EmergencySiren";
@@ -17,8 +19,10 @@ import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKey
 import { useChatEngine } from "./hooks/useChatEngine";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
+import { computeAdaptivePersona } from "./utils/adaptivePersonaEngine";
 import { findMatchingIntent, removeVietnameseTones } from "./constants/intentClassifier";
 import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
+import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
 
 // Short-label overrides for dialogue aspect chips (mobile space-saving).
 // Falls back to the full `a.text` from the tree if a key is missing.
@@ -92,11 +96,15 @@ export default function ChatTab({
   onProfileUpdate,
   onExitFullscreen,
   journeyProgress,
-  hasSevereDistress
+  sleepAutoDetect
 }) {
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [currentMood, setCurrentMood] = useState(3);
+
+  const adaptivePersona = useMemo(() => {
+    return computeAdaptivePersona(historyLogs, bio);
+  }, [historyLogs, bio]);
 
   useEffect(() => {
     if (Array.isArray(historyLogs)) {
@@ -111,6 +119,12 @@ export default function ChatTab({
   const [showTestsMenu, setShowTestsMenu] = useState(false);
   const [showTokenExchangeModal, setShowTokenExchangeModal] = useState(false);
   const [showTherapyOverlay, setShowTherapyOverlay] = useState(false);
+  const [activeModalDrawer, setActiveModalDrawer] = useState(null); // therapy, sleep, evaluation, null
+
+  const isPWA = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  }, []);
   const [therapyInitialMethod, setTherapyInitialMethod] = useState(null);
   const [unlockingMethodId, setUnlockingMethodId] = useState(null);
   const joyBalance = useJoyStore(s => s.balance);
@@ -291,16 +305,16 @@ export default function ChatTab({
     setMessages(prev => prev.map(m => m.id === "init" ? { ...m, type: undefined } : m));
 
     const name = bio?.displayName?.trim().split(" ").pop() || "bạn";
-    const MOOD_LABELS = { 5: "Rất vui 😄", 4: "Tốt 🙂", 3: "Bình thường 😐", 2: "Mỏi mệt 😔", 1: "Kiệt sức 😣" };
+    const MOOD_LABELS = { 5: "Rất vui", 4: "Tốt", 3: "Bình thường", 2: "Mỏi mệt", 1: "Kiệt sức" };
     const MOOD_RESPONSES = {
-      5: [`Woah, ${name} đang vibe xịn vậy! 🎉`, `Điều gì làm cậu vui vậy — kể tớ nghe nha?`],
-      4: [`Nghe ổn rồi đó! 🙂`, `Hôm nay cậu muốn làm gì — tâm sự hay thư giãn một chút?`],
+      5: [`Woah, ${name} đang vibe xịn vậy!`, `Điều gì làm cậu vui vậy — kể tớ nghe nha?`],
+      4: [`Nghe ổn rồi đó!`, `Hôm nay cậu muốn làm gì — tâm sự hay thư giãn một chút?`],
       3: [`Bình thường thôi hả — đôi khi thế cũng ổn mà.`, `Có điều gì cậu đang suy nghĩ không, kể tớ nghe nha?`],
-      2: [`Hơi xìu xìu... không sao, tớ ở đây nè ${name} 💙`, `Cậu muốn tâm sự hay thư giãn xíu?`],
-      1: [`Ugh, kiệt sức rồi à 😮‍💨 Tớ nghe thấy cậu.`, `Có điều gì muốn nói ra không — tớ đang ở đây hết nha.`],
+      2: [`Hơi xìu xìu... không sao, tớ ở đây nè ${name}`, `Cậu muốn tâm sự hay thư giãn xíu?`],
+      1: [`Ugh, kiệt sức rồi à. Tớ nghe thấy cậu.`, `Có điều gì muốn nói ra không — tớ đang ở đây hết nha.`],
     };
     const MOOD_CHIPS = {
-      5: ["Kể thêm đi 😊", "Xem streak của tớ", "Chia sẻ điều tốt hôm nay"],
+      5: ["Kể thêm đi", "Xem streak của tớ", "Chia sẻ điều tốt hôm nay"],
       4: ["Tâm sự thêm đi", "Cho tớ bài thư giãn", "Xem tiến triển của tớ"],
       3: ["Kể thêm cho tớ nghe", "Cho tớ bài tập thư giãn", "Tớ đang suy nghĩ về..."],
       2: ["Kể thêm cho tớ", "Cho tớ bài tập thở", "Tớ cần nghỉ ngơi"],
@@ -805,9 +819,14 @@ export default function ChatTab({
 
     if (eventLog) {
       const updatedLogs = [...historyLogs, eventLog];
+      const updatedTestScores = {
+        ...(bio?.testScores || {}),
+        [testId]: eventLog.score ?? eventLog.traits ?? eventLog.scores ?? eventLog.severity ?? eventLog.status
+      };
       onUpdateCompanionState({
         lastTestDate: new Date().toDateString(),
-        historyLogs: updatedLogs
+        historyLogs: updatedLogs,
+        testScores: updatedTestScores
       });
     }
 
@@ -1129,9 +1148,14 @@ export default function ChatTab({
     }
 
     const updatedLogs = [...historyLogs, resultLog];
+    const updatedTestScores = {
+      ...(bio?.testScores || {}),
+      [resultLog.test || testType]: resultLog.scores ?? resultLog.clinical ?? resultLog.score
+    };
     onUpdateCompanionState({
       lastTestDate: new Date().toDateString(),
-      historyLogs: updatedLogs
+      historyLogs: updatedLogs,
+      testScores: updatedTestScores
     });
 
     const botMsgId = `bot-scan-${Date.now()}`;
@@ -1348,6 +1372,47 @@ export default function ChatTab({
     setMessages((prev) => [...prev, botMsg, ...(proposalMsg ? [proposalMsg] : [])]);
     setChatMode("normal");
   };
+
+  // Deploy-time 6-test assessment sweep & 7-day periodic re-assessment prompt for active roadmap users
+  useEffect(() => {
+    const isRoadmapActive = healingActive || bio?.healingActive || false;
+    if (!isRoadmapActive) return;
+
+    const sessionPrompted = typeof sessionStorage !== "undefined" && sessionStorage.getItem("hugopsy_deploy_test_sweep_prompted");
+    const periodicCheck = checkPeriodicAssessmentDue(historyLogs, bio?.lastTestDate || "");
+
+    if (sessionPrompted && !periodicCheck.isDue) return;
+
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem("hugopsy_deploy_test_sweep_prompted", "true");
+    }
+
+    const nameParts = (bio?.displayName || bio?.name || "cậu").trim().split(" ");
+    const friendlyName = nameParts[nameParts.length - 1];
+
+    const isPeriodicPrompt = periodicCheck.isDue && sessionPrompted;
+    const msgText = isPeriodicPrompt
+      ? `⏰ **Tái Đánh Giá Định Kỳ 7 Ngày**: Chào ${friendlyName}! Đã ${periodicCheck.daysElapsed} ngày kể từ lần đánh giá gần nhất. Hãy làm một vòng kiểm tra thích ứng ngắn bên dưới để tớ cập nhật chỉ số phục hồi tinh thần cho cậu nhé!`
+      : `Chào ${friendlyName}! Để đồng hành cùng cậu chuẩn xác và hiệu quả nhất trong lộ trình hiện tại, tớ đề xuất cậu thực hiện một vòng kiểm tra đánh giá toàn bộ 6 bài test sức khỏe tinh thần và nhân cách bên dưới nha!`;
+
+    const sweepMessage = {
+      id: `deploy-test-sweep-${Date.now()}`,
+      sender: "bot",
+      text: `${msgText} [[SUGGEST:phq9,gad7,who5,bigfive,dass42,mmpi30]]`,
+      time: new Date(),
+      suggestPhq9: true,
+      suggestGad7: true,
+      suggestWho5: true,
+      suggestBigFive: true,
+      suggestDass42: true,
+      suggestMmpi30: true,
+    };
+
+    setMessages(prev => {
+      if (prev.some(m => m.id.startsWith("deploy-test-sweep-"))) return prev;
+      return [...prev, sweepMessage];
+    });
+  }, [healingActive, bio, historyLogs]);
 
   // Free-text send: bypasses dialog tree, checks local intents, else calls LLM AI fallback.
   // Accepts optional `overrideText` so quick-reply chips can auto-send without going through inputText state.
@@ -1596,6 +1661,17 @@ export default function ChatTab({
           </p>
         </div>
 
+        {/* Adaptive Persona Pill */}
+        {adaptivePersona?.autoEnabled && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-500 dark:text-indigo-400 shrink-0 cursor-pointer"
+            title={adaptivePersona.hint || "Chế độ tự động thích ứng đang bật"}
+          >
+            <span className="material-symbols-outlined text-[13px]">{adaptivePersona.icon}</span>
+            <span className="text-[10px] font-black whitespace-nowrap">{adaptivePersona.label}</span>
+          </div>
+        )}
+
         {/* Journey progress pill */}
         {journeyProgress && (
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-600 dark:text-emerald-400 shrink-0">
@@ -1692,27 +1768,6 @@ export default function ChatTab({
         </div>
       </div>
 
-      {/* Alert banner for severe distress linking to O2O counselor bridge */}
-      {hasSevereDistress && (
-        <div className="mx-4 mb-2 p-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-start gap-2.5 shadow-md animate-fadeIn z-30 relative">
-          <span className="material-symbols-outlined text-rose-500 text-lg mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-black uppercase text-rose-700 dark:text-rose-400 tracking-wide">Phát hiện chỉ số căng thẳng cao</p>
-            <p className="text-[9.5px] text-zinc-600 dark:text-zinc-300 font-bold leading-relaxed mt-0.5">
-              Kết quả kiểm tra gần đây của cậu cho thấy mức độ áp lực đang ở mức cao. Đội ngũ chuyên gia tâm lý học đường luôn sẵn sàng lắng nghe cậu.
-            </p>
-            <button
-              type="button"
-              onClick={() => onNavigateToTab?.("counselor")}
-              className="mt-2 px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-[8.5px] font-black uppercase tracking-wider rounded-lg transition-all active:scale-95 flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-[10px]">support_agent</span>
-              Kết nối Chuyên Gia ngay
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
       {showTestsMenu && (
         <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/50 backdrop-blur-sm"
@@ -1745,6 +1800,33 @@ export default function ChatTab({
         </div>
       )}
 
+      {/* PWA Mode Quick Action Shortcut Bar */}
+      {isPWA && (
+        <div className="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 border-b border-border/50 overflow-x-auto z-20 shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveModalDrawer("therapy")}
+            className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all flex items-center gap-1 shrink-0 active:scale-95"
+          >
+            🌿 Trị Liệu
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveModalDrawer("sleep")}
+            className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all flex items-center gap-1 shrink-0 active:scale-95"
+          >
+            🌙 Giấc Ngủ
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveModalDrawer("evaluation")}
+            className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 transition-all flex items-center gap-1 shrink-0 active:scale-95"
+          >
+            📊 Đánh Giá
+          </button>
+        </div>
+      )}
+
       {/* ── Messages area ─────────────────────────────────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-hidden relative bg-transparent z-10">
         {chatMode === "normal" && (
@@ -1766,6 +1848,8 @@ export default function ChatTab({
             onOpenVerification={openVerificationForm}
             joyBalance={joyBalance}
             unlockedFeatures={bio?.unlockedCompanionFeatures || []}
+            bio={bio}
+            historyLogs={historyLogs}
           />
         )}
         {chatMode === "test" && activeTest && (
@@ -1858,6 +1942,55 @@ export default function ChatTab({
         }}
         showToast={showToast}
       />
+      {/* Interactive Modal Drawer overlay for Therapy, Sleep, or Evaluation in PWA / Chat mode */}
+      <AnimatePresence>
+        {activeModalDrawer && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-card border border-border rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative text-left"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
+                <span className="text-xs font-black uppercase tracking-wider text-foreground">
+                  {activeModalDrawer === "therapy" && "🌿 Liệu Pháp Trị Liệu Tĩnh Tâm"}
+                  {activeModalDrawer === "sleep" && "🌙 Nhật Ký & Chu Kỳ Giấc Ngủ Sinh Học"}
+                  {activeModalDrawer === "evaluation" && "📊 Báo Cáo Đánh Giá Sức Khỏe Tinh Thần"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveModalDrawer(null)}
+                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4">
+                {activeModalDrawer === "therapy" && (
+                  <TherapyTab
+                    onNavigateToTab={onNavigateToTab}
+                    bio={bio}
+                    historyLogs={historyLogs}
+                    chatMessages={messages}
+                    onUpdateCompanionState={onUpdateCompanionState}
+                    healingActive={healingActive}
+                    showToast={showToast}
+                  />
+                )}
+                {activeModalDrawer === "sleep" && (
+                  <SleepTracker bio={bio} sleepAutoDetect={sleepAutoDetect} />
+                )}
+                {activeModalDrawer === "evaluation" && (
+                  <EvaluationTab onNavigateToTab={onNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Auto-armed SOS beacon: cancellable countdown fired by the crisis detector */}
       <CrisisSosCountdown open={sosPromptOpen} onClose={() => setSosPromptOpen(false)} />
     </div>

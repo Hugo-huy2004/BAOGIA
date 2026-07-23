@@ -3,10 +3,10 @@ import { DASS21_QUESTION_POOL, MMPI_QUESTION_POOL, MMPI_SUPPLEMENTARY_QUESTION_P
 export const CLINICAL_TESTS = {
   mmpi30: {
     id: "mmpi30",
-    // NOT the real MMPI (567 items, licensed, clinician-administered). This is a
-    // 30-item self-screening inspired by MMPI dimensions — named accordingly so
-    // users never mistake it for a formal diagnostic instrument.
     name: "Sàng lọc nhân cách 30 câu",
+    standard: "Thang Đo Tham Khảo Tự Nhận Thức",
+    standardBadge: "Tham Khảo Tự Nhận Thức",
+    disclaimer: "Kết quả mang tính tham khảo giúp nâng cao tự nhận thức bản thân, không phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa.",
     questionPool: [...MMPI_QUESTION_POOL, ...MMPI_SUPPLEMENTARY_QUESTION_POOL].map(variants => variants.map(v => v.text)),
     questions: [...MMPI_QUESTION_POOL, ...MMPI_SUPPLEMENTARY_QUESTION_POOL].map(v => v[0].text),
     options: [
@@ -20,6 +20,9 @@ export const CLINICAL_TESTS = {
   dass42: {
     id: "dass42",
     name: "Stress, Lo âu, Trầm cảm (DASS-42)",
+    standard: "Thang Đo Tham Khảo Tự Nhận Thức",
+    standardBadge: "Tham Khảo Tự Nhận Thức",
+    disclaimer: "Kết quả mang tính tham khảo giúp nâng cao tự nhận thức bản thân, không phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa.",
     questionPool: DASS21_QUESTION_POOL.map(variants => variants.map(v => v.text)),
     questions: DASS21_QUESTION_POOL.map(v => v[0].text),
     options: [
@@ -29,13 +32,15 @@ export const CLINICAL_TESTS = {
       { value: 3, label: "Rất nhiều" }
     ],
     getInterpretation: (score) => {
-       // ChatTab calls this if needed, but we will patch ChatTab to calculate D,A,S separately
        return { severity: "Đang phân tích...", desc: "Kết quả chi tiết được cung cấp qua Chat." };
     }
   },
   phq9: {
     id: "phq9",
     name: "Đánh giá Trầm cảm PHQ-9",
+    standard: "Thang Đo Tham Khảo Tự Nhận Thức",
+    standardBadge: "💡 Tham Khảo Tự Nhận Thức",
+    disclaimer: "Kết quả mang tính tham khảo giúp nâng cao tự nhận thức bản thân, không phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa.",
     questionPool: [
       [
         "Mức độ hứng thú và niềm vui của cậu đối với các hoạt động học tập, giải trí dạo gần đây bị suy giảm rõ rệt.",
@@ -127,6 +132,9 @@ export const CLINICAL_TESTS = {
   gad7: {
     id: "gad7",
     name: "Đánh giá Lo âu GAD-7",
+    standard: "Thang Đo Tham Khảo Tự Nhận Thức",
+    standardBadge: "💡 Tham Khảo Tự Nhận Thức",
+    disclaimer: "Kết quả mang tính tham khảo giúp nâng cao tự nhận thức bản thân, không phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa.",
     questionPool: [
       [
         "Tần suất cậu cảm thấy bồn chồn, lo âu dồn dập đến mức căng thẳng thần kinh cực độ dạo gần đây.",

@@ -78,6 +78,14 @@ function gad7Severity(score) { if (score == null) return null; if (score <= 4) r
 function who5Severity(score) { if (score == null) return null; return score >= 13 ? "normal" : score >= 9 ? "mild" : score >= 5 ? "moderate" : "severe"; }
 function formatVnDate(d) { try { return new Date(d).toLocaleDateString("vi-VN"); } catch (_) { return ""; } }
 
+// Latest completed Big Five test traits (each 1.0–5.0, see clinicalTests.js bigfive
+// getInterpretation) — the only real per-user personality signal already computed
+// in this app, so we reuse it instead of building a new MBTI/personality system.
+function getLatestBigFive(historyLogs) {
+  const logs = (historyLogs || []).filter(l => l.test === "bigfive" && l.traits);
+  return logs.length > 0 ? logs[logs.length - 1].traits : null;
+}
+
 export function buildMetricsSummary(historyLogs = []) {
   const phq9Logs = historyLogs.filter(l => l.test === "phq9");
   const gad7Logs = historyLogs.filter(l => l.test === "gad7");
@@ -151,19 +159,31 @@ const WHO_PATTERNS = [
   { who: "thầy cô", regex: /\b(thay co|giao vien|giao su)\b/ },
 ];
 
-function extractSignals(rawText) {
+function extractSignals(rawText, traits) {
   const clean = removeVietnameseTones(rawText || "");
   const who = (WHO_PATTERNS.find((p) => p.regex.test(clean)) || {}).who || null;
   const highIntensity = /\b(qua|rat|cuc ky|vo cung|kinh khung|khung khiep|khong chiu noi)\b/.test(clean);
-  return { who, highIntensity };
+  // Big Five scale is 1.0–5.0 (see clinicalTests.js) — 3.5/2.5 split around the midpoint.
+  const neuroticHigh = traits ? traits.neuroticism >= 3.5 : false;
+  const introvert = traits ? traits.extraversion <= 2.5 : false;
+  return { who, highIntensity, neuroticHigh, introvert };
 }
 
 // slots: { openers, validations, questions } — each a short array of fragments.
 // Fragments may use {name} and {who} tokens; {who} resolves to "" when nothing
 // was detected in the raw message, so write openers where that still reads fine.
-function composeIntentReply({ id, name, rawText, memory, slots }) {
-  const { who, highIntensity } = extractSignals(rawText);
-  const fill = (s) => s.replace(/\{name\}/g, name).replace(/\{who\}/g, who ? ` với ${who}` : "");
+// traits: latest Big Five result (getLatestBigFive), or null if user hasn't taken it.
+// extra: optional {token: value} map for intent-specific tokens beyond {name}/{who}
+// (e.g. an exam-date reminder pulled from secureMemory).
+function composeIntentReply({ id, name, rawText, memory, slots, traits, extra }) {
+  const { who, highIntensity, neuroticHigh, introvert } = extractSignals(rawText, traits);
+  const fill = (s) => {
+    let out = s.replace(/\{name\}/g, name).replace(/\{who\}/g, who ? ` với ${who}` : "");
+    if (extra) {
+      for (const [key, value] of Object.entries(extra)) out = out.split(`{${key}}`).join(value ?? "");
+    }
+    return out;
+  };
 
   const bubbles = [
     fill(_rotate(`${id}_opener`, slots.openers)),
@@ -179,8 +199,23 @@ function composeIntentReply({ id, name, rawText, memory, slots }) {
   const trendAvg = Array.isArray(trend) && trend.length > 0
     ? trend.reduce((a, b) => a + b, 0) / trend.length
     : null;
+  // At most ONE of these fires per reply (mutually exclusive), so the message
+  // stays opener + validation + [one context note] + question — never a stack
+  // of near-identical "I hear you" bubbles that reads as repetitive/robotic.
   if (trendAvg != null && trendAvg <= -0.6 && highIntensity) {
     bubbles.push(`Tớ để ý mấy bữa nay tâm trạng ${name} nhìn chung cũng không dễ dàng gì — không phải chỉ mỗi chuyện này thôi đúng không?`);
+  } else if (neuroticHigh && highIntensity) {
+    // Neuroticism from Big Five, not from this one message — normalize the intensity
+    // as "cậu cảm nhận sâu" instead of implicitly agreeing the situation itself is extreme.
+    bubbles.push(`${name} vốn là kiểu người cảm nhận mọi thứ sâu và rõ hơn người khác — không phải cậu "quá nhạy cảm" đâu, chỉ là cậu thật với cảm xúc của mình thôi.`);
+  } else if (introvert) {
+    // Rotated so it doesn't repeat every single turn for the same user (two of three slots empty).
+    const note = _rotate(`${id}_introvert`, [
+      `Tớ biết cậu không phải kiểu thích ồn ào kể chuyện cho nhiều người nghe — gõ hết ra với tớ như vầy đã là một bước không dễ rồi đó ${name}.`,
+      "",
+      "",
+    ]);
+    if (note) bubbles.push(note);
   }
 
   bubbles.push(fill(_rotate(`${id}_question`, slots.questions)));
@@ -264,15 +299,31 @@ export const INTENT_DATABASE = [
       "áp lực điểm số", "căng thẳng vì học hành", "áp lực thi cử",
       "stress học tập", "mệt mỏi vì thi cử", "bài tập quá nhiều", "deadline chồng chất"
     ],
-    generateResponse: (bio, historyLogs, memory) => {
-      const name = getFriendlyName(bio);
-      const suffix = memory?.examDate ? ` (nhất là hạn chót ${memory.examDate} sắp tới)` : "";
-      return [
-        `Tớ hiểu mà, áp lực học hành và thi cử dạo này${suffix} đang khiến đầu óc của ${name} muốn nổ tung đúng không?`,
-        `Đừng quên là điểm số hay kỳ thi chỉ là một phần rất nhỏ, nó không định nghĩa giá trị con người cậu đâu nha — thiệt đó.`,
-        `Hãy dừng lại uống một ngụm nước ấm, hít thở một hơi thật sâu. Hôm nay phần bài vở hay áp lực nào đang làm cậu thấy bế tắc nhất vậy?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "academic_stress",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      traits: getLatestBigFive(historyLogs),
+      extra: { exam: memory?.examDate ? ` (nhất là hạn chót ${memory.examDate} sắp tới)` : "" },
+      slots: {
+        openers: [
+          `Tớ hiểu mà, áp lực học hành và thi cử dạo này{exam} đang khiến đầu óc {name} muốn nổ tung đúng không?`,
+          `{name} ơi, deadline với bài vở dồn cùng lúc kiểu này thì căng thẳng là chuyện quá dễ hiểu.`,
+          `Nghe {name} kể mà thấy áp lực học hành{exam} đang đè nặng lắm đó.`,
+        ],
+        validations: [
+          `Đừng quên là điểm số hay kỳ thi chỉ là một phần rất nhỏ, nó không định nghĩa giá trị con người cậu đâu nha — thiệt đó.`,
+          `Cố hết sức là đủ rồi — không cần phải hoàn hảo mới xứng đáng được nghỉ ngơi một chút.`,
+          `Một buổi tối chưa ôn hết bài không có nghĩa là cậu sẽ trượt — đừng để nỗi sợ phóng đại mọi thứ lên quá mức.`,
+        ],
+        questions: [
+          `Hãy dừng lại uống một ngụm nước ấm, hít thở một hơi thật sâu. Hôm nay phần bài vở hay áp lực nào đang làm cậu thấy bế tắc nhất vậy?`,
+          `Cậu đang ôn hay làm phần nào mà thấy ngộp nhất?`,
+          `Deadline gần nhất của cậu là khi nào vậy?`,
+        ],
+      },
+    }),
   },
   {
     id: "sleep",
@@ -282,14 +333,30 @@ export const INTENT_DATABASE = [
       "thức khuya quá", "mẹo ngủ ngon", "làm sao ngủ ngon", "mất ngủ kéo dài",
       "cứ tỉnh giấc giữa đêm", "ngủ không sâu"
     ],
-    generateResponse: (bio) => {
-      const name = getFriendlyName(bio);
-      return [
-        `Mất ngủ thường là tín hiệu cho thấy tâm trí của ${name} đang phải "chạy ngầm" rất nhiều lo âu chưa được giải tỏa đó.`,
-        `Tối nay cậu thử tắt điện thoại trước khi ngủ 30 phút, giữ phòng tối mát và bật âm thanh "Mưa rơi" ở mục Trị Liệu xem sao nha.`,
-        `Đừng bắt bản thân phải ngủ ngay lập tức kẻo lại áp lực thêm. Gần đây cậu ngủ được trung bình mấy tiếng mỗi đêm thế?`
-      ];
-    }
+    generateResponse: (bio, historyLogs, memory, rawText) => composeIntentReply({
+      id: "sleep",
+      name: getFriendlyName(bio),
+      rawText,
+      memory,
+      traits: getLatestBigFive(historyLogs),
+      slots: {
+        openers: [
+          `Mất ngủ thường là tín hiệu cho thấy tâm trí {name} đang phải "chạy ngầm" rất nhiều lo âu chưa được giải tỏa đó.`,
+          `{name} ơi, nằm cả tiếng mà đầu óc không chịu tắt máy đúng là mệt mỏi thật sự.`,
+          `Ngủ không sâu, cứ tỉnh giấc giữa đêm — cơ thể {name} đang phát tín hiệu là chưa thực sự được nghỉ ngơi đâu.`,
+        ],
+        validations: [
+          `Tối nay cậu thử tắt điện thoại trước khi ngủ 30 phút, giữ phòng tối mát và bật âm thanh "Mưa rơi" ở mục Trị Liệu xem sao nha.`,
+          `Không cần ép mình ngủ ngay — càng cố ép càng tỉnh táo hơn đó, cứ để cơ thể tự chìm dần thôi.`,
+          `Cafein hay lướt điện thoại sát giờ ngủ hay là thủ phạm giấu mặt lắm — thử để ý xem có phải trường hợp của cậu không.`,
+        ],
+        questions: [
+          `Đừng bắt bản thân phải ngủ ngay lập tức kẻo lại áp lực thêm. Gần đây {name} ngủ được trung bình mấy tiếng mỗi đêm thế?`,
+          `Lúc nằm xuống, đầu óc {name} thường nghĩ về chuyện gì nhiều nhất vậy?`,
+          `Tình trạng này kéo dài được bao lâu rồi — mới vài hôm hay đã lâu rồi vậy?`,
+        ],
+      },
+    }),
   },
   {
     id: "anxiety",
@@ -378,10 +445,14 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Test chuẩn lâm sàng (PHQ-9, GAD-7) giúp ${name} biết rõ tình trạng thật, không cần lo mơ hồ nữa`, `Qua tab 'Đánh Giá' làm nha — tớ lưu kết quả và theo dõi tiến triển cho cậu luôn.`];
+      return [`Được chứ! Tớ có cả 6 bài chuẩn lâm sàng nè — cậu chọn 1 bài, hoặc làm hết một lượt để tớ nắm rõ tình trạng ${name} luôn cũng được.`, `Qua tab 'Đánh Giá' làm nha, hoặc bấm ngay các nút bên dưới — tớ lưu kết quả và theo dõi tiến triển cho cậu mỗi lần luôn.`];
     },
     suggestPhq9: true,
-    suggestGad7: true
+    suggestGad7: true,
+    suggestWho5: true,
+    suggestBigFive: true,
+    suggestDass42: true,
+    suggestMmpi30: true
   },
   {
     id: "gratitude",
@@ -422,7 +493,7 @@ export const INTENT_DATABASE = [
       "test tâm lý gồm những gì", "có bao nhiêu bài trắc nghiệm", "có test gì"
     ],
     generateResponse: () => {
-      return [`Hệ thống có 4 bài chuẩn lâm sàng: PHQ-9 (trầm cảm), GAD-7 (lo âu), WHO-5 (hạnh phúc), Big Five (nhân cách).`, `Kể tớ tình trạng hiện tại, tớ gợi ý bài hợp nhất — hoặc vào tab 'Đánh Giá' chọn luôn cũng được!`];
+      return [`Hệ thống có 6 bài chuẩn lâm sàng: PHQ-9 (trầm cảm), GAD-7 (lo âu), WHO-5 (hạnh phúc), Big Five (nhân cách), DASS-42 (stress/lo âu/trầm cảm) và MMPI (sàng lọc 30 câu).`, `Kể tớ tình trạng hiện tại, tớ gợi ý bài hợp nhất — hoặc nói "cho tớ làm hết bài test" để tớ đưa hết một lượt, hay vào tab 'Đánh Giá' chọn luôn cũng được!`];
     }
   },
   {
@@ -535,6 +606,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Mâu thuẫn{who} nhiều khi chỉ là hai bên "nói chuyện khác kênh" thôi — không hẳn là không thương nhau.`,
@@ -567,6 +639,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Bị tẩy chay hay bully đau thiệt đó {name} ơi 💙`,
@@ -580,8 +653,8 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Cậu đang an toàn không? Có nói với thầy cô hoặc người lớn tin tưởng chưa?`,
-          `Chuyện đang diễn ra ở mức nào rồi, kể tớ nghe chi tiết hơn được không?`,
-          `Có ai — bạn khác, thầy cô, gia đình — đang ở cạnh cậu lúc này không?`,
+          `Chuyện đang diễn ra ở mức nào rồi, kể tớ nghe chi tiết hơn đi.`,
+          `Ai đang ở cạnh cậu lúc này vậy — bạn khác, thầy cô, hay gia đình?`,
         ],
       },
     }),
@@ -599,6 +672,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Chia tay giống như mất một phần kỳ vọng đã xây cùng nhau — buồn là chuyện đương nhiên {name} ơi 🫂`,
@@ -631,6 +705,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Lúc buồn, não hay "thổi phồng" lỗi sai và hạ giá trị bản thân — đó không phải sự thật về {name} đâu.`,
@@ -645,7 +720,7 @@ export const INTENT_DATABASE = [
         questions: [
           `Kể tớ nghe 1 điều — dù nhỏ xíu — cậu đã làm tốt gần đây đi?`,
           `Cái giọng chê bai đó đang nói gì với cậu vậy, thử kể tớ nghe nguyên văn xem?`,
-          `Có ai từng nói với cậu điều gì làm cậu tin vào chính mình hơn không?`,
+          `Từng có ai nói gì với cậu mà làm cậu tin vào chính mình hơn — thử kể tớ nghe xem?`,
         ],
       },
     }),
@@ -663,6 +738,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Trì hoãn thường không phải lười — mà là não đang "trốn" cảm giác sợ thất bại hoặc việc quá to đó {name}.`,
@@ -695,6 +771,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Giận thường là lớp vỏ ngoài che một cảm giác sâu hơn — bị tổn thương hay bất công — hoàn toàn bình thường {name} ơi.`,
@@ -740,6 +817,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Tớ rất tiếc vì mất mát lớn này {name} 🫂`,
@@ -753,7 +831,7 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Tớ ở đây nếu cậu muốn kể về người đó, hay chỉ cần ai ngồi cạnh im lặng cũng được.`,
-          `Cậu có muốn kể tớ nghe một kỷ niệm đẹp với người đó không?`,
+          `Nếu cậu sẵn sàng, kể tớ nghe một kỷ niệm đẹp với người đó xem.`,
           `Ngay lúc này cậu cần điều gì nhất — được lắng nghe, hay chỉ cần yên tĩnh một chút?`,
         ],
       },
@@ -772,6 +850,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Hoang mang về tương lai ở tuổi cậu là cực kỳ bình thường — không ai bắt buộc phải biết hết ngay đâu {name}.`,
@@ -871,6 +950,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Mạng xã hội chỉ "chiếu" highlight của người khác — mình lại so với cả cuộc đời họ, game đó không công bằng chút nào 😅`,
@@ -884,7 +964,7 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Gần đây cậu so sánh mình với ai — bạn học hay idol trên mạng?`,
-          `Nếu tắt hết mạng xã hội một tuần, cậu nghĩ mình sẽ thấy nhẹ hơn không?`,
+          `Nếu tắt hết mạng xã hội một tuần, cậu nghĩ mình sẽ thấy thế nào?`,
           `Điều gì ở người đó đang làm cậu chạnh lòng nhất vậy?`,
         ],
       },
@@ -904,6 +984,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Cầu toàn thực ra là "trì hoãn được nguỵ trang" khéo lắm {name} ơi!`,
@@ -937,6 +1018,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Tự ti ngoại hình rất phổ biến ở tuổi {name} — áp lực hình thể từ mạng xã hội và bạn bè nhiều lắm.`,
@@ -950,7 +1032,7 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Cảm giác này xuất phát từ đâu — có ai nói gì, hay tự so sánh với ai đó?`,
-          `Có phần nào trên cơ thể mà trước đây cậu từng thấy ổn với nó không?`,
+          `Trước đây có phần nào trên cơ thể mà cậu từng thấy ổn với nó, kể tớ nghe xem?`,
           `Điều này bắt đầu làm cậu khó chịu từ khi nào vậy?`,
         ],
       },
@@ -969,6 +1051,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `{name} tự nhận ra điều này là bước đầu rất tỉnh táo rồi đó!`,
@@ -981,7 +1064,7 @@ export const INTENT_DATABASE = [
           `Không cần cai tuyệt đối ngay — giảm dần vẫn tính là tiến bộ.`,
         ],
         questions: [
-          `Thử "digital detox" nhỏ: đặt điện thoại sang phòng khác 30 phút. Cậu nghĩ mình chịu được không?`,
+          `Thử "digital detox" nhỏ: đặt điện thoại sang phòng khác 30 phút. Cậu nghĩ mình sẽ chịu được đến đâu?`,
           `App nào đang "ngốn" thời gian của cậu nhiều nhất vậy?`,
           `Cậu dùng điện thoại nhiều nhất vào lúc nào — học bài xong hay lúc buồn chán?`,
         ],
@@ -1001,6 +1084,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Social anxiety là một trong những vấn đề phổ biến nhất ở giới trẻ — {name} không một mình đâu nha.`,
@@ -1033,6 +1117,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Nhớ nhà là cảm giác nặng và thật lắm — không phải cậu yếu đâu {name} ơi.`,
@@ -1045,9 +1130,9 @@ export const INTENT_DATABASE = [
           `Cảm giác này rồi sẽ dịu bớt theo thời gian, nhưng ngay lúc này cứ để mình được nhớ, không cần vội "quen".`,
         ],
         questions: [
-          `Gần đây cậu có gọi video về nhà chưa?`,
+          `Lần gần nhất cậu gọi video về nhà là khi nào vậy?`,
           `Điều gì ở nhà làm cậu nhớ nhất — người, món ăn, hay chỉ là cảm giác quen thuộc?`,
-          `Cậu có góc nhỏ nào ở đây làm cậu thấy hơi giống nhà không?`,
+          `Góc nào ở đây khiến cậu thấy hơi giống nhà nhất vậy?`,
         ],
       },
     }),
@@ -1062,7 +1147,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Ôi, tình đầu nè ${name} 🥹 Cảm giác nhột nhột háo hức kiểu đó không có gì thay thế được!`, `Cậu muốn kể tớ nghe về người đó không?`, `Hay đang phân vân chưa biết phải làm gì với tình cảm này?`];
+      return [`Ôi, tình đầu nè ${name} 🥹 Cảm giác nhột nhột háo hức kiểu đó không có gì thay thế được!`, `Kể tớ nghe về người đó đi.`, `Hay đang phân vân chưa biết phải làm gì với tình cảm này?`];
     }
   },
   {
@@ -1078,6 +1163,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Ghen tị là cảm giác cực bình thường — não tự so sánh là bản năng sinh tồn đó {name} ơi.`,
@@ -1110,6 +1196,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Khó tập trung không nhất thiết là ADHD — stress, thiếu ngủ và điện thoại cũng "phá focus" dữ dội lắm {name}.`,
@@ -1142,6 +1229,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Kỳ thi THPT là thử thách lớn thật — nhưng đây không phải "chung kết cuộc đời" như nhiều người hay nói đâu nha {name}.`,
@@ -1155,7 +1243,7 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Cậu đang ôn môn gì và phần nào làm cậu lo nhất?`,
-          `Lịch ôn của cậu dạo này có cho mình khoảng nghỉ nào không?`,
+          `Lịch ôn của cậu dạo này đang sắp xếp ra sao vậy?`,
           `Nếu kết quả không như mong đợi, cậu nghĩ mình vẫn còn lựa chọn nào khác?`,
         ],
       },
@@ -1174,6 +1262,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Trống rỗng, không cảm gì — nghe có vẻ "ổn" nhưng thực ra là dạng mệt mỏi cảm xúc rất thật đó {name}.`,
@@ -1187,8 +1276,8 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Cảm giác này bắt đầu từ khoảng bao lâu nay vậy?`,
-          `Có sự kiện nào gần đây khiến cậu bắt đầu thấy trống rỗng như vậy không?`,
-          `Trước đây có điều gì làm cậu thấy hứng thú mà giờ không còn nữa không?`,
+          `Điều gì gần đây khiến cậu bắt đầu thấy trống rỗng như vậy?`,
+          `Trước đây có điều gì làm cậu thấy hứng thú mà giờ không còn nữa, kể tớ nghe xem?`,
         ],
       },
     }),
@@ -1206,6 +1295,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Overthink là não đang cố "kiểm soát" tương lai bằng cách dự đoán hết mọi kịch bản tệ — kiệt sức lắm đó {name}.`,
@@ -1220,7 +1310,7 @@ export const INTENT_DATABASE = [
         questions: [
           `Cậu hay overthink về chủ đề gì nhất — học hành, tình cảm, hay tương lai?`,
           `Suy nghĩ nào đang lặp đi lặp lại nhiều nhất trong đầu cậu lúc này?`,
-          `Nếu viết hết những suy nghĩ đó ra giấy, cậu nghĩ đầu óc mình có nhẹ hơn không?`,
+          `Nếu viết hết những suy nghĩ đó ra giấy, cậu nghĩ đầu óc mình sẽ nhẹ hơn được bao nhiêu?`,
         ],
       },
     }),
@@ -1346,6 +1436,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Tớ nghe đây {name}. Cảm giác chông chênh, tự hỏi "mình sống để làm gì" hay thấy mọi thứ vô nghĩa thực sự rất mệt mỏi và cô đơn.`,
@@ -1359,7 +1450,7 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Cậu đang cảm thấy chông chênh và mất phương hướng nhất ở điểm nào? Học tập, gia đình, hay định vị bản thân thế?`,
-          `Có điều gì — dù nhỏ — từng làm cậu thấy cuộc sống đáng sống không?`,
+          `Điều gì — dù nhỏ — từng làm cậu thấy cuộc sống đáng sống, kể tớ nghe xem?`,
           `Cảm giác này đến gần đây thôi hay đã kéo dài một thời gian rồi?`,
         ],
       },
@@ -1377,6 +1468,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Tớ ôm cậu một cái thật chặt nha {name} 🫂 Những tổn thương hay ký ức đau lòng trong quá khứ không phải là thứ dễ dàng trôi qua.`,
@@ -1409,6 +1501,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Tiền bạc thực sự là một áp lực cực kỳ thực tế và đè nặng lên vai {name} đúng không?`,
@@ -1441,6 +1534,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Cảm giác lo sợ mọi người sẽ "phát hiện ra" mình không thực sự giỏi, hay nghĩ thành công chỉ là do ăn may... đó chính là Hội chứng kẻ giả mạo (Imposter Syndrome) đó {name}.`,
@@ -1454,8 +1548,8 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Điều gì gần đây đang làm cậu thấy nghi ngờ năng lực của bản thân mình nhất vậy?`,
-          `Có thành tích nào gần đây cậu đạt được mà lại tự nhủ "chắc do may mắn thôi" không?`,
-          `Nếu một người bạn thân đạt được điều cậu vừa làm, cậu có nói với họ y như vậy không?`,
+          `Thành tích gần đây nào cậu đạt được mà lại tự nhủ "chắc do may mắn thôi", kể tớ nghe xem?`,
+          `Nếu một người bạn thân đạt được điều cậu vừa làm, cậu sẽ nói gì với họ?`,
         ],
       },
     }),
@@ -1472,6 +1566,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Tớ xin chia buồn với cậu nha {name} 🫂 Sự ra đi của một bạn thú cưng thực sự giống như việc mất đi một thành viên gia đình vậy.`,
@@ -1484,7 +1579,7 @@ export const INTENT_DATABASE = [
           `Cậu được phép buồn bao lâu cậu cần, không có thời hạn nào cho việc này cả.`,
         ],
         questions: [
-          `Em ấy đã có một khoảng thời gian thật hạnh phúc khi được cậu yêu thương. Cậu có muốn kể cho tớ nghe kỷ niệm đáng yêu nhất của hai đứa không?`,
+          `Em ấy đã có một khoảng thời gian thật hạnh phúc khi được cậu yêu thương. Nếu cậu sẵn sàng, kể tớ nghe kỷ niệm đáng yêu nhất của hai đứa xem.`,
           `Cậu và em ấy đã ở bên nhau bao lâu rồi?`,
           `Ngay lúc này cậu cần điều gì nhất — được kể về em ấy, hay chỉ cần yên tĩnh một chút?`,
         ],
@@ -1504,6 +1599,7 @@ export const INTENT_DATABASE = [
       name: getFriendlyName(bio),
       rawText,
       memory,
+      traits: getLatestBigFive(historyLogs),
       slots: {
         openers: [
           `Hành trình tìm hiểu và định vị bản thân (bao gồm cả xu hướng tính dục) cần thời gian và sự dịu dàng với chính mình {name} ạ.`,
@@ -1517,7 +1613,7 @@ export const INTENT_DATABASE = [
         ],
         questions: [
           `Cậu đang cảm thấy bối rối hay gặp áp lực từ đâu nhất? Bạn bè, gia đình hay chỉ là những mâu thuẫn bên trong cậu?`,
-          `Cậu có ai — bạn bè hay người lớn nào — mà cậu cảm thấy an toàn để tâm sự chuyện này không?`,
+          `Ai là người — bạn bè hay người lớn nào — mà cậu cảm thấy an toàn để tâm sự chuyện này nhất?`,
           `Điều gì đang làm cậu lo lắng nhất về việc này vậy?`,
         ],
       },
@@ -1602,6 +1698,10 @@ function getFuseInstance() {
   });
   return _fuseInstance;
 }
+
+// Matches "khong"/"chua"/"het"/"khoi" up to 2 words before a matched keyword —
+// used to skip a false-positive fast-path match on a negated sentence.
+const NEGATION_BEFORE = /\b(khong|chua|het|khoi)(\s+\w+){0,2}\s*$/;
 
 // Pre-compiled regex rules for instant fast-path matching (compiled once at startup)
 const STATIC_RULES = [
@@ -1746,106 +1846,61 @@ export function findMatchingIntent(userText, bio, historyLogs = []) {
     return { reply: buildMetricsSummary(historyLogs), id: "metrics_report", tier: "free", quickActions: null };
   }
 
-  let bestMatch = null;
-  let highestScore = 0;
-
-  // 4. Regex fast-path — O(n) rules, ~1ms, highest priority for pre-compiled static patterns.
+  // 4. Fast-path Regex Matching (with negation filter)
   for (const rule of STATIC_RULES) {
     if (rule.regex.test(cleanText)) {
-      const intentObj = INTENT_MAP[rule.id];
-      if (intentObj) {
-        bestMatch = intentObj;
-        highestScore = 0.95;
-        break;
-      }
-    }
-  }
-
-  // 5. Fuse.js fuzzy match — primary similarity engine (handles typos, missing diacritics).
-  if (!bestMatch) {
-    const fuse = getFuseInstance();
-    const results = fuse.search(cleanText);
-    if (results.length > 0 && results[0].score < 0.22) {
-      // Guard: if input is a single word or very short, require a much stricter match score (< 0.08)
-      const isShort = cleanText.length <= 6 || !cleanText.includes(" ");
-      const maxAllowedScore = isShort ? 0.08 : 0.22;
-      if (results[0].score < maxAllowedScore) {
-        const intentObj = INTENT_MAP[results[0].item.id];
-        if (intentObj) {
-          bestMatch = intentObj;
-          highestScore = 1 - results[0].score;
+      const m = cleanText.match(rule.regex);
+      if (m) {
+        const prefix = cleanText.substring(0, m.index);
+        if (NEGATION_BEFORE.test(prefix)) {
+          continue; // Negated match, skip this fast-path rule
         }
       }
-    }
-  }
-
-  // 6. Sørensen-Dice fallback — catches cases Fuse misses, optimized using pre-computed untoned lookups
-  if (!bestMatch) {
-    for (const item of PRECOMPUTED_UNTONED_PATTERNS) {
-      const score = Math.max(
-        getDiceSimilarity(text, item.original),
-        getDiceSimilarity(cleanText, item.untoned)
-      );
-      if (score > highestScore) {
-        // Guard: if input is a single word or very short, require a much higher dice similarity (>= 0.88)
-        const isShort = cleanText.length <= 6 || !cleanText.includes(" ");
-        const minAllowedScore = isShort ? 0.88 : 0.78;
-        if (score >= minAllowedScore) {
-          highestScore = score;
-          bestMatch = item.intent;
-        }
+      const intent = INTENT_MAP[rule.id];
+      if (intent) {
+        return {
+          reply: intent.generateResponse(bio, historyLogs, memory, text),
+          id: intent.id,
+          tier: intent.tier || "free",
+          suggestPhq9: intent.suggestPhq9 || false,
+          suggestGad7: intent.suggestGad7 || false,
+          suggestWho5: intent.suggestWho5 || false,
+          suggestBigFive: intent.suggestBigFive || false,
+          suggestDass42: intent.suggestDass42 || false,
+          suggestMmpi30: intent.suggestMmpi30 || false,
+          showInlineBreathing: intent.showInlineBreathing || false,
+          showInlineCbt: intent.showInlineCbt || false,
+          quickActions: intent.quickActions || null,
+        };
       }
     }
   }
 
-  // Nâng ngưỡng từ 0.60 lên 0.78 để tránh bắt sai các câu hội thoại tự nhiên, nhường chỗ cho LLM thấu cảm
-  if (highestScore >= 0.78 && bestMatch) {
-    const replyText = bestMatch.generateResponse(bio, historyLogs, updatedMemory, text);
-
-    let companionUpdate = null;
-    const NEGATIVE_IDS = new Set([
-      "sadness", "grief", "emptiness", "breakup", "anxiety", "academic_stress", "panic_attack", 
-      "burnout", "social_anxiety", "overthinking", "loneliness", "low_self_esteem", "perfectionism", 
-      "body_image", "family_conflict", "friendship_conflict", "existential_crisis", "trauma", 
-      "money_stress", "imposter_syndrome", "pet_grief", "lgbtq_confusion"
-    ]);
-    const POSITIVE_IDS = new Set(["positive", "gratitude", "first_love"]);
-    if (NEGATIVE_IDS.has(bestMatch.id)) {
-      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 2, note: `Local intent: ${bestMatch.id}` } };
-    } else if (POSITIVE_IDS.has(bestMatch.id)) {
-      companionUpdate = { newLog: { date: new Date().toISOString(), type: "checkin", mood: 4, note: `Local intent: ${bestMatch.id}` } };
+  // 5. Similarity score search fallback across pattern database
+  let bestIntent = null;
+  let maxScore = 0;
+  for (const item of PRECOMPUTED_UNTONED_PATTERNS) {
+    const score = getSimilarityScore(cleanText, item.untoned);
+    if (score > maxScore) {
+      maxScore = score;
+      bestIntent = item.intent;
     }
+  }
 
-    // 3. COMBO ESCALATION — if user has 3+ recent negative moods, gently suggest
-    // a clinical test so they don't spiral without any structured support.
-    // Runs only on high-distress intents to avoid false positives.
-    const HIGH_DISTRESS = new Set([
-      "sadness", "anxiety", "burnout", "emptiness", "loneliness", "grief", 
-      "low_self_esteem", "overthinking", "existential_crisis", "trauma"
-    ]);
-    let suggestPhq9 = bestMatch.suggestPhq9 || false;
-    let suggestGad7 = bestMatch.suggestGad7 || false;
-    if (HIGH_DISTRESS.has(bestMatch.id)) {
-      const recentNeg = (historyLogs || []).slice(-8).filter(l => l.type === "checkin" && l.mood <= 2).length;
-      if (recentNeg >= 3) {
-        suggestPhq9 = true;
-      }
-    }
-
-    const showInlineBreathing = new Set(["panic_attack", "anxiety", "future_anxiety", "burnout", "anger", "academic_stress"]).has(bestMatch.id);
-    const showInlineCbt = new Set(["low_self_esteem", "overthinking", "perfectionism", "social_comparison", "body_image", "imposter_syndrome"]).has(bestMatch.id);
-
+  if (maxScore >= 0.72 && bestIntent) {
     return {
-      reply: replyText,
-      id: bestMatch.id,
-      tier: bestMatch.tier || "paid",
-      suggestPhq9,
-      suggestGad7,
-      showInlineBreathing,
-      showInlineCbt,
-      quickActions: bestMatch.quickActions || null,
-      quickReplies: INTENT_QUICK_REPLIES[bestMatch.id] || [],
-      companionUpdate
+      reply: bestIntent.generateResponse(bio, historyLogs, memory, text),
+      id: bestIntent.id,
+      tier: bestIntent.tier || "free",
+      suggestPhq9: bestIntent.suggestPhq9 || false,
+      suggestGad7: bestIntent.suggestGad7 || false,
+      suggestWho5: bestIntent.suggestWho5 || false,
+      suggestBigFive: bestIntent.suggestBigFive || false,
+      suggestDass42: bestIntent.suggestDass42 || false,
+      suggestMmpi30: bestIntent.suggestMmpi30 || false,
+      showInlineBreathing: bestIntent.showInlineBreathing || false,
+      showInlineCbt: bestIntent.showInlineCbt || false,
+      quickActions: bestIntent.quickActions || null,
     };
   }
 

@@ -122,26 +122,7 @@ class WeeklyReportRequest(BaseModel):
     chatMessages: Optional[List[Dict[str, Any]]] = None
     bio: Optional[Dict[str, Any]] = None
 
-class TherapeuticStoryRequest(BaseModel):
-    mood: Optional[str] = None
-    context: Optional[str] = ""
-    bio: Optional[Dict[str, Any]] = None
-
-class MeditationScriptRequest(BaseModel):
-    mood: Optional[str] = None
-    context: Optional[str] = ""
-    bio: Optional[Dict[str, Any]] = None
-
 class CbtWorksheetRequest(BaseModel):
-    historyLogs: Optional[List[Dict[str, Any]]] = None
-    chatMessages: Optional[List[Dict[str, Any]]] = None
-    bio: Optional[Dict[str, Any]] = None
-
-class ActionPlanRequest(BaseModel):
-    historyLogs: Optional[List[Dict[str, Any]]] = None
-    bio: Optional[Dict[str, Any]] = None
-
-class DeepReportRequest(BaseModel):
     historyLogs: Optional[List[Dict[str, Any]]] = None
     chatMessages: Optional[List[Dict[str, Any]]] = None
     bio: Optional[Dict[str, Any]] = None
@@ -491,83 +472,16 @@ async def weekly_report(request: WeeklyReportRequest, req: Request):
 # Premium therapy endpoints (150 JOY unlocks — gated on the Node side)
 # ---------------------------------------------------------------------------
 
-@app.post("/api/ai/therapy/story")
-async def therapeutic_story(request: TherapeuticStoryRequest, req: Request):
-    """"Đọc Truyện AI Trị Liệu" — truyện ngắn trị liệu cá nhân hoá theo mood thực."""
-    try:
-        client_identifier = _client_id("therapy", req)
-        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_story", 2)
-        if not is_allowed:
-            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
-        return await ai_service.generate_therapeutic_story(
-            mood=request.mood, context=request.context or "", bio=request.bio
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/ai/therapy/meditation-script")
-async def meditation_script(request: MeditationScriptRequest, req: Request):
-    """"Thiền Dẫn AI Cá Nhân Hoá" — script giọng dẫn thiền theo mood/dữ liệu thực."""
-    try:
-        client_identifier = _client_id("therapy", req)
-        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_meditation", 2)
-        if not is_allowed:
-            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
-        return await ai_service.generate_meditation_script(
-            mood=request.mood, context=request.context or "", bio=request.bio
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/api/ai/therapy/cbt-worksheet")
 async def cbt_worksheet(request: CbtWorksheetRequest, req: Request):
     """"CBT Worksheet Cá Nhân Hoá" — bảng ghi nhận suy nghĩ CBT từ lịch sử chat/checkin thật."""
     try:
-        client_identifier = _client_id("therapy", req)
+        user_email = (request.bio or {}).get("email", "")
+        client_identifier = _client_id(user_email, req)
         is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_cbt", 2)
         if not is_allowed:
             raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
         return await ai_service.generate_cbt_worksheet(
-            history_logs=request.historyLogs or [], chat_messages=request.chatMessages or [], bio=request.bio
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/ai/therapy/action-plan")
-async def action_plan(request: ActionPlanRequest, req: Request):
-    """"Lộ Trình Hoạt Động Cá Nhân Hoá" — gộp viết/vận động/kết nối thành kế hoạch 7 ngày."""
-    try:
-        client_identifier = _client_id("therapy", req)
-        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_action", 2)
-        if not is_allowed:
-            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
-        return await ai_service.generate_action_plan(
-            history_logs=request.historyLogs or [], bio=request.bio
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/ai/therapy/deep-report")
-async def deep_report(request: DeepReportRequest, req: Request):
-    """"Báo Cáo Tâm Lý Chuyên Sâu" — hồ sơ tổng hợp chia sẻ được cho chuyên viên thật."""
-    try:
-        client_identifier = _client_id("therapy", req)
-        is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, "therapy_deep", 2)
-        if not is_allowed:
-            raise HTTPException(status_code=429, detail="Bạn đã sử dụng hết quota trị liệu hôm nay.")
-        return await ai_service.generate_deep_report(
             history_logs=request.historyLogs or [], chat_messages=request.chatMessages or [], bio=request.bio
         )
     except HTTPException:
@@ -668,7 +582,11 @@ async def iot_websocket(websocket: WebSocket):
         payload = json.loads(first_msg)
         token = payload.get("token")
         expected_key = os.getenv("INTERNAL_API_KEY", "")
-        if not expected_key or token != expected_key:
+        if not expected_key:
+            await websocket.send_text(json.dumps({"type": "error", "message": "Server configuration error"}))
+            await websocket.close(code=4001, reason="Server misconfigured")
+            return
+        if token != expected_key:
             await websocket.send_text(json.dumps({"type": "error", "message": "Authentication required"}))
             await websocket.close(code=4001, reason="Unauthorized")
             return

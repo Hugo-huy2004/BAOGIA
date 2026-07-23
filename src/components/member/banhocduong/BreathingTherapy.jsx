@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Volume2, VolumeX, Wind, Dumbbell, RotateCcw, CloudRain, Waves, Bell, Music } from "lucide-react";
+import { Volume2, VolumeX, Wind, Dumbbell, RotateCcw, CloudRain, Waves, Bell, Music } from "lucide-react";
 import { getBestViVoice } from "./utils/getBestViVoice";
 import { MUSCLE_STEPS } from "./constants/pmrSteps";
 
@@ -133,7 +133,7 @@ function stopAmbientSound() {
   }
 }
 
-export default function BreathingTherapy({ onBack, onCompleteActivity, showToast }) {
+export default function BreathingTherapy({ onCompleteActivity, showToast }) {
   const [activeMode, setActiveMode] = useState("breath"); 
   const [voices, setVoices] = useState([]);
   const [ambientSound, setAmbientSound] = useState("none"); // 'none' | 'rain' | 'waves' | 'chimes'
@@ -357,8 +357,15 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
     setActiveMode(mode);
   };
 
+  const voiceEnabled = activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled;
+  const toggleVoice = () => {
+    if (activeMode === "breath") setBreathVoiceEnabled(v => !v);
+    else setPmrVoiceEnabled(v => !v);
+    window.speechSynthesis?.cancel();
+  };
+
   return (
-    <div className="space-y-5 text-center max-w-md mx-auto animate-scaleUp bg-gradient-to-br from-zinc-950 via-slate-900 to-primary/20 text-zinc-100 p-6 rounded-3xl border border-zinc-800/80 shadow-2xl relative overflow-hidden">
+    <div className="space-y-5 text-center relative">
       <style>{`
         @keyframes blob-liquid {
           0% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: rotate(0deg); }
@@ -374,57 +381,41 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
       <div className="absolute top-0 right-0 w-32 h-32 bg-warning/5 rounded-full blur-2xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
 
-      {/* Header */}
-      <div className="relative z-10 flex items-center justify-between border-b pb-2.5 border-zinc-800/60">
-        <button type="button" onClick={onBack} className="text-zinc-400 text-[10px] font-black uppercase tracking-wider hover:text-zinc-200 transition-colors">
-          Quay lại thẻ
-        </button>
-        <span className="text-[10px] font-black uppercase text-warning tracking-wider">Hít Thở & Cơ Thể</span>
+      {/* Mode Selector + voice toggle */}
+      <div className="relative z-10 flex items-center gap-2">
+        <div className="flex-1 flex bg-muted rounded-xl p-1 shadow-inner border border-border">
+          <button
+            onClick={() => handleModeChange("breath")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+              activeMode === "breath"
+                ? "bg-card text-foreground shadow-md border border-border"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Wind className="w-4 h-4 text-success" />
+            Hít thở 4-7-8
+          </button>
+          <button
+            onClick={() => handleModeChange("pmr")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+              activeMode === "pmr"
+                ? "bg-card text-foreground shadow-md border border-border"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Dumbbell className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+            Thư giãn cơ PMR
+          </button>
+        </div>
         <button
           type="button"
-          onClick={() => {
-            if (activeMode === "breath") {
-              setBreathVoiceEnabled(v => !v);
-              window.speechSynthesis?.cancel();
-            } else {
-              setPmrVoiceEnabled(v => !v);
-              window.speechSynthesis?.cancel();
-            }
-          }}
-          title={(activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled) ? "Tắt giọng dẫn" : "Bật giọng dẫn"}
-          className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md transition-colors ${
-            (activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled)
-              ? "text-warning bg-warning/10"
-              : "text-zinc-400 bg-white/5 hover:bg-white/10"
+          onClick={toggleVoice}
+          title={voiceEnabled ? "Tắt giọng dẫn" : "Bật giọng dẫn"}
+          className={`shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-colors ${
+            voiceEnabled ? "text-warning bg-warning/10" : "text-muted-foreground bg-muted hover:bg-muted/80"
           }`}
         >
-          { (activeMode === "breath" ? breathVoiceEnabled : pmrVoiceEnabled) ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" /> }
-        </button>
-      </div>
-
-      {/* Mode Selector */}
-      <div className="relative z-10 flex bg-black/40 rounded-xl p-1 shadow-inner border border-white/5">
-        <button
-          onClick={() => handleModeChange("breath")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
-            activeMode === "breath"
-              ? "bg-white/10 text-white shadow-md border border-white/5"
-              : "text-zinc-400 hover:text-zinc-200"
-          }`}
-        >
-          <Wind className="w-4 h-4 text-success" />
-          Hít thở 4-7-8
-        </button>
-        <button
-          onClick={() => handleModeChange("pmr")}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
-            activeMode === "pmr"
-              ? "bg-white/10 text-white shadow-md border border-white/5"
-              : "text-zinc-400 hover:text-zinc-200"
-          }`}
-        >
-          <Dumbbell className="w-4 h-4 text-indigo-400" />
-          Thư giãn cơ PMR
+          {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
         </button>
       </div>
 
@@ -451,7 +442,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                   className={`px-3 py-1.5 rounded-md border text-[9px] font-black uppercase tracking-wider transition-all ${
                     breathTargetDuration === item.time
                       ? "bg-warning border-transparent text-warning-foreground shadow-sm"
-                      : "border-white/10 text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+                      : "border-border text-muted-foreground hover:bg-muted/70 hover:text-foreground"
                   }`}
                 >
                   {item.label}
@@ -460,8 +451,8 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
             </div>
 
             {/* Ambient Sound Selector */}
-            <div className="bg-black/20 border border-white/5 rounded-2xl p-2.5 space-y-1.5">
-              <span className="text-[8px] font-black uppercase text-zinc-400 tracking-wider flex items-center gap-1 justify-center">
+            <div className="bg-muted border border-border rounded-2xl p-2.5 space-y-1.5">
+              <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1 justify-center">
                 <Music className="w-3.5 h-3.5" /> Nhạc nền thiền tự nhiên
               </span>
               <div className="grid grid-cols-4 gap-1.5">
@@ -478,7 +469,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                     className={`flex flex-col items-center gap-1 py-1.5 rounded-lg border text-[8px] font-bold uppercase transition-all ${
                       ambientSound === item.id
                         ? "bg-warning/25 border-warning text-warning shadow-inner"
-                        : "border-white/5 text-zinc-400 bg-white/2 hover:bg-white/5"
+                        : "border-border text-muted-foreground bg-muted/40 hover:bg-muted/70"
                     }`}
                   >
                     {item.icon}
@@ -489,7 +480,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
             </div>
 
             {breathState !== "idle" && (
-              <div className="text-zinc-400 font-mono font-black text-xs tracking-wider">
+              <div className="text-muted-foreground font-mono font-black text-xs tracking-wider">
                 Thời gian: {formatTimerTime(breathSecondsLeft)}
               </div>
             )}
@@ -503,7 +494,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 />
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center text-white shadow-xl relative z-10 bg-zinc-900 border border-zinc-800">
+                <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center text-foreground shadow-xl relative z-10 bg-card border border-border">
                   <span className="text-[8px] uppercase tracking-widest font-black opacity-90">
                     {breathState === "inhale" ? "Hít vào" :
                      breathState === "hold" ? "Giữ hơi" :
@@ -538,7 +529,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                 </button>
               )}
             </div>
-            <p className="text-[10px] text-zinc-400 italic max-w-xs mx-auto leading-relaxed font-bold mt-3">
+            <p className="text-[10px] text-muted-foreground italic max-w-xs mx-auto leading-relaxed font-bold mt-3">
               "Phương pháp 4-7-8 kích hoạt trực tiếp dây thần kinh phế vị, giúp nhịp tim của cậu dịu lại ngay lập tức."
             </p>
           </motion.div>
@@ -553,12 +544,12 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
             {/* PMR View */}
             {pmrState === "idle" ? (
               <div className="space-y-4 text-left">
-                <p className="text-[10.5px] text-zinc-300 font-bold leading-relaxed">
+                <p className="text-[10.5px] text-foreground/80 font-bold leading-relaxed">
                   Kỹ thuật PMR (Thư Giãn Cơ Sâu) giúp gạt bỏ căng thẳng thể chất bằng cách căng cơ trong 5 giây, sau đó buông lỏng đột ngột để cơ bắp thư giãn trong 8 giây.
                 </p>
-                <div className="space-y-2 bg-white/5 border border-white/10 p-4 rounded-3xl">
-                  <h6 className="text-[9.5px] font-black uppercase tracking-wider text-zinc-400 mb-1">Các nhóm cơ thực hiện:</h6>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-zinc-300">
+                <div className="space-y-2 bg-muted border border-border p-4 rounded-3xl">
+                  <h6 className="text-[9.5px] font-black uppercase tracking-wider text-muted-foreground mb-1">Các nhóm cơ thực hiện:</h6>
+                  <div className="grid grid-cols-2 gap-2 text-[10px] font-bold text-foreground/80">
                     {MUSCLE_STEPS.map((s, i) => (
                       <div key={i} className="flex items-center gap-1.5">
                         <span className="w-4 h-4 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-[9px] shrink-0">{i+1}</span>
@@ -581,8 +572,8 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                   <Dumbbell className="w-8 h-8" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[13px] font-black text-zinc-100">Đã Hoàn Thành Bài Tập PMR!</p>
-                  <p className="text-[10px] text-zinc-400 font-bold max-w-xs mx-auto leading-relaxed">
+                  <p className="text-[13px] font-black text-foreground">Đã Hoàn Thành Bài Tập PMR!</p>
+                  <p className="text-[10px] text-muted-foreground font-bold max-w-xs mx-auto leading-relaxed">
                     Cơ thể cậu đã được giải tỏa hoàn toàn các axit lactic tích tụ do căng thẳng kéo dài.
                   </p>
                 </div>
@@ -604,7 +595,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                           ? "bg-indigo-500"
                           : i === pmrStep
                             ? "bg-indigo-500 scale-y-110 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                            : "bg-white/10"
+                            : "bg-muted"
                       }`}
                     />
                   ))}
@@ -615,8 +606,8 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                     ? "border-destructive bg-destructive/10 scale-110 shadow-[0_0_25px_rgba(239,68,68,0.3)]"
                     : "border-indigo-500 bg-indigo-500/10 scale-100 shadow-[0_0_25px_rgba(99,102,241,0.3)]"
                 }`}>
-                  <span className="text-3xl font-black text-zinc-100">{pmrTimer}s</span>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400 mt-1">
+                  <span className="text-3xl font-black text-foreground">{pmrTimer}s</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground mt-1">
                     {pmrState === "tense" ? "Căng Cơ" : "Thả Lỏng"}
                   </span>
                 </div>
@@ -625,7 +616,7 @@ export default function BreathingTherapy({ onBack, onCompleteActivity, showToast
                   <p className="text-[12px] font-black text-indigo-400 uppercase tracking-wide">
                     {MUSCLE_STEPS[pmrStep].part}
                   </p>
-                  <p className="text-[10px] text-zinc-300 font-bold leading-relaxed min-h-[30px]">
+                  <p className="text-[10px] text-foreground/80 font-bold leading-relaxed min-h-[30px]">
                     {pmrState === "tense" ? MUSCLE_STEPS[pmrStep].cue : "Từ từ thở ra qua miệng, cảm nhận sự nhẹ nhõm lan tỏa..."}
                   </p>
                 </div>

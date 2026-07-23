@@ -292,7 +292,7 @@ async function removeDuplicateIdentityAccounts(bio) {
 }
 
 // PATCH: Lock/Unlock/Approve/Reject bio
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;

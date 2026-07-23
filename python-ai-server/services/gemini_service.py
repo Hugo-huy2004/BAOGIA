@@ -1,6 +1,5 @@
 import os
 import json
-import random
 import time
 import unicodedata
 # pyrefly: ignore [missing-import]
@@ -17,14 +16,17 @@ from dotenv import load_dotenv  # type: ignore[import-not-found]
 
 # Tải biến môi trường
 load_dotenv()
+from services.memory_service import memory_service
 
 # Định nghĩa hệ thống các liệu pháp tự chữa lành của hệ thống (System Grounding)
 SYSTEM_THERAPIES_CONTEXT = """
-Hệ thống của chúng ta có 4 liệu pháp hỗ trợ sức khỏe tinh thần sau:
-1. "Điều hòa nhịp thở 4-7-8" (BreathingTherapy): Liệu pháp hít thở giúp làm dịu hệ thần kinh lập tức. Phù hợp nhất cho người bị Lo âu (Anxiety), Căng thẳng (Stress), mất ngủ (Insomnia), hoặc cơn hoảng loạn (Panic).
-2. "Ngồi Tĩnh Tâm" (MeditationTherapy): Thiền định chánh niệm giúp ổn định sóng não và giảm suy nghĩ dồn dập. Phù hợp nhất cho người bị Trầm cảm nhẹ (Depression), Căng thẳng, suy nhược tâm thần, hưng cảm nhẹ (Hypomania/Ma), hoặc lo âu ám ảnh.
-3. "Trị liệu Trầm cảm (CBT)" (DepressionCbtTherapy): Liệu pháp nhận thức - hành vi giúp tái cấu trúc các suy nghĩ tiêu cực, tự trách, tự ti. Phù hợp nhất cho người có các chỉ số Trầm cảm (Depression) từ nhẹ, vừa đến nặng hoặc có xu hướng tự ti.
-4. "Đọc sách Trị liệu" (ReadingTherapy): Đọc sách chiêm nghiệm giúp tăng hiểu biết bản thân và tìm kiếm sự bình yên tĩnh lặng. Phù hợp nhất cho người có tính Hướng nội cao (Introversion / Si cao), hoặc chỉ số sức khỏe tinh thần đang ở mức ổn định nhưng muốn phát triển bản thân.
+Hệ thống của chúng ta có 6 liệu pháp tự chữa lành sau (đều nằm trong tab "Trị Liệu"):
+1. "Hít Thở 4-7-8" (breathing, kèm sẵn Thư Giãn Cơ PMR): Làm dịu hệ thần kinh tức thì. Phù hợp nhất cho Lo âu, Căng thẳng, mất ngủ, hoặc cơn hoảng loạn.
+2. "Âm Thanh Thiên Nhiên" (soundscape): Tự phối tiếng mưa/sóng biển/lửa trại để thư giãn. Phù hợp khi cần một không gian nền yên tĩnh, không đòi hỏi tương tác.
+3. "CBT Worksheet & Lộ Trình" (depression): AI phân tích lịch sử chat, soạn bảng ghi nhận thức và lộ trình riêng. Phù hợp nhất cho người có chỉ số Trầm cảm từ nhẹ đến nặng hoặc có xu hướng tự ti, tự trách.
+4. "Viết Cảm Xúc" (writing): Viết tự do 10-15 phút giúp giảm cortisol. Phù hợp khi khó nói ra thành lời hoặc muốn giải toả riêng tư.
+5. "Vận Động Nhẹ" (exercise): 7 bài tập ngắn giải phóng endorphin. Phù hợp khi bồn chồn, cần giải toả năng lượng dư thừa.
+6. "Kết Nối Xã Hội" (social): 6 hoạt động kết nối tích cực. Phù hợp cho người đang cô đơn, lạc lõng, cần được nhắc kết nối lại với người khác.
 """
 
 SYSTEM_PSYCHOLOGY_CONTEXT = """
@@ -43,86 +45,14 @@ Hệ thống cung cấp các bài kiểm tra tâm lý (Test) giúp đánh giá t
 2. MMPI (MMPI-2, MMPI-30): Bài kiểm tra chuyên sâu về các rối loạn tâm lý lâm sàng (Nghi bệnh, Trầm cảm, Hysteria, v.v.).
 3. PHQ-9: Đánh giá chuyên sâu về mức độ Trầm cảm.
 4. GAD-7: Đánh giá chuyên sâu về mức độ Lo âu.
+5. WHO-5: Chỉ số hạnh phúc/sức khỏe tinh thần tổng quát.
+6. Big Five: Trắc nghiệm 5 nhân tố tính cách (không đo bệnh lý, giúp hiểu bản thân).
 
-QUAN TRỌNG: Khi người dùng chủ động yêu cầu "làm bài test", "kiểm tra tâm lý", bạn KHÔNG ĐƯỢC tự ý kết luận hay đưa ra link/test ngay. Bạn PHẢI:
+QUAN TRỌNG: Khi người dùng chủ động yêu cầu "làm bài test", "kiểm tra tâm lý" một cách chung chung (chưa nói rõ muốn test gì), bạn KHÔNG ĐƯỢC tự ý kết luận hay đưa ra link/test ngay. Bạn PHẢI:
 - Hỏi thăm nhẹ nhàng về các triệu chứng và tình trạng hiện tại của họ (ví dụ: dạo này có mệt mỏi, khó ngủ, hay hay lo lắng điều gì không?).
 - Dựa vào những chia sẻ đó, hãy CHỈ ĐÍCH DANH và ĐỀ XUẤT một bài test cụ thể trong danh sách trên phù hợp nhất, sau đó hướng dẫn họ tìm đến phần "Bài Test" trên hệ thống để thực hiện.
+NGOẠI LỆ: Nếu người dùng nói rõ muốn làm HẾT/TẤT CẢ các bài test hoặc muốn một "vòng kiểm tra tổng quát", bỏ qua bước hỏi triệu chứng ở trên — cứ đề xuất thẳng cả bộ test bằng marker [[SUGGEST:phq9,gad7,who5,bigfive,dass42,mmpi30]].
 """
-
-# Static templates for "Đọc Truyện AI Trị Liệu" (story sub-mode only — mood is one
-# of 6 fixed ids sent by ReadingTherapy.jsx's MOODS constant). No AI call needed:
-# the mood set is small/enumerable, unlike CBT/action-plan/deep-report which must
-# read real free-text chat history to be worth anything. Dream interpretation
-# (mood == "dream") still needs the LLM since it reads the user's actual dream text.
-STORY_TEMPLATES = {
-    "căng thẳng": [
-        {"title": "Khu Vườn Sau Mưa", "story": "{name} ơi, hãy tưởng tượng một khu vườn nhỏ sau cơn mưa vừa tạnh. Từng giọt nước còn đọng trên lá, lấp lánh dưới ánh nắng nhẹ vừa hé qua mây. Không khí thơm mùi đất ẩm, mát lành, nhẹ nhõm sau những giờ oi bức.\n\nỞ giữa vườn có một chiếc ghế gỗ cũ, ai đó đã đặt ở đó từ lâu, chỉ để dành cho người cần một chỗ ngồi yên tĩnh. {name} bước đến, ngồi xuống, để hơi ẩm mát của không khí len vào từng hơi thở.\n\nCơn mưa vừa qua tượng trưng cho mọi áp lực mà {name} đã gồng gánh — chúng đã rơi xuống, đã trôi qua, và giờ chỉ còn lại sự trong lành đọng lại. Không cần phải vội vã rời khỏi khu vườn này ngay. Cứ ngồi đó, hít thở, và cho phép tâm trí được nghỉ ngơi như đất vừa được tắm gội.\n\nKhi nắng lên cao hơn một chút, {name} sẽ thấy lòng mình cũng nhẹ nhõm như khu vườn ấy — sẵn sàng, nhưng không hối thúc."},
-        {"title": "Ngọn Hải Đăng Lặng Yên", "story": "Có một ngọn hải đăng nhỏ đứng trên mũi đá, đêm nào cũng phát ra ánh sáng đều đặn, không cần vội vã, không cần gắng sức hơn mức cần thiết. Nó chỉ cần sáng đúng nhịp của mình, và những con thuyền ngoài khơi sẽ tự tìm thấy đường.\n\n{name} đôi khi giống cơn sóng đang cố vượt qua chính mình quá nhanh. Nhưng hải đăng không chạy theo sóng — nó đứng yên, vững vàng, và ánh sáng của nó vẫn đủ để dẫn đường.\n\nHãy thử làm như ngọn hải đăng ấy một chút: không cần rực sáng hơn ai, chỉ cần đều đặn, chỉ cần là chính mình ở thời điểm này. Áp lực rồi sẽ qua như từng con sóng vỗ vào đá rồi tan ra thành bọt trắng.\n\nNgọn hải đăng vẫn đứng đó, lặng yên, cho đến khi trời sáng."}
-    ],
-    "lo âu": [
-        {"title": "Chiếc Neo Giữa Biển", "story": "{name} ơi, hãy tưởng tượng cậu đang ở trên một con thuyền nhỏ, mặt biển có chút gợn sóng. Tim có thể đập nhanh hơn một chút khi thuyền chao đảo, nhưng dưới đáy thuyền có một chiếc neo chắc chắn, lặng lẽ giữ thuyền không trôi quá xa.\n\nLo âu cũng giống những gợn sóng ấy — chúng đến, làm chao đảo một chút, rồi sẽ lại lặng xuống. Chiếc neo không cần phải chống lại sóng, nó chỉ cần ở đó, vững vàng, đủ để thuyền không bị cuốn đi.\n\n{name} cũng có một chiếc neo như vậy trong mình: là hơi thở chậm, là biết rằng cơn sóng nào cũng sẽ qua. Hãy hít vào thật sâu, cảm nhận chiếc neo ấy đang giữ cậu lại, an toàn, ngay tại đây.\n\nBiển rồi sẽ lặng. Thuyền vẫn ở đó, và {name} vẫn an toàn trên đó, dù sóng có thế nào."},
-        {"title": "Tiếng Chim Sau Cơn Giông", "story": "Sau một cơn giông lớn, khu rừng thường im bặt trong vài phút — như thể vạn vật đang nín thở. Nhưng rồi, từ một cành cây ướt, một chú chim nhỏ bắt đầu hót, rụt rè lúc đầu, rồi dần dần tự tin hơn.\n\n{name} có thể đang ở trong khoảnh khắc im bặt ấy — tim còn hồi hộp, suy nghĩ còn ngổn ngang. Nhưng giống chú chim nhỏ, {name} không cần phải hót to ngay lập tức. Chỉ cần một tiếng nhỏ thôi, một hơi thở chậm thôi, cũng là khởi đầu.\n\nLo âu là cơn giông đã đến và sẽ đi. Sau nó luôn có một khoảnh lặng, và sau khoảnh lặng ấy, tiếng chim luôn tìm được cách trở lại.\n\n{name} cũng sẽ tìm lại được nhịp của mình, từng chút, từng chút một."}
-    ],
-    "buồn bã": [
-        {"title": "Ánh Đèn Trong Đêm Mưa", "story": "Có một ngôi nhà nhỏ ở cuối con phố, đêm mưa nào cũng để một ánh đèn vàng ấm sáng nơi khung cửa sổ. Không phải để gọi ai về, mà chỉ để nói rằng: dù bên ngoài có lạnh và tối đến đâu, vẫn có một nơi ấm áp đang chờ.\n\n{name} ơi, nỗi buồn cũng giống cơn mưa đêm ấy — nó đến, làm mọi thứ trở nên xám và nặng nề. Nhưng giống như ánh đèn trong câu chuyện, vẫn có một phần trong {name} luôn âm ỉ ấm áp, dù lúc này có thể đang bị mây mù che lấp.\n\nKhông cần phải vội xua tan cơn mưa. Cứ để nó rơi, cứ để mình được buồn một chút, như cách bầu trời cần mưa để rồi lại trong xanh.\n\nÁnh đèn ấy vẫn đang sáng, chờ đến khi {name} thấy đường về với chính mình."},
-        {"title": "Hạt Giống Dưới Lớp Đất Lạnh", "story": "Vào mùa đông, có những hạt giống nằm im dưới lớp đất lạnh, không có vẻ gì là đang sống. Nhưng bên trong, chúng đang lặng lẽ tích lũy năng lượng, chờ đến khi đất ấm lại để nảy mầm.\n\n{name} có thể đang cảm thấy mình giống hạt giống ấy — im lặng, nặng nề, như chẳng còn sức sống. Nhưng sự im lặng ấy không có nghĩa là kết thúc. Đó chỉ là một giai đoạn cần thiết, một khoảng nghỉ trước khi vươn lên.\n\nKhông ai trách một hạt giống vì nó chưa nảy mầm giữa mùa đông. Vậy nên {name} cũng không cần tự trách mình vì những ngày còn nặng lòng.\n\nĐất rồi sẽ ấm lại. Và khi đó, {name} sẽ biết mình đã luôn mang trong mình một sức sống lặng lẽ, chỉ đang chờ đúng thời điểm."}
-    ],
-    "cô đơn": [
-        {"title": "Ánh Trăng Chung Một Bầu Trời", "story": "Dù {name} đang ở đâu, vào đêm nay, ánh trăng vẫn đang chiếu trên rất nhiều mái nhà khác — của những người cũng đang ngồi một mình, cũng đang nghĩ về điều gì đó, cũng đang cảm thấy xa cách với thế giới xung quanh.\n\nCô đơn đôi khi khiến {name} tin rằng mình đang đứng một mình giữa một khoảng không rộng lớn. Nhưng thực ra, có rất nhiều người khác cũng đang nhìn lên cùng một bầu trời ấy, cùng một ánh trăng ấy, dù không ai nhìn thấy nhau.\n\nKhông cần phải vội tìm ai ngay lúc này. Chỉ cần biết rằng, đâu đó ngoài kia, vẫn có những người sẵn sàng chia sẻ cùng {name}, khi {name} cảm thấy đã sẵn sàng.\n\nÁnh trăng vẫn ở đó, lặng lẽ nối {name} với cả thế giới, dù trong im lặng."},
-        {"title": "Cây Cổ Thụ Giữa Cánh Đồng", "story": "Giữa một cánh đồng rộng, có một cây cổ thụ đứng một mình, không cây nào khác mọc gần nó. Nhưng nếu nhìn kỹ, dưới lòng đất, rễ của nó đang len lỏi rất xa, chạm đến mạch nước ngầm nuôi sống cả cánh đồng.\n\n{name} có thể đang cảm thấy như cây cổ thụ ấy — đứng một mình, không ai bên cạnh ngay lúc này. Nhưng sự kết nối không phải lúc nào cũng nhìn thấy được bằng mắt. Nó vẫn đang ở đó, trong những điều {name} đã từng cho đi, từng được nhận lại.\n\nCây cổ thụ không cần phải có cây khác mọc sát bên để vẫn vững chãi. Và {name} cũng vậy — sự cô đơn lúc này không có nghĩa là {name} không có giá trị hay không được yêu thương.\n\nRễ cây vẫn đang âm thầm kết nối, ngay cả khi cành lá có vẻ đứng một mình."}
-    ],
-    "mệt mỏi": [
-        {"title": "Buổi Chiều Nằm Nghỉ Trên Đồi Cỏ", "story": "Hãy tưởng tượng {name} đang nằm trên một đồi cỏ mềm, vào một buổi chiều không có việc gì phải làm. Gió thổi nhẹ, mây trôi chậm, và không có ai đòi hỏi {name} phải làm gì cả.\n\nMệt mỏi là cách cơ thể và tâm trí nhắc rằng đã đến lúc cần nghỉ, giống như cách đồng cỏ cần một khoảng lặng sau mùa gặt. Không phải vì {name} yếu đuối, mà vì {name} đã cố gắng rất nhiều, đủ để cần một quãng nghỉ thật sự.\n\nCứ nằm đó một chút, để hơi thở chậm lại theo nhịp của gió. Không cần phải đứng lên ngay. Đồng cỏ sẽ vẫn ở đó, chờ {name} khi nào sẵn sàng.\n\nVà khi {name} đứng lên, nắng chiều sẽ vẫn còn đủ ấm để soi đường về."},
-        {"title": "Dòng Sông Chảy Chậm", "story": "Có những đoạn sông chảy rất nhanh, cuộn xoáy qua đá; nhưng cũng có những đoạn sông chọn chảy chậm, hiền hòa, phản chiếu cả bầu trời trên mặt nước lặng.\n\n{name} không cần phải luôn là đoạn sông chảy nhanh. Lúc mệt mỏi, {name} được phép là đoạn sông chảy chậm — vẫn đang tiến về phía trước, chỉ là theo một nhịp độ khác, nhẹ nhàng hơn.\n\nDòng sông chảy chậm không có nghĩa là dòng sông yếu. Nó vẫn mang nước về biển, chỉ là không cần vội vã. {name} cũng vậy, vẫn đang tiến lên, dù tốc độ lúc này có chậm hơn ngày thường.\n\nCứ để mình chảy chậm một chút. Biển vẫn ở phía trước, không vội đi đâu cả."}
-    ],
-    "bình thường": [
-        {"title": "Một Ngày Bình Yên Không Tên", "story": "Có những ngày không có chuyện gì đặc biệt xảy ra — không quá vui, không quá buồn, chỉ là một ngày bình thường trôi qua êm đềm. Đó cũng là một điều đáng được trân trọng, {name} ơi.\n\nGiống như một khu vườn vào ngày không mưa không nắng gắt, chỉ có ánh sáng dịu nhẹ và không khí trong lành — những ngày bình yên như vậy là lúc tâm hồn được nghỉ ngơi, tích lũy năng lượng cho những điều sắp tới.\n\n{name} không cần phải tìm kiếm điều gì lớn lao trong một ngày như vậy. Chỉ cần để ý một chút đến những điều nhỏ — một cốc nước ấm, một bản nhạc yêu thích, một khoảnh khắc yên tĩnh.\n\nNhững ngày bình yên như thế này chính là nền tảng vững chãi để {name} tiếp tục bước đi."},
-        {"title": "Bến Đỗ Giữa Hành Trình", "story": "Một con thuyền không thể luôn lướt đi giữa biển khơi — đôi khi nó cần dừng lại ở một bến đỗ yên bình, để kiểm tra lại mọi thứ, để chuẩn bị cho hải trình tiếp theo.\n\n{name} đang ở một bến đỗ như vậy — không có sóng lớn, không có giông bão, chỉ là một khoảng lặng dễ chịu giữa hành trình dài. Đây là lúc tốt để {name} nhìn lại những gì đã qua, và nhẹ nhàng nghĩ về những gì sắp tới.\n\nKhông cần phải vội ra khơi ngay. Bến đỗ này xứng đáng được tận hưởng, đúng như nó là.\n\nKhi nào sẵn sàng, hành trình vẫn sẽ tiếp tục — nhưng ngay bây giờ, cứ để con thuyền nghỉ ngơi."}
-    ],
-}
-
-# Static templates for "Thiền Dẫn AI Cá Nhân Hoá" (mood is one of 4 fixed ids sent
-# by MeditationTherapy.jsx's MOODS constant). Each sequence follows the same
-# structure the original system-instruction required: ổn định cơ thể → hơi thở →
-# buông bỏ suy nghĩ → quan sát cảm xúc → câu kết khích lệ.
-MEDITATION_TEMPLATES = {
-    "lo âu": [
-        "Hãy ngồi thẳng lưng, thả lỏng hai vai xuống, để cơ thể cảm thấy vững vàng trên mặt đất.",
-        "Hít vào chậm qua mũi trong 4 giây, giữ lại 2 giây, rồi thở ra nhẹ nhàng trong 6 giây.",
-        "Khi một suy nghĩ lo lắng xuất hiện, chỉ cần nhận biết nó, không cần xua đuổi hay phán xét.",
-        "Hãy tưởng tượng mỗi suy nghĩ ấy là một đám mây, lướt qua bầu trời tâm trí rồi tan biến.",
-        "Cảm nhận nhịp tim của mình, cho phép nó chậm lại theo từng hơi thở sâu.",
-        "Nhắc nhở bản thân: cơn lo âu này chỉ là tạm thời, nó sẽ qua đi như mọi lần trước.",
-        "Hãy mỉm cười nhẹ, biết rằng mình đang an toàn ngay tại đây, ngay lúc này."
-    ],
-    "mất ngủ": [
-        "Hãy nằm xuống thoải mái, để toàn bộ trọng lượng cơ thể chìm vào đệm.",
-        "Thả lỏng từng phần cơ thể, bắt đầu từ ngón chân, dần lên đến đỉnh đầu.",
-        "Hít vào chậm và sâu, thở ra dài hơn một chút, để cơ thể hiểu rằng đã đến lúc nghỉ ngơi.",
-        "Để những suy nghĩ về ngày hôm nay trôi đi, như những con sóng lùi dần ra xa bờ.",
-        "Cảm nhận sự nặng nề dễ chịu đang lan dần khắp cơ thể, kéo mí mắt khép lại.",
-        "Không cần phải cố gắng ngủ — chỉ cần cho phép cơ thể được nghỉ ngơi theo cách của nó.",
-        "Hãy để giấc ngủ đến tự nhiên, nhẹ nhàng như một tấm chăn ấm đang phủ xuống."
-    ],
-    "mệt mỏi": [
-        "Hãy ngồi hoặc nằm ở vị trí thoải mái nhất, không cần giữ tư thế gồng cứng.",
-        "Hít vào một hơi đầy, cảm nhận năng lượng đang theo hơi thở lan vào cơ thể.",
-        "Thở ra chậm, để mọi căng thẳng và mệt nhọc theo đó tan biến.",
-        "Cho phép bản thân không cần làm gì cả trong vài phút này, không cần năng suất, không cần cố gắng.",
-        "Cảm nhận từng nhịp thở đang nhẹ nhàng nạp lại năng lượng cho cơ thể, như sạc pin.",
-        "Nhắc nhở bản thân rằng nghỉ ngơi không phải là lười biếng, mà là một phần cần thiết để tiếp tục.",
-        "Khi sẵn sàng, hãy mở mắt ra với một chút năng lượng mới, dù chỉ là nhỏ."
-    ],
-    "tổn thương": [
-        "Hãy đặt một tay lên ngực, cảm nhận hơi ấm và nhịp tim của chính mình.",
-        "Hít vào nhẹ nhàng, như đang ôm lấy chính bản thân mình bằng hơi thở.",
-        "Cho phép cảm giác đau ấy được tồn tại, không cần phải vội vàng xua đi hay che giấu.",
-        "Tự nói với bản thân: điều đã xảy ra không định nghĩa giá trị của mình.",
-        "Thở ra chậm, để một phần nhỏ của nỗi đau được nhẹ nhõm hơn theo mỗi lần thở.",
-        "Hãy nhớ rằng việc chữa lành không có thời hạn, và mình được phép đi với tốc độ của riêng mình.",
-        "Khi sẵn sàng, hãy nhẹ nhàng trở lại với hiện tại, biết rằng mình đang được chăm sóc."
-    ],
-}
 
 # Free OpenRouter models tried in order — a $0-balance OpenRouter account shares a
 # small daily quota across ALL free models, so any one of them (including this list's
@@ -382,22 +312,23 @@ class GeminiService:
         psych_profile = (bio or {}).get("psychProfile")
         psych_profile_block = psych_profile or "Chưa có đủ dữ liệu để nhận diện chủ đề/áp lực lặp lại."
 
+        adaptive_persona = (bio or {}).get("adaptivePersona") or {}
+        adaptive_hint = adaptive_persona.get("hint") or (bio or {}).get("adaptivePersonaHint", "")
+        adaptive_section = f"\n        Ghi chú cấu hình tự động thích ứng (Adaptive Persona): {adaptive_hint}" if adaptive_hint else ""
+
         # Semantically-recalled digests from PAST weekly reports (see
         # generate_weekly_report's memoryDigest field + server/routes/aiProxyRoutes.js
         # enrichWithLongTermMemory) — only populated near the start of a new
         # session, and only when relevant to what {name} just opened with.
-        long_term_memories = (bio or {}).get("longTermMemories")
-        if isinstance(long_term_memories, list) and long_term_memories:
-            digest_lines = "\n".join(f"- {m}" for m in long_term_memories if isinstance(m, str) and m.strip())
-            long_term_memory_section = f"""
-        Ký ức xa hơn từ các phiên trò chuyện trước (được truy xuất vì có vẻ liên quan đến tin nhắn {name} vừa mở lời) — chỉ nhắc đến nếu THỰC SỰ khớp với những gì đang diễn ra, đừng liệt kê lại nguyên văn hay ép nhắc nếu không còn phù hợp:
-        {digest_lines}
-        """
-        else:
-            long_term_memory_section = ""
+        recalled_rag = (bio or {}).get("recalledRagMemories") or (bio or {}).get("longTermMemories") or []
+        long_term_memory_section = ""
+        if recalled_rag:
+            rag_lines = "\n".join(f"  * {m}" for m in recalled_rag)
+            long_term_memory_section = f"\n        KÝ ỨC CÁ NHÂN HÓA RAG (Những chi tiết quan trọng đã lưu từ trước về {name}):\n{rag_lines}\n"
 
         return f"""
         Bạn là "Hugo Studio AI" (hay còn gọi là HugoPSY) - người bạn đồng hành tri kỷ, lắng nghe sâu sắc và hỗ trợ sức khỏe tinh thần học đường dành riêng cho học sinh, sinh viên Việt Nam.
+        {adaptive_section}
         
         MỤC TIÊU LỚN NHẤT CỦA BẠN: Khiến {name} cảm nhận được sự ấm áp, yêu thương chân thành, được ôm ấp cảm xúc và không hề đơn độc. Bạn KHÔNG PHẢI là một công cụ AI trả lời câu hỏi hay gõ văn bản thông thường — bạn là một người bạn tri kỷ bằng xương bằng thịt đang nhắn tin trực tiếp để chia sẻ.
 
@@ -409,33 +340,50 @@ class GeminiService:
 
         Nguyên tắc Giữ vững Tinh thần Hy vọng & An toàn (Hopeful & Safe Presence):
         - Tuyệt đối KHÔNG đồng lõa, đồng tình hoặc khuếch đại các suy nghĩ tự ti, tiêu cực, vô vọng hay muốn buông xuôi của {name} (Ví dụ: KHÔNG bao giờ nói những câu kiểu như "Đúng là cuộc sống này quá bế tắc...", "Tớ thấy mọi chuyện thật tồi tệ và không có lối thoát...").
-        - Thấu cảm chứ không bi quan: Lắng nghe và phản chiếu cảm xúc để thấu hiểu nỗi đau của {name} một cách ân cần, nhưng bản thân bạn phải luôn là điểm tựa vững chãi, mang đến năng lượng ấm áp, nhẹ nhàng và tràn đầy hy vọng.
+        - Thấu cảm chứ không bi quan: dù đang lắng nghe và ngồi cùng nỗi đau của {name}, bản thân bạn phải luôn là điểm tựa vững chãi, mang đến năng lượng ấm áp, nhẹ nhàng và tràn đầy hy vọng.
         - Luôn hướng {name} tới giá trị tốt đẹp của bản thân và những tia sáng nhỏ nhoi (Ví dụ: "Cậu đã rất dũng cảm khi vượt qua được đến tận hôm nay", "Cậu vô cùng đáng quý, và tớ luôn tin cậu sẽ vượt qua được", "Ngày mai trời lại sáng, tớ luôn ở đây cùng cậu nè").
         - Tuyệt đối không phán xét, không tranh cãi, không giảng giải đạo lý khô khan.
+        - Bình thường hóa cảm xúc (Normalization): Giúp {name} hiểu rằng lo âu, buồn, sợ hãi hay bất lực trước hoàn cảnh đó là phản ứng rất con người, không phải điểm yếu của riêng cậu ấy — để giảm bớt sự dằn vặt bản thân (Ví dụ: "Cảm giác hoang mang này là phản ứng hoàn toàn bình thường khi cậu phải đối mặt với chuyện lớn như vậy").
         
         Nguyên tắc trò chuyện để giống người thật (TUYỆT ĐỐI CẤM TÁC PHONG BOT):
         - TUYỆT ĐỐI KHÔNG sử dụng gạch đầu dòng, danh sách liệt kê, hoặc đánh số 1, 2, 3 trong câu trả lời thông thường. Bạn bè nhắn tin với nhau không bao giờ gạch đầu dòng hay liệt kê! Hãy viết thành các đoạn văn ngắn liền mạch, tự nhiên và trôi chảy.
         - Nhắn tin theo phong cách trẻ trung của thế hệ trẻ Việt Nam. Bạn có thể dùng từ viết tắt tự nhiên nhẹ nhàng (như "ko", "j", "đc", "nha", "á", "thui", "vibe", "thương cậu ghê", "tớ ở đây nè") nhưng dùng tinh tế, không lạm dụng dày đặc gây khó chịu. Nếu {name} nhắn tin nghiêm túc và có dấu câu chỉn chu, hãy tự động điều chỉnh cách xưng hô và giọng văn của bạn sâu lắng, lịch sự và trân trọng tương xứng.
         - Tránh xa sự sáo rỗng: Cấm dùng các cụm từ máy móc như "Tôi rất tiếc khi nghe...", "Với tư cách là trợ lý AI...", "Rất vui được hỗ trợ...". Hãy nói tự nhiên: "Nghe cậu kể mà tớ thấy xót ghê...", "Cậu đã phải chịu đựng chuyện này một mình lâu chưa?", "Vất vả cho cậu nhiều rồi, ôm cậu một cái thật chặt nha".
-        - Tránh giải quyết vấn đề quá nhanh: Đừng vội vã đưa ra lời khuyên hay phương pháp hành động khi {name} đang buồn. Hãy tập trung phản chiếu cảm xúc, gọi tên cảm xúc thật của họ trước. Chỉ gợi ý bài tập hay lối thoát siêu nhỏ (5-15 phút) khi họ đã nguôi ngoai và chủ động muốn thay đổi.
+        - Ngôn từ khách quan, không dán nhãn: TUYỆT ĐỐI không dùng từ phán xét/đạo đức hóa như "lười biếng", "ích kỷ", "yếu đuối", "tồi tệ" để mô tả {name}. Hãy mô tả hành vi/trải nghiệm trung lập (thay vì "Cậu quá nhạy cảm rồi" hãy nói "Tớ thấy cậu đang tổn thương nhiều trước chuyện này").
+        - Ngôn từ mở, không khẳng định tuyệt đối thay {name}: Ưu tiên các từ gợi mở như "có lẽ", "dường như", "đôi khi", "theo cách cậu nhìn nhận thì..." để {name} có không gian tự suy ngẫm, thay vì kết luận hộ cảm xúc hay suy nghĩ của họ.
+        - LUÔN kết thúc lượt trả lời bằng một câu hỏi MỞ mời {name} chia sẻ tiếp (kiểu "Điều gì...", "Như thế nào...", "Kể tớ nghe thêm về..."), TUYỆT ĐỐI tránh câu hỏi đóng dạng có/không ("...đúng không?", "...được không?", "...phải không?") làm câu cuối cùng — vì nó dễ khiến {name} chỉ đáp lại một từ cụt lủn rồi im, thay vì mở lòng kể tiếp. Ngoại lệ DUY NHẤT: khi cần xác nhận an toàn tức thời (ví dụ "Cậu đang ở chỗ an toàn không?" lúc hoảng loạn/khủng hoảng) thì được phép hỏi đóng.
+        - Tránh giải quyết vấn đề quá nhanh: đừng vội đưa lời khuyên hay phương pháp hành động khi {name} đang buồn (xem thứ tự ưu tiên ở mục "Nhiệm vụ chuyên môn" và "Khung tiến trình" bên dưới) — chỉ gợi ý bài tập hay lối thoát siêu nhỏ (5-15 phút) khi họ đã nguôi ngoai và chủ động muốn thay đổi.
         - Đọc kỹ và bám sát từng chữ người dùng nói ra: Không trả lời chung chung, không lái sang các chủ đề khác nếu không liên quan đến tâm sự của họ.
         - Biến đổi nhịp điệu câu: Độ dài câu trả lời phải biến đổi tự nhiên. Câu chào hay câu ngắn thì trả lời ngắn (1-2 câu); tâm sự sâu thì trả lời dài hơn. Tránh việc mọi câu trả lời đều dài bằng nhau.
 
         Nhiệm vụ chuyên môn (Tham vấn tâm lý đồng đẳng thông minh):
-        1. Lắng nghe tích cực (Active Listening): Phản chiếu lại cảm xúc và nội dung {name} vừa chia sẻ trước khi phản hồi hay gợi ý.
-        2. Nhận diện các bóp méo nhận thức (CBT) hoặc sự né tránh cảm xúc (ACT) để giúp họ nhận ra suy nghĩ của mình.
+        1. Lắng nghe tích cực (Active Listening): Phản chiếu lại cảm xúc và nội dung {name} vừa chia sẻ trước khi phản hồi hay gợi ý. Khi cần hỏi thêm để hiểu rõ hơn, ưu tiên câu hỏi mở kiểu "Điều gì đã...", "Lúc đó cậu cảm thấy như thế nào...", "Cái gì khiến cậu nghĩ vậy..." — hạn chế hỏi "Tại sao cậu lại..." vì dễ khiến {name} rơi vào thế phòng thủ hoặc phải giải thích/bào chữa.
+        2. Nhận diện các bóp méo nhận thức (CBT) hoặc sự né tránh cảm xúc (ACT). Khi phù hợp, dùng mô hình ABC rút gọn để giúp {name} tự tách rời sự việc khỏi suy diễn: A (sự kiện khách quan, không suy diễn) → B (niềm tin/suy diễn đang gây ra cảm xúc, ví dụ "chắc chắn người ta ghét mình") → C (cảm xúc là hệ quả của B, không phải của A). Đừng bác bỏ thẳng suy nghĩ của {name} — thay vào đó hỏi mở kiểu "Ngoài khả năng đó ra, còn lý do nào khác có thể giải thích chuyện này không?" để chính {name} tự nới suy nghĩ của mình ra.
         3. Gợi ý làm các bài test sức khỏe tinh thần phù hợp (PHQ-9, GAD-7, DASS-21, WHO-5) khi cuộc hội thoại bộc lộ triệu chứng lo âu, trầm cảm kéo dài.
-        4. Giới thiệu nhẹ nhàng các liệu pháp sẵn có trên hệ thống (hít thở 4-7-8, thiền dẫn chánh niệm, CBT worksheet) để giúp họ tự điều hòa.
+        4. Giới thiệu nhẹ nhàng các liệu pháp sẵn có trên hệ thống (hít thở 4-7-8, CBT worksheet, viết cảm xúc, vận động nhẹ, kết nối xã hội, âm thanh thiên nhiên) để giúp họ tự điều hòa — xem chi tiết ở "Hệ thống liệu pháp" bên dưới.
+        5. Khi {name} đang hoảng loạn/lo âu cấp tính (khó thở, tim đập nhanh, run rẩy, mất kiểm soát), hướng dẫn ngay kỹ thuật định tâm 5-4-3-2-1 ngay trong chat: lần lượt và từng bước một (không dồn hết vào một tin) — hỏi 5 thứ {name} đang nhìn thấy quanh mình, rồi 4 thứ đang chạm/cảm nhận được trên da, rồi 3 âm thanh đang nghe thấy, rồi 2 mùi ngửi thấy, cuối cùng 1 vị đang nếm được — mục đích là kéo {name} về hiện tại, ra khỏi cơn hoảng loạn.
+
+        KHUNG TIẾN TRÌNH BUỔI TRÒ CHUYỆN (áp dụng linh hoạt theo mạch chat thực tế, không máy móc ép đúng thứ tự, và có thể lặp lại nhiều vòng trong cùng một buổi):
+        1. Mở đầu an toàn: Với {name} mới nhắn tin lần đầu hoặc sau một khoảng nghỉ dài không trò chuyện, ưu tiên một câu ngắn ấm áp mở không gian an toàn — TUYỆT ĐỐI không dồn dập hỏi nhiều câu cùng lúc trong một tin nhắn (ví dụ đừng vừa hỏi tên vừa hỏi tuổi vừa hỏi chuyện gì xảy ra trong cùng một câu).
+        2. Lắng nghe & phản chiếu trước khi phản hồi hay gợi ý (xem mục 1 ở trên).
+        3. Câu hỏi định hướng kiểu Socratic khi {name} đang kẹt trong một suy nghĩ bóp méo hoặc mông lung: MỘT câu hỏi mở tại một thời điểm (không hỏi dồn 2-3 câu liền), chọn linh hoạt giữa truy tìm bằng chứng ("Điều gì khiến cậu chắc chắn như vậy?"), góc nhìn thay thế ("Nếu bạn thân cậu rơi vào đúng hoàn cảnh này, cậu sẽ nói gì với họ?"), hoặc đo lường mức độ ("Trên thang 1-10, cảm giác đó đang ở mức mấy vậy?").
+        4. Trao quyền hành động nhỏ: CHỈ khi {name} đã nguôi ngoai và có dấu hiệu chủ động muốn thay đổi, hỏi để chính {name} tự đề xuất bước nhỏ đầu tiên thay vì áp đặt giải pháp thay họ (ví dụ "Từ những gì mình vừa nói, bước nhỏ xíu nào cậu có thể làm ngay hôm nay để thấy nhẹ hơn một chút?") — không áp đặt giải pháp lớn.
+
+        ĐỌC TÍN HIỆU ĐỂ CHỌN CHIẾN LƯỢC PHẢN HỒI PHÙ HỢP (bổ sung cho khung tiến trình ở trên, không lặp lại):
+        - {name} đang xả cảm xúc dồn dập (từ ngữ mạnh, than thở liên tục nhiều câu, viết hoa nhiều): giữ nguyên ở bước 2 (lắng nghe & phản chiếu) lâu hơn bình thường, đợi {name} dịu lại rồi mới sang bước 3-4.
+        - {name} đang tự trách bản thân (ví dụ "tại tớ mà ra hết", "tớ thật vô dụng"): ưu tiên bình thường hóa cảm xúc và một chút trắc ẩn với bản thân — nhắc {name} rằng cảm giác đó rất con người, không phải bằng chứng cho thấy họ tệ.
+        - {name} có dấu hiệu khủng hoảng nghiêm trọng (tự hại, tự tử, bạo lực nghiêm trọng): áp dụng ngay nguyên tắc an toàn đã nêu ở phần "Tính cách lõi" — ngưng mọi kỹ thuật ở trên, giữ 100% nghiêm túc dịu dàng, tập trung tuyệt đối vào an toàn.
 
         ĐỀ XUẤT MUA LIỆU PHÁP (dành cho các liệu pháp chưa mở khóa):
         - Danh sách các liệu pháp {name} ĐÃ MỞ KHÓA: {unlocked_features_str}
         - Nếu bạn muốn đề xuất một liệu pháp nằm ngoài danh sách trên (nghĩa là đang BỊ KHÓA), bạn hãy đóng vai trò người tư vấn chia sẻ lợi ích, hướng dẫn nhẹ nhàng về giá trị chữa lành của liệu pháp đó và chèn MỘT marker mua hàng ở cuối tin nhắn: [[BUY:lockKey]].
-        - Các lockKey hợp lệ: breathing (Hít thở 4-7-8), meditation (Thiền định), depression (CBT Worksheet), reading (Đọc truyện), soundscape (Âm thanh thiên nhiên), deep_report (Báo cáo chuyên sâu), action_plan (Lộ trình), unlimited_calls (Gọi thoại).
-        - Ví dụ: "Cậu có muốn thử tập thiền tĩnh tâm để lòng dịu lại không? Tớ nghĩ sẽ giúp ích cho cậu lúc này đó. [[BUY:meditation]]"
+        - Các lockKey hợp lệ: breathing (Hít thở 4-7-8), depression (CBT Worksheet), soundscape (Âm thanh thiên nhiên), writing (Viết Cảm Xúc), exercise (Vận Động Nhẹ), social (Kết Nối Xã Hội).
+        - Ví dụ: "Cậu có muốn thử bài CBT Worksheet để bóc tách suy nghĩ tiêu cực này không? Tớ nghĩ sẽ giúp ích cho cậu lúc này đó. [[BUY:depression]]"
         - Nếu liệu pháp đã mở khóa, hãy dùng marker [[SUGGEST:breathing]] (cho thở) hoặc [[SUGGEST:cbt]] (cho CBT) để hiện trực tiếp bài tập cho họ tự làm.
 
         ĐỀ XUẤT TEST (định dạng máy đọc): khi gợi ý bài test, hãy thêm MỘT marker duy nhất ở CUỐI câu: [[SUGGEST:phq9]] hoặc [[SUGGEST:gad7,who5]].
-        Mã hợp lệ: phq9, gad7, who5, mmpi. TUYỆT ĐỐI không thêm marker nếu bạn không chủ đích đề xuất.
+        Mã hợp lệ: phq9 (trầm cảm), gad7 (lo âu), who5 (hạnh phúc), bigfive (nhân cách), dass42 (stress/lo âu/trầm cảm), mmpi30 (sàng lọc 30 câu). TUYỆT ĐỐI không thêm marker nếu bạn không chủ đích đề xuất.
+        Bạn được quyền chủ động rủ {name} làm MỘT VÒNG kiểm tra tổng quát (gợi ý 2-3 mã test cùng lúc trong một marker, ví dụ [[SUGGEST:phq9,gad7,who5]]) trong hai trường hợp: (1) {name} chủ động yêu cầu ("cho tớ làm hết bài test", "kiểm tra tổng quát"...), hoặc (2) đã lâu (khoảng 2 tuần trở lên, dựa vào ngày test gần nhất trong bản tóm tắt sức khỏe tinh thần bên dưới) mà {name} chưa làm bài test nào — nhưng CHỈ rủ nhẹ nhàng, không ép, không lặp lại việc rủ này quá 1 lần trong cùng một buổi chat nếu {name} đã từ chối hoặc phớt lờ.
 
         CẬP NHẬT HỒ SƠ (định dạng máy đọc): khi người dùng yêu cầu đổi thông tin hồ sơ của họ, hãy thêm MỘT marker ở CUỐI câu trả lời: [UPDATE_PROFILE: {{"headline":"..."}}]. Chỉ dùng các khoá: headline (biệt danh), bio, hobbies, height, weight, measurements, address, skills, jobTitle. TUYỆT ĐỐI KHÔNG đổi họ tên, ngày sinh, số điện thoại, học vấn, email.
 
@@ -445,6 +393,7 @@ class GeminiService:
         - Cá nhân hóa dựa trên hồ sơ người dùng ({age_context}){audio_note}
         - BẢO MẬT: KHÔNG được chủ động hỏi xin số điện thoại, địa chỉ nhà, hoặc thông tin cá nhân.
         - Hãy chủ động vận dụng bản tóm tắt chỉ số sức khỏe tinh thần (streak check-in, điểm test gần nhất...) được cung cấp dưới đây để trò chuyện như thể bạn luôn nhớ hành trình của {name}. Đọc kỹ lịch sử hội thoại (history) được truyền vào — đừng hỏi lại điều {name} vừa mới kể, và đừng trả lời chung chung như thể đây là tin nhắn đầu tiên nếu đã trò chuyện trước đó.
+        - Lưu ý cốt lõi: Mục tiêu tối thượng của cậu KHÔNG PHẢI là chứng minh mình đúng hay giải quyết hộ vấn đề của {name}, mà là trao quyền để {name} tự thấu hiểu và tự chữa lành cho chính mình.
 
         Tóm tắt sức khỏe tinh thần gần đây của {name}:
         {wellness_summary_block}
@@ -809,11 +758,20 @@ class GeminiService:
 
 
     async def generate_chat_response_stream(self, message: str, history: Optional[list] = None, bio: Optional[dict] = None) -> AsyncGenerator[str, None]:
-        """
-        Tạo phản hồi chat dưới dạng stream (Generator).
-        """
-        name, _, _ = self._extract_name_and_age(bio)
-        system_instruction = self._build_wellness_system_instruction(bio, mode='chat')
+        user_id = (bio or {}).get("userId") or (bio or {}).get("email") or "unknown"
+        # Auto-extract atomic memory
+        try:
+            memory_service.extract_atomic_memories_rule_based(user_id, message)
+        except Exception:
+            pass
+
+        # Retrieve recalled RAG memories
+        recalled = memory_service.retrieve_relevant_memories(user_id, message)
+        bio_copy = dict(bio or {})
+        bio_copy["recalledRagMemories"] = recalled
+
+        name, _, _ = self._extract_name_and_age(bio_copy)
+        system_instruction = self._build_wellness_system_instruction(bio_copy, mode='chat')
 
         client = self._ensure_client()
         if not client:
@@ -1809,128 +1767,6 @@ Tạo thông báo push cá nhân hoá phù hợp nhất.
     # free tier: real AI-generated content personalised to the user's actual
     # mood/history, instead of static scripted text.
 
-    async def generate_therapeutic_story(self, mood: Optional[str] = None, context: str = "", bio: Optional[dict] = None) -> dict:
-        """"Đọc Truyện AI Trị Liệu" — sinh một truyện ngắn trị liệu cá nhân hoá theo mood thực."""
-        name, age_context, _ = self._extract_name_and_age(bio)
-
-        # Story sub-mode: mood is one of 6 fixed ids — no need to spend an AI call,
-        # answer from the static template library instead. Dream interpretation
-        # (mood == "dream") still needs the LLM since it must read free-text dream content.
-        if mood in STORY_TEMPLATES:
-            variant = random.choice(STORY_TEMPLATES[mood])
-            return {"title": variant["title"], "story": variant["story"].format(name=name)}
-
-        client = self._ensure_client()
-        if not client:
-            return {
-                "title": "Khu Vườn Yên Tĩnh",
-                "story": f"Chào {name}, hôm nay tớ chưa thể kể chuyện vì chưa có API Key. Hãy nhắc admin cấu hình nhé!"
-            }
-
-        system_instruction = f"""
-Bạn là người kể chuyện trị liệu (Bibliotherapy Narrator) của Hugo Studio AI.
-Nhiệm vụ: Viết MỘT truyện ngắn trị liệu (300-450 từ) dành riêng cho {name} ({age_context}), dựa trên tâm trạng hiện tại: "{mood or 'chưa rõ'}".
-Ngữ cảnh thêm: {context or 'không có'}.
-
-YÊU CẦU:
-- Câu chuyện phải mang tính ẩn dụ/ngụ ngôn nhẹ nhàng (không giảng đạo lý trực tiếp), giúp người đọc cảm thấy được thấu hiểu và dịu lại.
-- Nhịp văn chậm, êm, nhiều hình ảnh giác quan (ánh sáng, âm thanh, hơi thở) — phù hợp để ĐỌC TO/NGHE qua giọng đọc TTS.
-- Kết thúc bằng một hình ảnh/cảm giác bình yên, KHÔNG dạy đời.
-- Văn phong tiếng Việt tự nhiên, không công thức.
-
-Trả về JSON CHÍNH XÁC:
-{{
-  "title": "Tên truyện ngắn (dưới 8 từ)",
-  "story": "Toàn bộ nội dung truyện"
-}}
-"""
-        prompt = "Hãy viết truyện ngắn trị liệu theo đúng yêu cầu."
-        max_retries = max(1, len(self.api_keys))
-        for attempt in range(max_retries):
-            try:
-                response = await client.aio.models.generate_content(
-                    model=self.model_name,
-                    contents=[prompt],
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        response_mime_type="application/json",
-                        temperature=0.9
-                    )
-                )
-                return json.loads(response.text)
-            except Exception as e:
-                err_str = str(e)
-                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
-                    client = self._get_next_client()
-                    continue
-                print(f"Lỗi gọi Gemini API (generate_therapeutic_story): {err_str}")
-                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.9)
-                if fallback:
-                    return fallback
-                raise RuntimeError("Tớ chưa thể kể chuyện lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
-        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.9)
-        if fallback:
-            return fallback
-        raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể kể chuyện ngay lúc này. Cậu thử lại sau nhé!")
-
-    async def generate_meditation_script(self, mood: Optional[str] = None, context: str = "", bio: Optional[dict] = None) -> dict:
-        """"Thiền Dẫn AI Cá Nhân Hoá" — sinh 6-8 câu giọng dẫn thiền theo mood/dữ liệu lâm sàng thực."""
-        name, age_context, _ = self._extract_name_and_age(bio)
-
-        # Mood is one of 4 fixed ids — no need to spend an AI call, the structured
-        # sequence (body -> breath -> thoughts -> emotion -> encouragement) is static.
-        if mood in MEDITATION_TEMPLATES:
-            return {"phrases": list(MEDITATION_TEMPLATES[mood])}
-
-        client = self._ensure_client()
-        if not client:
-            return {"phrases": [
-                "Hãy nhắm mắt lại, thẳng lưng và để cơ thể thả lỏng hoàn toàn.",
-                "Hít vào chậm qua mũi, cảm nhận bụng phồng lên, rồi thở ra nhẹ nhàng qua miệng."
-            ]}
-
-        system_instruction = f"""
-Bạn là hướng dẫn viên thiền chánh niệm (Mindfulness Guide) của Hugo Studio AI.
-Nhiệm vụ: Soạn 6-8 câu giọng dẫn thiền (guided meditation script) CÁ NHÂN HOÁ cho {name} ({age_context}), dựa trên tâm trạng hiện tại: "{mood or 'chưa rõ'}" và ngữ cảnh: {context or 'không có'}.
-
-YÊU CẦU:
-- Mỗi câu là MỘT chỉ dẫn ngắn (dưới 25 từ), nhịp chậm, phù hợp để đọc to qua giọng nói TTS với khoảng nghỉ giữa các câu.
-- Thứ tự hợp lý: ổn định cơ thể → hơi thở → buông bỏ suy nghĩ → quan sát cảm xúc hiện tại → câu kết khích lệ.
-- Nếu mood cho thấy lo âu/căng thẳng cao, ưu tiên các câu làm dịu hệ thần kinh (grounding).
-- Nếu mood cho thấy trầm/mệt mỏi, ưu tiên các câu nhẹ nhàng khơi dậy năng lượng tích cực, không ép buộc.
-
-Trả về JSON CHÍNH XÁC:
-{{ "phrases": ["câu 1", "câu 2", "..."] }}
-"""
-        prompt = "Hãy soạn script thiền theo đúng yêu cầu."
-        max_retries = max(1, len(self.api_keys))
-        for attempt in range(max_retries):
-            try:
-                response = await client.aio.models.generate_content(
-                    model=self.model_name,
-                    contents=[prompt],
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        response_mime_type="application/json",
-                        temperature=0.7
-                    )
-                )
-                return json.loads(response.text)
-            except Exception as e:
-                err_str = str(e)
-                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
-                    client = self._get_next_client()
-                    continue
-                print(f"Lỗi gọi Gemini API (generate_meditation_script): {err_str}")
-                fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.7)
-                if fallback:
-                    return fallback
-                raise RuntimeError("Tớ chưa thể soạn bài thiền lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
-        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.7)
-        if fallback:
-            return fallback
-        raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể soạn bài thiền ngay lúc này. Cậu thử lại sau nhé!")
-
     async def generate_cbt_worksheet(self, history_logs: list, chat_messages: list, bio: Optional[dict] = None) -> dict:
         """"CBT Worksheet Cá Nhân Hoá" — sinh bảng ghi nhận suy nghĩ CBT thật từ lịch sử chat/checkin."""
         name, age_context, _ = self._extract_name_and_age(bio)
@@ -1994,105 +1830,6 @@ Trả về JSON CHÍNH XÁC:
                 print(f"Lỗi gọi Gemini API (generate_cbt_worksheet): {err_str}")
                 raise RuntimeError("Tớ chưa thể soạn bảng CBT lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!")
         raise RuntimeError("Tất cả API Key đã bị quá tải, tớ chưa thể soạn bảng CBT ngay lúc này. Cậu thử lại sau nhé!")
-
-    async def generate_action_plan(self, history_logs: list, bio: Optional[dict] = None) -> dict:
-        """"Lộ Trình Hoạt Động Cá Nhân Hoá" — gộp viết/vận động/kết nối thành 1 kế hoạch 7 ngày."""
-        name, age_context, _ = self._extract_name_and_age(bio)
-
-        recent_logs = (history_logs or [])[-15:]
-
-        system_instruction = f"""
-Bạn là chuyên gia tâm lý học đường thiết kế lộ trình hoạt động (Behavioral Activation Coach) của Hugo Studio AI.
-Nhiệm vụ: Dựa trên dữ liệu thật của {name} ({age_context}), thiết kế MỘT lộ trình hoạt động cá nhân hoá cho 7 ngày tới, kết hợp 3 trụ cột: Viết (giải tỏa cảm xúc), Vận động nhẹ, Kết nối xã hội.
-
-YÊU CẦU:
-- Mỗi ngày CHỈ 1 hoạt động cụ thể, nhỏ, khả thi (không yêu cầu quá nhiều).
-- Luân phiên hợp lý giữa 3 trụ cột tuỳ theo trạng thái của người dùng (ví dụ: nếu có dấu hiệu thu mình/ít kết nối, tăng tỷ trọng "Kết nối xã hội").
-- Văn phong khích lệ, không áp lực.
-
-Trả về JSON CHÍNH XÁC:
-{{
-  "week_theme": "Chủ đề ngắn cho cả tuần (dưới 10 từ)",
-  "days": [
-    {{ "day": 1, "pillar": "writing|movement|social", "title": "Tên hoạt động ngắn", "action": "Hướng dẫn cụ thể (1-2 câu)" }}
-  ]
-}}
-(days phải có đủ 7 phần tử, day từ 1 đến 7)
-"""
-        prompt = (
-            f"Lịch sử hoạt động gần đây:\n{json.dumps(recent_logs, ensure_ascii=False, default=str)}\n\n"
-            "Hãy thiết kế lộ trình 7 ngày theo đúng yêu cầu."
-        )
-
-        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.75)
-        if fallback:
-            return fallback
-
-        client = self._ensure_client()
-        if not client:
-            return {"error": "No API Key"}
-        max_retries = max(1, len(self.api_keys))
-        for attempt in range(max_retries):
-            try:
-                response = await client.aio.models.generate_content(
-                    model=self.model_name,
-                    contents=[prompt],
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        response_mime_type="application/json",
-                        temperature=0.75
-                    )
-                )
-                return json.loads(response.text)
-            except Exception as e:
-                err_str = str(e)
-                if any(x in err_str.upper() for x in ["429", "QUOTA", "503", "500"]) and attempt < max_retries - 1:
-                    client = self._get_next_client()
-                    continue
-                print(f"Lỗi gọi Gemini API (generate_action_plan): {err_str}")
-                return {"error": "Tớ chưa thể tạo lộ trình lúc này, máy chủ AI đang quá tải. Cậu thử lại sau ít phút nhé!"}
-        return {"error": "Tất cả API Key đã bị quá tải, tớ chưa thể tạo lộ trình ngay lúc này. Cậu thử lại sau nhé!"}
-
-    async def generate_deep_report(self, history_logs: list, chat_messages: list, bio: Optional[dict] = None) -> dict:
-        """"Báo Cáo Tâm Lý Chuyên Sâu" — báo cáo dạng chia sẻ được cho chuyên viên thật (không chỉ tóm tắt tuần)."""
-        name, age_context, _ = self._extract_name_and_age(bio)
-
-        system_instruction = f"""
-Bạn là chuyên gia tâm lý lâm sàng soạn HỒ SƠ TỔNG HỢP (Clinical Summary Report) cho {name} ({age_context}), với mục đích người dùng có thể IN RA hoặc CHIA SẺ cho một chuyên viên/bác sĩ tâm lý THẬT để được hỗ trợ tiếp.
-
-YÊU CẦU:
-- Văn phong khách quan, chuyên môn, súc tích — đây là tài liệu tham khảo y tế, không phải lời động viên.
-- Dựa HOÀN TOÀN trên dữ liệu thật được cung cấp, không suy diễn quá mức.
-- Phải nêu rõ: đây là công cụ hỗ trợ tự theo dõi, KHÔNG phải chẩn đoán y khoa chính thức.
-
-Trả về JSON CHÍNH XÁC:
-{{
-  "report_date": "ngày tạo báo cáo (DD/MM/YYYY)",
-  "overview": "Tổng quan tình trạng tâm lý trong giai đoạn theo dõi (3-4 câu, khách quan)",
-  "mood_trend_summary": "Diễn giải xu hướng tâm trạng theo thời gian",
-  "clinical_test_summary": "Tổng hợp kết quả các bài test lâm sàng đã làm (nếu có), kèm thang điểm",
-  "risk_indicators": ["Chỉ số rủi ro 1 nếu có", "..."],
-  "strengths_and_progress": ["Điểm tích cực/tiến bộ quan sát được 1", "..."],
-  "recommendations_for_specialist": ["Gợi ý hướng theo dõi/can thiệp tiếp theo dành cho chuyên viên 1", "..."],
-  "disclaimer": "Câu khẳng định đây là công cụ tự theo dõi, không thay thế chẩn đoán y khoa chính thức."
-}}
-"""
-        prompt = (
-            f"Lịch sử hoạt động/checkin/test gần đây (tối đa 40 mục):\n{json.dumps((history_logs or [])[-40:], ensure_ascii=False, default=str)}\n\n"
-            f"Trích đoạn hội thoại gần đây (tối đa 15 tin gần nhất):\n{json.dumps((chat_messages or [])[-15:], ensure_ascii=False, default=str)}\n\n"
-            f"Ngày hiện tại: {datetime.now().strftime('%d/%m/%Y')}\n\n"
-            "Hãy soạn báo cáo tổng hợp theo đúng yêu cầu."
-        )
-
-        result = await self._generate_json_cascade(system_instruction, prompt, temperature=0.4)
-        if result:
-            return result
-
-        fallback = await self._try_openrouter_json(system_instruction, prompt, temperature=0.4)
-        if fallback:
-            return fallback
-
-        return {"error": "Tất cả API Key đã bị quá tải, tớ chưa thể soạn báo cáo ngay lúc này. Cậu thử lại sau nhé!"}
 
     # Keep in sync with the `tier` field of INTENT_DATABASE in
     # src/components/member/banhocduong/constants/intentClassifier.js

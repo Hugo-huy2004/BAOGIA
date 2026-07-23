@@ -5,7 +5,7 @@ import {
   ChevronDown, Plus, Trash2, BarChart2, Brain, Zap, Wifi, Battery,
   Smartphone, Eye, Activity, ShieldCheck, Edit3, X, Target, Flame,
   Coffee, Droplets, Dumbbell, Monitor, BedDouble, Timer, ArrowUp, ArrowDown,
-  Calendar, TrendingDown, Minus, Info,
+  Calendar, TrendingDown, Minus, Info, Smile, Meh, Frown, Ban, Wine,
 } from "lucide-react";
 import dataApi from "../../../services/dataApi";
 import { HugoNoticeToast } from "../../shared/HugoNotice";
@@ -16,11 +16,11 @@ const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 // ── Static data ────────────────────────────────────────────────────────────
 
 const MOODS = [
-  { value: "great",    label: "Rất tốt", emoji: "😊" },
-  { value: "good",     label: "Tốt", emoji: "🙂" },
-  { value: "okay",     label: "Bình thường", emoji: "😐" },
-  { value: "bad",      label: "Không tốt", emoji: "😔" },
-  { value: "terrible", label: "Rất tệ", emoji: "😫" },
+  { value: "great",    label: "Rất tốt", icon: Smile },
+  { value: "good",     label: "Tốt", icon: Smile },
+  { value: "okay",     label: "Bình thường", icon: Meh },
+  { value: "bad",      label: "Không tốt", icon: Frown },
+  { value: "terrible", label: "Rất tệ", icon: Frown },
 ];
 
 const QUALITY_LABELS = ["", "Rất tệ", "Tệ", "Bình thường", "Tốt", "Rất tốt"];
@@ -28,24 +28,24 @@ const QUALITY_COLORS = ["", "bg-destructive", "bg-warning", "bg-info", "bg-succe
 const QUALITY_TEXT   = ["", "text-destructive", "text-warning", "text-info", "text-success", "text-primary"];
 
 const CAFFEINE_OPTIONS = [
-  { value: "none",     label: "Không", icon: "🚫" },
-  { value: "light",    label: "Ít", icon: "☕" },
-  { value: "moderate", label: "Vừa", icon: "☕☕" },
-  { value: "heavy",    label: "Nhiều", icon: "☕☕☕" },
+  { value: "none",     label: "Không", icon: Ban },
+  { value: "light",    label: "1 ly",  icon: Coffee },
+  { value: "moderate", label: "2 ly",  icon: Coffee },
+  { value: "heavy",    label: "3+ ly", icon: Coffee },
 ];
 
 const EXERCISE_OPTIONS = [
-  { value: "none",     label: "Không", icon: "🚫" },
-  { value: "light",    label: "Nhẹ", icon: "🚶" },
-  { value: "moderate", label: "Vừa", icon: "🏃" },
-  { value: "intense",  label: "Mạnh", icon: "💪" },
+  { value: "none",     label: "Không",    icon: Ban },
+  { value: "light",    label: "Đi bộ",    icon: Activity },
+  { value: "moderate", label: "Chạy bộ",  icon: Activity },
+  { value: "intense",  label: "Gym/Nặng", icon: Flame },
 ];
 
 const ALCOHOL_OPTIONS = [
-  { value: "none",     label: "Không", icon: "🚫" },
-  { value: "light",    label: "Ít", icon: "🍺" },
-  { value: "moderate", label: "Vừa", icon: "🍷" },
-  { value: "heavy",    label: "Nhiều", icon: "🥃" },
+  { value: "none",     label: "Không", icon: Ban },
+  { value: "light",    label: "1 ly",  icon: Wine },
+  { value: "moderate", label: "2 ly",  icon: Wine },
+  { value: "heavy",    label: "3+ ly", icon: Wine },
 ];
 
 const ENV_OPTIONS = [
@@ -149,6 +149,126 @@ function ScoreRing({ score, size = 80, stroke = 6 }) {
         transition={{ duration: 1.2, ease: "easeOut" }}
       />
     </svg>
+  );
+}
+
+// ── 90-Minute Circadian Sleep Calculator Widget ───────────────────────────
+function CircadianSleepCalculator() {
+  const [calcMode, setCalcMode] = useState("wake"); // "wake" (wake time target) or "now" (sleep now)
+  const [targetTime, setTargetTime] = useState("06:30");
+
+  // Calculate 90-minute sleep cycles (latency = 15 mins)
+  const calculateWindows = useMemo(() => {
+    const LATENCY_MINS = 15;
+    if (calcMode === "wake") {
+      const [h, m] = targetTime.split(":").map(Number);
+      const wakeDate = new Date();
+      wakeDate.setHours(h || 6, m || 30, 0, 0);
+
+      return [6, 5, 4, 3].map(cycles => {
+        const sleepMins = cycles * 90 + LATENCY_MINS;
+        const bedDate = new Date(wakeDate.getTime() - sleepMins * 60 * 1000);
+        const pad = n => String(n).padStart(2, "0");
+        const timeStr = `${pad(bedDate.getHours())}:${pad(bedDate.getMinutes())}`;
+        const hoursTotal = (cycles * 1.5).toFixed(1);
+        return {
+          cycles,
+          timeStr,
+          hoursTotal,
+          label: cycles === 5 ? "Tối ưu nhất (5 chu kỳ)" : `${cycles} chu kỳ (${hoursTotal}h)`,
+          recommended: cycles === 5,
+        };
+      });
+    } else {
+      const now = new Date();
+      return [3, 4, 5, 6].map(cycles => {
+        const sleepMins = cycles * 90 + LATENCY_MINS;
+        const wakeDate = new Date(now.getTime() + sleepMins * 60 * 1000);
+        const pad = n => String(n).padStart(2, "0");
+        const timeStr = `${pad(wakeDate.getHours())}:${pad(wakeDate.getMinutes())}`;
+        const hoursTotal = (cycles * 1.5).toFixed(1);
+        return {
+          cycles,
+          timeStr,
+          hoursTotal,
+          label: cycles === 5 ? "Tỉnh táo nhất (5 chu kỳ)" : `${cycles} chu kỳ (${hoursTotal}h)`,
+          recommended: cycles === 5,
+        };
+      });
+    }
+  }, [calcMode, targetTime]);
+
+  return (
+    <div className="p-5 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-muted/30 shadow-md space-y-4 text-left">
+      <div className="flex items-center justify-between border-b border-border/50 pb-3">
+        <div className="flex items-center gap-2">
+          <Moon className="w-4 h-4 text-primary animate-pulse" />
+          <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+            Tính Chu Kỳ Giấc Ngủ Sinh Học 90 Phút (Circadian Cycle)
+          </h4>
+        </div>
+        <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase bg-primary/15 text-primary border border-primary/20">
+          Chuẩn Khoa Học NREM/REM
+        </span>
+      </div>
+
+      {/* Mode Selector */}
+      <div className="grid grid-cols-2 gap-2 bg-muted/50 p-1 rounded-xl">
+        <button
+          type="button"
+          onClick={() => setCalcMode("wake")}
+          className={`py-1.5 px-3 rounded-lg text-[10px] font-black transition-all ${
+            calcMode === "wake" ? "bg-white dark:bg-card text-primary shadow-xs" : "text-muted-foreground"
+          }`}
+        >
+          ⏰ Thức dậy lúc...
+        </button>
+        <button
+          type="button"
+          onClick={() => setCalcMode("now")}
+          className={`py-1.5 px-3 rounded-lg text-[10px] font-black transition-all ${
+            calcMode === "now" ? "bg-white dark:bg-card text-primary shadow-xs" : "text-muted-foreground"
+          }`}
+        >
+          🌙 Đi ngủ ngay bây giờ...
+        </button>
+      </div>
+
+      {/* Input target time */}
+      {calcMode === "wake" && (
+        <div className="flex items-center justify-between bg-muted/30 p-2.5 rounded-xl border border-border/40">
+          <span className="text-[10.5px] font-bold text-muted-foreground">Giờ thức dậy mong muốn:</span>
+          <input
+            type="time"
+            value={targetTime}
+            onChange={e => setTargetTime(e.target.value)}
+            className="px-2.5 py-1 rounded-lg bg-background border border-border text-xs font-mono font-black text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
+      )}
+
+      {/* Results Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {calculateWindows.map((win, idx) => (
+          <div
+            key={idx}
+            className={`p-3 rounded-xl border text-center transition-all ${
+              win.recommended
+                ? "bg-primary/15 border-primary/40 shadow-sm"
+                : "bg-muted/20 border-border/40"
+            }`}
+          >
+            <p className="text-[8.5px] font-black uppercase text-muted-foreground">{win.label}</p>
+            <p className="text-base font-mono font-black text-foreground mt-0.5">{win.timeStr}</p>
+            <p className="text-[9px] font-bold text-primary">{win.hoursTotal} giờ ngủ</p>
+          </div>
+        ))}
+      </div>
+
+      <p className="text-[9.5px] text-muted-foreground font-semibold leading-relaxed italic border-t border-border/40 pt-2">
+        💡 **Mẹo:** Mỗi chu kỳ giấc ngủ kéo dài 90 phút (đi qua các pha NREM, Ngủ Sâu N3 & REM). Thức dậy ở cuối chu kỳ giúp cậu tỉnh táo hoàn toàn, không bị uể oải hay nhức đầu.
+      </p>
+    </div>
   );
 }
 
@@ -623,6 +743,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         )}
       </div>
 
+      {/* ── 90-Minute Circadian Sleep Calculator Widget ── */}
+      <CircadianSleepCalculator />
+
       {/* ── Sleep Score Dashboard ────────────────────────────── */}
       {didFetch && sleepScore && (
         <div className={`bg-gradient-to-br ${getScoreGradient(sleepScore.total)} border border-border/50 rounded-2xl p-5 space-y-4`}>
@@ -866,7 +989,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
               {/* Sleep quality */}
               <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-2 flex justify-between">
+                <label className="text-xs font-bold text-muted-foreground mb-2 flex justify-between">
                   <span>Chất lượng giấc ngủ</span>
                   <span className={`font-black ${QUALITY_TEXT[form.quality]}`}>{QUALITY_LABELS[form.quality]}</span>
                 </label>
@@ -874,144 +997,164 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                   {[1,2,3,4,5].map(q => (
                     <button key={q} type="button"
                       onClick={() => updateForm("quality", q)}
-                      className={`flex-1 h-9 rounded-lg text-xs font-bold border transition-all
-                        ${form.quality === q ? `${QUALITY_COLORS[q]} text-white border-transparent`
-                          : "bg-muted/30 border-border text-muted-foreground"}`}
-                    >{q}</button>
+                      className={`flex-1 py-2 rounded-xl text-xs font-extrabold border transition-all flex flex-col items-center justify-center gap-0.5 active:scale-95
+                        ${form.quality === q ? `${QUALITY_COLORS[q]} text-white border-transparent shadow-md shadow-primary/20`
+                          : "bg-muted/20 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
+                    >
+                      <span className="text-sm font-black">{q}</span>
+                    </button>
                   ))}
                 </div>
               </div>
 
               {/* Clinical metrics row */}
-              <div className="bg-muted/10 rounded-xl p-3 space-y-3 border border-border/30">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <Info className="w-3 h-3" /> Chỉ số lâm sàng
+              <div className="bg-muted/15 dark:bg-muted/10 rounded-2xl p-4 space-y-3 border border-border/50">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-primary" /> Chỉ số lâm sàng
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1 flex items-center gap-1">
                       <Timer className="w-3 h-3" /> Delay (phút)
                     </label>
                     <input type="number" min={0} max={120} value={form.sleepLatency}
                       onChange={e => updateForm("sleepLatency", Number(e.target.value))}
-                      className="w-full bg-background border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
+                      className="w-full bg-background/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground font-semibold"
                       placeholder="15" />
-                    <span className="text-[9px] text-muted-foreground">Lý tưởng: 10-20 phút</span>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 block">Lý tưởng: 10–20 phút</span>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1 flex items-center gap-1">
-                      <Zap className="w-3 h-3" /> tỉnh giấc
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1 flex items-center gap-1">
+                      <Zap className="w-3 h-3" /> Tỉnh giấc
                     </label>
                     <input type="number" min={0} max={20} value={form.awakenings}
                       onChange={e => updateForm("awakenings", Number(e.target.value))}
-                      className="w-full bg-background border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
+                      className="w-full bg-background/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground font-semibold"
                       placeholder="0" />
-                    <span className="text-[9px] text-muted-foreground">Lý tưởng: 0-1 lần</span>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 block">Lý tưởng: 0–1 lần</span>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1 flex items-center gap-1">
                       <BedDouble className="w-3 h-3" /> WASO (phút)
                     </label>
                     <input type="number" min={0} max={180} value={form.wakeAfterSleepOnset}
                       onChange={e => updateForm("wakeAfterSleepOnset", Number(e.target.value))}
-                      className="w-full bg-background border border-border rounded-lg px-2 py-1.5 text-xs text-foreground"
+                      className="w-full bg-background/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground font-semibold"
                       placeholder="0" />
-                    <span className="text-[9px] text-muted-foreground">Thức sau khi ngủ</span>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 block">Thức sau khi ngủ</span>
                   </div>
                 </div>
               </div>
 
               {/* Behavioral context */}
-              <div className="bg-muted/10 rounded-xl p-3 space-y-3 border border-border/30">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <Activity className="w-3 h-3" /> Hoạt động trước khi ngủ
+              <div className="bg-muted/15 dark:bg-muted/10 rounded-2xl p-4 space-y-4 border border-border/50">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-primary" /> Hoạt động trước khi ngủ
                 </p>
 
                 {/* Screen time */}
                 <div>
-                  <label className="text-[10px] font-semibold text-muted-foreground mb-1 flex items-center gap-1">
+                  <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
                     <Monitor className="w-3 h-3" /> Thời gian màn hình (phút)
                   </label>
                   <input type="range" min={0} max={240} step={5} value={form.screenTime}
                     onChange={e => updateForm("screenTime", Number(e.target.value))}
-                    className="w-full h-1.5 bg-muted/30 rounded-full appearance-none cursor-pointer accent-primary" />
-                  <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
+                    className="w-full h-1.5 bg-muted/40 rounded-full appearance-none cursor-pointer accent-primary" />
+                  <div className="flex justify-between text-[9px] text-muted-foreground mt-1">
                     <span>0 phút</span>
-                    <span className={`font-bold ${form.screenTime > 60 ? "text-destructive" : form.screenTime > 30 ? "text-warning" : "text-success"}`}>
+                    <span className={`font-black ${form.screenTime > 60 ? "text-destructive" : form.screenTime > 30 ? "text-warning" : "text-success"}`}>
                       {form.screenTime} phút {form.screenTime > 60 ? "⚠️" : ""}
                     </span>
                     <span>4h</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* Caffeine */}
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
                       <Coffee className="w-3 h-3" /> Caffeine
                     </label>
-                    <div className="flex gap-1">
-                      {CAFFEINE_OPTIONS.map(o => (
-                        <button key={o.value} type="button"
-                          onClick={() => updateForm("caffeine", o.value)}
-                          className={`flex-1 py-1 rounded-md text-[10px] font-semibold border transition-all
-                            ${form.caffeine === o.value
-                              ? "bg-primary/20 border-primary/40 text-primary"
-                              : "bg-muted/20 border-border text-muted-foreground"}`}
-                        >{o.icon}</button>
-                      ))}
+                    <div className="flex gap-1.5">
+                      {CAFFEINE_OPTIONS.map(o => {
+                        const Icon = o.icon;
+                        return (
+                          <button key={o.value} type="button"
+                            onClick={() => updateForm("caffeine", o.value)}
+                            className={`flex-1 py-1.5 px-1.5 rounded-xl text-[10px] font-black border transition-all flex items-center justify-center gap-1 active:scale-95
+                              ${form.caffeine === o.value
+                                ? "bg-primary/20 border-primary/50 text-primary shadow-sm"
+                                : "bg-background/80 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
+                          >
+                            <Icon className="w-3 h-3 shrink-0" />
+                            <span>{o.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Exercise */}
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
                       <Dumbbell className="w-3 h-3" /> Vận động
                     </label>
-                    <div className="flex gap-1">
-                      {EXERCISE_OPTIONS.map(o => (
-                        <button key={o.value} type="button"
-                          onClick={() => updateForm("exercise", o.value)}
-                          className={`flex-1 py-1 rounded-md text-[10px] font-semibold border transition-all
-                            ${form.exercise === o.value
-                              ? "bg-primary/20 border-primary/40 text-primary"
-                              : "bg-muted/20 border-border text-muted-foreground"}`}
-                        >{o.icon}</button>
-                      ))}
+                    <div className="flex gap-1.5">
+                      {EXERCISE_OPTIONS.map(o => {
+                        const Icon = o.icon;
+                        return (
+                          <button key={o.value} type="button"
+                            onClick={() => updateForm("exercise", o.value)}
+                            className={`flex-1 py-1.5 px-1.5 rounded-xl text-[10px] font-black border transition-all flex items-center justify-center gap-1 active:scale-95
+                              ${form.exercise === o.value
+                                ? "bg-primary/20 border-primary/50 text-primary shadow-sm"
+                                : "bg-background/80 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
+                          >
+                            <Icon className="w-3 h-3 shrink-0" />
+                            <span>{o.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Alcohol */}
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
                       <Droplets className="w-3 h-3" /> Rượu bia
                     </label>
-                    <div className="flex gap-1">
-                      {ALCOHOL_OPTIONS.map(o => (
-                        <button key={o.value} type="button"
-                          onClick={() => updateForm("alcohol", o.value)}
-                          className={`flex-1 py-1 rounded-md text-[10px] font-semibold border transition-all
-                            ${form.alcohol === o.value
-                              ? "bg-primary/20 border-primary/40 text-primary"
-                              : "bg-muted/20 border-border text-muted-foreground"}`}
-                        >{o.icon}</button>
-                      ))}
+                    <div className="flex gap-1.5">
+                      {ALCOHOL_OPTIONS.map(o => {
+                        const Icon = o.icon;
+                        return (
+                          <button key={o.value} type="button"
+                            onClick={() => updateForm("alcohol", o.value)}
+                            className={`flex-1 py-1.5 px-1.5 rounded-xl text-[10px] font-black border transition-all flex items-center justify-center gap-1 active:scale-95
+                              ${form.alcohol === o.value
+                                ? "bg-primary/20 border-primary/50 text-primary shadow-sm"
+                                : "bg-background/80 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
+                          >
+                            <Icon className="w-3 h-3 shrink-0" />
+                            <span>{o.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Sleep environment */}
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                    <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
                       <BedDouble className="w-3 h-3" /> Môi trường
                     </label>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1.5">
                       {ENV_OPTIONS.map(o => (
                         <button key={o.value} type="button"
                           onClick={() => updateForm("sleepEnvironment", o.value)}
-                          className={`flex-1 py-1 rounded-md text-[10px] font-semibold border transition-all
+                          className={`flex-1 py-1.5 px-1 rounded-xl text-[10px] font-black border transition-all active:scale-95
                             ${form.sleepEnvironment === o.value
-                              ? "bg-primary/20 border-primary/40 text-primary"
-                              : "bg-muted/20 border-border text-muted-foreground"}`}
+                              ? "bg-primary/20 border-primary/50 text-primary shadow-sm"
+                              : "bg-background/80 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
                         >{o.label}</button>
                       ))}
                     </div>
@@ -1020,17 +1163,17 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
                 {/* Stress level */}
                 <div>
-                  <label className="text-[10px] font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
+                  <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
                     <Brain className="w-3 h-3" /> Căng thẳng trước khi ngủ
                   </label>
                   <div className="flex gap-1.5">
                     {[1,2,3,4,5].map(s => (
                       <button key={s} type="button"
                         onClick={() => updateForm("stressLevel", s)}
-                        className={`flex-1 h-7 rounded-lg text-[10px] font-bold border transition-all
+                        className={`flex-1 h-8 rounded-xl text-[10px] font-black border transition-all active:scale-95
                           ${form.stressLevel === s
-                            ? `${s <= 2 ? "bg-success/20 border-success/40 text-success" : s === 3 ? "bg-warning/20 border-warning/40 text-warning" : "bg-destructive/20 border-destructive/40 text-destructive"}`
-                            : "bg-muted/20 border-border text-muted-foreground"}`}
+                            ? `${s <= 2 ? "bg-success/20 border-success/50 text-success" : s === 3 ? "bg-warning/20 border-warning/50 text-warning" : "bg-destructive/20 border-destructive/50 text-destructive"}`
+                            : "bg-background/80 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
                       >
                         {s === 1 ? "Rất ít" : s === 2 ? "Ít" : s === 3 ? "Vừa" : s === 4 ? "Nhiều" : "Rất nhiều"}
                       </button>
@@ -1041,17 +1184,20 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
               {/* Mood */}
               <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-2 block">Tâm trạng khi dậy</label>
+                <label className="text-xs font-bold text-muted-foreground mb-2 block">Tâm trạng khi dậy</label>
                 <div className="flex gap-2 flex-wrap">
-                  {MOODS.map(m => (
-                    <button key={m.value} type="button"
-                      onClick={() => updateForm("mood", m.value)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border flex items-center gap-1 transition-all
-                        ${form.mood === m.value
-                          ? "bg-primary/20 border-primary/40 text-primary"
-                          : "bg-muted/20 border-border text-muted-foreground"}`}
-                    >{m.icon} {m.label}</button>
-                  ))}
+                  {MOODS.map(m => {
+                    const Icon = m.icon;
+                    return (
+                      <button key={m.value} type="button"
+                        onClick={() => updateForm("mood", m.value)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-black border flex items-center gap-1.5 transition-all active:scale-95
+                          ${form.mood === m.value
+                            ? "bg-primary/20 border-primary/50 text-primary shadow-sm"
+                            : "bg-muted/20 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
+                      ><Icon className="w-3.5 h-3.5" /> {m.label}</button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1324,7 +1470,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                             {log.bedtime && log.wakeTime
                               ? `${log.bedtime} → ${log.wakeTime} · ${log.duration ? `${log.duration}h` : "?"}`
                               : "Chưa đủ dữ liệu"}
-                            {log.mood && ` · ${MOODS.find(m => m.value === log.mood)?.emoji || ""}`}
+                            {log.mood && ` · ${MOODS.find(m => m.value === log.mood)?.label || ""}`}
                             {log.sleepLatency != null && ` · Delay ${log.sleepLatency}m`}
                             {log.awakenings > 0 && ` · ${log.awakenings} lần tỉnh`}
                           </div>

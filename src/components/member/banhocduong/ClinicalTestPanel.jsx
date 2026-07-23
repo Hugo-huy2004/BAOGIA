@@ -62,6 +62,12 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           </button>
         </div>
         
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            {activeTest.standardBadge || "Tham Khảo Tự Nhận Thức"}
+          </span>
+        </div>
+        
         <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
           {activeTest.name}
         </h4>
@@ -69,8 +75,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
         {/* Every screening tool must state it is not a diagnosis — students
             should never read a result as a clinical verdict. */}
         <p className="text-[9px] font-semibold text-amber-600 dark:text-amber-400/90 leading-snug px-2">
-          ⓘ Đây là công cụ sàng lọc để tự hiểu bản thân, KHÔNG phải chẩn đoán y khoa.
-          Nếu cậu thấy lo lắng, hãy trao đổi với chuyên gia tâm lý hoặc bác sĩ.
+          {activeTest.disclaimer || "ⓘ Bài test chỉ mang tính chất tham khảo tự nhận thức, KHÔNG phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa."}
         </p>
 
         <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">

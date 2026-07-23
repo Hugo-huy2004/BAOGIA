@@ -10,7 +10,7 @@
     },
     {
       "source": "/certificate/:slug/:phase",
-      "destination": "https://api.hugowishpax.studio/api/certificate?slug=:slug&phase=:phase"
+      "destination": "https://api.hugowishpax.studio/api/bios/certificate/:slug/:phase"
     },
     {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",

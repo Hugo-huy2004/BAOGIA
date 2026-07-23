@@ -8,12 +8,14 @@ import { loadSecureMemory } from "../../../components/member/banhocduong/utils/s
 // builds that haven't adopted the marker yet.
 const SUGGEST_MARKER = /\[\[SUGGEST:\s*([a-z0-9,\s]+)\]\]/i;
 const BUY_MARKER = /\[\[BUY:\s*([a-z0-9_]+)\]\]/i;
-function extractSuggestions(text) {
+export function extractSuggestions(text) {
   const flags = {
     suggestPhq9: false,
     suggestGad7: false,
     suggestWho5: false,
     suggestBigFive: false,
+    suggestDass42: false,
+    suggestMmpi30: false,
     showInlineBreathing: false,
     showInlineCbt: false,
     showInlineBuy: null
@@ -32,7 +34,10 @@ function extractSuggestions(text) {
     flags.suggestPhq9 = ids.includes("phq9");
     flags.suggestGad7 = ids.includes("gad7");
     flags.suggestWho5 = ids.includes("who5");
-    flags.suggestBigFive = ids.includes("bigfive") || ids.includes("mmpi");
+    flags.suggestBigFive = ids.includes("bigfive");
+    // "mmpi" here means the real mmpi30 screener — previously misrouted to Big Five.
+    flags.suggestMmpi30 = ids.includes("mmpi") || ids.includes("mmpi30");
+    flags.suggestDass42 = ids.includes("dass") || ids.includes("dass42") || ids.includes("dass21");
     flags.showInlineBreathing = ids.includes("breathing") || ids.includes("breath");
     flags.showInlineCbt = ids.includes("cbt") || ids.includes("cbt_card");
     return { flags, cleanText: cleanText.replace(SUGGEST_MARKER, "").trim() };
@@ -42,6 +47,8 @@ function extractSuggestions(text) {
   flags.suggestGad7 = cleanText.includes("GAD-7");
   flags.suggestWho5 = cleanText.includes("WHO-5");
   flags.suggestBigFive = cleanText.includes("Big Five") || cleanText.includes("Nhân cách");
+  flags.suggestDass42 = cleanText.includes("DASS-21") || cleanText.includes("DASS-42") || cleanText.includes("DASS42");
+  flags.suggestMmpi30 = cleanText.includes("MMPI");
 
   // Dynamic keyword-based detection for interactive widgets
   const lowerText = cleanText.toLowerCase();
@@ -211,14 +218,32 @@ export default class AIBot extends BaseBot {
       parts.push(`Streak check-in hiện tại: ${streak} ngày. Tâm trạng check-in gần nhất: ${latestMood}/5.`);
     }
 
-    ["phq9", "gad7", "who5"].forEach(testId => {
-      const testLogs = logs.filter(l => l.test === testId);
+    ["phq9", "gad7", "who5", "dass42", "mmpi30", "bigfive"].forEach(testId => {
+      const testLogs = logs.filter(l => l.test === testId || (l.type === "clinical_test" && l.test === testId));
       if (testLogs.length > 0) {
         const latest = testLogs[testLogs.length - 1];
-        const daysAgo = Math.floor((Date.now() - new Date(latest.date).getTime()) / 86_400_000);
-        parts.push(`Test ${testId.toUpperCase()} gần nhất: ${latest.score} điểm, ${daysAgo <= 0 ? "hôm nay" : `${daysAgo} ngày trước`}.`);
+        const daysAgo = Math.floor((Date.now() - new Date(latest.date || Date.now()).getTime()) / 86_400_000);
+        const daysAgoStr = daysAgo <= 0 ? "hôm nay" : `${daysAgo} ngày trước`;
+        if (testId === "dass42") {
+          parts.push(`Test DASS-42 gần nhất: D:${latest.scores?.D ?? 0}/42, A:${latest.scores?.A ?? 0}/42, S:${latest.scores?.S ?? 0}/42 (${daysAgoStr}).`);
+        } else if (testId === "mmpi30") {
+          const elev = latest.clinical ? latest.clinical.filter(c => c.score >= 70).length : 0;
+          parts.push(`Test MMPI-30 gần nhất: ${elev} thang vượt ngưỡng (${daysAgoStr}).`);
+        } else if (testId === "bigfive") {
+          const t = latest.traits || {};
+          parts.push(`Test Big Five gần nhất: Hướng ngoại ${t.extraversion || 3.5}/5, Nhạy cảm ${t.neuroticism || 2.5}/5 (${daysAgoStr}).`);
+        } else {
+          parts.push(`Test ${testId.toUpperCase()} gần nhất: ${latest.score} điểm, ${daysAgoStr}.`);
+        }
       }
     });
+
+    const sleepLogs = (this.bio?.sleepLogs || []).filter(l => l.duration);
+    if (sleepLogs.length > 0) {
+      const avgDur = (sleepLogs.slice(-7).reduce((acc, l) => acc + (Number(l.duration) || 0), 0) / Math.min(sleepLogs.length, 7)).toFixed(1);
+      const debt = Math.max(0, (7.5 - avgDur)).toFixed(1);
+      parts.push(`Giấc ngủ 7 ngày gần đây: Trung bình ${avgDur}h/đêm${debt > 0 ? ` (Nợ giấc ngủ ${debt}h)` : ""}.`);
+    }
 
     return parts.join(" ");
   }
@@ -240,26 +265,45 @@ export default class AIBot extends BaseBot {
       in_relationship: "đang trong một mối quan hệ",
       has_crush: "đang có tình cảm với ai đó (crush)"
     };
+    const PERSONALITY_TRAIT_LABELS = {
+      overthinking: "xu hướng overthinking / nghĩ nhiều",
+      perfectionism: "xu hướng cầu toàn / sợ sai",
+      introverted_preference: "phong cách hướng nội / cần khoảng không riêng",
+      emotional_sensitivity: "cảm nhận cảm xúc sâu sắc và nhạy cảm"
+    };
     try {
       const memory = loadSecureMemory(this.bio);
-      if (!memory) return "";
       const parts = [];
 
-      const triggers = (memory.stressTriggers || []).map(t => TRIGGER_LABELS[t]).filter(Boolean);
-      if (triggers.length > 0) parts.push(`Chủ đề hay gây áp lực gần đây: ${triggers.join(", ")}.`);
-
-      if (memory.relationshipStatus && RELATIONSHIP_LABELS[memory.relationshipStatus]) {
-        parts.push(`Tình trạng tình cảm: ${RELATIONSHIP_LABELS[memory.relationshipStatus]}.`);
+      // Big Five traits from history logs
+      const bigFiveLogs = (this.historyLogs || []).filter(l => (l.test === "bigfive" || (l.type === "clinical_test" && l.test === "bigfive")) && l.traits);
+      if (bigFiveLogs.length > 0) {
+        const bf = bigFiveLogs[bigFiveLogs.length - 1].traits;
+        parts.push(`Hồ sơ nhân cách Big Five: Hướng ngoại ${bf.extraversion}/5, Dễ chịu ${bf.agreeableness}/5, Tận tụy ${bf.conscientiousness}/5, Nhạy cảm cảm xúc ${bf.neuroticism}/5, Cởi mở ${bf.openness}/5.`);
       }
 
-      const trend = memory.sentimentTrend;
-      if (Array.isArray(trend) && trend.length >= 3) {
-        const avg = trend.reduce((a, b) => a + b, 0) / trend.length;
-        if (avg <= -0.4) parts.push("Xu hướng cảm xúc vài lượt gần đây: nghiêng về tiêu cực.");
-        else if (avg >= 0.4) parts.push("Xu hướng cảm xúc vài lượt gần đây: nghiêng về tích cực.");
-      }
+      if (memory) {
+        const triggers = (memory.stressTriggers || []).map(t => TRIGGER_LABELS[t]).filter(Boolean);
+        if (triggers.length > 0) parts.push(`Chủ đề hay gây áp lực gần đây: ${triggers.join(", ")}.`);
 
-      if (memory.examDate) parts.push(`Có mốc thi/deadline sắp tới: ${memory.examDate}.`);
+        if (memory.relationshipStatus && RELATIONSHIP_LABELS[memory.relationshipStatus]) {
+          parts.push(`Tình trạng tình cảm: ${RELATIONSHIP_LABELS[memory.relationshipStatus]}.`);
+        }
+
+        const personalityList = (memory.personalityTraits || []).map(p => PERSONALITY_TRAIT_LABELS[p]).filter(Boolean);
+        if (personalityList.length > 0) {
+          parts.push(`Đặc điểm tâm lý ghi nhận qua các lượt trò chuyện: ${personalityList.join(", ")}.`);
+        }
+
+        const trend = memory.sentimentTrend;
+        if (Array.isArray(trend) && trend.length >= 3) {
+          const avg = trend.reduce((a, b) => a + b, 0) / trend.length;
+          if (avg <= -0.4) parts.push("Xu hướng cảm xúc vài lượt gần đây: nghiêng về tiêu cực.");
+          else if (avg >= 0.4) parts.push("Xu hướng cảm xúc vài lượt gần đây: nghiêng về tích cực.");
+        }
+
+        if (memory.examDate) parts.push(`Có mốc thi/deadline sắp tới: ${memory.examDate}.`);
+      }
 
       return parts.join(" ");
     } catch (_) {
@@ -326,7 +370,10 @@ export default class AIBot extends BaseBot {
         this._replyCache.set(key, result);
         return result;
       }
-    } catch (_) { /* ignore */ }
+      console.warn("AIBot chat error: server responded", res?.status);
+    } catch (err) {
+      console.warn("AIBot chat error:", err);
+    }
 
     // Server unreachable → smart local reply. The user never sees a raw error.
     return buildLocalReply(message);
@@ -372,11 +419,11 @@ export default class AIBot extends BaseBot {
         signal: controller.signal
       })).finally(() => clearTimeout(timeoutId));
 
-      if (!res || !res.ok) throw new Error("Server error");
+      if (!res || !res.ok) throw new Error(`Server responded ${res?.status ?? "no response"}`);
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let done = false, fullReply = "", buffer = "", serverError = false, outOfTokens = false, outOfTokensMessage = "";
+      let done = false, fullReply = "", buffer = "", serverError = false, serverErrorDetail = null, outOfTokens = false, outOfTokensMessage = "";
 
       while (!done) {
         const { value, done: rd } = await reader.read();
@@ -397,6 +444,7 @@ export default class AIBot extends BaseBot {
                   // Flag only — never stream the raw error text to the user.
                   // The local fallback below produces a natural reply instead.
                   serverError = true;
+                  serverErrorDetail = p.error;
                 }
               } catch (_) {
                 if (rawContent) {
@@ -420,6 +468,7 @@ export default class AIBot extends BaseBot {
                 outOfTokensMessage = p.message || "Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?";
               } else {
                 serverError = true;
+                serverErrorDetail = p.error;
               }
             }
           } catch (_) {
@@ -451,6 +500,7 @@ export default class AIBot extends BaseBot {
       // Server errored (or streamed nothing usable) → compose a warm local
       // reply and stream it in, so the user always gets a real answer.
       if (serverError || !replyText.trim()) {
+        if (serverError) console.warn("AIBot chatStream server error:", serverErrorDetail);
         const local = buildLocalReply(message);
         onChunk?.(local.reply);
         onDone?.(local);

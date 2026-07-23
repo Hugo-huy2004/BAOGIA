@@ -435,8 +435,21 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
 export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp, onSubTabChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect }) {
   const { t } = useTranslation();
   useCompanionSessionTimer({ email: bio?.email, enabled: !!bio?.email });
+
+  const isPWA = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  }, []);
+
+  const visibleSubTabs = useMemo(() => {
+    if (isPWA) {
+      return SUB_TABS.filter(t => t.id === "chat");
+    }
+    return SUB_TABS;
+  }, [isPWA]);
+
   const [internalSubTab, setInternalSubTab] = useState(activeSubTabProp || "chat");
-  const activeSubTab = activeSubTabProp || internalSubTab;
+  const activeSubTab = isPWA ? "chat" : (activeSubTabProp || internalSubTab);
   const setActiveSubTab = onSubTabChange || setInternalSubTab;
   const [presetTest, setPresetTest]         = useState(defaultPresetTest);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -584,14 +597,6 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
   const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
 
-  const hasSevereDistress = useMemo(() => {
-    const phq9 = historyLogs.filter(l => l.test === "phq9").slice(-1)[0];
-    const gad7 = historyLogs.filter(l => l.test === "gad7").slice(-1)[0];
-    if (phq9 && phq9.score >= 15) return true;
-    if (gad7 && gad7.score >= 15) return true;
-    return false;
-  }, [historyLogs]);
-
   // Mobile no longer has a visible tab switcher at all — Sleep/Evaluation
   // are reachable only by asking the AI in chat, and Therapy opens as an
   // in-chat overlay (see ChatTab.jsx) — so whatever `activeSubTab` happens to
@@ -714,8 +719,9 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       <div className="flex gap-4 flex-1 min-h-0">
 
         {/* Desktop sidebar (md+) */}
-        <aside className="hidden md:flex flex-col gap-2 w-[56px] lg:w-[190px] shrink-0">
-          {SUB_TABS.map(tab => {
+        {!isPWA && (
+          <aside className="hidden md:flex flex-col gap-2 w-[56px] lg:w-[190px] shrink-0">
+            {visibleSubTabs.map(tab => {
             const active = activeSubTab === tab.id;
             return (
               <motion.button
@@ -742,6 +748,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
             );
           })}
         </aside>
+        )}
 
         {/* Content area */}
         <div className={`flex-1 min-w-0 bg-white/80 dark:bg-background/80 backdrop-blur-2xl overflow-hidden flex flex-col relative ${
@@ -779,7 +786,6 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     setPresetTest={setPresetTest}
                     showToast={showToast}
                     healingActive={healingActive}
-                    hasSevereDistress={hasSevereDistress}
                     onProfileUpdate={(newFields) => {
                       if (setFormData && handleSave) {
                         setFormData(prev => {

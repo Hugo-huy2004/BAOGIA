@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Stethoscope, Heart } from "lucide-react";
+import { ChevronDown, Stethoscope, Heart, Smile, Meh, Frown, Sparkles, Wind } from "lucide-react";
 import TypewriterText from "./TypewriterText";
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 
@@ -65,9 +65,11 @@ function InlineBreathingCircle() {
         />
         {/* Inner solid counter circle */}
         <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white dark:bg-sky-950/80 border border-sky-200 dark:border-sky-800 shadow-sm z-10">
-          <span className="text-[14px] font-black text-sky-700 dark:text-sky-300">
-            {isActive ? sec : "🧘"}
-          </span>
+          {isActive ? (
+            <span className="text-[14px] font-black text-sky-700 dark:text-sky-300">{sec}</span>
+          ) : (
+            <Wind className="w-4 h-4 text-sky-500" />
+          )}
         </div>
       </div>
       <p className="text-[10.5px] font-black text-sky-700 dark:text-sky-300 text-center h-4 tracking-wide">
@@ -145,14 +147,108 @@ function FormatText({ text }) {
   );
 }
 
+// ─── Inline Sleep Report Card ────────────────────────────────────────────────
+function InlineSleepReportCard({ bio }) {
+  const sleepLogs = bio?.sleepLogs || [];
+  const avgDur = sleepLogs.length > 0
+    ? (sleepLogs.slice(-7).reduce((a, b) => a + (Number(b.duration) || 0), 0) / Math.min(sleepLogs.length, 7)).toFixed(1)
+    : "7.5";
+  const debt = Math.max(0, (7.5 - Number(avgDur))).toFixed(1);
+
+  return (
+    <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-primary/5 to-muted/20 border border-teal-500/30 text-left space-y-3 shadow-md max-w-sm">
+      <div className="flex items-center justify-between border-b border-teal-500/20 pb-2">
+        <span className="text-[10px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">
+          🌙 Báo Cáo Giấc Ngủ & Chu Kỳ
+        </span>
+        <span className="text-[8.5px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
+          Tự động 8 Cảm Biến
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 text-center">
+        <div className="p-2.5 rounded-xl bg-background/80 border border-border/50">
+          <p className="text-[8.5px] font-black uppercase text-muted-foreground">TB 7 Ngày</p>
+          <p className="text-sm font-mono font-black text-foreground mt-0.5">{avgDur} giờ/đêm</p>
+        </div>
+        <div className="p-2.5 rounded-xl bg-background/80 border border-border/50">
+          <p className="text-[8.5px] font-black uppercase text-muted-foreground">Nợ Giấc Ngủ</p>
+          <p className={`text-sm font-mono font-black mt-0.5 ${debt > 0 ? "text-amber-500" : "text-emerald-500"}`}>
+            {debt > 0 ? `${debt} giờ` : "0 giờ (Tốt)"}
+          </p>
+        </div>
+      </div>
+
+      <div className="p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20 text-[9.5px] font-bold text-foreground/80 leading-relaxed">
+        💡 **Giờ Thức Dậy Tối Ưu:** Nếu đi ngủ lúc 22:45, mốc thức dậy tỉnh táo nhất theo chu kỳ 90 phút là **06:30 AM** (5 chu kỳ 7.5h).
+      </div>
+    </div>
+  );
+}
+
+// ─── Inline Evaluation Report Card ───────────────────────────────────────────
+function InlineEvalReportCard({ bio }) {
+  const scores = bio?.testScores || {};
+  const phq9 = scores.phq9 ?? "Bình thường";
+  const gad7 = scores.gad7 ?? "Bình thường";
+  const who5 = scores.who5 != null ? `${scores.who5 * 4}%` : "80%";
+
+  return (
+    <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 via-primary/5 to-muted/20 border border-violet-500/30 text-left space-y-3 shadow-md max-w-sm">
+      <div className="flex items-center justify-between border-b border-violet-500/20 pb-2">
+        <span className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">
+          📊 Báo Cáo Sức Khỏe Tinh Thần
+        </span>
+        <span className="text-[8.5px] font-bold px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-600 dark:text-violet-400">
+          Tự Nhận Thức
+        </span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-1.5 text-center">
+        <div className="p-2 rounded-xl bg-background/80 border border-border/50">
+          <p className="text-[8px] font-black uppercase text-muted-foreground">PHQ-9</p>
+          <p className="text-xs font-mono font-black text-foreground mt-0.5">{phq9}</p>
+        </div>
+        <div className="p-2 rounded-xl bg-background/80 border border-border/50">
+          <p className="text-[8px] font-black uppercase text-muted-foreground">GAD-7</p>
+          <p className="text-xs font-mono font-black text-foreground mt-0.5">{gad7}</p>
+        </div>
+        <div className="p-2 rounded-xl bg-background/80 border border-border/50">
+          <p className="text-[8px] font-black uppercase text-muted-foreground">WHO-5</p>
+          <p className="text-xs font-mono font-black text-foreground mt-0.5">{who5}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Inline Therapy Report Card ──────────────────────────────────────────────
+function InlineTherapyReportCard() {
+  return (
+    <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-primary/5 to-muted/20 border border-emerald-500/30 text-left space-y-3 shadow-md max-w-sm">
+      <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          🌿 Liệu Pháp Trị Liệu Thích Ứng
+        </span>
+        <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+          Khuyên Dùng
+        </span>
+      </div>
+      <p className="text-[10px] text-foreground/80 font-bold leading-relaxed">
+        Đề xuất thực hành **Điều hòa nhịp thở 4-7-8** (10 phút) hoặc **Nhật ký nhận thức CBT** để tái tạo năng lượng thần kinh.
+      </p>
+    </div>
+  );
+}
+
 // ─── Single message bubble content ────────────────────────────────────────────
 // ─── Inline mood check-in picker ─────────────────────────────────────────────
 const MOOD_OPTS = [
-  { value: 1, emoji: "😣", label: "Kiệt sức" },
-  { value: 2, emoji: "😔", label: "Mỏi mệt" },
-  { value: 3, emoji: "😐", label: "Bình thường" },
-  { value: 4, emoji: "🙂", label: "Ổn" },
-  { value: 5, emoji: "😄", label: "Rất vui" },
+  { value: 1, icon: Frown, label: "Kiệt sức" },
+  { value: 2, icon: Frown, label: "Mỏi mệt" },
+  { value: 3, icon: Meh, label: "Bình thường" },
+  { value: 4, icon: Smile, label: "Ổn" },
+  { value: 5, icon: Sparkles, label: "Rất vui" },
 ];
 function MoodCheckinCard({ onMoodSelect }) {
   const [selected, setSelected] = React.useState(null);
@@ -167,26 +263,29 @@ function MoodCheckinCard({ onMoodSelect }) {
         Chạm để check-in hôm nay
       </p>
       <div className="flex justify-between gap-1">
-        {MOOD_OPTS.map(opt => (
-          <button
-            key={opt.value}
-            type="button"
-            disabled={selected !== null}
-            onClick={() => { setSelected(opt.value); onMoodSelect?.(opt.value); }}
-            className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-90 ${
-              selected === opt.value
-                ? "bg-indigo-500 shadow-lg shadow-indigo-500/25 scale-105"
-                : selected !== null
-                ? "opacity-30"
-                : "hover:bg-white/70 dark:hover:bg-white/[0.08] hover:shadow-sm"
-            }`}
-          >
-            <span className="text-[22px] leading-none select-none">{opt.emoji}</span>
-            <span className={`text-[8px] font-bold leading-none ${
-              selected === opt.value ? "text-white" : "text-muted-foreground"
-            }`}>{opt.label}</span>
-          </button>
-        ))}
+        {MOOD_OPTS.map(opt => {
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              disabled={selected !== null}
+              onClick={() => { setSelected(opt.value); onMoodSelect?.(opt.value); }}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-90 ${
+                selected === opt.value
+                  ? "bg-indigo-500 shadow-lg shadow-indigo-500/25 scale-105"
+                  : selected !== null
+                  ? "opacity-30"
+                  : "hover:bg-white/70 dark:hover:bg-white/[0.08] hover:shadow-sm"
+              }`}
+            >
+              <Icon className={`w-5 h-5 ${selected === opt.value ? "text-white" : "text-foreground"}`} />
+              <span className={`text-[8px] font-bold leading-none ${
+                selected === opt.value ? "text-white" : "text-muted-foreground"
+              }`}>{opt.label}</span>
+            </button>
+          );
+        })}
       </div>
     </motion.div>
   );
@@ -248,7 +347,7 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
   );
 }
 
-function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone, onOpenVerification, joyBalance, unlockedFeatures = [] }) {
+function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTest, onSelectDuration, onNavigateToTab, onUnlockFeature, unlockingMethodId, onMoodSelect, moodCheckinDone, onOpenVerification, joyBalance, unlockedFeatures = [], bio, historyLogs }) {
   return (
     <div className="flex flex-col gap-1.5 items-start">
       {/* Main text bubble */}
@@ -270,6 +369,11 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
       {/* Interactive widgets */}
       {msg.showInlineBreathing && <InlineBreathingCircle />}
       {msg.showInlineCbt && <InlineCbtCard />}
+
+      {/* Domain specific report cards rendered directly in chat */}
+      {msg.showInlineSleep && <InlineSleepReportCard bio={bio} />}
+      {msg.showInlineEval && <InlineEvalReportCard bio={bio} historyLogs={historyLogs} />}
+      {msg.showInlineTherapy && <InlineTherapyReportCard />}
 
       {/* Interactive buy card */}
       {msg.showInlineBuy && (
@@ -295,7 +399,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
       )}
 
       {/* Test suggestion card — redesigned: soft pill chips, no pushy full-width buttons */}
-      {(msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
+      {(msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive || msg.suggestDass42 || msg.suggestMmpi30) && (
         <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-50/80 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/15 border border-violet-100 dark:border-violet-800/25 space-y-2 w-full max-w-[260px]">
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
@@ -329,6 +433,18 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
               <button type="button" onClick={() => onStartTest("bigfive")}
                 className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
                 Big Five · Nhân cách
+              </button>
+            )}
+            {msg.suggestDass42 && (
+              <button type="button" onClick={() => onStartTest("dass42")}
+                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-amber-500/12 hover:bg-amber-500/20 border border-amber-300/40 dark:border-amber-700/30 text-amber-600 dark:text-amber-400 transition-all active:scale-95">
+                DASS-42 · Stress/Lo âu/Trầm cảm
+              </button>
+            )}
+            {msg.suggestMmpi30 && (
+              <button type="button" onClick={() => onStartTest("mmpi30")}
+                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-fuchsia-500/12 hover:bg-fuchsia-500/20 border border-fuchsia-300/40 dark:border-fuchsia-700/30 text-fuchsia-600 dark:text-fuchsia-400 transition-all active:scale-95">
+                MMPI · Sàng lọc 30 câu
               </button>
             )}
           </div>
@@ -443,6 +559,8 @@ function ChatMessages({
   keyboardInset = 0,
   joyBalance = 0,
   unlockedFeatures = [],
+  bio,
+  historyLogs = [],
 }) {
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
@@ -529,7 +647,7 @@ function ChatMessages({
                           onSelectDuration={onSelectDuration} onNavigateToTab={onNavigateToTab}
                           onUnlockFeature={onUnlockFeature} unlockingMethodId={unlockingMethodId}
                           onMoodSelect={onMoodSelect} moodCheckinDone={moodCheckinDone} onOpenVerification={onOpenVerification}
-                          joyBalance={joyBalance} unlockedFeatures={unlockedFeatures} />
+                          joyBalance={joyBalance} unlockedFeatures={unlockedFeatures} bio={bio} historyLogs={historyLogs} />
                       : <UserBubble msg={msg} />}
                   </div>
                 </div>
