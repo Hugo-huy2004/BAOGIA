@@ -1,11 +1,11 @@
 import cron from 'node-cron';
-import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import SleepLog from '../models/SleepLog.js';
 import Bio from '../models/Bio.js';
 import CompanionHistory from '../models/CompanionHistory.js';
 import ScheduledPush from '../models/ScheduledPush.js';
 import InAppNotification from '../models/InAppNotification.js';
+import { sendPushToUser, isQuietHours } from './pushGuard.js';
 
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
 
@@ -18,18 +18,6 @@ const SCHEDULES = {
   skincare_morning: '0 8 * * *',   // 08:00 — skincare morning nudge
   skincare_night:   '30 21 * * *', // 21:30 — skincare evening nudge
 };
-
-async function sendPushToUser(subs, payload) {
-  for (const sub of subs) {
-    try {
-      await webpush.sendNotification(sub.subscription, JSON.stringify(payload));
-    } catch (err) {
-      if (err.statusCode === 410 || err.statusCode === 404) {
-        await NotificationSubscription.deleteOne({ _id: sub._id });
-      }
-    }
-  }
-}
 
 async function runSkincareReminders(timeOfDay) {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -63,7 +51,7 @@ async function runSkincareReminders(timeOfDay) {
       // 2. Gửi Web Push
       const subs = await NotificationSubscription.find({ email });
       if (subs.length) {
-        await sendPushToUser(subs, {
+        await sendPushToUser(email, subs, {
           title,
           body,
           icon: '/image/avt7.png',
@@ -87,6 +75,10 @@ async function runScheduledCompanionPushes() {
   if (!pending.length) return;
 
   for (const item of pending) {
+    // Quiet hours: skip the whole iteration (no AI call, no push, no in-app
+    // record) — item stays unsent and the next 10-min tick retries it, so it
+    // naturally lands once quiet hours pass instead of firing overnight.
+    if (isQuietHours()) continue;
     try {
       const bio = await Bio.findOne({ email: item.email }).lean();
       const response = await fetch(`${PYTHON_AI_URL}/api/notifications/companion-push`, {
@@ -101,9 +93,11 @@ async function runScheduledCompanionPushes() {
       if (!response.ok) continue;
       const aiResult = await response.json();
 
+      // Cooldown only suppresses the OS push (avoids stacking with another
+      // job's notification) — the in-app inbox record below still lands.
       const subs = await NotificationSubscription.find({ email: item.email });
       if (subs.length) {
-        await sendPushToUser(subs, {
+        await sendPushToUser(item.email, subs, {
           title: aiResult.title || 'Bạn Học Đường',
           body:  aiResult.body  || 'Gợi ý trị liệu hôm nay dành cho bạn!',
           icon:  '/image/avt7.png',
@@ -171,7 +165,7 @@ async function runSmartPushJob(contextHint) {
       const aiResult = await response.json();
       if (!aiResult?.should_send) continue;
 
-      await sendPushToUser(subs, {
+      await sendPushToUser(email, subs, {
         title: aiResult.title || 'Bạn Học Đường',
         body:  aiResult.body  || 'Cậu ơi, mình có điều muốn chia sẻ!',
         icon:  '/image/avt7.png',

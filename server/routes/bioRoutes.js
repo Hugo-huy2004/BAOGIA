@@ -976,31 +976,124 @@ router.get('/discover/logo', discoverLimiter, async (req, res) => {
   }
 });
 
-// POST /me/skin-analysis — Lưu kế hoạch và kết quả quét da
+// POST /me/skin-analysis — Lưu kế hoạch, kết quả quét da và lịch sử định kỳ
 router.post('/me/skin-analysis', requireMember, skinAnalysisLimiter, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const { score, skinType, skinTone, gender, plan } = req.body;
+    const {
+      score,
+      goldenRatioScore,
+      skinType,
+      skinTone,
+      undertone,
+      gender,
+      concerns,
+      hydrationScore,
+      smoothnessScore,
+      clarityScore,
+      plan
+    } = req.body;
+    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+
+    const newAnalysis = {
+      score: score || 0,
+      goldenRatioScore: goldenRatioScore || 0,
+      skinType: skinType || "",
+      skinTone: skinTone || "",
+      undertone: undertone || "",
+      gender: gender || "",
+      concerns: Array.isArray(concerns) ? concerns : [],
+      hydrationScore: hydrationScore || 0,
+      smoothnessScore: smoothnessScore || 0,
+      clarityScore: clarityScore || 0,
+      plan: plan || {},
+      updatedAt: new Date()
+    };
+
+    const historyEntry = {
+      id: "scan_" + Date.now(),
+      score: score || 0,
+      goldenRatioScore: goldenRatioScore || 0,
+      skinType: skinType || "",
+      skinTone: skinTone || "",
+      undertone: undertone || "",
+      hydrationScore: hydrationScore || 0,
+      smoothnessScore: smoothnessScore || 0,
+      clarityScore: clarityScore || 0,
+      concerns: Array.isArray(concerns) ? concerns : [],
+      date: new Date()
+    };
+
+    const bio = await Bio.findOneAndUpdate(
+      { email },
+      {
+        $set: { skinAnalysis: newAnalysis },
+        $push: {
+          skinHistory: {
+            $each: [historyEntry],
+            $slice: -50 // Giữ tối đa 50 bản ghi lịch sử mới nhất
+          }
+        }
+      },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, skinAnalysis: bio.skinAnalysis, skinHistory: bio.skinHistory || [] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /me/skin-history — Lấy lịch sử quét da định kỳ
+router.get('/me/skin-history', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+    const bio = await Bio.findOne({ email }).select('skinHistory skinAnalysis');
+    res.json({
+      success: true,
+      skinHistory: bio?.skinHistory || [],
+      skinAnalysis: bio?.skinAnalysis || null
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /me/skin-checklist — Lấy bảng check-list dưỡng da hôm nay
+router.get('/me/skin-checklist', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) return res.status(401).json({ error: 'Unauthorized' });
+    const bio = await Bio.findOne({ email }).select('dailySkincareChecklist');
+    res.json({
+      success: true,
+      dailySkincareChecklist: bio?.dailySkincareChecklist || { date: "", completedSteps: [] }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/skin-checklist — Cập nhật checklist dưỡng da hôm nay
+router.post('/me/skin-checklist', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const { date, completedSteps } = req.body;
     if (!email) return res.status(401).json({ error: 'Unauthorized' });
 
     const bio = await Bio.findOneAndUpdate(
       { email },
       {
         $set: {
-          skinAnalysis: {
-            score: score || 0,
-            skinType: skinType || "",
-            skinTone: skinTone || "",
-            gender: gender || "",
-            plan: plan || {},
-            updatedAt: new Date()
+          dailySkincareChecklist: {
+            date: date || new Date().toISOString().split("T")[0],
+            completedSteps: Array.isArray(completedSteps) ? completedSteps : []
           }
         }
       },
-      { new: true }
+      { new: true, upsert: true }
     );
-    if (!bio) return res.status(404).json({ error: 'Bio not found' });
-    res.json({ success: true, skinAnalysis: bio.skinAnalysis });
+    res.json({ success: true, dailySkincareChecklist: bio.dailySkincareChecklist });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1016,9 +1109,8 @@ router.post('/me/skin-reminder', requireMember, async (req, res) => {
     const bio = await Bio.findOneAndUpdate(
       { email },
       { $set: { skincareReminderEnabled: !!enabled } },
-      { new: true }
+      { new: true, upsert: true }
     );
-    if (!bio) return res.status(404).json({ error: 'Bio not found' });
     res.json({ success: true, skincareReminderEnabled: bio.skincareReminderEnabled });
   } catch (error) {
     res.status(500).json({ error: error.message });

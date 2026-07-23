@@ -9,6 +9,23 @@ import AppIconRenderer from "./utilities/AppIconRenderer";
 import WallpaperSelector from "./utilities/WallpaperSelector";
 import LibraryCatalog from "./utilities/LibraryCatalog";
 
+// Dynamic On-Demand PWA App Storage Footprint (MB)
+export const APP_STORAGE_MB = {
+  hugoskin: 2.8,
+  ide: 4.5,
+  psychology: 3.2,
+  arcade: 5.1,
+  radio: 1.9,
+  helpdesk: 1.4,
+  handle: 1.2,
+  aura: 1.8,
+  deco: 3.8,
+  team: 1.6,
+  bio: 1.5,
+  info: 0.8,
+  joy_wallet: 1.1
+};
+
 // Styling constants
 const GRADIENTS = {
   indigo:  "from-indigo-500 via-purple-500 to-pink-500",
@@ -121,7 +138,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     {
       id: "hugoskin",
       icon: "face",
-      tint: "indigo",
+      tint: "slate",
       title: "HugoSkin",
       category: "wellness",
       subLabel: "AI phân tích sắc tố da & Skincare",
@@ -442,20 +459,26 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         clearInterval(interval);
         setDownloadProgress((prev) => ({ ...prev, [appId]: 100 }));
 
-        const appInfo = allUtilities.find((u) => u.id === appId);
-        if (appInfo) {
-          // Trigger the App Store iOS flying icon effect
-          setFlyingApp({
-            icon: appInfo.icon,
-            tint: appInfo.tint,
-            title: appInfo.title,
-            start: { x: window.innerWidth / 2, y: window.innerHeight * 0.4 },
-            end: { x: window.innerWidth - 60, y: window.innerHeight / 2 }
-          });
-          
-          setTimeout(() => {
-            setFlyingApp(null);
-          }, 850);
+        const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
+
+        // On-Demand PWA Storage Caching
+        try {
+          localStorage.setItem(`hugo_pwa_app_${appId}`, JSON.stringify({
+            installedAt: new Date().toISOString(),
+            sizeMb: appSizeMb
+          }));
+          if ('caches' in window) {
+            caches.open('hugo-on-demand-apps-v1').then((cache) => {
+              cache.put(
+                `/pwa-app-bundle-${appId}`,
+                new Response(JSON.stringify({ appId, sizeMb: appSizeMb, cached: true }), {
+                  headers: { 'Content-Type': 'application/json' }
+                })
+              );
+            }).catch(() => {});
+          }
+        } catch (e) {
+          console.warn("Storage cache error:", e);
         }
 
         setTimeout(() => {
@@ -466,7 +489,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             delete nextProgress[appId];
             return nextProgress;
           });
-          showToast?.("Đã tải ứng dụng vào màn hình chính!", "success");
+          showToast?.(`Đã tải ứng dụng (+${appSizeMb} MB bộ nhớ máy)!`, "success");
         }, 850);
       } else {
         setDownloadProgress((prev) => ({ ...prev, [appId]: currentProgress }));
@@ -475,9 +498,23 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   };
 
   const handleUninstallApp = (appId) => {
+    const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
+    
+    // Clear On-Demand PWA Storage
+    try {
+      localStorage.removeItem(`hugo_pwa_app_${appId}`);
+      if ('caches' in window) {
+        caches.open('hugo-on-demand-apps-v1').then((cache) => {
+          cache.delete(`/pwa-app-bundle-${appId}`);
+        }).catch(() => {});
+      }
+    } catch (e) {
+      console.warn("Storage cache clear error:", e);
+    }
+
     syncInstalledApps(installedApps.filter((id) => id !== appId));
     setEditingApp(null);
-    showToast?.("Đã xóa ứng dụng khỏi màn hình.", "info");
+    showToast?.(`Đã gỡ ứng dụng (Giải phóng -${appSizeMb} MB bộ nhớ máy)!`, "info");
   };
 
   const handleSetWidgetSize = (appId, size) => {
@@ -904,21 +941,29 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🏛️ VIEW: HUGO LIBRARY Component */}
       {activeTab === "library" && (
-        <LibraryCatalog
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-          categories={categories}
-          libraryAppsList={libraryAppsList}
-          downloadingAppId={downloadingAppId}
-          downloadProgress={downloadProgress}
-          installedApps={installedApps}
-          handleInstallApp={handleInstallApp}
-          setSelectedUtility={setSelectedUtility}
-          gradients={GRADIENTS}
-          onBack={() => setActiveTab("my-apps")}
-        />
+        <div className="space-y-4 text-left">
+          <button
+            onClick={() => setActiveTab("my-apps")}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
+          >
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            <span>Quay lại Tiện ích của tôi</span>
+          </button>
+          <LibraryCatalog
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            activeCategory={activeCategory}
+            setActiveCategory={setActiveCategory}
+            categories={categories}
+            libraryAppsList={libraryAppsList}
+            downloadingAppId={downloadingAppId}
+            downloadProgress={downloadProgress}
+            installedApps={installedApps}
+            handleInstallApp={handleInstallApp}
+            setSelectedUtility={setSelectedUtility}
+            gradients={GRADIENTS}
+          />
+        </div>
       )}
 
       {/* ⚙️ WIDGET CUSTOMIZER ACTION SHEET MODAL */}

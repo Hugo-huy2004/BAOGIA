@@ -280,15 +280,48 @@ const BioSchema = new mongoose.Schema(
     },
     skinAnalysis: {
       score: { type: Number, default: 0 },
+      goldenRatioScore: { type: Number, default: 0 },
       skinType: { type: String, default: "" },
       skinTone: { type: String, default: "" },
+      undertone: { type: String, default: "" },
       gender: { type: String, default: "" },
+      concerns: { type: [String], default: [] },
+      hydrationScore: { type: Number, default: 0 },
+      smoothnessScore: { type: Number, default: 0 },
+      clarityScore: { type: Number, default: 0 },
       plan: { type: Object, default: {} },
       updatedAt: { type: Date, default: null }
+    },
+    skinHistory: [
+      {
+        id: { type: String },
+        score: { type: Number, default: 0 },
+        goldenRatioScore: { type: Number, default: 0 },
+        skinType: { type: String, default: "" },
+        skinTone: { type: String, default: "" },
+        undertone: { type: String, default: "" },
+        hydrationScore: { type: Number, default: 0 },
+        smoothnessScore: { type: Number, default: 0 },
+        clarityScore: { type: Number, default: 0 },
+        concerns: { type: [String], default: [] },
+        date: { type: Date, default: Date.now }
+      }
+    ],
+    dailySkincareChecklist: {
+      date: { type: String, default: "" },
+      completedSteps: { type: [String], default: [] }
     },
     skincareReminderEnabled: {
       type: Boolean,
       default: false
+    },
+    // Cross-job push cooldown gate (see server/services/pushGuard.js) — shared
+    // by every push cron (proactive, smart, skincare, scheduled companion) so
+    // a user never gets stacked notifications from unrelated jobs firing close
+    // together, regardless of which job sends first.
+    lastPushSentAt: {
+      type: Date,
+      default: null
     },
     antiDeepfakeLock: {
       type: Boolean,

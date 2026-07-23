@@ -10,6 +10,7 @@ import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 import { generateWeeklyReportForUser } from '../services/companionReportService.js';
+import { nextAllowedSendTime } from '../services/pushGuard.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -103,7 +104,10 @@ router.post('/unlock-feature', requireMember, async (req, res) => {
         email,
         feature,
         label: def.label,
-        scheduledFor: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 giờ sau
+        // +24h, rolled forward out of quiet hours (22:00–07:00) if it would
+        // otherwise land there — e.g. unlocking at 2am no longer schedules
+        // tomorrow's reminder for 2am too.
+        scheduledFor: nextAllowedSendTime(new Date(Date.now() + 24 * 60 * 60 * 1000))
       });
     } catch (schedErr) {
       console.error('[ScheduledPush] Lỗi khi tạo lịch gửi tin:', schedErr.message);

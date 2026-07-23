@@ -1,4 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
+
+const APP_STORAGE_MB = {
+  hugoskin: 2.8,
+  ide: 4.5,
+  psychology: 3.2,
+  arcade: 5.1,
+  radio: 1.9,
+  helpdesk: 1.4,
+  handle: 1.2,
+  aura: 1.8,
+  deco: 3.8,
+  team: 1.6,
+  bio: 1.5,
+  info: 0.8,
+  joy_wallet: 1.1
+};
 
 const DESCRIPTIONS = {
   bio: "Kiến tạo hồ sơ cá nhân độc bản và liên kết mạng xã hội (Biolink) mang phong cách của riêng bạn. Hỗ trợ tùy chỉnh ảnh đại diện, tiểu sử ngắn và tích hợp mã QR thanh toán nhanh.",
@@ -43,8 +59,9 @@ export default function LibraryCatalog({
         </div>
         {onBack && (
           <button
+            type="button"
             onClick={onBack}
-            className="flex items-center gap-1.5 px-4.5 py-2 rounded-full text-xs font-black uppercase border border-border/25 bg-card/75 text-foreground hover:bg-muted active:scale-95 transition-all shadow-sm shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black uppercase border border-border/25 bg-card text-foreground hover:bg-muted active:scale-95 transition-all shadow-sm shrink-0"
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span>
             <span>Quay lại</span>
@@ -99,6 +116,24 @@ export default function LibraryCatalog({
             <span className="material-symbols-outlined text-[14px]">close</span>
           </button>
         )}
+      </div>
+
+      {/* PWA Phone Memory Storage Status Banner */}
+      <div className="p-4 bg-card/45 border border-border/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-left backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-lg">smartphone</span>
+          </div>
+          <div>
+            <span className="text-xs font-bold text-foreground block">Bộ Nhớ PWA Điện Thoại (On-Demand Storage)</span>
+            <span className="text-[11px] text-muted-foreground">
+              Chưa tải = 0 MB • Chỉ khi bấm <strong>Tải</strong> mới sử dụng dung lượng lưu trữ trên điện thoại của bạn.
+            </span>
+          </div>
+        </div>
+        <div className="px-3.5 py-1.5 bg-muted/60 border border-border/40 rounded-xl text-xs font-black text-primary shrink-0">
+          {installedApps.reduce((sum, id) => sum + (APP_STORAGE_MB[id] || 2.0), 0).toFixed(1)} MB Đã Dùng ({installedApps.length}/{libraryAppsList.length} Apps)
+        </div>
       </div>
 
       {/* Categories scroller - Apple Store style pills */}
@@ -167,10 +202,10 @@ export default function LibraryCatalog({
                     <p className="text-[11px] text-muted-foreground truncate leading-normal">
                       {app.subLabel}
                     </p>
-                    <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-muted-foreground/80">
+                    <div className="flex items-center gap-1.5 text-[10.5px] font-bold text-muted-foreground/80 flex-wrap">
                       <span className="text-warning flex items-center font-black">★ {app.rating}</span>
                       <span>•</span>
-                      <span>{app.users} active</span>
+                      <span className="text-primary/90 font-black">{isInstalled ? `${(APP_STORAGE_MB[app.id] || 2.0).toFixed(1)} MB (Đã tải)` : "0 MB (Chưa tải)"}</span>
                     </div>
                   </div>
                 </div>

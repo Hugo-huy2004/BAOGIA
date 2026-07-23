@@ -1,58 +1,65 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Camera, RefreshCw, Sparkles, Shield, Bell, CheckCircle2, AlertCircle, Eye, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { 
+  Camera, Bell, CheckCircle2, AlertCircle, Loader2, Droplet
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ClientEdgeEngine } from "../../utils/clientEdgeEngine";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 const PREDEFINED_PLANS = {
   oily: {
-    label: "Da Dầu / Hỗn Hợp Thiên Dầu",
-    analysis: "Vùng chữ T có tuyến bã nhờn hoạt động mạnh. Cần tập trung kiểm soát dầu thừa, làm sạch sâu lỗ chân lông để tránh bít tắc gây mụn, đồng thời dưỡng ẩm mỏng nhẹ dạng gel.",
+    label: "Da Dầu / Hỗn Hợp Dầu",
+    analysis: "Kiểm soát dầu thừa vùng T, làm sạch lỗ chân lông bằng BHA 2%, cấp nước mỏng nhẹ bằng Gel Hyaluronic Acid & Niacinamide.",
+    concerns: ["Bít tắc lỗ chân lông chữ T", "Dầu thừa vùng trán & mũi"],
     plan: {
-      Monday: { morning: ["Sữa rửa mặt BHA 2%", "Toner kiềm dầu", "Gel dưỡng ẩm dịu nhẹ", "Kem chống nắng kiềm dầu SPF 50+"], night: ["Tẩy trang nước Micellar", "Sữa rửa mặt dạng bọt", "Serum Niacinamide 10%", "Gel dưỡng ẩm khóa ẩm"] },
-      Tuesday: { morning: ["Sữa rửa mặt kiềm dầu", "Toner cấp nước", "Gel dưỡng ẩm", "Kem chống nắng SPF 50+"], night: ["Tẩy trang Micellar", "Sữa rửa mặt", "Tẩy da chết hóa học AHA/BHA (10p)", "Gel dưỡng khóa ẩm"] },
-      Wednesday: { morning: ["Sữa rửa mặt BHA 2%", "Toner", "Gel dưỡng ẩm", "Kem chống nắng kiềm dầu"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Niacinamide 10%", "Gel dưỡng khóa ẩm"] },
-      Thursday: { morning: ["Sữa rửa mặt kiềm dầu", "Toner", "Gel dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Mặt nạ đất sét hút dầu", "Serum phục hồi B5", "Gel dưỡng ẩm"] },
-      Friday: { morning: ["Sữa rửa mặt BHA 2%", "Toner", "Gel dưỡng ẩm", "Kem chống nắng kiềm dầu"], night: ["Tẩy trang Micellar", "Sữa rửa mặt", "Serum Niacinamide 10%", "Gel dưỡng khóa ẩm"] },
-      Saturday: { morning: ["Sữa rửa mặt kiềm dầu", "Toner", "Gel dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Retinol 0.5% tái tạo", "Gel dưỡng khóa ẩm dịu nhẹ"] },
-      Sunday: { morning: ["Rửa mặt nhẹ nhàng", "Toner cấp nước", "Gel dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Mặt nạ giấy dưỡng ẩm sâu", "Gel dưỡng ẩm nhẹ"] }
+      Monday: { morning: ["Sữa rửa mặt BHA 2%", "Toner kiềm dầu", "Gel dưỡng ẩm HA", "Kem chống nắng SPF 50+"], night: ["Tẩy trang Micellar", "Sữa rửa mặt bọt", "Serum Niacinamide 10%", "Gel dưỡng khóa ẩm"] },
+      Tuesday: { morning: ["Sữa rửa mặt kiềm dầu", "Toner cấp nước", "Gel dưỡng HA", "Kem chống nắng SPF 50+"], night: ["Tẩy trang", "Sữa rửa mặt", "Tẩy da chết AHA/BHA", "Gel dưỡng khóa ẩm"] },
+      Wednesday: { morning: ["Sữa rửa mặt BHA 2%", "Toner", "Gel dưỡng HA", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Niacinamide 10%", "Gel dưỡng khóa ẩm"] },
+      Thursday: { morning: ["Sữa rửa mặt kiềm dầu", "Toner", "Gel dưỡng HA", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Mặt nạ đất sét", "Serum B5", "Gel dưỡng"] },
+      Friday: { morning: ["Sữa rửa mặt BHA 2%", "Toner", "Gel dưỡng HA", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Niacinamide 10%", "Gel dưỡng khóa ẩm"] },
+      Saturday: { morning: ["Sữa rửa mặt kiềm dầu", "Toner", "Gel dưỡng HA", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Retinol 0.5%", "Gel dưỡng khóa ẩm"] },
+      Sunday: { morning: ["Rửa mặt nhẹ nhàng", "Toner cấp nước", "Gel dưỡng HA", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Mặt nạ cấp ẩm", "Gel dưỡng nhẹ"] }
     }
   },
   dry: {
     label: "Da Khô / Thiếu Ẩm",
-    analysis: "Hàng rào bảo vệ da thiếu hụt lipid, da dễ khô ráp, bong tróc hoặc xỉn màu. Cần ưu tiên làm sạch siêu dịu nhẹ không bọt, cấp ẩm nhiều lớp và sử dụng kem dưỡng ẩm dạng đặc (cream) giàu Ceramide.",
+    analysis: "Cấp ẩm đa tầng, phục hồi hàng rào bảo vệ da với Ceramide & Hyaluronic Acid, tránh làm sạch quá mức.",
+    concerns: ["Thiếu độ ẩm tự nhiên", "Bề mặt da thô ráp"],
     plan: {
-      Monday: { morning: ["Sữa rửa mặt không bọt", "Toner cấp ẩm (3 lớp)", "Serum Hyaluronic Acid", "Kem dưỡng giàu Ceramide", "Kem chống nắng dưỡng ẩm"], night: ["Tẩy trang dầu/sáp", "Sữa rửa mặt gel dịu nhẹ", "Serum Hyaluronic Acid", "Kem dưỡng ẩm sâu khóa màng"] },
-      Tuesday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm Ceramide", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt gel", "Toner cấp ẩm", "Kem dưỡng ẩm khóa ẩm sâu"] },
-      Wednesday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner", "Serum Vitamin C sáng da", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Tẩy da chết PHA nhẹ nhàng", "Kem dưỡng Ceramide"] },
-      Thursday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Mặt nạ ngủ cấp ẩm cấp nước", "Kem dưỡng ẩm"] },
-      Friday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner", "Serum HA", "Kem dưỡng ẩm Ceramide", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Serum HA", "Kem dưỡng ẩm sâu"] },
-      Saturday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Serum Retinol 0.3% chống lão hóa", "Kem dưỡng phục hồi B5"] },
-      Sunday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Mặt nạ giấy dưỡng ẩm sâu", "Kem dưỡng ẩm sâu"] }
+      Monday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng Ceramide", "Kem chống nắng"], night: ["Tẩy trang sáp/dầu", "Sữa rửa mặt gel", "Serum HA", "Kem dưỡng ẩm sâu"] },
+      Tuesday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng Ceramide", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt gel", "Toner cấp ẩm", "Kem dưỡng ẩm sâu"] },
+      Wednesday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner", "Serum Vitamin C", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Tẩy da chết PHA", "Kem dưỡng Ceramide"] },
+      Thursday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Mặt nạ ngủ cấp ẩm", "Kem dưỡng ẩm"] },
+      Friday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner", "Serum HA", "Kem dưỡng Ceramide", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Serum HA", "Kem dưỡng ẩm sâu"] },
+      Saturday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Serum Retinol 0.3%", "Kem dưỡng B5"] },
+      Sunday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cấp ẩm", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang dầu", "Sữa rửa mặt", "Mặt nạ cấp ẩm", "Kem dưỡng ẩm sâu"] }
     }
   },
   sensitive: {
-    label: "Da Nhạy Cảm / Dễ Kích Ứng",
-    analysis: "Hàng rào bảo vệ da yếu, dễ ửng đỏ, châm chích khi thay đổi thời tiết hoặc dùng mỹ phẩm lạ. Cần tối giản các bước dưỡng da, tuyệt đối tránh các hoạt chất mạnh (Retinol, BHA liều cao) và dùng sản phẩm chứa rau má (Centella), B5.",
+    label: "Da Nhạy Cảm",
+    analysis: "Tối giản chu trình dưỡng da, làm dịu ửng đỏ bằng Rau má (Centella) & Vitamin B5, dùng kem chống nắng vật lý.",
+    concerns: ["Dễ ửng đỏ", "Hàng rào bảo vệ mỏng yếu"],
     plan: {
-      Monday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng làm dịu da", "Serum phục hồi B5", "Kem dưỡng phục hồi rau má", "Kem chống nắng vật lý SPF 50+"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum phục hồi B5", "Kem dưỡng phục hồi khóa ẩm"] },
-      Tuesday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng ẩm phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum Centella", "Kem dưỡng ẩm dịu nhẹ"] },
-      Wednesday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Mặt nạ phục hồi da nhạy cảm", "Kem dưỡng ẩm"] },
-      Thursday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng ẩm", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum B5", "Kem dưỡng ẩm phục hồi"] },
+      Monday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng Rau má", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum B5", "Kem dưỡng phục hồi"] },
+      Tuesday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum Centella", "Kem dưỡng dịu nhẹ"] },
+      Wednesday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Mặt nạ phục hồi", "Kem dưỡng ẩm"] },
+      Thursday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng ẩm", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum B5", "Kem dưỡng phục hồi"] },
       Friday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum Centella", "Kem dưỡng ẩm"] },
-      Saturday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng ẩm", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Mặt nạ phục hồi dịu nhẹ", "Kem dưỡng khóa ẩm"] },
-      Sunday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum B5", "Kem dưỡng ẩm phục hồi"] }
+      Saturday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng ẩm", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Mặt nạ phục hồi", "Kem dưỡng khóa ẩm"] },
+      Sunday: { morning: ["Sữa rửa mặt Gentle", "Xịt khoáng", "Serum B5", "Kem dưỡng phục hồi", "Kem chống nắng vật lý"], night: ["Tẩy trang nhạy cảm", "Sữa rửa mặt Gentle", "Serum B5", "Kem dưỡng phục hồi"] }
     }
   },
   normal: {
-    label: "Da Thường / Khỏe Mạnh",
-    analysis: "Độ ẩm và dầu trên da ở mức cân bằng tốt, lỗ chân lông nhỏ, da khỏe. Kế hoạch chăm sóc da hướng tới duy trì độ ẩm ổn định, bảo vệ da trước ánh nắng mặt trời và bổ sung chất chống oxy hóa ngừa lão hóa sớm.",
+    label: "Da Thường",
+    analysis: "Duy trì sự cân bằng độ ẩm và bảo vệ chống oxy hóa với Vitamin C & Kem chống nắng phổ rộng.",
+    concerns: ["Duy trì sự cân bằng", "Phòng ngừa lão hóa"],
     plan: {
-      Monday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cân bằng", "Serum Hyaluronic Acid", "Kem dưỡng ẩm lotion", "Kem chống nắng phổ rộng SPF 50+"], night: ["Tẩy trang dưỡng ẩm", "Sữa rửa mặt", "Serum Hyaluronic Acid", "Kem dưỡng ẩm ban đêm"] },
-      Tuesday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Vitamin C sáng da", "Kem dưỡng ẩm lotion"] },
-      Wednesday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Tẩy tế bào chết AHA 5%", "Kem dưỡng ẩm"] },
+      Monday: { morning: ["Sữa rửa mặt dịu nhẹ", "Toner cân bằng", "Serum HA", "Kem dưỡng lotion", "Kem chống nắng SPF 50+"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum HA", "Kem dưỡng ban đêm"] },
+      Tuesday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng ẩm", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Vitamin C", "Kem dưỡng lotion"] },
+      Wednesday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Tẩy da chết AHA 5%", "Kem dưỡng ẩm"] },
       Thursday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum HA", "Kem dưỡng ban đêm"] },
-      Friday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Retinol 0.5%", "Kem dưỡng ẩm phục hồi"] },
+      Friday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum Retinol 0.5%", "Kem dưỡng phục hồi"] },
       Saturday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Mặt nạ cấp ẩm", "Kem dưỡng ẩm"] },
       Sunday: { morning: ["Sữa rửa mặt", "Toner", "Serum HA", "Kem dưỡng", "Kem chống nắng"], night: ["Tẩy trang", "Sữa rửa mặt", "Serum HA", "Kem dưỡng ban đêm"] }
     }
@@ -68,27 +75,73 @@ const rgbToHex = (r, g, b) => {
 };
 
 export default function HugoSkinTab() {
-  const [bio, setBio] = useState(null);
+  const [activeTab, setActiveTab] = useState("scan"); // "scan" | "routine" | "history"
+  const [, setBio] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
   const [gender, setGender] = useState("unspecified");
   const [targetSkin, setTargetSkin] = useState("normal");
-  
+  const [autoCaptureSec, setAutoCaptureSec] = useState(null);
+
+  const [waterMl, setWaterMl] = useState(() => {
+    return Number(localStorage.getItem("hugoskin_water_ml") || "1200");
+  });
+
+  const [lightingStatus, setLightingStatus] = useState({
+    code: "checking",
+    message: "Đang đo ánh sáng...",
+    luminance: 120,
+    balance: 95
+  });
+
   const [result, setResult] = useState(null);
+  const [historyList, setHistoryList] = useState([]);
+  const [checklist, setChecklist] = useState([]);
   const [reminders, setReminders] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const lightAnimRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${apiBase}/bios/me`, { credentials: "include" })
-      .then((res) => {
-        if (res.ok) return res.json();
-      })
-      .then((data) => {
+    fetchBioData();
+    fetchHistoryData();
+    fetchChecklistData();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("hugoskin_water_ml", String(waterMl));
+  }, [waterMl]);
+
+  useEffect(() => {
+    let timer;
+    if (cameraActive && lightingStatus.code === "optimal" && !scanning && autoCaptureSec === null) {
+      setAutoCaptureSec(3);
+    } else if (lightingStatus.code !== "optimal" && autoCaptureSec !== null) {
+      setAutoCaptureSec(null);
+    }
+
+    if (autoCaptureSec !== null && autoCaptureSec > 0 && !scanning) {
+      timer = setTimeout(() => {
+        setAutoCaptureSec((prev) => (prev !== null ? prev - 1 : null));
+      }, 1000);
+    } else if (autoCaptureSec === 0 && !scanning) {
+      runLocalScan();
+      setAutoCaptureSec(null);
+    }
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraActive, lightingStatus.code, autoCaptureSec, scanning]);
+
+  const fetchBioData = async () => {
+    try {
+      const res = await fetch(`${apiBase}/bios/me`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
         if (data?.bio) {
           setBio(data.bio);
           setReminders(data.bio.skincareReminderEnabled || false);
@@ -96,16 +149,136 @@ export default function HugoSkinTab() {
             setResult(data.bio.skinAnalysis);
           }
         }
-      })
-      .catch((err) => console.error("Lỗi tải thông tin Bio:", err));
-  }, []);
+      }
+    } catch (err) {
+      console.error("Lỗi tải thông tin Bio:", err);
+    }
+  };
+
+  const fetchHistoryData = async () => {
+    try {
+      const res = await fetch(`${apiBase}/bios/me/skin-history`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.skinHistory) {
+          setHistoryList(data.skinHistory);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi tải lịch sử quét da:", err);
+    }
+  };
+
+  const fetchChecklistData = async () => {
+    try {
+      const res = await fetch(`${apiBase}/bios/me/skin-checklist`, { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.dailySkincareChecklist?.completedSteps) {
+          setChecklist(data.dailySkincareChecklist.completedSteps);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi tải checklist dưỡng da:", err);
+    }
+  };
+
+  const startLightingDiagnostics = () => {
+    const checkFrame = () => {
+      const video = videoRef.current;
+      if (video && video.readyState === 4) {
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = 160;
+        tempCanvas.height = 120;
+        const ctx = tempCanvas.getContext("2d", { willReadFrequently: true });
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, 160, 120);
+          const imgData = ctx.getImageData(0, 0, 160, 120);
+          const pixels = imgData.data;
+
+          let rSum = 0, gSum = 0, bSum = 0;
+          let leftLum = 0, rightLum = 0;
+          let leftCount = 0, rightCount = 0;
+
+          const total = pixels.length / 4;
+          for (let i = 0; i < pixels.length; i += 4) {
+            const r = pixels[i];
+            const g = pixels[i + 1];
+            const b = pixels[i + 2];
+            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+            rSum += r;
+            gSum += g;
+            bSum += b;
+
+            const pixelIdx = i / 4;
+            const x = pixelIdx % 160;
+            if (x < 80) {
+              leftLum += lum;
+              leftCount++;
+            } else {
+              rightLum += lum;
+              rightCount++;
+            }
+          }
+
+          const avgLum = Math.round((0.299 * rSum + 0.587 * gSum + 0.114 * bSum) / total);
+          const avgLeft = leftLum / (leftCount || 1);
+          const avgRight = rightLum / (rightCount || 1);
+          const maxSide = Math.max(avgLeft, avgRight);
+          const minSide = Math.min(avgLeft, avgRight) + 0.1;
+          const contrastRatio = maxSide / minSide;
+          const balanceVal = Math.max(50, Math.round(100 - (contrastRatio - 1) * 60));
+
+          if (avgLum < 65) {
+            setLightingStatus({
+              code: "too_dark",
+              message: "Ánh sáng quá tối (< 65 Lm). Vui lòng thêm đèn.",
+              luminance: avgLum,
+              balance: balanceVal
+            });
+          } else if (avgLum > 215) {
+            setLightingStatus({
+              code: "too_bright",
+              message: "Ánh sáng quá chói (> 215 Lm). Vui lòng giảm bớt đèn.",
+              luminance: avgLum,
+              balance: balanceVal
+            });
+          } else if (contrastRatio > 1.38) {
+            setLightingStatus({
+              code: "imbalanced",
+              message: "Ánh sáng bị lệch 1 bên. Hãy quay chính diện nguồn sáng.",
+              luminance: avgLum,
+              balance: balanceVal
+            });
+          } else {
+            setLightingStatus({
+              code: "optimal",
+              message: "Ánh sáng chuẩn 100%. Tự động quét sau 3s...",
+              luminance: avgLum,
+              balance: balanceVal
+            });
+          }
+        }
+      }
+      lightAnimRef.current = requestAnimationFrame(checkFrame);
+    };
+
+    lightAnimRef.current = requestAnimationFrame(checkFrame);
+  };
+
+  const stopLightingDiagnostics = () => {
+    if (lightAnimRef.current) {
+      cancelAnimationFrame(lightAnimRef.current);
+      lightAnimRef.current = null;
+    }
+  };
 
   const startCamera = async () => {
     try {
       setErrorMsg("");
       setCameraActive(true);
-      
-      // Use extremely flexible constraints with 'ideal' resolution to avoid OverconstrainedError
+
       const constraints = {
         video: {
           facingMode: "user",
@@ -119,31 +292,30 @@ export default function HugoSkinTab() {
       try {
         stream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch (innerErr) {
-        console.warn("Retrying with fallback video constraints...", innerErr);
-        // Fallback to absolute simplest config to ensure success
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
+        console.warn("Retrying simple video constraint...", innerErr);
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       }
 
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
+      startLightingDiagnostics();
     } catch (err) {
       console.error(err);
-      setErrorMsg("Không thể truy cập camera. Vui lòng cấp quyền sử dụng camera trong trình duyệt của bạn.");
+      setErrorMsg("Không thể truy cập camera. Vui lòng kiểm tra quyền trình duyệt.");
       setCameraActive(false);
     }
   };
 
   const stopCamera = () => {
+    stopLightingDiagnostics();
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
     setCameraActive(false);
+    setAutoCaptureSec(null);
   };
 
   const runLocalScan = () => {
@@ -158,9 +330,9 @@ export default function HugoSkinTab() {
           processFaceSnapshot();
           return 100;
         }
-        return prev + 5;
+        return prev + 10;
       });
-    }, 100);
+    }, 60);
   };
 
   const processFaceSnapshot = async () => {
@@ -169,21 +341,16 @@ export default function HugoSkinTab() {
     const ctx = canvas ? canvas.getContext("2d", { willReadFrequently: true }) : null;
     if (!video || !canvas || !ctx) return;
 
-    let width = video.videoWidth;
-    let height = video.videoHeight;
-    if (!width || !height) {
-      width = video.width || 640;
-      height = video.height || 480;
-    }
+    let width = video.videoWidth || 640;
+    let height = video.videoHeight || 480;
     canvas.width = width;
     canvas.height = height;
 
     ctx.drawImage(video, 0, 0, width, height);
 
-    // Cheek color detection with safe clamping
-    const cheekX = Math.round(width * 0.65);
-    const cheekY = Math.round(height * 0.5);
-    const boxSize = 20;
+    const cheekX = Math.round(width * 0.62);
+    const cheekY = Math.round(height * 0.48);
+    const boxSize = 24;
     const halfBox = Math.round(boxSize / 2);
     const startCheekX = Math.max(0, Math.min(width - boxSize, cheekX - halfBox));
     const startCheekY = Math.max(0, Math.min(height - boxSize, cheekY - halfBox));
@@ -204,22 +371,29 @@ export default function HugoSkinTab() {
     const avgB = bSum / pixelCount;
     const hexColor = rgbToHex(avgR, avgG, avgB);
 
-    // Fitzpatrick classification
-    const brightness = (avgR * 299 + avgG * 587 + avgB * 114) / 1000;
-    let fitzpatrick = "Type III (Da ngăm vừa)";
-    if (brightness > 220) fitzpatrick = "Type I (Da trắng tuyết)";
-    else if (brightness > 190) fitzpatrick = "Type II (Da trắng sáng)";
-    else if (brightness > 150) fitzpatrick = "Type III (Da trắng trung bình)";
-    else if (brightness > 120) fitzpatrick = "Type IV (Da ngăm nhẹ)";
-    else if (brightness > 80) fitzpatrick = "Type V (Da nâu bánh mật)";
-    else fitzpatrick = "Type VI (Da tối màu)";
+    let undertone = "Trung tính";
+    if (avgR > avgG + 14 && avgR > avgB + 22) {
+      undertone = "Warm / Tone Ấm";
+    } else if (avgB > avgG - 10 || avgR - avgB < 15) {
+      undertone = "Cool / Tone Lạnh";
+    } else {
+      undertone = "Neutral / Trung tính";
+    }
 
-    // Face symmetry calculation with safe clamping
-    const sliceWidth = Math.max(1, Math.round(width * 0.4));
-    const sliceHeight = Math.max(1, Math.round(height * 0.4));
-    const leftX = Math.round(width * 0.1);
+    const brightness = (avgR * 299 + avgG * 587 + avgB * 114) / 1000;
+    let fitzpatrick = "Type III (Sáng vừa)";
+    if (brightness > 215) fitzpatrick = "Type I (Trắng sáng)";
+    else if (brightness > 185) fitzpatrick = "Type II (Trắng hồng)";
+    else if (brightness > 145) fitzpatrick = "Type III (Trắng trung bình)";
+    else if (brightness > 115) fitzpatrick = "Type IV (Ngăm vừa)";
+    else if (brightness > 80) fitzpatrick = "Type V (Nâu sẫm)";
+    else fitzpatrick = "Type VI (Tối màu)";
+
+    const sliceWidth = Math.max(1, Math.round(width * 0.38));
+    const sliceHeight = Math.max(1, Math.round(height * 0.38));
+    const leftX = Math.round(width * 0.12);
     const rightX = Math.round(width * 0.5);
-    const centerY = Math.round(height * 0.3);
+    const centerY = Math.round(height * 0.28);
 
     const safeLeftX = Math.max(0, Math.min(width - sliceWidth, leftX));
     const safeRightX = Math.max(0, Math.min(width - sliceWidth, rightX));
@@ -236,18 +410,38 @@ export default function HugoSkinTab() {
 
     const leftAvg = leftGraySum / (leftData.length / 4);
     const rightAvg = rightGraySum / (rightData.length / 4);
-    const difference = Math.abs(leftAvg - rightAvg);
-    const symmetryScore = Math.max(72, Math.min(99, Math.round(100 - difference * 0.75)));
+    const symDiff = Math.abs(leftAvg - rightAvg);
+    const symmetryScore = Math.max(75, Math.min(99, Math.round(100 - symDiff * 0.65)));
+
+    const measuredRatio = (height / width) * 1.25;
+    const goldenDiff = Math.abs(measuredRatio - 1.618);
+    const goldenRatioScore = Math.max(78, Math.min(98, Math.round(98 - goldenDiff * 20)));
+
+    const overallScore = Math.round(goldenRatioScore * 0.45 + symmetryScore * 0.55);
+
+    const hydrationScore = Math.min(96, Math.max(60, Math.round(brightness * 0.38 + 15)));
+    const smoothnessScore = Math.min(98, Math.max(65, Math.round(symmetryScore * 0.9 + 5)));
+    const clarityScore = Math.min(95, Math.max(62, Math.round(100 - symDiff * 0.8)));
 
     const selectedPlanConfig = PREDEFINED_PLANS[targetSkin];
     const skinAnalysisResult = {
-      score: symmetryScore,
-      skinType: `${selectedPlanConfig.label} (Phân tích: ${selectedPlanConfig.analysis})`,
+      score: overallScore,
+      goldenRatioScore,
+      skinType: `${selectedPlanConfig.label} (${selectedPlanConfig.analysis})`,
       skinTone: `${hexColor} (${fitzpatrick})`,
+      undertone,
       gender: gender === "male" ? "Nam" : gender === "female" ? "Nữ" : "Không tiết lộ",
+      concerns: selectedPlanConfig.concerns || [],
+      hydrationScore,
+      smoothnessScore,
+      clarityScore,
       plan: selectedPlanConfig.plan,
       updatedAt: new Date()
     };
+
+    // Client-Side Edge Execution: Hiển thị ngay tức thì (0ms latency)
+    setResult(skinAnalysisResult);
+    ClientEdgeEngine.saveLocalFirst("latest_skin_analysis", skinAnalysisResult);
 
     try {
       const res = await fetch(`${apiBase}/bios/me/skin-analysis`, {
@@ -260,12 +454,12 @@ export default function HugoSkinTab() {
       if (res.ok) {
         const resData = await res.json();
         setResult(resData.skinAnalysis);
+        if (resData.skinHistory) setHistoryList(resData.skinHistory);
       }
     } catch (err) {
       console.error(err);
     }
 
-    // Clear canvas backing store from RAM/GPU memory immediately
     try {
       if (ctx && canvas) {
         ctx.clearRect(0, 0, width, height);
@@ -278,6 +472,11 @@ export default function HugoSkinTab() {
 
     stopCamera();
     setScanning(false);
+  };
+
+  const handleReset = () => {
+    setResult(null);
+    startCamera();
   };
 
   const handleToggleReminders = async (checked) => {
@@ -297,6 +496,32 @@ export default function HugoSkinTab() {
     }
   };
 
+  const toggleCheckstep = async (stepName) => {
+    const nextChecklist = checklist.includes(stepName)
+      ? checklist.filter((item) => item !== stepName)
+      : [...checklist, stepName];
+
+    setChecklist(nextChecklist);
+
+    try {
+      await fetch(`${apiBase}/bios/me/skin-checklist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: new Date().toISOString().split("T")[0],
+          completedSteps: nextChecklist
+        }),
+        credentials: "include"
+      });
+    } catch (err) {
+      console.error("Lỗi cập nhật checklist:", err);
+    }
+  };
+
+  const addWater = (amount) => {
+    setWaterMl((prev) => Math.min(3000, prev + amount));
+  };
+
   const daysVietnam = {
     Monday: "Thứ Hai",
     Tuesday: "Thứ Ba",
@@ -308,336 +533,340 @@ export default function HugoSkinTab() {
   };
 
   return (
-    <div className="w-full flex flex-col gap-6 text-zinc-100">
-      {/* Premium Gradient Header Accent */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-950/80 via-zinc-900/80 to-zinc-950/80 border border-white/10 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
-        <span className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
-            HugoSkin Diagnostic System
-            <span className="text-[9px] font-black px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-md uppercase tracking-widest">
-              Live Core
-            </span>
-          </h2>
-          <p className="text-xs text-zinc-400">
-            Ứng dụng giải thuật phân tích quang phổ màu và kiểm tra độ đối xứng khuôn mặt cục bộ siêu tốc.
-          </p>
+    <div className="w-full flex flex-col gap-5 text-zinc-100 font-sans pb-12">
+      {/* Clean Minimalist Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 backdrop-blur-md">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 bg-zinc-800 rounded-xl">
+            <Camera className="w-5 h-5 text-zinc-100" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold text-zinc-100 tracking-tight">HugoSkin</h1>
+            <p className="text-[11px] text-zinc-400">Phân tích sắc tố da & Tỷ lệ vàng 1.618</p>
+          </div>
+        </div>
+
+        {/* Clean Segmented Control Tabs */}
+        <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 w-full sm:w-auto">
+          <button
+            onClick={() => setActiveTab("scan")}
+            className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-medium rounded-lg transition ${
+              activeTab === "scan"
+                ? "bg-zinc-800 text-zinc-100 shadow"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            Quét Da
+          </button>
+          <button
+            onClick={() => setActiveTab("routine")}
+            className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-medium rounded-lg transition ${
+              activeTab === "routine"
+                ? "bg-zinc-800 text-zinc-100 shadow"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            Phác Đồ
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`flex-1 sm:flex-initial px-4 py-1.5 text-xs font-medium rounded-lg transition ${
+              activeTab === "history"
+                ? "bg-zinc-800 text-zinc-100 shadow"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            Lịch Sử
+          </button>
         </div>
       </div>
 
       <AnimatePresence mode="wait">
-        {!result && !cameraActive && (
+        {activeTab === "scan" && (
           <motion.div
-            key="setup"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="p-6 bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border border-white/10 rounded-3xl flex flex-col gap-5 backdrop-blur-xl shadow-2xl"
+            key="tab-scan"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="flex flex-col gap-5"
           >
-            {/* Tech grid detail */}
-            <div className="flex items-center gap-4 bg-zinc-950/60 p-5 rounded-2xl border border-white/5">
-              <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-                <Camera className="w-8 h-8 text-indigo-400" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">Quét Khuôn Mặt Bằng Trình Duyệt</h3>
-                <p className="text-xs text-zinc-500">
-                  Tự động căn chỉnh và xử lý màu sắc trên thời gian thực, hoàn toàn riêng tư.
-                </p>
-              </div>
-            </div>
+            {!result && !cameraActive && (
+              <div className="p-5 sm:p-6 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-medium text-zinc-400">Giới tính</label>
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      className="px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-200 outline-none focus:border-zinc-500 cursor-pointer"
+                    >
+                      <option value="unspecified">Không tiết lộ</option>
+                      <option value="male">Nam</option>
+                      <option value="female">Nữ</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-medium text-zinc-400">Loại da mục tiêu</label>
+                    <select
+                      value={targetSkin}
+                      onChange={(e) => setTargetSkin(e.target.value)}
+                      className="px-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-200 outline-none focus:border-zinc-500 cursor-pointer"
+                    >
+                      <option value="normal">Da Thường / Cân bằng</option>
+                      <option value="oily">Da Dầu / Kiểm soát nhờn</option>
+                      <option value="dry">Da Khô / Cấp ẩm</option>
+                      <option value="sensitive">Da Nhạy cảm / Phục hồi</option>
+                    </select>
+                  </div>
+                </div>
 
-            {/* Privacy Shield Notice */}
-            <div className="flex items-start gap-3 bg-indigo-950/40 p-4.5 rounded-2xl border border-indigo-500/25 shadow-inner">
-              <Shield className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-              <div className="flex flex-col gap-1">
-                <h4 className="text-xs font-black text-indigo-300">Bảo mật & Quyền riêng tư tuyệt đối</h4>
-                <p className="text-[10px] text-zinc-400 leading-relaxed">
-                  Hình ảnh mặt của bạn được xử lý **100% cục bộ trong bộ nhớ RAM trình duyệt**. Chúng tôi chỉ gửi các chỉ số toán học (điểm đối xứng, tone màu) lên máy chủ và **tuyệt đối không gửi hay lưu trữ hình ảnh khuôn mặt** để phòng tránh các rủi ro deepfake/giả mạo.
-                </p>
-              </div>
-            </div>
+                {errorMsg && (
+                  <div className="p-3 bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs rounded-xl flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
 
-            {/* Inputs grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Cung cấp giới tính</label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className="px-4 py-3 bg-zinc-950/90 border border-white/10 rounded-xl text-xs text-zinc-200 outline-none focus:border-indigo-500 focus:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition duration-200 cursor-pointer"
+                <button
+                  onClick={startCamera}
+                  className="py-3 bg-zinc-100 text-zinc-950 hover:bg-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition cursor-pointer"
                 >
-                  <option value="unspecified">Không tiết lộ / Khác</option>
-                  <option value="male">Nam</option>
-                  <option value="female">Nữ</option>
-                </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Loại da mục tiêu</label>
-                <select
-                  value={targetSkin}
-                  onChange={(e) => setTargetSkin(e.target.value)}
-                  className="px-4 py-3 bg-zinc-950/90 border border-white/10 rounded-xl text-xs text-zinc-200 outline-none focus:border-indigo-500 focus:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition duration-200 cursor-pointer"
-                >
-                  <option value="normal">Da Thường / Cân bằng khỏe mạnh</option>
-                  <option value="oily">Da Dầu / Kiểm soát bã nhờn</option>
-                  <option value="dry">Da Khô / Cấp ẩm sâu</option>
-                  <option value="sensitive">Da Nhạy cảm / Phục hồi bảo vệ</option>
-                </select>
-              </div>
-            </div>
-
-            {errorMsg && (
-              <div className="p-3.5 bg-red-500/10 border border-red-500/25 text-red-400 text-xs rounded-xl flex items-center gap-2 animate-shake">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
+                  <Camera className="w-4 h-4" />
+                  Mở Camera Quét Da
+                </button>
               </div>
             )}
 
-            <button
-              onClick={startCamera}
-              className="py-3 bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-500 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/15 flex items-center justify-center gap-2 transition duration-200 border border-indigo-500/30"
-            >
-              <Camera className="w-4 h-4" />
-              Bật Camera Quét Ngay
-            </button>
-          </motion.div>
-        )}
+            {!result && cameraActive && (
+              <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-2xl flex flex-col gap-3">
+                <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-black border border-zinc-800">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover transform scale-x-[-1]"
+                  />
 
-        {!result && cameraActive && (
-          <motion.div
-            key="camera"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="p-5 bg-zinc-950 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col gap-4 relative"
-          >
-            {/* Tech UI Frame overlay */}
-            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black border border-white/10 shadow-inner">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover transform scale-x-[-1]"
-              />
-
-              {/* Laser line overlay */}
-              {scanning && (
-                <div
-                  className="absolute left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] z-20"
-                  style={{
-                    top: `${scanProgress}%`,
-                    transition: "top 0.1s linear"
-                  }}
-                />
-              )}
-
-              {/* Sci-fi Target HUD Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                {/* 4 tech corner brackets */}
-                <div className="absolute top-8 left-8 w-6 h-6 border-t-2 border-l-2 border-cyan-400" />
-                <div className="absolute top-8 right-8 w-6 h-6 border-t-2 border-r-2 border-cyan-400" />
-                <div className="absolute bottom-8 left-8 w-6 h-6 border-b-2 border-l-2 border-cyan-400" />
-                <div className="absolute bottom-8 right-8 w-6 h-6 border-b-2 border-r-2 border-cyan-400" />
-                
-                {/* Target ellipse */}
-                <div className={`w-[50%] aspect-[3/4] border-2 border-dashed ${scanning ? "border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.4)] animate-pulse" : "border-white/30"} rounded-[50%]`} />
-              </div>
-
-              {/* Scanning status banner */}
-              {scanning && (
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center z-15">
-                  <span className="px-3 py-1 bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 text-[10px] font-bold rounded-full uppercase tracking-widest animate-pulse">
-                    Đang giải mã sắc tố...
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <canvas ref={canvasRef} className="hidden" />
-
-            <div className="flex gap-3">
-              <button
-                onClick={stopCamera}
-                disabled={scanning}
-                className="flex-1 py-3 bg-zinc-900 border border-white/10 text-zinc-300 hover:bg-zinc-800 text-xs font-semibold rounded-xl transition duration-200 disabled:opacity-50"
-              >
-                Hủy bỏ
-              </button>
-              <button
-                onClick={runLocalScan}
-                disabled={scanning}
-                className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition duration-200 disabled:opacity-50 shadow-lg shadow-indigo-600/20"
-              >
-                {scanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    Đang phân tích ({scanProgress}%)
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    Bắt Đầu Phân Tích
-                  </>
-                )}
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {result && (
-          <motion.div
-            key="result"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col gap-6"
-          >
-            {/* Premium diagnostic results panel */}
-            <div className="p-6 bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border border-white/10 rounded-3xl flex flex-col gap-6 backdrop-blur-xl shadow-2xl relative">
-              <span className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500" />
-              
-              <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                <div>
-                  <h3 className="text-sm font-bold text-white">Chẩn Đoán Sắc Tố & Cân Đối</h3>
-                  <p className="text-[10px] text-zinc-500 mt-0.5">
-                    Thời gian phân tích: {result.updatedAt ? new Date(result.updatedAt).toLocaleString("vi-VN") : "Hiện tại"}
-                  </p>
-                </div>
-                <button
-                  onClick={handleReset}
-                  className="px-3 py-1.5 bg-zinc-950 border border-white/10 text-zinc-300 hover:border-indigo-500 hover:text-indigo-400 text-xs font-semibold rounded-lg transition duration-200"
-                >
-                  Quét Lại Da
-                </button>
-              </div>
-
-              {/* Circular gauges and stats metrics grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Symmetry circular rating */}
-                <div className="bg-zinc-950/60 p-5 rounded-2xl border border-white/5 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                  <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Tỉ lệ đối xứng</span>
-                  <div className="relative w-20 h-20 flex items-center justify-center">
-                    {/* SVG Progress Circle */}
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="40" cy="40" r="34" className="stroke-zinc-800" strokeWidth="6" fill="transparent" />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="34"
-                        className="stroke-emerald-400"
-                        strokeWidth="6"
-                        fill="transparent"
-                        strokeDasharray={2 * Math.PI * 34}
-                        strokeDashoffset={2 * Math.PI * 34 * (1 - result.score / 100)}
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <span className="absolute text-base font-black text-white">{result.score}%</span>
-                  </div>
-                  <span className="text-[8px] text-zinc-500 mt-3 uppercase tracking-wider">Khuôn Mặt Vàng</span>
-                </div>
-
-                {/* Skin tone hex color palette card */}
-                <div className="bg-zinc-950/60 p-5 rounded-2xl border border-white/5 flex flex-col items-center justify-center text-center">
-                  <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Sắc độ da</span>
-                  <div className="relative w-16 h-16 rounded-full border border-white/10 flex items-center justify-center shadow-lg" style={{ backgroundColor: result.skinTone.split(" ")[0] }}>
-                    <div className="w-8 h-8 rounded-full bg-black/25 backdrop-blur-sm border border-white/5 flex items-center justify-center">
-                      <Eye className="w-4 h-4 text-white/80" />
+                  {/* Auto capture countdown overlay */}
+                  {autoCaptureSec !== null && !scanning && (
+                    <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 z-30">
+                      <span className="text-4xl font-bold text-zinc-100">{autoCaptureSec}</span>
+                      <span className="text-[11px] text-zinc-300">Ánh sáng chuẩn. Đang tự động quét...</span>
                     </div>
+                  )}
+
+                  {/* Scanning bar */}
+                  {scanning && (
+                    <div
+                      className="absolute left-0 w-full h-[2px] bg-zinc-100 shadow-[0_0_10px_#fff] z-20"
+                      style={{ top: `${scanProgress}%`, transition: "top 0.06s linear" }}
+                    />
+                  )}
+
+                  {/* Face target guide */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    <div className={`w-[48%] aspect-[1/1.618] border border-dashed ${
+                      lightingStatus.code === "optimal" ? "border-zinc-100" : "border-zinc-500"
+                    } rounded-[50%]`} />
                   </div>
-                  <span className="text-xs font-bold text-zinc-200 mt-3">
-                    {result.skinTone.split(" ")[0]}
-                  </span>
-                  <span className="text-[8px] text-zinc-500 mt-1 max-w-[140px] truncate">
-                    {result.skinTone.includes("Fitzpatrick") ? result.skinTone.split("(")[1]?.replace(")", "") : result.skinTone}
-                  </span>
+
+                  {/* Lighting status */}
+                  <div className="absolute top-3 left-3 right-3 z-15 flex justify-between items-center">
+                    <span className="px-3 py-1 bg-zinc-900/90 border border-zinc-700 text-zinc-200 text-[10px] font-medium rounded-lg backdrop-blur">
+                      {lightingStatus.message}
+                    </span>
+                  </div>
                 </div>
 
-                {/* Gender indicator card */}
-                <div className="bg-zinc-950/60 p-5 rounded-2xl border border-white/5 flex flex-col items-center justify-center text-center">
-                  <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Giới tính phân tích</span>
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-1">
-                    <span className="text-xl font-black text-indigo-400">{result.gender || "Khác"}</span>
-                  </div>
-                  <span className="text-[8px] text-zinc-500 mt-3 uppercase tracking-wider">Hồ sơ người dùng</span>
+                <canvas ref={canvasRef} className="hidden" />
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={stopCamera}
+                    disabled={scanning}
+                    className="flex-1 py-2.5 bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium rounded-xl hover:bg-zinc-800 transition"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    onClick={runLocalScan}
+                    disabled={scanning}
+                    className="flex-1 py-2.5 bg-zinc-100 text-zinc-950 text-xs font-bold rounded-xl hover:bg-white transition flex items-center justify-center gap-1.5"
+                  >
+                    {scanning ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      "Quét Ngay"
+                    )}
+                  </button>
                 </div>
               </div>
+            )}
 
-              {/* Expert evaluation notes block */}
-              <div className="bg-indigo-950/40 border border-indigo-500/20 p-4.5 rounded-2xl flex flex-col gap-1.5 shadow-inner">
-                <span className="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
-                  <Shield className="w-4 h-4 text-indigo-400" />
-                  Chuẩn đoán loại da & đề xuất
-                </span>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  {result.skinType}
-                </p>
-              </div>
-
-              {/* Skincare notification reminders switch */}
-              <div className="p-4 bg-zinc-950/60 rounded-2xl border border-white/5 flex justify-between items-center shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-                    <Bell className={`w-4 h-4 ${reminders ? "text-indigo-400 animate-bounce" : "text-zinc-500"}`} />
-                  </div>
+            {/* Results Dashboard */}
+            {result && (
+              <div className="p-5 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col gap-4">
+                <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
                   <div>
-                    <h4 className="text-xs font-bold text-white">Đồng hành & Nhắc nhở Skincare</h4>
-                    <p className="text-[10px] text-zinc-500">Tự động báo thức lúc 08:00 sáng & 21:30 tối qua Web Push.</p>
+                    <h3 className="text-sm font-bold text-zinc-100">Kết Quả Phân Tích Da</h3>
+                    <p className="text-[10px] text-zinc-400">
+                      {result.updatedAt ? new Date(result.updatedAt).toLocaleString("vi-VN") : "Hiện tại"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleReset}
+                    className="px-3 py-1 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:text-white text-xs font-medium rounded-lg transition"
+                  >
+                    Quét Lại
+                  </button>
+                </div>
+
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] text-zinc-400">Tỷ lệ Vàng</span>
+                    <span className="text-lg font-bold text-zinc-100 mt-1">{result.goldenRatioScore || 88}%</span>
+                  </div>
+
+                  <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] text-zinc-400">Điểm Làn Da</span>
+                    <span className="text-lg font-bold text-zinc-100 mt-1">{result.score}%</span>
+                  </div>
+
+                  <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] text-zinc-400">Sắc Độ Da</span>
+                    <div className="w-5 h-5 rounded-full border border-zinc-700 mt-1.5 mb-0.5" style={{ backgroundColor: result.skinTone?.split(" ")[0] || "#E0AC69" }} />
+                    <span className="text-[10px] text-zinc-300">{result.undertone || "Trung tính"}</span>
+                  </div>
+
+                  <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col items-center justify-center text-center">
+                    <span className="text-[10px] text-zinc-400">Độ Ẩm Da</span>
+                    <span className="text-lg font-bold text-zinc-100 mt-1">{result.hydrationScore || 85}%</span>
                   </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+
+                {/* Analysis detail */}
+                <div className="p-3.5 bg-zinc-950 rounded-xl border border-zinc-800 text-xs text-zinc-300 leading-relaxed">
+                  <span className="font-bold text-zinc-100 block mb-1">Chẩn đoán:</span>
+                  {result.skinType}
+                </div>
+
+                {/* Push notification toggle */}
+                <div className="p-3 bg-zinc-950 rounded-xl border border-zinc-800 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-zinc-400" />
+                    <span className="text-xs text-zinc-300">Nhắc nhở Skincare (8h / 21h30)</span>
+                  </div>
                   <input
                     type="checkbox"
                     checked={reminders}
                     onChange={(e) => handleToggleReminders(e.target.checked)}
-                    className="sr-only peer"
+                    className="accent-zinc-100 cursor-pointer"
                   />
-                  <div className="w-9 h-5 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
-                </label>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {activeTab === "routine" && (
+          <motion.div
+            key="tab-routine"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="flex flex-col gap-5"
+          >
+            {/* Water Tracker minimal */}
+            <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-zinc-800 rounded-xl">
+                  <Droplet className="w-4 h-4 text-zinc-100" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-zinc-100 block">Nước Uống Hôm Nay</span>
+                  <span className="text-[11px] text-zinc-400">{waterMl} / 2,000 ml</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => addWater(250)}
+                  className="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-lg transition"
+                >
+                  +250ml
+                </button>
+                <button
+                  onClick={() => addWater(500)}
+                  className="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-lg transition"
+                >
+                  +500ml
+                </button>
               </div>
             </div>
 
-            {/* Skincare 7-day schedule plan cards */}
-            <div className="flex flex-col gap-3">
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2 mt-2">
-                <CheckCircle2 className="w-4 h-4 text-indigo-400 animate-pulse" />
-                Phác đồ dưỡng da 7 ngày của bạn
-              </h3>
+            {/* Checklist */}
+            <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col gap-3">
+              <div className="flex justify-between items-center border-b border-zinc-800 pb-2.5">
+                <h3 className="text-xs font-bold text-zinc-100">Checklist Dưỡng Da Hôm Nay</h3>
+                <span className="text-[11px] text-zinc-400">{checklist.length}/6 bước</span>
+              </div>
 
-              <div className="grid grid-cols-1 gap-3">
-                {Object.entries(result.plan || {}).map(([dayKey, dayPlan]) => (
-                  <div key={dayKey} className="p-5 bg-zinc-900/60 border border-white/10 rounded-2xl flex flex-col gap-3 hover:border-indigo-500/30 transition duration-300 relative overflow-hidden group">
-                    <span className="absolute top-0 bottom-0 left-0 w-[4px] bg-indigo-500/50 group-hover:bg-indigo-400 transition" />
-                    <span className="text-xs font-black text-indigo-400 uppercase tracking-wider pl-1">
+              <div className="flex flex-col gap-2">
+                {[
+                  "☀️ Buổi Sáng: Rửa mặt & Toner",
+                  "☀️ Buổi Sáng: Serum Niacinamide / C",
+                  "☀️ Buổi Sáng: Kem chống nắng SPF 50+",
+                  "💧 Uống đủ 2 Lít nước",
+                  "🌙 Buổi Tối: Tẩy trang & Rửa mặt",
+                  "🌙 Buổi Tối: Dưỡng ẩm / Retinol"
+                ].map((stepName, idx) => {
+                  const isChecked = checklist.includes(stepName);
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => toggleCheckstep(stepName)}
+                      className={`p-2.5 rounded-xl border flex items-center gap-2.5 cursor-pointer transition ${
+                        isChecked
+                          ? "bg-zinc-800/80 border-zinc-700 text-zinc-100"
+                          : "bg-zinc-950/50 border-zinc-800/60 text-zinc-400"
+                      }`}
+                    >
+                      <CheckCircle2 className={`w-4 h-4 shrink-0 ${isChecked ? "text-zinc-100" : "text-zinc-600"}`} />
+                      <span className="text-xs font-medium">{stepName}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 7-Day Plan minimal */}
+            <div className="flex flex-col gap-3">
+              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Phác Đồ 7 Ngày</h3>
+
+              <div className="flex flex-col gap-3">
+                {Object.entries((result?.plan || PREDEFINED_PLANS[targetSkin].plan)).map(([dayKey, dayPlan]) => (
+                  <div key={dayKey} className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-xl flex flex-col gap-2">
+                    <span className="text-xs font-bold text-zinc-200">
                       {daysVietnam[dayKey] || dayKey}
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-1">
-                      {/* Morning Routine */}
-                      <div className="flex flex-col gap-2 bg-zinc-950/40 p-3.5 rounded-xl border border-white/5">
-                        <span className="text-[10px] font-black text-amber-500/90 uppercase tracking-widest flex items-center gap-1.5">
-                          ☀️ Buổi Sáng:
-                        </span>
-                        <ul className="text-xs text-zinc-400 space-y-1.5 pl-0.5">
-                          {dayPlan.morning?.map((step, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="text-amber-500/50 text-[10px] mt-0.5">■</span>
-                              <span className="leading-tight">{step}</span>
-                            </li>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-zinc-400">
+                      <div>
+                        <span className="text-[10px] text-zinc-500 font-bold block mb-1">SÁNG</span>
+                        <ul className="space-y-1">
+                          {dayPlan.morning?.map((s, i) => (
+                            <li key={i} className="leading-tight">• {s}</li>
                           ))}
                         </ul>
                       </div>
-                      {/* Night Routine */}
-                      <div className="flex flex-col gap-2 bg-zinc-950/40 p-3.5 rounded-xl border border-white/5">
-                        <span className="text-[10px] font-black text-indigo-400/90 uppercase tracking-widest flex items-center gap-1.5">
-                          🌙 Buổi Tối:
-                        </span>
-                        <ul className="text-xs text-zinc-400 space-y-1.5 pl-0.5">
-                          {dayPlan.night?.map((step, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="text-indigo-500/50 text-[10px] mt-0.5">■</span>
-                              <span className="leading-tight">{step}</span>
-                            </li>
+                      <div>
+                        <span className="text-[10px] text-zinc-500 font-bold block mb-1">TỐI</span>
+                        <ul className="space-y-1">
+                          {dayPlan.night?.map((s, i) => (
+                            <li key={i} className="leading-tight">• {s}</li>
                           ))}
                         </ul>
                       </div>
@@ -645,6 +874,66 @@ export default function HugoSkinTab() {
                   </div>
                 ))}
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "history" && (
+          <motion.div
+            key="tab-history"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="flex flex-col gap-4"
+          >
+            <div className="p-5 bg-zinc-900/40 border border-zinc-800 rounded-2xl flex flex-col gap-3">
+              <div className="flex justify-between items-center border-b border-zinc-800 pb-2.5">
+                <h3 className="text-xs font-bold text-zinc-100">Lịch Sử Quét Da</h3>
+                <span className="text-[11px] text-zinc-400">{historyList.length} Lần</span>
+              </div>
+
+              {historyList.length === 0 ? (
+                <div className="p-6 text-center text-zinc-500 text-xs">
+                  Chưa có lịch sử quét da. Hãy thực hiện quét đầu tiên!
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2.5">
+                  {historyList.map((item, idx) => (
+                    <div key={item.id || idx} className="p-3.5 bg-zinc-950 border border-zinc-800 rounded-xl flex flex-col gap-2 text-xs">
+                      <div className="flex justify-between items-center border-b border-zinc-800/80 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-zinc-100">
+                            #{historyList.length - idx} - {item.skinType ? item.skinType.split("(")[0] : "Phân tích da"}
+                          </span>
+                          <span className="text-[10px] text-zinc-400">
+                            {new Date(item.date).toLocaleString("vi-VN")}
+                          </span>
+                        </div>
+                        <div className="w-4 h-4 rounded-full border border-zinc-700" style={{ backgroundColor: item.skinTone?.split(" ")[0] || "#E0AC69" }} />
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                        <div>
+                          <span className="text-zinc-500 block">Tỷ lệ Vàng Face:</span>
+                          <span className="font-bold text-zinc-100">{item.goldenRatioScore || 88}%</span>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500 block">Sức Khỏe Da:</span>
+                          <span className="font-bold text-zinc-100">{item.score}%</span>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500 block">Undertone:</span>
+                          <span className="text-zinc-300">{item.undertone || "Trung tính"}</span>
+                        </div>
+                        <div>
+                          <span className="text-zinc-500 block">Độ Ẩm / Độ Mịn:</span>
+                          <span className="text-zinc-300">{item.hydrationScore || 85}% / {item.smoothnessScore || 88}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

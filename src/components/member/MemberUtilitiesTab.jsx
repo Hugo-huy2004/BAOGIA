@@ -22,7 +22,7 @@ const UTILITY_METADATA = {
   ide: { icon: "code", tint: "from-blue-600 to-violet-600", title: "HugoCoder" },
   team: { icon: "groups", tint: "from-teal-400 to-emerald-500", title: "Hugo Team" },
   psychology: { icon: "psychology", tint: "from-cyan-400 to-emerald-500", title: "HugoPSY" },
-  hugoskin: { icon: "face", tint: "from-indigo-500 to-purple-500", title: "HugoSkin" },
+  hugoskin: { icon: "face", tint: "from-zinc-700 to-zinc-900", title: "HugoSkin" },
   radio: { icon: "radio", tint: "from-teal-400 to-emerald-500", title: "HugoRadio" },
   helpdesk: { icon: "support_agent", tint: "from-indigo-500 to-purple-500", title: "HugoHelpdesk" },
   handle: { icon: "handyman", tint: "from-rose-500 to-red-500", title: "HugoHandle" },
@@ -155,12 +155,13 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* HugoSkin */}
       {selectedUtility === "hugoskin" && (
-        <div className="space-y-4">
+        <div className="space-y-4 text-left">
           <button
             onClick={() => onSelectUtility(null)}
-            className="flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-300 transition"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
           >
-            ← Quay lại tiện ích
+            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            <span>Quay lại tiện ích</span>
           </button>
           <HugoSkinTab />
         </div>

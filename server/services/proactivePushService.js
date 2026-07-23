@@ -1,8 +1,8 @@
 import cron from 'node-cron';
-import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import CompanionHistory from '../models/CompanionHistory.js';
 import Bio from '../models/Bio.js';
+import { sendPushToUser } from './pushGuard.js';
 
 // The URL of the Python AI Server
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
@@ -60,26 +60,13 @@ async function runProactivePushJob() {
         
         // Cấu trúc dự kiến: { should_send: true/false, title: "...", body: "...", reason: "..." }
         if (aiResult && aiResult.should_send) {
-          console.log(`🤖 AI quyết định gửi thông báo cho ${email}. Lý do: ${aiResult.reason}`);
-          
-          const payload = JSON.stringify({
+          const sent = await sendPushToUser(email, subs, {
             title: aiResult.title || 'Bạn Học Đường',
             body: aiResult.body || 'Cậu ơi, vào tâm sự với tớ một lát nhé!',
             icon: '/image/avt7.png',
             url: '/member/portal?tab=banhocduong'
           });
-
-          // Gửi tới tất cả thiết bị của user này
-          for (const sub of subs) {
-            try {
-              await webpush.sendNotification(sub.subscription, payload);
-            } catch (err) {
-              if (err.statusCode === 410 || err.statusCode === 404) {
-                // Xóa subscription lỗi/hết hạn
-                await NotificationSubscription.deleteOne({ _id: sub._id });
-              }
-            }
-          }
+          if (sent) console.log(`AI quyết định gửi thông báo cho ${email}. Lý do: ${aiResult.reason}`);
         }
 
       } catch (err) {

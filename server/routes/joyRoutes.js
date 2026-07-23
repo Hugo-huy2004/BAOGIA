@@ -100,7 +100,7 @@ router.get('/balance', requireMember, async (req, res) => {
     // falls back to loading a full mongoose doc to generate + save one.
     let bio = await Bio.findOne({ email }, 'joyBalance referralCode').lean();
     if (!bio) bio = await Bio.findOne({ contactEmail: email }, 'joyBalance referralCode').lean();
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+    if (!bio) return res.json({ balance: 0, referralCode: "" });
 
     if (bio.referralCode) {
       return res.json({ balance: bio.joyBalance || 0, referralCode: bio.referralCode });
