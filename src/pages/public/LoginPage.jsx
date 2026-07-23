@@ -141,7 +141,8 @@ export default function LoginPage() {
       if (!window.__googleInitialized) {
         googleId.initialize({
           client_id: clientId,
-          callback: handleGoogleCredential
+          callback: handleGoogleCredential,
+          use_fedcm_for_prompt: false
         });
         window.__googleInitialized = true;
       }

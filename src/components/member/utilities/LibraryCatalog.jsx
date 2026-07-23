@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RoutePrefetcher } from "../../../utils/routePrefetcher";
+import { triggerPWAInstallDirectly } from "../../../utils/pwaInstallTrigger";
 
 // Kept in sync with the same map in MemberUtilitiesDashboard.jsx — not
 // imported from there to avoid a circular import (that file imports this
@@ -334,13 +335,13 @@ export default function LibraryCatalog({
 
                   <button
                     onClick={() => {
-                      window.open(`/${selectedApp.id}`, '_blank');
+                      triggerPWAInstallDirectly().catch(() => {});
                     }}
-                    title="Mở ứng dụng này dưới dạng cửa sổ độc lập để tập trung làm việc"
-                    className="px-4 py-1.5 rounded-full bg-muted border border-border/50 text-foreground font-extrabold text-[10.5px] uppercase tracking-widest hover:bg-muted/80 active:scale-95 transition-all duration-200 flex items-center gap-1 shrink-0"
+                    title="Cài đặt ứng dụng này thành App độc lập trên màn hình chính"
+                    className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary font-extrabold text-[10.5px] uppercase tracking-widest hover:bg-primary/20 active:scale-95 transition-all duration-200 flex items-center gap-1 shrink-0"
                   >
-                    <span className="material-symbols-outlined text-[13px]">open_in_new</span>
-                    Tách App Độc Lập
+                    <span className="material-symbols-outlined text-[14px]">download_for_offline</span>
+                    Đẩy Ra Màn Hình Chính
                   </button>
                 </div>
               </div>

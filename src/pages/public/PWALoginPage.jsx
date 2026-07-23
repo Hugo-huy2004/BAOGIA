@@ -117,7 +117,11 @@ export default function PWALoginPage() {
       if (!googleId || !googleButtonRef.current) return;
 
       if (!initedRef.current) {
-        googleId.initialize({ client_id: clientId, callback: handleGoogleCredential });
+        googleId.initialize({ 
+          client_id: clientId, 
+          callback: handleGoogleCredential,
+          use_fedcm_for_prompt: false 
+        });
         initedRef.current = true;
       }
       googleButtonRef.current.innerHTML = "";
