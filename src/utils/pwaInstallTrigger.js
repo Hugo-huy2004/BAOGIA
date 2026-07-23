@@ -5,13 +5,17 @@
 
 let globalInstallPrompt = null;
 
-// Catch native beforeinstallprompt globally
+// Catch native beforeinstallprompt globally & Request Persistent Storage
 if (typeof window !== "undefined") {
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     globalInstallPrompt = e;
     window.deferredPWAInstallPrompt = e;
   });
+
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
 }
 
 export async function triggerPWAInstallDirectly(onShowIOSGuide) {

@@ -98,6 +98,15 @@ export default defineConfig({
               },
             },
           },
+          // Cache Sub-Utility JS Chunks (HugoPSY, HugoSkin, HugoCoder, Chess) for 0ms offline launch
+          {
+            urlPattern: /\/assets\/.*(Member|Banhocduong|Therapy|Chess|HugoArcade|HugoSkin).*\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'sub-utility-chunks',
+              expiration: { maxEntries: 40, maxAgeSeconds: 30 * 24 * 60 * 60 },
+            },
+          },
         ],
       },
       manifest: {
@@ -115,6 +124,19 @@ export default defineConfig({
           { src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'favicon/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
+        share_target: {
+          action: '/hugoskin',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            files: [
+              {
+                name: 'image',
+                accept: ['image/*']
+              }
+            ]
+          }
+        },
         shortcuts: [
           {
             name: 'HugoArcade',

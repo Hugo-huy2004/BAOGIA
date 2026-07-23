@@ -28,6 +28,8 @@ import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import { PWAKeepAlive } from "./utils/pwaKeepAlive";
+import { ApplePushNotificationManager } from "./utils/applePushNotificationManager";
+import { WebGPUAccelerator } from "./utils/webgpuAccelerator";
 import DynamicCapsuleBar from "./components/ui/DynamicCapsuleBar";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 
@@ -67,6 +69,8 @@ function AppContent() {
     BackgroundSyncEngine.initListener();
     StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
     PWAKeepAlive.startKeepAlive();
+    WebGPUAccelerator.initWebGPU().catch(() => {});
+    ApplePushNotificationManager.scheduleEveningSkincareRoutine();
   }, []);
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";

@@ -54,6 +54,8 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
 
       await webauthnHelper.registerDevice(email, deviceName, baseDevice);
       webauthnHelper.markDeviceFlag(email);
+      const { FaceIdPriorityAuth } = await import("../../utils/faceIdPriorityAuth");
+      await FaceIdPriorityAuth.registerFaceIdProfile(memberSession);
       const updated = await webauthnHelper.listDevices(email);
       setDevices(updated);
       showToast?.(t("memberPortal.settings.biometric.registerSuccess"), "success");
