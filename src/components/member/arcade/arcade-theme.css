@@ -1,26 +1,27 @@
 /* ═══════════════════════════════════════════════════════════════════
-   HugoArcade — Color-rich theme, aligned with HugoStudio palette
-   Accent tokens: indigo (primary), violet, emerald, rose, amber, cyan, sky
+   HugoArcade — Authentic Premium Arcade Theme & Visual System
+   Primary accent: HugoArcade Coral Red (#FF2D55)
+   Glassmorphism: Deep Space Dark Theme
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── Design tokens ─────────────────────────────────────────────── */
 .arc {
-  /* Surfaces */
-  --arc-bg:  #09080f;
-  --arc-s1:  #111019;
-  --arc-s2:  #18172a;
-  --arc-s3:  #22203a;
-  --arc-b1:  rgba(255,255,255,.07);
-  --arc-b2:  rgba(255,255,255,.14);
-  /* Text scale */
-  --arc-t1:  #eff0f7;
-  --arc-t2:  #8b8ca8;
-  --arc-t3:  #4f5070;
-  /* Brand — HugoStudio primary indigo */
-  --arc-a:   #6366f1;
-  --arc-a2:  #8b5cf6;
-  /* JOY currency — HugoStudio warning amber */
-  --arc-joy: #f59e0b;
+  /* Surfaces — Deep Dark Space */
+  --arc-bg:  #0a0a0f;
+  --arc-s1:  #14151f;
+  --arc-s2:  #1c1d2b;
+  --arc-s3:  #25273a;
+  --arc-b1:  rgba(255,255,255,.08);
+  --arc-b2:  rgba(255,255,255,.16);
+  /* Text scale — Crisp SF Pro */
+  --arc-t1:  #f5f5f7;
+  --arc-t2:  #9e9eb0;
+  --arc-t3:  #68697b;
+  /* Brand — HugoArcade Red & Coral Accent */
+  --arc-a:   #ff2d55;
+  --arc-a2:  #fa2d48;
+  /* JOY currency — Amber */
+  --arc-joy: #ffb340;
   /* compat aliases (ArcadeGameFrame popup) */
   --arcade-card:   var(--arc-s1);
   --arcade-line:   var(--arc-b2);
@@ -28,7 +29,7 @@
   --arcade-muted:  var(--arc-t2);
   --arcade-accent: var(--arc-a);
 
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Plus Jakarta Sans", system-ui, sans-serif;
   background: var(--arc-bg);
   color: var(--arc-t1);
   height: 100dvh;
@@ -37,23 +38,9 @@
   flex-direction: column;
 }
 
-:root:not(.dark) .arc {
-  --arc-bg:  #f0f0f8;
-  --arc-s1:  #ffffff;
-  --arc-s2:  #f4f4fb;
-  --arc-s3:  #ececf7;
-  --arc-b1:  rgba(0,0,0,.06);
-  --arc-b2:  rgba(0,0,0,.12);
-  --arc-t1:  #111019;
-  --arc-t2:  #52536a;
-  --arc-t3:  #9899b0;
-  --arcade-card: #ffffff;
-  --arcade-line: rgba(0,0,0,.12);
-}
-
-/* ─── Animations ─────────────────────────────────────────────────── */
+/* ─── Animations ────────────────────────────────────────────────── */
 @keyframes arcModalIn {
-  from { opacity: 0; transform: scale(.93) translateY(12px); }
+  from { opacity: 0; transform: scale(.94) translateY(10px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 @keyframes spin      { to { transform: rotate(360deg); } }
@@ -65,61 +52,62 @@
 
 /* ─── Topbar ─────────────────────────────────────────────────────── */
 .arc-topbar {
-  height: calc(58px + env(safe-area-inset-top, 0px));
-  padding: env(safe-area-inset-top, 0px) 18px 0;
+  height: calc(56px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 20px 0;
   display: flex; align-items: center; gap: 12px;
-  background: var(--arc-s1);
+  background: rgba(10,10,14,.8);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--arc-b1);
   flex-shrink: 0; z-index: 40; position: relative;
 }
 
-/* Back button — borderless, minimal */
+/* Back button — borderless, minimal iOS arrow */
 .arc-back {
-  width: 32px; height: 32px; border-radius: 8px;
-  border: none; background: transparent;
-  color: var(--arc-t2); display: grid; place-items: center;
-  font-size: 18px; flex-shrink: 0; transition: .15s;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,.05);
+  color: var(--arc-t1); display: grid; place-items: center;
+  font-size: 16px; flex-shrink: 0; transition: .18s;
   line-height: 1;
 }
-.arc-back:hover { background: var(--arc-s3); color: var(--arc-t1); }
+.arc-back:hover { background: rgba(255,255,255,.12); }
 
-/* Logo — gradient wordmark, no square mark */
-.arc-logo { display: flex; align-items: center; gap: 0; }
+/* Logo — Apple Arcade signature header */
+.arc-logo { display: flex; align-items: center; gap: 4px; }
 .arc-logo-mark { display: none; }
 .arc-logo-name {
-  font-size: 17px; font-weight: 900; letter-spacing: -.04em;
-  background: linear-gradient(120deg, var(--arc-t1) 40%, var(--arc-a2) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 19px; font-weight: 800; letter-spacing: -.03em;
+  color: var(--arc-t1);
 }
-.arc-logo-name span { -webkit-text-fill-color: transparent; }
+.arc-logo-icon {
+  color: var(--arc-a); font-size: 20px; margin-right: 2px;
+}
 
-.arc-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.arc-topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
-/* JOY chip — compact pill */
+/* JOY chip — compact Apple style pill */
 .arc-joy-chip {
-  display: flex; align-items: center; gap: 4px;
-  background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2);
-  border-radius: 999px; padding: 5px 10px 5px 8px;
-  font-size: 12px; font-weight: 800; color: var(--arc-joy);
-  letter-spacing: -.01em;
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(255,179,64,.1); border: 1px solid rgba(255,179,64,.25);
+  border-radius: 999px; padding: 4px 12px 4px 8px;
+  font-size: 13px; font-weight: 800; color: var(--arc-joy);
+  letter-spacing: -.01em; backdrop-filter: blur(8px);
 }
-.arc-joy-label { font-size: 8px; color: rgba(245,158,11,.5); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.arc-joy-label { font-size: 9px; color: rgba(255,179,64,.7); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
 
 /* Buttons */
 .arc-sub-btn {
-  height: 30px; padding: 0 12px; border-radius: 999px;
+  height: 32px; padding: 0 14px; border-radius: 999px;
   background: linear-gradient(135deg, var(--arc-a), var(--arc-a2));
-  color: white; font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
-  box-shadow: 0 2px 10px rgba(99,102,241,.3); transition: .15s;
+  color: white; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(255,45,85,.35); transition: .18s;
 }
-.arc-sub-btn:hover { filter: brightness(1.1); box-shadow: 0 4px 16px rgba(99,102,241,.4); }
+.arc-sub-btn:hover { filter: brightness(1.1); box-shadow: 0 6px 20px rgba(255,45,85,.5); }
 .arc-quit-btn {
-  height: 30px; padding: 0 12px; border-radius: 999px;
-  border: 1px solid var(--arc-b2); background: transparent;
-  color: var(--arc-t2); font-size: 10px; font-weight: 800; letter-spacing: .04em; transition: .15s;
+  height: 30px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--arc-b2); background: rgba(255,255,255,.06);
+  color: var(--arc-t1); font-size: 11px; font-weight: 700; transition: .15s;
 }
-.arc-quit-btn:hover { background: var(--arc-s2); color: var(--arc-t1); }
+.arc-quit-btn:hover { background: rgba(255,255,255,.14); }
 
 /* ─── Sidebar ────────────────────────────────────────────────────── */
 .arc-sidebar {
@@ -137,7 +125,7 @@
   border-left: 2px solid transparent; transition: .12s; color: var(--arc-t2);
 }
 .arc-nav-item:hover { background: var(--arc-s2); color: var(--arc-t1); }
-.arc-nav-item.active { background: rgba(99,102,241,.07); border-left-color: var(--arc-a); color: var(--arc-t1); }
+.arc-nav-item.active { background: rgba(255,45,85,.08); border-left-color: var(--arc-a); color: var(--arc-t1); }
 .arc-nav-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--arc-t3); flex-shrink: 0; }
 .arc-nav-item.active .arc-nav-dot { background: var(--arc-a); box-shadow: 0 0 6px var(--arc-a); }
 .arc-nav-name { font-size: 12.5px; font-weight: 700; flex: 1; }
@@ -147,271 +135,271 @@
 /* ─── Main scroll ────────────────────────────────────────────────── */
 .arc-main { flex: 1; min-width: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 
-/* ─── Hero — gradient backdrop, accent top line ──────────────────── */
+/* ─── Hero — Apple Arcade Spotlight ────────────────────────────── */
 .arc-hero {
-  min-height: 240px; position: relative; overflow: hidden;
-  display: flex; align-items: flex-end; padding: 32px;
-  background: linear-gradient(160deg, rgba(99,102,241,.14) 0%, rgba(139,92,246,.08) 40%, var(--arc-s1) 70%);
-  border-bottom: 1px solid var(--arc-b1);
+  min-height: 260px; position: relative; overflow: hidden;
+  display: flex; align-items: flex-end; padding: 36px;
+  background: linear-gradient(135deg, rgba(255,45,85,.25) 0%, rgba(147,51,234,.18) 45%, var(--arc-s1) 85%);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.4);
 }
 .arc-hero-grid {
-  position: absolute; inset: 0; opacity: .025;
+  position: absolute; inset: 0; opacity: .04;
   background-image:
     linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px);
-  background-size: 28px 28px; pointer-events: none;
+  background-size: 24px 24px; pointer-events: none;
 }
 /* Ambient glow blob */
 .arc-hero::after {
-  content: ""; position: absolute; top: -60px; right: -60px;
-  width: 260px; height: 260px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
+  content: ""; position: absolute; top: -80px; right: -80px;
+  width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,45,85,.28) 0%, transparent 70%);
   pointer-events: none;
 }
-.arc-hero-content { position: relative; z-index: 2; max-width: 480px; }
+.arc-hero-content { position: relative; z-index: 2; max-width: 520px; }
 .arc-hero-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 9px; font-weight: 900; letter-spacing: .18em;
-  color: var(--arc-a); text-transform: uppercase; margin-bottom: 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 800; letter-spacing: .12em;
+  color: #ff6b8b; text-transform: uppercase; margin-bottom: 8px;
 }
-.arc-hero-badge i { width: 4px; height: 4px; border-radius: 50%; background: var(--arc-a); font-style: normal; }
+.arc-hero-badge i { width: 5px; height: 5px; border-radius: 50%; background: var(--arc-a); font-style: normal; }
 .arc-hero-title {
-  font-size: clamp(26px, 4vw, 44px); font-weight: 950; line-height: .96;
-  letter-spacing: -.05em; margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--arc-t1) 0%, var(--arc-a2) 100%);
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  font-size: clamp(26px, 4vw, 42px); font-weight: 900; line-height: 1.05;
+  letter-spacing: -.03em; margin-bottom: 8px; color: #ffffff;
 }
-.arc-hero-tagline { font-size: 12px; color: var(--arc-t2); line-height: 1.5; margin-bottom: 20px; }
+.arc-hero-tagline { font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.5; margin-bottom: 22px; }
 .arc-hero-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 /* CTA buttons */
 .arc-play-btn {
-  height: 42px; padding: 0 20px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--arc-a) 0%, var(--arc-a2) 100%);
-  color: white; font-size: 13px; font-weight: 900; letter-spacing: .01em;
-  display: flex; align-items: center; gap: 7px;
-  box-shadow: 0 6px 20px rgba(99,102,241,.35);
+  height: 44px; padding: 0 24px; border-radius: 999px;
+  background: #ffffff; color: #000000;
+  font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 25px rgba(255,255,255,.2);
   transition: .18s cubic-bezier(.16,1,.3,1); flex-shrink: 0;
 }
-.arc-play-btn:hover { filter: brightness(1.12); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(99,102,241,.45); }
+.arc-play-btn:hover { background: #f0f0f5; transform: scale(1.03); box-shadow: 0 12px 30px rgba(255,255,255,.3); }
 .arc-play-btn:active { transform: scale(.97); }
 .arc-info-btn {
-  height: 42px; padding: 0 16px; border-radius: 10px;
-  border: 1px solid var(--arc-b2); background: rgba(255,255,255,.03);
-  color: var(--arc-t2); font-size: 11px; font-weight: 700;
-  transition: .15s; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(4px);
+  height: 44px; padding: 0 20px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1);
+  color: #ffffff; font-size: 12px; font-weight: 800;
+  transition: .15s; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(10px);
 }
-.arc-info-btn:hover { background: var(--arc-s2); color: var(--arc-t1); }
+.arc-info-btn:hover { background: rgba(255,255,255,.2); }
 
 /* Hero artwork */
 .arc-hero-artwork {
-  position: absolute; right: 28px; bottom: 20px; z-index: 1;
-  opacity: .06; pointer-events: none;
+  position: absolute; right: 32px; bottom: 24px; z-index: 1;
+  opacity: .12; pointer-events: none;
   display: flex; align-items: center; justify-content: center;
   color: var(--arc-a);
 }
 
 /* ─── Section header ─────────────────────────────────────────────── */
 .arc-section-hd { display: flex; justify-content: space-between; align-items: baseline; padding: 24px 24px 12px; }
-.arc-section-hd-label { font-size: 9px; font-weight: 900; letter-spacing: .18em; color: var(--arc-a); text-transform: uppercase; }
-.arc-section-hd-title { font-size: 17px; font-weight: 900; margin-top: 3px; letter-spacing: -.03em; }
-.arc-section-hd-count { font-size: 10px; color: var(--arc-t3); font-family: monospace; }
+.arc-section-hd-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: var(--arc-a); text-transform: uppercase; }
+.arc-section-hd-title { font-size: 20px; font-weight: 800; margin-top: 2px; letter-spacing: -.03em; color: var(--arc-t1); }
+.arc-section-hd-count { font-size: 11px; color: var(--arc-t3); font-weight: 700; font-family: monospace; }
 
-/* ─── Game grid ──────────────────────────────────────────────────── */
+/* ─── Game grid — Apple Arcade App Store Cards ───────────────────── */
 .arc-game-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 12px; padding: 0 24px 20px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px; padding: 0 24px 24px;
 }
 
-/* Per-game accent colors */
-.arc-game-card[data-game="2048"]      { --g: #f97316; --g-glow: rgba(249,115,22,.14); }
-.arc-game-card[data-game="caro"]      { --g: #10b981; --g-glow: rgba(16,185,129,.14); }
-.arc-game-card[data-game="chess"]     { --g: #8b5cf6; --g-glow: rgba(139,92,246,.14); }
-.arc-game-card[data-game="wordguess"] { --g: #06b6d4; --g-glow: rgba(6,182,212,.14); }
-.arc-game-card[data-game="survivor"]  { --g: #f43f5e; --g-glow: rgba(244,63,94,.14); }
-.arc-game-card[data-game="snake"]     { --g: #0ea5e9; --g-glow: rgba(14,165,233,.14); }
+/* Per-game accent colors & vibrant artwork gradients */
+.arc-game-card[data-game="chess"]     { --g: #8b5cf6; --g-glow: rgba(139,92,246,.25); --g-bg: linear-gradient(135deg, #4c1d95, #6d28d9, #1e1b4b); }
+.arc-game-card[data-game="tetris"]    { --g: #d946ef; --g-glow: rgba(217,70,239,.25); --g-bg: linear-gradient(135deg, #701a75, #a21caf, #31103f); }
+.arc-game-card[data-game="2048"]      { --g: #f97316; --g-glow: rgba(249,115,22,.25); --g-bg: linear-gradient(135deg, #7c2d12, #c2410c, #2a1205); }
+.arc-game-card[data-game="caro"]      { --g: #10b981; --g-glow: rgba(16,185,129,.25); --g-bg: linear-gradient(135deg, #064e3b, #047857, #022c22); }
+.arc-game-card[data-game="wordguess"] { --g: #06b6d4; --g-glow: rgba(6,182,212,.25); --g-bg: linear-gradient(135deg, #164e63, #0891b2, #083344); }
+.arc-game-card[data-game="snake"]     { --g: #3b82f6; --g-glow: rgba(59,130,246,.25); --g-bg: linear-gradient(135deg, #1e3a8a, #2563eb, #172554); }
 
 .arc-game-card {
-  --g: var(--arc-a); --g-glow: rgba(99,102,241,.1);
-  border-radius: 16px; overflow: hidden; border: 1px solid var(--arc-b1);
-  background: var(--arc-s1); cursor: pointer; text-align: left;
-  transition: .22s cubic-bezier(.16,1,.3,1); display: flex; flex-direction: column;
+  --g: var(--arc-a); --g-glow: rgba(255,45,85,.2); --g-bg: linear-gradient(135deg, rgba(35,37,52,0.9), rgba(18,19,28,0.95));
+  border-radius: 24px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(135deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,.02) 100%), var(--arc-s1);
+  backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  cursor: pointer; text-align: left;
+  transition: .25s cubic-bezier(.16,1,.3,1); display: flex; flex-direction: column;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 8px 32px rgba(0,0,0,.35), inset 0 1px 1px rgba(255,255,255,.2);
 }
 .arc-game-card:hover {
-  border-color: var(--g); transform: translateY(-4px);
-  box-shadow: 0 12px 32px var(--g-glow), 0 0 0 1px var(--g);
+  border-color: rgba(255,255,255,.3); transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px var(--g-glow), 0 0 0 1px var(--g), inset 0 1px 2px rgba(255,255,255,.35);
 }
 
-/* Card artwork — tinted with game color */
+/* Card artwork — vibrant iOS tile header */
 .arc-card-artwork {
-  aspect-ratio: 16/9;
-  background: color-mix(in srgb, var(--g) 10%, var(--arc-s2));
+  aspect-ratio: 16/10;
+  background: var(--g-bg);
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
 .arc-card-artwork-grid {
-  position: absolute; inset: 0; opacity: .06;
+  position: absolute; inset: 0; opacity: .12;
   background-image:
     linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px);
-  background-size: 18px 18px; pointer-events: none;
+  background-size: 20px 20px; pointer-events: none;
 }
 /* Glow blob in artwork corner */
 .arc-card-artwork::after {
-  content: ""; position: absolute; top: -20px; right: -20px;
-  width: 80px; height: 80px; border-radius: 50%;
-  background: radial-gradient(circle, var(--g-glow,rgba(99,102,241,.2)) 0%, transparent 70%);
+  content: ""; position: absolute; top: -30px; right: -30px;
+  width: 110px; height: 110px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.3) 0%, transparent 70%);
   pointer-events: none;
 }
-.arc-card-icon { position: relative; z-index: 1; color: var(--g); opacity: .75; }
-.arc-card-play-overlay {
-  position: absolute; inset: 0; background: rgba(0,0,0,.7);
+.arc-icon-badge {
+  width: 54px; height: 54px; border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: .15s; font-size: 11px; font-weight: 900;
-  color: white; gap: 5px; letter-spacing: .08em; backdrop-filter: blur(3px);
+  position: relative; z-index: 2;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.25s ease;
+}
+.arc-game-card:hover .arc-icon-badge {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.arc-card-icon {
+  position: relative; z-index: 1; color: #ffffff;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
+  transition: transform .25s cubic-bezier(.16,1,.3,1);
+}
+.arc-card-play-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.65);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: .2s ease; font-size: 11px; font-weight: 900;
+  color: white; gap: 6px; letter-spacing: .08em; backdrop-filter: blur(4px);
 }
 .arc-game-card:hover .arc-card-play-overlay { opacity: 1; }
-.arc-card-body { padding: 11px 13px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
-.arc-card-label { font-size: 8.5px; font-weight: 900; letter-spacing: .14em; color: var(--g); text-transform: uppercase; opacity: .8; }
-.arc-card-name { font-size: 13.5px; font-weight: 800; line-height: 1.2; }
-.arc-card-tagline { font-size: 10px; color: var(--arc-t2); line-height: 1.4; }
+.arc-card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.arc-card-label { font-size: 9px; font-weight: 800; letter-spacing: .1em; color: var(--g); text-transform: uppercase; }
+.arc-card-name { font-size: 15px; font-weight: 800; line-height: 1.25; color: var(--arc-t1); }
+.arc-card-tagline { font-size: 11px; color: var(--arc-t2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .arc-card-footer {
   display: flex; justify-content: space-between; align-items: center;
-  margin-top: auto; padding-top: 8px; border-top: 1px solid var(--arc-b1);
+  margin-top: auto; padding-top: 10px; border-top: 1px solid var(--arc-b1);
 }
 .arc-card-stat { display: flex; flex-direction: column; }
-.arc-card-stat small { font-size: 7px; color: var(--arc-t3); letter-spacing: .1em; font-weight: 700; text-transform: uppercase; }
-.arc-card-stat strong { font-size: 11px; font-weight: 800; margin-top: 1px; }
+.arc-card-stat small { font-size: 8px; color: var(--arc-t3); letter-spacing: .08em; font-weight: 700; text-transform: uppercase; }
+.arc-card-stat strong { font-size: 12px; font-weight: 800; margin-top: 1px; color: var(--arc-t1); }
+
+/* Apple Arcade GET / PLAY Pill Button Badge */
 .arc-card-badge {
-  font-size: 8px; font-weight: 800; padding: 3px 7px; border-radius: 5px;
-  background: color-mix(in srgb, var(--g) 12%, transparent);
-  color: var(--g); border: 1px solid color-mix(in srgb, var(--g) 25%, transparent);
-  letter-spacing: .05em; text-transform: uppercase;
+  font-size: 11px; font-weight: 900; padding: 4px 14px; border-radius: 999px;
+  background: var(--arc-a); color: #ffffff;
+  border: none; letter-spacing: .03em; text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(255,45,85,.3); transition: .15s;
 }
-.arc-card-badge.locked { background: var(--arc-s3); color: var(--arc-t3); border-color: var(--arc-b1); }
-.arc-card-badge.locked.chess { background: rgba(139,92,246,.1); color: #8b5cf6; border-color: rgba(139,92,246,.25); }
+.arc-game-card:hover .arc-card-badge { filter: brightness(1.1); transform: scale(1.05); }
+.arc-card-badge.locked { background: rgba(255,255,255,.1); color: var(--arc-t2); box-shadow: none; }
+.arc-card-badge.locked.chess { background: rgba(139,92,246,.2); color: #c084fc; }
 
 /* ─── Stats strip ────────────────────────────────────────────────── */
-.arc-stats-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; padding: 0 24px 28px; }
+.arc-stats-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 0 24px 32px; }
 .arc-stat-box {
-  background: var(--arc-s1); border: 1px solid var(--arc-b1); border-radius: 14px; padding: 14px 16px;
-  position: relative; overflow: hidden;
+  background: var(--arc-s1); border: 1px solid var(--arc-b1); border-radius: 20px; padding: 16px 18px;
+  position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.15);
 }
 .arc-stat-box::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--arc-a), var(--arc-a2)); opacity: .5;
+  background: linear-gradient(90deg, var(--arc-a), var(--arc-a2)); opacity: .7;
 }
-.arc-stat-box small { font-size: 8px; font-weight: 900; color: var(--arc-t3); letter-spacing: .12em; text-transform: uppercase; display: block; }
-.arc-stat-box strong { font-size: 22px; font-weight: 950; display: block; line-height: 1.1; margin-top: 4px; }
-.arc-stat-box span { font-size: 9px; color: var(--arc-t2); }
+.arc-stat-box small { font-size: 9px; font-weight: 800; color: var(--arc-t3); letter-spacing: .1em; text-transform: uppercase; display: block; }
+.arc-stat-box strong { font-size: 24px; font-weight: 900; display: block; line-height: 1.1; margin-top: 4px; color: var(--arc-t1); }
+.arc-stat-box span { font-size: 10px; color: var(--arc-t2); }
 
 /* ─── Sub banner (Pro upsell) ────────────────────────────────────── */
 .arc-sub-banner {
-  margin: 14px 24px 0; padding: 14px 16px; border-radius: 14px;
-  border: 1px solid rgba(99,102,241,.2); background: rgba(99,102,241,.06);
-  display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden;
+  margin: 14px 24px 0; padding: 16px 20px; border-radius: 20px;
+  border: 1px solid rgba(255,45,85,.25); background: rgba(255,45,85,.08);
+  display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden;
 }
 .arc-sub-banner::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, var(--arc-a), var(--arc-a2));
 }
 .arc-sub-banner-icon {
-  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-  background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.2);
+  width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+  background: rgba(255,45,85,.18); border: 1px solid rgba(255,45,85,.3);
   display: grid; place-items: center; color: var(--arc-a);
 }
 .arc-sub-banner-text { flex: 1; min-width: 0; }
-.arc-sub-banner-text strong { font-size: 12px; font-weight: 800; display: block; }
-.arc-sub-banner-text p { font-size: 10px; color: var(--arc-t2); margin-top: 2px; line-height: 1.4; }
+.arc-sub-banner-text strong { font-size: 13px; font-weight: 800; display: block; }
+.arc-sub-banner-text p { font-size: 11px; color: var(--arc-t2); margin-top: 2px; line-height: 1.4; }
 .arc-sub-banner-btn {
-  flex-shrink: 0; height: 32px; padding: 0 14px; border-radius: 8px;
+  flex-shrink: 0; height: 34px; padding: 0 16px; border-radius: 999px;
   background: linear-gradient(135deg, var(--arc-a), var(--arc-a2));
-  color: white; font-size: 11px; font-weight: 900;
-  white-space: nowrap; transition: .15s; box-shadow: 0 4px 12px rgba(99,102,241,.3);
+  color: white; font-size: 11px; font-weight: 800;
+  white-space: nowrap; transition: .15s; box-shadow: 0 4px 14px rgba(255,45,85,.35);
 }
 .arc-sub-banner-btn:hover { filter: brightness(1.1); }
-.arc-chess-banner { border-color: rgba(139,92,246,.2); background: rgba(139,92,246,.06); }
-.arc-chess-banner::before { background: linear-gradient(90deg, #8b5cf6, #6366f1); }
 
-/* ─── Game view / side panel ─────────────────────────────────────── */
-.arc-game-panel {
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  overflow-y: auto; padding: 24px; gap: 16px; flex: 1;
-}
-.arc-game-intro {
-  width: 100%; max-width: 600px;
-  background: var(--arc-s1); border: 1px solid var(--arc-b1); border-radius: 14px; padding: 16px 18px;
-}
-.arc-game-intro-label { font-size: 9px; font-weight: 900; letter-spacing: .18em; color: var(--arc-a); text-transform: uppercase; }
-.arc-game-intro h1 { font-size: clamp(16px, 3vw, 22px); font-weight: 950; letter-spacing: -.04em; margin: 4px 0 6px; }
-.arc-game-intro p { font-size: 11px; color: var(--arc-t2); line-height: 1.6; }
-.arc-game-side {
-  width: 260px; flex-shrink: 0; border-left: 1px solid var(--arc-b1);
-  background: var(--arc-s1); display: flex; flex-direction: column; overflow: hidden;
-}
-.arc-game-side-header {
-  padding: 14px 16px 10px; border-bottom: 1px solid var(--arc-b1);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.arc-game-side-header h3 { font-size: 12px; font-weight: 800; }
-.arc-game-side-body { flex: 1; overflow-y: auto; padding: 10px; }
-
-/* ─── Difficulty popup ───────────────────────────────────────────── */
+/* ─── Difficulty popup (Apple Glass) ─────────────────────────────── */
 .arc-diff-header { margin-bottom: 20px; }
-.arc-diff-header h2 { font-size: 19px; font-weight: 950; letter-spacing: -.04em; }
-.arc-diff-header p { font-size: 11px; color: var(--arc-t2); margin-top: 3px; line-height: 1.45; }
-.arc-diff-grid { display: flex; flex-direction: column; gap: 10px; }
+.arc-diff-header h2 { font-size: 22px; font-weight: 900; letter-spacing: -.03em; color: var(--arc-t1); }
+.arc-diff-header p { font-size: 12px; color: var(--arc-t2); margin-top: 4px; line-height: 1.45; }
+.arc-diff-grid { display: flex; flex-direction: column; gap: 12px; }
 .arc-diff-card {
-  --tier-c: var(--arc-a); --tier-bg: rgba(99,102,241,.06);
-  border-radius: 14px; border: 1px solid var(--arc-b1);
-  background: var(--arc-s2); padding: 14px 16px 14px 20px;
-  display: flex; align-items: center; gap: 12px;
+  --tier-c: var(--arc-a);
+  border-radius: 18px; border: 1px solid var(--arc-b1);
+  background: var(--arc-s2); padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
   cursor: pointer; text-align: left; position: relative; overflow: hidden;
   transition: .2s cubic-bezier(.16,1,.3,1);
   -webkit-tap-highlight-color: transparent;
 }
 .arc-diff-card:hover:not(:disabled) {
   border-color: var(--tier-c);
-  background: color-mix(in srgb, var(--tier-c) 6%, var(--arc-s2));
+  background: color-mix(in srgb, var(--tier-c) 8%, var(--arc-s2));
   transform: translateX(4px);
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--tier-c) 15%, transparent);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--tier-c) 20%, transparent);
 }
 .arc-diff-card.is-locked { opacity: .5; cursor: not-allowed; }
 .arc-diff-card.is-locked:hover { transform: none; border-color: var(--arc-b1); box-shadow: none; }
 
 /* Left accent bar */
 .arc-diff-indicator {
-  width: 3px; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 4px; position: absolute; left: 0; top: 10px; bottom: 10px;
   background: var(--tier-c); border-radius: 99px;
-  box-shadow: 0 0 8px var(--tier-c);
+  box-shadow: 0 0 10px var(--tier-c);
 }
 .arc-diff-icon {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
-  background: color-mix(in srgb, var(--tier-c) 10%, var(--arc-s3));
-  border: 1px solid color-mix(in srgb, var(--tier-c) 20%, transparent);
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  background: color-mix(in srgb, var(--tier-c) 12%, var(--arc-s3));
+  border: 1px solid color-mix(in srgb, var(--tier-c) 25%, transparent);
   display: grid; place-items: center;
   color: var(--tier-c);
 }
 .arc-diff-body { flex: 1; min-width: 0; }
-.arc-diff-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: nowrap; min-width: 0; }
-.arc-diff-name { font-size: 14px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
+.arc-diff-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; min-width: 0; }
+.arc-diff-name { font-size: 15px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
 .arc-diff-kicker {
-  font-size: 7.5px; font-weight: 900; padding: 2px 6px; border-radius: 4px;
+  font-size: 8px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
   background: color-mix(in srgb, var(--tier-c) 12%, transparent);
   color: var(--tier-c); border: 1px solid color-mix(in srgb, var(--tier-c) 22%, transparent);
   letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;
 }
-.arc-diff-obj { font-size: 10px; color: var(--arc-t2); margin-top: 3px; line-height: 1.4; }
+.arc-diff-obj { font-size: 11px; color: var(--arc-t2); margin-top: 3px; line-height: 1.4; }
 .arc-diff-reward { text-align: right; flex-shrink: 0; }
-.arc-diff-reward strong { font-size: 20px; font-weight: 950; color: var(--tier-c); display: block; line-height: 1; }
-.arc-diff-reward span { font-size: 8.5px; color: var(--arc-t3); font-weight: 700; letter-spacing: .1em; }
-.arc-diff-note { font-size: 9px; color: var(--arc-t3); text-align: center; margin-top: 14px; line-height: 1.5; }
+.arc-diff-reward strong { font-size: 20px; font-weight: 900; color: var(--tier-c); display: block; line-height: 1; }
+.arc-diff-reward span { font-size: 9px; color: var(--arc-t3); font-weight: 700; letter-spacing: .08em; }
+.arc-diff-note { font-size: 10px; color: var(--arc-t3); text-align: center; margin-top: 14px; line-height: 1.5; }
 
-/* Tier colors — HugoStudio: success=emerald, accent=violet, destructive=rose */
+/* Tier colors */
 .arc-diff-card[data-tier="easy"]   { --tier-c: #10b981; }
-.arc-diff-card[data-tier="medium"] { --tier-c: #8b5cf6; }
-.arc-diff-card[data-tier="hard"]   { --tier-c: #f43f5e; }
+.arc-diff-card[data-tier="medium"] { --tier-c: #ff2d55; }
+.arc-diff-card[data-tier="hard"]   { --tier-c: #8b5cf6; }
 
 /* ─── Result overlay ─────────────────────────────────────────────── */
 .arc-result {
@@ -539,42 +527,52 @@
 
 /* ─── Game fullscreen overlay ────────────────────────────────────── */
 .arc-game-overlay {
-  --arc-bg:  #09080f;
-  --arc-s1:  #111019;
-  --arc-s2:  #18172a;
-  --arc-s3:  #22203a;
-  --arc-b1:  rgba(255,255,255,.07);
-  --arc-b2:  rgba(255,255,255,.14);
-  --arc-t1:  #eff0f7;
-  --arc-t2:  #8b8ca8;
-  --arc-t3:  #4f5070;
-  --arc-a:   #6366f1;
+  --arc-bg:  #0a0a0f;
+  --arc-s1:  #141522;
+  --arc-s2:  #1c1d2e;
+  --arc-s3:  #25273c;
+  --arc-b1:  rgba(255,255,255,.08);
+  --arc-b2:  rgba(255,255,255,.16);
+  --arc-t1:  #ffffff;
+  --arc-t2:  #a1a1aa;
+  --arc-t3:  #71717a;
+  --arc-a:   #FF2D55;
   --arc-a2:  #8b5cf6;
   --arc-joy: #f59e0b;
-  --arcade-card:   var(--arc-s1);
-  --arcade-line:   var(--arc-b2);
-  --arcade-text:   var(--arc-t1);
-  --arcade-muted:  var(--arc-t2);
-  --arcade-accent: var(--arc-a);
+  --arcade-card:   #141522;
+  --arcade-line:   rgba(255,255,255,.14);
+  --arcade-text:   #ffffff;
+  --arcade-muted:  #a1a1aa;
+  --arcade-accent: #FF2D55;
 
   position: fixed; inset: 0; z-index: 100;
-  background: var(--arc-bg);
+  background: #0a0a0f;
   display: flex; flex-direction: column;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
-  color: var(--arc-t1);
+  color: #ffffff;
 }
-:root:not(.dark) .arc-game-overlay {
-  --arc-bg:  #f0f0f8;
-  --arc-s1:  #ffffff;
-  --arc-s2:  #f4f4fb;
-  --arc-s3:  #ececf7;
-  --arc-b1:  rgba(0,0,0,.06);
-  --arc-b2:  rgba(0,0,0,.12);
-  --arc-t1:  #111019;
-  --arc-t2:  #52536a;
-  --arc-t3:  #9899b0;
-  --arcade-card: #ffffff;
-  --arcade-line: rgba(0,0,0,.12);
+
+/* ─── Game intro card (Liquid Glass) ─────────────────────────────── */
+.arc-game-intro {
+  width: 100%; max-width: 560px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%), #141522;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px; padding: 20px 24px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  text-align: left; margin-bottom: 12px;
+}
+.arc-game-intro-label {
+  font-size: 10px; font-weight: 800; letter-spacing: .12em;
+  color: #FF2D55; text-transform: uppercase; margin-bottom: 4px;
+}
+.arc-game-intro h1 {
+  font-size: 18px; font-weight: 800; color: #ffffff;
+  margin-bottom: 6px; letter-spacing: -.02em; line-height: 1.3;
+}
+.arc-game-intro p {
+  font-size: 12.5px; color: rgba(255, 255, 255, 0.75);
+  line-height: 1.5; margin: 0;
 }
 .arc-game-overlay-body {
   flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;

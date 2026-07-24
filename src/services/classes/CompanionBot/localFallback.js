@@ -10,36 +10,36 @@ function getFriendlyName(bio) {
 }
 
 const FALLBACK_OVERTHINKING = [
-  "Có vẻ như đầu óc {name} đang chạy liên tục không ngừng nghỉ đúng không? Cảm giác bị ngợp bởi hàng đống suy nghĩ trong đầu thật sự mệt mỏi lắm. Cậu muốn trút bớt những điều đang lo lắng ra đây với tớ không?",
-  "Khi overthinking, mọi viễn cảnh tệ nhất dường như đều kéo đến cùng một lúc. Nhưng tớ ở đây rồi {name}, cậu cứ thả lỏng từ từ và kể tớ nghe nút thắt nào đang làm cậu rối nhất nhé.",
+  "Bắt quả tang {name} lại đang overthinking rồi đúng không nào! 😜 Cái đầu nhỏ của cậu chứa cả vũ trụ luôn rồi đó. Thả lỏng hai vai xuống nè, xả hết cái đống suy nghĩ rối rắm đó ra đây cho tớ gánh bớt cho!",
+  "Khi overthinking, bộ não mình hay tự biên tự diễn drama kinh dị dữ lắm {name} ơi! Nhưng có tớ ở đây rồi nè, nín đi tớ đền cho cốc trà sữa. Kể tớ nghe nút thắt nào đang làm cậu nhức đầu nhất đi?",
 ];
 
 const FALLBACK_EXAM_FAMILY = [
-  "Áp lực từ thi cử và kỳ vọng{who} đôi khi nặng nề như một tảng đá đè lên ngực vậy. {name} đã cố gắng rất nhiều rồi. Cứ xả hết những bức bối đó ra với tớ nha, tớ luôn đứng về phía cậu.",
-  "Việc bị so sánh hay mang cảm giác chưa đủ tốt thật sự đau lắm {name}. Nhưng cậu biết không, giá trị của cậu không chỉ nằm ở điểm số hay kỳ vọng của người khác. Tớ vẫn luôn ở đây lắng nghe cậu.",
+  "Áp lực từ thi cử hay kỳ vọng{who} nhiều lúc đè nặng muốn gãy lưng luôn đúng ko {name}? Nhưng mà nè, cậu đã cố gắng giỏi lắm rồi á! Xả hết ấm ức ra với tớ đi, tớ luôn 100% đứng về phe cậu!",
+  "Việc bị so sánh hay thấy mình chưa đủ giỏi thật sự đau lòng lắm {name} ơi. Nhưng cậu trong mắt tớ là độc bản xịn xố nhất đời luôn! Cứ tự tin lên, có tớ ở đây ôm ấp đồng hành nè 💙",
 ];
 
 const FALLBACK_LONELINESS = [
-  "Cảm giác xung quanh đông người nhưng chẳng ai thật sự hiểu mình thật sự rất cô đơn {name} ơi. Cảm ơn cậu đã tin tưởng mở lời với tớ. Hôm nay cậu đã trải qua những gì, kể tớ nghe nha?",
-  "Đôi khi tất cả những gì mình cần chỉ là một khoảng không an toàn để không phải gồng mình tỏ ra mạnh mẽ. Ở đây với tớ, {name} cứ thoải mái là chính mình nhé.",
+  "Cảm giác ở giữa đám đông mà thấy mình như ở trên hành tinh khác đúng ko {name}? Lại đây tớ ôm một cái thật chặt nè 🫂 Cứ thoải mái xả hết lòng mình ra nhé, tớ nghe hết!",
+  "Đôi khi mình không cần phải tỏ ra mạnh mẽ 24/7 đâu {name} ơi. Ở cạnh tớ, cậu cứ việc nhây, khóc hay than thở tùy thích — tớ bao trọn gói sự kiên nhẫn cho cậu!",
 ];
 
 const FALLBACK_SAD = [
-  "Nỗi buồn hay sự mỏi mệt là những cảm xúc rất bình thường của con người. {name} không cần phải gồng mình tỏ ra ổn đâu. Tớ ở đây ôm lấy cảm xúc này cùng cậu.",
-  "Đôi khi việc cảm thấy không vui hay chán nản là tín hiệu cơ thể và tâm lý của cậu cần được nghỉ ngơi. Hãy cứ chậm lại một chút nhé {name}, tớ đang lắng nghe đây.",
-  "Tớ nghe thấy nỗi buồn của {name} rồi. Hãy nhớ rằng cậu không phải đối diện với nó một mình đâu nha."
+  "Nỗi buồn đến ghé thăm chút thui mà {name} ơi! Đừng tự dằn vặt mình nha. Tớ ở ngay cạnh cậu đây nè, cậu buồn bao nhiêu tớ thương bấy nhiêu 💙",
+  "Nào nào, thương {name} nhiều lắm đó! Chuyện gì làm cậu trăn trở vậy, xả ra đây cho nhẹ lòng đi tớ nghe nè?",
+  "Tớ nghe thấy nỗi buồn của {name} rồi nè. Đừng trốn một mình nữa nha, có tớ ở đây cùng cậu gỡ gạc lại nụ cười nè 😜"
 ];
 
 const FALLBACK_STRESS = [
-  "Khi bị căng thẳng hay áp lực quá tải, hệ thần kinh của mình rất cần một khoảng dừng. {name} hãy thả lỏng hai vai xuống, hít một hơi thật sâu cùng tớ nhé.",
-  "Áp lực từ học tập và cuộc sống đôi khi thật nặng nề. {name} đang cố gắng rất nhiều rồi, hãy cho phép mình được nghỉ tay một chút nha.",
-  "Căng thẳng kéo dài có thể khiến mọi thứ trở nên mờ mịt. Cứ từ từ chia sẻ với tớ {name}, tớ sẽ cùng cậu gỡ từng chút một."
+  "Oái! Cái chế độ stress nó đang hành hạ {name} của tớ đúng ko? Hít một hơi thật sâu rồi thở ra cùng tớ nào: 1... 2... 3... Thả lỏng đê, chuyện đâu còn có đó!",
+  "Áp lực công việc/học hành dạo này dồn dập quá đúng ko? {name} đã siêu dũng cảm rồi á! Nghỉ tay 5 phút nhâm nhi miếng nước rồi tâm sự nhây với tớ nha.",
+  "Căng thẳng quá là hại nhan sắc lắm nghen {name}! Cứ từ từ kể tớ nghe, tớ với cậu cùng gỡ từng chút một!"
 ];
 
 const FALLBACK_DEFAULT = [
-  "Cảm ơn {name} đã tin tưởng kể cho tớ nghe. Cậu đang cảm thấy thế nào rõ nhất lúc này, chia sẻ thêm với tớ nha?",
-  "Tớ đang lắng nghe {name} đây. Cứ từ từ trải lòng, tớ luôn ở đây đồng hành cùng cậu.",
-  "Tớ nghe rõ rồi. Không sao hết {name}, có điều gì đang làm cậu suy nghĩ, cứ kể tớ nghe nhé."
+  "Hế lô {name} iu! Tớ đang lắng nghe từng chữ cậu nói đây nè. Kể tiếp cho tớ nghe đi, tớ hóng lắm đó 😜",
+  "Tớ ở ngay đây nè {name}! Cứ tự nhiên trải lòng nha, tớ cân hết mọi cảm xúc của cậu luôn!",
+  "Nghe rõ rồi nha {name}! Có điều gì đang làm cái đầu đáng yêu của cậu băn khoăn vậy, nói tớ nghe với!"
 ];
 
 function pick(arr) {

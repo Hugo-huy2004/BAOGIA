@@ -11,7 +11,7 @@ const router = express.Router();
 // Per-game score ceilings — reject obviously implausible/forged values outright.
 // Not full replay verification, just sanity bounds; real abuse resistance comes
 // from the win/loss-driven reward table + shared daily net-JOY cap below.
-const SCORE_CEILINGS = { '2048': 500000, caro: 200, wordguess: 100, survivor: 600, snake: 320 };
+const SCORE_CEILINGS = { '2048': 500000, caro: 200, wordguess: 100, survivor: 50000, snake: 320, tetris: 500000, chess: 3000, flappy: 1000 };
 
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const RESULTS = ['win', 'lose', 'draw'];
@@ -124,9 +124,9 @@ router.get('/leaderboard', async (req, res) => {
         .select('email displayName avatar bestScore gamesPlayed lastPlayedAt record')
         .lean()
     );
-    res.json({ leaderboard });
+    res.json({ leaderboard: leaderboard || [] });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ leaderboard: [] });
   }
 });
 

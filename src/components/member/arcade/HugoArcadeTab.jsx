@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Blocks, Swords, Castle, Keyboard, Zap, Infinity as InfinityIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
+import { notify } from "../../../lib/notify";
+import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
 
-const Game2048      = React.lazy(() => import("./Game2048"));
-const GameCaro      = React.lazy(() => import("./GameCaro"));
-const GameWordGuess = React.lazy(() => import("./GameWordGuess"));
-const GameSurvivor  = React.lazy(() => import("./GameSurvivor"));
-const GameSnake     = React.lazy(() => import("./GameSnake"));
-const ChessPage     = React.lazy(() => import("../../../pages/public/ChessPage"));
+const Game2048          = React.lazy(() => import("./Game2048"));
+const GameCaro          = React.lazy(() => import("./GameCaro"));
+const GameWordGuess     = React.lazy(() => import("./GameWordGuess"));
+const GameTetris        = React.lazy(() => import("./GameTetris"));
+const GameSnake         = React.lazy(() => import("./GameSnake"));
+const GameSpaceSurvivor = React.lazy(() => import("./GameSpaceSurvivor"));
+const GameFlappyCyber    = React.lazy(() => import("./GameFlappyCyber"));
+const ChessPage         = React.lazy(() => import("../../../pages/public/ChessPage"));
 import { fetchProfile } from "../../../services/arcadeApi";
 import { HOW_TO_PLAY } from "./arcadeConstants";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
+import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import "./arcade-theme.css";
 
@@ -21,18 +27,25 @@ const ARCADE_PRICE_JOY = 199;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
 const GAMES = [
-  { id: "2048",      name: "2048",           tagline: "Gộp số. Phá giới hạn.",              label: "Logic · Chiến thuật",  Icon: Blocks   },
-  { id: "caro",      name: "Caro AI",        tagline: "Năm quân tạo nên chiến thắng.",       label: "Đối kháng · AI",       Icon: Swords   },
-  { id: "chess",     name: "HugoChess",      tagline: "Đấu Bot hoặc bạn bè, leo rank.",      label: "Cờ vua · Xếp hạng",   Icon: Castle   },
-  { id: "wordguess", name: "Mật Mã Từ",     tagline: "Mỗi chữ cái là một manh mối.",        label: "Ngôn ngữ · Suy luận", Icon: Keyboard },
-  { id: "survivor",  name: "Space Survivor", tagline: "Sinh tồn giữa bão đạn.",             label: "Hành động · Đạn mạc", Icon: Zap      },
-  { id: "snake",     name: "Hugo Snake",     tagline: "Ăn mồi, dài ra, đừng tự đâm mình.",  label: "Cổ điển · Phản xạ",   Icon: InfinityIcon },
+  { id: "chess",     name: "HugoChess AI 2500", tagline: "Thách đấu AI Master ELO 2500 & PvP.", label: "Cờ Vua · Đại Sư ELO",       Icon: Castle },
+  { id: "survivor",  name: "Hugo Space Survivor",tagline: "Bắn máy bay Neon 3D & Trùm Cuối.",  label: "Mới · Bắn Súng 3D · Boss", Icon: Rocket },
+  { id: "flappy",    name: "Hugo Flappy Cyber",   tagline: "Vượt chướng không gian Slow-Motion.", label: "Mới · Cyberpunk 3D",      Icon: Zap },
+  { id: "tetris",    name: "Hugo Tetris Neon",  tagline: "Xếp hình Neon 3D. Xóa hàng bứt phá.", label: "Neon 3D · 60 FPS Engine",  Icon: Grid3X3 },
+  { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm số.",  label: "Logic · Trí Tuệ · X2 JOY",  Icon: Blocks },
+  { id: "caro",      name: "Caro AI Master",    tagline: "Năm quân tạo nên chiến thắng.",       label: "Đối Kháng · AI 5 Cấp", Icon: Swords },
+  { id: "wordguess", name: "Mật Mã Từ 3D",      tagline: "Từ Hán-Việt tri thức. Gợi ý 5 JOY.",  label: "Từ Vựng · Thẻ Lật 3D", Icon: Keyboard },
+  { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.",       label: "Cổ Điển · Đồ Họa 3D", Icon: InfinityIcon },
 ];
 
 const STANDALONE = new Set(["chess"]);
 const GAME_COMPONENTS = {
-  "2048": Game2048, caro: GameCaro, wordguess: GameWordGuess,
-  survivor: GameSurvivor, snake: GameSnake,
+  tetris: GameTetris,
+  "2048": Game2048,
+  caro: GameCaro,
+  wordguess: GameWordGuess,
+  snake: GameSnake,
+  survivor: GameSpaceSurvivor,
+  flappy: GameFlappyCyber,
 };
 
 // ─── Sub-components ────────────────────────────────────────────────
@@ -54,15 +67,17 @@ const GameCard = React.memo(function GameCard({ game, profile, isLocked, onClick
 
   const badgeLabel = isLocked
     ? (isChess ? "299 JOY" : "Cần Pro")
-    : (isChess ? "Chơi" : "Chơi");
+    : "CHƠI";
 
   return (
     <button onClick={onClick} className="arc-game-card" data-game={game.id}>
       <div className="arc-card-artwork">
         <div className="arc-card-artwork-grid" />
-        <game.Icon size={38} strokeWidth={1.5} className="arc-card-icon" />
+        <div className="arc-icon-badge">
+          <game.Icon size={30} strokeWidth={1.75} className="arc-card-icon text-white" />
+        </div>
         <div className="arc-card-play-overlay">
-          <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
           CHƠI NGAY
         </div>
       </div>
@@ -137,8 +152,13 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     return s + Object.values(rec).reduce((a, t) => a + (t?.wins || 0), 0);
   }, 0);
 
+  const { playBeep } = useArcadeSound();
+
   const setTab = React.useCallback((t) => setSearchParams(p => { p.set("tab", t); return p; }, { replace: true }), [setSearchParams]);
-  const openGame = React.useCallback((id) => setSearchParams(p => { p.set("game", id); return p; }, { replace: true }), [setSearchParams]);
+  const openGame = React.useCallback((id) => {
+    playBeep();
+    setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
+  }, [playBeep, setSearchParams]);
   const closeGame = React.useCallback(() => {
     if (isPlaying) gameFrameRef.current?.quit();
     else setSearchParams(p => { p.delete("game"); p.delete("room"); return p; }, { replace: true });
@@ -161,108 +181,146 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
 
   const gameInfo = activeGame ? GAMES.find(g => g.id === activeGame) : null;
 
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const filteredGames = GAMES.filter((g) => {
+    if (selectedCategory === "featured") return g.id === "chess" || g.id === "tetris";
+    if (selectedCategory === "chess") return g.id === "chess" || g.id === "caro";
+    if (selectedCategory === "logic") return g.id === "tetris" || g.id === "wordguess" || g.id === "2048";
+    if (selectedCategory === "arcade") return g.id === "snake";
+    return true;
+  });
+
   return (
     <>
-      {/* ── Lobby ─────────────────────────────────────────────────── */}
+      {/* ── HugoArcade Shell Lobby ─────────────────────────────────────────────────── */}
       <div className="arc" style={{ visibility: activeGame ? "hidden" : "visible" }}>
-        <header className="arc-topbar">
-          <button onClick={onBack} className="arc-back" aria-label="Quay lại">
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_back_ios_new</span>
+        <header className="arc-topbar bg-[#0a0a0f]/90 backdrop-blur-2xl border-b border-white/10">
+          <button onClick={onBack} className="arc-back text-white" aria-label="Quay lại">
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back_ios_new</span>
           </button>
           <div className="arc-logo">
-            <div className="arc-logo-mark">HA</div>
-            <span className="arc-logo-name">Hugo<span>Arcade</span></span>
+            <span className="material-symbols-outlined text-[#FF2D55] text-2xl mr-1.5 font-bold">sports_esports</span>
+            <span className="text-xl font-extrabold tracking-tight text-white font-sans">
+              Hugo<span className="text-[#FF2D55]">Arcade</span>
+            </span>
           </div>
           <div className="arc-topbar-right">
             <JoyChip balance={joyBalance} />
             {!subscribed && (
-              <button className="arc-sub-btn" onClick={() => setShowInvoice(true)}>Pro</button>
+              <button className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#FF2D55] to-[#E60039] text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_14px_rgba(255,45,85,0.4)] active:scale-95 transition-all" onClick={() => setShowInvoice(true)}>
+                Arcade Pro
+              </button>
             )}
           </div>
         </header>
 
-        {/* Tab nav */}
-        <div className="arc-tabs">
-          <button className={`arc-tab-btn${activeTab === "games" ? " active" : ""}`} onClick={() => setTab("games")}>
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>sports_esports</span>
-            Trò chơi
-          </button>
-          <button className={`arc-tab-btn${activeTab === "ranking" ? " active" : ""}`} onClick={() => setTab("ranking")}>
-            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>leaderboard</span>
-            Xếp hạng
-          </button>
+        {/* HugoArcade Category Bar (Clean Monochrome Labels) */}
+        <div className="flex items-center gap-2 overflow-x-auto px-6 py-3 bg-[#0f1019]/90 border-b border-white/5 no-scrollbar">
+          {[
+            { id: "all", label: "Tất Cả Game" },
+            { id: "featured", label: "Nổi Bật HugoArcade" },
+            { id: "chess", label: "Cờ Vua & AI" },
+            { id: "logic", label: "Logic 3D Neon" },
+            { id: "arcade", label: "Phản Xạ 120FPS" },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-4 py-1.5 rounded-full text-xs font-black whitespace-nowrap transition-all active:scale-95 ${
+                selectedCategory === cat.id
+                  ? "bg-[#FF2D55] text-white shadow-[0_4px_16px_rgba(255,45,85,0.45)]"
+                  : "bg-white/5 text-zinc-400 border border-white/5 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
         <main className="arc-main">
-          {!subscribed && activeTab === "games" && (
-            <div className="arc-sub-banner" style={{ margin: "16px 24px 0" }}>
-              <div className="arc-sub-banner-icon">
-                <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>bolt</span>
-              </div>
-              <div className="arc-sub-banner-text">
-                <strong>Mở khóa Bứt phá &amp; Huyền thoại</strong>
-                <p>Trao đổi {ARCADE_PRICE_JOY} JOY/tháng để chinh phục mọi độ khó và kiếm tối đa 75 JOY/ván.</p>
-              </div>
-              <button className="arc-sub-banner-btn" onClick={() => setShowInvoice(true)}>
-                {ARCADE_PRICE_JOY} JOY
-              </button>
-            </div>
-          )}
-
-          {activeTab === "games" && !chessSubscribed && (
-            <div className="arc-sub-banner arc-chess-banner" style={{ margin: `${!subscribed ? "8px" : "16px"} 24px 0`, "--g": "#f59e0b", "--g-glow": "rgba(245, 158, 11, .15)", border: "1px solid rgba(245, 158, 11, .3)" }}>
-              <div className="arc-sub-banner-icon" style={{ background: "rgba(245, 158, 11, .15)", color: "#f59e0b" }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>chess</span>
-              </div>
-              <div className="arc-sub-banner-text">
-                <strong style={{ color: "#f59e0b", display: "flex", alignItems: "center", gap: "6px" }}>
-                  HugoChess — Thuê riêng
-                  <span style={{ fontSize: 9, background: "linear-gradient(135deg, #f59e0b, #fbbf24)", color: "#000", padding: "2px 6px", borderRadius: 4, textTransform: "uppercase", letterSpacing: 1, fontWeight: 900 }}>PREMIUM</span>
-                </strong>
-                <p>Đấu Bot · Phòng online · Leo hạng ELO. 299 JOY/tháng, tách biệt với gói Arcade.</p>
-              </div>
-              <button className="arc-sub-banner-btn" style={{ background: "linear-gradient(135deg, #f59e0b, #fbbf24)", color: "#000", fontWeight: 900, boxShadow: "0 4px 16px rgba(245, 158, 11, .3)" }} onClick={() => openGame("chess")}>
-                299 JOY
-              </button>
-            </div>
-          )}
 
           {activeTab === "games" ? (
             <>
-              {/* Hero */}
-              <div className="arc-hero">
+              {/* HugoArcade Hero Spotlight — Large 3D Motion Stage */}
+              <div className="arc-hero rounded-[36px] mx-6 mt-6 overflow-hidden border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.6)] relative bg-gradient-to-r from-[#FF2D55]/25 via-[#1c1d2e] to-[#0a0a0f] p-8 md:p-12 min-h-[360px] flex items-center justify-between gap-8 backdrop-blur-2xl">
                 <div className="arc-hero-grid" />
-                <div className="arc-hero-artwork" aria-hidden="true">
-                  <span className="material-symbols-outlined" style={{ fontSize: 110, fontVariationSettings: "'FILL' 0, 'wght' 100" }}>
-                    sports_esports
-                  </span>
-                </div>
-                <div className="arc-hero-content">
-                  <div className="arc-hero-badge"><i />Mini Game Universe</div>
-                  <h1 className="arc-hero-title">Chơi một ván.<br />Vui cả ngày.</h1>
-                  <p className="arc-hero-tagline">Chinh phục thử thách, lập kỷ lục và mang JOY về ví.</p>
-                  <div className="arc-hero-actions">
-                    <button className="arc-play-btn" onClick={() => openGame("2048")}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 17, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-                      Bắt đầu chơi
-                    </button>
-                    <button className="arc-info-btn">
-                      {totalGames} ván · {totalWins} chiến thắng
+                <div className="arc-hero-content max-w-xl z-10 relative">
+                  <div className="arc-hero-badge bg-[#FF2D55]/20 border border-[#FF2D55]/40 text-rose-300 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wider mb-4 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(255,45,85,0.3)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF2D55] animate-ping" /> HugoArcade Exclusive
+                  </div>
+                  <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-3 font-sans leading-none bg-gradient-to-r from-white via-rose-100 to-amber-200 bg-clip-text text-transparent drop-shadow-sm">
+                    HugoChess AI 2500 &amp; Neon 3D
+                  </h1>
+                  <p className="text-sm md:text-base text-zinc-300 max-w-lg mb-7 leading-relaxed font-sans font-medium">
+                    Trải nghiệm siêu phẩm Cờ Vua AI Master ELO 2500, Tetris Neon 3D &amp; Mật mã từ Hán-Việt với hệ số thưởng <strong className="text-[#FFB340]">x2.5 JOY Multiplier</strong>.
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      className="px-8 py-3.5 rounded-full bg-white text-black font-black text-xs uppercase tracking-wider hover:bg-zinc-100 hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.3)] flex items-center gap-2.5"
+                      onClick={() => openGame("chess")}
+                    >
+                      <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                      CHƠI NGAY (PLAY)
                     </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="arc-section-hd">
-                <div>
-                  <p className="arc-section-hd-label">Thư viện</p>
-                  <h2 className="arc-section-hd-title">Hôm nay muốn phá đảo gì?</h2>
+                {/* Animated 3D Floating Motion Graphic Stage (Right Side) */}
+                <div className="hidden lg:flex items-center justify-center relative w-80 h-72 flex-shrink-0 z-10">
+                  {/* Ambient Glowing Orbit Ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF2D55]/40 via-purple-500/30 to-amber-500/30 blur-2xl"
+                    animate={{ scale: [0.95, 1.2, 0.95], opacity: [0.4, 0.85, 0.4] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  />
+
+                  {/* Main Floating 3D Master Tile */}
+                  <motion.div
+                    className="relative z-10 w-48 h-48 rounded-[32px] bg-gradient-to-br from-rose-500 via-purple-600 to-indigo-700 p-1 shadow-[0_20px_50px_rgba(255,45,85,0.45)] border border-white/40 backdrop-blur-xl flex flex-col items-center justify-center gap-2.5 cursor-pointer"
+                    animate={{ y: [-10, 10, -10], rotate: [-3, 3, -3] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    onClick={() => openGame("chess")}
+                  >
+                    <div className="w-20 h-20 rounded-2xl bg-white/20 border border-white/40 flex items-center justify-center shadow-inner backdrop-blur-md">
+                      <Castle size={44} strokeWidth={1.75} className="text-white filter drop-shadow-lg" />
+                    </div>
+                    <span className="text-xs font-black text-white tracking-widest font-mono uppercase bg-black/30 px-3 py-1 rounded-full border border-white/20">
+                      MASTER ELO 2500
+                    </span>
+                  </motion.div>
+
+                  {/* Satellite Floating Badge 1: JOY Multiplier */}
+                  <motion.div
+                    className="absolute -top-3 -left-2 z-20 px-3.5 py-1.5 rounded-full bg-[#1c1d2e]/95 border border-amber-400/50 text-amber-300 text-xs font-black shadow-2xl backdrop-blur-md flex items-center gap-1.5"
+                    animate={{ y: [8, -8, 8] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <span className="text-sm">⚡</span> x2.5 JOY Multiplier
+                  </motion.div>
+
+                  {/* Satellite Floating Badge 2: Tetris Neon Tile */}
+                  <motion.div
+                    className="absolute -bottom-3 -right-2 z-20 w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#FF2D55] to-fuchsia-600 border border-white/40 text-white flex items-center justify-center shadow-2xl backdrop-blur-md cursor-pointer"
+                    animate={{ y: [-8, 8, -8], rotate: [6, -6, 6] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                    onClick={() => openGame("tetris")}
+                  >
+                    <Grid3X3 size={28} strokeWidth={2} className="filter drop-shadow-md" />
+                  </motion.div>
                 </div>
-                <span className="arc-section-hd-count">{String(GAMES.length).padStart(2, "0")} games</span>
               </div>
 
-              <div className="arc-game-grid">
-                {GAMES.map(g => (
+              {/* Game Grid */}
+              <div className="arc-section-hd px-6 mt-6">
+                <div>
+                  <p className="arc-section-hd-label uppercase tracking-widest text-[10px] font-black text-[#FF2D55]">HugoArcade Collection</p>
+                  <h2 className="arc-section-hd-title text-xl font-black text-white">Thư Viện Trò Chơi Nổi Bật</h2>
+                </div>
+                <span className="arc-section-hd-count text-xs font-mono text-zinc-400">{filteredGames.length} Games</span>
+              </div>
+
+              <div className="arc-game-grid px-6">
+                {filteredGames.map(g => (
                   <GameCard
                     key={g.id} game={g}
                     profile={profile}
@@ -336,7 +394,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
           ) : (
             <>
               {/* Game topbar */}
-              <header className="arc-topbar" style={{ background: "var(--arc-s1)", borderBottomColor: "var(--arc-b1)" }}>
+              <header className="arc-topbar" style={{ background: "#141522", borderBottomColor: "rgba(255,255,255,0.1)" }}>
                 <button onClick={closeGame} className="arc-back" aria-label={isPlaying ? "Thoát" : "Về sảnh"}>
                   {isPlaying ? "✕" : "←"}
                 </button>
@@ -346,8 +404,8 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
                       <gameInfo.Icon size={16} strokeWidth={2} />
                     </div>
                     <div>
-                      <span className="arc-logo-name" style={{ fontSize: 13 }}>{gameInfo.name}</span>
-                      <div style={{ fontSize: 9, color: "var(--arc-t3)", letterSpacing: ".1em", textTransform: "uppercase" }}>
+                      <span className="arc-logo-name" style={{ fontSize: 13, color: "#ffffff" }}>{gameInfo.name}</span>
+                      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.6)", letterSpacing: ".1em", textTransform: "uppercase" }}>
                         {gameInfo.label}
                       </div>
                     </div>

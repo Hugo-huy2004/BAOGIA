@@ -43,19 +43,23 @@ export const HOW_TO_PLAY = {
     objective: { easy: "Đấu AI tập sự", medium: "Đấu AI chiến thuật", hard: "Hạ AI nhìn trước nước đi" }
   },
   wordguess: {
-    rule: "Đoán từ tiếng Việt 5 chữ (không dấu). Sau mỗi lượt, màu ô cho biết chữ đúng vị trí, đúng chữ sai vị trí, hoặc không có trong từ.",
-    objective: { easy: "Giải mã trong 8 lượt", medium: "Giải mã trong 6 lượt", hard: "Giải mã chỉ với 4 lượt" }
+    rule: "Doán từ Hán-Việt & Tri thức có nghĩa. Dùng nút 💡 Gợi ý (5 JOY) để tiết lộ chữ đầu tiên và ý nghĩa từ.",
+    objective: { easy: "Từ 4 chữ (Đồ vật)", medium: "Từ 5 chữ (Hán-Việt)", hard: "Từ 6 chữ (Tri thức)" }
   },
   survivor: {
     rule: "Di chuyển tự do 360 độ để né đạn. Càng sống sót lâu, màn hình càng hỗn loạn. Sóng âm sẽ phát ra khi bạn chuyển màn.",
     objective: { easy: "Sống sót 30 giây", medium: "Sống sót 60 giây", hard: "Sống sót 90 giây" }
   },
   snake: {
-    rule: "Dùng phím mũi tên/WASD, vuốt trên màn hình, hoặc nút chạm để điều khiển. Ăn mồi để dài ra, tránh đâm vào tường hoặc thân mình.",
-    objective: { easy: "Ăn 8 mồi", medium: "Ăn 14 mồi", hard: "Ăn 20 mồi" }
+    rule: "Điều khiển con Rắn Neon 3D ăn các quả cầu ma thuật để dài ra. Tuyệt đối không chạm vào thân mình hoặc tường.",
+    objective: { easy: "Thu thập 8 quả cầu", medium: "Thu thập 14 quả cầu", hard: "Thu thập 20 quả cầu" }
   },
   tetris: {
-    rule: "Các khối rơi xuống liên tục — sắp xếp để lấp đầy hàng ngang và xóa hàng. Vuốt trái/phải để di chuyển, vuốt xuống để thả nhanh, chạm màn hình để xoay.",
-    objective: { easy: "Xóa 5 hàng", medium: "Xóa 10 hàng", hard: "Xóa 20 hàng" }
+    rule: "Xoay và xếp các khối Neon 3D vừa khít các hàng ngang để ghi điểm và giải phóng bàn cờ.",
+    objective: { easy: "Xóa 5 hàng Neon", medium: "Xóa 12 hàng bứt phá", hard: "Chinh phục 25 hàng Neon" }
+  },
+  flappy: {
+    rule: "Chạm màn hình hoặc ấn phím Space để điều khiển chú chim Cyber Neon chao lượn qua các cột điện từ trường. Ăn ngọc Chrono để kích hoạt Slow-Motion.",
+    objective: { easy: "Vượt 5 cột điện", medium: "Vượt 15 cột điện", hard: "Vượt 30 cột điện" }
   }
 };

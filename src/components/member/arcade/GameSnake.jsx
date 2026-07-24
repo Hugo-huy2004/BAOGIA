@@ -62,39 +62,130 @@ export default function GameSnake({ difficulty, onGameOver }) {
     const cell    = size / GRID;
 
     const draw = () => {
-      // Background + subtle grid
-      ctx.fillStyle = "#080a12";
+      // 3D Background with Subtle Perspective Grid
+      ctx.fillStyle = "#060913";
       ctx.fillRect(0, 0, size, size);
-      ctx.strokeStyle = "rgba(255,255,255,0.03)";
-      ctx.lineWidth   = 0.5;
+
+      ctx.strokeStyle = "rgba(6, 182, 212, 0.08)";
+      ctx.lineWidth   = 1;
       for (let i = 0; i <= GRID; i++) {
-        ctx.beginPath(); ctx.moveTo(i * cell, 0);    ctx.lineTo(i * cell, size);  ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, i * cell);    ctx.lineTo(size, i * cell);  ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, size); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(size, i * cell); ctx.stroke();
       }
 
-      // Food with neon glow
+      // 3D Spherical Food with Glow & Stem
+      const fx = (s.food.x + 0.5) * cell;
+      const fy = (s.food.y + 0.5) * cell;
+      const fr = cell * 0.42;
+
       ctx.shadowColor = FOOD_COLOR;
-      ctx.shadowBlur  = 14;
-      ctx.fillStyle   = FOOD_COLOR;
+      ctx.shadowBlur  = 18;
+      const foodGrad = ctx.createRadialGradient(fx - fr * 0.3, fy - fr * 0.3, fr * 0.1, fx, fy, fr);
+      foodGrad.addColorStop(0, "#ffffff");
+      foodGrad.addColorStop(0.4, "#fb7185");
+      foodGrad.addColorStop(1, "#e11d48");
+
+      ctx.fillStyle = foodGrad;
       ctx.beginPath();
-      ctx.arc((s.food.x + 0.5) * cell, (s.food.y + 0.5) * cell, cell * 0.33, 0, Math.PI * 2);
+      ctx.arc(fx, fy, fr, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Snake body — gradient neon segments
-      s.snake.forEach((seg, i) => {
-        const color = i === 0 ? HEAD_COLOR : BODY_COLORS[i % BODY_COLORS.length];
-        const alpha = Math.max(0.38, 1 - i * 0.035);
+      // Render Real Snake Body & Head (Continuous snake with head, glowing eyes, tongue, scale joints, and tapered tail)
+      const totalSegs = s.snake.length;
+      for (let i = totalSegs - 1; i >= 0; i--) {
+        const seg = s.snake[i];
+        const cx = (seg.x + 0.5) * cell;
+        const cy = (seg.y + 0.5) * cell;
+        const isHead = i === 0;
+        const isTail = i === totalSegs - 1;
+
         ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.shadowColor = color;
-        ctx.shadowBlur  = i === 0 ? 18 : 8;
-        ctx.fillStyle   = color;
-        ctx.beginPath();
-        ctx.roundRect(seg.x * cell + 1.5, seg.y * cell + 1.5, cell - 3, cell - 3, 6);
-        ctx.fill();
+
+        if (isHead) {
+          // Draw Snake Head
+          const angle = Math.atan2(s.dir.y, s.dir.x);
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+
+          const r = cell * 0.48;
+
+          // Head Glow
+          ctx.shadowColor = "#FF2D55";
+          ctx.shadowBlur = 18;
+
+          // Snake Head Gradient
+          const headGrad = ctx.createLinearGradient(-r, 0, r, 0);
+          headGrad.addColorStop(0, "#FF2D55");
+          headGrad.addColorStop(1, "#FF6B8B");
+
+          ctx.fillStyle = headGrad;
+          ctx.beginPath();
+          // Bullet / Capsule Head Shape
+          ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, false);
+          ctx.lineTo(r * 0.6, -r * 0.7);
+          ctx.quadraticCurveTo(r * 1.25, 0, r * 0.6, r * 0.7);
+          ctx.closePath();
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Snake Eyes (White)
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(r * 0.3, -r * 0.38, r * 0.22, 0, Math.PI * 2);
+          ctx.arc(r * 0.3, r * 0.38, r * 0.22, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pupils (Dark & Sharp)
+          ctx.fillStyle = "#0a0a0f";
+          ctx.beginPath();
+          ctx.arc(r * 0.38, -r * 0.38, r * 0.1, 0, Math.PI * 2);
+          ctx.arc(r * 0.38, r * 0.38, r * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Red Flicking Tongue
+          ctx.strokeStyle = "#ff3b30";
+          ctx.lineWidth = 2.5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(r * 1.1, 0);
+          ctx.lineTo(r * 1.5, 0);
+          ctx.lineTo(r * 1.75, -r * 0.22);
+          ctx.moveTo(r * 1.5, 0);
+          ctx.lineTo(r * 1.75, r * 0.22);
+          ctx.stroke();
+
+        } else {
+          // Connected Body Segment to previous segment
+          const prevSeg = s.snake[i - 1];
+          const px = (prevSeg.x + 0.5) * cell;
+          const py = (prevSeg.y + 0.5) * cell;
+
+          const progress = i / totalSegs;
+          const r = cell * (isTail ? 0.28 : (0.44 - progress * 0.14));
+          const color = BODY_COLORS[i % BODY_COLORS.length];
+
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 8;
+
+          // Continuous Capsule Body Stroke
+          ctx.strokeStyle = color;
+          ctx.lineWidth = r * 1.95;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(px, py);
+          ctx.stroke();
+
+          // Scale Highlight Specular Drop
+          ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.2, cy - r * 0.2, r * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
         ctx.restore();
-      });
+      }
     };
 
     const step = (ts) => {

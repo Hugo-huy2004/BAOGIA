@@ -613,9 +613,7 @@ router.post('/report/weekly', requireMember, async (req, res) => {
     if (error.message === 'Companion history not found for this email') {
       return res.status(404).json({ error: error.message });
     }
-    import('fs').then(fs => {
-      fs.writeFileSync(join(__dirname, '../error_log.txt'), error.stack || error.message);
-    }).catch(console.error);
+    console.error('[companion/weekly-report]', error);
     res.status(500).json({ error: error.message });
   }
 });

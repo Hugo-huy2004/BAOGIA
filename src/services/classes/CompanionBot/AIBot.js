@@ -126,16 +126,16 @@ async function fetchWithRetry(url, options, retries = 1) {
 
 // Greetings served locally — zero server cost, instant display.
 const LOCAL_GREETINGS_ACTIVE = [
-  "Heyyy! Tớ là HugoPSY 🌸 Hôm nay cậu vibe sao rồi?",
-  "Cậu vào rồi nè! Tớ đang chờ mà 😊 Có điều gì đang làm cậu suy nghĩ không?",
-  "Ôi cậu quay lại rồi! 🥹 Dạo này cậu ổn không, hay có gì muốn xả không?",
-  "Hey cậu ơi! Tớ ở đây. Hôm nay cậu cảm thấy thế nào — 1 từ thôi cũng được nha?",
-  "Chào cậu! Tớ luôn sẵn nghe — cậu đang ổn, hay có điều gì đang trăn trở?",
+  "Hế lô đồ ngốc! 🌸 Tớ là HugoPSY đây, hôm nay ai chọc giận hay làm cậu buồn thế, khai mau tớ đền cho cốc trà sữa nào! 😜",
+  "Cậu vào rồi nè! Tớ đang ngồi chờ mòn mỏi luôn á 😜 Hôm nay có drama gì hay có nỗi niềm gì xả cho tớ nghe đi!",
+  "Ôi cậu quay lại rồi! 🥹 Đang định bắt cóc cậu ra tâm sự nè. Hôm nay thế nào rồi, ổn không hay lại overthinking nữa rồi hả?",
+  "Heyyy người đẹp/đẹp trai ơi! Tớ ở đây nè. Kể tớ nghe hôm nay 1 từ mô tả vibe của cậu đi?",
+  "Chào cậu nha! Tớ luôn sẵn sàng ngồi hóng nè — có chuyện gì bức bối cứ xả hết ra đây tớ gánh hết cho! 💙",
 ];
 const LOCAL_GREETINGS_HEALING = [
-  "Cậu đang trên đà phục hồi — tớ tự hào về cậu lắm! 🌱 Hôm nay sao rồi?",
-  "Chào cậu! Hành trình của cậu đang đi rất tốt đó. Hôm nay muốn làm bài tập hay chỉ tâm sự thôi?",
-  "Tớ luôn đồng hành cùng cậu nha — tiếp tục bước tiếp cùng nhau nhé. Hôm nay cậu cảm thấy gì? 💙",
+  "Cậu đang trên đà phục hồi giỏi dữ nghen — tớ tự hào về cậu lắm luôn đó! 🌱 Hôm nay tâm trạng sao rồi nè?",
+  "Hế lô cậu iu! Hành trình của cậu đang tiến triển siêu ngon luôn. Hôm nay muốn làm bài tập hay chỉ thích ngồi buôn chuyện nhây với tớ thôi?",
+  "Tớ luôn ở cạnh ôm ấp cậu nha — cứ việc là chính mình, có tớ gánh hết nỗi niềm cho nè 💙",
 ];
 
 
@@ -208,15 +208,22 @@ export default class AIBot extends BaseBot {
     if (logs.length === 0) return "";
     const parts = [];
 
-    const checkins = logs.filter(l => l.type === "checkin" && l.mood);
+    const checkins = logs.filter(l => l && l.type === "checkin" && l.mood && l.date);
     if (checkins.length > 0) {
-      const days = new Set(checkins.map(c => new Date(c.date).toDateString()));
-      let streak = 0;
-      let cursor = new Date();
-      if (!days.has(cursor.toDateString())) cursor.setDate(cursor.getDate() - 1);
-      while (days.has(cursor.toDateString())) { streak++; cursor.setDate(cursor.getDate() - 1); }
-      const latestMood = checkins[checkins.length - 1].mood;
-      parts.push(`Streak check-in hiện tại: ${streak} ngày. Tâm trạng check-in gần nhất: ${latestMood}/5.`);
+      try {
+        const days = new Set(checkins.map(c => {
+          const d = new Date(c.date);
+          return isNaN(d.getTime()) ? null : d.toDateString();
+        }).filter(Boolean));
+        let streak = 0;
+        let cursor = new Date();
+        if (!days.has(cursor.toDateString())) cursor.setDate(cursor.getDate() - 1);
+        while (days.has(cursor.toDateString()) && streak < 365) { streak++; cursor.setDate(cursor.getDate() - 1); }
+        const latestMood = checkins[checkins.length - 1].mood;
+        parts.push(`Streak check-in hiện tại: ${streak} ngày. Tâm trạng check-in gần nhất: ${latestMood}/5.`);
+      } catch (e) {
+        console.warn("Lỗi tính streak checkin:", e);
+      }
     }
 
     ["phq9", "gad7", "who5", "dass42", "mmpi30", "bigfive"].forEach(testId => {

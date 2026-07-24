@@ -7,15 +7,19 @@ import { fetchStationsByNames, fetchStationByName, registerStationClick } from "
 import FeatureGate from "./shared/FeatureGate";
 
 const RADIO_CATEGORIES = [
-  { id: "vn_news", icon: "newspaper", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
-  { id: "intl_news", icon: "public", labelKey: "utilities.radio.categories.intlNews", names: ["BBC World Service", "NPR 24 Hour Program Stream", "CNN", "Fox News Radio", "RTE1"] },
-  { id: "music", icon: "music_note", labelKey: "utilities.radio.categories.music", names: ["ZING BOLERO", "M Radio Vietnam", "Cherry Radio Music 247", "CHẠM RADIO", "SWR3", "Heart 80s"] }
+  { id: "vn_news", icon: "newspaper", label: "Đài Việt Nam", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
+  { id: "intl_news", icon: "public", label: "Tin Tức Quốc Tế", labelKey: "utilities.radio.categories.intlNews", names: ["BBC World Service", "NPR 24 Hour Program Stream", "CNN", "Fox News Radio", "RTE1"] },
+  { id: "music", icon: "music_note", label: "Âm Nhạc", labelKey: "utilities.radio.categories.music", names: ["ZING BOLERO", "M Radio Vietnam", "Cherry Radio Music 247", "CHẠM RADIO", "SWR3", "Heart 80s"] },
+  { id: "lofi_chill", icon: "headphones", label: "Lofi & Tập Trung", labelKey: "utilities.radio.categories.lofiChill", names: ["Lofi Girl Radio", "Chillhop Radio", "Smooth Jazz 247", "Classical FM", "Chillout Lounge"] },
+  { id: "sports_talk", icon: "podcasts", label: "Thể Thao & Talk", labelKey: "utilities.radio.categories.sportsTalk", names: ["ESPN Radio", "TalkSPORT", "CBC Radio One", "Radio France Internationale"] }
 ];
 
 const STATION_FREQUENCIES = {
   "VOV1": 91.0, "VOV2": 96.5, "VOV3": 102.7, "VOV Giao thông Hà Nội": 91.5, "VOV5 WORLD RADIO": 105.5, "RFI Tiếng Việt": 93.3, "VOH FM 87.7": 87.7,
   "BBC World Service": 88.9, "NPR 24 Hour Program Stream": 90.1, "CNN": 92.5, "Fox News Radio": 94.7, "RTE1": 98.1,
-  "ZING BOLERO": 95.0, "M Radio Vietnam": 98.9, "Cherry Radio Music 247": 101.5, "CHẠM RADIO": 104.0, "SWR3": 106.2, "Heart 80s": 107.5
+  "ZING BOLERO": 95.0, "M Radio Vietnam": 98.9, "Cherry Radio Music 247": 101.5, "CHẠM RADIO": 104.0, "SWR3": 106.2, "Heart 80s": 107.5,
+  "Lofi Girl Radio": 88.5, "Chillhop Radio": 92.1, "Smooth Jazz 247": 97.3, "Classical FM": 100.1, "Chillout Lounge": 103.5,
+  "ESPN Radio": 89.5, "TalkSPORT": 94.1, "CBC Radio One": 99.5, "Radio France Internationale": 106.8
 };
 
 const ALL_FREQS = Object.entries(STATION_FREQUENCIES).map(([name, freq]) => ({ name, freq })).sort((a, b) => a.freq - b.freq);
@@ -44,6 +48,19 @@ const FALLBACK_STATIONS = {
     { stationuuid: "fa114bd0-1fef-45ba-b7ac-ebe4d3f22464", name: "CHẠM RADIO", url_resolved: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8", url: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8" },
     { stationuuid: "6c0ac59d-c625-458c-9a50-5fac90a73df9", name: "SWR3", url_resolved: "https://liveradio.swr.de/sw331ch/swr3/play.aac", url: "https://liveradio.swr.de/sw331ch/swr3/play.aac" },
     { stationuuid: "962e9a46-0601-11e8-ae97-52543be04c81", name: "Heart 80s", url_resolved: "https://media-ice.musicradio.com/Heart80sMP3", url: "https://media-ice.musicradio.com/Heart80sMP3" }
+  ],
+  lofi_chill: [
+    { stationuuid: "lofi_girl_01", name: "Lofi Girl Radio", url_resolved: "https://stream.zeno.fm/f3wvbbqmdg8uv", url: "https://stream.zeno.fm/f3wvbbqmdg8uv" },
+    { stationuuid: "chillhop_02", name: "Chillhop Radio", url_resolved: "https://stream.zeno.fm/0r0xa792kwzuv", url: "https://stream.zeno.fm/0r0xa792kwzuv" },
+    { stationuuid: "smooth_jazz_03", name: "Smooth Jazz 247", url_resolved: "https://stream.zeno.fm/n2p984hkp2zuv", url: "https://stream.zeno.fm/n2p984hkp2zuv" },
+    { stationuuid: "classical_04", name: "Classical FM", url_resolved: "https://media-ice.musicradio.com/ClassicFMMP3", url: "https://media-ice.musicradio.com/ClassicFMMP3" },
+    { stationuuid: "chillout_05", name: "Chillout Lounge", url_resolved: "https://stream.zeno.fm/80y7y0wkp2zuv", url: "https://stream.zeno.fm/80y7y0wkp2zuv" }
+  ],
+  sports_talk: [
+    { stationuuid: "espn_01", name: "ESPN Radio", url_resolved: "https://live.amperwave.net/direct/espn-espnradioaac-imc", url: "https://live.amperwave.net/direct/espn-espnradioaac-imc" },
+    { stationuuid: "talksport_02", name: "TalkSPORT", url_resolved: "https://talksport-radio.streamguys1.com/talksport-live.mp3", url: "https://talksport-radio.streamguys1.com/talksport-live.mp3" },
+    { stationuuid: "cbc_03", name: "CBC Radio One", url_resolved: "https://cbclive.akamaized.net/hls/live/2041060/cbc_r1_tor/master.m3u8", url: "https://cbclive.akamaized.net/hls/live/2041060/cbc_r1_tor/master.m3u8" },
+    { stationuuid: "rfi_04", name: "Radio France Internationale", url_resolved: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3", url: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3" }
   ]
 };
 
@@ -62,7 +79,11 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   
   const [volume, setVolume] = useState(70);
   const [visualFreq, setVisualFreq] = useState(91.0); // Displayed frequency
-  
+
+  // Apple Sleep Timer State (null | 15 | 30 | 60)
+  const [sleepTimer, setSleepTimer] = useState(null);
+  const [sleepTimeLeft, setSleepTimeLeft] = useState(0);
+
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
   const retriedRef = useRef(false);
@@ -72,10 +93,6 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const noiseSourceRef = useRef(null);
   const noiseGainRef = useRef(null);
   const tuningTimeoutRef = useRef(null);
-
-  // Modern UI Colors
-  const LED_COLOR = "#06b6d4"; // Cyan-500
-  const GLOW = "drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]";
 
   const startStaticNoise = useCallback(() => {
     if (noiseSourceRef.current) return;
@@ -87,14 +104,13 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
       audioCtxRef.current = ctx;
       if (ctx.state === "suspended") ctx.resume();
 
-      // Better brown noise generation for premium feel
       const bufferSize = ctx.sampleRate * 2;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       let lastOut = 0;
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
-        data[i] = (lastOut + (0.02 * white)) / 1.02; // Brownish
+        data[i] = (lastOut + (0.02 * white)) / 1.02;
         lastOut = data[i];
         data[i] *= 3.5; 
       }
@@ -126,9 +142,53 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     noiseGainRef.current = null;
   }, []);
 
+  // Sleep Timer Countdown & Fade Out
+  useEffect(() => {
+    if (!sleepTimer || !isPlaying) {
+      setSleepTimeLeft(0);
+      return;
+    }
+    setSleepTimeLeft(sleepTimer * 60);
+
+    const interval = setInterval(() => {
+      setSleepTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          if (audioRef.current) {
+            audioRef.current.pause();
+            setIsPlaying(false);
+          }
+          stopStaticNoise();
+          setSleepTimer(null);
+          showToast?.("🌙 Hẹn giờ tắt: Đã tự động dừng phát HugoRadio. Chúc bạn ngủ ngon!", "info");
+          return 0;
+        }
+        if (prev <= 15 && audioRef.current) {
+          audioRef.current.volume = Math.max(0, (prev / 15) * (volume / 100));
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [sleepTimer, isPlaying, volume, stopStaticNoise, showToast]);
+
+  const cycleSleepTimer = () => {
+    if (!sleepTimer) setSleepTimer(15);
+    else if (sleepTimer === 15) setSleepTimer(30);
+    else if (sleepTimer === 30) setSleepTimer(60);
+    else setSleepTimer(null);
+  };
+
+  const formatSleepTime = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
   const findClosestStation = useCallback((freq) => {
     let closest = null;
-    let minDiff = 0.25; // snap range
+    let minDiff = 0.25;
     for (const cat of RADIO_CATEGORIES) {
       const catStations = stationsByCategory[cat.id] || [];
       for (const station of catStations) {
@@ -186,7 +246,6 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
           const missing = fallbacks.filter(f => !loadedNames.has(f.name.toUpperCase()) && !loadedUuids.has(f.stationuuid));
           let combined = [...stations, ...missing];
           
-          // Final deduplication just in case
           const seen = new Set();
           combined = combined.filter(s => {
             if (seen.has(s.stationuuid)) return false;
@@ -250,192 +309,202 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     showToast?.(t("utilities.radio.toastPlayError", "Đài này hiện không khả dụng."), "error");
   };
 
-  useEffect(() => { handleFailureRef.current = handlePlaybackFailure; });
+  handleFailureRef.current = handlePlaybackFailure;
 
-  const playStation = async (station) => {
-    if (!audioRef.current) return;
-    
-    stopStaticNoise();
-    setIsStatic(false);
+  const playStation = (station) => {
+    if (nowPlaying?.stationuuid === station.stationuuid && isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      stopStaticNoise();
+      return;
+    }
+
     retriedRef.current = false;
+    stopStaticNoise();
     setNowPlaying(station);
     setIsBuffering(true);
-    setIsDragging(false);
+    setIsStatic(false);
+    setIsPlaying(false);
 
-    const stationFreq = STATION_FREQUENCIES[station.name];
-    if (stationFreq !== undefined) setVisualFreq(stationFreq);
+    const freq = STATION_FREQUENCIES[station.name];
+    if (freq) setVisualFreq(freq);
 
     const streamUrl = station.url_resolved || station.url;
     if (streamUrl) {
       attachAndPlay(streamUrl);
       registerStationClick(station.stationuuid);
+    } else {
+      handlePlaybackFailure();
     }
-
-    try {
-      fetchStationByName(station.name).then((fresh) => {
-        if (fresh) {
-          const freshUrl = fresh.url_resolved || fresh.url;
-          if (freshUrl && freshUrl !== streamUrl) {
-            setStationsByCategory((prev) => {
-              const list = prev[activeCategory] || [];
-              return { ...prev, [activeCategory]: list.map(s => s.name === station.name ? { ...s, url_resolved: freshUrl, url: freshUrl } : s) };
-            });
-          }
-        }
-      }).catch(() => {});
-    } catch {}
   };
 
-  // Called RAPIDLY when user drags the slider
-  const handleDialDrag = (val) => {
-    setVisualFreq(val);
-    if (!isDragging) setIsDragging(true);
-    
-    if (audioRef.current) audioRef.current.pause();
-    setIsPlaying(false);
-    setIsBuffering(false);
+  const handleDialDrag = (freq) => {
+    setVisualFreq(freq);
+    setIsDragging(true);
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    }
+
     startStaticNoise();
     setIsStatic(true);
-    setNowPlaying(null);
+  };
+
+  const handleDialRelease = (freq) => {
+    setIsDragging(false);
+    const closest = findClosestStation(freq);
 
     if (tuningTimeoutRef.current) clearTimeout(tuningTimeoutRef.current);
-    tuningTimeoutRef.current = setTimeout(() => handleDialRelease(val), 500);
-  };
 
-  // Called ONCE when the user STOPS dragging (debounced)
-  const handleDialRelease = (finalFreq) => {
-    setIsDragging(false);
-    const match = findClosestStation(finalFreq);
-    if (match) {
-      // Snapped!
-      setVisualFreq(match.frequency);
-      if (activeCategory !== match.categoryId) setActiveCategory(match.categoryId);
-      playStation(match.station);
-    }
-    // If no match, it stays on static noise
-  };
-
-  const autoScan = (dir) => {
-    if (audioRef.current) audioRef.current.pause();
-    setIsPlaying(false); setIsBuffering(false); startStaticNoise(); setIsStatic(true); setNowPlaying(null);
-    setIsDragging(true); // Treat scan as drag for UI
-
-    let targetFreq = visualFreq;
-    if (dir === "up") {
-      const next = ALL_FREQS.find(f => f.freq > visualFreq);
-      targetFreq = next ? next.freq : ALL_FREQS[0].freq;
-    } else {
-      const prev = [...ALL_FREQS].reverse().find(f => f.freq < visualFreq);
-      targetFreq = prev ? prev.freq : ALL_FREQS[ALL_FREQS.length - 1].freq;
-    }
-
-    // Animate the frequency numbers
-    animate(visualFreq, targetFreq, {
-      duration: 0.6,
-      ease: "easeInOut",
-      onUpdate: latest => setVisualFreq(latest),
-      onComplete: () => {
-        setIsDragging(false);
-        const match = findClosestStation(targetFreq);
-        if (match) {
-          if (activeCategory !== match.categoryId) setActiveCategory(match.categoryId);
-          playStation(match.station);
-        }
+    if (closest) {
+      setVisualFreq(closest.frequency);
+      if (activeCategory !== closest.categoryId) {
+        setActiveCategory(closest.categoryId);
       }
-    });
+      tuningTimeoutRef.current = setTimeout(() => {
+        playStation(closest.station);
+      }, 150);
+    } else {
+      tuningTimeoutRef.current = setTimeout(() => {
+        stopStaticNoise();
+        setIsStatic(false);
+      }, 1200);
+    }
+  };
+
+  const autoScan = (direction) => {
+    const step = direction === "up" ? 0.5 : -0.5;
+    let nextFreq = visualFreq + step;
+    if (nextFreq > 108.0) nextFreq = 87.5;
+    if (nextFreq < 87.5) nextFreq = 108.0;
+
+    let target = null;
+    let curr = nextFreq;
+
+    for (let i = 0; i < 40; i++) {
+      const match = findClosestStation(curr);
+      if (match) {
+        target = match;
+        break;
+      }
+      curr += step;
+      if (curr > 108.0) curr = 87.5;
+      if (curr < 87.5) curr = 108.0;
+    }
+
+    if (target) {
+      handleDialDrag(target.frequency);
+      setTimeout(() => {
+        handleDialRelease(target.frequency);
+      }, 300);
+    }
   };
 
   const togglePlayPause = () => {
-    if (!audioRef.current) return;
-    if (isPlaying || isStatic || isBuffering) {
+    if (isPlaying) {
       audioRef.current.pause();
-      setIsPlaying(false); setIsBuffering(false); stopStaticNoise(); setIsStatic(false);
+      setIsPlaying(false);
+      stopStaticNoise();
+    } else if (nowPlaying) {
+      playStation(nowPlaying);
     } else {
-      const match = findClosestStation(visualFreq);
-      if (match) playStation(match.station);
-      else { startStaticNoise(); setIsStatic(true); }
+      const firstCat = stationsByCategory[activeCategory];
+      if (firstCat && firstCat.length > 0) {
+        playStation(firstCat[0]);
+      }
     }
   };
 
   const stations = stationsByCategory[activeCategory] || [];
-  const knobAngle = (volume / 100) * 270 - 135;
   const needleLeft = `calc(0.5rem + (100% - 1rem) * ${(visualFreq - 87.5) / (108.0 - 87.5)})`;
 
   return (
     <FeatureGate bio={bio} featureKey="hugoRadio" priceJoy={150} icon="radio" title="Trao đổi JOY để mở khóa HugoRadio" description="Nghe radio kỹ thuật số với hàng chục kênh chất lượng cao." onBioUpdate={onBioUpdate} onBack={onBack} className="max-w-lg mx-auto mt-10">
-      <div>
+      <div className="text-zinc-900 dark:text-white transition-colors duration-300">
         <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
 
-        {/* ─── Premium Receiver UI ──────────────────────────────────────────────── */}
-        <div className="relative mb-6 rounded-3xl bg-zinc-950 p-5 md:p-6 shadow-2xl overflow-hidden border border-zinc-800">
-          {/* Glass/Glow Effects */}
-          <div className="absolute -top-20 -left-20 w-64 h-64 bg-info/10 rounded-full blur-[60px] pointer-events-none" />
-          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
-          
+        {/* ─── Apple Music Style Receiver Player ──────────────────────────────────── */}
+        <div className="relative mb-6 rounded-[36px] bg-white/80 dark:bg-[#0e0f17]/90 p-5 md:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7)] backdrop-blur-3xl border border-zinc-200/80 dark:border-white/10 overflow-hidden transition-all duration-300">
+          {/* Glass/Glow Ambient Highlights */}
+          <div className="absolute -top-24 -left-24 w-72 h-72 bg-cyan-500/15 dark:bg-cyan-500/20 rounded-full blur-[70px] pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-500/15 dark:bg-purple-500/20 rounded-full blur-[70px] pointer-events-none" />
+
           <div className="relative z-10 flex flex-col gap-6">
-            
-            {/* Top Display Panel */}
-            <div className="bg-[#050508] rounded-2xl px-5 py-4 border border-zinc-800 shadow-[inset_0_4px_20px_rgba(0,0,0,0.8)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+            {/* Top Apple Display Screen */}
+            <div className="bg-zinc-100/90 dark:bg-[#05060b]/90 rounded-2xl px-5 py-4 border border-zinc-200/90 dark:border-white/10 shadow-inner flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
               <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${(isPlaying && !isDragging) ? "bg-info text-info animate-pulse" : (isStatic || isDragging) ? "bg-info/20 text-info/20" : "bg-zinc-800 text-transparent"}`} />
-                  <span className="text-[10px] font-black tracking-widest uppercase text-info/70">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] ${(isPlaying && !isDragging) ? "bg-[#06b6d4] text-[#06b6d4] animate-pulse" : (isStatic || isDragging) ? "bg-[#06b6d4]/40 text-[#06b6d4]" : "bg-zinc-400 dark:bg-zinc-700 text-transparent"}`} />
+                  <span className="text-[10px] font-black tracking-widest uppercase text-[#06b6d4] dark:text-[#06b6d4]">
                     {isDragging ? "TUNING..." : isBuffering ? "CONNECTING..." : isStatic ? "STATIC NOISE" : isPlaying ? "FM STEREO" : nowPlaying ? "PAUSED" : "STANDBY"}
                   </span>
                 </div>
-                <p className={`font-mono text-[14px] font-bold tracking-wide truncate ${isDragging ? "text-info/90 blur-[0.5px]" : "text-info"} transition-all duration-300`} style={{ textShadow: isDragging ? "none" : "0 0 10px rgba(6,182,212,0.6)" }}>
-                  {nowPlaying && !isDragging && !isStatic ? nowPlaying.name : "HUGO DIGITAL RECEIVER"}
+                <p className="font-sans text-base font-extrabold tracking-tight truncate text-zinc-900 dark:text-white transition-all">
+                  {nowPlaying && !isDragging && !isStatic ? nowPlaying.name : "HUGO DIGITAL RADIO"}
                 </p>
-                
-                {/* Visualizer bars */}
-                <div className="flex items-end gap-[3px] h-3 mt-3 opacity-80">
-                  {Array.from({ length: 12 }).map((_, i) => (
+
+                {/* Apple Live Equalizer Bars */}
+                <div className="flex items-end gap-[3.5px] h-3.5 mt-3 opacity-90">
+                  {Array.from({ length: 14 }).map((_, i) => (
                     <span key={i} className="w-[3px] rounded-full origin-bottom" style={{
-                      backgroundColor: i > 8 ? "#ef4444" : i > 5 ? "#f59e0b" : "#06b6d4",
+                      backgroundColor: i > 10 ? "#ef4444" : i > 6 ? "#f59e0b" : "#06b6d4",
                       animationName: (isPlaying && !isDragging) ? "eq-bar" : (isStatic || isDragging) ? "eq-bar" : "none",
-                      animationDuration: (isStatic || isDragging) ? `${0.1 + Math.random()*0.2}s` : `${0.4 + (i%3)*0.15}s`,
+                      animationDuration: (isStatic || isDragging) ? `${0.1 + Math.random()*0.2}s` : `${0.35 + (i%3)*0.12}s`,
                       animationIterationCount: "infinite",
                       transform: (isPlaying || isStatic || isDragging) ? "scaleY(1)" : "scaleY(0.2)",
-                      boxShadow: (isPlaying && !isDragging) ? `0 0 6px ${i > 8 ? '#ef4444' : i > 5 ? '#f59e0b' : '#06b6d4'}` : "none",
                       height: "100%",
                       transition: "transform 0.2s"
                     }} />
                   ))}
                 </div>
               </div>
-              
-              <div className="flex flex-row md:flex-col items-center md:items-end justify-between font-mono select-none">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-info text-4xl font-black tracking-tighter" style={{ textShadow: "0 0 16px rgba(6,182,212,0.7)" }}>
+
+              {/* Digital Frequency Badge & Sleep Timer Pill */}
+              <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-2 font-mono select-none">
+                <div className="flex items-baseline gap-1 bg-cyan-500/10 dark:bg-cyan-500/20 px-3.5 py-1.5 rounded-2xl border border-cyan-500/30">
+                  <span className="text-[#06b6d4] text-3xl font-black tracking-tighter">
                     {visualFreq.toFixed(1)}
                   </span>
-                  <span className="text-[10px] font-bold text-info">MHz</span>
+                  <span className="text-[10px] font-bold text-[#06b6d4]">MHz</span>
                 </div>
+
+                {/* Apple Sleep Timer Button */}
+                <button
+                  onClick={cycleSleepTimer}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 border ${
+                    sleepTimer
+                      ? "bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.3)] animate-pulse"
+                      : "bg-zinc-200/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-white/10 hover:text-zinc-900 dark:hover:text-white"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-sm">bedtime</span>
+                  <span>{sleepTimer ? `TẮT ${formatSleepTime(sleepTimeLeft)}` : "HẸN GIỜ TẮT"}</span>
+                </button>
               </div>
             </div>
 
-            {/* Dial and Controls */}
+            {/* Tuning Dial Track & Needle */}
             <div className="flex flex-col gap-4">
-              {/* Dial Track */}
-              <div className="relative h-14 bg-zinc-900 rounded-xl border-y border-zinc-700/50 px-2 overflow-hidden shadow-inner cursor-ew-resize">
-                {/* Ticks */}
+              <div className="relative h-14 bg-zinc-200/80 dark:bg-zinc-900/90 rounded-2xl border border-zinc-300 dark:border-white/10 px-2 overflow-hidden shadow-inner cursor-ew-resize transition-colors">
                 <div className="absolute inset-x-0 top-0 bottom-0 flex justify-between pointer-events-none px-4">
                   {Array.from({ length: 42 }).map((_, idx) => {
                     const f = 87.5 + idx * 0.5;
                     const isMajor = idx % 2 === 1 || idx === 0 || idx === 41;
                     return (
                       <div key={idx} className="flex flex-col items-center h-full justify-start">
-                        <div className={`w-[2px] ${isMajor ? 'h-4 bg-zinc-600' : 'h-2 bg-zinc-700'}`} />
+                        <div className={`w-[2px] ${isMajor ? 'h-4 bg-zinc-500 dark:bg-zinc-500' : 'h-2 bg-zinc-300 dark:bg-zinc-700'}`} />
                         {(idx - 1) % 4 === 0 && (
-                          <span className="text-[8px] font-mono text-zinc-500 font-bold mt-1.5">{Math.round(f)}</span>
+                          <span className="text-[8px] font-mono text-zinc-600 dark:text-zinc-400 font-bold mt-1.5">{Math.round(f)}</span>
                         )}
                       </div>
                     );
                   })}
                 </div>
-                
-                {/* Glowing Needle */}
-                <div className="absolute top-0 bottom-0 w-1 bg-info pointer-events-none z-10 rounded-full" style={{ left: needleLeft, boxShadow: "0 0 12px 2px rgba(6,182,212,0.9)" }} />
+
+                {/* Glowing Apple Needle */}
+                <div className="absolute top-0 bottom-0 w-1 bg-[#06b6d4] pointer-events-none z-10 rounded-full" style={{ left: needleLeft, boxShadow: "0 0 12px 2px rgba(6,182,212,0.9)" }} />
 
                 <input type="range" min="87.5" max="108.0" step="0.1" value={visualFreq} onChange={(e) => handleDialDrag(Number(e.target.value))}
                        onPointerDown={() => setIsDragging(true)} onPointerUp={() => { if (isDragging) handleDialRelease(visualFreq); }}
@@ -443,44 +512,44 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
               </div>
 
               {/* Action Toolbar */}
-              <div className="flex items-center justify-between px-2">
-                <button onClick={() => autoScan("down")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-info active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
-                  <span className="material-symbols-outlined text-[14px]">skip_previous</span>
+              <div className="flex items-center justify-between px-1">
+                <button onClick={() => autoScan("down")} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white active:scale-95 transition-all font-black text-xs tracking-wider uppercase border border-zinc-200 dark:border-white/10 shadow-sm">
+                  <span className="material-symbols-outlined text-base">skip_previous</span>
                   <span>Scan</span>
                 </button>
-                
-                {/* Big Play Button */}
-                <button onClick={togglePlayPause} className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-b from-info to-primary text-black flex items-center justify-center active:scale-95 transition-transform shadow-[0_8px_30px_rgba(6,182,212,0.5)] border border-info/50">
+
+                {/* Apple Play / Power Button */}
+                <button onClick={togglePlayPause} className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-tr from-[#06b6d4] to-indigo-500 text-white flex items-center justify-center active:scale-95 transition-transform shadow-[0_10px_30px_rgba(6,182,212,0.4)] border border-white/30">
                   <span className="material-symbols-outlined text-3xl">{(isPlaying || isStatic || isBuffering) ? "power_settings_new" : "play_arrow"}</span>
                 </button>
-                
-                <button onClick={() => autoScan("up")} className="flex items-center gap-1 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-info active:scale-95 transition-all font-bold text-[10px] tracking-wider uppercase border border-zinc-700">
+
+                <button onClick={() => autoScan("up")} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white active:scale-95 transition-all font-black text-xs tracking-wider uppercase border border-zinc-200 dark:border-white/10 shadow-sm">
                   <span>Scan</span>
-                  <span className="material-symbols-outlined text-[14px]">skip_next</span>
+                  <span className="material-symbols-outlined text-base">skip_next</span>
                 </button>
               </div>
             </div>
-            
+
           </div>
         </div>
 
-        {/* ─── Band Navigation ──────────────────────────────────────────────── */}
-        <div className="flex mb-5 p-1 rounded-2xl bg-muted/50">
+        {/* ─── Apple Category Selector Pills ───────────────────────────────────── */}
+        <div className="flex items-center gap-2 overflow-x-auto mb-6 p-1.5 rounded-full bg-zinc-100 dark:bg-[#141522]/90 border border-zinc-200/80 dark:border-white/10 transition-colors no-scrollbar">
           {RADIO_CATEGORIES.map((cat) => {
             const active = activeCategory === cat.id;
             return (
               <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[11px] font-bold transition-all ${
-                  active ? "bg-card text-info shadow-sm" : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                className={`flex-1 min-w-[110px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-full text-xs font-black transition-all whitespace-nowrap ${
+                  active ? "bg-[#06b6d4] text-white shadow-[0_4px_14px_rgba(6,182,212,0.4)]" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                 }`}>
-                <span className="material-symbols-outlined text-[16px]">{cat.icon}</span>
-                <span className="hidden sm:inline">{t(cat.labelKey)}</span>
+                <span className="material-symbols-outlined text-base">{cat.icon}</span>
+                <span>{cat.label || t(cat.labelKey)}</span>
               </button>
             );
           })}
         </div>
 
-        {/* ─── Station Grid ──────────────────────────────────────────────── */}
+        {/* ─── Station Grid Cards ────────────────────────────────────────────────── */}
         {loadingCategory === activeCategory ? (
           <div className="flex items-center justify-center py-12 text-zinc-400 text-sm">
             <span className="material-symbols-outlined animate-spin mr-2">refresh</span> {t("companion.tab.loading", "Đang tải...")}
@@ -490,35 +559,36 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
             {t("utilities.radio.noStations", "Không tìm thấy đài nào.")}
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
             {stations.map((station) => {
               const active = nowPlaying?.stationuuid === station.stationuuid;
               const stationFreq = STATION_FREQUENCIES[station.name];
               return (
                 <button key={station.stationuuid} onClick={() => playStation(station)}
-                  className={`group text-left p-3.5 rounded-2xl border transition-all flex flex-col gap-3 relative overflow-hidden ${
-                    active ? "border-info/50 bg-info/10 dark:bg-info/30" : "border-border bg-card hover:border-info/40 dark:hover:border-info/90"
+                  className={`group text-left p-4 rounded-2xl border transition-all flex flex-col gap-3 relative overflow-hidden backdrop-blur-xl ${
+                    active
+                      ? "border-[#06b6d4] bg-cyan-500/10 dark:bg-cyan-500/20 text-zinc-900 dark:text-white shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+                      : "border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#141522]/90 hover:border-[#06b6d4]/50 dark:hover:border-[#06b6d4]/50 text-zinc-900 dark:text-white shadow-sm"
                   }`}>
-                  {/* Subtle active glow */}
-                  {active && <div className="absolute -top-10 -right-10 w-24 h-24 bg-info/20 blur-2xl rounded-full" />}
-                  
                   <div className="flex items-start justify-between">
-                    <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center transition-colors ${
-                      active ? "bg-gradient-to-br from-info to-primary text-white shadow-lg" : "bg-muted text-muted-foreground group-hover:text-info"
+                    <div className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center transition-colors ${
+                      active ? "bg-gradient-to-br from-[#06b6d4] to-indigo-600 text-white shadow-md" : "bg-zinc-100 dark:bg-white/10 text-zinc-600 dark:text-zinc-400 group-hover:text-[#06b6d4]"
                     }`}>
-                      <span className={`material-symbols-outlined text-[20px] ${active && isPlaying && !isDragging ? "animate-pulse" : ""}`}>
+                      <span className={`material-symbols-outlined text-xl ${active && isPlaying && !isDragging ? "animate-pulse" : ""}`}>
                         {active && (isBuffering || isDragging) ? "sync" : active && isPlaying ? "graphic_eq" : "radio"}
                       </span>
                     </div>
-                    {active && <span className="flex h-2 w-2 relative mt-1 mr-1">
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isPlaying && !isDragging ? "bg-info opacity-75" : "bg-zinc-400 opacity-0"}`}></span>
-                      <span className={`relative inline-flex rounded-full h-2 w-2 ${isPlaying && !isDragging ? "bg-info" : "bg-zinc-400"}`}></span>
-                    </span>}
+                    {active && (
+                      <span className="flex h-2.5 w-2.5 relative mt-1 mr-1">
+                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isPlaying && !isDragging ? "bg-[#06b6d4] opacity-75" : "bg-zinc-400 opacity-0"}`}></span>
+                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isPlaying && !isDragging ? "bg-[#06b6d4]" : "bg-zinc-400"}`}></span>
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-col">
-                    <span className={`text-[12px] font-bold line-clamp-1 leading-tight ${active ? "text-info/90 dark:text-info" : "text-foreground"}`}>{station.name}</span>
+                    <span className="text-xs font-black line-clamp-1 leading-tight">{station.name}</span>
                     {stationFreq && (
-                      <span className={`text-[9px] font-mono font-bold mt-1 ${active ? "text-info/80" : "text-muted-foreground/70"}`}>
+                      <span className="text-[10px] font-mono font-bold mt-1 text-[#06b6d4]">
                         {stationFreq.toFixed(1)} MHz
                       </span>
                     )}

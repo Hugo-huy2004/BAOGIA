@@ -49,15 +49,15 @@ export default function PWARealtimeBridge() {
     let stableTimer = null;
     const connect = () => {
       if (disposed) return;
-      socket = new WebSocket(realtimeUrl());
+      try {
+        socket = new WebSocket(realtimeUrl());
+      } catch (e) {
+        console.warn("WebSocket initialization error:", e);
+        retryTimer.current = window.setTimeout(connect, 30000);
+        return;
+      }
+
       socket.addEventListener('open', () => {
-        // Do NOT reset the retry counter here. The WS handshake succeeds first,
-        // THEN the server may immediately close it (e.g. 4001 for an invalid/
-        // expired token). Resetting on 'open' kept the backoff pinned at ~1s,
-        // so a rejected token reconnected ~once/second and fired a balance
-        // fetch each time — a request storm that tripped the 429 limiter.
-        // Only treat the connection as healthy after it has stayed open a few
-        // seconds, then reset the backoff.
         stableTimer = window.setTimeout(() => { retryCount.current = 0; }, 4000);
         sync();
       });
@@ -66,9 +66,6 @@ export default function PWARealtimeBridge() {
           const data = JSON.parse(event.data);
 
           if (data.type === 'bio_status_update') {
-            // Admin approved/rejected a verification request — push the new
-            // bio fields straight into the portal so it updates instantly,
-            // no manual reload needed.
             window.dispatchEvent(new CustomEvent('hugo:bio-update', { detail: data }));
             if (data.isEduVerified) {
               if (isNotificationSoundEnabled()) playNotificationSound();
@@ -82,8 +79,6 @@ export default function PWARealtimeBridge() {
           window.dispatchEvent(new CustomEvent('hugo:notification', { detail: data.notification }));
           if (data.notification) {
             const isCredit = data.amount > 0;
-            // Suppress redundant toast for the sender of a P2P transfer
-            // since ParticleConnectModal already shows a full-screen success state.
             if (isCredit || data.source !== 'joy_gift_sent') {
               notify.success(`${isCredit ? 'Nhận JOY' : 'Đã dùng JOY'}: ${isCredit ? '+' : ''}${data.amount} JOY - ${data.notification.message || (isCredit ? 'Tài khoản nhận điểm thưởng mới.' : 'Giao dịch hoàn tất.')}`, {
                 id: `joy-${data.notification._id || data.createdAt}`,
@@ -94,17 +89,18 @@ export default function PWARealtimeBridge() {
           }
         } catch (_) {}
       });
+      socket.addEventListener('error', () => {
+        // Suppress console spam on server 503 / network downtime
+      });
       socket.addEventListener('close', (event) => {
         if (stableTimer) { window.clearTimeout(stableTimer); stableTimer = null; }
         if (disposed) return;
-        // 4001 = auth rejected (missing/expired token). Retrying with the same
-        // token is futile and only burns the rate limit, so back off long and
-        // let a fresh login / token refresh re-establish the channel.
         if (event.code === 4001) {
           retryTimer.current = window.setTimeout(connect, 5 * 60_000);
           return;
         }
-        const delay = Math.min(30000, 1000 * (2 ** retryCount.current++));
+        // Cap backoff at 60s when server returns 503
+        const delay = Math.min(60000, Math.max(5000, 1000 * (2 ** Math.min(6, retryCount.current++))));
         retryTimer.current = window.setTimeout(connect, delay);
       });
     };

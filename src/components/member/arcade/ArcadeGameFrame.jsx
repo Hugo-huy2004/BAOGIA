@@ -74,8 +74,8 @@ const ArcadeGameFrame = forwardRef(function ArcadeGameFrame({ game, bio, onBioUp
   return (
     <div className="arc-frame-wrapper" style={{ width: "100%", maxWidth: stage === "playing" ? 640 : "100%", margin: "0 auto" }}>
       {stage === "select" && (
-        <div className="arc-modal-backdrop" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, display: "grid", placeItems: "center", background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)", padding: 20 }}>
-           <div className="arc-modal-content" onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, background: "var(--arcade-card)", border: "1px solid var(--arcade-line)", borderRadius: 32, padding: "32px 24px", animation: "arcModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)", boxShadow: "0 24px 60px rgba(0,0,0,0.2)" }}>
+        <div className="arc-modal-backdrop" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 100, display: "grid", placeItems: "center", background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)", padding: 16 }}>
+           <div className="arc-modal-content" onClick={e => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, padding: 0, animation: "arcModalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}>
              <DifficultySelector game={game} bio={bio} onBioUpdate={onBioUpdate} onSelect={handleSelectDifficulty} />
            </div>
         </div>

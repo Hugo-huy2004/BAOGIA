@@ -6,7 +6,6 @@ import memberService from "../../services/classes/MemberService";
 // Import modular sub-components
 import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
-import WallpaperSelector from "./utilities/WallpaperSelector";
 import LibraryCatalog from "./utilities/LibraryCatalog";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 
@@ -89,7 +88,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showWallpaperSelector, setShowWallpaperSelector] = useState(false);
 
   const allUtilities = useMemo(() => [
     {
@@ -864,19 +862,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 <span className="material-symbols-outlined text-lg animate-pulse">search</span>
               </button>
 
-              {/* Theme Settings Button */}
-              <button
-                onClick={() => setShowWallpaperSelector(!showWallpaperSelector)}
-                className={`flex items-center justify-center w-9 h-9 rounded-full border transition-all active:scale-95 ${
-                  showWallpaperSelector
-                    ? "bg-primary border-primary text-white shadow-md"
-                    : "bg-card/75 border-border text-foreground hover:bg-muted"
-                }`}
-                title="Thay đổi hình nền"
-              >
-                <span className="material-symbols-outlined text-lg">palette</span>
-              </button>
-
               {/* Sorting Mode Button */}
               <button
                 onClick={() => setIsEditMode(!isEditMode)}
@@ -891,14 +876,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               </button>
             </div>
           </div>
-
-          {/* Wallpaper Selection Drawer Component */}
-          <WallpaperSelector
-            showWallpaperSelector={showWallpaperSelector}
-            activeWallpaper={activeWallpaper}
-            handleSetWallpaper={handleSetWallpaper}
-            themes={THEMES}
-          />
 
           {myAppsList.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 glossy-card border border-border/75 rounded-[32px] p-8 shadow-sm">

@@ -81,10 +81,9 @@ export function installApiAuthInterceptor() {
         return originalFetch(input, { credentials: "include", ...init, headers: headersObj })
           .then((res) => {
             const durationMs = performance.now() - startedAt;
-            // Don't report transient/non-actionable statuses: 429 (backpressure)
-            // and 502/503/504 (gateway — backend restarting). Each report is
-            // itself a request that would fail the same way and amplify the noise.
-            const transient = res.status === 429 || res.status === 502 || res.status === 503 || res.status === 504;
+            // Don't report transient/non-actionable statuses: 401 (guest/unauthenticated),
+            // 429 (backpressure), and 502/503/504 (gateway — backend restarting).
+            const transient = res.status === 401 || res.status === 429 || res.status === 502 || res.status === 503 || res.status === 504;
             if (!transient && (!res.ok || durationMs >= SLOW_API_MS)) {
               record({
                 type: res.ok ? "slow-api" : "api-error",

@@ -176,10 +176,29 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
   const [status, setStatus] = useState(null); // null | 'win' | 'lose'
   const [motion, setMotion] = useState({ direction: "", merged: false });
   const [celebrating, setCelebrating] = useState(false);
+  const [isSpeedRun, setIsSpeedRun] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(60);
+
   const reportedRef = useRef(false);
   const touchStartRef = useRef(null);
   const boardRef = useRef(null);
   const gridRef = useRef(grid);
+
+  // Speed Run 60s Countdown Timer
+  useEffect(() => {
+    if (!isSpeedRun || status) return;
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setStatus("win");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isSpeedRun, status]);
 
   const handleMove = useCallback((direction) => {
     if (status) return;
@@ -215,10 +234,11 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
     if (!status || reportedRef.current) return undefined;
     const timer = window.setTimeout(() => {
       reportedRef.current = true;
-      onGameOver?.(score, status);
+      const finalScore = isSpeedRun ? score * 3 : score;
+      onGameOver?.(finalScore, status);
     }, status === "win" ? 1700 : 350);
     return () => window.clearTimeout(timer);
-  }, [status, score, onGameOver]);
+  }, [status, score, isSpeedRun, onGameOver]);
 
   const handleTouchStart = (e) => {
     const t = e.touches[0];
@@ -258,6 +278,23 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
 
   return (
     <div className="game2048-shell flex flex-col items-center gap-4 w-full">
+      {/* Speed Run Toggle */}
+      <div className="flex items-center justify-between w-full max-w-[520px] bg-[#141522]/80 border border-white/10 p-2 rounded-2xl backdrop-blur-xl">
+        <button
+          onClick={() => { setIsSpeedRun(!isSpeedRun); setTimeLeft(60); }}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${isSpeedRun ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white/5 text-zinc-400 hover:text-white"}`}
+        >
+          <span>⚡ SPEED RUN 60S</span>
+          {isSpeedRun && <span className="bg-black/30 px-1.5 py-0.5 rounded-md text-[9px] font-mono text-amber-200">X3 JOY</span>}
+        </button>
+
+        {isSpeedRun && (
+          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 font-mono text-amber-300 font-black text-sm animate-pulse">
+            ⏱️ {timeLeft}s
+          </div>
+        )}
+      </div>
+
       <div className="game2048-hud w-full max-w-[520px]">
         <div><small>ĐIỂM HIỆN TẠI</small><strong>{score.toLocaleString("vi-VN")}</strong></div>
         <div className="target"><small>MỤC TIÊU</small><strong>{targetTile}</strong></div>

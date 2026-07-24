@@ -88,18 +88,26 @@ async function resolveStationByName(name, excludeUrl) {
 
 // POST /api/radio/stations { names: string[] }
 router.post('/stations', async (req, res) => {
-  const names = Array.isArray(req.body?.names) ? req.body.names : [];
-  const results = await Promise.all(names.map(name => resolveStationByName(name)));
-  res.json(results.filter(Boolean));
+  try {
+    const names = Array.isArray(req.body?.names) ? req.body.names : [];
+    const results = await Promise.all(names.map(name => resolveStationByName(name)));
+    res.json(results.filter(Boolean));
+  } catch {
+    res.json([]);
+  }
 });
 
 // GET /api/radio/station?name=X&exclude=Y
 router.get('/station', async (req, res) => {
-  const name = req.query.name;
-  const excludeUrl = req.query.exclude;
-  if (!name) return res.status(400).json({ error: 'name is required' });
-  const station = await resolveStationByName(name, excludeUrl);
-  res.json(station || null);
+  try {
+    const name = req.query.name;
+    const excludeUrl = req.query.exclude;
+    if (!name) return res.json(null);
+    const station = await resolveStationByName(name, excludeUrl);
+    res.json(station || null);
+  } catch {
+    res.json(null);
+  }
 });
 
 // POST /api/radio/click { stationuuid } — fire-and-forget click registration,

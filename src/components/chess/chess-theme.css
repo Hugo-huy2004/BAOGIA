@@ -11,6 +11,8 @@
   isolation: isolate;
   overscroll-behavior-y: contain;
   touch-action: pan-y pinch-zoom;
+  background-color: #0a0a0f !important;
+  color: #ffffff !important;
 }
 
 /* When embedded inside arc-game-overlay (a flex column), fill available space */
