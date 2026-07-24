@@ -215,26 +215,29 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
           </div>
         </header>
 
-        {/* HugoArcade Category Bar */}
-        <div className="flex items-center gap-2.5 overflow-x-auto px-6 py-3.5 bg-[#0e0f18]/80 border-b border-white/5 no-scrollbar backdrop-blur-xl">
-          {[
-            { id: "all", label: "Tất Cả Game" },
-            { id: "featured", label: "🔥 Nổi Bật HugoArcade" },
-            { id: "pvp", label: "♟️ Cờ Vua & Đối Kháng" },
-          ].map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-black whitespace-nowrap transition-all active:scale-95 ${
-                selectedCategory === cat.id
-                  ? "bg-gradient-to-r from-[#FF2D55] to-rose-600 text-white shadow-[0_0_20px_rgba(255,45,85,0.5)] border border-rose-400/40"
-                  : "bg-white/5 text-zinc-300 border border-white/10 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        {/* HugoArcade Category Bar — ONLY shown when on games tab */}
+        {activeTab === "games" && (
+          <div className="flex items-center gap-2.5 overflow-x-auto px-6 py-3 bg-[#0e0f18]/80 border-b border-white/5 no-scrollbar backdrop-blur-xl">
+            {[
+              { id: "all", label: "Tất Cả Game", icon: "grid_view" },
+              { id: "featured", label: "Nổi Bật", icon: "star" },
+              { id: "pvp", label: "Cờ Vua & Đối Kháng", icon: "sports_esports" },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black whitespace-nowrap transition-all active:scale-95 ${
+                  selectedCategory === cat.id
+                    ? "bg-[#FF2D55] text-white shadow-[0_0_16px_rgba(255,45,85,0.5)]"
+                    : "bg-white/5 text-zinc-300 border border-white/10 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">{cat.icon}</span>
+                <span>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <main className="arc-main">
           {activeTab === "games" ? (
@@ -261,7 +264,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
                     onClick={() => openGame("chess")}
                   >
                     <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-                    CHƠI NGAY (PLAY)
+                    CHƠI NGAY
                   </button>
                 </div>
 
@@ -317,16 +320,14 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
               </div>
             </>
           ) : (
-            /* Ranking tab */
-            <div style={{ padding: "20px 24px 60px" }}>
-              <div style={{ display: "flex", items: "center", justify: "space-between", marginBottom: 20 }}>
-                <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 900, color: "var(--arc-fg)", margin: 0 }}>Bảng xếp hạng</h2>
-                  <p style={{ fontSize: 12, color: "var(--arc-sub)", margin: "3px 0 0" }}>Vị thế người chơi xuất sắc nhất trên toàn hệ thống.</p>
-                </div>
+            /* Ranking tab — Clean Apple Arcade Ranking */
+            <div className="px-6 py-6 pb-20">
+              <div className="mb-5">
+                <h2 className="text-2xl font-black text-white font-sans tracking-tight">Bảng Xếp Hạng</h2>
+                <p className="text-xs text-zinc-400 font-medium mt-1">Xếp hạng game thủ xuất sắc nhất toàn hệ thống.</p>
               </div>
 
-              <ArcadeLeaderboard games={GAMES} />
+              <ArcadeLeaderboard active={activeTab === "rank"} />
             </div>
           )}
         </main>

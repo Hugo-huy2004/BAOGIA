@@ -42,6 +42,7 @@ export default function PWARealtimeBridge() {
 
     const abortRef = { current: null };
     const sync = () => {
+      if (!getMemberToken()) return Promise.resolve();
       abortRef.current?.abort();
       abortRef.current = new AbortController();
       return useJoyStore.getState().fetchBalance(email, abortRef.current.signal).catch(() => {});

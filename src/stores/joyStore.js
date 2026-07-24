@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { getMemberToken } from '../services/authSession';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 const inflightBalanceRequests = new Map();
@@ -43,11 +44,22 @@ export const useJoyStore = create((set, get) => ({
 
     const request = (async () => {
     try {
+      const token = getMemberToken();
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const r = await fetch(`${apiBase}/joy/balance?email=${encodeURIComponent(normalizedEmail)}`, {
+        headers,
         credentials: 'include',
         ...(signal ? { signal } : {}),
       });
-      if (!r.ok) return;
+      if (!r.ok) {
+        if (r.status === 401) {
+          balanceCache.set(normalizedEmail, {
+            balance: 0, referralCode: '', loaded: true,
+            expiresAt: Date.now() + 60000,
+          });
+        }
+        return;
+      }
       const data = await r.json();
       const nextState = { balance: Math.round(Number(data.balance)) || 0, referralCode: data.referralCode || '', loaded: true };
       set(nextState);

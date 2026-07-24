@@ -1,52 +1,68 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useData } from "../../context/DataContext";
-import { logoutAuth } from "../../services/authSession";
-import { BaseApi } from "../../services/api/BaseApi";
+import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { userApi } from "../../services/api/UserApi";
-
-// Components
+import { getAdminSession, logoutAuth } from "../../services/authSession";
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import AdminHeader from "../../components/admin/AdminHeader";
+import AdminCommandPalette from "../../components/admin/AdminCommandPalette";
 import AdminDashboard, { SosOverlay } from "../../components/admin/AdminDashboard";
-import AdminAutomationTab from "../../components/admin/AdminAutomationTab";
-import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
+import AdminSystemTab from "../../components/admin/AdminSystemTab";
+import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
 import AdminServicesTab from "../../components/admin/AdminServicesTab";
 import AdminUtilityStoreTab from "../../components/admin/AdminUtilityStoreTab";
 import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
 import AdminCoderSubmissionsTab from "../../components/admin/AdminCoderSubmissionsTab";
 import AdminCoderResourcesTab from "../../components/admin/AdminCoderResourcesTab";
-import { HugoNoticeToast } from "../../components/shared/HugoNotice";
+import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 
-import AdminContactSupportTab from "../../components/admin/AdminContactSupportTab";
-import AdminCommunityTab from "../../components/admin/AdminCommunityTab";
-import AdminSystemTab from "../../components/admin/AdminSystemTab";
+function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
+  if (!open) return null;
+  return (
+    <div
+      className="fixed bottom-6 right-6 px-5 py-3 rounded-2xl bg-[#141633] text-white border border-white/20 shadow-2xl flex items-center gap-3 animate-fadeIn text-xs font-bold"
+      style={{ zIndex }}
+    >
+      <span className="material-symbols-outlined text-emerald-400">check_circle</span>
+      <span>{message}</span>
+    </div>
+  );
+}
 
-const api = new BaseApi();
-
-export default function AdminPanel() {
-  const { t, i18n } = useTranslation();
-  const { data, updateAdvertisement, updateSystemSettings } = useData();
-
+export default function AdminPanel({ data, updateSystemSettings, updateAdvertisement, handleAdImageUpload, handleAdDelete }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [loading, setLoading] = useState(true);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
-  // Global counts for Sidebar
+  // Sub-view Tab States for Consolidated Core Hubs
+  const [userSubView, setUserSubView]   = useState("roster");     // roster | support | hugoteam
+  const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | community
+  const [coderSubView, setCoderSubView] = useState("submissions");// submissions | resources
+  const [systemSubView, setSystemSubView] = useState("monitor");  // monitor | projects | settings
+
+  const [authChecking, setAuthChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminToken, setAdminToken] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  // Counts & Stats
   const [counts, setCounts] = useState({
     users: 0,
     contactSupport: 0,
-    packages: 0,
+    utilityStore: 0,
     projects: 0,
-    pendingBookings: 0,
     openTickets: 0,
-    totalProjects: 0
+    totalProjects: 0,
+    packages: 0
   });
-  const [recentBookings, setRecentBookings] = useState([]);
 
-  // Polled globally (not just on the dashboard tab) so the SOS overlay fires
-  // no matter which admin tab is currently open — a 15s window is the
-  // practical ceiling for "ngay lập tức" without standing up push delivery.
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Crisis Alerts
   const [crisisAlerts, setCrisisAlerts] = useState([]);
   useEffect(() => {
     const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -73,7 +89,7 @@ export default function AdminPanel() {
       .catch(() => {});
   };
 
-  // Users State (Kept in AdminPanel to pass to Dashboard & AdminUsersTab)
+  // Users State
   const [users, setUsers] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,7 +101,6 @@ export default function AdminPanel() {
   const [userLimit, setUserLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalMatchedUsers, setTotalMatchedUsers] = useState(0);
-  const isScrollAppendRef = useRef(false);
   const [userStats, setUserStats] = useState({ total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0, locationAnomaly: 0 });
 
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -93,13 +108,12 @@ export default function AdminPanel() {
   const [confirmError, setConfirmError] = useState("");
   const [copiedUserId, setCopiedUserId] = useState(null);
 
-  // General App States
+  // Toast State
   const [toastMsg, setToastMsg] = useState("");
   const [toastType, setToastType] = useState("success");
   const [uploadingAd, setUploadingAd] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: "", onConfirm: null });
 
-  // 1. Utilities
   const playPopSound = () => {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -114,9 +128,7 @@ export default function AdminPanel() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.15);
-    } catch (e) {
-      console.warn("Audio pop effect failed:", e);
-    }
+    } catch (e) {}
   };
 
   const showNotification = (msg, type = "success") => {
@@ -135,7 +147,7 @@ export default function AdminPanel() {
     window.location.href = "/login";
   };
 
-  // 2. Fetch Users
+  // Fetch Users
   const handleRefreshUsers = async () => {
     try {
       const res = await userApi.getBios({
@@ -148,142 +160,29 @@ export default function AdminPanel() {
         limit: userLimit
       });
 
-      if (res && res.bios && res.pagination && res.stats) {
-        setUsers(prev => isScrollAppendRef.current ? [...prev, ...res.bios] : (res.bios || []));
-        isScrollAppendRef.current = false;
-        setTotalPages(res.pagination.pages || 1);
-        setTotalMatchedUsers(res.pagination.totalMatched || 0);
-        setUserStats(res.stats || { total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0, locationAnomaly: 0 });
-
-        setCounts(prev => ({ ...prev, users: res.stats.total || 0 }));
-      } else if (Array.isArray(res)) {
-        setUsers(res);
-        isScrollAppendRef.current = false;
-        setTotalPages(1);
-        setTotalMatchedUsers(res.length);
-        const stats = {
-          total: res.length,
-          active: res.filter(u => u.status === 'active').length,
-          pending: res.filter(u => u.status === 'pending').length,
-          rejected: res.filter(u => u.status === 'rejected').length,
-          locked: res.filter(u => u.status === 'locked').length,
-          lifetime: res.filter(u => !u.expiresAt).length,
-          locationAnomaly: res.filter(u => u.locationAnomaly === true).length
-        };
-        setUserStats(stats);
-        setCounts(prev => ({ ...prev, users: stats.total }));
+      if (res && res.bios) {
+        setUsers(res.bios);
+        setTotalPages(res.pagination?.totalPages || 1);
+        setTotalMatchedUsers(res.pagination?.total || res.bios.length);
+        if (res.stats) setUserStats(res.stats);
+        setCounts(prev => ({ ...prev, users: res.pagination?.total || res.bios.length }));
       }
-    } catch (e) {
-      console.error("Error fetching users:", e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {
-    handleRefreshUsers();
-  }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit]);
-
-  // Reset append mode whenever a filter/sort changes (not a scroll-triggered page increment)
-   
-  useEffect(() => {
-    isScrollAppendRef.current = false;
-    setUserPage(1);
-  }, [statusFilter, expirationFilter, userSortBy, userSortOrder, userLimit]);
-
-  const loadMoreUsers = () => {
-    if (userPage < totalPages) {
-      isScrollAppendRef.current = true;
-      setUserPage(prev => prev + 1);
-    }
-  };
-
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      isScrollAppendRef.current = false;
-      setSearchQuery(searchInput);
-      setUserPage(1);
-    }, 450);
-    return () => clearTimeout(delayDebounce);
-  }, [searchInput]);
-
-  // 3. Initial Dashboard Data Fetching (For Counts)
-  useEffect(() => {
-    const fetchDashboardCounts = async () => {
-      setLoading(true);
-      try {
-        const [bookingsRes, packagesRes, ticketsRes, unreadProjectsRes, projectsRes] = await Promise.all([
-          api.fetchWithAuth("/bookings"),
-          api.fetchWithAuth("/packages"),
-          api.fetchWithAuth("/support/tickets?limit=1"),
-          api.fetchWithAuth("/customer-projects/unread-total"),
-          api.fetchWithAuth("/customer-projects")
-        ]);
-
-        let newCounts = { ...counts };
-
-        if (bookingsRes.ok && ticketsRes.ok) {
-          const b = await bookingsRes.json();
-          const tData = await ticketsRes.json();
-          const pendingBookingsCount = b.filter(x => !x.contacted).length;
-          newCounts.pendingBookings = pendingBookingsCount;
-          newCounts.openTickets = tData.pendingCount || 0;
-          newCounts.contactSupport = pendingBookingsCount + (tData.pendingCount || 0);
-          setRecentBookings(b);
-        }
-        if (packagesRes.ok) {
-          const pkg = await packagesRes.json();
-          newCounts.packages = pkg.length;
-        }
-        if (unreadProjectsRes.ok) {
-          const uData = await unreadProjectsRes.json();
-          newCounts.projects = uData.total || 0;
-        }
-        if (projectsRes.ok) {
-          const pData = await projectsRes.json();
-          newCounts.totalProjects = Array.isArray(pData) ? pData.length : 0;
-        }
-        setCounts(newCounts);
-      } catch (err) {
-        console.error("Failed to load dashboard counts:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardCounts();
-  }, [activeTab]); // Refresh counts when tab changes
-
-  // 4. Shared Handlers
-  const handleToggleBioStatus = async (bioId, currentStatus, targetStatus = null) => {
-    let nextStatus = targetStatus;
-    if (!nextStatus) {
-      nextStatus = 'active';
-      if (currentStatus === 'active') nextStatus = 'locked';
-      else if (currentStatus === 'locked' || currentStatus === 'pending') nextStatus = 'active';
-    }
-
-    try {
-      await userApi.updateStatus(bioId, nextStatus);
-      showNotification(nextStatus === 'locked' ? t("admin.texts.txt_143") : t("admin.texts.txt_144"));
-      setUsers(prev => prev.map(u => u._id === bioId ? { ...u, status: nextStatus } : u));
+    const session = getAdminSession();
+    if (session?.token) {
+      setAdminToken(session.token);
+      setIsAuthenticated(true);
       handleRefreshUsers();
-    } catch {
-      showNotification(t("admin.texts.txt_146"), "error");
     }
-  };
+    setAuthChecking(false);
+  }, []);
 
   const handleExecuteDelete = async () => {
     setConfirmError("");
-    if (!confirmPassword) return setConfirmError(t("admin.texts.txt_139"));
-
-    const sha256 = async (message) => {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
-      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-    };
-
-    const expectedPasswordHash = import.meta.env.VITE_ADMIN_PASSWORD_HASH || "ac5828f24a8a65e366395faa1d58abe1e2dda05853e45bdb0ae696712e3f1bb3";
-    const inputHash = await sha256(confirmPassword);
-
-    if (inputHash !== expectedPasswordHash) return setConfirmError(t("admin.texts.txt_140"));
+    if (!confirmPassword) return setConfirmError(t("admin.texts.txt_139", "Vui lòng nhập mật khẩu xác nhận"));
 
     try {
       await userApi.deleteBio(deleteTarget._id);
@@ -293,14 +192,14 @@ export default function AdminPanel() {
       setConfirmPassword("");
       handleRefreshUsers();
     } catch (err) {
-      setConfirmError(t("admin.texts.txt_142"));
+      setConfirmError(t("admin.texts.txt_142", "Mật khẩu Admin không đúng hoặc lỗi hệ thống"));
     }
   };
 
   const handleCopyText = (text, userId) => {
     navigator.clipboard.writeText(text);
     setCopiedUserId(userId);
-    showNotification(t("admin.texts.txt_137"));
+    showNotification(t("admin.texts.txt_137", "Đã sao chép vào bộ nhớ tạm"));
     setTimeout(() => setCopiedUserId(null), 2000);
   };
 
@@ -308,84 +207,38 @@ export default function AdminPanel() {
     if (!expiresAt) return 0;
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
-    const expMidnight = new Date(expiresAt);
-    expMidnight.setHours(0, 0, 0, 0);
-    return Math.round((expMidnight.getTime() - todayMidnight.getTime()) / (1000 * 60 * 60 * 24));
+    const expDate = new Date(expiresAt);
+    expDate.setHours(0, 0, 0, 0);
+    return Math.ceil((expDate - todayMidnight) / (1000 * 60 * 60 * 24));
   };
 
   const formatExpiration = (expiresAt) => {
-    if (!expiresAt) return <span className="font-bold text-success">{t("admin.texts.txt_120")}</span>;
-    const expDate = new Date(expiresAt);
-    const diffDays = getExpirationDaysOnly(expiresAt);
-    const formattedDate = expDate.toLocaleDateString('vi-VN');
-    
-    if (diffDays <= 0) return <span className="text-destructive font-bold">Đã hết hạn ({formattedDate})</span>;
+    if (!expiresAt) return "Vĩnh viễn";
+    const days = getExpirationDaysOnly(expiresAt);
+    if (days < 0) return "Đã hết hạn";
+    if (days === 0) return "Hôm nay";
+    return `Còn ${days} ngày`;
+  };
+
+  const loadMoreUsers = () => {
+    if (userPage < totalPages) setUserPage(prev => prev + 1);
+  };
+
+  const handleToggleBioStatus = async (bioId, currentStatus) => {
+    const newStatus = currentStatus === "active" ? "locked" : "active";
+    try {
+      await userApi.updateStatus(bioId, newStatus);
+      setUsers(prev => prev.map(u => u._id === bioId ? { ...u, status: newStatus } : u));
+      showNotification(`Đã ${newStatus === "active" ? "mở khóa" : "khóa"} thành viên!`);
+    } catch (e) {
+      showNotification("Lỗi cập nhật trạng thái", "error");
+    }
+  };
+
+  if (authChecking) {
     return (
-      <div className="flex flex-col leading-tight">
-        <span className="text-foreground font-bold">{formattedDate}</span>
-        <span className="text-[10px] text-success font-extrabold mt-0.5">Còn {diffDays} ngày</span>
-      </div>
-    );
-  };
-
-  const handleAdImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return showNotification(t("admin.texts.txt_130"), "error");
-
-    setUploadingAd(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        const res = await api.post("/data/upload-ad", {
-          base64Str: reader.result,
-          oldUrl: data?.advertisement?.imageUrl || ""
-        });
-        if (res.url) {
-          await updateAdvertisement({ imageUrl: res.url, isActive: true });
-          showNotification(t("admin.texts.txt_131"));
-        } else {
-          showNotification(t("admin.texts.txt_132"), "error");
-        }
-      } catch (err) {
-        showNotification(t("admin.texts.txt_133"), "error");
-      } finally {
-        setUploadingAd(false);
-        e.target.value = "";
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleAdDelete = () => {
-    triggerConfirm(t("admin.texts.txt_134"), async () => {
-      setUploadingAd(true);
-      try {
-        if (data?.advertisement?.imageUrl) {
-          await api.fetchWithAuth("/data/delete-ad", {
-            method: "DELETE",
-            body: JSON.stringify({ url: data.advertisement.imageUrl })
-          });
-        }
-        await updateAdvertisement({ imageUrl: "", linkUrl: "", isActive: false });
-        showNotification(t("admin.texts.txt_135"));
-      } catch (err) {
-        showNotification(t("admin.texts.txt_136"), "error");
-      } finally {
-        setUploadingAd(false);
-      }
-    });
-  };
-
-  if (loading && !users.length) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto" />
-          <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
-            {t("adminPanel.core.loading", "ĐANG TẢI DỮ LIỆU...")}
-          </p>
-        </div>
+      <div className="h-screen w-screen bg-background flex items-center justify-center text-foreground">
+        <span className="material-symbols-outlined animate-spin text-3xl">refresh</span>
       </div>
     );
   }
@@ -395,12 +248,10 @@ export default function AdminPanel() {
       className="h-[100dvh] min-h-[100dvh] bg-slate-50/30 dark:bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-
       <SosOverlay alerts={crisisAlerts} />
-
       <HugoNoticeToast open={Boolean(toastMsg)} type={toastType || "info"} message={toastMsg} zIndex={150} />
 
-      {/* MODAL XÁC NHẬN */}
+      {/* CONFIRM MODAL */}
       {confirmModal.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })} />
@@ -427,8 +278,7 @@ export default function AdminPanel() {
           </div>
         </div>
       )}
-
-      {/* Delete User Modal */}
+      {/* DELETE USER MODAL */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => { setDeleteTarget(null); setConfirmError(""); setConfirmPassword(""); }} />
@@ -477,27 +327,27 @@ export default function AdminPanel() {
         counts={counts}
       />
 
-      {/* MAIN WORKSPACE CONTENT */}
-      <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] relative min-h-0">
+      {/* MAIN WORKSPACE WRAPPER */}
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         
-        {/* Workspace Title Header */}
-        {activeTab !== "dashboard" && activeTab !== "automation" && (
-          <div className="border-b border-border pb-3 flex justify-between items-center">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-foreground flex items-center gap-2">
-                {activeTab === "users" && t("admin.texts.txt_202", "Quản lý Thành Viên")}
-                {activeTab === "community" && "Quản lý Cộng đồng"}
-                {activeTab === "contactSupport" && "Liên Hệ & Hỗ Trợ"}
-                {activeTab === "projects" && t("adminProjects.page.title", "Dự Án Khách Hàng")}
-                {activeTab === "hugoteam" && "Hugo Team - Quản Lý Đơn Tuyển Dụng"}
-                {activeTab === "system" && "Giám sát hệ thống"}
-                {activeTab === "settings" && t("admin.texts.txt_207", "Cài Đặt Hệ Thống")}
-              </h2>
-            </div>
-          </div>
-        )}
+        {/* Top Header with ⌘K Command Search Bar */}
+        <AdminHeader
+          onOpenPalette={() => setIsPaletteOpen(true)}
+          usersCount={totalMatchedUsers || users.length}
+        />
 
-        {/* Dynamic Tab Content */}
+        {/* ⌘K Command Palette Modal */}
+        <AdminCommandPalette
+          isOpen={isPaletteOpen}
+          onClose={() => setIsPaletteOpen(false)}
+          users={users}
+          onNavigateTab={(tab) => { setActiveTab(tab); setIsPaletteOpen(false); }}
+        />
+
+        {/* MAIN WORKSPACE CONTENT */}
+        <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] relative min-h-0">
+        
+        {/* ── CORE HUB 1: CONTROL HUB & AI TERMINAL ── */}
         {activeTab === "dashboard" && (
           <AdminDashboard
             stats={userStats}
@@ -510,59 +360,153 @@ export default function AdminPanel() {
             onResolveCrisisAlert={handleResolveCrisisAlert}
           />
         )}
-        {activeTab === "automation" && (
-          <AdminAutomationTab showNotification={showNotification} stats={userStats} users={users} />
-        )}
+
+        {/* ── CORE HUB 2: USER & SUPPORT HUB ── */}
         {activeTab === "users" && (
-          <AdminUsersTab
-            userStats={userStats} searchInput={searchInput} setSearchInput={setSearchInput}
-            statusFilter={statusFilter} setStatusFilter={setStatusFilter} setUserPage={setUserPage}
-            expirationFilter={expirationFilter} setExpirationFilter={setExpirationFilter}
-            userSortBy={userSortBy} setUserSortBy={setUserSortBy} userSortOrder={userSortOrder}
-            setUserSortOrder={setUserSortOrder} userLimit={userLimit} setUserLimit={setUserLimit}
-            totalMatchedUsers={totalMatchedUsers} users={users} handleCopyText={handleCopyText}
-            copiedUserId={copiedUserId} handleToggleBioStatus={handleToggleBioStatus}
-            triggerConfirm={triggerConfirm} setDeleteTarget={setDeleteTarget}
-            userPage={userPage} totalPages={totalPages} searchQuery={searchQuery}
-            getExpirationDaysOnly={getExpirationDaysOnly} formatExpiration={formatExpiration}
-            loadMoreUsers={loadMoreUsers} hasMoreUsers={userPage < totalPages}
-          />
+          <div className="space-y-6">
+            {/* Sub-view Nav Header */}
+            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+              <button
+                onClick={() => setUserSubView("roster")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${userSubView === "roster" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">group</span>
+                <span>Thành Viên ({totalMatchedUsers})</span>
+              </button>
+              <button
+                onClick={() => setUserSubView("support")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${userSubView === "support" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">support_agent</span>
+                <span>Hỗ Trợ & Tickets</span>
+              </button>
+              <button
+                onClick={() => setUserSubView("hugoteam")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${userSubView === "hugoteam" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">badge</span>
+                <span>Tuyển Dụng Hugo Team</span>
+              </button>
+            </div>
+
+            {userSubView === "roster" && (
+              <AdminUsersTab
+                userStats={userStats} searchInput={searchInput} setSearchInput={setSearchInput}
+                statusFilter={statusFilter} setStatusFilter={setStatusFilter} setUserPage={setUserPage}
+                expirationFilter={expirationFilter} setExpirationFilter={setExpirationFilter}
+                userSortBy={userSortBy} setUserSortBy={setUserSortBy} userSortOrder={userSortOrder}
+                setUserSortOrder={setUserSortOrder} userLimit={userLimit} setUserLimit={setUserLimit}
+                totalMatchedUsers={totalMatchedUsers} users={users} handleCopyText={handleCopyText}
+                copiedUserId={copiedUserId} handleToggleBioStatus={handleToggleBioStatus}
+                triggerConfirm={triggerConfirm} setDeleteTarget={setDeleteTarget}
+                userPage={userPage} totalPages={totalPages} searchQuery={searchQuery}
+                getExpirationDaysOnly={getExpirationDaysOnly} formatExpiration={formatExpiration}
+                loadMoreUsers={loadMoreUsers} hasMoreUsers={userPage < totalPages}
+              />
+            )}
+            {userSubView === "support" && (
+              <AdminContactSupportTab showNotification={showNotification} triggerConfirm={triggerConfirm} />
+            )}
+            {userSubView === "hugoteam" && (
+              <AdminHugoTeamTab />
+            )}
+          </div>
         )}
-        {activeTab === "community" && (
-          <AdminCommunityTab showNotification={showNotification} />
+
+        {/* ── CORE HUB 3: ECOSYSTEM & STORE HUB ── */}
+        {activeTab === "ecosystem" && (
+          <div className="space-y-6">
+            {/* Sub-view Nav Header */}
+            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+              <button
+                onClick={() => setEcoSubView("store")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${ecoSubView === "store" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">shopping_bag</span>
+                <span>Cửa Hàng Utility</span>
+              </button>
+              <button
+                onClick={() => setEcoSubView("services")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${ecoSubView === "services" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">card_membership</span>
+                <span>Dịch Vụ & Gói Cước VIP</span>
+              </button>
+            </div>
+
+            {ecoSubView === "store" && <AdminUtilityStoreTab />}
+            {ecoSubView === "services" && <AdminServicesTab triggerConfirm={triggerConfirm} />}
+          </div>
         )}
+
+        {/* ── CORE HUB 4: HUGOCODER PORTAL ── */}
+        {activeTab === "coder" && (
+          <div className="space-y-6">
+            {/* Sub-view Nav Header */}
+            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+              <button
+                onClick={() => setCoderSubView("submissions")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${coderSubView === "submissions" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">assignment_turned_in</span>
+                <span>Duyệt Bài Nộp Đồ Án</span>
+              </button>
+              <button
+                onClick={() => setCoderSubView("resources")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${coderSubView === "resources" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">video_library</span>
+                <span>Quản Lý Học Liệu & Video</span>
+              </button>
+            </div>
+
+            {coderSubView === "submissions" && <AdminCoderSubmissionsTab />}
+            {coderSubView === "resources" && <AdminCoderResourcesTab />}
+          </div>
+        )}
+
+        {/* ── CORE HUB 5: SYSTEM COMMAND & CONFIG ── */}
         {activeTab === "system" && (
-          <AdminSystemTab showNotification={showNotification} />
+          <div className="space-y-6">
+            {/* Sub-view Nav Header */}
+            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+              <button
+                onClick={() => setSystemSubView("monitor")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${systemSubView === "monitor" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">monitor_heart</span>
+                <span>Giám Sát & Logs Hệ Thống</span>
+              </button>
+              <button
+                onClick={() => setSystemSubView("projects")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${systemSubView === "projects" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">folder_open</span>
+                <span>Quản Lý Dự Án</span>
+              </button>
+              <button
+                onClick={() => setSystemSubView("settings")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${systemSubView === "settings" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+              >
+                <span className="material-symbols-outlined text-sm">settings</span>
+                <span>Cài Đặt Admin</span>
+              </button>
+            </div>
+
+            {systemSubView === "monitor" && <AdminSystemTab showNotification={showNotification} />}
+            {systemSubView === "projects" && <AdminProjectsTab showNotification={showNotification} />}
+            {systemSubView === "settings" && (
+              <AdminSettingsTab
+                data={data} updateSystemSettings={updateSystemSettings} updateAdvertisement={updateAdvertisement}
+                showNotification={showNotification} handleLogout={handleLogout} uploadingAd={uploadingAd}
+                handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete}
+              />
+            )}
+          </div>
         )}
-        {activeTab === "contactSupport" && (
-          <AdminContactSupportTab showNotification={showNotification} triggerConfirm={triggerConfirm} />
-        )}
-        {activeTab === "services" && (
-          <AdminServicesTab triggerConfirm={triggerConfirm} />
-        )}
-        {activeTab === "utilityStore" && (
-          <AdminUtilityStoreTab />
-        )}
-        {activeTab === "projects" && (
-          <AdminProjectsTab showNotification={showNotification} />
-        )}
-        {activeTab === "hugoteam" && (
-          <AdminHugoTeamTab />
-        )}
-        {activeTab === "coderSubmissions" && (
-          <AdminCoderSubmissionsTab />
-        )}
-        {activeTab === "coderResources" && (
-          <AdminCoderResourcesTab />
-        )}
-        {activeTab === "settings" && (
-          <AdminSettingsTab
-            data={data} updateSystemSettings={updateSystemSettings} updateAdvertisement={updateAdvertisement}
-            showNotification={showNotification} handleLogout={handleLogout} uploadingAd={uploadingAd}
-            handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete}
-          />
-        )}
-      </section>
+
+        </section>
+      </div>
     </div>
   );
 }

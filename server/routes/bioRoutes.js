@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Bio from '../models/Bio.js';
+import ArcadeScore from '../models/ArcadeScore.js';
 import CommunityMessage from '../models/CommunityMessage.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
@@ -349,6 +350,40 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
 
     res.json({ bio });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /bios/:id (Admin only) - Vĩnh viễn xóa tài khoản người dùng và toàn bộ dữ liệu đi kèm (bao gồm ArcadeScore)
+router.delete('/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const bio = await Bio.findById(id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+    }
+
+    const userEmail = bio.email;
+    const userDisplayName = bio.displayName;
+
+    // 1. Xóa hồ sơ Bio
+    await Bio.deleteOne({ _id: id });
+
+    // 2. Xóa toàn bộ điểm Arcade liên quan (xoá triệt để khỏi Bảng xếp hạng)
+    const scoreFilters = [];
+    if (userEmail) scoreFilters.push({ email: userEmail });
+    if (userDisplayName) scoreFilters.push({ displayName: userDisplayName });
+
+    if (scoreFilters.length > 0) {
+      await ArcadeScore.deleteMany({ $or: scoreFilters });
+    }
+
+    // 3. Clear public cache
+    if (bio.slug) clearCache(`bio_slug_${bio.slug}`);
+
+    res.json({ success: true, message: `Đã xóa vĩnh viễn tài khoản của ${userDisplayName || userEmail}` });
+  } catch (error) {
+    console.error('Delete user error:', error);
     res.status(500).json({ error: error.message });
   }
 });

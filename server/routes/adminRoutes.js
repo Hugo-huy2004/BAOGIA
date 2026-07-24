@@ -135,7 +135,7 @@ router.post('/verify-password', requireAdmin, async (req, res) => {
   }
 });
 
-// Change admin password route
+// Change admin password route (Wipes all old passwords & sets new bcrypt hash)
 router.post('/change-password', requireAdmin, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -155,13 +155,56 @@ router.post('/change-password', requireAdmin, async (req, res) => {
       return res.status(401).json({ error: 'Mật khẩu hiện tại không chính xác' });
     }
 
+    // Completely wipe old password hash & save fresh 12-round bcrypt hash
     admin.password = await bcrypt.hash(newPassword, 12);
+    admin.markModified('password');
     await admin.save();
 
-    res.json({ success: true });
+    res.json({ success: true, message: 'Đã xóa toàn bộ mật khẩu cũ và cập nhật mật khẩu mới thành công!' });
   } catch (error) {
     console.error('Change admin password error:', error);
     res.status(500).json({ error: 'Lỗi máy chủ' });
+  }
+});
+
+// Admin Reset User Password Route (Wipes all previous user passwords & sets new password)
+router.post('/users/:id/reset-password', requireAdmin, async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
+    }
+
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản người dùng' });
+    }
+
+    // Completely wipe out old passwords & security reset tokens
+    const hashed = await bcrypt.hash(newPassword, 12);
+    bio.password = hashed;
+    if (bio.resetPasswordToken) bio.resetPasswordToken = undefined;
+    if (bio.resetPasswordExpires) bio.resetPasswordExpires = undefined;
+
+    // Wipe secret links old passwords if required
+    if (Array.isArray(bio.secretLinks)) {
+      bio.secretLinks = bio.secretLinks.map(link => ({
+        ...link,
+        password: hashed
+      }));
+    }
+
+    bio.markModified('password');
+    bio.markModified('secretLinks');
+    await bio.save();
+
+    res.json({
+      success: true,
+      message: `Đã xóa toàn bộ mật khẩu cũ và cập nhật mật khẩu mới cho ${bio.displayName || bio.email} thành công!`
+    });
+  } catch (error) {
+    console.error('Admin reset user password error:', error);
+    res.status(500).json({ error: 'Lỗi máy chủ khi cập nhật mật khẩu người dùng' });
   }
 });
 
@@ -328,16 +371,11 @@ router.post('/community-bot', requireAdmin, async (req, res) => {
 
 const ADMIN_POST_EMAIL = process.env.ADMIN_BOT_EMAIL || 'huylggcs230377@fpt.edu.vn';
 
-// GET /admin/community/posts - every post, any status. Lean + trimmed fields
-// so the admin feed stays light even with hundreds of posts.
-router.get('/community/posts', requireAdmin, async (req, res) => {
+// POST /admin/purge-community-database - Purge all community messages from database
+router.post('/purge-community-database', requireAdmin, async (req, res) => {
   try {
-    const posts = await CommunityMessage.find({})
-      .select('-embedding -location')
-      .sort({ createdAt: -1 })
-      .limit(300)
-      .lean();
-    res.json({ success: true, posts });
+    const result = await CommunityMessage.deleteMany({});
+    res.json({ success: true, deletedCount: result.deletedCount, message: "Đã xóa toàn bộ bài viết cộng đồng khỏi Database thành công!" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

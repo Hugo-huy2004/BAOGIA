@@ -2,80 +2,50 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import HugoLogo from "../HugoLogo";
 
-export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLogout }) {
+export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, handleLogout }) {
   const { t } = useTranslation();
 
   const navigationGroups = [
     {
-      title: "Tổng Quan",
+      title: "TRUNG TÂM ĐIỀU HÀNH",
       items: [
-        { id: "dashboard", label: "Dashboard", icon: "dashboard" },
-        { id: "automation", label: "Tự Động Hóa", icon: "rocket_launch" },
-      ]
-    },
-    {
-      title: "Khách Hàng & Liên Hệ",
-      items: [
-        { id: "users", label: t("adminPanel.sidebar.users", "Thành viên"), icon: "group", count: counts.users },
-        { id: "community", label: "Cộng đồng", icon: "forum" },
-        { id: "contactSupport", label: "Liên Hệ & Hỗ Trợ", icon: "support_agent", count: counts.contactSupport, alert: true },
-      ]
-    },
-    {
-      title: "Tiện Ích",
-      items: [
-        { id: "services", label: "Dịch vụ & Thanh toán", icon: "storefront" },
-        { id: "utilityStore", label: t("adminPanel.sidebar.utilityStore", "Cửa hàng"), icon: "shopping_cart", count: counts.utilityStore },
-      ]
-    },
-    {
-      title: "Phát Triển",
-      items: [
-        { id: "hugoteam", label: "Hugo Team", icon: "groups" },
-        { id: "coderSubmissions", label: "Bài nộp HugoCoder", icon: "school" },
-        { id: "coderResources", label: "Học liệu HugoCoder", icon: "smart_display" },
-      ]
-    },
-    {
-      title: "Hệ Thống",
-      items: [
-        { id: "system", label: "Giám sát hệ thống", icon: "monitoring" },
-        { id: "projects", label: t("adminPanel.sidebar.projects", "Dự án"), icon: "assignment", count: counts.projects },
-        { id: "settings", label: t("adminPanel.sidebar.settings", "Cài đặt"), icon: "settings" },
+        { id: "dashboard", label: "Control Hub & AI Terminal", icon: "dashboard" },
+        { id: "users", label: "Thành Viên & Hỗ Trợ", icon: "group", count: counts.users },
+        { id: "ecosystem", label: "Hệ Sinh Thái & Cửa Hàng", icon: "storefront", count: counts.utilityStore },
+        { id: "coder", label: "HugoCoder Portal", icon: "school" },
+        { id: "system", label: "Giám Sát & Cài Đặt", icon: "tune", count: counts.contactSupport, alert: counts.contactSupport > 0 },
       ]
     }
   ];
 
-  const flatItems = navigationGroups.flatMap(group => group.items);
-
   const renderNavItems = () => {
     return navigationGroups.map((group, gIdx) => (
       <div key={gIdx} className="mb-6 last:mb-0">
-        <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-3 mb-2 opacity-70">
+        <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3 opacity-70">
           {group.title}
         </h4>
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {group.items.map(tab => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-colors ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-[13px] font-bold transition-all ${
                   isActive
-                    ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white"
-                    : "text-muted-foreground hover:text-foreground hover:bg-slate-50 dark:hover:bg-slate-900"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
+                    : "text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-slate-800/60"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={`material-symbols-outlined text-[18px] ${isActive ? "text-slate-900 dark:text-white" : "text-muted-foreground"}`}>
+                  <span className={`material-symbols-outlined text-[20px] ${isActive ? "text-white" : "text-muted-foreground"}`}>
                     {tab.icon}
                   </span>
                   <span>{tab.label}</span>
                 </div>
                 {tab.count !== undefined && tab.count > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                    tab.alert ? "bg-destructive text-white" : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
+                    tab.alert ? "bg-destructive text-white animate-pulse" : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                   }`}>
                     {tab.count}
                   </span>
@@ -98,77 +68,50 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts, handleLo
             <h1 className="font-display text-xl font-black text-foreground mb-1">
               <HugoLogo />
             </h1>
-            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">
-              Admin Workspace
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Apple Studio Control Center v3.0
             </p>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto px-3 py-2 scrollbar-hide">
+          {/* Nav Items */}
+          <div className="flex-1 overflow-y-auto px-3 py-2 scrollbar-none">
             {renderNavItems()}
-          </nav>
+          </div>
 
-          {/* Bottom Logout */}
-          <div className="p-4 border-t border-border shrink-0">
+          {/* User Profile / Logout */}
+          <div className="p-3 border-t border-border shrink-0">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">logout</span>
-              <span>{t("admin.texts.txt_122", "Đăng xuất")}</span>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-base">logout</span>
+                <span>{t("adminPanel.sidebar.logout", "Đăng xuất")}</span>
+              </div>
+              <span className="text-[10px] opacity-60">Admin</span>
             </button>
           </div>
         </div>
       </aside>
 
-      {/* ── MOBILE / TABLET HEADER + SWIPEABLE TAB BAR ── */}
-      <div className="md:hidden sticky top-0 z-30 bg-white/95 dark:bg-background/95 backdrop-blur-xl border-b border-border shadow-sm">
-        <div className="flex items-center justify-between px-4 pb-2" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}>
-          <div className="font-display text-lg font-black flex items-center gap-2">
-            <HugoLogo />
-            <span className="text-[10px] bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">Admin</span>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-9 h-9 flex items-center justify-center rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-            title={t("admin.texts.txt_122", "Đăng xuất")}
-          >
-            <span className="material-symbols-outlined text-xl">logout</span>
-          </button>
-        </div>
-
-        {/* All tabs reachable in one swipe — no extra tap through a drawer */}
-        <div className="flex gap-1.5 overflow-x-auto px-3 pb-3 scrollbar-hide snap-x snap-mandatory">
-          {flatItems.map(tab => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative flex flex-col items-center justify-center gap-1 shrink-0 min-w-[68px] px-3 py-2 rounded-xl snap-start transition-colors ${
-                  isActive
-                    ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
-                    : "text-muted-foreground hover:bg-slate-50 dark:hover:bg-slate-900"
-                }`}
-              >
-                <span className="relative">
-                  <span className={`material-symbols-outlined text-[20px] ${isActive ? "text-slate-900 dark:text-white" : "text-muted-foreground"}`}>
-                    {tab.icon}
-                  </span>
-                  {tab.count !== undefined && tab.count > 0 && (
-                    <span className={`absolute -top-1 -right-2 px-1 min-w-[14px] h-[14px] rounded-full text-[8px] font-black leading-[14px] text-center ${
-                      tab.alert ? "bg-destructive text-white" : "bg-slate-300 text-slate-700 dark:bg-slate-600 dark:text-slate-100"
-                    }`}>
-                      {tab.count > 99 ? "99+" : tab.count}
-                    </span>
-                  )}
-                </span>
-                <span className="text-[9px] font-bold whitespace-nowrap leading-none">{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* ── MOBILE BOTTOM NAV ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-card/90 backdrop-blur-xl border-t border-border px-2 py-1.5 flex items-center justify-around shadow-lg">
+        {navigationGroups[0].items.map(tab => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center justify-center p-1.5 rounded-xl transition-all ${
+                isActive ? "text-primary font-black scale-105" : "text-muted-foreground"
+              }`}
+            >
+              <span className="material-symbols-outlined text-xl">{tab.icon}</span>
+              <span className="text-[9px] font-bold mt-0.5 max-w-[60px] truncate">{tab.label.split(" ")[1] || tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </>
   );
 }

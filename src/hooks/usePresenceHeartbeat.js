@@ -1,9 +1,5 @@
-/**
- * Sends a lightweight heartbeat while the member portal tab is visible, so the
- * backend can mark the member "online" (Redis key, ~90s TTL) and flip today's
- * active-user bit (Redis bitmap). See server/utils/presenceService.js.
- */
 import { useEffect, useRef } from "react";
+import { getMemberToken } from "../services/authSession";
 
 const HEARTBEAT_MS = 45_000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -21,6 +17,9 @@ export function usePresenceHeartbeat(email) {
       if (!navigator.onLine) return;
       if (Date.now() < nextRetryAtRef.current) return;
 
+      const token = getMemberToken();
+      if (!token) return; // Suppress ping when unauthenticated
+
       const normalizedEmail = email.trim().toLowerCase();
       const lastSentAt = lastHeartbeatAtByEmail.get(normalizedEmail) || 0;
       if (Date.now() - lastSentAt < 10_000) return;
@@ -28,10 +27,18 @@ export function usePresenceHeartbeat(email) {
 
       fetch(`${apiBase}/presence/heartbeat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         credentials: "include",
         body: JSON.stringify({ email }),
       }).then((res) => {
+        if (res.status === 401) {
+          // Suppress 401 spam by backing off for 10 minutes
+          nextRetryAtRef.current = Date.now() + 600_000;
+          return;
+        }
         if (!res.ok) throw new Error(`heartbeat ${res.status}`);
         failCountRef.current = 0;
         nextRetryAtRef.current = 0;

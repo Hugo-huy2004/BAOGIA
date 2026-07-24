@@ -105,26 +105,87 @@ router.post('/score', requireMember, async (req, res) => {
   }
 });
 
+function cleanDisplayName(name) {
+  if (!name) return 'Thành viên Hugo';
+  let str = String(name);
+  try {
+    if (/[\u00C0-\u00FF]/.test(str)) {
+      const decoded = Buffer.from(str, 'latin1').toString('utf8');
+      if (decoded && !decoded.includes('')) str = decoded;
+    }
+  } catch {}
+  return str.replace(/[\uFFFD\u007F-\u009F]/g, '').trim() || 'Thành viên Hugo';
+}
+
 // GET /api/arcade/leaderboard?game=2048&limit=30
 router.get('/leaderboard', async (req, res) => {
   try {
     const { game, limit } = req.query;
-    if (!Object.keys(SCORE_CEILINGS).includes(game)) {
-      return res.status(400).json({ error: 'invalid game' });
-    }
+    const targetGame = (game && game !== 'all' && Object.keys(SCORE_CEILINGS).includes(game)) ? game : 'all';
     const cap = Math.min(Number(limit) || 30, 100);
-    // The client polls this every ~8s; at 1000 users that's ~125 identical
-    // queries/sec. fetchWithCache serves a 5s-fresh copy and coalesces all
-    // concurrent misses into ONE DB read (single-flight), so Mongo sees ~1
-    // query per 5s per game regardless of how many users are watching.
-    const leaderboard = await fetchWithCache(`arcade_lb_${game}_${cap}`, 5000, () =>
-      ArcadeScore.find({ game })
-        .sort({ bestScore: -1 })
-        .limit(cap)
-        .select('email displayName avatar bestScore gamesPlayed lastPlayedAt record')
-        .lean()
+
+    const matchStage = targetGame === 'all' ? {} : { game: targetGame };
+
+    const agg = await ArcadeScore.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: {
+            $toLower: {
+              $trim: { input: { $ifNull: ['$displayName', '$email'] } }
+            }
+          },
+          email: { $first: '$email' },
+          displayName: { $first: '$displayName' },
+          avatarUrl: { $first: '$avatar' },
+          bestScore: { $sum: '$bestScore' },
+          gamesPlayed: { $sum: '$gamesPlayed' },
+          lastPlayedAt: { $max: '$lastPlayedAt' }
+        }
+      },
+      { $sort: { bestScore: -1, gamesPlayed: -1 } },
+      { $limit: cap * 2 }
+    ]);
+
+    // Fetch all existing Bios to ensure deleted accounts are never shown
+    const existingBios = await Bio.find({}).select('email displayName name').lean();
+    const validBioKeys = new Set(
+      existingBios.flatMap(b => [
+        (b.email || '').toLowerCase().trim(),
+        (b.displayName || b.name || '').toLowerCase().trim()
+      ]).filter(Boolean)
     );
-    res.json({ leaderboard: leaderboard || [] });
+
+    const playerMap = new Map();
+    for (const item of agg) {
+      const cleanName = cleanDisplayName(item.displayName || item.email);
+      const normKey = cleanName.toLowerCase().trim();
+      const normEmail = (item.email || '').toLowerCase().trim();
+
+      // Exclude deleted accounts that are no longer in Bio
+      if (validBioKeys.size > 0 && !validBioKeys.has(normKey) && !validBioKeys.has(normEmail)) {
+        continue;
+      }
+
+      if (!playerMap.has(normKey)) {
+        playerMap.set(normKey, {
+          email: item.email || normKey,
+          displayName: cleanName,
+          avatarUrl: item.avatarUrl || item.avatar || '',
+          bestScore: Number(item.bestScore) || 0,
+          gamesPlayed: Number(item.gamesPlayed) || 1
+        });
+      } else {
+        const existing = playerMap.get(normKey);
+        existing.bestScore += Number(item.bestScore) || 0;
+        existing.gamesPlayed += Number(item.gamesPlayed) || 0;
+        if (item.avatarUrl && !existing.avatarUrl) existing.avatarUrl = item.avatarUrl;
+      }
+    }
+
+    const finalList = Array.from(playerMap.values()).sort((a, b) => b.bestScore - a.bestScore).slice(0, cap);
+
+    res.json({ leaderboard: finalList });
   } catch (error) {
     res.json({ leaderboard: [] });
   }
