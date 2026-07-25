@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import MemberUtilityStoreTab from "./MemberUtilityStoreTab";
@@ -6,34 +7,56 @@ import CheckinCard from "./CheckinCard";
 import { useJoyStore } from "../../stores/joyStore";
 import { fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
 import "./member-joy.css";
-import { WalletCards, Store } from "lucide-react";
-import JoyCoinBadge from "../shared/JoyCoinBadge";
+import {
+  Search,
+  CreditCard,
+  MoreHorizontal,
+  ChevronRight,
+  Sparkles,
+  Gift,
+  Award,
+  CheckCircle2,
+  Send,
+  ShoppingBag,
+  Gamepad2,
+  Zap,
+  Copy,
+  Users,
+  QrCode
+} from "lucide-react";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
-
 const apiBase = import.meta.env.VITE_API_URL || "/api";
-
-// "Quản Lý Ví" absorbs the former Tổng quan + Nhiệm vụ + Gửi JOY + Gói dịch vụ
-// sections — one e-wallet style home screen instead of hopping across tabs.
-
-// First-page size for the missions grid before "Xem thêm" reveals the rest —
-// matches the 5-col desktop / 2-col mobile grid so the first page never cuts
-// a card off mid-row.
 const MISSION_PREVIEW_COUNT = 10;
 
-
-export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, handleCopyLink, handleDeleteBio, saving, onOpenParticleModal }) {
+export default function MemberJoyTab({
+  bio,
+  showToast,
+  onBioUpdate,
+  publicLink,
+  handleCopyLink,
+  handleDeleteBio,
+  saving,
+  onOpenParticleModal
+}) {
   const { t } = useTranslation();
-  const SECTIONS = [
-    { id: "wallet", label: t("memberPortal.joyWallet.sectionWallet"), Icon: WalletCards },
-    { id: "store", label: t("memberPortal.joyWallet.sectionStore"), Icon: Store },
-  ];
-  const [section, setSection] = useState("wallet");
-  const balance = useJoyStore(s => s.balance);
-  const referralCode = useJoyStore(s => s.referralCode);
-  const setBalance = useJoyStore(s => s.setBalance);
-  const fetchBalance = useJoyStore(s => s.fetchBalance);
+  const [searchParams] = useSearchParams();
+  const urlTab = searchParams.get("tab") || searchParams.get("view");
+  const [currentView, setCurrentView] = useState(() =>
+    urlTab === "store" || urlTab === "stats" ? urlTab : "card"
+  );
+
+  useEffect(() => {
+    if (urlTab === "store" || urlTab === "stats" || urlTab === "card") {
+      setCurrentView(urlTab);
+    }
+  }, [urlTab]);
+
+  const balance = useJoyStore((s) => s.balance);
+  const referralCode = useJoyStore((s) => s.referralCode);
+  const setBalance = useJoyStore((s) => s.setBalance);
+  const fetchBalance = useJoyStore((s) => s.fetchBalance);
 
   const [referralCount, setReferralCount] = useState(0);
   const [referralApplied, setReferralApplied] = useState(Boolean(bio?.referralApplied));
@@ -41,7 +64,6 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
   const [redeeming, setRedeeming] = useState(false);
   const [referrerCodeInput, setReferrerCodeInput] = useState("");
   const [applyingReferral, setApplyingReferral] = useState(false);
-  const [offerTab, setOfferTab] = useState("coupon"); // coupon | referral — purely presentational
 
   // Daily missions
   const [challenges, setChallenges] = useState([]);
@@ -55,13 +77,13 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
     if (!email) return;
     fetchBalance(email);
     fetch(`${apiBase}/referral/me?email=${encodeURIComponent(email)}`, { credentials: "include" })
-      .then(r => r.json())
-      .then(d => {
+      .then((r) => r.json())
+      .then((d) => {
         setReferralCount(d.referralCount || 0);
         setReferralApplied(Boolean(d.referralApplied || d.referredBy));
       })
       .catch(() => {});
-  }, [email]);
+  }, [email, fetchBalance]);
 
   const loadChallenges = useCallback(() => {
     if (!email) return;
@@ -72,17 +94,16 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
   }, [email]);
 
   useEffect(() => {
-    if (section === "wallet") loadChallenges();
-  }, [section, loadChallenges]);
+    if (currentView === "card" || currentView === "stats") loadChallenges();
+  }, [currentView, loadChallenges]);
 
   useEffect(() => {
     const handleRealtime = () => {
-      if (section === "wallet") loadChallenges();
+      if (currentView === "card" || currentView === "stats") loadChallenges();
     };
-    window.addEventListener('hugo:notification', handleRealtime);
-    return () => window.removeEventListener('hugo:notification', handleRealtime);
-  }, [section, loadChallenges]);
-
+    window.addEventListener("hugo:notification", handleRealtime);
+    return () => window.removeEventListener("hugo:notification", handleRealtime);
+  }, [currentView, loadChallenges]);
 
   async function handleRedeem() {
     if (!giftCode.trim() || !email || redeeming) return;
@@ -92,7 +113,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, code: giftCode.trim() }),
+        body: JSON.stringify({ email, code: giftCode.trim() })
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || t("memberPortal.joy.redeem.error"));
@@ -114,7 +135,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, referrerCode: referrerCodeInput.trim() }),
+        body: JSON.stringify({ email, referrerCode: referrerCodeInput.trim() })
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || t("memberPortal.joy.applyReferral.error"));
@@ -131,6 +152,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
   }
 
   function copyReferralCode() {
+    if (!referralCode) return;
     navigator.clipboard.writeText(referralCode);
     showToast?.(t("memberPortal.joy.referral.copied"), "success");
   }
@@ -152,7 +174,7 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
     try {
       const data = await claimChallenge(email, id);
       setBalance(data.balance);
-      const def = challenges.find(c => c.id === id);
+      const def = challenges.find((c) => c.id === id);
       showToast?.(t("memberPortal.joy.missions.claimSuccess", { amount: def?.amount ?? "" }), "success");
       loadChallenges();
     } catch (err) {
@@ -162,213 +184,366 @@ export default function MemberJoyTab({ bio, showToast, onBioUpdate, publicLink, 
     }
   }
 
-  const goToWalletSection = (anchorId) => {
-    setSection('wallet');
-    requestAnimationFrame(() => document.getElementById(anchorId)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-  };
+  const completedCount = challenges.filter((c) => c.completed).length;
 
   return (
-    <div className="joy-dashboard animate-fadeIn">
-      {/* Hero — flat dark card matching the rest of Hugo Studio's member portal */}
-      <div className="joy-card-hero">
-        <div className="joy-card-row-top">
-          <span className="joy-card-brand"><span className="material-symbols-outlined">bolt</span>{t("memberPortal.joyWallet.brand")}</span>
-        </div>
-        <div className="joy-card-balance">
-          <span className="joy-balance-num">{(balance ?? 0).toLocaleString("vi-VN")}</span>
-          <JoyCoinBadge amount={balance} hideAmount size="lg" className="joy-balance-coin" />
-        </div>
-        <p className="joy-card-sub">{t("memberPortal.joyWallet.sub")}</p>
-        <div className="joy-card-stats">
-          <div className="joy-card-stat"><small>{t("memberPortal.joyWallet.statReferrals")}</small><strong>{referralCount}</strong></div>
-          <div className="joy-card-stat"><small>{t("memberPortal.joyWallet.statBonusChat")}</small><strong>{bio?.bonusChatTokens || 0}</strong></div>
-          {referralCode ? (
-            <button onClick={copyReferralCode} className="joy-card-stat is-code">
-              <span><small>{t("memberPortal.joyWallet.statReferralCode")}</small><strong>{referralCode}</strong></span>
-              <span className="material-symbols-outlined">content_copy</span>
-            </button>
-          ) : (
-            <div className="joy-card-stat"><small>{t("memberPortal.joyWallet.statReferralCode")}</small><strong>—</strong></div>
-          )}
-        </div>
-      </div>
+    <div className="max-w-md mx-auto space-y-5 animate-fadeIn text-left select-none pb-28">
+      {/* ── 1. TOP APPLE CARD TOOLBAR ───────────────────────────────────────────── */}
+      <div className="flex items-center justify-between px-1 py-1">
+        <button
+          onClick={() => setCurrentView(currentView === "card" ? "stats" : "card")}
+          className="text-primary font-bold text-sm hover:opacity-80 active:scale-95 transition-all flex items-center gap-1"
+        >
+          {currentView === "card" ? "Thống kê JOY" : "Quay lại Ví"}
+        </button>
 
-      {/* Circular quick actions — the "home screen" of any e-wallet app */}
-      <div className="joy-actions-row">
-        <button className="joy-action-circle" onClick={() => onOpenParticleModal?.()}>
-          <span className="joy-action-icon material-symbols-outlined">send</span>
-          <span>{t("memberPortal.joyWallet.actionSend")}</span>
-        </button>
-        <button className="joy-action-circle" onClick={() => goToWalletSection('joy-coupon-card')}>
-          <span className="joy-action-icon material-symbols-outlined">confirmation_number</span>
-          <span>{t("memberPortal.joyWallet.actionCoupon")}</span>
-        </button>
-        <button className="joy-action-circle" onClick={() => goToWalletSection('joy-missions-card')}>
-          <span className="joy-action-icon material-symbols-outlined">flag_circle</span>
-          <span>{t("memberPortal.joyWallet.actionMissions")}</span>
-        </button>
-        <button className="joy-action-circle" onClick={() => setSection('store')}>
-          <span className="joy-action-icon material-symbols-outlined">storefront</span>
-          <span>{t("memberPortal.joyWallet.actionStore")}</span>
-        </button>
-      </div>
-
-      {/* Segmented switch: Quản Lý Ví vs Cửa hàng */}
-      <nav className="joy-segment">
-        {SECTIONS.map(s => {
-          const SectionIcon = s.Icon;
-          return <button
-            key={s.id}
-            onClick={() => setSection(s.id)}
-            className={section === s.id ? "active" : ""}
+        <div className="flex items-center gap-3 text-foreground">
+          <button
+            onClick={() => onOpenParticleModal?.()}
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
+            title="Quét QR Chuyển JOY"
           >
-            <SectionIcon size={15} aria-hidden="true" />
-            <span>{s.label}</span>
-          </button>;
-        })}
-      </nav>
-
-      <div className="relative min-h-[400px]">
-        <AnimatePresence mode="wait">
-          {section === "wallet" && (
-            <motion.div key="wallet" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="joy-feed-grid">
-              {/* Left column — check-in alone */}
-              <div className="joy-feed">
-                <div className="joy-feed-card joy-checkin-wrap"><CheckinCard email={email} showToast={showToast} /></div>
-              </div>
-
-              {/* Right column — coupon/referral grouped together with missions
-                  (both are "earn JOY" actions), per request to stop splitting
-                  them apart into unrelated columns */}
-              <div className="joy-feed">
-                <div className="joy-feed-card" id="joy-coupon-card">
-                  <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">redeem</span>Ưu đãi &amp; Mã</h3>
-                  {!referralApplied && (
-                    <div className="joy-offer-tabs">
-                      <button onClick={() => setOfferTab("coupon")} className={offerTab === "coupon" ? "active" : ""}>Coupon</button>
-                      <button onClick={() => setOfferTab("referral")} className={offerTab === "referral" ? "active" : ""}>Giới thiệu</button>
-                    </div>
-                  )}
-                  {offerTab === "referral" && !referralApplied ? (
-                    <>
-                      <div className="joy-input-action">
-                        <input
-                          type="text"
-                          value={referrerCodeInput}
-                          onChange={e => setReferrerCodeInput(normalizeReferralInput(e.target.value))}
-                          placeholder={t("memberPortal.joy.applyReferral.placeholder")}
-                          className="joy-code-input"
-                        />
-                        <button
-                          onClick={handleApplyReferral}
-                          disabled={applyingReferral}
-                          className="joy-action-button amber"
-                        >
-                          {applyingReferral ? "..." : t("memberPortal.joy.applyReferral.button")}
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-zinc-400 mt-2">{t("memberPortal.joy.applyReferral.hint")}</p>
-                    </>
-                  ) : (
-                    <>
-                      <div className="joy-input-action">
-                        <input
-                          type="text"
-                          value={giftCode}
-                          onChange={e => setGiftCode(e.target.value.toUpperCase())}
-                          placeholder="Nhập mã Coupon..."
-                          className="joy-code-input"
-                        />
-                        <button
-                          onClick={handleRedeem}
-                          disabled={redeeming}
-                          className="joy-action-button"
-                        >
-                          {redeeming ? "..." : "Đổi Coupon"}
-                        </button>
-                      </div>
-                      <p className="joy-earn-note">{t("memberPortal.joy.earnInfo")}</p>
-                    </>
-                  )}
-                </div>
-
-                <div className="joy-feed-card" id="joy-missions-card">
-                  <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">flag_circle</span>{t("memberPortal.joy.sections.missions", "Nhiệm vụ")}</h3>
-                  {loadingChallenges ? (
-                    <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.subtitle")}</p>
-                  ) : challenges.length === 0 ? (
-                    <p className="text-xs text-zinc-400 px-1">{t("memberPortal.joy.missions.empty")}</p>
-                  ) : (
-                    <>
-                      <div className="joy-mission-list">
-                        {(missionsExpanded ? challenges : challenges.slice(0, MISSION_PREVIEW_COUNT)).map(c => (
-                          <div key={c.id} className={`joy-mission-item ${c.claimed ? "claimed" : c.completed ? "completed" : ""}`}>
-                            <div className="joy-mission-item-left">
-                              <div className="joy-mission-icon">
-                                <span className="material-symbols-outlined">{c.claimed ? "check_circle" : "flag_circle"}</span>
-                              </div>
-                              <div className="joy-mission-info">
-                                <h4 className="joy-mission-name">{c.name}</h4>
-                                <span className="joy-mission-sub">
-                                  {c.claimed
-                                    ? t("memberPortal.joy.missions.claimed", "Đã hoàn thành")
-                                    : c.completed
-                                      ? `Phần thưởng: +${c.amount} JOY`
-                                      : t("memberPortal.joy.missions.notDoneYet", "Chưa hoàn thành")}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="joy-mission-action">
-                              <button
-                                onClick={() => handleClaimChallenge(c.id)}
-                                disabled={!c.completed || c.claimed || claimingId === c.id}
-                              >
-                                {claimingId === c.id ? "..." : c.claimed ? t("memberPortal.joy.missions.claimed", "Đã nhận") : t("memberPortal.joy.missions.claimButton", "Nhận JOY")}
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {challenges.length > MISSION_PREVIEW_COUNT && (
-                        <button
-                          onClick={() => setMissionsExpanded(v => !v)}
-                          className="joy-mission-more"
-                        >
-                          {missionsExpanded ? t("memberPortal.joy.missions.collapse", "Ẩn bớt") : t("memberPortal.joy.missions.seeMore", "Xem thêm")}
-                          <span className="material-symbols-outlined text-sm" style={{ transform: missionsExpanded ? 'rotate(180deg)' : 'none' }}>expand_more</span>
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Full-width row below — packages carousel needs the extra width, plus bio link */}
-              <div className="joy-feed joy-feed-span">
-                <div className="joy-feed-card">
-                  <h3 className="joy-feed-card-title"><span className="material-symbols-outlined">workspace_premium</span>Gói dịch vụ &amp; Trang Bio</h3>
-                  <React.Suspense fallback={<TabFallbackSkeleton />}>
-                    <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />
-                  </React.Suspense>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {section === "store" && (
-            <motion.div key="store" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              <MemberUtilityStoreTab
-                bio={bio}
-                balance={balance}
-                onPurchased={(newBalance) => setBalance(newBalance)}
-                onBioUpdate={onBioUpdate}
-                showToast={showToast}
-              />
-            </motion.div>
-          )}
-
-        </AnimatePresence>
+            <QrCode className="w-4 h-4 text-foreground/80" />
+          </button>
+          <button
+            onClick={() => setCurrentView(currentView === "store" ? "card" : "store")}
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
+            title="Cửa hàng Ưu đãi"
+          >
+            <CreditCard className="w-4 h-4 text-foreground/80" />
+          </button>
+          <button
+            onClick={copyReferralCode}
+            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
+            title="Sao chép mã cá nhân"
+          >
+            <MoreHorizontal className="w-4 h-4 text-foreground/80" />
+          </button>
+        </div>
       </div>
+
+      <AnimatePresence mode="wait">
+        {/* ── VIEW 1: MAIN HUGO CARD (100% REAL FEATURES) ──────────────────────── */}
+        {currentView === "card" && (
+          <motion.div
+            key="card_view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4"
+          >
+            {/* AUTHENTIC HUGO CARD ASSET */}
+            <div className="relative aspect-[1.586/1] w-full rounded-[24px] overflow-hidden p-6 shadow-xl border border-white/20 dark:border-white/10 transition-transform hover:scale-[1.01] active:scale-[0.99] duration-300">
+              {/* Smooth Apple Card Pastel Mesh Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#ffd5dc] via-[#ffe5b4] via-[#d4f0f0] to-[#e4d5ff] dark:from-[#3a2030] dark:via-[#3d2f20] dark:via-[#1e3434] dark:to-[#2b2042] pointer-events-none" />
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-300/40 dark:bg-amber-500/20 rounded-full blur-[40px] pointer-events-none" />
+              <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-purple-300/40 dark:bg-purple-500/20 rounded-full blur-[40px] pointer-events-none" />
+
+              <div className="relative z-10 h-full flex flex-col justify-between text-zinc-900 dark:text-white">
+                {/* Top Row: Member Code Badge & Hugo Card Brand */}
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    onClick={copyReferralCode}
+                    className="px-3 py-1 rounded-full bg-black/10 dark:bg-white/10 backdrop-blur-md border border-black/10 dark:border-white/15 text-[11px] font-mono font-bold tracking-wider flex items-center gap-1.5 active:scale-95 transition-all shadow-xs hover:bg-black/20 dark:hover:bg-white/20"
+                    title="Sao chép mã cá nhân"
+                  >
+                    <span className="material-symbols-outlined text-xs text-amber-500">badge</span>
+                    <span>{referralCode || bio?.referralCode || "HG9TNHHK"}</span>
+                    <Copy className="w-3 h-3 text-amber-500 opacity-80" />
+                  </button>
+
+                  <span className="text-[10px] font-mono font-bold tracking-widest uppercase opacity-70">
+                    Hugo Card
+                  </span>
+                </div>
+
+                {/* Bottom Row: Cardholder Name & Direct "Chuyển JOY" Action Button */}
+                <div className="flex items-end justify-between gap-2 pt-2">
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-[9px] font-bold uppercase tracking-widest opacity-60 block">THÀNH VIÊN GREENWICH</span>
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider block truncate">
+                      {bio?.displayName || email?.split("@")[0] || "LE GIA HUY (FGW HCM)"}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenParticleModal?.();
+                    }}
+                    className="px-3.5 py-1.5 rounded-full bg-black/15 dark:bg-white/15 hover:bg-black/25 dark:hover:bg-white/25 border border-black/15 dark:border-white/25 backdrop-blur-md text-[11px] font-black uppercase tracking-wider text-zinc-900 dark:text-white flex items-center gap-1.5 active:scale-95 transition-all shadow-sm shrink-0"
+                  >
+                    <Send className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Chuyển JOY</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* REAL CARD BALANCE & MISSIONS GRID (2-COLUMN) */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Card Balance Box */}
+              <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs flex flex-col justify-between space-y-2 text-left">
+                <span className="text-[11px] font-bold text-muted-foreground block">Số Dư Ví JOY</span>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-foreground font-mono tracking-tight">
+                    {(balance ?? 0).toLocaleString("vi-VN")} <span className="text-xs text-amber-500 font-bold">JOY</span>
+                  </h2>
+                  <span className="text-[10px] font-medium text-muted-foreground block mt-0.5">
+                    Cá nhân khả dụng
+                  </span>
+                </div>
+              </div>
+
+              {/* Real Daily Missions Progress Box */}
+              <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs flex flex-col justify-between space-y-2 text-left">
+                <span className="text-[11px] font-bold text-muted-foreground block">Nhiệm Vụ Hôm Nay</span>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                    {completedCount}/{challenges.length || 5}
+                  </h2>
+                  <span className="text-[10px] font-medium text-muted-foreground block mt-0.5">
+                    Đã hoàn thành
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleClaimChallenge(challenges.find((c) => c.completed && !c.claimed)?.id || "")}
+                  disabled={!challenges.some((c) => c.completed && !c.claimed)}
+                  className={`w-full py-1.5 px-3 rounded-full font-semibold text-xs transition-all active:scale-95 text-center mt-1 ${
+                    challenges.some((c) => c.completed && !c.claimed)
+                      ? "bg-amber-500 text-white shadow-xs hover:bg-amber-600"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
+                >
+                  Nhận JOY
+                </button>
+              </div>
+            </div>
+
+            {/* REAL DAILY CHECK-IN CARD */}
+            <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs">
+              <CheckinCard email={email} showToast={showToast} />
+            </div>
+
+            {/* REAL MISSIONS FEED */}
+            <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs space-y-3 text-left">
+              <div className="flex items-center justify-between border-b border-border/30 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-emerald-500" />
+                  <h3 className="text-xs font-black text-foreground uppercase tracking-wider">
+                    {t("memberPortal.joy.sections.missions", "Nhiệm Vụ Nhận JOY")}
+                  </h3>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-muted-foreground">
+                  {completedCount}/{challenges.length} Done
+                </span>
+              </div>
+
+              {loadingChallenges ? (
+                <p className="text-xs text-muted-foreground py-2">Đang tải nhiệm vụ...</p>
+              ) : challenges.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-2">Chưa có nhiệm vụ mới hôm nay.</p>
+              ) : (
+                <div className="space-y-2">
+                  {(missionsExpanded ? challenges : challenges.slice(0, MISSION_PREVIEW_COUNT)).map((c) => (
+                    <div
+                      key={c.id}
+                      className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
+                        c.claimed
+                          ? "bg-muted/40 border-border/30 opacity-70"
+                          : c.completed
+                          ? "bg-emerald-500/10 border-emerald-500/30"
+                          : "bg-card border-border/40"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 ${c.claimed ? "bg-emerald-500" : "bg-primary/20 text-primary"}`}>
+                          {c.claimed ? <CheckCircle2 className="w-4 h-4" /> : <Award className="w-4 h-4" />}
+                        </div>
+                        <div className="min-w-0 flex-1 text-left">
+                          <h4 className="text-xs font-black text-foreground truncate">{c.name}</h4>
+                          <span className="text-[10px] font-bold text-muted-foreground block">
+                            {c.claimed
+                              ? "Đã nhận thưởng"
+                              : c.completed
+                              ? `Phần thưởng: +${c.amount} JOY`
+                              : "Chưa hoàn thành"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => handleClaimChallenge(c.id)}
+                        disabled={!c.completed || c.claimed || claimingId === c.id}
+                        className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider transition-all ml-2 ${
+                          c.claimed
+                            ? "bg-muted text-muted-foreground cursor-not-allowed"
+                            : c.completed
+                            ? "bg-emerald-500 text-white shadow-xs hover:opacity-90 active:scale-95"
+                            : "bg-muted text-muted-foreground opacity-60 cursor-not-allowed"
+                        }`}
+                      >
+                        {claimingId === c.id ? "..." : c.claimed ? "Đã nhận" : "Nhận JOY"}
+                      </button>
+                    </div>
+                  ))}
+
+                  {challenges.length > MISSION_PREVIEW_COUNT && (
+                    <button
+                      onClick={() => setMissionsExpanded((v) => !v)}
+                      className="w-full py-2 text-center text-xs font-black uppercase text-primary hover:underline flex items-center justify-center gap-1 pt-1"
+                    >
+                      <span>{missionsExpanded ? "Ẩn bớt" : "Xem thêm nhiệm vụ"}</span>
+                      <ChevronRight className={`w-3.5 h-3.5 transition-transform ${missionsExpanded ? "rotate-90" : ""}`} />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* REAL COUPON REDEEM & REFERRAL CARD */}
+            <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs space-y-3 text-left">
+              <div className="flex items-center gap-2 border-b border-border/30 pb-2">
+                <Gift className="w-4 h-4 text-amber-500" />
+                <h3 className="text-xs font-black text-foreground uppercase tracking-wider">
+                  Đổi Mã Coupon &amp; Nhập Mã Giới Thiệu
+                </h3>
+              </div>
+
+              {/* Coupon Code Input */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Mã Giftcode Coupon</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={giftCode}
+                    onChange={(e) => setGiftCode(e.target.value.toUpperCase())}
+                    placeholder="Mã quà tặng Coupon..."
+                    className="flex-1 h-10 px-3.5 rounded-xl bg-muted/60 border border-border/40 text-xs font-mono font-bold text-foreground outline-none focus:border-amber-500"
+                  />
+                  <button
+                    onClick={handleRedeem}
+                    disabled={redeeming}
+                    className="px-4 py-2 rounded-xl bg-amber-500 text-white font-black text-xs uppercase tracking-wider shadow-xs hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+                  >
+                    {redeeming ? "..." : "Đổi Coupon"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Referrer Code Input (if not applied yet) */}
+              {!referralApplied && (
+                <div className="space-y-1.5 pt-2 border-t border-border/30">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Nhập Mã Giới Thiệu Của Bạn Bè</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={referrerCodeInput}
+                      onChange={(e) => setReferrerCodeInput(normalizeReferralInput(e.target.value))}
+                      placeholder="Mã người giới thiệu..."
+                      className="flex-1 h-10 px-3.5 rounded-xl bg-muted/60 border border-border/40 text-xs font-mono font-bold uppercase text-foreground outline-none focus:border-primary"
+                    />
+                    <button
+                      onClick={handleApplyReferral}
+                      disabled={applyingReferral}
+                      className="px-4 py-2 rounded-xl bg-primary text-white font-black text-xs uppercase tracking-wider shadow-xs hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+                    >
+                      {applyingReferral ? "..." : "Áp dụng"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* REAL MEMBER MANAGEMENT & BIO SETTINGS */}
+            <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs space-y-3 text-left">
+              <div className="flex items-center gap-2 border-b border-border/30 pb-2">
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+                <h3 className="text-xs font-black text-foreground uppercase tracking-wider">
+                  Gói Dịch Vụ &amp; Trang Bio Thành Viên
+                </h3>
+              </div>
+              <React.Suspense fallback={<TabFallbackSkeleton />}>
+                <MemberManageTab
+                  bio={bio}
+                  publicLink={publicLink}
+                  handleCopyLink={handleCopyLink}
+                  handleDeleteBio={handleDeleteBio}
+                  saving={saving}
+                />
+              </React.Suspense>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── VIEW 2: REAL STATS & REFERRAL SUMMARY (REPLACED APPLE LOGO WITH JOY COIN) ── */}
+        {currentView === "stats" && (
+          <motion.div
+            key="stats_view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4 text-left"
+          >
+            {/* 1. REAL JOY BALANCE & REFERRAL STATS CARD */}
+            <div className="bg-card border border-border/40 rounded-[20px] p-5 shadow-xs space-y-3">
+              <span className="text-[11px] font-bold text-muted-foreground block uppercase">Tổng Quan Ví JOY</span>
+              <h2 className="text-3xl font-black text-foreground font-mono tracking-tight">
+                {(balance ?? 0).toLocaleString("vi-VN")} <span className="text-sm text-amber-500 font-bold">JOY</span>
+              </h2>
+
+              <div className="pt-2 border-t border-border/30 flex items-center justify-between text-xs font-bold text-muted-foreground">
+                <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-500" /> Người đã giới thiệu:</span>
+                <span className="font-mono text-foreground font-black text-sm">{referralCount} người</span>
+              </div>
+            </div>
+
+            {/* 2. REFERRAL BONUS CARD (WITH REAL JOY COIN ICON INSTEAD OF APPLE LOGO) */}
+            <div className="bg-card border border-border/40 rounded-[20px] p-5 shadow-xs space-y-3 text-center relative overflow-hidden">
+              {/* JOY COIN ICON BADGE INSTEAD OF APPLE LOGO */}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 flex items-center justify-center text-white mx-auto shadow-md">
+                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>toll</span>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-black text-foreground">+100 JOY Thưởng Giới Thiệu</h3>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                  Nhận ngay 100 JOY và gia hạn thêm ngày sử dụng khi bạn bè sử dụng mã giới thiệu của bạn.
+                </p>
+              </div>
+
+              <button
+                onClick={copyReferralCode}
+                className="w-full py-2.5 rounded-full bg-primary text-white font-black text-xs uppercase tracking-wider shadow-xs hover:opacity-90 active:scale-95 transition-all"
+              >
+                Sao Chép Mã Giới Thiệu ({referralCode || "HG9TNHHK"})
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── VIEW 3: UTILITY REWARDS STORE ───────────────────────────────────── */}
+        {currentView === "store" && (
+          <motion.div
+            key="store_view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <MemberUtilityStoreTab
+              bio={bio}
+              balance={balance}
+              onPurchased={(newBalance) => setBalance(newBalance)}
+              onBioUpdate={onBioUpdate}
+              showToast={showToast}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

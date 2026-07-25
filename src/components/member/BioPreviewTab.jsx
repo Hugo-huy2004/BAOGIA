@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getMemberSession } from "../../services/authSession";
 
 // "Trang Bio" utility — the home for everything that styles the PUBLIC bio page:
@@ -6,6 +7,7 @@ import { getMemberSession } from "../../services/authSession";
 // (via renderAccountForm from the portal) with a live preview underneath.
 // Personal info stays in Settings; only bio-page styling lives here.
 export default function BioPreviewTab({ bio, publicLink, showToast, onBack, renderAccountForm }) {
+  const { t } = useTranslation();
   const ready = !!publicLink;
   const session = getMemberSession();
   // Accordion (one section open at a time) — kept in state so it survives the
@@ -27,9 +29,9 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
     if (!ready) return;
     try {
       await navigator.clipboard.writeText(publicLink);
-      showToast?.("Đã sao chép link trang Bio", "success");
+      showToast?.(t("memberPortal.bioPreview.copySuccess"), "success");
     } catch {
-      showToast?.("Không sao chép được link", "error");
+      showToast?.(t("memberPortal.bioPreview.copyError"), "error");
     }
   };
 
@@ -41,13 +43,13 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
           type="button"
           onClick={onBack}
           className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground transition hover:bg-foreground/10"
-          aria-label="Quay lại"
+          aria-label={t("memberPortal.bioPreview.backAria")}
         >
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div className="min-w-0">
-          <h2 className="font-display text-base font-black leading-none text-foreground">Trang Bio</h2>
-          <p className="mt-1 truncate text-[11px] text-muted-foreground">Xem trước trang cá nhân công khai</p>
+          <h2 className="font-display text-base font-black leading-none text-foreground">{t("memberPortal.bioPreview.title")}</h2>
+          <p className="mt-1 truncate text-[11px] text-muted-foreground">{t("memberPortal.bioPreview.subtitle")}</p>
         </div>
         {ready && (
           <a
@@ -55,7 +57,7 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
             target="_blank"
             rel="noreferrer"
             className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm transition hover:bg-primary active:scale-95"
-            aria-label="Mở trang Bio"
+            aria-label={t("memberPortal.bioPreview.openAria")}
           >
             <span className="material-symbols-outlined text-[18px]">open_in_new</span>
           </a>
@@ -67,13 +69,13 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
         <div className="space-y-4">
           {/* 3-Year Developer Membership Header */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-amber-500/20 space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">3-Year Developer Membership</p>
-            <p className="text-sm font-bold text-foreground">Hết hạn: <span className="text-amber-600 dark:text-amber-400">{formatDate(membershipEnd)}</span></p>
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">{t("memberPortal.bioPreview.membershipHeader")}</p>
+            <p className="text-sm font-bold text-foreground">{t("memberPortal.bioPreview.expiryLabel")} <span className="text-amber-600 dark:text-amber-400">{formatDate(membershipEnd)}</span></p>
           </div>
 
           {/* Bio Package Info */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1 mb-3">Trang Bio sở hữu</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1 mb-3">{t("memberPortal.bioPreview.packageTitle")}</h3>
             <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/15 via-pink-500/15 to-amber-500/10 border border-purple-500/30 space-y-3">
               <div className="flex items-start justify-between">
                 <div>
@@ -84,11 +86,11 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <p className="text-muted-foreground font-bold">NGÀY BẮT ĐẦU</p>
+                  <p className="text-muted-foreground font-bold">{t("memberPortal.bioPreview.startDate")}</p>
                   <p className="text-foreground font-bold mt-0.5">{formatDate(membershipStart)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground font-bold">HẠN DÙNG BIO</p>
+                  <p className="text-muted-foreground font-bold">{t("memberPortal.bioPreview.bioExpiry")}</p>
                   <p className="text-purple-600 dark:text-purple-400 font-bold mt-0.5">{formatDate(membershipEnd)}</p>
                 </div>
               </div>
@@ -101,8 +103,8 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground flex justify-between">
-                  <span>{elapsedDays}/{totalDays} ngày</span>
-                  <span>Còn {daysRemaining} ngày</span>
+                  <span>{t("memberPortal.bioPreview.daysElapsed", { elapsed: elapsedDays, total: totalDays })}</span>
+                  <span>{t("memberPortal.bioPreview.daysLeft", { count: daysRemaining })}</span>
                 </p>
               </div>
             </div>
@@ -113,11 +115,11 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
       {/* ── Bio editors — style the public page right here ── */}
       {renderAccountForm && (
         <div className="space-y-2.5">
-          <p className="px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Tùy chỉnh trang Bio</p>
+          <p className="px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.bioPreview.customizeTitle")}</p>
           {[
-            { id: "design", label: "Giao diện & Chủ đề", icon: "palette", tint: "bg-violet-500/10 text-violet-500" },
-            { id: "links", label: "Thẻ liên kết", icon: "link", tint: "bg-info/10 text-info" },
-            { id: "achievements", label: "Dự án & Thành tích", icon: "workspace_premium", tint: "bg-warning/10 text-warning" },
+            { id: "design", label: t("memberPortal.bioPreview.designLabel"), icon: "palette", tint: "bg-violet-500/10 text-violet-500" },
+            { id: "links", label: t("memberPortal.bioPreview.linkCardsLabel"), icon: "link", tint: "bg-info/10 text-info" },
+            { id: "achievements", label: t("memberPortal.bioPreview.achievementsLabel"), icon: "workspace_premium", tint: "bg-warning/10 text-warning" },
           ].map((sec) => (
             <details
               key={sec.id}
@@ -145,9 +147,9 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
           {/* Preview hint */}
           <div className="flex items-start gap-2.5 border-b border-border bg-primary/[0.05] p-3.5">
             <span className="material-symbols-outlined mt-0.5 text-[18px] text-primary">visibility</span>
-            <p className="text-[12px] leading-relaxed text-foreground/85">
-              Chỉnh <b>giao diện, liên kết, thành tích</b> ở các mục phía trên — thay đổi sẽ tự cập nhật ở bản xem trước bên dưới.
-            </p>
+              <p className="text-[12px] leading-relaxed text-foreground/85">
+                {t("memberPortal.bioPreview.editHint")}
+              </p>
           </div>
 
           {/* Toolbar */}
@@ -160,7 +162,7 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
               type="button"
               onClick={copyLink}
               className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground transition hover:bg-foreground/10 hover:text-foreground"
-              aria-label="Sao chép link"
+              aria-label={t("memberPortal.bioPreview.copyLinkAria") || "Copy link"}
             >
               <span className="material-symbols-outlined text-[16px]">content_copy</span>
             </button>
@@ -170,7 +172,7 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
           <iframe
             key={bio?.updatedAt || publicLink}
             src={publicLink}
-            title="Xem trước trang Bio"
+            title={t("memberPortal.bioPreview.previewAria")}
             className="h-[68vh] w-full bg-card"
             loading="lazy"
           />
@@ -178,9 +180,9 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
       ) : (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-16 text-center shadow-sm">
           <span className="material-symbols-outlined text-4xl text-muted-foreground/50">badge</span>
-          <p className="mt-3 text-sm font-black text-foreground">Trang Bio chưa sẵn sàng</p>
+          <p className="mt-3 text-sm font-black text-foreground">{t("memberPortal.bioPreview.notReadyTitle")}</p>
           <p className="mt-1 max-w-xs px-6 text-[11px] text-muted-foreground">
-            Hãy hoàn tất thông tin tại <b>Cài đặt › Thông tin cá nhân</b> để có link trang Bio công khai.
+            {t("memberPortal.bioPreview.notReadyDesc")}
           </p>
         </div>
       )}

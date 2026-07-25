@@ -7,6 +7,7 @@ import memberService from "../../services/classes/MemberService";
 import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
 import LibraryCatalog from "./utilities/LibraryCatalog";
+import ArcadeMiniGameSheet from "./utilities/ArcadeMiniGameSheet";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 
 // Dynamic On-Demand PWA App Storage Footprint (MB)
@@ -70,7 +71,10 @@ const THEMES = [
   { id: "pastel", label: "Pastel", style: "bg-gradient-to-br from-rose-100/50 via-peach-100/30 to-amber-100/40 dark:from-rose-950/10 dark:via-zinc-900/20 dark:to-amber-950/10 rounded-[30px] p-6 shadow-md shadow-orange-500/5" },
 ];
 
-const DEFAULT_INSTALLED = ["library", "info"];
+const DEFAULT_INSTALLED = [
+  "library", "bio", "ide", "psychology", "radio", "helpdesk", "handle", "arcade", "aura",
+  "arcade_chess", "arcade_2048", "arcade_tetris", "arcade_survivor", "info"
+];
 
 const DEFAULT_SIZES = {
   psychology: "medium",
@@ -79,12 +83,18 @@ const DEFAULT_SIZES = {
   joy_wallet: "medium",
 };
 
-export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast }) {
+export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
   const { t } = useTranslation();
   const { data } = useData();
 
   // Navigation & Search States
-  const [activeTab, setActiveTab] = useState("my-apps");
+  const [activeTab, setActiveTab] = useState(initialTab);
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
+
+
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [isEditMode, setIsEditMode] = useState(false);
@@ -243,7 +253,15 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       rating: "5.0",
       users: "50k",
       badge: "STORE"
-    }
+    },
+    { id: "arcade_chess", icon: "castle", tint: "slate", title: "Cờ Vua AI", category: "arcade", subLabel: "Thách đấu AI Master ELO 2500", rating: "4.9", users: "8k", badge: "GAME" },
+    { id: "arcade_2048", icon: "casino", tint: "orange", title: "2048 Fusion", category: "arcade", subLabel: "Gộp số 2048 mở rộng", rating: "4.8", users: "12k", badge: "GAME" },
+    { id: "arcade_caro", icon: "swords", tint: "blue", title: "Caro Master", category: "arcade", subLabel: "Cờ Caro đối kháng 5 cấp", rating: "4.7", users: "6k", badge: "GAME" },
+    { id: "arcade_wordguess", icon: "keyboard", tint: "purple", title: "Mật Mã Từ", category: "arcade", subLabel: "Từ vựng Hán Việt 3D", rating: "4.6", users: "4k", badge: "GAME" },
+    { id: "arcade_tetris", icon: "grid_view", tint: "cyan", title: "Tetris Neon", category: "arcade", subLabel: "Xếp hình Neon 3D 60fps", rating: "4.9", users: "15k", badge: "GAME" },
+    { id: "arcade_snake", icon: "all_inclusive", tint: "teal", title: "Rắn 3D Pro", category: "arcade", subLabel: "Hugo Snake 3D cổ điển", rating: "4.8", users: "9k", badge: "GAME" },
+    { id: "arcade_survivor", icon: "rocket_launch", tint: "indigo", title: "Space Survivor", category: "arcade", subLabel: "Bắn máy bay Space 3D", rating: "5.0", users: "18k", badge: "GAME" },
+    { id: "arcade_flappy", icon: "bolt", tint: "rose", title: "Flappy Cyber", category: "arcade", subLabel: "Bay Cyberpunk không gian", rating: "4.7", users: "7k", badge: "GAME" }
   ], [t]);
 
   // App Ecosystem States
@@ -306,6 +324,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const longPressTimerRef = useRef(null);
   const isLongPressTriggered = useRef(false);
 
+  // Refresh key: increment this to force myAppsList to re-read from localStorage
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // Sync state with prop if bio updates asynchronously
   useEffect(() => {
     if (bio && Array.isArray(bio.installedUtilities)) {
@@ -338,17 +359,23 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   };
 
-  // Sync to localStorage fallback
+  // Sync installedApps — merge with current on-disk value so arcade installs are never lost
   useEffect(() => {
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(installedApps));
+    const onDisk = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
+    const merged = [...new Set([...onDisk, ...installedApps])];
+    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(merged));
   }, [installedApps]);
 
-  // Sync homeScreenApps with prop if bio updates asynchronously
+  // Sync homeScreenApps with prop if bio updates asynchronously.
+  // IMPORTANT: Only apply if bio has MORE apps — never overwrite a fresher local state.
   useEffect(() => {
     if (bio && Array.isArray(bio.homeScreenUtilities) && bio.homeScreenUtilities.length > 0) {
-      if (JSON.stringify(bio.homeScreenUtilities) !== JSON.stringify(homeScreenApps)) {
-        setHomeScreenApps(bio.homeScreenUtilities);
-      }
+      // Merge: keep local apps the DB doesn't know about yet (just installed)
+      setHomeScreenApps(prev => {
+        const merged = [...new Set([...bio.homeScreenUtilities, ...prev])];
+        if (JSON.stringify(merged) === JSON.stringify(prev)) return prev; // no change
+        return merged;
+      });
     }
   }, [bio]);
 
@@ -371,26 +398,90 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   };
 
+  // Sync to localStorage — merge with current on-disk value so arcade installs are never lost
   useEffect(() => {
-    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(homeScreenApps));
+    const onDisk = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
+    const merged = [...new Set([...onDisk, ...homeScreenApps])];
+    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(merged));
   }, [homeScreenApps]);
 
-  // Handle Dynamic Mobile Tab Bar Hiding
+  // ── CRITICAL: Re-sync from localStorage when Dashboard becomes visible ──────────
+  // This fires every time user navigates back from Arcade / any sub-utility.
+  // Incrementing refreshKey forces myAppsList to re-read fresh from localStorage.
   useEffect(() => {
-    const tabbar = document.getElementById("mobile-bottom-tab-bar");
-    if (tabbar) {
-      if (editingApp) {
-        tabbar.classList.add("hidden");
-      } else {
-        tabbar.classList.remove("hidden");
-      }
-    }
+    if (!isVisible) return;
+    // 1. Bump refresh key → myAppsList will recompute from localStorage
+    setRefreshKey(k => k + 1);
+    // 2. Also update React state so other derived state stays consistent
+    const diskHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
+    const diskInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
+    setHomeScreenApps(prev => {
+      const merged = [...new Set([...prev, ...diskHome])];
+      return merged.length !== prev.length ? merged : prev;
+    });
+    setInstalledApps(prev => {
+      const merged = [...new Set([...prev, ...diskInst])];
+      return merged.length !== prev.length ? merged : prev;
+    });
+  }, [isVisible]);
+
+  // Handle Dynamic Mobile Tab Bar Hiding when editingApp or isSpotlightOpen is active
+  useEffect(() => {
+    const isOpen = Boolean(editingApp || isSpotlightOpen);
+    window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: isOpen } }));
     return () => {
-      if (tabbar) {
-        tabbar.classList.remove("hidden");
+      window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: false } }));
+    };
+  }, [editingApp, isSpotlightOpen]);
+
+  // Listen for game installs from HugoArcadeTab (or any sub-component) → add to home screen instantly
+  useEffect(() => {
+    const handleInstalled = (e) => {
+      const { appId } = e.detail || {};
+      if (!appId) return;
+      setInstalledApps(prev => {
+        if (prev.includes(appId)) return prev;
+        const next = [...prev, appId];
+        localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(next));
+        return next;
+      });
+      setHomeScreenApps(prev => {
+        if (prev.includes(appId)) return prev;
+        const next = [...prev, appId];
+        localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(next));
+        return next;
+      });
+    };
+
+    // Also listen to storage changes (cross-tab or from HugoArcadeTab writing directly)
+    const handleStorage = (e) => {
+      if (e.key === "hugo_home_screen_utilities_v1" && e.newValue) {
+        try {
+          const fresh = JSON.parse(e.newValue);
+          setHomeScreenApps(prev => {
+            const merged = [...new Set([...prev, ...fresh])];
+            return merged.length !== prev.length ? merged : prev;
+          });
+        } catch {}
+      }
+      if (e.key === "hugo_installed_utilities_v2" && e.newValue) {
+        try {
+          const fresh = JSON.parse(e.newValue);
+          setInstalledApps(prev => {
+            const merged = [...new Set([...prev, ...fresh])];
+            return merged.length !== prev.length ? merged : prev;
+          });
+        } catch {}
       }
     };
-  }, [editingApp]);
+
+    window.addEventListener("hugo:app-installed", handleInstalled);
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("hugo:app-installed", handleInstalled);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   // Clean up audios on unmount
   useEffect(() => {
@@ -711,6 +802,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }, 550);
   };
 
+  const [activeArcadeGame, setActiveArcadeGame] = useState(null);
+
   const handleAppTouchEnd = (app, e) => {
     clearTimeout(window.longPressTimer);
     if (!isLongPressTriggered.current) {
@@ -720,6 +813,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       }
       if (app.id === "library") {
         setActiveTab("library");
+        return;
+      }
+      if (app.id.startsWith("arcade_")) {
+        setActiveArcadeGame(app.id);
         return;
       }
       if (data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
@@ -780,8 +877,15 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   };
 
   const myAppsList = useMemo(() => {
-    return allUtilities.filter((util) => installedApps.includes(util.id) && homeScreenApps.includes(util.id));
-  }, [allUtilities, installedApps, homeScreenApps]);
+    // Read directly from localStorage so any installs (even from other components) show immediately.
+    // refreshKey and state vars are both deps so this recomputes whenever either changes.
+    const liveHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
+    const liveInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
+    // Merge state + localStorage so we capture BOTH sources
+    const effectiveHome = [...new Set([...homeScreenApps, ...liveHome])];
+    const effectiveInst = [...new Set([...installedApps, ...liveInst])];
+    return allUtilities.filter((util) => effectiveHome.includes(util.id) && effectiveInst.includes(util.id));
+  }, [allUtilities, installedApps, homeScreenApps, refreshKey]);
 
   const libraryAppsList = useMemo(() => {
     return allUtilities.filter((util) => {
@@ -797,19 +901,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     return myAppsList.filter((app) => (utilitySizes[app.id] || "small") !== "small");
   }, [myAppsList, utilitySizes]);
 
-  const DOCK_APPS = useMemo(() => ["library", "info", "bio"], []);
-
   const myIcons = useMemo(() => {
     return myAppsList.filter(
-      (app) => (utilitySizes[app.id] || "small") === "small" && !DOCK_APPS.includes(app.id)
+      (app) => (utilitySizes[app.id] || "small") === "small"
     );
-  }, [myAppsList, utilitySizes, DOCK_APPS]);
-
-  const myDockApps = useMemo(() => {
-    return myAppsList.filter(
-      (app) => DOCK_APPS.includes(app.id) && (utilitySizes[app.id] || "small") === "small"
-    );
-  }, [myAppsList, utilitySizes, DOCK_APPS]);
+  }, [myAppsList, utilitySizes]);
 
   const joyBalance = data?.member?.joyBalance || 1540;
   const activeThemeClass = THEMES.find((t) => t.id === activeWallpaper)?.style || "";
@@ -818,12 +914,12 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     <div 
       onMouseMove={handleMouseMove}
       onClick={handleDesktopClick}
-      className="relative space-y-8 animate-fadeIn pb-36 select-none transition-all duration-500 overflow-hidden rounded-[30px]"
+      className="relative space-y-6 animate-fadeIn pb-24 select-none transition-all duration-500"
     >
       {/* 🌌 Parallax Wallpaper Background Layer */}
       <div 
         id="workspace-bg"
-        className={`absolute inset-[-20px] transition-transform duration-200 ease-out pointer-events-auto z-0 ${activeThemeClass || "bg-card/20"}`}
+        className={`absolute inset-[-20px] transition-transform duration-200 ease-out pointer-events-auto z-0 ${activeThemeClass || ""}`}
         style={{ 
           transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
           willChange: "transform"
@@ -847,34 +943,29 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
         <div className="space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-2 text-left gap-3 border-b border-border/45 pb-3">
-            <div>
-              <h2 className="text-base font-black uppercase tracking-wider text-foreground">Bàn làm việc</h2>
-              <p className="text-[11px] text-muted-foreground/80 font-bold mt-0.5">💡 Nhấn giữ (Long press) hoặc Sắp xếp để tùy biến & kéo thả thứ tự ứng dụng</p>
-            </div>
-            <div className="flex items-center gap-2 self-start">
-              {/* Spotlight Search Toggle Button */}
-              <button
-                onClick={() => { setIsSpotlightOpen(true); setSpotlightQuery(""); setSpotlightSelectedIndex(0); }}
-                className="flex items-center justify-center w-9 h-9 rounded-full border bg-card/75 border-border text-foreground hover:bg-muted transition-all active:scale-95"
-                title="Tìm kiếm nhanh (Cmd + K)"
-              >
-                <span className="material-symbols-outlined text-lg animate-pulse">search</span>
-              </button>
+          {/* Minimal Top Action Bar */}
+          <div className="flex items-center justify-end px-2 gap-2 pb-1">
+            {/* Spotlight Search Toggle Button */}
+            <button
+              onClick={() => { setIsSpotlightOpen(true); setSpotlightQuery(""); setSpotlightSelectedIndex(0); }}
+              className="flex items-center justify-center w-9 h-9 rounded-full border bg-card/80 border-border/60 text-foreground hover:bg-muted transition-all active:scale-95 shadow-sm"
+              title="Tìm kiếm nhanh (Cmd + K)"
+            >
+              <span className="material-symbols-outlined text-lg">search</span>
+            </button>
 
-              {/* Sorting Mode Button */}
-              <button
-                onClick={() => setIsEditMode(!isEditMode)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black uppercase border transition-all active:scale-95 ${
-                  isEditMode
-                    ? "bg-success border-success text-white shadow-md"
-                    : "bg-card/75 border-border text-foreground hover:bg-muted"
-                }`}
-              >
-                <span className="material-symbols-outlined text-sm">{isEditMode ? "done" : "tune"}</span>
-                <span>{isEditMode ? "Xong" : "Sắp xếp"}</span>
-              </button>
-            </div>
+            {/* Sorting Mode Button */}
+            <button
+              onClick={() => setIsEditMode(!isEditMode)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase border transition-all active:scale-95 shadow-sm ${
+                isEditMode
+                  ? "bg-success border-success text-white shadow-md"
+                  : "bg-card/80 border-border/60 text-foreground hover:bg-muted"
+              }`}
+            >
+              <span className="material-symbols-outlined text-sm">{isEditMode ? "done" : "tune"}</span>
+              <span>{isEditMode ? "Xong" : "Sắp xếp"}</span>
+            </button>
           </div>
 
           {myAppsList.length === 0 ? (
@@ -930,44 +1021,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 gradients={GRADIENTS}
                 onAppHover={prefetchUtility}
               />
-
-              {/* 🖥️ macOS/iOS GLASSMORPHIC APPLICATION DOCK */}
-              {myDockApps.length > 0 && (
-                <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 h-max max-h-[85vh] py-4 animate-fadeIn">
-                  <div className="flex flex-col items-center gap-4 px-3.5 py-5 rounded-[28px] bg-gradient-to-b from-white/45 via-white/20 to-white/10 dark:from-white/10 dark:via-black/35 dark:to-black/55 border border-white/40 dark:border-white/15 backdrop-blur-[24px] transition-all duration-300 liquid-glass-dock">
-                    {myDockApps.map((app) => {
-                      const gradient = GRADIENTS[app.tint] || GRADIENTS.indigo;
-                      const touchProps = {
-                        onMouseEnter: () => prefetchUtility(app.id),
-                        onMouseDown: () => handleAppTouchStart(app),
-                        onMouseUp: (e) => handleAppTouchEnd(app, e),
-                        onMouseLeave: () => clearTimeout(window.longPressTimer),
-                        onTouchStart: () => handleAppTouchStart(app),
-                        onTouchEnd: (e) => handleAppTouchEnd(app, e),
-                      };
-
-                      return (
-                        <div
-                          key={app.id}
-                          {...touchProps}
-                          className="relative group flex flex-col items-center cursor-pointer transition-all duration-300 w-14 h-14"
-                        >
-                          {/* Tooltip on Hover - Appears on the Left side */}
-                          <span className="absolute right-16 top-1/2 -translate-y-1/2 scale-0 group-hover:scale-100 transition-all duration-200 bg-black/80 backdrop-blur-md text-[10px] font-black text-white px-2.5 py-1 rounded-lg uppercase tracking-wider shadow pointer-events-none whitespace-nowrap z-50">
-                            {app.title}
-                          </span>
-                          
-                          <div className="w-14 h-14 rounded-[16px] bg-gradient-to-br flex items-center justify-center shadow-md relative shrink-0 transition-all duration-200 hover:-translate-x-2.5 hover:scale-110 active:scale-95" style={{ background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
-                            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-[16px]`} />
-                            <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15 opacity-50 pointer-events-none rounded-[16px]" />
-                            <span className="material-symbols-outlined text-white text-[28px] z-10" style={{ fontVariationSettings: "'FILL' 1" }}>{app.icon}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -988,7 +1041,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           handleInstallApp={handleInstallApp}
           setSelectedUtility={setSelectedUtility}
           gradients={GRADIENTS}
-          onBack={() => setActiveTab("my-apps")}
+          onBack={() => {
+            setActiveTab("my-apps");
+            if (setSelectedUtility) setSelectedUtility(null);
+          }}
         />
       )}
 
@@ -1172,6 +1228,14 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             </span>
           </div>
         </div>
+      )}
+
+      {/* 🎮 Standalone Arcade Mini-Game Sheet Launcher */}
+      {activeArcadeGame && (
+        <ArcadeMiniGameSheet
+          gameId={activeArcadeGame}
+          onClose={() => setActiveArcadeGame(null)}
+        />
       )}
 
       {/* 🌌 CSS Keyframe Animations Block */}

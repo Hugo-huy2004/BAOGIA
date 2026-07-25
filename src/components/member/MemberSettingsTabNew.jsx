@@ -40,7 +40,7 @@ export default function MemberSettingsTabNew(props){
 
   useEffect(() => {
     // keep focus and state tidy when switching
-    document.title = 'Cài đặt — Hugo Studio';
+    document.title = t("memberPortal.settingsPage.pageTitle");
   }, []);
 
   const renderActive = () => {
@@ -98,19 +98,19 @@ export default function MemberSettingsTabNew(props){
           </div>
 
           <div className="min-w-0">
-            <h3 className="font-black text-lg leading-tight text-white">{formData.displayName || 'Người dùng'}</h3>
-            <p className="text-sm text-zinc-300">{formData.headline || 'Chưa có mô tả'}</p>
+            <h3 className="font-black text-lg leading-tight text-white">{formData.displayName || t("memberPortal.settingsPage.defaultName")}</h3>
+            <p className="text-sm text-zinc-300">{formData.headline || t("memberPortal.settingsPage.noDesc")}</p>
           </div>
 
           <div className="w-full mt-2 flex gap-2">
-            <button onClick={() => setActive('profile')} className="flex-1 px-3 py-2 rounded-xl bg-white/6 text-white font-semibold">Chỉnh sửa</button>
-            <button onClick={() => handleSave()} disabled={saving} className="px-3 py-2 rounded-xl bg-gradient-to-r from-primary to-violet-500 text-white font-black">{saving? 'Đang lưu...' : 'Lưu'}</button>
+            <button onClick={() => setActive('profile')} className="flex-1 px-3 py-2 rounded-xl bg-white/6 text-white font-semibold">{t("memberPortal.settingsPage.editBtn")}</button>
+            <button onClick={() => handleSave()} disabled={saving} className="px-3 py-2 rounded-xl bg-gradient-to-r from-primary to-violet-500 text-white font-black">{saving? t("memberPortal.settingsPage.savingBtn") : t("memberPortal.settingsPage.saveBtn")}</button>
           </div>
 
           <div className="w-full mt-3 bg-white/3 rounded-xl p-3 border border-white/6">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs text-zinc-300">Số dư JOY</div>
+                <div className="text-xs text-zinc-300">{t("memberPortal.settingsPage.joyBalance")}</div>
                 <div className="font-black text-lg">{/* placeholder, integrate with joyStore if needed */}1,250 JOY</div>
               </div>
               <div>
@@ -118,28 +118,28 @@ export default function MemberSettingsTabNew(props){
               </div>
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <button className="px-2 py-2 rounded-lg bg-white/6">Nạp</button>
-              <button className="px-2 py-2 rounded-lg bg-gradient-to-r from-warning to-destructive text-white">Trao đổi</button>
+              <button className="px-2 py-2 rounded-lg bg-white/6">{t("memberPortal.settingsPage.rechargeBtn")}</button>
+              <button className="px-2 py-2 rounded-lg bg-gradient-to-r from-warning to-destructive text-white">{t("memberPortal.settingsPage.exchangeBtn")}</button>
             </div>
           </div>
 
           <div className="w-full mt-3 text-left">
-            <div className="text-xs text-zinc-400 font-semibold">Quick Settings</div>
+            <div className="text-xs text-zinc-400 font-semibold">{t("memberPortal.settingsPage.quickSettings")}</div>
             <div className="mt-2 space-y-2">
               <div className="flex items-center justify-between">
-                <div className="text-sm">Âm thông báo</div>
+                <div className="text-sm">{t("memberPortal.settingsPage.notifSound")}</div>
                 <ToggleSwitch checked={true} onChange={()=>{}} />
               </div>
               <div className="flex items-center justify-between">
-                <div className="text-sm">Hiện widget quyên góp</div>
+                <div className="text-sm">{t("memberPortal.settingsPage.showDonation")}</div>
                 <ToggleSwitch checked={false} onChange={()=>{}} />
               </div>
             </div>
           </div>
 
           <div className="w-full mt-4 flex gap-2">
-            <button onClick={() => handleLogout?.()} className="flex-1 px-3 py-2 rounded-xl border border-white/8 text-sm">Đăng xuất</button>
-            <button onClick={() => navigator.clipboard?.writeText(publicLink || '')} className="px-3 py-2 rounded-xl bg-white/6 text-sm">Sao chép link</button>
+            <button onClick={() => handleLogout?.()} className="flex-1 px-3 py-2 rounded-xl border border-white/8 text-sm">{t("memberPortal.settingsPage.logoutBtn")}</button>
+            <button onClick={() => navigator.clipboard?.writeText(publicLink || '')} className="px-3 py-2 rounded-xl bg-white/6 text-sm">{t("memberPortal.settingsPage.copyLinkBtn")}</button>
           </div>
         </div>
       </aside>
@@ -149,10 +149,10 @@ export default function MemberSettingsTabNew(props){
         <div className="grid grid-cols-3 gap-3">
           <nav className="col-span-1">
             <div className="space-y-2">
-              <MenuItem id="profile" icon="person" label="Thông tin" active={active==='profile'} onClick={setActive} />
-              <MenuItem id="design" icon="palette" label="Giao diện" active={active==='design'} onClick={setActive} />
-              <MenuItem id="links" icon="link" label="Liên kết" active={active==='links'} onClick={setActive} />
-              <MenuItem id="achievements" icon="military_tech" label="Thành tích" active={active==='achievements'} onClick={setActive} />
+              <MenuItem id="profile" icon="person" label={t("memberPortal.settingsPage.profileMenu")} active={active==='profile'} onClick={setActive} />
+              <MenuItem id="design" icon="palette" label={t("memberPortal.settingsPage.designMenu")} active={active==='design'} onClick={setActive} />
+              <MenuItem id="links" icon="link" label={t("memberPortal.settingsPage.linksMenu")} active={active==='links'} onClick={setActive} />
+              <MenuItem id="achievements" icon="military_tech" label={t("memberPortal.settingsPage.achievementsMenu")} active={active==='achievements'} onClick={setActive} />
             </div>
           </nav>
 

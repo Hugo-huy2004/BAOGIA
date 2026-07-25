@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 // Recognized level tokens a member might accidentally type into the school
 // name field (e.g. "THCS Nguyễn Du") — stripped automatically, and used to
@@ -32,6 +33,7 @@ export default function VerificationForm({
   handleLogout,
   verifying
 }) {
+  const { t } = useTranslation();
   const handleSchoolNameChange = (e) => {
     const { schoolName, schoolLevel } = parseSchoolName(e.target.value, verificationForm.schoolLevel);
     setVerificationForm({ ...verificationForm, schoolName, schoolLevel });
@@ -47,10 +49,10 @@ export default function VerificationForm({
             school
           </span>
           <h2 className="font-display text-xl sm:text-2xl font-black text-foreground uppercase tracking-tight">
-            Hoàn Tất Thông Tin Sinh Viên
+            {t("memberPortal.verify.title")}
           </h2>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Thông tin dưới đây sẽ được cố định sau khi xác minh, vui lòng nhập chính xác.
+            {t("memberPortal.verify.desc")}
           </p>
         </div>
 
@@ -59,12 +61,12 @@ export default function VerificationForm({
             {/* Full Name */}
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                Họ và tên
+                {t("memberPortal.verify.fullName")}
               </label>
               <input
                 type="text"
                 required
-                placeholder="Nhập họ và tên của bạn..."
+                placeholder={t("memberPortal.verify.fullNamePlaceholder")}
                 value={verificationForm.fullName}
                 onChange={(e) => setVerificationForm({ ...verificationForm, fullName: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
@@ -75,7 +77,7 @@ export default function VerificationForm({
               {/* Birthday */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                  Sinh nhật
+                  {t("memberPortal.verify.birthday")}
                 </label>
                 <input
                   type="date"
@@ -89,12 +91,12 @@ export default function VerificationForm({
               {/* Phone Zalo */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                  Số điện thoại (Zalo)
+                  {t("memberPortal.verify.phoneZalo")}
                 </label>
                 <input
                   type="tel"
                   required
-                  placeholder="Nhập số điện thoại Zalo..."
+                  placeholder={t("memberPortal.verify.phoneZaloPlaceholder")}
                   value={verificationForm.phoneZalo}
                   onChange={(e) => setVerificationForm({ ...verificationForm, phoneZalo: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
@@ -106,12 +108,12 @@ export default function VerificationForm({
               {/* School Name — just type the name, level is auto-detected */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                  Tên trường học
+                  {t("memberPortal.verify.schoolName")}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="VD: Thăng Long (không cần ghi TH/THCS/ĐH...)"
+                  placeholder={t("memberPortal.verify.schoolNamePlaceholder")}
                   value={verificationForm.schoolName}
                   onChange={handleSchoolNameChange}
                   className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
@@ -121,7 +123,7 @@ export default function VerificationForm({
               {/* School Level — auto-filled from the name above, can override manually */}
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                  Cấp học
+                  {t("memberPortal.verify.schoolLevel")}
                 </label>
                 <select
                   required
@@ -129,12 +131,12 @@ export default function VerificationForm({
                   onChange={(e) => setVerificationForm({ ...verificationForm, schoolLevel: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all"
                 >
-                  <option value="">-- Chọn Cấp Học --</option>
-                  <option value="TH">Tiểu học (TH)</option>
-                  <option value="THCS">Trung học cơ sở (THCS)</option>
-                  <option value="THPT">Trung học phổ thông (THPT)</option>
-                  <option value="CD">Cao đẳng (CĐ)</option>
-                  <option value="DH">Đại học (ĐH)</option>
+                  <option value="">{t("memberPortal.verify.schoolLevelPlaceholder")}</option>
+                  <option value="TH">{t("memberPortal.verify.levelTH")}</option>
+                  <option value="THCS">{t("memberPortal.verify.levelTHCS")}</option>
+                  <option value="THPT">{t("memberPortal.verify.levelTHPT")}</option>
+                  <option value="CD">{t("memberPortal.verify.levelCD")}</option>
+                  <option value="DH">{t("memberPortal.verify.levelDH")}</option>
                 </select>
               </div>
             </div>
@@ -142,12 +144,12 @@ export default function VerificationForm({
             {/* Student/School ID code */}
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                Mã học sinh / sinh viên
+                {t("memberPortal.verify.studentId")}
               </label>
               <input
                 type="text"
                 required
-                placeholder="Nhập mã số HS/SV của bạn..."
+                placeholder={t("memberPortal.verify.studentIdPlaceholder")}
                 value={verificationForm.schoolIdCode}
                 onChange={(e) => setVerificationForm({ ...verificationForm, schoolIdCode: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-md border border-border bg-zinc-50/50 dark:bg-background text-xs text-foreground outline-none focus:ring-2 focus:ring-primary transition-all placeholder-zinc-400"
@@ -166,7 +168,7 @@ export default function VerificationForm({
                 className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-primary"
               />
               <span className="text-[11px] text-muted-foreground dark:text-zinc-400 leading-normal">
-                Chấp nhận cung cấp thông tin và miễn trừ pháp lý
+                {t("memberPortal.verify.acceptTerms")}
               </span>
             </label>
 
@@ -179,7 +181,7 @@ export default function VerificationForm({
                 className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-primary"
               />
               <span className="text-[11px] text-muted-foreground dark:text-zinc-400 leading-normal">
-                Email .edu sẽ được duyệt ngay lập tức; email thường sẽ được Admin xem xét trong 24 tiếng tới.
+                {t("memberPortal.verify.acceptContact")}
               </span>
             </label>
           </div>
@@ -191,7 +193,7 @@ export default function VerificationForm({
               onClick={handleLogout}
               className="flex-1 py-2.5 border border-border hover:bg-zinc-50 dark:hover:bg-zinc-800/50 text-foreground/80 text-xs font-bold rounded-md transition-all active:scale-95"
             >
-              Đăng xuất
+              {t("memberPortal.verify.logoutBtn")}
             </button>
             <button
               type="submit"
@@ -201,7 +203,7 @@ export default function VerificationForm({
               {verifying && (
                 <span className="animate-spin border-2 border-white border-t-transparent w-3 h-3 rounded-full shrink-0" />
               )}
-              Gửi thông tin
+              {t("memberPortal.verify.submitBtn")}
               <span className="material-symbols-outlined text-xs">send</span>
             </button>
           </div>

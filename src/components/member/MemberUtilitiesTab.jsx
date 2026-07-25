@@ -16,6 +16,7 @@ const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoSkinTab = lazy(() => import("./HugoSkinTab"));
+const MemberJoyTab = lazy(() => import("./MemberJoyTab"));
 
 const UTILITY_METADATA = {
   bio: { icon: "badge", tint: "from-purple-500 to-pink-500", title: "Trang Bio" },
@@ -71,10 +72,17 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
       <Suspense fallback={fallback}>
-      {/* Utility Selector Dashboard */}
-      {selectedUtility === null && (
-        <MemberUtilitiesDashboard bio={bio} onBioUpdate={onBioUpdate} setSelectedUtility={onSelectUtility} showToast={showToast} />
-      )}
+      {/* Utility Selector Dashboard — always mounted so event listeners & state persist */}
+      <div style={{ display: (selectedUtility === null || selectedUtility === "library") ? "block" : "none" }}>
+        <MemberUtilitiesDashboard
+          bio={bio}
+          onBioUpdate={onBioUpdate}
+          setSelectedUtility={onSelectUtility}
+          showToast={showToast}
+          initialTab={selectedUtility === "library" ? "library" : "my-apps"}
+          isVisible={selectedUtility === null || selectedUtility === "library"}
+        />
+      </div>
 
       {/* HugoHelpdesk — QR/NFC + Email Signature merged */}
       {selectedUtility === "helpdesk" && (
@@ -156,14 +164,32 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* HugoSkin */}
       {selectedUtility === "hugoskin" && (
         <div className="space-y-4 text-left">
-          <button
-            onClick={() => onSelectUtility(null)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-bold transition-all shadow-sm cursor-pointer active:scale-95"
-          >
-            <span className="material-symbols-outlined text-sm">arrow_back</span>
-            <span>Quay lại tiện ích</span>
-          </button>
+          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 rounded-2xl shadow-sm mb-2">
+            <button
+              onClick={() => onSelectUtility(null)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 uppercase"
+            >
+              <span className="material-symbols-outlined text-base font-bold">arrow_back</span>
+              <span>Back</span>
+            </button>
+          </div>
           <HugoSkinTab />
+        </div>
+      )}
+
+      {/* Ví JOY Wallet */}
+      {selectedUtility === "joy_wallet" && (
+        <div className="space-y-4 text-left">
+          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 rounded-2xl shadow-sm mb-2">
+            <button
+              onClick={() => onSelectUtility(null)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 uppercase"
+            >
+              <span className="material-symbols-outlined text-base font-bold">arrow_back</span>
+              <span>Back</span>
+            </button>
+          </div>
+          <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} />
         </div>
       )}
       </Suspense>

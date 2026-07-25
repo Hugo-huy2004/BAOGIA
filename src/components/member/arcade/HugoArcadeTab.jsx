@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { notify } from "../../../lib/notify";
+
 import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import ArcadeGameFrame from "./ArcadeGameFrame";
@@ -59,46 +59,98 @@ const JoyChip = React.memo(function JoyChip({ balance }) {
   );
 });
 
-const GameCard = React.memo(function GameCard({ game, profile, isLocked, onClick }) {
-  const best   = profile?.[game.id]?.bestScore   || 0;
-  const played = profile?.[game.id]?.gamesPlayed || 0;
+const GameCard = React.memo(function GameCard({ game, profile, isLocked, isDownloaded, downloadProgress, onPinToHome, onClick }) {
+  const best  = profile?.[game.id]?.bestScore || 0;
   const isChess = game.id === "chess";
+  const priceLabel = isChess ? "299 JOY" : "199 JOY";
+  const isDownloading = downloadProgress !== undefined;
 
-  const badgeLabel = isLocked
-    ? (isChess ? "299 JOY" : "Cần Pro")
-    : "CHƠI";
+  // Circular SVG progress ring (App Store style)
+  const radius = 13;
+  const circ   = 2 * Math.PI * radius;
+  const strokeDash = isDownloading ? circ * (1 - (downloadProgress / 100)) : circ;
 
   return (
-    <button onClick={onClick} className="arc-game-card" data-game={game.id}>
-      <div className="arc-card-artwork">
+    <div className="arc-game-card relative group flex flex-col justify-between" data-game={game.id}>
+      <div className="arc-card-artwork cursor-pointer" onClick={!isDownloading ? onClick : undefined}>
         <div className="arc-card-artwork-grid" />
         <div className="arc-icon-badge">
           <game.Icon size={28} strokeWidth={1.75} className="arc-card-icon text-white" />
         </div>
-        <div className="arc-card-play-overlay">
-          <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-          CHƠI NGAY
+        {!isDownloading && !isDownloaded && (
+          <div className="arc-card-play-overlay">
+            <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+            CHƠI NGAY
+          </div>
+        )}
+      </div>
+
+      <div className="arc-card-body flex-1 flex flex-col justify-between">
+        <div>
+          <span className="arc-card-label">{game.label}</span>
+          <p className="arc-card-name">{game.name}</p>
+          <p className="arc-card-tagline">{game.tagline}</p>
+        </div>
+
+        <div className="space-y-2 mt-3">
+          <div className="arc-card-footer">
+            <div className="arc-card-stat">
+              <small>Kỷ lục</small>
+              <strong>{best ? best.toLocaleString("vi-VN") : "—"}</strong>
+            </div>
+            <div className="arc-card-stat">
+              <small>Trạng thái</small>
+              <strong>{isDownloaded ? "Đã tải" : isLocked ? "Chưa mua" : "Sẵn sàng"}</strong>
+            </div>
+          </div>
+
+          {/* ── App Store Download Button ── */}
+          {isDownloaded ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); onClick(); }}
+              className="w-full py-2 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border bg-emerald-500/20 border-emerald-500/40 text-emerald-300 active:scale-95"
+            >
+              <span className="material-symbols-outlined text-sm">play_circle</span>
+              <span>Mở &amp; Chơi</span>
+            </button>
+          ) : isDownloading ? (
+            // ── Circular progress ring (App Store style) ──
+            <button
+              disabled
+              className="w-full py-2 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 border bg-white/5 border-white/10 text-zinc-400 cursor-not-allowed"
+            >
+              <svg width="30" height="30" viewBox="0 0 30 30" className="-rotate-90">
+                {/* Track */}
+                <circle cx="15" cy="15" r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" />
+                {/* Progress */}
+                <circle
+                  cx="15" cy="15" r={radius}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.85)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeDasharray={circ}
+                  strokeDashoffset={strokeDash}
+                  style={{ transition: "stroke-dashoffset 0.12s linear" }}
+                />
+              </svg>
+              <span>{downloadProgress}%</span>
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onPinToHome(game.id);
+              }}
+              className="w-full py-2 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border bg-white/10 hover:bg-white/20 border-white/20 text-white active:scale-95 shadow-sm"
+            >
+              <span className="material-symbols-outlined text-sm">download</span>
+              <span>{isLocked ? `TẢI · ${priceLabel}` : "TẢI VỀ TIỆN ÍCH"}</span>
+            </button>
+          )}
         </div>
       </div>
-      <div className="arc-card-body">
-        <span className="arc-card-label">{game.label}</span>
-        <p className="arc-card-name">{game.name}</p>
-        <p className="arc-card-tagline">{game.tagline}</p>
-        <div className="arc-card-footer">
-          <div className="arc-card-stat">
-            <small>Kỷ lục</small>
-            <strong>{best ? best.toLocaleString("vi-VN") : "—"}</strong>
-          </div>
-          <div className="arc-card-stat">
-            <small>Ván</small>
-            <strong>{played || "—"}</strong>
-          </div>
-          <span className={`arc-card-badge${isLocked ? " locked" : ""}${isChess && isLocked ? " chess" : ""}`}>
-            {badgeLabel}
-          </span>
-        </div>
-      </div>
-    </button>
+    </div>
   );
 });
 
@@ -186,6 +238,67 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     if (selectedCategory === "pvp") return g.id === "chess" || g.id === "caro";
     return true;
   });
+
+  // ── App Store Download State ────────────────────────────────────────
+  // Use a dedicated key so Dashboard's homeScreenApps sync never overwrites it
+  const ARCADE_DL_KEY = "hugo_arcade_downloaded_v1";
+
+  const [downloading, setDownloading] = useState({}); // { gameId: 0-100 }
+  const [downloaded, setDownloaded]   = useState(() => {
+    // Primary source: dedicated arcade download key
+    const dedicated = JSON.parse(localStorage.getItem("hugo_arcade_downloaded_v1") || "[]");
+    // Fallback: also check the home screen list for any pre-existing arcade games
+    const home = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
+    const fromHome = home.filter(id => id.startsWith("arcade_")).map(id => id.slice("arcade_".length));
+    return new Set([...dedicated, ...fromHome]);
+  });
+
+  const handlePinToHome = React.useCallback((gameId) => {
+    if (downloading[gameId] !== undefined) return; // already downloading
+
+    // Kick off App Store-style circular progress
+    setDownloading(prev => ({ ...prev, [gameId]: 0 }));
+    let progress = 0;
+
+    const interval = setInterval(() => {
+      progress += Math.floor(Math.random() * 15) + 6;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setDownloading(prev => ({ ...prev, [gameId]: 100 }));
+
+        // 1. Write to dedicated arcade download key (never overwritten by Dashboard)
+        const dedicated = JSON.parse(localStorage.getItem(ARCADE_DL_KEY) || "[]");
+        if (!dedicated.includes(gameId)) {
+          localStorage.setItem(ARCADE_DL_KEY, JSON.stringify([...dedicated, gameId]));
+        }
+
+        // 2. Also add to home screen & installed lists for Dashboard to render icon
+        const fullAppId = `arcade_${gameId}`;
+        const savedHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
+        const savedInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
+        const updatedHome = [...new Set([...savedHome, fullAppId])];
+        const updatedInst = [...new Set([...savedInst, fullAppId])];
+        localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(updatedHome));
+        localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(updatedInst));
+
+        // 3. Tell the always-mounted Dashboard to refresh icons immediately
+        window.dispatchEvent(new CustomEvent("hugo:app-installed", { detail: { appId: fullAppId } }));
+
+        // 4. Update local downloaded state (no toast)
+        setTimeout(() => {
+          setDownloaded(prev => new Set([...prev, gameId]));
+          setDownloading(prev => {
+            const next = { ...prev };
+            delete next[gameId];
+            return next;
+          });
+        }, 400);
+      } else {
+        setDownloading(prev => ({ ...prev, [gameId]: progress }));
+      }
+    }, 100);
+  }, [downloading, ARCADE_DL_KEY]);
 
   return (
     <>
@@ -294,14 +407,22 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
               </div>
 
               <div className="arc-game-grid px-6">
-                {filteredGames.map(g => (
-                  <GameCard
-                    key={g.id} game={g}
-                    profile={profile}
-                    isLocked={g.id === "chess" ? !chessSubscribed : (g.id !== "2048" && !subscribed)}
-                    onClick={() => openGame(g.id)}
-                  />
-                ))}
+                {filteredGames.map(g => {
+                  const isDownloaded = downloaded.has(g.id);
+                  const dlProgress   = downloading[g.id];
+                  return (
+                    <GameCard
+                      key={g.id}
+                      game={g}
+                      profile={profile}
+                      isLocked={g.id === "chess" ? !chessSubscribed : (g.id !== "2048" && !subscribed)}
+                      isDownloaded={isDownloaded}
+                      downloadProgress={dlProgress}
+                      onPinToHome={handlePinToHome}
+                      onClick={() => openGame(g.id)}
+                    />
+                  );
+                })}
               </div>
 
               <div className="arc-stats-strip">
@@ -320,7 +441,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
               </div>
             </>
           ) : (
-            /* Ranking tab — Clean Apple Arcade Ranking */
+            /* Ranking tab — Hugo Arcade Leaderboard */
             <div className="px-6 py-6 pb-20">
               <div className="mb-5">
                 <h2 className="text-2xl font-black text-white font-sans tracking-tight">Bảng Xếp Hạng</h2>

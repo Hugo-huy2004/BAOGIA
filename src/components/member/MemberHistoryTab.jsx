@@ -1,37 +1,57 @@
+import React, { useState, useMemo } from "react";
 import { withTranslation } from "react-i18next";
-import React, { useState, useMemo } from 'react';
-import HugoLogo from "../HugoLogo";
-import { notify } from "../../lib/notify";
+import { motion, AnimatePresence } from "framer-motion";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { notify } from "../../lib/notify";
+import { hapticSelect } from "../../utils/haptics";
+import {
+  Bell,
+  RotateCw,
+  CheckCheck,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Sparkles,
+  CreditCard,
+  Shield,
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  Gift,
+  ExternalLink,
+  Sliders,
+  Wallet,
+  User,
+  Zap,
+  ArrowUpRight,
+  ArrowDownLeft
+} from "lucide-react";
 
 const getHistoryTypeConfig = (t) => ({
-  welcome:         { color: 'hsl(var(--success))', bg: 'bg-success/10 dark:bg-success/15', border: 'border-success/20', label: t("memberTabs.history.labels.welcome"), cat: 'account', icon: 'waving_hand' },
-  bio_link:        { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15',     border: 'border-info/20',    label: 'Bio Link', cat: 'account', icon: 'link' },
-  package_received:{ color: 'hsl(var(--primary))', bg: 'bg-primary/10 dark:bg-primary/15', border: 'border-primary/20',  label: t("memberTabs.history.labels.package_received"), cat: 'package', icon: 'card_membership' },
-  package_removed: { color: 'hsl(var(--destructive))', bg: 'bg-destructive/10 dark:bg-destructive/15',       border: 'border-destructive/20',     label: t("memberTabs.history.labels.package_removed"), cat: 'package', icon: 'unsubscribe' },
-  profile_updated: { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.profile_updated"), cat: 'account', icon: 'manage_accounts' },
-  link_added:      { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15',     border: 'border-info/20',    label: t("memberTabs.history.labels.link_added"), cat: 'account', icon: 'add_link' },
-  link_removed:    { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted',     border: 'border-border',    label: t("memberTabs.history.labels.link_removed"), cat: 'account', icon: 'link_off' },
-  birthday_wish:   { color: 'hsl(var(--accent))', bg: 'bg-accent/10 dark:bg-accent/15',     border: 'border-accent/20',    label: t("memberTabs.history.labels.birthday"), cat: 'gift', icon: 'cake' },
-  birthday_voucher:{ color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15',   border: 'border-warning/20',   label: t("memberTabs.history.labels.gift"), cat: 'gift', icon: 'featured_play_list' },
+  welcome: { color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20", label: t("memberTabs.history.labels.welcome"), cat: "account", icon: User },
+  bio_link: { color: "text-sky-500", bg: "bg-sky-500/10 border-sky-500/20", label: "Bio Link", cat: "account", icon: ExternalLink },
+  package_received: { color: "text-indigo-500", bg: "bg-indigo-500/10 border-indigo-500/20", label: t("memberTabs.history.labels.package_received"), cat: "package", icon: CreditCard },
+  package_removed: { color: "text-rose-500", bg: "bg-rose-500/10 border-rose-500/20", label: t("memberTabs.history.labels.package_removed"), cat: "package", icon: AlertCircle },
+  profile_updated: { color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20", label: t("memberTabs.history.labels.profile_updated"), cat: "account", icon: User },
+  link_added: { color: "text-sky-500", bg: "bg-sky-500/10 border-sky-500/20", label: t("memberTabs.history.labels.link_added"), cat: "account", icon: ExternalLink },
+  link_removed: { color: "text-muted-foreground", bg: "bg-muted border-border", label: t("memberTabs.history.labels.link_removed"), cat: "account", icon: X },
+  birthday_wish: { color: "text-pink-500", bg: "bg-pink-500/10 border-pink-500/20", label: t("memberTabs.history.labels.birthday"), cat: "gift", icon: Gift },
+  birthday_voucher: { color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20", label: t("memberTabs.history.labels.gift"), cat: "gift", icon: Gift }
 });
 
-// Notifications (InAppNotification — JOY transactions, verification, package,
-// security, payment, etc.) are merged into this same feed, bucketed by
-// category instead of the bio.history `type` above.
 const NOTIF_CATEGORY_CONFIG = {
-  joy:          { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15', border: 'border-warning/20', cat: 'joy', icon: 'paid' },
-  payment:      { color: 'hsl(var(--warning))', bg: 'bg-warning/10 dark:bg-warning/15', border: 'border-warning/20', cat: 'joy', icon: 'payments' },
-  package:      { color: 'hsl(var(--primary))', bg: 'bg-primary/10 dark:bg-primary/15', border: 'border-primary/20', cat: 'package', icon: 'card_membership' },
-  verification: { color: 'hsl(var(--info))', bg: 'bg-info/10 dark:bg-info/15', border: 'border-info/20', cat: 'account', icon: 'verified_user' },
-  security:     { color: 'hsl(var(--destructive))', bg: 'bg-destructive/10 dark:bg-destructive/15', border: 'border-destructive/20', cat: 'account', icon: 'security' },
-  wellness:     { color: 'hsl(var(--accent))', bg: 'bg-accent/10 dark:bg-accent/15', border: 'border-accent/20', cat: 'account', icon: 'favorite' },
-  system:       { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
-  general:      { color: 'hsl(var(--muted-foreground))', bg: 'bg-muted', border: 'border-border', cat: 'account', icon: 'notifications' },
+  joy: { color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20", cat: "joy", icon: Wallet },
+  payment: { color: "text-amber-500", bg: "bg-amber-500/10 border-amber-500/20", cat: "joy", icon: CreditCard },
+  package: { color: "text-indigo-500", bg: "bg-indigo-500/10 border-indigo-500/20", cat: "package", icon: CreditCard },
+  verification: { color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20", cat: "account", icon: Shield },
+  security: { color: "text-rose-500", bg: "bg-rose-500/10 border-rose-500/20", cat: "account", icon: AlertCircle },
+  wellness: { color: "text-teal-500", bg: "bg-teal-500/10 border-teal-500/20", cat: "account", icon: Sparkles },
+  system: { color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20", cat: "system", icon: Info },
+  general: { color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20", cat: "system", icon: Bell }
 };
 
 const formatTime = (ts, t) => {
-  if (!ts) return '';
+  if (!ts) return "";
   const d = new Date(ts);
   const now = new Date();
   const diff = (now - d) / 1000;
@@ -39,65 +59,46 @@ const formatTime = (ts, t) => {
   if (diff < 3600) return `${Math.floor(diff / 60)} ${t("memberTabs.history.time.minutes_ago")}`;
   if (diff < 86400) return `${Math.floor(diff / 3600)} ${t("memberTabs.history.time.hours_ago")}`;
   if (diff < 604800) return `${Math.floor(diff / 86400)} ${t("memberTabs.history.time.days_ago")}`;
-  return d.toLocaleDateString(t("memberTabs.history.localeCode", "vi-VN"), { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-};
-
-const getRelativeDateHeader = (dateString, t) => {
-  const d = new Date(dateString);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  if (d.toDateString() === today.toDateString()) {
-    return t("memberTabs.history.days.today");
-  } else if (d.toDateString() === yesterday.toDateString()) {
-    return t("memberTabs.history.days.yesterday");
-  } else {
-    return d.toLocaleDateString(t("memberTabs.history.localeCode", "vi-VN"), { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-  }
+  return d.toLocaleDateString(t("memberTabs.history.localeCode", "vi-VN"), {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 };
 
 function parseJoyDetail(text) {
   if (!text) return { raw: text };
-  
-  // Try to find Transaction ID
   let txId = null;
   const txMatch = text.match(/Mã GD:\s*([A-Z0-9]+)/);
   if (txMatch) txId = txMatch[1];
 
-  // Try to find Balance
   let balance = null;
   const balMatch = text.match(/Số dư:\s*([\d,.]+)\s*JOY/);
   if (balMatch) balance = balMatch[1];
 
-  // Try to find Message
   let message = null;
   const msgMatch = text.match(/Lời nhắn:\s*"([^"]+)"/);
   if (msgMatch) message = msgMatch[1];
 
-  // Try to extract amount from specific formats
   let amount = null;
   let isPositive = null;
-  
-  // "đã chuyển 20 JOY đến bạn" -> +20
   const recvMatch = text.match(/chuyển\s*([\d,.]+)\s*JOY đến bạn/);
   if (recvMatch) {
     amount = recvMatch[1];
     isPositive = true;
   }
-  
-  // "(-200 JOY, phí -10 JOY)" -> -200
   const sendMatch = text.match(/\(\s*-([\d,.]+)\s*JOY/);
   if (sendMatch) {
     amount = sendMatch[1];
     isPositive = false;
   }
-  
-  // Clean up the main text to use as "title" or "description"
+
   let cleanText = text
-    .replace(/Mã GD:\s*[A-Z0-9]+[.]?\s*/, '')
-    .replace(/Số dư:\s*[\d,.]+\s*JOY[.]?\s*/, '')
-    .replace(/Lời nhắn:\s*"[^"]+"[.]?\s*/, '')
+    .replace(/Mã GD:\s*[A-Z0-9]+[.]?\s*/, "")
+    .replace(/Số dư:\s*[\d,.]+\s*JOY[.]?\s*/, "")
+    .replace(/Lời nhắn:\s*"[^"]+"[.]?\s*/, "")
     .trim();
 
   return { raw: text, cleanText, txId, balance, message, amount, isPositive };
@@ -105,25 +106,23 @@ function parseJoyDetail(text) {
 
 function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRead, onDismiss }) {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [expandedId, setExpandedId] = useState(null);
   const [claimedCodes, setClaimedCodes] = useState({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const typeConfig = getHistoryTypeConfig(t);
 
-  // Merge bio.history (profile/package/gift events, no read state) with the
-  // InAppNotification feed (JOY transactions + everything else, has read
-  // state) into one chronological list.
   const mergedEntries = useMemo(() => {
     const fromBio = [...(bio?.history || [])].reverse().map((entry, idx) => {
-      const cfg = typeConfig[entry.type] || typeConfig['profile_updated'];
+      const cfg = typeConfig[entry.type] || typeConfig["profile_updated"];
       return {
         key: `bio-${idx}-${entry.timestamp}`,
-        source: 'bio',
+        source: "bio",
         timestamp: entry.timestamp,
         title: entry.title,
         detail: entry.detail,
-        icon: entry.icon || cfg.icon,
         cfg,
-        raw: entry,
+        raw: entry
       };
     });
 
@@ -131,278 +130,313 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
       const cfg = NOTIF_CATEGORY_CONFIG[n.category] || NOTIF_CATEGORY_CONFIG.system;
       return {
         key: `notif-${n._id}`,
-        source: 'notification',
+        source: "notification",
         id: n._id,
         timestamp: n.createdAt,
         title: n.title,
         detail: n.message,
-        icon: cfg.icon,
         cfg,
-        read: n.read,
+        read: n.read
       };
     });
 
     return [...fromBio, ...fromNotif].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   }, [bio?.history, notifications, typeConfig]);
 
-  const unreadNotifCount = notifications.filter(n => !n.read).length;
+  const unreadNotifCount = notifications.filter((n) => !n.read).length;
 
   const filteredEntries = useMemo(() => {
-    return mergedEntries.filter(entry => {
+    return mergedEntries.filter((entry) => {
       if (activeFilter === "all") return true;
       return entry.cfg.cat === activeFilter;
     });
   }, [mergedEntries, activeFilter]);
 
-  const { visibleItems: visibleEntries, sentinelRef, hasMore } = useInfiniteScroll(filteredEntries, { pageSize: 20 });
+  const { visibleItems: visibleEntries, sentinelRef, hasMore } = useInfiniteScroll(filteredEntries, { pageSize: 25 });
 
-  const groupedEntries = useMemo(() => {
-    const groups = {};
-    visibleEntries.forEach(entry => {
-      if (!entry.timestamp) return;
-      const dateKey = new Date(entry.timestamp).toDateString();
-      if (!groups[dateKey]) groups[dateKey] = [];
-      groups[dateKey].push(entry);
-    });
-    return Object.entries(groups).map(([dateString, items]) => ({
-      dateString,
-      dateHeader: getRelativeDateHeader(dateString, t),
-      items
-    }));
-  }, [visibleEntries, t]);
+  const handleRefresh = () => {
+    hapticSelect();
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      showToast?.("Đã làm mới danh sách thông báo", "success");
+    }, 600);
+  };
 
   const onCopyVoucher = (code) => {
     navigator.clipboard.writeText(code);
-    setClaimedCodes(prev => ({ ...prev, [code]: true }));
-    setTimeout(() => {
-      setClaimedCodes(prev => ({ ...prev, [code]: false }));
-    }, 2000);
+    setClaimedCodes((prev) => ({ ...prev, [code]: true }));
+    setTimeout(() => setClaimedCodes((prev) => ({ ...prev, [code]: false })), 2000);
     notify.success(t("memberTabs.history.copy_success_msg"));
   };
 
+  const filters = [
+    { id: "all", label: "Tất cả", count: mergedEntries.length },
+    { id: "joy", label: "Ví JOY", count: mergedEntries.filter((e) => e.cfg.cat === "joy").length },
+    { id: "system", label: "Hệ thống", count: mergedEntries.filter((e) => e.cfg.cat === "system").length },
+    { id: "account", label: "Tài khoản", count: mergedEntries.filter((e) => e.cfg.cat === "account").length },
+    { id: "package", label: "Gói cước", count: mergedEntries.filter((e) => e.cfg.cat === "package").length }
+  ];
+
   return (
-    <div className="max-w-xl mx-auto space-y-5 px-3 sm:px-0 animate-fadeIn text-left">
-      {/* Header */}
-      <div className="flex items-center justify-between bg-card rounded-xl p-4 border border-border/60 shadow-sm">
-        <div className="space-y-1">
-          <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
-            <span className="material-symbols-outlined text-base text-primary">notifications</span>{t("memberTabs.history.title")}</h2>
-          <p className="text-[11px] font-medium text-muted-foreground">
-            {filteredEntries.length > 0
-              ? t("memberTabs.history.notification_count", { count: filteredEntries.length })
-              : t("memberTabs.history.no_events")}
-          </p>
-        </div>
-        {unreadNotifCount > 0 && (
+    <div className="max-w-md mx-auto space-y-4 animate-fadeIn text-left select-none pb-28 font-sans">
+      {/* ── 1. FLOATING NOTIFICATION PANEL HEADER ────────────────────────────── */}
+      <div className="bg-card border border-border/40 rounded-[24px] p-4 shadow-xs space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-black text-foreground tracking-tight">Notifications</h2>
+            {unreadNotifCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-black font-mono">
+                {unreadNotifCount}
+              </span>
+            )}
+          </div>
+
           <button
-            type="button"
-            onClick={onMarkAllRead}
-            className="text-xs font-bold text-primary hover:underline shrink-0"
+            onClick={handleRefresh}
+            className={`w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center transition-all active:scale-95 ${
+              isRefreshing ? "animate-spin text-primary" : ""
+            }`}
+            title="Làm mới thông báo"
           >
-            Đọc tất cả ({unreadNotifCount})
+            <RotateCw className="w-4 h-4" />
           </button>
-        )}
+        </div>
+
+        {/* ── 2. SEGMENTED PILL FILTER BAR ────────────────────────────────────── */}
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1">
+          {filters.map((f) => {
+            const active = activeFilter === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => {
+                  hapticSelect();
+                  setActiveFilter(f.id);
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 active:scale-95 ${
+                  active
+                    ? "bg-foreground text-background shadow-xs"
+                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <span>{f.label}</span>
+                {f.count > 0 && (
+                  <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-full ${active ? "bg-background/20 text-background" : "bg-border/60 text-muted-foreground"}`}>
+                    {f.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Category Filter Pills */}
-      <div className="flex gap-1.5 overflow-x-auto scrollbar-hide py-1">
-        {[
-          { id: "all",     label: t("memberTabs.history.filter.all"), icon: "inbox" },
-          { id: "joy",     label: "JOY", icon: "paid" },
-          { id: "account", label: t("memberTabs.history.filter.account"), icon: "manage_accounts" },
-          { id: "package", label: t("memberTabs.history.filter.package"), icon: "card_membership" },
-          { id: "gift",    label: t("memberTabs.history.filter.gift"), icon: "redeem" }
-        ].map(filter => {
-          const active = activeFilter === filter.id;
+      {/* ── 3. EMPTY STATE ─────────────────────────────────────────────────── */}
+      {filteredEntries.length === 0 && (
+        <div className="bg-card border border-border/40 rounded-[24px] p-8 text-center space-y-3 shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground mx-auto">
+            <Bell className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-foreground">Không Có Thông Báo Mới</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Bạn đã cập nhật tất cả thông báo hệ thống và giao dịch.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── 4. NOTIFICATION LIST ITEMS (EXPANDABLE CARD FEED) ──────────────── */}
+      <div className="space-y-2.5">
+        {visibleEntries.map((entry) => {
+          const cfg = entry.cfg;
+          const IconComp = cfg.icon || Bell;
+          const isNotif = entry.source === "notification";
+          const unread = isNotif && !entry.read;
+          const isExpanded = expandedId === entry.key;
+
+          let parsedJoy = null;
+          if (cfg.cat === "joy") {
+            parsedJoy = parseJoyDetail(entry.detail);
+          }
+
           return (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-wider border transition-colors duration-200 shrink-0 ${
-                active
-                  ? "bg-primary border-primary text-white shadow-sm"
-                  : "bg-muted border-border text-muted-foreground hover:text-foreground"
+            <div
+              key={entry.key}
+              className={`bg-card border rounded-[22px] p-3.5 shadow-xs transition-all duration-200 text-left ${
+                unread
+                  ? "border-primary/40 bg-primary/5 dark:bg-primary/10"
+                  : "border-border/40 hover:border-border"
               }`}
             >
-              <span className="material-symbols-outlined text-sm">{filter.icon}</span>
-              <span>{filter.label}</span>
-            </button>
+              {/* Top Row: Icon + Title + Meta Actions */}
+              <div className="flex items-start gap-3">
+                {/* Category Icon Badge */}
+                <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 border ${cfg.bg} ${cfg.color}`}>
+                  <IconComp className="w-4.5 h-4.5" />
+                </div>
+
+                {/* Main Content Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="text-xs font-black text-foreground leading-snug truncate">
+                      {entry.title}
+                    </h4>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => {
+                          hapticSelect();
+                          setExpandedId(isExpanded ? null : entry.key);
+                          if (unread) onMarkRead?.(entry.id);
+                        }}
+                        className="p-1 rounded-full text-muted-foreground hover:bg-muted active:scale-95 transition-all"
+                        title={isExpanded ? "Thu gọn" : "Xem thêm"}
+                      >
+                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+
+                      {isNotif && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDismiss?.(entry.id);
+                          }}
+                          className="p-1 rounded-full text-muted-foreground hover:text-rose-500 active:scale-95 transition-all"
+                          title="Xóa thông báo"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Subtitle / Domain Chip & Time Row */}
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-medium text-muted-foreground">
+                      {formatTime(entry.timestamp, t)}
+                    </span>
+                    <span className="text-[10px] font-bold text-muted-foreground/60">•</span>
+                    <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+                      {cfg.cat}
+                    </span>
+                  </div>
+
+                  {/* Parsed JOY Details */}
+                  {parsedJoy && parsedJoy.amount ? (
+                    <div className="mt-2 space-y-1.5">
+                      <div className="flex items-center justify-between bg-muted/40 p-2.5 rounded-xl border border-border/30">
+                        <p className="text-xs font-bold text-foreground truncate">
+                          {parsedJoy.cleanText || entry.title}
+                        </p>
+                        <span className={`text-xs font-black font-mono shrink-0 ml-2 ${parsedJoy.isPositive ? "text-emerald-500" : "text-foreground"}`}>
+                          {parsedJoy.isPositive ? "+" : "-"}{parsedJoy.amount} JOY
+                        </span>
+                      </div>
+
+                      {/* Receipt Metadata Chips */}
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {parsedJoy.txId && (
+                          <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-mono font-bold text-muted-foreground border border-border/30">
+                            GD: {parsedJoy.txId}
+                          </span>
+                        )}
+                        {parsedJoy.balance && (
+                          <span className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-muted-foreground border border-border/30">
+                            Dư: {parsedJoy.balance} JOY
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Standard Message Preview */
+                    entry.detail && !isExpanded && (
+                      <p className="text-xs text-muted-foreground leading-relaxed mt-1 line-clamp-2">
+                        {entry.detail}
+                      </p>
+                    )
+                  )}
+
+                  {/* Expandable Body Accordion */}
+                  <AnimatePresence>
+                    {isExpanded && entry.detail && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="mt-2 pt-2 border-t border-border/30 space-y-2 text-xs text-foreground leading-relaxed"
+                      >
+                        <p className="whitespace-pre-wrap">{entry.detail}</p>
+
+                        {/* Birthday Voucher Copy Action */}
+                        {entry.raw?.type === "birthday_voucher" && bio?.birthdayVoucherCode && (
+                          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center justify-between gap-2">
+                            <div>
+                              <span className="text-[10px] font-bold text-amber-500 uppercase block">Voucher Sinh Nhật</span>
+                              <span className="text-xs font-mono font-black text-foreground">{bio.birthdayVoucherCode}</span>
+                            </div>
+                            <button
+                              onClick={() => onCopyVoucher(bio.birthdayVoucherCode)}
+                              className="px-3 py-1 bg-amber-500 text-white font-black text-[10.5px] uppercase rounded-lg shadow-xs hover:opacity-90 active:scale-95"
+                            >
+                              {claimedCodes[bio.birthdayVoucherCode] ? "Đã chép" : "Sao chép"}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Interactive Okay / Mark Read Action Button */}
+                        {unread && (
+                          <button
+                            onClick={() => onMarkRead?.(entry.id)}
+                            className="px-3 py-1 bg-primary text-white font-black text-[10.5px] uppercase tracking-wider rounded-lg shadow-xs hover:opacity-90 active:scale-95 transition-all mt-1"
+                          >
+                            Đánh dấu đã đọc
+                          </button>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
           );
         })}
       </div>
 
-      {/* Empty State */}
-      {filteredEntries.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-3 bg-card border border-border rounded-2xl p-6">
-          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground/70">
-            <span className="material-symbols-outlined text-2xl">notifications_off</span>
-          </div>
-          <div>
-            <p className="text-sm font-black text-foreground uppercase tracking-wider">{t("memberTabs.history.empty_title")}</p>
-            <p className="text-xs text-muted-foreground/70 mt-1 max-w-xs">{t("memberTabs.history.empty_desc")}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Grouped Day Lists */}
-      {groupedEntries.length > 0 && (
-        <div className="space-y-6">
-          {groupedEntries.map((group) => (
-            <div key={group.dateString} className="space-y-2">
-              {/* Day Header */}
-              <div className="pl-2">
-                <span className="inline-block px-3 py-1.5 rounded-lg bg-muted text-xs font-black text-muted-foreground uppercase tracking-widest border border-border">
-                  {group.dateHeader}
-                </span>
-              </div>
-
-              {/* Day Notification Items - Flat List */}
-              <div className="bg-card rounded-[1.25rem] border border-border/60 shadow-sm overflow-hidden divide-y divide-border">
-                {group.items.map((entry) => {
-                  const cfg = entry.cfg;
-                  const isNotif = entry.source === 'notification';
-                  const unread = isNotif && !entry.read;
-                  
-                  // Detail Parsing for JOY
-                  let parsedJoy = null;
-                  if (cfg.cat === 'joy') {
-                    parsedJoy = parseJoyDetail(entry.detail);
-                  }
-
-                  return (
-                    <div
-                      key={entry.key}
-                      onClick={() => unread && onMarkRead?.(entry.id)}
-                      className={`group flex gap-3.5 p-4 transition-colors duration-200 relative ${
-                        unread
-                          ? 'bg-primary/5 dark:bg-primary/10 cursor-pointer'
-                          : 'hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30'
-                      }`}
-                    >
-                      {/* Unread Indicator */}
-                      {unread && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-md" />}
-
-                      {/* Left icon wrapper */}
-                      <div className="shrink-0">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center border transition-transform duration-300 group-hover:scale-105 ${cfg.bg} ${cfg.border}`}
-                        >
-                          <span className="material-symbols-outlined text-[18px]" style={{ color: cfg.color }}>{entry.icon}</span>
-                        </div>
-                      </div>
-
-                      {/* Content column */}
-                      <div className="flex-1 min-w-0 space-y-1 text-left pt-0.5">
-                        <div className="flex items-center justify-between gap-4">
-                          <p className="text-sm font-bold text-foreground leading-snug truncate">
-                            {entry.title}
-                          </p>
-                          <span className="text-xs text-muted-foreground font-medium shrink-0">
-                            {formatTime(entry.timestamp, t)}
-                          </span>
-                        </div>
-
-                        {/* Parsed JOY Details */}
-                        {parsedJoy && parsedJoy.amount ? (
-                          <div className="mt-1 space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                {parsedJoy.cleanText}
-                              </p>
-                              <div className="shrink-0 text-right">
-                                <span className={`text-[15px] font-black tracking-tight ${parsedJoy.isPositive ? 'text-success' : 'text-foreground'}`}>
-                                  {parsedJoy.isPositive ? '+' : '-'}{parsedJoy.amount} JOY
-                                </span>
-                              </div>
-                            </div>
-                            
-                            {/* Receipt Metadata Row */}
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {parsedJoy.txId && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-mono font-bold uppercase">
-                                  <span className="material-symbols-outlined text-xs">receipt_long</span>
-                                  {parsedJoy.txId}
-                                </span>
-                              )}
-                              {parsedJoy.balance && (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-bold uppercase">
-                                  <span className="material-symbols-outlined text-xs">account_balance_wallet</span>
-                                  Dư: {parsedJoy.balance}
-                                </span>
-                              )}
-                            </div>
-                            
-                            {parsedJoy.message && (
-                              <div className="mt-2 text-xs font-medium text-muted-foreground bg-muted/50 p-2.5 rounded-lg border border-border/60 italic flex gap-2">
-                                <span className="material-symbols-outlined text-sm text-zinc-400">format_quote</span>
-                                "{parsedJoy.message}"
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          /* Standard Details */
-                          entry.detail && (
-                            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                              {entry.detail}
-                            </p>
-                          )
-                        )}
-
-                        {entry.raw?.type === 'birthday_voucher' && bio?.birthdayVoucherCode && (
-                          <div className="mt-2.5 p-3 bg-warning/10 dark:bg-warning/15 border border-warning/20 dark:border-warning/30 rounded-xl flex items-center justify-between gap-3 shadow-inner">
-                            <div className="text-left">
-                              <p className="text-xs font-black text-warning uppercase tracking-wider">{t("memberTabs.history.birthday_voucher_title")}</p>
-                              <p className="text-xs font-black font-mono tracking-widest text-warning mt-0.5">{bio.birthdayVoucherCode}</p>
-                            </div>
-                            {bio.birthdayVoucherClaimed ? (
-                              <span className="px-2.5 py-1 rounded-lg text-xs font-black uppercase bg-success/10 text-success dark:bg-success/15 border border-success/20 dark:border-success/30 flex items-center gap-1 shrink-0">
-                                <span className="material-symbols-outlined text-xs font-bold">check_circle</span>{t("memberTabs.history.claimed")}
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => onCopyVoucher(bio.birthdayVoucherCode)}
-                                className="px-3.5 py-2 rounded-lg text-xs font-black uppercase bg-warning hover:bg-warning/90 text-warning-foreground transition-all active:scale-95 shadow-sm flex items-center gap-1 shrink-0"
-                              >
-                                <span className="material-symbols-outlined text-xs">
-                                  {claimedCodes[bio.birthdayVoucherCode] ? "check" : "content_copy"}
-                                </span>
-                                <span>{claimedCodes[bio.birthdayVoucherCode] ? t("memberTabs.history.copied") : t("memberTabs.history.copy")}</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {isNotif && (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); onDismiss?.(entry.id); }}
-                          className="text-zinc-300 hover:text-destructive transition-colors shrink-0 self-start p-1 ml-1 active:scale-90"
-                          aria-label="Xóa"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">close</span>
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Infinite scroll sentinel */}
+      {/* Infinite Scroll Sentinel */}
       <div ref={sentinelRef} className="h-1" />
       {hasMore && (
         <div className="flex justify-center py-4">
           <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       )}
-      {!hasMore && filteredEntries.length > 0 && (
-        <p className="text-center text-[9px] text-zinc-400 italic pt-3">{t("memberTabs.history.footer_note")}</p>
-      )}
+
+      {/* ── 5. BOTTOM ACTION FOOTER BAR ─────────────────────────────────────── */}
+      <div className="bg-card border border-border/40 rounded-[20px] p-3 shadow-xs flex items-center justify-between">
+        <button
+          onClick={() => {
+            hapticSelect();
+            if (unreadNotifCount > 0) onMarkAllRead?.();
+          }}
+          disabled={unreadNotifCount === 0}
+          className="text-xs font-bold text-primary hover:underline disabled:opacity-40 disabled:no-underline flex items-center gap-1 active:scale-95 transition-all"
+        >
+          <CheckCheck className="w-4 h-4" />
+          <span>{t("memberPortal.historyActions.markAllRead")}</span>
+        </button>
+
+        <button
+          onClick={() => {
+            hapticSelect();
+            window.location.href = "/member/settings";
+          }}
+          className="text-xs font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 active:scale-95 transition-all"
+        >
+          <Sliders className="w-3.5 h-3.5" />
+          <span>{t("memberPortal.historyActions.settingsBtn")}</span>
+        </button>
+      </div>
     </div>
   );
 }

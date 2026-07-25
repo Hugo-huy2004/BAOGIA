@@ -1,176 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import BiometricLoginCard from "./BiometricLoginCard";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { webPushHelper } from "../../utils/webPushHelper";
 import { webauthnHelper } from "../../utils/webauthnHelper";
-import { playNotificationSound } from "../../utils/audio";
-import { getPref, setPref, resolvePref } from "../../utils/autoPrefs";
-import AutoControl from "./AutoControl";
 import { hapticSelect } from "../../utils/haptics";
-import { useWeather } from "../../hooks/useWeather";
-import { describeCondition } from "../../utils/weather";
-
 import PersonalInfoSubTab from "./PersonalInfoSubTab";
+import {
+  ChevronRight,
+  User,
+  CreditCard,
+  Bell,
+  Lock,
+  Globe,
+  Sparkles,
+  QrCode,
+  Gift,
+  PlusCircle,
+  LogOut,
+  Sliders,
+  Check,
+  X,
+  Share2,
+  ShieldCheck,
+  Smartphone,
+  Copy
+} from "lucide-react";
 
 const LANGUAGES = [
   { code: "vi", label: "Tiếng Việt" },
-  { code: "en", label: "English" },
+  { code: "en", label: "English" }
 ];
-
-// Collapsible section ("option xổ xuống"): a header button toggles a smoothly
-// animated body (grid-rows 1fr/0fr trick). First section opens by default.
-// Small uppercase section label (iOS Settings style).
-function SectionLabel({ children }) {
-  return <p className="mb-1.5 px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{children}</p>;
-}
-
-// iOS-style settings row that expands to reveal its editor. Icon in a tinted
-// rounded square, label, optional value, chevron.
-function SettingsGroup({ label, icon = "tune", iconTint = "bg-primary/10 text-primary", value, children, defaultOpen = false }) {
-  const [open, setOpen] = React.useState(defaultOpen);
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      <button
-        type="button"
-        onClick={() => { hapticSelect(); setOpen((o) => !o); }}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-foreground/[0.03]"
-      >
-        <span className={`grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] ${iconTint}`}>
-          <span className="material-symbols-outlined text-[19px]">{icon}</span>
-        </span>
-        <span className="flex-1 text-sm font-bold text-foreground">{label}</span>
-        {value != null && <span className="text-xs font-medium text-muted-foreground">{value}</span>}
-        <span className={`material-symbols-outlined text-[21px] text-muted-foreground/60 transition-transform duration-300 ${open ? "rotate-90" : ""}`}>chevron_right</span>
-      </button>
-      <div className={`grid transition-all duration-300 ease-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
-        <div className="overflow-hidden">
-          <div className="border-t border-border">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SettingsRow({ icon, iconColor = "text-primary", iconBg = "bg-primary/10", title, desc, control, warn }) {
-  return (
-    <div className="flex items-start gap-3.5 p-4.5">
-      <span className={`w-8 h-8 rounded-full ${iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
-        <span className={`material-symbols-outlined text-base ${iconColor}`}>{icon}</span>
-      </span>
-      <div className="min-w-0 flex-1 space-y-0.5 text-left">
-        <p className="text-sm font-black text-foreground">{title}</p>
-        {desc && <p className="text-xs font-medium text-muted-foreground leading-relaxed">{desc}</p>}
-        {warn && <p className="text-xs text-warning font-semibold pt-0.5">{warn}</p>}
-      </div>
-      {control && <div className="shrink-0 self-center">{control}</div>}
-    </div>
-  );
-}
-
-// Neon accent palette — full static class strings so Tailwind's JIT keeps them.
-// Each accent has light + dark variants for text, badge, top bar, glowing card
-// shadow, border tint, gradient wash and the blurred glow blob.
-const ACCENTS = {
-  blue: {
-    icon: "text-primary/40",
-    badge: "bg-primary/12 ring-primary/40 dark:bg-primary/15 dark:ring-primary/30",
-    bar: "from-primary to-info",
-    border: "border-primary/20 dark:border-primary/25",
-    wash: "from-primary/70 to-transparent dark:from-primary/30 dark:to-transparent",
-    glow: "shadow-[0_14px_34px_-16px_rgba(59,130,246,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(59,130,246,0.62)] dark:shadow-[0_0_26px_-6px_rgba(96,165,250,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(96,165,250,0.7)]",
-    blob: "bg-primary/25",
-  },
-  violet: {
-    icon: "text-violet-500 dark:text-violet-300",
-    badge: "bg-violet-500/12 ring-violet-400/40 dark:bg-violet-400/15 dark:ring-violet-300/30",
-    bar: "from-violet-500 to-fuchsia-400",
-    border: "border-violet-500/20 dark:border-violet-400/25",
-    wash: "from-violet-50/70 to-transparent dark:from-violet-950/30 dark:to-transparent",
-    glow: "shadow-[0_14px_34px_-16px_rgba(139,92,246,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(139,92,246,0.62)] dark:shadow-[0_0_26px_-6px_rgba(167,139,250,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(167,139,250,0.7)]",
-    blob: "bg-violet-400/25 dark:bg-violet-400/25",
-  },
-  amber: {
-    icon: "text-warning/40",
-    badge: "bg-warning/12 ring-warning/40 dark:bg-warning/15 dark:ring-warning/30",
-    bar: "from-warning to-orange-400",
-    border: "border-warning/20 dark:border-warning/25",
-    wash: "from-warning/70 to-transparent dark:from-warning/30 dark:to-transparent",
-    glow: "shadow-[0_14px_34px_-16px_rgba(245,158,11,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(245,158,11,0.62)] dark:shadow-[0_0_26px_-6px_rgba(251,191,36,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(251,191,36,0.7)]",
-    blob: "bg-warning/25",
-  },
-  rose: {
-    icon: "text-rose-500 dark:text-rose-300",
-    badge: "bg-rose-500/12 ring-rose-400/40 dark:bg-rose-400/15 dark:ring-rose-300/30",
-    bar: "from-rose-500 to-pink-400",
-    border: "border-rose-500/20 dark:border-rose-400/25",
-    wash: "from-rose-50/70 to-transparent dark:from-rose-950/30 dark:to-transparent",
-    glow: "shadow-[0_14px_34px_-16px_rgba(244,63,94,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(244,63,94,0.62)] dark:shadow-[0_0_26px_-6px_rgba(251,113,133,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(251,113,133,0.7)]",
-    blob: "bg-rose-400/25 dark:bg-rose-400/25",
-  },
-  emerald: {
-    icon: "text-success/40",
-    badge: "bg-success/12 ring-success/40 dark:bg-success/15 dark:ring-success/30",
-    bar: "from-success to-teal-400",
-    border: "border-success/20 dark:border-success/25",
-    wash: "from-success/70 to-transparent dark:from-success/30 dark:to-transparent",
-    glow: "shadow-[0_14px_34px_-16px_rgba(16,185,129,0.5)] group-hover:shadow-[0_16px_40px_-14px_rgba(16,185,129,0.62)] dark:shadow-[0_0_26px_-6px_rgba(52,211,153,0.5)] dark:group-hover:shadow-[0_0_34px_-4px_rgba(52,211,153,0.7)]",
-    blob: "bg-success/25",
-  },
-};
-
-// Colourful, neon-glowing preference card. Full light/dark support via the
-// accent palette above; a blurred colour blob + coloured shadow give the glow.
-function PrefCard({ icon, title, desc, control, warn, index = 0, accent = "blue" }) {
-  const a = ACCENTS[accent] || ACCENTS.blue;
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-3.5 text-left shadow-sm">
-      {/* thin identity bar — the card's only colour accent (flat, calm surface) */}
-      <div className={`pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${a.bar}`} />
-      <div className="relative">
-        <div className="flex items-start gap-2.5">
-          <span className={`grid h-9.5 w-9.5 shrink-0 place-items-center rounded-xl ring-1 ring-inset ${a.badge}`}>
-            <span className={`material-symbols-outlined text-[20px] ${a.icon}`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}>{icon}</span>
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-black text-foreground">{title}</p>
-            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{desc}</p>
-            {warn && <p className="mt-0.5 text-xs font-semibold text-warning">{warn}</p>}
-          </div>
-        </div>
-        {control && <div className="mt-2.5">{control}</div>}
-      </div>
-    </div>
-  );
-}
-
-// Vivid gradient hero — a full neon frame in both themes.
-function SettingsHero({ autoCount, total }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
-          <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-        </span>
-        <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">Trung tâm điều khiển</p>
-          <h3 className="font-display text-base font-black text-foreground">Chế độ Tự động</h3>
-          <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
-            <b className="text-foreground">{autoCount}/{total}</b> mục đang để Hugo tự quyết theo ngữ cảnh. Bạn chỉ chỉnh khi cần.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const SETTINGS_CSS = `
-@keyframes settingsRise { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
-@keyframes settingsPulse { 0%,100% { opacity:.5; transform: scale(1); } 50% { opacity:.9; transform: scale(1.15); } }
-@keyframes settingsSpin { to { transform: rotate(360deg); } }
-`;
 
 export default function MemberSettingsTab({
   memberSession,
@@ -198,27 +60,19 @@ export default function MemberSettingsTab({
   handleLinkInputKeyDown,
   addSocialLink,
   removeSocialLink,
-  bioTextareaRef
+  bioTextareaRef,
+  onOpenParticleModal,
+  onSelectTab,
+  onSelectUtility
 }) {
   const { t, i18n } = useTranslation();
-  const [expandedSection, setExpandedSection] = useState(null);
   const navigate = useNavigate();
-  const [settingsTab, setSettingsTab] = useState("personal");
+  const [activeSheet, setActiveSheet] = useState(null); // null | "personal" | "notifications" | "security" | "language"
+
   const [pushSupported, setPushSupported] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
-  const [hasNotifPerm, setHasNotifPerm] = useState(() =>
-    typeof Notification !== "undefined" && Notification.permission === "granted"
-  );
-  // Tri-state prefs ('auto' | 'on' | 'off') — the automation-first model.
-  const [prefs, setPrefs] = useState(() => ({
-    sound: getPref("sound"),
-    weatherBg: getPref("weatherBg"),
-    weatherAlert: getPref("weatherAlert"),
-    donation: getPref("donation"),
-  }));
-  const { weather: liveWeather } = useWeather({ enabled: true });
   const email = memberSession?.email;
 
   useEffect(() => {
@@ -227,31 +81,13 @@ export default function MemberSettingsTab({
     setBiometricSupported(webauthnHelper.isSupported());
   }, []);
 
-  // Context for resolving "auto" into an effective on/off shown as a hint.
-  const prefCtx = {
-    isDay: liveWeather ? liveWeather.isDay : undefined,
-    condition: liveWeather?.condition,
-    hasNotifPermission: hasNotifPerm,
-    hasLocation: undefined,
-  };
-  const effective = (key) => resolvePref(key, prefCtx);
-
-  const changePref = async (key, value) => {
-    hapticSelect(); // tactile feedback — multi-sensory response to every touch
-    setPref(key, value);
-    setPrefs((p) => ({ ...p, [key]: value }));
-    // Side effects when the user actively turns something ON.
-    if (value === "on") {
-      if (key === "sound") { try { playNotificationSound(); } catch { /* ignore */ } }
-      if (key === "weatherAlert") {
-        try {
-          const perm = await Notification?.requestPermission?.();
-          setHasNotifPerm(perm === "granted");
-        } catch { /* ignore */ }
-        try { navigator.geolocation?.getCurrentPosition(() => {}, () => {}, { timeout: 8000 }); } catch { /* ignore */ }
-      }
-    }
-  };
+  useEffect(() => {
+    const isOpen = Boolean(activeSheet);
+    window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: isOpen } }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: false } }));
+    };
+  }, [activeSheet]);
 
   const handleTogglePush = async () => {
     setPushBusy(true);
@@ -262,7 +98,6 @@ export default function MemberSettingsTab({
         showToast?.(t("memberPortal.settings.pushDisabledToast"), "success");
       } else {
         const perm = await webPushHelper.requestPermission();
-        setHasNotifPerm(perm === "granted");
         if (perm === "granted" && email) {
           await webPushHelper.registerAndSubscribe(email);
           setPushEnabled(true);
@@ -279,231 +114,398 @@ export default function MemberSettingsTab({
   };
 
   const currentLang = i18n.language?.startsWith("en") ? "en" : "vi";
-  const settingsTabLabels = {
-    personal: currentLang === "vi" ? "Thông tin cá nhân" : "Personal info",
-    system: currentLang === "vi" ? "Tùy chọn hệ thống" : "System settings",
-  };
   const selectLanguage = (code) => {
     if (code === currentLang) return;
     i18n.changeLanguage(code);
   };
 
+  const displayName = formData?.displayName || bio?.displayName || memberSession?.displayName || "LE GIA HUY";
+
   return (
-    <div className="mx-auto max-w-2xl space-y-4 animate-fadeIn pb-2">
-      <style>{SETTINGS_CSS}</style>
-      {/* Profile header — avatar (no camera icon) + name + email, JOY chip */}
-      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm">
-        <button
-          type="button"
-          onClick={() => !saving && avatarInputRef.current?.click()}
-          title={t("memberPortal.settings.page.changeAvatar")}
-          className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-muted shadow-sm"
-        >
-          {formData.avatarUrl ? (
-            <img src={formData.avatarUrl} alt="avatar" className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-foreground/10 text-xl font-black text-foreground">
-              {(formData.displayName || "?")[0]?.toUpperCase()}
-            </div>
-          )}
-          {saving && (
-            <span className="absolute inset-0 grid place-items-center bg-black/55">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-            </span>
-          )}
-        </button>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <h2 className="truncate text-lg font-black leading-tight text-foreground">{formData.displayName || t("memberPortal.bio.noName")}</h2>
-            {bio?.isEduVerified && <span className="material-symbols-outlined text-base text-[#0095f6]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>}
+    <div className="max-w-md mx-auto space-y-4 animate-fadeIn text-left select-none pb-28 font-sans">
+      {/* ── 1. APPLE ACCOUNT TOP BAR ────────────────────────────────────────── */}
+      <div className="flex items-center justify-between px-1 py-1">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+            <span className="material-symbols-outlined text-xs">store</span>
           </div>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">{memberSession?.email || formData.headline || "—"}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5">
-          <span className="material-symbols-outlined text-base text-warning" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
-          <span className="text-sm font-black text-foreground">{(joyBalance ?? 0).toLocaleString()}</span>
-        </div>
-      </div>
-
-      {/* THÔNG TIN CÁ NHÂN — shown directly, not buried in a collapsible */}
-      <div className="space-y-2">
-        <SectionLabel>{currentLang === "vi" ? "Thông tin cá nhân" : "Personal info"}</SectionLabel>
-        <div className="rounded-2xl border border-border bg-card p-4 text-left shadow-sm sm:p-5">
-          <PersonalInfoSubTab
-            formData={formData}
-            handleFieldChange={handleFieldChange}
-            saving={saving}
-            isDragOver={isDragOver}
-            setIsDragOver={setIsDragOver}
-            processFile={processFile}
-            avatarInputRef={avatarInputRef}
-            handleAvatarChange={handleAvatarChange}
-            handleRemoveAvatar={handleRemoveAvatar}
-            memberSession={memberSession}
-            bio={bio}
-            hideAvatarSection={true}
-            t={t}
-          />
+          <span className="text-base font-black tracking-tight text-foreground">
+            Hugo <span className="text-primary">Account</span>
+          </span>
         </div>
 
-        {/* Bio-page styling (theme/links/projects) now lives in the free Bio utility */}
         <button
-          type="button"
-          onClick={() => { hapticSelect(); navigate("/member/utilities/bio"); }}
-          className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 text-left shadow-sm transition-colors hover:bg-foreground/[0.03]"
+          onClick={() => {
+            hapticSelect();
+            if (onSelectTab) onSelectTab("utilities");
+            else navigate("/member/utilities");
+          }}
+          className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center active:scale-95 transition-all"
+          title="Đóng cài đặt"
         >
-          <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] bg-violet-500/10 text-violet-500">
-            <span className="material-symbols-outlined text-[20px]">palette</span>
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-bold text-foreground">{currentLang === "vi" ? "Tùy chỉnh trang Bio" : "Customize your Bio page"}</span>
-            <span className="block text-xs text-muted-foreground">{currentLang === "vi" ? "Giao diện · liên kết · thành tích — trong Tiện ích › Trang Bio" : "Theme · links · projects — in Utilities › Bio"}</span>
-          </span>
-          <span className="material-symbols-outlined text-[22px] text-muted-foreground/60">chevron_right</span>
+          <X className="w-4 h-4 text-foreground" />
         </button>
       </div>
 
-      {/* HIỂN THỊ TRANG BIO */}
-      <div className="space-y-2">
-        <SectionLabel>{t("memberPortal.settings.page.showBio")}</SectionLabel>
-        <a
-          href={publicLink || "#"}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => hapticSelect()}
-          className={`flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 shadow-sm transition-colors hover:bg-foreground/[0.03] ${publicLink ? "" : "pointer-events-none opacity-50"}`}
-        >
-          <span className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-[10px] bg-info/10 text-info">
-            <span className="material-symbols-outlined text-[20px]">public</span>
-          </span>
-          <span className="flex-1 text-sm font-bold text-foreground">{t("memberPortal.settings.page.openBioPublic")}</span>
-          <span className="material-symbols-outlined text-[22px] text-muted-foreground/60">chevron_right</span>
-        </a>
-      </div>
-
-      {/* CÀI ĐẶT HỆ THỐNG */}
-      <div className="space-y-2">
-        <SectionLabel>{t("memberPortal.settings.page.systemSettings")}</SectionLabel>
-        <SettingsGroup icon="tune" iconTint="bg-slate-500/10 text-slate-600 dark:text-slate-300" label={t("memberPortal.settings.page.prefsNotifs")}>
-          <div className="space-y-3 p-3">
-          <SettingsHero autoCount={Object.values(prefs).filter((v) => v === "auto").length} total={Object.keys(prefs).length} />
-
-          {/* Live weather strip — drives the "auto" decisions above */}
-          {liveWeather && (
-            <div className="flex items-center gap-2.5 rounded-2xl border border-foreground/10 bg-foreground/[0.02] px-3 py-2" style={{ animation: "settingsRise .5s cubic-bezier(.22,1,.36,1) both" }}>
-              <span className="material-symbols-outlined text-[22px] text-foreground">{describeCondition(liveWeather.condition, liveWeather.isDay).icon}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-black text-foreground">{describeCondition(liveWeather.condition, liveWeather.isDay).label}</p>
-                <p className="text-xs text-muted-foreground">Cảm giác {liveWeather.feelsC}° · Gió {liveWeather.windKph} km/h · Ẩm {liveWeather.humidity}%</p>
+      {/* ── 2. HERO PROFILE APPLE ACCOUNT CARD ─────────────────────────────── */}
+      <div
+        onClick={() => { hapticSelect(); setActiveSheet("personal"); }}
+        className="bg-card border border-border/40 rounded-[24px] p-4 shadow-xs flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-all active:scale-[0.99]"
+      >
+        <div className="flex items-center gap-3.5 min-w-0 flex-1">
+          {/* Large Avatar */}
+          <div className="relative w-14 h-14 rounded-full bg-muted overflow-hidden shrink-0 ring-2 ring-border shadow-xs">
+            {formData.avatarUrl ? (
+              <img src={formData.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-indigo-600 text-white text-xl font-black">
+                {displayName[0]?.toUpperCase()}
               </div>
-              <span className="font-display text-lg font-black text-foreground">{liveWeather.tempC}°</span>
-            </div>
-          )}
-
-          {/* Preferences — automation-first */}
-          <div className="space-y-2">
-            <p className="px-1 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.smartPrefs")}</p>
-
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {pushSupported && (
-              <PrefCard index={0} icon="notifications" accent="blue"
-                title={t("memberPortal.settings.pushTitle")}
-                desc={t("memberPortal.settings.pushDesc")}
-                control={
-                  <div className="flex items-center justify-between rounded-xl bg-foreground/[0.05] px-3 py-1.5 ring-1 ring-inset ring-foreground/10">
-                    <span className="text-xs font-bold text-muted-foreground">{pushEnabled ? t("memberPortal.settings.page.pushStatusOn") : t("memberPortal.settings.page.pushStatusPrompt")}</span>
-                    <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
-                  </div>
-                }
-              />
             )}
-            <PrefCard index={1} icon="graphic_eq" accent="violet"
-              title={t("memberPortal.settings.soundTitle")}
-              desc={t("memberPortal.settings.page.soundDescShort")}
-              control={<AutoControl value={prefs.sound} effective={effective("sound")} onChange={(v) => changePref("sound", v)} />}
-            />
-            <PrefCard index={2} icon="partly_cloudy_day" accent="amber"
-              title={t("memberPortal.settings.page.weatherBgTitle")}
-              desc={t("memberPortal.settings.page.weatherBgDesc")}
-              control={<AutoControl value={prefs.weatherBg} effective={effective("weatherBg")} onChange={(v) => changePref("weatherBg", v)} />}
-            />
-            <PrefCard index={3} icon="crisis_alert" accent="rose"
-              title={t("memberPortal.settings.page.weatherAlertTitle")}
-              desc={t("memberPortal.settings.page.weatherAlertDesc")}
-              control={<AutoControl value={prefs.weatherAlert} effective={effective("weatherAlert")} onChange={(v) => changePref("weatherAlert", v)} />}
-            />
-            <PrefCard index={4} icon="favorite" accent="emerald"
-              title={t("memberPortal.settings.donationTitle")}
-              desc={t("memberPortal.settings.page.donationDescShort")}
-              control={<AutoControl value={prefs.donation} effective={effective("donation")} onChange={(v) => changePref("donation", v)} />}
-            />
-            </div>
           </div>
 
-          {/* Quick login */}
-          {biometricSupported && email && (
-            <div className="rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-3">
-              <p className="mb-2 px-1 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.settings.page.quickLogin")}</p>
-              <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
-            </div>
-          )}
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-black text-foreground truncate leading-snug">
+              {displayName}
+            </h2>
+            <p className="text-[11px] font-medium text-muted-foreground truncate mt-0.5">
+              Account info, payments, and settings
+            </p>
           </div>
-        </SettingsGroup>
+        </div>
+
+        <ChevronRight className="w-5 h-5 text-muted-foreground/60 shrink-0 ml-2" />
       </div>
 
-      {/* NGÔN NGỮ */}
-      <div className="space-y-2">
-        <SectionLabel>{t("memberPortal.settings.page.language")}</SectionLabel>
-        <SettingsGroup icon="translate" iconTint="bg-success/10 text-success" label={t("memberPortal.settings.page.language")} value={currentLang === "vi" ? "Tiếng Việt" : "English"}>
-          <div className="p-3">
-            <div className="grid grid-cols-2 gap-1.5 rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-1.5">
+      {/* ── 3. SUB PROFILE CARD: HUGO BIO PROFILE ──────────────────────────── */}
+      <div className="space-y-1.5">
+        <div
+          onClick={() => {
+            hapticSelect();
+            if (onSelectUtility) onSelectUtility("bio");
+            else if (onSelectTab) onSelectTab("utilities");
+            else navigate("/member/utilities/bio");
+          }}
+          className="bg-card border border-border/40 rounded-[20px] p-3.5 shadow-xs flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-all active:scale-[0.99]"
+        >
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-500 flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xs font-black text-foreground">Hugo Bio Profile</h3>
+              <p className="text-[10.5px] text-muted-foreground truncate">
+                Tùy chỉnh giao diện, danh thiếp &amp; liên kết xã hội
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+        </div>
+
+        <p className="text-[10px] text-muted-foreground/80 px-2 leading-relaxed">
+          Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối Greenwich.
+        </p>
+      </div>
+
+      {/* ── 4. GROUP 1: APPLE ACCOUNT SETTINGS INSET GROUP ──────────────────── */}
+      <div className="bg-card border border-border/40 rounded-[24px] overflow-hidden shadow-xs divide-y divide-border/30">
+        {/* Subscriptions */}
+        <div
+          onClick={() => {
+            hapticSelect();
+            if (onSelectTab) onSelectTab("joy", "store");
+            else navigate("/member/joy?tab=store");
+          }}
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+              <CreditCard className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-foreground">Subscription</h4>
+              <span className="text-[10.5px] text-muted-foreground block">Gói dịch vụ &amp; Đăng ký VIP</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+        </div>
+
+        {/* Purchase History */}
+        <div
+          onClick={() => {
+            hapticSelect();
+            if (onSelectTab) onSelectTab("joy", "card");
+            else navigate("/member/joy?tab=card");
+          }}
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-foreground">Purchase History</h4>
+              <span className="text-[10.5px] text-muted-foreground block">Lịch sử giao dịch &amp; Ví JOY ({(joyBalance ?? 0).toLocaleString()} JOY)</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+        </div>
+
+        {/* Notifications */}
+        <div
+          onClick={() => { hapticSelect(); setActiveSheet("notifications"); }}
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+              <Bell className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-foreground">Notifications</h4>
+              <span className="text-[10.5px] text-muted-foreground block">Cấu hình thông báo Web Push</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+        </div>
+
+        {/* Privacy & Access */}
+        <div
+          onClick={() => { hapticSelect(); setActiveSheet("security"); }}
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-foreground">Privacy &amp; Access</h4>
+              <span className="text-[10.5px] text-muted-foreground block">Quyền riêng tư &amp; Đăng nhập sinh trắc</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+        </div>
+      </div>
+
+      {/* ── 5. QUICK ACTION PILL BUTTONS (APPLE ACCOUNT 3-COLUMN PILL GRID) ───── */}
+      <div className="grid grid-cols-3 gap-2.5 text-center">
+        <button
+          onClick={() => {
+            hapticSelect();
+            if (onSelectTab) onSelectTab("joy");
+            else navigate("/member/joy");
+          }}
+          className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border/40 shadow-xs hover:bg-muted/40 active:scale-95 transition-all cursor-pointer"
+        >
+          <PlusCircle className="w-5 h-5 text-primary" />
+          <span className="text-[10.5px] font-black text-primary">Nạp JOY</span>
+        </button>
+
+        <button
+          onClick={() => {
+            hapticSelect();
+            if (onSelectTab) onSelectTab("joy");
+            else navigate("/member/joy");
+          }}
+          className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border/40 shadow-xs hover:bg-muted/40 active:scale-95 transition-all cursor-pointer"
+        >
+          <Gift className="w-5 h-5 text-primary" />
+          <span className="text-[10.5px] font-black text-primary">Đổi Code</span>
+        </button>
+
+        <button
+          onClick={() => {
+            hapticSelect();
+            if (onOpenParticleModal) onOpenParticleModal();
+            else if (onSelectTab) onSelectTab("joy");
+            else navigate("/member/joy");
+          }}
+          className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border/40 shadow-xs hover:bg-muted/40 active:scale-95 transition-all cursor-pointer"
+        >
+          <QrCode className="w-5 h-5 text-primary" />
+          <span className="text-[10.5px] font-black text-primary">Tặng JOY</span>
+        </button>
+      </div>
+
+      {/* ── 6. GROUP 2: SYSTEM & LANGUAGE INSET GROUP ────────────────────────── */}
+      <div className="bg-card border border-border/40 rounded-[24px] overflow-hidden shadow-xs divide-y divide-border/30">
+        {/* Language Selection */}
+        <div
+          onClick={() => { hapticSelect(); setActiveSheet("language"); }}
+          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-500 flex items-center justify-center">
+              <Globe className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-foreground">Language</h4>
+              <span className="text-[10.5px] text-muted-foreground block">{currentLang === "vi" ? "Tiếng Việt" : "English"}</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+        </div>
+
+        {/* Public Bio Page Link */}
+        {publicLink && (
+          <a
+            href={publicLink}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between p-4 hover:bg-muted/40 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center">
+                <Share2 className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-foreground">Public Bio Page</h4>
+                <span className="text-[10.5px] text-muted-foreground block">Mở trang Bio công khai</span>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+          </a>
+        )}
+      </div>
+
+      {/* ── 7. SIGN OUT BUTTON (DESTRUCTIVE RED ROW) ─────────────────────────── */}
+      <button
+        onClick={handleLogout}
+        className="w-full py-3.5 rounded-[20px] bg-card border border-rose-500/20 text-rose-600 dark:text-rose-400 font-black text-xs uppercase tracking-wider shadow-xs hover:bg-rose-500/10 active:scale-98 transition-all flex items-center justify-center gap-2"
+      >
+        <LogOut className="w-4 h-4" />
+        <span>Đăng Xuất Tài Khoản</span>
+      </button>
+
+      {/* ── 8. MODAL SHEET: PERSONAL INFO ─────────────────────────────────────── */}
+      {activeSheet === "personal" && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-lg w-full space-y-4 shadow-2xl animate-slideUp text-left max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/30 pb-3">
+              <h3 className="text-base font-black text-foreground">Thông Tin Cá Nhân</h3>
+              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            <PersonalInfoSubTab
+              formData={formData}
+              handleFieldChange={handleFieldChange}
+              saving={saving}
+              isDragOver={isDragOver}
+              setIsDragOver={setIsDragOver}
+              processFile={processFile}
+              avatarInputRef={avatarInputRef}
+              handleAvatarChange={handleAvatarChange}
+              handleRemoveAvatar={handleRemoveAvatar}
+              memberSession={memberSession}
+              bio={bio}
+              hideAvatarSection={false}
+              t={t}
+            />
+
+            <button
+              disabled={saving}
+              onClick={async () => {
+                await handleSave();
+                setActiveSheet(null);
+              }}
+              className="w-full py-3 bg-primary text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-md hover:opacity-95 transition-all"
+            >
+              {saving ? "Đang lưu..." : "Lưu Thông Tin"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 9. MODAL SHEET: NOTIFICATIONS ────────────────────────────────────── */}
+      {activeSheet === "notifications" && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
+            <div className="flex items-center justify-between border-b border-border/30 pb-3">
+              <h3 className="text-base font-black text-foreground">Cấu Hình Thông Báo</h3>
+              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border/30">
+              <div>
+                <h4 className="text-xs font-black text-foreground">Thông Báo Web Push</h4>
+                <p className="text-[10.5px] text-muted-foreground">Nhận thông báo sự kiện, tin nhắn &amp; điểm thưởng</p>
+              </div>
+              <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label="Push Notif" />
+            </div>
+
+            <button
+              onClick={() => setActiveSheet(null)}
+              className="w-full py-2.5 bg-muted text-foreground font-black text-xs uppercase tracking-wider rounded-xl"
+            >
+              Xong
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 10. MODAL SHEET: PRIVACY & ACCESS ──────────────────────────────────── */}
+      {activeSheet === "security" && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
+            <div className="flex items-center justify-between border-b border-border/30 pb-3">
+              <h3 className="text-base font-black text-foreground">Quyền Riêng Tư &amp; Sinh Trắc</h3>
+              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {biometricSupported && email ? (
+              <div className="p-2">
+                <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Thiết bị không hỗ trợ FaceID / WebAuthn.</p>
+            )}
+
+            <button
+              onClick={() => setActiveSheet(null)}
+              className="w-full py-2.5 bg-muted text-foreground font-black text-xs uppercase tracking-wider rounded-xl"
+            >
+              Xong
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── 11. MODAL SHEET: LANGUAGE SELECTION ──────────────────────────────── */}
+      {activeSheet === "language" && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
+            <div className="flex items-center justify-between border-b border-border/30 pb-3">
+              <h3 className="text-base font-black text-foreground">Chọn Ngôn Ngữ</h3>
+              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
               {LANGUAGES.map((lng) => {
                 const active = currentLang === lng.code;
                 return (
-                  <button key={lng.code} type="button"
-                    onClick={() => { hapticSelect(); selectLanguage(lng.code); }}
-                    className={`flex items-center justify-center gap-1 rounded-xl py-2.5 text-sm font-bold transition-all active:scale-95 ${
-                      active ? "text-white shadow-sm" : "text-muted-foreground hover:bg-foreground/[0.05]"
+                  <button
+                    key={lng.code}
+                    onClick={() => { selectLanguage(lng.code); setActiveSheet(null); }}
+                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                      active ? "bg-primary/10 border-primary text-primary font-black" : "bg-card border-border/40 text-foreground font-bold"
                     }`}
-                    style={active ? { background: "linear-gradient(135deg,#6366f1,#a855f7)" } : undefined}>
-                    {active && <span className="material-symbols-outlined text-base">check</span>}
-                    {lng.label}
+                  >
+                    <span>{lng.label}</span>
+                    {active && <Check className="w-4 h-4 text-primary" />}
                   </button>
                 );
               })}
             </div>
           </div>
-        </SettingsGroup>
-      </div>
-
-      {/* Save */}
-      <button
-        type="button"
-        disabled={saving}
-        onClick={() => handleSave()}
-        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-sm font-black uppercase tracking-widest text-background shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-      >
-        {saving ? (
-          <>
-            <div className="h-4.5 w-4.5 animate-spin rounded-full border-2 border-background border-t-transparent" />
-            <span>{t("memberPortal.settings.page.saving")}</span>
-          </>
-        ) : (
-          <>
-            <span className="material-symbols-outlined text-base">save</span>
-            <span>{t("memberPortal.settings.page.save")}</span>
-          </>
-        )}
-      </button>
-
-      {/* Logout Button */}
-      <button
-        onClick={handleLogout}
-        className="w-full rounded-lg border border-rose-500/20 bg-rose-500/5 py-3 text-sm font-black uppercase tracking-wider text-rose-600 shadow-sm transition-all hover:bg-rose-500/10 dark:text-rose-400 flex items-center justify-center gap-1.5 active:scale-98"
-      >
-        <span className="material-symbols-outlined text-sm">logout</span>
-        {t("memberPortal.settings.logout")}
-      </button>
+        </div>
+      )}
     </div>
   );
 }

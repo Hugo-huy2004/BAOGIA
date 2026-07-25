@@ -848,6 +848,23 @@ router.get('/resolve-qr', async (req, res) => {
   }
 });
 
+// GET /api/joy/resolve-nfc?code= — resolve a plain referral code read from an
+// NFC tag. Unlike /resolve-qr, the code is NOT a time-bound HMAC token — it's
+// the static referral code written to a physical NFC tag.
+router.get('/resolve-nfc', async (req, res) => {
+  try {
+    const code = String(req.query.code || '').trim().toUpperCase();
+    if (!code || code.length > 8 || !/^[A-Z0-9]+$/.test(code)) {
+      return res.status(400).json({ success: false, error: 'Mã NFC không hợp lệ.' });
+    }
+    const bio = await Bio.findOne({ referralCode: code }).select('displayName avatarUrl referralCode slug');
+    if (!bio) return res.status(404).json({ success: false, error: 'Không tìm thấy người dùng này.' });
+    res.json({ success: true, displayName: bio.displayName || 'Hugo Member', avatarUrl: bio.avatarUrl || '', referralCode: bio.referralCode, slug: bio.slug || '' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/joy/has-pin
 router.get('/has-pin', requireMember, async (req, res) => {
   try {

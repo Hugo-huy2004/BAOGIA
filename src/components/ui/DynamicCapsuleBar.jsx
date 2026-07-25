@@ -20,7 +20,7 @@ export default function DynamicCapsuleBar({ activeStatus, onDismiss }) {
         onDragEnd={(_, info) => {
           if (info.offset.y < -20) onDismiss?.();
         }}
-        className="fixed top-3 left-1/2 -translate-x-1/2 z-[9999] cursor-grab active:cursor-grabbing select-none"
+        className="fixed top-[calc(env(safe-area-inset-top,0px)+8px)] left-1/2 -translate-x-1/2 z-[9999] cursor-grab active:cursor-grabbing select-none"
       >
         <div className="h-10 px-4 bg-zinc-950/90 text-white rounded-full border border-zinc-800/80 shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl flex items-center gap-3">
           {/* Animated pulse dot */}

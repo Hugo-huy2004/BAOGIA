@@ -32,7 +32,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
       {/* Header */}
       <div className="flex items-center justify-between px-1">
         <h3 className="text-[10.5px] font-black uppercase tracking-widest text-muted-foreground">
-          Tổng quan Hồ sơ Bio
+          {t("memberPortal.widget.headerTitle")}
         </h3>
       </div>
 
@@ -46,7 +46,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
           
           <div className="w-full flex justify-between items-center z-10">
             <span className="inline-block text-[8px] font-black tracking-wider px-2.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/10 uppercase">
-              Thiết kế
+              {t("memberPortal.widget.designLabel")}
             </span>
             <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
               <span className="material-symbols-outlined text-[17px]">palette</span>
@@ -62,7 +62,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
                 <h4 className="text-[13px] font-black text-white leading-none tracking-tight">{activeThemeName}</h4>
               </div>
             </div>
-            <p className="text-[9px] text-zinc-400 font-bold leading-normal truncate">Chủ đề hiển thị công khai</p>
+            <p className="text-[9px] text-zinc-400 font-bold leading-normal truncate">{t("memberPortal.widget.publicTheme")}</p>
           </div>
         </div>
 
@@ -73,7 +73,7 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
 
           <div className="w-full flex justify-between items-center z-10">
             <span className="inline-block text-[8px] font-black tracking-wider px-2.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/10 uppercase">
-              Chia sẻ
+              {t("memberPortal.widget.shareLabel")}
             </span>
             <div className="w-8 h-8 rounded-full bg-info/10 flex items-center justify-center text-info">
               <span className="material-symbols-outlined text-[17px]">qr_code_2</span>
@@ -82,8 +82,8 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
 
           <div className="w-full flex items-center justify-between gap-2 z-10 mt-4">
             <div className="text-left">
-              <h4 className="text-[12px] font-black text-white leading-tight">Mã QR Bio</h4>
-              <p className="text-[9px] text-zinc-400 font-bold mt-0.5 leading-normal">Quét nhanh liên kết</p>
+              <h4 className="text-[12px] font-black text-white leading-tight">{t("memberPortal.widget.qrTitle")}</h4>
+              <p className="text-[9px] text-zinc-400 font-bold mt-0.5 leading-normal">{t("memberPortal.widget.qrScanHint")}</p>
             </div>
 
             {/* Embedded QR Code image */}
@@ -111,9 +111,9 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
           <div className="w-full flex justify-between items-center z-10 border-b border-white/5 pb-2.5">
             <div className="flex items-center gap-2">
               <span className="inline-block text-[8px] font-black tracking-wider px-2.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/10 uppercase">
-                Liên kết
+                {t("memberPortal.widget.links")}
               </span>
-              <h4 className="text-[12px] font-black text-white leading-tight">Danh sách mạng xã hội</h4>
+              <h4 className="text-[12px] font-black text-white leading-tight">{t("memberPortal.widget.socialList")}</h4>
             </div>
             <div className="w-7.5 h-7.5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <span className="material-symbols-outlined text-[16px]">link</span>
@@ -131,13 +131,13 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-white transition-all active:scale-95 shadow-sm"
                   >
                     <span className="material-symbols-outlined text-[13px] text-zinc-400">arrow_right_alt</span>
-                    <span>{lnk.label || "Liên kết"}</span>
+                    <span>{lnk.label || t("memberPortal.widget.links")}</span>
                   </button>
                 ))}
               </div>
             ) : (
               <p className="text-[10px] text-zinc-400 font-bold py-2 leading-relaxed">
-                Chưa cấu hình liên kết mạng xã hội. Hãy chuyển qua mục **Cài đặt** để thiết lập.
+                {t("memberPortal.widget.noLinks")}
               </p>
             )}
           </div>
@@ -151,9 +151,9 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
           <div className="w-full flex justify-between items-center z-10 border-b border-white/5 pb-2.5">
             <div className="flex items-center gap-2">
               <span className="inline-block text-[8px] font-black tracking-wider px-2.5 py-0.5 rounded bg-white/10 text-white/90 border border-white/10 uppercase">
-                Thành tựu
+                {t("memberPortal.widget.achievements")}
               </span>
-              <h4 className="text-[12px] font-black text-white leading-tight">Dự án & Tác phẩm nổi bật</h4>
+              <h4 className="text-[12px] font-black text-white leading-tight">{t("memberPortal.widget.featuredProjects")}</h4>
             </div>
             <div className="w-7.5 h-7.5 rounded-full bg-success/10 flex items-center justify-center text-success">
               <span className="material-symbols-outlined text-[16px]">folder_special</span>
@@ -173,14 +173,14 @@ export default function QuickWidgetGrid({ navigate, publicLink, formData }) {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[11.5px] font-bold text-white leading-tight truncate">{proj.title}</p>
-                      <p className="text-[8.5px] text-zinc-500 font-semibold truncate mt-0.5 uppercase tracking-widest">{proj.category || "Dự án"}</p>
+                      <p className="text-[8.5px] text-zinc-500 font-semibold truncate mt-0.5 uppercase tracking-widest">{proj.category || t("memberPortal.widget.projectCategory")}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-[10px] text-zinc-400 font-bold py-2 leading-relaxed">
-                Chưa cấu hình dự án nổi bật. Hãy chuyển qua mục **Cài đặt** để thiết lập.
+                {t("memberPortal.widget.noProjects")}
               </p>
             )}
           </div>

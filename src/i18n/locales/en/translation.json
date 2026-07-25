@@ -1491,7 +1491,85 @@
       "community": "Community",
       "settings": "Profile",
       "verify": "Verify",
-      "verifyEduPending": "Student not verified"
+      "verifyEduPending": "Student not verified",
+      "map": "Discover"
+    },
+    "status": {
+      "active": "Verified",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "trial": "Trial"
+    },
+    "accountSections": {
+      "profile": "Personal Info",
+      "achievements": "Achievements"
+    },
+    "widget": {
+      "headerTitle": "BIO PROFILE OVERVIEW",
+      "designLabel": "Design",
+      "shareLabel": "Share",
+      "publicTheme": "Public display theme",
+      "qrTitle": "Bio QR Code",
+      "qrScanHint": "Quick link scan",
+      "links": "Links",
+      "socialList": "Social media list",
+      "noLinks": "No social links configured. Go to **Settings** to set up.",
+      "achievements": "Achievements",
+      "featuredProjects": "Featured Projects & Works",
+      "noProjects": "No featured projects configured. Go to **Settings** to set up.",
+      "projectCategory": "Project"
+    },
+    "bioPreview": {
+      "title": "Bio Page",
+      "subtitle": "Public personal page preview",
+      "backAria": "Go back",
+      "openAria": "Open Bio page",
+      "previewAria": "Bio page preview",
+      "copySuccess": "Bio page link copied",
+      "copyError": "Could not copy link",
+      "notReadyTitle": "Bio page not ready",
+      "notReadyDesc": "Complete your info at **Settings > Personal Info** to get a public Bio link.",
+      "customizeTitle": "Customize Bio page",
+      "designLabel": "Design & Theme",
+      "linkCardsLabel": "Link Cards",
+      "achievementsLabel": "Projects & Achievements",
+      "editHint": "Edit **design, links, achievements** in the sections above — changes will auto-update in the preview below.",
+      "membershipHeader": "3-Year Developer Membership",
+      "expiryLabel": "Expires:",
+      "packageTitle": "Bio Pages Owned",
+      "packageName": "BIO + MEMBERSHIP",
+      "startDate": "START DATE",
+      "bioExpiry": "BIO EXPIRY",
+      "daysElapsed": "{{elapsed}}/{{total}} days",
+      "daysLeft": "Còn {{count}} ngày"
+    },
+    "verify": {
+      "title": "Complete Student Information",
+      "desc": "The information below will be locked after verification. Please enter accurately.",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Enter your full name...",
+      "birthday": "Birthday",
+      "phoneZalo": "Phone (Zalo)",
+      "phoneZaloPlaceholder": "Enter Zalo phone number...",
+      "schoolName": "School name",
+      "schoolNamePlaceholder": "Ex: Thang Long (no need to write TH/THCS/University...)",
+      "schoolLevel": "School level",
+      "schoolLevelPlaceholder": "-- Select School Level --",
+      "levelTH": "Elementary (TH)",
+      "levelTHCS": "Middle School (THCS)",
+      "levelTHPT": "High School (THPT)",
+      "levelCD": "College (CD)",
+      "levelDH": "University (DH)",
+      "studentId": "Student ID",
+      "studentIdPlaceholder": "Enter your student ID...",
+      "acceptTerms": "Accept providing information and legal disclaimer",
+      "acceptContact": "Your .edu email will be approved instantly; regular emails will be reviewed by Admin within 24 hours.",
+      "logoutBtn": "Log out",
+      "submitBtn": "Submit information"
+    },
+    "historyActions": {
+      "markAllRead": "Mark all as read",
+      "settingsBtn": "Notification settings"
     },
     "joyWallet": {
       "brand": "Hugo JOY Wallet",
@@ -1664,7 +1742,35 @@
       "submitError": "Unable to submit request.",
       "packageActivated": "Service package activated!",
       "giftSuccess": "Gift code redeemed successfully!",
-      "healingSuccess": "Wish you always remain resilient and peaceful! ❤️"
+      "healingSuccess": "Wish you always remain resilient and peaceful! ❤️",
+      "eduVerified": "Verification successful! You can now use all features.",
+      "sessionExpired": "Your session has expired for security. The system has automatically logged out to protect your account.",
+      "sleepDetected": "The system has automatically detected your sleep last night!"
+    },
+    "headlineEmpty": "No headline set",
+    "settingsBtn": "Edit Bio",
+    "linksLabel": "LINKS",
+    "achievementsLabel": "ACHIEVEMENTS",
+    "themeLabel": "THEME",
+    "settingsPage": {
+      "pageTitle": "Settings — Hugo Studio",
+      "editBtn": "Edit",
+      "saveBtn": "Save",
+      "savingBtn": "Saving...",
+      "joyBalance": "JOY Balance",
+      "rechargeBtn": "Top up",
+      "exchangeBtn": "Exchange",
+      "quickSettings": "Quick Settings",
+      "notifSound": "Notification sound",
+      "showDonation": "Show donation widget",
+      "logoutBtn": "Log out",
+      "copyLinkBtn": "Copy link",
+      "profileMenu": "Personal Info",
+      "designMenu": "Design",
+      "linksMenu": "Links",
+      "achievementsMenu": "Achievements",
+      "defaultName": "User",
+      "noDesc": "No description"
     },
     "utilitiesPage": {
       "title": "DIGITAL UTILITIES ECOSYSTEM",
@@ -1820,11 +1926,6 @@
         "customHostPlaceholder": "e.g., https://my-github-stats.vercel.app"
       }
     },
-    "status": {
-      "active": "Verified",
-      "pending": "Pending",
-      "rejected": "Rejected"
-    },
     "packages": {
       "signature": {
         "name": "Signature Portfolio",
@@ -1906,7 +2007,18 @@
         "cameraUnsupported": "Camera not supported",
         "cameraError": "Camera error",
         "cameraHintInline": "Point camera at someone else's Particle Cloud Code to connect.",
-        "cameraHint": "Point camera at Particle Cloud Code"
+        "cameraHint": "Point camera at Particle Cloud Code",
+        "tabNfc": "Tap NFC",
+        "nfcWriteBtn": "Write NFC",
+        "nfcWrite": "Writing NFC...",
+        "nfcWriteSuccess": "NFC written successfully!",
+        "nfcWriteHint": "Hold a physical NFC tag against the back of your phone to write the code",
+        "nfcScanTitle": "Looking for NFC tag...",
+        "nfcScanHint": "Place NFC tag on the back of your phone",
+        "nfcStartScan": "Start NFC Scan",
+        "nfcTapHint": "Tap the recipient's NFC tag to start sending JOY",
+        "nfcReadError": "Could not read NFC tag",
+        "cancel": "Cancel"
       },
       "exchange": {
         "exchanged": "Exchanged",

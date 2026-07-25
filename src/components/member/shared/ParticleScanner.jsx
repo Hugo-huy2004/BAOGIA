@@ -32,17 +32,14 @@ import { analyzeParticleCloudFrame, bytesToBase64Url } from "../../../utils/part
 // CRC-16 makes a single decoded frame already trustworthy (~1/65536 false
 // positive), so we accept fast: just 2 agreeing frames over a short window with
 // a hint of rotation (proves it's a live spinning code, not a still photo).
-const AGREE_MIN_FRAMES = 2;    // consecutive frames that must decode identically
-const AGREE_MIN_MS = 60;       // ...spanning at least this long
-const ROT_MIN_DEG = 0.8;       // ...with at least this much net rotation (liveness)
+const AGREE_MIN_FRAMES = 1;    // Instant 1-frame decode for ultra-fast scanning
+const AGREE_MIN_MS = 0;       // Zero delay requirement
+const ROT_MIN_DEG = 0;       // Zero rotation requirement
 
-// Blob-detection tuning passed to the decoder. Dots are rendered large; ignore
-// single-pixel specks but allow generous blur growth. Thresholding is adaptive
-// inside the decoder, so no fixed light levels here.
-const DECODE_OPTS = { minDotArea: 3, maxDotArea: 2500, matchToleranceFrac: 0.5 };
+// Blob-detection tuning passed to the decoder.
+const DECODE_OPTS = { minDotArea: 2, maxDotArea: 3500, matchToleranceFrac: 0.6 };
 
 function shortestAngleDelta(from, to) {
-  // Smallest signed difference in degrees, wrapped into (-180, 180].
   let d = (to - from) % 360;
   if (d > 180) d -= 360;
   if (d <= -180) d += 360;
@@ -63,14 +60,11 @@ export default function ParticleScanner({
   const canvasRef = useRef(null);
   const animRef = useRef(null);
   const streamRef = useRef(null);
-  const doneRef = useRef(false); // guards against double-firing onScanSuccess
+  const doneRef = useRef(false);
 
-  // Derive "unsupported" at init so we never call setState synchronously inside
-  // the acquire effect (which triggers cascading renders / lint errors). The
-  // active/error transitions below happen in async promise callbacks, which is fine.
   const [status, setStatus] = useState(() =>
     navigator.mediaDevices?.getUserMedia ? "init" : "unsupported"
-  ); // init | active | error | unsupported
+  );
   const [torchOn, setTorchOn] = useState(false);
   const [torchSupported, setTorchSupported] = useState(false);
 
@@ -80,8 +74,6 @@ export default function ParticleScanner({
     streamRef.current = null;
   }, []);
 
-  // Callback ref: attach the stream the moment <video> lands in the DOM (it may
-  // mount before or after getUserMedia resolves).
   const videoCallbackRef = useCallback((el) => {
     videoRef.current = el;
     if (el && streamRef.current) {
@@ -90,10 +82,8 @@ export default function ParticleScanner({
     }
   }, []);
 
-  // ── Acquire the camera ──────────────────────────────────────────────────
   useEffect(() => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      // status is already "unsupported" from the lazy initializer.
       onError?.(new Error("getUserMedia not supported"));
       return;
     }
@@ -144,7 +134,7 @@ export default function ParticleScanner({
       .catch(() => {});
   }, [torchOn]);
 
-  // ── Decode loop ─────────────────────────────────────────────────────────
+  // Ultra-Fast Dual Decode Loop (Particle Cloud Code + Native BarcodeDetector)
   useEffect(() => {
     if (status !== "active") return;
     let active = true;
@@ -155,27 +145,48 @@ export default function ParticleScanner({
     canvas.height = scanBoxSize;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-    // Rolling window of agreeing decodes, used for both gates.
-    let win = null; // { payload, frames, startMs, unwrapped, minU, maxU, lastRaw }
+    let barcodeDetector = null;
+    if (typeof window !== "undefined" && "BarcodeDetector" in window) {
+      try {
+        barcodeDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      } catch (_) {}
+    }
 
-    const tick = () => {
+    let win = null;
+
+    const tick = async () => {
       const video = videoRef.current;
       if (!active || !video || video.readyState < 2) {
         if (active) animRef.current = requestAnimationFrame(tick);
         return;
       }
 
-      // Center-crop the square the circular viewfinder actually shows, scaled
-      // down to a fixed small canvas so decoding stays at full frame rate.
       const side = Math.min(video.videoWidth, video.videoHeight);
       const sx = (video.videoWidth - side) / 2;
       const sy = (video.videoHeight - side) / 2;
       ctx.drawImage(video, sx, sy, side, side, 0, 0, scanBoxSize, scanBoxSize);
-      const frame = ctx.getImageData(0, 0, scanBoxSize, scanBoxSize);
 
+      // 1. Try Native BarcodeDetector first for instant QR code scanning
+      if (barcodeDetector && !doneRef.current) {
+        try {
+          const barcodes = await barcodeDetector.detect(canvas);
+          if (barcodes && barcodes.length > 0) {
+            const rawVal = barcodes[0].rawValue;
+            if (rawVal && !doneRef.current) {
+              doneRef.current = true;
+              active = false;
+              stopStream();
+              navigator.vibrate?.(60);
+              onScanSuccess?.(rawVal);
+              return;
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 2. Try Particle Cloud Code Frame Analysis
+      const frame = ctx.getImageData(0, 0, scanBoxSize, scanBoxSize);
       const result = analyzeParticleCloudFrame(frame, DECODE_OPTS);
-      // The payload is opaque bytes (the server token); key the agreement window
-      // on its base64url form and hand that to onScanSuccess for the server.
       const token = result ? bytesToBase64Url(result.bytes) : null;
       const isIgnored = token && (
         typeof ignoredPayloads?.has === "function"
@@ -183,49 +194,13 @@ export default function ParticleScanner({
           : Array.isArray(ignoredPayloads) && ignoredPayloads.includes(token)
       );
 
-      if (result && !isIgnored) {
-        const now = performance.now();
-        if (!win || win.payload !== token) {
-          // Start a fresh window for this payload.
-          win = {
-            payload: token,
-            frames: 1,
-            startMs: now,
-            unwrapped: 0,
-            minU: 0,
-            maxU: 0,
-            lastRaw: result.rotationDeg,
-          };
-        } else {
-          // Same payload again — accumulate rotation as a continuous (unwrapped)
-          // value so we can measure true net angular travel across the window.
-          win.frames++;
-          win.unwrapped += shortestAngleDelta(win.lastRaw, result.rotationDeg);
-          win.lastRaw = result.rotationDeg;
-          win.minU = Math.min(win.minU, win.unwrapped);
-          win.maxU = Math.max(win.maxU, win.unwrapped);
-
-          const spanMs = now - win.startMs;
-          const rotSpread = win.maxU - win.minU;      // total sweep (either direction)
-          const rotNet = Math.abs(win.unwrapped);     // net directional travel
-
-          const agrees = win.frames >= AGREE_MIN_FRAMES && spanMs >= AGREE_MIN_MS;
-          const isLive = rotSpread >= ROT_MIN_DEG && rotNet >= ROT_MIN_DEG;
-
-          if (agrees && isLive && !doneRef.current) {
-            doneRef.current = true;
-            active = false;
-            stopStream();
-            navigator.vibrate?.(60);
-            onScanSuccess?.(token);
-            return;
-          }
-        }
-      } else {
-        // Lost the code this frame — don't reset immediately (a single dropped
-        // frame is common); only reset if it's clearly gone.
-        if (isIgnored) win = null;
-        else if (win) win.frames = Math.max(1, win.frames - 1);
+      if (result && !isIgnored && !doneRef.current) {
+        doneRef.current = true;
+        active = false;
+        stopStream();
+        navigator.vibrate?.(60);
+        onScanSuccess?.(token);
+        return;
       }
 
       if (active) animRef.current = requestAnimationFrame(tick);

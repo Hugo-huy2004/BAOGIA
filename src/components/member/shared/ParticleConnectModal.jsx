@@ -5,8 +5,9 @@ import Confetti from "react-confetti";
 import ParticleGenerator from "./ParticleGenerator";
 import ParticleScanner from "./ParticleScanner";
 import { base64UrlToBytes } from "../../../utils/particleCloudCode";
-import { searchJoyUser, getJoyQrPayload, resolveJoyQr, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
+import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveNfcCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
+import { useNfc } from "../../../hooks/useNfc";
 
 const RECENT_KEY = "joy_recent_contacts";
 const QUICK_AMOUNTS = [50, 100, 200, 500];
@@ -483,6 +484,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [ignoredScanPayloads, setIgnoredScanPayloads] = useState(() => new Set());
+  const [nfcScanning, setNfcScanning] = useState(false);
+  const [nfcWriteStatus, setNfcWriteStatus] = useState(""); // "" | "writing" | "done" | "error"
+  const nfc = useNfc();
   const [hasPin, setHasPin] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [setupPinStep, setSetupPinStep] = useState(1);
@@ -514,6 +518,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     setAmount(""); setNote(""); setSearchQ(""); setSearchResults([]);
     setError(""); setResult(null); setIgnoredScanPayloads(new Set());
     scanResolvingRef.current = false;
+    setNfcScanning(false); setNfcWriteStatus("");
+    nfc.stopScan();
     setRecentContacts(getRecent());
     setPinInput("");
     setSetupPinStep(1);
@@ -777,6 +783,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       { id: "search", icon: "person_search", label: t("joy.particle.tabSearch", "Tìm kiếm") },
                       { id: "myqr", icon: "qr_code_2", label: t("joy.particle.tabMyQr", "Mã của tôi") },
                       { id: "scan", icon: "qr_code_scanner", label: t("joy.particle.tabScanQr", "Quét QR") },
+                      ...(nfc.supported ? [{ id: "nfc", icon: "nfc", label: t("joy.particle.tabNfc", "Tap NFC") }] : []),
                     ].map(m => (
                       <button key={m.id} onClick={() => setMode(m.id)} style={{
                         flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
@@ -867,6 +874,50 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                             <ParticleGenerator bytes={myTokenBytes} size={240} background={cardBg} />
                           </div>
                           <p style={{ color: "#0f172a", fontWeight: 900, fontSize: 14, marginTop: 12 }} className="dark:text-white">{myQR.displayName}</p>
+                          {/* Write NFC button */}
+                          {nfc.supported && (
+                            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                              {nfcWriteStatus === "writing" ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 10, background: "rgba(99,102,241,.06)" }}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1" }}>{t("joy.particle.nfcWrite", "Đang ghi NFC...")}</span>
+                                </div>
+                              ) : nfcWriteStatus === "done" ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 10, background: "rgba(34,197,94,.08)" }}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#22c55e" }}>check_circle</span>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#22c55e" }}>{t("joy.particle.nfcWriteSuccess", "Đã ghi NFC thành công!")}</span>
+                                </div>
+                              ) : (
+                                <button onClick={async () => {
+                                  if (!myQR?.referralCode) return;
+                                  setNfcWriteStatus("writing");
+                                  try {
+                                    await nfc.writeTag(myQR.referralCode);
+                                    setNfcWriteStatus("done");
+                                    playBeep();
+                                    setTimeout(() => setNfcWriteStatus(""), 3000);
+                                  } catch {
+                                    setNfcWriteStatus("error");
+                                    playLose();
+                                    setTimeout(() => setNfcWriteStatus(""), 3000);
+                                  }
+                                }} style={{
+                                  display: "flex", alignItems: "center", gap: 6,
+                                  padding: "8px 16px", borderRadius: 10,
+                                  border: "1px solid #e5e7eb", background: "#f8fafc",
+                                  cursor: "pointer", transition: ".15s",
+                                }}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#6366f1" }}>nfc</span>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }} className="dark:text-white">{t("joy.particle.nfcWriteBtn", "Ghi NFC")}</span>
+                                </button>
+                              )}
+                              {nfcWriteStatus !== "writing" && (
+                                <p style={{ color: "#94a3b8", fontSize: 10, textAlign: "center" }}>
+                                  {t("joy.particle.nfcWriteHint", "Chạm thẻ NFC vật lý vào mặt sau điện thoại để ghi mã")}
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -887,6 +938,67 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           ignoredPayloads={ignoredScanPayloads}
                           scanBoxSize={240}
                         />
+                      )}
+                    </div>
+                  )}
+
+                  {/* NFC mode — tap a physical NFC tag */}
+                  {mode === "nfc" && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0 4px" }}>
+                      {scanResolving ? (
+                        <div style={{ padding: "40px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                          <p style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>{t("joy.particle.verifying", "Đang xác minh mã...")}</p>
+                        </div>
+                      ) : nfcScanning ? (
+                        <div style={{ padding: "32px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+                          <div style={{ position: "relative", width: 120, height: 120 }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 80, color: "#6366f1", animation: "jtSigilBreathe 2s ease-in-out infinite" }}>nfc</span>
+                          </div>
+                          <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
+                            {t("joy.particle.nfcScanHint", "Đặt thẻ NFC vào mặt sau điện thoại")}
+                          </p>
+                          <p style={{ color: "#94a3b8", fontSize: 11, textAlign: "center" }}>
+                            {t("joy.particle.nfcScanTitle", "Đang tìm thẻ NFC...")}
+                          </p>
+                          <button onClick={() => { setNfcScanning(false); nfc.stopScan(); }} style={{
+                            padding: "8px 20px", borderRadius: 10, border: "1px solid #e5e7eb",
+                            background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                          }}>{t("joy.particle.cancel", "Hủy")}</button>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "20px 0" }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 56, color: "#e5e7eb" }}>nfc</span>
+                          <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
+                            {t("joy.particle.nfcTapHint", "Chạm thẻ NFC của người nhận để bắt đầu chuyển JOY")}
+                          </p>
+                          {error && (
+                            <p style={{ color: "#ef4444", fontSize: 12, fontWeight: 600, textAlign: "center" }}>{error}</p>
+                          )}
+                          <button onClick={async () => {
+                            setError("");
+                            setNfcScanning(true);
+                            const cleanup = nfc.startScan((code) => {
+                              setNfcScanning(false);
+                              setScanResolving(true);
+                              resolveNfcCode(code)
+                                .then(data => { playBeep(); selectRecipient(data); })
+                                .catch(e => { playLose(); setError(e.message || t("joy.particle.nfcReadError", "Không đọc được thẻ NFC")); })
+                                .finally(() => setScanResolving(false));
+                            });
+                            // Auto-timeout after 30s
+                            setTimeout(() => { if (nfcScanning) { cleanup(); setNfcScanning(false); } }, 30000);
+                          }} style={{
+                            padding: "12px 32px", borderRadius: 14, border: "none",
+                            background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff",
+                            fontSize: 13, fontWeight: 800, cursor: "pointer",
+                            display: "flex", alignItems: "center", gap: 8,
+                            boxShadow: "0 4px 20px rgba(99,102,241,.4)",
+                          }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>nfc</span>
+                            {t("joy.particle.nfcStartScan", "Bắt đầu quét NFC")}
+                          </button>
+                        </div>
                       )}
                     </div>
                   )}

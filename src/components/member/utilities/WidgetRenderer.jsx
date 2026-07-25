@@ -1,4 +1,5 @@
 import React from "react";
+import HugoZenlyMasterWidget from "./HugoZenlyMasterWidget";
 
 export default function WidgetRenderer({
   myWidgets,
@@ -22,8 +23,6 @@ export default function WidgetRenderer({
   glowShadows,
   onAppHover
 }) {
-  if (myWidgets.length === 0) return null;
-
   const [timeLeft, setTimeLeft] = React.useState(1500);
 
   React.useEffect(() => {
@@ -50,11 +49,11 @@ export default function WidgetRenderer({
 
   return (
     <div className="space-y-4 text-left">
-      <div className="flex items-center gap-2 px-1 text-muted-foreground/90 font-black text-xs uppercase tracking-widest">
-        <span className="material-symbols-outlined text-base">dashboard</span>
-        <span>Tiện ích Widget ({myWidgets.length})</span>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+      {/* 🎨 PURE ZENLY STYLE MASTER WIDGET */}
+      <HugoZenlyMasterWidget />
+
+      {myWidgets.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
         {myWidgets.map((app, index) => {
           const size = utilitySizes[app.id] || "medium";
           const gradient = gradients[app.tint] || gradients.indigo;
@@ -422,9 +421,9 @@ export default function WidgetRenderer({
             );
           }
 
-          return null;
         })}
       </div>
+      )}
     </div>
   );
 }

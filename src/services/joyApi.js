@@ -41,11 +41,35 @@ export async function getJoyQrPayload(email) {
 }
 
 export async function resolveJoyQr(payload) {
-  validateJoyQrPayload(payload);
-  const res = await fetch(`${getApiUrl()}/joy/resolve-qr?payload=${encodeURIComponent(payload)}`);
-  const data = await parseOrThrow(res);
-  if (data.success === false) throw new Error(data.error || "Mã JOY không hợp lệ hoặc đã hết hạn.");
-  return data;
+  if (!payload || typeof payload !== "string") {
+    throw new Error("Mã JOY không hợp lệ.");
+  }
+  let cleanPayload = payload.trim();
+  if (cleanPayload.includes("://") || cleanPayload.includes("?ref=")) {
+    try {
+      const u = new URL(cleanPayload, window.location.origin);
+      cleanPayload = u.searchParams.get("ref") || u.pathname.split("/").pop() || cleanPayload;
+    } catch (_) {}
+  }
+
+  // 1. Try 14-char signed token
+  if (/^[A-Za-z0-9_-]{14}$/.test(cleanPayload)) {
+    try {
+      const res = await fetch(`${getApiUrl()}/joy/resolve-qr?payload=${encodeURIComponent(cleanPayload)}`);
+      const data = await parseOrThrow(res);
+      if (data && data.success !== false) return data;
+    } catch (_) {}
+  }
+
+  // 2. Fallback: Search user by Referral Code / Email / Query
+  try {
+    const searchResults = await searchJoyUser(cleanPayload, "");
+    if (searchResults && searchResults.length > 0) {
+      return searchResults[0];
+    }
+  } catch (_) {}
+
+  throw new Error("Mã JOY không hợp lệ hoặc không tìm thấy người nhận.");
 }
 
 export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }) {
@@ -80,6 +104,11 @@ export async function verifyTransactionPin(pin) {
     body: JSON.stringify({ pin }),
     credentials: "include"
   });
+  return parseOrThrow(res);
+}
+
+export async function resolveNfcCode(code) {
+  const res = await fetch(`${getApiUrl()}/joy/resolve-nfc?code=${encodeURIComponent(code)}`);
   return parseOrThrow(res);
 }
 

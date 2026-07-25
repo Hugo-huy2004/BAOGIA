@@ -689,3 +689,21 @@
 @keyframes hotToastLeave { from { opacity: 1; transform: translate3d(0,0,0) scale(1); } to { opacity: 0; transform: translate3d(0,-14px,0) scale(.98); } }
 .animate-enter { animation: hotToastEnter .28s cubic-bezier(.21,1.02,.73,1) both; }
 .animate-leave { animation: hotToastLeave .22s ease-in forwards; }
+
+/* =========================================================
+   PWA STANDALONE NATIVE APP POLISH
+   ========================================================= */
+html.standalone-pwa,
+html.standalone-pwa body {
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html.standalone-pwa #root {
+  -webkit-overflow-scrolling: touch;
+}
+
+button, a, [role="button"], input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+

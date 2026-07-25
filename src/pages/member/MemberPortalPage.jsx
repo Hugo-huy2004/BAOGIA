@@ -75,10 +75,10 @@ const DiscoveryMap       = React.lazy(() => import("../../components/member/Disc
 function StatusBadge({ status, isEduVerified }) {
   const { t } = useTranslation();
   const cfg = {
-    active:   { label: t("memberPortal.status.active") || 'Đã xác minh', color: 'bg-success/10 text-success border-success/20', icon: 'verified' },
-    trial:    { label: 'Đang dùng thử', color: 'bg-warning/10 text-warning border-warning/20', icon: 'hourglass_top' },
-    pending:  { label: t("memberPortal.status.pending") || 'Đang chờ',    color: 'bg-warning/10 text-warning border-warning/20',   icon: 'pending' },
-    rejected: { label: t("memberPortal.status.rejected") || 'Bị từ chối',  color: 'bg-destructive/10 text-destructive border-destructive/20',           icon: 'cancel' },
+    active:   { label: t("memberPortal.status.active"), color: 'bg-success/10 text-success border-success/20', icon: 'verified' },
+    trial:    { label: t("memberPortal.status.trial"), color: 'bg-warning/10 text-warning border-warning/20', icon: 'hourglass_top' },
+    pending:  { label: t("memberPortal.status.pending"),    color: 'bg-warning/10 text-warning border-warning/20',   icon: 'pending' },
+    rejected: { label: t("memberPortal.status.rejected"),  color: 'bg-destructive/10 text-destructive border-destructive/20',           icon: 'cancel' },
   };
   const key = status === 'active' && !isEduVerified ? 'trial' : status;
   const c = cfg[key] || cfg.pending;
@@ -249,7 +249,7 @@ export default function MemberPortalPage() {
   const [locationAnomaly, setLocationAnomaly] = useState(null);
   const handleSleepAutoDetect = React.useCallback((cycle) => {
     setPendingSleepCycle(cycle);
-    showToast("Hệ thống tự động ghi nhận giấc ngủ đêm qua!", "success");
+    showToast(t("memberPortal.toast.sleepDetected"), "success");
   }, [showToast]);
   const sleepDetect = useSleepAutoDetect({
     email: memberSession?.email,
@@ -310,10 +310,10 @@ export default function MemberPortalPage() {
 
   // ── Mobile account section definitions ───────────────────────────────────────
   const ACCOUNT_SECTIONS = useMemo(() => [
-    { id:'profile',      label:'Thông tin cá nhân', sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-card to-card'  },
+    { id:'profile',      label:t("memberPortal.accountSections.profile"), sub:t("memberPortal.bento.profileSub"),  icon:'person',          grad:'from-card to-card'  },
     { id:'design',       label:t("memberPortal.sidebar.theme"),     sub:t("memberPortal.bento.designSub"),   icon:'palette',         grad:'from-card to-card'  },
     { id:'links',        label:t("memberPortal.sidebar.links"),     sub:t("memberPortal.bento.linksSub", { count: formData.links?.length || 0 }), icon:'link',    grad:'from-card to-card'  },
-    { id:'achievements', label:'Thành tích',        sub:t("memberPortal.bento.projectsSub", { count: (formData.projects?.length || 0) + (formData.services?.length || 0) }), icon:'military_tech', grad:'from-card to-card' },
+    { id:'achievements', label:t("memberPortal.accountSections.achievements"),        sub:t("memberPortal.bento.projectsSub", { count: (formData.projects?.length || 0) + (formData.services?.length || 0) }), icon:'military_tech', grad:'from-card to-card' },
   ], [formData.links?.length, formData.projects?.length, formData.services?.length, t]);
 
   const renderBasicInfoCard = () => {
@@ -345,7 +345,7 @@ export default function MemberPortalPage() {
             </div>
             
             <p className="text-muted-foreground text-xs font-semibold">
-              {formData.headline || "Chưa thiết lập tiêu đề tiểu sử"}
+              {formData.headline || t("memberPortal.headlineEmpty")}
             </p>
 
             <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2.5 pt-1 text-[11px] font-medium text-muted-foreground dark:text-zinc-400">
@@ -381,7 +381,7 @@ export default function MemberPortalPage() {
               className="flex items-center gap-1.5 px-3.5 py-2 text-[10px] font-black uppercase tracking-wider text-foreground/80 bg-white/40 dark:bg-white/5 border border-border rounded-xl hover:bg-muted dark:hover:bg-white/10 active:scale-95 transition-all shadow-sm"
             >
               <span className="material-symbols-outlined text-sm">tune</span>
-              Cài đặt Bio
+              {t("memberPortal.settingsBtn")}
             </button>
           </div>
         </div>
@@ -390,15 +390,15 @@ export default function MemberPortalPage() {
         <div className="mt-5 pt-4 border-t border-border/80 grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-muted-foreground font-mono tracking-wider">
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-foreground text-xs font-black">{formData.links?.length || 0}</span>
-            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">Liên kết</span>
+            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">{t("memberPortal.linksLabel")}</span>
           </div>
           <div className="flex flex-col items-center gap-0.5 border-x border-border/80">
             <span className="text-foreground text-xs font-black">{formData.projects?.length || 0}</span>
-            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">Thành tích</span>
+            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">{t("memberPortal.achievementsLabel")}</span>
           </div>
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-foreground text-xs font-black">{(formData.theme?.template || "Classic").toUpperCase()}</span>
-            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">Theme</span>
+            <span className="uppercase text-[8px] tracking-widest text-muted-foreground">{t("memberPortal.themeLabel")}</span>
           </div>
         </div>
       </div>
@@ -560,7 +560,7 @@ export default function MemberPortalPage() {
     const resetTimer = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        showToast("Phiên làm việc đã hết hạn bảo mật. Hệ thống tự động đăng xuất để bảo vệ tài khoản.", "warning");
+        showToast(t("memberPortal.toast.sessionExpired"), "warning");
         setTimeout(() => {
           handleLogout();
         }, 1500);
@@ -588,7 +588,7 @@ export default function MemberPortalPage() {
     try {
       const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, schoolIdCode: verificationForm.schoolIdCode, phoneZalo: verificationForm.phoneZalo });
       if (res.success) {
-        showToast(res.bio?.isEduVerified ? "Xác minh thành công! Bạn đã có thể sử dụng đầy đủ tính năng." : t("memberPortal.toast.submitSuccess"), "success");
+        showToast(res.bio?.isEduVerified ? t("memberPortal.toast.eduVerified") : t("memberPortal.toast.submitSuccess"), "success");
         setBio(res.bio);
       }
     } catch (err) { showToast(err.message || t("memberPortal.toast.submitError"), "error"); }
@@ -691,7 +691,7 @@ export default function MemberPortalPage() {
       ...(!isGuestMode ? [
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet", partner: false },
       ] : []),
-      { id: "map",       label: "Khám Phá",        icon: "explore",                partner: false },
+      { id: "map",       label: t("memberPortal.tabs.map"),        icon: "explore",                partner: false },
       { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps",            partner: false },
       { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications",   partner: false },
       ...(!isGuestMode ? [
@@ -709,15 +709,15 @@ export default function MemberPortalPage() {
   const mobileTabs = useMemo(() => {
     if (isGuestMode) {
       return [
-        { id: "map",       label: "Khám Phá",        icon: "explore" },
+        { id: "map",       label: t("memberPortal.tabs.map"),        icon: "explore" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
-        { id: "login",     label: t("navbar.login", "Đăng Nhập"),    icon: "login" }
+        { id: "login",     label: t("navbar.login"),    icon: "login" }
       ];
     } else {
       return [
         { id: "joy",       label: t("memberPortal.tabs.joy"),        icon: "account_balance_wallet" },
-        { id: "map",       label: "Khám Phá",        icon: "explore" },
+        { id: "map",       label: t("memberPortal.tabs.map"),        icon: "explore" },
         { id: "utilities", label: t("memberPortal.tabs.utilities"),  icon: "apps" },
         { id: "history",   label: t("memberPortal.tabs.history"),    icon: "notifications" },
         ...(needsEduVerification ? [
@@ -868,9 +868,9 @@ export default function MemberPortalPage() {
           constantly-moving full-screen canvas read as a busy website. Re-add
           <AuraBackground theme={bio?.activeAuraTheme || 'default'} /> to restore. */}
 
-      <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'account' ? 'pt-2 pb-20 md:pb-12' : 'pt-4 sm:pt-6 md:pt-8 pb-28 md:pb-12'} space-y-5 sm:space-y-6 relative z-10`}>
-        {/* ── Portal Header ─────────────────────────────────────────────────── */}
-        <header style={{ padding: ""}} className={`${(activeTab === "utilities" && mobileSubSection) || (activeTab === 'account' && !mobileSubSection) ? "hidden md:block" : ""} bg-card border border-border/60 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm`}>
+      <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'utilities' ? 'pt-0 pb-20 md:pb-12 space-y-0' : activeTab === 'account' ? 'pt-2 pb-20 md:pb-12 space-y-4' : 'pt-2 sm:pt-4 pb-28 md:pb-12 space-y-4'} relative z-10`}>
+        {/* ── Portal Header (Hidden on all pages for full app surface) ──────── */}
+        <header style={{ padding: ""}} className="hidden bg-card border border-border/60 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm">
           <div className="flex items-center justify-between gap-2">
             {/* Left */}
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -999,8 +999,8 @@ export default function MemberPortalPage() {
                   </div>
                 )}
                 {visitedTabs.has("map") && (
-                  <div style={{ display: activeTab === "map" ? undefined : "none", padding: "0 12px" }}>
-                    <DiscoveryMap />
+                  <div style={{ display: activeTab === "map" ? undefined : "none", padding: 0 }}>
+                    <DiscoveryMap userAvatarUrl={formData.avatarUrl || bio?.avatarUrl} userName={formData.displayName || memberSession?.displayName} />
                   </div>
                 )}
                 {visitedTabs.has("utilities") && (
@@ -1042,6 +1042,9 @@ export default function MemberPortalPage() {
                       addSocialLink={addSocialLink}
                       removeSocialLink={removeSocialLink}
                       bioTextareaRef={bioTextareaRef}
+                      onOpenParticleModal={() => setParticleOpen(true)}
+                      onSelectTab={(tabId, subView) => navigate(subView ? `/member/${tabId}?tab=${subView}` : `/member/${tabId}`)}
+                      onSelectUtility={(appId) => handleSelectUtility(appId)}
                     />
                   </div>
                 )}

@@ -1491,7 +1491,85 @@
       "community": "Cộng đồng",
       "settings": "Cá nhân",
       "verify": "Xác minh",
-      "verifyEduPending": "Sinh viên chưa xác minh"
+      "verifyEduPending": "Sinh viên chưa xác minh",
+      "map": "Khám Phá"
+    },
+    "status": {
+      "active": "Đã xác minh",
+      "pending": "Đang chờ",
+      "rejected": "Bị từ chối",
+      "trial": "Đang dùng thử"
+    },
+    "accountSections": {
+      "profile": "Thông tin cá nhân",
+      "achievements": "Thành tích"
+    },
+    "widget": {
+      "headerTitle": "TỔNG QUAN HỒ SƠ BIO",
+      "designLabel": "Thiết kế",
+      "shareLabel": "Chia sẻ",
+      "publicTheme": "Chủ đề hiển thị công khai",
+      "qrTitle": "Mã QR Bio",
+      "qrScanHint": "Quét nhanh liên kết",
+      "links": "Liên kết",
+      "socialList": "Danh sách mạng xã hội",
+      "noLinks": "Chưa cấu hình liên kết mạng xã hội. Hãy chuyển qua mục **Cài đặt** để thiết lập.",
+      "achievements": "Thành tựu",
+      "featuredProjects": "Dự án & Tác phẩm nổi bật",
+      "noProjects": "Chưa cấu hình dự án nổi bật. Hãy chuyển qua mục **Cài đặt** để thiết lập.",
+      "projectCategory": "Dự án"
+    },
+    "bioPreview": {
+      "title": "Trang Bio",
+      "subtitle": "Xem trước trang cá nhân công khai",
+      "backAria": "Quay lại",
+      "openAria": "Mở trang Bio",
+      "previewAria": "Xem trước trang Bio",
+      "copySuccess": "Đã sao chép link trang Bio",
+      "copyError": "Không sao chép được link",
+      "notReadyTitle": "Trang Bio chưa sẵn sàng",
+      "notReadyDesc": "Hãy hoàn tất thông tin tại **Cài đặt › Thông tin cá nhân** để có link trang Bio công khai.",
+      "customizeTitle": "Tùy chỉnh trang Bio",
+      "designLabel": "Giao diện & Chủ đề",
+      "linkCardsLabel": "Thẻ liên kết",
+      "achievementsLabel": "Dự án & Thành tích",
+      "editHint": "Chỉnh **giao diện, liên kết, thành tích** ở các mục phía trên — thay đổi sẽ tự cập nhật ở bản xem trước bên dưới.",
+      "membershipHeader": "3-Year Developer Membership",
+      "expiryLabel": "Hết hạn:",
+      "packageTitle": "Trang Bio sở hữu",
+      "packageName": "BIO + MEMBERSHIP",
+      "startDate": "NGÀY BẮT ĐẦU",
+      "bioExpiry": "HẠN DÙNG BIO",
+      "daysElapsed": "{{elapsed}}/{{total}} ngày",
+      "daysLeft": "Còn {{count}} ngày"
+    },
+    "verify": {
+      "title": "Hoàn Tất Thông Tin Sinh Viên",
+      "desc": "Thông tin dưới đây sẽ được cố định sau khi xác minh, vui lòng nhập chính xác.",
+      "fullName": "Họ và tên",
+      "fullNamePlaceholder": "Nhập họ và tên của bạn...",
+      "birthday": "Sinh nhật",
+      "phoneZalo": "Số điện thoại (Zalo)",
+      "phoneZaloPlaceholder": "Nhập số điện thoại Zalo...",
+      "schoolName": "Tên trường học",
+      "schoolNamePlaceholder": "VD: Thăng Long (không cần ghi TH/THCS/ĐH...)",
+      "schoolLevel": "Cấp học",
+      "schoolLevelPlaceholder": "-- Chọn Cấp Học --",
+      "levelTH": "Tiểu học (TH)",
+      "levelTHCS": "Trung học cơ sở (THCS)",
+      "levelTHPT": "Trung học phổ thông (THPT)",
+      "levelCD": "Cao đẳng (CĐ)",
+      "levelDH": "Đại học (ĐH)",
+      "studentId": "Mã học sinh / sinh viên",
+      "studentIdPlaceholder": "Nhập mã số HS/SV của bạn...",
+      "acceptTerms": "Chấp nhận cung cấp thông tin và miễn trừ pháp lý",
+      "acceptContact": "Email .edu sẽ được duyệt ngay lập tức; email thường sẽ được Admin xem xét trong 24 tiếng tới.",
+      "logoutBtn": "Đăng xuất",
+      "submitBtn": "Gửi thông tin"
+    },
+    "historyActions": {
+      "markAllRead": "Đánh dấu đã đọc",
+      "settingsBtn": "Cài đặt thông báo"
     },
     "joyWallet": {
       "brand": "Hugo JOY Wallet",
@@ -1664,13 +1742,41 @@
       "submitError": "Không thể gửi yêu cầu.",
       "packageActivated": "Gói dịch vụ đã được kích hoạt!",
       "giftSuccess": "Nhận quà tặng thành công!",
-      "healingSuccess": "Chúc cậu luôn kiên cường và bình an nhé! ❤️"
+      "healingSuccess": "Chúc cậu luôn kiên cường và bình an nhé! ❤️",
+      "eduVerified": "Xác minh thành công! Bạn đã có thể sử dụng đầy đủ tính năng.",
+      "sessionExpired": "Phiên làm việc đã hết hạn bảo mật. Hệ thống tự động đăng xuất để bảo vệ tài khoản.",
+      "sleepDetected": "Hệ thống tự động ghi nhận giấc ngủ đêm qua!"
+    },
+    "headlineEmpty": "Chưa thiết lập tiêu đề tiểu sử",
+    "settingsBtn": "Cài đặt Bio",
+    "linksLabel": "Liên kết",
+    "achievementsLabel": "Thành tích",
+    "themeLabel": "Theme",
+    "settingsPage": {
+      "pageTitle": "Cài đặt — Hugo Studio",
+      "editBtn": "Chỉnh sửa",
+      "saveBtn": "Lưu",
+      "savingBtn": "Đang lưu...",
+      "joyBalance": "Số dư JOY",
+      "rechargeBtn": "Nạp",
+      "exchangeBtn": "Trao đổi",
+      "quickSettings": "Quick Settings",
+      "notifSound": "Âm thông báo",
+      "showDonation": "Hiện widget quyên góp",
+      "logoutBtn": "Đăng xuất",
+      "copyLinkBtn": "Sao chép link",
+      "profileMenu": "Thông tin",
+      "designMenu": "Giao diện",
+      "linksMenu": "Liên kết",
+      "achievementsMenu": "Thành tích",
+      "defaultName": "Người dùng",
+      "noDesc": "Chưa có mô tả"
     },
     "utilitiesPage": {
       "title": "HỆ SINH THÁI TIỆN ÍCH SỐ",
       "desc": "Khám phá bộ công cụ số hóa giúp cá nhân hóa thương hiệu cá nhân của bạn, hỗ trợ ghi thẻ NFC, chia sẻ danh bạ nhanh và tạo chữ ký email chỉ trong vài giây.",
       "tabTitle": "Tiện ích thành viên",
-      "back": "Quay lại",
+      "back": "Back",
       "nfc": {
         "title": "Tạo Mã QR Thông Minh",
         "desc": "Tạo và tải xuống mã QR tùy chỉnh. Người khác quét mã sẽ thực hiện cài đặt hoặc truy cập thông tin ngay lập tức.",
@@ -1820,11 +1926,6 @@
         "customHostPlaceholder": "Ví dụ: https://my-github-stats.vercel.app"
       }
     },
-    "status": {
-      "active": "Đã xác minh",
-      "pending": "Đang chờ",
-      "rejected": "Bị từ chối"
-    },
     "packages": {
       "signature": {
         "name": "Signature Portfolio",
@@ -1900,13 +2001,24 @@
         "next": "Tiếp tục",
         "totalDeduction": "Tổng trừ",
         "warning": "Giao dịch JOY không thể hoàn lại — vui lòng kiểm tra kỹ trước khi xác nhận",
-        "back": "Quay lại",
+        "back": "Back",
         "sendNow": "Gửi ngay",
         "scanCloudCode": "Quét Mã Particle Cloud",
         "cameraUnsupported": "Thiết bị không hỗ trợ camera",
         "cameraError": "Lỗi camera",
         "cameraHintInline": "Hướng camera vào Mã Particle Cloud của người khác để kết nối.",
-        "cameraHint": "Hướng camera vào Mã Particle Cloud"
+        "cameraHint": "Hướng camera vào Mã Particle Cloud",
+        "tabNfc": "Tap NFC",
+        "nfcWriteBtn": "Ghi NFC",
+        "nfcWrite": "Đang ghi NFC...",
+        "nfcWriteSuccess": "Đã ghi NFC thành công!",
+        "nfcWriteHint": "Chạm thẻ NFC vật lý vào mặt sau điện thoại để ghi mã",
+        "nfcScanTitle": "Đang tìm thẻ NFC...",
+        "nfcScanHint": "Đặt thẻ NFC vào mặt sau điện thoại",
+        "nfcStartScan": "Bắt đầu quét NFC",
+        "nfcTapHint": "Chạm thẻ NFC của người nhận để bắt đầu chuyển JOY",
+        "nfcReadError": "Không đọc được thẻ NFC",
+        "cancel": "Hủy"
       },
       "exchange": {
         "exchanged": "Đã đổi",
