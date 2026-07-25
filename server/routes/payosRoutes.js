@@ -360,7 +360,11 @@ const autoVerifyPendingPayments = async () => {
   }
 };
 
-// Start background task (polling every 10 seconds)
-setInterval(autoVerifyPendingPayments, 10000);
+// Fallback poll for PENDING links. The /webhook above confirms payments
+// instantly, so this only catches missed webhooks — 5 min is plenty and cuts
+// PayOS+DB egress ~30x vs the old 10s (was the bulk of Render outbound).
+// ponytail: raise the interval, don't add per-link scheduling — webhook is the
+// real path. Lower it only if webhooks prove unreliable.
+setInterval(autoVerifyPendingPayments, 5 * 60 * 1000);
 
 export default router;
