@@ -839,14 +839,7 @@ export default function MemberPortalPage() {
   return (
     <>
     <WeatherAlertWatcher />
-    <div
-      className="relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300"
-      // PWA is viewport-fit=cover + black-translucent status bar, so content
-      // draws under the iOS notch/status bar. Inset the top once here (env()=0
-      // off-PWA, so no effect in the browser or on desktop). Bottom is handled
-      // on the tab bar. ponytail: single top inset for the whole portal.
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
-    >
+    <div className="portal-apple relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
       {/* Flat "app" look: the animated weather/aura backdrops are off by default —
           a calm solid background reads as an app, not a busy website. Kept
           behind the (still user-toggleable) weather pref so it can be re-enabled.

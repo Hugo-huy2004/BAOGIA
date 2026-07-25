@@ -258,6 +258,17 @@ export default function MemberJoyTab({
                   </span>
                 </div>
 
+                {/* Middle: Apple Wallet-style available balance, front & centre */}
+                <div className="flex-1 flex flex-col justify-center min-w-0">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide opacity-60 block">Số dư khả dụng</span>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-[34px] leading-none font-bold tracking-tight tabular-nums">
+                      {(balance ?? 0).toLocaleString("vi-VN")}
+                    </span>
+                    <span className="text-base font-bold text-amber-500">JOY</span>
+                  </div>
+                </div>
+
                 {/* Bottom Row: Cardholder Name & Direct "Chuyển JOY" Action Button */}
                 <div className="flex items-end justify-between gap-2 pt-2">
                   <div className="space-y-0.5 min-w-0">
@@ -284,15 +295,15 @@ export default function MemberJoyTab({
 
             {/* REAL CARD BALANCE & MISSIONS GRID (2-COLUMN) */}
             <div className="grid grid-cols-2 gap-3">
-              {/* Card Balance Box */}
+              {/* Referrals summary (balance now lives on the Wallet card above) */}
               <div className="bg-card border border-border/40 rounded-[20px] p-4 shadow-xs flex flex-col justify-between space-y-2 text-left">
-                <span className="text-[11px] font-bold text-muted-foreground block">Số Dư Ví JOY</span>
+                <span className="text-[11px] font-bold text-muted-foreground block">Đã Giới Thiệu</span>
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-foreground font-mono tracking-tight">
-                    {(balance ?? 0).toLocaleString("vi-VN")} <span className="text-xs text-amber-500 font-bold">JOY</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+                    {referralCount} <span className="text-xs text-amber-500 font-bold">người</span>
                   </h2>
                   <span className="text-[10px] font-medium text-muted-foreground block mt-0.5">
-                    Cá nhân khả dụng
+                    Bạn bè dùng mã của bạn
                   </span>
                 </div>
               </div>
