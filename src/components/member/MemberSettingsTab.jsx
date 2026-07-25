@@ -203,7 +203,7 @@ export default function MemberSettingsTab({
         </div>
 
         <p className="text-[10px] text-muted-foreground/80 px-2 leading-relaxed">
-          Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối Greenwich.
+          Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối HugoStudio.
         </p>
       </div>
 

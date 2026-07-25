@@ -5,10 +5,12 @@
  */
 
 const DB_NAME = "HugoStudioEdgeDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_SKIN_HISTORY = "skin_history";
 const STORE_CHECKLIST = "skincare_checklist";
 const STORE_SYNC_QUEUE = "sync_queue";
+const STORE_BOOTSTRAP_CACHE = "bootstrap_cache";
+const STORE_USER_SETTINGS = "user_settings";
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -29,6 +31,12 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains(STORE_SYNC_QUEUE)) {
         db.createObjectStore(STORE_SYNC_QUEUE, { keyPath: "id", autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(STORE_BOOTSTRAP_CACHE)) {
+        db.createObjectStore(STORE_BOOTSTRAP_CACHE, { keyPath: "key" });
+      }
+      if (!db.objectStoreNames.contains(STORE_USER_SETTINGS)) {
+        db.createObjectStore(STORE_USER_SETTINGS, { keyPath: "key" });
       }
     };
 
@@ -109,6 +117,32 @@ export const IndexedDBStorage = {
       store.delete(id);
     } catch (e) {
       console.warn("Lỗi xóa sync queue item:", e);
+    }
+  },
+
+  async saveBootstrapCache(data) {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_BOOTSTRAP_CACHE, "readwrite");
+      const store = tx.objectStore(STORE_BOOTSTRAP_CACHE);
+      store.put({ key: "me_bootstrap", data, updatedAt: Date.now() });
+    } catch (e) {
+      console.warn("Lỗi saveBootstrapCache IndexedDB:", e);
+    }
+  },
+
+  async getBootstrapCache() {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_BOOTSTRAP_CACHE, "readonly");
+      const store = tx.objectStore(STORE_BOOTSTRAP_CACHE);
+      return new Promise((resolve) => {
+        const req = store.get("me_bootstrap");
+        req.onsuccess = () => resolve(req.result?.data || null);
+        req.onerror = () => resolve(null);
+      });
+    } catch {
+      return null;
     }
   }
 };

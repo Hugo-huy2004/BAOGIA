@@ -77,12 +77,7 @@ const DEFAULT_INSTALLED = [
   "arcade_chess", "arcade_2048", "arcade_tetris", "arcade_survivor", "info"
 ];
 
-const DEFAULT_SIZES = {
-  psychology: "medium",
-  ide: "large",
-  aura: "medium",
-  joy_wallet: "medium",
-};
+const DEFAULT_SIZES = {};
 
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
   const navigate = useNavigate();
@@ -276,9 +271,18 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   });
 
   const [utilitySizes, setUtilitySizes] = useState(() => {
+    if (bio && bio.utilitySizes && typeof bio.utilitySizes === 'object') {
+      return bio.utilitySizes;
+    }
     const saved = localStorage.getItem("hugo_utility_sizes");
-    return saved ? JSON.parse(saved) : DEFAULT_SIZES;
+    return saved ? JSON.parse(saved) : {};
   });
+
+  useEffect(() => {
+    if (bio && bio.utilitySizes && typeof bio.utilitySizes === 'object') {
+      setUtilitySizes(bio.utilitySizes);
+    }
+  }, [bio]);
 
   // Subset of installedApps that also gets a home-screen icon — see
   // handleInstallApp's addToHome choice and syncHomeScreenApps below.
@@ -684,12 +688,19 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     showToast?.(`Đã gỡ ứng dụng (Giải phóng -${appSizeMb} MB bộ nhớ máy)!`, "info");
   };
 
-  const handleSetWidgetSize = (appId, size) => {
-    setUtilitySizes((prev) => {
-      const updated = { ...prev, [appId]: size };
-      localStorage.setItem("hugo_utility_sizes", JSON.stringify(updated));
-      return updated;
-    });
+  const handleSetWidgetSize = async (appId, size) => {
+    const updated = { ...utilitySizes, [appId]: size };
+    setUtilitySizes(updated);
+    localStorage.setItem("hugo_utility_sizes", JSON.stringify(updated));
+
+    if (bio?._id && bio._id !== 'guest') {
+      try {
+        const res = await memberService.updateMemberBio(bio._id, { utilitySizes: updated });
+        if (res?.bio && onBioUpdate) {
+          onBioUpdate(res.bio);
+        }
+      } catch (err) { /* soft fail open */ }
+    }
   };
 
   const handleSetWallpaper = (themeId) => {

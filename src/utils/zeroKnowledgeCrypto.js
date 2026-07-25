@@ -68,17 +68,28 @@ export const ZeroKnowledgeCrypto = {
 
       const parts = cipherText.split(":");
       const iv = new Uint8Array(parts[1].match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-      const encryptedData = new Uint8Array(parts[2].match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-
+      const data = new Uint8Array(parts[2].match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      const dec = new TextDecoder();
       const decrypted = await crypto.subtle.decrypt(
         { name: "AES-GCM", iv },
         key,
-        encryptedData
+        data
       );
-
-      return new TextDecoder().decode(decrypted);
+      return dec.decode(decrypted);
     } catch {
       return cipherText;
+    }
+  },
+
+  async hashPinOnDevice(pin) {
+    if (!globalThis.crypto?.subtle || !pin) return pin;
+    try {
+      const enc = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest("SHA-256", enc.encode(`JOY_PIN_${pin}_SALT`));
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    } catch {
+      return pin;
     }
   }
 };

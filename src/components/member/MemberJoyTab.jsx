@@ -187,7 +187,7 @@ export default function MemberJoyTab({
   const completedCount = challenges.filter((c) => c.completed).length;
 
   return (
-    <div className="max-w-md mx-auto space-y-5 animate-fadeIn text-left select-none pb-28">
+    <div className="max-w-md mx-auto space-y-5 animate-fadeIn text-left select-none pb-6">
       {/* ── 1. TOP APPLE CARD TOOLBAR ───────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-1 py-1">
         <button
@@ -272,9 +272,9 @@ export default function MemberJoyTab({
                 {/* Bottom Row: Cardholder Name & Direct "Chuyển JOY" Action Button */}
                 <div className="flex items-end justify-between gap-2 pt-2">
                   <div className="space-y-0.5 min-w-0">
-                    <span className="text-[9px] font-bold uppercase tracking-widest opacity-60 block">THÀNH VIÊN GREENWICH</span>
+                    <span className="text-[9px] font-bold uppercase tracking-widest opacity-60 block">THÀNH VIÊN HUGOSTUDIO</span>
                     <span className="text-xs sm:text-sm font-black uppercase tracking-wider block truncate">
-                      {bio?.displayName || email?.split("@")[0] || "LE GIA HUY (FGW HCM)"}
+                      {bio?.displayName || email?.split("@")[0] || "LE GIA HUY"}
                     </span>
                   </div>
 

@@ -8,6 +8,7 @@ import { base64UrlToBytes } from "../../../utils/particleCloudCode";
 import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveNfcCode, transferJoy, checkHasPin, setTransactionPin } from "../../../services/joyApi";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
+import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
 
 const RECENT_KEY = "joy_recent_contacts";
 const QUICK_AMOUNTS = [50, 100, 200, 500];
@@ -1020,19 +1021,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
                         placeholder={t("joy.particle.amountPlaceholder", "Tối thiểu 10 JOY")}
-                        style={{
-                          width: "100%", padding: "13px 56px 13px 14px", borderRadius: 14,
-                          border: "1.5px solid #e5e7eb", background: "#f8fafc",
-                          fontSize: 18, fontWeight: 900, outline: "none", boxSizing: "border-box",
-                          color: "#0f172a",
-                        }}
+                        className="w-full py-3 pl-3.5 pr-14 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-lg font-black outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                       />
                       <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 11, fontWeight: 800, color: "#94a3b8" }}>JOY</span>
                     </div>
                     {numAmount > 0 && (
-                      <p style={{ margin: "5px 0 0", fontSize: 11, color: "#94a3b8" }}>
-                        {t("joy.particle.fee", "Phí sáng tạo")}: <strong style={{ color: "#6366f1" }}>{fee} JOY</strong>
-                        {" · "}{t("joy.particle.total", "Tổng")}: <strong style={{ color: "#0f172a" }}>{total} JOY</strong>
+                      <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                        {t("joy.particle.fee", "Phí sáng tạo")}: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{fee} JOY</strong>
+                        {" · "}{t("joy.particle.total", "Tổng")}: <strong className="text-slate-900 dark:text-white font-black">{total} JOY</strong>
                       </p>
                     )}
                   </div>
@@ -1040,13 +1036,17 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   {/* Quick amounts */}
                   <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
                     {QUICK_AMOUNTS.map(q => (
-                      <button key={q} onClick={() => setAmount(String(q))} style={{
-                        flex: 1, padding: "7px 0", borderRadius: 999,
-                        border: amount === String(q) ? "1.5px solid #6366f1" : "1.5px solid #e5e7eb",
-                        background: amount === String(q) ? "rgba(99,102,241,.08)" : "#f8fafc",
-                        color: amount === String(q) ? "#6366f1" : "#64748b",
-                        fontSize: 11, fontWeight: 800, cursor: "pointer",
-                      }}>{q}</button>
+                      <button
+                        key={q}
+                        onClick={() => setAmount(String(q))}
+                        className={`flex-1 py-1.5 rounded-full text-xs font-black transition-all ${
+                          amount === String(q)
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10"
+                        }`}
+                      >
+                        {q}
+                      </button>
                     ))}
                   </div>
 
@@ -1058,21 +1058,22 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       onChange={e => setNote(e.target.value)}
                       placeholder={t("joy.particle.notePlaceholder", "Nhập nội dung...")}
                       maxLength={100}
-                      style={{
-                        width: "100%", padding: "11px 14px", borderRadius: 12,
-                        border: "1.5px solid #e5e7eb", background: "#f8fafc",
-                        fontSize: 13, fontWeight: 600, outline: "none", boxSizing: "border-box",
-                      }}
+                      className="w-full py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs font-bold outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                     />
                     {/* Suggestion chips */}
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
                       {[t("joy.particle.chipThanks", "Cảm ơn!"), t("joy.particle.chipGift", "Tặng bạn")].map(chip => (
-                        <button key={chip} onClick={() => setNote(chip)} style={{
-                          padding: "4px 10px", borderRadius: 999,
-                          border: "1px solid #e5e7eb", background: note === chip ? "rgba(99,102,241,.08)" : "#f8fafc",
-                          color: note === chip ? "#6366f1" : "#64748b",
-                          fontSize: 10, fontWeight: 700, cursor: "pointer",
-                        }}>{chip}</button>
+                        <button
+                          key={chip}
+                          onClick={() => setNote(chip)}
+                          className={`px-3 py-1 rounded-full text-[10px] font-black transition-all ${
+                            note === chip
+                              ? "bg-indigo-600 text-white shadow-xs"
+                              : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10"
+                          }`}
+                        >
+                          {chip}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -1106,8 +1107,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         </div>
                       </div>
                       {note.trim() && (
-                        <div style={{ background: "#f8fafc", borderRadius: 10, padding: "8px 12px", marginBottom: 8, border: "1px solid #f1f5f9" }}>
-                          <p style={{ margin: 0, fontSize: 11, color: "#64748b", fontStyle: "italic" }}>"{note.trim()}"</p>
+                        <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-2.5 mb-2 border border-slate-200/70 dark:border-white/10">
+                          <p className="m-0 text-xs text-slate-600 dark:text-slate-300 italic font-medium">"{note.trim()}"</p>
                         </div>
                       )}
                     </div>
@@ -1146,10 +1147,12 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   </p>
 
                   <div style={{ display: "flex", gap: 10 }}>
-                    <button onClick={() => setStep("amount")} style={{
-                      flex: 1, padding: "13px 0", borderRadius: 14, border: "1px solid #e5e7eb",
-                      background: "#f8fafc", color: "#64748b", fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    }}>{t("joy.particle.back", "Quay lại")}</button>
+                    <button
+                      onClick={() => setStep("amount")}
+                      className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all cursor-pointer"
+                    >
+                      {t("joy.particle.back", "Quay lại")}
+                    </button>
                     <button onClick={handleSend} style={{
                       flex: 2, padding: "13px 0", borderRadius: 14, border: "none",
                       background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff",
@@ -1172,7 +1175,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   </p>
                   
                   {/* Password Circles */}
-                  <div style={{ display: "flex", gap: 14, margin: "20px 0 24px 0" }}>
+                  <div style={{ display: "flex", gap: 14, margin: "20px 0 16px 0" }}>
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div
                         key={i}
@@ -1189,6 +1192,24 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       />
                     ))}
                   </div>
+
+                  {/* Face ID Quick Pay Button */}
+                  {FaceIdPayHelper.isAvailable() && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await FaceIdPayHelper.authenticateBiometricPay();
+                          handleVerifyAndSend("BIOMETRIC_PASSED");
+                        } catch (err) {
+                          setError(err.message || "Xác thực Face ID thất bại");
+                        }
+                      }}
+                      className="mb-4 px-4 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center gap-2 hover:bg-indigo-100 transition-all active:scale-95 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-base">fingerprint</span>
+                      Xác nhận nhanh bằng Face ID / Touch ID
+                    </button>
+                  )}
 
                   {error && (
                     <div style={{ color: "#ef4444", fontSize: 11, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
@@ -1219,12 +1240,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           }
                         }}
                         style={{
-                          background: "#f1f5f9",
-                          border: "1px solid #e2e8f0",
                           borderRadius: "50%",
                           width: 50,
                           height: 50,
-                          color: "#0f172a",
                           fontSize: 18,
                           fontWeight: 850,
                           cursor: "pointer",
@@ -1234,7 +1252,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           margin: "0 auto",
                           transition: "all 0.2s"
                         }}
-                        className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                        className="bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95"
                       >
                         {num}
                       </button>
@@ -1252,12 +1270,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         }
                       }}
                       style={{
-                        background: "#f1f5f9",
-                        border: "1px solid #e2e8f0",
                         borderRadius: "50%",
                         width: 50,
                         height: 50,
-                        color: "#0f172a",
                         fontSize: 18,
                         fontWeight: 850,
                         cursor: "pointer",
@@ -1267,7 +1282,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         margin: "0 auto",
                         transition: "all 0.2s"
                       }}
-                      className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                      className="bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95"
                     >
                       0
                     </button>
@@ -1281,14 +1296,13 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         border: "none",
                         width: 50,
                         height: 50,
-                        color: "#64748b",
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         margin: "0 auto"
                       }}
-                      className="dark:text-slate-400"
+                      className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 20 }}>backspace</span>
                     </button>
@@ -1357,12 +1371,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           }
                         }}
                         style={{
-                          background: "#f1f5f9",
-                          border: "1px solid #e2e8f0",
                           borderRadius: "50%",
                           width: 50,
                           height: 50,
-                          color: "#0f172a",
                           fontSize: 18,
                           fontWeight: 850,
                           cursor: "pointer",
@@ -1372,7 +1383,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           margin: "0 auto",
                           transition: "all 0.2s"
                         }}
-                        className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                        className="bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95"
                       >
                         {num}
                       </button>
@@ -1390,12 +1401,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         }
                       }}
                       style={{
-                        background: "#f1f5f9",
-                        border: "1px solid #e2e8f0",
                         borderRadius: "50%",
                         width: 50,
                         height: 50,
-                        color: "#0f172a",
                         fontSize: 18,
                         fontWeight: 850,
                         cursor: "pointer",
@@ -1405,7 +1413,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         margin: "0 auto",
                         transition: "all 0.2s"
                       }}
-                      className="dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10 hover:bg-slate-200"
+                      className="bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 active:scale-95"
                     >
                       0
                     </button>
@@ -1419,14 +1427,13 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         border: "none",
                         width: 50,
                         height: 50,
-                        color: "#64748b",
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                         margin: "0 auto"
                       }}
-                      className="dark:text-slate-400"
+                      className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 20 }}>backspace</span>
                     </button>
@@ -1472,24 +1479,26 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     </div>
                   </div>
 
-                  <div style={{ background: "#f8fafc", borderRadius: 14, padding: "12px 14px", marginBottom: 16, border: "1px solid #f1f5f9" }}>
+                  <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-3.5 mb-4 border border-slate-200/70 dark:border-white/10">
                     {[
                       { label: "Mã GD", value: result.txCode, mono: true },
                       { label: "Người nhận", value: result.recipientName },
                       { label: "Phí sáng tạo", value: `${result.feeAmount} JOY` },
                       ...(result.message ? [{ label: "Nội dung", value: result.message }] : []),
                     ].map(row => (
-                      <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #f1f5f9" }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".08em" }}>{row.label}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: "#0f172a", fontFamily: row.mono ? "monospace" : "inherit" }} className="dark:text-white">{row.value}</span>
+                      <div key={row.label} className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-white/10 last:border-0">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{row.label}</span>
+                        <span className="text-xs font-extrabold text-slate-900 dark:text-white" style={{ fontFamily: row.mono ? "monospace" : "inherit" }}>{row.value}</span>
                       </div>
                     ))}
                   </div>
 
-                  <button onClick={onClose} style={{
-                    width: "100%", padding: "13px 0", borderRadius: 14, border: "1px solid #e5e7eb",
-                    background: "#f8fafc", color: "#64748b", fontWeight: 800, fontSize: 13, cursor: "pointer",
-                  }}>Đóng</button>
+                  <button
+                    onClick={onClose}
+                    className="w-full py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 font-black text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all cursor-pointer"
+                  >
+                    Đóng
+                  </button>
                 </div>
               )}
 

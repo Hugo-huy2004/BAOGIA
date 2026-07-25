@@ -31,6 +31,7 @@ import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
 import ParticleConnectModal from "../../components/member/shared/ParticleConnectModal";
 import { DashboardSkeleton } from "../../components/ui/SkeletonLayouts";
+import { AppBootstrapProvider, useAppBootstrap } from "../../context/AppBootstrapContext";
 // Maps a raw Bio document onto the editable formData shape — pulled out so
 // both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
 // build the exact same shape.
@@ -91,7 +92,7 @@ function StatusBadge({ status, isEduVerified }) {
   );
 }
 
-export default function MemberPortalPage() {
+function MemberPortalPage() {
   const { t } = useTranslation();
   const memberSession = getMemberSession();
   // Instant-paint from the last-known-good copy on this device — the real
@@ -1113,7 +1114,7 @@ export default function MemberPortalPage() {
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {bio?.status !== 'pending' && !isKeyboardVisible && (
-        <div id="mobile-bottom-tab-bar" className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden glass border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
+        <div id="mobile-bottom-tab-bar" className={`fixed bottom-0 left-0 right-0 z-[100] md:hidden bg-background/95 backdrop-blur-md border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)', paddingTop: '10px' }}>
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {
@@ -1168,5 +1169,13 @@ export default function MemberPortalPage() {
       }}
     />
     </>
+  );
+}
+
+export default function MemberPortalPageWithBootstrap(props) {
+  return (
+    <AppBootstrapProvider>
+      <MemberPortalPage {...props} />
+    </AppBootstrapProvider>
   );
 }

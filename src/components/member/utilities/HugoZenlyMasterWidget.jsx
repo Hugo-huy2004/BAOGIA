@@ -54,7 +54,7 @@ export default function HugoZenlyMasterWidget({ bio }) {
               {userName}
             </h3>
             <p className="text-[11px] font-semibold text-white/90 truncate -mt-0.5">
-              TP. Hồ Chí Minh · Greenwich Campus
+              {bio?.schoolName || bio?.location}
             </p>
           </div>
         </div>

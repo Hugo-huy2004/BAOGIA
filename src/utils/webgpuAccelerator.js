@@ -56,5 +56,15 @@ export const WebGPUAccelerator = {
     } catch {
       return 60;
     }
+  },
+
+  /**
+   * Applie 120 FPS GPU hardware acceleration CSS composition hints to UI DOM elements
+   */
+  applyGPUCompositionHints(element) {
+    if (!element || !element.style) return;
+    element.style.willChange = 'transform, opacity';
+    element.style.transform = 'translate3d(0, 0, 0)';
+    element.style.backfaceVisibility = 'hidden';
   }
 };

@@ -55,12 +55,9 @@ const JASON_PHOTO =
 // Logo trường thật (favicon chính chủ, fallback qua Google s2)
 const NDC_LOGO = "https://ndc.edu.vn/wp-content/themes/thptndc/assets/img/common/favicon.ico";
 const NDC_LOGO_FALLBACK = "https://www.google.com/s2/favicons?domain=ndc.edu.vn&sz=64";
-const GW_LOGO = "https://www.google.com/s2/favicons?domain=greenwich.edu.vn&sz=64";
-const GW_LOGO_FALLBACK = "https://www.google.com/s2/favicons?domain=tuyensinh.greenwich.edu.vn&sz=64";
-
 // Logo ngôn ngữ/công nghệ chuẩn (devicon CDN)
 const DEVICON = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
-const GREENWICH_STACK = [
+const CORE_TECH_STACK = [
   { name: "C#", icon: `${DEVICON}/csharp/csharp-original.svg` },
   { name: "Python", icon: `${DEVICON}/python/python-original.svg` },
   { name: "HTML", icon: `${DEVICON}/html5/html5-original.svg` },
@@ -586,7 +583,7 @@ function AboutSection({ t, jasonPhoto }) {
               {t("intro.cine.stackTitle")}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {GREENWICH_STACK.map((s) => (
+              {CORE_TECH_STACK.map((s) => (
                 <motion.span
                   key={s.name}
                   whileHover={{ y: -3 }}

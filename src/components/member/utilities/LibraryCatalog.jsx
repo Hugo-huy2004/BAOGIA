@@ -23,7 +23,7 @@ const APP_STORAGE_MB = {
 const DESCRIPTIONS = {
   bio: "Kiến tạo hồ sơ cá nhân độc bản và liên kết mạng xã hội (Biolink) mang phong cách của riêng bạn. Hỗ trợ tùy chỉnh ảnh đại diện, tiểu sử ngắn và tích hợp mã QR thanh toán nhanh.",
   ide: "Trình soạn thảo mã nguồn trực tuyến cực mạnh dành cho lập trình viên Hugo. Hỗ trợ các bài tập thực hành lập trình từ cơ bản tới nâng cao, kiểm thử code tức thì và chuẩn bị cho các kỳ thi chứng chỉ.",
-  team: "Nơi kết nối và tuyển dụng nhân tài, các dự án thực tế của sinh viên Greenwich VN. Khám phá các cơ hội làm việc nhóm và đóng góp cho các dự án mã nguồn mở chất lượng.",
+  team: "Nơi kết nối và tuyển dụng nhân tài, các dự án thực tế của cộng đồng sinh viên. Khám phá các cơ hội làm việc nhóm và đóng góp cho các dự án mã nguồn mở chất lượng.",
   psychology: "AI Trợ lý thấu cảm và tư vấn tâm lý 24/7. Trò chuyện giải tỏa áp lực học hành, thi cử, kết hợp các liệu pháp cải thiện chất lượng giấc ngủ và đo lường chỉ số tinh thần hoàn toàn bảo mật.",
   hugoskin: "Phân tích tình trạng da và tư vấn chu trình chăm sóc (Skincare) cá nhân hóa bằng AI. Quét sắc tố da qua camera, phát hiện khuyết điểm và gợi ý sản phẩm tối ưu.",
   radio: "Không gian thư giãn với Lofi music streaming trực tiếp từ các đài phát uy tín toàn cầu và cập nhật tin tức công nghệ mới nhất. Người bạn đồng hành không thể thiếu khi viết code.",

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { prefetchChunk } from "../../../utils/chunkPrefetcher";
 
 const APPS_PER_PAGE = 16; // Strict 4x4 iOS Grid
 
@@ -33,11 +34,17 @@ export default function AppIconRenderer({
           const gradient = gradients[app.tint] || gradients.indigo;
 
           const touchProps = {
-            onMouseEnter: () => onAppHover?.(app.id),
+            onMouseEnter: () => {
+              prefetchChunk(app.id);
+              onAppHover?.(app.id);
+            },
             onMouseDown: () => handleAppTouchStart(app),
             onMouseUp: (e) => handleAppTouchEnd(app, e),
             onMouseLeave: () => clearTimeout(window.longPressTimer),
-            onTouchStart: () => handleAppTouchStart(app),
+            onTouchStart: () => {
+              prefetchChunk(app.id);
+              handleAppTouchStart(app);
+            },
             onTouchEnd: (e) => handleAppTouchEnd(app, e),
             draggable: isEditMode,
             onDragStart: (e) => handleDragStart(e, globalIndex, "icon"),

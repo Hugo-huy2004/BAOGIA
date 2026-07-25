@@ -48,5 +48,16 @@ export const BackgroundSyncEngine = {
     } catch (e) {
       console.warn("Lỗi đồng bộ ngầm BackgroundSyncEngine:", e);
     }
+  },
+
+  async enqueueOfflineRequest(endpoint, payload) {
+    try {
+      await IndexedDBStorage.enqueueSyncItem(endpoint, payload);
+      if (navigator.onLine) {
+        await this.flushPendingQueue();
+      }
+    } catch (e) {
+      console.warn("Lỗi enqueue offline request:", e);
+    }
   }
 };

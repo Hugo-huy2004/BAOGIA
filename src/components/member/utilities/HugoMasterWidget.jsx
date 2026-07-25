@@ -74,7 +74,7 @@ export default function HugoMasterWidget() {
             <span>{(joyBalance ?? 0).toLocaleString("vi-VN")} JOY</span>
           </div>
           <span className="text-[10px] font-medium text-zinc-400">
-            Greenwich Campus ✨
+            {bio?.schoolName || "HugoStudio Campus ✨"}
           </span>
         </div>
       </div>

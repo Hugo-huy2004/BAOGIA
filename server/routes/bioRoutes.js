@@ -484,6 +484,72 @@ router.get('/me', requireMember, async (req, res) => {
   }
 });
 
+// GET /me/bootstrap — Eager Load Consolidated User Context
+router.get('/me/bootstrap', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    if (!email) {
+      return res.status(400).json({ error: 'Missing email' });
+    }
+
+    const [bioDoc, unreadCount, recentNotifications] = await Promise.all([
+      Bio.findOne({ $or: [{ email }, { contactEmail: email }] }),
+      InAppNotification.countDocuments({ email, read: false }).catch(() => 0),
+      InAppNotification.find({ email }).sort({ createdAt: -1 }).limit(5).catch(() => [])
+    ]);
+
+    if (!bioDoc) {
+      return res.status(404).json({ error: 'Bio profile not found' });
+    }
+
+    const recentContacts = (bioDoc.recentTransferContacts || []).slice(0, 5);
+    const bioObj = bioDoc.toObject();
+    if (bioObj.secretLinks && Array.isArray(bioObj.secretLinks)) {
+      bioObj.secretLinks = bioObj.secretLinks.map(link => ({
+        ...link,
+        url: decryptText(link.url),
+        password: ''
+      }));
+    }
+
+    const payload = {
+      bio: bioObj,
+      wallet: {
+        balance: bioDoc.joyWallet?.balance || 0,
+        currency: 'JOY',
+        hasPin: !!bioDoc.transactionPin
+      },
+      workspace: {
+        installedApps: bioDoc.installedApps || [],
+        homeScreenApps: bioDoc.homeScreenApps || [],
+      },
+      notifications: {
+        unreadCount,
+        recent: recentNotifications
+      },
+      recentContacts,
+      serverTime: new Date().toISOString()
+    };
+
+    const etag = `W/"${Buffer.from(JSON.stringify({
+      updatedAt: bioDoc.updatedAt || bioDoc.createdAt,
+      unreadCount,
+      balance: payload.wallet.balance,
+      installedCount: payload.workspace.installedApps.length
+    })).toString('base64').slice(0, 32)}"`;
+
+    res.setHeader('ETag', etag);
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).end();
+    }
+
+    return res.json(payload);
+  } catch (error) {
+    console.error('[Bootstrap API Error]', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Strips a leading school-level token (TH/THCS/THPT/ĐH/CĐ and common spellings)
 // from a school name so "THCS Nguyễn Du" becomes "Nguyễn Du" regardless of
 // whether the user typed the level into the name field by habit.
