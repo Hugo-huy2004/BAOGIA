@@ -629,8 +629,17 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         }
 
         setTimeout(() => {
-          syncInstalledApps([...installedApps, appId]);
-          if (addToHome) syncHomeScreenApps([...homeScreenApps, appId]);
+          setInstalledApps(prev => {
+            const nextInstalled = [...new Set([...prev, appId])];
+            syncInstalledApps(nextInstalled);
+            return nextInstalled;
+          });
+          setHomeScreenApps(prev => {
+            const nextHome = [...new Set([...prev, appId])];
+            syncHomeScreenApps(nextHome);
+            return nextHome;
+          });
+          window.dispatchEvent(new CustomEvent("hugo:app-installed", { detail: { appId } }));
           setDownloadingAppId(null);
           setDownloadProgress((prev) => {
             const nextProgress = { ...prev };
@@ -897,7 +906,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     // Merge state + localStorage so we capture BOTH sources
     const effectiveHome = [...new Set([...homeScreenApps, ...liveHome])];
     const effectiveInst = [...new Set([...installedApps, ...liveInst])];
-    return allUtilities.filter((util) => effectiveHome.includes(util.id) && effectiveInst.includes(util.id));
+    return allUtilities.filter((util) => effectiveHome.includes(util.id) || effectiveInst.includes(util.id));
   }, [allUtilities, installedApps, homeScreenApps, refreshKey]);
 
   const libraryAppsList = useMemo(() => {

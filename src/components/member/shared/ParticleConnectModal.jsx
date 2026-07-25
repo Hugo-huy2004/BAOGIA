@@ -427,19 +427,17 @@ function ContactCard({ contact, onSelect }) {
   return (
     <button
       onClick={() => onSelect(contact)}
-      style={{
-        display: "flex", alignItems: "center", gap: 10, width: "100%",
-        padding: "10px 0", background: "none", border: "none", cursor: "pointer",
-        textAlign: "left",
-      }}
+      className="flex items-center gap-3 w-full p-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-2xl border border-slate-200/50 dark:border-white/5 transition-all text-left group"
     >
-      <Avatar name={contact.displayName} url={contact.avatarUrl} size={40} />
+      <Avatar name={contact.displayName} url={contact.avatarUrl} size={42} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--foreground,#0f172a)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{contact.displayName}</p>
-        {contact.maskedPhone && <p style={{ margin: "2px 0 0", fontSize: 10, color: "#94a3b8" }}>{contact.maskedPhone}</p>}
-        {contact.referralCode && <p style={{ margin: "2px 0 0", fontSize: 10, color: "#94a3b8" }}>#{contact.referralCode}</p>}
+        <p className="m-0 text-sm font-extrabold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+          {contact.displayName}
+        </p>
+        {contact.maskedPhone && <p className="m-0 mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">{contact.maskedPhone}</p>}
+        {contact.referralCode && <p className="m-0 mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">#{contact.referralCode}</p>}
       </div>
-      <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#94a3b8" }}>chevron_right</span>
+      <span className="material-symbols-outlined text-lg text-slate-400 dark:text-slate-500 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
     </button>
   );
 }
@@ -724,13 +722,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
             width: "100%", maxWidth: 440,
             "--joy-modal-bg": "#fff",
           }}>
-            <div style={{
-              margin: 12,
-              background: "#fff",
-              borderRadius: 24,
-              boxShadow: "0 -4px 40px rgba(0,0,0,.2), 0 2px 12px rgba(0,0,0,.1)",
-              overflow: "hidden",
-            }} className="dark:bg-[#1a1924]">
+            <div className="m-3 bg-white dark:bg-[#1c1c1e] text-slate-900 dark:text-white rounded-[28px] shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden transition-colors">
 
               {/* ── Header ── */}
               <div style={{
@@ -785,15 +777,17 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       { id: "scan", icon: "qr_code_scanner", label: t("joy.particle.tabScanQr", "Quét QR") },
                       ...(nfc.supported ? [{ id: "nfc", icon: "nfc", label: t("joy.particle.tabNfc", "Tap NFC") }] : []),
                     ].map(m => (
-                      <button key={m.id} onClick={() => setMode(m.id)} style={{
-                        flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
-                        padding: "8px 4px",
-                        borderRadius: 12, border: mode === m.id ? "1.5px solid #6366f1" : "1.5px solid #e5e7eb",
-                        background: mode === m.id ? "rgba(99,102,241,.08)" : "transparent",
-                        cursor: "pointer", transition: ".15s",
-                      }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: mode === m.id ? "#6366f1" : "#94a3b8", fontVariationSettings: "'FILL' 1" }}>{m.icon}</span>
-                        <span style={{ fontSize: 9, fontWeight: 700, color: mode === m.id ? "#6366f1" : "#94a3b8", letterSpacing: ".04em" }}>{m.label}</span>
+                      <button
+                        key={m.id}
+                        onClick={() => setMode(m.id)}
+                        className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
+                          mode === m.id
+                            ? "bg-indigo-600 text-white shadow-md font-black"
+                            : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold border border-slate-200/60 dark:border-white/5 hover:bg-slate-200/70 dark:hover:bg-white/10"
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>{m.icon}</span>
+                        <span className="text-[10px] tracking-tight">{m.label}</span>
                       </button>
                     ))}
                   </div>
@@ -842,9 +836,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       {!searchQ.trim() && recentContacts.length > 0 && (
                         <div>
                           <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>{t("joy.particle.recent", "Gần đây")}</p>
-                          <div style={{ borderTop: "1px solid #f1f5f9" }}>
+                          <div className="border-t border-slate-100 dark:border-white/10 divide-y divide-slate-100 dark:divide-white/10">
                             {recentContacts.map(c => (
-                              <div key={c.referralCode} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                              <div key={c.referralCode}>
                                 <ContactCard contact={c} onSelect={selectRecipient} />
                               </div>
                             ))}
@@ -873,7 +867,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           <div style={{ borderRadius: "50%", lineHeight: 0 }}>
                             <ParticleGenerator bytes={myTokenBytes} size={240} background={cardBg} />
                           </div>
-                          <p style={{ color: "#0f172a", fontWeight: 900, fontSize: 14, marginTop: 12 }} className="dark:text-white">{myQR.displayName}</p>
+                          <p className="mt-3 text-sm font-black text-slate-900 dark:text-white">{myQR.displayName}</p>
                           {/* Write NFC button */}
                           {nfc.supported && (
                             <div style={{ marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
@@ -901,18 +895,13 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                                     playLose();
                                     setTimeout(() => setNfcWriteStatus(""), 3000);
                                   }
-                                }} style={{
-                                  display: "flex", alignItems: "center", gap: 6,
-                                  padding: "8px 16px", borderRadius: 10,
-                                  border: "1px solid #e5e7eb", background: "#f8fafc",
-                                  cursor: "pointer", transition: ".15s",
-                                }}>
-                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#6366f1" }}>nfc</span>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }} className="dark:text-white">{t("joy.particle.nfcWriteBtn", "Ghi NFC")}</span>
+                                }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 cursor-pointer transition-all hover:bg-slate-100 dark:hover:bg-white/10">
+                                  <span className="material-symbols-outlined text-base text-indigo-500">nfc</span>
+                                  <span className="text-xs font-bold text-slate-900 dark:text-white">{t("joy.particle.nfcWriteBtn", "Ghi NFC")}</span>
                                 </button>
                               )}
                               {nfcWriteStatus !== "writing" && (
-                                <p style={{ color: "#94a3b8", fontSize: 10, textAlign: "center" }}>
+                                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 text-center">
                                   {t("joy.particle.nfcWriteHint", "Chạm thẻ NFC vật lý vào mặt sau điện thoại để ghi mã")}
                                 </p>
                               )}
@@ -1504,10 +1493,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                 </div>
               )}
 
-              <p style={{
-                margin: "0 18px 16px", textAlign: "center",
-                fontSize: 9, fontWeight: 600, color: "#cbd5e1", letterSpacing: ".04em",
-              }}>JOY không thể nạp bằng tiền mặt</p>
+              <p className="mx-4 mb-4 text-center text-[10px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase select-none">
+                JOY không thể nạp bằng tiền mặt
+              </p>
             </div>
           </div>
         </div>

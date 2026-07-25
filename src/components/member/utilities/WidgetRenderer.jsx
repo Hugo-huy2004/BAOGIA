@@ -225,11 +225,6 @@ export default function WidgetRenderer({
                       </span>
                     </div>
                   </div>
-                  {!isEditMode && app.badge && (
-                    <span className="px-2.5 py-0.5 text-[8.5px] font-black bg-muted border border-border/75 text-muted-foreground uppercase rounded-md leading-none shadow-sm">
-                      {app.badge}
-                    </span>
-                  )}
                 </div>
 
                 <div className="flex-1 my-3 overflow-hidden flex flex-col justify-center">

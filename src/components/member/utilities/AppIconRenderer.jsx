@@ -68,12 +68,6 @@ export default function AppIconRenderer({
                 >
                   {app.icon}
                 </span>
-
-                {app.badge && (
-                  <span className="absolute -top-1.5 -right-1.5 z-30 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black tracking-wider bg-red-500 text-white rounded-full leading-none shadow-md select-none animate-bounce">
-                    {app.badge}
-                  </span>
-                )}
               </div>
 
               {/* App Label Underneath */}
