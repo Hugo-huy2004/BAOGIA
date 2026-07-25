@@ -33,11 +33,12 @@ function SoundscapePanel({ onBack, onComplete }) {
     whiteNoise: 0.5
   });
 
+  // ponytail: audio served from Cloudinary CDN (was 13MB in repo/bundle)
   const audiosRef = useRef({
-    rain: new Audio("/audio/rain.mp3"),
-    ocean: new Audio("/audio/sea.mp3"),
-    campfire: new Audio("/audio/campfire.mp3"),
-    whiteNoise: new Audio("/audio/ambient.mp3")
+    rain: new Audio("https://res.cloudinary.com/dyehwoscu/video/upload/v1784992415/therapy/rain.mp3"),
+    ocean: new Audio("https://res.cloudinary.com/dyehwoscu/video/upload/v1784992423/therapy/sea.mp3"),
+    campfire: new Audio("https://res.cloudinary.com/dyehwoscu/video/upload/v1784992425/therapy/campfire.mp3"),
+    whiteNoise: new Audio("https://res.cloudinary.com/dyehwoscu/video/upload/v1784992430/therapy/ambient.mp3")
   });
 
   useEffect(() => {
