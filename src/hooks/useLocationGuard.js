@@ -8,6 +8,7 @@
  */
 import { useEffect, useRef } from "react";
 import { getCachedGeolocation } from "../utils/geoCache.js";
+import { getMemberToken } from "../services/authSession.js";
 
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -26,7 +27,7 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
   useEffect(() => { onAnomalyRef.current = onAnomaly; }, [onAnomaly]);
 
   useEffect(() => {
-    if (!enabled || !email) return;
+    if (!enabled || !email || email.includes("guest") || !getMemberToken()) return;
 
     const runCheck = () => {
       if (checkingRef.current) return;

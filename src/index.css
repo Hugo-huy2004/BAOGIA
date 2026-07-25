@@ -714,71 +714,27 @@ button, a, [role="button"], input, textarea, select {
   -webkit-tap-highlight-color: transparent;
 }
 
-
 /* =========================================================================
-   APPLE MOBILE DESIGN LAYER  (member portal only)
-   Scope: .portal-apple  ×  @media (max-width:767px)
-   → Desktop (>=768px) and all public pages get NONE of this — provably
-     untouched. Turns the mobile/PWA member portal into an Apple-grade
-     surface (SF Pro, iOS system colours, Wallet/App Store/Settings feel).
+   APPLE-GRADE BOLD MOBILE CARD STYLING (max-width: 767px)
    ========================================================================= */
 @media (max-width: 767px) {
-  .portal-apple {
-    /* SF Pro is the system UI font on Apple devices; graceful fallback else */
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-                 "Helvetica Neue", "Plus Jakarta Sans", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.011em;
-
-    /* Apple system colours (light) — systemBlue accent + grouped surfaces */
-    --primary: 211 100% 50%;              /* #007AFF systemBlue            */
-    --primary-foreground: 0 0% 100%;
-    --primary-muted: 211 100% 50% / 0.12;
-    --background: 240 24% 96%;            /* systemGroupedBackground        */
-    --card: 0 0% 100%;                    /* secondarySystemGroupedBackground */
-    --ring: 211 100% 50%;
-  }
-  .dark .portal-apple {
-    --primary: 211 100% 52%;              /* #0A84FF systemBlue (dark)      */
-    --primary-muted: 211 100% 52% / 0.20;
-    --background: 0 0% 0%;                /* Apple grouped bg = pure black  */
-    --card: 240 3% 11%;                   /* #1C1C1E secondary grouped       */
-    --ring: 211 100% 52%;
+  .bg-card,
+  .glass-card,
+  .bg-card\/90,
+  .bg-card\/80,
+  .bg-card\/50 {
+    background-color: hsl(var(--card) / 0.98) !important;
+    border: 1.5px solid hsl(var(--border) / 0.7) !important;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.1) !important;
   }
 
-  /* Calm the shouty micro-labels into Apple's sentence-case semibold voice.
-     text-transform:none only undoes CSS-driven caps — literal codes stay caps. */
-  .portal-apple .uppercase { text-transform: none; }
-  .portal-apple .tracking-wider,
-  .portal-apple .tracking-widest,
-  .portal-apple .tracking-tight { letter-spacing: -0.011em; }
-  .portal-apple .font-black { font-weight: 700; }
-  .portal-apple h1, .portal-apple h2, .portal-apple h3 { letter-spacing: -0.02em; }
-
-  /* Rounded "continuous" corners like iOS cards */
-  .portal-apple .rounded-\[20px\],
-  .portal-apple .rounded-\[24px\],
-  .portal-apple .rounded-2xl { border-radius: 18px; }
-
-  /* iOS tab bar: translucent material, hairline top, systemBlue active tint */
-  .portal-apple #mobile-bottom-tab-bar {
-    background: rgba(255,255,255,0.72);
-    -webkit-backdrop-filter: saturate(180%) blur(22px);
-    backdrop-filter: saturate(180%) blur(22px);
-    border-top: 0.5px solid rgba(0,0,0,0.13);
-    box-shadow: none;
-  }
-  .dark .portal-apple #mobile-bottom-tab-bar {
-    background: rgba(22,22,24,0.72);
-    border-top: 0.5px solid rgba(255,255,255,0.12);
-  }
-  /* Tab labels: SF caption size/weight */
-  .portal-apple #mobile-bottom-tab-bar span:last-child { letter-spacing: -0.01em; }
-
-  /* Inputs: iOS field look */
-  .portal-apple input[type="text"],
-  .portal-apple input[type="tel"],
-  .portal-apple input[type="search"] {
-    border-radius: 12px;
+  .dark .bg-card,
+  .dark .glass-card,
+  .dark .bg-card\/90,
+  .dark .bg-card\/80,
+  .dark .bg-card\/50 {
+    background-color: rgba(22, 23, 28, 0.96) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 12px 36px -6px rgba(0, 0, 0, 0.6) !important;
   }
 }

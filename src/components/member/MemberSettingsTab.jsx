@@ -209,47 +209,7 @@ export default function MemberSettingsTab({
 
       {/* ── 4. GROUP 1: APPLE ACCOUNT SETTINGS INSET GROUP ──────────────────── */}
       <div className="bg-card border border-border/40 rounded-[24px] overflow-hidden shadow-xs divide-y divide-border/30">
-        {/* Subscriptions */}
-        <div
-          onClick={() => {
-            hapticSelect();
-            if (onSelectTab) onSelectTab("joy", "store");
-            else navigate("/member/joy?tab=store");
-          }}
-          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
-              <CreditCard className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-foreground">Subscription</h4>
-              <span className="text-[10.5px] text-muted-foreground block">Gói dịch vụ &amp; Đăng ký VIP</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-        </div>
 
-        {/* Purchase History */}
-        <div
-          onClick={() => {
-            hapticSelect();
-            if (onSelectTab) onSelectTab("joy", "card");
-            else navigate("/member/joy?tab=card");
-          }}
-          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-foreground">Purchase History</h4>
-              <span className="text-[10.5px] text-muted-foreground block">Lịch sử giao dịch &amp; Ví JOY ({(joyBalance ?? 0).toLocaleString()} JOY)</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-        </div>
 
         {/* Notifications */}
         <div

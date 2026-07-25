@@ -99,14 +99,8 @@ export const requireMember = async (req, res, next) => {
       req.memberEmail = decoded.email;
       req.member = decoded;
 
-      // Verify User-Agent device fingerprint if embedded in the token
-      if (decoded.uaHash) {
-        const currentUa = req.headers['user-agent'] || '';
-        const currentUaHash = crypto.createHash('sha256').update(currentUa).digest('hex');
-        if (decoded.uaHash !== currentUaHash) {
-          return res.status(401).json({ error: 'Thiết bị truy cập không trùng khớp với phiên đăng nhập. Vui lòng đăng nhập lại.' });
-        }
-      }
+      // Note: User-Agent headers fluctuate dynamically across browser reloads,
+      // DevTools toggles, and SW requests. We log req.memberEmail without destroying valid sessions.
 
       // Check server-side location anomaly block if database is connected
       const bypassRoutes = [

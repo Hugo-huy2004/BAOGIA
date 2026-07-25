@@ -57,14 +57,28 @@ function NotificationItem({ n, onMarkRead, onDismiss }) {
         {n.message && <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>}
         <p className="text-[9px] text-muted-foreground mt-1 font-mono">{timeAgo(n.createdAt)}</p>
       </div>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onDismiss(n._id); }}
-        className="text-muted-foreground hover:text-destructive transition-colors shrink-0 mt-0.5 p-1 active:scale-90"
-        aria-label="Xóa"
-      >
-        <span className="material-symbols-outlined text-sm">close</span>
-      </button>
+      <div className="flex items-center gap-1 shrink-0 mt-0.5">
+        {!n.read && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onMarkRead(n._id); }}
+            className="text-primary hover:bg-primary/10 rounded-full p-1 transition-colors active:scale-90"
+            title="Đánh dấu đã đọc"
+            aria-label="Đánh dấu đã đọc"
+          >
+            <span className="material-symbols-outlined text-sm font-bold">done_all</span>
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onDismiss(n._id); }}
+          className="text-muted-foreground hover:text-destructive transition-colors shrink-0 p-1 active:scale-90"
+          title="Xóa"
+          aria-label="Xóa"
+        >
+          <span className="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import memberService from "../../services/classes/MemberService";
 
@@ -84,6 +85,7 @@ const DEFAULT_SIZES = {
 };
 
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -310,6 +312,12 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [spotlightQuery, setSpotlightQuery] = useState("");
   const [spotlightSelectedIndex, setSpotlightSelectedIndex] = useState(0);
 
+  useEffect(() => {
+    const handleSpotlight = () => setIsSpotlightOpen(true);
+    window.addEventListener("hugo:open-spotlight", handleSpotlight);
+    return () => window.removeEventListener("hugo:open-spotlight", handleSpotlight);
+  }, []);
+
   // Interactive Live Audios states
   const [isRadioPlaying, setIsRadioPlaying] = useState(false);
   const [isAuraActive, setIsAuraActive] = useState(false);
@@ -341,41 +349,35 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   // Sync to database and localStorage helper
   const syncInstalledApps = async (updatedApps) => {
-    let appsToSave = [...updatedApps];
+    let appsToSave = [...new Set(updatedApps)];
     if (!appsToSave.includes("library")) appsToSave.unshift("library");
     if (!appsToSave.includes("info")) appsToSave.push("info");
     setInstalledApps(appsToSave);
     localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
     
-    if (bio?._id) {
+    if (bio?._id && bio._id !== 'guest') {
       try {
         const res = await memberService.updateMemberBio(bio._id, { installedUtilities: appsToSave });
         if (res?.bio && onBioUpdate) {
           onBioUpdate(res.bio);
         }
       } catch (err) {
-        console.error("Failed to sync installed utilities to DB:", err);
+        // Soft fail open — local storage maintains installed apps state
       }
     }
   };
 
-  // Sync installedApps — merge with current on-disk value so arcade installs are never lost
+  // Keep localStorage synced cleanly with installedApps
   useEffect(() => {
-    const onDisk = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
-    const merged = [...new Set([...onDisk, ...installedApps])];
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(merged));
+    if (installedApps.length > 0) {
+      localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(installedApps));
+    }
   }, [installedApps]);
 
   // Sync homeScreenApps with prop if bio updates asynchronously.
-  // IMPORTANT: Only apply if bio has MORE apps — never overwrite a fresher local state.
   useEffect(() => {
-    if (bio && Array.isArray(bio.homeScreenUtilities) && bio.homeScreenUtilities.length > 0) {
-      // Merge: keep local apps the DB doesn't know about yet (just installed)
-      setHomeScreenApps(prev => {
-        const merged = [...new Set([...bio.homeScreenUtilities, ...prev])];
-        if (JSON.stringify(merged) === JSON.stringify(prev)) return prev; // no change
-        return merged;
-      });
+    if (bio && Array.isArray(bio.homeScreenUtilities)) {
+      setHomeScreenApps(bio.homeScreenUtilities);
     }
   }, [bio]);
 
@@ -386,23 +388,23 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     setHomeScreenApps(appsToSave);
     localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(appsToSave));
 
-    if (bio?._id) {
+    if (bio?._id && bio._id !== 'guest') {
       try {
         const res = await memberService.updateMemberBio(bio._id, { homeScreenUtilities: appsToSave });
         if (res?.bio && onBioUpdate) {
           onBioUpdate(res.bio);
         }
       } catch (err) {
-        console.error("Failed to sync home-screen utilities to DB:", err);
+        // Soft fail open — local storage maintains home screen apps state
       }
     }
   };
 
-  // Sync to localStorage — merge with current on-disk value so arcade installs are never lost
+  // Keep localStorage synced cleanly with homeScreenApps
   useEffect(() => {
-    const onDisk = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
-    const merged = [...new Set([...onDisk, ...homeScreenApps])];
-    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(merged));
+    if (homeScreenApps.length > 0) {
+      localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(homeScreenApps));
+    }
   }, [homeScreenApps]);
 
   // ── CRITICAL: Re-sync from localStorage when Dashboard becomes visible ──────────
@@ -658,7 +660,17 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       console.warn("Storage cache clear error:", e);
     }
 
-    syncInstalledApps(installedApps.filter((id) => id !== appId));
+    const nextInstalled = installedApps.filter((id) => id !== appId);
+    const nextHomeScreen = homeScreenApps.filter((id) => id !== appId);
+
+    setInstalledApps(nextInstalled);
+    setHomeScreenApps(nextHomeScreen);
+    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(nextInstalled));
+    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(nextHomeScreen));
+
+    syncInstalledApps(nextInstalled);
+    syncHomeScreenApps(nextHomeScreen);
+
     setEditingApp(null);
     showToast?.(`Đã gỡ ứng dụng (Giải phóng -${appSizeMb} MB bộ nhớ máy)!`, "info");
   };
@@ -816,7 +828,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         return;
       }
       if (app.id.startsWith("arcade_")) {
-        setActiveArcadeGame(app.id);
+        const gameKey = app.id.replace("arcade_", "");
+        navigate(`/member/utilities/arcade?game=${gameKey}&from=utilities`, { state: { from: "/member/utilities" } });
         return;
       }
       if (data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
@@ -942,30 +955,19 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
-        <div className="space-y-8">
-          {/* Minimal Top Action Bar */}
-          <div className="flex items-center justify-end px-2 gap-2 pb-1">
-            {/* Spotlight Search Toggle Button */}
-            <button
+        <div className="space-y-4">
+          {/* Full-width Apple Search Bar */}
+          <div className="px-1 pb-1">
+            <div
               onClick={() => { setIsSpotlightOpen(true); setSpotlightQuery(""); setSpotlightSelectedIndex(0); }}
-              className="flex items-center justify-center w-9 h-9 rounded-full border bg-card/80 border-border/60 text-foreground hover:bg-muted transition-all active:scale-95 shadow-sm"
-              title="Tìm kiếm nhanh (Cmd + K)"
+              className="flex items-center gap-2.5 px-3.5 py-2.5 bg-card/90 border border-border/70 rounded-2xl shadow-sm cursor-pointer hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground active:scale-[0.99]"
             >
-              <span className="material-symbols-outlined text-lg">search</span>
-            </button>
-
-            {/* Sorting Mode Button */}
-            <button
-              onClick={() => setIsEditMode(!isEditMode)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase border transition-all active:scale-95 shadow-sm ${
-                isEditMode
-                  ? "bg-success border-success text-white shadow-md"
-                  : "bg-card/80 border-border/60 text-foreground hover:bg-muted"
-              }`}
-            >
-              <span className="material-symbols-outlined text-sm">{isEditMode ? "done" : "tune"}</span>
-              <span>{isEditMode ? "Xong" : "Sắp xếp"}</span>
-            </button>
+              <span className="material-symbols-outlined text-lg text-primary">search</span>
+              <span className="text-xs font-semibold text-muted-foreground flex-1">Tìm kiếm ứng dụng, trò chơi, tiện ích...</span>
+              <kbd className="hidden sm:inline-block px-2 py-0.5 bg-background rounded-md text-[10px] font-mono border border-border/60 text-foreground font-bold">
+                ⌘K
+              </kbd>
+            </div>
           </div>
 
           {myAppsList.length === 0 ? (
@@ -988,6 +990,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             <div className="space-y-8">
               {/* SECTION A: PREMIUM WIDGETS DASHBOARD Component */}
               <WidgetRenderer
+                bio={bio}
                 myWidgets={myWidgets}
                 utilitySizes={utilitySizes}
                 isEditMode={isEditMode}

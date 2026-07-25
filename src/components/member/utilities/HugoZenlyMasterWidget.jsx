@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Zap, CloudSun } from "lucide-react";
-import { useData } from "../../../context/DataContext";
+import { getMemberSession } from "../../../services/authSession";
 
-export default function HugoZenlyMasterWidget() {
-  const { data } = useData();
+export default function HugoZenlyMasterWidget({ bio }) {
   const [now, setNow] = useState(new Date());
 
-  const userAvatar = data?.member?.avatarUrl || "/image/avt1.png";
-  const userName = data?.member?.displayName || "Wishpax Hugo";
-  const joyBalance = data?.member?.joyBalance || 1540;
+  // Real logged-in identity — bio first (has joyBalance), member session as
+  // fallback for name/avatar. Never the old hardcoded dev defaults, which every
+  // member saw because `data.member` is never populated.
+  const session = getMemberSession();
+  const userAvatar = bio?.avatarUrl || session?.avatarUrl || "/image/avt1.png";
+  const userName = bio?.displayName || session?.displayName || session?.email?.split("@")[0] || "Thành viên";
+  const joyBalance = bio?.joyBalance ?? 0;
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -28,7 +31,7 @@ export default function HugoZenlyMasterWidget() {
   });
 
   return (
-    <div className="relative w-full h-[150px] rounded-[30px] p-4 sm:p-5 text-white shadow-[0_16px_40px_rgba(255,45,85,0.3)] overflow-hidden transition-all duration-300 hover:scale-[1.01] cursor-pointer bg-gradient-to-r from-[#FF2D55] via-rose-500 to-amber-400 border border-white/30 flex flex-col justify-between text-left select-none">
+    <div className="relative w-full h-[150px] rounded-[30px] p-4 sm:p-5 text-white shadow-lg overflow-hidden transition-transform duration-300 active:scale-[0.99] cursor-pointer bg-gradient-to-br from-[#FF2D55] via-rose-500 to-amber-400 border border-white/20 flex flex-col justify-between text-left select-none">
       
       {/* ☀️ Zenly Background Ambient Orbits */}
       <div className="absolute -top-6 -right-6 text-6xl opacity-25 pointer-events-none">

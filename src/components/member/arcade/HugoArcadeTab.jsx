@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
@@ -136,11 +136,16 @@ const GameCard = React.memo(function GameCard({ game, profile, isLocked, isDownl
 
 // ─── Main ──────────────────────────────────────────────────────────
 export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab  = searchParams.get("tab")  || "games";
   const activeGame = searchParams.get("game") === "chess"
     ? "chess"
     : (searchParams.get("game") || null);
+
+  const fromParam = searchParams.get("from");
+  const isFromUtilities = fromParam === "utilities" || location.state?.from === "/member/utilities";
 
   const [profile, setProfile] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
@@ -171,8 +176,17 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
   }, [playBeep, setSearchParams]);
   const closeGame = React.useCallback(() => {
-    setSearchParams(p => { p.delete("game"); p.delete("room"); return p; }, { replace: true });
-  }, [setSearchParams]);
+    if (isFromUtilities) {
+      navigate("/member/utilities", { replace: true });
+    } else {
+      setSearchParams(p => {
+        p.delete("game");
+        p.delete("room");
+        p.delete("from");
+        return p;
+      }, { replace: true });
+    }
+  }, [isFromUtilities, navigate, setSearchParams]);
 
   const handleConfirmCharge = React.useCallback(async () => {
     const res = await fetch(`${API_BASE}/joy/subscribe-feature`, {

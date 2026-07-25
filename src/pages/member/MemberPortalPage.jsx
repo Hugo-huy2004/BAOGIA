@@ -23,6 +23,8 @@ import WeatherLayer from "../../components/weather/WeatherLayer";
 import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import JoyCoinBadge from "../../components/shared/JoyCoinBadge";
+import DesktopAppleLayout from "../../components/desktop/DesktopAppleLayout";
+import AuraBackground from "../../components/member/portal/AuraBackground";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
@@ -134,7 +136,7 @@ export default function MemberPortalPage() {
   const { tab, subTab, psychTab } = useParams();
   const navigate = useNavigate();
 
-  const activeTab = tab || (isGuestMode ? "map" : "joy");
+  const activeTab = tab || (isGuestMode ? "map" : "utilities");
   const accountSubTab = subTab || "profile";
   const mobileSubSection = subTab || null;
 
@@ -223,6 +225,20 @@ export default function MemberPortalPage() {
   const [isDragging, setIsDragging]     = useState(false);
   const [startPos, setStartPos]         = useState({ x:0, y:0 });
   const [isDragOver, setIsDragOver]     = useState(false);
+  const [uploading, setUploading]       = useState(false);
+  const handleDrop = (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    setIsDragOver(false);
+    if (e?.dataTransfer?.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
+  const fileInputRef = useRef(null);
+  const handleAvatarUpload = (e) => {
+    if (e?.target?.files && e.target.files[0]) {
+      processFile(e.target.files[0]);
+    }
+  };
 
   const avatarInputRef  = useRef(null);
   // Separate ref for the mobile hero card's own avatar — it must stay
@@ -730,6 +746,16 @@ export default function MemberPortalPage() {
 
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
+  // Verification is a modal now (opened from the tab click), so /member/verify
+  // has no inline content and rendered blank on direct navigation/bookmark.
+  // Land there → open the modal and fall back to a real tab.
+  useEffect(() => {
+    if (activeTab === "verify") {
+      setShowVerifyModal(true);
+      navigate("/member/joy", { replace: true });
+    }
+  }, [activeTab, navigate]);
+
   // HugoPSY (or anywhere deep) can ask to open the verification form for a
   // locked-field change via a global event, since it may run fullscreen and
   // can't reach this state directly.
@@ -834,224 +860,189 @@ export default function MemberPortalPage() {
     );
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  // ── Render ───────────────────────────────────────────────────
   const weatherOn = isWeatherBgEnabled();
   return (
     <>
-    <WeatherAlertWatcher />
-    <div className="portal-apple relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
-      {/* Flat "app" look: the animated weather/aura backdrops are off by default —
-          a calm solid background reads as an app, not a busy website. Kept
-          behind the (still user-toggleable) weather pref so it can be re-enabled.
-          WeatherAlertWatcher above still runs for safety alerts. */}
-      <WeatherLayer enabled={weatherOn && activeTab === "map"} immersive mode="hero" />
+      <WeatherAlertWatcher />
+      <div className="relative isolate min-h-screen bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300">
+        <AuraBackground theme={bio?.activeAuraTheme || 'default'} />
+        {weatherOn && <WeatherLayer zIndex={-1} opacity={0.25} />}
 
-      <HealingModal
-        showModal={healing.showModal} subStep={healing.subStep} state={healing.state}
-        consecutiveLow={healing.consecutiveLow}
-        historyLogs={healing.historyLogs} onSubmit={healing.handleSubmit} onWheelSubmit={healing.handleWheelSubmit}
-        onGraduation={healing.handleGraduation} onGoToTest={healing.goToTest} onGoToBreath={healing.goToBreath}
-        onGoToChat={healing.goToChat}
-        onDismiss={() => { healing.setShowModal(false); showToast(t("memberPortal.toast.healingSuccess"), "success"); }}
-        showToast={showToast}
-      />
-
-      <HugoNoticeToast
-        open={Boolean(toast.message)}
-        type={toast.type || "info"}
-        message={toast.message}
-        onClose={() => setToast({ message: "", type: "" })}
-        zIndex={300}
-      />
-
-      {/* Animated aura backdrop disabled for a flat, calm "app" surface — a
-          constantly-moving full-screen canvas read as a busy website. Re-add
-          <AuraBackground theme={bio?.activeAuraTheme || 'default'} /> to restore. */}
-
-      <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'utilities' ? 'pt-0 pb-20 md:pb-12 space-y-0' : activeTab === 'account' ? 'pt-2 pb-20 md:pb-12 space-y-4' : 'pt-2 sm:pt-4 pb-28 md:pb-12 space-y-4'} relative z-10`}>
-        {/* ── Portal Header (Hidden on all pages for full app surface) ──────── */}
-        <header style={{ padding: ""}} className="hidden bg-card border border-border/60 rounded-2xl px-3 sm:px-3 py-2.5 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            {/* Left */}
-            <div className="flex items-center gap-2.5 flex-1 min-w-0">
-              {mobileSubSection && (
-                <button type="button" onClick={() => navigate("/member/account")}
-                  className="md:hidden w-7 h-7 rounded-xl bg-muted flex items-center justify-center shrink-0 active:scale-90 transition-transform">
-                  <span className="material-symbols-outlined text-xs text-muted-foreground">arrow_back_ios_new</span>
-                </button>
-              )}
-              <div className={`relative shrink-0 flex items-center ${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''}`}>
-                {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="avatar" className="w-10 h-10 rounded-full object-cover ring-2 ring-border shadow-sm" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0071e3] to-[#5856d6] flex items-center justify-center text-white font-black text-sm shadow-sm">
-                    {(formData.displayName||"?")[0]?.toUpperCase()}
-                  </div>
-                )}
-                {bio?.status === 'active' && (
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-border/60" />
-                )}
+        {/* ── 💻 DESKTOP APPLE WORKSPACE (hidden md:block) ────────────────── */}
+        <div className="hidden md:block">
+        <DesktopAppleLayout
+          memberSession={memberSession}
+          bio={bio}
+          notifications={notifications}
+          unreadCount={unreadNotifCount}
+          onMarkRead={markRead}
+          onMarkAllRead={markAllRead}
+          onDismiss={dismiss}
+          onOpenSpotlight={() => {
+            window.dispatchEvent(new CustomEvent("hugo:open-spotlight"));
+          }}
+          activeTab={activeTab}
+          selectedUtility={utilitySelection}
+        >
+          <ErrorBoundary>
+            <React.Suspense fallback={
+              <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
+                <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
               </div>
-              <div className="min-w-0">
-                {mobileSubSection ? (
-                  <div className="md:hidden">
-                    <p className="text-[11px] font-black text-foreground truncate">{activeSectionInfo?.label}</p>
-                    <p className="text-[9px] text-zinc-400 truncate">{activeSectionInfo?.sub}</p>
-                  </div>
-                ) : null}
-                {activeTab === 'account' && !mobileSubSection && (
-                  <div className="md:hidden flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>badge</span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-foreground">{t("memberPortal.tabs.bio").toUpperCase()}</span>
-                  </div>
-                )}
-                <div className={`${mobileSubSection ? 'hidden md:block' : ''} ${activeTab === 'account' && !mobileSubSection ? 'hidden md:block' : ''} flex flex-col justify-center`}>
-                  <div className="flex items-center gap-1.5">
-                    <h1 className="text-[13px] sm:text-sm font-bold tracking-tight text-foreground truncate">
-                      {isGuestMode ? t("memberPortal.designYourBio") : memberSession?.displayName || t("memberPortal.student")}
-                    </h1>
-                    {bio?.status && !isGuestMode && <StatusBadge status={bio.status} isEduVerified={bio.isEduVerified} />}
-                  </div>
-                  <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground truncate mt-0.5">
-                    {isGuestMode ? t("memberPortal.titlePartner") : t("memberPortal.titleStudent")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Particle QR + Logout */}
-            <div className={`flex items-center gap-2 shrink-0 ${activeTab === 'account' && !mobileSubSection ? 'hidden md:flex' : ''}`}>
-              {!isGuestMode && (
-                <button type="button" onClick={() => setParticleOpen(true)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center bg-muted text-foreground/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm ring-1 ring-black/5 dark:ring-white/10 active:scale-95">
-                  <span className="material-symbols-outlined text-[18px]">qr_code_scanner</span>
-                </button>
-              )}
-              {isGuestMode ? (
-                <button type="button" onClick={() => window.location.href = "/login"}
-                  className="w-[32px] h-[32px] rounded-full flex items-center justify-center bg-primary/10 text-primary border border-primary/20 shadow-sm active:scale-95 transition-all">
-                  <span className="material-symbols-outlined text-[16px]">login</span>
-                </button>
+            }>
+              {bio?.status === 'rejected' ? (
+                <RejectedVerification handleLogout={handleLogout} />
+              ) : bio?.status === 'pending' && !bio?.verificationRequest?.submitted ? (
+                <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
+              ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
+                <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
               ) : (
-                <button type="button" onClick={handleLogout}
-                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-destructive/20 dark:border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-destructive text-[9px] font-bold uppercase tracking-wider transition-all duration-200 shrink-0">
-                  <span className="material-symbols-outlined text-sm">logout</span>
-                  <span className="hidden sm:inline">{t("memberPortal.logout")}</span>
-                </button>
+                <>
+                  {visitedTabs.has("joy") && (
+                    <div style={{ display: activeTab === "joy" ? undefined : "none" }}>
+                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
+                    </div>
+                  )}
+                  {visitedTabs.has("partner") && (
+                    <div style={{ display: activeTab === "partner" ? undefined : "none" }}>
+                      <MemberPartnerTab />
+                    </div>
+                  )}
+                  {visitedTabs.has("map") && (
+                    <div style={{ display: activeTab === "map" ? undefined : "none" }}>
+                      <DiscoveryMap userAvatarUrl={formData.avatarUrl || bio?.avatarUrl} userName={formData.displayName || memberSession?.displayName} />
+                    </div>
+                  )}
+                  {visitedTabs.has("utilities") && (
+                    <div style={{ display: activeTab === "utilities" ? undefined : "none" }}>
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                    </div>
+                  )}
+                  {visitedTabs.has("history") && (
+                    <div style={{ display: activeTab === "history" ? undefined : "none" }}>
+                      <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
+                    </div>
+                  )}
+                  {visitedTabs.has("settings") && (
+                    <div style={{ display: activeTab === "settings" ? undefined : "none" }}>
+                      <MemberSettingsTab
+                        memberSession={memberSession}
+                        showToast={showToast}
+                        handleLogout={handleLogout}
+                        bio={bio}
+                        joyBalance={joyBalance}
+                        formData={formData}
+                        setFormData={setFormData}
+                        handleFieldChange={handleFieldChange}
+                        publicLink={publicLink}
+                        saving={saving}
+                        isDragOver={isDragOver}
+                        setIsDragOver={setIsDragOver}
+                        handleDrop={handleDrop}
+                        fileInputRef={fileInputRef}
+                        handleAvatarUpload={handleAvatarUpload}
+                        uploading={uploading}
+                        handleCopyLink={handleCopyLink}
+                        handleDeleteBio={handleDeleteBio}
+                        onOpenParticleModal={() => setParticleOpen(true)}
+                        renderAccountForm={renderAccountForm}
+                      />
+                    </div>
+                  )}
+                  {visitedTabs.has("account") && (
+                    <div style={{ display: activeTab === "account" ? undefined : "none" }}>
+                      {renderAccountForm(accountSubTab)}
+                    </div>
+                  )}
+                </>
               )}
-            </div>
-          </div>
+            </React.Suspense>
+          </ErrorBoundary>
+        </DesktopAppleLayout>
+      </div>
 
-          {/* Desktop tab navigation */}
-          {bio?.status !== 'pending' && (
-            <div className="hidden md:flex items-center gap-1 mt-3 pt-3 border-t border-border/50">
-              {desktopTabs.map(tab => {
-                const isActive = !tab.partner && activeTab === tab.id;
-                return (
-                  <button id={`portal-tab-${tab.id}`} key={tab.id} type="button" onClick={() => onTabClick(tab)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] sm:text-[11px] font-bold transition-all duration-200 relative ${
-                      isActive ? 'bg-foreground/8 text-foreground shadow-sm' : 'text-muted-foreground hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40'
-                    }`}>
-                    <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
-                    <span>{tab.label}</span>
-                    {tab.partner && <span className="material-symbols-outlined text-[9px] opacity-50">open_in_new</span>}
-                    {tab.id === 'history' && unreadHistoryCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-destructive text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
-                        {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
-                      </span>
-                    )}
-                    {tab.alert && (
-                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-warning ring-2 ring-white dark:ring-[#0c0b11]" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </header>
-
-
-
-        {/* ── Tab Content ─────────────────────────────────────────────────────── */}
-        <ErrorBoundary>
-          <React.Suspense fallback={
-            <div className="flex flex-col items-center justify-center py-20 space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
-              <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
-            </div>
-          }>
-            {bio?.status === 'rejected' ? (
-              <RejectedVerification handleLogout={handleLogout} />
-            ) : bio?.status === 'pending' && !bio?.verificationRequest?.submitted ? (
-              <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
-            ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
-              <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
-            ) : (
-              <>
-                {visitedTabs.has("joy") && (
-                  <div style={{ display: activeTab === "joy" ? undefined : "none", padding: "0 12px" }}>
-                    <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
-                  </div>
-                )}
-                {visitedTabs.has("partner") && (
-                  <div style={{ display: activeTab === "partner" ? undefined : "none", padding: "0 12px"  }}>
-                    <MemberPartnerTab />
-                  </div>
-                )}
-                {visitedTabs.has("map") && (
-                  <div style={{ display: activeTab === "map" ? undefined : "none", padding: 0 }}>
-                    <DiscoveryMap userAvatarUrl={formData.avatarUrl || bio?.avatarUrl} userName={formData.displayName || memberSession?.displayName} />
-                  </div>
-                )}
-                {visitedTabs.has("utilities") && (
-                  <div style={{ display: activeTab === "utilities" ? undefined : "none", padding: "0 12px"  }}>
-                    <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
-                  </div>
-                )}
-                {visitedTabs.has("history") && (
-                  <div style={{ display: activeTab === "history" ? undefined : "none", padding: "0 12px"  }}>
-                    <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
-                  </div>
-                )}
-                {visitedTabs.has("settings") && (
-                  <div style={{ display: activeTab === "settings" ? undefined : "none", padding: "0 12px"  }}>
-                    <MemberSettingsTab
-                      memberSession={memberSession}
-                      showToast={showToast}
-                      handleLogout={handleLogout}
-                      bio={bio}
-                      joyBalance={joyBalance}
-                      formData={formData}
-                      setFormData={setFormData}
-                      handleFieldChange={handleFieldChange}
-                      publicLink={publicLink}
-                      saving={saving}
-                      isDragOver={isDragOver}
-                      setIsDragOver={setIsDragOver}
-                      processFile={processFile}
-                      avatarInputRef={avatarInputRef}
-                      handleAvatarChange={handleAvatarChange}
-                      handleRemoveAvatar={handleRemoveAvatar}
-                      handleSave={handleSave}
-                      isGuestMode={isGuestMode}
-                      newLinkLabel={newLinkLabel}
-                      setNewLinkLabel={setNewLinkLabel}
-                      newLinkUrl={newLinkUrl}
-                      setNewLinkUrl={setNewLinkUrl}
-                      handleLinkInputKeyDown={handleLinkInputKeyDown}
-                      addSocialLink={addSocialLink}
-                      removeSocialLink={removeSocialLink}
-                      bioTextareaRef={bioTextareaRef}
-                      onOpenParticleModal={() => setParticleOpen(true)}
-                      onSelectTab={(tabId, subView) => navigate(subView ? `/member/${tabId}?tab=${subView}` : `/member/${tabId}`)}
-                      onSelectUtility={(appId) => handleSelectUtility(appId)}
-                    />
-                  </div>
-                )}
-              </>
-            )}
-          </React.Suspense>
-        </ErrorBoundary>
+      {/* ── 📱 MOBILE VIEW (md:hidden) ─────────────────────────────────── */}
+      <div className="md:hidden">
+        <div className={`max-w-6xl mx-auto sm:px-4 ${activeTab === 'utilities' ? 'pt-0 pb-20 space-y-0' : activeTab === 'account' ? 'pt-2 pb-20 space-y-4' : 'pt-2 sm:pt-4 pb-28 space-y-4'} relative z-10`}>
+          <ErrorBoundary>
+            <React.Suspense fallback={
+              <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-zinc-200 border-t-zinc-800 dark:border-zinc-800 dark:border-t-white" />
+                <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">{t("memberPortal.bio.loading")}</p>
+              </div>
+            }>
+              {bio?.status === 'rejected' ? (
+                <RejectedVerification handleLogout={handleLogout} />
+              ) : bio?.status === 'pending' && !bio?.verificationRequest?.submitted ? (
+                <VerificationForm verificationForm={verificationForm} setVerificationForm={setVerificationForm} handleVerificationSubmit={handleVerificationSubmit} handleLogout={handleLogout} verifying={verifying} />
+              ) : bio?.status === 'pending' && bio?.verificationRequest?.submitted ? (
+                <PendingVerification fullName={bio?.verificationRequest?.fullName || memberSession?.displayName} handleLogout={handleLogout} />
+              ) : (
+                <>
+                  {visitedTabs.has("joy") && (
+                    <div style={{ display: activeTab === "joy" ? undefined : "none", padding: "0 12px" }}>
+                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
+                    </div>
+                  )}
+                  {visitedTabs.has("partner") && (
+                    <div style={{ display: activeTab === "partner" ? undefined : "none", padding: "0 12px"  }}>
+                      <MemberPartnerTab />
+                    </div>
+                  )}
+                  {visitedTabs.has("map") && (
+                    <div style={{ display: activeTab === "map" ? undefined : "none", padding: 0 }}>
+                      <DiscoveryMap userAvatarUrl={formData.avatarUrl || bio?.avatarUrl} userName={formData.displayName || memberSession?.displayName} />
+                    </div>
+                  )}
+                  {visitedTabs.has("utilities") && (
+                    <div style={{ display: activeTab === "utilities" ? undefined : "none", padding: "0 12px"  }}>
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                    </div>
+                  )}
+                  {visitedTabs.has("history") && (
+                    <div style={{ display: activeTab === "history" ? undefined : "none", padding: "0 12px"  }}>
+                      <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
+                    </div>
+                  )}
+                  {visitedTabs.has("settings") && (
+                    <div style={{ display: activeTab === "settings" ? undefined : "none", padding: "0 12px"  }}>
+                      <MemberSettingsTab
+                        memberSession={memberSession}
+                        showToast={showToast}
+                        handleLogout={handleLogout}
+                        bio={bio}
+                        joyBalance={joyBalance}
+                        formData={formData}
+                        setFormData={setFormData}
+                        handleFieldChange={handleFieldChange}
+                        publicLink={publicLink}
+                        saving={saving}
+                        isDragOver={isDragOver}
+                        setIsDragOver={setIsDragOver}
+                        handleDrop={handleDrop}
+                        fileInputRef={fileInputRef}
+                        handleAvatarUpload={handleAvatarUpload}
+                        uploading={uploading}
+                        handleCopyLink={handleCopyLink}
+                        handleDeleteBio={handleDeleteBio}
+                        onOpenParticleModal={() => setParticleOpen(true)}
+                        renderAccountForm={renderAccountForm}
+                      />
+                    </div>
+                  )}
+                  {visitedTabs.has("account") && (
+                    <div style={{ display: activeTab === "account" ? undefined : "none", padding: "0 12px"  }}>
+                      {renderAccountForm(accountSubTab)}
+                    </div>
+                  )}
+                </>
+              )}
+            </React.Suspense>
+          </ErrorBoundary>
+        </div>
+      </div> 
 
         <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
 
@@ -1157,7 +1148,6 @@ export default function MemberPortalPage() {
           </div>
         </div>
       )}
-    </div>
 
     {locationAnomaly && (
       <LocationAnomalyDialog

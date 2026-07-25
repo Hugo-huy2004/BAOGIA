@@ -5,8 +5,19 @@
 // know about auth transport, and no future call site can forget it. The
 // HttpOnly cookie still flows on same-origin deployments — the Bearer header
 // is the fallback that also works cross-origin (Vercel frontend + API host).
-import { getMemberToken } from "./authSession";
+import { getMemberToken, clearMemberSession } from "./authSession";
 import { reportClientEvent, SLOW_API_MS } from "../utils/clientMonitoring";
+
+const AUTH_EXEMPT_PATHS = [
+  "/api/auth/member/google",
+  "/api/auth/refresh-session",
+  "/api/admin/login",
+  "/api/joy/verify-pin",
+  "/api/packages/redeem",
+  "/api/bios/me/check-location",
+  "/api/checkin/status",
+  "/api/companion/history"
+];
 
 const API_PREFIXES = (() => {
   const prefixes = ["/api/"];
@@ -81,6 +92,15 @@ export function installApiAuthInterceptor() {
         return originalFetch(input, { credentials: "include", ...init, headers: headersObj })
           .then((res) => {
             const durationMs = performance.now() - startedAt;
+
+            if (res.status === 401) {
+              const isExempt = AUTH_EXEMPT_PATHS.some(path => url.includes(path));
+              if (!isExempt && (hasAuth || token)) {
+                // Token rejected by server -> clear invalid member session to halt 401 loops
+                clearMemberSession();
+              }
+            }
+
             // Don't report transient/non-actionable statuses: 401 (guest/unauthenticated),
             // 429 (backpressure), and 502/503/504 (gateway — backend restarting).
             const transient = res.status === 401 || res.status === 429 || res.status === 502 || res.status === 503 || res.status === 504;

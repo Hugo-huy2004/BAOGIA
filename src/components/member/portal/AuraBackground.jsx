@@ -104,8 +104,8 @@ export default function AuraBackground({ theme = "default" }) {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-90 dark:opacity-65"
-      style={{ filter: "blur(60px)" }}
+      className="fixed inset-0 w-full h-full pointer-events-none -z-10 opacity-30 dark:opacity-20"
+      style={{ filter: "blur(90px)" }}
     />
   );
 }

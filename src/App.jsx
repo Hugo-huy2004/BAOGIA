@@ -178,7 +178,7 @@ function AppContent() {
             {/* Installed PWA (standalone) gets the app-style, member-only Google
                 login; the web keeps the full 3-tab LoginPage. */}
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
-            <Route path="/member" element={<Navigate to="/member/account" replace />} />
+            <Route path="/member" element={<Navigate to="/member/utilities" replace />} />
             <Route path="/member/:tab" element={
               (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
                 ? <MemberPortalPage />

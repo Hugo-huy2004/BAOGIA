@@ -192,15 +192,30 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
             )}
           </div>
 
-          <button
-            onClick={handleRefresh}
-            className={`w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center transition-all active:scale-95 ${
-              isRefreshing ? "animate-spin text-primary" : ""
-            }`}
-            title="Làm mới thông báo"
-          >
-            <RotateCw className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {unreadNotifCount > 0 && (
+              <button
+                onClick={() => {
+                  hapticSelect();
+                  onMarkAllRead?.();
+                }}
+                className="px-2.5 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all active:scale-95 flex items-center gap-1"
+                title="Đánh dấu tất cả đã đọc"
+              >
+                <CheckCheck className="w-3.5 h-3.5" />
+                <span>Đọc tất cả</span>
+              </button>
+            )}
+            <button
+              onClick={handleRefresh}
+              className={`w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center transition-all active:scale-95 ${
+                isRefreshing ? "animate-spin text-primary" : ""
+              }`}
+              title="Làm mới thông báo"
+            >
+              <RotateCw className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* ── 2. SEGMENTED PILL FILTER BAR ────────────────────────────────────── */}
@@ -285,6 +300,20 @@ function MemberHistoryTab({ bio, t, notifications = [], onMarkRead, onMarkAllRea
                     </h4>
 
                     <div className="flex items-center gap-1 shrink-0">
+                      {unread && isNotif && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            hapticSelect();
+                            onMarkRead?.(entry.id);
+                          }}
+                          className="p-1.5 rounded-full text-primary hover:bg-primary/10 active:scale-95 transition-all flex items-center justify-center"
+                          title="Đánh dấu đã đọc"
+                        >
+                          <CheckCheck className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
                       <button
                         onClick={() => {
                           hapticSelect();

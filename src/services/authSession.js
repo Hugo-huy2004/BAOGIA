@@ -41,13 +41,21 @@ export const getMemberSession = () => {
 };
 export const getAdminSession = () => readSession(ADMIN_SESSION_KEY);
 
+export const clearMemberSession = () => {
+  localStorage.removeItem(MEMBER_SESSION_KEY);
+  sessionStorage.removeItem(MEMBER_SESSION_KEY);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("hugo:member-session-expired"));
+  }
+};
+
 // Bearer token attached to member API calls (see apiAuthInterceptor.js).
 export const getMemberToken = () => getMemberSession()?.token || null;
 
 export const loginMember = (member) => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
-  expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
+  expiresAt.setHours(23, 59, 59, 999); // Hết ngày thứ 14 mới hết hạn
 
   const session = {
     role: "member",

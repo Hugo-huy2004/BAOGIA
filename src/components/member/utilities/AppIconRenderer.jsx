@@ -27,7 +27,7 @@ export default function AppIconRenderer({
   return (
     <div className="space-y-4 text-left">
       {/* 4x4 App Grid (16 apps max per page) */}
-      <div className="grid grid-cols-4 gap-y-5 gap-x-3 sm:gap-x-6 justify-items-center min-h-[320px]">
+      <div className="grid grid-cols-4 gap-y-2.5 gap-x-1.5 sm:gap-x-4 justify-items-center min-h-[auto]">
         {currentIcons.map((app, index) => {
           const globalIndex = currentPage * APPS_PER_PAGE + index;
           const gradient = gradients[app.tint] || gradients.indigo;
