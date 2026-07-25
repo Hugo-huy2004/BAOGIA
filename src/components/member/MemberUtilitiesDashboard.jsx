@@ -7,7 +7,7 @@ import memberService from "../../services/classes/MemberService";
 import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
 import LibraryCatalog from "./utilities/LibraryCatalog";
-import ArcadeMiniGameSheet from "./utilities/ArcadeMiniGameSheet";
+import StandaloneGameShell from "./arcade/StandaloneGameShell";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 
 // Dynamic On-Demand PWA App Storage Footprint (MB)
@@ -1232,8 +1232,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🎮 Standalone Arcade Mini-Game Sheet Launcher */}
       {activeArcadeGame && (
-        <ArcadeMiniGameSheet
-          gameId={activeArcadeGame}
+        <StandaloneGameShell
+          gameId={activeArcadeGame.replace("arcade_", "")}
+          bio={bio}
+          onBioUpdate={onBioUpdate}
           onClose={() => setActiveArcadeGame(null)}
         />
       )}

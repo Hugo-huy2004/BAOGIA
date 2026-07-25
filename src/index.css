@@ -65,6 +65,13 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
+  /* iOS PWA: the fixed bottom tab bar already accounts for safe-area-inset-bottom.
+     Keeping padding-bottom on <body> double-counts the inset, pushing the entire
+     layout upward and squeezing the content area (tab bar appears raised). */
+  html.standalone-pwa body {
+    padding-bottom: 0 !important;
+  }
+
   .dark {
     /* Dark mode keeps the same logo-family accents on neutral surfaces */
     --primary:             224 84% 64%;

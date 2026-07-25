@@ -1,21 +1,12 @@
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
-import ArcadeGameFrame from "./ArcadeGameFrame";
+import StandaloneGameShell from "./StandaloneGameShell";
 
-const Game2048          = React.lazy(() => import("./Game2048"));
-const GameCaro          = React.lazy(() => import("./GameCaro"));
-const GameWordGuess     = React.lazy(() => import("./GameWordGuess"));
-const GameTetris        = React.lazy(() => import("./GameTetris"));
-const GameSnake         = React.lazy(() => import("./GameSnake"));
-const GameSpaceSurvivor = React.lazy(() => import("./GameSpaceSurvivor"));
-const GameFlappyCyber   = React.lazy(() => import("./GameFlappyCyber"));
-const ChessPage         = React.lazy(() => import("../../../pages/public/ChessPage"));
 import { fetchProfile } from "../../../services/arcadeApi";
-import { HOW_TO_PLAY } from "./arcadeConstants";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
@@ -35,17 +26,6 @@ const GAMES = [
   { id: "wordguess", name: "Mật Mã Từ 3D",      tagline: "Từ Hán-Việt tri thức.", label: "Từ Vựng · Thẻ Lật", Icon: Keyboard },
   { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.", label: "Cổ Điển 3D", Icon: InfinityIcon },
 ];
-
-const STANDALONE = new Set(["chess"]);
-const GAME_COMPONENTS = {
-  tetris: GameTetris,
-  "2048": Game2048,
-  caro: GameCaro,
-  wordguess: GameWordGuess,
-  snake: GameSnake,
-  survivor: GameSpaceSurvivor,
-  flappy: GameFlappyCyber,
-};
 
 // ─── Sub-components ────────────────────────────────────────────────
 
@@ -161,35 +141,16 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
   const activeGame = searchParams.get("game") === "chess"
     ? "chess"
     : (searchParams.get("game") || null);
-  const roomId = searchParams.get("room") || null;
 
   const [profile, setProfile] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
-  const gameFrameRef = useRef(null);
 
   const { active: subscribed }      = useFeatureGate(bio, "hugoArcade");
   const { active: chessSubscribed } = useFeatureGate(bio, "hugoChess");
   const joyBalance = useJoyStore(s => s.balance);
 
   useEffect(() => {
-    if (!isPlaying && !STANDALONE.has(activeGame)) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
-  }, [isPlaying, activeGame]);
-
-  useEffect(() => { setIsPlaying(false); }, [activeGame]);
-
-  useEffect(() => {
-    if (activeGame) {
-      document.documentElement.requestFullscreen?.().catch(() => {});
-    } else {
-      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    }
-    return () => {
-      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    };
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
   }, [activeGame]);
 
   useEffect(() => {
@@ -210,9 +171,8 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
     setSearchParams(p => { p.set("game", id); return p; }, { replace: true });
   }, [playBeep, setSearchParams]);
   const closeGame = React.useCallback(() => {
-    if (isPlaying) gameFrameRef.current?.quit();
-    else setSearchParams(p => { p.delete("game"); p.delete("room"); return p; }, { replace: true });
-  }, [isPlaying, setSearchParams]);
+    setSearchParams(p => { p.delete("game"); p.delete("room"); return p; }, { replace: true });
+  }, [setSearchParams]);
 
   const handleConfirmCharge = React.useCallback(async () => {
     const res = await fetch(`${API_BASE}/joy/subscribe-feature`, {
@@ -465,55 +425,14 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
         </nav>
       </div>
 
-      {/* ── Active Game Overlay ──────────────────────────────────────────────────── */}
+      {/* ── Active Game (standalone shell) ── */}
       {activeGame && (
-        <div className="arc-game-overlay">
-          <div className="arc-overlay-header bg-[#0a0a0f]/95 backdrop-blur-2xl border-b border-white/10">
-            <button className="arc-overlay-back text-white" onClick={closeGame}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back_ios_new</span>
-              <span>Rời game</span>
-            </button>
-
-            <span className="arc-overlay-title text-white font-black">{gameInfo?.name || "Trò chơi"}</span>
-
-            <JoyChip balance={joyBalance} />
-          </div>
-
-          <div className="arc-game-overlay-body flex-1 overflow-y-auto min-h-0 bg-[#0a0a0f]">
-            <Suspense fallback={
-              <div className="arc-loading-state text-white">
-                <span className="material-symbols-outlined animate-spin" style={{ fontSize: 32 }}>refresh</span>
-                <span>Đang tải game 60 FPS...</span>
-              </div>
-            }>
-              {STANDALONE.has(activeGame) ? (
-                activeGame === "chess" ? (
-                  <ChessPage
-                    embedded
-                    initialRoomId={roomId}
-                    onBack={closeGame}
-                    bio={bio}
-                    onBioUpdate={onBioUpdate}
-                  />
-                ) : null
-              ) : (
-                <ArcadeGameFrame
-                  ref={gameFrameRef}
-                  game={activeGame}
-                  bio={bio}
-                  onBioUpdate={onBioUpdate}
-                  onClose={closeGame}
-                  onStateChange={(st) => setIsPlaying(st === "playing")}
-                >
-                  {(difficulty, handleGameOver, sound) => {
-                    const Comp = GAME_COMPONENTS[activeGame];
-                    return Comp ? <Comp difficulty={difficulty} onGameOver={handleGameOver} sound={sound} /> : null;
-                  }}
-                </ArcadeGameFrame>
-              )}
-            </Suspense>
-          </div>
-        </div>
+        <StandaloneGameShell
+          gameId={activeGame}
+          bio={bio}
+          onBioUpdate={onBioUpdate}
+          onClose={closeGame}
+        />
       )}
 
       <JoyExchangeModal

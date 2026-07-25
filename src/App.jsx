@@ -30,7 +30,6 @@ import { StorageSafeguard } from "./utils/storageSafeguard";
 import { PWAKeepAlive } from "./utils/pwaKeepAlive";
 import { ApplePushNotificationManager } from "./utils/applePushNotificationManager";
 import { WebGPUAccelerator } from "./utils/webgpuAccelerator";
-import DynamicCapsuleBar from "./components/ui/DynamicCapsuleBar";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 
@@ -140,13 +139,6 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
       
-      {/* Apple iOS Dynamic Island / Capsule Header Bar */}
-      {isPWA && (
-        <DynamicCapsuleBar
-          activeStatus={{ title: "Hugo Studio PWA Active • 120 FPS Edge AI", icon: "bolt" }}
-        />
-      )}
-
       {/* Static Top-Navigation Header bar */}
       {!hideNavbar && <Navbar />}
       
