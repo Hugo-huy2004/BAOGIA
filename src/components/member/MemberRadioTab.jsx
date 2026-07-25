@@ -230,17 +230,23 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     }
   }, [volume]);
 
+  // ponytail: resolve each category from the server ONCE per session. Was
+  // refetching in a loop (loadCategory depended on stationsByCategory, so every
+  // successful load recreated it and re-ran the effect) — that hammered
+  // /api/radio (search + stream health-checks) = the bulk of Radio egress.
+  const loadedCategoriesRef = useRef(new Set());
+
   const loadCategory = useCallback((categoryId) => {
+    if (loadedCategoriesRef.current.has(categoryId)) return;
     const category = RADIO_CATEGORIES.find((c) => c.id === categoryId);
     const fallbacks = FALLBACK_STATIONS[categoryId] || [];
 
-    if (!stationsByCategory[categoryId]) {
-      setStationsByCategory((prev) => ({ ...prev, [categoryId]: fallbacks }));
-    }
+    setStationsByCategory((prev) => (prev[categoryId] ? prev : { ...prev, [categoryId]: fallbacks }));
 
     try {
       fetchStationsByNames(category.names).then((stations) => {
         if (stations && stations.length > 0) {
+          loadedCategoriesRef.current.add(categoryId);
           const loadedNames = new Set(stations.map(s => s.name.toUpperCase()));
           const loadedUuids = new Set(stations.map(s => s.stationuuid));
           const missing = fallbacks.filter(f => !loadedNames.has(f.name.toUpperCase()) && !loadedUuids.has(f.stationuuid));
@@ -262,7 +268,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
         }
       }).catch(() => {});
     } catch {}
-  }, [stationsByCategory]);
+  }, []);
 
   useEffect(() => {
     loadCategory(activeCategory);

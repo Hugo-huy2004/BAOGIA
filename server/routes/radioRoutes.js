@@ -72,7 +72,10 @@ async function getWorkingStation(stations, excludeUrl) {
 
 async function resolveStationByName(name, excludeUrl) {
   try {
-    const url = `${RADIO_API_BASE}/stations/search?name=${encodeURIComponent(name)}&limit=10`;
+    // ponytail: limit 5 (was 10). Each candidate gets a stream health-check
+    // (manifest fetch) — halving candidates halves that outbound; sorted by
+    // lastcheckok below so we still test the healthiest first.
+    const url = `${RADIO_API_BASE}/stations/search?name=${encodeURIComponent(name)}&limit=5`;
     const res = await fetch(url, { headers: { 'User-Agent': 'HugoStudio-Radio/1.0' } });
     if (!res.ok) return null;
     const data = await res.json();
