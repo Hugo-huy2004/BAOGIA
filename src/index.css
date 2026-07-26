@@ -1466,7 +1466,8 @@ html.standalone-pwa #root {
 /* Portal viewport contract shared by iOS/Android PWA and tablet split view. */
 html.standalone-pwa .member-portal-shell {
   min-height: 100dvh;
-  /* body owns the top inset; repeating it here caused a Dynamic Island gap. */
+  /* Individual mobile content owns the top inset. Fullscreen utilities manage
+     their own safe-area headers and must not inherit another inset here. */
   padding-top: 0;
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
@@ -1481,6 +1482,14 @@ html.standalone-pwa .desktop-apple-layout {
   min-width: 0;
   padding-top: 12px !important;
   padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* In standalone mode body padding is intentionally zero because the fixed
+   tab bar owns the bottom inset. Restore only the top inset on normal Portal
+   content so the large title clears the notch/Dynamic Island. */
+html.standalone-pwa .mobile-portal-content {
+  padding-top: calc(constant(safe-area-inset-top) + 12px) !important;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
 }
 
 .pwa-safe-sheet {

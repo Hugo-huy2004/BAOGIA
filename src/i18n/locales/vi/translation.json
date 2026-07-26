@@ -3613,6 +3613,23 @@
       "noName": "Chưa đặt tên"
     }
   },
+  "hugoPsy": {
+    "coach": {
+      "title": "HugoPSY Coach",
+      "subtitle": "Gợi ý dựa trên check-in và hành trình của bạn",
+      "private": "Riêng tư",
+      "insight": "Tớ đang thế nào?",
+      "insightDescription": "Phản chiếu xu hướng gần đây",
+      "plan": "Kế hoạch 24 giờ",
+      "planDescription": "Ba bước nhỏ vừa sức",
+      "assessment": "Chọn bài sàng lọc",
+      "assessmentDescription": "PHQ-9, GAD-7 hoặc WHO-5",
+      "disclaimer": "HugoPSY hỗ trợ tự quan sát và không thay thế chuyên gia sức khỏe tâm thần."
+    },
+    "assessment": {
+      "title": "Bài đánh giá sàng lọc"
+    }
+  },
   "hugoCoderLearning": {
     "back": "Ứng dụng",
     "joyBalance": "Số dư JOY",

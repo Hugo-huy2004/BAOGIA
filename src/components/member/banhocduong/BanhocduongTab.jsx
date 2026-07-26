@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import SubUtilityHeader from "../SubUtilityHeader";
+import {
+  BrainCircuit,
+  ChevronLeft,
+  ClipboardCheck,
+  HeartPulse,
+  MessageCircleHeart,
+  MoonStar,
+  Settings2,
+} from "lucide-react";
 import dataApi from "../../../services/dataApi";
 import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
@@ -11,6 +19,7 @@ import { useIsMobile } from "../../../hooks/useIsMobile";
 import { notify } from "../../../lib/notify";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
 import EmergencySiren from "./EmergencySiren";
+import "../../../styles/hugoPsy.css";
 
 const ChatTab = React.lazy(() => import("./ChatTab"));
 const TherapyTab = React.lazy(() => import("./TherapyTab"));
@@ -19,10 +28,10 @@ const SleepTracker = React.lazy(() => import("./SleepTracker"));
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
-  { id: 'chat',       label: 'Tâm Sự',    icon: 'psychology_alt', grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
-  { id: 'therapy',    label: 'Trị Liệu',  icon: 'spa',            grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
-  { id: 'sleep',      label: 'Giấc Ngủ',  icon: 'bedtime',        grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
-  { id: 'evaluation', label: 'Đánh Giá',  icon: 'analytics',      grad: 'from-[#0071e3] to-[#0071e3]',  light: 'bg-primary/10 text-primary',   dot: 'bg-primary'   },
+  { id: "chat", label: "Tâm sự", icon: MessageCircleHeart },
+  { id: "therapy", label: "Phương pháp", icon: HeartPulse },
+  { id: "sleep", label: "Giấc ngủ", icon: MoonStar },
+  { id: "evaluation", label: "Đánh giá", icon: ClipboardCheck },
 ];
 
 // ── Helper: count qualified therapy activities ─────────────────────────────────
@@ -596,8 +605,6 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
     }
   };
 
-  const activeTab = SUB_TABS.find(t => t.id === activeSubTab);
-
   // Mobile no longer has a visible tab switcher at all — Sleep/Evaluation
   // are reachable only by asking the AI in chat, and Therapy opens as an
   // in-chat overlay (see ChatTab.jsx) — so whatever `activeSubTab` happens to
@@ -635,26 +642,30 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       : "flex flex-col min-h-[calc(100svh-160px)] md:min-h-0 space-y-3 md:space-y-2.5 animate-fadeIn";
 
   return (
-    <div className={rootClassName}>
+    <div className={`hugo-psy-shell ${rootClassName}`}>
 
       {/* ── Header ───────────────────────────────────────────────────────────────
           Hidden on mobile while the Chat tab is the fullscreen takeover below —
           ChatTab's own header (with its back-chevron via onExitFullscreen) is
           the only app bar shown in that mode. Always visible on desktop. */}
-      <div className={`relative z-20 items-center justify-between gap-3 ${effectiveSubTab === "chat" ? "hidden md:flex" : "flex"}`}>
-        <SubUtilityHeader
-          title={t("companion.tab.title", "HugoPSY")}
-          icon="psychology"
-          colorClass="text-emerald-500"
-          onBack={onBack}
-        />
+      <div className={`psy-app-header relative z-20 items-center justify-between gap-3 ${effectiveSubTab === "chat" ? "hidden md:flex" : "flex"}`}>
+        <div className="psy-app-brand">
+          <button type="button" onClick={onBack} aria-label={t("common.back", "Quay lại")}>
+            <ChevronLeft />
+          </button>
+          <span className="psy-app-icon"><BrainCircuit /></span>
+          <div>
+            <h2>HugoPSY</h2>
+            <p>{t("companion.tab.subtitle", "Người bạn đồng hành tinh thần")}</p>
+          </div>
+        </div>
         <button
           type="button"
           onClick={() => setShowSettings(true)}
-          className="flex-shrink-0 w-9 h-9 rounded-full bg-muted border border-border/60 flex items-center justify-center text-muted-foreground hover:bg-zinc-200 dark:hover:bg-zinc-700 active:scale-95 transition-all"
+          className="psy-settings-button"
           title={t("companion.tab.settings", "Cài đặt")}
         >
-          <span className="material-symbols-outlined text-[17px]">settings</span>
+          <Settings2 />
         </button>
       </div>
 
@@ -691,18 +702,15 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       <div className={`${effectiveSubTab === "chat" ? "hidden" : "flex"} md:hidden gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1`}>
         {SUB_TABS.map(tab => {
           const active = activeSubTab === tab.id;
+          const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               type="button"
               onClick={() => handleSubTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl shrink-0 transition-all duration-200 active:scale-[0.97] ${
-                active
-                  ? `bg-gradient-to-r ${tab.grad} text-white shadow-md`
-                  : 'bg-card border border-border/60 text-muted-foreground shadow-sm'
-              }`}
+              className={`psy-mobile-tab ${active ? "is-active" : ""}`}
             >
-              <span className="material-symbols-outlined text-[17px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
+              <Icon />
               <span className="text-[11px] font-extrabold whitespace-nowrap">{t(`companion.tab.${tab.id}`, tab.label)}</span>
             </button>
           );
@@ -724,17 +732,14 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           <aside className="hidden md:flex flex-col gap-2 w-[56px] lg:w-[190px] shrink-0">
             {visibleSubTabs.map(tab => {
             const active = activeSubTab === tab.id;
+            const Icon = tab.icon;
             return (
               <motion.button
                 key={tab.id}
                 type="button"
                 whileTap={{ scale: 0.96 }}
                 onClick={() => handleSubTabChange(tab.id)}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 relative font-bold border text-[11px] ${
-                  active
-                    ? 'bg-gradient-to-r from-blue-500/15 to-indigo-500/10 text-blue-600 dark:text-blue-400 border-blue-500/25 dark:border-blue-500/30 shadow-sm shadow-blue-500/5 backdrop-blur-md'
-                    : 'bg-white/40 dark:bg-background/20 border-border/40 text-muted-foreground hover:bg-white/80 dark:hover:bg-[#1a1924]/40 hover:text-zinc-700 dark:hover:text-zinc-200'
-                }`}
+                className={`psy-sidebar-tab ${active ? "is-active" : ""}`}
               >
                 {active && (
                   <motion.span
@@ -743,7 +748,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
-                <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: active ? "'FILL' 1" : "'FILL' 0" }}>{tab.icon}</span>
+                <Icon />
                 <span className="font-extrabold uppercase tracking-wide hidden lg:block text-left">{t(`companion.tab.${tab.id}`, tab.label)}</span>
               </motion.button>
             );
@@ -752,7 +757,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         )}
 
         {/* Content area */}
-        <div className={`flex-1 min-w-0 bg-white/80 dark:bg-background/80 backdrop-blur-2xl overflow-hidden flex flex-col relative ${
+        <div className={`psy-workspace flex-1 min-w-0 overflow-hidden flex flex-col relative ${
           effectiveSubTab === "chat"
             ? "rounded-none border-0 shadow-none md:rounded-3xl md:border md:border-zinc-200/40 md:dark:border-zinc-800/50 md:shadow-lg"
             : "rounded-3xl border border-border/40 shadow-lg"

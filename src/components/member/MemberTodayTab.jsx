@@ -52,6 +52,7 @@ function articlePreviewDocument(article, labels, darkMode) {
     h1{margin:14px 0 18px;font-size:clamp(28px,6vw,46px);line-height:1.05;letter-spacing:-.035em}p{margin:0;color:${secondary};font-size:clamp(16px,2.6vw,20px);line-height:1.55}
     footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:34px;padding-top:20px;border-top:1px solid ${darkMode ? "#343438" : "#e5e5e7"}}
     footer span{color:${secondary};font-size:13px}a{display:inline-flex;align-items:center;min-height:40px;padding:0 17px;border-radius:999px;background:#0071e3;color:#fff;text-decoration:none;font-size:13px;font-weight:650}
+    @media(max-width:520px){body{padding:20px 18px}small{font-size:10px}h1{margin:10px 0 12px;font-size:25px;line-height:1.12}p{font-size:15px;line-height:1.5}footer{align-items:flex-start;flex-direction:column;margin-top:22px;padding-top:14px}footer span{font-size:11px}a{min-height:38px;font-size:12px}}
   </style>
 </head>
 <body>
@@ -85,8 +86,13 @@ export default function MemberTodayTab({
     const saved = readSessionValue("portal.today.category", "all");
     return CATEGORIES.includes(saved) ? saved : "all";
   });
-  const [selectedArticleId, setSelectedArticleId] = useState(
-    () => readSessionValue("portal.today.article", null),
+  const [selectedArticleId, setSelectedArticleId] = useState(() => {
+    const isCompact = typeof window !== "undefined"
+      && window.matchMedia("(max-width: 639px)").matches;
+    return isCompact ? null : readSessionValue("portal.today.article", null);
+  });
+  const [compactView, setCompactView] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches,
   );
   const [darkMode, setDarkMode] = useState(
     () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
@@ -95,20 +101,32 @@ export default function MemberTodayTab({
   const articles = useMemo(() => data?.items || [], [data?.items]);
   const selectedArticle =
     articles.find((article) => article.id === selectedArticleId) ||
-    articles[0] ||
-    null;
+    (!compactView ? articles[0] : null);
 
   useEffect(() => {
-    if (articles.length && !articles.some((article) => article.id === selectedArticleId)) {
+    const media = window.matchMedia("(max-width: 639px)");
+    const sync = () => {
+      setCompactView(media.matches);
+      if (media.matches) setSelectedArticleId(null);
+    };
+    sync();
+    media.addEventListener?.("change", sync);
+    return () => media.removeEventListener?.("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!compactView && articles.length && !articles.some((article) => article.id === selectedArticleId)) {
       setSelectedArticleId(articles[0].id);
     }
-  }, [articles, selectedArticleId]);
+  }, [articles, compactView, selectedArticleId]);
 
   useEffect(() => {
     try {
       sessionStorage.setItem("portal.today.category", category);
       if (selectedArticleId) {
         sessionStorage.setItem("portal.today.article", selectedArticleId);
+      } else {
+        sessionStorage.removeItem("portal.today.article");
       }
     } catch {
       // Session persistence is an enhancement; private mode may block it.
@@ -208,7 +226,10 @@ export default function MemberTodayTab({
               role="tab"
               aria-selected={category === item}
               className={category === item ? "is-active" : ""}
-              onClick={() => setCategory(item)}
+              onClick={() => {
+                setCategory(item);
+                if (compactView) setSelectedArticleId(null);
+              }}
             >
               {t(`memberPortal.today.category.${item}`)}
             </button>

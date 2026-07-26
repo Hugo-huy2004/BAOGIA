@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Volume2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  BrainCircuit,
+  ClipboardCheck,
+  HeartHandshake,
+  Mic,
+  MicOff,
+  Sparkles,
+  Volume2,
+} from "lucide-react";
 import confetti from "canvas-confetti";
 import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
@@ -83,6 +92,26 @@ const getAuraColors = (mood) => {
   }
 };
 
+function deriveSmartFollowUps(userText, botText, mood) {
+  const source = removeVietnameseTones(`${userText} ${botText}`).toLowerCase();
+  if (/(ngu|mat ngu|tran troc|ac mong)/.test(source)) {
+    return ["Xem giấc ngủ của tớ", "Cho tớ bài thở ngắn", "Lập kế hoạch tối nay"];
+  }
+  if (/(hoc|thi|deadline|do an|diem)/.test(source)) {
+    return ["Chia nhỏ việc cần làm", "Tớ đang sợ thất bại", "Lập kế hoạch 24 giờ"];
+  }
+  if (/(lo|so|hoang|overthinking|bon chon)/.test(source)) {
+    return ["Giúp tớ gọi tên nỗi lo", "Bài thở 2 phút", "Tớ muốn đánh giá lo âu"];
+  }
+  if (/(chia tay|gia dinh|ban be|co don)/.test(source)) {
+    return ["Tớ muốn kể rõ hơn", "Giúp tớ đặt ranh giới", "Tớ cần một bước nhỏ"];
+  }
+  if (mood <= 2) {
+    return ["Cứ lắng nghe tớ", "Lập kế hoạch thật nhẹ", "Cho tớ bài thư giãn"];
+  }
+  return ["Hỏi tớ thêm một câu", "Tạo kế hoạch hôm nay", "Xem tiến triển của tớ"];
+}
+
 export default function ChatTab({ 
   onNavigateToTab, 
   bio, 
@@ -98,6 +127,7 @@ export default function ChatTab({
   journeyProgress,
   sleepAutoDetect
 }) {
+  const { t } = useTranslation();
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
   const [messages, setMessages] = useState([]);
   const [currentMood, setCurrentMood] = useState(3);
@@ -119,12 +149,9 @@ export default function ChatTab({
   const [showTestsMenu, setShowTestsMenu] = useState(false);
   const [showTokenExchangeModal, setShowTokenExchangeModal] = useState(false);
   const [showTherapyOverlay, setShowTherapyOverlay] = useState(false);
+  const [showCoachMenu, setShowCoachMenu] = useState(false);
   const [activeModalDrawer, setActiveModalDrawer] = useState(null); // therapy, sleep, evaluation, null
 
-  const isPWA = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-  }, []);
   const [therapyInitialMethod, setTherapyInitialMethod] = useState(null);
   const [unlockingMethodId, setUnlockingMethodId] = useState(null);
   const joyBalance = useJoyStore(s => s.balance);
@@ -191,7 +218,14 @@ export default function ChatTab({
     return () => clearInterval(interval);
   }, [isVentingMode]);
 
-  const botManager = React.useMemo(() => new BotManager(bio, historyLogs, healingActive), [bio, historyLogs, healingActive]);
+  const botManagerRef = useRef(null);
+  if (!botManagerRef.current) {
+    botManagerRef.current = new BotManager(bio, historyLogs, healingActive, messages);
+  }
+  const botManager = botManagerRef.current;
+  useEffect(() => {
+    botManager.updateContext(bio, historyLogs, healingActive, messages);
+  }, [botManager, bio, historyLogs, healingActive, messages]);
 
   // Returns a contextual Vietnamese typing label based on the matched intent or user text keywords.
   const getTypingLabel = (text, intentId) => {
@@ -265,6 +299,64 @@ export default function ChatTab({
       });
     });
   }, []);
+
+  const handleCoachAction = useCallback((action) => {
+    setShowCoachMenu(false);
+    if (action === "assessment") {
+      setShowTestsMenu(true);
+      return;
+    }
+
+    const checkins = (historyLogs || [])
+      .filter((log) => log?.type === "checkin" && Number.isFinite(Number(log.mood)));
+    const latestMood = Number(checkins.at(-1)?.mood || currentMood || 3);
+    const latestTests = (historyLogs || []).filter(
+      (log) => log?.type === "clinical_test" || log?.test,
+    );
+    const lastTest = latestTests.at(-1);
+
+    if (action === "insight") {
+      const moodLine = latestMood <= 2
+        ? "Mức năng lượng gần nhất của cậu đang khá thấp, nên hôm nay mình ưu tiên giảm tải."
+        : latestMood >= 4
+          ? "Tâm trạng gần nhất của cậu khá ổn; đây là lúc tốt để củng cố một thói quen nhỏ."
+          : "Tâm trạng gần nhất đang ở mức trung tính; mình có thể quan sát thêm mà chưa cần ép bản thân.";
+      const testLine = lastTest
+        ? `Tớ cũng đang ghi nhớ bài ${String(lastTest.test || "đánh giá").toUpperCase()} gần nhất để đối chiếu xu hướng, không dùng nó như một chẩn đoán.`
+        : "Hiện chưa có bài sàng lọc gần đây; nếu cậu muốn, mình có thể chọn một bài ngắn phù hợp.";
+      setLoading(true);
+      pushBotMessageChunks([
+        `Đây là điều tớ đang hiểu về cậu lúc này: ${moodLine}`,
+        testLine,
+        "Điều nào đang chiếm nhiều năng lượng của cậu nhất hôm nay?",
+      ]).then(() => {
+        setLoading(false);
+        setChatQuickReplies(["Học tập", "Gia đình", "Mối quan hệ", "Chính bản thân tớ"]);
+      });
+      return;
+    }
+
+    const plan = latestMood <= 2
+      ? [
+          "Uống nước và rời màn hình trong 3 phút.",
+          "Chọn đúng một việc bắt buộc, làm trong 10 phút.",
+          "Trước khi ngủ, ghi lại một điều cậu đã cố gắng.",
+        ]
+      : [
+          "Chọn một ưu tiên quan trọng nhất trong ngày.",
+          "Tập trung 25 phút, sau đó nghỉ và vận động 5 phút.",
+          "Cuối ngày check-in lại cảm xúc bằng một con số từ 1–5.",
+        ];
+    setLoading(true);
+    pushBotMessageChunks([
+      "Tớ đã tạo một kế hoạch 24 giờ thật nhẹ, dựa trên check-in gần nhất của cậu.",
+      `**Kế hoạch hôm nay**\n1. ${plan[0]}\n2. ${plan[1]}\n3. ${plan[2]}`,
+      "Cậu muốn bắt đầu từ bước nào? Mình có thể tiếp tục chia nhỏ nó.",
+    ]).then(() => {
+      setLoading(false);
+      setChatQuickReplies(["Bắt đầu bước 1", "Giúp tớ chia nhỏ bước 2", "Điều chỉnh nhẹ hơn"]);
+    });
+  }, [currentMood, historyLogs, pushBotMessageChunks]);
 
   // HugoPSY can edit the user's Bio in the DB when they ask ("đổi biệt danh
   // thành X"). Fields locked after edu-verification (name/birthday/phone/
@@ -1556,7 +1648,12 @@ export default function ChatTab({
           showInlineBreathing: finalBotResponse.showInlineBreathing,
           showInlineCbt: finalBotResponse.showInlineCbt,
           showInlineBuy: finalBotResponse.showInlineBuy,
-        }).then(() => setLoading(false));
+        }).then(() => {
+          setLoading(false);
+          setChatQuickReplies(
+            deriveSmartFollowUps(text, finalBotResponse.reply, currentMood),
+          );
+        });
       }
     );
   };
@@ -1569,7 +1666,7 @@ export default function ChatTab({
   if (showTherapyOverlay) {
     return (
       <div className="flex flex-col min-h-0 h-full bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
-        <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-border/60" style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}>
+        <div className="psy-chat-safe-header shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-border/60">
           <button
             type="button"
             onClick={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
@@ -1632,8 +1729,7 @@ export default function ChatTab({
 
       {/* ── Header — redesigned ────────────────────────────────────────────────── */}
       <div
-        className="shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-white/90 via-white/50 to-transparent dark:from-[#060609]/90 dark:via-[#060609]/50 dark:to-transparent pb-8"
-        style={{ paddingTop: "max(0.625rem, env(safe-area-inset-top))" }}
+        className="psy-chat-safe-header shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-white/90 via-white/50 to-transparent dark:from-[#060609]/90 dark:via-[#060609]/50 dark:to-transparent pb-8"
       >
         {/* Back button (mobile fullscreen only) */}
         {onExitFullscreen && (
@@ -1753,6 +1849,19 @@ export default function ChatTab({
             </button>
           )}
 
+          <button
+            type="button"
+            onClick={() => setShowCoachMenu((open) => !open)}
+            title={t("hugoPsy.coach.title")}
+            className={`h-8 w-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+              showCoachMenu
+                ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20"
+                : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
+            }`}
+          >
+            <BrainCircuit className="h-[17px] w-[17px]" />
+          </button>
+
           {/* Venting mode toggle */}
           <button type="button" onClick={toggleVentingMode}
             title={isVentingMode ? "Thoát chế độ trút giận" : "Chế độ trút giận an toàn"}
@@ -1768,6 +1877,71 @@ export default function ChatTab({
         </div>
       </div>
 
+      <AnimatePresence>
+        {showCoachMenu && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            className="absolute left-3 right-3 top-[76px] z-30 mx-auto max-w-xl rounded-[24px] border border-white/60 bg-white/88 p-3 shadow-[0_24px_70px_rgba(31,41,55,0.18)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#17171b]/92"
+          >
+            <div className="mb-2 flex items-center justify-between px-1">
+              <div>
+                <p className="text-[13px] font-bold tracking-[-0.02em] text-foreground">{t("hugoPsy.coach.title")}</p>
+                <p className="text-[10px] text-muted-foreground">{t("hugoPsy.coach.subtitle")}</p>
+              </div>
+              <span className="rounded-full bg-blue-500/10 px-2 py-1 text-[9px] font-bold text-blue-600 dark:text-blue-400">
+                {t("hugoPsy.coach.private")}
+              </span>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => handleCoachAction("insight")}
+                className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <Sparkles className="h-4 w-4" />
+                </span>
+                <span>
+                  <strong className="block text-[11px] text-foreground">{t("hugoPsy.coach.insight")}</strong>
+                  <small className="mt-1 block text-[9px] leading-4 text-muted-foreground">{t("hugoPsy.coach.insightDescription")}</small>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCoachAction("plan")}
+                className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                  <ClipboardCheck className="h-4 w-4" />
+                </span>
+                <span>
+                  <strong className="block text-[11px] text-foreground">{t("hugoPsy.coach.plan")}</strong>
+                  <small className="mt-1 block text-[9px] leading-4 text-muted-foreground">{t("hugoPsy.coach.planDescription")}</small>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCoachAction("assessment")}
+                className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <HeartHandshake className="h-4 w-4" />
+                </span>
+                <span>
+                  <strong className="block text-[11px] text-foreground">{t("hugoPsy.coach.assessment")}</strong>
+                  <small className="mt-1 block text-[9px] leading-4 text-muted-foreground">{t("hugoPsy.coach.assessmentDescription")}</small>
+                </span>
+              </button>
+            </div>
+            <p className="mt-2 px-1 text-[9px] leading-4 text-muted-foreground">
+              {t("hugoPsy.coach.disclaimer")}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Tests bottom sheet ──────────────────────────────────────────────────── */}
       {showTestsMenu && (
         <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/50 backdrop-blur-sm"
@@ -1775,7 +1949,7 @@ export default function ChatTab({
           <div className="bg-white dark:bg-card rounded-t-3xl px-5 pt-4 pb-6 space-y-2.5"
             onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bài đánh giá lâm sàng</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{t("hugoPsy.assessment.title")}</p>
               <button type="button" onClick={() => setShowTestsMenu(false)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center active:scale-90">
                 <span className="material-symbols-outlined text-sm text-zinc-500">close</span>
               </button>
@@ -1800,9 +1974,8 @@ export default function ChatTab({
         </div>
       )}
 
-      {/* PWA Mode Quick Action Shortcut Bar */}
-      {isPWA && (
-        <div className="flex items-center justify-center gap-2 px-3 py-2 bg-muted/40 border-b border-border/50 overflow-x-auto z-20 shrink-0">
+      {/* Mobile quick actions keep every HugoPSY capability reachable from chat. */}
+      <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-muted/40 border-b border-border/50 overflow-x-auto z-20 shrink-0">
           <button
             type="button"
             onClick={() => setActiveModalDrawer("therapy")}
@@ -1824,8 +1997,7 @@ export default function ChatTab({
           >
             📊 Đánh Giá
           </button>
-        </div>
-      )}
+      </div>
 
       {/* ── Messages area ─────────────────────────────────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-hidden relative bg-transparent z-10">

@@ -192,7 +192,7 @@ export default class AIBot extends BaseBot {
   // CHAT_RETENTION_MS) — this was previously mapping over historyLogs (mood/
   // test indicator entries, which have no .sender/.text) and so was silently
   // sending almost no real context to the LLM. Now uses the real chat array.
-  _buildHistory(limit = 6) {
+  _buildHistory(limit = 8) {
     return (this.chatMessages || []).slice(-limit).map(log => ({
       role: log.sender === "bot" ? "model" : "user",
       content: log.text || log.desc || ""
@@ -319,6 +319,37 @@ export default class AIBot extends BaseBot {
     }
   }
 
+  _buildCompanionContext() {
+    const recentUserMessages = (this.chatMessages || [])
+      .filter((message) => message?.sender === "user" && message?.text)
+      .slice(-8)
+      .map((message) => String(message.text).toLowerCase());
+    if (recentUserMessages.length === 0) return "";
+
+    const topicCatalog = [
+      { id: "học tập", words: ["học", "thi", "deadline", "đồ án", "điểm"] },
+      { id: "gia đình", words: ["gia đình", "bố", "mẹ", "ba", "má", "phụ huynh"] },
+      { id: "mối quan hệ", words: ["chia tay", "người yêu", "crush", "bạn bè", "cô đơn"] },
+      { id: "lo âu", words: ["lo", "sợ", "hoảng", "bồn chồn", "overthinking"] },
+      { id: "kiệt sức", words: ["mệt", "kiệt sức", "burnout", "chán", "không còn sức"] },
+      { id: "giấc ngủ", words: ["ngủ", "mất ngủ", "trằn trọc", "ác mộng"] },
+    ];
+    const scores = topicCatalog
+      .map((topic) => ({
+        id: topic.id,
+        score: recentUserMessages.reduce(
+          (total, message) => total + topic.words.filter((word) => message.includes(word)).length,
+          0,
+        ),
+      }))
+      .sort((a, b) => b.score - a.score);
+    const dominantTopics = scores.filter((topic) => topic.score > 0).slice(0, 2);
+    if (dominantTopics.length === 0) {
+      return "Người dùng đang cần được lắng nghe. Ưu tiên một câu hỏi mở ngắn, không suy diễn.";
+    }
+    return `Chủ đề nổi bật trong tối đa 8 lượt gần đây: ${dominantTopics.map((topic) => topic.id).join(", ")}. Hãy nối tiếp ngữ cảnh, phản chiếu cảm xúc trước, rồi chỉ đề xuất một bước nhỏ có thể làm ngay.`;
+  }
+
   // Builds the ONLY bio payload ever sent to the third-party AI server
   // (Gemini/OpenRouter). Deliberately a strict allow-list, not the raw Bio
   // document — `this.bio` carries email, phone, address, exact birthday,
@@ -334,11 +365,13 @@ export default class AIBot extends BaseBot {
     }
     const summary = this._buildWellnessSummary();
     const psychProfile = this._buildPsychProfile();
+    const companionContext = this._buildCompanionContext();
     return {
       displayName: this.bio?.displayName || this.bio?.name || "",
       ...(age ? { age } : {}),
       ...(summary ? { wellnessSummary: summary } : {}),
-      ...(psychProfile ? { psychProfile } : {})
+      ...(psychProfile ? { psychProfile } : {}),
+      ...(companionContext ? { companionContext } : {})
     };
   }
 

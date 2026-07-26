@@ -8,6 +8,13 @@ export default class BotManager {
     this.aiBot = new AIBot(bio, historyLogs, healingActive, chatMessages);
   }
 
+  updateContext(bio, historyLogs, healingActive, chatMessages = []) {
+    this.aiBot.bio = bio;
+    this.aiBot.historyLogs = historyLogs || [];
+    this.aiBot.healingActive = healingActive;
+    this.aiBot.chatMessages = chatMessages || [];
+  }
+
   _route() {
     return this.aiBot;
   }

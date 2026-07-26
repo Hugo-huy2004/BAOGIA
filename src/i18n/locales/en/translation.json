@@ -3618,6 +3618,23 @@
       "noName": "No name set"
     }
   },
+  "hugoPsy": {
+    "coach": {
+      "title": "HugoPSY Coach",
+      "subtitle": "Suggestions based on your check-ins and journey",
+      "private": "Private",
+      "insight": "How am I doing?",
+      "insightDescription": "Reflect on recent patterns",
+      "plan": "24-hour plan",
+      "planDescription": "Three manageable next steps",
+      "assessment": "Choose a screener",
+      "assessmentDescription": "PHQ-9, GAD-7, or WHO-5",
+      "disclaimer": "HugoPSY supports self-reflection and does not replace a mental-health professional."
+    },
+    "assessment": {
+      "title": "Screening assessments"
+    }
+  },
   "hugoCoderLearning": {
     "back": "Apps",
     "joyBalance": "JOY balance",
