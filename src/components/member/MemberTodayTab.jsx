@@ -50,9 +50,8 @@ function articlePreviewDocument(article, labels, darkMode) {
     *{box-sizing:border-box}body{margin:0;padding:clamp(24px,6vw,56px);background:${background};color:${foreground};font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
     article{max-width:680px;margin:0 auto}small{display:block;color:#0071e3;font-size:12px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}
     h1{margin:14px 0 18px;font-size:clamp(28px,6vw,46px);line-height:1.05;letter-spacing:-.035em}p{margin:0;color:${secondary};font-size:clamp(16px,2.6vw,20px);line-height:1.55}
-    footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:34px;padding-top:20px;border-top:1px solid ${darkMode ? "#343438" : "#e5e5e7"}}
-    footer span{color:${secondary};font-size:13px}a{display:inline-flex;align-items:center;min-height:40px;padding:0 17px;border-radius:999px;background:#0071e3;color:#fff;text-decoration:none;font-size:13px;font-weight:650}
-    @media(max-width:520px){body{padding:20px 18px}small{font-size:10px}h1{margin:10px 0 12px;font-size:25px;line-height:1.12}p{font-size:15px;line-height:1.5}footer{align-items:flex-start;flex-direction:column;margin-top:22px;padding-top:14px}footer span{font-size:11px}a{min-height:38px;font-size:12px}}
+    footer{margin-top:34px;padding-top:20px;border-top:1px solid ${darkMode ? "#343438" : "#e5e5e7"};color:${secondary};font-size:13px}
+    @media(max-width:520px){body{padding:20px 18px}small{font-size:10px}h1{margin:10px 0 12px;font-size:25px;line-height:1.12}p{font-size:15px;line-height:1.5}footer{margin-top:22px;padding-top:14px;font-size:11px}}
   </style>
 </head>
 <body>
@@ -60,24 +59,14 @@ function articlePreviewDocument(article, labels, darkMode) {
     <small>${escapeHtml(article.source)} · ${escapeHtml(labels.preview)}</small>
     <h1>${escapeHtml(article.title)}</h1>
     <p>${escapeHtml(article.description || labels.noSummary)}</p>
-    <footer>
-      <span>${escapeHtml(labels.sourceNotice)}</span>
-      <a href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(labels.readOriginal)} ↗</a>
-    </footer>
+    <footer>${escapeHtml(labels.sourceNotice)}</footer>
   </article>
 </body>
 </html>`;
 }
 
-function openInSystemBrowser(url) {
-  const externalWindow = window.open(url, "_blank", "noopener,noreferrer");
-  if (externalWindow) externalWindow.opener = null;
-}
-
 export default function MemberTodayTab({
   bio,
-  balance = 0,
-  notifications = [],
   onNavigate,
 }) {
   const { t, i18n } = useTranslation();
@@ -164,7 +153,6 @@ export default function MemberTodayTab({
       preview: t("memberPortal.today.preview"),
       noSummary: t("memberPortal.today.noSummary"),
       sourceNotice: t("memberPortal.today.sourceNotice"),
-      readOriginal: t("memberPortal.today.readOriginal"),
     }, darkMode),
     [darkMode, language, selectedArticle, t],
   );
@@ -180,18 +168,6 @@ export default function MemberTodayTab({
             })}
           </h2>
           <p className="portal-supporting">{t("memberPortal.today.description")}</p>
-        </div>
-        <div className="today-news-snapshot" aria-label={t("memberPortal.today.snapshot")}>
-          <div>
-            <span className="material-symbols-outlined" aria-hidden="true">toll</span>
-            <strong>{Number(balance || bio?.joyBalance || 0).toLocaleString(language)}</strong>
-            <small>{t("memberPortal.navigation.joyBalance")}</small>
-          </div>
-          <div>
-            <span className="material-symbols-outlined" aria-hidden="true">notifications</span>
-            <strong>{notifications.filter((item) => !item.read).length}</strong>
-            <small>{t("memberPortal.navigation.newActivity")}</small>
-          </div>
         </div>
       </header>
 
@@ -256,7 +232,23 @@ export default function MemberTodayTab({
                   className={`today-news-card ${selectedArticle?.id === article.id ? "is-selected" : ""}`}
                   onClick={() => setSelectedArticleId(article.id)}
                 >
-                  <span className="today-news-card-icon" data-category={article.category}>
+                  <span
+                    className={`today-news-card-media ${article.imageUrl ? "has-image" : ""}`}
+                    data-category={article.category}
+                  >
+                    {article.imageUrl ? (
+                      <img
+                        src={article.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        onError={(event) => {
+                          event.currentTarget.hidden = true;
+                          event.currentTarget.parentElement?.classList.remove("has-image");
+                        }}
+                      />
+                    ) : null}
                     <span className="material-symbols-outlined" aria-hidden="true">
                       {CATEGORY_ICONS[article.category] || CATEGORY_ICONS.all}
                     </span>
@@ -281,20 +273,38 @@ export default function MemberTodayTab({
                     <span className="material-symbols-outlined" aria-hidden="true">shield</span>
                     {t("memberPortal.today.safePreview")}
                   </span>
-                  <button type="button" onClick={() => openInSystemBrowser(selectedArticle.url)}>
+                  <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer external">
                     {t("memberPortal.today.openSource")}
                     <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
-                  </button>
+                  </a>
                 </div>
+                {selectedArticle.imageUrl ? (
+                  <img
+                    className="today-news-preview-image"
+                    src={selectedArticle.imageUrl}
+                    alt=""
+                    loading="eager"
+                    decoding="async"
+                    referrerPolicy="no-referrer"
+                    onError={(event) => {
+                      event.currentTarget.hidden = true;
+                    }}
+                  />
+                ) : null}
                 <iframe
                   key={selectedArticle.id}
                   title={t("memberPortal.today.previewTitle", { title: selectedArticle.title })}
                   srcDoc={previewDocument}
-                  sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
                   referrerPolicy="no-referrer"
                   loading="lazy"
                   data-country={data?.meta?.country}
                 />
+                <div className="today-news-preview-footer">
+                  <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer external">
+                    {t("memberPortal.today.readOriginal")}
+                    <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+                  </a>
+                </div>
               </div>
             ) : null}
           </div>

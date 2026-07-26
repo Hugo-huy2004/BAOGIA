@@ -4,10 +4,16 @@ import { useTranslation } from "react-i18next";
 import {
   BrainCircuit,
   ClipboardCheck,
+  Flame,
   HeartHandshake,
+  HeartPulse,
+  LockKeyhole,
   Mic,
   MicOff,
+  MoonStar,
+  Smile,
   Sparkles,
+  Zap,
   Volume2,
 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -22,7 +28,6 @@ import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { CrisisSosCountdown } from "./EmergencySiren";
 import { getLockedFields, fieldLabel } from "./constants/bioFields";
-import { RenderColoredText } from "../../HugoLogo";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKeyboardVisible";
 import { useChatEngine } from "./hooks/useChatEngine";
@@ -1739,10 +1744,10 @@ export default function ChatTab({
           </button>
         )}
 
-        {/* Avatar with live online dot */}
+        {/* Monochrome app mark with a semantic presence dot. */}
         <div className="relative shrink-0">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#5856d6] to-[#0071e3] flex items-center justify-center shadow-[0_2px_12px_rgba(88,86,214,0.4)]">
-            <span className="material-symbols-outlined text-white text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+          <div className="w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center shadow-sm">
+            <BrainCircuit className="h-[18px] w-[18px]" strokeWidth={2} />
           </div>
           <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white dark:border-[#0d0c16] shadow-sm" />
         </div>
@@ -1750,7 +1755,7 @@ export default function ChatTab({
         {/* Bot identity */}
         <div className="flex-1 min-w-0">
           <p className="text-[13px] font-extrabold text-foreground leading-tight truncate">
-            <RenderColoredText text="Hugo" /><span className="text-[#0071e3]">PSY</span>
+            HugoPSY
           </p>
           <p className="text-[9.5px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
             {loading ? typingLabel : "● Trực tuyến"}
@@ -1785,17 +1790,13 @@ export default function ChatTab({
             const radius = 8;
             const circumference = 2 * Math.PI * radius; // ~50.26
             const strokeDashoffset = circumference - (percentage / 100) * circumference;
-            const colorClass = tokenLockMinutes > 0 
-              ? "text-red-500 dark:text-red-400" 
-              : totalTokens <= 5 
-              ? "text-orange-500 dark:text-orange-400 animate-pulse" 
-              : "text-sky-500 dark:text-sky-400";
-            
+            const TokenIcon = tokenLockMinutes > 0 ? LockKeyhole : Zap;
+
             return (
               <button 
                 type="button"
                 onClick={() => setShowTokenExchangeModal(true)}
-                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full text-[10px] font-black transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95`}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-full text-[10px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
                 title={tokenLockMinutes > 0 ? `Bị khóa trong ~${tokenLockMinutes} phút` : `Token: ${totalTokens}/${maxChatTokens} (Click để đổi thêm)`}
               >
                 <div className="relative w-4 h-4 flex items-center justify-center">
@@ -1812,7 +1813,7 @@ export default function ChatTab({
                       cx="8" 
                       cy="8" 
                       r={radius} 
-                      className={tokenLockMinutes > 0 ? "stroke-red-500" : totalTokens <= 5 ? "stroke-orange-500" : "stroke-sky-500"} 
+                      className="stroke-foreground/70"
                       strokeWidth="1.5" 
                       fill="transparent" 
                       strokeDasharray={circumference}
@@ -1821,9 +1822,7 @@ export default function ChatTab({
                       transition={{ duration: 0.8, ease: "easeOut" }}
                     />
                   </svg>
-                  <span className={`absolute text-[8px] font-bold ${colorClass}`}>
-                    {tokenLockMinutes > 0 ? "🔒" : "⚡"}
-                  </span>
+                  <TokenIcon className="absolute h-2.5 w-2.5 text-foreground/75" strokeWidth={2.25} />
                 </div>
                 <span className="font-extrabold text-foreground/80">
                   {tokenLockMinutes > 0 ? "Khóa" : `${totalTokens}/${maxChatTokens}`}
@@ -1855,7 +1854,7 @@ export default function ChatTab({
             title={t("hugoPsy.coach.title")}
             className={`h-8 w-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
               showCoachMenu
-                ? "bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20"
+                ? "bg-foreground/10 text-foreground ring-1 ring-foreground/10"
                 : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
             }`}
           >
@@ -1867,12 +1866,12 @@ export default function ChatTab({
             title={isVentingMode ? "Thoát chế độ trút giận" : "Chế độ trút giận an toàn"}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
               isVentingMode
-                ? "bg-orange-500/15 text-orange-500 border border-orange-400/30"
+                ? "bg-foreground/10 text-foreground border border-foreground/15"
                 : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
             }`}>
-            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-              {isVentingMode ? "local_fire_department" : "mood"}
-            </span>
+            {isVentingMode
+              ? <Flame className="h-[17px] w-[17px]" strokeWidth={2} />
+              : <Smile className="h-[17px] w-[17px]" strokeWidth={2} />}
           </button>
         </div>
       </div>
@@ -1900,7 +1899,7 @@ export default function ChatTab({
                 onClick={() => handleCoachAction("insight")}
                 className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
                   <Sparkles className="h-4 w-4" />
                 </span>
                 <span>
@@ -1913,7 +1912,7 @@ export default function ChatTab({
                 onClick={() => handleCoachAction("plan")}
                 className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
                   <ClipboardCheck className="h-4 w-4" />
                 </span>
                 <span>
@@ -1926,7 +1925,7 @@ export default function ChatTab({
                 onClick={() => handleCoachAction("assessment")}
                 className="flex min-h-[72px] items-start gap-2.5 rounded-2xl border border-border/60 bg-card/80 p-3 text-left transition active:scale-[0.98]"
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground/75">
                   <HeartHandshake className="h-4 w-4" />
                 </span>
                 <span>
@@ -1975,27 +1974,30 @@ export default function ChatTab({
       )}
 
       {/* Mobile quick actions keep every HugoPSY capability reachable from chat. */}
-      <div className="md:hidden flex items-center gap-2 px-3 py-2 bg-muted/40 border-b border-border/50 overflow-x-auto z-20 shrink-0">
+      <div className="md:hidden grid grid-cols-3 gap-2 px-3 py-2 bg-muted/35 border-b border-border/50 z-20 shrink-0">
           <button
             type="button"
             onClick={() => setActiveModalDrawer("therapy")}
-            className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all flex items-center gap-1 shrink-0 active:scale-95"
+            className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
-            🌿 Trị Liệu
+            <HeartPulse className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            <span className="truncate">Trị liệu</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveModalDrawer("sleep")}
-            className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 hover:bg-teal-500/20 transition-all flex items-center gap-1 shrink-0 active:scale-95"
+            className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
-            🌙 Giấc Ngủ
+            <MoonStar className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            <span className="truncate">Giấc ngủ</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveModalDrawer("evaluation")}
-            className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 transition-all flex items-center gap-1 shrink-0 active:scale-95"
+            className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
-            📊 Đánh Giá
+            <ClipboardCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            <span className="truncate">Đánh giá</span>
           </button>
       </div>
 
@@ -2125,10 +2127,10 @@ export default function ChatTab({
               className="bg-card border border-border rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative text-left"
             >
               <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
-                <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                  {activeModalDrawer === "therapy" && "🌿 Liệu Pháp Trị Liệu Tĩnh Tâm"}
-                  {activeModalDrawer === "sleep" && "🌙 Nhật Ký & Chu Kỳ Giấc Ngủ Sinh Học"}
-                  {activeModalDrawer === "evaluation" && "📊 Báo Cáo Đánh Giá Sức Khỏe Tinh Thần"}
+                <span className="flex min-w-0 items-center gap-2 text-xs font-black uppercase tracking-wider text-foreground">
+                  {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>Liệu Pháp Trị Liệu Tĩnh Tâm</span></>}
+                  {activeModalDrawer === "sleep" && <><MoonStar className="h-4 w-4 shrink-0" /><span>Nhật Ký & Chu Kỳ Giấc Ngủ Sinh Học</span></>}
+                  {activeModalDrawer === "evaluation" && <><ClipboardCheck className="h-4 w-4 shrink-0" /><span>Báo Cáo Đánh Giá Sức Khỏe Tinh Thần</span></>}
                 </span>
                 <button
                   type="button"

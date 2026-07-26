@@ -103,6 +103,7 @@ function normalizeArticle(article, defaults = {}) {
     author: cleanText(article.author).slice(0, 100),
     category: article.category || defaults.category || 'academic',
     url,
+    imageUrl: safeUrl(article.imageUrl),
     publishedAt: article.publishedAt || new Date().toISOString(),
     provider: defaults.provider || article.provider || 'api',
   };
@@ -226,6 +227,7 @@ export class GNewsProvider extends NewsProvider {
       author: '',
       category,
       url: article.url,
+      imageUrl: article.image,
       publishedAt: article.publishedAt,
     }, { provider: this.name })).filter(Boolean);
   }
@@ -263,6 +265,7 @@ export class GoogleNewsRssProvider extends NewsProvider {
         const title = rawTitle.endsWith(sourceSuffix)
           ? rawTitle.slice(0, -sourceSuffix.length)
           : rawTitle;
+        const imageUrl = item.match(/<(?:media:content|media:thumbnail|enclosure)[^>]+url=["']([^"']+)["']/i)?.[1] || '';
         return normalizeArticle({
           title,
           // RSS descriptions are publisher-link HTML rather than editorial
@@ -272,6 +275,7 @@ export class GoogleNewsRssProvider extends NewsProvider {
           source,
           category,
           url: read('link'),
+          imageUrl,
           publishedAt: read('pubDate'),
         }, { provider: this.name });
       })
@@ -312,6 +316,7 @@ export class NewsApiProvider extends NewsProvider {
       author: article.author,
       category,
       url: article.url,
+      imageUrl: article.urlToImage,
       publishedAt: article.publishedAt,
     }, { provider: this.name })).filter(Boolean);
   }

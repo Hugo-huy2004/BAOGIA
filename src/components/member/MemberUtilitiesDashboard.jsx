@@ -48,6 +48,24 @@ const GRADIENTS = {
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
 const DEFAULT_SIZES = {};
+const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
+const HOME_SCREEN_APPS_KEY = "hugo_home_screen_utilities_v1";
+const ARCADE_DOWNLOADS_KEY = "hugo_arcade_downloaded_v1";
+
+const readStoredList = (key) => {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+};
+
+const readDownloadedGameAppIds = () => (
+  readStoredList(ARCADE_DOWNLOADS_KEY).map((gameId) => (
+    String(gameId).startsWith("arcade_") ? String(gameId) : `arcade_${gameId}`
+  ))
+);
 
 const APP_CATALOG = [
   ["bio", "badge", "purple", "edu", "4.9", "12k", "HOT"],
@@ -109,11 +127,13 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   // App Ecosystem States
   const [installedApps, setInstalledApps] = useState(() => {
-    if (bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0) {
-      return appInstallationPolicy.normalizeInstalled(bio.installedUtilities);
-    }
-    const saved = localStorage.getItem("hugo_installed_utilities_v2");
-    return appInstallationPolicy.normalizeInstalled(saved ? JSON.parse(saved) : DEFAULT_INSTALLED);
+    const fromBio = Array.isArray(bio?.installedUtilities) ? bio.installedUtilities : [];
+    return appInstallationPolicy.normalizeInstalled([
+      ...DEFAULT_INSTALLED,
+      ...fromBio,
+      ...readStoredList(INSTALLED_APPS_KEY),
+      ...readDownloadedGameAppIds(),
+    ]);
   });
 
   const [utilitySizes, setUtilitySizes] = useState(() => {
@@ -132,17 +152,13 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   // Subset of installedApps that also gets a home-screen icon.
   const [homeScreenApps, setHomeScreenApps] = useState(() => {
-    if (bio && Array.isArray(bio.homeScreenUtilities) && bio.homeScreenUtilities.length > 0) {
-      return bio.homeScreenUtilities;
-    }
-    const saved = localStorage.getItem("hugo_home_screen_utilities_v1");
-    if (saved) return appInstallationPolicy.normalizeHomeScreen(JSON.parse(saved), installedApps);
-    // No home-screen data saved yet (pre-migration) — fall back to "every
-    // installed app is on the home screen", matching behavior before this
-    // install-location choice existed, so nothing disappears on upgrade.
-    return bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0
-      ? appInstallationPolicy.normalizeHomeScreen(bio.installedUtilities, bio.installedUtilities)
-      : DEFAULT_INSTALLED;
+    const fromBio = Array.isArray(bio?.homeScreenUtilities) ? bio.homeScreenUtilities : [];
+    const fromDevice = readStoredList(HOME_SCREEN_APPS_KEY);
+    const downloadedGames = readDownloadedGameAppIds();
+    const requestedHome = fromBio.length || fromDevice.length
+      ? [...fromBio, ...fromDevice, ...downloadedGames]
+      : [...installedApps, ...downloadedGames];
+    return appInstallationPolicy.normalizeHomeScreen(requestedHome, installedApps);
   });
 
   const [downloadingAppId, setDownloadingAppId] = useState(null);
@@ -174,6 +190,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Long press refs
   const longPressTimerRef = useRef(null);
   const isLongPressTriggered = useRef(false);
+  const legacyArcadeSyncRef = useRef(false);
 
   // Refresh key: increment this to force myAppsList to re-read from localStorage
   const [refreshKey, setRefreshKey] = useState(0);
@@ -181,7 +198,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Sync state with prop if bio updates asynchronously
   useEffect(() => {
     if (bio && Array.isArray(bio.installedUtilities)) {
-      const appsToSet = appInstallationPolicy.normalizeInstalled(bio.installedUtilities);
+      const appsToSet = appInstallationPolicy.normalizeInstalled([
+        ...bio.installedUtilities,
+        ...readStoredList(INSTALLED_APPS_KEY),
+        ...readDownloadedGameAppIds(),
+      ]);
       setInstalledApps((current) => (
         JSON.stringify(appsToSet) !== JSON.stringify(current) ? appsToSet : current
       ));
@@ -192,7 +213,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const syncInstalledApps = async (updatedApps) => {
     const appsToSave = appInstallationPolicy.normalizeInstalled(updatedApps);
     setInstalledApps(appsToSave);
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
+    localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(appsToSave));
     
     if (bio?._id && bio._id !== 'guest') {
       try {
@@ -209,17 +230,23 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Keep localStorage synced cleanly with installedApps
   useEffect(() => {
     if (installedApps.length > 0) {
-      localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(installedApps));
+      localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(installedApps));
     }
   }, [installedApps]);
 
   // Sync homeScreenApps with prop if bio updates asynchronously.
   useEffect(() => {
     if (bio && Array.isArray(bio.homeScreenUtilities)) {
-      setHomeScreenApps(appInstallationPolicy.normalizeHomeScreen(
-        bio.homeScreenUtilities,
-        bio.installedUtilities,
-      ));
+      const installed = appInstallationPolicy.normalizeInstalled([
+        ...(Array.isArray(bio.installedUtilities) ? bio.installedUtilities : []),
+        ...readStoredList(INSTALLED_APPS_KEY),
+        ...readDownloadedGameAppIds(),
+      ]);
+      setHomeScreenApps(appInstallationPolicy.normalizeHomeScreen([
+        ...bio.homeScreenUtilities,
+        ...readStoredList(HOME_SCREEN_APPS_KEY),
+        ...readDownloadedGameAppIds(),
+      ], installed));
     }
   }, [bio]);
 
@@ -228,8 +255,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     const homeToSave = appInstallationPolicy.normalizeHomeScreen(updatedHome, appsToSave);
     setInstalledApps(appsToSave);
     setHomeScreenApps(homeToSave);
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
-    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(homeToSave));
+    localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(appsToSave));
+    localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(homeToSave));
 
     if (bio?._id && bio._id !== "guest") {
       try {
@@ -247,7 +274,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Keep localStorage synced cleanly with homeScreenApps
   useEffect(() => {
     if (homeScreenApps.length > 0) {
-      localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(homeScreenApps));
+      localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(homeScreenApps));
     }
   }, [homeScreenApps]);
 
@@ -259,8 +286,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     // 1. Bump refresh key → myAppsList will recompute from localStorage
     setRefreshKey(k => k + 1);
     // 2. Also update React state so other derived state stays consistent
-    const diskHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
-    const diskInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
+    const downloadedGames = readDownloadedGameAppIds();
+    const diskHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
+    const diskInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
     setHomeScreenApps(prev => {
       const merged = appInstallationPolicy.normalizeHomeScreen(
         [...prev, ...diskHome],
@@ -273,6 +301,42 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
     });
   }, [installedApps, isVisible]);
+
+  // One-time migration for games downloaded by older builds that only stored
+  // their state on this device. This makes those installs portable via bootstrap.
+  useEffect(() => {
+    if (!isVisible || legacyArcadeSyncRef.current || !bio?._id || bio._id === "guest") return;
+
+    const downloadedGames = readDownloadedGameAppIds();
+    if (downloadedGames.length === 0) return;
+
+    const serverInstalled = Array.isArray(bio.installedUtilities) ? bio.installedUtilities : [];
+    const serverHome = Array.isArray(bio.homeScreenUtilities) ? bio.homeScreenUtilities : [];
+    const appsToSave = appInstallationPolicy.normalizeInstalled([
+      ...serverInstalled,
+      ...readStoredList(INSTALLED_APPS_KEY),
+      ...downloadedGames,
+    ]);
+    const homeToSave = appInstallationPolicy.normalizeHomeScreen([
+      ...serverHome,
+      ...readStoredList(HOME_SCREEN_APPS_KEY),
+      ...downloadedGames,
+    ], appsToSave);
+    const alreadySynced = downloadedGames.every((appId) => (
+      serverInstalled.includes(appId) && serverHome.includes(appId)
+    ));
+    if (alreadySynced) return;
+
+    legacyArcadeSyncRef.current = true;
+    memberService.updateMemberBio(bio._id, {
+      installedUtilities: appsToSave,
+      homeScreenUtilities: homeToSave,
+    }).then((response) => {
+      if (response?.bio) onBioUpdate?.(response.bio);
+    }).catch(() => {
+      legacyArcadeSyncRef.current = false;
+    });
+  }, [bio, isVisible, onBioUpdate]);
 
   // Handle Dynamic Mobile Tab Bar Hiding when editingApp or isSpotlightOpen is active
   useEffect(() => {
@@ -291,20 +355,20 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       setInstalledApps(prev => {
         if (prev.includes(appId)) return prev;
         const next = [...prev, appId];
-        localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(next));
+        localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(next));
         return next;
       });
       setHomeScreenApps(prev => {
         if (prev.includes(appId)) return prev;
         const next = [...prev, appId];
-        localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(next));
+        localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(next));
         return next;
       });
     };
 
     // Also listen to storage changes (cross-tab or from HugoArcadeTab writing directly)
     const handleStorage = (e) => {
-      if (e.key === "hugo_home_screen_utilities_v1" && e.newValue) {
+      if (e.key === HOME_SCREEN_APPS_KEY && e.newValue) {
         try {
           const fresh = JSON.parse(e.newValue);
           setHomeScreenApps(prev => {
@@ -313,7 +377,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           });
         } catch {}
       }
-      if (e.key === "hugo_installed_utilities_v2" && e.newValue) {
+      if (e.key === INSTALLED_APPS_KEY && e.newValue) {
         try {
           const fresh = JSON.parse(e.newValue);
           setInstalledApps(prev => {
@@ -512,6 +576,12 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     // Clear On-Demand PWA Storage
     try {
       localStorage.removeItem(`hugo_pwa_app_${appId}`);
+      if (appId.startsWith("arcade_")) {
+        const gameId = appId.slice("arcade_".length);
+        const remainingGames = readStoredList(ARCADE_DOWNLOADS_KEY)
+          .filter((savedId) => savedId !== gameId && savedId !== appId);
+        localStorage.setItem(ARCADE_DOWNLOADS_KEY, JSON.stringify(remainingGames));
+      }
       if ('caches' in window) {
         caches.open('hugo-on-demand-apps-v1').then((cache) => {
           cache.delete(`/pwa-app-bundle-${appId}`);
@@ -731,15 +801,17 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const myAppsList = useMemo(() => {
     // Read directly from localStorage so any installs (even from other components) show immediately.
     // refreshKey and state vars are both deps so this recomputes whenever either changes.
-    const liveHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
-    const liveInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
+    const downloadedGames = readDownloadedGameAppIds();
+    const liveHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
+    const liveInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
     // Merge state + localStorage so we capture BOTH sources
     const effectiveInst = appInstallationPolicy.normalizeInstalled([...installedApps, ...liveInst]);
     const effectiveHome = appInstallationPolicy.normalizeHomeScreen(
       [...homeScreenApps, ...liveHome],
       effectiveInst,
     );
-    return allUtilities.filter((util) => effectiveHome.includes(util.id));
+    const utilityById = new Map(allUtilities.map((utility) => [utility.id, utility]));
+    return effectiveHome.map((appId) => utilityById.get(appId)).filter(Boolean);
   }, [allUtilities, installedApps, homeScreenApps, refreshKey]);
 
   const libraryAppsList = useMemo(() => {

@@ -12,7 +12,13 @@ class FakeProvider extends NewsProvider {
 describe('StudentNewsService', () => {
   it('paginates and caches normalized provider results', async () => {
     const provider = new FakeProvider([
-      { id: 'a', title: 'A', url: 'https://example.com/a', publishedAt: '2026-01-02' },
+      {
+        id: 'a',
+        title: 'A',
+        url: 'https://example.com/a',
+        imageUrl: 'https://images.example.com/a.jpg',
+        publishedAt: '2026-01-02',
+      },
       { id: 'b', title: 'B', url: 'https://example.com/b', publishedAt: '2026-01-01' },
     ]);
     const service = new StudentNewsService([provider]);
@@ -23,6 +29,7 @@ describe('StudentNewsService', () => {
     expect(first.items).toHaveLength(1);
     expect(first.pagination).toMatchObject({ page: 1, total: 2, hasNextPage: true });
     expect(second.items[0].id).toBe(first.items[0].id);
+    expect(first.items[0].imageUrl).toBe('https://images.example.com/a.jpg');
     expect(provider.fetchArticles).toHaveBeenCalledTimes(1);
   });
 

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   Award,
   BarChart3,
@@ -23,6 +23,7 @@ import { STAGE_THEME } from "./stageThemes";
 import CoderLearningJourney from "./CoderLearningJourney";
 import { ResourcePreview } from "../../admin/AdminCoderResourcesTab";
 import { getMemberSession } from "../../../services/authSession";
+import { hugoCoderApi } from "../../../services/hugoCoderApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
 import "../../../styles/hugoCoderLearning.css";
@@ -416,6 +417,28 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
   const [selectedLessonId, setSelectedLessonId] = useState(urlLessonId || null);
   const joyBalance = useJoyStore((s) => s.balance);
   const { courses, stages, loading } = useCoderLessons(selectedLessonId);
+  const onBioUpdateRef = useRef(onBioUpdate);
+
+  useEffect(() => {
+    onBioUpdateRef.current = onBioUpdate;
+  }, [onBioUpdate]);
+
+  useEffect(() => {
+    let active = true;
+    hugoCoderApi.getAccessSnapshot()
+      .then(({ bio: accessBio }) => {
+        if (!active || !accessBio) return;
+        onBioUpdateRef.current?.(accessBio);
+        useJoyStore.getState().setBalance(accessBio.joyBalance);
+      })
+      .catch(() => {
+        // The cached profile remains usable while offline; purchase actions
+        // still perform their own authoritative server validation.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (urlLessonId) {
@@ -488,7 +511,7 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
 
         <div className="flex-1 min-h-0">
           {tab === "learning" && learningView === "journey" && (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
               <CoderLearningJourney
                 courses={courses}
                 stages={stages}

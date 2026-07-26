@@ -83,11 +83,25 @@ export function installApiAuthInterceptor() {
           }
         }
 
-        // Add Authorization Bearer header if not already present
-        const hasAuth = Object.keys(headersObj).some(k => k.toLowerCase() === "authorization");
+        // Discard malformed manual headers such as `Bearer undefined`. They
+        // otherwise prevent this interceptor from attaching the live session.
+        const authKey = Object.keys(headersObj).find(k => k.toLowerCase() === "authorization");
+        const hasValidAuth = Boolean(
+          authKey
+          && /^Bearer\s+\S+$/i.test(String(headersObj[authKey]).trim())
+          && !/^Bearer\s+(undefined|null)$/i.test(String(headersObj[authKey]).trim())
+        );
+        if (authKey && !hasValidAuth) {
+          delete headersObj[authKey];
+        }
+
+        // Add the current Authorization token only when the caller did not
+        // provide a valid one.
+        const hasAuth = hasValidAuth;
         if (token && !hasAuth) {
           headersObj["Authorization"] = `Bearer ${token}`;
         }
+        const sentAuth = hasAuth || Boolean(token);
 
         return originalFetch(input, { credentials: "include", ...init, headers: headersObj })
           .then((res) => {
@@ -96,7 +110,7 @@ export function installApiAuthInterceptor() {
 
             if (res.status === 401) {
               const isExempt = AUTH_EXEMPT_PATHS.some(path => url.includes(path));
-              if (!isExempt && (hasAuth || token)) {
+              if (!isExempt && sentAuth) {
                 // Token rejected by server -> clear invalid member session to halt 401 loops
                 clearMemberSession();
               }

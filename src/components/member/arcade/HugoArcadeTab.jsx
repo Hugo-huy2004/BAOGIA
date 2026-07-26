@@ -10,11 +10,25 @@ import { fetchProfile } from "../../../services/arcadeApi";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
+import memberService from "../../../services/classes/MemberService";
+import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import "./arcade-theme.css";
 
 const ARCADE_PRICE_JOY = 199;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
+const ARCADE_DL_KEY = "hugo_arcade_downloaded_v1";
+const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
+const HOME_SCREEN_APPS_KEY = "hugo_home_screen_utilities_v1";
+
+const readStoredList = (key) => {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value.filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+};
 
 const GAMES = [
   { id: "chess",     name: "HugoChess AI 2500", tagline: "Thách đấu AI Master ELO 2500 & PvP.", label: "Cờ Vua · Đại Sư ELO", Icon: Castle },
@@ -135,7 +149,7 @@ const GameCard = React.memo(function GameCard({ game, profile, isLocked, isDownl
 });
 
 // ─── Main ──────────────────────────────────────────────────────────
-export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
+export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -215,14 +229,12 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
 
   // ── App Store Download State ────────────────────────────────────────
   // Use a dedicated key so Dashboard's homeScreenApps sync never overwrites it
-  const ARCADE_DL_KEY = "hugo_arcade_downloaded_v1";
-
   const [downloading, setDownloading] = useState({}); // { gameId: 0-100 }
   const [downloaded, setDownloaded]   = useState(() => {
     // Primary source: dedicated arcade download key
-    const dedicated = JSON.parse(localStorage.getItem("hugo_arcade_downloaded_v1") || "[]");
+    const dedicated = readStoredList(ARCADE_DL_KEY);
     // Fallback: also check the home screen list for any pre-existing arcade games
-    const home = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
+    const home = readStoredList(HOME_SCREEN_APPS_KEY);
     const fromHome = home.filter(id => id.startsWith("arcade_")).map(id => id.slice("arcade_".length));
     return new Set([...dedicated, ...fromHome]);
   });
@@ -242,24 +254,44 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
         setDownloading(prev => ({ ...prev, [gameId]: 100 }));
 
         // 1. Write to dedicated arcade download key (never overwritten by Dashboard)
-        const dedicated = JSON.parse(localStorage.getItem(ARCADE_DL_KEY) || "[]");
+        const dedicated = readStoredList(ARCADE_DL_KEY);
         if (!dedicated.includes(gameId)) {
           localStorage.setItem(ARCADE_DL_KEY, JSON.stringify([...dedicated, gameId]));
         }
 
         // 2. Also add to home screen & installed lists for Dashboard to render icon
         const fullAppId = `arcade_${gameId}`;
-        const savedHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
-        const savedInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
-        const updatedHome = [...new Set([...savedHome, fullAppId])];
-        const updatedInst = [...new Set([...savedInst, fullAppId])];
-        localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(updatedHome));
-        localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(updatedInst));
+        const savedHome = readStoredList(HOME_SCREEN_APPS_KEY);
+        const savedInst = readStoredList(INSTALLED_APPS_KEY);
+        const updatedInst = appInstallationPolicy.normalizeInstalled([
+          ...(Array.isArray(bio?.installedUtilities) ? bio.installedUtilities : []),
+          ...savedInst,
+          fullAppId,
+        ]);
+        const updatedHome = appInstallationPolicy.normalizeHomeScreen([
+          ...(Array.isArray(bio?.homeScreenUtilities) ? bio.homeScreenUtilities : []),
+          ...savedHome,
+          fullAppId,
+        ], updatedInst);
+        localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(updatedHome));
+        localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(updatedInst));
 
         // 3. Tell the always-mounted Dashboard to refresh icons immediately
         window.dispatchEvent(new CustomEvent("hugo:app-installed", { detail: { appId: fullAppId } }));
 
-        // 4. Update local downloaded state (no toast)
+        // 4. Persist the install so it also appears on the user's other devices.
+        if (bio?._id && bio._id !== "guest") {
+          memberService.updateMemberBio(bio._id, {
+            installedUtilities: updatedInst,
+            homeScreenUtilities: updatedHome,
+          }).then((response) => {
+            if (response?.bio) onBioUpdate?.(response.bio);
+          }).catch(() => {
+            // Offline-first: the local install remains available.
+          });
+        }
+
+        // 5. Update local downloaded state and confirm the action.
         setTimeout(() => {
           setDownloaded(prev => new Set([...prev, gameId]));
           setDownloading(prev => {
@@ -267,12 +299,14 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate }) {
             delete next[gameId];
             return next;
           });
+          const game = GAMES.find((item) => item.id === gameId);
+          showToast?.(`${game?.name || "Trò chơi"} đã được thêm vào Ứng dụng.`, "success");
         }, 400);
       } else {
         setDownloading(prev => ({ ...prev, [gameId]: progress }));
       }
     }, 100);
-  }, [downloading, ARCADE_DL_KEY]);
+  }, [bio, downloading, onBioUpdate, showToast]);
 
   return (
     <>

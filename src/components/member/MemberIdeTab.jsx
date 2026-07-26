@@ -14,6 +14,7 @@ import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE, QUIZ_POOL_1, QUIZ_POOL_2 } from "./ideData";
 import { getStageBenefitsFromCatalog, useCoderLessons } from "../../hooks/useCoderLessons";
 import { verifyLessonCode } from "../../services/coderLessonsApi";
+import { hugoCoderApi } from "../../services/hugoCoderApi";
 import { renderMobileIllustration, getMobileVisualSet, renderVisualArtwork } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";
 import CertificateModal from "./hugoCoder/CertificateModal";
@@ -192,17 +193,11 @@ export default function MemberIdeTab({
           notify.dismiss(t.id);
           setExchangeSubmitting(true);
           try {
-            const token = getMemberSession()?.token;
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/subscribe-feature`, {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({ email: bio.email, featureKey: tierInfo.subKey, months: 1 })
+            const data = await hugoCoderApi.subscribeFeature({
+              email: bio.email,
+              featureKey: tierInfo.subKey,
+              months: 1,
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
             
             notify.success("Đăng ký thành công! Giai đoạn học này đã được mở khóa.");
             useJoyStore.getState().setBalance(data.balance);
@@ -231,7 +226,7 @@ export default function MemberIdeTab({
     });
   };
 
-  const handleBuyLifetimeUnlock = (tier) => {
+  const handleBuyLifetimeUnlock = async (tier) => {
     const labels = {
       basic: 'Chặng 1: Phản Xạ Cơ Bản (Bài 1-10)',
       intermediate: 'Chặng 2: Tư Duy Kiến Trúc (Bài 11-25)',
@@ -248,15 +243,28 @@ export default function MemberIdeTab({
       project: 3500,
       devops: 1500
     };
-    const price = tierPrices[tier] || 0;
-    const tierLabel = labels[tier] || 'Khóa học';
+    let quote;
+    try {
+      quote = await hugoCoderApi.getLifetimeUnlockQuote(tier);
+    } catch (err) {
+      notify.error(err.message || "Không thể kiểm tra điều kiện mở khóa.");
+      return;
+    }
+
+    if (!quote.eligible) {
+      notify.error(quote.error || "Bạn chưa đủ điều kiện mở khóa chặng này.");
+      return;
+    }
+
+    const price = quote.priceJoy ?? tierPrices[tier] ?? 0;
+    const tierLabel = quote.label ?? labels[tier] ?? 'Khóa học';
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
         title="Mua gói Vĩnh Viễn"
         message={
           <>
-            Bạn có đồng ý dùng <strong>{price} JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn <strong>{tierLabel}</strong>?
+            Bạn có đồng ý dùng <strong>{quote.total} JOY</strong> gồm {price} JOY và {quote.tax} JOY phí sáng tạo để mở khóa vĩnh viễn <strong>{tierLabel}</strong>?
             <span className="block mt-1.5 text-[11px] opacity-90">
               {getStageBenefits(tier).map((b, i) => (
                 <span key={i} className="block">— {b}</span>
@@ -269,17 +277,7 @@ export default function MemberIdeTab({
           notify.dismiss(t.id);
           setExchangeSubmitting(true);
           try {
-            const token = getMemberSession()?.token;
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/buy-lifetime-unlock`, {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({ tier })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
+            const data = await hugoCoderApi.buyLifetimeUnlock(tier);
             
             notify.success(`Mở khóa vĩnh viễn ${tierLabel} thành công!`);
             useJoyStore.getState().setBalance(data.balance);
@@ -329,17 +327,11 @@ export default function MemberIdeTab({
           notify.dismiss(t.id);
           setExchangeSubmitting(true);
           try {
-            const token = getMemberSession()?.token;
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/subscribe-feature`, {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              },
-              body: JSON.stringify({ email: bio.email, featureKey: "hugoCoder", months: 1 })
+            const data = await hugoCoderApi.subscribeFeature({
+              email: bio.email,
+              featureKey: "hugoCoder",
+              months: 1,
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
             
             notify.success("Đóng phí bảo trì thành công!");
             useJoyStore.getState().setBalance(data.balance);
@@ -383,18 +375,13 @@ export default function MemberIdeTab({
           notify.dismiss(t.id);
           setExchangeSubmitting(true);
           try {
-            const token = getMemberSession()?.token;
-            const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/buy-all-stages-bundle`, {
-              method: "POST",
-              headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-              }
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Giao dịch thất bại.");
+            const data = await hugoCoderApi.buyAllStagesBundle();
             
-            notify.success("Mở khóa trọn gói vĩnh viễn thành công! Bạn đã được kích hoạt toàn bộ các chặng học và được miễn phí bảo trì trọn đời.");
+            if (data.alreadyOwned) {
+              notify.success("Quyền sở hữu trọn gói đã được đồng bộ.");
+            } else {
+              notify.success("Mở khóa trọn gói vĩnh viễn thành công! Bạn đã được kích hoạt toàn bộ các chặng học và được miễn phí bảo trì trọn đời.");
+            }
             useJoyStore.getState().setBalance(data.balance);
             if (onBioUpdate) {
               onBioUpdate(data.bio);
@@ -415,17 +402,7 @@ export default function MemberIdeTab({
 
   const handleClaimMilestoneReward = async (phaseNum) => {
     try {
-      const token = getMemberSession()?.token;
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/joy/claim-milestone-reward`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ phase: phaseNum })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Nhận thưởng thất bại.");
+      const data = await hugoCoderApi.claimMilestoneReward(phaseNum);
 
       import("canvas-confetti").then((module) => {
         const conf = module.default || module;

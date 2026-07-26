@@ -125,6 +125,16 @@ function MemberPortalPage() {
     isLoading: bootstrapLoading,
     error: bootstrapError,
   } = useMemberBootstrap(memberSession?.email, !isGuestMode);
+  const patchMemberBio = React.useCallback((patch) => {
+    if (!patch) return;
+    setBio((previous) => previous ? { ...previous, ...patch } : patch);
+    queryClient.setQueryData(
+      memberBootstrapKey(memberSession?.email),
+      (current) => current
+        ? { ...current, bio: { ...(current.bio || {}), ...patch } }
+        : current,
+    );
+  }, [memberSession?.email, queryClient]);
 
   const activeTab = tab || (isGuestMode ? "apps" : "today");
   const portalArea = useMemo(() => {
@@ -800,8 +810,6 @@ function MemberPortalPage() {
                   {activeTab === "today" && (
                     <MemberTodayTab
                       bio={bio}
-                      balance={joyBalance}
-                      notifications={notifications}
                       onNavigate={navigate}
                     />
                   )}
@@ -822,7 +830,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -894,8 +902,6 @@ function MemberPortalPage() {
                     <div className="px-3">
                       <MemberTodayTab
                         bio={bio}
-                        balance={joyBalance}
-                        notifications={notifications}
                         onNavigate={navigate}
                       />
                     </div>
@@ -917,7 +923,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1048,24 +1054,34 @@ function MemberPortalPage() {
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
       {isMobileView && bio?.status !== 'pending' && !isKeyboardVisible && (
-        <div id="mobile-bottom-tab-bar" className={`portal-liquid-tabbar fixed z-[100] ${fullSheetOpen ? "hidden" : ""}`}>
-          <div
-            className="flex justify-around"
-          >
+        <div
+          id="mobile-bottom-tab-bar"
+          className={`fixed bottom-0 left-0 right-0 z-[100] border-t border-border/40 bg-background/90 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-2xl dark:bg-[#0c0b11]/90 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
+          style={{
+            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)",
+            paddingLeft: "env(safe-area-inset-left, 0px)",
+            paddingRight: "env(safe-area-inset-right, 0px)",
+            paddingTop: "10px",
+          }}
+        >
+          <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {
               const isActive = portalArea === tab.id;
               return (
                 <button id={`portal-tab-${tab.id}-mobile`} key={tab.id} type="button" onClick={() => onTabClick(tab)}
                   data-section={tab.id}
                   aria-current={isActive ? "page" : undefined}
-                  className={`portal-liquid-tab flex flex-col items-center justify-center gap-0.5 flex-1 relative py-1 px-1 ${isActive ? "is-active" : ""}`}>
+                  className="flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 relative py-1 px-1 transition-colors duration-200">
+                  {isActive && (
+                    <span className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary" />
+                  )}
                   <span
-                    className="portal-liquid-tab-icon material-symbols-outlined"
+                    className={`material-symbols-outlined transition-all duration-200 ${isActive ? "text-primary text-2xl" : "text-muted-foreground/70 text-[22px]"}`}
                     style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
                   >
                     {tab.icon}
                   </span>
-                  <span className="portal-liquid-tab-label truncate max-w-full">
+                  <span className={`max-w-full truncate text-[10.5px] font-semibold tracking-tight transition-colors duration-200 ${isActive ? "text-primary" : "text-muted-foreground/70"}`}>
                     {tab.label}
                   </span>
                   {tab.id === "activity" && unreadHistoryCount > 0 && (

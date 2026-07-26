@@ -4,6 +4,8 @@
 export function useFeatureGate(bio, featureKey) {
   const sub = bio?.featureSubscriptions?.[featureKey];
   const expiresAt = sub?.expiresAt ? new Date(sub.expiresAt) : null;
-  const active = !!expiresAt && expiresAt.getTime() > Date.now();
-  return { active, expiresAt };
+  const permanentAccess = featureKey === "hugoCoder"
+    && Boolean(bio?.hugoCoderAll7Lifetime);
+  const active = permanentAccess || (!!expiresAt && expiresAt.getTime() > Date.now());
+  return { active, expiresAt, permanentAccess };
 }

@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import { createHash } from 'node:crypto';
 import Bio from '../models/Bio.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import CommunityMessage from '../models/CommunityMessage.js';
@@ -542,12 +543,22 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
       serverTime: new Date().toISOString()
     };
 
-    const etag = `W/"${Buffer.from(JSON.stringify({
+    const etagSeed = JSON.stringify({
       updatedAt: bioDoc.updatedAt || bioDoc.createdAt,
       unreadCount,
       balance: payload.wallet.balance,
-      installedCount: payload.workspace.installedApps.length
-    })).toString('base64').slice(0, 32)}"`;
+      installedApps: payload.workspace.installedApps,
+      coderAccess: {
+        all: Boolean(bioDoc.hugoCoderAll7Lifetime),
+        basic: Boolean(bioDoc.hugoCoderBasicLifetime),
+        intermediate: Boolean(bioDoc.hugoCoderIntermediateLifetime),
+        advanced: Boolean(bioDoc.hugoCoderAdvancedLifetime),
+        security: Boolean(bioDoc.hugoCoderSecurityLifetime),
+        project: Boolean(bioDoc.hugoCoderUltimateLifetime),
+        devops: Boolean(bioDoc.hugoCoderDevopsLifetime)
+      }
+    });
+    const etag = `W/"${createHash('sha256').update(etagSeed).digest('base64url').slice(0, 32)}"`;
 
     res.setHeader('ETag', etag);
     if (req.headers['if-none-match'] === etag) {

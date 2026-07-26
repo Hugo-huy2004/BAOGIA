@@ -248,7 +248,13 @@ export default function CoderLearningJourney({
                     const current = globalIndex === currentIndex;
                     const boss = course.practiceType === "quiz"
                       || course.practiceType === "graduation_submission";
-                    const wave = ["left", "center", "right", "center"][index % 4];
+                    const wavePattern = ["left", "center", "right", "center"];
+                    const wave = wavePattern[index % wavePattern.length];
+                    const nextWave = wavePattern[(index + 1) % wavePattern.length];
+                    const wavePosition = { left: -1, center: 0, right: 1 };
+                    const connectorDirection = wavePosition[nextWave] > wavePosition[wave]
+                      ? "right"
+                      : "left";
 
                     return (
                       <div
@@ -274,6 +280,12 @@ export default function CoderLearningJourney({
                           <strong>{course.title.replace(/^\d+\.\s*/, "")}</strong>
                           {current && <em>{t("hugoCoderLearning.path.next")}</em>}
                         </span>
+                        {index < stageCourses.length - 1 && (
+                          <i
+                            className={`coder-path-connector coder-path-connector-${connectorDirection}`}
+                            aria-hidden="true"
+                          />
+                        )}
                       </div>
                     );
                   })}
