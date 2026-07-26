@@ -3,6 +3,7 @@ import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
+import { readGamePalette, shade, withAlpha } from "./arcadePalette";
 
 export default function GameSpaceSurvivor({ difficulty = "medium", paused = false, onGameOver }) {
   const canvasRef = useRef(null);
@@ -88,6 +89,11 @@ export default function GameSpaceSurvivor({ difficulty = "medium", paused = fals
     canvas.width = 360;
     canvas.height = 540;
 
+    // Bảng màu của game (xem arcadePalette.js). Địch và đạn giữ màu riêng vì
+    // người chơi phải phân biệt được chúng; nền, sao, khiên và tàu theo palette.
+    const pal = readGamePalette(canvas);
+    const shipBody = pal.isLight ? shade(pal.ink, 0.15) : "#ffffff";
+
     let rafId;
 
     const render = (ts) => {
@@ -95,11 +101,11 @@ export default function GameSpaceSurvivor({ difficulty = "medium", paused = fals
       if (s.isGameOver) return;
 
       // 1. Clear Canvas (Cosmic Deep Space)
-      ctx.fillStyle = "#05060d";
+      ctx.fillStyle = pal.bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Starfield Background
-      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.fillStyle = withAlpha(pal.ink, 0.4);
       for (let i = 0; i < 20; i++) {
         const sx = (Math.sin(i * 99 + ts * 0.001) * 0.5 + 0.5) * canvas.width;
         const sy = (i * 30 + ts * 0.1) % canvas.height;
@@ -335,9 +341,9 @@ export default function GameSpaceSurvivor({ difficulty = "medium", paused = fals
 
       // Shield Bubble
       if (s.player.shield) {
-        ctx.shadowColor = "#38bdf8";
+        ctx.shadowColor = pal.accent;
         ctx.shadowBlur = 15;
-        ctx.strokeStyle = "#38bdf8";
+        ctx.strokeStyle = pal.accent;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(px, py, 26, 0, Math.PI * 2);
@@ -346,9 +352,9 @@ export default function GameSpaceSurvivor({ difficulty = "medium", paused = fals
       }
 
       // Cyber Jet Body
-      ctx.shadowColor = "#06b6d4";
+      ctx.shadowColor = pal.accent;
       ctx.shadowBlur = 15;
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = shipBody;
       ctx.beginPath();
       ctx.moveTo(px, py - 18);
       ctx.lineTo(px - 14, py + 14);

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
 import JoyExchangeModal from "./JoyExchangeModal";
+import BackButton from "./BackButton";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
@@ -45,14 +46,7 @@ export default function FeatureGate({ bio, featureKey, priceJoy, icon, title, de
 
   return (
     <div className={`flex flex-col items-center justify-center text-center py-16 px-6 rounded-3xl border border-dashed border-primary/30 bg-primary/5 dark:bg-primary/10 relative ${className}`}>
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="absolute top-4 left-4 flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <span className="material-symbols-outlined text-base">arrow_back</span> Quay lại
-        </button>
-      )}
+      {onBack && <BackButton onClick={onBack} className="absolute left-2 top-2" />}
       <div className="w-16 h-16 rounded-2xl bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center mb-5">
         <span className="material-symbols-outlined text-3xl">{icon || "lock"}</span>
       </div>

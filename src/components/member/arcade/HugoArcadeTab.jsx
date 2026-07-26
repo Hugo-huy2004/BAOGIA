@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import StandaloneGameShell from "./StandaloneGameShell";
+import BackButton from "../shared/BackButton";
 
 import { fetchProfile } from "../../../services/arcadeApi";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
@@ -314,9 +315,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
       <div className="arc" style={{ visibility: activeGame ? "hidden" : "visible" }}>
         <header className="arc-topbar bg-[#0a0a0f]/95 backdrop-blur-3xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white flex items-center justify-center transition-all active:scale-95" aria-label="Quay lại">
-              <span className="material-symbols-outlined text-base">arrow_back_ios_new</span>
-            </button>
+            <BackButton onClick={onBack} tone="onDark" iconOnly />
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF2D55] to-rose-500 flex items-center justify-center shadow-[0_0_15px_rgba(255,45,85,0.5)]">
                 <span className="material-symbols-outlined text-white text-lg">sports_esports</span>

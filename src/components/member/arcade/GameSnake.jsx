@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useGesture } from "@use-gesture/react";
 import { playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
 import { hapticMerge, hapticWin, hapticLose, hapticMove } from "../../../utils/haptics";
+import { readGamePalette, withAlpha, shade } from "./arcadePalette";
 
 const GOALS = { easy: 8, medium: 14, hard: 20 };
 const GRID = 18;
@@ -23,10 +24,10 @@ function randomCell(occupied) {
   return cell;
 }
 
-// Neon palette cycling along the snake body
-const HEAD_COLOR  = "#ffffff";
-const FOOD_COLOR  = "#f43f5e";
-const BODY_COLORS = ["#22d3ee","#a78bfa","#34d399","#f472b6","#60a5fa","#fb923c"];
+// Mồi giữ tông san hô ở mọi bảng màu — nó là điểm tương phản duy nhất trên
+// bàn chơi, đổi theo accent sẽ lẫn vào thân rắn.
+const FOOD_CORE = "#ff6b75";
+const FOOD_EDGE = "#d94461";
 
 export default function GameSnake({ difficulty, paused = false, onGameOver }) {
   const canvasRef   = useRef(null);
@@ -55,6 +56,17 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
     const s      = state.current;
     s.lastTick   = 0;
 
+    // Bảng màu của chính game này (xem arcadePalette.js).
+    const pal = readGamePalette(canvas);
+    const bodyLight = shade(pal.accent, 0.22);
+    const bodyDeep = shade(pal.accent, -0.28);
+    const headColor = pal.accent;
+    // Nền sáng thì quầng neon vô hình — chuyển sang viền đậm để giữ hình khối.
+    const glow = (color, blur) => {
+      ctx.shadowColor = pal.isLight ? "transparent" : color;
+      ctx.shadowBlur = pal.isLight ? 0 : blur;
+    };
+
     // Fit canvas to container
     const size    = canvas.offsetWidth;
     canvas.width  = size;
@@ -63,10 +75,10 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
 
     const draw = () => {
       // 3D Background with Subtle Perspective Grid
-      ctx.fillStyle = "#060913";
+      ctx.fillStyle = pal.bg;
       ctx.fillRect(0, 0, size, size);
 
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.08)";
+      ctx.strokeStyle = pal.grid;
       ctx.lineWidth   = 1;
       for (let i = 0; i <= GRID; i++) {
         ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, size); ctx.stroke();
@@ -78,18 +90,22 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
       const fy = (s.food.y + 0.5) * cell;
       const fr = cell * 0.42;
 
-      ctx.shadowColor = FOOD_COLOR;
-      ctx.shadowBlur  = 18;
+      glow(FOOD_CORE, 18);
       const foodGrad = ctx.createRadialGradient(fx - fr * 0.3, fy - fr * 0.3, fr * 0.1, fx, fy, fr);
       foodGrad.addColorStop(0, "#ffffff");
-      foodGrad.addColorStop(0.4, "#fb7185");
-      foodGrad.addColorStop(1, "#e11d48");
+      foodGrad.addColorStop(0.4, FOOD_CORE);
+      foodGrad.addColorStop(1, FOOD_EDGE);
 
       ctx.fillStyle = foodGrad;
       ctx.beginPath();
       ctx.arc(fx, fy, fr, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
+      if (pal.isLight) {
+        ctx.strokeStyle = FOOD_EDGE;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
 
       // Render Real Snake Body & Head (Continuous snake with head, glowing eyes, tongue, scale joints, and tapered tail)
       const totalSegs = s.snake.length;
@@ -111,13 +127,12 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
           const r = cell * 0.48;
 
           // Head Glow
-          ctx.shadowColor = "#FF2D55";
-          ctx.shadowBlur = 18;
+          glow(headColor, 18);
 
           // Snake Head Gradient
           const headGrad = ctx.createLinearGradient(-r, 0, r, 0);
-          headGrad.addColorStop(0, "#FF2D55");
-          headGrad.addColorStop(1, "#FF6B8B");
+          headGrad.addColorStop(0, shade(headColor, -0.15));
+          headGrad.addColorStop(1, shade(headColor, 0.25));
 
           ctx.fillStyle = headGrad;
           ctx.beginPath();
@@ -128,6 +143,11 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
           ctx.closePath();
           ctx.fill();
           ctx.shadowBlur = 0;
+          if (pal.isLight) {
+            ctx.strokeStyle = bodyDeep;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+          }
 
           // Snake Eyes (White)
           ctx.fillStyle = "#ffffff";
@@ -144,7 +164,7 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
           ctx.fill();
 
           // Red Flicking Tongue
-          ctx.strokeStyle = "#ff3b30";
+          ctx.strokeStyle = FOOD_CORE;
           ctx.lineWidth = 2.5;
           ctx.lineCap = "round";
           ctx.beginPath();
@@ -163,10 +183,10 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
 
           const progress = i / totalSegs;
           const r = cell * (isTail ? 0.28 : (0.44 - progress * 0.14));
-          const color = BODY_COLORS[i % BODY_COLORS.length];
+          // Thân chuyển dần từ sáng ở đầu sang đậm ở đuôi, quanh accent của game.
+          const color = shade(pal.accent, 0.22 - progress * 0.5);
 
-          ctx.shadowColor = color;
-          ctx.shadowBlur = 8;
+          glow(color, 8);
 
           // Continuous Capsule Body Stroke
           ctx.strokeStyle = color;
@@ -177,8 +197,9 @@ export default function GameSnake({ difficulty, paused = false, onGameOver }) {
           ctx.lineTo(px, py);
           ctx.stroke();
 
-          // Scale Highlight Specular Drop
-          ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+          // Scale Highlight Specular Drop — nền sáng thì chấm trắng biến mất,
+          // đổi sang chấm đậm để vảy vẫn đọc được.
+          ctx.fillStyle = pal.isLight ? withAlpha(bodyDeep, 0.5) : "rgba(255, 255, 255, 0.3)";
           ctx.beginPath();
           ctx.arc(cx - r * 0.2, cy - r * 0.2, r * 0.35, 0, Math.PI * 2);
           ctx.fill();

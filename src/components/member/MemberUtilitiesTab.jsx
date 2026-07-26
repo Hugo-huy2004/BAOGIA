@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
+import SubUtilityHeader from "./SubUtilityHeader";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoHelpdeskTab = lazy(() => import("./HugoHelpdeskTab"));
@@ -135,32 +136,16 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* HugoSkin */}
       {selectedUtility === "hugoskin" && (
-        <div className="space-y-4 text-left">
-          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 mb-2">
-            <button
-              onClick={() => onSelectUtility(null)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-sm font-medium transition-all cursor-pointer active:scale-95"
-            >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
-              <span>Quay lại</span>
-            </button>
-          </div>
+        <div className="text-left">
+          <SubUtilityHeader title="HugoSkin" icon="face" colorClass="text-slate-500" onBack={() => onSelectUtility(null)} appId="hugoskin" />
           <HugoSkinTab />
         </div>
       )}
 
       {/* Ví JOY Wallet */}
       {selectedUtility === "joy_wallet" && (
-        <div className="space-y-4 text-left">
-          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 mb-2">
-            <button
-              onClick={() => onSelectUtility(null)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-sm font-medium transition-all cursor-pointer active:scale-95"
-            >
-              <span className="material-symbols-outlined text-base">arrow_back</span>
-              <span>Quay lại</span>
-            </button>
-          </div>
+        <div className="text-left">
+          <SubUtilityHeader title="Ví JOY" icon="account_balance_wallet" colorClass="text-amber-500" onBack={() => onSelectUtility(null)} appId="joy_wallet" />
           <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} />
         </div>
       )}

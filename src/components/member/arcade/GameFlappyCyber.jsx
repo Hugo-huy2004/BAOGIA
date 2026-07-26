@@ -3,6 +3,7 @@ import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
+import { readGamePalette, shade, withAlpha } from "./arcadePalette";
 
 export default function GameFlappyCyber({ difficulty = "medium", paused = false, onGameOver }) {
   const canvasRef = useRef(null);
@@ -64,6 +65,17 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
     canvas.width = 340;
     canvas.height = 480;
 
+    // Bảng màu của game (xem arcadePalette.js). Cột và chim lấy theo accent,
+    // riêng mỏ/mắt giữ tông ấm để luôn nổi trên mọi nền.
+    const pal = readGamePalette(canvas);
+    const pipeFill = shade(pal.accent, pal.isLight ? 0.42 : -0.05);
+    const pipeEdge = shade(pal.accent, pal.isLight ? -0.25 : 0.45);
+    const birdBody = pal.isLight ? "#ffd45c" : "#ffffff";
+    const glow = (color, blur) => {
+      ctx.shadowColor = pal.isLight ? "transparent" : color;
+      ctx.shadowBlur = pal.isLight ? 0 : blur;
+    };
+
     let rafId;
     let spawnCounter = 0;
 
@@ -76,11 +88,11 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
       setIsSlowMo(s.slowMoTimer > 0);
 
       // 1. Background
-      ctx.fillStyle = "#05060f";
+      ctx.fillStyle = pal.bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Grid Perspective Lines
-      ctx.strokeStyle = "rgba(168, 85, 247, 0.08)";
+      ctx.strokeStyle = pal.grid;
       ctx.lineWidth = 1;
       for (let i = 0; i < canvas.height; i += 30) {
         ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
@@ -97,7 +109,7 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
         vx: -Math.random() * 2 - 1,
         vy: (Math.random() - 0.5) * 1.5,
         life: 1,
-        color: s.slowMoTimer > 0 ? "#06b6d4" : "#a855f7",
+        color: s.slowMoTimer > 0 ? "#06b6d4" : pal.accent,
       });
 
       // 3. Pipe Spawning & Movement
@@ -111,12 +123,11 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
         p.x -= 2.6 * speedMult;
 
         // Draw Top Energy Column
-        ctx.shadowColor = "#a855f7";
-        ctx.shadowBlur = 12;
+        glow(pal.accent, 12);
         const topGrad = ctx.createLinearGradient(p.x, 0, p.x + p.width, 0);
-        topGrad.addColorStop(0, "#7e22ce");
-        topGrad.addColorStop(0.5, "#c084fc");
-        topGrad.addColorStop(1, "#581c87");
+        topGrad.addColorStop(0, shade(pipeFill, -0.2));
+        topGrad.addColorStop(0.5, shade(pipeFill, 0.18));
+        topGrad.addColorStop(1, shade(pipeFill, -0.3));
 
         ctx.fillStyle = topGrad;
         ctx.fillRect(p.x, 0, p.width, p.topHeight);
@@ -126,7 +137,7 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
         ctx.shadowBlur = 0;
 
         // Draw Electric Arc Highlight Borders
-        ctx.strokeStyle = "#ffffff";
+        ctx.strokeStyle = pipeEdge;
         ctx.lineWidth = 2;
         ctx.strokeRect(p.x, p.topHeight - 6, p.width, 6);
         ctx.strokeRect(p.x, p.bottomY, p.width, 6);
@@ -146,9 +157,8 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
       s.slowOrbs.forEach((o, oIdx) => {
         o.x -= 2.6 * speedMult;
 
-        ctx.shadowColor = "#06b6d4";
-        ctx.shadowBlur = 15;
-        ctx.fillStyle = "#06b6d4";
+        glow(pal.accent, 15);
+        ctx.fillStyle = shade(pal.accent, pal.isLight ? -0.15 : 0.3);
         ctx.beginPath();
         ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -183,13 +193,18 @@ export default function GameFlappyCyber({ difficulty = "medium", paused = false,
       const angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, s.bird.vy * 0.08));
       ctx.rotate(angle);
 
-      ctx.shadowColor = s.slowMoTimer > 0 ? "#06b6d4" : "#a855f7";
-      ctx.shadowBlur = 16;
-      ctx.fillStyle = "#ffffff";
+      glow(s.slowMoTimer > 0 ? "#06b6d4" : pal.accent, 16);
+      ctx.fillStyle = s.slowMoTimer > 0 ? "#8be9ff" : birdBody;
       ctx.beginPath();
       ctx.arc(0, 0, s.bird.radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
+      if (pal.isLight) {
+        // Nền sáng: viền mực thay cho quầng sáng, nếu không chim tan vào trời.
+        ctx.strokeStyle = withAlpha(pal.ink, 0.9);
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
 
       // Cyber Visor Eye
       ctx.fillStyle = s.slowMoTimer > 0 ? "#06b6d4" : "#ff2d55";

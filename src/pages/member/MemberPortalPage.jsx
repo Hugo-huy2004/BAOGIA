@@ -710,6 +710,16 @@ function MemberPortalPage() {
     (subTab === "psychology" && isMobileView)
   );
 
+  // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
+  // TRONG app và lối ra là nút "Quay lại" của chính app đó. Giữ thêm thanh tab
+  // của portal chỉ tổ chồng hai lớp điều hướng và ăn mất chiều cao.
+  //
+  // "library" không tính là app — đó là màn duyệt kho, vẫn thuộc tab Ứng dụng.
+  const isAppOpen = isMobileView
+    && activeTab === "utilities"
+    && Boolean(utilitySelection)
+    && utilitySelection !== "library";
+
   if (isFullscreenUtility) {
     // h-[100dvh] (not h-screen/100vh) so this actually shrinks with the
     // on-screen keyboard on iOS/Android instead of staying pinned to the
@@ -887,7 +897,7 @@ function MemberPortalPage() {
       {/* ── 📱 MOBILE VIEW (md:hidden) ─────────────────────────────────── */}
       {isMobileView && (
       <div>
-        <div className={`mobile-portal-content max-w-6xl mx-auto sm:px-4 ${(activeTab === 'utilities' || activeTab === 'apps') ? 'pt-0 space-y-0' : activeTab === 'account' ? 'pt-2 space-y-4' : 'pt-2 sm:pt-4 space-y-4'} relative z-10`}>
+        <div className={`mobile-portal-content ${isAppOpen ? "mobile-portal-content--app" : ""} max-w-6xl mx-auto sm:px-4 ${(activeTab === 'utilities' || activeTab === 'apps') ? 'pt-0 space-y-0' : activeTab === 'account' ? 'pt-2 space-y-4' : 'pt-2 sm:pt-4 space-y-4'} relative z-10`}>
           <ErrorBoundary>
             <React.Suspense fallback={
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -1058,7 +1068,7 @@ function MemberPortalPage() {
         <TourSystem />
 
       {/* ── Mobile bottom tab bar ─────────────────────────────────────────────── */}
-      {isMobileView && bio?.status !== 'pending' && !isKeyboardVisible && (
+      {isMobileView && bio?.status !== 'pending' && !isKeyboardVisible && !isAppOpen && (
         <div
           id="mobile-bottom-tab-bar"
           className={`mobile-portal-tabbar fixed bottom-0 left-0 right-0 z-[100] border-t border-border/40 bg-background/90 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-2xl dark:bg-[#0c0b11]/90 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}

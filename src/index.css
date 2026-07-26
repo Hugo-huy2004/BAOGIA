@@ -1503,6 +1503,17 @@ html.standalone-pwa .member-portal-shell {
   --portal-safe-bottom: min(34px, max(0px, env(safe-area-inset-bottom, 0px)));
   --portal-safe-left: min(44px, max(0px, env(safe-area-inset-left, 0px)));
   --portal-safe-right: min(44px, max(0px, env(safe-area-inset-right, 0px)));
+
+  /*
+   * Đệm đáy của thanh tab: lấy GIÁ TRỊ LỚN HƠN giữa khoảng thở tối thiểu và
+   * vùng an toàn, KHÔNG cộng dồn hai thứ.
+   *
+   * Trước đây là `calc(8px + inset)`: trên máy có thanh gạt home (inset 34px)
+   * thanh tab cao 8+34=42px đệm dưới, đẩy icon dính lên mép trên và chừa một
+   * mảng trống to phía dưới — đúng triệu chứng "không sát đáy". Dùng max() thì
+   * máy không có inset vẫn được 8px thở, máy có inset dùng đúng 34px.
+   */
+  --portal-tabbar-pad: max(8px, var(--portal-safe-bottom, 0px));
 }
 
 html.standalone-pwa .desktop-apple-layout {
@@ -1513,18 +1524,21 @@ html.standalone-pwa .desktop-apple-layout {
 .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
-  padding-bottom: calc(74px + var(--portal-safe-bottom, 0px)) !important;
+  padding-bottom: calc(66px + var(--portal-tabbar-pad)) !important;
+}
+
+/* Khi một ứng dụng đang mở, thanh tab bị ẩn — không chừa chỗ cho nó nữa,
+   nếu không đáy màn hình thừa ra một khoảng trống bằng cả thanh tab. */
+.mobile-portal-content--app {
+  padding-bottom: var(--portal-safe-bottom, 0px) !important;
 }
 
 .mobile-portal-tabbar {
   box-sizing: border-box;
-  height: calc(66px + var(--portal-safe-bottom, 0px));
   min-height: 66px;
-  max-height: 100px;
-  overflow: hidden;
   padding-top: 10px;
   padding-right: var(--portal-safe-right, 0px);
-  padding-bottom: calc(8px + var(--portal-safe-bottom, 0px));
+  padding-bottom: var(--portal-tabbar-pad);
   padding-left: var(--portal-safe-left, 0px);
 }
 

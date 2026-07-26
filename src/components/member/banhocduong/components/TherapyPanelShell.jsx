@@ -1,6 +1,7 @@
 import React from "react";
-import { ArrowLeft, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
+import BackButton from "../../shared/BackButton";
 
 export default function TherapyPanelShell({ method, onBack, children }) {
   if (!method) return children;
@@ -21,13 +22,7 @@ export default function TherapyPanelShell({ method, onBack, children }) {
       {/* Header Bar */}
       <div className="flex items-center justify-between gap-3 p-4 rounded-2xl border bg-white/60 dark:bg-card/60 backdrop-blur-xl border-border/50 shadow-sm">
         <div className="flex items-center gap-3.5 min-w-0">
-          <button
-            onClick={onBack}
-            className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 border border-border/60 text-foreground transition-all active:scale-95 shrink-0"
-            title="Quay lại"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
+          <BackButton onClick={onBack} iconOnly />
           <div className="min-w-0">
             <h3 className="text-sm font-black text-foreground truncate leading-tight">{title}</h3>
             <p className="text-[10px] font-bold text-muted-foreground truncate mt-0.5">{desc}</p>

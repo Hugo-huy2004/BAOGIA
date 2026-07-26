@@ -3,6 +3,7 @@ import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
+import { readGamePalette, withAlpha } from "./arcadePalette";
 
 const COLS = 10;
 const ROWS = 20;
@@ -84,7 +85,9 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
   };
 
   // ── Draw 3D Bevelled Neon Block ─────────────────────────────────────────
-  const drawBlock = (ctx, x, y, size, color, glow, isGhost = false) => {
+  // `pal` là bảng màu của game (arcadePalette.js) — quyết định mặt tối của
+  // khối và việc có dùng quầng sáng hay không.
+  const drawBlock = (ctx, x, y, size, color, glow, isGhost = false, pal = null) => {
     const px = x * size;
     const py = y * size;
     const pad = 1.5;
@@ -99,14 +102,16 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
       ctx.globalAlpha = 0.15;
       ctx.fillRect(px + pad, py + pad, size - pad * 2, size - pad * 2);
     } else {
-      ctx.shadowColor = glow;
-      ctx.shadowBlur = 10;
+      const isLight = pal?.isLight;
+      ctx.shadowColor = isLight ? "transparent" : glow;
+      ctx.shadowBlur = isLight ? 0 : 10;
 
-      // Base Block Gradient
+      // Base Block Gradient — mặt tối lấy theo nền của game thay vì một màu
+      // xanh đen cố định, để khối luôn ăn với bàn chơi.
       const grad = ctx.createLinearGradient(px, py, px + size, py + size);
       grad.addColorStop(0, "#ffffff");
       grad.addColorStop(0.3, color);
-      grad.addColorStop(1, "rgba(5, 8, 20, 0.95)");
+      grad.addColorStop(1, pal ? withAlpha(pal.bg, 0.95) : "rgba(5, 8, 20, 0.95)");
 
       ctx.fillStyle = grad;
       ctx.beginPath();
@@ -115,7 +120,7 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
       ctx.shadowBlur = 0;
 
       // Inner Specular Reflection Line
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+      ctx.strokeStyle = isLight ? withAlpha(pal.ink, 0.3) : "rgba(255, 255, 255, 0.4)";
       ctx.lineWidth = 1;
       ctx.strokeRect(px + pad + 1, py + pad + 1, size - pad * 2 - 2, size - pad * 2 - 2);
     }
@@ -233,6 +238,9 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
     // Resuming must not hand the player a free drop for the time spent paused.
     gameState.current.lastTick = 0;
 
+    // Bảng màu của game này (xem arcadePalette.js).
+    const pal = readGamePalette(canvas);
+
     drawNextPiece();
 
     let rafId;
@@ -246,11 +254,11 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
       }
 
       // Clear Canvas
-      ctx.fillStyle = "#050811";
+      ctx.fillStyle = pal.bg;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw Grid Lines
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.08)";
+      ctx.strokeStyle = pal.grid;
       ctx.lineWidth = 1;
       for (let r = 0; r <= ROWS; r++) {
         ctx.beginPath(); ctx.moveTo(0, r * cell); ctx.lineTo(canvas.width, r * cell); ctx.stroke();
@@ -264,7 +272,7 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
         for (let c = 0; c < COLS; c++) {
           const color = s.board[r][c];
           if (color) {
-            drawBlock(ctx, c, r, cell, color, color);
+            drawBlock(ctx, c, r, cell, color, color, false, pal);
           }
         }
       }
@@ -278,7 +286,7 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
               const gx = s.currentPiece.x + c;
               const gy = ghostY + r;
               if (gy >= 0 && gy < ROWS && gx >= 0 && gx < COLS) {
-                drawBlock(ctx, gx, gy, cell, s.currentPiece.color, s.currentPiece.glow, true);
+                drawBlock(ctx, gx, gy, cell, s.currentPiece.color, s.currentPiece.glow, true, pal);
               }
             }
           });
@@ -291,7 +299,7 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
               const px = s.currentPiece.x + c;
               const py = s.currentPiece.y + r;
               if (py >= 0 && py < ROWS && px >= 0 && px < COLS) {
-                drawBlock(ctx, px, py, cell, s.currentPiece.color, s.currentPiece.glow, false);
+                drawBlock(ctx, px, py, cell, s.currentPiece.color, s.currentPiece.glow, false, pal);
               }
             }
           });

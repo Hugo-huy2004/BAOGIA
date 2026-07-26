@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { describe, it, expect } from "vitest";
+import { withAlpha, shade, luminance } from "../arcadePalette";
 
 import GAME_THEMES from "../gameThemes";
 import en from "../../../../i18n/locales/en/translation.json";
@@ -21,6 +22,34 @@ const gameIds = [
 
 const introCss = read("../game-intro.css");
 
+/** Đọc giá trị --intro-bg đã khai trong game-intro.css cho một game. */
+function paletteToken(id, token) {
+  const block = introCss.match(new RegExp(`\\.arcade-game--${id}\\s*\\{([^}]*)\\}`));
+  const found = block?.[1].match(new RegExp(`${token}:\\s*([^;]+);`));
+  return found?.[1].trim();
+}
+
+describe("arcadePalette helpers", () => {
+  it("chuyển hex sang rgba giữ đúng kênh màu", () => {
+    expect(withAlpha("#ff8800", 0.5)).toBe("rgba(255, 136, 0, 0.5)");
+    expect(withAlpha("#f80", 1)).toBe("rgba(255, 136, 0, 1)");
+    // Giá trị không phải hex phải trả nguyên si, không sinh "rgba(NaN...)".
+    expect(withAlpha("rgba(0,0,0,.2)", 0.5)).toBe("rgba(0,0,0,.2)");
+  });
+
+  it("shade đi tới trắng và tới đen mà không tràn kênh", () => {
+    expect(shade("#808080", 1)).toBe("#ffffff");
+    expect(shade("#808080", -1)).toBe("#000000");
+    expect(shade("#808080", 0)).toBe("#808080");
+  });
+
+  it("luminance xếp trắng cao hơn đen", () => {
+    expect(luminance("#ffffff")).toBeCloseTo(1, 2);
+    expect(luminance("#000000")).toBe(0);
+    expect(luminance("#ffffff")).toBeGreaterThan(luminance("#808080"));
+  });
+});
+
 describe("arcade game presentation coverage", () => {
   it("finds every game registered in the shell", () => {
     expect(gameIds).toHaveLength(8);
@@ -36,6 +65,23 @@ describe("arcade game presentation coverage", () => {
     for (const token of ["--intro-bg", "--intro-ink", "--intro-muted", "--intro-accent", "--intro-soft"]) {
       expect(block[1], `${id} is missing ${token}`).toContain(token);
     }
+  });
+
+  // Các engine canvas dùng ngưỡng sáng/tối này để chọn giữa quầng neon và
+  // viền đậm. Phân loại sai = thực thể tàng hình trên bàn chơi.
+  it.each([
+    ["survivor", false],
+    ["tetris", false],
+    ["snake", true],
+    ["flappy", true],
+    ["2048", true],
+    ["caro", true],
+    ["wordguess", true],
+    ["chess", true],
+  ])("%s được xếp là nền sáng: %s", (id, expectedLight) => {
+    const bg = paletteToken(id, "--intro-bg");
+    expect(bg, `thiếu --intro-bg cho ${id}`).toBeTruthy();
+    expect(luminance(bg) > 0.4).toBe(expectedLight);
   });
 
   it.each(gameIds)("%s has a display name and intro copy in both locales", (id) => {

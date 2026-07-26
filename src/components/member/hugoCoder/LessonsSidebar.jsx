@@ -118,8 +118,9 @@ export default function LessonsSidebar({
               setVerificationStatus(null);
               onExitLesson?.();
             }}
-            className="text-[10px] text-primary hover:text-primary/80 font-bold transition-all"
+            className="inline-flex h-11 items-center gap-1 rounded-xl pl-2 pr-3.5 text-[15px] font-medium text-foreground transition-colors hover:bg-muted active:bg-muted"
           >
+            <span className="material-symbols-outlined text-[22px]">arrow_back</span>
             Quay lại
           </button>
         )}
