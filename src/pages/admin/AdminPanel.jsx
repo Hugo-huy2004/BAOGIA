@@ -147,8 +147,34 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
     window.location.href = "/login";
   };
 
+  // Fetch Overview Counts for Dashboard Stats
+  const fetchOverviewCounts = async () => {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || "/api";
+      const [ticketsRes, packagesRes, projectsRes] = await Promise.allSettled([
+        fetch(`${apiBase}/support/tickets?status=pending`, { credentials: "include" }).then(r => r.ok ? r.json() : {}),
+        fetch(`${apiBase}/packages`, { credentials: "include" }).then(r => r.ok ? r.json() : []),
+        fetch(`${apiBase}/customer-projects`, { credentials: "include" }).then(r => r.ok ? r.json() : [])
+      ]);
+
+      const openTickets = ticketsRes.status === "fulfilled" ? (ticketsRes.value?.pendingCount ?? ticketsRes.value?.pagination?.total ?? 0) : 0;
+      const packagesCount = packagesRes.status === "fulfilled" && Array.isArray(packagesRes.value) ? packagesRes.value.length : 0;
+      const projectsCount = projectsRes.status === "fulfilled" && Array.isArray(projectsRes.value) ? projectsRes.value.length : 0;
+
+      setCounts(prev => ({
+        ...prev,
+        openTickets,
+        contactSupport: openTickets,
+        packages: packagesCount,
+        totalProjects: projectsCount,
+        projects: projectsCount
+      }));
+    } catch (e) {}
+  };
+
   // Fetch Users
   const handleRefreshUsers = async () => {
+    setLoading(true);
     try {
       const res = await userApi.getBios({
         search: searchQuery,
@@ -162,23 +188,46 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
 
       if (res && res.bios) {
         setUsers(res.bios);
-        setTotalPages(res.pagination?.totalPages || 1);
-        setTotalMatchedUsers(res.pagination?.total || res.bios.length);
+        const pages = res.pagination?.pages || res.pagination?.totalPages || 1;
+        const total = res.pagination?.totalMatched ?? res.pagination?.total ?? res.bios.length;
+        setTotalPages(pages);
+        setTotalMatchedUsers(total);
         if (res.stats) setUserStats(res.stats);
-        setCounts(prev => ({ ...prev, users: res.pagination?.total || res.bios.length }));
+        setCounts(prev => ({ ...prev, users: res.stats?.total || total }));
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error("Error fetching users:", e);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // Debounce searchInput -> searchQuery
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+      setUserPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     const session = getAdminSession();
-    if (session?.token) {
-      setAdminToken(session.token);
+    if (session) {
       setIsAuthenticated(true);
-      handleRefreshUsers();
+      if (session.token) {
+        setAdminToken(session.token);
+      }
     }
     setAuthChecking(false);
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      handleRefreshUsers();
+      fetchOverviewCounts();
+    }
+  }, [searchQuery, statusFilter, expirationFilter, userSortBy, userSortOrder, userPage, userLimit, isAuthenticated]);
 
   const handleExecuteDelete = async () => {
     setConfirmError("");

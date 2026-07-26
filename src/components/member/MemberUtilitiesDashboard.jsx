@@ -30,47 +30,16 @@ export const APP_STORAGE_MB = {
 
 // Styling constants
 const GRADIENTS = {
-  indigo:  "from-indigo-500 via-purple-500 to-pink-500",
-  rose:    "from-rose-500 via-pink-500 to-red-500",
-  cyan:    "from-cyan-400 via-teal-500 to-emerald-500",
-  blue:    "from-blue-600 via-indigo-600 to-violet-600",
-  teal:    "from-teal-400 via-emerald-500 to-success",
-  orange:  "from-amber-500 via-orange-500 to-rose-500",
-  purple:  "from-violet-600 via-purple-600 to-fuchsia-600",
-  slate:   "from-slate-600 via-zinc-600 to-stone-600",
-  pink:    "from-pink-500 via-fuchsia-500 to-purple-500",
+  indigo:  "from-indigo-500 to-indigo-600",
+  rose:    "from-rose-400 to-rose-600",
+  cyan:    "from-cyan-400 to-teal-500",
+  blue:    "from-blue-500 to-indigo-600",
+  teal:    "from-teal-400 to-emerald-500",
+  orange:  "from-amber-400 to-orange-500",
+  purple:  "from-violet-500 to-purple-600",
+  slate:   "from-slate-500 to-slate-700",
+  pink:    "from-pink-400 to-fuchsia-600",
 };
-
-const CARD_THEMES = {
-  indigo:  "from-indigo-500/8 via-purple-500/3 to-transparent",
-  rose:    "from-rose-500/8 via-pink-500/3 to-transparent",
-  cyan:    "from-cyan-500/8 via-teal-500/3 to-transparent",
-  blue:    "from-blue-600/8 via-indigo-600/3 to-transparent",
-  teal:    "from-teal-500/8 via-emerald-500/3 to-transparent",
-  orange:  "from-amber-500/8 via-orange-500/3 to-transparent",
-  purple:  "from-violet-600/8 via-purple-600/3 to-transparent",
-  slate:   "from-slate-600/8 via-zinc-600/3 to-transparent",
-  pink:    "from-pink-500/8 via-fuchsia-500/3 to-transparent",
-};
-
-const GLOW_SHADOWS = {
-  indigo:  "hover:shadow-[0_20px_50px_rgba(99,102,241,0.2)] dark:hover:shadow-[0_20px_50px_rgba(99,102,241,0.12)]",
-  rose:    "hover:shadow-[0_20px_50px_rgba(244,63,94,0.2)] dark:hover:shadow-[0_20px_50px_rgba(244,63,94,0.12)]",
-  cyan:    "hover:shadow-[0_20px_50px_rgba(6,182,212,0.2)] dark:hover:shadow-[0_20px_50px_rgba(6,182,212,0.12)]",
-  blue:    "hover:shadow-[0_20px_50px_rgba(59,130,246,0.2)] dark:hover:shadow-[0_20px_50px_rgba(59,130,246,0.12)]",
-  teal:    "hover:shadow-[0_20px_50px_rgba(20,184,166,0.2)] dark:hover:shadow-[0_20px_50px_rgba(20,184,166,0.12)]",
-  orange:  "hover:shadow-[0_20px_50px_rgba(245,158,11,0.2)] dark:hover:shadow-[0_20px_50px_rgba(245,158,11,0.12)]",
-  purple:  "hover:shadow-[0_20px_50px_rgba(139,92,246,0.2)] dark:hover:shadow-[0_20px_50px_rgba(139,92,246,0.12)]",
-  slate:   "hover:shadow-[0_20px_50px_rgba(100,116,139,0.2)] dark:hover:shadow-[0_20px_50px_rgba(100,116,139,0.12)]",
-  pink:    "hover:shadow-[0_20px_50px_rgba(236,72,153,0.2)] dark:hover:shadow-[0_20px_50px_rgba(236,72,153,0.12)]",
-};
-
-const THEMES = [
-  { id: "default", label: "Mặc định", style: "" },
-  { id: "aurora", label: "Cực quang", style: "bg-gradient-to-tr from-purple-950/20 via-indigo-900/10 to-cyan-950/20 dark:from-purple-950/30 dark:via-indigo-950/15 dark:to-cyan-950/30 rounded-[30px] p-6 shadow-lg shadow-purple-500/5" },
-  { id: "cyberpunk", label: "Cyberpunk", style: "bg-[#090d16]/90 rounded-[30px] p-6 shadow-[0_0_30px_rgba(6,182,212,0.06)]" },
-  { id: "pastel", label: "Pastel", style: "bg-gradient-to-br from-rose-100/50 via-peach-100/30 to-amber-100/40 dark:from-rose-950/10 dark:via-zinc-900/20 dark:to-amber-950/10 rounded-[30px] p-6 shadow-md shadow-orange-500/5" },
-];
 
 const DEFAULT_INSTALLED = [
   "library", "bio", "ide", "psychology", "radio", "helpdesk", "handle", "arcade", "aura",
@@ -300,17 +269,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       : DEFAULT_INSTALLED;
   });
 
-  const [activeWallpaper, setActiveWallpaper] = useState(() => {
-    return localStorage.getItem("hugo_wallpaper") || "default";
-  });
-
   const [downloadingAppId, setDownloadingAppId] = useState(null);
   const [downloadProgress, setDownloadProgress] = useState({});
   const [editingApp, setEditingApp] = useState(null);
 
   // Advanced UI States
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [ripples, setRipples] = useState([]);
   const [flyingApp, setFlyingApp] = useState(null);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
   const [spotlightQuery, setSpotlightQuery] = useState("");
@@ -703,12 +666,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   };
 
-  const handleSetWallpaper = (themeId) => {
-    setActiveWallpaper(themeId);
-    localStorage.setItem("hugo_wallpaper", themeId);
-    showToast?.("Đã thay đổi hình nền bàn làm việc!", "success");
-  };
-
   // Drag and Drop
   const handleDragStart = (e, index, type) => {
     if (!isEditMode) {
@@ -888,27 +845,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   };
 
-  const handleMouseMove = (e) => {
-    if (window.matchMedia("(pointer: coarse)").matches) return;
-    const { clientX, clientY } = e;
-    const x = (clientX - window.innerWidth / 2) / 60;
-    const y = (clientY - window.innerHeight / 2) / 60;
-    setMousePos({ x, y });
-  };
-
-  const handleDesktopClick = (e) => {
-    if (e.target.id === "workspace-bg") {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const id = Date.now() + Math.random();
-      setRipples((prev) => [...prev, { id, x, y }]);
-      setTimeout(() => {
-        setRipples((prev) => prev.filter((r) => r.id !== id));
-      }, 800);
-    }
-  };
-
   const myAppsList = useMemo(() => {
     // Read directly from localStorage so any installs (even from other components) show immediately.
     // refreshKey and state vars are both deps so this recomputes whenever either changes.
@@ -941,67 +877,73 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   }, [myAppsList, utilitySizes]);
 
   const joyBalance = data?.member?.joyBalance || 1540;
-  const activeThemeClass = THEMES.find((t) => t.id === activeWallpaper)?.style || "";
 
   return (
-    <div 
-      onMouseMove={handleMouseMove}
-      onClick={handleDesktopClick}
-      className="relative space-y-6 animate-fadeIn pb-24 select-none transition-all duration-500"
-    >
-      {/* 🌌 Parallax Wallpaper Background Layer */}
-      <div 
-        id="workspace-bg"
-        className={`absolute inset-[-20px] transition-transform duration-200 ease-out pointer-events-auto z-0 ${activeThemeClass || ""}`}
-        style={{ 
-          transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
-          willChange: "transform"
-        }}
-      />
-
-      {/* 🌊 Fluid Ripple Overlays */}
-      {ripples.map((ripple) => (
-        <span
-          key={ripple.id}
-          className="absolute rounded-full bg-white/25 dark:bg-white/10 pointer-events-none z-10"
-          style={{
-            left: ripple.x,
-            top: ripple.y,
-            transform: "translate(-50%, -50%)",
-            animation: "rippleEffect 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards",
-          }}
-        />
-      ))}
-
+    <div className="relative space-y-6 animate-fadeIn pb-24 select-none">
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
         <div className="space-y-4">
-          {/* Full-width Apple Search Bar */}
-          <div className="px-1 pb-1">
+          {/* 🔍 AUTHENTIC APPLE LIQUID GLASS SEARCH CAPSULE BAR 🔍 */}
+          <div className="w-full flex flex-col items-center gap-3 py-2">
             <div
               onClick={() => { setIsSpotlightOpen(true); setSpotlightQuery(""); setSpotlightSelectedIndex(0); }}
-              className="flex items-center gap-2.5 px-3.5 py-2.5 bg-card/90 border border-border/70 rounded-2xl shadow-sm cursor-pointer hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground active:scale-[0.99]"
+              className="w-full relative flex items-center justify-between px-6 py-3.5 sm:py-4 rounded-full bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/70 dark:border-white/20 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.8),0_12px_32px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.4)] hover:bg-white/50 dark:hover:bg-white/15 transition-all cursor-pointer group active:scale-[0.99]"
             >
-              <span className="material-symbols-outlined text-lg text-primary">search</span>
-              <span className="text-xs font-semibold text-muted-foreground flex-1">Tìm kiếm ứng dụng, trò chơi, tiện ích...</span>
-              <kbd className="hidden sm:inline-block px-2 py-0.5 bg-background rounded-md text-[10px] font-mono border border-border/60 text-foreground font-bold">
-                ⌘K
-              </kbd>
+              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex-1 tracking-tight select-none">
+                Tìm kiếm ứng dụng, trò chơi, tiện ích...
+              </span>
+
+              <div className="flex items-center gap-3">
+                <kbd className="hidden sm:inline-block px-2.5 py-1 bg-white/60 dark:bg-black/40 rounded-full text-[10px] font-mono font-black border border-white/80 dark:border-white/20 text-slate-600 dark:text-slate-300 shadow-xs">
+                  ⌘K
+                </kbd>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-slate-800 dark:text-white group-hover:scale-110 transition-transform">
+                  <span className="material-symbols-outlined text-2xl font-light">search</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Apple Liquid Glass Control Pills (Matching Image 2) */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4 px-5 py-2 rounded-full bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/70 dark:border-white/20 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.8),0_8px_20px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.3)]">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="text-slate-800 dark:text-white hover:opacity-70 transition-opacity flex items-center justify-center"
+                  title="Quay lại"
+                >
+                  <span className="material-symbols-outlined text-xl">chevron_left</span>
+                </button>
+                <button
+                  onClick={() => navigate(1)}
+                  className="text-slate-800 dark:text-white hover:opacity-70 transition-opacity flex items-center justify-center"
+                  title="Tiếp theo"
+                >
+                  <span className="material-symbols-outlined text-xl">chevron_right</span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setActiveTab("library")}
+                className="w-10 h-10 rounded-full bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/70 dark:border-white/20 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.8),0_8px_20px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.3)] text-slate-800 dark:text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+                title="Khám phá Thư viện App"
+              >
+                <span className="material-symbols-outlined text-lg">grid_view</span>
+              </button>
             </div>
           </div>
 
           {myAppsList.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 glossy-card border border-border/75 rounded-[32px] p-8 shadow-sm">
-              <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 bg-card border border-border/60 rounded-3xl p-8">
+              <div className="w-16 h-16 rounded-2xl bg-muted text-muted-foreground flex items-center justify-center">
                 <span className="material-symbols-outlined text-3xl">add_to_home_screen</span>
               </div>
-              <div className="space-y-1">
-                <p className="text-base font-black text-foreground uppercase tracking-wider">Trống màn hình</p>
-                <p className="text-xs text-muted-foreground/70 max-w-xs leading-relaxed">Hãy tải các tiện ích học tập bạn cần từ thư viện Hugo Library.</p>
+              <div className="space-y-1.5">
+                <p className="text-lg font-semibold text-foreground">Màn hình trống</p>
+                <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">Tải các tiện ích học tập bạn cần từ Hugo Library.</p>
               </div>
               <button
                 onClick={() => setActiveTab("library")}
-                className="px-6 py-3 bg-primary text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                className="px-5 py-3 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-90 active:scale-[0.97] transition-all"
               >
                 Khám phá Hugo Library
               </button>
@@ -1028,8 +970,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 handleToggleRadio={handleToggleRadio}
                 joyBalance={joyBalance}
                 gradients={GRADIENTS}
-                cardThemes={CARD_THEMES}
-                glowShadows={GLOW_SHADOWS}
                 onAppHover={prefetchUtility}
               />
 
@@ -1076,46 +1016,45 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[200] p-0 sm:p-4 transition-opacity">
           <div className="absolute inset-0" onClick={() => setEditingApp(null)} />
 
-          <div className="relative w-full sm:max-w-md bg-card/95 border-t sm:border border-border/75 rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl z-[210] max-h-[90vh] overflow-y-auto animate-slideUp text-left glossy-card">
-            <div className="w-12 h-1.5 bg-muted rounded-full mx-auto mb-5 sm:hidden" />
+          <div className="relative w-full sm:max-w-md bg-card border-t sm:border border-border/60 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[210] max-h-[90vh] overflow-y-auto animate-slideUp text-left">
+            <div className="w-9 h-1 bg-muted rounded-full mx-auto mb-5 sm:hidden" />
 
             <div className="flex items-center gap-4 mb-6">
-              <div className={`w-14 h-14 rounded-[14px] bg-gradient-to-br ${GRADIENTS[editingApp.tint] || GRADIENTS.indigo} flex items-center justify-center shadow-md relative overflow-hidden shrink-0`}>
-                <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${GRADIENTS[editingApp.tint] || GRADIENTS.indigo} flex items-center justify-center shadow-sm shrink-0`}>
                 <span className="material-symbols-outlined text-white text-[26px]" style={{ fontVariationSettings: "'FILL' 1" }}>{editingApp.icon}</span>
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-lg font-black text-foreground truncate">
-                  Tùy chỉnh: {editingApp.title}
+                <h3 className="text-lg font-semibold text-foreground truncate">
+                  {editingApp.title}
                 </h3>
-                <p className="text-xs text-muted-foreground truncate">{editingApp.subLabel}</p>
+                <p className="text-sm text-muted-foreground truncate">{editingApp.subLabel}</p>
               </div>
             </div>
 
             {/* Sizes Segmented Customizer */}
             <div className="space-y-3 mb-6">
-              <span className="text-[11px] font-black uppercase tracking-wider text-muted-foreground block">
-                Chọn kích cỡ hiển thị:
+              <span className="text-sm font-medium text-muted-foreground block">
+                Kích cỡ hiển thị
               </span>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: "small", label: "Nhỏ (Icon)", desc: "1x1 Icon" },
-                  { id: "medium", label: "Vừa", desc: "2x1 Widget" },
-                  { id: "large", label: "Lớn", desc: "2x2 Widget" },
+                  { id: "small", label: "Nhỏ", desc: "Biểu tượng" },
+                  { id: "medium", label: "Vừa", desc: "2×1" },
+                  { id: "large", label: "Lớn", desc: "2×2" },
                 ].map((sz) => {
                   const active = (utilitySizes[editingApp.id] || "small") === sz.id;
                   return (
                     <button
                       key={sz.id}
                       onClick={() => handleSetWidgetSize(editingApp.id, sz.id)}
-                      className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 ${
+                      className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-[0.97] ${
                         active
                           ? "bg-primary/10 border-primary text-primary"
-                          : "bg-muted/40 border-border/50 text-muted-foreground hover:bg-muted"
+                          : "bg-muted/50 border-transparent text-muted-foreground hover:bg-muted"
                       }`}
                     >
-                      <span className="text-xs font-black">{sz.label}</span>
-                      <span className="text-[9.5px] opacity-75 font-semibold mt-0.5">{sz.desc}</span>
+                      <span className="text-sm font-semibold">{sz.label}</span>
+                      <span className="text-[11px] opacity-70 mt-0.5">{sz.desc}</span>
                     </button>
                   );
                 })}
@@ -1126,9 +1065,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             {editingApp.id !== "library" && (
               <button
                 onClick={() => handleUninstallApp(editingApp.id)}
-                className="w-full flex items-center justify-center gap-2 py-3 border border-destructive/30 hover:border-transparent bg-destructive/10 hover:bg-destructive text-destructive hover:text-white transition-all font-black text-xs uppercase tracking-wider rounded-2xl mb-4 active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-destructive/10 hover:bg-destructive text-destructive hover:text-white transition-all font-semibold text-sm rounded-2xl mb-3 active:scale-[0.98]"
               >
-                <span className="material-symbols-outlined text-base">delete_forever</span>
+                <span className="material-symbols-outlined text-base">delete</span>
                 <span>Gỡ khỏi màn hình chính</span>
               </button>
             )}
@@ -1136,7 +1075,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             {/* Done Close Button */}
             <button
               onClick={() => setEditingApp(null)}
-              className="w-full py-3 bg-muted hover:bg-muted/80 text-foreground transition-all font-black text-xs uppercase tracking-wider rounded-2xl text-center active:scale-[0.98]"
+              className="w-full py-3.5 bg-muted hover:bg-muted/80 text-foreground transition-all font-semibold text-sm rounded-2xl text-center active:scale-[0.98]"
             >
               Xong
             </button>
@@ -1146,32 +1085,32 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🔍 SPOTLIGHT SEARCH OVERLAY */}
       {isSpotlightOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-[550] flex justify-center pt-24 px-4" onClick={() => setIsSpotlightOpen(false)}>
-          <div 
-            className="w-full max-w-lg bg-[#0a0f1d] border border-white/10 rounded-2xl shadow-2xl p-4 space-y-4 max-h-[70vh] flex flex-col animate-slideUp text-left"
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[550] flex justify-center pt-24 px-4" onClick={() => setIsSpotlightOpen(false)}>
+          <div
+            className="w-full max-w-lg bg-card border border-border/60 rounded-3xl shadow-2xl p-4 space-y-3 max-h-[70vh] flex flex-col animate-slideUp text-left"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Search Input Box */}
             <div className="relative flex items-center shrink-0">
-              <span className="material-symbols-outlined text-zinc-400 absolute left-3.5">search</span>
+              <span className="material-symbols-outlined text-muted-foreground/70 absolute left-3.5">search</span>
               <input
                 autoFocus
                 type="text"
-                placeholder="Tìm kiếm ứng dụng, tiện ích... (Dùng mũi tên ↑↓ để chọn)"
+                placeholder="Tìm ứng dụng, tiện ích…"
                 value={spotlightQuery}
                 onChange={(e) => setSpotlightQuery(e.target.value)}
-                className="w-full h-12 bg-white/5 text-sm text-white placeholder-zinc-500 rounded-xl pl-11 pr-24 outline-none border border-white/10 focus:border-primary/50 transition-all font-medium"
+                className="w-full h-12 bg-muted/60 text-base text-foreground placeholder-muted-foreground/60 rounded-2xl pl-11 pr-16 outline-none border border-transparent focus:border-primary/40 transition-all"
               />
-              <span className="absolute right-3.5 text-[9px] font-black text-zinc-500 border border-zinc-700 px-2 py-0.5 rounded uppercase select-none pointer-events-none">ESC</span>
+              <span className="absolute right-3.5 text-[10px] font-medium text-muted-foreground/70 border border-border/60 px-2 py-0.5 rounded select-none pointer-events-none">ESC</span>
             </div>
 
             {/* Suggestions/Results List */}
-            <div className="overflow-y-auto flex-1 space-y-1.5 pr-1 divide-y divide-white/5">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-2.5 pb-2 pt-1 block">
-                {spotlightQuery ? "Kết quả tìm kiếm" : "Gợi ý ứng dụng nhanh"}
+            <div className="overflow-y-auto flex-1 space-y-1 pr-1">
+              <p className="text-xs font-medium text-muted-foreground px-2.5 pb-1.5 pt-1 block">
+                {spotlightQuery ? "Kết quả tìm kiếm" : "Gợi ý nhanh"}
               </p>
               {spotlightFilteredApps.length === 0 ? (
-                <div className="text-center py-8 text-zinc-500 text-xs">
+                <div className="text-center py-8 text-muted-foreground text-sm">
                   Không tìm thấy ứng dụng phù hợp
                 </div>
               ) : (
@@ -1184,27 +1123,25 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                       key={app.id}
                       onClick={() => handleLaunchSpotlightApp(app)}
                       onMouseEnter={() => setSpotlightSelectedIndex(index)}
-                      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border border-transparent ${
-                        active 
-                          ? "bg-white/10 border-l-4 border-l-primary" 
-                          : "hover:bg-white/5"
+                      className={`flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-colors ${
+                        active ? "bg-muted" : "hover:bg-muted/60"
                       }`}
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-sm relative overflow-hidden`}>
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-sm`}>
                           <span className="material-symbols-outlined text-white text-[20px]">{app.icon}</span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-black text-white">{app.title}</p>
-                          <p className="text-[10px] text-zinc-400 truncate mt-0.5">{app.subLabel}</p>
+                          <p className="text-sm font-semibold text-foreground">{app.title}</p>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">{app.subLabel}</p>
                         </div>
                       </div>
-                      
+
                       <div className="shrink-0 flex items-center gap-2">
                         {isInstalled ? (
-                          <span className="text-[9px] font-black text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded-md">Đã tải</span>
+                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">Đã tải</span>
                         ) : (
-                          <span className="text-[9px] font-black text-zinc-400 uppercase tracking-wider bg-white/5 px-2 py-0.5 rounded-md border border-white/5">Cửa hàng</span>
+                          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">Cửa hàng</span>
                         )}
                       </div>
                     </div>
@@ -1265,18 +1202,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🌌 CSS Keyframe Animations Block */}
       <style>{`
-        @keyframes rippleEffect {
-          0% {
-            width: 0px;
-            height: 0px;
-            opacity: 0.6;
-          }
-          100% {
-            width: 140px;
-            height: 140px;
-            opacity: 0;
-          }
-        }
         @keyframes eqBar {
           0% { height: 4px; }
           100% { height: 12px; }
@@ -1298,32 +1223,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           100% {
             transform: translate3d(var(--fly-end-x), var(--fly-end-y), 0) scale(0.1);
             opacity: 0;
-          }
-        }
-        .liquid-glass-dock {
-          animation: liquidGlowLight 6s infinite alternate ease-in-out;
-        }
-        .dark .liquid-glass-dock {
-          animation: liquidGlowDark 6s infinite alternate ease-in-out;
-        }
-        @keyframes liquidGlowLight {
-          0% {
-            box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.05), 0 10px 25px -5px rgba(0,0,0,0.1), 0 0 10px 1px rgba(255,255,255,0.05);
-            border-color: rgba(255, 255, 255, 0.4);
-          }
-          100% {
-            box-shadow: inset 0 3px 5px rgba(255,255,255,0.75), inset 0 -3px 5px rgba(0,0,0,0.1), 0 16px 35px -5px rgba(0,0,0,0.18), 0 0 18px 3px rgba(255,255,255,0.15);
-            border-color: rgba(255, 255, 255, 0.6);
-          }
-        }
-        @keyframes liquidGlowDark {
-          0% {
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3), inset 0 -2px 4px rgba(0,0,0,0.3), 0 10px 25px -5px rgba(0,0,0,0.3);
-            border-color: rgba(255, 255, 255, 0.15);
-          }
-          100% {
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.45), inset 0 -3px 6px rgba(0,0,0,0.4), 0 16px 35px -5px rgba(0,0,0,0.45), 0 0 12px 2px rgba(255,255,255,0.1);
-            border-color: rgba(255, 255, 255, 0.28);
           }
         }
       `}</style>

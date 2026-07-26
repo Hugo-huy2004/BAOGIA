@@ -67,10 +67,9 @@ export default function AppIconRenderer({
               )}
 
               {/* iOS Squircle App Icon */}
-              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[22px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg relative shrink-0 transition-transform duration-300 group-hover:scale-105 border border-white/20 dark:border-white/10`}>
-                <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-white/25 opacity-70 pointer-events-none rounded-[22px] z-10" />
+              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[22px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm relative shrink-0 transition-transform duration-200 group-hover:scale-105`}>
                 <span
-                  className="material-symbols-outlined text-white text-[28px] sm:text-[32px] z-20 drop-shadow-sm"
+                  className="material-symbols-outlined text-white text-[28px] sm:text-[32px]"
                   style={{ fontVariationSettings: "'FILL' 1" }}
                 >
                   {app.icon}
@@ -78,7 +77,7 @@ export default function AppIconRenderer({
               </div>
 
               {/* App Label Underneath */}
-              <h3 className="mt-2 text-[11px] font-semibold text-foreground text-center truncate w-full leading-tight drop-shadow-sm px-0.5">
+              <h3 className="mt-2 text-[12px] font-medium text-foreground text-center truncate w-full leading-tight px-0.5">
                 {app.title}
               </h3>
             </div>

@@ -5,7 +5,7 @@
 // know about auth transport, and no future call site can forget it. The
 // HttpOnly cookie still flows on same-origin deployments — the Bearer header
 // is the fallback that also works cross-origin (Vercel frontend + API host).
-import { getMemberToken, clearMemberSession } from "./authSession";
+import { getMemberToken, getAdminToken, clearMemberSession } from "./authSession";
 import { reportClientEvent, SLOW_API_MS } from "../utils/clientMonitoring";
 
 const AUTH_EXEMPT_PATHS = [
@@ -64,7 +64,7 @@ export function installApiAuthInterceptor() {
 
     try {
       if (isApiRequest(url)) {
-        const token = getMemberToken();
+        const token = getAdminToken() || getMemberToken();
         const headersObj = {};
 
         // Robustly parse existing headers

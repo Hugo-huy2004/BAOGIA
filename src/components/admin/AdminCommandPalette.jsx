@@ -53,28 +53,28 @@ export default function AdminCommandPalette({ isOpen, onClose, onExecuteCommand,
   ].filter(t => t.label.toLowerCase().includes(query.toLowerCase()));
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-start justify-center pt-20 px-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[999] flex items-start justify-center pt-20 px-4 animate-fadeIn select-none">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" 
+        className="absolute inset-0 bg-black/60 backdrop-blur-2xl transition-opacity" 
         onClick={onClose} 
       />
 
-      {/* Palette Container */}
-      <div className="relative w-full max-w-xl bg-[#141633]/95 border border-white/20 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden backdrop-blur-2xl text-white z-10 animate-toast-in">
+      {/* Palette Container - macOS Spotlight Window */}
+      <div className="relative w-full max-w-xl bg-[#1c1c1e]/90 border border-white/15 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.7)] overflow-hidden backdrop-blur-3xl text-white z-10 animate-toast-in">
         
         {/* Search Input Bar */}
-        <div className="flex items-center px-5 py-4 border-b border-white/10 gap-3">
-          <span className="material-symbols-outlined text-indigo-400 text-2xl">search</span>
+        <div className="flex items-center px-5 py-4 border-b border-white/10 gap-3.5">
+          <span className="material-symbols-outlined text-blue-400 text-2xl">search</span>
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Nhập lệnh AI hoặc tìm người dùng (Ví dụ: nạp 1000 joy, dọn log, tên user)..."
-            className="w-full bg-transparent text-sm text-white placeholder-zinc-400 focus:outline-none font-medium"
+            className="w-full bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none font-semibold"
           />
-          <kbd className="hidden sm:inline-block px-2 py-1 text-[10px] font-mono font-extrabold text-zinc-400 bg-white/10 rounded-md border border-white/10">
+          <kbd className="hidden sm:inline-block px-2.5 py-1 text-[10px] font-mono font-black text-slate-400 bg-white/10 rounded-xl border border-white/10 shadow-sm">
             ESC
           </kbd>
         </div>

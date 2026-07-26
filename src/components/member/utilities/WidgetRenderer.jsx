@@ -20,8 +20,6 @@ export default function WidgetRenderer({
   handleToggleRadio,
   joyBalance,
   gradients,
-  cardThemes,
-  glowShadows,
   onAppHover
 }) {
   const [timeLeft, setTimeLeft] = React.useState(1500);
@@ -58,8 +56,6 @@ export default function WidgetRenderer({
         {myWidgets.map((app, index) => {
           const size = utilitySizes[app.id] || "medium";
           const gradient = gradients[app.tint] || gradients.indigo;
-          const glow = glowShadows[app.tint] || glowShadows.indigo;
-          const cardTheme = cardThemes[app.tint] || "from-primary/5 to-transparent";
 
           const touchProps = {
             onMouseEnter: () => onAppHover?.(app.id),
@@ -80,8 +76,8 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 bg-gradient-to-br ${cardTheme} bg-card/75 dark:bg-card/45 backdrop-blur-md border rounded-[30px] cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1.5 ${glow} overflow-hidden h-[136px] ${
-                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : "border-white/20 dark:border-white/5"
+                className={`relative group flex flex-col justify-between p-5 bg-card border rounded-3xl cursor-pointer shadow-sm transition-all duration-200 hover:-translate-y-0.5 overflow-hidden h-[136px] ${
+                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : "border-border/60"
                 }`}
               >
                 {isEditMode && (
@@ -92,27 +88,25 @@ export default function WidgetRenderer({
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className={`w-12 h-12 rounded-[12px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-md relative overflow-hidden shrink-0`}>
-                      <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
+                    <div className={`w-12 h-12 rounded-[14px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm shrink-0`}>
                       <span className="material-symbols-outlined text-white text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>{app.icon}</span>
                     </div>
                     <div className="text-left min-w-0">
-                      <h3 className="text-sm font-black text-foreground leading-snug truncate">
+                      <h3 className="text-sm font-semibold text-foreground leading-snug truncate">
                         {app.title}
                       </h3>
-                      <span className="text-[10px] font-semibold text-muted-foreground/80 uppercase tracking-wider block mt-0.5">
+                      <span className="text-xs text-muted-foreground block mt-0.5">
                         {app.category === "edu" ? "Học tập" : app.category === "wellness" ? "Sức khỏe" : app.category === "tools" ? "Công cụ" : "Giải trí"}
                       </span>
                     </div>
                   </div>
 
                   {!isEditMode && (
-                    <div className="flex items-center gap-1.5 bg-muted/65 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border border-border/30 shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <span className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                       </span>
-                      <span className="text-emerald-500">Mở</span>
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Mở</span>
                     </div>
                   )}
                 </div>
@@ -200,8 +194,8 @@ export default function WidgetRenderer({
               <div
                 key={app.id}
                 {...touchProps}
-                className={`relative group flex flex-col justify-between p-5 bg-gradient-to-br ${cardTheme} bg-card/75 dark:bg-card/55 backdrop-blur-md border rounded-[32px] cursor-pointer shadow-md transition-all duration-300 hover:-translate-y-1.5 ${glow} overflow-hidden h-[260px] text-left ${
-                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : "border-white/20 dark:border-white/5"
+                className={`relative group flex flex-col justify-between p-5 bg-card border rounded-3xl cursor-pointer shadow-sm transition-all duration-200 hover:-translate-y-0.5 overflow-hidden h-[260px] text-left ${
+                  isEditMode ? "border-dashed border-primary/50 animate-pulse" : "border-border/60"
                 }`}
               >
                 {isEditMode && (
@@ -212,15 +206,14 @@ export default function WidgetRenderer({
 
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-[18px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-md relative overflow-hidden shrink-0`}>
-                      <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none" />
+                    <div className={`w-14 h-14 rounded-[18px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm shrink-0`}>
                       <span className="material-symbols-outlined text-white text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>{app.icon}</span>
                     </div>
                     <div>
-                      <h3 className="text-base font-black text-foreground group-hover:text-primary transition-colors leading-snug">
+                      <h3 className="text-base font-semibold text-foreground leading-snug">
                         {app.title}
                       </h3>
-                      <span className="text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest mt-0.5 block">
+                      <span className="text-xs text-muted-foreground mt-0.5 block">
                         Màn hình chính
                       </span>
                     </div>
@@ -237,10 +230,10 @@ export default function WidgetRenderer({
                         </div>
                         <p className="text-muted-foreground/90 italic leading-relaxed">"Hãy trút bỏ căng thẳng, tôi sẽ thấu cảm và hướng dẫn bạn vượt qua."</p>
                       </div>
-                      <div className="grid grid-cols-3 gap-1.5 text-[9px] font-black uppercase text-center tracking-wider text-muted-foreground">
-                        <div className="bg-card p-1.5 rounded-lg border border-border/20">🌧️ Căng thẳng</div>
-                        <div className="bg-card p-1.5 rounded-lg border border-border/20">😴 Mất ngủ</div>
-                        <div className="bg-card p-1.5 rounded-lg border border-border/20">📖 Học tập</div>
+                      <div className="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-center text-muted-foreground">
+                        <div className="bg-muted/50 p-1.5 rounded-lg">Căng thẳng</div>
+                        <div className="bg-muted/50 p-1.5 rounded-lg">Mất ngủ</div>
+                        <div className="bg-muted/50 p-1.5 rounded-lg">Học tập</div>
                       </div>
                     </div>
                   )}
@@ -409,9 +402,9 @@ export default function WidgetRenderer({
                   )}
                 </div>
 
-                <div className="flex items-center justify-between border-t border-border/40 pt-3 text-[11px] font-bold text-muted-foreground/80">
-                  <span>Nhấn giữ để cài đặt</span>
-                  <span className="material-symbols-outlined text-sm text-primary transform group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+                <div className="flex items-center justify-between border-t border-border/50 pt-3 text-xs text-muted-foreground">
+                  <span>Nhấn giữ để tùy chỉnh</span>
+                  <span className="material-symbols-outlined text-sm text-muted-foreground/70 transform group-hover:translate-x-0.5 transition-transform">arrow_forward_ios</span>
                 </div>
               </div>
             );

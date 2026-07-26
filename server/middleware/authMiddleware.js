@@ -5,14 +5,12 @@ import { JWT_SECRET } from '../utils/secrets.js';
 const MEMBER_TOKEN_TTL = '14d';
 
 const extractToken = (req, cookieName) => {
-  let token = req.cookies?.[cookieName];
-  if (!token) {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.split(' ')[1];
-    }
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const headerToken = authHeader.split(' ')[1];
+    if (headerToken) return headerToken;
   }
-  return token;
+  return req.cookies?.[cookieName] || null;
 };
 
 export const requireAdmin = (req, res, next) => {

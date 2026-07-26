@@ -978,7 +978,7 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
       success: true,
       source,
       personalized: Object.keys(boosts).length > 0,
-      places: result.slice(0, 32)
+      places: result.slice(0, 60)
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -88,6 +88,7 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
 
     res.json({
       success: true,
+      token,
       admin: {
         id: matchingAdmin._id,
         role: 'admin'

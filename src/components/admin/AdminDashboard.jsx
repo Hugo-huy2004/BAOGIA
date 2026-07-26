@@ -86,7 +86,15 @@ const COMMAND_TEMPLATES = [
   "xóa tài khoản"
 ];
 
-export default function AdminDashboard({ stats, bookings, crisisAlerts = [], onResolveCrisisAlert }) {
+export default function AdminDashboard({
+  stats = { total: 0, active: 0, pending: 0, rejected: 0, locked: 0, lifetime: 0 },
+  totalProjects = 0,
+  totalPackages = 0,
+  openTickets = 0,
+  loading = false,
+  crisisAlerts = [],
+  onResolveCrisisAlert
+}) {
   const { t } = useTranslation();
   const [focusedUser, setFocusedUser] = useState(null);
   const [inputVal, setInputVal] = useState("");
@@ -1028,47 +1036,152 @@ export default function AdminDashboard({ stats, bookings, crisisAlerts = [], onR
   };
 
   return (
-    <div 
-      onClick={handleTerminalClick}
-      className="bg-black text-emerald-500 font-mono p-5 rounded-3xl border border-slate-900 shadow-2xl h-[600px] flex flex-col justify-between overflow-hidden cursor-text select-text"
-    >
-      {/* Terminal Outputs Scroll Area */}
-      <div className="flex-1 overflow-y-auto space-y-1 pr-2 scrollbar-hide">
-        {history.map((log, index) => (
-          <div key={index} className="text-xs leading-relaxed break-all whitespace-pre-wrap">
-            <span className={getLogColor(log.type)}>{log.text}</span>
-            {log.component && <div className="mt-1">{log.component}</div>}
+    <div className="space-y-6 animate-fadeIn">
+      {/* ── APPLE BENTO GRID OVERVIEW CARDS ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {/* Total Users Card */}
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tổng Thành Viên</span>
+            <div className="w-9 h-9 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-xl">group</span>
+            </div>
           </div>
-        ))}
-        <div ref={terminalEndRef} />
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{stats.total.toLocaleString()}</span>
+            <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">Live</span>
+          </div>
+        </div>
+
+        {/* Active Users Card */}
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Hoạt Động</span>
+            <div className="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-xl">person_play</span>
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(stats.active || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Active</span>
+          </div>
+        </div>
+
+        {/* Pending Approval Card */}
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Chờ Duyệt</span>
+            <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-xl">hourglass_empty</span>
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(stats.pending || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">Pending</span>
+          </div>
+        </div>
+
+        {/* Locked Accounts Card */}
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Đã Khóa</span>
+            <div className="w-9 h-9 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-xl">block</span>
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(stats.locked || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">Locked</span>
+          </div>
+        </div>
+
+        {/* Support Tickets Card */}
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Open Tickets</span>
+            <div className="w-9 h-9 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-xl">support_agent</span>
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(openTickets || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">Tickets</span>
+          </div>
+        </div>
+
+        {/* Crisis Alerts Card */}
+        <div className={`p-5 rounded-3xl border backdrop-blur-2xl transition-all flex flex-col justify-between group ${crisisAlerts.length > 0 ? "bg-rose-950/30 border-rose-500/50 text-rose-300 shadow-[0_8px_30px_rgba(244,63,94,0.2)] animate-pulse" : "bg-white/80 dark:bg-[#1c1c1e]/80 border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02]"}`}>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">SOS Cảnh Báo</span>
+            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${crisisAlerts.length > 0 ? "bg-rose-600 text-white shadow-[0_0_12px_rgba(244,63,94,0.6)]" : "bg-slate-500/10 text-slate-400 border border-slate-500/20"}`}>
+              <span className="material-symbols-outlined text-xl">emergency</span>
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{crisisAlerts.length}</span>
+            {crisisAlerts.length > 0 ? (
+              <span className="text-[10px] font-black text-rose-400 bg-rose-500/20 px-2.5 py-0.5 rounded-full border border-rose-500/30">KHẨN CẤP</span>
+            ) : (
+              <span className="text-[10px] font-extrabold text-slate-400 bg-slate-500/10 px-2.5 py-0.5 rounded-full border border-slate-500/20">An toàn</span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Terminal Command Input Bar */}
-      <form onSubmit={handleCommandSubmit} className="flex items-center gap-2 border-t border-slate-900 pt-3 mt-3 shrink-0">
-        <span className="text-slate-400 font-bold text-xs shrink-0 select-none">
-          {focusedUser ? `admin@hugostudio(user:${focusedUser.email}):~$` : "admin@hugostudio:~$"}
-        </span>
-        <div className="flex-1 relative flex items-center">
-          {/* Ghost text display layer */}
-          <div className="absolute left-0 right-0 top-0 bottom-0 pointer-events-none text-xs font-mono select-none flex items-center pl-[2px]">
-            <span className="text-transparent">{inputVal}</span>
-            <span className="text-slate-700">{prediction}</span>
+      {/* ── AI INTERACTIVE TERMINAL ── */}
+      <div 
+        onClick={handleTerminalClick}
+        className="bg-black text-emerald-500 font-mono p-5 rounded-3xl border border-slate-900 shadow-2xl h-[520px] flex flex-col justify-between overflow-hidden cursor-text select-text relative"
+      >
+        {/* Terminal Header Bar */}
+        <div className="flex items-center justify-between border-b border-slate-900 pb-2 mb-2 shrink-0 select-none">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-rose-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+            <span className="text-[11px] text-slate-500 font-bold ml-2">Hugo AI Interactive Terminal v2.6</span>
           </div>
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputVal}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            className="w-full bg-transparent text-emerald-400 outline-none border-none p-0 text-xs font-mono placeholder-emerald-900 relative z-10"
-            placeholder={prediction ? "" : "Nhập lệnh ở đây..."}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck="false"
-          />
+          <span className="text-[10px] text-slate-600 font-medium">Bảo mật cao cấp</span>
         </div>
-      </form>
+
+        {/* Terminal Outputs Scroll Area */}
+        <div className="flex-1 overflow-y-auto space-y-1 pr-2 scrollbar-hide">
+          {history.map((log, index) => (
+            <div key={index} className="text-xs leading-relaxed break-all whitespace-pre-wrap">
+              <span className={getLogColor(log.type)}>{log.text}</span>
+              {log.component && <div className="mt-1">{log.component}</div>}
+            </div>
+          ))}
+          <div ref={terminalEndRef} />
+        </div>
+
+        {/* Terminal Command Input Bar */}
+        <form onSubmit={handleCommandSubmit} className="flex items-center gap-2 border-t border-slate-900 pt-3 mt-3 shrink-0">
+          <span className="text-slate-400 font-bold text-xs shrink-0 select-none">
+            {focusedUser ? `admin@hugostudio(user:${focusedUser.email}):~$` : "admin@hugostudio:~$"}
+          </span>
+          <div className="flex-1 relative flex items-center">
+            {/* Ghost text display layer */}
+            <div className="absolute left-0 right-0 top-0 bottom-0 pointer-events-none text-xs font-mono select-none flex items-center pl-[2px]">
+              <span className="text-transparent">{inputVal}</span>
+              <span className="text-slate-700">{prediction}</span>
+            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputVal}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              className="w-full bg-transparent text-emerald-400 outline-none border-none p-0 text-xs font-mono placeholder-emerald-900 relative z-10"
+              placeholder={prediction ? "" : "Nhập lệnh ở đây..."}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+            />
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

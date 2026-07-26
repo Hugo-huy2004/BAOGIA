@@ -70,88 +70,88 @@ const AdminUsersTab = ({
   }, [users]);
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn select-none">
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Card 1: Total */}
-        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-[#a5b4fc] flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg sm:text-xl">group</span>
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">group</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_26")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.total.toLocaleString()}</div>
+            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{t("admin.texts.txt_26")}</div>
+            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{userStats.total.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 2: Active */}
-        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg sm:text-xl">person_play</span>
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">person_play</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_27")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.active.toLocaleString()}</div>
+            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{t("admin.texts.txt_27")}</div>
+            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{userStats.active.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 3: Pending */}
-        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg sm:text-xl">hourglass_empty</span>
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">hourglass_empty</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Chờ duyệt</div>
-            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{(userStats.pending || 0).toLocaleString()}</div>
+            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">Chờ duyệt</div>
+            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{(userStats.pending || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 4: Rejected */}
-        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg sm:text-xl">cancel</span>
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">cancel</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">Từ chối</div>
-            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{(userStats.rejected || 0).toLocaleString()}</div>
+            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">Từ chối</div>
+            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{(userStats.rejected || 0).toLocaleString()}</div>
           </div>
         </div>
         {/* Card 5: Locked */}
-        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg sm:text-xl">block</span>
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">block</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_28")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.locked.toLocaleString()}</div>
+            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{t("admin.texts.txt_28")}</div>
+            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{userStats.locked.toLocaleString()}</div>
           </div>
         </div>
         {/* Card 6: Lifetime */}
-        <div className="bg-white dark:bg-background p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 flex items-center gap-2.5 sm:gap-4 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-lg sm:text-xl">workspace_premium</span>
+        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-xl">workspace_premium</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider truncate">{t("admin.texts.txt_29")}</div>
-            <div className="text-sm sm:text-lg font-extrabold text-foreground mt-0.5 leading-tight">{userStats.lifetime.toLocaleString()}</div>
+            <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate">{t("admin.texts.txt_29")}</div>
+            <div className="text-lg sm:text-xl font-black text-foreground mt-0.5 leading-tight">{userStats.lifetime.toLocaleString()}</div>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white dark:bg-background p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-3">
+      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search Input */}
           <div className="relative flex-grow">
-            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t("admin.texts.txt_55")}
-              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder-slate-400 text-foreground outline-none"
+              className="w-full pl-11 pr-10 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/60 text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder-slate-400 text-foreground outline-none shadow-inner"
             />
             {searchInput && (
               <button
                 onClick={() => setSearchInput("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-5 h-5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-6 h-6 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
@@ -164,7 +164,7 @@ const AdminUsersTab = ({
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3.5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/60 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
             >
               <option value="">{t("admin.texts.txt_30")}</option>
               <option value="active">{t("admin.texts.txt_31")}</option>
@@ -176,7 +176,7 @@ const AdminUsersTab = ({
             <select
               value={expirationFilter}
               onChange={(e) => { setExpirationFilter(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-3.5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/60 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
             >
               <option value="">{t("admin.texts.txt_33")}</option>
               <option value="active">{t("admin.texts.txt_34")}</option>
@@ -222,11 +222,11 @@ const AdminUsersTab = ({
       </div>
 
       {/* Main Users Table / List Card */}
-      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#181622]/40 flex justify-between items-center">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-muted-foreground text-base">group</span>
-            {t("admin.texts.txt_229")} ({totalMatchedUsers})
+      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-100/40 dark:bg-white/5 flex justify-between items-center">
+          <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <span className="material-symbols-outlined text-blue-500 text-base">group</span>
+            {t("admin.texts.txt_229")} ({totalMatchedUsers.toLocaleString()})
           </h3>
         </div>
 
@@ -236,7 +236,7 @@ const AdminUsersTab = ({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-100/50 dark:bg-slate-900/40 text-muted-foreground border-b border-slate-200 dark:border-slate-800/70 font-bold uppercase tracking-wider text-[9px]">
+                  <tr className="bg-slate-100/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-white/10 font-black uppercase tracking-widest text-[9px]">
                     <th className="px-6 py-4">{t("admin.texts.txt_44")}</th>
                     <th className="px-6 py-4">Bio Link</th>
                     <th className="px-6 py-4">{t("admin.texts.txt_45")}</th>

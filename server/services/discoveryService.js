@@ -26,8 +26,6 @@ const CATEGORY_MAP = {
     overpass: 'cinema|theatre|nightclub|arts_centre'
   }
 };
-const ALL_GOOGLE_TYPES = [...new Set(Object.values(CATEGORY_MAP).flatMap(c => c.google))];
-
 // ── Simple opening_hours parser (OSM) ────────────────────────────────────────
 // Handles "24/7" and the common "Mo-Su 07:00-22:00; Sa-Su 08:00-23:00" shape,
 // including overnight ranges. Returns true/false, or null when unparseable.
@@ -98,38 +96,8 @@ const PRICE_LABELS = {
   PRICE_LEVEL_EXPENSIVE: '₫₫₫', PRICE_LEVEL_VERY_EXPENSIVE: '₫₫₫₫'
 };
 
-async function searchGoogle({ lat, lng, category, q }) {
-  const url = q
-    ? 'https://places.googleapis.com/v1/places:searchText'
-    : 'https://places.googleapis.com/v1/places:searchNearby';
-  const body = q
-    ? {
-        textQuery: q,
-        locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius: RADIUS_M } },
-        maxResultCount: 20,
-        languageCode: 'vi'
-      }
-    : {
-        includedTypes: category && CATEGORY_MAP[category] ? CATEGORY_MAP[category].google : ALL_GOOGLE_TYPES,
-        locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: RADIUS_M } },
-        maxResultCount: 20,
-        rankPreference: 'POPULARITY',
-        languageCode: 'vi'
-      };
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': GOOGLE_KEY,
-      'X-Goog-FieldMask': FIELD_MASK
-    },
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) throw new Error(`Google Places ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const data = await res.json();
-
-  return (data.places || []).map(p => ({
+function mapGooglePlace(p) {
+  return {
     id: p.id,
     name: p.displayName?.text || 'Địa điểm',
     category: googleCategoryOf(p.primaryType),
@@ -144,7 +112,61 @@ async function searchGoogle({ lat, lng, category, q }) {
     googleMapsUri: p.googleMapsUri || '',
     website: p.websiteUri || '',
     source: 'google'
-  })).filter(p => p.lat && p.lng);
+  };
+}
+
+async function googleRequest(url, body) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': GOOGLE_KEY,
+      'X-Goog-FieldMask': FIELD_MASK
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`Google Places ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const data = await res.json();
+  return (data.places || []).map(mapGooglePlace).filter(p => p.lat && p.lng);
+}
+
+async function searchGoogle({ lat, lng, category, q }) {
+  // Text search: single query (Places API text search caps at 20 anyway).
+  if (q) {
+    return googleRequest('https://places.googleapis.com/v1/places:searchText', {
+      textQuery: q,
+      locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius: RADIUS_M } },
+      maxResultCount: 20,
+      languageCode: 'vi'
+    });
+  }
+
+  // Nearby caps at 20 per request, so for the "Tất cả" view fan out one request
+  // per category (food/cafe/play) in parallel → up to ~60 suggestions, then
+  // dedupe by place id. ponytail: 3 Google calls per uncached load; the 5-min
+  // grid cache + rate limiter keep the quota cost bounded.
+  const cats = category && CATEGORY_MAP[category] ? [category] : Object.keys(CATEGORY_MAP);
+  const batches = await Promise.all(cats.map(cat =>
+    googleRequest('https://places.googleapis.com/v1/places:searchNearby', {
+      includedTypes: CATEGORY_MAP[cat].google,
+      locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius: RADIUS_M } },
+      maxResultCount: 20,
+      rankPreference: 'POPULARITY',
+      languageCode: 'vi'
+    }).catch(err => {
+      console.warn(`[Discovery] Google nearby (${cat}) failed:`, err.message);
+      return [];
+    })
+  ));
+
+  const seen = new Set();
+  const merged = [];
+  for (const p of batches.flat()) {
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    merged.push(p);
+  }
+  return merged;
 }
 
 // ── Foursquare Places v3 ─────────────────────────────────────────────────────
@@ -254,6 +276,24 @@ async function searchOverpass({ lat, lng, category, q }) {
   }).filter(p => p.name && p.lat && p.lng);
 }
 
+// Merge two source lists, dropping near-duplicates (same name at ~same spot).
+export function mergeDedupe(primary, extra) {
+  const keyOf = (p) => `${(p.name || '').toLowerCase().trim()}|${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
+  const seen = new Set(primary.map(keyOf));
+  const out = [...primary];
+  for (const p of extra) {
+    const k = keyOf(p);
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(p);
+  }
+  return out;
+}
+
+// Below this many results we treat the area as sparse and pull in a second
+// source (OSM) to give the user more to choose from.
+const SPARSE_THRESHOLD = 15;
+
 // ── Cache (5-minute TTL, ~200m location grid) ────────────────────────────────
 // ponytail: in-process Map cache; move to Redis if this ever runs multi-node.
 const cache = new Map();
@@ -282,7 +322,19 @@ export async function discoverPlaces({ lat, lng, category = '', q = '' }) {
       console.warn('[Discovery] Foursquare failed:', err.message);
     }
   }
-  if (!places) places = await searchOverpass({ lat, lng, category, q });
+  if (!places) {
+    places = await searchOverpass({ lat, lng, category, q });
+    source = 'osm';
+  } else if (places.length < SPARSE_THRESHOLD) {
+    // Sparse area — supplement the paid source with free OSM data so the map
+    // never looks empty. Merge + dedupe; OSM-only extras still link out to Google.
+    try {
+      const osm = await searchOverpass({ lat, lng, category, q });
+      places = mergeDedupe(places, osm);
+    } catch (err) {
+      console.warn('[Discovery] OSM supplement failed:', err.message);
+    }
+  }
 
   const data = { places, source };
   if (cache.size > 200) cache.clear();

@@ -31,38 +31,33 @@ export default function HugoZenlyMasterWidget({ bio }) {
   });
 
   return (
-    <div className="relative w-full h-[150px] rounded-[30px] p-4 sm:p-5 text-white shadow-lg overflow-hidden transition-transform duration-300 active:scale-[0.99] cursor-pointer bg-gradient-to-br from-[#FF2D55] via-rose-500 to-amber-400 border border-white/20 flex flex-col justify-between text-left select-none">
-      
-      {/* ☀️ Zenly Background Ambient Orbits */}
-      <div className="absolute -top-6 -right-6 text-6xl opacity-25 pointer-events-none">
-        ☀️
-      </div>
+    <div className="relative w-full h-[150px] rounded-3xl p-4 sm:p-5 text-white shadow-sm overflow-hidden transition-transform duration-200 active:scale-[0.99] cursor-pointer bg-gradient-to-br from-rose-500 to-orange-400 flex flex-col justify-between text-left select-none">
 
       {/* ── TOP ROW: CLEAN AVATAR, USER NAME & WEATHER PILL ───────────────── */}
       <div className="relative z-10 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           {/* Clean Avatar with Live Online Dot */}
           <div className="relative shrink-0">
-            <div className="w-10 h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-white/20">
+            <div className="w-10 h-10 rounded-full border-2 border-white/90 overflow-hidden bg-white/20">
               <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
             </div>
-            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white shadow-xs" />
+            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
           </div>
 
           <div className="min-w-0">
-            <h3 className="text-base sm:text-lg font-black text-white tracking-tight truncate drop-shadow-sm">
+            <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight truncate">
               {userName}
             </h3>
-            <p className="text-[11px] font-semibold text-white/90 truncate -mt-0.5">
+            <p className="text-xs text-white/85 truncate -mt-0.5">
               {bio?.schoolName || bio?.location}
             </p>
           </div>
         </div>
 
         {/* Zenly Weather Capsule */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/20 backdrop-blur-md border border-white/30 text-white text-[11px] font-black shrink-0 shadow-xs">
-          <CloudSun className="w-3.5 h-3.5 text-amber-300" />
-          <span>28°C · Nắng Nhẹ</span>
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/15 backdrop-blur-md text-white text-xs font-medium shrink-0">
+          <CloudSun className="w-3.5 h-3.5 text-amber-200" />
+          <span>28°C · Nắng nhẹ</span>
         </div>
       </div>
 
@@ -70,16 +65,16 @@ export default function HugoZenlyMasterWidget({ bio }) {
       <div className="relative z-10 flex items-end justify-between gap-3">
         {/* Live Digital Clock & Date */}
         <div>
-          <div className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white leading-none drop-shadow-md">
+          <div className="text-3xl sm:text-4xl font-semibold font-mono tracking-tight text-white leading-none">
             {timeStr}
           </div>
-          <span className="text-[11px] font-bold text-white/90 capitalize block mt-1">
+          <span className="text-xs text-white/85 capitalize block mt-1">
             {dateStr}
           </span>
         </div>
 
         {/* Right JOY Balance Chip */}
-        <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-black font-black text-xs shadow-lg active:scale-95 transition-all shrink-0">
+        <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-black font-semibold text-xs shadow-sm active:scale-95 transition-all shrink-0">
           <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
           <span>{(joyBalance ?? 0).toLocaleString("vi-VN")} JOY</span>
         </div>

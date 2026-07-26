@@ -164,13 +164,13 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* HugoSkin */}
       {selectedUtility === "hugoskin" && (
         <div className="space-y-4 text-left">
-          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 rounded-2xl shadow-sm mb-2">
+          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 mb-2">
             <button
               onClick={() => onSelectUtility(null)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 uppercase"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-sm font-medium transition-all cursor-pointer active:scale-95"
             >
-              <span className="material-symbols-outlined text-base font-bold">arrow_back</span>
-              <span>Back</span>
+              <span className="material-symbols-outlined text-base">arrow_back</span>
+              <span>Quay lại</span>
             </button>
           </div>
           <HugoSkinTab />
@@ -180,13 +180,13 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Ví JOY Wallet */}
       {selectedUtility === "joy_wallet" && (
         <div className="space-y-4 text-left">
-          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 rounded-2xl shadow-sm mb-2">
+          <div className="sticky top-0 z-40 bg-background/90 dark:bg-background/95 backdrop-blur-md py-2.5 px-1 flex items-center border-b border-border/40 mb-2">
             <button
               onClick={() => onSelectUtility(null)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-xs font-black transition-all shadow-sm cursor-pointer active:scale-95 uppercase"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/60 bg-card text-foreground text-sm font-medium transition-all cursor-pointer active:scale-95"
             >
-              <span className="material-symbols-outlined text-base font-bold">arrow_back</span>
-              <span>Back</span>
+              <span className="material-symbols-outlined text-base">arrow_back</span>
+              <span>Quay lại</span>
             </button>
           </div>
           <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} />
@@ -196,24 +196,21 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* 🚀 PREMIUM SPLASH LAUNCH SCREEN */}
       {splashApp && UTILITY_METADATA[splashApp] && (
-        <div className="fixed inset-0 bg-[#0b0f19] z-[999] flex flex-col items-center justify-center animate-fadeIn select-none pointer-events-none">
+        <div className="fixed inset-0 bg-background z-[999] flex flex-col items-center justify-center animate-fadeIn select-none pointer-events-none">
           <div className="relative flex flex-col items-center gap-6">
-            {/* Animated pulsing ripple ring */}
-            <div className="absolute w-28 h-28 rounded-[28px] bg-gradient-to-br from-primary/10 to-violet-500/10 animate-ping opacity-60" />
-            
             {/* App Icon Container */}
-            <div className={`w-24 h-24 rounded-[24px] bg-gradient-to-br ${UTILITY_METADATA[splashApp].tint} flex items-center justify-center shadow-xl shadow-primary/10 scale-100 animate-scaleUp`}>
-              <span className="material-symbols-outlined text-white text-[42px] font-black" style={{ fontVariationSettings: "'FILL' 1" }}>
+            <div className={`w-24 h-24 rounded-[24px] bg-gradient-to-br ${UTILITY_METADATA[splashApp].tint} flex items-center justify-center shadow-lg animate-slideUp`}>
+              <span className="material-symbols-outlined text-white text-[42px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 {UTILITY_METADATA[splashApp].icon}
               </span>
             </div>
-            
-            <div className="text-center space-y-1 animate-slideUp">
-              <h3 className="text-base font-black uppercase tracking-widest text-foreground">
+
+            <div className="text-center space-y-1 animate-fadeIn">
+              <h3 className="text-lg font-semibold text-foreground">
                 {UTILITY_METADATA[splashApp].title}
               </h3>
-              <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider">
-                Đang khởi tạo tài nguyên...
+              <p className="text-sm text-muted-foreground">
+                Đang khởi tạo…
               </p>
             </div>
           </div>

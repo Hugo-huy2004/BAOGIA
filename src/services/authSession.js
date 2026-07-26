@@ -51,6 +51,7 @@ export const clearMemberSession = () => {
 
 // Bearer token attached to member API calls (see apiAuthInterceptor.js).
 export const getMemberToken = () => getMemberSession()?.token || null;
+export const getAdminToken = () => getAdminSession()?.token || null;
 
 export const loginMember = (member) => {
   const expiresAt = new Date();
@@ -130,6 +131,7 @@ export const loginAdmin = async (credentials, { remember = true } = {}) => {
 
     const session = {
       role: "admin",
+      token: data.token || "",
       username: credentials.username,
       loginAt: new Date().toISOString(),
       expiresAt: expiresAt.toISOString()

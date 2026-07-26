@@ -395,7 +395,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
   }, [places]);
 
   return (
-    <div className="relative w-full h-[calc(100vh-140px)] min-h-[580px] rounded-[32px] overflow-hidden shadow-2xl border border-white/30 dark:border-white/10 font-sans select-none text-left">
+    <div className="relative w-full h-[calc(100vh-140px)] min-h-[580px] rounded-3xl overflow-hidden shadow-xl border border-border/60 font-sans select-none text-left">
       {/* ── 1. MAP CANVAS ─────────────────────────────────────────────────── */}
       <div ref={containerRef} className="w-full h-full z-0" />
 
@@ -405,21 +405,21 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         {/* Row 1: Header Title & Action Capsule Buttons */}
         <div className="flex items-center justify-between gap-2">
           {/* Title Glass Capsule */}
-          <div className="pointer-events-auto px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border border-white/60 dark:border-white/15 shadow-md flex items-center gap-2">
-            <h1 className="text-sm sm:text-base font-black text-foreground tracking-tight lowercase truncate">
+          <div className="pointer-events-auto px-3.5 py-2 rounded-full bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm flex items-center gap-2">
+            <h1 className="text-sm sm:text-base font-semibold text-foreground tracking-tight capitalize truncate">
               {dynamicLocationTitle}
             </h1>
             <span className="h-3 w-px bg-border/60"></span>
-            <span className="text-[9px] font-mono font-bold tracking-widest text-muted-foreground uppercase">
-              COLOR MAP
+            <span className="text-[11px] font-medium tracking-tight text-muted-foreground">
+              Color Map
             </span>
           </div>
 
           {/* Action Buttons Capsule */}
-          <div className="pointer-events-auto flex items-center gap-1.5 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border border-white/60 dark:border-white/15 p-1 rounded-full shadow-md">
+          <div className="pointer-events-auto flex items-center gap-1.5 bg-card/80 backdrop-blur-xl border border-border/50 p-1 rounded-full shadow-sm">
             <button
               onClick={toggle3DMode}
-              className="px-2.5 h-7 rounded-full bg-white/90 dark:bg-white/10 text-foreground font-mono font-black text-[10px] shadow-xs active:scale-95 transition-all"
+              className="px-2.5 h-8 rounded-full bg-muted/70 text-foreground font-semibold text-xs active:scale-95 transition-all"
               title="Chuyển 3D/2D"
             >
               {is3DMode ? "2D" : "3D"}
@@ -427,18 +427,18 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
 
             <button
               onClick={recenter}
-              className="w-7 h-7 rounded-full bg-white/90 dark:bg-white/10 text-foreground flex items-center justify-center shadow-xs active:scale-95 transition-all"
+              className="w-8 h-8 rounded-full bg-muted/70 text-foreground flex items-center justify-center active:scale-95 transition-all"
               title="Về vị trí của tôi"
             >
-              <LocateFixed className="w-3.5 h-3.5 text-foreground" />
+              <LocateFixed className="w-4 h-4 text-foreground" />
             </button>
 
             <button
               onClick={() => setShowAdd(true)}
-              className="w-7 h-7 rounded-full bg-foreground text-background font-bold flex items-center justify-center shadow-xs active:scale-95 transition-all"
+              className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center active:scale-95 transition-all"
               title="Đăng địa điểm mới"
             >
-              <span className="material-symbols-outlined text-sm">add_location_alt</span>
+              <span className="material-symbols-outlined text-lg">add_location_alt</span>
             </button>
           </div>
         </div>
@@ -450,15 +450,15 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tìm quán ăn, cà phê..."
-            className="w-full h-10 pl-10 pr-9 rounded-full bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border border-white/60 dark:border-white/15 text-xs text-foreground placeholder:text-muted-foreground shadow-md outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
+            placeholder="Tìm quán ăn, cà phê…"
+            className="w-full h-11 pl-10 pr-9 rounded-full bg-card/80 backdrop-blur-xl border border-border/50 text-sm text-foreground placeholder:text-muted-foreground shadow-sm outline-none focus:border-primary/40 transition-all"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-[10px]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-muted text-muted-foreground flex items-center justify-center"
             >
-              ✕
+              <X className="w-3 h-3" />
             </button>
           )}
         </div>
@@ -471,13 +471,13 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
               <button
                 key={c.id}
                 onClick={() => { hapticSelect(); setCategory(c.id); }}
-                className={`h-8 px-3.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all shrink-0 flex items-center gap-1.5 border shadow-sm backdrop-blur-xl ${
+                className={`h-9 px-4 rounded-full text-[13px] font-medium transition-all shrink-0 flex items-center gap-1.5 border shadow-sm backdrop-blur-xl ${
                   category === c.id
-                    ? "bg-foreground border-foreground text-background shadow-md scale-105"
-                    : "bg-white/80 dark:bg-zinc-950/80 border-white/60 dark:border-white/15 text-foreground hover:bg-white/95"
+                    ? "bg-primary border-primary text-white"
+                    : "bg-card/80 border-border/50 text-foreground hover:bg-card"
                 }`}
               >
-                <Icon className="w-3 h-3 stroke-[2.5]" />
+                <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>{c.label}</span>
               </button>
             );
@@ -488,21 +488,25 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
 
       {/* ── 3. APPLE ZENLY SLIDE-UP DETAIL SHEET (ON MARKER TAP ONLY) ───────── */}
       {selectedPlace && (
-        <div className="absolute bottom-4 left-3 right-3 z-30 bg-black/90 dark:bg-zinc-950/95 backdrop-blur-2xl border border-white/20 p-4 rounded-[24px] shadow-2xl text-white animate-slideUp space-y-2.5 max-h-[60%] overflow-y-auto">
+        <div className="absolute bottom-4 left-3 right-3 z-30 bg-card/95 backdrop-blur-2xl border border-border/60 p-4 rounded-3xl shadow-2xl text-foreground animate-slideUp space-y-3 max-h-[60%] overflow-y-auto">
+          {/* Grabber */}
+          <div className="w-9 h-1 bg-muted rounded-full mx-auto" />
+
           {/* Top Bar: Category + Match % + Close */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-[10px] font-black uppercase tracking-wider">
-                {CATEGORY_LABELS[selectedPlace.category] || "ĐIỂM ĐẾN"}
+              <span className="px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
+                {CATEGORY_LABELS[selectedPlace.category] || "Điểm đến"}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-black">
-                ✨ Hợp gu {getMatchScore(selectedPlace.id)}%
+              <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                Hợp gu {getMatchScore(selectedPlace.id)}%
               </span>
             </div>
 
             <button
               onClick={() => setSelectedId(null)}
-              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white active:scale-95 transition-all"
+              className="w-7 h-7 rounded-full bg-muted hover:bg-muted/70 flex items-center justify-center text-muted-foreground active:scale-95 transition-all"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -510,45 +514,48 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
 
           {/* Place Name & Subtitle */}
           <div>
-            <h3 className="text-base font-black text-white leading-tight">
+            <h3 className="text-lg font-semibold text-foreground leading-tight">
               {selectedPlace.name}
             </h3>
-            <div className="flex items-center gap-2 text-xs text-white/70 mt-0.5 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5 flex-wrap">
               {selectedPlace.rating != null && (
-                <span className="flex items-center gap-1 font-black text-amber-400">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
+                <span className="flex items-center gap-1 font-medium text-amber-500">
+                  <Star className="w-3.5 h-3.5 fill-amber-500" />
                   {selectedPlace.rating}
                 </span>
               )}
-              <span>• Cách bạn {fmtDist(selectedPlace.distM)}</span>
-              {selectedPlace.openNow === true && <span className="text-emerald-400 font-bold">• Đang mở cửa</span>}
+              <span>· Cách bạn {fmtDist(selectedPlace.distM)}</span>
+              {selectedPlace.openNow === true && <span className="text-emerald-600 dark:text-emerald-400 font-medium">· Đang mở cửa</span>}
             </div>
           </div>
 
           {selectedPlace.services && (
-            <p className="text-xs text-white/80 bg-white/5 p-2 rounded-xl border border-white/10 leading-relaxed">
+            <p className="text-sm text-muted-foreground bg-muted/50 p-2.5 rounded-xl leading-relaxed">
               {selectedPlace.services}
             </p>
           )}
 
           {/* Route info */}
           {routeInfo && (
-            <div className="p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-xl space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-purple-300">
-                <span>⏱️ Dẫn đường: ~{Math.ceil(routeInfo.duration / 60)} phút ({fmtDist(routeInfo.distance)})</span>
+            <div className="p-3 bg-primary/8 rounded-xl space-y-1.5">
+              <div className="flex items-center justify-between text-sm font-medium text-primary">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  ~{Math.ceil(routeInfo.duration / 60)} phút · {fmtDist(routeInfo.distance)}
+                </span>
                 <button
                   onClick={() => setShowSteps(!showSteps)}
-                  className="text-[11px] underline font-black"
+                  className="text-[13px] font-medium hover:underline"
                 >
                   {showSteps ? "Ẩn lối đi" : "Xem lối đi"}
                 </button>
               </div>
 
               {showSteps && routeInfo.steps?.length > 0 && (
-                <div className="space-y-1 pt-1 text-[11px] text-white/80 max-h-24 overflow-y-auto scrollbar-hide">
+                <div className="space-y-1 pt-1 text-[13px] text-muted-foreground max-h-24 overflow-y-auto scrollbar-hide">
                   {routeInfo.steps.map((step, idx) => (
                     <div key={idx} className="flex gap-2 items-start">
-                      <span className="w-3.5 h-3.5 rounded-full bg-purple-500/30 text-purple-200 text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
+                      <span className="w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-semibold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
                       <span>{step}</span>
                     </div>
                   ))}
@@ -563,19 +570,19 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
               href={selectedPlace.googleMapsUri || `https://www.google.com/maps/dir/?api=1&destination=${selectedPlace.lat},${selectedPlace.lng}`}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 py-2.5 rounded-xl bg-amber-400 text-black font-black text-xs uppercase tracking-wider text-center shadow-md hover:bg-amber-300 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 py-3 rounded-2xl bg-primary text-white font-semibold text-sm text-center hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
-              <Navigation className="w-3.5 h-3.5" />
-              <span>Google Maps</span>
+              <Navigation className="w-4 h-4" />
+              <span>Chỉ đường</span>
             </a>
 
             <a
               href={`https://maps.apple.com/?daddr=${selectedPlace.lat},${selectedPlace.lng}&q=${encodeURIComponent(selectedPlace.name)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase tracking-wider text-center border border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1.5"
+              className="flex-1 py-3 rounded-2xl bg-muted hover:bg-muted/70 text-foreground font-semibold text-sm text-center active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
-              <Compass className="w-3.5 h-3.5" />
+              <Compass className="w-4 h-4" />
               <span>Apple Maps</span>
             </a>
           </div>
@@ -584,41 +591,41 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
 
       {/* ── 4. ADD SPOT MODAL SHEET ────────────────────────────────────────── */}
       {showAdd && (
-        <div className="absolute inset-4 z-40 bg-black/90 dark:bg-zinc-950/95 backdrop-blur-2xl border border-white/20 p-5 rounded-[28px] shadow-2xl text-white animate-slideUp space-y-3 overflow-y-auto">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <h3 className="text-base font-black text-white">Đăng Địa Điểm Mới</h3>
-            <button onClick={() => setShowAdd(false)} className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white">
+        <div className="absolute inset-4 z-40 bg-card/95 backdrop-blur-2xl border border-border/60 p-5 rounded-3xl shadow-2xl text-foreground animate-slideUp space-y-4 overflow-y-auto">
+          <div className="flex items-center justify-between border-b border-border/40 pb-3">
+            <h3 className="text-lg font-semibold text-foreground">Đăng địa điểm mới</h3>
+            <button onClick={() => setShowAdd(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground active:scale-95 transition-all">
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <input
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="Tên quán *"
-              className="w-full h-10 px-3.5 rounded-xl bg-white/10 border border-white/15 text-xs text-white placeholder:text-white/50 outline-none focus:ring-1 focus:ring-amber-400"
+              className="w-full h-11 px-3.5 rounded-2xl bg-muted/60 border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:bg-background transition-all"
             />
             <input
               value={form.address}
               onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
               placeholder="Địa chỉ *"
-              className="w-full h-10 px-3.5 rounded-xl bg-white/10 border border-white/15 text-xs text-white placeholder:text-white/50 outline-none focus:ring-1 focus:ring-amber-400"
+              className="w-full h-11 px-3.5 rounded-2xl bg-muted/60 border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:bg-background transition-all"
             />
             <input
               value={form.services}
               onChange={(e) => setForm((f) => ({ ...f, services: e.target.value }))}
-              placeholder="Dịch vụ (vd: máy lạnh, wifi mạnh...)"
-              className="w-full h-10 px-3.5 rounded-xl bg-white/10 border border-white/15 text-xs text-white placeholder:text-white/50 outline-none focus:ring-1 focus:ring-amber-400"
+              placeholder="Dịch vụ (vd: máy lạnh, wifi mạnh…)"
+              className="w-full h-11 px-3.5 rounded-2xl bg-muted/60 border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:bg-background transition-all"
             />
           </div>
 
           <button
             onClick={submitPlace}
             disabled={submitting}
-            className="w-full py-3 bg-amber-400 text-black font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:bg-amber-300 active:scale-95 transition-all"
+            className="w-full py-3.5 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            {submitting ? "Đang đăng..." : "Đăng Lên Bản Đồ"}
+            {submitting ? "Đang đăng…" : "Đăng lên bản đồ"}
           </button>
         </div>
       )}
@@ -706,7 +713,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
           width: 38px;
           height: 38px;
           border-radius: 16px;
-          border: 2px.5px solid #ffffff;
+          border: 2.5px solid #ffffff;
           color: #ffffff;
           display: flex;
           align-items: center;

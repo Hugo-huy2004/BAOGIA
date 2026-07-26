@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import NotificationBell from "../member/portal/NotificationBell";
 import { useJoyStore } from "../../stores/joyStore";
+import { logoutAuth } from "../../services/authSession";
 
 // ── macOS App Icons & Metadata for Floating Dock & Sidebar ─────────────────
 const DESKTOP_NAV_ITEMS = [
@@ -59,7 +60,8 @@ export default function DesktopAppleLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [currentTimeStr, setCurrentTimeStr] = useState("");
-  const [activeMenu, setActiveMenu] = useState(null);
+  const [showAppleMenu, setShowAppleMenu] = useState(false);
+  const [showControlCenter, setShowControlCenter] = useState(false);
 
   // ── macOS Authentic Date & Live Clock ─────────────────────────────────────
   useEffect(() => {
@@ -118,27 +120,67 @@ export default function DesktopAppleLayout({
     [currentPath, selectedUtility]
   );
 
+  const handleLogout = () => {
+    logoutAuth();
+    navigate("/pwa/login");
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#0a0c14] dark:bg-[#07080c] text-foreground font-sans selection:bg-primary/30 flex flex-col overflow-hidden relative select-none">
       {/* ── Authentic macOS Sequoia Ambient Wallpaper Surface ───────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-br from-blue-600/30 via-indigo-600/20 to-purple-800/10 blur-[140px] opacity-70 animate-pulse" style={{ animationDuration: "12s" }} />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-purple-700/25 via-pink-600/15 to-amber-500/10 blur-[150px] opacity-60 animate-pulse" style={{ animationDuration: "16s" }} />
-        <div className="absolute top-[30%] left-[35%] w-[40vw] h-[40vw] rounded-full bg-cyan-500/10 blur-[130px] opacity-40" />
+        <div className="absolute top-[-20%] left-[-10%] w-[65vw] h-[65vw] rounded-full bg-gradient-to-br from-blue-600/35 via-indigo-600/25 to-purple-800/15 blur-[140px] opacity-75 animate-pulse" style={{ animationDuration: "12s" }} />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[65vw] h-[65vw] rounded-full bg-gradient-to-tr from-purple-700/30 via-pink-600/20 to-amber-500/15 blur-[150px] opacity-65 animate-pulse" style={{ animationDuration: "16s" }} />
+        <div className="absolute top-[30%] left-[35%] w-[45vw] h-[45vw] rounded-full bg-cyan-500/15 blur-[130px] opacity-50" />
       </div>
 
       {/* ── 1. AUTHENTIC macOS TOP MENU BAR ─────────────────────────────── */}
-      <header className="h-7 px-3 bg-black/40 dark:bg-black/55 backdrop-blur-3xl border-b border-white/10 text-white flex items-center justify-between z-50 shrink-0 text-[12px] font-medium tracking-tight shadow-sm">
+      <header className="h-7 px-3 bg-black/40 dark:bg-black/60 backdrop-blur-3xl border-b border-white/10 text-white flex items-center justify-between z-50 shrink-0 text-[12px] font-medium tracking-tight shadow-sm">
         {/* Left: Apple Icon & Active App Menus */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 relative">
           {/* Apple Logo Dropdown Trigger */}
           <button
-            onClick={() => setActiveMenu(activeMenu === "apple" ? null : "apple")}
+            onClick={() => {
+              setShowAppleMenu((p) => !p);
+              setShowControlCenter(false);
+            }}
             className="px-2 py-0.5 rounded hover:bg-white/15 transition-colors flex items-center justify-center font-bold text-[14px]"
             title="Menu Hệ Thống Hugo macOS"
           >
             
           </button>
+
+          {/* Apple Menu Dropdown */}
+          <AnimatePresence>
+            {showAppleMenu && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="absolute top-7 left-0 w-60 bg-[#1c1c1e]/90 border border-white/15 backdrop-blur-3xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] py-1.5 text-xs text-white z-50 divide-y divide-white/10"
+              >
+                <div className="px-3 py-2 space-y-0.5">
+                  <p className="font-black text-sm tracking-tight text-white">Hugo Studio Sequoia</p>
+                  <p className="text-[10px] font-mono text-slate-400">Phiên bản 3.0 • macOS Edition</p>
+                </div>
+                <div className="py-1">
+                  <button onClick={() => { navigate("/member/settings"); setShowAppleMenu(false); }} className="w-full text-left px-3 py-1.5 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-between">
+                    <span>Cài Đặt Hệ Thống...</span>
+                    <span className="text-[10px] text-slate-400 font-mono">⌘,</span>
+                  </button>
+                  <button onClick={() => { navigate("/member/utilities"); setShowAppleMenu(false); }} className="w-full text-left px-3 py-1.5 hover:bg-blue-600 hover:text-white transition-colors flex items-center justify-between">
+                    <span>App Store & Launchpad</span>
+                  </button>
+                </div>
+                <div className="py-1">
+                  <button onClick={handleLogout} className="w-full text-left px-3 py-1.5 text-rose-400 hover:bg-rose-600 hover:text-white transition-colors flex items-center justify-between font-bold">
+                    <span>Đăng Xuất {memberSession?.displayName || "Tài khoản"}</span>
+                    <span className="text-[10px] font-mono">⌘Q</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Active App Title */}
           <span className="font-extrabold px-1.5 text-white tracking-wide">
@@ -160,7 +202,7 @@ export default function DesktopAppleLayout({
         </div>
 
         {/* Right: macOS Status Icons & Widgets */}
-        <div className="flex items-center gap-3 text-white/90">
+        <div className="flex items-center gap-3 text-white/90 relative">
           {/* Ví JOY Balance Pill */}
           <button
             onClick={() => navigate("/member/utilities/joy_wallet")}
@@ -198,6 +240,59 @@ export default function DesktopAppleLayout({
             onMarkAllRead={onMarkAllRead}
             onDismiss={onDismiss}
           />
+
+          {/* Control Center Toggle */}
+          <button
+            onClick={() => {
+              setShowControlCenter((p) => !p);
+              setShowAppleMenu(false);
+            }}
+            className="px-1.5 py-0.5 rounded hover:bg-white/15 transition-colors flex items-center justify-center"
+            title="macOS Control Center"
+          >
+            <span className="material-symbols-outlined text-[15px]">tune</span>
+          </button>
+
+          {/* Control Center Popup */}
+          <AnimatePresence>
+            {showControlCenter && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 5 }}
+                className="absolute top-7 right-0 w-72 bg-[#1c1c1e]/90 border border-white/15 backdrop-blur-3xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-3.5 text-xs text-white z-50 space-y-3"
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10 flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-blue-500 text-white flex items-center justify-center">
+                      <span className="material-symbols-outlined text-lg">wifi</span>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[11px]">Wi-Fi</p>
+                      <p className="text-[9px] text-slate-400">{isOnline ? "Hugo5G" : "Tắt"}</p>
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-2xl bg-white/10 border border-white/10 flex items-center gap-2.5">
+                    <span className="w-8 h-8 rounded-xl bg-indigo-500 text-white flex items-center justify-center">
+                      <span className="material-symbols-outlined text-lg">bluetooth</span>
+                    </span>
+                    <div>
+                      <p className="font-bold text-[11px]">Bluetooth</p>
+                      <p className="text-[9px] text-slate-400">Bật</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-amber-400 text-lg">dark_mode</span>
+                    <span className="font-bold text-[11px]">Giao diện Tối</span>
+                  </div>
+                  <span className="text-[9px] font-black uppercase text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full">Bật</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* User Quick Avatar */}
           <button
@@ -316,7 +411,7 @@ export default function DesktopAppleLayout({
                           onClick={() => navigate(item.path)}
                           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all relative group ${
                             active
-                              ? "bg-primary text-white shadow-md shadow-primary/25 font-extrabold"
+                              ? "bg-primary text-white shadow-md shadow-primary/25 font-extrabold scale-[1.02]"
                               : "text-muted-foreground hover:bg-white/60 dark:hover:bg-white/10 hover:text-foreground"
                           } ${sidebarCollapsed ? "justify-center px-0" : ""}`}
                           title={sidebarCollapsed ? item.label : undefined}

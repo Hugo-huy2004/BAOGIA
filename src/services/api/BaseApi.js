@@ -1,7 +1,7 @@
 import { logoutAuth } from "../authSession";
 
 export class BaseApi {
-  constructor(baseUrl = import.meta.env.VITE_API_URL) {
+  constructor(baseUrl = import.meta.env.VITE_API_URL || "/api") {
     this.baseUrl = baseUrl;
   }
 
