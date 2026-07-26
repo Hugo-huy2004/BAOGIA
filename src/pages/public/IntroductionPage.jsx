@@ -55,6 +55,9 @@ const JASON_PHOTO =
 // Logo trường thật (favicon chính chủ, fallback qua Google s2)
 const NDC_LOGO = "https://ndc.edu.vn/wp-content/themes/thptndc/assets/img/common/favicon.ico";
 const NDC_LOGO_FALLBACK = "https://www.google.com/s2/favicons?domain=ndc.edu.vn&sz=64";
+const GW_LOGO = "https://greenwich.edu.vn/wp-content/uploads/2022/10/Favicon-Greenwich-1.png";
+const GW_LOGO_FALLBACK = "https://www.google.com/s2/favicons?domain=greenwich.edu.vn&sz=64";
+
 // Logo ngôn ngữ/công nghệ chuẩn (devicon CDN)
 const DEVICON = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
 const CORE_TECH_STACK = [
@@ -71,6 +74,7 @@ const CORE_TECH_STACK = [
   { name: "Tailwind", icon: `${DEVICON}/tailwindcss/tailwindcss-original.svg` },
   { name: "MongoDB", icon: `${DEVICON}/mongodb/mongodb-original.svg` },
 ];
+const GREENWICH_STACK = CORE_TECH_STACK;
 
 const PAGE_CSS = `
   /* Màu lấy thẳng từ design tokens của app (index.css) — tự đổi theo light/dark,

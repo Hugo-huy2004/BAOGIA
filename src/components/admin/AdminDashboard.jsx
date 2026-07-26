@@ -1040,89 +1040,89 @@ export default function AdminDashboard({
       {/* ── APPLE BENTO GRID OVERVIEW CARDS ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Total Users Card */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+        <div className="bg-card p-5 rounded-3xl border border-border/60 shadow-sm transition-colors flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tổng Thành Viên</span>
-            <div className="w-9 h-9 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-xs font-medium text-muted-foreground">Tổng Thành Viên</span>
+            <div className="w-9 h-9 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center transition-transform">
               <span className="material-symbols-outlined text-xl">group</span>
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{stats.total.toLocaleString()}</span>
-            <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">Live</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{stats.total.toLocaleString()}</span>
+            <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20">Live</span>
           </div>
         </div>
 
         {/* Active Users Card */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+        <div className="bg-card p-5 rounded-3xl border border-border/60 shadow-sm transition-colors flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Hoạt Động</span>
-            <div className="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-xs font-medium text-muted-foreground">Hoạt Động</span>
+            <div className="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition-transform">
               <span className="material-symbols-outlined text-xl">person_play</span>
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(stats.active || 0).toLocaleString()}</span>
-            <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Active</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{(stats.active || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Active</span>
           </div>
         </div>
 
         {/* Pending Approval Card */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+        <div className="bg-card p-5 rounded-3xl border border-border/60 shadow-sm transition-colors flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Chờ Duyệt</span>
-            <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-xs font-medium text-muted-foreground">Chờ Duyệt</span>
+            <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center transition-transform">
               <span className="material-symbols-outlined text-xl">hourglass_empty</span>
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(stats.pending || 0).toLocaleString()}</span>
-            <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">Pending</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{(stats.pending || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">Pending</span>
           </div>
         </div>
 
         {/* Locked Accounts Card */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+        <div className="bg-card p-5 rounded-3xl border border-border/60 shadow-sm transition-colors flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Đã Khóa</span>
-            <div className="w-9 h-9 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-xs font-medium text-muted-foreground">Đã Khóa</span>
+            <div className="w-9 h-9 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center transition-transform">
               <span className="material-symbols-outlined text-xl">block</span>
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(stats.locked || 0).toLocaleString()}</span>
-            <span className="text-[10px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">Locked</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{(stats.locked || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-medium text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">Locked</span>
           </div>
         </div>
 
         {/* Support Tickets Card */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all flex flex-col justify-between group">
+        <div className="bg-card p-5 rounded-3xl border border-border/60 shadow-sm transition-colors flex flex-col justify-between group">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Open Tickets</span>
-            <div className="w-9 h-9 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-xs font-medium text-muted-foreground">Open Tickets</span>
+            <div className="w-9 h-9 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 flex items-center justify-center transition-transform">
               <span className="material-symbols-outlined text-xl">support_agent</span>
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{(openTickets || 0).toLocaleString()}</span>
-            <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">Tickets</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{(openTickets || 0).toLocaleString()}</span>
+            <span className="text-[10px] font-medium text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">Tickets</span>
           </div>
         </div>
 
         {/* Crisis Alerts Card */}
-        <div className={`p-5 rounded-3xl border backdrop-blur-2xl transition-all flex flex-col justify-between group ${crisisAlerts.length > 0 ? "bg-rose-950/30 border-rose-500/50 text-rose-300 shadow-[0_8px_30px_rgba(244,63,94,0.2)] animate-pulse" : "bg-white/80 dark:bg-[#1c1c1e]/80 border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:scale-[1.02]"}`}>
+        <div className={`p-5 rounded-3xl border backdrop-blur-2xl transition-all flex flex-col justify-between group ${crisisAlerts.length > 0 ? "bg-rose-950/30 border-rose-500/50 text-rose-300 shadow-[0_8px_30px_rgba(244,63,94,0.2)] animate-pulse" : "bg-card border-border/60 shadow-sm"}`}>
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">SOS Cảnh Báo</span>
-            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${crisisAlerts.length > 0 ? "bg-rose-600 text-white shadow-[0_0_12px_rgba(244,63,94,0.6)]" : "bg-slate-500/10 text-slate-400 border border-slate-500/20"}`}>
+            <span className="text-xs font-medium text-muted-foreground">SOS Cảnh Báo</span>
+            <div className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-transform ${crisisAlerts.length > 0 ? "bg-rose-600 text-white shadow-[0_0_12px_rgba(244,63,94,0.6)]" : "bg-slate-500/10 text-slate-400 border border-slate-500/20"}`}>
               <span className="material-symbols-outlined text-xl">emergency</span>
             </div>
           </div>
           <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{crisisAlerts.length}</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">{crisisAlerts.length}</span>
             {crisisAlerts.length > 0 ? (
-              <span className="text-[10px] font-black text-rose-400 bg-rose-500/20 px-2.5 py-0.5 rounded-full border border-rose-500/30">KHẨN CẤP</span>
+              <span className="text-[10px] font-medium text-rose-500 bg-rose-500/20 px-2.5 py-0.5 rounded-full border border-rose-500/30">KHẨN CẤP</span>
             ) : (
-              <span className="text-[10px] font-extrabold text-slate-400 bg-slate-500/10 px-2.5 py-0.5 rounded-full border border-slate-500/20">An toàn</span>
+              <span className="text-[10px] font-medium text-slate-400 bg-slate-500/10 px-2.5 py-0.5 rounded-full border border-slate-500/20">An toàn</span>
             )}
           </div>
         </div>

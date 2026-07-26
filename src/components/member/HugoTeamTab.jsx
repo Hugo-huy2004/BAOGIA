@@ -155,10 +155,12 @@ export default function HugoTeamTab({ onBack }) {
   }
 
   return (
-    <div className="animate-fadeIn max-w-5xl mx-auto bg-card rounded-3xl border border-border/60 shadow-sm p-6 lg:p-8 space-y-8">
+    <div className="animate-fadeIn max-w-6xl mx-auto bg-card rounded-3xl border border-border/60 shadow-sm p-6 lg:p-8 space-y-8">
       <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
 
-      <div className="space-y-10">
+      {/* Desktop: 2-column (content + sticky CV rail). Mobile: stacked. */}
+      <div className="lg:grid lg:grid-cols-3 lg:gap-10 lg:items-start">
+      <div className="lg:col-span-2 space-y-10">
       {/* Header */}
       <div className="space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
@@ -311,16 +313,17 @@ export default function HugoTeamTab({ onBack }) {
         </ol>
       </div>
 
-      {/* Application Section */}
-      {userStatus !== "approved" && (
-        <div className="border-t border-border pt-8 space-y-8">
-          <div className="space-y-3">
-            <h2 className="text-2xl font-semibold text-foreground tracking-tight">Sẵn sàng bắt đầu?</h2>
-            <p className="text-sm text-muted-foreground max-w-3xl">
+      </div>{/* end left column */}
+
+      {/* RIGHT RAIL: Application — sticky on desktop, stacks under content on mobile */}
+      <aside className="lg:col-span-1 mt-10 lg:mt-0">
+        <div className="lg:sticky lg:top-4 rounded-2xl border border-border/60 bg-muted/30 p-6 space-y-5">
+          <div className="space-y-2">
+            <h2 className="text-xl font-semibold text-foreground tracking-tight">Sẵn sàng bắt đầu?</h2>
+            <p className="text-sm text-muted-foreground">
               CV không cần hoàn hảo — chúng tôi tìm sự <span className="font-semibold text-foreground">nghiêm túc</span> và
               <span className="font-semibold text-foreground"> ham học</span>, không tìm người đã giỏi sẵn.
-              Kể cả khi bạn mới chỉ có đồ án môn học, cứ mạnh dạn gửi: dòng code production đầu tiên
-              của bạn có thể được merge ngay trong tuần tới.
+              Dòng code production đầu tiên của bạn có thể được merge ngay trong tuần tới.
             </p>
           </div>
 
@@ -342,7 +345,7 @@ export default function HugoTeamTab({ onBack }) {
                 accept=".pdf"
                 onChange={handleCvUpload}
                 disabled={isSubmitting || userStatus === "pending"}
-                className="block w-full px-4 py-3 border border-border rounded-2xl text-sm file:mr-4 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 transition-all cursor-pointer"
+                className="block w-full px-4 py-3 border border-border bg-background rounded-2xl text-sm file:mr-4 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90 transition-all cursor-pointer"
               />
               <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                 {cvFile ? (
@@ -363,8 +366,11 @@ export default function HugoTeamTab({ onBack }) {
             </button>
           </div>
         </div>
-      )}
+      </aside>
+      </div>{/* end 2-column grid */}
 
+      {/* Full-width below the grid */}
+      <div className="space-y-10">
       {/* Developers List — nâng cấp */}
       <div className="border-t border-border pt-8">
         <div className="space-y-4 mb-6">
@@ -562,32 +568,38 @@ function DevWorkspace({ me, reload, membershipEnd }) {
         ))}
       </div>
 
-      {/* Section switcher */}
-      <div className="flex gap-1 bg-muted/60 p-1 rounded-2xl">
-        {SECTIONS.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => setSection(s.id)}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-              section === s.id
-                ? "bg-card text-foreground shadow-sm"
-                : "bg-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <span className="material-symbols-outlined text-[16px]">{s.icon}</span>
-            <span className="hidden sm:inline">{s.label}</span>
-            {s.badge > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-semibold flex items-center justify-center">
-                {s.badge}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      {/* Workspace: desktop = sidebar rail + content panel; mobile = segmented tabs + content */}
+      <div className="lg:grid lg:grid-cols-[212px_1fr] lg:gap-6 lg:items-start">
+        {/* Nav rail */}
+        <nav className="flex lg:flex-col gap-1 bg-muted/60 lg:bg-transparent p-1 lg:p-0 rounded-2xl lg:sticky lg:top-4">
+          {SECTIONS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setSection(s.id)}
+              className={`relative flex-1 lg:flex-none w-full flex items-center justify-center lg:justify-start gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                section === s.id
+                  ? "bg-card text-foreground shadow-sm lg:border lg:border-border/60"
+                  : "bg-transparent text-muted-foreground hover:text-foreground lg:hover:bg-muted/60"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[18px]">{s.icon}</span>
+              <span className="hidden sm:inline">{s.label}</span>
+              {s.badge > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 lg:static lg:ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-semibold flex items-center justify-center">
+                  {s.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
 
-      {section === "tasks" && <DevTasks tasks={me.tasks || []} reload={reload} />}
-      {section === "hours" && <DevHours hourLogs={me.hourLogs || []} tasks={me.tasks || []} reload={reload} />}
-      {section === "chat" && <DevChat messages={me.messages || []} reload={reload} />}
+        {/* Content panel */}
+        <div className="mt-4 lg:mt-0 min-w-0">
+          {section === "tasks" && <DevTasks tasks={me.tasks || []} reload={reload} />}
+          {section === "hours" && <DevHours hourLogs={me.hourLogs || []} tasks={me.tasks || []} reload={reload} />}
+          {section === "chat" && <DevChat messages={me.messages || []} reload={reload} />}
+        </div>
+      </div>
     </div>
   );
 }

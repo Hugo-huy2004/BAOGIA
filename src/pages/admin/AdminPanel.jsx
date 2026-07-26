@@ -294,7 +294,7 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
 
   return (
     <div
-      className="h-[100dvh] min-h-[100dvh] bg-slate-50/30 dark:bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
+      className="h-[100dvh] min-h-[100dvh] bg-background text-foreground flex flex-col md:flex-row overflow-hidden"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <SosOverlay alerts={crisisAlerts} />
@@ -414,20 +414,20 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
         {activeTab === "users" && (
           <div className="space-y-6">
             {/* Sub-view Nav Header */}
-            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+            <div className="flex items-center gap-1 p-1 rounded-2xl bg-muted/60 w-fit">
               <button
                 onClick={() => setUserSubView("roster")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${userSubView === "roster" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${userSubView === "roster" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <span className="material-symbols-outlined text-sm">group</span>
-                <span>Thành Viên ({totalMatchedUsers})</span>
+                <span>Thành viên ({totalMatchedUsers})</span>
               </button>
               <button
                 onClick={() => setUserSubView("support")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${userSubView === "support" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${userSubView === "support" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <span className="material-symbols-outlined text-sm">support_agent</span>
-                <span>Hỗ Trợ & Tickets</span>
+                <span>Hỗ trợ &amp; Tickets</span>
               </button>
               <button
                 onClick={() => setUserSubView("hugoteam")}
