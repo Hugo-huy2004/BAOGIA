@@ -32,9 +32,8 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      // Precache only favicons — image/** added ~2MB to every first visit;
-      // images load on demand and land in the browser/runtime cache instead.
-      includeAssets: ['favicon/**'],
+      // Assets are automatically matched by workbox globPatterns (**/*.{js,css,html,ico,svg,woff2,png})
+      includeAssets: [],
       workbox: {
         cleanupOutdatedCaches: true,
         skipWaiting: true,
@@ -42,7 +41,7 @@ export default defineConfig({
         importScripts: ['/push-sw.js'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/ws\//],
-        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2,png}'],
         globIgnores: ['**/Admin*'],
         runtimeCaching: [
           // Arcade leaderboard — StaleWhileRevalidate for instant UI render
