@@ -58,7 +58,7 @@ export default function WidgetRenderer({
       {myWidgets.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
         {myWidgets.map((app, index) => {
-          const size = utilitySizes[app.id] || "medium";
+          const size = utilitySizes[app.id] || "small";
           const gradient = gradients[app.tint] || gradients.indigo;
 
           const touchProps = {

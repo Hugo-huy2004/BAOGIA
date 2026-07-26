@@ -47,10 +47,11 @@ const GRADIENTS = {
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
-const DEFAULT_SIZES = {};
 const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
 const HOME_SCREEN_APPS_KEY = "hugo_home_screen_utilities_v1";
 const ARCADE_DOWNLOADS_KEY = "hugo_arcade_downloaded_v1";
+const UTILITY_SIZES_KEY = "hugo_utility_sizes";
+const USER_WIDGET_SIZES = new Set(["medium", "large"]);
 
 const readStoredList = (key) => {
   try {
@@ -60,6 +61,22 @@ const readStoredList = (key) => {
     return [];
   }
 };
+
+const readStoredObject = (key) => {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "{}");
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  } catch {
+    return {};
+  }
+};
+
+// Small is the implicit default. Only explicit widget choices are persisted,
+// keeping newly installed apps small and preventing invalid legacy values from
+// unexpectedly turning an icon into a widget.
+const normalizeUtilitySizes = (sizes = {}) => Object.fromEntries(
+  Object.entries(sizes).filter(([, size]) => USER_WIDGET_SIZES.has(size)),
+);
 
 const readDownloadedGameAppIds = () => (
   readStoredList(ARCADE_DOWNLOADS_KEY).map((gameId) => (
@@ -137,16 +154,23 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   });
 
   const [utilitySizes, setUtilitySizes] = useState(() => {
-    if (bio && bio.utilitySizes && typeof bio.utilitySizes === 'object') {
-      return bio.utilitySizes;
-    }
-    const saved = localStorage.getItem("hugo_utility_sizes");
-    return saved ? JSON.parse(saved) : {};
+    const fromBio = bio?.utilitySizes && typeof bio.utilitySizes === "object"
+      ? bio.utilitySizes
+      : {};
+    return normalizeUtilitySizes({
+      ...fromBio,
+      ...readStoredObject(UTILITY_SIZES_KEY),
+    });
   });
 
   useEffect(() => {
-    if (bio && bio.utilitySizes && typeof bio.utilitySizes === 'object') {
-      setUtilitySizes(bio.utilitySizes);
+    if (bio && bio.utilitySizes && typeof bio.utilitySizes === "object") {
+      const nextSizes = normalizeUtilitySizes({
+        ...bio.utilitySizes,
+        ...readStoredObject(UTILITY_SIZES_KEY),
+      });
+      setUtilitySizes(nextSizes);
+      localStorage.setItem(UTILITY_SIZES_KEY, JSON.stringify(nextSizes));
     }
   }, [bio]);
 
@@ -601,9 +625,15 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   };
 
   const handleSetWidgetSize = async (appId, size) => {
-    const updated = { ...utilitySizes, [appId]: size };
+    if (!["small", "medium", "large"].includes(size)) return;
+    const updated = { ...utilitySizes };
+    if (size === "small") {
+      delete updated[appId];
+    } else {
+      updated[appId] = size;
+    }
     setUtilitySizes(updated);
-    localStorage.setItem("hugo_utility_sizes", JSON.stringify(updated));
+    localStorage.setItem(UTILITY_SIZES_KEY, JSON.stringify(updated));
 
     if (bio?._id && bio._id !== 'guest') {
       try {
