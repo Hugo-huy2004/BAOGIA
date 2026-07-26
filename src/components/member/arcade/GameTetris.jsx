@@ -36,7 +36,7 @@ function createEmptyBoard() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 }
 
-export default function GameTetris({ difficulty = "medium", onGameOver }) {
+export default function GameTetris({ difficulty = "medium", paused = false, onGameOver }) {
   const canvasRef = useRef(null);
   const nextCanvasRef = useRef(null);
 
@@ -222,13 +222,16 @@ export default function GameTetris({ difficulty = "medium", onGameOver }) {
   // ── Main Render Canvas Loop ──────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || paused) return;
     const ctx = canvas.getContext("2d");
 
     const size = canvas.offsetWidth;
     canvas.width = size;
     canvas.height = size * 2;
     const cell = size / COLS;
+
+    // Resuming must not hand the player a free drop for the time spent paused.
+    gameState.current.lastTick = 0;
 
     drawNextPiece();
 
@@ -300,7 +303,7 @@ export default function GameTetris({ difficulty = "medium", onGameOver }) {
 
     rafId = requestAnimationFrame(renderFrame);
     return () => cancelAnimationFrame(rafId);
-  }, [speedMs, tick, drawNextPiece]);
+  }, [speedMs, tick, drawNextPiece, paused]);
 
   // ── Input Controls ───────────────────────────────────────────────────────
   const moveLeft = useCallback(() => {
@@ -350,6 +353,7 @@ export default function GameTetris({ difficulty = "medium", onGameOver }) {
 
   // Keyboard Event Listener
   useEffect(() => {
+    if (paused) return undefined;
     const handleKeyDown = (e) => {
       if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); moveLeft(); }
       if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); moveRight(); }
@@ -359,22 +363,12 @@ export default function GameTetris({ difficulty = "medium", onGameOver }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [moveLeft, moveRight, dropStep, rotate, hardDrop]);
+  }, [moveLeft, moveRight, dropStep, rotate, hardDrop, paused]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-5 bg-[#090d16] text-white rounded-[32px] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.2)] max-w-sm mx-auto backdrop-blur-2xl">
-      {/* Header Info */}
-      <div className="flex items-center justify-between w-full mb-4 px-1">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_12px_#06b6d4]" />
-          <div>
-            <h2 className="text-base font-black tracking-wider bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent uppercase font-sans">
-              Hugo Tetris Neon
-            </h2>
-            <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest block">60 FPS 3D Canvas</span>
-          </div>
-        </div>
-
+    <div className="gpanel flex flex-col items-center justify-center p-5 rounded-[32px] max-w-sm mx-auto">
+      {/* Header Info — tên game do shell hiển thị, ở đây chỉ giữ widget riêng */}
+      <div className="flex items-center justify-end w-full mb-4 px-1">
         {/* Next Piece Preview Widget */}
         <div className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-2xl border border-white/10 backdrop-blur-md">
           <div className="text-right">

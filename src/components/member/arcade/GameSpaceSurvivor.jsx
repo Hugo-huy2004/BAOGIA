@@ -4,7 +4,7 @@ import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
 
-export default function GameSpaceSurvivor({ difficulty = "medium", onGameOver }) {
+export default function GameSpaceSurvivor({ difficulty = "medium", paused = false, onGameOver }) {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
   const [bossHealth, setBossHealth] = useState(null);
@@ -82,7 +82,7 @@ export default function GameSpaceSurvivor({ difficulty = "medium", onGameOver })
   // ── Main Game Loop ───────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || paused) return;
     const ctx = canvas.getContext("2d");
 
     canvas.width = 360;
@@ -369,7 +369,7 @@ export default function GameSpaceSurvivor({ difficulty = "medium", onGameOver })
 
     rafId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(rafId);
-  }, [spawnEnemy, spawnBoss, playBeep, playWin, playLose, onGameOver]);
+  }, [spawnEnemy, spawnBoss, playBeep, playWin, playLose, onGameOver, paused]);
 
   // ── Keyboard Controls ───────────────────────────────────────────────────
   useEffect(() => {

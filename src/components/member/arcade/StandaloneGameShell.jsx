@@ -1,11 +1,13 @@
 import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import GAME_THEMES from "./gameThemes";
 import { DIFFICULTIES } from "./arcadeConstants";
 import { submitScore } from "../../../services/arcadeApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import GameIntroScreen from "./GameIntroScreen";
+import "./game-shell.css";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {
@@ -19,29 +21,23 @@ const GAME_COMPONENTS = {
   snake:     React.lazy(() => import("./GameSnake")),
 };
 
-// ─── Result config ─────────────────────────────────────────────────
+// Semantic outcome colours — deliberately palette-independent so a win never
+// reads as a loss just because a game's accent happens to be red.
 const RESULT_CONFIG = {
-  win:  { label: "CHIẾN THẮNG", icon: "emoji_events", color: "#fbbf24" },
-  lose: { label: "THỬ LẠI",    icon: "refresh",       color: "#fb7185" },
-  draw: { label: "HÒA",         icon: "handshake",     color: "#38bdf8" },
+  win:  { icon: "emoji_events", color: "#16a66a" },
+  lose: { icon: "refresh",      color: "#e94e72" },
+  draw: { icon: "handshake",    color: "#ef8c17" },
 };
 
-const css = `
-@keyframes agsFadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes agsSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-@keyframes agsScaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes agsPulse { 0%,100% { opacity: .6; } 50% { opacity: 1; } }
-@keyframes agsShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes agsSpin { to { transform: rotate(360deg); } }
-`;
-
 export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose }) {
+  const { t } = useTranslation();
   const theme = GAME_THEMES[gameId] || GAME_THEMES["2048"];
   const GameComp = GAME_COMPONENTS[gameId];
   const sound = useArcadeSound();
 
   const [stage, setStage] = useState("intro"); // intro | playing | result
   const [difficulty, setDifficulty] = useState(null);
+  const [paused, setPaused] = useState(false);
   const [resultData, setResultData] = useState(null);
   const [playKey, setPlayKey] = useState(0);
 
@@ -55,10 +51,12 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
   const handleSelectDifficulty = useCallback((diffId) => {
     sound.playBeep();
     setDifficulty(diffId);
+    setPaused(false);
     setStage("playing");
   }, [sound]);
 
   const handleGameOver = useCallback(async (score, result) => {
+    setPaused(false);
     if (result === "win") {
       sound.playWin();
       import("canvas-confetti").then(({ default: confetti }) => {
@@ -86,6 +84,7 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
   const handleReplay = useCallback(() => {
     sound.playBeep();
     setPlayKey((k) => k + 1);
+    setPaused(false);
     setStage("playing");
     setResultData(null);
   }, [sound]);
@@ -94,93 +93,53 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
     sound.playBeep();
     setDifficulty(null);
     setResultData(null);
+    setPaused(false);
     setStage("intro");
   }, [sound]);
 
-  const handleClose = useCallback(() => {
+  // Leaving mid-match still records the loss — pausing is the safe exit, so
+  // quitting from the pause screen must stay a deliberate, scored action.
+  const handleQuit = useCallback(() => {
+    setPaused(false);
+    setStage("result");
+    setResultData({ score: 0, result: "lose", joyDelta: 0, joyAwarded: false });
+  }, []);
+
+  // Back button pauses instead of instantly forfeiting — an accidental tap
+  // used to cost the player the match.
+  const handleBack = useCallback(() => {
     if (stage === "playing") {
-      setStage("result");
-      setResultData({ score: 0, result: "lose", joyDelta: 0, joyAwarded: false });
+      sound.playBeep();
+      setPaused(true);
       return;
     }
     onClose?.();
-  }, [stage, onClose]);
+  }, [stage, sound, onClose]);
+
+  // Escape pauses; a backgrounded tab pauses too, so nobody loses a run to a
+  // phone call.
+  useEffect(() => {
+    if (stage !== "playing") return undefined;
+    const onKey = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); setPaused((p) => !p); }
+    };
+    const onHide = () => { if (document.hidden) setPaused(true); };
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("visibilitychange", onHide);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onHide);
+    };
+  }, [stage]);
 
   if (!GameComp) return null;
 
+  const difficultyLabel = DIFFICULTIES.find((d) => d.id === difficulty)?.label || difficulty;
+  const outcome = RESULT_CONFIG[resultData?.result] || RESULT_CONFIG.lose;
+
   return createPortal(
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 9999,
-      background: theme.gradient,
-      display: "flex", flexDirection: "column",
-      animation: "agsFadeIn .25s ease",
-      overflow: "hidden",
-    }}>
-      <style>{css}</style>
-
-      {stage !== "intro" && (
-        <>
-          {/* ── Ambient background particles ── */}
-          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-            {Array.from({ length: 18 }).map((_, i) => (
-              <div key={i} style={{
-                position: "absolute",
-                left: `${(i * 37) % 100}%`,
-                top: `${(i * 53) % 100}%`,
-                width: 2, height: 2, borderRadius: "50%",
-                background: theme.accent,
-                opacity: 0.15 + (i % 3) * 0.1,
-                animation: `agsPulse ${2.5 + (i % 4)}s ease-in-out ${(i % 5) * 0.5}s infinite`,
-              }} />
-            ))}
-          </div>
-
-          {/* ── Status bar (top accent line) ── */}
-          <div style={{ height: 3, background: theme.statusBar, flexShrink: 0, position: "relative", zIndex: 2 }} />
-
-          {/* ── Header ── */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 10,
-            padding: "10px 16px",
-            background: theme.headerBg,
-            borderBottom: `1px solid ${theme.accent}22`,
-            flexShrink: 0,
-            position: "relative", zIndex: 2,
-            backdropFilter: "blur(12px)",
-          }}>
-            <button onClick={handleClose} style={{
-              width: 32, height: 32, borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)", border: "none",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", color: "#fff", flexShrink: 0,
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
-            </button>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: "#fff", letterSpacing: "-.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {theme.name}
-              </p>
-              {difficulty && (
-                <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: theme.accent, letterSpacing: ".1em", textTransform: "uppercase" }}>
-                  {DIFFICULTIES.find(d => d.id === difficulty)?.label || difficulty}
-                </p>
-              )}
-            </div>
-            {bio && (
-              <div style={{
-                display: "flex", alignItems: "center", gap: 4,
-                padding: "4px 10px", borderRadius: 999,
-                background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)",
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 13, color: "#fbbf24", fontVariationSettings: "'FILL' 1" }}>toll</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", fontVariantNumeric: "tabular-nums" }}>
-                  {(bio.joyBalance ?? 0).toLocaleString("vi-VN")}
-                </span>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+    <div className={`arcade-game arcade-game--${gameId}`}>
+      {stage !== "intro" && <div className="gshell__aurora" aria-hidden="true" />}
 
       {/* ── Stage: Per-game introduction ── */}
       {stage === "intro" && (
@@ -192,21 +151,50 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
         />
       )}
 
+      {stage !== "intro" && (
+        <>
+          <div className="gshell__status" />
+
+          <header className="gshell__bar">
+            <button type="button" className="gshell__icon-btn" onClick={handleBack} aria-label={t("arcadeGame.back")}>
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <div className="gshell__title">
+              <p>{theme.name}</p>
+              {difficulty && <small>{difficultyLabel}</small>}
+            </div>
+            {bio && (
+              <div className="gshell__joy" title={t("arcadeGame.joyBalance")}>
+                <span className="material-symbols-outlined">toll</span>
+                <b>{(bio.joyBalance ?? 0).toLocaleString("vi-VN")}</b>
+              </div>
+            )}
+            {stage === "playing" && (
+              <button
+                type="button"
+                className="gshell__icon-btn"
+                onClick={() => { sound.playBeep(); setPaused((p) => !p); }}
+                aria-label={t(paused ? "arcadeGame.resume" : "arcadeGame.pause")}
+              >
+                <span className="material-symbols-outlined">{paused ? "play_arrow" : "pause"}</span>
+              </button>
+            )}
+          </header>
+        </>
+      )}
+
       {/* ── Stage: Playing ── */}
       {stage === "playing" && (
-        <div key={playKey} style={{
-          flex: 1, overflow: "auto",
-          display: "flex", justifyContent: "center", alignItems: "flex-start",
-          position: "relative", zIndex: 1,
-        }}>
+        <div key={playKey} className="gshell__stage">
           <Suspense fallback={
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 12 }}>
-              <div style={{ width: 36, height: 36, border: `3px solid ${theme.accent}`, borderTopColor: "transparent", borderRadius: "50%", animation: "agsSpin .8s linear infinite" }} />
-              <p style={{ fontSize: 11, fontWeight: 700, color: theme.accent, letterSpacing: ".1em", textTransform: "uppercase" }}>Đang tải...</p>
+            <div className="gshell__loading">
+              <div className="gshell__spinner" />
+              <p>{t("arcadeGame.loading")}</p>
             </div>
           }>
             <GameComp
               difficulty={difficulty}
+              paused={paused}
               onGameOver={handleGameOver}
               sound={sound}
             />
@@ -214,101 +202,62 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
         </div>
       )}
 
+      {/* ── Overlay: Pause ── */}
+      {stage === "playing" && paused && (
+        <div className="gshell__overlay" role="dialog" aria-modal="true" aria-label={t("arcadeGame.paused")}>
+          <div className="gshell__card">
+            <div className="gshell__badge">
+              <span className="material-symbols-outlined">pause</span>
+            </div>
+            <p className="gshell__eyebrow">{theme.name}</p>
+            <h2>{t("arcadeGame.paused")}</h2>
+            <p>{t("arcadeGame.pausedHint")}</p>
+            <div className="gshell__actions" style={{ marginTop: 20 }}>
+              <button type="button" className="gshell__btn" onClick={handleChangeDifficulty}>
+                {t("arcadeGame.changeDifficulty")}
+              </button>
+              <button type="button" className="gshell__btn gshell__btn--primary" onClick={() => { sound.playBeep(); setPaused(false); }}>
+                {t("arcadeGame.resume")}
+              </button>
+            </div>
+            <button type="button" className="gshell__btn gshell__btn--ghost" onClick={handleQuit}>
+              {t("arcadeGame.quit")}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Stage: Result ── */}
       {stage === "result" && resultData && (
-        <div style={{
-          flex: 1, overflow: "auto",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          padding: 24,
-          position: "relative", zIndex: 1,
-        }}>
-          <div style={{
-            width: "100%", maxWidth: 360,
-            background: "rgba(0,0,0,0.6)",
-            border: `1.5px solid ${RESULT_CONFIG[resultData.result]?.color || "#fff"}33`,
-            borderRadius: 24,
-            padding: "28px 24px",
-            textAlign: "center",
-            animation: "agsScaleIn .3s cubic-bezier(.16,1,.3,1)",
-            backdropFilter: "blur(16px)",
-          }}>
-            {/* Icon */}
-            <div style={{
-              width: 64, height: 64, borderRadius: "50%",
-              background: `${RESULT_CONFIG[resultData.result]?.color || "#fff"}15`,
-              border: `2px solid ${RESULT_CONFIG[resultData.result]?.color || "#fff"}40`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 14px",
-              boxShadow: `0 0 30px ${RESULT_CONFIG[resultData.result]?.color || "#fff"}25`,
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 32, color: RESULT_CONFIG[resultData.result]?.color || "#fff", fontVariationSettings: "'FILL' 1" }}>
-                {RESULT_CONFIG[resultData.result]?.icon || "sports_score"}
-              </span>
+        <div className="gshell__overlay">
+          <div className="gshell__card" style={{ "--result-color": outcome.color }}>
+            <div className="gshell__badge">
+              <span className="material-symbols-outlined">{outcome.icon}</span>
+            </div>
+            <p className="gshell__eyebrow">{theme.name}</p>
+            <h2>{t(`arcadeGame.result.${resultData.result}`)}</h2>
+
+            <div className="gshell__score">
+              {t("arcadeGame.scoreValue", { score: resultData.score?.toLocaleString("vi-VN") })}
             </div>
 
-            <p style={{ margin: 0, fontSize: 9, fontWeight: 800, letterSpacing: ".15em", textTransform: "uppercase", color: RESULT_CONFIG[resultData.result]?.color || "#fff", opacity: 0.7 }}>
-              HugoArcade
-            </p>
-            <h2 style={{ margin: "6px 0 0", fontSize: 22, fontWeight: 900, color: "#fff" }}>
-              {RESULT_CONFIG[resultData.result]?.label || "HOÀN THÀNH"}
-            </h2>
-
-            {/* Score */}
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-              margin: "14px 0",
-            }}>
-              <span style={{
-                padding: "5px 12px", borderRadius: 10,
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-                fontSize: 12, fontWeight: 800, color: "#fff", fontVariantNumeric: "tabular-nums",
-              }}>
-                {resultData.score?.toLocaleString("vi-VN")} điểm
-              </span>
+            <div className="gshell__reward">
+              <span className="material-symbols-outlined">toll</span>
+              <b>{resultData.joyDelta > 0 ? "+" : ""}{resultData.joyDelta || 0}</b>
+              <span>JOY</span>
             </div>
 
-            {/* JOY earned */}
-            <div style={{
-              padding: "12px 16px", borderRadius: 14,
-              background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)",
-              margin: "12px 0 18px",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 20, color: "#fbbf24", fontVariationSettings: "'FILL' 1" }}>toll</span>
-                <span style={{ fontSize: 24, fontWeight: 900, color: "#fbbf24", fontVariantNumeric: "tabular-nums" }}>
-                  {resultData.joyDelta > 0 ? "+" : ""}{resultData.joyDelta || 0}
-                </span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(251,191,36,0.7)" }}>JOY</span>
-              </div>
-            </div>
-
-            {/* Action buttons */}
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={handleChangeDifficulty} style={{
-                flex: 1, padding: "12px 0", borderRadius: 12,
-                background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-                color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 800, cursor: "pointer",
-              }}>
-                Đổi Độ Khó
+            <div className="gshell__actions">
+              <button type="button" className="gshell__btn" onClick={handleChangeDifficulty}>
+                {t("arcadeGame.changeDifficulty")}
               </button>
-              <button onClick={handleReplay} style={{
-                flex: 2, padding: "12px 0", borderRadius: 12,
-                background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent}cc)`,
-                border: "none",
-                color: "#fff", fontSize: 12, fontWeight: 900, cursor: "pointer",
-                boxShadow: `0 4px 16px ${theme.accentGlow}`,
-              }}>
-                Chơi Lại
+              <button type="button" className="gshell__btn gshell__btn--primary" onClick={handleReplay}>
+                {t("arcadeGame.replay")}
               </button>
             </div>
 
-            {/* Close button */}
-            <button onClick={onClose} style={{
-              marginTop: 10, padding: "8px 0", width: "100%", borderRadius: 10,
-              background: "transparent", border: "none",
-              color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 700, cursor: "pointer",
-            }}>
-              Đóng game
+            <button type="button" className="gshell__btn gshell__btn--ghost" onClick={onClose}>
+              {t("arcadeGame.close")}
             </button>
           </div>
         </div>

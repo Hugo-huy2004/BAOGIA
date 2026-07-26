@@ -169,7 +169,7 @@ const TILE_COLORS = {
   2048: { bg: "#ffe600", color: "#2b2400", border: "#fef9c3", glow: "0 0 20px #ffe600,0 0 42px rgba(255,230,0,.85),inset 0 -4px 10px rgba(0,0,0,.22),inset 0 3px 6px rgba(255,255,255,.55)" }
 };
 
-export default function Game2048({ difficulty = "medium", onGameOver }) {
+export default function Game2048({ difficulty = "medium", paused = false, onGameOver }) {
   const targetTile = TARGET_TILE[difficulty] || 512;
   const [grid, setGrid] = useState(createTileGrid);
   const [score, setScore] = useState(0);
@@ -186,7 +186,7 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
 
   // Speed Run 60s Countdown Timer
   useEffect(() => {
-    if (!isSpeedRun || status) return;
+    if (!isSpeedRun || status || paused) return;
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -198,10 +198,10 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [isSpeedRun, status]);
+  }, [isSpeedRun, status, paused]);
 
   const handleMove = useCallback((direction) => {
-    if (status) return;
+    if (status || paused) return;
     const { grid: newGrid, gained, moved } = moveTileGrid(gridRef.current, direction);
     if (!moved) return;
     const withTile = addRandomObjectTile(newGrid);
@@ -216,7 +216,7 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
       playGameWin();
       hapticWin();
     } else if (isGameOver(values)) { setStatus("lose"); playGameLose(); hapticLose(); }
-  }, [status, targetTile]);
+  }, [status, paused, targetTile]);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -279,7 +279,7 @@ export default function Game2048({ difficulty = "medium", onGameOver }) {
   return (
     <div className="game2048-shell flex flex-col items-center gap-4 w-full">
       {/* Speed Run Toggle */}
-      <div className="flex items-center justify-between w-full max-w-[520px] bg-[#141522]/80 border border-white/10 p-2 rounded-2xl backdrop-blur-xl">
+      <div className="gpanel flex items-center justify-between w-full max-w-[520px] p-2 rounded-2xl">
         <button
           onClick={() => { setIsSpeedRun(!isSpeedRun); setTimeLeft(60); }}
           className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${isSpeedRun ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white/5 text-zinc-400 hover:text-white"}`}

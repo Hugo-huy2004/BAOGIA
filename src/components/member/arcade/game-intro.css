@@ -1,9 +1,24 @@
-.arcade-intro {
+/* Per-game palette lives on the shell root (.arcade-game--<id>) so the intro,
+   the in-game chrome and the result screen all read one source. The
+   .arcade-intro defaults below only apply if the intro renders standalone. */
+.arcade-game {
   --intro-bg: #eef1ff;
   --intro-ink: #171827;
   --intro-muted: #62677c;
   --intro-accent: #6157e8;
   --intro-soft: rgba(97, 87, 232, .14);
+}
+
+.arcade-game--2048 { --intro-bg: #aeb4ed; --intro-ink: #222348; --intro-muted: #555b86; --intro-accent: #5b50d6; --intro-soft: rgba(255,255,255,.42); }
+.arcade-game--snake { --intro-bg: #e8c8ff; --intro-ink: #46235c; --intro-muted: #76578b; --intro-accent: #8b3ed0; --intro-soft: rgba(255,255,255,.5); }
+.arcade-game--chess { --intro-bg: #eee9df; --intro-ink: #1b1b1b; --intro-muted: #69645d; --intro-accent: #7d5a3b; --intro-soft: rgba(125,90,59,.12); }
+.arcade-game--survivor { --intro-bg: #050818; --intro-ink: #f4f7ff; --intro-muted: #98a4c6; --intro-accent: #4cd6ff; --intro-soft: rgba(76,214,255,.12); }
+.arcade-game--flappy { --intro-bg: #b9eff8; --intro-ink: #113b53; --intro-muted: #4b7488; --intro-accent: #007f9f; --intro-soft: rgba(255,255,255,.48); }
+.arcade-game--tetris { --intro-bg: #090714; --intro-ink: #faf8ff; --intro-muted: #a8a0c2; --intro-accent: #d552ff; --intro-soft: rgba(213,82,255,.13); }
+.arcade-game--caro { --intro-bg: #fff3e7; --intro-ink: #3d2926; --intro-muted: #806763; --intro-accent: #f04f55; --intro-soft: rgba(240,79,85,.12); }
+.arcade-game--wordguess { --intro-bg: #e8f1d8; --intro-ink: #233622; --intro-muted: #60715d; --intro-accent: #3d7b49; --intro-soft: rgba(61,123,73,.13); }
+
+.arcade-intro {
   position: relative;
   z-index: 4;
   display: flex;
@@ -15,15 +30,6 @@
   background: var(--intro-bg);
   isolation: isolate;
 }
-
-.arcade-intro--2048 { --intro-bg: #aeb4ed; --intro-ink: #222348; --intro-muted: #555b86; --intro-accent: #5b50d6; --intro-soft: rgba(255,255,255,.42); }
-.arcade-intro--snake { --intro-bg: #e8c8ff; --intro-ink: #46235c; --intro-muted: #76578b; --intro-accent: #8b3ed0; --intro-soft: rgba(255,255,255,.5); }
-.arcade-intro--chess { --intro-bg: #eee9df; --intro-ink: #1b1b1b; --intro-muted: #69645d; --intro-accent: #7d5a3b; --intro-soft: rgba(125,90,59,.12); }
-.arcade-intro--survivor { --intro-bg: #050818; --intro-ink: #f4f7ff; --intro-muted: #98a4c6; --intro-accent: #4cd6ff; --intro-soft: rgba(76,214,255,.12); }
-.arcade-intro--flappy { --intro-bg: #b9eff8; --intro-ink: #113b53; --intro-muted: #4b7488; --intro-accent: #007f9f; --intro-soft: rgba(255,255,255,.48); }
-.arcade-intro--tetris { --intro-bg: #090714; --intro-ink: #faf8ff; --intro-muted: #a8a0c2; --intro-accent: #d552ff; --intro-soft: rgba(213,82,255,.13); }
-.arcade-intro--caro { --intro-bg: #fff3e7; --intro-ink: #3d2926; --intro-muted: #806763; --intro-accent: #f04f55; --intro-soft: rgba(240,79,85,.12); }
-.arcade-intro--wordguess { --intro-bg: #e8f1d8; --intro-ink: #233622; --intro-muted: #60715d; --intro-accent: #3d7b49; --intro-soft: rgba(61,123,73,.13); }
 
 .arcade-intro__aurora {
   position: absolute;

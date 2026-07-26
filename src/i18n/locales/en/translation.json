@@ -2409,6 +2409,21 @@
         "deviceComputer": "Computer"
       }
     },
+    "versionAd": {
+      "eyebrow": "Version 2.0 · Just launched",
+      "title": "Hugo Studio just grew up a level",
+      "body": "Not just more features — 2.0 rewrites the foundation: how you sign in, how your data is kept, and how every app talks to the rest.",
+      "features": {
+        "security": "Security rebuilt",
+        "store": "Its own app store",
+        "arcade": "8 games, own identity",
+        "cards": "5-tier card set"
+      },
+      "reward": "Read the whole upgrade — get 50 JOY",
+      "cta": "See what's new",
+      "later": "Later",
+      "optOut": "Don't show again"
+    },
     "infoVersion": {
       "title": "Info & Version",
       "desc": "About Hugo Studio, the current version, and a small reward just for you.",
@@ -2471,6 +2486,130 @@
       },
       "versionLabel": "Current version",
       "versionNote": "Continuously updated with new features — thank you for being part of Hugo Studio.",
+      "heroTagline": "The biggest upgrade so far",
+      "heroBody": "Hugo Studio 2.0 is not just more features — it rewrites the foundation: how you sign in, how your data is protected, how apps get installed, and how the whole system talks to itself.",
+      "highlightsTitle": "What stands out in 2.0",
+      "highlights": {
+        "security": {
+          "title": "Security rebuilt from the ground",
+          "desc": "The server verifies your Google identity itself instead of trusting what the browser sends. JOY wallet QR codes are cryptographically signed and cannot be forged."
+        },
+        "store": {
+          "title": "A real app store",
+          "desc": "Install and remove each utility like a phone app. Your home screen shows only what you picked, with widgets in the size you want."
+        },
+        "ai": {
+          "title": "One AI gateway",
+          "desc": "Every AI feature goes through a shared gateway with quotas, caching, automatic retries and an emergency kill switch — no more one-off calls scattered around."
+        },
+        "arcade": {
+          "title": "HugoArcade, 8 games",
+          "desc": "Each game has its own intro and visual identity, consistent from the intro through play, with pause and score saving even when offline."
+        },
+        "offline": {
+          "title": "Works offline",
+          "desc": "Install Hugo Studio as a standalone app, open it without a connection, receive push notifications and resync automatically when you are back online."
+        },
+        "wallet": {
+          "title": "Real-time JOY wallet",
+          "desc": "Balance and notifications update instantly over a live connection — no page reload needed."
+        }
+      },
+      "compareTitle": "1.0 compared with 2.0",
+      "compareHint": "What changed as the system crossed a major version line.",
+      "compareOld": "Version 1.0",
+      "compareNew": "Version 2.0",
+      "compareAspect": "Area",
+      "compare": {
+        "architecture": {
+          "aspect": "Architecture",
+          "old": "A Bio page plus a few loose utilities",
+          "new": "A multi-app platform with its own install store"
+        },
+        "auth": {
+          "aspect": "Sign-in",
+          "old": "Trusted the email the browser sent",
+          "new": "Server verifies Google itself, session key in a secure cookie"
+        },
+        "ai": {
+          "aspect": "AI features",
+          "old": "Each spot called the provider directly",
+          "new": "One gateway: quota, cache, downgrade, emergency stop"
+        },
+        "arcade": {
+          "aspect": "Games",
+          "old": "3 games sharing one generic look",
+          "new": "8 games, each with its own identity, and pause"
+        },
+        "offline": {
+          "aspect": "Offline",
+          "old": "Always needed a connection",
+          "new": "Installs like an app, runs offline, syncs scores later"
+        },
+        "notify": {
+          "aspect": "Notifications",
+          "old": "A mix of different dialog styles",
+          "new": "One shared notification system everywhere"
+        }
+      },
+      "semverTitle": "How to read the version number",
+      "semverIntro": "A version number has three parts separated by dots. Each part increases for a different reason — so you can tell at a glance how much an update affects you.",
+      "semverMajorName": "MAJOR",
+      "semverMinorName": "MINOR",
+      "semverPatchName": "PATCH",
+      "semver": {
+        "major": {
+          "title": "First number — major change",
+          "desc": "Goes up when the system changes enough that you need to re-learn it: new layout, new way of working, or data reorganised.",
+          "example": "1.0.0 → 2.0.0"
+        },
+        "minor": {
+          "title": "Second number — new features",
+          "desc": "Goes up when features are added while everything you already use keeps working exactly as before.",
+          "example": "2.0.0 → 2.1.0"
+        },
+        "patch": {
+          "title": "Third number — fixes",
+          "desc": "Goes up for bug fixes and small refinements only. Nothing new to learn, things simply run better.",
+          "example": "2.0.0 → 2.0.1"
+        }
+      },
+      "semverNote": "Each app in the store also carries its own version number (HugoPSY 4.1.0, for example). The large number above is the version of the whole system, not of any single app.",
+      "ecosystemTitle": "App ecosystem",
+      "ecosystemHint": "Everything available inside Hugo Studio 2.0.",
+      "mock": {
+        "security": "Auth layer",
+        "store": "App store",
+        "ai": "AI gateway",
+        "arcade": "8 games",
+        "offline": "Sync queue",
+        "wallet": "JOY wallet"
+      },
+      "cardsEyebrow": "Membership cards",
+      "cardsTitle": "Five cards, one journey",
+      "cardsLede": "Every person you bring in is more than a number — it lifts your card one step, and every step unlocks more. The card below is your real one, updating live.",
+      "cardsSwipeHint": "Swipe to try your details in each tier's colours",
+      "cardYoursNow": "This is the card you hold",
+      "cardUnlocked": "You have unlocked this tier",
+      "cardPreviewLocked": "{{count}} more referrals to hold this one",
+      "cardYours": "Your current card — tier",
+      "rankReferrals": "{{count}} people referred",
+      "rankNext": "{{count}} more to reach {{tier}}.",
+      "rankMax": "You are at the highest tier. Nothing left to unlock — congratulations.",
+      "tierNow": "Your tier",
+      "tierCond": "Refer {{count}} people",
+      "tierCondBase": "Yours the moment you sign up",
+      "cardNoticeTitle": "Online use only",
+      "cardNoticeBody": "This is a digital card belonging to the Hugo Studio system, used to identify your membership tier and benefits inside the system. It is not a physical card, not a bank card or payment instrument, and has no use outside Hugo Studio.",
+      "readBonusTitle": "Read the whole upgrade",
+      "readBonusDesc": "You have seen everything that changed in 2.0. Here are 50 JOY as a thank you.",
+      "readBonusLocked": "Scroll through the whole 2.0 introduction to unlock this 50 JOY reward.",
+      "readBonusButton": "Claim +50 JOY",
+      "readBonusLockedButton": "Locked — keep reading",
+      "readBonusClaiming": "Claiming...",
+      "readBonusClaimed": "50 JOY claimed",
+      "readBonusSuccess": "+50 JOY claimed. Thanks for reading it all!",
+      "readBonusError": "Could not claim the reward, please try again.",
       "bonusTitle": "Discovery gift",
       "bonusDesc": "Thanks for visiting Info & Version — here's a small JOY gift.",
       "bonusButton": "Claim +20 JOY",
@@ -3688,6 +3827,25 @@
       "previous": "Back",
       "continue": "Continue",
       "nextLesson": "Next lesson"
+    }
+  },
+  "arcadeGame": {
+    "back": "Back",
+    "loading": "Loading...",
+    "joyBalance": "JOY balance",
+    "pause": "Pause",
+    "resume": "Resume",
+    "paused": "Paused",
+    "pausedHint": "The match is on hold. Nothing is lost until you quit.",
+    "quit": "Quit match",
+    "changeDifficulty": "Change mode",
+    "replay": "Play again",
+    "close": "Close game",
+    "scoreValue": "{{score}} points",
+    "result": {
+      "win": "Victory",
+      "lose": "Try again",
+      "draw": "Draw"
     }
   },
   "arcadeIntro": {

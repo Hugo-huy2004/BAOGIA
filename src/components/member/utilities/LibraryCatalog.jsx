@@ -37,7 +37,7 @@ const APP_VERSIONS = {
   arcade: "3.5.0",
   aura: "2.1.0",
   deco: "1.7.0",
-  info: "1.0.0",
+  info: "2.0.0",
   joy_wallet: "2.4.0",
   map: "1.0.0"
 };

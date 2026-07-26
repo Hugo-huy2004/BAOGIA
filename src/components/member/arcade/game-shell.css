@@ -1,0 +1,362 @@
+/* In-game chrome for StandaloneGameShell.
+   Every colour here derives from the per-game palette declared on
+   .arcade-game--<id> (see game-intro.css), so the status bar, HUD, controls,
+   pause and result screens speak the same visual language as that game's
+   intro. Nothing in this file touches game rules — presentation only. */
+
+.arcade-game {
+  /* Derived surfaces — one formula for all 8 palettes, so a new game only
+     ever needs the 5 base tokens, never a hand-authored chrome set. */
+  --game-surface: color-mix(in srgb, var(--intro-ink) 7%, var(--intro-bg));
+  --game-surface-strong: color-mix(in srgb, var(--intro-ink) 13%, var(--intro-bg));
+  --game-line: color-mix(in srgb, var(--intro-ink) 17%, transparent);
+  --game-line-soft: color-mix(in srgb, var(--intro-ink) 9%, transparent);
+  /* The playfield stays a contained "screen" inset into the game's shell —
+     it mirrors the device/board framing the intro artwork already uses, and
+     keeps canvas entity colours legible on light palettes. */
+  --game-play: color-mix(in srgb, var(--intro-accent) 12%, #080a14);
+
+  position: fixed;
+  z-index: 9999;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  inset: 0;
+  animation: gshellFade .25s ease;
+  color: var(--intro-ink);
+  background: var(--intro-bg);
+}
+
+@keyframes gshellFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gshellRise { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes gshellPop { from { transform: scale(.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes gshellSpin { to { transform: rotate(360deg); } }
+
+/* ── Ambient wash — replaces the 18 JS-positioned particle divs ── */
+.gshell__aurora {
+  position: absolute;
+  z-index: 0;
+  inset: -25%;
+  background:
+    radial-gradient(45% 38% at 22% 12%, color-mix(in srgb, var(--intro-accent) 30%, transparent), transparent 70%),
+    radial-gradient(40% 34% at 82% 78%, color-mix(in srgb, var(--intro-accent) 20%, transparent), transparent 70%);
+  filter: blur(38px);
+  opacity: .55;
+  pointer-events: none;
+}
+
+/* ── Status bar (top accent line) ── */
+.gshell__status {
+  position: relative;
+  z-index: 2;
+  height: 3px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--intro-accent) 55%, transparent),
+    var(--intro-accent),
+    color-mix(in srgb, var(--intro-accent) 55%, transparent));
+}
+
+/* ── Header ── */
+.gshell__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--game-line-soft);
+  background: color-mix(in srgb, var(--intro-bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.gshell__icon-btn {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--game-line);
+  border-radius: 50%;
+  background: var(--game-surface);
+  color: var(--intro-ink);
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease;
+}
+.gshell__icon-btn .material-symbols-outlined { font-size: 20px; }
+.gshell__icon-btn:active { transform: scale(.93); background: var(--game-surface-strong); }
+
+.gshell__title { min-width: 0; flex: 1; }
+.gshell__title p {
+  overflow: hidden;
+  margin: 0;
+  color: var(--intro-ink);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gshell__title small {
+  display: block;
+  color: var(--intro-accent);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+/* ── JOY balance pill ── */
+.gshell__joy {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 32%, transparent);
+  border-radius: 999px;
+  background: var(--intro-soft);
+  color: var(--intro-accent);
+}
+.gshell__joy .material-symbols-outlined { font-size: 15px; font-variation-settings: "FILL" 1; }
+.gshell__joy b { font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+/* ── Play area — the framed "screen" ── */
+.gshell__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  overflow: auto;
+  align-items: flex-start;
+  padding: 14px 12px 22px;
+}
+
+.gshell__loading {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.gshell__spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--intro-accent);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: gshellSpin .8s linear infinite;
+}
+.gshell__loading p {
+  margin: 0;
+  color: var(--intro-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── Overlay shared by pause + result ── */
+.gshell__overlay {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  inset: 0;
+  animation: gshellFade .2s ease;
+  background: color-mix(in srgb, var(--intro-bg) 78%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.gshell__card {
+  width: 100%;
+  max-width: 360px;
+  padding: 26px 22px;
+  border: 1px solid var(--game-line);
+  border-radius: 26px;
+  animation: gshellPop .3s cubic-bezier(.16,1,.3,1);
+  background: var(--game-surface);
+  box-shadow: 0 26px 60px color-mix(in srgb, var(--intro-ink) 22%, transparent);
+  text-align: center;
+}
+
+.gshell__badge {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 14px;
+  border: 2px solid color-mix(in srgb, var(--result-color, var(--intro-accent)) 42%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--result-color, var(--intro-accent)) 16%, transparent);
+  place-items: center;
+}
+.gshell__badge .material-symbols-outlined {
+  color: var(--result-color, var(--intro-accent));
+  font-size: 30px;
+  font-variation-settings: "FILL" 1;
+}
+
+.gshell__eyebrow {
+  margin: 0;
+  color: var(--intro-muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.gshell__card h2 {
+  margin: 6px 0 0;
+  color: var(--intro-ink);
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -.02em;
+}
+.gshell__card > p {
+  margin: 8px 0 0;
+  color: var(--intro-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.gshell__score {
+  display: inline-block;
+  margin: 14px 0 0;
+  padding: 6px 13px;
+  border: 1px solid var(--game-line);
+  border-radius: 11px;
+  background: var(--game-surface-strong);
+  color: var(--intro-ink);
+  font-size: 12px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.gshell__reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 18px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 30%, transparent);
+  border-radius: 15px;
+  background: var(--intro-soft);
+}
+.gshell__reward .material-symbols-outlined { color: var(--intro-accent); font-size: 21px; font-variation-settings: "FILL" 1; }
+.gshell__reward b { color: var(--intro-accent); font-size: 24px; font-weight: 950; font-variant-numeric: tabular-nums; }
+.gshell__reward span { color: var(--intro-muted); font-size: 11px; font-weight: 800; }
+
+/* ── Buttons ── */
+.gshell__actions { display: flex; gap: 9px; }
+.gshell__btn {
+  flex: 1;
+  padding: 13px 0;
+  border: 1px solid var(--game-line);
+  border-radius: 13px;
+  background: var(--game-surface-strong);
+  color: var(--intro-ink);
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease;
+}
+.gshell__btn--primary {
+  flex: 1.6;
+  border-color: transparent;
+  background: var(--intro-accent);
+  color: color-mix(in srgb, var(--intro-bg) 88%, #fff);
+  font-weight: 950;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--intro-accent) 38%, transparent);
+}
+.gshell__btn:active { transform: scale(.97); }
+.gshell__btn--primary:active { filter: brightness(1.08); }
+.gshell__btn--ghost {
+  width: 100%;
+  margin-top: 10px;
+  padding: 9px 0;
+  border: none;
+  background: transparent;
+  color: var(--intro-muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+/* ── Boards: frame each DOM playfield with the game's own palette ───────────
+   Tile/mark colours stay as-is (they are each game's identity); only the
+   surrounding chassis, labels and controls adopt the palette. */
+.arcade-game .game2048-hud > div,
+.arcade-game .caro-status {
+  border-color: var(--game-line);
+  background: var(--game-surface);
+}
+.arcade-game .game2048-hud small,
+.arcade-game .caro-status small,
+.arcade-game .caro-legend,
+.arcade-game .game-control-hint { color: var(--intro-muted); }
+.arcade-game .game2048-hud strong,
+.arcade-game .caro-status strong { color: var(--intro-ink); }
+.arcade-game .game2048-hud .target strong { color: var(--intro-accent); }
+
+.arcade-game .game2048-board,
+.arcade-game .caro-board {
+  border: 1px solid var(--game-line);
+  background: var(--game-play);
+  box-shadow: inset 0 1px color-mix(in srgb, #fff 8%, transparent),
+              0 20px 50px color-mix(in srgb, var(--intro-ink) 24%, transparent);
+}
+
+.arcade-game .caro-turn-dot.active {
+  background: var(--intro-accent);
+  box-shadow: 0 0 14px var(--intro-accent);
+}
+
+/* ── Game chassis ──────────────────────────────────────────────────────────
+   The playfield of each game stays a dark, contained "screen" (the framing
+   the intro artwork already uses: a device, a board, a well) so the vivid
+   entity colours inside stay legible on light palettes too. What changes is
+   the hue: the chassis now borrows its own game's accent instead of the
+   cyan/purple every game happened to be hardcoded to. */
+.arcade-game .gpanel {
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 34%, transparent);
+  background: var(--game-play);
+  color: #f6f7fb;
+  box-shadow: 0 0 46px color-mix(in srgb, var(--intro-accent) 20%, transparent),
+              0 20px 50px color-mix(in srgb, var(--intro-ink) 22%, transparent);
+}
+
+/* Headings/dots inside a chassis that used to be hardcoded cyan. */
+.arcade-game .gaccent {
+  background: none;
+  color: var(--intro-accent);
+  -webkit-text-fill-color: var(--intro-accent);
+}
+.arcade-game .gaccent-dot {
+  background: var(--intro-accent);
+  box-shadow: 0 0 12px var(--intro-accent);
+}
+.arcade-game .gchip {
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 32%, transparent);
+  background: color-mix(in srgb, var(--intro-accent) 12%, transparent);
+}
+
+/* D-pad + on-screen controls */
+.arcade-game .arcade-dpad-btn {
+  border: 1px solid var(--game-line);
+  background: var(--game-surface);
+  color: var(--intro-ink);
+}
+.arcade-game .arcade-dpad-btn:active { background: var(--intro-soft); }
+.arcade-game .arcade-dpad-center { background: var(--game-line-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade-game,
+  .gshell__overlay,
+  .gshell__card { animation-duration: 1ms; }
+  .gshell__spinner { animation-duration: 2s; }
+}

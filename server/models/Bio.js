@@ -357,6 +357,12 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    // Separate one-time bonus for reading the release notes to the end —
+    // see joyRoutes.js claim-info-read-bonus.
+    infoReadBonusClaimed: {
+      type: Boolean,
+      default: false
+    },
     activeAuraTheme: {
       type: String,
       default: 'default'

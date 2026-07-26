@@ -72,7 +72,7 @@ function pickRandomWord(level) {
 
 const KEY_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
-export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
+export default function GameWordGuess({ difficulty = "medium", paused = false, onGameOver }) {
   const level = WORD_BANKS[difficulty] ? difficulty : "medium";
   const [wordData, setWordData] = useState(() => pickRandomWord(level));
   const target = wordData.word;
@@ -155,6 +155,7 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
   };
 
   useEffect(() => {
+    if (paused) return undefined;
     const handleKeyDown = (e) => {
       if (e.key === "Enter") handleKeyPress("ENTER");
       else if (e.key === "Backspace") handleKeyPress("BACKSPACE");
@@ -162,7 +163,7 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [input, status, wordLen]);
+  }, [input, status, wordLen, paused]);
 
   // Key states for visual keyboard coloring
   const letterStates = {};
@@ -176,13 +177,14 @@ export default function GameWordGuess({ difficulty = "medium", onGameOver }) {
   });
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-[#080d1a] text-white rounded-[32px] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.12)] max-w-md mx-auto">
+    <div className="gpanel flex flex-col items-center justify-center p-4 rounded-[32px] max-w-md mx-auto">
       {/* Level Header & Hint Button */}
       <div className="flex items-center justify-between w-full mb-3 px-1">
+        {/* Tên game do shell hiển thị — ở đây chỉ giữ độ dài từ cần đoán */}
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#06b6d4]" />
-          <h2 className="text-sm font-black tracking-wider text-cyan-300 uppercase">
-            Mật Mã Từ 3D ({wordLen} Ký Tự)
+          <span className="gaccent-dot w-2.5 h-2.5 rounded-full animate-pulse" />
+          <h2 className="gaccent text-sm font-black tracking-wider uppercase">
+            {wordLen} Ký Tự
           </h2>
         </div>
         <button

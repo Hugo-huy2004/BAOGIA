@@ -2404,6 +2404,21 @@
         "deviceComputer": "Máy tính"
       }
     },
+    "versionAd": {
+      "eyebrow": "Phiên bản 2.0 · Vừa ra mắt",
+      "title": "Hugo Studio vừa lớn lên một bậc",
+      "body": "Không chỉ thêm tính năng — 2.0 viết lại phần móng: cách bạn đăng nhập, cách dữ liệu được giữ, và cách mọi ứng dụng nói chuyện với nhau.",
+      "features": {
+        "security": "Bảo mật viết lại",
+        "store": "Kho ứng dụng riêng",
+        "arcade": "8 game nhận diện riêng",
+        "cards": "Bộ thẻ 5 hạng"
+      },
+      "reward": "Đọc hết bản nâng cấp — nhận 50 JOY",
+      "cta": "Xem có gì mới",
+      "later": "Để sau",
+      "optOut": "Không hiện lại nữa"
+    },
     "infoVersion": {
       "title": "Info & Version",
       "desc": "Giới thiệu về Hugo Studio, phiên bản hiện tại và một phần thưởng nhỏ chỉ dành cho bạn.",
@@ -2466,6 +2481,130 @@
       },
       "versionLabel": "Phiên bản hiện tại",
       "versionNote": "Cập nhật liên tục với các tính năng mới — cảm ơn bạn đã đồng hành cùng Hugo Studio.",
+      "heroTagline": "Bản nâng cấp lớn nhất từ trước đến nay",
+      "heroBody": "Hugo Studio 2.0 không chỉ thêm tính năng — nó viết lại phần móng: cách bạn đăng nhập, cách dữ liệu được bảo vệ, cách các ứng dụng được cài đặt và cách toàn bộ hệ thống nói chuyện với nhau.",
+      "highlightsTitle": "Nổi bật ở 2.0",
+      "highlights": {
+        "security": {
+          "title": "Bảo mật viết lại từ gốc",
+          "desc": "Máy chủ tự xác minh danh tính Google thay vì tin vào thông tin trình duyệt gửi lên. Mã QR ví JOY được ký bằng chữ ký số, không thể chế ra từ bên ngoài."
+        },
+        "store": {
+          "title": "Kho ứng dụng thật sự",
+          "desc": "Cài và gỡ từng tiện ích như app trên điện thoại. Màn hình chính của bạn chỉ hiện thứ bạn chọn, kèm widget lớn nhỏ tuỳ ý."
+        },
+        "ai": {
+          "title": "Một cổng AI duy nhất",
+          "desc": "Mọi tính năng AI đi qua một cổng chung có hạn mức, bộ nhớ đệm, tự thử lại và công tắc ngắt khẩn cấp — không còn mỗi nơi gọi một kiểu."
+        },
+        "arcade": {
+          "title": "HugoArcade 8 trò chơi",
+          "desc": "Mỗi trò chơi có màn giới thiệu và bộ nhận diện riêng, thống nhất từ intro đến lúc chơi, có tạm dừng và ghi điểm cả khi mất mạng."
+        },
+        "offline": {
+          "title": "Chạy được khi offline",
+          "desc": "Cài Hugo Studio thành app độc lập, mở khi không có mạng, nhận thông báo đẩy và tự đồng bộ lại khi mạng trở lại."
+        },
+        "wallet": {
+          "title": "Ví JOY thời gian thực",
+          "desc": "Số dư và thông báo cập nhật ngay qua kết nối trực tiếp, không cần tải lại trang."
+        }
+      },
+      "compareTitle": "So sánh 1.0 và 2.0",
+      "compareHint": "Những gì thay đổi khi hệ thống bước qua mốc phiên bản lớn.",
+      "compareOld": "Phiên bản 1.0",
+      "compareNew": "Phiên bản 2.0",
+      "compareAspect": "Hạng mục",
+      "compare": {
+        "architecture": {
+          "aspect": "Kiến trúc",
+          "old": "Một trang Bio kèm vài tiện ích rời rạc",
+          "new": "Nền tảng nhiều ứng dụng, có kho cài đặt riêng"
+        },
+        "auth": {
+          "aspect": "Đăng nhập",
+          "old": "Tin vào email do trình duyệt gửi lên",
+          "new": "Máy chủ tự xác minh Google, khoá phiên trong cookie an toàn"
+        },
+        "ai": {
+          "aspect": "Tính năng AI",
+          "old": "Mỗi nơi gọi thẳng tới nhà cung cấp",
+          "new": "Một cổng chung: hạn mức, đệm, tự hạ cấp, ngắt khẩn cấp"
+        },
+        "arcade": {
+          "aspect": "Trò chơi",
+          "old": "3 trò chơi dùng chung một giao diện",
+          "new": "8 trò chơi, mỗi trò một bộ nhận diện và có tạm dừng"
+        },
+        "offline": {
+          "aspect": "Ngoại tuyến",
+          "old": "Phải luôn có mạng",
+          "new": "Cài như app, chạy offline, tự đồng bộ điểm sau"
+        },
+        "notify": {
+          "aspect": "Thông báo",
+          "old": "Nhiều kiểu hộp thoại lẫn lộn",
+          "new": "Một hệ thống thông báo dùng chung toàn bộ"
+        }
+      },
+      "semverTitle": "Cách đọc số phiên bản",
+      "semverIntro": "Số phiên bản gồm ba phần, ngăn cách bằng dấu chấm. Mỗi phần tăng lên vì một lý do khác nhau — nhìn vào đó bạn biết ngay bản cập nhật này ảnh hưởng tới mình nhiều hay ít.",
+      "semverMajorName": "LỚN",
+      "semverMinorName": "VỪA",
+      "semverPatchName": "NHỎ",
+      "semver": {
+        "major": {
+          "title": "Số thứ nhất — thay đổi lớn",
+          "desc": "Tăng khi hệ thống thay đổi tới mức bạn cần làm quen lại: bố cục mới, cách dùng mới, hoặc dữ liệu được tổ chức lại.",
+          "example": "1.0.0 → 2.0.0"
+        },
+        "minor": {
+          "title": "Số thứ hai — thêm tính năng",
+          "desc": "Tăng khi có tính năng mới được thêm vào, còn mọi thứ bạn đang dùng vẫn giữ nguyên như cũ.",
+          "example": "2.0.0 → 2.1.0"
+        },
+        "patch": {
+          "title": "Số thứ ba — sửa lỗi",
+          "desc": "Tăng khi chỉ sửa lỗi hoặc tinh chỉnh nhỏ. Không có gì mới để học, chỉ là mọi thứ chạy mượt hơn.",
+          "example": "2.0.0 → 2.0.1"
+        }
+      },
+      "semverNote": "Mỗi ứng dụng trong kho còn có số phiên bản riêng của nó (ví dụ HugoPSY 4.1.0). Con số lớn ở trên là phiên bản của toàn hệ thống, không phải của từng ứng dụng.",
+      "ecosystemTitle": "Hệ sinh thái ứng dụng",
+      "ecosystemHint": "Toàn bộ ứng dụng đang có trong Hugo Studio 2.0.",
+      "mock": {
+        "security": "Lớp xác thực",
+        "store": "Kho ứng dụng",
+        "ai": "Cổng AI",
+        "arcade": "8 trò chơi",
+        "offline": "Hàng đợi đồng bộ",
+        "wallet": "Ví JOY"
+      },
+      "cardsEyebrow": "Bộ thẻ thành viên",
+      "cardsTitle": "Năm tấm thẻ, một hành trình",
+      "cardsLede": "Mỗi người giới thiệu bạn mang về không chỉ là một con số — nó nâng tấm thẻ của bạn lên một bậc, và mỗi bậc mở thêm quà. Thẻ dưới đây là thẻ thật của bạn, đang cập nhật theo thời gian thực.",
+      "cardsSwipeHint": "Vuốt ngang để ướm thông tin của bạn sang màu từng hạng",
+      "cardYoursNow": "Đây là thẻ bạn đang giữ",
+      "cardUnlocked": "Bạn đã mở khoá hạng này",
+      "cardPreviewLocked": "Cần thêm {{count}} người giới thiệu để cầm tấm này",
+      "cardYours": "Thẻ hiện tại của bạn — hạng",
+      "rankReferrals": "{{count}} người đã giới thiệu",
+      "rankNext": "Còn {{count}} người nữa để lên hạng {{tier}}.",
+      "rankMax": "Bạn đang ở hạng cao nhất. Không còn gì để mở khoá nữa — chúc mừng.",
+      "tierNow": "Hạng của bạn",
+      "tierCond": "Giới thiệu {{count}} người",
+      "tierCondBase": "Có ngay khi tạo tài khoản",
+      "cardNoticeTitle": "Thẻ chỉ có giá trị trực tuyến",
+      "cardNoticeBody": "Đây là thẻ số thuộc hệ thống Hugo Studio, dùng để nhận diện hạng thành viên và quyền lợi bên trong hệ thống. Thẻ không phải thẻ vật lý, không phải thẻ ngân hàng hay công cụ thanh toán, và không có giá trị sử dụng bên ngoài Hugo Studio.",
+      "readBonusTitle": "Đọc hết bản nâng cấp",
+      "readBonusDesc": "Bạn đã xem hết những gì thay đổi ở 2.0. Nhận 50 JOY như một lời cảm ơn.",
+      "readBonusLocked": "Cuộn hết trang giới thiệu 2.0 để mở khoá phần thưởng 50 JOY này.",
+      "readBonusButton": "Nhận +50 JOY",
+      "readBonusLockedButton": "Còn khoá — đọc tiếp nhé",
+      "readBonusClaiming": "Đang nhận...",
+      "readBonusClaimed": "Đã nhận 50 JOY",
+      "readBonusSuccess": "Đã nhận +50 JOY. Cảm ơn bạn đã đọc hết!",
+      "readBonusError": "Chưa nhận được phần thưởng, thử lại giúp mình nhé.",
       "bonusTitle": "Quà khám phá",
       "bonusDesc": "Cảm ơn bạn đã ghé Info & Version — nhận ngay một phần JOY nhỏ làm quà.",
       "bonusButton": "Nhận +20 JOY",
@@ -3683,6 +3822,25 @@
       "previous": "Quay lại",
       "continue": "Tiếp tục",
       "nextLesson": "Bài tiếp theo"
+    }
+  },
+  "arcadeGame": {
+    "back": "Quay lại",
+    "loading": "Đang tải...",
+    "joyBalance": "Số dư JOY",
+    "pause": "Tạm dừng",
+    "resume": "Chơi tiếp",
+    "paused": "Đã tạm dừng",
+    "pausedHint": "Ván đấu đang được giữ nguyên. Chưa mất gì cho đến khi bạn thoát.",
+    "quit": "Thoát ván",
+    "changeDifficulty": "Đổi độ khó",
+    "replay": "Chơi lại",
+    "close": "Đóng game",
+    "scoreValue": "{{score}} điểm",
+    "result": {
+      "win": "Chiến thắng",
+      "lose": "Thử lại",
+      "draw": "Hòa"
     }
   },
   "arcadeIntro": {

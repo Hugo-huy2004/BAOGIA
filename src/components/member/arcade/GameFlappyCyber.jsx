@@ -4,7 +4,7 @@ import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
 
-export default function GameFlappyCyber({ difficulty = "medium", onGameOver }) {
+export default function GameFlappyCyber({ difficulty = "medium", paused = false, onGameOver }) {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -58,7 +58,7 @@ export default function GameFlappyCyber({ difficulty = "medium", onGameOver }) {
   // ── Main Canvas Engine Loop ──────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || paused) return;
     const ctx = canvas.getContext("2d");
 
     canvas.width = 340;
@@ -225,10 +225,11 @@ export default function GameFlappyCyber({ difficulty = "medium", onGameOver }) {
 
     rafId = requestAnimationFrame(renderFrame);
     return () => cancelAnimationFrame(rafId);
-  }, [spawnPipe, playBeep, playMove, playWin, playLose, onGameOver]);
+  }, [spawnPipe, playBeep, playMove, playWin, playLose, onGameOver, paused]);
 
   // Keyboard Spacebar / Up Arrow Flap
   useEffect(() => {
+    if (paused) return undefined;
     const onKey = (e) => {
       if (e.key === " " || e.key === "ArrowUp" || e.key === "w") {
         e.preventDefault();
@@ -237,24 +238,14 @@ export default function GameFlappyCyber({ difficulty = "medium", onGameOver }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleFlap]);
+  }, [handleFlap, paused]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-5 bg-[#080a14] text-white rounded-[32px] border border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.2)] max-w-sm mx-auto backdrop-blur-2xl">
-      {/* Header Info */}
-      <div className="flex items-center justify-between w-full mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-purple-500 animate-pulse shadow-[0_0_12px_#a855f7]" />
-          <div>
-            <h2 className="text-base font-black tracking-wider bg-gradient-to-r from-purple-400 to-cyan-300 bg-clip-text text-transparent uppercase font-sans">
-              Flappy Cyber
-            </h2>
-            <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest block">Electromagnetic Flight</span>
-          </div>
-        </div>
-
-        <div className="bg-purple-500/10 border border-purple-500/30 px-3 py-1 rounded-2xl text-right">
-          <span className="text-[8px] font-bold text-purple-300 block uppercase tracking-wider">Cột Đã Vượt</span>
+    <div className="gpanel flex flex-col items-center justify-center p-5 rounded-[32px] max-w-sm mx-auto">
+      {/* Header Info — tên game do shell hiển thị, ở đây chỉ giữ điểm */}
+      <div className="flex items-center justify-end w-full mb-3 px-1">
+        <div className="gchip px-3 py-1 rounded-2xl text-right">
+          <span className="gaccent text-[8px] font-bold block uppercase tracking-wider">Cột Đã Vượt</span>
           <span className="text-lg font-black text-white font-mono">{score}</span>
         </div>
       </div>

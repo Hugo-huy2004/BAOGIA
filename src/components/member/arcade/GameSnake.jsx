@@ -28,7 +28,7 @@ const HEAD_COLOR  = "#ffffff";
 const FOOD_COLOR  = "#f43f5e";
 const BODY_COLORS = ["#22d3ee","#a78bfa","#34d399","#f472b6","#60a5fa","#fb923c"];
 
-export default function GameSnake({ difficulty, onGameOver }) {
+export default function GameSnake({ difficulty, paused = false, onGameOver }) {
   const canvasRef   = useRef(null);
   const containerRef = useRef(null);
   const [countdown, setCountdown] = useState(3);
@@ -48,7 +48,7 @@ export default function GameSnake({ difficulty, onGameOver }) {
 
   // ── RAF game loop ─────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || paused) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx    = canvas.getContext("2d");
@@ -241,11 +241,11 @@ export default function GameSnake({ difficulty, onGameOver }) {
 
     let rafId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafId);
-  }, [playing, difficulty, tickMs, onGameOver]);
+  }, [playing, paused, difficulty, tickMs, onGameOver]);
 
   // ── Keyboard controls ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || paused) return;
     const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
     const onKey = (e) => {
       const dir = map[e.key];
@@ -253,7 +253,7 @@ export default function GameSnake({ difficulty, onGameOver }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [playing]);
+  }, [playing, paused]);
 
   // ── Touch gestures via @use-gesture/react ────────────────────────────────
   const gestureState = useRef({ startX: 0, startY: 0, fired: false });
@@ -300,21 +300,21 @@ export default function GameSnake({ difficulty, onGameOver }) {
         </div>
         <div className="text-center">
           <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Mục tiêu</p>
-          <p className="text-xl font-black text-cyan-400 tabular-nums leading-tight">{GOALS[difficulty]}</p>
+          <p className="gaccent text-xl font-black tabular-nums leading-tight">{GOALS[difficulty]}</p>
         </div>
       </div>
 
       {/* Canvas */}
       <div
         ref={containerRef}
-        className="relative w-full aspect-square bg-[#080a12] rounded-2xl overflow-hidden shadow-2xl border border-white/10 touch-none"
+        className="gpanel relative w-full aspect-square rounded-2xl overflow-hidden touch-none"
         {...(playing ? bind() : {})}
       >
         {!playing && countdown > 0 && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-10">
             <span
               className="text-white text-7xl font-black"
-              style={{ textShadow: "0 0 40px #22d3ee, 0 0 80px #22d3ee" }}
+              style={{ textShadow: "0 0 40px var(--intro-accent), 0 0 80px var(--intro-accent)" }}
             >
               {countdown}
             </span>

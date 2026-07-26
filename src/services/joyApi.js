@@ -144,3 +144,15 @@ export async function claimInfoBonus(email) {
   });
   return parseOrThrow(res);
 }
+
+// Thưởng riêng khi đọc hết ghi chú nâng cấp 2.0 — máy chủ mới là nơi chốt
+// một-lần-duy-nhất, phía client chỉ mở khoá nút bấm.
+export async function claimInfoReadBonus(email) {
+  const res = await fetch(`${getApiUrl()}/joy/claim-info-read-bonus`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+    credentials: "include"
+  });
+  return parseOrThrow(res);
+}

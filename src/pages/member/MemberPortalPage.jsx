@@ -23,6 +23,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { memberBootstrapKey, useMemberBootstrap } from "../../hooks/useMemberBootstrap";
 import DesktopAppleLayout from "../../components/desktop/DesktopAppleLayout";
 import AuraBackground from "../../components/member/portal/AuraBackground";
+import VersionAnnouncement from "../../components/member/portal/VersionAnnouncement";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
@@ -808,10 +809,14 @@ function MemberPortalPage() {
               ) : (
                 <>
                   {activeTab === "today" && (
-                    <MemberTodayTab
-                      bio={bio}
-                      onNavigate={navigate}
-                    />
+                    <>
+                      {/* Quảng cáo bản 2.0 — tự im sau 10/08/2026 */}
+                      <VersionAnnouncement />
+                      <MemberTodayTab
+                        bio={bio}
+                        onNavigate={navigate}
+                      />
+                    </>
                   )}
                   {activeTab === "joy" && (
                     <div>
