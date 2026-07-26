@@ -40,19 +40,12 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         importScripts: ['/push-sw.js'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/ws\//],
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
-        // Don't precache member/admin-only route chunks (~2.5MB): public
-        // visitors never need them, and logged-in users fetch them on
-        // navigation like a normal SPA (browser HTTP cache still applies).
-        // Offline members only lose tabs they've never opened.
-        globIgnores: [
-          '**/Admin*', '**/Member*', '**/Banhocduong*', '**/Therapy*',
-          '**/Chess*', '**/Deco*', '**/HugoArcade*', '**/PartnerBio*',
-          '**/decoAssets*', '**/gestures*',
-        ],
+        globIgnores: ['**/Admin*'],
         runtimeCaching: [
-          // Arcade leaderboard — StaleWhileRevalidate so UI shows instantly
-          // from cache while fresh data loads in background (matches 8s poll interval)
+          // Arcade leaderboard — StaleWhileRevalidate for instant UI render
           {
             urlPattern: /\/api\/arcade\/leaderboard/,
             handler: 'StaleWhileRevalidate',
@@ -61,24 +54,27 @@ export default defineConfig({
               expiration: { maxEntries: 20, maxAgeSeconds: 30 },
             },
           },
-          // Arcade profile — NetworkFirst with short TTL so JOY/scores stay fresh
+          // Eager Bootstrap & User APIs — NetworkFirst with 1.5s FAST TIMEOUT (Instant fallback to local cache if network hangs)
           {
-            urlPattern: /\/api\/arcade\/profile/,
+            urlPattern: /\/api\/bios\/me/,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'arcade-profile',
-              expiration: { maxEntries: 10, maxAgeSeconds: 120 },
+              cacheName: 'user-bootstrap-cache',
+              networkTimeoutSeconds: 1.5,
+              expiration: { maxEntries: 20, maxAgeSeconds: 600 },
             },
           },
+          // Generic API Cache — NetworkFirst with 2.0s FAST TIMEOUT
           {
-            urlPattern: /^https:\/\/api\.hugowishpax\.studio\/api\//,
+            urlPattern: /\/api\//,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 },
+              networkTimeoutSeconds: 2.0,
+              expiration: { maxEntries: 100, maxAgeSeconds: 300 },
             },
           },
-          // Cache Google Fonts stylesheets (Plus Jakarta Sans, Quicksand)
+          // Cache Google Fonts stylesheets
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com/,
             handler: 'StaleWhileRevalidate',
@@ -86,25 +82,25 @@ export default defineConfig({
               cacheName: 'google-fonts-stylesheets',
             },
           },
-          // Cache Google Fonts web font files (woff2) and Material Symbols font files
+          // Cache Google Fonts web font files
           {
             urlPattern: /^https:\/\/fonts\.gstatic\.com/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'google-fonts-webfonts',
               expiration: {
-                maxEntries: 30,
+                maxEntries: 40,
                 maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
               },
             },
           },
-          // Cache Sub-Utility JS Chunks (HugoPSY, HugoSkin, HugoCoder, Chess) for 0ms offline launch
+          // Cache All JS & CSS Chunks (Member, Banhocduong, Therapy, etc.) for instant offline/online launch
           {
-            urlPattern: /\/assets\/.*(Member|Banhocduong|Therapy|Chess|HugoArcade|HugoSkin).*\.js$/,
+            urlPattern: /\/assets\/.*\.(js|css)$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'sub-utility-chunks',
-              expiration: { maxEntries: 40, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheName: 'app-assets-chunks',
+              expiration: { maxEntries: 120, maxAgeSeconds: 30 * 24 * 60 * 60 },
             },
           },
         ],
