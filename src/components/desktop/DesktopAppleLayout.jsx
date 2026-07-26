@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import NotificationBell from "../member/portal/NotificationBell";
 import { useJoyStore } from "../../stores/joyStore";
+import { prefetchChunk } from "../../utils/chunkPrefetcher";
 
 // Sidebar navigation — grouped like Apple System Settings (colorful icon tile
 // + label). Paths drive react-router; ids drive active-state highlighting.
@@ -129,6 +130,7 @@ export default function DesktopAppleLayout({
                   <button
                     key={item.id}
                     onClick={() => navigate(item.path)}
+                    onMouseEnter={() => prefetchChunk(item.id)}
                     title={sidebarCollapsed ? item.label : undefined}
                     className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-medium transition-colors ${
                       active

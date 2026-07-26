@@ -141,6 +141,25 @@ function MemberPortalPage() {
   const accountSubTab = subTab || "profile";
   const mobileSubSection = subTab || null;
 
+  // 🚀 Proactive Idle Background Prefetching of All Core Member Chunks (0ms tab switching)
+  useEffect(() => {
+    const prefetchIdle = () => {
+      import("../../components/member/MemberUtilitiesTab");
+      import("../../components/member/MemberJoyTab");
+      import("../../components/member/MemberPartnerTab");
+      import("../../components/member/MemberHistoryTab");
+      import("../../components/member/MemberSettingsTab");
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(prefetchIdle, { timeout: 1500 });
+      return () => window.cancelIdleCallback?.(idleId);
+    } else {
+      const timer = setTimeout(prefetchIdle, 400);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   // Lazy tabs (joy/partner/utilities/history/settings) used to fully unmount
   // whenever you left them — every revisit re-triggered the lazy chunk load,
   // every internal useEffect fetch, and a full re-render from scratch, which
