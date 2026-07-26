@@ -73,7 +73,10 @@ export async function resolveCoords({ preferGeo = false, timeoutMs = 8000 } = {}
       });
       return { lat: pos.coords.latitude, lon: pos.coords.longitude, city: "", source: "gps" };
     } catch {
-      /* fall through to IP */
+      // The authenticated Portal already asks for location explicitly. If the
+      // user denies it, use the stable fallback instead of silently calling a
+      // third-party IP service that can leak network metadata or return 429.
+      return { ...DEFAULT_COORDS, source: "default" };
     }
   }
   // ipwho.is is a free service with a strict per-IP rate limit, and an IP's

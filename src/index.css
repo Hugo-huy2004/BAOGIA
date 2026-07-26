@@ -1491,6 +1491,20 @@ html.standalone-pwa .member-portal-shell {
   padding-right: env(safe-area-inset-right, 0px);
 }
 
+.member-portal-shell {
+  /*
+   * Some embedded WebViews report a stale keyboard/viewport value through
+   * safe-area-inset-bottom. A real iPhone home-indicator inset is at most
+   * 34px in portrait, so clamp the value before it can inflate the tab bar.
+   */
+  --portal-safe-bottom: 0px;
+  --portal-safe-left: 0px;
+  --portal-safe-right: 0px;
+  --portal-safe-bottom: min(34px, max(0px, env(safe-area-inset-bottom, 0px)));
+  --portal-safe-left: min(44px, max(0px, env(safe-area-inset-left, 0px)));
+  --portal-safe-right: min(44px, max(0px, env(safe-area-inset-right, 0px)));
+}
+
 html.standalone-pwa .desktop-apple-layout {
   height: calc(100dvh - env(safe-area-inset-top, 0px));
   min-height: calc(100dvh - env(safe-area-inset-top, 0px));
@@ -1499,7 +1513,19 @@ html.standalone-pwa .desktop-apple-layout {
 .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
-  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: calc(74px + var(--portal-safe-bottom, 0px)) !important;
+}
+
+.mobile-portal-tabbar {
+  box-sizing: border-box;
+  height: calc(66px + var(--portal-safe-bottom, 0px));
+  min-height: 66px;
+  max-height: 100px;
+  overflow: hidden;
+  padding-top: 10px;
+  padding-right: var(--portal-safe-right, 0px);
+  padding-bottom: calc(8px + var(--portal-safe-bottom, 0px));
+  padding-left: var(--portal-safe-left, 0px);
 }
 
 /* In standalone mode body padding is intentionally zero because the fixed

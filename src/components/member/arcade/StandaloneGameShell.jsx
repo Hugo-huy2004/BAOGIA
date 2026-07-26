@@ -1,10 +1,11 @@
 import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
 import GAME_THEMES from "./gameThemes";
-import { DIFFICULTIES, HOW_TO_PLAY } from "./arcadeConstants";
+import { DIFFICULTIES } from "./arcadeConstants";
 import { submitScore } from "../../../services/arcadeApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
+import GameIntroScreen from "./GameIntroScreen";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {
@@ -16,13 +17,6 @@ const GAME_COMPONENTS = {
   caro:      React.lazy(() => import("./GameCaro")),
   wordguess: React.lazy(() => import("./GameWordGuess")),
   snake:     React.lazy(() => import("./GameSnake")),
-};
-
-// ─── Difficulty card colors ────────────────────────────────────────
-const DIFF_COLORS = {
-  easy:   { bg: "rgba(16,185,129,0.12)", border: "rgba(16,185,129,0.35)", text: "#34d399", glow: "0 6px 20px rgba(16,185,129,0.2)" },
-  medium: { bg: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.35)", text: "#fbbf24", glow: "0 6px 20px rgba(245,158,11,0.2)" },
-  hard:   { bg: "rgba(244,63,94,0.12)",  border: "rgba(244,63,94,0.35)",  text: "#fb7185", glow: "0 6px 20px rgba(244,63,94,0.2)" },
 };
 
 // ─── Result config ─────────────────────────────────────────────────
@@ -46,7 +40,7 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
   const GameComp = GAME_COMPONENTS[gameId];
   const sound = useArcadeSound();
 
-  const [stage, setStage] = useState("select"); // select | playing | result
+  const [stage, setStage] = useState("intro"); // intro | playing | result
   const [difficulty, setDifficulty] = useState(null);
   const [resultData, setResultData] = useState(null);
   const [playKey, setPlayKey] = useState(0);
@@ -100,7 +94,7 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
     sound.playBeep();
     setDifficulty(null);
     setResultData(null);
-    setStage("select");
+    setStage("intro");
   }, [sound]);
 
   const handleClose = useCallback(() => {
@@ -114,8 +108,6 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
 
   if (!GameComp) return null;
 
-  const objectives = HOW_TO_PLAY[gameId]?.objective || {};
-
   return createPortal(
     <div style={{
       position: "fixed", inset: 0, zIndex: 9999,
@@ -126,164 +118,78 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
     }}>
       <style>{css}</style>
 
-      {/* ── Ambient background particles ── */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        {Array.from({ length: 18 }).map((_, i) => (
-          <div key={i} style={{
-            position: "absolute",
-            left: `${(i * 37) % 100}%`,
-            top: `${(i * 53) % 100}%`,
-            width: 2, height: 2, borderRadius: "50%",
-            background: theme.accent,
-            opacity: 0.15 + (i % 3) * 0.1,
-            animation: `agsPulse ${2.5 + (i % 4)}s ease-in-out ${(i % 5) * 0.5}s infinite`,
-          }} />
-        ))}
-      </div>
+      {stage !== "intro" && (
+        <>
+          {/* ── Ambient background particles ── */}
+          <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+            {Array.from({ length: 18 }).map((_, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                left: `${(i * 37) % 100}%`,
+                top: `${(i * 53) % 100}%`,
+                width: 2, height: 2, borderRadius: "50%",
+                background: theme.accent,
+                opacity: 0.15 + (i % 3) * 0.1,
+                animation: `agsPulse ${2.5 + (i % 4)}s ease-in-out ${(i % 5) * 0.5}s infinite`,
+              }} />
+            ))}
+          </div>
 
-      {/* ── Status bar (top accent line) ── */}
-      <div style={{ height: 3, background: theme.statusBar, flexShrink: 0, position: "relative", zIndex: 2 }} />
+          {/* ── Status bar (top accent line) ── */}
+          <div style={{ height: 3, background: theme.statusBar, flexShrink: 0, position: "relative", zIndex: 2 }} />
 
-      {/* ── Header ── */}
-      <div style={{
-        display: "flex", alignItems: "center", gap: 10,
-        padding: "10px 16px",
-        background: theme.headerBg,
-        borderBottom: `1px solid ${theme.accent}22`,
-        flexShrink: 0,
-        position: "relative", zIndex: 2,
-        backdropFilter: "blur(12px)",
-      }}>
-        <button onClick={handleClose} style={{
-          width: 32, height: 32, borderRadius: "50%",
-          background: "rgba(255,255,255,0.08)", border: "none",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer", color: "#fff", flexShrink: 0,
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
-        </button>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: "#fff", letterSpacing: "-.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {theme.name}
-          </p>
-          {difficulty && (
-            <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: theme.accent, letterSpacing: ".1em", textTransform: "uppercase" }}>
-              {DIFFICULTIES.find(d => d.id === difficulty)?.label || difficulty}
-            </p>
-          )}
-        </div>
-        {bio && (
+          {/* ── Header ── */}
           <div style={{
-            display: "flex", alignItems: "center", gap: 4,
-            padding: "4px 10px", borderRadius: 999,
-            background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)",
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "10px 16px",
+            background: theme.headerBg,
+            borderBottom: `1px solid ${theme.accent}22`,
+            flexShrink: 0,
+            position: "relative", zIndex: 2,
+            backdropFilter: "blur(12px)",
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 13, color: "#fbbf24", fontVariationSettings: "'FILL' 1" }}>toll</span>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", fontVariantNumeric: "tabular-nums" }}>
-              {(bio.joyBalance ?? 0).toLocaleString("vi-VN")}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* ── Stage: Select Difficulty ── */}
-      {stage === "select" && (
-        <div style={{
-          flex: 1, overflow: "auto",
-          display: "flex", flexDirection: "column", alignItems: "center",
-          padding: "24px 20px 40px",
-          position: "relative", zIndex: 1,
-        }}>
-          {/* Game icon */}
-          <div style={{
-            width: 72, height: 72, borderRadius: 20,
-            background: `${theme.accent}18`,
-            border: `1.5px solid ${theme.accent}40`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            marginBottom: 16,
-            boxShadow: `0 8px 30px ${theme.accentGlow}`,
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 36, color: theme.accent, fontVariationSettings: "'FILL' 1" }}>
-              {theme.icon}
-            </span>
-          </div>
-
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: "#fff", textAlign: "center" }}>
-            Chọn Độ Khó
-          </h2>
-          <p style={{ margin: "6px 0 20px", fontSize: 12, color: "rgba(255,255,255,0.5)", textAlign: "center", maxWidth: 300 }}>
-            {HOW_TO_PLAY[gameId]?.rule || "Chọn độ khó để bắt đầu chơi."}
-          </p>
-
-          {/* Difficulty cards */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, width: "100%", maxWidth: 400 }}>
-            {DIFFICULTIES.map((d) => {
-              const dc = DIFF_COLORS[d.id];
-              const locked = d.id !== "easy" && !bio?.featureSubscriptions?.hugoArcade?.active;
-              return (
-                <button
-                  key={d.id}
-                  onClick={() => !locked && handleSelectDifficulty(d.id)}
-                  style={{
-                    width: "100%", padding: "14px 16px", borderRadius: 16,
-                    background: locked ? "rgba(255,255,255,0.03)" : dc.bg,
-                    border: `1.5px solid ${locked ? "rgba(255,255,255,0.08)" : dc.border}`,
-                    cursor: locked ? "not-allowed" : "pointer",
-                    display: "flex", alignItems: "center", gap: 14,
-                    textAlign: "left",
-                    boxShadow: locked ? "none" : dc.glow,
-                    opacity: locked ? 0.5 : 1,
-                    transition: "transform .15s, box-shadow .15s",
-                  }}
-                >
-                  <div style={{
-                    width: 44, height: 44, borderRadius: 12,
-                    background: locked ? "rgba(255,255,255,0.05)" : `${dc.text}20`,
-                    border: `1px solid ${locked ? "rgba(255,255,255,0.1)" : `${dc.text}40`}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
-                  }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 22, color: locked ? "#666" : dc.text }}>
-                      {locked ? "lock" : d.id === "easy" ? "bolt" : d.id === "medium" ? "local_fire_department" : "military_tech"}
-                    </span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: "#fff" }}>{d.label}</span>
-                      {d.id === "medium" && !locked && (
-                        <span style={{ fontSize: 8, fontWeight: 800, color: "#fbbf24", background: "rgba(251,191,36,0.15)", padding: "2px 6px", borderRadius: 999, textTransform: "uppercase", letterSpacing: ".08em" }}>Đề xuất</span>
-                      )}
-                      {locked && (
-                        <span style={{ fontSize: 8, fontWeight: 800, color: "#fb7185", background: "rgba(244,63,94,0.15)", padding: "2px 6px", borderRadius: 999, textTransform: "uppercase", letterSpacing: ".08em" }}>Cần Pro</span>
-                      )}
-                    </div>
-                    <p style={{ margin: "2px 0 0", fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
-                      {objectives[d.id] || d.description}
-                    </p>
-                  </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: locked ? "#555" : dc.text, fontVariantNumeric: "tabular-nums" }}>
-                      {locked ? "???" : `+${d.win}`}
-                    </span>
-                    <span style={{ display: "block", fontSize: 8, color: "rgba(255,255,255,0.35)", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>JOY</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Pro upsell */}
-          {!bio?.featureSubscriptions?.hugoArcade?.active && (
-            <div style={{
-              marginTop: 16, padding: "10px 14px", borderRadius: 12,
-              background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)",
-              display: "flex", alignItems: "center", gap: 8, width: "100%", maxWidth: 400,
+            <button onClick={handleClose} style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "rgba(255,255,255,0.08)", border: "none",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", color: "#fff", flexShrink: 0,
             }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#fbbf24" }}>workspace_premium</span>
-              <span style={{ fontSize: 11, color: "rgba(251,191,36,0.8)", flex: 1 }}>Mở khóa Bứt Phá &amp; Huyền Thoại</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
+            </button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: "#fff", letterSpacing: "-.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {theme.name}
+              </p>
+              {difficulty && (
+                <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: theme.accent, letterSpacing: ".1em", textTransform: "uppercase" }}>
+                  {DIFFICULTIES.find(d => d.id === difficulty)?.label || difficulty}
+                </p>
+              )}
             </div>
-          )}
-        </div>
+            {bio && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 4,
+                padding: "4px 10px", borderRadius: 999,
+                background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.2)",
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 13, color: "#fbbf24", fontVariationSettings: "'FILL' 1" }}>toll</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", fontVariantNumeric: "tabular-nums" }}>
+                  {(bio.joyBalance ?? 0).toLocaleString("vi-VN")}
+                </span>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ── Stage: Per-game introduction ── */}
+      {stage === "intro" && (
+        <GameIntroScreen
+          gameId={gameId}
+          isProActive={Boolean(bio?.featureSubscriptions?.hugoArcade?.active)}
+          onSelectDifficulty={handleSelectDifficulty}
+          onClose={onClose}
+        />
       )}
 
       {/* ── Stage: Playing ── */}

@@ -214,10 +214,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Long press refs
   const longPressTimerRef = useRef(null);
   const isLongPressTriggered = useRef(false);
+  const appGestureRef = useRef(null);
   const legacyArcadeSyncRef = useRef(false);
-
-  // Refresh key: increment this to force myAppsList to re-read from localStorage
-  const [refreshKey, setRefreshKey] = useState(0);
 
   // Sync state with prop if bio updates asynchronously
   useEffect(() => {
@@ -304,12 +302,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   // ── CRITICAL: Re-sync from localStorage when Dashboard becomes visible ──────────
   // This fires every time user navigates back from Arcade / any sub-utility.
-  // Incrementing refreshKey forces myAppsList to re-read fresh from localStorage.
   useEffect(() => {
     if (!isVisible) return;
-    // 1. Bump refresh key → myAppsList will recompute from localStorage
-    setRefreshKey(k => k + 1);
-    // 2. Also update React state so other derived state stays consistent
+    // Update React state from all offline sources when returning from an app.
     const downloadedGames = readDownloadedGameAppIds();
     const diskHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
     const diskInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
@@ -753,11 +748,43 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   };
 
-  // Touch and hold triggers customizer
-  const handleAppTouchStart = (app) => {
+  useEffect(() => () => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+    }
+  }, []);
+
+  const cancelAppGesture = () => {
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    if (appGestureRef.current) {
+      appGestureRef.current.cancelled = true;
+    }
+  };
+
+  // A tap opens an app. Moving the pointer turns the gesture into native scrolling.
+  const handleAppTouchStart = (app, event) => {
+    if (event?.isPrimary === false) return;
+
+    const startedOnControl = event?.target?.closest?.(
+      "button, a, input, textarea, select, [role='button']"
+    );
+
     isLongPressTriggered.current = false;
-    // Store timer globally to allow modular components to clear it easily onMouseLeave
-    window.longPressTimer = setTimeout(() => {
+    appGestureRef.current = {
+      appId: app.id,
+      pointerId: event?.pointerId,
+      startX: event?.clientX ?? 0,
+      startY: event?.clientY ?? 0,
+      cancelled: Boolean(startedOnControl && startedOnControl !== event?.currentTarget),
+    };
+
+    if (appGestureRef.current.cancelled) return;
+
+    longPressTimerRef.current = window.setTimeout(() => {
+      if (appGestureRef.current?.cancelled) return;
       isLongPressTriggered.current = true;
       setEditingApp(app);
       try {
@@ -770,11 +797,47 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }, 550);
   };
 
+  const handleAppTouchMove = (event) => {
+    const gesture = appGestureRef.current;
+    if (!gesture || gesture.pointerId !== event?.pointerId) return;
+
+    const distance = Math.hypot(
+      (event?.clientX ?? gesture.startX) - gesture.startX,
+      (event?.clientY ?? gesture.startY) - gesture.startY
+    );
+    if (distance > 10) cancelAppGesture();
+  };
+
+  const handleAppTouchCancel = () => {
+    cancelAppGesture();
+    appGestureRef.current = null;
+  };
+
   const [activeArcadeGame, setActiveArcadeGame] = useState(null);
 
-  const handleAppTouchEnd = (app, e) => {
-    clearTimeout(window.longPressTimer);
-    if (!isLongPressTriggered.current) {
+  const handleAppTouchEnd = (app, event) => {
+    const gesture = appGestureRef.current;
+    if (longPressTimerRef.current) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
+    const distance = gesture
+      ? Math.hypot(
+          (event?.clientX ?? gesture.startX) - gesture.startX,
+          (event?.clientY ?? gesture.startY) - gesture.startY
+        )
+      : Number.POSITIVE_INFINITY;
+    const isTap = Boolean(
+      gesture
+      && gesture.appId === app.id
+      && gesture.pointerId === event?.pointerId
+      && !gesture.cancelled
+      && distance <= 10
+    );
+    appGestureRef.current = null;
+
+    if (isTap && !isLongPressTriggered.current) {
       if (isEditMode) {
         setEditingApp(app);
         return;
@@ -830,7 +893,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   const myAppsList = useMemo(() => {
     // Read directly from localStorage so any installs (even from other components) show immediately.
-    // refreshKey and state vars are both deps so this recomputes whenever either changes.
     const downloadedGames = readDownloadedGameAppIds();
     const liveHome = [...readStoredList(HOME_SCREEN_APPS_KEY), ...downloadedGames];
     const liveInst = [...readStoredList(INSTALLED_APPS_KEY), ...downloadedGames];
@@ -842,7 +904,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     );
     const utilityById = new Map(allUtilities.map((utility) => [utility.id, utility]));
     return effectiveHome.map((appId) => utilityById.get(appId)).filter(Boolean);
-  }, [allUtilities, installedApps, homeScreenApps, refreshKey]);
+  }, [allUtilities, installedApps, homeScreenApps]);
 
   const libraryAppsList = useMemo(() => {
     return allUtilities.filter((util) => {
@@ -906,13 +968,14 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             <div className="space-y-8">
               {/* SECTION A: PREMIUM WIDGETS DASHBOARD Component */}
               <WidgetRenderer
-                bio={bio}
                 myWidgets={myWidgets}
                 utilitySizes={utilitySizes}
                 isEditMode={isEditMode}
                 handleDragStart={handleDragStart}
                 handleDrop={handleDrop}
                 handleAppTouchStart={handleAppTouchStart}
+                handleAppTouchMove={handleAppTouchMove}
+                handleAppTouchCancel={handleAppTouchCancel}
                 handleAppTouchEnd={handleAppTouchEnd}
                 isAuraActive={isAuraActive}
                 handleToggleAura={handleToggleAura}
@@ -934,6 +997,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 handleDragStart={handleDragStart}
                 handleDrop={handleDrop}
                 handleAppTouchStart={handleAppTouchStart}
+                handleAppTouchMove={handleAppTouchMove}
+                handleAppTouchCancel={handleAppTouchCancel}
                 handleAppTouchEnd={handleAppTouchEnd}
                 gradients={GRADIENTS}
                 onAppHover={prefetchUtility}

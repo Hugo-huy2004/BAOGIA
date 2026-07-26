@@ -3685,6 +3685,70 @@
       "nextLesson": "Bài tiếp theo"
     }
   },
+  "arcadeIntro": {
+    "close": "Quay lại Apps",
+    "chooseMode": "Chọn chế độ",
+    "tapToPlay": "Chạm để chơi ngay",
+    "proRequired": "Cần Pro",
+    "difficulty": {
+      "easy": "Khởi động",
+      "medium": "Bứt phá",
+      "hard": "Huyền thoại"
+    },
+    "board": "Bàn chơi",
+    "reward": "Phần thưởng",
+    "mode": "Chế độ",
+    "games": {
+      "chess": {
+        "eyebrow": "Cờ vua chiến thuật",
+        "title": "Một nước đi. Muôn khả năng.",
+        "description": "Đấu trí trong không gian cờ tối giản, nơi từng nước đi đều được phân tích bởi đối thủ AI.",
+        "hint": "Quan sát thế trận, bảo vệ vua và biến lợi thế nhỏ thành chiến thắng."
+      },
+      "survivor": {
+        "eyebrow": "Tín hiệu từ không gian",
+        "title": "Sống sót giữa những vì sao.",
+        "description": "Điều khiển phi thuyền qua vùng thiên thạch vô tận và giữ tín hiệu sống càng lâu càng tốt.",
+        "hint": "Di chuyển có nhịp, đọc quỹ đạo và đừng để năng lượng bị bao vây."
+      },
+      "flappy": {
+        "eyebrow": "Một chạm, một nhịp",
+        "title": "Bay qua thành phố cyber.",
+        "description": "Một trò chơi phản xạ gọn nhẹ với bầu trời trong trẻo, cổng năng lượng và nhịp bay chính xác.",
+        "hint": "Chạm ngắn để giữ độ cao; đừng bấm liên tục khi đang rơi."
+      },
+      "tetris": {
+        "eyebrow": "Phòng xếp hình neon",
+        "title": "Dọn hàng. Giữ nhịp. Bứt tốc.",
+        "description": "Sắp những khối sáng vào đúng vị trí trước khi tháp chạm đỉnh.",
+        "hint": "Giữ mặt sàn phẳng và dành khoảng trống cho khối thẳng."
+      },
+      "2048": {
+        "eyebrow": "Phòng thí nghiệm con số",
+        "title": "Ghép nhỏ. Nghĩ lớn.",
+        "description": "Trượt các ô màu pastel, tạo chuỗi hợp nhất và đưa bàn chơi chạm đến 2048.",
+        "hint": "Giữ ô lớn nhất ở một góc và xây chuỗi số quanh nó."
+      },
+      "caro": {
+        "eyebrow": "Đấu trí năm quân",
+        "title": "Năm dấu. Một đường thắng.",
+        "description": "Một bàn cờ giấy hiện đại, nơi bạn đối đầu AI bằng những nước X và O có chủ đích.",
+        "hint": "Tạo hai hướng tấn công đồng thời để buộc AI phải lựa chọn."
+      },
+      "wordguess": {
+        "eyebrow": "Sổ tay giải mã",
+        "title": "Mỗi chữ cái là một manh mối.",
+        "description": "Mở cuốn sổ từ vựng, thử các từ thông minh và giải mã đáp án trong sáu lượt.",
+        "hint": "Bắt đầu bằng từ có nhiều nguyên âm và không lặp chữ."
+      },
+      "snake": {
+        "eyebrow": "Khu vườn đồ chơi",
+        "title": "Lớn dần, đừng chạm đuôi.",
+        "description": "Phiên bản Snake mềm mại, vui mắt với đường chạy ngắn, trái ngọt và nhịp chơi thư giãn.",
+        "hint": "Chừa một lối thoát quanh mép bàn trước khi thân rắn dài hơn."
+      }
+    }
+  },
   "studentBenefitsPage": {
     "metaTitle": "Bio Của Riêng Bạn — Miễn Phí 12 Tháng | Hugo Studio",
     "metaDesc": "Tôi tặng bạn một trang Bio đẹp, riêng biệt, không quảng cáo — miễn phí 12 tháng. Chỉ cần email giáo dục. Đó là lửa của bạn, hãy thắp sáng nó.",

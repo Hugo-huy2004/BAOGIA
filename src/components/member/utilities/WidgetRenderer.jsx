@@ -1,15 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import HugoZenlyMasterWidget from "./HugoZenlyMasterWidget";
 
 export default function WidgetRenderer({
-  bio,
   myWidgets,
   utilitySizes,
   isEditMode,
   handleDragStart,
   handleDrop,
   handleAppTouchStart,
+  handleAppTouchMove,
+  handleAppTouchCancel,
   handleAppTouchEnd,
   isAuraActive,
   handleToggleAura,
@@ -52,9 +52,6 @@ export default function WidgetRenderer({
 
   return (
     <div className="space-y-4 text-left">
-      {/* 🎨 PURE ZENLY STYLE MASTER WIDGET */}
-      <HugoZenlyMasterWidget bio={bio} />
-
       {myWidgets.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
         {myWidgets.map((app, index) => {
@@ -63,11 +60,14 @@ export default function WidgetRenderer({
 
           const touchProps = {
             onMouseEnter: () => onAppHover?.(app.id),
-            onMouseDown: () => handleAppTouchStart(app),
-            onMouseUp: (e) => handleAppTouchEnd(app, e),
-            onMouseLeave: () => clearTimeout(window.longPressTimer),
-            onTouchStart: () => handleAppTouchStart(app),
-            onTouchEnd: (e) => handleAppTouchEnd(app, e),
+            onPointerDown: (event) => handleAppTouchStart(app, event),
+            onPointerMove: handleAppTouchMove,
+            onPointerUp: (event) => handleAppTouchEnd(app, event),
+            onPointerCancel: handleAppTouchCancel,
+            onPointerLeave: (event) => {
+              if (event.pointerType === "mouse") handleAppTouchCancel();
+            },
+            style: { touchAction: "pan-y" },
             draggable: isEditMode,
             onDragStart: (e) => handleDragStart(e, index, "widget"),
             onDragOver: (e) => e.preventDefault(),

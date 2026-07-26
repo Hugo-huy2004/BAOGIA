@@ -772,7 +772,7 @@ function MemberPortalPage() {
         data-portal-area={portalArea}
       >
         <AuraBackground theme={bio?.activeAuraTheme || 'default'} area={portalArea} />
-        {weatherOn && <WeatherLayer zIndex={-1} opacity={0.25} />}
+        {weatherOn && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
 
         {/* ── 💻 DESKTOP APPLE WORKSPACE (hidden md:block) ────────────────── */}
         {!isMobileView && (
@@ -1056,13 +1056,7 @@ function MemberPortalPage() {
       {isMobileView && bio?.status !== 'pending' && !isKeyboardVisible && (
         <div
           id="mobile-bottom-tab-bar"
-          className={`fixed bottom-0 left-0 right-0 z-[100] border-t border-border/40 bg-background/90 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-2xl dark:bg-[#0c0b11]/90 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
-          style={{
-            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)",
-            paddingLeft: "env(safe-area-inset-left, 0px)",
-            paddingRight: "env(safe-area-inset-right, 0px)",
-            paddingTop: "10px",
-          }}
+          className={`mobile-portal-tabbar fixed bottom-0 left-0 right-0 z-[100] border-t border-border/40 bg-background/90 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-2xl dark:bg-[#0c0b11]/90 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
         >
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {

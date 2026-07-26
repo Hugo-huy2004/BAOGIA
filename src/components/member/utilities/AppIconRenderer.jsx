@@ -7,6 +7,8 @@ export default function AppIconRenderer({
   handleDragStart,
   handleDrop,
   handleAppTouchStart,
+  handleAppTouchMove,
+  handleAppTouchCancel,
   handleAppTouchEnd,
   gradients,
   onAppHover
@@ -25,14 +27,16 @@ export default function AppIconRenderer({
               prefetchChunk(app.id);
               onAppHover?.(app.id);
             },
-            onMouseDown: () => handleAppTouchStart(app),
-            onMouseUp: (e) => handleAppTouchEnd(app, e),
-            onMouseLeave: () => clearTimeout(window.longPressTimer),
-            onTouchStart: () => {
+            onPointerDown: (event) => {
               prefetchChunk(app.id);
-              handleAppTouchStart(app);
+              handleAppTouchStart(app, event);
             },
-            onTouchEnd: (e) => handleAppTouchEnd(app, e),
+            onPointerMove: handleAppTouchMove,
+            onPointerUp: (event) => handleAppTouchEnd(app, event),
+            onPointerCancel: handleAppTouchCancel,
+            onPointerLeave: (event) => {
+              if (event.pointerType === "mouse") handleAppTouchCancel();
+            },
             draggable: isEditMode,
             onDragStart: (e) => handleDragStart(e, index, "icon"),
             onDragOver: (e) => e.preventDefault(),
@@ -43,7 +47,7 @@ export default function AppIconRenderer({
             <div
               key={app.id}
               {...touchProps}
-              className={`relative group flex flex-col items-center p-1 rounded-[24px] cursor-pointer transition-transform duration-300 hover:-translate-y-1.5 active:scale-95 w-full max-w-[84px] ${
+              className={`relative group flex flex-col items-center p-1 rounded-[24px] cursor-pointer touch-pan-y select-none transition-transform duration-300 hover:-translate-y-1.5 active:scale-95 w-full max-w-[84px] ${
                 isEditMode ? "border border-dashed border-primary/45 bg-primary/5 animate-pulse" : ""
               }`}
             >

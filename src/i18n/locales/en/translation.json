@@ -3690,6 +3690,70 @@
       "nextLesson": "Next lesson"
     }
   },
+  "arcadeIntro": {
+    "close": "Back to Apps",
+    "chooseMode": "Choose mode",
+    "tapToPlay": "Tap to play now",
+    "proRequired": "Pro required",
+    "difficulty": {
+      "easy": "Warm-up",
+      "medium": "Breakthrough",
+      "hard": "Legend"
+    },
+    "board": "Board",
+    "reward": "Reward",
+    "mode": "Mode",
+    "games": {
+      "chess": {
+        "eyebrow": "Tactical chess",
+        "title": "One move. Endless possibilities.",
+        "description": "Think ahead in a minimal chess room where every move is studied by an AI opponent.",
+        "hint": "Read the position, protect your king, and turn a small edge into a win."
+      },
+      "survivor": {
+        "eyebrow": "Signal from space",
+        "title": "Survive among the stars.",
+        "description": "Guide your ship through an endless asteroid field and keep its signal alive.",
+        "hint": "Move with rhythm, read each orbit, and avoid getting surrounded."
+      },
+      "flappy": {
+        "eyebrow": "One tap, one beat",
+        "title": "Fly through the cyber city.",
+        "description": "A crisp reflex game with a bright sky, energy gates, and precise flight.",
+        "hint": "Use short taps to hold altitude; avoid rapid taps while falling."
+      },
+      "tetris": {
+        "eyebrow": "Neon block room",
+        "title": "Clear lines. Hold rhythm. Go faster.",
+        "description": "Place luminous blocks before the tower reaches the top.",
+        "hint": "Keep the floor level and save a channel for the straight piece."
+      },
+      "2048": {
+        "eyebrow": "Number laboratory",
+        "title": "Merge small. Think big.",
+        "description": "Slide pastel tiles, build fusion chains, and take the board all the way to 2048.",
+        "hint": "Keep the largest tile in one corner and build the number chain around it."
+      },
+      "caro": {
+        "eyebrow": "Five-piece duel",
+        "title": "Five marks. One winning line.",
+        "description": "A modern paper board where deliberate X and O moves put you against AI.",
+        "hint": "Create two attacking lines at once and force the AI to choose."
+      },
+      "wordguess": {
+        "eyebrow": "Decoder notebook",
+        "title": "Every letter is a clue.",
+        "description": "Open the wordbook, make smart guesses, and decode the answer in six tries.",
+        "hint": "Start with a word containing several vowels and no repeated letters."
+      },
+      "snake": {
+        "eyebrow": "Toy garden",
+        "title": "Grow longer. Avoid your tail.",
+        "description": "A soft, playful Snake with short paths, sweet fruit, and a relaxed rhythm.",
+        "hint": "Leave an escape route around the edge before the snake grows longer."
+      }
+    }
+  },
   "studentBenefitsPage": {
     "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
     "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
