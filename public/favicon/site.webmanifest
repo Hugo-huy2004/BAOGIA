@@ -1,7 +1,10 @@
 {
-  "name": "Hugo Studio",
-  "short_name": "Hugo",
-  "start_url": "/",
+  "name": "Hugo Studio Portal",
+  "short_name": "Hugo Studio",
+  "description": "Nền tảng học tập, cộng đồng và tiện ích dành cho học sinh sinh viên",
+  "id": "/member/",
+  "start_url": "/member/today?source=pwa",
+  "scope": "/",
   "icons": [
     {
       "src": "/favicon/web-app-manifest-192x192.png",
@@ -18,5 +21,8 @@
   ],
   "theme_color": "#0b0a0f",
   "background_color": "#0b0a0f",
-  "display": "standalone"
+  "display": "standalone",
+  "display_override": ["standalone"],
+  "orientation": "any",
+  "categories": ["education", "productivity", "health"]
 }

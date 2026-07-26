@@ -185,6 +185,8 @@ import hugoTeamRoutes from './routes/hugoTeamRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
 import joyDecoRoutes from './routes/joyDecoRoutes.js';
+import coderLessonRoutes from './routes/coderLessonRoutes.js';
+import todayRoutes from './routes/todayRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
@@ -200,6 +202,8 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/coder-resources', coderResourceRoutes);
+app.use('/api/coder-lessons', coderLessonRoutes);
+app.use('/api/today', todayRoutes);
 app.use('/api/files', fileToolsRoutes);
 app.use('/api/companion', companionRoutes);
 app.use('/api/ai', requireMember, aiProxyRoutes);

@@ -14,6 +14,7 @@ const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 const locationCheckLocks = new Map();
 const LOCATION_CHECK_COOLDOWN_MS = 15_000;
+const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
 
 const getLocationCheckKey = (email, lat, lng) => {
   const roundedLat = Number(lat).toFixed(3);
@@ -29,8 +30,21 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
   useEffect(() => {
     if (!enabled || !email || email.includes("guest") || !getMemberToken()) return;
 
-    const runCheck = () => {
+    const hasLocationPermission = async () => {
+      try {
+        if (navigator.permissions?.query) {
+          const permission = await navigator.permissions.query({ name: "geolocation" });
+          return permission.state === "granted";
+        }
+      } catch {
+        // Safari does not always expose geolocation through Permissions API.
+      }
+      return localStorage.getItem(LOCATION_GRANT_KEY) === "true";
+    };
+
+    const runCheck = async () => {
       if (checkingRef.current) return;
+      if (!await hasLocationPermission()) return;
       checkingRef.current = true;
 
       getCachedGeolocation()
@@ -75,6 +89,11 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
 
     runCheck();
     const tid = setInterval(runCheck, CHECK_INTERVAL_MS);
-    return () => clearInterval(tid);
+    const handlePermissionUpdate = () => runCheck();
+    window.addEventListener("hugo:permissions-updated", handlePermissionUpdate);
+    return () => {
+      clearInterval(tid);
+      window.removeEventListener("hugo:permissions-updated", handlePermissionUpdate);
+    };
   }, [enabled, email]);
 }

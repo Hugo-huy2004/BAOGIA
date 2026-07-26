@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../context/DataContext";
@@ -10,6 +10,9 @@ import AppIconRenderer from "./utilities/AppIconRenderer";
 import LibraryCatalog from "./utilities/LibraryCatalog";
 import StandaloneGameShell from "./arcade/StandaloneGameShell";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
+import { appInstallationPolicy } from "../../../shared/appInstallationPolicy";
+import { Search, X } from "lucide-react";
+import UtilityAppIcon from "./utilities/UtilityAppIcon";
 
 // Dynamic On-Demand PWA App Storage Footprint (MB)
 export const APP_STORAGE_MB = {
@@ -25,7 +28,8 @@ export const APP_STORAGE_MB = {
   team: 1.6,
   bio: 1.5,
   info: 0.8,
-  joy_wallet: 1.1
+  joy_wallet: 1.1,
+  map: 2.4
 };
 
 // Styling constants
@@ -41,12 +45,35 @@ const GRADIENTS = {
   pink:    "from-pink-400 to-fuchsia-600",
 };
 
-const DEFAULT_INSTALLED = [
-  "library", "bio", "ide", "psychology", "radio", "helpdesk", "handle", "arcade", "aura",
-  "arcade_chess", "arcade_2048", "arcade_tetris", "arcade_survivor", "info"
-];
+const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
 const DEFAULT_SIZES = {};
+
+const APP_CATALOG = [
+  ["bio", "badge", "purple", "edu", "4.9", "12k", "HOT"],
+  ["ide", "code", "blue", "edu", "4.8", "8k", "PRO"],
+  ["team", "groups", "teal", "edu", "4.7", "2k", "JOIN"],
+  ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "AI"],
+  ["hugoskin", "face", "slate", "wellness", "4.7", "4k", "AI"],
+  ["radio", "radio", "teal", "wellness", "4.6", "5k", "LOFI"],
+  ["helpdesk", "support_agent", "indigo", "tools", "4.8", "9k", "FREE"],
+  ["handle", "handyman", "rose", "tools", "4.9", "10k", "UTILITY"],
+  ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "GAMES"],
+  ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "FOCUS"],
+  ["deco", "chair", "pink", "arcade", "4.5", "3k", "CREATIVE"],
+  ["info", "info", "slate", "tools", "4.8", "6k", "SYSTEM"],
+  ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "30k", "WALLET"],
+  ["map", "explore", "teal", "tools", "4.9", "20k", "DISCOVER"],
+  ["library", "store", "blue", "tools", "5.0", "50k", "STORE"],
+  ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "GAME"],
+  ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "GAME"],
+  ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "GAME"],
+  ["arcade_wordguess", "keyboard", "purple", "arcade", "4.6", "4k", "GAME"],
+  ["arcade_tetris", "grid_view", "cyan", "arcade", "4.9", "15k", "GAME"],
+  ["arcade_snake", "all_inclusive", "teal", "arcade", "4.8", "9k", "GAME"],
+  ["arcade_survivor", "rocket_launch", "indigo", "arcade", "5.0", "18k", "GAME"],
+  ["arcade_flappy", "bolt", "rose", "arcade", "4.7", "7k", "GAME"],
+];
 
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
   const navigate = useNavigate();
@@ -65,178 +92,28 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const [activeCategory, setActiveCategory] = useState("all");
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const allUtilities = useMemo(() => [
-    {
-      id: "bio",
-      icon: "badge",
-      tint: "purple",
-      title: "Trang Bio",
-      category: "edu",
-      subLabel: "Hồ sơ cá nhân & Biolink",
-      rating: "4.9",
-      users: "12k",
-      badge: "HOT"
-    },
-    {
-      id: "ide",
-      icon: "code",
-      tint: "blue",
-      title: t("utilities.dashboard.ide.title", "HugoCoder"),
-      category: "edu",
-      subLabel: "Trình soạn code & Học lập trình",
-      rating: "4.8",
-      users: "8k",
-      badge: "PRO"
-    },
-    {
-      id: "team",
-      icon: "groups",
-      tint: "teal",
-      title: "Hugo Team",
-      category: "edu",
-      subLabel: "Tuyển dụng & Dự án sinh viên",
-      rating: "4.7",
-      users: "2k",
-      badge: "JOIN"
-    },
-    {
-      id: "psychology",
-      icon: "psychology",
-      tint: "cyan",
-      title: t("companion.tab.title", "HugoPSY"),
-      category: "wellness",
-      subLabel: "AI tư vấn tâm lý & Giấc ngủ",
-      rating: "5.0",
-      users: "15k",
-      badge: "AI"
-    },
-    {
-      id: "hugoskin",
-      icon: "face",
-      tint: "slate",
-      title: "HugoSkin",
-      category: "wellness",
-      subLabel: "AI phân tích sắc tố da & Skincare",
-      rating: "4.7",
-      users: "4k",
-      badge: "AI"
-    },
-    {
-      id: "radio",
-      icon: "radio",
-      tint: "teal",
-      title: "HugoRadio",
-      category: "wellness",
-      subLabel: "Radio tin tức & Nhạc Lofi",
-      rating: "4.6",
-      users: "5k",
-      badge: "LOFI"
-    },
-    {
-      id: "helpdesk",
-      icon: "support_agent",
-      tint: "indigo",
-      title: "HugoHelpdesk",
-      category: "tools",
-      subLabel: "Mã QR/NFC & Chữ ký email",
-      rating: "4.8",
-      users: "9k",
-      badge: "FREE"
-    },
-    {
-      id: "handle",
-      icon: "handyman",
-      tint: "rose",
-      title: "HugoHandle",
-      category: "tools",
-      subLabel: "Nén ảnh & Rút gọn link bảo mật",
-      rating: "4.9",
-      users: "10k",
-      badge: "UTILITY"
-    },
-    {
-      id: "arcade",
-      icon: "stadium",
-      tint: "orange",
-      title: "HugoArcade",
-      category: "arcade",
-      subLabel: "Mini game giải trí nhận JOY",
-      rating: "4.9",
-      users: "18k",
-      badge: "GAMES"
-    },
-    {
-      id: "aura",
-      icon: "blur_on",
-      tint: "purple",
-      title: "HugoAura",
-      category: "arcade",
-      subLabel: "Pomodoro tập trung & Nhạc sóng não",
-      rating: "5.0",
-      users: "11k",
-      badge: "FOCUS"
-    },
-    {
-      id: "deco",
-      icon: "chair",
-      tint: "pink",
-      title: "Deco Studio",
-      category: "arcade",
-      subLabel: "Trang trí ký túc xá ảo của bạn",
-      rating: "4.5",
-      users: "3k",
-      badge: "CREATIVE"
-    },
-    {
-      id: "info",
-      icon: "info",
-      tint: "slate",
-      title: "Info & Version",
-      category: "tools",
-      subLabel: "Thông tin & Nhật ký cập nhật",
-      rating: "4.8",
-      users: "6k",
-      badge: "SYSTEM"
-    },
-    {
-      id: "joy_wallet",
-      icon: "account_balance_wallet",
-      tint: "orange",
-      title: "Ví JOY Widget",
-      category: "tools",
-      subLabel: "Xem số dư & Chuyển khoản nhanh",
-      rating: "5.0",
-      users: "30k",
-      badge: "WALLET"
-    },
-    {
-      id: "library",
-      icon: "store",
-      tint: "blue",
-      title: "Hugo Library",
-      category: "tools",
-      subLabel: "Kho ứng dụng & tiện ích học tập",
-      rating: "5.0",
-      users: "50k",
-      badge: "STORE"
-    },
-    { id: "arcade_chess", icon: "castle", tint: "slate", title: "Cờ Vua AI", category: "arcade", subLabel: "Thách đấu AI Master ELO 2500", rating: "4.9", users: "8k", badge: "GAME" },
-    { id: "arcade_2048", icon: "casino", tint: "orange", title: "2048 Fusion", category: "arcade", subLabel: "Gộp số 2048 mở rộng", rating: "4.8", users: "12k", badge: "GAME" },
-    { id: "arcade_caro", icon: "swords", tint: "blue", title: "Caro Master", category: "arcade", subLabel: "Cờ Caro đối kháng 5 cấp", rating: "4.7", users: "6k", badge: "GAME" },
-    { id: "arcade_wordguess", icon: "keyboard", tint: "purple", title: "Mật Mã Từ", category: "arcade", subLabel: "Từ vựng Hán Việt 3D", rating: "4.6", users: "4k", badge: "GAME" },
-    { id: "arcade_tetris", icon: "grid_view", tint: "cyan", title: "Tetris Neon", category: "arcade", subLabel: "Xếp hình Neon 3D 60fps", rating: "4.9", users: "15k", badge: "GAME" },
-    { id: "arcade_snake", icon: "all_inclusive", tint: "teal", title: "Rắn 3D Pro", category: "arcade", subLabel: "Hugo Snake 3D cổ điển", rating: "4.8", users: "9k", badge: "GAME" },
-    { id: "arcade_survivor", icon: "rocket_launch", tint: "indigo", title: "Space Survivor", category: "arcade", subLabel: "Bắn máy bay Space 3D", rating: "5.0", users: "18k", badge: "GAME" },
-    { id: "arcade_flappy", icon: "bolt", tint: "rose", title: "Flappy Cyber", category: "arcade", subLabel: "Bay Cyberpunk không gian", rating: "4.7", users: "7k", badge: "GAME" }
-  ], [t]);
+  const allUtilities = useMemo(
+    () => APP_CATALOG.map(([id, icon, tint, category, rating, users, badge]) => ({
+      id,
+      icon,
+      tint,
+      category,
+      rating,
+      users,
+      badge,
+      title: t(`utilities.catalog.${id}.title`),
+      subLabel: t(`utilities.catalog.${id}.description`),
+    })),
+    [t],
+  );
 
   // App Ecosystem States
   const [installedApps, setInstalledApps] = useState(() => {
     if (bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0) {
-      return bio.installedUtilities;
+      return appInstallationPolicy.normalizeInstalled(bio.installedUtilities);
     }
     const saved = localStorage.getItem("hugo_installed_utilities_v2");
-    return saved ? JSON.parse(saved) : DEFAULT_INSTALLED;
+    return appInstallationPolicy.normalizeInstalled(saved ? JSON.parse(saved) : DEFAULT_INSTALLED);
   });
 
   const [utilitySizes, setUtilitySizes] = useState(() => {
@@ -253,19 +130,18 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   }, [bio]);
 
-  // Subset of installedApps that also gets a home-screen icon — see
-  // handleInstallApp's addToHome choice and syncHomeScreenApps below.
+  // Subset of installedApps that also gets a home-screen icon.
   const [homeScreenApps, setHomeScreenApps] = useState(() => {
     if (bio && Array.isArray(bio.homeScreenUtilities) && bio.homeScreenUtilities.length > 0) {
       return bio.homeScreenUtilities;
     }
     const saved = localStorage.getItem("hugo_home_screen_utilities_v1");
-    if (saved) return JSON.parse(saved);
+    if (saved) return appInstallationPolicy.normalizeHomeScreen(JSON.parse(saved), installedApps);
     // No home-screen data saved yet (pre-migration) — fall back to "every
     // installed app is on the home screen", matching behavior before this
     // install-location choice existed, so nothing disappears on upgrade.
     return bio && Array.isArray(bio.installedUtilities) && bio.installedUtilities.length > 0
-      ? bio.installedUtilities
+      ? appInstallationPolicy.normalizeHomeScreen(bio.installedUtilities, bio.installedUtilities)
       : DEFAULT_INSTALLED;
   });
 
@@ -305,20 +181,16 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Sync state with prop if bio updates asynchronously
   useEffect(() => {
     if (bio && Array.isArray(bio.installedUtilities)) {
-      let appsToSet = bio.installedUtilities.length > 0 ? bio.installedUtilities : ["library", "info"];
-      if (!appsToSet.includes("library")) appsToSet.unshift("library");
-      if (!appsToSet.includes("info")) appsToSet.push("info");
-      if (JSON.stringify(appsToSet) !== JSON.stringify(installedApps)) {
-        setInstalledApps(appsToSet);
-      }
+      const appsToSet = appInstallationPolicy.normalizeInstalled(bio.installedUtilities);
+      setInstalledApps((current) => (
+        JSON.stringify(appsToSet) !== JSON.stringify(current) ? appsToSet : current
+      ));
     }
   }, [bio]);
 
   // Sync to database and localStorage helper
   const syncInstalledApps = async (updatedApps) => {
-    let appsToSave = [...new Set(updatedApps)];
-    if (!appsToSave.includes("library")) appsToSave.unshift("library");
-    if (!appsToSave.includes("info")) appsToSave.push("info");
+    const appsToSave = appInstallationPolicy.normalizeInstalled(updatedApps);
     setInstalledApps(appsToSave);
     localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
     
@@ -344,25 +216,30 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Sync homeScreenApps with prop if bio updates asynchronously.
   useEffect(() => {
     if (bio && Array.isArray(bio.homeScreenUtilities)) {
-      setHomeScreenApps(bio.homeScreenUtilities);
+      setHomeScreenApps(appInstallationPolicy.normalizeHomeScreen(
+        bio.homeScreenUtilities,
+        bio.installedUtilities,
+      ));
     }
   }, [bio]);
 
-  const syncHomeScreenApps = async (updatedApps) => {
-    let appsToSave = [...new Set(updatedApps)];
-    if (!appsToSave.includes("library")) appsToSave.unshift("library");
-    if (!appsToSave.includes("info")) appsToSave.push("info");
-    setHomeScreenApps(appsToSave);
-    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(appsToSave));
+  const syncWorkspaceApps = async (updatedInstalled, updatedHome) => {
+    const appsToSave = appInstallationPolicy.normalizeInstalled(updatedInstalled);
+    const homeToSave = appInstallationPolicy.normalizeHomeScreen(updatedHome, appsToSave);
+    setInstalledApps(appsToSave);
+    setHomeScreenApps(homeToSave);
+    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(appsToSave));
+    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(homeToSave));
 
-    if (bio?._id && bio._id !== 'guest') {
+    if (bio?._id && bio._id !== "guest") {
       try {
-        const res = await memberService.updateMemberBio(bio._id, { homeScreenUtilities: appsToSave });
-        if (res?.bio && onBioUpdate) {
-          onBioUpdate(res.bio);
-        }
-      } catch (err) {
-        // Soft fail open — local storage maintains home screen apps state
+        const res = await memberService.updateMemberBio(bio._id, {
+          installedUtilities: appsToSave,
+          homeScreenUtilities: homeToSave,
+        });
+        if (res?.bio && onBioUpdate) onBioUpdate(res.bio);
+      } catch {
+        // Offline-first: local state remains usable and can be synced later.
       }
     }
   };
@@ -385,14 +262,17 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     const diskHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
     const diskInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
     setHomeScreenApps(prev => {
-      const merged = [...new Set([...prev, ...diskHome])];
-      return merged.length !== prev.length ? merged : prev;
+      const merged = appInstallationPolicy.normalizeHomeScreen(
+        [...prev, ...diskHome],
+        [...installedApps, ...diskInst],
+      );
+      return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
     });
     setInstalledApps(prev => {
-      const merged = [...new Set([...prev, ...diskInst])];
-      return merged.length !== prev.length ? merged : prev;
+      const merged = appInstallationPolicy.normalizeInstalled([...prev, ...diskInst]);
+      return JSON.stringify(merged) !== JSON.stringify(prev) ? merged : prev;
     });
-  }, [isVisible]);
+  }, [installedApps, isVisible]);
 
   // Handle Dynamic Mobile Tab Bar Hiding when editingApp or isSpotlightOpen is active
   useEffect(() => {
@@ -489,7 +369,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       setSearchQuery(app.title);
       return;
     }
-    if (app.id === "library") {
+    if (app.id === "map") {
+      navigate("/member/map");
+    } else if (app.id === "library") {
       setActiveTab("library");
     } else {
       setSelectedUtility(app.id);
@@ -544,12 +426,12 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   }, [spotlightQuery]);
 
   const categories = useMemo(() => [
-    { id: "all", label: "Tất cả", icon: "widgets" },
-    { id: "edu", label: "Học tập", icon: "school" },
-    { id: "wellness", label: "Sức khỏe", icon: "favorite" },
-    { id: "tools", label: "Công cụ", icon: "handyman" },
-    { id: "arcade", label: "Giải trí", icon: "sports_esports" },
-  ], []);
+    { id: "all", label: t("utilities.categories.all"), icon: "widgets" },
+    { id: "edu", label: t("utilities.categories.education"), icon: "school" },
+    { id: "wellness", label: t("utilities.categories.wellness"), icon: "favorite" },
+    { id: "tools", label: t("utilities.categories.tools"), icon: "handyman" },
+    { id: "arcade", label: t("utilities.categories.entertainment"), icon: "sports_esports" },
+  ], [t]);
 
 
 
@@ -557,6 +439,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // matches the previous behavior); false = install into the Library only,
   // still fully usable via "Mở" from there — same install mechanism either way.
   const handleInstallApp = (appId, addToHome = true) => {
+    if (appInstallationPolicy.isRequired(appId)) {
+      setSelectedUtility(appId);
+      return;
+    }
     if (downloadingAppId || downloadProgress[appId] !== undefined) return;
     
     // 🚀 Trigger 1-Tap Native PWA Add to Home Screen Prompt
@@ -596,16 +482,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         }
 
         setTimeout(() => {
-          setInstalledApps(prev => {
-            const nextInstalled = [...new Set([...prev, appId])];
-            syncInstalledApps(nextInstalled);
-            return nextInstalled;
-          });
-          setHomeScreenApps(prev => {
-            const nextHome = [...new Set([...prev, appId])];
-            syncHomeScreenApps(nextHome);
-            return nextHome;
-          });
+          const nextInstalled = [...new Set([...installedApps, appId])];
+          const nextHome = addToHome
+            ? [...new Set([...homeScreenApps, appId])]
+            : homeScreenApps;
+          syncWorkspaceApps(nextInstalled, nextHome);
           window.dispatchEvent(new CustomEvent("hugo:app-installed", { detail: { appId } }));
           setDownloadingAppId(null);
           setDownloadProgress((prev) => {
@@ -613,7 +494,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             delete nextProgress[appId];
             return nextProgress;
           });
-          showToast?.(`Đã tải ứng dụng (+${appSizeMb} MB bộ nhớ máy)!`, "success");
+          showToast?.(t("utilities.library.installedToast", { size: appSizeMb }), "success");
         }, 850);
       } else {
         setDownloadProgress((prev) => ({ ...prev, [appId]: currentProgress }));
@@ -622,6 +503,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   };
 
   const handleUninstallApp = (appId) => {
+    if (!appInstallationPolicy.canUninstall(appId)) {
+      showToast?.(t("utilities.library.requiredAppNotice"), "info");
+      return;
+    }
     const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
     
     // Clear On-Demand PWA Storage
@@ -639,16 +524,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     const nextInstalled = installedApps.filter((id) => id !== appId);
     const nextHomeScreen = homeScreenApps.filter((id) => id !== appId);
 
-    setInstalledApps(nextInstalled);
-    setHomeScreenApps(nextHomeScreen);
-    localStorage.setItem("hugo_installed_utilities_v2", JSON.stringify(nextInstalled));
-    localStorage.setItem("hugo_home_screen_utilities_v1", JSON.stringify(nextHomeScreen));
-
-    syncInstalledApps(nextInstalled);
-    syncHomeScreenApps(nextHomeScreen);
+    syncWorkspaceApps(nextInstalled, nextHomeScreen);
 
     setEditingApp(null);
-    showToast?.(`Đã gỡ ứng dụng (Giải phóng -${appSizeMb} MB bộ nhớ máy)!`, "info");
+    showToast?.(t("utilities.library.removedToast", { size: appSizeMb }), "info");
   };
 
   const handleSetWidgetSize = async (appId, size) => {
@@ -695,7 +574,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       updated[actualSourceIdx] = targetItem.id;
       updated[actualTargetIdx] = sourceItem.id;
       syncInstalledApps(updated);
-      showToast?.("Đã cập nhật vị trí ứng dụng!", "success");
+      showToast?.(t("utilities.library.positionUpdated"), "success");
     }
   };
 
@@ -710,16 +589,16 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     if (isRadioPlaying) {
       radioAudioRef.current.pause();
       setIsRadioPlaying(false);
-      showToast?.("Đã tạm dừng Radio", "info");
+      showToast?.(t("utilities.library.radioPaused"), "info");
     } else {
       radioAudioRef.current.play()
         .then(() => {
           setIsRadioPlaying(true);
-          showToast?.("Đang phát Lofi Code Radio 24/7 🎵", "success");
+          showToast?.(t("utilities.library.radioPlaying"), "success");
         })
         .catch((err) => {
           console.error("Audio blocked:", err);
-          showToast?.("Hãy nhấp vào trang trước để phát nhạc", "warning");
+          showToast?.(t("utilities.library.interactionRequired"), "warning");
         });
     }
   };
@@ -739,7 +618,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       rainAudioRef.current.pause();
       cafeAudioRef.current.pause();
       setIsAuraActive(false);
-      showToast?.("Đã tắt âm thanh tập trung", "info");
+      showToast?.(t("utilities.library.focusStopped"), "info");
     } else {
       rainAudioRef.current.volume = rainVolume / 100;
       cafeAudioRef.current.volume = cafeVolume / 100;
@@ -749,11 +628,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       ])
         .then(() => {
           setIsAuraActive(true);
-          showToast?.("Đang phát âm thanh tập trung 🌧️☕", "success");
+          showToast?.(t("utilities.library.focusPlaying"), "success");
         })
         .catch((err) => {
           console.error("Aura blocked:", err);
-          showToast?.("Hãy nhấp vào trang trước để phát nhạc", "warning");
+          showToast?.(t("utilities.library.interactionRequired"), "warning");
         });
     }
   };
@@ -804,6 +683,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         setActiveTab("library");
         return;
       }
+      if (app.id === "map") {
+        navigate("/member/map");
+        return;
+      }
       if (app.id.startsWith("arcade_")) {
         const gameKey = app.id.replace("arcade_", "");
         navigate(`/member/utilities/arcade?game=${gameKey}&from=utilities`, { state: { from: "/member/utilities" } });
@@ -815,7 +698,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           : data.systemSettings.blockUtilities === app.id;
 
         if (isBlocked) {
-          showToast?.("Hugo... đang nâng cấp phiên bản mới", "info");
+          showToast?.(t("utilities.library.upgrading"), "info");
           return;
         }
       }
@@ -851,9 +734,12 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     const liveHome = JSON.parse(localStorage.getItem("hugo_home_screen_utilities_v1") || "[]");
     const liveInst = JSON.parse(localStorage.getItem("hugo_installed_utilities_v2") || "[]");
     // Merge state + localStorage so we capture BOTH sources
-    const effectiveHome = [...new Set([...homeScreenApps, ...liveHome])];
-    const effectiveInst = [...new Set([...installedApps, ...liveInst])];
-    return allUtilities.filter((util) => effectiveHome.includes(util.id) || effectiveInst.includes(util.id));
+    const effectiveInst = appInstallationPolicy.normalizeInstalled([...installedApps, ...liveInst]);
+    const effectiveHome = appInstallationPolicy.normalizeHomeScreen(
+      [...homeScreenApps, ...liveHome],
+      effectiveInst,
+    );
+    return allUtilities.filter((util) => effectiveHome.includes(util.id));
   }, [allUtilities, installedApps, homeScreenApps, refreshKey]);
 
   const libraryAppsList = useMemo(() => {
@@ -883,53 +769,19 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       {/* 🏠 VIEW: MY APPS HOME SCREEN */}
       {activeTab === "my-apps" && (
         <div className="space-y-4">
-          {/* 🔍 AUTHENTIC APPLE LIQUID GLASS SEARCH CAPSULE BAR 🔍 */}
-          <div className="w-full flex flex-col items-center gap-3 py-2">
-            <div
+          <div className="apps-smartbar py-1">
+            <button
+              type="button"
               onClick={() => { setIsSpotlightOpen(true); setSpotlightQuery(""); setSpotlightSelectedIndex(0); }}
-              className="w-full relative flex items-center justify-between px-6 py-3.5 sm:py-4 rounded-full bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/70 dark:border-white/20 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.8),0_12px_32px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.25),0_12px_32px_rgba(0,0,0,0.4)] hover:bg-white/50 dark:hover:bg-white/15 transition-all cursor-pointer group active:scale-[0.99]"
+              className="apps-smart-search group flex min-h-11 w-full min-w-0 items-center gap-3 px-4 text-left transition-all active:scale-[0.99]"
+              aria-label={t("utilities.library.searchPlaceholder")}
             >
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 flex-1 tracking-tight select-none">
-                Tìm kiếm ứng dụng, trò chơi, tiện ích...
+              <Search className="h-[18px] w-[18px] shrink-0 text-muted-foreground transition-colors group-hover:text-primary" aria-hidden="true" />
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-muted-foreground">
+                {t("utilities.library.searchPlaceholder")}
               </span>
-
-              <div className="flex items-center gap-3">
-                <kbd className="hidden sm:inline-block px-2.5 py-1 bg-white/60 dark:bg-black/40 rounded-full text-[10px] font-mono font-black border border-white/80 dark:border-white/20 text-slate-600 dark:text-slate-300 shadow-xs">
-                  ⌘K
-                </kbd>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-slate-800 dark:text-white group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-2xl font-light">search</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Apple Liquid Glass Control Pills (Matching Image 2) */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-4 px-5 py-2 rounded-full bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/70 dark:border-white/20 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.8),0_8px_20px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.3)]">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="text-slate-800 dark:text-white hover:opacity-70 transition-opacity flex items-center justify-center"
-                  title="Quay lại"
-                >
-                  <span className="material-symbols-outlined text-xl">chevron_left</span>
-                </button>
-                <button
-                  onClick={() => navigate(1)}
-                  className="text-slate-800 dark:text-white hover:opacity-70 transition-opacity flex items-center justify-center"
-                  title="Tiếp theo"
-                >
-                  <span className="material-symbols-outlined text-xl">chevron_right</span>
-                </button>
-              </div>
-
-              <button
-                onClick={() => setActiveTab("library")}
-                className="w-10 h-10 rounded-full bg-white/40 dark:bg-white/10 backdrop-blur-3xl border border-white/70 dark:border-white/20 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.8),0_8px_20px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.2),0_8px_20px_rgba(0,0,0,0.3)] text-slate-800 dark:text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
-                title="Khám phá Thư viện App"
-              >
-                <span className="material-symbols-outlined text-lg">grid_view</span>
-              </button>
-            </div>
+              <kbd className="hidden rounded-md border border-border/70 bg-muted/70 px-2 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-block">⌘K</kbd>
+            </button>
           </div>
 
           {myAppsList.length === 0 ? (
@@ -938,14 +790,14 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 <span className="material-symbols-outlined text-3xl">add_to_home_screen</span>
               </div>
               <div className="space-y-1.5">
-                <p className="text-lg font-semibold text-foreground">Màn hình trống</p>
-                <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">Tải các tiện ích học tập bạn cần từ Hugo Library.</p>
+                <p className="text-lg font-semibold text-foreground">{t("utilities.library.emptyTitle")}</p>
+                <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{t("utilities.library.emptyDescription")}</p>
               </div>
               <button
                 onClick={() => setActiveTab("library")}
                 className="px-5 py-3 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-90 active:scale-[0.97] transition-all"
               >
-                Khám phá Hugo Library
+                {t("utilities.library.openLibrary")}
               </button>
             </div>
           ) : (
@@ -1016,7 +868,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-[200] p-0 sm:p-4 transition-opacity">
           <div className="absolute inset-0" onClick={() => setEditingApp(null)} />
 
-          <div className="relative w-full sm:max-w-md bg-card border-t sm:border border-border/60 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[210] max-h-[90vh] overflow-y-auto animate-slideUp text-left">
+          <div className="pwa-safe-sheet relative w-full sm:max-w-md bg-card border-t sm:border border-border/60 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl z-[210] max-h-[90dvh] overflow-y-auto animate-slideUp text-left">
             <div className="w-9 h-1 bg-muted rounded-full mx-auto mb-5 sm:hidden" />
 
             <div className="flex items-center gap-4 mb-6">
@@ -1034,13 +886,13 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             {/* Sizes Segmented Customizer */}
             <div className="space-y-3 mb-6">
               <span className="text-sm font-medium text-muted-foreground block">
-                Kích cỡ hiển thị
+                {t("utilities.library.displaySize")}
               </span>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: "small", label: "Nhỏ", desc: "Biểu tượng" },
-                  { id: "medium", label: "Vừa", desc: "2×1" },
-                  { id: "large", label: "Lớn", desc: "2×2" },
+                  { id: "small", label: t("utilities.library.size.small"), desc: t("utilities.library.size.icon") },
+                  { id: "medium", label: t("utilities.library.size.medium"), desc: "2×1" },
+                  { id: "large", label: t("utilities.library.size.large"), desc: "2×2" },
                 ].map((sz) => {
                   const active = (utilitySizes[editingApp.id] || "small") === sz.id;
                   return (
@@ -1062,14 +914,19 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             </div>
 
             {/* Uninstall / Delete Button */}
-            {editingApp.id !== "library" && (
+            {appInstallationPolicy.canUninstall(editingApp.id) ? (
               <button
                 onClick={() => handleUninstallApp(editingApp.id)}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-destructive/10 hover:bg-destructive text-destructive hover:text-white transition-all font-semibold text-sm rounded-2xl mb-3 active:scale-[0.98]"
               >
                 <span className="material-symbols-outlined text-base">delete</span>
-                <span>Gỡ khỏi màn hình chính</span>
+                <span>{t("utilities.library.removeApp")}</span>
               </button>
+            ) : (
+              <div className="mb-3 flex items-start gap-2 rounded-2xl bg-primary/10 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
+                <span className="material-symbols-outlined text-base text-primary">verified_user</span>
+                <span>{t("utilities.library.requiredAppDescription")}</span>
+              </div>
             )}
 
             {/* Done Close Button */}
@@ -1077,7 +934,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               onClick={() => setEditingApp(null)}
               className="w-full py-3.5 bg-muted hover:bg-muted/80 text-foreground transition-all font-semibold text-sm rounded-2xl text-center active:scale-[0.98]"
             >
-              Xong
+              {t("utilities.library.done")}
             </button>
           </div>
         </div>
@@ -1085,33 +942,39 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
       {/* 🔍 SPOTLIGHT SEARCH OVERLAY */}
       {isSpotlightOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[550] flex justify-center pt-24 px-4" onClick={() => setIsSpotlightOpen(false)}>
+        <div className="portal-spotlight-overlay fixed inset-0 bg-black/40 backdrop-blur-md z-[550] flex justify-center px-4" onClick={() => setIsSpotlightOpen(false)}>
           <div
-            className="w-full max-w-lg bg-card border border-border/60 rounded-3xl shadow-2xl p-4 space-y-3 max-h-[70vh] flex flex-col animate-slideUp text-left"
+            className="w-full max-w-lg bg-card border border-border/60 rounded-3xl shadow-2xl p-4 space-y-3 max-h-[70dvh] flex flex-col animate-slideUp text-left"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Search Input Box */}
-            <div className="relative flex items-center shrink-0">
-              <span className="material-symbols-outlined text-muted-foreground/70 absolute left-3.5">search</span>
+            <div className="apps-spotlight-search relative flex items-center shrink-0">
+              <Search className="absolute left-3.5 h-[18px] w-[18px] text-muted-foreground/75" aria-hidden="true" />
               <input
                 autoFocus
                 type="text"
-                placeholder="Tìm ứng dụng, tiện ích…"
+                placeholder={t("utilities.library.searchPlaceholder")}
                 value={spotlightQuery}
                 onChange={(e) => setSpotlightQuery(e.target.value)}
-                className="w-full h-12 bg-muted/60 text-base text-foreground placeholder-muted-foreground/60 rounded-2xl pl-11 pr-16 outline-none border border-transparent focus:border-primary/40 transition-all"
+                className="h-12 w-full bg-transparent pl-11 pr-12 text-base text-foreground outline-none placeholder:text-muted-foreground/55"
               />
-              <span className="absolute right-3.5 text-[10px] font-medium text-muted-foreground/70 border border-border/60 px-2 py-0.5 rounded select-none pointer-events-none">ESC</span>
+              {spotlightQuery ? (
+                <button type="button" onClick={() => setSpotlightQuery("")} className="apps-search-clear" aria-label={t("utilities.library.clearSearch")}>
+                  <X aria-hidden="true" />
+                </button>
+              ) : (
+                <kbd className="absolute right-3.5 hidden rounded-md bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground sm:block">ESC</kbd>
+              )}
             </div>
 
             {/* Suggestions/Results List */}
             <div className="overflow-y-auto flex-1 space-y-1 pr-1">
               <p className="text-xs font-medium text-muted-foreground px-2.5 pb-1.5 pt-1 block">
-                {spotlightQuery ? "Kết quả tìm kiếm" : "Gợi ý nhanh"}
+                {spotlightQuery ? t("utilities.library.searchResults") : t("utilities.library.quickSuggestions")}
               </p>
               {spotlightFilteredApps.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground text-sm">
-                  Không tìm thấy ứng dụng phù hợp
+                  {t("utilities.library.noSpotlightResults")}
                 </div>
               ) : (
                 spotlightFilteredApps.map((app, index) => {
@@ -1128,9 +991,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                       }`}
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-sm`}>
-                          <span className="material-symbols-outlined text-white text-[20px]">{app.icon}</span>
-                        </div>
+                        <UtilityAppIcon app={app} gradient={gradient} size="small" />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-foreground">{app.title}</p>
                           <p className="text-xs text-muted-foreground truncate mt-0.5">{app.subLabel}</p>
@@ -1139,9 +1000,9 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
                       <div className="shrink-0 flex items-center gap-2">
                         {isInstalled ? (
-                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">Đã tải</span>
+                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">{t("utilities.library.installed")}</span>
                         ) : (
-                          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">Cửa hàng</span>
+                          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">{t("utilities.library.store")}</span>
                         )}
                       </div>
                     </div>

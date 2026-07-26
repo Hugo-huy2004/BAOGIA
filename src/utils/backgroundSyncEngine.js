@@ -6,15 +6,24 @@
 import { IndexedDBStorage } from "./indexedDBStorage";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
+let onlineHandler = null;
 
 export const BackgroundSyncEngine = {
   initListener() {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return () => {};
+    if (onlineHandler) return () => {};
 
-    window.addEventListener("online", async () => {
+    onlineHandler = async () => {
       console.log("Đã nối lại mạng! Đang tiến hành đồng bộ dữ liệu ngầm...");
       await this.flushPendingQueue();
-    });
+    };
+    window.addEventListener("online", onlineHandler);
+
+    return () => {
+      if (!onlineHandler) return;
+      window.removeEventListener("online", onlineHandler);
+      onlineHandler = null;
+    };
   },
 
   async flushPendingQueue() {

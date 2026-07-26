@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-const QUERY = "(max-width: 767px)";
+// Width handles phones and tablet split-view; the second clause keeps a phone
+// in landscape on the mobile navigation instead of squeezing a desktop
+// sidebar into a short touch viewport.
+const QUERY = "(max-width: 767px), (max-height: 500px) and (pointer: coarse)";
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(

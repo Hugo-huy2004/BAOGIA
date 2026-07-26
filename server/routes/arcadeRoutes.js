@@ -147,11 +147,25 @@ router.get('/leaderboard', async (req, res) => {
       { $limit: cap * 2 }
     ]);
 
-    // Fetch all existing Bios to ensure deleted accounts are never shown
-    const existingBios = await Bio.find({}).select('email displayName name').lean();
+    // Only resolve accounts present in this capped leaderboard. A full Bio scan
+    // made this endpoint progressively slower as the member collection grew.
+    const leaderboardEmails = [
+      ...new Set(
+        agg
+          .map(item => (item.email || '').toLowerCase().trim())
+          .filter(Boolean)
+      )
+    ];
+    const existingBios = await Bio.find({
+      $or: [
+        { email: { $in: leaderboardEmails } },
+        { contactEmail: { $in: leaderboardEmails } }
+      ]
+    }).select('email contactEmail displayName name').lean();
     const validBioKeys = new Set(
       existingBios.flatMap(b => [
         (b.email || '').toLowerCase().trim(),
+        (b.contactEmail || '').toLowerCase().trim(),
         (b.displayName || b.name || '').toLowerCase().trim()
       ]).filter(Boolean)
     );

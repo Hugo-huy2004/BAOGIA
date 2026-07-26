@@ -155,7 +155,10 @@ export default function LinksSubTab({
                 className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-xs sm:text-sm font-semibold resize-none leading-relaxed mt-1 md:mt-0 overflow-hidden"
               />
               <div className="flex justify-end text-[9px] font-bold text-muted-foreground/70 mt-1 select-none pr-2">
-                {formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0} / 110 chữ
+                {t("memberPortal.other.wordCount", {
+                  count: formData.bio ? formData.bio.trim().split(/\s+/).filter(Boolean).length : 0,
+                  limit: 110,
+                })}
               </div>
             </div>
           </div>

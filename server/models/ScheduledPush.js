@@ -26,4 +26,6 @@ const ScheduledPushSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+ScheduledPushSchema.index({ sent: 1, scheduledFor: 1 });
+
 export default mongoose.model('ScheduledPush', ScheduledPushSchema);

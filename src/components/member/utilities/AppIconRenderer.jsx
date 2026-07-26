@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { prefetchChunk } from "../../../utils/chunkPrefetcher";
+import UtilityAppIcon from "./UtilityAppIcon";
 
 const APPS_PER_PAGE = 16; // Strict 4x4 iOS Grid
 
@@ -67,14 +68,12 @@ export default function AppIconRenderer({
               )}
 
               {/* iOS Squircle App Icon */}
-              <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[22px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm relative shrink-0 transition-transform duration-200 group-hover:scale-105`}>
-                <span
-                  className="material-symbols-outlined text-white text-[28px] sm:text-[32px]"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  {app.icon}
-                </span>
-              </div>
+              <UtilityAppIcon
+                app={app}
+                gradient={gradient}
+                size="large"
+                className="transition-transform duration-200 group-hover:scale-105"
+              />
 
               {/* App Label Underneath */}
               <h3 className="mt-2 text-[12px] font-medium text-foreground text-center truncate w-full leading-tight px-0.5">

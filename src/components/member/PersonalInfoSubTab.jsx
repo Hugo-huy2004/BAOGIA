@@ -1,238 +1,267 @@
-import React from "react";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import OptimizedInput from "../common/OptimizedInput";
 
-// Merges the former Cá nhân (Profile) + Sự nghiệp (Career) + Hình thể (Body)
-// sub-tabs into one "Thông tin cá nhân" tab — same row-style fields, just
-// stacked under one umbrella so members don't have to hop across 3 tabs.
+const FIELD_CLASS =
+  "apple-account-input w-full min-w-0 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/55 focus:outline-none";
+
+function EditableRow({ icon, label, name, value, onChange, placeholder, type = "text", required = false }) {
+  return (
+    <label className="apple-account-row">
+      <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">{icon}</span>
+      <span className="apple-account-row-label">{label}</span>
+      <OptimizedInput
+        className={FIELD_CLASS}
+        type={type}
+        name={name}
+        value={value || ""}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+      />
+    </label>
+  );
+}
+
+function VerifiedRow({ icon, label, value, lockLabel }) {
+  return (
+    <div className="apple-account-row apple-account-row--verified">
+      <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">{icon}</span>
+      <span className="apple-account-row-label">{label}</span>
+      <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-foreground">
+        {value || "—"}
+      </span>
+      <span className="apple-account-lock" title={lockLabel}>
+        <span className="material-symbols-outlined" aria-hidden="true">lock</span>
+        <span className="sr-only">{lockLabel}</span>
+      </span>
+    </div>
+  );
+}
+
+function AccountGroup({ title, description, children }) {
+  return (
+    <section className="space-y-2.5">
+      <div className="px-1">
+        <h3 className="text-[13px] font-semibold tracking-tight text-foreground">{title}</h3>
+        {description ? <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{description}</p> : null}
+      </div>
+      <div className="apple-account-group">{children}</div>
+    </section>
+  );
+}
+
 export default function PersonalInfoSubTab({
   formData,
   handleFieldChange,
+  handleSave,
   saving,
   isDragOver,
   setIsDragOver,
   processFile,
   avatarInputRef,
   handleAvatarChange,
-  handleRemoveAvatar,
   memberSession,
   bio,
   hideAvatarSection,
-  t
+  t,
 }) {
-  // Once an admin approves a verification request, the submitted identity
-  // fields (name/birthday/phone/education) are copied straight onto the bio
-  // and become fixed — they're the basis the verification was approved on,
-  // so letting the member edit them afterward would defeat the verification.
-  const identityLocked = !!bio?.isEduVerified;
+  const verifiedSchool =
+    formData.education ||
+    bio?.verificationRequest?.schoolName ||
+    "";
+  const verifiedPhone =
+    formData.phone ||
+    bio?.verificationRequest?.phoneZalo ||
+    "";
+
   return (
-    <div className="space-y-4 animate-fadeIn">
-      {/* Section: Avatar Editor — hidden on mobile since the hero card above
-          already shows the avatar with its own tap-to-change overlay; the
-          hidden file input still renders so that ref keeps working either way. */}
-      <div className={`space-y-2 text-center py-4 hg-glass rounded-lg ${hideAvatarSection ? 'hidden' : ''}`}>
+    <form className="apple-account-shell animate-fadeIn" onSubmit={handleSave}>
+      <header className="apple-account-hero">
+        <div className={`apple-account-avatar-control ${hideAvatarSection ? "apple-account-avatar-control--compact" : ""}`}>
         <div
-          className={`relative w-20 h-20 rounded-full border shadow-md bg-muted mx-auto flex items-center justify-center overflow-hidden group cursor-pointer transition-all duration-200 ${
-            isDragOver && !formData.antiDeepfakeLock
-              ? "border-2 border-dashed border-primary scale-105 bg-primary/10"
-              : "border-border"
-          }`}
-          onClick={() => !saving && !formData.antiDeepfakeLock && avatarInputRef.current.click()}
-          onDragOver={(e) => {
-            e.preventDefault();
+          className={`apple-account-avatar group ${isDragOver && !formData.antiDeepfakeLock ? "is-dragging" : ""} ${hideAvatarSection ? "apple-account-avatar--compact" : ""}`}
+          onClick={() => !saving && !formData.antiDeepfakeLock && avatarInputRef.current?.click()}
+          onDragOver={(event) => {
+            event.preventDefault();
             if (!formData.antiDeepfakeLock) setIsDragOver(true);
           }}
           onDragLeave={() => setIsDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
+          onDrop={(event) => {
+            event.preventDefault();
             setIsDragOver(false);
-            if (formData.antiDeepfakeLock) return;
-            const file = e.dataTransfer.files[0];
-            processFile(file);
+            if (!formData.antiDeepfakeLock) processFile(event.dataTransfer.files[0]);
           }}
+          role="button"
+          tabIndex={formData.antiDeepfakeLock ? -1 : 0}
+          onKeyDown={(event) => {
+            if ((event.key === "Enter" || event.key === " ") && !formData.antiDeepfakeLock) {
+              event.preventDefault();
+              avatarInputRef.current?.click();
+            }
+          }}
+          aria-label={t("memberPortal.bio.changeAvatar")}
         >
           {formData.avatarUrl ? (
-            <img src={optimizeCloudinaryUrl(formData.avatarUrl, 300)} alt="Avatar" className="w-full h-full object-cover" />
+            <img
+              src={optimizeCloudinaryUrl(formData.avatarUrl, 320)}
+              alt={formData.displayName || t("memberPortal.bio.avatarTitle")}
+            />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground/70">
-              <span className="material-symbols-outlined text-3xl">add_a_photo</span>
-            </div>
-          )}
-          {saving ? (
-            <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-20">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-[7px] mt-1 font-bold tracking-wider">UPLOADING...</span>
-            </div>
-          ) : formData.antiDeepfakeLock ? (
-            <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
-              <span className="material-symbols-outlined text-sm text-red-400">lock</span>
-              <span className="text-red-400">Đã Khóa</span>
-            </div>
-          ) : (
-            <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[9px] font-bold z-20">
-              <span className="material-symbols-outlined text-sm">photo_camera</span>
-              <span>{t("memberPortal.bio.changeAvatar")}</span>
-            </div>
+            <span className="material-symbols-outlined" aria-hidden="true">person</span>
           )}
         </div>
-        <div className="space-y-1">
-          <p className="text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">{t("memberPortal.bio.avatarTitle")}</p>
-          <p className="text-[8px] text-zinc-400">{formData.antiDeepfakeLock ? "Ảnh đại diện đang được bảo vệ chống giả mạo" : t("memberPortal.bio.avatarDesc")}</p>
-          {formData.avatarUrl && (
-            <button
-              type="button"
-              onClick={handleRemoveAvatar}
-              disabled={saving || formData.antiDeepfakeLock}
-              className="text-[9px] font-bold text-destructive hover:text-red-650 transition-colors disabled:opacity-50"
-            >{t("memberPortal.bio.removeAvatar")}</button>
-          )}
+        <button
+          type="button"
+          className="apple-account-avatar-action"
+          onClick={() => !saving && !formData.antiDeepfakeLock && avatarInputRef.current?.click()}
+          disabled={saving || formData.antiDeepfakeLock}
+          aria-label={t("memberPortal.bio.changeAvatar")}
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            {formData.antiDeepfakeLock ? "lock" : "photo_camera"}
+          </span>
+        </button>
         </div>
-      </div>
+        <div className="min-w-0 flex-1 text-center sm:text-left">
+          <p className="portal-eyebrow">{t("memberPortal.account.appleAccount")}</p>
+          <h2 className="mt-1 break-words text-[28px] font-semibold leading-tight tracking-[-0.035em] text-foreground sm:text-[32px]">
+            {formData.displayName || t("memberPortal.bio.noName")}
+          </h2>
+          <p className="mt-1 truncate text-sm text-muted-foreground">{memberSession?.email || "—"}</p>
+          <div className={`apple-account-status ${bio?.isEduVerified ? "is-verified" : ""}`}>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              {bio?.isEduVerified ? "verified" : "schedule"}
+            </span>
+            {bio?.isEduVerified
+              ? t("memberPortal.account.eduVerified")
+              : t("memberPortal.account.verificationPending")}
+          </div>
+        </div>
+      </header>
+
       <input
         type="file"
         ref={avatarInputRef}
         accept="image/*"
         onChange={handleAvatarChange}
         className="hidden"
-        disabled={saving}
+        disabled={saving || formData.antiDeepfakeLock}
       />
 
-      {/* Section A: Basic settings */}
-      <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.bio.basicInfo")}</h3>
-        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">person</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.fullName")}</label>
-            {identityLocked
-              ? <span className="flex-1 text-xs font-medium text-muted-foreground">{formData.displayName || "-"}</span>
-              : <OptimizedInput type="text" name="displayName" value={formData.displayName} onChange={handleFieldChange} required placeholder={t("memberPortal.bio.placeholderName")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />}
-            {identityLocked && <span className="material-symbols-outlined text-sm text-muted-foreground/70" title={t("memberPortal.bio.lockedTooltip")}>lock</span>}
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">badge</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.nickname")}</label>
-            <OptimizedInput type="text" name="headline" value={formData.headline} onChange={handleFieldChange} placeholder="Designer, Web Architect, Developer..." className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">cake</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.birthday")}</label>
-            {identityLocked
-              ? <span className="flex-1 text-xs font-medium text-muted-foreground">{formData.birthday || "-"}</span>
-              : <OptimizedInput type="text" name="birthday" value={formData.birthday} onChange={handleFieldChange} placeholder={t("memberPortal.bio.placeholderBirthday")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />}
-            {identityLocked && <span className="material-symbols-outlined text-sm text-muted-foreground/70" title={t("memberPortal.bio.lockedTooltip")}>lock</span>}
-          </div>
-        </div>
-      </div>
+      <AccountGroup
+        title={t("memberPortal.account.personalInformation")}
+        description={t("memberPortal.account.personalInformationDescription")}
+      >
+        <EditableRow
+          icon="person"
+          label={t("memberPortal.bio.fullName")}
+          name="displayName"
+          value={formData.displayName}
+          onChange={handleFieldChange}
+          placeholder={t("memberPortal.bio.placeholderName")}
+          required
+        />
+        <EditableRow
+          icon="badge"
+          label={t("memberPortal.bio.nickname")}
+          name="headline"
+          value={formData.headline}
+          onChange={handleFieldChange}
+          placeholder={t("memberPortal.bio.placeholderHeadline")}
+        />
+        <EditableRow
+          icon="cake"
+          label={t("memberPortal.bio.birthday")}
+          name="birthday"
+          value={formData.birthday}
+          onChange={handleFieldChange}
+          placeholder={t("memberPortal.bio.placeholderBirthday")}
+        />
+        <label className="apple-account-row apple-account-row--textarea">
+          <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">notes</span>
+          <span className="apple-account-row-label">{t("memberPortal.account.about")}</span>
+          <textarea
+            name="bio"
+            value={formData.bio || ""}
+            onChange={handleFieldChange}
+            placeholder={t("memberPortal.account.aboutPlaceholder")}
+            rows={3}
+            className={`${FIELD_CLASS} resize-y leading-relaxed`}
+          />
+        </label>
+      </AccountGroup>
 
-      {/* Section B: Contact settings */}
-      <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.bio.contactInfo")}</h3>
-        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px] bg-muted/50">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">mail</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">Gmail</label>
-            <div className="flex-1 flex flex-wrap justify-between items-center gap-2">
-              <span className="text-xs font-semibold text-zinc-500">{memberSession?.email || "-"}</span>
-              {bio?.isEduVerified ? (
-                <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[#34c759]/10 border border-[#34c759]/20 text-[9px] font-bold text-success shrink-0">
-                  <span className="material-symbols-outlined text-[10px]">verified</span>
-                  Student verified
-                </div>
-              ) : (
-                <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-warning/10 border border-warning/20 text-[9px] font-bold text-warning shrink-0">
-                  <span className="material-symbols-outlined text-[10px]">hourglass_top</span>
-                  Đang dùng thử
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">phone</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.bio.phone")}</label>
-            {identityLocked
-              ? <span className="flex-1 text-xs font-medium text-muted-foreground">{formData.phone || "-"}</span>
-              : <OptimizedInput type="tel" name="phone" value={formData.phone} onChange={handleFieldChange} placeholder={t("memberPortal.bio.placeholderPhone")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />}
-            {identityLocked && <span className="material-symbols-outlined text-sm text-muted-foreground/70" title={t("memberPortal.bio.lockedTooltip")}>lock</span>}
-          </div>
+      <AccountGroup
+        title={t("memberPortal.account.verifiedIdentity")}
+        description={t("memberPortal.account.verifiedIdentityDescription")}
+      >
+        <VerifiedRow
+          icon="mail"
+          label={t("memberPortal.bio.gmail")}
+          value={memberSession?.email}
+          lockLabel={t("memberPortal.account.eduFieldLocked")}
+        />
+        <VerifiedRow
+          icon="phone"
+          label={t("memberPortal.bio.phone")}
+          value={verifiedPhone}
+          lockLabel={t("memberPortal.account.eduFieldLocked")}
+        />
+        <VerifiedRow
+          icon="school"
+          label={t("memberPortal.career.education")}
+          value={verifiedSchool}
+          lockLabel={t("memberPortal.account.eduFieldLocked")}
+        />
+        <div className="apple-account-security-note">
+          <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
+          <p>{t("memberPortal.account.eduProtectionNote")}</p>
         </div>
-      </div>
+      </AccountGroup>
 
-      {/* Section C: Career */}
-      <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.career.title")}</h3>
-        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">work</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.role")}</label>
-            <OptimizedInput type="text" name="jobTitle" value={formData.jobTitle} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderRole")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">school</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.education")}</label>
-            {identityLocked
-              ? <span className="flex-1 text-xs font-medium text-muted-foreground">{formData.education || "-"}</span>
-              : <OptimizedInput type="text" name="education" value={formData.education} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderEdu")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />}
-            {identityLocked && <span className="material-symbols-outlined text-sm text-muted-foreground/70" title={t("memberPortal.bio.lockedTooltip")}>lock</span>}
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">psychology</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.career.skills")}</label>
-            <OptimizedInput type="text" name="skills" value={formData.skills} onChange={handleFieldChange} placeholder={t("memberPortal.career.placeholderSkills")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
-        </div>
-      </div>
+      <AccountGroup title={t("memberPortal.career.title")}>
+        <EditableRow
+          icon="work"
+          label={t("memberPortal.career.role")}
+          name="jobTitle"
+          value={formData.jobTitle}
+          onChange={handleFieldChange}
+          placeholder={t("memberPortal.career.placeholderRole")}
+        />
+        <EditableRow
+          icon="psychology"
+          label={t("memberPortal.career.skills")}
+          name="skills"
+          value={formData.skills}
+          onChange={handleFieldChange}
+          placeholder={t("memberPortal.career.placeholderSkills")}
+        />
+      </AccountGroup>
 
-      {/* Section D: Body Measurements & Location */}
-      <div className="space-y-2">
-        <h3 className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-widest pl-4">{t("memberPortal.physical.title")}</h3>
-        <div className="hg-glass rounded-lg overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">height</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.height")}</label>
-            <OptimizedInput type="text" name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">monitor_weight</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.weight")}</label>
-            <OptimizedInput type="text" name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">straighten</span>
-            </div>
-            <label className="text-[11px] font-semibold text-[#8e8e93] dark:text-[#8e8e93] uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.measurements")}</label>
-            <OptimizedInput type="text" name="measurements" value={formData.measurements} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderMeasure")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3 min-h-[50px]">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground shrink-0 bg-foreground/[0.06]">
-              <span className="material-symbols-outlined text-base">distance</span>
-            </div>
-            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider w-24 shrink-0">{t("memberPortal.physical.location")}</label>
-            <OptimizedInput type="text" name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} className="w-full bg-transparent text-foreground placeholder-zinc-400 focus:outline-none text-[13px] font-medium ios-small-input" />
-          </div>
+      <AccountGroup
+        title={t("memberPortal.account.optionalDetails")}
+        description={t("memberPortal.account.optionalDetailsDescription")}
+      >
+        <EditableRow icon="height" label={t("memberPortal.physical.height")} name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} />
+        <EditableRow icon="monitor_weight" label={t("memberPortal.physical.weight")} name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} />
+        <EditableRow icon="straighten" label={t("memberPortal.physical.measurements")} name="measurements" value={formData.measurements} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderMeasure")} />
+        <EditableRow icon="location_on" label={t("memberPortal.physical.location")} name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} />
+      </AccountGroup>
+
+      <div className="apple-account-savebar">
+        <div>
+          <strong>{t("memberPortal.account.saveTitle")}</strong>
+          <small>{t("memberPortal.account.saveDescription")}</small>
         </div>
+        <button type="submit" className="apple-account-save" disabled={saving}>
+          {saving ? (
+            <span className="apple-account-spinner" aria-hidden="true" />
+          ) : (
+            <span className="material-symbols-outlined" aria-hidden="true">check</span>
+          )}
+          {saving ? t("memberPortal.bio.saving") : t("memberPortal.bio.saveChanges")}
+        </button>
       </div>
-    </div>
+    </form>
   );
 }

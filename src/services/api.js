@@ -18,7 +18,7 @@ export const getAiUrl = () => {
   return "http://localhost:8000";
 };
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const BASE_URL = import.meta.env.VITE_API_URL || '/api'
 const AI_URL = getAiUrl()
 
 const getInternalKey = () => import.meta.env.VITE_INTERNAL_API_KEY || ''

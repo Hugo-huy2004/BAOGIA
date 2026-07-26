@@ -2,6 +2,7 @@
  * Frontend Utility Helper - Web Push Notification System
  * Hỗ trợ đăng ký Service Worker và gửi đối tượng Subscription Object lên server.
  */
+import { getMemberToken } from "../services/authSession";
 
 // Hàm phụ để convert khóa VAPID Public Key dạng base64 sang Uint8Array
 function urlBase64ToUint8Array(base64String) {
@@ -131,12 +132,21 @@ export const webPushHelper = {
       // 4. Gửi đối tượng Subscription Object lên server kèm theo email
       const registerResponse = await fetch(`${API_BASE_URL}/notifications/subscribe`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(getMemberToken() ? { Authorization: `Bearer ${getMemberToken()}` } : {}),
         },
         body: JSON.stringify({
-          email,
-          subscription
+          email: String(email || '').trim().toLowerCase(),
+          subscription,
+          device: {
+            locale: navigator.language || '',
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+            platform: navigator.userAgentData?.platform || navigator.platform || '',
+            standalone: window.matchMedia?.('(display-mode: standalone)')?.matches
+              || window.navigator.standalone === true,
+          },
         })
       });
 
@@ -182,7 +192,11 @@ export const webPushHelper = {
     await sub.unsubscribe();
     await fetch(`${API_BASE_URL}/notifications/unsubscribe`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(getMemberToken() ? { Authorization: `Bearer ${getMemberToken()}` } : {}),
+      },
       body: JSON.stringify({ endpoint }),
     }).catch(() => {});
   }

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Copy, Send, Sparkles, Lock, Unlock } from "lucide-react";
 import { MembershipFactory } from "../../../models/membershipTier";
 
@@ -17,13 +18,15 @@ export default function JoyCard({
   onOpenTransferModal,
   selectedTierOverride = null
 }) {
+  const { t, i18n } = useTranslation();
   // Use OOP Factory to resolve current tier & next tier
   const activeTier = selectedTierOverride || MembershipFactory.getCurrentTier(referralCount);
   const isUnlocked = activeTier.isUnlocked(referralCount);
   const isDarkText = activeTier.textClass.includes("zinc-950") || activeTier.textClass.includes("zinc-900");
 
-  const rawName = displayName || email?.split("@")[0] || "LE GIA HUY";
+  const rawName = displayName || email?.split("@")[0] || t("memberPortal.navigation.memberFallback");
   const cleanName = rawName.replace(/\s*\([^)]*\)/g, "").trim();
+  const numberLocale = i18n.resolvedLanguage === "en" ? "en-US" : "vi-VN";
 
   return (
     <div className="relative w-full aspect-[1.586/1] rounded-[24px] overflow-visible transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] group select-none">
@@ -57,7 +60,7 @@ export default function JoyCard({
               type="button"
               onClick={onCopyReferral}
               className={`px-3 py-1 rounded-full text-[11px] font-mono font-black tracking-wider flex items-center gap-1.5 active:scale-95 transition-all shadow-xs backdrop-blur-md ${activeTier.pillStyle}`}
-              title="Sao chép mã cá nhân"
+              title={t("memberPortal.joy.card.copyCode")}
             >
               <span className="material-symbols-outlined text-xs">badge</span>
               <span>{referralCode || "HG9TNHHK"}</span>
@@ -74,7 +77,7 @@ export default function JoyCard({
               </span>
 
               <span className="text-[10px] font-mono font-black tracking-widest uppercase opacity-80 hidden sm:inline-block ml-1">
-                HUGO CARD
+                {t("memberPortal.joy.card.cardName")}
               </span>
             </div>
           </div>
@@ -82,11 +85,11 @@ export default function JoyCard({
           {/* Middle Row: Balance Readout */}
           <div className="flex-1 flex flex-col justify-center min-w-0 py-1">
             <span className="text-[10px] sm:text-[11px] font-medium uppercase tracking-widest opacity-75 block">
-              Số dư khả dụng
+              {t("memberPortal.joy.card.availableBalance")}
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-[32px] sm:text-[38px] leading-none font-semibold tracking-tight tabular-nums">
-                {(balance ?? 0).toLocaleString("vi-VN")}
+                {(balance ?? 0).toLocaleString(numberLocale)}
               </span>
               <span className={`text-sm sm:text-base font-semibold ${activeTier.joyTextColor}`}>
                 JOY
@@ -104,7 +107,7 @@ export default function JoyCard({
                 style={{
                   background: activeTier.chipGradient || "linear-gradient(135deg, #FFF099 0%, #E6C200 50%, #997A00 100%)"
                 }}
-                title="EMV Smart Chip"
+                title={t("memberPortal.joy.card.smartChip")}
               >
                 <div className="w-full h-px bg-amber-950/30" />
                 <div className="flex justify-between w-full h-2">
@@ -135,7 +138,7 @@ export default function JoyCard({
               className={`px-3 py-1 rounded-full backdrop-blur-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 active:scale-95 transition-all shadow-xs shrink-0 border ${activeTier.actionBtnStyle}`}
             >
               <Send className="w-3 h-3" />
-              <span>Chuyển JOY</span>
+              <span>{t("memberPortal.joy.card.transfer")}</span>
             </button>
           </div>
         </div>

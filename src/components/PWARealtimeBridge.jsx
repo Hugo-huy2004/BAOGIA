@@ -6,7 +6,6 @@ import { useJoyStore } from '../stores/joyStore';
 import { webPushHelper } from '../utils/webPushHelper';
 import { playNotificationSound } from '../utils/audio';
 import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
-import { autoBluePrintPWAPermissions } from '../utils/pwaPermissions';
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
@@ -25,18 +24,10 @@ export default function PWARealtimeBridge() {
   const email = session?.email;
   const retryTimer = useRef(null);
   const retryCount = useRef(0);
-  // Guard: show the push nudge at most once per browser session.
-  const pushNudgeFired = useRef(false);
-  const permissionsSetup = useRef(false);
 
   useEffect(() => {
     if (!email) return undefined;
 
-    // Auto-setup PWA permissions (weather, location, push) on first login
-    if (!permissionsSetup.current) {
-      permissionsSetup.current = true;
-      autoBluePrintPWAPermissions().catch(() => {});
-    }
     let socket;
     let disposed = false;
 
@@ -131,37 +122,11 @@ export default function PWARealtimeBridge() {
       webPushHelper.registerAndSubscribe(email).catch(() => {});
     }
 
-    // Proactively nudge the user to enable push when they haven't decided yet.
-    // Fires once per session, 4 s after login so the page has settled.
-    let nudgeTimer = null;
-    if (!pushNudgeFired.current && webPushHelper.isSupported() && 'Notification' in window) {
-      pushNudgeFired.current = true;
-      nudgeTimer = window.setTimeout(() => {
-        const perm = Notification.permission;
-        if (perm === 'denied') {
-          notify.info('Thông báo đang bị tắt. Vào cài đặt trình duyệt để bật lại nhé!', {
-            icon: '🔕',
-            duration: 5000,
-          });
-          return;
-        }
-        if (perm === 'default') {
-          notify.info('Bật thông báo trình duyệt để nhận cập nhật JOY, xác minh tài khoản và tin nhắn quan trọng.', {
-            id: 'push-nudge',
-            icon: 'notifications',
-            duration: 7000,
-            position: 'top-center',
-          });
-        }
-      }, 4000);
-    }
-
     return () => {
       disposed = true;
       abortRef.current?.abort();
       window.clearTimeout(retryTimer.current);
       if (stableTimer) window.clearTimeout(stableTimer);
-      if (nudgeTimer) window.clearTimeout(nudgeTimer);
       // Only close if past CONNECTING (readyState 0) to avoid the
       // "WebSocket is closed before the connection is established" warning
       // that React StrictMode triggers by double-invoking effects.
@@ -187,7 +152,7 @@ export default function PWARealtimeBridge() {
       await registration?.update().catch(() => {});
     };
     checkForUpdate();
-    interval = window.setInterval(checkForUpdate, 60_000);
+    interval = window.setInterval(checkForUpdate, 30 * 60_000);
     const activateUpdate = () => {
       if (isRefreshing || !navigator.serviceWorker.controller) return;
       isRefreshing = true;

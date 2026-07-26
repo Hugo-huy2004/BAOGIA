@@ -57,7 +57,9 @@ export default function DesignSubTab({
   const handleSuccess = (data) => {
     onBioUpdate?.(data.bio);
     setFormData(prev => ({ ...prev, theme: { ...prev.theme, template: invoiceTemplate } }));
-    showToast?.(`Đã trao đổi JOY diện giao diện ${invoiceTemplate === 'brutalism' ? 'Brutalism' : 'Flat'}!`, 'success');
+    showToast?.(t("memberPortal.design.exchangeSuccess", {
+      template: invoiceTemplate === "brutalism" ? "Brutalism" : "Flat",
+    }), "success");
   };
 
   const isClassic = formData.theme?.template !== 'brutalism' && formData.theme?.template !== 'flat';
@@ -70,7 +72,7 @@ export default function DesignSubTab({
           {t("memberPortal.design.title")}
         </h3>
         <p className="text-[9px] text-muted-foreground/70 pl-4 -mt-1">
-          JOY là đồng tích góp phi lợi nhuận — Brutalism &amp; Flat trao đổi {RENTAL_PRICE} JOY/tháng, hết hạn sẽ tự trả về Classic.
+          {t("memberPortal.design.rentalDescription", { price: RENTAL_PRICE })}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button
@@ -90,7 +92,7 @@ export default function DesignSubTab({
             </div>
             <h4 className="text-[11px] font-bold mt-2">{t("memberPortal.design.classicTitle")}</h4>
             <p className="text-[8.5px] text-muted-foreground/70 mt-1 leading-relaxed">{t("memberPortal.design.classicDesc")}</p>
-            <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-success/15 text-success dark:bg-success/30">Miễn phí</span>
+            <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-success/15 text-success dark:bg-success/30">{t("memberPortal.design.free")}</span>
           </button>
 
           <button
@@ -111,9 +113,9 @@ export default function DesignSubTab({
             <h4 className="text-[11px] font-bold mt-2 text-destructive">Brutalism</h4>
             <p className="text-[8.5px] text-muted-foreground/70 mt-1 leading-relaxed">{t("memberPortal.design.brutalismDesc")}</p>
             {rentalActive && rental.template === 'brutalism' ? (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary dark:bg-primary/30">Còn {daysRemaining(rental.expiresAt)} ngày</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary dark:bg-primary/30">{t("memberPortal.design.daysRemaining", { count: daysRemaining(rental.expiresAt) })}</span>
             ) : (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-warning/15 text-warning dark:bg-warning/30">{RENTAL_PRICE} JOY/tháng</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-warning/15 text-warning dark:bg-warning/30">{t("memberPortal.design.pricePerMonth", { price: RENTAL_PRICE })}</span>
             )}
           </button>
 
@@ -135,9 +137,9 @@ export default function DesignSubTab({
             <h4 className="text-[11px] font-bold mt-2 text-teal-650 dark:text-teal-400">{t("memberPortal.design.flatTitle")}</h4>
             <p className="text-[8.5px] text-muted-foreground/70 mt-1 leading-relaxed">{t("memberPortal.design.flatDesc")}</p>
             {rentalActive && rental.template === 'flat' ? (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary dark:bg-primary/30">Còn {daysRemaining(rental.expiresAt)} ngày</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-primary/15 text-primary dark:bg-primary/30">{t("memberPortal.design.daysRemaining", { count: daysRemaining(rental.expiresAt) })}</span>
             ) : (
-              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-warning/15 text-warning dark:bg-warning/30">{RENTAL_PRICE} JOY/tháng</span>
+              <span className="inline-block mt-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-warning/15 text-warning dark:bg-warning/30">{t("memberPortal.design.pricePerMonth", { price: RENTAL_PRICE })}</span>
             )}
           </button>
         </div>

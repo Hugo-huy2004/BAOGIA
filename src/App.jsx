@@ -15,7 +15,6 @@ import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 // HBot retired (product decision 2026-07: focus the support surface on
 // HugoPSY). The component file stays on disk for reference but is no longer
 // imported, so it and its dialogue trees drop out of the main bundle.
-import { CursorEffect as Cursor } from "@hwagfu/cursor";
 import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
@@ -28,8 +27,6 @@ import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import { PWAKeepAlive } from "./utils/pwaKeepAlive";
-import { ApplePushNotificationManager } from "./utils/applePushNotificationManager";
-import { WebGPUAccelerator } from "./utils/webgpuAccelerator";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 
@@ -60,17 +57,45 @@ const ChessPage = lazy(() => import("./pages/public/ChessPage"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
 const JoyPWA = lazy(() => import("./pages/JoyPWA"));
+const Cursor = lazy(() =>
+  import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
+);
 
 function AppContent() {
   const location = useLocation();
   const { data } = useData();
 
   useEffect(() => {
-    BackgroundSyncEngine.initListener();
-    StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
-    PWAKeepAlive.startKeepAlive();
-    WebGPUAccelerator.initWebGPU().catch(() => {});
-    ApplePushNotificationManager.scheduleEveningSkincareRoutine();
+    const disposeBackgroundSync = BackgroundSyncEngine.initListener();
+    const runMaintenance = () => {
+      StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
+      if (isMemberAuthenticated()) {
+        PWAKeepAlive.startKeepAlive();
+        // Preserve skincare reminders for members who already opted in,
+        // without loading the module or prompting for permission at startup.
+        if ("Notification" in window && Notification.permission === "granted") {
+          import("./utils/applePushNotificationManager")
+            .then(({ ApplePushNotificationManager }) => {
+              ApplePushNotificationManager.scheduleEveningSkincareRoutine();
+            })
+            .catch(() => {});
+        }
+      }
+    };
+
+    let idleId;
+    let timerId;
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(runMaintenance, { timeout: 3000 });
+    } else {
+      timerId = window.setTimeout(runMaintenance, 1200);
+    }
+
+    return () => {
+      disposeBackgroundSync?.();
+      if (idleId) window.cancelIdleCallback?.(idleId);
+      if (timerId) window.clearTimeout(timerId);
+    };
   }, []);
   const isBioRoute = location.pathname.startsWith('/bio/');
   const isPartnerBioRoute = location.pathname === "/partner/bio-editor";
@@ -131,10 +156,15 @@ function AppContent() {
   // In standalone PWA mode without an active session, show only the login screen —
   // no marketing navbar, no HBot, no footer. Mirrors how a native app behaves.
   const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const showCustomCursor =
+    !isPWA &&
+    !location.pathname.startsWith("/member") &&
+    window.matchMedia("(min-width: 768px) and (hover: hover) and (pointer: fine)").matches;
   const isAuthenticated = isMemberAuthenticated();
   // In the installed PWA we want a focused, app-like dashboard: never show the
   // marketing top navbar / tab-bar — those are web-only. But keep HBot for support.
-  const hideNavbar = isEmbed || isFullscreenUtility || isPWA;
+  const isMemberRoute = location.pathname.startsWith("/member");
+  const hideNavbar = isEmbed || isFullscreenUtility || isPWA || isMemberRoute;
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
@@ -150,12 +180,16 @@ function AppContent() {
       
       {/* Dynamic Content Router */}
       <main className="flex-grow">
-        <Cursor 
-          ringColor="#3b82f6"
-          ringBackground="rgba(59, 130, 246, 0.2)"
-          ringHoverBackground="rgba(59, 130, 246, 0.4)"
-          dotColor="#3b82f6"
-         />
+        {showCustomCursor && (
+          <Suspense fallback={null}>
+            <Cursor
+              ringColor="#007aff"
+              ringBackground="rgba(0,122,255,0.16)"
+              ringHoverBackground="rgba(0,122,255,0.28)"
+              dotColor="#007aff"
+            />
+          </Suspense>
+        )}
         <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
           <Routes>
             <Route path="/" element={
@@ -178,7 +212,7 @@ function AppContent() {
             {/* Installed PWA (standalone) gets the app-style, member-only Google
                 login; the web keeps the full 3-tab LoginPage. */}
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
-            <Route path="/member" element={<Navigate to="/member/utilities" replace />} />
+            <Route path="/member" element={<Navigate to="/member/today" replace />} />
             <Route path="/member/:tab" element={
               (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
                 ? <MemberPortalPage />

@@ -16,4 +16,6 @@ const CommunityPlaceSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+CommunityPlaceSchema.index({ lat: 1, lng: 1 });
+
 export default mongoose.model('CommunityPlace', CommunityPlaceSchema);

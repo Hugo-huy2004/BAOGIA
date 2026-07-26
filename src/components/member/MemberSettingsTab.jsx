@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
 import BiometricLoginCard from "./BiometricLoginCard";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { webPushHelper } from "../../utils/webPushHelper";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { hapticSelect } from "../../utils/haptics";
 import PersonalInfoSubTab from "./PersonalInfoSubTab";
+import JoyCard from "./card/JoyCard";
+import { useJoyStore } from "../../stores/joyStore";
 import {
   ChevronRight,
-  User,
-  CreditCard,
   Bell,
   Lock,
   Globe,
@@ -20,13 +19,9 @@ import {
   Gift,
   PlusCircle,
   LogOut,
-  Sliders,
   Check,
   X,
   Share2,
-  ShieldCheck,
-  Smartphone,
-  Copy
 } from "lucide-react";
 
 const LANGUAGES = [
@@ -39,9 +34,7 @@ export default function MemberSettingsTab({
   showToast,
   handleLogout,
   bio,
-  joyBalance = 0,
   formData,
-  setFormData,
   handleFieldChange,
   publicLink,
   saving,
@@ -52,15 +45,6 @@ export default function MemberSettingsTab({
   handleAvatarChange,
   handleRemoveAvatar,
   handleSave,
-  isGuestMode,
-  newLinkLabel,
-  setNewLinkLabel,
-  newLinkUrl,
-  setNewLinkUrl,
-  handleLinkInputKeyDown,
-  addSocialLink,
-  removeSocialLink,
-  bioTextareaRef,
   onOpenParticleModal,
   onSelectTab,
   onSelectUtility
@@ -69,14 +53,15 @@ export default function MemberSettingsTab({
   const navigate = useNavigate();
   const [activeSheet, setActiveSheet] = useState(null); // null | "personal" | "notifications" | "security" | "language"
 
-  const [pushSupported, setPushSupported] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
   const email = memberSession?.email;
+  const joyBalance = useJoyStore((state) => state.balance);
+  const referralCode = useJoyStore((state) => state.referralCode);
+  const referralCount = useJoyStore((state) => state.referralCount);
 
   useEffect(() => {
-    setPushSupported(webPushHelper.isSupported());
     webPushHelper.isSubscribed().then(setPushEnabled);
     setBiometricSupported(webauthnHelper.isSupported());
   }, []);
@@ -106,7 +91,7 @@ export default function MemberSettingsTab({
           showToast?.(t("memberPortal.settings.pushDeniedToast"), "warning");
         }
       }
-    } catch (_) {
+    } catch {
       showToast?.(t("memberPortal.settings.pushErrorToast"), "error");
     } finally {
       setPushBusy(false);
@@ -119,46 +104,37 @@ export default function MemberSettingsTab({
     i18n.changeLanguage(code);
   };
 
-  const displayName = formData?.displayName || bio?.displayName || memberSession?.displayName || "LE GIA HUY";
+  const displayName = formData?.displayName || bio?.displayName || memberSession?.displayName || t("memberPortal.navigation.memberFallback");
+
+  const copyReferralCode = async () => {
+    const code = referralCode || bio?.referralCode;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      showToast?.(t("memberPortal.joy.referral.copied"), "success");
+    } catch {
+      showToast?.(t("memberPortal.bioPreview.copyError"), "error");
+    }
+  };
 
   return (
-    <div className="max-w-md mx-auto space-y-4 animate-fadeIn text-left select-none pb-28 font-sans">
-      {/* ── 1. APPLE ACCOUNT TOP BAR ────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-1 py-1">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-xs">store</span>
-          </div>
-          <span className="text-base font-black tracking-tight text-foreground">
-            Hugo <span className="text-primary">Account</span>
-          </span>
+    <div className="hugo-account-shell mx-auto space-y-3 animate-fadeIn text-left select-none pb-28 font-sans">
+      {/* Identity sits outside the settings cards, like an Apple Account header. */}
+      <header className="hugo-account-header">
+        <div className="hugo-account-titlebar">
+          <span>Hugo Account</span>
         </div>
-
-        <button
-          onClick={() => {
-            hapticSelect();
-            if (onSelectTab) onSelectTab("utilities");
-            else navigate("/member/utilities");
-          }}
-          className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground flex items-center justify-center active:scale-95 transition-all"
-          title="Đóng cài đặt"
-        >
-          <X className="w-4 h-4 text-foreground" />
-        </button>
-      </div>
-
-      {/* ── 2. HERO PROFILE APPLE ACCOUNT CARD ─────────────────────────────── */}
-      <div
+      <button
+        type="button"
         onClick={() => { hapticSelect(); setActiveSheet("personal"); }}
-        className="bg-card border border-border/40 rounded-[24px] p-4 shadow-xs flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-all active:scale-[0.99]"
+        className="hugo-account-member flex items-center justify-between text-left"
       >
         <div className="flex items-center gap-3.5 min-w-0 flex-1">
-          {/* Large Avatar */}
-          <div className="relative w-14 h-14 rounded-full bg-muted overflow-hidden shrink-0 ring-2 ring-border shadow-xs">
+          <div className="hugo-account-avatar relative rounded-full bg-muted overflow-hidden shrink-0">
             {formData.avatarUrl ? (
-              <img src={formData.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+              <img src={formData.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-indigo-600 text-white text-xl font-black">
+              <div className="w-full h-full flex items-center justify-center bg-primary text-white text-xl font-semibold">
                 {displayName[0]?.toUpperCase()}
               </div>
             )}
@@ -169,16 +145,31 @@ export default function MemberSettingsTab({
               {displayName}
             </h2>
             <p className="text-[11px] font-medium text-muted-foreground truncate mt-0.5">
-              Account info, payments, and settings
+              {memberSession?.email || t("memberPortal.settings.account.personalInformation")}
             </p>
           </div>
         </div>
 
-        <ChevronRight className="w-5 h-5 text-muted-foreground/60 shrink-0 ml-2" />
-      </div>
+        <span className="hugo-account-member-edit" aria-hidden="true">
+          <ChevronRight className="w-4 h-4" />
+        </span>
+      </button>
+      </header>
+
+      <section className="hugo-account-joy-card" aria-label={t("memberPortal.account.membershipCard")}>
+        <JoyCard
+          referralCount={referralCount}
+          balance={joyBalance}
+          referralCode={referralCode || bio?.referralCode}
+          displayName={displayName}
+          email={email}
+          onCopyReferral={copyReferralCode}
+          onOpenTransferModal={() => onOpenParticleModal?.()}
+        />
+      </section>
 
       {/* ── 3. SUB PROFILE CARD: HUGO BIO PROFILE ──────────────────────────── */}
-      <div className="space-y-1.5">
+      <div>
         <div
           onClick={() => {
             hapticSelect();
@@ -186,43 +177,40 @@ export default function MemberSettingsTab({
             else if (onSelectTab) onSelectTab("utilities");
             else navigate("/member/utilities/bio");
           }}
-          className="bg-card border border-border/40 rounded-[20px] p-3.5 shadow-xs flex items-center justify-between cursor-pointer hover:bg-muted/30 transition-all active:scale-[0.99]"
+          className="hugo-account-bio-card flex items-center justify-between cursor-pointer transition-all active:scale-[0.99]"
         >
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-500 flex items-center justify-center shrink-0">
               <Sparkles className="w-4 h-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-xs font-black text-foreground">Hugo Bio Profile</h3>
+              <h3 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.bioTitle")}</h3>
               <p className="text-[10.5px] text-muted-foreground truncate">
-                Tùy chỉnh giao diện, danh thiếp &amp; liên kết xã hội
+                {t("memberPortal.settings.account.bioDescription")}
               </p>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
         </div>
-
-        <p className="text-[10px] text-muted-foreground/80 px-2 leading-relaxed">
-          Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối HugoStudio.
-        </p>
       </div>
 
       {/* ── 4. GROUP 1: APPLE ACCOUNT SETTINGS INSET GROUP ──────────────────── */}
-      <div className="bg-card border border-border/40 rounded-[24px] overflow-hidden shadow-xs divide-y divide-border/30">
+      <div className="hugo-account-group">
 
 
         {/* Notifications */}
         <div
           onClick={() => { hapticSelect(); setActiveSheet("notifications"); }}
-          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+          className="hugo-account-row flex items-center justify-between cursor-pointer"
+          data-tone="blue"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-foreground">Notifications</h4>
-              <span className="text-[10.5px] text-muted-foreground block">Cấu hình thông báo Web Push</span>
+              <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.notifications")}</h4>
+              <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.notificationsDescription")}</span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
@@ -231,15 +219,16 @@ export default function MemberSettingsTab({
         {/* Privacy & Access */}
         <div
           onClick={() => { hapticSelect(); setActiveSheet("security"); }}
-          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+          className="hugo-account-row flex items-center justify-between cursor-pointer"
+          data-tone="purple"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
               <Lock className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-foreground">Privacy &amp; Access</h4>
-              <span className="text-[10.5px] text-muted-foreground block">Quyền riêng tư &amp; Đăng nhập sinh trắc</span>
+              <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.privacy")}</h4>
+              <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.privacyDescription")}</span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
@@ -247,17 +236,18 @@ export default function MemberSettingsTab({
       </div>
 
       {/* ── 5. QUICK ACTION PILL BUTTONS (APPLE ACCOUNT 3-COLUMN PILL GRID) ───── */}
-      <div className="grid grid-cols-3 gap-2.5 text-center">
+      <div className="hugo-account-actions grid grid-cols-3 gap-2.5 text-center">
         <button
           onClick={() => {
             hapticSelect();
             if (onSelectTab) onSelectTab("joy");
             else navigate("/member/joy");
           }}
-          className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border/40 shadow-xs hover:bg-muted/40 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
+          data-tone="orange"
         >
           <PlusCircle className="w-5 h-5 text-primary" />
-          <span className="text-[10.5px] font-black text-primary">Nạp JOY</span>
+          <span className="text-[10.5px] font-black">{t("memberPortal.settings.account.topUpJoy")}</span>
         </button>
 
         <button
@@ -266,10 +256,11 @@ export default function MemberSettingsTab({
             if (onSelectTab) onSelectTab("joy");
             else navigate("/member/joy");
           }}
-          className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border/40 shadow-xs hover:bg-muted/40 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
+          data-tone="pink"
         >
           <Gift className="w-5 h-5 text-primary" />
-          <span className="text-[10.5px] font-black text-primary">Đổi Code</span>
+          <span className="text-[10.5px] font-black">{t("memberPortal.settings.account.redeemCode")}</span>
         </button>
 
         <button
@@ -279,26 +270,28 @@ export default function MemberSettingsTab({
             else if (onSelectTab) onSelectTab("joy");
             else navigate("/member/joy");
           }}
-          className="flex flex-col items-center justify-center gap-1 p-3 rounded-2xl bg-card border border-border/40 shadow-xs hover:bg-muted/40 active:scale-95 transition-all cursor-pointer"
+          className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
+          data-tone="green"
         >
           <QrCode className="w-5 h-5 text-primary" />
-          <span className="text-[10.5px] font-black text-primary">Tặng JOY</span>
+          <span className="text-[10.5px] font-black">{t("memberPortal.settings.account.giftJoy")}</span>
         </button>
       </div>
 
       {/* ── 6. GROUP 2: SYSTEM & LANGUAGE INSET GROUP ────────────────────────── */}
-      <div className="bg-card border border-border/40 rounded-[24px] overflow-hidden shadow-xs divide-y divide-border/30">
+      <div className="hugo-account-group">
         {/* Language Selection */}
         <div
           onClick={() => { hapticSelect(); setActiveSheet("language"); }}
-          className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/40 transition-colors"
+          className="hugo-account-row flex items-center justify-between cursor-pointer"
+          data-tone="teal"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-500 flex items-center justify-center">
               <Globe className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-foreground">Language</h4>
+              <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.language")}</h4>
               <span className="text-[10.5px] text-muted-foreground block">{currentLang === "vi" ? "Tiếng Việt" : "English"}</span>
             </div>
           </div>
@@ -311,15 +304,16 @@ export default function MemberSettingsTab({
             href={publicLink}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between p-4 hover:bg-muted/40 transition-colors"
+            className="hugo-account-row flex items-center justify-between"
+            data-tone="cyan"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center">
                 <Share2 className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-xs font-black text-foreground">Public Bio Page</h4>
-                <span className="text-[10.5px] text-muted-foreground block">Mở trang Bio công khai</span>
+                <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.publicBio")}</h4>
+                <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.publicBioDescription")}</span>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
@@ -330,18 +324,18 @@ export default function MemberSettingsTab({
       {/* ── 7. SIGN OUT BUTTON (DESTRUCTIVE RED ROW) ─────────────────────────── */}
       <button
         onClick={handleLogout}
-        className="w-full py-3.5 rounded-[20px] bg-card border border-rose-500/20 text-rose-600 dark:text-rose-400 font-black text-xs uppercase tracking-wider shadow-xs hover:bg-rose-500/10 active:scale-98 transition-all flex items-center justify-center gap-2"
+        className="hugo-account-logout w-full active:scale-98 transition-all flex items-center justify-center gap-2"
       >
         <LogOut className="w-4 h-4" />
-        <span>Đăng Xuất Tài Khoản</span>
+        <span>{t("memberPortal.settings.account.signOut")}</span>
       </button>
 
       {/* ── 8. MODAL SHEET: PERSONAL INFO ─────────────────────────────────────── */}
       {activeSheet === "personal" && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
           <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-lg w-full space-y-4 shadow-2xl animate-slideUp text-left max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">Thông Tin Cá Nhân</h3>
+              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.personalInformation")}</h3>
               <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -350,6 +344,10 @@ export default function MemberSettingsTab({
             <PersonalInfoSubTab
               formData={formData}
               handleFieldChange={handleFieldChange}
+              handleSave={async (event) => {
+                await handleSave(event);
+                setActiveSheet(null);
+              }}
               saving={saving}
               isDragOver={isDragOver}
               setIsDragOver={setIsDragOver}
@@ -362,27 +360,16 @@ export default function MemberSettingsTab({
               hideAvatarSection={false}
               t={t}
             />
-
-            <button
-              disabled={saving}
-              onClick={async () => {
-                await handleSave();
-                setActiveSheet(null);
-              }}
-              className="w-full py-3 bg-primary text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-md hover:opacity-95 transition-all"
-            >
-              {saving ? "Đang lưu..." : "Lưu Thông Tin"}
-            </button>
           </div>
         </div>
       )}
 
       {/* ── 9. MODAL SHEET: NOTIFICATIONS ────────────────────────────────────── */}
       {activeSheet === "notifications" && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
           <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
             <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">Cấu Hình Thông Báo</h3>
+              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.notificationSettings")}</h3>
               <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -390,17 +377,17 @@ export default function MemberSettingsTab({
 
             <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border/30">
               <div>
-                <h4 className="text-xs font-black text-foreground">Thông Báo Web Push</h4>
-                <p className="text-[10.5px] text-muted-foreground">Nhận thông báo sự kiện, tin nhắn &amp; điểm thưởng</p>
+                <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.pushTitle")}</h4>
+                <p className="text-[10.5px] text-muted-foreground">{t("memberPortal.settings.account.pushDescription")}</p>
               </div>
-              <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label="Push Notif" />
+              <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
             </div>
 
             <button
               onClick={() => setActiveSheet(null)}
               className="w-full py-2.5 bg-muted text-foreground font-black text-xs uppercase tracking-wider rounded-xl"
             >
-              Xong
+              {t("memberPortal.settings.account.done")}
             </button>
           </div>
         </div>
@@ -408,10 +395,10 @@ export default function MemberSettingsTab({
 
       {/* ── 10. MODAL SHEET: PRIVACY & ACCESS ──────────────────────────────────── */}
       {activeSheet === "security" && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
           <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
             <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">Quyền Riêng Tư &amp; Sinh Trắc</h3>
+              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.privacyBiometrics")}</h3>
               <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -422,14 +409,14 @@ export default function MemberSettingsTab({
                 <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">Thiết bị không hỗ trợ FaceID / WebAuthn.</p>
+              <p className="text-xs text-muted-foreground">{t("memberPortal.settings.account.biometricUnsupported")}</p>
             )}
 
             <button
               onClick={() => setActiveSheet(null)}
               className="w-full py-2.5 bg-muted text-foreground font-black text-xs uppercase tracking-wider rounded-xl"
             >
-              Xong
+              {t("memberPortal.settings.account.done")}
             </button>
           </div>
         </div>
@@ -437,10 +424,10 @@ export default function MemberSettingsTab({
 
       {/* ── 11. MODAL SHEET: LANGUAGE SELECTION ──────────────────────────────── */}
       {activeSheet === "language" && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
           <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
             <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">Chọn Ngôn Ngữ</h3>
+              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.chooseLanguage")}</h3>
               <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>

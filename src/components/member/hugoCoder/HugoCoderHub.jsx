@@ -1,24 +1,39 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Map, MonitorPlay, Library, UserRoundCog, Award, ShieldCheck, GraduationCap, RefreshCw, ArrowLeft, Lock, Share2 } from "lucide-react";
+import {
+  Award,
+  BarChart3,
+  BookOpenCheck,
+  Braces,
+  ChevronLeft,
+  Coins,
+  FileText,
+  GraduationCap,
+  Library,
+  Lock,
+  MonitorPlay,
+  RefreshCw,
+  Share2,
+  ShieldCheck,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { notify } from "../../../lib/notify";
-import { STAGES, WEB_COURSES } from "./lessons";
+import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import { STAGE_THEME } from "./stageThemes";
+import CoderLearningJourney from "./CoderLearningJourney";
 import { ResourcePreview } from "../../admin/AdminCoderResourcesTab";
 import { getMemberSession } from "../../../services/authSession";
 import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
+import "../../../styles/hugoCoderLearning.css";
 
 const MemberIdeTab = lazy(() => import("../MemberIdeTab"));
 
 const TABS = [
-  { id: "lessons", label: "Lộ trình bài học", icon: Map },
-  { id: "videos", label: "Video bài học", icon: MonitorPlay },
-  { id: "documents", label: "Tài liệu học thuật", icon: Library },
-  { id: "manage", label: "Quản lý", icon: UserRoundCog }
+  { id: "learning", labelKey: "hugoCoderLearning.tabs.learn", icon: BookOpenCheck },
+  { id: "resources", labelKey: "hugoCoderLearning.tabs.resources", icon: Library },
+  { id: "progress", labelKey: "hugoCoderLearning.tabs.progress", icon: BarChart3 },
 ];
-
-const STAGE_FILTERS = [{ id: "all", label: "Tất cả" }, ...STAGES.map((s) => ({ id: s.id, label: `Chặng ${s.phaseNumber}` }))];
-const STAGE_LABEL = Object.fromEntries(STAGES.map((s) => [s.id, `Chặng ${s.phaseNumber}`]));
 
 // Thẻ skeleton — dùng khi đang tải HOẶC chưa có học liệu nào (giữ layout không trống trải)
 function ResourceSkeleton() {
@@ -35,10 +50,17 @@ function ResourceSkeleton() {
 }
 
 // ====== Tab Video / Tài liệu — học liệu admin đăng, có preview trực quan ======
-function ResourceGrid({ type }) {
+function ResourceGrid({ type, stages }) {
   const [items, setItems] = useState(null);
   const [stage, setStage] = useState("all");
   const apiBase = import.meta.env.VITE_API_URL || "/api";
+  const stageFilters = [
+    { id: "all", label: "Tất cả" },
+    ...stages.map((item) => ({ id: item.id, label: `Chặng ${item.phaseNumber}` })),
+  ];
+  const stageLabels = Object.fromEntries(
+    stages.map((item) => [item.id, `Chặng ${item.phaseNumber}`]),
+  );
 
   useEffect(() => {
     let alive = true;
@@ -57,7 +79,7 @@ function ResourceGrid({ type }) {
     <div className="space-y-4">
       {/* Bộ lọc chặng — màu theo chặng, đồng bộ với bản đồ & trang Quản lý */}
       <div className="flex gap-1.5 flex-wrap">
-        {STAGE_FILTERS.map((f) => {
+        {stageFilters.map((f) => {
           const active = stage === f.id;
           const th = STAGE_THEME[f.id];
           return (
@@ -106,7 +128,7 @@ function ResourceGrid({ type }) {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide border ${th ? th.chip : "bg-muted text-muted-foreground border-border"}`}>
                       {th && <span className={`w-1.5 h-1.5 rounded-full ${th.dot}`} />}
-                      {STAGE_LABEL[item.stageId] || "Mọi chặng"}
+                      {stageLabels[item.stageId] || "Mọi chặng"}
                     </span>
                   </div>
                   <p className="text-sm font-black text-foreground leading-snug">{item.title}</p>
@@ -129,12 +151,53 @@ function ResourceGrid({ type }) {
   );
 }
 
+function LearningResources({ stages }) {
+  const { t } = useTranslation();
+  const [type, setType] = useState("video");
+
+  return (
+    <div className="space-y-5">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold tracking-[-0.03em] text-foreground">
+          {t("hugoCoderLearning.resources.title")}
+        </h2>
+        <p className="text-sm leading-6 text-muted-foreground">
+          {t("hugoCoderLearning.resources.description")}
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-1 rounded-2xl border border-border bg-muted/60 p-1">
+        <button
+          type="button"
+          onClick={() => setType("video")}
+          className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-xs font-semibold transition ${
+            type === "video" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
+          }`}
+        >
+          <MonitorPlay className="h-4 w-4" />
+          {t("hugoCoderLearning.resources.video")}
+        </button>
+        <button
+          type="button"
+          onClick={() => setType("document")}
+          className={`flex min-h-10 items-center justify-center gap-2 rounded-xl text-xs font-semibold transition ${
+            type === "document" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          {t("hugoCoderLearning.resources.documents")}
+        </button>
+      </div>
+      <ResourceGrid type={type} stages={stages} />
+    </div>
+  );
+}
+
 // ====== Tab Quản lý — gói, chứng chỉ, hồ sơ học thuật ======
-function ManageTab({ bio, onBioUpdate }) {
+function ManageTab({ bio, onBioUpdate, courses, stages }) {
   const apiBase = import.meta.env.VITE_API_URL || "/api";
   const completed = useMemo(
-    () => (bio?.completedLessons || []).filter((id) => WEB_COURSES.some((c) => c.id === id)),
-    [bio?.completedLessons]
+    () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),
+    [bio?.completedLessons, courses]
   );
   const hasAll = !!bio?.hugoCoderAll7Lifetime;
   const maintenanceExpires = bio?.featureSubscriptions?.hugoCoder?.expiresAt;
@@ -155,9 +218,9 @@ function ManageTab({ bio, onBioUpdate }) {
     return completed.includes(lastId);
   };
 
-  const examLessons = WEB_COURSES.filter((c) => c.practiceType === "quiz");
+  const examLessons = courses.filter((c) => c.practiceType === "quiz");
   const attempts = bio?.hugoCoderExamAttempts || {};
-  const earnedCount = STAGES.filter(stageEarned).length;
+  const earnedCount = stages.filter(stageEarned).length;
   const rank =
     completed.length >= 90 ? "Kỹ sư DevOps"
     : completed.length >= 70 ? "Kỹ sư Full-Stack"
@@ -257,7 +320,7 @@ function ManageTab({ bio, onBioUpdate }) {
           Chứng chỉ của tôi
         </h3>
         <div className="space-y-2">
-          {STAGES.map((stage) => {
+          {stages.map((stage) => {
             const earned = stageEarned(stage);
             const th = STAGE_THEME[stage.id];
             const StageIcon = th.icon;
@@ -307,7 +370,7 @@ function ManageTab({ bio, onBioUpdate }) {
           </div>
         )}
         <div className="grid grid-cols-3 gap-2">
-          {STAGES.map((stage) => {
+          {stages.map((stage) => {
             const owned = stageOwned[stage.id];
             const th = STAGE_THEME[stage.id];
             return (
@@ -346,8 +409,38 @@ function ManageTab({ bio, onBioUpdate }) {
 // Shell fullscreen DUY NHẤT: header + tab bar dùng chung cho cả 4 tab.
 // Gate JOY một lần ở đây; MemberIdeTab/MobileGuidebook chạy embedded (không tự bọc shell).
 export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId }) {
-  const [tab, setTab] = useState("lessons");
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("learning");
+  const [learningView, setLearningView] = useState(urlLessonId ? "lesson" : "journey");
+  const [selectedLessonId, setSelectedLessonId] = useState(urlLessonId || null);
   const joyBalance = useJoyStore((s) => s.balance);
+  const { courses, stages, loading } = useCoderLessons(selectedLessonId);
+
+  useEffect(() => {
+    if (urlLessonId) {
+      setSelectedLessonId(urlLessonId);
+      setTab("learning");
+      setLearningView("lesson");
+    }
+  }, [urlLessonId]);
+
+  const openLesson = (lessonId) => {
+    setSelectedLessonId(lessonId);
+    setTab("learning");
+    setLearningView("lesson");
+  };
+
+  const exitLesson = () => {
+    setLearningView("journey");
+    setSelectedLessonId(null);
+    navigate("/member/utilities/ide", { replace: true });
+  };
+
+  const selectTab = (nextTab) => {
+    setTab(nextTab);
+    if (nextTab === "learning") setLearningView("journey");
+  };
 
   return (
     <FeatureGate
@@ -361,43 +454,73 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
       onBack={onBack}
       className="max-w-lg mx-auto mt-10"
     >
-      <div className="fixed inset-0 z-50 flex flex-col bg-background text-foreground">
-        {/* Header thống nhất — chống Dynamic Island: sàn tối thiểu 44px dù env=0 */}
-        <header
-          className="shrink-0 bg-card/95 backdrop-blur-xl border-b border-border"
-          style={{ paddingTop: "calc(max(env(safe-area-inset-top, 0px), 44px) + 6px)" }}
-        >
-          <div className="flex items-center justify-between gap-2 px-3 pb-2.5">
+      <div className="hugo-coder-shell fixed inset-0 z-50 flex flex-col text-foreground">
+        <header className="coder-hub-header shrink-0">
+          <div className="coder-hub-titlebar">
             <button
-              onClick={onBack}
-              className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors"
+              onClick={learningView === "lesson" && tab === "learning" ? exitLesson : onBack}
+              className="coder-hub-back"
+              aria-label={
+                learningView === "lesson" && tab === "learning"
+                  ? t("hugoCoderLearning.lesson.path")
+                  : t("hugoCoderLearning.back")
+              }
             >
-              <ArrowLeft className="w-4 h-4" /> Tiện ích
+              <ChevronLeft />
+              <span>
+                {learningView === "lesson" && tab === "learning"
+                  ? t("hugoCoderLearning.lesson.path")
+                  : t("hugoCoderLearning.back")}
+              </span>
             </button>
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base text-foreground">terminal</span>
-              <h2 className="text-sm font-black text-foreground tracking-tight">HugoCoder</h2>
+            <div className="coder-hub-brand">
+              <span><Braces /></span>
+              <h2>HugoCoder</h2>
             </div>
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted border border-border text-[11px] font-black text-foreground">
-              <span className="material-symbols-outlined text-[13px] text-muted-foreground">toll</span>
+            <div className="coder-hub-balance" aria-label={t("hugoCoderLearning.joyBalance")}>
+              <Coins />
+              <span>JOY</span>
               {Number(joyBalance ?? bio?.joyBalance ?? 0).toLocaleString("vi-VN")}
             </div>
           </div>
-          <HubTabBar tab={tab} setTab={setTab} />
+          <HubTabBar tab={tab} setTab={selectTab} t={t} />
         </header>
 
-        {/* Vùng nội dung dùng chung */}
         <div className="flex-1 min-h-0">
-          {tab === "lessons" ? (
+          {tab === "learning" && learningView === "journey" && (
+            <div className="h-full overflow-y-auto">
+              <CoderLearningJourney
+                courses={courses}
+                stages={stages}
+                loading={loading}
+                onOpenLesson={openLesson}
+              />
+            </div>
+          )}
+          {tab === "learning" && learningView === "lesson" && (
             <Suspense fallback={<HubLoading />}>
-              <MemberIdeTab embedded onBack={onBack} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} urlLessonId={urlLessonId} />
+              <MemberIdeTab
+                embedded
+                onBack={onBack}
+                bio={bio}
+                showToast={showToast}
+                onBioUpdate={onBioUpdate}
+                urlLessonId={selectedLessonId}
+                onExitLesson={exitLesson}
+              />
             </Suspense>
-          ) : (
+          )}
+          {tab === "resources" && (
             <div className="h-full overflow-y-auto">
               <div className="max-w-3xl mx-auto px-4 py-5">
-                {tab === "videos" && <ResourceGrid type="video" />}
-                {tab === "documents" && <ResourceGrid type="document" />}
-                {tab === "manage" && <ManageTab bio={bio} onBioUpdate={onBioUpdate} />}
+                <LearningResources stages={stages} />
+              </div>
+            </div>
+          )}
+          {tab === "progress" && (
+            <div className="h-full overflow-y-auto">
+              <div className="max-w-3xl mx-auto px-4 py-5">
+                <ManageTab bio={bio} onBioUpdate={onBioUpdate} courses={courses} stages={stages} />
               </div>
             </div>
           )}
@@ -415,27 +538,25 @@ function HubLoading() {
   );
 }
 
-function HubTabBar({ tab, setTab }) {
+function HubTabBar({ tab, setTab, t }) {
   return (
-    <div className="flex gap-1 px-2 pb-2">
-      {TABS.map((t) => {
-        const Icon = t.icon;
-        const active = tab === t.id;
+    <nav className="coder-hub-tabs" aria-label={t("hugoCoderLearning.tabs.label")}>
+      {TABS.map((item) => {
+        const Icon = item.icon;
+        const active = tab === item.id;
         return (
           <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`relative flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 py-2 px-1 rounded-xl text-[10px] sm:text-[11px] font-black transition-all active:scale-[0.98] ${
-              active
-                ? "bg-foreground text-background shadow-sm"
-                : "text-muted-foreground hover:bg-muted"
-            }`}
+            key={item.id}
+            type="button"
+            onClick={() => setTab(item.id)}
+            className={active ? "is-active" : ""}
+            aria-current={active ? "page" : undefined}
           >
-            <Icon className="w-3.5 h-3.5 shrink-0" />
-            <span className="leading-tight text-center">{t.label}</span>
+            <Icon />
+            <span>{t(item.labelKey)}</span>
           </button>
         );
       })}
-    </div>
+    </nav>
   );
 }

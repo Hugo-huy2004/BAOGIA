@@ -6,7 +6,7 @@
 // HttpOnly cookie still flows on same-origin deployments — the Bearer header
 // is the fallback that also works cross-origin (Vercel frontend + API host).
 import { getMemberToken, getAdminToken, clearMemberSession } from "./authSession";
-import { reportClientEvent, SLOW_API_MS } from "../utils/clientMonitoring";
+import { recordApiOutcome, reportClientEvent, SLOW_API_MS } from "../utils/clientMonitoring";
 
 const AUTH_EXEMPT_PATHS = [
   "/api/auth/member/google",
@@ -92,6 +92,7 @@ export function installApiAuthInterceptor() {
         return originalFetch(input, { credentials: "include", ...init, headers: headersObj })
           .then((res) => {
             const durationMs = performance.now() - startedAt;
+            if (shouldTrack) recordApiOutcome(res.ok);
 
             if (res.status === 401) {
               const isExempt = AUTH_EXEMPT_PATHS.some(path => url.includes(path));
@@ -118,6 +119,7 @@ export function installApiAuthInterceptor() {
             // connectivity, not actionable app bugs — reporting them just fires
             // another doomed request. Swallow the report; still reject so the
             // caller's own retry/fallback logic runs.
+            if (shouldTrack) recordApiOutcome(false);
             throw error;
           });
       }

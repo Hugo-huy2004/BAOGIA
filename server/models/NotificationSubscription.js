@@ -27,9 +27,23 @@ const notificationSubscriptionSchema = new mongoose.Schema({
       }
     }
   },
+  device: {
+    locale: { type: String, default: '' },
+    timezone: { type: String, default: '' },
+    platform: { type: String, default: '' },
+    standalone: { type: Boolean, default: false }
+  },
+  lastSeenAt: {
+    type: Date,
+    default: Date.now
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 

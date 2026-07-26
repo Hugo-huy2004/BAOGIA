@@ -58,10 +58,11 @@ export default function MemberJoyTab({
 
   const balance = useJoyStore((s) => s.balance);
   const referralCode = useJoyStore((s) => s.referralCode);
+  const referralCount = useJoyStore((s) => s.referralCount);
   const setBalance = useJoyStore((s) => s.setBalance);
+  const setReferralCount = useJoyStore((s) => s.setReferralCount);
   const fetchBalance = useJoyStore((s) => s.fetchBalance);
 
-  const [referralCount, setReferralCount] = useState(0);
   const [referralApplied, setReferralApplied] = useState(Boolean(bio?.referralApplied));
   const [giftCode, setGiftCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
@@ -86,7 +87,7 @@ export default function MemberJoyTab({
         setReferralApplied(Boolean(d.referralApplied || d.referredBy));
       })
       .catch(() => {});
-  }, [email, fetchBalance]);
+  }, [email, fetchBalance, setReferralCount]);
 
   const loadChallenges = useCallback(() => {
     if (!email) return;

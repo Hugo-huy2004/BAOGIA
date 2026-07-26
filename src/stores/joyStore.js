@@ -13,15 +13,34 @@ const readPersisted = (email) => {
   try { return JSON.parse(localStorage.getItem(LS_KEY(email)) || 'null'); } catch { return null; }
 };
 const writePersisted = (email, state) => {
-  try { localStorage.setItem(LS_KEY(email), JSON.stringify({ balance: state.balance, referralCode: state.referralCode })); } catch { /* ignore quota */ }
+  try { localStorage.setItem(LS_KEY(email), JSON.stringify({ balance: state.balance, referralCode: state.referralCode, referralCount: state.referralCount })); } catch { /* ignore quota */ }
 };
 
 export const useJoyStore = create((set, get) => ({
   balance: 0,
   referralCode: '',
+  referralCount: 0,
   loaded: false,
 
   setBalance: (balance) => set({ balance: Math.round(Number(balance)) || 0 }),
+  setReferralCount: (referralCount) => set({ referralCount: Math.max(0, Number(referralCount) || 0) }),
+
+  hydrateWallet: (email, wallet = {}) => {
+    if (!email) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    const nextState = {
+      balance: Math.round(Number(wallet.balance)) || 0,
+      referralCode: wallet.referralCode || '',
+      referralCount: Math.max(0, Number(wallet.referralCount) || 0),
+      loaded: true,
+    };
+    set(nextState);
+    balanceCache.set(normalizedEmail, {
+      ...nextState,
+      expiresAt: Date.now() + BALANCE_CACHE_TTL_MS,
+    });
+    writePersisted(normalizedEmail, nextState);
+  },
 
   fetchBalance: async (email, signal) => {
     if (!email) return;
@@ -35,7 +54,12 @@ export const useJoyStore = create((set, get) => ({
     // Show last-known balance instantly (before the network round-trip / cold start).
     if (!get().loaded) {
       const persisted = readPersisted(normalizedEmail);
-      if (persisted) set({ balance: Math.round(Number(persisted.balance)) || 0, referralCode: persisted.referralCode || '', loaded: true });
+      if (persisted) set({
+        balance: Math.round(Number(persisted.balance)) || 0,
+        referralCode: persisted.referralCode || '',
+        referralCount: Math.max(0, Number(persisted.referralCount) || 0),
+        loaded: true,
+      });
     }
 
     if (inflightBalanceRequests.has(normalizedEmail)) {
@@ -54,14 +78,19 @@ export const useJoyStore = create((set, get) => ({
       if (!r.ok) {
         if (r.status === 401) {
           balanceCache.set(normalizedEmail, {
-            balance: 0, referralCode: '', loaded: true,
+            balance: 0, referralCode: '', referralCount: 0, loaded: true,
             expiresAt: Date.now() + 60000,
           });
         }
         return;
       }
       const data = await r.json();
-      const nextState = { balance: Math.round(Number(data.balance)) || 0, referralCode: data.referralCode || '', loaded: true };
+      const nextState = {
+        balance: Math.round(Number(data.balance)) || 0,
+        referralCode: data.referralCode || '',
+        referralCount: get().referralCount,
+        loaded: true,
+      };
       set(nextState);
       balanceCache.set(normalizedEmail, {
         ...nextState,

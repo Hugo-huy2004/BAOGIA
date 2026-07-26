@@ -14,8 +14,12 @@ const EVENT_URL = `${API_BASE}/ops/client-event`;
 const SLOW_API_MS = Number(import.meta.env.VITE_SLOW_API_MS || 3000);
 const SLOW_VITAL_RATINGS = new Set(["needs-improvement", "poor"]);
 const MAX_FIELD_LEN = 500;
+const CORE_VITALS = new Set(["CLS", "INP", "LCP"]);
+const API_SUMMARY_INTERVAL_MS = 30_000;
 
 let installed = false;
+let apiRequestCount = 0;
+let apiErrorCount = 0;
 
 function truncate(value, limit = MAX_FIELD_LEN) {
   const str = String(value || "");
@@ -33,6 +37,8 @@ function scrubUrl(value) {
 }
 
 function safePayload(event) {
+  const width = window.innerWidth || 0;
+  const device = width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
   return {
     type: truncate(event.type, 40),
     name: truncate(event.name, 80),
@@ -46,6 +52,10 @@ function safePayload(event) {
     message: truncate(event.message, 220),
     stack: truncate(event.stack, 500),
     source: "web",
+    requestCount: Number.isFinite(event.requestCount) ? event.requestCount : undefined,
+    errorCount: Number.isFinite(event.errorCount) ? event.errorCount : undefined,
+    device,
+    network: truncate(navigator.connection?.effectiveType || "", 20),
     createdAt: new Date().toISOString(),
   };
 }
@@ -86,7 +96,7 @@ export function reportClientEvent(event) {
 
 function installWebVitals() {
   const reportVital = (metric) => {
-    if (!SLOW_VITAL_RATINGS.has(metric.rating)) return;
+    if (!CORE_VITALS.has(metric.name) && !SLOW_VITAL_RATINGS.has(metric.rating)) return;
     reportClientEvent({
       type: "web-vital",
       name: metric.name,
@@ -100,6 +110,33 @@ function installWebVitals() {
   onINP(reportVital);
   onLCP(reportVital);
   onTTFB(reportVital);
+}
+
+export function recordApiOutcome(ok) {
+  apiRequestCount += 1;
+  if (!ok) apiErrorCount += 1;
+}
+
+function flushApiSummary() {
+  if (!apiRequestCount) return;
+  reportClientEvent({
+    type: "api-summary",
+    name: "api-error-rate",
+    value: apiErrorCount / apiRequestCount,
+    requestCount: apiRequestCount,
+    errorCount: apiErrorCount,
+  });
+  apiRequestCount = 0;
+  apiErrorCount = 0;
+}
+
+function installApiSummaryReporter() {
+  const interval = window.setInterval(flushApiSummary, API_SUMMARY_INTERVAL_MS);
+  window.addEventListener("pagehide", flushApiSummary);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushApiSummary();
+  });
+  return () => window.clearInterval(interval);
 }
 
 function installGlobalErrorHandlers() {
@@ -129,6 +166,7 @@ export function installClientMonitoring() {
   installed = true;
   installWebVitals();
   installGlobalErrorHandlers();
+  installApiSummaryReporter();
 }
 
 export { SLOW_API_MS };

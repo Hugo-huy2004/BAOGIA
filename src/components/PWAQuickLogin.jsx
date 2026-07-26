@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, loginMember } from "../services/authSession";
 import { webauthnHelper } from "../utils/webauthnHelper";
-import { autoBluePrintPWAPermissions } from "../utils/pwaPermissions";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -42,7 +41,6 @@ export default function PWAQuickLogin() {
       const member = await webauthnHelper.loginWithBiometric(email);
       loginMember(member);
       localStorage.setItem(LAST_EMAIL_KEY, email);
-      autoBluePrintPWAPermissions().catch(() => {});
       navigate("/member");
     } catch (err) {
       if (err?.name !== "NotAllowedError") setDismissed(true);

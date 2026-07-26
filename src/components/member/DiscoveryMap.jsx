@@ -10,17 +10,16 @@ import {
 } from "lucide-react";
 import { hapticSelect } from "../../utils/haptics";
 import { notify } from "../../lib/notify";
+import { useTranslation } from "react-i18next";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 const CATEGORIES = [
-  { id: "", label: "Tất cả" },
-  { id: "food", label: "Ăn uống" },
-  { id: "cafe", label: "Cà phê" },
-  { id: "play", label: "Vui chơi" }
+  { id: "", labelKey: "all" },
+  { id: "food", labelKey: "food" },
+  { id: "cafe", labelKey: "cafe" },
+  { id: "play", labelKey: "play" }
 ];
-
-const CATEGORY_LABELS = { food: "Ăn uống", cafe: "Cà phê", play: "Vui chơi" };
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -44,25 +43,25 @@ const CATEGORY_ICONS = {
 const fmtDist = (m) =>
   m == null ? "" : m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`;
 
-const translateStep = (step) => {
-  if (!step || !step.maneuver) return "Đi tiếp";
+const translateStep = (step, t) => {
+  if (!step || !step.maneuver) return t("memberPortal.discovery.directions.continue");
   const m = step.maneuver;
   const type = m.type || "";
   const modifier = m.modifier || "";
   const streetName = step.name || "";
-  const street = streetName ? `vào ${streetName}` : "";
-  const distStr = step.distance > 0 ? ` khoảng ${Math.round(step.distance)}m` : "";
+  const street = streetName ? t("memberPortal.discovery.directions.onto", { street: streetName }) : "";
+  const distStr = step.distance > 0 ? t("memberPortal.discovery.directions.distance", { distance: Math.round(step.distance) }) : "";
 
-  if (type === "depart") return `Khởi hành${street}${distStr}`;
-  if (type === "arrive") return `Đến điểm đích`;
+  if (type === "depart") return t("memberPortal.discovery.directions.depart", { street, distance: distStr });
+  if (type === "arrive") return t("memberPortal.discovery.directions.arrive");
 
-  let action = "Đi tiếp";
+  let action = t("memberPortal.discovery.directions.continue");
   if (type === "turn") {
-    if (modifier.includes("left")) action = "Rẽ trái";
-    else if (modifier.includes("right")) action = "Rẽ phải";
-    else action = "Rẽ";
+    if (modifier.includes("left")) action = t("memberPortal.discovery.directions.turnLeft");
+    else if (modifier.includes("right")) action = t("memberPortal.discovery.directions.turnRight");
+    else action = t("memberPortal.discovery.directions.turn");
   } else if (type === "continue") {
-    action = "Tiếp tục đi thẳng";
+    action = t("memberPortal.discovery.directions.straight");
   }
 
   return `${action} ${street}`.trim() + distStr;
@@ -78,11 +77,14 @@ const getMatchScore = (placeId) => {
 };
 
 export default function DiscoveryMap({ userAvatarUrl, userName }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState("");
   const [userPos, setUserPos] = useState(null);
   const [places, setPlaces] = useState([]);
+  const [mapFeatures, setMapFeatures] = useState([]);
+  const [viewportRevision, setViewportRevision] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
   const [category, setCategory] = useState("");
   const [openOnly, setOpenOnly] = useState(false);
@@ -121,11 +123,28 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         q: opts.q,
         hour: new Date().getHours()
       });
+      const map = mapRef.current;
+      if (map) {
+        const bounds = map.getBounds();
+        params.set("bbox", [
+          bounds.getWest(),
+          bounds.getSouth(),
+          bounds.getEast(),
+          bounds.getNorth(),
+        ].join(","));
+        params.set("zoom", String(Math.round(map.getZoom())));
+      }
       if (opts.openOnly) params.set("open", "1");
       const res = await fetch(`${apiBase}/bios/me/discover?${params}`, { credentials: "include" });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Không tải được địa điểm");
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || t("memberPortal.discovery.loadError"));
       const data = await res.json();
       setPlaces(data.places || []);
+      setMapFeatures(data.mapFeatures || data.places || []);
+      localStorage.setItem("hugo_discover_places_cache", JSON.stringify({
+        places: data.places || [],
+        mapFeatures: data.mapFeatures || data.places || [],
+        cachedAt: Date.now(),
+      }));
     } catch (err) {
       console.warn("Fetch places failed, loading cache:", err);
       try {
@@ -133,6 +152,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         if (cached) {
           const cachedData = JSON.parse(cached);
           setPlaces(cachedData.places || []);
+          setMapFeatures(cachedData.mapFeatures || cachedData.places || []);
         } else {
           setError(err.message);
           setPlaces([]);
@@ -143,7 +163,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
     } finally {
       setFetching(false);
     }
-  }, []);
+  }, [t]);
 
   const toggle3DMode = () => {
     hapticSelect();
@@ -180,7 +200,9 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
           routeDetails = {
             distance: r.distance,
             duration: r.duration * 1.15,
-            steps: r.legs && r.legs[0] && r.legs[0].steps ? r.legs[0].steps.map(translateStep) : []
+            steps: r.legs && r.legs[0] && r.legs[0].steps
+              ? r.legs[0].steps.map((step) => translateStep(step, t))
+              : []
           };
         }
       }
@@ -193,7 +215,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
       features: [
         {
           type: "Feature",
-          properties: { color: "#8b5cf6" },
+          properties: { color: "#007aff" },
           geometry: { type: "LineString", coordinates }
         }
       ]
@@ -221,7 +243,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         });
       }
     } catch (_) {}
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -247,6 +269,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
 
     const isDark = document.documentElement.classList.contains("dark");
     let map;
+    let viewportTimer;
     try {
       map = new maplibregl.Map({
         container: containerRef.current,
@@ -257,8 +280,15 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         cooperativeGestures: true
       });
       mapRef.current = map;
+      map.on("moveend", () => {
+        window.clearTimeout(viewportTimer);
+        viewportTimer = window.setTimeout(
+          () => setViewportRevision((value) => value + 1),
+          180,
+        );
+      });
     } catch (_) {
-      setError("Thiết bị không hỗ trợ WebGL để hiển thị bản đồ.");
+      setError(t("memberPortal.discovery.webglError"));
       setLoading(false);
       return;
     }
@@ -305,25 +335,35 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      window.clearTimeout(viewportTimer);
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchPlaces(userPos, { category, sort: "smart", openOnly, q: debouncedQuery });
-  }, [userPos, category, openOnly, debouncedQuery, fetchPlaces]);
+  }, [userPos, category, openOnly, debouncedQuery, viewportRevision, fetchPlaces]);
 
   // Render Zenly Markers on Map (Clicking marker opens bottom sheet)
   useEffect(() => {
     if (!mapRef.current) return;
     placeMarkersRef.current.forEach((m) => m.remove());
 
-    placeMarkersRef.current = places.map((p) => {
+    const visibleFeatures = mapFeatures.length ? mapFeatures : places;
+    placeMarkersRef.current = visibleFeatures.map((p) => {
       const el = document.createElement("div");
-      el.className = `zenly-place-pin ${p.id === selectedId ? "zenly-pin-active" : ""}`;
+      el.className = `zenly-place-pin ${p.id === selectedId ? "zenly-pin-active" : ""} ${p.cluster ? "zenly-cluster-pin" : ""}`;
       el.dataset.pinId = p.id;
 
-      const svg = CATEGORY_SVGS[p.category] || CATEGORY_SVGS.default;
-      const catBg = p.category === "food" ? "zenly-pin-food" : p.category === "cafe" ? "zenly-pin-cafe" : "zenly-pin-play";
+      const svg = p.cluster
+        ? `<span class="zenly-cluster-count">${p.pointCount}</span>`
+        : (CATEGORY_SVGS[p.category] || CATEGORY_SVGS.default);
+      const catBg = p.cluster
+        ? "zenly-pin-cluster"
+        : p.category === "food"
+          ? "zenly-pin-food"
+          : p.category === "cafe"
+            ? "zenly-pin-cafe"
+            : "zenly-pin-play";
 
       el.innerHTML = `
         <div class="zenly-pin-bubble ${catBg}">
@@ -334,6 +374,20 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
       el.addEventListener("click", (e) => {
         e.stopPropagation();
         hapticSelect();
+        if (p.cluster) {
+          if (Array.isArray(p.bounds) && p.bounds.length === 4) {
+            mapRef.current?.fitBounds(
+              [[p.bounds[0], p.bounds[1]], [p.bounds[2], p.bounds[3]]],
+              { padding: 72, maxZoom: 17, duration: 420 },
+            );
+          } else {
+            mapRef.current?.flyTo({
+              center: [p.lng, p.lat],
+              zoom: Math.min((mapRef.current?.getZoom() || 13) + 2, 17),
+            });
+          }
+          return;
+        }
         setSelectedId(p.id);
         mapRef.current?.flyTo({ center: [p.lng, p.lat], zoom: 16.5 });
       });
@@ -347,7 +401,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
       places.slice(0, 8).forEach((p) => bounds.extend([p.lng, p.lat]));
       mapRef.current.fitBounds(bounds, { padding: 60, maxZoom: 16, duration: 600 });
     }
-  }, [places, userPos, selectedId]);
+  }, [places, mapFeatures, userPos, selectedId]);
 
   const recenter = () => {
     hapticSelect();
@@ -355,8 +409,8 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
   };
 
   const submitPlace = async () => {
-    if (!form.name.trim()) return notify.error("Nhập tên quán trước nhé");
-    if (!userPos) return notify.error("Chưa xác định được vị trí của bạn");
+    if (!form.name.trim()) return notify.error(t("memberPortal.discovery.nameRequired"));
+    if (!userPos) return notify.error(t("memberPortal.discovery.locationRequired"));
     setSubmitting(true);
     try {
       const res = await fetch(`${apiBase}/bios/me/discover/places`, {
@@ -365,8 +419,8 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         credentials: "include",
         body: JSON.stringify({ ...form, lat: userPos.lat, lng: userPos.lng })
       });
-      if (!res.ok) throw new Error("Không đăng được địa điểm");
-      notify.success("Đã đăng quán của bạn lên bản đồ Color Map");
+      if (!res.ok) throw new Error(t("memberPortal.discovery.submitError"));
+      notify.success(t("memberPortal.discovery.submitSuccess"));
       setForm(emptyForm);
       setShowAdd(false);
       fetchPlaces(userPos, { category, openOnly, q: debouncedQuery });
@@ -391,8 +445,8 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         }
       }
     }
-    return "khám phá";
-  }, [places]);
+    return t("memberPortal.discovery.discover");
+  }, [places, t]);
 
   return (
     <div className="relative w-full h-[calc(100vh-140px)] min-h-[580px] rounded-3xl overflow-hidden shadow-xl border border-border/60 font-sans select-none text-left">
@@ -420,7 +474,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             <button
               onClick={toggle3DMode}
               className="px-2.5 h-8 rounded-full bg-muted/70 text-foreground font-semibold text-xs active:scale-95 transition-all"
-              title="Chuyển 3D/2D"
+              title={t("memberPortal.discovery.toggle3d")}
             >
               {is3DMode ? "2D" : "3D"}
             </button>
@@ -428,7 +482,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             <button
               onClick={recenter}
               className="w-8 h-8 rounded-full bg-muted/70 text-foreground flex items-center justify-center active:scale-95 transition-all"
-              title="Về vị trí của tôi"
+              title={t("memberPortal.discovery.recenter")}
             >
               <LocateFixed className="w-4 h-4 text-foreground" />
             </button>
@@ -436,7 +490,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             <button
               onClick={() => setShowAdd(true)}
               className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center active:scale-95 transition-all"
-              title="Đăng địa điểm mới"
+              title={t("memberPortal.discovery.addPlace")}
             >
               <span className="material-symbols-outlined text-lg">add_location_alt</span>
             </button>
@@ -450,7 +504,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Tìm quán ăn, cà phê…"
+            placeholder={t("memberPortal.discovery.searchPlaceholder")}
             className="w-full h-11 pl-10 pr-9 rounded-full bg-card/80 backdrop-blur-xl border border-border/50 text-sm text-foreground placeholder:text-muted-foreground shadow-sm outline-none focus:border-primary/40 transition-all"
           />
           {query && (
@@ -478,7 +532,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
                 }`}
               >
                 <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>{c.label}</span>
+                <span>{t(`memberPortal.discovery.categories.${c.labelKey}`)}</span>
               </button>
             );
           })}
@@ -496,11 +550,11 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                {CATEGORY_LABELS[selectedPlace.category] || "Điểm đến"}
+                {t(`memberPortal.discovery.categories.${selectedPlace.category}`, t("memberPortal.discovery.destination"))}
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center gap-1">
                 <Sparkles className="w-3 h-3" />
-                Hợp gu {getMatchScore(selectedPlace.id)}%
+                {t("memberPortal.discovery.match", { score: getMatchScore(selectedPlace.id) })}
               </span>
             </div>
 
@@ -524,8 +578,8 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
                   {selectedPlace.rating}
                 </span>
               )}
-              <span>· Cách bạn {fmtDist(selectedPlace.distM)}</span>
-              {selectedPlace.openNow === true && <span className="text-emerald-600 dark:text-emerald-400 font-medium">· Đang mở cửa</span>}
+              <span>· {t("memberPortal.discovery.away", { distance: fmtDist(selectedPlace.distM) })}</span>
+              {selectedPlace.openNow === true && <span className="text-emerald-600 dark:text-emerald-400 font-medium">· {t("memberPortal.discovery.openNow")}</span>}
             </div>
           </div>
 
@@ -541,13 +595,13 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
               <div className="flex items-center justify-between text-sm font-medium text-primary">
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
-                  ~{Math.ceil(routeInfo.duration / 60)} phút · {fmtDist(routeInfo.distance)}
+                  {t("memberPortal.discovery.routeSummary", { minutes: Math.ceil(routeInfo.duration / 60), distance: fmtDist(routeInfo.distance) })}
                 </span>
                 <button
                   onClick={() => setShowSteps(!showSteps)}
                   className="text-[13px] font-medium hover:underline"
                 >
-                  {showSteps ? "Ẩn lối đi" : "Xem lối đi"}
+                  {showSteps ? t("memberPortal.discovery.hideDirections") : t("memberPortal.discovery.showDirections")}
                 </button>
               </div>
 
@@ -573,7 +627,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
               className="flex-1 py-3 rounded-2xl bg-primary text-white font-semibold text-sm text-center hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
               <Navigation className="w-4 h-4" />
-              <span>Chỉ đường</span>
+              <span>{t("memberPortal.discovery.navigate")}</span>
             </a>
 
             <a
@@ -593,7 +647,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
       {showAdd && (
         <div className="absolute inset-4 z-40 bg-card/95 backdrop-blur-2xl border border-border/60 p-5 rounded-3xl shadow-2xl text-foreground animate-slideUp space-y-4 overflow-y-auto">
           <div className="flex items-center justify-between border-b border-border/40 pb-3">
-            <h3 className="text-lg font-semibold text-foreground">Đăng địa điểm mới</h3>
+            <h3 className="text-lg font-semibold text-foreground">{t("memberPortal.discovery.addPlace")}</h3>
             <button onClick={() => setShowAdd(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground active:scale-95 transition-all">
               <X className="w-4 h-4" />
             </button>
@@ -603,19 +657,19 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             <input
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="Tên quán *"
+              placeholder={t("memberPortal.discovery.form.name")}
               className="w-full h-11 px-3.5 rounded-2xl bg-muted/60 border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:bg-background transition-all"
             />
             <input
               value={form.address}
               onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-              placeholder="Địa chỉ *"
+              placeholder={t("memberPortal.discovery.form.address")}
               className="w-full h-11 px-3.5 rounded-2xl bg-muted/60 border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:bg-background transition-all"
             />
             <input
               value={form.services}
               onChange={(e) => setForm((f) => ({ ...f, services: e.target.value }))}
-              placeholder="Dịch vụ (vd: máy lạnh, wifi mạnh…)"
+              placeholder={t("memberPortal.discovery.form.services")}
               className="w-full h-11 px-3.5 rounded-2xl bg-muted/60 border border-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:bg-background transition-all"
             />
           </div>
@@ -625,7 +679,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
             disabled={submitting}
             className="w-full py-3.5 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
           >
-            {submitting ? "Đang đăng…" : "Đăng lên bản đồ"}
+            {submitting ? t("memberPortal.discovery.form.submitting") : t("memberPortal.discovery.form.submit")}
           </button>
         </div>
       )}
@@ -723,6 +777,15 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
         .zenly-pin-food { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
         .zenly-pin-cafe { background: linear-gradient(135deg, #f6d365, #fda085); }
         .zenly-pin-play { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color: #1e1b4b; }
+        .zenly-pin-cluster {
+          background: hsl(var(--primary));
+          border-radius: 999px;
+        }
+        .zenly-cluster-count {
+          font-size: 12px;
+          font-weight: 800;
+          line-height: 1;
+        }
         .zenly-pin-active .zenly-pin-bubble {
           transform: scale(1.25);
           box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);

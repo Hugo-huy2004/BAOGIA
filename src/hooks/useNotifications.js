@@ -5,9 +5,10 @@ import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
 // Only these categories are saved to DB — everything else is toast-only
 const PERSISTENT = new Set(['verification', 'package', 'wellness', 'security', 'joy', 'payment']);
+const EMPTY_NOTIFICATIONS = [];
 
-export function useNotifications(email) {
-  const [items, setItems] = useState([]);
+export function useNotifications(email, bootstrapItems = EMPTY_NOTIFICATIONS) {
+  const [items, setItems] = useState(() => bootstrapItems || []);
   const [toast, setToast] = useState({ message: '', type: '' });
   const toastTimer = useRef(null);
 
@@ -21,8 +22,21 @@ export function useNotifications(email) {
     } catch (_) {}
   }, [email]);
 
-  // Load on mount
-  useEffect(() => { refresh(); }, [refresh]);
+  // Bootstrap paints the recent inbox in the first consolidated response.
+  // Fetch the full inbox only when bootstrap has no usable notification data.
+  useEffect(() => {
+    if (bootstrapItems?.length) {
+      setItems((previous) => {
+        const byId = new Map(previous.map((item) => [item._id, item]));
+        bootstrapItems.forEach((item) => byId.set(item._id, item));
+        return [...byId.values()].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
+      });
+      return;
+    }
+    refresh();
+  }, [bootstrapItems, refresh]);
 
   // The WS path (PWARealtimeBridge) already hands us the full persisted
   // notification document — splice it straight into state instead of paying

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, useAnimation, animate } from "framer-motion";
-import Hls from "hls.js";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
 import FeatureGate from "./shared/FeatureGate";
@@ -86,6 +85,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
 
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
+  const playbackRequestRef = useRef(0);
   const retriedRef = useRef(false);
   const handleFailureRef = useRef(() => {});
 
@@ -214,6 +214,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     audio.onerror = () => handleFailureRef.current();
     audioRef.current = audio;
     return () => {
+      playbackRequestRef.current += 1;
       hlsRef.current?.destroy();
       audio.pause();
       audio.src = "";
@@ -274,9 +275,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     loadCategory(activeCategory);
   }, [activeCategory, loadCategory]);
 
-  const attachAndPlay = (streamUrl) => {
+  const attachAndPlay = async (streamUrl) => {
     const audio = audioRef.current;
     const onPlayError = () => handlePlaybackFailure();
+    const requestId = ++playbackRequestRef.current;
 
     hlsRef.current?.destroy();
     hlsRef.current = null;
@@ -285,13 +287,27 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     if (isHls && audio.canPlayType("application/vnd.apple.mpegurl")) {
       audio.src = streamUrl;
       audio.play().catch(onPlayError);
-    } else if (isHls && Hls.isSupported()) {
-      const hls = new Hls({ maxBufferLength: 4, enableWorker: true, lowLatencyMode: true });
-      hls.loadSource(streamUrl);
-      hls.attachMedia(audio);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(onPlayError));
-      hls.on(Hls.Events.ERROR, (_evt, data) => { if (data.fatal) onPlayError(); });
-      hlsRef.current = hls;
+    } else if (isHls) {
+      // hls.js is ~500 KB minified. Safari/iOS can play HLS natively, and
+      // non-HLS stations never need it, so load the library only on demand.
+      try {
+        const { default: Hls } = await import("hls.js");
+        if (requestId !== playbackRequestRef.current || !audioRef.current) return;
+        if (!Hls.isSupported()) {
+          onPlayError();
+          return;
+        }
+        const hls = new Hls({ maxBufferLength: 4, enableWorker: true, lowLatencyMode: true });
+        hls.loadSource(streamUrl);
+        hls.attachMedia(audio);
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (requestId === playbackRequestRef.current) audio.play().catch(onPlayError);
+        });
+        hls.on(Hls.Events.ERROR, (_evt, data) => { if (data.fatal) onPlayError(); });
+        hlsRef.current = hls;
+      } catch {
+        onPlayError();
+      }
     } else {
       audio.src = streamUrl;
       audio.play().catch(onPlayError);

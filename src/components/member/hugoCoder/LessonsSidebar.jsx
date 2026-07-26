@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Gift, Library } from "lucide-react";
 import { notify } from "../../../lib/notify";
-import { STAGES, getStageBenefits } from "./lessons";
+import { STAGE_THEME } from "./stageThemes";
 
 // Helper to resolve language from file extension
 const getLanguageFromExt = (ext) => {
@@ -43,6 +43,8 @@ const isBossLesson = (course) => course.practiceType === "quiz" || course.practi
 
 export default function LessonsSidebar({
   WEB_COURSES,
+  STAGES,
+  getStageBenefits,
   completedLessons,
   activeCourseId,
   setActiveCourseId,
@@ -60,7 +62,8 @@ export default function LessonsSidebar({
   handleVerifyLesson,
   verificationStatus,
   handlePayMaintenance,
-  handleBuyAllStagesBundle
+  handleBuyAllStagesBundle,
+  onExitLesson
 }) {
   const [expandedPhases, setExpandedPhases] = useState({ basic: true });
   // Trắc nghiệm chốt bài trên desktop — bắt buộc trước khi Kiểm tra bài học
@@ -113,6 +116,7 @@ export default function LessonsSidebar({
             onClick={() => {
               setActiveCourseId(null);
               setVerificationStatus(null);
+              onExitLesson?.();
             }}
             className="text-[10px] text-primary hover:text-primary/80 font-bold transition-all"
           >

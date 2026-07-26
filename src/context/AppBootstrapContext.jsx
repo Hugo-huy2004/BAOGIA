@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getLocalBootstrapCache, setLocalBootstrapCache, fetchServerBootstrapData } from '../services/bootstrapService';
+import { getMemberSession } from '../services/authSession';
 
 const AppBootstrapContext = createContext(null);
 
 export function AppBootstrapProvider({ children }) {
+  const email = getMemberSession()?.email || '';
   // Synchronous 0ms initial hydration from local cache
-  const [bootstrap, setBootstrap] = useState(() => getLocalBootstrapCache());
+  const [bootstrap, setBootstrap] = useState(() => getLocalBootstrapCache(email));
   const [loading, setLoading] = useState(!bootstrap);
   const [error, setError] = useState(null);
 
@@ -13,7 +15,7 @@ export function AppBootstrapProvider({ children }) {
   const revalidate = useCallback(async (isInitial = false) => {
     try {
       if (isInitial && !bootstrap) setLoading(true);
-      const { data } = await fetchServerBootstrapData();
+      const data = await fetchServerBootstrapData({ email });
       if (data) {
         setBootstrap(data);
         setError(null);
@@ -24,7 +26,7 @@ export function AppBootstrapProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [bootstrap]);
+  }, [bootstrap, email]);
 
   useEffect(() => {
     revalidate(true);
@@ -34,10 +36,10 @@ export function AppBootstrapProvider({ children }) {
   const patchBootstrap = useCallback((updater) => {
     setBootstrap(prev => {
       const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
-      setLocalBootstrapCache(next);
+      setLocalBootstrapCache(next, null, email);
       return next;
     });
-  }, []);
+  }, [email]);
 
   const value = {
     bootstrap,

@@ -12,7 +12,8 @@ import { HugoConfirmNotice } from "../shared/HugoNotice";
 import { getMemberSession } from "../../services/authSession";
 import { useJoyStore } from "../../stores/joyStore";
 import { TEMPLATES, INITIAL_WORKSPACE, QUIZ_POOL_1, QUIZ_POOL_2 } from "./ideData";
-import { WEB_COURSES, MOBILE_GUIDE_EXTRAS, getStageBenefits } from "./hugoCoder/lessons";
+import { getStageBenefitsFromCatalog, useCoderLessons } from "../../hooks/useCoderLessons";
+import { verifyLessonCode } from "../../services/coderLessonsApi";
 import { renderMobileIllustration, getMobileVisualSet, renderVisualArtwork } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";
 import CertificateModal from "./hugoCoder/CertificateModal";
@@ -86,7 +87,14 @@ import { useNavigate } from "react-router-dom";
 
 // embedded=true: chạy trong vỏ chung HugoCoderHub — bỏ FeatureGate riêng,
 // bỏ shell fullscreen và nút Back riêng (Hub đã lo các thứ đó).
-export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, embedded = false }) {
+export default function MemberIdeTab({
+  onBack,
+  onExitLesson,
+  bio,
+  onBioUpdate,
+  urlLessonId,
+  embedded = false,
+}) {
   const [isDesktop, setIsDesktop] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState("explorer"); // explorer, learn, db
 
@@ -94,6 +102,15 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
   const [activeCourseId, setActiveCourseId] = useState(() => {
     return urlLessonId || null;
   });
+  const {
+    courses: WEB_COURSES,
+    stages: STAGES,
+    selectedLesson,
+    loading: lessonsLoading,
+  } = useCoderLessons(activeCourseId);
+  const getStageBenefits = (stageId) => (
+    getStageBenefitsFromCatalog(stageId, STAGES)
+  );
 
   useEffect(() => {
     if (urlLessonId !== activeCourseId) {
@@ -479,7 +496,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
   const [quizScore, setQuizScore] = useState(0);
 
   useEffect(() => {
-    const targetCourseId = activeCourseId || WEB_COURSES[0].id;
+    const targetCourseId = activeCourseId || WEB_COURSES[0]?.id;
+    if (!targetCourseId) return;
     setVerificationStatus(null);
     
     // Reset states
@@ -512,7 +530,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
     } else if (course.practiceType === "quiz") {
       startServerExam(course);
     }
-  }, [activeCourseId]);
+  }, [activeCourseId, selectedLesson?.id, selectedLesson?.practiceType]);
 
   useEffect(() => {
     setTimeLeft(0);
@@ -581,8 +599,18 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
       return;
     }
     
-    // Chấm trên code đã loại bỏ comment — chữ trong TODO/hướng dẫn không tính là bài làm
-    const isCorrect = course.verify(stripCodeComments(fileObj.content));
+    // Verification rules stay on the server with the paginated lesson source.
+    let isCorrect = false;
+    try {
+      const result = await verifyLessonCode(
+        course.id,
+        stripCodeComments(fileObj.content),
+      );
+      isCorrect = Boolean(result?.passed);
+    } catch {
+      notify.error("Không thể kết nối máy chủ chấm bài. Vui lòng thử lại.");
+      return;
+    }
     if (isCorrect) {
       setVerificationStatus("success");
       confetti({
@@ -709,14 +737,36 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
     [workspaceFiles, folders]
   );
 
+  useEffect(() => {
+    if (!activeCourseId || selectedLesson?.id !== activeCourseId || !selectedLesson?.file) return;
+    const lessonPath = selectedLesson.file;
+    setWorkspaceFiles((current) => {
+      if (current.some((file) => file.path === lessonPath)) return current;
+      return [
+        ...current,
+        {
+          path: lessonPath,
+          name: lessonPath.split("/").pop(),
+          content: selectedLesson.starterCode || "",
+          language: getLanguageFromExt(lessonPath.split(".").pop().toLowerCase()),
+        },
+      ];
+    });
+    setOpenTabs((current) => (
+      current.includes(lessonPath) ? current : [...current, lessonPath]
+    ));
+    setActiveTabPath(lessonPath);
+    setActiveSidebarTab("learn");
+  }, [activeCourseId, selectedLesson?.id, selectedLesson?.file, selectedLesson?.starterCode]);
+
   const mobileCourse = useMemo(
     () => WEB_COURSES.find(c => c.id === activeCourseId) || WEB_COURSES[0],
-    [activeCourseId]
+    [activeCourseId, WEB_COURSES]
   );
 
   const mobileExtra = useMemo(
-    () => MOBILE_GUIDE_EXTRAS[mobileCourse?.id] || {},
-    [mobileCourse?.id]
+    () => mobileCourse?.mobileExtra || {},
+    [mobileCourse]
   );
 
   const mobileVisualSet = useMemo(
@@ -735,8 +785,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
   );
 
   const mobileProgress = useMemo(
-    () => Math.round((mobileCompletedCount / WEB_COURSES.length) * 100),
-    [mobileCompletedCount]
+    () => Math.round((mobileCompletedCount / Math.max(WEB_COURSES.length, 1)) * 100),
+    [mobileCompletedCount, WEB_COURSES.length]
   );
 
   const canPreviewMobileCourse = mobileCourse?.lang === "html";
@@ -1781,10 +1831,20 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
     }
   };
 
+  if (lessonsLoading && WEB_COURSES.length === 0) {
+    return (
+      <div className="flex min-h-[420px] items-center justify-center text-sm text-muted-foreground">
+        <span className="material-symbols-outlined mr-2 animate-spin">progress_activity</span>
+        Đang tải lộ trình bài học…
+      </div>
+    );
+  }
+
   if (!isDesktop) {
     return (
       <MobileGuidebook
         embedded={embedded}
+        onExitLesson={onExitLesson}
         activeCourseId={activeCourseId}
         bio={bio}
         onBioUpdate={onBioUpdate}
@@ -1794,6 +1854,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
         mobileCourse={mobileCourse}
         mobileCompletedCount={mobileCompletedCount}
         WEB_COURSES={WEB_COURSES}
+        STAGES={STAGES}
+        getStageBenefits={getStageBenefits}
         setActiveCourseId={setActiveCourseId}
         setMobileStudyMode={setMobileStudyMode}
         setVerificationStatus={setVerificationStatus}
@@ -1976,7 +2038,8 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
               handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
               handleClaimMilestoneReward={handleClaimMilestoneReward}
               bio={bio}
-              MOBILE_GUIDE_EXTRAS={MOBILE_GUIDE_EXTRAS}
+              STAGES={STAGES}
+              getStageBenefits={getStageBenefits}
               workspaceFiles={workspaceFiles}
               setWorkspaceFiles={setWorkspaceFiles}
               openTabs={openTabs}
@@ -1987,6 +2050,7 @@ export default function MemberIdeTab({ onBack, bio, onBioUpdate, urlLessonId, em
               onShowCertificate={handleShowCertificate}
               handlePayMaintenance={handlePayMaintenance}
               handleBuyAllStagesBundle={handleBuyAllStagesBundle}
+              onExitLesson={onExitLesson}
             />
           )}
 

@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
-import { autoBluePrintPWAPermissions } from "../../utils/pwaPermissions";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
@@ -94,8 +93,6 @@ export default function LoginPage() {
     }
 
     localStorage.setItem(LAST_EMAIL_KEY, session.email);
-    autoBluePrintPWAPermissions().catch(() => {});
-
     navigate("/member");
   };
 
@@ -106,7 +103,6 @@ export default function LoginPage() {
       const member = await webauthnHelper.loginWithBiometric(biometricEmail);
       loginMember(member);
       localStorage.setItem(LAST_EMAIL_KEY, biometricEmail);
-      autoBluePrintPWAPermissions().catch(() => {});
       navigate("/member");
     } catch (err) {
       if (err?.code === 'NO_CREDENTIALS') {

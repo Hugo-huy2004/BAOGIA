@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
@@ -18,37 +18,9 @@ const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoSkinTab = lazy(() => import("./HugoSkinTab"));
 const MemberJoyTab = lazy(() => import("./MemberJoyTab"));
 
-const UTILITY_METADATA = {
-  bio: { icon: "badge", tint: "from-purple-500 to-pink-500", title: "Trang Bio" },
-  ide: { icon: "code", tint: "from-blue-600 to-violet-600", title: "HugoCoder" },
-  team: { icon: "groups", tint: "from-teal-400 to-emerald-500", title: "Hugo Team" },
-  psychology: { icon: "psychology", tint: "from-cyan-400 to-emerald-500", title: "HugoPSY" },
-  hugoskin: { icon: "face", tint: "from-zinc-700 to-zinc-900", title: "HugoSkin" },
-  radio: { icon: "radio", tint: "from-teal-400 to-emerald-500", title: "HugoRadio" },
-  helpdesk: { icon: "support_agent", tint: "from-indigo-500 to-purple-500", title: "HugoHelpdesk" },
-  handle: { icon: "handyman", tint: "from-rose-500 to-red-500", title: "HugoHandle" },
-  arcade: { icon: "stadium", tint: "from-amber-500 to-rose-500", title: "HugoArcade" },
-  aura: { icon: "blur_on", tint: "from-violet-600 to-fuchsia-600", title: "HugoAura" },
-  deco: { icon: "chair", tint: "from-pink-500 to-purple-500", title: "Deco Studio" },
-  info: { icon: "info", tint: "from-slate-600 to-stone-600", title: "Info & Version" },
-  joy_wallet: { icon: "account_balance_wallet", tint: "from-orange-500 to-rose-500", title: "Ví JOY" },
-  library: { icon: "store", tint: "from-blue-500 to-purple-500", title: "Hugo Library" }
-};
-
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
   const { data } = useData();
-  const [splashApp, setSplashApp] = useState(null);
-
-  useEffect(() => {
-    if (selectedUtility) {
-      setSplashApp(selectedUtility);
-      const timer = setTimeout(() => {
-        setSplashApp(null);
-      }, 700);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedUtility]);
 
   useEffect(() => {
     if (selectedUtility && data?.systemSettings?.blockUtilities && window.location.hostname === "hugowishpax.studio") {
@@ -158,7 +130,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* Trang Bio — public bio preview (edit via Settings) */}
       {selectedUtility === "bio" && (
-        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} />
+        <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} handleSave={handleSave} />
       )}
 
       {/* HugoSkin */}
@@ -194,29 +166,6 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
       </Suspense>
 
-      {/* 🚀 PREMIUM SPLASH LAUNCH SCREEN */}
-      {splashApp && UTILITY_METADATA[splashApp] && (
-        <div className="fixed inset-0 bg-background z-[999] flex flex-col items-center justify-center animate-fadeIn select-none pointer-events-none">
-          <div className="relative flex flex-col items-center gap-6">
-            {/* App Icon Container */}
-            <div className={`w-24 h-24 rounded-[24px] bg-gradient-to-br ${UTILITY_METADATA[splashApp].tint} flex items-center justify-center shadow-lg animate-slideUp`}>
-              <span className="material-symbols-outlined text-white text-[42px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                {UTILITY_METADATA[splashApp].icon}
-              </span>
-            </div>
-
-            <div className="text-center space-y-1 animate-fadeIn">
-              <h3 className="text-lg font-semibold text-foreground">
-                {UTILITY_METADATA[splashApp].title}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Đang khởi tạo…
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
-

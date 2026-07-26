@@ -42,7 +42,19 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/ws\//],
         globPatterns: ['**/*.{js,css,html,ico,svg,woff2,png}'],
-        globIgnores: ['**/Admin*'],
+        // Heavy member applications are cached on first use by the runtime
+        // app-assets rule below. Keeping them out of install-time precache
+        // avoids downloading several megabytes before the member opens them.
+        globIgnores: [
+          '**/Admin*',
+          '**/DiscoveryMap-*',
+          '**/MemberRadioTab-*',
+          '**/MemberIdeTab-*',
+          '**/BanhocduongTab-*',
+          '**/ChessGame-*',
+          '**/lessons-*',
+          '**/hls-*',
+        ],
         runtimeCaching: [
           // Arcade leaderboard — StaleWhileRevalidate for instant UI render
           {
@@ -107,14 +119,15 @@ export default defineConfig({
       manifest: {
         name: 'Hugo Studio Portal',
         short_name: 'Hugo Studio',
-        description: 'Nền tảng Biolink & Sức khỏe Tâm lý dành cho học sinh sinh viên',
+        description: 'Nền tảng học tập, cộng đồng và tiện ích dành cho học sinh sinh viên',
+        id: '/member/',
         theme_color: '#0b0a0f',
         background_color: '#0b0a0f',
         display: 'standalone',
-        display_override: ['standalone', 'window-controls-overlay', 'minimal-ui'],
-        orientation: 'portrait-primary',
+        display_override: ['standalone'],
+        orientation: 'any',
         scope: '/',
-        start_url: '/',
+        start_url: '/member/today?source=pwa',
         icons: [
           { src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'favicon/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
@@ -144,7 +157,7 @@ export default defineConfig({
             name: 'Bạn Học Đường',
             short_name: 'Đồng Hành',
             description: 'Đồng hành chăm sóc sức khỏe tinh thần',
-            url: '/banhocduong',
+            url: '/member/utilities/psychology',
             icons: [{ src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192' }]
           },
           {

@@ -17,6 +17,14 @@ const getAuthHeaders = () => {
 
 // Safe fetch with CORS error handling
 const safeFetch = async (url, options = {}) => {
+  const isCrossOrigin = (() => {
+    try {
+      return new URL(url, window.location.origin).origin !== window.location.origin;
+    } catch {
+      return false;
+    }
+  })();
+
   try {
     // First try with credentials
     let response = await fetch(url, {
@@ -24,8 +32,10 @@ const safeFetch = async (url, options = {}) => {
       credentials: 'include'
     });
 
-    // If CORS error, retry without credentials
-    if (response.status === 0 && options.method === 'GET') {
+    // Only a cross-origin GET can benefit from a credential-less CORS retry.
+    // Retrying same-origin failures doubled requests and wait time while the
+    // API was offline or waking up.
+    if (isCrossOrigin && response.status === 0 && options.method === 'GET') {
       response = await fetch(url, {
         ...options,
         credentials: 'omit'
@@ -34,8 +44,8 @@ const safeFetch = async (url, options = {}) => {
 
     return response;
   } catch (error) {
-    // Network error - try without credentials as fallback
-    if (options.method === 'GET' || !options.method) {
+    // A credential-less retry is meaningful only for cross-origin CORS.
+    if (isCrossOrigin && (options.method === 'GET' || !options.method)) {
       return fetch(url, {
         ...options,
         credentials: 'omit'

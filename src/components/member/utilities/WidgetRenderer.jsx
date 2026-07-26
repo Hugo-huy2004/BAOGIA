@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import HugoZenlyMasterWidget from "./HugoZenlyMasterWidget";
 
 export default function WidgetRenderer({
@@ -22,7 +23,10 @@ export default function WidgetRenderer({
   gradients,
   onAppHover
 }) {
+  const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = React.useState(1500);
+  const categoryLabel = (category) =>
+    t(`utilities.categories.${category === "edu" ? "education" : category === "arcade" ? "entertainment" : category}`);
 
   React.useEffect(() => {
     let timer = null;
@@ -96,7 +100,7 @@ export default function WidgetRenderer({
                         {app.title}
                       </h3>
                       <span className="text-xs text-muted-foreground block mt-0.5">
-                        {app.category === "edu" ? "Học tập" : app.category === "wellness" ? "Sức khỏe" : app.category === "tools" ? "Công cụ" : "Giải trí"}
+                        {categoryLabel(app.category)}
                       </span>
                     </div>
                   </div>
@@ -106,7 +110,7 @@ export default function WidgetRenderer({
                       <span className="relative flex h-1.5 w-1.5">
                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                       </span>
-                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Mở</span>
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{t("utilities.library.open")}</span>
                     </div>
                   )}
                 </div>
@@ -115,13 +119,13 @@ export default function WidgetRenderer({
                   {app.id === "psychology" && (
                     <div className="flex items-center gap-2 bg-muted/40 border border-border/30 rounded-xl p-2">
                       <span className="material-symbols-outlined text-purple-500 text-[14px]">chat_bubble</span>
-                      <span className="text-muted-foreground italic truncate">"Tôi luôn lắng nghe bạn..."</span>
+                      <span className="text-muted-foreground italic truncate">“{t("utilities.library.widget.listening")}”</span>
                     </div>
                   )}
                   {app.id === "ide" && (
                     <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2 font-semibold">
-                      <span className="text-muted-foreground">Compiler Online</span>
-                      <span className="text-[9.5px] font-black text-primary uppercase">Chạy Code</span>
+                      <span className="text-muted-foreground">{t("utilities.library.widget.onlineCompiler")}</span>
+                      <span className="text-[9.5px] font-black text-primary uppercase">{t("utilities.library.widget.runCode")}</span>
                     </div>
                   )}
                   {app.id === "aura" && (
@@ -136,7 +140,7 @@ export default function WidgetRenderer({
                           isAuraActive ? "bg-destructive text-white" : "bg-primary text-white"
                         }`}
                       >
-                        {isAuraActive ? "Tắt" : "Bật"}
+                        {isAuraActive ? t("utilities.library.widget.stop") : t("utilities.library.widget.start")}
                       </button>
                     </div>
                   )}
@@ -169,12 +173,12 @@ export default function WidgetRenderer({
                         <span className="material-symbols-outlined text-orange-500 text-sm">payments</span>
                         <span className="font-black text-foreground">{joyBalance.toLocaleString()} JOY</span>
                       </div>
-                      <span className="text-[8.5px] font-black tracking-widest text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-md">VÀNG JOY</span>
+                      <span className="text-[8.5px] font-black tracking-widest text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-md">{t("utilities.library.widget.joyGold")}</span>
                     </div>
                   )}
                   {app.id === "arcade" && (
                     <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      <span>Highscore</span>
+                      <span>{t("utilities.library.widget.highScore")}</span>
                       <span className="text-warning">1,540 JOY</span>
                     </div>
                   )}
@@ -214,7 +218,7 @@ export default function WidgetRenderer({
                         {app.title}
                       </h3>
                       <span className="text-xs text-muted-foreground mt-0.5 block">
-                        Màn hình chính
+                        {t("utilities.library.widget.homeScreen")}
                       </span>
                     </div>
                   </div>
@@ -226,14 +230,14 @@ export default function WidgetRenderer({
                       <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 space-y-1.5 text-xs">
                         <div className="flex items-center gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                          <span className="font-bold text-[10.5px] text-foreground tracking-wide">Trực tuyến song hành</span>
+                          <span className="font-bold text-[10.5px] text-foreground tracking-wide">{t("utilities.library.widget.companionOnline")}</span>
                         </div>
-                        <p className="text-muted-foreground/90 italic leading-relaxed">"Hãy trút bỏ căng thẳng, tôi sẽ thấu cảm và hướng dẫn bạn vượt qua."</p>
+                        <p className="text-muted-foreground/90 italic leading-relaxed">“{t("utilities.library.widget.companionMessage")}”</p>
                       </div>
                       <div className="grid grid-cols-3 gap-1.5 text-[11px] font-medium text-center text-muted-foreground">
-                        <div className="bg-muted/50 p-1.5 rounded-lg">Căng thẳng</div>
-                        <div className="bg-muted/50 p-1.5 rounded-lg">Mất ngủ</div>
-                        <div className="bg-muted/50 p-1.5 rounded-lg">Học tập</div>
+                        <div className="bg-muted/50 p-1.5 rounded-lg">{t("utilities.library.widget.stress")}</div>
+                        <div className="bg-muted/50 p-1.5 rounded-lg">{t("utilities.library.widget.sleep")}</div>
+                        <div className="bg-muted/50 p-1.5 rounded-lg">{t("utilities.library.widget.study")}</div>
                       </div>
                     </div>
                   )}
@@ -270,14 +274,14 @@ export default function WidgetRenderer({
                             onClick={handleToggleAura}
                             className="text-[8px] font-black text-primary uppercase mt-0.5"
                           >
-                            {isAuraActive ? "DỪNG" : "CHẠY"}
+                            {isAuraActive ? t("utilities.library.widget.stop") : t("utilities.library.widget.start")}
                           </button>
                         </div>
                       </div>
 
                       <div className="flex-1 space-y-2.5 text-left text-[10px] font-bold text-muted-foreground/80 uppercase tracking-wider">
                         <div className="space-y-1">
-                          <div className="flex justify-between text-[9px]"><span>🌧️ Mưa rừng</span><span>{rainVolume}%</span></div>
+                          <div className="flex justify-between text-[9px]"><span>🌧️ {t("utilities.library.widget.forestRain")}</span><span>{rainVolume}%</span></div>
                           <input
                             type="range"
                             min="0"
@@ -289,7 +293,7 @@ export default function WidgetRenderer({
                           />
                         </div>
                         <div className="space-y-1">
-                          <div className="flex justify-between text-[9px]"><span>☕ Quán cafe</span><span>{cafeVolume}%</span></div>
+                          <div className="flex justify-between text-[9px]"><span>☕ {t("utilities.library.widget.cafe")}</span><span>{cafeVolume}%</span></div>
                           <input
                             type="range"
                             min="0"
@@ -332,7 +336,7 @@ export default function WidgetRenderer({
                             </div>
                           )}
                         </div>
-                        <p className="text-[9.5px] text-muted-foreground truncate uppercase font-bold tracking-wider">Mùa hạ tĩnh lặng</p>
+                        <p className="text-[9.5px] text-muted-foreground truncate uppercase font-bold tracking-wider">{t("utilities.library.widget.summerTrack")}</p>
                         <div className="h-1 bg-muted rounded-full w-full overflow-hidden">
                           <div 
                             className="h-full bg-primary rounded-full transition-all duration-[2000ms]" 
@@ -354,13 +358,13 @@ export default function WidgetRenderer({
                     <div className="space-y-3">
                       <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 flex justify-between items-center">
                         <div className="text-left">
-                          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">Số dư JOY khả dụng</span>
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">{t("utilities.library.widget.availableJoy")}</span>
                           <span className="font-black text-lg text-foreground mt-0.5 block">{joyBalance.toLocaleString()} JOY</span>
                         </div>
                         <span className="material-symbols-outlined text-orange-500 text-3xl">account_balance_wallet</span>
                       </div>
                       <div className="flex items-center justify-between gap-2 px-1">
-                        <span className="text-[9px] text-muted-foreground font-semibold">Thu nhập 5 ngày</span>
+                        <span className="text-[9px] text-muted-foreground font-semibold">{t("utilities.library.widget.fiveDayIncome")}</span>
                         <svg className="w-24 h-6 text-orange-500" viewBox="0 0 100 20">
                           <path 
                             d="M 0,20 Q 25,5 50,15 T 100,5" 
@@ -386,10 +390,10 @@ export default function WidgetRenderer({
                       </div>
                       <div className="text-left min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-1">
-                          <span className="font-bold text-xs text-foreground truncate">Hồ sơ cá nhân</span>
+                          <span className="font-bold text-xs text-foreground truncate">{t("utilities.library.widget.profile")}</span>
                           <span className="material-symbols-outlined text-primary text-xs">verified</span>
                         </div>
-                        <p className="text-[10px] text-muted-foreground/85 leading-normal">Biolink công khai, cổng kết nối công cụ và các tiện ích học tập của bạn.</p>
+                        <p className="text-[10px] text-muted-foreground/85 leading-normal">{t("utilities.library.widget.profileDescription")}</p>
                       </div>
                     </div>
                   )}
@@ -397,13 +401,13 @@ export default function WidgetRenderer({
                   {!["psychology", "ide", "aura", "radio", "joy_wallet", "bio"].includes(app.id) && (
                     <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 text-xs text-muted-foreground space-y-1">
                       <p className="text-[10px] leading-relaxed italic">"{app.subLabel}"</p>
-                      <div className="text-[10.5px] font-black text-warning pt-1">★ {app.rating} rating • {app.users} users</div>
+                      <div className="text-[10.5px] font-black text-warning pt-1">★ {t("utilities.library.widget.ratingUsers", { rating: app.rating, users: app.users })}</div>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between border-t border-border/50 pt-3 text-xs text-muted-foreground">
-                  <span>Nhấn giữ để tùy chỉnh</span>
+                  <span>{t("utilities.library.widget.holdToCustomize")}</span>
                   <span className="material-symbols-outlined text-sm text-muted-foreground/70 transform group-hover:translate-x-0.5 transition-transform">arrow_forward_ios</span>
                 </div>
               </div>

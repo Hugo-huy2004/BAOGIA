@@ -1486,6 +1486,118 @@
     "titlePartner": "PARTNER DASHBOARD",
     "greeting": "Hello",
     "academicProfile": "Academic Profile",
+    "navigation": {
+      "today": "Today",
+      "apps": "Apps",
+      "activity": "Activity",
+      "account": "Account",
+      "primaryNavigation": "Primary navigation",
+      "todayGreeting": "Hello, {{name}}",
+      "memberFallback": "there",
+      "todayDescription": "Everything that matters today, in one calm place.",
+      "joyBalance": "JOY balance",
+      "newActivity": "New activity",
+      "quickActions": "Quick actions",
+      "recentActivity": "Recent activity",
+      "viewAll": "View all",
+      "notificationFallback": "There is a new update for you.",
+      "noRecentActivity": "You are all caught up.",
+      "signInToSync": "Sign in to sync",
+      "viewProfile": "View profile",
+      "toggleSidebar": "Toggle sidebar (⌘B)",
+      "search": "Search (⌘K)",
+      "quick": {
+        "apps": {
+          "title": "Apps",
+          "description": "Open your tools"
+        },
+        "map": {
+          "title": "Discover",
+          "description": "Find nearby places"
+        },
+        "wallet": {
+          "title": "JOY Wallet",
+          "description": "Balance and transactions"
+        },
+        "profile": {
+          "title": "Profile",
+          "description": "Information and appearance"
+        }
+      }
+    },
+    "today": {
+      "description": "News, research, and opportunities that help you learn better and connect responsibly.",
+      "snapshot": "Today’s account snapshot",
+      "forStudents": "For students",
+      "topStories": "Worth reading today",
+      "localEdition": "{{country}} edition",
+      "dailyReset": "Refreshes daily at 09:00",
+      "refresh": "Refresh",
+      "categories": "Article categories",
+      "category": {
+        "all": "All",
+        "academic": "Academic",
+        "technology": "Technology",
+        "community": "Community",
+        "world": "Current affairs"
+      },
+      "loading": "Loading new stories",
+      "unavailable": "The academic feed is temporarily unavailable.",
+      "tryAgain": "Try again",
+      "featured": "Featured",
+      "preview": "Preview",
+      "safePreview": "Safe preview",
+      "openSource": "Open source",
+      "readOriginal": "Read original",
+      "noSummary": "The source did not provide a summary for this article.",
+      "sourceNotice": "Full content belongs to the original publisher.",
+      "previewTitle": "Preview: {{title}}"
+    },
+    "discovery": {
+      "discover": "discover",
+      "loadError": "Could not load places",
+      "webglError": "This device does not support WebGL maps.",
+      "nameRequired": "Enter a place name.",
+      "locationRequired": "Your location is not available yet.",
+      "submitError": "Could not add this place.",
+      "submitSuccess": "The place was added to the map.",
+      "toggle3d": "Switch between 3D and 2D",
+      "recenter": "Return to my location",
+      "addPlace": "Add a new place",
+      "searchPlaceholder": "Search food, cafés…",
+      "destination": "Destination",
+      "match": "{{score}}% match",
+      "away": "{{distance}} away",
+      "openNow": "Open now",
+      "routeSummary": "About {{minutes}} min · {{distance}}",
+      "hideDirections": "Hide directions",
+      "showDirections": "View directions",
+      "navigate": "Directions",
+      "categories": {
+        "all": "All",
+        "food": "Food",
+        "cafe": "Cafés",
+        "play": "Entertainment"
+      },
+      "form": {
+        "name": "Place name *",
+        "address": "Address *",
+        "services": "Services, for example air conditioning or strong Wi-Fi",
+        "submitting": "Adding…",
+        "submit": "Add to map"
+      },
+      "directions": {
+        "continue": "Continue",
+        "onto": " onto {{street}}",
+        "distance": " for about {{distance}} m",
+        "depart": "Depart{{street}}{{distance}}",
+        "arrive": "Arrive at your destination",
+        "turnLeft": "Turn left",
+        "turnRight": "Turn right",
+        "turn": "Turn",
+        "straight": "Continue straight"
+      }
+    },
     "tabs": {
       "bio": "Bio Profile",
       "package": "Services Package",
@@ -1526,15 +1638,24 @@
     },
     "bioPreview": {
       "title": "Bio Page",
+      "studioTitle": "Hugo Bio",
       "subtitle": "Public personal page preview",
       "backAria": "Go back",
       "openAria": "Open Bio page",
+      "open": "Open page",
+      "copyLinkAria": "Copy Bio link",
       "previewAria": "Bio page preview",
       "copySuccess": "Bio page link copied",
       "copyError": "Could not copy link",
       "notReadyTitle": "Bio page not ready",
       "notReadyDesc": "Complete your info at **Settings > Personal Info** to get a public Bio link.",
       "customizeTitle": "Customize Bio page",
+      "editorTitle": "Page editor",
+      "pageEyebrow": "Public page",
+      "live": "Live",
+      "draft": "Draft",
+      "previewLabel": "Live preview",
+      "previewTitle": "Your page",
       "designLabel": "Design & Theme",
       "linkCardsLabel": "Link Cards",
       "achievementsLabel": "Projects & Achievements",
@@ -1546,11 +1667,11 @@
       "startDate": "START DATE",
       "bioExpiry": "BIO EXPIRY",
       "daysElapsed": "{{elapsed}}/{{total}} days",
-      "daysLeft": "Còn {{count}} ngày"
+      "daysLeft": "{{count}} days left"
     },
     "verify": {
       "title": "Complete Student Information",
-      "desc": "The information below will be locked after verification. Please enter accurately.",
+      "desc": "Email, phone number, and school will be protected after verification. Please enter them accurately.",
       "fullName": "Full name",
       "fullNamePlaceholder": "Enter your full name...",
       "birthday": "Birthday",
@@ -1612,6 +1733,11 @@
       "email": "CONTACT EMAIL",
       "localSave": "Stored directly on your device",
       "changeAvatar": "CHANGE AVATAR",
+      "uploading": "UPLOADING...",
+      "locked": "LOCKED",
+      "avatarProtected": "Avatar protected against impersonation",
+      "placeholderHeadline": "Designer, Web Architect, Developer...",
+      "gmail": "GMAIL",
       "placeholderName": "Your full name...",
       "placeholderBirthday": "Example: 20/10/2004...",
       "placeholderEmail": "Cooperation/work email...",
@@ -1628,6 +1754,24 @@
       "loading": "Loading...",
       "projectsCount_other": "{{count}} Projects",
       "servicesCount_other": "{{count}} Services"
+    },
+    "account": {
+      "appleAccount": "Hugo Account",
+      "eduVerified": "Education identity verified",
+      "verificationPending": "Education verification pending",
+      "personalInformation": "Personal Information",
+      "personalInformationDescription": "Your name, birthday, and introduction can be updated at any time.",
+      "about": "About",
+      "aboutPlaceholder": "Share a little about yourself, your learning goals, or what interests you…",
+      "verifiedIdentity": "Education Identity",
+      "verifiedIdentityDescription": "Information used to verify students is protected by the system.",
+      "eduFieldLocked": "Can only be changed through education verification",
+      "eduProtectionNote": "Email, phone number, and school cannot be edited here. Contact support if your verified information changes.",
+      "optionalDetails": "Additional Details",
+      "optionalDetailsDescription": "These fields are optional and only appear when you choose to save them.",
+      "saveTitle": "Update Account",
+      "saveDescription": "Changes are securely synced with your profile.",
+      "membershipCard": "Hugo membership card"
     },
     "bento": {
       "profileSub": "Avatar, name & introduction",
@@ -1670,7 +1814,12 @@
       "classicDesc": "Smooth snap scrolling layout, elegant drop shadow effects.",
       "brutalismDesc": "Break the rules with bright colors, thick black borders, flat bold shadows.",
       "flatTitle": "Flat",
-      "flatDesc": "No drop shadows, no 3D/gradients, bright colors and flat 2D blocks."
+      "flatDesc": "No drop shadows, no 3D/gradients, bright colors and flat 2D blocks.",
+      "rentalDescription": "JOY is a nonprofit reward balance. Brutalism and Flat cost {{price}} JOY per month; the page returns to Classic when the rental ends.",
+      "free": "Free",
+      "daysRemaining": "{{count}} days left",
+      "pricePerMonth": "{{price}} JOY/month",
+      "exchangeSuccess": "JOY exchanged for the {{template}} theme."
     },
     "links": {
       "title": "SOCIAL MEDIA LINKS",
@@ -1707,7 +1856,8 @@
       "hobbies": "Hobbies",
       "desc": "Description",
       "placeholderHobbies": "Comma separated: Programming, Drawing...",
-      "placeholderDesc": "Write a few lines to introduce yourself..."
+      "placeholderDesc": "Write a few lines to introduce yourself...",
+      "wordCount": "{{count}} / {{limit}} words"
     },
     "updating": "Updating...",
     "updateInfo": "Update Info",
@@ -1972,7 +2122,34 @@
       "submitButton": "Finish",
       "skipButton": "Skip for now"
     },
+    "permissions": {
+      "eyebrow": "One-time setup",
+      "title": "Stay connected to what matters",
+      "description": "Enable two essential permissions so Hugo can notify you at the right time, personalize nearby content, and protect your sign-in.",
+      "pushTitle": "Important notifications",
+      "pushDescription": "Receive verification, JOY, security, and account updates even after closing the app.",
+      "locationTitle": "Local experience",
+      "locationDescription": "Used for local news, Discovery Map, and unusual sign-in alerts.",
+      "privacyTitle": "Your privacy stays in your control",
+      "privacyDescription": "Location is not used for advertising. You can revoke either permission in device settings at any time.",
+      "enable": "Enable",
+      "enabling": "Enabling…",
+      "install": "Install PWA",
+      "viewGuide": "View guide",
+      "later": "Later",
+      "close": "Close permission setup",
+      "browserSettingsHint": "This permission is blocked. Re-enable it in your browser or device settings.",
+      "pushError": "Push registration could not be completed. Check your connection and try again.",
+      "locationError": "Hugo could not access location. Check your browser permission."
+    },
     "joy": {
+      "card": {
+        "copyCode": "Copy member code",
+        "cardName": "HUGO CARD",
+        "availableBalance": "Available balance",
+        "smartChip": "Hugo member chip",
+        "transfer": "Send JOY"
+      },
       "particle": {
         "title": "Hugo Studio - Intelligent Connection",
         "qrTitle": "JOY QR Code",
@@ -2145,6 +2322,31 @@
     "settings": {
       "title": "Settings",
       "desc": "Your notifications, quick login, and a few other things, all in one place.",
+      "account": {
+        "summary": "Account information, payments, and settings",
+        "bioTitle": "Hugo Bio profile",
+        "bioDescription": "Customize your appearance, card, and social links",
+        "publicIdentityNote": "Your profile name and image appear publicly across the Hugo Studio network.",
+        "notifications": "Notifications",
+        "notificationsDescription": "Configure Web Push notifications",
+        "privacy": "Privacy and access",
+        "privacyDescription": "Privacy and biometric sign-in",
+        "topUpJoy": "Add JOY",
+        "redeemCode": "Redeem code",
+        "giftJoy": "Gift JOY",
+        "language": "Language",
+        "publicBio": "Public Bio page",
+        "publicBioDescription": "Open your public Bio page",
+        "signOut": "Sign out",
+        "personalInformation": "Personal information",
+        "saveInformation": "Save information",
+        "notificationSettings": "Notification settings",
+        "pushDescription": "Get updates about events, messages, and rewards",
+        "done": "Done",
+        "privacyBiometrics": "Privacy and biometrics",
+        "biometricUnsupported": "This device doesn't support Face ID or WebAuthn.",
+        "chooseLanguage": "Choose language"
+      },
       "groupNotifications": "Notifications",
       "groupLogin": "Login",
       "groupPreferences": "More stuff",
@@ -2359,6 +2561,7 @@
     "history": {
       "labels": {
         "welcome": "Welcome",
+        "bio_link": "Bio Link",
         "system": "System",
         "package_received": "Package Received",
         "package_removed": "Package Removed",
@@ -2376,15 +2579,35 @@
       },
       "days": {
         "today": "Today",
-        "yesterday": "Yesterday"
+        "yesterday": "Yesterday",
+        "this_week": "This week",
+        "earlier": "Earlier"
       },
       "filter": {
         "all": "All",
+        "joy": "JOY Wallet",
+        "system": "System",
         "account": "Account",
         "package": "Packages",
         "gift": "Gifts"
       },
+      "refreshed": "Notifications refreshed",
+      "inbox_title": "Notifications",
+      "inbox_description": "Important updates from your account and apps.",
+      "read_all": "Read all",
+      "mark_all_read": "Mark all as read",
+      "refresh": "Refresh notifications",
+      "mark_read": "Mark as read",
+      "collapse": "Collapse",
+      "expand": "View more",
+      "dismiss": "Dismiss notification",
+      "transaction_short": "TX",
+      "balance_short": "Balance",
       "title": "Notifications from Hugo Studio",
+      "collection": "The ongoing collection",
+      "curated_description": "A living archive of meaningful changes, moments, and signals throughout your journey.",
+      "archive": "Artifacts",
+      "unread_pieces": "{{count}} unseen pieces",
       "events_recorded": "new notifications",
       "no_events": "No notifications yet",
       "newest_first": "Newest first",
@@ -2811,6 +3034,143 @@
     }
   },
   "utilities": {
+    "categories": {
+      "all": "All",
+      "education": "Learning",
+      "wellness": "Wellness",
+      "tools": "Tools",
+      "entertainment": "Entertainment"
+    },
+    "library": {
+      "installedToast": "App installed (+{{size}} MB on this device)!",
+      "removedToast": "App removed ({{size}} MB released)!",
+      "positionUpdated": "App position updated!",
+      "radioPaused": "Radio paused",
+      "radioPlaying": "Playing Lofi Code Radio 24/7",
+      "interactionRequired": "Interact with the page before playing audio",
+      "focusStopped": "Focus audio stopped",
+      "focusPlaying": "Playing focus audio",
+      "upgrading": "Hugo is being upgraded to a new version",
+      "back": "Back",
+      "next": "Next",
+      "openLibrary": "Explore the app library",
+      "emptyTitle": "Your screen is empty",
+      "emptyDescription": "Install the utilities you need from Hugo Library.",
+      "removeFromHome": "Remove from Home Screen",
+      "removeApp": "Remove app",
+      "included": "Included",
+      "requiredAppNotice": "This system app is always available with your account.",
+      "requiredAppDescription": "This app is part of the core learning system. It is included by default and cannot be removed.",
+      "displaySize": "Display size",
+      "done": "Done",
+      "searchPlaceholder": "Search apps or utilities…",
+      "clearSearch": "Clear search",
+      "filters": "App filters",
+      "noSpotlightResults": "No matching apps found",
+      "searchResults": "Search results",
+      "quickSuggestions": "Quick suggestions",
+      "installed": "Installed",
+      "store": "Store",
+      "memberFallback": "Member",
+      "weatherMildSun": "Mostly sunny",
+      "goToSlide": "Go to slide {{slide}}",
+      "collection": "Collection",
+      "yourApps": "Your apps",
+      "featuredApps": "Featured apps",
+      "appCount_one": "{{count}} app",
+      "appCount_other": "{{count}} apps",
+      "noResults": "No apps found",
+      "noResultsHint": "Try another keyword or category.",
+      "open": "Open",
+      "get": "Get",
+      "installedCount": "Installed ({{count}})",
+      "installWhere": "Where should “{{app}}” be installed?",
+      "installWhereDescription": "Both options install the same app; the only difference is whether it gets its own Home Screen icon.",
+      "homeAndLibrary": "Home Screen & Library",
+      "libraryOnly": "Library only",
+      "cancel": "Cancel",
+      "appDescription": "App description",
+      "collapse": "Show less",
+      "expand": "Show more",
+      "storage": "Storage",
+      "age": "Age",
+      "availability": "Available on",
+      "openApp": "Open app",
+      "installApp": "Install app",
+      "createShortcut": "Create Home Screen shortcut",
+      "featured": {
+        "psychology": {
+          "title": "HugoPSY AI Companion",
+          "description": "A private companion for relieving study pressure, guided relaxation, and personalized sleep tracking.",
+          "button": "Open HugoPSY"
+        },
+        "ide": {
+          "title": "HugoCoder AI Workspace",
+          "description": "A multilingual code editor for visual learning, algorithm testing, and hands-on programming.",
+          "button": "Start coding"
+        },
+        "arcade": {
+          "title": "HugoArcade",
+          "description": "Play 2048, chess, and space games, earn JOY, and climb the leaderboard.",
+          "button": "Play games"
+        }
+      },
+      "widget": {
+        "listening": "I’m always here to listen...",
+        "onlineCompiler": "Online compiler",
+        "runCode": "Run code",
+        "start": "Start",
+        "stop": "Stop",
+        "joyGold": "JOY Gold",
+        "highScore": "High score",
+        "homeScreen": "Home Screen",
+        "companionOnline": "Companion online",
+        "companionMessage": "Let go of the pressure. I’ll listen and help you move through it.",
+        "stress": "Stress",
+        "sleep": "Sleep",
+        "study": "Study",
+        "forestRain": "Forest rain",
+        "cafe": "Café",
+        "summerTrack": "Quiet summer",
+        "availableJoy": "Available JOY balance",
+        "fiveDayIncome": "5-day income",
+        "profile": "Personal profile",
+        "profileDescription": "Your public Biolink and gateway to tools and learning utilities.",
+        "ratingUsers": "{{rating}} rating · {{users}} users",
+        "holdToCustomize": "Press and hold to customize"
+      },
+      "size": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "icon": "Icon"
+      }
+    },
+    "catalog": {
+      "bio": { "title": "Bio Page", "description": "Personal profile and Bio link" },
+      "ide": { "title": "HugoCoder", "description": "Code editor and programming lessons" },
+      "team": { "title": "Hugo Team", "description": "Student roles and collaborative projects" },
+      "psychology": { "title": "HugoPSY", "description": "AI wellbeing and sleep tracking" },
+      "hugoskin": { "title": "HugoSkin", "description": "Skin analysis and personal care" },
+      "radio": { "title": "HugoRadio", "description": "News and focus music" },
+      "helpdesk": { "title": "HugoHelpdesk", "description": "QR, NFC and email signatures" },
+      "handle": { "title": "HugoHandle", "description": "Image compression and secure links" },
+      "arcade": { "title": "HugoArcade", "description": "Games that reward JOY" },
+      "aura": { "title": "HugoAura", "description": "Pomodoro focus and ambient sound" },
+      "deco": { "title": "Deco Studio", "description": "Decorate your virtual space" },
+      "info": { "title": "Info and Version", "description": "System information and release notes" },
+      "joy_wallet": { "title": "JOY Wallet", "description": "Balance and quick transfers" },
+      "library": { "title": "Hugo Library", "description": "App and utility catalog" },
+      "map": { "title": "Discover", "description": "Community map and places near you" },
+      "arcade_chess": { "title": "AI Chess", "description": "Challenge a high-level AI" },
+      "arcade_2048": { "title": "2048 Fusion", "description": "An expanded number-merging game" },
+      "arcade_caro": { "title": "Caro Master", "description": "Multi-level five-in-a-row" },
+      "arcade_wordguess": { "title": "Word Cipher", "description": "Vietnamese vocabulary challenge" },
+      "arcade_tetris": { "title": "Tetris Neon", "description": "Smooth 60-fps block stacking" },
+      "arcade_snake": { "title": "Snake 3D Pro", "description": "The classic snake game" },
+      "arcade_survivor": { "title": "Space Survivor", "description": "Survive deep space" },
+      "arcade_flappy": { "title": "Flappy Cyber", "description": "Fly through a cyber world" }
+    },
     "dashboard": {
       "title": "Member Utilities",
       "desc": "Explore smart tools to optimize your workflow and personalize your Bio page.",
@@ -3256,6 +3616,61 @@
     },
     "userMeta": {
       "noName": "No name set"
+    }
+  },
+  "hugoCoderLearning": {
+    "back": "Apps",
+    "joyBalance": "JOY balance",
+    "loading": "Preparing your learning journey…",
+    "tabs": {
+      "label": "HugoCoder navigation",
+      "learn": "Learn",
+      "lab": "Lab",
+      "resources": "Resources",
+      "progress": "Progress"
+    },
+    "hero": {
+      "kicker": "Learn daily, build real products",
+      "title": "Learn programming in small steps.",
+      "description": "Each lesson is a short session with concepts, practice, and instant feedback. Complete lessons in order to unlock the next stage.",
+      "continue": "Continue journey",
+      "firstLesson": "Start the first lesson"
+    },
+    "stats": {
+      "label": "Learning statistics",
+      "streak": "day streak",
+      "lessons": "Lessons"
+    },
+    "progress": {
+      "title": "Course progress"
+    },
+    "path": {
+      "eyebrow": "YOUR LEARNING PATH",
+      "title": "Your journey",
+      "description": "Learn in order, practice immediately, and unlock each milestone.",
+      "stage": "Stage {{number}}",
+      "lesson": "Lesson {{number}}",
+      "next": "Up next"
+    },
+    "resources": {
+      "title": "Learning resources",
+      "description": "Videos and academic references organized by learning stage.",
+      "video": "Videos",
+      "documents": "Documents"
+    },
+    "lesson": {
+      "stepOf": "Step {{current}}/{{total}}",
+      "steps": {
+        "story": "Understand",
+        "guide": "Walkthrough",
+        "practice": "Challenge",
+        "review": "Review"
+      },
+      "finishPractice": "Complete the challenge before opening the review step.",
+      "path": "Learning path",
+      "previous": "Back",
+      "continue": "Continue",
+      "nextLesson": "Next lesson"
     }
   },
   "studentBenefitsPage": {

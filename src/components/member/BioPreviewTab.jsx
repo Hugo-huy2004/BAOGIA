@@ -1,29 +1,55 @@
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getMemberSession } from "../../services/authSession";
+import "../../styles/bioStudio.css";
 
-// "Trang Bio" utility — the home for everything that styles the PUBLIC bio page:
-// theme/appearance, link cards and projects/achievements are edited right here
-// (via renderAccountForm from the portal) with a live preview underneath.
-// Personal info stays in Settings; only bio-page styling lives here.
-export default function BioPreviewTab({ bio, publicLink, showToast, onBack, renderAccountForm }) {
-  const { t } = useTranslation();
-  const ready = !!publicLink;
+const EDITOR_SECTIONS = Object.freeze([
+  { id: "design", labelKey: "designLabel", icon: "palette" },
+  { id: "links", labelKey: "linkCardsLabel", icon: "link" },
+  { id: "achievements", labelKey: "achievementsLabel", icon: "workspace_premium" },
+]);
+
+export default function BioPreviewTab({
+  bio,
+  publicLink,
+  showToast,
+  onBack,
+  renderAccountForm,
+  handleSave,
+}) {
+  const { t, i18n } = useTranslation();
+  const ready = Boolean(publicLink);
   const session = getMemberSession();
-  // Accordion (one section open at a time) — kept in state so it survives the
-  // re-renders that happen while editing, and stays collapsible by the user.
-  const [openSec, setOpenSec] = useState("design");
+  const [activeSection, setActiveSection] = useState("design");
 
-  // Calculate membership end date (3 years from today for demo; in real case from server)
-  const now = new Date();
-  const membershipStart = bio?.createdAt ? new Date(bio.createdAt) : now;
-  const membershipEnd = new Date(membershipStart.getTime() + 3 * 365 * 24 * 60 * 60 * 1000);
+  const membership = useMemo(() => {
+    const now = new Date();
+    const start = bio?.createdAt ? new Date(bio.createdAt) : now;
+    const serverExpiry = bio?.bioExpiresAt || bio?.membershipEndDate;
+    const end = serverExpiry
+      ? new Date(serverExpiry)
+      : new Date(start.getTime() + 3 * 365 * 24 * 60 * 60 * 1000);
+    const total = Math.max(1, Math.ceil((end - start) / 86_400_000));
+    const elapsed = Math.max(0, Math.ceil((now - start) / 86_400_000));
+    return {
+      start,
+      end,
+      total,
+      elapsed: Math.min(total, elapsed),
+      remaining: Math.max(0, Math.ceil((end - now) / 86_400_000)),
+      progress: Math.min(100, (elapsed / total) * 100),
+    };
+  }, [bio?.bioExpiresAt, bio?.createdAt, bio?.membershipEndDate]);
 
-  const formatDate = (date) => date.toLocaleDateString("vi-VN");
-  const daysRemaining = Math.max(0, Math.ceil((membershipEnd - now) / (24 * 60 * 60 * 1000)));
-  const totalDays = 3 * 365;
-  const elapsedDays = Math.max(0, Math.ceil((now - membershipStart) / (24 * 60 * 60 * 1000)));
-  const progress = Math.min(100, (elapsedDays / totalDays) * 100);
+  const formatDate = useMemo(() => {
+    const locale = i18n.resolvedLanguage === "en" ? "en-US" : "vi-VN";
+    const formatter = new Intl.DateTimeFormat(locale, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    return (date) => formatter.format(date);
+  }, [i18n.resolvedLanguage]);
 
   const copyLink = async () => {
     if (!ready) return;
@@ -36,156 +62,160 @@ export default function BioPreviewTab({ bio, publicLink, showToast, onBack, rend
   };
 
   return (
-    <div className="space-y-4 animate-fadeIn">
-      {/* Header */}
-      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2.5 shadow-sm">
-        <button
-          type="button"
-          onClick={onBack}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-foreground/[0.06] text-foreground transition hover:bg-foreground/10"
-          aria-label={t("memberPortal.bioPreview.backAria")}
-        >
-          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+    <div className="bio-studio animate-fadeIn">
+      <header className="bio-studio-navbar">
+        <button type="button" onClick={onBack} className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.backAria")}>
+          <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
         </button>
-        <div className="min-w-0">
-          <h2 className="font-display text-base font-black leading-none text-foreground">{t("memberPortal.bioPreview.title")}</h2>
-          <p className="mt-1 truncate text-[11px] text-muted-foreground">{t("memberPortal.bioPreview.subtitle")}</p>
+
+        <div className="bio-studio-navbar-copy">
+          <span className="bio-studio-app-icon" aria-hidden="true">
+            <span className="material-symbols-outlined">badge</span>
+          </span>
+          <span>
+            <strong>{t("memberPortal.bioPreview.studioTitle")}</strong>
+            <small>{t("memberPortal.bioPreview.subtitle")}</small>
+          </span>
         </div>
-        {ready && (
-          <a
-            href={publicLink}
-            target="_blank"
-            rel="noreferrer"
-            className="ml-auto grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary text-white shadow-sm transition hover:bg-primary active:scale-95"
-            aria-label={t("memberPortal.bioPreview.openAria")}
-          >
-            <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-          </a>
-        )}
-      </div>
 
-      {/* Developer Membership & Bio Expiry section */}
-      {ready && session?.email && (
-        <div className="space-y-4">
-          {/* 3-Year Developer Membership Header */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-amber-500/20 space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">{t("memberPortal.bioPreview.membershipHeader")}</p>
-            <p className="text-sm font-bold text-foreground">{t("memberPortal.bioPreview.expiryLabel")} <span className="text-amber-600 dark:text-amber-400">{formatDate(membershipEnd)}</span></p>
+        <div className="bio-studio-navbar-actions">
+          {ready ? (
+            <>
+              <button type="button" onClick={copyLink} className="bio-studio-icon-button" aria-label={t("memberPortal.bioPreview.copyLinkAria")}>
+                <span className="material-symbols-outlined" aria-hidden="true">content_copy</span>
+              </button>
+              <a href={publicLink} target="_blank" rel="noreferrer" className="bio-studio-open-button" aria-label={t("memberPortal.bioPreview.openAria")}>
+                <span>{t("memberPortal.bioPreview.open")}</span>
+                <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+              </a>
+            </>
+          ) : null}
+        </div>
+      </header>
+
+      <section className="bio-studio-overview">
+        <div className="bio-studio-overview-main">
+          <span className="bio-studio-page-mark" aria-hidden="true">
+            <span className="material-symbols-outlined">person</span>
+          </span>
+          <div className="min-w-0">
+            <p>{t("memberPortal.bioPreview.pageEyebrow")}</p>
+            <h1>{bio?.displayName || session?.displayName || t("memberPortal.navigation.memberFallback")}</h1>
+            <span>{ready ? publicLink : t("memberPortal.bioPreview.notReadyTitle")}</span>
           </div>
+        </div>
 
-          {/* Bio Package Info */}
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1 mb-3">{t("memberPortal.bioPreview.packageTitle")}</h3>
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/15 via-pink-500/15 to-amber-500/10 border border-purple-500/30 space-y-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">GÓI CÓ BẢN</p>
-                  <p className="text-sm font-black text-foreground mt-1">BIO + MEMBERSHIP</p>
-                </div>
-                <span className="material-symbols-outlined text-2xl text-purple-600/60">verified_user</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
-                  <p className="text-muted-foreground font-bold">{t("memberPortal.bioPreview.startDate")}</p>
-                  <p className="text-foreground font-bold mt-0.5">{formatDate(membershipStart)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground font-bold">{t("memberPortal.bioPreview.bioExpiry")}</p>
-                  <p className="text-purple-600 dark:text-purple-400 font-bold mt-0.5">{formatDate(membershipEnd)}</p>
-                </div>
-              </div>
-              {/* Progress bar */}
-              <div className="space-y-1.5">
-                <div className="h-2.5 rounded-full bg-gradient-to-r from-purple-200/50 to-pink-200/50 dark:from-purple-900/50 dark:to-pink-900/50 overflow-hidden border border-border/30">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-muted-foreground flex justify-between">
-                  <span>{t("memberPortal.bioPreview.daysElapsed", { elapsed: elapsedDays, total: totalDays })}</span>
-                  <span>{t("memberPortal.bioPreview.daysLeft", { count: daysRemaining })}</span>
-                </p>
-              </div>
+        <div className={`bio-studio-status ${ready ? "is-live" : ""}`}>
+          <span aria-hidden="true" />
+          {ready ? t("memberPortal.bioPreview.live") : t("memberPortal.bioPreview.draft")}
+        </div>
+      </section>
+
+      <div className="bio-studio-workspace">
+        <main className="bio-studio-editor">
+          <div className="bio-studio-section-heading">
+            <div>
+              <p>{t("memberPortal.bioPreview.customizeTitle")}</p>
+              <h2>{t("memberPortal.bioPreview.editorTitle")}</h2>
             </div>
+            {handleSave ? (
+              <button type="button" onClick={handleSave} className="bio-studio-save-button">
+                <span className="material-symbols-outlined" aria-hidden="true">check</span>
+                {t("memberPortal.bio.saveChanges")}
+              </button>
+            ) : null}
           </div>
-        </div>
-      )}
 
-      {/* ── Bio editors — style the public page right here ── */}
-      {renderAccountForm && (
-        <div className="space-y-2.5">
-          <p className="px-1 text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("memberPortal.bioPreview.customizeTitle")}</p>
-          {[
-            { id: "design", label: t("memberPortal.bioPreview.designLabel"), icon: "palette", tint: "bg-violet-500/10 text-violet-500" },
-            { id: "links", label: t("memberPortal.bioPreview.linkCardsLabel"), icon: "link", tint: "bg-info/10 text-info" },
-            { id: "achievements", label: t("memberPortal.bioPreview.achievementsLabel"), icon: "workspace_premium", tint: "bg-warning/10 text-warning" },
-          ].map((sec) => (
-            <details
-              key={sec.id}
-              open={openSec === sec.id}
-              onToggle={(e) => { if (e.target.open) setOpenSec(sec.id); else if (openSec === sec.id) setOpenSec(null); }}
-              className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
-            >
-              <summary className="flex cursor-pointer list-none items-center gap-3 px-3.5 py-3 [&::-webkit-details-marker]:hidden">
-                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-[10px] ${sec.tint}`}>
-                  <span className="material-symbols-outlined text-[18px]">{sec.icon}</span>
+          <div className="bio-studio-segmented" role="tablist" aria-label={t("memberPortal.bioPreview.customizeTitle")}>
+            {EDITOR_SECTIONS.map((section) => {
+              const active = activeSection === section.id;
+              return (
+                <button
+                  key={section.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  className={active ? "is-active" : ""}
+                  onClick={() => setActiveSection(section.id)}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">{section.icon}</span>
+                  <span>{t(`memberPortal.bioPreview.${section.labelKey}`)}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <section className="bio-studio-editor-content" role="tabpanel">
+            {renderAccountForm?.(activeSection)}
+          </section>
+
+          {ready && session?.email ? (
+            <section className="bio-studio-membership">
+              <div className="bio-studio-membership-heading">
+                <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
+                <span>
+                  <strong>{t("memberPortal.bioPreview.membershipHeader")}</strong>
+                  <small>{t("memberPortal.bioPreview.packageName")}</small>
                 </span>
-                <span className="flex-1 text-[13px] font-black text-foreground">{sec.label}</span>
-                <span className="material-symbols-outlined text-[20px] text-muted-foreground/60 transition-transform group-open:rotate-180">expand_more</span>
-              </summary>
-              <div className="border-t border-border p-4 text-left sm:p-5">
-                {renderAccountForm(sec.id)}
               </div>
-            </details>
-          ))}
-        </div>
-      )}
-
-      {ready ? (
-        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          {/* Preview hint */}
-          <div className="flex items-start gap-2.5 border-b border-border bg-primary/[0.05] p-3.5">
-            <span className="material-symbols-outlined mt-0.5 text-[18px] text-primary">visibility</span>
-              <p className="text-[12px] leading-relaxed text-foreground/85">
-                {t("memberPortal.bioPreview.editHint")}
+              <dl>
+                <div>
+                  <dt>{t("memberPortal.bioPreview.startDate")}</dt>
+                  <dd>{formatDate(membership.start)}</dd>
+                </div>
+                <div>
+                  <dt>{t("memberPortal.bioPreview.bioExpiry")}</dt>
+                  <dd>{formatDate(membership.end)}</dd>
+                </div>
+              </dl>
+              <div className="bio-studio-progress" aria-label={t("memberPortal.bioPreview.daysElapsed", {
+                elapsed: membership.elapsed,
+                total: membership.total,
+              })}>
+                <span style={{ width: `${membership.progress}%` }} />
+              </div>
+              <p>
+                <span>{t("memberPortal.bioPreview.daysElapsed", { elapsed: membership.elapsed, total: membership.total })}</span>
+                <span>{t("memberPortal.bioPreview.daysLeft", { count: membership.remaining })}</span>
               </p>
+            </section>
+          ) : null}
+        </main>
+
+        <aside className="bio-studio-preview">
+          <div className="bio-studio-preview-heading">
+            <div>
+              <p>{t("memberPortal.bioPreview.previewLabel")}</p>
+              <h2>{t("memberPortal.bioPreview.previewTitle")}</h2>
+            </div>
+            {ready ? <span className="bio-studio-live-dot">{t("memberPortal.bioPreview.live")}</span> : null}
           </div>
 
-          {/* Toolbar */}
-          <div className="flex items-center gap-1.5 border-b border-border bg-foreground/[0.03] px-3.5 py-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-            <span className="h-2.5 w-2.5 rounded-full bg-success" />
-            <span className="ml-2 flex-1 truncate text-[10.5px] text-muted-foreground">{publicLink}</span>
-            <button
-              type="button"
-              onClick={copyLink}
-              className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground transition hover:bg-foreground/10 hover:text-foreground"
-              aria-label={t("memberPortal.bioPreview.copyLinkAria") || "Copy link"}
-            >
-              <span className="material-symbols-outlined text-[16px]">content_copy</span>
-            </button>
-          </div>
-
-          {/* Live preview */}
-          <iframe
-            key={bio?.updatedAt || publicLink}
-            src={publicLink}
-            title={t("memberPortal.bioPreview.previewAria")}
-            className="h-[68vh] w-full bg-card"
-            loading="lazy"
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-16 text-center shadow-sm">
-          <span className="material-symbols-outlined text-4xl text-muted-foreground/50">badge</span>
-          <p className="mt-3 text-sm font-black text-foreground">{t("memberPortal.bioPreview.notReadyTitle")}</p>
-          <p className="mt-1 max-w-xs px-6 text-[11px] text-muted-foreground">
-            {t("memberPortal.bioPreview.notReadyDesc")}
-          </p>
-        </div>
-      )}
+          {ready ? (
+            <div className="bio-studio-device">
+              <div className="bio-studio-device-toolbar">
+                <span className="material-symbols-outlined" aria-hidden="true">lock</span>
+                <span>{publicLink.replace(/^https?:\/\//, "")}</span>
+                <button type="button" onClick={copyLink} aria-label={t("memberPortal.bioPreview.copyLinkAria")}>
+                  <span className="material-symbols-outlined" aria-hidden="true">ios_share</span>
+                </button>
+              </div>
+              <iframe
+                key={bio?.updatedAt || publicLink}
+                src={publicLink}
+                title={t("memberPortal.bioPreview.previewAria")}
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div className="bio-studio-empty">
+              <span className="material-symbols-outlined" aria-hidden="true">person_add</span>
+              <strong>{t("memberPortal.bioPreview.notReadyTitle")}</strong>
+              <p>{t("memberPortal.bioPreview.notReadyDesc")}</p>
+            </div>
+          )}
+        </aside>
+      </div>
     </div>
   );
 }

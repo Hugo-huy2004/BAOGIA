@@ -99,8 +99,8 @@ export default {
       },
 
       fontFamily: {
-        display: ["Quicksand", "sans-serif"],
-        body:    ["Plus Jakarta Sans", "sans-serif"],
+        display: ["-apple-system", "BlinkMacSystemFont", "SF Pro Display", "Segoe UI", "sans-serif"],
+        body:    ["-apple-system", "BlinkMacSystemFont", "SF Pro Text", "Segoe UI", "sans-serif"],
         mono:    ["JetBrains Mono", "monospace"],
       },
 

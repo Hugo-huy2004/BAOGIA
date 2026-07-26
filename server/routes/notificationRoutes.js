@@ -1,7 +1,7 @@
 import express from 'express';
 import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { triggerSmartPushNow } from '../services/smartNotificationService.js';
 import fs from 'fs';
 import path from 'path';
@@ -85,18 +85,39 @@ router.get('/vapid-public-key', (req, res) => {
 });
 
 // API 2: Nhận và lưu trữ Subscription Object từ client gửi lên
-router.post('/subscribe', async (req, res) => {
+router.post('/subscribe', requireMember, async (req, res) => {
   try {
-    const { email, subscription } = req.body;
+    const { subscription, device = {} } = req.body;
+    const email = req.memberEmail;
 
     if (!email || !subscription || !subscription.endpoint || !subscription.keys) {
       return res.status(400).json({ error: 'Email và đối tượng Subscription đầy đủ là bắt buộc.' });
+    }
+    try {
+      const endpointUrl = new URL(subscription.endpoint);
+      if (endpointUrl.protocol !== 'https:') throw new Error('invalid protocol');
+    } catch {
+      return res.status(400).json({ error: 'Push endpoint không hợp lệ.' });
     }
 
     // Cập nhật subscription mới hoặc ghi đè nếu trùng endpoint
     const updatedSub = await NotificationSubscription.findOneAndUpdate(
       { "subscription.endpoint": subscription.endpoint },
-      { email, subscription },
+      {
+        $set: {
+          email,
+          subscription,
+          device: {
+            locale: String(device.locale || '').slice(0, 32),
+            timezone: String(device.timezone || '').slice(0, 64),
+            platform: String(device.platform || '').slice(0, 64),
+            standalone: Boolean(device.standalone)
+          },
+          lastSeenAt: new Date(),
+          updatedAt: new Date()
+        },
+        $setOnInsert: { createdAt: new Date() }
+      },
       { upsert: true, new: true }
     );
 
@@ -108,11 +129,14 @@ router.post('/subscribe', async (req, res) => {
 
 // Removes this device's push subscription — used by the Settings tab's
 // notification toggle to actually stop push delivery, not just hide the UI.
-router.post('/unsubscribe', async (req, res) => {
+router.post('/unsubscribe', requireMember, async (req, res) => {
   try {
     const { endpoint } = req.body;
     if (!endpoint) return res.status(400).json({ error: 'endpoint là bắt buộc.' });
-    await NotificationSubscription.deleteOne({ 'subscription.endpoint': endpoint });
+    await NotificationSubscription.deleteOne({
+      email: req.memberEmail,
+      'subscription.endpoint': endpoint
+    });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });

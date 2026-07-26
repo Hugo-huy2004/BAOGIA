@@ -2,10 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import SubUtilityHeader from "../SubUtilityHeader";
-import ChatTab from "./ChatTab";
-import TherapyTab from "./TherapyTab";
-import EvaluationTab from "./EvaluationTab";
-import SleepTracker from "./SleepTracker";
 import dataApi from "../../../services/dataApi";
 import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
@@ -15,6 +11,11 @@ import { useIsMobile } from "../../../hooks/useIsMobile";
 import { notify } from "../../../lib/notify";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
 import EmergencySiren from "./EmergencySiren";
+
+const ChatTab = React.lazy(() => import("./ChatTab"));
+const TherapyTab = React.lazy(() => import("./TherapyTab"));
+const EvaluationTab = React.lazy(() => import("./EvaluationTab"));
+const SleepTracker = React.lazy(() => import("./SleepTracker"));
 
 // ── Sub-tab config ─────────────────────────────────────────────────────────────
 const SUB_TABS = [
@@ -763,6 +764,13 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           </div>
 
           <div className="relative z-10 flex-1 flex flex-col min-h-0">
+            <React.Suspense
+              fallback={
+                <div className="flex flex-1 items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary" />
+                </div>
+              }
+            >
             <AnimatePresence mode="wait">
               <motion.div
                 key={effectiveSubTab}
@@ -828,6 +836,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                 )}
               </motion.div>
             </AnimatePresence>
+            </React.Suspense>
           </div>
         </div>
       </div>

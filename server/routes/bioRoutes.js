@@ -24,6 +24,7 @@ import { discoverPlaces } from '../services/discoveryService.js';
 import CommunityPlace from '../models/CommunityPlace.js';
 import webpush from 'web-push';
 import rateLimit from 'express-rate-limit';
+import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 
 const discoverLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -511,17 +512,27 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
         password: ''
       }));
     }
+    bioObj.installedUtilities = appInstallationPolicy.normalizeInstalled(bioObj.installedUtilities);
+    bioObj.homeScreenUtilities = appInstallationPolicy.normalizeHomeScreen(
+      bioObj.homeScreenUtilities,
+      bioObj.installedUtilities,
+    );
 
     const payload = {
       bio: bioObj,
       wallet: {
-        balance: bioDoc.joyWallet?.balance || 0,
+        balance: bioDoc.joyBalance || 0,
         currency: 'JOY',
-        hasPin: !!bioDoc.transactionPin
+        hasPin: !!bioDoc.transactionPin,
+        referralCode: bioDoc.referralCode || '',
+        referralCount: bioDoc.referralCount || 0
       },
       workspace: {
-        installedApps: bioDoc.installedApps || [],
-        homeScreenApps: bioDoc.homeScreenApps || [],
+        installedApps: appInstallationPolicy.normalizeInstalled(bioDoc.installedUtilities),
+        homeScreenApps: appInstallationPolicy.normalizeHomeScreen(
+          bioDoc.homeScreenUtilities,
+          bioDoc.installedUtilities,
+        ),
       },
       notifications: {
         unreadCount,
@@ -874,6 +885,45 @@ function timeOfDayBoosts(hour) {
   return { play: 1.5 };                                           // khuya
 }
 
+function parseDiscoveryBounds(raw) {
+  const values = String(raw || "").split(",").map(Number);
+  if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) return null;
+  const [west, south, east, north] = values;
+  if (west >= east || south >= north) return null;
+  return { west, south, east, north };
+}
+
+function clusterDiscoveryPlaces(places, zoom = 14) {
+  if (zoom >= 15 || places.length < 2) return places;
+  const cellSize = Math.max(0.0015, 360 / (2 ** (zoom + 5)));
+  const buckets = new Map();
+
+  for (const place of places) {
+    const key = `${Math.floor(place.lat / cellSize)}:${Math.floor(place.lng / cellSize)}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(place);
+  }
+
+  return [...buckets.entries()].map(([key, bucket]) => {
+    if (bucket.length === 1) return bucket[0];
+    const lats = bucket.map((item) => item.lat);
+    const lngs = bucket.map((item) => item.lng);
+    return {
+      id: `cluster-${zoom}-${key}`,
+      cluster: true,
+      pointCount: bucket.length,
+      lat: lats.reduce((sum, value) => sum + value, 0) / bucket.length,
+      lng: lngs.reduce((sum, value) => sum + value, 0) / bucket.length,
+      bounds: [
+        Math.min(...lngs),
+        Math.min(...lats),
+        Math.max(...lngs),
+        Math.max(...lats),
+      ],
+    };
+  });
+}
+
 router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
   try {
     const lat = Number(req.query.lat);
@@ -885,17 +935,25 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
     const q = String(req.query.q || '').slice(0, 80);
     const openOnly = req.query.open === '1';
     const sort = req.query.sort || 'smart';
+    const bounds = parseDiscoveryBounds(req.query.bbox);
+    const zoom = Math.min(20, Math.max(1, Number(req.query.zoom) || 14));
+    const queryLat = bounds ? (bounds.south + bounds.north) / 2 : lat;
+    const queryLng = bounds ? (bounds.west + bounds.east) / 2 : lng;
     const clientHour = Number.isInteger(Number(req.query.hour)) && Number(req.query.hour) >= 0 && Number(req.query.hour) < 24
       ? Number(req.query.hour)
       : new Date().getHours();
 
     const [{ places, source }, interests, communityDocs] = await Promise.all([
-      discoverPlaces({ lat, lng, category, q }).catch(err => {
+      discoverPlaces({ lat: queryLat, lng: queryLng, category, q }).catch(err => {
         console.warn('[Discovery] discoverPlaces failed:', err.message);
         return { places: [], source: 'none' };
       }),
       getTopInterests(req.memberEmail, 12).catch(() => []),
-      CommunityPlace.find().lean().catch(() => [])
+      CommunityPlace.find(bounds ? {
+        lat: { $gte: bounds.south, $lte: bounds.north },
+        lng: { $gte: bounds.west, $lte: bounds.east },
+        ...(category ? { category } : {})
+      } : {}).limit(300).lean().catch(() => [])
     ]);
 
     // Venues added by members themselves, merged in within the same radius
@@ -904,7 +962,7 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
       .filter(c =>
         (!category || c.category === category) &&
         (!qLower || c.name.toLowerCase().includes(qLower) || (c.services || '').toLowerCase().includes(qLower)) &&
-        distanceKm(lat, lng, c.lat, c.lng) * 1000 <= 2500)
+        (bounds || distanceKm(lat, lng, c.lat, c.lng) * 1000 <= 2500))
       .map(c => ({
         id: `cp-${c._id}`,
         name: c.name,
@@ -970,15 +1028,26 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
     });
 
     if (openOnly) result = result.filter(p => p.openNow !== false);
+    if (bounds) {
+      result = result.filter((place) => (
+        place.lng >= bounds.west
+        && place.lng <= bounds.east
+        && place.lat >= bounds.south
+        && place.lat <= bounds.north
+      ));
+    }
     if (sort === 'near') result.sort((a, b) => a.distM - b.distM);
     else if (sort === 'top') result.sort((a, b) => (b.rating || 0) - (a.rating || 0) || a.distM - b.distM);
     else result.sort((a, b) => b.score - a.score);
 
+    const visiblePlaces = result.slice(0, 120);
     res.json({
       success: true,
       source,
       personalized: Object.keys(boosts).length > 0,
-      places: result.slice(0, 60)
+      places: visiblePlaces,
+      mapFeatures: clusterDiscoveryPlaces(visiblePlaces, zoom),
+      viewport: bounds
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1419,26 +1488,26 @@ router.put('/:id', requireMember, async (req, res) => {
     
     const { 
       displayName, 
-      headline = '', 
-      bio = '',
-      birthday = '',
-      phone = '',
-      hobbies = '',
-      height = '',
-      weight = '',
-      measurements = '',
-      address = '',
-      education = '',
-      skills = '',
-      jobTitle = '',
-      contactEmail = '',
+      headline,
+      bio,
+      birthday,
+      phone,
+      hobbies,
+      height,
+      weight,
+      measurements,
+      address,
+      education,
+      skills,
+      jobTitle,
+      contactEmail,
       avatarUrl,
-      links = [],
-      theme = {},
-      tabs = [],
-      projects = [],
-      services = [],
-      secretLinks = [],
+      links,
+      theme,
+      tabs,
+      projects,
+      services,
+      secretLinks,
       antiDeepfakeLock,
       autoLogoutMinutes,
       privateMode,
@@ -1461,14 +1530,16 @@ router.put('/:id', requireMember, async (req, res) => {
       }
     }
 
-    // Once a verification request has been approved, the fields it set
-    // (name/birthday/phone/education) are fixed — silently ignore any
-    // incoming change to them instead of rejecting the whole save, so a
-    // direct API call can't bypass the UI lock in PersonalInfoSubTab.
-    const lockedDisplayName = existing.isEduVerified ? existing.displayName : displayName;
-    const lockedBirthday = existing.isEduVerified ? existing.birthday : birthday;
-    const lockedPhone = existing.isEduVerified ? existing.phone : phone;
-    const lockedEducation = existing.isEduVerified ? existing.education : education;
+    // Phone, school and login email are EDU identity attributes. They are
+    // immutable for every member and can only be changed through the
+    // verification/admin workflow. Name and birthday remain member-editable.
+    // Preserve this rule at the API boundary so direct requests cannot bypass
+    // the Account UI.
+    const preserve = (incoming, current) => incoming === undefined ? current : incoming;
+    const nextEditableDisplayName = preserve(displayName, existing.displayName);
+    const nextEditableBirthday = preserve(birthday, existing.birthday);
+    const lockedPhone = existing.phone;
+    const lockedEducation = existing.education;
     // Members get exactly one email — the one they signed in with. The
     // separate "Contact Email" field is banned outright (not just for
     // verified accounts) so it can never be (re)introduced via direct API
@@ -1476,31 +1547,68 @@ router.put('/:id', requireMember, async (req, res) => {
     // alone since other routes still fall back to matching by contactEmail.
     const lockedContactEmail = existing.contactEmail;
 
-    const nextDisplayName = lockedDisplayName || existing.displayName;
-    const nextSlugBase = normalizeSlug(nextDisplayName || existing.email.split('@')[0]);
-    const nextSlug = await createUniqueSlug(nextSlugBase, existing._id);
+    const nextDisplayName = nextEditableDisplayName || existing.displayName;
+    const displayNameChanged =
+      displayName !== undefined &&
+      String(nextDisplayName) !== String(existing.displayName || '');
+    const nextSlug = displayNameChanged
+      ? await createUniqueSlug(
+          normalizeSlug(nextDisplayName || existing.email.split('@')[0]),
+          existing._id,
+        )
+      : existing.slug;
 
     // Apply strict property-level defaults
     // NOTE: template is intentionally NOT taken from req.body here. 'brutalism'
     // and 'flat' cost 150 JOY/month (see POST /api/joy/subscribe-bio-theme) —
     // this generic free PUT only ever preserves the existing template, except
     // for the free downgrade back to 'default'.
-    const nextTemplate = theme.template === 'default' ? 'default' : (existing.theme?.template || 'default');
-    const finalTheme = {
-      bgColor: theme.bgColor || '#ffffff',
-      textColor: theme.textColor || '#0f172a',
-      accentColor: theme.accentColor || '#6366f1',
-      pattern: theme.pattern || 'none',
-      preset: theme.preset || 'default',
-      btnRadius: typeof theme.btnRadius === 'number' ? theme.btnRadius : 16,
-      btnBorderWidth: typeof theme.btnBorderWidth === 'number' ? theme.btnBorderWidth : 0,
-      btnShadow: typeof theme.btnShadow === 'number' ? theme.btnShadow : 4,
-      template: nextTemplate
-    };
+    const finalTheme = theme === undefined
+      ? existing.theme
+      : {
+          bgColor: theme.bgColor || '#ffffff',
+          textColor: theme.textColor || '#0f172a',
+          accentColor: theme.accentColor || '#6366f1',
+          pattern: theme.pattern || 'none',
+          preset: theme.preset || 'default',
+          btnRadius: typeof theme.btnRadius === 'number' ? theme.btnRadius : 16,
+          btnBorderWidth: typeof theme.btnBorderWidth === 'number' ? theme.btnBorderWidth : 0,
+          btnShadow: typeof theme.btnShadow === 'number' ? theme.btnShadow : 4,
+          template: theme.template === 'default' ? 'default' : (existing.theme?.template || 'default')
+        };
+
+    const nextHeadline = preserve(headline, existing.headline);
+    const nextBio = preserve(bio, existing.bio);
+    const nextHobbies = preserve(hobbies, existing.hobbies);
+    const nextHeight = preserve(height, existing.height);
+    const nextWeight = preserve(weight, existing.weight);
+    const nextMeasurements = preserve(measurements, existing.measurements);
+    const nextAddress = preserve(address, existing.address);
+    const nextSkills = preserve(skills, existing.skills);
+    const nextJobTitle = preserve(jobTitle, existing.jobTitle);
+    const nextLinks = preserve(links, existing.links);
+    const nextTabs = preserve(tabs, existing.tabs);
+    const nextProjects = preserve(projects, existing.projects);
+    const nextServices = preserve(services, existing.services);
 
     // ── Track field changes for history ──────────────────────────────────────
     const textFields = ['displayName','headline','bio','birthday','phone','contactEmail','hobbies','height','weight','measurements','address','education','skills','jobTitle'];
-    const fieldValues = { displayName: nextDisplayName, headline, bio, birthday: lockedBirthday, phone: lockedPhone, contactEmail: lockedContactEmail, hobbies, height, weight, measurements, address, education: lockedEducation, skills, jobTitle };
+    const fieldValues = {
+      displayName: nextDisplayName,
+      headline: nextHeadline,
+      bio: nextBio,
+      birthday: nextEditableBirthday,
+      phone: lockedPhone,
+      contactEmail: lockedContactEmail,
+      hobbies: nextHobbies,
+      height: nextHeight,
+      weight: nextWeight,
+      measurements: nextMeasurements,
+      address: nextAddress,
+      education: lockedEducation,
+      skills: nextSkills,
+      jobTitle: nextJobTitle,
+    };
 
     let updatedFieldsDetail = [];
 
@@ -1531,8 +1639,8 @@ router.put('/:id', requireMember, async (req, res) => {
     // Track link changes
     let linksDetail = [];
     const oldLinkUrls = (existing.links || []).map(l => l.url);
-    const newLinkUrls = (links || []).map(l => l.url);
-    for (const lnk of (links || [])) {
+    const newLinkUrls = (nextLinks || []).map(l => l.url);
+    for (const lnk of (nextLinks || [])) {
       if (!oldLinkUrls.includes(lnk.url)) {
         linksDetail.push(`• Đã gắn thêm liên kết: ${lnk.label} (${lnk.url})`);
       }
@@ -1554,29 +1662,38 @@ router.put('/:id', requireMember, async (req, res) => {
     // ─────────────────────────────────────────────────────────────────────────
 
     existing.displayName = nextDisplayName;
-    existing.headline = headline;
-    existing.bio = bio;
-    existing.birthday = lockedBirthday;
+    existing.headline = nextHeadline;
+    existing.bio = nextBio;
+    existing.birthday = nextEditableBirthday;
     existing.phone = lockedPhone;
-    existing.hobbies = hobbies;
-    existing.height = height;
-    existing.weight = weight;
-    existing.measurements = measurements;
-    existing.address = address;
+    existing.hobbies = nextHobbies;
+    existing.height = nextHeight;
+    existing.weight = nextWeight;
+    existing.measurements = nextMeasurements;
+    existing.address = nextAddress;
     existing.education = lockedEducation;
-    existing.skills = skills;
-    existing.jobTitle = jobTitle;
+    existing.skills = nextSkills;
+    existing.jobTitle = nextJobTitle;
     existing.contactEmail = lockedContactEmail;
-    existing.links = links;
+    existing.links = nextLinks;
     existing.theme = finalTheme;
-    existing.tabs = tabs;
-    existing.projects = projects;
-    existing.services = services;
-    existing.secretLinks = await processSecretLinks(secretLinks || [], existing.secretLinks || []);
+    existing.tabs = nextTabs;
+    existing.projects = nextProjects;
+    existing.services = nextServices;
+    if (secretLinks !== undefined) {
+      existing.secretLinks = await processSecretLinks(secretLinks, existing.secretLinks || []);
+    }
     existing.slug = nextSlug;
     existing.status = 'active';
-    if (installedUtilities !== undefined) existing.installedUtilities = installedUtilities;
-    if (homeScreenUtilities !== undefined) existing.homeScreenUtilities = homeScreenUtilities;
+    if (installedUtilities !== undefined) {
+      existing.installedUtilities = appInstallationPolicy.normalizeInstalled(installedUtilities);
+    }
+    if (homeScreenUtilities !== undefined) {
+      const installed = installedUtilities !== undefined
+        ? appInstallationPolicy.normalizeInstalled(installedUtilities)
+        : appInstallationPolicy.normalizeInstalled(existing.installedUtilities);
+      existing.homeScreenUtilities = appInstallationPolicy.normalizeHomeScreen(homeScreenUtilities, installed);
+    }
 
     if (antiDeepfakeLock !== undefined) existing.antiDeepfakeLock = !!antiDeepfakeLock;
     if (autoLogoutMinutes !== undefined) existing.autoLogoutMinutes = Number(autoLogoutMinutes);

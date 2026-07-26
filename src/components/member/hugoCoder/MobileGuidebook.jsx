@@ -1,19 +1,20 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useTranslation } from "react-i18next";
 import {
   Award, ArrowLeft, Smartphone, CheckCircle, BookOpen,
   Sparkles, ListChecks, Play, ChevronDown, ChevronUp, Lock,
   Terminal, Shield, Zap, Trophy, Cpu, ChevronRight, Target, Library
 } from "lucide-react";
 import InteractivePuzzles from "./InteractivePuzzles";
-import { STAGES, getStageBenefits } from "./lessons";
 import { renderMobileIllustration, renderVisualArtwork } from "./VisualIllustrations";
 import FeatureGate from "../shared/FeatureGate";
 import { notify } from "../../../lib/notify";
 
 export default function MobileGuidebook({
   embedded = false,
+  onExitLesson,
   activeCourseId,
   bio,
   onBioUpdate,
@@ -23,6 +24,8 @@ export default function MobileGuidebook({
   mobileCourse,
   mobileCompletedCount,
   WEB_COURSES,
+  STAGES,
+  getStageBenefits,
   setActiveCourseId,
   setMobileStudyMode,
   setVerificationStatus,
@@ -82,6 +85,7 @@ export default function MobileGuidebook({
   setMobilePuzzleAnswer,
   verifyInteractivePractice
 }) {
+  const { t } = useTranslation();
   const [expandedPhases, setExpandedPhases] = React.useState({
     basic: true,
     intermediate: false,
@@ -184,7 +188,8 @@ export default function MobileGuidebook({
             50% { transform: scaleX(1); opacity: 1; }
           }
         `}</style>
-        <header className={`sticky top-0 z-20 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-b border-border px-4 pb-3 ${embedded ? "pt-3" : "pt-[calc(env(safe-area-inset-top,16px)+12px)]"}`}>
+        {!embedded && (
+        <header className="sticky top-0 z-20 border-b border-border bg-white/95 px-4 pb-3 pt-[calc(env(safe-area-inset-top,16px)+12px)] backdrop-blur-xl dark:bg-zinc-950/95">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={activeCourseId ? () => {
@@ -212,6 +217,7 @@ export default function MobileGuidebook({
             <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${mobileProgress}%` }} />
           </div>
         </header>
+        )}
 
         <main className="px-4 py-5 pb-24 space-y-5">
           {!activeCourseId || !mobileCourse ? (
@@ -656,9 +662,68 @@ export default function MobileGuidebook({
 
             const isCurrentCompleted = completedLessons.includes(mobileCourse?.id);
             const hasNextLesson = currentMobileCourseIndex < WEB_COURSES.length - 1;
+            const lessonSteps = ["story", "guide", "practice", "review"];
+            const activeStepIndex = Math.max(0, lessonSteps.indexOf(mobileStudyMode));
+            const goToLessonStep = (nextIndex) => {
+              if (nextIndex < 0) return;
+              if (nextIndex >= lessonSteps.length) {
+                if (hasNextLesson) handleNextMobileLesson();
+                return;
+              }
+              if (nextIndex === 3 && !isCurrentCompleted && verificationStatus !== "success") {
+                notify.error(t("hugoCoderLearning.lesson.finishPractice"));
+                return;
+              }
+              setMobileStudyMode(lessonSteps[nextIndex]);
+              document.querySelector(".hugo-coder-lesson-stepper")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            };
 
             return (
               <div className="space-y-5 animate-fadeIn">
+                <section className="hugo-coder-lesson-stepper sticky top-0 z-10 -mx-4 border-b border-border bg-[#f8fafc]/92 px-4 pb-3 pt-2 backdrop-blur-xl dark:bg-[#09090b]/92">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-primary">
+                        {t("hugoCoderLearning.lesson.stepOf", {
+                          current: activeStepIndex + 1,
+                          total: lessonSteps.length,
+                        })}
+                      </p>
+                      <h3 className="truncate text-[15px] font-bold tracking-[-0.02em] text-foreground">
+                        {t(`hugoCoderLearning.lesson.steps.${lessonSteps[activeStepIndex]}`)}
+                      </h3>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">
+                      +20 XP
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {lessonSteps.map((step, index) => {
+                      const active = index === activeStepIndex;
+                      const reached = index <= activeStepIndex;
+                      const locked = index === 3 && !isCurrentCompleted && verificationStatus !== "success";
+                      return (
+                        <button
+                          key={step}
+                          type="button"
+                          onClick={() => !locked && goToLessonStep(index)}
+                          disabled={locked}
+                          className={`h-2 overflow-hidden rounded-full transition ${
+                            reached ? "bg-primary" : "bg-muted"
+                          } ${active ? "ring-2 ring-primary/20 ring-offset-2 ring-offset-background" : ""}`}
+                          aria-label={t(`hugoCoderLearning.lesson.steps.${step}`)}
+                          aria-current={active ? "step" : undefined}
+                        />
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {mobileStudyMode === "story" && (
+                  <>
                 {/* 2.1. Theory markdown */}
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg overflow-hidden font-sans">
                   <div className="px-4 py-3 border-b border-border flex items-center gap-2">
@@ -718,7 +783,11 @@ export default function MobileGuidebook({
                     ))}
                   </div>
                 </section>
+                  </>
+                )}
 
+                {mobileStudyMode === "guide" && (
+                  <>
                 {/* 2.5. Deep Dive Section */}
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
                   <h3 className="text-sm font-black">Thực hành & Code mẫu từng bước</h3>
@@ -761,7 +830,11 @@ export default function MobileGuidebook({
                     </div>
                   )}
                 </section>
+                  </>
+                )}
 
+                {mobileStudyMode === "practice" && (
+                  <>
                 {/* 2.7. Interactive Practice (Puzzles) */}
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-4 font-sans">
                   <div className="flex items-center gap-2 border-b border-border pb-2.5">
@@ -823,7 +896,11 @@ export default function MobileGuidebook({
                     />
                   )}
                 </section>
+                  </>
+                )}
 
+                {mobileStudyMode === "review" && (
+                  <>
                 {/* 2.8. Common mistakes / Self-quizzes */}
                 <section className="grid grid-cols-1 gap-3 font-sans">
                   <div className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
@@ -874,7 +951,11 @@ export default function MobileGuidebook({
                     </section>
                   );
                 })()}
+                  </>
+                )}
 
+                {mobileStudyMode === "guide" && (
+                  <>
                 {/* 2.9. Code Run Frame */}
                 <section className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden text-zinc-100 font-sans">
                   <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between gap-3">
@@ -909,32 +990,45 @@ export default function MobileGuidebook({
                     </div>
                   )}
                 </section>
+                  </>
+                )}
 
                 {/* 2.10. Action Buttons (Bài tiếp theo / Quay lại mục lục) */}
-                <section className="flex flex-col gap-3 pt-4 border-t border-border pb-6 font-sans">
-                  {hasNextLesson && (
+                <section className="grid grid-cols-[auto_1fr] gap-2.5 border-t border-border pb-6 pt-4 font-sans">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activeStepIndex === 0) {
+                        setActiveCourseId(null);
+                        setVerificationStatus(null);
+                        onExitLesson?.();
+                        return;
+                      }
+                      goToLessonStep(activeStepIndex - 1);
+                    }}
+                    className="min-h-12 rounded-2xl border border-border bg-background px-4 text-xs font-bold text-foreground transition active:scale-95"
+                  >
+                    {activeStepIndex === 0
+                      ? t("hugoCoderLearning.lesson.path")
+                      : t("hugoCoderLearning.lesson.previous")}
+                  </button>
+                  {(activeStepIndex < lessonSteps.length - 1 || hasNextLesson) && (
                     <button
-                      onClick={handleNextMobileLesson}
-                      className={`w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 ${
-                        isCurrentCompleted
-                          ? "bg-primary text-white hover:bg-primary/95"
-                          : "bg-zinc-200 dark:bg-zinc-800 text-muted-foreground/60 cursor-not-allowed opacity-55"
-                      }`}
+                      type="button"
+                      onClick={() => goToLessonStep(activeStepIndex + 1)}
+                      className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-xs font-bold text-white shadow-md shadow-primary/20 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-45"
+                      disabled={
+                        activeStepIndex === 2
+                        && !isCurrentCompleted
+                        && verificationStatus !== "success"
+                      }
                     >
-                      Bài học tiếp theo
-                      <ArrowLeft className="w-4 h-4 rotate-180" />
+                      {activeStepIndex === lessonSteps.length - 1
+                        ? t("hugoCoderLearning.lesson.nextLesson")
+                        : t("hugoCoderLearning.lesson.continue")}
+                      <ChevronRight className="h-4 w-4" />
                     </button>
                   )}
-
-                  <button
-                    onClick={() => {
-                      setActiveCourseId(null);
-                      setVerificationStatus(null);
-                    }}
-                    className="w-full py-3.5 bg-background hover:bg-muted border border-border text-foreground rounded-xl text-xs font-black uppercase active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    Quay lại mục lục
-                  </button>
                 </section>
               </div>
             );

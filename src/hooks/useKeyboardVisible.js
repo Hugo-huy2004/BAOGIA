@@ -7,23 +7,46 @@ import { useEffect, useState } from "react";
 // between layout height and visualViewport height lets callers just hide
 // that fixed bar while the keyboard is up instead of fighting the jitter.
 export function useKeyboardVisible(threshold = 150) {
-  const [visible, setVisible] = useState(false);
+  const [viewportVisible, setViewportVisible] = useState(false);
+  const [focusedField, setFocusedField] = useState(false);
 
   useEffect(() => {
     const vv = window.visualViewport;
-    if (!vv) return;
+    const touchQuery = window.matchMedia("(pointer: coarse)");
+    let blurTimer = null;
 
     const handleResize = () => {
+      if (!vv) return;
       const gap = window.innerHeight - vv.height;
-      setVisible(gap > threshold);
+      setViewportVisible(gap > threshold);
+    };
+    const isTextField = (target) =>
+      target instanceof HTMLElement &&
+      (target.matches("input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']), textarea, select") ||
+        target.isContentEditable);
+    const handleFocusIn = (event) => {
+      if (touchQuery.matches && isTextField(event.target)) setFocusedField(true);
+    };
+    const handleFocusOut = () => {
+      blurTimer = window.setTimeout(
+        () => setFocusedField(isTextField(document.activeElement)),
+        0,
+      );
     };
 
-    vv.addEventListener("resize", handleResize);
+    vv?.addEventListener("resize", handleResize);
+    document.addEventListener("focusin", handleFocusIn, true);
+    document.addEventListener("focusout", handleFocusOut, true);
     handleResize();
-    return () => vv.removeEventListener("resize", handleResize);
+    return () => {
+      vv?.removeEventListener("resize", handleResize);
+      document.removeEventListener("focusin", handleFocusIn, true);
+      document.removeEventListener("focusout", handleFocusOut, true);
+      if (blurTimer) window.clearTimeout(blurTimer);
+    };
   }, [threshold]);
 
-  return visible;
+  return viewportVisible || focusedField;
 }
 
 // Returns the pixel height the on-screen keyboard currently overlaps the

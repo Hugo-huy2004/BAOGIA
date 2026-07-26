@@ -1481,6 +1481,118 @@
     "titlePartner": "CHẾ ĐỘ ĐỐI TÁC",
     "greeting": "Chào",
     "academicProfile": "Hồ sơ học thuật",
+    "navigation": {
+      "today": "Hôm nay",
+      "apps": "Ứng dụng",
+      "activity": "Hoạt động",
+      "account": "Tài khoản",
+      "primaryNavigation": "Điều hướng chính",
+      "todayGreeting": "Chào {{name}}",
+      "memberFallback": "bạn",
+      "todayDescription": "Mọi điều quan trọng trong ngày, gọn trong một nơi.",
+      "joyBalance": "Số dư JOY",
+      "newActivity": "Hoạt động mới",
+      "quickActions": "Truy cập nhanh",
+      "recentActivity": "Hoạt động gần đây",
+      "viewAll": "Xem tất cả",
+      "notificationFallback": "Có cập nhật mới dành cho bạn.",
+      "noRecentActivity": "Bạn đã xem hết các cập nhật.",
+      "signInToSync": "Đăng nhập để đồng bộ",
+      "viewProfile": "Xem hồ sơ",
+      "toggleSidebar": "Thu gọn thanh bên (⌘B)",
+      "search": "Tìm kiếm (⌘K)",
+      "quick": {
+        "apps": {
+          "title": "Ứng dụng",
+          "description": "Mở công cụ của bạn"
+        },
+        "map": {
+          "title": "Khám phá",
+          "description": "Tìm địa điểm gần đây"
+        },
+        "wallet": {
+          "title": "Ví JOY",
+          "description": "Số dư và giao dịch"
+        },
+        "profile": {
+          "title": "Hồ sơ",
+          "description": "Thông tin và giao diện"
+        }
+      }
+    },
+    "today": {
+      "description": "Tin tức, nghiên cứu và cơ hội giúp bạn học tốt hơn và kết nối có trách nhiệm.",
+      "snapshot": "Tóm tắt tài khoản hôm nay",
+      "forStudents": "Dành cho học sinh & sinh viên",
+      "topStories": "Điều đáng đọc hôm nay",
+      "localEdition": "Ấn bản {{country}}",
+      "dailyReset": "Làm mới mỗi ngày lúc 09:00",
+      "refresh": "Làm mới",
+      "categories": "Danh mục bài viết",
+      "category": {
+        "all": "Tất cả",
+        "academic": "Học thuật",
+        "technology": "Công nghệ",
+        "community": "Cộng đồng",
+        "world": "Thời sự"
+      },
+      "loading": "Đang tải tin mới",
+      "unavailable": "Feed học thuật tạm thời chưa khả dụng.",
+      "tryAgain": "Thử lại",
+      "featured": "Nổi bật",
+      "preview": "Bản xem trước",
+      "safePreview": "Xem trước an toàn",
+      "openSource": "Mở nguồn",
+      "readOriginal": "Đọc bài gốc",
+      "noSummary": "Nguồn chưa cung cấp phần tóm tắt cho bài viết này.",
+      "sourceNotice": "Nội dung đầy đủ thuộc về nguồn xuất bản.",
+      "previewTitle": "Xem trước: {{title}}"
+    },
+    "discovery": {
+      "discover": "khám phá",
+      "loadError": "Không tải được địa điểm",
+      "webglError": "Thiết bị không hỗ trợ WebGL để hiển thị bản đồ.",
+      "nameRequired": "Hãy nhập tên địa điểm.",
+      "locationRequired": "Chưa xác định được vị trí của bạn.",
+      "submitError": "Không đăng được địa điểm.",
+      "submitSuccess": "Đã thêm địa điểm lên bản đồ.",
+      "toggle3d": "Chuyển chế độ 3D hoặc 2D",
+      "recenter": "Về vị trí của tôi",
+      "addPlace": "Thêm địa điểm mới",
+      "searchPlaceholder": "Tìm quán ăn, cà phê…",
+      "destination": "Điểm đến",
+      "match": "Hợp gu {{score}}%",
+      "away": "Cách bạn {{distance}}",
+      "openNow": "Đang mở cửa",
+      "routeSummary": "Khoảng {{minutes}} phút · {{distance}}",
+      "hideDirections": "Ẩn lối đi",
+      "showDirections": "Xem lối đi",
+      "navigate": "Chỉ đường",
+      "categories": {
+        "all": "Tất cả",
+        "food": "Ăn uống",
+        "cafe": "Cà phê",
+        "play": "Vui chơi"
+      },
+      "form": {
+        "name": "Tên địa điểm *",
+        "address": "Địa chỉ *",
+        "services": "Dịch vụ, ví dụ: máy lạnh hoặc Wi-Fi mạnh",
+        "submitting": "Đang đăng…",
+        "submit": "Đăng lên bản đồ"
+      },
+      "directions": {
+        "continue": "Đi tiếp",
+        "onto": " vào {{street}}",
+        "distance": " khoảng {{distance}} m",
+        "depart": "Khởi hành{{street}}{{distance}}",
+        "arrive": "Đến điểm đích",
+        "turnLeft": "Rẽ trái",
+        "turnRight": "Rẽ phải",
+        "turn": "Rẽ",
+        "straight": "Tiếp tục đi thẳng"
+      }
+    },
     "tabs": {
       "bio": "Hồ sơ Bio",
       "package": "Gói dịch vụ",
@@ -1521,15 +1633,24 @@
     },
     "bioPreview": {
       "title": "Trang Bio",
+      "studioTitle": "Hugo Bio",
       "subtitle": "Xem trước trang cá nhân công khai",
       "backAria": "Quay lại",
       "openAria": "Mở trang Bio",
+      "open": "Mở trang",
+      "copyLinkAria": "Sao chép liên kết Bio",
       "previewAria": "Xem trước trang Bio",
       "copySuccess": "Đã sao chép link trang Bio",
       "copyError": "Không sao chép được link",
       "notReadyTitle": "Trang Bio chưa sẵn sàng",
       "notReadyDesc": "Hãy hoàn tất thông tin tại **Cài đặt › Thông tin cá nhân** để có link trang Bio công khai.",
       "customizeTitle": "Tùy chỉnh trang Bio",
+      "editorTitle": "Biên tập trang",
+      "pageEyebrow": "Trang công khai",
+      "live": "Đang hoạt động",
+      "draft": "Bản nháp",
+      "previewLabel": "Bản xem trước",
+      "previewTitle": "Trang của bạn",
       "designLabel": "Giao diện & Chủ đề",
       "linkCardsLabel": "Thẻ liên kết",
       "achievementsLabel": "Dự án & Thành tích",
@@ -1545,7 +1666,7 @@
     },
     "verify": {
       "title": "Hoàn Tất Thông Tin Sinh Viên",
-      "desc": "Thông tin dưới đây sẽ được cố định sau khi xác minh, vui lòng nhập chính xác.",
+      "desc": "Email, số điện thoại và trường học sẽ được bảo vệ sau khi xác minh; vui lòng nhập chính xác.",
       "fullName": "Họ và tên",
       "fullNamePlaceholder": "Nhập họ và tên của bạn...",
       "birthday": "Sinh nhật",
@@ -1607,6 +1728,11 @@
       "email": "EMAIL LIÊN HỆ",
       "localSave": "Lưu trữ trực tiếp trên thiết bị của bạn",
       "changeAvatar": "THAY ẢNH",
+      "uploading": "ĐANG TẢI...",
+      "locked": "ĐÃ KHÓA",
+      "avatarProtected": "Ảnh đại diện đang được bảo vệ chống giả mạo",
+      "placeholderHeadline": "Nhà thiết kế, Kiến trúc sư web, Lập trình viên...",
+      "gmail": "GMAIL",
       "placeholderName": "Họ tên của bạn...",
       "placeholderBirthday": "Ví dụ: 20/10/2004...",
       "placeholderEmail": "Email hợp tác/công việc...",
@@ -1623,6 +1749,24 @@
       "loading": "Đang tải...",
       "projectsCount_other": "{{count}} Dự án",
       "servicesCount_other": "{{count}} Dịch vụ"
+    },
+    "account": {
+      "appleAccount": "Tài khoản Hugo",
+      "eduVerified": "Danh tính giáo dục đã xác minh",
+      "verificationPending": "Đang chờ xác minh giáo dục",
+      "personalInformation": "Thông tin cá nhân",
+      "personalInformationDescription": "Tên, ngày sinh và phần giới thiệu có thể được cập nhật bất cứ lúc nào.",
+      "about": "Giới thiệu",
+      "aboutPlaceholder": "Chia sẻ ngắn gọn về bạn, mục tiêu học tập hoặc điều bạn quan tâm…",
+      "verifiedIdentity": "Danh tính giáo dục",
+      "verifiedIdentityDescription": "Các thông tin dùng để xác minh học sinh, sinh viên được hệ thống bảo vệ.",
+      "eduFieldLocked": "Chỉ có thể thay đổi thông qua quy trình xác minh giáo dục",
+      "eduProtectionNote": "Email, số điện thoại và trường học không thể chỉnh sửa tại đây. Hãy liên hệ hỗ trợ nếu thông tin xác minh của bạn thay đổi.",
+      "optionalDetails": "Thông tin bổ sung",
+      "optionalDetailsDescription": "Các mục này không bắt buộc và chỉ hiển thị khi bạn chủ động lưu.",
+      "saveTitle": "Cập nhật tài khoản",
+      "saveDescription": "Thay đổi được đồng bộ an toàn với hồ sơ của bạn.",
+      "membershipCard": "Thẻ thành viên Hugo"
     },
     "bento": {
       "profileSub": "Ảnh đại diện, tên & giới thiệu",
@@ -1665,7 +1809,12 @@
       "classicDesc": "Bố cục cuộn trang snap mượt mà, hiệu ứng bóng mờ sang trọng.",
       "brutalismDesc": "Phá quy tắc với màu chói, viền đen dày thô, bóng phẳng đổ khối đậm.",
       "flatTitle": "Flat (Phẳng)",
-      "flatDesc": "Không đổ bóng, không 3D/gradient, dùng khối 2D phẳng và màu tươi sáng."
+      "flatDesc": "Không đổ bóng, không 3D/gradient, dùng khối 2D phẳng và màu tươi sáng.",
+      "rentalDescription": "JOY là điểm tích lũy phi lợi nhuận. Brutalism và Flat cần {{price}} JOY mỗi tháng; khi hết hạn giao diện tự trở về Classic.",
+      "free": "Miễn phí",
+      "daysRemaining": "Còn {{count}} ngày",
+      "pricePerMonth": "{{price}} JOY/tháng",
+      "exchangeSuccess": "Đã đổi JOY cho giao diện {{template}}."
     },
     "links": {
       "title": "LIÊN KẾT MẠNG XÃ HỘI",
@@ -1702,7 +1851,8 @@
       "hobbies": "Sở thích",
       "desc": "Mô tả",
       "placeholderHobbies": "Cách bằng dấu phẩy: Lập Trình, Vẽ Tranh...",
-      "placeholderDesc": "Viết một vài dòng giới thiệu bản thân..."
+      "placeholderDesc": "Viết một vài dòng giới thiệu bản thân...",
+      "wordCount": "{{count}} / {{limit}} chữ"
     },
     "updating": "Đang cập nhật...",
     "updateInfo": "Thay Đổi Thông Tin",
@@ -1967,7 +2117,34 @@
       "submitButton": "Hoàn tất",
       "skipButton": "Để sau"
     },
+    "permissions": {
+      "eyebrow": "Thiết lập một lần",
+      "title": "Đừng bỏ lỡ điều quan trọng",
+      "description": "Bật hai quyền thiết yếu để Hugo báo tin đúng lúc, cá nhân hóa nội dung gần bạn và bảo vệ phiên đăng nhập.",
+      "pushTitle": "Thông báo quan trọng",
+      "pushDescription": "Nhận cập nhật xác minh, JOY, bảo mật và hoạt động tài khoản ngay cả khi đã đóng ứng dụng.",
+      "locationTitle": "Trải nghiệm theo khu vực",
+      "locationDescription": "Dùng cho tin tức địa phương, Discovery Map và cảnh báo đăng nhập bất thường.",
+      "privacyTitle": "Quyền riêng tư được tôn trọng",
+      "privacyDescription": "Vị trí không dùng cho quảng cáo. Bạn có thể thu hồi cả hai quyền trong cài đặt thiết bị bất cứ lúc nào.",
+      "enable": "Bật",
+      "enabling": "Đang bật…",
+      "install": "Cài PWA",
+      "viewGuide": "Hướng dẫn",
+      "later": "Để sau",
+      "close": "Đóng thiết lập quyền",
+      "browserSettingsHint": "Quyền đã bị chặn; hãy bật lại trong cài đặt trình duyệt hoặc thiết bị.",
+      "pushError": "Chưa thể hoàn tất đăng ký Push. Hãy kiểm tra kết nối rồi thử lại.",
+      "locationError": "Hugo chưa thể truy cập vị trí. Hãy kiểm tra quyền của trình duyệt."
+    },
     "joy": {
+      "card": {
+        "copyCode": "Sao chép mã cá nhân",
+        "cardName": "HUGO CARD",
+        "availableBalance": "Số dư khả dụng",
+        "smartChip": "Chip thành viên Hugo",
+        "transfer": "Chuyển JOY"
+      },
       "particle": {
         "title": "Hugo Studio - Kết nối thông minh",
         "qrTitle": "Mã QR JOY",
@@ -2140,6 +2317,31 @@
     "settings": {
       "title": "Cài đặt",
       "desc": "Quản lý thông báo, đăng nhập nhanh và các tuỳ chọn khác cho tài khoản của bạn.",
+      "account": {
+        "summary": "Thông tin tài khoản, thanh toán và cài đặt",
+        "bioTitle": "Hồ sơ Hugo Bio",
+        "bioDescription": "Tùy chỉnh giao diện, danh thiếp và liên kết xã hội",
+        "publicIdentityNote": "Tên và hình ảnh hồ sơ của bạn sẽ được hiển thị công khai trên cổng kết nối Hugo Studio.",
+        "notifications": "Thông báo",
+        "notificationsDescription": "Cấu hình thông báo Web Push",
+        "privacy": "Quyền riêng tư và truy cập",
+        "privacyDescription": "Quyền riêng tư và đăng nhập sinh trắc",
+        "topUpJoy": "Nạp JOY",
+        "redeemCode": "Đổi mã",
+        "giftJoy": "Tặng JOY",
+        "language": "Ngôn ngữ",
+        "publicBio": "Trang Bio công khai",
+        "publicBioDescription": "Mở trang Bio công khai",
+        "signOut": "Đăng xuất tài khoản",
+        "personalInformation": "Thông tin cá nhân",
+        "saveInformation": "Lưu thông tin",
+        "notificationSettings": "Cài đặt thông báo",
+        "pushDescription": "Nhận thông báo về sự kiện, tin nhắn và điểm thưởng",
+        "done": "Xong",
+        "privacyBiometrics": "Quyền riêng tư và sinh trắc",
+        "biometricUnsupported": "Thiết bị không hỗ trợ Face ID hoặc WebAuthn.",
+        "chooseLanguage": "Chọn ngôn ngữ"
+      },
       "groupNotifications": "Thông báo",
       "groupLogin": "Đăng nhập",
       "groupPreferences": "Tuỳ chọn",
@@ -2354,6 +2556,7 @@
     "history": {
       "labels": {
         "welcome": "Chào mừng",
+        "bio_link": "Liên kết Bio",
         "system": "Hệ thống",
         "package_received": "Nhận gói",
         "package_removed": "Gỡ gói",
@@ -2371,15 +2574,35 @@
       },
       "days": {
         "today": "Hôm nay",
-        "yesterday": "Hôm qua"
+        "yesterday": "Hôm qua",
+        "this_week": "Tuần này",
+        "earlier": "Trước đó"
       },
       "filter": {
         "all": "Tất cả",
+        "joy": "Ví JOY",
+        "system": "Hệ thống",
         "account": "Tài khoản",
         "package": "Gói cước",
         "gift": "Quà tặng"
       },
+      "refreshed": "Đã làm mới danh sách thông báo",
+      "inbox_title": "Thông báo",
+      "inbox_description": "Những cập nhật quan trọng từ tài khoản và ứng dụng của bạn.",
+      "read_all": "Đọc tất cả",
+      "mark_all_read": "Đánh dấu tất cả đã đọc",
+      "refresh": "Làm mới thông báo",
+      "mark_read": "Đánh dấu đã đọc",
+      "collapse": "Thu gọn",
+      "expand": "Xem thêm",
+      "dismiss": "Xóa thông báo",
+      "transaction_short": "GD",
+      "balance_short": "Dư",
       "title": "Thông báo từ Hugo Studio",
+      "collection": "Bộ sưu tập đang diễn ra",
+      "curated_description": "Một lưu trữ sống về những thay đổi, khoảnh khắc và tín hiệu quan trọng trong hành trình của bạn.",
+      "archive": "Hiện vật",
+      "unread_pieces": "{{count}} mục chưa xem",
       "events_recorded": "thông báo mới nhận",
       "no_events": "Chưa có thông báo nào",
       "newest_first": "Mới nhất trước",
@@ -2806,6 +3029,143 @@
     }
   },
   "utilities": {
+    "categories": {
+      "all": "Tất cả",
+      "education": "Học tập",
+      "wellness": "Sức khỏe",
+      "tools": "Công cụ",
+      "entertainment": "Giải trí"
+    },
+    "library": {
+      "installedToast": "Đã tải ứng dụng (+{{size}} MB bộ nhớ máy)!",
+      "removedToast": "Đã gỡ ứng dụng (giải phóng {{size}} MB)!",
+      "positionUpdated": "Đã cập nhật vị trí ứng dụng!",
+      "radioPaused": "Đã tạm dừng Radio",
+      "radioPlaying": "Đang phát Lofi Code Radio 24/7",
+      "interactionRequired": "Hãy tương tác với trang trước khi phát âm thanh",
+      "focusStopped": "Đã tắt âm thanh tập trung",
+      "focusPlaying": "Đang phát âm thanh tập trung",
+      "upgrading": "Hugo đang được nâng cấp lên phiên bản mới",
+      "back": "Quay lại",
+      "next": "Tiếp theo",
+      "openLibrary": "Khám phá thư viện ứng dụng",
+      "emptyTitle": "Màn hình trống",
+      "emptyDescription": "Tải các tiện ích bạn cần từ Hugo Library.",
+      "removeFromHome": "Gỡ khỏi màn hình chính",
+      "removeApp": "Gỡ ứng dụng",
+      "included": "Có sẵn",
+      "requiredAppNotice": "Đây là ứng dụng hệ thống và luôn có sẵn trong tài khoản.",
+      "requiredAppDescription": "Ứng dụng này thuộc hệ thống học tập cốt lõi, được cài sẵn và không thể gỡ.",
+      "displaySize": "Kích cỡ hiển thị",
+      "done": "Xong",
+      "searchPlaceholder": "Tìm ứng dụng hoặc tiện ích…",
+      "clearSearch": "Xóa nội dung tìm kiếm",
+      "filters": "Bộ lọc ứng dụng",
+      "noSpotlightResults": "Không tìm thấy ứng dụng phù hợp",
+      "searchResults": "Kết quả tìm kiếm",
+      "quickSuggestions": "Gợi ý nhanh",
+      "installed": "Đã tải",
+      "store": "Cửa hàng",
+      "memberFallback": "Thành viên",
+      "weatherMildSun": "Nắng nhẹ",
+      "goToSlide": "Đến trang trình bày {{slide}}",
+      "collection": "Bộ sưu tập",
+      "yourApps": "Ứng dụng của bạn",
+      "featuredApps": "Ứng dụng nổi bật",
+      "appCount_one": "{{count}} ứng dụng",
+      "appCount_other": "{{count}} ứng dụng",
+      "noResults": "Không tìm thấy ứng dụng",
+      "noResultsHint": "Thử từ khóa khác hoặc chuyển danh mục.",
+      "open": "Mở",
+      "get": "Tải",
+      "installedCount": "Đã cài ({{count}})",
+      "installWhere": "Tải “{{app}}” vào đâu?",
+      "installWhereDescription": "Cả hai lựa chọn đều cài cùng một ứng dụng; điểm khác biệt là có tạo icon riêng trên Màn hình chính hay không.",
+      "homeAndLibrary": "Màn hình chính & Thư viện",
+      "libraryOnly": "Chỉ Thư viện",
+      "cancel": "Hủy",
+      "appDescription": "Mô tả ứng dụng",
+      "collapse": "Thu gọn",
+      "expand": "Xem thêm",
+      "storage": "Dung lượng",
+      "age": "Độ tuổi",
+      "availability": "Khả dụng",
+      "openApp": "Mở ứng dụng",
+      "installApp": "Cài đặt ứng dụng",
+      "createShortcut": "Tạo shortcut màn hình chính",
+      "featured": {
+        "psychology": {
+          "title": "HugoPSY Trợ lý AI",
+          "description": "Người bạn đồng hành riêng tư giúp giải tỏa áp lực học tập, thư giãn có hướng dẫn và theo dõi giấc ngủ.",
+          "button": "Mở HugoPSY"
+        },
+        "ide": {
+          "title": "Không gian HugoCoder AI",
+          "description": "Trình soạn thảo đa ngôn ngữ để học trực quan, kiểm thử thuật toán và luyện lập trình thực chiến.",
+          "button": "Bắt đầu code"
+        },
+        "arcade": {
+          "title": "HugoArcade",
+          "description": "Chơi 2048, cờ vua và game vũ trụ, tích lũy JOY và chinh phục bảng xếp hạng.",
+          "button": "Vào chơi"
+        }
+      },
+      "widget": {
+        "listening": "Tôi luôn ở đây để lắng nghe bạn...",
+        "onlineCompiler": "Trình biên dịch online",
+        "runCode": "Chạy code",
+        "start": "Chạy",
+        "stop": "Dừng",
+        "joyGold": "Vàng JOY",
+        "highScore": "Điểm cao",
+        "homeScreen": "Màn hình chính",
+        "companionOnline": "Đồng hành trực tuyến",
+        "companionMessage": "Hãy trút bỏ áp lực. Tôi sẽ lắng nghe và giúp bạn vượt qua.",
+        "stress": "Căng thẳng",
+        "sleep": "Giấc ngủ",
+        "study": "Học tập",
+        "forestRain": "Mưa rừng",
+        "cafe": "Quán cà phê",
+        "summerTrack": "Mùa hạ tĩnh lặng",
+        "availableJoy": "Số dư JOY khả dụng",
+        "fiveDayIncome": "Thu nhập 5 ngày",
+        "profile": "Hồ sơ cá nhân",
+        "profileDescription": "Biolink công khai và cổng kết nối công cụ, tiện ích học tập của bạn.",
+        "ratingUsers": "{{rating}} điểm · {{users}} người dùng",
+        "holdToCustomize": "Nhấn giữ để tùy chỉnh"
+      },
+      "size": {
+        "small": "Nhỏ",
+        "medium": "Vừa",
+        "large": "Lớn",
+        "icon": "Biểu tượng"
+      }
+    },
+    "catalog": {
+      "bio": { "title": "Trang Bio", "description": "Hồ sơ cá nhân và Bio link" },
+      "ide": { "title": "HugoCoder", "description": "Soạn code và học lập trình" },
+      "team": { "title": "Hugo Team", "description": "Tuyển dụng và dự án sinh viên" },
+      "psychology": { "title": "HugoPSY", "description": "AI tâm lý và theo dõi giấc ngủ" },
+      "hugoskin": { "title": "HugoSkin", "description": "Phân tích da và chăm sóc cá nhân" },
+      "radio": { "title": "HugoRadio", "description": "Tin tức và nhạc tập trung" },
+      "helpdesk": { "title": "HugoHelpdesk", "description": "Mã QR, NFC và chữ ký email" },
+      "handle": { "title": "HugoHandle", "description": "Nén ảnh và liên kết bảo mật" },
+      "arcade": { "title": "HugoArcade", "description": "Trò chơi giải trí nhận JOY" },
+      "aura": { "title": "HugoAura", "description": "Tập trung Pomodoro và âm thanh thư giãn" },
+      "deco": { "title": "Deco Studio", "description": "Trang trí không gian ảo của bạn" },
+      "info": { "title": "Thông tin và phiên bản", "description": "Thông tin hệ thống và nhật ký cập nhật" },
+      "joy_wallet": { "title": "Ví JOY", "description": "Số dư và chuyển khoản nhanh" },
+      "library": { "title": "Hugo Library", "description": "Kho ứng dụng và tiện ích" },
+      "map": { "title": "Khám phá", "description": "Bản đồ cộng đồng và địa điểm gần bạn" },
+      "arcade_chess": { "title": "Cờ vua AI", "description": "Thách đấu AI trình độ cao" },
+      "arcade_2048": { "title": "2048 Fusion", "description": "Trò chơi ghép số mở rộng" },
+      "arcade_caro": { "title": "Caro Master", "description": "Cờ Caro đối kháng nhiều cấp" },
+      "arcade_wordguess": { "title": "Mật mã từ", "description": "Trò chơi từ vựng tiếng Việt" },
+      "arcade_tetris": { "title": "Tetris Neon", "description": "Xếp hình mượt mà 60 khung hình/giây" },
+      "arcade_snake": { "title": "Rắn 3D Pro", "description": "Trò chơi rắn cổ điển" },
+      "arcade_survivor": { "title": "Space Survivor", "description": "Sinh tồn giữa không gian" },
+      "arcade_flappy": { "title": "Flappy Cyber", "description": "Bay qua thế giới tương lai" }
+    },
     "dashboard": {
       "title": "Tiện Ích Thành Viên",
       "desc": "Khám phá các công cụ thông minh giúp tối ưu hóa công việc và cá nhân hóa trang Bio của bạn.",
@@ -3251,6 +3611,61 @@
     },
     "userMeta": {
       "noName": "Chưa đặt tên"
+    }
+  },
+  "hugoCoderLearning": {
+    "back": "Ứng dụng",
+    "joyBalance": "Số dư JOY",
+    "loading": "Đang chuẩn bị hành trình học…",
+    "tabs": {
+      "label": "Điều hướng HugoCoder",
+      "learn": "Học",
+      "lab": "Phòng lab",
+      "resources": "Học liệu",
+      "progress": "Tiến độ"
+    },
+    "hero": {
+      "kicker": "Học mỗi ngày, xây sản phẩm thật",
+      "title": "Lập trình theo từng bước nhỏ.",
+      "description": "Mỗi bài là một phiên học ngắn gồm kiến thức, thực hành và kiểm tra tức thì. Hoàn thành tuần tự để mở khóa chặng tiếp theo.",
+      "continue": "Tiếp tục hành trình",
+      "firstLesson": "Bắt đầu bài đầu tiên"
+    },
+    "stats": {
+      "label": "Thống kê học tập",
+      "streak": "ngày liên tiếp",
+      "lessons": "Bài học"
+    },
+    "progress": {
+      "title": "Tiến độ toàn khóa"
+    },
+    "path": {
+      "eyebrow": "LỘ TRÌNH CÁ NHÂN",
+      "title": "Con đường của bạn",
+      "description": "Học tuần tự, thực hành ngay và mở khóa từng cột mốc.",
+      "stage": "Chặng {{number}}",
+      "lesson": "Bài {{number}}",
+      "next": "Tiếp theo"
+    },
+    "resources": {
+      "title": "Học liệu",
+      "description": "Video hướng dẫn và tài liệu học thuật được sắp xếp theo từng chặng.",
+      "video": "Video",
+      "documents": "Tài liệu"
+    },
+    "lesson": {
+      "stepOf": "Bước {{current}}/{{total}}",
+      "steps": {
+        "story": "Nắm ý chính",
+        "guide": "Làm theo hướng dẫn",
+        "practice": "Thử thách",
+        "review": "Ghi nhớ"
+      },
+      "finishPractice": "Hãy hoàn thành thử thách trước khi đến bước ghi nhớ.",
+      "path": "Lộ trình",
+      "previous": "Quay lại",
+      "continue": "Tiếp tục",
+      "nextLesson": "Bài tiếp theo"
     }
   },
   "studentBenefitsPage": {
