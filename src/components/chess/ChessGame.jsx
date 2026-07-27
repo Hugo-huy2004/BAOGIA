@@ -922,7 +922,16 @@ export default function ChessGame({
       else playFx("lose");
     }
     vibrate(res.winner === colorRef.current ? [80,40,80,40,150] : [200]);
-  }, [stopClock, mode, botLevel, moves.length, userInfo, setUserInfo]);
+
+    // Mọi kết cục (chiếu hết / hết giờ / đầu hàng / hoà / kết quả từ WS) đều đi
+    // qua endGame, nên báo cho vỏ HugoArcade đúng một chỗ này là đủ. Thiếu nó,
+    // vỏ arcade kẹt mãi ở trạng thái "đang chơi": không màn kết quả, không điểm.
+    // Điểm arcade = ELO thắng được (thua/hoà = 0), chặn trần theo server.
+    onGameEnd?.(
+      isWinner ? Math.max(0, Math.min(3000, Math.round(change))) : 0,
+      isWinner ? "win" : res.winner ? "lose" : "draw"
+    );
+  }, [stopClock, mode, botLevel, moves.length, userInfo, setUserInfo, onGameEnd]);
 
   const applyMove = useCallback((mv, newChess) => {
     const nt = newChess.turn();

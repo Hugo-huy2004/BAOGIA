@@ -705,10 +705,13 @@ function MemberPortalPage() {
   // are gone from the mobile nav, Therapy opens as an in-chat overlay) — so
   // any psychology sub-tab gets the fullscreen takeover there. Desktop is
   // unchanged from before — normal sidebar+tabs UI, never fullscreen.
-  const isFullscreenUtility = activeTab === "utilities" && (
+  // Bản đồ là một ỨNG DỤNG chứ không phải tab: mở ra là chiếm trọn màn hình,
+  // thanh tab của portal biến mất, và lối duy nhất quay lại là nút thoát của
+  // chính nó — giống HugoIDE / HugoArcade.
+  const isFullscreenUtility = (activeTab === "utilities" && (
     subTab === "ide" || subTab === "arcade" ||
     (subTab === "psychology" && isMobileView)
-  );
+  )) || activeTab === "map";
 
   // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
   // TRONG app và lối ra là nút "Quay lại" của chính app đó. Giữ thêm thanh tab
@@ -738,6 +741,13 @@ function MemberPortalPage() {
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
             <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+              {activeTab === "map" ? (
+                <DiscoveryMap
+                  userAvatarUrl={formData.avatarUrl || bio?.avatarUrl}
+                  userName={formData.displayName || memberSession?.displayName}
+                  onExit={() => navigate("/member/apps")}
+                />
+              ) : (
               <MemberUtilitiesTab
                 bio={bio}
                 publicLink={publicLink}
@@ -753,6 +763,7 @@ function MemberPortalPage() {
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
                 ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null}
               />
+              )}
             </React.Suspense>
           </ErrorBoundary>
         </div>
@@ -836,11 +847,6 @@ function MemberPortalPage() {
                   {activeTab === "partner" && (
                     <div>
                       <MemberPartnerTab />
-                    </div>
-                  )}
-                  {activeTab === "map" && (
-                    <div>
-                      <DiscoveryMap userAvatarUrl={formData.avatarUrl || bio?.avatarUrl} userName={formData.displayName || memberSession?.displayName} />
                     </div>
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
@@ -932,11 +938,6 @@ function MemberPortalPage() {
                   {activeTab === "partner" && (
                     <div style={{ padding: "0 12px"  }}>
                       <MemberPartnerTab />
-                    </div>
-                  )}
-                  {activeTab === "map" && (
-                    <div style={{ padding: 0 }}>
-                      <DiscoveryMap userAvatarUrl={formData.avatarUrl || bio?.avatarUrl} userName={formData.displayName || memberSession?.displayName} />
                     </div>
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (

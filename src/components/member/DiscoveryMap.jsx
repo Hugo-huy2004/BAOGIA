@@ -8,6 +8,7 @@ import {
   UtensilsCrossed, Coffee, Gamepad2, X, Sparkles, User, Settings,
   MessageSquare, ShieldCheck, Heart, Phone, Globe, Layers, ArrowUpRight
 } from "lucide-react";
+import BackButton from "./shared/BackButton";
 import { hapticSelect } from "../../utils/haptics";
 import { notify } from "../../lib/notify";
 import { useTranslation } from "react-i18next";
@@ -22,15 +23,45 @@ const CATEGORIES = [
 ];
 
 const MAP_STYLES = {
-  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  // Voyager có màu (công viên xanh, nước xanh dương, đường vàng) — Positron
+  // gần như xám trắng nên không ra được chất Zenly.
+  light: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 };
 
-const CATEGORY_SVGS = {
-  food: `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Z"></path><path d="M19 15v7"></path></svg>`,
-  cafe: `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>`,
-  play: `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="3"></rect></svg>`,
-  default: `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>`
+// Zenly gợi món ăn bằng hình vẽ vui, không phải icon line đơn sắc. Tên quán ở
+// VN mô tả món rất rõ ("Phở", "Bún bò", "Trà sữa"…) nên đoán từ tên là đủ —
+// không cần thêm trường mới từ API.
+const FOOD_GLYPHS = [
+  [/tr[àa]\s*s[ữu]a|milk\s?tea|bubble\s?tea|gong\s?cha|koi(?![\p{L}])|toco/iu, "🧋"],
+  [/ph[ởo](?![\p{L}])/iu, "🍜"],
+  [/b[áa]nh m[ìi]|sandwich|baguette/iu, "🥖"],
+  [/b[úu]n|m[ìi](?![\p{L}])|noodle|ramen|udon|h[ủu] ti[ếe]u/iu, "🍜"],
+  [/l[ẩa]u|hot\s?pot/iu, "🍲"],
+  [/pizza/iu, "🍕"],
+  [/burger|hamburger|mcdonald/iu, "🍔"],
+  [/sushi|sashimi|nh[ậa]t b[ảa]n|japanese/iu, "🍣"],
+  [/g[àa] r[áa]n|chicken|kfc|lotteria|jollibee|popeyes/iu, "🍗"],
+  [/n[ưu][ớo]ng|bbq|grill|nh[ậa]u|bia(?![\p{L}])|beer/iu, "🍢"],
+  [/h[ảa]i s[ảa]n|seafood|[ốo]c(?![\p{L}])|cua(?![\p{L}])|t[ôo]m(?![\p{L}])/iu, "🦐"],
+  [/ch[àa]y|vegan|vegetarian/iu, "🥗"],
+  [/kem(?![\p{L}])|ice\s?cream|ch[èe](?![\p{L}])/iu, "🍦"],
+  [/b[áa]nh ng[ọo]t|bakery|cake|ti[ệe]m b[áa]nh/iu, "🍰"],
+  [/b[òo](?![\p{L}])|steak|beef/iu, "🥩"],
+  [/c[ơo]m(?![\p{L}])|rice|ni[êe]u/iu, "🍚"],
+  [/sinh t[ốo]|n[ưu][ớo]c [ée]p|juice|smoothie/iu, "🥤"],
+];
+
+const CATEGORY_FALLBACK_GLYPH = { food: "🍽️", cafe: "☕", play: "🎮" };
+
+// `\b` của JS là ranh giới ASCII: sau "ở" hay "è" nó KHÔNG khớp, nên các luật
+// tiếng Việt phải dùng lookahead Unicode `(?![\p{L}])` thay cho `\b`.
+export const placeGlyph = (name, category) => {
+  const label = String(name || "");
+  if (category === "food" || category === "cafe") {
+    for (const [re, glyph] of FOOD_GLYPHS) if (re.test(label)) return glyph;
+  }
+  return CATEGORY_FALLBACK_GLYPH[category] || "📍";
 };
 
 const CATEGORY_ICONS = {
@@ -76,7 +107,7 @@ const getMatchScore = (placeId) => {
   return 85 + (Math.abs(hash) % 15);
 };
 
-export default function DiscoveryMap({ userAvatarUrl, userName }) {
+export default function DiscoveryMap({ userAvatarUrl, userName, onExit }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
@@ -103,6 +134,8 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
   const placeMarkersRef = useRef([]);
+  // Canh khung tự động chỉ một lần: sau đó người dùng tự làm chủ camera.
+  const didAutoFitRef = useRef(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -356,7 +389,7 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
 
       const svg = p.cluster
         ? `<span class="zenly-cluster-count">${p.pointCount}</span>`
-        : (CATEGORY_SVGS[p.category] || CATEGORY_SVGS.default);
+        : `<span class="zenly-pin-glyph">${placeGlyph(p.name, p.category)}</span>`;
       const catBg = p.cluster
         ? "zenly-pin-cluster"
         : p.category === "food"
@@ -395,7 +428,8 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
       return new maplibregl.Marker({ element: el }).setLngLat([p.lng, p.lat]).addTo(mapRef.current);
     });
 
-    if (places.length && userPos && !selectedId) {
+    if (!didAutoFitRef.current && places.length && userPos && !selectedId) {
+      didAutoFitRef.current = true;
       const bounds = new maplibregl.LngLatBounds();
       bounds.extend([userPos.lng, userPos.lat]);
       places.slice(0, 8).forEach((p) => bounds.extend([p.lng, p.lat]));
@@ -449,24 +483,34 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
   }, [places, t]);
 
   return (
-    <div className="relative w-full h-[calc(100vh-140px)] min-h-[580px] rounded-3xl overflow-hidden shadow-xl border border-border/60 font-sans select-none text-left">
+    <div className="relative w-full h-full min-h-0 overflow-hidden font-sans select-none text-left">
       {/* ── 1. MAP CANVAS ─────────────────────────────────────────────────── */}
       <div ref={containerRef} className="w-full h-full z-0" />
 
       {/* ── 2. APPLE FLOATING GLASS OVERLAY (TOP) ─────────────────────────── */}
-      <div className="absolute top-3 left-3 right-3 z-20 flex flex-col gap-2.5 pointer-events-none">
-        
+      {/* Bản đồ chạy toàn màn hình nên thanh nổi này phải tự tránh tai thỏ /
+          Dynamic Island — max() để không cộng dồn khi máy không có khuyết. */}
+      <div
+        className="absolute left-3 right-3 z-20 flex flex-col gap-2.5 pointer-events-none"
+        style={{ top: "calc(max(env(safe-area-inset-top, 0px), 12px))" }}
+      >
+
         {/* Row 1: Header Title & Action Capsule Buttons */}
         <div className="flex items-center justify-between gap-2">
+          {/* Lối thoát duy nhất về trang Ứng dụng */}
+          {onExit && (
+            <div className="pointer-events-auto rounded-full bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm">
+              <BackButton onClick={onExit} label={t("memberPortal.discovery.exit", "Thoát")} iconOnly />
+            </div>
+          )}
+
           {/* Title Glass Capsule */}
-          <div className="pointer-events-auto px-3.5 py-2 rounded-full bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm flex items-center gap-2">
+          <div className="pointer-events-auto min-w-0 flex-1 px-3.5 py-2 rounded-full bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm flex items-center gap-2">
             <h1 className="text-sm sm:text-base font-semibold text-foreground tracking-tight capitalize truncate">
               {dynamicLocationTitle}
             </h1>
             <span className="h-3 w-px bg-border/60"></span>
-            <span className="text-[11px] font-medium tracking-tight text-muted-foreground">
-              Color Map
-            </span>
+
           </div>
 
           {/* Action Buttons Capsule */}
@@ -764,19 +808,41 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
           z-index: 100;
         }
         .zenly-pin-bubble {
-          width: 38px;
-          height: 38px;
-          border-radius: 16px;
-          border: 2.5px solid #ffffff;
+          position: relative;
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          border: 3px solid #ffffff;
           color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
         }
-        .zenly-pin-food { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
-        .zenly-pin-cafe { background: linear-gradient(135deg, #f6d365, #fda085); }
-        .zenly-pin-play { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color: #1e1b4b; }
+        /* Đuôi nhọn kiểu bong bóng Zenly */
+        .zenly-pin-bubble::after {
+          content: "";
+          position: absolute;
+          bottom: -7px;
+          left: 50%;
+          width: 12px;
+          height: 12px;
+          background: inherit;
+          border-right: 3px solid #ffffff;
+          border-bottom: 3px solid #ffffff;
+          border-radius: 0 0 4px 0;
+          transform: translateX(-50%) rotate(45deg);
+          z-index: -1;
+        }
+        .zenly-pin-glyph {
+          font-size: 20px;
+          line-height: 1;
+          /* emoji tự có màu — bỏ mọi filter kế thừa để giữ đúng sắc */
+          filter: none;
+        }
+        .zenly-pin-food { background: #ff5a5f; }
+        .zenly-pin-cafe { background: #ffb020; }
+        .zenly-pin-play { background: #7b61ff; }
         .zenly-pin-cluster {
           background: hsl(var(--primary));
           border-radius: 999px;
@@ -787,10 +853,13 @@ export default function DiscoveryMap({ userAvatarUrl, userName }) {
           line-height: 1;
         }
         .zenly-pin-active .zenly-pin-bubble {
-          transform: scale(1.25);
-          box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
-          border-color: #fde047;
+          transform: scale(1.28);
+          box-shadow: 0 0 0 5px rgba(255, 255, 255, .55), 0 10px 24px rgba(0, 0, 0, .3);
         }
+        /* Nền bản đồ rực lên cho hợp chất Zenly — chỉ tác động lớp canvas,
+           marker là DOM riêng nên emoji không bị đổi màu. */
+        .maplibregl-canvas { filter: saturate(1.35) contrast(1.03); }
+        :root.dark .maplibregl-canvas { filter: saturate(1.2) brightness(1.06); }
       `}</style>
     </div>
   );
