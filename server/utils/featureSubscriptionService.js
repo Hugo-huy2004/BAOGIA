@@ -49,6 +49,24 @@ export function isFeatureActive(bio, featureKey) {
   return new Date(sub.expiresAt).getTime() > Date.now();
 }
 
+// Cộng thêm tháng thuê vào hồ sơ — CHỈ mutate, không trừ tiền, không lưu.
+// Tách ra để cả mua-cho-mình lẫn tặng-bạn-bè (appPlanService.js) dùng chung
+// đúng một quy tắc cộng dồn: còn hạn thì nối tiếp, hết hạn thì tính từ bây giờ.
+export function grantFeatureMonths(bioDoc, featureKey, months = 1) {
+  const existing = bioDoc.featureSubscriptions?.[featureKey];
+  const currentExpiry = existing?.expiresAt ? new Date(existing.expiresAt).getTime() : 0;
+  const baseTime = currentExpiry > Date.now() ? currentExpiry : Date.now();
+  const monthMs = months * 30 * 24 * 60 * 60 * 1000;
+
+  bioDoc.featureSubscriptions = bioDoc.featureSubscriptions || {};
+  bioDoc.featureSubscriptions[featureKey] = {
+    expiresAt: new Date(baseTime + monthMs),
+    active: true
+  };
+  bioDoc.markModified('featureSubscriptions');
+  return bioDoc.featureSubscriptions[featureKey].expiresAt;
+}
+
 // Charges JOY and extends/starts a monthly subscription. Mirrors the
 // charge-then-mutate-then-single-save shape of companionRoutes.js's
 // unlock-feature and joyRoutes.js's rent-theme (stacks remaining time on
@@ -72,18 +90,8 @@ export async function chargeFeatureSubscription(email, featureKey, months = 1) {
     { bioDoc: bio, skipSave: true, refId: featureKey }
   );
 
-  const existing = bio.featureSubscriptions?.[featureKey];
-  const currentExpiry = existing?.expiresAt ? new Date(existing.expiresAt).getTime() : 0;
-  const baseTime = currentExpiry > Date.now() ? currentExpiry : Date.now();
-  const monthMs = months * 30 * 24 * 60 * 60 * 1000;
-
-  bio.featureSubscriptions = bio.featureSubscriptions || {};
-  bio.featureSubscriptions[featureKey] = {
-    expiresAt: new Date(baseTime + monthMs),
-    active: true
-  };
-  bio.markModified('featureSubscriptions');
+  const expiresAt = grantFeatureMonths(bio, featureKey, months);
   await bio.save();
 
-  return { balance, expiresAt: bio.featureSubscriptions[featureKey].expiresAt, priceJoy: baseJoy, tax, total };
+  return { balance, expiresAt, priceJoy: baseJoy, tax, total };
 }

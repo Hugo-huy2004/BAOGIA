@@ -5,6 +5,8 @@ import { awardJoy, getJoyHistory } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import { ownExchangeItems } from '../utils/appPlanService.js';
+import UtilityProduct from '../models/UtilityProduct.js';
 import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
@@ -155,7 +157,10 @@ const EXCHANGE_ITEMS = {
   hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
   bioThemeBrutalism: { label: 'Giao diện Bio: Brutalism (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
   bioThemeFlat: { label: 'Giao diện Bio: Flat (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
-  fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE }
+  fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE },
+  // Bậc "sở hữu vĩnh viễn" của Hugo Store, sinh từ APP_PLANS nên bảng giá chỉ
+  // có một chỗ để sửa (server/utils/appPlanService.js).
+  ...ownExchangeItems()
 };
 
 const router = express.Router();
@@ -186,7 +191,16 @@ router.get('/exchange-quote', requireMember, async (req, res) => {
     const email = req.memberEmail;
     if (!email || !item) return res.status(400).json({ error: 'email and item are required' });
 
-    const def = EXCHANGE_ITEMS[item];
+    // Vật phẩm cửa hàng (UtilityProduct) có giá nằm trong DB nên không thể liệt
+    // kê tĩnh; giải bằng khoá `product_<id>` để vẫn dùng chung đúng hoá đơn này.
+    let def = EXCHANGE_ITEMS[item];
+    if (!def && String(item).startsWith('product_')) {
+      const product = await UtilityProduct
+        .findById(String(item).slice('product_'.length))
+        .lean()
+        .catch(() => null);
+      if (product?.active) def = { label: product.name, priceJoy: product.priceJoy };
+    }
     if (!def) return res.status(400).json({ error: 'Mục trao đổi không hợp lệ.' });
 
     let bio = await Bio.findOne({ email });

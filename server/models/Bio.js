@@ -437,6 +437,16 @@ const BioSchema = new mongoose.Schema(
         active: { type: Boolean, default: false }
       }
     },
+    // Hai bậc còn lại của thang "Dùng thử → Thuê → Sở hữu" (appPlanService.js).
+    // Bậc THUÊ không nằm ở đây — nó vẫn là `featureSubscriptions` phía trên, để
+    // cổng khoá của HugoRadio/Arcade/Aura/Coder chỉ có đúng một nguồn sự thật.
+    // Khoá là appId ('radio', 'arcade'…), giá trị:
+    //   { trialStartedAt, trialEndsAt, owned, ownedAt, giftedBy }
+    appPlans: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: () => ({})
+    },
     // Paid rental backing theme.template when it's 'brutalism'/'flat'
     // (150 JOY/month). theme.template is the live/rendered value; this is the
     // paid entitlement behind it, reverted to 'default' by the nightly cron

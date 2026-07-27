@@ -189,6 +189,7 @@ import coderLessonRoutes from './routes/coderLessonRoutes.js';
 import todayRoutes from './routes/todayRoutes.js';
 import storeCartRoutes from './routes/storeCartRoutes.js';
 import storePromoRoutes from './routes/storePromoRoutes.js';
+import storePlanRoutes from './routes/storePlanRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
@@ -221,6 +222,7 @@ app.use('/api/referral', referralRoutes);
 app.use('/api/utility-store', utilityStoreRoutes);
 app.use('/api/store', storeCartRoutes);
 app.use('/api/store', storePromoRoutes);
+app.use('/api/store', storePlanRoutes);
 app.use('/api/joy-gift-cards', joyGiftCardRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/webauthn', webauthnRoutes);
