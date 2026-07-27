@@ -110,11 +110,11 @@ export default function LibraryCatalog({
                 if (onBack) onBack();
                 if (setSelectedUtility) setSelectedUtility(null);
               }}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted active:scale-95"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted"
               title={t("utilities.library.back")}
               aria-label={t("utilities.library.back")}
             >
-              <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+              <span className="material-symbols-outlined text-[22px]" aria-hidden="true">arrow_back</span>
             </button>
           )}
 

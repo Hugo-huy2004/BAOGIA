@@ -145,8 +145,9 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Ví JOY Wallet */}
       {selectedUtility === "joy_wallet" && (
         <div className="text-left">
-          <SubUtilityHeader title="Ví JOY" icon="account_balance_wallet" colorClass="text-amber-500" onBack={() => onSelectUtility(null)} appId="joy_wallet" />
-          <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} />
+          {/* Ví JOY tự dựng phần đỉnh: thẻ JOY đã là tiêu đề, thêm thanh header
+              nữa thành hai lớp chrome chồng nhau. */}
+          <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} onBack={() => onSelectUtility(null)} />
         </div>
       )}
       </Suspense>

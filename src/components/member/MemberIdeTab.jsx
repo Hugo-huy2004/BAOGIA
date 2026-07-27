@@ -1903,9 +1903,10 @@ export default function MemberIdeTab({
           {!embedded && (
             <button
               onClick={onBack}
-              className="flex items-center gap-1.5 font-bold uppercase hover:text-white transition-colors border-r border-border pr-3"
+              className="inline-flex h-11 items-center gap-1 rounded-xl pl-2 pr-3.5 text-[15px] font-medium transition-colors hover:bg-white/10"
             >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back
+              <span className="material-symbols-outlined text-[22px]">arrow_back</span>
+              Quay lại
             </button>
           )}
           <div className="flex items-center gap-1.5 font-mono text-muted-foreground">

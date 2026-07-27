@@ -58,7 +58,9 @@
       sizes="180x180"
       href="/favicon/apple-touch-icon.png"
     />
-    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <!-- Không khai báo thẻ manifest ở đây: vite-plugin-pwa tự chèn
+         /manifest.webmanifest lúc build. Nếu có hai thẻ manifest, trình duyệt
+         chỉ đọc thẻ đầu tiên và bỏ qua thẻ còn lại. -->
 
     <!-- Premium SEO Meta Tags -->
     <meta

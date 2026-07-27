@@ -47,9 +47,9 @@
 
 .coder-hub-back,
 .coder-hub-balance {
-  min-height: 36px;
+  min-height: 44px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 12px;
   color: var(--coder-blue);
 }
 
@@ -58,10 +58,10 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 0 10px 0 7px;
+  padding: 0 14px 0 8px;
   background: transparent;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .coder-hub-back svg,

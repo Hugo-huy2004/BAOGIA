@@ -21,7 +21,7 @@
   position: relative;
   overflow: hidden;
   margin: 0 auto;
-  border-radius: 28px;
+  border-radius: 0;
   background: #05060f;
   color: var(--ink);
   font-feature-settings: "ss01", "cv01";
@@ -63,7 +63,7 @@
 .infoshow__inner {
   position: relative;
   z-index: 1;
-  padding: 26px 18px 30px;
+  padding: 22px 14px 28px;
 }
 
 .infoshow section + section { margin-top: 34px; }
@@ -159,22 +159,13 @@
   text-wrap: balance;
 }
 
-/* ── Thẻ chung ── */
-.infoshow__card {
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-}
-
 /* ── Nổi bật: thẻ có minh hoạ ── */
 .infoshow__features { display: grid; gap: 14px; }
 
 .infoshow__feature {
   position: relative;
   overflow: hidden;
-  padding: 18px;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: 22px;
   background: var(--surface);
@@ -832,6 +823,7 @@
 }
 
 @media (min-width: 560px) {
+  .infoshow { border-radius: 28px; }
   .infoshow__inner { padding: 32px 26px 36px; }
   .infoshow__progress { margin: 0 -26px 22px; }
   .infoshow__features { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -89,9 +89,9 @@ function MemberPortalPage() {
   const hydrateWallet = useJoyStore(s => s.hydrateWallet);
   const joyBalance = useJoyStore(s => s.balance);
   usePresenceHeartbeat(memberSession?.email);
-  // Hides the fixed mobile bottom bar while the on-screen keyboard is up —
-  // without this, the bar visibly jitters/jumps as the keyboard opens/closes
-  // because it's fixed against a viewport that's actively resizing.
+  // Hides the mobile bottom bar while the on-screen keyboard is up — the shell
+  // is 100dvh, so on platforms that resize the layout viewport the bar would
+  // otherwise ride the keyboard up and down.
   const isKeyboardVisible = useKeyboardVisible();
   const isMobileView = useIsMobile();
   // A full-screen sheet (e.g. community composer/comments) asks to hide the
@@ -896,8 +896,11 @@ function MemberPortalPage() {
 
       {/* ── 📱 MOBILE VIEW (md:hidden) ─────────────────────────────────── */}
       {isMobileView && (
-      <div>
-        <div className={`mobile-portal-content ${isAppOpen ? "mobile-portal-content--app" : ""} max-w-6xl mx-auto sm:px-4 ${(activeTab === 'utilities' || activeTab === 'apps') ? 'pt-0 space-y-0' : activeTab === 'account' ? 'pt-2 space-y-4' : 'pt-2 sm:pt-4 space-y-4'} relative z-10`}>
+      <div className="portal-mobile-main">
+        {/* `w-full` là bắt buộc, không thừa: trên mobile `.portal-mobile-main` là
+            flex cột, và margin ngang `auto` của `mx-auto` HUỶ `align-items: stretch`
+            — ô này co về min-content (rộng hơn màn) và mọi tab tràn ngang. */}
+        <div className={`mobile-portal-content ${isAppOpen ? "mobile-portal-content--app" : ""} w-full max-w-6xl mx-auto sm:px-4 ${(activeTab === 'utilities' || activeTab === 'apps') ? 'pt-0 space-y-0' : activeTab === 'account' ? 'pt-2 space-y-4' : 'pt-2 sm:pt-4 space-y-4'} relative z-10`}>
           <ErrorBoundary>
             <React.Suspense fallback={
               <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -1071,7 +1074,7 @@ function MemberPortalPage() {
       {isMobileView && bio?.status !== 'pending' && !isKeyboardVisible && !isAppOpen && (
         <div
           id="mobile-bottom-tab-bar"
-          className={`mobile-portal-tabbar fixed bottom-0 left-0 right-0 z-[100] border-t border-border/40 bg-background/90 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-2xl dark:bg-[#0c0b11]/90 dark:shadow-[0_-4px_24px_rgba(0,0,0,0.5)] ${fullSheetOpen ? "hidden" : ""}`}
+          className={`mobile-portal-tabbar border-t border-border/40 bg-background dark:bg-[#0c0b11] ${fullSheetOpen ? "hidden" : ""}`}
         >
           <div className="flex justify-around px-2">
             {mobileTabs.map(tab => {

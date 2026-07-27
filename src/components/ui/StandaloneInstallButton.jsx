@@ -28,10 +28,10 @@ export default function StandaloneInstallButton({ appTitle, appId, className = "
       type="button"
       onClick={handleInstallClick}
       title={`Cài đặt ${appTitle || 'ứng dụng'} thành app độc lập trên màn hình chính`}
-      className={`flex h-11 shrink-0 items-center gap-1 rounded-xl pl-2.5 pr-3.5 text-primary transition-colors hover:bg-primary/10 active:bg-primary/15 ${className}`}
+      className={`flex h-11 shrink-0 items-center gap-1 rounded-xl pl-2 pr-3 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted ${className}`}
     >
       <span className="material-symbols-outlined text-[20px]">install_mobile</span>
-      <span className="text-[15px] font-medium">Tải app</span>
+      <span className="text-[14px] font-medium">Tải app</span>
     </button>
   );
 }

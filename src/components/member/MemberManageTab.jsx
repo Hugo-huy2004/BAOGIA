@@ -233,7 +233,10 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
           <div className="space-y-3.5">
             <div className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-muted/80 border border-border/60 font-mono text-[10px] sm:text-xs text-foreground/80 font-bold select-all shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
               <span className="material-symbols-outlined text-xs text-success shrink-0">lock</span>
-              <span className="flex-1 overflow-x-auto scrollbar-hide whitespace-nowrap text-left">{publicLink}</span>
+              {/* min-w-0 là bắt buộc: flex item mặc định min-width:auto, nên một
+                  chuỗi whitespace-nowrap dài (URL Bio) sẽ kéo rộng cả trang thay
+                  vì tự cuộn bên trong ô. */}
+              <span className="min-w-0 flex-1 overflow-x-auto scrollbar-hide whitespace-nowrap text-left">{publicLink}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

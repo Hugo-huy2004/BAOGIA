@@ -11,7 +11,10 @@ import BackButton from "./shared/BackButton";
  */
 export default function SubUtilityHeader({ title, icon, colorClass, onBack, appId }) {
   return (
-    <header className="sticky top-0 z-40 -mx-2 mb-6 flex items-center gap-2 border-b border-border bg-card px-2 py-2">
+    // KHÔNG dùng margin âm ở đây. Trang không có đệm hai bên trên điện thoại,
+    // nên `-mx-*` làm header rộng hơn trang đúng bằng ngần ấy và tràn ra ngoài
+    // — mọi app dùng header này đều bị cắt mép.
+    <header className="sticky top-0 z-40 mb-5 flex w-full items-center gap-1 border-b border-border/60 bg-background/80 px-1 py-1.5 backdrop-blur-xl">
       {onBack ? <BackButton onClick={onBack} /> : <span className="h-11 w-1 shrink-0" />}
 
       <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5">

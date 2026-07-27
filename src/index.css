@@ -1493,6 +1493,16 @@ html.standalone-pwa .member-portal-shell {
 
 .member-portal-shell {
   /*
+   * Một thành phần con bị tràn ngang KHÔNG được phép kéo rộng cả trang. Trước
+   * đây chỉ cần một lưới không co lại được (ô grid mặc định min-width:auto) là
+   * toàn bộ portal rộng hơn màn hình và mọi thứ bị cắt mất mép phải.
+   *
+   * Dùng `clip` chứ không phải `hidden`: `hidden` tạo ra một scroll container
+   * mới và làm hỏng mọi `position: sticky` bên trong.
+   */
+  overflow-x: clip;
+
+  /*
    * Some embedded WebViews report a stale keyboard/viewport value through
    * safe-area-inset-bottom. A real iPhone home-indicator inset is at most
    * 34px in portrait, so clamp the value before it can inflate the tab bar.
@@ -1524,13 +1534,7 @@ html.standalone-pwa .desktop-apple-layout {
 .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
-  padding-bottom: calc(66px + var(--portal-tabbar-pad)) !important;
-}
-
-/* Khi một ứng dụng đang mở, thanh tab bị ẩn — không chừa chỗ cho nó nữa,
-   nếu không đáy màn hình thừa ra một khoảng trống bằng cả thanh tab. */
-.mobile-portal-content--app {
-  padding-bottom: var(--portal-safe-bottom, 0px) !important;
+  padding-bottom: 16px;
 }
 
 .mobile-portal-tabbar {
@@ -1542,9 +1546,64 @@ html.standalone-pwa .desktop-apple-layout {
   padding-left: var(--portal-safe-left, 0px);
 }
 
-/* In standalone mode body padding is intentionally zero because the fixed
-   tab bar owns the bottom inset. Restore only the top inset on normal Portal
-   content so the large title clears the notch/Dynamic Island. */
+/*
+ * Portal mobile = app shell trong luồng bình thường: nội dung cuộn bên trong,
+ * thanh tab là HÀNG CUỐI của cột 100dvh — không còn `position: fixed`.
+ *
+ * Vì sao bỏ fixed: trên PWA iOS đã cài, thanh tab fixed liên tục neo vào một
+ * viewport không phải màn hình thật, nên nó nổi lên giữa màn và chừa một mảng
+ * trống to bên dưới. Nằm trong luồng thì không có gì để neo sai: đáy của cột
+ * chính là đáy app.
+ */
+/* Cùng điều kiện với useIsMobile() — nếu lệch, layout mobile render mà CSS app
+   shell không áp là thanh tab rơi xuống cuối tài liệu. */
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  .member-portal-shell.portal-mobile-layout {
+    height: 100dvh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .portal-mobile-main {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .mobile-portal-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Khi một ứng dụng đang mở, thanh tab bị ẩn — nội dung tự chiếm hết chiều
+     cao, chỉ cần chừa vùng an toàn cho thanh gạt home. */
+  .mobile-portal-content--app {
+    padding-bottom: var(--portal-safe-bottom, 0px);
+  }
+
+  .mobile-portal-tabbar {
+    position: relative;
+    z-index: 10;
+    flex: 0 0 auto;
+  }
+
+  /* Ngoài chế độ standalone, <body> vẫn đệm safe-area; cộng với shell 100dvh
+     là tràn đúng bằng phần đệm đó và thanh tab tụt khỏi màn. Portal tự lo
+     safe-area của nó. */
+  body:has(.portal-mobile-layout) {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+/* In standalone mode body padding is intentionally zero because the portal
+   shell owns its insets (tab bar = bottom, content = top). Restore only the top
+   inset here so the large title clears the notch/Dynamic Island. */
 html.standalone-pwa .mobile-portal-content {
   padding-top: calc(constant(safe-area-inset-top) + 12px) !important;
   padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;

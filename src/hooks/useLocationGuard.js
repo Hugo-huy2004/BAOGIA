@@ -12,15 +12,10 @@ import { getMemberToken } from "../services/authSession.js";
 
 const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
-const locationCheckLocks = new Map();
-const LOCATION_CHECK_COOLDOWN_MS = 15_000;
-const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
 
-const getLocationCheckKey = (email, lat, lng) => {
-  const roundedLat = Number(lat).toFixed(3);
-  const roundedLng = Number(lng).toFixed(3);
-  return `${email.trim().toLowerCase()}|${roundedLat}|${roundedLng}`;
-};
+const LOCATION_CHECK_COOLDOWN_MS = 60_000;
+const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
+const LAST_CHECK_KEY = "hugo:pwa:last-location-check";
 
 export function useLocationGuard({ email, enabled = true, onAnomaly }) {
   const checkingRef = useRef(false);
@@ -50,12 +45,11 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
       getCachedGeolocation()
         .then(async (pos) => {
           try {
-            const locationKey = getLocationCheckKey(email, pos.coords.latitude, pos.coords.longitude);
-            const lastRunAt = locationCheckLocks.get(locationKey) || 0;
+            const lastRunAt = Number(localStorage.getItem(LAST_CHECK_KEY) || 0);
             if (Date.now() - lastRunAt < LOCATION_CHECK_COOLDOWN_MS) {
               return;
             }
-            locationCheckLocks.set(locationKey, Date.now());
+            localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
 
             const res = await fetch(`${apiBase}/bios/me/check-location`, {
               method: "POST",
@@ -67,7 +61,12 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
                 lng: pos.coords.longitude,
               }),
             });
-            if (!res.ok) return;
+            if (!res.ok) {
+              if (res.status === 429) {
+                localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
+              }
+              return;
+            }
             const data = await res.json();
             if (data?.anomaly && onAnomalyRef.current) {
               onAnomalyRef.current({

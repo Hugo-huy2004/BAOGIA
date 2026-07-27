@@ -59,9 +59,9 @@ export default function MemberTierPrivilegesTab({
         <button
           type="button"
           onClick={onBack}
-          className="text-primary font-bold text-sm hover:opacity-80 active:scale-95 transition-all flex items-center gap-1.5"
+          className="inline-flex h-11 shrink-0 items-center gap-1 rounded-xl pl-2 pr-3.5 text-[15px] font-medium text-foreground transition-colors hover:bg-muted"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <span className="material-symbols-outlined text-[22px]">arrow_back</span>
           <span>Quay lại Ví</span>
         </button>
 

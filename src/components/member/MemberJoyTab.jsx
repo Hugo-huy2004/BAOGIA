@@ -10,24 +10,9 @@ import { MembershipFactory } from "../../models/membershipTier";
 import { useJoyStore } from "../../stores/joyStore";
 import { fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
 import "./member-joy.css";
-import {
-  Search,
-  CreditCard,
-  MoreHorizontal,
-  ChevronRight,
-  Sparkles,
-  Gift,
-  Award,
-  CheckCircle2,
-  Send,
-  ShoppingBag,
-  Gamepad2,
-  Zap,
-  Copy,
-  Users,
-  QrCode
-} from "lucide-react";
+import { ChevronRight, Sparkles, Gift, Award, CheckCircle2, Users } from "lucide-react";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
+import BackButton from "./shared/BackButton";
 
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -41,7 +26,8 @@ export default function MemberJoyTab({
   handleCopyLink,
   handleDeleteBio,
   saving,
-  onOpenParticleModal
+  onOpenParticleModal,
+  onBack
 }) {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -192,46 +178,10 @@ export default function MemberJoyTab({
 
   return (
     <div className="max-w-md mx-auto space-y-5 animate-fadeIn text-left select-none pb-6">
-      {/* ── 1. TOP APPLE CARD TOOLBAR (Main Card View Only) ───────────────────────── */}
-      {currentView === "card" && (
-        <div className="flex items-center justify-between px-1 py-1">
-          <button
-            onClick={() => setCurrentView("stats")}
-            className="text-primary font-bold text-sm hover:opacity-80 active:scale-95 transition-all flex items-center gap-1"
-          >
-            Thống kê JOY
-          </button>
-
-          <div className="flex items-center gap-2.5 text-foreground">
-            <button
-              onClick={() => setCurrentView("privileges")}
-              className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center hover:bg-amber-500/20 active:scale-95 transition-all"
-              title="Trang Đặc Quyền Thành Viên"
-            >
-              <Award className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onOpenParticleModal?.()}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
-              title="Quét QR Chuyển JOY"
-            >
-              <QrCode className="w-4 h-4 text-foreground/80" />
-            </button>
-            <button
-              onClick={() => setCurrentView("store")}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
-              title="Cửa hàng Ưu đãi"
-            >
-              <CreditCard className="w-4 h-4 text-foreground/80" />
-            </button>
-            <button
-              onClick={copyReferralCode}
-              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-95 transition-all"
-              title="Sao chép mã cá nhân"
-            >
-              <MoreHorizontal className="w-4 h-4 text-foreground/80" />
-            </button>
-          </div>
+      {/* Đỉnh trang chỉ còn một nút quay lại. Thẻ JOY tự nó đã là tiêu đề. */}
+      {currentView === "card" && onBack && (
+        <div className="-mb-2">
+          <BackButton onClick={onBack} />
         </div>
       )}
 
@@ -260,7 +210,7 @@ export default function MemberJoyTab({
             {/* REAL CARD BALANCE & MISSIONS GRID (2-COLUMN) */}
             <div className="grid grid-cols-2 gap-3">
               {/* Referrals summary */}
-              <div className="bg-card border border-border/50 rounded-3xl p-4 shadow-sm flex flex-col justify-between space-y-2 text-left">
+              <div className="bg-card border border-border/50 rounded-3xl p-4 flex min-w-0 flex-col justify-between space-y-2 text-left">
                 <span className="text-sm text-muted-foreground block">Đã giới thiệu</span>
                 <div>
                   <h2 className="text-2xl font-semibold text-foreground tracking-tight">
@@ -273,7 +223,7 @@ export default function MemberJoyTab({
               </div>
 
               {/* Real Daily Missions Progress Box */}
-              <div className="bg-card border border-border/50 rounded-3xl p-4 shadow-sm flex flex-col justify-between space-y-2 text-left">
+              <div className="bg-card border border-border/50 rounded-3xl p-4 flex min-w-0 flex-col justify-between space-y-2 text-left">
                 <span className="text-sm text-muted-foreground block">Nhiệm vụ hôm nay</span>
                 <div>
                   <h2 className="text-2xl font-semibold text-foreground tracking-tight">
@@ -438,7 +388,7 @@ export default function MemberJoyTab({
                     value={giftCode}
                     onChange={(e) => setGiftCode(e.target.value.toUpperCase())}
                     placeholder="Nhập mã coupon"
-                    className="flex-1 h-11 px-3.5 rounded-2xl bg-muted/50 border border-transparent text-sm font-mono text-foreground outline-none focus:border-amber-500/50 focus:bg-background transition-all"
+                    className="min-w-0 flex-1 h-11 px-3.5 rounded-2xl bg-muted/50 border border-transparent text-sm font-mono text-foreground outline-none focus:border-amber-500/50 focus:bg-background transition-all"
                   />
                   <button
                     type="button"
@@ -463,7 +413,7 @@ export default function MemberJoyTab({
                       value={referrerCodeInput}
                       onChange={(e) => setReferrerCodeInput(normalizeReferralInput(e.target.value))}
                       placeholder="Nhập mã giới thiệu"
-                      className="flex-1 h-11 px-3.5 rounded-2xl bg-muted/50 border border-transparent text-sm font-mono uppercase text-foreground outline-none focus:border-primary/50 focus:bg-background transition-all"
+                      className="min-w-0 flex-1 h-11 px-3.5 rounded-2xl bg-muted/50 border border-transparent text-sm font-mono uppercase text-foreground outline-none focus:border-primary/50 focus:bg-background transition-all"
                     />
                     <button
                       type="button"
@@ -495,6 +445,33 @@ export default function MemberJoyTab({
                   saving={saving}
                 />
               </React.Suspense>
+            </div>
+
+            {/* Lối vào ba màn còn lại. Trước đây chúng chỉ mở được từ thanh 4
+                nút ở đỉnh trang — bỏ thanh đó mà không đặt lại lối vào là mất
+                trắng cả ba màn. Dạng dòng danh sách, không phải thanh chrome. */}
+            <div className="overflow-hidden rounded-2xl border border-border bg-card">
+              {[
+                { id: "stats", icon: "bar_chart", label: "Thống kê JOY", desc: "Lịch sử tích luỹ và giới thiệu" },
+                { id: "privileges", icon: "workspace_premium", label: "Đặc quyền thành viên", desc: "Quyền lợi theo từng hạng thẻ" },
+                { id: "store", icon: "redeem", label: "Cửa hàng ưu đãi", desc: "Đổi JOY lấy vật phẩm và gói dịch vụ" },
+              ].map((row, index) => (
+                <button
+                  key={row.id}
+                  type="button"
+                  onClick={() => setCurrentView(row.id)}
+                  className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-muted active:bg-muted ${
+                    index > 0 ? "border-t border-border" : ""
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[22px] text-muted-foreground">{row.icon}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-semibold text-foreground">{row.label}</span>
+                    <span className="block text-[12.5px] text-muted-foreground">{row.desc}</span>
+                  </span>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </button>
+              ))}
             </div>
           </motion.div>
         )}

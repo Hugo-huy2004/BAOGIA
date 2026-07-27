@@ -121,7 +121,7 @@ export default function CheckinCard({ email, showToast }) {
           return (
             <div
               key={day}
-              className={`flex flex-col items-center justify-between py-2 px-1 rounded-2xl border text-center transition-all duration-200 ${
+              className={`flex min-w-0 flex-col items-center justify-between py-2 px-1 rounded-2xl border text-center transition-all duration-200 ${
                 claimed
                   ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-xs"
                   : status.weekLocked
@@ -181,7 +181,7 @@ export default function CheckinCard({ email, showToast }) {
                 : "bg-background/60 border-border/30 text-muted-foreground"
             }`}
           >
-            <span className="flex items-center gap-1 font-bold truncate">
+            <span className="flex min-w-0 items-center gap-1 font-bold truncate">
               <span className="material-symbols-outlined text-xs text-amber-500">
                 {m.awarded ? "verified" : "military_tech"}
               </span>
