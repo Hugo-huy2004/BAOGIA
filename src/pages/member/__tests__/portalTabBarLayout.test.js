@@ -19,10 +19,16 @@ describe("portal mobile tab bar", () => {
     expect(tabBarClass).not.toMatch(/\b(fixed|absolute|bottom-0)\b/);
   });
 
-  it("app shell mobile là cột 100dvh có nội dung cuộn bên trong", () => {
-    expect(css).toMatch(
-      /\.member-portal-shell\.portal-mobile-layout\s*\{[^}]*height:\s*100dvh/,
-    );
+  it("app shell mobile ghim vào vùng nhìn thấy, nội dung cuộn bên trong", () => {
+    const shell = css.match(
+      /\.member-portal-shell\.portal-mobile-layout\s*\{[^}]*\}/g,
+    )?.at(-1);
+    expect(shell).toMatch(/position:\s*fixed/);
+    expect(shell).toMatch(/inset:\s*0/);
+    // top+bottom+height là ràng buộc thừa: trình duyệt bỏ `bottom` và thanh tab
+    // lại rời khỏi đáy màn.
+    const heights = [...shell.matchAll(/(?<!min-|max-)height:\s*([^;]+);/g)];
+    expect(heights.map((m) => m[1].trim())).toEqual(["auto"]);
     expect(css).toMatch(/\.mobile-portal-content\s*\{[^}]*overflow-y:\s*auto/);
   });
 });

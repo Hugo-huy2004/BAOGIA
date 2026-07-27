@@ -1558,9 +1558,21 @@ html.standalone-pwa .desktop-apple-layout {
 /* Cùng điều kiện với useIsMobile() — nếu lệch, layout mobile render mà CSS app
    shell không áp là thanh tab rơi xuống cuối tài liệu. */
 @media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  /*
+   * Vỏ app ghim thẳng vào vùng nhìn thấy: `fixed; inset: 0` thay vì
+   * `height: 100dvh`. Lý do: 100dvh có lúc báo NGẮN hơn màn thật (WebView
+   * nhúng, thanh URL vừa thu lại) — khi đó cột kết thúc sớm và thanh tab đứng
+   * lơ lửng giữa màn, chừa một mảng nền trống bên dưới. `inset: 0` thì đáy vỏ
+   * LUÔN là đáy vùng nhìn thấy, nên hàng cuối (thanh tab) luôn sát đáy.
+   *
+   * Không đặt `height` ở đây: top+bottom+height là ràng buộc thừa, trình duyệt
+   * sẽ bỏ `bottom` và ta quay lại đúng lỗi cũ.
+   */
   .member-portal-shell.portal-mobile-layout {
-    height: 100dvh;
-    min-height: 100dvh;
+    position: fixed;
+    inset: 0;
+    height: auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;

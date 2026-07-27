@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 
 import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
@@ -16,7 +15,6 @@ import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy"
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import "./arcade-theme.css";
 
-const ARCADE_PRICE_JOY = 199;
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 const ARCADE_DL_KEY = "hugo_arcade_downloaded_v1";
 const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
@@ -42,109 +40,84 @@ const GAMES = [
   { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.", label: "Cổ Điển 3D", Icon: InfinityIcon },
 ];
 
+// Game được đưa lên thẻ "Tâm điểm" đầu trang.
+const FEATURED = GAMES[0];
+
+const CATEGORIES = [
+  { id: "all",      label: "Tất cả" },
+  { id: "featured", label: "Nổi bật" },
+  { id: "pvp",      label: "Đối kháng" },
+];
+
 // ─── Sub-components ────────────────────────────────────────────────
 
 const JoyChip = React.memo(function JoyChip({ balance }) {
   return (
-    <div className="arc-joy-chip bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono font-bold px-3 py-1 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.2)]">
-      <span className="material-symbols-outlined text-amber-400 mr-1" style={{ fontSize: 14, fontVariationSettings: "'FILL' 1" }}>toll</span>
+    <div className="arc-joy-chip">
+      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>toll</span>
       <span>{(balance ?? 0).toLocaleString("vi-VN")}</span>
-      <span className="text-[10px] text-amber-400/80 ml-1">JOY</span>
+      <small>JOY</small>
     </div>
   );
 });
 
-const GameCard = React.memo(function GameCard({ game, profile, isLocked, isDownloaded, downloadProgress, onPinToHome, onClick }) {
+// Một hàng trong danh sách kiểu App Store: icon squircle · tên/mô tả · nút NHẬN.
+const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloaded, downloadProgress, onPinToHome, onClick }) {
   const best  = profile?.[game.id]?.bestScore || 0;
-  const isChess = game.id === "chess";
-  const priceLabel = isChess ? "299 JOY" : "199 JOY";
+  const priceLabel = game.id === "chess" ? "299 JOY" : "199 JOY";
   const isDownloading = downloadProgress !== undefined;
 
-  // Circular SVG progress ring (App Store style)
-  const radius = 13;
+  // Vòng tiến trình tròn (App Store)
+  const radius = 9;
   const circ   = 2 * Math.PI * radius;
   const strokeDash = isDownloading ? circ * (1 - (downloadProgress / 100)) : circ;
 
   return (
-    <div className="arc-game-card relative group flex flex-col justify-between" data-game={game.id}>
-      <div className="arc-card-artwork cursor-pointer" onClick={!isDownloading ? onClick : undefined}>
-        <div className="arc-card-artwork-grid" />
-        <div className="arc-icon-badge">
-          <game.Icon size={28} strokeWidth={1.75} className="arc-card-icon text-white" />
-        </div>
-        {!isDownloading && !isDownloaded && (
-          <div className="arc-card-play-overlay">
-            <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-            CHƠI NGAY
-          </div>
-        )}
+    <div
+      className="arc-row"
+      data-game={game.id}
+      role="button"
+      tabIndex={0}
+      onClick={isDownloading ? undefined : onClick}
+      onKeyDown={(e) => { if (!isDownloading && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onClick(); } }}
+    >
+      <div className="arc-row__icon">
+        <game.Icon size={30} strokeWidth={1.75} aria-hidden="true" />
       </div>
 
-      <div className="arc-card-body flex-1 flex flex-col justify-between">
-        <div>
-          <span className="arc-card-label">{game.label}</span>
-          <p className="arc-card-name">{game.name}</p>
-          <p className="arc-card-tagline">{game.tagline}</p>
-        </div>
-
-        <div className="space-y-2 mt-3">
-          <div className="arc-card-footer">
-            <div className="arc-card-stat">
-              <small>Kỷ lục</small>
-              <strong>{best ? best.toLocaleString("vi-VN") : "—"}</strong>
-            </div>
-            <div className="arc-card-stat">
-              <small>Trạng thái</small>
-              <strong>{isDownloaded ? "Đã tải" : isLocked ? "Chưa mua" : "Sẵn sàng"}</strong>
-            </div>
-          </div>
-
-          {/* ── App Store Download Button ── */}
-          {isDownloaded ? (
-            <button
-              onClick={(e) => { e.stopPropagation(); onClick(); }}
-              className="w-full py-2 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border bg-emerald-500/20 border-emerald-500/40 text-emerald-300 active:scale-95"
-            >
-              <span className="material-symbols-outlined text-sm">play_circle</span>
-              <span>Mở &amp; Chơi</span>
-            </button>
-          ) : isDownloading ? (
-            // ── Circular progress ring (App Store style) ──
-            <button
-              disabled
-              className="w-full py-2 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 border bg-white/5 border-white/10 text-zinc-400 cursor-not-allowed"
-            >
-              <svg width="30" height="30" viewBox="0 0 30 30" className="-rotate-90">
-                {/* Track */}
-                <circle cx="15" cy="15" r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" />
-                {/* Progress */}
-                <circle
-                  cx="15" cy="15" r={radius}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.85)"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeDasharray={circ}
-                  strokeDashoffset={strokeDash}
-                  style={{ transition: "stroke-dashoffset 0.12s linear" }}
-                />
-              </svg>
-              <span>{downloadProgress}%</span>
-            </button>
-          ) : (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onPinToHome(game.id);
-              }}
-              className="w-full py-2 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 border bg-white/10 hover:bg-white/20 border-white/20 text-white active:scale-95 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-sm">download</span>
-              <span>{isLocked ? `TẢI · ${priceLabel}` : "TẢI VỀ TIỆN ÍCH"}</span>
-            </button>
-          )}
-        </div>
+      <div className="arc-row__body">
+        <p className="arc-row__name">{game.name}</p>
+        <p className="arc-row__sub">{game.tagline}</p>
+        <p className="arc-row__meta">
+          {game.label}{best ? ` · Kỷ lục ${best.toLocaleString("vi-VN")}` : ""}
+        </p>
       </div>
+
+      {isDownloading ? (
+        <button type="button" className="arc-get" disabled onClick={(e) => e.stopPropagation()} aria-label={`Đang tải ${downloadProgress}%`}>
+          <span>
+            <svg width="22" height="22" viewBox="0 0 22 22" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
+              <circle cx="11" cy="11" r={radius} fill="none" stroke="currentColor" strokeWidth="2" opacity=".25" />
+              <circle
+                cx="11" cy="11" r={radius}
+                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                strokeDasharray={circ} strokeDashoffset={strokeDash}
+                style={{ transition: "stroke-dashoffset .12s linear" }}
+              />
+            </svg>
+            {downloadProgress}%
+          </span>
+        </button>
+      ) : isDownloaded ? (
+        <button type="button" className="arc-get" onClick={(e) => { e.stopPropagation(); onClick(); }}>
+          <span>MỞ</span>
+        </button>
+      ) : (
+        <button type="button" className="arc-get" onClick={(e) => { e.stopPropagation(); onPinToHome(game.id); }}>
+          <span>NHẬN</span>
+          {isLocked && <small className="arc-get__price">{priceLabel}</small>}
+        </button>
+      )}
     </div>
   );
 });
@@ -164,6 +137,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
 
   const [profile, setProfile] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const { active: subscribed }      = useFeatureGate(bio, "hugoArcade");
   const { active: chessSubscribed } = useFeatureGate(bio, "hugoChess");
@@ -219,7 +193,6 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
     onBioUpdate?.({ ...bio, featureSubscriptions: { ...(bio.featureSubscriptions || {}), hugoArcade: { active: true, expiresAt: data.expiresAt } } });
   }, [bio, onBioUpdate]);
 
-  const gameInfo = activeGame ? GAMES.find(g => g.id === activeGame) : null;
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filteredGames = GAMES.filter((g) => {
@@ -313,160 +286,123 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
     <>
       {/* ── HugoArcade Shell Lobby ─────────────────────────────────────────────────── */}
       <div className="arc" style={{ visibility: activeGame ? "hidden" : "visible" }}>
-        <header className="arc-topbar bg-[#0a0a0f]/95 backdrop-blur-3xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <BackButton onClick={onBack} tone="onDark" iconOnly />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF2D55] to-rose-500 flex items-center justify-center shadow-[0_0_15px_rgba(255,45,85,0.5)]">
-                <span className="material-symbols-outlined text-white text-lg">sports_esports</span>
-              </div>
-              <span className="text-xl font-black tracking-tight text-white font-sans">
-                Hugo<span className="text-[#FF2D55]">Arcade</span>
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
+        {/* Nav bar iOS: tiêu đề nhỏ chỉ hiện sau khi large title cuộn khuất. */}
+        <header className={`arc-topbar${scrolled ? " is-scrolled" : ""}`}>
+          <div className="arc-col">
+            <BackButton onClick={onBack} iconOnly />
+            <span className="arc-topbar-title">{activeTab === "rank" ? "Xếp hạng" : "Hugo Arcade"}</span>
             <JoyChip balance={joyBalance} />
             {!subscribed && (
-              <button className="px-4 py-2 rounded-full bg-gradient-to-r from-[#FF2D55] to-rose-600 text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(255,45,85,0.5)] active:scale-95 hover:brightness-110 transition-all" onClick={() => setShowInvoice(true)}>
-                Arcade Pro
+              <button type="button" className="arc-text-btn" onClick={() => setShowInvoice(true)}>
+                Pro
               </button>
             )}
           </div>
         </header>
 
-        {/* HugoArcade Category Bar — ONLY shown when on games tab */}
-        {activeTab === "games" && (
-          <div className="flex items-center gap-2.5 overflow-x-auto px-6 py-3 bg-[#0e0f18]/80 border-b border-white/5 no-scrollbar backdrop-blur-xl">
-            {[
-              { id: "all", label: "Tất Cả Game", icon: "grid_view" },
-              { id: "featured", label: "Nổi Bật", icon: "star" },
-              { id: "pvp", label: "Cờ Vua & Đối Kháng", icon: "sports_esports" },
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black whitespace-nowrap transition-all active:scale-95 ${
-                  selectedCategory === cat.id
-                    ? "bg-[#FF2D55] text-white shadow-[0_0_16px_rgba(255,45,85,0.5)]"
-                    : "bg-white/5 text-zinc-300 border border-white/10 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <span className="material-symbols-outlined text-sm">{cat.icon}</span>
-                <span>{cat.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
+        <main className="arc-main" onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 24)}>
+          <div className="arc-col">
+            {activeTab === "games" ? (
+              <>
+                <div className="arc-largetitle">
+                  <h1>Hugo Arcade</h1>
+                  <p>Chơi ngay trong Hugo — không quảng cáo.</p>
+                </div>
 
-        <main className="arc-main">
-          {activeTab === "games" ? (
-            <>
-              {/* HugoArcade Hero Spotlight — Apple Arcade Liquid Glass Banner */}
-              <div className="relative mx-6 mt-5 rounded-[32px] overflow-hidden border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.7)] bg-gradient-to-r from-[#FF2D55]/30 via-purple-900/30 to-[#0e0f18] p-6 md:p-8 flex items-center justify-between gap-6 backdrop-blur-3xl">
-                {/* Ambient Glow Orbits */}
-                <div className="absolute -top-20 -left-20 w-64 h-64 bg-[#FF2D55]/25 rounded-full blur-[80px] pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-purple-600/25 rounded-full blur-[80px] pointer-events-none" />
+                <div className="arc-seg" role="tablist" aria-label="Lọc trò chơi">
+                  {CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedCategory === cat.id}
+                      className={selectedCategory === cat.id ? "active" : ""}
+                      onClick={() => setSelectedCategory(cat.id)}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
 
-                <div className="z-10 max-w-xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF2D55] text-white font-black text-[10px] uppercase tracking-widest mb-3 shadow-[0_4px_14px_rgba(255,45,85,0.5)]">
-                    <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                    HugoArcade Spotlight
-                  </div>
-                  <h1 className="text-2xl md:text-4xl font-black tracking-tight mb-2 text-white font-sans drop-shadow-md">
-                    HugoChess AI 2500 &amp; Space Survivor
-                  </h1>
-                  <p className="text-xs md:text-sm text-zinc-200 mb-5 leading-relaxed font-sans font-medium">
-                    Đỉnh cao Cờ Vua ELO 2500, Bắn Máy Bay Neon 3D &amp; Xếp Hình Neon 60 FPS.
-                  </p>
-                  <button
-                    className="px-7 py-3 rounded-full bg-white text-black font-black text-xs uppercase tracking-wider hover:bg-zinc-100 active:scale-95 transition-all shadow-[0_10px_25px_rgba(255,255,255,0.3)] flex items-center gap-2"
-                    onClick={() => openGame("chess")}
+                <section className="arc-feature" data-game={FEATURED.id}>
+                  <div
+                    className="arc-feature__art"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Chơi ${FEATURED.name}`}
+                    onClick={() => openGame(FEATURED.id)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openGame(FEATURED.id); } }}
                   >
-                    <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-                    CHƠI NGAY
-                  </button>
-                </div>
-
-                {/* 3D Showcase Card (Right) */}
-                <motion.div
-                  className="hidden sm:flex flex-col items-center justify-center w-36 h-36 rounded-3xl bg-gradient-to-br from-rose-500 via-purple-600 to-indigo-700 p-0.5 shadow-[0_15px_35px_rgba(255,45,85,0.45)] border border-white/40 cursor-pointer flex-shrink-0"
-                  whileHover={{ scale: 1.05, rotate: 2 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => openGame("chess")}
-                >
-                  <div className="w-full h-full rounded-[22px] bg-black/30 backdrop-blur-md flex flex-col items-center justify-center gap-2 p-3 text-center border border-white/20">
-                    <Castle size={38} strokeWidth={1.75} className="text-white filter drop-shadow-lg" />
-                    <span className="text-[10px] font-black text-white tracking-wider font-mono uppercase bg-white/20 px-2.5 py-0.5 rounded-full border border-white/30">
-                      ELO 2500
-                    </span>
+                    <span className="arc-feature__kicker">Tâm điểm hôm nay</span>
+                    <FEATURED.Icon size={64} strokeWidth={1.5} aria-hidden="true" />
                   </div>
-                </motion.div>
-              </div>
+                  <div className="arc-feature__bar">
+                    <div className="arc-feature__body">
+                      <strong>{FEATURED.name}</strong>
+                      <span>{FEATURED.tagline}</span>
+                    </div>
+                    <button type="button" className="arc-get" onClick={() => openGame(FEATURED.id)}>
+                      <span>CHƠI</span>
+                    </button>
+                  </div>
+                </section>
 
-              {/* Game Grid */}
-              <div className="arc-section-hd px-6 mt-7">
-                <div>
-                  <p className="arc-section-hd-label uppercase tracking-widest text-[10px] font-black text-[#FF2D55]">Collection</p>
-                  <h2 className="arc-section-hd-title text-xl font-black text-white">Thư Viện Trò Chơi Nổi Bật</h2>
+                <div className="arc-section-hd">
+                  <h2 className="arc-section-hd-title">Trò chơi</h2>
+                  <span className="arc-section-hd-count">{filteredGames.length} trò chơi</span>
                 </div>
-                <span className="arc-section-hd-count text-xs font-mono text-zinc-400">{filteredGames.length} Games</span>
-              </div>
 
-              <div className="arc-game-grid px-6">
-                {filteredGames.map(g => {
-                  const isDownloaded = downloaded.has(g.id);
-                  const dlProgress   = downloading[g.id];
-                  return (
-                    <GameCard
+                <div className="arc-list">
+                  {filteredGames.map((g) => (
+                    <GameRow
                       key={g.id}
                       game={g}
                       profile={profile}
                       isLocked={g.id === "chess" ? !chessSubscribed : (g.id !== "2048" && !subscribed)}
-                      isDownloaded={isDownloaded}
-                      downloadProgress={dlProgress}
+                      isDownloaded={downloaded.has(g.id)}
+                      downloadProgress={downloading[g.id]}
                       onPinToHome={handlePinToHome}
                       onClick={() => openGame(g.id)}
                     />
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
 
-              <div className="arc-stats-strip">
-                <div className="arc-stat-box">
-                  <small>Tổng ván</small>
-                  <strong>{totalGames}</strong>
+                <div className="arc-stats-strip">
+                  <div className="arc-stat-box">
+                    <small>Tổng ván</small>
+                    <strong>{totalGames}</strong>
+                  </div>
+                  <div className="arc-stat-box">
+                    <small>Chiến thắng</small>
+                    <strong>{totalWins}</strong>
+                  </div>
+                  <div className="arc-stat-box">
+                    <small>JOY</small>
+                    <strong>{(joyBalance ?? 0).toLocaleString("vi-VN")}</strong>
+                  </div>
                 </div>
-                <div className="arc-stat-box">
-                  <small>Chiến thắng</small>
-                  <strong>{totalWins}</strong>
+              </>
+            ) : (
+              <>
+                <div className="arc-largetitle">
+                  <h1>Xếp hạng</h1>
+                  <p>Game thủ xuất sắc nhất toàn hệ thống.</p>
                 </div>
-                <div className="arc-stat-box">
-                  <small>JOY hiện có</small>
-                  <strong style={{ color: "var(--arc-joy)" }}>{(joyBalance ?? 0).toLocaleString("vi-VN")}</strong>
+                <div className="arc-rank-body">
+                  <ArcadeLeaderboard active={activeTab === "rank"} />
                 </div>
-              </div>
-            </>
-          ) : (
-            /* Ranking tab — Hugo Arcade Leaderboard */
-            <div className="px-6 py-6 pb-20">
-              <div className="mb-5">
-                <h2 className="text-2xl font-black text-white font-sans tracking-tight">Bảng Xếp Hạng</h2>
-                <p className="text-xs text-zinc-400 font-medium mt-1">Xếp hạng game thủ xuất sắc nhất toàn hệ thống.</p>
-              </div>
-
-              <ArcadeLeaderboard active={activeTab === "rank"} />
-            </div>
-          )}
+              </>
+            )}
+          </div>
         </main>
 
-        <nav className="arc-navbar bg-[#0a0a0f]/95 border-t border-white/10 backdrop-blur-2xl">
-          <button className={`arc-nav-btn ${activeTab === "games" ? "active" : ""}`} onClick={() => setTab("games")}>
-            <span className="material-symbols-outlined" style={{ fontSize: 20, fontVariationSettings: activeTab === "games" ? "'FILL' 1" : "" }}>sports_esports</span>
+        <nav className={`arc-navbar${scrolled ? " is-compact" : ""}`}>
+          <button type="button" className={`arc-nav-btn ${activeTab === "games" ? "active" : ""}`} onClick={() => setTab("games")}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: activeTab === "games" ? "'FILL' 1" : "" }}>sports_esports</span>
             <span>Trò chơi</span>
           </button>
-          <button className={`arc-nav-btn ${activeTab === "rank" ? "active" : ""}`} onClick={() => setTab("rank")}>
-            <span className="material-symbols-outlined" style={{ fontSize: 20, fontVariationSettings: activeTab === "rank" ? "'FILL' 1" : "" }}>leaderboard</span>
+          <button type="button" className={`arc-nav-btn ${activeTab === "rank" ? "active" : ""}`} onClick={() => setTab("rank")}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: activeTab === "rank" ? "'FILL' 1" : "" }}>leaderboard</span>
             <span>Xếp hạng</span>
           </button>
         </nav>
