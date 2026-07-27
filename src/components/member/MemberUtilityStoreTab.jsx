@@ -8,6 +8,7 @@ const CATEGORY_LABELS = {
   all: "Tất cả",
   general: "Chung",
   joy: "JOY",
+  radio: "HugoRadio",
 };
 
 export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBioUpdate, showToast }) {
@@ -96,6 +97,11 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
     }
     if (product.productType === "psy_study_tokens" && product.tokenAmount > 0) {
       return `+${product.tokenAmount} ${product.tokenType === "call" ? t("memberPortal.joy.store.callTokens") : t("memberPortal.joy.store.chatTokens")}`;
+    }
+    if (product.productType === "radio_time" && product.radioMinutes > 0) {
+      const hours = Math.floor(product.radioMinutes / 60);
+      const days = Math.floor(hours / 24);
+      return days > 0 ? `+${days} ngày nghe` : `+${hours}h nghe`;
     }
     return null;
   };

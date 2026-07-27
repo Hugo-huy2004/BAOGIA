@@ -572,6 +572,15 @@ const BioSchema = new mongoose.Schema(
     lastUserAgentHash: {
       type: String,
       default: ''
+    },
+    // HugoRadio time-based token system — replaces monthly subscription.
+    // Free pool resets weekly; purchased pool carries over and is consumed
+    // after the free pool is exhausted.
+    radioTokens: {
+      weeklyFreeMinutes: { type: Number, default: 300 },   // 5 hours free per week
+      weeklyUsedMinutes: { type: Number, default: 0 },     // consumed from free pool this week
+      weeklyResetAt:     { type: Date, default: null },    // when the current weekly cycle started
+      purchasedMinutes:  { type: Number, default: 0 },     // bought add-on minutes (never reset)
     }
   },
   { timestamps: true }

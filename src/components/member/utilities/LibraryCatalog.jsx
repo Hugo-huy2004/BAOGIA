@@ -86,9 +86,8 @@ export default function LibraryCatalog({
   };
 
   const handleOpenApp = (appId) => {
-    if (appId === "library") {
-      setActiveCategory("all");
-      setSearchQuery("");
+    if (appId === "store") {
+      setSelectedUtility("store");
       return;
     }
     setSelectedUtility(appId);

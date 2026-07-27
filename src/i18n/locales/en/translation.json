@@ -1447,6 +1447,7 @@
       "typeGeneral": "General (code/gift redemption)",
       "typeSystemValidity": "System Validity",
       "typePsyStudy": "Psy-Study (AI tokens)",
+      "typeRadioTime": "Radio Time",
       "extendDaysLabel": "Days to extend validity",
       "tokenTypeLabel": "Token type",
       "tokenTypeChat": "Chat token",
@@ -3299,7 +3300,7 @@
       "deco": { "title": "Deco Studio", "description": "Decorate your virtual space" },
       "info": { "title": "Info and Version", "description": "System information and release notes" },
       "joy_wallet": { "title": "JOY Wallet", "description": "Balance and quick transfers" },
-      "library": { "title": "Hugo Library", "description": "App and utility catalog" },
+      "store": { "title": "Hugo Store", "description": "Apps, tokens and services shop" },
       "map": { "title": "Discover", "description": "Community map and places near you" },
       "arcade_chess": { "title": "AI Chess", "description": "Challenge a high-level AI" },
       "arcade_2048": { "title": "2048 Fusion", "description": "An expanded number-merging game" },
@@ -3373,7 +3374,52 @@
       "standby": "Pick a station to listen",
       "volume": "Volume",
       "noStations": "No stations found in this category.",
-      "toastPlayError": "This station can't be played right now, please try another one."
+      "toastPlayError": "This station can't be played right now, please try another one.",
+      "token": {
+        "weeklyFree": "This week",
+        "purchased": "Purchased",
+        "buyMore": "Buy more time",
+        "expired": "Out of time",
+        "expiredDesc": "Please purchase a time package to continue listening.",
+        "weekRemaining": "remaining this week",
+        "totalRemaining": "Total time remaining",
+        "storeTitle": "Buy more listening time",
+        "storeDesc": "Purchased time is accumulated and used after the 5 free hours each week are exhausted.",
+        "empty": "No time packages available yet."
+      }
+    },
+    "store": {
+      "title": "Hugo Store",
+      "tabs": {
+        "shop": "Shop",
+        "cart": "Cart",
+        "orders": "History",
+        "promos": "Promos"
+      },
+      "shop": {
+        "search": "Search...",
+        "free": "FREE",
+        "addToCart": "Add to cart",
+        "installed": "Installed"
+      },
+      "cart": {
+        "empty": "Cart is empty",
+        "emptyDesc": "Add products from the shop",
+        "promoPlaceholder": "Enter promo code",
+        "subtotal": "Subtotal",
+        "tax": "Tax (9%)",
+        "discount": "Discount",
+        "total": "Total",
+        "checkout": "Checkout"
+      },
+      "orders": {
+        "empty": "No orders yet"
+      },
+      "promos": {
+        "placeholder": "Enter your code",
+        "valid": "Code is valid!",
+        "invalid": "Invalid or expired code"
+      }
     },
     "nfc": {
       "cardTitle": "Hugo SmartCard NFC",
@@ -3838,7 +3884,6 @@
     "paused": "Paused",
     "pausedHint": "The match is on hold. Nothing is lost until you quit.",
     "quit": "Quit match",
-    "changeDifficulty": "Change mode",
     "replay": "Play again",
     "close": "Close game",
     "scoreValue": "{{score}} points",
@@ -3850,17 +3895,10 @@
   },
   "arcadeIntro": {
     "close": "Back to Apps",
-    "chooseMode": "Choose mode",
-    "tapToPlay": "Tap to play now",
-    "proRequired": "Pro required",
-    "difficulty": {
-      "easy": "Warm-up",
-      "medium": "Breakthrough",
-      "hard": "Legend"
-    },
+    "playNow": "PLAY NOW",
+    "endless": "Endless",
     "board": "Board",
     "reward": "Reward",
-    "mode": "Mode",
     "games": {
       "chess": {
         "eyebrow": "Tactical chess",

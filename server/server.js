@@ -187,6 +187,8 @@ import opsRoutes from './routes/opsRoutes.js';
 import joyDecoRoutes from './routes/joyDecoRoutes.js';
 import coderLessonRoutes from './routes/coderLessonRoutes.js';
 import todayRoutes from './routes/todayRoutes.js';
+import storeCartRoutes from './routes/storeCartRoutes.js';
+import storePromoRoutes from './routes/storePromoRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
@@ -217,6 +219,8 @@ app.use('/api/chess', chessRoutes);
 app.use('/api/joy', joyRoutes);
 app.use('/api/referral', referralRoutes);
 app.use('/api/utility-store', utilityStoreRoutes);
+app.use('/api/store', storeCartRoutes);
+app.use('/api/store', storePromoRoutes);
 app.use('/api/joy-gift-cards', joyGiftCardRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/webauthn', webauthnRoutes);

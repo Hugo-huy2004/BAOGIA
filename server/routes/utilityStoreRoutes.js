@@ -93,6 +93,23 @@ router.post('/purchase', async (req, res) => {
         bio.bonusChatTokens = (bio.bonusChatTokens || 0) + product.tokenAmount;
       }
       fulfillmentNote = ` (+${product.tokenAmount} token ${product.tokenType === 'call' ? 'gọi thoại' : 'chat'})`;
+    } else if (product.productType === 'radio_time' && product.radioMinutes > 0) {
+      if (!bio.radioTokens) {
+        bio.radioTokens = { weeklyFreeMinutes: 300, weeklyUsedMinutes: 0, weeklyResetAt: null, purchasedMinutes: 0 };
+      }
+      bio.radioTokens.purchasedMinutes = (bio.radioTokens.purchasedMinutes || 0) + product.radioMinutes;
+      const hours = Math.floor(product.radioMinutes / 60);
+      const mins = product.radioMinutes % 60;
+      const timeStr = mins > 0 ? `${hours}h${mins}m` : `${hours}h`;
+      fulfillmentNote = ` (+${timeStr} thời lượng radio)`;
+      bio.history.push({
+        type: 'utility_purchase',
+        icon: 'radio',
+        title: 'Mua thời lượng HugoRadio',
+        detail: `+${timeStr} nghe radio từ "${product.name}"`,
+        timestamp: new Date()
+      });
+      if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
     }
 
     await bio.save();
@@ -132,7 +149,8 @@ router.post('/purchase', async (req, res) => {
       bio: {
         bonusChatTokens: bio.bonusChatTokens,
         bonusCallTokens: bio.bonusCallTokens,
-        expiresAt: bio.expiresAt
+        expiresAt: bio.expiresAt,
+        radioTokens: bio.radioTokens
       }
     });
   } catch (error) {
@@ -177,7 +195,7 @@ router.post('/admin/upload-image', requireAdmin, async (req, res) => {
 // POST /api/utility-store/admin/products
 router.post('/admin/products', requireAdmin, async (req, res) => {
   try {
-    const { name, description, priceJoy, icon, category, stock, imageUrl, productType, extendDays, tokenType, tokenAmount } = req.body;
+    const { name, description, priceJoy, icon, category, stock, imageUrl, productType, extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
     if (!name || !priceJoy) return res.status(400).json({ error: 'name and priceJoy are required' });
 
     const product = await UtilityProduct.create({
@@ -191,7 +209,8 @@ router.post('/admin/products', requireAdmin, async (req, res) => {
       productType: productType || 'general',
       extendDays: Number(extendDays) || 0,
       tokenType: tokenType || 'chat',
-      tokenAmount: Number(tokenAmount) || 0
+      tokenAmount: Number(tokenAmount) || 0,
+      radioMinutes: Number(radioMinutes) || 0
     });
     res.status(201).json(product);
   } catch (error) {
@@ -203,7 +222,7 @@ router.post('/admin/products', requireAdmin, async (req, res) => {
 router.put('/admin/products/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, priceJoy, icon, category, active, stock, imageUrl, productType, extendDays, tokenType, tokenAmount } = req.body;
+    const { name, description, priceJoy, icon, category, active, stock, imageUrl, productType, extendDays, tokenType, tokenAmount, radioMinutes } = req.body;
 
     const product = await UtilityProduct.findById(id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
@@ -215,6 +234,7 @@ router.put('/admin/products/:id', requireAdmin, async (req, res) => {
     if (extendDays !== undefined) product.extendDays = Number(extendDays);
     if (tokenType !== undefined) product.tokenType = tokenType;
     if (tokenAmount !== undefined) product.tokenAmount = Number(tokenAmount);
+    if (radioMinutes !== undefined) product.radioMinutes = Number(radioMinutes);
     if (icon !== undefined) product.icon = icon;
     if (category !== undefined) product.category = category;
     if (active !== undefined) product.active = active;

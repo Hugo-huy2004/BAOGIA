@@ -1,0 +1,285 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   Hugo Store — bộ mặt theo style user gửi: nền tím indigo, thẻ trắng đặc,
+   bo góc lớn, header gọn một dòng, chip viên nang.
+
+   KHÔNG dùng kính mờ / large-title co giãn / gradient nhiều lớp. Thẻ là mảng
+   đặc có bóng mềm, chữ đủ lớn, một màu nhấn duy nhất.
+
+   Mọi rule scope dưới `.hgs` để không rò ra phần còn lại của portal.
+   ────────────────────────────────────────────────────────────────────────── */
+
+.hgs {
+  --hgs-accent: #5b3fe8;
+  --hgs-accent-press: #4a31d1;
+  --hgs-accent-soft: #ece8ff;
+  --hgs-accent-ink: #4a31d1;
+  --hgs-surface: #ffffff;
+  --hgs-page: #f6f5fd;
+  --hgs-ink: #1a1630;
+  --hgs-ink-soft: #6f6b85;
+  --hgs-line: #ebe9f5;
+  --hgs-shadow: 0 2px 10px rgb(26 22 48 / 0.05), 0 10px 26px rgb(26 22 48 / 0.06);
+
+  background: var(--hgs-page);
+  color: var(--hgs-ink);
+}
+
+.dark .hgs {
+  --hgs-accent: #7c63ff;
+  --hgs-accent-press: #6a51f0;
+  --hgs-accent-soft: rgb(124 99 255 / 0.16);
+  --hgs-accent-ink: #b9a8ff;
+  --hgs-surface: #191825;
+  --hgs-page: #100f18;
+  --hgs-ink: #f3f1fb;
+  --hgs-ink-soft: #9b96b3;
+  --hgs-line: rgb(255 255 255 / 0.08);
+  --hgs-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+}
+
+/* ── Chữ ────────────────────────────────────────────────────────────────── */
+
+.hgs-ink { color: var(--hgs-ink); }
+.hgs-dim { color: var(--hgs-ink-soft); }
+.hgs-accent-text { color: var(--hgs-accent-ink); }
+
+/* ── Thẻ đặc ───────────────────────────────────────────────────────────── */
+
+.hgs-card {
+  background: var(--hgs-surface);
+  border: 1px solid var(--hgs-line);
+  border-radius: 22px;
+  box-shadow: var(--hgs-shadow);
+}
+
+.hgs-divide > * + * {
+  border-top: 1px solid var(--hgs-line);
+}
+
+/* ── Header gọn một dòng ───────────────────────────────────────────────── */
+
+/* Store chạy trong khung `fixed inset-0` nên nó KHÔNG thừa hưởng phần đệm
+   safe-area của <body>; header phải tự né tai thỏ. Dùng max() chứ không cộng
+   dồn, nếu không máy có notch sẽ thừa ra một mảng trống. */
+.hgs-header {
+  background: var(--hgs-page);
+  padding-top: max(8px, env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.hgs-header[data-scrolled="true"] {
+  border-bottom-color: var(--hgs-line);
+}
+
+.hgs-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  background: var(--hgs-surface);
+  border: 1px solid var(--hgs-line);
+  color: var(--hgs-ink);
+  transition: transform 0.14s ease;
+}
+
+.hgs-iconbtn:active { transform: scale(0.92); }
+
+/* ── Chip lọc / điều hướng ─────────────────────────────────────────────── */
+
+.hgs-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding-inline: 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--hgs-surface);
+  border: 1px solid var(--hgs-line);
+  color: var(--hgs-ink-soft);
+  transition: transform 0.14s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.hgs-chip:active { transform: scale(0.95); }
+
+.hgs-chip[aria-pressed="true"] {
+  background: var(--hgs-accent);
+  border-color: var(--hgs-accent);
+  color: #fff;
+  box-shadow: 0 6px 16px rgb(91 63 232 / 0.28);
+}
+
+/* ── Nút ───────────────────────────────────────────────────────────────── */
+
+.hgs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding-inline: 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.14s ease, background-color 0.18s ease, opacity 0.18s ease;
+}
+
+.hgs-btn:active { transform: scale(0.97); }
+.hgs-btn:disabled { opacity: 0.45; transform: none; }
+
+.hgs-btn--primary {
+  background: var(--hgs-accent);
+  color: #fff;
+  box-shadow: 0 8px 20px rgb(91 63 232 / 0.26);
+}
+
+.hgs-btn--soft {
+  background: var(--hgs-accent-soft);
+  color: var(--hgs-accent-ink);
+}
+
+.hgs-btn--ghost {
+  background: var(--hgs-surface);
+  border: 1px solid var(--hgs-line);
+  color: var(--hgs-ink);
+}
+
+/* Nút giá / GET nhỏ trên từng dòng sản phẩm */
+.hgs-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  height: 36px;
+  padding-inline: 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--hgs-accent-soft);
+  color: var(--hgs-accent-ink);
+  transition: transform 0.14s ease;
+}
+
+.hgs-pill:active { transform: scale(0.93); }
+.hgs-pill:disabled {
+  background: var(--hgs-line);
+  color: var(--hgs-ink-soft);
+  transform: none;
+}
+
+/* ── Ô nhập ────────────────────────────────────────────────────────────── */
+
+.hgs-input {
+  height: 46px;
+  width: 100%;
+  border-radius: 14px;
+  background: var(--hgs-surface);
+  border: 1px solid var(--hgs-line);
+  color: var(--hgs-ink);
+  font-size: 15px;
+}
+
+.hgs-input::placeholder { color: var(--hgs-ink-soft); }
+.hgs-input:focus {
+  outline: none;
+  border-color: var(--hgs-accent);
+  box-shadow: 0 0 0 3px rgb(91 63 232 / 0.14);
+}
+
+/* ── Khối tím lớn (hero / banner) ──────────────────────────────────────── */
+
+.hgs-violet {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 24px;
+  background: var(--hgs-accent);
+  color: #fff;
+  box-shadow: 0 14px 32px rgb(91 63 232 / 0.3);
+}
+
+/* Hai quầng sáng nhẹ cho đỡ phẳng lì — vẫn là một màu, không phải gradient
+   cầu vồng. */
+.hgs-violet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 82% 6%, rgb(255 255 255 / 0.22), transparent 46%),
+    radial-gradient(circle at 8% 104%, rgb(0 0 0 / 0.2), transparent 52%);
+}
+
+/* ── Rail cuộn ngang ───────────────────────────────────────────────────── */
+
+.hgs-rail {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 16px;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.hgs-rail::-webkit-scrollbar { display: none; }
+.hgs-rail > * { scroll-snap-align: start; flex: 0 0 auto; }
+
+/* ── Sheet & dock ──────────────────────────────────────────────────────── */
+
+.hgs-sheet {
+  background: var(--hgs-page);
+  border-radius: 26px 26px 0 0;
+  animation: hgs-sheet-in 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  .hgs-sheet {
+    border-radius: 26px;
+    animation-name: hgs-sheet-in-center;
+  }
+}
+
+@keyframes hgs-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+@keyframes hgs-sheet-in-center {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.hgs-scrim { animation: hgs-fade-in 0.24s ease; }
+
+@keyframes hgs-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.hgs-dock {
+  animation: hgs-dock-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+@keyframes hgs-dock-in {
+  from { transform: translateY(140%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hgs-sheet,
+  .hgs-scrim,
+  .hgs-dock { animation: none; }
+  .hgs-chip,
+  .hgs-btn,
+  .hgs-pill,
+  .hgs-iconbtn { transition: none; }
+}

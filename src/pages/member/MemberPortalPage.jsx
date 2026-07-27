@@ -709,19 +709,16 @@ function MemberPortalPage() {
   // thanh tab của portal biến mất, và lối duy nhất quay lại là nút thoát của
   // chính nó — giống HugoIDE / HugoArcade.
   const isFullscreenUtility = (activeTab === "utilities" && (
-    subTab === "ide" || subTab === "arcade" ||
+    subTab === "ide" || subTab === "arcade" || subTab === "store" ||
     (subTab === "psychology" && isMobileView)
   )) || activeTab === "map";
 
   // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
   // TRONG app và lối ra là nút "Quay lại" của chính app đó. Giữ thêm thanh tab
   // của portal chỉ tổ chồng hai lớp điều hướng và ăn mất chiều cao.
-  //
-  // "library" không tính là app — đó là màn duyệt kho, vẫn thuộc tab Ứng dụng.
   const isAppOpen = isMobileView
     && activeTab === "utilities"
-    && Boolean(utilitySelection)
-    && utilitySelection !== "library";
+    && Boolean(utilitySelection);
 
   if (isFullscreenUtility) {
     // h-[100dvh] (not h-screen/100vh) so this actually shrinks with the

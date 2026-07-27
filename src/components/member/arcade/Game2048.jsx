@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { playGameMove, playGameMerge, playGameWin, playGameLose } from "../../../utils/audio";
-import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
+import { playGameMove, playGameMerge, playGameLose } from "../../../utils/audio";
+import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
+import { levelFor, ramp, createCombo } from "./arcadeProgression";
+import ArcadeHud from "./ArcadeHud";
 
+// ── Luật chơi (mới) ───────────────────────────────────────────────
+// · Gộp NHIỀU cặp trong một lượt được nhân điểm (chain): 2 cặp x1.5, 3 cặp x2…
+// · Lượt nào cũng có gộp thì nối chuỗi liên hoàn (tối đa x2).
+// · Ô ĐÁ: từ cấp 3 thỉnh thoảng rơi xuống một ô không gộp được, trượt như ô
+//   thường và tự vỡ sau vài lượt — chướng ngại tạm thời, không phải án tử.
+// · Cấp càng cao càng dễ ra ô 4 thay vì ô 2 (bàn đầy nhanh hơn).
 const SIZE = 4;
-const TARGET_TILE = { easy: 256, medium: 512, hard: 2048 };
+const GAME_ID = "2048";
+const STONE_FROM_LEVEL = 3;
+
 let tileSequence = 0;
 const createTile = (value, extra = {}) => ({ id: `tile-${++tileSequence}`, value, ...extra });
 
@@ -15,113 +25,60 @@ function cloneGrid(grid) {
   return grid.map((row) => [...row]);
 }
 
-function addRandomTile(grid) {
-  const empty = [];
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (grid[r][c] === 0) empty.push([r, c]);
-    }
-  }
-  if (empty.length === 0) return grid;
+function emptyCells(grid) {
+  const cells = [];
+  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (!grid[r][c]) cells.push([r, c]);
+  return cells;
+}
+
+function addRandomObjectTile(grid, fourChance = 0.1) {
+  const next = cloneGrid(grid);
+  const empty = emptyCells(next);
+  if (!empty.length) return next;
   const [r, c] = empty[Math.floor(Math.random() * empty.length)];
-  grid[r][c] = Math.random() < 0.9 ? 2 : 4;
-  return grid;
+  next[r][c] = createTile(Math.random() < fourChance ? 4 : 2, { isNew: true });
+  return next;
 }
 
-// Slides + merges a single row to the left, returns { row, gained, moved }.
-function slideRowLeft(row) {
-  const filtered = row.filter((v) => v !== 0);
-  const merged = [];
-  let gained = 0;
-  for (let i = 0; i < filtered.length; i++) {
-    if (i < filtered.length - 1 && filtered[i] === filtered[i + 1]) {
-      const mergedVal = filtered[i] * 2;
-      merged.push(mergedVal);
-      gained += mergedVal;
-      i++;
-    } else {
-      merged.push(filtered[i]);
-    }
-  }
-  while (merged.length < SIZE) merged.push(0);
-  const moved = merged.some((v, idx) => v !== row[idx]);
-  return { row: merged, gained, moved };
-}
-
-function rotateGrid(grid) {
-  // 90deg clockwise
-  const result = emptyGrid();
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      result[c][SIZE - 1 - r] = grid[r][c];
-    }
-  }
-  return result;
-}
-
-// direction: 'left' | 'right' | 'up' | 'down'
-export function move(grid, direction) {
-  let g = cloneGrid(grid);
-  let rotations = 0;
-  if (direction === "up") rotations = 3;
-  else if (direction === "right") rotations = 2;
-  else if (direction === "down") rotations = 1;
-
-  for (let i = 0; i < rotations; i++) g = rotateGrid(g);
-
-  let totalGained = 0;
-  let moved = false;
-  const newGrid = g.map((row) => {
-    const { row: newRow, gained, moved: rowMoved } = slideRowLeft(row);
-    totalGained += gained;
-    if (rowMoved) moved = true;
-    return newRow;
-  });
-
-  let finalGrid = newGrid;
-  const backRotations = (4 - rotations) % 4;
-  for (let i = 0; i < backRotations; i++) finalGrid = rotateGrid(finalGrid);
-
-  return { grid: finalGrid, gained: totalGained, moved };
-}
-
-export function isGameOver(grid) {
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (grid[r][c] === 0) return false;
-      if (c < SIZE - 1 && grid[r][c] === grid[r][c + 1]) return false;
-      if (r < SIZE - 1 && grid[r][c] === grid[r + 1][c]) return false;
-    }
-  }
-  return true;
-}
-
-export function hasReachedTarget(grid, target) {
-  return grid.some((row) => row.some((v) => v >= target));
+function addStoneTile(grid, life) {
+  const next = cloneGrid(grid);
+  const empty = emptyCells(next);
+  if (empty.length <= 2) return next; // đừng bịt nốt ô trống cuối
+  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+  next[r][c] = createTile(0, { isNew: true, stone: true, life });
+  return next;
 }
 
 function createTileGrid() {
   return addRandomObjectTile(addRandomObjectTile(emptyGrid()));
 }
 
-function addRandomObjectTile(grid) {
-  const next = cloneGrid(grid);
-  const empty = [];
-  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (!next[r][c]) empty.push([r, c]);
-  if (!empty.length) return next;
-  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
-  next[r][c] = createTile(Math.random() < .9 ? 2 : 4, { isNew: true });
-  return next;
+/** Hết nước đi: không còn ô trống và không cặp nào gộp được (đá không tính). */
+export function isGameOver(grid) {
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const t = grid[r][c];
+      if (!t) return false;
+      if (t.stone) continue;
+      const right = c < SIZE - 1 ? grid[r][c + 1] : null;
+      const down = r < SIZE - 1 ? grid[r + 1][c] : null;
+      if (right && !right.stone && right.value === t.value) return false;
+      if (down && !down.stone && down.value === t.value) return false;
+    }
+  }
+  return true;
 }
 
-function tileValues(grid) {
-  return grid.map((row) => row.map((tile) => tile?.value || 0));
-}
-
-function moveTileGrid(grid, direction) {
+/**
+ * Trượt + gộp theo hướng. Ô đá trượt như ô thường nhưng không bao giờ gộp,
+ * nên chỉ cần một điều kiện `!stone` ở chỗ so sánh — không phải viết luật riêng.
+ * Trả thêm `merges` = số cặp đã gộp trong lượt, dùng cho hệ số chain.
+ */
+export function moveTileGrid(grid, direction) {
   const result = emptyGrid();
   let gained = 0;
   let moved = false;
+  let merges = 0;
 
   for (let line = 0; line < SIZE; line++) {
     const coords = Array.from({ length: SIZE }, (_, index) => {
@@ -136,10 +93,12 @@ function moveTileGrid(grid, direction) {
       const current = tiles[index];
       const next = tiles[index + 1];
       const [targetR, targetC] = coords[output++];
-      if (next && current.tile.value === next.tile.value) {
+      const canMerge = next && !current.tile.stone && !next.tile.stone && current.tile.value === next.tile.value;
+      if (canMerge) {
         const value = current.tile.value * 2;
         result[targetR][targetC] = createTile(value, { merged: true });
         gained += value;
+        merges++;
         moved = true;
         index++;
       } else {
@@ -148,14 +107,20 @@ function moveTileGrid(grid, direction) {
       }
     }
   }
-  return { grid: result, gained, moved };
+  return { grid: result, gained, moved, merges };
 }
 
-// Solid glowing neon blocks — each tile is filled with its own vivid color
-// (not a dark face with a thin outline), with a bright outer halo so the
-// whole board reads as lit-up colored glass instead of black squares.
+/** Đá sống thêm một lượt; hết hạn thì vỡ (biến mất). */
+function ageStones(grid) {
+  return grid.map((row) => row.map((tile) => {
+    if (!tile?.stone) return tile;
+    const life = tile.life - 1;
+    return life > 0 ? { ...tile, life } : 0;
+  }));
+}
+
+// Khối neon đặc, mỗi giá trị một màu — bàn cờ đọc như kính màu phát sáng.
 const TILE_COLORS = {
-  0:    { bg: "rgba(255,255,255,.045)", color: "transparent", border: "rgba(255,255,255,.035)", glow: "inset 0 1px rgba(255,255,255,.02)" },
   2:    { bg: "#22d3ee", color: "#04222b", border: "#a5f3fc", glow: "0 0 14px #22d3ee,0 0 30px rgba(34,211,238,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
   4:    { bg: "#e879f9", color: "#2b0a2b", border: "#f5d0fe", glow: "0 0 14px #e879f9,0 0 30px rgba(232,121,249,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
   8:    { bg: "#39ff88", color: "#04220f", border: "#bbf7d0", glow: "0 0 14px #39ff88,0 0 30px rgba(57,255,136,.65),inset 0 -4px 10px rgba(0,0,0,.18),inset 0 3px 6px rgba(255,255,255,.5)" },
@@ -166,57 +131,73 @@ const TILE_COLORS = {
   256:  { bg: "#ff10f0", color: "#2b0429", border: "#fbcfe8", glow: "0 0 16px #ff10f0,0 0 32px rgba(255,16,240,.7),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.45)" },
   512:  { bg: "#00ffd5", color: "#00261f", border: "#ccfbf1", glow: "0 0 18px #00ffd5,0 0 36px rgba(0,255,213,.75),inset 0 -4px 10px rgba(0,0,0,.2),inset 0 3px 6px rgba(255,255,255,.5)" },
   1024: { bg: "#4d6bff", color: "#070b29", border: "#dbeafe", glow: "0 0 18px #4d6bff,0 0 36px rgba(77,107,255,.75),inset 0 -4px 10px rgba(0,0,0,.22),inset 0 3px 6px rgba(255,255,255,.45)" },
-  2048: { bg: "#ffe600", color: "#2b2400", border: "#fef9c3", glow: "0 0 20px #ffe600,0 0 42px rgba(255,230,0,.85),inset 0 -4px 10px rgba(0,0,0,.22),inset 0 3px 6px rgba(255,255,255,.55)" }
+  2048: { bg: "#ffe600", color: "#2b2400", border: "#fef9c3", glow: "0 0 20px #ffe600,0 0 42px rgba(255,230,0,.85),inset 0 -4px 10px rgba(0,0,0,.22),inset 0 3px 6px rgba(255,255,255,.55)" },
 };
 
-export default function Game2048({ difficulty = "medium", paused = false, onGameOver }) {
-  const targetTile = TARGET_TILE[difficulty] || 512;
+const STONE_STYLE = { bg: "#3f4657", color: "#c2c9da", border: "#5b647a", glow: "inset 0 -4px 10px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.12)" };
+
+export default function Game2048({ paused = false, onGameOver }) {
   const [grid, setGrid] = useState(createTileGrid);
   const [score, setScore] = useState(0);
-  const [status, setStatus] = useState(null); // null | 'win' | 'lose'
+  const [status, setStatus] = useState(null);
   const [motion, setMotion] = useState({ direction: "", merged: false });
-  const [celebrating, setCelebrating] = useState(false);
-  const [isSpeedRun, setIsSpeedRun] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [maxTile, setMaxTile] = useState(2);
+  const [hudExtra, setHudExtra] = useState({ combo: 0, mult: 1, notice: "" });
 
   const reportedRef = useRef(false);
   const touchStartRef = useRef(null);
   const boardRef = useRef(null);
   const gridRef = useRef(grid);
-
-  // Speed Run 60s Countdown Timer
-  useEffect(() => {
-    if (!isSpeedRun || status || paused) return;
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setStatus("win");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isSpeedRun, status, paused]);
+  const comboRef = useRef(createCombo({ windowMs: 9000, step: 0.25, max: 2 }));
+  const levelRef = useRef(1);
 
   const handleMove = useCallback((direction) => {
     if (status || paused) return;
-    const { grid: newGrid, gained, moved } = moveTileGrid(gridRef.current, direction);
+    const { grid: movedGrid, gained, moved, merges } = moveTileGrid(gridRef.current, direction);
     if (!moved) return;
-    const withTile = addRandomObjectTile(newGrid);
-    gridRef.current = withTile;
+
+    const combo = comboRef.current;
+    let next = ageStones(movedGrid);
+    let addedScore = 0;
+
+    if (gained > 0) {
+      // Gộp nhiều cặp cùng lượt là kỹ năng sắp bàn — thưởng theo số cặp.
+      const chainMult = 1 + (merges - 1) * 0.5;
+      const mult = combo.hit();
+      addedScore = Math.round(gained * chainMult * mult);
+      setScore((s) => s + addedScore);
+      playGameMerge();
+      hapticMerge();
+    } else {
+      combo.reset();
+      playGameMove();
+      hapticMove();
+    }
+
+    const level = levelFor(GAME_ID, score + addedScore);
+    // Cấp cao ra ô 4 nhiều hơn → bàn chật nhanh hơn, đây là "độ khó" của 2048.
+    next = addRandomObjectTile(next, ramp(GAME_ID, level, 0.1, 0.38));
+    if (level >= STONE_FROM_LEVEL && Math.random() < ramp(GAME_ID, level, 0.05, 0.16)) {
+      next = addStoneTile(next, Math.max(4, Math.round(ramp(GAME_ID, level, 10, 5))));
+    }
+
+    gridRef.current = next;
     setMotion({ direction, merged: gained > 0 });
-    setGrid(withTile);
-    if (gained) { setScore((s) => s + gained); playGameMerge(); hapticMerge(); } else { playGameMove(); hapticMove(); }
-    const values = tileValues(withTile);
-    if (hasReachedTarget(values, targetTile)) {
-      setCelebrating(true);
-      setStatus("win");
-      playGameWin();
-      hapticWin();
-    } else if (isGameOver(values)) { setStatus("lose"); playGameLose(); hapticLose(); }
-  }, [status, paused, targetTile]);
+    setGrid(next);
+    setMaxTile(Math.max(...next.flat().map((t) => t?.value || 0)));
+    setHudExtra({
+      combo: combo.chain + (combo.chain > 0 ? 1 : 0),
+      mult: combo.mult,
+      notice: level !== levelRef.current ? `Cấp ${level}${level >= STONE_FROM_LEVEL ? " · có ô đá" : ""}` : "",
+    });
+    levelRef.current = level;
+
+    if (isGameOver(next)) {
+      setStatus("lose");
+      playGameLose();
+      hapticLose();
+    }
+  }, [status, paused, score]);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -231,14 +212,19 @@ export default function Game2048({ difficulty = "medium", paused = false, onGame
   }, [handleMove]);
 
   useEffect(() => {
+    if (!hudExtra.notice) return undefined;
+    const t = setTimeout(() => setHudExtra((h) => ({ ...h, notice: "" })), 1600);
+    return () => clearTimeout(t);
+  }, [hudExtra.notice]);
+
+  useEffect(() => {
     if (!status || reportedRef.current) return undefined;
     const timer = window.setTimeout(() => {
       reportedRef.current = true;
-      const finalScore = isSpeedRun ? score * 3 : score;
-      onGameOver?.(finalScore, status);
-    }, status === "win" ? 1700 : 350);
+      onGameOver?.(score, "lose");
+    }, 350);
     return () => window.clearTimeout(timer);
-  }, [status, score, isSpeedRun, onGameOver]);
+  }, [status, score, onGameOver]);
 
   const handleTouchStart = (e) => {
     const t = e.touches[0];
@@ -277,28 +263,15 @@ export default function Game2048({ difficulty = "medium", paused = false, onGame
   };
 
   return (
-    <div className="game2048-shell flex flex-col items-center gap-4 w-full">
-      {/* Speed Run Toggle */}
-      <div className="gpanel flex items-center justify-between w-full max-w-[520px] p-2 rounded-2xl">
-        <button
-          onClick={() => { setIsSpeedRun(!isSpeedRun); setTimeLeft(60); }}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${isSpeedRun ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-white/5 text-zinc-400 hover:text-white"}`}
-        >
-          <span>⚡ SPEED RUN 60S</span>
-          {isSpeedRun && <span className="bg-black/30 px-1.5 py-0.5 rounded-md text-[9px] font-mono text-amber-200">X3 JOY</span>}
-        </button>
-
-        {isSpeedRun && (
-          <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 font-mono text-amber-300 font-black text-sm animate-pulse">
-            ⏱️ {timeLeft}s
-          </div>
-        )}
-      </div>
-
-      <div className="game2048-hud w-full max-w-[520px]">
-        <div><small>ĐIỂM HIỆN TẠI</small><strong>{score.toLocaleString("vi-VN")}</strong></div>
-        <div className="target"><small>MỤC TIÊU</small><strong>{targetTile}</strong></div>
-      </div>
+    <div className="game2048-shell flex flex-col items-center w-full">
+      <ArcadeHud
+        gameId={GAME_ID}
+        score={score}
+        combo={hudExtra.combo}
+        multiplier={hudExtra.mult}
+        notice={hudExtra.notice}
+        stats={[{ label: "Ô lớn nhất", value: maxTile }]}
+      />
 
       <div
         ref={boardRef}
@@ -310,23 +283,33 @@ export default function Game2048({ difficulty = "medium", paused = false, onGame
       >
         <div className="game2048-cells" aria-hidden="true">{Array.from({ length: 16 }, (_, index) => <span key={index} />)}</div>
         <div className="game2048-tiles">
-          {grid.flatMap((row, r) => row.map((tile, c) => tile ? (
-            <div key={tile.id}
-              className={`game2048-tile tile-row-${r} tile-col-${c} is-filled ${tile.isNew ? "is-new" : ""} ${tile.merged ? "is-merged" : ""}`}
-              style={{ "--row": r, "--col": c, background: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).bg, color: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).color, borderColor: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).border, boxShadow: (TILE_COLORS[tile.value] || TILE_COLORS[2048]).glow, fontSize: tile.value >= 1000 ? "clamp(16px,4vw,25px)" : "clamp(21px,5vw,34px)" }}
-              aria-label={`Ô số ${tile.value}`}>{tile.value}</div>
-          ) : null))}
+          {grid.flatMap((row, r) => row.map((tile, c) => {
+            if (!tile) return null;
+            const style = tile.stone ? STONE_STYLE : (TILE_COLORS[tile.value] || TILE_COLORS[2048]);
+            return (
+              <div key={tile.id}
+                className={`game2048-tile tile-row-${r} tile-col-${c} is-filled ${tile.isNew ? "is-new" : ""} ${tile.merged ? "is-merged" : ""} ${tile.stone ? "is-stone" : ""}`}
+                style={{
+                  "--row": r, "--col": c,
+                  background: style.bg, color: style.color, borderColor: style.border, boxShadow: style.glow,
+                  fontSize: tile.stone ? "clamp(14px,3.4vw,20px)" : tile.value >= 1000 ? "clamp(16px,4vw,25px)" : "clamp(21px,5vw,34px)",
+                }}
+                aria-label={tile.stone ? `Ô đá còn ${tile.life} lượt` : `Ô số ${tile.value}`}>
+                {tile.stone ? (
+                  <span className="tile-stone">
+                    <span className="material-symbols-outlined">lock</span>
+                    <b>{tile.life}</b>
+                  </span>
+                ) : tile.value}
+              </div>
+            );
+          }))}
         </div>
-        {celebrating && (
-          <div className="game2048-celebration" role="status" aria-live="polite">
-            <span className="game2048-celebration-glyph">✓</span>
-            <strong>Chúc mừng!</strong>
-            <p>Bạn đã tạo được ô <b>{targetTile}</b></p>
-          </div>
-        )}
       </div>
 
-      <p className="game-control-hint">Vuốt màn hình hoặc dùng phím mũi tên để di chuyển</p>
+      <p className="game-control-hint mt-3 text-center text-[11px]">
+        Gộp nhiều cặp trong một lượt để nhân điểm · Ô đá không gộp được nhưng tự vỡ sau vài lượt
+      </p>
     </div>
   );
 }

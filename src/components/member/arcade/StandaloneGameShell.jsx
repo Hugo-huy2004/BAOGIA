@@ -2,10 +2,10 @@ import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import GAME_THEMES from "./gameThemes";
-import { DIFFICULTIES } from "./arcadeConstants";
 import { submitScore } from "../../../services/arcadeApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
+import { calcJoy } from "../../../utils/joyCalculation";
 import GameIntroScreen from "./GameIntroScreen";
 import "./game-shell.css";
 
@@ -36,7 +36,6 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
   const sound = useArcadeSound();
 
   const [stage, setStage] = useState("intro"); // intro | playing | result
-  const [difficulty, setDifficulty] = useState(null);
   const [paused, setPaused] = useState(false);
   const [resultData, setResultData] = useState(null);
   const [playKey, setPlayKey] = useState(0);
@@ -48,9 +47,8 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  const handleSelectDifficulty = useCallback((diffId) => {
+  const handleStartGame = useCallback(() => {
     sound.playBeep();
-    setDifficulty(diffId);
     setPaused(false);
     setStage("playing");
   }, [sound]);
@@ -66,20 +64,29 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
       sound.playLose();
     }
 
-    try {
-      const res = await submitScore(gameId, { score, difficulty, result }, bio);
-      setResultData({
-        score,
-        result,
-        joyDelta: res?.joyDelta ?? 0,
-        joyAwarded: res?.joyAwarded ?? false,
-      });
-    } catch {
-      setResultData({ score, result, joyDelta: 0, joyAwarded: false });
-    }
+    // Calculate JOY immediately using shared formula (client-side prediction)
+    const estimatedJoy = calcJoy(gameId, score);
+
+    // Show result screen immediately with estimated JOY
+    setResultData({ score, result, joyDelta: estimatedJoy, joyAwarded: false });
     setStage("result");
+
+    try {
+      const res = await submitScore(gameId, { score, result }, bio);
+      if (res) {
+        // Server may adjust JOY — use server value if available
+        setResultData({
+          score,
+          result,
+          joyDelta: res.joyDelta ?? estimatedJoy,
+          joyAwarded: res.joyAwarded ?? false,
+        });
+      }
+    } catch {
+      // Score submission failed — show estimated JOY
+    }
     if (bio?.email) useJoyStore.getState().fetchBalance(bio.email);
-  }, [gameId, difficulty, bio, sound]);
+  }, [gameId, bio, sound]);
 
   const handleReplay = useCallback(() => {
     sound.playBeep();
@@ -89,24 +96,14 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
     setResultData(null);
   }, [sound]);
 
-  const handleChangeDifficulty = useCallback(() => {
-    sound.playBeep();
-    setDifficulty(null);
-    setResultData(null);
-    setPaused(false);
-    setStage("intro");
-  }, [sound]);
-
-  // Leaving mid-match still records the loss — pausing is the safe exit, so
-  // quitting from the pause screen must stay a deliberate, scored action.
+  // Leaving mid-match still records the score — pausing is the safe exit.
   const handleQuit = useCallback(() => {
     setPaused(false);
     setStage("result");
     setResultData({ score: 0, result: "lose", joyDelta: 0, joyAwarded: false });
   }, []);
 
-  // Back button pauses instead of instantly forfeiting — an accidental tap
-  // used to cost the player the match.
+  // Back button pauses instead of instantly forfeiting.
   const handleBack = useCallback(() => {
     if (stage === "playing") {
       sound.playBeep();
@@ -116,8 +113,7 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
     onClose?.();
   }, [stage, sound, onClose]);
 
-  // Escape pauses; a backgrounded tab pauses too, so nobody loses a run to a
-  // phone call.
+  // Escape pauses; a backgrounded tab pauses too.
   useEffect(() => {
     if (stage !== "playing") return undefined;
     const onKey = (e) => {
@@ -134,8 +130,11 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
 
   if (!GameComp) return null;
 
-  const difficultyLabel = DIFFICULTIES.find((d) => d.id === difficulty)?.label || difficulty;
   const outcome = RESULT_CONFIG[resultData?.result] || RESULT_CONFIG.lose;
+  // Dấu phải bám theo giá trị: server cũ vẫn có thể trả JOY âm (bảng phạt thua
+  // cũ), và "+{-10}" in ra thành "+-10". Ký hiệu tính một lần, dùng cho cả hai chỗ.
+  const joy = resultData?.joyDelta || 0;
+  const signedJoy = `${joy > 0 ? "+" : ""}${joy}`;
 
   return createPortal(
     <div className={`arcade-game arcade-game--${gameId}`}>
@@ -145,8 +144,7 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
       {stage === "intro" && (
         <GameIntroScreen
           gameId={gameId}
-          isProActive={Boolean(bio?.featureSubscriptions?.hugoArcade?.active)}
-          onSelectDifficulty={handleSelectDifficulty}
+          onStartGame={handleStartGame}
           onClose={onClose}
         />
       )}
@@ -161,7 +159,6 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
             </button>
             <div className="gshell__title">
               <p>{theme.name}</p>
-              {difficulty && <small>{difficultyLabel}</small>}
             </div>
             {bio && (
               <div className="gshell__joy" title={t("arcadeGame.joyBalance")}>
@@ -193,7 +190,6 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
             </div>
           }>
             <GameComp
-              difficulty={difficulty}
               paused={paused}
               onGameOver={handleGameOver}
               sound={sound}
@@ -213,9 +209,6 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
             <h2>{t("arcadeGame.paused")}</h2>
             <p>{t("arcadeGame.pausedHint")}</p>
             <div className="gshell__actions" style={{ marginTop: 20 }}>
-              <button type="button" className="gshell__btn" onClick={handleChangeDifficulty}>
-                {t("arcadeGame.changeDifficulty")}
-              </button>
               <button type="button" className="gshell__btn gshell__btn--primary" onClick={() => { sound.playBeep(); setPaused(false); }}>
                 {t("arcadeGame.resume")}
               </button>
@@ -243,14 +236,15 @@ export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose 
 
             <div className="gshell__reward">
               <span className="material-symbols-outlined">toll</span>
-              <b>{resultData.joyDelta > 0 ? "+" : ""}{resultData.joyDelta || 0}</b>
+              <b>{signedJoy}</b>
               <span>JOY</span>
             </div>
 
+            <p className="gshell__formula">
+              {resultData.score?.toLocaleString("vi-VN")} điểm → {signedJoy} JOY
+            </p>
+
             <div className="gshell__actions">
-              <button type="button" className="gshell__btn" onClick={handleChangeDifficulty}>
-                {t("arcadeGame.changeDifficulty")}
-              </button>
               <button type="button" className="gshell__btn gshell__btn--primary" onClick={handleReplay}>
                 {t("arcadeGame.replay")}
               </button>

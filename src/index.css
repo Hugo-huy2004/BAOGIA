@@ -1531,6 +1531,10 @@ html.standalone-pwa .desktop-apple-layout {
   min-height: calc(100dvh - env(safe-area-inset-top, 0px));
 }
 
+html.standalone-pwa .mobile-portal-tabbar {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 .mobile-portal-content {
   min-width: 0;
   padding-top: 12px !important;
@@ -1539,8 +1543,7 @@ html.standalone-pwa .desktop-apple-layout {
 
 .mobile-portal-tabbar {
   box-sizing: border-box;
-  min-height: 66px;
-  padding-top: 10px;
+  padding-top: 0;
   padding-right: var(--portal-safe-right, 0px);
   padding-bottom: var(--portal-tabbar-pad);
   padding-left: var(--portal-safe-left, 0px);

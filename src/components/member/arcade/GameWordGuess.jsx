@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { playGameSelect, playGameWin, playGameLose } from "../../../utils/audio";
 import { hapticSelect, hapticWin, hapticLose } from "../../../utils/haptics";
-import { useJoyStore } from "../../../stores/joyStore";
-import { notify } from "../../../lib/notify";
+import { levelFor, ramp, createCombo } from "./arcadeProgression";
+import ArcadeHud from "./ArcadeHud";
 
-// Categorized banks of strictly meaningful Vietnamese words (No random names or gibberish)
+// ── Luật chơi (mới) ───────────────────────────────────────────────
+// · Mỗi từ có ĐỒNG HỒ; cấp càng cao thời gian càng ngắn. Hết giờ = thua.
+// · Kho từ đổi theo cấp: dễ → trung bình → khó → chuyên gia (từ dài dần).
+// · Điểm mỗi từ = điểm nền (còn nhiều lượt đoán thì cao) + thưởng tốc độ,
+//   rồi nhân chuỗi giải liên tiếp (tối đa x2).
+// · Gợi ý trả bằng ĐIỂM trong ván (−25), không còn trừ JOY ở phía client —
+//   trước đây nó trừ số dư ngay trên máy mà không gọi API nên ví bị lệch.
+const GAME_ID = "wordguess";
+const HINT_COST = 25;
+
 const WORD_BANKS = {
   easy: [
     { word: "SACH", hint: "Vật dụng chứa kiến thức, bài học học đường." },
@@ -41,7 +50,13 @@ const WORD_BANKS = {
   ],
 };
 
-const MAX_GUESSES = { easy: 7, medium: 6, hard: 5, expert: 5 };
+// Độ khó tự động: cấp quyết định kho từ, số lượt đoán và thời gian.
+function tierFor(level) {
+  if (level <= 2) return { bank: "easy", guesses: 6 };
+  if (level <= 4) return { bank: "medium", guesses: 6 };
+  if (level <= 6) return { bank: "hard", guesses: 5 };
+  return { bank: "expert", guesses: 5 };
+}
 
 export function evaluateGuess(guess, target) {
   const len = target.length;
@@ -65,52 +80,86 @@ export function evaluateGuess(guess, target) {
   return result;
 }
 
-function pickRandomWord(level) {
-  const bank = WORD_BANKS[level] || WORD_BANKS.medium;
-  return bank[Math.floor(Math.random() * bank.length)];
+function pickRandomWord(bank) {
+  const list = WORD_BANKS[bank] || WORD_BANKS.medium;
+  return list[Math.floor(Math.random() * list.length)];
 }
 
 const KEY_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
-export default function GameWordGuess({ difficulty = "medium", paused = false, onGameOver }) {
-  const level = WORD_BANKS[difficulty] ? difficulty : "medium";
-  const [wordData, setWordData] = useState(() => pickRandomWord(level));
+export default function GameWordGuess({ paused = false, onGameOver }) {
+  const [level, setLevel] = useState(1);
+  const [wordData, setWordData] = useState(() => pickRandomWord("easy"));
   const target = wordData.word;
   const wordLen = target.length;
-  const maxGuesses = MAX_GUESSES[level] || 6;
+  const tier = tierFor(level);
+  const maxGuesses = tier.guesses;
+  const wordTime = Math.round(ramp(GAME_ID, level, 95, 38));
 
   const [guesses, setGuesses] = useState([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState("playing");
   const [revealedHint, setRevealedHint] = useState(false);
   const [shakeRow, setShakeRow] = useState(false);
+  const [totalScore, setTotalScore] = useState(0);
+  const [wordsSolved, setWordsSolved] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(wordTime);
+  const [notice, setNotice] = useState("");
+
   const reportedRef = useRef(false);
+  const streakRef = useRef(createCombo({ windowMs: Infinity, step: 0.2, max: 2 }));
+  const scoreRef = useRef(0);
+  scoreRef.current = totalScore;
 
-  const joyBalance = useJoyStore((s) => s.balance);
+  const finish = useCallback(() => {
+    if (reportedRef.current) return;
+    reportedRef.current = true;
+    onGameOver?.(scoreRef.current, "lose");
+  }, [onGameOver]);
 
-  const reportGameOver = useCallback(
-    (finalStatus, guessCount) => {
-      if (reportedRef.current) return;
-      reportedRef.current = true;
-      const basePoints = { easy: 20, medium: 50, hard: 100, expert: 200 }[level] || 50;
-      const score = finalStatus === "won" ? Math.max(10, basePoints - guessCount * 5) : 0;
-      onGameOver?.(score, finalStatus === "won" ? "win" : "lose");
-    },
-    [level, onGameOver]
-  );
+  const endGame = useCallback((reason) => {
+    setStatus("lost");
+    setNotice(reason);
+    playGameLose();
+    hapticLose();
+  }, []);
+
+  // Kết thúc thì tự nộp điểm sau vài giây — đóng game giữa chừng trước đây
+  // bị tính 0 điểm dù người chơi đã giải được cả chục từ.
+  useEffect(() => {
+    if (status === "playing") return undefined;
+    const t = setTimeout(finish, 2600);
+    return () => clearTimeout(t);
+  }, [status, finish]);
+
+  // Đồng hồ đếm ngược từng từ — hết giờ là kết thúc ván.
+  useEffect(() => {
+    if (status !== "playing" || paused) return undefined;
+    if (timeLeft <= 0) { endGame("Hết giờ!"); return undefined; }
+    const t = setTimeout(() => setTimeLeft((v) => v - 1), 1000);
+    return () => clearTimeout(t);
+  }, [timeLeft, status, paused, endGame]);
+
+  const nextWord = useCallback((nextLevel) => {
+    const t = tierFor(nextLevel);
+    setWordData(pickRandomWord(t.bank));
+    setGuesses([]);
+    setInput("");
+    setRevealedHint(false);
+    setTimeLeft(Math.round(ramp(GAME_ID, nextLevel, 95, 38)));
+  }, []);
 
   const handleUseHint = () => {
-    if (revealedHint) {
-      notify.info(`Gợi ý: ${wordData.hint} (Bắt đầu bằng chữ '${target[0]}')`);
+    if (status !== "playing") return;
+    if (revealedHint) return;
+    if (totalScore < HINT_COST) {
+      setNotice(`Cần ít nhất ${HINT_COST} điểm để mở gợi ý`);
+      setTimeout(() => setNotice(""), 1800);
       return;
     }
-    if (joyBalance < 5) {
-      notify.error("Bạn cần ít nhất 5 JOY để dùng gợi ý!");
-      return;
-    }
-    useJoyStore.getState().setBalance(joyBalance - 5);
+    setTotalScore((s) => s - HINT_COST);
     setRevealedHint(true);
-    notify.success(`💡 Gợi ý (-5 JOY): ${wordData.hint} | Chữ cái đầu: "${target[0]}"`);
+    playGameSelect();
   };
 
   const submitGuess = () => {
@@ -128,31 +177,42 @@ export default function GameWordGuess({ difficulty = "medium", paused = false, o
     setInput("");
 
     if (word === target) {
-      setStatus("won");
+      // Điểm = nền theo số lượt còn dư + thưởng tốc độ, rồi nhân chuỗi.
+      const base = Math.max(15, 55 - (newGuesses.length - 1) * 8);
+      const speedBonus = Math.round((timeLeft / wordTime) * 35);
+      const mult = streakRef.current.hit();
+      const gained = Math.round((base + speedBonus) * mult);
+      const newTotal = totalScore + gained;
+
+      setTotalScore(newTotal);
+      setWordsSolved((n) => n + 1);
       playGameWin();
       hapticWin();
-      reportGameOver("won", newGuesses.length);
+
+      const nextLevel = levelFor(GAME_ID, newTotal);
+      setLevel(nextLevel);
+      setNotice(
+        `+${gained} điểm${mult > 1 ? ` (chuỗi x${mult.toFixed(2).replace(/\.?0+$/, "")})` : ""}`
+      );
+      setTimeout(() => setNotice(""), 1800);
+      setTimeout(() => nextWord(nextLevel), 900);
     } else if (newGuesses.length >= maxGuesses) {
-      setStatus("lost");
-      playGameLose();
-      hapticLose();
-      reportGameOver("lost", newGuesses.length);
+      streakRef.current.reset();
+      endGame(`Hết lượt đoán! Đáp án: ${target}`);
     } else {
       playGameSelect();
       hapticSelect();
     }
   };
 
-  const handleKeyPress = (char) => {
+  const handleKeyPress = useCallback((char) => {
     if (status !== "playing") return;
-    if (char === "BACKSPACE" || char === "DELETE") {
-      setInput((s) => s.slice(0, -1));
-    } else if (char === "ENTER") {
-      submitGuess();
-    } else if (input.length < wordLen && /^[A-Z]$/i.test(char)) {
-      setInput((s) => (s + char.toUpperCase()).slice(0, wordLen));
-    }
-  };
+    if (char === "BACKSPACE" || char === "DELETE") setInput((s) => s.slice(0, -1));
+    else if (char === "ENTER") submitGuess();
+    else if (/^[A-Z]$/i.test(char)) setInput((s) => (s + char.toUpperCase()).slice(0, wordLen));
+    // submitGuess đọc toàn bộ state dưới đây; liệt kê đủ để handler không bị cũ.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, wordLen, input, guesses, timeLeft, totalScore, level, target, wordTime, maxGuesses]);
 
   useEffect(() => {
     if (paused) return undefined;
@@ -163,9 +223,8 @@ export default function GameWordGuess({ difficulty = "medium", paused = false, o
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [input, status, wordLen, paused]);
+  }, [handleKeyPress, paused]);
 
-  // Key states for visual keyboard coloring
   const letterStates = {};
   guesses.forEach(({ word, statuses }) => {
     word.split("").forEach((ch, idx) => {
@@ -176,140 +235,116 @@ export default function GameWordGuess({ difficulty = "medium", paused = false, o
     });
   });
 
+  const urgent = timeLeft <= 10;
+
   return (
-    <div className="gpanel flex flex-col items-center justify-center p-4 rounded-[32px] max-w-md mx-auto">
-      {/* Level Header & Hint Button */}
-      <div className="flex items-center justify-between w-full mb-3 px-1">
-        {/* Tên game do shell hiển thị — ở đây chỉ giữ độ dài từ cần đoán */}
-        <div className="flex items-center gap-2">
-          <span className="gaccent-dot w-2.5 h-2.5 rounded-full animate-pulse" />
-          <h2 className="gaccent text-sm font-black tracking-wider uppercase">
-            {wordLen} Ký Tự
-          </h2>
-        </div>
-        <button
-          onClick={handleUseHint}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold hover:bg-amber-500/30 active:scale-95 transition-all"
-        >
-          <span>💡 Gợi Ý (5 JOY)</span>
-        </button>
+    <div className="w-full max-w-md mx-auto flex flex-col items-center">
+      <ArcadeHud
+        gameId={GAME_ID}
+        score={totalScore}
+        combo={streakRef.current.chain + (streakRef.current.chain > 0 ? 1 : 0)}
+        multiplier={streakRef.current.mult}
+        notice={notice}
+        stats={[
+          { label: "Từ đã giải", value: wordsSolved },
+          { label: "Còn lại", value: `${timeLeft}s` },
+        ]}
+      />
+
+      <div className={`wg-timer${urgent ? " is-urgent" : ""}`} aria-hidden="true">
+        <span style={{ width: `${Math.max(0, (timeLeft / wordTime) * 100)}%` }} />
       </div>
 
-      {revealedHint && (
-        <div className="w-full bg-amber-500/10 border border-amber-400/30 rounded-2xl p-2.5 mb-3 text-xs text-amber-200 text-center animate-fade-in">
-          <strong>Gợi ý:</strong> {wordData.hint} (Bắt đầu bằng chữ <strong>'{target[0]}'</strong>)
+      <div className="gpanel w-full flex flex-col items-center p-4 rounded-[28px] mt-3">
+        <div className="flex items-center justify-between w-full mb-3">
+          <div className="flex items-center gap-2">
+            <span className="gaccent-dot w-2.5 h-2.5 rounded-full" />
+            <h2 className="gaccent text-sm font-black tracking-wider uppercase">{wordLen} ký tự</h2>
+          </div>
+          <button
+            type="button"
+            onClick={handleUseHint}
+            disabled={revealedHint || status !== "playing"}
+            className="ttr-btn px-3.5 disabled:opacity-45"
+            style={{ flex: "0 0 auto", minWidth: 128 }}
+          >
+            <span className="material-symbols-outlined">lightbulb</span>
+            {revealedHint ? "Đã mở" : `Gợi ý −${HINT_COST}`}
+          </button>
         </div>
-      )}
 
-      {/* 3D Glass Flip Tiles Grid */}
-      <div className="flex flex-col gap-2 mb-4">
-        {Array.from({ length: maxGuesses }).map((_, rIdx) => {
-          const guess = guesses[rIdx];
-          const isCurrent = rIdx === guesses.length;
-          const currentText = isCurrent ? input.padEnd(wordLen, " ") : "";
+        {revealedHint && (
+          <div className="wg-hint">
+            {wordData.hint} · Bắt đầu bằng <b>{target[0]}</b>
+          </div>
+        )}
 
-          return (
-            <div
-              key={rIdx}
-              className={`flex gap-1.5 ${isCurrent && shakeRow ? "animate-bounce" : ""}`}
-            >
-              {Array.from({ length: wordLen }).map((_, cIdx) => {
-                let char = "";
-                let bgClass = "bg-zinc-900/80 border-zinc-700/50 text-white";
+        <div className="flex flex-col gap-1.5 mb-4">
+          {Array.from({ length: maxGuesses }).map((_, rIdx) => {
+            const guess = guesses[rIdx];
+            const isCurrent = rIdx === guesses.length;
+            const currentText = isCurrent ? input.padEnd(wordLen, " ") : "";
 
-                if (guess) {
-                  char = guess.word[cIdx];
-                  const st = guess.statuses[cIdx];
-                  if (st === "correct") bgClass = "bg-emerald-600 border-emerald-400 text-white shadow-[0_0_12px_#059669]";
-                  else if (st === "present") bgClass = "bg-amber-600 border-amber-400 text-white shadow-[0_0_12px_#d97706]";
-                  else bgClass = "bg-zinc-800/90 border-zinc-700 text-zinc-500";
-                } else if (isCurrent) {
-                  char = currentText[cIdx]?.trim() || "";
-                  if (char) bgClass = "bg-cyan-950 border-cyan-400 text-cyan-200 shadow-[0_0_10px_#06b6d4]";
-                }
+            return (
+              <div key={rIdx} className={`flex gap-1.5 ${isCurrent && shakeRow ? "wg-shake" : ""}`}>
+                {Array.from({ length: wordLen }).map((_, cIdx) => {
+                  let char = "";
+                  let cls = "";
+                  if (guess) {
+                    char = guess.word[cIdx];
+                    cls = `is-${guess.statuses[cIdx]}`;
+                  } else if (isCurrent) {
+                    char = currentText[cIdx]?.trim() || "";
+                    if (char) cls = "is-typing";
+                  }
+                  return <div key={cIdx} className={`wg-cell ${cls}`}>{char}</div>;
+                })}
+              </div>
+            );
+          })}
+        </div>
 
-                return (
-                  <div
-                    key={cIdx}
-                    className={`w-11 h-12 rounded-xl border-2 flex items-center justify-center font-black text-xl tracking-wider transition-all duration-300 transform style-3d ${bgClass}`}
-                    style={{
-                      perspective: "1000px",
-                      boxShadow: "0 6px 12px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.2)",
-                    }}
-                  >
-                    {char}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Onscreen Keyboard */}
-      <div className="flex flex-col gap-1.5 w-full">
-        {KEY_ROWS.map((row, rIdx) => (
-          <div key={rIdx} className="flex justify-center gap-1">
-            {rIdx === 2 && (
-              <button
-                onClick={() => handleKeyPress("ENTER")}
-                className="px-2.5 py-3 rounded-lg bg-emerald-600 text-white font-bold text-xs active:scale-95 shadow"
-              >
-                GỬI
-              </button>
-            )}
-            {row.split("").map((k) => {
-              const st = letterStates[k];
-              let kStyle = "bg-zinc-800 border-zinc-700 text-white";
-              if (st === "correct") kStyle = "bg-emerald-600 border-emerald-400 text-white shadow-[0_0_8px_#059669]";
-              else if (st === "present") kStyle = "bg-amber-600 border-amber-400 text-white shadow-[0_0_8px_#d97706]";
-              else if (st === "absent") kStyle = "bg-zinc-900 border-zinc-800 text-zinc-600 opacity-60";
-
-              return (
+        <div className="flex flex-col gap-1.5 w-full">
+          {KEY_ROWS.map((row, rIdx) => (
+            <div key={rIdx} className="flex justify-center gap-1">
+              {rIdx === 2 && (
+                <button onClick={() => handleKeyPress("ENTER")} className="wg-key wg-key--wide">GỬI</button>
+              )}
+              {row.split("").map((k) => (
                 <button
                   key={k}
                   onClick={() => handleKeyPress(k)}
-                  className={`w-8 h-10 rounded-lg border font-black text-sm active:scale-95 transition-all flex items-center justify-center ${kStyle}`}
+                  className={`wg-key ${letterStates[k] ? `is-${letterStates[k]}` : ""}`}
                 >
                   {k}
                 </button>
-              );
-            })}
-            {rIdx === 2 && (
-              <button
-                onClick={() => handleKeyPress("BACKSPACE")}
-                className="px-2.5 py-3 rounded-lg bg-rose-600 text-white font-bold text-xs active:scale-95 shadow"
-              >
-                ⌫
-              </button>
-            )}
+              ))}
+              {rIdx === 2 && (
+                <button onClick={() => handleKeyPress("BACKSPACE")} className="wg-key wg-key--wide">⌫</button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {status !== "playing" && (
+          <div className="wg-result">
+            <p className="wg-result__title">Kết thúc</p>
+            <p className="wg-result__sub">
+              Đáp án: <b>{target}</b> — {wordData.hint}
+            </p>
+            <p className="wg-result__sub">
+              {totalScore.toLocaleString("vi-VN")} điểm · {wordsSolved} từ đã giải
+            </p>
+            <button onClick={finish} className="ttr-btn ttr-btn--primary w-full mt-2">
+              Nhận điểm & quay lại
+            </button>
           </div>
-        ))}
+        )}
       </div>
 
-      {/* Game Over Result Banner */}
-      {status !== "playing" && (
-        <div className="mt-4 p-4 rounded-2xl bg-zinc-900/90 border border-cyan-500/40 text-center w-full animate-fade-in">
-          <h3 className={`text-xl font-black mb-1 ${status === "won" ? "text-emerald-400" : "text-rose-500"}`}>
-            {status === "won" ? "🎉 BẠN ĐÃ GIẢI ĐƯỢC MẬT MÃ!" : "❌ THUA CUỘC!"}
-          </h3>
-          <p className="text-xs text-zinc-300 mb-3">Đáp án đúng là: <strong className="text-cyan-300 font-mono">{target}</strong> ({wordData.hint})</p>
-          <button
-            onClick={() => {
-              const nextWord = pickRandomWord(level);
-              setWordData(nextWord);
-              setGuesses([]);
-              setInput("");
-              setStatus("playing");
-              setRevealedHint(false);
-              reportedRef.current = false;
-            }}
-            className="px-5 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs shadow-lg hover:brightness-110 active:scale-95 transition-all"
-          >
-            Chơi Từ Mới
-          </button>
-        </div>
-      )}
+      <p className="game-control-hint mt-3 text-center text-[11px]">
+        Giải nhanh được thưởng tốc độ · Giải liên tiếp nhân điểm · Cấp cao từ dài hơn và ít thời gian hơn
+      </p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 export const REQUIRED_APP_IDS = Object.freeze([
-  'library',
+  'store',
   'bio',
   'ide',
   'team',

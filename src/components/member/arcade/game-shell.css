@@ -32,20 +32,27 @@
 @keyframes gshellPop { from { transform: scale(.93); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes gshellSpin { to { transform: rotate(360deg); } }
 
-/* ── Ambient wash — replaces the 18 JS-positioned particle divs ── */
+/* ── Ambient wash — animated aurora background ── */
 .gshell__aurora {
   position: absolute;
   z-index: 0;
   inset: -25%;
   background:
     radial-gradient(45% 38% at 22% 12%, color-mix(in srgb, var(--intro-accent) 30%, transparent), transparent 70%),
-    radial-gradient(40% 34% at 82% 78%, color-mix(in srgb, var(--intro-accent) 20%, transparent), transparent 70%);
+    radial-gradient(40% 34% at 82% 78%, color-mix(in srgb, var(--intro-accent) 20%, transparent), transparent 70%),
+    radial-gradient(35% 30% at 50% 50%, color-mix(in srgb, var(--intro-accent) 10%, transparent), transparent 60%);
   filter: blur(38px);
   opacity: .55;
   pointer-events: none;
+  animation: auroraShift 8s ease-in-out infinite alternate;
+}
+@keyframes auroraShift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(2%, -1%) scale(1.02); }
+  100% { transform: translate(-1%, 2%) scale(0.98); }
 }
 
-/* ── Status bar (top accent line) ── */
+/* ── Status bar (top accent line with glow) ── */
 .gshell__status {
   position: relative;
   z-index: 2;
@@ -55,6 +62,13 @@
     color-mix(in srgb, var(--intro-accent) 55%, transparent),
     var(--intro-accent),
     color-mix(in srgb, var(--intro-accent) 55%, transparent));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--intro-accent) 50%, transparent),
+              0 0 24px color-mix(in srgb, var(--intro-accent) 25%, transparent);
+  animation: statusGlow 3s ease-in-out infinite alternate;
+}
+@keyframes statusGlow {
+  0% { box-shadow: 0 0 8px color-mix(in srgb, var(--intro-accent) 30%, transparent); }
+  100% { box-shadow: 0 0 16px color-mix(in srgb, var(--intro-accent) 60%, transparent), 0 0 32px color-mix(in srgb, var(--intro-accent) 30%, transparent); }
 }
 
 /* ── Header ── */
@@ -179,10 +193,12 @@
   padding: 26px 22px;
   border: 1px solid var(--game-line);
   border-radius: 26px;
-  animation: gshellPop .3s cubic-bezier(.16,1,.3,1);
+  animation: gshellPop .35s cubic-bezier(.16,1,.3,1);
   background: var(--game-surface);
-  box-shadow: 0 26px 60px color-mix(in srgb, var(--intro-ink) 22%, transparent);
+  box-shadow: 0 26px 60px color-mix(in srgb, var(--intro-ink) 22%, transparent),
+              0 0 40px color-mix(in srgb, var(--result-color, var(--intro-accent)) 15%, transparent);
   text-align: center;
+  backdrop-filter: blur(12px);
 }
 
 .gshell__badge {
@@ -194,6 +210,13 @@
   border-radius: 50%;
   background: color-mix(in srgb, var(--result-color, var(--intro-accent)) 16%, transparent);
   place-items: center;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--result-color, var(--intro-accent)) 25%, transparent),
+              0 0 40px color-mix(in srgb, var(--result-color, var(--intro-accent)) 10%, transparent);
+  animation: badgePulse 2s ease-in-out infinite alternate;
+}
+@keyframes badgePulse {
+  0% { box-shadow: 0 0 12px color-mix(in srgb, var(--result-color, var(--intro-accent)) 15%, transparent); }
+  100% { box-shadow: 0 0 24px color-mix(in srgb, var(--result-color, var(--intro-accent)) 35%, transparent), 0 0 48px color-mix(in srgb, var(--result-color, var(--intro-accent)) 15%, transparent); }
 }
 .gshell__badge .material-symbols-outlined {
   color: var(--result-color, var(--intro-accent));
@@ -251,6 +274,18 @@
 .gshell__reward .material-symbols-outlined { color: var(--intro-accent); font-size: 21px; font-variation-settings: "FILL" 1; }
 .gshell__reward b { color: var(--intro-accent); font-size: 24px; font-weight: 950; font-variant-numeric: tabular-nums; }
 .gshell__reward span { color: var(--intro-muted); font-size: 11px; font-weight: 800; }
+
+.gshell__formula {
+  margin: 6px 0 0;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: var(--intro-soft);
+  color: var(--intro-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
 
 /* ── Buttons ── */
 .gshell__actions { display: flex; gap: 9px; }
@@ -344,6 +379,306 @@
   border: 1px solid color-mix(in srgb, var(--intro-accent) 32%, transparent);
   background: color-mix(in srgb, var(--intro-accent) 12%, transparent);
 }
+
+/* ── HUD dùng chung (ArcadeHud) ────────────────────────────────────────────
+   Một khối duy nhất cho điểm / ô phụ / cấp độ tự động / combo. Mọi màu lấy từ
+   bảng màu của chính game, nên thêm game mới không phải viết lại HUD. */
+.arcade-game .ahud {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 12px;
+}
+.arcade-game .ahud__row {
+  display: flex;
+  gap: 7px;
+  align-items: stretch;
+}
+.arcade-game .ahud__score,
+.arcade-game .ahud__stat,
+.arcade-game .ahud__level {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border: 1px solid var(--game-line);
+  border-radius: 13px;
+  background: var(--game-surface);
+}
+.arcade-game .ahud__score { flex: 1.5; }
+.arcade-game .ahud__level { flex: 0 0 auto; align-items: center; padding: 7px 13px; }
+
+.arcade-game .ahud small {
+  overflow: hidden;
+  color: var(--intro-muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .1em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.arcade-game .ahud strong {
+  color: var(--intro-ink);
+  font-size: 19px;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.arcade-game .ahud__score strong { font-size: 23px; }
+.arcade-game .ahud__level strong { color: var(--intro-accent); }
+.arcade-game .ahud__level.is-max {
+  border-color: color-mix(in srgb, var(--intro-accent) 55%, transparent);
+  background: var(--intro-soft);
+}
+
+/* Thanh tiến độ tới cấp kế tiếp — cho người chơi thấy độ khó sắp tăng. */
+.arcade-game .ahud__rail {
+  overflow: hidden;
+  height: 4px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: var(--game-line-soft);
+}
+.arcade-game .ahud__rail span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--intro-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--intro-accent) 60%, transparent);
+  transition: width .25s ease;
+}
+
+.arcade-game .ahud__combo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 40%, transparent);
+  border-radius: 999px;
+  animation: ahudComboPop .3s cubic-bezier(.16,1,.3,1);
+  background: var(--intro-soft);
+}
+.arcade-game .ahud__combo .material-symbols-outlined {
+  color: var(--intro-accent);
+  font-size: 16px;
+  font-variation-settings: "FILL" 1;
+}
+.arcade-game .ahud__combo b { color: var(--intro-ink); font-size: 11px; font-weight: 900; letter-spacing: .04em; }
+.arcade-game .ahud__combo em {
+  color: var(--intro-accent);
+  font-size: 12px;
+  font-weight: 950;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes ahudComboPop {
+  from { transform: scale(.86); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.arcade-game .ahud__notice {
+  margin: 8px 0 0;
+  padding: 6px 12px;
+  border-radius: 11px;
+  animation: gshellRise .25s ease;
+  background: var(--intro-soft);
+  color: var(--intro-accent);
+  font-size: 11px;
+  font-weight: 850;
+  text-align: center;
+}
+
+/* ── Nút & ô phụ trong khung chơi (tetris, survivor…) ────────────────────── */
+.arcade-game .ttr-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 5px;
+  border: 1px solid var(--game-line);
+  border-radius: 13px;
+  background: color-mix(in srgb, #fff 6%, transparent);
+}
+.arcade-game .ttr-slot small {
+  color: var(--intro-muted);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.arcade-game .ttr-btn,
+.arcade-game .ttr-mini {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 0;
+  border: 1px solid var(--game-line);
+  border-radius: 15px;
+  background: color-mix(in srgb, #fff 8%, transparent);
+  color: #f6f7fb;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .1s ease, background .1s ease;
+}
+.arcade-game .ttr-mini { min-height: 38px; padding: 0; }
+.arcade-game .ttr-btn .material-symbols-outlined,
+.arcade-game .ttr-mini .material-symbols-outlined { font-size: 19px; }
+.arcade-game .ttr-btn:active,
+.arcade-game .ttr-mini:active { transform: scale(.96); background: color-mix(in srgb, #fff 16%, transparent); }
+.arcade-game .ttr-btn--primary {
+  border-color: transparent;
+  background: var(--intro-accent);
+  color: var(--intro-bg);
+}
+
+/* Thanh máu trùm (Space Survivor) */
+.arcade-game .svv-boss {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 10px;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, #ef4444 45%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, #ef4444 12%, transparent);
+}
+.arcade-game .svv-boss__top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  color: #ff8f8f;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.arcade-game .svv-boss__rail {
+  overflow: hidden;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .45);
+}
+.arcade-game .svv-boss__rail span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #e11d48, #f59e0b);
+  transition: width .15s linear;
+}
+
+/* Ô đá 2048: khoá + số lượt còn lại trước khi vỡ */
+.game2048-tile .tile-stone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  line-height: 1;
+}
+.game2048-tile .tile-stone .material-symbols-outlined { font-size: 20px; opacity: .85; }
+.game2048-tile .tile-stone b { font-size: 11px; font-weight: 900; opacity: .8; }
+
+/* ── Mật Mã Từ (wordguess) ─────────────────────────────────────────────────
+   Trước đây bảng chữ dùng emerald/amber/cyan hardcode nên màn này lạc tông với
+   bảng màu xanh lá của chính nó. Đúng/sai/gần đúng vẫn là ba màu ngữ nghĩa
+   riêng (phải phân biệt được), phần còn lại theo palette. */
+.arcade-game .wg-timer {
+  overflow: hidden;
+  width: 100%;
+  max-width: 520px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--game-line-soft);
+}
+.arcade-game .wg-timer span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--intro-accent);
+  transition: width 1s linear;
+}
+.arcade-game .wg-timer.is-urgent span { animation: wgPulse .6s ease-in-out infinite alternate; background: #e94e72; }
+@keyframes wgPulse { from { opacity: .55; } to { opacity: 1; } }
+
+.arcade-game .wg-hint {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 32%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--intro-accent) 12%, transparent);
+  color: #f2f4fb;
+  font-size: 12px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.arcade-game .wg-cell {
+  display: flex;
+  width: 44px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, .14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .05);
+  color: #fff;
+  font-size: 21px;
+  font-weight: 950;
+  letter-spacing: .04em;
+  transition: background .25s ease, border-color .25s ease, transform .18s ease;
+}
+.arcade-game .wg-cell.is-typing { border-color: var(--intro-accent); background: color-mix(in srgb, var(--intro-accent) 22%, transparent); }
+.arcade-game .wg-cell.is-correct { border-color: #34d399; background: #059669; }
+.arcade-game .wg-cell.is-present { border-color: #fbbf24; background: #b45309; }
+.arcade-game .wg-cell.is-absent { border-color: rgba(255, 255, 255, .08); background: rgba(255, 255, 255, .03); color: rgba(255, 255, 255, .35); }
+
+.arcade-game .wg-shake { animation: wgShake .38s ease; }
+@keyframes wgShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-7px); }
+  75% { transform: translateX(7px); }
+}
+
+.arcade-game .wg-key {
+  display: flex;
+  width: 32px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .1s ease, background .12s ease;
+}
+.arcade-game .wg-key--wide { width: auto; padding: 0 11px; font-size: 11px; }
+.arcade-game .wg-key:active { transform: scale(.94); }
+.arcade-game .wg-key.is-correct { border-color: #34d399; background: #059669; }
+.arcade-game .wg-key.is-present { border-color: #fbbf24; background: #b45309; }
+.arcade-game .wg-key.is-absent { background: rgba(255, 255, 255, .03); color: rgba(255, 255, 255, .3); }
+
+.arcade-game .wg-result {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--game-line);
+  border-radius: 18px;
+  animation: gshellRise .25s ease;
+  background: rgba(0, 0, 0, .3);
+  text-align: center;
+}
+.arcade-game .wg-result__title { margin: 0 0 5px; color: #f6f7fb; font-size: 16px; font-weight: 950; }
+.arcade-game .wg-result__sub { margin: 0 0 3px; color: rgba(255, 255, 255, .7); font-size: 12px; }
+.arcade-game .wg-result__sub b { color: var(--intro-accent); }
 
 /* D-pad + on-screen controls */
 .arcade-game .arcade-dpad-btn {

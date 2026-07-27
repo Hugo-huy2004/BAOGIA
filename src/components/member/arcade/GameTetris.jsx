@@ -1,12 +1,22 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
-import { hapticMove, hapticMerge, hapticWin, hapticLose } from "../../../utils/haptics";
+import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
 import { readGamePalette, withAlpha } from "./arcadePalette";
+import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
+import ArcadeHud from "./ArcadeHud";
 
+// ── Luật chơi (mới) ───────────────────────────────────────────────
+// · Túi 7 khối (7-bag): mỗi 7 lượt đủ cả 7 hình — hết cảnh "chờ mãi không ra I".
+// · GIỮ KHỐI (hold) + xem trước 3 khối kế tiếp.
+// · Xoay có "wall kick": xoay sát tường không còn bị chặn.
+// · Điểm = điểm hàng × hệ số cấp × chuỗi liên hoàn; xoá 4 hàng (Tetris) liên
+//   tiếp được thưởng back-to-back.
+// · Từ cấp 6 sàn ĐẨY RÁC lên: cứ vài khối lại mọc một hàng rác có một lỗ.
 const COLS = 10;
 const ROWS = 20;
+const GAME_ID = "tetris";
+const GARBAGE_FROM_LEVEL = 6;
 
 const SHAPES = {
   I: { matrix: [[1, 1, 1, 1]], color: "#06b6d4", glow: "rgba(6, 182, 212, 0.8)" },
@@ -19,9 +29,10 @@ const SHAPES = {
 };
 
 const SHAPE_KEYS = Object.keys(SHAPES);
+const GARBAGE = "#5b6478";
+const LINE_LABEL = ["", "SINGLE", "DOUBLE", "TRIPLE", "TETRIS"];
 
-function getRandomPiece() {
-  const key = SHAPE_KEYS[Math.floor(Math.random() * SHAPE_KEYS.length)];
+function makePiece(key) {
   const item = SHAPES[key];
   return {
     key,
@@ -33,61 +44,165 @@ function getRandomPiece() {
   };
 }
 
+// Túi 7 khối: xáo trộn cả bộ rồi rút dần, thay cho random thuần.
+function refillBag(bag) {
+  const next = [...SHAPE_KEYS];
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  bag.push(...next);
+}
+
 function createEmptyBoard() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 }
 
-export default function GameTetris({ difficulty = "medium", paused = false, onGameOver }) {
-  const canvasRef = useRef(null);
-  const nextCanvasRef = useRef(null);
+// ── Particle helpers ──────────────────────────────────────────────
+function spawnParticles(particles, x, y, color, count = 8) {
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.8;
+    const speed = 1.5 + Math.random() * 3;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 1.5,
+      life: 1,
+      decay: 0.025 + Math.random() * 0.015,
+      size: 2 + Math.random() * 3,
+      color,
+    });
+  }
+}
 
-  const [score, setScore] = useState(0);
-  const [lines, setLines] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false);
+function spawnLineClearParticles(particles, row, cellW, cellH, color) {
+  for (let c = 0; c < COLS; c++) {
+    for (let i = 0; i < 3; i++) {
+      particles.push({
+        x: (c + 0.5) * cellW,
+        y: (row + 0.5) * cellH,
+        vx: (Math.random() - 0.5) * 6,
+        vy: -1 - Math.random() * 4,
+        life: 1,
+        decay: 0.02 + Math.random() * 0.01,
+        size: 2 + Math.random() * 4,
+        color,
+      });
+    }
+  }
+}
 
-  const { playBeep, playMove, playWin, playLose } = useArcadeSound();
+function updateParticles(particles) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.08;
+    p.vx *= 0.97;
+    p.life -= p.decay;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
 
-  // Mutable Game State for 60fps Canvas Loop
-  const gameState = useRef({
-    board: createEmptyBoard(),
-    currentPiece: getRandomPiece(),
-    nextPiece: getRandomPiece(),
-    score: 0,
-    lines: 0,
-    lastTick: 0,
-    isGameOver: false,
-  });
+function drawParticles(ctx, particles) {
+  for (const p of particles) {
+    ctx.globalAlpha = p.life * 0.9;
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+}
 
-  const speedMs = Math.max(100, 500 - Math.floor(score / 400) * 35);
-
-  // ── Helper: Collision Check ──────────────────────────────────────────────
-  const checkCollision = (piece, board, offsetX = 0, offsetY = 0) => {
-    for (let r = 0; r < piece.matrix.length; r++) {
-      for (let c = 0; c < piece.matrix[r].length; c++) {
-        if (piece.matrix[r][c]) {
-          const newX = piece.x + c + offsetX;
-          const newY = piece.y + r + offsetY;
-          if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
-          if (newY >= 0 && board[newY][newX]) return true;
-        }
+const checkCollision = (piece, board, offsetX = 0, offsetY = 0) => {
+  for (let r = 0; r < piece.matrix.length; r++) {
+    for (let c = 0; c < piece.matrix[r].length; c++) {
+      if (piece.matrix[r][c]) {
+        const newX = piece.x + c + offsetX;
+        const newY = piece.y + r + offsetY;
+        if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
+        if (newY >= 0 && board[newY][newX]) return true;
       }
     }
-    return false;
-  };
+  }
+  return false;
+};
 
-  // ── Helper: Calculate Ghost Piece Position ──────────────────────────────
-  const getGhostY = (piece, board) => {
-    let ghostY = piece.y;
-    while (!checkCollision(piece, board, 0, ghostY - piece.y + 1)) {
-      ghostY++;
+const getGhostY = (piece, board) => {
+  let ghostY = piece.y;
+  while (!checkCollision(piece, board, 0, ghostY - piece.y + 1)) ghostY++;
+  return ghostY;
+};
+
+export default function GameTetris({ paused = false, onGameOver }) {
+  const canvasRef = useRef(null);
+  const nextCanvasRef = useRef(null);
+  const holdCanvasRef = useRef(null);
+
+  const [hud, setHud] = useState({ score: 0, lines: 0, combo: 0, mult: 1, notice: "" });
+
+  const { playBeep, playMove, playLose } = useArcadeSound();
+
+  const gameState = useRef(null);
+  if (gameState.current === null) {
+    const bag = [];
+    refillBag(bag);
+    gameState.current = {
+      board: createEmptyBoard(),
+      bag,
+      currentPiece: makePiece(bag.pop()),
+      queue: [],
+      hold: null,
+      holdUsed: false,
+      score: 0,
+      lines: 0,
+      level: 1,
+      piecesSinceGarbage: 0,
+      backToBack: false,
+      combo: createCombo({ windowMs: 6000, step: 0.2, max: 2.4 }),
+      gravity: 620,
+      lastTick: 0,
+      isGameOver: false,
+      particles: [],
+      popups: [],
+      lineFlash: [],
+      lineFlashTimer: 0,
+      shakeX: 0, shakeY: 0, shakeMag: 0,
+    };
+    while (gameState.current.queue.length < 3) {
+      if (!bag.length) refillBag(bag);
+      gameState.current.queue.push(bag.pop());
     }
-    return ghostY;
-  };
+  }
 
-  // ── Draw 3D Bevelled Neon Block ─────────────────────────────────────────
-  // `pal` là bảng màu của game (arcadePalette.js) — quyết định mặt tối của
-  // khối và việc có dùng quầng sáng hay không.
-  const drawBlock = (ctx, x, y, size, color, glow, isGhost = false, pal = null) => {
+  const pullPiece = useCallback(() => {
+    const s = gameState.current;
+    if (!s.bag.length) refillBag(s.bag);
+    s.queue.push(s.bag.pop());
+    return makePiece(s.queue.shift());
+  }, []);
+
+  const syncHud = useCallback((notice) => {
+    const s = gameState.current;
+    setHud((prev) => ({
+      score: s.score,
+      lines: s.lines,
+      combo: s.combo.chain + (s.combo.chain > 0 ? 1 : 0),
+      mult: s.combo.mult,
+      notice: notice !== undefined ? notice : prev.notice,
+    }));
+  }, []);
+
+  const notify = useCallback((text) => {
+    syncHud(text);
+    setTimeout(() => setHud((h) => (h.notice === text ? { ...h, notice: "" } : h)), 1600);
+  }, [syncHud]);
+
+  const drawBlock = useCallback((ctx, x, y, size, color, glow, isGhost = false, pal = null) => {
     const px = x * size;
     const py = y * size;
     const pad = 1.5;
@@ -104,10 +219,8 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
     } else {
       const isLight = pal?.isLight;
       ctx.shadowColor = isLight ? "transparent" : glow;
-      ctx.shadowBlur = isLight ? 0 : 10;
+      ctx.shadowBlur = isLight ? 0 : 12;
 
-      // Base Block Gradient — mặt tối lấy theo nền của game thay vì một màu
-      // xanh đen cố định, để khối luôn ăn với bàn chơi.
       const grad = ctx.createLinearGradient(px, py, px + size, py + size);
       grad.addColorStop(0, "#ffffff");
       grad.addColorStop(0.3, color);
@@ -119,110 +232,153 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Inner Specular Reflection Line
-      ctx.strokeStyle = isLight ? withAlpha(pal.ink, 0.3) : "rgba(255, 255, 255, 0.4)";
+      ctx.strokeStyle = isLight ? withAlpha(pal.ink, 0.3) : "rgba(255, 255, 255, 0.35)";
       ctx.lineWidth = 1;
       ctx.strokeRect(px + pad + 1, py + pad + 1, size - pad * 2 - 2, size - pad * 2 - 2);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(px + pad + 3, py + pad + 1.5);
+      ctx.lineTo(px + size - pad - 3, py + pad + 1.5);
+      ctx.stroke();
     }
     ctx.restore();
-  };
-
-  // ── Draw Next Piece Preview Canvas ──────────────────────────────────────
-  const drawNextPiece = useCallback(() => {
-    const canvas = nextCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const piece = gameState.current.nextPiece;
-    const cellSize = 22;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const m = piece.matrix;
-    const startX = (canvas.width - m[0].length * cellSize) / 2 / cellSize;
-    const startY = (canvas.height - m.length * cellSize) / 2 / cellSize;
-
-    m.forEach((row, r) => {
-      row.forEach((val, c) => {
-        if (val) {
-          drawBlock(ctx, startX + c, startY + r, cellSize, piece.color, piece.glow);
-        }
-      });
-    });
   }, []);
 
-  // ── Game Tick Logic ──────────────────────────────────────────────────────
+  // Vẽ hàng chờ (3 khối) và ô giữ khối.
+  const drawPreviews = useCallback(() => {
+    const s = gameState.current;
+    const cellSize = 13;
+
+    const paint = (canvas, keys) => {
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      keys.forEach((key, i) => {
+        if (!key) return;
+        const m = SHAPES[key].matrix;
+        const ox = (canvas.width - m[0].length * cellSize) / 2 / cellSize;
+        const oy = i * 3 + (3 - m.length) / 2 + 0.35;
+        m.forEach((row, r) => row.forEach((v, c) => {
+          if (v) drawBlock(ctx, ox + c, oy + r, cellSize, SHAPES[key].color, SHAPES[key].glow);
+        }));
+      });
+    };
+
+    paint(nextCanvasRef.current, s.queue);
+    paint(holdCanvasRef.current, [s.hold]);
+  }, [drawBlock]);
+
+  // Một hàng rác đầy trừ đúng một lỗ — buộc người chơi dọn từ dưới lên.
+  const pushGarbage = useCallback(() => {
+    const s = gameState.current;
+    const hole = Math.floor(Math.random() * COLS);
+    const row = Array.from({ length: COLS }, (_, c) => (c === hole ? 0 : GARBAGE));
+    if (s.board[0].some((c) => c)) return true; // đẩy nữa là tràn
+    s.board.shift();
+    s.board.push(row);
+    if (s.currentPiece) s.currentPiece.y = Math.max(0, s.currentPiece.y - 1);
+    s.shakeMag = 6;
+    return false;
+  }, []);
+
+  const lockPiece = useCallback(() => {
+    const s = gameState.current;
+    const piece = s.currentPiece;
+    const canvas = canvasRef.current;
+    const cell = canvas ? canvas.offsetWidth / COLS : 13;
+
+    piece.matrix.forEach((row, r) => row.forEach((val, c) => {
+      if (!val) return;
+      const bY = piece.y + r;
+      const bX = piece.x + c;
+      if (bY >= 0 && bY < ROWS && bX >= 0 && bX < COLS) {
+        s.board[bY][bX] = piece.color;
+        spawnParticles(s.particles, (bX + 0.5) * cell, (bY + 0.5) * cell, piece.color, 3);
+      }
+    }));
+
+    const clearedRows = [];
+    const filtered = s.board.filter((row, idx) => {
+      const full = row.every((c) => c !== 0);
+      if (full) clearedRows.push(idx);
+      return !full;
+    });
+    while (filtered.length < ROWS) filtered.unshift(Array(COLS).fill(0));
+    s.board = filtered;
+    const cleared = clearedRows.length;
+
+    if (cleared > 0) {
+      hapticMerge();
+      const mult = s.combo.hit();
+      const base = [0, 100, 300, 500, 800][cleared] || 1000;
+      // Cấp càng cao điểm mỗi hàng càng lớn — thưởng cho việc sống lâu.
+      const levelBonus = 1 + (s.level - 1) * 0.15;
+      const b2b = cleared === 4 && s.backToBack ? 1.5 : 1;
+      const gained = Math.round(base * levelBonus * mult * b2b);
+      s.score += gained;
+      s.lines += cleared;
+      s.backToBack = cleared === 4;
+      s.shakeMag = cleared * 3 + s.combo.chain * 1.5;
+      s.lineFlash = clearedRows;
+      s.lineFlashTimer = 8;
+
+      if (canvas) {
+        const cellW = canvas.offsetWidth / COLS;
+        const cellH = canvas.offsetHeight / ROWS;
+        clearedRows.forEach((row) => spawnLineClearParticles(s.particles, row, cellW, cellH, piece.color));
+        const midY = (clearedRows[0] + 0.5) * cellH;
+        pushPopup(s.popups, canvas.offsetWidth / 2, midY, `+${gained.toLocaleString("vi-VN")}`, "#ffffff", 20);
+        pushPopup(s.popups, canvas.offsetWidth / 2, midY - 22,
+          `${LINE_LABEL[cleared] || "MEGA"}${b2b > 1 ? " B2B" : ""}`, piece.color, 13);
+      }
+
+      if (cleared >= 4) confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+    } else {
+      s.combo.reset();
+      s.backToBack = false;
+      playMove();
+      hapticMove();
+    }
+
+    // ── Độ khó tự động ──
+    const level = levelFor(GAME_ID, s.score);
+    if (level !== s.level) {
+      s.level = level;
+      s.gravity = ramp(GAME_ID, level, 620, 95);
+      notify(`Cấp ${level}${level >= GARBAGE_FROM_LEVEL ? " · sàn đẩy rác" : " · rơi nhanh hơn"}`);
+    }
+
+    s.piecesSinceGarbage++;
+    let toppedOut = false;
+    if (s.level >= GARBAGE_FROM_LEVEL && s.piecesSinceGarbage >= Math.round(ramp(GAME_ID, s.level, 26, 11))) {
+      s.piecesSinceGarbage = 0;
+      toppedOut = pushGarbage();
+    }
+
+    s.holdUsed = false;
+    const spawn = pullPiece();
+    drawPreviews();
+
+    if (toppedOut || checkCollision(spawn, s.board)) {
+      s.isGameOver = true;
+      s.shakeMag = 15;
+      playLose();
+      hapticLose();
+      setTimeout(() => onGameOver?.(s.score, "lose"), 500);
+    } else {
+      s.currentPiece = spawn;
+    }
+    syncHud();
+  }, [pullPiece, drawPreviews, pushGarbage, playMove, playLose, onGameOver, syncHud, notify]);
+
   const tick = useCallback(() => {
     const s = gameState.current;
     if (s.isGameOver) return;
-
-    if (!checkCollision(s.currentPiece, s.board, 0, 1)) {
-      s.currentPiece.y += 1;
-    } else {
-      // Lock Piece into Board
-      const newBoard = s.board.map((row) => [...row]);
-      s.currentPiece.matrix.forEach((row, r) => {
-        row.forEach((val, c) => {
-          if (val) {
-            const bY = s.currentPiece.y + r;
-            const bX = s.currentPiece.x + c;
-            if (bY >= 0 && bY < ROWS && bX >= 0 && bX < COLS) {
-              newBoard[bY][bX] = s.currentPiece.color;
-            }
-          }
-        });
-      });
-
-      // Clear Completed Lines
-      let cleared = 0;
-      const filtered = newBoard.filter((row) => {
-        const full = row.every((c) => c !== 0);
-        if (full) cleared++;
-        return !full;
-      });
-
-      while (filtered.length < ROWS) {
-        filtered.unshift(Array(COLS).fill(0));
-      }
-
-      s.board = filtered;
-
-      if (cleared > 0) {
-        playWin();
-        hapticMerge();
-        const pts = [0, 100, 300, 500, 800][cleared] || 1000;
-        s.score += pts;
-        s.lines += cleared;
-        setScore(s.score);
-        setLines(s.lines);
-
-        if (cleared >= 4) {
-          confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
-        }
-      } else {
-        playMove();
-        hapticMove();
-      }
-
-      // Spawn Next Piece
-      const spawn = s.nextPiece;
-      s.nextPiece = getRandomPiece();
-      drawNextPiece();
-
-      if (checkCollision(spawn, s.board)) {
-        s.isGameOver = true;
-        setIsGameOver(true);
-        playLose();
-        hapticLose();
-        const earnedJoy = Math.floor((s.score + s.lines * 100) / 25);
-        if (earnedJoy > 0) {
-          useJoyStore.getState().setBalance(useJoyStore.getState().balance + earnedJoy);
-        }
-        onGameOver?.(s.score, s.score >= 500 ? "win" : "lose");
-      } else {
-        s.currentPiece = spawn;
-      }
-    }
-  }, [drawNextPiece, playWin, playMove, playLose, onGameOver]);
+    if (!checkCollision(s.currentPiece, s.board, 0, 1)) s.currentPiece.y += 1;
+    else lockPiece();
+  }, [lockPiece]);
 
   // ── Main Render Canvas Loop ──────────────────────────────────────────────
   useEffect(() => {
@@ -235,192 +391,234 @@ export default function GameTetris({ difficulty = "medium", paused = false, onGa
     canvas.height = size * 2;
     const cell = size / COLS;
 
-    // Resuming must not hand the player a free drop for the time spent paused.
     gameState.current.lastTick = 0;
-
-    // Bảng màu của game này (xem arcadePalette.js).
     const pal = readGamePalette(canvas);
 
-    drawNextPiece();
+    drawPreviews();
 
+    let stopped = false;
     let rafId;
     const renderFrame = (ts) => {
+      if (stopped) return;
       const s = gameState.current;
 
       if (s.lastTick === 0) s.lastTick = ts;
-      if (ts - s.lastTick >= speedMs) {
+      if (ts - s.lastTick >= s.gravity) {
         s.lastTick = ts;
         tick();
       }
 
-      // Clear Canvas
+      if (s.isGameOver) { stopped = true; return; }
+
+      if (s.shakeMag > 0.2) {
+        s.shakeX = (Math.random() - 0.5) * s.shakeMag;
+        s.shakeY = (Math.random() - 0.5) * s.shakeMag;
+        s.shakeMag *= 0.85;
+      } else { s.shakeX = 0; s.shakeY = 0; s.shakeMag = 0; }
+
+      if (s.lineFlashTimer > 0) s.lineFlashTimer--;
+
+      ctx.save();
+      ctx.translate(s.shakeX, s.shakeY);
+
       ctx.fillStyle = pal.bg;
+      ctx.fillRect(-5, -5, canvas.width + 10, canvas.height + 10);
+
+      const centerGlow = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
+      centerGlow.addColorStop(0, withAlpha(pal.accent, 0.03));
+      centerGlow.addColorStop(1, "transparent");
+      ctx.fillStyle = centerGlow;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Grid Lines
       ctx.strokeStyle = pal.grid;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.3;
       for (let r = 0; r <= ROWS; r++) {
         ctx.beginPath(); ctx.moveTo(0, r * cell); ctx.lineTo(canvas.width, r * cell); ctx.stroke();
       }
       for (let c = 0; c <= COLS; c++) {
         ctx.beginPath(); ctx.moveTo(c * cell, 0); ctx.lineTo(c * cell, canvas.height); ctx.stroke();
       }
+      ctx.globalAlpha = 1;
 
-      // Draw Locked Board Blocks
+      if (s.lineFlashTimer > 0 && s.lineFlash.length > 0) {
+        ctx.fillStyle = withAlpha("#ffffff", (s.lineFlashTimer / 8) * 0.5);
+        s.lineFlash.forEach((row) => ctx.fillRect(0, row * cell, canvas.width, cell));
+      }
+
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
           const color = s.board[r][c];
-          if (color) {
-            drawBlock(ctx, c, r, cell, color, color, false, pal);
-          }
+          if (color) drawBlock(ctx, c, r, cell, color, color, false, pal);
         }
       }
 
       if (!s.isGameOver && s.currentPiece) {
-        // Draw Ghost Piece
         const ghostY = getGhostY(s.currentPiece, s.board);
-        s.currentPiece.matrix.forEach((row, r) => {
-          row.forEach((val, c) => {
-            if (val) {
-              const gx = s.currentPiece.x + c;
-              const gy = ghostY + r;
-              if (gy >= 0 && gy < ROWS && gx >= 0 && gx < COLS) {
-                drawBlock(ctx, gx, gy, cell, s.currentPiece.color, s.currentPiece.glow, true, pal);
-              }
-            }
-          });
-        });
+        s.currentPiece.matrix.forEach((row, r) => row.forEach((val, c) => {
+          if (!val) return;
+          const gx = s.currentPiece.x + c;
+          const gy = ghostY + r;
+          if (gy >= 0 && gy < ROWS && gx >= 0 && gx < COLS) {
+            drawBlock(ctx, gx, gy, cell, s.currentPiece.color, s.currentPiece.glow, true, pal);
+          }
+        }));
 
-        // Draw Active Piece
-        s.currentPiece.matrix.forEach((row, r) => {
-          row.forEach((val, c) => {
-            if (val) {
-              const px = s.currentPiece.x + c;
-              const py = s.currentPiece.y + r;
-              if (py >= 0 && py < ROWS && px >= 0 && px < COLS) {
-                drawBlock(ctx, px, py, cell, s.currentPiece.color, s.currentPiece.glow, false, pal);
-              }
-            }
-          });
-        });
+        s.currentPiece.matrix.forEach((row, r) => row.forEach((val, c) => {
+          if (!val) return;
+          const px = s.currentPiece.x + c;
+          const py = s.currentPiece.y + r;
+          if (py >= 0 && py < ROWS && px >= 0 && px < COLS) {
+            drawBlock(ctx, px, py, cell, s.currentPiece.color, s.currentPiece.glow, false, pal);
+          }
+        }));
       }
+
+      updateParticles(s.particles);
+      drawParticles(ctx, s.particles);
+      updatePopups(s.popups);
+      drawPopups(ctx, s.popups);
+
+      ctx.restore();
 
       rafId = requestAnimationFrame(renderFrame);
     };
 
     rafId = requestAnimationFrame(renderFrame);
-    return () => cancelAnimationFrame(rafId);
-  }, [speedMs, tick, drawNextPiece, paused]);
+    return () => { stopped = true; cancelAnimationFrame(rafId); };
+  }, [tick, drawPreviews, drawBlock, paused]);
 
   // ── Input Controls ───────────────────────────────────────────────────────
-  const moveLeft = useCallback(() => {
+  const shift = useCallback((dx) => {
     const s = gameState.current;
     if (s.isGameOver) return;
-    if (!checkCollision(s.currentPiece, s.board, -1, 0)) {
-      s.currentPiece.x -= 1;
+    if (!checkCollision(s.currentPiece, s.board, dx, 0)) {
+      s.currentPiece.x += dx;
       playBeep();
       hapticMove();
     }
   }, [playBeep]);
 
-  const moveRight = useCallback(() => {
-    const s = gameState.current;
-    if (s.isGameOver) return;
-    if (!checkCollision(s.currentPiece, s.board, 1, 0)) {
-      s.currentPiece.x += 1;
-      playBeep();
-      hapticMove();
-    }
-  }, [playBeep]);
-
+  // Xoay kèm wall kick: thử đẩy ngang vài ô trước khi bỏ cuộc.
   const rotate = useCallback(() => {
     const s = gameState.current;
     if (s.isGameOver) return;
     const m = s.currentPiece.matrix;
     const rotated = m[0].map((_, i) => m.map((row) => row[i]).reverse());
-    const testPiece = { ...s.currentPiece, matrix: rotated };
-    if (!checkCollision(testPiece, s.board)) {
-      s.currentPiece.matrix = rotated;
-      playBeep();
-      hapticMove();
+    for (const kick of [0, -1, 1, -2, 2]) {
+      const test = { ...s.currentPiece, matrix: rotated, x: s.currentPiece.x + kick };
+      if (!checkCollision(test, s.board)) {
+        s.currentPiece.matrix = rotated;
+        s.currentPiece.x += kick;
+        playBeep();
+        hapticMove();
+        return;
+      }
     }
   }, [playBeep]);
 
-  const dropStep = useCallback(() => {
-    tick();
-  }, [tick]);
+  // Thả mềm: mỗi ô rơi thêm 1 điểm, thưởng người chơi chủ động.
+  const softDrop = useCallback(() => {
+    const s = gameState.current;
+    if (s.isGameOver) return;
+    if (!checkCollision(s.currentPiece, s.board, 0, 1)) {
+      s.currentPiece.y += 1;
+      s.score += 1;
+      s.lastTick = performance.now();
+      syncHud();
+    } else lockPiece();
+  }, [lockPiece, syncHud]);
 
   const hardDrop = useCallback(() => {
     const s = gameState.current;
     if (s.isGameOver) return;
     const ghostY = getGhostY(s.currentPiece, s.board);
+    s.score += (ghostY - s.currentPiece.y) * 2;
     s.currentPiece.y = ghostY;
-    tick();
-  }, [tick]);
+    s.shakeMag = 4;
+    lockPiece();
+  }, [lockPiece]);
 
-  // Keyboard Event Listener
+  // Giữ khối: đổi khối đang rơi với khối trong kho, mỗi lượt rơi chỉ một lần.
+  const holdPiece = useCallback(() => {
+    const s = gameState.current;
+    if (s.isGameOver || s.holdUsed) return;
+    const stored = s.hold;
+    s.hold = s.currentPiece.key;
+    s.currentPiece = stored ? makePiece(stored) : pullPiece();
+    s.holdUsed = true;
+    playBeep();
+    hapticMove();
+    drawPreviews();
+  }, [pullPiece, drawPreviews, playBeep]);
+
   useEffect(() => {
     if (paused) return undefined;
     const handleKeyDown = (e) => {
-      if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); moveLeft(); }
-      if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); moveRight(); }
-      if (e.key === "ArrowDown" || e.key === "s") { e.preventDefault(); dropStep(); }
+      if (e.key === "ArrowLeft" || e.key === "a") { e.preventDefault(); shift(-1); }
+      if (e.key === "ArrowRight" || e.key === "d") { e.preventDefault(); shift(1); }
+      if (e.key === "ArrowDown" || e.key === "s") { e.preventDefault(); softDrop(); }
       if (e.key === "ArrowUp" || e.key === "w") { e.preventDefault(); rotate(); }
       if (e.key === " ") { e.preventDefault(); hardDrop(); }
+      if (e.key === "c" || e.key === "Shift") { e.preventDefault(); holdPiece(); }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [moveLeft, moveRight, dropStep, rotate, hardDrop, paused]);
+  }, [shift, softDrop, rotate, hardDrop, holdPiece, paused]);
 
   return (
-    <div className="gpanel flex flex-col items-center justify-center p-5 rounded-[32px] max-w-sm mx-auto">
-      {/* Header Info — tên game do shell hiển thị, ở đây chỉ giữ widget riêng */}
-      <div className="flex items-center justify-end w-full mb-4 px-1">
-        {/* Next Piece Preview Widget */}
-        <div className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-2xl border border-white/10 backdrop-blur-md">
-          <div className="text-right">
-            <span className="text-[8px] font-bold text-zinc-400 block uppercase tracking-wider">Tiếp Theo</span>
+    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+      <ArcadeHud
+        gameId={GAME_ID}
+        score={hud.score}
+        combo={hud.combo}
+        multiplier={hud.mult}
+        notice={hud.notice}
+        stats={[{ label: "Hàng xoá", value: hud.lines }]}
+      />
+
+      <div className="gpanel w-full flex flex-col items-center p-4 rounded-[28px]">
+        <div className="w-full flex items-start justify-center gap-3">
+          <div className="flex flex-col gap-2 pt-1">
+            <div className="ttr-slot">
+              <small>Giữ</small>
+              <canvas ref={holdCanvasRef} width={52} height={40} className="w-[52px] h-[40px]" />
+            </div>
+            <button type="button" onClick={holdPiece} className="ttr-mini">
+              <span className="material-symbols-outlined">swap_horiz</span>
+            </button>
           </div>
-          <canvas ref={nextCanvasRef} width={50} height={50} className="w-10 h-10" />
+
+          <canvas ref={canvasRef} className="w-[210px] h-[420px] block rounded-xl" />
+
+          <div className="ttr-slot pt-1">
+            <small>Kế tiếp</small>
+            <canvas ref={nextCanvasRef} width={52} height={120} className="w-[52px] h-[120px]" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 w-full mt-4">
+          <button onClick={rotate} className="ttr-btn col-span-3">
+            <span className="material-symbols-outlined">rotate_right</span> Xoay khối
+          </button>
+          <button onClick={() => shift(-1)} className="ttr-btn">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <button onClick={softDrop} className="ttr-btn">
+            <span className="material-symbols-outlined">arrow_downward</span>
+          </button>
+          <button onClick={() => shift(1)} className="ttr-btn">
+            <span className="material-symbols-outlined">arrow_forward</span>
+          </button>
+          <button onClick={hardDrop} className="ttr-btn ttr-btn--primary col-span-3">
+            <span className="material-symbols-outlined">bolt</span> Thả nhanh
+          </button>
         </div>
       </div>
 
-      {/* Score HUD Strip */}
-      <div className="grid grid-cols-2 gap-3 w-full mb-3">
-        <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-2.5 text-center">
-          <span className="text-[9px] font-black text-cyan-400 uppercase tracking-widest block">Điểm Số</span>
-          <span className="text-xl font-black text-white font-mono">{score.toLocaleString("vi-VN")}</span>
-        </div>
-        <div className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-2.5 text-center">
-          <span className="text-[9px] font-black text-purple-400 uppercase tracking-widest block">Hàng Xóa</span>
-          <span className="text-xl font-black text-white font-mono">{lines}</span>
-        </div>
-      </div>
-
-      {/* Main Canvas Grid */}
-      <div className="relative border-2 border-cyan-500/40 rounded-2xl overflow-hidden bg-[#050811] p-1 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-        <canvas ref={canvasRef} className="w-[260px] h-[520px] block rounded-xl" />
-      </div>
-
-      {/* Touch D-Pad Controls for PWA */}
-      <div className="grid grid-cols-3 gap-2.5 w-full mt-4 max-w-[280px]">
-        <button onClick={rotate} className="col-span-3 py-2.5 bg-purple-500/20 border border-purple-400/30 rounded-2xl font-black text-xs hover:bg-purple-500/30 active:scale-95 transition-all flex items-center justify-center gap-1.5 text-purple-200 uppercase tracking-wider backdrop-blur-md">
-          <span className="material-symbols-outlined text-base">rotate_right</span> XOAY KHỐI
-        </button>
-        <button onClick={moveLeft} className="py-3 bg-white/10 hover:bg-white/20 border border-white/15 rounded-2xl font-bold active:scale-95 transition-all flex items-center justify-center backdrop-blur-md shadow-sm">
-          <span className="material-symbols-outlined text-xl text-white">arrow_back</span>
-        </button>
-        <button onClick={dropStep} className="py-3 bg-white/10 hover:bg-white/20 border border-white/15 rounded-2xl font-bold active:scale-95 transition-all flex items-center justify-center backdrop-blur-md shadow-sm">
-          <span className="material-symbols-outlined text-xl text-white">arrow_downward</span>
-        </button>
-        <button onClick={moveRight} className="py-3 bg-white/10 hover:bg-white/20 border border-white/15 rounded-2xl font-bold active:scale-95 transition-all flex items-center justify-center backdrop-blur-md shadow-sm">
-          <span className="material-symbols-outlined text-xl text-white">arrow_forward</span>
-        </button>
-        <button onClick={hardDrop} className="col-span-3 py-3 bg-cyan-500/20 border border-cyan-400/30 rounded-2xl font-black text-xs text-cyan-200 hover:bg-cyan-500/30 active:scale-95 transition-all uppercase tracking-wider backdrop-blur-md flex items-center justify-center gap-1.5">
-          <span className="material-symbols-outlined text-base">bolt</span> THẢ SẮC NÉT (HARD DROP)
-        </button>
-      </div>
+      <p className="game-control-hint mt-3 text-center text-[11px]">
+        Giữ khối (phím C) để dành hình khó · Xoá 4 hàng liên tiếp được thưởng back-to-back
+      </p>
     </div>
   );
 }

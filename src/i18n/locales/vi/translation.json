@@ -1442,6 +1442,7 @@
       "typeGeneral": "Chung (đổi mã/quà tặng)",
       "typeSystemValidity": "HSD Hệ Thống",
       "typePsyStudy": "Psy-Study (token AI)",
+      "typeRadioTime": "Thời lượng Radio",
       "extendDaysLabel": "Số ngày tăng hạn sử dụng",
       "tokenTypeLabel": "Loại token",
       "tokenTypeChat": "Token Chat",
@@ -1453,7 +1454,8 @@
       "imageRemove": "Xoá ảnh",
       "badgeGeneral": "GIFT",
       "badgeSystemValidity": "HSD SYSTEM",
-      "badgePsyStudy": "PSY-REDEEM"
+      "badgePsyStudy": "PSY-REDEEM",
+      "badgeRadioTime": "RADIO TIME"
     }
   },
   "adminSupport": {
@@ -3294,7 +3296,7 @@
       "deco": { "title": "Deco Studio", "description": "Trang trí không gian ảo của bạn" },
       "info": { "title": "Thông tin và phiên bản", "description": "Thông tin hệ thống và nhật ký cập nhật" },
       "joy_wallet": { "title": "Ví JOY", "description": "Số dư và chuyển khoản nhanh" },
-      "library": { "title": "Hugo Library", "description": "Kho ứng dụng và tiện ích" },
+      "store": { "title": "Hugo Store", "description": "Cửa hàng ứng dụng, token và dịch vụ" },
       "map": { "title": "Khám phá", "description": "Bản đồ cộng đồng và địa điểm gần bạn" },
       "arcade_chess": { "title": "Cờ vua AI", "description": "Thách đấu AI trình độ cao" },
       "arcade_2048": { "title": "2048 Fusion", "description": "Trò chơi ghép số mở rộng" },
@@ -3368,7 +3370,52 @@
       "standby": "Chọn một đài để nghe",
       "volume": "Âm lượng",
       "noStations": "Không tìm thấy đài nào trong danh mục này.",
-      "toastPlayError": "Đài này hiện không phát được, vui lòng thử đài khác."
+      "toastPlayError": "Đài này hiện không phát được, vui lòng thử đài khác.",
+      "token": {
+        "weeklyFree": "Tuần này",
+        "purchased": "Mua thêm",
+        "buyMore": "Mua thêm thời gian",
+        "expired": "Hết thời gian",
+        "expiredDesc": "Vui lòng mua thêm gói thời gian để tiếp tục nghe.",
+        "weekRemaining": "còn lại tuần này",
+        "totalRemaining": "Tổng thời gian còn lại",
+        "storeTitle": "Mua thêm thời gian nghe",
+        "storeDesc": "Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần.",
+        "empty": "Chưa có gói thời gian nào."
+      }
+    },
+    "store": {
+      "title": "Hugo Store",
+      "tabs": {
+        "shop": "Cửa hàng",
+        "cart": "Giỏ hàng",
+        "orders": "Lịch sử",
+        "promos": "Khuyến mãi"
+      },
+      "shop": {
+        "search": "Tìm kiếm...",
+        "free": "MIỄN PHÍ",
+        "addToCart": "Thêm vào giỏ",
+        "installed": "Đã cài"
+      },
+      "cart": {
+        "empty": "Giỏ hàng trống",
+        "emptyDesc": "Thêm sản phẩm từ cửa hàng",
+        "promoPlaceholder": "Nhập mã khuyến mãi",
+        "subtotal": "Tạm tính",
+        "tax": "Phí (9%)",
+        "discount": "Giảm giá",
+        "total": "Tổng thanh toán",
+        "checkout": "Thanh toán"
+      },
+      "orders": {
+        "empty": "Chưa có đơn hàng"
+      },
+      "promos": {
+        "placeholder": "Nhập mã của bạn",
+        "valid": "Mã hợp lệ!",
+        "invalid": "Mã không hợp lệ hoặc đã hết hạn"
+      }
     },
     "nfc": {
       "cardTitle": "Thẻ NFC Hugo SmartCard",
@@ -3833,7 +3880,6 @@
     "paused": "Đã tạm dừng",
     "pausedHint": "Ván đấu đang được giữ nguyên. Chưa mất gì cho đến khi bạn thoát.",
     "quit": "Thoát ván",
-    "changeDifficulty": "Đổi độ khó",
     "replay": "Chơi lại",
     "close": "Đóng game",
     "scoreValue": "{{score}} điểm",
@@ -3845,17 +3891,10 @@
   },
   "arcadeIntro": {
     "close": "Quay lại Apps",
-    "chooseMode": "Chọn chế độ",
-    "tapToPlay": "Chạm để chơi ngay",
-    "proRequired": "Cần Pro",
-    "difficulty": {
-      "easy": "Khởi động",
-      "medium": "Bứt phá",
-      "hard": "Huyền thoại"
-    },
+    "playNow": "CHƠI NGAY",
+    "endless": "Vô hạn",
     "board": "Bàn chơi",
     "reward": "Phần thưởng",
-    "mode": "Chế độ",
     "games": {
       "chess": {
         "eyebrow": "Cờ vua chiến thuật",

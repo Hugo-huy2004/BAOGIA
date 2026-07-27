@@ -3,7 +3,9 @@ import { useTranslation } from "react-i18next";
 import { motion, useAnimation, animate } from "framer-motion";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
-import FeatureGate from "./shared/FeatureGate";
+import RadioTokenStatus, { useRadioHeartbeat } from "./RadioTokenStatus";
+
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 const RADIO_CATEGORIES = [
   { id: "vn_news", icon: "newspaper", label: "Đài Việt Nam", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
@@ -82,6 +84,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   // Apple Sleep Timer State (null | 15 | 30 | 60)
   const [sleepTimer, setSleepTimer] = useState(null);
   const [sleepTimeLeft, setSleepTimeLeft] = useState(0);
+
+  // HugoRadio token system
+  const [showStore, setShowStore] = useState(false);
+  const { tokenStatus, refetch: refetchTokens } = useRadioHeartbeat(bio, isPlaying);
 
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
@@ -334,6 +340,12 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   handleFailureRef.current = handlePlaybackFailure;
 
   const playStation = (station) => {
+    // Check token before playing
+    if (tokenStatus && !tokenStatus.canListen) {
+      showToast?.("Hết thời gian nghe radio. Vui lòng mua thêm gói thời gian.", "warning");
+      return;
+    }
+
     if (nowPlaying?.stationuuid === station.stationuuid && isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -428,6 +440,9 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
       audioRef.current.pause();
       setIsPlaying(false);
       stopStaticNoise();
+    } else if (tokenStatus && !tokenStatus.canListen) {
+      showToast?.("Hết thời gian nghe radio. Vui lòng mua thêm gói thời gian.", "warning");
+      return;
     } else if (nowPlaying) {
       playStation(nowPlaying);
     } else {
@@ -438,13 +453,27 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     }
   };
 
+  // Auto-pause when tokens run out
+  useEffect(() => {
+    if (tokenStatus && !tokenStatus.canListen && isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      stopStaticNoise();
+      showToast?.("Hết thời gian nghe radio. Vui lòng mua thêm gói thời gian.", "warning");
+    }
+  }, [tokenStatus, isPlaying, stopStaticNoise, showToast]);
+
   const stations = stationsByCategory[activeCategory] || [];
   const needleLeft = `calc(0.5rem + (100% - 1rem) * ${(visualFreq - 87.5) / (108.0 - 87.5)})`;
 
   return (
-    <FeatureGate bio={bio} featureKey="hugoRadio" priceJoy={150} icon="radio" title="Trao đổi JOY để mở khóa HugoRadio" description="Nghe radio kỹ thuật số với hàng chục kênh chất lượng cao." onBioUpdate={onBioUpdate} onBack={onBack} className="max-w-lg mx-auto mt-10">
-      <div className="text-zinc-900 dark:text-white transition-colors duration-300">
-        <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
+    <div className="text-zinc-900 dark:text-white transition-colors duration-300">
+      <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
+
+      {/* Token Status Bar */}
+      <div className="mb-4">
+        <RadioTokenStatus bio={bio} onBuyMore={() => setShowStore(true)} />
+      </div>
 
         {/* ─── Apple Music Style Receiver Player ──────────────────────────────────── */}
         <div className="relative mb-6 rounded-[36px] bg-white/80 dark:bg-[#0e0f17]/90 p-5 md:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7)] backdrop-blur-3xl border border-zinc-200/80 dark:border-white/10 overflow-hidden transition-all duration-300">
@@ -620,7 +649,107 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
             })}
           </div>
         )}
+
+      {/* Inline Store Modal */}
+      {showStore && (
+        <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => { setShowStore(false); refetchTokens(); }}>
+          <div className="bg-white dark:bg-[#15141c] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[80vh] overflow-y-auto p-5 space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-black text-base text-foreground">Mua thêm thời gian nghe</h3>
+              <button onClick={() => { setShowStore(false); refetchTokens(); }} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <span className="material-symbols-outlined text-sm">close</span>
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần.</p>
+            <RadioStoreInline bio={bio} showToast={showToast} onPurchased={refetchTokens} />
+          </div>
+        </div>
+      )}
       </div>
-    </FeatureGate>
+  );
+}
+
+// Inline store component for radio time packages
+function RadioStoreInline({ bio, showToast, onPurchased }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [buyingId, setBuyingId] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/utility-store/products`)
+      .then(r => r.json())
+      .then(data => {
+        const radioProducts = (Array.isArray(data) ? data : []).filter(
+          p => p.productType === "radio_time" || p.category === "radio"
+        );
+        setProducts(radioProducts);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleBuy(product) {
+    if (!bio?.email || buyingId) return;
+    setBuyingId(product._id);
+    try {
+      const res = await fetch(`${API_BASE}/utility-store/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: bio.email, productId: product._id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Lỗi mua hàng.");
+      const hours = Math.floor(product.radioMinutes / 60);
+      showToast?.(`Mua thành công! +${hours}h thời lượng radio.`, "success");
+      onPurchased?.();
+    } catch (err) {
+      showToast?.(err.message, "error");
+    } finally {
+      setBuyingId(null);
+    }
+  }
+
+  if (loading) {
+    return <div className="py-8 text-center text-xs text-muted-foreground animate-pulse">Đang tải...</div>;
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="py-8 text-center text-xs text-muted-foreground">
+        <span className="material-symbols-outlined text-2xl mb-2 opacity-40">storefront</span>
+        <p>Chưa có gói thời gian nào.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {products.map(product => {
+        const totalCost = product.priceJoy + Math.floor(product.priceJoy * 0.09);
+        const hours = Math.floor(product.radioMinutes / 60);
+        const days = Math.floor(hours / 24);
+        const timeLabel = days > 0 ? `${days} ngày` : `${hours}h`;
+        return (
+          <div key={product._id} className="flex flex-col rounded-2xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-[#0e0f17]/90 p-4 gap-3">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#06b6d4]">schedule</span>
+              <span className="font-black text-sm text-foreground">+{timeLabel}</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground line-clamp-2">{product.description || product.name}</p>
+            <div className="mt-auto flex items-center justify-between">
+              <span className="text-xs font-black text-foreground">{totalCost} JOY</span>
+              <button
+                onClick={() => handleBuy(product)}
+                disabled={buyingId === product._id}
+                className="px-3 py-1.5 rounded-lg bg-[#06b6d4] text-white text-[10px] font-bold uppercase tracking-wider active:scale-95 disabled:opacity-50 transition-all"
+              >
+                {buyingId === product._id ? "..." : "Mua"}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

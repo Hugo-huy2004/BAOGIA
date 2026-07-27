@@ -1,34 +1,72 @@
 import express from 'express';
 import ArcadeScore from '../models/ArcadeScore.js';
-import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
-import { isFeatureActive } from '../utils/featureSubscriptionService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
-import { fetchWithCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
 
 // Per-game score ceilings — reject obviously implausible/forged values outright.
 // Not full replay verification, just sanity bounds; real abuse resistance comes
 // from the win/loss-driven reward table + shared daily net-JOY cap below.
-const SCORE_CEILINGS = { '2048': 500000, caro: 200, wordguess: 100, survivor: 50000, snake: 320, tetris: 500000, chess: 3000, flappy: 1000 };
+// Nới theo thang điểm mới (combo + hệ số nhân + thưởng cấp) — vẫn chỉ là chặn
+// giá trị bịa đặt, không phải xác thực ván chơi.
+// wordguess trước đây để 100 là SAI: chế độ vô tận giải ~3 từ đã vượt trần nên
+// server trả 400 và người chơi mất trắng điểm của cả ván dài.
+const SCORE_CEILINGS = { '2048': 1000000, caro: 200, wordguess: 20000, survivor: 200000, snake: 8000, tetris: 2000000, chess: 3000, flappy: 20000 };
 
-const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const RESULTS = ['win', 'lose', 'draw'];
 
-// Shared across all 3 games — one difficulty system, simple player expectations.
-// Win rewards are the base table x1.5. Losing always costs a flat 10 JOY
-// "entry stake" — never deducted on a win, only on a loss.
-const REWARD_TABLE = {
-  easy:   { win: 18, lose: -10 },
-  medium: { win: 38, lose: -10 },
-  hard:   { win: 75, lose: -10 },
+// ─── JOY Calculation — per-game tiered formulas (must match src/utils/joyCalculation.js) ─
+// Each game defines score→JOY tiers: [threshold, baseJoy, perPoint]
+// joy = baseJoy + floor((score - threshold) × perPoint)
+// 2026-07-27 — thang điểm trong game đã đổi (combo/hệ số nhân/thưởng cấp). Các
+// mốc dưới đây nhân theo hệ số lạm phát của từng game và chia lại perPoint, nên
+// JOY cho cùng một trình độ chơi không đổi.
+// Hệ số: snake ×6, flappy ×7, tetris ×3, survivor ×3, 2048 ×2, wordguess ×3.
+const JOY_TIERS = {
+  snake: [
+    [0,    2,  0.0833333],  [60,   7,  0.0583333],  [240, 17,  0.0333333],  [600, 29,  0.0200],  [1200,41,  0.0133333],
+  ],
+  flappy: [
+    [0,    2,  0.2142857],  [21,   6,  0.1142857],  [70,  12,  0.0714286],  [175, 20,  0.0428571],
+  ],
+  tetris: [
+    [0,     2,  0.0026667],  [1500,  6,  0.0016667],  [6000, 13,  0.00100],  [18000,25,  0.0006667],
+  ],
+  survivor: [
+    [0,     2,  0.00400],  [600,   4,  0.0026667],  [3000, 10,  0.0016667],  [9000, 20,  0.00100],
+  ],
+  '2048': [
+    [0,     2,  0.0030],  [1000,  5,  0.0020],  [4000, 11,  0.0015],  [16000,29,  0.0005],
+  ],
+  wordguess: [
+    [0,   2,  0.4000],  [15,  8,  0.2666667],  [45, 16,  0.1666667],  [90, 23,  0.1166667],
+  ],
+  caro: [
+    [0,   2,  0.40],   [15,  8,  0.25],   [50, 17,  0.20],   [120,31,  0.12],
+  ],
+  chess: [
+    [0,   2,  0.03],   [100, 5,  0.015],  [500,11,  0.008],  [2000,23, 0.004],
+  ],
 };
 
-// POST /api/arcade/score — body: { game, score, difficulty, result, displayName, avatarUrl }
+function calcJoy(game, score) {
+  const tiers = JOY_TIERS[game];
+  if (!tiers) return Math.max(1, Math.floor(score * 0.01));
+  let baseJoy = 1, perPoint = 0, threshold = 0;
+  for (let i = tiers.length - 1; i >= 0; i--) {
+    if (score >= tiers[i][0]) {
+      threshold = tiers[i][0]; baseJoy = tiers[i][1]; perPoint = tiers[i][2]; break;
+    }
+  }
+  return Math.max(1, Math.floor(baseJoy + (score - threshold) * perPoint));
+}
+
+// POST /api/arcade/score — body: { game, score, result, displayName, avatarUrl }
+// Endless mode: difficulty is ignored. JOY is calculated purely from score.
 router.post('/score', requireMember, async (req, res) => {
   try {
-    const { game, score, difficulty, result, displayName, avatarUrl } = req.body;
+    const { game, score, result, displayName, avatarUrl } = req.body;
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'email is required' });
     if (!Object.keys(SCORE_CEILINGS).includes(game)) {
@@ -38,32 +76,15 @@ router.post('/score', requireMember, async (req, res) => {
     if (!Number.isFinite(numScore) || !Number.isInteger(numScore) || numScore < 0 || numScore > SCORE_CEILINGS[game]) {
       return res.status(400).json({ error: 'invalid score' });
     }
-    if (!DIFFICULTIES.includes(difficulty)) {
-      return res.status(400).json({ error: 'invalid difficulty' });
-    }
     if (!RESULTS.includes(result)) {
       return res.status(400).json({ error: 'invalid result' });
     }
-
-    // Server-side enforcement — frontend-only gating is bypassable via direct
-    // API calls. "Khởi động" (easy) always stays free for everyone.
-    if (difficulty !== 'easy') {
-      let bio = await Bio.findOne({ email });
-      if (!bio) bio = await Bio.findOne({ contactEmail: email });
-      if (!isFeatureActive(bio, 'hugoArcade')) {
-        return res.status(403).json({ error: 'Cần trao đổi JOY mở khóa Bứt phá / Huyền thoại để chơi độ khó này.' });
-      }
-    }
-
-    const recordInc = {};
-    if (result === 'win') recordInc[`record.${difficulty}.wins`] = 1;
-    else if (result === 'lose') recordInc[`record.${difficulty}.losses`] = 1;
 
     let doc = await ArcadeScore.findOneAndUpdate(
       { email, game },
       {
         $setOnInsert: { email, game, bestScore: 0, joyAwardedDate: '', joyAwardedToday: 0 },
-        $inc: { gamesPlayed: 1, ...recordInc },
+        $inc: { gamesPlayed: 1 },
         $set: {
           lastScore: numScore,
           lastPlayedAt: new Date(),
@@ -81,21 +102,18 @@ router.post('/score', requireMember, async (req, res) => {
     let joyDelta = 0;
     let joyAwarded = false;
 
-    // No daily limit — HugoArcade lets players earn JOY freely, as many
-    // rounds as they want per day.
-    if (result !== 'draw') {
-      const delta = REWARD_TABLE[difficulty][result];
-      try {
-        await awardJoy(
-          email, delta, 'arcade_score',
-          delta > 0 ? `Thắng ở HugoArcade (+${delta} JOY)` : `Thua ở HugoArcade (${delta} JOY)`,
-          { refId: game }
-        );
-        joyDelta = delta;
-        joyAwarded = true;
-      } catch (e) {
-        console.error('[arcade joy award]', e.message);
-      }
+    // Standardized JOY: joy = max(1, floor(score × rate))
+    joyDelta = calcJoy(game, numScore);
+
+    try {
+      await awardJoy(
+        email, joyDelta, 'arcade_score',
+        `HugoArcade ${game} (score: ${numScore}) +${joyDelta} JOY`,
+        { refId: game }
+      );
+      joyAwarded = true;
+    } catch (e) {
+      console.error('[arcade joy award]', e.message);
     }
 
     await doc.save();

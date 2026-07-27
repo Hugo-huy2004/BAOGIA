@@ -6,20 +6,22 @@ import { notify } from '../../lib/notify';
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const EMPTY_FORM = {
   name: '', description: '', priceJoy: '', category: 'general', stock: -1, imageUrl: '',
-  productType: 'general', extendDays: '', tokenType: 'chat', tokenAmount: ''
+  productType: 'general', extendDays: '', tokenType: 'chat', tokenAmount: '', radioMinutes: ''
 };
 
 // Icon + badge + color are fully derived from productType — admins never pick an icon manually.
 const PRODUCT_TYPE_META = {
   general: { icon: 'redeem', badgeKey: 'badgeGeneral', color: 'emerald' },
   system_validity: { icon: 'event_available', badgeKey: 'badgeSystemValidity', color: 'amber' },
-  psy_study_tokens: { icon: 'psychology', badgeKey: 'badgePsyStudy', color: 'indigo' }
+  psy_study_tokens: { icon: 'psychology', badgeKey: 'badgePsyStudy', color: 'indigo' },
+  radio_time: { icon: 'radio', badgeKey: 'badgeRadioTime', color: 'cyan' }
 };
 
 const COLOR_CLASSES = {
   emerald: { badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400', icon: 'text-emerald-500', glow: 'from-emerald-400/15 to-emerald-600/5', border: 'border-emerald-400' },
   amber: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400', icon: 'text-amber-500', glow: 'from-amber-400/15 to-amber-600/5', border: 'border-amber-400' },
-  indigo: { badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400', icon: 'text-indigo-500', glow: 'from-indigo-400/15 to-indigo-600/5', border: 'border-indigo-400' }
+  indigo: { badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400', icon: 'text-indigo-500', glow: 'from-indigo-400/15 to-indigo-600/5', border: 'border-indigo-400' },
+  cyan: { badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-400', icon: 'text-cyan-500', glow: 'from-cyan-400/15 to-cyan-600/5', border: 'border-cyan-400' }
 };
 
 function getTypeMeta(productType) {
@@ -91,7 +93,8 @@ export default function AdminUtilityStoreTab() {
     setEditingId(p._id);
     setForm({
       name: p.name, description: p.description, priceJoy: p.priceJoy, category: p.category, stock: p.stock, imageUrl: p.imageUrl || '',
-      productType: p.productType || 'general', extendDays: p.extendDays || '', tokenType: p.tokenType || 'chat', tokenAmount: p.tokenAmount || ''
+      productType: p.productType || 'general', extendDays: p.extendDays || '', tokenType: p.tokenType || 'chat', tokenAmount: p.tokenAmount || '',
+      radioMinutes: p.radioMinutes || ''
     });
   }
 
@@ -215,11 +218,11 @@ export default function AdminUtilityStoreTab() {
             {/* Product type — drives icon + badge automatically */}
             <div className="space-y-1.5">
               <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.productTypeLabel')}</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {Object.entries(PRODUCT_TYPE_META).map(([key, meta]) => {
                   const colors = COLOR_CLASSES[meta.color];
                   const isActive = form.productType === key;
-                  const labelKey = key === 'general' ? 'typeGeneral' : key === 'system_validity' ? 'typeSystemValidity' : 'typePsyStudy';
+                  const labelKey = key === 'general' ? 'typeGeneral' : key === 'system_validity' ? 'typeSystemValidity' : key === 'radio_time' ? 'typeRadioTime' : 'typePsyStudy';
                   return (
                     <button
                       type="button"
@@ -259,6 +262,20 @@ export default function AdminUtilityStoreTab() {
                   <label className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{t('adminTabs.utilityStore.tokenAmountLabel')}</label>
                   <input type="number" required min="1" value={form.tokenAmount} onChange={e => setForm(p => ({ ...p, tokenAmount: e.target.value }))}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+                </div>
+              </div>
+            )}
+
+            {form.productType === 'radio_time' && (
+              <div className="space-y-3 p-3 rounded-xl bg-cyan-50 dark:bg-cyan-500/5 border border-cyan-200/60 dark:border-cyan-500/20">
+                <div className="space-y-1">
+                  <label className="block text-[9px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">Số phút radio được cộng</label>
+                  <input type="number" required min="1" value={form.radioMinutes} onChange={e => setForm(p => ({ ...p, radioMinutes: e.target.value }))}
+                    placeholder="Ví dụ: 4320 = 3 ngày"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+                  <p className="text-[8px] text-cyan-600/70 dark:text-cyan-400/70 mt-1">
+                    3 ngày = 4320 phút · 7 ngày = 10080 phút · 30 ngày = 43200 phút
+                  </p>
                 </div>
               </div>
             )}
@@ -317,6 +334,9 @@ export default function AdminUtilityStoreTab() {
                       )}
                       {p.productType === 'psy_study_tokens' && (
                         <span className="inline-block text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600 dark:bg-indigo-950/30">+{p.tokenAmount} {p.tokenType === 'call' ? t('adminTabs.utilityStore.tokenTypeCall') : t('adminTabs.utilityStore.tokenTypeChat')}</span>
+                      )}
+                      {p.productType === 'radio_time' && (
+                        <span className="inline-block text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/30">+{p.radioMinutes} phút radio</span>
                       )}
                       <div className="flex justify-between text-[10px] pt-1">
                         <span className="font-mono font-bold text-amber-600 dark:text-amber-400">{p.priceJoy} JOY</span>

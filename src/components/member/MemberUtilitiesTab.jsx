@@ -18,6 +18,7 @@ const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoSkinTab = lazy(() => import("./HugoSkinTab"));
 const MemberJoyTab = lazy(() => import("./MemberJoyTab"));
+const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
@@ -40,20 +41,20 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "deco";
+  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "deco" || selectedUtility === "store";
 
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
       <Suspense fallback={fallback}>
       {/* Utility Selector Dashboard — always mounted so event listeners & state persist */}
-      <div style={{ display: (selectedUtility === null || selectedUtility === "library") ? "block" : "none" }}>
+      <div style={{ display: selectedUtility === null ? "block" : "none" }}>
         <MemberUtilitiesDashboard
           bio={bio}
           onBioUpdate={onBioUpdate}
           setSelectedUtility={onSelectUtility}
           showToast={showToast}
-          initialTab={selectedUtility === "library" ? "library" : "my-apps"}
-          isVisible={selectedUtility === null || selectedUtility === "library"}
+          initialTab="my-apps"
+          isVisible={selectedUtility === null}
         />
       </div>
 
@@ -149,6 +150,17 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
               nữa thành hai lớp chrome chồng nhau. */}
           <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} onBack={() => onSelectUtility(null)} />
         </div>
+      )}
+
+      {/* Hugo Store */}
+      {selectedUtility === "store" && (
+        <HugoStoreTab
+          bio={bio}
+          showToast={showToast}
+          onBioUpdate={onBioUpdate}
+          onBack={() => onSelectUtility(null)}
+          onOpenUtility={onSelectUtility}
+        />
       )}
       </Suspense>
 

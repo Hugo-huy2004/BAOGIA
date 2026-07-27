@@ -99,7 +99,7 @@ const APP_CATALOG = [
   ["info", "info", "slate", "tools", "4.8", "6k", "SYSTEM"],
   ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "30k", "WALLET"],
   ["map", "explore", "teal", "tools", "4.9", "20k", "DISCOVER"],
-  ["library", "store", "blue", "tools", "5.0", "50k", "STORE"],
+  ["store", "store", "blue", "tools", "5.0", "50k", "STORE"],
   ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "GAME"],
   ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "GAME"],
   ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "GAME"],
@@ -454,8 +454,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
     if (app.id === "map") {
       navigate("/member/map");
-    } else if (app.id === "library") {
-      setActiveTab("library");
+    } else if (app.id === "store") {
+      setSelectedUtility("store");
     } else {
       setSelectedUtility(app.id);
     }
@@ -842,8 +842,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         setEditingApp(app);
         return;
       }
-      if (app.id === "library") {
-        setActiveTab("library");
+      if (app.id === "store") {
+        setSelectedUtility("store");
         return;
       }
       if (app.id === "map") {
@@ -908,7 +908,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   const libraryAppsList = useMemo(() => {
     return allUtilities.filter((util) => {
-      if (util.id === "library") return false;
+      if (util.id === "store") return false;
       const matchesSearch = util.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         util.subLabel.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === "all" || util.category === activeCategory;
@@ -958,7 +958,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">{t("utilities.library.emptyDescription")}</p>
               </div>
               <button
-                onClick={() => setActiveTab("library")}
+                onClick={() => setSelectedUtility("store")}
                 className="px-5 py-3 bg-primary text-white font-semibold text-sm rounded-2xl hover:opacity-90 active:scale-[0.97] transition-all"
               >
                 {t("utilities.library.openLibrary")}

@@ -13,12 +13,6 @@ const GAME_META = {
   snake: { icon: "route", detail: "∞", badge: "CLASSIC" },
 };
 
-const GAME_MODES = [
-  { id: "easy", icon: "bolt", reward: 18 },
-  { id: "medium", icon: "local_fire_department", reward: 38 },
-  { id: "hard", icon: "military_tech", reward: 75 },
-];
-
 function GameArtwork({ gameId }) {
   if (gameId === "2048") {
     const tiles = ["2", "4", "8", "16", "32", "64", "128", "256", "512"];
@@ -47,7 +41,7 @@ function GameArtwork({ gameId }) {
           <div className="snake-chain">
             <i /><i /><i /><i /><i className="snake-head"><b /><b /></i>
           </div>
-          <span className="snake-level">LEVEL 01</span>
+          <span className="snake-level">ENDLESS</span>
         </div>
       </div>
     );
@@ -96,7 +90,7 @@ function GameArtwork({ gameId }) {
         <div className="tetris-well">
           {["a", "b", "c", "d", "e", "f", "g"].map((shape) => <div className={`tetromino tetromino--${shape}`} key={shape}><i /><i /><i /><i /></div>)}
         </div>
-        <span className="tetris-score">NEXT<br /><b>12,480</b></span>
+        <span className="tetris-score">ENDLESS<br /><b>NEON</b></span>
       </div>
     );
   }
@@ -121,15 +115,14 @@ function GameArtwork({ gameId }) {
         <div>{["W", "O", "R", "D", "S"].map((letter, index) => <i className={index < 3 ? "is-found" : ""} key={letter}>{letter}</i>)}</div>
       </div>
       <div className="word-pencil" />
-      <span className="word-note">6 / 6</span>
+      <span className="word-note">ENDLESS</span>
     </div>
   );
 }
 
 export default function GameIntroScreen({
   gameId,
-  isProActive = false,
-  onSelectDifficulty,
+  onStartGame,
   onClose,
 }) {
   const { t } = useTranslation();
@@ -162,35 +155,19 @@ export default function GameIntroScreen({
         <div className="arcade-intro__footer">
           <div className="arcade-intro__facts">
             <span><b>{meta.detail}</b>{t("arcadeIntro.board")}</span>
-            <span><b>+ JOY</b>{t("arcadeIntro.reward")}</span>
-            <span><b>SOLO</b>{t("arcadeIntro.mode")}</span>
+            <span><b>+ JOY theo điểm</b>{t("arcadeIntro.reward")}</span>
+            <span><b>∞</b>{t("arcadeIntro.endless")}</span>
           </div>
           <p className="arcade-intro__hint">{t(`${gameKey}.hint`)}</p>
-          <div className="arcade-intro__mode-heading">
-            <span>{t("arcadeIntro.chooseMode")}</span>
-            <small>{t("arcadeIntro.tapToPlay")}</small>
-          </div>
-          <div className="arcade-intro__modes" role="group" aria-label={t("arcadeIntro.chooseMode")}>
-            {GAME_MODES.map((mode) => {
-              const locked = mode.id !== "easy" && !isProActive;
-              return (
-                <button
-                  key={mode.id}
-                  type="button"
-                  className={`arcade-intro__mode arcade-intro__mode--${mode.id}`}
-                  onClick={() => onSelectDifficulty?.(mode.id)}
-                  disabled={locked}
-                  aria-label={`${t(`arcadeIntro.difficulty.${mode.id}`)}${locked ? ` — ${t("arcadeIntro.proRequired")}` : ""}`}
-                >
-                  <span className="material-symbols-outlined">
-                    {locked ? "lock" : mode.icon}
-                  </span>
-                  <strong>{t(`arcadeIntro.difficulty.${mode.id}`)}</strong>
-                  <small>{locked ? t("arcadeIntro.proRequired") : `+${mode.reward} JOY`}</small>
-                </button>
-              );
-            })}
-          </div>
+
+          <button
+            type="button"
+            className="arcade-intro__play-btn"
+            onClick={onStartGame}
+          >
+            <span className="material-symbols-outlined">play_arrow</span>
+            {t("arcadeIntro.playNow")}
+          </button>
         </div>
       </div>
     </section>

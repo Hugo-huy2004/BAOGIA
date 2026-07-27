@@ -80,13 +80,13 @@ if (typeof window !== "undefined") {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export async function submitScore(game, { score, difficulty, result }, bio) {
+export async function submitScore(game, { score, result }, bio) {
   const body = {
     email:       bio?.email,
     game,
     score,
-    difficulty,
     result,
+    difficulty:  "easy", // backward compat — old server requires this field
     displayName: bio?.displayName || "",
     avatarUrl:   bio?.avatar || bio?.avatarUrl || "",
   };

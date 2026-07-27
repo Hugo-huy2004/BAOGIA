@@ -1,7 +1,14 @@
 import express from 'express';
+import Bio from '../models/Bio.js';
+import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const RADIO_API_BASE = 'https://de1.api.radio-browser.info/json';
+
+// Weekly free allowance in minutes (5 hours)
+const WEEKLY_FREE_MINUTES = 300;
+// Milliseconds in one week
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Server-side proxy for the public Radio Browser API. CORS only restricts
 // browser-side fetches, not server-to-server calls, so this sidesteps the
@@ -121,6 +128,122 @@ router.post('/click', async (req, res) => {
     fetch(`${RADIO_API_BASE}/url/${uuid}`, { headers: { 'User-Agent': 'HugoStudio-Radio/1.0' } }).catch(() => {});
   }
   res.json({ ok: true });
+});
+
+// ── HugoRadio Token System ──────────────────────────────────────────────────
+
+// Helper: reset weekly free pool if a new week has started since last reset.
+function ensureWeeklyReset(radioTokens) {
+  const now = Date.now();
+  const lastReset = radioTokens.weeklyResetAt ? new Date(radioTokens.weeklyResetAt).getTime() : 0;
+  if (!lastReset || (now - lastReset) >= WEEK_MS) {
+    radioTokens.weeklyUsedMinutes = 0;
+    radioTokens.weeklyFreeMinutes = WEEKLY_FREE_MINUTES;
+    radioTokens.weeklyResetAt = new Date(now);
+  }
+  return radioTokens;
+}
+
+// GET /api/radio/token-status?email=...
+// Returns the user's current radio token status (free + purchased pools).
+router.get('/token-status', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail || req.query.email;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+
+    let bio = await Bio.findOne({ email }).select('radioTokens');
+    if (!bio) bio = await Bio.findOne({ contactEmail: email }).select('radioTokens');
+    if (!bio) return res.status(404).json({ error: 'User not found' });
+
+    if (!bio.radioTokens) {
+      bio.radioTokens = {
+        weeklyFreeMinutes: WEEKLY_FREE_MINUTES,
+        weeklyUsedMinutes: 0,
+        weeklyResetAt: new Date(),
+        purchasedMinutes: 0
+      };
+      await bio.save();
+    }
+
+    ensureWeeklyReset(bio.radioTokens);
+    await bio.save();
+
+    const freeRemaining = Math.max(0, bio.radioTokens.weeklyFreeMinutes - bio.radioTokens.weeklyUsedMinutes);
+    const purchasedRemaining = Math.max(0, bio.radioTokens.purchasedMinutes);
+    const totalRemaining = freeRemaining + purchasedRemaining;
+
+    res.json({
+      freeMinutes: bio.radioTokens.weeklyFreeMinutes,
+      freeUsed: bio.radioTokens.weeklyUsedMinutes,
+      freeRemaining,
+      purchasedMinutes: purchasedRemaining,
+      totalRemaining,
+      canListen: totalRemaining > 0,
+      weekResetAt: bio.radioTokens.weeklyResetAt
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/radio/heartbeat { email, listeningMinutes }
+// Called periodically (every 5 min) by the client while radio is playing.
+// Deducts time from free pool first, then purchased pool.
+// Returns remaining time and whether the user can continue listening.
+router.post('/heartbeat', requireMember, async (req, res) => {
+  try {
+    const { email, listeningMinutes } = req.body;
+    if (!email) return res.status(400).json({ error: 'email is required' });
+    const minutes = Number(listeningMinutes) || 5;
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'User not found' });
+
+    if (!bio.radioTokens) {
+      bio.radioTokens = {
+        weeklyFreeMinutes: WEEKLY_FREE_MINUTES,
+        weeklyUsedMinutes: 0,
+        weeklyResetAt: new Date(),
+        purchasedMinutes: 0
+      };
+    }
+
+    ensureWeeklyReset(bio.radioTokens);
+
+    let remaining = minutes;
+
+    // Deduct from free pool first
+    const freeAvailable = Math.max(0, bio.radioTokens.weeklyFreeMinutes - bio.radioTokens.weeklyUsedMinutes);
+    if (freeAvailable > 0) {
+      const fromFree = Math.min(freeAvailable, remaining);
+      bio.radioTokens.weeklyUsedMinutes += fromFree;
+      remaining -= fromFree;
+    }
+
+    // Then from purchased pool
+    if (remaining > 0 && bio.radioTokens.purchasedMinutes > 0) {
+      const fromPurchased = Math.min(bio.radioTokens.purchasedMinutes, remaining);
+      bio.radioTokens.purchasedMinutes -= fromPurchased;
+      remaining -= fromPurchased;
+    }
+
+    await bio.save();
+
+    const freeLeft = Math.max(0, bio.radioTokens.weeklyFreeMinutes - bio.radioTokens.weeklyUsedMinutes);
+    const purchasedLeft = Math.max(0, bio.radioTokens.purchasedMinutes);
+
+    res.json({
+      freeRemaining: freeLeft,
+      purchasedRemaining: purchasedLeft,
+      totalRemaining: freeLeft + purchasedLeft,
+      canListen: (freeLeft + purchasedLeft) > 0,
+      deducted: minutes - remaining,
+      weekResetAt: bio.radioTokens.weeklyResetAt
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 export default router;
