@@ -22,7 +22,8 @@ const APP_STORAGE_MB = {
   bio: 1.5,
   info: 0.8,
   joy_wallet: 1.1,
-  map: 2.4
+  map: 2.4,
+  hugoso: 3.6
 };
 
 const APP_VERSIONS = {
@@ -39,7 +40,8 @@ const APP_VERSIONS = {
   deco: "1.7.0",
   info: "2.0.0",
   joy_wallet: "2.4.0",
-  map: "1.0.0"
+  map: "1.0.0",
+  hugoso: "1.0.0"
 };
 
 export default function LibraryCatalog({

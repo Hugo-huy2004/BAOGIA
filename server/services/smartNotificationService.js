@@ -41,11 +41,13 @@ async function runSkincareReminders(timeOfDay) {
       // 1. Tạo In-App Notification
       await InAppNotification.create({
         email,
-        type: 'inbox',
+        // 'inbox' không có trong enum của schema → Mongoose từ chối, thông
+        // báo này trước đây chưa bao giờ được lưu. Xem InAppNotification.js.
+        type: 'info',
         category: 'system',
         title,
         message: body,
-        actionUrl: '/member/portal?tab=utilities&sub=hugoskin'
+        actionUrl: '/member/utilities/hugoskin'
       });
 
       // 2. Gửi Web Push
@@ -56,7 +58,7 @@ async function runSkincareReminders(timeOfDay) {
           body,
           icon: '/image/avt7.png',
           badge: '/image/badge.png',
-          url: '/member/portal?tab=utilities&sub=hugoskin',
+          url: '/member/utilities/hugoskin',
           tag: 'skincare_reminder'
         });
       }
@@ -102,7 +104,7 @@ async function runScheduledCompanionPushes() {
           body:  aiResult.body  || 'Gợi ý trị liệu hôm nay dành cho bạn!',
           icon:  '/image/avt7.png',
           badge: '/image/badge.png',
-          url:   aiResult.url  || '/member/portal?tab=banhocduong',
+          url:   aiResult.url  || '/member/utilities/psychology',
           tag:   'companion_push',
         });
       }
@@ -110,11 +112,13 @@ async function runScheduledCompanionPushes() {
       // Tạo thêm thông báo trong hộp thư (In-App)
       await InAppNotification.create({
         email: item.email,
-        type: 'inbox',
+        // 'inbox' không có trong enum của schema → Mongoose từ chối, thông
+        // báo này trước đây chưa bao giờ được lưu. Xem InAppNotification.js.
+        type: 'info',
         category: 'system',
         title: aiResult.title || 'Bạn Học Đường Trị Liệu',
         message: aiResult.body || 'Lời khuyên chăm sóc sức khỏe tinh thần dành cho bạn!',
-        actionUrl: aiResult.url || '/member/portal?tab=banhocduong'
+        actionUrl: aiResult.url || '/member/utilities/psychology'
       });
 
       item.sent = true;
@@ -170,7 +174,7 @@ async function runSmartPushJob(contextHint) {
         body:  aiResult.body  || 'Cậu ơi, mình có điều muốn chia sẻ!',
         icon:  '/image/avt7.png',
         badge: '/image/badge.png',
-        url:   aiResult.url  || '/member/portal?tab=banhocduong',
+        url:   aiResult.url  || '/member/utilities/psychology',
         tag:   aiResult.type || 'smart_push',
       });
     } catch (err) {

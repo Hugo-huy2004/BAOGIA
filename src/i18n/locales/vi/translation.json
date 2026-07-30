@@ -1529,7 +1529,7 @@
       "topStories": "Điều đáng đọc hôm nay",
       "localEdition": "Ấn bản {{country}}",
       "dailyReset": "Làm mới mỗi ngày lúc 09:00",
-      "refresh": "Làm mới",
+      "loadMore": "Xem thêm {{n}} bài",
       "categories": "Danh mục bài viết",
       "category": {
         "all": "Tất cả",
@@ -3284,7 +3284,9 @@
     },
     "catalog": {
       "bio": { "title": "Trang Bio", "description": "Hồ sơ cá nhân và Bio link" },
+      "library": { "title": "Hugo Library", "description": "Thư viện ứng dụng trong hệ sinh thái" },
       "ide": { "title": "HugoCoder", "description": "Soạn code và học lập trình" },
+      "hugoso": { "title": "HugoSO", "description": "Kỹ năng Google Workspace và Gemini", "fullDescription": "Hugo Study Office Skills — học Calendar, Docs, Sheets và Gemini theo từng bước, có video minh họa, bài thực hành và đánh giá kỹ năng trong mỗi bài." },
       "team": { "title": "Hugo Team", "description": "Tuyển dụng và dự án sinh viên" },
       "psychology": { "title": "HugoPSY", "description": "AI tâm lý và theo dõi giấc ngủ" },
       "hugoskin": { "title": "HugoSkin", "description": "Phân tích da và chăm sóc cá nhân" },
@@ -3903,10 +3905,10 @@
         "hint": "Quan sát thế trận, bảo vệ vua và biến lợi thế nhỏ thành chiến thắng."
       },
       "survivor": {
-        "eyebrow": "Tín hiệu từ không gian",
-        "title": "Sống sót giữa những vì sao.",
-        "description": "Điều khiển phi thuyền qua vùng thiên thạch vô tận và giữ tín hiệu sống càng lâu càng tốt.",
-        "hint": "Di chuyển có nhịp, đọc quỹ đạo và đừng để năng lượng bị bao vây."
+        "eyebrow": "Biên đội Boss 3D",
+        "title": "Phá vòng vây. Hạ mọi hạm đội.",
+        "description": "Chiến đấu toàn màn hình qua các đợt địch 3D và đối đầu bốn lớp Boss nhiều pha với kho vũ khí riêng.",
+        "hint": "Bay sát làn đạn để nạp Xung Phá, nâng cấp súng và đổi chiến thuật theo từng Boss."
       },
       "flappy": {
         "eyebrow": "Một chạm, một nhịp",
@@ -3939,10 +3941,10 @@
         "hint": "Bắt đầu bằng từ có nhiều nguyên âm và không lặp chữ."
       },
       "snake": {
-        "eyebrow": "Khu vườn đồ chơi",
-        "title": "Lớn dần, đừng chạm đuôi.",
-        "description": "Phiên bản Snake mềm mại, vui mắt với đường chạy ngắn, trái ngọt và nhịp chơi thư giãn.",
-        "hint": "Chừa một lối thoát quanh mép bàn trước khi thân rắn dài hơn."
+        "eyebrow": "Hành trình Neon",
+        "title": "Năm thế giới. Một đường chạy.",
+        "description": "Snake 3D Pro trở lại với sân chơi toàn màn hình, chuyển động mượt, cổng dịch chuyển và thử thách mới sau mỗi chặng.",
+        "hint": "Giữ một lối thoát, săn lõi vàng và sẵn sàng khi môi trường đổi luật."
       }
     }
   },

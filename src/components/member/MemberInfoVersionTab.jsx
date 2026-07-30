@@ -40,6 +40,7 @@ const ECOSYSTEM = [
   ["joy_wallet", "account_balance_wallet"],
   ["psychology", "psychology"],
   ["ide", "code"],
+  ["hugoso", "school"],
   ["arcade", "stadium"],
   ["aura", "blur_on"],
   ["helpdesk", "support_agent"],

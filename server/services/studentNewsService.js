@@ -2,6 +2,7 @@ import crypto from 'crypto';
 
 const REQUEST_TIMEOUT_MS = 5500;
 const MAX_ARTICLES = 30;
+const EDITION_COUNTRIES = new Set(['VN', 'US']);
 
 const CATEGORY_QUERIES = Object.freeze({
   all: {
@@ -83,6 +84,14 @@ function safeUrl(value) {
   }
 }
 
+// Ảnh RSS mặc định là bản 1200px cho một thumbnail 86px. Chỉ hạ được ở CDN nào
+// không ký tham số trong URL — VnExpress ký (`s=`) nên đổi `w=` là 401, đành
+// nhận bản gốc; phần còn lại đã có loading="lazy" gánh.
+// ponytail: rewrite theo từng CDN, thêm nguồn mới thì thêm một dòng ở đây.
+function shrinkImage(url) {
+  return url.replace(/\/thumb_w\/\d+\//, '/thumb_w/800/');
+}
+
 function stableId(article) {
   return crypto
     .createHash('sha256')
@@ -103,7 +112,7 @@ function normalizeArticle(article, defaults = {}) {
     author: cleanText(article.author).slice(0, 100),
     category: article.category || defaults.category || 'academic',
     url,
-    imageUrl: safeUrl(article.imageUrl),
+    imageUrl: shrinkImage(safeUrl(article.imageUrl)),
     publishedAt: article.publishedAt || new Date().toISOString(),
     provider: defaults.provider || article.provider || 'api',
   };
@@ -233,49 +242,85 @@ export class GNewsProvider extends NewsProvider {
   }
 }
 
-export class GoogleNewsRssProvider extends NewsProvider {
-  constructor() {
-    super('google-news-rss');
+// RSS trực tiếp của toà soạn, không đi qua news.google.com: có ảnh thật, có
+// tóm tắt thật và link gốc (feed tìm kiếm của Google News không có cả ba).
+// Ảnh nằm ở <enclosure>/<media:*> hoặc thẻ <img> đầu trong description.
+const PUBLISHER_FEEDS = Object.freeze({
+  vi: {
+    academic: [
+      ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
+      ['Tuổi Trẻ', 'https://tuoitre.vn/rss/giao-duc.rss'],
+      ['Thanh Niên', 'https://thanhnien.vn/rss/giao-duc.rss'],
+    ],
+    technology: [
+      ['VnExpress', 'https://vnexpress.net/rss/khoa-hoc-cong-nghe.rss'],
+    ],
+    community: [
+      ['Tuổi Trẻ', 'https://tuoitre.vn/rss/nhip-song-tre.rss'],
+      ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
+    ],
+    world: [
+      ['VnExpress', 'https://vnexpress.net/rss/the-gioi.rss'],
+    ],
+    all: [
+      ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
+      ['VnExpress', 'https://vnexpress.net/rss/khoa-hoc-cong-nghe.rss'],
+      ['Tuổi Trẻ', 'https://tuoitre.vn/rss/giao-duc.rss'],
+    ],
+  },
+  en: {
+    academic: [['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml']],
+    technology: [['BBC News', 'https://feeds.bbci.co.uk/news/technology/rss.xml']],
+    community: [['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml']],
+    world: [['BBC News', 'https://feeds.bbci.co.uk/news/world/rss.xml']],
+    all: [
+      ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
+      ['BBC News', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'],
+    ],
+  },
+});
+
+export class PublisherRssProvider extends NewsProvider {
+  constructor(feeds = PUBLISHER_FEEDS) {
+    super('publisher-rss');
+    this.feeds = feeds;
   }
 
-  async fetchArticles({ language, category, country, limit }) {
-    const normalizedCountry = /^[A-Z]{2}$/.test(country || '') ? country : (language === 'vi' ? 'VN' : 'US');
-    const normalizedLanguage = language === 'vi' ? 'vi' : 'en';
-    const query = CATEGORY_QUERIES[category]?.[language] || CATEGORY_QUERIES.all[language];
-    const params = new URLSearchParams({
-      q: query,
-      hl: normalizedLanguage === 'vi' ? 'vi' : `en-${normalizedCountry}`,
-      gl: normalizedCountry,
-      ceid: `${normalizedCountry}:${normalizedLanguage}`,
-    });
-    const response = await fetch(`https://news.google.com/rss/search?${params}`, {
+  async fetchArticles({ language, category, limit }) {
+    const feeds = this.feeds[language]?.[category] || this.feeds[language]?.all || [];
+    const perFeed = Math.max(4, Math.ceil(limit / Math.max(1, feeds.length)));
+    const settled = await Promise.allSettled(
+      feeds.map(([source, url]) => this.readFeed(source, url, category, perFeed)),
+    );
+    // Một toà soạn đổi/tắt feed không được làm sập cả ấn bản.
+    if (settled.every((result) => result.status === 'rejected')) {
+      throw new Error('Every publisher feed failed');
+    }
+    return settled.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  }
+
+  async readFeed(source, url, category, limit) {
+    const response = await fetch(url, {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       headers: { 'User-Agent': 'HugoWishpaxStudentPortal/1.0 (student news edition)' },
     });
-    if (!response.ok) throw new Error(`Google News RSS returned ${response.status}`);
+    if (!response.ok) throw new Error(`${source} RSS returned ${response.status}`);
     const xml = await response.text();
     return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]
       .slice(0, limit)
       .map((itemMatch) => {
         const item = itemMatch[1];
         const read = (tag) => item.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`))?.[1] || '';
-        const source = cleanText(read('source')) || 'Google News';
-        const rawTitle = cleanText(read('title'));
-        const sourceSuffix = ` - ${source}`;
-        const title = rawTitle.endsWith(sourceSuffix)
-          ? rawTitle.slice(0, -sourceSuffix.length)
-          : rawTitle;
-        const imageUrl = item.match(/<(?:media:content|media:thumbnail|enclosure)[^>]+url=["']([^"']+)["']/i)?.[1] || '';
+        const rawDescription = read('description');
         return normalizeArticle({
-          title,
-          // RSS descriptions are publisher-link HTML rather than editorial
-          // summaries. The reader supplies a localized no-summary message
-          // instead of exposing raw markup.
-          description: '',
+          title: read('title'),
+          description: rawDescription,
           source,
           category,
           url: read('link'),
-          imageUrl,
+          imageUrl: item.match(/<(?:enclosure|media:content|media:thumbnail)[^>]+url=["']([^"']+)["']/i)?.[1]
+            || rawDescription.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]
+            || '',
           publishedAt: read('pubDate'),
         }, { provider: this.name });
       })
@@ -366,7 +411,7 @@ export class StudentNewsService {
   constructor(providers = [
     new GNewsProvider(),
     new NewsApiProvider(),
-    new GoogleNewsRssProvider(),
+    new PublisherRssProvider(),
     new ArxivProvider(),
   ]) {
     this.providers = providers;
@@ -385,7 +430,11 @@ export class StudentNewsService {
     const normalizedCategory = CATEGORY_QUERIES[category] ? category : 'all';
     const normalizedPage = Math.max(1, Number(page) || 1);
     const normalizedLimit = Math.min(MAX_ARTICLES, Math.max(1, Number(limit) || 12));
-    const normalizedCountry = /^[A-Z]{2}$/.test(String(country).toUpperCase())
+    // Chỉ có hai ấn bản (vi/en) nên chỉ nhận hai mã quốc gia. Nếu để mã tuỳ ý
+    // vào cache key thì 676 mã × 5 category × 2 ngôn ngữ vượt xa giới hạn cache
+    // 80 phần tử → miss liên tục, mỗi miss là một lượt fan-out 4 provider và
+    // đốt quota GNews (100 req/ngày).
+    const normalizedCountry = EDITION_COUNTRIES.has(String(country).toUpperCase())
       ? String(country).toUpperCase()
       : (normalizedLanguage === 'vi' ? 'VN' : 'US');
     const edition = getDailyEdition(new Date(), timeZone);
@@ -411,7 +460,15 @@ export class StudentNewsService {
         status: result.status === 'fulfilled' ? 'available' : 'unavailable',
       }));
       const merged = settled.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
-      const deduplicated = [...new Map(merged.map((article) => [article.url, article])).values()]
+      // Dedupe theo tiêu đề, không theo URL: cùng một tin qua hai nguồn có URL
+      // khác nhau. Bản có ảnh được ưu tiên giữ lại.
+      const byTitle = new Map();
+      for (const article of merged) {
+        const key = article.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+        const kept = byTitle.get(key);
+        if (!kept || (!kept.imageUrl && article.imageUrl)) byTitle.set(key, article);
+      }
+      const deduplicated = [...byTitle.values()]
         .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
       articles = deduplicated.length
         ? deduplicated

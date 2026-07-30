@@ -31,7 +31,7 @@ const readStoredList = (key) => {
 
 const GAMES = [
   { id: "chess",     name: "HugoChess AI 2500", tagline: "Thách đấu AI Master ELO 2500 & PvP.", label: "Cờ Vua · Đại Sư ELO", Icon: Castle },
-  { id: "survivor",  name: "Hugo Space Survivor",tagline: "Bắn máy bay Neon 3D & Trùm Cuối.", label: "Bắn Súng 3D · Boss", Icon: Rocket },
+  { id: "survivor",  name: "Hugo Space Survivor",tagline: "Không chiến Neon 3D & 4 lớp Boss.", label: "Bắn Súng 3D · Multi-Boss", Icon: Rocket },
   { id: "flappy",    name: "Hugo Flappy Cyber",   tagline: "Vượt chướng không gian Slow-Motion.", label: "Cyberpunk 3D", Icon: Zap },
   { id: "tetris",    name: "Hugo Tetris Neon",  tagline: "Xếp hình Neon 3D 60 FPS.", label: "Xếp Hình Neon", Icon: Grid3X3 },
   { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm.", label: "Trí Tuệ · Logic", Icon: Blocks },

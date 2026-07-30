@@ -3,7 +3,7 @@ import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
 import confetti from "canvas-confetti";
 import { readGamePalette, shade, withAlpha } from "./arcadePalette";
-import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
+import { ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
 import ArcadeHud from "./ArcadeHud";
 
 // ── Luật chơi ─────────────────────────────────────────────────────
@@ -13,13 +13,14 @@ import ArcadeHud from "./ArcadeHud";
 //   Đầy thanh → bấm nút để quét sạch đạn, nổ dàn địch và bất tử 3 giây.
 //   Đây là chỗ duy nhất người chơi CHỦ ĐỘNG tấn công — trước đây game chỉ có né.
 // · CẤP SÚNG 1→5: nhặt lõi vàng để lên cấp; trúng đạn mất 1 máu và tụt 1 cấp.
-// · Trùm mỗi 5 đợt, có 2 pha: dưới 50% máu đổi kiểu bắn và gọi thêm quân.
+// · Trùm mỗi 3 đợt, luân phiên 4 mẫu tàu với 3 pha và kiểu đạn riêng.
 // · Chuỗi hạ gục 2.2s nhân điểm tối đa x3.
 const GAME_ID = "survivor";
 const W = 360;   // toạ độ "thiết kế" — canvas thật được nhân theo devicePixelRatio
 const H = 540;
 const MAX_HP = 3;
 const MAX_WEAPON = 5;
+const BOSS_EVERY = 3;
 
 const GRAZE_RADIUS = 34;
 const GRAZE_FULL = 100;
@@ -35,6 +36,48 @@ const TYPES = {
   seeker: { color: "#f97316", w: 24, hp: 1, speed: 3.0 },
   heavy:  { color: "#a855f7", w: 36, hp: 4, speed: 1.6 },
 };
+
+const BOSS_TYPES = [
+  {
+    id: "titan",
+    name: "Titan Đỏ",
+    color: "#ef4444",
+    color2: "#fb923c",
+    w: 112,
+    h: 66,
+    hpScale: 1,
+  },
+  {
+    id: "vortex",
+    name: "Vortex Prime",
+    color: "#8b5cf6",
+    color2: "#22d3ee",
+    w: 104,
+    h: 72,
+    hpScale: 1.12,
+  },
+  {
+    id: "twins",
+    name: "Song Tử Omega",
+    color: "#06b6d4",
+    color2: "#f472b6",
+    w: 124,
+    h: 58,
+    hpScale: 1.2,
+  },
+  {
+    id: "reaper",
+    name: "Hắc Tinh Reaper",
+    color: "#f43f5e",
+    color2: "#a3e635",
+    w: 118,
+    h: 76,
+    hpScale: 1.34,
+  },
+];
+
+const bossTypeForWave = (wave) =>
+  BOSS_TYPES[(Math.max(BOSS_EVERY, wave) / BOSS_EVERY - 1) % BOSS_TYPES.length | 0];
 
 // Đội hình: trả về danh sách lệch (dx, delay) quanh một điểm neo.
 const FORMATIONS = {
@@ -52,9 +95,10 @@ const FORMATION_KEYS = Object.keys(FORMATIONS);
 
 export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const canvasRef = useRef(null);
+  const [layoutRevision, setLayoutRevision] = useState(0);
   const [hud, setHud] = useState({
     score: 0, hp: MAX_HP, weapon: 1, wave: 1, combo: 0, mult: 1,
-    notice: "", boss: null, graze: 0, overdrive: false,
+    notice: "", boss: null, bossName: "", bossMode: 1, graze: 0, overdrive: false,
   });
 
   const { playBeep, playLose } = useArcadeSound();
@@ -102,6 +146,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       combo: s.combo.chain + (s.combo.chain > 0 ? 1 : 0),
       mult: s.combo.mult,
       boss: s.boss ? Math.max(0, Math.round((s.boss.hp / s.boss.maxHp) * 100)) : null,
+      bossName: s.boss?.name || "",
+      bossMode: s.boss?.mode || 1,
       graze: Math.round((s.graze / GRAZE_FULL) * 100),
       overdrive: s.overdrive > 0,
       notice: notice !== undefined ? notice : prev.notice,
@@ -112,6 +158,19 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     syncHud(text);
     setTimeout(() => setHud((h) => (h.notice === text ? { ...h, notice: "" } : h)), 2000);
   }, [syncHud]);
+
+  useEffect(() => {
+    let timer;
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setLayoutRevision((revision) => revision + 1), 160);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -202,11 +261,39 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
     const spawnBoss = (wave) => {
       const s = state.current;
-      const hp = 40 + wave * 14;
-      s.boss = { x: W / 2, y: 84, w: 104, h: 62, hp, maxHp: hp, dirX: 2 + wave * 0.15, phase: 0, turret: 0, mode: 1, burst: 0, minionAt: 0 };
+      const type = bossTypeForWave(wave);
+      const hp = Math.round((46 + wave * 16) * type.hpScale);
+      s.boss = {
+        ...type,
+        x: W / 2,
+        y: 82,
+        hp,
+        maxHp: hp,
+        dirX: 1.8 + wave * 0.12,
+        phase: 0,
+        turret: 0,
+        mode: 1,
+        burst: 20,
+        radialAt: 0,
+        minionAt: 0,
+        beam: null,
+      };
+      s.enemies = [];
+      s.foeShots = [];
       s.flashAlpha = 0.6;
       s.shakeMag = 10;
-      notify(`Trùm đợt ${wave} xuất hiện`);
+      notify(`${type.name} đang xâm nhập`);
+    };
+
+    const bossShot = (s, x, y, angle, speed, color, size = 7) => {
+      s.foeShots.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color,
+        size,
+        phase: Math.random() * Math.PI * 2,
+      });
     };
 
     // ── Bắn ────────────────────────────────────────────────────────
@@ -431,11 +518,11 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       const cx = b.x;
       const cy = b.y;
       const hpPct = b.hp / b.maxHp;
-      const hull = b.mode === 2 ? "#b91c1c" : "#7f1d1d";
+      const rageColor = b.mode === 3 ? "#ffffff" : b.mode === 2 ? b.color2 : b.color;
 
       additive(() => {
         const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, b.w);
-        g.addColorStop(0, withAlpha(b.mode === 2 ? "#ff3b30" : "#ef4444", 0.3));
+        g.addColorStop(0, withAlpha(rageColor, b.mode === 3 ? 0.42 : 0.3));
         g.addColorStop(1, "transparent");
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -447,48 +534,132 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(b.turret);
-      ctx.strokeStyle = withAlpha(b.mode === 2 ? "#fca5a5" : "#f87171", 0.75);
-      ctx.lineWidth = 2.5;
-      for (let i = 0; i < 4; i++) {
+      ctx.strokeStyle = withAlpha(rageColor, 0.78);
+      ctx.lineWidth = b.mode === 3 ? 3.2 : 2.2;
+      const ringArms = b.id === "vortex" ? 6 : 4;
+      for (let i = 0; i < ringArms; i++) {
         ctx.beginPath();
-        ctx.arc(0, 0, b.w * 0.46, (Math.PI / 2) * i + 0.25, (Math.PI / 2) * i + 1.05);
+        const arc = (Math.PI * 2) / ringArms;
+        ctx.arc(0, 0, b.w * 0.48, arc * i + 0.16, arc * i + arc * 0.68);
         ctx.stroke();
       }
       ctx.restore();
 
-      // Thân: nhiều lớp giáp thay vì một hình thang phẳng.
-      ctx.shadowColor = "#ef4444";
-      ctx.shadowBlur = 26;
-      const g = ctx.createLinearGradient(cx - b.w / 2, cy - b.h / 2, cx + b.w / 2, cy + b.h / 2);
-      g.addColorStop(0, shade(hull, 0.35));
-      g.addColorStop(0.45, hull);
-      g.addColorStop(1, "#3f0a0a");
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy + b.h * 0.62);
-      ctx.lineTo(cx - b.w * 0.34, cy + b.h * 0.3);
-      ctx.lineTo(cx - b.w / 2, cy - b.h * 0.2);
-      ctx.lineTo(cx - b.w * 0.26, cy - b.h / 2);
-      ctx.lineTo(cx + b.w * 0.26, cy - b.h / 2);
-      ctx.lineTo(cx + b.w / 2, cy - b.h * 0.2);
-      ctx.lineTo(cx + b.w * 0.34, cy + b.h * 0.3);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      const armorGradient = (x0, y0, x1, y1) => {
+        const g = ctx.createLinearGradient(x0, y0, x1, y1);
+        g.addColorStop(0, "#ffffff");
+        g.addColorStop(0.12, shade(b.color, 0.32));
+        g.addColorStop(0.52, b.color);
+        g.addColorStop(1, shade(b.color2, -0.68));
+        return g;
+      };
 
-      ctx.strokeStyle = withAlpha("#fecaca", 0.3);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.shadowColor = rageColor;
+      ctx.shadowBlur = b.mode === 3 ? 34 : 24;
+      ctx.fillStyle = armorGradient(-b.w / 2, -b.h / 2, b.w / 2, b.h / 2);
+      ctx.strokeStyle = withAlpha("#ffffff", 0.38);
       ctx.lineWidth = 1.2;
-      ctx.stroke();
-      for (let i = -1; i <= 1; i++) {
+
+      if (b.id === "vortex") {
+        // A circular singularity carrier: six armored fins orbit a dark core.
+        for (let i = 0; i < 6; i++) {
+          ctx.save();
+          ctx.rotate((Math.PI * 2 * i) / 6 + b.turret * 0.35);
+          ctx.beginPath();
+          ctx.moveTo(12, -9);
+          ctx.lineTo(b.w * 0.5, -15);
+          ctx.lineTo(b.w * 0.38, 7);
+          ctx.lineTo(15, 13);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#02030b";
         ctx.beginPath();
-        ctx.moveTo(cx + i * b.w * 0.2, cy - b.h * 0.42);
-        ctx.lineTo(cx + i * b.w * 0.26, cy + b.h * 0.28);
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = withAlpha(b.color2, 0.7);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, 30 + Math.sin(b.phase) * 3, 0, Math.PI * 2);
         ctx.stroke();
+      } else if (b.id === "twins") {
+        // Two independently lit pods joined by an energy bridge.
+        const pod = (x, color) => {
+          ctx.save();
+          ctx.translate(x, 0);
+          ctx.fillStyle = armorGradient(-24, -24, 24, 24);
+          ctx.beginPath();
+          ctx.moveTo(0, 29);
+          ctx.lineTo(-25, 8);
+          ctx.lineTo(-20, -20);
+          ctx.lineTo(0, -28);
+          ctx.lineTo(20, -20);
+          ctx.lineTo(25, 8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(0, 1, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        };
+        ctx.strokeStyle = withAlpha(b.color2, 0.72);
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        ctx.moveTo(-38, 0);
+        ctx.lineTo(38, 0);
+        ctx.stroke();
+        pod(-38, b.color);
+        pod(38, b.color2);
+      } else if (b.id === "reaper") {
+        // A scythe silhouette with a raised central command spine.
+        ctx.beginPath();
+        ctx.moveTo(0, b.h * 0.58);
+        ctx.lineTo(-15, b.h * 0.15);
+        ctx.lineTo(-b.w * 0.52, b.h * 0.35);
+        ctx.lineTo(-b.w * 0.36, -b.h * 0.12);
+        ctx.lineTo(-18, -b.h * 0.48);
+        ctx.lineTo(0, -b.h * 0.32);
+        ctx.lineTo(18, -b.h * 0.48);
+        ctx.lineTo(b.w * 0.36, -b.h * 0.12);
+        ctx.lineTo(b.w * 0.52, b.h * 0.35);
+        ctx.lineTo(15, b.h * 0.15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = shade(b.color2, -0.5);
+        ctx.fillRect(-5, -b.h * 0.42, 10, b.h * 0.76);
+      } else {
+        // Titan: broad layered armor and a heavy central keel.
+        ctx.beginPath();
+        ctx.moveTo(0, b.h * 0.62);
+        ctx.lineTo(-b.w * 0.34, b.h * 0.3);
+        ctx.lineTo(-b.w / 2, -b.h * 0.2);
+        ctx.lineTo(-b.w * 0.26, -b.h / 2);
+        ctx.lineTo(b.w * 0.26, -b.h / 2);
+        ctx.lineTo(b.w / 2, -b.h * 0.2);
+        ctx.lineTo(b.w * 0.34, b.h * 0.3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        for (let i = -1; i <= 1; i++) {
+          ctx.beginPath();
+          ctx.moveTo(i * b.w * 0.2, -b.h * 0.42);
+          ctx.lineTo(i * b.w * 0.26, b.h * 0.28);
+          ctx.stroke();
+        }
       }
+      ctx.restore();
 
       // Vết nứt theo lượng máu đã mất — thấy được là sắp hạ được nó.
       const cracks = Math.round((1 - hpPct) * 6);
-      ctx.strokeStyle = "rgba(255,214,120,.65)";
+      ctx.strokeStyle = withAlpha(b.color2, 0.78);
       ctx.lineWidth = 1.4;
       for (let i = 0; i < cracks; i++) {
         const a = (i / 6) * Math.PI * 2 + b.phase * 0.15;
@@ -500,10 +671,10 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
       // Lõi
       additive(() => {
-        const pulse = 13 + Math.sin(b.phase * 2) * 3;
+        const pulse = (b.id === "vortex" ? 18 : 13) + Math.sin(b.phase * 2) * 3;
         const cg = ctx.createRadialGradient(cx, cy, 1, cx, cy, pulse);
         cg.addColorStop(0, "#ffffff");
-        cg.addColorStop(0.45, b.mode === 2 ? "#ff3b30" : "#f87171");
+        cg.addColorStop(0.45, rageColor);
         cg.addColorStop(1, "transparent");
         ctx.fillStyle = cg;
         ctx.beginPath();
@@ -569,21 +740,41 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      ctx.fillStyle = withAlpha(od ? OD_COLOR : pal.accent, 0.75);
+      // Raised wing panels and a glass canopy add readable volume at speed.
+      const wingLight = withAlpha("#ffffff", 0.3);
+      ctx.fillStyle = wingLight;
       ctx.beginPath();
-      ctx.ellipse(0, -7, 3.5, 6.5, 0, 0, Math.PI * 2);
+      ctx.moveTo(-7, -3);
+      ctx.lineTo(-15, 11);
+      ctx.lineTo(-4, 6);
+      ctx.closePath();
+      ctx.moveTo(7, -3);
+      ctx.lineTo(15, 11);
+      ctx.lineTo(4, 6);
+      ctx.closePath();
+      ctx.fill();
+
+      const canopy = ctx.createRadialGradient(-1.2, -10, 0.5, 0, -7, 7);
+      canopy.addColorStop(0, "#ffffff");
+      canopy.addColorStop(0.32, od ? "#e9d5ff" : "#bae6fd");
+      canopy.addColorStop(1, withAlpha(od ? OD_COLOR : pal.accent, 0.68));
+      ctx.fillStyle = canopy;
+      ctx.beginPath();
+      ctx.ellipse(0, -7, 4.2, 7.2, 0, 0, Math.PI * 2);
       ctx.fill();
 
       additive(() => {
-        const f = 6 + Math.random() * 5;
-        const tg = ctx.createRadialGradient(0, 15, 1, 0, 15, f);
-        tg.addColorStop(0, "#ffffff");
-        tg.addColorStop(0.35, od ? OD_COLOR : "#FF2D55");
-        tg.addColorStop(1, "transparent");
-        ctx.fillStyle = tg;
-        ctx.beginPath();
-        ctx.arc(0, 15, f, 0, Math.PI * 2);
-        ctx.fill();
+        [-8, 8].forEach((engineX) => {
+          const f = 5 + Math.random() * 4;
+          const tg = ctx.createRadialGradient(engineX, 13, 1, engineX, 17, f);
+          tg.addColorStop(0, "#ffffff");
+          tg.addColorStop(0.32, od ? OD_COLOR : "#38bdf8");
+          tg.addColorStop(1, "transparent");
+          ctx.fillStyle = tg;
+          ctx.beginPath();
+          ctx.ellipse(engineX, 17, f * 0.65, f * 1.45, 0, 0, Math.PI * 2);
+          ctx.fill();
+        });
       });
 
       ctx.restore();
@@ -634,6 +825,51 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         neb(W * 0.3 + Math.sin(s.nebulaPhase) * 30, H * 0.4, 190, pal.accent, 0.09);
         neb(W * 0.72 + Math.cos(s.nebulaPhase * 0.7) * 25, H * 0.62, 160, "#a855f7", 0.07);
       });
+
+      // Distant shaded planet + perspective flight grid make the playfield
+      // read as a deep 3D corridor instead of a flat star texture.
+      const planetX = W * 0.82 + Math.sin(s.nebulaPhase * 0.35) * 8;
+      const planetY = H * 0.34;
+      const planetR = 48;
+      const planet = ctx.createRadialGradient(
+        planetX - planetR * 0.34, planetY - planetR * 0.38, 2,
+        planetX, planetY, planetR,
+      );
+      planet.addColorStop(0, withAlpha("#ffffff", 0.42));
+      planet.addColorStop(0.18, withAlpha(pal.accent, 0.3));
+      planet.addColorStop(0.68, withAlpha("#312e81", 0.22));
+      planet.addColorStop(1, "transparent");
+      ctx.fillStyle = planet;
+      ctx.beginPath();
+      ctx.arc(planetX, planetY, planetR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.save();
+      ctx.translate(planetX, planetY);
+      ctx.rotate(-0.28);
+      ctx.strokeStyle = withAlpha("#c4b5fd", 0.16);
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, planetR * 1.45, planetR * 0.28, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      const horizon = H * 0.28;
+      ctx.strokeStyle = withAlpha(pal.accent, s.overdrive > 0 ? 0.2 : 0.075);
+      ctx.lineWidth = 0.7;
+      for (let i = 1; i <= 10; i++) {
+        const t = i / 10;
+        const y = horizon + Math.pow(t, 1.72) * (H - horizon);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+      for (let i = -7; i <= 7; i++) {
+        ctx.beginPath();
+        ctx.moveTo(W / 2 + i * 4, horizon);
+        ctx.lineTo(W / 2 + i * 42, H);
+        ctx.stroke();
+      }
 
       s.starLayers.forEach((layer, li) => layer.forEach((star) => {
         if (!frozen) {
@@ -698,51 +934,95 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       if (!frozen && !s.boss) {
         s.spawnTimer -= 1;
         if (s.spawnTimer <= 0) { s.spawnTimer = cfg.interval; spawnSquad(cfg); }
-        if (s.wave % 5 === 0 && s.bossClearedAt !== s.wave) spawnBoss(s.wave);
+        if (s.wave % BOSS_EVERY === 0 && s.bossClearedAt !== s.wave) spawnBoss(s.wave);
       }
 
       // ── Trùm ──
       if (s.boss) {
         const b = s.boss;
         if (!frozen) {
-          b.x += b.dirX;
           b.phase += 0.05;
-          b.turret += b.mode === 2 ? 0.06 : 0.03;
-          if (b.x <= b.w / 2 + 12 || b.x >= W - b.w / 2 - 12) b.dirX *= -1;
+          b.turret += 0.025 + b.mode * 0.018;
+          b.burst -= 1;
 
-          // Pha 2 dưới 50% máu: đổi kiểu bắn + gọi quân, không còn một chiêu suốt trận.
-          if (b.mode === 1 && b.hp <= b.maxHp * 0.5) {
-            b.mode = 2;
-            b.dirX *= 1.5;
-            s.flashColor = "255,80,80";
-            s.flashAlpha = 0.5;
-            s.shakeMag = 12;
-            notify("Trùm chuyển pha 2");
+          if (b.id === "vortex") {
+            b.x = W / 2 + Math.sin(b.phase * 0.72) * 112;
+            b.y = 82 + Math.cos(b.phase * 0.46) * 12;
+          } else if (b.id === "reaper") {
+            b.x = W / 2 + Math.sin(b.phase * 0.48) * 128;
+            b.y = 78 + Math.sin(b.phase * 1.15) * 15;
+          } else {
+            b.x += b.dirX;
+            b.y = 82 + Math.sin(b.phase * (b.id === "twins" ? 1.2 : 0.6)) * 8;
+            if (b.x <= b.w / 2 + 12 || b.x >= W - b.w / 2 - 12) b.dirX *= -1;
           }
 
-          if (b.mode === 1) {
-            if (Math.random() < 0.035) {
-              const arms = 3 + Math.floor(s.wave / 5);
+          const nextMode = b.hp <= b.maxHp * 0.28 ? 3 : b.hp <= b.maxHp * 0.64 ? 2 : 1;
+          if (nextMode > b.mode) {
+            b.mode = nextMode;
+            b.dirX *= 1.22;
+            s.flashColor = "255,80,80";
+            s.flashAlpha = b.mode === 3 ? 0.7 : 0.5;
+            s.shakeMag = b.mode === 3 ? 17 : 12;
+            s.hitStop = b.mode === 3 ? 9 : 5;
+            notify(`${b.name} · pha ${b.mode}`);
+          }
+
+          if (b.id === "vortex") {
+            if (b.burst <= 0) {
+              b.burst = b.mode === 3 ? 12 : b.mode === 2 ? 19 : 30;
+              const arms = b.mode === 3 ? 12 : b.mode === 2 ? 9 : 7;
               for (let i = 0; i < arms; i++) {
-                const a = Math.PI / 2 + (i - (arms - 1) / 2) * 0.32;
-                s.foeShots.push({ x: b.x, y: b.y + b.h * 0.5, vx: Math.cos(a) * 3.2, vy: Math.sin(a) * 3.2 });
+                const a = b.turret + (Math.PI * 2 * i) / arms;
+                bossShot(s, b.x, b.y, a, 2.65 + b.mode * 0.38, i % 2 ? b.color : b.color2, b.mode === 3 ? 8 : 6.5);
+              }
+            }
+          } else if (b.id === "twins") {
+            if (b.burst <= 0) {
+              b.burst = b.mode === 3 ? 13 : b.mode === 2 ? 21 : 33;
+              const a = Math.atan2(s.player.y - b.y, s.player.x - b.x);
+              [-38, 38].forEach((offset, podIndex) => {
+                const spread = b.mode === 1 ? [0] : b.mode === 2 ? [-0.11, 0.11] : [-0.18, 0, 0.18];
+                spread.forEach((delta) => {
+                  bossShot(s, b.x + offset, b.y + 12, a + delta, 3.7 + b.mode * 0.45, podIndex ? b.color2 : b.color, 6.5);
+                });
+              });
+            }
+          } else if (b.id === "reaper") {
+            if (b.burst <= 0) {
+              b.burst = b.mode === 3 ? 15 : b.mode === 2 ? 25 : 39;
+              const aimed = Math.atan2(s.player.y - b.y, s.player.x - b.x);
+              const blades = b.mode === 3 ? 7 : b.mode === 2 ? 5 : 3;
+              for (let i = 0; i < blades; i++) {
+                const delta = (i - (blades - 1) / 2) * 0.11;
+                bossShot(s, b.x, b.y + 22, aimed + delta, 4.6 + b.mode * 0.42, i % 2 ? b.color2 : b.color, 7.5);
+              }
+              if (b.mode === 3) {
+                for (let i = 0; i < 8; i++) {
+                  bossShot(s, b.x, b.y, b.turret + (Math.PI * 2 * i) / 8, 3.15, b.color2, 6);
+                }
               }
             }
           } else {
-            // Loạt 3 viên nhắm thẳng người chơi — buộc phải di chuyển liên tục.
-            b.burst -= 1;
+            // Titan combines readable fan attacks with aimed salvos in later phases.
             if (b.burst <= 0) {
-              b.burst = 26;
-              const a = Math.atan2(s.player.y - b.y, s.player.x - b.x);
-              for (let i = -1; i <= 1; i++) {
-                s.foeShots.push({ x: b.x, y: b.y + b.h * 0.5, vx: Math.cos(a + i * 0.14) * 4.2, vy: Math.sin(a + i * 0.14) * 4.2 });
+              b.burst = b.mode === 3 ? 18 : b.mode === 2 ? 27 : 38;
+              const arms = 3 + b.mode * 2 + Math.floor(s.wave / 9);
+              for (let i = 0; i < arms; i++) {
+                const a = Math.PI / 2 + (i - (arms - 1) / 2) * (b.mode === 3 ? 0.21 : 0.27);
+                bossShot(s, b.x, b.y + b.h * 0.45, a, 3 + b.mode * 0.48, b.mode === 3 ? b.color2 : b.color, 7);
+              }
+              if (b.mode >= 2) {
+                const aimed = Math.atan2(s.player.y - b.y, s.player.x - b.x);
+                bossShot(s, b.x, b.y + 18, aimed, 4.5 + b.mode * 0.3, b.color2, 8);
               }
             }
-            if (ts - b.minionAt > 3200) {
-              b.minionAt = ts;
-              addEnemy("drone", b.x - 46, b.y + 20, cfg);
-              addEnemy("drone", b.x + 46, b.y + 20, cfg);
-            }
+          }
+
+          if (b.mode >= 2 && b.id !== "vortex" && ts - b.minionAt > (b.mode === 3 ? 2400 : 3400)) {
+            b.minionAt = ts;
+            addEnemy(b.id === "reaper" ? "seeker" : "drone", b.x - 46, b.y + 20, cfg);
+            addEnemy(b.id === "twins" ? "heavy" : "drone", b.x + 46, b.y + 20, cfg);
           }
         }
         drawBoss(b);
@@ -772,17 +1052,38 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
       // ── Đạn địch ──
       if (!frozen) {
-        s.foeShots.forEach((f) => { f.x += f.vx; f.y += f.vy; });
+        s.foeShots.forEach((f) => {
+          f.x += f.vx;
+          f.y += f.vy;
+          f.phase = (f.phase || 0) + 0.14;
+        });
         s.foeShots = s.foeShots.filter((f) => f.y < H + 20 && f.y > -20 && f.x > -20 && f.x < W + 20);
       }
       additive(() => s.foeShots.forEach((f) => {
-        const g = ctx.createRadialGradient(f.x, f.y, 0.5, f.x, f.y, 8);
+        const color = f.color || ENEMY_SHOT;
+        const radius = f.size || 7;
+        const speed = Math.max(1, Math.hypot(f.vx, f.vy));
+        const tailX = f.x - (f.vx / speed) * radius * 2.4;
+        const tailY = f.y - (f.vy / speed) * radius * 2.4;
+        const trail = ctx.createLinearGradient(tailX, tailY, f.x, f.y);
+        trail.addColorStop(0, "transparent");
+        trail.addColorStop(1, withAlpha(color, 0.72));
+        ctx.strokeStyle = trail;
+        ctx.lineWidth = radius * 0.7;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(f.x, f.y);
+        ctx.stroke();
+
+        const g = ctx.createRadialGradient(f.x - radius * 0.25, f.y - radius * 0.25, 0.5, f.x, f.y, radius);
         g.addColorStop(0, "#ffffff");
-        g.addColorStop(0.4, ENEMY_SHOT);
+        g.addColorStop(0.34, color);
+        g.addColorStop(0.72, shade(color, -0.35));
         g.addColorStop(1, "transparent");
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(f.x, f.y, 8, 0, Math.PI * 2);
+        ctx.arc(f.x, f.y, radius, 0, Math.PI * 2);
         ctx.fill();
       }));
 
@@ -827,7 +1128,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             const bo = s.boss;
             if (Math.abs(b.x - bo.x) < bo.w / 2 && Math.abs(b.y - bo.y) < bo.h / 2) {
               bo.hp -= 1;
-              boom(b.x, b.y, "#f87171", 4);
+              boom(b.x, b.y, bo.color2 || "#f87171", 4);
               hapticMove();
               if (!b.pierce) { s.bullets.splice(bIdx, 1); consumed = true; }
               if (bo.hp <= 0) {
@@ -843,7 +1144,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 s.hitStop = 10;
                 s.player.hp = Math.min(MAX_HP, s.player.hp + 1);
                 confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
-                notify("Hạ trùm · hồi 1 máu");
+              notify(`Hạ ${bo.name} · hồi 1 máu`);
               }
             }
           }
@@ -883,7 +1184,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             const d = Math.hypot(s.player.x - ox, s.player.y - oy);
             if (d > hitR && d < GRAZE_RADIUS + hitR) near++;
           };
-          s.foeShots.forEach((f) => count(f.x, f.y, 8));
+          s.foeShots.forEach((f) => count(f.x, f.y, f.size || 7));
           s.enemies.forEach((e) => count(e.x, e.y, e.w / 2 + 12));
           if (near > 0) {
             s.graze = Math.min(GRAZE_FULL, s.graze + near * 0.55);
@@ -922,7 +1223,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         }
         for (let i = s.foeShots.length - 1; i >= 0; i--) {
           const f = s.foeShots[i];
-          if (Math.hypot(s.player.x - f.x, s.player.y - f.y) < 14) {
+          if (Math.hypot(s.player.x - f.x, s.player.y - f.y) < (f.size || 7) + 7) {
             s.foeShots.splice(i, 1);
             damage(s, s.player.x, s.player.y);
             if (s.isGameOver) { ctx.restore(); return; }
@@ -986,7 +1287,9 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
       ctx.restore();
 
-      const wave = levelFor(GAME_ID, s.score);
+      // The shared HUD level caps at 15, but combat waves remain endless so
+      // boss cycles and armor scaling continue for long high-score runs.
+      const wave = 1 + Math.floor(Math.max(0, s.score) / 900);
       if (wave !== s.wave) {
         s.wave = wave;
         s.flashAlpha = 0.3;
@@ -999,7 +1302,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
     rafId = requestAnimationFrame(render);
     return () => { stopped = true; cancelAnimationFrame(rafId); };
-  }, [playBeep, playLose, onGameOver, paused, notify, syncHud]);
+  }, [playBeep, playLose, onGameOver, paused, notify, syncHud, layoutRevision]);
 
   useEffect(() => {
     if (paused) return undefined;
@@ -1025,6 +1328,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
   // Ngón tay không được che phi thuyền: tàu bay cao hơn điểm chạm một khoảng.
   const handleTouch = (e) => {
+    e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -1038,57 +1342,62 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const odReady = hud.graze >= 100 || hud.overdrive;
 
   return (
-    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
-      <ArcadeHud
-        gameId={GAME_ID}
-        score={hud.score}
-        combo={hud.combo}
-        multiplier={hud.mult}
-        notice={hud.notice}
-        stats={[{ label: "Súng", value: `Cấp ${hud.weapon}` }]}
-      />
+    <div className="survivor-game">
+      <div className="survivor-hud">
+        <ArcadeHud
+          gameId={GAME_ID}
+          score={hud.score}
+          combo={hud.combo}
+          multiplier={hud.mult}
+          notice={hud.notice}
+          stats={[
+            { label: "Súng", value: `Cấp ${hud.weapon}` },
+            { label: "Đợt", value: hud.wave },
+          ]}
+        />
 
-      <div className="svv-status">
-        <div className="svv-hp" aria-label={`Còn ${hud.hp} máu`}>
-          {Array.from({ length: MAX_HP }, (_, i) => (
-            <span key={i} className={i < hud.hp ? "is-on" : ""} />
-          ))}
-        </div>
-        <div className={`svv-od${odReady ? " is-ready" : ""}`}>
-          <span style={{ width: `${hud.overdrive ? 100 : hud.graze}%` }} />
-        </div>
-        <button
-          type="button"
-          className={`svv-od__btn${odReady ? " is-ready" : ""}`}
-          onPointerDown={useOverdrive}
-          disabled={!odReady}
+        <div className="svv-status">
+          <div className="svv-hp" aria-label={`Còn ${hud.hp} máu`}>
+            {Array.from({ length: MAX_HP }, (_, i) => (
+              <span key={i} className={i < hud.hp ? "is-on" : ""} />
+            ))}
+          </div>
+          <div className={`svv-od${odReady ? " is-ready" : ""}`}>
+            <span style={{ width: `${hud.overdrive ? 100 : hud.graze}%` }} />
+          </div>
+          <button
+            type="button"
+            className={`svv-od__btn${odReady ? " is-ready" : ""}`}
+            onPointerDown={useOverdrive}
+            disabled={!odReady}
           aria-label="Xung phá"
-        >
-          <span className="material-symbols-outlined">bolt</span>
-        </button>
+          >
+            <span className="material-symbols-outlined">bolt</span>
+          </button>
+        </div>
       </div>
 
-      {hud.boss !== null && (
-        <div className="svv-boss">
-          <div className="svv-boss__top">
-            <span>Trùm đợt {hud.wave}</span>
-            <span>{hud.boss}%</span>
+      <div className="gpanel survivor-frame">
+        {hud.boss !== null && (
+          <div className="svv-boss" role="status">
+            <div className="svv-boss__top">
+              <span><b>{hud.bossName}</b><small>PHA {hud.bossMode} · ĐỢT {hud.wave}</small></span>
+              <span>{hud.boss}%</span>
+            </div>
+            <div className="svv-boss__rail"><span style={{ width: `${hud.boss}%` }} /></div>
           </div>
-          <div className="svv-boss__rail"><span style={{ width: `${hud.boss}%` }} /></div>
-        </div>
-      )}
-
-      <div className="gpanel relative rounded-[26px] overflow-hidden p-1.5 touch-none">
+        )}
         <canvas
           ref={canvasRef}
           onTouchMove={handleTouch}
           onTouchStart={handleTouch}
-          className="w-[280px] h-[420px] block rounded-[20px] cursor-crosshair"
+          className="survivor-canvas"
         />
+        <div className="survivor-scanline" aria-hidden="true" />
       </div>
 
-      <p className="game-control-hint mt-3 text-center text-[11px]">
-        Bay sát địch và đạn để nạp XUNG PHÁ · Nhặt lõi vàng lên cấp súng · Phím Space cũng dùng được xung phá
+      <p className="game-control-hint survivor-hint">
+        Kéo để điều khiển · Bay sát đạn nạp Xung Phá · Space/Shift để kích hoạt
       </p>
     </div>
   );

@@ -29,7 +29,8 @@ export const APP_STORAGE_MB = {
   bio: 1.5,
   info: 0.8,
   joy_wallet: 1.1,
-  map: 2.4
+  map: 2.4,
+  hugoso: 3.6
 };
 
 // Styling constants
@@ -87,6 +88,7 @@ const readDownloadedGameAppIds = () => (
 const APP_CATALOG = [
   ["bio", "badge", "purple", "edu", "4.9", "12k", "HOT"],
   ["ide", "code", "blue", "edu", "4.8", "8k", "PRO"],
+  ["hugoso", "school", "purple", "edu", "5.0", "3k", "NEW"],
   ["team", "groups", "teal", "edu", "4.7", "2k", "JOIN"],
   ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "AI"],
   ["hugoskin", "face", "slate", "wellness", "4.7", "4k", "AI"],
@@ -876,6 +878,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         case "handle": import("./HugoHandleTab"); break;
         case "psychology": import("./banhocduong/BanhocduongTab"); break;
         case "ide": import("./hugoCoder/HugoCoderHub"); break;
+        case "hugoso": import("./hugoSO/HugoSOApp"); break;
         case "team": import("./HugoTeamTab"); break;
         case "radio": import("./MemberRadioTab"); break;
         case "arcade": import("./arcade/HugoArcadeTab"); break;

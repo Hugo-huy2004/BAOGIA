@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AppInstallationPolicy } from "../../../shared/appInstallationPolicy";
+import { AppInstallationPolicy, appInstallationPolicy } from "../../../shared/appInstallationPolicy";
 
 describe("AppInstallationPolicy", () => {
   const policy = new AppInstallationPolicy(["library", "bio", "ide"]);
@@ -24,5 +24,10 @@ describe("AppInstallationPolicy", () => {
       ["arcade"],
     )).toEqual(["library", "bio", "ide", "arcade"]);
   });
-});
 
+  it("preinstalls HugoSO on the PWA home screen for existing members", () => {
+    expect(appInstallationPolicy.normalizeInstalled([])).toContain("hugoso");
+    expect(appInstallationPolicy.normalizeHomeScreen([], [])).toContain("hugoso");
+    expect(appInstallationPolicy.canUninstall("hugoso")).toBe(false);
+  });
+});

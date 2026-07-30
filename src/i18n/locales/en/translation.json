@@ -1533,7 +1533,7 @@
       "topStories": "Worth reading today",
       "localEdition": "{{country}} edition",
       "dailyReset": "Refreshes daily at 09:00",
-      "refresh": "Refresh",
+      "loadMore": "Show {{n}} more stories",
       "categories": "Article categories",
       "category": {
         "all": "All",
@@ -3288,7 +3288,9 @@
     },
     "catalog": {
       "bio": { "title": "Bio Page", "description": "Personal profile and Bio link" },
+      "library": { "title": "Hugo Library", "description": "The app library for the Hugo ecosystem" },
       "ide": { "title": "HugoCoder", "description": "Code editor and programming lessons" },
+      "hugoso": { "title": "HugoSO", "description": "Google Workspace and Gemini skills", "fullDescription": "Hugo Study Office Skills — step-by-step Calendar, Docs, Sheets, and Gemini courses with guided video, hands-on practice, and in-lesson skill checks." },
       "team": { "title": "Hugo Team", "description": "Student roles and collaborative projects" },
       "psychology": { "title": "HugoPSY", "description": "AI wellbeing and sleep tracking" },
       "hugoskin": { "title": "HugoSkin", "description": "Skin analysis and personal care" },
@@ -3907,10 +3909,10 @@
         "hint": "Read the position, protect your king, and turn a small edge into a win."
       },
       "survivor": {
-        "eyebrow": "Signal from space",
-        "title": "Survive among the stars.",
-        "description": "Guide your ship through an endless asteroid field and keep its signal alive.",
-        "hint": "Move with rhythm, read each orbit, and avoid getting surrounded."
+        "eyebrow": "3D boss fleet",
+        "title": "Break the siege. Defeat every fleet.",
+        "description": "Fight full-screen through 3D enemy waves and face four multi-phase boss classes with distinct arsenals.",
+        "hint": "Graze incoming fire to charge Overdrive, upgrade your weapons, and adapt to every boss."
       },
       "flappy": {
         "eyebrow": "One tap, one beat",
@@ -3943,10 +3945,10 @@
         "hint": "Start with a word containing several vowels and no repeated letters."
       },
       "snake": {
-        "eyebrow": "Toy garden",
-        "title": "Grow longer. Avoid your tail.",
-        "description": "A soft, playful Snake with short paths, sweet fruit, and a relaxed rhythm.",
-        "hint": "Leave an escape route around the edge before the snake grows longer."
+        "eyebrow": "Neon journey",
+        "title": "Five worlds. One endless run.",
+        "description": "Snake 3D Pro returns with a full-screen arena, fluid motion, quantum portals, and a fresh challenge in every chapter.",
+        "hint": "Keep an escape route, hunt golden cores, and adapt when the arena changes its rules."
       }
     }
   },

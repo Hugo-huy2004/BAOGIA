@@ -129,11 +129,11 @@ export async function runCompanionReminders(timeStr) {
         // Send a specific overdue test reminder push notification!
         const alertTitle = 'Yêu cầu kiểm tra lại định kỳ 🧡';
         const alertBody = `Đã đến chu kỳ kiểm tra định kỳ (${nextCycleDays} ngày/lần) của lộ trình của cậu. Hãy click vào làm bài test ngay nhé!`;
-        await sendPushNotification(email, alertTitle, alertBody, `/member/portal?tab=utilities&subtab=chat&preset=${overdueTestId}`);
+        await sendPushNotification(email, alertTitle, alertBody, `/member/utilities/psychology/chat?preset=${overdueTestId}`);
         sentCount++;
       } else if (!hasCompletedToday) {
         // Send normal daily activity reminder
-        await sendPushNotification(email, title, body, '/member/portal?tab=utilities');
+        await sendPushNotification(email, title, body, '/member/apps');
         sentCount++;
       }
     }

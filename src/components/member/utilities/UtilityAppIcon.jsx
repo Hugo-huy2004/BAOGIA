@@ -6,6 +6,7 @@ import {
   Castle,
   Code2,
   Gamepad2,
+  GraduationCap,
   Grid3X3,
   Infinity as InfinityIcon,
   Info,
@@ -29,6 +30,7 @@ import {
 const ICONS = Object.freeze({
   bio: Badge,
   ide: Code2,
+  hugoso: GraduationCap,
   team: UsersRound,
   psychology: Brain,
   hugoskin: ScanFace,

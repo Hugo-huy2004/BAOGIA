@@ -84,7 +84,7 @@ const pushHistory = (bio, entry) => {
       bio.email,
       entry.title || 'Thông báo mới',
       entry.detail || 'Bạn có cập nhật mới trong tài khoản.',
-      '/member/portal?tab=history'
+      '/member/activity'
     ).catch(err => console.error('[pushHistory Notification] Error:', err));
   }
 };
@@ -794,11 +794,15 @@ router.post('/me/check-location', requireMember, checkLocationLimiter, async (re
 
           const title = 'Bạn đang dừng chân tại ' + (addressName ? addressName.split(',')[0] : 'khu vực này') + '?';
           const body = 'Hugo tìm thấy ' + placesList.length + ' địa điểm ăn uống, giải trí có thật gần bạn. Mở tab Khám phá xem ngay nhé!';
-          const url = '/member/portal?tab=map';
+          // Route thật là /member/map (xem App.jsx). '/member/portal?tab=map'
+          // không khớp route nào — bấm vào thông báo là rơi về trang trắng.
+          const url = '/member/map';
 
           await InAppNotification.create({
             email,
-            type: 'inbox',
+            // 'inbox' KHÔNG có trong enum của schema → Mongoose từ chối và
+            // thông báo này chưa bao giờ được lưu. Xem InAppNotification.js.
+            type: 'info',
             category: 'system',
             title,
             message: body,

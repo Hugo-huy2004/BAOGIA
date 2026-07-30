@@ -389,19 +389,22 @@ router.post('/tip', requireMember, async (req, res) => {
     const senderName = sender.displayName || 'Một người bạn';
 
     const [senderResult] = await Promise.all([
+      // Mô tả không nhắc lại số JOY và mã GD: cả hai đã là field riêng trên
+      // thông báo (amount/refCode) và được hiện ở cột phải.
       awardJoy(
         sender.email, -numAmount, 'deco_tip_sent',
-        `Tip cho Ký Túc Xá của ${recipient.displayName} (-${numAmount} JOY). Mã GD: ${txCode}.`,
-        { refId: txCode, bioDoc: sender }
+        `Tip cho Ký Túc Xá của ${recipient.displayName}.`,
+        { refId: txCode, bioDoc: sender, counterparty: recipient.displayName || '' }
       ),
       awardJoy(
         recipient.email, numAmount, 'deco_tip_received',
-        `${senderName} đã ghé thăm Ký Túc Xá và tip cho bạn ${numAmount} JOY. Mã GD: ${txCode}.`,
+        `${senderName} đã ghé thăm Ký Túc Xá và tip cho bạn.`,
         {
           refId: txCode,
           bioDoc: recipient,
-          notificationTitle: 'Khách ghé thăm Ký Túc Xá',
-          notificationMessage: `${senderName} thấy phòng bạn quá đẹp nên đã tip ${numAmount} JOY!`,
+          counterparty: senderName,
+          notificationTitle: `${senderName} đã tip cho Ký Túc Xá của bạn`,
+          notificationMessage: 'Khách thấy phòng bạn quá đẹp nên để lại một chút JOY.',
           pushNotify: true,
           pushTitle: 'Khách ghé thăm Ký Túc Xá',
           pushBody: `${senderName} đã tip cho bạn ${numAmount} JOY!`,
@@ -462,7 +465,9 @@ router.post('/rent', requireMember, async (req, res) => {
       bio.email,
       -totalPrice,
       'deco_rent',
-      `Thuê bao/Gia hạn KTX HugoHome: ${plan === 'daily' ? `${durationDays} ngày` : plan === 'monthly' ? '1 tháng' : '6 tháng'} (Giá: ${basePrice} JOY, Phí sáng tạo: ${creatorFee} JOY)`,
+      // Tổng tiền đã là field `amount`; ở đây chỉ giữ phần tách giá/phí vì đó
+      // là thông tin người dùng KHÔNG suy ra được từ tổng.
+      `Gia hạn ${plan === 'daily' ? `${durationDays} ngày` : plan === 'monthly' ? '1 tháng' : '6 tháng'} · giá ${basePrice} JOY + ${creatorFee} JOY phí sáng tạo.`,
       { bioDoc: bio, skipSave: true }
     );
 
@@ -524,17 +529,19 @@ router.post('/visit', requireMember, async (req, res) => {
     const [visitorResult] = await Promise.all([
       awardJoy(
         visitor.email, -ticketPrice, 'deco_visit_sent',
-        `Mua vé tham quan KTX của ${host.displayName} (-${ticketPrice} JOY). Mã GD: ${txCode}.`,
-        { refId: txCode, bioDoc: visitor, skipSave: true }
+        `Mua vé tham quan Ký Túc Xá của ${host.displayName}.`,
+        { refId: txCode, bioDoc: visitor, skipSave: true, counterparty: host.displayName || '' }
       ),
       awardJoy(
         host.email, ticketPrice, 'deco_visit_received',
-        `${visitor.displayName || 'Một người bạn'} đã mua vé ghé thăm phòng của bạn (+${ticketPrice} JOY). Mã GD: ${txCode}.`,
+        `${visitor.displayName || 'Một người bạn'} đã mua vé ghé thăm phòng của bạn.`,
         {
           refId: txCode,
           bioDoc: host,
-          notificationTitle: 'Khách mua vé tham quan',
-          notificationMessage: `${visitor.displayName || 'Một người bạn'} đã mua vé 10 JOY để tham quan phòng bạn!`,
+          counterparty: visitor.displayName || 'Một người bạn',
+          notificationTitle: `${visitor.displayName || 'Một người bạn'} đã ghé thăm phòng bạn`,
+          // Giá vé lấy từ biến, không viết cứng "10 JOY" — sửa giá là câu này sai.
+          notificationMessage: 'Khách đã mua vé để vào tham quan Ký Túc Xá của bạn.',
           pushNotify: true,
           pushTitle: 'Khách mua vé tham quan',
           pushBody: `${visitor.displayName || 'Một người bạn'} đã ghé thăm phòng bạn!`,

@@ -106,9 +106,12 @@ router.post('/score', requireMember, async (req, res) => {
     joyDelta = calcJoy(game, numScore);
 
     try {
+      // Câu mô tả KHÔNG nhắc lại số JOY: `amount` đã là field riêng trên thông
+      // báo và được hiện thành "+N JOY" ở cột phải, viết vào đây nữa là người
+      // dùng thấy hai lần cùng một con số.
       await awardJoy(
         email, joyDelta, 'arcade_score',
-        `HugoArcade ${game} (score: ${numScore}) +${joyDelta} JOY`,
+        `${game} — ${numScore.toLocaleString('vi-VN')} điểm`,
         { refId: game }
       );
       joyAwarded = true;

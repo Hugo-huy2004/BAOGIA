@@ -11,6 +11,19 @@ const schema = new mongoose.Schema({
   read:      { type: Boolean, default: false },
   actionUrl: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
+
+  // ── Dữ liệu có cấu trúc cho thông báo giao dịch ──────────────────────────
+  // Trước đây client phải regex bóc câu tiếng Việt trong `message` để lấy số
+  // tiền / mã GD / số dư (MemberHistoryTab.parseJoyDetail). Đổi một chữ ở
+  // server là client câm lặng mất phần số. Giờ số liệu đi thành field riêng,
+  // `message` chỉ còn là câu cho người đọc.
+  //
+  // `amount` CÓ DẤU: dương = vào ví, âm = ra khỏi ví. null = không phải giao dịch.
+  amount:       { type: Number, default: null },
+  balanceAfter: { type: Number, default: null },
+  refCode:      { type: String, default: '' },
+  // Tên người ở đầu bên kia giao dịch (người gửi/người nhận), nếu có.
+  counterparty: { type: String, default: '' },
 });
 
 // Auto-delete after 90 days

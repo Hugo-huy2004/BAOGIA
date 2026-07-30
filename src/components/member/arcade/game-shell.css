@@ -760,9 +760,790 @@
 .arcade-game .arcade-dpad-btn:active { background: var(--intro-soft); }
 .arcade-game .arcade-dpad-center { background: var(--game-line-soft); }
 
+/* ── Snake 3D Pro: cinematic chapter layout ─────────────────────────────── */
+.arcade-game--snake .gshell__stage {
+  overflow: hidden;
+  align-items: center;
+  padding: 10px 14px 14px;
+  background:
+    radial-gradient(circle at 20% 5%, rgba(139, 92, 246, .16), transparent 32%),
+    radial-gradient(circle at 85% 85%, rgba(34, 211, 238, .1), transparent 30%),
+    #050611;
+}
+.arcade-game--snake .gshell__bar {
+  border-bottom-color: rgba(255,255,255,.08);
+  background: rgba(5, 6, 17, .9);
+  color: #fff;
+}
+.arcade-game--snake .gshell__title p { color: #fff; }
+.arcade-game--snake .gshell__icon-btn {
+  border-color: rgba(255,255,255,.12);
+  background: rgba(255,255,255,.07);
+  color: #fff;
+}
+.arcade-game--snake .gshell__joy {
+  border-color: rgba(167,139,250,.3);
+  background: rgba(167,139,250,.1);
+  color: #c4b5fd;
+}
+
+.snake-game {
+  --snake-stage: #a78bfa;
+  --snake-stage-2: #22d3ee;
+  position: relative;
+  display: grid;
+  width: min(1180px, 100%);
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) 292px;
+  gap: clamp(14px, 2vw, 28px);
+  align-items: center;
+  color: #f8f7ff;
+  isolation: isolate;
+}
+
+.snake-main {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.arcade-game--snake .snake-main .ahud {
+  position: relative;
+  z-index: 6;
+  width: min(100%, calc(100svh - 144px));
+  max-width: 780px;
+  margin-bottom: 9px;
+}
+.arcade-game--snake .snake-main .ahud__score,
+.arcade-game--snake .snake-main .ahud__stat,
+.arcade-game--snake .snake-main .ahud__level {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .07);
+  color: #fff;
+  backdrop-filter: blur(16px);
+}
+.arcade-game--snake .snake-main .ahud small { color: rgba(229, 231, 255, .62); }
+.arcade-game--snake .snake-main .ahud strong { color: #fff; }
+.arcade-game--snake .snake-main .ahud__level strong { color: var(--snake-stage); }
+.arcade-game--snake .snake-main .ahud__rail { background: rgba(255, 255, 255, .1); }
+.arcade-game--snake .snake-main .ahud__rail span {
+  background: linear-gradient(90deg, var(--snake-stage), var(--snake-stage-2));
+  box-shadow: 0 0 16px var(--snake-stage);
+}
+.arcade-game--snake .snake-main .ahud__notice,
+.arcade-game--snake .snake-main .ahud__combo {
+  position: absolute;
+  z-index: 8;
+  width: max-content;
+  max-width: calc(100% - 20px);
+  margin: 0;
+  border-color: color-mix(in srgb, var(--snake-stage) 50%, transparent);
+  background: rgba(8, 8, 22, .9);
+  box-shadow: 0 12px 34px rgba(0,0,0,.42), 0 0 22px color-mix(in srgb, var(--snake-stage) 18%, transparent);
+  backdrop-filter: blur(16px);
+  pointer-events: none;
+}
+.arcade-game--snake .snake-main .ahud__combo {
+  top: calc(100% + 15px);
+  right: 10px;
+  animation: snakeToastLife 2.7s cubic-bezier(.16,1,.3,1) both;
+}
+.arcade-game--snake .snake-main .ahud__notice {
+  top: calc(100% + 56px);
+  left: 50%;
+  padding: 9px 14px;
+  border: 1px solid color-mix(in srgb, var(--snake-stage) 50%, transparent);
+  border-radius: 999px;
+  animation: snakeNoticeLife 1.8s cubic-bezier(.16,1,.3,1) both;
+}
+.arcade-game--snake .snake-main .ahud__notice,
+.arcade-game--snake .snake-main .ahud__combo .material-symbols-outlined,
+.arcade-game--snake .snake-main .ahud__combo em { color: var(--snake-stage); }
+.arcade-game--snake .snake-main .ahud__combo b { color: #fff; }
+@keyframes snakeToastLife {
+  0% { transform: translate3d(12px, -8px, 0) scale(.88); opacity: 0; }
+  10%, 76% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+  100% { transform: translate3d(0, -9px, 0) scale(.98); opacity: 0; }
+}
+@keyframes snakeNoticeLife {
+  0% { transform: translate3d(-50%, -8px, 0) scale(.9); opacity: 0; }
+  12%, 72% { transform: translate3d(-50%, 0, 0) scale(1); opacity: 1; }
+  100% { transform: translate3d(-50%, -8px, 0) scale(.98); opacity: 0; }
+}
+
+.arcade-game .snake-board-3d {
+  width: min(100%, calc(100svh - 154px), 780px);
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--snake-stage) 62%, transparent);
+  border-radius: clamp(20px, 3vw, 34px);
+  background: #080713;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, .06) inset,
+    0 -1px 0 rgba(255, 255, 255, .12) inset,
+    0 32px 80px rgba(0, 0, 0, .62),
+    0 0 70px color-mix(in srgb, var(--snake-stage) 26%, transparent);
+  transform: perspective(1200px) rotateX(1.25deg);
+  transform-origin: 50% 100%;
+  transition: border-color .5s ease, box-shadow .5s ease;
+}
+.snake-board-3d canvas {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+.snake-board-shine {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(125deg, rgba(255,255,255,.12), transparent 18%, transparent 76%, rgba(255,255,255,.05)),
+    radial-gradient(circle at 12% 6%, color-mix(in srgb, var(--snake-stage) 18%, transparent), transparent 30%);
+  pointer-events: none;
+}
+.snake-scanline {
+  position: absolute;
+  z-index: 3;
+  height: 18%;
+  inset-inline: 0;
+  top: -20%;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--snake-stage-2) 10%, transparent), transparent);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: snakeScan 6s linear infinite;
+}
+@keyframes snakeScan { to { transform: translateY(700%); } }
+
+.snake-countdown {
+  border-radius: inherit;
+  background: rgba(3, 3, 13, .74);
+  color: #fff;
+  backdrop-filter: blur(12px);
+}
+.snake-countdown > div {
+  display: flex;
+  width: clamp(122px, 20vw, 180px);
+  aspect-ratio: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--snake-stage) 62%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--snake-stage) 24%, transparent), rgba(0,0,0,.38));
+  box-shadow: 0 0 70px color-mix(in srgb, var(--snake-stage) 42%, transparent);
+  animation: snakeCountdown 1s cubic-bezier(.16,1,.3,1) infinite;
+}
+.snake-countdown small {
+  margin-bottom: -6px;
+  color: rgba(255,255,255,.62);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .22em;
+}
+.snake-countdown span {
+  font-size: clamp(62px, 10vw, 96px);
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 0 30px var(--snake-stage);
+}
+@keyframes snakeCountdown {
+  0% { transform: scale(.72); opacity: .3; }
+  35%, 100% { transform: scale(1); opacity: 1; }
+}
+
+.snake-mission {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 13px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.025));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .42);
+  backdrop-filter: blur(20px);
+}
+.snake-mission::before {
+  position: absolute;
+  height: 2px;
+  border-radius: 999px;
+  content: "";
+  inset: 0 25% auto;
+  background: linear-gradient(90deg, transparent, var(--snake-stage), transparent);
+  box-shadow: 0 0 18px var(--snake-stage);
+}
+.snake-mission__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.snake-mission__number {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--snake-stage) 50%, transparent);
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--snake-stage) 15%, transparent);
+  color: var(--snake-stage);
+  font-size: 21px;
+  font-weight: 950;
+  place-items: center;
+  box-shadow: inset 0 1px rgba(255,255,255,.1);
+}
+.snake-mission__top small,
+.snake-mission__challenge small {
+  display: block;
+  color: rgba(225, 226, 246, .53);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+.snake-mission__top h3 {
+  margin: 3px 0 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -.03em;
+}
+.snake-mission__challenge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--snake-stage) 30%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--snake-stage) 10%, transparent);
+}
+.snake-mission__challenge .material-symbols-outlined {
+  color: var(--snake-stage);
+  font-size: 19px;
+  font-variation-settings: "FILL" 1;
+}
+.snake-mission__challenge strong {
+  display: block;
+  margin-top: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.4;
+}
+.snake-mission__progress > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgba(225,226,246,.55);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+.snake-mission__progress b { color: #fff; font-size: 11px; }
+.snake-mission__rail {
+  overflow: hidden;
+  height: 7px;
+  margin-top: 7px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.08);
+}
+.snake-mission__rail span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--snake-stage), var(--snake-stage-2));
+  box-shadow: 0 0 14px var(--snake-stage);
+  transition: width .3s cubic-bezier(.16,1,.3,1);
+}
+.snake-mission__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  color: rgba(225, 226, 246, .66);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.snake-mission__hint .material-symbols-outlined { color: #fbbf24; font-size: 16px; font-variation-settings: "FILL" 1; }
+.snake-mission__legend {
+  display: grid;
+  gap: 7px;
+  padding-block: 10px;
+  border-block: 1px solid rgba(255,255,255,.08);
+}
+.snake-mission__legend span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(235,236,252,.68);
+  font-size: 9px;
+  font-weight: 750;
+}
+.snake-mission__legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6b75;
+  box-shadow: 0 0 8px #ff6b75;
+}
+.snake-mission__legend .is-gold { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+.snake-mission__legend .is-mine { border-radius: 2px; background: #ff3b30; box-shadow: 0 0 8px #ff3b30; transform: rotate(45deg); }
+.snake-mission__legend .is-portal { border: 2px solid var(--snake-stage-2); background: transparent; box-shadow: 0 0 8px var(--snake-stage-2); }
+
+.snake-controls { margin: -5px 0 0; color: rgba(225,226,246,.5) !important; }
+
+.snake-ambient {
+  position: absolute;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  inset: -40px;
+}
+.snake-ambient i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--snake-stage);
+  box-shadow: 0 0 16px var(--snake-stage);
+  animation: snakeDust 8s ease-in-out infinite alternate;
+}
+.snake-ambient i:nth-child(1) { left: 4%; top: 15%; animation-delay: -2s; }
+.snake-ambient i:nth-child(2) { left: 91%; top: 10%; width: 3px; height: 3px; animation-delay: -5s; }
+.snake-ambient i:nth-child(3) { left: 82%; top: 62%; animation-delay: -7s; }
+.snake-ambient i:nth-child(4) { left: 14%; top: 82%; width: 3px; height: 3px; animation-delay: -1s; }
+.snake-ambient i:nth-child(5) { left: 48%; top: 2%; width: 2px; height: 2px; animation-delay: -4s; }
+.snake-ambient i:nth-child(6) { left: 98%; top: 88%; width: 2px; height: 2px; animation-delay: -6s; }
+@keyframes snakeDust {
+  from { transform: translate3d(-8px, 14px, 0) scale(.7); opacity: .25; }
+  to { transform: translate3d(12px, -18px, 0) scale(1.5); opacity: .9; }
+}
+
+.snake-stage-banner {
+  position: fixed;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  inset: 0;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--snake-stage) 34%, transparent), transparent 40%),
+    rgba(2, 3, 12, .82);
+  backdrop-filter: blur(12px);
+  animation: snakeStageReveal 2.3s ease both;
+  pointer-events: none;
+}
+.snake-stage-banner small {
+  color: var(--snake-stage);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .3em;
+}
+.snake-stage-banner h2 {
+  margin: 8px 0;
+  font-size: clamp(42px, 9vw, 96px);
+  font-weight: 950;
+  letter-spacing: -.06em;
+  line-height: .92;
+  text-shadow: 0 0 42px color-mix(in srgb, var(--snake-stage) 68%, transparent);
+}
+.snake-stage-banner p {
+  margin: 0;
+  color: rgba(255,255,255,.7);
+  font-size: clamp(12px, 2vw, 18px);
+  font-weight: 750;
+}
+.snake-stage-banner__rings {
+  position: absolute;
+  width: min(66vw, 620px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--snake-stage) 48%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 60px color-mix(in srgb, var(--snake-stage) 7%, transparent),
+    0 0 0 130px color-mix(in srgb, var(--snake-stage-2) 5%, transparent);
+  animation: snakeStageRings 2.3s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes snakeStageReveal {
+  0% { opacity: 0; }
+  12%, 72% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes snakeStageRings {
+  from { transform: scale(.24) rotate(-12deg); opacity: 0; }
+  35% { opacity: 1; }
+  to { transform: scale(1.35) rotate(8deg); opacity: 0; }
+}
+
+@media (max-width: 900px) {
+  .arcade-game--snake .gshell__stage {
+    overflow: hidden;
+    align-items: center;
+    padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+  .snake-game {
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 8px;
+    align-content: start;
+  }
+  .snake-main {
+    height: auto;
+    justify-content: flex-start;
+  }
+  .arcade-game--snake .snake-main .ahud {
+    width: min(100%, 680px);
+  }
+  .arcade-game .snake-board-3d {
+    width: min(100%, calc(100svh - 325px), 680px);
+  }
+  .arcade-game .snake-board-3d {
+    transform: none;
+  }
+  .snake-mission {
+    display: grid;
+    width: min(100%, 680px);
+    margin: 0 auto;
+    grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+    gap: 8px 10px;
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+  .snake-mission__top { gap: 8px; }
+  .snake-mission__number {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    font-size: 17px;
+  }
+  .snake-mission__top h3 { font-size: 14px; }
+  .snake-mission__challenge {
+    min-width: 0;
+    align-items: center;
+    padding: 8px 9px;
+    border-radius: 13px;
+  }
+  .snake-mission__challenge strong {
+    overflow: hidden;
+    margin-top: 2px;
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .snake-mission__progress { grid-column: 1 / -1; }
+  .snake-mission__rail { height: 5px; margin-top: 4px; }
+  .snake-mission__hint,
+  .snake-mission__legend,
+  .arcade-game--snake .snake-controls { display: none; }
+}
+
+@media (max-width: 520px) {
+  .arcade-game--snake .gshell__bar { padding: 6px 9px; }
+  .arcade-game--snake .gshell__icon-btn { width: 36px; height: 36px; }
+  .arcade-game--snake .snake-main .ahud__row { gap: 4px; }
+  .arcade-game--snake .snake-main .ahud__score,
+  .arcade-game--snake .snake-main .ahud__stat,
+  .arcade-game--snake .snake-main .ahud__level { padding: 6px 7px; border-radius: 10px; }
+  .arcade-game--snake .snake-main .ahud__score strong { font-size: 19px; }
+  .arcade-game--snake .snake-main .ahud strong { font-size: 16px; }
+  .arcade-game--snake .snake-main .ahud__notice {
+    top: calc(100% + 48px);
+    padding: 7px 11px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .snake-game {
+    grid-template-columns: minmax(0, 1fr) 230px;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .arcade-game .snake-board-3d {
+    width: min(100%, calc(100svh - 122px), 560px);
+  }
+  .snake-mission {
+    display: flex;
+    width: 230px;
+    padding: 10px;
+  }
+  .snake-mission__challenge { width: 100%; }
+}
+
+/* ── Space Survivor: full-screen 3D combat deck ─────────────────────────── */
+.arcade-game--survivor .gshell__stage {
+  overflow: hidden;
+  align-items: center;
+  padding: 7px 10px calc(9px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 18% 8%, rgba(76,214,255,.12), transparent 32%),
+    radial-gradient(circle at 82% 86%, rgba(168,85,247,.12), transparent 30%),
+    #030511;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+.survivor-game {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #f8fbff;
+  isolation: isolate;
+}
+
+.survivor-hud {
+  position: relative;
+  z-index: 7;
+  width: min(100%, 540px);
+  flex: 0 0 auto;
+}
+.arcade-game--survivor .survivor-hud .ahud {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  margin-bottom: 7px;
+}
+.arcade-game--survivor .survivor-hud .ahud__score,
+.arcade-game--survivor .survivor-hud .ahud__stat,
+.arcade-game--survivor .survivor-hud .ahud__level {
+  border-color: rgba(255,255,255,.12);
+  background: rgba(255,255,255,.065);
+  backdrop-filter: blur(16px);
+}
+
+/* Combo and system messages float like toasts; they never change HUD height. */
+.arcade-game--survivor .survivor-hud .ahud__combo,
+.arcade-game--survivor .survivor-hud .ahud__notice {
+  position: absolute;
+  z-index: 14;
+  width: max-content;
+  max-width: calc(100% - 18px);
+  margin: 0;
+  border: 1px solid rgba(76,214,255,.38);
+  background: rgba(3,7,22,.92);
+  box-shadow: 0 14px 36px rgba(0,0,0,.5), 0 0 24px rgba(76,214,255,.16);
+  backdrop-filter: blur(18px);
+  pointer-events: none;
+}
+.arcade-game--survivor .survivor-hud .ahud__combo {
+  top: calc(100% + 48px);
+  right: 7px;
+  animation: snakeToastLife 2.7s cubic-bezier(.16,1,.3,1) both;
+}
+.arcade-game--survivor .survivor-hud .ahud__notice {
+  top: calc(100% + 91px);
+  left: 50%;
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: #67e8f9;
+  animation: snakeNoticeLife 2s cubic-bezier(.16,1,.3,1) both;
+}
+.arcade-game--survivor .survivor-hud .ahud__combo b { color: #fff; }
+
+.arcade-game--survivor .svv-status {
+  width: 100%;
+  max-width: none;
+  height: 39px;
+  margin: 0 auto 7px;
+  padding: 5px 6px 5px 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  background: rgba(255,255,255,.055);
+  backdrop-filter: blur(16px);
+}
+.arcade-game--survivor .svv-hp span {
+  width: 17px;
+  height: 17px;
+  border-color: rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06);
+}
+.arcade-game--survivor .svv-hp span.is-on {
+  background: linear-gradient(145deg, #fb7185, #be123c);
+  box-shadow: inset 0 1px rgba(255,255,255,.4), 0 0 11px rgba(244,63,94,.74);
+}
+.arcade-game--survivor .svv-od {
+  height: 10px;
+  border-color: rgba(192,132,252,.25);
+  background: rgba(255,255,255,.07);
+}
+.arcade-game--survivor .svv-od span {
+  background: linear-gradient(90deg, #7c3aed, #c084fc, #67e8f9);
+}
+.arcade-game--survivor .svv-od__btn {
+  width: 31px;
+  height: 31px;
+  border-radius: 10px;
+  border-color: rgba(255,255,255,.13);
+  background: rgba(255,255,255,.07);
+  color: #a8b1cb;
+}
+
+.arcade-game .survivor-frame {
+  position: relative;
+  width: min(calc((100svh - 188px) * .6667), calc(100vw - 20px), 540px);
+  aspect-ratio: 2 / 3;
+  flex: 0 1 auto;
+  overflow: hidden;
+  padding: 5px;
+  border: 1px solid rgba(76,214,255,.36);
+  border-radius: clamp(20px, 3vw, 30px);
+  background: linear-gradient(145deg, rgba(76,214,255,.13), rgba(168,85,247,.08)), #030511;
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.13),
+    0 30px 80px rgba(0,0,0,.62),
+    0 0 62px rgba(76,214,255,.16);
+  transform: perspective(1200px) rotateX(.8deg);
+  transform-origin: 50% 100%;
+}
+.survivor-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(clamp(20px, 3vw, 30px) - 6px);
+  cursor: crosshair;
+  touch-action: none;
+}
+.survivor-frame::after {
+  position: absolute;
+  z-index: 5;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: inherit;
+  content: "";
+  inset: 5px;
+  background: linear-gradient(125deg, rgba(255,255,255,.09), transparent 15%, transparent 78%, rgba(76,214,255,.04));
+  pointer-events: none;
+}
+.survivor-scanline {
+  position: absolute;
+  z-index: 4;
+  height: 15%;
+  inset-inline: 5px;
+  top: -18%;
+  background: linear-gradient(transparent, rgba(76,214,255,.09), transparent);
+  mix-blend-mode: screen;
+  animation: survivorScan 5.8s linear infinite;
+  pointer-events: none;
+}
+@keyframes survivorScan { to { transform: translateY(790%); } }
+
+/* Boss HUD is pinned over the canvas, so spawning a boss cannot move gameplay. */
+.arcade-game--survivor .survivor-frame .svv-boss {
+  position: absolute;
+  z-index: 10;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 8px 10px;
+  inset: 10px 12px auto;
+  border-color: rgba(244,63,94,.46);
+  border-radius: 13px;
+  background: rgba(12,5,18,.84);
+  box-shadow: 0 12px 30px rgba(0,0,0,.42), 0 0 20px rgba(244,63,94,.16);
+  backdrop-filter: blur(14px);
+  animation: survivorBossIn .35s cubic-bezier(.16,1,.3,1);
+}
+@keyframes survivorBossIn {
+  from { transform: translateY(-10px) scale(.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.arcade-game--survivor .survivor-frame .svv-boss__top {
+  align-items: center;
+  margin-bottom: 5px;
+}
+.arcade-game--survivor .survivor-frame .svv-boss__top > span:first-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+.arcade-game--survivor .survivor-frame .svv-boss__top b {
+  overflow: hidden;
+  color: #fff;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arcade-game--survivor .survivor-frame .svv-boss__top small {
+  color: rgba(255,255,255,.5);
+  font-size: 7px;
+  letter-spacing: .12em;
+}
+.arcade-game--survivor .survivor-frame .svv-boss__rail { height: 6px; }
+.arcade-game--survivor .survivor-frame .svv-boss__rail span {
+  background: linear-gradient(90deg, #e11d48, #f97316, #facc15);
+  box-shadow: 0 0 12px rgba(244,63,94,.75);
+}
+.survivor-hint {
+  flex: 0 0 auto;
+  margin: 6px 0 0;
+  color: rgba(194,204,231,.6) !important;
+}
+
+@media (max-width: 600px) {
+  .arcade-game--survivor .gshell__stage { padding-inline: 6px; }
+  .arcade-game--survivor .survivor-hud .ahud__row { gap: 4px; }
+  .arcade-game--survivor .survivor-hud .ahud__score,
+  .arcade-game--survivor .survivor-hud .ahud__stat,
+  .arcade-game--survivor .survivor-hud .ahud__level {
+    padding: 5px 6px;
+    border-radius: 10px;
+  }
+  .arcade-game--survivor .survivor-hud .ahud__score strong { font-size: 18px; }
+  .arcade-game--survivor .survivor-hud .ahud strong { font-size: 15px; }
+  .arcade-game .survivor-frame {
+    width: min(calc((100svh - 180px) * .6667), calc(100vw - 12px), 540px);
+    padding: 4px;
+    transform: none;
+  }
+  .arcade-game--survivor .survivor-hint { display: none; }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .survivor-game {
+    width: min(100%, 760px);
+    flex-direction: row;
+    gap: 10px;
+  }
+  .survivor-hud { width: min(46%, 320px); }
+  .arcade-game .survivor-frame {
+    width: min(calc((100svh - 76px) * .6667), 310px);
+  }
+  .arcade-game--survivor .survivor-hint { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .arcade-game,
   .gshell__overlay,
   .gshell__card { animation-duration: 1ms; }
   .gshell__spinner { animation-duration: 2s; }
+  .snake-scanline,
+  .snake-ambient i,
+  .snake-countdown > div,
+  .arcade-game--snake .snake-main .ahud__combo,
+  .arcade-game--snake .snake-main .ahud__notice,
+  .snake-stage-banner,
+  .snake-stage-banner__rings,
+  .survivor-scanline,
+  .arcade-game--survivor .survivor-hud .ahud__combo,
+  .arcade-game--survivor .survivor-hud .ahud__notice,
+  .arcade-game--survivor .survivor-frame .svv-boss { animation-duration: 1ms; }
 }

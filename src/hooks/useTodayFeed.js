@@ -7,17 +7,6 @@ export const todayFeedKey = (language, category) => [
   category,
 ];
 
-const detectCountry = (language) => {
-  const locales = typeof navigator !== "undefined"
-    ? [...(navigator.languages || []), navigator.language]
-    : [];
-  for (const locale of locales) {
-    const match = String(locale || "").match(/[-_]([A-Z]{2})$/i);
-    if (match) return match[1].toUpperCase();
-  }
-  return language === "vi" ? "VN" : "US";
-};
-
 const millisecondsUntilNine = () => {
   const now = new Date();
   const next = new Date(now);
@@ -27,15 +16,14 @@ const millisecondsUntilNine = () => {
 };
 
 export function useTodayFeed(language, category = "all") {
-  const country = detectCountry(language);
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return useQuery({
-    queryKey: [...todayFeedKey(language, category), country, timeZone],
+    queryKey: [...todayFeedKey(language, category), timeZone],
     queryFn: ({ signal }) => todayFeedApi.getFeed({
       language,
       category,
-      country,
       timeZone,
+      limit: 24,
       signal,
     }),
     staleTime: millisecondsUntilNine(),

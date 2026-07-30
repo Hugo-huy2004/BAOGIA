@@ -18,7 +18,9 @@ export function useNotifications(email, bootstrapItems = EMPTY_NOTIFICATIONS) {
     if (!email) return;
     try {
       const { notifications } = await dataApi.getInbox(email, 100);
-      setItems(notifications);
+      // API cũ, proxy lỗi hoặc response rỗng không được phép biến state thành
+      // undefined rồi làm toàn bộ portal trắng ở lần render tiếp theo.
+      setItems(Array.isArray(notifications) ? notifications : []);
     } catch (_) {}
   }, [email]);
 

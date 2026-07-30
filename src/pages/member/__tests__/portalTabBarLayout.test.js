@@ -31,4 +31,20 @@ describe("portal mobile tab bar", () => {
     expect(heights.map((m) => m[1].trim())).toEqual(["auto"]);
     expect(css).toMatch(/\.mobile-portal-content\s*\{[^}]*overflow-y:\s*auto/);
   });
+
+  it("không để PWA standalone bỏ qua safe-area đã được giới hạn", () => {
+    const standaloneTabBar = css.match(
+      /html\.standalone-pwa \.mobile-portal-tabbar\s*\{[^}]*\}/,
+    )?.[0];
+
+    expect(standaloneTabBar).toMatch(
+      /padding-bottom:\s*var\(--portal-tabbar-pad\)/,
+    );
+    expect(standaloneTabBar).not.toMatch(
+      /padding-bottom:\s*(?:calc\([^;]*env|env)\(safe-area-inset-bottom/,
+    );
+    expect(css).toMatch(
+      /--portal-safe-bottom:\s*min\(34px,\s*max\(0px,\s*env\(safe-area-inset-bottom/,
+    );
+  });
 });

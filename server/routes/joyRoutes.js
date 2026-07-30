@@ -20,6 +20,14 @@ const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${inde
 const CODER_MIN_STUDY_MS = 10 * 60 * 1000;
 const CODER_QUIZ_LESSONS = new Set(['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']);
 const CODER_SCREENSHOT_LESSONS = new Set(['lesson10']);
+const HUGOSO_COURSES = Object.freeze({
+  calendar: { label: 'Google Calendar chuẩn công việc', priceJoy: 320 },
+  docs: { label: 'Google Docs & báo cáo Harvard', priceJoy: 450 },
+  sheets: { label: 'Google Sheets chuẩn vận hành', priceJoy: 520 },
+  gemini: { label: 'Google Gemini cho học tập & công việc', priceJoy: 390 }
+});
+const HUGOSO_BUNDLE_PRICE = 1290;
+const HUGOSO_COURSE_IDS = Object.freeze(Object.keys(HUGOSO_COURSES));
 const CODER_STAGE_DEFINITIONS = {
   basic: {
     key: 'hugoCoderBasicLifetime',
@@ -246,6 +254,109 @@ router.get('/balance', requireMember, async (req, res) => {
     res.json({ balance: full.joyBalance || 0, referralCode });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+function hugoSOPricing(bio) {
+  const owned = new Set(bio?.hugoSOCourses || []);
+  const remaining = HUGOSO_COURSE_IDS.filter((courseId) => !owned.has(courseId));
+  const remainingListPrice = remaining.reduce(
+    (sum, courseId) => sum + HUGOSO_COURSES[courseId].priceJoy,
+    0
+  );
+  // Members who already bought individual courses never pay for them twice.
+  // The 18% bundle rate is applied only to the remaining curriculum.
+  const bundlePrice = remaining.length === HUGOSO_COURSE_IDS.length
+    ? HUGOSO_BUNDLE_PRICE
+    : Math.round(remainingListPrice * 0.82);
+  const pricing = Object.fromEntries(
+    HUGOSO_COURSE_IDS.map((courseId) => [
+      courseId,
+      calcExchangeTotal(HUGOSO_COURSES[courseId].priceJoy)
+    ])
+  );
+  pricing.bundle = calcExchangeTotal(bundlePrice);
+  return { pricing, remaining };
+}
+
+// HugoSO access is intentionally separate from monthly app subscriptions:
+// courses are owned for life and never renew automatically.
+router.get('/hugoso-access', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const { pricing } = hugoSOPricing(bio);
+    return res.json({
+      ownedCourses: bio.hugoSOCourses || [],
+      pricing,
+      balance: Number(bio.joyBalance) || 0
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/buy-hugoso-course', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const courseId = String(req.body?.courseId || '');
+    if (courseId !== 'bundle' && !HUGOSO_COURSES[courseId]) {
+      return res.status(400).json({ error: 'Khóa học HugoSO không hợp lệ.' });
+    }
+
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+    const owned = new Set(bio.hugoSOCourses || []);
+    const { pricing, remaining } = hugoSOPricing(bio);
+    if (courseId === 'bundle' && remaining.length === 0) {
+      return res.status(400).json({ error: 'Bạn đã sở hữu toàn bộ khóa học HugoSO.' });
+    }
+    if (courseId !== 'bundle' && owned.has(courseId)) {
+      return res.status(400).json({ error: 'Bạn đã sở hữu khóa học này.' });
+    }
+
+    const targetIds = courseId === 'bundle' ? remaining : [courseId];
+    const quote = pricing[courseId];
+    if (bio.joyBalance < quote.total) {
+      return res.status(400).json({
+        error: `Số dư JOY không đủ. Bạn cần ${quote.total} JOY để mở khóa.`
+      });
+    }
+
+    const label = courseId === 'bundle'
+      ? `Office Ready Bundle (${targetIds.length} khóa còn lại)`
+      : HUGOSO_COURSES[courseId].label;
+    const result = await awardJoy(
+      bio.email,
+      -quote.total,
+      'hugoso_course',
+      `Mở khóa trọn đời ${label} (gồm ${quote.tax} JOY phí sáng tạo)`,
+      {
+        bioDoc: bio,
+        skipSave: true,
+        refId: `hugoso_${courseId}`,
+        actionUrl: '/member/utilities/hugoso',
+        notificationMessage: `Bạn đã sở hữu trọn đời ${label}.`
+      }
+    );
+
+    bio.hugoSOCourses = [...new Set([...(bio.hugoSOCourses || []), ...targetIds])];
+    bio.markModified('hugoSOCourses');
+    await bio.save();
+
+    return res.json({
+      success: true,
+      balance: result.balance,
+      ownedCourses: bio.hugoSOCourses,
+      unlockedCourses: targetIds
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -1184,23 +1295,31 @@ router.post('/transfer', requireMember, async (req, res) => {
 
     // Execute concurrently for instant real-time websocket delivery.
     // Pass bioDoc to skip redundant DB reads inside awardJoy.
+    // Câu mô tả chỉ nói việc gì đã xảy ra. Số tiền, mã GD và số dư nay là field
+    // riêng trên notification (amount/refCode/balanceAfter) — đừng nhét lại vào
+    // câu, client sẽ hiện hai lần.
     const [senderResult] = await Promise.all([
       awardJoy(
         sender.email, -totalDeducted, 'joy_gift_sent',
-        `Gửi JOY cho ${recipientName} (-${numAmount} JOY, phí -${feeAmount} JOY). Mã GD: ${txCode}.${customMsg}`,
-        { refId: txCode, bioDoc: sender }
+        `Gửi ${numAmount} JOY cho ${recipientName}, phí sáng tạo ${feeAmount} JOY.${customMsg}`,
+        {
+          refId: txCode,
+          bioDoc: sender,
+          counterparty: recipientName,
+          notificationTitle: `Đã gửi JOY cho ${recipientName}`
+        }
       ),
       awardJoy(
         recipient.email, numAmount, 'joy_gift_received',
-        `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg}`,
+        `${senderName} đã chuyển JOY cho bạn.${customMsg}`,
         {
           refId: txCode,
           bioDoc: recipient,
-          notificationTitle: 'Bạn vừa nhận được JOY',
-          notificationMessage: `${senderName} đã chuyển ${numAmount} JOY đến bạn. Mã GD: ${txCode}.${customMsg} Số dư: ${Math.max(0, recipient.joyBalance + numAmount)} JOY.`,
+          counterparty: senderName,
+          notificationTitle: `${senderName} đã gửi JOY cho bạn`,
           pushNotify: true,
           pushTitle: 'Bạn vừa nhận được JOY',
-          pushBody: `${senderName} đã chuyển ${numAmount} JOY đến bạn.${customMsg}`,
+          pushBody: `${senderName} đã chuyển ${numAmount} JOY cho bạn.${customMsg}`,
           actionUrl: '/member/joy'
         }
       )

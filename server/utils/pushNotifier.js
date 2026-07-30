@@ -23,7 +23,7 @@ if (vapidKeys && vapidKeys.publicKey && vapidKeys.privateKey) {
  * @param {string} body Nội dung thông báo
  * @param {string} [url] Đường dẫn khi click vào thông báo
  */
-export async function sendPushNotification(email, title, body, url = '/member/portal') {
+export async function sendPushNotification(email, title, body, url = '/member/today') {
   try {
     if (!email) return;
 
@@ -37,7 +37,7 @@ export async function sendPushNotification(email, title, body, url = '/member/po
       title,
       body,
       icon: '/image/avt7.png',
-      url: url || '/member/portal'
+      url: url || '/member/today'
     });
 
     const sendPromises = subscriptions.map(sub => 

@@ -19,10 +19,10 @@ export const HOW_TO_PLAY = {
     rule: "Đoán từ trước khi hết giờ. Giải nhanh và giải liên tiếp được nhân điểm; cấp cao từ dài hơn, ít thời gian hơn.",
   },
   survivor: {
-    rule: "Né đạn, nhặt lõi vàng để lên cấp súng. Mỗi đợt địch mạnh hơn, cứ 5 đợt gặp một trùm.",
+    rule: "Né đạn, nhặt lõi vàng và bay sát để nạp Xung Phá. Cứ 3 đợt đối đầu một Boss ba pha với vũ khí và chiến thuật riêng.",
   },
   snake: {
-    rule: "Ăn mồi để dài ra. Mồi vàng gấp 5 điểm nhưng có hạn giờ; ăn dồn để giữ chuỗi liên hoàn; cấp cao có mìn.",
+    rule: "Vượt các chặng Vườn Neon, Bãi Mìn, Cổng Lượng Tử và Hyper Grid. Săn mồi vàng, giữ combo và thích nghi với thử thách mới sau mỗi 6 mồi.",
   },
   tetris: {
     rule: "Xoay và xếp khối cho kín hàng ngang. Có giữ khối và xem trước 3 khối; cấp cao sàn sẽ đẩy rác lên.",

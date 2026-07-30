@@ -34,6 +34,7 @@ const JoyLedgerSchema = new mongoose.Schema({
       'joy_gift_sent',
       'joy_gift_received',
       'ide_learning',
+      'hugoso_course',
       'coder_exam_retake',
       'feature_subscription',
       'bio_theme_rental',

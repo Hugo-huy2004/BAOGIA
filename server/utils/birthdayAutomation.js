@@ -61,7 +61,7 @@ export const runBirthdayAutomation = async () => {
             bio.email,
             'Chúc mừng sinh nhật! 🎂',
             `Hugo Studio chúc mừng sinh nhật bạn ${bio.displayName}!`,
-            '/member/portal?tab=history'
+            '/member/activity'
           ).catch(console.error);
           console.log(`[Birthday Automation] Birthday greeting queued for ${bio.displayName} (${bio.email})`);
         }
@@ -102,7 +102,7 @@ export const runBirthdayAutomation = async () => {
               bio.email,
               'Quà tặng sinh nhật từ Hugo Studio! 🎁',
               `Bạn vừa nhận được mã quà tặng sinh nhật mới. Kích hoạt ngay nhé!`,
-              '/member/portal?tab=history'
+              '/member/activity'
             ).catch(console.error);
             console.log(`[Birthday Automation] Birthday voucher code generated: ${voucherCode} for ${bio.displayName} (${bio.email})`);
           }

@@ -162,7 +162,7 @@ router.post('/send-test', requireAdmin, async (req, res) => {
       title: title || 'Thông báo đẩy thử nghiệm',
       body: body || 'Xin chào! Đây là thông báo đẩy từ máy chủ của website.',
       icon: '/image/avt7.png',
-      url: url || '/member/portal?tab=banhocduong'
+      url: url || '/member/utilities/psychology'
     });
 
     const sendPromises = subscriptions.map(sub => 

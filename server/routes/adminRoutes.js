@@ -490,7 +490,8 @@ router.post('/verify-graduation-project', requireAdmin, async (req, res) => {
           email,
           4000,
           'ide_course_completion',
-          'Đạt thành tích Xuất Sắc tốt nghiệp HugoCoder (+4,000 JOY)',
+          // Số JOY đã là field `amount` trên thông báo, không viết lại vào câu.
+          'Đạt thành tích Xuất Sắc khi tốt nghiệp HugoCoder.',
           { bioDoc: bio, refId: 'lesson100_completion' }
         );
         bio.hugoCoderRewardClaimed7 = true;
@@ -965,14 +966,14 @@ Return ONLY a valid JSON object matching this structure (no markdown code ticks)
           category: 'system',
           title: userSubject,
           message: userPushText,
-          actionUrl: '/member/portal?tab=history'
+          actionUrl: '/member/activity'
         }).catch(err => console.error(`Error creating InAppNotification for ${bio.email}:`, err.message))
       );
 
       // Send Push notification
       if (bio.email) {
         pushPromises.push(
-          sendPushNotification(bio.email, userSubject, userPushText, '/member/portal?tab=history').catch(() => {})
+          sendPushNotification(bio.email, userSubject, userPushText, '/member/activity').catch(() => {})
         );
         // Send email via SendGrid
         pushPromises.push(

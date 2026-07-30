@@ -6,14 +6,13 @@ import { readGamePalette, withAlpha, shade } from "./arcadePalette";
 import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
 import ArcadeHud from "./ArcadeHud";
 
-// ── Luật chơi (mới) ───────────────────────────────────────────────
-// · Mồi thường 2 điểm, mồi VÀNG 10 điểm nhưng chỉ tồn tại ~6 giây.
-// · Ăn liên tiếp trong 2.6s → chuỗi liên hoàn, hệ số nhân tối đa x3.
-// · Từ cấp 3 sân xuất hiện MÌN tĩnh (mỗi cấp thêm 1), chạm là chết.
-// · Tốc độ và số mìn do `levelFor(score)` quyết định — không còn công thức
-//   tăng tốc riêng trong file này.
+// Snake 3D Pro is a chapter-based endless run. Every six pickups the arena
+// changes its visual world and introduces a new rule (mines, portals, golden
+// hunts or hyper speed), while the shared arcade level curve keeps increasing
+// the base difficulty.
 const GRID = 18;
 const GAME_ID = "snake";
+const STAGE_GOAL = 6;
 
 const DIR = {
   up:    { x: 0,  y: -1 },
@@ -31,6 +30,72 @@ const MINE = "#ff3b30";
 const GOLDEN_EVERY = 5;      // cứ 5 mồi thường thì tới lượt mồi vàng
 const GOLDEN_TICKS = 380;    // ~6.3s ở 60fps trước khi mồi vàng biến mất
 
+const STAGES = [
+  {
+    name: "Vườn Neon",
+    kicker: "CHẶNG KHỞI ĐỘNG",
+    mission: "Thu thập 6 lõi năng lượng",
+    hint: "Giữ nhịp ăn để kích hoạt combo.",
+    accent: "#a78bfa",
+    accent2: "#22d3ee",
+    bg: "#090619",
+    mines: 0,
+    speed: 1,
+  },
+  {
+    name: "Bãi Mìn Đỏ",
+    kicker: "THỬ THÁCH SINH TỒN",
+    mission: "Lách qua mìn và ăn đủ 6 mồi",
+    hint: "Mìn đỏ phát sáng nhưng không thể phá.",
+    accent: "#fb7185",
+    accent2: "#f97316",
+    bg: "#18070d",
+    mines: 2,
+    speed: 0.96,
+  },
+  {
+    name: "Cổng Lượng Tử",
+    kicker: "THỬ THÁCH DỊCH CHUYỂN",
+    mission: "Làm chủ cặp cổng không gian",
+    hint: "Đi vào một cổng để xuất hiện ở cổng còn lại.",
+    accent: "#22d3ee",
+    accent2: "#818cf8",
+    bg: "#04141c",
+    mines: 1,
+    portals: true,
+    speed: 0.92,
+  },
+  {
+    name: "Săn Vàng",
+    kicker: "THỬ THÁCH TỐC ĐỘ",
+    mission: "Săn lõi vàng trước khi biến mất",
+    hint: "Lõi vàng cho 10 điểm và duy trì combo lớn.",
+    accent: "#fbbf24",
+    accent2: "#fb7185",
+    bg: "#181006",
+    mines: 2,
+    goldenEvery: 3,
+    speed: 0.88,
+  },
+  {
+    name: "Hyper Grid",
+    kicker: "CHẶNG TỐI THƯỢNG",
+    mission: "Sống sót trong lưới siêu tốc",
+    hint: "Tốc độ cao, nhiều mìn và cổng dịch chuyển.",
+    accent: "#34d399",
+    accent2: "#a3e635",
+    bg: "#04150f",
+    mines: 3,
+    portals: true,
+    goldenEvery: 3,
+    speed: 0.8,
+  },
+];
+
+const stageNumberFor = (eaten) => Math.floor(eaten / STAGE_GOAL) + 1;
+const stageThemeFor = (stageNumber) => STAGES[(stageNumber - 1) % STAGES.length];
+const stageProgressFor = (eaten) => eaten % STAGE_GOAL;
+
 const sameCell = (a, b) => a.x === b.x && a.y === b.y;
 
 function randomCell(occupied) {
@@ -44,9 +109,9 @@ function randomCell(occupied) {
 }
 
 // Mìn phải ở xa đầu rắn, nếu không người chơi chết oan ngay khi vừa lên cấp.
-function placeMines(count, snake, food, head) {
+function placeMines(count, snake, food, head, extraAvoid = []) {
   const mines = [];
-  const taken = () => [...snake, ...mines, food].filter(Boolean);
+  const taken = () => [...snake, ...mines, food, ...extraAvoid].filter(Boolean);
   for (let i = 0; i < count; i++) {
     let cell;
     let guard = 0;
@@ -57,6 +122,18 @@ function placeMines(count, snake, food, head) {
     mines.push(cell);
   }
   return mines;
+}
+
+function placePortals(snake, food, mines, golden) {
+  const occupied = [...snake, food, golden, ...mines].filter(Boolean);
+  const first = randomCell(occupied);
+  let second = randomCell([...occupied, first]);
+  let guard = 0;
+  while (guard < 80 && Math.abs(first.x - second.x) + Math.abs(first.y - second.y) < 10) {
+    second = randomCell([...occupied, first]);
+    guard += 1;
+  }
+  return [first, second];
 }
 
 // ── Particle helpers ──────────────────────────────────────────────
@@ -120,7 +197,13 @@ export default function GameSnake({ paused = false, onGameOver }) {
   const containerRef = useRef(null);
   const [countdown, setCountdown] = useState(3);
   const [playing, setPlaying]     = useState(false);
-  const [hud, setHud] = useState({ score: 0, eaten: 0, mines: 0, combo: 0, mult: 1, notice: "" });
+  const [layoutRevision, setLayoutRevision] = useState(0);
+  const [stageBanner, setStageBanner] = useState(null);
+  const bannerTimerRef = useRef(null);
+  const [hud, setHud] = useState({
+    score: 0, eaten: 0, mines: 0, combo: 0, mult: 1, notice: "",
+    stage: 1, stageProgress: 0,
+  });
   const reportedRef = useRef(false);
 
   const state = useRef({
@@ -130,11 +213,14 @@ export default function GameSnake({ paused = false, onGameOver }) {
     food:    { x: 12, y: 9 },
     golden:  null,          // { x, y, ttl }
     mines:   [],
+    portals: [],
     score:   0,
     eaten:   0,
     level:   1,
+    stage:   1,
     lastTick: 0,
     speed: 150,
+    prevSnake: null,
     combo: createCombo({ windowMs: 2600, step: 0.25, max: 3 }),
     particles: [],
     popups: [],
@@ -143,9 +229,17 @@ export default function GameSnake({ paused = false, onGameOver }) {
     shakeY: 0,
     shakeMag: 0,
     flash: 0,
+    stagePauseUntil: 0,
     trailTimer: 0,
     dead: false,
   });
+
+  const announceStage = useCallback((stageNumber) => {
+    const theme = stageThemeFor(stageNumber);
+    setStageBanner({ ...theme, number: stageNumber });
+    window.clearTimeout(bannerTimerRef.current);
+    bannerTimerRef.current = window.setTimeout(() => setStageBanner(null), 2300);
+  }, []);
 
   // Đẩy state ref ra HUD React — gom một chỗ để không rải setState khắp vòng lặp.
   const syncHud = useCallback((notice) => {
@@ -156,8 +250,25 @@ export default function GameSnake({ paused = false, onGameOver }) {
       mines: s.mines.length,
       combo: s.combo.chain + (s.combo.chain > 0 ? 1 : 0),
       mult: s.combo.mult,
+      stage: s.stage,
+      stageProgress: stageProgressFor(s.eaten),
       notice: notice !== undefined ? notice : prev.notice,
     }));
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(bannerTimerRef.current), []);
+
+  useEffect(() => {
+    let timer;
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setLayoutRevision((revision) => revision + 1), 160);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   // ── RAF game loop ─────────────────────────────────────────────────────────
@@ -170,16 +281,16 @@ export default function GameSnake({ paused = false, onGameOver }) {
     s.lastTick   = 0;
 
     const pal = readGamePalette(canvas);
-    const bodyDeep = shade(pal.accent, -0.28);
-    const headColor = pal.accent;
     const glow = (color, blur) => {
-      ctx.shadowColor = pal.isLight ? "transparent" : color;
-      ctx.shadowBlur = pal.isLight ? 0 : blur;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = blur;
     };
 
-    const size    = canvas.offsetWidth;
-    canvas.width  = size;
-    canvas.height = size;
+    const size = Math.max(280, Math.round(canvas.getBoundingClientRect().width));
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width  = Math.round(size * pixelRatio);
+    canvas.height = Math.round(size * pixelRatio);
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     const cell    = size / GRID;
     const px = (c) => (c.x + 0.5) * cell;
     const py = (c) => (c.y + 0.5) * cell;
@@ -209,7 +320,35 @@ export default function GameSnake({ paused = false, onGameOver }) {
       }
     };
 
-    const draw = () => {
+    const drawPortal = (portal, color, index) => {
+      const x = px(portal);
+      const y = py(portal);
+      const spin = s.foodPulse * (index ? -1.2 : 1.2);
+      const radius = cell * 0.42;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(spin);
+      glow(color, 24);
+      for (let ring = 0; ring < 3; ring++) {
+        ctx.strokeStyle = withAlpha(ring === 1 ? "#ffffff" : color, 0.9 - ring * 0.22);
+        ctx.lineWidth = Math.max(1.5, cell * (0.12 - ring * 0.025));
+        ctx.beginPath();
+        ctx.ellipse(0, 0, radius * (1 + ring * 0.28), radius * (0.48 + ring * 0.12), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = withAlpha(color, 0.22);
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.62, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    };
+
+    const draw = (now = performance.now()) => {
+      const theme = stageThemeFor(s.stage);
+      const headColor = theme.accent;
+      const bodyDeep = shade(headColor, -0.28);
       s.foodPulse = (s.foodPulse + 0.04) % (Math.PI * 2);
       const pulseScale = 1 + Math.sin(s.foodPulse) * 0.12;
       s.combo.tick();
@@ -225,36 +364,69 @@ export default function GameSnake({ paused = false, onGameOver }) {
       ctx.save();
       ctx.translate(s.shakeX, s.shakeY);
 
-      ctx.fillStyle = pal.bg;
+      const world = ctx.createLinearGradient(0, 0, size, size);
+      world.addColorStop(0, theme.bg);
+      world.addColorStop(0.54, shade(theme.bg, 0.12));
+      world.addColorStop(1, shade(theme.bg, -0.18));
+      ctx.fillStyle = world;
       ctx.fillRect(-10, -10, size + 20, size + 20);
+
+      const atmosphere = ctx.createRadialGradient(size * 0.2, size * 0.12, 0, size * 0.2, size * 0.12, size * 0.72);
+      atmosphere.addColorStop(0, withAlpha(theme.accent, 0.2));
+      atmosphere.addColorStop(0.52, withAlpha(theme.accent2, 0.06));
+      atmosphere.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = atmosphere;
+      ctx.fillRect(0, 0, size, size);
 
       const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.25, size / 2, size / 2, size * 0.7);
       vignette.addColorStop(0, "rgba(0,0,0,0)");
-      vignette.addColorStop(1, "rgba(0,0,0,0.35)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.48)");
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, size, size);
 
-      ctx.strokeStyle = pal.grid;
-      ctx.lineWidth   = 0.5;
-      ctx.globalAlpha = 0.4;
+      // Layered grid and offset highlights give the flat collision board a
+      // beveled, holographic-floor depth without requiring a WebGL bundle.
+      ctx.strokeStyle = withAlpha(theme.accent2, 0.23);
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.7;
       for (let i = 0; i <= GRID; i++) {
         ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, size); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(size, i * cell); ctx.stroke();
       }
+      ctx.translate(0, 1.5);
+      ctx.strokeStyle = "rgba(255,255,255,.045)";
+      for (let i = 0; i <= GRID; i++) {
+        ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, size); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(size, i * cell); ctx.stroke();
+      }
+      ctx.translate(0, -1.5);
       ctx.globalAlpha = 1;
+
+      if (s.portals.length === 2) {
+        drawPortal(s.portals[0], theme.accent, 0);
+        drawPortal(s.portals[1], theme.accent2, 1);
+      }
 
       // ── Mìn: hình lục giác gai, nhấp nháy để không lẫn với mồi ──
       for (const m of s.mines) {
         const mx = px(m);
         const my = py(m);
         const r = cell * 0.34 * (1 + Math.sin(s.foodPulse * 3) * 0.06);
-        glow(MINE, 16);
-        ctx.fillStyle = MINE;
+        ctx.save();
+        ctx.translate(mx, my);
+        ctx.rotate(s.foodPulse * 0.7);
+        glow(MINE, 18);
+        const mineGrad = ctx.createRadialGradient(-r * 0.25, -r * 0.3, 0, 0, 0, r);
+        mineGrad.addColorStop(0, "#ffffff");
+        mineGrad.addColorStop(0.2, "#ff8a80");
+        mineGrad.addColorStop(0.62, MINE);
+        mineGrad.addColorStop(1, "#5c0610");
+        ctx.fillStyle = mineGrad;
         ctx.beginPath();
         for (let i = 0; i < 6; i++) {
           const a = (Math.PI / 3) * i - Math.PI / 2;
-          const pxx = mx + Math.cos(a) * r;
-          const pyy = my + Math.sin(a) * r;
+          const pxx = Math.cos(a) * r;
+          const pyy = Math.sin(a) * r;
           if (i === 0) ctx.moveTo(pxx, pyy); else ctx.lineTo(pxx, pyy);
         }
         ctx.closePath();
@@ -263,9 +435,10 @@ export default function GameSnake({ paused = false, onGameOver }) {
         ctx.strokeStyle = "rgba(255,255,255,.7)";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(mx - r * 0.35, my); ctx.lineTo(mx + r * 0.35, my);
-        ctx.moveTo(mx, my - r * 0.35); ctx.lineTo(mx, my + r * 0.35);
+        ctx.moveTo(-r * 0.35, 0); ctx.lineTo(r * 0.35, 0);
+        ctx.moveTo(0, -r * 0.35); ctx.lineTo(0, r * 0.35);
         ctx.stroke();
+        ctx.restore();
       }
 
       // ── Mồi thường ──
@@ -287,16 +460,24 @@ export default function GameSnake({ paused = false, onGameOver }) {
 
       s.trailTimer++;
       if (!s.dead && s.trailTimer % 3 === 0 && s.snake.length > 0) {
-        spawnTrail(s.particles, px(s.snake[0]), py(s.snake[0]), withAlpha(headColor, 0.5));
+        spawnTrail(s.particles, px(s.snake[0]), py(s.snake[0]), withAlpha(theme.accent, 0.62));
       }
 
       updateParticles(s.particles);
       drawParticles(ctx, s.particles);
 
       // Render Snake
-      const totalSegs = s.snake.length;
+      const tween = s.dead ? 1 : Math.min(1, Math.max(0, (now - s.lastTick) / s.speed));
+      const displaySnake = s.snake.map((seg, index) => {
+        const previous = s.prevSnake?.[index] || s.prevSnake?.[s.prevSnake.length - 1] || seg;
+        return {
+          x: previous.x + (seg.x - previous.x) * tween,
+          y: previous.y + (seg.y - previous.y) * tween,
+        };
+      });
+      const totalSegs = displaySnake.length;
       for (let i = totalSegs - 1; i >= 0; i--) {
-        const seg = s.snake[i];
+        const seg = displaySnake[i];
         const cx = px(seg);
         const cy = py(seg);
         const isHead = i === 0;
@@ -368,7 +549,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
           ctx.shadowBlur = 0;
 
         } else {
-          const prevSeg = s.snake[i - 1];
+          const prevSeg = displaySnake[i - 1];
           const pxs = px(prevSeg);
           const pys = py(prevSeg);
 
@@ -376,9 +557,19 @@ export default function GameSnake({ paused = false, onGameOver }) {
           const r = cell * (isTail ? 0.28 : (0.44 - progress * 0.14));
           // Thân rắn "nóng" dần theo combo: chuỗi càng dài càng sáng.
           const heat = Math.min(1, s.combo.chain / 8);
-          const color = shade(pal.accent, 0.22 + heat * 0.25 - progress * 0.5);
+          const color = shade(theme.accent, 0.22 + heat * 0.25 - progress * 0.5);
 
           glow(color, 10 + heat * 14);
+
+          // Dark under-stroke + lit capsule + radial segment cap create a
+          // continuous tube with visible depth even on small phones.
+          ctx.strokeStyle = "rgba(0,0,0,.38)";
+          ctx.lineWidth = r * 2.35;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(cx + r * 0.12, cy + r * 0.28);
+          ctx.lineTo(pxs + r * 0.12, pys + r * 0.28);
+          ctx.stroke();
 
           ctx.strokeStyle = color;
           ctx.lineWidth = r * 1.95;
@@ -388,9 +579,14 @@ export default function GameSnake({ paused = false, onGameOver }) {
           ctx.lineTo(pxs, pys);
           ctx.stroke();
 
-          ctx.fillStyle = pal.isLight ? withAlpha(bodyDeep, 0.5) : "rgba(255, 255, 255, 0.25)";
+          const segmentGrad = ctx.createRadialGradient(cx - r * 0.34, cy - r * 0.42, r * 0.05, cx, cy, r);
+          segmentGrad.addColorStop(0, "#ffffff");
+          segmentGrad.addColorStop(0.2, shade(color, 0.34));
+          segmentGrad.addColorStop(0.7, color);
+          segmentGrad.addColorStop(1, bodyDeep);
+          ctx.fillStyle = segmentGrad;
           ctx.beginPath();
-          ctx.arc(cx - r * 0.2, cy - r * 0.2, r * 0.35, 0, Math.PI * 2);
+          ctx.arc(cx, cy, r * 0.86, 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -404,7 +600,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
 
       // Chớp sáng khi lên cấp — báo "độ khó vừa tăng" mà không cần chữ.
       if (s.flash > 0.01) {
-        ctx.fillStyle = withAlpha(pal.accent, s.flash);
+        ctx.fillStyle = withAlpha(theme.accent, s.flash);
         ctx.fillRect(0, 0, size, size);
         s.flash *= 0.9;
       }
@@ -416,7 +612,8 @@ export default function GameSnake({ paused = false, onGameOver }) {
       if (reportedRef.current) return;
       reportedRef.current = true;
       s.dead = true;
-      spawnBurst(s.particles, px(s.snake[0]), py(s.snake[0]), headColor, 24, 6);
+      const deathColor = stageThemeFor(s.stage).accent;
+      spawnBurst(s.particles, px(s.snake[0]), py(s.snake[0]), deathColor, 24, 6);
       spawnBurst(s.particles, px(s.snake[0]), py(s.snake[0]), "#ffffff", 8, 3);
       s.shakeMag = 12;
       playGameLose(); hapticLose();
@@ -427,19 +624,43 @@ export default function GameSnake({ paused = false, onGameOver }) {
       if (stopped) return;
       if (s.lastTick === 0) s.lastTick = ts;
 
+      if (s.stagePauseUntil > ts) {
+        s.lastTick = ts;
+        draw(ts);
+        rafId = requestAnimationFrame(step);
+        return;
+      }
+
       if (s.golden) {
         s.golden.ttl -= 1;
         if (s.golden.ttl <= 0) s.golden = null;
       }
 
       if (ts - s.lastTick >= s.speed) {
+        s.prevSnake = s.snake.map((segment) => ({ ...segment }));
         s.lastTick = ts;
 
         const d = s.nextDir;
         if (!(d.x === -s.dir.x && d.y === -s.dir.y)) s.dir = d;
 
         const head = s.snake[0];
-        const next = { x: head.x + s.dir.x, y: head.y + s.dir.y };
+        const rawNext = { x: head.x + s.dir.x, y: head.y + s.dir.y };
+        let next = rawNext;
+
+        const portalIndex = s.portals.findIndex((portal) => sameCell(portal, rawNext));
+        if (portalIndex >= 0 && s.portals.length === 2) {
+          const exit = s.portals[portalIndex === 0 ? 1 : 0];
+          next = { x: exit.x + s.dir.x, y: exit.y + s.dir.y };
+          if (next.x < 0 || next.x >= GRID || next.y < 0 || next.y >= GRID) {
+            next = { ...exit };
+          }
+          const portalTheme = stageThemeFor(s.stage);
+          spawnBurst(s.particles, px(rawNext), py(rawNext), portalTheme.accent, 18, 4);
+          spawnBurst(s.particles, px(exit), py(exit), portalTheme.accent2, 18, 4);
+          s.flash = 0.16;
+          s.shakeMag = 4;
+          hapticMove?.();
+        }
 
         const hitWall = next.x < 0 || next.x >= GRID || next.y < 0 || next.y >= GRID;
         const hitSelf = s.snake.some((seg) => sameCell(seg, next));
@@ -475,28 +696,65 @@ export default function GameSnake({ paused = false, onGameOver }) {
           }
           s.shakeMag = ateGolden ? 8 : 4;
 
-          if (ateGolden) { s.golden = null; playGameSelect(); } else { s.food = randomCell([...s.snake, ...s.mines]); playGameMerge(); }
+          if (ateGolden) {
+            s.golden = null;
+            playGameSelect();
+          } else {
+            s.food = randomCell([...s.snake, ...s.mines, ...s.portals]);
+            playGameMerge();
+          }
           hapticMerge();
 
-          // Cứ GOLDEN_EVERY mồi thường thì thả một mồi vàng có hạn.
-          if (!s.golden && s.eaten % GOLDEN_EVERY === 0) {
-            s.golden = { ...randomCell([...s.snake, ...s.mines, s.food]), ttl: GOLDEN_TICKS };
+          const activeTheme = stageThemeFor(s.stage);
+          const goldenEvery = activeTheme.goldenEvery || GOLDEN_EVERY;
+          if (!s.golden && s.eaten % goldenEvery === 0) {
+            s.golden = { ...randomCell([...s.snake, ...s.mines, ...s.portals, s.food]), ttl: GOLDEN_TICKS };
           }
 
-          // ── Độ khó tự động ──
+          // ── Chapter + automatic difficulty ──
+          const nextStage = stageNumberFor(s.eaten);
           const level = levelFor(GAME_ID, s.score);
-          if (level !== s.level) {
-            s.level = level;
-            s.speed = ramp(GAME_ID, level, 150, 62);
-            const wanted = Math.max(0, level - 2);
-            if (wanted > s.mines.length) {
-              s.mines = placeMines(wanted, s.snake, s.food, next);
+          const stageChanged = nextStage !== s.stage;
+          const levelChanged = level !== s.level;
+          s.level = level;
+
+          if (stageChanged) {
+            s.stage = nextStage;
+            const nextTheme = stageThemeFor(nextStage);
+            const endlessBonus = Math.floor((nextStage - 1) / STAGES.length);
+            const wanted = nextTheme.mines + endlessBonus;
+            s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
+            s.portals = nextTheme.portals ? placePortals(s.snake, s.food, s.mines, s.golden) : [];
+            if (s.portals.length) {
+              s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
+            }
+            if (nextTheme.goldenEvery && !s.golden) {
+              s.golden = {
+                ...randomCell([...s.snake, ...s.mines, ...s.portals, s.food]),
+                ttl: GOLDEN_TICKS,
+              };
             }
             s.flash = 0.32;
-            s.shakeMag = 6;
-            syncHud(`Cấp ${level} · nhanh hơn${wanted ? ` · ${wanted} mìn` : ""}`);
+            s.shakeMag = 9;
+            s.stagePauseUntil = ts + 1650;
+            announceStage(nextStage);
+            syncHud(`${nextTheme.name} · thử thách mới đã mở`);
             setTimeout(() => setHud((h) => ({ ...h, notice: "" })), 1800);
-          } else {
+          }
+
+          const currentTheme = stageThemeFor(s.stage);
+          s.speed = ramp(GAME_ID, level, 150, 62) * currentTheme.speed;
+
+          if (levelChanged && !stageChanged) {
+            const endlessBonus = Math.floor((s.stage - 1) / STAGES.length);
+            const wanted = currentTheme.mines + endlessBonus + Math.max(0, Math.floor((level - 1) / 4));
+            if (wanted > s.mines.length) {
+              s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
+            }
+            s.flash = 0.22;
+            syncHud(`Cấp ${level} · tốc độ và thử thách tăng`);
+            setTimeout(() => setHud((h) => ({ ...h, notice: "" })), 1800);
+          } else if (!stageChanged) {
             syncHud();
           }
         } else {
@@ -510,7 +768,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
 
     let rafId = requestAnimationFrame(step);
     return () => { stopped = true; cancelAnimationFrame(rafId); };
-  }, [playing, paused, onGameOver, syncHud]);
+  }, [playing, paused, onGameOver, syncHud, announceStage, layoutRevision]);
 
   // Combo rơi theo thời gian thực nên HUD phải nhịp riêng, không chờ lần ăn kế.
   useEffect(() => {
@@ -552,8 +810,6 @@ export default function GameSnake({ paused = false, onGameOver }) {
     },
   }, { drag: { filterTaps: true } });
 
-  const setDir = useCallback((dir) => () => { state.current.nextDir = DIR[dir]; hapticMove?.(); }, []);
-
   // ── Countdown ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (countdown > 0) {
@@ -563,50 +819,97 @@ export default function GameSnake({ paused = false, onGameOver }) {
     setPlaying(true);
   }, [countdown]);
 
+  const activeStage = stageThemeFor(hud.stage);
+  const stagePercent = Math.round((hud.stageProgress / STAGE_GOAL) * 100);
+
   return (
-    <div className="w-full max-w-lg mx-auto flex flex-col items-center select-none">
-      <ArcadeHud
-        gameId={GAME_ID}
-        score={hud.score}
-        combo={hud.combo}
-        multiplier={hud.mult}
-        notice={hud.notice}
-        stats={[{ label: "Mồi", value: hud.eaten }, { label: "Mìn", value: hud.mines }]}
-      />
+    <div
+      ref={containerRef}
+      className="snake-game select-none"
+      style={{ "--snake-stage": activeStage.accent, "--snake-stage-2": activeStage.accent2 }}
+    >
+      <div className="snake-ambient" aria-hidden="true">
+        <i /><i /><i /><i /><i /><i />
+      </div>
 
-      <div
-        ref={containerRef}
-        className="gpanel relative w-full aspect-square rounded-2xl overflow-hidden touch-none"
-        {...(playing ? bind() : {})}
-      >
-        {!playing && countdown > 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-10">
-            <span
-              className="text-white text-7xl font-black"
-              style={{ textShadow: "0 0 40px var(--intro-accent), 0 0 80px var(--intro-accent)" }}
-            >
-              {countdown}
-            </span>
+      <section className="snake-main">
+        <ArcadeHud
+          gameId={GAME_ID}
+          score={hud.score}
+          combo={hud.combo}
+          multiplier={hud.mult}
+          notice={hud.notice}
+          stats={[{ label: "Mồi", value: hud.eaten }, { label: "Chặng", value: hud.stage }]}
+        />
+
+        <div
+          className="gpanel snake-board-3d relative w-full aspect-square overflow-hidden touch-none"
+          {...(playing ? bind() : {})}
+        >
+          <div className="snake-board-shine" aria-hidden="true" />
+          {!playing && countdown > 0 && (
+            <div className="snake-countdown absolute inset-0 flex items-center justify-center z-10">
+              <div>
+                <small>SẴN SÀNG</small>
+                <span>{countdown}</span>
+              </div>
+            </div>
+          )}
+          <canvas ref={canvasRef} className="w-full h-full cursor-crosshair touch-none" />
+          <div className="snake-scanline" aria-hidden="true" />
+        </div>
+      </section>
+
+      <aside className="snake-mission" aria-label={`Chặng ${hud.stage}: ${activeStage.name}`}>
+        <div className="snake-mission__top">
+          <span className="snake-mission__number">{String(hud.stage).padStart(2, "0")}</span>
+          <div>
+            <small>{activeStage.kicker}</small>
+            <h3>{activeStage.name}</h3>
           </div>
-        )}
-        <canvas ref={canvasRef} className="w-full h-full cursor-crosshair touch-none" />
-      </div>
+        </div>
 
-      <div className="arcade-dpad mt-4">
-        <div />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("up")}>▲</button>
-        <div />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("left")}>◀</button>
-        <div className="arcade-dpad-center" />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("right")}>▶</button>
-        <div />
-        <button className="arcade-dpad-btn" onPointerDown={setDir("down")}>▼</button>
-        <div />
-      </div>
+        <div className="snake-mission__challenge">
+          <span className="material-symbols-outlined">flag</span>
+          <div>
+            <small>NHIỆM VỤ HIỆN TẠI</small>
+            <strong>{activeStage.mission}</strong>
+          </div>
+        </div>
 
-      <p className="game-control-hint mt-3 text-center text-[11px]">
-        Mồi vàng 10 điểm nhưng có hạn giờ · Ăn dồn để giữ chuỗi liên hoàn · Tránh mìn đỏ
-      </p>
+        <div className="snake-mission__progress">
+          <div>
+            <span>TIẾN ĐỘ CHẶNG</span>
+            <b>{hud.stageProgress}/{STAGE_GOAL}</b>
+          </div>
+          <div className="snake-mission__rail"><span style={{ width: `${stagePercent}%` }} /></div>
+        </div>
+
+        <p className="snake-mission__hint">
+          <span className="material-symbols-outlined">tips_and_updates</span>
+          {activeStage.hint}
+        </p>
+
+        <div className="snake-mission__legend">
+          <span><i className="is-food" />+2 lõi thường</span>
+          <span><i className="is-gold" />+10 lõi vàng</span>
+          <span><i className="is-mine" />Mìn: kết thúc</span>
+          {activeStage.portals && <span><i className="is-portal" />Cổng dịch chuyển</span>}
+        </div>
+
+        <p className="game-control-hint snake-controls">
+          Vuốt hoặc dùng phím WASD / mũi tên
+        </p>
+      </aside>
+
+      {stageBanner && (
+        <div className="snake-stage-banner" role="status">
+          <div className="snake-stage-banner__rings" aria-hidden="true" />
+          <small>CHẶNG {String(stageBanner.number).padStart(2, "0")}</small>
+          <h2>{stageBanner.name}</h2>
+          <p>{stageBanner.mission}</p>
+        </div>
+      )}
     </div>
   );
 }

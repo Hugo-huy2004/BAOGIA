@@ -1226,14 +1226,6 @@
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.055);
 }
 
-.today-news-heading { align-items: flex-end; }
-.today-news-heading > button {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.today-news-heading > button .material-symbols-outlined { font-size: 15px; }
-
 .today-edition-note {
   display: flex;
   align-items: center;
@@ -1366,6 +1358,40 @@
 }
 .today-news-chevron { color: hsl(var(--muted-foreground) / 0.55); font-size: 17px; }
 
+/* Bài đầu ấn bản: ảnh lớn 16:9 thay vì thumbnail. */
+.today-news-card.is-lead {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.today-news-card.is-lead .today-news-card-media {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+}
+.today-news-card.is-lead .today-news-card-media img { position: static; }
+.today-news-card.is-lead > .min-w-0 { padding: 12px 14px 14px; }
+.today-news-card.is-lead small { font-size: 11px; }
+.today-news-card.is-lead strong {
+  font-size: 17px;
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+  -webkit-line-clamp: 3;
+}
+.today-news-card.is-lead .today-news-chevron { display: none; }
+
+.today-news-more {
+  min-height: 44px;
+  border: 1px solid hsl(var(--border) / 0.62);
+  border-radius: 16px;
+  background: hsl(var(--card));
+  color: hsl(var(--primary));
+  font-size: 13px;
+  font-weight: 620;
+}
+
 .today-news-preview {
   position: sticky;
   top: 18px;
@@ -1405,12 +1431,38 @@
   object-fit: cover;
   border-bottom: 1px solid hsl(var(--border) / 0.6);
 }
-.today-news-preview iframe {
-  width: 100%;
-  height: min(430px, 52dvh);
+.today-news-preview-body {
+  padding: 18px 16px 20px;
+}
+.today-news-preview-body small {
   display: block;
-  border: 0;
-  background: hsl(var(--card));
+  color: hsl(var(--primary));
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.today-news-preview-body h4 {
+  margin: 10px 0 12px;
+  color: hsl(var(--foreground));
+  font-size: clamp(19px, 2.4vw, 27px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+.today-news-preview-body p {
+  margin: 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 15px;
+  line-height: 1.55;
+}
+.today-news-preview-body > span {
+  display: block;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid hsl(var(--border) / 0.6);
+  color: hsl(var(--muted-foreground) / 0.85);
+  font-size: 11px;
 }
 .today-news-preview-footer {
   display: flex;
@@ -1449,14 +1501,14 @@
 
 @media (max-width: 900px) {
   .today-news-layout { grid-template-columns: 1fr; }
-  .today-news-preview { position: static; order: -1; }
-  .today-news-preview iframe { height: 390px; }
+  /* Khung đọc nằm SAU danh sách; đảo lên trước sẽ đẩy nội dung ra khỏi khung
+     nhìn khi người dùng bấm một bài ở giữa list. */
+  .today-news-preview { position: static; scroll-margin-top: 12px; }
 }
 
 @media (max-width: 639px) {
   .today-news-hero { align-items: stretch; flex-direction: column; padding: 24px 18px; }
   .today-news-preview-image { height: min(46vw, 220px); }
-  .today-news-preview iframe { height: 300px; }
   .today-news-card { grid-template-columns: 92px minmax(0, 1fr) 16px; padding: 10px; }
   .today-news-card-media { width: 92px; height: 70px; }
   .today-news-grid { grid-template-columns: 1fr; }
@@ -1532,7 +1584,12 @@ html.standalone-pwa .desktop-apple-layout {
 }
 
 html.standalone-pwa .mobile-portal-tabbar {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /*
+   * Không đọc env() trực tiếp ở đây. Một số iOS WebView giữ lại giá trị inset
+   * của viewport/keyboard cũ, khiến padding-bottom phình hàng trăm pixel và
+   * thanh tab nổi lên giữa màn hình. Biến này đã được clamp 0–34px ở shell.
+   */
+  padding-bottom: var(--portal-tabbar-pad);
 }
 
 .mobile-portal-content {

@@ -11,18 +11,12 @@ const feedLimiter = rateLimit({
   message: { error: 'Too many feed requests. Please try again shortly.' },
 });
 
-const detectCountry = (req) => {
-  const candidates = [
-    req.headers['cf-ipcountry'],
-    req.headers['x-vercel-ip-country'],
-    req.headers['x-country-code'],
-    req.query.country,
-    req.query.lang === 'vi' ? 'VN' : 'US',
-  ];
-  return candidates
-    .map((value) => String(value || '').trim().toUpperCase())
-    .find((value) => /^[A-Z]{2}$/.test(value)) || 'VN';
-};
+// Chỉ đọc header CDN; studentNewsService mới là nơi quy về ấn bản hợp lệ, vì
+// đó là nơi country trở thành cache key.
+const detectCountry = (req) => req.headers['cf-ipcountry']
+  || req.headers['x-vercel-ip-country']
+  || req.headers['x-country-code']
+  || '';
 
 router.get('/feed', feedLimiter, async (req, res) => {
   try {

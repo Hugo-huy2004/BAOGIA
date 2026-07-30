@@ -75,7 +75,15 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://img.vietqr.io"],
+      // CDN ảnh của các toà soạn trong PUBLISHER_FEEDS (studentNewsService).
+      // Allowlist đúng domain thay vì mở "https:" — và ảnh tải trực tiếp từ CDN
+      // báo, không proxy qua server để khỏi ăn outbound bandwidth của Render.
+      imgSrc: [
+        "'self'", "data:",
+        "https://res.cloudinary.com", "https://img.vietqr.io",
+        "https://*.vnecdn.net", "https://*.tuoitre.vn", "https://*.thanhnien.vn",
+        "https://ichef.bbci.co.uk", "https://*.bbci.co.uk",
+      ],
       connectSrc: ["'self'", "wss:", "ws:", "https://api.cloudinary.com", "https://accounts.google.com"],
       frameSrc: ["'self'", "https://accounts.google.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],

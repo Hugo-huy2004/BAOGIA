@@ -1,11 +1,10 @@
 /**
- * Dữ liệu tĩnh + helper dùng chung cho Hugo Store.
+ * Dữ liệu tĩnh của Hugo Store.
  *
- * Tách khỏi component để mấy chỗ (cửa hàng, sheet thanh toán, kho) khỏi phải
- * chép lại cùng một bảng gradient / cách đọc nhãn quyền lợi.
+ * Ở đây KHÔNG còn công thức tính tiền nào. Mọi giá, phí và tổng đều do server
+ * trả về (`/api/joy/exchange-quote` cho hoá đơn, `/api/store/plans` cho bảng
+ * bậc) — client nhân chia lại là kiểu bug hiện một số rồi trừ một số khác.
  */
-
-export const TAX_RATE = 0.09;
 
 /** Bảng gradient icon app — trùng khoá màu với MemberUtilitiesDashboard. */
 export const GRADIENTS = {
@@ -21,26 +20,36 @@ export const GRADIENTS = {
 };
 
 /**
- * Ứng dụng miễn phí trong hệ sinh thái. `id` khớp với `selectedUtility` của
+ * Ứng dụng trong hệ sinh thái. `id` khớp `selectedUtility` của
  * MemberUtilitiesTab nên bấm là mở thẳng app.
+ *
+ * `paid: true` = có thang bậc Dùng thử/Thuê/Sở hữu (khớp APP_PLANS ở
+ * server/utils/appPlanService.js). Những app còn lại đang miễn phí và PHẢI giữ
+ * miễn phí — biến đồ đang cho không thành đồ thu phí là quyết định sản phẩm,
+ * không phải việc của lớp hiển thị.
  */
 export const STORE_APPS = [
-  { id: "bio", color: "purple", label: "HugoBio", tagline: "Trang cá nhân chia sẻ bằng một liên kết", group: "essentials" },
-  { id: "ide", color: "blue", label: "HugoCoder", tagline: "Học lập trình theo lộ trình 100 bài", group: "learn" },
-  { id: "team", color: "teal", label: "HugoTeam", tagline: "Không gian làm việc nhóm", group: "learn" },
-  { id: "psychology", color: "cyan", label: "HugoPSY", tagline: "Đồng hành sức khoẻ tinh thần", group: "wellness" },
-  { id: "hugoskin", color: "slate", label: "HugoSkin", tagline: "Phân tích làn da bằng camera", group: "wellness" },
-  { id: "radio", color: "teal", label: "HugoRadio", tagline: "Sóng nhạc lofi để tập trung", group: "wellness" },
-  { id: "aura", color: "purple", label: "HugoAura", tagline: "Phiên tập trung sâu có nhịp thở", group: "wellness" },
-  { id: "arcade", color: "orange", label: "HugoArcade", tagline: "Bộ sưu tập game đổi JOY", group: "play" },
-  { id: "deco", color: "pink", label: "Deco Studio", tagline: "Bày biện căn phòng của riêng bạn", group: "play" },
-  { id: "map", color: "teal", label: "Discover", tagline: "Tìm quán xá quanh bạn", group: "essentials" },
-  { id: "helpdesk", color: "indigo", label: "HugoHelp", tagline: "Gửi yêu cầu hỗ trợ, quét mã QR", group: "essentials" },
-  { id: "handle", color: "rose", label: "HugoHandle", tagline: "Hộp tiện ích xử lý nhanh", group: "essentials" },
-  { id: "joy_wallet", color: "orange", label: "Ví JOY", tagline: "Số dư, giao dịch và mã nhận JOY", group: "essentials" },
+  { id: "hugoso", color: "purple", label: "HugoSO", tagline: "Kỹ năng Calendar, Docs, Sheets và Gemini" },
+  { id: "radio", color: "teal", label: "HugoRadio", tagline: "Sóng nhạc lofi để tập trung", paid: true },
+  { id: "arcade", color: "orange", label: "HugoArcade", tagline: "Bộ sưu tập game đổi JOY", paid: true },
+  { id: "aura", color: "purple", label: "HugoAura", tagline: "Phiên tập trung sâu có nhịp thở", paid: true },
+  { id: "ide", color: "blue", label: "HugoCoder", tagline: "Học lập trình theo lộ trình 100 bài", paid: true },
+  { id: "bio", color: "purple", label: "HugoBio", tagline: "Trang cá nhân chia sẻ bằng một liên kết" },
+  { id: "psychology", color: "cyan", label: "HugoPSY", tagline: "Đồng hành sức khoẻ tinh thần" },
+  { id: "team", color: "teal", label: "HugoTeam", tagline: "Không gian làm việc nhóm" },
+  { id: "hugoskin", color: "slate", label: "HugoSkin", tagline: "Phân tích làn da bằng camera" },
+  { id: "deco", color: "pink", label: "Deco Studio", tagline: "Bày biện căn phòng của riêng bạn" },
+  { id: "map", color: "teal", label: "Discover", tagline: "Tìm quán xá quanh bạn" },
+  { id: "helpdesk", color: "indigo", label: "HugoHelp", tagline: "Gửi yêu cầu hỗ trợ, quét mã QR" },
+  { id: "handle", color: "rose", label: "HugoHandle", tagline: "Hộp tiện ích xử lý nhanh" },
+  { id: "joy_wallet", color: "orange", label: "Ví JOY", tagline: "Số dư, giao dịch và mã nhận JOY" },
 ];
 
-/** Nhãn quyền lợi ngắn của một sản phẩm token/gói, hoặc null nếu không có. */
+const APP_INDEX = new Map(STORE_APPS.map(app => [app.id, app]));
+
+export const appById = (id) => APP_INDEX.get(id) || null;
+
+/** Nhãn quyền lợi ngắn của một vật phẩm, hoặc null nếu không có. */
 export function perkLabel(p) {
   if (!p) return null;
   if (p.productType === "radio_time" && p.radioMinutes > 0) {
@@ -55,31 +64,19 @@ export function perkLabel(p) {
   return null;
 }
 
-/** Nhóm sản phẩm theo productType để dựng kệ hàng. */
+/** Nhóm vật phẩm theo productType để dựng kệ hàng. */
 export const PRODUCT_GROUPS = [
-  { type: "radio_time", title: "Gói nghe nhạc", subtitle: "Thêm thời lượng cho HugoRadio", icon: "radio", color: "teal" },
-  { type: "psy_study_tokens", title: "Lượt trò chuyện", subtitle: "Mở thêm phiên với HugoPSY", icon: "forum", color: "cyan" },
-  { type: "system_validity", title: "Gia hạn hệ thống", subtitle: "Kéo dài ngày sử dụng tài khoản", icon: "verified", color: "indigo" },
-  { type: "general", title: "Vật phẩm khác", subtitle: "Những thứ hay ho còn lại", icon: "redeem", color: "purple" },
+  { type: "radio_time", title: "Thêm thời lượng nghe", subtitle: "Cộng phút cho HugoRadio", icon: "radio" },
+  { type: "psy_study_tokens", title: "Thêm lượt trò chuyện", subtitle: "Mở thêm phiên với HugoPSY", icon: "forum" },
+  { type: "system_validity", title: "Gia hạn hệ thống", subtitle: "Kéo dài ngày sử dụng tài khoản", icon: "verified" },
+  { type: "general", title: "Vật phẩm khác", subtitle: "Những thứ hay ho còn lại", icon: "redeem" },
 ];
 
 export const money = (n) => Number(n || 0).toLocaleString("vi-VN");
 
-/**
- * Tổng tiền hiển thị cho giỏ hàng.
- *
- * Công thức phải khớp từng chữ với server (`POST /api/store/cart/checkout`):
- * làm tròn xuống phí 9%, trừ giảm giá, sàn ở 1 JOY. Lệch một đồng ở đây là
- * người dùng bấm "Thanh toán X" rồi bị trừ Y — nên nó nằm một chỗ và có test.
- */
-export function orderTotals(items = [], discount = 0) {
-  const subtotal = items.reduce((sum, i) => sum + i.priceJoy * i.quantity, 0);
-  const tax = Math.floor(subtotal * TAX_RATE);
-  const capped = Math.min(discount || 0, subtotal);
-  return {
-    subtotal,
-    tax,
-    discount: capped,
-    total: items.length ? Math.max(1, subtotal + tax - capped) : 0,
-  };
-}
+/** Khoá hoá đơn `item` cho từng thứ mua được — khớp EXCHANGE_ITEMS ở server. */
+export const exchangeItemKey = {
+  rent: (featureKey) => featureKey,
+  own: (appId) => `own_${appId}`,
+  pack: (productId) => `product_${productId}`,
+};

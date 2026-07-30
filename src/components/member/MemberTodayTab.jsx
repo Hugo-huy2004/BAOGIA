@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 
 const CATEGORIES = ["all", "academic", "technology", "community", "world"];
+const INITIAL_VISIBLE = 10;
 
 const QUICK_ACTIONS = [
   { id: "apps", icon: "apps", path: "/member/apps" },
@@ -19,50 +20,11 @@ const CATEGORY_ICONS = Object.freeze({
   all: "newspaper",
 });
 
-const readSessionValue = (key, fallback) => {
-  try {
-    return sessionStorage.getItem(key) || fallback;
-  } catch {
-    return fallback;
-  }
-};
-
-function escapeHtml(value = "") {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function articlePreviewDocument(article, labels, darkMode) {
-  if (!article) return "";
-  const background = darkMode ? "#171719" : "#ffffff";
-  const foreground = darkMode ? "#f5f5f7" : "#1d1d1f";
-  const secondary = darkMode ? "#a1a1a6" : "#6e6e73";
-  return `<!doctype html>
-<html lang="${escapeHtml(labels.language)}">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    *{box-sizing:border-box}body{margin:0;padding:clamp(24px,6vw,56px);background:${background};color:${foreground};font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
-    article{max-width:680px;margin:0 auto}small{display:block;color:#0071e3;font-size:12px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}
-    h1{margin:14px 0 18px;font-size:clamp(28px,6vw,46px);line-height:1.05;letter-spacing:-.035em}p{margin:0;color:${secondary};font-size:clamp(16px,2.6vw,20px);line-height:1.55}
-    footer{margin-top:34px;padding-top:20px;border-top:1px solid ${darkMode ? "#343438" : "#e5e5e7"};color:${secondary};font-size:13px}
-    @media(max-width:520px){body{padding:20px 18px}small{font-size:10px}h1{margin:10px 0 12px;font-size:25px;line-height:1.12}p{font-size:15px;line-height:1.5}footer{margin-top:22px;padding-top:14px;font-size:11px}}
-  </style>
-</head>
-<body>
-  <article>
-    <small>${escapeHtml(article.source)} · ${escapeHtml(labels.preview)}</small>
-    <h1>${escapeHtml(article.title)}</h1>
-    <p>${escapeHtml(article.description || labels.noSummary)}</p>
-    <footer>${escapeHtml(labels.sourceNotice)}</footer>
-  </article>
-</body>
-</html>`;
+// Tên Việt đặt tên riêng ở cuối ("Nguyễn Văn Hugo"), tên Anh đặt ở đầu.
+function givenName(displayName, language) {
+  const parts = String(displayName || "").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "";
+  return language === "vi" ? parts[parts.length - 1] : parts[0];
 }
 
 export default function MemberTodayTab({
@@ -71,29 +33,22 @@ export default function MemberTodayTab({
 }) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage === "en" ? "en" : "vi";
-  const [category, setCategory] = useState(() => {
-    const saved = readSessionValue("portal.today.category", "all");
-    return CATEGORIES.includes(saved) ? saved : "all";
-  });
-  const [selectedArticleId, setSelectedArticleId] = useState(() => {
-    const isCompact = typeof window !== "undefined"
-      && window.matchMedia("(max-width: 639px)").matches;
-    return isCompact ? null : readSessionValue("portal.today.article", null);
-  });
+  const [category, setCategory] = useState("all");
+  const [selectedArticleId, setSelectedArticleId] = useState(null);
+  const [visible, setVisible] = useState(INITIAL_VISIBLE);
   const [compactView, setCompactView] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches,
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches,
   );
-  const [darkMode, setDarkMode] = useState(
-    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
-  );
-  const { data, isLoading, isFetching, isError, refetch } = useTodayFeed(language, category);
+  const previewRef = useRef(null);
+  const { data, isLoading, isError, refetch } = useTodayFeed(language, category);
   const articles = useMemo(() => data?.items || [], [data?.items]);
+  const shown = articles.slice(0, visible);
   const selectedArticle =
     articles.find((article) => article.id === selectedArticleId) ||
     (!compactView ? articles[0] : null);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 639px)");
+    const media = window.matchMedia("(max-width: 900px)");
     const sync = () => {
       setCompactView(media.matches);
       if (media.matches) setSelectedArticleId(null);
@@ -103,38 +58,13 @@ export default function MemberTodayTab({
     return () => media.removeEventListener?.("change", sync);
   }, []);
 
+  // Trên mobile khung đọc nằm dưới danh sách, phải tự kéo tới nơi.
   useEffect(() => {
-    if (!compactView && articles.length && !articles.some((article) => article.id === selectedArticleId)) {
-      setSelectedArticleId(articles[0].id);
+    if (compactView && selectedArticleId) {
+      previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [articles, compactView, selectedArticleId]);
+  }, [compactView, selectedArticleId]);
 
-  useEffect(() => {
-    try {
-      sessionStorage.setItem("portal.today.category", category);
-      if (selectedArticleId) {
-        sessionStorage.setItem("portal.today.article", selectedArticleId);
-      } else {
-        sessionStorage.removeItem("portal.today.article");
-      }
-    } catch {
-      // Session persistence is an enhancement; private mode may block it.
-    }
-  }, [category, selectedArticleId]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => {
-      setDarkMode(root.classList.contains("dark"));
-    });
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-
-  const firstName = String(bio?.displayName || "")
-    .trim()
-    .split(/\s+/)
-    .slice(-1)[0];
   const dateLabel = useMemo(
     () => new Intl.DateTimeFormat(language, {
       weekday: "long",
@@ -147,15 +77,6 @@ export default function MemberTodayTab({
     () => new Intl.DateTimeFormat(language, { day: "numeric", month: "short" }),
     [language],
   );
-  const previewDocument = useMemo(
-    () => articlePreviewDocument(selectedArticle, {
-      language,
-      preview: t("memberPortal.today.preview"),
-      noSummary: t("memberPortal.today.noSummary"),
-      sourceNotice: t("memberPortal.today.sourceNotice"),
-    }, darkMode),
-    [darkMode, language, selectedArticle, t],
-  );
 
   return (
     <section className="portal-stack today-news-shell" aria-labelledby="portal-today-title">
@@ -164,7 +85,7 @@ export default function MemberTodayTab({
           <p className="portal-eyebrow">{dateLabel}</p>
           <h2 id="portal-today-title" className="portal-display">
             {t("memberPortal.navigation.todayGreeting", {
-              name: firstName || t("memberPortal.navigation.memberFallback"),
+              name: givenName(bio?.displayName, language) || t("memberPortal.navigation.memberFallback"),
             })}
           </h2>
           <p className="portal-supporting">{t("memberPortal.today.description")}</p>
@@ -172,15 +93,11 @@ export default function MemberTodayTab({
       </header>
 
       <section aria-labelledby="today-feed-title">
-        <div className="portal-section-heading today-news-heading">
+        <div className="portal-section-heading">
           <div>
             <p className="portal-eyebrow">{t("memberPortal.today.forStudents")}</p>
             <h3 id="today-feed-title">{t("memberPortal.today.topStories")}</h3>
           </div>
-          <button type="button" onClick={() => refetch()} disabled={isFetching}>
-            <span className={`material-symbols-outlined ${isFetching ? "animate-spin" : ""}`} aria-hidden="true">refresh</span>
-            {t("memberPortal.today.refresh")}
-          </button>
         </div>
 
         <div className="today-edition-note" aria-live="polite">
@@ -194,16 +111,16 @@ export default function MemberTodayTab({
           <span>{t("memberPortal.today.dailyReset")}</span>
         </div>
 
-        <div className="today-news-categories" role="tablist" aria-label={t("memberPortal.today.categories")}>
+        <div className="today-news-categories" aria-label={t("memberPortal.today.categories")}>
           {CATEGORIES.map((item) => (
             <button
               key={item}
               type="button"
-              role="tab"
-              aria-selected={category === item}
+              aria-pressed={category === item}
               className={category === item ? "is-active" : ""}
               onClick={() => {
                 setCategory(item);
+                setVisible(INITIAL_VISIBLE);
                 if (compactView) setSelectedArticleId(null);
               }}
             >
@@ -225,11 +142,15 @@ export default function MemberTodayTab({
         ) : (
           <div className="today-news-layout">
             <div className="today-news-list">
-              {articles.map((article, index) => (
+              {shown.map((article, index) => (
                 <button
                   key={article.id}
                   type="button"
-                  className={`today-news-card ${selectedArticle?.id === article.id ? "is-selected" : ""}`}
+                  className={[
+                    "today-news-card",
+                    index === 0 && article.imageUrl ? "is-lead" : "",
+                    selectedArticle?.id === article.id ? "is-selected" : "",
+                  ].filter(Boolean).join(" ")}
                   onClick={() => setSelectedArticleId(article.id)}
                 >
                   <span
@@ -264,10 +185,19 @@ export default function MemberTodayTab({
                   <span className="material-symbols-outlined today-news-chevron" aria-hidden="true">chevron_right</span>
                 </button>
               ))}
+              {articles.length > visible ? (
+                <button
+                  type="button"
+                  className="today-news-more"
+                  onClick={() => setVisible(articles.length)}
+                >
+                  {t("memberPortal.today.loadMore", { n: articles.length - visible })}
+                </button>
+              ) : null}
             </div>
 
             {selectedArticle ? (
-              <div className="today-news-preview">
+              <div className="today-news-preview" ref={previewRef}>
                 <div className="today-news-preview-bar">
                   <span>
                     <span className="material-symbols-outlined" aria-hidden="true">shield</span>
@@ -280,6 +210,7 @@ export default function MemberTodayTab({
                 </div>
                 {selectedArticle.imageUrl ? (
                   <img
+                    key={selectedArticle.id}
                     className="today-news-preview-image"
                     src={selectedArticle.imageUrl}
                     alt=""
@@ -291,14 +222,16 @@ export default function MemberTodayTab({
                     }}
                   />
                 ) : null}
-                <iframe
-                  key={selectedArticle.id}
-                  title={t("memberPortal.today.previewTitle", { title: selectedArticle.title })}
-                  srcDoc={previewDocument}
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                  data-country={data?.meta?.country}
-                />
+                <article className="today-news-preview-body">
+                  <small>
+                    {selectedArticle.source}
+                    {" · "}
+                    {t("memberPortal.today.preview")}
+                  </small>
+                  <h4>{selectedArticle.title}</h4>
+                  <p>{selectedArticle.description || t("memberPortal.today.noSummary")}</p>
+                  <span>{t("memberPortal.today.sourceNotice")}</span>
+                </article>
                 <div className="today-news-preview-footer">
                   <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer external">
                     {t("memberPortal.today.readOriginal")}

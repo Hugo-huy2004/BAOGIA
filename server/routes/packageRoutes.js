@@ -19,7 +19,7 @@ const pushHistory = (bio, entry) => {
       bio.email,
       entry.title || 'Thông báo mới',
       entry.detail || 'Bạn có cập nhật mới trong tài khoản.',
-      '/member/portal?tab=history'
+      '/member/activity'
     ).catch(err => console.error('[pushHistory Notification] Error:', err));
   }
 };

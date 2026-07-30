@@ -150,16 +150,17 @@
   color: var(--hgs-ink);
 }
 
-/* Nút giá / GET nhỏ trên từng dòng sản phẩm */
+/* Nút giá / GET trên từng dòng sản phẩm. 44px là ngưỡng chạm tối thiểu —
+   36px như trước là nguồn gốc của việc bấm mãi không trúng. */
 .hgs-pill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 76px;
-  height: 36px;
-  padding-inline: 14px;
+  min-width: 84px;
+  height: 44px;
+  padding-inline: 16px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   background: var(--hgs-accent-soft);
   color: var(--hgs-accent-ink);
@@ -221,7 +222,9 @@
 .hgs-rail {
   display: flex;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  /* proximity chứ không mandatory: mandatory ghì từng thẻ vào mép, vuốt nhẹ
+     một cái là nó tự nhảy — người dùng đọc thành "bấm nhầm". */
+  scroll-snap-type: x proximity;
   scroll-padding-inline: 16px;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
@@ -230,6 +233,26 @@
 
 .hgs-rail::-webkit-scrollbar { display: none; }
 .hgs-rail > * { scroll-snap-align: start; flex: 0 0 auto; }
+
+/* ── Vùng cuộn nội dung ────────────────────────────────────────────────── */
+
+/* Store nằm trong khung `fixed inset-0` nên đáy cũng phải tự né vạch home. */
+.hgs-scroll {
+  padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior-y: contain;
+}
+
+/* ── Khung chờ ─────────────────────────────────────────────────────────── */
+
+.hgs-skeleton {
+  background: var(--hgs-surface);
+  border: 1px solid var(--hgs-line);
+  animation: hgs-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hgs-pulse {
+  50% { opacity: 0.55; }
+}
 
 /* ── Sheet & dock ──────────────────────────────────────────────────────── */
 
@@ -264,20 +287,10 @@
   to { opacity: 1; }
 }
 
-.hgs-dock {
-  animation: hgs-dock-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  bottom: max(12px, env(safe-area-inset-bottom, 0px));
-}
-
-@keyframes hgs-dock-in {
-  from { transform: translateY(140%); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .hgs-sheet,
-  .hgs-scrim,
-  .hgs-dock { animation: none; }
+  .hgs-scrim { animation: none; }
+  .hgs-skeleton { animation: none; }
   .hgs-chip,
   .hgs-btn,
   .hgs-pill,

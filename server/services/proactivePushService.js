@@ -64,7 +64,7 @@ async function runProactivePushJob() {
             title: aiResult.title || 'Bạn Học Đường',
             body: aiResult.body || 'Cậu ơi, vào tâm sự với tớ một lát nhé!',
             icon: '/image/avt7.png',
-            url: '/member/portal?tab=banhocduong'
+            url: '/member/utilities/psychology'
           });
           if (sent) console.log(`AI quyết định gửi thông báo cho ${email}. Lý do: ${aiResult.reason}`);
         }

@@ -4,7 +4,7 @@ import InAppNotification from '../models/InAppNotification.js';
 import ChessRating from '../models/ChessRating.js';
 import { sendPushNotification } from './pushNotifier.js';
 
-const TITLES = {
+export const JOY_TITLES = {
   referral_referrer: 'Quà giới thiệu',
   referral_referee: 'Quà giới thiệu',
   chess_win: 'Thắng trận cờ vua',
@@ -22,6 +22,7 @@ const TITLES = {
   joy_gift_sent: 'Gửi JOY cho bạn bè',
   joy_gift_received: 'Nhận JOY từ bạn bè',
   ide_learning: 'Hoàn thành bài học HugoCoder',
+  hugoso_course: 'Mở khóa khóa học HugoSO',
   info_bonus: 'Khám phá Info & Version',
   feature_subscription: 'Trao đổi JOY mở khóa tính năng',
   bio_theme_rental: 'Trao đổi JOY diện giao diện Bio',
@@ -33,8 +34,33 @@ const TITLES = {
   community_post: 'Đăng bài cộng đồng',
   community_comment: 'Bình luận bài viết',
   community_like_received: 'Bài viết được thả tim',
-  community_anon_post: 'Đăng bài ẩn danh'
+  community_anon_post: 'Đăng bài ẩn danh',
+  // Bốn source dưới đây trước đây không có tiêu đề nên rơi hết về một chữ
+  // "Cập nhật JOY" — người dùng không biết chuyện gì vừa xảy ra.
+  deco_visit_sent: 'Mua vé tham quan KTX',
+  deco_visit_received: 'Khách mua vé tham quan KTX',
+  app_plan: 'Mở gói ứng dụng',
+  app_plan_gift: 'Tặng gói ứng dụng',
+  ide_course_completion: 'Tốt nghiệp HugoCoder',
+  deco_rent: 'Thuê Ký Túc Xá HugoHome',
+  deco_clean: 'Dọn dẹp Ký Túc Xá',
+  chat_tokens_exchange: 'Đổi thêm lượt trò chuyện',
+  coder_exam_retake: 'Mua lượt thi lại HugoCoder',
+  lifetime_unlock: 'Mở khoá vĩnh viễn một chặng',
+  lifetime_unlock_all: 'Mở khoá vĩnh viễn toàn bộ chặng',
+  info_read_bonus: 'Đọc tin Info & Version'
 };
+
+/**
+ * Tiêu đề thông báo cho một biến động JOY.
+ *
+ * Khi `source` chưa có tiêu đề riêng, KHÔNG rơi về một chữ chung chung cho cả
+ * thu lẫn chi — ít nhất phải nói được tiền vào hay tiền ra, vì đó là thứ người
+ * dùng cần biết đầu tiên khi mở thông báo.
+ */
+export function joyTitleFor(source, amount) {
+  return JOY_TITLES[source] || (Number(amount) >= 0 ? 'Nhận JOY' : 'Dùng JOY');
+}
 
 /**
  * Single choke point for every JOY-affecting event (earn or spend).
@@ -102,9 +128,14 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
       email: bio.email,
       type: numAmount >= 0 ? 'success' : 'info',
       category: 'joy',
-      title: opts.notificationTitle || TITLES[source] || 'Cập nhật JOY',
+      title: opts.notificationTitle || joyTitleFor(source, numAmount),
       message: opts.notificationMessage || description || '',
-      actionUrl: opts.actionUrl || '/member/joy'
+      actionUrl: opts.actionUrl || '/member/joy',
+      // Số liệu đi thành field, không nhét vào câu để client phải regex bóc ra.
+      amount: numAmount,
+      balanceAfter: newBalance,
+      refCode: opts.refId || '',
+      counterparty: opts.counterparty || ''
     });
   }
 

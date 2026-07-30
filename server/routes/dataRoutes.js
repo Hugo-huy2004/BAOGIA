@@ -547,7 +547,7 @@ router.post('/broadcast-notification', requireAdmin, async (req, res) => {
       title: 'Thông báo từ Ban Giám Hiệu / Admin',
       body: message,
       icon: '/image/avt7.png',
-      url: '/member/portal?tab=banhocduong'
+      url: '/member/utilities/psychology'
     });
 
     const sendPromises = subscriptions.map(sub => 

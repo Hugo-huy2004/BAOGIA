@@ -352,6 +352,12 @@ const BioSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    // Lifetime HugoSO course entitlements purchased with JOY.
+    // Values are stable curriculum ids: calendar, docs, sheets, gemini.
+    hugoSOCourses: {
+      type: [String],
+      default: []
+    },
     // One-time JOY bonus for opening the Info & Version utility — see joyRoutes.js claim-info-bonus.
     infoBonusClaimed: {
       type: Boolean,

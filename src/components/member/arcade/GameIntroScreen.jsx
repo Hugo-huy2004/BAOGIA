@@ -4,13 +4,13 @@ import "./game-intro.css";
 
 const GAME_META = {
   chess: { icon: "castle", detail: "8 × 8", badge: "AI 2500" },
-  survivor: { icon: "rocket_launch", detail: "∞", badge: "SURVIVAL" },
+  survivor: { icon: "rocket_launch", detail: "4 BOSS", badge: "3D ASSAULT" },
   flappy: { icon: "bolt", detail: "1 TAP", badge: "CYBER" },
   tetris: { icon: "view_compact", detail: "10 × 20", badge: "NEON" },
   "2048": { icon: "grid_view", detail: "4 × 4", badge: "FUSION" },
   caro: { icon: "close", detail: "5 IN ROW", badge: "AI DUEL" },
   wordguess: { icon: "spellcheck", detail: "6 TRIES", badge: "WORDS" },
-  snake: { icon: "route", detail: "∞", badge: "CLASSIC" },
+  snake: { icon: "route", detail: "18×18", badge: "3D PRO" },
 };
 
 function GameArtwork({ gameId }) {

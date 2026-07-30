@@ -6,6 +6,7 @@ import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import InAppNotification from '../models/InAppNotification.js';
 import cloudinaryUtil from '../utils/cloudinary.js';
+import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 
 const router = express.Router();
 
@@ -55,18 +56,20 @@ router.post('/purchase', async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    const taxes = Math.floor(product.priceJoy * 0.09);
-    const totalCost = product.priceJoy + taxes;
+    // Dùng chung công thức phí với mọi giao dịch JOY khác (10% "phí sáng tạo").
+    // Trước đây chỗ này tự tính 9%, nên phiếu trao đổi hiện một số mà tài khoản
+    // bị trừ một số khác — người mua thấy 10% rồi bị trừ 9%.
+    const { tax: taxes, total: totalCost } = calcExchangeTotal(product.priceJoy);
 
     if (bio.joyBalance < totalCost) {
-      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${totalCost} JOY (bao gồm 9% thuế).` });
+      return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${totalCost} JOY (gồm ${taxes} JOY phí sáng tạo).` });
     }
 
     const { balance } = await awardJoy(
       email,
       -totalCost,
       'store_purchase',
-      `Mua "${product.name}" (giá ${product.priceJoy} JOY + thuế ${taxes} JOY)`,
+      `Mua "${product.name}" (giá ${product.priceJoy} JOY + ${taxes} JOY phí sáng tạo)`,
       { notify: false, bioDoc: bio, skipSave: true }
     );
 

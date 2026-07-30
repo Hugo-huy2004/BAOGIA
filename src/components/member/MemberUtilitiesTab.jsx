@@ -19,6 +19,7 @@ const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoSkinTab = lazy(() => import("./HugoSkinTab"));
 const MemberJoyTab = lazy(() => import("./MemberJoyTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
+const HugoSOApp = lazy(() => import("./hugoSO/HugoSOApp"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "deco" || selectedUtility === "store";
+  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "deco" || selectedUtility === "store" || selectedUtility === "hugoso";
 
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
@@ -98,6 +99,16 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Web IDE Tool */}
       {selectedUtility === "ide" && (
         <HugoCoderHub onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} urlLessonId={ideLessonId} />
+      )}
+
+      {/* HugoSO — Study Office Skills */}
+      {selectedUtility === "hugoso" && (
+        <HugoSOApp
+          onBack={() => onSelectUtility(null)}
+          bio={bio}
+          showToast={showToast}
+          onBioUpdate={onBioUpdate}
+        />
       )}
 
       {/* Hugo Team — Recruitment */}
