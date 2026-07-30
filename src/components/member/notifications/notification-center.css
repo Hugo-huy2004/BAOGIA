@@ -195,6 +195,20 @@
 .hgn-amount[data-dir="in"] { color: var(--hgn-in); }
 .hgn-amount[data-dir="out"] { color: var(--hgn-ink); }
 
+.hgn-action {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-right: -4px;
+  border-radius: 999px;
+  color: var(--hgn-accent-deep);
+  background: var(--hgn-accent-soft);
+  transition: transform 0.14s ease, background-color 0.18s ease;
+}
+
+.hgn-action:active { transform: scale(0.92); }
+
 /* ── Nhóm theo ngày ───────────────────────────────────────────────────────── */
 
 .hgn-daygroup {
@@ -304,5 +318,6 @@
   .hgn-row,
   .hgn-chip,
   .hgn-btn,
+  .hgn-action,
   .hgn-hero-btn { transition: none; }
 }

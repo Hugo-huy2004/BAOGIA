@@ -16,37 +16,46 @@ const HINT_COST = 25;
 
 const WORD_BANKS = {
   easy: [
-    { word: "SACH", hint: "Vật dụng chứa kiến thức, bài học học đường." },
-    { word: "KINH", hint: "Đồ vật đeo mắt giúp nhìn rõ hoặc chống nắng." },
-    { word: "QUAT", hint: "Đồ vật tạo ra gió mát trong mùa hè." },
-    { word: "DONG", hint: "Vật dụng đo thời gian giờ phút." },
-    { word: "CHAO", hint: "Dụng cụ làm bếp dùng để chiên xào." },
-    { word: "KEOO", hint: "Dụng cụ dùng để cắt giấy, vải." },
-    { word: "CHIA", hint: "Vật nhỏ bằng kim loại mở ổ khóa." },
-    { word: "GHEE", hint: "Đồ vật nội thất dùng để ngồi làm việc." },
+    { word: "SACH", hint: "Vật chứa kiến thức, thường có nhiều trang giấy." },
+    { word: "KINH", hint: "Vật đeo trước mắt để nhìn rõ hoặc chống nắng." },
+    { word: "QUAT", hint: "Thiết bị tạo gió mát." },
+    { word: "DONGHO", hint: "Vật dùng để xem giờ." },
+    { word: "CHAO", hint: "Dụng cụ nhà bếp dùng để chiên, xào." },
+    { word: "KEO", hint: "Dụng cụ có hai lưỡi dùng để cắt." },
+    { word: "CHIAKHOA", hint: "Vật nhỏ dùng để mở ổ khóa." },
+    { word: "GHE", hint: "Đồ nội thất dùng để ngồi." },
+    { word: "BAN", hint: "Mặt phẳng có chân, dùng để học hoặc làm việc." },
+    { word: "DEN", hint: "Thiết bị phát ra ánh sáng." },
   ],
   medium: [
-    { word: "KHIEM", hint: "Đức tính nhún nhường, không tự cao tự đại." },
-    { word: "TRITU", hint: "Khả năng suy luận, hiểu biết thông minh." },
-    { word: "THANG", hint: "Đạt vị trí dẫn đầu trong một cuộc thi." },
-    { word: "COKHI", hint: "Ngành kỹ thuật máy móc cơ khí." },
-    { word: "QUANG", hint: "Ánh sáng phát ra rực rỡ." },
-    { word: "TRANG", hint: "Vẻ đẹp thanh cao, trong sạch." },
-    { word: "TUONG", hint: "Vị tướng chỉ huy quân đội." },
-    { word: "PHUONG", hint: "Chiếc hướng chỉ về tương lai." },
+    { word: "KHIEMTON", hint: "Đức tính nhún nhường, không tự cao." },
+    { word: "TRITUE", hint: "Khả năng suy luận và hiểu biết." },
+    { word: "CHIENTHANG", hint: "Kết quả đạt được khi vượt qua đối thủ." },
+    { word: "COKHI", hint: "Ngành kỹ thuật liên quan đến máy móc." },
+    { word: "ANHSANG", hint: "Thứ giúp mắt người nhìn thấy vật." },
+    { word: "TRONGSANG", hint: "Phẩm chất ngay thẳng, không vụ lợi." },
+    { word: "CHIHUY", hint: "Điều khiển và dẫn dắt một tập thể hành động." },
+    { word: "DINHHUONG", hint: "Xác định con đường hoặc mục tiêu cần đi." },
+    { word: "SANGTAO", hint: "Tạo ra ý tưởng hoặc cách làm mới." },
+    { word: "KIENTAO", hint: "Xây dựng nên một giá trị hoặc hệ thống mới." },
   ],
   hard: [
-    { word: "BAOHOE", hint: "Trang phục bảo vệ an toàn cho người lao động." },
-    { word: "THUONG", hint: "Hoạt động trao đổi hàng hóa thị trường." },
-    { word: "NANGLU", hint: "Khả năng sinh công hoặc năng lượng mặt trời." },
+    { word: "BAOHO", hint: "Trang bị giúp người lao động tránh nguy hiểm." },
+    { word: "THUONGMAI", hint: "Hoạt động mua bán hàng hóa và dịch vụ." },
+    { word: "NANGLUONG", hint: "Đại lượng thể hiện khả năng sinh công." },
     { word: "TRITHU", hint: "Kho tàng hiểu biết của con người." },
     { word: "VANHOA", hint: "Bản sắc đời sống tinh thần lâu đời." },
     { word: "DAODUC", hint: "Phẩm chất ứng xử chuẩn mực con người." },
+    { word: "BEN VUNG".replace(" ", ""), hint: "Khả năng duy trì lâu dài mà không làm cạn kiệt nguồn lực." },
+    { word: "TRACHNHIEM", hint: "Ý thức hoàn thành và chịu kết quả về việc mình làm." },
   ],
   expert: [
-    { word: "TRIETHOC", hint: "Học thuyết nghiên cứu bản chất vũ trụ tư duy." },
+    { word: "TRIETHOC", hint: "Lĩnh vực nghiên cứu những vấn đề nền tảng của tồn tại và tư duy." },
     { word: "CONGNGHE", hint: "Ứng dụng khoa học kỹ thuật hiện đại." },
     { word: "VANHOC", hint: "Nghệ thuật ngôn từ thơ văn." },
+    { word: "TRITUENHANTAO", hint: "Công nghệ mô phỏng khả năng học và suy luận của con người." },
+    { word: "ANTOANTHONGTIN", hint: "Lĩnh vực bảo vệ dữ liệu và hệ thống khỏi truy cập trái phép." },
+    { word: "KINHTETUANHOAN", hint: "Mô hình giảm chất thải bằng tái sử dụng và tái chế." },
   ],
 };
 
@@ -273,9 +282,16 @@ export default function GameWordGuess({ paused = false, onGameOver }) {
           </button>
         </div>
 
+        <div className="wg-clue">
+          <span className="material-symbols-outlined">travel_explore</span>
+          <p><small>GỢI Ý CHỦ ĐỀ</small>{wordData.hint}</p>
+        </div>
+
         {revealedHint && (
           <div className="wg-hint">
-            {wordData.hint} · Bắt đầu bằng <b>{target[0]}</b>
+            Mẫu chữ: <b>{target.split("").map((char, index) => (
+              index === 0 || index === target.length - 1 ? char : "＿"
+            )).join(" ")}</b>
           </div>
         )}
 
@@ -286,7 +302,14 @@ export default function GameWordGuess({ paused = false, onGameOver }) {
             const currentText = isCurrent ? input.padEnd(wordLen, " ") : "";
 
             return (
-              <div key={rIdx} className={`flex gap-1.5 ${isCurrent && shakeRow ? "wg-shake" : ""}`}>
+              <div
+                key={rIdx}
+                className={`wg-row ${isCurrent && shakeRow ? "wg-shake" : ""}`}
+                style={{
+                  "--word-length": wordLen,
+                  gridTemplateColumns: `repeat(${wordLen}, minmax(0, 44px))`,
+                }}
+              >
                 {Array.from({ length: wordLen }).map((_, cIdx) => {
                   let char = "";
                   let cls = "";
@@ -343,7 +366,7 @@ export default function GameWordGuess({ paused = false, onGameOver }) {
       </div>
 
       <p className="game-control-hint mt-3 text-center text-[11px]">
-        Giải nhanh được thưởng tốc độ · Giải liên tiếp nhân điểm · Cấp cao từ dài hơn và ít thời gian hơn
+        Nhập tiếng Việt không dấu · Giải nhanh được thưởng tốc độ · Chuỗi đúng liên tiếp sẽ nhân điểm
       </p>
     </div>
   );

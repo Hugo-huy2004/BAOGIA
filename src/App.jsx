@@ -53,7 +53,6 @@ const AdminProjectDetailPage = lazy(() => import("./pages/admin/AdminProjectDeta
 const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
-const ChessPage = lazy(() => import("./pages/public/ChessPage"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
 const JoyPWA = lazy(() => import("./pages/JoyPWA"));

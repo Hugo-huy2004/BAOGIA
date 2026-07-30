@@ -16,24 +16,19 @@ import "./notification-center.css";
  * Việc "hiện cái gì" nằm ở `notificationModel.js`; ở đây chỉ vẽ.
  */
 export default function NotificationCenter({
-  bio,
   notifications = [],
   onMarkRead,
   onMarkAllRead,
   onDismiss,
+  showToast,
 }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [filter, setFilter] = useState("all");
 
-  const feed = useMemo(
-    () => buildFeed(
-      notifications,
-      bio?.history || [],
-      t("memberPortal.notificationCenter.profileUpdated"),
-    ),
-    [notifications, bio?.history, t]
-  );
+  // Inbox chỉ hiển thị thông báo thực. Lịch sử sửa hồ sơ là một nguồn khác,
+  // luôn được coi là đã đọc và từng khiến badge không thể về 0 sau "Đọc hết".
+  const feed = useMemo(() => buildFeed(notifications), [notifications]);
 
   const chips = useMemo(() => availableFilters(feed, {
     all: t("memberPortal.notificationCenter.filters.all"),
@@ -56,12 +51,30 @@ export default function NotificationCenter({
   }), [visibleItems, t]);
 
   const unread = feed.filter(i => !i.read).length;
+  const [markingAll, setMarkingAll] = useState(false);
 
   const handleOpen = useCallback((item) => {
     hapticSelect();
     if (!item.read && item.id) onMarkRead?.(item.id);
-    if (item.actionUrl) navigate(item.actionUrl);
+  }, [onMarkRead]);
+
+  const handleAction = useCallback(async (item) => {
+    if (!item.actionUrl) return;
+    hapticSelect();
+    if (!item.read && item.id) await onMarkRead?.(item.id);
+    navigate(item.actionUrl);
   }, [navigate, onMarkRead]);
+
+  const handleMarkAll = useCallback(async () => {
+    if (markingAll || unread === 0) return;
+    hapticSelect();
+    setMarkingAll(true);
+    const succeeded = await onMarkAllRead?.();
+    setMarkingAll(false);
+    if (succeeded === false) {
+      showToast?.(t("memberPortal.notificationCenter.markAllReadError"), "error");
+    }
+  }, [markingAll, onMarkAllRead, showToast, t, unread]);
 
   const handleDismiss = useCallback((item) => {
     if (item.id) onDismiss?.(item.id);
@@ -82,12 +95,16 @@ export default function NotificationCenter({
           </div>
           <button
             type="button"
-            onClick={() => { hapticSelect(); onMarkAllRead?.(); }}
-            disabled={unread === 0}
+            onClick={handleMarkAll}
+            disabled={unread === 0 || markingAll}
             className="hgn-hero-btn"
           >
-            <span className="material-symbols-outlined text-[18px]">done_all</span>
-            {t("memberPortal.notificationCenter.markAllRead")}
+            <span className={`material-symbols-outlined text-[18px] ${markingAll ? "animate-spin" : ""}`}>
+              {markingAll ? "progress_activity" : "done_all"}
+            </span>
+            {markingAll
+              ? t("memberPortal.notificationCenter.markingAllRead")
+              : t("memberPortal.notificationCenter.markAllRead")}
           </button>
         </div>
       </header>
@@ -132,6 +149,7 @@ export default function NotificationCenter({
                         key={item.key}
                         item={item}
                         onOpen={handleOpen}
+                        onAction={handleAction}
                         onDismiss={handleDismiss}
                       />
                     ))}

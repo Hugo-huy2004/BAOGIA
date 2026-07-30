@@ -1561,6 +1561,9 @@
       "unreadCount_other": "{{count}} unread notifications",
       "allCaughtUp": "You’re all caught up",
       "markAllRead": "Read all",
+      "markingAllRead": "Updating",
+      "markAllReadError": "Could not mark notifications as read. Please try again.",
+      "openAction": "Open: {{title}}",
       "profileUpdated": "Profile updated",
       "balance": "Balance {{value}} JOY",
       "dismiss": "Dismiss notification: {{title}}",
@@ -3933,10 +3936,10 @@
     "reward": "Reward",
     "games": {
       "chess": {
-        "eyebrow": "Tactical chess",
-        "title": "One move. Endless possibilities.",
-        "description": "Think ahead in a minimal chess room where every move is studied by an AI opponent.",
-        "hint": "Read the position, protect your king, and turn a small edge into a win."
+        "eyebrow": "Offline 3D chess table",
+        "title": "BOT or two players. Start instantly.",
+        "description": "Challenge Hugo BOT or place the phone between two players like a real chessboard — no lobby and no connection required.",
+        "hint": "Local mode keeps the board fixed; Black plays from the top end of the phone."
       },
       "survivor": {
         "eyebrow": "3D boss fleet",
@@ -3959,20 +3962,20 @@
       "2048": {
         "eyebrow": "Number laboratory",
         "title": "Merge small. Think big.",
-        "description": "Slide pastel tiles, build fusion chains, and take the board all the way to 2048.",
-        "hint": "Keep the largest tile in one corner and build the number chain around it."
+        "description": "Slide dimensional number blocks, build fusion chains, clear obstacles, and reach 2048.",
+        "hint": "Keep the largest tile in one corner; you have three tactical undo charges."
       },
       "caro": {
-        "eyebrow": "Five-piece duel",
-        "title": "Five marks. One winning line.",
-        "description": "A modern paper board where deliberate X and O moves put you against AI.",
-        "hint": "Create two attacking lines at once and force the AI to choose."
+        "eyebrow": "3 × 3 grid duel",
+        "title": "Three marks. One winning line.",
+        "description": "A fast dimensional X-and-O board against Hugo AI at three skill levels.",
+        "hint": "Control the center and create two winning threats at once."
       },
       "wordguess": {
         "eyebrow": "Decoder notebook",
         "title": "Every letter is a clue.",
-        "description": "Open the wordbook, make smart guesses, and decode the answer in six tries.",
-        "hint": "Start with a word containing several vowels and no repeated letters."
+        "description": "Solve unaccented Vietnamese words from beginner to expert with topic clues, a timer, and score streaks.",
+        "hint": "Read the topic clue, then start with a guess containing several vowels and no repeated letters."
       },
       "snake": {
         "eyebrow": "Neon journey",

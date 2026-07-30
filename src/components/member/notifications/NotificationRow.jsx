@@ -13,7 +13,7 @@ const initial = (name) => (name || "?").trim().charAt(0).toUpperCase();
  * lên = ra khỏi ví) và số JOY nằm bên phải. Thông báo thường thì vòng tròn
  * mang icon theo loại và bên phải chỉ có thời gian.
  */
-export default function NotificationRow({ item, onOpen, onDismiss }) {
+export default function NotificationRow({ item, onOpen, onAction, onDismiss }) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage || i18n.language || "vi";
   const locale = String(language).startsWith("en") ? "en-US" : "vi-VN";
@@ -69,6 +69,16 @@ export default function NotificationRow({ item, onOpen, onDismiss }) {
             className="hgn-dim -mr-1 flex h-8 w-8 items-center justify-center rounded-full"
           >
             <span className="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        )}
+        {item.actionUrl && (
+          <button
+            type="button"
+            onClick={() => onAction?.(item)}
+            aria-label={t("memberPortal.notificationCenter.openAction", { title: item.title })}
+            className="hgn-action"
+          >
+            <span className="material-symbols-outlined text-[17px]">arrow_forward</span>
           </button>
         )}
       </span>

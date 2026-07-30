@@ -10,10 +10,10 @@ export const DIFFICULTIES = ["easy", "medium", "hard"];
 // One-line rules for each game, shown in the intro screen.
 export const HOW_TO_PLAY = {
   "2048": {
-    rule: "Vuốt để gộp các ô cùng số. Gộp nhiều cặp một lượt được nhân điểm; cấp cao xuất hiện ô đá không gộp được.",
+    rule: "Vuốt để hợp nhất các khối số 3D. Tạo chain để nhân điểm, dùng tối đa 3 lượt hoàn tác và phá ô đá theo từng chặng.",
   },
   caro: {
-    rule: "Đặt quân X, xếp đủ 5 quân liên tiếp (ngang/dọc/chéo) trước khi AI làm được điều đó.",
+    rule: "Đặt quân X, xếp đủ 3 quân liên tiếp theo hàng, cột hoặc đường chéo trước Hugo AI.",
   },
   wordguess: {
     rule: "Đoán từ trước khi hết giờ. Giải nhanh và giải liên tiếp được nhân điểm; cấp cao từ dài hơn, ít thời gian hơn.",

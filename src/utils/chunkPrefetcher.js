@@ -11,7 +11,7 @@ const PREFETCH_MAP = {
   psychology: () => import("../components/member/banhocduong/TherapyTab"),
   arcade: () => import("../components/member/arcade/HugoArcadeTab"),
   radio: () => import("../components/member/MemberRadioTab"),
-  chess: () => import("../components/chess/ChessGame"),
+  chess: () => import("../components/member/arcade/GameChess3D"),
   aura: () => import("../components/member/MemberAuraTab"),
   banhocduong: () => import("../components/member/banhocduong/BanhocduongTab"),
 };

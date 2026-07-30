@@ -142,6 +142,8 @@ export default function Game2048({ paused = false, onGameOver }) {
   const [status, setStatus] = useState(null);
   const [motion, setMotion] = useState({ direction: "", merged: false });
   const [maxTile, setMaxTile] = useState(2);
+  const [moveCount, setMoveCount] = useState(0);
+  const [undoLeft, setUndoLeft] = useState(3);
   const [hudExtra, setHudExtra] = useState({ combo: 0, mult: 1, notice: "" });
 
   const reportedRef = useRef(false);
@@ -150,12 +152,17 @@ export default function Game2048({ paused = false, onGameOver }) {
   const gridRef = useRef(grid);
   const comboRef = useRef(createCombo({ windowMs: 9000, step: 0.25, max: 2 }));
   const levelRef = useRef(1);
+  const historyRef = useRef([]);
 
   const handleMove = useCallback((direction) => {
     if (status || paused) return;
     const { grid: movedGrid, gained, moved, merges } = moveTileGrid(gridRef.current, direction);
     if (!moved) return;
 
+    historyRef.current = [
+      ...historyRef.current.slice(-2),
+      { grid: gridRef.current, score, maxTile, moveCount },
+    ];
     const combo = comboRef.current;
     let next = ageStones(movedGrid);
     let addedScore = 0;
@@ -184,6 +191,7 @@ export default function Game2048({ paused = false, onGameOver }) {
     gridRef.current = next;
     setMotion({ direction, merged: gained > 0 });
     setGrid(next);
+    setMoveCount(count => count + 1);
     setMaxTile(Math.max(...next.flat().map((t) => t?.value || 0)));
     setHudExtra({
       combo: combo.chain + (combo.chain > 0 ? 1 : 0),
@@ -197,7 +205,23 @@ export default function Game2048({ paused = false, onGameOver }) {
       playGameLose();
       hapticLose();
     }
-  }, [status, paused, score]);
+  }, [status, paused, score, maxTile, moveCount]);
+
+  const handleUndo = () => {
+    if (paused || status || undoLeft <= 0 || historyRef.current.length === 0) return;
+    const previous = historyRef.current[historyRef.current.length - 1];
+    historyRef.current = historyRef.current.slice(0, -1);
+    gridRef.current = previous.grid;
+    setGrid(previous.grid);
+    setScore(previous.score);
+    setMaxTile(previous.maxTile);
+    setMoveCount(previous.moveCount);
+    setUndoLeft(value => value - 1);
+    comboRef.current.reset();
+    setHudExtra({ combo: 0, mult: 1, notice: "Đã quay lại một lượt" });
+    playGameMove();
+    hapticMove();
+  };
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -270,7 +294,10 @@ export default function Game2048({ paused = false, onGameOver }) {
         combo={hudExtra.combo}
         multiplier={hudExtra.mult}
         notice={hudExtra.notice}
-        stats={[{ label: "Ô lớn nhất", value: maxTile }]}
+        stats={[
+          { label: "Ô lớn nhất", value: maxTile },
+          { label: "Lượt", value: moveCount },
+        ]}
       />
 
       <div
@@ -307,8 +334,23 @@ export default function Game2048({ paused = false, onGameOver }) {
         </div>
       </div>
 
+      <div className="game2048-actions">
+        <button
+          type="button"
+          onClick={handleUndo}
+          disabled={undoLeft <= 0 || historyRef.current.length === 0 || Boolean(status)}
+        >
+          <span className="material-symbols-outlined">undo</span>
+          Hoàn tác <b>{undoLeft}</b>
+        </button>
+        <span>
+          Mục tiêu kế tiếp
+          <b>{Math.min(2048, 2 ** (Math.floor(Math.log2(Math.max(2, maxTile))) + 1))}</b>
+        </span>
+      </div>
+
       <p className="game-control-hint mt-3 text-center text-[11px]">
-        Gộp nhiều cặp trong một lượt để nhân điểm · Ô đá không gộp được nhưng tự vỡ sau vài lượt
+        Vuốt để hợp nhất · Chain nhiều cặp để nhân điểm · Có 3 lượt hoàn tác chiến thuật
       </p>
     </div>
   );

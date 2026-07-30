@@ -14,7 +14,7 @@ const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
 const HugoSkinTab = lazy(() => import("../../components/member/HugoSkinTab"));
-const ChessGame = lazy(() => import("../../components/chess/ChessGame"));
+const ChessGame = lazy(() => import("../../components/member/arcade/GameChess3D"));
 
 const TITLES = {
   "banhocduong": "Bạn Học Đường - AI Trợ Lý Học Tập | Hugo Studio",
@@ -106,7 +106,7 @@ export default function UtilityPublicPage() {
       case "ide":
         return <MemberIdeTab />;
       case "arcade":
-        return <ChessGame bio={player} onBack={() => navigate("/")} />;
+        return <ChessGame />;
       default:
         return (
           <div className="text-center py-20">

@@ -11,7 +11,7 @@ import "./game-shell.css";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {
-  chess:     React.lazy(() => import("../../../pages/public/ChessPage")),
+  chess:     React.lazy(() => import("./GameChess3D")),
   survivor:  React.lazy(() => import("./GameSpaceSurvivor")),
   flappy:    React.lazy(() => import("./GameFlappyCyber")),
   tetris:    React.lazy(() => import("./GameTetris")),

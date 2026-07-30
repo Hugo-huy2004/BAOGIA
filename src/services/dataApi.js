@@ -659,8 +659,8 @@ export const dataApi = {
     return response.json();
   },
 
-  async markAllNotificationsRead(email) {
-    const response = await safeFetch(`${API_BASE_URL}/inbox/read-all?email=${encodeURIComponent(email)}`, {
+  async markAllNotificationsRead() {
+    const response = await safeFetch(`${API_BASE_URL}/inbox/read-all`, {
       method: 'PATCH',
       headers: getAuthHeaders()
     });

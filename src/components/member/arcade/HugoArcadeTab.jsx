@@ -30,12 +30,12 @@ const readStoredList = (key) => {
 };
 
 const GAMES = [
-  { id: "chess",     name: "HugoChess AI 2500", tagline: "Thách đấu AI Master ELO 2500 & PvP.", label: "Cờ Vua · Đại Sư ELO", Icon: Castle },
+  { id: "chess",     name: "HugoChess Table 3D", tagline: "Đấu BOT hoặc hai người trên cùng thiết bị.", label: "Cờ Vua · Offline Table", Icon: Castle },
   { id: "survivor",  name: "Hugo Space Survivor",tagline: "Không chiến Neon 3D & 4 lớp Boss.", label: "Bắn Súng 3D · Multi-Boss", Icon: Rocket },
   { id: "flappy",    name: "Hugo Flappy Cyber",   tagline: "Vượt chướng không gian Slow-Motion.", label: "Cyberpunk 3D", Icon: Zap },
   { id: "tetris",    name: "Hugo Tetris Neon",  tagline: "Xếp hình Neon 3D 60 FPS.", label: "Xếp Hình Neon", Icon: Grid3X3 },
   { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm.", label: "Trí Tuệ · Logic", Icon: Blocks },
-  { id: "caro",      name: "Caro AI Master",    tagline: "Năm quân tạo nên chiến thắng.", label: "Đối Kháng · AI 5 Cấp", Icon: Swords },
+  { id: "caro",      name: "Caro 3×3 Arena",    tagline: "Ba quân tạo nên chiến thắng.", label: "Đối Kháng · AI 3 Cấp", Icon: Swords },
   { id: "wordguess", name: "Mật Mã Từ 3D",      tagline: "Từ Hán-Việt tri thức.", label: "Từ Vựng · Thẻ Lật", Icon: Keyboard },
   { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.", label: "Cổ Điển 3D", Icon: InfinityIcon },
 ];

@@ -214,41 +214,14 @@ function MemberPortalPage() {
     showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshNotifications,
   } = useNotifications(
     memberSession?.email || null,
-    bootstrapData?.notifications?.recent
+    bootstrapData?.notifications?.recent,
+    bootstrapData?.notifications?.unreadCount,
   );
-  const [inboxHydrated, setInboxHydrated] = useState(false);
-  const unreadNotifCount = inboxHydrated
-    ? loadedUnreadCount
-    : Math.max(
-        loadedUnreadCount,
-        Number(bootstrapData?.notifications?.unreadCount || 0),
-      );
+  const unreadNotifCount = loadedUnreadCount;
   useEffect(() => {
     if (portalArea !== "activity") return;
-    refreshNotifications().finally(() => setInboxHydrated(true));
+    refreshNotifications();
   }, [portalArea, refreshNotifications]);
-
-  // ── History unread badge ─────────────────────────────────────────────────────
-  const [readHistoryTimestamp, setReadHistoryTimestamp] = useState(
-    () => localStorage.getItem("read_history_timestamp") || null
-  );
-  useEffect(() => {
-    if (activeTab === "history" && bio?.history?.length > 0) {
-      const ts = bio.history[bio.history.length - 1].timestamp;
-      setReadHistoryTimestamp(ts); localStorage.setItem("read_history_timestamp", ts);
-    }
-  }, [activeTab, bio?.history]);
-  const unreadHistoryCount = useMemo(() => {
-    let count = unreadNotifCount || 0;
-    if (bio?.history?.length) {
-      if (!readHistoryTimestamp) count += bio.history.length;
-      else {
-        const ref = new Date(readHistoryTimestamp).getTime();
-        count += bio.history.filter(e => new Date(e.timestamp).getTime() > ref).length;
-      }
-    }
-    return count;
-  }, [bio?.history, readHistoryTimestamp, unreadNotifCount]);
 
   // ── Form state ────────────────────────────────────────────────────────────────
   const emptyTheme = { bgColor:"#ffffff", textColor:"#0f172a", accentColor:"#6366f1", pattern:"none", preset:"default", btnRadius:16, btnBorderWidth:0, btnShadow:4, template:"default" };
@@ -903,7 +876,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
                     <div>
-                      <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
+                      <MemberHistoryTab showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
                     </div>
                   )}
                   {activeTab === "settings" && (
@@ -994,7 +967,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberHistoryTab bio={bio} showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
+                      <MemberHistoryTab showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
                     </div>
                   )}
                   {activeTab === "settings" && (
@@ -1040,7 +1013,7 @@ function MemberPortalPage() {
           <MobilePortalNav
             tabs={mobileTabs}
             activeArea={portalArea}
-            unreadCount={unreadHistoryCount}
+            unreadCount={unreadNotifCount}
             navigationLabel={t("memberPortal.navigation.primaryNavigation")}
             onTabClick={onTabClick}
           />

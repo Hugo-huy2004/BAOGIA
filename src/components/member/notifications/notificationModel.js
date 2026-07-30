@@ -7,7 +7,7 @@
  *
  * Giờ server gửi số liệu thành field riêng (amount/balanceAfter/refCode/
  * counterparty — xem server/models/InAppNotification.js) và ở đây chỉ còn việc
- * gộp hai nguồn (thông báo + lịch sử hồ sơ) về một hình dạng.
+ * chuẩn hoá dữ liệu hiển thị.
  */
 
 /** Nhóm hiển thị — cũng là bộ lọc trên đầu trang. */
@@ -36,6 +36,35 @@ const CATEGORY_ICON = {
 export const groupOf = (category) => CATEGORY_GROUP.get(category) || "system";
 
 /**
+ * Chỉ giữ các đích sâu, có ý nghĩa trong khu vực thành viên.
+ *
+ * Những URL chung như `/member` từng làm một lần chạm vào thông báo tự đổi tab
+ * về màn hình mặc định. URL ngoài origin hoặc route cũ cũng không được phép
+ * điều hướng từ inbox.
+ */
+export function notificationDestination(rawUrl) {
+  if (typeof rawUrl !== "string") return "";
+  const raw = rawUrl.trim();
+  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return "";
+
+  try {
+    const parsed = new URL(raw, "https://hugo.local");
+    const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+    const isMeaningfulMemberRoute = (
+      pathname === "/member/joy"
+      || pathname.startsWith("/member/joy/")
+      || pathname.startsWith("/member/utilities/")
+    );
+    const isPaymentRoute = /^\/pay\/[^/]+$/.test(pathname);
+
+    if (!isMeaningfulMemberRoute && !isPaymentRoute) return "";
+    return `${pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return "";
+  }
+}
+
+/**
  * Hướng dòng tiền. Dựa vào DẤU của `amount` chứ không đoán từ câu chữ.
  * 'in' = vào ví, 'out' = ra khỏi ví, 'none' = không phải giao dịch.
  */
@@ -62,7 +91,7 @@ export function fromNotification(n) {
     category: n.category || "system",
     group: groupOf(n.category),
     icon: direction === "none" ? (CATEGORY_ICON[n.category] || "notifications") : null,
-    actionUrl: n.actionUrl || "",
+    actionUrl: notificationDestination(n.actionUrl),
     read: Boolean(n.read),
     dismissible: true,
   };

@@ -12,7 +12,7 @@ const PREFETCH_MAP = {
   radio: () => import("../components/member/MemberRadioTab"),
   aura: () => import("../components/member/MemberAuraTab"),
   ide: () => import("../components/member/MemberIdeTab"),
-  arcade: () => import("../components/chess/ChessGame")
+  arcade: () => import("../components/member/arcade/GameChess3D")
 };
 
 const prefetchedSet = new Set();

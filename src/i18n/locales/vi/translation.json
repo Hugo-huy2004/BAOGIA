@@ -1556,6 +1556,9 @@
       "unreadCount_other": "{{count}} thông báo chưa đọc",
       "allCaughtUp": "Bạn đã xem hết",
       "markAllRead": "Đọc hết",
+      "markingAllRead": "Đang cập nhật",
+      "markAllReadError": "Chưa thể đánh dấu đã đọc. Vui lòng thử lại.",
+      "openAction": "Mở nội dung: {{title}}",
       "profileUpdated": "Cập nhật hồ sơ",
       "balance": "Số dư {{value}} JOY",
       "dismiss": "Xoá thông báo: {{title}}",
@@ -3928,10 +3931,10 @@
     "reward": "Phần thưởng",
     "games": {
       "chess": {
-        "eyebrow": "Cờ vua chiến thuật",
-        "title": "Một nước đi. Muôn khả năng.",
-        "description": "Đấu trí trong không gian cờ tối giản, nơi từng nước đi đều được phân tích bởi đối thủ AI.",
-        "hint": "Quan sát thế trận, bảo vệ vua và biến lợi thế nhỏ thành chiến thắng."
+        "eyebrow": "Bàn cờ 3D ngoại tuyến",
+        "title": "BOT hoặc hai người. Vào bàn ngay.",
+        "description": "Đấu Hugo BOT hoặc đặt điện thoại giữa hai người để chơi như một bàn cờ thật — không phòng chờ, không cần kết nối.",
+        "hint": "Chế độ hai người giữ bàn cố định; người cầm quân Đen tương tác từ đầu trên điện thoại."
       },
       "survivor": {
         "eyebrow": "Biên đội Boss 3D",
@@ -3954,20 +3957,20 @@
       "2048": {
         "eyebrow": "Phòng thí nghiệm con số",
         "title": "Ghép nhỏ. Nghĩ lớn.",
-        "description": "Trượt các ô màu pastel, tạo chuỗi hợp nhất và đưa bàn chơi chạm đến 2048.",
-        "hint": "Giữ ô lớn nhất ở một góc và xây chuỗi số quanh nó."
+        "description": "Trượt các khối số 3D, tạo chuỗi hợp nhất, vượt chướng ngại và đưa bàn chơi chạm đến 2048.",
+        "hint": "Giữ ô lớn nhất ở một góc; bạn có ba lượt hoàn tác chiến thuật."
       },
       "caro": {
-        "eyebrow": "Đấu trí năm quân",
-        "title": "Năm dấu. Một đường thắng.",
-        "description": "Một bàn cờ giấy hiện đại, nơi bạn đối đầu AI bằng những nước X và O có chủ đích.",
-        "hint": "Tạo hai hướng tấn công đồng thời để buộc AI phải lựa chọn."
+        "eyebrow": "Caro 3 × 3",
+        "title": "Ba dấu. Một đường thắng.",
+        "description": "Bàn đấu X và O 3D gọn, nhanh, đối đầu Hugo AI ở ba cấp độ.",
+        "hint": "Chiếm ô giữa và tạo hai hướng thắng cùng lúc."
       },
       "wordguess": {
         "eyebrow": "Sổ tay giải mã",
         "title": "Mỗi chữ cái là một manh mối.",
-        "description": "Mở cuốn sổ từ vựng, thử các từ thông minh và giải mã đáp án trong sáu lượt.",
-        "hint": "Bắt đầu bằng từ có nhiều nguyên âm và không lặp chữ."
+        "description": "Giải bộ từ tiếng Việt không dấu từ cơ bản đến chuyên gia, có gợi ý chủ đề, đồng hồ và chuỗi điểm.",
+        "hint": "Đọc gợi ý chủ đề trước, sau đó thử từ có nhiều nguyên âm và không lặp chữ."
       },
       "snake": {
         "eyebrow": "Hành trình Neon",

@@ -351,6 +351,426 @@
   box-shadow: 0 0 14px var(--intro-accent);
 }
 
+/* ── HugoChess Table 3D ─────────────────────────────────────────────────── */
+.chess3d-mode,
+.chess3d-shell {
+  width: min(100%, 860px);
+  min-height: 100%;
+  margin: auto;
+}
+
+.chess3d-mode {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: 8px 0 24px;
+}
+
+.chess3d-mode__hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 190px;
+  padding: 28px 148px 26px 24px;
+  border: 1px solid var(--game-line);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 84% 30%, color-mix(in srgb, var(--intro-accent) 28%, transparent), transparent 38%),
+    linear-gradient(145deg, var(--game-surface), var(--game-surface-strong));
+  box-shadow: 0 24px 60px color-mix(in srgb, var(--intro-ink) 20%, transparent);
+}
+
+.chess3d-mode__hero small,
+.chess3d-status span {
+  color: var(--intro-accent);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.chess3d-mode__hero h2 {
+  margin: 8px 0 6px;
+  font-size: clamp(28px, 7vw, 46px);
+  font-weight: 950;
+  letter-spacing: -.055em;
+  line-height: .95;
+}
+
+.chess3d-mode__hero p {
+  max-width: 34ch;
+  color: var(--intro-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.chess3d-mode__piece {
+  position: absolute;
+  right: 24px;
+  bottom: -16px;
+  color: var(--intro-accent);
+  font-size: 154px;
+  line-height: 1;
+  filter: drop-shadow(0 24px 12px color-mix(in srgb, var(--intro-ink) 30%, transparent));
+  transform: perspective(500px) rotateY(-18deg) rotateZ(4deg);
+}
+
+.chess3d-mode__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.chess3d-mode__grid button {
+  display: flex;
+  min-height: 132px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 18px;
+  border: 1px solid var(--game-line);
+  border-radius: 24px;
+  background: var(--game-surface);
+  color: var(--intro-ink);
+  text-align: left;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--intro-ink) 12%, transparent);
+  transition: transform .16s ease, border-color .16s ease;
+}
+
+.chess3d-mode__grid button:active { transform: translateY(2px) scale(.98); }
+.chess3d-mode__grid button:hover { border-color: var(--intro-accent); }
+.chess3d-mode__grid .material-symbols-outlined { margin-bottom: auto; color: var(--intro-accent); font-size: 30px; }
+.chess3d-mode__grid strong { font-size: 15px; font-weight: 900; }
+.chess3d-mode__grid small { margin-top: 3px; color: var(--intro-muted); font-size: 10px; line-height: 1.35; }
+
+.chess3d-level {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  padding: 6px;
+  border: 1px solid var(--game-line);
+  border-radius: 18px;
+  background: var(--game-surface);
+}
+
+.chess3d-level button {
+  min-height: 40px;
+  border-radius: 13px;
+  color: var(--intro-muted);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.chess3d-level button[aria-pressed="true"] {
+  background: var(--intro-accent);
+  color: var(--intro-bg);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--intro-accent) 35%, transparent);
+}
+
+.chess3d-shell {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: 58px 38px minmax(0, 1fr) 58px 18px;
+  align-items: stretch;
+  gap: 8px;
+  perspective: 1000px;
+  contain: layout paint;
+}
+
+.chess3d-player,
+.chess3d-status {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--game-line);
+  background: var(--game-surface);
+}
+
+.chess3d-player {
+  position: relative;
+  gap: 10px;
+  min-height: 58px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  opacity: .72;
+  transition: opacity .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.chess3d-player.is-active {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--intro-accent) 58%, transparent);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--intro-accent) 16%, var(--game-surface)), var(--game-surface));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--intro-accent) 22%, transparent);
+}
+
+.chess3d-player.is-local-top { transform: rotate(180deg); }
+.chess3d-player__king { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; background: var(--game-surface-strong); font-size: 31px; box-shadow: inset 0 1px rgb(255 255 255 / .14), 0 4px 10px rgb(0 0 0 / .14); }
+.chess3d-player span:nth-child(2) { display: flex; min-width: 0; flex: 1; flex-direction: column; }
+.chess3d-player small { color: var(--intro-muted); font-size: 8px; font-weight: 900; letter-spacing: .13em; }
+.chess3d-player strong { overflow: hidden; font-size: 13px; font-weight: 950; text-overflow: ellipsis; white-space: nowrap; }
+.chess3d-player time {
+  min-width: 80px;
+  color: var(--intro-ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 24px;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.055em;
+  line-height: 1;
+  text-align: right;
+}
+.chess3d-player time.is-danger { color: #ef4444; animation: chessClockPulse .7s ease-in-out infinite alternate; }
+.chess3d-player i { position: absolute; right: 8px; bottom: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--intro-accent); box-shadow: 0 0 14px var(--intro-accent); }
+@keyframes chessClockPulse { from { opacity: .62; } to { opacity: 1; } }
+
+.chess3d-status {
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 38px;
+  padding: 5px 11px;
+  border-radius: 14px;
+}
+.chess3d-status strong { flex: 1; font-size: 11px; text-align: center; }
+.chess3d-status b { color: var(--intro-muted); font-size: 9px; }
+
+.chess3d-stage {
+  display: grid;
+  width: min(100%, calc(100dvh - 236px), 760px);
+  height: auto;
+  min-height: 0;
+  padding: 9px;
+  align-self: center;
+  justify-self: center;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--intro-ink) 25%, transparent);
+  border-radius: 26px;
+  background: linear-gradient(145deg, #513826, #251a13);
+  box-shadow:
+    0 5px 0 #1b120d,
+    0 24px 46px color-mix(in srgb, var(--intro-ink) 30%, transparent),
+    inset 0 1px rgb(255 255 255 / .18);
+  transform: rotateX(2deg);
+  transform-origin: center bottom;
+  place-items: center;
+}
+
+.chess3d-board {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  grid-template-columns: repeat(8, 1fr);
+  aspect-ratio: 1;
+  border-radius: 17px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / .25);
+  contain: layout paint style;
+}
+
+.chess3d-board button {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  aspect-ratio: 1;
+  background: #edf1d8;
+  place-items: center;
+}
+.chess3d-board button[data-dark="true"] { background: #64836a; }
+.chess3d-board button[data-last="true"] { box-shadow: inset 0 0 0 999px rgb(250 204 21 / .34); }
+.chess3d-board button[data-selected="true"] { box-shadow: inset 0 0 0 4px var(--intro-accent), inset 0 0 22px color-mix(in srgb, var(--intro-accent) 46%, transparent); }
+.chess3d-board button[data-legal="true"]::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  width: 24%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--intro-accent) 76%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--intro-accent) 55%, transparent);
+}
+.chess3d-board button[data-legal="true"]:has(.chess3d-piece)::after {
+  width: 78%;
+  border: 3px solid color-mix(in srgb, var(--intro-accent) 72%, transparent);
+  background: transparent;
+}
+
+.chess3d-piece {
+  position: relative;
+  z-index: 1;
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: clamp(31px, 10.8vw, 70px);
+  line-height: 1;
+  transform: translateY(-2px);
+  transition: transform .14s ease;
+}
+.chess3d-board button:active .chess3d-piece { transform: translateY(0) scale(.94); }
+.chess3d-piece.is-w { color: #fffdf5; text-shadow: 0 1px 0 #b6aa96, 0 2px 0 #968a77, 0 5px 8px rgb(0 0 0 / .42); }
+.chess3d-piece.is-b { color: #24211f; text-shadow: 0 1px 0 #57504a, 0 3px 0 #050505, 0 5px 8px rgb(0 0 0 / .45); }
+
+.chess3d-note {
+  margin: 3px auto 0;
+  color: var(--intro-muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .chess3d-mode__hero { min-height: 160px; padding: 22px 110px 20px 20px; }
+  .chess3d-mode__piece { right: 12px; font-size: 116px; }
+  .chess3d-mode__grid { grid-template-columns: 1fr; }
+  .chess3d-mode__grid button { min-height: 104px; }
+  .arcade-game--chess .gshell__stage {
+    align-items: stretch;
+    overflow: hidden;
+    padding: 4px;
+  }
+  .chess3d-shell {
+    width: 100%;
+    grid-template-rows: 56px 34px minmax(0, 1fr) 56px 16px;
+    gap: 5px;
+  }
+  .chess3d-stage { padding: 4px; border-radius: 17px; }
+  .chess3d-board { border-radius: 13px; }
+  .chess3d-player { min-height: 56px; padding: 6px 10px; border-radius: 16px; }
+  .chess3d-player__king { width: 38px; height: 38px; font-size: 28px; }
+  .chess3d-player time { min-width: 70px; font-size: 22px; }
+  .chess3d-status span { display: none; }
+  .chess3d-status strong { font-size: 12px; text-align: left; }
+  .chess3d-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+@media (min-width: 521px) {
+  .arcade-game--chess .gshell__stage {
+    align-items: stretch;
+    overflow: hidden;
+    padding: 8px 14px 12px;
+  }
+}
+
+/* Chess cập nhật đồng hồ mỗi giây; tắt aurora động và lớp blur riêng ở màn
+   này để GPU chỉ phải composite bàn cờ, không repaint cả viewport. */
+.arcade-game--chess .gshell__aurora {
+  animation: none;
+  filter: blur(24px);
+  opacity: .34;
+}
+.arcade-game--chess .gshell__bar {
+  background: color-mix(in srgb, var(--intro-bg) 96%, var(--intro-accent));
+  backdrop-filter: none;
+}
+
+/* Caro 3 × 3 — các override nằm trong shell để dùng đúng palette của game. */
+.arcade-game--caro .caro-board-wrap {
+  width: min(100%, 520px);
+  overflow: visible;
+  perspective: 900px;
+}
+.arcade-game--caro .caro-board {
+  gap: 9px;
+  padding: 14px;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #151a27, #080b13);
+  box-shadow: 0 7px 0 #080a10, 0 28px 65px rgb(0 0 0 / .38), inset 0 1px rgb(255 255 255 / .12);
+  transform: rotateX(3deg);
+  transform-origin: center bottom;
+}
+.arcade-game--caro .caro-cell {
+  border: 1px solid rgb(255 255 255 / .08);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #232a3a, #111622);
+  box-shadow: inset 0 2px rgb(255 255 255 / .07), inset 0 -5px rgb(0 0 0 / .22), 0 6px 12px rgb(0 0 0 / .22);
+  font-size: clamp(52px, 17vw, 96px);
+  transition: transform .14s ease, background .14s ease;
+}
+.arcade-game--caro .caro-cell:not(:disabled):hover { background: #293247; transform: translateY(-2px); }
+.arcade-game--caro .caro-cell:active { transform: translateY(2px); }
+.arcade-game--caro .caro-cell.last-move {
+  background: linear-gradient(145deg, #303951, #1b2232);
+  box-shadow: inset 0 0 0 3px rgb(167 139 250 / .72), 0 0 24px rgb(167 139 250 / .18);
+}
+.arcade-game--caro .caro-x {
+  color: #60a5fa;
+  text-shadow: 0 2px #1d4ed8, 0 5px 10px rgb(29 78 216 / .48), 0 0 24px rgb(59 130 246 / .65);
+}
+.arcade-game--caro .caro-o {
+  color: #fb7185;
+  text-shadow: 0 2px #be123c, 0 5px 10px rgb(190 18 60 / .5), 0 0 24px rgb(244 63 94 / .65);
+}
+
+/* 2048 Fusion — chiều sâu chỉ dùng transform/composite, không canvas nặng. */
+.arcade-game--2048 .game2048-board {
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(255 255 255 / .09), transparent 48%),
+    linear-gradient(155deg, #242b3d, #0a0d15 72%);
+  box-shadow: 0 8px 0 #080b12, 0 30px 64px rgb(31 35 72 / .34), inset 0 1px rgb(255 255 255 / .13);
+  transform: perspective(1000px) rotateX(2deg);
+  transform-origin: center bottom;
+}
+.arcade-game--2048 .game2048-cells span {
+  background: linear-gradient(145deg, rgb(255 255 255 / .075), rgb(0 0 0 / .12));
+  border-color: rgb(255 255 255 / .065);
+  box-shadow: inset 0 3px 8px rgb(0 0 0 / .16);
+}
+.arcade-game--2048 .game2048-tile {
+  border-width: 1px;
+  font-weight: 950;
+  text-shadow: 0 1px rgb(255 255 255 / .26), 0 3px 8px rgb(0 0 0 / .28);
+}
+.game2048-actions {
+  display: flex;
+  width: min(100%, 520px);
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 12px;
+}
+.game2048-actions button,
+.game2048-actions > span {
+  display: flex;
+  min-height: 45px;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border: 1px solid var(--game-line);
+  border-radius: 15px;
+  background: var(--game-surface);
+  color: var(--intro-ink);
+  font-size: 10px;
+  font-weight: 800;
+}
+.game2048-actions button:disabled { opacity: .42; }
+.game2048-actions button:active:not(:disabled) { transform: translateY(1px) scale(.98); }
+.game2048-actions .material-symbols-outlined { color: var(--intro-accent); font-size: 18px; }
+.game2048-actions b { color: var(--intro-accent); font-size: 13px; font-weight: 950; }
+.game2048-actions > span { flex-direction: column; gap: 0; }
+
+.wg-clue {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 32%, transparent);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--intro-accent) 10%, transparent);
+  color: #eef2ff;
+}
+.wg-clue .material-symbols-outlined { color: var(--intro-accent); font-size: 20px; }
+.wg-clue p { margin: 0; font-size: 11px; font-weight: 650; line-height: 1.4; }
+.wg-clue small { display: block; margin-bottom: 2px; color: var(--intro-accent); font-size: 7px; font-weight: 950; letter-spacing: .14em; }
+.arcade-game--wordguess .wg-cell {
+  box-shadow: inset 0 2px rgb(255 255 255 / .07), inset 0 -4px rgb(0 0 0 / .22), 0 4px 10px rgb(0 0 0 / .18);
+  transform: translateZ(0);
+}
+.arcade-game--wordguess .wg-key {
+  box-shadow: inset 0 1px rgb(255 255 255 / .08), 0 3px 0 rgb(0 0 0 / .2);
+}
+.arcade-game--wordguess .wg-key:active { transform: translateY(2px); box-shadow: inset 0 1px rgb(255 255 255 / .08); }
+
 /* ── Game chassis ──────────────────────────────────────────────────────────
    The playfield of each game stays a dark, contained "screen" (the framing
    the intro artwork already uses: a device, a board, a well) so the vivid
@@ -478,6 +898,62 @@
 @keyframes ahudComboPop {
   from { transform: scale(.86); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+/* Toast sự kiện game: fixed overlay nên không chiếm chiều cao và không đẩy
+   bàn chơi khi combo/x2 xuất hiện liên tiếp. */
+.arcade-game .ahud__toast-region {
+  position: fixed;
+  z-index: 30;
+  top: calc(env(safe-area-inset-top, 0px) + 66px);
+  left: 50%;
+  width: min(calc(100vw - 28px), 360px);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.arcade-game .ahud__toast {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 9px;
+  margin-inline: auto;
+  padding: 10px 14px 10px 11px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--intro-ink) 88%, transparent);
+  color: var(--intro-bg);
+  box-shadow: 0 14px 34px rgb(0 0 0 / .26), 0 0 24px color-mix(in srgb, var(--intro-accent) 20%, transparent);
+  backdrop-filter: blur(18px) saturate(1.25);
+  animation: arcadeToastInOut 1.65s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.arcade-game .ahud__toast[data-kind="combo"] {
+  animation-duration: 1.35s;
+}
+
+.arcade-game .ahud__toast > .material-symbols-outlined {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--intro-accent);
+  color: var(--intro-bg);
+  font-size: 18px;
+  place-items: center;
+  font-variation-settings: "FILL" 1;
+}
+
+.arcade-game .ahud__toast > span:last-child { display: flex; min-width: 0; flex-direction: column; }
+.arcade-game .ahud__toast b { overflow: hidden; font-size: 11px; font-weight: 950; text-overflow: ellipsis; white-space: nowrap; }
+.arcade-game .ahud__toast small { margin-top: 1px; color: color-mix(in srgb, var(--intro-bg) 70%, transparent); font-size: 8px; font-weight: 750; }
+
+@keyframes arcadeToastInOut {
+  0% { opacity: 0; transform: translateY(-14px) scale(.92); }
+  14%, 78% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-5px) scale(.97); }
 }
 
 .arcade-game .ahud__notice {
@@ -703,6 +1179,17 @@
   font-weight: 950;
   letter-spacing: .04em;
   transition: background .25s ease, border-color .25s ease, transform .18s ease;
+}
+.arcade-game .wg-row {
+  display: grid;
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+}
+.arcade-game .wg-row .wg-cell {
+  width: 100%;
+  min-width: 0;
+  font-size: clamp(12px, calc(126px / var(--word-length)), 21px);
 }
 .arcade-game .wg-cell.is-typing { border-color: var(--intro-accent); background: color-mix(in srgb, var(--intro-accent) 22%, transparent); }
 .arcade-game .wg-cell.is-correct { border-color: #34d399; background: #059669; }

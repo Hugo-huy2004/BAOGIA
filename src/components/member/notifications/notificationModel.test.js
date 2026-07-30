@@ -8,6 +8,7 @@ import {
   signedJoy,
   dayBucket,
   groupOf,
+  notificationDestination,
   timeAgo,
 } from "./notificationModel";
 
@@ -85,6 +86,22 @@ describe("groupOf — mọi category của schema đều có nhóm", () => {
 
   it("category lạ thì về hệ thống chứ không làm hỏng danh sách", () => {
     expect(groupOf("khong_ton_tai")).toBe("system");
+  });
+});
+
+describe("notificationDestination — không tự chuyển tab vô lý", () => {
+  it("chỉ nhận route sâu có hành động rõ ràng", () => {
+    expect(notificationDestination("/member/utilities/hugoso")).toBe("/member/utilities/hugoso");
+    expect(notificationDestination("/member/joy?view=history")).toBe("/member/joy?view=history");
+    expect(notificationDestination("/pay/order-123")).toBe("/pay/order-123");
+  });
+
+  it("loại route chung, route ngoài và URL không hợp lệ", () => {
+    expect(notificationDestination("/member")).toBe("");
+    expect(notificationDestination("/member/activity")).toBe("");
+    expect(notificationDestination("https://example.com/member/joy")).toBe("");
+    expect(notificationDestination("//example.com/member/joy")).toBe("");
+    expect(notificationDestination("/member\\utilities\\hugoso")).toBe("");
   });
 });
 

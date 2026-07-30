@@ -8,7 +8,7 @@ const GameTetris = lazy(() => import("../arcade/GameTetris"));
 const GameSnake = lazy(() => import("../arcade/GameSnake"));
 const GameSpaceSurvivor = lazy(() => import("../arcade/GameSpaceSurvivor"));
 const GameFlappyCyber = lazy(() => import("../arcade/GameFlappyCyber"));
-const ChessGame = lazy(() => import("../../chess/ChessGame"));
+const ChessGame = lazy(() => import("../arcade/GameChess3D"));
 
 const GAME_COMPONENTS = {
   arcade_chess: ChessGame,
@@ -22,9 +22,9 @@ const GAME_COMPONENTS = {
 };
 
 const GAME_TITLES = {
-  arcade_chess: "HugoChess AI 2500",
+  arcade_chess: "HugoChess Table 3D",
   arcade_2048: "2048 Mega Fusion",
-  arcade_caro: "Caro AI Master",
+  arcade_caro: "Caro 3×3 Arena",
   arcade_wordguess: "Mật Mã Từ 3D",
   arcade_tetris: "Hugo Tetris Neon",
   arcade_snake: "Hugo Snake 3D",

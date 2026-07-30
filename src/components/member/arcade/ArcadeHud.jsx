@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { levelFor, levelProgress, maxLevel } from "./arcadeProgression";
 
 // HUD dùng chung cho mọi game. Trước đây mỗi game tự dựng thẻ điểm với màu
@@ -21,6 +21,46 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
   const top = maxLevel(gameId);
   const progress = levelProgress(gameId, score);
   const capped = level >= top;
+  const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
+  const toastSequenceRef = useRef(0);
+
+  // Combo/x2 và thông báo chặng là overlay tạm thời, không còn là một card
+  // nằm trong document flow. Vì vậy chúng có thể xuất hiện liên tục mà không
+  // làm HUD cao/thấp thất thường hoặc đẩy bàn chơi trên iPhone.
+  useEffect(() => {
+    if (combo < 2) return undefined;
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastSequenceRef.current += 1;
+    setToast({
+      id: toastSequenceRef.current,
+      icon: "bolt",
+      title: `${combo}× liên hoàn`,
+      detail: `Hệ số x${multiplier.toFixed(2).replace(/\.?0+$/, "")}`,
+      kind: "combo",
+    });
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 1350);
+    return undefined;
+  }, [combo, multiplier]);
+
+  useEffect(() => {
+    if (!notice) return undefined;
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastSequenceRef.current += 1;
+    setToast({
+      id: toastSequenceRef.current,
+      icon: "auto_awesome",
+      title: notice,
+      detail: "",
+      kind: "notice",
+    });
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 1650);
+    return undefined;
+  }, [notice]);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+  }, []);
 
   return (
     <div className="ahud">
@@ -47,15 +87,17 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
         <span style={{ width: `${Math.round(progress * 100)}%` }} />
       </div>
 
-      {combo >= 2 && (
-        <div className="ahud__combo" key={combo}>
-          <span className="material-symbols-outlined">bolt</span>
-          <b>{combo}× liên hoàn</b>
-          <em>x{multiplier.toFixed(2).replace(/\.?0+$/, "")}</em>
-        </div>
-      )}
-
-      {notice && <p className="ahud__notice">{notice}</p>}
+      <div className="ahud__toast-region" aria-live="polite" aria-atomic="true">
+        {toast && (
+          <div className="ahud__toast" data-kind={toast.kind} key={toast.id}>
+            <span className="material-symbols-outlined">{toast.icon}</span>
+            <span>
+              <b>{toast.title}</b>
+              {toast.detail && <small>{toast.detail}</small>}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

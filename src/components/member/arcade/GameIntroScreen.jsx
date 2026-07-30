@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import "./game-intro.css";
 
 const GAME_META = {
-  chess: { icon: "castle", detail: "8 × 8", badge: "AI 2500" },
+  chess: { icon: "castle", detail: "8 × 8", badge: "BOT · LOCAL" },
   survivor: { icon: "rocket_launch", detail: "4 BOSS", badge: "3D ASSAULT" },
   flappy: { icon: "bolt", detail: "1 TAP", badge: "CYBER" },
   tetris: { icon: "view_compact", detail: "10 × 20", badge: "NEON" },
   "2048": { icon: "grid_view", detail: "4 × 4", badge: "FUSION" },
-  caro: { icon: "close", detail: "5 IN ROW", badge: "AI DUEL" },
+  caro: { icon: "close", detail: "3 IN ROW", badge: "3 × 3" },
   wordguess: { icon: "spellcheck", detail: "6 TRIES", badge: "WORDS" },
   snake: { icon: "route", detail: "18×18", badge: "3D PRO" },
 };
@@ -53,7 +53,7 @@ function GameArtwork({ gameId }) {
         <div className="chess-orbit" />
         <div className="chess-board">{Array.from({ length: 36 }, (_, index) => <i key={index} />)}</div>
         <span className="material-symbols-outlined chess-king">chess</span>
-        <span className="chess-rank">AI<br /><b>2500</b></span>
+        <span className="chess-rank">BOT +<br /><b>LOCAL</b></span>
       </div>
     );
   }

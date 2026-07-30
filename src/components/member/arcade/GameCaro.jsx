@@ -2,8 +2,8 @@ import React, { useState, useCallback, useRef } from "react";
 import { playGameSelect, playGameWin, playGameLose, playGameMove } from "../../../utils/audio";
 import { hapticSelect, hapticWin, hapticLose, hapticMove } from "../../../utils/haptics";
 
-const SIZE = 13;
-const WIN_LEN = 5;
+const SIZE = 3;
+const WIN_LEN = 3;
 const EMPTY = 0, PLAYER = 1, AI = 2;
 
 const DIRECTIONS = [
@@ -35,10 +35,8 @@ export function checkWin(board, r, c, player) {
 // (not blocked by an opponent stone or the board edge), then looks up a
 // hand-tuned score table — open threats are worth far more than blocked ones.
 const SCORE_TABLE = (count, openEnds) => {
-  if (count >= 5) return 100000;
-  if (count === 4) return openEnds >= 1 ? 10000 : 50;
-  if (count === 3) return openEnds === 2 ? 1000 : openEnds === 1 ? 150 : 10;
-  if (count === 2) return openEnds === 2 ? 100 : openEnds === 1 ? 20 : 5;
+  if (count >= WIN_LEN) return 100000;
+  if (count === 2) return openEnds >= 1 ? 1200 : 80;
   return 1;
 };
 
@@ -131,46 +129,45 @@ export function pickAiMove(board) {
 // that look good now but hand the opponent a strong follow-up. Still no
 // minimax/recursion (one ply, bounded shortlist), so cost stays small.
 export function pickAiMoveHard(board) {
-  const center = (SIZE - 1) / 2;
-  const candidates = [];
+  const minimax = (state, maximizing, depth) => {
+    let hasEmpty = false;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (state[r][c] === AI && checkWin(state, r, c, AI)) return 10 - depth;
+        if (state[r][c] === PLAYER && checkWin(state, r, c, PLAYER)) return depth - 10;
+        if (state[r][c] === EMPTY) hasEmpty = true;
+      }
+    }
+    if (!hasEmpty) return 0;
 
+    let best = maximizing ? -Infinity : Infinity;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (state[r][c] !== EMPTY) continue;
+        state[r][c] = maximizing ? AI : PLAYER;
+        const score = minimax(state, !maximizing, depth + 1);
+        state[r][c] = EMPTY;
+        best = maximizing ? Math.max(best, score) : Math.min(best, score);
+      }
+    }
+    return best;
+  };
+
+  let bestMove = null;
+  let bestScore = -Infinity;
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
       if (board[r][c] !== EMPTY) continue;
-      const aiScore = lineScore(board, r, c, AI);
-      const oppScore = lineScore(board, r, c, PLAYER);
-      const centerBonus = -(Math.abs(r - center) + Math.abs(c - center)) * 0.5;
-      candidates.push({ r, c, total: aiScore + oppScore * 1.05 + centerBonus });
-    }
-  }
-  if (!candidates.length) return null;
-  candidates.sort((a, b) => b.total - a.total);
-  const shortlist = candidates.slice(0, 10);
-
-  let best = null;
-  let bestAdjusted = -Infinity;
-
-  for (const cand of shortlist) {
-    const trial = board.map((row) => [...row]);
-    trial[cand.r][cand.c] = AI;
-    if (checkWin(trial, cand.r, cand.c, AI)) return [cand.r, cand.c];
-
-    let oppBestResponse = -Infinity;
-    for (let r = 0; r < SIZE; r++) {
-      for (let c = 0; c < SIZE; c++) {
-        if (trial[r][c] !== EMPTY) continue;
-        const responseScore = lineScore(trial, r, c, PLAYER) + lineScore(trial, r, c, AI) * 1.05;
-        if (responseScore > oppBestResponse) oppBestResponse = responseScore;
+      const trial = board.map(row => [...row]);
+      trial[r][c] = AI;
+      const score = minimax(trial, false, 0);
+      if (score > bestScore || (score === bestScore && r === 1 && c === 1)) {
+        bestScore = score;
+        bestMove = [r, c];
       }
     }
-
-    const adjusted = cand.total - oppBestResponse * 0.9;
-    if (adjusted > bestAdjusted) {
-      bestAdjusted = adjusted;
-      best = [cand.r, cand.c];
-    }
   }
-  return best;
+  return bestMove;
 }
 
 const AI_PICKERS = { easy: pickAiMoveEasy, medium: pickAiMove, hard: pickAiMoveHard };
@@ -274,7 +271,7 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
 
   return (
     <div className="caro-shell flex flex-col items-center gap-4 w-full">
-      <div className="caro-status"><span className={`caro-turn-dot ${turn === PLAYER && status === "playing" ? "active" : ""}`} /><div><small>{thinking ? "ĐỐI THỦ" : "TRẠNG THÁI"}</small><strong>{statusText}</strong></div>{thinking && <ThinkingDots />}</div>
+      <div className="caro-status"><span className={`caro-turn-dot ${turn === PLAYER && status === "playing" ? "active" : ""}`} /><div><small>{thinking ? "HUGO AI" : "CARO 3 × 3"}</small><strong>{statusText}</strong></div>{thinking && <ThinkingDots />}</div>
 
       <div className="caro-board-wrap">
         <div className="caro-board" style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)` }}>
@@ -300,7 +297,7 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
           )}
         </div>
       </div>
-      <div className="caro-legend"><span><i className="x">X</i> Bạn</span><span><i className="o">O</i> Hugo AI</span><span>Xếp 5 liên tiếp</span></div>
+      <div className="caro-legend"><span><i className="x">X</i> Bạn</span><span><i className="o">O</i> Hugo AI</span><span>3 ô liên tiếp</span></div>
     </div>
   );
 }

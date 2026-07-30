@@ -7,14 +7,14 @@ import NotificationCenter from "./notifications/NotificationCenter";
  * bộ phần vẽ đã chuyển sang `notifications/` (xem NotificationCenter.jsx và
  * notificationModel.js).
  */
-export default function MemberHistoryTab({ bio, notifications, onMarkRead, onMarkAllRead, onDismiss }) {
+export default function MemberHistoryTab({ notifications, onMarkRead, onMarkAllRead, onDismiss, showToast }) {
   return (
     <NotificationCenter
-      bio={bio}
       notifications={notifications}
       onMarkRead={onMarkRead}
       onMarkAllRead={onMarkAllRead}
       onDismiss={onDismiss}
+      showToast={showToast}
     />
   );
 }

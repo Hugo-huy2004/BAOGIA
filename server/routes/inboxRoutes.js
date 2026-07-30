@@ -39,8 +39,15 @@ router.post('/', requireMember, async (req, res) => {
 // PATCH /api/inbox/read-all — must come before /:id
 router.patch('/read-all', requireMember, async (req, res) => {
   try {
-    await InAppNotification.updateMany({ email: req.memberEmail, read: false }, { $set: { read: true } });
-    res.json({ success: true });
+    const result = await InAppNotification.updateMany(
+      { email: req.memberEmail, read: false },
+      { $set: { read: true } },
+    );
+    res.json({
+      success: true,
+      modifiedCount: result.modifiedCount || 0,
+      unreadCount: 0,
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
