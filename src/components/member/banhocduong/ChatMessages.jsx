@@ -150,10 +150,24 @@ function FormatText({ text }) {
 // ─── Inline Sleep Report Card ────────────────────────────────────────────────
 function InlineSleepReportCard({ bio }) {
   const sleepLogs = bio?.sleepLogs || [];
-  const avgDur = sleepLogs.length > 0
-    ? (sleepLogs.slice(-7).reduce((a, b) => a + (Number(b.duration) || 0), 0) / Math.min(sleepLogs.length, 7)).toFixed(1)
-    : "7.5";
+  const recentLogs = sleepLogs
+    .slice(-7)
+    .filter((log) => Number.isFinite(Number(log?.duration)) && Number(log.duration) >= 0);
+  const avgDur = recentLogs.length > 0
+    ? (recentLogs.reduce((a, b) => a + Number(b.duration), 0) / recentLogs.length).toFixed(1)
+    : null;
   const debt = Math.max(0, (7.5 - Number(avgDur))).toFixed(1);
+
+  if (avgDur === null) {
+    return (
+      <div className="mt-2.5 p-4 rounded-2xl bg-teal-500/8 border border-teal-500/20 text-left max-w-sm">
+        <p className="text-[10px] font-black uppercase tracking-wider text-teal-600 dark:text-teal-400">Giấc ngủ</p>
+        <p className="mt-1.5 text-[10.5px] font-semibold leading-relaxed text-muted-foreground">
+          Chưa có bản ghi giấc ngủ để tính trung bình. Hãy ghi ít nhất một đêm trước khi xem báo cáo.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-teal-500/10 via-primary/5 to-muted/20 border border-teal-500/30 text-left space-y-3 shadow-md max-w-sm">
@@ -162,7 +176,7 @@ function InlineSleepReportCard({ bio }) {
           🌙 Báo Cáo Giấc Ngủ & Chu Kỳ
         </span>
         <span className="text-[8.5px] font-bold px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400">
-          Tự động 8 Cảm Biến
+          {recentLogs.length} đêm gần nhất
         </span>
       </div>
 
@@ -179,19 +193,36 @@ function InlineSleepReportCard({ bio }) {
         </div>
       </div>
 
-      <div className="p-2.5 rounded-xl bg-teal-500/10 border border-teal-500/20 text-[9.5px] font-bold text-foreground/80 leading-relaxed">
-        💡 **Giờ Thức Dậy Tối Ưu:** Nếu đi ngủ lúc 22:45, mốc thức dậy tỉnh táo nhất theo chu kỳ 90 phút là **06:30 AM** (5 chu kỳ 7.5h).
-      </div>
+      <p className="text-[9px] font-semibold leading-relaxed text-muted-foreground">
+        Đây là thống kê từ dữ liệu cậu đã ghi, không phải kết quả chẩn đoán giấc ngủ.
+      </p>
     </div>
   );
 }
 
 // ─── Inline Evaluation Report Card ───────────────────────────────────────────
-function InlineEvalReportCard({ bio }) {
+function InlineEvalReportCard({ bio, historyLogs = [] }) {
   const scores = bio?.testScores || {};
-  const phq9 = scores.phq9 ?? "Bình thường";
-  const gad7 = scores.gad7 ?? "Bình thường";
-  const who5 = scores.who5 != null ? `${scores.who5 * 4}%` : "80%";
+  const latestScore = (testId) => {
+    const log = [...historyLogs].reverse().find((item) => item?.test === testId);
+    const raw = log?.score ?? scores[testId];
+    return Number.isFinite(Number(raw)) ? Number(raw) : null;
+  };
+  const phq9 = latestScore("phq9");
+  const gad7 = latestScore("gad7");
+  const who5 = latestScore("who5");
+  const hasScores = phq9 !== null || gad7 !== null || who5 !== null;
+
+  if (!hasScores) {
+    return (
+      <div className="mt-2.5 p-4 rounded-2xl bg-violet-500/8 border border-violet-500/20 text-left max-w-sm">
+        <p className="text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400">Đánh giá tinh thần</p>
+        <p className="mt-1.5 text-[10.5px] font-semibold leading-relaxed text-muted-foreground">
+          Chưa có bài tự đánh giá nào được hoàn thành. HugoPSY sẽ không tự điền kết quả thay cậu.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 via-primary/5 to-muted/20 border border-violet-500/30 text-left space-y-3 shadow-md max-w-sm">
@@ -207,17 +238,20 @@ function InlineEvalReportCard({ bio }) {
       <div className="grid grid-cols-3 gap-1.5 text-center">
         <div className="p-2 rounded-xl bg-background/80 border border-border/50">
           <p className="text-[8px] font-black uppercase text-muted-foreground">PHQ-9</p>
-          <p className="text-xs font-mono font-black text-foreground mt-0.5">{phq9}</p>
+          <p className="text-xs font-mono font-black text-foreground mt-0.5">{phq9 ?? "—"}</p>
         </div>
         <div className="p-2 rounded-xl bg-background/80 border border-border/50">
           <p className="text-[8px] font-black uppercase text-muted-foreground">GAD-7</p>
-          <p className="text-xs font-mono font-black text-foreground mt-0.5">{gad7}</p>
+          <p className="text-xs font-mono font-black text-foreground mt-0.5">{gad7 ?? "—"}</p>
         </div>
         <div className="p-2 rounded-xl bg-background/80 border border-border/50">
           <p className="text-[8px] font-black uppercase text-muted-foreground">WHO-5</p>
-          <p className="text-xs font-mono font-black text-foreground mt-0.5">{who5}</p>
+          <p className="text-xs font-mono font-black text-foreground mt-0.5">{who5 !== null ? `${who5 * 4}%` : "—"}</p>
         </div>
       </div>
+      <p className="text-[9px] font-semibold leading-relaxed text-muted-foreground">
+        Điểm tự đánh giá chỉ hỗ trợ theo dõi xu hướng và không phải chẩn đoán.
+      </p>
     </div>
   );
 }
@@ -399,7 +433,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
       )}
 
       {/* Test suggestion card — redesigned: soft pill chips, no pushy full-width buttons */}
-      {(msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive || msg.suggestDass42 || msg.suggestMmpi30) && (
+      {(msg.suggestPhq9 || msg.suggestGad7 || msg.suggestWho5 || msg.suggestBigFive) && (
         <div className="p-3 rounded-2xl bg-gradient-to-br from-violet-50/80 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/15 border border-violet-100 dark:border-violet-800/25 space-y-2 w-full max-w-[260px]">
           <div className="flex items-center gap-1.5">
             <div className="w-5 h-5 rounded-lg bg-violet-500/15 flex items-center justify-center shrink-0">
@@ -414,13 +448,13 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
             {msg.suggestPhq9 && (
               <button type="button" onClick={() => onStartTest("phq9")}
                 className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-rose-500/12 hover:bg-rose-500/20 border border-rose-300/40 dark:border-rose-700/30 text-rose-600 dark:text-rose-400 transition-all active:scale-95">
-                PHQ-9 · Trầm cảm
+                PHQ-9 · Triệu chứng khí sắc
               </button>
             )}
             {msg.suggestGad7 && (
               <button type="button" onClick={() => onStartTest("gad7")}
                 className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-cyan-500/12 hover:bg-cyan-500/20 border border-cyan-300/40 dark:border-cyan-700/30 text-cyan-600 dark:text-cyan-400 transition-all active:scale-95">
-                GAD-7 · Lo âu
+                GAD-7 · Triệu chứng lo âu
               </button>
             )}
             {msg.suggestWho5 && (
@@ -433,18 +467,6 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
               <button type="button" onClick={() => onStartTest("bigfive")}
                 className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-indigo-500/12 hover:bg-indigo-500/20 border border-indigo-300/40 dark:border-indigo-700/30 text-indigo-600 dark:text-indigo-400 transition-all active:scale-95">
                 Big Five · Nhân cách
-              </button>
-            )}
-            {msg.suggestDass42 && (
-              <button type="button" onClick={() => onStartTest("dass42")}
-                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-amber-500/12 hover:bg-amber-500/20 border border-amber-300/40 dark:border-amber-700/30 text-amber-600 dark:text-amber-400 transition-all active:scale-95">
-                DASS-42 · Stress/Lo âu/Trầm cảm
-              </button>
-            )}
-            {msg.suggestMmpi30 && (
-              <button type="button" onClick={() => onStartTest("mmpi30")}
-                className="px-2.5 py-1.5 text-[9.5px] font-bold rounded-xl bg-fuchsia-500/12 hover:bg-fuchsia-500/20 border border-fuchsia-300/40 dark:border-fuchsia-700/30 text-fuchsia-600 dark:text-fuchsia-400 transition-all active:scale-95">
-                MMPI · Sàng lọc 30 câu
               </button>
             )}
           </div>

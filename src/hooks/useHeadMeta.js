@@ -1,84 +1,109 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
-/**
- * Custom hook để quản lý meta tags động cho SEO
- * @param {Object} options - Các tùy chọn meta
- * @param {string} options.title - Tiêu đề trang
- * @param {string} options.description - Meta description
- * @param {string} options.keywords - Meta keywords
- * @param {string} options.ogTitle - Open Graph title
- * @param {string} options.ogDescription - Open Graph description
- * @param {string} options.ogImage - Open Graph image URL
- * @param {string} options.ogUrl - Open Graph URL
- * @param {string} options.canonicalUrl - Canonical URL
- */
-export const useHeadMeta = (options = {}) => {
-  const {
-    title = 'Hugo Studio',
-    description = 'Hugo Studio - Nền tảng tạo bio cá nhân chuyên nghiệp',
-    keywords = 'Hugo Studio, Bio page, Booking platform',
-    ogTitle = title,
-    ogDescription = description,
-    ogImage = 'https://www.hugowishpax.studio/og-image.png',
-    ogUrl = window.location.href,
-    canonicalUrl = `https://www.hugowishpax.studio${window.location.pathname}`
-  } = options;
+const SITE_ORIGIN = "https://www.hugowishpax.studio";
+const DEFAULT_IMAGE = `${SITE_ORIGIN}/og-image.png`;
+const INDEX_ROBOTS =
+  "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
-  useEffect(() => {
-    // Update title
-    document.title = title;
+const currentCanonical = () => {
+  if (typeof window === "undefined") return SITE_ORIGIN;
+  return `${SITE_ORIGIN}${window.location.pathname}`;
+};
 
-    // Update meta description
-    let metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', description);
-    }
+const updateOrCreateMeta = (name, content, attributeType = "name") => {
+  if (content === undefined || content === null) return;
 
-    // Update meta keywords
-    let metaKeywords = document.querySelector('meta[name="keywords"]');
-    if (metaKeywords) {
-      metaKeywords.setAttribute('content', keywords);
-    }
-
-    // Update Open Graph tags
-    updateOrCreateMeta('og:title', ogTitle, 'property');
-    updateOrCreateMeta('og:description', ogDescription, 'property');
-    updateOrCreateMeta('og:image', ogImage, 'property');
-    updateOrCreateMeta('og:url', ogUrl, 'property');
-
-    // Update canonical URL
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) {
-      canonical.setAttribute('href', canonicalUrl);
-    } else {
-      canonical = document.createElement('link');
-      canonical.rel = 'canonical';
-      canonical.href = canonicalUrl;
-      document.head.appendChild(canonical);
-    }
-
-    // Update Twitter Card
-    updateOrCreateMeta('twitter:title', ogTitle, 'name');
-    updateOrCreateMeta('twitter:description', ogDescription, 'name');
-    updateOrCreateMeta('twitter:image', ogImage, 'name');
-
-    return () => {
-      // Cleanup không cần thiết, nhưng có thể reset nếu component unmount
-    };
-  }, [title, description, keywords, ogTitle, ogDescription, ogImage, ogUrl, canonicalUrl]);
+  let meta = document.querySelector(`meta[${attributeType}="${name}"]`);
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute(attributeType, name);
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute("content", String(content));
 };
 
 /**
- * Helper function để create hoặc update meta tags
+ * Keeps route metadata consistent in the SPA. Public pages are indexable by
+ * default; account, payment and internal routes opt into `noindex` explicitly.
  */
-const updateOrCreateMeta = (name, content, attributeType = 'name') => {
-  let meta = document.querySelector(`meta[${attributeType}="${name}"]`);
-  if (meta) {
-    meta.setAttribute('content', content);
-  } else {
-    meta = document.createElement('meta');
-    meta.setAttribute(attributeType, name);
-    meta.setAttribute('content', content);
-    document.head.appendChild(meta);
-  }
+export const useHeadMeta = (options = {}) => {
+  const canonicalUrl = options.canonicalUrl || currentCanonical();
+  const title = options.title || "Hugo Studio";
+  const description =
+    options.description ||
+    "Hugo Studio giới thiệu các sản phẩm số, trang Bio và dịch vụ thiết kế website của Hugo Lê.";
+  const ogTitle = options.ogTitle || title;
+  const ogDescription = options.ogDescription || description;
+  const ogImage = options.ogImage || DEFAULT_IMAGE;
+  const ogUrl = options.ogUrl || canonicalUrl;
+  const language =
+    options.language ||
+    (typeof document !== "undefined" ? document.documentElement.lang : "vi") ||
+    "vi";
+  const locale = options.locale || (language.startsWith("en") ? "en_US" : "vi_VN");
+  const robots = options.robots || INDEX_ROBOTS;
+  const imageAlt = options.imageAlt || ogTitle;
+
+  useEffect(() => {
+    document.title = title;
+
+    updateOrCreateMeta("description", description);
+    if (options.keywords) updateOrCreateMeta("keywords", options.keywords);
+    updateOrCreateMeta("author", options.author || "Hugo Studio");
+    updateOrCreateMeta("robots", robots);
+    updateOrCreateMeta("googlebot", robots);
+    updateOrCreateMeta("language", language.startsWith("en") ? "English" : "Vietnamese");
+
+    updateOrCreateMeta("og:type", options.ogType || "website", "property");
+    updateOrCreateMeta("og:site_name", "Hugo Studio", "property");
+    updateOrCreateMeta("og:locale", locale, "property");
+    updateOrCreateMeta("og:title", ogTitle, "property");
+    updateOrCreateMeta("og:description", ogDescription, "property");
+    updateOrCreateMeta("og:image", ogImage, "property");
+    updateOrCreateMeta("og:image:secure_url", ogImage, "property");
+    updateOrCreateMeta("og:image:alt", imageAlt, "property");
+    updateOrCreateMeta("og:url", ogUrl, "property");
+
+    const imageWidth = options.imageWidth || (ogImage === DEFAULT_IMAGE ? "1200" : "");
+    const imageHeight = options.imageHeight || (ogImage === DEFAULT_IMAGE ? "630" : "");
+    for (const [property, value] of [
+      ["og:image:width", imageWidth],
+      ["og:image:height", imageHeight],
+    ]) {
+      const element = document.querySelector(`meta[property="${property}"]`);
+      if (value) updateOrCreateMeta(property, value, "property");
+      else element?.remove();
+    }
+
+    updateOrCreateMeta("twitter:card", "summary_large_image");
+    updateOrCreateMeta("twitter:title", ogTitle);
+    updateOrCreateMeta("twitter:description", ogDescription);
+    updateOrCreateMeta("twitter:image", ogImage);
+    updateOrCreateMeta("twitter:image:alt", imageAlt);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", canonicalUrl);
+  }, [
+    canonicalUrl,
+    description,
+    imageAlt,
+    language,
+    locale,
+    ogDescription,
+    ogImage,
+    ogTitle,
+    ogUrl,
+    options.author,
+    options.imageHeight,
+    options.imageWidth,
+    options.keywords,
+    options.ogType,
+    robots,
+    title,
+  ]);
 };

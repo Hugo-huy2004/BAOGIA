@@ -1,37 +1,106 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-// Same-origin /api/ai/* proxy (server/routes/aiProxyRoutes.js) — no separate
-// "ai.<domain>" host, see AIBot.js for the full explanation.
 const AI_URL = `${import.meta.env.VITE_API_URL || "/api"}/ai`;
-const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
+const MAX_REPORT_BYTES = 10 * 1024 * 1024;
+const MMPI_CLINICAL_CODES = ["Hs", "D", "Hy", "Pd", "Mf", "Pa", "Pt", "Sc", "Ma", "Si"];
 
 const SCAN_STEPS = [
-  "Đang nhận diện ký tự quang học (OCR)...",
-  "Đang định vị bảng điểm L - F - K và chỉ số tâm lý...",
-  "Đang trích xuất dữ liệu Trầm cảm, Lo âu, Căng thẳng...",
-  "Đang hoàn tất phân tích lâm sàng..."
+  "Đang đọc nội dung trong tài liệu...",
+  "Đang nhận diện loại biểu mẫu...",
+  "Đang trích xuất các chỉ số được ghi trên phiếu...",
+  "Đang kiểm tra tính đầy đủ của dữ liệu..."
 ];
 
 export default function ClinicScanner({ onScanComplete, onCancel }) {
   const [scanFile, setScanFile] = useState(null);
   const [scanFilePreview, setScanFilePreview] = useState(null);
-  const [scanState, setScanState] = useState("idle"); // 'idle' | 'scanning' | 'verified'
+  const [scanState, setScanState] = useState("idle"); // idle | scanning | verified | error
+  const [scanError, setScanError] = useState("");
   const [scanStepIdx, setScanStepIdx] = useState(0);
   const [scanTestType, setScanTestType] = useState("dass"); // 'dass' | 'mmpi' | 'general_medical'
 
-  // Editable scores
-  const [scanDassScores, setScanDassScores] = useState({ D: 17, A: 11, S: 17 });
-  const [scanMmpiClinical, setScanMmpiClinical] = useState({
-    Hs: 68, D: 72, Hy: 85, Pd: 77, Mf: 55, Pa: 95, Pt: 73, Sc: 81, Ma: 68, Si: 68
-  });
-  const [scanMmpiValidity, setScanMmpiValidity] = useState({ L: 47, F: 79, K: 40 });
-  
+  // Never prefill health data: values only appear after a successful extraction.
+  const [scanDassScores, setScanDassScores] = useState({ D: null, A: null, S: null });
+  const [scanMmpiClinical, setScanMmpiClinical] = useState(
+    () => Object.fromEntries(MMPI_CLINICAL_CODES.map((code) => [code, null]))
+  );
+  const [scanMmpiValidity, setScanMmpiValidity] = useState({ L: null, F: null, K: null });
   const [scanGeneralIndices, setScanGeneralIndices] = useState([]);
+
+  useEffect(() => {
+    return () => {
+      if (scanFilePreview) URL.revokeObjectURL(scanFilePreview);
+    };
+  }, [scanFilePreview]);
+
+  const asBoundedScore = (value, max) => {
+    const score = Number(value);
+    return Number.isFinite(score) && score >= 0 && score <= max ? score : null;
+  };
+
+  const cleanExtractedText = (value, maxLength = 100) =>
+    String(value ?? "").replace(/[\r\n|]/g, " ").trim().slice(0, maxLength);
+
+  const parseExtractedReport = (data, requestedType) => {
+    if (!data || typeof data !== "object" || data.error) {
+      throw new Error("Không nhận được dữ liệu đáng tin cậy từ tài liệu.");
+    }
+
+    const detectedType = ["dass", "mmpi", "general_medical"].includes(data.testType)
+      ? data.testType
+      : requestedType;
+
+    if (detectedType === "dass") {
+      const scores = Object.fromEntries(
+        ["D", "A", "S"].map((scale) => [scale, asBoundedScore(data.scores?.[scale], 42)])
+      );
+      if (Object.values(scores).some((score) => score === null)) {
+        throw new Error("Không đọc đủ ba chỉ số D, A và S. Hãy chụp rõ toàn bộ bảng điểm.");
+      }
+      setScanDassScores(scores);
+    } else if (detectedType === "mmpi") {
+      const validity = Object.fromEntries(
+        ["L", "F", "K"].map((scale) => [scale, asBoundedScore(data.validity?.[scale], 120)])
+      );
+      const clinical = Object.fromEntries(
+        MMPI_CLINICAL_CODES.map((scale) => [scale, asBoundedScore(data.clinical?.[scale], 120)])
+      );
+      if ([...Object.values(validity), ...Object.values(clinical)].some((score) => score === null)) {
+        throw new Error("Không đọc đủ các thang điểm trên báo cáo. Hãy dùng bản chụp rõ và đầy đủ hơn.");
+      }
+      setScanMmpiValidity(validity);
+      setScanMmpiClinical(clinical);
+    } else {
+      const indices = Array.isArray(data.general_indices)
+        ? data.general_indices
+          .filter((item) => item && item.name && item.value !== undefined)
+          .map((item) => ({
+            name: cleanExtractedText(item.name, 80),
+            value: cleanExtractedText(item.value, 60),
+            unit: cleanExtractedText(item.unit, 40),
+            reference: cleanExtractedText(item.reference, 80)
+          }))
+        : [];
+      if (indices.length === 0) {
+        throw new Error("Không tìm thấy chỉ số xét nghiệm có thể xác minh trong tài liệu.");
+      }
+      setScanGeneralIndices(indices);
+    }
+
+    setScanTestType(detectedType);
+  };
 
   const handleStartScan = async (testType) => {
     if (!scanFile) return;
+    if (scanFile.size > MAX_REPORT_BYTES) {
+      setScanError("Tệp vượt quá 10 MB. Hãy chọn ảnh hoặc PDF nhỏ hơn.");
+      setScanState("error");
+      return;
+    }
+
     setScanTestType(testType);
     setScanState("scanning");
+    setScanError("");
     setScanStepIdx(0);
 
     // Setup simulated steps progression
@@ -50,129 +119,88 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
 
       const response = await fetch(`${AI_URL}/analyze-report`, {
         method: "POST",
-        headers: { "X-Internal-Key": INTERNAL_KEY },
+        credentials: "include",
         body: formData
       });
 
-      clearInterval(interval);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Real AI OCR Data extracted:", data);
-
-        if (data.testType === "dass" && data.scores) {
-          setScanDassScores({
-            D: data.scores.D !== undefined ? data.scores.D : 17,
-            A: data.scores.A !== undefined ? data.scores.A : 11,
-            S: data.scores.S !== undefined ? data.scores.S : 17
-          });
-          setScanTestType("dass");
-        } else if (data.testType === "mmpi") {
-          if (data.clinical) {
-            setScanMmpiClinical({
-              Hs: data.clinical.Hs !== undefined ? data.clinical.Hs : 68,
-              D: data.clinical.D !== undefined ? data.clinical.D : 72,
-              Hy: data.clinical.Hy !== undefined ? data.clinical.Hy : 85,
-              Pd: data.clinical.Pd !== undefined ? data.clinical.Pd : 77,
-              Mf: data.clinical.Mf !== undefined ? data.clinical.Mf : 55,
-              Pa: data.clinical.Pa !== undefined ? data.clinical.Pa : 95,
-              Pt: data.clinical.Pt !== undefined ? data.clinical.Pt : 73,
-              Sc: data.clinical.Sc !== undefined ? data.clinical.Sc : 81,
-              Ma: data.clinical.Ma !== undefined ? data.clinical.Ma : 68,
-              Si: data.clinical.Si !== undefined ? data.clinical.Si : 68
-            });
-          }
-          if (data.validity) {
-            setScanMmpiValidity({
-              L: data.validity.L !== undefined ? data.validity.L : 47,
-              F: data.validity.F !== undefined ? data.validity.F : 79,
-              K: data.validity.K !== undefined ? data.validity.K : 40
-            });
-          }
-          setScanTestType("mmpi");
-        } else if (data.testType === "general_medical" && data.general_indices) {
-          setScanGeneralIndices(data.general_indices);
-          setScanTestType("general_medical");
-        } else {
-          // If backend output format is slightly different
-          if (testType === "dass") {
-            setScanDassScores(data.scores || { D: 17, A: 11, S: 17 });
-          } else if (testType === "general_medical") {
-            setScanGeneralIndices(data.general_indices || []);
-          } else {
-            if (data.clinical) {
-              setScanMmpiClinical(prev => ({ ...prev, ...data.clinical }));
-            }
-            if (data.validity) {
-              setScanMmpiValidity(prev => ({ ...prev, ...data.validity }));
-            }
-          }
-        }
-      } else {
-        console.warn("Backend error, using mock fallback");
-        await new Promise(resolve => setTimeout(resolve, 1500));
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("Máy chủ trả về dữ liệu không hợp lệ.");
       }
+      if (!response.ok) {
+        throw new Error(data?.detail || data?.error || "Không thể đọc tài liệu lúc này.");
+      }
+
+      parseExtractedReport(data, testType);
+      setScanState("verified");
     } catch (err) {
-      console.warn("Network error connecting to Python AI Backend, using mock fallback:", err);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      setScanError(err?.message || "Không thể đọc tài liệu. Vui lòng thử lại.");
+      setScanState("error");
     } finally {
       clearInterval(interval);
-      setScanState("verified");
     }
+  };
+
+  const handleFileChange = (selectedFile) => {
+    if (scanFilePreview) URL.revokeObjectURL(scanFilePreview);
+    setScanError("");
+    setScanState("idle");
+    setScanFile(selectedFile || null);
+    if (!selectedFile) {
+      setScanFilePreview(null);
+      return;
+    }
+    if (!selectedFile.type.startsWith("image/") && selectedFile.type !== "application/pdf") {
+      setScanFile(null);
+      setScanFilePreview(null);
+      setScanError("Chỉ hỗ trợ ảnh PNG, JPG hoặc tệp PDF.");
+      setScanState("error");
+      return;
+    }
+    setScanFilePreview(selectedFile.type.startsWith("image/") ? URL.createObjectURL(selectedFile) : null);
+  };
+
+  const updateGeneralIndex = (index, field, value) => {
+    setScanGeneralIndices((current) =>
+      current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: cleanExtractedText(value) } : item
+      )
+    );
   };
 
   const handleSave = () => {
     let resultLog = {};
     if (scanTestType === "dass") {
-      const getDassInterpret = (scale, score) => {
-        if (scale === "D") {
-          if (score <= 9) return "Bình thường";
-          if (score <= 13) return "Nhẹ";
-          if (score <= 20) return "Vừa phải";
-          if (score <= 27) return "Nặng";
-          return "Rất nặng";
-        }
-        if (scale === "A") {
-          if (score <= 7) return "Bình thường";
-          if (score <= 9) return "Nhẹ";
-          if (score <= 14) return "Vừa phải";
-          if (score <= 19) return "Nặng";
-          return "Rất nặng";
-        }
-        if (score <= 14) return "Bình thường";
-        if (score <= 18) return "Nhẹ";
-        if (score <= 25) return "Vừa phải";
-        if (score <= 33) return "Nặng";
-        return "Rất nặng";
-      };
-
-      const dLvl = getDassInterpret("D", scanDassScores.D);
-      const aLvl = getDassInterpret("A", scanDassScores.A);
-      const sLvl = getDassInterpret("S", scanDassScores.S);
-
       resultLog = {
         date: new Date().toISOString(),
         test: "dass42",
         scores: { D: scanDassScores.D, A: scanDassScores.A, S: scanDassScores.S },
-        severities: { D: dLvl, A: aLvl, S: sLvl },
-        isUploaded: true
+        isUploaded: true,
+        source: "ocr_user_verified"
       };
     } else if (scanTestType === "general_medical") {
       resultLog = {
         date: new Date().toISOString(),
         test: "general_medical",
-        indices: scanGeneralIndices,
-        isUploaded: true
+        indices: scanGeneralIndices.map((item) => ({
+          name: item.name,
+          value: item.value,
+          unit: item.unit,
+          reference: item.reference
+        })),
+        isUploaded: true,
+        source: "ocr_user_verified"
       };
     } else {
-      const isReliable = scanMmpiValidity.L < 70 && scanMmpiValidity.F < 80 && scanMmpiValidity.K < 70;
       resultLog = {
         date: new Date().toISOString(),
         test: "mmpi30",
         validity: scanMmpiValidity,
-        isReliable,
         clinical: Object.entries(scanMmpiClinical).map(([code, score]) => ({ code, score })),
-        isUploaded: true
+        isUploaded: true,
+        source: "ocr_user_verified"
       };
     }
 
@@ -226,12 +254,12 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
             />
 
             {[
-              { x: 50, y: lY, val: scores.L, color: scores.L >= 70 ? "fill-destructive" : "fill-success" },
-              { x: 140, y: fY, val: scores.F, color: scores.F >= 80 ? "fill-destructive" : "fill-success" },
-              { x: 230, y: kY, val: scores.K, color: scores.K >= 70 ? "fill-destructive" : "fill-success" }
+              { x: 50, y: lY, val: scores.L },
+              { x: 140, y: fY, val: scores.F },
+              { x: 230, y: kY, val: scores.K }
             ].map((dot, idx) => (
               <g key={idx}>
-                <circle cx={dot.x} cy={dot.y} r="4" className={`${dot.color} stroke-card`} strokeWidth="1.5" />
+                <circle cx={dot.x} cy={dot.y} r="4" className="fill-primary stroke-card" strokeWidth="1.5" />
                 <text x={dot.x + 8} y={dot.y - 6} className="fill-white font-mono font-black text-[8.5px]">{dot.val}</text>
               </g>
             ))}
@@ -242,16 +270,24 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
   };
 
   return (
-    <div className="space-y-6 pt-2 max-w-md mx-auto animate-scaleUp text-left">
-      <div className="text-center space-y-1">
+    <div className="space-y-6 p-4 pt-3 max-w-md mx-auto animate-scaleUp text-left">
+      <div className="relative text-center space-y-1 px-8">
+        <button
+          type="button"
+          onClick={onCancel}
+          aria-label="Đóng trình đọc tài liệu"
+          className="absolute -left-1 -top-1 grid h-8 w-8 place-items-center rounded-full bg-muted text-muted-foreground transition active:scale-90"
+        >
+          <span className="material-symbols-outlined text-[16px]">close</span>
+        </button>
         <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black tracking-widest bg-zinc-900/10 border border-zinc-900/20 text-zinc-855 dark:bg-white/10 dark:text-white dark:border-white/20 uppercase">
           Quét hồ sơ phòng khám
         </span>
         <h4 className="text-xs font-black text-foreground uppercase tracking-wider">
-          Phân tích kết quả DASS / MMPI
+          Trích xuất dữ liệu từ phiếu kết quả
         </h4>
         <p className="text-[10px] text-muted-foreground leading-relaxed font-bold">
-          Gửi ảnh chụp phiếu kiểm tra hoặc file PDF để Chuyên viên Đồng Hành trích xuất chỉ số lâm sàng lập tức.
+          HugoPSY chỉ đọc lại các chỉ số có trên ảnh hoặc PDF. Kết quả cần được cậu kiểm tra trước khi lưu và không thay thế nhận định của chuyên gia.
         </p>
       </div>
 
@@ -260,24 +296,14 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
           <input
             type="file"
             accept="image/*,application/pdf"
-            onChange={(e) => {
-              const selectedFile = e.target.files[0];
-              if (selectedFile) {
-                setScanFile(selectedFile);
-                if (selectedFile.type.startsWith("image/")) {
-                  setScanFilePreview(URL.createObjectURL(selectedFile));
-                } else {
-                  setScanFilePreview(null);
-                }
-              }
-            }}
+            onChange={(e) => handleFileChange(e.target.files?.[0])}
             id="chat-scanner-input-sub"
             className="hidden"
           />
           <label htmlFor="chat-scanner-input-sub" className="cursor-pointer block space-y-3 py-2">
             <span className="material-symbols-outlined text-3xl text-muted-foreground block">cloud_upload</span>
             <span className="text-[10.5px] font-black uppercase text-primary hover:underline block">Chọn file ảnh hoặc PDF</span>
-            <span className="text-[9px] text-muted-foreground/70 block">Chấp nhận PNG, JPG, PDF bệnh án</span>
+            <span className="text-[9px] text-muted-foreground/70 block">PNG, JPG hoặc PDF · tối đa 10 MB</span>
           </label>
 
           {scanFile && (
@@ -294,14 +320,14 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
                   onClick={() => handleStartScan("dass")}
                   className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-primary/90"
                 >
-                  DASS-42
+                  HỒ SƠ DASS
                 </button>
                 <button
                   type="button"
                   onClick={() => handleStartScan("mmpi")}
                   className="px-3 py-1.5 bg-primary text-white text-[9.5px] font-black uppercase rounded shadow hover:bg-primary/90"
                 >
-                  Sàng lọc nhân cách 30 câu
+                  BÁO CÁO MMPI
                 </button>
                 <button
                   type="button"
@@ -324,6 +350,37 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
           </p>
           <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
             <div className="bg-primary h-full transition-all duration-300" style={{ width: `${((scanStepIdx + 1) / 4) * 100}%` }} />
+          </div>
+        </div>
+      )}
+
+      {scanState === "error" && (
+        <div role="alert" className="p-5 border border-rose-300/70 dark:border-rose-800/60 bg-rose-50/80 dark:bg-rose-950/20 rounded-2xl space-y-4 text-center">
+          <span className="material-symbols-outlined text-2xl text-rose-500">error</span>
+          <div>
+            <p className="text-[11px] font-black text-rose-700 dark:text-rose-300">Chưa thể xác minh tài liệu</p>
+            <p className="mt-1 text-[10px] font-semibold leading-relaxed text-rose-600/80 dark:text-rose-300/75">{scanError}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setScanState("idle");
+                setScanError("");
+              }}
+              className="flex-1 py-2 rounded-xl border border-rose-300/70 text-[9.5px] font-black uppercase text-rose-700 dark:text-rose-300"
+            >
+              Chọn tệp khác
+            </button>
+            {scanFile && (
+              <button
+                type="button"
+                onClick={() => handleStartScan(scanTestType)}
+                className="flex-1 py-2 rounded-xl bg-rose-600 text-white text-[9.5px] font-black uppercase"
+              >
+                Thử đọc lại
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -361,31 +418,47 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
           ) : scanTestType === "general_medical" ? (
             <div className="space-y-3">
               <p className="text-[10px] text-muted-foreground font-semibold leading-relaxed">
-                Tớ đã trích xuất được {scanGeneralIndices.length} chỉ số từ xét nghiệm của cậu. Hãy xác nhận lại:
+                Đã đọc được {scanGeneralIndices.length} chỉ số. Hãy sửa trực tiếp nếu OCR nhận nhầm rồi mới lưu:
               </p>
-              <div className="overflow-x-auto rounded border border-border">
-                <table className="w-full text-left text-[9.5px]">
-                  <thead className="bg-muted text-muted-foreground font-bold uppercase tracking-wider">
-                    <tr>
-                      <th className="px-2 py-1.5">Chỉ số</th>
-                      <th className="px-2 py-1.5 text-center">Kết quả</th>
-                      <th className="px-2 py-1.5 text-center">Bình thường</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scanGeneralIndices.map((idxItem, idx) => (
-                      <tr key={idx} className="border-t border-border">
-                        <td className="px-2 py-1.5 font-bold text-foreground">{idxItem.name}</td>
-                        <td className="px-2 py-1.5 text-center">
-                          <span className={`px-1.5 py-0.5 rounded ${idxItem.status === "high" ? "bg-destructive/10 text-destructive" : idxItem.status === "low" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"} font-black`}>
-                            {idxItem.value} {idxItem.unit}
-                          </span>
-                        </td>
-                        <td className="px-2 py-1.5 text-center text-zinc-500 font-mono">{idxItem.reference}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-2">
+                {scanGeneralIndices.map((idxItem, idx) => (
+                  <div key={idx} className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
+                    <label className="block space-y-1">
+                      <span className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Tên chỉ số</span>
+                      <input
+                        value={idxItem.name}
+                        onChange={(event) => updateGeneralIndex(idx, "name", event.target.value)}
+                        className="w-full rounded-lg border border-border bg-card px-2.5 py-2 text-[10px] font-bold text-foreground"
+                      />
+                    </label>
+                    <div className="grid grid-cols-[minmax(0,1fr)_minmax(72px,0.65fr)] gap-2">
+                      <label className="block space-y-1">
+                        <span className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Kết quả trên phiếu</span>
+                        <input
+                          value={idxItem.value}
+                          onChange={(event) => updateGeneralIndex(idx, "value", event.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-2.5 py-2 text-[10px] font-bold text-foreground"
+                        />
+                      </label>
+                      <label className="block space-y-1">
+                        <span className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Đơn vị</span>
+                        <input
+                          value={idxItem.unit}
+                          onChange={(event) => updateGeneralIndex(idx, "unit", event.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-2.5 py-2 text-[10px] font-bold text-foreground"
+                        />
+                      </label>
+                    </div>
+                    <label className="block space-y-1">
+                      <span className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Khoảng tham chiếu in trên phiếu</span>
+                      <input
+                        value={idxItem.reference}
+                        onChange={(event) => updateGeneralIndex(idx, "reference", event.target.value)}
+                        className="w-full rounded-lg border border-border bg-card px-2.5 py-2 text-[10px] font-mono text-foreground"
+                      />
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
           ) : (
@@ -413,7 +486,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
               {renderValidityGraph(scanMmpiValidity)}
 
               <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-hide border-t pt-2">
-                <span className="text-[9px] font-black uppercase text-primary tracking-widest block">10 Thang đo lâm sàng</span>
+                <span className="text-[9px] font-black uppercase text-primary tracking-widest block">Các thang điểm trên báo cáo</span>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(scanMmpiClinical).map((scale) => (
                     <div key={scale} className="flex justify-between items-center gap-2 p-1.5 border border-border rounded">
@@ -447,7 +520,7 @@ export default function ClinicScanner({ onScanComplete, onCancel }) {
               onClick={handleSave}
               className="flex-1 py-2 bg-primary text-white hover:bg-primary/90 text-[9.5px] font-black uppercase rounded"
             >
-              Lưu hồ sơ & Trả lời
+              Xác nhận dữ liệu & Lưu
             </button>
           </div>
         </div>

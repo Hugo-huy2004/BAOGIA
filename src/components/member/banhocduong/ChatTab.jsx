@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -8,15 +8,11 @@ import {
   HeartHandshake,
   HeartPulse,
   LockKeyhole,
-  Mic,
-  MicOff,
   MoonStar,
   Smile,
   Sparkles,
   Zap,
-  Volume2,
 } from "lucide-react";
-import confetti from "canvas-confetti";
 import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
@@ -35,28 +31,8 @@ import { useChatEngine } from "./hooks/useChatEngine";
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { computeAdaptivePersona } from "./utils/adaptivePersonaEngine";
 import { findMatchingIntent, removeVietnameseTones } from "./constants/intentClassifier";
-import { DIALOGUE_TREE, COMPANION_DIALOGUE_TREE } from "./constants/chatDialogues";
 import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
 
-// Short-label overrides for dialogue aspect chips (mobile space-saving).
-// Falls back to the full `a.text` from the tree if a key is missing.
-const ASPECT_LABELS = {
-  exam: "Thi cử",
-  breakup: "Chia tay",
-  family: "Gia đình",
-  friends: "Bạn bè",
-  burnout: "Kiệt sức",
-  loneliness: "Cô đơn",
-  anxiety: "Lo âu",
-  depression: "Trầm cảm",
-  self_esteem: "Tự trọng",
-  sleep: "Giấc ngủ",
-  social: "Xã hội",
-  grief: "Mất mát",
-  anger: "Giận dữ",
-  career: "Sự nghiệp",
-  health: "Sức khỏe",
-};
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 import { useJoyStore } from "../../../stores/joyStore";
 
@@ -161,7 +137,7 @@ export default function ChatTab({
   const [unlockingMethodId, setUnlockingMethodId] = useState(null);
   const joyBalance = useJoyStore(s => s.balance);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
-  const { createLocalSafetyReply, shouldAnswerLocally, sanitizeStreamChunk, normalizeFinalResponse } = useChatEngine();
+  const { createLocalSafetyReply, sanitizeStreamChunk, normalizeFinalResponse } = useChatEngine();
   // Pixel height the mobile keyboard overlaps the viewport — lifts the input
   // bar to sit flush above the keyboard (Viber-style) instead of being covered.
   // Standards-track PWA keyboard handling (VirtualKeyboard API): when the
@@ -170,21 +146,12 @@ export default function ChatTab({
   // Elsewhere (iOS Safari) we fall back to the visualViewport transform.
   const hasNativeKeyboard = useVirtualKeyboardOptIn();
   const keyboardInset = useKeyboardInset();
-  // Auto-armed SOS countdown, triggered by the local self-harm detector.
+  // Safety prompt triggered by the local self-harm detector. The siren itself
+  // always requires an explicit user tap.
   const [sosPromptOpen, setSosPromptOpen] = useState(false);
   const [isVentingMode, setIsVentingMode] = useState(false);
-  const [ventingTimerMinutes, setVentingTimerMinutes] = useState(1);
+  const [ventingTimerMinutes] = useState(1);
   const [normalMessagesBackup, setNormalMessagesBackup] = useState([]);
-
-  const glowStyle = `
-    @keyframes candleBreathe {
-      0%, 100% { box-shadow: inset 0 0 40px rgba(251, 146, 60, 0.08); background-color: rgba(251, 146, 60, 0.03); }
-      50% { box-shadow: inset 0 0 80px rgba(251, 146, 60, 0.16); background-color: rgba(251, 146, 60, 0.06); }
-    }
-    .candle-glow-bg {
-      animation: candleBreathe 4s ease-in-out infinite;
-    }
-  `;
 
   const toggleVentingMode = () => {
     if (!isVentingMode) {
@@ -194,7 +161,7 @@ export default function ChatTab({
         {
           id: `venting-greet-${Date.now()}`,
           sender: "bot",
-          text: "🕯️ Cậu đang bước vào **Không gian Trút Bầu Tâm Sự An Toàn**. Tại đây, mọi tin nhắn gửi đi sẽ tự hủy sau thời gian đã chọn và hoàn toàn **không lưu lại bất cứ dấu vết nào** trong cơ sở dữ liệu hay bộ nhớ thiết bị. Hãy thoải mái trút bỏ mọi muộn phiền nhé.",
+          text: "🕯️ Cậu đang bước vào **Không gian Tâm Sự Tạm Thời**. Tin nhắn trong chế độ này không được thêm vào lịch sử HugoPSY trên thiết bị hay tài khoản. Nội dung vẫn được xử lý tạm thời để tạo phản hồi và sẽ biến mất khỏi màn hình sau thời gian cậu chọn.",
           time: new Date(),
           timeLeft: ventingTimerMinutes * 60
         }
@@ -738,23 +705,21 @@ export default function ChatTab({
   }, [historyLogs, healingActive, onUpdateCompanionState, bio]);
 
   const handleStartTest = useCallback((testId) => {
+    if (["mmpi30", "dass42"].includes(testId)) {
+      const message = testId === "dass42"
+        ? "DASS-21 không mở cho người dùng tự làm trong HugoPSY. Khuyến nghị chính thức không cho phép ứng dụng công khai tự diễn giải kết quả này."
+        : "Bài sàng lọc 30 câu đang được hiệu chỉnh và tạm thời chưa mở để tránh trả kết quả thiếu căn cứ.";
+      showToast?.(message, "info");
+      return;
+    }
     const baseTest = CLINICAL_TESTS[testId];
     if (!baseTest) return;
 
-    // Sample a random variant for each question index
-    let randomizedQuestions = [];
-    if (baseTest.questionPool) {
-      randomizedQuestions = baseTest.questionPool.map((variants) => {
-        const idx = Math.floor(Math.random() * variants.length);
-        return variants[idx];
-      });
-    } else {
-      randomizedQuestions = [...baseTest.questions];
-    }
-
     const testInstance = {
       ...baseTest,
-      questions: randomizedQuestions
+      // Validated screeners must keep the same wording and order every time.
+      // Random paraphrases make scores between sessions non-comparable.
+      questions: [...baseTest.questions]
     };
 
     setShowTestsMenu(false);
@@ -772,7 +737,7 @@ export default function ChatTab({
     setTimeout(() => {
       setLoading(false);
     }, 600);
-  }, []);
+  }, [showToast]);
 
 
 
@@ -787,45 +752,13 @@ export default function ChatTab({
   };
 
   const handleTestCompleteInner = async (testId, score, answers) => {
-    // If DASS-42 or the 30-item personality screener, calculate scores and route to handleScanComplete
-    if (testId === "dass42") {
-      let d = 0, a = 0, s = 0;
-      const types = ["S","A","D","A","S","S","A","D","A","D","S","S","A","A","D","D","S","S","A","D","D"];
-      answers.forEach((val, i) => {
-        if (types[i] === "D") d += val * 2;
-        else if (types[i] === "A") a += val * 2;
-        else if (types[i] === "S") s += val * 2;
-      });
-      
-      const resultLog = {
-        date: new Date().toISOString(),
-        type: "clinical_test",
-        test: "dass42",
-        scores: { D: d, A: a, S: s }
-      };
-      
-      await handleScanComplete("dass", resultLog);
-      return;
-    }
-
-    if (testId === "mmpi30") {
-      const validity = { L: 50, F: 50, K: 50 };
-      const clinical = [
-        { code: "Hs", score: 50 }, { code: "D", score: 50 }, { code: "Hy", score: 50 },
-        { code: "Pd", score: 50 }, { code: "Mf", score: 50 }, { code: "Pa", score: 50 },
-        { code: "Pt", score: 50 }, { code: "Sc", score: 50 }, { code: "Ma", score: 50 },
-        { code: "Si", score: 50 }
-      ];
-      const resultLog = {
-        date: new Date().toISOString(),
-        type: "clinical_test",
-        test: "mmpi30",
-        validity,
-        clinical,
-        isReliable: true
-      };
-      await handleScanComplete("mmpi", resultLog);
-      return;
+    const phq9SafetyFlag = testId === "phq9" && Number(answers?.[8]) > 0;
+    if (phq9SafetyFlag) {
+      setSosPromptOpen(true);
+      reportCrisisToAdmin(
+        `PHQ-9 item 9 response level ${Number(answers[8])}`,
+        messages
+      );
     }
 
     setLoading(true);
@@ -833,41 +766,12 @@ export default function ChatTab({
     let reviewText = "";
     let eventLog = null;
 
-    // Numeric-severity gate: PHQ-9/GAD-7 minimal scores and WHO-5 "good"
-    // scores already have a complete, accurate canned interpretation (see
-    // clinicalTests.js) — there's nothing nuanced an LLM call adds for a
-    // clean result, so skip the network/token cost entirely for those tiers.
-    // Only escalate to the LLM when the score actually signals something
-    // worth a more personalized response (mild-or-above distress, or low
-    // wellbeing on WHO-5). Big Five has no risk tiers, so it always benefits
-    // from the richer LLM phrasing.
-    const needsAiForScore = (id, scoreVal) => {
-      if (id === "phq9" || id === "gad7") return scoreVal > 4;
-      if (id === "who5") return scoreVal * 4 < 50;
-      return true;
-    };
-
-    // Call Python AI backend for analysis — only when the numeric gate above
-    // says the result is worth the extra round-trip.
-    let aiAnalysis = null;
-    try {
-      if (testId === "phq9" && needsAiForScore("phq9", score)) {
-        aiAnalysis = await botManager.aiBot.analyzeTest("phq9", { score }, null, null, "vi");
-      } else if (testId === "gad7" && needsAiForScore("gad7", score)) {
-        aiAnalysis = await botManager.aiBot.analyzeTest("gad7", { score }, null, null, "vi");
-      } else if (testId === "who5" && needsAiForScore("who5", score)) {
-        aiAnalysis = await botManager.aiBot.analyzeTest("who5", { score }, null, null, "vi");
-      } else if (testId === "bigfive") {
-        const interpretation = CLINICAL_TESTS.bigfive.getInterpretation(answers);
-        aiAnalysis = await botManager.aiBot.analyzeTest("bigfive", { traits: interpretation }, null, null, "vi");
-      }
-    } catch (err) {
-      console.warn("Lỗi gọi AI phân tích bài test:", err);
-    }
-
     if (testId === "phq9") {
       const interpretation = CLINICAL_TESTS.phq9.getInterpretation(score);
-      reviewText = aiAnalysis || `Tớ đã hoàn thành phân tích rồi. Kết quả đánh giá Trầm cảm PHQ-9 của cậu đạt ${score}/27 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
+      reviewText = `Kết quả sàng lọc PHQ-9 của cậu là ${score}/27 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
+      if (phq9SafetyFlag) {
+        reviewText += "\n\nVì câu trả lời liên quan đến an toàn cá nhân lớn hơn 0, HugoPSY đang ưu tiên hiển thị các lựa chọn hỗ trợ. Điều này không có nghĩa hệ thống đã kết luận cậu đang gặp nguy hiểm tức thời.";
+      }
       
       eventLog = {
         date: new Date().toISOString(),
@@ -877,7 +781,7 @@ export default function ChatTab({
       };
     } else if (testId === "gad7") {
       const interpretation = CLINICAL_TESTS.gad7.getInterpretation(score);
-      reviewText = aiAnalysis || `Tớ đã phân tích xong rồi. Kết quả đánh giá Lo âu GAD-7 của cậu là ${score}/21 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
+      reviewText = `Kết quả sàng lọc GAD-7 của cậu là ${score}/21 điểm (${interpretation.severity}).\n\n${interpretation.desc}`;
       
       eventLog = {
         date: new Date().toISOString(),
@@ -887,7 +791,7 @@ export default function ChatTab({
       };
     } else if (testId === "who5") {
       const interpretation = CLINICAL_TESTS.who5.getInterpretation(score);
-      reviewText = aiAnalysis || `Đã có kết quả phân tích rồi nè. Chỉ số trạng thái hạnh phúc WHO-5 của cậu đạt ${score}/25 điểm (${interpretation.status}).\n\n${interpretation.desc}`;
+      reviewText = `Kết quả WHO-5 của cậu là ${score}/25 điểm (${score * 4}/100 sau quy đổi).\n\n${interpretation.desc}`;
       
       eventLog = {
         date: new Date().toISOString(),
@@ -898,10 +802,10 @@ export default function ChatTab({
       };
     } else if (testId === "bigfive") {
       const interpretation = CLINICAL_TESTS.bigfive.getInterpretation(answers);
-      reviewText = aiAnalysis || `Biểu đồ năm nhân tố tính cách Big Five của cậu đã hoàn thành rồi:\n${interpretation.desc}\n\nTớ đã cập nhật các bài tập tự chữa lành thích ứng ở phần Trị Liệu để cậu rèn luyện hằng ngày nhé.`;
+      reviewText = `Bản tự nhìn nhận Big Five của cậu đã hoàn thành:\n${interpretation.desc}\n\nKết quả chỉ phản ánh câu trả lời hiện tại và không đánh giá sức khỏe tinh thần. Cậu có thể dùng nó như một gợi ý tự quan sát, không phải nhãn tính cách cố định.`;
       eventLog = {
         date: new Date().toISOString(),
-        type: "clinical_test",
+        type: "self_reflection",
         test: "bigfive",
         traits: {
           extraversion: parseFloat(interpretation.extraversion),
@@ -938,310 +842,71 @@ export default function ChatTab({
     let newMsgs = [botReviewMsg];
 
     if (["phq9", "gad7", "who5"].includes(testId)) {
-      let days = 14;
-      let name = "Hành trình Chăm sóc Tinh thần (Mindfulness)";
-
-      if (testId === "phq9") {
-        if (score >= 20) { days = 90; name = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
-        else if (score >= 15) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-        else if (score >= 10) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
-        else if (score >= 5) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-        else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
-      } else if (testId === "gad7") {
-        if (score >= 15) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-        else if (score >= 10) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
-        else if (score >= 5) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-        else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
-      } else if (testId === "who5") {
-        if (score <= 8) { days = 50; name = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-        else if (score <= 12) { days = 30; name = "Hành trình Tái tạo Cân bằng (Balance)"; }
-        else if (score <= 17) { days = 14; name = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-        else { days = 7; name = "Hành trình Nuôi dưỡng Bình yên (Peace)"; }
-      }
-
-      // Check if this test score is worse than the previous test result of the same type
-      const pastTests = historyLogs.filter(log => (log.test === testId || (testId === "who5" && log.type === "clinical_test" && log.test === "who5")));
-      let isWorse = false;
-      let isImproved = false;
-      let diffVal = 0;
-      if (pastTests.length > 0) {
-        const lastPast = pastTests[pastTests.length - 1];
-        const lastScore = lastPast.score;
-        if (testId === "who5") {
-          // For WHO-5, lower score is worse
-          if (score < lastScore) {
-            isWorse = true;
-            diffVal = lastScore - score;
-          } else if (score > lastScore) {
-            isImproved = true;
-            diffVal = score - lastScore;
-          }
-        } else {
-          // For PHQ-9 and GAD-7, higher score is worse
-          if (score > lastScore) {
-            isWorse = true;
-            diffVal = score - lastScore;
-          } else if (score < lastScore) {
-            isImproved = true;
-            diffVal = lastScore - score;
-          }
-        }
-      } else {
-        // Fallback: If no past tests, compare current recommended package days with active duration
-        const healingDurationVal = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
-        if (days > healingDurationVal) {
-          isWorse = true;
-          diffVal = Math.ceil((days - healingDurationVal) / 10) || 1;
-        } else if (days < healingDurationVal) {
-          isImproved = true;
-          diffVal = Math.ceil((healingDurationVal - days) / 10) || 1;
-        }
-      }
-
-      if (healingActive) {
-        // If already active, we adjust relative to the remaining duration rather than resetting from scratch
-        const healingStartDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
-        const healingDurationVal = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
-        let progressDays = 1;
-        if (healingStartDateStr) {
-          const start = new Date(healingStartDateStr).getTime();
-          const now = new Date().getTime();
-          progressDays = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
-        }
-        const remainingDays = Math.max(0, healingDurationVal - progressDays);
-
-        if (progressDays >= healingDurationVal) {
-          // Exceeded current duration (e.g. Day 57 of a 50-day journey)
-          if (isImproved || days <= 14) {
-            // Suggest graduation!
-            confetti({
-              particleCount: 150,
-              spread: 80,
-              origin: { y: 0.6 },
-              colors: ['#34d399', '#f472b6', '#38bdf8']
-            });
-            const graduationMsg = {
-              id: `bot-graduation-${Date.now() + 5}`,
-              sender: "bot",
-              text: `🎉 **Ghi nhận Tiến trình Phục hồi Tuyệt vời**: Chỉ số tái đánh giá ${testId.toUpperCase()} cho thấy sức khỏe tinh thần của cậu chuyển biến rất tốt và đã ổn định trở lại! \n\nCậu đã kiên trì vượt qua **${progressDays} ngày** của lộ trình tự chữa lành một cách xuất sắc. Tớ rất tự hào về cậu! Cậu hoàn toàn đã sẵn sàng để **tốt nghiệp lộ trình đồng hành** này rồi nhé. Cậu hãy bấm sang tab **Trị Liệu** hoặc **Hồ Sơ** để thực hiện tốt nghiệp nha! 🌸`,
-              time: new Date(Date.now() + 5)
-            };
-            newMsgs.push(graduationMsg);
-          } else {
-            // Suggest extension
-            const extendDays = days;
-            const finalRecommendedDuration = healingDurationVal + extendDays;
-            const extensionMsg = {
-              id: `bot-extend-${Date.now() + 5}`,
-              sender: "bot",
-              text: `📊 **Tái đánh giá Tinh thần**: Cậu đã đi qua **${progressDays} ngày** của lộ trình, nhưng kết quả test ${testId.toUpperCase()} lần này ghi nhận cậu vẫn còn gặp khá nhiều lo âu/mệt mỏi (${score} điểm). \n\nĐể tiếp tục nâng đỡ và hỗ trợ tinh thần cậu tốt nhất mà **không làm mất đi ${progressDays} ngày cậu đã kiên trì qua**, tớ đề xuất mở rộng thêm **+${extendDays} ngày** hỗ trợ (Tổng lộ trình nâng lên **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + extendDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
-              time: new Date(Date.now() + 5),
-              isCompanionSetup: true,
-              recommendedDays: finalRecommendedDuration
-            };
-            newMsgs.push(extensionMsg);
-          }
-        } else {
-          // Within active journey
-          if (isWorse) {
-            // Calculate dynamically how many additional days of recovery support are needed depending on symptom surge
-            let addDays = 7;
-            if (testId === "phq9" && diffVal >= 5) addDays = 14;
-            if (testId === "gad7" && diffVal >= 4) addDays = 14;
-            if (testId === "who5" && diffVal >= 3) addDays = 10;
-            if (pastTests.length === 0) addDays = Math.max(7, days - healingDurationVal);
-
-            const finalRecommendedDuration = healingDurationVal + addDays;
-            const worseningMsg = {
-              id: `bot-worsening-${Date.now() + 5}`,
-              sender: "bot",
-              text: `📊 **Tái đánh giá Thích ứng**: Kết quả trắc nghiệm ${testId.toUpperCase()} ghi nhận chỉ số chuyển biến chưa thuận lợi (tăng ${diffVal} điểm so với lần trước). \n\nĐể hỗ trợ cậu vượt qua giai đoạn nhạy cảm này mà **không làm gián đoạn hay bác bỏ hành trình ${progressDays} ngày cậu đã cố gắng qua**, tớ đề xuất giữ nguyên tiến trình cũ và bổ sung thêm **+${addDays} ngày** hỗ trợ đặc biệt (Nâng tổng lộ trình thành **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + addDays} ngày** phía trước). Cậu có đồng ý áp dụng đề xuất này để tớ tiếp tục bên cạnh che chở cậu không?`,
-              time: new Date(Date.now() + 5),
-              isCompanionSetup: true,
-              recommendedDays: finalRecommendedDuration
-            };
-            newMsgs.push(worseningMsg);
-          } else if (isImproved) {
-            // If there is progress/improvement, check if we can reduce remaining days slightly to motivate, while keeping the journey intact
-            let reduceDays = 0;
-            if (pastTests.length > 0) {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, diffVal * 2));
-            } else {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, Math.floor((healingDurationVal - days) / 2)));
-            }
-
-            if (reduceDays > 0 && remainingDays > 3) {
-              const finalRecommendedDuration = Math.max(progressDays + 3, healingDurationVal - reduceDays);
-              const progressMsg = {
-                id: `bot-improvement-${Date.now() + 5}`,
-                sender: "bot",
-                text: `🎉 **Ghi nhận Tiến trình Tuyệt vời**: Chỉ số tái đánh giá tinh thần của cậu chuyển biến rất khả quan! Dưới góc nhìn khoa học hành vi, các hoạt động chánh niệm trị liệu đang thích ứng và phát huy tác dụng tích lũy lên trường năng lượng nội tại.\n\nĐể khích lệ và tối ưu lộ trình **dựa trên số liệu khoa học thực tế**, tớ đề xuất rút ngắn thời gian điều trị còn lại đi **-${reduceDays} ngày** (Tổng lộ trình đồng hành rút xuống **${finalRecommendedDuration} ngày**, cậu còn lại **${remainingDays - reduceDays} ngày** và giữ nguyên tiến trình đã tích lũy). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
-                time: new Date(Date.now() + 5),
-                isCompanionSetup: true,
-                recommendedDays: finalRecommendedDuration
-              };
-              newMsgs.push(progressMsg);
-            } else {
-              // Stable
-              const stayMsg = {
-                id: `bot-proposal-${Date.now() + 10}`,
-                sender: "bot",
-                text: `Kết quả đánh giá định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
-                time: new Date(Date.now() + 10)
-              };
-              newMsgs.push(stayMsg);
-            }
-          } else {
-            // Stable
-            const stayMsg = {
-              id: `bot-proposal-${Date.now() + 10}`,
-              sender: "bot",
-              text: `Kết quả đánh giá định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
-              time: new Date(Date.now() + 10)
-            };
-            newMsgs.push(stayMsg);
-          }
-        }
-      } else {
-        // Normal setup proposal for new journeys
-        const proposalMsg = {
-          id: `bot-proposal-${Date.now() + 10}`,
-          sender: "bot",
-          text: `Dựa trên kết quả đánh giá ${testId.toUpperCase()} vừa rồi, tớ khuyên cậu nên kích hoạt **${name}** với thời gian **${days} ngày** để tớ đồng hành chăm sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-          time: new Date(Date.now() + 10),
-          isCompanionSetup: true,
-          recommendedDays: days
-        };
-        newMsgs.push(proposalMsg);
-      }
-    } else {
+      const suggestsFurtherAssessment =
+        (testId === "phq9" && score >= 10) ||
+        (testId === "gad7" && score >= 10) ||
+        (testId === "who5" && score < 13);
+      const nextStepText = phq9SafetyFlag
+        ? "HugoPSY sẽ không tự điều chỉnh “thời gian điều trị” từ một bài sàng lọc. Hãy dùng bảng an toàn đang hiển thị và ưu tiên kết nối với người đáng tin cậy hoặc chuyên gia đủ chuyên môn."
+        : suggestsFurtherAssessment
+          ? "Kết quả đã được lưu để theo dõi xu hướng. Vì điểm số chạm ngưỡng gợi ý đánh giá thêm, cậu nên trao đổi với chuyên gia đủ chuyên môn nếu triệu chứng kéo dài hoặc ảnh hưởng sinh hoạt."
+          : "Kết quả đã được lưu để theo dõi xu hướng. HugoPSY không tự suy ra chẩn đoán hoặc thay đổi thời gian chăm sóc chỉ từ một lần sàng lọc.";
+      newMsgs.push({
+        id: `bot-next-step-${Date.now() + 5}`,
+        sender: "bot",
+        text: nextStepText,
+        time: new Date(Date.now() + 5)
+      });
+      setMessages((prev) => [...prev, ...newMsgs]);
+      setChatMode("normal");
+      setActiveTest(null);
+      setLoading(false);
+      return;
     }
 
     setMessages((prev) => [...prev, ...newMsgs]);
     setChatMode("normal");
     setActiveTest(null);
+    setLoading(false);
   };
 
-  const handleScanComplete = async (testType, resultLog) => {
+  const handleScanComplete = (testType, resultLog) => {
     setLoading(true);
 
-    let aiAnalysis = null;
-    try {
-      if (testType === "dass") {
-        aiAnalysis = await botManager.aiBot.analyzeTest("dass42", resultLog.scores, null, null, "vi");
-      } else if (testType === "general_medical") {
-        aiAnalysis = await botManager.aiBot.analyzeTest("general_medical", resultLog.indices, null, null, "vi");
-      } else {
-        aiAnalysis = await botManager.aiBot.analyzeTest("mmpi30", null, resultLog.validity, resultLog.clinical, "vi");
-      }
-    } catch (err) {
-      console.warn("Lỗi gọi AI phân tích kết quả quét bệnh án:", err);
-    }
-
+    const safeText = (value, fallback = "Không có dữ liệu") => {
+      if (value === null || value === undefined || value === "") return fallback;
+      return String(value).replace(/[\r\n|]/g, " ").trim().slice(0, 100) || fallback;
+    };
     let responseMsgText = "";
     if (testType === "dass") {
-      if (aiAnalysis) {
-        responseMsgText = aiAnalysis;
-      } else {
-        const getDassInterpret = (scale, score) => {
-          if (scale === "D") {
-            if (score <= 9) return "Bình thường";
-            if (score <= 13) return "Nhẹ";
-            if (score <= 20) return "Vừa phải";
-            if (score <= 27) return "Nặng";
-            return "Rất nặng";
-          }
-          if (scale === "A") {
-            if (score <= 7) return "Bình thường";
-            if (score <= 9) return "Nhẹ";
-            if (score <= 14) return "Vừa phải";
-            if (score <= 19) return "Nặng";
-            return "Rất nặng";
-          }
-          if (score <= 14) return "Bình thường";
-          if (score <= 18) return "Nhẹ";
-          if (score <= 25) return "Vừa phải";
-          if (score <= 33) return "Nặng";
-          return "Rất nặng";
-        };
-
-        const dSev = getDassInterpret("D", resultLog.scores?.D ?? 0);
-        const aSev = getDassInterpret("A", resultLog.scores?.A ?? 0);
-        const sSev = getDassInterpret("S", resultLog.scores?.S ?? 0);
-
-        let solutions = [];
-        if ((resultLog.scores?.D ?? 0) >= 10) {
-          solutions.push(`Thực hành liệu pháp **Trị liệu Trầm cảm (CBT)** để xoa dịu u uất.`);
-        }
-        if (resultLog.scores.A >= 8) {
-          solutions.push(`Tập thở chánh niệm **Điều hòa nhịp thở 4-7-8** để cắt lo âu tức thì.`);
-        }
-        if (resultLog.scores.S >= 15) {
-          solutions.push(`Dành 10-15 phút **Ngồi Tĩnh Tâm** trước khi ngủ để thư giãn sóng não.`);
-        }
-        if (solutions.length === 0) {
-          solutions.push(`Các chỉ số tốt. Hãy rèn luyện thể chất và trải nghiệm **Đọc sách Trị liệu**.`);
-        }
-
-        responseMsgText = `Tớ đã phân tích kết quả DASS-42 lâm sàng trích xuất từ hồ sơ phòng khám của cậu:\n\n` +
-          `• **Trầm cảm (D):** ${resultLog.scores?.D ?? 0}/42 điểm (${dSev})\n` +
-          `• **Lo âu (A):** ${resultLog.scores?.A ?? 0}/42 điểm (${aSev})\n` +
-          `• **Căng thẳng (S):** ${resultLog.scores?.S ?? 0}/42 điểm (${sSev})\n\n` +
-          `💡 **Giải pháp & Lộ trình đề xuất:**\n• ${solutions.join("\n• ")}`;
-      }
+      responseMsgText = `HugoPSY đã lưu các giá trị được cậu kiểm tra lại từ hồ sơ DASS:\n\n` +
+        `• **D:** ${safeText(resultLog.scores?.D)}\n` +
+        `• **A:** ${safeText(resultLog.scores?.A)}\n` +
+        `• **S:** ${safeText(resultLog.scores?.S)}\n\n` +
+        "Ứng dụng không tự gắn mức độ, chẩn đoán hoặc thay đổi lộ trình từ các điểm này. Hãy đối chiếu với báo cáo gốc và trao đổi với người có chuyên môn đã thực hiện đánh giá.";
     } else if (testType === "general_medical") {
-      if (aiAnalysis) {
-        responseMsgText = aiAnalysis;
-      } else {
-        responseMsgText = `Tớ đã xem xét kết quả xét nghiệm tổng quát của cậu. Có tổng cộng ${resultLog.indices.length} chỉ số được ghi nhận.\n` +
-        `Một số chỉ số cần lưu ý: ${resultLog.indices.filter(i => i.status !== "normal").map(i => i.name).join(", ") || "Tất cả đều ổn định"}.\n` +
-        `Để biết chi tiết hơn, cậu có thể gửi lại hoặc nhờ bác sĩ tư vấn thêm nhé!`;
-      }
+      const indices = Array.isArray(resultLog.indices) ? resultLog.indices : [];
+      const rows = indices.map((item) => {
+        const unit = item?.unit ? ` ${safeText(item.unit, "")}` : "";
+        const reference = item?.reference ? ` · khoảng trên phiếu: ${safeText(item.reference, "")}` : "";
+        return `• **${safeText(item?.name, "Chỉ số")}**: ${safeText(item?.value)}${unit}${reference}`;
+      });
+      responseMsgText = `HugoPSY đã lưu **${indices.length} chỉ số** sau khi cậu xác nhận:\n\n` +
+        `${rows.join("\n")}\n\n` +
+        "Đây là dữ liệu được chép lại bằng OCR, không phải nhận định y khoa. Ứng dụng không tự kết luận “cao/thấp/bình thường” và không thay đổi lộ trình; hãy đối chiếu báo cáo gốc hoặc trao đổi với cơ sở xét nghiệm.";
     } else {
-      if (aiAnalysis) {
-        responseMsgText = aiAnalysis;
-      } else {
-        const scaleNames = { 
-          Hs: "Nghi bệnh", D: "Trầm cảm", Hy: "Hysteria", Pd: "Sai lệch nhân cách", 
-          Mf: "Nam/Nữ tính", Pa: "Hoang tưởng", Pt: "Suy nhược", 
-          Sc: "Tâm thần phân liệt", Ma: "Hưng cảm nhẹ", Si: "Hướng ngoại xã hội" 
-        };
-
-        const validity = resultLog.validity;
-        const clinical = resultLog.clinical;
-        const elevated = clinical.filter(c => c.score >= 70);
-
-        let solutions = [];
-        if (elevated.length > 0) {
-          elevated.forEach(e => {
-            if (e.code === "Hs" || e.code === "Hy") {
-              solutions.push(`Thang **${scaleNames[e.code]}** cao: Áp lực chuyển hóa thể chất. Hãy tập **Thở 4-7-8** để làm dịu.`);
-            } else if (e.code === "D") {
-              solutions.push(`Thang **Trầm cảm (D)** cao: Hãy viết nhật ký tích cực trong thẻ **Trị liệu Trầm cảm (CBT)**.`);
-            } else if (e.code === "Pd") {
-              solutions.push(`Thang **Sai lệch (Pd)** cao: Hãy ghi lại nhật ký cảm xúc để kiềm chế xung động.`);
-            } else if (e.code === "Pt" || e.code === "Sc") {
-              solutions.push(`Thang **${scaleNames[e.code]}** cao: Thường lo âu ám ảnh. Hãy rèn luyện thẻ **Ngồi Tĩnh Tâm**.`);
-            } else if (e.code === "Si") {
-              solutions.push(`Thang **Hướng nội (Si)** cao: Thiếu năng lượng xã hội. Hãy tham khảo **Đọc sách Trị liệu** tĩnh lặng.`);
-            } else {
-              solutions.push(`Thang **${scaleNames[e.code]}** cao: Thực hành các bài tập chánh niệm để tái tạo cân bằng.`);
-            }
-          });
-        } else {
-          solutions.push(`Các chỉ số nhân cách thích ứng tốt. Đề xuất thực hành **Đọc sách Trị liệu**.`);
-        }
-
-        responseMsgText = `Tớ đã hoàn tất trích xuất và phân tích 13 chỉ số nhân cách tham khảo từ bệnh án phòng khám của cậu:\n\n` +
-          `🔍 **Chỉ số kiểm định độ tin cậy (L-F-K):**\n` +
-          `• L (Lie/Nói dối): **${validity.L} T-score** (${validity.L >= 70 ? "Vượt ngưỡng" : "Bình thường"})\n` +
-          `• F (Infrequency/Dị biệt): **${validity.F} T-score** (${validity.F >= 80 ? "Cảnh báo" : "Bình thường"})\n` +
-          `• K (Correction/Phòng vệ): **${validity.K} T-score** (${validity.K >= 70 ? "Vượt ngưỡng" : "Bình thường"})\n` +
-          `• Đánh giá chung: **${resultLog.isReliable ? "Báo cáo hợp lệ" : "Báo cáo có độ tin cậy thấp"}**\n\n` +
-          `📊 **Kết quả 10 Thang đo Lâm sàng:**\n` +
-          clinical.map(c => `• ${scaleNames[c.code] || c.code}: **${c.score} T-score** ${c.score >= 70 ? "⚠️" : ""}`).join("\n") + `\n\n` +
-          `💡 **Giải pháp tự chữa lành thích ứng:**\n• ${solutions.join("\n• ")}`;
-      }
+      const validity = resultLog.validity || {};
+      const clinical = Array.isArray(resultLog.clinical) ? resultLog.clinical : [];
+      const validityRows = ["L", "F", "K"]
+        .map((code) => `• **${code}:** ${safeText(validity[code])} T-score`)
+        .join("\n");
+      const clinicalRows = clinical
+        .map((item) => `• **${safeText(item?.code, "Thang")}:** ${safeText(item?.score)} T-score`)
+        .join("\n");
+      responseMsgText = `HugoPSY đã lưu các T-score được cậu kiểm tra lại từ báo cáo:\n\n` +
+        `**L–F–K**\n${validityRows}\n\n` +
+        `**Các thang trên báo cáo**\n${clinicalRows || "Không có dữ liệu"}\n\n` +
+        "Tên mã và điểm số được giữ nguyên như tài liệu. HugoPSY không tự xác nhận độ tin cậy, gắn nhãn bệnh, đề xuất điều trị hoặc diễn giải MMPI; việc này cần người được đào tạo và có đầy đủ bối cảnh đánh giá.";
     }
 
     const updatedLogs = [...historyLogs, resultLog];
@@ -1250,7 +915,6 @@ export default function ChatTab({
       [resultLog.test || testType]: resultLog.scores ?? resultLog.clinical ?? resultLog.score
     };
     onUpdateCompanionState({
-      lastTestDate: new Date().toDateString(),
       historyLogs: updatedLogs,
       testScores: updatedTestScores
     });
@@ -1263,214 +927,13 @@ export default function ChatTab({
       time: new Date()
     };
 
-    // Calculate recommended days based on scan metrics
-    let recommendedDays = 7;
-    let pkgName = "Hành trình Nuôi dưỡng Bình yên (Peace)";
-    if (testType === "dass") {
-      const { D, A, S } = resultLog.scores;
-      if (D >= 28) { recommendedDays = 90; pkgName = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
-      else if (D >= 21 || A >= 20 || S >= 26) { recommendedDays = 50; pkgName = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-      else if (D >= 14 || A >= 10 || S >= 19) { recommendedDays = 30; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
-      else if (D >= 10 || A >= 8 || S >= 15) { recommendedDays = 14; pkgName = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-    } else if (testType === "general_medical") {
-      const abnormalCount = resultLog.indices.filter(i => i.status !== "normal").length;
-      if (abnormalCount >= 5) { recommendedDays = 30; pkgName = "Hành trình Chăm sóc Sức khỏe Chuyên sâu (Intensive)"; }
-      else if (abnormalCount >= 2) { recommendedDays = 14; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
-      else { recommendedDays = 7; pkgName = "Hành trình Nuôi dưỡng Sức khỏe (Wellness)"; }
-    } else {
-      const elevatedCount = resultLog.clinical.filter(c => c.score >= 70).length;
-      if (elevatedCount >= 5) { recommendedDays = 90; pkgName = "Hành trình Đồng hành Chuyên sâu (Intensive)"; }
-      else if (elevatedCount >= 3) { recommendedDays = 50; pkgName = "Hành trình Phục hồi Thấu cảm (Compassionate)"; }
-      else if (elevatedCount >= 1) { recommendedDays = 30; pkgName = "Hành trình Tái tạo Cân bằng (Balance)"; }
-      else if (!resultLog.isReliable) { recommendedDays = 14; pkgName = "Hành trình Chăm sóc Tinh thần (Mindfulness)"; }
-    }
-
-    let proposalMsg = null;
-
-    if (healingActive) {
-      const healingStartDateStr = localStorage.getItem("banhocduong_healing_start_date") || "";
-      const healingDurationVal = parseInt(localStorage.getItem("banhocduong_healing_duration") || "30", 10);
-      let progressDays = 1;
-      if (healingStartDateStr) {
-        const start = new Date(healingStartDateStr).getTime();
-        const now = new Date().getTime();
-        progressDays = Math.max(1, Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1);
-      }
-      const remainingDays = Math.max(0, healingDurationVal - progressDays);
-
-      // Compare new scan with the previous test logs of same type
-      let isWorse = false;
-      let isImproved = false;
-      let diffVal = 0;
-      if (testType === "dass") {
-        const pastDass = historyLogs.filter(l => l.scores);
-        if (pastDass.length > 0) {
-          const lastPast = pastDass[pastDass.length - 1];
-          const newSum = (resultLog.scores?.D ?? 0) + (resultLog.scores?.A ?? 0) + (resultLog.scores?.S ?? 0);
-          const prevSum = (lastPast.scores?.D ?? 0) + (lastPast.scores?.A ?? 0) + (lastPast.scores?.S ?? 0);
-          if (newSum > prevSum) {
-            isWorse = true;
-            diffVal = newSum - prevSum;
-          } else if (newSum < prevSum) {
-            isImproved = true;
-            diffVal = prevSum - newSum;
-          }
-        } else {
-          if (recommendedDays > healingDurationVal) {
-            isWorse = true;
-            diffVal = Math.ceil((recommendedDays - healingDurationVal) / 10) || 1;
-          } else if (recommendedDays < healingDurationVal) {
-            isImproved = true;
-            diffVal = Math.ceil((healingDurationVal - recommendedDays) / 10) || 1;
-          }
-        }
-      } else if (testType === "general_medical") {
-        const pastMed = historyLogs.filter(l => l.indices);
-        if (pastMed.length > 0) {
-          const lastPast = pastMed[pastMed.length - 1];
-          const newAbnormal = resultLog.indices.filter(c => c.status !== "normal").length;
-          const prevAbnormal = lastPast.indices.filter(c => c.status !== "normal").length;
-          if (newAbnormal > prevAbnormal) {
-            isWorse = true;
-            diffVal = newAbnormal - prevAbnormal;
-          } else if (newAbnormal < prevAbnormal) {
-            isImproved = true;
-            diffVal = prevAbnormal - newAbnormal;
-          }
-        } else {
-          if (recommendedDays > healingDurationVal) {
-            isWorse = true;
-            diffVal = Math.ceil((recommendedDays - healingDurationVal) / 10) || 1;
-          } else if (recommendedDays < healingDurationVal) {
-            isImproved = true;
-            diffVal = Math.ceil((healingDurationVal - recommendedDays) / 10) || 1;
-          }
-        }
-      } else {
-        const pastMmpi = historyLogs.filter(l => l.clinical);
-        if (pastMmpi.length > 0) {
-          const lastPast = pastMmpi[pastMmpi.length - 1];
-          const newElevated = resultLog.clinical.filter(c => c.score >= 70).length;
-          const prevElevated = lastPast.clinical.filter(c => c.score >= 70).length;
-          if (newElevated > prevElevated) {
-            isWorse = true;
-            diffVal = newElevated - prevElevated;
-          } else if (newElevated < prevElevated) {
-            isImproved = true;
-            diffVal = prevElevated - newElevated;
-          }
-        } else {
-          if (recommendedDays > healingDurationVal) {
-            isWorse = true;
-            diffVal = Math.ceil((recommendedDays - healingDurationVal) / 10) || 1;
-          } else if (recommendedDays < healingDurationVal) {
-            isImproved = true;
-            diffVal = Math.ceil((healingDurationVal - recommendedDays) / 10) || 1;
-          }
-        }
-      }
-
-      if (progressDays >= healingDurationVal) {
-        // Exceeded current duration (e.g. Day 57 of a 50-day journey)
-        if (isImproved || recommendedDays <= 14) {
-          // Suggest graduation!
-          proposalMsg = {
-            id: `bot-graduation-${Date.now() + 10}`,
-            sender: "bot",
-            text: `🎉 **Ghi nhận Tiến trình Phục hồi Tuyệt vời**: Kết quả quét hồ sơ lâm sàng mới nhất cho thấy tình trạng của cậu chuyển biến rất tốt và đã ổn định trở lại! \n\nCậu đã kiên trì vượt qua **${progressDays} ngày** của lộ trình tự chữa lành một cách xuất sắc. Tớ rất tự hào về cậu! Cậu hoàn toàn đã sẵn sàng để **tốt nghiệp lộ trình đồng hành** này rồi nhé. Cậu hãy bấm sang tab **Trị Liệu** hoặc **Hồ Sơ** để thực hiện tốt nghiệp nha! 🌸`,
-            time: new Date(Date.now() + 10)
-          };
-        } else {
-          // Suggest extension
-          const extendDays = recommendedDays;
-          const finalRecommendedDuration = healingDurationVal + extendDays;
-          proposalMsg = {
-            id: `bot-extend-${Date.now() + 10}`,
-            sender: "bot",
-            text: `**Tái đánh giá Tinh thần**: Cậu đã đi qua **${progressDays} ngày** của lộ trình, nhưng kết quả quét hồ sơ lâm sàng lần này ghi nhận cậu vẫn còn gặp một số áp lực lâm sàng. \n\nĐể tiếp tục nâng đỡ và hỗ trợ tinh thần cậu tốt nhất mà **không làm mất đi ${progressDays} ngày cậu đã kiên trì qua**, tớ đề xuất mở rộng thêm **+${extendDays} ngày** hỗ trợ (Tổng lộ trình nâng lên **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + extendDays} ngày**). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
-            time: new Date(Date.now() + 10),
-            isCompanionSetup: true,
-            recommendedDays: finalRecommendedDuration
-          };
-        }
-      } else {
-        // Within active journey
-        if (isWorse) {
-          const addDays = testType === "dass" ? Math.min(14, Math.max(7, diffVal)) : Math.min(14, diffVal * 7);
-          const finalRecommendedDuration = healingDurationVal + addDays;
-          
-          proposalMsg = {
-            id: `bot-worsening-${Date.now() + 10}`,
-            sender: "bot",
-            text: `📊 **Tái đánh giá Thích ứng**: Kết quả quét bệnh án mới nhất cho thấy tình trạng của cậu có phần căng thẳng hơn trước (các chỉ số lâm sàng tăng nhẹ). \n\nĐể hỗ trợ cậu vượt qua giai đoạn này mà **không làm mất đi ${progressDays} ngày cậu đã cố gắng trước đó**, tớ đề xuất giữ nguyên tiến trình cũ và bổ sung thêm **+${addDays} ngày** đồng hành hỗ trợ (Nâng tổng lộ trình thành **${finalRecommendedDuration} ngày**, cậu còn **${remainingDays + addDays} ngày** phía trước). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
-            time: new Date(Date.now() + 10),
-            isCompanionSetup: true,
-            recommendedDays: finalRecommendedDuration
-          };
-        } else if (isImproved) {
-          // Improvement
-          let reduceDays = 0;
-          if (testType === "dass") {
-            const pastDass = historyLogs.filter(l => l.scores && l.scores.D !== undefined);
-            if (pastDass.length > 0) {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, diffVal));
-            } else {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, Math.floor((healingDurationVal - recommendedDays) / 2)));
-            }
-          } else {
-            const pastMmpi = historyLogs.filter(l => l.clinical);
-            if (pastMmpi.length > 0) {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, diffVal * 3));
-            } else {
-              reduceDays = Math.min(Math.floor(remainingDays / 2), Math.max(3, Math.floor((healingDurationVal - recommendedDays) / 2)));
-            }
-          }
-
-          if (reduceDays > 0 && remainingDays > 3) {
-            const finalRecommendedDuration = Math.max(progressDays + 3, healingDurationVal - reduceDays);
-            proposalMsg = {
-              id: `bot-improvement-${Date.now() + 10}`,
-              sender: "bot",
-              text: `🎉 **Ghi nhận Tiến trình Tuyệt vời**: Chỉ số tái đánh giá tinh thần qua bệnh án mới quét của cậu chuyển biến rất khả quan! \n\nĐể khích lệ và tối ưu lộ trình **dựa trên số liệu khoa học thực tế**, tớ đề xuất rút ngắn thời gian điều trị còn lại đi **-${reduceDays} ngày** (Tổng lộ trình đồng hành rút xuống **${finalRecommendedDuration} ngày**, cậu còn lại **${remainingDays - reduceDays} ngày** và giữ nguyên tiến trình đã tích lũy). Cậu có đồng ý áp dụng đề xuất thích ứng mới này không?`,
-              time: new Date(Date.now() + 10),
-              isCompanionSetup: true,
-              recommendedDays: finalRecommendedDuration
-            };
-          } else {
-            proposalMsg = {
-              id: `bot-proposal-${Date.now() + 10}`,
-              sender: "bot",
-              text: `Kết quả quét bệnh án định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
-              time: new Date(Date.now() + 10)
-            };
-          }
-        } else {
-          // Stable
-          proposalMsg = {
-            id: `bot-proposal-${Date.now() + 10}`,
-            sender: "bot",
-            text: `Kết quả quét bệnh án định kỳ cho thấy tinh thần của cậu đang duy trì ở mức ổn định. Cậu hãy tiếp tục theo sát lộ trình chăm sóc hiện tại (**${remainingDays} ngày** còn lại trên tổng số **${healingDurationVal} ngày**) nhé!`,
-            time: new Date(Date.now() + 10)
-          };
-        }
-      }
-    } else {
-      // Normal setup proposal for new journeys
-      proposalMsg = {
-        id: `bot-proposal-${Date.now() + 10}`,
-        sender: "bot",
-        text: `Dựa trên kết quả Quét hồ sơ lâm sàng của cậu, tớ khuyên cậu nên kích hoạt **${pkgName}** với thời gian **${recommendedDays} ngày** để tớ đồng hành chăm sóc sức khỏe tinh thần hàng ngày cùng cậu. Cậu có muốn kích hoạt lộ trình này ngay bây giờ không?`,
-        time: new Date(Date.now() + 10),
-        isCompanionSetup: true,
-        recommendedDays: recommendedDays
-      };
-    }
-
-    setMessages((prev) => [...prev, botMsg, ...(proposalMsg ? [proposalMsg] : [])]);
+    setMessages((prev) => [...prev, botMsg]);
     setChatMode("normal");
+    setLoading(false);
+
   };
 
-  // Deploy-time 6-test assessment sweep & 7-day periodic re-assessment prompt for active roadmap users
+  // Periodic self-check prompt for active roadmap users.
   useEffect(() => {
     const isRoadmapActive = healingActive || bio?.healingActive || false;
     if (!isRoadmapActive) return;
@@ -1489,20 +952,18 @@ export default function ChatTab({
 
     const isPeriodicPrompt = periodicCheck.isDue && sessionPrompted;
     const msgText = isPeriodicPrompt
-      ? `⏰ **Tái Đánh Giá Định Kỳ 7 Ngày**: Chào ${friendlyName}! Đã ${periodicCheck.daysElapsed} ngày kể từ lần đánh giá gần nhất. Hãy làm một vòng kiểm tra thích ứng ngắn bên dưới để tớ cập nhật chỉ số phục hồi tinh thần cho cậu nhé!`
-      : `Chào ${friendlyName}! Để đồng hành cùng cậu chuẩn xác và hiệu quả nhất trong lộ trình hiện tại, tớ đề xuất cậu thực hiện một vòng kiểm tra đánh giá toàn bộ 6 bài test sức khỏe tinh thần và nhân cách bên dưới nha!`;
+      ? `Chào ${friendlyName}. Đã ${periodicCheck.daysElapsed} ngày kể từ lần tự đánh giá gần nhất. Nếu thấy phù hợp, cậu có thể chọn một công cụ bên dưới để xem xu hướng tự báo cáo; không cần làm tất cả cùng lúc.`
+      : `Chào ${friendlyName}! Nếu thấy phù hợp, cậu có thể chọn một công cụ tự đánh giá bên dưới. Không cần làm tất cả cùng lúc và kết quả không phải chẩn đoán.`;
 
     const sweepMessage = {
       id: `deploy-test-sweep-${Date.now()}`,
       sender: "bot",
-      text: `${msgText} [[SUGGEST:phq9,gad7,who5,bigfive,dass42,mmpi30]]`,
+      text: `${msgText} [[SUGGEST:phq9,gad7,who5,bigfive]]`,
       time: new Date(),
       suggestPhq9: true,
       suggestGad7: true,
       suggestWho5: true,
       suggestBigFive: true,
-      suggestDass42: true,
-      suggestMmpi30: true,
     };
 
     setMessages(prev => {
@@ -1954,9 +1415,9 @@ export default function ChatTab({
               </button>
             </div>
             {[
-              { id:'phq9',    label:'PHQ-9',    desc:'Đánh giá Trầm cảm',     cls:'text-rose-600 bg-rose-500/8 border-rose-300/40 dark:text-rose-400 dark:border-rose-700/30'    },
-              { id:'gad7',    label:'GAD-7',    desc:'Đánh giá Lo âu',        cls:'text-cyan-600 bg-cyan-500/8 border-cyan-300/40 dark:text-cyan-400 dark:border-cyan-700/30'     },
-              { id:'who5',    label:'WHO-5',    desc:'Chỉ số Hạnh phúc',      cls:'text-emerald-600 bg-emerald-500/8 border-emerald-300/40 dark:text-emerald-400 dark:border-emerald-700/30' },
+              { id:'phq9',    label:'PHQ-9',    desc:'Sàng lọc triệu chứng khí sắc', cls:'text-rose-600 bg-rose-500/8 border-rose-300/40 dark:text-rose-400 dark:border-rose-700/30' },
+              { id:'gad7',    label:'GAD-7',    desc:'Sàng lọc triệu chứng lo âu', cls:'text-cyan-600 bg-cyan-500/8 border-cyan-300/40 dark:text-cyan-400 dark:border-cyan-700/30' },
+              { id:'who5',    label:'WHO-5',    desc:'Trạng thái tinh thần',  cls:'text-emerald-600 bg-emerald-500/8 border-emerald-300/40 dark:text-emerald-400 dark:border-emerald-700/30' },
               { id:'bigfive', label:'Big Five', desc:'Trắc nghiệm Nhân cách', cls:'text-indigo-600 bg-indigo-500/8 border-indigo-300/40 dark:text-indigo-400 dark:border-indigo-700/30' },
             ].map(t => (
               <button key={t.id} type="button"
@@ -2102,6 +1563,7 @@ export default function ChatTab({
                   setInputText("");
                   handleSendFreeText(msgText);
                 }}
+                onUploadReport={() => setChatMode("scan")}
               />
             </div>
           </div>
@@ -2165,7 +1627,7 @@ export default function ChatTab({
         )}
       </AnimatePresence>
 
-      {/* Auto-armed SOS beacon: cancellable countdown fired by the crisis detector */}
+      {/* Calm safety prompt; SOS sound only starts after an explicit tap. */}
       <CrisisSosCountdown open={sosPromptOpen} onClose={() => setSosPromptOpen(false)} />
     </div>
   );

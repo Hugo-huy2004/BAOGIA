@@ -35,7 +35,7 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
     }
   };
 
-  const percentProgress = ((currentQuestionIdx) / activeTest.questions.length) * 100;
+  const percentProgress = ((currentQuestionIdx + 1) / activeTest.questions.length) * 100;
 
   return (
     <div className="space-y-5 pt-4 px-4 max-w-md mx-auto h-full animate-scaleUp overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-800 pb-4">
@@ -72,11 +72,28 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
           {activeTest.name}
         </h4>
 
+        {activeTest.timeframe && (
+          <p className="text-[10px] font-bold text-foreground/75">
+            Hãy trả lời dựa trên: <span className="text-primary">{activeTest.timeframe}</span>
+          </p>
+        )}
+
         {/* Every screening tool must state it is not a diagnosis — students
             should never read a result as a clinical verdict. */}
         <p className="text-[9px] font-semibold text-amber-600 dark:text-amber-400/90 leading-snug px-2">
           {activeTest.disclaimer || "ⓘ Bài test chỉ mang tính chất tham khảo tự nhận thức, KHÔNG phải cơ sở chẩn đoán hay điều trị y tế chuyên khoa."}
         </p>
+
+        {activeTest.sourceUrl && (
+          <a
+            href={activeTest.sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex text-[8.5px] font-bold text-muted-foreground underline decoration-dotted underline-offset-2"
+          >
+            Nguồn thang đo: {activeTest.sourceLabel}
+          </a>
+        )}
 
         <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
           <div
@@ -117,7 +134,6 @@ export default function ClinicalTestPanel({ activeTest, onTestComplete, onCancel
             className="w-full py-2 px-3.5 rounded-md border-2 border-zinc-900 dark:border-zinc-800 bg-card text-[10px] font-black text-zinc-800 dark:text-muted-foreground/60 uppercase tracking-wider text-left hover:bg-zinc-50 dark:hover:bg-muted active:translate-x-0.5 active:translate-y-0.5 transition-all shadow-[2px_2px_0px_0px_rgba(9,9,11,1)] flex items-center justify-between disabled:opacity-50 disabled:pointer-events-none"
           >
             <span>{opt.label}</span>
-            <span className="font-mono bg-muted text-zinc-500 px-2 py-0.5 rounded text-[8px]">{opt.value} điểm</span>
           </button>
         ))}
       </div>

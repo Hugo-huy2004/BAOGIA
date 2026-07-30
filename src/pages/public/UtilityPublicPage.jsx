@@ -1,12 +1,12 @@
-import React, { Suspense, lazy, useMemo, useState, useEffect } from "react";
+import { Suspense, lazy, useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMemberSession } from "../../services/authSession";
 import { dataApi } from "../../services/dataApi";
-import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { UniversalSessionGuard } from "../../utils/universalSessionGuard";
 import { AISelfHealingEngine } from "../../utils/aiSelfHealingEngine";
 import AISelfHealingBoundary from "../../components/ui/AISelfHealingBoundary";
+import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/BanhocduongTab"));
 const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
@@ -16,24 +16,44 @@ const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
 const HugoSkinTab = lazy(() => import("../../components/member/HugoSkinTab"));
 const ChessGame = lazy(() => import("../../components/member/arcade/GameChess3D"));
 
-const TITLES = {
-  "banhocduong": "Bạn Học Đường - AI Trợ Lý Học Tập | Hugo Studio",
-  "therapy": "Hugo PSY - AI Trợ Lý Trị Liệu Tâm Lý | Hugo Studio",
-  "psychology": "Hugo PSY - AI Trợ Lý Trị Liệu Tâm Lý | Hugo Studio",
-  "hugoskin": "Hugo Skin - Phân Tích Da & Tỷ Lệ Vàng | Hugo Studio",
-  "radio": "Hugo Radio - Trạm Phát Sóng Cảm Xúc",
-  "aura": "Aura AI - Hình Nền Năng Lượng Độc Bản",
-  "ide": "Web IDE Cùng AI - Hugo Studio",
-  "arcade": "Hugo Arcade - Trò Chơi Giải Trí",
-  "helpdesk": "Hugo HelpDesk - Thẻ Thông Minh & Chữ Ký Email"
+const TOOL_SEO = {
+  banhocduong: {
+    title: "Bạn Học Đường — Trợ Lý Học Tập | Hugo Studio",
+    description:
+      "Không gian hỗ trợ học tập của Hugo Studio với công cụ hỏi đáp, gợi ý cách học và tiện ích dành cho học sinh, sinh viên.",
+  },
+  therapy: {
+    title: "HugoPSY — Không Gian Trò Chuyện Và Theo Dõi Cảm Xúc",
+    description:
+      "HugoPSY là không gian trò chuyện, ghi nhận cảm xúc và thực hành tự chăm sóc tinh thần trong hệ sinh thái Hugo Studio.",
+  },
+  radio: {
+    title: "Hugo Radio — Nhạc Lofi Cho Học Tập Và Thư Giãn",
+    description:
+      "Nghe nhạc lofi và các chương trình âm thanh của Hugo Radio khi học tập, làm việc hoặc nghỉ ngơi.",
+  },
+  aura: {
+    title: "Aura AI — Tạo Hình Nền Năng Lượng | Hugo Studio",
+    description:
+      "Khám phá Aura AI, tiện ích tạo hình nền theo màu sắc, cảm xúc và phong cách cá nhân trong Hugo Studio.",
+  },
 };
 
 export default function UtilityPublicPage() {
   const { tool } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
   const [activeSession, setActiveSession] = useState(() => getMemberSession());
   const isAuthenticated = !!activeSession?.email;
+  const seo = TOOL_SEO[tool] || {
+    title: "Tiện ích Hugo Studio",
+    description: "Khám phá tiện ích số trong hệ sinh thái Hugo Studio.",
+  };
+
+  useHeadMeta({
+    ...seo,
+    canonicalUrl: `https://www.hugowishpax.studio/${tool}`,
+    keywords: `${tool}, tiện ích Hugo Studio, ứng dụng dành cho học sinh sinh viên`,
+  });
 
   const [bio, setBio] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -130,12 +150,6 @@ export default function UtilityPublicPage() {
       </AISelfHealingBoundary>
     </Suspense>
   );
-
-  useEffect(() => {
-    if (TITLES[tool]) {
-      document.title = TITLES[tool];
-    }
-  }, [tool]);
 
   return (
     <div className="relative min-h-screen bg-surface dark:bg-background pt-24 pb-20 px-4 md:px-8">

@@ -634,11 +634,13 @@ export default class AIBot extends BaseBot {
   logLocalMatch(message, intentId) {
     // Fire-and-forget telemetry — never await, never let a failure affect the chat UI.
     this._aiUserId()
+      // ponytail: retries = 0 — telemetry is disposable, a retry just doubles
+      // doomed requests (and console noise) while the AI server is down.
       .then((userId) => fetchWithRetry(`${API_URL}/intent/log-local`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, intentId, userId })
-      }))
+      }, 0))
       .catch(() => { /* ignore */ });
   }
 

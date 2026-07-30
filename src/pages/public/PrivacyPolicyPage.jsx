@@ -8,10 +8,10 @@ export default function PrivacyPolicyPage() {
   const [activeSection, setActiveSection] = useState("chuong-1");
 
   useHeadMeta({
-    title: "Điều Khoản Sử Dụng & Chính Sách Bảo Mật Toàn Diện | Hugo Studio",
-    description: "Điều khoản sử dụng và chính sách bảo mật chi tiết của Hugo Studio. Tuyên bố nền tảng cung cấp công cụ miễn phí 100% và cổng thanh toán nội bộ phục vụ dịch vụ nhiếp ảnh cá nhân của Admin.",
-    keywords: "chính sách bảo mật, điều khoản sử dụng, Hugo Studio, bảo vệ dữ liệu cá nhân, Nghị định 13, miễn phí 100%, dịch vụ nhiếp ảnh, thanh toán trực tiếp cá nhân",
-    canonicalUrl: "https://www.hugowishpax.studio/policy"
+    title: "Điều Khoản Sử Dụng Và Chính Sách Bảo Mật | Hugo Studio",
+    description: "Tìm hiểu cách Hugo Studio cung cấp dịch vụ, xử lý dữ liệu cá nhân, vận hành JOY, thanh toán và bảo vệ quyền riêng tư của người dùng.",
+    keywords: "chính sách bảo mật, điều khoản sử dụng, Hugo Studio, bảo vệ dữ liệu cá nhân, quyền riêng tư",
+    canonicalUrl: "https://www.hugowishpax.studio/privacy-policy",
   });
 
   const chapters = [

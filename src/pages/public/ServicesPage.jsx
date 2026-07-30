@@ -6,6 +6,7 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { withUsdPrices } from "../../utils/priceFormatter";
+import StudioPageNav from "../../components/public/StudioPageNav";
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
@@ -26,9 +27,10 @@ const reveal = {
   viewport: { once: true, margin: "-72px" },
 };
 
-const brandGradient = "bg-gradient-to-r from-primary via-accent to-warning";
+const brandGradient =
+  "bg-[linear-gradient(90deg,#2678ff_0%,#0797ff_28%,#7359e8_55%,#d45aa3_78%,#f0445e_100%)]";
 const heroBadge =
-  "bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-primary/30 shadow-[0_0_15px_hsl(var(--primary)/0.2)]";
+  "bg-[linear-gradient(90deg,rgba(38,120,255,.13),rgba(115,89,232,.13),rgba(240,68,94,.11))] text-[#3577ed] dark:text-[#8eb7ff] border border-[#7359e8]/25 shadow-[0_0_18px_rgba(115,89,232,.12)]";
 
 /* ---------------------------------------------------------------------------
  * Toàn bộ nội dung chữ nằm trong i18n (servicesPage.* — vi/en đồng bộ).
@@ -45,11 +47,6 @@ const PLAN_META = [
   { id: "system", icon: "dashboard", href: "#app" },
 ];
 
-const STATIC_PLAN_IDS = ["landing", "website"];
-const DYNAMIC_PLAN_IDS = ["system"];
-const CARE_PLAN_IDS = ["fix", "seo"];
-
-const MICRO_ICONS = ["code", "palette", "smartphone", "widgets", "cloud_upload", "search", "bolt", "shield"];
 const TRUST_ICONS = ["verified", "devices", "support_agent", "school"];
 const STEP_ICONS = ["chat", "request_quote", "timeline", "handshake"];
 const STUDENT_ICONS = ["verified", "school", "smart_toy", "forum"];
@@ -132,36 +129,54 @@ function CtaButton({ to = "/booking", children, className = "" }) {
   );
 }
 
-function Whisper({ text, delay = 0 }) {
+/* A delivered client site, next to the tier it was built on. This is the only
+   proof on the page, so it stays factual: name, field, scope, and a link the
+   visitor can open. No testimonial quote unless the client gives us one. */
+function ClientProof() {
+  const { t } = useTranslation();
+  const facts = [
+    { icon: "photo_camera", text: t("servicesPage.proof.clientField") },
+    { icon: "web", text: t("servicesPage.proof.clientScope") },
+    { icon: "brush", text: t("servicesPage.proof.clientBuild") },
+    { icon: "layers", text: t("servicesPage.proof.clientPlan") },
+  ];
   return (
-    <motion.p
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 0.6 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.8, delay }}
-      className="mx-auto max-w-2xl text-center text-sm italic text-muted-foreground/70 py-6 px-4 border-l-2 border-accent/30"
-    >
-      "{text}"
-    </motion.p>
-  );
-}
-
-function JourneyChapter({ badge, desc, index }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="my-12 px-4 sm:px-8"
-    >
-      <div className="mx-auto max-w-3xl text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 backdrop-blur-sm">
-          <span className="text-xs font-bold text-primary tracking-wider">{badge}</span>
-        </div>
-        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-          {desc}
+    <motion.div {...reveal} className="mx-auto max-w-4xl">
+      <div className="rounded-[2rem] border border-border bg-card p-6 shadow-xl shadow-primary/5 sm:p-8">
+        <span className={`inline-flex rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
+          {t("servicesPage.proof.eyebrow")}
+        </span>
+        <h3 className="font-display mt-4 text-xl font-extrabold leading-tight text-foreground sm:text-2xl">
+          {t("servicesPage.proof.title")}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          {t("servicesPage.proof.desc")}
         </p>
+
+        <div className="mt-6 flex flex-col gap-5 border-t border-border/40 pt-6 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="font-display text-lg font-extrabold text-foreground">
+              {t("servicesPage.proof.clientName")}
+            </p>
+            <ul className="mt-3 grid gap-2">
+              {facts.map((fact) => (
+                <li key={fact.icon} className="flex items-start gap-2 text-xs leading-snug text-muted-foreground">
+                  <span className="material-symbols-outlined mt-0.5 shrink-0 text-sm text-foreground">{fact.icon}</span>
+                  <span>{fact.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <a
+            href="https://minhoimedia.digital"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-muted px-5 py-3 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-primary/40"
+          >
+            {t("servicesPage.proof.cta")}
+            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">open_in_new</span>
+          </a>
+        </div>
       </div>
     </motion.div>
   );
@@ -209,7 +224,25 @@ function PlanCard({ plan, emphasized = false }) {
           <p className={`text-2xl font-extrabold tracking-tight ${emphasized ? `${brandGradient} bg-clip-text text-transparent` : "text-foreground"}`}>
             {plan.price}
           </p>
-          {plan.note && <p className="mt-1 text-[10px] leading-snug text-muted-foreground/80">{plan.note}</p>}
+          {/* Delivery time and payment terms are the first two things a buyer
+              asks about, so they get chips instead of being buried in `note`. */}
+          {(plan.timeline || plan.payment) && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {plan.timeline && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                  <span className="material-symbols-outlined text-[13px]">schedule</span>
+                  {plan.timeline}
+                </span>
+              )}
+              {plan.payment && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">
+                  <span className="material-symbols-outlined text-[13px]">payments</span>
+                  {plan.payment}
+                </span>
+              )}
+            </div>
+          )}
+          {plan.note && <p className="mt-2 text-[10px] leading-snug text-muted-foreground/80">{plan.note}</p>}
         </div>
 
         {/* Benefits (all visible for readability) */}
@@ -254,6 +287,50 @@ function PlanCard({ plan, emphasized = false }) {
         </div>
       </div>
     </motion.article>
+  );
+}
+
+function OutcomeChooser({ onChoose }) {
+  const { t } = useTranslation();
+  const outcomes = t("servicesPage.outcomes.items", { returnObjects: true });
+  const icons = ["rocket_launch", "auto_fix_high", "school"];
+  const modes = ["commercial", "micro", "student"];
+
+  return (
+    <section id="service-fit" className="relative z-10 mx-auto mt-10 max-w-6xl px-4 sm:mt-14 sm:px-8">
+      <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-primary">
+            {t("servicesPage.outcomes.eyebrow")}
+          </p>
+          <h2 className="font-display mt-2 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+            {t("servicesPage.outcomes.title")}
+          </h2>
+        </div>
+        <p className="max-w-md text-xs leading-relaxed text-muted-foreground sm:text-sm">
+          {t("servicesPage.outcomes.desc")}
+        </p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        {outcomes.map((item, index) => (
+          <button
+            key={item.title}
+            type="button"
+            onClick={() => onChoose(modes[index])}
+            className="group flex min-h-40 flex-col rounded-[1.5rem] border border-border bg-card/80 p-5 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl"
+          >
+            <span className="material-symbols-outlined text-2xl text-primary">{icons[index]}</span>
+            <span className="mt-4 font-display text-base font-extrabold text-foreground sm:text-lg">{item.title}</span>
+            <span className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.desc}</span>
+            <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[11px] font-extrabold text-primary">
+              {item.cta}
+              <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -418,6 +495,12 @@ function FaqSection() {
   );
 }
 
+/** "Từ 1.490.000đ" → 1490000. Schema.org needs a number, not the display string. */
+function vndAmount(display) {
+  const digits = String(display || "").replace(/[^\d]/g, "");
+  return digits ? Number(digits) : undefined;
+}
+
 export default function ServicesPage() {
   const { hash } = useLocation();
   const { t, i18n } = useTranslation();
@@ -431,10 +514,6 @@ export default function ServicesPage() {
     if (type === "micro") return "micro";
     return "commercial";
   });
-
-  const staticPlans = STATIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
-  const dynamicPlans = DYNAMIC_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
-  const carePlans = CARE_PLAN_IDS.map((id) => plans.find((plan) => plan.id === id));
 
   const studentPlans = useMemo(() => {
     const plansKeys = ["exclusiveBio", "bug", "bento", "html", "php", "react"];
@@ -486,11 +565,12 @@ export default function ServicesPage() {
       "@type": "Service",
       name: "Dịch vụ thiết kế website Hugo Studio",
       provider: {
-        "@type": "Person",
-        name: "Peter Hugo Wishpax Lê",
-        alternateName: "Hugo Studio",
+        "@type": "Organization",
+        "@id": "https://www.hugowishpax.studio/#organization",
+        name: "Hugo Studio",
+        url: "https://www.hugowishpax.studio",
       },
-      areaServed: "VN",
+      areaServed: { "@type": "Country", name: "Vietnam" },
       hasOfferCatalog: {
         "@type": "OfferCatalog",
         name: "Bảng giá dịch vụ website",
@@ -500,6 +580,15 @@ export default function ServicesPage() {
           description: plan.desc,
           url: `https://www.hugowishpax.studio/services${plan.href}`,
           priceCurrency: "VND",
+          // Without a numeric price Google cannot read the amount at all, so the
+          // catalogue never qualifies for a price rich result. "Từ 1.490.000đ"
+          // becomes 1490000 as the lower bound of the range.
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            priceCurrency: "VND",
+            price: vndAmount(plan.price),
+            valueAddedTaxIncluded: true,
+          },
         })),
       },
     }),
@@ -520,51 +609,87 @@ export default function ServicesPage() {
     [t, i18n.language]
   );
 
+  // A Service catalogue alone gives Google nothing to place geographically, so
+  // local intent ("làm web giá rẻ" + a city) never matches. ProfessionalService
+  // supplies the service area and the real price band; the breadcrumb lets the
+  // SERP show a path instead of a bare URL.
+  const businessSchema = useMemo(() => {
+    const amounts = plans.map((plan) => vndAmount(plan.price)).filter(Boolean);
+    return {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "@id": "https://www.hugowishpax.studio/#studio",
+      name: "Hugo Studio",
+      url: "https://www.hugowishpax.studio/services",
+      image: "https://www.hugowishpax.studio/og-image.png",
+      description: t("servicesPage.meta.description"),
+      areaServed: { "@type": "Country", name: "Việt Nam" },
+      availableLanguage: ["vi", "en"],
+      priceRange: amounts.length
+        ? `${Math.min(...amounts).toLocaleString("vi-VN")}₫ – ${Math.max(...amounts).toLocaleString("vi-VN")}₫`
+        : undefined,
+      // The one portfolio item we can point at. No aggregateRating/Review here:
+      // there is no rating data, and inventing one is what gets a site
+      // penalised for fake structured data.
+      subjectOf: {
+        "@type": "WebSite",
+        name: "Mình Ơi Media",
+        url: "https://minhoimedia.digital",
+        about: t("servicesPage.proof.clientField"),
+        creator: { "@id": "https://www.hugowishpax.studio/#studio" },
+      },
+      knowsAbout: [
+        "Thiết kế website",
+        "Landing page",
+        "Progressive Web App",
+        "Tối ưu SEO",
+        "Tối ưu tốc độ website",
+      ],
+    };
+  }, [plans, t]);
+
+  const breadcrumbSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Hugo Studio", item: "https://www.hugowishpax.studio/introduction" },
+        { "@type": "ListItem", position: 2, name: "Dịch vụ & báo giá", item: "https://www.hugowishpax.studio/services" },
+      ],
+    }),
+    []
+  );
+
   useJsonLd("services-schema", offerSchema);
   useJsonLd("services-faq-schema", faqSchema);
+  useJsonLd("services-business-schema", businessSchema);
+  useJsonLd("services-breadcrumb-schema", breadcrumbSchema);
+
+  const choosePriceMode = (mode) => {
+    setPriceMode(mode);
+    window.setTimeout(() => {
+      document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
 
   return (
     <div className="relative w-full overflow-x-hidden pb-20 text-foreground">
       <div className="print:hidden">
 
-      {/* ================= STUDENT BIO PROMO TAB ================= */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="sticky top-14 z-40 mx-auto max-w-7xl px-4 sm:px-8 py-3 mb-4"
-      >
-        <div className="rounded-2xl border border-border bg-card/90 backdrop-blur p-4 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-foreground text-xl">school</span>
-                <h3 className="font-bold text-sm sm:text-base text-foreground">
-                  {t("servicesPage.promo.title")}
-                </h3>
-              </div>
-              <p className="text-xs sm:text-sm text-muted-foreground ml-8">
-                {t("servicesPage.promo.desc")}
-              </p>
-            </div>
-            <Link
-              to="/student-benefits"
-              className="shrink-0 inline-flex items-center gap-2 rounded-full bg-foreground hover:bg-primary text-background px-4 py-2 font-semibold text-xs sm:text-sm transition-colors active:scale-95"
-            >
-              <span>{t("servicesPage.promo.cta")}</span>
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
-            </Link>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Nền glow đồng bộ Landing */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-10%] top-[-6%] h-[45vw] w-[45vw] rounded-full bg-gradient-to-tr from-primary/10 to-accent/10 blur-[150px]" />
-        <div className="absolute right-[-10%] top-[30rem] h-[50vw] w-[50vw] rounded-full bg-gradient-to-tr from-warning/10 to-primary/10 blur-[170px]" />
+        <div className="absolute left-[-10%] top-[-6%] h-[45vw] w-[45vw] rounded-full bg-gradient-to-tr from-[#2678ff]/10 to-[#7359e8]/10 blur-[150px]" />
+        <div className="absolute right-[-10%] top-[30rem] h-[50vw] w-[50vw] rounded-full bg-gradient-to-tr from-[#f0445e]/10 to-[#0797ff]/10 blur-[170px]" />
       </div>
 
       {/* ============================ HERO ============================ */}
-      <section className="relative mx-auto max-w-7xl px-4 pt-12 sm:px-8 sm:pt-20">
+      <section className="relative mx-auto max-w-7xl px-4 pt-4 sm:px-8 sm:pt-6">
+        <StudioPageNav
+          active="services"
+          portfolioLabel={t("intro.cine.navPortfolio")}
+          servicesLabel={t("intro.cine.navServices")}
+          className="absolute inset-x-3 top-3"
+        />
         {/* Watermark */}
         <motion.div
           initial={{ opacity: 0, x: -80 }}
@@ -575,7 +700,7 @@ export default function ServicesPage() {
           PRICING
         </motion.div>
 
-        <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative z-10 mx-auto max-w-4xl text-center">
+        <motion.div variants={fadeUp} initial="hidden" animate="show" className="relative z-10 mx-auto max-w-4xl pt-20 text-center md:pt-16">
           <span className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
             {t("servicesPage.hero.badge")}
           </span>
@@ -617,10 +742,7 @@ export default function ServicesPage() {
         </motion.div>
       </section>
 
-      {/* ================= DEMO — BẰNG CHỨNG THỰC TẾ (VISUAL HOOK) ================= */}
-      <DemoShowcaseSection />
-
-      <Whisper text={t("servicesPage.whispers.between2")} delay={0.2} />
+      <OutcomeChooser onChoose={choosePriceMode} />
 
       {/* ================= BỘ GẠT CHUYỂN ĐỔI BẢNG GIÁ ================= */}
       <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-8 text-center relative z-10 print:hidden">
@@ -697,6 +819,13 @@ export default function ServicesPage() {
                 <PlanCard plan={plans.find(p => p.id === "website")} emphasized={true} />
                 <PlanCard plan={plans.find(p => p.id === "system")} />
               </div>
+
+              <p className="mx-auto max-w-xl text-center text-xs text-muted-foreground">
+                <span className="material-symbols-outlined mr-1 align-[-3px] text-sm">shield</span>
+                {t("servicesPage.section.upkeep")}
+              </p>
+
+              <ClientProof />
             </div>
 
             {/* 2. TỐI ƯU & SỬA LỖI (SEO, SPEED UP & SUPPORT) */}
@@ -902,6 +1031,10 @@ export default function ServicesPage() {
           </section>
         </>
       )}
+
+      {/* Demo comes after scope and price so visitors can evaluate proof without
+          having to pass a large interactive block before finding the offer. */}
+      <DemoShowcaseSection />
 
       {/* ================= TÂM TÍCH GIÁ CẢ & PHƯƠNG CHÂM LÀM VIỆC ================= */}
       <motion.section {...reveal} className="mx-auto mt-20 max-w-4xl px-4 sm:mt-28 sm:px-8">

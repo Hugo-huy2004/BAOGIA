@@ -12,9 +12,9 @@ export default function BookingContactPage() {
   const location = useLocation();
 
   useHeadMeta({
-    title: "Đặt Lịch & Liên Hệ | Hugo Studio",
-    description: "Đặt lịch hẹn thiết kế website hoặc gửi tin nhắn trực tiếp cho Hugo Studio để nhận báo giá chi tiết trong vòng 24 giờ.",
-    keywords: "đặt lịch thiết kế, liên hệ Hugo Studio, thiết kế web portfolio, thiết kế web cá nhân",
+    title: "Đặt Lịch Tư Vấn Thiết Kế Website | Hugo Studio",
+    description: "Chia sẻ nhu cầu và đặt lịch trao đổi trực tiếp với Hugo Studio về website, landing page, trang Bio hoặc hệ thống web.",
+    keywords: "đặt lịch thiết kế website, liên hệ Hugo Studio, landing page, trang Bio, hệ thống web",
     canonicalUrl: "https://www.hugowishpax.studio/booking"
   });
 

@@ -9,7 +9,8 @@ const SupportRequestPage = () => {
     title: "Yêu Cầu Hỗ Trợ | Hugo Studio",
     description: "Trang gửi yêu cầu hỗ trợ kỹ thuật và giải quyết sự cố dành riêng cho thành viên đã đăng nhập của Hugo Studio.",
     keywords: "yêu cầu hỗ trợ, support request, báo lỗi Hugo Studio, hỗ trợ kỹ thuật",
-    canonicalUrl: "https://www.hugowishpax.studio/support-request"
+    canonicalUrl: "https://www.hugowishpax.studio/support-request",
+    robots: "noindex, nofollow, noarchive",
   });
 
   // Hooks that other initializers read from MUST come first — `issue`'s

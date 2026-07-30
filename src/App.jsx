@@ -29,6 +29,7 @@ import { StorageSafeguard } from "./utils/storageSafeguard";
 import { PWAKeepAlive } from "./utils/pwaKeepAlive";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
+import RouteSeoPolicy from "./components/RouteSeoPolicy";
 
 const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
 const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
@@ -297,6 +298,7 @@ export default function App() {
         <DataProvider>
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
+              <RouteSeoPolicy />
               <PWARealtimeBridge />
               <PWAQuickLogin />
               <OfflineBanner />

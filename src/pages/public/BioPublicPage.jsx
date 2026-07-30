@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
 import dataApi from "../../services/dataApi";
@@ -45,17 +45,22 @@ export default function BioPublicPage() {
 
   // Initialize theme values early
   const template = useMemo(() => bio?.theme?.template || "default", [bio]);
+  const canonicalUrl = `https://www.hugowishpax.studio/bio/${encodeURIComponent(slug || "")}`;
+  const unavailable = Boolean(error || bio?.status === "locked" || bio?.status === "pending");
 
   // SEO Meta Tags - Dynamic based on bio data
   useHeadMeta({
     title: bio ? `${bio.displayName} | Hugo Studio` : 'Hugo Studio',
-    description: bio?.bio || 'Khám phá profile độc bản trên Hugo Studio - Nền tảng quản lý bio, booking và portfolio chuyên nghiệp.',
-    keywords: `${bio?.displayName || 'Hugo Studio'}, ${bio?.headline || 'Professional Bio'}, Bio page, Portfolio, Booking`,
+    description: bio?.bio || 'Trang Bio cá nhân trong hệ sinh thái Hugo Studio.',
+    keywords: `${bio?.displayName || 'Hugo Studio'}, ${bio?.headline || 'Hồ sơ cá nhân'}, Bio page, hồ sơ năng lực`,
     ogTitle: bio ? `${bio.displayName} - Hugo Studio` : 'Hugo Studio',
-    ogDescription: bio?.bio || 'Tạo bio độc bản với Hugo Studio',
-    ogImage: bio?.avatarUrl || 'https://hugo.studio/og-image.jpg',
-    ogUrl: window.location.href,
-    canonicalUrl: window.location.href
+    ogDescription: bio?.bio || 'Trang Bio cá nhân trong hệ sinh thái Hugo Studio.',
+    ogImage: bio?.avatarUrl || 'https://www.hugowishpax.studio/og-image.png',
+    ogUrl: canonicalUrl,
+    canonicalUrl,
+    ogType: "profile",
+    robots: unavailable ? "noindex, nofollow, noarchive" : undefined,
+    imageAlt: bio ? `Ảnh đại diện của ${bio.displayName}` : "Hugo Studio",
   });
 
   if (loading) {

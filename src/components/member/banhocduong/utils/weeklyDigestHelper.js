@@ -40,25 +40,22 @@ export function computeWeeklyDigest(historyLogs = [], bio = {}, secureMemory = {
   const gad7Delta = getDelta(gad7Logs);
   const dassDelta = getDelta(dassLogs);
 
-  // 5. Adaptive Recovery Score (0 - 100)
-  // Higher score = better mental wellness & recovery progress
-  let baseScore = 75;
-  if (checkinDaysCount >= 5) baseScore += 10;
-  if (activityCount >= 3) baseScore += 10;
-  if (phq9Delta < 0) baseScore += 5; // improvement
-  if (gad7Delta < 0) baseScore += 5; // improvement
-  if (phq9Delta > 0 || gad7Delta > 0) baseScore -= 10;
-  const overallRecoveryScore = Math.max(20, Math.min(100, baseScore));
+  // This is an engagement score, not a mental-health or recovery score.
+  // It only reflects actions recorded in the product during the last 7 days.
+  const hasWeeklyData = recentLogs.length > 0;
+  const overallRecoveryScore = hasWeeklyData
+    ? Math.min(100, (checkinDaysCount * 10) + (Math.min(activityCount, 5) * 6))
+    : null;
 
   // 6. AI Personalized Encouragement Synthesis
   const friendlyName = (bio?.displayName || bio?.name || "cậu").trim().split(" ").pop();
   let weeklyAiEncouragement = "";
-  if (overallRecoveryScore >= 85) {
-    weeklyAiEncouragement = `Chúc mừng ${friendlyName}! Tuần qua cậu đã thể hiện khả năng phục hồi tinh thần tuyệt vời với ${checkinDaysCount}/7 ngày check-in kiên trì. Hãy tiếp tục phát huy nguồn năng lượng tích cực này nhé! 🎉`;
-  } else if (overallRecoveryScore >= 65) {
-    weeklyAiEncouragement = `Tuần qua ${friendlyName} đã hoàn thành ${activityCount} lượt tự chăm sóc tinh thần và duy trì cảm xúc khá ổn định. Cậu đang đi đúng hướng trên hành trình chữa lành đấy! 🌸`;
+  if (!hasWeeklyData) {
+    weeklyAiEncouragement = `${friendlyName} chưa có hoạt động trong 7 ngày gần nhất. Bắt đầu bằng một lần check-in ngắn để HugoPSY tạo bản tổng kết từ dữ liệu thật nhé.`;
+  } else if (checkinDaysCount >= 5) {
+    weeklyAiEncouragement = `${friendlyName} đã check-in ${checkinDaysCount}/7 ngày và hoàn thành ${activityCount} hoạt động tự chăm sóc trong tuần qua.`;
   } else {
-    weeklyAiEncouragement = `Tuần vừa rồi có một vài thời điểm căng thẳng, nhưng ${friendlyName} vẫn luôn dũng cảm đối mặt. Hãy dành thêm vài phút tập thở 4-7-8 và trút bầu tâm sự cùng AI để lấy lại sự nhẹ nhõm nhé! 💚`;
+    weeklyAiEncouragement = `${friendlyName} đã có ${checkinDaysCount} ngày check-in và ${activityCount} hoạt động được ghi nhận trong 7 ngày gần nhất.`;
   }
 
   return {
@@ -68,25 +65,27 @@ export function computeWeeklyDigest(historyLogs = [], bio = {}, secureMemory = {
     gad7Delta,
     dassDelta,
     overallRecoveryScore,
+    hasWeeklyData,
     weeklyAiEncouragement,
     totalLogsCount: historyLogs.length
   };
 }
 
 export function checkPeriodicAssessmentDue(historyLogs = [], lastTestDate = "") {
-  const testLogs = historyLogs.filter(l => l.test || l.type === "clinical_test");
+  const periodicScreeners = new Set(["phq9", "gad7", "who5"]);
+  const testLogs = historyLogs.filter((log) => periodicScreeners.has(log.test));
   if (testLogs.length === 0) {
-    return { isDue: true, daysElapsed: 7, recommendedTests: ["phq9", "gad7", "who5", "bigfive", "dass42", "mmpi30"] };
+    return { isDue: true, daysElapsed: null, recommendedTests: ["phq9", "gad7", "who5", "bigfive"] };
   }
 
   const latestTest = testLogs[testLogs.length - 1];
   const testTime = new Date(latestTest.date || lastTestDate || Date.now()).getTime();
   const daysElapsed = Math.floor((Date.now() - testTime) / 86_400_000);
 
-  const isDue = daysElapsed >= 7;
+  const isDue = daysElapsed >= 14;
   return {
     isDue,
     daysElapsed,
-    recommendedTests: isDue ? ["phq9", "gad7", "who5", "dass42"] : []
+    recommendedTests: isDue ? ["phq9", "gad7", "who5"] : []
   };
 }

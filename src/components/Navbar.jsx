@@ -63,17 +63,9 @@ export default function Navbar() {
           className="font-display flex h-8 items-center text-xs font-black leading-none tracking-wider transition-opacity hover:opacity-80 sm:text-sm md:text-base lg:text-lg flex-shrink-0 select-none"
           aria-label="Hugo Studio Home"
         >
-          <span className="text-destructive">H</span>
-          <span className="text-warning">u</span>
-          <span className="text-warning">g</span>
-          <span className="text-success">o</span>
-          <span className="w-1" />
-          <span className="text-info">S</span>
-          <span className="text-primary">t</span>
-          <span className="text-accent">u</span>
-          <span className="text-accent">d</span>
-          <span className="text-destructive">i</span>
-          <span className="text-info">o</span>
+          <span className="bg-[linear-gradient(90deg,#2678ff_0%,#0797ff_30%,#7359e8_58%,#d45aa3_80%,#f0445e_100%)] bg-clip-text text-transparent">
+            Hugo Studio
+          </span>
         </Link>
 
         {/* Desktop nav */}

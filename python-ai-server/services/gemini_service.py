@@ -973,23 +973,25 @@ class GeminiService:
 
     async def analyze_medical_image_or_pdf(self, file_bytes: bytes, mime_type: str) -> dict:
         """
-        OCR và phân tích đa phương thức hình ảnh / PDF báo cáo sức khỏe lâm sàng (Async).
-        Sử dụng cấu trúc đầu ra JSON để trả về các chỉ số chính xác cho frontend.
+        OCR hình ảnh / PDF báo cáo sức khỏe (Async).
+        Chỉ trích xuất dữ liệu nhìn thấy được thành JSON để người dùng xác nhận.
         """
         system_instruction = """
-        Bạn là hệ thống trích xuất dữ liệu bệnh án thông minh của Hugo Studio.
-        Bạn có nhiệm vụ đọc hình ảnh/PDF của một phiếu kết quả xét nghiệm tâm lý (DASS-21, DASS-42, MMPI-30, MMPI-2, PHQ-9, GAD-7) HOẶC phiếu xét nghiệm máu tổng quát (Sinh hóa, Huyết học, Nước tiểu) và trích xuất ra JSON.
+        Bạn là hệ thống OCR tài liệu của Hugo Studio.
+        Bạn chỉ chép lại dữ liệu nhìn thấy rõ trên hình ảnh/PDF của phiếu DASS, báo cáo MMPI
+        hoặc phiếu xét nghiệm tổng quát. Không chẩn đoán, không diễn giải, không gắn mức độ,
+        không suy đoán dữ liệu bị thiếu và không tự tính toán hay chuẩn hóa lại điểm số.
 
         Quy trình trích xuất:
         1. Xác định loại bài trắc nghiệm: "dass", "mmpi", hoặc "general_medical" (xét nghiệm máu sinh hóa/huyết học).
         2. Nếu là DASS:
-           - Trích xuất điểm số của 3 thang đo: Depression (Trầm cảm - D), Anxiety (Lo âu - A), Stress (Căng thẳng - S).
-           - Nếu tài liệu chỉ ghi DASS-21, nhân đôi điểm số để có thang điểm DASS-42.
+           - Trích xuất điểm số của 3 thang đo: Depression (D), Anxiety (A), Stress (S).
+           - Giữ nguyên đúng điểm số được in trên tài liệu; tuyệt đối không nhân đôi hoặc quy đổi.
         3. Nếu là MMPI:
-           - Trích xuất L (Lie), F (Infrequency), K (Correction) và 10 thang đo lâm sàng.
+           - Chỉ trích xuất L, F, K và các mã thang điểm xuất hiện rõ trên báo cáo.
         4. Nếu là GENERAL_MEDICAL (Xét nghiệm máu, sinh hóa, nước tiểu...):
-           - Trích xuất tất cả các chỉ số có trong ảnh. Với mỗi chỉ số, thu thập các trường: "name" (tên chỉ số), "value" (kết quả đo được), "unit" (đơn vị), "reference" (khoảng tham chiếu), "status" (đánh giá: "high", "low", "normal").
-           - Ví dụ status: nếu value lớn hơn reference -> "high", nhỏ hơn -> "low", trong khoảng -> "normal".
+           - Với mỗi dòng nhìn thấy rõ, chép đúng "name", "value", "unit" và "reference".
+           - Không tạo trường đánh giá "high", "low" hay "normal".
         5. Trả về đối tượng JSON duy nhất theo định dạng dưới đây. KHÔNG trả kèm bất kỳ văn bản giải thích nào ngoài JSON.
 
         Định dạng JSON yêu cầu:
@@ -999,19 +1001,15 @@ class GeminiService:
           "validity": { "L": 50, "F": 65, "K": 45 }, // (chỉ dành cho mmpi)
           "clinical": { "Hs": 60, "D": 70, "Hy": 55, "Pd": 62, "Mf": 50, "Pa": 68, "Pt": 72, "Sc": 64, "Ma": 58, "Si": 52 }, // (chỉ dành cho mmpi)
           "general_indices": [
-             { "name": "Glucose", "value": "5.6", "unit": "mmol/L", "reference": "3.9 - 6.1", "status": "normal" },
-             { "name": "WBC", "value": "12.5", "unit": "G/L", "reference": "4.0 - 10.0", "status": "high" }
+             { "name": "Glucose", "value": "5.6", "unit": "mmol/L", "reference": "3.9 - 6.1" },
+             { "name": "WBC", "value": "12.5", "unit": "G/L", "reference": "4.0 - 10.0" }
           ] // (chỉ dành cho general_medical)
         }
         """
 
         client = self._ensure_client()
         if not client:
-            # Mock data fallback
-            return {
-                "testType": "dass",
-                "scores": {"D": 18, "A": 12, "S": 16}
-            }
+            raise RuntimeError("Dịch vụ đọc hồ sơ chưa được cấu hình.")
 
         image_part = types.Part.from_bytes(
             data=file_bytes,
@@ -1039,17 +1037,9 @@ class GeminiService:
                     client = self._get_next_client()
                     continue
                 print(f"Lỗi OCR bệnh án bằng Gemini: {err_str}")
-                return {
-                    "testType": "dass",
-                    "scores": {"D": 14, "A": 10, "S": 14},
-                    "error": err_str
-                }
+                raise RuntimeError("Không thể đọc chính xác hồ sơ đã tải lên.") from e
 
-        return {
-            "testType": "dass",
-            "scores": {"D": 14, "A": 10, "S": 14},
-            "error": "Tất cả API Key đã bị quá tải (429)."
-        }
+        raise RuntimeError("Dịch vụ đọc hồ sơ đang bận. Vui lòng thử lại sau.")
 
     async def generate_proactive_push(self, logs: list, bio: Optional[dict] = None) -> dict:
         """

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { DEFAULT_HOTLINES } from "./constants/hotlines";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EmergencySiren — a loud, attention-grabbing SOS alarm for crisis moments.
@@ -18,8 +19,7 @@ const SIREN_CSS = `
 @keyframes sosPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
 `;
 
-// Shared siren engine — used by the manual button AND the auto-trigger
-// countdown prompt below, so both behave identically.
+// Shared siren engine. It only starts after an explicit user gesture.
 const safelyVibrate = (pattern) => {
   try {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
@@ -101,9 +101,7 @@ function useSiren() {
 }
 
 // Full-screen flashing SOS beacon shown while the siren is running.
-// `onStop` renders a stop button (manual mode); `secondsLeft` renders a
-// non-dismissable auto-off countdown instead (medical auto mode).
-function SirenOverlay({ onStop, secondsLeft }) {
+function SirenOverlay({ onStop }) {
   return (
     <div
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-6 px-6 text-center"
@@ -123,19 +121,13 @@ function SirenOverlay({ onStop, secondsLeft }) {
           <br />Hãy ở bên cạnh và gọi <a className="underline" href="tel:115">115</a> hoặc <a className="underline" href="tel:111">111</a>.
         </p>
       </div>
-      {onStop ? (
-        <button
-          type="button"
-          onClick={onStop}
-          className="mt-4 px-10 py-4 rounded-2xl bg-rose-950 text-white text-base font-black shadow-2xl active:scale-95 transition-transform"
-        >
-          DỪNG BÁO ĐỘNG
-        </button>
-      ) : (
-        <p className="mt-4 px-6 py-3 rounded-2xl bg-rose-950/80 text-white text-sm font-black tracking-wider">
-          Báo động y tế tự động — tự tắt sau {secondsLeft}s
-        </p>
-      )}
+      <button
+        type="button"
+        onClick={onStop}
+        className="mt-4 px-10 py-4 rounded-2xl bg-rose-950 text-white text-base font-black shadow-2xl active:scale-95 transition-transform"
+      >
+        DỪNG BÁO ĐỘNG
+      </button>
     </div>
   );
 }
@@ -160,29 +152,78 @@ export default function EmergencySiren({ compact = false }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CrisisSosCountdown — MEDICAL AUTO ALARM. Fires the instant the local crisis
-// detector matches a self-harm message: the siren sounds immediately at full
-// output, runs for exactly AUTO_SOS_SECONDS, then shuts itself off. There is
-// deliberately NO stop control (product decision: the beacon must not be
-// silenceable by the person in crisis) — the strict 10s auto-cutoff is the
-// safety valve for false positives.
-// ─────────────────────────────────────────────────────────────────────────────
-const AUTO_SOS_SECONDS = 10;
-
 export function CrisisSosCountdown({ open, onClose }) {
   const { active, start, stop } = useSiren();
-  const [secondsLeft, setSecondsLeft] = useState(AUTO_SOS_SECONDS);
 
-  useEffect(() => {
-    if (!open) return undefined;
-    setSecondsLeft(AUTO_SOS_SECONDS);
-    start(); // sound the beacon IMMEDIATELY — no arming delay
-    const tick = setInterval(() => setSecondsLeft((s) => Math.max(0, s - 1)), 1000);
-    const cutoff = setTimeout(() => { stop(); onClose?.(); }, AUTO_SOS_SECONDS * 1000);
-    return () => { clearInterval(tick); clearTimeout(cutoff); stop(); };
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!open) return null;
+  if (active) {
+    return (
+      <SirenOverlay
+        onStop={() => {
+          stop();
+          onClose?.();
+        }}
+      />
+    );
+  }
 
-  if (!open || !active) return null;
-  return <SirenOverlay secondsLeft={secondsLeft} />;
+  return (
+    <div className="fixed inset-0 z-[9998] grid place-items-center bg-black/55 p-4 backdrop-blur-md">
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="hugopsy-safety-title"
+        className="w-full max-w-sm rounded-[28px] border border-rose-200/70 bg-white p-5 text-left shadow-2xl dark:border-rose-900/50 dark:bg-zinc-950"
+      >
+        <div className="flex items-start gap-3">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-rose-500/10 text-rose-600">
+            <span className="material-symbols-outlined">health_and_safety</span>
+          </span>
+          <div>
+            <h2 id="hugopsy-safety-title" className="text-sm font-black text-foreground">Ưu tiên an toàn của cậu</h2>
+            <p className="mt-1 text-[11px] font-semibold leading-relaxed text-muted-foreground">
+              HugoPSY nhận thấy nội dung vừa rồi có thể liên quan đến việc tự làm đau bản thân. Đây không phải kết luận chẩn đoán.
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-4 rounded-2xl bg-rose-500/[0.07] p-3 text-[11px] font-semibold leading-relaxed text-foreground/80">
+          Nếu đang có nguy hiểm ngay lúc này, hãy đến gần một người cậu tin cậy hoặc nơi có người hỗ trợ. Cậu có thể chủ động bật còi để thu hút người ở gần.
+        </p>
+
+        <div className="mt-3 grid gap-1.5">
+          {DEFAULT_HOTLINES.map((hotline) => (
+            <a
+              key={hotline.number}
+              href={`tel:${hotline.number}`}
+              className="flex items-center justify-between gap-3 rounded-xl border border-rose-200/70 bg-rose-50/80 px-3 py-2.5 text-[10px] font-bold text-rose-700 active:scale-[0.98] dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300"
+            >
+              <span>
+                {hotline.label}
+                {hotline.note && <span className="mt-0.5 block text-[8px] font-semibold opacity-70">{hotline.note}</span>}
+              </span>
+              <span className="shrink-0 font-black">{hotline.display || hotline.number}</span>
+            </a>
+          ))}
+        </div>
+
+        <div className="mt-4 grid gap-2">
+          <button
+            type="button"
+            onClick={start}
+            className="w-full rounded-2xl bg-rose-600 px-4 py-3 text-[11px] font-black text-white active:scale-[0.98]"
+          >
+            Bật còi SOS
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-2xl border border-border px-4 py-3 text-[11px] font-bold text-foreground active:scale-[0.98]"
+          >
+            Tôi đang an toàn, tiếp tục trò chuyện
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

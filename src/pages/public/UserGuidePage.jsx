@@ -8,10 +8,10 @@ export default function UserGuidePage() {
   const [activeSection, setActiveSection] = useState("chuong-1");
 
   useHeadMeta({
-    title: "Hướng Dẫn Sử Dụng Hệ Thống Chi Tiết | Hugo Studio",
-    description: "Tài liệu hướng dẫn sử dụng toàn diện nền tảng Hugo Studio. Hướng dẫn chi tiết cách tạo Bio Link, Bento Grid Portfolio, quản lý số đo hình thể và đặt lịch Booking.",
-    keywords: "hướng dẫn sử dụng, tài liệu người dùng, tạo bio link, bento grid portfolio, hướng dẫn đặt lịch booking, số đo hình thể, thiết kế bento",
-    canonicalUrl: "https://www.hugowishpax.studio/user-guide"
+    title: "Hướng Dẫn Sử Dụng Hugo Studio | Bio, JOY Và Tiện Ích",
+    description: "Tài liệu sử dụng Hugo Studio: tạo trang Bio, quản lý tài khoản, dùng JOY, đặt lịch, bảo mật dữ liệu và xử lý các sự cố thường gặp.",
+    keywords: "hướng dẫn Hugo Studio, tạo trang Bio, sử dụng JOY, quản lý tài khoản, đặt lịch",
+    canonicalUrl: "https://www.hugowishpax.studio/user-guide",
   });
 
   const chapters = [

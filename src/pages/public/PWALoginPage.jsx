@@ -19,6 +19,8 @@ export default function PWALoginPage() {
   useHeadMeta({
     title: "Đăng nhập | Hugo Studio",
     description: "Đăng nhập ứng dụng Hugo Studio bằng Google.",
+    canonicalUrl: "https://www.hugowishpax.studio/login",
+    robots: "noindex, nofollow, noarchive",
   });
 
   const navigate = useNavigate();

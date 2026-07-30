@@ -243,7 +243,7 @@
       "badge": "✦ The Person Behind The Studio",
       "title1": "Final-year student,",
       "title2": "crafting beautiful experiences.",
-      "desc": "I'm Hugo — a final-year Software Engineering student at Greenwich Vietnam. I built this website to serve as my personal portfolio, share helpful utilities for the student community, and directly handle freelance projects to gain practical experience. Jason Phan accompanies me as co-development partner.",
+      "desc": "I'm Hugo — a final-year Software Engineering student at Greenwich Vietnam. Hugo Studio began with websites I built while learning, then grew into a place where I share my journey, present what I have made and work directly with students, individuals and small businesses. Jason Phan joins me as a co-development partner.",
       "founderRole": "Student Designer & Developer",
       "partnerRole": "Co-Development Partner",
       "openToWork": "Open to internships & job opportunities",
@@ -313,15 +313,23 @@
       "nav3": "Services",
       "nav4": "Booking",
       "nav5": "Pricing",
+      "navPortfolio": "Portfolio",
+      "navServices": "Services",
+      "navBooking": "Book",
       "heroWord": "Hugo",
-      "heroCta": "Start a project",
-      "aboutLabel": "Digital craft studio",
+      "heroEyebrow": "Hugo Le · Software Engineering",
+      "heroTitle1": "I'm Hugo.",
+      "heroTitle2": "I create digital products.",
+      "heroDesc": "From code written in class, I create websites, PWAs and digital utilities for students, individuals and small businesses.",
+      "heroCta": "My story",
+      "heroSecondaryCta": "View services",
+      "aboutLabel": "The person behind Hugo Studio",
       "aboutH1": "I am Hugo,",
       "aboutH2": "a final-year student in love with design.",
-      "aboutH3": "I build websites, Bio pages and study utilities for students.",
-      "featT1": "Studio-grade workflows for every digital product.",
-      "featT2": "Carefully made. Delivered on time. Student-friendly pricing.",
-      "cardVideo": "Your creative canvas.",
+      "aboutH3": "I design websites, PWAs, Bio pages and learning utilities for students, individuals and small businesses.",
+      "featT1": "From your story to a product people can use.",
+      "featT2": "I listen, design, build and stay available after handover.",
+      "cardVideo": "Every project begins with a story that deserves clarity.",
       "card2Title": "Free .edu Bio.",
       "card2c1": "Automatic .edu email verification in 3 seconds",
       "card2c2": "A clean personal link — bio/your-name",
@@ -351,14 +359,50 @@
       "stat4v": "12 months",
       "stat4l": "Free .edu Bio, all included",
       "partnerLabel": "Working alongside me",
-      "contactTitle": "Let's build something beautiful.",
-      "marqueeTitle": "Technologies I have learned"
+      "contactTitle": "Tell me the story you want to bring to the screen.",
+      "marqueeTitle": "Technologies I have learned",
+      "work": {
+        "eyebrow": "Chapters brought to life",
+        "title": "Three products continuing the Hugo Studio story.",
+        "desc": "Hugo Bio .edu helps learners tell their story; JOY records participation and progress; Hugo Arcade creates a playful pause between study sessions.",
+        "items": [
+          {
+            "badge": "Priority",
+            "kind": "Free for verified students",
+            "title": "Hugo Bio .edu",
+            "desc": "A distinctive digital profile where students can present themselves, their projects, achievements and important links through one personal URL.",
+            "outcome": "Automatic education-email verification, customizable design, portfolio, booking and a personal link — free for 12 months.",
+            "cta": "Create a Bio .edu"
+          },
+          {
+            "badge": "Rewards",
+            "kind": "Ecosystem-wide points wallet",
+            "title": "JOY",
+            "desc": "A shared rewards currency for learning activities, challenges, achievements and contributions across Hugo Studio.",
+            "outcome": "Clear balances and history, smart rewards, JOY transfers and usage across supported applications.",
+            "cta": "Open JOY wallet"
+          },
+          {
+            "badge": "Play",
+            "kind": "Lightweight · Full-screen games",
+            "title": "Hugo Arcade",
+            "desc": "A mobile-first game library featuring 2048, 3D Chess, Snake, Tetris, Space Survivor and more challenges.",
+            "outcome": "Stage-based gameplay, varied bots and bosses, smooth effects, leaderboards and JOY rewards.",
+            "cta": "Enter Hugo Arcade"
+          }
+        ]
+      },
+      "meta": {
+        "title": "Hugo Studio — Digital Product Design & Development Portfolio",
+        "description": "Hugo Studio portfolio: UI/UX design, React websites, PWAs and web systems for individuals, small businesses and student communities.",
+        "keywords": "Hugo Studio, web developer portfolio, UI UX design, React PWA, website design, web application, Hugo Le"
+      }
     }
   },
   "servicesPage": {
     "meta": {
       "title": "Affordable Website Design & Pricing | Hugo Studio",
-      "description": "Affordable websites at Hugo Studio: fixes from 150k VND, landing pages 690k, full websites 1.9M, dynamic web apps 6.9M. SEO, speed-ups, mobile-first. Clear quotes before any work starts.",
+      "description": "Purpose-built websites for small businesses and personal brands. Hugo Studio offers quick fixes, landing pages, multi-page sites and web systems with clear scope, pricing and direct 1-to-1 support.",
       "keywords": "affordable website design, cheap website Vietnam, website pricing, landing page design, website fixes, SEO optimization, website speed up, web app, Hugo Studio"
     },
     "common": {
@@ -378,23 +422,45 @@
       "closing": "Every number is a door. Which one will you open?"
     },
     "hero": {
-      "badge": "Hugo Studio · Service pricing",
-      "title1": "A website with a clear goal,",
-      "title2": "at a clear price up front.",
-      "desc": "Pick what matches your situation: build new, fix an existing site, or just one small task. Every package locks scope, timeline and cost before work starts.",
-      "viewPricing": "View pricing",
-      "contact": "Tell me what you need",
+      "badge": "Hugo Studio · A website shaped around your story",
+      "title1": "From a small story,",
+      "title2": "to a place customers want to visit.",
+      "desc": "Every café, shop and personal brand has a story. I turn yours into a website that feels natural on mobile and guides visitors toward a call, message or booking.",
+      "viewPricing": "Choose a fitting package",
+      "contact": "Tell me your story",
       "trust": [
-        "Clear quote before work starts",
-        "Mobile-optimized in every package",
-        "Support after handover",
-        "100% free for students"
+        "Work directly with the designer and developer",
+        "Scope, timeline and cost agreed up front",
+        "Designed for mobile, speed and discoverability",
+        "Guidance and support after handover"
+      ]
+    },
+    "outcomes": {
+      "eyebrow": "The first chapter",
+      "title": "What should your website change?",
+      "desc": "Choose the story that resembles your situation to see the related services.",
+      "items": [
+        {
+          "title": "I want customers to understand and choose my brand",
+          "desc": "A landing page or multi-page site that explains who you are, what you offer and what visitors should do next.",
+          "cta": "See the build journey"
+        },
+        {
+          "title": "My current site is losing visitors",
+          "desc": "I review the interface, mobile experience, speed, SEO and the friction blocking customer action.",
+          "cta": "See ways to improve"
+        },
+        {
+          "title": "I want to tell my own story",
+          "desc": "Portfolio, Bio and learning-support options created for students.",
+          "cta": "See student options"
+        }
       ]
     },
     "pricingPhilosophy": {
-      "title": "Thoughts from a Student Freelancer",
-      "desc": "I am a final-year Software Engineering student. This website serves as my personal portfolio, a community platform sharing tools for students, and a space where I work directly with clients. Operating 1-1 without any middleman or corporate overhead allows me to offer pricing that fits small businesses, individuals, and student projects.",
-      "philosophy": "To ensure the best quality, I only accept 1 project at a time. I only move to the next project in the queue when the current one is near completion. All items, timelines, and costs are discussed upfront with absolute clarity and no hidden fees."
+      "title": "The story behind each price",
+      "desc": "I am a final-year Software Engineering student and stay with each project from the first conversation to handover. With no layers of account management, the budget goes toward the design, development and support you actually need.",
+      "philosophy": "I take on one active project at a time so it receives focused attention. Scope, timing, cost and exclusions are discussed before work begins, so you always know where the project stands and what comes next."
     },
     "pricing": {
       "eyebrow": "Build a new website",
@@ -440,7 +506,9 @@
         "excludes": [
           "Full redesign of the whole site (see the build packages)",
           "Domain and hosting fees — I'll hook them up for free"
-        ]
+        ],
+        "timeline": "Same day – next day",
+        "payment": "Pay when it is done"
       },
       "seo": {
         "label": "Optimize",
@@ -456,7 +524,10 @@
           "Before–after PageSpeed report with recommended next steps",
           "A walkthrough of what to optimize next if you want to keep going"
         ],
-        "excludes": ["SEO copywriting, backlinks, paid ads"]
+        "excludes": [
+          "SEO copywriting, backlinks, paid ads"
+        ],
+        "timeline": "5–7 days"
       },
       "landing": {
         "label": "Start",
@@ -480,7 +551,8 @@
           "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
           "Copy and images — you provide them, I polish and design",
           "Booking or online payment systems → see the Website Pro package"
-        ]
+        ],
+        "timeline": "5–7 days"
       },
       "website": {
         "label": "Grow",
@@ -504,14 +576,14 @@
           "Yearly domain & hosting fees (~300-800k, sourced externally)",
           "Blog copywriting and product photography — you provide those",
           "Booking management, online payments → Web System (the advanced package)"
-        ]
+        ],
+        "timeline": "2–3 weeks",
+        "payment": "Paid in stages"
       },
       "system": {
         "label": "System",
         "name": "Dynamic web app",
-        "oldPrice": "$609.99",
         "price": "From $283.99",
-        "discount": "-53%",
         "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
         "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
         "tagline": "Long-term asset",
@@ -766,10 +838,10 @@
       ]
     },
     "finalCta": {
-      "title1": "Send me where you're at —",
-      "title2": "I'll suggest the leanest way forward.",
-      "desc": "Share your current site, a screenshot of the bug, or just an idea. I'll tell you honestly whether you need a small fix, a landing page, a multi-page site or a web app.",
-      "cta": "Message me for a free consult"
+      "title1": "Every project starts with",
+      "title2": "one clear conversation.",
+      "desc": "Share your current site, a screenshot of the issue or a few lines about the idea. Together we can decide whether it calls for a small fix, a landing page, a multi-page site or a web system.",
+      "cta": "Start telling your story"
     },
     "promo": {
       "title": "Free Aesthetic Bio Page for Students!",
@@ -836,12 +908,24 @@
       "newBuildsTitle": "New Designs & Custom Builds",
       "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
       "optimizeTitle": "SEO, Speed & Bug Squishing",
-      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved."
+      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
+      "upkeep": "Any new build can add monthly upkeep at From $12.99/mo — optional, cancel anytime."
     },
     "devices": {
       "desktop": "Desktop",
       "tablet": "Tablet",
       "mobile": "Mobile"
+    },
+    "proof": {
+      "eyebrow": "Delivered work",
+      "title": "What the Website Pro package looks like in production",
+      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
+      "clientName": "Mình Ơi Media",
+      "clientField": "Wedding photojournalism",
+      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
+      "clientBuild": "Custom design — no CMS, no template",
+      "clientPlan": "Built on the Website Pro package",
+      "cta": "Open the client site"
     }
   },
   "faqPage": {
@@ -3320,31 +3404,107 @@
       }
     },
     "catalog": {
-      "bio": { "title": "Bio Page", "description": "Personal profile and Bio link" },
-      "library": { "title": "Hugo Library", "description": "The app library for the Hugo ecosystem" },
-      "ide": { "title": "HugoCoder", "description": "Code editor and programming lessons" },
-      "hugoso": { "title": "HugoSO", "description": "Google Workspace and Gemini skills", "fullDescription": "Hugo Study Office Skills — step-by-step Calendar, Docs, Sheets, and Gemini courses with guided video, hands-on practice, and in-lesson skill checks." },
-      "team": { "title": "Hugo Team", "description": "Student roles and collaborative projects" },
-      "psychology": { "title": "HugoPSY", "description": "AI wellbeing and sleep tracking" },
-      "hugoskin": { "title": "HugoSkin", "description": "Skin analysis and personal care" },
-      "radio": { "title": "HugoRadio", "description": "News and focus music" },
-      "helpdesk": { "title": "HugoHelpdesk", "description": "QR, NFC and email signatures" },
-      "handle": { "title": "HugoHandle", "description": "Image compression and secure links" },
-      "arcade": { "title": "HugoArcade", "description": "Games that reward JOY" },
-      "aura": { "title": "HugoAura", "description": "Pomodoro focus and ambient sound" },
-      "deco": { "title": "Deco Studio", "description": "Decorate your virtual space" },
-      "info": { "title": "Info and Version", "description": "System information and release notes" },
-      "joy_wallet": { "title": "JOY Wallet", "description": "Balance and quick transfers" },
-      "store": { "title": "Hugo Store", "description": "Apps, tokens and services shop" },
-      "map": { "title": "Discover", "description": "Community map and places near you" },
-      "arcade_chess": { "title": "AI Chess", "description": "Challenge a high-level AI" },
-      "arcade_2048": { "title": "2048 Fusion", "description": "An expanded number-merging game" },
-      "arcade_caro": { "title": "Caro Master", "description": "Multi-level five-in-a-row" },
-      "arcade_wordguess": { "title": "Word Cipher", "description": "Vietnamese vocabulary challenge" },
-      "arcade_tetris": { "title": "Tetris Neon", "description": "Smooth 60-fps block stacking" },
-      "arcade_snake": { "title": "Snake 3D Pro", "description": "The classic snake game" },
-      "arcade_survivor": { "title": "Space Survivor", "description": "Survive deep space" },
-      "arcade_flappy": { "title": "Flappy Cyber", "description": "Fly through a cyber world" }
+      "bio": {
+        "title": "Bio Page",
+        "description": "Personal profile and Bio link"
+      },
+      "library": {
+        "title": "Hugo Library",
+        "description": "The app library for the Hugo ecosystem"
+      },
+      "ide": {
+        "title": "HugoCoder",
+        "description": "Code editor and programming lessons"
+      },
+      "hugoso": {
+        "title": "HugoSO",
+        "description": "Google Workspace and Gemini skills",
+        "fullDescription": "Hugo Study Office Skills — step-by-step Calendar, Docs, Sheets, and Gemini courses with guided video, hands-on practice, and in-lesson skill checks."
+      },
+      "team": {
+        "title": "Hugo Team",
+        "description": "Student roles and collaborative projects"
+      },
+      "psychology": {
+        "title": "HugoPSY",
+        "description": "AI wellbeing and sleep tracking"
+      },
+      "hugoskin": {
+        "title": "HugoSkin",
+        "description": "Skin analysis and personal care"
+      },
+      "radio": {
+        "title": "HugoRadio",
+        "description": "News and focus music"
+      },
+      "helpdesk": {
+        "title": "HugoHelpdesk",
+        "description": "QR, NFC and email signatures"
+      },
+      "handle": {
+        "title": "HugoHandle",
+        "description": "Image compression and secure links"
+      },
+      "arcade": {
+        "title": "HugoArcade",
+        "description": "Games that reward JOY"
+      },
+      "aura": {
+        "title": "HugoAura",
+        "description": "Pomodoro focus and ambient sound"
+      },
+      "deco": {
+        "title": "Deco Studio",
+        "description": "Decorate your virtual space"
+      },
+      "info": {
+        "title": "Info and Version",
+        "description": "System information and release notes"
+      },
+      "joy_wallet": {
+        "title": "JOY Wallet",
+        "description": "Balance and quick transfers"
+      },
+      "store": {
+        "title": "Hugo Store",
+        "description": "Apps, tokens and services shop"
+      },
+      "map": {
+        "title": "Discover",
+        "description": "Community map and places near you"
+      },
+      "arcade_chess": {
+        "title": "AI Chess",
+        "description": "Challenge a high-level AI"
+      },
+      "arcade_2048": {
+        "title": "2048 Fusion",
+        "description": "An expanded number-merging game"
+      },
+      "arcade_caro": {
+        "title": "Caro Master",
+        "description": "Multi-level five-in-a-row"
+      },
+      "arcade_wordguess": {
+        "title": "Word Cipher",
+        "description": "Vietnamese vocabulary challenge"
+      },
+      "arcade_tetris": {
+        "title": "Tetris Neon",
+        "description": "Smooth 60-fps block stacking"
+      },
+      "arcade_snake": {
+        "title": "Snake 3D Pro",
+        "description": "The classic snake game"
+      },
+      "arcade_survivor": {
+        "title": "Space Survivor",
+        "description": "Survive deep space"
+      },
+      "arcade_flappy": {
+        "title": "Flappy Cyber",
+        "description": "Fly through a cyber world"
+      }
     },
     "dashboard": {
       "title": "Member Utilities",

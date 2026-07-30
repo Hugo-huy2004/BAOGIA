@@ -62,10 +62,8 @@ function cacheCompanionSnapshot(db = {}) {
 
 // ── Journey Progress Card ──────────────────────────────────────────────────────
 // ── Crisis Escalation Banner ────────────────────────────────────────────────────
-// Shown when the system detects a high-severity crisis flag (chatDistressCount
-// spike). Always lists the national free hotlines (see hotlines.js) — these are
-// established and universally correct, so unlike a site-specific number they're
-// safe to show unconditionally. An admin-set VITE_CRISIS_HOTLINE is added on top.
+// Shown when the system detects a high-severity crisis flag. Support contacts
+// come from one verified, centralized list; an admin-set line may be appended.
 function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }) {
   const { t } = useTranslation();
   const adminHotline = import.meta.env.VITE_CRISIS_HOTLINE || "";

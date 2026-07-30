@@ -14,6 +14,7 @@ function ChatInputBar({
   placeholder,
   quickReplies = [],
   onQuickReply,
+  onUploadReport,
 }) {
   const hasText = value.trim().length > 0;
 
@@ -60,6 +61,18 @@ function ChatInputBar({
           ? "border-border/50/[0.04] opacity-60"
           : "border-border/60/[0.1] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_4px_20px_rgba(59,130,246,0.15)]"
       }`}>
+        {onUploadReport && (
+          <button
+            type="button"
+            onClick={onUploadReport}
+            disabled={disabled}
+            aria-label="Đọc phiếu kết quả"
+            title="Đọc phiếu kết quả"
+            className="mb-0.5 grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-foreground/[0.06] hover:text-foreground active:scale-90 disabled:opacity-40"
+          >
+            <span className="material-symbols-outlined text-[17px]">attach_file</span>
+          </button>
+        )}
 
         <textarea
           ref={inputRef}

@@ -18,6 +18,7 @@ const AI_SERVER_URL = process.env.AI_SERVER_URL || 'http://localhost:8000';
 const MEMORY_RECALL_MAX_HISTORY_TURNS = 1;
 const MEMORY_RECALL_MIN_SCORE = 0.55;
 const MEMORY_RECALL_TOP_K = 2;
+const MAX_REPORT_REQUEST_BYTES = 11 * 1024 * 1024;
 
 // Long-term semantic recall: this router sits behind requireMember (see
 // server.js), so req.memberEmail identifies the real user even though the
@@ -78,6 +79,41 @@ async function forwardJson(req, res) {
     res.status(502).json({ error: 'AI server unreachable' });
   }
 }
+
+// Medical report OCR receives multipart/form-data. Forward the untouched
+// request stream so the filename, MIME type and binary body reach FastAPI.
+// Treating this route as JSON silently discarded the uploaded file.
+router.post('/analyze-report', async (req, res) => {
+  const targetUrl = `${AI_SERVER_URL}/api/ai/analyze-report`;
+  const contentType = req.headers['content-type'] || '';
+  if (!contentType.toLowerCase().startsWith('multipart/form-data')) {
+    return res.status(415).json({ error: 'Expected a multipart file upload' });
+  }
+  const contentLength = Number(req.headers['content-length']);
+  if (Number.isFinite(contentLength) && contentLength > MAX_REPORT_REQUEST_BYTES) {
+    return res.status(413).json({ error: 'Report upload exceeds the 10 MB file limit' });
+  }
+
+  try {
+    const upstream = await fetch(targetUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': contentType,
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+      },
+      body: Readable.toWeb(req),
+      duplex: 'half'
+    });
+    const text = await upstream.text();
+    res.status(upstream.status);
+    res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
+    res.set('Cache-Control', 'no-store');
+    res.send(text);
+  } catch (err) {
+    console.error('AI report proxy error:', targetUrl, err.message);
+    res.status(502).json({ error: 'Report analysis service unavailable' });
+  }
+});
 
 // Applies to /chat and /chat/stream (both declared below); /chat/audio's
 // multipart body has no req.body.message so it passes through untouched.

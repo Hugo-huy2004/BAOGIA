@@ -17,7 +17,7 @@
     "timelineScrub": "Tiến trình phát nhạc",
     "volumeLabel": "Âm lượng",
     "themeShop": "Cửa Hàng Giao Diện Aura",
-    "themeShopDesc": "Thuê giao diện auroras động độc bản ứng dụng cho toàn bộ trang của bạn. 50 JOY sử dụng trong 24 giờ.",
+    "themeShopDesc": "Thuê giao diện aurora động được cá nhân hóa cho toàn bộ trang của bạn. 50 JOY sử dụng trong 24 giờ.",
     "themeUsed": "Sử dụng",
     "themeApply": "Áp dụng",
     "themeRentCost": "{{price}} JOY",
@@ -54,7 +54,7 @@
     "booking": "Đặt lịch",
     "account": "Tài khoản",
     "pricing": "Báo Giá",
-    "benefits": "Đặc Quyền Sinh Viên",
+    "benefits": "Quyền Lợi Sinh Viên",
     "portal": "Truy Cập Cổng Khách Hàng",
     "loginAdmin": "Đăng Nhập Quản Trị",
     "hello": "Xin Chào",
@@ -65,7 +65,7 @@
     "tagline": "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.",
     "services": "Dịch vụ",
     "landingPage": "Trang Đích",
-    "portfolio": "Portfolio Cá Nhân",
+    "portfolio": "Hồ Sơ Cá Nhân",
     "bioLink": "Liên Kết Bio (giáo dục)",
     "customUIUX": "UI/UX Theo Yêu Cầu",
     "links": "Đường dẫn",
@@ -189,8 +189,8 @@
       "pricingBtn": "Xem Giá Tham Khảo",
       "bookBtn": "Hãy Tạo Cái Gì Đó Đẹp",
       "serviceOption": "TÙY CHỌN DỊCH VỤ",
-      "item1Title": "Signature Portfolio",
-      "item1Desc": "Thiết kế độc bản, trang riêng lẻ",
+      "item1Title": "Hồ Sơ Mang Dấu Ấn Riêng",
+      "item1Desc": "Thiết kế theo câu chuyện cá nhân",
       "item2Title": "Ultimate Web App",
       "item2Desc": "Admin Dashboard, Quản lý sản phẩm"
     },
@@ -198,7 +198,7 @@
       "badge": "✦ Sở Thích Cá Nhân",
       "title1": "Góc chữa lành:",
       "title2": "Cây Dương Xỉ.",
-      "desc": "Sau những giờ phút gõ code căng thẳng, niềm đam mê lớn nhất của tôi là nhìn ngắm và chăm sóc những chậu cây dương xỉ. Sức sống mãnh liệt và vẻ đẹp nguyên thủy của chúng mang lại một sự bình yên vô tận."
+      "desc": "Sau những giờ phút gõ code căng thẳng, mình thích nhìn ngắm và chăm sóc những chậu cây dương xỉ. Sức sống và vẻ đẹp nguyên thủy của chúng mang lại một khoảng bình yên."
     },
     "slide8": {
       "badge": "✦ Triết Lý Thiết Kế",
@@ -208,7 +208,7 @@
       "wowTitle": "Sự Ngạc Nhiên (Wow Factor)",
       "wowDesc": "Tôi tin rằng giao diện kỹ thuật số không được vô cảm. Mọi nút bấm, thẻ thông tin hay hiệu ứng cuộn trang đều phải được phủ lên một lớp chuyển động tinh tế để kích thích sự hào hứng.",
       "sweetTitle": "Sự Ngọt Ngào & Chỉn Chu",
-      "sweetDesc": "Sự mượt mà và đồng bộ trong bảng màu, khoảng cách thiết kế và độ phản hồi tức thời của cơ sở dữ liệu tạo nên một tổng thể trọn vẹn và an tâm nhất cho người trải nghiệm.",
+      "sweetDesc": "Sự mượt mà trong bảng màu, khoảng cách thiết kế và độ phản hồi của dữ liệu tạo nên một trải nghiệm liền mạch, dễ hiểu và an tâm.",
       "principles": "NGUYÊN TẮC SÁNG TẠO",
       "p1": "Đặt trái tim làm trung tâm trải nghiệm.",
       "p2": "Tối giản thư viện ngoài để đạt hiệu năng tối đa.",
@@ -243,7 +243,7 @@
       "badge": "✦ Người Đứng Sau Studio",
       "title1": "Sinh viên năm cuối,",
       "title2": "kiến tạo trải nghiệm đẹp.",
-      "desc": "Mình là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Mình xây dựng trang web này vừa làm portfolio cá nhân, vừa chia sẻ các dịch vụ hỗ trợ các bạn HSSV, và cũng là nơi mình trực tiếp nhận các dự án freelance để cọ xát thực tế. Đồng hành cùng mình có Jason Phan trong vai trò đối tác đồng phát triển.",
+      "desc": "Mình là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Hugo Studio bắt đầu từ những trang web mình làm để học, rồi dần trở thành nơi giới thiệu hành trình, các sản phẩm đã xây và những dịch vụ mình trực tiếp thực hiện cho người học, cá nhân và cửa hàng nhỏ. Jason Phan đồng hành cùng mình trong vai trò đối tác đồng phát triển.",
       "founderRole": "Sinh viên thiết kế & phát triển",
       "partnerRole": "Đối Tác Đồng Phát Triển",
       "openToWork": "Sẵn sàng thực tập & cơ hội việc làm",
@@ -264,7 +264,7 @@
       "auraTitle": "Aura AI",
       "auraDesc": "Trợ lý AI nhẹ nhàng giúp bạn tập trung học tập và khơi gợi cảm hứng sáng tạo.",
       "psyTitle": "Hugo PSY",
-      "psyDesc": "Người bạn lắng nghe mọi tâm sự, đồng hành cùng sức khỏe tinh thần của bạn — nhất là những đêm muộn.",
+      "psyDesc": "Người bạn lắng nghe mọi tâm sự, đồng hành cùng sức khỏe tinh thần của bạn — đặc biệt vào những đêm muộn.",
       "hocduongTitle": "Bạn Học Đường",
       "hocduongDesc": "Không gian học tập chung: chia sẻ tài liệu, hỏi đáp và kết nối cộng đồng HSSV.",
       "radioTitle": "Hugo Radio",
@@ -276,7 +276,7 @@
       "joyTitle": "Joy PWA",
       "joyDesc": "Ví điểm thưởng JOY — tích lũy và sử dụng trong toàn bộ hệ sinh thái.",
       "bioTitle": "Signature Bio",
-      "bioDesc": "Trang cá nhân độc bản, thể hiện đúng chất riêng và tri thức của bạn.",
+      "bioDesc": "Trang cá nhân được tạo theo câu chuyện, phong cách và tri thức của bạn.",
       "hint": "✦ Rê chuột qua các hành tinh để khám phá từng tiện ích"
     },
     "transition": {
@@ -292,13 +292,20 @@
       "title1": "Bảy sắc thái, ",
       "title2": "một Hugo",
       "desc": "Mỗi khoảnh khắc làm việc là một tâm trạng — nhưng luôn tận tâm và vui vẻ.",
-      "m1w": "Xin chào!", "m1d": "Thân thiện ngay từ lời chào",
-      "m2w": "Đang code", "m2d": "Dựng web nhanh & chỉn chu",
-      "m3w": "Chăm sóc", "m3d": "HugoPSY đồng hành tinh thần",
-      "m4w": "Chất lượng", "m4d": "Tỉ mỉ từng chi tiết",
-      "m5w": "Bất ngờ", "m5d": "Luôn có điều thú vị nho nhỏ",
-      "m6w": "Lên đường", "m6d": "Cùng bạn đi thật xa",
-      "m7w": "Vui vẻ", "m7d": "Làm việc mà vẫn vui"
+      "m1w": "Xin chào!",
+      "m1d": "Thân thiện ngay từ lời chào",
+      "m2w": "Đang code",
+      "m2d": "Dựng web nhanh & chỉn chu",
+      "m3w": "Chăm sóc",
+      "m3d": "HugoPSY đồng hành tinh thần",
+      "m4w": "Chất lượng",
+      "m4d": "Tỉ mỉ từng chi tiết",
+      "m5w": "Bất ngờ",
+      "m5d": "Luôn có điều thú vị nho nhỏ",
+      "m6w": "Lên đường",
+      "m6d": "Cùng bạn đi thật xa",
+      "m7w": "Vui vẻ",
+      "m7d": "Làm việc mà vẫn vui"
     },
     "cine": {
       "nav1": "Về tôi",
@@ -306,15 +313,23 @@
       "nav3": "Dịch vụ",
       "nav4": "Đặt lịch",
       "nav5": "Báo giá",
+      "navPortfolio": "Về tôi",
+      "navServices": "Dịch vụ",
+      "navBooking": "Đặt lịch",
       "heroWord": "Hugo",
-      "heroCta": "Bắt đầu dự án",
-      "aboutLabel": "Xưởng sáng tạo số",
+      "heroEyebrow": "Hugo Lê · Kỹ thuật Phần mềm",
+      "heroTitle1": "Mình là Hugo.",
+      "heroTitle2": "Mình tạo sản phẩm số.",
+      "heroDesc": "Từ những dòng code ở giảng đường, mình tạo website, PWA và tiện ích số cho người học, cá nhân và cửa hàng nhỏ.",
+      "heroCta": "Câu chuyện của mình",
+      "heroSecondaryCta": "Xem dịch vụ",
+      "aboutLabel": "Người đứng sau Hugo Studio",
       "aboutH1": "Mình là Hugo,",
       "aboutH2": "sinh viên năm cuối mê thiết kế.",
-      "aboutH3": "Mình làm website, trang Bio và tiện ích học tập cho học sinh, sinh viên.",
-      "featT1": "Quy trình chuẩn studio cho từng sản phẩm số.",
-      "featT2": "Làm cẩn thận. Giao đúng hẹn. Giá sinh viên.",
-      "cardVideo": "Không gian sáng tạo của bạn.",
+      "aboutH3": "Mình thiết kế website, PWA, trang Bio và tiện ích học tập cho người học, cá nhân và cửa hàng nhỏ.",
+      "featT1": "Từ câu chuyện của bạn đến một sản phẩm có thể sử dụng.",
+      "featT2": "Mình lắng nghe, thiết kế, phát triển và đồng hành sau bàn giao.",
+      "cardVideo": "Mỗi dự án bắt đầu bằng một câu chuyện cần được kể rõ.",
       "card2Title": "Bio .edu Miễn Phí.",
       "card2c1": "Xác thực email .edu tự động trong 3 giây",
       "card2c2": "Link đẹp theo tên riêng — bio/ten-cua-ban",
@@ -344,14 +359,50 @@
       "stat4v": "12 tháng",
       "stat4l": "Bio .edu miễn phí trọn gói",
       "partnerLabel": "Đồng hành cùng mình",
-      "contactTitle": "Cùng tạo nên điều gì đó đẹp.",
-      "marqueeTitle": "Công nghệ mình được học"
+      "contactTitle": "Kể mình nghe câu chuyện bạn muốn đưa lên màn hình.",
+      "marqueeTitle": "Công nghệ mình được học",
+      "work": {
+        "eyebrow": "Những chương đã thành hình",
+        "title": "Ba sản phẩm kể tiếp câu chuyện Hugo Studio.",
+        "desc": "Hugo Bio .edu giúp người học kể câu chuyện của mình; JOY ghi nhận hành trình sử dụng và đóng góp; Hugo Arcade mở ra khoảng nghỉ bằng những trò chơi nhẹ.",
+        "items": [
+          {
+            "badge": "Ưu tiên",
+            "kind": "Miễn phí cho HSSV xác minh",
+            "title": "Hugo Bio .edu",
+            "desc": "Hồ sơ số được cá nhân hóa để học sinh, sinh viên giới thiệu bản thân, dự án, thành tích và các liên kết quan trọng bằng một đường dẫn riêng.",
+            "outcome": "Xác minh email giáo dục tự động, tùy chỉnh giao diện, khu dự án, đặt lịch và liên kết cá nhân — miễn phí trong 12 tháng.",
+            "cta": "Tạo Bio .edu"
+          },
+          {
+            "badge": "Phần thưởng",
+            "kind": "Ví điểm toàn hệ sinh thái",
+            "title": "JOY",
+            "desc": "Điểm thưởng chung cho các hoạt động học tập, thử thách, thành tích và đóng góp trong Hugo Studio.",
+            "outcome": "Theo dõi số dư và lịch sử rõ ràng, nhận thưởng thông minh, chuyển JOY và sử dụng xuyên các ứng dụng hỗ trợ.",
+            "cta": "Mở ví JOY"
+          },
+          {
+            "badge": "Giải trí",
+            "kind": "Game nhẹ · Toàn màn hình",
+            "title": "Hugo Arcade",
+            "desc": "Thư viện game được làm lại cho điện thoại với 2048, Chess 3D, Snake, Tetris, Space Survivor và nhiều thử thách.",
+            "outcome": "Gameplay theo chặng, BOT và Boss đa dạng, hiệu ứng mượt, bảng thành tích cùng phần thưởng JOY.",
+            "cta": "Vào Hugo Arcade"
+          }
+        ]
+      },
+      "meta": {
+        "title": "Hugo Studio — Câu Chuyện Của Hugo Lê Và Những Sản Phẩm Số",
+        "description": "Trang giới thiệu Hugo Lê, hành trình xây Hugo Studio cùng các sản phẩm, website React, PWA, trang Bio và dịch vụ thiết kế dành cho người học, cá nhân và cửa hàng nhỏ.",
+        "keywords": "Hugo Studio, Hugo Lê, hồ sơ năng lực lập trình viên, thiết kế UI UX, React PWA, thiết kế website, ứng dụng web"
+      }
     }
   },
   "servicesPage": {
     "meta": {
       "title": "Website Cho Quán Nhỏ, Shop Lẻ — Giá Hợp Lý | Hugo Studio",
-      "description": "Website cho quán café, salon, shop bán lẻ — giá hợp lý từ 299k sửa nhanh đến 1.49M web hoàn chỉnh. Không template, thiết kế riêng, hỗ trợ 1-1 qua Zalo. Bảo giá minh bạch, hoàn thành 1-2 tuần.",
+      "description": "Website cho quán café, salon, shop bán lẻ — từ 299k sửa nhanh, landing page từ 1.49M và website nhiều trang từ 2.99M. Thiết kế riêng, hỗ trợ 1-1, báo giá minh bạch.",
       "keywords": "website cho quán nhỏ, website shop bán lẻ, website café giá rẻ, làm web doanh nghiệp nhỏ, website cho salon, thiết kế web doanh nhân, web responsive giá rẻ, Hugo Studio"
     },
     "common": {
@@ -365,35 +416,57 @@
       "between1": "Mỗi lỗi là một tín hiệu. Lắng nghe nó.",
       "between2": "Tốc độ không phải là mục tiêu. Tốc độ là điều kiện tiên quyết.",
       "between3": "Một website đẹp mà chậm là sắc màu trên vải buổi hoàng hôn — đẹp nhưng không ai nhìn thấy.",
-      "between4": "Từ một trang đến một thế giới. Bước đầu là bước duy nhất bạn cần lo lắng.",
+      "between4": "Từ một trang đến một thế giới. Hãy bắt đầu bằng điều khách hàng cần hiểu về bạn.",
       "between5": "Khi thế giới có thể tìm thấy bạn, bạn mới thực sự tồn tại trực tuyến.",
       "climax": "Và rồi, website không chỉ nói chuyện — nó tư duy, nó quyết định, nó làm việc cho bạn.",
       "closing": "Mỗi con số là một cánh cửa. Bạn chọn cái nào?"
     },
     "hero": {
-      "badge": "Hugo Studio · Dành cho quán, shop, doanh nhân nhỏ",
-      "title1": "Website cho quán của bạn,",
-      "title2": "không phải cho startup lớn.",
-      "desc": "Quán cà phê, salon, tiệm, cửa hàng... tất cả đều xứng đáng có website tốt. Không template đại trà, thiết kế riêng, giá hợp lý, hoàn thành nhanh. Mình làm trực tiếp 1-1, điều này giúp chi phí tối ưu mà vẫn chất lượng.",
-      "viewPricing": "Xem bảng giá",
-      "contact": "Chia sẻ nhu cầu của bạn",
+      "badge": "Hugo Studio · Website được kể bằng câu chuyện của bạn",
+      "title1": "Từ một câu chuyện nhỏ,",
+      "title2": "thành nơi khách hàng muốn ghé.",
+      "desc": "Một quán cà phê, cửa hàng hay thương hiệu cá nhân đều có câu chuyện riêng. Mình giúp bạn chuyển câu chuyện đó thành website dễ hiểu, dễ dùng trên điện thoại và dẫn khách đến cuộc gọi, tin nhắn hoặc lịch hẹn.",
+      "viewPricing": "Chọn gói phù hợp",
+      "contact": "Kể mình nghe nhu cầu",
       "trust": [
-        "Giá từ 299k lên, không bắt gói lớn",
-        "Hoàn thành trong 1-2 tuần",
-        "Hỗ trợ Zalo, không gò bó hành chính",
-        "Không phát sinh, báo giá trước khi làm"
+        "Trao đổi trực tiếp với người thiết kế và phát triển",
+        "Phạm vi, thời gian và chi phí được thống nhất trước",
+        "Thiết kế cho điện thoại, tốc độ và khả năng tìm kiếm",
+        "Có hướng dẫn và hỗ trợ sau bàn giao"
+      ]
+    },
+    "outcomes": {
+      "eyebrow": "Chương đầu của dự án",
+      "title": "Bạn muốn website thay đổi điều gì?",
+      "desc": "Chọn câu chuyện giống tình huống của bạn để xem nhóm dịch vụ liên quan.",
+      "items": [
+        {
+          "title": "Tôi muốn khách hiểu và chọn thương hiệu",
+          "desc": "Landing page hoặc website nhiều trang kể rõ bạn là ai, mang lại điều gì và khách nên làm gì tiếp theo.",
+          "cta": "Xem hành trình xây mới"
+        },
+        {
+          "title": "Website hiện tại đang làm khách rời đi",
+          "desc": "Mình rà lại giao diện, trải nghiệm điện thoại, tốc độ, SEO và những điểm cản trở hành động.",
+          "cta": "Xem cách cải thiện"
+        },
+        {
+          "title": "Tôi muốn kể câu chuyện của bản thân",
+          "desc": "Hồ sơ năng lực, trang Bio và các gói hỗ trợ dành cho học sinh, sinh viên.",
+          "cta": "Xem lựa chọn cho người học"
+        }
       ]
     },
     "pricingPhilosophy": {
-      "title": "Vì sao giá lại hợp lý mà vẫn chất lượng?",
-      "desc": "Mình là sinh viên năm cuối IT. Không qua công ty, không qua đội nhóm, không qua trung gian — mình tự tay thiết kế, viết code, bàn giao. Tiết kiệm đó chính là tiền mà bạn tiết kiệm được. Với mình, một quán cà phê nhỏ hoặc cửa hàng lẻ đều xứng đáng có website đẹp, không chỉ startup lớn.",
-      "philosophy": "Chất lượng được sinh ra từ tập trung, không phải tốc độ. Vì vậy mình chỉ nhận một dự án tại một thời điểm — toàn bộ sức lực cho dự án đó. Mỗi detail, từ pixel layout đến logic backend, đều được nói chuyện rõ từ đầu. Khi chốt phạm vi, giá là thế đó, không phát sinh. Bạn luôn biết mình sẽ nhận được gì và bao giờ."
+      "title": "Câu chuyện phía sau mỗi mức giá",
+      "desc": "Mình là sinh viên năm cuối ngành Kỹ thuật Phần mềm và trực tiếp đi cùng dự án từ buổi trao đổi đầu tiên đến lúc bàn giao. Không có nhiều tầng trung gian, chi phí tập trung vào phần thiết kế, phát triển và hỗ trợ mà bạn thực sự cần.",
+      "philosophy": "Mình nhận một dự án tại một thời điểm để có đủ sự tập trung. Phạm vi, thời gian, chi phí và những phần chưa bao gồm đều được nói rõ trước khi bắt đầu. Vì vậy, bạn biết câu chuyện của dự án đang ở đâu và bước tiếp theo là gì."
     },
     "pricing": {
-      "eyebrow": "Bảng Giá Minh Bạch",
-      "title": "Chọn điểm bắt đầu phù hợp",
-      "highlight": "cho quán / shop của bạn",
-      "desc": "Từ chỉnh sửa nhanh trong ngày, đến web hoàn chỉnh hoàn thành 1-2 tuần. Mỗi gói đều rõ ràng — bạn sẽ nhận được gì, không phát sinh chi phí ẩn, hỗ trợ miễn phí sau bàn giao. Chọn mức phù hợp với ngân sách, còn chi tiết tính năng chúng mình trao đổi kỹ 1-1."
+      "eyebrow": "Mức đầu tư rõ ràng",
+      "title": "Chọn một chương vừa đủ",
+      "highlight": "cho câu chuyện của bạn",
+      "desc": "Bạn có thể bắt đầu từ một chỉnh sửa nhỏ, một landing page hoặc website nhiều trang. Mỗi gói ghi rõ phần việc, mốc thời gian và hỗ trợ sau bàn giao; các tính năng cụ thể sẽ được trao đổi trực tiếp trước khi chốt."
     },
     "journey": {
       "stone1": {
@@ -406,7 +479,7 @@
       },
       "stone3": {
         "badge": "✦ Viên Đá Hình Thành",
-        "desc": "Một trang duy nhất. Một câu chuyện. Khi bạn nhìn thẳng vào mắt khách hàng qua màn hình và họ nói: 'Có, bạn là người tôi tìm.'"
+        "desc": "Một trang tập trung. Một câu chuyện rõ. Khi khách hàng nhìn vào màn hình, họ hiểu bạn là ai và biết bước tiếp theo cần làm."
       },
       "stone4": {
         "badge": "✦ Hòn Đá Hoàng Tráng",
@@ -433,7 +506,9 @@
         "excludes": [
           "Thiết kế lại toàn bộ trang hoặc giao diện (xem gói Shop Starter)",
           "Phí domain, hosting — mình tư vấn hoặc hỗ trợ setup miễn phí"
-        ]
+        ],
+        "timeline": "Trong ngày – hôm sau",
+        "payment": "Xong việc mới thanh toán"
       },
       "seo": {
         "label": "Tối Ưu SEO & Tốc Độ",
@@ -451,7 +526,8 @@
         ],
         "excludes": [
           "Viết bài blog SEO, xây dựng backlink, chạy quảng cáo Google Ads"
-        ]
+        ],
+        "timeline": "5–7 ngày"
       },
       "landing": {
         "label": "Quán & Shop Nhỏ",
@@ -475,7 +551,8 @@
           "Phí domain & hosting (khoảng 300-500k/năm, bạn tìm bên ngoài hoặc mình giúp tư vấn)",
           "Nội dung hình ảnh & text — bạn cung cấp, mình edit & thiết kế",
           "Hệ thống đặt lịch / thanh toán online → gói Website Pro"
-        ]
+        ],
+        "timeline": "7–10 ngày"
       },
       "website": {
         "label": "Quán & Shop Lớn Hơn",
@@ -499,14 +576,14 @@
           "Phí domain, hosting hàng năm (khoảng 300-800k, bạn tìm bên ngoài)",
           "Viết bài blog, chụp ảnh sản phẩm — bạn cung cấp",
           "Hệ thống quản lý lịch hẹn, thanh toán online → Web System (gói nâng cao)"
-        ]
+        ],
+        "timeline": "2–3 tuần",
+        "payment": "Thanh toán theo tiến độ"
       },
       "system": {
         "label": "Tối Ưu Nâng Cao",
         "name": "Web System — Quản Lý & Thanh Toán",
-        "oldPrice": "15.000.000đ",
         "price": "Từ 6.999.000đ",
-        "discount": "-53%",
         "note": "Cho doanh nghiệp có nhu cầu phức tạp: đặt lịch online, nhận đơn, quản lý inventory... Thường 8-20 triệu tùy tính năng.",
         "desc": "Website không chỉ để giới thiệu — nó làm việc: nhận đơn hàng online, cho khách đặt lịch hẹn, tự động ghi lại dữ liệu để bạn quản lý. Như thuê nhân viên, nhưng chạy 24/7.",
         "tagline": "Tự động hóa doanh nghiệp",
@@ -530,14 +607,14 @@
       "detailsCta": "Xem điều kiện xác minh & Chi tiết gói HSSV",
       "exclusiveBio": {
         "label": "HSSV",
-        "name": "Trang Bio Độc Quyền",
+        "name": "Trang Bio Cá Nhân",
         "price": "99.000đ",
-        "note": "Thiết kế may đo, chỉ một trang duy nhất không trùng lặp với ai.",
+        "note": "Thiết kế theo câu chuyện và nhu cầu riêng, không dùng bố cục rập khuôn.",
         "desc": "Một trang giới thiệu bản thân hoàn toàn độc lập với thiết kế riêng dành riêng cho bạn. Tối ưu để xin việc, học bổng hay kết nối mạng xã hội — mọi thứ trên một trang bio mình chọn.",
         "tagline": "Khác biệt trong vài dòng",
         "includes": [
           "Thiết kế trang Bio độc đáo, không trùng lặp — riêng biệt cho bạn",
-          "Tối đa 5 liên kết (Github, LinkedIn, portfolio, mạng xã hội...)",
+          "Tối đa 5 liên kết (GitHub, LinkedIn, hồ sơ năng lực, mạng xã hội...)",
           "Phần giới thiệu về bản thân (tóm tắt, sở thích, kỹ năng chọn lọc)",
           "Tối ưu hiển thị đẹp trên Desktop & Mobile (Responsive)"
         ]
@@ -558,7 +635,7 @@
       },
       "bento": {
         "label": "HSSV",
-        "name": "Bento CV / Portfolio",
+        "name": "Bento CV / Hồ Sơ Năng Lực",
         "price": "799.000đ",
         "oldPrice": "1.500.000đ",
         "discount": "-46%",
@@ -566,7 +643,7 @@
         "desc": "Khoe thành tích học tập, bài tập nổi bật và các link liên kết cá nhân một cách aesthetic chuẩn Apple-style.",
         "tagline": "Tối ưu xin việc & học bổng",
         "includes": [
-          "1 trang Portfolio chuẩn Bento Grid hiện đại, tối đa 7 section",
+          "1 trang hồ sơ năng lực theo bố cục Bento Grid, tối đa 7 phần nội dung",
           "Kết nối link Github, mạng xã hội, thông tin liên lạc",
           "Form nhận liên hệ/tin nhắn đổ về Google Sheet miễn phí",
           "Deploy lên hosting miễn phí trọn đời (Vercel/Netlify)"
@@ -647,7 +724,7 @@
         },
         "portfolio": {
           "title": "Giới Thiệu Cá Nhân",
-          "short": "Portfolio",
+          "short": "Hồ sơ",
           "subtitle": "Hồ sơ năng lực"
         },
         "ecommerce": {
@@ -696,7 +773,7 @@
       "items": [
         {
           "title": "Bio cá nhân",
-          "desc": "Một trang giới thiệu bản thân, link mạng xã hội, học tập và portfolio nhỏ."
+          "desc": "Một trang giới thiệu bản thân, liên kết mạng xã hội, hành trình học tập và các dự án tiêu biểu."
         },
         {
           "title": "Tiện ích học tập",
@@ -761,10 +838,10 @@
       ]
     },
     "finalCta": {
-      "title1": "Gửi mình tình trạng hiện tại,",
-      "title2": "mình gợi ý hướng làm gọn nhất.",
-      "desc": "Bạn có thể gửi website đang có, ảnh chụp lỗi hoặc mô tả ý tưởng. Mình sẽ nói rõ nên sửa nhỏ, làm landing, làm nhiều trang hay cần web động.",
-      "cta": "Nhắn mình để được tư vấn miễn phí"
+      "title1": "Mỗi dự án bắt đầu bằng",
+      "title2": "một cuộc trò chuyện rõ ràng.",
+      "desc": "Gửi website đang có, ảnh chụp lỗi hoặc vài dòng về ý tưởng. Mình sẽ cùng bạn xác định nên sửa nhỏ, làm landing page, website nhiều trang hay một hệ thống web.",
+      "cta": "Bắt đầu kể câu chuyện của bạn"
     },
     "promo": {
       "title": "Bio Trang Cá Nhân Miễn Phí Cho Sinh Viên",
@@ -831,12 +908,24 @@
       "newBuildsTitle": "Website Mới cho Quán / Shop",
       "newBuildsDesc": "Chưa có web hoặc web cũ quá rồi? Mình giúp bạn làm website mới từ đầu — thiết kế riêng, giá hợp lý, hoàn thành nhanh.",
       "optimizeTitle": "Chỉnh Sửa & Tối Ưu Web Hiện Tại",
-      "optimizeDesc": "Web đã có lỗi nhỏ, chậm, hoặc khó lên Google? Mình fix đúng chỗ, không cần làm lại từ đầu."
+      "optimizeDesc": "Web đã có lỗi nhỏ, chậm, hoặc khó lên Google? Mình fix đúng chỗ, không cần làm lại từ đầu.",
+      "upkeep": "Mọi gói xây mới đều có thể thêm bảo trì hàng tháng 399.000đ/tháng — tuỳ chọn, huỷ bất cứ lúc nào."
     },
     "devices": {
       "desktop": "Máy tính",
       "tablet": "Máy tính bảng",
       "mobile": "Điện thoại"
+    },
+    "proof": {
+      "eyebrow": "Dự án đã bàn giao",
+      "title": "Gói Website Pro trông như thế nào khi chạy thật",
+      "desc": "Một khách thật, một website đang hoạt động. Bạn mở lên xem được ngay, không phải tin vào ảnh chụp.",
+      "clientName": "Mình Ơi Media",
+      "clientField": "Phóng sự cưới",
+      "clientScope": "Website nhiều trang: Bảng giá, Photography, Videography, Hỏi đáp, Liên hệ",
+      "clientBuild": "Thiết kế riêng, không dùng CMS hay template",
+      "clientPlan": "Thuộc gói Website Pro — Nhiều Trang",
+      "cta": "Mở website khách hàng"
     }
   },
   "faqPage": {
@@ -844,25 +933,25 @@
       "badge": "Hỗ trợ khách hàng",
       "title1": "Giải đáp",
       "title2": "những thắc mắc",
-      "desc": "Bạn có câu hỏi về Hugo Studio? Dưới đây là những vấn đề thường gặp nhất. Nếu vẫn chưa tìm thấy câu trả lời, đừng ngần ngại liên hệ trực tiếp với tụi mình nhé!"
+      "desc": "Bạn có câu hỏi về Hugo Studio? Dưới đây là những vấn đề thường được hỏi. Nếu chưa tìm thấy câu trả lời, hãy liên hệ trực tiếp với tụi mình nhé!"
     },
     "faqs": [
       {
         "question": "Hugo Studio có giờ làm việc cố định không?",
-        "answer": "Mình làm việc trực tiếp 1-1 nên không gò bó thời gian. Bạn cứ thoải mái gửi tin nhắn bất cứ lúc nào nhé, mình sẽ phản hồi sớm nhất có thể!"
+        "answer": "Mình làm việc trực tiếp 1-1 nên không gò bó thời gian. Bạn có thể gửi tin nhắn bất cứ lúc nào, mình sẽ phản hồi ngay khi có thể."
       },
       {
         "question": "Team Hugo Studio có bao nhiêu thành viên?",
-        "answer": "Mình là Hugo, sinh viên năm cuối IT và là người thực hiện chính các dự án. Mình đồng hành cùng Jason Phan (đối tác đồng phát triển) trong việc thảo luận kỹ thuật và tối ưu trải nghiệm Full-stack tốt nhất cho bạn."
+        "answer": "Mình là Hugo, sinh viên năm cuối ngành Kỹ thuật Phần mềm và là người thực hiện chính các dự án. Jason Phan đồng hành trong vai trò đối tác đồng phát triển, cùng trao đổi kỹ thuật và rà soát trải nghiệm full-stack."
       },
       {
         "question": "Có chính sách ưu đãi hay dùng thử nào tại Hugo Studio không?",
-        "answer": "Thấu hiểu các bạn học sinh/sinh viên rất mong mỏi có một trang giới thiệu bản thân chuyên nghiệp, mình đang hỗ trợ tạo Bio Portfolio cá nhân hóa hoàn toàn miễn phí dành riêng cho các bạn có email giáo dục đuôi .edu hoặc .edu.vn.",
+        "answer": "Mình hỗ trợ tạo trang Bio cá nhân miễn phí cho học sinh, sinh viên có email giáo dục đuôi .edu hoặc .edu.vn, để các bạn có nơi giới thiệu bản thân, dự án và liên kết học tập.",
         "actionText": "Nhận ưu đãi Sinh Viên"
       },
       {
         "question": "Chi phí thiết kế tại Hugo Studio như thế nào?",
-        "answer": "Vì mình làm việc trực tiếp 1-1 nên chi phí cực kỳ tối ưu và phù hợp với các bạn học sinh sinh viên hoặc kinh doanh nhỏ. Để đảm bảo chất lượng, mình chỉ nhận duy nhất 1 dự án tại một thời điểm theo hàng đợi."
+        "answer": "Vì mình làm việc trực tiếp 1-1 nên chi phí tập trung vào phần thiết kế và phát triển. Mình nhận một dự án tại một thời điểm và xếp lịch các dự án tiếp theo theo hàng đợi."
       },
       {
         "question": "Ngày lễ, Hugo Studio có làm việc không?",
@@ -884,7 +973,7 @@
     },
     "header": {
       "title": "Đặt Lịch Thiết Kế.",
-      "desc": "Mình làm việc theo hình thức trực tiếp 1-1 và chỉ nhận duy nhất 1 dự án tại một thời điểm để đảm bảo chất lượng. Bạn hãy phác thảo sơ bộ nhu cầu, mình sẽ phản hồi qua Zalo/Email trong vòng 24h để báo giá và xếp lịch thực hiện theo thứ tự hàng đợi nhé."
+      "desc": "Mình làm việc trực tiếp 1-1 và nhận một dự án tại một thời điểm. Bạn hãy phác thảo nhu cầu, mình sẽ phản hồi qua Zalo hoặc email trong vòng 24 giờ để trao đổi, báo giá và xếp lịch thực hiện."
     },
     "features": [
       {
@@ -918,7 +1007,7 @@
       "badge": "Thiên Hà Nghệ Thuật",
       "title1": "Vũ Trụ",
       "title2": "Nghệ Thuật Số",
-      "desc": "Lướt qua những dải ngân hà tĩnh lặng. Mỗi trang web là một tinh tú độc bản."
+      "desc": "Lướt qua những dải ngân hà tĩnh lặng. Mỗi trang web mang một câu chuyện và dấu ấn riêng."
     },
     "core": {
       "badge": "Cốt Lõi",
@@ -998,7 +1087,7 @@
         },
         {
           "title": "Giới Thiệu Cá Nhân",
-          "short": "Portfolio",
+          "short": "Hồ sơ",
           "subtitle": "Hồ sơ năng lực"
         },
         {
@@ -1045,7 +1134,7 @@
       "titleMember": "Kích Hoạt Student Bio",
       "titleAdmin": "Đăng Nhập Quản Trị",
       "descCustomer": "Theo dõi tiến độ & quản lý dịch vụ của bạn",
-      "descMember": "Tạo lập trang Bio Link độc bản hoàn toàn miễn phí",
+      "descMember": "Tạo trang Bio Link theo dấu ấn cá nhân hoàn toàn miễn phí",
       "descAdmin": "Truy cập hệ thống bảng điều khiển của nhà phát triển"
     },
     "tabs": {
@@ -1099,7 +1188,7 @@
     },
     "profile": {
       "title": "Thông tin cá nhân",
-      "subtitle": "Cập nhật thông tin liên hệ để chúng tôi hỗ trợ tốt nhất.",
+      "subtitle": "Cập nhật thông tin liên hệ để chúng tôi hỗ trợ đúng nhu cầu.",
       "completedWarn": "Dự án đã hoàn tất, không thể thay đổi thông tin.",
       "fullName": "Họ và Tên",
       "phone": "Số điện thoại",
@@ -1827,7 +1916,7 @@
       "years": "năm",
       "months": "tháng",
       "benefitsTitle": "Quyền lợi gói dịch vụ",
-      "benefitsDesc": "Xem các quyền lợi độc quyền đi kèm gói này.",
+      "benefitsDesc": "Xem các quyền lợi đi kèm gói này.",
       "noDetails": "Gói này không đi kèm danh sách quyền lợi chi tiết.",
       "base": "GÓI CƠ BẢN",
       "promo": "GÓI KHUYẾN MÃI",
@@ -2111,9 +2200,9 @@
     },
     "packages": {
       "signature": {
-        "name": "Signature Portfolio",
+        "name": "Hồ Sơ Mang Dấu Ấn Riêng",
         "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
-        "benefit2": "Thiết Kế Độc Bản Portfolio: Thể hiện cá tính chuyên nghiệp thông qua thiết kế Portfolio tinh tế.",
+        "benefit2": "Thiết Kế Theo Câu Chuyện: Thể hiện cá tính nghề nghiệp qua bố cục hồ sơ được cá nhân hóa.",
         "benefit3": "Bố Cục Tối Ưu UX/UI: Giúp các đối tác và khách hàng dễ dàng tương tác và nắm bắt thông tin.",
         "benefit4": "Tốc Độ Siêu Tốc: Trang bio tải tức thì nhờ kiến trúc tối giản và công nghệ tối ưu hóa tài nguyên hình ảnh."
       },
@@ -2127,15 +2216,15 @@
       "student": {
         "name": "Student Bio",
         "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
-        "benefit2": "3 Giao Diện Độc Bản: Lựa chọn các mẫu giao diện Classic thanh lịch, Brutalism cá tính hoặc Flat Design đa sắc màu.",
+        "benefit2": "3 Giao Diện Cá Nhân Hóa: Lựa chọn Classic thanh lịch, Brutalism cá tính hoặc Flat Design đa sắc màu.",
         "benefit3": "Tốc Độ Siêu Tốc: Trang bio tải tức thì nhờ kiến trúc tối giản và công nghệ tối ưu hóa tài nguyên hình ảnh.",
-        "benefit4": "Không Giới Hạn Kết Nối: Chia sẻ tối đa 5 liên kết mạng xã hội chính của bạn giúp tiếp cận khách hàng tối ưu nhất."
+        "benefit4": "Kết Nối Thuận Tiện: Chia sẻ tối đa 5 liên kết mạng xã hội để khách hàng dễ tìm và liên hệ với bạn."
       },
       "free": {
         "name": "Free Bio",
         "benefit1": "Thời Hạn 12 Tháng: Sử dụng bio link hoàn toàn miễn phí trong vòng 1 năm kể từ thời điểm kích hoạt.",
         "benefit2": "Classic Profile Layout: Bố cục Bio Link truyền thống, đơn giản, sạch sẽ và dễ đọc.",
-        "benefit3": "Không Quảng Cáo Rác: Cam kết giao diện sạch sẽ, thân thiện và tối ưu nhất cho người xem."
+        "benefit3": "Không Quảng Cáo Rác: Giao diện sạch sẽ, thân thiện và dễ theo dõi."
       }
     },
     "onboarding": {
@@ -2457,12 +2546,12 @@
       "desc": "Giới thiệu về Hugo Studio, phiên bản hiện tại và một phần thưởng nhỏ chỉ dành cho bạn.",
       "aboutTitle": "Giới thiệu Hugo Studio",
       "aboutBody": "Hugo Studio là nền tảng Bio-link cá nhân kết hợp bộ công cụ tiện ích đa năng, được xây dựng để mỗi người đều tìm được một góc riêng phù hợp với cá tính và nhịp sống của mình — không có khuôn mẫu chung cho tất cả.",
-      "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade và HugoAura — mọi công cụ đều nằm trong một nơi duy nhất, để bạn xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
+      "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade và HugoAura — các công cụ cùng nằm trong một hệ sinh thái để bạn xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
       "featuresTitle": "Tính năng nổi bật",
       "features": {
         "bio": {
           "title": "Trang Bio cá nhân",
-          "desc": "Trang giới thiệu, liên kết và dịch vụ của riêng bạn, tuỳ biến giao diện và chia sẻ bằng một đường link duy nhất."
+          "desc": "Trang giới thiệu, liên kết và dịch vụ của riêng bạn, tuỳ biến giao diện và chia sẻ bằng một đường dẫn gọn."
         },
         "helpdesk": {
           "title": "HugoHelpdesk",
@@ -2514,7 +2603,7 @@
       },
       "versionLabel": "Phiên bản hiện tại",
       "versionNote": "Cập nhật liên tục với các tính năng mới — cảm ơn bạn đã đồng hành cùng Hugo Studio.",
-      "heroTagline": "Bản nâng cấp lớn nhất từ trước đến nay",
+      "heroTagline": "Một chương nâng cấp mới của hệ thống",
       "heroBody": "Hugo Studio 2.0 không chỉ thêm tính năng — nó viết lại phần móng: cách bạn đăng nhập, cách dữ liệu được bảo vệ, cách các ứng dụng được cài đặt và cách toàn bộ hệ thống nói chuyện với nhau.",
       "highlightsTitle": "Nổi bật ở 2.0",
       "highlights": {
@@ -2527,7 +2616,7 @@
           "desc": "Cài và gỡ từng tiện ích như app trên điện thoại. Màn hình chính của bạn chỉ hiện thứ bạn chọn, kèm widget lớn nhỏ tuỳ ý."
         },
         "ai": {
-          "title": "Một cổng AI duy nhất",
+          "title": "Một cổng AI tập trung",
           "desc": "Mọi tính năng AI đi qua một cổng chung có hạn mức, bộ nhớ đệm, tự thử lại và công tắc ngắt khẩn cấp — không còn mỗi nơi gọi một kiểu."
         },
         "arcade": {
@@ -2587,7 +2676,7 @@
       "semverPatchName": "NHỎ",
       "semver": {
         "major": {
-          "title": "Số thứ nhất — thay đổi lớn",
+          "title": "Thay đổi 01 — diện mạo mới",
           "desc": "Tăng khi hệ thống thay đổi tới mức bạn cần làm quen lại: bố cục mới, cách dùng mới, hoặc dữ liệu được tổ chức lại.",
           "example": "1.0.0 → 2.0.0"
         },
@@ -3315,31 +3404,107 @@
       }
     },
     "catalog": {
-      "bio": { "title": "Trang Bio", "description": "Hồ sơ cá nhân và Bio link" },
-      "library": { "title": "Hugo Library", "description": "Thư viện ứng dụng trong hệ sinh thái" },
-      "ide": { "title": "HugoCoder", "description": "Soạn code và học lập trình" },
-      "hugoso": { "title": "HugoSO", "description": "Kỹ năng Google Workspace và Gemini", "fullDescription": "Hugo Study Office Skills — học Calendar, Docs, Sheets và Gemini theo từng bước, có video minh họa, bài thực hành và đánh giá kỹ năng trong mỗi bài." },
-      "team": { "title": "Hugo Team", "description": "Tuyển dụng và dự án sinh viên" },
-      "psychology": { "title": "HugoPSY", "description": "AI tâm lý và theo dõi giấc ngủ" },
-      "hugoskin": { "title": "HugoSkin", "description": "Phân tích da và chăm sóc cá nhân" },
-      "radio": { "title": "HugoRadio", "description": "Tin tức và nhạc tập trung" },
-      "helpdesk": { "title": "HugoHelpdesk", "description": "Mã QR, NFC và chữ ký email" },
-      "handle": { "title": "HugoHandle", "description": "Nén ảnh và liên kết bảo mật" },
-      "arcade": { "title": "HugoArcade", "description": "Trò chơi giải trí nhận JOY" },
-      "aura": { "title": "HugoAura", "description": "Tập trung Pomodoro và âm thanh thư giãn" },
-      "deco": { "title": "Deco Studio", "description": "Trang trí không gian ảo của bạn" },
-      "info": { "title": "Thông tin và phiên bản", "description": "Thông tin hệ thống và nhật ký cập nhật" },
-      "joy_wallet": { "title": "Ví JOY", "description": "Số dư và chuyển khoản nhanh" },
-      "store": { "title": "Hugo Store", "description": "Cửa hàng ứng dụng, token và dịch vụ" },
-      "map": { "title": "Khám phá", "description": "Bản đồ cộng đồng và địa điểm gần bạn" },
-      "arcade_chess": { "title": "Cờ vua AI", "description": "Thách đấu AI trình độ cao" },
-      "arcade_2048": { "title": "2048 Fusion", "description": "Trò chơi ghép số mở rộng" },
-      "arcade_caro": { "title": "Caro Master", "description": "Cờ Caro đối kháng nhiều cấp" },
-      "arcade_wordguess": { "title": "Mật mã từ", "description": "Trò chơi từ vựng tiếng Việt" },
-      "arcade_tetris": { "title": "Tetris Neon", "description": "Xếp hình mượt mà 60 khung hình/giây" },
-      "arcade_snake": { "title": "Rắn 3D Pro", "description": "Trò chơi rắn cổ điển" },
-      "arcade_survivor": { "title": "Space Survivor", "description": "Sinh tồn giữa không gian" },
-      "arcade_flappy": { "title": "Flappy Cyber", "description": "Bay qua thế giới tương lai" }
+      "bio": {
+        "title": "Trang Bio",
+        "description": "Hồ sơ cá nhân và Bio link"
+      },
+      "library": {
+        "title": "Hugo Library",
+        "description": "Thư viện ứng dụng trong hệ sinh thái"
+      },
+      "ide": {
+        "title": "HugoCoder",
+        "description": "Soạn code và học lập trình"
+      },
+      "hugoso": {
+        "title": "HugoSO",
+        "description": "Kỹ năng Google Workspace và Gemini",
+        "fullDescription": "Hugo Study Office Skills — học Calendar, Docs, Sheets và Gemini theo từng bước, có video minh họa, bài thực hành và đánh giá kỹ năng trong mỗi bài."
+      },
+      "team": {
+        "title": "Hugo Team",
+        "description": "Tuyển dụng và dự án sinh viên"
+      },
+      "psychology": {
+        "title": "HugoPSY",
+        "description": "AI tâm lý và theo dõi giấc ngủ"
+      },
+      "hugoskin": {
+        "title": "HugoSkin",
+        "description": "Phân tích da và chăm sóc cá nhân"
+      },
+      "radio": {
+        "title": "HugoRadio",
+        "description": "Tin tức và nhạc tập trung"
+      },
+      "helpdesk": {
+        "title": "HugoHelpdesk",
+        "description": "Mã QR, NFC và chữ ký email"
+      },
+      "handle": {
+        "title": "HugoHandle",
+        "description": "Nén ảnh và liên kết bảo mật"
+      },
+      "arcade": {
+        "title": "HugoArcade",
+        "description": "Trò chơi giải trí nhận JOY"
+      },
+      "aura": {
+        "title": "HugoAura",
+        "description": "Tập trung Pomodoro và âm thanh thư giãn"
+      },
+      "deco": {
+        "title": "Deco Studio",
+        "description": "Trang trí không gian ảo của bạn"
+      },
+      "info": {
+        "title": "Thông tin và phiên bản",
+        "description": "Thông tin hệ thống và nhật ký cập nhật"
+      },
+      "joy_wallet": {
+        "title": "Ví JOY",
+        "description": "Số dư và chuyển khoản nhanh"
+      },
+      "store": {
+        "title": "Hugo Store",
+        "description": "Cửa hàng ứng dụng, token và dịch vụ"
+      },
+      "map": {
+        "title": "Khám phá",
+        "description": "Bản đồ cộng đồng và địa điểm gần bạn"
+      },
+      "arcade_chess": {
+        "title": "Cờ vua AI",
+        "description": "Thách đấu AI trình độ cao"
+      },
+      "arcade_2048": {
+        "title": "2048 Fusion",
+        "description": "Trò chơi ghép số mở rộng"
+      },
+      "arcade_caro": {
+        "title": "Caro Master",
+        "description": "Cờ Caro đối kháng nhiều cấp"
+      },
+      "arcade_wordguess": {
+        "title": "Mật mã từ",
+        "description": "Trò chơi từ vựng tiếng Việt"
+      },
+      "arcade_tetris": {
+        "title": "Tetris Neon",
+        "description": "Xếp hình mượt mà 60 khung hình/giây"
+      },
+      "arcade_snake": {
+        "title": "Rắn 3D Pro",
+        "description": "Trò chơi rắn cổ điển"
+      },
+      "arcade_survivor": {
+        "title": "Space Survivor",
+        "description": "Sinh tồn giữa không gian"
+      },
+      "arcade_flappy": {
+        "title": "Flappy Cyber",
+        "description": "Bay qua thế giới tương lai"
+      }
     },
     "dashboard": {
       "title": "Tiện Ích Thành Viên",

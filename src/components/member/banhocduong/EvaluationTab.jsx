@@ -144,7 +144,6 @@ export default function EvaluationTab({
 
   // Filter clinical tests
   const dassTests = useMemo(() => historyLogs.filter(l => l.test === "dass42" || (l.type === "clinical_test" && l.test === "dass42")), [historyLogs]);
-  const mmpiTests = useMemo(() => historyLogs.filter(l => l.test === "mmpi30" || (l.type === "clinical_test" && l.test === "mmpi30")), [historyLogs]);
   const phq9Tests = useMemo(() => historyLogs.filter(l => l.test === "phq9" || (l.type === "clinical_test" && l.test === "phq9")), [historyLogs]);
   const gad7Tests  = useMemo(() => historyLogs.filter(l => l.test === "gad7" || (l.type === "clinical_test" && l.test === "gad7")), [historyLogs]);
   const who5Tests  = useMemo(() => historyLogs.filter(l => l.test === "who5" || (l.type === "clinical_test" && l.test === "who5")), [historyLogs]);
@@ -183,29 +182,30 @@ export default function EvaluationTab({
 
   // Big Five Trait extraction
   const latestBigFiveLog = bigFiveTests.length > 0 ? bigFiveTests[bigFiveTests.length - 1] : null;
-  const bigFiveTraits = latestBigFiveLog?.traits || bio?.testScores?.bigfive || {
-    extraversion: 3.5, agreeableness: 3.8, conscientiousness: 4.0, neuroticism: 2.2, openness: 4.2
-  };
+  const bigFiveTraits = latestBigFiveLog?.traits || bio?.testScores?.bigfive || null;
 
   // Clinical metrics evaluation
   const getSeverityLabel = (sev) => {
-    if (!sev) return { label: "Bình thường", cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" };
+    if (!sev) return { label: "Chưa đo", cls: "bg-muted text-muted-foreground" };
     const map = {
       normal: { label: "Bình thường", cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
       mild: { label: "Nhẹ", cls: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
       moderate: { label: "Vừa phải", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
       severe: { label: "Nặng", cls: "bg-rose-500/10 text-rose-600 dark:text-rose-400" },
-      extremely_severe: { label: "Rất nặng", cls: "bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black" }
+      extremely_severe: { label: "Rất nặng", cls: "bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black" },
+      recorded: { label: "Đã nhập · không diễn giải", cls: "bg-slate-500/10 text-slate-600 dark:text-slate-300" },
+      further_assessment: { label: "Gợi ý đánh giá thêm", cls: "bg-amber-500/10 text-amber-700 dark:text-amber-300" },
+      no_alert_threshold: { label: "Không dưới ngưỡng gợi ý", cls: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" }
     };
     return map[sev] || { label: sev, cls: "bg-muted text-muted-foreground" };
   };
 
   const metricsRows = [
-    { name: "PHQ-9 (Trầm Cảm)", scoreRaw: phq9Tests.length > 0 ? phq9Tests[phq9Tests.length - 1].score : null, severity: phq9Tests.length > 0 ? phq9Tests[phq9Tests.length - 1].severity : null, max: 27 },
-    { name: "GAD-7 (Lo Âụ)", scoreRaw: gad7Tests.length > 0 ? gad7Tests[gad7Tests.length - 1].score : null, severity: gad7Tests.length > 0 ? gad7Tests[gad7Tests.length - 1].severity : null, max: 21 },
-    { name: "WHO-5 (Hạnh Phúc)", scoreRaw: who5Tests.length > 0 ? who5Tests[who5Tests.length - 1].score : null, severity: who5Tests.length > 0 ? (who5Tests[who5Tests.length - 1].score * 4 >= 50 ? "normal" : "mild") : null, max: 25 },
-    { name: "DASS-42 (Trầm Cảm)", scoreRaw: dassTests.length > 0 ? dassTests[dassTests.length - 1].scores?.D : null, severity: dassTests.length > 0 ? (dassTests[dassTests.length - 1].scores?.D > 13 ? "moderate" : "normal") : null, max: 42 },
-    { name: "DASS-42 (Lo Âụ)", scoreRaw: dassTests.length > 0 ? dassTests[dassTests.length - 1].scores?.A : null, severity: dassTests.length > 0 ? (dassTests[dassTests.length - 1].scores?.A > 9 ? "moderate" : "normal") : null, max: 42 },
+    { name: "PHQ-9 · Triệu chứng khí sắc", scoreRaw: phq9Tests.length > 0 ? phq9Tests[phq9Tests.length - 1].score : null, severity: phq9Tests.length > 0 ? phq9Tests[phq9Tests.length - 1].severity : null, max: 27 },
+    { name: "GAD-7 · Triệu chứng lo âu", scoreRaw: gad7Tests.length > 0 ? gad7Tests[gad7Tests.length - 1].score : null, severity: gad7Tests.length > 0 ? gad7Tests[gad7Tests.length - 1].severity : null, max: 21 },
+    { name: "WHO-5 · Trạng thái tinh thần", scoreRaw: who5Tests.length > 0 ? who5Tests[who5Tests.length - 1].score : null, severity: who5Tests.length > 0 ? (who5Tests[who5Tests.length - 1].score * 4 < 50 ? "further_assessment" : "no_alert_threshold") : null, max: 25 },
+    { name: "Hồ sơ DASS · D", scoreRaw: dassTests.length > 0 ? dassTests[dassTests.length - 1].scores?.D : null, severity: dassTests.length > 0 ? "recorded" : null, max: 42 },
+    { name: "Hồ sơ DASS · A", scoreRaw: dassTests.length > 0 ? dassTests[dassTests.length - 1].scores?.A : null, severity: dassTests.length > 0 ? "recorded" : null, max: 42 },
   ];
 
   return (
@@ -271,11 +271,11 @@ export default function EvaluationTab({
               <div className="space-y-2 max-w-2xl">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-primary/15 text-primary border border-primary/20">
-                    ⭐ Thang Điểm Phục Hồi Thích Ứng
+                    Nhật ký tự chăm sóc 7 ngày
                   </span>
                   {periodicAssessment.isDue && (
                     <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse">
-                      ⏰ Đến Hạn Tái Đánh Giá 7 Ngày
+                      {periodicAssessment.daysElapsed == null ? "Bắt đầu tự đánh giá" : "Đến hạn tự đánh giá lại"}
                     </span>
                   )}
                 </div>
@@ -287,7 +287,7 @@ export default function EvaluationTab({
                 </p>
               </div>
 
-              {/* Gauge Score Ring */}
+              {/* Activity consistency ring — derived from recorded actions only. */}
               <div className="flex items-center gap-4 shrink-0 bg-white/80 dark:bg-card/80 backdrop-blur-xl p-4 rounded-2xl border border-border/60 shadow-md">
                 <div className="relative w-16 h-16 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
@@ -299,7 +299,7 @@ export default function EvaluationTab({
                     />
                     <path
                       className="stroke-primary transition-all duration-1000 ease-out"
-                      strokeDasharray={`${weeklyDigest.overallRecoveryScore}, 100`}
+                      strokeDasharray={`${weeklyDigest.overallRecoveryScore ?? 0}, 100`}
                       strokeWidth="3.5"
                       strokeLinecap="round"
                       fill="none"
@@ -307,12 +307,18 @@ export default function EvaluationTab({
                     />
                   </svg>
                   <span className="absolute text-sm font-black text-primary">
-                    {weeklyDigest.overallRecoveryScore}
+                    {weeklyDigest.overallRecoveryScore ?? "—"}
                   </span>
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Điểm Phục Hồi</p>
-                  <p className="text-xs font-black text-foreground">{weeklyDigest.overallRecoveryScore >= 75 ? "Phục hồi rất tốt" : "Duy trì ổn định"}</p>
+                  <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Mức duy trì</p>
+                  <p className="text-xs font-black text-foreground">
+                    {!weeklyDigest.hasWeeklyData
+                      ? "Chưa đủ dữ liệu"
+                      : weeklyDigest.overallRecoveryScore >= 70
+                        ? "Duy trì đều"
+                        : "Đang hình thành thói quen"}
+                  </p>
                   <button
                     onClick={() => onNavigateToTab("chat")}
                     className="mt-1.5 flex items-center gap-1 text-[9.5px] font-black text-primary hover:underline"
@@ -332,7 +338,7 @@ export default function EvaluationTab({
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-primary" />
                   <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Báo Cáo Nhật Ký Chữa Lành Hàng Tuần (Weekly Digest)
+                    Tổng kết tự chăm sóc trong tuần
                   </h4>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-primary/10 text-primary">
@@ -387,12 +393,16 @@ export default function EvaluationTab({
                 </div>
                 <div className="flex items-center justify-between text-[10px] font-bold">
                   <span className="text-muted-foreground">Lần test gần nhất:</span>
-                  <span className="text-primary font-black">{periodicAssessment.daysElapsed} ngày trước</span>
+                  <span className="text-primary font-black">
+                    {periodicAssessment.daysElapsed == null ? "Chưa thực hiện" : `${periodicAssessment.daysElapsed} ngày trước`}
+                  </span>
                 </div>
 
                 <div className="p-3 rounded-xl bg-muted/40 border border-border/50 text-[9.5px] font-bold leading-relaxed text-foreground/80">
                   {periodicAssessment.isDue
-                    ? "⚠️ Đã đến hạn tái đánh giá định kỳ 7 ngày! Hãy thực hiện một bài test ngắn bên dưới để AI cập nhật lộ trình."
+                    ? periodicAssessment.daysElapsed == null
+                      ? "Chưa có kết quả nền. Cậu có thể bắt đầu bằng một bài tự đánh giá ngắn."
+                      : "Đã đủ 7 ngày từ lần tự đánh giá gần nhất. Cậu có thể làm lại nếu muốn theo dõi xu hướng."
                     : `✅ Chỉ số đang duy trì theo dõi tốt (${periodicAssessment.daysElapsed} ngày kể từ bài test gần nhất).`}
                 </div>
               </div>
@@ -402,7 +412,7 @@ export default function EvaluationTab({
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-accent/15 to-primary/15 border border-accent/30 text-[9.5px] font-black uppercase tracking-wider text-accent active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
               >
                 <Zap className="w-3.5 h-3.5" />
-                {periodicAssessment.isDue ? "Thực hiện tái đánh giá" : "Làm lại bài test"}
+                  {periodicAssessment.daysElapsed == null ? "Bắt đầu tự đánh giá" : periodicAssessment.isDue ? "Tự đánh giá lại" : "Xem các bài đánh giá"}
               </button>
             </div>
           </div>
@@ -411,7 +421,7 @@ export default function EvaluationTab({
           <div className="p-5 rounded-2xl border bg-white/70 dark:bg-card/70 backdrop-blur-xl border-border/60 shadow-sm space-y-4">
             <div className="flex items-center gap-2 border-b border-border/60 pb-3">
               <ShieldCheck className="w-4 h-4 text-primary" />
-              <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Bảng Chỉ Số Khám Lâm Sàng</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-foreground">Kết quả tự đánh giá đã ghi nhận</h4>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -461,7 +471,7 @@ export default function EvaluationTab({
               <div className="flex items-center gap-2">
                 <Brain className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                 <h4 className="text-sm font-black uppercase tracking-wider text-foreground">
-                  Hồ Sơ Tâm Lý & Nhân Cách Cá Nhân Hóa
+                  Ghi nhận cá nhân & Big Five
                 </h4>
               </div>
               <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider bg-violet-500/10 text-violet-600 dark:text-violet-400">
@@ -471,10 +481,18 @@ export default function EvaluationTab({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               {/* Radar Chart */}
-              <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-muted/20 border border-border/50">
-                <h5 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">Biểu Đồ Nét Tính Cách Big Five</h5>
-                <BigFiveRadarChart traits={bigFiveTraits} />
-              </div>
+                <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-muted/20 border border-border/50">
+                  <h5 className="text-[10px] font-black uppercase tracking-wider text-muted-foreground mb-2">Biểu Đồ Nét Tính Cách Big Five</h5>
+                  {bigFiveTraits ? (
+                    <BigFiveRadarChart traits={bigFiveTraits} />
+                  ) : (
+                    <div className="grid min-h-[170px] place-items-center px-6 text-center">
+                      <p className="text-[10.5px] font-semibold leading-relaxed text-muted-foreground">
+                        Chưa có dữ liệu Big Five. Biểu đồ sẽ chỉ xuất hiện sau khi cậu hoàn thành bài đánh giá.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
               {/* Stress Triggers & Traits */}
               <div className="space-y-4">
@@ -527,7 +545,7 @@ export default function EvaluationTab({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-primary" />
-                <h4 className="text-sm font-black uppercase tracking-wider text-foreground">Lịch Sử Điều Trị & Phân Tích</h4>
+                <h4 className="text-sm font-black uppercase tracking-wider text-foreground">Lịch sử hoạt động & tự đánh giá</h4>
               </div>
               {historyLogs.length > 4 && (
                 <button
@@ -588,7 +606,7 @@ export default function EvaluationTab({
         </div>
       )}
 
-      {/* ── WEEKLY HEALING DIGEST MODAL ─────────────────────────────────────── */}
+      {/* ── WEEKLY SELF-CARE DIGEST MODAL ───────────────────────────────────── */}
       <AnimatePresence>
         {showDigestModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
@@ -601,7 +619,7 @@ export default function EvaluationTab({
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
                 <div className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-primary" />
-                  <h3 className="text-base font-black text-foreground">Báo Cáo Nhật Ký Chữa Lành Hàng Tuần</h3>
+                  <h3 className="text-base font-black text-foreground">Tổng kết tự chăm sóc trong tuần</h3>
                 </div>
                 <button
                   onClick={() => setShowDigestModal(false)}
@@ -613,8 +631,10 @@ export default function EvaluationTab({
 
               <div className="space-y-4 text-xs font-bold text-foreground/90">
                 <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 space-y-1.5">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-primary">Điểm Phục Hồi Tinh Thần Hàng Tuần</p>
-                  <p className="text-2xl font-black text-primary">{weeklyDigest.overallRecoveryScore}/100 Điểm</p>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-primary">Mức duy trì hoạt động trong tuần</p>
+                  <p className="text-2xl font-black text-primary">
+                    {weeklyDigest.overallRecoveryScore == null ? "Chưa đủ dữ liệu" : `${weeklyDigest.overallRecoveryScore}/100`}
+                  </p>
                   <p className="text-[10.5px] text-foreground/80 leading-relaxed">{weeklyDigest.weeklyAiEncouragement}</p>
                 </div>
 

@@ -13,6 +13,54 @@
       "destination": "https://api.hugowishpax.studio/api/bios/certificate/:slug/:phase"
     },
     {
+      "source": "/introduction",
+      "destination": "/introduction/index.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/services/index.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/booking",
+      "destination": "/booking/index.html"
+    },
+    {
+      "source": "/student-benefits",
+      "destination": "/student-benefits/index.html"
+    },
+    {
+      "source": "/student-pricing",
+      "destination": "/student-pricing/index.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy/index.html"
+    },
+    {
+      "source": "/user-guide",
+      "destination": "/user-guide/index.html"
+    },
+    {
+      "source": "/banhocduong",
+      "destination": "/banhocduong/index.html"
+    },
+    {
+      "source": "/therapy",
+      "destination": "/therapy/index.html"
+    },
+    {
+      "source": "/radio",
+      "destination": "/radio/index.html"
+    },
+    {
+      "source": "/aura",
+      "destination": "/aura/index.html"
+    },
+    {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",
       "destination": "/index.html"
     }
@@ -24,6 +72,42 @@
         {
           "key": "Cross-Origin-Opener-Policy",
           "value": "unsafe-none"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(image|favicon)/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
+    },
+    {
+      "source": "/(sw.js|push-sw.js|workbox-(.*).js|manifest.webmanifest)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(admin|member|partner|customer-portal|pay|s|certificate|login|support-request|joy|preview)(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
         }
       ]
     }

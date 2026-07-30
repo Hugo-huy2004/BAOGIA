@@ -19,18 +19,26 @@ import {
   PenTool,
   Rocket,
   CalendarCheck,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import {
+  SkyCodeScene,
+  StudioSpaceScene,
+  StudentBioScene,
+  JoyScene,
+  ArcadeScene,
+} from "../../components/public/IntroScenes";
+import StudioPageNav from "../../components/public/StudioPageNav";
 
 /* ============================================================================
    HUGO STUDIO — INTRODUCTION (v4 "cinematic")
-   Layout điện ảnh (hero video, chữ khổng lồ pull-up, reveal từng ký tự)
+   Layout điện ảnh (hero dựng bằng CSS, chữ khổng lồ pull-up, reveal từng ký tự)
    nhưng màu & font đồng bộ 100% với design system của app:
    - Màu: hsl tokens (background/card/foreground/primary/accent/warning)
      → light/dark tự động theo theme chung.
    - Font: Plus Jakarta Sans (body) + Quicksand (display) + gradient text
      primary→accent→warning như các trang khác.
-   Hero luôn tối (nội dung nằm trên video) ở cả hai chế độ.
    Trang cuộn theo #root của app — hiệu ứng scroll đo bằng
    getBoundingClientRect/scroll capture nên không phụ thuộc container.
    ========================================================================== */
@@ -41,13 +49,6 @@ const EASE = [0.16, 1, 0.3, 1];
 const INK = "var(--cine-ink)";
 const INK_DIM = "var(--cine-dim)";
 const ACCENT = "var(--cine-accent)";
-// Hero nằm trên video tối nên chữ trắng cố định ở mọi theme
-const HERO_CREAM = "#ffffff";
-
-const HERO_VIDEO =
-  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4";
-const CARD_VIDEO =
-  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4";
 
 const JASON_PHOTO =
   "https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png";
@@ -97,7 +98,7 @@ const PAGE_CSS = `
   }
   .cine-serif { font-family: 'Quicksand', sans-serif; font-style: italic; font-weight: 700; }
   .cine-grad {
-    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--warning)));
+    background-image: linear-gradient(90deg, #2678ff 0%, #0797ff 28%, #7359e8 55%, #d45aa3 78%, #f0445e 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -120,6 +121,7 @@ const PAGE_CSS = `
   @keyframes cine-marquee { to { transform: translateX(-50%); } }
   .cine-marquee { animation: cine-marquee 32s linear infinite; }
   .cine-marquee:hover { animation-play-state: paused; }
+
 `;
 
 /* ---------------------------------------------------------------------------
@@ -323,56 +325,86 @@ function AboutCard({ children, className = "" }) {
 
 function HeroSection({ t }) {
   return (
-    <section className="h-[calc(100vh-56px)] p-4 md:p-6">
-      <div className="relative w-full h-full rounded-2xl md:rounded-[2rem] overflow-hidden bg-black">
-        <video
-          src={HERO_VIDEO}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+    <section className="min-h-[calc(100svh-56px)] p-3 sm:p-4 md:p-6">
+      <div className="relative min-h-[calc(100svh-80px)] w-full overflow-hidden rounded-[1.5rem] cine-card-bg md:min-h-[calc(100svh-104px)] md:rounded-[2rem]">
+        <div
+          className="absolute inset-0"
+          style={{ filter: "saturate(1.16) contrast(1.04)" }}
+        >
+          <SkyCodeScene />
+        </div>
+        <div className="absolute inset-0 cine-noise-overlay opacity-[0.05] pointer-events-none" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, color-mix(in srgb, var(--cine-bg) 76%, transparent) 0%, color-mix(in srgb, var(--cine-bg) 58%, transparent) 30%, color-mix(in srgb, var(--cine-bg) 24%, transparent) 52%, transparent 70%), linear-gradient(to top, color-mix(in srgb, var(--cine-bg) 38%, transparent), transparent 46%)",
+          }}
         />
-        <div className="absolute inset-0 cine-noise-overlay opacity-[0.7] mix-blend-overlay pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
 
-        {/* Hero content — bám đáy */}
-        <div className="absolute bottom-0 left-0 right-0 z-10 px-4 sm:px-6 md:px-10 pb-4 sm:pb-6 md:pb-8">
-          <div className="grid grid-cols-12 gap-4 items-end">
-            <h1
-              className="col-span-12 lg:col-span-8 font-display font-bold leading-[0.85] tracking-[-0.07em] text-[26vw] sm:text-[24vw] md:text-[22vw] lg:text-[20vw] xl:text-[19vw] 2xl:text-[20vw] select-none"
-              style={{ color: HERO_CREAM }}
-            >
-              <WordsPullUp text={t("intro.cine.heroWord")} showAsterisk />
-            </h1>
+        <StudioPageNav
+          active="portfolio"
+          portfolioLabel={t("intro.cine.navPortfolio")}
+          servicesLabel={t("intro.cine.navServices")}
+          className="absolute inset-x-3 top-3 sm:inset-x-5 sm:top-5"
+        />
 
-            <div className="col-span-12 lg:col-span-4 space-y-4 sm:space-y-5 pb-2 lg:pb-6">
+        <div className="relative z-10 flex min-h-[calc(100svh-80px)] items-end px-5 pb-7 pt-28 sm:px-8 sm:pb-10 md:min-h-[calc(100svh-104px)] md:px-12 md:pb-12 lg:px-16">
+          <div className="w-full max-w-6xl">
+            <div className="max-w-3xl">
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE }}
+                className="cine-border-c mb-4 inline-flex items-center gap-2 rounded-full border bg-background/70 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] backdrop-blur"
+                style={{ color: ACCENT }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,.12)]" />
+                {t("intro.cine.heroEyebrow")}
+              </motion.p>
+              <h1
+                className="font-display text-[clamp(2.8rem,8vw,7.6rem)] font-extrabold leading-[0.92] tracking-[-0.055em]"
+                style={{ color: INK }}
+              >
+                <WordsPullUp text={t("intro.cine.heroTitle1")} />
+                <span className="block cine-grad">
+                  <WordsPullUp text={t("intro.cine.heroTitle2")} />
+                </span>
+              </h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.7, ease: EASE }}
-                className="text-xs sm:text-sm md:text-base"
-                style={{ color: "rgba(255, 255, 255, 0.78)", lineHeight: 1.35 }}
+                className="mt-5 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg"
+                style={{ color: INK_DIM }}
               >
-                {t("intro.studio.desc")}
+                {t("intro.cine.heroDesc")}
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.7, ease: EASE }}
+                className="mt-7 flex flex-wrap items-center gap-3"
               >
                 <Magnetic className="inline-block">
-                  {/* trên video: nút luôn kem chữ đen */}
-                  <Link
-                    to="/booking"
+                  <a
+                    href="#cine-about"
                     className="group inline-flex items-center gap-2 hover:gap-3 rounded-full pl-5 pr-1.5 py-1.5 font-bold text-sm sm:text-base text-white bg-primary shadow-lg shadow-primary/25 transition-all"
                   >
                     {t("intro.cine.heroCta")}
                     <span className="bg-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-110">
                       <ArrowRight size={16} className="text-primary" />
                     </span>
-                  </Link>
+                  </a>
                 </Magnetic>
+                <Link
+                  to="/services"
+                  className="cine-border-c inline-flex items-center gap-2 rounded-full border bg-background/65 px-5 py-3 text-sm font-bold backdrop-blur transition-colors hover:bg-background"
+                  style={{ color: INK }}
+                >
+                  <BriefcaseBusiness size={16} />
+                  {t("intro.cine.heroSecondaryCta")}
+                </Link>
               </motion.div>
             </div>
           </div>
@@ -412,6 +444,74 @@ function StatsStrip({ t }) {
             <p className="cine-faint text-[11px] sm:text-xs leading-snug">{s.l}</p>
           </motion.div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function SelectedWorkSection({ t }) {
+  const work = t("intro.cine.work.items", { returnObjects: true });
+  const icons = [IdCard, Sparkles, Rocket];
+  const routes = ["/student-benefits", "/member/joy", "/member/utilities/arcade"];
+  const scenes = [StudentBioScene, JoyScene, ArcadeScene];
+
+  return (
+    <section id="cine-work" className="px-4 py-16 md:px-6 md:py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-end">
+          <div>
+            <p className="cine-accent-t text-[10px] font-bold uppercase tracking-[0.25em] sm:text-xs">
+              {t("intro.cine.work.eyebrow")}
+            </p>
+            <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl" style={{ color: INK }}>
+              {t("intro.cine.work.title")}
+            </h2>
+          </div>
+          <p className="cine-muted max-w-2xl text-sm leading-relaxed md:justify-self-end md:text-base">
+            {t("intro.cine.work.desc")}
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
+          {work.map((item, index) => {
+            const Icon = icons[index];
+            const Scene = scenes[index];
+            return (
+              <motion.article
+                key={item.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: index * 0.1, duration: 0.55, ease: EASE }}
+                className="cine-card-bg cine-border-c cine-hover-border group flex min-h-[350px] flex-col overflow-hidden rounded-[1.75rem] border p-5 transition-colors sm:p-6"
+              >
+                <div className="relative mb-6 h-40 overflow-hidden rounded-2xl">
+                  <Scene />
+                  <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-card shadow-lg">
+                      <Icon size={22} style={{ color: ACCENT }} />
+                    </span>
+                    <span className="rounded-full border border-white/30 bg-background/70 px-3 py-1.5 font-mono text-[10px] font-extrabold text-foreground backdrop-blur">
+                      0{index + 1} · {item.badge}
+                    </span>
+                  </div>
+                </div>
+                <p className="cine-accent-t text-[9px] font-bold uppercase tracking-[0.2em]">{item.kind}</p>
+                <h3 className="mt-2 font-display text-xl font-extrabold" style={{ color: INK }}>{item.title}</h3>
+                <p className="cine-muted mt-3 text-xs leading-relaxed sm:text-sm">{item.desc}</p>
+                <p className="cine-border-c cine-faint mt-5 border-t pt-4 text-[11px] leading-relaxed">{item.outcome}</p>
+                <Link
+                  to={routes[index]}
+                  className="mt-auto inline-flex items-center gap-1.5 pt-5 text-xs font-bold"
+                  style={{ color: ACCENT }}
+                >
+                  {item.cta}
+                  <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
+                </Link>
+              </motion.article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -780,18 +880,17 @@ function FeaturesSection({ t }) {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3 lg:h-[480px]">
-          {/* Card 1 — video (luôn tối, chữ kem trên video) */}
-          <FeatureCard i={0} className="relative min-h-[280px] lg:min-h-0 bg-black">
-            <video
-              src={CARD_VIDEO}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
+          {/* Card 1 — scene dựng bằng code, theo light/dark */}
+          <FeatureCard i={0} className="relative min-h-[280px] lg:min-h-0 cine-card-bg">
+            <StudioSpaceScene />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to top, color-mix(in srgb, var(--cine-bg) 90%, transparent), transparent 55%)",
+              }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <p className="absolute bottom-5 left-5 right-5 text-base sm:text-lg font-medium" style={{ color: HERO_CREAM }}>
+            <p className="absolute bottom-5 left-5 right-5 text-base sm:text-lg font-medium" style={{ color: INK }}>
               {t("intro.cine.cardVideo")}
             </p>
           </FeatureCard>
@@ -934,11 +1033,9 @@ export default function IntroductionPage() {
   const { t } = useTranslation();
 
   useHeadMeta({
-    title: "Hugo Studio — Portfolio & Dịch Vụ Thiết Kế Web Sinh Viên",
-    description:
-      "Hugo Studio — Portfolio và dịch vụ làm web cá nhân của Hugo Lê: sửa web từ 150k, landing page từ 999k, website trọn gói từ 2.49tr. Tạo trang bio cá nhân miễn phí và tiện ích học tập cho học sinh, sinh viên.",
-    keywords:
-      "làm web sinh viên, thiết kế website giá rẻ, tạo bio miễn phí, bio miễn phí, link in bio, làm web giá rẻ, làm landing page, Hugo Studio, Hugo Lê, portfolio",
+    title: t("intro.cine.meta.title"),
+    description: t("intro.cine.meta.description"),
+    keywords: t("intro.cine.meta.keywords"),
     canonicalUrl: "https://www.hugowishpax.studio/introduction",
   });
 
@@ -953,6 +1050,7 @@ export default function IntroductionPage() {
       <AboutSection t={t} jasonPhoto={jasonPhoto} />
       <MascotSection t={t} />
       <TechMarquee t={t} />
+      <SelectedWorkSection t={t} />
       <FeaturesSection t={t} />
       <ContactSection t={t} profile={data?.profile} />
     </div>

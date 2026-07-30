@@ -429,6 +429,7 @@ async def analyze_test(request: TestAnalysisRequest, req: Request):
 
 @app.post("/api/ai/analyze-report")
 async def analyze_report(file: UploadFile = File(...)):
+    max_report_bytes = 10 * 1024 * 1024
     content_type = file.content_type
     if not content_type or (not content_type.startswith("image/") and content_type != "application/pdf"):
         raise HTTPException(
@@ -436,12 +437,18 @@ async def analyze_report(file: UploadFile = File(...)):
             detail="Định dạng file không hợp lệ! Vui lòng gửi ảnh (PNG, JPG) hoặc file PDF bệnh án."
         )
     try:
-        file_bytes = await file.read()
+        file_bytes = await file.read(max_report_bytes + 1)
+        if not file_bytes:
+            raise HTTPException(status_code=400, detail="Tệp tải lên không có dữ liệu.")
+        if len(file_bytes) > max_report_bytes:
+            raise HTTPException(status_code=413, detail="Tệp vượt quá giới hạn 10 MB.")
         extracted_data = await ai_service.analyze_medical_image_or_pdf(
             file_bytes=file_bytes,
             mime_type=content_type
         )
         return extracted_data
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi xử lý file bệnh án: {str(e)}")
 

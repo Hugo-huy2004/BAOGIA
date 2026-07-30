@@ -19,7 +19,8 @@ export default function LoginPage() {
     title: "Đăng Nhập | Hugo Studio",
     description: "Đăng ký Bio Link sinh viên miễn phí với email .edu hoặc đăng nhập trang quản trị viên của Hugo Studio.",
     keywords: "đăng nhập Hugo Studio, tạo Bio sinh viên, đăng nhập quản trị, Bio Link edu",
-    canonicalUrl: "https://www.hugowishpax.studio/login"
+    canonicalUrl: "https://www.hugowishpax.studio/login",
+    robots: "noindex, nofollow, noarchive",
   });
 
   const navigate = useNavigate();

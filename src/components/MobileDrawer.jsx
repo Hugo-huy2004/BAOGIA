@@ -65,18 +65,8 @@ export default function MobileDrawer() {
 
         {/* Header */}
         <div className="p-6 pt-12 border-b border-border">
-          <h2 className="font-display text-lg font-bold leading-none tracking-wider flex flex-wrap gap-0.5">
-            <span className="text-destructive">H</span>
-            <span className="text-warning">u</span>
-            <span className="text-warning">g</span>
-            <span className="text-success">o</span>
-            <span className="w-1"></span>
-            <span className="text-info">S</span>
-            <span className="text-primary">t</span>
-            <span className="text-accent">u</span>
-            <span className="text-accent">d</span>
-            <span className="text-destructive">i</span>
-            <span className="text-info">o</span>
+          <h2 className="font-display bg-[linear-gradient(90deg,#2678ff_0%,#0797ff_30%,#7359e8_58%,#d45aa3_80%,#f0445e_100%)] bg-clip-text text-lg font-bold leading-none tracking-wider text-transparent">
+            Hugo Studio
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
             {t("navbar.hello", "Xin Chào")}

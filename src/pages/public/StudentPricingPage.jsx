@@ -31,9 +31,9 @@ export default function StudentPricingPage() {
   const { t, i18n } = useTranslation();
 
   useHeadMeta({
-    title: "Bảng Giá Đặc Quyền HSSV | Hugo Studio",
-    description: "Bảng giá và các gói lập trình web thiết kế riêng cho Học sinh Sinh viên. Hỗ trợ coursework bài tập lớn, bento portfolio giá rẻ, cam kết liêm chính học thuật.",
-    keywords: "bảng giá sinh viên, coursework, bài tập lớn, bento portfolio, thiết kế web sinh viên, ưu đãi học sinh",
+    title: "Bảng Giá Dành Cho Học Sinh, Sinh Viên | Hugo Studio",
+    description: "Các gói trang Bio, hồ sơ năng lực và hỗ trợ kỹ thuật dành cho học sinh, sinh viên, kèm điều kiện xác minh và nguyên tắc liêm chính học thuật.",
+    keywords: "bảng giá sinh viên, trang Bio sinh viên, hồ sơ năng lực, hỗ trợ kỹ thuật, liêm chính học thuật",
     canonicalUrl: "https://www.hugowishpax.studio/student-pricing",
   });
 

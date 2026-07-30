@@ -7,6 +7,7 @@
  */
 import Fuse from "fuse.js";
 import { matchTherapyMethod } from "./therapyMethods";
+import { DEFAULT_HOTLINES } from "./hotlines";
 import { loadSecureMemory, saveSecureMemory, updateMemoryFromText } from "../utils/secureMemory";
 
 function getFriendlyName(bio) {
@@ -430,10 +431,10 @@ export const INTENT_DATABASE = [
       const name = getFriendlyName(bio);
       return `${name} ơi, tớ đang nghe thấy một nỗi đau rất lớn trong những gì cậu vừa nói, và tớ không xem nhẹ nó một chút nào. Cậu không hề yếu đuối hay sai trái khi cảm thấy như vậy — chỉ là cậu đang phải mang một gánh nặng quá sức một mình ngay lúc này. Tớ thật lòng mong cậu được an toàn, và tớ sẽ ở đây cùng cậu qua khoảnh khắc này. Ngay bây giờ, xin cậu hãy chạm vào một trong các nút gọi khẩn cấp dưới đây hoặc tìm một người cậu tin tưởng để họ ở bên cậu lúc này — cậu xứng đáng được giúp đỡ và không phải một mình chịu đựng điều này.`;
     },
-    quickActions: [
-      { label: "Gọi Cấp Cứu 115", tel: "115" },
-      { label: "Đường Dây Nóng Tâm Lý 1800 599 920", tel: "1800599920" }
-    ]
+    quickActions: DEFAULT_HOTLINES.map((hotline) => ({
+      label: `${hotline.label}${hotline.note ? ` · ${hotline.note}` : ""}`,
+      tel: hotline.number
+    }))
   },
   {
     id: "clinical_tests",
@@ -445,14 +446,12 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: (bio) => {
       const name = getFriendlyName(bio);
-      return [`Được chứ! Tớ có cả 6 bài chuẩn lâm sàng nè — cậu chọn 1 bài, hoặc làm hết một lượt để tớ nắm rõ tình trạng ${name} luôn cũng được.`, `Qua tab 'Đánh Giá' làm nha, hoặc bấm ngay các nút bên dưới — tớ lưu kết quả và theo dõi tiến triển cho cậu mỗi lần luôn.`];
+      return [`Được chứ, ${name}. HugoPSY có PHQ-9, GAD-7 và WHO-5 để sàng lọc hoặc tự theo dõi, cùng Big Five để tham khảo về tính cách. Đây không phải công cụ chẩn đoán và cậu không cần làm tất cả cùng lúc.`, `Cậu có thể chọn một bài phù hợp bên dưới; HugoPSY sẽ lưu kết quả để cậu tự xem xu hướng theo thời gian.`];
     },
     suggestPhq9: true,
     suggestGad7: true,
     suggestWho5: true,
-    suggestBigFive: true,
-    suggestDass42: true,
-    suggestMmpi30: true
+    suggestBigFive: true
   },
   {
     id: "gratitude",
@@ -493,7 +492,7 @@ export const INTENT_DATABASE = [
       "test tâm lý gồm những gì", "có bao nhiêu bài trắc nghiệm", "có test gì"
     ],
     generateResponse: () => {
-      return [`Hệ thống có 6 bài chuẩn lâm sàng: PHQ-9 (trầm cảm), GAD-7 (lo âu), WHO-5 (hạnh phúc), Big Five (nhân cách), DASS-42 (stress/lo âu/trầm cảm) và MMPI (sàng lọc 30 câu).`, `Kể tớ tình trạng hiện tại, tớ gợi ý bài hợp nhất — hoặc nói "cho tớ làm hết bài test" để tớ đưa hết một lượt, hay vào tab 'Đánh Giá' chọn luôn cũng được!`];
+      return [`HugoPSY hiện mở 4 công cụ: PHQ-9 và GAD-7 để sàng lọc triệu chứng, WHO-5 để tự theo dõi trạng thái tinh thần, và Big Five để tham khảo về tính cách.`, `Kết quả không phải chẩn đoán. Cậu có thể kể tình trạng hiện tại để tớ gợi ý một bài phù hợp, hoặc vào tab “Đánh giá” để tự chọn.`];
     }
   },
   {

@@ -17,9 +17,9 @@ const FAQS = [
 export default function FAQPage() {
   const { t, i18n } = useTranslation();
   useHeadMeta({
-    title: "Câu Hỏi Thường Gặp — Làm Web Giá Rẻ & Bio Miễn Phí | Hugo Studio",
-    description: "Giải đáp thắc mắc về dịch vụ làm web giá rẻ, tạo bio cá nhân miễn phí, chi phí thiết kế website, ưu đãi học sinh sinh viên và cách thức hoạt động tại Hugo Studio.",
-    keywords: "câu hỏi thường gặp, FAQ Hugo Studio, làm web giá rẻ, bio miễn phí, chi phí thiết kế website, ưu đãi sinh viên, thiết kế portfolio",
+    title: "Câu Hỏi Thường Gặp Về Hugo Studio",
+    description: "Giải đáp về dịch vụ thiết kế website, trang Bio dành cho người học, chi phí, thời gian thực hiện và cách Hugo Studio đồng hành cùng từng dự án.",
+    keywords: "câu hỏi Hugo Studio, dịch vụ thiết kế website, trang Bio sinh viên, chi phí làm website",
     canonicalUrl: "https://www.hugowishpax.studio/faq"
   });
 
