@@ -728,7 +728,7 @@ function MemberPortalPage() {
   // thanh tab của portal biến mất, và lối duy nhất quay lại là nút thoát của
   // chính nó — giống HugoIDE / HugoArcade.
   const isFullscreenUtility = (activeTab === "utilities" && (
-    subTab === "ide" || subTab === "arcade" || subTab === "store" || subTab === "hugoso" ||
+    subTab === "ide" || subTab === "arcade" || subTab === "store" || subTab === "hugoso" || subTab === "deco" ||
     (subTab === "psychology" && isMobileView)
   )) || activeTab === "map";
 

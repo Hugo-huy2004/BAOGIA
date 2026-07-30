@@ -487,7 +487,18 @@ const BioSchema = new mongoose.Schema(
         clock: { type: String, default: null }
       },
       positions: { type: mongoose.Schema.Types.Mixed, default: {} },
-      unlockedItems: { type: [String], default: [] }
+      unlockedItems: { type: [String], default: [] },
+      story: {
+        claimedChapters: { type: [Number], default: [] },
+        startedAt: { type: Date, default: Date.now },
+        completedAt: { type: Date, default: null },
+        lastDailyClaimKey: { type: String, default: '' },
+        dailyStreak: { type: Number, default: 0 },
+        stats: {
+          cleaned: { type: Number, default: 0 },
+          fed: { type: Number, default: 0 }
+        }
+      }
     },
     hugoCoderBasicLifetime: {
       type: Boolean,

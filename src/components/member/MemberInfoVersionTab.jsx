@@ -169,6 +169,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
   const [readClaimed, setReadClaimed] = useState(!!bio?.infoReadBonusClaimed);
   const [readUnlocked, setReadUnlocked] = useState(!!bio?.infoReadBonusClaimed);
   const [progress, setProgress] = useState(0);
+  const claimLocksRef = useRef(new Set());
 
   // Thẻ hiển thị là thẻ thật của người đang đăng nhập, không phải ảnh mẫu.
   const referralCount = useJoyStore((s) => s.referralCount);
@@ -256,7 +257,8 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
   }, []);
 
   const claim = useCallback(async ({ request, setBusy, setDone, bioField, successKey, errorKey }) => {
-    if (!bio?.email) return;
+    if (!bio?.email || claimLocksRef.current.has(bioField)) return;
+    claimLocksRef.current.add(bioField);
     setBusy(true);
     try {
       const res = await request(bio.email);
@@ -269,6 +271,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
     } catch (_) {
       showToast?.(t(errorKey), "error");
     } finally {
+      claimLocksRef.current.delete(bioField);
       setBusy(false);
     }
   }, [bio, onBioUpdate, showToast, t]);

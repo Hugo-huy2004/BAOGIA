@@ -44,6 +44,8 @@ export const JOY_TITLES = {
   ide_course_completion: 'Tốt nghiệp HugoCoder',
   deco_rent: 'Thuê Ký Túc Xá HugoHome',
   deco_clean: 'Dọn dẹp Ký Túc Xá',
+  deco_story: 'Hoàn thành chương HugoRoom',
+  deco_daily: 'Duy trì căn phòng 27',
   chat_tokens_exchange: 'Đổi thêm lượt trò chuyện',
   coder_exam_retake: 'Mua lượt thi lại HugoCoder',
   lifetime_unlock: 'Mở khoá vĩnh viễn một chặng',
@@ -104,10 +106,11 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
 
   const newBalance = updatedBio.joyBalance;
 
-  // Cập nhật lại số dư cho đối tượng bioDoc truyền vào từ caller
-  if (opts.bioDoc) {
-    opts.bioDoc.joyBalance = newBalance;
-  }
+  // Keep the loaded document in sync as well. Several callers use the return
+  // value immediately without passing bioDoc; leaving this stale made a
+  // successful reward appear to return the previous balance.
+  bio.joyBalance = newBalance;
+  if (opts.bioDoc && opts.bioDoc !== bio) opts.bioDoc.joyBalance = newBalance;
 
   // Ghi nhận lịch sử giao dịch (JoyLedger)
   await JoyLedger.create({

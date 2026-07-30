@@ -658,8 +658,11 @@ router.post('/claim-info-bonus', requireMember, async (req, res) => {
     }
 
     const result = await awardJoy(email, 20, 'info_bonus', 'Khám phá Info & Version (+20 JOY)');
-    bio.infoBonusClaimed = true;
-    await bio.save();
+    // Use a narrow update instead of bio.save(). Older profiles can contain
+    // legacy fields that no longer pass the full current schema validation;
+    // saving the entire document used to turn an otherwise successful claim
+    // into HTTP 400 after JOY had already been credited.
+    await Bio.updateOne({ _id: bio._id }, { $set: { infoBonusClaimed: true } });
 
     res.json({ success: true, balance: result.balance });
   } catch (error) {
@@ -685,8 +688,7 @@ router.post('/claim-info-read-bonus', requireMember, async (req, res) => {
     }
 
     const result = await awardJoy(email, 50, 'info_read_bonus', 'Đọc hết bản nâng cấp 2.0 (+50 JOY)');
-    bio.infoReadBonusClaimed = true;
-    await bio.save();
+    await Bio.updateOne({ _id: bio._id }, { $set: { infoReadBonusClaimed: true } });
 
     res.json({ success: true, balance: result.balance });
   } catch (error) {

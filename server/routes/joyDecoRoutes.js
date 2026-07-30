@@ -78,6 +78,171 @@ const DECO_STORE = {
   floor_tile_checker: { type: 'floorStyle', price: 150, name: 'Sàn Gạch Caro' }
 };
 
+const DECO_STORY = Object.freeze([
+  {
+    chapter: 1,
+    title: 'Chiếc chìa khóa phòng 27',
+    reward: 80,
+    unlocks: ['wall_pink', 'plant_fern', 'rug_round'],
+    requirements: [
+      { id: 'clean', label: 'Dọn 2 đống rác đầu tiên' },
+      { id: 'move', label: 'Kéo và sắp xếp lại ít nhất 1 món đồ' }
+    ]
+  },
+  {
+    chapter: 2,
+    title: 'Một góc thuộc về mình',
+    reward: 100,
+    unlocks: ['poster_hugo', 'lamp_floor'],
+    requirements: [
+      { id: 'wall', label: 'Đổi màu bức tường cũ' },
+      { id: 'green', label: 'Đặt một chậu cây trong phòng' },
+      { id: 'cozy50', label: 'Đạt 50% độ ấm cúng' }
+    ]
+  },
+  {
+    chapter: 3,
+    title: 'Bưu kiện không ghi tên',
+    reward: 130,
+    unlocks: ['cat_orange'],
+    requirements: [
+      { id: 'poster', label: 'Treo poster Hugo bí ẩn' },
+      { id: 'lamp', label: 'Bật một nguồn sáng mới' }
+    ]
+  },
+  {
+    chapter: 4,
+    title: 'Vị khách dưới mái hiên',
+    reward: 150,
+    unlocks: ['window_night'],
+    requirements: [
+      { id: 'pet', label: 'Cho một người bạn nhỏ vào phòng' },
+      { id: 'feed', label: 'Chăm sóc và cho bạn ấy ăn' },
+      { id: 'clean3', label: 'Đã dọn tổng cộng 3 đống rác' }
+    ]
+  },
+  {
+    chapter: 5,
+    title: 'Đêm mở cửa Hugo Campus',
+    reward: 300,
+    unlocks: [],
+    requirements: [
+      { id: 'night', label: 'Chuyển căn phòng sang khung cảnh đêm' },
+      { id: 'cozy70', label: 'Đạt 70% độ ấm cúng' },
+      { id: 'public', label: 'Bật trưng bày phòng trên Bio' }
+    ]
+  }
+]);
+
+function roomCoziness(items = {}) {
+  const filled = ['desk', 'chair', 'computer', 'window', 'poster', 'rug', 'plant', 'lamp', 'shelf', 'clock', 'pet']
+    .filter((slot) => items?.[slot]).length;
+  return Math.min(100, Math.round((filled / 11) * 80) + (items?.pet ? 12 : 0) + (items?.plant ? 8 : 0));
+}
+
+function ensureStoryContainer(room) {
+  if (!room.story) room.story = {};
+  if (!room.story.stats) room.story.stats = {};
+  if (!Array.isArray(room.story.claimedChapters)) room.story.claimedChapters = [];
+  return room.story;
+}
+
+function vietnamDayKey(value = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(new Date(value));
+}
+
+function getDailyRoomState(room = {}) {
+  const todayKey = vietnamDayKey();
+  const items = room.items || {};
+  const hasPet = Boolean(items.pet);
+  const requirements = [
+    {
+      id: 'daily_clean',
+      label: 'Dọn phòng hôm nay và giữ tối đa 2 đống rác',
+      complete: vietnamDayKey(room.lastCleanedAt || 0) === todayKey && Number(room.trashCount ?? 6) <= 2
+    },
+    {
+      id: 'daily_cozy',
+      label: 'Duy trì độ ấm cúng từ 70%',
+      complete: roomCoziness(items) >= 70
+    },
+    {
+      id: 'daily_pet',
+      label: hasPet ? 'Chăm sóc thú cưng hôm nay' : 'Không có thú cưng cần chăm sóc',
+      complete: !hasPet || vietnamDayKey(room.petFedAt || 0) === todayKey
+    },
+    {
+      id: 'daily_public',
+      label: 'Giữ căn phòng mở trưng bày',
+      complete: Boolean(room.enabled)
+    }
+  ];
+  const claimedToday = room.story?.lastDailyClaimKey === todayKey;
+  return {
+    reward: 50,
+    dayKey: todayKey,
+    claimedToday,
+    ready: !claimedToday && requirements.every((requirement) => requirement.complete),
+    streak: Number(room.story?.dailyStreak || 0),
+    requirements
+  };
+}
+
+function evaluateStoryRequirement(id, room = {}) {
+  const items = room.items || {};
+  const storyStats = room.story?.stats || {};
+  const wall = room.wallColor || 'wall_white';
+  const positions = room.positions || {};
+  const checks = {
+    clean: Number(storyStats.cleaned || 0) >= 2,
+    move: Object.keys(positions).length >= 1,
+    wall: wall !== 'wall_white' && wall !== '#f4f4f5',
+    green: Boolean(items.plant),
+    cozy50: roomCoziness(items) >= 50,
+    poster: items.poster === 'poster_hugo',
+    lamp: Boolean(items.lamp),
+    pet: Boolean(items.pet),
+    feed: Number(storyStats.fed || 0) >= 1,
+    clean3: Number(storyStats.cleaned || 0) >= 3,
+    night: items.window === 'window_night',
+    cozy70: roomCoziness(items) >= 70,
+    public: Boolean(room.enabled)
+  };
+  return Boolean(checks[id]);
+}
+
+function getStoryState(room = {}) {
+  const claimedChapters = [...new Set((room.story?.claimedChapters || []).map(Number))]
+    .filter((chapter) => chapter >= 1 && chapter <= DECO_STORY.length)
+    .sort((a, b) => a - b);
+  const activeChapter = DECO_STORY.find((entry) => !claimedChapters.includes(entry.chapter)) || null;
+  const chapter = activeChapter
+    ? {
+        ...activeChapter,
+        requirements: activeChapter.requirements.map((requirement) => ({
+          ...requirement,
+          complete: evaluateStoryRequirement(requirement.id, room)
+        }))
+      }
+    : null;
+  return {
+    claimedChapters,
+    activeChapter: chapter,
+    completed: !activeChapter,
+    totalChapters: DECO_STORY.length,
+    daily: !activeChapter ? getDailyRoomState(room) : null,
+    stats: {
+      cleaned: Number(room.story?.stats?.cleaned || 0),
+      fed: Number(room.story?.stats?.fed || 0)
+    }
+  };
+}
+
 // GET /api/deco/store - Returns the catalog of items
 router.get('/store', requireMember, async (req, res) => {
   try {
@@ -99,6 +264,7 @@ router.get('/store', requireMember, async (req, res) => {
       trashCount: bio.decoRoom?.trashCount ?? 6,
       petStatus: bio.decoRoom?.petStatus || 'alive',
       petFedAt: bio.decoRoom?.petFedAt || null,
+      story: getStoryState(bio.decoRoom),
       balance: bio.joyBalance || 0,
       email: bio.email
     });
@@ -246,6 +412,177 @@ router.post('/save', requireMember, async (req, res) => {
   }
 });
 
+// POST /api/deco/story/claim - Server-verified chapter completion.
+router.post('/story/claim', requireMember, async (req, res) => {
+  try {
+    const requestedChapter = Number(req.body?.chapter);
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+
+    const currentState = getStoryState(bio.decoRoom);
+    if (currentState.completed) {
+      return res.json({ success: true, alreadyClaimed: true, story: currentState, balance: bio.joyBalance });
+    }
+
+    const active = currentState.activeChapter;
+    if (!Number.isInteger(requestedChapter) || requestedChapter !== active.chapter) {
+      return res.status(409).json({
+        error: `Bạn cần hoàn thành chương ${active.chapter} trước.`,
+        story: currentState
+      });
+    }
+
+    const incomplete = active.requirements.filter((requirement) => !requirement.complete);
+    if (incomplete.length) {
+      return res.status(400).json({
+        error: 'Bạn vẫn còn nhiệm vụ chưa hoàn thành.',
+        missing: incomplete.map((requirement) => requirement.id),
+        story: currentState
+      });
+    }
+
+    // Reserve the chapter atomically before awarding JOY. This blocks double
+    // taps and two open devices from claiming the same chapter twice.
+    const update = {
+      $addToSet: {
+        'decoRoom.story.claimedChapters': requestedChapter,
+        ...(active.unlocks.length ? { 'decoRoom.unlockedItems': { $each: active.unlocks } } : {})
+      }
+    };
+    const reservation = await Bio.updateOne(
+      {
+        _id: bio._id,
+        'decoRoom.story.claimedChapters': { $ne: requestedChapter }
+      },
+      update
+    );
+
+    if (!reservation.modifiedCount) {
+      const latest = await Bio.findById(bio._id);
+      return res.json({
+        success: true,
+        alreadyClaimed: true,
+        story: getStoryState(latest?.decoRoom),
+        balance: latest?.joyBalance || 0,
+        unlockedItems: latest?.decoRoom?.unlockedItems || []
+      });
+    }
+
+    const rewardResult = await awardJoy(
+      bio.email,
+      active.reward,
+      'deco_story',
+      `Hoàn thành chương ${active.chapter}: ${active.title}`,
+      {
+        refId: `deco-story-${active.chapter}`,
+        notificationTitle: `Hoàn thành “${active.title}”`,
+        notificationMessage: `Chương mới của HugoRoom đã được mở khóa.`,
+        actionUrl: '/member/utilities/deco'
+      }
+    );
+
+    const isFinalChapter = requestedChapter === DECO_STORY.length;
+    if (isFinalChapter) {
+      await Bio.updateOne(
+        { _id: bio._id },
+        { $set: { 'decoRoom.story.completedAt': new Date() } }
+      );
+    }
+
+    const latest = await Bio.findById(bio._id);
+    res.json({
+      success: true,
+      reward: active.reward,
+      unlocked: active.unlocks,
+      balance: rewardResult.balance,
+      unlockedItems: latest?.decoRoom?.unlockedItems || [],
+      story: getStoryState(latest?.decoRoom)
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// POST /api/deco/story/daily-claim - 50 JOY for maintaining a completed room.
+router.post('/story/daily-claim', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    let bio = await Bio.findOne({ email });
+    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ.' });
+
+    await updateTrashAndPetStatus(bio);
+    const state = getStoryState(bio.decoRoom);
+    if (!state.completed) {
+      return res.status(403).json({ error: 'Hãy hoàn thành toàn bộ 5 chương trước.', story: state });
+    }
+
+    const daily = state.daily;
+    if (daily.claimedToday) {
+      return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance, story: state });
+    }
+    if (!daily.ready) {
+      return res.status(400).json({
+        error: 'Căn phòng chưa hoàn thành nhịp sống hôm nay.',
+        missing: daily.requirements.filter((requirement) => !requirement.complete).map((requirement) => requirement.id),
+        story: state
+      });
+    }
+
+    const yesterdayKey = vietnamDayKey(new Date(Date.now() - 24 * 60 * 60 * 1000));
+    const nextStreak = bio.decoRoom.story?.lastDailyClaimKey === yesterdayKey
+      ? Number(bio.decoRoom.story?.dailyStreak || 0) + 1
+      : 1;
+    const reservation = await Bio.updateOne(
+      {
+        _id: bio._id,
+        'decoRoom.story.lastDailyClaimKey': { $ne: daily.dayKey }
+      },
+      {
+        $set: {
+          'decoRoom.story.lastDailyClaimKey': daily.dayKey,
+          'decoRoom.story.dailyStreak': nextStreak
+        }
+      }
+    );
+
+    if (!reservation.modifiedCount) {
+      const latest = await Bio.findById(bio._id);
+      return res.json({
+        success: true,
+        alreadyClaimed: true,
+        balance: latest?.joyBalance || 0,
+        story: getStoryState(latest?.decoRoom)
+      });
+    }
+
+    const reward = await awardJoy(
+      bio.email,
+      50,
+      'deco_daily',
+      `Duy trì phòng 27 ngày ${daily.dayKey} · chuỗi ${nextStreak} ngày`,
+      {
+        refId: `deco-daily-${daily.dayKey}`,
+        notificationTitle: `Phòng 27 sáng đèn · ${nextStreak} ngày`,
+        notificationMessage: 'Bạn đã hoàn thành toàn bộ nhịp sống hôm nay.',
+        actionUrl: '/member/utilities/deco'
+      }
+    );
+
+    const latest = await Bio.findById(bio._id);
+    res.json({
+      success: true,
+      reward: 50,
+      balance: reward.balance,
+      story: getStoryState(latest?.decoRoom)
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 function distanceKm(lat1, lon1, lat2, lon2) {
   if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) return null;
   const R = 6371; // Earth's radius in km
@@ -257,6 +594,47 @@ function distanceKm(lat1, lon1, lat2, lon2) {
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
+}
+
+function publicNeighborEnvironment(profile = {}) {
+  const source = profile.lastLocationCheck?.lat != null
+    ? profile.lastLocationCheck
+    : profile.trustedLocation?.lat != null
+      ? profile.trustedLocation
+      : null;
+  const addressParts = String(profile.address || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
+  // Never expose a street-level address or precise coordinates. Two trailing
+  // administrative components are enough to tell the story of the place.
+  const area = addressParts.length >= 2
+    ? addressParts.slice(-2).join(', ')
+    : 'Khu vực lân cận';
+  return {
+    area,
+    weatherPoint: source
+      ? {
+          lat: Math.round(Number(source.lat) * 10) / 10,
+          lon: Math.round(Number(source.lng) * 10) / 10
+        }
+      : null
+  };
+}
+
+function publicRoomView(room = {}) {
+  return {
+    enabled: Boolean(room.enabled),
+    wallColor: room.wallColor,
+    floorStyle: room.floorStyle,
+    items: room.items || {},
+    positions: room.positions || {},
+    trashCount: Number(room.trashCount || 0),
+    petStatus: room.petStatus || 'alive',
+    story: {
+      claimedChapters: room.story?.claimedChapters || []
+    }
+  };
 }
 
 // GET /api/deco/neighborhood - Fetch Deco Rooms within 50km radius (both online/offline)
@@ -292,6 +670,9 @@ router.get('/neighborhood', requireMember, async (req, res) => {
       .filter(c => {
         // Skip self
         if (c.slug === requesterBio.slug) return false;
+        // The neighborhood is an exhibition of rooms their owners explicitly
+        // made public. Never leak private/disabled room layouts.
+        if (!c.decoRoom?.enabled) return false;
         
         let cLat = null;
         let cLng = null;
@@ -318,13 +699,24 @@ router.get('/neighborhood', requireMember, async (req, res) => {
         const dist = distanceKm(lat, lng, cLat, cLng);
         return dist !== null && dist <= 50;
       })
-      .map(c => ({
-        _id: c._id,
-        slug: c.slug,
-        displayName: c.displayName,
-        avatarUrl: c.avatarUrl,
-        decoRoom: c.decoRoom
-      }));
+      .map(c => {
+        const hasAccess = requesterBio.decoRoom?.visitedRooms?.includes(c.slug) || false;
+        return {
+          _id: c._id,
+          slug: c.slug,
+          displayName: c.displayName,
+          avatarUrl: c.avatarUrl,
+          hasAccess,
+          // A ticket protects the actual layout. Before purchase the client
+          // receives only enough metadata to render a locked teaser.
+          decoRoom: hasAccess ? publicRoomView(c.decoRoom) : null,
+          teaser: {
+            night: c.decoRoom?.items?.window === 'window_night',
+            coziness: roomCoziness(c.decoRoom?.items || {})
+          },
+          environment: publicNeighborEnvironment(c)
+        };
+      });
 
     // Sample up to 20
     const neighbors = filtered.sort(() => 0.5 - Math.random()).slice(0, 20);
@@ -515,7 +907,20 @@ router.post('/visit', requireMember, async (req, res) => {
 
     // If already paid to visit, return success immediately
     if (visitor.decoRoom.visitedRooms.includes(targetSlug)) {
-      return res.json({ success: true, balance: visitor.joyBalance, visitedRooms: visitor.decoRoom.visitedRooms });
+      return res.json({
+        success: true,
+        alreadyOwned: true,
+        balance: visitor.joyBalance,
+        visitedRooms: visitor.decoRoom.visitedRooms,
+        neighbor: {
+          slug: host.slug,
+          displayName: host.displayName,
+          avatarUrl: host.avatarUrl,
+          decoRoom: publicRoomView(host.decoRoom),
+          hasAccess: true,
+          environment: publicNeighborEnvironment(host)
+        }
+      });
     }
 
     const ticketPrice = 10;
@@ -554,7 +959,19 @@ router.post('/visit', requireMember, async (req, res) => {
     visitor.markModified('decoRoom.visitedRooms');
     await visitor.save();
 
-    res.json({ success: true, balance: visitorResult.balance, visitedRooms: visitor.decoRoom.visitedRooms });
+    res.json({
+      success: true,
+      balance: visitorResult.balance,
+      visitedRooms: visitor.decoRoom.visitedRooms,
+      neighbor: {
+        slug: host.slug,
+        displayName: host.displayName,
+        avatarUrl: host.avatarUrl,
+        decoRoom: publicRoomView(host.decoRoom),
+        hasAccess: true,
+        environment: publicNeighborEnvironment(host)
+      }
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -589,6 +1006,9 @@ router.post('/clean', requireMember, async (req, res) => {
     }
     bio.decoRoom.lastCleanedAt = now;
     bio.markModified('decoRoom.lastCleanedAt');
+    ensureStoryContainer(bio.decoRoom);
+    bio.decoRoom.story.stats.cleaned = Number(bio.decoRoom.story?.stats?.cleaned || 0) + 1;
+    bio.markModified('decoRoom.story.stats.cleaned');
 
     // Award 5 JOY
     const cleanReward = 5;
@@ -606,7 +1026,8 @@ router.post('/clean', requireMember, async (req, res) => {
       success: true, 
       balance: bio.joyBalance, 
       trashCount: bio.decoRoom.trashCount,
-      lastCleanedAt: bio.decoRoom.lastCleanedAt
+      lastCleanedAt: bio.decoRoom.lastCleanedAt,
+      story: getStoryState(bio.decoRoom)
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -634,9 +1055,16 @@ router.post('/feed-pet', requireMember, async (req, res) => {
     const now = new Date();
     bio.decoRoom.petFedAt = now;
     bio.markModified('decoRoom.petFedAt');
+    ensureStoryContainer(bio.decoRoom);
+    bio.decoRoom.story.stats.fed = Number(bio.decoRoom.story?.stats?.fed || 0) + 1;
+    bio.markModified('decoRoom.story.stats.fed');
     await bio.save();
 
-    res.json({ success: true, petFedAt: bio.decoRoom.petFedAt });
+    res.json({
+      success: true,
+      petFedAt: bio.decoRoom.petFedAt,
+      story: getStoryState(bio.decoRoom)
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

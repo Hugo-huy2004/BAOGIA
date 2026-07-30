@@ -1300,7 +1300,7 @@ const DEFAULT_POS = {
   pet: { left: 68, bottom: 97 },
 };
 
-export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, onCleanSuccess, onItemClick, onPositionChange, className = "", zoom }) {
+export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, onCleanSuccess, onItemClick, onPositionChange, onSound, className = "", zoom }) {
   const items = room.items || {};
   const positions = room.positions || {};
   const night = isNightRoom(items);
@@ -1317,20 +1317,34 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   // pointer/finger when the user interacts — no separate 2D/3D mode.
   const [selectedSlot, setSelectedSlot] = React.useState(null);
   const tiltRef = React.useRef(null);
+  const tiltFrameRef = React.useRef(null);
 
   const handleTiltMove = (e) => {
-    if (!tiltRef.current) return;
+    // Touch dragging already supplies direct motion feedback. Applying room
+    // parallax at the same time makes iPhone interactions feel heavy.
+    if (!tiltRef.current || e.pointerType === 'touch') return;
     const rect = e.currentTarget.getBoundingClientRect();
     const px = (e.clientX - rect.left) / rect.width - 0.5;
     const py = (e.clientY - rect.top) / rect.height - 0.5;
-    tiltRef.current.style.animation = 'none';
-    tiltRef.current.style.transform = `rotateY(${px * 9}deg) rotateX(${-py * 6}deg) scale(1.04)`;
+    if (tiltFrameRef.current) cancelAnimationFrame(tiltFrameRef.current);
+    tiltFrameRef.current = requestAnimationFrame(() => {
+      if (!tiltRef.current) return;
+      tiltRef.current.style.animation = 'none';
+      tiltRef.current.style.transform = `rotateY(${px * 7}deg) rotateX(${-py * 4.5}deg) scale(1.025)`;
+      tiltFrameRef.current = null;
+    });
   };
   const handleTiltLeave = () => {
+    if (tiltFrameRef.current) cancelAnimationFrame(tiltFrameRef.current);
+    tiltFrameRef.current = null;
     if (!tiltRef.current) return;
     tiltRef.current.style.transform = '';
     tiltRef.current.style.animation = '';
   };
+
+  React.useEffect(() => () => {
+    if (tiltFrameRef.current) cancelAnimationFrame(tiltFrameRef.current);
+  }, []);
 
   const selectSlot = (slot) => {
     if (!interactive || !onPositionChange) return;
@@ -1356,6 +1370,10 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   };
 
   const playSweepSound = () => {
+    if (onSound) {
+      onSound('sweep');
+      return;
+    }
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       const ctx = new AudioCtx();
@@ -1374,6 +1392,10 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   };
 
   const playSparkleSound = () => {
+    if (onSound) {
+      onSound('sparkle');
+      return;
+    }
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       const ctx = new AudioCtx();
@@ -1395,6 +1417,10 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
   };
 
   const playBoingSound = () => {
+    if (onSound) {
+      onSound('pet');
+      return;
+    }
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       const ctx = new AudioCtx();
@@ -1433,7 +1459,7 @@ export function DecoRoomScene({ room = {}, interactive = false, lastCleanedAt, o
         setSweepingId(null);
         setSparklingId(id);
         playSparkleSound();
-        onCleanSuccess?.(data.balance, data.trashCount);
+        onCleanSuccess?.(data.balance, data.trashCount, data.story);
 
         setTimeout(() => {
           setSparklingId(null);
