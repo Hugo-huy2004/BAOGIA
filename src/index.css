@@ -1566,35 +1566,11 @@ html.standalone-pwa .member-portal-shell {
   --portal-safe-left: min(44px, max(0px, env(safe-area-inset-left, 0px)));
   --portal-safe-right: min(44px, max(0px, env(safe-area-inset-right, 0px)));
 
-  /*
-   * Đệm đáy của thanh tab: lấy GIÁ TRỊ LỚN HƠN giữa khoảng thở tối thiểu và
-   * vùng an toàn, KHÔNG cộng dồn hai thứ.
-   *
-   * Trước đây là `calc(8px + inset)`: trên máy có thanh gạt home (inset 34px)
-   * thanh tab cao 8+34=42px đệm dưới, đẩy icon dính lên mép trên và chừa một
-   * mảng trống to phía dưới — đúng triệu chứng "không sát đáy". Dùng max() thì
-   * máy không có inset vẫn được 8px thở, máy có inset dùng đúng 34px.
-   */
-  /*
-   * Nền tab-bar vẫn chạm đáy viewport, nhưng không dùng trọn 34px inset để
-   * đẩy icon/nhãn lên quá cao trên iPhone. 20px vẫn giữ khoảng cách với home
-   * indicator trong khi đưa cụm điều hướng xuống gần đáy hơn.
-   */
-  --portal-tabbar-pad: min(20px, max(8px, var(--portal-safe-bottom, 0px)));
 }
 
 html.standalone-pwa .desktop-apple-layout {
   height: calc(100dvh - env(safe-area-inset-top, 0px));
   min-height: calc(100dvh - env(safe-area-inset-top, 0px));
-}
-
-html.standalone-pwa .mobile-portal-tabbar {
-  /*
-   * Không đọc env() trực tiếp ở đây. Một số iOS WebView giữ lại giá trị inset
-   * của viewport/keyboard cũ, khiến padding-bottom phình hàng trăm pixel và
-   * thanh tab nổi lên giữa màn hình. Biến này đã được clamp 0–34px ở shell.
-   */
-  padding-bottom: var(--portal-tabbar-pad);
 }
 
 .mobile-portal-content {
@@ -1603,22 +1579,115 @@ html.standalone-pwa .mobile-portal-tabbar {
   padding-bottom: 16px;
 }
 
-.mobile-portal-tabbar {
+.mobile-portal-dock {
+  --portal-dock-safe: min(12px, max(6px, var(--portal-safe-bottom-px, 0px)));
+  position: fixed;
+  z-index: 90;
+  right: 0;
+  bottom: 0;
+  left: 0;
   box-sizing: border-box;
-  padding-top: 0;
-  padding-right: var(--portal-safe-right, 0px);
-  padding-bottom: var(--portal-tabbar-pad);
-  padding-left: var(--portal-safe-left, 0px);
+  padding:
+    6px
+    max(10px, env(safe-area-inset-right, 0px))
+    var(--portal-dock-safe)
+    max(10px, env(safe-area-inset-left, 0px));
+  border-top: 1px solid hsl(var(--border) / .42);
+  background: hsl(var(--background) / .9);
+  box-shadow: 0 -10px 30px hsl(var(--shadow) / .07);
+  -webkit-backdrop-filter: saturate(165%) blur(22px);
+  backdrop-filter: saturate(165%) blur(22px);
+}
+
+.mobile-portal-dock__track {
+  display: flex;
+  width: min(100%, 460px);
+  height: 44px;
+  align-items: center;
+  gap: 4px;
+  margin-inline: auto;
+}
+
+.mobile-portal-dock button {
+  position: relative;
+  display: flex;
+  height: 44px;
+  min-width: 44px;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 3px 5px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: hsl(var(--muted-foreground) / .72);
+  transition: background-color .22s ease, color .22s ease;
+}
+
+.mobile-portal-dock button.is-active {
+  background: hsl(var(--primary) / .12);
+  color: hsl(var(--primary));
+}
+
+.mobile-portal-dock__icon {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.mobile-portal-dock__icon > .material-symbols-outlined {
+  font-size: 23px;
+}
+
+.mobile-portal-dock__label {
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 9.5px;
+  font-weight: 760;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-portal-dock__badge {
+  position: absolute;
+  top: -7px;
+  right: -11px;
+  min-width: 16px;
+  padding: 2px 4px;
+  border: 2px solid hsl(var(--background));
+  border-radius: 999px;
+  background: hsl(var(--destructive));
+  color: white;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.mobile-portal-dock__alert {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid hsl(var(--background));
+  border-radius: 50%;
+  background: hsl(var(--warning));
+}
+
+.dark .mobile-portal-dock {
+  background: rgb(12 11 17 / .9);
+  box-shadow: 0 -12px 32px rgb(0 0 0 / .26);
 }
 
 /*
- * Portal mobile = app shell trong luồng bình thường: nội dung cuộn bên trong,
- * thanh tab là HÀNG CUỐI của cột 100dvh — không còn `position: fixed`.
- *
- * Vì sao bỏ fixed: trên PWA iOS đã cài, thanh tab fixed liên tục neo vào một
- * viewport không phải màn hình thật, nên nó nổi lên giữa màn và chừa một mảng
- * trống to bên dưới. Nằm trong luồng thì không có gì để neo sai: đáy của cột
- * chính là đáy app.
+ * Portal mobile: nội dung cuộn trong app shell. Dock mới được portal thẳng ra
+ * body và fixed ở đáy nên không tham gia phép chia chiều cao của nội dung.
  */
 /* Cùng điều kiện với useIsMobile() — nếu lệch, layout mobile render mà CSS app
    shell không áp là thanh tab rơi xuống cuối tài liệu. */
@@ -1656,6 +1725,7 @@ html.standalone-pwa .mobile-portal-tabbar {
   .mobile-portal-content {
     flex: 1 1 auto;
     min-height: 0;
+    padding-bottom: 76px;
     overflow-y: auto;
     overscroll-behavior-y: contain;
   }
@@ -1664,12 +1734,6 @@ html.standalone-pwa .mobile-portal-tabbar {
      cao, chỉ cần chừa vùng an toàn cho thanh gạt home. */
   .mobile-portal-content--app {
     padding-bottom: var(--portal-safe-bottom, 0px);
-  }
-
-  .mobile-portal-tabbar {
-    position: relative;
-    z-index: 10;
-    flex: 0 0 auto;
   }
 
   /* Ngoài chế độ standalone, <body> vẫn đệm safe-area; cộng với shell 100dvh

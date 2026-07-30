@@ -167,4 +167,35 @@ describe("signedJoy & timeAgo", () => {
     expect(timeAgo(new Date(2026, 6, 30, 11, 0), now)).toBe("1 giờ");
     expect(timeAgo(new Date(2026, 6, 28, 12, 0), now)).toBe("2 ngày");
   });
+
+  it("định dạng số và thời gian đúng khi giao diện là tiếng Anh", () => {
+    const now = new Date(2026, 6, 30, 12, 0, 0);
+    expect(signedJoy(1500, "en")).toBe("+1,500 JOY");
+    expect(timeAgo(new Date(2026, 6, 30, 11, 59, 30), now, "en")).toBe("just now");
+    expect(timeAgo(new Date(2026, 6, 30, 11, 0), now, "en")).toBe("1 hr ago");
+    expect(timeAgo(new Date(2026, 6, 28, 12, 0), now, "en")).toBe("2 days ago");
+  });
+});
+
+describe("nhãn thông báo theo ngôn ngữ", () => {
+  it("nhận nhãn tiếng Anh cho bộ lọc và nhóm ngày", () => {
+    const feed = buildFeed([notif({ category: "joy", read: false })]);
+    const chips = availableFilters(feed, {
+      all: "All",
+      unread: count => `Unread (${count})`,
+      joy: "Transactions",
+    });
+    expect(chips.map(chip => chip.label)).toEqual([
+      "All",
+      "Unread (1)",
+      "Transactions",
+    ]);
+
+    const now = new Date(2026, 6, 30, 12, 0, 0);
+    expect(groupByDay(
+      [{ at: new Date(2026, 6, 29, 8, 0) }],
+      now,
+      { yesterday: "Yesterday" },
+    )[0].label).toBe("Yesterday");
+  });
 });

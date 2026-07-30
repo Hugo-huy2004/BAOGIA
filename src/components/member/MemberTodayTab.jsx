@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
+import { givenName } from "./memberName";
 
 const CATEGORIES = ["all", "academic", "technology", "community", "world"];
 const INITIAL_VISIBLE = 10;
@@ -19,13 +20,6 @@ const CATEGORY_ICONS = Object.freeze({
   world: "public",
   all: "newspaper",
 });
-
-// Tên Việt đặt tên riêng ở cuối ("Nguyễn Văn Hugo"), tên Anh đặt ở đầu.
-function givenName(displayName, language) {
-  const parts = String(displayName || "").trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return "";
-  return language === "vi" ? parts[parts.length - 1] : parts[0];
-}
 
 export default function MemberTodayTab({
   bio,

@@ -1459,7 +1459,8 @@
       "imageRemove": "Remove image",
       "badgeGeneral": "GIFT",
       "badgeSystemValidity": "HSD SYSTEM",
-      "badgePsyStudy": "PSY-REDEEM"
+      "badgePsyStudy": "PSY-REDEEM",
+      "badgeRadioTime": "RADIO TIME"
     }
   },
   "adminSupport": {
@@ -1553,6 +1554,34 @@
       "noSummary": "The source did not provide a summary for this article.",
       "sourceNotice": "Full content belongs to the original publisher.",
       "previewTitle": "Preview: {{title}}"
+    },
+    "notificationCenter": {
+      "title": "Activity",
+      "unreadCount": "{{count}} unread notification",
+      "unreadCount_other": "{{count}} unread notifications",
+      "allCaughtUp": "You’re all caught up",
+      "markAllRead": "Read all",
+      "profileUpdated": "Profile updated",
+      "balance": "Balance {{value}} JOY",
+      "dismiss": "Dismiss notification: {{title}}",
+      "emptyFilterTitle": "Nothing in this category",
+      "emptyFilterDescription": "Choose another category above.",
+      "emptyTitle": "No activity yet",
+      "emptyDescription": "JOY transfers, purchases, account updates, and important notices will appear here.",
+      "openWallet": "Open JOY Wallet",
+      "filters": {
+        "all": "All",
+        "unread": "Unread ({{count}})",
+        "joy": "Transactions",
+        "account": "Account",
+        "system": "System"
+      },
+      "days": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "thisWeek": "This week",
+        "earlier": "Earlier"
+      }
     },
     "discovery": {
       "discover": "discover",
@@ -3174,6 +3203,7 @@
     }
   },
   "utilities": {
+    "upgradeUnavailable": "This app is being upgraded to the latest version. Please try again in 24 hours.",
     "categories": {
       "all": "All",
       "education": "Learning",

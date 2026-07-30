@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
@@ -33,12 +33,12 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       if (isBlocked) {
         if (showToast) {
-          showToast("Hugo... đang được hệ thống tiến hành nâng cấp lên phiên bản mới nhất, hẹn gặp bạn sau 24 tiếng", "info");
+          showToast(t("utilities.upgradeUnavailable"), "info");
         }
         onSelectUtility(null);
       }
     }
-  }, [data?.systemSettings?.blockUtilities, selectedUtility, onSelectUtility, showToast]);
+  }, [data?.systemSettings?.blockUtilities, selectedUtility, onSelectUtility, showToast, t]);
 
   const fallback = <TabFallbackSkeleton />;
 

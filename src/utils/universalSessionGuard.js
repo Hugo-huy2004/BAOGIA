@@ -4,42 +4,23 @@
  */
 
 import { IndexedDBStorage } from "./indexedDBStorage";
-import { getMemberSession, loginMember } from "../services/authSession";
-
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
+import { getMemberSession } from "../services/authSession";
 
 export const UniversalSessionGuard = {
   /**
-   * Tự động tái cấp session cho toàn bộ sub-app khi session hết hạn.
+   * Dùng session đã được server cấp và còn hạn cho toàn bộ sub-app.
+   *
+   * Trước đây hàm gọi `/api/auth/refresh-session`, nhưng server không có route
+   * này và việc phát JWT mới chỉ từ email/deviceToken lưu ở client cũng không
+   * đủ an toàn. Khi session hết hạn, người dùng đăng nhập lại qua Google hoặc
+   * WebAuthn — hai luồng đều được server xác minh.
    */
   async getOrRefreshSession() {
-    let session = getMemberSession();
+    const session = getMemberSession();
     if (session && session.email && !this.isSessionExpired(session)) {
       return session;
     }
-
-    // Nếu session hết hạn -> Lấy Refresh Token / Secure Credentials từ IndexedDB
-    try {
-      const storedCreds = await IndexedDBStorage.getEncryptedKey("master_auth_creds");
-      if (storedCreds && storedCreds.email) {
-        const res = await fetch(`${API_BASE}/auth/refresh-session`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: storedCreds.email, deviceToken: storedCreds.token }),
-          credentials: "include"
-        });
-
-        if (res.ok) {
-          const freshSession = await res.json();
-          loginMember(freshSession);
-          return freshSession;
-        }
-      }
-    } catch (e) {
-      console.warn("UniversalSessionGuard: Lỗi tái cấp session tự động:", e);
-    }
-
-    return session;
+    return null;
   },
 
   isSessionExpired(session) {

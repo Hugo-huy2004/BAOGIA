@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 import { hapticSelect } from "../../../utils/haptics";
 import NotificationRow from "./NotificationRow";
@@ -22,21 +23,37 @@ export default function NotificationCenter({
   onDismiss,
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [filter, setFilter] = useState("all");
 
   const feed = useMemo(
-    () => buildFeed(notifications, bio?.history || []),
-    [notifications, bio?.history]
+    () => buildFeed(
+      notifications,
+      bio?.history || [],
+      t("memberPortal.notificationCenter.profileUpdated"),
+    ),
+    [notifications, bio?.history, t]
   );
 
-  const chips = useMemo(() => availableFilters(feed), [feed]);
+  const chips = useMemo(() => availableFilters(feed, {
+    all: t("memberPortal.notificationCenter.filters.all"),
+    unread: count => t("memberPortal.notificationCenter.filters.unread", { count }),
+    joy: t("memberPortal.notificationCenter.filters.joy"),
+    account: t("memberPortal.notificationCenter.filters.account"),
+    system: t("memberPortal.notificationCenter.filters.system"),
+  }), [feed, t]);
   // Chip đang chọn có thể biến mất (đọc hết thì hết "Chưa đọc") — rơi về "Tất cả"
   // thay vì hiện một danh sách rỗng không lý do.
   const activeFilter = chips.some(c => c.id === filter) ? filter : "all";
   const filtered = useMemo(() => applyFilter(feed, activeFilter), [feed, activeFilter]);
 
   const { visibleItems, sentinelRef, hasMore } = useInfiniteScroll(filtered, { pageSize: 25 });
-  const days = useMemo(() => groupByDay(visibleItems), [visibleItems]);
+  const days = useMemo(() => groupByDay(visibleItems, new Date(), {
+    today: t("memberPortal.notificationCenter.days.today"),
+    yesterday: t("memberPortal.notificationCenter.days.yesterday"),
+    this_week: t("memberPortal.notificationCenter.days.thisWeek"),
+    earlier: t("memberPortal.notificationCenter.days.earlier"),
+  }), [visibleItems, t]);
 
   const unread = feed.filter(i => !i.read).length;
 
@@ -57,9 +74,11 @@ export default function NotificationCenter({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="hgn-hero-kicker">
-              {unread > 0 ? `${unread} thông báo chưa đọc` : "Bạn đã xem hết"}
+              {unread > 0
+                ? t("memberPortal.notificationCenter.unreadCount", { count: unread })
+                : t("memberPortal.notificationCenter.allCaughtUp")}
             </p>
-            <h1 className="hgn-hero-title">Thông báo</h1>
+            <h1 className="hgn-hero-title">{t("memberPortal.notificationCenter.title")}</h1>
           </div>
           <button
             type="button"
@@ -68,7 +87,7 @@ export default function NotificationCenter({
             className="hgn-hero-btn"
           >
             <span className="material-symbols-outlined text-[18px]">done_all</span>
-            Đọc hết
+            {t("memberPortal.notificationCenter.markAllRead")}
           </button>
         </div>
       </header>
@@ -96,8 +115,12 @@ export default function NotificationCenter({
           <div className="hgn-sheet">
             {filtered.length === 0 ? (
               <div className="hgn-card p-8 text-center">
-                <p className="hgn-ink text-[15px] font-semibold">Không có gì ở mục này</p>
-                <p className="hgn-dim mt-0.5 text-[13px]">Chọn một mục khác ở trên nhé.</p>
+                <p className="hgn-ink text-[15px] font-semibold">
+                  {t("memberPortal.notificationCenter.emptyFilterTitle")}
+                </p>
+                <p className="hgn-dim mt-0.5 text-[13px]">
+                  {t("memberPortal.notificationCenter.emptyFilterDescription")}
+                </p>
               </div>
             ) : (
               days.map(day => (
@@ -132,19 +155,22 @@ export default function NotificationCenter({
 
 /** Trạng thái rỗng: nói rõ vì sao trống và cho một việc để làm tiếp. */
 function EmptyState({ onGo }) {
+  const { t } = useTranslation();
   return (
     <div className="hgn-sheet">
       <div className="hgn-card px-6 py-10 text-center">
         <div className="hgn-empty-art">
           <span className="material-symbols-outlined text-[46px]">notifications_active</span>
         </div>
-        <h2 className="hgn-ink mt-5 text-[17px] font-bold">Chưa có thông báo nào</h2>
+        <h2 className="hgn-ink mt-5 text-[17px] font-bold">
+          {t("memberPortal.notificationCenter.emptyTitle")}
+        </h2>
         <p className="hgn-dim mx-auto mt-1.5 max-w-[30ch] text-[13.5px] leading-snug">
-          Mỗi lần bạn nhận hay gửi JOY, mua gói hay có việc cần biết, nó sẽ hiện ở đây.
+          {t("memberPortal.notificationCenter.emptyDescription")}
         </p>
         <button type="button" onClick={onGo} className="hgn-btn hgn-btn--quiet mt-5">
           <span className="material-symbols-outlined text-[19px]">toll</span>
-          Mở ví JOY
+          {t("memberPortal.notificationCenter.openWallet")}
         </button>
       </div>
     </div>

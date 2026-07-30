@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 import InAppNotification from '../models/InAppNotification.js';
+import JoyLedger from '../models/JoyLedger.js';
 import { JOY_TITLES, joyTitleFor } from '../utils/joyService.js';
 
 /**
@@ -23,6 +24,7 @@ const SERVER_DIR = new URL('..', import.meta.url).pathname;
 
 const TYPES = InAppNotification.schema.path('type').enumValues;
 const CATEGORIES = InAppNotification.schema.path('category').enumValues;
+const LEDGER_SOURCES = JoyLedger.schema.path('source').enumValues;
 
 function sourceFiles() {
   const out = [];
@@ -135,6 +137,10 @@ describe('tiêu đề thông báo JOY', () => {
     expect(used.size).toBeGreaterThan(5);
     for (const source of used) {
       expect(JOY_TITLES, `source '${source}' chưa có tiêu đề riêng`).toHaveProperty(source);
+      expect(
+        LEDGER_SOURCES,
+        `source '${source}' chưa có trong enum JoyLedger`,
+      ).toContain(source);
     }
   });
 

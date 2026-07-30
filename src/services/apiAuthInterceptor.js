@@ -10,23 +10,62 @@ import { recordApiOutcome, reportClientEvent, SLOW_API_MS } from "../utils/clien
 
 const AUTH_EXEMPT_PATHS = [
   "/api/auth/member/google",
-  "/api/auth/refresh-session",
   "/api/admin/login",
-  "/api/joy/verify-pin",
-  "/api/packages/redeem",
-  "/api/bios/me/check-location",
-  "/api/checkin/status",
-  "/api/companion/history"
+  "/api/webauthn/login-options",
+  "/api/webauthn/login-verify",
+  "/api/customer-projects/auth",
 ];
 
-const API_PREFIXES = (() => {
-  const prefixes = ["/api/"];
-  const envUrl = import.meta.env.VITE_API_URL;
-  if (envUrl && envUrl.startsWith("http")) prefixes.push(envUrl);
-  return prefixes;
-})();
+const apiTargets = () => {
+  const browserOrigin = window.location.origin;
+  const configured = import.meta.env.VITE_API_URL || "/api";
+  const candidates = ["/api", configured];
+  const unique = new Map();
 
-const isApiRequest = (url) => API_PREFIXES.some((p) => url.startsWith(p));
+  for (const candidate of candidates) {
+    try {
+      const parsed = new URL(candidate, browserOrigin);
+      const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+      unique.set(`${parsed.origin}${pathname}`, { origin: parsed.origin, pathname });
+    } catch {
+      // Invalid build-time API URL must never break fetch globally.
+    }
+  }
+  return [...unique.values()];
+};
+
+const parseRequestUrl = (url) => {
+  try {
+    return new URL(url, window.location.origin);
+  } catch {
+    return null;
+  }
+};
+
+const matchesApiTarget = (requestUrl, target) => (
+  requestUrl.origin === target.origin
+  && (
+    requestUrl.pathname === target.pathname
+    || requestUrl.pathname.startsWith(`${target.pathname}/`)
+  )
+);
+
+// Services use both `/api/...` and absolute URLs such as
+// `http://localhost:3000/api/...`. Compare parsed origin/pathname instead of
+// string prefixes so both forms are authenticated without leaking a token to
+// an unrelated origin that merely contains `/api/` in its URL.
+export const isApiRequest = (url) => {
+  const parsed = parseRequestUrl(url);
+  return Boolean(parsed && apiTargets().some(target => matchesApiTarget(parsed, target)));
+};
+
+export const isAuthExemptRequest = (url) => {
+  const parsed = parseRequestUrl(url);
+  if (!parsed) return false;
+  return AUTH_EXEMPT_PATHS.some(path => (
+    parsed.pathname === path || parsed.pathname.startsWith(`${path}/`)
+  ));
+};
 
 const shouldBypassInterception = (url) => {
   if (!url || typeof url !== "string") return false;
@@ -109,7 +148,7 @@ export function installApiAuthInterceptor() {
             if (shouldTrack) recordApiOutcome(res.ok);
 
             if (res.status === 401) {
-              const isExempt = AUTH_EXEMPT_PATHS.some(path => url.includes(path));
+              const isExempt = isAuthExemptRequest(url);
               if (!isExempt && sentAuth) {
                 // Token rejected by server -> clear invalid member session to halt 401 loops
                 clearMemberSession();

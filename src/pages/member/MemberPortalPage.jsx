@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
@@ -46,6 +47,63 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
     autoLogoutMinutes: b.autoLogoutMinutes || 0,
     privateMode: b.privateMode || false,
   };
+}
+
+function MobilePortalDock({
+  tabs,
+  activeArea,
+  unreadCount,
+  navigationLabel,
+  onTabClick,
+}) {
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <nav
+      id="mobile-bottom-tab-bar"
+      className="mobile-portal-dock"
+      aria-label={navigationLabel}
+    >
+      <div className="mobile-portal-dock__track">
+        {tabs.map((tab) => {
+          const isActive = activeArea === tab.id;
+          return (
+            <button
+              id={`portal-tab-${tab.id}-mobile`}
+              key={tab.id}
+              type="button"
+              data-section={tab.id}
+              aria-current={isActive ? "page" : undefined}
+              aria-label={tab.label}
+              className={isActive ? "is-active" : ""}
+              onClick={() => onTabClick(tab)}
+            >
+              <span className="mobile-portal-dock__icon">
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontVariationSettings: isActive
+                      ? "'FILL' 1, 'wght' 550"
+                      : "'FILL' 0, 'wght' 420",
+                  }}
+                >
+                  {tab.icon}
+                </span>
+                {tab.id === "activity" && unreadCount > 0 && (
+                  <span className="mobile-portal-dock__badge">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+                {tab.alert && <span className="mobile-portal-dock__alert" />}
+              </span>
+              <span className="mobile-portal-dock__label">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>,
+    document.body,
+  );
 }
 
 // Sub-components
@@ -126,6 +184,10 @@ function MemberPortalPage() {
         shell.style.setProperty("--portal-visual-height", `${height}px`);
         shell.style.setProperty("--portal-visual-top", `${top}px`);
         shell.style.setProperty("--portal-safe-bottom", `${safeBottom}px`);
+        document.documentElement.style.setProperty(
+          "--portal-safe-bottom-px",
+          `${safeBottom}px`,
+        );
       });
     };
 
@@ -145,6 +207,7 @@ function MemberPortalPage() {
       shell.style.removeProperty("--portal-visual-height");
       shell.style.removeProperty("--portal-visual-top");
       shell.style.removeProperty("--portal-safe-bottom");
+      document.documentElement.style.removeProperty("--portal-safe-bottom-px");
     };
   }, [isMobileView]);
   // A full-screen sheet (e.g. community composer/comments) asks to hide the
@@ -1040,50 +1103,23 @@ function MemberPortalPage() {
           </ErrorBoundary>
         </div>
 
-        {/* Tab-bar phải là hàng cuối TRỰC TIẾP của khung mobile. Đặt nó ngoài
-            portal-mobile-main khiến onboarding/modal xen giữa hai phần tử flex
-            và có thể đẩy thanh điều hướng nổi lên trên một số iOS WebView. */}
-        {bio?.status !== 'pending' && !isKeyboardVisible && !isAppOpen && (
-          <div
-            id="mobile-bottom-tab-bar"
-            className={`mobile-portal-tabbar border-t border-border/40 bg-background dark:bg-[#0c0b11] ${fullSheetOpen ? "hidden" : ""}`}
-          >
-            <div className="flex justify-around px-2">
-              {mobileTabs.map(tab => {
-                const isActive = portalArea === tab.id;
-                return (
-                  <button id={`portal-tab-${tab.id}-mobile`} key={tab.id} type="button" onClick={() => onTabClick(tab)}
-                    data-section={tab.id}
-                    aria-current={isActive ? "page" : undefined}
-                    className="flex min-h-[48px] flex-1 flex-col items-center justify-center gap-0.5 relative py-1 px-1 transition-colors duration-200">
-                    {isActive && (
-                      <span className="absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-primary" />
-                    )}
-                    <span
-                      className={`material-symbols-outlined transition-all duration-200 ${isActive ? "text-primary text-2xl" : "text-muted-foreground/70 text-[22px]"}`}
-                      style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
-                    >
-                      {tab.icon}
-                    </span>
-                    <span className={`max-w-full truncate text-[10.5px] font-semibold tracking-tight transition-colors duration-200 ${isActive ? "text-primary" : "text-muted-foreground/70"}`}>
-                      {tab.label}
-                    </span>
-                    {tab.id === "activity" && unreadHistoryCount > 0 && (
-                      <span className="absolute top-0.5 right-[18%] bg-destructive text-white text-[8px] font-black px-1 py-0.5 rounded-full min-w-[14px] text-center leading-none shadow-sm">
-                        {unreadHistoryCount > 99 ? '99+' : unreadHistoryCount}
-                      </span>
-                    )}
-                    {tab.alert && (
-                      <span className="absolute top-0.5 right-[22%] w-2 h-2 rounded-full bg-warning ring-2 ring-white dark:ring-[#0c0b11]" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
       )}
+
+      {isMobileView
+        && bio?.status !== 'pending'
+        && !isKeyboardVisible
+        && !isAppOpen
+        && !fullSheetOpen
+        && (
+          <MobilePortalDock
+            tabs={mobileTabs}
+            activeArea={portalArea}
+            unreadCount={unreadHistoryCount}
+            navigationLabel={t("memberPortal.navigation.primaryNavigation")}
+            onTabClick={onTabClick}
+          />
+        )}
 
         {!isGuestMode && memberSession?.email ? (
           <React.Suspense fallback={null}>

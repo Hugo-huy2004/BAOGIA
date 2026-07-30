@@ -71,6 +71,13 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   if (!email) throw new Error('MISSING_EMAIL');
   const numAmount = Math.round(Number(amount));
   if (!numAmount) throw new Error('INVALID_AMOUNT');
+  const allowedSources = JoyLedger.schema.path('source')?.enumValues || [];
+  if (!allowedSources.includes(source)) {
+    // Validate ledger metadata before touching the wallet. Previously an
+    // unknown source could increment joyBalance and only then fail while
+    // creating JoyLedger, leaving a partial, repeatable reward.
+    throw new Error('INVALID_JOY_SOURCE');
+  }
 
   let bio = opts.bioDoc;
   if (!bio) {

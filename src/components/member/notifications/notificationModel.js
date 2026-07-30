@@ -69,13 +69,13 @@ export function fromNotification(n) {
 }
 
 /** Một mốc lịch sử trong hồ sơ → cùng hình dạng, luôn coi như đã đọc. */
-export function fromHistory(entry, index) {
+export function fromHistory(entry, index, fallbackTitle = "Cập nhật hồ sơ") {
   return {
     key: `h:${index}:${entry.timestamp}`,
     id: null,
     source: "history",
     at: entry.timestamp,
-    title: entry.title || "Cập nhật hồ sơ",
+    title: entry.title || fallbackTitle,
     message: entry.detail || "",
     amount: null,
     balanceAfter: null,
@@ -93,10 +93,10 @@ export function fromHistory(entry, index) {
 }
 
 /** Gộp hai nguồn, mới nhất lên đầu. */
-export function buildFeed(notifications = [], history = []) {
+export function buildFeed(notifications = [], history = [], fallbackHistoryTitle) {
   return [
     ...notifications.map(fromNotification),
-    ...history.map(fromHistory),
+    ...history.map((entry, index) => fromHistory(entry, index, fallbackHistoryTitle)),
   ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 }
 
@@ -111,13 +111,23 @@ export function applyFilter(items, filter) {
 }
 
 /** Chỉ trả về những chip THẬT SỰ có nội dung — không bày tab rỗng. */
-export function availableFilters(items) {
-  const chips = [{ id: "all", label: "Tất cả", icon: "inbox" }];
+export function availableFilters(items, labels = {}) {
+  const chips = [{ id: "all", label: labels.all || "Tất cả", icon: "inbox" }];
   const unread = items.filter(i => !i.read).length;
-  if (unread > 0) chips.push({ id: "unread", label: `Chưa đọc (${unread})`, icon: "mark_email_unread" });
+  if (unread > 0) {
+    chips.push({
+      id: "unread",
+      label: labels.unread ? labels.unread(unread) : `Chưa đọc (${unread})`,
+      icon: "mark_email_unread",
+    });
+  }
   for (const group of Object.values(GROUPS)) {
     if (items.some(i => i.group === group.id)) {
-      chips.push({ id: group.id, label: group.label, icon: group.icon });
+      chips.push({
+        id: group.id,
+        label: labels[group.id] || group.label,
+        icon: group.icon,
+      });
     }
   }
   return chips;
@@ -148,31 +158,45 @@ export const BUCKET_LABEL = {
 };
 
 /** Chia danh sách thành các khối theo ngày, giữ nguyên thứ tự đã sắp. */
-export function groupByDay(items, now = new Date()) {
+export function groupByDay(items, now = new Date(), labels = BUCKET_LABEL) {
   const out = [];
   for (const item of items) {
     const bucket = dayBucket(item.at, now);
     const last = out[out.length - 1];
     if (last?.bucket === bucket) last.items.push(item);
-    else out.push({ bucket, label: BUCKET_LABEL[bucket], items: [item] });
+    else out.push({ bucket, label: labels[bucket] || BUCKET_LABEL[bucket], items: [item] });
   }
   return out;
 }
 
 /** Thời gian tương đối, ngắn gọn. */
-export function timeAgo(at, now = new Date()) {
+export function timeAgo(at, now = new Date(), language = "vi") {
   const value = new Date(at);
   if (Number.isNaN(value.getTime())) return "";
   const seconds = Math.max(0, (now.getTime() - value.getTime()) / 1000);
-  if (seconds < 60) return "vừa xong";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} phút`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)} ngày`;
-  return value.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+  const english = String(language).startsWith("en");
+  if (seconds < 60) return english ? "just now" : "vừa xong";
+  if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    return english ? `${minutes} min ago` : `${minutes} phút`;
+  }
+  if (seconds < 86400) {
+    const hours = Math.floor(seconds / 3600);
+    return english ? `${hours} hr ago` : `${hours} giờ`;
+  }
+  if (seconds < 604800) {
+    const days = Math.floor(seconds / 86400);
+    return english ? `${days} days ago` : `${days} ngày`;
+  }
+  return value.toLocaleDateString(english ? "en-US" : "vi-VN", {
+    day: "2-digit",
+    month: "short",
+  });
 }
 
 /** Số JOY có dấu, để hiện "+150" / "−165". Dùng dấu trừ thật (U+2212). */
-export function signedJoy(amount) {
-  const value = Math.abs(Number(amount) || 0).toLocaleString("vi-VN");
+export function signedJoy(amount, language = "vi") {
+  const locale = String(language).startsWith("en") ? "en-US" : "vi-VN";
+  const value = Math.abs(Number(amount) || 0).toLocaleString(locale);
   return `${amount > 0 ? "+" : "−"}${value} JOY`;
 }

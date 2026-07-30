@@ -1550,6 +1550,34 @@
       "sourceNotice": "Nội dung đầy đủ thuộc về nguồn xuất bản.",
       "previewTitle": "Xem trước: {{title}}"
     },
+    "notificationCenter": {
+      "title": "Hoạt động",
+      "unreadCount": "{{count}} thông báo chưa đọc",
+      "unreadCount_other": "{{count}} thông báo chưa đọc",
+      "allCaughtUp": "Bạn đã xem hết",
+      "markAllRead": "Đọc hết",
+      "profileUpdated": "Cập nhật hồ sơ",
+      "balance": "Số dư {{value}} JOY",
+      "dismiss": "Xoá thông báo: {{title}}",
+      "emptyFilterTitle": "Không có gì ở mục này",
+      "emptyFilterDescription": "Hãy chọn một mục khác ở trên.",
+      "emptyTitle": "Chưa có hoạt động nào",
+      "emptyDescription": "Giao dịch JOY, đơn mua, cập nhật tài khoản và thông báo quan trọng sẽ xuất hiện tại đây.",
+      "openWallet": "Mở ví JOY",
+      "filters": {
+        "all": "Tất cả",
+        "unread": "Chưa đọc ({{count}})",
+        "joy": "Giao dịch",
+        "account": "Tài khoản",
+        "system": "Hệ thống"
+      },
+      "days": {
+        "today": "Hôm nay",
+        "yesterday": "Hôm qua",
+        "thisWeek": "Trong tuần",
+        "earlier": "Cũ hơn"
+      }
+    },
     "discovery": {
       "discover": "khám phá",
       "loadError": "Không tải được địa điểm",
@@ -3170,6 +3198,7 @@
     }
   },
   "utilities": {
+    "upgradeUnavailable": "Ứng dụng đang được nâng cấp lên phiên bản mới nhất. Vui lòng quay lại sau 24 giờ.",
     "categories": {
       "all": "Tất cả",
       "education": "Học tập",

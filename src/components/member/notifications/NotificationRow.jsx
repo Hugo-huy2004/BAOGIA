@@ -1,4 +1,5 @@
 import { signedJoy, timeAgo } from "./notificationModel";
+import { useTranslation } from "react-i18next";
 
 const DIRECTION_ICON = { in: "arrow_downward", out: "arrow_upward" };
 
@@ -13,6 +14,9 @@ const initial = (name) => (name || "?").trim().charAt(0).toUpperCase();
  * mang icon theo loại và bên phải chỉ có thời gian.
  */
 export default function NotificationRow({ item, onOpen, onDismiss }) {
+  const { t, i18n } = useTranslation();
+  const language = i18n.resolvedLanguage || i18n.language || "vi";
+  const locale = String(language).startsWith("en") ? "en-US" : "vi-VN";
   const isMoney = item.direction !== "none";
 
   return (
@@ -41,7 +45,11 @@ export default function NotificationRow({ item, onOpen, onDismiss }) {
         {(item.balanceAfter != null || item.refCode) && (
           <span className="hgn-dim mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11.5px]">
             {item.balanceAfter != null && (
-              <span>Số dư {Number(item.balanceAfter).toLocaleString("vi-VN")} JOY</span>
+              <span>
+                {t("memberPortal.notificationCenter.balance", {
+                  value: Number(item.balanceAfter).toLocaleString(locale),
+                })}
+              </span>
             )}
             {item.refCode && <span className="font-mono">{item.refCode}</span>}
           </span>
@@ -50,14 +58,14 @@ export default function NotificationRow({ item, onOpen, onDismiss }) {
 
       <span className="flex shrink-0 flex-col items-end gap-1 pl-1">
         {isMoney && (
-          <span className="hgn-amount" data-dir={item.direction}>{signedJoy(item.amount)}</span>
+          <span className="hgn-amount" data-dir={item.direction}>{signedJoy(item.amount, language)}</span>
         )}
-        <span className="hgn-dim text-[11.5px]">{timeAgo(item.at)}</span>
+        <span className="hgn-dim text-[11.5px]">{timeAgo(item.at, new Date(), language)}</span>
         {item.dismissible && (
           <button
             type="button"
             onClick={() => onDismiss?.(item)}
-            aria-label={`Xoá thông báo: ${item.title}`}
+            aria-label={t("memberPortal.notificationCenter.dismiss", { title: item.title })}
             className="hgn-dim -mr-1 flex h-8 w-8 items-center justify-center rounded-full"
           >
             <span className="material-symbols-outlined text-[16px]">close</span>
