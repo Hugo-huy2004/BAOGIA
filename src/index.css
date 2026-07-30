@@ -1575,7 +1575,12 @@ html.standalone-pwa .member-portal-shell {
    * mảng trống to phía dưới — đúng triệu chứng "không sát đáy". Dùng max() thì
    * máy không có inset vẫn được 8px thở, máy có inset dùng đúng 34px.
    */
-  --portal-tabbar-pad: max(8px, var(--portal-safe-bottom, 0px));
+  /*
+   * Nền tab-bar vẫn chạm đáy viewport, nhưng không dùng trọn 34px inset để
+   * đẩy icon/nhãn lên quá cao trên iPhone. 20px vẫn giữ khoảng cách với home
+   * indicator trong khi đưa cụm điều hướng xuống gần đáy hơn.
+   */
+  --portal-tabbar-pad: min(20px, max(8px, var(--portal-safe-bottom, 0px)));
 }
 
 html.standalone-pwa .desktop-apple-layout {
@@ -1630,8 +1635,11 @@ html.standalone-pwa .mobile-portal-tabbar {
    */
   .member-portal-shell.portal-mobile-layout {
     position: fixed;
-    inset: 0;
-    height: auto;
+    top: var(--portal-visual-top, 0px);
+    right: 0;
+    bottom: auto;
+    left: 0;
+    height: var(--portal-visual-height, 100dvh);
     min-height: 0;
     display: flex;
     flex-direction: column;

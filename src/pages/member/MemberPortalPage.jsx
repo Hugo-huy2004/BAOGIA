@@ -77,6 +77,7 @@ function MemberPortalPage() {
   // fetch below still always runs to revalidate, this just avoids showing a
   // blank loading spinner on every reload for a returning member.
   const cachedBioRef = useRef(getCachedBio(memberSession?.email));
+  const portalShellRef = useRef(null);
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [bio, setBio]         = useState(() => cachedBioRef.current);
@@ -94,6 +95,58 @@ function MemberPortalPage() {
   // otherwise ride the keyboard up and down.
   const isKeyboardVisible = useKeyboardVisible();
   const isMobileView = useIsMobile();
+  useEffect(() => {
+    const shell = portalShellRef.current;
+    if (!isMobileView || !shell) return undefined;
+
+    // iOS Safari/PWA can keep CSS viewport units at an older browser-bar or
+    // keyboard size. Measure the visible viewport directly and feed stable
+    // pixel values to the app shell instead of trusting 100dvh alone.
+    const safeAreaProbe = document.createElement("span");
+    Object.assign(safeAreaProbe.style, {
+      position: "fixed",
+      visibility: "hidden",
+      pointerEvents: "none",
+      paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    });
+    document.body.appendChild(safeAreaProbe);
+
+    let frame = 0;
+    const syncViewport = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const viewport = window.visualViewport;
+        const height = Math.max(320, Math.round(viewport?.height || window.innerHeight));
+        const top = Math.max(0, Math.round(viewport?.offsetTop || 0));
+        const rawSafeBottom = Number.parseFloat(
+          window.getComputedStyle(safeAreaProbe).paddingBottom,
+        ) || 0;
+        const safeBottom = Math.min(34, Math.max(0, rawSafeBottom));
+
+        shell.style.setProperty("--portal-visual-height", `${height}px`);
+        shell.style.setProperty("--portal-visual-top", `${top}px`);
+        shell.style.setProperty("--portal-safe-bottom", `${safeBottom}px`);
+      });
+    };
+
+    syncViewport();
+    window.addEventListener("resize", syncViewport);
+    window.addEventListener("orientationchange", syncViewport);
+    window.visualViewport?.addEventListener("resize", syncViewport);
+    window.visualViewport?.addEventListener("scroll", syncViewport);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      safeAreaProbe.remove();
+      window.removeEventListener("resize", syncViewport);
+      window.removeEventListener("orientationchange", syncViewport);
+      window.visualViewport?.removeEventListener("resize", syncViewport);
+      window.visualViewport?.removeEventListener("scroll", syncViewport);
+      shell.style.removeProperty("--portal-visual-height");
+      shell.style.removeProperty("--portal-visual-top");
+      shell.style.removeProperty("--portal-safe-bottom");
+    };
+  }, [isMobileView]);
   // A full-screen sheet (e.g. community composer/comments) asks to hide the
   // bottom tab-bar so it doesn't peek out from under the sheet. Fixed z-index
   // alone can fail when an ancestor creates a stacking context, so we truly
@@ -787,6 +840,7 @@ function MemberPortalPage() {
     <>
       <WeatherAlertWatcher />
       <div
+        ref={portalShellRef}
         className={`member-portal-shell ${isMobileView ? "portal-mobile-layout" : "portal-workspace-layout"} relative isolate min-h-[100dvh] bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300`}
         data-portal-area={portalArea}
       >

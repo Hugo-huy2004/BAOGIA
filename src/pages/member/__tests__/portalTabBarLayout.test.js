@@ -35,12 +35,21 @@ describe("portal mobile tab bar", () => {
       /\.member-portal-shell\.portal-mobile-layout\s*\{[^}]*\}/g,
     )?.at(-1);
     expect(shell).toMatch(/position:\s*fixed/);
-    expect(shell).toMatch(/inset:\s*0/);
-    // top+bottom+height là ràng buộc thừa: trình duyệt bỏ `bottom` và thanh tab
-    // lại rời khỏi đáy màn.
-    const heights = [...shell.matchAll(/(?<!min-|max-)height:\s*([^;]+);/g)];
-    expect(heights.map((m) => m[1].trim())).toEqual(["auto"]);
+    expect(shell).toMatch(/top:\s*var\(--portal-visual-top,\s*0px\)/);
+    expect(shell).toMatch(/bottom:\s*auto/);
+    expect(shell).toMatch(
+      /height:\s*var\(--portal-visual-height,\s*100dvh\)/,
+    );
     expect(css).toMatch(/\.mobile-portal-content\s*\{[^}]*overflow-y:\s*auto/);
+  });
+
+  it("đồng bộ visualViewport và clamp safe-area cho iPhone", () => {
+    expect(page).toMatch(/window\.visualViewport/);
+    expect(page).toMatch(/--portal-visual-height/);
+    expect(page).toMatch(/--portal-visual-top/);
+    expect(page).toMatch(
+      /Math\.min\(34,\s*Math\.max\(0,\s*rawSafeBottom\)\)/,
+    );
   });
 
   it("không để PWA standalone bỏ qua safe-area đã được giới hạn", () => {
@@ -56,6 +65,9 @@ describe("portal mobile tab bar", () => {
     );
     expect(css).toMatch(
       /--portal-safe-bottom:\s*min\(34px,\s*max\(0px,\s*env\(safe-area-inset-bottom/,
+    );
+    expect(css).toMatch(
+      /--portal-tabbar-pad:\s*min\(20px,\s*max\(8px,\s*var\(--portal-safe-bottom/,
     );
   });
 });
