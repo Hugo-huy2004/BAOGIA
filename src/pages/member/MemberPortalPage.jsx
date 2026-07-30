@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
@@ -12,7 +11,6 @@ import { useTourStore } from "../../stores/tourStore";
 import TourSystem from "../../components/TourSystem";
 import { useJoyStore } from "../../stores/joyStore";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
-import { useKeyboardVisible } from "../../hooks/useKeyboardVisible";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
@@ -49,22 +47,20 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
   };
 }
 
-function MobilePortalDock({
+function MobilePortalNav({
   tabs,
   activeArea,
   unreadCount,
   navigationLabel,
   onTabClick,
 }) {
-  if (typeof document === "undefined") return null;
-
-  return createPortal(
+  return (
     <nav
-      id="mobile-bottom-tab-bar"
-      className="mobile-portal-dock"
+      id="mobile-primary-navigation"
+      className="mobile-portal-nav"
       aria-label={navigationLabel}
     >
-      <div className="mobile-portal-dock__track">
+      <div className="mobile-portal-nav__track">
         {tabs.map((tab) => {
           const isActive = activeArea === tab.id;
           return (
@@ -78,7 +74,7 @@ function MobilePortalDock({
               className={isActive ? "is-active" : ""}
               onClick={() => onTabClick(tab)}
             >
-              <span className="mobile-portal-dock__icon">
+              <span className="mobile-portal-nav__icon">
                 <span
                   className="material-symbols-outlined"
                   style={{
@@ -90,19 +86,18 @@ function MobilePortalDock({
                   {tab.icon}
                 </span>
                 {tab.id === "activity" && unreadCount > 0 && (
-                  <span className="mobile-portal-dock__badge">
+                  <span className="mobile-portal-nav__badge">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
-                {tab.alert && <span className="mobile-portal-dock__alert" />}
+                {tab.alert && <span className="mobile-portal-nav__alert" />}
               </span>
-              <span className="mobile-portal-dock__label">{tab.label}</span>
+              <span className="mobile-portal-nav__label">{tab.label}</span>
             </button>
           );
         })}
       </div>
-    </nav>,
-    document.body,
+    </nav>
   );
 }
 
@@ -135,7 +130,6 @@ function MemberPortalPage() {
   // fetch below still always runs to revalidate, this just avoids showing a
   // blank loading spinner on every reload for a returning member.
   const cachedBioRef = useRef(getCachedBio(memberSession?.email));
-  const portalShellRef = useRef(null);
 
   // ── Core state ──────────────────────────────────────────────────────────────
   const [bio, setBio]         = useState(() => cachedBioRef.current);
@@ -148,72 +142,8 @@ function MemberPortalPage() {
   const hydrateWallet = useJoyStore(s => s.hydrateWallet);
   const joyBalance = useJoyStore(s => s.balance);
   usePresenceHeartbeat(memberSession?.email);
-  // Hides the mobile bottom bar while the on-screen keyboard is up — the shell
-  // is 100dvh, so on platforms that resize the layout viewport the bar would
-  // otherwise ride the keyboard up and down.
-  const isKeyboardVisible = useKeyboardVisible();
   const isMobileView = useIsMobile();
-  useEffect(() => {
-    const shell = portalShellRef.current;
-    if (!isMobileView || !shell) return undefined;
-
-    // iOS Safari/PWA can keep CSS viewport units at an older browser-bar or
-    // keyboard size. Measure the visible viewport directly and feed stable
-    // pixel values to the app shell instead of trusting 100dvh alone.
-    const safeAreaProbe = document.createElement("span");
-    Object.assign(safeAreaProbe.style, {
-      position: "fixed",
-      visibility: "hidden",
-      pointerEvents: "none",
-      paddingBottom: "env(safe-area-inset-bottom, 0px)",
-    });
-    document.body.appendChild(safeAreaProbe);
-
-    let frame = 0;
-    const syncViewport = () => {
-      window.cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        const viewport = window.visualViewport;
-        const height = Math.max(320, Math.round(viewport?.height || window.innerHeight));
-        const top = Math.max(0, Math.round(viewport?.offsetTop || 0));
-        const rawSafeBottom = Number.parseFloat(
-          window.getComputedStyle(safeAreaProbe).paddingBottom,
-        ) || 0;
-        const safeBottom = Math.min(34, Math.max(0, rawSafeBottom));
-
-        shell.style.setProperty("--portal-visual-height", `${height}px`);
-        shell.style.setProperty("--portal-visual-top", `${top}px`);
-        shell.style.setProperty("--portal-safe-bottom", `${safeBottom}px`);
-        document.documentElement.style.setProperty(
-          "--portal-safe-bottom-px",
-          `${safeBottom}px`,
-        );
-      });
-    };
-
-    syncViewport();
-    window.addEventListener("resize", syncViewport);
-    window.addEventListener("orientationchange", syncViewport);
-    window.visualViewport?.addEventListener("resize", syncViewport);
-    window.visualViewport?.addEventListener("scroll", syncViewport);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      safeAreaProbe.remove();
-      window.removeEventListener("resize", syncViewport);
-      window.removeEventListener("orientationchange", syncViewport);
-      window.visualViewport?.removeEventListener("resize", syncViewport);
-      window.visualViewport?.removeEventListener("scroll", syncViewport);
-      shell.style.removeProperty("--portal-visual-height");
-      shell.style.removeProperty("--portal-visual-top");
-      shell.style.removeProperty("--portal-safe-bottom");
-      document.documentElement.style.removeProperty("--portal-safe-bottom-px");
-    };
-  }, [isMobileView]);
-  // A full-screen sheet (e.g. community composer/comments) asks to hide the
-  // bottom tab-bar so it doesn't peek out from under the sheet. Fixed z-index
-  // alone can fail when an ancestor creates a stacking context, so we truly
-  // unmount the bar via this signal.
+  // Full-screen sheets temporarily remove the primary navigation.
   const [fullSheetOpen, setFullSheetOpen] = useState(false);
   useEffect(() => {
     const h = (e) => setFullSheetOpen(!!e.detail?.open);
@@ -835,6 +765,10 @@ function MemberPortalPage() {
   const isAppOpen = isMobileView
     && activeTab === "utilities"
     && Boolean(utilitySelection);
+  const showMobileNavigation = isMobileView
+    && bio?.status !== "pending"
+    && !isAppOpen
+    && !fullSheetOpen;
 
   if (isFullscreenUtility) {
     // h-[100dvh] (not h-screen/100vh) so this actually shrinks with the
@@ -903,7 +837,6 @@ function MemberPortalPage() {
     <>
       <WeatherAlertWatcher />
       <div
-        ref={portalShellRef}
         className={`member-portal-shell ${isMobileView ? "portal-mobile-layout" : "portal-workspace-layout"} relative isolate min-h-[100dvh] bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300`}
         data-portal-area={portalArea}
       >
@@ -1103,16 +1036,8 @@ function MemberPortalPage() {
           </ErrorBoundary>
         </div>
 
-      </div>
-      )}
-
-      {isMobileView
-        && bio?.status !== 'pending'
-        && !isKeyboardVisible
-        && !isAppOpen
-        && !fullSheetOpen
-        && (
-          <MobilePortalDock
+        {showMobileNavigation && (
+          <MobilePortalNav
             tabs={mobileTabs}
             activeArea={portalArea}
             unreadCount={unreadHistoryCount}
@@ -1120,6 +1045,8 @@ function MemberPortalPage() {
             onTabClick={onTabClick}
           />
         )}
+      </div>
+      )}
 
         {!isGuestMode && memberSession?.email ? (
           <React.Suspense fallback={null}>

@@ -1554,18 +1554,6 @@ html.standalone-pwa .member-portal-shell {
    */
   overflow-x: clip;
 
-  /*
-   * Some embedded WebViews report a stale keyboard/viewport value through
-   * safe-area-inset-bottom. A real iPhone home-indicator inset is at most
-   * 34px in portrait, so clamp the value before it can inflate the tab bar.
-   */
-  --portal-safe-bottom: 0px;
-  --portal-safe-left: 0px;
-  --portal-safe-right: 0px;
-  --portal-safe-bottom: min(34px, max(0px, env(safe-area-inset-bottom, 0px)));
-  --portal-safe-left: min(44px, max(0px, env(safe-area-inset-left, 0px)));
-  --portal-safe-right: min(44px, max(0px, env(safe-area-inset-right, 0px)));
-
 }
 
 html.standalone-pwa .desktop-apple-layout {
@@ -1579,27 +1567,23 @@ html.standalone-pwa .desktop-apple-layout {
   padding-bottom: 16px;
 }
 
-.mobile-portal-dock {
-  --portal-dock-safe: min(12px, max(6px, var(--portal-safe-bottom-px, 0px)));
-  position: fixed;
-  z-index: 90;
-  right: 0;
-  bottom: 0;
-  left: 0;
+.mobile-portal-nav {
+  z-index: 30;
+  flex: 0 0 auto;
   box-sizing: border-box;
   padding:
-    6px
+    4px
     max(10px, env(safe-area-inset-right, 0px))
-    var(--portal-dock-safe)
+    min(6px, max(4px, env(safe-area-inset-bottom, 0px)))
     max(10px, env(safe-area-inset-left, 0px));
   border-top: 1px solid hsl(var(--border) / .42);
   background: hsl(var(--background) / .9);
-  box-shadow: 0 -10px 30px hsl(var(--shadow) / .07);
+  box-shadow: 0 -8px 24px hsl(var(--shadow) / .06);
   -webkit-backdrop-filter: saturate(165%) blur(22px);
   backdrop-filter: saturate(165%) blur(22px);
 }
 
-.mobile-portal-dock__track {
+.mobile-portal-nav__track {
   display: flex;
   width: min(100%, 460px);
   height: 44px;
@@ -1608,7 +1592,7 @@ html.standalone-pwa .desktop-apple-layout {
   margin-inline: auto;
 }
 
-.mobile-portal-dock button {
+.mobile-portal-nav button {
   position: relative;
   display: flex;
   height: 44px;
@@ -1626,23 +1610,23 @@ html.standalone-pwa .desktop-apple-layout {
   transition: background-color .22s ease, color .22s ease;
 }
 
-.mobile-portal-dock button.is-active {
+.mobile-portal-nav button.is-active {
   background: hsl(var(--primary) / .12);
   color: hsl(var(--primary));
 }
 
-.mobile-portal-dock__icon {
+.mobile-portal-nav__icon {
   position: relative;
   display: grid;
   flex: 0 0 auto;
   place-items: center;
 }
 
-.mobile-portal-dock__icon > .material-symbols-outlined {
+.mobile-portal-nav__icon > .material-symbols-outlined {
   font-size: 23px;
 }
 
-.mobile-portal-dock__label {
+.mobile-portal-nav__label {
   overflow: hidden;
   max-width: 100%;
   font-size: 9.5px;
@@ -1653,7 +1637,7 @@ html.standalone-pwa .desktop-apple-layout {
   white-space: nowrap;
 }
 
-.mobile-portal-dock__badge {
+.mobile-portal-nav__badge {
   position: absolute;
   top: -7px;
   right: -11px;
@@ -1669,7 +1653,7 @@ html.standalone-pwa .desktop-apple-layout {
   text-align: center;
 }
 
-.mobile-portal-dock__alert {
+.mobile-portal-nav__alert {
   position: absolute;
   top: -3px;
   right: -4px;
@@ -1680,17 +1664,16 @@ html.standalone-pwa .desktop-apple-layout {
   background: hsl(var(--warning));
 }
 
-.dark .mobile-portal-dock {
+.dark .mobile-portal-nav {
   background: rgb(12 11 17 / .9);
-  box-shadow: 0 -12px 32px rgb(0 0 0 / .26);
+  box-shadow: 0 -10px 28px rgb(0 0 0 / .22);
 }
 
 /*
- * Portal mobile: nội dung cuộn trong app shell. Dock mới được portal thẳng ra
- * body và fixed ở đáy nên không tham gia phép chia chiều cao của nội dung.
+ * Portal mobile: navigation là hàng cuối tự nhiên của app shell; nội dung là
+ * vùng cuộn độc lập phía trên. Navigation không fixed, không portal ra body và
+ * không dùng visualViewport, nên iOS không có cơ chế nào tự nâng nó lên.
  */
-/* Cùng điều kiện với useIsMobile() — nếu lệch, layout mobile render mà CSS app
-   shell không áp là thanh tab rơi xuống cuối tài liệu. */
 @media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
   /*
    * Vỏ app ghim thẳng vào vùng nhìn thấy: `fixed; inset: 0` thay vì
@@ -1704,11 +1687,8 @@ html.standalone-pwa .desktop-apple-layout {
    */
   .member-portal-shell.portal-mobile-layout {
     position: fixed;
-    top: var(--portal-visual-top, 0px);
-    right: 0;
-    bottom: auto;
-    left: 0;
-    height: var(--portal-visual-height, 100dvh);
+    inset: 0;
+    height: auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
@@ -1725,15 +1705,15 @@ html.standalone-pwa .desktop-apple-layout {
   .mobile-portal-content {
     flex: 1 1 auto;
     min-height: 0;
-    padding-bottom: 76px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
     overflow-y: auto;
     overscroll-behavior-y: contain;
   }
 
-  /* Khi một ứng dụng đang mở, thanh tab bị ẩn — nội dung tự chiếm hết chiều
-     cao, chỉ cần chừa vùng an toàn cho thanh gạt home. */
+  /* Khi một ứng dụng đang mở, navigation biến mất và nội dung vẫn tự chừa vùng
+     kết thúc cuộn cho thanh Home; vùng này không ảnh hưởng vị trí navigation. */
   .mobile-portal-content--app {
-    padding-bottom: var(--portal-safe-bottom, 0px);
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
   }
 
   /* Ngoài chế độ standalone, <body> vẫn đệm safe-area; cộng với shell 100dvh
@@ -1745,9 +1725,8 @@ html.standalone-pwa .desktop-apple-layout {
   }
 }
 
-/* In standalone mode body padding is intentionally zero because the portal
-   shell owns its insets (tab bar = bottom, content = top). Restore only the top
-   inset here so the large title clears the notch/Dynamic Island. */
+/* Navigation nằm ở đáy nên nội dung luôn tự nhận top safe-area để không chạm
+   notch/Dynamic Island. */
 html.standalone-pwa .mobile-portal-content {
   padding-top: calc(constant(safe-area-inset-top) + 12px) !important;
   padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
