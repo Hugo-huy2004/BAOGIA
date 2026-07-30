@@ -14,6 +14,17 @@ const css = readFileSync(resolve(__dirname, "../../../index.css"), "utf8");
 const tabBarClass = page.match(/className=\{`mobile-portal-tabbar[^`]*`\}/)?.[0];
 
 describe("portal mobile tab bar", () => {
+  it("nằm trong khung mobile và trước các modal/onboarding", () => {
+    const mobileMainIndex = page.indexOf('className="portal-mobile-main"');
+    const tabBarIndex = page.indexOf('id="mobile-bottom-tab-bar"');
+    const onboardingIndex = page.indexOf("<PWAPermissionOnboarding", tabBarIndex);
+
+    expect(page.match(/id="mobile-bottom-tab-bar"/g)).toHaveLength(1);
+    expect(mobileMainIndex).toBeGreaterThan(-1);
+    expect(tabBarIndex).toBeGreaterThan(mobileMainIndex);
+    expect(onboardingIndex).toBeGreaterThan(tabBarIndex);
+  });
+
   it("không dùng fixed/absolute positioning", () => {
     expect(tabBarClass).toBeTruthy();
     expect(tabBarClass).not.toMatch(/\b(fixed|absolute|bottom-0)\b/);
