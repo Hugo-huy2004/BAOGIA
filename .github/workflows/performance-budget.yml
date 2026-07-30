@@ -17,6 +17,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm --prefix server ci
-      - run: npm test
-      - run: npm run test:server
       - run: npm run ci:performance

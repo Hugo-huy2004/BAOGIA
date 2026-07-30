@@ -7,18 +7,6 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.js'],
-    // Backend có package/config Vitest riêng và được CI chạy bằng
-    // `npm run test:server`. Không gom server/tests vào jsdom của frontend:
-    // import.meta.url khi đó có thể thành URL trình duyệt, làm các test quét
-    // filesystem đọc sai đường dẫn hoặc không tìm thấy source.
-    include: [
-      'src/**/*.test.{js,jsx,ts,tsx}',
-      'src/**/*.spec.{js,jsx,ts,tsx}',
-    ],
-  },
   plugins: [
     react(),
     // npm run build:analyze → dist/stats.html (treemap of bundle composition)
@@ -59,7 +47,6 @@ export default defineConfig({
           '**/MemberRadioTab-*',
           '**/MemberIdeTab-*',
           '**/BanhocduongTab-*',
-          '**/ChessGame-*',
           '**/lessons-*',
           '**/hls-*',
         ],

@@ -1226,7 +1226,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         <StandaloneGameShell
           gameId={activeArcadeGame.replace("arcade_", "")}
           bio={bio}
-          onBioUpdate={onBioUpdate}
           onClose={() => setActiveArcadeGame(null)}
         />
       )}

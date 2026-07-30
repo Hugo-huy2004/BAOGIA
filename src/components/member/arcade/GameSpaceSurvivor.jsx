@@ -1,10 +1,16 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
-import confetti from "canvas-confetti";
 import { readGamePalette, shade, withAlpha } from "./arcadePalette";
 import { ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
 import ArcadeHud from "./ArcadeHud";
+import {
+  chooseSurvivorDrop,
+  SURVIVOR_MAX_HP,
+  SURVIVOR_POWERUPS,
+  survivorDropChance,
+} from "./survivorBalance";
 
 // ── Luật chơi ─────────────────────────────────────────────────────
 // · ĐỢT (wave) = cấp độ. Địch không rơi lẻ tẻ nữa mà vào theo ĐỘI HÌNH
@@ -18,9 +24,10 @@ import ArcadeHud from "./ArcadeHud";
 const GAME_ID = "survivor";
 const W = 360;   // toạ độ "thiết kế" — canvas thật được nhân theo devicePixelRatio
 const H = 540;
-const MAX_HP = 3;
+const MAX_HP = SURVIVOR_MAX_HP;
 const MAX_WEAPON = 5;
 const BOSS_EVERY = 3;
+const MAX_PARTICLES = 260;
 
 const GRAZE_RADIUS = 34;
 const GRAZE_FULL = 100;
@@ -40,7 +47,7 @@ const TYPES = {
 const BOSS_TYPES = [
   {
     id: "titan",
-    name: "Titan Đỏ",
+    name: "Crimson Titan",
     color: "#ef4444",
     color2: "#fb923c",
     w: 112,
@@ -58,7 +65,7 @@ const BOSS_TYPES = [
   },
   {
     id: "twins",
-    name: "Song Tử Omega",
+    name: "Omega Twins",
     color: "#06b6d4",
     color2: "#f472b6",
     w: 124,
@@ -67,7 +74,7 @@ const BOSS_TYPES = [
   },
   {
     id: "reaper",
-    name: "Hắc Tinh Reaper",
+    name: "Blackstar Reaper",
     color: "#f43f5e",
     color2: "#a3e635",
     w: 118,
@@ -94,11 +101,14 @@ const FORMATIONS = {
 const FORMATION_KEYS = Object.keys(FORMATIONS);
 
 export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
+  const { t } = useTranslation();
   const canvasRef = useRef(null);
+  const noticeTimerRef = useRef(null);
   const [layoutRevision, setLayoutRevision] = useState(0);
   const [hud, setHud] = useState({
     score: 0, hp: MAX_HP, weapon: 1, wave: 1, combo: 0, mult: 1,
     notice: "", boss: null, bossName: "", bossMode: 1, graze: 0, overdrive: false,
+    shield: false, rapid: false,
   });
 
   const { playBeep, playLose } = useArcadeSound();
@@ -117,11 +127,14 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     wave: 1,
     graze: 0,
     overdrive: 0,
+    rapidFire: 0,
     hitStop: 0,
     combo: createCombo({ windowMs: 2200, step: 0.25, max: 3 }),
     keys: {},
     lastShot: 0,
     spawnTimer: 60,
+    supplyTimer: 360,
+    killsSinceDrop: 0,
     isGameOver: false,
     shakeX: 0, shakeY: 0, shakeMag: 0,
     flashAlpha: 0,
@@ -150,14 +163,24 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       bossMode: s.boss?.mode || 1,
       graze: Math.round((s.graze / GRAZE_FULL) * 100),
       overdrive: s.overdrive > 0,
+      shield: s.player.shield,
+      rapid: s.rapidFire > 0,
       notice: notice !== undefined ? notice : prev.notice,
     }));
   }, []);
 
   const notify = useCallback((text) => {
     syncHud(text);
-    setTimeout(() => setHud((h) => (h.notice === text ? { ...h, notice: "" } : h)), 2000);
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+    noticeTimerRef.current = window.setTimeout(
+      () => setHud((h) => (h.notice === text ? { ...h, notice: "" } : h)),
+      2000,
+    );
   }, [syncHud]);
+
+  useEffect(() => () => {
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+  }, []);
 
   useEffect(() => {
     let timer;
@@ -202,7 +225,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     };
 
     const boom = (x, y, color, count = 12, power = 1) => {
-      for (let i = 0; i < count; i++) {
+      const available = Math.max(0, MAX_PARTICLES - state.current.particles.length);
+      for (let i = 0; i < Math.min(count, available); i++) {
         const angle = Math.random() * Math.PI * 2;
         const spd = (Math.random() * 4 + 1) * power;
         state.current.particles.push({
@@ -224,9 +248,9 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     const tuning = (wave) => ({
       squad: Math.min(7, 2 + Math.floor(wave / 2)),
       interval: ramp(GAME_ID, wave, 115, 46),
-      foeSpeed: ramp(GAME_ID, wave, 1.0, 2.05),
+      foeSpeed: ramp(GAME_ID, wave, 0.9, 1.72),
       hpBonus: Math.floor((wave - 1) / 3),
-      shotChance: ramp(GAME_ID, wave, 0.004, 0.02),
+      shotCooldown: Math.round(ramp(GAME_ID, wave, 170, 92)),
     });
 
     const addEnemy = (type, x, y, cfg) => {
@@ -241,6 +265,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         phase: Math.random() * Math.PI * 2,
         angle: Math.PI / 2,
         flash: 0,
+        shotCooldown: cfg.shotCooldown + Math.round(Math.random() * 75),
       });
     };
 
@@ -273,8 +298,11 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         phase: 0,
         turret: 0,
         mode: 1,
-        burst: 20,
-        radialAt: 0,
+        attackState: "rest",
+        attackTimer: 96,
+        attackKind: "fan",
+        attackIndex: 0,
+        telegraphTotal: 48,
         minionAt: 0,
         beam: null,
       };
@@ -282,10 +310,11 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       s.foeShots = [];
       s.flashAlpha = 0.6;
       s.shakeMag = 10;
-      notify(`${type.name} đang xâm nhập`);
+      notify(t("arcadeGame.survivor.bossIncoming", { boss: type.name }));
     };
 
     const bossShot = (s, x, y, angle, speed, color, size = 7) => {
+      if (s.foeShots.length >= 72) return;
       s.foeShots.push({
         x, y,
         vx: Math.cos(angle) * speed,
@@ -300,7 +329,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     const fire = (s, ts) => {
       const od = s.overdrive > 0;
       const tier = od ? MAX_WEAPON : s.player.weapon;
-      const cadence = (165 - tier * 12) * (od ? 0.55 : 1);
+      const cadence = (165 - tier * 12) * (od ? 0.55 : s.rapidFire > 0 ? 0.62 : 1);
       if (ts - s.lastShot < cadence) return;
       s.lastShot = ts;
       playBeep();
@@ -315,6 +344,26 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       if (tier >= 3) { shot(-14, -1.9, -10); shot(14, 1.9, -10); }
       if (tier >= 4) { shot(-18, -3.4, -8.5); shot(18, 3.4, -8.5); }
       if (tier >= 5) shot(0, 0, -13, true);
+    };
+
+    const spawnPowerUp = (s, x, y, forcedType) => {
+      const type = forcedType || chooseSurvivorDrop({
+        hp: s.player.hp,
+        maxHp: MAX_HP,
+        weapon: s.player.weapon,
+      });
+      const def = SURVIVOR_POWERUPS[type];
+      s.powerUps.push({
+        x: Math.max(24, Math.min(W - 24, x)),
+        y,
+        phase: Math.random() * Math.PI * 2,
+        spin: Math.random() * Math.PI * 2,
+        type,
+        label: def.label,
+        symbol: def.symbol,
+        color: def.color,
+      });
+      s.killsSinceDrop = 0;
     };
 
     const reward = (s, x, y, base) => {
@@ -354,7 +403,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       pushPopup(s.popups, W / 2, H / 2 - 26, "XUNG PHÁ", OD_COLOR, 15);
       playBeep();
       hapticMerge();
-      notify("Xung phá — bất tử 3 giây");
+      notify(t("arcadeGame.survivor.overdriveActive"));
     };
     overdriveRef.current = triggerOverdrive;
 
@@ -367,12 +416,12 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         s.hitStop = 5;
         boom(x, y, SHIELD_C, 22);
         s.shakeMag = 9;
-        notify("Khiên đã chắn đòn");
+        notify(t("arcadeGame.survivor.shieldBlocked"));
         return;
       }
       s.player.hp -= 1;
       s.player.weapon = Math.max(1, s.player.weapon - 1);
-      s.player.invuln = 70;
+      s.player.invuln = 100;
       s.combo.reset();
       s.shakeMag = 14;
       s.flashColor = "255,80,80";
@@ -413,7 +462,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         deathRender();
         setTimeout(() => onGameOver?.(s.score, "lose"), 600);
       } else {
-        notify(`Trúng đạn · còn ${s.player.hp} máu`);
+        notify(t("arcadeGame.survivor.hit", { hp: s.player.hp }));
       }
     };
 
@@ -683,6 +732,169 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       });
     };
 
+    const attackKindsFor = (bossId) => ({
+      titan: ["fan", "aimed", "sweep"],
+      vortex: ["radial", "aimed", "spiral"],
+      twins: ["crossfire", "fan", "aimed"],
+      reaper: ["blades", "radial", "aimed"],
+    }[bossId] || ["fan", "aimed"]);
+
+    const fireBossAttack = (s, b) => {
+      const aimed = Math.atan2((b.targetY ?? s.player.y) - b.y, (b.targetX ?? s.player.x) - b.x);
+      const speed = 2.65 + b.mode * 0.34;
+
+      if (b.attackKind === "aimed") {
+        const shots = b.mode === 3 ? 5 : 3;
+        for (let i = 0; i < shots; i++) {
+          const delta = (i - (shots - 1) / 2) * 0.11;
+          bossShot(s, b.x, b.y + 18, aimed + delta, speed + 1.1, b.color2, 7);
+        }
+      } else if (b.attackKind === "crossfire") {
+        [-38, 38].forEach((offset, podIndex) => {
+          const podAngle = Math.atan2(
+            (b.targetY ?? s.player.y) - (b.y + 10),
+            (b.targetX ?? s.player.x) - (b.x + offset),
+          );
+          [-0.13, 0, 0.13].slice(b.mode === 1 ? 1 : 0).forEach((delta) => {
+            bossShot(s, b.x + offset, b.y + 12, podAngle + delta, speed + 0.8, podIndex ? b.color2 : b.color, 6.5);
+          });
+        });
+      } else if (b.attackKind === "radial" || b.attackKind === "spiral") {
+        const arms = 8 + b.mode * 2;
+        const safeGap = (b.attackIndex * 3) % arms;
+        for (let i = 0; i < arms; i++) {
+          // Mỗi vòng luôn có một hành lang hai viên để người chơi thoát.
+          if (i === safeGap || i === (safeGap + 1) % arms) continue;
+          const offset = b.attackKind === "spiral" ? b.turret : 0;
+          bossShot(s, b.x, b.y, offset + (Math.PI * 2 * i) / arms, speed, i % 2 ? b.color : b.color2, 6.5);
+        }
+      } else {
+        const arms = b.attackKind === "blades" ? 3 + b.mode * 2 : 4 + b.mode * 2;
+        const spread = b.attackKind === "sweep" ? 0.2 : 0.24;
+        for (let i = 0; i < arms; i++) {
+          const angle = Math.PI / 2 + (i - (arms - 1) / 2) * spread;
+          bossShot(s, b.x, b.y + b.h * 0.38, angle, speed, i % 2 ? b.color2 : b.color, b.attackKind === "blades" ? 7.5 : 6.5);
+        }
+      }
+      s.shakeMag = Math.max(s.shakeMag, 4 + b.mode);
+    };
+
+    const updateBossAttack = (s, b) => {
+      b.attackTimer -= 1;
+      if (b.attackTimer > 0) return;
+
+      if (b.attackState === "rest") {
+        const kinds = attackKindsFor(b.id);
+        b.attackKind = kinds[b.attackIndex % kinds.length];
+        b.attackIndex += 1;
+        b.attackState = "telegraph";
+        b.telegraphTotal = Math.max(38, 58 - b.mode * 5);
+        b.attackTimer = b.telegraphTotal;
+        b.targetX = s.player.x;
+        b.targetY = s.player.y;
+        return;
+      }
+
+      if (b.attackState === "telegraph") {
+        fireBossAttack(s, b);
+        b.attackState = "recovery";
+        b.attackTimer = Math.max(42, 78 - b.mode * 9);
+        return;
+      }
+
+      b.attackState = "rest";
+      b.attackTimer = Math.max(42, 68 - b.mode * 7);
+    };
+
+    const drawBossTelegraph = (b) => {
+      if (b.attackState !== "telegraph") return;
+      const progress = 1 - b.attackTimer / b.telegraphTotal;
+      const color = b.mode === 3 ? "#ffffff" : b.color2;
+
+      ctx.save();
+      ctx.globalAlpha = 0.38 + progress * 0.48;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5 + progress * 1.8;
+      ctx.setLineDash([6, 7]);
+
+      if (b.attackKind === "aimed" || b.attackKind === "crossfire") {
+        const sources = b.attackKind === "crossfire" ? [-38, 38] : [0];
+        sources.forEach((offset) => {
+          ctx.beginPath();
+          ctx.moveTo(b.x + offset, b.y + 12);
+          ctx.lineTo(b.targetX, b.targetY);
+          ctx.stroke();
+        });
+      } else {
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 24 + progress * 42, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 12 + progress * 24, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    };
+
+    const drawPowerUp = (p) => {
+      const bob = Math.sin(p.phase * 1.6) * 2.5;
+      const x = p.x;
+      const y = p.y + bob;
+      const radius = 13;
+
+      additive(() => {
+        const glow = ctx.createRadialGradient(x, y, 2, x, y, 27);
+        glow.addColorStop(0, withAlpha(p.color, 0.55));
+        glow.addColorStop(1, "transparent");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x, y, 27, 0, Math.PI * 2);
+        ctx.fill();
+        ring(x, y, 18 + Math.sin(p.phase) * 2, withAlpha(p.color, 0.66), 1.2);
+      });
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.spin);
+      const shell = ctx.createLinearGradient(-radius, -radius, radius, radius);
+      shell.addColorStop(0, "#ffffff");
+      shell.addColorStop(0.24, p.color);
+      shell.addColorStop(1, shade(p.color, -0.58));
+      ctx.fillStyle = shell;
+      ctx.strokeStyle = withAlpha("#ffffff", 0.72);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = -Math.PI / 2 + (Math.PI * 2 * i) / 6;
+        const px = Math.cos(angle) * radius;
+        const py = Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = withAlpha("#ffffff", 0.34);
+      ctx.beginPath();
+      ctx.moveTo(0, -radius + 2);
+      ctx.lineTo(radius * 0.82, -radius * 0.35);
+      ctx.lineTo(0, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = "#061019";
+      ctx.font = "950 12px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(p.symbol, x, y + 0.5);
+      ctx.textBaseline = "alphabetic";
+      ctx.fillStyle = withAlpha("#ffffff", 0.86);
+      ctx.font = "900 7px ui-sans-serif, system-ui, sans-serif";
+      ctx.fillText(p.label, x, y + 24);
+    };
+
     const drawPlayer = (s) => {
       const px = s.player.x;
       const py = s.player.y;
@@ -796,6 +1008,12 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         s.combo.tick();
         if (s.player.invuln > 0) s.player.invuln -= 1;
         if (s.overdrive > 0) s.overdrive -= 1;
+        if (s.rapidFire > 0) s.rapidFire -= 1;
+        s.supplyTimer -= 1;
+        if (s.supplyTimer <= 0) {
+          spawnPowerUp(s, 36 + Math.random() * (W - 72), -18);
+          s.supplyTimer = s.player.hp <= 2 ? 390 : 690;
+        }
       }
 
       if (s.shakeMag > 0.2) {
@@ -965,59 +1183,13 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             s.flashAlpha = b.mode === 3 ? 0.7 : 0.5;
             s.shakeMag = b.mode === 3 ? 17 : 12;
             s.hitStop = b.mode === 3 ? 9 : 5;
-            notify(`${b.name} · pha ${b.mode}`);
+            b.attackState = "rest";
+            b.attackTimer = 68;
+            s.foeShots = s.foeShots.slice(-24);
+            notify(t("arcadeGame.survivor.bossPhase", { boss: b.name, phase: b.mode }));
           }
 
-          if (b.id === "vortex") {
-            if (b.burst <= 0) {
-              b.burst = b.mode === 3 ? 12 : b.mode === 2 ? 19 : 30;
-              const arms = b.mode === 3 ? 12 : b.mode === 2 ? 9 : 7;
-              for (let i = 0; i < arms; i++) {
-                const a = b.turret + (Math.PI * 2 * i) / arms;
-                bossShot(s, b.x, b.y, a, 2.65 + b.mode * 0.38, i % 2 ? b.color : b.color2, b.mode === 3 ? 8 : 6.5);
-              }
-            }
-          } else if (b.id === "twins") {
-            if (b.burst <= 0) {
-              b.burst = b.mode === 3 ? 13 : b.mode === 2 ? 21 : 33;
-              const a = Math.atan2(s.player.y - b.y, s.player.x - b.x);
-              [-38, 38].forEach((offset, podIndex) => {
-                const spread = b.mode === 1 ? [0] : b.mode === 2 ? [-0.11, 0.11] : [-0.18, 0, 0.18];
-                spread.forEach((delta) => {
-                  bossShot(s, b.x + offset, b.y + 12, a + delta, 3.7 + b.mode * 0.45, podIndex ? b.color2 : b.color, 6.5);
-                });
-              });
-            }
-          } else if (b.id === "reaper") {
-            if (b.burst <= 0) {
-              b.burst = b.mode === 3 ? 15 : b.mode === 2 ? 25 : 39;
-              const aimed = Math.atan2(s.player.y - b.y, s.player.x - b.x);
-              const blades = b.mode === 3 ? 7 : b.mode === 2 ? 5 : 3;
-              for (let i = 0; i < blades; i++) {
-                const delta = (i - (blades - 1) / 2) * 0.11;
-                bossShot(s, b.x, b.y + 22, aimed + delta, 4.6 + b.mode * 0.42, i % 2 ? b.color2 : b.color, 7.5);
-              }
-              if (b.mode === 3) {
-                for (let i = 0; i < 8; i++) {
-                  bossShot(s, b.x, b.y, b.turret + (Math.PI * 2 * i) / 8, 3.15, b.color2, 6);
-                }
-              }
-            }
-          } else {
-            // Titan combines readable fan attacks with aimed salvos in later phases.
-            if (b.burst <= 0) {
-              b.burst = b.mode === 3 ? 18 : b.mode === 2 ? 27 : 38;
-              const arms = 3 + b.mode * 2 + Math.floor(s.wave / 9);
-              for (let i = 0; i < arms; i++) {
-                const a = Math.PI / 2 + (i - (arms - 1) / 2) * (b.mode === 3 ? 0.21 : 0.27);
-                bossShot(s, b.x, b.y + b.h * 0.45, a, 3 + b.mode * 0.48, b.mode === 3 ? b.color2 : b.color, 7);
-              }
-              if (b.mode >= 2) {
-                const aimed = Math.atan2(s.player.y - b.y, s.player.x - b.x);
-                bossShot(s, b.x, b.y + 18, aimed, 4.5 + b.mode * 0.3, b.color2, 8);
-              }
-            }
-          }
+          updateBossAttack(s, b);
 
           if (b.mode >= 2 && b.id !== "vortex" && ts - b.minionAt > (b.mode === 3 ? 2400 : 3400)) {
             b.minionAt = ts;
@@ -1026,6 +1198,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
           }
         }
         drawBoss(b);
+        drawBossTelegraph(b);
       }
 
       // ── Địch ──
@@ -1039,8 +1212,13 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             vx = Math.sign(s.player.x - e.x) * Math.min(1.8, Math.abs(s.player.x - e.x) * 0.06);
           } else if (e.type === "drone") {
             vx = Math.sin(e.phase) * 1.5;
-          } else if (Math.random() < cfg.shotChance * 6) {
-            s.foeShots.push({ x: e.x, y: e.y + e.w / 2, vx: 0, vy: 4.2 });
+          } else {
+            e.shotCooldown -= 1;
+            if (e.shotCooldown <= 0) {
+              const aimed = Math.atan2(s.player.y - e.y, s.player.x - e.x);
+              bossShot(s, e.x, e.y + e.w / 2, aimed, 3.25, ENEMY_SHOT, 5.5);
+              e.shotCooldown = cfg.shotCooldown + Math.round(Math.random() * 80);
+            }
           }
           e.x += vx;
           e.y += vy;
@@ -1091,32 +1269,18 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       s.powerUps.forEach((p) => {
         if (!frozen) {
           const d = Math.hypot(s.player.x - p.x, s.player.y - p.y);
-          if (d < 90) {
-            p.x += ((s.player.x - p.x) / d) * 3.4;
-            p.y += ((s.player.y - p.y) / d) * 3.4;
+          if (d > 0 && d < 126) {
+            p.x += ((s.player.x - p.x) / d) * 4.1;
+            p.y += ((s.player.y - p.y) / d) * 4.1;
           } else {
-            p.y += 2;
+            p.y += 1.35;
           }
           p.phase += 0.06;
+          p.spin += 0.045;
         }
-        const pulseR = 10 + Math.sin(p.phase) * 2;
-        additive(() => {
-          ring(p.x, p.y, pulseR + 5, withAlpha(p.color, 0.5), 1.5);
-          const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, pulseR);
-          g.addColorStop(0, "#ffffff");
-          g.addColorStop(0.5, p.color);
-          g.addColorStop(1, "transparent");
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, pulseR, 0, Math.PI * 2);
-          ctx.fill();
-        });
-        ctx.fillStyle = "rgba(0,0,0,.75)";
-        ctx.font = "900 9px ui-sans-serif, system-ui, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(p.label, p.x, p.y + 3);
+        drawPowerUp(p);
       });
-      if (!frozen) s.powerUps = s.powerUps.filter((p) => p.y < H + 20);
+      if (!frozen) s.powerUps = s.powerUps.filter((p) => p.y < H + 34);
 
       if (!frozen) {
         // ── Đạn ta ↔ trùm / địch ──
@@ -1143,8 +1307,14 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 s.flashAlpha = 0.55;
                 s.hitStop = 10;
                 s.player.hp = Math.min(MAX_HP, s.player.hp + 1);
-                confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
-              notify(`Hạ ${bo.name} · hồi 1 máu`);
+                spawnPowerUp(s, bo.x - 28, bo.y, "repair");
+                spawnPowerUp(s, bo.x + 28, bo.y, s.graze < 55 ? "overdrive" : "rapid");
+                if (!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+                  import("canvas-confetti").then(({ default: confetti }) => {
+                    confetti({ particleCount: 72, spread: 76, origin: { y: 0.5 }, disableForReducedMotion: true });
+                  });
+                }
+                notify(t("arcadeGame.survivor.bossDefeated", { boss: bo.name }));
               }
             }
           }
@@ -1162,14 +1332,13 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 boom(e.x, e.y, e.color, e.type === "heavy" ? 20 : 10);
                 reward(s, e.x, e.y, e.type === "heavy" ? 150 : 50);
                 hapticMerge();
+                s.killsSinceDrop += 1;
                 if (e.type === "heavy") s.shakeMag = Math.max(s.shakeMag, 5);
-                if (Math.random() < 0.2) {
-                  const kind = s.player.weapon < MAX_WEAPON && Math.random() < 0.6 ? "core" : "shield";
-                  s.powerUps.push({
-                    x: e.x, y: e.y, phase: 0, type: kind,
-                    label: kind === "core" ? "PWR" : "SHD",
-                    color: kind === "core" ? CORE : SHIELD_C,
-                  });
+                if (
+                  s.killsSinceDrop >= 4
+                  || Math.random() < survivorDropChance(s.player.hp, MAX_HP)
+                ) {
+                  spawnPowerUp(s, e.x, e.y);
                 }
               }
               if (consumed) break;
@@ -1199,7 +1368,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
               s.grazeAnnounced = true;
               pushPopup(s.popups, s.player.x, s.player.y - 40, "SẴN SÀNG", OD_COLOR, 14);
               s.score += 150;
-              notify("Xung phá đã đầy — bấm nút tím");
+              notify(t("arcadeGame.survivor.overdriveReady"));
             }
           }
           if (s.graze < GRAZE_FULL) s.grazeAnnounced = false;
@@ -1239,14 +1408,31 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             if (p.type === "core") {
               if (s.player.weapon < MAX_WEAPON) {
                 s.player.weapon += 1;
-                notify(`Súng cấp ${s.player.weapon}`);
+                notify(t("arcadeGame.survivor.weaponLevel", { level: s.player.weapon }));
               } else {
                 reward(s, s.player.x, s.player.y - 24, 200);
-                notify("Súng đã tối đa · +điểm");
+                notify(t("arcadeGame.survivor.weaponMax"));
               }
-            } else {
+            } else if (p.type === "shield") {
+              if (s.player.shield) s.graze = Math.min(GRAZE_FULL, s.graze + 25);
               s.player.shield = true;
-              notify("Khiên đã sẵn sàng");
+              notify(t("arcadeGame.survivor.shieldReady"));
+            } else if (p.type === "repair") {
+              if (s.player.hp < MAX_HP) {
+                s.player.hp = Math.min(MAX_HP, s.player.hp + 1);
+                notify(t("arcadeGame.survivor.repaired", { hp: s.player.hp }));
+              } else {
+                reward(s, s.player.x, s.player.y - 24, 250);
+                notify(t("arcadeGame.survivor.repairConverted"));
+              }
+            } else if (p.type === "overdrive") {
+              s.graze = Math.min(GRAZE_FULL, s.graze + 55);
+              notify(s.graze >= GRAZE_FULL
+                ? t("arcadeGame.survivor.overdriveReady")
+                : t("arcadeGame.survivor.overdriveCharged"));
+            } else if (p.type === "rapid") {
+              s.rapidFire = Math.max(s.rapidFire, 360);
+              notify(t("arcadeGame.survivor.rapidFire"));
             }
           }
         }
@@ -1294,7 +1480,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         s.wave = wave;
         s.flashAlpha = 0.3;
         s.flashColor = "255,255,255";
-        notify(`Đợt ${wave} · địch mạnh hơn`);
+        s.supplyTimer = Math.min(s.supplyTimer, 260);
+        notify(t("arcadeGame.survivor.wave", { wave }));
       }
 
       rafId = requestAnimationFrame(render);
@@ -1302,7 +1489,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
     rafId = requestAnimationFrame(render);
     return () => { stopped = true; cancelAnimationFrame(rafId); };
-  }, [playBeep, playLose, onGameOver, paused, notify, syncHud, layoutRevision]);
+  }, [playBeep, playLose, onGameOver, paused, notify, syncHud, layoutRevision, t]);
 
   useEffect(() => {
     if (paused) return undefined;
@@ -1351,16 +1538,24 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
           multiplier={hud.mult}
           notice={hud.notice}
           stats={[
-            { label: "Súng", value: `Cấp ${hud.weapon}` },
-            { label: "Đợt", value: hud.wave },
+            { label: t("arcadeGame.survivor.weapon"), value: t("arcadeGame.survivor.level", { level: hud.weapon }) },
+            { label: t("arcadeGame.survivor.waveLabel"), value: hud.wave },
           ]}
         />
 
         <div className="svv-status">
-          <div className="svv-hp" aria-label={`Còn ${hud.hp} máu`}>
+          <div className="svv-hp" aria-label={t("arcadeGame.survivor.hpLeft", { hp: hud.hp })}>
             {Array.from({ length: MAX_HP }, (_, i) => (
               <span key={i} className={i < hud.hp ? "is-on" : ""} />
             ))}
+          </div>
+          <div className="svv-buffs" aria-label={t("arcadeGame.survivor.skills")}>
+            <span className={hud.shield ? "is-on is-shield" : ""} title={t("arcadeGame.survivor.shield")}>
+              <span className="material-symbols-outlined">shield</span>
+            </span>
+            <span className={hud.rapid ? "is-on is-rapid" : ""} title={t("arcadeGame.survivor.rapid")}>
+              <span className="material-symbols-outlined">double_arrow</span>
+            </span>
           </div>
           <div className={`svv-od${odReady ? " is-ready" : ""}`}>
             <span style={{ width: `${hud.overdrive ? 100 : hud.graze}%` }} />
@@ -1370,7 +1565,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             className={`svv-od__btn${odReady ? " is-ready" : ""}`}
             onPointerDown={useOverdrive}
             disabled={!odReady}
-          aria-label="Xung phá"
+            aria-label={t("arcadeGame.survivor.overdrive")}
           >
             <span className="material-symbols-outlined">bolt</span>
           </button>
@@ -1381,7 +1576,10 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         {hud.boss !== null && (
           <div className="svv-boss" role="status">
             <div className="svv-boss__top">
-              <span><b>{hud.bossName}</b><small>PHA {hud.bossMode} · ĐỢT {hud.wave}</small></span>
+              <span>
+                <b>{hud.bossName}</b>
+                <small>{t("arcadeGame.survivor.bossMeta", { phase: hud.bossMode, wave: hud.wave })}</small>
+              </span>
               <span>{hud.boss}%</span>
             </div>
             <div className="svv-boss__rail"><span style={{ width: `${hud.boss}%` }} /></div>
@@ -1397,7 +1595,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       </div>
 
       <p className="game-control-hint survivor-hint">
-        Kéo để điều khiển · Bay sát đạn nạp Xung Phá · Space/Shift để kích hoạt
+        {t("arcadeGame.survivor.touchHint")}
       </p>
     </div>
   );

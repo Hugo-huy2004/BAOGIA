@@ -25,7 +25,7 @@ import { JWT_SECRET } from '../utils/secrets.js';
 const sha256 = (message) => crypto.createHash('sha256').update(message).digest('hex');
 export const isBcrypt = (h) => typeof h === 'string' && h.startsWith('$2');
 
-// Exported for unit testing (see tests/adminPassword.test.js).
+// Exported so password migration logic stays reusable across admin flows.
 export async function verifyAndUpgrade(admin, plainPassword) {
   if (isBcrypt(admin.password)) {
     return bcrypt.compare(plainPassword, admin.password);

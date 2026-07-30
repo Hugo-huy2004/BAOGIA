@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { levelFor, levelProgress, maxLevel } from "./arcadeProgression";
 
 // HUD dùng chung cho mọi game. Trước đây mỗi game tự dựng thẻ điểm với màu
@@ -17,6 +18,7 @@ const fmt = (n) => (typeof n === "number" ? n.toLocaleString("vi-VN") : n);
  * @param {string} notice    thông báo tạm thời (lên cấp, nhận vật phẩm…)
  */
 export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1, stats = [], notice = "" }) {
+  const { t } = useTranslation();
   const level = levelFor(gameId, score);
   const top = maxLevel(gameId);
   const progress = levelProgress(gameId, score);
@@ -66,7 +68,7 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
     <div className="ahud">
       <div className="ahud__row">
         <div className="ahud__score">
-          <small>Điểm</small>
+          <small>{t("arcadeGame.score")}</small>
           <strong>{fmt(score)}</strong>
         </div>
 
@@ -78,7 +80,7 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
         ))}
 
         <div className={`ahud__level${capped ? " is-max" : ""}`}>
-          <small>Cấp</small>
+          <small>{t("arcadeGame.levelLabel")}</small>
           <strong>{level}</strong>
         </div>
       </div>

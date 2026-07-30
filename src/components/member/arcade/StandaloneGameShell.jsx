@@ -29,7 +29,7 @@ const RESULT_CONFIG = {
   draw: { icon: "handshake",    color: "#ef8c17" },
 };
 
-export default function StandaloneGameShell({ gameId, bio, onBioUpdate, onClose }) {
+export default function StandaloneGameShell({ gameId, bio, onClose }) {
   const { t } = useTranslation();
   const theme = GAME_THEMES[gameId] || GAME_THEMES["2048"];
   const GameComp = GAME_COMPONENTS[gameId];

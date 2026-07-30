@@ -413,7 +413,6 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
         <StandaloneGameShell
           gameId={activeGame}
           bio={bio}
-          onBioUpdate={onBioUpdate}
           onClose={closeGame}
         />
       )}

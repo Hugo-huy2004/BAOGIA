@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
-import confetti from "canvas-confetti";
 import { readGamePalette, withAlpha } from "./arcadePalette";
 import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
 import ArcadeHud from "./ArcadeHud";
+import { LINES_PER_STAGE, tetrisLineScore, tetrisStageForLines } from "./tetrisRules";
 
 // ── Luật chơi (mới) ───────────────────────────────────────────────
 // · Túi 7 khối (7-bag): mỗi 7 lượt đủ cả 7 hình — hết cảnh "chờ mãi không ra I".
@@ -17,6 +18,8 @@ const COLS = 10;
 const ROWS = 20;
 const GAME_ID = "tetris";
 const GARBAGE_FROM_LEVEL = 6;
+const LOCK_DELAY_MS = 420;
+const MAX_PARTICLES = 140;
 
 const SHAPES = {
   I: { matrix: [[1, 1, 1, 1]], color: "#06b6d4", glow: "rgba(6, 182, 212, 0.8)" },
@@ -60,6 +63,7 @@ function createEmptyBoard() {
 
 // ── Particle helpers ──────────────────────────────────────────────
 function spawnParticles(particles, x, y, color, count = 8) {
+  if (particles.length >= MAX_PARTICLES) return;
   for (let i = 0; i < count; i++) {
     const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.8;
     const speed = 1.5 + Math.random() * 3;
@@ -76,6 +80,7 @@ function spawnParticles(particles, x, y, color, count = 8) {
 }
 
 function spawnLineClearParticles(particles, row, cellW, cellH, color) {
+  if (particles.length >= MAX_PARTICLES) return;
   for (let c = 0; c < COLS; c++) {
     for (let i = 0; i < 3; i++) {
       particles.push({
@@ -139,11 +144,14 @@ const getGhostY = (piece, board) => {
 };
 
 export default function GameTetris({ paused = false, onGameOver }) {
+  const { t } = useTranslation();
   const canvasRef = useRef(null);
   const nextCanvasRef = useRef(null);
   const holdCanvasRef = useRef(null);
+  const pointerRef = useRef(null);
+  const noticeTimerRef = useRef(null);
 
-  const [hud, setHud] = useState({ score: 0, lines: 0, combo: 0, mult: 1, notice: "" });
+  const [hud, setHud] = useState({ score: 0, lines: 0, stage: 1, combo: 0, mult: 1, notice: "" });
 
   const { playBeep, playMove, playLose } = useArcadeSound();
 
@@ -172,6 +180,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
       lineFlash: [],
       lineFlashTimer: 0,
       shakeX: 0, shakeY: 0, shakeMag: 0,
+      groundedAt: 0,
     };
     while (gameState.current.queue.length < 3) {
       if (!bag.length) refillBag(bag);
@@ -191,6 +200,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
     setHud((prev) => ({
       score: s.score,
       lines: s.lines,
+      stage: tetrisStageForLines(s.lines),
       combo: s.combo.chain + (s.combo.chain > 0 ? 1 : 0),
       mult: s.combo.mult,
       notice: notice !== undefined ? notice : prev.notice,
@@ -199,10 +209,18 @@ export default function GameTetris({ paused = false, onGameOver }) {
 
   const notify = useCallback((text) => {
     syncHud(text);
-    setTimeout(() => setHud((h) => (h.notice === text ? { ...h, notice: "" } : h)), 1600);
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+    noticeTimerRef.current = window.setTimeout(
+      () => setHud((h) => (h.notice === text ? { ...h, notice: "" } : h)),
+      1600,
+    );
   }, [syncHud]);
 
-  const drawBlock = useCallback((ctx, x, y, size, color, glow, isGhost = false, pal = null) => {
+  useEffect(() => () => {
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+  }, []);
+
+  const drawBlock = useCallback((ctx, x, y, size, color, isGhost = false, pal = null) => {
     const px = x * size;
     const py = y * size;
     const pad = 1.5;
@@ -217,31 +235,34 @@ export default function GameTetris({ paused = false, onGameOver }) {
       ctx.globalAlpha = 0.15;
       ctx.fillRect(px + pad, py + pad, size - pad * 2, size - pad * 2);
     } else {
-      const isLight = pal?.isLight;
-      ctx.shadowColor = isLight ? "transparent" : glow;
-      ctx.shadowBlur = isLight ? 0 : 12;
-
-      const grad = ctx.createLinearGradient(px, py, px + size, py + size);
-      grad.addColorStop(0, "#ffffff");
-      grad.addColorStop(0.3, color);
-      grad.addColorStop(1, pal ? withAlpha(pal.bg, 0.95) : "rgba(5, 8, 20, 0.95)");
-
-      ctx.fillStyle = grad;
+      // Mặt khối 3D dùng các mảng màu phẳng thay cho gradient + shadow mới ở
+      // từng frame. Hình vẫn có chiều sâu nhưng nhẹ hơn rõ rệt trên iPhone.
+      ctx.fillStyle = color;
       ctx.beginPath();
       ctx.roundRect(px + pad, py + pad, size - pad * 2, size - pad * 2, 4);
       ctx.fill();
-      ctx.shadowBlur = 0;
 
-      ctx.strokeStyle = isLight ? withAlpha(pal.ink, 0.3) : "rgba(255, 255, 255, 0.35)";
+      ctx.fillStyle = "rgba(255,255,255,.32)";
+      ctx.beginPath();
+      ctx.moveTo(px + pad + 3, py + pad + 2);
+      ctx.lineTo(px + size - pad - 3, py + pad + 2);
+      ctx.lineTo(px + size - pad - 6, py + pad + 5);
+      ctx.lineTo(px + pad + 6, py + pad + 5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = pal?.isLight ? "rgba(0,0,0,.24)" : "rgba(0,0,0,.34)";
+      ctx.beginPath();
+      ctx.moveTo(px + size - pad - 5, py + pad + 5);
+      ctx.lineTo(px + size - pad - 2, py + pad + 2);
+      ctx.lineTo(px + size - pad - 2, py + size - pad - 2);
+      ctx.lineTo(px + size - pad - 5, py + size - pad - 5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,.2)";
       ctx.lineWidth = 1;
       ctx.strokeRect(px + pad + 1, py + pad + 1, size - pad * 2 - 2, size - pad * 2 - 2);
-
-      ctx.strokeStyle = "rgba(255,255,255,0.2)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(px + pad + 3, py + pad + 1.5);
-      ctx.lineTo(px + size - pad - 3, py + pad + 1.5);
-      ctx.stroke();
     }
     ctx.restore();
   }, []);
@@ -249,19 +270,30 @@ export default function GameTetris({ paused = false, onGameOver }) {
   // Vẽ hàng chờ (3 khối) và ô giữ khối.
   const drawPreviews = useCallback(() => {
     const s = gameState.current;
-    const cellSize = 13;
 
     const paint = (canvas, keys) => {
       if (!canvas) return;
+      const cssWidth = canvas.clientWidth || 58;
+      const cssHeight = canvas.clientHeight || 58;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const pixelWidth = Math.round(cssWidth * dpr);
+      const pixelHeight = Math.round(cssHeight * dpr);
+      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+      }
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssWidth, cssHeight);
+      const slotHeight = cssHeight / Math.max(1, keys.length);
+      const cellSize = Math.min(13.5, cssWidth / 4.35, slotHeight / 2.6);
       keys.forEach((key, i) => {
         if (!key) return;
         const m = SHAPES[key].matrix;
-        const ox = (canvas.width - m[0].length * cellSize) / 2 / cellSize;
-        const oy = i * 3 + (3 - m.length) / 2 + 0.35;
+        const ox = (cssWidth - m[0].length * cellSize) / 2 / cellSize;
+        const oy = ((i * slotHeight) + (slotHeight - m.length * cellSize) / 2) / cellSize;
         m.forEach((row, r) => row.forEach((v, c) => {
-          if (v) drawBlock(ctx, ox + c, oy + r, cellSize, SHAPES[key].color, SHAPES[key].glow);
+          if (v) drawBlock(ctx, ox + c, oy + r, cellSize, SHAPES[key].color);
         }));
       });
     };
@@ -311,12 +343,17 @@ export default function GameTetris({ paused = false, onGameOver }) {
 
     if (cleared > 0) {
       hapticMerge();
+      const previousStage = tetrisStageForLines(s.lines);
       const mult = s.combo.hit();
-      const base = [0, 100, 300, 500, 800][cleared] || 1000;
-      // Cấp càng cao điểm mỗi hàng càng lớn — thưởng cho việc sống lâu.
-      const levelBonus = 1 + (s.level - 1) * 0.15;
-      const b2b = cleared === 4 && s.backToBack ? 1.5 : 1;
-      const gained = Math.round(base * levelBonus * mult * b2b);
+      const wasBackToBack = cleared === 4 && s.backToBack;
+      const perfectClear = filtered.every((row) => row.every((cellValue) => !cellValue));
+      const gained = tetrisLineScore({
+        cleared,
+        level: s.level,
+        multiplier: mult,
+        backToBack: s.backToBack,
+        perfectClear,
+      });
       s.score += gained;
       s.lines += cleared;
       s.backToBack = cleared === 4;
@@ -331,10 +368,22 @@ export default function GameTetris({ paused = false, onGameOver }) {
         const midY = (clearedRows[0] + 0.5) * cellH;
         pushPopup(s.popups, canvas.offsetWidth / 2, midY, `+${gained.toLocaleString("vi-VN")}`, "#ffffff", 20);
         pushPopup(s.popups, canvas.offsetWidth / 2, midY - 22,
-          `${LINE_LABEL[cleared] || "MEGA"}${b2b > 1 ? " B2B" : ""}`, piece.color, 13);
+          `${LINE_LABEL[cleared] || "MEGA"}${wasBackToBack ? " B2B" : ""}`, piece.color, 13);
       }
 
-      if (cleared >= 4) confetti({ particleCount: 80, spread: 80, origin: { y: 0.5 } });
+      const nextStage = tetrisStageForLines(s.lines);
+      if (perfectClear) {
+        notify(t("arcadeGame.tetris.perfectClear"));
+      } else if (nextStage > previousStage) {
+        s.score += nextStage * 250;
+        notify(t("arcadeGame.tetris.stageUnlocked", { stage: nextStage }));
+      }
+
+      if (cleared >= 4 && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+        import("canvas-confetti").then(({ default: confetti }) => {
+          confetti({ particleCount: 54, spread: 72, origin: { y: 0.5 }, disableForReducedMotion: true });
+        });
+      }
     } else {
       s.combo.reset();
       s.backToBack = false;
@@ -347,7 +396,10 @@ export default function GameTetris({ paused = false, onGameOver }) {
     if (level !== s.level) {
       s.level = level;
       s.gravity = ramp(GAME_ID, level, 620, 95);
-      notify(`Cấp ${level}${level >= GARBAGE_FROM_LEVEL ? " · sàn đẩy rác" : " · rơi nhanh hơn"}`);
+      notify(t(
+        level >= GARBAGE_FROM_LEVEL ? "arcadeGame.tetris.levelGarbage" : "arcadeGame.tetris.levelFaster",
+        { level },
+      ));
     }
 
     s.piecesSinceGarbage++;
@@ -358,6 +410,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
     }
 
     s.holdUsed = false;
+    s.groundedAt = 0;
     const spawn = pullPiece();
     drawPreviews();
 
@@ -371,25 +424,46 @@ export default function GameTetris({ paused = false, onGameOver }) {
       s.currentPiece = spawn;
     }
     syncHud();
-  }, [pullPiece, drawPreviews, pushGarbage, playMove, playLose, onGameOver, syncHud, notify]);
+  }, [pullPiece, drawPreviews, pushGarbage, playMove, playLose, onGameOver, syncHud, notify, t]);
 
-  const tick = useCallback(() => {
+  const tick = useCallback((now = performance.now()) => {
     const s = gameState.current;
     if (s.isGameOver) return;
-    if (!checkCollision(s.currentPiece, s.board, 0, 1)) s.currentPiece.y += 1;
-    else lockPiece();
-  }, [lockPiece]);
+    if (!checkCollision(s.currentPiece, s.board, 0, 1)) {
+      s.currentPiece.y += 1;
+      s.groundedAt = 0;
+    } else if (!s.groundedAt) {
+      s.groundedAt = now;
+    }
+  }, []);
 
   // ── Main Render Canvas Loop ──────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || paused) return;
     const ctx = canvas.getContext("2d");
+    let width = 0;
+    let height = 0;
+    let cell = 0;
+    let dpr = 1;
 
-    const size = canvas.offsetWidth;
-    canvas.width = size;
-    canvas.height = size * 2;
-    const cell = size / COLS;
+    const resizeCanvas = () => {
+      width = canvas.clientWidth;
+      height = width * 2;
+      cell = width / COLS;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const pixelWidth = Math.round(width * dpr);
+      const pixelHeight = Math.round(height * dpr);
+      if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
+      }
+    };
+    resizeCanvas();
+    const resizeObserver = typeof ResizeObserver === "function"
+      ? new ResizeObserver(resizeCanvas)
+      : null;
+    resizeObserver?.observe(canvas);
 
     gameState.current.lastTick = 0;
     const pal = readGamePalette(canvas);
@@ -405,7 +479,11 @@ export default function GameTetris({ paused = false, onGameOver }) {
       if (s.lastTick === 0) s.lastTick = ts;
       if (ts - s.lastTick >= s.gravity) {
         s.lastTick = ts;
-        tick();
+        tick(ts);
+      }
+
+      if (s.groundedAt && ts - s.groundedAt >= LOCK_DELAY_MS) {
+        lockPiece();
       }
 
       if (s.isGameOver) { stopped = true; return; }
@@ -418,26 +496,27 @@ export default function GameTetris({ paused = false, onGameOver }) {
 
       if (s.lineFlashTimer > 0) s.lineFlashTimer--;
 
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.save();
       ctx.translate(s.shakeX, s.shakeY);
 
       ctx.fillStyle = pal.bg;
-      ctx.fillRect(-5, -5, canvas.width + 10, canvas.height + 10);
+      ctx.fillRect(-5, -5, width + 10, height + 10);
 
-      const centerGlow = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
+      const centerGlow = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width * 0.6);
       centerGlow.addColorStop(0, withAlpha(pal.accent, 0.03));
       centerGlow.addColorStop(1, "transparent");
       ctx.fillStyle = centerGlow;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, width, height);
 
       ctx.strokeStyle = pal.grid;
       ctx.lineWidth = 0.5;
       ctx.globalAlpha = 0.3;
       for (let r = 0; r <= ROWS; r++) {
-        ctx.beginPath(); ctx.moveTo(0, r * cell); ctx.lineTo(canvas.width, r * cell); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, r * cell); ctx.lineTo(width, r * cell); ctx.stroke();
       }
       for (let c = 0; c <= COLS; c++) {
-        ctx.beginPath(); ctx.moveTo(c * cell, 0); ctx.lineTo(c * cell, canvas.height); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(c * cell, 0); ctx.lineTo(c * cell, height); ctx.stroke();
       }
       ctx.globalAlpha = 1;
 
@@ -449,7 +528,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
       for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
           const color = s.board[r][c];
-          if (color) drawBlock(ctx, c, r, cell, color, color, false, pal);
+          if (color) drawBlock(ctx, c, r, cell, color, false, pal);
         }
       }
 
@@ -460,7 +539,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
           const gx = s.currentPiece.x + c;
           const gy = ghostY + r;
           if (gy >= 0 && gy < ROWS && gx >= 0 && gx < COLS) {
-            drawBlock(ctx, gx, gy, cell, s.currentPiece.color, s.currentPiece.glow, true, pal);
+            drawBlock(ctx, gx, gy, cell, s.currentPiece.color, true, pal);
           }
         }));
 
@@ -469,7 +548,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
           const px = s.currentPiece.x + c;
           const py = s.currentPiece.y + r;
           if (py >= 0 && py < ROWS && px >= 0 && px < COLS) {
-            drawBlock(ctx, px, py, cell, s.currentPiece.color, s.currentPiece.glow, false, pal);
+            drawBlock(ctx, px, py, cell, s.currentPiece.color, false, pal);
           }
         }));
       }
@@ -485,15 +564,26 @@ export default function GameTetris({ paused = false, onGameOver }) {
     };
 
     rafId = requestAnimationFrame(renderFrame);
-    return () => { stopped = true; cancelAnimationFrame(rafId); };
-  }, [tick, drawPreviews, drawBlock, paused]);
+    return () => {
+      stopped = true;
+      resizeObserver?.disconnect();
+      cancelAnimationFrame(rafId);
+    };
+  }, [tick, lockPiece, drawPreviews, drawBlock, paused]);
 
   // ── Input Controls ───────────────────────────────────────────────────────
   const shift = useCallback((dx) => {
     const s = gameState.current;
     if (s.isGameOver) return;
-    if (!checkCollision(s.currentPiece, s.board, dx, 0)) {
-      s.currentPiece.x += dx;
+    const direction = Math.sign(dx);
+    let moved = false;
+    for (let step = 0; step < Math.abs(dx); step++) {
+      if (checkCollision(s.currentPiece, s.board, direction, 0)) break;
+      s.currentPiece.x += direction;
+      moved = true;
+    }
+    if (moved) {
+      s.groundedAt = checkCollision(s.currentPiece, s.board, 0, 1) ? performance.now() : 0;
       playBeep();
       hapticMove();
     }
@@ -510,6 +600,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
       if (!checkCollision(test, s.board)) {
         s.currentPiece.matrix = rotated;
         s.currentPiece.x += kick;
+        s.groundedAt = checkCollision(s.currentPiece, s.board, 0, 1) ? performance.now() : 0;
         playBeep();
         hapticMove();
         return;
@@ -524,10 +615,13 @@ export default function GameTetris({ paused = false, onGameOver }) {
     if (!checkCollision(s.currentPiece, s.board, 0, 1)) {
       s.currentPiece.y += 1;
       s.score += 1;
+      s.groundedAt = 0;
       s.lastTick = performance.now();
       syncHud();
-    } else lockPiece();
-  }, [lockPiece, syncHud]);
+    } else if (!s.groundedAt) {
+      s.groundedAt = performance.now();
+    }
+  }, [syncHud]);
 
   const hardDrop = useCallback(() => {
     const s = gameState.current;
@@ -536,6 +630,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
     s.score += (ghostY - s.currentPiece.y) * 2;
     s.currentPiece.y = ghostY;
     s.shakeMag = 4;
+    s.groundedAt = 0;
     lockPiece();
   }, [lockPiece]);
 
@@ -547,6 +642,7 @@ export default function GameTetris({ paused = false, onGameOver }) {
     s.hold = s.currentPiece.key;
     s.currentPiece = stored ? makePiece(stored) : pullPiece();
     s.holdUsed = true;
+    s.groundedAt = 0;
     playBeep();
     hapticMove();
     drawPreviews();
@@ -566,58 +662,103 @@ export default function GameTetris({ paused = false, onGameOver }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [shift, softDrop, rotate, hardDrop, holdPiece, paused]);
 
+  const handlePointerDown = useCallback((event) => {
+    if (paused) return;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    pointerRef.current = { x: event.clientX, y: event.clientY, at: performance.now() };
+  }, [paused]);
+
+  const handlePointerUp = useCallback((event) => {
+    const start = pointerRef.current;
+    pointerRef.current = null;
+    if (!start || paused) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance < 14) {
+      rotate();
+      return;
+    }
+    if (Math.abs(dx) > Math.abs(dy)) {
+      const steps = Math.min(4, Math.max(1, Math.round(Math.abs(dx) / 28)));
+      shift(Math.sign(dx) * steps);
+      return;
+    }
+    if (dy > 28) hardDrop();
+  }, [hardDrop, paused, rotate, shift]);
+
+  const stageLineProgress = hud.lines % LINES_PER_STAGE;
+  const rowsUntilNextStage = LINES_PER_STAGE - stageLineProgress;
+
   return (
-    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+    <div className="ttr-game">
       <ArcadeHud
         gameId={GAME_ID}
         score={hud.score}
         combo={hud.combo}
         multiplier={hud.mult}
         notice={hud.notice}
-        stats={[{ label: "Hàng xoá", value: hud.lines }]}
+        stats={[{ label: t("arcadeGame.tetris.linesCleared"), value: hud.lines }]}
       />
 
-      <div className="gpanel w-full flex flex-col items-center p-4 rounded-[28px]">
-        <div className="w-full flex items-start justify-center gap-3">
-          <div className="flex flex-col gap-2 pt-1">
-            <div className="ttr-slot">
-              <small>Giữ</small>
-              <canvas ref={holdCanvasRef} width={52} height={40} className="w-[52px] h-[40px]" />
-            </div>
-            <button type="button" onClick={holdPiece} className="ttr-mini">
-              <span className="material-symbols-outlined">swap_horiz</span>
-            </button>
+      <div className="ttr-layout">
+        <div className="ttr-board-frame">
+          <div className="ttr-board-topline" aria-hidden="true">
+            <span>{t("arcadeGame.tetris.stage", { stage: hud.stage })}</span>
+            <b>{t("arcadeGame.tetris.speed", { level: levelFor(GAME_ID, hud.score) })}</b>
           </div>
-
-          <canvas ref={canvasRef} className="w-[210px] h-[420px] block rounded-xl" />
-
-          <div className="ttr-slot pt-1">
-            <small>Kế tiếp</small>
-            <canvas ref={nextCanvasRef} width={52} height={120} className="w-[52px] h-[120px]" />
-          </div>
+          <canvas
+            ref={canvasRef}
+            className="ttr-board"
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={() => { pointerRef.current = null; }}
+            aria-label={t("arcadeGame.tetris.boardLabel")}
+          />
         </div>
 
-        <div className="grid grid-cols-3 gap-2 w-full mt-4">
-          <button onClick={rotate} className="ttr-btn col-span-3">
-            <span className="material-symbols-outlined">rotate_right</span> Xoay khối
+        <aside className="ttr-side" aria-label={t("arcadeGame.tetris.piecePanel")}>
+          <button type="button" onClick={holdPiece} className="ttr-slot ttr-slot--hold">
+            <small>{t("arcadeGame.tetris.hold")}</small>
+            <canvas ref={holdCanvasRef} className="ttr-preview ttr-preview--hold" />
+            <span className="material-symbols-outlined">swap_horiz</span>
           </button>
-          <button onClick={() => shift(-1)} className="ttr-btn">
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <button onClick={softDrop} className="ttr-btn">
-            <span className="material-symbols-outlined">arrow_downward</span>
-          </button>
-          <button onClick={() => shift(1)} className="ttr-btn">
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </button>
-          <button onClick={hardDrop} className="ttr-btn ttr-btn--primary col-span-3">
-            <span className="material-symbols-outlined">bolt</span> Thả nhanh
-          </button>
-        </div>
+
+          <div className="ttr-slot ttr-slot--next">
+            <small>{t("arcadeGame.tetris.next")}</small>
+            <canvas ref={nextCanvasRef} className="ttr-preview ttr-preview--next" />
+          </div>
+
+          <div className="ttr-goal">
+            <small>{t("arcadeGame.tetris.mission")}</small>
+            <strong>{rowsUntilNextStage}</strong>
+            <span>{t("arcadeGame.tetris.rowsLeft")}</span>
+            <div aria-hidden="true"><i style={{ height: `${stageLineProgress * 10}%` }} /></div>
+          </div>
+        </aside>
       </div>
 
-      <p className="game-control-hint mt-3 text-center text-[11px]">
-        Giữ khối (phím C) để dành hình khó · Xoá 4 hàng liên tiếp được thưởng back-to-back
+      <div className="ttr-controls" aria-label={t("arcadeGame.tetris.controls")}>
+        <button type="button" onClick={() => shift(-1)} className="ttr-btn" aria-label={t("arcadeGame.tetris.left")}>
+          <span className="material-symbols-outlined">arrow_back</span><small>{t("arcadeGame.tetris.left")}</small>
+        </button>
+        <button type="button" onClick={rotate} className="ttr-btn" aria-label={t("arcadeGame.tetris.rotate")}>
+          <span className="material-symbols-outlined">rotate_right</span><small>{t("arcadeGame.tetris.rotate")}</small>
+        </button>
+        <button type="button" onClick={softDrop} className="ttr-btn" aria-label={t("arcadeGame.tetris.down")}>
+          <span className="material-symbols-outlined">arrow_downward</span><small>{t("arcadeGame.tetris.down")}</small>
+        </button>
+        <button type="button" onClick={() => shift(1)} className="ttr-btn" aria-label={t("arcadeGame.tetris.right")}>
+          <span className="material-symbols-outlined">arrow_forward</span><small>{t("arcadeGame.tetris.right")}</small>
+        </button>
+        <button type="button" onClick={hardDrop} className="ttr-btn ttr-btn--primary" aria-label={t("arcadeGame.tetris.drop")}>
+          <span className="material-symbols-outlined">vertical_align_bottom</span><small>{t("arcadeGame.tetris.drop")}</small>
+        </button>
+      </div>
+
+      <p className="ttr-hint">
+        {t("arcadeGame.tetris.touchHint")}
       </p>
     </div>
   );
