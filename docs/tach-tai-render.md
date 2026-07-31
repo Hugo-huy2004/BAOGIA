@@ -193,13 +193,25 @@ hẳn, và **Bandwidth** giảm theo tỉ lệ cache HIT.
 
 Theo thứ tự đáng làm tiếp:
 
-1. **Trỏ frontend thẳng vào API**, bỏ rewrite `/api/:path*` trong `vercel.json`.
+1. **Trỏ frontend thẳng vào API**, bỏ rewrite `/api/:path*` trong `vercel.json`,
+   đổi `VITE_API_URL` thành `https://api.hugowishpax.studio/api`.
    Hiện đường đi là `browser → Vercel edge → Cloudflare → Render`: trả băng thông
-   Vercel *và* Render cho cùng một byte, và Cloudflare không cache được theo từng
-   browser. ⚠️ Cookie `member_jwt` là HttpOnly — nếu frontend ở `hugostudio.vn`
-   còn API ở `hugowishpax.studio` thì thành cross-site, phải đổi sang
-   `SameSite=None; Secure`. Tạo CNAME **`api.hugostudio.vn`** thì cùng site,
-   `SameSite=Lax` giữ nguyên, không phải đụng vào auth.
+   Vercel *và* Render cho cùng một byte, cộng một round trip thừa trên mọi request.
+
+   Đã kiểm tra, dễ hơn tưởng:
+   - CORS: `server.js` đã hardcode sẵn `https://www.hugowishpax.studio` → không phải sửa server.
+   - Cookie: site thật là `www.hugowishpax.studio`, API là `api.hugowishpax.studio`
+     → **cùng site** (eTLD+1 `hugowishpax.studio`), nên `sameSite: 'strict'` hiện tại
+     vẫn gửi bình thường. Không phải đụng vào auth.
+
+   ⚠️ Phải test: cookie đang là host-only, lưu cho host `www.`. Gọi thẳng sang host
+   `api.` thì cookie cũ không được gửi → **user đang đăng nhập bị đăng xuất một lần**.
+   Có Bearer token trong localStorage làm dự phòng (`src/services/apiAuthInterceptor.js`)
+   nên có thể không ai để ý, nhưng phải thử thật trước khi đẩy production.
+
+   > Ghi chú: `hugostudio.vn` **không có DNS**, không phân giải ra gì. Nó vẫn đang nằm
+   > trong `ALLOWED_ORIGINS` trên Render và trong CLAUDE.md như thể là domain chính —
+   > dọn đi cho khỏi nhầm. Domain thật đang chạy là `www.hugowishpax.studio`.
 2. **Đẩy file ra khỏi Render.** `routes/fileToolsRoutes.js` chạy ffmpeg rồi
    `res.download`, `routes/hugoTeamRoutes.js:261` stream PDF — vừa ăn 0.1 vCPU vừa
    ăn băng thông mỗi lượt tải. Đã có `cloudinary` trong deps: trả signed URL thay
