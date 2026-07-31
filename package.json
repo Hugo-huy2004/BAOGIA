@@ -16,9 +16,21 @@
     "lint": "eslint src",
     "preview": "vite preview",
     "server:install": "cd server && npm install",
-    "setup": "npm install && npm run server:install"
+    "setup": "npm install && npm run server:install",
+    "check:api-auth": "node scripts/check-api-auth.mjs",
+    "check:all": "npm run lint && npm run check:api-auth && npm run build && npm run check:seo && npm run check:performance",
+    "build:native": "VITE_BUILD_TARGET=native vite build --outDir dist-native",
+    "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
+    "native:ios": "npm run native:sync && npx cap open ios",
+    "native:android": "npm run native:sync && npx cap open android",
+    "cv:pdf": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy.pdf docs/cv.html"
   },
   "dependencies": {
+    "@capacitor/android": "8.4.2",
+    "@capacitor/cli": "8.4.2",
+    "@capacitor/core": "8.4.2",
+    "@capacitor/ios": "8.4.2",
+    "@capacitor/push-notifications": "8.1.2",
     "@hwagfu/cursor": "^1.2.1",
     "@monaco-editor/react": "^4.7.0",
     "@payos/payos-checkout": "^1.0.8",

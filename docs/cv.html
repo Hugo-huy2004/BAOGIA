@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>CV — Lê Gia Huy</title>
+<style>
+  @page { size: A4; margin: 12mm 14mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.4pt;
+    line-height: 1.45;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---- header ---- */
+  header { border-bottom: 2px solid #111; padding-bottom: 9px; margin-bottom: 13px; }
+  h1 { font-size: 25pt; font-weight: 600; letter-spacing: -0.6px; line-height: 1.05; }
+  .role { font-size: 10.5pt; font-weight: 600; color: #444; margin-top: 3px; letter-spacing: 0.2px; }
+  .contact { font-size: 8.7pt; color: #555; margin-top: 7px; }
+  .contact span + span::before { content: "·"; color: #bbb; margin: 0 8px; }
+
+  /* ---- sections ---- */
+  section { margin-bottom: 12px; }
+  h2 {
+    font-size: 8pt; font-weight: 700; letter-spacing: 1.4px;
+    text-transform: uppercase; color: #888;
+    padding-bottom: 3px; margin-bottom: 7px;
+    border-bottom: 0.6px solid #ddd;
+  }
+  .summary { font-size: 9.6pt; line-height: 1.55; color: #2a2a2a; }
+
+  /* ---- skills ---- */
+  .skill { display: flex; gap: 9px; margin-bottom: 4px; }
+  .skill dt { flex: 0 0 74px; font-weight: 700; color: #111; }
+  .skill dd { flex: 1; color: #333; }
+  .skill em { font-style: normal; color: #777; }
+
+  /* ---- projects ---- */
+  .job { margin-bottom: 9px; }
+  .job:last-child { margin-bottom: 0; }
+  .job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .job-title { font-weight: 700; font-size: 9.8pt; color: #111; }
+  .job-date { font-size: 8.3pt; color: #888; white-space: nowrap; }
+  .job-meta { font-size: 8.8pt; color: #555; margin: 1px 0 3px; }
+  .job-meta b { color: #111; font-weight: 600; }
+  ul { list-style: none; }
+  li { position: relative; padding-left: 11px; margin-bottom: 2px; color: #333; }
+  li::before { content: "–"; position: absolute; left: 0; color: #aaa; }
+  li b { font-weight: 600; color: #111; }
+
+  .row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 2px; }
+  .row span:last-child { color: #888; font-size: 8.3pt; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lê Gia Huy</h1>
+  <div class="role">UI/UX Designer · Frontend Developer</div>
+  <div class="contact">
+    <span>hugowishpax@gmail.com</span><span>github.com/Hugo-huy2004</span><span>hugowishpax.studio</span>
+  </div>
+</header>
+
+<section>
+  <h2>Tóm tắt</h2>
+  <p class="summary">
+    Sinh viên Công nghệ Thông tin tại Đại học Greenwich Việt Nam (dự kiến tốt nghiệp 10/2027).
+    Mình thiết kế giao diện và tự hiện thực hoá được bằng React — đã làm frontend trong dự án
+    nhóm và thiết kế cho khách hàng thật. Đang tìm cơ hội thực tập UI/UX hoặc Frontend để học
+    quy trình làm việc trong một đội ngũ chuyên nghiệp.
+  </p>
+</section>
+
+<section>
+  <h2>Kỹ năng</h2>
+  <dl>
+    <div class="skill"><dt>Thiết kế</dt><dd>Figma · UI Design · UX Research · Design System · Responsive &amp; Mobile-first · Wireframe · Prototype</dd></div>
+    <div class="skill"><dt>Lập trình</dt><dd>React · JavaScript · HTML/CSS · Tailwind CSS · Git &nbsp;<em>— đã học qua: C#, Python, PHP, MySQL, Node.js, MongoDB, Unity</em></dd></div>
+    <div class="skill"><dt>Khác</dt><dd>Scrum / Agile · Triển khai &amp; vận hành (Vercel, Render, Cloudflare) · Làm việc cùng công cụ AI</dd></div>
+    <div class="skill"><dt>Ngoại ngữ</dt><dd>Tiếng Anh <b>VSTEP bậc 4 (B2, 2024)</b> — đọc hiểu tài liệu kỹ thuật · Tiếng Việt bản ngữ</dd></div>
+  </dl>
+</section>
+
+<section>
+  <h2>Dự án &amp; Kinh nghiệm</h2>
+
+  <div class="job">
+    <div class="job-top">
+      <span class="job-title">Proplay Hub — Hệ thống quản lý</span>
+      <span class="job-date">08/2025 – 12/2025</span>
+    </div>
+    <div class="job-meta"><b>Thiết kế UI/UX</b> · Dự án nhóm, môn Scrum &amp; Agile · app.hwagfu.dev</div>
+    <ul>
+      <li>Làm việc theo quy trình <b>Scrum</b> trong nhóm, qua các sprint và họp định kỳ.</li>
+      <li>Thiết kế bố cục quản lý đơn hàng từ góc nhìn người vận hành nội bộ, giúp theo dõi luồng thông tin rõ ràng và hạn chế sai sót.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-top">
+      <span class="job-title">HWJ — Nền tảng trang sức cao cấp</span>
+      <span class="job-date">01/2026 – 04/2026</span>
+    </div>
+    <div class="job-meta"><b>Frontend Developer + Thiết kế UI/UX</b> · Đồ án môn Web Programming · demohwj.hugowishpax.studio</div>
+    <ul>
+      <li><b>Trực tiếp lập trình frontend</b>, chuyển thiết kế thành màn hình chạy thật và phối hợp với thành viên phụ trách backend.</li>
+      <li>Định hình phong cách tối giản sang trọng để tôn giá trị sản phẩm vàng bạc đá quý; tối ưu hiển thị và luồng thao tác trên di động.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-top">
+      <span class="job-title">Mình Ơi Media — Dự án với khách hàng</span>
+      <span class="job-date">03/2026 – 04/2026</span>
+    </div>
+    <div class="job-meta"><b>Thiết kế UI/UX</b> · minhoimedia.digital</div>
+    <ul>
+      <li>Làm việc trực tiếp với khách hàng để nắm nhu cầu và định hình toàn bộ giao diện website.</li>
+      <li>Sắp xếp bố cục portfolio và nút đặt lịch từ góc nhìn người đi tìm dịch vụ chụp ảnh; bàn giao thiết kế rõ ràng cho đội lập trình.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-top">
+      <span class="job-title">Hugo Studio — Sản phẩm cá nhân</span>
+      <span class="job-date">04/2026 – nay</span>
+    </div>
+    <div class="job-meta"><b>Chủ sản phẩm · Thiết kế UI/UX · Vận hành</b> · hugowishpax.studio</div>
+    <ul>
+      <li>Tự định hình ý tưởng và thiết kế nền tảng tiện ích miễn phí cho sinh viên; thiết kế luồng xác thực email .edu rút gọn đăng ký còn vài giây.</li>
+      <li><b>Tự vận hành production</b>: quản lý tên miền, triển khai, đọc log tìm nguyên nhân sự cố. Từng xử lý việc hệ thống bị nhà cung cấp ngắt do vượt hạn mức, phải tách kiến trúc theo cách tính phí của từng nền tảng để đưa về trong hạn mức.</li>
+      <li>Phần lập trình thực hiện với sự hỗ trợ của công cụ AI; mình phụ trách xác định yêu cầu, kiểm thử, tích hợp và triển khai.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Học vấn</h2>
+  <div class="row"><span><b>Đại học Greenwich Việt Nam</b> — Công nghệ Thông tin</span><span>08/2022 – dự kiến TN 10/2027</span></div>
+  <div class="row"><span><b>THPT Nguyễn Đình Chiểu</b>, Mỹ Tho</span><span>tốt nghiệp 06/2022</span></div>
+</section>
+
+<section>
+  <h2>Hoạt động</h2>
+  <ul>
+    <li><b>Huynh trưởng – Giáo lý viên cấp 2</b> (đã hoàn tất chương trình huấn luyện) — hướng dẫn và tổ chức hoạt động cho nhóm thiếu nhi; rèn kỹ năng nói trước đám đông, quản lý nhóm và giữ cam kết dài hạn.</li>
+    <li>Quan tâm tâm lý học và hành vi người dùng — nền tảng cho cách mình tiếp cận thiết kế trải nghiệm.</li>
+  </ul>
+</section>
+
+</body>
+</html>
