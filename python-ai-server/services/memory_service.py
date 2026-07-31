@@ -1,9 +1,15 @@
 import os
 import json
 import time
+import tempfile
 from typing import List, Dict, Any, Optional
 
-MEMORY_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "user_memories")
+# ponytail: bộ nhớ này vốn đã là cache tạm, không phải nơi lưu trữ bền vững —
+# đĩa của Render bị xoá mỗi lần deploy. Bản bền vững nằm ở MongoDB
+# (CompanionHistory.longTermMemories, xem server/routes/aiProxyRoutes.js).
+# Ghi vào thư mục tạm để chạy được cả trên serverless (Vercel chỉ cho ghi /tmp).
+# Cần lưu bền thì đổi hẳn sang Mongo, đừng gắn ổ đĩa.
+MEMORY_DIR = os.getenv("MEMORY_DIR") or os.path.join(tempfile.gettempdir(), "hugo_user_memories")
 os.makedirs(MEMORY_DIR, exist_ok=True)
 
 class MemoryService:

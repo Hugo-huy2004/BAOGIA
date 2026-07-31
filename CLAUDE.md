@@ -31,6 +31,13 @@ Three servers behind one Vite dev proxy (see `vite.config.js` — order matters,
 - `python-ai-server/` — FastAPI (port 8000). Handles `/api/ai`, `/api/iot`, `/api/sleep/analyze`, `/ws/iot`. Node proxies to it via `server/routes/aiProxyRoutes.js`; direct calls require the internal key middleware.
 - `api/` — Vercel serverless (only `/pay` redirect).
 
+Deploy split (see `docs/tach-tai-render.md`): Render runs **only** Node (it bills by
+the hour, and one always-on free service already eats 730 of the 750h/month quota);
+`python-ai-server/` deploys to Vercel as a serverless function and Node reaches it
+over `AI_SERVER_URL`. Keep-warm lives in `workers/keepalive/` (a Cloudflare Worker
+cron), never as a self-ping inside the server. Anything new that doesn't need a
+long-lived process belongs on Vercel/Cloudflare, not Render.
+
 The app is a PWA: `vite-plugin-pwa` generates `dist/sw.js` and imports the hand-written `public/push-sw.js` (web push + offline arcade score sync) into it. Service-worker changes only reach browsers after a build + deploy.
 
 ### Auth (do not bypass)

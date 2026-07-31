@@ -1,0 +1,8 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+data/
+test_psy_ai.py
+list_models.py
+.env

@@ -1,0 +1,13 @@
+name = "hugostudio-keepalive"
+main = "index.js"
+compatibility_date = "2026-07-31"
+
+# Cron của Cloudflare chạy theo UTC. Giờ VN = UTC+7.
+# 23,0-16 UTC  ==  06:00 → 23:59 giờ VN  ==  18h/ngày  ==  ~558h/tháng (quota 750h).
+# Ngoài khung này Render tự ngủ và không tính giờ.
+[triggers]
+crons = ["*/10 23,0-16 * * *"]
+
+[vars]
+# URL gốc của Render — cố ý KHÔNG đi qua Cloudflare (xem chú thích trong index.js).
+PING_URL = "https://baogia-x9lk.onrender.com/health"

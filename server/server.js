@@ -103,6 +103,20 @@ app.use(mongoSanitize());
 // Response Compression (Significantly reduces payload size)
 app.use(compression());
 
+// Mặc định KHÔNG cho cache. Cloudflare đứng trước api.* và có Cache Rule cho
+// /api/*; route nào quên đặt Cache-Control mà lại trả dữ liệu của một member cụ
+// thể thì CDN có thể cache rồi trả nhầm cho người khác. Chốt chặn ở đây để chỉ
+// những route CỐ Ý đặt `public, s-maxage=...` mới được cache.
+// Phải hook writeHead: header của route được đặt sau middleware này.
+app.use((req, res, next) => {
+  const writeHead = res.writeHead;
+  res.writeHead = function (...args) {
+    if (!res.getHeader('Cache-Control')) res.setHeader('Cache-Control', 'private, no-store');
+    return writeHead.apply(this, args);
+  };
+  next();
+});
+
 // Rate Limiting — skipped for localhost (Vite proxy collapses all dev requests
 // to 127.0.0.1/::1, making the shared IP window hit 429 almost immediately in
 // dev with React StrictMode double-invoking effects). Production keeps the cap.
@@ -280,7 +294,6 @@ import { initSmartNotificationService } from './services/smartNotificationServic
 import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCommunityBot } from './utils/communityBot.js';
-import { initKeepAlive } from './utils/keepAlive.js';
 import { sendAlert, logError } from './utils/alert.js';
 
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
@@ -409,7 +422,9 @@ server.listen(PORT, () => {
   // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
   initCommunityBot();
 
-  // Keep the free-tier instance warm (self-ping /api/health every 10 min)
-  initKeepAlive();
+  // Keep-warm is deliberately NOT done here any more. A self-ping kept the free
+  // instance awake 24/7 (~730h of the 750h monthly quota) and could never wake
+  // the process back up once Render had actually suspended it. An external
+  // pinger does both, on a schedule we control: see workers/keepalive/.
 });
 // Nodemon watch trigger
