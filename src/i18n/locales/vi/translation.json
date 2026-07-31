@@ -396,7 +396,8 @@
         "title": "Hugo Studio — Câu Chuyện Của Hugo Lê Và Những Sản Phẩm Số",
         "description": "Trang giới thiệu Hugo Lê, hành trình xây Hugo Studio cùng các sản phẩm, website React, PWA, trang Bio và dịch vụ thiết kế dành cho người học, cá nhân và cửa hàng nhỏ.",
         "keywords": "Hugo Studio, Hugo Lê, hồ sơ năng lực lập trình viên, thiết kế UI UX, React PWA, thiết kế website, ứng dụng web"
-      }
+      },
+      "heroCvCta": "Tải CV"
     }
   },
   "servicesPage": {
@@ -920,6 +921,11 @@
       "eyebrow": "Dự án đã bàn giao",
       "title": "Gói Website Pro trông như thế nào khi chạy thật",
       "desc": "Một khách thật, một website đang hoạt động. Bạn mở lên xem được ngay, không phải tin vào ảnh chụp.",
+      "clientLabel": "Khách hàng",
+      "fieldLabel": "Lĩnh vực",
+      "scopeLabel": "Phạm vi",
+      "buildLabel": "Cách làm",
+      "planLabel": "Gói dịch vụ",
       "clientName": "Mình Ơi Media",
       "clientField": "Phóng sự cưới",
       "clientScope": "Website nhiều trang: Bảng giá, Photography, Videography, Hỏi đáp, Liên hệ",
@@ -4146,6 +4152,12 @@
     "board": "Bàn chơi",
     "reward": "Phần thưởng",
     "games": {
+      "2048": {
+        "eyebrow": "Phòng thí nghiệm con số",
+        "title": "Ghép nhỏ. Nghĩ lớn.",
+        "description": "Trượt các khối số 3D, tạo chuỗi hợp nhất, vượt chướng ngại và đưa bàn chơi chạm đến 2048.",
+        "hint": "Giữ ô lớn nhất ở một góc; bạn có ba lượt hoàn tác chiến thuật."
+      },
       "chess": {
         "eyebrow": "Bàn cờ 3D ngoại tuyến",
         "title": "BOT hoặc hai người. Vào bàn ngay.",
@@ -4169,12 +4181,6 @@
         "title": "Dọn hàng. Giữ nhịp. Bứt tốc.",
         "description": "Sắp những khối sáng vào đúng vị trí trước khi tháp chạm đỉnh.",
         "hint": "Giữ mặt sàn phẳng và dành khoảng trống cho khối thẳng."
-      },
-      "2048": {
-        "eyebrow": "Phòng thí nghiệm con số",
-        "title": "Ghép nhỏ. Nghĩ lớn.",
-        "description": "Trượt các khối số 3D, tạo chuỗi hợp nhất, vượt chướng ngại và đưa bàn chơi chạm đến 2048.",
-        "hint": "Giữ ô lớn nhất ở một góc; bạn có ba lượt hoàn tác chiến thuật."
       },
       "caro": {
         "eyebrow": "Caro 3 × 3",

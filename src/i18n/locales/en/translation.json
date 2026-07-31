@@ -396,7 +396,8 @@
         "title": "Hugo Studio — Digital Product Design & Development Portfolio",
         "description": "Hugo Studio portfolio: UI/UX design, React websites, PWAs and web systems for individuals, small businesses and student communities.",
         "keywords": "Hugo Studio, web developer portfolio, UI UX design, React PWA, website design, web application, Hugo Le"
-      }
+      },
+      "heroCvCta": "Download CV"
     }
   },
   "servicesPage": {
@@ -920,6 +921,11 @@
       "eyebrow": "Delivered work",
       "title": "What the Website Pro package looks like in production",
       "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
+      "clientLabel": "Client",
+      "fieldLabel": "Industry",
+      "scopeLabel": "Scope",
+      "buildLabel": "Build",
+      "planLabel": "Package",
       "clientName": "Mình Ơi Media",
       "clientField": "Wedding photojournalism",
       "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
@@ -4146,6 +4152,12 @@
     "board": "Board",
     "reward": "Reward",
     "games": {
+      "2048": {
+        "eyebrow": "Number laboratory",
+        "title": "Merge small. Think big.",
+        "description": "Slide dimensional number blocks, build fusion chains, clear obstacles, and reach 2048.",
+        "hint": "Keep the largest tile in one corner; you have three tactical undo charges."
+      },
       "chess": {
         "eyebrow": "Offline 3D chess table",
         "title": "BOT or two players. Start instantly.",
@@ -4169,12 +4181,6 @@
         "title": "Clear lines. Hold rhythm. Go faster.",
         "description": "Place luminous blocks before the tower reaches the top.",
         "hint": "Keep the floor level and save a channel for the straight piece."
-      },
-      "2048": {
-        "eyebrow": "Number laboratory",
-        "title": "Merge small. Think big.",
-        "description": "Slide dimensional number blocks, build fusion chains, clear obstacles, and reach 2048.",
-        "hint": "Keep the largest tile in one corner; you have three tactical undo charges."
       },
       "caro": {
         "eyebrow": "3 × 3 grid duel",
