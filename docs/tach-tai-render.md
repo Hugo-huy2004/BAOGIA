@@ -111,12 +111,24 @@ trong dashboard thành `npm install --prefix server` (bỏ dòng `pip install`) 
 > Quota reset đầu tháng 8, service tự sống lại — nhưng phải deploy code này thì
 > tháng sau mới không chết lại giữa chừng.
 
-## Bước 3 — Cloudflare Worker giữ ấm
+## Bước 3 — Cloudflare Worker giữ ấm ✅ ĐÃ XONG
+
+Đã deploy, cron đã gắn, đã bắt được lần chạy thật trong log:
+`"*/10 23,0-16 * * *" @ 7/31/2026, 9:30:17 PM - Ok` (21:30 VN = 14:30 UTC ✓).
+
+Xem log thật: `npx wrangler tail hugostudio-keepalive`
 
 ```bash
 cd workers/keepalive
 npx wrangler deploy
 ```
+
+> **Bẫy đã gặp:** deploy sẽ báo `code: 10063 — You need a workers.dev subdomain`
+> và `No targets deployed`, dù `workers_dev = false`. Cloudflare bắt buộc **tài
+> khoản** phải có subdomain workers.dev tồn tại thì mới cho gắn bất kỳ trigger
+> nào, kể cả cron của worker không hề dùng URL công khai. Vào dashboard →
+> **Workers & Pages** đăng ký một lần là xong (tài khoản này là
+> `hugowishpax.workers.dev`). Wrangler 4 không có lệnh CLI nào làm việc này.
 
 Trước khi chạy, mở `wrangler.toml` sửa `PING_URL` cho khớp URL `*.onrender.com`
 thật của bạn. **Cố ý dùng URL onrender.com chứ không phải `api.hugowishpax.studio`** —
