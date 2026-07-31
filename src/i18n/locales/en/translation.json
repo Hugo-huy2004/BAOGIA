@@ -320,7 +320,7 @@
       "heroEyebrow": "Hugo Le · Software Engineering",
       "heroTitle1": "I'm Hugo.",
       "heroTitle2": "I create digital products.",
-      "heroDesc": "From code written in class, I create websites, PWAs and digital utilities for students, individuals and small businesses.",
+      "heroDesc": "I design and build websites, PWAs and digital tools for students, individuals and small shops — from idea to running in production.",
       "heroCta": "My story",
       "heroSecondaryCta": "View services",
       "aboutLabel": "The person behind Hugo Studio",
@@ -347,8 +347,8 @@
       "stackTitle": "What I've studied",
       "strengthTitle": "Strengths",
       "weakTitle": "Things I'm improving",
-      "weak1": "Not many years of production experience yet — I make up for it by learning fast and finishing what I start.",
-      "weak2": "Sometimes too perfectionist about details, so I agree on clear scope and deadlines up front.",
+      "weak1": "I haven't worked inside a real dev team yet — no experience with code review or someone else's codebase. That's exactly what I want to learn next.",
+      "weak2": "Sometimes too much of a perfectionist about details, so I always agree on scope and deadlines upfront.",
       "howTitle": "How I craft experiences for users",
       "stat1v": "2004",
       "stat1l": "Born — a true Gen Z",
@@ -397,7 +397,8 @@
         "description": "Hugo Studio portfolio: UI/UX design, React websites, PWAs and web systems for individuals, small businesses and student communities.",
         "keywords": "Hugo Studio, web developer portfolio, UI UX design, React PWA, website design, web application, Hugo Le"
       },
-      "heroCvCta": "Download CV"
+      "heroCvCta": "Download CV",
+      "weak3": "My degree covered many languages broadly rather than one deeply — I can read and modify code, but I am not yet specialised in any single language."
     }
   },
   "servicesPage": {

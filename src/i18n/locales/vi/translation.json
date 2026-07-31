@@ -320,7 +320,7 @@
       "heroEyebrow": "Hugo Lê · Kỹ thuật Phần mềm",
       "heroTitle1": "Mình là Hugo.",
       "heroTitle2": "Mình tạo sản phẩm số.",
-      "heroDesc": "Từ những dòng code ở giảng đường, mình tạo website, PWA và tiện ích số cho người học, cá nhân và cửa hàng nhỏ.",
+      "heroDesc": "Mình thiết kế và xây website, PWA và tiện ích số cho người học, cá nhân và cửa hàng nhỏ — từ ý tưởng đến lúc chạy thật.",
       "heroCta": "Câu chuyện của mình",
       "heroSecondaryCta": "Xem dịch vụ",
       "aboutLabel": "Người đứng sau Hugo Studio",
@@ -347,7 +347,7 @@
       "stackTitle": "Mình đã được học qua",
       "strengthTitle": "Điểm mạnh",
       "weakTitle": "Điểm cần cải thiện",
-      "weak1": "Chưa có nhiều năm kinh nghiệm thực chiến — mình bù lại bằng tinh thần cầu thị, học nhanh và làm tới nơi tới chốn.",
+      "weak1": "Chưa từng làm trong một đội phát triển thật — chưa quen code review hay làm việc trên codebase của người khác. Đó chính là thứ mình muốn học tiếp theo.",
       "weak2": "Đôi khi quá cầu toàn về chi tiết, nên mình luôn thống nhất phạm vi và deadline rõ ràng ngay từ đầu.",
       "howTitle": "Cách mình tạo trải nghiệm cho người dùng",
       "stat1v": "2004",
@@ -397,7 +397,8 @@
         "description": "Trang giới thiệu Hugo Lê, hành trình xây Hugo Studio cùng các sản phẩm, website React, PWA, trang Bio và dịch vụ thiết kế dành cho người học, cá nhân và cửa hàng nhỏ.",
         "keywords": "Hugo Studio, Hugo Lê, hồ sơ năng lực lập trình viên, thiết kế UI UX, React PWA, thiết kế website, ứng dụng web"
       },
-      "heroCvCta": "Tải CV"
+      "heroCvCta": "Tải CV",
+      "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào."
     }
   },
   "servicesPage": {

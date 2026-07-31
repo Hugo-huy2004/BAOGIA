@@ -754,7 +754,7 @@ function AboutSection({ t, jasonPhoto }) {
               {t("intro.cine.weakTitle")}
             </p>
             <ul className="space-y-2.5">
-              {["weak1", "weak2"].map((k) => (
+              {["weak1", "weak2", "weak3"].map((k) => (
                 <li key={k} className="flex items-start gap-2.5">
                   <ArrowRight size={13} className="cine-faint mt-1 shrink-0" />
                   <span className="cine-muted text-xs sm:text-sm leading-relaxed">{t(`intro.cine.${k}`)}</span>
