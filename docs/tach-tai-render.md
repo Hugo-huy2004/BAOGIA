@@ -56,9 +56,35 @@ Biến môi trường đã nạp sẵn cho scope **Production**:
 | `TELEMETRY_SALT` | chưa đặt — fallback về `INTERNAL_API_KEY`, không sao |
 | `GROQ_API_KEY`, `CEREBRAS_API_KEY` | chưa có, tuỳ chọn |
 
-⚠️ **`INTERNAL_API_KEY` trên Render phải trùng đúng giá trị này.** Trên Render nó
-là `sync: false` (đặt tay trong dashboard) nên có thể đang khác giá trị local. Sai
-là **mọi** `/api/ai/*` trả 401. Đối chiếu trước khi redeploy.
+### ⚠️ `INTERNAL_API_KEY` — đã phải xoay khoá 31/7
+
+Render **chưa từng có** biến này. Trước đây không sao: Python chạy `localhost:8000`
+trong cùng container, cả hai bên đều rỗng nên middleware `verify_internal_key`
+tự tắt (`if INTERNAL_API_KEY and ...`). Giờ Python nằm ở URL Vercel công khai,
+khoá này là **thứ duy nhất** chặn người lạ gọi thẳng vào và đốt quota Gemini.
+
+Giá trị cũ **không dùng được**: nó trùng đúng với `VITE_INTERNAL_API_KEY`, mà biến
+`VITE_*` bị Vite nhúng thẳng vào bundle trình duyệt — tìm thấy trong 4 file
+`dist/assets/*.js` đang phục vụ công khai. Ai xem source trang web cũng đọc được.
+
+Đã xử lý: sinh khoá mới bằng `openssl rand -hex 32`, cập nhật `server/.env`,
+`python-ai-server/.env` và Vercel production, deploy lại. Kiểm chứng: khoá cũ trả
+`401`, khoá mới trả `200`.
+
+**Việc còn lại của bạn: thêm `INTERNAL_API_KEY` (khoá mới) vào Render.** Chưa thêm
+thì mọi `/api/ai/*` sẽ trả 401 ngay khi `AI_SERVER_URL` trỏ sang Vercel.
+
+Lấy lại giá trị bất cứ lúc nào:
+```bash
+grep '^INTERNAL_API_KEY=' server/.env | cut -d= -f2- | tr -d '\n' | pbcopy
+```
+
+**Dọn dẹp nên làm sau:** `VITE_INTERNAL_API_KEY` giờ là giá trị chết. Node **không
+hề** kiểm tra header `X-Internal-Key` (đã grep `server/middleware`, `server/server.js`
+— không có chỗ nào đọc), nên 4 chỗ ở frontend gửi header này là vô nghĩa:
+`src/services/api.js`, `src/services/classes/CompanionBot/AIBot.js`,
+`src/components/member/banhocduong/SleepTracker.jsx`, `DepressionCbtTherapy.jsx`.
+Xoá cả biến lẫn header đi cho khỏi tưởng nhầm là có bảo mật.
 
 **Lưu ý:** `/ws/iot` trong `main.py` không chạy trên serverless. Nó là code chết —
 không có client nào kết nối tới (luồng IoT thật đi qua `POST /api/iot/vitals` của
