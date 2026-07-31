@@ -2,6 +2,12 @@ name = "hugostudio-keepalive"
 main = "index.js"
 compatibility_date = "2026-07-31"
 
+# Không cần URL công khai: Worker này chỉ chạy theo cron.
+# Để bật workers.dev thì bất kỳ ai biết URL cũng gọi được, mà mỗi lần gọi là một
+# request đập vào Render — đúng thứ đang phải tiết kiệm. Muốn thử tay thì dùng
+# `npx wrangler dev` hoặc xem log thật bằng `npx wrangler tail`.
+workers_dev = false
+
 # Cron của Cloudflare chạy theo UTC. Giờ VN = UTC+7.
 # 23,0-16 UTC  ==  06:00 → 23:59 giờ VN  ==  18h/ngày  ==  ~558h/tháng (quota 750h).
 # Ngoài khung này Render tự ngủ và không tính giờ.
