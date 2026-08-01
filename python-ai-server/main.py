@@ -60,6 +60,16 @@ app.add_middleware(
 # All routes except / and /health require X-Internal-Key header when key is set
 app.middleware("http")(verify_internal_key)
 
+@app.on_event("startup")
+async def startup_event():
+    """Auto-seed systemic AI persona and portal knowledge into Vector AI DB on boot."""
+    try:
+        await vector_service.seed_system_knowledge()
+        print("✅ Vector AI system knowledge base seeded successfully!")
+    except Exception as e:
+        print(f"⚠️ Vector AI auto-seed warning: {e}")
+
+
 # ---------------------------------------------------------------------------
 # Shared service instances
 # ---------------------------------------------------------------------------
