@@ -15,9 +15,21 @@ if PINECONE_API_KEY:
         from pinecone import Pinecone, ServerlessSpec
         pc = Pinecone(api_key=PINECONE_API_KEY)
         
-        # Check if index exists, create if not present
-        existing_indexes = [idx.name for idx in pc.list_indexes()]
-        if PINECONE_INDEX_NAME not in existing_indexes:
+        # Safely list index names across Pinecone SDK versions
+        index_names = []
+        try:
+            indexes_obj = pc.list_indexes()
+            if hasattr(indexes_obj, "names"):
+                index_names = list(indexes_obj.names())
+            elif isinstance(indexes_obj, (list, tuple)):
+                index_names = [
+                    idx.name if hasattr(idx, "name") else (idx.get("name") if isinstance(idx, dict) else str(idx))
+                    for idx in indexes_obj
+                ]
+        except Exception as err:
+            logger.warning(f"Could not list Pinecone indexes: {err}")
+
+        if PINECONE_INDEX_NAME not in index_names:
             try:
                 pc.create_index(
                     name=PINECONE_INDEX_NAME,
@@ -53,8 +65,10 @@ class VectorService:
                     content=text,
                     task_type="retrieval_document"
                 )
-                if "embedding" in result:
+                if isinstance(result, dict) and "embedding" in result:
                     return result["embedding"]
+                elif hasattr(result, "embedding"):
+                    return result.embedding
         except Exception as e:
             logger.warning(f"Gemini embedding error: {e}")
         
@@ -108,12 +122,25 @@ class VectorService:
                     namespace=namespace,
                     filter=filter_dict
                 )
+                
+                # Convert QueryResponse object or dict safely
+                raw_matches = []
+                if hasattr(res, "to_dict"):
+                    raw_matches = res.to_dict().get("matches", [])
+                elif isinstance(res, dict):
+                    raw_matches = res.get("matches", [])
+                elif hasattr(res, "matches"):
+                    raw_matches = res.matches
+
                 results = []
-                for match in res.get("matches", []):
+                for match in raw_matches:
+                    match_id = match.get("id") if isinstance(match, dict) else getattr(match, "id", "")
+                    match_score = match.get("score", 0.0) if isinstance(match, dict) else getattr(match, "score", 0.0)
+                    match_meta = match.get("metadata", {}) if isinstance(match, dict) else getattr(match, "metadata", {})
                     results.append({
-                        "id": match["id"],
-                        "score": match["score"],
-                        "metadata": match.get("metadata", {})
+                        "id": match_id,
+                        "score": float(match_score),
+                        "metadata": match_meta
                     })
                 return results
             except Exception as e:
