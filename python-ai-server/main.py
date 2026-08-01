@@ -16,7 +16,20 @@ from services.gemini_service import GeminiService
 from services.rate_limit_service import rate_limiter
 from services.intent_insights_service import intent_insights, normalize
 from services.warning_sentinel import warning_sentinel
+from services.vector_service import vector_service
 from middleware.auth import verify_internal_key
+
+class VectorUpsertRequest(BaseModel):
+    doc_id: str
+    text: str
+    metadata: Optional[Dict[str, Any]] = None
+    namespace: Optional[str] = "default"
+
+class VectorQueryRequest(BaseModel):
+    query_text: str
+    top_k: Optional[int] = 5
+    namespace: Optional[str] = "default"
+    filter_dict: Optional[Dict[str, Any]] = None
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -632,6 +645,38 @@ async def iot_websocket(websocket: WebSocket):
                 }))
     except WebSocketDisconnect:
         print(f"IoT WebSocket disconnected: {websocket.client}")
+
+# ---------------------------------------------------------------------------
+# Pinecone AI Vector Search Endpoints
+# ---------------------------------------------------------------------------
+
+@app.post("/api/ai/vector/upsert")
+async def vector_upsert(req: VectorUpsertRequest):
+    """Embeds text using Gemini and upserts into Pinecone Index."""
+    try:
+        result = await vector_service.upsert_text(
+            doc_id=req.doc_id,
+            text=req.text,
+            metadata=req.metadata,
+            namespace=req.namespace or "default"
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/ai/vector/query")
+async def vector_query(req: VectorQueryRequest):
+    """Embeds query text and retrieves top-K similar vectors from Pinecone."""
+    try:
+        matches = await vector_service.query_similar(
+            query_text=req.query_text,
+            top_k=req.top_k or 5,
+            namespace=req.namespace or "default",
+            filter_dict=req.filter_dict
+        )
+        return {"matches": matches, "count": len(matches)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ---------------------------------------------------------------------------
 # Entry point

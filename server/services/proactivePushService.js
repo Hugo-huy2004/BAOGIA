@@ -7,12 +7,28 @@ import { sendPushToUser } from './pushGuard.js';
 // The URL of the Python AI Server
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
 
+async function pMap(items, limit, fn) {
+  const results = [];
+  const executing = new Set();
+  for (const item of items) {
+    const p = Promise.resolve().then(() => fn(item));
+    results.push(p);
+    executing.add(p);
+    const clean = () => executing.delete(p);
+    p.then(clean, clean);
+    if (executing.size >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  return Promise.all(results);
+}
+
 async function runProactivePushJob() {
   console.log('Bắt đầu chạy cron job: AI Proactive Push Notifications...');
 
   try {
-    // 1. Lấy tất cả user có đăng ký nhận thông báo
-    const subscriptions = await NotificationSubscription.find({});
+    // 1. Lấy tất cả user có đăng ký nhận thông báo (dùng lean)
+    const subscriptions = await NotificationSubscription.find({}).lean();
     if (!subscriptions || subscriptions.length === 0) {
       console.log('Không có thiết bị nào đăng ký nhận thông báo.');
       return;
@@ -27,20 +43,24 @@ async function runProactivePushJob() {
       emailMap.get(sub.email).push(sub);
     }
 
-    // 2. Loop qua từng email để xử lý
-    for (const [email, subs] of emailMap.entries()) {
+    const entries = Array.from(emailMap.entries());
+
+    // 2. Xử lý song song với pool tối đa 5 request cùng lúc
+    await pMap(entries, 5, async ([email, subs]) => {
       try {
-        // Tìm lịch sử và bio
-        const history = await CompanionHistory.findOne({ email });
-        const bio = await Bio.findOne({ email });
+        // Tìm lịch sử và bio (dùng lean để tăng tốc đọc DB)
+        const [history, bio] = await Promise.all([
+          CompanionHistory.findOne({ email }).lean(),
+          Bio.findOne({ email }).lean(),
+        ]);
 
         if (!history || !history.historyLogs || history.historyLogs.length === 0) {
-          continue; // Chưa có hoạt động gì
+          return; // Chưa có hoạt động gì
         }
 
-        // Lấy tối đa 15 log gần nhất
-        const recentLogs = [...history.historyLogs].reverse().slice(0, 15);
-        
+        // Lấy tối đa 15 log gần nhất: O(15) thay vì sao chép đảo mảng
+        const recentLogs = history.historyLogs.slice(-15).reverse();
+
         // Gọi sang Python AI Server
         const response = await fetch(`${PYTHON_AI_URL}/api/ai/proactive-push`, {
           method: 'POST',
@@ -53,11 +73,11 @@ async function runProactivePushJob() {
 
         if (!response.ok) {
           console.error(`AI Server lỗi khi xử lý cho email ${email}`);
-          continue;
+          return;
         }
 
         const aiResult = await response.json();
-        
+
         // Cấu trúc dự kiến: { should_send: true/false, title: "...", body: "...", reason: "..." }
         if (aiResult && aiResult.should_send) {
           const sent = await sendPushToUser(email, subs, {
@@ -72,8 +92,8 @@ async function runProactivePushJob() {
       } catch (err) {
         console.error(`Lỗi khi xử lý proactive push cho ${email}:`, err);
       }
-    }
-    
+    });
+
     console.log('Hoàn tất chạy cron job proactive push.');
   } catch (error) {
     console.error('Lỗi nghiêm trọng trong cron job:', error);

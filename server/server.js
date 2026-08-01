@@ -25,6 +25,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireMember } from './middleware/authMiddleware.js';
+import { broadcastToUser } from './services/redisWsAdapter.js';
 
 dotenv.config();
 

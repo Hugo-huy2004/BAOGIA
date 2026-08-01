@@ -19,6 +19,22 @@ const SCHEDULES = {
   skincare_night:   '30 21 * * *', // 21:30 — skincare evening nudge
 };
 
+async function pMap(items, limit, fn) {
+  const results = [];
+  const executing = new Set();
+  for (const item of items) {
+    const p = Promise.resolve().then(() => fn(item));
+    results.push(p);
+    executing.add(p);
+    const clean = () => executing.delete(p);
+    p.then(clean, clean);
+    if (executing.size >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  return Promise.all(results);
+}
+
 async function runSkincareReminders(timeOfDay) {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const todayName = daysOfWeek[new Date().getDay()];
@@ -26,14 +42,14 @@ async function runSkincareReminders(timeOfDay) {
   const bios = await Bio.find({ skincareReminderEnabled: true }).lean();
   if (!bios.length) return;
 
-  for (const bio of bios) {
+  await pMap(bios, 5, async (bio) => {
     try {
       const email = bio.email;
       const plan = bio.skinAnalysis?.plan;
-      if (!plan || !plan[todayName]) continue;
+      if (!plan || !plan[todayName]) return;
 
       const steps = timeOfDay === 'morning' ? plan[todayName].morning : plan[todayName].night;
-      if (!steps || !steps.length) continue;
+      if (!steps || !steps.length) return;
 
       const title = timeOfDay === 'morning' ? '✨ HugoSkin: Skincare Buổi Sáng!' : '🌙 HugoSkin: Skincare Buổi Tối!';
       const body = `Hôm nay là ${todayName}. Liệu trình dưỡng da của bạn gồm: ${steps.join(', ')}. Hãy bắt đầu ngay nhé!`;
@@ -41,8 +57,6 @@ async function runSkincareReminders(timeOfDay) {
       // 1. Tạo In-App Notification
       await InAppNotification.create({
         email,
-        // 'inbox' không có trong enum của schema → Mongoose từ chối, thông
-        // báo này trước đây chưa bao giờ được lưu. Xem InAppNotification.js.
         type: 'info',
         category: 'system',
         title,
@@ -51,7 +65,7 @@ async function runSkincareReminders(timeOfDay) {
       });
 
       // 2. Gửi Web Push
-      const subs = await NotificationSubscription.find({ email });
+      const subs = await NotificationSubscription.find({ email }).lean();
       if (subs.length) {
         await sendPushToUser(email, subs, {
           title,
@@ -65,7 +79,7 @@ async function runSkincareReminders(timeOfDay) {
     } catch (err) {
       console.error(`[SkincareReminder] Lỗi gửi nhắc nhở cho ${bio.email}:`, err.message);
     }
-  }
+  });
 }
 
 async function runScheduledCompanionPushes() {
@@ -97,7 +111,7 @@ async function runScheduledCompanionPushes() {
 
       // Cooldown only suppresses the OS push (avoids stacking with another
       // job's notification) — the in-app inbox record below still lands.
-      const subs = await NotificationSubscription.find({ email: item.email });
+      const subs = await NotificationSubscription.find({ email: item.email }).lean();
       if (subs.length) {
         await sendPushToUser(item.email, subs, {
           title: aiResult.title || 'Bạn Học Đường',
@@ -112,8 +126,6 @@ async function runScheduledCompanionPushes() {
       // Tạo thêm thông báo trong hộp thư (In-App)
       await InAppNotification.create({
         email: item.email,
-        // 'inbox' không có trong enum của schema → Mongoose từ chối, thông
-        // báo này trước đây chưa bao giờ được lưu. Xem InAppNotification.js.
         type: 'info',
         category: 'system',
         title: aiResult.title || 'Bạn Học Đường Trị Liệu',
@@ -130,7 +142,7 @@ async function runScheduledCompanionPushes() {
 }
 
 async function runSmartPushJob(contextHint) {
-  const subscriptions = await NotificationSubscription.find({});
+  const subscriptions = await NotificationSubscription.find({}).lean();
   if (!subscriptions.length) return;
 
   // Group by email
@@ -140,7 +152,9 @@ async function runSmartPushJob(contextHint) {
     emailMap.get(sub.email).push(sub);
   }
 
-  for (const [email, subs] of emailMap.entries()) {
+  const entries = Array.from(emailMap.entries());
+
+  await pMap(entries, 5, async ([email, subs]) => {
     try {
       const [bio, sleepData, history] = await Promise.all([
         Bio.findOne({ email }).lean(),
@@ -164,10 +178,10 @@ async function runSmartPushJob(contextHint) {
         }),
       });
 
-      if (!response.ok) continue;
+      if (!response.ok) return;
 
       const aiResult = await response.json();
-      if (!aiResult?.should_send) continue;
+      if (!aiResult?.should_send) return;
 
       await sendPushToUser(email, subs, {
         title: aiResult.title || 'Bạn Học Đường',
@@ -180,7 +194,7 @@ async function runSmartPushJob(contextHint) {
     } catch (err) {
       console.error(`[SmartPush] Error for ${email}:`, err.message);
     }
-  }
+  });
 }
 
 /** Compute consecutive active days (streak) from historyLogs */

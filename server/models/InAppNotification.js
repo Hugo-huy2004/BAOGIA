@@ -30,6 +30,7 @@ const schema = new mongoose.Schema({
 schema.index({ createdAt: 1 }, { expireAfterSeconds: 7_776_000 });
 schema.index({ email: 1, createdAt: -1 });
 schema.index({ email: 1, read: 1 });
+schema.index({ email: 1, read: 1, createdAt: -1 });
 
 // Hard per-account cap — unified "thông báo" feed now also carries every JOY
 // transaction, so it grows much faster than the old alerts-only inbox.
