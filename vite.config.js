@@ -1,12 +1,44 @@
-import { defineConfig } from 'vite'
+import { defineConfig, createLogger } from 'vite'
 import react from '@vitejs/plugin-react'
 import viteCompression from 'vite-plugin-compression'
 import { VitePWA } from 'vite-plugin-pwa'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { visualizer } from 'rollup-plugin-visualizer'
 
+/* Dev thường chỉ chạy mỗi Vite (một cổng), backend 8081 không bật — mỗi request
+   /api đổ ra một stack trace "http proxy error" làm trôi hết log thật. Nuốt đúng
+   trường hợp ECONNREFUSED; lỗi proxy khác vẫn in đầy đủ. */
+const quietLogger = createLogger()
+const logError = quietLogger.error.bind(quietLogger)
+quietLogger.error = (msg, opts) => {
+  if (opts?.error?.code === 'ECONNREFUSED' && String(msg).includes('proxy error')) return
+  logError(msg, opts)
+}
+
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Native builds ship without the PWA layer: a service worker inside a
+  // Capacitor WebView pins the app to a cached shell, so store updates never
+  // reach the device. The web build keeps it.
+  const isNative = process.env.VITE_BUILD_TARGET === "native";
+
+  // A native WebView has no shared origin with the API, so a relative "/api"
+  // would resolve against capacitor://localhost. Fail the build rather than
+  // ship an app whose every request 404s on the device.
+  if (isNative && !/^https?:\/\//i.test(process.env.VITE_API_URL || "")) {
+    throw new Error(
+      "Native build needs an absolute VITE_API_URL (e.g. https://api.hugowishpax.studio/api)",
+    );
+  }
+
+  return {
+  resolve: {
+    // The virtual module ships with the PWA plugin; without it the import in
+    // PWAUpdatePrompt cannot resolve, so point it at an inert stub.
+    alias: isNative
+      ? { "virtual:pwa-register/react": "/src/config/pwaRegisterStub.js" }
+      : {},
+  },
   plugins: [
     react(),
     // npm run build:analyze → dist/stats.html (treemap of bundle composition)
@@ -26,7 +58,7 @@ export default defineConfig({
       webp: { lossless: true },
       avif: { lossless: true },
     }),
-    VitePWA({
+    isNative ? null : VitePWA({
       registerType: 'autoUpdate',
       // Assets are automatically matched by workbox globPatterns (**/*.{js,css,html,ico,svg,woff2,png})
       includeAssets: [],
@@ -168,6 +200,7 @@ export default defineConfig({
       },
     }),
   ],
+  customLogger: quietLogger,
   server: {
     port: 3000,
     host: true,
@@ -245,4 +278,5 @@ export default defineConfig({
       }
     }
   }
+  };
 })

@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
+import { isPublicToolPath } from "./config/publicTools";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -56,6 +57,7 @@ const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
+
 const JoyPWA = lazy(() => import("./pages/JoyPWA"));
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
@@ -121,8 +123,13 @@ function AppContent() {
   const isPayRoute = location.pathname.startsWith("/pay/");
   const isIdeRoute = location.pathname === "/member/ide";
   const isChessRoute = location.pathname.startsWith("/chess");
-  const isArcadeRoute = location.pathname === "/arcade" || location.pathname.startsWith("/member/utilities/arcade");
-  const isPublicUtilityRoute = location.pathname === "/banhocduong" || location.pathname === "/therapy" || location.pathname === "/radio" || location.pathname === "/aura";
+  // /arcade is now a standalone public page (see config/publicTools.js), so it
+  // must not be captured here — that branch redirects guests to /login, which
+  // is exactly what the "play first, sign in to unlock levels" rule forbids.
+  const isArcadeRoute = location.pathname.startsWith("/member/utilities/arcade");
+  // Allowed standalone-app paths come from the registry so this can no longer
+  // drift out of sync with the tools UtilityPublicPage actually renders.
+  const isPublicUtilityRoute = isPublicToolPath(location.pathname);
 
   if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
     return <MaintenancePage />;
@@ -143,8 +150,6 @@ function AppContent() {
           {/* Chess now lives inside HugoArcade — old /chess links resolve into Arcade with the room preserved */}
           <Route path="/chess" element={<Navigate to="/member/utilities/arcade?game=chess" replace />} />
           <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/arcade?game=chess&room=${window.location.pathname.split("/").pop()}`} replace />} />
-          {/* /arcade is the old standalone URL — kept as a redirect so existing bookmarks/links still work */}
-          <Route path="/arcade" element={<Navigate to={`/member/utilities/arcade${window.location.search}`} replace />} />
           <Route path="/member/utilities/arcade" element={isMemberAuthenticated() ? <ArcadePage /> : <Navigate to="/login" replace />} />
         </Routes>
       </Suspense>

@@ -61,6 +61,18 @@
       "destination": "/aura/index.html"
     },
     {
+      "source": "/arcade",
+      "destination": "/arcade/index.html"
+    },
+    {
+      "source": "/ide",
+      "destination": "/ide/index.html"
+    },
+    {
+      "source": "/hugoskin",
+      "destination": "/hugoskin/index.html"
+    },
+    {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",
       "destination": "/index.html"
     }

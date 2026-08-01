@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import BiometricLoginCard from "./BiometricLoginCard";
 import ToggleSwitch from "../common/ToggleSwitch";
-import { webPushHelper } from "../../utils/webPushHelper";
+import { pushService } from "../../services/pushService";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { hapticSelect } from "../../utils/haptics";
 import PersonalInfoSubTab from "./PersonalInfoSubTab";
@@ -62,7 +62,7 @@ export default function MemberSettingsTab({
   const referralCount = useJoyStore((state) => state.referralCount);
 
   useEffect(() => {
-    webPushHelper.isSubscribed().then(setPushEnabled);
+    pushService.isSubscribed().then(setPushEnabled);
     setBiometricSupported(webauthnHelper.isSupported());
   }, []);
 
@@ -78,16 +78,17 @@ export default function MemberSettingsTab({
     setPushBusy(true);
     try {
       if (pushEnabled) {
-        await webPushHelper.unsubscribe();
+        await pushService.unsubscribe();
         setPushEnabled(false);
         showToast?.(t("memberPortal.settings.pushDisabledToast"), "success");
       } else {
-        const perm = await webPushHelper.requestPermission();
-        if (perm === "granted" && email) {
-          await webPushHelper.registerAndSubscribe(email);
+        // One call for both shells: Web Push on the browser, APNs/FCM in the
+        // store builds. The facade returns the outcome instead of throwing.
+        const result = await pushService.subscribe(email);
+        if (result === "granted") {
           setPushEnabled(true);
           showToast?.(t("memberPortal.settings.pushEnabledToast"), "success");
-        } else if (perm === "denied") {
+        } else if (result === "denied") {
           showToast?.(t("memberPortal.settings.pushDeniedToast"), "warning");
         }
       }

@@ -132,19 +132,17 @@ const createHttpError = async (response, fallbackMessage) => {
 };
 
 export const dataApi = {
-  // Fetch all data
+  // Fetch all data.
+  // Không log ở đây: lỗi được ném lên cho người gọi, mà người gọi duy nhất
+  // (DataContext) đã cố ý im lặng và rơi về dữ liệu mặc định khi vắng backend.
+  // Bắt rồi log rồi ném lại chỉ tạo ra một dòng đỏ thừa trong console.
   async getData() {
-    try {
-      const endpoint = isAdminAuthenticated() ? `${API_BASE_URL}/data/admin` : `${API_BASE_URL}/data`;
-      const response = await fetchJsonWithDedup(endpoint, { headers: getAuthHeaders() });
-      
-      checkAuth(response.status);
-      if (!response.ok) throw new Error('Failed to fetch data');
-      return await response.json();
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    const endpoint = isAdminAuthenticated() ? `${API_BASE_URL}/data/admin` : `${API_BASE_URL}/data`;
+    const response = await fetchJsonWithDedup(endpoint, { headers: getAuthHeaders() });
+
+    checkAuth(response.status);
+    if (!response.ok) throw new Error('Failed to fetch data');
+    return response.json();
   },
 
   // Update entire data object

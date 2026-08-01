@@ -7,6 +7,7 @@ import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { withUsdPrices } from "../../utils/priceFormatter";
 import StudioPageNav from "../../components/public/StudioPageNav";
+import WebMagnet from "../../components/ui/WebMagnet";
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
@@ -114,68 +115,91 @@ function SectionHeading({ eyebrow, title, highlight, desc }) {
   );
 }
 
-function CtaButton({ to = "/booking", children, className = "" }) {
+/* wrapClassName đi ra ngoài WebMagnet (vị trí, chiều rộng), className ở lại
+   trên nút (padding, cỡ chữ) — nếu không thì nút bị hụt padding. */
+function CtaButton({ to = "/booking", children, className = "", wrapClassName = "" }) {
   return (
-    <Link
-      to={to}
-      className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-foreground px-6 py-3.5 text-xs font-bold uppercase tracking-wide text-background shadow-xl transition-all duration-300 hover:shadow-[0_0_30px_hsl(var(--primary)/0.35)] active:scale-95 ${className}`}
-    >
-      <span className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${brandGradient}`} />
-      <span className="relative z-10 flex items-center gap-2">
-        {children}
-        <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
-      </span>
-    </Link>
+    <WebMagnet className={wrapClassName}>
+      <Link
+        to={to}
+        className={`group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-foreground px-6 py-3.5 text-xs font-bold uppercase tracking-wide text-background shadow-xl transition-all duration-300 hover:shadow-[0_0_30px_hsl(var(--primary)/0.35)] active:scale-95 ${className}`}
+      >
+        <span className={`absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${brandGradient}`} />
+        <span className="relative z-10 flex items-center gap-2">
+          {children}
+          <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+        </span>
+      </Link>
+    </WebMagnet>
   );
 }
 
 /* A delivered client site, next to the tier it was built on. This is the only
    proof on the page, so it stays factual: name, field, scope, and a link the
    visitor can open. No testimonial quote unless the client gives us one. */
+const PROOF_SITE = "https://minhoimedia.digital";
+
 function ClientProof() {
   const { t } = useTranslation();
+  /* Label + value beats an icon bullet list here: the eye scans one column of
+     labels instead of four ragged lines of mixed length. */
   const facts = [
-    { icon: "photo_camera", text: t("servicesPage.proof.clientField") },
-    { icon: "web", text: t("servicesPage.proof.clientScope") },
-    { icon: "brush", text: t("servicesPage.proof.clientBuild") },
-    { icon: "layers", text: t("servicesPage.proof.clientPlan") },
+    { label: t("servicesPage.proof.fieldLabel"), text: t("servicesPage.proof.clientField") },
+    { label: t("servicesPage.proof.scopeLabel"), text: t("servicesPage.proof.clientScope") },
+    { label: t("servicesPage.proof.buildLabel"), text: t("servicesPage.proof.clientBuild") },
+    { label: t("servicesPage.proof.planLabel"), text: t("servicesPage.proof.clientPlan") },
   ];
   return (
     <motion.div {...reveal} className="mx-auto max-w-4xl">
       <div className="rounded-[2rem] border border-border bg-card p-6 shadow-xl shadow-primary/5 sm:p-8">
-        <span className={`inline-flex rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
-          {t("servicesPage.proof.eyebrow")}
-        </span>
-        <h3 className="font-display mt-4 text-xl font-extrabold leading-tight text-foreground sm:text-2xl">
-          {t("servicesPage.proof.title")}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          {t("servicesPage.proof.desc")}
-        </p>
+        {/* Claim first, evidence second — and the intro stays inside a readable
+            line length instead of stretching the full card width. */}
+        <div className="max-w-2xl">
+          <span className={`inline-flex rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-[0.25em] sm:text-[10px] ${heroBadge}`}>
+            {t("servicesPage.proof.eyebrow")}
+          </span>
+          <h3 className="font-display mt-4 text-xl font-extrabold leading-tight text-foreground sm:text-2xl">
+            {t("servicesPage.proof.title")}
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {t("servicesPage.proof.desc")}
+          </p>
+        </div>
 
-        <div className="mt-6 flex flex-col gap-5 border-t border-border/40 pt-6 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="font-display text-lg font-extrabold text-foreground">
+        <div className="mt-6 grid gap-6 border-t border-border/40 pt-6 sm:mt-8 sm:pt-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-10">
+          {/* Who + the one action, kept together so the CTA never floats. */}
+          <div className="rounded-2xl bg-muted/40 p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              {t("servicesPage.proof.clientLabel")}
+            </p>
+            <p className="font-display mt-1 text-lg font-extrabold leading-tight text-foreground">
               {t("servicesPage.proof.clientName")}
             </p>
-            <ul className="mt-3 grid gap-2">
-              {facts.map((fact) => (
-                <li key={fact.icon} className="flex items-start gap-2 text-xs leading-snug text-muted-foreground">
-                  <span className="material-symbols-outlined mt-0.5 shrink-0 text-sm text-foreground">{fact.icon}</span>
-                  <span>{fact.text}</span>
-                </li>
-              ))}
-            </ul>
+            <p className="mt-1 text-xs text-muted-foreground">{PROOF_SITE.replace("https://", "")}</p>
+            <WebMagnet className="mt-4 w-full">
+              <a
+                href={PROOF_SITE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex w-full items-center justify-center gap-2 rounded-full border border-border bg-card px-5 py-3 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-primary/40"
+              >
+                {t("servicesPage.proof.cta")}
+                <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">open_in_new</span>
+              </a>
+            </WebMagnet>
           </div>
-          <a
-            href="https://minhoimedia.digital"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-muted px-5 py-3 text-xs font-bold uppercase tracking-wide text-foreground transition-colors hover:border-primary/40"
-          >
-            {t("servicesPage.proof.cta")}
-            <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-0.5">open_in_new</span>
-          </a>
+
+          <dl className="grid content-start gap-3">
+            {facts.map((fact) => (
+              <div
+                key={fact.label}
+                className="grid gap-0.5 border-b border-border/40 pb-3 last:border-0 last:pb-0 sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-4"
+              >
+                <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{fact.label}</dt>
+                <dd className="text-sm leading-snug text-foreground">{fact.text}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </motion.div>
@@ -283,7 +307,7 @@ function PlanCard({ plan, emphasized = false }) {
 
         {/* CTA */}
         <div className="mt-auto pt-4">
-          <CtaButton className="w-full text-xs">{t("servicesPage.common.discussPlan")}</CtaButton>
+          <CtaButton className="text-xs" wrapClassName="w-full">{t("servicesPage.common.discussPlan")}</CtaButton>
         </div>
       </div>
     </motion.article>
@@ -387,7 +411,7 @@ function DemoShowcaseSection() {
             ))}
           </div>
           <p className="mt-4 hidden text-xs leading-relaxed text-muted-foreground lg:block">{t("servicesPage.demo.hint")}</p>
-          <CtaButton className="mt-4 hidden w-full lg:inline-flex">{t("servicesPage.demo.cta")}</CtaButton>
+          <CtaButton wrapClassName="mt-4 hidden w-full lg:inline-flex">{t("servicesPage.demo.cta")}</CtaButton>
         </div>
 
         {/* Khung mockup trình duyệt & Device Switcher */}
@@ -1085,7 +1109,7 @@ export default function ServicesPage() {
             <span className={`${brandGradient} bg-clip-text text-transparent`}>{t("servicesPage.finalCta.title2")}</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("servicesPage.finalCta.desc")}</p>
-          <CtaButton className="mt-7 px-8">{t("servicesPage.finalCta.cta")}</CtaButton>
+          <CtaButton className="px-8" wrapClassName="mt-7">{t("servicesPage.finalCta.cta")}</CtaButton>
         </motion.div>
       </section>
       </div>

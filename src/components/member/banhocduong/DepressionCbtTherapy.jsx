@@ -4,6 +4,7 @@ import {
   FileText, CheckSquare, Edit3, Heart, ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE } from "../../../config/apiBase";
 const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showToast, bio, historyLogs, chatMessages }) {
@@ -30,7 +31,7 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showT
 
       // Same-origin through the API gateway's /api/ai/* proxy (see AIBot.js /
       // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
-      const r = await fetch(`/api/ai/therapy/cbt-worksheet`, {
+      const r = await fetch(`${API_BASE}/ai/therapy/cbt-worksheet`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -20,3 +20,5 @@ server/error_log.txt
 *.swp
 *.swo
 *~
+# Native (Capacitor) build output — the web deploy uses dist/
+dist-native

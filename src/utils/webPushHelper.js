@@ -3,6 +3,7 @@
  * Hỗ trợ đăng ký Service Worker và gửi đối tượng Subscription Object lên server.
  */
 import { getMemberToken } from "../services/authSession";
+import { IS_NATIVE } from "../config/platform";
 
 // Hàm phụ để convert khóa VAPID Public Key dạng base64 sang Uint8Array
 function urlBase64ToUint8Array(base64String) {
@@ -99,6 +100,14 @@ export const webPushHelper = {
     }
 
     if (import.meta.env.DEV) {
+      return null;
+    }
+
+    // Native builds have no service worker, and Web Push does not exist on iOS
+    // inside a WebView anyway — those builds use APNs via a Capacitor plugin.
+    // Registering /sw.js here would 404 and, worse, re-introduce the cache that
+    // pins the app to an old shell.
+    if (IS_NATIVE) {
       return null;
     }
 

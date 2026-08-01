@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
+import { API_BASE } from "../../config/apiBase";
 
 // Nội dung lợi ích thành viên HugoTeam — thuần tĩnh, sửa chữ ở đây.
 const BENEFITS = [
@@ -51,7 +52,7 @@ export default function HugoTeamTab({ onBack }) {
 
   const loadDevelopers = async () => {
     try {
-      const res = await fetch("/api/hugoteam/developers");
+      const res = await fetch(`${API_BASE}/hugoteam/developers`);
       if (res.ok) {
         const data = await res.json();
         setDevelopers(data.developers || []);
@@ -65,7 +66,7 @@ export default function HugoTeamTab({ onBack }) {
     try {
       const session = await getMemberSession();
       if (!session?.email) return;
-      const res = await fetch("/api/hugoteam/me");
+      const res = await fetch(`${API_BASE}/hugoteam/me`);
       if (res.ok) setMe(await res.json());
     } catch (error) {
       console.error("Failed to load hugoteam profile:", error);
@@ -108,7 +109,7 @@ export default function HugoTeamTab({ onBack }) {
       // Use displayName from Google auth, fallback to name if WebAuthn
       formData.append("name", session.displayName || session.name || "");
 
-      const res = await fetch("/api/hugoteam/apply", {
+      const res = await fetch(`${API_BASE}/hugoteam/apply`, {
         method: "POST",
         body: formData
       });
@@ -610,7 +611,7 @@ function DevTasks({ tasks, reload }) {
 
   const updateTask = async (taskId, body) => {
     try {
-      const res = await fetch(`/api/hugoteam/me/tasks/${taskId}`, {
+      const res = await fetch(`${API_BASE}/hugoteam/me/tasks/${taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -731,7 +732,7 @@ function DevHours({ hourLogs, tasks, reload }) {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/hugoteam/me/hours", {
+      const res = await fetch(`${API_BASE}/hugoteam/me/hours`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, hours: h, taskId: form.taskId || null }),
@@ -752,7 +753,7 @@ function DevHours({ hourLogs, tasks, reload }) {
     const ok = await notify.confirm({ title: "Rút lại giờ đã ghi?", message: "Chỉ rút được khi chưa duyệt.", danger: true });
     if (!ok) return;
     try {
-      const res = await fetch(`/api/hugoteam/me/hours/${logId}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/hugoteam/me/hours/${logId}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).error || "Lỗi");
       notify.success("Đã rút lại");
       reload();
@@ -851,7 +852,7 @@ function DevChat({ messages, reload }) {
   // Mở tab Trao đổi = đã đọc tin admin
   useEffect(() => {
     if (messages.some((m) => m.from === "admin" && !m.readByDev)) {
-      fetch("/api/hugoteam/me/messages/read", { method: "POST" }).then(reload).catch(() => {});
+      fetch(`${API_BASE}/hugoteam/me/messages/read`, { method: "POST" }).then(reload).catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -861,7 +862,7 @@ function DevChat({ messages, reload }) {
     if (!t) return;
     setSending(true);
     try {
-      const res = await fetch("/api/hugoteam/me/messages", {
+      const res = await fetch(`${API_BASE}/hugoteam/me/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: t }),

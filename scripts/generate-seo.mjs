@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { PUBLIC_TOOLS } from "../src/config/publicTools.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "dist");
@@ -50,6 +51,12 @@ const studentPlans = Object.values(t.servicesPage.studentPlans || {})
 // `body` returns the static block injected into #root. Keep it to real copy the
 // author already wrote plus internal links — thin templated filler is what gets
 // a site classified as doorway pages.
+const GATE_NOTE = {
+  open: "Dùng tự do, không cần tài khoản.",
+  level: "Chơi ngay không cần tài khoản. Mở màn mới cần tài khoản sinh viên Hugo Studio.",
+  result: "Dùng thử không cần tài khoản. Để nhận và lưu kết quả, cần tài khoản đã xác minh email học sinh/sinh viên.",
+};
+
 const routes = [
   {
     path: "/introduction",
@@ -184,39 +191,34 @@ const routes = [
       `<h1>Hướng dẫn sử dụng Hugo Studio</h1>` +
       `<p>${esc("Tìm hiểu cách tạo trang Bio, quản lý tài khoản, dùng JOY, đặt lịch và xử lý các tình huống thường gặp.")}</p>`,
   },
-  {
-    path: "/banhocduong",
-    title: "Bạn Học Đường — Trợ Lý Học Tập | Hugo Studio",
-    description:
-      "Không gian hỗ trợ học tập của Hugo Studio với công cụ hỏi đáp, gợi ý cách học và tiện ích dành cho học sinh, sinh viên.",
-    body: () =>
-      `<h1>Bạn Học Đường</h1><p>${esc("Không gian hỏi đáp, gợi ý phương pháp và tiện ích hỗ trợ quá trình tự học.")}</p>`,
-  },
-  {
-    path: "/therapy",
-    title: "HugoPSY — Không Gian Trò Chuyện Và Theo Dõi Cảm Xúc",
-    description:
-      "HugoPSY là không gian trò chuyện, ghi nhận cảm xúc và thực hành tự chăm sóc tinh thần trong hệ sinh thái Hugo Studio.",
-    body: () =>
-      `<h1>HugoPSY</h1><p>${esc("Không gian trò chuyện, ghi nhận cảm xúc và thực hành tự chăm sóc tinh thần.")}</p>`,
-  },
-  {
-    path: "/radio",
-    title: "Hugo Radio — Nhạc Lofi Cho Học Tập Và Thư Giãn",
-    description:
-      "Nghe nhạc lofi và các chương trình âm thanh của Hugo Radio khi học tập, làm việc hoặc nghỉ ngơi.",
-    body: () =>
-      `<h1>Hugo Radio</h1><p>${esc("Trạm âm thanh đồng hành khi học tập, làm việc hoặc nghỉ ngơi.")}</p>`,
-  },
-  {
-    path: "/aura",
-    title: "Aura AI — Tạo Hình Nền Năng Lượng | Hugo Studio",
-    description:
-      "Khám phá Aura AI, tiện ích tạo hình nền theo màu sắc, cảm xúc và phong cách cá nhân trong Hugo Studio.",
-    body: () =>
-      `<h1>Aura AI</h1><p>${esc("Tiện ích tạo hình nền theo màu sắc, cảm xúc và phong cách cá nhân.")}</p>`,
-  },
 ];
+
+// Every standalone app gets its own indexable page. Adding a tool to the
+// registry in src/config/publicTools.js is enough — nothing here needs editing.
+for (const [slug, tool] of Object.entries(PUBLIC_TOOLS)) {
+  routes.push({
+    path: `/${slug}`,
+    title: tool.title,
+    description: tool.description,
+    priority: "0.7",
+    body: () =>
+      `<h1>${esc(tool.heading)}</h1><p>${esc(tool.summary)}</p>` +
+      `<p>${esc(GATE_NOTE[tool.gate])}</p>`,
+    schema: () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: tool.heading,
+      url: `${ORIGIN}/${slug}`,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Web",
+      browserRequirements: "Requires JavaScript",
+      description: tool.description,
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: 0, priceCurrency: "VND" },
+      publisher: { "@id": `${ORIGIN}/#studio` },
+    }),
+  });
+}
 
 // ── Per-route static HTML ─────────────────────────────────────────────────────
 const template = fs.readFileSync(path.join(DIST, "index.html"), "utf8");

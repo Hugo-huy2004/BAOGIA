@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Check, X, FileText, Mail, Calendar } from "lucide-react";
 import { notify } from "../../lib/notify";
+import { API_BASE } from "../../config/apiBase";
 
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "—");
 
@@ -31,7 +32,7 @@ export default function AdminHugoTeamTab() {
   const [applicants, setApplicants] = useState([]);
 
   useEffect(() => {
-    fetch("/api/hugoteam/admin/applicants", { credentials: "include" })
+    fetch(`${API_BASE}/hugoteam/admin/applicants`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : { applicants: [] }))
       .then((d) => setApplicants(d.applicants || []))
       .catch(() => {});
@@ -86,7 +87,7 @@ function ApplicantsView({ applicants, setApplicants }) {
       if (!ok) return;
     }
     try {
-      const res = await fetch(`/api/hugoteam/admin/${action}`, {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/${action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -189,7 +190,7 @@ function TeamView() {
   const loadDevs = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/hugoteam/admin/devs", { credentials: "include" });
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs`, { credentials: "include" });
       if (res.ok) setDevs((await res.json()).devs || []);
     } catch {
       notify.error("Lỗi tải danh sách dev");
@@ -200,7 +201,7 @@ function TeamView() {
 
   const loadDetail = useCallback(async (email) => {
     try {
-      const res = await fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(email)}`, { credentials: "include" });
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(email)}`, { credentials: "include" });
       if (res.ok) setDetail((await res.json()).dev);
     } catch {
       notify.error("Lỗi tải chi tiết dev");
@@ -443,7 +444,7 @@ function AdminMail({ dev, refresh }) {
       fd.append("subject", subject.trim());
       fd.append("body", body);
       if (file) fd.append("attachment", file);
-      const res = await fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/send-mail`, {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/send-mail`, {
         method: "POST",
         credentials: "include",
         body: fd,
@@ -541,7 +542,7 @@ function AdminTasks({ dev, refresh }) {
     if (!form.title.trim()) { notify.error("Nhập tiêu đề task"); return; }
     setCreating(true);
     try {
-      const res = await fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/tasks`, {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -560,7 +561,7 @@ function AdminTasks({ dev, refresh }) {
 
   const updateTask = async (taskId, body, successMsg) => {
     try {
-      const res = await fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/tasks/${taskId}`, {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/tasks/${taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -699,7 +700,7 @@ function AdminTasks({ dev, refresh }) {
 function AdminHours({ dev, refresh }) {
   const review = async (logId, status) => {
     try {
-      const res = await fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/hours/${logId}`, {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/hours/${logId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -762,7 +763,7 @@ function AdminChat({ dev, refresh }) {
 
   useEffect(() => {
     if (dev.messages.some((m) => m.from === "dev" && !m.readByAdmin)) {
-      fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/messages/read`, {
+      fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/messages/read`, {
         method: "POST",
         credentials: "include",
       }).then(refresh).catch(() => {});
@@ -775,7 +776,7 @@ function AdminChat({ dev, refresh }) {
     if (!t) return;
     setSending(true);
     try {
-      const res = await fetch(`/api/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/messages`, {
+      const res = await fetch(`${API_BASE}/hugoteam/admin/devs/${encodeURIComponent(dev.email)}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -7,6 +7,7 @@
 // is the fallback that also works cross-origin (Vercel frontend + API host).
 import { getMemberToken, getAdminToken, clearMemberSession } from "./authSession";
 import { recordApiOutcome, reportClientEvent, SLOW_API_MS } from "../utils/clientMonitoring";
+import { authDecision } from "./apiAuthHeaders";
 
 const AUTH_EXEMPT_PATHS = [
   "/api/auth/member/google",
@@ -16,13 +17,19 @@ const AUTH_EXEMPT_PATHS = [
   "/api/customer-projects/auth",
 ];
 
+// The target list depends only on the build-time API URL and the page origin,
+// neither of which changes while the tab is open. It used to be rebuilt — two
+// URL parses and a Map — on every isApiRequest() call, and isApiRequest() ran
+// twice per fetch, so a single request cost four parses for a constant answer.
+let cachedTargets = null;
+
 const apiTargets = () => {
+  if (cachedTargets) return cachedTargets;
   const browserOrigin = window.location.origin;
-  const configured = import.meta.env.VITE_API_URL || "/api";
-  const candidates = ["/api", configured];
+  const configured = import.meta.env?.VITE_API_URL || "/api";
   const unique = new Map();
 
-  for (const candidate of candidates) {
+  for (const candidate of ["/api", configured]) {
     try {
       const parsed = new URL(candidate, browserOrigin);
       const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
@@ -31,7 +38,8 @@ const apiTargets = () => {
       // Invalid build-time API URL must never break fetch globally.
     }
   }
-  return [...unique.values()];
+  cachedTargets = [...unique.values()];
+  return cachedTargets;
 };
 
 const parseRequestUrl = (url) => {
@@ -79,7 +87,22 @@ const shouldBypassInterception = (url) => {
   return false;
 };
 
+/** Monitoring must never turn a healthy response into a rejected promise. */
+const safely = (fn) => {
+  try {
+    fn();
+  } catch {
+    /* reporting is best-effort */
+  }
+};
+
 export function installApiAuthInterceptor() {
+  // Guard against a second install stacking another wrapper on top of the
+  // first: every layer would re-decorate headers and double-report metrics.
+  // Vite's HMR re-runs the entry module, so this fired in every dev session.
+  if (window.__hugoApiAuthInterceptorInstalled) return;
+  window.__hugoApiAuthInterceptorInstalled = true;
+
   const originalFetch = window.fetch.bind(window);
 
   window.fetch = (input, init = {}) => {
@@ -88,97 +111,59 @@ export function installApiAuthInterceptor() {
     if (shouldBypassInterception(url)) {
       return originalFetch(input, init);
     }
-    const method = (init.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
-    const shouldTrack = isApiRequest(url) && !url.includes("/api/ops/client-event");
 
-    const record = (event) => {
-      if (!shouldTrack) return;
-      reportClientEvent({
-        method,
-        path: url,
-        durationMs: performance.now() - startedAt,
-        ...event,
-      });
-    };
-
+    let isApi = false;
+    let decision = null;
     try {
-      if (isApiRequest(url)) {
-        const token = getAdminToken() || getMemberToken();
-        const headersObj = {};
-
-        // Robustly parse existing headers
-        const rawHeaders = init.headers || (typeof input !== "string" ? input.headers : undefined);
-        if (rawHeaders) {
-          if (typeof rawHeaders.forEach === "function") {
-            rawHeaders.forEach((value, key) => {
-              headersObj[key] = value;
-            });
-          } else if (Array.isArray(rawHeaders)) {
-            rawHeaders.forEach(([key, value]) => {
-              headersObj[key] = value;
-            });
-          } else {
-            Object.assign(headersObj, rawHeaders);
-          }
-        }
-
-        // Discard malformed manual headers such as `Bearer undefined`. They
-        // otherwise prevent this interceptor from attaching the live session.
-        const authKey = Object.keys(headersObj).find(k => k.toLowerCase() === "authorization");
-        const hasValidAuth = Boolean(
-          authKey
-          && /^Bearer\s+\S+$/i.test(String(headersObj[authKey]).trim())
-          && !/^Bearer\s+(undefined|null)$/i.test(String(headersObj[authKey]).trim())
-        );
-        if (authKey && !hasValidAuth) {
-          delete headersObj[authKey];
-        }
-
-        // Add the current Authorization token only when the caller did not
-        // provide a valid one.
-        const hasAuth = hasValidAuth;
-        if (token && !hasAuth) {
-          headersObj["Authorization"] = `Bearer ${token}`;
-        }
-        const sentAuth = hasAuth || Boolean(token);
-
-        return originalFetch(input, { credentials: "include", ...init, headers: headersObj })
-          .then((res) => {
-            const durationMs = performance.now() - startedAt;
-            if (shouldTrack) recordApiOutcome(res.ok);
-
-            if (res.status === 401) {
-              const isExempt = isAuthExemptRequest(url);
-              if (!isExempt && sentAuth) {
-                // Token rejected by server -> clear invalid member session to halt 401 loops
-                clearMemberSession();
-              }
-            }
-
-            // Don't report transient/non-actionable statuses: 401 (guest/unauthenticated),
-            // 429 (backpressure), and 502/503/504 (gateway — backend restarting).
-            const transient = res.status === 401 || res.status === 429 || res.status === 502 || res.status === 503 || res.status === 504;
-            if (!transient && (!res.ok || durationMs >= SLOW_API_MS)) {
-              record({
-                type: res.ok ? "slow-api" : "api-error",
-                status: res.status,
-                message: res.ok ? `Slow API ${Math.round(durationMs)}ms` : `HTTP ${res.status}`,
-              });
-            }
-            return res;
-          })
-          .catch((error) => {
-            // Network errors (backend down / restarting / offline) are transient
-            // connectivity, not actionable app bugs — reporting them just fires
-            // another doomed request. Swallow the report; still reject so the
-            // caller's own retry/fallback logic runs.
-            if (shouldTrack) recordApiOutcome(false);
-            throw error;
-          });
-      }
+      isApi = isApiRequest(url);
+      if (isApi) decision = authDecision(input, init, getAdminToken() || getMemberToken());
     } catch {
       // Never let auth decoration break the request itself.
+      return originalFetch(input, init);
     }
-    return originalFetch(input, init);
+
+    if (!isApi) return originalFetch(input, init);
+
+    const method = (init.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
+    const shouldTrack = !url.includes("/api/ops/client-event");
+    const { headers, sentAuth } = decision;
+
+    const response = headers
+      ? originalFetch(input, { credentials: "include", ...init, headers })
+      : originalFetch(input, { credentials: "include", ...init });
+
+    return response
+      .then((res) => {
+        const durationMs = performance.now() - startedAt;
+        if (shouldTrack) safely(() => recordApiOutcome(res.ok));
+
+        if (res.status === 401 && sentAuth && !isAuthExemptRequest(url)) {
+          // Token rejected by server -> clear invalid member session to halt 401 loops
+          safely(clearMemberSession);
+        }
+
+        // Don't report transient/non-actionable statuses: 401 (guest/unauthenticated),
+        // 429 (backpressure), and 502/503/504 (gateway — backend restarting).
+        const transient = [401, 429, 502, 503, 504].includes(res.status);
+        if (shouldTrack && !transient && (!res.ok || durationMs >= SLOW_API_MS)) {
+          safely(() => reportClientEvent({
+            method,
+            path: url,
+            durationMs,
+            type: res.ok ? "slow-api" : "api-error",
+            status: res.status,
+            message: res.ok ? `Slow API ${Math.round(durationMs)}ms` : `HTTP ${res.status}`,
+          }));
+        }
+        return res;
+      })
+      .catch((error) => {
+        // Network errors (backend down / restarting / offline) are transient
+        // connectivity, not actionable app bugs — reporting them just fires
+        // another doomed request. Swallow the report; still reject so the
+        // caller's own retry/fallback logic runs.
+        if (shouldTrack) safely(() => recordApiOutcome(false));
+        throw error;
+      });
   };
 }

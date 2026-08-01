@@ -1,0 +1,14 @@
+{
+  "appId": "studio.hugowishpax.app",
+  "appName": "Hugo Studio",
+  "webDir": "dist-native",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
