@@ -150,9 +150,9 @@ const globalLimiter = rateLimit({
 });
 app.use('/api', globalLimiter);
 
-// MongoDB Connection
+// MongoDB Connection (Pool size 25 suited for Render 512MB RAM limits)
 mongoose.connect(MONGODB_URI, {
-  maxPoolSize: 200, // Tối ưu connection pool cho 1 triệu user
+  maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 25,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 })
