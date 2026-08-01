@@ -94,7 +94,7 @@
       ]
     },
     {
-      "source": "/(sw.js|push-sw.js|workbox-(.*).js|manifest.webmanifest)",
+      "source": "/(sw\\.js|push-sw\\.js|workbox-[^/]+\\.js|manifest\\.webmanifest)",
       "headers": [
         {
           "key": "Cache-Control",
