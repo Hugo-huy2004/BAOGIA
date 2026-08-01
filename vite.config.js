@@ -208,42 +208,49 @@ export default defineConfig(({ mode }) => {
     // Google Sign-In's cross-origin postMessage between its iframe/popup and
     // the parent page.  See vercel.json for the production decision.
     proxy: {
-      // AI endpoints → Python server (must be listed BEFORE generic /api rule)
+      // AI endpoints → Python server (Vercel production or local 8000)
       '/api/ai': {
-        target: 'http://127.0.0.1:8000',
+        target: process.env.VITE_AI_SERVER_URL || 'https://hugostudio-ai.vercel.app',
         changeOrigin: true,
+        secure: false,
       },
       '/api/iot': {
-        target: 'http://127.0.0.1:8000',
+        target: process.env.VITE_AI_SERVER_URL || 'https://hugostudio-ai.vercel.app',
         changeOrigin: true,
+        secure: false,
       },
-      // Sleep AI analysis → Python server (must be before generic /api rule)
+      // Sleep AI analysis → Python server
       '/api/sleep/analyze': {
-        target: 'http://127.0.0.1:8000',
+        target: process.env.VITE_AI_SERVER_URL || 'https://hugostudio-ai.vercel.app',
         changeOrigin: true,
+        secure: false,
       },
       // IoT WebSocket → Python server
       '/ws/iot': {
-        target: 'ws://127.0.0.1:8000',
+        target: process.env.VITE_AI_WS_URL || 'wss://hugostudio-ai.vercel.app',
         ws: true,
         changeOrigin: true,
+        secure: false,
       },
       // Chess WebSocket → Node.js backend
       '/ws/chess': {
-        target: 'ws://127.0.0.1:8081',
+        target: process.env.VITE_WS_URL || 'wss://baogia-x9lk.onrender.com',
         ws: true,
         changeOrigin: true,
+        secure: false,
       },
       // Member wallet/notification realtime channel → Node.js backend
       '/ws': {
-        target: 'ws://127.0.0.1:8081',
+        target: process.env.VITE_WS_URL || 'wss://baogia-x9lk.onrender.com',
         ws: true,
         changeOrigin: true,
+        secure: false,
       },
-      // Everything else → Node.js backend
+      // Everything else → Render Node.js production backend (or local 8081 if VITE_DEV_BACKEND_URL is set)
       '/api': {
-        target: 'http://127.0.0.1:8081',
+        target: process.env.VITE_DEV_BACKEND_URL || 'https://baogia-x9lk.onrender.com',
         changeOrigin: true,
+        secure: false,
       },
     },
   },
