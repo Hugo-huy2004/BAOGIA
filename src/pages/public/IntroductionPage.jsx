@@ -31,7 +31,6 @@ import {
   ArcadeScene,
 } from "../../components/public/IntroScenes";
 import StudioPageNav from "../../components/public/StudioPageNav";
-import SeasonalSpider from "../../components/public/SeasonalSpider";
 
 /* ============================================================================
    HUGO STUDIO — INTRODUCTION (v4 "cinematic")
@@ -1073,7 +1072,6 @@ export default function IntroductionPage() {
     <div className="cine-root relative min-h-screen">
       <style>{PAGE_CSS}</style>
       <ScrollProgressBar />
-      <SeasonalSpider />
       <HeroSection t={t} />
       <StatsStrip t={t} />
       <AboutSection t={t} jasonPhoto={jasonPhoto} />
