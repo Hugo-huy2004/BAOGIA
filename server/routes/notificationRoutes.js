@@ -1,6 +1,7 @@
 import express from 'express';
 import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
+import NativePushDevice from '../models/NativePushDevice.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { triggerSmartPushNow } from '../services/smartNotificationService.js';
 import fs from 'fs';
@@ -29,8 +30,11 @@ if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
     publicKey: keys.publicKey,
     privateKey: keys.privateKey
   };
+  // CHỈ in khoá công khai. Khoá riêng in ra là nằm vĩnh viễn trong log của
+  // Render — ai xem được log là ký được thông báo đẩy giả mạo tới toàn bộ
+  // người đã đăng ký. Muốn lấy giá trị thì đọc file server/.env bên dưới.
   console.log(`🔑 VAPID Public Key: ${vapidKeys.publicKey}`);
-  console.log(`🔑 VAPID Private Key: ${vapidKeys.privateKey}`);
+  console.log('🔑 VAPID Private Key: đã tạo (không in ra log) — xem server/.env');
 
   try {
     const envPath = path.join(__dirname, '..', '.env');
@@ -291,6 +295,60 @@ router.post('/broadcast-all', requireAdmin, async (req, res) => {
     });
   } catch (error) {
     console.error('Lỗi Broadcast Notification:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ── Native (App Store / Play Store) push registration ─────────────────────────
+// Web Push does not exist inside an iOS WebView, so the store builds register
+// an APNs/FCM token here instead of a PushSubscription. Delivery still needs
+// provider credentials (see docs/native-push.md); this endpoint only records
+// which device belongs to which member.
+router.post('/native/subscribe', requireMember, async (req, res) => {
+  try {
+    const { token, platform, appVersion = '', locale = '', timezone = '' } = req.body || {};
+    const email = req.memberEmail;
+
+    if (!token || typeof token !== 'string' || token.length > 512) {
+      return res.status(400).json({ error: 'token là bắt buộc và phải là chuỗi hợp lệ.' });
+    }
+    if (platform !== 'ios' && platform !== 'android') {
+      return res.status(400).json({ error: "platform phải là 'ios' hoặc 'android'." });
+    }
+
+    const device = await NativePushDevice.findOneAndUpdate(
+      { token },
+      {
+        $set: {
+          email,
+          platform,
+          appVersion: String(appVersion).slice(0, 32),
+          locale: String(locale).slice(0, 32),
+          timezone: String(timezone).slice(0, 64),
+          lastSeenAt: new Date(),
+        },
+        $setOnInsert: { token, createdAt: new Date() },
+      },
+      { upsert: true, new: true },
+    );
+
+    res.json({ success: true, data: { id: device._id, platform: device.platform } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Called when the member turns notifications off, or on logout, so a device
+// that changed hands stops receiving someone else's notifications.
+router.post('/native/unsubscribe', requireMember, async (req, res) => {
+  try {
+    const { token } = req.body || {};
+    if (!token) return res.status(400).json({ error: 'token là bắt buộc.' });
+    // Scoped to the caller: a token alone must not let anyone delete another
+    // member's device row.
+    const result = await NativePushDevice.deleteOne({ token, email: req.memberEmail });
+    res.json({ success: true, removed: result.deletedCount });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

@@ -1,9 +1,11 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
-// Toggle client-side event reporting in environments where the ops endpoint
-// isn't available. Set `VITE_ENABLE_CLIENT_MONITORING=false` to disable.
-const ENABLE_CLIENT_MONITORING = String(import.meta.env.VITE_ENABLE_CLIENT_MONITORING || "true") !== "false";
+// Dev chỉ chạy mỗi Vite (một cổng), không có backend 8081 để nhận telemetry —
+// nên mặc định tắt khi dev, bật khi build production. Muốn ép thì đặt
+// VITE_ENABLE_CLIENT_MONITORING=true/false, giá trị này thắng cả hai chiều.
+const ENABLE_CLIENT_MONITORING =
+  String(import.meta.env.VITE_ENABLE_CLIENT_MONITORING || (import.meta.env.DEV ? "false" : "true")) !== "false";
 // Runtime toggle persisted short-term when the ops endpoint is absent/404ing.
 let runtimeEnabled = ENABLE_CLIENT_MONITORING;
 try {
@@ -65,15 +67,10 @@ export function reportClientEvent(event) {
   if (!runtimeEnabled) return;
   const payload = JSON.stringify(safePayload(event));
 
-  try {
-    if (navigator.sendBeacon) {
-      const ok = navigator.sendBeacon(EVENT_URL, new Blob([payload], { type: "application/json" }));
-      if (ok) return;
-    }
-  } catch (_) {
-    /* fall through */
-  }
-
+  // Không dùng sendBeacon: nó trả về true ngay khi request được xếp hàng, nên
+  // endpoint có chết cũng không ai biết — nhánh tự-tắt bên dưới không bao giờ
+  // chạy tới và console ăn lỗi mỗi 30 giây. fetch + keepalive vẫn gửi được lúc
+  // rời trang, mà còn quan sát được kết quả.
   fetch(EVENT_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -117,8 +114,15 @@ export function recordApiOutcome(ok) {
   if (!ok) apiErrorCount += 1;
 }
 
-function flushApiSummary() {
+// `final` = lúc rời trang: gửi tổng kết phiên dù không có lỗi, để còn mẫu số
+// tính tỉ lệ. Nhịp 30 giây thì chỉ gửi khi CÓ lỗi.
+//
+// Trước đây cứ 30 giây là gửi một bản "mọi thứ đều ổn": 352/622 bản ghi
+// ClientMetric là loại đó — hơn nửa kho dữ liệu chỉ để nói không có gì xảy ra.
+// Bỏ qua nhưng KHÔNG reset bộ đếm, nên lần gửi sau vẫn có đủ số của cả phiên.
+function flushApiSummary(final = false) {
   if (!apiRequestCount) return;
+  if (!final && !apiErrorCount) return;
   reportClientEvent({
     type: "api-summary",
     name: "api-error-rate",
@@ -131,10 +135,10 @@ function flushApiSummary() {
 }
 
 function installApiSummaryReporter() {
-  const interval = window.setInterval(flushApiSummary, API_SUMMARY_INTERVAL_MS);
-  window.addEventListener("pagehide", flushApiSummary);
+  const interval = window.setInterval(() => flushApiSummary(), API_SUMMARY_INTERVAL_MS);
+  window.addEventListener("pagehide", () => flushApiSummary(true));
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") flushApiSummary();
+    if (document.visibilityState === "hidden") flushApiSummary(true);
   });
   return () => window.clearInterval(interval);
 }

@@ -52,13 +52,26 @@ const allowedOrigins = [
 const isDev = process.env.NODE_ENV !== 'production';
 const localOriginRegex = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/;
 
+// Origin lạ đã bị từ chối, ghi nhớ để không lặp lại log. Reset khi restart —
+// đủ dùng, và không phình theo thời gian như một bản ghi mỗi request.
+const corsRejected = new Set();
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin) || (isDev && localOriginRegex.test(origin))) {
-      callback(null, true);
-    } else {
-      callback(new Error("Blocked by CORS"));
+      return callback(null, true);
     }
+    // KHÔNG ném Error ở đây. CORS là cơ chế của TRÌNH DUYỆT — chặn tại server
+    // không ngăn được curl hay bot, chúng bỏ qua CORS hoàn toàn. Nhưng ném Error
+    // thì mỗi lượt bot quét thành: một stack trace, một bản ghi ErrorLog trong
+    // MongoDB, một console.error, và một 500 sai (đúng ra là 403).
+    // Thực tế: 23/23 dòng đầu tiên của error log đều là "Blocked by CORS",
+    // nhấn chìm mọi lỗi thật. Trả false = không cấp header, trình duyệt tự chặn.
+    if (!corsRejected.has(origin)) {
+      corsRejected.add(origin);
+      console.warn('[CORS] từ chối origin lạ:', origin);
+    }
+    return callback(null, false);
   },
   credentials: true
 }));
