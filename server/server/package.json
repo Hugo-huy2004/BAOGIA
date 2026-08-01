@@ -1,0 +1,8 @@
+{
+  "name": "hugo-wishpax-server-compat",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "cd .. && npm install"
+  }
+}
