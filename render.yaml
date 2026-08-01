@@ -17,8 +17,8 @@ services:
     runtime: node
     region: singapore
 
-    buildCommand: npm install --prefix server
-    startCommand: bash start.sh    # start.sh giờ chỉ chạy Node, không còn uvicorn
+    buildCommand: if [ -d server ]; then cd server && npm install; else npm install; fi
+    startCommand: if [ -f server/server.js ]; then node server/server.js; else node server.js; fi
 
     plan: free
 
