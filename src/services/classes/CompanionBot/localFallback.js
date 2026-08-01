@@ -36,6 +36,12 @@ const FALLBACK_STRESS = [
   "Căng thẳng quá là hại nhan sắc lắm nghen {name}! Cứ từ từ kể tớ nghe, tớ với cậu cùng gỡ từng chút một!"
 ];
 
+const FALLBACK_POSITIVE = [
+  "Ôi nghe thích thế {name} ơi! 🎉 Tinh thần sảng khoái, thoải mái không mệt mỏi là vibe tuyệt vời nhất luôn á. Giữ vững năng lượng tích cực này nha, hôm nay có gì vui kể tớ nghe với 😜",
+  "Hế lô {name}! Thấy cậu vui vẻ, khỏe khoắn thế này tớ mừng lây luôn nè! 🥳 Tự thưởng cho mình một ly nước ngon hay làm điều mình thích để nạp thêm mood cực chill nha 🧋✨",
+  "Tốt quá luôn {name} ơi! 🌸 Năng lượng tràn trề thế này là dư sức cân cả ngày rồi. Tớ luôn ở đây cùng chia sẻ niềm vui với cậu nè!"
+];
+
 const FALLBACK_DEFAULT = [
   "Hế lô {name} iu! Tớ đang lắng nghe từng chữ cậu nói đây nè. Kể tiếp cho tớ nghe đi, tớ hóng lắm đó 😜",
   "Tớ ở ngay đây nè {name}! Cứ tự nhiên trải lòng nha, tớ cân hết mọi cảm xúc của cậu luôn!",
@@ -58,33 +64,38 @@ export function buildLocalReply(userText = "", opts = {}) {
   const historyLogs = opts.historyLogs || [];
   const clean = removeVietnameseTones(userText).toLowerCase();
 
+  // Remove negated terms like "khong met", "khong lo", "khong ap luc", "khong buồn" before checking stress/sadness
+  const cleanWithoutNegations = clean
+    .replace(/\b(khong|chua|chang)\s+(met|buon|lo|cang thang|ap luc|so|khoc|dau)\b/g, "k_negated");
+
   // Try intentClassifier first for rich matching
   const matched = findMatchingIntent(userText, bio, historyLogs);
   if (matched) {
     const formattedReply = Array.isArray(matched.reply) ? matched.reply.join("\n\n") : matched.reply;
-    const isOverthinking = /\b(overthinking|suy nghi nhieu|suy nghi tieu cuc|quan tri|loan len|be tac)\b/.test(clean);
-    const isExamFamily = /\b(thi cu|diem so|gia dinh|bo me|ba me|ky vong|so sanh|rot mon|ap luc hoc)\b/.test(clean);
-    const isSad = /\b(buon|khoc|dau long|chan nan|toi te|khong on|that vong|nan long)\b/.test(clean);
-    const isStress = /\b(cang thang|stress|ap luc|qua tai|kiet suc|burn.?out|lo au|lo lang|hoang loan|anxiety|panic|met|so hai)\b/.test(clean);
-    const isLowSelfEsteem = /\b(tu ti|that bai|vo dung|khong bang ai)\b/.test(clean);
+    const isPositive = /\b(thoai mai|vui|khoe|tot|tuyet|khong met|sang khoai|yeu doi|binh yen|k_negated)\b/.test(clean);
+    const isOverthinking = !isPositive && /\b(overthinking|suy nghi nhieu|suy nghi tieu cuc|quan tri|loan len|be tac)\b/.test(cleanWithoutNegations);
+    const isExamFamily = !isPositive && /\b(thi cu|diem so|gia dinh|bo me|ba me|ky vong|so sanh|rot mon|ap luc hoc)\b/.test(cleanWithoutNegations);
+    const isSad = !isPositive && /\b(buon|khoc|dau long|chan nan|toi te|khong on|that vong|nan long)\b/.test(cleanWithoutNegations);
+    const isStress = !isPositive && /\b(cang thang|stress|ap luc|qua tai|kiet suc|burn.?out|lo au|lo lang|hoang loan|anxiety|panic|met|so hai)\b/.test(cleanWithoutNegations);
+    const isLowSelfEsteem = !isPositive && /\b(tu ti|that bai|vo dung|khong bang ai)\b/.test(cleanWithoutNegations);
 
     const isSleep = /\b(ngu|mat ngu|kho ngu|thuc khuya|thieu ngu|bao cao giac ngu|tinh chu ky ngu|giac ngu)\b/.test(clean);
     const isEval = /\b(bao cao|danh gia|ket qua test|diem phuc hoi|ho so tam ly|chi so|dass|phq|gad)\b/.test(clean);
     const isTherapy = /\b(tri lieu|bai tap|hit tho|cbt|chan niem|am nhac 432hz|nhac 432hz)\b/.test(clean);
 
-    const showInlineBreathing = !!matched.showInlineBreathing || matched.id === "anxiety" || matched.id === "sleep" || isStress || isOverthinking;
-    const showInlineCbt = !!matched.showInlineCbt || matched.id === "sadness" || matched.id === "academic_stress" || matched.id === "breakup" || matched.id === "low_self_esteem" || matched.id === "family_conflict" || isSad || isExamFamily || isOverthinking || isLowSelfEsteem;
+    const showInlineBreathing = !isPositive && (!!matched.showInlineBreathing || matched.id === "anxiety" || matched.id === "sleep" || isStress || isOverthinking);
+    const showInlineCbt = !isPositive && (!!matched.showInlineCbt || matched.id === "sadness" || matched.id === "academic_stress" || matched.id === "breakup" || matched.id === "low_self_esteem" || matched.id === "family_conflict" || isSad || isExamFamily || isOverthinking || isLowSelfEsteem);
 
     return {
       reply: formattedReply,
       rawReplyArray: Array.isArray(matched.reply) ? matched.reply : [matched.reply],
       isCrisis: matched.id === "crisis",
-      suggestPhq9: !!matched.suggestPhq9,
-      suggestGad7: !!matched.suggestGad7,
+      suggestPhq9: !isPositive && !!matched.suggestPhq9,
+      suggestGad7: !isPositive && !!matched.suggestGad7,
       suggestWho5: !!matched.suggestWho5,
       suggestBigFive: !!matched.suggestBigFive,
-      suggestDass42: !!matched.suggestDass42,
-      suggestMmpi30: !!matched.suggestMmpi30,
+      suggestDass42: !isPositive && !!matched.suggestDass42,
+      suggestMmpi30: !isPositive && !!matched.suggestMmpi30,
       showInlineBreathing,
       showInlineCbt,
       showInlineSleep: isSleep || matched.id === "sleep",
@@ -114,14 +125,17 @@ export function buildLocalReply(userText = "", opts = {}) {
   const who = whoMatch ? ` ${whoMatch.who}` : "";
 
   let replyTemplate = "";
-  const isOverthinking = /\b(overthinking|suy nghi nhieu|suy nghi tieu cuc|quan tri|loan len|be tac)\b/.test(clean);
-  const isExamFamily = /\b(thi cu|diem so|gia dinh|bo me|ba me|ky vong|so sanh|rot mon|ap luc hoc)\b/.test(clean);
-  const isLoneliness = /\b(co don|mot minh|khong ai hieu|lac long|bo roi|tachtiet)\b/.test(clean);
-  const isStress = /\b(cang thang|stress|ap luc|qua tai|kiet suc|burn.?out|lo au|lo lang|hoang loan|anxiety|panic|met|so hai)\b/.test(clean);
-  const isSad = /\b(buon|khoc|dau long|chan nan|toi te|khong on|that vong|nan long)\b/.test(clean);
-  const isLowSelfEsteem = /\b(tu ti|that bai|vo dung|khong bang ai)\b/.test(clean);
+  const isPositive = /\b(thoai mai|vui|khoe|tot|tuyet|khong met|sang khoai|yeu doi|binh yen|khong sao)\b/.test(clean) || cleanWithoutNegations.includes("k_negated");
+  const isOverthinking = !isPositive && /\b(overthinking|suy nghi nhieu|suy nghi tieu cuc|quan tri|loan len|be tac)\b/.test(cleanWithoutNegations);
+  const isExamFamily = !isPositive && /\b(thi cu|diem so|gia dinh|bo me|ba me|ky vong|so sanh|rot mon|ap luc hoc)\b/.test(cleanWithoutNegations);
+  const isLoneliness = !isPositive && /\b(co don|mot minh|khong ai hieu|lac long|bo roi|tachtiet)\b/.test(cleanWithoutNegations);
+  const isStress = !isPositive && /\b(cang thang|stress|ap luc|qua tai|kiet suc|burn.?out|lo au|lo lang|hoang loan|anxiety|panic|met|so hai)\b/.test(cleanWithoutNegations);
+  const isSad = !isPositive && /\b(buon|khoc|dau long|chan nan|toi te|khong on|that vong|nan long)\b/.test(cleanWithoutNegations);
+  const isLowSelfEsteem = !isPositive && /\b(tu ti|that bai|vo dung|khong bang ai)\b/.test(cleanWithoutNegations);
 
-  if (isOverthinking) {
+  if (isPositive) {
+    replyTemplate = pick(FALLBACK_POSITIVE);
+  } else if (isOverthinking) {
     replyTemplate = pick(FALLBACK_OVERTHINKING);
   } else if (isExamFamily) {
     replyTemplate = pick(FALLBACK_EXAM_FAMILY);
@@ -140,8 +154,8 @@ export function buildLocalReply(userText = "", opts = {}) {
   const isEval = /\b(bao cao|danh gia|ket qua test|diem phuc hoi|ho so tam ly|chi so|dass|phq|gad)\b/.test(clean);
   const isTherapy = /\b(tri lieu|bai tap|hit tho|cbt|chan niem|am nhac 432hz|nhac 432hz)\b/.test(clean);
 
-  const showInlineBreathing = isStress || isOverthinking;
-  const showInlineCbt = isSad || isExamFamily || isOverthinking || isLowSelfEsteem;
+  const showInlineBreathing = !isPositive && (isStress || isOverthinking);
+  const showInlineCbt = !isPositive && (isSad || isExamFamily || isOverthinking || isLowSelfEsteem);
 
   return {
     reply,
