@@ -1625,6 +1625,7 @@
       "topStories": "Điều đáng đọc hôm nay",
       "localEdition": "Ấn bản {{country}}",
       "dailyReset": "Làm mới mỗi ngày lúc 09:00",
+      "updatedAt": "Cập nhật {{time}}",
       "loadMore": "Xem thêm {{n}} bài",
       "categories": "Danh mục bài viết",
       "category": {
@@ -1632,7 +1633,8 @@
         "academic": "Học thuật",
         "technology": "Công nghệ",
         "community": "Cộng đồng",
-        "world": "Thời sự"
+        "world": "Thời sự",
+        "catholic": "Công giáo"
       },
       "loading": "Đang tải tin mới",
       "unavailable": "Feed học thuật tạm thời chưa khả dụng.",

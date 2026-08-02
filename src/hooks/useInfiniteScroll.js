@@ -9,12 +9,16 @@
  */
 import { useState, useEffect, useRef, useCallback } from "react";
 
-export function useInfiniteScroll(allItems = [], { pageSize = 20 } = {}) {
+export function useInfiniteScroll(allItems = [], { pageSize = 20, resetKey } = {}) {
   const [page, setPage] = useState(1);
   const sentinelRef = useRef(null);
 
-  // Reset to first page when the source list changes (filter/sort applied)
-  useEffect(() => { setPage(1); }, [allItems]);
+  // Reset to first page when the source list changes (filter/sort applied).
+  // `resetKey` lets a caller opt out of that: a feed that auto-refreshes gets a
+  // brand-new array every poll, and resetting there would yank the reader back
+  // to the top mid-scroll. Default keeps the old behaviour.
+  const reset = resetKey === undefined ? allItems : resetKey;
+  useEffect(() => { setPage(1); }, [reset]);
 
   const visibleItems = allItems.slice(0, page * pageSize);
   const hasMore = visibleItems.length < allItems.length;

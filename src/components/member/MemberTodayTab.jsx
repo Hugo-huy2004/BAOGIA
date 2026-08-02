@@ -3,8 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 import { givenName } from "./memberName";
 
-const CATEGORIES = ["all", "academic", "technology", "community", "world"];
-const INITIAL_VISIBLE = 10;
+const CATEGORIES = ["all", "academic", "technology", "community", "world", "catholic"];
+const PAGE_SIZE = 12;
 
 const QUICK_ACTIONS = [
   { id: "apps", icon: "apps", path: "/member/apps" },
@@ -18,6 +18,7 @@ const CATEGORY_ICONS = Object.freeze({
   technology: "memory",
   community: "groups",
   world: "public",
+  catholic: "church",
   all: "newspaper",
 });
 
@@ -28,10 +29,11 @@ export default function MemberTodayTab({
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage === "en" ? "en" : "vi";
   const [category, setCategory] = useState("all");
-  const [visible, setVisible] = useState(INITIAL_VISIBLE);
-  const { data, isLoading, isError, refetch } = useTodayFeed(language, category);
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const { data, isLoading, isError, refetch, dataUpdatedAt } = useTodayFeed(language, category);
   const articles = useMemo(() => data?.items || [], [data?.items]);
   const shown = articles.slice(0, visible);
+  const remaining = articles.length - shown.length;
 
   // Ngón tay kéo danh sách rồi nhả ra vẫn sinh ra một click. Chỉ mở bài khi
   // ngón không đi quá 10px và không giữ quá 700ms — còn lại là lướt.
@@ -62,6 +64,10 @@ export default function MemberTodayTab({
   );
   const dateFormatter = useMemo(
     () => new Intl.DateTimeFormat(language, { day: "numeric", month: "short" }),
+    [language],
+  );
+  const timeFormatter = useMemo(
+    () => new Intl.DateTimeFormat(language, { hour: "2-digit", minute: "2-digit" }),
     [language],
   );
 
@@ -95,7 +101,11 @@ export default function MemberTodayTab({
             })}
           </span>
           <span aria-hidden="true">·</span>
-          <span>{t("memberPortal.today.dailyReset")}</span>
+          <span>
+            {t("memberPortal.today.updatedAt", {
+              time: dataUpdatedAt ? timeFormatter.format(new Date(dataUpdatedAt)) : "--:--",
+            })}
+          </span>
         </div>
 
         <div className="today-news-categories" aria-label={t("memberPortal.today.categories")}>
@@ -105,10 +115,7 @@ export default function MemberTodayTab({
               type="button"
               aria-pressed={category === item}
               className={category === item ? "is-active" : ""}
-              onClick={() => {
-                setCategory(item);
-                setVisible(INITIAL_VISIBLE);
-              }}
+              onClick={() => { setCategory(item); setVisible(PAGE_SIZE); }}
             >
               {t(`memberPortal.today.category.${item}`)}
             </button>
@@ -170,13 +177,13 @@ export default function MemberTodayTab({
                 <span className="material-symbols-outlined today-news-chevron" aria-hidden="true">chevron_right</span>
               </button>
             ))}
-            {articles.length > visible ? (
+            {remaining > 0 ? (
               <button
                 type="button"
                 className="today-news-more"
-                onClick={() => setVisible(articles.length)}
+                onClick={() => setVisible((count) => count + PAGE_SIZE)}
               >
-                {t("memberPortal.today.loadMore", { n: articles.length - visible })}
+                {t("memberPortal.today.loadMore", { n: Math.min(remaining, PAGE_SIZE) })}
               </button>
             ) : null}
           </div>

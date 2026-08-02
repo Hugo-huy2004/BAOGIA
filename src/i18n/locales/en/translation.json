@@ -1625,6 +1625,7 @@
       "topStories": "Worth reading today",
       "localEdition": "{{country}} edition",
       "dailyReset": "Refreshes daily at 09:00",
+      "updatedAt": "Updated {{time}}",
       "loadMore": "Show {{n}} more stories",
       "categories": "Article categories",
       "category": {
@@ -1632,7 +1633,8 @@
         "academic": "Academic",
         "technology": "Technology",
         "community": "Community",
-        "world": "Current affairs"
+        "world": "Current affairs",
+        "catholic": "Catholic"
       },
       "loading": "Loading new stories",
       "unavailable": "The academic feed is temporarily unavailable.",

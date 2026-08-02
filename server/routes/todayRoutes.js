@@ -39,7 +39,9 @@ router.get('/feed', feedLimiter, async (req, res) => {
       page: req.query.page,
       limit: req.query.limit,
     });
-    const browserTtl = Math.min(300, feed.meta.secondsUntilReset);
+    // Trình duyệt chỉ được giữ 2 phút: quá lâu thì tin mới bị kẹt ở cache máy
+    // người dùng dù server đã làm mới.
+    const browserTtl = Math.min(120, feed.meta.secondsUntilReset);
     res.set('Cache-Control', `public, max-age=${browserTtl}, stale-while-revalidate=600`);
     return res.json(feed);
   } catch (error) {

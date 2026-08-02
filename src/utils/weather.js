@@ -115,45 +115,53 @@ export async function resolveCoords({ preferGeo = false } = {}) {
   }
 }
 
+const WEATHER_CACHE_MS = 15 * 60 * 1000;  // số liệu còn dùng được
+const WEATHER_BACKOFF_MS = 10 * 60 * 1000; // hỏng thì nghỉ bấy nhiêu rồi thử lại
+
+const readWeatherCache = (key) => {
+  try { return JSON.parse(sessionStorage.getItem(key) || "null"); } catch { return null; }
+};
+const writeWeatherCache = (key, value) => {
+  try { sessionStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore storage errors */ }
+};
+
 // Fetch current weather for coordinates. Returns a normalized object or throws.
 export async function fetchWeather(lat, lon) {
   const cacheKey = `weather_${Math.round(lat * 100)}_${Math.round(lon * 100)}`;
-  
-  try {
-    const cachedStr = sessionStorage.getItem(cacheKey);
-    if (cachedStr) {
-      const cached = JSON.parse(cachedStr);
-      // Cache for 15 minutes to prevent 429 Too Many Requests
-      if (cached && Date.now() - cached.at < 15 * 60 * 1000) {
-        if (cached.rateLimited) {
-          throw new Error(`Open-Meteo 429 (Cached)`);
-        }
-        if (cached.data) {
-          return cached.data;
-        }
-      }
+
+  // Đọc cache NGOÀI try/catch. Trước đây lệnh `throw` báo "đang bị giới hạn"
+  // nằm trong try, nên chính catch bên dưới nuốt mất và code vẫn gọi mạng —
+  // cơ chế chống 429 chưa bao giờ có tác dụng.
+  const cached = readWeatherCache(cacheKey);
+  if (cached) {
+    if (cached.data && Date.now() - cached.at < WEATHER_CACHE_MS) return cached.data;
+    if (cached.failed && Date.now() - cached.at < WEATHER_BACKOFF_MS) {
+      throw new Error(`Open-Meteo ${cached.failed} (đang nghỉ)`);
     }
-  } catch {
-    // Ignore sessionStorage errors
   }
 
   const url =
     `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
     `&current=temperature_2m,weather_code,is_day,wind_speed_10m,relative_humidity_2m,apparent_temperature` +
     `&wind_speed_unit=kmh&timezone=auto`;
-    
-  const res = await fetch(url, { signal: AbortSignal.timeout?.(8000) });
+
+  let res;
+  try {
+    res = await fetch(url, { signal: AbortSignal.timeout?.(8000) });
+  } catch (error) {
+    // Mất mạng / quá hạn giờ chờ cũng phải nghỉ, nếu không useWeather sẽ gọi
+    // lại mỗi lần bạn chuyển tab.
+    writeWeatherCache(cacheKey, { at: Date.now(), failed: "network" });
+    throw error;
+  }
 
   if (!res.ok) {
-    if (res.status === 429) {
-      // Cache the rate limit for 15 minutes so we don't spam them
-      try {
-        sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), rateLimited: true }));
-      } catch { /* ignore storage errors */ }
-    }
+    // 429, 503, 5xx… đối xử như nhau: dịch vụ đang không phục vụ được thì
+    // ngừng gọi 10 phút thay vì dội request và rải log đỏ ra console.
+    writeWeatherCache(cacheKey, { at: Date.now(), failed: res.status });
     throw new Error(`Open-Meteo ${res.status}`);
   }
-  
+
   const data = await res.json();
   const cur = data.current || {};
   const code = Number(cur.weather_code ?? 3);
@@ -169,11 +177,6 @@ export async function fetchWeather(lat, lon) {
     at: Date.now(),
   };
 
-  try {
-    sessionStorage.setItem(cacheKey, JSON.stringify({ at: Date.now(), data: result }));
-  } catch {
-    // Ignore sessionStorage errors
-  }
-  
+  writeWeatherCache(cacheKey, { at: Date.now(), data: result });
   return result;
 }

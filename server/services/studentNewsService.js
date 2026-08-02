@@ -1,7 +1,17 @@
 import crypto from 'crypto';
 
 const REQUEST_TIMEOUT_MS = 5500;
-const MAX_ARTICLES = 30;
+// Vài toà soạn (TGP Hà Nội…) trả 403 cho User-Agent lạ. Dùng UA trình duyệt
+// thật để đọc đúng những feed công khai đó.
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+  + '(KHTML, like Gecko) Chrome/126 Safari/537.36';
+// Kho bài đủ sâu để cuộn vô hạn: client tải một lần rồi tự hé dần theo cuộn,
+// rẻ hơn nhiều so với phân trang (mỗi trang là một lượt request).
+const MAX_ARTICLES = 120;
+// Ấn bản vẫn tính theo ngày (để đặt tên bản tin), nhưng nội dung làm mới mỗi
+// 10 phút để tin nóng chảy vào. Không có key GNews/NewsAPI nên chỉ đọc RSS —
+// làm mới dày cỡ này không đụng hạn mức nào.
+const FEED_REFRESH_MS = 10 * 60 * 1000;
 const EDITION_COUNTRIES = new Set(['VN', 'US']);
 
 const CATEGORY_QUERIES = Object.freeze({
@@ -24,6 +34,10 @@ const CATEGORY_QUERIES = Object.freeze({
   world: {
     vi: 'thời sự quốc tế OR khoa học thế giới',
     en: 'world news OR global science',
+  },
+  catholic: {
+    vi: 'Giáo hội Công giáo OR Vatican OR giáo phận',
+    en: 'Catholic Church OR Vatican OR diocese',
   },
 });
 
@@ -113,7 +127,11 @@ function normalizeArticle(article, defaults = {}) {
     category: article.category || defaults.category || 'academic',
     url,
     imageUrl: shrinkImage(safeUrl(article.imageUrl)),
-    publishedAt: article.publishedAt || new Date().toISOString(),
+    // null nghĩa là "không biết ngày" — thà bỏ trống còn hơn gán giờ hiện tại
+    // rồi đẩy bài cũ lên đầu bản tin.
+    publishedAt: article.publishedAt === null
+      ? null
+      : (article.publishedAt || new Date().toISOString()),
     provider: defaults.provider || article.provider || 'api',
   };
   normalized.id = stableId(normalized);
@@ -251,21 +269,44 @@ const PUBLISHER_FEEDS = Object.freeze({
       ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
       ['Tuổi Trẻ', 'https://tuoitre.vn/rss/giao-duc.rss'],
       ['Thanh Niên', 'https://thanhnien.vn/rss/giao-duc.rss'],
+      ['Dân Trí', 'https://dantri.com.vn/rss/giao-duc.rss'],
+      ['VietnamNet', 'https://vietnamnet.vn/rss/giao-duc.rss'],
     ],
     technology: [
       ['VnExpress', 'https://vnexpress.net/rss/khoa-hoc-cong-nghe.rss'],
+      ['VnExpress', 'https://vnexpress.net/rss/so-hoa.rss'],
+      ['Thanh Niên', 'https://thanhnien.vn/rss/cong-nghe.rss'],
+      ['Tuổi Trẻ', 'https://tuoitre.vn/rss/khoa-hoc.rss'],
     ],
     community: [
       ['Tuổi Trẻ', 'https://tuoitre.vn/rss/nhip-song-tre.rss'],
       ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
+      ['Dân Trí', 'https://dantri.com.vn/rss/giao-duc.rss'],
     ],
     world: [
       ['VnExpress', 'https://vnexpress.net/rss/the-gioi.rss'],
+      ['Tuổi Trẻ', 'https://tuoitre.vn/rss/the-gioi.rss'],
+      ['Thanh Niên', 'https://thanhnien.vn/rss/the-gioi.rss'],
+    ],
+    // Giáo hội Công giáo: hoàn vũ (Vatican News tiếng Việt) + Việt Nam + TNTT.
+    // hdgmvietnam.com, tgpsaigon.net, vietcatholic.net KHÔNG có RSS (đã dò);
+    // tntt.vn chạy Joomla nên feed nằm ở đường dẫn ?format=feed&type=rss.
+    catholic: [
+      ['Vatican News', 'https://www.vaticannews.va/vi.rss.xml'],
+      ['DCCT Việt Nam', 'https://dcctvn.org/feed'],
+      ['Giáo phận Cần Thơ', 'https://gpcantho.com/feed/'],
+      ['TGP Hà Nội', 'https://www.tonggiaophanhanoi.org/feed/'],
+      ['TNTT Việt Nam', 'https://tntt.vn/index.php/thong-tin/tin-noi-bat?format=feed&type=rss'],
+      ['TNTT Việt Nam', 'https://tntt.vn/index.php/thong-tin/tong-lien-doan?format=feed&type=rss'],
     ],
     all: [
       ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
       ['VnExpress', 'https://vnexpress.net/rss/khoa-hoc-cong-nghe.rss'],
       ['Tuổi Trẻ', 'https://tuoitre.vn/rss/giao-duc.rss'],
+      ['Dân Trí', 'https://dantri.com.vn/rss/giao-duc.rss'],
+      ['VietnamNet', 'https://vietnamnet.vn/rss/giao-duc.rss'],
+      ['Thanh Niên', 'https://thanhnien.vn/rss/the-gioi.rss'],
+      ['Vatican News', 'https://www.vaticannews.va/vi.rss.xml'],
     ],
   },
   // Ấn bản EN = báo nước ngoài. Một mình BBC thì mỗi chuyên mục chỉ được vài
@@ -289,12 +330,18 @@ const PUBLISHER_FEEDS = Object.freeze({
       ['BBC News', 'https://feeds.bbci.co.uk/news/world/rss.xml'],
       ['NPR', 'https://feeds.npr.org/1004/rss.xml'],
     ],
+    catholic: [
+      ['Vatican News', 'https://www.vaticannews.va/en.rss.xml'],
+      ['Catholic News Agency', 'https://www.catholicnewsagency.com/rss/news.xml'],
+      ['Aleteia', 'https://aleteia.org/feed/'],
+    ],
     all: [
       ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
       ['BBC News', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'],
       ['The Guardian', 'https://www.theguardian.com/science/rss'],
       ['Ars Technica', 'https://feeds.arstechnica.com/arstechnica/technology-lab'],
       ['NPR', 'https://feeds.npr.org/1004/rss.xml'],
+      ['Vatican News', 'https://www.vaticannews.va/en.rss.xml'],
     ],
   },
 });
@@ -321,7 +368,7 @@ export class PublisherRssProvider extends NewsProvider {
   async readFeed(source, url, category, limit) {
     const response = await fetch(url, {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      headers: { 'User-Agent': 'HugoWishpaxStudentPortal/1.0 (student news edition)' },
+      headers: { 'User-Agent': BROWSER_UA, Accept: 'application/rss+xml, application/xml, text/xml' },
     });
     if (!response.ok) throw new Error(`${source} RSS returned ${response.status}`);
     const xml = await response.text();
@@ -344,6 +391,82 @@ export class PublisherRssProvider extends NewsProvider {
         }, { provider: this.name });
       })
       .filter(Boolean);
+  }
+}
+
+// Trang Công giáo Việt Nam lớn nhưng KHÔNG phát RSS (đã dò /feed, /rss, /rss.xml,
+// wp-json đều không có). Đọc thẳng trang danh sách: lấy link bài + tiêu đề trong
+// thẻ <a>. Ngày đăng chỉ lấy được ở nơi nào lộ ra (TGP Sài Gòn nhét ddmmyyyy vào
+// tên file ảnh); nơi không có thì để trống chứ không bịa.
+const HTML_LISTINGS = Object.freeze([
+  {
+    source: 'TGP Sài Gòn',
+    url: 'https://tgpsaigon.net/',
+    origin: 'https://tgpsaigon.net',
+    linkPattern: /^\/bai-viet\/[^"']{8,}/,
+    datePattern: /MainImages\/(\d{2})(\d{2})(\d{4})_/,
+  },
+  {
+    source: 'HĐGM Việt Nam',
+    url: 'https://hdgmvietnam.com/',
+    origin: 'https://hdgmvietnam.com',
+    linkPattern: /^\/chi-tiet\/[^"']{8,}/,
+  },
+]);
+
+export function parseHtmlListing(html, config) {
+  const found = new Map();
+  for (const match of String(html).matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{0,600}?)<\/a>/gi)) {
+    const [, href, inner] = match;
+    if (!config.linkPattern.test(href)) continue;
+    const entry = found.get(href) || { href, title: '', publishedAt: null, imageUrl: '' };
+    const title = htmlToText(inner);
+    // Cùng một bài thường có 2 thẻ <a>: một bọc ảnh (không chữ), một mang tiêu đề.
+    if (title.length > entry.title.length) entry.title = title;
+    const image = inner.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
+    if (image && !entry.imageUrl) entry.imageUrl = image;
+    const date = config.datePattern && inner.match(config.datePattern);
+    if (date && !entry.publishedAt) {
+      const [, day, month, year] = date;
+      entry.publishedAt = new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+    }
+    found.set(href, entry);
+  }
+  const absolute = (url) => (url.startsWith('http') ? url : `${config.origin}${url}`);
+  return [...found.values()]
+    .filter((entry) => entry.title.length >= 15)
+    .map((entry) => ({
+      title: entry.title,
+      description: '',
+      source: config.source,
+      url: absolute(entry.href),
+      imageUrl: entry.imageUrl ? absolute(entry.imageUrl) : '',
+      publishedAt: entry.publishedAt,
+    }));
+}
+
+export class CatholicHtmlProvider extends NewsProvider {
+  constructor(listings = HTML_LISTINGS) {
+    super('catholic-html');
+    this.listings = listings;
+  }
+
+  async fetchArticles({ language, category, limit }) {
+    if (language !== 'vi' || !['catholic', 'all'].includes(category)) return [];
+    const settled = await Promise.allSettled(this.listings.map(async (config) => {
+      const response = await fetch(config.url, {
+        // Trang chủ HTML nặng hơn RSS nhiều — 5.5s là hụt với hdgmvietnam.com.
+        signal: AbortSignal.timeout(9000),
+        headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html' },
+      });
+      if (!response.ok) throw new Error(`${config.source} trả ${response.status}`);
+      const html = (await response.text()).slice(0, 600_000);
+      return parseHtmlListing(html, config)
+        .slice(0, Math.max(6, Math.ceil(limit / this.listings.length)))
+        .map((article) => normalizeArticle({ ...article, category: 'catholic' }, { provider: this.name }))
+        .filter(Boolean);
+    }));
+    return settled.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
   }
 }
 
@@ -392,7 +515,8 @@ export class ArxivProvider extends NewsProvider {
   }
 
   async fetchArticles({ category, limit }) {
-    if (category === 'community' || category === 'world') return [];
+    // Chuyên mục Công giáo là tin Giáo hội — nhét paper arXiv vào đó là lạc đề.
+    if (['community', 'world', 'catholic'].includes(category)) return [];
     const search = category === 'technology'
       ? 'cat:cs.AI OR cat:cs.HC OR cat:cs.CY'
       : 'all:education OR all:student OR all:learning';
@@ -445,7 +569,8 @@ function htmlToText(fragment = '') {
     .replace(/&gt;/gi, '>')
     .replace(/&hellip;/gi, '…')
     .replace(/&[mn]dash;/gi, '–')
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -453,11 +578,7 @@ function htmlToText(fragment = '') {
 // ponytail: bóc bài bằng regex trên <p>, không kéo về jsdom/readability (≈10MB
 // dependency cho một tính năng đọc). Trang render bằng JS sẽ trả rỗng — lúc đó
 // client hiện tóm tắt + nút đọc bài gốc, không bịa nội dung.
-export function extractParagraphs(html = '') {
-  const cleaned = String(html)
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<(script|style|noscript|svg|form|iframe|figcaption|aside)\b[\s\S]*?<\/\1>/gi, ' ');
-  const scope = cleaned.match(/<article\b[\s\S]*?<\/article>/i)?.[0] || cleaned;
+function paragraphsIn(scope) {
   const seen = new Set();
   const paragraphs = [];
   let total = 0;
@@ -473,6 +594,26 @@ export function extractParagraphs(html = '') {
   return paragraphs;
 }
 
+// ponytail: bóc bài bằng regex trên <p>, không kéo về jsdom/readability (≈10MB
+// dependency cho một tính năng đọc).
+export function extractParagraphs(html = '') {
+  const cleaned = String(html)
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(script|style|noscript|svg|form|iframe|figcaption|aside)\b[\s\S]*?<\/\1>/gi, ' ');
+
+  // Phải lấy <article> LỚN NHẤT: lấy cái đầu tiên là dính thẻ tin liên quan —
+  // Tuổi Trẻ xếp 11 thẻ <article> nhỏ (~2.6KB) trước phần thân bài, nên bản cũ
+  // trả về 0 đoạn cho mọi bài của họ.
+  const blocks = [...cleaned.matchAll(/<article\b[\s\S]*?<\/article>/gi)].map((m) => m[0]);
+  const biggest = blocks.sort((a, b) => b.length - a.length)[0];
+
+  const scoped = biggest ? paragraphsIn(biggest) : [];
+  if (scoped.length >= 3) return scoped;
+  // Dưới 3 đoạn nghĩa là khung <article> không phải thân bài — bóc lại cả trang.
+  const whole = paragraphsIn(cleaned);
+  return whole.length > scoped.length ? whole : scoped;
+}
+
 function splitSentences(text = '', max = 3) {
   return String(text)
     .split(/(?<=[.!?…])\s+/)
@@ -486,6 +627,7 @@ export class StudentNewsService {
     new GNewsProvider(),
     new NewsApiProvider(),
     new PublisherRssProvider(),
+    new CatholicHtmlProvider(),
     new ArxivProvider(),
   ]) {
     this.providers = providers;
@@ -611,15 +753,18 @@ export class StudentNewsService {
         const kept = byTitle.get(key);
         if (!kept || (!kept.imageUrl && article.imageUrl)) byTitle.set(key, article);
       }
-      const deduplicated = [...byTitle.values()]
-        .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+      const at = (article) => {
+        const time = article.publishedAt ? new Date(article.publishedAt).getTime() : NaN;
+        return Number.isNaN(time) ? -Infinity : time; // không rõ ngày thì xếp cuối
+      };
+      const deduplicated = [...byTitle.values()].sort((a, b) => at(b) - at(a));
       articles = deduplicated.length
         ? deduplicated
         : FALLBACK_ARTICLES[normalizedLanguage].map((article) => normalizeArticle(article, { provider: 'fallback' }));
       this.cache.set(cacheKey, {
         articles,
         providerStatus,
-        expiresAt: new Date(edition.nextResetAt).getTime() + 60 * 1000,
+        expiresAt: Date.now() + FEED_REFRESH_MS,
       });
       if (this.cache.size > 80) {
         for (const [key, value] of this.cache) {

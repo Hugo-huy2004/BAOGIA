@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTodayArticle } from "../../hooks/useTodayArticle";
+import { retryReaderEndpoint } from "../../services/todayFeedApi";
 import BackButton from "./shared/BackButton";
 
 const FONT_KEY = "today.readerFontSize";
-const FONT_MIN = 15;
-const FONT_MAX = 23;
+const FONT_MIN = 16;
+const FONT_MAX = 26;
 
 export default function TodayArticleReader({ articleId, onBack }) {
   const { t, i18n } = useTranslation();
@@ -14,10 +15,10 @@ export default function TodayArticleReader({ articleId, onBack }) {
   // Phải tra cứu trong đúng ấn bản đã sinh ra id này (VI hay EN) và đúng
   // chuyên mục mà người đọc vừa bấm từ đó.
   const category = new URLSearchParams(window.location.search).get("c") || "all";
-  const { data, isLoading, isError, refetch } = useTodayArticle(articleId, language, category);
+  const { data, isLoading, refetch } = useTodayArticle(articleId, language, category);
   const [fontSize, setFontSize] = useState(() => {
     const saved = Number(localStorage.getItem(FONT_KEY));
-    return saved >= FONT_MIN && saved <= FONT_MAX ? saved : 17;
+    return saved >= FONT_MIN && saved <= FONT_MAX ? saved : 18;
   });
 
   useEffect(() => {
@@ -149,11 +150,12 @@ export default function TodayArticleReader({ articleId, onBack }) {
               <div className="today-article-locked">
                 <span className="material-symbols-outlined" aria-hidden="true">lock</span>
                 <p>{t("memberPortal.today.contentUnavailable")}</p>
-                {isError ? (
-                  <button type="button" onClick={() => refetch()}>
-                    {t("memberPortal.today.tryAgain")}
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={() => { retryReaderEndpoint(); refetch(); }}
+                >
+                  {t("memberPortal.today.tryAgain")}
+                </button>
               </div>
             )}
 

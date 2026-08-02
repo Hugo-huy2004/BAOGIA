@@ -7,13 +7,10 @@ export const todayFeedKey = (language, category) => [
   category,
 ];
 
-const millisecondsUntilNine = () => {
-  const now = new Date();
-  const next = new Date(now);
-  next.setHours(9, 0, 0, 0);
-  if (next <= now) next.setDate(next.getDate() + 1);
-  return Math.max(1000, next.getTime() - now.getTime());
-};
+// Server làm mới kho bài mỗi 10 phút; client bám theo nhịp đó. Chỉ chạy khi
+// tab đang hiện (mặc định của react-query) nên không đốt băng thông Render lúc
+// máy nằm im.
+const REFRESH_MS = 10 * 60 * 1000;
 
 export function useTodayFeed(language, category = "all") {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -23,13 +20,13 @@ export function useTodayFeed(language, category = "all") {
       language,
       category,
       timeZone,
-      limit: 24,
+      limit: 120,
       signal,
     }),
-    staleTime: millisecondsUntilNine(),
+    staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: 2,
-    refetchInterval: () => millisecondsUntilNine() + 1000,
-    refetchOnWindowFocus: false,
+    refetchInterval: REFRESH_MS,
+    refetchOnWindowFocus: true,
   });
 }
