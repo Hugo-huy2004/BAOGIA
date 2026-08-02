@@ -56,6 +56,8 @@ const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
 const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
 const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
+// Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
+const EcoPortal = lazy(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
 
 const JoyPWA = lazy(() => import("./pages/JoyPWA"));
@@ -218,6 +220,9 @@ function AppContent() {
                 login; the web keeps the full 3-tab LoginPage. */}
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
             <Route path="/member" element={<Navigate to="/member/today" replace />} />
+            <Route path="/member/eco" element={
+              isMemberAuthenticated() ? <EcoPortal /> : <Navigate to="/login" replace />
+            } />
             <Route path="/member/:tab" element={
               (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
                 ? <MemberPortalPage />

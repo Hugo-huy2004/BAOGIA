@@ -23,6 +23,7 @@ import {
   X,
   Share2,
 } from "lucide-react";
+import EcoToggle from "../../Save_E/EcoToggle";
 
 const LANGUAGES = [
   { code: "vi", label: "Tiếng Việt" },
@@ -321,6 +322,9 @@ export default function MemberSettingsTab({
           </a>
         )}
       </div>
+
+      {/* ── 6b. CHẾ ĐỘ BẢO VỆ MÔI TRƯỜNG (dưới mọi mục, trên nút đăng xuất) ─── */}
+      <EcoToggle />
 
       {/* ── 7. SIGN OUT BUTTON (DESTRUCTIVE RED ROW) ─────────────────────────── */}
       <button

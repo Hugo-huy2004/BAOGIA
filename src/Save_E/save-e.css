@@ -1,0 +1,308 @@
+/* =========================================================================
+   SAVE_E — giao diện chế độ Bảo vệ môi trường
+   =========================================================================
+   Nguyên tắc, mỗi dòng đều nhắm vào một khoản tiêu hao thật:
+
+   - Nền ĐEN TUYỀN (#000): điểm ảnh OLED tắt hẳn, không tiêu điện. Nền xám
+     đậm vẫn sáng nên vẫn tốn — vì vậy không dùng.
+   - Chỉ 4 màu: trắng / đen / xanh lá / xanh dương. Màu sáng CHỈ dành cho chữ
+     và viền mảnh; mảng lớn luôn để tối.
+   - Không gradient, không đổ bóng, không hiệu ứng chuyển động: mỗi lần vẽ lại
+     là một lần GPU chạy.
+   - Cỡ chữ cố định và lớn (17px trở lên) — không có nút chỉnh, không cần zoom.
+   ========================================================================= */
+
+.save-e {
+  /* Ép TOÀN BỘ biến màu của theme về tối ngay tại gốc chế độ này.
+     Trước đây chỉ ép cho .today-news-shell nên trang đọc bài vẫn lấy
+     --foreground của theme sáng (gần như đen) rồi đặt lên nền đen — chữ chìm
+     hẳn. Đặt ở đây thì mọi component dùng lại đều đúng màu, kể cả sau này. */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 150 8% 72%;
+  --border: 160 10% 22%;
+  --input: 160 10% 22%;
+  --primary: 142 70% 58%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 210 90% 68%;
+  --accent-foreground: 0 0% 0%;
+  --success: 142 70% 58%;
+  --warning: 42 95% 62%;
+  --destructive: 0 75% 62%;
+  --ring: 142 70% 58%;
+  --shadow: 0 0% 0%;
+
+  --e-bg: #000000;
+  --e-surface: #0b0b0b;
+  --e-line: #26312c;
+  --e-text: #ffffff;
+  --e-dim: #9fb0a8;
+  --e-green: #4ade80;
+  --e-blue: #60a5fa;
+
+  min-height: 100dvh;
+  background: var(--e-bg);
+  color: var(--e-text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+
+.save-e *,
+.save-e *::before,
+.save-e *::after {
+  /* Chặn mọi animation/transition kế thừa từ giao diện thường. */
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* ── Thanh trên cùng ── */
+.save-e-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px;
+  background: var(--e-bg);
+  border-bottom: 1px solid var(--e-line);
+}
+
+.save-e-top > strong {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.save-e-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--e-green);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.save-e-badge .material-symbols-outlined { font-size: 18px; }
+
+/* ── Nội dung ── */
+.save-e-main { padding: 16px; }
+
+.save-e-section + .save-e-section { margin-top: 28px; }
+
+.save-e-section > h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--e-green);
+}
+
+.save-e-card {
+  padding: 16px;
+  border: 1px solid var(--e-line);
+  border-radius: 14px;
+  background: var(--e-surface);
+}
+
+.save-e-card + .save-e-card { margin-top: 12px; }
+
+.save-e-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--e-line);
+}
+
+.save-e-row:last-child { border-bottom: none; }
+.save-e-row small { display: block; color: var(--e-dim); font-size: 14px; }
+
+/* ── Nút ── */
+.save-e-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1px solid var(--e-green);
+  border-radius: 12px;
+  background: var(--e-bg);
+  color: var(--e-green);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-e-btn--wide { width: 100%; }
+.save-e-btn--blue { border-color: var(--e-blue); color: var(--e-blue); }
+.save-e-btn--plain { border-color: var(--e-line); color: var(--e-text); }
+.save-e-btn:disabled { opacity: 0.4; }
+.save-e-btn[aria-pressed="true"] { border-color: var(--e-green); color: var(--e-bg); background: var(--e-green); }
+
+/* ── Ô nhập ── */
+.save-e-field { display: block; margin-bottom: 14px; }
+.save-e-field span { display: block; margin-bottom: 6px; color: var(--e-dim); font-size: 15px; }
+
+.save-e-field input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--e-line);
+  border-radius: 12px;
+  background: var(--e-bg);
+  color: var(--e-text);
+  font-size: 17px;
+}
+
+.save-e-field input:focus { outline: 2px solid var(--e-blue); outline-offset: 1px; }
+
+/* ── Thẻ thành viên ── */
+.save-e-membercard {
+  padding: 18px;
+  border: 1px solid var(--e-green);
+  border-radius: 16px;
+  background: var(--e-bg);
+}
+
+.save-e-membercard .save-e-name { font-size: 21px; font-weight: 800; }
+.save-e-membercard .save-e-balance { color: var(--e-green); font-size: 27px; font-weight: 800; }
+.save-e-membercard small { color: var(--e-dim); font-size: 14px; }
+
+/* ── Thanh tab 2 nút ── */
+.save-e-tabs {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--e-bg);
+  border-top: 1px solid var(--e-line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.save-e-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 62px;
+  background: none;
+  border: none;
+  color: var(--e-dim);
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.save-e-tabs button[aria-current="page"] { color: var(--e-green); }
+.save-e-tabs .material-symbols-outlined { font-size: 24px; }
+
+/* ── Trò chơi ── */
+.save-e-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 280px;
+}
+
+.save-e-board button {
+  aspect-ratio: 1;
+  border: 1px solid var(--e-line);
+  border-radius: 12px;
+  background: var(--e-bg);
+  color: var(--e-text);
+  font-size: 34px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Hai quân hai màu để nhìn phát ra ngay: X xanh dương của người, O xanh lá của
+   máy. Chỉ tô CHỮ, không tô nền ô — nền vẫn đen để điểm ảnh OLED tắt. */
+.save-e-board button[data-mark="X"] { color: var(--e-blue); border-color: color-mix(in srgb, var(--e-blue) 45%, transparent); }
+.save-e-board button[data-mark="O"] { color: var(--e-green); border-color: color-mix(in srgb, var(--e-green) 45%, transparent); }
+.save-e-board button:disabled { cursor: default; opacity: 1; }
+
+/* Hàng thắng: viền dày và chữ to hơn một nấc. */
+.save-e-board button.is-win {
+  border-width: 2px;
+  font-size: 38px;
+}
+
+/* Ngoại lệ có chủ ý của quy tắc "chặn mọi animation": một lần hiện quân cờ dài
+   140ms, chỉ chạy đúng một lần cho ô vừa đánh — không phải vòng lặp vẽ liên tục
+   như game thường, nên không đáng kể về pin. */
+.save-e-board button.is-new {
+  animation: save-e-pop 140ms ease-out 1 !important;
+}
+
+@keyframes save-e-pop {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save-e-board button.is-new { animation: none !important; }
+}
+
+.save-e-note { color: var(--e-dim); font-size: 15px; }
+.save-e-strong-green { color: var(--e-green); font-weight: 700; }
+.save-e-strong-blue { color: var(--e-blue); font-weight: 700; }
+
+/* Bản tin và trang đọc dùng lại nguyên bố cục của chế độ thường; ở đây chỉ
+   chỉnh cỡ chữ cho đủ to và bỏ nền sáng còn sót. */
+.save-e .today-news-card strong { font-size: 16px; }
+.save-e .today-news-card small { font-size: 13px; }
+.save-e .portal-display { font-size: 26px; }
+
+/* Ẩn khối "Truy cập nhanh" ở cuối trang Today: những lối tắt đó (Ứng dụng, Bản
+   đồ, Ví, Hồ sơ) dẫn ra ngoài vỏ hai tab của chế độ này. Nhắm theo vị trí thay
+   vì sửa MemberTodayTab — khối này là section cuối cùng của trang. */
+.save-e .today-news-shell > section:last-child { display: none; }
+
+.save-e .today-article-page {
+  /* Chế độ này không có nút chỉnh cỡ chữ — cố định ở mức dễ đọc. */
+  font-size: 18px;
+}
+
+.save-e .today-article-text,
+.save-e .today-article-text p {
+  font-size: 18px !important;
+  line-height: 1.85;
+  color: hsl(var(--foreground));
+}
+
+.save-e .today-article-title { color: hsl(var(--foreground)); }
+.save-e .today-article-kicker { color: hsl(var(--muted-foreground)); }
+
+.save-e .today-article-summary {
+  background: var(--e-surface);
+  border-color: var(--e-line);
+}
+
+.save-e .today-article-summary li { font-size: 17px; color: hsl(var(--foreground)); }
+
+/* Nút chỉnh cỡ chữ của trình đọc thừa ở đây: cỡ chữ đã cố định. */
+.save-e .today-article-fontsize { display: none; }
+
+.save-e .today-article-topbar { background: var(--e-bg); }

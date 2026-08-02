@@ -126,6 +126,64 @@ router.post('/score', requireMember, async (req, res) => {
   }
 });
 
+// ─── Cờ ca-rô trong chế độ Bảo vệ môi trường ─────────────────────────────────
+// Thắng +10 JOY, thua -10 JOY. Kết quả do máy người dùng tự báo (game chạy hoàn
+// toàn ngoại tuyến), nên chặn lạm dụng bằng hạn mức ngày thay vì tin lời client.
+const ECO_CARO_JOY = 10;
+const ECO_CARO_DAILY_GAMES = 5;
+
+router.post('/eco-caro', requireMember, async (req, res) => {
+  try {
+    const { result } = req.body;
+    if (!['win', 'lose'].includes(result)) {
+      return res.status(400).json({ error: 'invalid result' });
+    }
+    const email = req.memberEmail;
+    const today = new Date().toISOString().slice(0, 10);
+
+    const doc = await ArcadeScore.findOneAndUpdate(
+      { email, game: 'caro' },
+      {
+        $setOnInsert: { email, game: 'caro', bestScore: 0 },
+        $inc: { gamesPlayed: 1 },
+        $set: { lastPlayedAt: new Date() },
+      },
+      { upsert: true, new: true },
+    );
+
+    if (doc.joyAwardedDate !== today) {
+      doc.joyAwardedDate = today;
+      doc.joyAwardedToday = 0;
+    }
+    if (doc.joyAwardedToday >= ECO_CARO_DAILY_GAMES) {
+      await doc.save();
+      return res.json({ joyDelta: 0, reason: 'daily_cap', remainingGames: 0 });
+    }
+
+    const delta = result === 'win' ? ECO_CARO_JOY : -ECO_CARO_JOY;
+    try {
+      await awardJoy(email, delta, 'arcade_score', `Cờ ca-rô (chế độ tiết kiệm) — ${result === 'win' ? 'thắng' : 'thua'}`, { refId: 'caro' });
+    } catch (error) {
+      // Không đủ JOY để trừ thì bỏ qua ván này, không đẩy số dư xuống âm.
+      if (error.message === 'INSUFFICIENT_JOY') {
+        await doc.save();
+        return res.json({ joyDelta: 0, reason: 'insufficient', remainingGames: ECO_CARO_DAILY_GAMES - doc.joyAwardedToday });
+      }
+      throw error;
+    }
+
+    doc.joyAwardedToday += 1;
+    await doc.save();
+    return res.json({
+      joyDelta: delta,
+      remainingGames: ECO_CARO_DAILY_GAMES - doc.joyAwardedToday,
+    });
+  } catch (error) {
+    console.error('[eco caro]', error);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 function cleanDisplayName(name) {
   if (!name) return 'Thành viên Hugo';
   let str = String(name);
