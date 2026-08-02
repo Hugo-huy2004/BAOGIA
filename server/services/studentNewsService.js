@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { decodeHTML } from 'entities';
 
 const REQUEST_TIMEOUT_MS = 5500;
 // Vài toà soạn (TGP Hà Nội…) trả 403 cho User-Agent lạ. Dùng UA trình duyệt
@@ -76,15 +77,23 @@ const FALLBACK_ARTICLES = Object.freeze({
   ],
 });
 
+// Vài nguồn (VietnamNet, The Guardian) mã hoá hai lần trong RSS: `&amp;apos;`
+// giải một lượt mới ra `&apos;`. Chỉ giải lượt hai khi lượt đầu còn sót entity,
+// nên "Tom &amp; Jerry" không bị đụng tới.
+// ponytail: bài hướng dẫn code viết `&amp;lt;div&amp;gt;` sẽ hiện thành `<div>`
+// thay vì `&lt;div&gt;` — chấp nhận, vì thẻ đã bị xoá TRƯỚC khi giải mã nên đây
+// chỉ là chữ, React tự escape khi render. Đổi nếu portal có mục dạy HTML.
+function decodeEntities(value) {
+  const once = decodeHTML(value);
+  return /&[a-z]+;|&#\d+;/i.test(once) ? decodeHTML(once) : once;
+}
+
 function cleanText(value = '') {
-  return String(value)
-    .replace(/<!\[CDATA\[|\]\]>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/<[^>]*>/g, ' ')
+  return decodeEntities(
+    String(value)
+      .replace(/<!\[CDATA\[|\]\]>/g, '')
+      .replace(/<[^>]*>/g, ' '),
+  )
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -553,65 +562,113 @@ export class ArxivProvider extends NewsProvider {
 // ── Trình đọc: lấy toàn văn + tóm tắt để đọc ngay trong portal ─────────────
 const READER_TTL_MS = 6 * 60 * 60 * 1000;   // bài báo không đổi trong ngày
 const READER_TIMEOUT_MS = 7000;
-const READER_MAX_HTML = 600_000;            // chặn trang khổng lồ ăn băng thông Render
-const READER_MAX_CHARS = 24_000;
+const READER_MAX_HTML = 900_000;            // chặn trang khổng lồ ăn băng thông Render
+const READER_MAX_CHARS = 80_000;            // đủ cho cả phóng sự dài, vẫn có trần
+const READER_MAX_IMAGES = 30;
 
 // Bóc chữ khỏi HTML. Thứ tự ngược với cleanText(): xoá thẻ TRƯỚC rồi mới giải
 // mã entity, nếu không `&lt;b&gt;` sẽ biến thành thẻ rồi bị nuốt mất.
 function htmlToText(fragment = '') {
-  return String(fragment)
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&hellip;/gi, '…')
-    .replace(/&[mn]dash;/gi, '–')
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+  return decodeEntities(String(fragment).replace(/<[^>]*>/g, ' '))
     .replace(/\s+/g, ' ')
     .trim();
 }
 
-// ponytail: bóc bài bằng regex trên <p>, không kéo về jsdom/readability (≈10MB
-// dependency cho một tính năng đọc). Trang render bằng JS sẽ trả rỗng — lúc đó
-// client hiện tóm tắt + nút đọc bài gốc, không bịa nội dung.
-function paragraphsIn(scope) {
-  const seen = new Set();
-  const paragraphs = [];
-  let total = 0;
-  for (const match of scope.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)) {
-    const text = htmlToText(match[1]);
-    // Dưới 40 ký tự gần như luôn là caption ảnh, breadcrumb hoặc dòng quảng cáo.
-    if (text.length < 40 || seen.has(text)) continue;
-    seen.add(text);
-    paragraphs.push(text);
-    total += text.length;
-    if (total >= READER_MAX_CHARS) break;
+const attr = (tag, name) => tag.match(new RegExp(`\\b${name}\\s*=\\s*["']([^"']+)["']`, 'i'))?.[1];
+
+// Ảnh giao diện lẫn trong thân bài: avatar tác giả, logo, icon, ảnh mặc định.
+const JUNK_IMAGE = /avatar|ava_|author|logo|icon|sprite|placeholder|userdef|blank\.|1x1/i;
+// Nút chia sẻ và icon giao diện là .png/.gif tên ngắn (x-x2.png, mail-x2.png).
+// Ảnh báo thật luôn là .jpg/.webp, hoặc .png tên băm dài.
+const UI_ASSET = /\/[\w-]{1,14}\.(png|gif)(\?|$)/i;
+// Ảnh minh hoạ thật luôn rộng vài trăm px; nhỏ hơn là thumbnail tin liên quan.
+const MIN_IMAGE_WIDTH = 200;
+
+// Ảnh trong bài hay nằm ở data-src (lazy-load) chứ không phải src — src lúc đó
+// chỉ là ảnh placeholder 1×1. Trả URL tuyệt đối để client tải thẳng từ CDN báo.
+function imageFrom(tag, baseUrl) {
+  const raw = attr(tag, 'data-src') || attr(tag, 'data-original') || attr(tag, 'data-lazy-src')
+    || attr(tag, 'src') || attr(tag, 'srcset')?.split(',')[0]?.trim().split(/\s+/)[0];
+  // .svg trên trang báo luôn là logo/icon giao diện, không phải ảnh minh hoạ.
+  if (!raw || raw.startsWith('data:') || /\.svg(\?|$)/i.test(raw)) return null;
+  if (JUNK_IMAGE.test(raw) || UI_ASSET.test(raw)) return null;
+  try {
+    const url = new URL(decodeHTML(raw), baseUrl || undefined);
+    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    // Bề rộng lộ ra ở thuộc tính, ở query CDN (?w=80) hoặc ở đường dẫn (/zoom/80_80/).
+    const width = Number(attr(tag, 'width'))
+      || Number(url.searchParams.get('w') || url.searchParams.get('width'))
+      || Number(url.pathname.match(/\/(\d{2,4})[x_](\d{2,4})\//)?.[1]);
+    if (width && width < MIN_IMAGE_WIDTH) return null;
+    return url.toString();
+  } catch {
+    return null;
   }
-  return paragraphs;
 }
 
-// ponytail: bóc bài bằng regex trên <p>, không kéo về jsdom/readability (≈10MB
-// dependency cho một tính năng đọc).
-export function extractParagraphs(html = '') {
+// ponytail: bóc bài bằng regex trên <p>/<figure>/<img>, không kéo về
+// jsdom/readability (≈10MB dependency cho một tính năng đọc). Trang render bằng
+// JS sẽ trả rỗng — lúc đó client hiện tóm tắt + nút đọc bài gốc, không bịa nội dung.
+// Một lượt matchAll giữ ĐÚNG THỨ TỰ chữ/ảnh như bản gốc, và vì regex nuốt trọn
+// <figure> nên <p> chú thích bên trong không bị đếm hai lần.
+const BLOCK_RE = /<figure\b[^>]*>([\s\S]*?)<\/figure>|<img\b[^>]*>|<p\b[^>]*>([\s\S]*?)<\/p>/gi;
+
+function blocksIn(scope, baseUrl) {
+  const seen = new Set();
+  const blocks = [];
+  let chars = 0;
+  let images = 0;
+  for (const [tag, figureInner, paragraphInner] of scope.matchAll(BLOCK_RE)) {
+    if (figureInner !== undefined || tag.startsWith('<img') || tag.startsWith('<IMG')) {
+      const imgTag = figureInner === undefined ? tag : figureInner.match(/<img\b[^>]*>/i)?.[0];
+      const src = imgTag ? imageFrom(imgTag, baseUrl) : null;
+      if (!src || seen.has(src) || images >= READER_MAX_IMAGES) continue;
+      seen.add(src);
+      images += 1;
+      const caption = figureInner
+        ? htmlToText(figureInner.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i)?.[1] || '')
+        : htmlToText(attr(tag, 'alt') || '');
+      blocks.push({ type: 'image', src, caption });
+      continue;
+    }
+    const text = htmlToText(paragraphInner);
+    // Dưới 20 ký tự gần như luôn là breadcrumb, nhãn hoặc dòng quảng cáo. Chú
+    // thích ảnh đã đi theo <figure> nên không cần ngưỡng cao như trước.
+    if (text.length < 20 || seen.has(text)) continue;
+    seen.add(text);
+    blocks.push({ type: 'text', text });
+    chars += text.length;
+    if (chars >= READER_MAX_CHARS) break;
+  }
+  return blocks;
+}
+
+const textCount = (blocks) => blocks.filter((block) => block.type === 'text').length;
+
+// Ảnh đứng sau đoạn văn CUỐI CÙNG luôn là chùm thumbnail "tin liên quan" ở chân
+// trang, không phải minh hoạ của bài. Ảnh mở đầu (trước đoạn đầu) thì giữ.
+function trimTrailingImages(blocks) {
+  let end = blocks.length;
+  while (end > 0 && blocks[end - 1].type === 'image') end -= 1;
+  return blocks.slice(0, end);
+}
+
+export function extractBlocks(html = '', baseUrl = '') {
   const cleaned = String(html)
     .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<(script|style|noscript|svg|form|iframe|figcaption|aside)\b[\s\S]*?<\/\1>/gi, ' ');
+    .replace(/<(script|style|noscript|svg|form|iframe|aside)\b[\s\S]*?<\/\1>/gi, ' ');
 
   // Phải lấy <article> LỚN NHẤT: lấy cái đầu tiên là dính thẻ tin liên quan —
   // Tuổi Trẻ xếp 11 thẻ <article> nhỏ (~2.6KB) trước phần thân bài, nên bản cũ
   // trả về 0 đoạn cho mọi bài của họ.
-  const blocks = [...cleaned.matchAll(/<article\b[\s\S]*?<\/article>/gi)].map((m) => m[0]);
-  const biggest = blocks.sort((a, b) => b.length - a.length)[0];
+  const articles = [...cleaned.matchAll(/<article\b[\s\S]*?<\/article>/gi)].map((m) => m[0]);
+  const biggest = articles.sort((a, b) => b.length - a.length)[0];
 
-  const scoped = biggest ? paragraphsIn(biggest) : [];
-  if (scoped.length >= 3) return scoped;
+  const scoped = biggest ? blocksIn(biggest, baseUrl) : [];
+  if (textCount(scoped) >= 3) return trimTrailingImages(scoped);
   // Dưới 3 đoạn nghĩa là khung <article> không phải thân bài — bóc lại cả trang.
-  const whole = paragraphsIn(cleaned);
-  return whole.length > scoped.length ? whole : scoped;
+  const whole = blocksIn(cleaned, baseUrl);
+  return trimTrailingImages(textCount(whole) > textCount(scoped) ? whole : scoped);
 }
 
 function splitSentences(text = '', max = 3) {
@@ -664,7 +721,7 @@ export class StudentNewsService {
     const cached = this.readerCache.get(article.id);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-    let paragraphs = [];
+    let blocks = [];
     try {
       const response = await fetch(article.url, {
         redirect: 'follow',
@@ -672,15 +729,17 @@ export class StudentNewsService {
         headers: { 'User-Agent': 'HugoWishpaxStudentPortal/1.0 (reader)', Accept: 'text/html' },
       });
       if (response.ok) {
-        paragraphs = extractParagraphs((await response.text()).slice(0, READER_MAX_HTML));
+        // response.url = URL sau redirect: ảnh tương đối phải nối vào đó mới đúng.
+        blocks = extractBlocks((await response.text()).slice(0, READER_MAX_HTML), response.url);
       }
     } catch {
       // Nguồn chặn bot / quá chậm: vẫn trả tóm tắt, người đọc bấm sang bài gốc.
     }
 
+    const paragraphs = blocks.filter((block) => block.type === 'text').map((block) => block.text);
     const words = paragraphs.join(' ').split(/\s+/).filter(Boolean).length;
     const value = {
-      paragraphs,
+      blocks,
       readMinutes: words ? Math.max(1, Math.round(words / 200)) : 0,
       available: paragraphs.length > 0,
     };
@@ -699,7 +758,10 @@ export class StudentNewsService {
   summarizeArticle(article, content) {
     const points = article.description
       ? [article.description]
-      : splitSentences(content.paragraphs.join(' '), 2);
+      : splitSentences(
+        content.blocks.filter((block) => block.type === 'text').map((block) => block.text).join(' '),
+        2,
+      );
     return { points, by: 'source' };
   }
 

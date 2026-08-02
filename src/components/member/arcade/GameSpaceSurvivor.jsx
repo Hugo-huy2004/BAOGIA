@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
 import { readGamePalette, shade, withAlpha } from "./arcadePalette";
-import { ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
+import { createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
 import ArcadeHud from "./ArcadeHud";
+import { playExplosion, playBossWarning, playWaveClear, playHurt } from "./survivorAudio";
 import {
   chooseSurvivorDrop,
   SURVIVOR_MAX_HP,
@@ -106,7 +107,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const noticeTimerRef = useRef(null);
   const [layoutRevision, setLayoutRevision] = useState(0);
   const [hud, setHud] = useState({
-    score: 0, hp: MAX_HP, weapon: 1, wave: 1, combo: 0, mult: 1,
+    score: 0, hp: MAX_HP, weapon: 1, wave: 1, waveLeft: 0, phase: "combat", combo: 0, mult: 1,
     notice: "", boss: null, bossName: "", bossMode: 1, graze: 0, overdrive: false,
     shield: false, rapid: false,
   });
@@ -114,15 +115,24 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const { playBeep, playLose } = useArcadeSound();
 
   const state = useRef({
-    player: { x: W / 2, y: H - 100, speed: 6, hp: MAX_HP, weapon: 1, shield: false, invuln: 0, roll: 0 },
+    player: { x: W / 2, y: H - 100, speed: 6, hp: MAX_HP, weapon: 1, shield: false, invuln: 0, roll: 0, vx: 0, prevX: W / 2 },
     bullets: [],
     foeShots: [],
     enemies: [],
     powerUps: [],
     particles: [],
+    shocks: [],
     popups: [],
     boss: null,
     bossClearedAt: 0,
+    // Máy trạng thái của đợt: "combat" (đang dọn địch) -> "boss" -> "rest".
+    // Trước đây đợt suy ra từ ĐIỂM (wave = 1 + score/900) nên địch cứ chảy vô
+    // tận, không có lúc nào "hết đợt", và điểm tự bơm: điểm cao -> đợt cao ->
+    // thưởng nhân cao -> điểm cao hơn nữa.
+    phase: "combat",
+    waveQuota: 0,
+    waveSpawned: 0,
+    restTimer: 0,
     score: 0,
     wave: 1,
     graze: 0,
@@ -156,6 +166,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       hp: s.player.hp,
       weapon: s.player.weapon,
       wave: s.wave,
+      waveLeft: Math.max(0, s.waveQuota - s.waveSpawned) + s.enemies.length,
+      phase: s.phase,
       combo: s.combo.chain + (s.combo.chain > 0 ? 1 : 0),
       mult: s.combo.mult,
       boss: s.boss ? Math.max(0, Math.round((s.boss.hp / s.boss.maxHp) * 100)) : null,
@@ -224,16 +236,37 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       ctx.restore();
     };
 
+    // Vụ nổ dựng bằng ba lớp chồng lên nhau: sóng xung kích lan ra, mảnh vỡ bay
+    // theo quán tính, và tàn lửa sáng ở lõi. Một nắm chấm tròn cùng màu như
+    // trước trông rất "phẳng".
     const boom = (x, y, color, count = 12, power = 1) => {
-      const available = Math.max(0, MAX_PARTICLES - state.current.particles.length);
+      const s = state.current;
+      const available = Math.max(0, MAX_PARTICLES - s.particles.length);
+
+      // Lớp 1 — sóng xung kích (vòng sáng giãn ra rồi mờ dần).
+      if (power >= 0.9) {
+        s.shocks.push({ x, y, r: 3 + power * 4, max: 26 * power + count * 0.7, life: 1, color });
+      }
+
       for (let i = 0; i < Math.min(count, available); i++) {
         const angle = Math.random() * Math.PI * 2;
         const spd = (Math.random() * 4 + 1) * power;
-        state.current.particles.push({
-          x, y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd,
-          life: 1, size: 2 + Math.random() * 3, color,
+        // Lớp 2 — lõi trắng nóng ở giữa, mảnh vỡ mang màu của mục tiêu ở ngoài.
+        const hot = i < count * 0.28;
+        s.particles.push({
+          x, y,
+          vx: Math.cos(angle) * spd * (hot ? 0.55 : 1),
+          vy: Math.sin(angle) * spd * (hot ? 0.55 : 1),
+          life: 1,
+          decay: hot ? 0.055 : 0.03 + Math.random() * 0.015,
+          size: (hot ? 3 : 2) + Math.random() * 3 * power,
+          color: hot ? "#ffffff" : color,
+          spark: !hot && Math.random() < 0.35,   // vệt dài thay vì chấm tròn
         });
       }
+
+      // Lớp 3 — tiếng nổ đi kèm, to nhỏ theo quy mô.
+      playExplosion(Math.min(1, (count / 44) * power));
     };
 
     const ring = (x, y, r, color, width = 2) => {
@@ -244,22 +277,95 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       ctx.stroke();
     };
 
-    // Toàn bộ độ khó của game nằm ở đây, suy ra từ đợt.
-    const tuning = (wave) => ({
-      squad: Math.min(7, 2 + Math.floor(wave / 2)),
-      interval: ramp(GAME_ID, wave, 115, 46),
-      foeSpeed: ramp(GAME_ID, wave, 0.9, 1.72),
-      hpBonus: Math.floor((wave - 1) / 3),
-      shotCooldown: Math.round(ramp(GAME_ID, wave, 170, 92)),
-    });
+    // ── Độ khó: nhân lũy tiến, không có trần ────────────────────────────
+    //
+    // POWER là hệ số khó, mỗi đợt nhân thêm 11% và KHÔNG bao giờ dừng:
+    //   đợt 10 ≈ ×2.6 · đợt 20 ≈ ×7.3 · đợt 40 ≈ ×58 · đợt 60 ≈ ×467
+    //
+    // Nhưng không phải thứ gì cũng được phép nhân vô hạn. Phải chia làm hai loại:
+    //
+    //  · Thứ TAY NGƯỜI phải phản ứng — tốc độ địch, tốc độ đạn, mật độ trên một
+    //    màn 360×540 — dùng hàm TIỆM CẬN `1 - 1/(1+w/k)`: tăng mãi, mỗi đợt một
+    //    ít, tiến gần giá trị trần mà không bao giờ chạm. Cho đạn nhanh vô hạn
+    //    thì đến một đợt nào đó không ai né được nữa, game hỏng chứ không khó.
+    //  · Thứ chỉ là KHỐI LƯỢNG CÔNG VIỆC — máu địch, chỉ tiêu mỗi đợt, máu trùm,
+    //    tỉ lệ địch nặng — nhân thẳng theo POWER, vô hạn thật.
+    //
+    // Nhờ vậy đợt 100 vẫn khó hơn đợt 99, mà vẫn là thứ chơi được.
+    const POWER_PER_WAVE = 1.11;
+    const power = (wave) => POWER_PER_WAVE ** Math.max(0, wave - 1);
+    // Tiệm cận: trả về 0 ở đợt 1 và tiến dần tới 1 khi đợt tăng.
+    const approach = (wave, half) => 1 - 1 / (1 + Math.max(0, wave - 1) / half);
+
+    const tuning = (wave) => {
+      const p = power(wave);
+      return {
+        // Bão hoà — giữ cho màn chơi còn luồn lách được.
+        squad: Math.round(2 + 7 * approach(wave, 7)),
+        minAlive: Math.round(3 + 12 * approach(wave, 6)),
+        interval: Math.round(62 - 42 * approach(wave, 5)),
+        shotCooldown: Math.round(150 - 104 * approach(wave, 6)),
+        foeSpeed: 0.9 + 1.35 * approach(wave, 9),
+        // Đạn địch: nhanh dần và loạt dày dần, nhưng tốc độ vẫn tiệm cận —
+        // đạn nhanh vô hạn thì không né được nữa chứ không phải khó hơn.
+        shotSpeed: 3.0 + 1.7 * approach(wave, 10),
+        volley: 1 + Math.floor(3.2 * approach(wave, 9)),      // 1 -> 4 viên mỗi loạt
+        spread: 0.16 + 0.30 * approach(wave, 11),             // loạt xoè rộng dần
+        lead: approach(wave, 14),                             // đón đầu hướng bay của người chơi
+        droneFires: wave >= 3,                                // từ đợt 3 drone cũng bắn
+        // Vô hạn — càng về sau càng dày máu và càng nhiều địch nặng.
+        hpScale: 1 + 0.4 * (p - 1),
+        eliteRatio: approach(wave, 12),
+        // Vật phẩm hiếm dần: rơi thưa hơn theo đợt nhưng không bao giờ tắt hẳn.
+        dropDecay: 1 / (1 + wave / 9),
+        dropStreak: 4 + Math.round(7 * approach(wave, 8)),
+      };
+    };
+
+    // Mỗi đợt có một CHỈ TIÊU địch phải diệt. Dọn hết chỉ tiêu (và sạch màn)
+    // mới sang chặng kế: đợt chia hết cho BOSS_EVERY thì gọi trùm, còn lại nghỉ
+    // ngắn rồi vào đợt mới khó hơn.
+    // Chỉ tiêu mỗi đợt cũng vô hạn, nhưng mọc chậm hơn hệ số khó (mũ 0.6) để
+    // một đợt không dài lê thê tới mức chán.
+    const quotaFor = (wave) => Math.round(12 * power(wave) ** 0.6);
+
+    const beginWave = (wave) => {
+      const s = state.current;
+      s.wave = wave;
+      s.phase = "combat";
+      s.waveQuota = quotaFor(wave);
+      s.waveSpawned = 0;
+      s.spawnTimer = 24;
+      s.flashColor = "255,255,255";
+      s.flashAlpha = 0.22;
+      notify(t("arcadeGame.survivor.wave", { wave }));
+    };
+
+    const finishWave = () => {
+      const s = state.current;
+      // Cố ý KHÔNG cộng điểm ở đây: cách tính điểm và JOY giữ nguyên như cũ,
+      // đợt chỉ đổi cách vận hành chứ không đổi phần thưởng.
+      pushPopup(s.popups, W / 2, H / 2 - 40, `ĐỢT ${s.wave} SẠCH`, CORE, 18);
+      playWaveClear();
+      if (s.wave % BOSS_EVERY === 0) {
+        s.phase = "boss";
+        spawnBoss(s.wave);
+      } else {
+        s.phase = "rest";
+        s.restTimer = 70;
+      }
+    };
 
     const addEnemy = (type, x, y, cfg) => {
       const t = TYPES[type];
+      // Nhân liên tục: đợt nào cũng dày thêm một chút, không phải tới đợt 5 mới
+      // nhảy một bậc như kiểu cộng số nguyên trước đây.
+      const hp = Math.max(1, Math.ceil(t.hp * cfg.hpScale));
       state.current.enemies.push({
         x, y, type,
         w: t.w,
-        hp: t.hp + cfg.hpBonus,
-        maxHp: t.hp + cfg.hpBonus,
+        hp,
+        maxHp: hp,
         speed: t.speed * cfg.foeSpeed,
         color: t.color,
         phase: Math.random() * Math.PI * 2,
@@ -277,17 +383,27 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       const spread = Math.max(...offsets.map((o) => Math.abs(o.dx))) + 26;
       const anchor = spread + Math.random() * Math.max(1, W - spread * 2);
       // Đội hình dày thì đa số là drone; heavy/seeker rải vào cho khác nhịp.
-      offsets.forEach((o, i) => {
+      const room = Math.max(0, state.current.waveQuota - state.current.waveSpawned);
+      const chosen = offsets.slice(0, Math.max(1, Math.min(offsets.length, room)));
+      // Đợt càng cao, tỉ lệ tàu nặng/truy đuổi càng lấn át drone thường.
+      const elite = cfg.eliteRatio;
+      chosen.forEach((o, i) => {
         const roll = Math.random();
-        const type = i === Math.floor(n / 2) && roll < 0.45 ? "heavy" : roll < 0.35 ? "seeker" : "drone";
+        const heavyChance = 0.30 + 0.45 * elite;
+        const seekerChance = 0.22 + 0.40 * elite;
+        const type = i === Math.floor(chosen.length / 2) && roll < heavyChance
+          ? "heavy"
+          : roll < seekerChance ? "seeker" : "drone";
         addEnemy(type, Math.max(20, Math.min(W - 20, anchor + o.dx)), -34 - o.dy, cfg);
       });
+      return chosen.length;
     };
 
     const spawnBoss = (wave) => {
       const s = state.current;
       const type = bossTypeForWave(wave);
-      const hp = Math.round((46 + wave * 16) * type.hpScale);
+      // Trùm cũng nhân theo hệ số khó — đợt 30 không thể chỉ dày gấp đôi đợt 15.
+      const hp = Math.round(46 * power(wave) ** 0.9 * type.hpScale);
       s.boss = {
         ...type,
         x: W / 2,
@@ -310,6 +426,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       s.foeShots = [];
       s.flashAlpha = 0.6;
       s.shakeMag = 10;
+      playBossWarning();
       notify(t("arcadeGame.survivor.bossIncoming", { boss: type.name }));
     };
 
@@ -420,6 +537,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         return;
       }
       s.player.hp -= 1;
+      playHurt();
       s.player.weapon = Math.max(1, s.player.weapon - 1);
       s.player.invuln = 100;
       s.combo.reset();
@@ -1111,6 +1229,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         if (s.keys.ArrowUp || s.keys.w) s.player.y = Math.max(30, s.player.y - s.player.speed);
         if (s.keys.ArrowDown || s.keys.s) s.player.y = Math.min(H - 40, s.player.y + s.player.speed);
         s.player.roll += (dx - s.player.roll) * 0.18;
+        s.player.vx = s.player.x - s.player.prevX;
+        s.player.prevX = s.player.x;
         fire(s, ts);
       }
 
@@ -1148,11 +1268,21 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       }));
       ctx.globalAlpha = 1;
 
-      // ── Sinh đội hình ──
-      if (!frozen && !s.boss) {
+      // ── Sinh đội hình theo chỉ tiêu của đợt ──
+      if (!frozen && s.phase === "combat" && s.waveQuota === 0) beginWave(s.wave);
+      if (!frozen && s.phase === "combat") {
         s.spawnTimer -= 1;
-        if (s.spawnTimer <= 0) { s.spawnTimer = cfg.interval; spawnSquad(cfg); }
-        if (s.wave % BOSS_EVERY === 0 && s.bossClearedAt !== s.wave) spawnBoss(s.wave);
+        const thin = s.enemies.length < cfg.minAlive;   // màn đang thưa
+        if (s.waveSpawned < s.waveQuota && (s.spawnTimer <= 0 || thin)) {
+          // Màn thưa thì bù ngay và bù dày hơn, khỏi để người chơi ngồi không.
+          s.spawnTimer = thin ? Math.round(cfg.interval * 0.55) : cfg.interval;
+          s.waveSpawned += spawnSquad(cfg);
+        }
+        // Xong đợt khi đã sinh đủ chỉ tiêu và không còn con nào trên màn.
+        if (s.waveSpawned >= s.waveQuota && s.enemies.length === 0) finishWave();
+      } else if (!frozen && s.phase === "rest") {
+        s.restTimer -= 1;
+        if (s.restTimer <= 0) beginWave(s.wave + 1);
       }
 
       // ── Trùm ──
@@ -1212,12 +1342,24 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             vx = Math.sign(s.player.x - e.x) * Math.min(1.8, Math.abs(s.player.x - e.x) * 0.06);
           } else if (e.type === "drone") {
             vx = Math.sin(e.phase) * 1.5;
-          } else {
+          }
+
+          // Trước đây CHỈ tàu heavy bắn — drone và seeker bay tới rồi thôi, nên
+          // màn chơi hiền hẳn. Giờ seeker bắn từ đầu, drone tham chiến từ đợt 3.
+          const canShoot = e.type === "heavy" || e.type === "seeker" || cfg.droneFires;
+          if (canShoot) {
             e.shotCooldown -= 1;
             if (e.shotCooldown <= 0) {
-              const aimed = Math.atan2(s.player.y - e.y, s.player.x - e.x);
-              bossShot(s, e.x, e.y + e.w / 2, aimed, 3.25, ENEMY_SHOT, 5.5);
-              e.shotCooldown = cfg.shotCooldown + Math.round(Math.random() * 80);
+              // Đón đầu: ngắm vào chỗ người chơi SẼ tới, không phải chỗ đang đứng.
+              const leadX = s.player.x + s.player.vx * 12 * cfg.lead;
+              const aimed = Math.atan2(s.player.y - e.y, leadX - e.x);
+              const shots = e.type === "heavy" ? cfg.volley : Math.max(1, cfg.volley - 1);
+              for (let k = 0; k < shots; k += 1) {
+                const offset = (k - (shots - 1) / 2) * cfg.spread;
+                bossShot(s, e.x, e.y + e.w / 2, aimed + offset, cfg.shotSpeed, ENEMY_SHOT, 5.5);
+              }
+              const rest = e.type === "drone" ? 1.5 : 1;   // drone bắn thưa hơn
+              e.shotCooldown = Math.round((cfg.shotCooldown + Math.random() * 80) * rest);
             }
           }
           e.x += vx;
@@ -1301,6 +1443,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 reward(s, bo.x, bo.y, 1200);
                 s.bossClearedAt = s.wave;
                 s.boss = null;
+                s.phase = "rest";
+                s.restTimer = 90;
                 s.foeShots = [];
                 s.shakeMag = 18;
                 s.flashColor = "255,215,120";
@@ -1335,8 +1479,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 s.killsSinceDrop += 1;
                 if (e.type === "heavy") s.shakeMag = Math.max(s.shakeMag, 5);
                 if (
-                  s.killsSinceDrop >= 4
-                  || Math.random() < survivorDropChance(s.player.hp, MAX_HP)
+                  s.killsSinceDrop >= cfg.dropStreak
+                  || Math.random() < survivorDropChance(s.player.hp, MAX_HP) * cfg.dropDecay
                 ) {
                   spawnPowerUp(s, e.x, e.y);
                 }
@@ -1438,17 +1582,46 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         }
       }
 
+      // ── Sóng xung kích ──
+      if (!frozen) {
+        s.shocks.forEach((w) => { w.r += (w.max - w.r) * 0.18; w.life -= 0.045; });
+        s.shocks = s.shocks.filter((w) => w.life > 0);
+      }
+      additive(() => s.shocks.forEach((w) => {
+        ctx.globalAlpha = w.life * 0.55;
+        ring(w.x, w.y, w.r, w.color, 2 + w.life * 2.5);
+        ctx.globalAlpha = w.life * 0.25;
+        ring(w.x, w.y, w.r * 0.62, "#ffffff", 1.5);
+      }));
+      ctx.globalAlpha = 1;
+
       // ── Hạt ──
       if (!frozen) {
-        s.particles.forEach((pt) => { pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.025; });
+        s.particles.forEach((pt) => {
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.vx *= 0.985;              // ma sát nhẹ: mảnh vỡ chậm dần thay vì bay đều
+          pt.vy = pt.vy * 0.985 + 0.045;
+          pt.life -= pt.decay || 0.025;
+        });
         s.particles = s.particles.filter((pt) => pt.life > 0);
       }
       additive(() => s.particles.forEach((pt) => {
         ctx.globalAlpha = pt.life * 0.9;
         ctx.fillStyle = pt.color;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, (pt.size || 2) * pt.life, 0, Math.PI * 2);
-        ctx.fill();
+        if (pt.spark) {
+          // Tàn lửa kéo vệt theo hướng bay — đứng yên nhìn là thấy chiều chuyển động.
+          ctx.lineWidth = Math.max(1, (pt.size || 2) * pt.life * 0.6);
+          ctx.strokeStyle = pt.color;
+          ctx.beginPath();
+          ctx.moveTo(pt.x, pt.y);
+          ctx.lineTo(pt.x - pt.vx * 2.4, pt.y - pt.vy * 2.4);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, (pt.size || 2) * pt.life, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }));
       ctx.globalAlpha = 1;
 
@@ -1472,17 +1645,6 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       }
 
       ctx.restore();
-
-      // The shared HUD level caps at 15, but combat waves remain endless so
-      // boss cycles and armor scaling continue for long high-score runs.
-      const wave = 1 + Math.floor(Math.max(0, s.score) / 900);
-      if (wave !== s.wave) {
-        s.wave = wave;
-        s.flashAlpha = 0.3;
-        s.flashColor = "255,255,255";
-        s.supplyTimer = Math.min(s.supplyTimer, 260);
-        notify(t("arcadeGame.survivor.wave", { wave }));
-      }
 
       rafId = requestAnimationFrame(render);
     };
@@ -1539,7 +1701,17 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
           notice={hud.notice}
           stats={[
             { label: t("arcadeGame.survivor.weapon"), value: t("arcadeGame.survivor.level", { level: hud.weapon }) },
-            { label: t("arcadeGame.survivor.waveLabel"), value: hud.wave },
+            {
+              label: t("arcadeGame.survivor.waveLabel"),
+              // Đợt giờ kết thúc bằng việc dọn sạch địch, nên số địch còn lại
+              // là thông tin người chơi cần nhất — không có nó thì không biết
+              // bao giờ trùm mới ra.
+              value: hud.phase === "boss"
+                ? `${hud.wave} · TRÙM`
+                : hud.waveLeft > 0
+                  ? `${hud.wave} · còn ${hud.waveLeft}`
+                  : `${hud.wave} · sạch`,
+            },
           ]}
         />
 

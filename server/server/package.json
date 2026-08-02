@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "postinstall": "cd .. && npm install"
+  },
+  "dependencies": {
+    "entities": "^8.0.0"
   }
 }

@@ -7,7 +7,7 @@ function fixUtf8(str) {
   try {
     if (/[\u00C0-\u00FF]/.test(name)) {
       const decoded = decodeURIComponent(escape(name));
-      if (decoded && !decoded.includes("")) name = decoded;
+      if (decoded && !decoded.includes("�")) name = decoded;
     }
   } catch {}
   return name.replace(/[\uFFFD\u007F-\u009F]/g, "").trim() || "Thành viên Hugo";
@@ -251,14 +251,14 @@ export default function ArcadeLeaderboard({ active = true }) {
 
       {/* Roster Header Bar */}
       <div className="flex items-center justify-between px-3 -mt-2">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#FF2D55] animate-pulse shadow-[0_0_12px_#FF2D55]" />
-          <span className="text-[10px] font-black tracking-widest uppercase text-zinc-400">
-            BẢNG VÀNG THẾ GIỚI HUGO (TOP 10 CAO THỦ)
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#FF2D55] animate-pulse shadow-[0_0_12px_#FF2D55] shrink-0" />
+          <span className="text-[10px] font-black tracking-widest uppercase text-zinc-400 truncate">
+            BẢNG VÀNG THẾ GIỚI HUGO (TOP 10)
           </span>
         </div>
-        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-          LIVE POLLED
+        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider shrink-0 pl-2">
+          LIVE
         </span>
       </div>
 

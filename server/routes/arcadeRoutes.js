@@ -1,5 +1,6 @@
 import express from 'express';
 import ArcadeScore from '../models/ArcadeScore.js';
+import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 
@@ -190,7 +191,7 @@ function cleanDisplayName(name) {
   try {
     if (/[\u00C0-\u00FF]/.test(str)) {
       const decoded = Buffer.from(str, 'latin1').toString('utf8');
-      if (decoded && !decoded.includes('')) str = decoded;
+      if (decoded && !decoded.includes('�')) str = decoded;
     }
   } catch {}
   return str.replace(/[\uFFFD\u007F-\u009F]/g, '').trim() || 'Thành viên Hugo';
@@ -207,13 +208,12 @@ router.get('/leaderboard', async (req, res) => {
 
     const agg = await ArcadeScore.aggregate([
       { $match: matchStage },
+      // Gom theo email, không theo tên: đổi tên hiển thị từng làm một người tách
+      // thành nhiều dòng và chia nhỏ điểm. $sort trước để $first lấy tên/avatar mới nhất.
+      { $sort: { lastPlayedAt: -1 } },
       {
         $group: {
-          _id: {
-            $toLower: {
-              $trim: { input: { $ifNull: ['$displayName', '$email'] } }
-            }
-          },
+          _id: { $toLower: { $trim: { input: '$email' } } },
           email: { $first: '$email' },
           displayName: { $first: '$displayName' },
           avatarUrl: { $first: '$avatar' },
@@ -249,37 +249,26 @@ router.get('/leaderboard', async (req, res) => {
       ]).filter(Boolean)
     );
 
-    const playerMap = new Map();
-    for (const item of agg) {
-      const cleanName = cleanDisplayName(item.displayName || item.email);
-      const normKey = cleanName.toLowerCase().trim();
-      const normEmail = (item.email || '').toLowerCase().trim();
-
-      // Exclude deleted accounts that are no longer in Bio
-      if (validBioKeys.size > 0 && !validBioKeys.has(normKey) && !validBioKeys.has(normEmail)) {
-        continue;
-      }
-
-      if (!playerMap.has(normKey)) {
-        playerMap.set(normKey, {
-          email: item.email || normKey,
-          displayName: cleanName,
-          avatarUrl: item.avatarUrl || item.avatar || '',
-          bestScore: Number(item.bestScore) || 0,
-          gamesPlayed: Number(item.gamesPlayed) || 1
-        });
-      } else {
-        const existing = playerMap.get(normKey);
-        existing.bestScore += Number(item.bestScore) || 0;
-        existing.gamesPlayed += Number(item.gamesPlayed) || 0;
-        if (item.avatarUrl && !existing.avatarUrl) existing.avatarUrl = item.avatarUrl;
-      }
-    }
-
-    const finalList = Array.from(playerMap.values()).sort((a, b) => b.bestScore - a.bestScore).slice(0, cap);
+    const finalList = agg
+      .filter(item => {
+        const normKey = cleanDisplayName(item.displayName || item.email).toLowerCase().trim();
+        const normEmail = (item.email || '').toLowerCase().trim();
+        // Exclude deleted accounts that are no longer in Bio
+        return validBioKeys.size === 0 || validBioKeys.has(normEmail) || validBioKeys.has(normKey);
+      })
+      .map(item => ({
+        email: item.email || item._id,
+        displayName: cleanDisplayName(item.displayName || item.email),
+        avatarUrl: item.avatarUrl || '',
+        bestScore: Number(item.bestScore) || 0,
+        gamesPlayed: Number(item.gamesPlayed) || 1
+      }))
+      .slice(0, cap);
 
     res.json({ leaderboard: finalList });
   } catch (error) {
+    // Đừng nuốt im: một ReferenceError ở đây từng làm bảng xếp hạng rỗng cả tháng.
+    console.error('[arcade leaderboard]', error);
     res.json({ leaderboard: [] });
   }
 });

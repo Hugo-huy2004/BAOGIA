@@ -1,18 +1,32 @@
 import { useEffect, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { getMemberSession, clearMemberSession } from "../services/authSession";
 import { apiFetch } from "../services/api";
-import { transferJoy } from "../services/joyApi";
+import { transferJoy, getJoyQrPayload } from "../services/joyApi";
 import { notify } from "../lib/notify";
 import memberService from "../services/classes/MemberService";
-import { setEcoMode } from "./ecoMode";
 import EcoRadio from "./EcoRadio";
 import EcoGames from "./EcoGames";
+import EcoFold from "./EcoFold";
 
 // Gộp Ví JOY + Thẻ thành viên + Hoạt động + Tài khoản của chế độ thường về MỘT
 // trang. Ở chế độ thường bốn tab đó gọi API riêng mỗi lần chuyển; ở đây chỉ có
 // đúng MỘT lượt gọi lấy số dư khi mở trang, sau đó không gọi lại.
+//
+// Những mục thêm vào (mã QR, điểm danh, lịch sử) nằm trong `EcoFold`: mở ra
+// mới gọi, và mỗi lần mở chỉ một lượt. Nhiều tính năng hơn nhưng chi phí lúc
+// mở trang vẫn y nguyên.
 
-export default function EcoAccount({ onExitEco }) {
+const money = (value) => `${value > 0 ? "+" : ""}${value.toLocaleString("vi-VN")}`;
+
+const shortDate = (value) => {
+  try {
+    return new Intl.DateTimeFormat("vi", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+      .format(new Date(value));
+  } catch { return ""; }
+};
+
+export default function EcoAccount() {
   const session = getMemberSession();
   const [balance, setBalance] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -102,6 +116,8 @@ export default function EcoAccount({ onExitEco }) {
     }
   };
 
+  const bumpBalance = (delta) => setBalance((current) => (current == null ? current : current + delta));
+
   const logout = () => {
     clearMemberSession();
     window.location.href = "/login";
@@ -119,6 +135,90 @@ export default function EcoAccount({ onExitEco }) {
             {balance == null ? (loadFailed ? "—" : "…") : balance.toLocaleString("vi-VN")} JOY
           </p>
           {loadFailed ? <small>Chưa lấy được số dư. Mở lại trang để thử lần nữa.</small> : null}
+        </div>
+      </section>
+
+      {/* ── Mở ra mới gọi máy chủ ── */}
+      <section className="save-e-section" aria-labelledby="eco-more">
+        <h2 id="eco-more">Ví JOY</h2>
+        <div className="save-e-card">
+          <EcoFold
+            icon="qr_code_2"
+            title="Mã QR nhận JOY"
+            hint="Mã do máy chủ ký, lấy một lượt khi mở"
+            load={() => getJoyQrPayload(session.email)}
+          >
+            {({ data, reload }) => (data?.payload ? (
+              <div className="save-e-qr">
+                {/* Vẽ bằng SVG chứ không phải canvas: không có lớp bitmap để GPU
+                    tô lại, và in ra vẫn nét. */}
+                <QRCodeSVG value={data.payload} size={200} bgColor="#000000" fgColor="#ffffff" level="M" />
+                {/* Token do máy chủ ký có hạn ~2 phút. Chế độ thường tự xin mã
+                    mới theo chu kỳ; ở đây KHÔNG hẹn giờ — người quét báo hết hạn
+                    thì bấm lấy mã mới, đúng một lượt gọi. */}
+                <button type="button" className="save-e-chip" onClick={reload}>
+                  <span className="material-symbols-outlined" aria-hidden="true">refresh</span>
+                  Lấy mã mới
+                </button>
+                <p className="save-e-note">
+                  Đưa mã này cho người chuyển JOY cho bạn. Mã có hạn khoảng 2 phút — quá hạn thì bấm
+                  “Lấy mã mới”.
+                </p>
+              </div>
+            ) : null)}
+          </EcoFold>
+
+          <EcoFold
+            icon="event_available"
+            title="Điểm danh nhận JOY"
+            hint="Mỗi ngày một lần"
+            load={() => apiFetch("/checkin/status")}
+          >
+            {({ data, setData }) => (data ? (
+              <div className="save-e-row">
+                <div>
+                  <strong>{data.canClaimToday ? "Hôm nay chưa điểm danh" : "Hôm nay đã điểm danh"}</strong>
+                  <small>Chuỗi liên tiếp: {data.consecutiveDays || 0} ngày</small>
+                </div>
+                <button
+                  type="button"
+                  className="save-e-btn"
+                  disabled={!data.canClaimToday}
+                  onClick={async () => {
+                    try {
+                      const result = await apiFetch("/checkin/claim", { method: "POST" });
+                      notify.success(`Đã nhận ${result.totalReward} JOY.`);
+                      bumpBalance(result.totalReward);
+                      setData({ ...data, canClaimToday: false, consecutiveDays: result.consecutiveDays });
+                    } catch (error) {
+                      notify.error(error.message || "Điểm danh không thành công.");
+                    }
+                  }}
+                >
+                  Điểm danh
+                </button>
+              </div>
+            ) : null)}
+          </EcoFold>
+
+          <EcoFold
+            icon="receipt_long"
+            title="Lịch sử giao dịch"
+            hint="10 dòng gần nhất"
+            load={() => apiFetch("/joy/history?limit=10").then((data) => data.transactions || [])}
+          >
+            {({ data }) => (data?.length ? data.map((tx) => (
+              <div className="save-e-row" key={tx._id}>
+                <div>
+                  <strong>{tx.description || tx.source}</strong>
+                  <small>{shortDate(tx.createdAt)}</small>
+                </div>
+                <span className={tx.amount > 0 ? "save-e-strong-green" : "save-e-strong-blue"}>
+                  {money(tx.amount)}
+                </span>
+              </div>
+            )) : data ? <p className="save-e-note">Chưa có giao dịch nào.</p> : null)}
+          </EcoFold>
         </div>
       </section>
 
@@ -204,25 +304,12 @@ export default function EcoAccount({ onExitEco }) {
       </section>
 
       <EcoRadio />
-      <EcoGames onJoyChange={(delta) => setBalance((current) => (current == null ? current : current + delta))} />
+      <EcoGames onJoyChange={bumpBalance} />
 
       {/* ── Cài đặt cơ bản ── */}
       <section className="save-e-section" aria-labelledby="eco-settings">
         <h2 id="eco-settings">Cài đặt</h2>
         <div className="save-e-card">
-          <div className="save-e-row">
-            <div>
-              <strong>Chế độ Bảo vệ môi trường</strong>
-              <small>Nền tối, chữ to, không AI, gọi máy chủ tối thiểu.</small>
-            </div>
-            <button
-              type="button"
-              className="save-e-btn save-e-btn--plain"
-              onClick={() => { setEcoMode(false); onExitEco(); }}
-            >
-              Tắt
-            </button>
-          </div>
           <div className="save-e-row">
             <div>
               <strong>Đăng xuất</strong>
@@ -234,8 +321,8 @@ export default function EcoAccount({ onExitEco }) {
           </div>
         </div>
         <p className="save-e-note">
-          Đang tắt trong chế độ này: trợ lý AI, bản đồ, cửa hàng, kho ứng dụng,
-          hiệu ứng nền động và mọi lượt gọi máy chủ lặp lại theo chu kỳ.
+          Bật/tắt và mức “tự động” nằm ở tab Xanh. Đang tắt trong chế độ này: trợ lý AI, bản đồ,
+          cửa hàng, kho ứng dụng, hiệu ứng nền động và mọi lượt gọi máy chủ lặp lại theo chu kỳ.
         </p>
       </section>
     </>

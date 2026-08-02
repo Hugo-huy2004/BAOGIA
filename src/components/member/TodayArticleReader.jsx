@@ -46,6 +46,11 @@ export default function TodayArticleReader({ articleId, onBack }) {
   const summary = data?.summary
     || (article?.description ? { points: [article.description] } : null);
   const content = data?.content;
+  // Server cũ (chưa deploy bản có ảnh) trả `paragraphs`; dev proxy còn fallback
+  // sang backend production nên hai dạng dữ liệu sống song song một thời gian.
+  const blocks = content?.blocks
+    || content?.paragraphs?.map((text) => ({ type: "text", text }))
+    || [];
 
   const dateLabel = article?.publishedAt
     ? new Intl.DateTimeFormat(language, { day: "numeric", month: "short", year: "numeric" })
@@ -144,7 +149,21 @@ export default function TodayArticleReader({ articleId, onBack }) {
 
             {content?.available ? (
               <div className="today-article-text" style={{ fontSize: `${fontSize}px` }}>
-                {content.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+                {blocks.map((block, index) => (block.type === "image" ? (
+                  <figure key={index} className="today-article-figure">
+                    <img
+                      src={block.src}
+                      alt={block.caption || ""}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      // Ảnh hỏng/CDN chặn hotlink: giấu cả figure, đừng để ô vỡ giữa bài.
+                      onError={(event) => { event.currentTarget.parentElement.hidden = true; }}
+                    />
+                    {block.caption ? <figcaption>{block.caption}</figcaption> : null}
+                  </figure>
+                ) : (
+                  <p key={index}>{block.text}</p>
+                )))}
               </div>
             ) : (
               <div className="today-article-locked">

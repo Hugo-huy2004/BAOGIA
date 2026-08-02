@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../lib/notify";
-import { canUseEco, isEcoFlagOn, setEcoMode } from "./ecoMode";
+import { canUseEco, getEcoMode, setEcoMode, isEcoOn } from "./ecoMode";
+import { autoReason } from "./ecoSignals";
 import EcoImpact from "./EcoImpact";
 
 // Chỉ liệt kê những khoản CHÍNH MÃ NGUỒN NÀY quyết định, kèm con số đối chiếu
@@ -38,10 +39,24 @@ const SAVINGS = [
   },
   {
     icon: "apps",
-    title: "Từ 4 tab còn 2, gộp các trang tài khoản về 1",
+    title: "Gộp các trang tài khoản về 1, mở ra mới gọi",
     detail:
-      "Thanh dưới còn Bản tin và Tài khoản. Thẻ thành viên, chuyển JOY, radio, trò chơi và cài đặt nằm chung một "
-      + "trang — mỗi lần chuyển tab ở chế độ thường là thêm một lượt tải dữ liệu, ở đây bạn cuộn một trang là thấy hết.",
+      "Thẻ thành viên, chuyển JOY, mã QR, điểm danh, lịch sử, radio, trò chơi và cài đặt nằm chung một trang. "
+      + "Mã QR, điểm danh và lịch sử để gập lại — không mở thì không tốn lượt gọi nào, mở ra thì đúng một lượt.",
+  },
+  {
+    icon: "recycling",
+    title: "Mở lại app trong 6 tiếng: 0 lượt gọi bản tin",
+    detail:
+      "Bản tin tải về được giữ trong máy, mở lại là dùng lại — kể cả sau khi đóng hẳn app. Bài bạn bấm “Giữ lại” "
+      + "đọc được cả khi mất mạng, và chỉ giữ phần chữ (bỏ ảnh) nên nhẹ hơn hàng chục lần.",
+  },
+  {
+    icon: "battery_saver",
+    title: "Mức tự động: máy tự quyết",
+    detail:
+      "Đặt “Tự động” thì chế độ chỉ bật khi thực sự cần — pin dưới 30% mà chưa cắm sạc, mạng 2G, hoặc bạn đã bật "
+      + "Tiết kiệm dữ liệu trong hệ điều hành. Cắm sạc vào là tự trả lại portal đầy đủ.",
   },
   {
     icon: "wifi_off",
@@ -60,17 +75,21 @@ const KEPT = "Giữ nguyên: bản tin đầy đủ, đọc toàn văn bài báo
  * Chỉ bật được khi chạy dạng ứng dụng đã cài: trong tab trình duyệt, thanh địa
  * chỉ và khung trình duyệt vẫn sáng nên phần tiết kiệm pin gần như mất hết.
  */
+const MODE_LABELS = { off: "Tắt", on: "Luôn bật", auto: "Tự động" };
+
 export default function EcoToggle() {
   const navigate = useNavigate();
-  const [on, setOn] = useState(isEcoFlagOn);
+  const [mode, setMode] = useState(getEcoMode);
   const [open, setOpen] = useState(false);
   const usable = canUseEco();
 
-  const toggle = () => {
-    const next = !on;
+  // Ba mức xoay vòng trên đúng một nút: tắt → tự động → luôn bật → tắt.
+  const cycle = () => {
+    const next = mode === "off" ? "auto" : mode === "auto" ? "on" : "off";
     setEcoMode(next);
-    setOn(next);
-    if (next) navigate("/member/eco");
+    setMode(next);
+    if (isEcoOn()) navigate("/member/eco");
+    else if (next === "auto") notify.success(`Đã đặt tự động — ${autoReason().toLowerCase()}.`);
     else notify.success("Đã tắt chế độ Bảo vệ môi trường.");
   };
 
@@ -90,20 +109,23 @@ export default function EcoToggle() {
         <div style={{ flex: 1, minWidth: 0 }}>
           <strong style={{ display: "block", fontSize: 16 }}>Chế độ Bảo vệ môi trường</strong>
           <p style={{ margin: "6px 0 0", fontSize: 14, lineHeight: 1.55, color: "hsl(var(--muted-foreground))" }}>
-            Portal rút gọn còn hai mục: Bản tin và Tài khoản. Nền đen tuyền, chữ
+            Portal rút gọn còn bốn mục: Bản tin, Đọc lại (offline), Ví và Xanh. Nền đen tuyền, chữ
             to cố định, tắt toàn bộ tính năng AI và gọi máy chủ ở mức tối thiểu.
           </p>
+          {mode === "auto" ? (
+            <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "hsl(var(--primary))" }}>
+              Tự động — {autoReason().toLowerCase()}.
+            </p>
+          ) : null}
         </div>
         <button
           type="button"
           className="portal-card"
-          role="switch"
-          aria-checked={on}
-          aria-label="Bật chế độ Bảo vệ môi trường"
-          onClick={toggle}
-          style={{ minWidth: 84, minHeight: 44, padding: "0 16px", fontWeight: 700 }}
+          aria-label={`Chế độ Bảo vệ môi trường: ${MODE_LABELS[mode]}. Bấm để đổi mức.`}
+          onClick={cycle}
+          style={{ minWidth: 96, minHeight: 44, padding: "0 16px", fontWeight: 700 }}
         >
-          {on ? "Đang bật" : "Bật"}
+          {MODE_LABELS[mode]}
         </button>
       </div>
 

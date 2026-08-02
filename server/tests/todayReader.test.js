@@ -1,24 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { extractParagraphs, parseHtmlListing } from '../services/studentNewsService.js';
+import { extractBlocks, parseHtmlListing } from '../services/studentNewsService.js';
 
 const p = (text) => `<p>${text}</p>`;
-const long = (seed) => `${seed} `.repeat(12).trim(); // > 40 ký tự
+const long = (seed) => `${seed} `.repeat(12).trim(); // > 20 ký tự
+const texts = (html, base) => extractBlocks(html, base).filter((b) => b.type === 'text').map((b) => b.text);
 
-describe('extractParagraphs', () => {
+describe('extractBlocks', () => {
   it('lấy đoạn văn và bỏ script/style/caption ngắn', () => {
     const html = `
       <html><body>
         <script>var junk = ${p(long('script'))};</script>
         <style>.p { content: "x"; }</style>
-        <p>Ảnh: Reuters</p>
+        <p>Ảnh</p>
         ${p(long('Nội dung thật của bài báo'))}
         ${p(long('Đoạn thứ hai của bài báo'))}
       </body></html>`;
-    const paragraphs = extractParagraphs(html);
+    const paragraphs = texts(html);
     expect(paragraphs).toHaveLength(2);
     expect(paragraphs[0]).toContain('Nội dung thật');
     expect(paragraphs.join(' ')).not.toContain('script');
-    expect(paragraphs.join(' ')).not.toContain('Ảnh: Reuters');
+    expect(paragraphs.join(' ')).not.toContain('Ảnh');
   });
 
   it('ưu tiên vùng <article> và bỏ đoạn trùng', () => {
@@ -28,7 +29,7 @@ describe('extractParagraphs', () => {
         ${p(long('Quảng cáo ngoài bài viết'))}
         <article>${body}${body}${p(long('Đoạn hai của bài'))}${p(long('Đoạn ba của bài'))}</article>
       </body>`;
-    const paragraphs = extractParagraphs(html);
+    const paragraphs = texts(html);
     expect(paragraphs).toHaveLength(3);
     expect(paragraphs[0]).toContain('Đoạn trong bài');
     expect(paragraphs.join(' ')).not.toContain('Quảng cáo');
@@ -38,21 +39,64 @@ describe('extractParagraphs', () => {
     // Tuổi Trẻ xếp cả chục thẻ <article> nhỏ trước phần thân bài.
     const teaser = `<article>${p(long('Tin liên quan'))}</article>`;
     const real = `<article>${[1, 2, 3, 4].map((i) => p(long(`Thân bài đoạn ${i}`))).join('')}</article>`;
-    const paragraphs = extractParagraphs(teaser.repeat(11) + real);
+    const paragraphs = texts(teaser.repeat(11) + real);
     expect(paragraphs).toHaveLength(4);
     expect(paragraphs.join(' ')).not.toContain('Tin liên quan');
   });
 
   it('giải mã entity hex (Tuổi Trẻ mã hoá dấu tiếng Việt kiểu &#x1ECD;)', () => {
     const hex = 'Ngu&#x1ED3;n tin cho bi&#x1EBF;t k&#x1EBF;t qu&#x1EA3; thi &#x111;&#xE3; &#x111;&#x1B0;&#x1EE3;c c&#xF4;ng b&#x1ED1; r&#x1ED9;ng r&#xE3;i';
-    expect(extractParagraphs(p(hex))[0])
+    expect(texts(p(hex))[0])
       .toBe('Nguồn tin cho biết kết quả thi đã được công bố rộng rãi');
   });
 
+  it('giải mã entity mã hoá hai lần (VietnamNet, The Guardian)', () => {
+    expect(texts(p(`${long('Hiệu trưởng cam kết')} &amp;apos;bảo hành&amp;apos;`))[0])
+      .toMatch(/'bảo hành'$/);
+    // Không đụng vào "&" thường: lượt đầu đã hết entity thì dừng.
+    expect(texts(p(`${long('Bản tin')} Tom &amp; Jerry &amp; Co`))[0]).toMatch(/Tom & Jerry & Co$/);
+  });
+
   it('giải mã entity và trả rỗng khi trang không có <p>', () => {
-    expect(extractParagraphs(p(`${long('Giá vàng')} &amp; &quot;USD&quot; &#273;&#7891;ng`))[0])
+    expect(texts(p(`${long('Giá vàng')} &amp; &quot;USD&quot; &#273;&#7891;ng`))[0])
       .toMatch(/& "USD" đồng$/);
-    expect(extractParagraphs('<div>Trang render bằng JS</div>')).toEqual([]);
+    expect(extractBlocks('<div>Trang render bằng JS</div>')).toEqual([]);
+  });
+
+  it('giữ ảnh minh hoạ xen giữa các đoạn, đúng thứ tự bản gốc', () => {
+    const html = `<article>
+      ${p(long('Đoạn mở đầu của bài'))}
+      <figure>
+        <img data-src="/images/le-1.jpg" src="/placeholder.gif" width="800"/>
+        <figcaption>&#7842;nh: Vatican News</figcaption>
+      </figure>
+      ${p(long('Đoạn sau ảnh'))}
+      <img src="https://cdn.bao.vn/anh-2.jpg" alt="Nh&agrave; th&#7901;"/>
+      <img src="/tracker.gif" width="1" height="1"/>
+      <img src="data:image/gif;base64,R0lGOD"/>
+      ${p(long('Đoạn cuối bài'))}
+    </article>`;
+    const blocks = extractBlocks(html, 'https://tgpsaigon.net/bai-viet/abc');
+    expect(blocks.map((b) => b.type)).toEqual(['text', 'image', 'text', 'image', 'text']);
+    expect(blocks[1]).toEqual({
+      type: 'image',
+      src: 'https://tgpsaigon.net/images/le-1.jpg', // data-src thắng src placeholder
+      caption: 'Ảnh: Vatican News',
+    });
+    expect(blocks[3]).toEqual({
+      type: 'image',
+      src: 'https://cdn.bao.vn/anh-2.jpg',
+      caption: 'Nhà thờ',
+    });
+  });
+
+  it('bỏ ảnh trùng và không đếm <p> trong <figure> thành đoạn văn', () => {
+    const figure = '<figure><img src="https://cdn.bao.vn/x.jpg" width="600"/>'
+      + `${p(long('Chú thích ảnh dài nằm trong thẻ p'))}</figure>`;
+    const html = `<article>${figure}${figure}${[1, 2, 3].map((i) => p(long(`Thân bài ${i}`))).join('')}</article>`;
+    const blocks = extractBlocks(html, 'https://cdn.bao.vn/');
+    expect(blocks.filter((b) => b.type === 'image')).toHaveLength(1);
+    expect(blocks.map((b) => b.text).join(' ')).not.toContain('Chú thích ảnh');
   });
 });
 
