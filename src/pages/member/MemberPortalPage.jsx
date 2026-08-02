@@ -119,6 +119,7 @@ const MemberJoyTab       = React.lazy(() => import("../../components/member/Memb
 const DiscoveryMap       = React.lazy(() => import("../../components/member/DiscoveryMap"));
 const MemberSettingsTab  = React.lazy(() => import("../../components/member/MemberSettingsTab"));
 const MemberTodayTab     = React.lazy(() => import("../../components/member/MemberTodayTab"));
+const TodayArticleReader = React.lazy(() => import("../../components/member/TodayArticleReader"));
 const ParticleConnectModal = React.lazy(() => import("../../components/member/shared/ParticleConnectModal"));
 const BirthdaySurprise   = React.lazy(() => import("../../components/member/BirthdaySurprise"));
 const PWAPermissionOnboarding = React.lazy(() => import("../../components/permissions/PWAPermissionOnboarding"));
@@ -191,6 +192,8 @@ function MemberPortalPage() {
     return "account";
   }, [activeTab]);
   const accountSubTab = subTab || "profile";
+  // /member/today/<id> mở trang đọc bài ngay trong portal.
+  const todayArticleId = activeTab === "today" ? (subTab || null) : null;
 
   // ── Utilities navigation — synced to the URL so a page refresh keeps the
   // member on the exact same utility/sub-tab instead of bouncing them back to
@@ -850,14 +853,22 @@ function MemberPortalPage() {
               ) : (
                 <>
                   {activeTab === "today" && (
-                    <>
-                      {/* Quảng cáo bản 2.0 — tự im sau 10/08/2026 */}
-                      <VersionAnnouncement />
-                      <MemberTodayTab
-                        bio={bio}
-                        onNavigate={navigate}
+                    /* /member/today/<id> là trang đọc bài; không có id thì là feed. */
+                    todayArticleId ? (
+                      <TodayArticleReader
+                        articleId={todayArticleId}
+                        onBack={() => navigate("/member/today")}
                       />
-                    </>
+                    ) : (
+                      <>
+                        {/* Quảng cáo bản 2.0 — tự im sau 10/08/2026 */}
+                        <VersionAnnouncement />
+                        <MemberTodayTab
+                          bio={bio}
+                          onNavigate={navigate}
+                        />
+                      </>
+                    )
                   )}
                   {activeTab === "joy" && (
                     <div>
@@ -944,10 +955,17 @@ function MemberPortalPage() {
                 <>
                   {activeTab === "today" && (
                     <div className="px-3">
-                      <MemberTodayTab
-                        bio={bio}
-                        onNavigate={navigate}
-                      />
+                      {todayArticleId ? (
+                        <TodayArticleReader
+                          articleId={todayArticleId}
+                          onBack={() => navigate("/member/today")}
+                        />
+                      ) : (
+                        <MemberTodayTab
+                          bio={bio}
+                          onNavigate={navigate}
+                        />
+                      )}
                     </div>
                   )}
                   {activeTab === "joy" && (
@@ -1025,7 +1043,6 @@ function MemberPortalPage() {
           <React.Suspense fallback={null}>
             <PWAPermissionOnboarding
               email={memberSession.email}
-              loginAt={memberSession.loginAt}
               enabled={!loading && !showOnboarding && !showVerifyModal}
             />
           </React.Suspense>

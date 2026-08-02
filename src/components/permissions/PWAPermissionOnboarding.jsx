@@ -11,16 +11,19 @@ const EMPTY_SNAPSHOT = {
   standalone: false,
 };
 
-export default function PWAPermissionOnboarding({ email, loginAt, enabled = true }) {
+export default function PWAPermissionOnboarding({ email, enabled = true }) {
   const { t } = useTranslation();
   const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT);
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
 
+  // localStorage, not sessionStorage: every PWA launch is a fresh session, so a
+  // session-scoped key re-asked on each open. Answered once = answered for good;
+  // a later change of mind goes through the browser's own site settings.
   const dismissKey = useMemo(
-    () => `hugo:permission-primer:${String(email || "").toLowerCase()}:${loginAt || "session"}`,
-    [email, loginAt],
+    () => `hugo:permission-primer:${String(email || "").toLowerCase()}`,
+    [email],
   );
 
   const refresh = useCallback(async () => {
@@ -28,7 +31,7 @@ export default function PWAPermissionOnboarding({ email, loginAt, enabled = true
     setSnapshot(next);
     if (next.complete) {
       setVisible(false);
-      sessionStorage.removeItem(dismissKey);
+      localStorage.removeItem(dismissKey);
     }
     return next;
   }, [dismissKey]);
@@ -39,7 +42,7 @@ export default function PWAPermissionOnboarding({ email, loginAt, enabled = true
     const stopWatching = pwaPermissionService.watch(() => refresh().catch(() => {}));
     const timer = window.setTimeout(async () => {
       const next = await refresh().catch(() => EMPTY_SNAPSHOT);
-      if (cancelled || next.complete || sessionStorage.getItem(dismissKey) === "true") return;
+      if (cancelled || next.complete || localStorage.getItem(dismissKey) === "true") return;
       setVisible(true);
       if (next.push.permission === "granted" && !next.push.subscribed) {
         pwaPermissionService.repairPushSubscription(email).then(refresh).catch(() => {});
@@ -54,7 +57,7 @@ export default function PWAPermissionOnboarding({ email, loginAt, enabled = true
   }, [dismissKey, email, enabled, refresh]);
 
   const dismiss = () => {
-    sessionStorage.setItem(dismissKey, "true");
+    localStorage.setItem(dismissKey, "true");
     setVisible(false);
   };
 

@@ -46,7 +46,7 @@ export default function BiometricLoginCard({ memberSession, showToast, bare = fa
       let city = "";
       try {
         const { resolveCoords } = await import("../../utils/weather");
-        const coords = await resolveCoords({ preferGeo: false, timeoutMs: 3000 });
+        const coords = await resolveCoords({ preferGeo: false });
         if (coords && coords.city) city = coords.city;
       } catch {}
 

@@ -13,4 +13,12 @@ export const todayFeedApi = {
     if (timeZone) params.set("timezone", timeZone);
     return apiFetch(`/today/feed?${params}`, { auth: false, signal });
   },
+
+  // Trang đọc: server tra bài theo id (client không gửi URL) rồi trả tóm tắt +
+  // toàn văn. `category` chỉ là gợi ý để server nạp đúng ấn bản khi cache nguội.
+  getArticle({ id, language = "vi", category = "all", timeZone, signal } = {}) {
+    const params = new URLSearchParams({ lang: language === "en" ? "en" : "vi", category });
+    if (timeZone) params.set("timezone", timeZone);
+    return apiFetch(`/today/article/${encodeURIComponent(id)}?${params}`, { signal });
+  },
 };

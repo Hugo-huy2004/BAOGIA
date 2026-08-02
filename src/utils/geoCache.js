@@ -1,22 +1,42 @@
 // Geolocation Cache and Debouncer
-// Consolidates multiple geolocation calls to prevent parallel browser prompts
+// Single entry point for every geolocation read in the app.
 // Caches location for 10 minutes and silences requests if permission is denied in current session.
 
 let cachedPos = null;
 let lastFetchTime = 0;
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 let pendingPromise = null;
+const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
+
+// Only an explicit user action may trigger the native prompt ({ ask: true } —
+// the permission onboarding button). Every other caller reads silently and
+// gives up when permission isn't granted yet; otherwise whichever component
+// mounted first (weather layer, community feed, map) re-prompted on every
+// single PWA launch.
+async function permissionGranted() {
+  try {
+    const status = await navigator.permissions?.query({ name: "geolocation" });
+    if (status) return status.state === "granted";
+  } catch {
+    // Safari does not always expose geolocation through the Permissions API.
+  }
+  return typeof localStorage !== "undefined" && localStorage.getItem(LOCATION_GRANT_KEY) === "true";
+}
 
 // { fresh: true } bypasses the cache and requests a high-accuracy GPS fix
 // (used by the Discovery map's refresh button); default behaviour unchanged.
-export function getCachedGeolocation({ fresh = false } = {}) {
+export async function getCachedGeolocation({ fresh = false, ask = false } = {}) {
   if (!fresh && cachedPos && (Date.now() - lastFetchTime < CACHE_DURATION)) {
-    return Promise.resolve(cachedPos);
+    return cachedPos;
   }
 
   // Avoid spamming if user previously blocked permission in this session
   if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("pwa_location_denied") === "true") {
-    return Promise.reject(new Error("Geolocation request ignored due to session-level block"));
+    throw new Error("Geolocation request ignored due to session-level block");
+  }
+
+  if (!ask && !(await permissionGranted())) {
+    throw new Error("Geolocation permission not granted yet");
   }
 
   if (pendingPromise) return pendingPromise;

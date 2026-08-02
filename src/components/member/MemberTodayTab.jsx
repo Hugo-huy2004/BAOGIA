@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 import { givenName } from "./memberName";
@@ -28,36 +28,29 @@ export default function MemberTodayTab({
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage === "en" ? "en" : "vi";
   const [category, setCategory] = useState("all");
-  const [selectedArticleId, setSelectedArticleId] = useState(null);
   const [visible, setVisible] = useState(INITIAL_VISIBLE);
-  const [compactView, setCompactView] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches,
-  );
-  const previewRef = useRef(null);
   const { data, isLoading, isError, refetch } = useTodayFeed(language, category);
   const articles = useMemo(() => data?.items || [], [data?.items]);
   const shown = articles.slice(0, visible);
-  const selectedArticle =
-    articles.find((article) => article.id === selectedArticleId) ||
-    (!compactView ? articles[0] : null);
 
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 900px)");
-    const sync = () => {
-      setCompactView(media.matches);
-      if (media.matches) setSelectedArticleId(null);
-    };
-    sync();
-    media.addEventListener?.("change", sync);
-    return () => media.removeEventListener?.("change", sync);
-  }, []);
-
-  // Trên mobile khung đọc nằm dưới danh sách, phải tự kéo tới nơi.
-  useEffect(() => {
-    if (compactView && selectedArticleId) {
-      previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [compactView, selectedArticleId]);
+  // Ngón tay kéo danh sách rồi nhả ra vẫn sinh ra một click. Chỉ mở bài khi
+  // ngón không đi quá 10px và không giữ quá 700ms — còn lại là lướt.
+  const pressRef = useRef(null);
+  const onPressStart = (event) => {
+    pressRef.current = { x: event.clientX, y: event.clientY, at: Date.now() };
+  };
+  const isTap = (event) => {
+    const start = pressRef.current;
+    pressRef.current = null;
+    if (!start) return true; // mở bằng bàn phím (Enter/Space) thì luôn tính là nhấn
+    return Math.hypot(event.clientX - start.x, event.clientY - start.y) < 10
+      && Date.now() - start.at < 700;
+  };
+  const openArticle = (event, article) => {
+    // Kèm chuyên mục đang xem: sau khi server khởi động lại, cache feed trống
+    // và đây là manh mối để nạp đúng ấn bản chứa bài này.
+    if (isTap(event)) onNavigate(`/member/today/${article.id}?c=${category}`);
+  };
 
   const dateLabel = useMemo(
     () => new Intl.DateTimeFormat(language, {
@@ -115,7 +108,6 @@ export default function MemberTodayTab({
               onClick={() => {
                 setCategory(item);
                 setVisible(INITIAL_VISIBLE);
-                if (compactView) setSelectedArticleId(null);
               }}
             >
               {t(`memberPortal.today.category.${item}`)}
@@ -134,105 +126,58 @@ export default function MemberTodayTab({
             <button type="button" onClick={() => refetch()}>{t("memberPortal.today.tryAgain")}</button>
           </div>
         ) : (
-          <div className="today-news-layout">
-            <div className="today-news-list">
-              {shown.map((article, index) => (
-                <button
-                  key={article.id}
-                  type="button"
-                  className={[
-                    "today-news-card",
-                    index === 0 && article.imageUrl ? "is-lead" : "",
-                    selectedArticle?.id === article.id ? "is-selected" : "",
-                  ].filter(Boolean).join(" ")}
-                  onClick={() => setSelectedArticleId(article.id)}
+          <div className="today-news-list">
+            {shown.map((article, index) => (
+              <button
+                key={article.id}
+                type="button"
+                className={[
+                  "today-news-card",
+                  index === 0 && article.imageUrl ? "is-lead" : "",
+                ].filter(Boolean).join(" ")}
+                onPointerDown={onPressStart}
+                onClick={(event) => openArticle(event, article)}
+              >
+                <span
+                  className={`today-news-card-media ${article.imageUrl ? "has-image" : ""}`}
+                  data-category={article.category}
                 >
-                  <span
-                    className={`today-news-card-media ${article.imageUrl ? "has-image" : ""}`}
-                    data-category={article.category}
-                  >
-                    {article.imageUrl ? (
-                      <img
-                        src={article.imageUrl}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        referrerPolicy="no-referrer"
-                        onError={(event) => {
-                          event.currentTarget.hidden = true;
-                          event.currentTarget.parentElement?.classList.remove("has-image");
-                        }}
-                      />
-                    ) : null}
-                    <span className="material-symbols-outlined" aria-hidden="true">
-                      {CATEGORY_ICONS[article.category] || CATEGORY_ICONS.all}
-                    </span>
+                  {article.imageUrl ? (
+                    <img
+                      src={article.imageUrl}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      onError={(event) => {
+                        event.currentTarget.hidden = true;
+                        event.currentTarget.parentElement?.classList.remove("has-image");
+                      }}
+                    />
+                  ) : null}
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {CATEGORY_ICONS[article.category] || CATEGORY_ICONS.all}
                   </span>
-                  <span className="min-w-0">
-                    <small>
-                      {article.source}
-                      {article.publishedAt ? ` · ${dateFormatter.format(new Date(article.publishedAt))}` : ""}
-                    </small>
-                    <strong>{article.title}</strong>
-                    {index === 0 ? <em>{t("memberPortal.today.featured")}</em> : null}
-                  </span>
-                  <span className="material-symbols-outlined today-news-chevron" aria-hidden="true">chevron_right</span>
-                </button>
-              ))}
-              {articles.length > visible ? (
-                <button
-                  type="button"
-                  className="today-news-more"
-                  onClick={() => setVisible(articles.length)}
-                >
-                  {t("memberPortal.today.loadMore", { n: articles.length - visible })}
-                </button>
-              ) : null}
-            </div>
-
-            {selectedArticle ? (
-              <div className="today-news-preview" ref={previewRef}>
-                <div className="today-news-preview-bar">
-                  <span>
-                    <span className="material-symbols-outlined" aria-hidden="true">shield</span>
-                    {t("memberPortal.today.safePreview")}
-                  </span>
-                  <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer external">
-                    {t("memberPortal.today.openSource")}
-                    <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
-                  </a>
-                </div>
-                {selectedArticle.imageUrl ? (
-                  <img
-                    key={selectedArticle.id}
-                    className="today-news-preview-image"
-                    src={selectedArticle.imageUrl}
-                    alt=""
-                    loading="eager"
-                    decoding="async"
-                    referrerPolicy="no-referrer"
-                    onError={(event) => {
-                      event.currentTarget.hidden = true;
-                    }}
-                  />
-                ) : null}
-                <article className="today-news-preview-body">
+                </span>
+                <span className="min-w-0">
                   <small>
-                    {selectedArticle.source}
-                    {" · "}
-                    {t("memberPortal.today.preview")}
+                    {article.source}
+                    {article.publishedAt ? ` · ${dateFormatter.format(new Date(article.publishedAt))}` : ""}
                   </small>
-                  <h4>{selectedArticle.title}</h4>
-                  <p>{selectedArticle.description || t("memberPortal.today.noSummary")}</p>
-                  <span>{t("memberPortal.today.sourceNotice")}</span>
-                </article>
-                <div className="today-news-preview-footer">
-                  <a href={selectedArticle.url} target="_blank" rel="noopener noreferrer external">
-                    {t("memberPortal.today.readOriginal")}
-                    <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
-                  </a>
-                </div>
-              </div>
+                  <strong>{article.title}</strong>
+                  {index === 0 ? <em>{t("memberPortal.today.featured")}</em> : null}
+                </span>
+                <span className="material-symbols-outlined today-news-chevron" aria-hidden="true">chevron_right</span>
+              </button>
+            ))}
+            {articles.length > visible ? (
+              <button
+                type="button"
+                className="today-news-more"
+                onClick={() => setVisible(articles.length)}
+              >
+                {t("memberPortal.today.loadMore", { n: articles.length - visible })}
+              </button>
             ) : null}
           </div>
         )}

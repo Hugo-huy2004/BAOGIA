@@ -74,9 +74,11 @@ class PWAPermissionService {
   }
 
   async enableLocation() {
-    const position = await getCachedGeolocation({ fresh: true });
-    localStorage.setItem(LOCATION_GRANT_KEY, "true");
+    // Clear the session block first: this is a deliberate user action, so it is
+    // the only path allowed to raise the native prompt ({ ask: true }).
     sessionStorage.removeItem("pwa_location_denied");
+    const position = await getCachedGeolocation({ fresh: true, ask: true });
+    localStorage.setItem(LOCATION_GRANT_KEY, "true");
     this.notifyChanged();
     return { position, snapshot: await this.getSnapshot() };
   }

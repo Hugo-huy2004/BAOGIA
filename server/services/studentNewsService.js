@@ -268,14 +268,33 @@ const PUBLISHER_FEEDS = Object.freeze({
       ['Tuổi Trẻ', 'https://tuoitre.vn/rss/giao-duc.rss'],
     ],
   },
+  // Ấn bản EN = báo nước ngoài. Một mình BBC thì mỗi chuyên mục chỉ được vài
+  // bài và trùng ảnh; thêm Guardian/Ars/NPR cho đủ dày. Chỉ dùng RSS 2.0
+  // (<item>) vì readFeed không đọc Atom (<entry>).
   en: {
-    academic: [['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml']],
-    technology: [['BBC News', 'https://feeds.bbci.co.uk/news/technology/rss.xml']],
-    community: [['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml']],
-    world: [['BBC News', 'https://feeds.bbci.co.uk/news/world/rss.xml']],
+    academic: [
+      ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
+      ['The Guardian', 'https://www.theguardian.com/education/rss'],
+    ],
+    technology: [
+      ['BBC News', 'https://feeds.bbci.co.uk/news/technology/rss.xml'],
+      ['Ars Technica', 'https://feeds.arstechnica.com/arstechnica/technology-lab'],
+      ['The Guardian', 'https://www.theguardian.com/technology/rss'],
+    ],
+    community: [
+      ['The Guardian', 'https://www.theguardian.com/education/students/rss'],
+      ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
+    ],
+    world: [
+      ['BBC News', 'https://feeds.bbci.co.uk/news/world/rss.xml'],
+      ['NPR', 'https://feeds.npr.org/1004/rss.xml'],
+    ],
     all: [
       ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
       ['BBC News', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'],
+      ['The Guardian', 'https://www.theguardian.com/science/rss'],
+      ['Ars Technica', 'https://feeds.arstechnica.com/arstechnica/technology-lab'],
+      ['NPR', 'https://feeds.npr.org/1004/rss.xml'],
     ],
   },
 });
@@ -407,6 +426,61 @@ export class ArxivProvider extends NewsProvider {
   }
 }
 
+// ── Trình đọc: lấy toàn văn + tóm tắt để đọc ngay trong portal ─────────────
+const READER_TTL_MS = 6 * 60 * 60 * 1000;   // bài báo không đổi trong ngày
+const READER_TIMEOUT_MS = 7000;
+const READER_MAX_HTML = 600_000;            // chặn trang khổng lồ ăn băng thông Render
+const READER_MAX_CHARS = 24_000;
+
+// Bóc chữ khỏi HTML. Thứ tự ngược với cleanText(): xoá thẻ TRƯỚC rồi mới giải
+// mã entity, nếu không `&lt;b&gt;` sẽ biến thành thẻ rồi bị nuốt mất.
+function htmlToText(fragment = '') {
+  return String(fragment)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&hellip;/gi, '…')
+    .replace(/&[mn]dash;/gi, '–')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// ponytail: bóc bài bằng regex trên <p>, không kéo về jsdom/readability (≈10MB
+// dependency cho một tính năng đọc). Trang render bằng JS sẽ trả rỗng — lúc đó
+// client hiện tóm tắt + nút đọc bài gốc, không bịa nội dung.
+export function extractParagraphs(html = '') {
+  const cleaned = String(html)
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(script|style|noscript|svg|form|iframe|figcaption|aside)\b[\s\S]*?<\/\1>/gi, ' ');
+  const scope = cleaned.match(/<article\b[\s\S]*?<\/article>/i)?.[0] || cleaned;
+  const seen = new Set();
+  const paragraphs = [];
+  let total = 0;
+  for (const match of scope.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)) {
+    const text = htmlToText(match[1]);
+    // Dưới 40 ký tự gần như luôn là caption ảnh, breadcrumb hoặc dòng quảng cáo.
+    if (text.length < 40 || seen.has(text)) continue;
+    seen.add(text);
+    paragraphs.push(text);
+    total += text.length;
+    if (total >= READER_MAX_CHARS) break;
+  }
+  return paragraphs;
+}
+
+function splitSentences(text = '', max = 3) {
+  return String(text)
+    .split(/(?<=[.!?…])\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 30)
+    .slice(0, max);
+}
+
 export class StudentNewsService {
   constructor(providers = [
     new GNewsProvider(),
@@ -416,6 +490,75 @@ export class StudentNewsService {
   ]) {
     this.providers = providers;
     this.cache = new Map();
+    this.readerCache = new Map();
+  }
+
+  // Client chỉ gửi id — server tự tra ra URL. Nhờ vậy endpoint đọc bài KHÔNG
+  // bao giờ fetch một URL do người dùng đưa vào (không có cửa cho SSRF).
+  async findArticleById(id, options = {}) {
+    const wanted = String(id || '').trim();
+    if (!wanted) return null;
+    const scan = () => {
+      for (const entry of this.cache.values()) {
+        const hit = entry.articles.find((article) => article.id === wanted);
+        if (hit) return hit;
+      }
+      return null;
+    };
+    const hit = scan();
+    if (hit) return hit;
+    // Cache trống sau khi service khởi động lại: nạp đúng chuyên mục người dùng
+    // đang xem, rồi mới thử "all".
+    await this.getFeed({ ...options, limit: MAX_ARTICLES });
+    if (options.category && options.category !== 'all') {
+      const found = scan();
+      if (found) return found;
+      await this.getFeed({ ...options, category: 'all', limit: MAX_ARTICLES });
+    }
+    return scan();
+  }
+
+  async readArticle(article) {
+    const cached = this.readerCache.get(article.id);
+    if (cached && cached.expiresAt > Date.now()) return cached.value;
+
+    let paragraphs = [];
+    try {
+      const response = await fetch(article.url, {
+        redirect: 'follow',
+        signal: AbortSignal.timeout(READER_TIMEOUT_MS),
+        headers: { 'User-Agent': 'HugoWishpaxStudentPortal/1.0 (reader)', Accept: 'text/html' },
+      });
+      if (response.ok) {
+        paragraphs = extractParagraphs((await response.text()).slice(0, READER_MAX_HTML));
+      }
+    } catch {
+      // Nguồn chặn bot / quá chậm: vẫn trả tóm tắt, người đọc bấm sang bài gốc.
+    }
+
+    const words = paragraphs.join(' ').split(/\s+/).filter(Boolean).length;
+    const value = {
+      paragraphs,
+      readMinutes: words ? Math.max(1, Math.round(words / 200)) : 0,
+      available: paragraphs.length > 0,
+    };
+    this.readerCache.set(article.id, { value, expiresAt: Date.now() + READER_TTL_MS });
+    if (this.readerCache.size > 120) {
+      for (const [key, entry] of this.readerCache) {
+        if (entry.expiresAt <= Date.now()) this.readerCache.delete(key);
+      }
+    }
+    return value;
+  }
+
+  // ponytail: KHÔNG gọi AI ở đây. Mọi nguồn RSS đều đã kèm sapo do chính toà
+  // soạn viết — dùng lại `article.description` là đủ tóm tắt và tốn 0 token.
+  // Chỉ khi nào sapo rỗng mới lấy tạm 2 câu đầu của bài.
+  summarizeArticle(article, content) {
+    const points = article.description
+      ? [article.description]
+      : splitSentences(content.paragraphs.join(' '), 2);
+    return { points, by: 'source' };
   }
 
   async getFeed({

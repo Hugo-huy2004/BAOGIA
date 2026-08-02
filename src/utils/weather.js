@@ -2,6 +2,8 @@
 // Chosen because it's modern, fast, free, and needs NO API key (zero setup /
 // no secret to leak), returning current conditions + is_day in one call.
 
+import { getCachedGeolocation } from "./geoCache.js";
+
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 // No-key IP geolocation fallback (city-level) so a public bio can show local
 // weather WITHOUT prompting every visitor for GPS permission.
@@ -58,19 +60,14 @@ export function assessWeather(w) {
   };
 }
 
-// Resolve coordinates. `preferGeo` asks the browser for precise GPS (prompts the
-// user); otherwise we go straight to silent IP-based lookup. Always resolves —
-// falls back to DEFAULT_COORDS — so callers never have to handle "no location".
-export async function resolveCoords({ preferGeo = false, timeoutMs = 8000 } = {}) {
-  if (preferGeo && typeof navigator !== "undefined" && navigator.geolocation) {
+// Resolve coordinates. `preferGeo` uses precise GPS *if the user already
+// granted it* (getCachedGeolocation never prompts on its own); otherwise we go
+// straight to silent IP-based lookup. Always resolves — falls back to
+// DEFAULT_COORDS — so callers never have to handle "no location".
+export async function resolveCoords({ preferGeo = false } = {}) {
+  if (preferGeo) {
     try {
-      const pos = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: false,
-          timeout: timeoutMs,
-          maximumAge: 5 * 60 * 1000,
-        });
-      });
+      const pos = await getCachedGeolocation();
       return { lat: pos.coords.latitude, lon: pos.coords.longitude, city: "", source: "gps" };
     } catch {
       // The authenticated Portal already asks for location explicitly. If the
