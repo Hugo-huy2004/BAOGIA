@@ -56,7 +56,8 @@ export async function generateWeeklyReportForUser(email, bioOverride = {}) {
     }
   };
 
-  const fetch = (await import('node-fetch')).default;
+  // ponytail: fetch có sẵn từ Node 18 — node-fetch chưa từng nằm trong
+  // server/package.json nên dòng import động cũ chỉ chờ nổ khi ai đó xuất báo cáo.
   const aiResponse = await fetch(`${AI_SERVER}/api/ai/report/weekly`, {
     method: 'POST',
     headers: {
