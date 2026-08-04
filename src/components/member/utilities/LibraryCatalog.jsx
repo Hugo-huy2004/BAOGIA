@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { RoutePrefetcher } from "../../../utils/routePrefetcher";
 import { triggerPWAInstallDirectly } from "../../../utils/pwaInstallTrigger";
-import { useData } from "../../../context/DataContext";
 import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
 import { ArrowLeft, Search, X } from "lucide-react";
 import UtilityAppIcon from "./UtilityAppIcon";
+import JoyCoinBadge from "../../shared/JoyCoinBadge";
 
 // Kept in sync with the same map in MemberUtilitiesDashboard.jsx
 const APP_STORAGE_MB = {
@@ -59,14 +59,12 @@ export default function LibraryCatalog({
   gradients,
   onBack
 }) {
-  const { t, i18n } = useTranslation();
-  const { data } = useData();
+  const { t } = useTranslation();
   const [selectedApp, setSelectedApp] = useState(null);
   const [descExpanded, setDescExpanded] = useState(false);
   const [pendingInstallApp, setPendingInstallApp] = useState(null);
   const [activeTab, setActiveTab] = useState("apps"); // "apps" | "installed"
 
-  const joyBalance = data?.member?.joyBalance || 1540;
 
   // Hide mobile bottom tab bar whenever a modal sheet (product detail or install choice) is open
   useEffect(() => {
@@ -79,7 +77,6 @@ export default function LibraryCatalog({
 
   const categoryLabel = (category) =>
     t(`utilities.categories.${category === "edu" ? "education" : category === "arcade" ? "entertainment" : category}`);
-  const locale = i18n.resolvedLanguage === "en" ? "en-US" : "vi-VN";
 
   const confirmInstall = (addToHome) => {
     if (!pendingInstallApp) return;
@@ -127,8 +124,8 @@ export default function LibraryCatalog({
           </div>
         </div>
 
-        <span className="rounded-full bg-muted px-3 py-1.5 text-xs font-semibold tabular-nums text-muted-foreground">
-          {(joyBalance ?? 0).toLocaleString(locale)} JOY
+        <span className="rounded-full bg-muted px-3 py-1.5">
+          <JoyCoinBadge size="sm" />
         </span>
       </div>
 

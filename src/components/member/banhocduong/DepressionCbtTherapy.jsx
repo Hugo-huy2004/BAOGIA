@@ -5,7 +5,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "../../../config/apiBase";
-const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showToast, bio, historyLogs, chatMessages }) {
   const [step, setStep] = useState("intro"); // 'intro' | 'loading' | 'worksheet' | 'custom_input'
@@ -33,10 +32,7 @@ export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showT
       // SleepTracker.jsx) — no separate "ai.<domain>" host in dev or prod.
       const r = await fetch(`${API_BASE}/ai/therapy/cbt-worksheet`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Internal-Key": INTERNAL_KEY
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 

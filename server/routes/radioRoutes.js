@@ -7,6 +7,9 @@ const RADIO_API_BASE = 'https://de1.api.radio-browser.info/json';
 
 // Weekly free allowance in minutes (5 hours)
 const WEEKLY_FREE_MINUTES = 300;
+// Ceiling for a single heartbeat. The client reports elapsed wall-clock time, so
+// a tab the OS suspended for hours would otherwise report the whole gap at once.
+const MAX_HEARTBEAT_MINUTES = 30;
 // Milliseconds in one week
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -60,7 +63,12 @@ async function checkUrl(url) {
   }
 }
 
-async function getWorkingStation(stations, excludeUrl) {
+// `strict`: caller is healing a stream that just died, so a station we could not
+// verify is worse than nothing — it makes the client attach another dead URL and
+// wait for a timeout. Returning null lets it skip straight to another station.
+// The category listing is not strict: an unverified station still belongs in the
+// grid, the user may well be able to play it.
+async function getWorkingStation(stations, excludeUrl, strict = false) {
   try {
     return await Promise.any(
       stations.map(async (station) => {
@@ -72,12 +80,53 @@ async function getWorkingStation(stations, excludeUrl) {
       })
     );
   } catch (e) {
-    // If all fail, return the first one that wasn't excluded (or just the first)
+    if (strict) return null;
     return stations.find(s => (s.url_resolved || s.url) !== excludeUrl) || stations[0];
   }
 }
 
-async function resolveStationByName(name, excludeUrl) {
+// ─── Cache kết quả dò đài ────────────────────────────────────────────────────
+// Mỗi lượt dò là một request tìm kiếm + vài request kiểm tra luồng đi RA từ
+// Render — và mọi người dùng đều dò đúng những cái tên như nhau ("VOV1", "BBC").
+// Giữ lại kết quả trong bộ nhớ tiến trình là đủ để một người trả giá cho cả
+// nhóm. Không dùng database: mất cache khi restart chỉ tốn đúng một lượt dò.
+//
+// ponytail: Map trong tiến trình. Render chạy một instance Node; nhiều instance
+// thì mỗi cái tự có cache riêng — vẫn đúng, chỉ kém hiệu quả hơn.
+const RESOLVE_CACHE_MAX = 200;
+const RESOLVE_TTL_HIT = 2 * 60 * 60 * 1000;   // đài dò được: 2 tiếng
+const RESOLVE_TTL_MISS = 10 * 60 * 1000;      // không tìm thấy: 10 phút
+const resolveCache = new Map();
+
+function cacheGet(key) {
+  const hit = resolveCache.get(key);
+  if (!hit) return undefined;
+  const ttl = hit.station ? RESOLVE_TTL_HIT : RESOLVE_TTL_MISS;
+  if (Date.now() - hit.at > ttl) {
+    resolveCache.delete(key);
+    return undefined;
+  }
+  return hit.station;
+}
+
+function cacheSet(key, station) {
+  // Map giữ thứ tự chèn: đầy thì bỏ mục cũ nhất.
+  if (resolveCache.size >= RESOLVE_CACHE_MAX) {
+    resolveCache.delete(resolveCache.keys().next().value);
+  }
+  resolveCache.set(key, { at: Date.now(), station });
+}
+
+async function resolveStationCached(name, excludeUrl, strict) {
+  const key = `${name}|${excludeUrl || ''}|${strict ? 1 : 0}`;
+  const cached = cacheGet(key);
+  if (cached !== undefined) return cached;
+  const station = await resolveStationByName(name, excludeUrl, strict);
+  cacheSet(key, station || null);
+  return station;
+}
+
+async function resolveStationByName(name, excludeUrl, strict = false) {
   try {
     // ponytail: limit 5 (was 10). Each candidate gets a stream health-check
     // (manifest fetch) — halving candidates halves that outbound; sorted by
@@ -90,7 +139,7 @@ async function resolveStationByName(name, excludeUrl) {
     
     // Sort by lastcheckok (1 = good, 0 = bad)
     const candidates = [...data].sort((a, b) => b.lastcheckok - a.lastcheckok);
-    return await getWorkingStation(candidates, excludeUrl);
+    return await getWorkingStation(candidates, excludeUrl, strict);
   } catch {
     return null;
   }
@@ -100,7 +149,7 @@ async function resolveStationByName(name, excludeUrl) {
 router.post('/stations', async (req, res) => {
   try {
     const names = Array.isArray(req.body?.names) ? req.body.names : [];
-    const results = await Promise.all(names.map(name => resolveStationByName(name)));
+    const results = await Promise.all(names.map(name => resolveStationCached(name, undefined, false)));
     res.json(results.filter(Boolean));
   } catch {
     res.json([]);
@@ -113,7 +162,7 @@ router.get('/station', async (req, res) => {
     const name = req.query.name;
     const excludeUrl = req.query.exclude;
     if (!name) return res.json(null);
-    const station = await resolveStationByName(name, excludeUrl);
+    const station = await resolveStationCached(name, excludeUrl, req.query.strict === '1');
     res.json(station || null);
   } catch {
     res.json(null);
@@ -142,6 +191,37 @@ function ensureWeeklyReset(radioTokens) {
     radioTokens.weeklyResetAt = new Date(now);
   }
   return radioTokens;
+}
+
+// Cộng dồn số thập phân qua hàng trăm nhịp sẽ trôi (0.1 + 0.2…) — chốt hai chữ số.
+const round2 = (value) => Math.round(value * 100) / 100;
+
+/**
+ * Trừ số phút vừa nghe: hết hạn mức miễn phí 5 giờ/tuần rồi mới đụng tới phần
+ * đã mua. Hàm thuần, không chạm database — để kiểm chứng được bằng test.
+ */
+export function applyListening(tokens, minutes) {
+  let remaining = Math.max(0, minutes);
+
+  const freeAvailable = Math.max(0, tokens.weeklyFreeMinutes - tokens.weeklyUsedMinutes);
+  const fromFree = Math.min(freeAvailable, remaining);
+  tokens.weeklyUsedMinutes = round2(tokens.weeklyUsedMinutes + fromFree);
+  remaining -= fromFree;
+
+  const fromPurchased = Math.min(Math.max(0, tokens.purchasedMinutes), remaining);
+  tokens.purchasedMinutes = round2(Math.max(0, tokens.purchasedMinutes) - fromPurchased);
+  remaining -= fromPurchased;
+
+  const freeLeft = round2(Math.max(0, tokens.weeklyFreeMinutes - tokens.weeklyUsedMinutes));
+  const purchasedLeft = round2(Math.max(0, tokens.purchasedMinutes));
+
+  return {
+    freeRemaining: freeLeft,
+    purchasedRemaining: purchasedLeft,
+    totalRemaining: round2(freeLeft + purchasedLeft),
+    canListen: freeLeft + purchasedLeft > 0,
+    deducted: round2(fromFree + fromPurchased),
+  };
 }
 
 // GET /api/radio/token-status?email=...
@@ -194,7 +274,12 @@ router.post('/heartbeat', requireMember, async (req, res) => {
   try {
     const { email, listeningMinutes } = req.body;
     if (!email) return res.status(400).json({ error: 'email is required' });
-    const minutes = Number(listeningMinutes) || 5;
+    // The client now reports actual elapsed minutes (fractional), so `|| 5` was
+    // wrong twice over: it turned a legitimate 0 into a 5-minute charge, and it
+    // trusted whatever number arrived. Cap it — a throttled/suspended tab can
+    // wake up hours later and report the whole gap.
+    const asked = Number(listeningMinutes);
+    const minutes = Number.isFinite(asked) ? Math.min(Math.max(asked, 0), MAX_HEARTBEAT_MINUTES) : 5;
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
@@ -210,37 +295,10 @@ router.post('/heartbeat', requireMember, async (req, res) => {
     }
 
     ensureWeeklyReset(bio.radioTokens);
-
-    let remaining = minutes;
-
-    // Deduct from free pool first
-    const freeAvailable = Math.max(0, bio.radioTokens.weeklyFreeMinutes - bio.radioTokens.weeklyUsedMinutes);
-    if (freeAvailable > 0) {
-      const fromFree = Math.min(freeAvailable, remaining);
-      bio.radioTokens.weeklyUsedMinutes += fromFree;
-      remaining -= fromFree;
-    }
-
-    // Then from purchased pool
-    if (remaining > 0 && bio.radioTokens.purchasedMinutes > 0) {
-      const fromPurchased = Math.min(bio.radioTokens.purchasedMinutes, remaining);
-      bio.radioTokens.purchasedMinutes -= fromPurchased;
-      remaining -= fromPurchased;
-    }
-
+    const result = applyListening(bio.radioTokens, minutes);
     await bio.save();
 
-    const freeLeft = Math.max(0, bio.radioTokens.weeklyFreeMinutes - bio.radioTokens.weeklyUsedMinutes);
-    const purchasedLeft = Math.max(0, bio.radioTokens.purchasedMinutes);
-
-    res.json({
-      freeRemaining: freeLeft,
-      purchasedRemaining: purchasedLeft,
-      totalRemaining: freeLeft + purchasedLeft,
-      canListen: (freeLeft + purchasedLeft) > 0,
-      deducted: minutes - remaining,
-      weekResetAt: bio.radioTokens.weeklyResetAt
-    });
+    res.json({ ...result, weekResetAt: bio.radioTokens.weeklyResetAt });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

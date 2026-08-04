@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { getAiUrl } from "../../services/api";
 
 const VITE_API = import.meta.env.VITE_API_URL || "/api";
 

@@ -207,31 +207,13 @@ export default defineConfig(({ mode }) => {
     // COOP header intentionally omitted — same-origin-allow-popups blocks
     // Google Sign-In's cross-origin postMessage between its iframe/popup and
     // the parent page.  See vercel.json for the production decision.
+    // Dev phải phản chiếu đúng production: vercel.json rewrite MỌI `/api/*` sang
+    // Node, và chỉ Node mới nói chuyện với Python (aiProxyRoutes/sleepRoutes tự
+    // gắn `X-Internal-Key` từ biến môi trường server). Trước đây dev bắn thẳng
+    // `/api/ai`, `/api/iot`, `/api/sleep/analyze` sang Python — trình duyệt không
+    // có (và không được phép có) internal key nên luôn ăn 401, còn
+    // `/api/iot/devices|vitals` thì 404 vì mấy route đó chỉ có ở Node.
     proxy: {
-      // AI endpoints → Python server (Vercel production or local 8000)
-      '/api/ai': {
-        target: process.env.VITE_AI_SERVER_URL || 'https://hugostudio-ai.vercel.app',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/api/iot': {
-        target: process.env.VITE_AI_SERVER_URL || 'https://hugostudio-ai.vercel.app',
-        changeOrigin: true,
-        secure: false,
-      },
-      // Sleep AI analysis → Python server
-      '/api/sleep/analyze': {
-        target: process.env.VITE_AI_SERVER_URL || 'https://hugostudio-ai.vercel.app',
-        changeOrigin: true,
-        secure: false,
-      },
-      // IoT WebSocket → Python server
-      '/ws/iot': {
-        target: process.env.VITE_AI_WS_URL || 'wss://hugostudio-ai.vercel.app',
-        ws: true,
-        changeOrigin: true,
-        secure: false,
-      },
       // Chess WebSocket → Node.js backend
       '/ws/chess': {
         target: process.env.VITE_WS_URL || 'wss://baogia-x9lk.onrender.com',

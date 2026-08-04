@@ -67,6 +67,8 @@ const MODE_OPTIONS = [
 export default function EcoGreen({ onExitEco }) {
   const [mode, setMode] = useState(getEcoMode);
   const [ledger, setLedger] = useState(readLedger);
+  // Đọc một lần khi mở tab: listSaved() phải parse toàn văn tới 30 bài.
+  const [savedCount] = useState(() => listSaved().length);
   const signals = getEcoSignals();
   const minutes = ecoMinutes(ledger);
 
@@ -115,7 +117,7 @@ export default function EcoGreen({ onExitEco }) {
             </div>
             <div>
               <dt>Bài đang giữ để đọc lại</dt>
-              <dd>{listSaved().length}</dd>
+              <dd>{savedCount}</dd>
             </div>
           </dl>
         </div>

@@ -1,11 +1,43 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { motion, useAnimation, animate } from "framer-motion";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
+import {
+  orderedUrls, recordOk, recordFail, stationStatus, pickRandom, learnedUrl,
+  resolveByName, rememberFound, forgetFound, foundStations, lastStationId,
+} from "../../services/radioBrain";
+import { setMediaSession, setMediaPlaybackState } from "../../services/mediaSession";
 import RadioTokenStatus, { useRadioHeartbeat } from "./RadioTokenStatus";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
+
+// Đài hỏng thì tự nhảy sang đài khác, nhưng có trần: mỗi lần nhảy là một lượt
+// dò trên máy chủ, mất sóng cả cụm thì đừng biến thành vòng lặp gọi mạng.
+const MAX_AUTO_SKIP = 3;
+
+const FOUND_CATEGORY = "found";
+const STATUS_DOT = {
+  good: "bg-emerald-500",
+  shaky: "bg-amber-500",
+  dead: "bg-zinc-400 dark:bg-zinc-600",
+  unknown: "bg-transparent",
+};
+const STATUS_TITLE = {
+  good: "Đài này phát tốt",
+  shaky: "Đài này chập chờn",
+  dead: "Đài này đang hỏng — sẽ thử lại sau một ngày",
+  unknown: "Chưa thử đài này",
+};
+
+// Đài tự tìm được lưu dạng { id, name, url } — đổi sang đúng hình dạng mà phần
+// còn lại của trang đang dùng.
+const toStation = (found) => ({
+  stationuuid: found.id,
+  name: found.name,
+  url_resolved: found.url,
+  url: found.url,
+  found: true,
+});
 
 const RADIO_CATEGORIES = [
   { id: "vn_news", icon: "newspaper", label: "Đài Việt Nam", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
@@ -22,8 +54,6 @@ const STATION_FREQUENCIES = {
   "Lofi Girl Radio": 88.5, "Chillhop Radio": 92.1, "Smooth Jazz 247": 97.3, "Classical FM": 100.1, "Chillout Lounge": 103.5,
   "ESPN Radio": 89.5, "TalkSPORT": 94.1, "CBC Radio One": 99.5, "Radio France Internationale": 106.8
 };
-
-const ALL_FREQS = Object.entries(STATION_FREQUENCIES).map(([name, freq]) => ({ name, freq })).sort((a, b) => a.freq - b.freq);
 
 const FALLBACK_STATIONS = {
   vn_news: [
@@ -89,11 +119,24 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const [showStore, setShowStore] = useState(false);
   const { tokenStatus, refetch: refetchTokens } = useRadioHeartbeat(bio, isPlaying);
 
+  // Đài người dùng tự tìm, nhớ trong máy giữa các phiên.
+  const [foundList, setFoundList] = useState(foundStations);
+  const [search, setSearch] = useState("");
+  const [searching, setSearching] = useState(false);
+  // Đổi số này để bảng đài vẽ lại sau khi sổ theo dõi thay đổi.
+  const [healthTick, setHealthTick] = useState(0);
+
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
   const playbackRequestRef = useRef(0);
   const retriedRef = useRef(false);
   const handleFailureRef = useRef(() => {});
+  // Lượt phát hiện tại: đài nào, còn những địa chỉ nào chưa thử.
+  const attemptRef = useRef({ station: null, urls: [], index: 0 });
+  // Nút "chuyển kênh" trên màn hình khoá cần hàm bốc ngẫu nhiên, mà hàm đó khai
+  // báo bên dưới — giữ qua ref để effect ở trên gọi được bản mới nhất.
+  const playRandomRef = useRef(() => {});
+  const autoSkipRef = useRef({ count: 0, skipped: [] });
 
   const audioCtxRef = useRef(null);
   const noiseSourceRef = useRef(null);
@@ -214,7 +257,15 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   useEffect(() => {
     const audio = new Audio();
     audio.volume = volume / 100;
-    audio.onplaying = () => { setIsPlaying(true); setIsBuffering(false); setIsStatic(false); stopStaticNoise(); };
+    audio.onplaying = () => {
+      setIsPlaying(true); setIsBuffering(false); setIsStatic(false); stopStaticNoise();
+      // Ghi vào sổ đúng địa chỉ vừa phát được — lần sau vào thẳng đường này.
+      const { station, urls, index } = attemptRef.current;
+      if (station) {
+        recordOk(station.stationuuid, urls[index]);
+        setHealthTick((tick) => tick + 1);
+      }
+    };
     audio.onpause = () => setIsPlaying(false);
     audio.onwaiting = () => setIsBuffering(true);
     audio.onerror = () => handleFailureRef.current();
@@ -246,6 +297,8 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const loadCategory = useCallback((categoryId) => {
     if (loadedCategoriesRef.current.has(categoryId)) return;
     const category = RADIO_CATEGORIES.find((c) => c.id === categoryId);
+    // Danh mục "Đã tìm" nằm sẵn trong máy, không có gì để tải.
+    if (!category) return;
     const fallbacks = FALLBACK_STATIONS[categoryId] || [];
 
     setStationsByCategory((prev) => (prev[categoryId] ? prev : { ...prev, [categoryId]: fallbacks }));
@@ -320,18 +373,58 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     }
   };
 
+  // Ba nấc khi một đài không phát được, đi từ rẻ tới đắt:
+  //   1. Còn địa chỉ khác của chính đài đó (đường đã học được, url_resolved, url).
+  //   2. Hỏi máy chủ một lượt xem đài này giờ phát ở đâu, rồi NHỚ đường mới.
+  //   3. Ghi đài hỏng vào sổ và tự nhảy sang đài khoẻ khác trong danh mục.
+  // Trước đây chỉ có nấc 2 và địa chỉ chữa được không hề được ghi nhớ — mỗi lần
+  // mở lại trang là lặp lại y nguyên cú thử vào địa chỉ đã chết.
   const handlePlaybackFailure = async () => {
-    if (!retriedRef.current && nowPlaying) {
+    const attempt = attemptRef.current;
+    const station = attempt.station || nowPlaying;
+
+    if (attempt.index + 1 < attempt.urls.length) {
+      attempt.index += 1;
+      setIsBuffering(true);
+      attachAndPlay(attempt.urls[attempt.index]);
+      return;
+    }
+
+    if (!retriedRef.current && station) {
       retriedRef.current = true;
-      const failedUrl = nowPlaying.url_resolved || nowPlaying.url;
-      const fresh = await fetchStationByName(nowPlaying.name, failedUrl);
+      const failedUrl = attempt.urls[attempt.index] || station.url_resolved || station.url;
+      // strict: đang chữa luồng chết, đài chưa xác minh được thì thà bỏ qua.
+      const fresh = await fetchStationByName(station.name, failedUrl, true);
       const freshUrl = fresh?.url_resolved || fresh?.url;
       if (freshUrl && freshUrl !== failedUrl) {
+        attempt.urls = [...attempt.urls, freshUrl];
+        attempt.index = attempt.urls.length - 1;
         setIsBuffering(true);
         attachAndPlay(freshUrl);
         return;
       }
     }
+
+    if (station) {
+      recordFail(station.stationuuid);
+      setHealthTick((tick) => tick + 1);
+      autoSkipRef.current.skipped = [...autoSkipRef.current.skipped, station.stationuuid];
+    }
+
+    const pool = activeCategory === FOUND_CATEGORY
+      ? foundList.map(toStation)
+      : (stationsByCategory[activeCategory] || []);
+    const next = autoSkipRef.current.count < MAX_AUTO_SKIP
+      ? pickRandom(pool, { exclude: autoSkipRef.current.skipped, idOf: (item) => item.stationuuid })
+      : null;
+
+    if (next) {
+      autoSkipRef.current.count += 1;
+      showToast?.(`${station?.name || "Đài này"} không kết nối được — chuyển sang ${next.name}.`, "info");
+      playStation(next, { chained: true });
+      return;
+    }
+
     setIsBuffering(false);
     setIsPlaying(false);
     showToast?.(t("utilities.radio.toastPlayError", "Đài này hiện không khả dụng."), "error");
@@ -339,7 +432,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
 
   handleFailureRef.current = handlePlaybackFailure;
 
-  const playStation = (station) => {
+  const playStation = (station, { chained = false } = {}) => {
     // Check token before playing
     if (tokenStatus && !tokenStatus.canListen) {
       showToast?.("Hết thời gian nghe radio. Vui lòng mua thêm gói thời gian.", "warning");
@@ -354,6 +447,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     }
 
     retriedRef.current = false;
+    if (!chained) autoSkipRef.current = { count: 0, skipped: [] };
     stopStaticNoise();
     setNowPlaying(station);
     setIsBuffering(true);
@@ -363,9 +457,11 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     const freq = STATION_FREQUENCIES[station.name];
     if (freq) setVisualFreq(freq);
 
-    const streamUrl = station.url_resolved || station.url;
-    if (streamUrl) {
-      attachAndPlay(streamUrl);
+    // Đường đã học được đứng trước — nó là đường lần trước phát thật sự chạy.
+    const urls = orderedUrls(station.stationuuid, [station.url_resolved, station.url]);
+    attemptRef.current = { station, urls, index: 0 };
+    if (urls.length) {
+      attachAndPlay(urls[0]);
       registerStationClick(station.stationuuid);
     } else {
       handlePlaybackFailure();
@@ -446,12 +542,27 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     } else if (nowPlaying) {
       playStation(nowPlaying);
     } else {
-      const firstCat = stationsByCategory[activeCategory];
-      if (firstCat && firstCat.length > 0) {
-        playStation(firstCat[0]);
-      }
+      // Mở app rồi bấm phát: tiếp tục đúng đài lần trước, không phải đài đầu danh sách.
+      const pool = stationsByCategory[activeCategory] || [];
+      const last = pool.find((item) => item.stationuuid === lastStationId());
+      const target = last || pool[0];
+      if (target) playStation(target);
     }
   };
+
+  // Màn hình khoá / thanh thông báo / nút trên tai nghe.
+  useEffect(() => {
+    if (!nowPlaying) return;
+    setMediaSession(nowPlaying, {
+      onPlay: () => playStation(nowPlaying),
+      onPause: () => { audioRef.current?.pause(); setIsPlaying(false); },
+      onStop: () => { audioRef.current?.pause(); setIsPlaying(false); },
+      onNext: () => playRandomRef.current(),
+    });
+    setMediaPlaybackState(isPlaying ? "playing" : "paused");
+    // playStation đọc state mới nhất qua closure của lần render này.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nowPlaying, isPlaying]);
 
   // Auto-pause when tokens run out
   useEffect(() => {
@@ -463,8 +574,52 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     }
   }, [tokenStatus, isPlaying, stopStaticNoise, showToast]);
 
-  const stations = stationsByCategory[activeCategory] || [];
+  const stations = activeCategory === FOUND_CATEGORY
+    ? foundList.map(toStation)
+    : (stationsByCategory[activeCategory] || []);
   const needleLeft = `calc(0.5rem + (100% - 1rem) * ${(visualFreq - 87.5) / (108.0 - 87.5)})`;
+
+  // Bốc một đài khoẻ bất kỳ trong danh mục đang xem. Đài từng phát được có
+  // trọng số gấp ba, đài đang hỏng bị loại — nên "ngẫu nhiên" gần như luôn ra
+  // tiếng ngay lần đầu.
+  const playRandom = () => {
+    const next = pickRandom(stations, {
+      exclude: nowPlaying ? [nowPlaying.stationuuid] : [],
+      idOf: (item) => item.stationuuid,
+    });
+    if (next) playStation(next);
+  };
+  playRandomRef.current = playRandom;
+
+  const submitSearch = async (event) => {
+    event.preventDefault();
+    const name = search.trim();
+    if (!name || searching) return;
+    setSearching(true);
+    try {
+      const found = await resolveByName(name);
+      if (!found) {
+        showToast?.(`Không tìm thấy đài nào tên “${name}”.`, "warning");
+        return;
+      }
+      rememberFound(found);
+      setFoundList(foundStations());
+      setSearch("");
+      setActiveCategory(FOUND_CATEGORY);
+      playStation(toStation(found));
+    } catch {
+      showToast?.("Không hỏi được máy chủ tìm đài. Kiểm tra mạng rồi thử lại.", "error");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const dropFound = (id) => {
+    forgetFound(id);
+    const remaining = foundStations();
+    setFoundList(remaining);
+    if (!remaining.length) setActiveCategory(RADIO_CATEGORIES[0].id);
+  };
 
   return (
     <div className="text-zinc-900 dark:text-white transition-colors duration-300">
@@ -475,125 +630,143 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
         <RadioTokenStatus bio={bio} onBuyMore={() => setShowStore(true)} />
       </div>
 
-        {/* ─── Apple Music Style Receiver Player ──────────────────────────────────── */}
-        <div className="relative mb-6 rounded-[36px] bg-white/80 dark:bg-[#0e0f17]/90 p-5 md:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.7)] backdrop-blur-3xl border border-zinc-200/80 dark:border-white/10 overflow-hidden transition-all duration-300">
-          {/* Glass/Glow Ambient Highlights */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-cyan-500/15 dark:bg-cyan-500/20 rounded-full blur-[70px] pointer-events-none" />
-          <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-500/15 dark:bg-purple-500/20 rounded-full blur-[70px] pointer-events-none" />
+        {/* ─── Máy thu ─────────────────────────────────────────────────────────────
+            Phẳng và tĩnh: nền đặc, viền mảnh, một màu nhấn duy nhất (info).
+            Bỏ hẳn lớp mờ, quầng sáng, gradient và dải equalizer nhấp nháy — dải
+            đó không nói lên điều gì về âm thanh thật mà vẫn bắt máy vẽ lại liên tục. */}
+        <div className="mb-5 rounded-2xl bg-card border border-border p-4 md:p-5 flex flex-col gap-4">
 
-          <div className="relative z-10 flex flex-col gap-6">
-
-            {/* Top Apple Display Screen */}
-            <div className="bg-zinc-100/90 dark:bg-[#05060b]/90 rounded-2xl px-5 py-4 border border-zinc-200/90 dark:border-white/10 shadow-inner flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
-              <div className="flex-1 min-w-0 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_currentColor] ${(isPlaying && !isDragging) ? "bg-[#06b6d4] text-[#06b6d4] animate-pulse" : (isStatic || isDragging) ? "bg-[#06b6d4]/40 text-[#06b6d4]" : "bg-zinc-400 dark:bg-zinc-700 text-transparent"}`} />
-                  <span className="text-[10px] font-black tracking-widest uppercase text-[#06b6d4] dark:text-[#06b6d4]">
-                    {isDragging ? "TUNING..." : isBuffering ? "CONNECTING..." : isStatic ? "STATIC NOISE" : isPlaying ? "FM STEREO" : nowPlaying ? "PAUSED" : "STANDBY"}
+            {/* Màn hình hiển thị */}
+            <div className="bg-muted rounded-xl px-4 py-3.5 border border-border flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${
+                    isPlaying && !isDragging ? "bg-info" : (isStatic || isDragging || isBuffering) ? "bg-muted-foreground" : "bg-transparent border border-muted-foreground/50"
+                  }`} />
+                  <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    {isDragging ? "Đang dò" : isBuffering ? "Đang kết nối" : isStatic ? "Nhiễu sóng" : isPlaying ? "Đang phát" : nowPlaying ? "Tạm dừng" : "Chờ"}
                   </span>
                 </div>
-                <p className="font-sans text-base font-extrabold tracking-tight truncate text-zinc-900 dark:text-white transition-all">
-                  {nowPlaying && !isDragging && !isStatic ? nowPlaying.name : "HUGO DIGITAL RADIO"}
+                <p className="text-[17px] font-bold leading-tight truncate text-foreground">
+                  {nowPlaying && !isDragging && !isStatic ? nowPlaying.name : "HugoRadio"}
                 </p>
-
-                {/* Apple Live Equalizer Bars */}
-                <div className="flex items-end gap-[3.5px] h-3.5 mt-3 opacity-90">
-                  {Array.from({ length: 14 }).map((_, i) => (
-                    <span key={i} className="w-[3px] rounded-full origin-bottom" style={{
-                      backgroundColor: i > 10 ? "#ef4444" : i > 6 ? "#f59e0b" : "#06b6d4",
-                      animationName: (isPlaying && !isDragging) ? "eq-bar" : (isStatic || isDragging) ? "eq-bar" : "none",
-                      animationDuration: (isStatic || isDragging) ? `${0.1 + Math.random()*0.2}s` : `${0.35 + (i%3)*0.12}s`,
-                      animationIterationCount: "infinite",
-                      transform: (isPlaying || isStatic || isDragging) ? "scaleY(1)" : "scaleY(0.2)",
-                      height: "100%",
-                      transition: "transform 0.2s"
-                    }} />
-                  ))}
-                </div>
+                {nowPlaying && (
+                  <p className="text-[13px] text-muted-foreground mt-1 truncate">
+                    {STATUS_TITLE[stationStatus(nowPlaying.stationuuid)]}
+                    {healthTick >= 0 && learnedUrl(nowPlaying.stationuuid) ? " · đã học địa chỉ mới" : ""}
+                  </p>
+                )}
               </div>
 
-              {/* Digital Frequency Badge & Sleep Timer Pill */}
-              <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-2 font-mono select-none">
-                <div className="flex items-baseline gap-1 bg-cyan-500/10 dark:bg-cyan-500/20 px-3.5 py-1.5 rounded-2xl border border-cyan-500/30">
-                  <span className="text-[#06b6d4] text-3xl font-black tracking-tighter">
-                    {visualFreq.toFixed(1)}
-                  </span>
-                  <span className="text-[10px] font-bold text-[#06b6d4]">MHz</span>
-                </div>
-
-                {/* Apple Sleep Timer Button */}
-                <button
-                  onClick={cycleSleepTimer}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 border ${
-                    sleepTimer
-                      ? "bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-[0_0_12px_rgba(168,85,247,0.3)] animate-pulse"
-                      : "bg-zinc-200/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-white/10 hover:text-zinc-900 dark:hover:text-white"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm">bedtime</span>
-                  <span>{sleepTimer ? `TẮT ${formatSleepTime(sleepTimeLeft)}` : "HẸN GIỜ TẮT"}</span>
-                </button>
+              <div className="shrink-0 text-right">
+                <span className="text-3xl font-black tabular-nums tracking-tight text-foreground">
+                  {visualFreq.toFixed(1)}
+                </span>
+                <span className="text-xs font-bold text-muted-foreground ml-1">MHz</span>
               </div>
             </div>
 
-            {/* Tuning Dial Track & Needle */}
+            {/* Thanh dò sóng */}
             <div className="flex flex-col gap-4">
-              <div className="relative h-14 bg-zinc-200/80 dark:bg-zinc-900/90 rounded-2xl border border-zinc-300 dark:border-white/10 px-2 overflow-hidden shadow-inner cursor-ew-resize transition-colors">
+              <div className="relative h-14 bg-muted rounded-xl border border-border px-2 overflow-hidden cursor-ew-resize">
                 <div className="absolute inset-x-0 top-0 bottom-0 flex justify-between pointer-events-none px-4">
                   {Array.from({ length: 42 }).map((_, idx) => {
                     const f = 87.5 + idx * 0.5;
                     const isMajor = idx % 2 === 1 || idx === 0 || idx === 41;
                     return (
                       <div key={idx} className="flex flex-col items-center h-full justify-start">
-                        <div className={`w-[2px] ${isMajor ? 'h-4 bg-zinc-500 dark:bg-zinc-500' : 'h-2 bg-zinc-300 dark:bg-zinc-700'}`} />
+                        <div className={`w-px bg-border ${isMajor ? "h-4" : "h-2"}`} />
                         {(idx - 1) % 4 === 0 && (
-                          <span className="text-[8px] font-mono text-zinc-600 dark:text-zinc-400 font-bold mt-1.5">{Math.round(f)}</span>
+                          <span className="text-[10px] tabular-nums text-muted-foreground font-bold mt-1.5">{Math.round(f)}</span>
                         )}
                       </div>
                     );
                   })}
                 </div>
 
-                {/* Glowing Apple Needle */}
-                <div className="absolute top-0 bottom-0 w-1 bg-[#06b6d4] pointer-events-none z-10 rounded-full" style={{ left: needleLeft, boxShadow: "0 0 12px 2px rgba(6,182,212,0.9)" }} />
+                <div className="absolute top-0 bottom-0 w-0.5 bg-info pointer-events-none z-10 rounded-full" style={{ left: needleLeft }} />
 
-                <input type="range" min="87.5" max="108.0" step="0.1" value={visualFreq} onChange={(e) => handleDialDrag(Number(e.target.value))}
+                <input type="range" min="87.5" max="108.0" step="0.1" value={visualFreq}
+                       aria-label="Dò tần số" onChange={(e) => handleDialDrag(Number(e.target.value))}
                        onPointerDown={() => setIsDragging(true)} onPointerUp={() => { if (isDragging) handleDialRelease(visualFreq); }}
                        className="w-full h-full opacity-0 absolute inset-0 cursor-ew-resize z-20 touch-none" />
               </div>
 
-              {/* Action Toolbar */}
-              <div className="flex items-center justify-between px-1">
-                <button onClick={() => autoScan("down")} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white active:scale-95 transition-all font-black text-xs tracking-wider uppercase border border-zinc-200 dark:border-white/10 shadow-sm">
-                  <span className="material-symbols-outlined text-base">skip_previous</span>
-                  <span>Scan</span>
+              {/* Điều khiển chính — mọi nút tối thiểu 44px */}
+              <div className="flex items-center justify-center gap-3">
+                <button onClick={() => autoScan("down")} aria-label="Dò xuống"
+                  className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
+                  <span className="material-symbols-outlined">skip_previous</span>
                 </button>
 
-                {/* Apple Play / Power Button */}
-                <button onClick={togglePlayPause} className="w-16 h-16 shrink-0 rounded-full bg-gradient-to-tr from-[#06b6d4] to-indigo-500 text-white flex items-center justify-center active:scale-95 transition-transform shadow-[0_10px_30px_rgba(6,182,212,0.4)] border border-white/30">
-                  <span className="material-symbols-outlined text-3xl">{(isPlaying || isStatic || isBuffering) ? "power_settings_new" : "play_arrow"}</span>
+                <button onClick={togglePlayPause} aria-label={isPlaying ? "Dừng" : "Phát"}
+                  className="w-14 h-14 shrink-0 rounded-full bg-info text-info-foreground flex items-center justify-center active:scale-95 transition-transform">
+                  <span className="material-symbols-outlined text-3xl">
+                    {(isPlaying || isStatic || isBuffering) ? "stop" : "play_arrow"}
+                  </span>
                 </button>
 
-                <button onClick={() => autoScan("up")} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white active:scale-95 transition-all font-black text-xs tracking-wider uppercase border border-zinc-200 dark:border-white/10 shadow-sm">
-                  <span>Scan</span>
-                  <span className="material-symbols-outlined text-base">skip_next</span>
+                <button onClick={() => autoScan("up")} aria-label="Dò lên"
+                  className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
+                  <span className="material-symbols-outlined">skip_next</span>
+                </button>
+              </div>
+
+              {/* Hàng phụ: bốc ngẫu nhiên + hẹn giờ tắt */}
+              <div className="flex items-center justify-center gap-2.5 flex-wrap">
+                <button onClick={playRandom}
+                  className="flex items-center gap-2 h-11 px-4 rounded-full border border-border bg-card text-foreground text-sm font-bold active:scale-95 transition-transform">
+                  <span className="material-symbols-outlined text-lg">shuffle</span>
+                  <span>Ngẫu nhiên</span>
+                </button>
+                <button onClick={cycleSleepTimer}
+                  className={`flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold active:scale-95 transition-transform ${
+                    sleepTimer ? "border-info text-info bg-card" : "border-border bg-card text-foreground"
+                  }`}>
+                  <span className="material-symbols-outlined text-lg">bedtime</span>
+                  <span>{sleepTimer ? `Tắt sau ${formatSleepTime(sleepTimeLeft)}` : "Hẹn giờ tắt"}</span>
                 </button>
               </div>
             </div>
-
-          </div>
         </div>
 
-        {/* ─── Apple Category Selector Pills ───────────────────────────────────── */}
-        <div className="flex items-center gap-2 overflow-x-auto mb-6 p-1.5 rounded-full bg-zinc-100 dark:bg-[#141522]/90 border border-zinc-200/80 dark:border-white/10 transition-colors no-scrollbar">
+        {/* ─── Tìm đài bất kỳ ──────────────────────────────────────────────────── */}
+        <form onSubmit={submitSearch} className="flex items-center gap-2 mb-4">
+          <div className="flex-1 flex items-center gap-2 px-4 h-12 rounded-xl bg-card border border-border">
+            <span className="material-symbols-outlined text-lg text-muted-foreground">search</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm đài: VOV1, BBC, Jazz…"
+              className="flex-1 min-w-0 bg-transparent outline-none text-[15px] font-semibold text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+          <button type="submit" disabled={searching || !search.trim()}
+            className="h-12 px-5 rounded-xl bg-info text-info-foreground font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-40">
+            {searching ? "Đang dò…" : "Tìm"}
+          </button>
+        </form>
+
+        {/* ─── Danh mục ────────────────────────────────────────────────────────── */}
+        <div className="flex items-center gap-2 overflow-x-auto mb-5 pb-1 no-scrollbar">
+          {foundList.length > 0 && (
+            <button onClick={() => setActiveCategory(FOUND_CATEGORY)}
+              className={`shrink-0 flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold whitespace-nowrap transition-colors ${
+                activeCategory === FOUND_CATEGORY ? "bg-info text-info-foreground border-info" : "bg-card text-foreground border-border"
+              }`}>
+              <span className="material-symbols-outlined text-lg">bookmark</span>
+              <span>Đã tìm ({foundList.length})</span>
+            </button>
+          )}
           {RADIO_CATEGORIES.map((cat) => {
             const active = activeCategory === cat.id;
             return (
               <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
-                className={`flex-1 min-w-[110px] flex items-center justify-center gap-2 py-2.5 px-3 rounded-full text-xs font-black transition-all whitespace-nowrap ${
-                  active ? "bg-[#06b6d4] text-white shadow-[0_4px_14px_rgba(6,182,212,0.4)]" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                className={`shrink-0 flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold whitespace-nowrap transition-colors ${
+                  active ? "bg-info text-info-foreground border-info" : "bg-card text-foreground border-border"
                 }`}>
-                <span className="material-symbols-outlined text-base">{cat.icon}</span>
+                <span className="material-symbols-outlined text-lg">{cat.icon}</span>
                 <span>{cat.label || t(cat.labelKey)}</span>
               </button>
             );
@@ -614,37 +787,42 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
             {stations.map((station) => {
               const active = nowPlaying?.stationuuid === station.stationuuid;
               const stationFreq = STATION_FREQUENCIES[station.name];
+              // healthTick chỉ để buộc vẽ lại sau khi sổ theo dõi đổi.
+              const status = healthTick >= 0 ? stationStatus(station.stationuuid) : "unknown";
               return (
-                <button key={station.stationuuid} onClick={() => playStation(station)}
-                  className={`group text-left p-4 rounded-2xl border transition-all flex flex-col gap-3 relative overflow-hidden backdrop-blur-xl ${
-                    active
-                      ? "border-[#06b6d4] bg-cyan-500/10 dark:bg-cyan-500/20 text-zinc-900 dark:text-white shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-                      : "border-zinc-200/80 dark:border-white/10 bg-white dark:bg-[#141522]/90 hover:border-[#06b6d4]/50 dark:hover:border-[#06b6d4]/50 text-zinc-900 dark:text-white shadow-sm"
-                  }`}>
-                  <div className="flex items-start justify-between">
-                    <div className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center transition-colors ${
-                      active ? "bg-gradient-to-br from-[#06b6d4] to-indigo-600 text-white shadow-md" : "bg-zinc-100 dark:bg-white/10 text-zinc-600 dark:text-zinc-400 group-hover:text-[#06b6d4]"
+                // Nút xoá phải là anh em của thẻ đài, không nằm trong nó: nút
+                // lồng trong nút vừa sai HTML vừa kẹt bàn phím.
+                <div key={station.stationuuid} className="relative">
+                <button onClick={() => playStation(station)}
+                  className={`w-full h-full text-left p-4 rounded-2xl border bg-card flex flex-col gap-3 transition-colors ${
+                    active ? "border-info" : "border-border"
+                  } ${status === "dead" ? "opacity-55" : ""}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className={`w-11 h-11 shrink-0 rounded-xl flex items-center justify-center ${
+                      active ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground"
                     }`}>
-                      <span className={`material-symbols-outlined text-xl ${active && isPlaying && !isDragging ? "animate-pulse" : ""}`}>
+                      <span className="material-symbols-outlined text-xl">
                         {active && (isBuffering || isDragging) ? "sync" : active && isPlaying ? "graphic_eq" : "radio"}
                       </span>
                     </div>
-                    {active && (
-                      <span className="flex h-2.5 w-2.5 relative mt-1 mr-1">
-                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isPlaying && !isDragging ? "bg-[#06b6d4] opacity-75" : "bg-zinc-400 opacity-0"}`}></span>
-                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isPlaying && !isDragging ? "bg-[#06b6d4]" : "bg-zinc-400"}`}></span>
-                      </span>
-                    )}
+                    <span title={STATUS_TITLE[status]}
+                      className={`w-2 h-2 mt-1 shrink-0 rounded-full ${STATUS_DOT[status]} ${status === "unknown" ? "border border-border" : ""}`} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-black line-clamp-1 leading-tight">{station.name}</span>
-                    {stationFreq && (
-                      <span className="text-[10px] font-mono font-bold mt-1 text-[#06b6d4]">
-                        {stationFreq.toFixed(1)} MHz
-                      </span>
-                    )}
+                    <span className="text-sm font-bold line-clamp-2 leading-snug text-foreground">{station.name}</span>
+                    <span className="text-[13px] text-muted-foreground mt-1 tabular-nums">
+                      {stationFreq ? `${stationFreq.toFixed(1)} MHz` : STATUS_TITLE[status]}
+                    </span>
                   </div>
                 </button>
+                {station.found && (
+                  <button type="button" aria-label={`Bỏ ${station.name} khỏi danh sách`}
+                    onClick={() => dropFound(station.stationuuid)}
+                    className="absolute top-2 right-2 w-9 h-9 rounded-full bg-muted border border-border text-muted-foreground flex items-center justify-center active:scale-95 transition-transform">
+                    <span className="material-symbols-outlined text-base">close</span>
+                  </button>
+                )}
+                </div>
               );
             })}
           </div>

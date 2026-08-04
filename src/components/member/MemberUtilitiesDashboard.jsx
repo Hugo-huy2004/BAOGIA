@@ -929,7 +929,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     );
   }, [myAppsList, utilitySizes]);
 
-  const joyBalance = data?.member?.joyBalance || 1540;
 
   return (
     <div className="relative space-y-6 animate-fadeIn pb-24 select-none">
@@ -988,7 +987,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                 handleCafeVolumeChange={handleCafeVolumeChange}
                 isRadioPlaying={isRadioPlaying}
                 handleToggleRadio={handleToggleRadio}
-                joyBalance={joyBalance}
                 gradients={GRADIENTS}
                 onAppHover={prefetchUtility}
               />

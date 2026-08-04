@@ -8,11 +8,13 @@ import JoyCard from "./card/JoyCard";
 import MemberTierPrivilegesTab from "./card/MemberTierPrivilegesTab";
 import { MembershipFactory } from "../../models/membershipTier";
 import { useJoyStore } from "../../stores/joyStore";
-import { fetchChallengeStatus, claimChallenge } from "../../services/joyApi";
+import { fetchChallengeStatus, claimChallenge, checkHasPin } from "../../services/joyApi";
+import JoyHistory from "./joy/JoyHistory";
 import "./member-joy.css";
 import { ChevronRight, Sparkles, Gift, Award, CheckCircle2, Users } from "lucide-react";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import BackButton from "./shared/BackButton";
+import JoyCoinBadge from "../shared/JoyCoinBadge";
 
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -60,8 +62,16 @@ export default function MemberJoyTab({
   const [loadingChallenges, setLoadingChallenges] = useState(false);
   const [claimingId, setClaimingId] = useState(null);
   const [missionsExpanded, setMissionsExpanded] = useState(false);
+  const [hasPin, setHasPin] = useState(null);
 
   const email = bio?.email;
+
+  useEffect(() => {
+    if (!email) return;
+    checkHasPin()
+      .then((d) => setHasPin(Boolean(d.hasPin)))
+      .catch(() => setHasPin(null));
+  }, [email]);
 
   useEffect(() => {
     if (!email) return;
@@ -204,8 +214,44 @@ export default function MemberJoyTab({
               displayName={bio?.displayName}
               email={email}
               onCopyReferral={copyReferralCode}
-              onOpenTransferModal={() => onOpenParticleModal?.()}
+              onOpenTransferModal={() => onOpenParticleModal?.("search")}
             />
+
+            {/* Gửi / Nhận / Quét — ba lối vào ví, trước đây chỉ có ở trang
+                /joy riêng biệt nên tab chính không chuyển JOY được. */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { mode: "search", icon: "send", label: "Gửi JOY" },
+                { mode: "myqr", icon: "qr_code_2", label: "Nhận JOY" },
+                { mode: "scan", icon: "qr_code_scanner", label: "Quét mã" }
+              ].map((a) => (
+                <button
+                  key={a.mode}
+                  type="button"
+                  onClick={() => onOpenParticleModal?.(a.mode)}
+                  className="flex min-h-[76px] flex-col items-center justify-center gap-1.5 rounded-2xl border border-border bg-card text-foreground transition-colors hover:bg-muted active:bg-muted"
+                >
+                  <span className="material-symbols-outlined text-[22px] text-muted-foreground">{a.icon}</span>
+                  <span className="text-[13px] font-medium">{a.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Trạng thái mã PIN — cảnh báo nếu ví chưa khoá. */}
+            {hasPin === false && (
+              <button
+                type="button"
+                onClick={() => onOpenParticleModal?.("search")}
+                className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-colors hover:bg-muted"
+              >
+                <span className="material-symbols-outlined text-[22px] text-muted-foreground">lock_open</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-semibold text-foreground">Chưa đặt mã PIN giao dịch</span>
+                  <span className="block text-[12.5px] text-muted-foreground">Đặt PIN 6 số để khoá mọi lượt chuyển JOY</span>
+                </span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </button>
+            )}
 
             {/* REAL CARD BALANCE & MISSIONS GRID (2-COLUMN) */}
             <div className="grid grid-cols-2 gap-3">
@@ -452,7 +498,7 @@ export default function MemberJoyTab({
                 trắng cả ba màn. Dạng dòng danh sách, không phải thanh chrome. */}
             <div className="overflow-hidden rounded-2xl border border-border bg-card">
               {[
-                { id: "stats", icon: "bar_chart", label: "Thống kê JOY", desc: "Lịch sử tích luỹ và giới thiệu" },
+                { id: "stats", icon: "receipt_long", label: "Lịch sử ví JOY", desc: "Mọi khoản nhận, đã dùng và tổng kết 30 ngày" },
                 { id: "privileges", icon: "workspace_premium", label: "Đặc quyền thành viên", desc: "Quyền lợi theo từng hạng thẻ" },
                 { id: "store", icon: "redeem", label: "Cửa hàng ưu đãi", desc: "Đổi JOY lấy vật phẩm và gói dịch vụ" },
               ].map((row, index) => (
@@ -484,41 +530,42 @@ export default function MemberJoyTab({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="space-y-4 text-left"
+            className="space-y-3 text-left"
           >
-            {/* 1. REAL JOY BALANCE & REFERRAL STATS CARD */}
-            <div className="bg-card border border-border/50 rounded-3xl p-5 shadow-sm space-y-3">
-              <span className="text-sm text-muted-foreground block">Tổng quan ví JOY</span>
-              <h2 className="text-3xl font-semibold text-foreground font-mono tracking-tight">
-                {(balance ?? 0).toLocaleString("vi-VN")} <span className="text-base text-amber-500 font-semibold">JOY</span>
-              </h2>
+            <BackButton onClick={() => setCurrentView("card")} />
 
-              <div className="pt-3 border-t border-border/40 flex items-center justify-between text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-500" /> Đã giới thiệu</span>
-                <span className="font-mono text-foreground font-semibold">{referralCount} người</span>
+            {/* Số dư — nguồn duy nhất là joyStore, không nhận qua prop nữa. */}
+            <div className="rounded-2xl border border-border bg-card p-4">
+              <span className="block text-[12.5px] text-muted-foreground">Số dư ví JOY</span>
+              <JoyCoinBadge size="lg" className="mt-1.5" />
+              <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-[14px]">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <Users className="h-4 w-4" /> Đã giới thiệu
+                </span>
+                <span className="font-mono font-semibold text-foreground">{referralCount} người</span>
               </div>
             </div>
 
-            {/* 2. REFERRAL BONUS CARD */}
-            <div className="bg-card border border-border/50 rounded-3xl p-5 shadow-sm space-y-3 text-center relative overflow-hidden">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white mx-auto shadow-sm">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>toll</span>
-              </div>
+            {/* Lịch sử + tổng kết 30 ngày. `/api/joy/history` đã có sẵn từ lâu
+                nhưng trước đây chỉ trang /joy riêng dùng tới. */}
+            <JoyHistory />
 
-              <div>
-                <h3 className="text-base font-semibold text-foreground">+100 JOY thưởng giới thiệu</h3>
-                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  Nhận ngay 100 JOY và gia hạn ngày sử dụng khi bạn bè dùng mã giới thiệu của bạn.
-                </p>
-              </div>
-
-              <button
-                onClick={copyReferralCode}
-                className="w-full py-3 rounded-full bg-primary text-white font-semibold text-sm hover:opacity-90 active:scale-95 transition-all"
-              >
-                Sao chép mã ({referralCode || "HG9TNHHK"})
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={copyReferralCode}
+              className="flex min-h-[44px] w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-colors hover:bg-muted"
+            >
+              <span className="material-symbols-outlined text-[22px] text-muted-foreground">ios_share</span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-semibold text-foreground">
+                  Mời bạn bè · +100 JOY mỗi người
+                </span>
+                <span className="block font-mono text-[12.5px] text-muted-foreground">
+                  Mã của bạn: {referralCode || bio?.referralCode || "—"}
+                </span>
+              </span>
+              <span className="material-symbols-outlined text-[20px] text-muted-foreground">content_copy</span>
+            </button>
           </motion.div>
         )}
 
@@ -552,7 +599,9 @@ export default function MemberJoyTab({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
+            className="space-y-3"
           >
+            <BackButton onClick={() => setCurrentView("card")} />
             <MemberUtilityStoreTab
               bio={bio}
               balance={balance}

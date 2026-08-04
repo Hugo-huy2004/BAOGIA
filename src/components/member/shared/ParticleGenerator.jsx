@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import {
   PCC_SLOT_SITES,
+  PCC_RING_LAYOUT,
   PCC_MARKER_ANGLES,
   PCC_MARKER_RADIUS_FRAC,
   PCC_DATA_BYTES,
@@ -29,21 +30,25 @@ import {
 //   Either way the ParticleScanner reads it (it detects dots by contrast in
 //   both polarities), so blending in never breaks scanning.
 
-// Bright palette (dots pop on a dark surface): near-white cores, neon halos.
-const BRIGHT_CORE = "#f0fbff";
-const BRIGHT_RING_GLOW = [
-  "rgba(34,211,238,.95)",  // cyan
-  "rgba(96,165,250,.95)",  // blue
-  "rgba(244,114,182,.95)", // pink
-];
+// PALETTE — one hue ramp per surface instead of a multi-hue mix. A code reads as
+// jewellery when every dot belongs to the same family and only its *depth*
+// changes with the ring; three competing hues read as noise.
+//
+// Bright surface (dark disc): platinum cores, champagne halo — matches the gold
+// sigil frame the seal sits in.
+const LUME_CORE = [255, 253, 246];
+const LUME_GLOW = [214, 178, 106];
 
-// Dark palette (dots pop on a light surface): saturated colored cores.
-const DARK_RING_CORE = ["#4338ca", "#7c3aed", "#db2777"]; // indigo / violet / pink
-const DARK_RING_GLOW = [
-  "rgba(79,70,229,.55)",
-  "rgba(124,58,237,.55)",
-  "rgba(219,39,119,.55)",
+// Dark surface (light card): a single indigo→ink ramp, deepest on the inner ring.
+const INK_RING = [
+  [30, 27, 75],   // ink
+  [49, 46, 129],
+  [67, 56, 202],
+  [79, 70, 229],  // indigo
 ];
+const INK_GLOW = [67, 56, 202];
+
+const rgba = ([r, g, b], a) => `rgba(${r},${g},${b},${a})`;
 
 function colorLuminance(color) {
   if (!color || color === "transparent") return null;
@@ -124,14 +129,16 @@ export default function ParticleGenerator({ bytes = null, data = "", size = 190,
       rotationRef.current = (rotationRef.current + 0.35) % 360;
       const rotation = rotationRef.current;
 
-      // Global "breathing" pulse (anti-spoof flavor) — modulates glow/size only.
-      const pulse = 0.9 + 0.1 * Math.sin(frame * 0.05);
+      // Global "breathing" pulse (anti-spoof flavor). It modulates GLOW ONLY —
+      // the dot radii stay fixed, which both looks calmer and keeps the blob
+      // areas the decoder measures perfectly stable.
+      const pulse = 0.85 + 0.15 * Math.sin(frame * 0.04);
 
       // Dots sized relative to scale so they stay large & well-separated at any
       // render size; anchors are clearly bigger (≈3.5× area) so the decoder can
       // always pick them as the 3 biggest blobs.
-      const dotR = Math.max(2.5, scale * 0.04) * pulse;
-      const markerR = Math.max(5, scale * 0.075) * pulse;
+      const dotR = Math.max(2.5, scale * 0.04);
+      const markerR = Math.max(5, scale * 0.075);
 
       ctx.clearRect(0, 0, size, size);
 
@@ -142,31 +149,66 @@ export default function ParticleGenerator({ bytes = null, data = "", size = 190,
       if (hasBg) {
         ctx.fillStyle = background;
       } else {
-        const bg = ctx.createRadialGradient(center, center * 0.9, size * 0.05, center, center, disc);
-        bg.addColorStop(0, "#122046");
-        bg.addColorStop(0.55, "#0a1230");
-        bg.addColorStop(1, "#05060f");
+        const bg = ctx.createRadialGradient(center, center * 0.88, size * 0.04, center, center, disc);
+        bg.addColorStop(0, "#191636");
+        bg.addColorStop(0.6, "#0b0a1c");
+        bg.addColorStop(1, "#050409");
         ctx.fillStyle = bg;
       }
       ctx.fill();
 
-      // Ambient sparkle in the empty core (inside the innermost data ring, so
-      // the decoder — which samples ring radii ≥ 0.3 — never sees them).
-      for (let i = 0; i < 22; i++) {
-        const seedAngle = (i * 137.5 + rotation * 0.4) % 360;
-        const rNorm = ((i * 61) % 100) / 100;
-        const r = scale * 0.2 * Math.sqrt(rNorm);
-        const a = (seedAngle * Math.PI) / 180;
-        const x = center + r * Math.cos(a);
-        const y = center + r * Math.sin(a);
-        const twinkle = 0.18 + 0.45 * Math.abs(Math.sin(((rotation + i * 20) * Math.PI) / 180));
+      const coreRgb = lightBg ? null : LUME_CORE;
+      const glowRgb = lightBg ? INK_GLOW : LUME_GLOW;
+
+      // Hairline guilloché: the ring radii drawn as engraved circles, plus the
+      // anchor ring. Kept far below the scanner's mean±2σ threshold (it only
+      // sees statistical outliers), so it never becomes a blob — it just makes
+      // the layout read as designed rather than scattered.
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = rgba(glowRgb, lightBg ? 0.07 : 0.1);
+      [...PCC_RING_LAYOUT.map(r => r.frac), PCC_MARKER_RADIUS_FRAC].forEach(frac => {
         ctx.beginPath();
-        ctx.arc(x, y, 1 + (i % 3) * 0.5, 0, Math.PI * 2);
-        ctx.fillStyle = lightBg
-          ? `rgba(129,140,248,${twinkle * 0.7})`
-          : `rgba(186,230,253,${twinkle})`;
+        ctx.arc(center, center, frac * scale, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // Ambient dust in the empty core (inside the innermost data ring, so the
+      // decoder — which samples ring radii ≥ 0.4 — never sees it). Monochrome
+      // and slow: a faint shimmer, not confetti.
+      for (let i = 0; i < 14; i++) {
+        const seedAngle = (i * 137.5 + rotation * 0.4) % 360;
+        const r = scale * 0.2 * Math.sqrt(((i * 61) % 100) / 100);
+        const a = (seedAngle * Math.PI) / 180;
+        const twinkle = 0.1 + 0.22 * Math.abs(Math.sin(((rotation + i * 20) * Math.PI) / 180));
+        ctx.beginPath();
+        ctx.arc(center + r * Math.cos(a), center + r * Math.sin(a), 0.9, 0, Math.PI * 2);
+        ctx.fillStyle = rgba(glowRgb, twinkle);
         ctx.fill();
       }
+
+      // One dot: a soft halo, an opaque core, and an off-centre specular
+      // highlight — the core stays fully opaque out to ~85% of the radius so the
+      // blob the scanner measures is exactly the same size as a flat disc.
+      const paintDot = (x, y, radius, rgb, glowAlpha, glowSpread) => {
+        const halo = ctx.createRadialGradient(x, y, radius * 0.7, x, y, radius * glowSpread);
+        halo.addColorStop(0, rgba(glowRgb, glowAlpha * pulse));
+        halo.addColorStop(1, rgba(glowRgb, 0));
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * glowSpread, 0, Math.PI * 2);
+        ctx.fill();
+
+        const body = ctx.createRadialGradient(
+          x - radius * 0.32, y - radius * 0.38, radius * 0.05, x, y, radius
+        );
+        body.addColorStop(0, rgba(rgb.map(c => Math.min(255, c + (lightBg ? 70 : 0))), 1));
+        body.addColorStop(0.85, rgba(rgb, 1));
+        body.addColorStop(1, rgba(rgb, 0.82));
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      };
 
       // Data dots — present iff the corresponding bit is 1. Sites carry their
       // own ring index & slot count (variable density) so we iterate the flat list.
@@ -177,42 +219,33 @@ export default function ParticleGenerator({ bytes = null, data = "", size = 190,
           const site = PCC_SLOT_SITES[k];
           const r = site.frac * scale;
           const a = (((360 / site.slots) * site.slot + rotation) * Math.PI) / 180;
-          const x = center + r * Math.cos(a);
-          const y = center + r * Math.sin(a);
-          ctx.beginPath();
-          ctx.arc(x, y, dotR, 0, Math.PI * 2);
-          ctx.fillStyle = lightBg ? DARK_RING_CORE[site.ring % DARK_RING_CORE.length] : BRIGHT_CORE;
-          ctx.shadowColor = lightBg
-            ? DARK_RING_GLOW[site.ring % DARK_RING_GLOW.length]
-            : BRIGHT_RING_GLOW[site.ring % BRIGHT_RING_GLOW.length];
-          ctx.shadowBlur = lightBg ? 4 : 6;
-          ctx.fill();
+          paintDot(
+            center + r * Math.cos(a),
+            center + r * Math.sin(a),
+            dotR,
+            coreRgb || INK_RING[site.ring % INK_RING.length],
+            lightBg ? 0.3 : 0.45,
+            1.9 // keep the halo inside half the outer ring's arc gap so
+                // neighbouring dots never merge into one blob for the scanner
+          );
         }
       }
 
       // Orientation anchors — bigger/stronger; drive the decoder's center, scale
-      // and rotation fit. Index 0 is largest = the reference.
-      PCC_MARKER_ANGLES.forEach((baseAngle, idx) => {
+      // and rotation fit. All the same (big) size: the decoder tells them apart
+      // by their asymmetric angular spacing, not by size (blur-robust). The thin
+      // outer ring is a setting around the stone — decorative, sub-threshold.
+      PCC_MARKER_ANGLES.forEach(baseAngle => {
         const a = ((baseAngle + rotation) * Math.PI) / 180;
         const r = PCC_MARKER_RADIUS_FRAC * scale;
         const x = center + r * Math.cos(a);
         const y = center + r * Math.sin(a);
+        paintDot(x, y, markerR, coreRgb || INK_RING[0], lightBg ? 0.34 : 0.65, 2.4);
         ctx.beginPath();
-        // All anchors the same (big) size — the decoder tells them apart by
-        // their asymmetric angular spacing, not by size (blur-robust).
-        ctx.arc(x, y, markerR, 0, Math.PI * 2);
-        if (lightBg) {
-          ctx.fillStyle = idx === 0 ? "#312e81" : "#6d28d9"; // deep indigo / violet
-          ctx.shadowColor = idx === 0 ? "rgba(49,46,129,.5)" : "rgba(109,40,217,.5)";
-          ctx.shadowBlur = 5;
-        } else {
-          ctx.fillStyle = "#ffffff";
-          ctx.shadowColor = idx === 0 ? "rgba(125,211,252,.95)" : "rgba(244,114,182,.9)";
-          ctx.shadowBlur = 10;
-        }
-        ctx.fill();
+        ctx.arc(x, y, markerR * 1.55, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(glowRgb, (lightBg ? 0.16 : 0.24) * pulse);
+        ctx.stroke();
       });
-      ctx.shadowBlur = 0;
 
       animRef.current = requestAnimationFrame(draw);
     };

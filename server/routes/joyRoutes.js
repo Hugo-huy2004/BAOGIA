@@ -1,7 +1,7 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
-import { awardJoy, getJoyHistory } from '../utils/joyService.js';
+import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
@@ -360,15 +360,20 @@ router.post('/buy-hugoso-course', requireMember, async (req, res) => {
   }
 });
 
-// GET /api/joy/history?email=&limit=20
+// GET /api/joy/history?limit=50&days=30
+// Trả kèm tổng kết N ngày để ví chỉ cần một lượt gọi. `days=0` bỏ phần tổng kết.
 router.get('/history', requireMember, async (req, res) => {
   try {
-    const { limit } = req.query;
+    const { limit, days } = req.query;
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Email query param is required' });
 
-    const transactions = await getJoyHistory(email, limit);
-    res.json({ transactions });
+    const wantSummary = days === undefined || Number(days) > 0;
+    const [transactions, summary] = await Promise.all([
+      getJoyHistory(email, limit),
+      wantSummary ? getJoySummary(email, days) : Promise.resolve(null)
+    ]);
+    res.json({ transactions, summary });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

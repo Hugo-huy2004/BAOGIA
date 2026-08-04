@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { DecoStudioSkeleton } from '../ui/SkeletonLayouts';
 import JoyCoinBadge from '../shared/JoyCoinBadge';
+import { useJoyStore } from '../../stores/joyStore';
 import { DECO_ART, DECO_TYPE_META, DecoRoomScene, cozinessScore, isNightRoom } from './deco/decoAssets';
 import useDecoAudio, { DECO_SOUNDTRACKS } from './deco/useDecoAudio';
 import { chapterMeta, withLocalStoryProgress } from './deco/decoStory';
@@ -39,6 +40,7 @@ const DECO_NPCS = Object.freeze([
 export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
   const [activeTab, setActiveTab] = useState('my_room'); // 'my_room' | 'neighborhood'
   const [storeData, setStoreData] = useState(null);
+  const setJoyBalance = useJoyStore((s) => s.setBalance);
   const [expiresAt, setExpiresAt] = useState(null);
   const [lastCleanedAt, setLastCleanedAt] = useState(null);
   const [isRenting, setIsRenting] = useState(false);
@@ -188,6 +190,12 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
       .catch(() => { if (active) setTourWeather(null); });
     return () => { active = false; };
   }, [tourWeatherPoint]);
+
+  // Mọi phản hồi của API KTX đều kèm số dư mới. Đẩy nó về joyStore để ví ở
+  // tab khác không hiển thị số cũ — trước đây KTX giữ bản sao riêng.
+  useEffect(() => {
+    if (typeof storeData?.balance === 'number') setJoyBalance(storeData.balance);
+  }, [storeData?.balance, setJoyBalance]);
 
   useEffect(() => {
     if (!loading && storeData) {
@@ -978,8 +986,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
               <span className="material-symbols-outlined text-[19px]">{audioEnabled ? 'graphic_eq' : 'volume_off'}</span>
             </button>
             <div className="deco-wallet" aria-label={`${storeData.balance} JOY`}>
-              <JoyCoinBadge hideAmount size="sm" />
-              {storeData.balance.toLocaleString()}
+              <JoyCoinBadge size="sm" />
             </div>
 
             <AnimatePresence>
@@ -1733,7 +1740,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                   <JoyCoinBadge hideAmount size="sm" />
                   {isTipping ? 'Đang gửi…' : `Gửi ${tipAmount} JOY`}
                 </button>
-                <small className="deco-tour__balance">Số dư của bạn: {storeData.balance.toLocaleString()} JOY</small>
+                <small className="deco-tour__balance">Số dư của bạn: {storeData.balance.toLocaleString("vi-VN")} JOY</small>
               </div>
             </aside>
           </motion.div>
@@ -1788,7 +1795,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             <div className="w-20 h-20 mx-auto mb-3">{DECO_ART[buyTarget.id] && React.createElement(DECO_ART[buyTarget.id])}</div>
             <p className="text-sm font-black text-foreground">{buyTarget.def.name}</p>
             {storeData.balance < buyTarget.def.price ? (
-              <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY (cần {buyTarget.def.price}, bạn có {storeData.balance}).</p>
+              <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY (cần {buyTarget.def.price.toLocaleString("vi-VN")}, bạn có {storeData.balance.toLocaleString("vi-VN")}).</p>
             ) : (
               <p className="mt-1.5 text-xs text-zinc-500">Mua với giá <span className="font-black text-yellow-600 dark:text-yellow-400">{buyTarget.def.price} JOY</span>?</p>
             )}
@@ -1817,7 +1824,7 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
                 <p className="text-sm font-black text-foreground">Thú cưng đã qua đời 🐾</p>
                 <p className="mt-1.5 text-xs text-zinc-500">Bé đã qua đời vì đói. Bạn có thể <span className="font-bold text-primary">hồi sinh</span> với giá <span className="font-black text-yellow-600 dark:text-yellow-400">99 JOY</span>, hoặc <span className="font-bold text-rose-500">xóa luôn</span> và nuôi bé mới từ đầu.</p>
                 {storeData.balance < 99 && (
-                  <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY để hồi sinh (bạn có {storeData.balance}).</p>
+                  <p className="mt-2 text-xs font-semibold text-rose-500">Không đủ JOY để hồi sinh (bạn có {storeData.balance.toLocaleString("vi-VN")}).</p>
                 )}
               </>
             ) : (
@@ -1987,14 +1994,14 @@ export default function DecoStudioTab({ onBack, bio, showToast, onBioUpdate }) {
             <div className="px-6 py-3 bg-muted text-center text-[10px] font-mono text-zinc-500">
               <div className="flex justify-between">
                 <span>SỐ DƯ HIỆN CÓ:</span>
-                <span className="font-bold">{storeData.balance} JOY</span>
+                <span className="font-bold">{storeData.balance.toLocaleString("vi-VN")} JOY</span>
               </div>
               {storeData.balance < showInvoice.total ? (
                 <p className="text-rose-500 font-bold mt-1 text-[9px] uppercase">🚨 Không đủ JOY để thanh toán</p>
               ) : (
                 <div className="flex justify-between mt-1 text-[9px] text-success font-bold">
                   <span>SỐ DƯ SAU THUÊ:</span>
-                  <span>{storeData.balance - showInvoice.total} JOY</span>
+                  <span>{(storeData.balance - showInvoice.total).toLocaleString("vi-VN")} JOY</span>
                 </div>
               )}
             </div>

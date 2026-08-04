@@ -82,6 +82,20 @@ export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail,
   return parseOrThrow(res);
 }
 
+/**
+ * Lịch sử ví + tổng kết N ngày trong một lượt gọi.
+ * Nhãn (`title`) và nhóm (`group`) do máy chủ gắn — client không giữ bản sao
+ * nào của danh mục nguồn JOY.
+ */
+export async function fetchJoyHistory({ limit = 50, days = 30 } = {}) {
+  const res = await fetch(
+    `${getApiUrl()}/joy/history?limit=${limit}&days=${days}`,
+    { credentials: "include" }
+  );
+  const data = await parseOrThrow(res);
+  return { transactions: data.transactions || [], summary: data.summary || null };
+}
+
 export async function checkHasPin() {
   const res = await fetch(`${getApiUrl()}/joy/has-pin`, { credentials: "include" });
   return parseOrThrow(res);

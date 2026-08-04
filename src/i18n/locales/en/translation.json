@@ -411,7 +411,10 @@
       "youGet": "What you get",
       "notIncluded": "Not included",
       "discussPlan": "Discuss this package",
-      "discussProject": "Discuss your project"
+      "discussProject": "Discuss your project",
+      "revealPrice": "See the investment range",
+      "priceHint": "A starting point. The final figure is agreed once the scope is clear.",
+      "getQuote": "Get a custom quote"
     },
     "whispers": {
       "intro": "There is no perfect website. Only the right one.",

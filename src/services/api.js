@@ -1,36 +1,12 @@
-export const getAiUrl = () => {
-  if (import.meta.env.VITE_AI_URL) return import.meta.env.VITE_AI_URL;
-  const apiUrl = import.meta.env.VITE_API_URL || "";
-  if (apiUrl.startsWith("http")) {
-    try {
-      const url = new URL(apiUrl);
-      if (url.hostname.startsWith("api.")) {
-        url.hostname = url.hostname.replace("api.", "ai.");
-        return `${url.protocol}//${url.hostname}`;
-      }
-    } catch { /* ignore */ }
-  }
-  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    if (window.location.hostname.includes("hugowishpax.studio")) {
-      return `${window.location.protocol}//ai.hugowishpax.studio`;
-    }
-  }
-  return "http://localhost:8000";
-};
-
+// Python AI server KHÔNG có host riêng cho trình duyệt. Mọi thứ đi qua Node ở
+// `/api/*`; riêng `/api/ai/*` được server/routes/aiProxyRoutes.js chuyển tiếp và
+// tự gắn `X-Internal-Key` từ process.env. Client không giữ key nào cả — trước
+// đây `VITE_INTERNAL_API_KEY` bị nhồi thẳng vào bundle, ai xem source cũng đọc được.
 const BASE_URL = import.meta.env.VITE_API_URL || '/api'
-const AI_URL = getAiUrl()
-
-const getInternalKey = () => import.meta.env.VITE_INTERNAL_API_KEY || ''
-
-const defaultHeaders = () => ({
-  'Content-Type': 'application/json',
-  'X-Internal-Key': getInternalKey(),
-})
 
 export async function apiFetch(path, options = {}) {
   const { auth = true, ...rest } = options
-  const headers = { ...defaultHeaders(), ...(rest.headers || {}) }
+  const headers = { 'Content-Type': 'application/json', ...(rest.headers || {}) }
 
   if (auth) {
     try {
@@ -53,15 +29,4 @@ export async function apiFetch(path, options = {}) {
   try { return JSON.parse(text) } catch { return text }
 }
 
-export async function aiFetch(path, options = {}) {
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-Internal-Key': getInternalKey(),
-    ...(options.headers || {})
-  }
-  const res = await fetch(`${AI_URL}${path}`, { ...options, headers })
-  if (!res.ok) throw new Error(`AI API Error ${res.status}`)
-  return res
-}
-
-export { BASE_URL, AI_URL }
+export { BASE_URL }

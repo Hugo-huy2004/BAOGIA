@@ -4,54 +4,10 @@ import InAppNotification from '../models/InAppNotification.js';
 import ChessRating from '../models/ChessRating.js';
 import { sendPushNotification } from './pushNotifier.js';
 
-export const JOY_TITLES = {
-  referral_referrer: 'Quà giới thiệu',
-  referral_referee: 'Quà giới thiệu',
-  chess_win: 'Thắng trận cờ vua',
-  chess_match: 'Trận đấu cờ vua',
-  companion: 'Trị liệu tâm lý',
-  checkin: 'Điểm danh nhận JOY',
-  gift_code: 'Đổi mã quà tặng',
-  store_purchase: 'Mua hàng',
-  admin_adjustment: 'Điều chỉnh JOY',
-  companion_unlock: 'Mở khoá tính năng trị liệu',
-  daily_challenge: 'Thử thách hàng ngày',
-  arcade_score: 'Kỷ lục HugoArcade mới',
-  focus_session: 'Tập trung sâu HugoAura',
-  aura_theme_rent: 'Thuê giao diện Aura',
-  joy_gift_sent: 'Gửi JOY cho bạn bè',
-  joy_gift_received: 'Nhận JOY từ bạn bè',
-  ide_learning: 'Hoàn thành bài học HugoCoder',
-  hugoso_course: 'Mở khóa khóa học HugoSO',
-  info_bonus: 'Khám phá Info & Version',
-  feature_subscription: 'Trao đổi JOY mở khóa tính năng',
-  bio_theme_rental: 'Trao đổi JOY diện giao diện Bio',
-  file_compression: 'Trao đổi JOY nén file HugoTractare',
-  admin_direct_add: 'Nhận JOY từ Admin',
-  deco_buy: 'Mua sắm nội thất KTX',
-  deco_tip_sent: 'Tip KTX cho bạn bè',
-  deco_tip_received: 'Nhận Tip KTX',
-  community_post: 'Đăng bài cộng đồng',
-  community_comment: 'Bình luận bài viết',
-  community_like_received: 'Bài viết được thả tim',
-  community_anon_post: 'Đăng bài ẩn danh',
-  // Bốn source dưới đây trước đây không có tiêu đề nên rơi hết về một chữ
-  // "Cập nhật JOY" — người dùng không biết chuyện gì vừa xảy ra.
-  deco_visit_sent: 'Mua vé tham quan KTX',
-  deco_visit_received: 'Khách mua vé tham quan KTX',
-  app_plan: 'Mở gói ứng dụng',
-  app_plan_gift: 'Tặng gói ứng dụng',
-  ide_course_completion: 'Tốt nghiệp HugoCoder',
-  deco_rent: 'Thuê Ký Túc Xá HugoHome',
-  deco_clean: 'Dọn dẹp Ký Túc Xá',
-  deco_story: 'Hoàn thành chương HugoRoom',
-  deco_daily: 'Duy trì căn phòng 27',
-  chat_tokens_exchange: 'Đổi thêm lượt trò chuyện',
-  coder_exam_retake: 'Mua lượt thi lại HugoCoder',
-  lifetime_unlock: 'Mở khoá vĩnh viễn một chặng',
-  lifetime_unlock_all: 'Mở khoá vĩnh viễn toàn bộ chặng',
-  info_read_bonus: 'Đọc tin Info & Version'
-};
+import { JOY_SOURCES, JOY_SOURCE_GROUPS } from './joySources.js';
+
+// Giữ tên cũ cho các nơi đã import; nguồn thật nằm ở joySources.js.
+export const JOY_TITLES = JOY_SOURCES;
 
 /**
  * Tiêu đề thông báo cho một biến động JOY.
@@ -182,6 +138,60 @@ export async function getJoyBalance(email) {
   return bio.joyBalance;
 }
 
-export async function getJoyHistory(email, limit = 20) {
-  return JoyLedger.find({ email }).sort({ createdAt: -1 }).limit(Number(limit) || 20);
+/**
+ * Lịch sử ví. Trả kèm `title` + `group` để client không phải biết gì về danh
+ * mục nguồn — thêm nguồn mới ở joySources.js là ví hiện đúng ngay, không cần
+ * đụng frontend.
+ *
+ * `limit` chặn trần ở 200: đây là tham số do client truyền, để mở là một người
+ * dùng gõ ?limit=999999 kéo cả ledger về.
+ */
+export async function getJoyHistory(email, limit = 50) {
+  const n = Math.min(200, Math.max(1, Math.floor(Number(limit)) || 50));
+  const rows = await JoyLedger.find({ email }).sort({ createdAt: -1 }).limit(n).lean();
+  return rows.map((r) => ({
+    id: String(r._id),
+    amount: r.amount,
+    balanceAfter: r.balanceAfter,
+    source: r.source,
+    title: joyTitleFor(r.source, r.amount),
+    group: JOY_SOURCE_GROUPS[r.source] || 'khac',
+    description: r.description || '',
+    createdAt: r.createdAt
+  }));
+}
+
+/**
+ * Tổng thu / chi / theo nhóm trong N ngày gần nhất. Gộp ở tầng DB thay vì kéo
+ * cả ledger về client rồi cộng — ví của người chơi lâu năm có hàng nghìn dòng.
+ */
+export async function getJoySummary(email, days = 30) {
+  const span = Math.min(365, Math.max(1, Math.floor(Number(days)) || 30));
+  const since = new Date(Date.now() - span * 24 * 60 * 60 * 1000);
+  const rows = await JoyLedger.aggregate([
+    { $match: { email, createdAt: { $gte: since } } },
+    { $group: { _id: '$source', total: { $sum: '$amount' }, count: { $sum: 1 } } }
+  ]);
+
+  let earned = 0;
+  let spent = 0;
+  const byGroup = {};
+  for (const r of rows) {
+    if (r.total >= 0) earned += r.total;
+    else spent += -r.total;
+    const g = JOY_SOURCE_GROUPS[r._id] || 'khac';
+    byGroup[g] = (byGroup[g] || 0) + r.total;
+  }
+
+  return {
+    days: span,
+    earned,
+    spent,
+    net: earned - spent,
+    txCount: rows.reduce((s, r) => s + r.count, 0),
+    // Nhóm kiếm được nhiều nhất trước, nhóm tiêu nhiều nhất sau.
+    groups: Object.entries(byGroup)
+      .map(([group, total]) => ({ group, total }))
+      .sort((a, b) => b.total - a.total)
+  };
 }

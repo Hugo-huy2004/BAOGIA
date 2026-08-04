@@ -24,7 +24,7 @@ class MemoryService:
         return os.path.join(MEMORY_DIR, f"mem_{safe_id}.json")
 
     def load_memories(self, user_id: str) -> List[Dict[str, Any]]:
-        file_path = this._get_memory_file(user_id) if hasattr(this := self, "_get_memory_file") else self._get_memory_file(user_id)
+        file_path = self._get_memory_file(user_id)
         if not os.path.exists(file_path):
             return []
         try:

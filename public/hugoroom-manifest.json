@@ -20,7 +20,7 @@
     },
     {
       "name": "Ví JOY",
-      "url": "/joy",
+      "url": "/member/joy",
       "icons": [{ "src": "/favicon/web-app-manifest-192x192.png", "sizes": "192x192" }]
     }
   ]

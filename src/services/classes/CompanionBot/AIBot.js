@@ -72,7 +72,6 @@ const _streamLimit = pLimit(2);
 // server/routes/aiProxyRoutes.js), exactly like every other /api/* route.
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 const API_URL = `${API_BASE}/ai`;
-const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY || "";
 const AI_USER_ID_SALT = import.meta.env.VITE_AI_USER_ID_SALT || "hugopsy-ai-user-v1";
 
 function fallbackHash(input) {
@@ -108,7 +107,7 @@ async function pseudonymizeUserId(rawUserId) {
 async function fetchWithRetry(url, options, retries = 1) {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const res = await fetch(url, { ...options, headers: { ...options.headers, "X-Internal-Key": INTERNAL_KEY } });
+      const res = await fetch(url, options);
       if (res.ok) return res;
       if (res.status >= 400 && res.status < 500) return res;
       if (attempt < retries) {
@@ -461,10 +460,7 @@ export default class AIBot extends BaseBot {
 
           const res = await _streamLimit(() => fetch(`${API_URL}/chat/stream`, {
             method: "POST",
-            headers: { 
-              "Content-Type": "application/json",
-              "X-Internal-Key": INTERNAL_KEY
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId }),
             signal: controller.signal
           })).finally(() => clearTimeout(timeoutId));
@@ -499,10 +495,7 @@ export default class AIBot extends BaseBot {
 
       const res = await _streamLimit(() => fetch(`${API_URL}/chat/stream`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-Internal-Key": INTERNAL_KEY
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, history: this._buildHistory(), bio: this._bioWithSummary(), userId }),
         signal: controller.signal
       })).finally(() => clearTimeout(timeoutId));

@@ -60,7 +60,6 @@ const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
 const EcoPortal = lazy(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
 
-const JoyPWA = lazy(() => import("./pages/JoyPWA"));
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
 );
@@ -210,7 +209,9 @@ function AppContent() {
                 : <IntroductionPage />
             } />
             <Route path="/services" element={<ServicesPage />} />
-            <Route path="/joy" element={<JoyPWA />} />
+            {/* Ví JOY chỉ còn một bản: tab /member/joy. Trang /joy cũ là bản
+                thứ hai, trùng chức năng nhưng khác hẳn giao diện. */}
+            <Route path="/joy" element={<Navigate to="/member/joy" replace />} />
             <Route path="/student-benefits" element={<StudentBenefitsPage />} />
             <Route path="/student-pricing" element={<StudentPricingPage />} />
             <Route path="/templates" element={<Navigate to="/services#templates" replace />} />

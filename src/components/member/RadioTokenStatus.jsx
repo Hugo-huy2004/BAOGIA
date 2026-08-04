@@ -3,10 +3,35 @@ import React, { useState, useEffect, useCallback } from "react";
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 function formatMinutes(totalMinutes) {
-  if (totalMinutes <= 0) return "0:00";
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
+  // Giờ nghe giờ được tính theo phút lẻ, nên phải làm tròn trước khi chia —
+  // không thì ra "4:59.60000000001".
+  const total = Math.max(0, Math.round(totalMinutes || 0));
+  if (total <= 0) return "0:00";
+  const h = Math.floor(total / 60);
+  const m = total % 60;
   return `${h}:${m < 10 ? "0" : ""}${m}`;
+}
+
+/**
+ * Báo với máy chủ số phút vừa nghe để trừ vào hạn mức 5 giờ/tuần.
+ *
+ * `keepalive` cho lượt cuối lúc đóng app/tắt đài: trình duyệt vẫn gửi nốt
+ * request sau khi trang đã bị huỷ, nếu không thì quãng nghe cuối cùng mất trắng.
+ */
+export async function sendRadioHeartbeat(email, minutes, { keepalive = false } = {}) {
+  if (!email || !(minutes > 0)) return null;
+  try {
+    const res = await fetch(`${API_BASE}/radio/heartbeat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      keepalive,
+      body: JSON.stringify({ email, listeningMinutes: Number(minutes.toFixed(2)) }),
+    });
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null;
+  }
 }
 
 export default function RadioTokenStatus({ bio, onBuyMore }) {
@@ -124,49 +149,51 @@ export function useRadioHeartbeat(bio, isPlaying) {
     return null;
   }, [bio?.email]);
 
-  // Send heartbeat (deduct 5 minutes)
-  const sendHeartbeat = useCallback(async () => {
-    if (!bio?.email) return null;
-    try {
-      const res = await fetch(`${API_BASE}/radio/heartbeat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email: bio.email, listeningMinutes: 5 }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTokenStatus(data);
-        return data;
-      }
-    } catch {}
-    return null;
+  // Trừ ĐÚNG số phút đã nghe.
+  //
+  // Trước đây cứ bấm phát là trừ ngay 5 phút rồi mỗi 5 phút trừ thêm 5: nghe 30
+  // giây mất 5 phút, mà nghe 6 phút rồi tắt thì phút lẻ cuối lại không bị trừ.
+  // Giờ đo bằng đồng hồ: cứ 5 phút gửi phần đã trôi qua, và gửi nốt phần dở khi
+  // dừng, rời trang hoặc đóng app.
+  const startedRef = React.useRef(0);
+
+  const flush = useCallback(async ({ final = false } = {}) => {
+    if (!startedRef.current) return null;
+    const minutes = (Date.now() - startedRef.current) / 60000;
+    startedRef.current = final ? 0 : Date.now();
+    const data = await sendRadioHeartbeat(bio?.email, minutes, { keepalive: final });
+    if (data) setTokenStatus(data);
+    return data;
   }, [bio?.email]);
 
-  // Start/stop heartbeat interval
   useEffect(() => {
-    if (isPlaying) {
-      // Send first heartbeat immediately
-      sendHeartbeat();
-      // Then every 5 minutes
-      intervalRef.current = setInterval(() => {
-        sendHeartbeat();
-      }, 5 * 60 * 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+    if (!isPlaying) return undefined;
+    startedRef.current = Date.now();
+    intervalRef.current = setInterval(() => flush(), 5 * 60 * 1000);
+
+    // Ẩn app hoặc đóng hẳn: chốt sổ quãng vừa nghe ngay, vì lúc đó timer có thể
+    // bị hệ điều hành treo. Mở lại thì tính tiếp từ thời điểm đó.
+    const onHide = () => flush({ final: true });
+    const onVisibility = () => {
+      if (document.hidden) flush({ final: true });
+      else startedRef.current = Date.now();
     };
-  }, [isPlaying, sendHeartbeat]);
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVisibility);
+      flush({ final: true });
+    };
+  }, [isPlaying, flush]);
 
   // Initial fetch on mount
   useEffect(() => {
     fetchStatus();
   }, [fetchStatus]);
 
-  return { tokenStatus, refetch: fetchStatus, sendHeartbeat };
+  return { tokenStatus, refetch: fetchStatus, flush };
 }

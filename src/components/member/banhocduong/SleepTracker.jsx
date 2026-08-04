@@ -11,7 +11,6 @@ import dataApi from "../../../services/dataApi";
 import { HugoNoticeToast } from "../../shared/HugoNotice";
 
 const AI_BASE = import.meta.env.VITE_API_URL || "/api";
-const INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? "";
 
 // ── Static data ────────────────────────────────────────────────────────────
 
@@ -494,7 +493,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
     try {
       const res = await fetch(`${AI_BASE}/sleep/analyze`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json", "X-Internal-Key": INTERNAL_KEY },
+        headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ sleepLogs: logs.slice(0, 14), bio: bio || {} }),
       });
       const data = await res.json();

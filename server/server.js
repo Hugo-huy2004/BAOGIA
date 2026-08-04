@@ -266,10 +266,6 @@ app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
 app.use('/api/deco', joyDecoRoutes);
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'Server is running', message: "ok", timestamp: new Date() });
-});
-
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {
   try {
@@ -307,6 +303,7 @@ import { initProactivePushService } from './services/proactivePushService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
+import { initCompanionMemoryCron } from './services/companionMemoryCron.js';
 import { initCommunityBot } from './utils/communityBot.js';
 import { sendAlert, logError } from './utils/alert.js';
 
@@ -432,6 +429,9 @@ server.listen(PORT, () => {
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
+
+  // Weekly wellness digest → CompanionHistory.longTermMemories (Sunday 22:00)
+  initCompanionMemoryCron();
 
   // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
   initCommunityBot();

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { JOY_SOURCE_KEYS } from '../utils/joySources.js';
 
 const JoyLedgerSchema = new mongoose.Schema({
   email: {
@@ -14,59 +15,11 @@ const JoyLedgerSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  // Danh mục nguồn nằm ở utils/joySources.js — thêm nguồn mới sửa ở đó, đừng
+  // chép lại danh sách vào đây (đó chính là thứ đã làm app_plan bị rớt).
   source: {
     type: String,
-    enum: [
-      'referral_referrer',
-      'referral_referee',
-      'chess_win',
-      'chess_match',
-      'companion',
-      'gift_code',
-      'store_purchase',
-      'admin_adjustment',
-      'checkin',
-      'companion_unlock',
-      'daily_challenge',
-      'arcade_score',
-      'focus_session',
-      'aura_theme_rent',
-      'joy_gift_sent',
-      'joy_gift_received',
-      'ide_learning',
-      'ide_course_completion',
-      'hugoso_course',
-      'coder_exam_retake',
-      'chat_tokens_exchange',
-      'feature_subscription',
-      'bio_theme_rental',
-      'file_compression',
-      'admin_direct_add',
-      'info_bonus',
-      'info_read_bonus',
-      'deco_buy',
-      'deco_tip_sent',
-      'deco_tip_received',
-      'deco_rent',
-      'deco_visit_sent',
-      'deco_visit_received',
-      'deco_clean',
-      'deco_story',
-      'deco_daily',
-      'community_post',
-      'community_comment',
-      'community_like_received',
-      'community_anon_post',
-      'lifetime_unlock',
-      'lifetime_unlock_all',
-      'ide_phase_1_completion',
-      'ide_phase_2_completion',
-      'ide_phase_3_completion',
-      'ide_phase_4_completion',
-      'ide_phase_5_completion',
-      'ide_phase_6_completion',
-      'ide_phase_7_completion'
-    ],
+    enum: JOY_SOURCE_KEYS,
     required: true
   },
   description: {

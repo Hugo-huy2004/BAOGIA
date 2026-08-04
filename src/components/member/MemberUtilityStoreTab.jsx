@@ -253,7 +253,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
               <div className="flex items-center justify-between pt-2 border-t border-dashed border-border">
                 <span className="text-[10px] font-black text-foreground/80 uppercase tracking-wider">Tổng thanh toán</span>
                 <span className="text-sm font-black text-foreground">
-                  {confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)} JOY
+                  {(confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)).toLocaleString("vi-VN")} JOY
                 </span>
               </div>
               <div className="flex items-center justify-between mt-2">

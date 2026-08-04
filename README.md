@@ -11,7 +11,10 @@ Nền tảng Biolink + chăm sóc sức khỏe tinh thần cho học sinh sinh v
 └── api/                 # Vercel serverless (redirect /pay)
 ```
 
-Vite dev server proxy: `/api/ai`, `/api/iot`, `/api/sleep/analyze`, `/ws/iot` → Python (8000); mọi thứ còn lại `/api`, `/ws` → Node (8081). Xem [vite.config.js](vite.config.js).
+Vite dev server proxy: **mọi** `/api/*` và `/ws*` → Node, giống hệt rewrite của
+`vercel.json` trên production. Trình duyệt không bao giờ gọi thẳng Python — chỉ
+Node nói chuyện với nó (qua `AI_SERVER_URL` + `INTERNAL_API_KEY`). Xem
+[vite.config.js](vite.config.js).
 
 ## Chạy dev
 

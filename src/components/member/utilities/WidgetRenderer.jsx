@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import JoyCoinBadge from "../../shared/JoyCoinBadge";
 
 export default function WidgetRenderer({
   myWidgets,
@@ -19,7 +20,6 @@ export default function WidgetRenderer({
   handleCafeVolumeChange,
   isRadioPlaying,
   handleToggleRadio,
-  joyBalance,
   gradients,
   onAppHover
 }) {
@@ -170,8 +170,7 @@ export default function WidgetRenderer({
                   {app.id === "joy_wallet" && (
                     <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-orange-500 text-sm">payments</span>
-                        <span className="font-black text-foreground">{joyBalance.toLocaleString()} JOY</span>
+                        <JoyCoinBadge size="sm" />
                       </div>
                       <span className="text-[8.5px] font-black tracking-widest text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-md">{t("utilities.library.widget.joyGold")}</span>
                     </div>
@@ -359,7 +358,7 @@ export default function WidgetRenderer({
                       <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 flex justify-between items-center">
                         <div className="text-left">
                           <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">{t("utilities.library.widget.availableJoy")}</span>
-                          <span className="font-black text-lg text-foreground mt-0.5 block">{joyBalance.toLocaleString()} JOY</span>
+                          <JoyCoinBadge size="md" className="mt-0.5" />
                         </div>
                         <span className="material-symbols-outlined text-orange-500 text-3xl">account_balance_wallet</span>
                       </div>

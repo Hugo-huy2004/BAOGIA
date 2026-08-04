@@ -5,7 +5,9 @@ import { apiFetch } from "../services/api";
 import { transferJoy, getJoyQrPayload } from "../services/joyApi";
 import { notify } from "../lib/notify";
 import memberService from "../services/classes/MemberService";
-import EcoRadio from "./EcoRadio";
+// Đuôi .jsx tường minh: macOS không phân biệt hoa/thường nên "./EcoRadio" bắt
+// trúng ecoRadio.js (file helper) trước — build đứt vì file đó không có default export.
+import EcoRadio from "./EcoRadio.jsx";
 import EcoGames from "./EcoGames";
 import EcoFold from "./EcoFold";
 
@@ -205,12 +207,12 @@ export default function EcoAccount() {
             icon="receipt_long"
             title="Lịch sử giao dịch"
             hint="10 dòng gần nhất"
-            load={() => apiFetch("/joy/history?limit=10").then((data) => data.transactions || [])}
+            load={() => apiFetch("/joy/history?limit=10&days=0").then((data) => data.transactions || [])}
           >
             {({ data }) => (data?.length ? data.map((tx) => (
-              <div className="save-e-row" key={tx._id}>
+              <div className="save-e-row" key={tx.id}>
                 <div>
-                  <strong>{tx.description || tx.source}</strong>
+                  <strong>{tx.title || tx.description || tx.source}</strong>
                   <small>{shortDate(tx.createdAt)}</small>
                 </div>
                 <span className={tx.amount > 0 ? "save-e-strong-green" : "save-e-strong-blue"}>

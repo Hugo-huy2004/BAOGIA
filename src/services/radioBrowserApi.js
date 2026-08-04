@@ -9,10 +9,14 @@ const getApiUrl = () => {
   return "/api";
 };
 
-export async function fetchStationByName(name, excludeUrl) {
+// `strict`: chỉ nhận đài mà server kiểm tra được là đang phát. Dùng khi đang
+// chữa một luồng vừa chết — trả về đài chưa xác minh chỉ tổ cho client cắm vào
+// một địa chỉ chết nữa rồi ngồi chờ hết thời gian.
+export async function fetchStationByName(name, excludeUrl, strict = false) {
   try {
     let url = `${getApiUrl()}/radio/station?name=${encodeURIComponent(name)}`;
     if (excludeUrl) url += `&exclude=${encodeURIComponent(excludeUrl)}`;
+    if (strict) url += "&strict=1";
     const res = await fetch(url);
     if (!res.ok) return null;
     return await res.json();

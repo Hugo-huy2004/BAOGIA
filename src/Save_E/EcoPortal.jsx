@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import MemberTodayTab from "../components/member/MemberTodayTab";
@@ -26,9 +26,22 @@ const TABS = [
 
 export default function EcoPortal() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState("today");
   const [articleId, setArticleId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const exit = () => navigate("/member/today", { replace: true });
+  // Bản tin trong chế độ này KHÔNG tự làm mới (đó là chỗ tiết kiệm chính), nên
+  // phải có một nút để người dùng chủ động xin bản mới — bấm mới gọi.
+  const refreshFeed = async () => {
+    setRefreshing(true);
+    try { await queryClient.refetchQueries({ queryKey: ["today-feed"] }); }
+    finally { setRefreshing(false); }
+  };
+  // Đọc kho bài mỗi lần render thì chính chế độ tiết kiệm lại thành thứ tốn
+  // công nhất — chỉ đếm lại khi đổi tab.
+  const [savedCount, setSavedCount] = useState(0);
+  useEffect(() => { setSavedCount(listSaved().length); }, [tab]);
 
   // Người dùng tắt chế độ ở tab khác, chuyển sang mức "tự động" rồi cắm sạc,
   // hoặc mở lại bằng trình duyệt thường: trả về portal bình thường thay vì kẹt.
@@ -86,7 +99,16 @@ export default function EcoPortal() {
               <TodayArticleReader articleId={articleId} onBack={() => setArticleId(null)} />
             </>
           ) : (
-            <MemberTodayTab bio={null} onNavigate={handleNavigate} />
+            <>
+              <div className="save-e-savebar">
+                <button type="button" className="save-e-chip" onClick={refreshFeed} disabled={refreshing}>
+                  <span className="material-symbols-outlined" aria-hidden="true">refresh</span>
+                  {refreshing ? "Đang lấy bản mới…" : "Làm mới bản tin"}
+                </button>
+                <small>Bản tin giữ trong máy tới 6 tiếng — mở lại app không tốn lượt gọi nào.</small>
+              </div>
+              <MemberTodayTab bio={null} onNavigate={handleNavigate} />
+            </>
           )
         ) : null}
         {tab === "saved" ? <EcoSaved /> : null}
@@ -104,7 +126,7 @@ export default function EcoPortal() {
           >
             <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
             {item.label}
-            {item.id === "saved" && listSaved().length ? (
+            {item.id === "saved" && savedCount ? (
               <span className="save-e-dot" aria-hidden="true" />
             ) : null}
           </button>

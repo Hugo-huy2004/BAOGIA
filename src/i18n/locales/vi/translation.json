@@ -411,7 +411,10 @@
       "youGet": "Bạn nhận được",
       "notIncluded": "Chưa bao gồm",
       "discussPlan": "Trao đổi gói này",
-      "discussProject": "Trao đổi dự án"
+      "discussProject": "Trao đổi dự án",
+      "revealPrice": "Xem khoảng đầu tư",
+      "priceHint": "Mức khởi điểm. Con số cuối chốt sau khi hai bên rõ phạm vi.",
+      "getQuote": "Nhận báo giá riêng"
     },
     "whispers": {
       "intro": "Không có website hoàn hảo. Chỉ có website phù hợp.",

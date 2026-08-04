@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
@@ -139,6 +139,13 @@ function MemberPortalPage() {
   const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [particleOpen, setParticleOpen] = useState(false);
+  // Ví JOY mở modal này ở ba chế độ khác nhau (gửi / mã của tôi / quét).
+  // Chỉ nhận chuỗi: nhiều nút truyền thẳng event handler vào đây.
+  const [particleMode, setParticleMode] = useState("search");
+  const openParticleModal = useCallback((mode) => {
+    setParticleMode(typeof mode === "string" ? mode : "search");
+    setParticleOpen(true);
+  }, []);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
   const hydrateWallet = useJoyStore(s => s.hydrateWallet);
   const joyBalance = useJoyStore(s => s.balance);
@@ -658,7 +665,7 @@ function MemberPortalPage() {
       isGuestMode={isGuestMode}
       handleCopyLink={handleCopyLink}
       handleDeleteBio={handleDeleteBio}
-      onOpenParticleModal={() => setParticleOpen(true)}
+      onOpenParticleModal={openParticleModal}
       onSelectTab={(tabId) => navigate(`/member/${tabId}`)}
       onSelectUtility={handleSelectUtility}
     />
@@ -872,7 +879,7 @@ function MemberPortalPage() {
                   )}
                   {activeTab === "joy" && (
                     <div>
-                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
+                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={openParticleModal} />
                     </div>
                   )}
                   {activeTab === "partner" && (
@@ -913,7 +920,7 @@ function MemberPortalPage() {
                         isGuestMode={isGuestMode}
                         handleCopyLink={handleCopyLink}
                         handleDeleteBio={handleDeleteBio}
-                        onOpenParticleModal={() => setParticleOpen(true)}
+                        onOpenParticleModal={openParticleModal}
                         renderAccountForm={renderAccountForm}
                       />
                     </div>
@@ -970,7 +977,7 @@ function MemberPortalPage() {
                   )}
                   {activeTab === "joy" && (
                     <div style={{ padding: "0 12px" }}>
-                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={() => setParticleOpen(true)} />
+                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={openParticleModal} />
                     </div>
                   )}
                   {activeTab === "partner" && (
@@ -1011,7 +1018,7 @@ function MemberPortalPage() {
                         isGuestMode={isGuestMode}
                         handleCopyLink={handleCopyLink}
                         handleDeleteBio={handleDeleteBio}
-                        onOpenParticleModal={() => setParticleOpen(true)}
+                        onOpenParticleModal={openParticleModal}
                         renderAccountForm={renderAccountForm}
                       />
                     </div>
@@ -1135,6 +1142,7 @@ function MemberPortalPage() {
         <ParticleConnectModal
           open
           bio={bio}
+          initialMode={particleMode}
           onClose={() => setParticleOpen(false)}
           onSuccess={() => {
             if (bio?.email) fetchJoyBalance(bio.email);
