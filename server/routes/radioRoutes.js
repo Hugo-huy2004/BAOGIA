@@ -1,17 +1,14 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import { WEEKLY_FREE_MINUTES, applyListening, ensureWeeklyReset } from '../utils/radioTokens.js';
 
 const router = express.Router();
 const RADIO_API_BASE = 'https://de1.api.radio-browser.info/json';
 
-// Weekly free allowance in minutes (5 hours)
-const WEEKLY_FREE_MINUTES = 300;
 // Ceiling for a single heartbeat. The client reports elapsed wall-clock time, so
 // a tab the OS suspended for hours would otherwise report the whole gap at once.
 const MAX_HEARTBEAT_MINUTES = 30;
-// Milliseconds in one week
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Server-side proxy for the public Radio Browser API. CORS only restricts
 // browser-side fetches, not server-to-server calls, so this sidesteps the
@@ -180,49 +177,6 @@ router.post('/click', async (req, res) => {
 });
 
 // ── HugoRadio Token System ──────────────────────────────────────────────────
-
-// Helper: reset weekly free pool if a new week has started since last reset.
-function ensureWeeklyReset(radioTokens) {
-  const now = Date.now();
-  const lastReset = radioTokens.weeklyResetAt ? new Date(radioTokens.weeklyResetAt).getTime() : 0;
-  if (!lastReset || (now - lastReset) >= WEEK_MS) {
-    radioTokens.weeklyUsedMinutes = 0;
-    radioTokens.weeklyFreeMinutes = WEEKLY_FREE_MINUTES;
-    radioTokens.weeklyResetAt = new Date(now);
-  }
-  return radioTokens;
-}
-
-// Cộng dồn số thập phân qua hàng trăm nhịp sẽ trôi (0.1 + 0.2…) — chốt hai chữ số.
-const round2 = (value) => Math.round(value * 100) / 100;
-
-/**
- * Trừ số phút vừa nghe: hết hạn mức miễn phí 5 giờ/tuần rồi mới đụng tới phần
- * đã mua. Hàm thuần, không chạm database — để kiểm chứng được bằng test.
- */
-export function applyListening(tokens, minutes) {
-  let remaining = Math.max(0, minutes);
-
-  const freeAvailable = Math.max(0, tokens.weeklyFreeMinutes - tokens.weeklyUsedMinutes);
-  const fromFree = Math.min(freeAvailable, remaining);
-  tokens.weeklyUsedMinutes = round2(tokens.weeklyUsedMinutes + fromFree);
-  remaining -= fromFree;
-
-  const fromPurchased = Math.min(Math.max(0, tokens.purchasedMinutes), remaining);
-  tokens.purchasedMinutes = round2(Math.max(0, tokens.purchasedMinutes) - fromPurchased);
-  remaining -= fromPurchased;
-
-  const freeLeft = round2(Math.max(0, tokens.weeklyFreeMinutes - tokens.weeklyUsedMinutes));
-  const purchasedLeft = round2(Math.max(0, tokens.purchasedMinutes));
-
-  return {
-    freeRemaining: freeLeft,
-    purchasedRemaining: purchasedLeft,
-    totalRemaining: round2(freeLeft + purchasedLeft),
-    canListen: freeLeft + purchasedLeft > 0,
-    deducted: round2(fromFree + fromPurchased),
-  };
-}
 
 // GET /api/radio/token-status?email=...
 // Returns the user's current radio token status (free + purchased pools).

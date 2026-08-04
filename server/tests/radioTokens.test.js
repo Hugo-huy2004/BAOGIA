@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyListening } from '../routes/radioRoutes.js';
+import { applyListening } from '../utils/radioTokens.js';
 
 // Hạn mức: 5 giờ miễn phí mỗi tuần = 300 phút, hết mới đụng tới phần đã mua.
 const fresh = (overrides = {}) => ({

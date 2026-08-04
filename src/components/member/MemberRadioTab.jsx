@@ -302,9 +302,14 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     const fallbacks = FALLBACK_STATIONS[categoryId] || [];
 
     setStationsByCategory((prev) => (prev[categoryId] ? prev : { ...prev, [categoryId]: fallbacks }));
+    // State này có sẵn nhưng chưa ai bật, nên khung chờ không bao giờ hiện.
+    // Chỉ hiện khi CHƯA có gì để bày ra, tránh chớp khung chờ đè lên danh sách dự phòng.
+    if (!fallbacks.length) setLoadingCategory(categoryId);
 
     try {
-      fetchStationsByNames(category.names).then((stations) => {
+      fetchStationsByNames(category.names).finally(() => {
+        setLoadingCategory((current) => (current === categoryId ? null : current));
+      }).then((stations) => {
         if (stations && stations.length > 0) {
           loadedCategoriesRef.current.add(categoryId);
           const loadedNames = new Set(stations.map(s => s.name.toUpperCase()));
@@ -710,6 +715,21 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                   className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
                   <span className="material-symbols-outlined">skip_next</span>
                 </button>
+              </div>
+
+              {/* Âm lượng — state `volume` vốn đã có và đã nối vào thẻ audio lẫn
+                  tiếng nhiễu, chỉ thiếu đúng cái nút để chỉnh. */}
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-lg text-muted-foreground">
+                  {volume === 0 ? "volume_off" : volume < 50 ? "volume_down" : "volume_up"}
+                </span>
+                <input
+                  type="range" min="0" max="100" step="1" value={volume}
+                  aria-label="Âm lượng"
+                  onChange={(e) => setVolume(Number(e.target.value))}
+                  className="flex-1 h-11 accent-info cursor-pointer"
+                />
+                <span className="w-10 text-right text-[13px] tabular-nums text-muted-foreground">{volume}%</span>
               </div>
 
               {/* Hàng phụ: bốc ngẫu nhiên + hẹn giờ tắt */}

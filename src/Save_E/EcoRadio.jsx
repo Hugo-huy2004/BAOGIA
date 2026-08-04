@@ -249,6 +249,21 @@ export default function EcoRadio() {
 
   const stop = () => { getAudio().pause(); dropHls(); };
 
+  // Hẹn giờ tắt: 15 → 30 → 60 phút → thôi. Đặt bằng mốc thời gian tuyệt đối chứ
+  // không đếm ngược mỗi giây — một cái setInterval chạy suốt buổi nghe chỉ để
+  // nhích con số là đúng thứ chế độ này sinh ra để tránh.
+  const [sleep, setSleep] = useState(null); // { minutes, at }
+  useEffect(() => {
+    if (!sleep) return undefined;
+    const timer = setTimeout(() => { stop(); setSleep(null); }, Math.max(0, sleep.at - Date.now()));
+    return () => clearTimeout(timer);
+  }, [sleep]);
+
+  const cycleSleep = () => {
+    const next = { 0: 15, 15: 30, 30: 60, 60: 0 }[sleep?.minutes || 0];
+    setSleep(next ? { minutes: next, at: Date.now() + next * 60000 } : null);
+  };
+
   const skip = () => {
     if (blocked) { setError("Đã hết giờ nghe radio. Nạp thêm ở mục Ví JOY của chế độ thường."); return; }
     triedRef.current = [];
@@ -323,6 +338,11 @@ export default function EcoRadio() {
           </button>
         </div>
       </div>
+
+      <button type="button" className="save-e-chip" aria-pressed={Boolean(sleep)} onClick={cycleSleep}>
+        <span className="material-symbols-outlined" aria-hidden="true">bedtime</span>
+        {sleep ? `Tự tắt sau ${sleep.minutes} phút` : "Hẹn giờ tắt"}
+      </button>
 
       {healed ? <p className="save-e-note save-e-strong-green">{healed}</p> : null}
       {error ? <p className="save-e-note">{error}</p> : null}
