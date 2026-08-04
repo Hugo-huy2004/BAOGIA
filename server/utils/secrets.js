@@ -26,3 +26,10 @@ export const JOY_QR_SECRET = requireSecret('JOY_QR_SECRET', 'dev-insecure-joy-qr
 // Not secret (it ships in the frontend bundle), but must match the frontend's
 // VITE_GOOGLE_CLIENT_ID for member login to succeed.
 export const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || '').trim();
+
+// The iOS build cannot use the web client: Google will not accept
+// `capacitor://localhost` as a JavaScript origin, so the App Store build signs
+// in through its own iOS OAuth client and its ID tokens carry that `aud`.
+// (Android does not need an entry here — its Credential Manager flow is given
+// the web client id as the server client, so those tokens keep the web `aud`.)
+export const GOOGLE_IOS_CLIENT_ID = (process.env.GOOGLE_IOS_CLIENT_ID || '').trim();

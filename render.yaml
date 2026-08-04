@@ -45,3 +45,12 @@ services:
       # URL Vercel của python-ai-server, ví dụ https://hugostudio-ai.vercel.app
       - key: AI_SERVER_URL
         sync: false
+
+      # OAuth client web — server từ chối khởi động ở production nếu thiếu.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
+      # OAuth client iOS. Token từ app App Store mang `aud` này chứ không phải
+      # client web, thiếu nó thì đăng nhập trong app trả 401 còn web vẫn chạy.
+      - key: GOOGLE_IOS_CLIENT_ID
+        sync: false

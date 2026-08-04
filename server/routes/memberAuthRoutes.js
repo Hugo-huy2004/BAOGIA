@@ -1,7 +1,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { signMemberToken } from '../middleware/authMiddleware.js';
-import { GOOGLE_CLIENT_ID } from '../utils/secrets.js';
+import { GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../utils/secrets.js';
 
 const router = express.Router();
 
@@ -48,7 +48,8 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
     }
     const claims = await verifyRes.json();
 
-    if (GOOGLE_CLIENT_ID && claims.aud !== GOOGLE_CLIENT_ID) {
+    const allowedAud = [GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID].filter(Boolean);
+    if (allowedAud.length && !allowedAud.includes(claims.aud)) {
       return res.status(401).json({ error: 'Google credential không thuộc ứng dụng này.' });
     }
     if (!GOOGLE_CLIENT_ID && isProduction) {
