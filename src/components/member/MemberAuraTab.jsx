@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 import SubUtilityHeader from "./SubUtilityHeader";
 import FeatureGate from "./shared/FeatureGate";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import AuraReceiptModal from "./AuraReceiptModal";
 
 const LOFI_PLAYLIST = [

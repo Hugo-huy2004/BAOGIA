@@ -1,4 +1,3 @@
-import React from "react";
 
 // Apple-style on/off switch — sliding knob over a pill track, green when on.
 // Used wherever a setting is a strict boolean (push notifications, etc.)

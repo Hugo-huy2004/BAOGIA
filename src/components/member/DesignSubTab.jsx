@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import JoyExchangeModal from "./shared/JoyExchangeModal";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";

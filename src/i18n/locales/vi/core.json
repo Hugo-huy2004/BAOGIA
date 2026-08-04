@@ -1,0 +1,35 @@
+{
+  "navbar": {
+    "home": "Trang chủ",
+    "services": "Dịch vụ",
+    "templates": "Tác phẩm",
+    "faq": "Hỏi đáp",
+    "booking": "Đặt lịch",
+    "account": "Tài khoản",
+    "pricing": "Báo Giá",
+    "benefits": "Quyền Lợi Sinh Viên",
+    "portal": "Truy Cập Cổng Khách Hàng",
+    "loginAdmin": "Đăng Nhập Quản Trị",
+    "hello": "Xin Chào",
+    "mainMenu": "Menu Chính",
+    "login": "Đăng Nhập"
+  },
+  "footer": {
+    "tagline": "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.",
+    "services": "Dịch vụ",
+    "landingPage": "Trang Đích",
+    "portfolio": "Hồ Sơ Cá Nhân",
+    "bioLink": "Liên Kết Bio (giáo dục)",
+    "customUIUX": "UI/UX Theo Yêu Cầu",
+    "links": "Đường dẫn",
+    "home": "Trang Chủ",
+    "introduction": "Giới Thiệu",
+    "pricing": "Bảng Giá",
+    "booking": "Đặt Lịch",
+    "connect": "Kết nối",
+    "partner": "Đối tác",
+    "privacyPolicy": "Chính sách bảo mật",
+    "supportServer": "Ủng Hộ Server",
+    "userGuide": "Hướng dẫn sử dụng"
+  }
+}

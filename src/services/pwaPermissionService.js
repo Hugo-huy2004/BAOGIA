@@ -4,9 +4,7 @@ import { webPushHelper } from "../utils/webPushHelper";
 const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
 const PERMISSION_EVENT = "hugo:permissions-updated";
 
-const isStandalone = () =>
-  window.matchMedia?.("(display-mode: standalone)")?.matches
-  || window.navigator.standalone === true;
+import { isStandalone } from "../config/platform";
 
 class PWAPermissionService {
   async getPushState() {

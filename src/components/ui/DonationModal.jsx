@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { dataApi } from "../../services/dataApi";
 import { getMemberSession } from "../../services/authSession";
 import { notify } from "../../lib/notify";
@@ -69,7 +69,7 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
       {/* Floating Action Button when closed */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.div
+          <m.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
@@ -94,14 +94,14 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
             >
               <span className="material-symbols-outlined text-[12px] leading-none">close</span>
             </button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* The Chat Bubble */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
@@ -163,7 +163,7 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
 
           {/* Chat Bubble Tail */}
           <div className="absolute -bottom-3 right-8 w-6 h-6 bg-white dark:bg-zinc-900 border-b border-r border-zinc-200 dark:border-zinc-800 transform rotate-45 pointer-events-none shadow-[4px_4px_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_4px_10px_rgba(0,0,0,0.3)]"></div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
     </>

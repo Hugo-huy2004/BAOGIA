@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 
 // Recognized level tokens a member might accidentally type into the school

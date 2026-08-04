@@ -1,19 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
-  Award,
   Lock,
-  Unlock,
-  Sparkles,
   Share2,
-  Copy,
-  ArrowLeft,
-  CheckCircle2,
-  Gift,
-  Zap,
-  Gamepad2
+  CheckCircle2
 } from "lucide-react";
 import JoyCard from "./JoyCard";
 import { MembershipFactory } from "../../../models/membershipTier";

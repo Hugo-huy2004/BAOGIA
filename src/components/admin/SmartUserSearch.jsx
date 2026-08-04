@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { notify } from '../../lib/notify';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';

@@ -1,4 +1,3 @@
-import React from "react";
 import StandaloneInstallButton from "../ui/StandaloneInstallButton";
 import BackButton from "./shared/BackButton";
 

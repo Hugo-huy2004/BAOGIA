@@ -1,10 +1,8 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { 
-  FolderOpen, Folder, BookOpen, Database, Play, Plus, X, 
-  Terminal, AlertTriangle, ArrowLeft, Save, Eye,
-  Edit2, Trash2, ChevronDown, ChevronRight, FileCode, FileText, FileJson,
-  Sparkles, CheckCircle, Award, RefreshCw, Smartphone, ListChecks, Globe, Archive
+  FolderOpen, Folder, BookOpen, Database, Play, X, 
+  Terminal, AlertTriangle, Save, Eye, FileCode, FileText, FileJson, Globe, Archive
 } from "lucide-react";
 import { notify } from "../../lib/notify";
 import confetti from "canvas-confetti";
@@ -15,7 +13,7 @@ import { TEMPLATES, INITIAL_WORKSPACE, QUIZ_POOL_1, QUIZ_POOL_2 } from "./ideDat
 import { getStageBenefitsFromCatalog, useCoderLessons } from "../../hooks/useCoderLessons";
 import { verifyLessonCode } from "../../services/coderLessonsApi";
 import { hugoCoderApi } from "../../services/hugoCoderApi";
-import { renderMobileIllustration, getMobileVisualSet, renderVisualArtwork } from "./hugoCoder/VisualIllustrations";
+import { getMobileVisualSet } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";
 import CertificateModal from "./hugoCoder/CertificateModal";
 import MobileGuidebook from "./hugoCoder/MobileGuidebook";
@@ -25,7 +23,6 @@ import { runMockSql, runMockPhp } from "./hugoCoder/mockRunner";
 import FeatureGate from "./shared/FeatureGate";
 import {
   CODER_STORAGE_KEYS,
-  MIN_LESSON_STUDY_MS,
   buildLessonEvidence,
   buildPreviewHtml,
   createWorkspaceZipBlob,

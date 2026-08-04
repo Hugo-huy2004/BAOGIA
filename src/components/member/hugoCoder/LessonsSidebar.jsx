@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Gift, Library } from "lucide-react";

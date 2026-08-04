@@ -1,11 +1,9 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  AlertTriangle, Clock, TrendingDown, Activity,
-  User, Phone, Mail, Calendar,
-  TrendingUp, Sparkles, ShieldCheck, ChevronDown, ChevronUp,
-  Brain, Moon, Compass, Heart, Award, ArrowUpRight, CheckCircle2,
-  FileText, Download, Zap, RefreshCw, Layers, LayoutGrid, Flame
+  AlertTriangle, Clock, Calendar, Sparkles, ShieldCheck,
+  Brain, Compass, ArrowUpRight,
+  FileText, Download, Zap, RefreshCw, LayoutGrid
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import AuraMoodMap from "./charts/AuraMoodMap";

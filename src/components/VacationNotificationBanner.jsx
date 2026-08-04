@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export default function VacationNotificationBanner({ isVacationMode = false }) {
   const [isVisible, setIsVisible] = useState(true);

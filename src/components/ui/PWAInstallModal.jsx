@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 export default function PWAInstallModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +25,7 @@ export default function PWAInstallModal() {
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md">
-        <motion.div
+        <m.div
           initial={{ y: "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
@@ -93,7 +93,7 @@ export default function PWAInstallModal() {
           >
             Đã Hiểu & Đóng
           </button>
-        </motion.div>
+        </m.div>
       </div>
     </AnimatePresence>
   );

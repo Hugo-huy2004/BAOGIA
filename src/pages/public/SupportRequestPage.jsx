@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getMemberSession } from '../../services/authSession';
 import { dataApi } from '../../services/dataApi';

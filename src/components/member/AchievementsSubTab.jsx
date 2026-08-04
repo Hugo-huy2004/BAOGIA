@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 const COMMON_ICONS = [
   "code", "design_services", "brush", "campaign", "photo_camera",

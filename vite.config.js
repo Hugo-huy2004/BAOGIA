@@ -32,12 +32,30 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+  // Vite only inlines VITE_* keys that are actually set, and the web build
+  // never sets this one — so it stayed a runtime lookup, IS_NATIVE was never a
+  // build-time constant, and Rollup kept every native-only branch. Result:
+  // browser visitors precached ~32K of Capacitor plugin chunks they can't run.
+  // Defining it here folds the constant no matter how the build is invoked.
+  define: {
+    "import.meta.env.VITE_BUILD_TARGET": JSON.stringify(isNative ? "native" : "web"),
+  },
   resolve: {
     // The virtual module ships with the PWA plugin; without it the import in
     // PWAUpdatePrompt cannot resolve, so point it at an inert stub.
     alias: isNative
       ? { "virtual:pwa-register/react": "/src/config/pwaRegisterStub.js" }
-      : {},
+      // Every @capacitor/* import in src/ is behind IS_NATIVE, so none of it is
+      // reachable here — but the plugins registerPlugin() at module scope, and
+      // a side-effectful module survives tree-shaking, so Rollup emitted an
+      // orphan chunk each and the PWA precached them all. Alias them away and
+      // there is nothing left to emit. See src/config/capacitorStub.js.
+      // The regex must swallow the whole specifier, not just the scope: a
+      // partial match would leave the plugin name behind and give each one a
+      // distinct module id again.
+      // @capgo/* is a Capacitor plugin too (native Google sign-in) and is
+      // imported the same guarded way, so it gets the same treatment.
+      : [{ find: /^@(capacitor|capgo)\/.*/, replacement: "/src/config/capacitorStub.js" }],
   },
   plugins: [
     react(),

@@ -3525,8 +3525,8 @@
         "description": "Survive deep space"
       },
       "arcade_flappy": {
-        "title": "Flappy Cyber",
-        "description": "Fly through a cyber world"
+        "title": "Flappy Cyber 3D",
+        "description": "Fly through a neon cyber city with 7 power-ups"
       }
     },
     "dashboard": {
@@ -4189,9 +4189,9 @@
       },
       "flappy": {
         "eyebrow": "One tap, one beat",
-        "title": "Fly through the cyber city.",
-        "description": "A crisp reflex game with a bright sky, energy gates, and precise flight.",
-        "hint": "Use short taps to hold altitude; avoid rapid taps while falling."
+        "title": "Fly through the neon cyber city.",
+        "description": "A 3D reflex game with neon pipes, 7 power-ups, perfect combos, and progressive difficulty.",
+        "hint": "Tap to fly. Aim for PERFECT (center gap) for x2 + combo chain. Collect power-ups: SHD shield, SLO slow-mo, MAG magnet, MINI shrink, ELC lightning, x3 triple score, GHO ghost through walls."
       },
       "tetris": {
         "eyebrow": "Neon block room",

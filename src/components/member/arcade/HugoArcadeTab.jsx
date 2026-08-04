@@ -32,7 +32,7 @@ const readStoredList = (key) => {
 const GAMES = [
   { id: "chess",     name: "HugoChess Table 3D", tagline: "Đấu BOT hoặc hai người trên cùng thiết bị.", label: "Cờ Vua · Offline Table", Icon: Castle },
   { id: "survivor",  name: "Hugo Space Survivor",tagline: "Không chiến Neon 3D & 4 lớp Boss.", label: "Bắn Súng 3D · Multi-Boss", Icon: Rocket },
-  { id: "flappy",    name: "Hugo Flappy Cyber",   tagline: "Vượt chướng không gian Slow-Motion.", label: "Cyberpunk 3D", Icon: Zap },
+  { id: "flappy",    name: "Hugo Flappy Cyber",   tagline: "Bay qua thành phố neon 3D — 7 vật phẩm, combo.PERFECT.", label: "Cyberpunk 3D · Power-ups", Icon: Zap },
   { id: "tetris",    name: "Hugo Tetris Neon",  tagline: "Xếp hình Neon 3D 60 FPS.", label: "Xếp Hình Neon", Icon: Grid3X3 },
   { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm.", label: "Trí Tuệ · Logic", Icon: Blocks },
   { id: "caro",      name: "Caro 3×3 Arena",    tagline: "Ba quân tạo nên chiến thắng.", label: "Đối Kháng · AI 3 Cấp", Icon: Swords },

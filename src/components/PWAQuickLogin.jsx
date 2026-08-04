@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, loginMember } from "../services/authSession";
 import { webauthnHelper } from "../utils/webauthnHelper";
+import { isStandalone } from "../config/platform";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
-function isStandalonePWA() {
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-}
+const isStandalonePWA = isStandalone;
 
 // Opening the installed PWA when logged out lands on the marketing
 // /introduction page (the manifest start_url), not on /login — so the

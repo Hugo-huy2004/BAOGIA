@@ -37,5 +37,5 @@ export function chooseSurvivorDrop({ hp, maxHp = SURVIVOR_MAX_HP, weapon = 1 }, 
 }
 
 export const survivorDropChance = (hp, maxHp = SURVIVOR_MAX_HP) => (
-  hp <= Math.max(2, Math.floor(maxHp * 0.4)) ? 0.48 : 0.3
+  hp <= Math.max(2, Math.floor(maxHp * 0.4)) ? 0.32 : 0.18
 );

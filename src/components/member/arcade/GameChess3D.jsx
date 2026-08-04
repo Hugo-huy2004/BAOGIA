@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { playGameMove, playGameSelect, playGameWin, playGameLose, playChessCaptureSound, playChessCheckSound } from "../../../utils/audio";
 import { hapticMove, hapticSelect, hapticWin, hapticLose } from "../../../utils/haptics";

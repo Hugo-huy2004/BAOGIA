@@ -3,6 +3,8 @@
  * Quản lý kích hoạt cài đặt PWA 1-Tap nhanh chóng trên mọi thiết bị (Android/iOS/Desktop).
  */
 
+import { isStandalone } from "../config/platform";
+
 let globalInstallPrompt = null;
 
 // Catch native beforeinstallprompt globally & Request Persistent Storage
@@ -21,9 +23,7 @@ if (typeof window !== "undefined") {
 export async function triggerPWAInstallDirectly(onShowIOSGuide) {
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-  if (isStandalone) {
+  if (isStandalone()) {
     return { installed: true, status: "already_installed" };
   }
 

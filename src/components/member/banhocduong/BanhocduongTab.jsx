@@ -20,6 +20,7 @@ import { notify } from "../../../lib/notify";
 import { DEFAULT_HOTLINES } from "./constants/hotlines";
 import EmergencySiren from "./EmergencySiren";
 import "../../../styles/hugoPsy.css";
+import { isStandalone } from "../../../config/platform";
 
 const ChatTab = React.lazy(() => import("./ChatTab"));
 const TherapyTab = React.lazy(() => import("./TherapyTab"));
@@ -446,7 +447,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
   const isPWA = useMemo(() => {
     if (typeof window === "undefined") return false;
-    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    return isStandalone();
   }, []);
 
   const visibleSubTabs = useMemo(() => {

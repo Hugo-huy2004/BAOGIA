@@ -18,6 +18,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import dataApi from "../services/dataApi";
+import { isStandalone } from "../config/platform";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -119,7 +120,7 @@ function estimateSleepStages(motionHistory) {
  * @param {boolean}  [opts.enabled]    Master switch (default true)
  */
 export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
-  const isPWA = typeof window !== "undefined" && (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true);
+  const isPWA = typeof window !== "undefined" && isStandalone();
   if (isPWA) {
     enabled = true;
   }

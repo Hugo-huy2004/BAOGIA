@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const generateId = () => Math.random().toString(36).substr(2, 6);

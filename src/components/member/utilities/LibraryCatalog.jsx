@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { RoutePrefetcher } from "../../../utils/routePrefetcher";
 import { triggerPWAInstallDirectly } from "../../../utils/pwaInstallTrigger";
 import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
-import { ArrowLeft, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import UtilityAppIcon from "./UtilityAppIcon";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 

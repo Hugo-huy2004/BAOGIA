@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { m, AnimatePresence } from 'framer-motion';
 import { usePWA } from '../../hooks/usePWA';
+import { isStandalone } from '../../config/platform';
 
 const DISMISS_KEY = 'hugo_pwa_install_dismissed_v2';
 const DISMISS_MS = 7 * 86400000; // 7 days
@@ -8,8 +9,7 @@ const DISMISS_MS = 7 * 86400000; // 7 days
 function detectPlatform() {
   const ua = navigator.userAgent;
   const ios = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  return { ios, standalone };
+  return { ios, standalone: isStandalone() };
 }
 
 function wasDismissed() {
@@ -71,7 +71,7 @@ export default function PWAInstallBanner() {
       {/* Compact bottom banner */}
       <AnimatePresence>
         {visible && (
-          <motion.div
+          <m.div
             key="pwa-banner"
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -116,7 +116,7 @@ export default function PWAInstallBanner() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -125,7 +125,7 @@ export default function PWAInstallBanner() {
         {showGuide && (
           <>
             {/* Scrim */}
-            <motion.div
+            <m.div
               key="ios-scrim"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -135,7 +135,7 @@ export default function PWAInstallBanner() {
             />
 
             {/* Sheet */}
-            <motion.div
+            <m.div
               key="ios-sheet"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -190,7 +190,7 @@ export default function PWAInstallBanner() {
                   Đã hiểu rồi!
                 </button>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

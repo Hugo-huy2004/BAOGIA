@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useData } from "../context/DataContext";
 
 export default function GlobalAdBanner() {

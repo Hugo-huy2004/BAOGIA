@@ -3,6 +3,7 @@ import pLimit from "p-limit";
 import { buildLocalReply } from "./localFallback";
 import { loadSecureMemory } from "../../../components/member/banhocduong/utils/secureMemory";
 import { executeHybridRace } from "./hybridRaceEngine";
+import { isStandalone } from "../../../config/platform";
 
 // Detect structured test-suggestion markers the server is asked to emit, e.g.
 // "[[SUGGEST:phq9,gad7]]". Falls back to the old keyword scan for older server
@@ -445,7 +446,7 @@ export default class AIBot extends BaseBot {
       const userId = await this._aiUserId();
       
     const isPWAStandalone = typeof window !== "undefined" && (
-      window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true
+      isStandalone()
     );
 
     if (isPWAStandalone) {

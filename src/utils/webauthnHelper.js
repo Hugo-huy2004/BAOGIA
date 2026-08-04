@@ -1,4 +1,8 @@
-import { startRegistration, startAuthentication, browserSupportsWebAuthn } from '@simplewebauthn/browser';
+// PWAQuickLogin is eager in App.jsx, so a static import here put the whole
+// @simplewebauthn bundle in the entry chunk for every visitor — including the
+// ones who never touch biometrics. Only the two ceremony functions actually
+// need it, and both are already async.
+const sdk = () => import('@simplewebauthn/browser');
 
 const apiBase = import.meta.env.VITE_API_URL || '/api';
 
@@ -14,11 +18,16 @@ async function postJSON(path, body) {
 }
 
 export const webauthnHelper = {
-  isSupported: () => browserSupportsWebAuthn(),
+  // Callers use this synchronously (a useState initializer on the login
+  // screen), so it cannot await the SDK. This is the same check
+  // browserSupportsWebAuthn() performs.
+  isSupported: () =>
+    typeof window !== 'undefined' && typeof window.PublicKeyCredential === 'function',
 
   // Registers the current device's fingerprint/Face ID as a new login method.
   async registerDevice(email, deviceName, baseDeviceName) {
     const options = await postJSON('/webauthn/register-options', { email });
+    const { startRegistration } = await sdk();
     const response = await startRegistration(options);
     return postJSON('/webauthn/register-verify', { email, response, deviceName, baseDeviceName });
   },
@@ -26,6 +35,7 @@ export const webauthnHelper = {
   // Returns the member profile to feed into loginMember() on success.
   async loginWithBiometric(email) {
     const options = await postJSON('/webauthn/login-options', { email });
+    const { startAuthentication } = await sdk();
     const response = await startAuthentication(options);
     const result = await postJSON('/webauthn/login-verify', { email, response });
     return result.member;

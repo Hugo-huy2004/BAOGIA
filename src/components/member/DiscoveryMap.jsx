@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getCachedGeolocation } from "../../utils/geoCache.js";
-import {
-  MapPin, Navigation, Compass, Loader2, RefreshCw, Star, Search,
-  Clock, Map as MapIcon, LocateFixed, SlidersHorizontal,
-  UtensilsCrossed, Coffee, Gamepad2, X, Sparkles, User, Settings,
-  MessageSquare, ShieldCheck, Heart, Phone, Globe, Layers, ArrowUpRight
+import { Navigation, Compass, Star, Search,
+  Clock, LocateFixed,
+  UtensilsCrossed, Coffee, Gamepad2, X, Sparkles
 } from "lucide-react";
 import BackButton from "./shared/BackButton";
 import { hapticSelect } from "../../utils/haptics";

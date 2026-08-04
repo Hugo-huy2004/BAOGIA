@@ -13,6 +13,7 @@
 
 import { shouldAutoEco, subscribeEcoSignals } from "./ecoSignals";
 import { startEcoClock, stopEcoClock } from "./ecoStore";
+import { isStandalone } from "../config/platform";
 
 const KEY = "hugo.saveE.mode";
 const LEGACY_KEY = "hugo.saveE.enabled";
@@ -20,11 +21,8 @@ const listeners = new Set();
 
 export const MODES = ["off", "on", "auto"];
 
-export const isStandalonePwa = () => {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia?.("(display-mode: standalone)").matches
-    || window.navigator.standalone === true;
-};
+export const isStandalonePwa = () =>
+  typeof window !== "undefined" && isStandalone();
 
 // Cửa hậu CHỈ để lập trình viên thử: mở ?eco=force một lần, nhớ trong phiên.
 // Không hiện ở bất kỳ đâu trong giao diện.

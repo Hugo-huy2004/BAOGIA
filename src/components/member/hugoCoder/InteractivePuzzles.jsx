@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle, Award, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { notify } from "../../../lib/notify";
 
 export default function InteractivePuzzles({

@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { PWAUpdateManager } from "../../utils/pwaUpdateManager";
 
 export default function PWAUpdateBanner() {
@@ -52,7 +52,7 @@ export default function PWAUpdateBanner() {
 
   return (
     <AnimatePresence>
-      <motion.div
+      <m.div
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 80, opacity: 0 }}
@@ -92,7 +92,7 @@ export default function PWAUpdateBanner() {
             )}
           </button>
         </div>
-      </motion.div>
+      </m.div>
     </AnimatePresence>
   );
 }

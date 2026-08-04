@@ -1,0 +1,35 @@
+{
+  "navbar": {
+    "home": "Home",
+    "services": "Services",
+    "templates": "Templates",
+    "faq": "FAQ",
+    "booking": "Booking",
+    "account": "Account",
+    "pricing": "Pricing",
+    "benefits": "Student Benefits",
+    "portal": "Access Client Portal",
+    "loginAdmin": "Admin Login",
+    "hello": "Hello",
+    "mainMenu": "Main Menu",
+    "login": "Log In"
+  },
+  "footer": {
+    "tagline": "Crafting sweet and professional digital experiences. Specializing in Bio Links and performance-optimized website designs.",
+    "services": "Services",
+    "landingPage": "Landing Page",
+    "portfolio": "Personal Portfolio",
+    "bioLink": "Bio Link (edu)",
+    "customUIUX": "Custom UI/UX",
+    "links": "Links",
+    "home": "Home",
+    "introduction": "Introduction",
+    "pricing": "Pricing",
+    "booking": "Book a Meeting",
+    "connect": "Connect",
+    "partner": "Partners",
+    "privacyPolicy": "Privacy Policy",
+    "supportServer": "Support the Server",
+    "userGuide": "User Guide"
+  }
+}

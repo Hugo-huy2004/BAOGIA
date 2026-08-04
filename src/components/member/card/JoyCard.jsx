@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 import { Copy, Send, Sparkles, Lock, Unlock } from "lucide-react";
 import { MembershipFactory } from "../../../models/membershipTier";

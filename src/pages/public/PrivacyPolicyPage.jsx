@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../../context/DataContext";
 import { useHeadMeta } from "../../hooks/useHeadMeta";

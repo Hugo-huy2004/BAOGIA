@@ -8,6 +8,7 @@ import { useData } from "../../context/DataContext";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
+import { isStandalone } from "../../config/platform";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -42,7 +43,7 @@ export default function LoginPage() {
   useEffect(() => {
     // PWAQuickLogin already shows a floating biometric button in standalone mode —
     // skip here to avoid showing two identical fingerprint/Face ID options.
-    const inPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    const inPWA = isStandalone();
     if (inPWA) return;
     const lastEmail = localStorage.getItem(LAST_EMAIL_KEY);
     if (lastEmail && webauthnHelper.isSupported() && webauthnHelper.hasSavedDeviceFlag(lastEmail)) {

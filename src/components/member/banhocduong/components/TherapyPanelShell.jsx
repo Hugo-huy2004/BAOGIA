@@ -1,4 +1,3 @@
-import React from "react";
 import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import BackButton from "../../shared/BackButton";

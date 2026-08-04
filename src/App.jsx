@@ -1,7 +1,9 @@
-import React, { useEffect, Suspense, lazy } from "react";
+import { useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
 import { isPublicToolPath } from "./config/publicTools";
+import { isStandalone } from "./config/platform";
+import { ensureTranslations } from "./i18n/config";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -11,18 +13,16 @@ import GlobalAdBanner from "./components/GlobalAdBanner";
 import OfflineBanner from "./components/ui/OfflineBanner";
 import PWAInstallBanner from "./components/ui/PWAInstallBanner";
 import PWAUpdatePrompt from "./components/ui/PWAUpdatePrompt";
-import { isAdminAuthenticated, isMemberAuthenticated } from "./services/authSession";
+import { isMemberAuthenticated } from "./services/authSession";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
-// HBot retired (product decision 2026-07: focus the support surface on
-// HugoPSY). The component file stays on disk for reference but is no longer
-// imported, so it and its dialogue trees drop out of the main bundle.
-import { useUIStore } from "./stores/uiStore";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
+import NativeShell from "./components/NativeShell";
 import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
-import { LazyMotion, domAnimation } from "framer-motion";
+import { LazyMotion } from "framer-motion";
+const loadMotionFeatures = () => import("./config/motionFeatures").then((mod) => mod.default);
 import { initGlobalHaptics } from "./utils/haptics";
 import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
@@ -32,33 +32,41 @@ import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
 
-const IntroductionPage = lazy(() => import("./pages/public/IntroductionPage"));
-const ServicesPage = lazy(() => import("./pages/public/ServicesPage"));
-const BookingContactPage = lazy(() => import("./pages/public/BookingContactPage"));
-const LoginPage = lazy(() => import("./pages/public/LoginPage"));
-const PWALoginPage = lazy(() => import("./pages/public/PWALoginPage"));
-const MemberPortalPage = lazy(() => import("./pages/member/MemberPortalPage"));
-const BioPublicPage = lazy(() => import("./pages/public/BioPublicPage"));
-const CoderCertificatePage = lazy(() => import("./pages/public/CoderCertificatePage"));
-const AdminPanel = lazy(() => import("./pages/admin/AdminPanel"));
-const PartnerBioPage = lazy(() => import("./pages/member/PartnerBioPage"));
-const FAQPage = lazy(() => import("./pages/public/FAQPage"));
-const StudentBenefitsPage = lazy(() => import("./pages/public/StudentBenefitsPage"));
-const StudentPricingPage = lazy(() => import("./pages/public/StudentPricingPage"));
-const PrivacyPolicyPage = lazy(() => import("./pages/public/PrivacyPolicyPage"));
-const UserGuidePage = lazy(() => import("./pages/public/UserGuidePage"));
-const LivePreviewPage = lazy(() => import("./pages/member/LivePreviewPage"));
-const SupportRequestPage = lazy(() => import("./pages/public/SupportRequestPage"));
-const CustomerPortalPage = lazy(() => import("./pages/customer/CustomerPortalPage"));
-const AdminProjectsPage = lazy(() => import("./pages/admin/AdminProjectsPage"));
-const AdminProjectDetailPage = lazy(() => import("./pages/admin/AdminProjectDetailPage"));
-const SecretLinkUnlock = lazy(() => import("./pages/member/SecretLinkUnlock"));
-const PaymentGatewayPage = lazy(() => import("./pages/PaymentGatewayPage"));
-const MemberIdeTab = lazy(() => import("./components/member/MemberIdeTab"));
-const ArcadePage = lazy(() => import("./pages/member/ArcadePage"));
+// Only navbar + footer ship with the entry chunk; the rest of the dictionary
+// is fetched per language (see i18n/config.js). Every screen below lives
+// behind a lazy route, so pairing the two loads puts the dictionary inside the
+// Suspense boundary that already exists — no screen can render before its
+// strings are there, and nothing flashes raw `a.b.c` keys.
+const lazyRoute = (loader) =>
+  lazy(() => Promise.all([loader(), ensureTranslations()]).then(([mod]) => mod));
+
+const IntroductionPage = lazyRoute(() => import("./pages/public/IntroductionPage"));
+const ServicesPage = lazyRoute(() => import("./pages/public/ServicesPage"));
+const BookingContactPage = lazyRoute(() => import("./pages/public/BookingContactPage"));
+const LoginPage = lazyRoute(() => import("./pages/public/LoginPage"));
+const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
+const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
+const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
+const CoderCertificatePage = lazyRoute(() => import("./pages/public/CoderCertificatePage"));
+const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
+const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
+const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
+const StudentBenefitsPage = lazyRoute(() => import("./pages/public/StudentBenefitsPage"));
+const StudentPricingPage = lazyRoute(() => import("./pages/public/StudentPricingPage"));
+const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPage"));
+const UserGuidePage = lazyRoute(() => import("./pages/public/UserGuidePage"));
+const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
+const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
+const CustomerPortalPage = lazyRoute(() => import("./pages/customer/CustomerPortalPage"));
+const AdminProjectsPage = lazyRoute(() => import("./pages/admin/AdminProjectsPage"));
+const AdminProjectDetailPage = lazyRoute(() => import("./pages/admin/AdminProjectDetailPage"));
+const SecretLinkUnlock = lazyRoute(() => import("./pages/member/SecretLinkUnlock"));
+const PaymentGatewayPage = lazyRoute(() => import("./pages/PaymentGatewayPage"));
+const MemberIdeTab = lazyRoute(() => import("./components/member/MemberIdeTab"));
+const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
 // Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
-const EcoPortal = lazy(() => import("./Save_E/EcoPortal"));
-const UtilityPublicPage = lazy(() => import("./pages/public/UtilityPublicPage"));
+const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
+const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
 
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
@@ -160,8 +168,9 @@ function AppContent() {
   const isEmbed = new URLSearchParams(location.search).get("embed") === "true" || window.self !== window.top;
   const isFullscreenUtility = location.pathname.startsWith("/member/utilities/ide") || location.pathname.startsWith("/member/utilities/arcade");
   // In standalone PWA mode without an active session, show only the login screen —
-  // no marketing navbar, no HBot, no footer. Mirrors how a native app behaves.
-  const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  // no marketing navbar, no HBot, no footer. The native build is always in this
+  // mode: the store app is the member app, never the marketing site.
+  const isPWA = isStandalone();
   const showCustomCursor =
     !isPWA &&
     !location.pathname.startsWith("/member") &&
@@ -298,6 +307,20 @@ export default function App() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  // index.css has carried a `html.standalone-pwa` block for a while — no
+  // tap highlight, no overscroll bounce, no scrollbars, and now the flat
+  // app-shell rules — but nothing ever added the class, so none of it applied.
+  // display-mode flips when the user installs the PWA mid-session, hence the
+  // listener rather than a one-shot check.
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => root.classList.toggle("standalone-pwa", isStandalone());
+    sync();
+    const mq = window.matchMedia("(display-mode: standalone)");
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   useEffect(() => initGlobalHaptics(), []);
   // Fix: on mobile, after keyboard opens (≈380ms), scroll the focused input
   // back into view in case a React re-render reset the scroll container.
@@ -305,11 +328,12 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <LazyMotion features={domAnimation}>
+      <LazyMotion features={loadMotionFeatures}>
         <DataProvider>
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
               <RouteSeoPolicy />
+              <NativeShell />
               <PWARealtimeBridge />
               <PWAQuickLogin />
               <OfflineBanner />

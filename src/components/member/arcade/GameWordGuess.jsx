@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { playGameSelect, playGameWin, playGameLose } from "../../../utils/audio";
 import { hapticSelect, hapticWin, hapticLose } from "../../../utils/haptics";
 import { levelFor, ramp, createCombo } from "./arcadeProgression";

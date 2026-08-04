@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useGesture } from "@use-gesture/react";
 import { playGameMerge, playGameLose, playGameSelect } from "../../../utils/audio";
 import { hapticMerge, hapticLose, hapticMove } from "../../../utils/haptics";

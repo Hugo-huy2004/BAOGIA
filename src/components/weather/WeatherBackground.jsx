@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 // Apple-Weather-style animated atmosphere, rendered as a non-interactive overlay
 // (pointer-events: none) so it layers over ANY bio theme without touching it.

@@ -6,13 +6,13 @@
 
 import { useState, useEffect } from "react";
 import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
+import { isStandalone as isAppMode } from "../../config/platform";
 
 export default function StandaloneInstallButton({ appTitle, appId, className = "" }) {
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-    setIsStandalone(standalone);
+    setIsStandalone(isAppMode());
   }, []);
 
   // Hiển thị thông minh: Nếu đã chạy PWA Standalone thì ẨN nút để giữ giao diện chuẩn Apple

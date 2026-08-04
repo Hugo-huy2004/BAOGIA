@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   PCC_SLOT_SITES,
   PCC_RING_LAYOUT,

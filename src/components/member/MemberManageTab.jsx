@@ -1,5 +1,5 @@
 import { withTranslation } from "react-i18next";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Darkens a #rrggbb color by a percentage — used to build a two-tone gradient

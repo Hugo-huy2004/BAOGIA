@@ -1,4 +1,3 @@
-import React from "react";
 import OptimizedInput from "../common/OptimizedInput";
 import OptimizedTextarea from "../common/OptimizedTextarea";
 

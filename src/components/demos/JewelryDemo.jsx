@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { HugoNoticeToast } from "../shared/HugoNotice";
 
 export default function JewelryDemo({ isMobile = false }) {

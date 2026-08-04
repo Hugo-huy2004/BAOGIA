@@ -1,4 +1,3 @@
-import React from "react";
 
 export default function AdminHeader({ onOpenPalette, usersCount = 0, systemStatus = "Online" }) {
   return (

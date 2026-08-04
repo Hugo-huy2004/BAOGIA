@@ -1,4 +1,3 @@
-import React from "react";
 
 /**
  * Nút quay lại dùng chung cho mọi ứng dụng trong portal.

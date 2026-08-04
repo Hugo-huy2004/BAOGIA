@@ -3525,8 +3525,8 @@
         "description": "Sinh tồn giữa không gian"
       },
       "arcade_flappy": {
-        "title": "Flappy Cyber",
-        "description": "Bay qua thế giới tương lai"
+        "title": "Flappy Cyber 3D",
+        "description": "Bay qua thành phố neon với 7 vật phẩm"
       }
     },
     "dashboard": {
@@ -4189,9 +4189,9 @@
       },
       "flappy": {
         "eyebrow": "Một chạm, một nhịp",
-        "title": "Bay qua thành phố cyber.",
-        "description": "Một trò chơi phản xạ gọn nhẹ với bầu trời trong trẻo, cổng năng lượng và nhịp bay chính xác.",
-        "hint": "Chạm ngắn để giữ độ cao; đừng bấm liên tục khi đang rơi."
+        "title": "Bay qua thành phố neon cyber.",
+        "description": "Trò chơi phản xạ 3D với ống neon, 7 vật phẩm, combo PERFECT và độ khó tăng dần.",
+        "hint": "Chạm để bay. Nhắm PERFECT (giữa khe) để x2 + chuỗi. Thu thập: SHD khiên, SLO chậm, MAG nam châm, MINI thu nhỏ, ELC phá tường, x3 gấp 3, GHO xuyên tường."
       },
       "tetris": {
         "eyebrow": "Phòng xếp hình neon",

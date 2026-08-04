@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { logoutAuth } from "../../services/authSession";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { analyzeParticleCloudFrame, bytesToBase64Url } from "../../../utils/particleCloudCode";
 

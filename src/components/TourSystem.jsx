@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { m } from 'framer-motion';
 import { useTourStore, TOUR_DEFINITIONS } from '../stores/tourStore';
 import confetti from 'canvas-confetti';
 
@@ -130,7 +130,7 @@ export default function TourSystem() {
     <div className="absolute inset-0 z-[99999] pointer-events-none">
       {/* 1. Spotlight Overlay Mask */}
       <svg className="fixed inset-0 w-full h-full pointer-events-auto" style={{ zIndex: 99998 }}>
-        <motion.path
+        <m.path
           fill="rgba(0, 0, 0, 0.65)"
           fillRule="evenodd"
           animate={{ d: maskPath }}
@@ -162,7 +162,7 @@ export default function TourSystem() {
           zIndex: 100000
         }}
       >
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -208,7 +208,7 @@ export default function TourSystem() {
               {isLastStep ? 'Hoàn thành' : 'Tiếp tục'}
             </button>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

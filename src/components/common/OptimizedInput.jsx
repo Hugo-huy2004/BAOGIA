@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function OptimizedInput({ value, onChange, delay = 300, className, ...props }) {
   const [localValue, setLocalValue] = useState(value || '');

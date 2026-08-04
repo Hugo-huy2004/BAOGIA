@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { userApi } from "../../services/api/UserApi";
 import { getAdminSession, logoutAuth } from "../../services/authSession";
@@ -388,6 +388,7 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
         {/* ⌘K Command Palette Modal */}
         <AdminCommandPalette
           isOpen={isPaletteOpen}
+          onOpen={() => setIsPaletteOpen(true)}
           onClose={() => setIsPaletteOpen(false)}
           users={users}
           onNavigateTab={(tab) => { setActiveTab(tab); setIsPaletteOpen(false); }}

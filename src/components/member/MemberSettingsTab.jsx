@@ -22,6 +22,7 @@ import {
   Check,
   X,
   Share2,
+  LocateFixed,
 } from "lucide-react";
 import EcoToggle from "../../Save_E/EcoToggle";
 
@@ -213,6 +214,28 @@ export default function MemberSettingsTab({
             <div>
               <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.notifications")}</h4>
               <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.notificationsDescription")}</span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
+        </div>
+
+        {/* Quyền định vị & thông báo đẩy — bảng quyền chỉ tự hiện đúng một lần
+            sau khi đăng nhập; đây là lối vào duy nhất để mở lại khi đổi ý. */}
+        <div
+          onClick={() => {
+            hapticSelect();
+            window.dispatchEvent(new Event("hugo:show-permission-primer"));
+          }}
+          className="hugo-account-row flex items-center justify-between cursor-pointer"
+          data-tone="blue"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <LocateFixed className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-foreground">{t("memberPortal.permissions.title")}</h4>
+              <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.permissions.description")}</span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground/60" />

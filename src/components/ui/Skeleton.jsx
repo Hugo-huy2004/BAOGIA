@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * Reusable Skeleton loader component using Tailwind CSS

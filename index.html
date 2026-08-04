@@ -260,22 +260,18 @@
     <!-- Main Module script entry point -->
     <script type="module" src="/src/main.jsx"></script>
 
-    <script>
-      // Request fullscreen on iOS if available
-      if (
-        document.documentElement.requestFullscreen &&
-        /iPhone|iPad|iPod/.test(navigator.userAgent)
-      ) {
-        document.addEventListener(
-          "click",
-          () => {
-            document.documentElement.requestFullscreen().catch((err) => {
-              console.log("Fullscreen request failed:", err);
-            });
-          },
-          { once: true },
-        );
-      }
-    </script>
+    <!--
+      Đã bỏ đoạn tự gọi requestFullscreen() ở cú chạm đầu tiên trên iOS.
+
+      Lúc viết, Safari iOS chưa hỗ trợ Fullscreen API cho phần tử nên nó là
+      no-op và không ai thấy gì. iOS 26 hỗ trợ rồi: cú chạm đầu tiên đưa trang
+      vào fullscreen thật, và WebKit kèm theo một banner hệ thống
+      ("… is in full screen. Swipe down to exit") cùng nút X xám đè lên giao
+      diện, không tắt được bằng CSS.
+
+      Bản native vốn đã chiếm trọn màn hình nên chẳng được thêm gì; còn trên
+      web thì cướp cú chạm đầu tiên của người dùng để làm một việc họ không
+      yêu cầu. Cả hai phía đều lỗ, nên xoá hẳn thay vì thêm điều kiện.
+    -->
   </body>
 </html>

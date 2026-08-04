@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function TypewriterText({ text, id, onComplete }) {
   const [displayedText, setDisplayedText] = useState("");

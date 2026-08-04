@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";

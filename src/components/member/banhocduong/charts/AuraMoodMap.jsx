@@ -1,4 +1,3 @@
-import React from "react";
 import { Sparkles, Activity, Calendar } from "lucide-react";
 
 export default function AuraMoodMap({ historyLogs = [] }) {

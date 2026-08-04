@@ -19,9 +19,10 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
   const [error, setError] = useState("");
 
   // localStorage, not sessionStorage: every PWA launch is a fresh session, so a
-  // session-scoped key re-asked on each open. Answered once = answered for good;
-  // a later change of mind goes through the browser's own site settings.
-  const dismissKey = useMemo(
+  // session-scoped key re-asked on each open. Đây là cờ ĐÃ HỎI, không phải cờ
+  // đã từ chối — hỏi một lần rồi thôi, bất kể người dùng trả lời gì. Đổi ý thì
+  // vào phần cài đặt quyền của trình duyệt.
+  const askedKey = useMemo(
     () => `hugo:permission-primer:${String(email || "").toLowerCase()}`,
     [email],
   );
@@ -29,12 +30,9 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
   const refresh = useCallback(async () => {
     const next = await pwaPermissionService.getSnapshot();
     setSnapshot(next);
-    if (next.complete) {
-      setVisible(false);
-      localStorage.removeItem(dismissKey);
-    }
+    if (next.complete) setVisible(false);
     return next;
-  }, [dismissKey]);
+  }, []);
 
   useEffect(() => {
     if (!enabled || !email) return undefined;
@@ -42,7 +40,10 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
     const stopWatching = pwaPermissionService.watch(() => refresh().catch(() => {}));
     const timer = window.setTimeout(async () => {
       const next = await refresh().catch(() => EMPTY_SNAPSHOT);
-      if (cancelled || next.complete || localStorage.getItem(dismissKey) === "true") return;
+      if (cancelled || next.complete || localStorage.getItem(askedKey) === "true") return;
+      // Đánh dấu ngay lúc hiện, không đợi tới lúc bấm nút: người dùng đóng bằng
+      // cách nào — nút X, "Để sau", hay tắt app — cũng không bị hỏi lại.
+      localStorage.setItem(askedKey, "true");
       setVisible(true);
       if (next.push.permission === "granted" && !next.push.subscribed) {
         pwaPermissionService.repairPushSubscription(email).then(refresh).catch(() => {});
@@ -54,12 +55,20 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
       window.clearTimeout(timer);
       stopWatching();
     };
-  }, [dismissKey, email, enabled, refresh]);
+  }, [askedKey, email, enabled, refresh]);
 
-  const dismiss = () => {
-    localStorage.setItem(dismissKey, "true");
-    setVisible(false);
-  };
+  // Mở lại theo yêu cầu (hàng "Quyền truy cập" trong Cài đặt) — bỏ qua cờ đã hỏi
+  // vì đây là hành động chủ động của người dùng.
+  useEffect(() => {
+    const open = () => {
+      refresh().catch(() => {});
+      setVisible(true);
+    };
+    window.addEventListener("hugo:show-permission-primer", open);
+    return () => window.removeEventListener("hugo:show-permission-primer", open);
+  }, [refresh]);
+
+  const dismiss = () => setVisible(false);
 
   const enablePush = async () => {
     if (!snapshot.push.supported) {

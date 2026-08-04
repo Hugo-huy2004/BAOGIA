@@ -1,4 +1,3 @@
-import React from "react";
 import VerificationForm from "./VerificationForm";
 
 // The "Sinh viên chưa xác minh" entry used to navigate into its own tab —

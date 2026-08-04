@@ -1,4 +1,3 @@
-import React from "react";
 import HugoLogo from "./HugoLogo";
 
 export default function MaintenancePage() {

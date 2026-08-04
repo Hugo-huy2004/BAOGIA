@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Search, CheckCircle, XCircle, Clock, ExternalLink, Award, RefreshCw, Send, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, CheckCircle, XCircle, Clock, ExternalLink, Award, RefreshCw } from "lucide-react";
 import { notify } from "../../lib/notify";
 
 export default function AdminCoderSubmissionsTab() {

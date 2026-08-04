@@ -3,7 +3,7 @@
  * Màn hình bảo vệ & tự động sửa lỗi ngầm (Apple Glassmorphic Self-Healing UI Boundary).
  */
 
-import React, { Component } from "react";
+import { Component } from "react";
 import { AISelfHealingEngine } from "../../utils/aiSelfHealingEngine";
 
 export default class AISelfHealingBoundary extends Component {

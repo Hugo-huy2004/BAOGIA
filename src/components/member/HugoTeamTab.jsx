@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";

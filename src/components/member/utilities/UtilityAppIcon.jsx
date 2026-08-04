@@ -11,7 +11,6 @@ import {
   Infinity as InfinityIcon,
   Info,
   Keyboard,
-  LayoutGrid,
   MapPinned,
   QrCode,
   Radio,

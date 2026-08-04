@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWeather } from "../../hooks/useWeather";
 import { assessWeather, describeCondition } from "../../utils/weather";
 import { isWeatherAlertEnabled } from "../../utils/weatherPrefs";

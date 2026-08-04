@@ -3,7 +3,7 @@
  * Hỗ trợ đăng ký Service Worker và gửi đối tượng Subscription Object lên server.
  */
 import { getMemberToken } from "../services/authSession";
-import { IS_NATIVE } from "../config/platform";
+import { IS_NATIVE, isStandalone } from "../config/platform";
 
 // Hàm phụ để convert khóa VAPID Public Key dạng base64 sang Uint8Array
 function urlBase64ToUint8Array(base64String) {
@@ -153,8 +153,7 @@ export const webPushHelper = {
             locale: navigator.language || '',
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
             platform: navigator.userAgentData?.platform || navigator.platform || '',
-            standalone: window.matchMedia?.('(display-mode: standalone)')?.matches
-              || window.navigator.standalone === true,
+            standalone: isStandalone(),
           },
         })
       });

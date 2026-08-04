@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { bookingApi } from "../../services/api/BookingApi";
 import { supportTicketApi } from "../../services/api/SupportTicketApi";

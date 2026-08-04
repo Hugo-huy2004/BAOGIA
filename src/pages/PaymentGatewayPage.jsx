@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import dataApi from "../services/dataApi";
 import HugoLogo from "../components/HugoLogo";
-import { useUIStore } from "../stores/uiStore";
 import { usePayOS } from "@payos/payos-checkout";
 import { isAdminAuthenticated } from "../services/authSession";
 import { notify } from "../lib/notify";

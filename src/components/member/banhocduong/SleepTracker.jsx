@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Moon, Sun, Clock, Sparkles, TrendingUp, AlertTriangle, CheckCircle,
@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import dataApi from "../../../services/dataApi";
 import { HugoNoticeToast } from "../../shared/HugoNotice";
+import { isStandalone } from "../../../config/platform";
 
 const AI_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -275,7 +276,7 @@ function CircadianSleepCalculator() {
 
 export default function SleepTracker({ bio, sleepAutoDetect }) {
   const email = bio?.email;
-  const isPWA = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isPWA = isStandalone();
 
   const [logs, setLogs]           = useState([]);
   const [stats, setStats]         = useState(null);

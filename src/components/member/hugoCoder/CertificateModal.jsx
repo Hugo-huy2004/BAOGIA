@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Award, Mail, Star, Users, Check, Gift } from "lucide-react";
+import { useState } from "react";
+import { Award, Users, Check, Gift } from "lucide-react";
 import { notify } from "../../../lib/notify";
 import { useJoyStore } from "../../../stores/joyStore";
 

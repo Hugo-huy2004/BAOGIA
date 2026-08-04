@@ -1,4 +1,3 @@
-import React from "react";
 import { 
   FolderOpen, Folder, Plus, Edit2, Trash2, 
   ChevronDown, ChevronRight, FileCode 

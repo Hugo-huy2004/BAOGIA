@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-export default function AdminCommandPalette({ isOpen, onClose, onExecuteCommand, onNavigateTab, users = [] }) {
+export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecuteCommand, onNavigateTab, users = [] }) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const inputRef = useRef(null);
@@ -27,7 +27,7 @@ export default function AdminCommandPalette({ isOpen, onClose, onExecuteCommand,
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, onOpen]);
 
   if (!isOpen) return null;
 

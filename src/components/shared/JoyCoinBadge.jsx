@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { motion, useAnimation, useSpring, useTransform } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, useAnimation, useSpring } from "framer-motion";
 import { useJoyStore } from "../../stores/joyStore";
 
 const SIZES = {

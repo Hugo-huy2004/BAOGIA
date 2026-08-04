@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Sparkles, X, Loader2, CheckCircle2, Ticket } from "lucide-react";
 import { useJoyStore } from "../../../stores/joyStore";
 

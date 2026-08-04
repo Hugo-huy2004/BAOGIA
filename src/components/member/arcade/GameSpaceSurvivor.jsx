@@ -32,7 +32,7 @@ const MAX_PARTICLES = 260;
 
 const GRAZE_RADIUS = 34;
 const GRAZE_FULL = 100;
-const OVERDRIVE_FRAMES = 180;
+const OVERDRIVE_FRAMES = 120;
 
 const CORE = "#ffc73a";
 const SHIELD_C = "#38bdf8";
@@ -139,7 +139,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     overdrive: 0,
     rapidFire: 0,
     hitStop: 0,
-    combo: createCombo({ windowMs: 2200, step: 0.25, max: 3 }),
+    combo: createCombo({ windowMs: 2200, step: 0.25, max: 2.25 }),
     keys: {},
     lastShot: 0,
     spawnTimer: 60,
@@ -292,7 +292,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     //    tỉ lệ địch nặng — nhân thẳng theo POWER, vô hạn thật.
     //
     // Nhờ vậy đợt 100 vẫn khó hơn đợt 99, mà vẫn là thứ chơi được.
-    const POWER_PER_WAVE = 1.11;
+    const POWER_PER_WAVE = 1.14;
     const power = (wave) => POWER_PER_WAVE ** Math.max(0, wave - 1);
     // Tiệm cận: trả về 0 ở đợt 1 và tiến dần tới 1 khi đợt tăng.
     const approach = (wave, half) => 1 - 1 / (1 + Math.max(0, wave - 1) / half);
@@ -314,11 +314,11 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         lead: approach(wave, 14),                             // đón đầu hướng bay của người chơi
         droneFires: wave >= 3,                                // từ đợt 3 drone cũng bắn
         // Vô hạn — càng về sau càng dày máu và càng nhiều địch nặng.
-        hpScale: 1 + 0.4 * (p - 1),
+        hpScale: 1 + 0.7 * (p - 1),
         eliteRatio: approach(wave, 12),
         // Vật phẩm hiếm dần: rơi thưa hơn theo đợt nhưng không bao giờ tắt hẳn.
-        dropDecay: 1 / (1 + wave / 9),
-        dropStreak: 4 + Math.round(7 * approach(wave, 8)),
+        dropDecay: 1 / (1 + wave / 6),
+        dropStreak: 6 + Math.round(9 * approach(wave, 8)),
       };
     };
 
@@ -327,7 +327,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     // ngắn rồi vào đợt mới khó hơn.
     // Chỉ tiêu mỗi đợt cũng vô hạn, nhưng mọc chậm hơn hệ số khó (mũ 0.6) để
     // một đợt không dài lê thê tới mức chán.
-    const quotaFor = (wave) => Math.round(12 * power(wave) ** 0.6);
+    const quotaFor = (wave) => Math.round(18 * power(wave) ** 0.6);
 
     const beginWave = (wave) => {
       const s = state.current;
@@ -403,7 +403,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       const s = state.current;
       const type = bossTypeForWave(wave);
       // Trùm cũng nhân theo hệ số khó — đợt 30 không thể chỉ dày gấp đôi đợt 15.
-      const hp = Math.round(46 * power(wave) ** 0.9 * type.hpScale);
+      const hp = Math.round(60 * power(wave) ** 0.9 * type.hpScale);
       s.boss = {
         ...type,
         x: W / 2,
@@ -485,7 +485,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
 
     const reward = (s, x, y, base) => {
       const mult = s.combo.hit();
-      const gained = Math.round(base * (1 + (s.wave - 1) * 0.12) * mult);
+      const gained = Math.round(base * (1 + (s.wave - 1) * 0.06) * mult);
       s.score += gained;
       pushPopup(s.popups, x, y, `+${gained}`, s.combo.chain >= 3 ? CORE : "#ffffff", s.combo.chain >= 3 ? 17 : 14);
       return gained;
@@ -511,8 +511,8 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         bonus += 25;
       });
       s.foeShots = [];
-      s.enemies.forEach((e) => { e.hp -= 2; e.flash = 8; boom(e.x, e.y, OD_COLOR, 6); });
-      if (s.boss) { s.boss.hp -= 12; boom(s.boss.x, s.boss.y, OD_COLOR, 20); }
+      s.enemies.forEach((e) => { e.hp -= 1; e.flash = 8; boom(e.x, e.y, OD_COLOR, 6); });
+      if (s.boss) { s.boss.hp -= 6; boom(s.boss.x, s.boss.y, OD_COLOR, 20); }
       if (bonus > 0) {
         s.score += bonus;
         pushPopup(s.popups, W / 2, H / 2, `+${bonus}`, OD_COLOR, 20);
@@ -1440,7 +1440,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
               if (bo.hp <= 0) {
                 boom(bo.x, bo.y, CORE, 44, 1.5);
                 boom(bo.x, bo.y, "#ffffff", 16, 1.2);
-                reward(s, bo.x, bo.y, 1200);
+                reward(s, bo.x, bo.y, 600);
                 s.bossClearedAt = s.wave;
                 s.boss = null;
                 s.phase = "rest";
@@ -1450,7 +1450,6 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 s.flashColor = "255,215,120";
                 s.flashAlpha = 0.55;
                 s.hitStop = 10;
-                s.player.hp = Math.min(MAX_HP, s.player.hp + 1);
                 spawnPowerUp(s, bo.x - 28, bo.y, "repair");
                 spawnPowerUp(s, bo.x + 28, bo.y, s.graze < 55 ? "overdrive" : "rapid");
                 if (!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
@@ -1474,7 +1473,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
               if (e.hp <= 0) {
                 s.enemies.splice(eIdx, 1);
                 boom(e.x, e.y, e.color, e.type === "heavy" ? 20 : 10);
-                reward(s, e.x, e.y, e.type === "heavy" ? 150 : 50);
+                reward(s, e.x, e.y, e.type === "heavy" ? 80 : 25);
                 hapticMerge();
                 s.killsSinceDrop += 1;
                 if (e.type === "heavy") s.shakeMag = Math.max(s.shakeMag, 5);
@@ -1500,7 +1499,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
           s.foeShots.forEach((f) => count(f.x, f.y, f.size || 7));
           s.enemies.forEach((e) => count(e.x, e.y, e.w / 2 + 12));
           if (near > 0) {
-            s.graze = Math.min(GRAZE_FULL, s.graze + near * 0.55);
+              s.graze = Math.min(GRAZE_FULL, s.graze + near * 0.40);
             if (Math.random() < 0.25) {
               s.particles.push({
                 x: s.player.x + (Math.random() - 0.5) * 34,
@@ -1511,7 +1510,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             if (s.graze >= GRAZE_FULL && !s.grazeAnnounced) {
               s.grazeAnnounced = true;
               pushPopup(s.popups, s.player.x, s.player.y - 40, "SẴN SÀNG", OD_COLOR, 14);
-              s.score += 150;
+              s.score += 50;
               notify(t("arcadeGame.survivor.overdriveReady"));
             }
           }
@@ -1525,7 +1524,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             if (s.overdrive > 0) {
               s.enemies.splice(i, 1);
               boom(e.x, e.y, OD_COLOR, 14);
-              reward(s, e.x, e.y, e.type === "heavy" ? 150 : 50);
+              reward(s, e.x, e.y, e.type === "heavy" ? 80 : 25);
               continue;
             }
             s.enemies.splice(i, 1);
@@ -1575,7 +1574,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
                 ? t("arcadeGame.survivor.overdriveReady")
                 : t("arcadeGame.survivor.overdriveCharged"));
             } else if (p.type === "rapid") {
-              s.rapidFire = Math.max(s.rapidFire, 360);
+              s.rapidFire = Math.max(s.rapidFire, 240);
               notify(t("arcadeGame.survivor.rapidFire"));
             }
           }

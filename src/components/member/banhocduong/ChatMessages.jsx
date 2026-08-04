@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Stethoscope, Heart, Smile, Meh, Frown, Sparkles, Wind } from "lucide-react";
+import { ChevronDown, Heart, Smile, Meh, Frown, Sparkles, Wind } from "lucide-react";
 import TypewriterText from "./TypewriterText";
 import { THERAPY_METHODS } from "./constants/therapyMethods";
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Wind, Dumbbell, RotateCcw, CloudRain, Waves, Bell, Music } from "lucide-react";
 import { getBestViVoice } from "./utils/getBestViVoice";

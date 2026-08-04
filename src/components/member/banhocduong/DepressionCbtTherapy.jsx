@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Sparkles, CheckCircle2, Circle, AlertCircle,
-  FileText, CheckSquare, Edit3, Heart, ArrowRight
+  FileText, CheckSquare, Edit3, ArrowRight
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "../../../config/apiBase";
 
 export default function DepressionCbtTherapy({ onBack, onCompleteActivity, showToast, bio, historyLogs, chatMessages }) {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { isStandalone } from '../config/platform'
 
 export function usePWA() {
   const [installPrompt, setInstallPrompt] = useState(null)
@@ -12,7 +13,7 @@ export function usePWA() {
     window.addEventListener('online', () => setIsOnline(true))
     window.addEventListener('offline', () => setIsOnline(false))
 
-    setIsInstalled(window.matchMedia('(display-mode: standalone)').matches)
+    setIsInstalled(isStandalone())
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)

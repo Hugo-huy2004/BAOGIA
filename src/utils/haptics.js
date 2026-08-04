@@ -1,11 +1,36 @@
+// The Capacitor Haptics plugin, handed over by NativeShell in the store
+// builds. Null on the web, where navigator.vibrate is all there is.
+let nativeHaptics = null;
+
+/** @param {object} plugin the `@capacitor/haptics` module */
+export function setNativeHaptics(plugin) {
+  nativeHaptics = plugin;
+}
+
 // Short tap-feedback vibration for a more "real" tactile feel on interactive
 // taps. Silently no-ops where unsupported — note iOS Safari/WebKit (including
-// installed PWAs) has never implemented the Vibration API, so this only has
-// an effect on Android; it's still wired up everywhere since it costs nothing
-// where it's unsupported.
+// installed PWAs) has never implemented the Vibration API, so on the web this
+// only has an effect on Android; it's still wired up everywhere since it costs
+// nothing where it's unsupported. The native builds route through Capacitor
+// instead, which is the only way to get a buzz out of iOS.
 export function triggerHaptic(durationMs = 10) {
   try {
     if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+    if (nativeHaptics) {
+      const { Haptics, ImpactStyle } = nativeHaptics;
+      if (Array.isArray(durationMs)) {
+        // ponytail: patterns collapse to one buzz — iOS ignores duration
+        // anyway. Sequence them with awaited impacts if a pattern ever needs
+        // to be distinguishable by feel.
+        Haptics.vibrate({ duration: durationMs.reduce((a, b) => a + b, 0) }).catch(() => {});
+      } else {
+        const style = durationMs <= 10 ? ImpactStyle.Light
+          : durationMs <= 30 ? ImpactStyle.Medium
+            : ImpactStyle.Heavy;
+        Haptics.impact({ style }).catch(() => {});
+      }
+      return;
+    }
     navigator.vibrate?.(durationMs);
   } catch (_) { /* ignore */ }
 }

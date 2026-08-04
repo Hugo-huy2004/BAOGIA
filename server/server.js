@@ -47,7 +47,18 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_w
 const allowedOrigins = [
   ...((process.env.CLIENT_URLS || "").split(",")),
   "https://www.hugowishpax.studio",
-  "https://hugowishpax.studio"
+  "https://hugowishpax.studio",
+  // The App Store build is not served over http(s): WKWebView loads it from
+  // `capacitor://localhost`, and that string is what lands in the Origin
+  // header. It is a constant baked into Capacitor, not a host anyone can point
+  // DNS at, so listing it literally is the whole check — a web page cannot
+  // forge this origin. Without it every request from the app is a CORS
+  // rejection, which reaches the client as a network error and reads like the
+  // phone is offline.
+  // Android is not covered here: with androidScheme "https" its origin is
+  // `https://localhost`, which is a real scheme any local server can claim.
+  // Give it a distinct `server.hostname` before adding it to this list.
+  "capacitor://localhost"
 ].filter(Boolean);
 
 const isDev = process.env.NODE_ENV !== 'production';

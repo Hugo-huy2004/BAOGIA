@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 
 // Lazy-load themes to reduce initial bundle size
 const DefaultTheme = lazy(() => import("../../components/themes/DefaultTheme"));
