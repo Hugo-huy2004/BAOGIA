@@ -42,14 +42,28 @@ export const useJoyStore = create((set, get) => ({
     writePersisted(normalizedEmail, nextState);
   },
 
-  fetchBalance: async (email, signal) => {
+  /**
+   * @param {string} email
+   * @param {AbortSignal} [signal]
+   * @param {{force?: boolean}} [opts] `force` when the balance is KNOWN to have
+   *   just changed (a game reward, a purchase, a wallet push). The 10s cache
+   *   below exists to dedupe the burst of reads on mount — but a refetch fired
+   *   right after JOY moved landed inside that window, returned the pre-change
+   *   number, and the wallet looked like it never credited. Every JOY-earning
+   *   screen hit this, not just the arcade.
+   */
+  fetchBalance: async (email, signal, opts = {}) => {
     if (!email) return;
     const normalizedEmail = email.trim().toLowerCase();
+    const force = Boolean(opts.force);
     const cached = balanceCache.get(normalizedEmail);
-    if (cached && cached.expiresAt > Date.now()) {
+    if (!force && cached && cached.expiresAt > Date.now()) {
       set({ balance: cached.balance, referralCode: cached.referralCode, loaded: true });
       return;
     }
+    // A forced read must not join a request that was already in flight before
+    // the change — that response is just as stale as the cache.
+    if (force) balanceCache.delete(normalizedEmail);
 
     // Show last-known balance instantly (before the network round-trip / cold start).
     if (!get().loaded) {
@@ -62,7 +76,7 @@ export const useJoyStore = create((set, get) => ({
       });
     }
 
-    if (inflightBalanceRequests.has(normalizedEmail)) {
+    if (!force && inflightBalanceRequests.has(normalizedEmail)) {
       return inflightBalanceRequests.get(normalizedEmail);
     }
 

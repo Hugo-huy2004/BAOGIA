@@ -1867,6 +1867,133 @@ html.native-ios .mobile-portal-nav__track::before {
   will-change: backdrop-filter;
 }
 
+/* ---------------------------------------------------------------------------
+ * Thanh "đang phát" — viên kính thứ hai nằm trên tab bar (kiểu Podcasts).
+ * Dùng chung công thức kính với tab bar: nền ở lớp ::before + translateZ.
+ * ------------------------------------------------------------------------- */
+.radio-mini {
+  position: absolute;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
+  left: 0;
+  z-index: 31;
+  display: flex;
+  width: fit-content;
+  max-width: calc(100% - 28px);
+  align-items: center;
+  gap: 4px;
+  margin-inline: auto;
+  padding: 6px 8px;
+  border: .5px solid hsl(var(--border) / .5);
+  border-radius: 22px;
+  background: hsl(var(--background) / .92);
+  box-shadow: 0 8px 26px hsl(var(--shadow) / .16);
+}
+
+.radio-mini__open {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.radio-mini__art {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  place-items: center;
+}
+
+.radio-mini__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.radio-mini__title {
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: hsl(var(--foreground));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.radio-mini__sub {
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+}
+
+.radio-mini__btn {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: hsl(var(--foreground));
+  place-items: center;
+}
+
+/* Bản iOS: cùng chất kính với tab bar, và nhấc lên vừa đủ để hai viên kính
+   xếp chồng chứ không dính vào nhau. */
+html.native-ios .radio-mini {
+  /* Vẫn tuyệt đối, không đưa vào dòng chảy flex: nav cũng đang đè lên vùng
+     cuộn, hai viên kính phải xếp chồng trên cùng một mặt phẳng nổi.
+     72px = chiều cao thanh tab (56) + đệm trên (6) + đệm dưới (10). */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  border-color: rgb(255 255 255 / .45);
+  background: transparent;
+  border-radius: 24px;
+  pointer-events: auto;
+  box-shadow:
+    0 10px 34px hsl(var(--shadow) / .18),
+    inset 0 1px 0 rgb(255 255 255 / .75),
+    inset 0 -1px 0 rgb(255 255 255 / .22);
+}
+
+html.native-ios .radio-mini::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / .40), rgb(255 255 255 / .10)),
+    hsl(var(--background) / .62);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  backdrop-filter: saturate(180%) blur(24px);
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+html.native-ios.dark .radio-mini::before {
+  background:
+    linear-gradient(to bottom, rgb(255 255 255 / .10), rgb(255 255 255 / .02)),
+    rgb(12 11 17 / .62);
+}
+
+/* Có thanh now-playing thì nội dung phải chừa thêm chiều cao của nó. */
+html.native-ios .portal-mobile-main:has(.radio-mini) .mobile-portal-content {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 142px);
+}
+
+/* Vùng cuộn cũng phải nằm trên composited layer riêng, nếu không compositor
+   không có sẵn ảnh của nó để lớp kính lấy mẫu — bỏ dòng này ra là blur tắt,
+   đã thử đi thử lại trên máy thật. */
+html.native-ios .mobile-portal-content {
+  transform: translateZ(0);
+}
+
 /* Icon/nhãn phải nằm TRÊN lớp kính. */
 html.native-ios .mobile-portal-nav button {
   position: relative;

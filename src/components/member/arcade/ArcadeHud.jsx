@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { levelFor, levelProgress, maxLevel } from "./arcadeProgression";
+import { getBest } from "./arcadeBest";
 
 // HUD dùng chung cho mọi game. Trước đây mỗi game tự dựng thẻ điểm với màu
 // hardcode (tetris cyan/tím, survivor hồng, wordguess xanh lá…) nên cùng một
@@ -26,6 +27,29 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
   const [toast, setToast] = useState(null);
   const toastTimerRef = useRef(null);
   const toastSequenceRef = useRef(0);
+
+  // Kỷ lục đọc MỘT lần lúc vào ván và giữ nguyên suốt ván: nếu đọc lại theo
+  // từng khung hình thì ngay khi vượt qua, "kỷ lục" nhảy lên bằng điểm hiện
+  // tại và cái mốc để đuổi biến mất đúng lúc nó đang có ý nghĩa nhất.
+  const [best] = useState(() => getBest(gameId));
+  const beatenRef = useRef(false);
+
+  // Khoảnh khắc vượt kỷ lục phải được nói ra ngay giữa ván. Đó là lúc người
+  // chơi quyết định có chơi tiếp hay không, chứ không phải ở màn kết thúc.
+  useEffect(() => {
+    if (!best || beatenRef.current || score <= best) return;
+    beatenRef.current = true;
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastSequenceRef.current += 1;
+    setToast({
+      id: toastSequenceRef.current,
+      icon: "trophy",
+      title: "Kỷ lục mới!",
+      detail: `Vượt ${fmt(best)}`,
+      kind: "record",
+    });
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 1800);
+  }, [score, best]);
 
   // Combo/x2 và thông báo chặng là overlay tạm thời, không còn là một card
   // nằm trong document flow. Vì vậy chúng có thể xuất hiện liên tục mà không
@@ -78,6 +102,14 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
             <strong>{fmt(s.value)}</strong>
           </div>
         ))}
+
+        {/* Mốc để đuổi. Không có nó, điểm chỉ là một con số tăng dần. */}
+        {best > 0 && (
+          <div className={`ahud__stat ahud__best${score > best ? " is-beaten" : ""}`}>
+            <small>Kỷ lục</small>
+            <strong>{fmt(score > best ? score : best)}</strong>
+          </div>
+        )}
 
         <div className={`ahud__level${capped ? " is-max" : ""}`}>
           <small>{t("arcadeGame.levelLabel")}</small>

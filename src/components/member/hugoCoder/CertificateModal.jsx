@@ -63,7 +63,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
       notify.success("Chúc mừng! Bạn đã nhận phần thưởng +10,000 JOY hoàn thành khóa học!");
       setAwardClaimed(true);
       if (bio?.email) {
-        useJoyStore.getState().fetchBalance(bio.email);
+        useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
       }
       if (onBioUpdate) {
         onBioUpdate({ courseCompletionAwardClaimed: true, joyBalance: resData.balance });

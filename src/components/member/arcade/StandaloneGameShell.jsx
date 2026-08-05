@@ -6,6 +6,7 @@ import { submitScore } from "../../../services/arcadeApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { calcJoy } from "../../../utils/joyCalculation";
+import { getBest, recordBest, nearMissGap } from "./arcadeBest";
 import GameIntroScreen from "./GameIntroScreen";
 import "./game-shell.css";
 
@@ -40,6 +41,12 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
   const [resultData, setResultData] = useState(null);
   const [playKey, setPlayKey] = useState(0);
 
+  // Số dư phải lấy từ store, không lấy từ prop `bio`. `bio` là ảnh chụp lúc mở
+  // game: thắng xong, ví server đã cộng, store đã cập nhật, mà con số trên
+  // thanh tiêu đề vẫn y nguyên vì prop không đổi.
+  const walletBalance = useJoyStore((s) => s.balance);
+  const walletLoaded = useJoyStore((s) => s.loaded);
+
   // Lock body scroll
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -67,25 +74,32 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
     // Calculate JOY immediately using shared formula (client-side prediction)
     const estimatedJoy = calcJoy(gameId, score);
 
+    // Phải đọc kỷ lục CŨ trước khi ghi đè, nếu không thì vừa phá xong kỷ lục
+    // đã bằng chính điểm này và màn kết thúc không còn gì để so sánh.
+    const prevBest = getBest(gameId);
+    const gap = nearMissGap(gameId, score, prevBest);
+    const isRecord = recordBest(gameId, score);
+
     // Show result screen immediately with estimated JOY
-    setResultData({ score, result, joyDelta: estimatedJoy, joyAwarded: false });
+    setResultData({ score, result, joyDelta: estimatedJoy, joyAwarded: false, prevBest, gap, isRecord });
     setStage("result");
 
     try {
       const res = await submitScore(gameId, { score, result }, bio);
       if (res) {
         // Server may adjust JOY — use server value if available
-        setResultData({
+        setResultData((prev) => ({
+          ...prev,
           score,
           result,
           joyDelta: res.joyDelta ?? estimatedJoy,
           joyAwarded: res.joyAwarded ?? false,
-        });
+        }));
       }
     } catch {
       // Score submission failed — show estimated JOY
     }
-    if (bio?.email) useJoyStore.getState().fetchBalance(bio.email);
+    if (bio?.email) useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
   }, [gameId, bio, sound]);
 
   const handleReplay = useCallback(() => {
@@ -135,6 +149,11 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
   // cũ), và "+{-10}" in ra thành "+-10". Ký hiệu tính một lần, dùng cho cả hai chỗ.
   const joy = resultData?.joyDelta || 0;
   const signedJoy = `${joy > 0 ? "+" : ""}${joy}`;
+  // Trước khi server xác nhận, con số trên màn hình chỉ là ước tính của client
+  // (cùng công thức, nhưng ví chưa hề cộng). Nếu điểm gửi hỏng hoặc đang xếp
+  // hàng offline, `joyAwarded` vẫn false — lúc đó khoe "+29 JOY" là nói dối,
+  // và đó chính là "báo có thưởng nhưng ví không tăng".
+  const joyPending = joy > 0 && !resultData?.joyAwarded;
 
   return createPortal(
     <div className={`arcade-game arcade-game--${gameId}`}>
@@ -152,6 +171,9 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
       {stage !== "intro" && (
         <>
           <div className="gshell__status" />
+          {/* Khung góc tĩnh — thứ làm màn chơi trông như một thiết bị chứ không
+              phải một trang web. Không animation, nên không tốn frame nào. */}
+          <div className="gshell__frame" aria-hidden="true" />
 
           <header className="gshell__bar">
             <button type="button" className="gshell__icon-btn" onClick={handleBack} aria-label={t("arcadeGame.back")}>
@@ -163,7 +185,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
             {bio && (
               <div className="gshell__joy" title={t("arcadeGame.joyBalance")}>
                 <span className="material-symbols-outlined">toll</span>
-                <b>{(bio.joyBalance ?? 0).toLocaleString("vi-VN")}</b>
+                <b>{(walletLoaded ? walletBalance : bio.joyBalance ?? 0).toLocaleString("vi-VN")}</b>
               </div>
             )}
             {stage === "playing" && (
@@ -242,11 +264,33 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
 
             <p className="gshell__formula">
               {resultData.score?.toLocaleString("vi-VN")} điểm → {signedJoy} JOY
+              {joyPending && " · đang chờ cộng vào ví"}
             </p>
+
+            {/* Ván vừa rồi đứng ở đâu so với chính mình. Ba trường hợp, ba câu
+                khác nhau — "thua" mà không có mốc so sánh thì chỉ là ngõ cụt. */}
+            {resultData.isRecord ? (
+              <p className="gshell__chase gshell__chase--record">
+                <span className="material-symbols-outlined">trophy</span>
+                Kỷ lục mới! Hơn lần trước {(resultData.score - resultData.prevBest).toLocaleString("vi-VN")} điểm.
+              </p>
+            ) : resultData.gap > 0 ? (
+              <p className="gshell__chase gshell__chase--near">
+                <span className="material-symbols-outlined">bolt</span>
+                Thiếu {resultData.gap.toLocaleString("vi-VN")} điểm nữa là phá kỷ lục {resultData.prevBest.toLocaleString("vi-VN")}.
+              </p>
+            ) : resultData.prevBest > 0 ? (
+              <p className="gshell__chase">
+                <span className="material-symbols-outlined">flag</span>
+                Kỷ lục của bạn: {resultData.prevBest.toLocaleString("vi-VN")}.
+              </p>
+            ) : null}
 
             <div className="gshell__actions">
               <button type="button" className="gshell__btn gshell__btn--primary" onClick={handleReplay}>
-                {t("arcadeGame.replay")}
+                {/* Hụt gang tấc thì nút không nên chỉ là "Chơi lại": nó phải nói
+                    ra việc người chơi vừa suýt làm được. */}
+                {resultData.gap > 0 ? "Thử lại — sát rồi!" : t("arcadeGame.replay")}
               </button>
             </div>
 

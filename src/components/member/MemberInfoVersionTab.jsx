@@ -266,7 +266,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
       onBioUpdate?.({ [bioField]: true });
       if (!res.alreadyClaimed) {
         showToast?.(t(successKey), "success");
-        useJoyStore.getState().fetchBalance(bio.email);
+        useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
       }
     } catch (_) {
       showToast?.(t(errorKey), "error");

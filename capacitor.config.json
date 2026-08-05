@@ -27,6 +27,15 @@
         "apple": false,
         "twitter": false
       }
+    },
+    "CapacitorUpdater": {
+      "updateUrl": "https://api.hugowishpax.studio/api/ota/check",
+      "autoUpdate": "onLaunch",
+      "resetWhenUpdate": true,
+      "appReadyTimeout": 10000,
+      "directUpdate": false,
+      "autoDeleteFailed": true,
+      "autoDeletePrevious": true
     }
   }
 }

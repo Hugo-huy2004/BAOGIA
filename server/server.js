@@ -231,6 +231,7 @@ import memberProgressRoutes from './routes/memberProgressRoutes.js';
 import hugoTeamRoutes from './routes/hugoTeamRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
+import otaRoutes from './routes/otaRoutes.js';
 import joyDecoRoutes from './routes/joyDecoRoutes.js';
 import coderLessonRoutes from './routes/coderLessonRoutes.js';
 import todayRoutes from './routes/todayRoutes.js';
@@ -240,6 +241,9 @@ import storePlanRoutes from './routes/storePlanRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
+// Unauthenticated on purpose: the store builds hit this before anyone signs
+// in, and it only ever returns the public release pointer.
+app.use('/api/ota', otaRoutes);
 app.use('/api/auth/member', memberAuthRoutes);
 app.use('/api/member/progress', memberProgressRoutes);
 app.use('/api/hugoteam', hugoTeamRoutes);

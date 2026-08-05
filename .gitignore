@@ -22,3 +22,6 @@ server/error_log.txt
 *~
 # Native (Capacitor) build output — the web deploy uses dist/
 dist-native
+
+# OTA bundles — multi-MB per release, host them, don't commit them
+ota/

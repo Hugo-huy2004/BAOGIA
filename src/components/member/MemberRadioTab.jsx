@@ -8,6 +8,7 @@ import {
 } from "../../services/radioBrain";
 import { setMediaSession, setMediaPlaybackState } from "../../services/mediaSession";
 import RadioTokenStatus, { useRadioHeartbeat } from "./RadioTokenStatus";
+import { useRadioStore, getRadioAudio, hlsHandle } from "../../stores/radioStore";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -100,15 +101,19 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
   const [stationsByCategory, setStationsByCategory] = useState({});
   const [loadingCategory, setLoadingCategory] = useState(null);
-  const [nowPlaying, setNowPlaying] = useState(null);
-  
-  // Robust state management for tuning
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(false);
+  // Trạng thái phát nằm ở store để nhạc sống qua việc rời tab, và để thanh
+  // now-playing ngoài cây tab đọc được — xem src/stores/radioStore.js.
+  const nowPlaying = useRadioStore((s) => s.station);
+  const isPlaying = useRadioStore((s) => s.isPlaying);
+  const isBuffering = useRadioStore((s) => s.isBuffering);
+  const volume = useRadioStore((s) => s.volume);
+  const setNowPlaying = useRadioStore((s) => s.setStation);
+  const setIsPlaying = useRadioStore((s) => s.setPlaying);
+  const setIsBuffering = useRadioStore((s) => s.setBuffering);
+  const setVolume = useRadioStore((s) => s.setVolume);
+
   const [isStatic, setIsStatic] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  
-  const [volume, setVolume] = useState(70);
   const [visualFreq, setVisualFreq] = useState(91.0); // Displayed frequency
 
   // Apple Sleep Timer State (null | 15 | 30 | 60)
@@ -126,8 +131,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
   // Đổi số này để bảng đài vẽ lại sau khi sổ theo dõi thay đổi.
   const [healthTick, setHealthTick] = useState(0);
 
+  // Trỏ vào thẻ audio dùng chung của store, không tự tạo nữa.
   const audioRef = useRef(null);
-  const hlsRef = useRef(null);
+  audioRef.current = getRadioAudio();
+  const hlsRef = hlsHandle;
   const playbackRequestRef = useRef(0);
   const retriedRef = useRef(false);
   const handleFailureRef = useRef(() => {});
@@ -254,8 +261,14 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     return closest;
   }, [stationsByCategory]);
 
+  // Chỉ GẮN listener lên thẻ audio dùng chung; không tạo và không huỷ nó.
+  //
+  // Bản cũ huỷ thẻ audio trong hàm dọn dẹp, nên rời tab radio là nhạc tắt. Giờ
+  // rời tab chỉ gỡ listener: luồng vẫn chạy, thanh now-playing vẫn điều khiển
+  // được. Muốn dừng hẳn thì bấm nút dừng (store.stop) chứ không phải do
+  // component biến mất.
   useEffect(() => {
-    const audio = new Audio();
+    const audio = getRadioAudio();
     audio.volume = volume / 100;
     audio.onplaying = () => {
       setIsPlaying(true); setIsBuffering(false); setIsStatic(false); stopStaticNoise();
@@ -269,16 +282,19 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
     audio.onpause = () => setIsPlaying(false);
     audio.onwaiting = () => setIsBuffering(true);
     audio.onerror = () => handleFailureRef.current();
-    audioRef.current = audio;
     return () => {
-      playbackRequestRef.current += 1;
-      hlsRef.current?.destroy();
-      audio.pause();
-      audio.src = "";
+      // Logic chữa luồng cần danh sách đài của component; component đi rồi thì
+      // nó không chạy được nữa. Gỡ hẳn để một lỗi luồng muộn không gọi vào
+      // closure đã chết — luồng lỗi lúc đó chỉ đơn giản là dừng.
+      audio.onplaying = null;
+      audio.onpause = null;
+      audio.onwaiting = null;
+      audio.onerror = null;
       stopStaticNoise();
-      if (audioCtxRef.current) audioCtxRef.current.close();
+      if (audioCtxRef.current) { audioCtxRef.current.close(); audioCtxRef.current = null; }
       if (tuningTimeoutRef.current) clearTimeout(tuningTimeoutRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stopStaticNoise]);
 
   useEffect(() => {

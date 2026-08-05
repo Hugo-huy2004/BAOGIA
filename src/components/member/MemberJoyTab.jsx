@@ -139,7 +139,7 @@ export default function MemberJoyTab({
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || t("memberPortal.joy.applyReferral.error"));
-      fetchBalance(email);
+      fetchBalance(email, undefined, { force: true });
       setReferralApplied(true);
       onBioUpdate?.({ referralApplied: true });
       showToast?.(t("memberPortal.joy.applyReferral.success", { days: data.bioExtendedDays }), "success");

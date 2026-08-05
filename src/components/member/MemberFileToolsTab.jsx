@@ -103,7 +103,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
         throw new Error(errData.error || t("utilities.fileTools.compress.toastError"));
       }
 
-      if (willCharge && bio?.email) useJoyStore.getState().fetchBalance(bio.email);
+      if (willCharge && bio?.email) useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -297,7 +297,7 @@ export default function MemberFileToolsTab({ showToast, bio }) {
         item="fileCompression"
         onClose={() => setShowCompressInvoice(false)}
         onConfirm={performCompress}
-        onSuccess={() => { if (bio?.email) useJoyStore.getState().fetchBalance(bio.email); }}
+        onSuccess={() => { if (bio?.email) useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true }); }}
       />
     </div>
   );

@@ -16,11 +16,18 @@
      keeps canvas entity colours legible on light palettes. */
   --game-play: color-mix(in srgb, var(--intro-accent) 12%, #080a14);
 
+  /* Chiều cao chrome — MỘT con số, không phải ba. Trước đây chess dùng 236px,
+     tetris dùng 220px, và mỗi lần sửa thanh tiêu đề là ba chỗ phải nhớ sửa
+     theo. HUD giờ nổi đè lên sân chơi nên chỉ còn chừa đúng phần nó che. */
+  --gshell-hud: 52px;
+  --gshell-safe-top: env(safe-area-inset-top, 0px);
+  --gshell-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --gshell-chrome: calc(var(--gshell-hud) + var(--gshell-safe-top) + var(--gshell-safe-bottom) + 24px);
+
   position: fixed;
   z-index: 9999;
-  display: flex;
+  display: block;
   overflow: hidden;
-  flex-direction: column;
   inset: 0;
   animation: gshellFade .25s ease;
   color: var(--intro-ink);
@@ -36,54 +43,66 @@
 .gshell__aurora {
   position: absolute;
   z-index: 0;
-  inset: -25%;
-  background:
-    radial-gradient(45% 38% at 22% 12%, color-mix(in srgb, var(--intro-accent) 30%, transparent), transparent 70%),
-    radial-gradient(40% 34% at 82% 78%, color-mix(in srgb, var(--intro-accent) 20%, transparent), transparent 70%),
-    radial-gradient(35% 30% at 50% 50%, color-mix(in srgb, var(--intro-accent) 10%, transparent), transparent 60%);
-  filter: blur(38px);
-  opacity: .55;
+  inset: 0;
   pointer-events: none;
-  animation: auroraShift 8s ease-in-out infinite alternate;
-}
-@keyframes auroraShift {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(2%, -1%) scale(1.02); }
-  100% { transform: translate(-1%, 2%) scale(0.98); }
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--intro-accent) 22%, transparent), transparent 60%),
+    radial-gradient(90% 60% at 50% 110%, color-mix(in srgb, var(--intro-accent) 14%, transparent), transparent 60%),
+    radial-gradient(140% 100% at 50% 50%, transparent 45%, color-mix(in srgb, var(--intro-ink) 26%, transparent) 100%);
 }
 
-/* ── Status bar (top accent line with glow) ── */
-.gshell__status {
-  position: relative;
-  z-index: 2;
-  height: 3px;
-  flex-shrink: 0;
-  background: linear-gradient(90deg,
-    color-mix(in srgb, var(--intro-accent) 55%, transparent),
-    var(--intro-accent),
-    color-mix(in srgb, var(--intro-accent) 55%, transparent));
-  box-shadow: 0 0 12px color-mix(in srgb, var(--intro-accent) 50%, transparent),
-              0 0 24px color-mix(in srgb, var(--intro-accent) 25%, transparent);
-  animation: statusGlow 3s ease-in-out infinite alternate;
+/* Khung góc — dấu hiệu nhận dạng của màn chơi, thay cho quầng sáng động.
+   Bốn nét kẻ tĩnh: không lớp hợp thành, không animation, không tốn frame. */
+.gshell__frame {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  inset: calc(var(--gshell-safe-top) + 6px) 6px calc(var(--gshell-safe-bottom) + 6px);
+  border-radius: 22px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--intro-accent) 16%, transparent);
 }
-@keyframes statusGlow {
-  0% { box-shadow: 0 0 8px color-mix(in srgb, var(--intro-accent) 30%, transparent); }
-  100% { box-shadow: 0 0 16px color-mix(in srgb, var(--intro-accent) 60%, transparent), 0 0 32px color-mix(in srgb, var(--intro-accent) 30%, transparent); }
+.gshell__frame::before,
+.gshell__frame::after {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  content: "";
+  border: 2px solid color-mix(in srgb, var(--intro-accent) 62%, transparent);
+}
+.gshell__frame::before { top: 0; left: 0; border-right: 0; border-bottom: 0; border-radius: 22px 0 0 0; }
+.gshell__frame::after { right: 0; bottom: 0; border-top: 0; border-left: 0; border-radius: 0 0 22px 0; }
+
+/* ── Accent edge (tĩnh: quầng sáng nhấp nháy vô hạn là frame chùa) ── */
+.gshell__status {
+  position: absolute;
+  z-index: 4;
+  top: var(--gshell-safe-top);
+  right: 0;
+  left: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--intro-accent),
+    transparent);
 }
 
 /* ── Header ── */
 .gshell__bar {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  z-index: 4;
+  top: calc(var(--gshell-safe-top) + 6px);
+  right: 8px;
+  left: 8px;
   display: flex;
-  flex-shrink: 0;
+  height: var(--gshell-hud);
   align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  border-bottom: 1px solid var(--game-line-soft);
-  background: color-mix(in srgb, var(--intro-bg) 82%, transparent);
-  backdrop-filter: blur(14px);
+  gap: 8px;
+  pointer-events: none;
 }
+/* Chỉ các nút bắt được chạm — phần giữa của HUD phải cho chạm xuyên xuống
+   sân chơi, nếu không thì một dải ngang màn hình nuốt mất thao tác vuốt. */
+.gshell__bar > * { pointer-events: auto; }
 
 .gshell__icon-btn {
   display: flex;
@@ -94,7 +113,7 @@
   justify-content: center;
   border: 1px solid var(--game-line);
   border-radius: 50%;
-  background: var(--game-surface);
+  background: var(--intro-bg);
   color: var(--intro-ink);
   cursor: pointer;
   transition: transform .12s ease, background .12s ease;
@@ -102,12 +121,21 @@
 .gshell__icon-btn .material-symbols-outlined { font-size: 20px; }
 .gshell__icon-btn:active { transform: scale(.93); background: var(--game-surface-strong); }
 
-.gshell__title { min-width: 0; flex: 1; }
+/* Nền đặc, không phải mờ: các phần tử này nằm ĐÈ lên sân chơi đang đổi màu
+   liên tục, nên nền trong suốt là chữ biến mất giữa trận. */
+.gshell__title {
+  min-width: 0;
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid var(--game-line-soft);
+  border-radius: 999px;
+  background: var(--intro-bg);
+}
 .gshell__title p {
   overflow: hidden;
   margin: 0;
   color: var(--intro-ink);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: -.01em;
   text-overflow: ellipsis;
@@ -125,12 +153,13 @@
 /* ── JOY balance pill ── */
 .gshell__joy {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 5px;
-  padding: 6px 11px;
-  border: 1px solid color-mix(in srgb, var(--intro-accent) 32%, transparent);
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 38%, transparent);
   border-radius: 999px;
-  background: var(--intro-soft);
+  background: var(--intro-bg);
   color: var(--intro-accent);
 }
 .gshell__joy .material-symbols-outlined { font-size: 15px; font-variation-settings: "FILL" 1; }
@@ -138,14 +167,19 @@
 
 /* ── Play area — the framed "screen" ── */
 .gshell__stage {
-  position: relative;
+  position: absolute;
   z-index: 1;
   display: flex;
-  flex: 1;
+  align-items: center;
   justify-content: center;
   overflow: auto;
-  align-items: flex-start;
-  padding: 14px 12px 22px;
+  /* Khoảng chừa cho HUD nằm ở INSET của hộp, không ở padding. Sáu game
+     (chess, tetris, snake, survivor, flappy…) đã tự chỉnh padding stage theo
+     nhu cầu riêng và specificity của chúng cao hơn — nhét chỗ chừa vào padding
+     là cả sáu đè mất rồi chui xuống dưới HUD. Đổi hộp thì cả sáu tự đúng, và
+     padding đã tinh chỉnh của chúng vẫn nguyên nghĩa. */
+  inset: calc(var(--gshell-safe-top) + var(--gshell-hud) + 12px) 0 var(--gshell-safe-bottom);
+  padding: 8px 10px 12px;
 }
 
 .gshell__loading {
@@ -176,48 +210,50 @@
 /* ── Overlay shared by pause + result ── */
 .gshell__overlay {
   position: absolute;
-  z-index: 5;
+  z-index: 6;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 24px;
+  padding: 0;
   inset: 0;
   animation: gshellFade .2s ease;
-  background: color-mix(in srgb, var(--intro-bg) 78%, transparent);
-  backdrop-filter: blur(10px);
+  /* Màn che tối trung tính, KHÔNG lấy theo --intro-bg: mỗi game có bảng màu
+     riêng và vài bảng sáng (snake, chess), nên phủ nền sáng lên sân chơi tối
+     làm cả màn hình bạc phếch và HUD biến mất. Đen mờ đọc được trên cả 8 bảng.
+     Không blur: backdrop-filter buộc compositor chụp và làm mờ lại toàn bộ sân
+     chơi mỗi frame, đúng lúc máy đang bận nhất. */
+  background: rgba(6, 8, 15, .62);
 }
 
+/* Tấm trượt từ đáy, chiếm hết bề ngang — kết thúc ván là một khoảnh khắc,
+   không phải một hộp thoại nhỏ lơ lửng giữa màn hình. */
 .gshell__card {
   width: 100%;
-  max-width: 360px;
-  padding: 26px 22px;
+  max-width: 560px;
+  padding: 26px 22px calc(22px + var(--gshell-safe-bottom));
   border: 1px solid var(--game-line);
-  border-radius: 26px;
-  animation: gshellPop .35s cubic-bezier(.16,1,.3,1);
-  background: var(--game-surface);
-  box-shadow: 0 26px 60px color-mix(in srgb, var(--intro-ink) 22%, transparent),
-              0 0 40px color-mix(in srgb, var(--result-color, var(--intro-accent)) 15%, transparent);
+  border-bottom: 0;
+  border-radius: 28px 28px 0 0;
+  animation: gshellSheet .34s cubic-bezier(.16,1,.3,1);
+  background: var(--intro-bg);
   text-align: center;
-  backdrop-filter: blur(12px);
+}
+@keyframes gshellSheet {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  to   { opacity: 1; transform: none; }
 }
 
 .gshell__badge {
   display: grid;
-  width: 62px;
-  height: 62px;
+  width: 58px;
+  height: 58px;
   margin: 0 auto 14px;
-  border: 2px solid color-mix(in srgb, var(--result-color, var(--intro-accent)) 42%, transparent);
+  border: 2px solid color-mix(in srgb, var(--result-color, var(--intro-accent)) 45%, transparent);
   border-radius: 50%;
-  background: color-mix(in srgb, var(--result-color, var(--intro-accent)) 16%, transparent);
+  background: color-mix(in srgb, var(--result-color, var(--intro-accent)) 14%, transparent);
   place-items: center;
-  box-shadow: 0 0 20px color-mix(in srgb, var(--result-color, var(--intro-accent)) 25%, transparent),
-              0 0 40px color-mix(in srgb, var(--result-color, var(--intro-accent)) 10%, transparent);
-  animation: badgePulse 2s ease-in-out infinite alternate;
 }
-@keyframes badgePulse {
-  0% { box-shadow: 0 0 12px color-mix(in srgb, var(--result-color, var(--intro-accent)) 15%, transparent); }
-  100% { box-shadow: 0 0 24px color-mix(in srgb, var(--result-color, var(--intro-accent)) 35%, transparent), 0 0 48px color-mix(in srgb, var(--result-color, var(--intro-accent)) 15%, transparent); }
-}
+
 .gshell__badge .material-symbols-outlined {
   color: var(--result-color, var(--intro-accent));
   font-size: 30px;
@@ -286,6 +322,40 @@
   text-align: center;
   letter-spacing: 0.02em;
 }
+
+/* Dòng "đuổi kỷ lục" ở màn kết thúc. Chữ to hơn .gshell__formula một bậc vì
+   đây mới là câu quyết định có ván sau hay không, còn công thức JOY chỉ là
+   thông tin tra cứu. */
+.gshell__chase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: var(--intro-soft);
+  color: var(--intro-muted);
+  font-size: 12px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.gshell__chase .material-symbols-outlined { font-size: 17px; }
+
+/* Suýt phá kỷ lục: đây là trạng thái cần nổi bật nhất trên màn hình. */
+.gshell__chase--near {
+  background: color-mix(in srgb, #ef8c17 16%, transparent);
+  color: #b45c00;
+}
+
+.gshell__chase--record {
+  background: color-mix(in srgb, #16a66a 16%, transparent);
+  color: #0e7a4e;
+}
+
+.dark .gshell__chase--near { color: #f5b44f; }
+.dark .gshell__chase--record { color: #4bd39a; }
 
 /* ── Buttons ── */
 .gshell__actions { display: flex; gap: 9px; }
@@ -536,7 +606,7 @@
 
 .chess3d-stage {
   display: grid;
-  width: min(100%, calc(100dvh - 236px), 760px);
+  width: min(100%, calc(100dvh - var(--gshell-chrome)), 760px);
   height: auto;
   min-height: 0;
   padding: 9px;
@@ -829,6 +899,13 @@
 .arcade-game .ahud__score { flex: 1.5; }
 .arcade-game .ahud__level { flex: 0 0 auto; align-items: center; padding: 7px 13px; }
 
+/* Ô kỷ lục đổi màu ngay khi bị vượt — phần thưởng thị giác cho khoảnh khắc
+   đó, thấy được bằng đuôi mắt mà không phải rời tay khỏi bàn chơi. */
+.arcade-game .ahud__best.is-beaten {
+  border-color: color-mix(in srgb, #16a66a 55%, var(--game-line));
+  background: color-mix(in srgb, #16a66a 18%, var(--game-surface));
+}
+
 .arcade-game .ahud small {
   overflow: hidden;
   color: var(--intro-muted);
@@ -1030,7 +1107,7 @@
 .ttr-board-frame {
   position: relative;
   overflow: hidden;
-  width: min(calc(100vw - 88px), calc((100dvh - 220px) / 2), 330px);
+  width: min(calc(100vw - 88px), calc((100dvh - var(--gshell-chrome)) / 2), 330px);
   flex: 0 0 auto;
   padding: 4px;
   border: 1px solid rgb(217 103 255 / .48);
@@ -1087,7 +1164,7 @@
   display: flex;
   width: 64px;
   min-width: 0;
-  height: min(calc((100vw - 88px) * 2), calc(100dvh - 220px), 660px);
+  height: min(calc((100vw - 88px) * 2), calc(100dvh - var(--gshell-chrome)), 660px);
   max-height: 100%;
   flex: 0 0 64px;
   flex-direction: column;

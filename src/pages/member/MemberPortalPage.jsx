@@ -110,6 +110,7 @@ import PendingVerification from "../../components/member/PendingVerification";
 import PersonalInfoSubTab from "../../components/member/PersonalInfoSubTab";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
+import RadioMiniPlayer from "../../components/member/portal/RadioMiniPlayer";
 // Lazy-loaded main tabs
 const AchievementsSubTab = React.lazy(() => import("../../components/member/AchievementsSubTab"));
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
@@ -1033,6 +1034,12 @@ function MemberPortalPage() {
             </React.Suspense>
           </ErrorBoundary>
         </div>
+
+        {/* Ngay trên tab bar, giống Podcasts: thanh này chỉ hiện khi có đài
+            đang phát, và hiện ở mọi tab vì audio sống trong radioStore. */}
+        {showMobileNavigation && (
+          <RadioMiniPlayer onOpen={() => navigate("/member/utilities/radio")} />
+        )}
 
         {showMobileNavigation && (
           <MobilePortalNav

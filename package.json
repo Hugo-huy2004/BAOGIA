@@ -25,7 +25,8 @@
     "native:android": "npm run native:sync && npx cap open android",
     "cv:pdf": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy.pdf docs/cv.html",
     "check:imports": "node scripts/check-tracked-imports.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "ota:bundle": "node scripts/ota-bundle.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",
