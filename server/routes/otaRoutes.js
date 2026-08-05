@@ -1,4 +1,5 @@
 import express from 'express';
+import { resolveUpdate } from '../utils/otaRelease.js';
 
 const router = express.Router();
 
@@ -24,53 +25,15 @@ const router = express.Router();
  * icons, or app name still require a store release, and shipping a bundle
  * that calls a plugin the installed binary lacks will throw on the device.
  * That is what OTA_MIN_NATIVE guards.
+ *
+ * The decision itself lives in utils/otaRelease.js so it can be tested without
+ * express — CI installs root deps only.
  */
-
-const release = () => ({
-  version: (process.env.OTA_VERSION || '').trim(),
-  url: (process.env.OTA_URL || '').trim(),
-  checksum: (process.env.OTA_CHECKSUM || '').trim(),
-  minNative: (process.env.OTA_MIN_NATIVE || '').trim(),
-});
-
-/** Numeric semver compare; returns >0 when a is newer than b. */
-function compareVersions(a, b) {
-  const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0);
-  const pb = String(b).split('.').map((n) => parseInt(n, 10) || 0);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const d = (pa[i] || 0) - (pb[i] || 0);
-    if (d) return d;
-  }
-  return 0;
-}
-
 function handleCheck(req, res) {
-  const { version, url, checksum, minNative } = release();
-
-  // Nothing published, or published incompletely — say so rather than handing
-  // the device half a release it would fail to download.
-  if (!version || !url) {
-    return res.json({ message: 'No new version available' });
-  }
-
-  // `version_name` is the web bundle currently running; `version_build` is the
-  // native binary from the store. The plugin sends "builtin" for a device
-  // still on the bundle that shipped inside the app.
-  const current = String(req.body?.version_name || '').trim();
-  const nativeBuild = String(req.body?.version_build || '').trim();
-
-  // Never hand a bundle to a binary too old to run it.
-  if (minNative && nativeBuild && compareVersions(nativeBuild, minNative) < 0) {
-    return res.json({ message: 'No new version available' });
-  }
-
-  // "builtin" is not a version number — treat it as "older than anything".
-  const isBuiltin = !current || current === 'builtin';
-  if (!isBuiltin && compareVersions(version, current) <= 0) {
-    return res.json({ message: 'No new version available' });
-  }
-
-  return res.json({ version, url, ...(checksum ? { checksum } : {}) });
+  res.json(resolveUpdate({
+    versionName: req.body?.version_name,
+    versionBuild: req.body?.version_build,
+  }));
 }
 
 // The plugin POSTs; GET is here so a release can be eyeballed from a browser.
