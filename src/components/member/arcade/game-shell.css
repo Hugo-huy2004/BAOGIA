@@ -248,14 +248,14 @@
   width: 58px;
   height: 58px;
   margin: 0 auto 14px;
-  border: 2px solid color-mix(in srgb, var(--result-color, var(--intro-accent)) 45%, transparent);
+  border: 2px solid var(--game-line);
   border-radius: 50%;
-  background: color-mix(in srgb, var(--result-color, var(--intro-accent)) 14%, transparent);
+  background: var(--game-surface);
   place-items: center;
 }
 
 .gshell__badge .material-symbols-outlined {
-  color: var(--result-color, var(--intro-accent));
+  color: var(--intro-ink);
   font-size: 30px;
   font-variation-settings: "FILL" 1;
 }
@@ -344,18 +344,20 @@
 .gshell__chase .material-symbols-outlined { font-size: 17px; }
 
 /* Suýt phá kỷ lục: đây là trạng thái cần nổi bật nhất trên màn hình. */
+/* Cam + xanh lá cứng ở đây cũng là màu ngoài bảng của game. Phân biệt bằng
+   đậm nhạt và icon (bolt / trophy) thay vì bằng sắc độ — vừa hợp quy ước đơn
+   sắc, vừa không phụ thuộc vào việc người xem phân biệt được cam với xanh. */
 .gshell__chase--near {
-  background: color-mix(in srgb, #ef8c17 16%, transparent);
-  color: #b45c00;
+  background: var(--game-surface-strong);
+  color: var(--intro-ink);
 }
 
 .gshell__chase--record {
-  background: color-mix(in srgb, #16a66a 16%, transparent);
-  color: #0e7a4e;
+  border: 1px solid color-mix(in srgb, var(--intro-accent) 45%, transparent);
+  background: var(--game-surface-strong);
+  color: var(--intro-ink);
+  font-weight: 900;
 }
-
-.dark .gshell__chase--near { color: #f5b44f; }
-.dark .gshell__chase--record { color: #4bd39a; }
 
 /* ── Buttons ── */
 .gshell__actions { display: flex; gap: 9px; }
@@ -1846,7 +1848,9 @@
   font-weight: 650;
   line-height: 1.45;
 }
-.snake-mission__hint .material-symbols-outlined { color: #fbbf24; font-size: 16px; font-variation-settings: "FILL" 1; }
+/* Vàng cứng là mã màu duy nhất còn tô lên icon trong màn chơi — đổi về
+   accent của chính game để không có icon nào nằm ngoài bảng màu. */
+.snake-mission__hint .material-symbols-outlined { color: var(--intro-accent); font-size: 16px; font-variation-settings: "FILL" 1; }
 .snake-mission__legend {
   display: grid;
   gap: 7px;

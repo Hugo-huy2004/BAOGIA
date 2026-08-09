@@ -62,7 +62,7 @@
     "login": "Đăng Nhập"
   },
   "footer": {
-    "tagline": "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.",
+    "tagline": "Một góc số dành cho người học, cá nhân và những cửa hàng nhỏ cần hiện diện chỉn chu trên internet.",
     "services": "Dịch vụ",
     "landingPage": "Trang Đích",
     "portfolio": "Hồ Sơ Cá Nhân",
@@ -228,8 +228,8 @@
       "title1": "Đăng ký & Bắt đầu",
       "title2": "Hành trình số của bạn.",
       "desc": "Tạo lập các trang liên kết sinh viên cực đẹp hoàn toàn miễn phí hoặc kết nối cùng tôi để thiết kế nên những trang web Bespoke chuyên nghiệp ngay hôm nay.",
-      "registerBtn": "Đăng Ký Tài Khoản",
-      "bookBtn": "Đặt Lịch Tư Vấn"
+      "registerBtn": "Bắt Đầu Miễn Phí",
+      "bookBtn": "Trao Đổi Website"
     },
     "studio": {
       "badge": "✦ Hugo Wishpax Studio",
@@ -243,7 +243,7 @@
       "badge": "✦ Người Đứng Sau Studio",
       "title1": "Sinh viên năm cuối,",
       "title2": "kiến tạo trải nghiệm đẹp.",
-      "desc": "Mình là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Hugo Studio bắt đầu từ những trang web mình làm để học, rồi dần trở thành nơi giới thiệu hành trình, các sản phẩm đã xây và những dịch vụ mình trực tiếp thực hiện cho người học, cá nhân và cửa hàng nhỏ. Jason Phan đồng hành cùng mình trong vai trò đối tác đồng phát triển.",
+      "desc": "Mình là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Hugo Studio bắt đầu từ những trang web mình làm để học, rồi trở thành một không gian để HSSV tạo Bio, dùng tiện ích và mạnh dạn xây dấu ấn số đầu tiên. Mình cũng trực tiếp nhận những dự án website phù hợp cho cá nhân và cửa hàng nhỏ. Jason Phan đồng hành cùng mình trong vai trò đối tác đồng phát triển.",
       "founderRole": "Sinh viên thiết kế & phát triển",
       "partnerRole": "Đối Tác Đồng Phát Triển",
       "openToWork": "Sẵn sàng thực tập & cơ hội việc làm",
@@ -317,18 +317,21 @@
       "navServices": "Dịch vụ",
       "navBooking": "Đặt lịch",
       "heroWord": "Hugo",
-      "heroEyebrow": "Hugo Lê · Kỹ thuật Phần mềm",
+      "heroEyebrow": "Hugo Studio · Đồng hành cùng người học",
       "heroTitle1": "Mình là Hugo.",
-      "heroTitle2": "Mình tạo sản phẩm số.",
-      "heroDesc": "Mình thiết kế và xây website, PWA và tiện ích số cho người học, cá nhân và cửa hàng nhỏ — từ ý tưởng đến lúc chạy thật.",
-      "heroCta": "Câu chuyện của mình",
-      "heroSecondaryCta": "Xem dịch vụ",
+      "heroTitle2": "Mình xây một góc số cho người học.",
+      "heroDesc": "HSSV có thể tạo Bio, dùng tiện ích học tập và khám phá các sản phẩm miễn phí. Khi bạn cần một website riêng, mình cũng trực tiếp lắng nghe và đồng hành từ ý tưởng đến lúc chạy thật.",
+      "heroCta": "Khám phá quyền lợi HSSV",
+      "heroSecondaryCta": "Kể nhu cầu website",
+      "previewStatus": "Đang hoạt động",
+      "previewName": "Hugo Student",
+      "previewTagline": "Một danh tính số, nhiều tiện ích.",
       "aboutLabel": "Người đứng sau Hugo Studio",
       "aboutH1": "Mình là Hugo,",
       "aboutH2": "sinh viên năm cuối mê thiết kế.",
-      "aboutH3": "Mình thiết kế website, PWA, trang Bio và tiện ích học tập cho người học, cá nhân và cửa hàng nhỏ.",
-      "featT1": "Từ câu chuyện của bạn đến một sản phẩm có thể sử dụng.",
-      "featT2": "Mình lắng nghe, thiết kế, phát triển và đồng hành sau bàn giao.",
+      "aboutH3": "Mình bắt đầu Hugo Studio để người học có một nơi thân thiện để tạo dấu ấn, thử công nghệ và được đồng hành.",
+      "featT1": "Một điểm bắt đầu nhỏ cho hành trình số của bạn.",
+      "featT2": "Tạo Bio, khám phá tiện ích học tập hoặc kể mình nghe website bạn đang cần.",
       "cardVideo": "Mỗi dự án bắt đầu bằng một câu chuyện cần được kể rõ.",
       "card2Title": "Bio .edu Miễn Phí.",
       "card2c1": "Xác thực email .edu tự động trong 3 giây",
@@ -350,8 +353,8 @@
       "weak1": "Kinh nghiệm làm nhóm của mình mới ở mức đồ án trường — chạy Scrum, phối hợp frontend với backend. Mình muốn học cách một đội ngũ chuyên nghiệp thật sự vận hành.",
       "weak2": "Đôi khi quá cầu toàn về chi tiết, nên mình luôn thống nhất phạm vi và deadline rõ ràng ngay từ đầu.",
       "howTitle": "Cách mình tạo trải nghiệm cho người dùng",
-      "stat1v": "2004",
-      "stat1l": "Năm sinh — Gen Z chính hiệu",
+      "stat1v": "Miễn phí",
+      "stat1l": "Quyền lợi cốt lõi cho HSSV xác minh",
       "stat2v": "Greenwich",
       "stat2l": "Năm cuối · Kỹ thuật Phần mềm",
       "stat3v": "8+",
@@ -359,7 +362,7 @@
       "stat4v": "12 tháng",
       "stat4l": "Bio .edu miễn phí trọn gói",
       "partnerLabel": "Đồng hành cùng mình",
-      "contactTitle": "Kể mình nghe câu chuyện bạn muốn đưa lên màn hình.",
+      "contactTitle": "Bắt đầu dấu ấn số đầu tiên của bạn.",
       "marqueeTitle": "Công nghệ mình được học",
       "work": {
         "eyebrow": "Những chương đã thành hình",
@@ -393,9 +396,9 @@
         ]
       },
       "meta": {
-        "title": "Hugo Studio — Câu Chuyện Của Hugo Lê Và Những Sản Phẩm Số",
-        "description": "Trang giới thiệu Hugo Lê, hành trình xây Hugo Studio cùng các sản phẩm, website React, PWA, trang Bio và dịch vụ thiết kế dành cho người học, cá nhân và cửa hàng nhỏ.",
-        "keywords": "Hugo Studio, Hugo Lê, hồ sơ năng lực lập trình viên, thiết kế UI UX, React PWA, thiết kế website, ứng dụng web"
+        "title": "Hugo Studio — Bio Và Tiện Ích Số Cho Học Sinh, Sinh Viên",
+        "description": "Hugo Studio giúp HSSV tạo Bio cá nhân, dùng tiện ích học tập và xây dấu ấn số; đồng thời tư vấn website trực tiếp cho cá nhân và cửa hàng nhỏ.",
+        "keywords": "Hugo Studio, Bio sinh viên miễn phí, portfolio sinh viên, tiện ích học tập, thiết kế website cá nhân, website quán nhỏ"
       },
       "heroCvCta": "Tải CV",
       "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào."
@@ -403,9 +406,9 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "Website Cho Quán Nhỏ, Shop Lẻ — Giá Hợp Lý | Hugo Studio",
-      "description": "Website cho quán café, salon, shop bán lẻ — từ 299k sửa nhanh, landing page từ 1.49M và website nhiều trang từ 2.99M. Thiết kế riêng, hỗ trợ 1-1, báo giá minh bạch.",
-      "keywords": "website cho quán nhỏ, website shop bán lẻ, website café giá rẻ, làm web doanh nghiệp nhỏ, website cho salon, thiết kế web doanh nhân, web responsive giá rẻ, Hugo Studio"
+      "title": "Tư Vấn Website Cho HSSV, Cá Nhân Và Quán Nhỏ | Hugo Studio",
+      "description": "Kể Hugo nghe nhu cầu trước khi chọn giải pháp. Tư vấn trực tiếp 1-1 cho HSSV, cá nhân và quán nhỏ; phạm vi và chi phí được chốt rõ trước khi làm.",
+      "keywords": "website cho sinh viên, portfolio sinh viên, website cá nhân, website quán nhỏ, tư vấn thiết kế website, Hugo Studio"
     },
     "common": {
       "youGet": "Bạn nhận được",
@@ -414,7 +417,8 @@
       "discussProject": "Trao đổi dự án",
       "revealPrice": "Xem khoảng đầu tư",
       "priceHint": "Mức khởi điểm. Con số cuối chốt sau khi hai bên rõ phạm vi.",
-      "getQuote": "Nhận báo giá riêng"
+      "getQuote": "Kể nhu cầu để được tư vấn",
+      "quoteAfterChat": "Trao đổi trước · báo giá sau"
     },
     "whispers": {
       "intro": "Không có website hoàn hảo. Chỉ có website phù hợp.",
@@ -427,17 +431,17 @@
       "closing": "Mỗi con số là một cánh cửa. Bạn chọn cái nào?"
     },
     "hero": {
-      "badge": "Hugo Studio · Website được kể bằng câu chuyện của bạn",
-      "title1": "Từ một câu chuyện nhỏ,",
-      "title2": "thành nơi khách hàng muốn ghé.",
-      "desc": "Một quán cà phê, cửa hàng hay thương hiệu cá nhân đều có câu chuyện riêng. Mình giúp bạn chuyển câu chuyện đó thành website dễ hiểu, dễ dùng trên điện thoại và dẫn khách đến cuộc gọi, tin nhắn hoặc lịch hẹn.",
-      "viewPricing": "Chọn gói phù hợp",
+      "badge": "Trực tiếp 1-1 · Ưu tiên học sinh, sinh viên",
+      "title1": "Chưa cần chọn gói.",
+      "title2": "Hãy bắt đầu từ điều bạn cần.",
+      "desc": "Bạn chỉ cần kể mục tiêu, điều đang vướng hoặc sản phẩm muốn tạo. Mình sẽ giúp xác định hướng làm vừa đủ — từ Bio và portfolio cho HSSV đến website cho cá nhân, quán và cửa hàng nhỏ.",
+      "viewPricing": "Chọn tình huống của bạn",
       "contact": "Kể mình nghe nhu cầu",
       "trust": [
         "Trao đổi trực tiếp với người thiết kế và phát triển",
         "Phạm vi, thời gian và chi phí được thống nhất trước",
         "Thiết kế cho điện thoại, tốc độ và khả năng tìm kiếm",
-        "Có hướng dẫn và hỗ trợ sau bàn giao"
+        "HSSV có quyền lợi và hướng hỗ trợ riêng"
       ]
     },
     "outcomes": {
@@ -469,9 +473,9 @@
     },
     "pricing": {
       "eyebrow": "Mức đầu tư rõ ràng",
-      "title": "Chọn một chương vừa đủ",
-      "highlight": "cho câu chuyện của bạn",
-      "desc": "Bạn có thể bắt đầu từ một chỉnh sửa nhỏ, một landing page hoặc website nhiều trang. Mỗi gói ghi rõ phần việc, mốc thời gian và hỗ trợ sau bàn giao; các tính năng cụ thể sẽ được trao đổi trực tiếp trước khi chốt."
+      "title": "Ba hướng làm phổ biến",
+      "highlight": "để bắt đầu trao đổi",
+      "desc": "Đây là ba phạm vi thường gặp, không phải những chiếc hộp cố định. Mình sẽ hỏi nhu cầu trước, đề xuất phần vừa đủ rồi mới chốt thời gian và chi phí."
     },
     "journey": {
       "stone1": {
@@ -535,8 +539,8 @@
         "timeline": "5–7 ngày"
       },
       "landing": {
-        "label": "Quán & Shop Nhỏ",
-        "name": "Shop Starter — Trang Chủ Riêng",
+        "label": "Khởi đầu gọn",
+        "name": "Website Một Trang",
         "oldPrice": "1.990.000đ",
         "price": "1.490.000đ",
         "discount": "-25%",
@@ -560,8 +564,8 @@
         "timeline": "7–10 ngày"
       },
       "website": {
-        "label": "Quán & Shop Lớn Hơn",
-        "name": "Website Pro — Nhiều Trang",
+        "label": "Hiện diện đầy đủ",
+        "name": "Website Nhiều Trang",
         "oldPrice": "4.990.000đ",
         "price": "2.990.000đ",
         "discount": "-40%",
@@ -586,8 +590,8 @@
         "payment": "Thanh toán theo tiến độ"
       },
       "system": {
-        "label": "Tối Ưu Nâng Cao",
-        "name": "Web System — Quản Lý & Thanh Toán",
+        "label": "Vận hành công việc",
+        "name": "Website Đặt Lịch & Quản Lý",
         "price": "Từ 6.999.000đ",
         "note": "Cho doanh nghiệp có nhu cầu phức tạp: đặt lịch online, nhận đơn, quản lý inventory... Thường 8-20 triệu tùy tính năng.",
         "desc": "Website không chỉ để giới thiệu — nó làm việc: nhận đơn hàng online, cho khách đặt lịch hẹn, tự động ghi lại dữ liệu để bạn quản lý. Như thuê nhân viên, nhưng chạy 24/7.",
@@ -707,7 +711,8 @@
       "eyebrow": "Xem tận mắt",
       "title": "Trải nghiệm thử",
       "highlight": "mẫu thiết kế thật",
-      "desc": "Đây là các trang demo chạy thật ngay trên trình duyệt — bấm chọn ngành để xem cách mình tổ chức bố cục, màu sắc và trải nghiệm cho từng loại website.",
+      "desc": "Ba mẫu tiêu biểu cho hồ sơ cá nhân, quán nhỏ và dịch vụ sáng tạo. Chỉ mở khi bạn muốn xem kỹ để trang không bị quá tải.",
+      "openCta": "Mở 3 mẫu phù hợp",
       "hint": "Thích một mẫu nào đó? Nhắn mình kèm tên mẫu, mình sẽ tư vấn cách tùy biến theo thương hiệu của bạn.",
       "cta": "Làm web giống mẫu này",
       "loading": "Đang tải giao diện...",
@@ -748,17 +753,17 @@
       "eyebrow": "Web Hiện Có Gặp Vấn Đề?",
       "title": "Không cần làm lại,",
       "highlight": "sửa đúng chỗ là được",
-      "desc": "Lỗi nhỏ hoặc chậm? Mình fix nhanh trong ngày, từ 299k lên. Không bắt bạn mua gói lớn 2-3 triệu."
+      "desc": "Lỗi nhỏ hoặc website chậm? Gửi mình hiện trạng trước. Nếu chỉ cần chỉnh một phần, mình sẽ không đề xuất bạn làm lại toàn bộ."
     },
     "micro": {
-      "eyebrow": "Xử Lý Nhanh Chóng",
-      "title": "Quick Fixes",
-      "highlight": "Chỉnh Sửa Tại Chỗ",
-      "desc": "Vấn đề nhỏ nhưng cần xử lý gấp? Mình fix trong ngày hoặc ngày hôm sau. Báo giá trước, thanh toán sau, không phát sinh ẩn.",
+      "eyebrow": "Website đang có vấn đề?",
+      "title": "Chỉnh đúng phần cần thiết,",
+      "highlight": "không ép làm lại từ đầu",
+      "desc": "Gửi link website hoặc ảnh chụp lỗi. Mình sẽ xem hiện trạng, nói rõ phần có thể xử lý và báo giá sau khi hai bên hiểu cùng một phạm vi.",
       "costLabel": "Giá từ:",
       "cta": "Liên hệ để báo giá",
       "customTitle": "Yêu cầu khác ngoài danh sách?",
-      "customDesc": "Không vấn đề! Hugo linh hoạt nhận các công việc tùy chỉnh, báo giá theo yêu cầu cụ thể. Trao đổi rõ phạm vi trước, chốt giá, xong việc mới thanh toán.",
+      "customDesc": "Gửi mình hiện trạng và kết quả bạn mong muốn. Nếu phù hợp, mình sẽ đề xuất cách làm, phạm vi và thời gian trước khi báo giá.",
       "customCta": "Nhắn yêu cầu riêng"
     },
     "app": {
@@ -770,11 +775,29 @@
       "extendDesc": "Thanh toán online, nhiều vai trò, API riêng. Dự án dạng này thường 12-20 triệu, chốt phạm vi bằng văn bản trước khi làm."
     },
     "student": {
-      "badge": "Khác biệt Hugo Studio",
-      "title1": "Học sinh & Sinh viên được hỗ trợ",
-      "title2": "miễn phí 100%.",
-      "desc": "Khu cộng đồng riêng dành cho người học: xác minh xong có thể dùng Bio cá nhân, tiện ích học tập, bot hỗ trợ và cộng đồng hỏi đáp.",
+      "badge": "Ưu tiên của Hugo Studio",
+      "title1": "Học sinh & Sinh viên luôn có",
+      "title2": "một nơi để bắt đầu miễn phí.",
+      "desc": "Sau khi xác minh, bạn có thể dùng Bio tiêu chuẩn và các tiện ích cốt lõi miễn phí. Thiết kế riêng, portfolio chuyên sâu hoặc hỗ trợ kỹ thuật ngoài quyền lợi này sẽ được trao đổi rõ trước khi làm.",
       "cta": "Xem quyền lợi miễn phí",
+      "customEyebrow": "Khi bạn cần đi xa hơn",
+      "customTitle": "Hỗ trợ riêng, nhưng vẫn học và hiểu sản phẩm của mình",
+      "customDesc": "Bạn không cần chọn một gói hay đoán chi phí trước. Hãy gửi mục tiêu, thời hạn và phần bạn đang vướng; mình sẽ nói rõ phần nào miễn phí, phần nào cần làm riêng và cách phù hợp nhất.",
+      "customCta": "Kể mình nghe mục tiêu của bạn",
+      "customItems": [
+        {
+          "title": "Bio & portfolio riêng",
+          "desc": "Dành cho thực tập, học bổng hoặc thương hiệu cá nhân cần câu chuyện và bố cục riêng."
+        },
+        {
+          "title": "Gỡ lỗi có hướng dẫn",
+          "desc": "Cùng tìm nguyên nhân, sửa phần đã thống nhất và giải thích để bạn hiểu cách xử lý."
+        },
+        {
+          "title": "Định hướng dự án web",
+          "desc": "Rà yêu cầu, kiến trúc và môi trường chạy để bạn tự hoàn thiện sản phẩm học tập đúng trách nhiệm."
+        }
+      ],
       "items": [
         {
           "title": "Bio cá nhân",
@@ -798,7 +821,7 @@
       "eyebrow": "Quy trình",
       "title": "Làm việc",
       "highlight": "rõ từng bước",
-      "desc": "Bạn luôn biết mình đang ở bước nào, chi phí bao nhiêu và nhận lại những gì.",
+      "desc": "Bạn luôn biết mình đang ở bước nào, phạm vi nào được thực hiện và bước tiếp theo là gì.",
       "steps": [
         "Bạn gửi nhu cầu, web hiện tại hoặc ý tưởng.",
         "Mình tư vấn hướng làm và báo giá rõ trước.",
@@ -813,40 +836,32 @@
       "desc": "Các câu hỏi phổ biến trước khi bắt đầu một dự án web với Hugo Studio.",
       "items": [
         {
-          "q": "Website cho quán/shop của tôi cần bao nhiêu tiền?",
-          "a": "Sửa nhanh từ 299k, shop starter 1.49M, website nhiều trang 2.99M. Giá cuối chốt qua trao đổi 1-1 để phù hợp đúng nhu cầu. Mình là sinh viên IT làm trực tiếp nên không trung gian, không overhead — giá mềm mà chất lượng không kém."
+          "q": "Tôi cần chuẩn bị gì trước khi liên hệ?",
+          "a": "Bạn chỉ cần gửi mục tiêu, website hiện tại nếu có, thời gian mong muốn và 1-2 mẫu bạn thích. Chưa rõ hết cũng không sao — buổi trao đổi đầu tiên dùng để cùng làm rõ nhu cầu."
         },
         {
-          "q": "Tại sao giá lại hợp lý mà chất lượng vẫn tốt?",
-          "a": "Mình là sinh viên năm cuối, tự tay thiết kế + code, không công ty hay đội nhóm giữa đó. Bạn tiết kiệm chi phí vận hành đó, nên giá rẻ hơn thị trường. Đồng thời, chỉ nhận 1 dự án lúc đó nên toàn tâm cho bạn, chất lượng không bị ảnh hưởng."
+          "q": "Chi phí được xác định như thế nào?",
+          "a": "Mình dựa trên phạm vi, nội dung, tính năng, thời gian và mức hỗ trợ cần thiết. Sau khi hiểu nhu cầu, mình gửi đề xuất và báo giá bằng văn bản; chỉ bắt đầu khi hai bên đồng ý."
         },
         {
-          "q": "Giá \"từ\" là sao, có phát sinh chi phí ẩn không?",
-          "a": "Giá \"từ\" là mức tối thiểu cho nội dung trong mục \"Bạn nhận được\". Yêu cầu ngoài đó sẽ báo giá riêng bằng tin nhắn trước khi làm. Sau khi chốt = thế đó, không phát sinh. Cam kết rõ ràng từ lúc đầu."
+          "q": "Quyền lợi HSSV miễn phí khác hỗ trợ riêng thế nào?",
+          "a": "Bio tiêu chuẩn và các tiện ích cốt lõi dành cho HSSV xác minh là miễn phí theo điều kiện công bố. Thiết kế độc quyền, portfolio chuyên sâu hoặc hỗ trợ kỹ thuật theo yêu cầu là phần riêng và luôn được trao đổi trước."
         },
         {
           "q": "Chưa có ý tưởng hay thiết kế thì sao?",
-          "a": "Không sao! Bạn chỉ mô tả lĩnh vực (quán café, salon, shop...), mục tiêu (bán hàng, giới thiệu, đặt lịch), và cho mình 2-3 trang tham khảo. Mình đề xuất cấu trúc, layout, màu sắc phù hợp."
-        },
-        {
-          "q": "Website đã có SEO, Google dễ tìm không?",
-          "a": "Có. Gói xây mới đều có metadata, cấu trúc heading, tốc độ tối ưu, chia sẻ mạng xã hội đẹp. Nếu muốn tối ưu sâu hơn (backlink, content strategy), mình có gói Speed Boost riêng."
-        },
-        {
-          "q": "Mình cần domain & hosting, có giúp được không?",
-          "a": "Được! Mình tư vấn nơi mua (GoDaddy, Namecheap, Haloha...), hoặc mình triển khai hộ. Phí domain/hosting là chi phí hàng năm, bạn tìm bên ngoài hoặc mình giúp setup."
+          "a": "Không sao. Bạn chỉ cần mô tả người sẽ xem trang và điều bạn muốn họ làm tiếp theo. Mình sẽ đề xuất cấu trúc, nội dung cần chuẩn bị và hướng hình ảnh phù hợp."
         },
         {
           "q": "Bàn giao xong, website lỗi thì sao?",
-          "a": "Mình hướng dẫn dùng (30 phút qua Zalo), hỗ trợ miễn phí lỗi phát sinh trong 14-30 ngày. Ngoài thời gian đó, bạn có thể gọi mình sửa, tính từng lần hoặc gói bảo trì tháng."
+          "a": "Mỗi dự án đều chốt rõ thời gian bảo hành và hỗ trợ sau bàn giao. Mình hướng dẫn sử dụng, xử lý lỗi trong phạm vi đã thống nhất và báo trước nếu phát sinh một hạng mục mới."
         }
       ]
     },
     "finalCta": {
       "title1": "Mỗi dự án bắt đầu bằng",
       "title2": "một cuộc trò chuyện rõ ràng.",
-      "desc": "Gửi website đang có, ảnh chụp lỗi hoặc vài dòng về ý tưởng. Mình sẽ cùng bạn xác định nên sửa nhỏ, làm landing page, website nhiều trang hay một hệ thống web.",
-      "cta": "Bắt đầu kể câu chuyện của bạn"
+      "desc": "Không cần biết tên gói hay chuẩn bị một bản mô tả hoàn hảo. Gửi website đang có, ảnh chụp lỗi hoặc vài dòng về mục tiêu — mình sẽ giúp bạn xác định bước phù hợp.",
+      "cta": "Kể mình nghe nhu cầu"
     },
     "promo": {
       "title": "Bio Trang Cá Nhân Miễn Phí Cho Sinh Viên",
@@ -908,13 +923,13 @@
         "time": "Hàng tháng"
       }
     },
-    "disclaimer": "* Tất cả giá trên là giá tham khảo. Giá cuối sẽ được trao đổi 1-1 qua Zalo để phù hợp chính xác nhu cầu của bạn — chốt phạm vi từ đầu, không phát sinh.",
+    "disclaimer": "Mỗi lựa chọn dưới đây là một hướng tham khảo. Phạm vi, thời gian và chi phí chỉ được chốt sau khi hai bên trao đổi rõ nhu cầu.",
     "section": {
-      "newBuildsTitle": "Website Mới cho Quán / Shop",
+      "newBuildsTitle": "Website cho cá nhân, quán và cửa hàng nhỏ",
       "newBuildsDesc": "Chưa có web hoặc web cũ quá rồi? Mình giúp bạn làm website mới từ đầu — thiết kế riêng, giá hợp lý, hoàn thành nhanh.",
       "optimizeTitle": "Chỉnh Sửa & Tối Ưu Web Hiện Tại",
       "optimizeDesc": "Web đã có lỗi nhỏ, chậm, hoặc khó lên Google? Mình fix đúng chỗ, không cần làm lại từ đầu.",
-      "upkeep": "Mọi gói xây mới đều có thể thêm bảo trì hàng tháng 399.000đ/tháng — tuỳ chọn, huỷ bất cứ lúc nào."
+      "upkeep": "Nếu cần bảo trì sau thời gian hỗ trợ, mình sẽ đề xuất riêng theo tần suất cập nhật thực tế — hoàn toàn tùy chọn."
     },
     "devices": {
       "desktop": "Máy tính",
@@ -923,7 +938,7 @@
     },
     "proof": {
       "eyebrow": "Dự án đã bàn giao",
-      "title": "Gói Website Pro trông như thế nào khi chạy thật",
+      "title": "Một website nhiều trang trông như thế nào khi chạy thật",
       "desc": "Một khách thật, một website đang hoạt động. Bạn mở lên xem được ngay, không phải tin vào ảnh chụp.",
       "clientLabel": "Khách hàng",
       "fieldLabel": "Lĩnh vực",
@@ -934,7 +949,7 @@
       "clientField": "Phóng sự cưới",
       "clientScope": "Website nhiều trang: Bảng giá, Photography, Videography, Hỏi đáp, Liên hệ",
       "clientBuild": "Thiết kế riêng, không dùng CMS hay template",
-      "clientPlan": "Thuộc gói Website Pro — Nhiều Trang",
+      "clientPlan": "Website nhiều trang, phạm vi chốt theo nhu cầu",
       "cta": "Mở website khách hàng"
     }
   },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
 import { useData } from "../context/DataContext";
@@ -30,90 +30,99 @@ export default function MobileDrawer() {
     ...(allowBooking ? [{ label: t("navbar.booking", "Đặt Lịch & Liên Hệ"), path: "/booking" }] : [])
   ];
 
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
+
   return (
     <>
-      {/* Hamburger Button - Mobile Only */}
       <button
-        className="md:hidden flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:scale-105 hover:text-foreground active:scale-95"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 text-foreground transition-transform active:scale-95 lg:hidden"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle menu"
+        aria-label={isOpen ? "Đóng menu" : "Mở menu"}
+        aria-expanded={isOpen}
       >
-        <span className="material-symbols-outlined text-[20px] leading-none">menu</span>
+        <span className="material-symbols-outlined text-[19px] leading-none">{isOpen ? "close" : "menu"}</span>
       </button>
 
-      {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 dark:bg-black/50 z-[200] md:hidden"
+          aria-hidden="true"
+          className="fixed inset-0 z-[200] bg-black/25 backdrop-blur-[2px] lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Drawer Menu */}
-      <div
-        className={`fixed top-0 left-0 h-screen w-64 bg-white/85 dark:bg-background/90 backdrop-blur-2xl backdrop-saturate-200 border-r border-white/25 dark:border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.08)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.4)] z-[210] transform transition-transform duration-300 md:hidden overflow-y-auto flex flex-col ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("navbar.mainMenu", "Menu chính")}
+        aria-hidden={!isOpen}
+        className={`fixed inset-x-2 bottom-2 z-[210] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[2rem] border border-white/50 bg-background/90 px-3 pb-3 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-3xl backdrop-saturate-150 transition-all duration-300 dark:border-white/10 lg:hidden ${
+          isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[110%] opacity-0"
         }`}
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
       >
-        {/* Close Button */}
-        <button
-          onClick={() => setIsOpen(false)}
-          className="absolute top-4 right-4 p-2 hover:bg-muted rounded-lg"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
-
-        {/* Header */}
-        <div className="p-6 pt-12 border-b border-border">
-          <h2 className="font-display bg-[linear-gradient(90deg,#2678ff_0%,#0797ff_30%,#7359e8_58%,#d45aa3_80%,#f0445e_100%)] bg-clip-text text-lg font-bold leading-none tracking-wider text-transparent">
-            Hugo Studio
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("navbar.hello", "Xin Chào")}
-          </p>
+        <div className="flex justify-center py-2" aria-hidden="true">
+          <span className="h-1.5 w-10 rounded-full bg-muted-foreground/20" />
         </div>
 
-        {/* Main Menu */}
-        <div className="p-4 space-y-1">
-          <p className="px-4 py-2 text-xs font-bold text-muted-foreground uppercase">
-            {t("navbar.mainMenu", "Menu Chính")}
-          </p>
+        <div className="flex items-center justify-between px-3 pb-3 pt-1">
+          <div>
+            <h2 className="text-base font-extrabold tracking-[-0.02em] text-foreground">Hugo Studio</h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{t("navbar.hello", "Xin chào")}</p>
+          </div>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground"
+            aria-label="Đóng menu"
+          >
+            <span className="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        <nav className="space-y-1 rounded-[1.4rem] bg-muted/55 p-1.5">
           {mainMenuItems.map((item, idx) => (
             <Link
               key={idx}
               to={item.path}
               onClick={() => setIsOpen(false)}
-              className={`block px-4 py-3 rounded-lg font-medium text-sm transition-colors ${
+              className={`flex min-h-11 items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-semibold transition-colors ${
                 location.pathname === item.path
-                  ? "bg-primary/10 text-primary"
-                  : "text-foreground hover:bg-primary/10"
+                  ? "bg-card text-primary shadow-sm"
+                  : "text-foreground hover:bg-card/70"
               }`}
             >
-              {item.label}
+              <span>{item.label}</span>
+              <span className="material-symbols-outlined text-[17px] text-muted-foreground">chevron_right</span>
             </Link>
           ))}
-        </div>
+        </nav>
 
-        {/* Auth Link & Lang Switcher */}
-        <div className="mt-auto px-4 py-4 border-t border-border flex flex-col gap-1" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}>
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium text-sm transition-colors text-left w-full"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-[1rem] border border-border/60 bg-card/75 px-3 text-xs font-semibold text-foreground"
           >
             <span className="material-symbols-outlined text-base">language</span>
-            {i18n.language.startsWith('en') ? 'Tiếng Việt (VI)' : 'English (EN)'}
+            {i18n.language.startsWith('en') ? 'Tiếng Việt' : 'English'}
           </button>
 
           <Link
             to={accountPath}
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-2 px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium text-sm transition-colors"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-[1rem] bg-primary px-3 text-xs font-semibold text-white shadow-[0_8px_20px_hsl(var(--primary)/0.2)]"
           >
             <span className="material-symbols-outlined text-base">{accountIcon}</span>
             {accountLabel}
           </Link>
         </div>
-      </div>
+      </aside>
     </>
   );
 }

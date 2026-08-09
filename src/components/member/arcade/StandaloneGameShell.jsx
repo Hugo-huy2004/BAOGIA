@@ -22,12 +22,17 @@ const GAME_COMPONENTS = {
   snake:     React.lazy(() => import("./GameSnake")),
 };
 
-// Semantic outcome colours — deliberately palette-independent so a win never
-// reads as a loss just because a game's accent happens to be red.
+// Icon đơn sắc: hình dạng mang nghĩa, không phải màu. Ba mã hex trước đây
+// (xanh/hồng/cam) là thứ duy nhất trong màn chơi không theo bảng màu của game,
+// nên chúng đập vào mắt như dán nhãn từ app khác.
+//
+// Bỏ màu không làm mất thông tin: cúp / mũi tên lặp / bắt tay đã khác nhau rõ,
+// và ngay dưới icon còn có dòng chữ "Thắng"/"Thua". Nghĩa chưa bao giờ nằm ở
+// riêng màu — nếu có thì màn này đã không đọc được với người mù màu.
 const RESULT_CONFIG = {
-  win:  { icon: "emoji_events", color: "#16a66a" },
-  lose: { icon: "refresh",      color: "#e94e72" },
-  draw: { icon: "handshake",    color: "#ef8c17" },
+  win:  { icon: "emoji_events" },
+  lose: { icon: "refresh" },
+  draw: { icon: "handshake" },
 };
 
 export default function StandaloneGameShell({ gameId, bio, onClose }) {
@@ -245,7 +250,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
       {/* ── Stage: Result ── */}
       {stage === "result" && resultData && (
         <div className="gshell__overlay">
-          <div className="gshell__card" style={{ "--result-color": outcome.color }}>
+          <div className="gshell__card">
             <div className="gshell__badge">
               <span className="material-symbols-outlined">{outcome.icon}</span>
             </div>

@@ -4,36 +4,13 @@ import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";
 
-function playPop() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(800, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.15);
-  } catch {
-    /* silent */
-  }
-}
-
-function NavLink({ to, active, onClick, children }) {
-  const className = `relative inline-flex h-8 items-center text-[12px] font-medium leading-none tracking-wide transition-colors duration-200 select-none ${
-    active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+function NavLink({ to, active, children }) {
+  const className = `inline-flex h-8 items-center rounded-full px-3.5 text-[12px] font-semibold leading-none transition-all duration-200 select-none ${
+    active
+      ? "bg-card text-foreground shadow-[0_1px_5px_hsl(var(--shadow)/0.09),inset_0_1px_0_rgba(255,255,255,0.7)]"
+      : "text-muted-foreground hover:text-foreground"
   }`;
-  const content = (
-    <>
-      {children}
-      {active && <span className="absolute -bottom-[14px] left-0 right-0 h-0.5 rounded-full bg-primary" />}
-    </>
-  );
-  return <Link to={to} onClick={onClick} className={className}>{content}</Link>;
+  return <Link to={to} className={className}>{children}</Link>;
 }
 
 export default function Navbar() {
@@ -47,69 +24,69 @@ export default function Navbar() {
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
     i18n.changeLanguage(newLang);
-    playPop();
   };
 
   const isAt = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 w-full items-center border-b border-white/10 dark:border-white/5 bg-background/50 px-3 backdrop-blur-2xl backdrop-saturate-200 transition-all duration-300 sm:px-4 md:px-6 shadow-[0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[0_1px_0_rgba(255,255,255,0.03)]">
-      <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between gap-2 sm:gap-4">
+    <header className="sticky top-0 z-50 flex h-16 w-full items-center border-b border-border/50 bg-background/95 px-3 sm:px-4 md:px-6">
+      <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between gap-3">
 
         {/* Brand */}
         <Link
           to="/introduction"
-          onClick={playPop}
-          className="font-display flex h-8 items-center text-xs font-black leading-none tracking-wider transition-opacity hover:opacity-80 sm:text-sm md:text-base lg:text-lg flex-shrink-0 select-none"
+          className="flex h-9 flex-shrink-0 items-center gap-2 text-sm font-extrabold leading-none tracking-[-0.02em] text-foreground transition-opacity hover:opacity-75 sm:text-base"
           aria-label="Hugo Studio Home"
         >
-          <span className="bg-[linear-gradient(90deg,#2678ff_0%,#0797ff_30%,#7359e8_58%,#d45aa3_80%,#f0445e_100%)] bg-clip-text text-transparent">
-            Hugo Studio
-          </span>
+          <span>Hugo Studio</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
         </Link>
 
         {/* Desktop nav */}
-        <nav className="flex-1 hidden h-8 items-center justify-center gap-8 lg:flex xl:gap-10 border-b border-transparent">
-          <NavLink to="/introduction" active={isAt("/introduction")} onClick={playPop}>
+        <nav className="hidden items-center justify-center gap-0.5 rounded-full border border-border/45 bg-muted/55 p-1 lg:flex">
+          <NavLink to="/introduction" active={isAt("/introduction")}>
             {t("navbar.home", "Giới thiệu")}
           </NavLink>
-          <NavLink to="/services" active={isAt("/services")} onClick={playPop}>
+          <NavLink to="/services" active={isAt("/services")}>
             {t("navbar.services", "Dịch vụ")}
           </NavLink>
-          <NavLink to="/faq" active={isAt("/faq")} onClick={playPop}>
+          <NavLink to="/faq" active={isAt("/faq")}>
             {t("navbar.faq", "Hỏi đáp")}
           </NavLink>
           {allowBooking && (
-            <NavLink to="/booking" active={isAt("/booking")} onClick={playPop}>
+            <NavLink to="/booking" active={isAt("/booking")}>
               {t("navbar.booking", "Đặt lịch")}
             </NavLink>
           )}
-          <NavLink to={accountPath} active={isAt(accountPath)} onClick={playPop}>
-            <span className="material-symbols-outlined text-[15px] mr-1">account_circle</span>
-            {t("navbar.account", "Tài khoản")}
-          </NavLink>
         </nav>
 
         {/* Right controls */}
-        <div className="flex h-8 items-center gap-1 sm:gap-2 ml-auto flex-shrink-0">
+        <div className="ml-auto flex h-9 flex-shrink-0 items-center gap-1.5 sm:gap-2">
 
           {/* Language toggle */}
           <button
             onClick={toggleLanguage}
-            className="hidden sm:flex h-7 w-10 items-center justify-center rounded-lg bg-muted hover:bg-muted/80 text-[10px] font-bold text-muted-foreground transition-colors"
+            className="hidden h-8 w-8 items-center justify-center rounded-full bg-muted/75 text-[10px] font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
             aria-label="Toggle language"
           >
             {i18n.language.startsWith("en") ? "EN" : "VI"}
           </button>
 
 
-          {/* CTA */}
           <Link
-            to="/services"
-            onClick={playPop}
-            className="hidden sm:inline-flex h-8 items-center justify-center rounded-full bg-primary px-4 text-[11px] font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-all active:scale-95 clay-btn-primary"
+            to={accountPath}
+            className="hidden h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+            aria-label={t("navbar.account", "Tài khoản")}
           >
-            {t("navbar.pricing", "Báo Giá")}
+            <span className="material-symbols-outlined text-[18px]">person</span>
+          </Link>
+
+          {/* Một CTA duy nhất, đi thẳng tới cuộc trao đổi. */}
+          <Link
+            to="/booking"
+            className="hidden h-9 items-center justify-center rounded-full bg-primary px-4 text-[11px] font-bold text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.2)] transition-all hover:-translate-y-px hover:bg-primary/90 active:scale-[0.98] sm:inline-flex"
+          >
+            {t("navbar.booking", "Trao đổi")}
           </Link>
 
           {/* Mobile menu */}

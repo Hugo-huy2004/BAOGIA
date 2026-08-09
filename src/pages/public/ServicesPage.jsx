@@ -7,9 +7,8 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { withUsdPrices } from "../../utils/priceFormatter";
-import StudioPageNav from "../../components/public/StudioPageNav";
-import { StudioSpaceScene } from "../../components/public/IntroScenes";
 import WebMagnet from "../../components/ui/WebMagnet";
+import CodeHeroFilm from "../../components/public/CodeHeroFilm";
 import {
   ACCENT,
   AboutCard,
@@ -24,10 +23,7 @@ import {
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
-const JewelryDemo = lazy(() => import("../../components/demos/JewelryDemo"));
 const PortfolioDemo = lazy(() => import("../../components/demos/PortfolioDemo"));
-const ECommerceDemo = lazy(() => import("../../components/demos/ECommerceDemo"));
-const DashboardDemo = lazy(() => import("../../components/demos/DashboardDemo"));
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -44,7 +40,7 @@ const reveal = {
 /* Nhãn nhỏ đầu mục — cùng một kiểu với Introduction: viền mảnh, chữ accent,
    không phải viên thuốc gradient. */
 const BADGE =
-  "cine-border-c inline-flex items-center gap-2 rounded-full border bg-background/70 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.2em] backdrop-blur";
+  "ios-kicker";
 
 /* ---------------------------------------------------------------------------
  * Toàn bộ nội dung chữ nằm trong i18n (servicesPage.* — vi/en đồng bộ).
@@ -72,12 +68,9 @@ const STEP_ICONS = ["chat", "request_quote", "timeline", "handshake"];
 const STUDENT_ICONS = ["verified", "school", "smart_toy", "forum"];
 
 const DEMO_META = [
-  { id: "photography", url: "hugo.dev/photography", icon: "photo_camera", Demo: PhotographyDemo },
-  { id: "cafe", url: "hugo.dev/cafe", icon: "local_cafe", Demo: CoffeeDemo },
-  { id: "jewelry", url: "hugo.dev/jewelry", icon: "diamond", Demo: JewelryDemo },
   { id: "portfolio", url: "hugo.dev/portfolio", icon: "person", Demo: PortfolioDemo },
-  { id: "ecommerce", url: "hugo.dev/store", icon: "shopping_bag", Demo: ECommerceDemo },
-  { id: "dashboard", url: "hugo.dev/admin", icon: "dashboard", Demo: DashboardDemo },
+  { id: "cafe", url: "hugo.dev/cafe", icon: "local_cafe", Demo: CoffeeDemo },
+  { id: "photography", url: "hugo.dev/photography", icon: "photo_camera", Demo: PhotographyDemo },
 ];
 
 // Chữ + giá lấy từ i18n (servicesPage.microJobs.*) — ở đây chỉ giữ cấu trúc
@@ -107,8 +100,7 @@ function usePlans() {
 function MonoIcon({ name, className = "" }) {
   return (
     <span
-      className={`cine-card2-bg inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${className}`}
-      style={{ color: INK }}
+      className={`ios-icon-surface h-11 w-11 shrink-0 ${className}`}
     >
       <span className="material-symbols-outlined text-[20px]">{name}</span>
     </span>
@@ -123,23 +115,17 @@ function CtaButton({ to = "/booking", children, className = "", wrapClassName = 
     <WebMagnet className={wrapClassName}>
       <Link
         to={to}
-        className={`group inline-flex w-full items-center justify-between gap-2 rounded-full py-1.5 pl-6 pr-1.5 text-sm font-bold transition-all ${className}`}
-        style={{ backgroundColor: "var(--cine-btn)", color: "var(--cine-btn-ink)" }}
+        className={`ios-primary-button group inline-flex w-full items-center justify-center gap-2 ${className}`}
       >
         <span>{children}</span>
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-transform group-hover:scale-110"
-          style={{ backgroundColor: "var(--cine-btn-ink)" }}
-        >
-          <ArrowRight size={16} style={{ color: "var(--cine-btn)" }} />
-        </span>
+        <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
       </Link>
     </WebMagnet>
   );
 }
 
 /* ---------------------------------------------------------------------------
-   HERO — khung toàn màn có scene chạy bằng CSS, y hệt nhịp mở của Introduction
+   HERO — khung lớn cùng mascot CSS chuyển động với Introduction
    ------------------------------------------------------------------------- */
 
 function HeroSection({ t }) {
@@ -147,110 +133,42 @@ function HeroSection({ t }) {
 
   return (
     <>
-      <section className="min-h-[calc(100svh-56px)] p-3 sm:p-4 md:p-6">
-        <div className="cine-card-bg relative min-h-[calc(100svh-80px)] w-full overflow-hidden rounded-[1.5rem] md:min-h-[calc(100svh-104px)] md:rounded-[2rem]">
-          <div className="absolute inset-0" style={{ filter: "saturate(1.16) contrast(1.04)" }}>
-            <StudioSpaceScene />
-          </div>
-          <div className="cine-noise-overlay pointer-events-none absolute inset-0 opacity-[0.05]" />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "linear-gradient(90deg, color-mix(in srgb, var(--cine-bg) 76%, transparent) 0%, color-mix(in srgb, var(--cine-bg) 58%, transparent) 30%, color-mix(in srgb, var(--cine-bg) 24%, transparent) 52%, transparent 70%), linear-gradient(to top, color-mix(in srgb, var(--cine-bg) 38%, transparent), transparent 46%)",
-            }}
-          />
-
-          <StudioPageNav
-            active="services"
-            portfolioLabel={t("intro.cine.navPortfolio")}
-            servicesLabel={t("intro.cine.navServices")}
-            className="absolute inset-x-3 top-3 sm:inset-x-5 sm:top-5"
-          />
-
-          <div className="relative z-10 flex min-h-[calc(100svh-80px)] items-end px-5 pb-7 pt-28 sm:px-8 sm:pb-10 md:min-h-[calc(100svh-104px)] md:px-12 md:pb-12 lg:px-16">
-            <div className="w-full max-w-3xl">
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: EASE }}
-                className={`${BADGE} mb-4`}
-                style={{ color: ACCENT }}
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,.12)]" />
+      <section className="px-3 pb-4 pt-3 sm:px-4 sm:pt-4 md:px-6 md:pt-6">
+        <div className="ios-hero mx-auto max-w-7xl">
+          <CodeHeroFilm variant="chat" />
+          <div className="code-film-content grid min-h-[min(740px,calc(100svh-88px))] items-center gap-6 px-6 py-14 sm:px-10 sm:py-16 md:px-14 lg:grid-cols-[1.12fr_0.88fr] lg:gap-12 lg:px-16 lg:py-20">
+            <div className="max-w-3xl">
+              <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE }} className="ios-kicker mb-5">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t("servicesPage.hero.badge")}
               </motion.p>
-              <h1
-                className="font-display text-[clamp(2.6rem,7.4vw,6.8rem)] font-extrabold leading-[0.94] tracking-[-0.05em]"
-                style={{ color: INK }}
-              >
+              <h1 className="text-[clamp(2.45rem,6vw,5.6rem)] font-extrabold leading-[1.04] tracking-[-0.04em]" style={{ color: INK, fontFamily: "'Plus Jakarta Sans', 'Segoe UI', sans-serif" }}>
                 <WordsPullUp text={t("servicesPage.hero.title1")} />
-                <span className="block cine-grad">
-                  <WordsPullUp text={t("servicesPage.hero.title2")} />
-                </span>
+                <span className="block cine-grad"><WordsPullUp text={t("servicesPage.hero.title2")} /></span>
               </h1>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.7, ease: EASE }}
-                className="mt-5 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg"
-                style={{ color: INK_DIM }}
-              >
+              <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.6, ease: EASE }} className="mt-6 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg" style={{ color: INK_DIM }}>
                 {t("servicesPage.hero.desc")}
               </motion.p>
-              {/* Liên hệ đứng trước, bảng giá là lối phụ — khách nên nói chuyện
-                  trước khi so số. */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.7, ease: EASE }}
-                className="mt-7 flex flex-wrap items-center gap-3"
-              >
-                <WebMagnet>
-                  <Link
-                    to="/booking"
-                    className="group inline-flex items-center gap-2 rounded-full py-1.5 pl-5 pr-1.5 text-sm font-bold transition-all hover:gap-3 sm:text-base"
-                    style={{ backgroundColor: "var(--cine-btn)", color: "var(--cine-btn-ink)" }}
-                  >
-                    {t("servicesPage.hero.contact")}
-                    <span
-                      className="flex h-9 w-9 items-center justify-center rounded-full transition-transform group-hover:scale-110 sm:h-10 sm:w-10"
-                      style={{ backgroundColor: "var(--cine-btn-ink)" }}
-                    >
-                      <CalendarCheck size={16} style={{ color: "var(--cine-btn)" }} />
-                    </span>
-                  </Link>
-                </WebMagnet>
-                <a
-                  href="#pricing"
-                  className="cine-border-c inline-flex items-center gap-2 rounded-full border bg-background/65 px-5 py-3 text-sm font-bold backdrop-blur transition-colors hover:bg-background"
-                  style={{ color: INK }}
-                >
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6, ease: EASE }} className="mt-8 flex flex-wrap items-center gap-3">
+                <Link to="/booking" className="ios-primary-button inline-flex items-center gap-2">
+                  {t("servicesPage.hero.contact")}<CalendarCheck size={15} />
+                </Link>
+                <a href="#service-fit" className="ios-secondary-button inline-flex items-center gap-2">
                   {t("servicesPage.hero.viewPricing")}
                   <span className="material-symbols-outlined text-base">keyboard_arrow_down</span>
                 </a>
               </motion.div>
             </div>
+            <div className="code-film-stage-space" aria-hidden="true" />
           </div>
         </div>
       </section>
 
-      {/* Dải cam kết — cùng nhịp với StatsStrip của Introduction */}
-      <section className="px-4 pb-4 md:px-6 md:pb-6">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+      <section className="px-4 pb-4 pt-2 md:px-6 md:pb-6 md:pt-3">
+        <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border lg:grid-cols-4">
           {trustPoints.map((label, index) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: index * 0.1, duration: 0.6, ease: EASE }}
-              whileHover={{ y: -4 }}
-              className="cine-card-bg cine-hover-border space-y-2.5 rounded-2xl border border-transparent px-5 py-6 transition-colors sm:px-6 sm:py-7"
-            >
-              <span className="material-symbols-outlined text-2xl" style={{ color: ACCENT }}>
-                {TRUST_ICONS[index]}
-              </span>
+            <motion.div key={label} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06, duration: 0.45, ease: EASE }} className={`flex items-center gap-3 px-4 py-5 sm:px-6 ${index % 2 === 0 ? "border-r border-border/55" : ""} ${index < 2 ? "border-b border-border/55 lg:border-b-0" : ""} ${index > 0 ? "lg:border-l lg:border-border/55" : ""}`}>
+              <span className="ios-icon-surface h-9 w-9 shrink-0"><span className="material-symbols-outlined text-[17px]">{TRUST_ICONS[index]}</span></span>
               <p className="cine-faint text-[11px] leading-snug sm:text-xs">{label}</p>
             </motion.div>
           ))}
@@ -338,12 +256,12 @@ function PlanCard({ plan, emphasized = false }) {
   return (
     <motion.article
       {...reveal}
-      whileHover={{ y: -6 }}
-      className={`cine-card-bg group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border p-6 transition-colors sm:p-8 ${
-        emphasized ? "cine-border-c shadow-2xl lg:scale-[1.03]" : "cine-hover-border border-transparent"
+      whileHover={{ y: -3 }}
+      className={`cine-card-bg group relative flex h-full flex-col overflow-hidden rounded-[2rem] border p-6 transition-colors sm:p-8 ${
+        emphasized ? "border-primary/30" : "cine-hover-border"
       }`}
     >
-      {emphasized && <div className="cine-grad-bg absolute inset-x-0 top-0 h-1" />}
+      {emphasized && <div className="absolute inset-x-0 top-0 h-1 bg-primary" />}
 
       <div className="flex items-start justify-between gap-3">
         <MonoIcon name={plan.icon} className="h-14 w-14 rounded-3xl" />
@@ -394,35 +312,6 @@ function PlanCard({ plan, emphasized = false }) {
         </ul>
       </div>
 
-      {/* <details> native: không cần state, mở/đóng có sẵn phím Enter + a11y. */}
-      <details className="group/price cine-card2-bg mt-7 rounded-2xl p-4">
-        <summary className="cine-faint flex cursor-pointer list-none items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[0.18em] [&::-webkit-details-marker]:hidden">
-          {t("servicesPage.common.revealPrice")}
-          <span className="material-symbols-outlined text-base transition-transform group-open/price:rotate-180">expand_more</span>
-        </summary>
-        <div className="mt-4">
-          {plan.oldPrice && <p className="cine-faint text-xs font-semibold line-through">{plan.oldPrice}</p>}
-          <p className={`font-display text-3xl font-extrabold tracking-tight ${emphasized ? "cine-grad" : ""}`} style={emphasized ? undefined : { color: INK }}>
-            {plan.price}
-          </p>
-          <p className="cine-faint mt-1.5 text-[11px] leading-snug">{t("servicesPage.common.priceHint")}</p>
-          {plan.note && <p className="cine-muted mt-3 text-xs leading-snug">{plan.note}</p>}
-          {plan.excludes && (
-            <>
-              <p className="cine-faint mt-5 text-[10px] font-bold uppercase tracking-[0.18em]">{t("servicesPage.common.notIncluded")}</p>
-              <ul className="cine-border-c mt-2 grid gap-1.5 border-l pl-3">
-                {plan.excludes.map((item) => (
-                  <li key={item} className="cine-faint flex items-start gap-2 text-[11px] leading-snug">
-                    <span className="material-symbols-outlined mt-0.5 flex-shrink-0 text-xs">do_not_disturb_on</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
-      </details>
-
       <div className="mt-auto pt-6">
         <CtaButton>{t("servicesPage.common.getQuote")}</CtaButton>
       </div>
@@ -430,43 +319,84 @@ function PlanCard({ plan, emphasized = false }) {
   );
 }
 
-function OutcomeChooser({ onChoose }) {
+function StudentPrioritySection({ items }) {
   const { t } = useTranslation();
-  const outcomes = t("servicesPage.outcomes.items", { returnObjects: true });
-  const icons = ["rocket_launch", "auto_fix_high", "school"];
-  const modes = ["commercial", "micro", "student"];
 
   return (
-    <section id="service-fit" className="px-4 py-16 md:px-6 md:py-24">
-      <div className="mx-auto max-w-6xl">
-        <CineSectionHeading
-          eyebrow={t("servicesPage.outcomes.eyebrow")}
-          title={t("servicesPage.outcomes.title")}
-          desc={t("servicesPage.outcomes.desc")}
-        />
-
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {outcomes.map((item, index) => (
-            <motion.button
-              key={item.title}
-              type="button"
-              onClick={() => onChoose(modes[index])}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ delay: index * 0.1, duration: 0.55, ease: EASE }}
-              whileHover={{ y: -6 }}
-              className="cine-card-bg cine-border-c cine-hover-border group flex min-h-48 flex-col rounded-[1.75rem] border p-6 text-left transition-colors sm:p-7"
-            >
-              <span className="material-symbols-outlined text-3xl" style={{ color: ACCENT }}>{icons[index]}</span>
-              <span className="font-display mt-6 text-lg font-extrabold sm:text-xl" style={{ color: INK }}>{item.title}</span>
-              <span className="cine-muted mt-3 text-xs leading-relaxed sm:text-sm">{item.desc}</span>
-              <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-xs font-bold" style={{ color: ACCENT }}>
-                {item.cta}
-                <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
+    <section id="student-first" className="px-4 py-16 md:px-6 md:py-24">
+      <AboutCard className="relative mx-auto max-w-6xl overflow-hidden p-6 sm:p-10 md:p-12">
+        <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
+        <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <p className={BADGE} style={{ color: ACCENT }}>{t("servicesPage.student.badge")}</p>
+            <h2 className="font-display mt-5 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl" style={{ color: INK }}>
+              <WordsPullUp text={t("servicesPage.student.title1")} />
+              <span className="block cine-serif cine-grad">
+                <WordsPullUp text={t("servicesPage.student.title2")} />
               </span>
-            </motion.button>
+            </h2>
+            <p className="cine-muted mt-5 text-sm leading-relaxed sm:text-base">{t("servicesPage.student.desc")}</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <CtaButton to="/student-benefits" wrapClassName="w-full sm:w-auto">
+                {t("servicesPage.student.cta")}
+              </CtaButton>
+              <Link
+                to="/login"
+                className="ios-secondary-button inline-flex items-center gap-2"
+              >
+                {t("intro.slide10.registerBtn")}
+                <ArrowRight size={14} className="-rotate-45" />
+              </Link>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {items.map(({ title, desc }, index) => (
+              <div key={title} className="cine-card2-bg rounded-3xl p-5">
+                <MonoIcon name={STUDENT_ICONS[index]} className="h-10 w-10" />
+                <h3 className="mt-4 text-sm font-bold" style={{ color: INK }}>{title}</h3>
+                <p className="cine-muted mt-2 text-xs leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AboutCard>
+    </section>
+  );
+}
+
+function StudentCustomSupport() {
+  const { t } = useTranslation();
+  const items = t("servicesPage.student.customItems", { returnObjects: true });
+  const icons = ["badge", "handyman", "code_blocks"];
+
+  return (
+    <section id="pricing" className="relative scroll-mt-24 px-4 py-14 md:px-6 md:py-20">
+      <div className="mx-auto max-w-5xl">
+        <CineSectionHeading
+          eyebrow={t("servicesPage.student.customEyebrow")}
+          title={t("servicesPage.student.customTitle")}
+          desc={t("servicesPage.student.customDesc")}
+        />
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {items.map((item, index) => (
+            <AboutCard key={item.title} className="p-6 text-left">
+              <MonoIcon name={icons[index]} />
+              <h3 className="font-display mt-5 text-lg font-bold" style={{ color: INK }}>{item.title}</h3>
+              <p className="cine-muted mt-3 text-sm leading-relaxed">{item.desc}</p>
+            </AboutCard>
           ))}
+        </div>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <CtaButton to="/booking?type=student" wrapClassName="w-full max-w-sm">
+            {t("servicesPage.student.customCta")}
+          </CtaButton>
+          <Link
+            to="/student-pricing"
+            className="ios-secondary-button inline-flex items-center gap-2"
+          >
+            {t("servicesPage.studentPlans.detailsCta")}
+            <ArrowRight size={14} className="-rotate-45" />
+          </Link>
         </div>
       </div>
     </section>
@@ -475,7 +405,8 @@ function OutcomeChooser({ onChoose }) {
 
 function DemoShowcaseSection() {
   const { t } = useTranslation();
-  const [activeId, setActiveId] = useState("photography");
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeId, setActiveId] = useState("portfolio");
   const [device, setDevice] = useState("mobile"); // "desktop" | "tablet" | "mobile"
   const active = DEMO_META.find((tpl) => tpl.id === activeId);
   const ActiveDemo = active.Demo;
@@ -499,7 +430,21 @@ function DemoShowcaseSection() {
           desc={t("servicesPage.demo.desc")}
         />
 
-        <div className="mt-12 flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
+        {!isOpen ? (
+          <motion.div {...reveal} className="mt-10 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="cine-border-c cine-hover-border group inline-flex items-center gap-3 rounded-full border px-6 py-3 text-sm font-bold transition-colors"
+              style={{ color: INK }}
+            >
+              {t("servicesPage.demo.openCta")}
+              <ArrowRight size={16} className="-rotate-45 transition-transform group-hover:rotate-0" />
+            </button>
+          </motion.div>
+        ) : (
+          <>
+            <div className="mt-12 flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
           {/* Danh sách chọn demo */}
           <div className="w-full shrink-0 lg:w-1/4">
             <div className="scrollbar-hide flex snap-x gap-3 overflow-x-auto pb-4 lg:flex-col lg:overflow-visible lg:pb-0">
@@ -585,12 +530,14 @@ function DemoShowcaseSection() {
               </div>
             </div>
           </div>
-        </div>
+            </div>
 
-        {/* CTA mobile (bản desktop nằm dưới danh sách) */}
-        <div className="mt-8 flex justify-center lg:hidden">
-          <CtaButton wrapClassName="w-full max-w-xs">{t("servicesPage.demo.cta")}</CtaButton>
-        </div>
+            {/* CTA mobile (bản desktop nằm dưới danh sách) */}
+            <div className="mt-8 flex justify-center lg:hidden">
+              <CtaButton wrapClassName="w-full max-w-xs">{t("servicesPage.demo.cta")}</CtaButton>
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
@@ -614,7 +561,13 @@ function FaqSection() {
         <motion.div {...reveal} className="mt-10 space-y-3">
           {faqs.map(({ q, a }, index) => (
             <div key={q} className="cine-card-bg overflow-hidden rounded-2xl">
-              <button onClick={() => setOpenFaq(openFaq === index ? -1 : index)} className="flex w-full items-center gap-4 p-5 text-left">
+              <button
+                type="button"
+                aria-expanded={openFaq === index}
+                aria-controls={`service-faq-${index}`}
+                onClick={() => setOpenFaq(openFaq === index ? -1 : index)}
+                className="flex w-full items-center gap-4 p-5 text-left"
+              >
                 <MonoIcon name="help" className="h-10 w-10" />
                 <span className="flex-1 text-sm font-bold sm:text-base" style={{ color: INK }}>{q}</span>
                 <span
@@ -623,7 +576,7 @@ function FaqSection() {
                   keyboard_arrow_down
                 </span>
               </button>
-              <div className={`grid transition-all duration-300 ${openFaq === index ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+              <div id={`service-faq-${index}`} className={`grid transition-all duration-300 ${openFaq === index ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                 <div className="overflow-hidden">
                   <p className="cine-muted px-5 pb-5 text-sm leading-relaxed sm:pl-[4.75rem]">{a}</p>
                 </div>
@@ -655,19 +608,6 @@ export default function ServicesPage() {
     if (type === "micro") return "micro";
     return "commercial";
   });
-
-  const studentPlans = useMemo(() => {
-    const plansKeys = ["exclusiveBio", "bug", "bento", "html", "php", "react"];
-    const icons = ["badge", "handyman", "contact_page", "code", "code_blocks", "terminal"];
-    return plansKeys.map((key, index) => {
-      const planData = t(`servicesPage.studentPlans.${key}`, { returnObjects: true });
-      return {
-        id: key,
-        icon: icons[index],
-        ...withUsdPrices(i18n, `servicesPage.studentPlans.${key}`, planData),
-      };
-    });
-  }, [t, i18n]);
 
   const microJobsList = useMemo(() => {
     return MICRO_JOBS.map((job) => ({
@@ -820,38 +760,14 @@ export default function ServicesPage() {
       <div className="print:hidden">
         <HeroSection t={t} />
 
-        <OutcomeChooser onChoose={choosePriceMode} />
+        <StudentPrioritySection items={studentItems} />
 
-        {/* Hiểu trước, giá sau: demo chạy thật → dự án đã bàn giao → cách mình
-            định giá. Khách đọc hết ba khối này rồi mới tới bảng gói. */}
-        <DemoShowcaseSection />
-
-        <section className="px-4 pb-16 md:px-6 md:pb-24">
-          <ClientProof />
-        </section>
-
-        {/* ================= TRIẾT LÝ GIÁ ================= */}
-        <section className="px-4 pb-16 md:px-6 md:pb-24">
-          <AboutCard className="mx-auto max-w-6xl space-y-8 px-6 py-14 text-center sm:px-10 sm:py-16 md:px-16 md:py-20">
-            <p className={BADGE} style={{ color: ACCENT }}>{t("servicesPage.pricing.eyebrow")}</p>
-            <h2 className="font-display mx-auto max-w-3xl text-2xl font-extrabold leading-snug sm:text-3xl md:text-4xl" style={{ color: INK }}>
-              <WordsPullUp text={t("servicesPage.pricingPhilosophy.title")} center />
-            </h2>
-            <p className="cine-muted mx-auto max-w-2xl text-sm leading-relaxed sm:text-base">
-              {t("servicesPage.pricingPhilosophy.desc")}
-            </p>
-            <blockquote className="mx-auto max-w-3xl text-lg font-semibold italic leading-snug sm:text-xl md:text-2xl">
-              <WordsPullUp text={t("servicesPage.pricingPhilosophy.philosophy")} center wordClassName="cine-grad" />
-            </blockquote>
-          </AboutCard>
-        </section>
-
-        {/* ================= BỘ GẠT CHUYỂN ĐỔI BẢNG GIÁ ================= */}
-        <section className="relative z-10 px-4 text-center md:px-6">
-          <div className="cine-card2-bg cine-border-c relative mx-auto grid w-full max-w-[680px] grid-cols-3 rounded-full border p-1">
+        {/* Khách chọn theo tình huống; phạm vi và chi phí được trao đổi 1-1. */}
+        <section id="service-fit" className="relative z-10 scroll-mt-24 px-4 text-center md:px-6">
+          <div role="tablist" aria-label={t("servicesPage.outcomes.eyebrow")} className="cine-card2-bg cine-border-c relative mx-auto grid w-full max-w-[680px] grid-cols-3 rounded-[1.15rem] border p-1">
             {/* Background sliding indicator */}
             <motion.div
-              className="cine-grad-bg absolute bottom-1 top-1 z-0 rounded-full"
+              className="absolute bottom-1 top-1 z-0 rounded-[0.9rem] bg-card shadow-[0_1px_6px_hsl(var(--shadow)/0.12)]"
               animate={{
                 left: priceMode === "commercial" ? "4px" : priceMode === "student" ? "calc(33.33% + 2px)" : "calc(66.66% + 2px)",
               }}
@@ -865,9 +781,12 @@ export default function ServicesPage() {
             ].map((tab) => (
               <button
                 key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={priceMode === tab.id}
                 onClick={() => setPriceMode(tab.id)}
-                className={`relative z-10 rounded-full py-2.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 sm:text-xs ${
-                  priceMode === tab.id ? "text-white" : "cine-muted hover:opacity-70"
+                className={`relative z-10 rounded-[0.9rem] py-2.5 text-[10px] font-bold tracking-wide transition-colors duration-300 sm:text-xs ${
+                  priceMode === tab.id ? "text-foreground" : "cine-muted hover:opacity-70"
                 }`}
               >
                 {tab.label}
@@ -914,8 +833,7 @@ export default function ServicesPage() {
                 <button
                   type="button"
                   onClick={() => choosePriceMode("micro")}
-                  className="cine-border-c cine-hover-border group mt-1 inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs font-bold uppercase tracking-wide transition-colors"
-                  style={{ color: INK }}
+                  className="ios-secondary-button group mt-1 inline-flex items-center gap-2"
                 >
                   {t("servicesPage.tabs.micro")}
                   <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
@@ -925,115 +843,7 @@ export default function ServicesPage() {
           </section>
         )}
 
-        {priceMode === "student" && (
-          <section id="pricing" className="relative scroll-mt-24 px-4 py-14 md:px-6 md:py-20">
-            <div id="build" className="absolute -top-24" />
-            <div className="mx-auto max-w-6xl">
-              <CineSectionHeading
-                eyebrow={t("servicesPage.student.badge")}
-                title={t("servicesPage.pricing.title")}
-                highlight={t("servicesPage.pricing.highlight")}
-                desc={t("servicesPage.pricing.desc")}
-              />
-              <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {studentPlans.map((plan, index) => (
-                  <motion.article
-                    key={plan.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-60px" }}
-                    transition={{ delay: (index % 3) * 0.08, duration: 0.55, ease: EASE }}
-                    whileHover={{ y: -6 }}
-                    className="cine-card-bg cine-hover-border group flex h-full flex-col justify-between rounded-[1.75rem] border border-transparent p-6 transition-colors sm:p-7"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-3">
-                        <MonoIcon name={plan.icon} />
-                        {plan.discount && (
-                          <span className="cine-border-c rounded-full border px-3 py-0.5 text-[10px] font-extrabold" style={{ color: ACCENT }}>
-                            {plan.discount}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-display mt-5 text-xl font-bold" style={{ color: INK }}>{plan.name}</h3>
-                      <p className="cine-faint mt-1 text-xs">{plan.tagline}</p>
-
-                      <div className="mt-4 flex items-baseline gap-2">
-                        <span className="font-display text-2xl font-black" style={{ color: INK }}>{plan.price}</span>
-                        {plan.oldPrice && <span className="cine-faint text-xs line-through">{plan.oldPrice}</span>}
-                      </div>
-                      <p className="cine-faint mt-1 text-[11px] leading-normal">{plan.note}</p>
-                      <p className="cine-muted mt-4 text-xs leading-relaxed">{plan.desc}</p>
-                      <div className="cine-border-c mt-6 border-t pt-4">
-                        <p className="cine-faint text-[10px] font-bold uppercase tracking-wider">{t("servicesPage.common.youGet")}</p>
-                        <ul className="mt-3 space-y-2">
-                          {plan.includes?.map((item) => (
-                            <li key={item} className="flex items-start gap-2 text-xs leading-relaxed" style={{ color: INK_DIM }}>
-                              <span className="material-symbols-outlined mt-0.5 text-sm" style={{ color: ACCENT }}>check_circle</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                    <div className="mt-8">
-                      <CtaButton to={`/booking?type=student&plan=${plan.id}`} className="text-xs">
-                        {t("servicesPage.studentPlans.orderCta")}
-                      </CtaButton>
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-              <div className="mt-12 text-center">
-                <Link
-                  to="/student-pricing"
-                  className="cine-border-c cine-hover-border group inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs font-bold uppercase tracking-wide transition-colors"
-                  style={{ color: INK }}
-                >
-                  {t("servicesPage.studentPlans.detailsCta")}
-                  <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
-                </Link>
-              </div>
-
-              {/* ================= HSSV MIỄN PHÍ — KHÁC BIỆT THƯƠNG HIỆU ================= */}
-              <AboutCard className="relative mt-20 scroll-mt-24 overflow-hidden p-6 sm:p-10 md:p-12" id="student-free">
-                <div className="cine-grad-bg absolute inset-x-0 top-0 h-1" />
-                <div className="pointer-events-none absolute bottom-[5%] left-[-4%] select-none text-[6rem] font-black leading-none tracking-tighter opacity-[0.03] sm:text-[9rem]" style={{ color: INK }}>
-                  FREE
-                </div>
-                <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-                  <div>
-                    <p className={BADGE} style={{ color: ACCENT }}>{t("servicesPage.student.badge")}</p>
-                    <h2 className="font-display mt-5 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl" style={{ color: INK }}>
-                      <WordsPullUp text={t("servicesPage.student.title1")} />
-                      <span className="block cine-serif cine-grad">
-                        <WordsPullUp text={t("servicesPage.student.title2")} />
-                      </span>
-                    </h2>
-                    <p className="cine-muted mt-5 text-sm leading-relaxed sm:text-base">{t("servicesPage.student.desc")}</p>
-                    <Link
-                      to="/student-benefits"
-                      className="cine-border-c cine-hover-border group mt-6 inline-flex items-center gap-2 rounded-full border px-6 py-3 text-xs font-bold uppercase tracking-wide transition-colors"
-                      style={{ color: INK }}
-                    >
-                      {t("servicesPage.student.cta")}
-                      <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
-                    </Link>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {studentItems.map(({ title, desc }, index) => (
-                      <div key={title} className="cine-card2-bg rounded-3xl p-5">
-                        <MonoIcon name={STUDENT_ICONS[index]} className="h-10 w-10" />
-                        <h3 className="mt-4 text-sm font-bold" style={{ color: INK }}>{title}</h3>
-                        <p className="cine-muted mt-2 text-xs leading-relaxed">{desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </AboutCard>
-            </div>
-          </section>
-        )}
+        {priceMode === "student" && <StudentCustomSupport />}
 
         {priceMode === "micro" && (
           <section id="pricing" className="relative scroll-mt-24 px-4 py-14 md:px-6 md:py-20">
@@ -1069,7 +879,9 @@ export default function ServicesPage() {
                     </div>
 
                     <div className="cine-border-c mt-5 flex items-end justify-between gap-3 border-t pt-3">
-                      <p className="font-display text-sm font-black" style={{ color: INK }}>{job.price}</p>
+                      <p className="cine-faint text-[10px] font-bold uppercase tracking-wide">
+                        {t("servicesPage.common.quoteAfterChat")}
+                      </p>
                       <Link
                         to={`/booking?type=micro&plan=${job.id}`}
                         className="inline-flex items-center gap-1 whitespace-nowrap text-[10px] font-bold"
@@ -1092,6 +904,12 @@ export default function ServicesPage() {
             </div>
           </section>
         )}
+
+        <section className="px-4 py-16 md:px-6 md:py-24">
+          <ClientProof />
+        </section>
+
+        <DemoShowcaseSection />
 
         {/* ================= QUY TRÌNH — TĂNG NIỀM TIN ================= */}
         <section className="px-4 py-16 md:px-6 md:py-24">

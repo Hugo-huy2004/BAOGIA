@@ -113,6 +113,19 @@ export default function PWALoginPage() {
   const handleNativeGoogle = async () => {
     setNativeBusy(true);
     try {
+      // Nếu binary đang cài KHÔNG có plugin native (APK build trước khi thêm
+      // plugin), Capacitor lặng lẽ rơi về bản web của plugin: nó mở
+      // accounts.google.com trong WebView, mà origin ở đó là
+      // capacitor://localhost — Google chặn thẳng bằng "Error 400:
+      // invalid_request / doesn't comply with OAuth 2.0 policy".
+      //
+      // Người dùng chỉ thấy trang lỗi của Google và không thể đoán rằng thứ
+      // cần làm là cài lại app. Chặn ở đây để nói đúng nguyên nhân.
+      const { Capacitor } = await import("@capacitor/core");
+      if (!Capacitor.isPluginAvailable("SocialLogin")) {
+        showToast("Bản app này chưa có đăng nhập Google. Hãy cài lại bản mới nhất.", "error");
+        return;
+      }
       const { SocialLogin } = await import("@capgo/capacitor-social-login");
       await SocialLogin.initialize({
         google: {

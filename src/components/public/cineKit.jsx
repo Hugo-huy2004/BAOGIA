@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 /* ============================================================================
@@ -19,48 +19,137 @@ export const ACCENT = "var(--cine-accent)";
 export const CINE_CSS = `
   .cine-root {
     --cine-bg: hsl(var(--background));
-    --cine-card: hsl(var(--card));
-    --cine-card2: hsl(var(--muted) / 0.55);
+    --cine-card: color-mix(in srgb, hsl(var(--card)) 92%, transparent);
+    --cine-card2: color-mix(in srgb, hsl(var(--muted)) 76%, transparent);
     --cine-ink: hsl(var(--foreground));
-    --cine-dim: hsl(var(--foreground) / 0.78);
+    --cine-dim: hsl(var(--foreground) / 0.74);
     --cine-muted: hsl(var(--muted-foreground));
-    --cine-faint: hsl(var(--muted-foreground) / 0.75);
-    --cine-border: hsl(var(--border));
+    --cine-faint: hsl(var(--muted-foreground) / 0.82);
+    --cine-border: color-mix(in srgb, hsl(var(--border)) 78%, transparent);
     --cine-accent: hsl(var(--primary));
     --cine-btn: hsl(var(--primary));
     --cine-btn-ink: #ffffff;
     background: var(--cine-bg);
     color: var(--cine-ink);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-image:
+      radial-gradient(circle at 12% 0%, hsl(var(--primary) / 0.07), transparent 30rem),
+      radial-gradient(circle at 88% 18%, rgba(175, 82, 222, 0.055), transparent 28rem);
   }
-  .cine-serif { font-family: 'Quicksand', sans-serif; font-style: italic; font-weight: 700; }
+  .cine-serif { font-family: 'Plus Jakarta Sans', sans-serif; font-style: normal; font-weight: 800; }
   .cine-grad {
-    background-image: linear-gradient(90deg, #2678ff 0%, #0797ff 28%, #7359e8 55%, #d45aa3 78%, #f0445e 100%);
+    background-image: linear-gradient(100deg, #007aff 0%, #32ade6 46%, #af52de 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .cine-grad-bg {
-    background-image: linear-gradient(90deg, #2678ff 0%, #0797ff 28%, #7359e8 55%, #d45aa3 78%, #f0445e 100%);
+    background-image: linear-gradient(100deg, #007aff 0%, #32ade6 46%, #af52de 100%);
   }
-  .cine-card-bg { background: var(--cine-card); }
+  .ios-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, hsl(var(--border)) 72%, transparent);
+    border-radius: clamp(1.75rem, 4vw, 3rem);
+    background:
+      linear-gradient(145deg, color-mix(in srgb, hsl(var(--card)) 94%, transparent), color-mix(in srgb, hsl(var(--card)) 72%, transparent));
+    box-shadow: 0 24px 80px hsl(var(--shadow) / 0.1), inset 0 1px 0 rgba(255,255,255,0.72);
+  }
+  .dark .ios-hero {
+    box-shadow: 0 30px 90px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .ios-aurora {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 76% 24%, rgba(90, 200, 250, 0.3), transparent 24rem),
+      radial-gradient(circle at 88% 78%, rgba(175, 82, 222, 0.2), transparent 25rem),
+      radial-gradient(circle at 48% 112%, rgba(0, 122, 255, 0.14), transparent 30rem);
+    filter: saturate(1.05);
+  }
+  .ios-glass {
+    border: 1px solid rgba(255,255,255,0.5);
+    background: color-mix(in srgb, hsl(var(--card)) 62%, transparent);
+    box-shadow: 0 18px 50px hsl(var(--shadow) / 0.12), inset 0 1px 0 rgba(255,255,255,0.72);
+    -webkit-backdrop-filter: blur(28px) saturate(170%);
+    backdrop-filter: blur(28px) saturate(170%);
+  }
+  .dark .ios-glass {
+    border-color: rgba(255,255,255,0.1);
+    background: color-mix(in srgb, hsl(var(--card)) 70%, transparent);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .ios-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--cine-accent);
+    font-size: 0.6875rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+  }
+  .ios-primary-button,
+  .ios-secondary-button {
+    min-height: 2.875rem;
+    border-radius: 9999px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  }
+  .ios-primary-button {
+    color: #fff;
+    background: hsl(var(--primary));
+    box-shadow: 0 10px 26px hsl(var(--primary) / 0.22);
+  }
+  .ios-secondary-button {
+    color: var(--cine-ink);
+    border: 1px solid var(--cine-border);
+    background: color-mix(in srgb, hsl(var(--card)) 72%, transparent);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+  .ios-primary-button:hover,
+  .ios-secondary-button:hover { transform: translateY(-1px); }
+  .ios-primary-button:active,
+  .ios-secondary-button:active { transform: scale(0.98); }
+  .ios-icon-surface {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    color: var(--cine-accent);
+    background: hsl(var(--primary) / 0.1);
+  }
+  .cine-card-bg {
+    background: var(--cine-card);
+    border-color: var(--cine-border);
+    box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065), inset 0 1px 0 rgba(255,255,255,0.55);
+  }
+  .dark .cine-card-bg { box-shadow: 0 18px 44px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.045); }
   .cine-card2-bg { background: var(--cine-card2); }
   .cine-muted { color: var(--cine-muted); }
   .cine-faint { color: var(--cine-faint); }
   .cine-accent-t { color: var(--cine-accent); }
   .cine-border-c { border-color: var(--cine-border); }
-  .cine-hover-border:hover { border-color: color-mix(in srgb, var(--cine-accent) 45%, transparent); }
+  .cine-hover-border:hover { border-color: color-mix(in srgb, var(--cine-accent) 28%, var(--cine-border)); }
   .cine-contact-ic { color: var(--cine-muted); transition: color 0.3s; }
   .group:hover .cine-contact-ic { color: var(--cine-accent); }
-  .cine-noise-overlay {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  .cine-bg-noise {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+  .cine-noise-overlay, .cine-bg-noise { background: none; }
   @keyframes cine-marquee { to { transform: translateX(-50%); } }
   .cine-marquee { animation: cine-marquee 32s linear infinite; }
   .cine-marquee:hover { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    .cine-root *, .cine-root *::before, .cine-root *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 `;
 
 // Chữ trồi lên từng từ (pull-up), kích hoạt khi vào viewport.
@@ -73,9 +162,9 @@ export function WordsPullUp({ text, className = "", style, showAsterisk = false,
       {words.map((w, i) => (
         <motion.span
           key={`${w}-${i}`}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: i * 0.08, duration: 0.6, ease: EASE }}
+          transition={{ delay: i * 0.045, duration: 0.5, ease: EASE }}
           className={`relative inline-block will-change-transform ${wordClassName}`}
         >
           {w}
@@ -103,9 +192,9 @@ export function WordsPullUpMultiStyle({ segments, className = "" }) {
       {words.map((item, i) => (
         <motion.span
           key={`${item.w}-${i}`}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: i * 0.08, duration: 0.6, ease: EASE }}
+          transition={{ delay: i * 0.045, duration: 0.5, ease: EASE }}
           className={`inline-block will-change-transform ${item.cls}`}
         >
           {item.w}
@@ -116,50 +205,19 @@ export function WordsPullUpMultiStyle({ segments, className = "" }) {
   );
 }
 
-// Tiến độ 0→1 khi phần tử đi qua dải viewport [80% → 20%].
-// Đo bằng getBoundingClientRect nên chạy đúng dù app cuộn bằng #root
-// (html/body của app này overflow:hidden — useScroll theo window sẽ đứng im).
-function useElementProgress(ref) {
-  const progress = useMotionValue(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onScroll = () => {
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const start = vh * 0.8;
-      const end = vh * 0.2 - r.height;
-      const p = (r.top - start) / (end - start);
-      progress.set(Math.min(1, Math.max(0, p)));
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true, capture: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll, { capture: true });
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [ref, progress]);
-  return progress;
-}
-
-function AnimatedLetter({ ch, progress, range }) {
-  const opacity = useTransform(progress, range, [0.2, 1]);
-  return <motion.span style={{ opacity }}>{ch}</motion.span>;
-}
-
-// Đoạn văn hiện dần từng ký tự khi cuộn qua (progressive reveal)
+// Một lần fade nhẹ cho cả đoạn; đọc yên hơn hiệu ứng chạy từng ký tự.
 export function ScrollRevealParagraph({ text, className = "", style }) {
-  const ref = useRef(null);
-  const progress = useElementProgress(ref);
-  const chars = [...String(text)];
   return (
-    <p ref={ref} className={className} style={style}>
-      {chars.map((ch, i) => {
-        const p = i / chars.length;
-        return <AnimatedLetter key={i} ch={ch} progress={progress} range={[p - 0.1, p + 0.05]} />;
-      })}
-    </p>
+    <motion.p
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, ease: EASE }}
+      className={className}
+      style={style}
+    >
+      {text}
+    </motion.p>
   );
 }
 
@@ -214,17 +272,12 @@ export function ScrollProgressBar() {
 
 // Nút pill chính: nền đảo theo theme, vòng tròn icon bên phải
 export function PillButton({ to, href, children, Icon = ArrowRight, className = "" }) {
-  const cls = `group inline-flex items-center gap-2 hover:gap-3 rounded-full pl-5 pr-1.5 py-1.5 font-medium text-sm sm:text-base transition-all ${className}`;
-  const style = { backgroundColor: "var(--cine-btn)", color: "var(--cine-btn-ink)" };
+  const cls = `ios-primary-button group inline-flex items-center justify-center gap-2 ${className}`;
+  const style = undefined;
   const inner = (
     <>
       {children}
-      <span
-        className="rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center transition-transform group-hover:scale-110"
-        style={{ backgroundColor: "var(--cine-btn-ink)" }}
-      >
-        <Icon size={16} style={{ color: "var(--cine-btn)" }} />
-      </span>
+      <Icon size={15} className="transition-transform group-hover:translate-x-0.5" />
     </>
   );
   return href ? (
@@ -247,7 +300,7 @@ export function AboutCard({ children, className = "", id }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.7, ease: EASE }}
-      className={`cine-card-bg rounded-2xl md:rounded-[2rem] ${className}`}
+      className={`cine-card-bg rounded-[1.75rem] border md:rounded-[2.25rem] ${className}`}
     >
       {children}
     </motion.div>
@@ -260,8 +313,8 @@ export function CineSectionHeading({ eyebrow, title, highlight, desc, align = "s
   if (align === "center") {
     return (
       <div className="mx-auto max-w-3xl text-center">
-        <p className="cine-accent-t text-[10px] font-bold uppercase tracking-[0.25em] sm:text-xs">{eyebrow}</p>
-        <h2 className="font-display mt-3 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl" style={{ color: INK }}>
+        <p className="ios-kicker">{eyebrow}</p>
+        <h2 className="mt-4 text-3xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:text-[2.75rem]" style={{ color: INK }}>
           <WordsPullUpMultiStyle
             segments={[{ text: title }, ...(highlight ? [{ text: highlight, className: "cine-serif cine-grad" }] : [])]}
           />
@@ -273,8 +326,8 @@ export function CineSectionHeading({ eyebrow, title, highlight, desc, align = "s
   return (
     <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-end">
       <div>
-        <p className="cine-accent-t text-[10px] font-bold uppercase tracking-[0.25em] sm:text-xs">{eyebrow}</p>
-        <h2 className="mt-3 font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl md:text-5xl" style={{ color: INK }}>
+        <p className="ios-kicker">{eyebrow}</p>
+        <h2 className="mt-4 text-3xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:text-[2.75rem]" style={{ color: INK }}>
           <WordsPullUp text={title} />
           {highlight && (
             <span className="block cine-serif cine-grad">
