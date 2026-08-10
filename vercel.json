@@ -5,10 +5,6 @@
       "destination": "https://api.hugowishpax.studio/api/:path*"
     },
     {
-      "source": "/pay/:id",
-      "destination": "https://api.hugowishpax.studio/api/pay?id=:id"
-    },
-    {
       "source": "/certificate/:slug/:phase",
       "destination": "https://api.hugowishpax.studio/api/bios/certificate/:slug/:phase"
     },
