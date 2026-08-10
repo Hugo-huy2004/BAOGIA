@@ -1083,7 +1083,9 @@
       "success": "Your enquiry has been received. I shall respond within one business day.",
       "error": "Your enquiry could not be sent. Please check your connection and try again.",
       "networkError": "Connection error. Please check your internet and try again.",
-      "chooseProject": "Please choose the option that most closely reflects your needs."
+      "chooseProject": "Please choose the option that most closely reflects your needs.",
+      "chooseAge": "Please select your age group first.",
+      "underAge": "Hugo Studio accepts enquiries only from those aged 14 and above."
     },
     "header": {
       "eyebrow": "A direct conversation with Hugo",
@@ -1105,14 +1107,38 @@
       }
     },
     "progress": {
-      "label": "Step {{step}} of 4",
+      "label": "Step {{step}} of {{total}}",
       "complete": "Complete"
     },
     "steps": {
-      "1": { "title": "What may I help with?" },
-      "2": { "title": "Investment and timeframe" },
-      "3": { "title": "The outcome you have in mind" },
-      "4": { "title": "Review and send your enquiry" }
+      "age": {
+        "title": "How old are you?",
+        "hint": "Hugo Studio accepts enquiries only from those aged 14 and above."
+      },
+      "project": {
+        "title": "What may I help with?",
+        "hint": "Choose the nearest fit; nothing is settled yet."
+      },
+      "budget": {
+        "title": "Indicative investment",
+        "hint": "A rough figure lets me recommend a proportionate scope."
+      },
+      "timeline": {
+        "title": "When do you need it?",
+        "hint": "A timeframe makes the schedule realistic."
+      },
+      "details": {
+        "title": "The outcome you have in mind",
+        "hint": "A few sentences suffice; no formal brief required."
+      },
+      "contact": {
+        "title": "How should I reply?",
+        "hint": "Used solely to answer your enquiry, never published."
+      },
+      "review": {
+        "title": "Review and send your enquiry",
+        "hint": "One last look before it reaches Hugo."
+      }
     },
     "projectTypes": {
       "newWebsite": {
@@ -1143,7 +1169,8 @@
       "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
       "timeline": "Preferred timeframe",
       "notes": "A little more context (optional)",
-      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances."
+      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
+      "timelineHint": "Choose whichever is closest to your expectation."
     },
     "budgets": {
       "unsure": "Not determined",
@@ -1185,14 +1212,17 @@
       "continue": "Continue",
       "back": "Back",
       "submit": "Send my enquiry",
-      "sending": "Sending..."
+      "sending": "Sending...",
+      "editAnswers": "Start the answers again"
     },
     "summary": {
       "title": "Enquiry summary",
       "project": "Requirement",
       "budget": "Investment",
       "timeline": "Timeframe",
-      "notes": "Notes"
+      "notes": "Notes",
+      "age": "Age group",
+      "contact": "Contact"
     },
     "success": {
       "title": "Your enquiry is safely with me.",
@@ -1211,6 +1241,36 @@
       "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
       "courseworkPhp": "I would like to discuss a Web App coursework project using PHP and MySQL.",
       "courseworkReact": "I would like to discuss a Web App coursework project using React and Node.js."
+    },
+    "age": {
+      "badge": "A firm requirement",
+      "legend": "Your age group",
+      "hint": "This determines how Hugo Studio handles and protects your data. No documents required — simply answer honestly.",
+      "teenTitle": "Members aged 14 to under 18",
+      "teenRules": {
+        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
+        "limited": "Support is limited or declined where a request would require sensitive personal data.",
+        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
+        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+      },
+      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
+      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
+      "blockedTitle": "Not eligible to send an enquiry",
+      "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
+    },
+    "ageBands": {
+      "adult": {
+        "title": "18 and above",
+        "desc": "You may discuss and agree terms directly, without a guardian."
+      },
+      "teen": {
+        "title": "14 to under 18",
+        "desc": "Support is available, with supervision and limits on personal data."
+      },
+      "under14": {
+        "title": "Under 14",
+        "desc": "Not eligible to use Hugo Studio's services."
+      }
     }
   },
   "templatesPage": {

@@ -8,6 +8,7 @@ import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { getMemberSession } from "../../services/authSession";
 
 const EMPTY_FORM = {
+  ageBand: "",
   fullName: "",
   email: "",
   phone: "",
@@ -16,6 +17,16 @@ const EMPTY_FORM = {
   timeline: "flexible",
   message: "",
 };
+
+// Mỗi bước hỏi đúng một việc — form dài nhưng không bước nào phải nghĩ lâu.
+const STEP_IDS = ["age", "project", "budget", "timeline", "details", "contact", "review"];
+const TOTAL_STEPS = STEP_IDS.length;
+
+const AGE_BANDS = [
+  { id: "adult", icon: "person" },
+  { id: "teen", icon: "supervisor_account" },
+  { id: "under14", icon: "block" },
+];
 
 const PROJECT_TYPES = [
   { id: "newWebsite", icon: "web" },
@@ -28,7 +39,6 @@ const PROJECT_TYPES = [
 const BUDGETS = ["unsure", "underOne", "oneToThree", "threeToEight", "overEight"];
 const TIMELINES = ["flexible", "twoWeeks", "oneMonth", "twoMonths"];
 const PROMPTS = ["identity", "sales", "mobile", "unsure"];
-const TOTAL_STEPS = 4;
 
 const createInitialForm = () => {
   const session = getMemberSession();
@@ -85,6 +95,26 @@ function Field({ label, hint, children }) {
   );
 }
 
+function StepNav({ onBack, onForward, forwardLabel, submit = false }) {
+  return (
+    <div className={`grid gap-3 ${onBack ? "grid-cols-[auto_1fr]" : ""}`}>
+      {onBack && (
+        <button type="button" onClick={onBack} className="min-h-12 rounded-full border border-border px-5 text-sm font-bold transition-colors hover:bg-muted">
+          {forwardLabel.back}
+        </button>
+      )}
+      <button
+        type={submit ? "submit" : "button"}
+        onClick={submit ? undefined : onForward}
+        className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        {forwardLabel.next}
+        <span className="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_forward</span>
+      </button>
+    </div>
+  );
+}
+
 export default function BookingContactPage() {
   const { t } = useTranslation();
   const location = useLocation();
@@ -95,6 +125,9 @@ export default function BookingContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [donationDeclined, setDonationDeclined] = useState(false);
+
+  const stepId = STEP_IDS[step - 1];
+  const navLabels = { back: t("bookingPage.actions.back"), next: t("bookingPage.actions.continue") };
 
   useHeadMeta({
     title: t("bookingPage.meta.title"),
@@ -115,6 +148,7 @@ export default function BookingContactPage() {
   const selectedProject = projectOptions.find((item) => item.id === formData.projectType);
   const selectedBudget = t(`bookingPage.budgets.${formData.budget}`);
   const selectedTimeline = t(`bookingPage.timelines.${formData.timeline}`);
+  const isTeen = formData.ageBand === "teen";
 
   useEffect(() => {
     if (!location.search || appliedSearchRef.current === location.search) return;
@@ -159,18 +193,30 @@ export default function BookingContactPage() {
     });
   };
 
+  const focusTitle = () => {
+    window.requestAnimationFrame(() => document.getElementById("booking-form-title")?.focus());
+  };
+
   const goForward = () => {
-    if (step === 1 && !formData.projectType) {
+    if (stepId === "age" && !formData.ageBand) {
+      setToast({ message: t("bookingPage.toast.chooseAge"), type: "warning" });
+      return;
+    }
+    if (stepId === "age" && formData.ageBand === "under14") {
+      setToast({ message: t("bookingPage.toast.underAge"), type: "error" });
+      return;
+    }
+    if (stepId === "project" && !formData.projectType) {
       setToast({ message: t("bookingPage.toast.chooseProject"), type: "warning" });
       return;
     }
     setStep((current) => Math.min(current + 1, TOTAL_STEPS));
-    window.requestAnimationFrame(() => document.getElementById("booking-form-title")?.focus());
+    focusTitle();
   };
 
   const goBack = () => {
     setStep((current) => Math.max(current - 1, 1));
-    window.requestAnimationFrame(() => document.getElementById("booking-form-title")?.focus());
+    focusTitle();
   };
 
   const handleSubmit = async (event) => {
@@ -181,6 +227,7 @@ export default function BookingContactPage() {
     setToast({ message: "", type: "" });
 
     const structuredMessage = [
+      `${t("bookingPage.summary.age")}: ${t(`bookingPage.ageBands.${formData.ageBand || "adult"}.title`)}`,
       `${t("bookingPage.summary.project")}: ${selectedProject?.title || "—"}`,
       `${t("bookingPage.summary.budget")}: ${selectedBudget}`,
       `${t("bookingPage.summary.timeline")}: ${selectedTimeline}`,
@@ -281,32 +328,26 @@ export default function BookingContactPage() {
 
         <div className="overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-[0_24px_70px_hsl(var(--shadow)/0.1)]">
           <div className="border-b border-border/60 px-5 py-5 sm:px-8">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                  {isComplete ? t("bookingPage.progress.complete") : t("bookingPage.progress.label", { step })}
-                </p>
-                <h2
-                  id="booking-form-title"
-                  tabIndex="-1"
-                  className="mt-1 text-lg font-extrabold tracking-[-0.025em] outline-none sm:text-xl"
-                >
-                  {isComplete
-                    ? t("bookingPage.success.title")
-                    : t(`bookingPage.steps.${step}.title`)}
-                </h2>
-              </div>
-              {!isComplete && (
-                <div className="flex gap-1.5" aria-hidden="true">
-                  {Array.from({ length: TOTAL_STEPS }, (_, index) => index + 1).map((item) => (
-                    <span
-                      key={item}
-                      className={`h-1.5 rounded-full transition-all ${item <= step ? "w-8 bg-primary" : "w-4 bg-muted"}`}
-                    />
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+              {isComplete ? t("bookingPage.progress.complete") : t("bookingPage.progress.label", { step, total: TOTAL_STEPS })}
+            </p>
+            <h2
+              id="booking-form-title"
+              tabIndex="-1"
+              className="mt-1 text-lg font-extrabold tracking-[-0.025em] outline-none sm:text-xl"
+            >
+              {isComplete ? t("bookingPage.success.title") : t(`bookingPage.steps.${stepId}.title`)}
+            </h2>
+            {!isComplete && (
+              <>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(`bookingPage.steps.${stepId}.hint`)}</p>
+                <div className="mt-4 flex gap-1" aria-hidden="true">
+                  {STEP_IDS.map((id, index) => (
+                    <span key={id} className={`h-1.5 flex-1 rounded-full transition-colors ${index < step ? "bg-primary" : "bg-muted"}`} />
                   ))}
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
 
           {isComplete ? (
@@ -336,7 +377,65 @@ export default function BookingContactPage() {
                 {t("bookingPage.success.another")}
               </button>
             </div>
-          ) : step === 1 ? (
+          ) : stepId === "age" ? (
+            <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
+              <div className="flex items-center gap-4 rounded-2xl bg-foreground px-5 py-5 text-background">
+                <span className="material-symbols-outlined text-[56px] leading-none" aria-hidden="true">shield_person</span>
+                <div className="min-w-0">
+                  <strong className="block text-4xl font-black leading-none tracking-[-0.06em]">14+</strong>
+                  <span className="mt-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-background/70">
+                    {t("bookingPage.age.badge")}
+                  </span>
+                </div>
+              </div>
+
+              <fieldset>
+                <legend className="text-sm font-extrabold">{t("bookingPage.age.legend")}</legend>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("bookingPage.age.hint")}</p>
+                <div className="mt-4 grid gap-3">
+                  {AGE_BANDS.map((band) => (
+                    <ChoiceButton
+                      key={band.id}
+                      active={formData.ageBand === band.id}
+                      icon={band.icon}
+                      title={t(`bookingPage.ageBands.${band.id}.title`)}
+                      description={t(`bookingPage.ageBands.${band.id}.desc`)}
+                      onClick={() => updateField("ageBand", band.id)}
+                    />
+                  ))}
+                </div>
+              </fieldset>
+
+              {isTeen && (
+                <div className="rounded-2xl border border-border bg-muted/45 p-4">
+                  <p className="flex items-center gap-2 text-sm font-extrabold">
+                    <span className="material-symbols-outlined text-[20px]" aria-hidden="true">family_restroom</span>
+                    {t("bookingPage.age.teenTitle")}
+                  </p>
+                  <ul className="mt-3 space-y-2 text-xs leading-relaxed text-muted-foreground">
+                    {["supervision", "limited", "noShare", "minimal"].map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="mt-1.5 size-1 shrink-0 rounded-full bg-muted-foreground/60" aria-hidden="true" />
+                        <span className="min-w-0">{t(`bookingPage.age.teenRules.${item}`)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {formData.ageBand === "under14" && (
+                <div className="rounded-2xl border border-destructive/40 bg-destructive/[0.07] p-4">
+                  <p className="flex items-center gap-2 text-sm font-extrabold text-foreground">
+                    <span className="material-symbols-outlined text-[20px]" aria-hidden="true">block</span>
+                    {t("bookingPage.age.blockedTitle")}
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{t("bookingPage.age.blockedDesc")}</p>
+                </div>
+              )}
+
+              <StepNav onForward={goForward} forwardLabel={navLabels} />
+            </div>
+          ) : stepId === "project" ? (
             <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
               <fieldset>
                 <legend className="text-sm font-extrabold">{t("bookingPage.sections.project")}</legend>
@@ -355,43 +454,47 @@ export default function BookingContactPage() {
                   ))}
                 </div>
               </fieldset>
-              <button type="button" onClick={goForward} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground">
-                {t("bookingPage.actions.continue")}<span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-              </button>
+              <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
             </div>
-          ) : step === 2 ? (
-            <div className="space-y-8 px-5 py-6 sm:px-8 sm:py-8">
+          ) : stepId === "budget" ? (
+            <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
               <fieldset>
                 <legend className="text-sm font-extrabold">{t("bookingPage.sections.budget")}</legend>
                 <p className="mt-1 text-xs text-muted-foreground">{t("bookingPage.sections.budgetHint")}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-4 grid gap-2">
                   {BUDGETS.map((item) => (
                     <button
                       key={item}
                       type="button"
                       aria-pressed={formData.budget === item}
                       onClick={() => updateField("budget", item)}
-                      className={`min-h-11 rounded-full border px-4 text-xs font-semibold transition-colors ${
+                      className={`flex min-h-12 items-center justify-between gap-3 rounded-xl border px-4 text-sm font-semibold transition-colors ${
                         formData.budget === item
                           ? "border-foreground bg-foreground text-background"
                           : "border-border bg-background text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       {t(`bookingPage.budgets.${item}`)}
+                      {formData.budget === item && <span className="material-symbols-outlined text-[18px]" aria-hidden="true">check</span>}
                     </button>
                   ))}
                 </div>
               </fieldset>
+              <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
+            </div>
+          ) : stepId === "timeline" ? (
+            <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
               <fieldset>
                 <legend className="text-sm font-extrabold">{t("bookingPage.sections.timeline")}</legend>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <p className="mt-1 text-xs text-muted-foreground">{t("bookingPage.sections.timelineHint")}</p>
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   {TIMELINES.map((item) => (
                     <button
                       key={item}
                       type="button"
                       aria-pressed={formData.timeline === item}
                       onClick={() => updateField("timeline", item)}
-                      className={`min-h-11 rounded-xl border px-3 text-xs font-semibold transition-colors ${
+                      className={`min-h-12 rounded-xl border px-3 text-xs font-semibold transition-colors ${
                         formData.timeline === item
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background text-muted-foreground hover:text-foreground"
@@ -402,12 +505,9 @@ export default function BookingContactPage() {
                   ))}
                 </div>
               </fieldset>
-              <div className="grid grid-cols-[auto_1fr] gap-3">
-                <button type="button" onClick={goBack} className="min-h-12 rounded-full border border-border px-5 text-sm font-bold">{t("bookingPage.actions.back")}</button>
-                <button type="button" onClick={goForward} className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground">{t("bookingPage.actions.continue")}<span className="material-symbols-outlined text-[18px]">arrow_forward</span></button>
-              </div>
+              <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
             </div>
-          ) : step === 3 ? (
+          ) : stepId === "details" ? (
             <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
               <div>
                 <label htmlFor="booking-message" className="text-sm font-extrabold">
@@ -437,33 +537,17 @@ export default function BookingContactPage() {
                   className="mt-3 w-full resize-y rounded-2xl border border-border bg-background px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary"
                 />
               </div>
-              <div className="grid grid-cols-[auto_1fr] gap-3">
-                <button type="button" onClick={goBack} className="min-h-12 rounded-full border border-border px-5 text-sm font-bold">{t("bookingPage.actions.back")}</button>
-                <button type="button" onClick={goForward} className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground">{t("bookingPage.actions.continue")}<span className="material-symbols-outlined text-[18px]">arrow_forward</span></button>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
-              <div className="rounded-2xl bg-muted/65 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                  {t("bookingPage.summary.title")}
+              {isTeen && (
+                <p className="flex items-start gap-2 rounded-xl bg-muted/55 px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
+                  <span className="material-symbols-outlined mt-0.5 text-[15px]" aria-hidden="true">shield_person</span>
+                  {t("bookingPage.age.teenNotesReminder")}
                 </p>
-                <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
-                  <div>
-                    <dt className="text-muted-foreground">{t("bookingPage.summary.project")}</dt>
-                    <dd className="mt-0.5 font-bold text-foreground">{selectedProject?.title}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">{t("bookingPage.summary.budget")}</dt>
-                    <dd className="mt-0.5 font-bold text-foreground">{selectedBudget}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">{t("bookingPage.summary.timeline")}</dt>
-                    <dd className="mt-0.5 font-bold text-foreground">{selectedTimeline}</dd>
-                  </div>
-                </dl>
-              </div>
-
+              )}
+              <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
+            </div>
+          ) : stepId === "contact" ? (
+            // Trình duyệt tự lo phần bắt buộc/định dạng; bước này chỉ chuyển sang ô xác nhận.
+            <form onSubmit={(event) => { event.preventDefault(); goForward(); }} className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
               <div className="space-y-5">
                 <Field label={t("bookingPage.form.nameLabel")}>
                   <input
@@ -510,6 +594,51 @@ export default function BookingContactPage() {
                   />
                 </Field>
               </div>
+
+              <p className="flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground">
+                <span className="material-symbols-outlined mt-0.5 text-[15px]" aria-hidden="true">lock</span>
+                {isTeen ? t("bookingPage.age.teenContactNote") : t("bookingPage.form.disclaimer")}
+              </p>
+
+              <StepNav onBack={goBack} forwardLabel={navLabels} submit />
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
+              <div className="rounded-2xl bg-muted/65 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                  {t("bookingPage.summary.title")}
+                </p>
+                <dl className="mt-3 grid gap-3 text-xs sm:grid-cols-2">
+                  {[
+                    { label: t("bookingPage.summary.age"), value: t(`bookingPage.ageBands.${formData.ageBand || "adult"}.title`) },
+                    { label: t("bookingPage.summary.project"), value: selectedProject?.title },
+                    { label: t("bookingPage.summary.budget"), value: selectedBudget },
+                    { label: t("bookingPage.summary.timeline"), value: selectedTimeline },
+                    { label: t("bookingPage.summary.contact"), value: formData.fullName },
+                    { label: t("bookingPage.form.emailLabel"), value: formData.email },
+                  ].map((row) => (
+                    <div key={row.label}>
+                      <dt className="text-muted-foreground">{row.label}</dt>
+                      <dd className="mt-0.5 break-words font-bold text-foreground">{row.value || "—"}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {formData.message.trim() && (
+                  <div className="mt-3 border-t border-border/60 pt-3">
+                    <p className="text-xs text-muted-foreground">{t("bookingPage.summary.notes")}</p>
+                    <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-foreground">{formData.message.trim()}</p>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => { setStep(1); focusTitle(); }}
+                className="inline-flex min-h-9 items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+              >
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">edit</span>
+                {t("bookingPage.actions.editAnswers")}
+              </button>
 
               <p className="flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground">
                 <span className="material-symbols-outlined mt-0.5 text-[15px]" aria-hidden="true">lock</span>

@@ -1083,7 +1083,9 @@
       "success": "Đã gửi yêu cầu. Mình sẽ phản hồi trong vòng 24 giờ làm việc.",
       "error": "Chưa thể gửi yêu cầu. Vui lòng kiểm tra kết nối và thử lại.",
       "networkError": "Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.",
-      "chooseProject": "Bạn hãy chọn một loại nhu cầu trước nhé."
+      "chooseProject": "Bạn hãy chọn một loại nhu cầu trước nhé.",
+      "chooseAge": "Bạn hãy chọn nhóm tuổi của mình trước nhé.",
+      "underAge": "Hugo Studio chỉ nhận yêu cầu từ người đủ 14 tuổi trở lên."
     },
     "header": {
       "eyebrow": "Trao đổi trực tiếp với Hugo",
@@ -1105,14 +1107,38 @@
       }
     },
     "progress": {
-      "label": "Bước {{step}} / 4",
+      "label": "Bước {{step}} / {{total}}",
       "complete": "Hoàn tất"
     },
     "steps": {
-      "1": { "title": "Bạn đang cần hỗ trợ gì?" },
-      "2": { "title": "Ngân sách và thời gian" },
-      "3": { "title": "Mục tiêu của dự án" },
-      "4": { "title": "Kiểm tra và gửi yêu cầu" }
+      "age": {
+        "title": "Bạn bao nhiêu tuổi?",
+        "hint": "Hugo Studio chỉ nhận yêu cầu từ người đủ 14 tuổi trở lên."
+      },
+      "project": {
+        "title": "Bạn đang cần hỗ trợ gì?",
+        "hint": "Chọn một nhu cầu gần nhất, bạn vẫn đổi được sau."
+      },
+      "budget": {
+        "title": "Mức đầu tư dự kiến",
+        "hint": "Con số tham khảo để mình đề xuất phạm vi vừa sức."
+      },
+      "timeline": {
+        "title": "Bạn cần xong khi nào?",
+        "hint": "Biết mốc thời gian giúp mình sắp lịch thật hơn."
+      },
+      "details": {
+        "title": "Mục tiêu của dự án",
+        "hint": "Vài câu là đủ; không cần viết brief hoàn chỉnh."
+      },
+      "contact": {
+        "title": "Mình liên hệ lại bằng cách nào?",
+        "hint": "Chỉ dùng để phản hồi yêu cầu, không công khai."
+      },
+      "review": {
+        "title": "Kiểm tra và gửi yêu cầu",
+        "hint": "Xem lại một lượt trước khi gửi cho Hugo."
+      }
     },
     "projectTypes": {
       "newWebsite": {
@@ -1143,7 +1169,8 @@
       "budgetHint": "Thông tin này chỉ giúp mình đề xuất phạm vi vừa sức, chưa phải cam kết chi phí.",
       "timeline": "Thời gian bạn mong muốn",
       "notes": "Mô tả thêm (không bắt buộc)",
-      "notesHint": "Chạm vào câu gợi ý để thêm nhanh, rồi sửa lại theo tình huống của bạn."
+      "notesHint": "Chạm vào câu gợi ý để thêm nhanh, rồi sửa lại theo tình huống của bạn.",
+      "timelineHint": "Chọn mốc gần nhất với kỳ vọng của bạn."
     },
     "budgets": {
       "unsure": "Chưa xác định",
@@ -1185,14 +1212,17 @@
       "continue": "Tiếp tục",
       "back": "Quay lại",
       "submit": "Gửi yêu cầu trao đổi",
-      "sending": "Đang gửi..."
+      "sending": "Đang gửi...",
+      "editAnswers": "Sửa lại từ đầu"
     },
     "summary": {
       "title": "Tóm tắt yêu cầu",
       "project": "Nhu cầu",
       "budget": "Mức đầu tư",
       "timeline": "Thời gian",
-      "notes": "Ghi chú"
+      "notes": "Ghi chú",
+      "age": "Nhóm tuổi",
+      "contact": "Người liên hệ"
     },
     "success": {
       "title": "Mình đã nhận được yêu cầu.",
@@ -1211,6 +1241,36 @@
       "courseworkHtml": "Mình muốn trao đổi về Web App Coursework dùng HTML, CSS và JavaScript.",
       "courseworkPhp": "Mình muốn trao đổi về Web App Coursework dùng PHP và MySQL.",
       "courseworkReact": "Mình muốn trao đổi về Web App Coursework dùng React và Node.js."
+    },
+    "age": {
+      "badge": "Điều kiện bắt buộc",
+      "legend": "Nhóm tuổi của bạn",
+      "hint": "Thông tin này quyết định cách Hugo Studio xử lý và bảo vệ dữ liệu của bạn. Không cần giấy tờ, chỉ cần chọn đúng.",
+      "teenTitle": "Thành viên từ 14 đến dưới 18 tuổi",
+      "teenRules": {
+        "supervision": "Nên trao đổi với sự biết và giám sát của cha mẹ hoặc người giám hộ.",
+        "limited": "Hỗ trợ sẽ bị giới hạn hoặc từ chối nếu yêu cầu đòi hỏi chia sẻ dữ liệu cá nhân nhạy cảm.",
+        "noShare": "Hugo Studio không cung cấp thông tin cá nhân của bạn cho bất kỳ người dùng nào khác — không có ngoại lệ.",
+        "minimal": "Chỉ điền dữ liệu tối thiểu trong biểu mẫu này; đừng gửi thêm qua chat, Zalo hay trang Bio công khai."
+      },
+      "teenNotesReminder": "Đừng viết địa chỉ nhà, trường lớp cụ thể, số giấy tờ hay thông tin của người khác vào phần mô tả.",
+      "teenContactNote": "Vì bạn dưới 18 tuổi, Hugo Studio chỉ dùng những thông tin này để phản hồi và không chia sẻ với bất kỳ người dùng nào khác. Nên dùng số liên hệ mà cha mẹ hoặc người giám hộ biết.",
+      "blockedTitle": "Chưa đủ điều kiện gửi yêu cầu",
+      "blockedDesc": "Hugo Studio không nhận yêu cầu từ người dưới 14 tuổi. Hãy nhờ cha mẹ hoặc người giám hộ đứng tên trao đổi giúp bạn."
+    },
+    "ageBands": {
+      "adult": {
+        "title": "Từ 18 tuổi trở lên",
+        "desc": "Trao đổi và ký kết trực tiếp, không cần người giám hộ."
+      },
+      "teen": {
+        "title": "Từ 14 đến dưới 18 tuổi",
+        "desc": "Được nhận hỗ trợ nhưng có giám sát và giới hạn về dữ liệu cá nhân."
+      },
+      "under14": {
+        "title": "Dưới 14 tuổi",
+        "desc": "Chưa đủ điều kiện sử dụng dịch vụ của Hugo Studio."
+      }
     }
   },
   "templatesPage": {

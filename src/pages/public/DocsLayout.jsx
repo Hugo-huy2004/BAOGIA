@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import SecurityFlowVideo from "../../components/privacy/SecurityFlowVideo";
+import SecurityExamplesVideo from "../../components/privacy/SecurityExamplesVideo";
+import AgeProtectionCard from "../../components/privacy/AgeProtectionCard";
 import GuideArt from "./guideArt";
 
 /**
@@ -15,6 +17,8 @@ import GuideArt from "./guideArt";
  *   { type: "note", tone, title, text }— hộp lưu ý (tone: info | warn | danger)
  *   { type: "figure", art, caption }   — hình minh hoạ SVG (xem guideArt.jsx)
  *   { type: "security-flow" }          — minh hoạ chuyển động luồng bảo mật
+ *   { type: "security-examples" }      — video minh hoạ các ví dụ kỹ thuật
+ *   { type: "age-card" }               — điều kiện độ tuổi 14+
  *   { type: "external-links", items[] }— liên kết chính sách bên thứ ba
  *   { type: "code", title, code, text }— ví dụ kỹ thuật đã rút gọn
  *   { type: "faq", items[{q,a}] }      — hỏi nhanh đáp nhanh
@@ -131,6 +135,14 @@ export default function DocsLayout({ eyebrow, version, title, intro, updatedAt, 
 function Block({ block }) {
   if (block.type === "security-flow") {
     return <SecurityFlowVideo />;
+  }
+
+  if (block.type === "security-examples") {
+    return <SecurityExamplesVideo />;
+  }
+
+  if (block.type === "age-card") {
+    return <AgeProtectionCard />;
   }
 
   if (block.type === "external-links") {

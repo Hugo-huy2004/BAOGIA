@@ -99,117 +99,31 @@ export default function PrivacyPolicyPage() {
     },
     {
       id: "vi-du-bao-mat",
-      title: "Ví dụ kỹ thuật cụ thể",
+      title: "Xem cách bảo vệ chạy thật",
       blocks: [
+        {
+          type: "p",
+          text: "Đọc mô tả kỹ thuật thì dễ trôi. Đoạn video dưới đây chạy lại năm tình huống thật của hệ thống theo từng bước, bạn chỉ cần nhìn là hiểu dữ liệu đi qua đâu và bị chặn ở đâu.",
+        },
+        { type: "security-examples" },
         {
           type: "note",
           tone: "info",
-          title: "Ví dụ đã được làm giả an toàn",
-          text: "Các chuỗi dưới đây chỉ minh hoạ cấu trúc xử lý. Không có API key, JWT, khoá mã hoá, địa chỉ server nội bộ hoặc dữ liệu người dùng thật được công bố.",
+          title: "Hoạt cảnh đã được làm giả an toàn",
+          text: "Video chỉ minh hoạ cấu trúc xử lý. Không có API key, JWT, khoá mã hoá, địa chỉ server nội bộ hoặc dữ liệu người dùng thật xuất hiện trong bất kỳ cảnh nào.",
         },
+      ],
+    },
+    {
+      id: "do-tuoi",
+      title: "Điều kiện độ tuổi",
+      blocks: [
+        { type: "age-card" },
         {
-          type: "code",
-          title: "Ví dụ 1 · Mã hoá nội dung trước khi lưu",
-          code: `DỮ LIỆU GỐC
-"Hôm nay mình cảm thấy hơi lo lắng"
-
-SERVER XỬ LÝ
-AES-256-GCM(
-  key = bí mật chỉ có trong môi trường server,
-  iv  = 12 byte ngẫu nhiên mới cho mỗi lần mã hoá
-)
-
-DỮ LIỆU TRONG DATABASE — DẠNG RÚT GỌN
-enc:gcm:<iv>:<authentication_tag>:<ciphertext>`,
-          text: "Authentication tag giúp phát hiện dữ liệu đã bị sửa. Chỉ cần ciphertext, IV hoặc tag bị thay đổi, quá trình giải mã sẽ thất bại. Vì IV được tạo mới, cùng một câu mã hoá hai lần cũng không tạo ra cùng một chuỗi lưu trữ.",
-        },
-        {
-          type: "steps",
-          items: [
-            "Server tạo khoá 256 bit từ secret môi trường bằng hàm dẫn xuất khoá scrypt; secret không được gửi xuống trình duyệt.",
-            "Server tạo IV ngẫu nhiên riêng cho từng giá trị rồi mã hoá bằng AES-256-GCM.",
-            "Database nhận ciphertext, IV và authentication tag thay cho câu gốc.",
-            "Khi đúng người dùng đọc lại dữ liệu, API xác minh phiên trước rồi server mới giải mã để trả kết quả.",
-          ],
-        },
-        { type: "p", text: "Cơ chế này hiện được dùng cho phần chữ trong lịch sử HugoPSY, số điện thoại Booking, thông tin xác minh Bio và một số thông tin liên hệ riêng tư. Không phải mọi trường đều được mã hoá giống nhau: email dùng để tìm tài khoản vẫn cần được bảo vệ bằng quyền truy cập và kiểm tra API." },
-        {
-          type: "code",
-          title: "Ví dụ 2 · API thành viên không tin email do trình duyệt khai báo",
-          code: `TRÌNH DUYỆT
-POST /api/joy/...
-Cookie: member_jwt=<cookie HttpOnly>
-Body: { email: "email-co-the-bi-sua@example.com", ... }
-
-                 ↓
-
-MIDDLEWARE requireMember
-1. Kiểm tra chữ ký JWT
-2. Kiểm tra thời hạn và vai trò member
-3. Lấy email từ JWT đã ký
-4. Gán req.memberEmail = <email đã xác minh>
-
-                 ↓
-
-ROUTE THÀNH VIÊN
-Chỉ đọc dữ liệu thuộc req.memberEmail`,
-          text: "Nếu ai đó sửa email trong DevTools, danh tính không đổi theo phần họ sửa. API dùng danh tính lấy từ token đã được server xác minh, không dùng email trong query hoặc body để quyết định chủ tài khoản.",
-        },
-        {
-          type: "code",
-          title: "Ví dụ 3 · API Hugo bảo vệ khoá AI",
-          code: `TRÌNH DUYỆT
-POST /api/ai/chat
-✓ Có phiên thành viên
-✕ Không có Gemini API key
-✕ Không có credential nội bộ
-
-                 ↓ HTTPS
-
-NODE API CỦA HUGO STUDIO
-✓ Xác minh thành viên
-✓ Kiểm tra nội dung và giới hạn sử dụng
-✓ Đổi email thành định danh HMAC một chiều
-✓ Gắn credential nội bộ ở phía server
-
-                 ↓ server-to-server
-
-PYTHON AI SERVER
-✓ Chỉ nhận yêu cầu có credential nội bộ hợp lệ
-✓ Gọi dịch vụ AI bằng khoá nằm trên server`,
-          text: "Người dùng không cần và không nhận khoá AI. Gọi thẳng Python AI server mà thiếu credential nội bộ sẽ bị từ chối. Định danh gửi qua luồng AI là HMAC của email thay vì email nguyên văn trong các trường nhận diện nội bộ.",
-        },
-        {
-          type: "code",
-          title: "Ví dụ 4 · Chặn truy cập mà không lưu danh tính thô trong bảng khoá",
-          code: `GIÁ TRỊ DÙNG ĐỂ ĐỐI CHIẾU
-IP hoặc email đã chuẩn hoá
-
-                 ↓ HMAC-SHA256 + secret server
-
-SECURITY HASH
-9f3c...<chuỗi băm 64 ký tự>...a21d
-
-SECURITY BLOCK DATABASE
-subjectType + securityHash + thời hạn + mã vụ việc`,
-          text: "Bảng cưỡng chế bảo mật lưu HMAC có khoá thay vì IP, email hoặc số điện thoại nguyên văn. Server vẫn đối chiếu được lần truy cập sau bằng cách tạo lại HMAC. Nhà cung cấp hạ tầng mạng có thể có nhật ký IP riêng theo chính sách của họ.",
-        },
-        {
-          type: "code",
-          title: "Ví dụ 5 · QR JOY và phản hồi lỗi an toàn",
-          code: `QR JOY
-nội dung chuẩn + khoảng thời gian + secret server
-                 ↓ HMAC-SHA256
-token Base64URL không thể tự sửa thành token hợp lệ
-
-Nếu token bị sửa hoặc hết hạn
-                 ↓
-server trả về: KHÔNG HỢP LỆ
-
-Nếu server gặp lỗi nội bộ
-client nhận: { "error": "Đã xảy ra lỗi máy chủ." }
-client không nhận: stack trace, đường dẫn file, lỗi MongoDB`,
-          text: "Chữ ký JOY được kiểm tra bằng phép so sánh an toàn theo thời gian. Lớp phản hồi lỗi loại bỏ stack, detail và các chuỗi có dấu hiệu chứa đường dẫn hoặc lỗi trình điều khiển trước khi gửi về trình duyệt.",
+          type: "note",
+          tone: "warn",
+          title: "Khai đúng tuổi là điều kiện sử dụng",
+          text: "Hugo Studio không yêu cầu giấy tờ để xác minh tuổi, nhưng khai sai để vượt điều kiện là vi phạm điều kiện sử dụng. Khi phát hiện tài khoản dưới 14 tuổi, hệ thống sẽ ngừng phục vụ và xoá dữ liệu liên quan.",
         },
       ],
     },
@@ -374,7 +288,7 @@ client không nhận: stack trace, đường dẫn file, lỗi MongoDB`,
         {
           type: "list",
           items: [
-            "Khu vực thành viên dành cho người từ 13 tuổi trở lên; người dùng nhỏ tuổi nên có sự hướng dẫn của cha mẹ hoặc người giám hộ.",
+            "Khu vực thành viên bắt buộc từ đủ 14 tuổi; thành viên 14 đến dưới 18 tuổi cần sự biết và giám sát của cha mẹ hoặc người giám hộ (xem phần Điều kiện độ tuổi).",
             "Trang Bio là nội dung công khai. Chỉ đăng thông tin bạn chấp nhận để người khác nhìn thấy.",
             "Không tải lên mật khẩu, OTP, dữ liệu thẻ đầy đủ, giấy tờ tuỳ thân hoặc bí mật của người khác.",
             "Nếu Hugo Studio dừng hoạt động có kế hoạch, hệ thống sẽ cố gắng báo trước để thành viên sao lưu dữ liệu; dữ liệu không được bán lại như một tài sản người dùng.",
@@ -395,7 +309,7 @@ client không nhận: stack trace, đường dẫn file, lỗi MongoDB`,
   return (
     <DocsLayout
       eyebrow="Quyền riêng tư"
-      version="v10"
+      version="v11"
       title="Chính sách bảo mật"
       intro="Một bản giải thích dễ đọc về dữ liệu trong Hugo Studio, cách hệ thống bảo vệ dữ liệu và ranh giới với các dịch vụ bên thứ ba."
       updatedAt={UPDATED_AT}
