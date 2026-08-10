@@ -48,6 +48,54 @@ const donationCreateLimiter = rateLimit({
   message: { error: 'Bạn đã tạo quá nhiều yêu cầu ủng hộ. Vui lòng thử lại sau.' },
 });
 
+const VIETQR_BANK_APPS_CACHE_MS = 6 * 60 * 60 * 1000;
+const vietQrBankAppsCache = new Map();
+
+const getVietQrBankApps = async (platform) => {
+  const cached = vietQrBankAppsCache.get(platform);
+  if (cached && Date.now() - cached.fetchedAt < VIETQR_BANK_APPS_CACHE_MS) {
+    return cached.apps;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const response = await fetch(
+      `https://api.vietqr.io/v2/${platform}-app-deeplinks`,
+      { signal: controller.signal },
+    );
+    if (!response.ok) throw new Error(`VietQR responded with ${response.status}`);
+
+    const payload = await response.json();
+    if (!Array.isArray(payload?.apps)) throw new Error('Invalid VietQR bank app response');
+
+    const apps = payload.apps
+      .filter((app) => /^[a-z0-9-]{1,50}$/i.test(String(app?.appId || '')))
+      .map((app) => ({
+        appId: String(app.appId).slice(0, 50),
+        appName: String(app.appName).slice(0, 100),
+        bankName: String(app.bankName || app.appName).slice(0, 180),
+        autofill: app.autofill === 1 || app.autofill === true,
+        monthlyInstall: Number.isFinite(Number(app.monthlyInstall))
+          ? Number(app.monthlyInstall)
+          : 0,
+      }))
+      .sort((a, b) => Number(b.autofill) - Number(a.autofill)
+        || b.monthlyInstall - a.monthlyInstall
+        || a.appName.localeCompare(b.appName, 'vi'));
+
+    if (!apps.length) throw new Error('VietQR returned no bank apps');
+    vietQrBankAppsCache.set(platform, { apps, fetchedAt: Date.now() });
+    return apps;
+  } catch (error) {
+    if (cached?.apps?.length) return cached.apps;
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 const createCustomLinkId = () => crypto.randomBytes(12).toString('hex');
 
 const cleanPersonName = (value) => String(value || '')
@@ -345,6 +393,27 @@ router.get('/supporters', async (req, res) => {
   } catch (error) {
     console.error('Error fetching supporters:', error);
     res.status(500).json({ error: 'Lỗi server' });
+  }
+});
+
+// [Public] Current VietQR deeplink catalogue for the visitor's mobile OS.
+// The upstream response is normalized and cached so clients never need to
+// contact a third party just to render the payment page.
+router.get('/bank-apps', async (req, res) => {
+  const platform = req.query.platform === 'ios' ? 'ios'
+    : req.query.platform === 'android' ? 'android'
+      : null;
+  if (!platform) {
+    return res.status(400).json({ error: 'Nền tảng phải là android hoặc ios.' });
+  }
+
+  try {
+    const apps = await getVietQrBankApps(platform);
+    res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+    return res.json({ success: true, data: apps });
+  } catch (error) {
+    console.error('Error fetching VietQR bank apps:', error);
+    return res.status(502).json({ error: 'Chưa thể tải danh sách ứng dụng ngân hàng.' });
   }
 });
 

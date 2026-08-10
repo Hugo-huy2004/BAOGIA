@@ -6,15 +6,17 @@ import HugoLogo from "../components/HugoLogo";
 import { isAdminAuthenticated } from "../services/authSession";
 import { notify } from "../lib/notify";
 
-const BANKS = [
-  { name: "Vietcombank", code: "vcb", logo: "https://cdn.vietqr.io/img/VCB.png" },
-  { name: "MBBank", code: "mbbank", logo: "https://cdn.vietqr.io/img/MB.png" },
-  { name: "Techcombank", code: "tcb", logo: "https://cdn.vietqr.io/img/TCB.png" },
-  { name: "VietinBank", code: "vietinbank", logo: "https://cdn.vietqr.io/img/ICB.png" },
-  { name: "BIDV", code: "bidv", logo: "https://cdn.vietqr.io/img/BIDV.png" },
-  { name: "ACB", code: "acb", logo: "https://cdn.vietqr.io/img/ACB.png" },
-  { name: "VPBank", code: "vpbank", logo: "https://cdn.vietqr.io/img/VPB.png" },
-  { name: "TPBank", code: "tpbank", logo: "https://cdn.vietqr.io/img/TPB.png" },
+const FALLBACK_BANK_APPS = [
+  { appId: "mb", appName: "MB Bank", bankName: "Ngân hàng TMCP Quân đội", autofill: true },
+  { appId: "icb", appName: "VietinBank iPay", bankName: "Ngân hàng TMCP Công thương Việt Nam", autofill: true },
+  { appId: "bidv", appName: "BIDV SmartBanking", bankName: "Ngân hàng TMCP Đầu tư và Phát triển Việt Nam", autofill: true },
+  { appId: "ocb", appName: "OCB OMNI", bankName: "Ngân hàng TMCP Phương Đông", autofill: true },
+  { appId: "acb", appName: "ACB One", bankName: "Ngân hàng TMCP Á Châu", autofill: true },
+  { appId: "vcb", appName: "Vietcombank", bankName: "Ngân hàng TMCP Ngoại thương Việt Nam", autofill: false },
+  { appId: "tcb", appName: "Techcombank Mobile", bankName: "Ngân hàng TMCP Kỹ thương Việt Nam", autofill: false },
+  { appId: "vpb", appName: "VPBank NEO", bankName: "Ngân hàng TMCP Việt Nam Thịnh Vượng", autofill: false },
+  { appId: "vba", appName: "Agribank E-Mobile Banking", bankName: "Ngân hàng Nông nghiệp và Phát triển Nông thôn Việt Nam", autofill: false },
+  { appId: "tpb", appName: "TPBank Mobile", bankName: "Ngân hàng TMCP Tiên Phong", autofill: false },
 ];
 
 const TABS = [
@@ -29,6 +31,28 @@ const bankNames = {
   "970415": "VietinBank", "970418": "BIDV", "970416": "ACB",
   "970432": "VPBank", "970423": "TPBank", "970405": "Agribank",
 };
+
+const bankDeeplinkIds = {
+  "970436": "vcb", "970422": "mb", "970407": "tcb",
+  "970415": "icb", "970418": "bidv", "970416": "acb",
+  "970432": "vpb", "970423": "tpb", "970405": "vba",
+  "970448": "ocb", "970441": "vib", "970437": "hdb",
+  "970443": "shb", "970449": "lpb",
+};
+
+const getMobileBankPlatform = () => {
+  if (typeof navigator === "undefined") return null;
+  if (/Android/i.test(navigator.userAgent)) return "android";
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) return "ios";
+  return null;
+};
+
+const normalizeSearch = (value) => String(value || "")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .trim();
 
 function LoadingState() {
   return (
@@ -50,6 +74,10 @@ export default function PaymentGatewayPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  const [bankApps, setBankApps] = useState(FALLBACK_BANK_APPS);
+  const [bankAppsSource, setBankAppsSource] = useState("fallback");
+  const [bankSearch, setBankSearch] = useState("");
+  const mobileBankPlatform = useMemo(() => getMobileBankPlatform(), []);
 
   useEffect(() => {
     let alive = true;
@@ -84,6 +112,26 @@ export default function PaymentGatewayPage() {
     };
   }, [id]);
 
+  useEffect(() => {
+    if (!mobileBankPlatform) return undefined;
+
+    const controller = new AbortController();
+    dataApi.get("/api/payos/bank-apps", {
+      params: { platform: mobileBankPlatform },
+      signal: controller.signal,
+    }).then((response) => {
+      if (!response.data?.success || !Array.isArray(response.data.data) || !response.data.data.length) return;
+      setBankApps(response.data.data);
+      setBankAppsSource("vietqr");
+    }).catch((requestError) => {
+      if (requestError?.name !== "CanceledError" && requestError?.code !== "ERR_CANCELED") {
+        setBankAppsSource("fallback");
+      }
+    });
+
+    return () => controller.abort();
+  }, [mobileBankPlatform]);
+
   const fallbackQrUrl = useMemo(() => {
     if (!paymentInfo?.bin || !paymentInfo?.accountNumber) return "";
     const params = new URLSearchParams({
@@ -105,15 +153,30 @@ export default function PaymentGatewayPage() {
     }
   };
 
-  const openBank = (bankCode) => {
+  const visibleBankApps = useMemo(() => {
+    const query = normalizeSearch(bankSearch);
+    if (!query) return bankApps;
+    return bankApps.filter((bank) => normalizeSearch(`${bank.appName} ${bank.bankName}`).includes(query));
+  }, [bankApps, bankSearch]);
+
+  const openBank = (bank) => {
+    if (!mobileBankPlatform) {
+      setActiveTab("qr");
+      notify.info("Trên máy tính, bạn hãy quét VietQR bằng ứng dụng ngân hàng trên điện thoại nhé.");
+      return;
+    }
+    const beneficiaryBankId = bankDeeplinkIds[String(paymentInfo.bin)] || String(paymentInfo.bin);
     const query = new URLSearchParams({
-      app: bankCode,
-      ba: `${paymentInfo.accountNumber}@${paymentInfo.bin}`,
+      app: bank.appId,
+      ba: `${paymentInfo.accountNumber}@${beneficiaryBankId}`,
       am: String(paymentInfo.amount),
       tn: paymentInfo.reason,
       bn: paymentInfo.accountName || "",
+      url: `${window.location.origin}/pay/${id}`,
     });
-    window.location.assign(`https://dl.vietqr.io/pay?${query}`);
+    const deeplinkUrl = new URL("https://dl.vietqr.io/pay");
+    query.forEach((value, key) => deeplinkUrl.searchParams.set(key, value));
+    window.location.assign(deeplinkUrl.toString());
   };
 
   const downloadQr = () => {
@@ -229,14 +292,38 @@ export default function PaymentGatewayPage() {
               {activeTab === "bank" && (
                 <div>
                   <h2 className="text-base font-black">Mở ứng dụng ngân hàng</h2>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Trên điện thoại, chọn ngân hàng để mở ứng dụng với số tiền, tài khoản và nội dung đã điền sẵn.</p>
-                  <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {BANKS.map((bank) => (
-                      <button key={bank.code} type="button" onClick={() => openBank(bank.code)} className="flex min-h-16 items-center gap-2 rounded-2xl border border-border bg-background p-3 text-left text-xs font-bold transition-colors hover:bg-muted">
-                        <img src={bank.logo} alt="" className="size-8 rounded-lg object-contain" /><span>{bank.name}</span>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Chọn app ngân hàng trên điện thoại. Hệ thống gửi sẵn người nhận, số tiền và nội dung; app có nhãn “Tự điền” sẽ mở thẳng màn hình chuyển khoản đã điền sẵn.</p>
+
+                  {!mobileBankPlatform && (
+                    <button type="button" onClick={() => setActiveTab("qr")} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-xs font-bold text-background">
+                      <span className="material-symbols-outlined text-lg">qr_code_2</span>
+                      Dùng VietQR với mọi ngân hàng
+                    </button>
+                  )}
+
+                  {mobileBankPlatform && (
+                    <label className="mt-4 flex min-h-12 items-center gap-2 rounded-xl border border-border bg-background px-3">
+                      <span className="material-symbols-outlined text-lg text-muted-foreground">search</span>
+                      <span className="sr-only">Tìm ứng dụng ngân hàng</span>
+                      <input value={bankSearch} onChange={(event) => setBankSearch(event.target.value)} placeholder="Tìm tên ngân hàng…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+                    </label>
+                  )}
+
+                  <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {visibleBankApps.map((bank) => (
+                      <button key={bank.appId} type="button" onClick={() => openBank(bank)} className="flex min-h-[68px] items-center gap-3 rounded-2xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted">
+                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-foreground"><span className="material-symbols-outlined text-xl">account_balance</span></span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-xs font-black">{bank.appName}</span>
+                          <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{bank.bankName}</span>
+                        </span>
+                        {bank.autofill && <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[9px] font-black text-primary">Tự điền</span>}
                       </button>
                     ))}
                   </div>
+                  {!visibleBankApps.length && <p className="mt-4 text-center text-xs text-muted-foreground">Chưa tìm thấy app này. Bạn vẫn có thể dùng VietQR với ngân hàng của mình.</p>}
+                  {mobileBankPlatform && bankAppsSource === "fallback" && <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">Danh sách đầy đủ chưa tải được. Hãy dùng VietQR nếu app ngân hàng của bạn chưa xuất hiện.</p>}
+                  <button type="button" onClick={() => setActiveTab("qr")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">qr_code_2</span>Không thấy app? Dùng VietQR</button>
                 </div>
               )}
 

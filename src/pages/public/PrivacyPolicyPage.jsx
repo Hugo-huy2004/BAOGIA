@@ -1,439 +1,406 @@
-import { useData } from "../../context/DataContext";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import DocsLayout from "./DocsLayout";
 
-/**
- * Chính sách viết theo đúng những gì hệ thống thật sự làm — mỗi mục dữ liệu ở
- * đây đều đối chiếu được với một model trong server/models.
- *
- * Nguyên tắc khi sửa file này:
- *   1. Không nêu tên văn bản luật hay điều khoản cụ thể. Trích sai luật rủi ro
- *      hơn nhiều so với việc mô tả trung thực bằng lời thường.
- *   2. Không hứa tuyệt đối ("bảo mật 100%", "không bao giờ lộ"). Hứa quá là
- *      thứ đầu tiên bị đem ra đối chiếu khi có sự cố.
- *   3. Thêm tính năng có đụng dữ liệu người dùng thì cập nhật mục 3 và 5.
- */
 const UPDATED_AT = "10/08/2026";
+const CONTACT_EMAIL = "contact@hugowishpax.studio";
 
 export default function PrivacyPolicyPage() {
-  const { data } = useData();
-  const email = "contact@hugowishpax.studio";
-  const owner = data.profile.fullName || "Peter Hugo Wishpax Le";
-
   useHeadMeta({
-    title: "Chính sách bảo mật & điều khoản sử dụng | Hugo Studio",
-    description:
-      "Hugo Studio thu thập dữ liệu gì, dùng để làm gì, gửi cho ai, giữ bao lâu và bạn yêu cầu xoá bằng cách nào.",
-    keywords: "chính sách bảo mật, điều khoản sử dụng, dữ liệu cá nhân, Hugo Studio",
+    title: "Chính sách bảo mật | Hugo Studio",
+    description: "Cách Hugo Studio thu thập, sử dụng, bảo vệ và chia sẻ dữ liệu khi bạn dùng hệ thống.",
+    keywords: "chính sách bảo mật, dữ liệu cá nhân, bảo mật Hugo Studio, PayOS, JOY",
     canonicalUrl: "https://www.hugowishpax.studio/privacy-policy",
   });
 
   const sections = [
     {
-      id: "tom-tat",
-      title: "Tóm tắt trong một phút",
+      id: "tong-quan",
+      title: "Bạn cần biết gì",
       blocks: [
         {
           type: "list",
           items: [
-            "Không đăng nhập thì bạn chỉ là khách xem trang — hệ thống không tạo hồ sơ cho bạn.",
-            "Đăng nhập bằng Google. Hugo Studio nhận email, tên và ảnh đại diện từ Google, và không bao giờ thấy mật khẩu Google của bạn.",
-            "Dữ liệu bạn tự nhập (trang Bio, nhật ký giấc ngủ, trò chuyện với HugoPSY) được lưu để chính bạn dùng lại.",
-            "Nhật ký trò chuyện HugoPSY được mã hoá trước khi ghi xuống cơ sở dữ liệu.",
-            "Không bán, không cho thuê, không trao đổi dữ liệu cá nhân với bên quảng cáo.",
-            "Muốn xoá tài khoản và toàn bộ dữ liệu: gửi email, sẽ xử lý trong vòng 30 ngày.",
+            "Hugo Studio chỉ thu thập dữ liệu cần để tính năng bạn chọn hoạt động.",
+            "Không bán, cho thuê hoặc trao đổi dữ liệu cá nhân cho mạng quảng cáo.",
+            "Bạn có thể dùng trang công khai mà không tạo hồ sơ thành viên.",
+            "Dữ liệu do một dịch vụ bên thứ ba xử lý sẽ tuân theo chính sách của chính dịch vụ đó.",
+            "Bạn có thể sửa phần lớn dữ liệu ngay trong tài khoản và yêu cầu xoá dữ liệu do Hugo Studio lưu.",
           ],
         },
         {
           type: "note",
           tone: "info",
-          title: "Đây là trang cá nhân, không phải doanh nghiệp lớn",
-          text: "Hugo Studio do một người vận hành. Chính sách này viết bằng lời thường để bạn đọc hiểu ngay, không phải văn bản pháp lý do luật sư soạn.",
-        },
-      ],
-    },
-    {
-      id: "ai-van-hanh",
-      title: "Ai vận hành và liên hệ ở đâu",
-      blocks: [
-        { type: "p", text: `Hugo Studio là dự án cá nhân do ${owner} vận hành tại Việt Nam, gồm trang giới thiệu công khai và một khu vực thành viên cần đăng nhập.` },
-        {
-          type: "list",
-          items: [
-            `Email liên hệ và yêu cầu về dữ liệu: ${email}`,
-            "Zalo: dùng nút liên hệ ở chân trang.",
-            "Mọi yêu cầu liên quan đến dữ liệu cá nhân xin gửi bằng email để có dấu vết xử lý.",
-          ],
+          title: "Một nguyên tắc dễ nhớ",
+          text: "Không dùng tính năng nào thì Hugo Studio không cần thu thập dữ liệu riêng của tính năng đó. Quyền vị trí, thông báo và các tiện ích cá nhân đều có thể tắt.",
         },
       ],
     },
     {
       id: "du-lieu",
-      title: "Dữ liệu được thu thập",
+      title: "Hugo Studio lưu dữ liệu nào",
       blocks: [
-        { type: "p", text: "Danh sách dưới đây liệt kê theo tính năng. Tính năng nào bạn không dùng thì phần dữ liệu đó không tồn tại." },
+        { type: "p", text: "Dữ liệu thay đổi theo cách bạn sử dụng hệ thống. Bảng dưới đây là bản tóm tắt theo nhóm tính năng." },
         {
           type: "table",
-          head: ["Khi bạn dùng", "Dữ liệu được lưu"],
+          head: ["Nhóm", "Dữ liệu có thể được lưu", "Mục đích"],
           rows: [
-            ["Đăng nhập", "Email, tên hiển thị, ảnh đại diện do Google cung cấp; thời điểm đăng nhập gần nhất."],
-            ["Đăng nhập bằng vân tay / khuôn mặt", "Khoá công khai của thiết bị, tên thiết bị, bộ đếm chống phát lại. Vân tay và khuôn mặt nằm lại trong thiết bị của bạn, hệ thống không nhận được."],
-            ["Trang Bio", "Tên, mô tả, liên kết, ảnh, và vị trí (kinh độ/vĩ độ) nếu bạn bật tính năng thời tiết hoặc điểm danh theo vị trí."],
-            ["Ví JOY", "Lịch sử cộng/trừ điểm, lý do phát sinh, mã quà tặng."],
-            ["HugoPSY", "Nội dung trò chuyện (đã mã hoá), kết quả bài trắc nghiệm tâm trạng, ghi chú bạn tự viết."],
-            ["Nhật ký giấc ngủ", "Giờ ngủ, giờ dậy, chất lượng giấc ngủ, tâm trạng, và các yếu tố bạn tự khai như caffeine, vận động, mức căng thẳng."],
-            ["Arcade, cờ vua, HugoCoder", "Điểm số, xếp hạng, tiến độ bài học, ván cờ đã chơi."],
-            ["Thông báo đẩy", "Địa chỉ đăng ký thông báo của trình duyệt, khoá mã hoá kèm theo, ngôn ngữ, múi giờ, loại thiết bị."],
-            ["Đặt lịch, thanh toán", "Tên, cách liên hệ bạn cung cấp, nội dung yêu cầu, trạng thái đơn thanh toán."],
-            ["Ủng hộ Hugo Studio", "Tên, email nhận thư cảm ơn, số tiền, trạng thái giao dịch; tên đối soát ngân hàng chỉ được công khai khi bạn chủ động đồng ý."],
-            ["Chỉ cần mở trang", "Số đo tốc độ tải trang, loại thiết bị, đường dẫn trang, và nhật ký lỗi kỹ thuật khi có sự cố."],
+            ["Tài khoản", "Email, tên, ảnh đại diện từ Google; thời điểm đăng nhập; khoá công khai của thiết bị nếu dùng WebAuthn.", "Xác minh đúng tài khoản và giữ phiên đăng nhập."],
+            ["Hồ sơ và nội dung", "Bio, liên kết, ảnh, ghi chú, nhật ký giấc ngủ và nội dung bạn chủ động tạo.", "Hiển thị và đồng bộ nội dung cho chính bạn."],
+            ["HugoPSY và AI", "Câu hỏi, nội dung trò chuyện, bài tự đánh giá và phản hồi cần thiết để tạo câu trả lời.", "Vận hành công cụ trò chuyện và lưu lại khi bạn chọn sử dụng."],
+            ["JOY và hoạt động", "Số dư, lịch sử thay đổi JOY, điểm game, tiến độ học, ván cờ và thành tích.", "Cập nhật đúng trạng thái tài khoản và hạn chế gian lận."],
+            ["Đặt lịch và Donate", "Tên, email, nội dung yêu cầu, số tiền, mã giao dịch và trạng thái PayOS trả về.", "Xử lý yêu cầu, hiển thị trạng thái và gửi thư cảm ơn."],
+            ["Thiết bị và vận hành", "Loại thiết bị, đường dẫn, lỗi kỹ thuật, chỉ số tốc độ; địa chỉ mạng có thể được xử lý để chống lạm dụng.", "Giữ hệ thống ổn định và chặn truy cập gây hại."],
           ],
-        },
-        {
-          type: "note",
-          tone: "info",
-          title: "Không có gì trong danh sách này là bắt buộc",
-          text: "Bạn có thể dùng khu vực thành viên mà không bật vị trí, không bật thông báo, không dùng HugoPSY và không ghi nhật ký giấc ngủ.",
         },
         {
           type: "faq",
           items: [
             {
-              q: "Đăng nhập Google thì hệ thống thấy được gì trong tài khoản Google của tôi?",
-              a: "Chỉ ba thứ: email, tên hiển thị và ảnh đại diện. Không đọc được Gmail, Drive, Danh bạ, Lịch hay bất cứ dịch vụ nào khác của Google, và không bao giờ thấy mật khẩu Google của bạn.",
+              q: "Hugo Studio có thấy mật khẩu Google hoặc mật khẩu ngân hàng không?",
+              a: "Không. Đăng nhập Google được Google xác minh; đăng nhập ngân hàng và mã OTP diễn ra trong ứng dụng hoặc hệ thống của ngân hàng/PayOS, không đi qua biểu mẫu của Hugo Studio.",
             },
             {
-              q: "Vị trí được lưu chính xác đến mức nào?",
-              a: "Toạ độ do trình duyệt cung cấp, đủ để tra thời tiết khu vực và tính khoảng cách điểm danh. Chỉ lưu khi bạn chủ động bật tính năng cần tới nó, không theo dõi ngầm và không ghi lại lộ trình di chuyển.",
+              q: "Vân tay và khuôn mặt có được gửi lên server không?",
+              a: "Không. Thiết bị tự kiểm tra sinh trắc học. Server chỉ nhận kết quả xác thực và khoá công khai cần để nhận diện thiết bị.",
             },
             {
-              q: "Nội dung nào của tôi là công khai?",
-              a: "Trang Bio công khai với cả người chưa đăng nhập. Nhật ký giấc ngủ và trò chuyện HugoPSY chỉ mình bạn thấy.",
+              q: "Hugo Studio có quay lại màn hình hoặc thao tác gõ phím không?",
+              a: "Không. Hệ thống không dùng công cụ quay lại toàn bộ phiên truy cập.",
             },
-            {
-              q: "Có ghi lại thao tác chuột, gõ phím hay quay lại phiên duyệt web không?",
-              a: "Không. Phần đo đạc chỉ gồm tốc độ tải trang, loại thiết bị và đường dẫn trang — không có công cụ ghi hình phiên truy cập nào.",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "noi-luu",
-      title: "Dữ liệu nằm ở đâu",
-      blocks: [
-        {
-          type: "p",
-          text: "Hugo Studio không sở hữu máy chủ riêng. Toàn bộ hệ thống chạy trên hạ tầng thuê của các nhà cung cấp quốc tế, nghĩa là dữ liệu của bạn được lưu trên máy chủ đặt ngoài Việt Nam.",
-        },
-        {
-          type: "list",
-          items: [
-            "Cơ sở dữ liệu: MongoDB Atlas.",
-            "Máy chủ ứng dụng và trang web: Render, Vercel, Cloudflare.",
-            "Ảnh và tệp tải lên: Cloudinary.",
-          ],
-        },
-        {
-          type: "note",
-          tone: "info",
-          title: "Vì sao nói rõ điều này",
-          text: "Nếu việc dữ liệu cá nhân của bạn được lưu ở nước ngoài là điều bạn không chấp nhận, hãy cân nhắc trước khi tạo tài khoản. Nói trước vẫn hơn để bạn phát hiện sau.",
-        },
-      ],
-    },
-    {
-      id: "muc-dich",
-      title: "Dữ liệu được dùng làm gì",
-      blocks: [
-        {
-          type: "list",
-          items: [
-            "Cho bạn đăng nhập và giữ phiên làm việc.",
-            "Hiển thị lại chính nội dung bạn đã tạo, trên mọi thiết bị bạn đăng nhập.",
-            "Gợi ý nội dung trong khu vực thành viên dựa trên chủ đề bạn hay xem. Đây là gợi ý nội dung, không phải quảng cáo và không ghép đôi người dùng với nhau.",
-            "Xử lý đơn đặt lịch và đơn thanh toán bạn tạo.",
-            "Tìm và sửa lỗi kỹ thuật, theo dõi tốc độ trang.",
-            "Chặn lạm dụng, gian lận điểm JOY và các hành vi phá hoại.",
-          ],
-        },
-        { type: "p", text: "Dữ liệu không được dùng để bán quảng cáo, không dựng hồ sơ để bán cho bên thứ ba, và không dùng để chấm điểm hay đánh giá con người bạn." },
-      ],
-    },
-    {
-      id: "ben-thu-ba",
-      title: "Bên thứ ba tham gia xử lý",
-      blocks: [
-        { type: "p", text: "Hugo Studio không tự làm mọi thứ. Những dịch vụ sau có thể nhận một phần dữ liệu khi bạn dùng tính năng tương ứng:" },
-        {
-          type: "table",
-          head: ["Dịch vụ", "Nhận gì", "Khi nào"],
-          rows: [
-            ["Google", "Xác minh danh tính khi đăng nhập", "Lúc bạn bấm đăng nhập bằng Google"],
-            ["Google Maps / Places", "Toạ độ vùng bạn đang tìm", "Khi bạn dùng tab Khám phá"],
-            ["Google Gemini", "Nội dung câu hỏi bạn gửi cho trợ lý AI", "Khi bạn dùng tính năng có AI"],
-            ["PayOS", "Thông tin đơn thanh toán hoặc ủng hộ, gồm tên và email bạn cung cấp", "Khi bạn tạo giao dịch"],
-            ["Cloudinary", "Ảnh và tệp bạn tải lên", "Khi bạn tải tệp"],
-            ["MongoDB Atlas", "Toàn bộ cơ sở dữ liệu", "Luôn luôn — đây là nơi lưu dữ liệu"],
-            ["Render, Vercel, Cloudflare", "Yêu cầu truy cập và địa chỉ IP", "Mỗi lần bạn mở trang"],
-            ["Open-Meteo", "Toạ độ gần đúng để lấy thời tiết", "Khi bạn bật nền thời tiết"],
-          ],
-        },
-        {
-          type: "note",
-          tone: "warn",
-          title: "Điều Hugo Studio không kiểm soát được",
-          text: "Mỗi dịch vụ trên có chính sách riêng của họ. Khi dữ liệu đã sang phía họ, việc xử lý tuân theo chính sách của họ chứ không phải trang này.",
-        },
-      ],
-    },
-    {
-      id: "cookie",
-      title: "Cookie và dữ liệu lưu trên máy bạn",
-      blocks: [
-        {
-          type: "list",
-          items: [
-            "Cookie phiên đăng nhập: giữ cho bạn không phải đăng nhập lại. Cookie này trình duyệt không cho JavaScript đọc được.",
-            "Bộ nhớ cục bộ của trình duyệt: lưu tuỳ chọn giao diện, ngôn ngữ, và điểm arcade khi bạn chơi lúc mất mạng.",
-            "Bộ nhớ đệm của ứng dụng: giúp trang mở được khi không có mạng.",
-            "Không dùng cookie theo dõi quảng cáo và không nhúng pixel của mạng quảng cáo.",
-          ],
-        },
-        { type: "p", text: "Xoá dữ liệu trang trong trình duyệt sẽ xoá hết những thứ trên và đăng xuất bạn khỏi thiết bị đó." },
-      ],
-    },
-    {
-      id: "luu-tru",
-      title: "Giữ dữ liệu trong bao lâu",
-      blocks: [
-        {
-          type: "table",
-          head: ["Loại dữ liệu", "Thời hạn"],
-          rows: [
-            ["Nội dung bạn tạo (Bio, bài viết, nhật ký, JOY)", "Giữ đến khi bạn xoá hoặc yêu cầu xoá tài khoản"],
-            ["Số đo tốc độ trang và nhật ký lỗi", "Tự xoá sau 30 ngày"],
-            ["Giỏ hàng chưa hoàn tất", "Tự xoá sau 30 ngày"],
-            ["Thông báo trong ứng dụng", "Tự xoá sau 90 ngày"],
-            ["Hoá đơn, đơn thanh toán", "Giữ lâu hơn để đối soát, kể cả sau khi bạn xoá tài khoản"],
-            ["Đơn ủng hộ", "Giữ để đối soát và ngăn gửi trùng thư cảm ơn; email và tên ngân hàng không xuất hiện trong API công cộng"],
           ],
         },
       ],
     },
     {
       id: "bao-mat",
-      title: "Cách dữ liệu được bảo vệ",
+      title: "Cách Hugo Studio bảo vệ dữ liệu",
       blocks: [
+        { type: "security-flow" },
         {
           type: "list",
           items: [
-            "Toàn bộ kết nối đi qua HTTPS.",
-            "Thành viên không có mật khẩu lưu trên hệ thống — đăng nhập qua Google hoặc khoá thiết bị.",
-            "Phiên đăng nhập nằm trong cookie mà JavaScript không đọc được, giảm rủi ro bị đánh cắp phiên.",
-            "Nhật ký trò chuyện HugoPSY được mã hoá bằng AES-256-GCM trước khi ghi xuống cơ sở dữ liệu.",
-            "Mã QR ví JOY là chuỗi do máy chủ ký, phía trình duyệt không tự tạo được.",
-            "Mọi truy cập vào dữ liệu thành viên đều phải qua kiểm tra phiên đăng nhập ở máy chủ.",
+            "Kết nối giữa trình duyệt và hệ thống dùng HTTPS.",
+            "Google ID được kiểm tra tại server; hệ thống không tin vào email do trình duyệt tự khai báo.",
+            "Phiên thành viên ưu tiên cookie HttpOnly để mã đăng nhập không bị JavaScript trên trang đọc trực tiếp.",
+            "Mọi API thành viên đều kiểm tra danh tính và quyền ở server trước khi đọc hoặc thay đổi dữ liệu.",
+            "Trình duyệt không gọi thẳng máy chủ AI nội bộ; yêu cầu đi qua server Hugo Studio trước.",
+            "Trò chuyện HugoPSY được mã hoá trước khi ghi xuống cơ sở dữ liệu.",
+            "Mã QR JOY do server ký; trình duyệt không tự tạo số dư hay giao dịch hợp lệ.",
+            "Giới hạn tần suất, bộ lọc yêu cầu nguy hiểm và thông báo lỗi an toàn giúp giảm lạm dụng mà không làm lộ đường dẫn nội bộ.",
           ],
         },
         {
           type: "note",
           tone: "warn",
-          title: "Không hệ thống nào an toàn tuyệt đối",
-          text: "Những biện pháp trên giảm rủi ro chứ không loại bỏ được rủi ro. Đừng đăng lên đây thông tin mà bạn không chấp nhận được rủi ro nếu nó lộ ra: số căn cước, số thẻ ngân hàng, hồ sơ bệnh án.",
+          title: "Bảo mật là nhiều lớp, không phải lời hứa tuyệt đối",
+          text: "Hugo Studio giảm rủi ro bằng nhiều lớp kiểm tra nhưng không tuyên bố an toàn 100%. Đừng nhập mật khẩu, OTP, số thẻ đầy đủ, giấy tờ tuỳ thân hoặc hồ sơ y tế vào nội dung trò chuyện.",
         },
       ],
     },
     {
-      id: "quyen-cua-ban",
-      title: "Quyền của bạn và cách thực hiện",
+      id: "vi-du-bao-mat",
+      title: "Ví dụ kỹ thuật cụ thể",
       blocks: [
         {
-          type: "list",
-          items: [
-            "Xem lại dữ liệu của mình: phần lớn nằm ngay trong khu vực thành viên.",
-            "Sửa hoặc xoá từng phần: sửa trực tiếp trong ứng dụng.",
-            "Yêu cầu bản sao toàn bộ dữ liệu: gửi email.",
-            "Yêu cầu xoá tài khoản và toàn bộ dữ liệu: gửi email từ chính địa chỉ đã đăng nhập.",
-            "Rút lại đồng ý cho từng tính năng: tắt vị trí, tắt thông báo, ngừng dùng AI — không cần xoá tài khoản.",
-          ],
-        },
-        { type: "p", text: "Yêu cầu được xử lý trong vòng 30 ngày. Nếu không xác minh được bạn là chủ tài khoản, yêu cầu sẽ bị từ chối để tránh người khác mạo danh xoá dữ liệu của bạn." },
-        {
-          type: "table",
-          head: ["Yêu cầu", "Cần gửi gì", "Kết quả"],
-          rows: [
-            ["Xin bản sao dữ liệu", "Email từ địa chỉ đã đăng nhập, tiêu đề \"Yêu cầu bản sao dữ liệu\"", "Nhận lại một tệp chứa dữ liệu gắn với tài khoản của bạn"],
-            ["Sửa dữ liệu sai", "Nêu rõ mục nào sai và giá trị đúng", "Sửa trực tiếp trong cơ sở dữ liệu"],
-            ["Xoá một phần", "Nêu rõ phần muốn xoá, ví dụ toàn bộ nhật ký giấc ngủ", "Xoá phần đó, giữ nguyên tài khoản"],
-            ["Xoá toàn bộ tài khoản", "Email từ địa chỉ đã đăng nhập, ghi rõ muốn xoá vĩnh viễn", "Xoá tài khoản và dữ liệu gắn với nó, trừ hoá đơn phải giữ để đối soát"],
-          ],
-        },
-        {
           type: "note",
-          tone: "warn",
-          title: "Xoá là xoá thật, không khôi phục được",
-          text: "Sau khi xoá tài khoản, dữ liệu không lấy lại được. Nếu bạn muốn giữ lại nội dung mình đã tạo, hãy xin bản sao trước rồi mới yêu cầu xoá.",
+          tone: "info",
+          title: "Ví dụ đã được làm giả an toàn",
+          text: "Các chuỗi dưới đây chỉ minh hoạ cấu trúc xử lý. Không có API key, JWT, khoá mã hoá, địa chỉ server nội bộ hoặc dữ liệu người dùng thật được công bố.",
+        },
+        {
+          type: "code",
+          title: "Ví dụ 1 · Mã hoá nội dung trước khi lưu",
+          code: `DỮ LIỆU GỐC
+"Hôm nay mình cảm thấy hơi lo lắng"
+
+SERVER XỬ LÝ
+AES-256-GCM(
+  key = bí mật chỉ có trong môi trường server,
+  iv  = 12 byte ngẫu nhiên mới cho mỗi lần mã hoá
+)
+
+DỮ LIỆU TRONG DATABASE — DẠNG RÚT GỌN
+enc:gcm:<iv>:<authentication_tag>:<ciphertext>`,
+          text: "Authentication tag giúp phát hiện dữ liệu đã bị sửa. Chỉ cần ciphertext, IV hoặc tag bị thay đổi, quá trình giải mã sẽ thất bại. Vì IV được tạo mới, cùng một câu mã hoá hai lần cũng không tạo ra cùng một chuỗi lưu trữ.",
+        },
+        {
+          type: "steps",
+          items: [
+            "Server tạo khoá 256 bit từ secret môi trường bằng hàm dẫn xuất khoá scrypt; secret không được gửi xuống trình duyệt.",
+            "Server tạo IV ngẫu nhiên riêng cho từng giá trị rồi mã hoá bằng AES-256-GCM.",
+            "Database nhận ciphertext, IV và authentication tag thay cho câu gốc.",
+            "Khi đúng người dùng đọc lại dữ liệu, API xác minh phiên trước rồi server mới giải mã để trả kết quả.",
+          ],
+        },
+        { type: "p", text: "Cơ chế này hiện được dùng cho phần chữ trong lịch sử HugoPSY, số điện thoại Booking, thông tin xác minh Bio và một số thông tin liên hệ riêng tư. Không phải mọi trường đều được mã hoá giống nhau: email dùng để tìm tài khoản vẫn cần được bảo vệ bằng quyền truy cập và kiểm tra API." },
+        {
+          type: "code",
+          title: "Ví dụ 2 · API thành viên không tin email do trình duyệt khai báo",
+          code: `TRÌNH DUYỆT
+POST /api/joy/...
+Cookie: member_jwt=<cookie HttpOnly>
+Body: { email: "email-co-the-bi-sua@example.com", ... }
+
+                 ↓
+
+MIDDLEWARE requireMember
+1. Kiểm tra chữ ký JWT
+2. Kiểm tra thời hạn và vai trò member
+3. Lấy email từ JWT đã ký
+4. Gán req.memberEmail = <email đã xác minh>
+
+                 ↓
+
+ROUTE THÀNH VIÊN
+Chỉ đọc dữ liệu thuộc req.memberEmail`,
+          text: "Nếu ai đó sửa email trong DevTools, danh tính không đổi theo phần họ sửa. API dùng danh tính lấy từ token đã được server xác minh, không dùng email trong query hoặc body để quyết định chủ tài khoản.",
+        },
+        {
+          type: "code",
+          title: "Ví dụ 3 · API Hugo bảo vệ khoá AI",
+          code: `TRÌNH DUYỆT
+POST /api/ai/chat
+✓ Có phiên thành viên
+✕ Không có Gemini API key
+✕ Không có credential nội bộ
+
+                 ↓ HTTPS
+
+NODE API CỦA HUGO STUDIO
+✓ Xác minh thành viên
+✓ Kiểm tra nội dung và giới hạn sử dụng
+✓ Đổi email thành định danh HMAC một chiều
+✓ Gắn credential nội bộ ở phía server
+
+                 ↓ server-to-server
+
+PYTHON AI SERVER
+✓ Chỉ nhận yêu cầu có credential nội bộ hợp lệ
+✓ Gọi dịch vụ AI bằng khoá nằm trên server`,
+          text: "Người dùng không cần và không nhận khoá AI. Gọi thẳng Python AI server mà thiếu credential nội bộ sẽ bị từ chối. Định danh gửi qua luồng AI là HMAC của email thay vì email nguyên văn trong các trường nhận diện nội bộ.",
+        },
+        {
+          type: "code",
+          title: "Ví dụ 4 · Chặn truy cập mà không lưu danh tính thô trong bảng khoá",
+          code: `GIÁ TRỊ DÙNG ĐỂ ĐỐI CHIẾU
+IP hoặc email đã chuẩn hoá
+
+                 ↓ HMAC-SHA256 + secret server
+
+SECURITY HASH
+9f3c...<chuỗi băm 64 ký tự>...a21d
+
+SECURITY BLOCK DATABASE
+subjectType + securityHash + thời hạn + mã vụ việc`,
+          text: "Bảng cưỡng chế bảo mật lưu HMAC có khoá thay vì IP, email hoặc số điện thoại nguyên văn. Server vẫn đối chiếu được lần truy cập sau bằng cách tạo lại HMAC. Nhà cung cấp hạ tầng mạng có thể có nhật ký IP riêng theo chính sách của họ.",
+        },
+        {
+          type: "code",
+          title: "Ví dụ 5 · QR JOY và phản hồi lỗi an toàn",
+          code: `QR JOY
+nội dung chuẩn + khoảng thời gian + secret server
+                 ↓ HMAC-SHA256
+token Base64URL không thể tự sửa thành token hợp lệ
+
+Nếu token bị sửa hoặc hết hạn
+                 ↓
+server trả về: KHÔNG HỢP LỆ
+
+Nếu server gặp lỗi nội bộ
+client nhận: { "error": "Đã xảy ra lỗi máy chủ." }
+client không nhận: stack trace, đường dẫn file, lỗi MongoDB`,
+          text: "Chữ ký JOY được kiểm tra bằng phép so sánh an toàn theo thời gian. Lớp phản hồi lỗi loại bỏ stack, detail và các chuỗi có dấu hiệu chứa đường dẫn hoặc lỗi trình điều khiển trước khi gửi về trình duyệt.",
         },
       ],
     },
     {
-      id: "neu-dung",
-      title: "Nếu dự án dừng hoạt động",
+      id: "ben-thu-ba",
+      title: "Dịch vụ bên thứ ba chịu trách nhiệm phần nào",
       blocks: [
         {
           type: "p",
-          text: "Đây là dự án cá nhân, nên khả năng dừng là có thật và nói trước vẫn tốt hơn im lặng.",
+          text: "Hugo Studio dùng hạ tầng và API của các nhà cung cấp khác. Mỗi bên chỉ xuất hiện khi cần cho tính năng tương ứng và tự xử lý dữ liệu theo chính sách của họ.",
         },
         {
-          type: "list",
+          type: "table",
+          head: ["Bên cung cấp", "Vai trò", "Dữ liệu liên quan"],
+          rows: [
+            ["Google", "Đăng nhập, bản đồ và Gemini AI.", "Thông tin đăng nhập cơ bản, vị trí tìm kiếm hoặc nội dung gửi tới tính năng AI."],
+            ["PayOS, VietQR và ngân hàng", "Tạo mã thanh toán, mở app ngân hàng và xác nhận giao dịch.", "Thông tin đơn, số tiền, nội dung chuyển khoản và dữ liệu giao dịch do họ xử lý."],
+            ["MongoDB Atlas", "Cơ sở dữ liệu.", "Dữ liệu ứng dụng cần lưu lâu dài."],
+            ["Cloudinary", "Lưu ảnh và tệp tải lên.", "Tệp bạn chủ động gửi."],
+            ["Render, Vercel, Cloudflare", "Chạy website, API, bảo vệ và phân phối nội dung.", "Yêu cầu mạng, địa chỉ IP và nhật ký kỹ thuật."],
+            ["SendGrid và dịch vụ email", "Gửi thư xác minh, thông báo hoặc cảm ơn.", "Địa chỉ email và nội dung thư cần gửi."],
+            ["Open-Meteo", "Cung cấp thời tiết.", "Toạ độ gần đúng khi bạn bật tính năng liên quan."],
+          ],
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Ranh giới trách nhiệm",
+          text: "Hugo Studio quản lý phần dữ liệu nằm trong hệ thống Hugo Studio. Hồ sơ, nhật ký hoặc dữ liệu do nhà cung cấp tạo và giữ trên hệ thống của họ thuộc quy trình của nhà cung cấp đó. Hugo Studio không thể truy xuất, sửa hoặc xoá thay dữ liệu trong tài khoản bên thứ ba; bạn cần dùng kênh quyền riêng tư hoặc hỗ trợ chính thức của họ.",
+        },
+        {
+          type: "external-links",
           items: [
-            "Nếu dừng có kế hoạch, thành viên sẽ được báo trước ít nhất 30 ngày qua thông báo trong ứng dụng và email.",
-            "Trong thời gian đó bạn có thể xin bản sao dữ liệu của mình.",
-            "Sau khi dừng, cơ sở dữ liệu sẽ bị xoá thay vì chuyển nhượng cho bên khác.",
-            "Số JOY còn lại sẽ mất giá trị sử dụng và không quy đổi thành tiền.",
+            { label: "Chính sách bảo mật PayOS", href: "https://payos.vn/privacy-policy/" },
+            { label: "Thoả thuận sử dụng PayOS", href: "https://payos.vn/thoa-thuan-su-dung/" },
+            { label: "Chính sách quyền riêng tư Google", href: "https://policies.google.com/privacy" },
+            { label: "Chính sách quyền riêng tư Cloudflare", href: "https://www.cloudflare.com/privacypolicy/" },
           ],
         },
       ],
     },
     {
-      id: "tre-em",
-      title: "Người dùng nhỏ tuổi",
+      id: "hugopsy-ai",
+      title: "HugoPSY và tính năng AI",
       blocks: [
-        { type: "p", text: "Khu vực thành viên dành cho người từ 13 tuổi trở lên. Người dưới 16 tuổi nên dùng với sự đồng ý và giám sát của cha mẹ hoặc người giám hộ." },
-        { type: "p", text: "Nếu phát hiện tài khoản của trẻ dưới 13 tuổi, tài khoản đó sẽ bị xoá. Phụ huynh có thể yêu cầu xoá dữ liệu của con qua email." },
-      ],
-    },
-    {
-      id: "hugopsy",
-      title: "HugoPSY và nội dung sức khoẻ tinh thần",
-      blocks: [
+        {
+          type: "list",
+          items: [
+            "HugoPSY là công cụ trò chuyện và tự ghi chép, không phải bác sĩ hoặc dịch vụ chẩn đoán.",
+            "Chỉ nội dung cần cho câu trả lời được gửi tới dịch vụ AI khi bạn chủ động nhắn.",
+            "Hugo Studio không dùng cuộc trò chuyện của bạn để tự huấn luyện một mô hình AI riêng.",
+            "Bản lưu hội thoại HugoPSY trong cơ sở dữ liệu Hugo Studio được mã hoá.",
+            "Cách Google Gemini xử lý dữ liệu tại hạ tầng của Google tuân theo chính sách và điều khoản của Google.",
+          ],
+        },
         {
           type: "note",
           tone: "warn",
-          title: "Không phải dịch vụ y tế",
-          text: "HugoPSY là công cụ ghi chép và trò chuyện, không phải bác sĩ, không phải nhà trị liệu, không đưa ra chẩn đoán và không thay thế điều trị chuyên môn.",
-        },
-        {
-          type: "list",
-          items: [
-            "Kết quả các bài trắc nghiệm tâm trạng chỉ để bạn tự theo dõi, không phải kết luận y khoa.",
-            "Khi phát hiện dấu hiệu khủng hoảng, ứng dụng hiển thị số đường dây nóng hỗ trợ. Hãy gọi.",
-            "Trong tình huống nguy hiểm đến tính mạng, hãy gọi cấp cứu 115 hoặc tới cơ sở y tế gần nhất — đừng chờ ứng dụng.",
-            "Nội dung trò chuyện được mã hoá khi lưu và không dùng để huấn luyện mô hình AI.",
-          ],
+          title: "Khi cần giúp đỡ khẩn cấp",
+          text: "Đừng chờ phản hồi từ AI. Hãy liên hệ người bạn tin tưởng, cơ sở y tế gần nhất hoặc dịch vụ hỗ trợ khẩn cấp phù hợp với nơi bạn đang ở.",
         },
       ],
     },
     {
       id: "joy",
-      title: "Điểm JOY",
+      title: "JOY được ghi nhận ra sao",
       blocks: [
         {
           type: "list",
           items: [
-            "JOY là điểm thưởng trong ứng dụng, không phải tiền, không phải tiền mã hoá và không phải công cụ đầu tư.",
-            "JOY không quy đổi ra tiền mặt và không chuyển ra ngoài hệ thống.",
-            "JOY thu được từ gian lận, lỗi kỹ thuật hoặc thao túng sẽ bị thu hồi.",
-            "Nếu một tính năng dừng hoạt động, số JOY gắn với tính năng đó có thể mất giá trị sử dụng mà không được bồi hoàn bằng tiền.",
+            "JOY là điểm dùng bên trong Hugo Studio cho quà tặng, tiện ích và trải nghiệm thành viên.",
+            "Hệ thống lưu số dư, lý do cộng/trừ và lịch sử cần thiết để bạn xem lại giao dịch.",
+            "JOY không phải tiền mặt và không rút ra tài khoản ngân hàng. Điểm phát sinh từ lỗi hoặc hành vi gian lận có thể được điều chỉnh để trả số dư về đúng trạng thái.",
           ],
         },
       ],
     },
     {
       id: "donate",
-      title: "Chính sách Donate và ủng hộ tự nguyện",
+      title: "Donate được xử lý qua PayOS",
       blocks: [
         {
           type: "p",
-          text: "Donate là tính năng để Hugo Studio đón nhận sự ủng hộ tinh thần và tài chính hoàn toàn tự nguyện từ những người muốn đồng hành cùng dự án. Khoản ủng hộ giúp duy trì hạ tầng, thử nghiệm ý tưởng và phát triển các tiện ích cộng đồng; đây không phải giá mua sản phẩm, phí mở khoá chức năng, khoản đầu tư, khoản vay hay tiền đặt cọc cho một dịch vụ.",
+          text: "Donate là lựa chọn ủng hộ tự nguyện bằng VNĐ. Hugo Studio tạo yêu cầu qua API PayOS và hiển thị mã VietQR hoặc trạng thái mà PayOS trả về; Hugo Studio không xây một cổng thanh toán riêng.",
         },
         {
           type: "list",
           items: [
-            "Không có tính năng nào của Hugo Studio bắt buộc người dùng phải Donate. Việc ủng hộ hoặc không ủng hộ không làm thay đổi quyền truy cập, thứ tự xử lý Booking, báo giá hay chất lượng hỗ trợ.",
-            "Mọi khoản Donate được yêu cầu bằng VNĐ, tạo và đối soát qua API PayOS. Điều khoản, kiểm soát rủi ro, phí và chính sách quyền riêng tư của PayOS cũng được áp dụng cho phần giao dịch do đối tác này xử lý.",
-            "Hugo Studio không nhận hoặc lưu mật khẩu ngân hàng hay toàn bộ dữ liệu thẻ. Hệ thống chỉ lưu thông tin cần thiết để đối soát: tên, email nhận thư cảm ơn, số tiền VNĐ, mã giao dịch và trạng thái.",
-            "Sau khi giao dịch được đối tác thanh toán xác nhận, khoản Donate trở thành khoản tặng tự nguyện dành cho chủ sở hữu Hugo Studio là Peter Hugo Wishpax Lê. Người gửi không nhận cổ phần, lãi, quyền sở hữu, quyền biểu quyết hoặc cam kết cung cấp tính năng để đổi lại khoản tiền này.",
-            "Hugo Studio không phải quỹ từ thiện và không phát hành chứng từ khấu trừ thuế cho khoản Donate. Thư cảm ơn hoặc xác nhận giao dịch chỉ có mục đích ghi nhận và đối soát.",
-            "Khi tiếp tục Donate, người gửi được thông báo rằng tên đối soát do ngân hàng trả về sẽ tự động xuất hiện trong danh sách cảm ơn sau khi PayOS xác nhận thanh toán. Nếu ngân hàng không trả tên, hệ thống dùng tên đã nhập. Email, số tài khoản và thông tin định danh khác không được công khai; người gửi có thể liên hệ để yêu cầu ẩn tên.",
+            "Việc Donate không mở khoá tính năng và không ảnh hưởng tới Booking, báo giá hoặc quyền thành viên.",
+            "Thông tin đăng nhập ngân hàng, OTP và thao tác xác nhận nằm trong app ngân hàng hoặc hạ tầng thanh toán, không được Hugo Studio thu thập.",
+            "Quy trình thanh toán, bảo mật giao dịch, lưu trữ dữ liệu thanh toán và hỗ trợ phát sinh tại PayOS tuân theo chính sách cùng thoả thuận của PayOS.",
+            "Sau khi PayOS báo giao dịch thành công, tên người đồng hành do ngân hàng trả về hoặc tên đã nhập có thể xuất hiện trong danh sách cảm ơn. Email, số tài khoản và mã giao dịch không được đưa vào danh sách công khai.",
           ],
         },
         {
           type: "note",
-          tone: "warning",
-          title: "Nguyên tắc hoàn trả",
-          text: "Vì đây là khoản tặng tự nguyện, Hugo Studio không áp dụng chính sách hoàn trả theo yêu cầu đổi ý thông thường sau khi giao dịch hoàn tất. Tuy nhiên, hệ thống vẫn tiếp nhận và xem xét trường hợp chuyển trùng, sai số tiền do lỗi kỹ thuật, giao dịch không được chủ tài khoản cho phép, quyết định hoàn tiền hoặc đảo giao dịch của PayOS, và mọi trường hợp pháp luật hiện hành bắt buộc phải xử lý. Khoản hoàn trả hợp lệ chỉ được thực hiện qua phương thức thanh toán ban đầu hoặc quy trình chính thức của đối tác; không chuyển sang tài khoản của một bên thứ ba.",
+          tone: "info",
+          title: "Khi giao dịch gặp vấn đề",
+          text: "Vấn đề thuộc luồng thanh toán, ứng dụng ngân hàng hoặc dữ liệu PayOS cần được xử lý qua kênh hỗ trợ chính thức của PayOS/ngân hàng. Hugo Studio chỉ có thể hiển thị và đối chiếu trạng thái mà API trả về, không thể truy cập tài khoản ngân hàng của bạn.",
         },
         {
-          type: "note",
-          tone: "danger",
-          title: "Không chấp nhận rửa tiền hoặc sử dụng tiền bất hợp pháp",
-          text: "Nghiêm cấm lợi dụng Donate để rửa tiền, che giấu hoặc hợp thức hoá nguồn tiền, chuyển tiền hộ người không xác định, chia nhỏ giao dịch nhằm né kiểm soát, sử dụng tiền có nguồn gốc phạm pháp, thử thẻ hoặc tài khoản bị đánh cắp, lạm dụng hoàn tiền/chargeback, hay thực hiện bất kỳ hành vi nào vi phạm pháp luật. Người gửi xác nhận mình là chủ hợp pháp của phương thức thanh toán hoặc đã được chủ sở hữu cho phép sử dụng.",
-        },
-        {
-          type: "list",
+          type: "external-links",
           items: [
-            "Hugo Studio có thể từ chối ghi nhận, huỷ yêu cầu đang chờ, ẩn tên khỏi danh sách cảm ơn, lưu bằng chứng đối soát hoặc phối hợp với PayOS, ngân hàng và cơ quan có thẩm quyền khi giao dịch có dấu hiệu bất thường hoặc khi có yêu cầu hợp pháp.",
-            "Donate không phải dịch vụ đổi tiền. Hugo Studio không nhận yêu cầu rút tiền mặt, đổi sang JOY, chuyển tiếp đến người khác hoặc hoàn về một phương thức thanh toán khác.",
-            "Người gửi phải kiểm tra số tiền VNĐ, tài khoản nhận và nội dung chuyển khoản trên ứng dụng ngân hàng trước khi xác nhận.",
-            `Cần đối soát giao dịch: gửi email đến ${email} kèm mã giao dịch, số tiền và thời điểm thanh toán; không gửi mật khẩu, mã OTP hoặc toàn bộ số thẻ.`,
+            { label: "Đọc chính sách PayOS", href: "https://payos.vn/privacy-policy/" },
+            { label: "Mở tài liệu hỗ trợ PayOS", href: "https://payos.vn/docs/" },
           ],
         },
       ],
     },
     {
-      id: "thanh-toan",
-      title: "Thanh toán và hoàn tiền",
+      id: "cookie",
+      title: "Cookie và dữ liệu trên thiết bị",
       blocks: [
         {
           type: "list",
           items: [
-            "Mọi yêu cầu thanh toán và khoản ủng hộ đều sử dụng VNĐ, xử lý qua PayOS. Hugo Studio không lưu số thẻ hoặc mật khẩu ngân hàng của bạn.",
-            "Phạm vi công việc, giá và tiến độ được thống nhất bằng văn bản trước khi bắt đầu.",
-            "Khoản đặt cọc dùng để giữ lịch làm việc. Nếu bạn huỷ sau khi công việc đã bắt đầu, phần đã làm được tính theo thoả thuận ban đầu.",
-            "Khoản ủng hộ là tự nguyện, không mua hoặc mở khoá tính năng. Khoản đã hoàn tất nhìn chung không hoàn lại, trừ giao dịch trùng, lỗi kỹ thuật hoặc trường hợp pháp luật quy định khác.",
-            "Sau khi PayOS xác nhận khoản ủng hộ, tên đối soát từ ngân hàng sẽ tự động xuất hiện trong danh sách cảm ơn; nếu cần ẩn tên, người gửi có thể liên hệ Hugo Studio.",
+            "Cookie phiên giúp bạn duy trì đăng nhập; cookie thành viên được cấu hình để JavaScript trên trang không đọc trực tiếp.",
+            "Bộ nhớ trình duyệt giữ ngôn ngữ, giao diện và một số trạng thái dùng khi mất mạng.",
+            "Bộ nhớ đệm của PWA giúp trang tải nhanh hơn và mở được một số nội dung đã lưu khi không có mạng.",
+            "Hugo Studio không cài cookie quảng cáo hoặc pixel để bán hồ sơ hành vi.",
           ],
         },
-        { type: "p", text: "Có vướng mắc về một khoản thanh toán, hãy gửi email kèm mã đơn — xử lý bằng trao đổi trực tiếp luôn nhanh hơn mọi cách khác." },
+        { type: "p", text: "Bạn có thể xoá dữ liệu trang trong cài đặt trình duyệt. Thao tác này cũng đăng xuất thiết bị và xoá các tuỳ chọn cục bộ." },
+      ],
+    },
+    {
+      id: "luu-xoa",
+      title: "Thời gian lưu và quyền kiểm soát",
+      blocks: [
+        {
+          type: "table",
+          head: ["Dữ liệu Hugo Studio", "Thời gian dự kiến"],
+          rows: [
+            ["Tài khoản và nội dung bạn tạo", "Đến khi bạn xoá nội dung hoặc yêu cầu xoá tài khoản."],
+            ["Thông báo trong ứng dụng", "Tự xoá sau khoảng 90 ngày."],
+            ["Giỏ hàng hoặc trạng thái tạm chưa hoàn tất", "Tự xoá sau khoảng 30 ngày."],
+            ["Nhật ký lỗi và chỉ số kỹ thuật", "Chỉ giữ trong thời gian cần để tìm lỗi, thường không quá 30 ngày."],
+            ["Mã và trạng thái giao dịch", "Giữ trong thời gian cần để đối soát và tránh xử lý trùng."],
+          ],
+        },
+        {
+          type: "list",
+          items: [
+            "Sửa dữ liệu: dùng chức năng chỉnh sửa ngay trong tài khoản nếu có.",
+            "Tắt thu thập theo tính năng: thu hồi quyền vị trí, thông báo hoặc ngừng dùng tính năng đó.",
+            `Xoá dữ liệu Hugo Studio khi không có nút tự xoá: gửi yêu cầu từ email tài khoản tới ${CONTACT_EMAIL}.`,
+            "Dữ liệu thuộc Google, PayOS, ngân hàng hoặc nhà cung cấp khác: thực hiện yêu cầu trực tiếp theo chính sách của bên đó.",
+          ],
+        },
+        {
+          type: "note",
+          tone: "warn",
+          title: "Xác minh trước khi xoá",
+          text: "Hugo Studio cần xác nhận người yêu cầu là chủ tài khoản để tránh người khác mạo danh. Dữ liệu đã xoá vĩnh viễn có thể không khôi phục được.",
+        },
       ],
     },
     {
       id: "gioi-han",
-      title: "Giới hạn trách nhiệm",
+      title: "Giới hạn sử dụng an toàn",
       blocks: [
         {
           type: "list",
           items: [
-            "Các tính năng miễn phí được cung cấp ở trạng thái hiện có, có thể thay đổi hoặc dừng mà không báo trước.",
-            "Hugo Studio không cam kết hệ thống chạy liên tục không gián đoạn — đây là dự án cá nhân chạy trên hạ tầng miễn phí và có giới hạn.",
-            "Bạn tự chịu trách nhiệm về nội dung mình đăng lên, gồm cả việc nội dung đó có xâm phạm quyền của người khác hay không.",
-            "Nội dung vi phạm pháp luật hoặc xúc phạm người khác sẽ bị gỡ và tài khoản có thể bị khoá.",
-            "Các dấu kiểm tra ở chân trang là liên kết tới công cụ kiểm tra công khai và trang chính sách; không phải mục nào cũng là chứng nhận do bên thứ ba cấp.",
+            "Khu vực thành viên dành cho người từ 13 tuổi trở lên; người dùng nhỏ tuổi nên có sự hướng dẫn của cha mẹ hoặc người giám hộ.",
+            "Trang Bio là nội dung công khai. Chỉ đăng thông tin bạn chấp nhận để người khác nhìn thấy.",
+            "Không tải lên mật khẩu, OTP, dữ liệu thẻ đầy đủ, giấy tờ tuỳ thân hoặc bí mật của người khác.",
+            "Nếu Hugo Studio dừng hoạt động có kế hoạch, hệ thống sẽ cố gắng báo trước để thành viên sao lưu dữ liệu; dữ liệu không được bán lại như một tài sản người dùng.",
           ],
         },
       ],
     },
     {
-      id: "thay-doi",
-      title: "Khi chính sách thay đổi",
+      id: "cap-nhat",
+      title: "Cập nhật và liên hệ",
       blocks: [
-        { type: "p", text: "Chính sách sẽ được cập nhật khi hệ thống có tính năng mới đụng tới dữ liệu người dùng. Ngày cập nhật luôn hiển thị ở đầu trang này." },
-        { type: "p", text: "Với thay đổi lớn ảnh hưởng trực tiếp tới dữ liệu đã lưu, thành viên sẽ nhận thông báo trong ứng dụng trước khi thay đổi có hiệu lực." },
+        { type: "p", text: "Chính sách được cập nhật khi cách hệ thống thu thập hoặc xử lý dữ liệu thay đổi. Ngày cập nhật mới nhất luôn nằm ở đầu trang." },
+        { type: "p", text: `Nếu câu hỏi liên quan trực tiếp tới dữ liệu nằm trong Hugo Studio, bạn có thể liên hệ ${CONTACT_EMAIL}. Với dữ liệu do bên thứ ba giữ, hãy dùng kênh quyền riêng tư hoặc hỗ trợ của chính bên đó.` },
       ],
     },
   ];
 
   return (
     <DocsLayout
-      eyebrow="Chính sách"
-      version="v8"
-      title="Chính sách bảo mật & điều khoản sử dụng"
-      intro="Trang này nói rõ Hugo Studio thu thập dữ liệu gì, dùng để làm gì, gửi cho ai, giữ bao lâu, và bạn yêu cầu xoá bằng cách nào."
+      eyebrow="Quyền riêng tư"
+      version="v10"
+      title="Chính sách bảo mật"
+      intro="Một bản giải thích dễ đọc về dữ liệu trong Hugo Studio, cách hệ thống bảo vệ dữ liệu và ranh giới với các dịch vụ bên thứ ba."
       updatedAt={UPDATED_AT}
       sections={sections}
-      footerNote={`Có điểm nào chưa rõ hoặc bạn muốn yêu cầu xoá dữ liệu, gửi email tới ${email}. Đây là tài liệu do chủ trang tự soạn bằng lời thường, không phải văn bản tư vấn pháp lý.`}
+      footerNote="Bạn nên đọc chính sách của dịch vụ bên thứ ba trước khi dùng tính năng có kết nối tới dịch vụ đó. Hugo Studio chỉ trả lời và xử lý phần dữ liệu do chính hệ thống quản lý."
     />
   );
 }

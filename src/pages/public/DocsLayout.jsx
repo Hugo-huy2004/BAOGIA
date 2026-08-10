@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import SecurityFlowVideo from "../../components/privacy/SecurityFlowVideo";
 import GuideArt from "./guideArt";
 
 /**
@@ -13,6 +14,9 @@ import GuideArt from "./guideArt";
  *   { type: "table", head[], rows[][] }— bảng
  *   { type: "note", tone, title, text }— hộp lưu ý (tone: info | warn | danger)
  *   { type: "figure", art, caption }   — hình minh hoạ SVG (xem guideArt.jsx)
+ *   { type: "security-flow" }          — minh hoạ chuyển động luồng bảo mật
+ *   { type: "external-links", items[] }— liên kết chính sách bên thứ ba
+ *   { type: "code", title, code, text }— ví dụ kỹ thuật đã rút gọn
  *   { type: "faq", items[{q,a}] }      — hỏi nhanh đáp nhanh
  */
 export default function DocsLayout({ eyebrow, version, title, intro, updatedAt, sections, footerNote }) {
@@ -114,7 +118,7 @@ export default function DocsLayout({ eyebrow, version, title, intro, updatedAt, 
           )}
 
           <div className="mt-6 flex flex-wrap gap-4 text-sm">
-            <Link to="/privacy-policy" className="font-semibold text-primary hover:underline">Chính sách &amp; điều khoản</Link>
+            <Link to="/privacy-policy" className="font-semibold text-primary hover:underline">Chính sách bảo mật</Link>
             <Link to="/user-guide" className="font-semibold text-primary hover:underline">Hướng dẫn sử dụng</Link>
             <Link to="/faq" className="font-semibold text-primary hover:underline">Hỏi đáp</Link>
           </div>
@@ -125,6 +129,38 @@ export default function DocsLayout({ eyebrow, version, title, intro, updatedAt, 
 }
 
 function Block({ block }) {
+  if (block.type === "security-flow") {
+    return <SecurityFlowVideo />;
+  }
+
+  if (block.type === "external-links") {
+    return (
+      <div className="grid gap-2 sm:grid-cols-2">
+        {block.items.map((item) => (
+          <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-muted">
+            <span>{item.label}</span>
+            <span className="material-symbols-outlined text-lg text-muted-foreground" aria-hidden="true">open_in_new</span>
+          </a>
+        ))}
+      </div>
+    );
+  }
+
+  if (block.type === "code") {
+    return (
+      <div className="overflow-hidden rounded-xl border border-border bg-[#111218] text-white">
+        {block.title && (
+          <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 text-xs font-bold text-white/80">
+            <span className="material-symbols-outlined text-base" aria-hidden="true">code</span>
+            {block.title}
+          </div>
+        )}
+        <pre className="overflow-x-auto whitespace-pre-wrap break-words px-4 py-4 font-mono text-[11px] leading-6 text-white/85 sm:text-xs"><code>{block.code}</code></pre>
+        {block.text && <p className="border-t border-white/10 px-4 py-3 text-xs leading-relaxed text-white/60">{block.text}</p>}
+      </div>
+    );
+  }
+
   if (block.type === "p") {
     return <p className="text-base leading-relaxed text-muted-foreground">{block.text}</p>;
   }
