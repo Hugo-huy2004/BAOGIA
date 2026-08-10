@@ -1,6 +1,6 @@
 import express from 'express';
 import SleepLog from '../models/SleepLog.js';
-import { requireMember } from '../middleware/authMiddleware.js';
+import { requireMember, requireAdultMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
 const AI_SERVER_URL = process.env.AI_SERVER_URL || 'http://localhost:8000';
 
 // POST /api/sleep/analyze — proxy to the Python sleep analyzer (auth: member token)
-router.post('/analyze', requireMember, async (req, res) => {
+router.post('/analyze', requireAdultMember, async (req, res) => {
   try {
     const upstream = await fetch(`${AI_SERVER_URL}/api/sleep/analyze`, {
       method: 'POST',

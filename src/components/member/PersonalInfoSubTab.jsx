@@ -38,6 +38,46 @@ function VerifiedRow({ icon, label, value, lockLabel }) {
   );
 }
 
+// Tháng/năm sinh quyết định quyền dùng các tính năng 18+, nên khai một lần là
+// khoá luôn — sửa được thì cổng độ tuổi chỉ còn là hình thức. Không hỏi ngày
+// sinh vì việc chặn chỉ cần tới tháng.
+function BirthGateRow({ formData, onChange }) {
+  const locked = Boolean(formData.birthYear);
+  const thisYear = new Date().getFullYear();
+
+  if (locked) {
+    return (
+      <VerifiedRow
+        icon="calendar_month"
+        label="Tháng/năm sinh"
+        value={`${String(formData.birthMonth || 1).padStart(2, "0")}/${formData.birthYear}`}
+        lockLabel="Chỉ khai một lần. Cần sửa thì liên hệ quản trị viên."
+      />
+    );
+  }
+
+  return (
+    <div className="apple-account-row">
+      <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">calendar_month</span>
+      <span className="apple-account-row-label">Tháng/năm sinh</span>
+      <span className="flex min-w-0 flex-1 gap-2">
+        <select className={FIELD_CLASS} name="birthMonth" value={formData.birthMonth || ""} onChange={onChange} aria-label="Tháng sinh">
+          <option value="">Tháng</option>
+          {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
+            <option key={month} value={month}>Tháng {month}</option>
+          ))}
+        </select>
+        <select className={FIELD_CLASS} name="birthYear" value={formData.birthYear || ""} onChange={onChange} aria-label="Năm sinh">
+          <option value="">Năm</option>
+          {Array.from({ length: 80 }, (_, index) => thisYear - 14 - index).map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+      </span>
+    </div>
+  );
+}
+
 function AccountGroup({ title, description, children }) {
   return (
     <section className="space-y-2.5">
@@ -177,6 +217,7 @@ export default function PersonalInfoSubTab({
           onChange={handleFieldChange}
           placeholder={t("memberPortal.bio.placeholderBirthday")}
         />
+        <BirthGateRow formData={formData} onChange={handleFieldChange} />
         <label className="apple-account-row apple-account-row--textarea">
           <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">notes</span>
           <span className="apple-account-row-label">{t("memberPortal.account.about")}</span>

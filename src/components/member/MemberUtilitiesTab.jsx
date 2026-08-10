@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { isMinorMember } from "../../lib/memberAge";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import SubUtilityHeader from "./SubUtilityHeader";
@@ -81,8 +82,13 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
+      {/* HugoPSY chỉ dành cho thành viên từ 18 tuổi */}
+      {selectedUtility === "psychology" && isMinorMember(bio) && (
+        <AdultOnlyNotice onBack={() => onSelectUtility(null)} />
+      )}
+
       {/* Psychology Advisor Tool - HugoPSY */}
-      {selectedUtility === "psychology" && (
+      {selectedUtility === "psychology" && !isMinorMember(bio) && (
         <BanhocduongTab
           onBack={() => onSelectUtility(null)}
           activeSubTab={psychologySubTab}
@@ -175,6 +181,29 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
       </Suspense>
 
+    </div>
+  );
+}
+
+// Vào thẳng bằng URL /member/utilities/psychology thì vẫn gặp màn này; API phía
+// sau cũng đã khoá nên đây chỉ là phần giải thích cho người dùng.
+function AdultOnlyNotice({ onBack }) {
+  return (
+    <div className="mx-auto max-w-md px-4 py-14 text-center">
+      <span className="material-symbols-outlined text-[56px] text-muted-foreground" aria-hidden="true">shield_person</span>
+      <p className="mt-4 text-lg font-black text-foreground">HugoPSY dành cho thành viên từ 18 tuổi</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Nội dung sức khoẻ tinh thần cần người trưởng thành tự chịu trách nhiệm với lựa chọn của mình.
+        Nếu bạn đang cần giúp đỡ, hãy nói với cha mẹ, người giám hộ, thầy cô hoặc gọi tổng đài
+        bảo vệ trẻ em <a href="tel:111" className="font-bold text-foreground underline">111</a> (miễn phí, 24/7).
+      </p>
+      <button
+        type="button"
+        onClick={onBack}
+        className="mt-6 min-h-11 rounded-full border border-border px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+      >
+        Quay lại
+      </button>
     </div>
   );
 }

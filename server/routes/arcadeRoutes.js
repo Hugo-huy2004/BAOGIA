@@ -3,6 +3,7 @@ import ArcadeScore from '../models/ArcadeScore.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import { minorEmailSet } from '../utils/memberAge.js';
 import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
@@ -298,6 +299,15 @@ router.get('/leaderboard', async (req, res) => {
       ]).filter(Boolean)
     );
 
+    // Bảng xếp hạng là trang công khai: thành viên dưới 18 hiện dưới dạng tên
+    // rút gọn và không kèm email, để không ai lần ra tài khoản thật của trẻ.
+    const minors = await minorEmailSet(leaderboardEmails);
+    const shortName = (name) => {
+      const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if (parts.length < 2) return parts[0] || 'Thành viên';
+      return `${parts.slice(0, -1).join(' ')} ${parts.at(-1)[0]}.`;
+    };
+
     const finalList = agg
       .filter(item => {
         const normKey = cleanDisplayName(item.displayName || item.email).toLowerCase().trim();
@@ -305,13 +315,18 @@ router.get('/leaderboard', async (req, res) => {
         // Exclude deleted accounts that are no longer in Bio
         return validBioKeys.size === 0 || validBioKeys.has(normEmail) || validBioKeys.has(normKey);
       })
-      .map(item => ({
-        email: item.email || item._id,
-        displayName: cleanDisplayName(item.displayName || item.email),
-        avatarUrl: item.avatarUrl || '',
-        bestScore: Number(item.bestScore) || 0,
-        gamesPlayed: Number(item.gamesPlayed) || 1
-      }))
+      .map(item => {
+        const email = String(item.email || item._id || '').toLowerCase();
+        const minor = minors.has(email);
+        const name = cleanDisplayName(item.displayName || item.email);
+        return {
+          email: minor ? '' : (item.email || item._id),
+          displayName: minor ? shortName(name) : name,
+          avatarUrl: item.avatarUrl || '',
+          bestScore: Number(item.bestScore) || 0,
+          gamesPlayed: Number(item.gamesPlayed) || 1
+        };
+      })
       .slice(0, cap);
 
     res.json({ leaderboard: finalList });

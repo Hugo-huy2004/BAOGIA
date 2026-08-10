@@ -29,24 +29,26 @@ export default function BioPublicPage() {
 
   const [isOnline, setIsOnline] = useState(false);
   useEffect(() => {
-    if (!bio?.email) return;
+    // Hỏi theo slug: trang công khai không còn cầm email của chủ Bio nữa.
+    if (!slug || !bio) return;
 
     const pollStatus = () => {
-      fetch(`${apiBase}/presence/status?email=${encodeURIComponent(bio.email)}`)
+      fetch(`${apiBase}/presence/status-by-slug?slug=${encodeURIComponent(slug)}`)
         .then(r => r.json())
-        .then(data => setIsOnline(!!data[bio.email]))
+        .then(data => setIsOnline(!!data.online))
         .catch(() => {});
     };
 
     pollStatus();
     const interval = setInterval(pollStatus, 15000);
     return () => clearInterval(interval);
-  }, [bio?.email]);
+  }, [slug, bio]);
 
   // Initialize theme values early
   const template = useMemo(() => bio?.theme?.template || "default", [bio]);
   const canonicalUrl = `https://www.hugowishpax.studio/bio/${encodeURIComponent(slug || "")}`;
-  const unavailable = Boolean(error || bio?.status === "locked" || bio?.status === "pending");
+  // Trang Bio của thành viên dưới 18 không được đưa lên công cụ tìm kiếm.
+  const unavailable = Boolean(error || bio?.status === "locked" || bio?.status === "pending" || bio?.isMinor);
 
   // SEO Meta Tags - Dynamic based on bio data
   useHeadMeta({

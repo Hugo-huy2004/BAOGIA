@@ -4,12 +4,14 @@ import JoyLedger from '../models/JoyLedger.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import { ownExchangeItems } from '../utils/appPlanService.js';
 import UtilityProduct from '../models/UtilityProduct.js';
 import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
+import { randomInt } from 'node:crypto';
 import NodeCache from 'node-cache';
 
 const idempotencyCache = new NodeCache({ stdTTL: 300 });
@@ -1071,15 +1073,86 @@ router.post('/subscribe-bio-theme', requireMember, async (req, res) => {
   }
 });
 
+// ─── Vòng quay tháng sinh nhật ───────────────────────────────────────────────
+// Mỗi thành viên một lượt mỗi năm, chỉ trong tháng sinh của mình. Phần thưởng
+// do server bốc, client chỉ nhận kết quả rồi quay hình cho khớp — nếu để client
+// tự bốc thì sửa vài dòng trong DevTools là ra 10.000 JOY.
+const BIRTHDAY_PRIZES = [10, 50, 100, 500, 1000, 5000, 10000];
+
+// GET /api/joy/birthday-spin — còn lượt quay không, và danh sách ô để vẽ vòng.
+router.get('/birthday-spin', requireMember, async (req, res) => {
+  try {
+    const bio = await Bio.findOne({ email: req.memberEmail }, 'birthMonth birthdaySpinYear birthdaySpinPrize displayName').lean();
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
+    const now = new Date();
+    const isBirthMonth = Number(bio.birthMonth) === now.getMonth() + 1;
+    const spunThisYear = Number(bio.birthdaySpinYear) === now.getFullYear();
+    res.json({
+      prizes: BIRTHDAY_PRIZES,
+      isBirthMonth,
+      available: isBirthMonth && !spunThisYear,
+      spunThisYear,
+      lastPrize: spunThisYear ? Number(bio.birthdaySpinPrize) || 0 : 0,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/birthday-spin — bốc thưởng và cộng JOY.
+router.post('/birthday-spin', requireMember, async (req, res) => {
+  try {
+    const bio = await Bio.findOne({ email: req.memberEmail });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
+
+    const now = new Date();
+    if (Number(bio.birthMonth) !== now.getMonth() + 1) {
+      return res.status(403).json({ error: 'Vòng quay chỉ mở trong tháng sinh nhật của bạn.' });
+    }
+
+    // Chốt lượt TRƯỚC khi cộng JOY: hai request bấm cùng lúc thì chỉ một cái
+    // đổi được birthdaySpinYear, cái còn lại không khớp điều kiện nên trượt.
+    const claimed = await Bio.findOneAndUpdate(
+      { _id: bio._id, birthdaySpinYear: { $ne: now.getFullYear() } },
+      { $set: { birthdaySpinYear: now.getFullYear() } },
+      { new: true },
+    );
+    if (!claimed) {
+      return res.status(409).json({ error: 'Bạn đã dùng lượt quay của năm nay rồi.' });
+    }
+
+    // randomInt của crypto: phân phối đều thật sự, không lệch như Math.random()
+    // nhân rồi làm tròn. Bảy ô cùng xác suất — không ô nào bị "gài".
+    const index = randomInt(BIRTHDAY_PRIZES.length);
+    const prize = BIRTHDAY_PRIZES[index];
+
+    try {
+      await awardJoy(req.memberEmail, prize, 'birthday_spin', `Quà tháng sinh nhật ${now.getMonth() + 1}/${now.getFullYear()}`);
+    } catch (awardError) {
+      // Cộng JOY hỏng thì trả lại lượt quay, đừng để mất trắng.
+      await Bio.updateOne({ _id: bio._id }, { $set: { birthdaySpinYear: Number(bio.birthdaySpinYear) || 0 } });
+      throw awardError;
+    }
+    await Bio.updateOne({ _id: bio._id }, { $set: { birthdaySpinPrize: prize } });
+
+    res.json({ success: true, prize, index, prizes: BIRTHDAY_PRIZES });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/joy/resolve-phone?phone= — lookup before sending, MoMo-style confirm.
 // Never returns email (privacy) — only what's needed to show "Gửi tới: <name>".
-router.get('/resolve-phone', async (req, res) => {
+// Tra người nhận bằng số điện thoại. Phải đăng nhập (trước đây mở cho cả
+// người lạ), và tài khoản dưới 18 không xuất hiện: bạn bè muốn tặng JOY thì
+// quét QR/NFC trực tiếp, không dò được bằng số điện thoại.
+router.get('/resolve-phone', requireMember, async (req, res) => {
   try {
     const { phone } = req.query;
     if (!phone) return res.status(400).json({ error: 'Số điện thoại là bắt buộc.' });
 
     const bio = await Bio.findOne({ phone: String(phone).trim() });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng với số điện thoại này.' });
+    if (!bio || isMinorAge(bioAge(bio))) return res.status(404).json({ error: 'Không tìm thấy người dùng với số điện thoại này.' });
 
     res.json({ displayName: bio.displayName || 'Người dùng Hugo Studio', avatar: bio.avatarUrl || '', slug: bio.slug || '' });
   } catch (error) {
@@ -1089,7 +1162,7 @@ router.get('/resolve-phone', async (req, res) => {
 
 // GET /api/joy/search-user?q=&email= — MoMo-style smart search by any field.
 // Returns limited public info only (no email exposed).
-router.get('/search-user', async (req, res) => {
+router.get('/search-user', requireMember, async (req, res) => {
   try {
     const { q, email } = req.query;
     if (!q || !q.trim()) return res.json([]);
@@ -1104,11 +1177,11 @@ router.get('/search-user', async (req, res) => {
         { contactEmail: regex }
       ]
     })
-      .select('displayName avatarUrl referralCode phone slug')
-      .limit(6)
+      .select('displayName avatarUrl referralCode phone slug birthYear birthMonth')
+      .limit(12)
       .lean();
 
-    res.json(results.map(b => ({
+    res.json(results.filter(b => !isMinorAge(bioAge(b))).slice(0, 6).map(b => ({
       displayName: b.displayName || 'Người dùng',
       avatarUrl: b.avatarUrl || '',
       referralCode: b.referralCode || '',

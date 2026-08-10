@@ -35,6 +35,22 @@ router.get('/status', async (req, res) => {
   }
 });
 
+// GET /api/presence/status-by-slug?slug=abc — chấm "đang online" cho trang Bio
+// công khai. Trang đó không còn nhận email của chủ Bio nữa, nên phải tra bằng
+// slug ở server thay vì để client cầm email đi hỏi.
+router.get('/status-by-slug', async (req, res) => {
+  try {
+    const slug = String(req.query.slug || '').trim();
+    if (!slug) return res.status(400).json({ error: 'slug is required' });
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findOne({ slug }, 'email').lean();
+    if (!bio?.email) return res.json({ online: false });
+    res.json({ online: await isOnline(bio.email) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET /api/presence/dau?date=YYYY-MM-DD  (admin analytics — distinct active members that day)
 router.get('/dau', requireAdmin, async (req, res) => {
   try {

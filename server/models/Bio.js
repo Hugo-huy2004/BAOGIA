@@ -31,6 +31,32 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    // Ngày/tháng/năm sinh dùng cho cổng độ tuổi (xem utils/memberAge.js) và
+    // vòng quay tháng sinh nhật. Tách riêng khỏi `birthday` vì trường đó là
+    // chuỗi tự do người dùng tự gõ và đang được mã hoá — không truy vấn hay
+    // so sánh được.
+    birthYear: {
+      type: Number,
+      default: 0
+    },
+    birthMonth: {
+      type: Number,
+      default: 0
+    },
+    birthDay: {
+      type: Number,
+      default: 0
+    },
+    // Vòng quay tháng sinh nhật: mỗi năm đúng một lượt. Năm đã quay nằm ở đây
+    // nên client có làm gì cũng không quay lại được lượt thứ hai.
+    birthdaySpinYear: {
+      type: Number,
+      default: 0
+    },
+    birthdaySpinPrize: {
+      type: Number,
+      default: 0
+    },
     phone: {
       type: String,
       default: ''

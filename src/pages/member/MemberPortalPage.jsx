@@ -36,6 +36,7 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
   return {
     email: b.email||"", displayName: b.displayName||fallbackDisplayName||"", headline: b.headline||"",
     bio: b.bio||"", birthday: b.birthday||"", phone: b.phone||"", hobbies: b.hobbies||"",
+    birthYear: b.birthYear||0, birthMonth: b.birthMonth||0,
     height: b.height||"", weight: b.weight||"", measurements: b.measurements||"",
     address: b.address||"", education: b.education||"", skills: b.skills||"",
     jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
@@ -123,6 +124,7 @@ const MemberTodayTab     = React.lazy(() => import("../../components/member/Memb
 const TodayArticleReader = React.lazy(() => import("../../components/member/TodayArticleReader"));
 const ParticleConnectModal = React.lazy(() => import("../../components/member/shared/ParticleConnectModal"));
 const BirthdaySurprise   = React.lazy(() => import("../../components/member/BirthdaySurprise"));
+const BirthdayWheel      = React.lazy(() => import("../../components/member/BirthdayWheel"));
 const PWAPermissionOnboarding = React.lazy(() => import("../../components/permissions/PWAPermissionOnboarding"));
 
 function MemberPortalPage() {
@@ -138,6 +140,8 @@ function MemberPortalPage() {
   const [loading, setLoading] = useState(() => !cachedBioRef.current);
   const [saving, setSaving]   = useState(false);
   const [showBirthdaySurprise, setShowBirthdaySurprise] = useState(false);
+  const [birthdayMode, setBirthdayMode] = useState("day");
+  const [showBirthdayWheel, setShowBirthdayWheel] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [particleOpen, setParticleOpen] = useState(false);
   // Ví JOY mở modal này ở ba chế độ khác nhau (gửi / mã của tôi / quét).
@@ -385,21 +389,30 @@ function MemberPortalPage() {
           // Defer balance/referral-code fetch until onboarding (phone capture) is done —
           // GET /api/joy/balance eagerly calls ensureReferralCode, and we want phone
           // saved first so the generated code is phone-derived, not random.
-          if (b.onboardingCompleted) hydrateWallet(memberSession.email, bootstrapData.wallet);
+          // Thiếu ngày sinh thì buộc khai ngay: cổng độ tuổi đứng trên dữ liệu này.
+          if (b.onboardingCompleted && b.birthYear) hydrateWallet(memberSession.email, bootstrapData.wallet);
           else setShowOnboarding(true);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
             sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
             b.verificationRequest.notifiedStatus = 'done';
           }
-          if (b.birthday) {
-            const parts = b.birthday.trim().split(/[-/]/);
-            let day = parseInt(parts[0], 10), month = parseInt(parts[1], 10);
-            if (parts[0].length === 4) { day = parseInt(parts[2], 10); month = parseInt(parts[1], 10); }
+          // Sinh nhật: đúng ngày thì chúc mừng sinh nhật, còn lại trong tháng
+          // sinh thì chúc mừng tháng sinh nhật ở lượt đầu tiên của tháng. Đóng
+          // lời chúc là mở vòng quay quà (server tự từ chối nếu hết lượt).
+          if (b.birthMonth) {
             const now = new Date();
-            if (day === now.getDate() && month === now.getMonth()+1) {
-              const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-              if (localStorage.getItem("bday_effect_shown") !== todayStr) { setShowBirthdaySurprise(true); localStorage.setItem("bday_effect_shown", todayStr); }
+            const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const isBirthMonth = Number(b.birthMonth) === now.getMonth() + 1;
+            const isBirthDay = isBirthMonth && Number(b.birthDay) === now.getDate();
+            if (isBirthDay && localStorage.getItem("bday_effect_shown") !== `${monthKey}-${now.getDate()}`) {
+              setBirthdayMode("day");
+              setShowBirthdaySurprise(true);
+              localStorage.setItem("bday_effect_shown", `${monthKey}-${now.getDate()}`);
+            } else if (isBirthMonth && localStorage.getItem("bday_month_shown") !== monthKey) {
+              setBirthdayMode("month");
+              setShowBirthdaySurprise(true);
+              localStorage.setItem("bday_month_shown", monthKey);
             }
           }
           setFormData(bioToFormData(b, memberSession.displayName, emptyTheme));
@@ -514,7 +527,8 @@ function MemberPortalPage() {
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
     if (!verificationForm.acceptTerms || !verificationForm.acceptContact) { showToast(t("memberPortal.toast.acceptTermsWarning"), "error"); return; }
-    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.schoolIdCode || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
+    // Mã học sinh: nhiều trường không cấp nên chỉ điền nếu có.
+    if (!verificationForm.fullName || !verificationForm.birthday || !verificationForm.schoolLevel || !verificationForm.schoolName || !verificationForm.phoneZalo) { showToast(t("memberPortal.toast.fillAllWarning"), "error"); return; }
     setVerifying(true);
     try {
       const res = await memberService.submitVerification(memberSession.email, { fullName: verificationForm.fullName, birthday: verificationForm.birthday, schoolLevel: verificationForm.schoolLevel, schoolName: verificationForm.schoolName, schoolIdCode: verificationForm.schoolIdCode, phoneZalo: verificationForm.phoneZalo });
@@ -803,10 +817,12 @@ function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
-            onSkip={() => setShowOnboarding(false)}
+            requireBirthDate={!bio?.birthYear}
+            onSkip={bio?.birthYear ? () => setShowOnboarding(false) : undefined}
             onDone={(result) => {
               setShowOnboarding(false);
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
+              if (result?.birth) setBio(prev => prev ? { ...prev, ...result.birth } : prev);
               fetchJoyBalance(memberSession.email);
             }}
           />
@@ -1115,17 +1131,31 @@ function MemberPortalPage() {
 
         {showBirthdaySurprise && (
           <React.Suspense fallback={null}>
-            <BirthdaySurprise displayName={formData.displayName} onClose={() => setShowBirthdaySurprise(false)} />
+            <BirthdaySurprise
+              displayName={formData.displayName}
+              mode={birthdayMode}
+              onClose={() => { setShowBirthdaySurprise(false); setShowBirthdayWheel(true); }}
+            />
+          </React.Suspense>
+        )}
+        {showBirthdayWheel && !isGuestMode && memberSession?.email && (
+          <React.Suspense fallback={null}>
+            <BirthdayWheel
+              onClose={() => setShowBirthdayWheel(false)}
+              onAwarded={() => fetchJoyBalance(memberSession.email)}
+            />
           </React.Suspense>
         )}
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
-            onSkip={() => setShowOnboarding(false)}
+            requireBirthDate={!bio?.birthYear}
+            onSkip={bio?.birthYear ? () => setShowOnboarding(false) : undefined}
             onDone={(result) => {
               setShowOnboarding(false);
-              
+
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
+              if (result?.birth) setBio(prev => prev ? { ...prev, ...result.birth } : prev);
               fetchJoyBalance(memberSession.email);
             }}
           />

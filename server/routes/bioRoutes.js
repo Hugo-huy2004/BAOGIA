@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto';
 import Bio from '../models/Bio.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember, attachMemberAge } from '../middleware/authMiddleware.js';
+import { bioAge, isMinorAge, ageFromBirth, MEMBER_MIN_AGE } from '../utils/memberAge.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import { encryptText, decryptText, hashPassword, comparePassword } from '../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
@@ -651,7 +652,7 @@ router.post('/me/verification', requireMember, async (req, res) => {
 // codes can be phone-derived) and optionally apply a referrer's code.
 router.post('/me/onboarding', requireMember, async (req, res) => {
   try {
-    const { phone, referrerCode } = req.body;
+    const { phone, referrerCode, birthDay, birthMonth, birthYear } = req.body;
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Missing email' });
     if (await rejectBlacklistedPhone(res, phone)) return;
@@ -662,6 +663,26 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
 
     if (phone && String(phone).trim()) {
       bio.phone = String(phone).trim();
+    }
+
+    // Ngày sinh: bắt buộc và chỉ khai một lần. Cổng 18+ đứng trên dữ liệu này
+    // nên không thể để trống rồi đi tiếp, cũng không cho sửa lại sau.
+    if (!bio.birthYear) {
+      const day = Number(birthDay);
+      const month = Number(birthMonth);
+      const year = Number(birthYear);
+      const thisYear = new Date().getFullYear();
+      const valid = Number.isInteger(day) && day >= 1 && day <= 31
+        && Number.isInteger(month) && month >= 1 && month <= 12
+        && Number.isInteger(year) && year >= 1900 && year <= thisYear
+        && new Date(year, month - 1, day).getDate() === day;
+      if (!valid) return res.status(400).json({ error: 'Ngày sinh không hợp lệ.' });
+      if (ageFromBirth(year, month, day) < MEMBER_MIN_AGE) {
+        return res.status(403).json({ error: `Hugo Studio chỉ dành cho người từ đủ ${MEMBER_MIN_AGE} tuổi.` });
+      }
+      bio.birthDay = day;
+      bio.birthMonth = month;
+      bio.birthYear = year;
     }
 
     const referralCode = await ensureReferralCode(bio);
@@ -894,6 +915,10 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
 // GET /me/discover?lat=&lng=&category=&q=&open=&sort= — live nearby places
 // (Google Places khi có GOOGLE_MAPS_API_KEY, fallback OpenStreetMap), lọc và
 // xếp hạng theo cá tính người dùng (UserProfile.interests).
+// Địa điểm không hợp với thành viên dưới 18 — lọc khỏi kết quả Khám phá thay
+// vì chỉ ẩn nút trên giao diện.
+const ADULT_VENUE_RE = /(\bbar\b|\bpub\b|beer|bia hơi|bia tươi|rượu|wine|whisky|cocktail|club|lounge|karaoke|casino|shisha|vape|cigar|thuốc lá|massage|hookah|nightlife)/i;
+
 const INTEREST_CATEGORY_KEYWORDS = {
   cafe: /cà phê|cafe|coffee|trà|đồ uống|check-?in|discover_cafe/i,
   food: /ăn|food|món|ẩm thực|nấu|quán|discover_food/i,
@@ -948,7 +973,7 @@ function clusterDiscoveryPlaces(places, zoom = 14) {
   });
 }
 
-router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
+router.get('/me/discover', requireMember, attachMemberAge, discoverLimiter, async (req, res) => {
   try {
     const lat = Number(req.query.lat);
     const lng = Number(req.query.lng);
@@ -1064,6 +1089,10 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
     else if (sort === 'top') result.sort((a, b) => (b.rating || 0) - (a.rating || 0) || a.distM - b.distM);
     else result.sort((a, b) => b.score - a.score);
 
+    if (isMinorAge(req.memberAge)) {
+      result = result.filter((place) => !ADULT_VENUE_RE.test(`${place.name || ''} ${place.address || ''} ${place.category || ''}`));
+    }
+
     const visiblePlaces = result.slice(0, 120);
     res.json({
       success: true,
@@ -1080,9 +1109,10 @@ router.get('/me/discover', requireMember, discoverLimiter, async (req, res) => {
 
 // POST /me/discover/tap { name, category } — learning signal: every place the
 // member opens teaches UserProfile.interests, so "Hợp gu" gets smarter over time.
-router.post('/me/discover/tap', requireMember, discoverLimiter, async (req, res) => {
+router.post('/me/discover/tap', requireMember, attachMemberAge, discoverLimiter, async (req, res) => {
   const { name, category } = req.body || {};
-  if (typeof name === 'string' && ['food', 'cafe', 'play'].includes(category)) {
+  // Không xây hồ sơ thói quen đi lại của thành viên dưới 18.
+  if (!isMinorAge(req.memberAge) && typeof name === 'string' && ['food', 'cafe', 'play'].includes(category)) {
     recordSignal(req.memberEmail, {
       text: name.slice(0, 120),
       category: `discover_${category}`,
@@ -1334,6 +1364,37 @@ router.get('/certificate/:slug/:phase', async (req, res) => {
   }
 });
 
+// Trang Bio công khai chỉ được nhận đúng những trường mà giao diện render.
+// Trước đây route này trả nguyên document: kèm cả email, joyBalance, PIN, vị
+// trí tin cậy, danh bạ sao lưu và verificationRequest (tên thật, tên trường,
+// mã học sinh, số Zalo) — đã giải mã sẵn bởi hook post('init').
+const PUBLIC_BIO_FIELDS = [
+  'slug', 'displayName', 'name', 'avatarUrl', 'headline', 'bio', 'status', 'theme',
+  'links', 'projects', 'services', 'tabs', 'decoRoom', 'hobbies', 'jobTitle',
+  'skills', 'education', 'birthday', 'height', 'weight', 'measurements',
+  'address', 'phone', 'contactEmail', 'secretLinks',
+];
+
+// Vị thành niên: cắt thêm mọi trường có thể dùng để tìm ra người thật ngoài
+// đời. Đây là khoá cứng theo chính sách, không phải tuỳ chọn người dùng tắt/bật.
+const MINOR_HIDDEN_FIELDS = [
+  'phone', 'address', 'measurements', 'height', 'weight', 'birthday',
+  'education', 'contactEmail',
+];
+
+function toPublicBio(doc) {
+  const minor = isMinorAge(bioAge(doc));
+  const hidden = minor ? new Set(MINOR_HIDDEN_FIELDS) : new Set();
+  const out = {};
+  for (const field of PUBLIC_BIO_FIELDS) {
+    if (hidden.has(field) || doc[field] === undefined) continue;
+    out[field] = doc[field];
+  }
+  // Cho client biết để đặt noindex — trang của vị thành niên không lên Google.
+  out.isMinor = minor;
+  return out;
+}
+
 router.get('/slug/:slug', async (req, res) => {
   try {
     const slug = req.params.slug;
@@ -1363,7 +1424,7 @@ router.get('/slug/:slug', async (req, res) => {
             hasPassword: !!link.password
           }));
         }
-        return doc;
+        return toPublicBio(doc);
       }
       return null;
     });
@@ -1507,6 +1568,38 @@ router.put('/:id', requireMember, async (req, res) => {
       return res.status(403).json({ error: 'Bạn không có quyền chỉnh sửa Bio này.' });
     }
     const previousSlug = existing.slug;
+
+    // Tháng/năm sinh: khai một lần rồi khoá. Nếu sửa được thoải mái thì cổng
+    // 18+ vô nghĩa — ai cũng chỉ cần lùi năm sinh một phút là qua. Sai sót thì
+    // admin sửa qua công cụ quản trị.
+    const incomingYear = Number(req.body.birthYear);
+    const incomingMonth = Number(req.body.birthMonth);
+    const incomingDay = Number(req.body.birthDay);
+    if (!existing.birthYear && Number.isInteger(incomingYear)) {
+      const thisYear = new Date().getFullYear();
+      if (incomingYear < 1900 || incomingYear > thisYear) {
+        return res.status(400).json({ error: 'Năm sinh không hợp lệ.' });
+      }
+      existing.birthYear = incomingYear;
+      if (Number.isInteger(incomingMonth) && incomingMonth >= 1 && incomingMonth <= 12) {
+        existing.birthMonth = incomingMonth;
+      }
+      if (Number.isInteger(incomingDay) && incomingDay >= 1 && incomingDay <= 31) {
+        existing.birthDay = incomingDay;
+      }
+    }
+
+    // Thành viên dưới 18: khoá cứng những trường có thể lần ra người thật ngoài
+    // đời, và mọi liên kết bí mật phải có mật khẩu. Chặn tại đây thay vì ở giao
+    // diện vì PUT này gọi thẳng được.
+    if (isMinorAge(bioAge(existing))) {
+      for (const field of ['address', 'measurements', 'height', 'weight']) {
+        if (field in req.body) req.body[field] = '';
+      }
+      if (Array.isArray(req.body.secretLinks)) {
+        req.body.secretLinks = req.body.secretLinks.filter((link) => link?.password);
+      }
+    }
 
     // Xóa Cache nếu bio bị chỉnh sửa
     clearCache(`bio_slug_${existing.slug}`);

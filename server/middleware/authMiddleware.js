@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
+import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 
@@ -145,4 +146,56 @@ export const requireMember = async (req, res, next) => {
   } catch (error) {
     return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
   }
+};
+
+// ─── Cổng độ tuổi ────────────────────────────────────────────────────────────
+// Ẩn nút trên giao diện là chưa đủ: mọi route 18+ phải tự kiểm ở server vì
+// client gọi thẳng được. req.memberAge để route nào cần thì siết thêm.
+
+const ageError = (res, age) => {
+  if (age === null) {
+    return res.status(403).json({
+      error: 'AGE_UNKNOWN',
+      message: 'Tính năng này cần biết tháng/năm sinh của bạn. Vui lòng bổ sung trong Hồ sơ.',
+    });
+  }
+  return res.status(403).json({
+    error: 'AGE_RESTRICTED',
+    message: `Tính năng này chỉ dành cho thành viên từ ${ADULT_AGE} tuổi.`,
+    minAge: ADULT_AGE,
+  });
+};
+
+/** Gắn req.memberAge (null nếu chưa khai sinh nhật). Không chặn ai. */
+export const attachMemberAge = async (req, res, next) => {
+  try {
+    req.memberAge = req.isAdminActor ? ADULT_AGE : await getMemberAge(req.memberEmail);
+  } catch (error) {
+    console.error('[member age]', error.message);
+    req.memberAge = null;
+  }
+  next();
+};
+
+/** Chỉ cho thành viên đủ 18. Dùng: router.post('/x', requireAdultMember, ...) */
+export const requireAdultMember = [
+  requireMember,
+  attachMemberAge,
+  (req, res, next) => (isAdultAge(req.memberAge) ? next() : ageError(res, req.memberAge)),
+];
+
+/** Tiện ích cho route công khai (donate…): chặn nếu người gọi ĐANG đăng nhập
+ *  bằng tài khoản vị thành niên. Khách vãng lai không đăng nhập vẫn qua. */
+export const rejectMinorActor = async (req, res, next) => {
+  const token = extractToken(req, 'member_jwt') || extractToken(req, 'jwt');
+  if (!token) return next();
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'member' || !decoded.email) return next();
+    const age = await getMemberAge(decoded.email);
+    if (isMinorAge(age)) return ageError(res, age);
+  } catch {
+    // Token hỏng/hết hạn thì coi như khách vãng lai — route tự lo phần còn lại.
+  }
+  next();
 };

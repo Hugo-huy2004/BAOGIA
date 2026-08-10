@@ -1,5 +1,5 @@
 import express from "express";
-import { requireMember, requireAdmin } from "../middleware/authMiddleware.js";
+import { requireMember, requireAdmin, requireAdultMember } from "../middleware/authMiddleware.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -194,7 +194,7 @@ router.post("/me/messages/read", requireMember, async (req, res) => {
 });
 
 // Submit CV application.
-router.post("/apply", upload.single("cv"), requireMember, async (req, res) => {
+router.post("/apply", upload.single("cv"), requireAdultMember, async (req, res) => {
   try {
     const email = req.memberEmail;
     // Get displayName from form (sent by frontend from Google auth or session)

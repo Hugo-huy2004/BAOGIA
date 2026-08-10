@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 
-export default function BirthdaySurprise({ displayName, onClose }) {
+// mode="day": đúng ngày sinh. mode="month": lượt đầu tiên trong tháng sinh,
+// dùng làm lời chúc mở màn trước vòng quay quà năm.
+export default function BirthdaySurprise({ displayName, onClose, mode = "day" }) {
   const canvasRef = useRef(null);
   const audioCtxRef = useRef(null);
 
@@ -196,13 +198,16 @@ export default function BirthdaySurprise({ displayName, onClose }) {
 
         <div className="space-y-2">
           <h2 className="text-xl font-black bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 bg-clip-text text-transparent uppercase tracking-wider">
-            Happy Birthday!
+            {mode === "month" ? "Tháng sinh nhật!" : "Happy Birthday!"}
           </h2>
           <p className="text-white text-sm font-semibold">
-            Chúc mừng sinh nhật, <span className="text-rose-500 font-bold">{displayName}</span>! 
+            {mode === "month" ? "Chào tháng sinh nhật của " : "Chúc mừng sinh nhật, "}
+            <span className="text-rose-500 font-bold">{displayName}</span>!
           </p>
           <p className="text-xs text-zinc-400 leading-relaxed px-2">
-            Hugo Studio mến chúc bạn tuổi mới ngập tràn niềm vui, sức khỏe dồi dào, luôn tươi trẻ và gặt hái được nhiều thắng lợi rực rỡ!
+            {mode === "month"
+              ? "Hugo Studio chúc bạn một tháng thật rực rỡ. Có một phần quà đang chờ bạn quay ngay sau đây."
+              : "Hugo Studio mến chúc bạn tuổi mới ngập tràn niềm vui, sức khỏe dồi dào, luôn tươi trẻ và gặt hái được nhiều thắng lợi rực rỡ!"}
           </p>
         </div>
 
@@ -210,7 +215,7 @@ export default function BirthdaySurprise({ displayName, onClose }) {
           onClick={onClose}
           className="w-full py-3 rounded-lg bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs uppercase tracking-widest transition-all active:scale-95 shadow-md shadow-rose-500/20"
         >
-          Nhận lời chúc
+          {mode === "month" ? "Mở quà tháng sinh nhật" : "Nhận lời chúc"}
         </button>
       </div>
     </div>

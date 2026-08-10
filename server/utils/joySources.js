@@ -56,7 +56,8 @@ export const JOY_SOURCES = {
   ide_phase_4_completion: 'Hoàn thành chặng 4 HugoCoder',
   ide_phase_5_completion: 'Hoàn thành chặng 5 HugoCoder',
   ide_phase_6_completion: 'Hoàn thành chặng 6 HugoCoder',
-  ide_phase_7_completion: 'Hoàn thành chặng 7 HugoCoder'
+  ide_phase_7_completion: 'Hoàn thành chặng 7 HugoCoder',
+  birthday_spin: 'Vòng quay tháng sinh nhật'
 };
 
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);

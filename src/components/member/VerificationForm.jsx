@@ -143,11 +143,10 @@ export default function VerificationForm({
             {/* Student/School ID code */}
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
-                {t("memberPortal.verify.studentId")}
+                {t("memberPortal.verify.studentId")} <span className="normal-case text-muted-foreground/70">(nếu có)</span>
               </label>
               <input
                 type="text"
-                required
                 placeholder={t("memberPortal.verify.studentIdPlaceholder")}
                 value={verificationForm.schoolIdCode}
                 onChange={(e) => setVerificationForm({ ...verificationForm, schoolIdCode: e.target.value })}

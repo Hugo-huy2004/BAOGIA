@@ -25,7 +25,7 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
-import { requireMember } from './middleware/authMiddleware.js';
+import { requireMember, requireAdultMember } from './middleware/authMiddleware.js';
 import { broadcastToUser } from './services/redisWsAdapter.js';
 import {
   findActiveSecurityBlock,
@@ -300,7 +300,9 @@ app.use('/api/coder-lessons', coderLessonRoutes);
 app.use('/api/today', todayRoutes);
 app.use('/api/files', fileToolsRoutes);
 app.use('/api/companion', companionRoutes);
-app.use('/api/ai', requireMember, aiProxyRoutes);
+// Toàn bộ /api/ai chỉ phục vụ HugoPSY (chat, trị liệu, phân tích bài test)
+// nên cổng 18+ đặt luôn ở mount thay vì rải trong aiProxyRoutes.
+app.use('/api/ai', requireAdultMember, aiProxyRoutes);
 app.use('/api/customer-projects', customerRoutes);
 app.use('/api/payos', payosRoutes);
 app.use('/api/notifications', notificationRoutes);

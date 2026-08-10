@@ -7,7 +7,7 @@ import SleepLog from '../models/SleepLog.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import ScheduledPush from '../models/ScheduledPush.js';
 import { awardJoy } from '../utils/joyService.js';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember, requireAdultMember } from '../middleware/authMiddleware.js';
 import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 import { generateWeeklyReportForUser } from '../services/companionReportService.js';
 import { nextAllowedSendTime } from '../services/pushGuard.js';
@@ -66,6 +66,14 @@ const UNLOCKABLE_FEATURES = {
 };
 
 // POST: Unlock a therapy sub-feature for 150 JOY (one-time, permanent per account)
+// HugoPSY chỉ dành cho thành viên từ 18 tuổi. Chặn ở đây thay vì ở từng route
+// để không bỏ sót; hai route thử thách JOY bên dưới KHÔNG thuộc HugoPSY nên
+// vẫn mở cho mọi lứa tuổi.
+router.use(
+  ['/unlock-feature', '/heartbeat', '/history', '/crisis-alert', '/crisis/resolve', '/report/weekly'],
+  requireAdultMember,
+);
+
 router.post('/unlock-feature', requireMember, async (req, res) => {
   try {
     const { feature } = req.body;

@@ -5,7 +5,7 @@ const PayOS = pkg.PayOS || pkg;
 
 import crypto from 'crypto';
 import PaymentLink from '../models/PaymentLink.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, rejectMinorActor } from '../middleware/authMiddleware.js';
 import { logError } from '../utils/alert.js';
 import { sendDonationThankYou } from '../services/donationThankYouService.js';
 import dotenv from 'dotenv';
@@ -286,7 +286,7 @@ router.post('/request-payment', requireAdmin, async (req, res) => {
 });
 
 // [Public] Create a Donation Link
-router.post('/donate', donationCreateLimiter, async (req, res) => {
+router.post('/donate', donationCreateLimiter, rejectMinorActor, async (req, res) => {
   try {
     const { amount, name, email, termsAccepted } = req.body;
     const numericAmount = Number(amount);
