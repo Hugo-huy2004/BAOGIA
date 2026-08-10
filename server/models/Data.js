@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { decryptText, encryptText } from '../utils/cryptoUtils.js';
 
 const DataSchema = new mongoose.Schema(
   {
@@ -117,6 +118,39 @@ const DataSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Contact numbers are private operational data. Keep them encrypted at rest;
+// only server-side code and authenticated admin responses ever see plaintext.
+DataSchema.pre('save', function encryptPrivateContact(next) {
+  if (this.isModified('profile.zaloNumber') && this.profile?.zaloNumber) {
+    this.profile.zaloNumber = encryptText(this.profile.zaloNumber);
+  }
+  next();
+});
+
+DataSchema.pre('findOneAndUpdate', function encryptUpdatedPrivateContact(next) {
+  const update = this.getUpdate();
+  const candidates = [update, update?.$set].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (candidate.profile?.zaloNumber) {
+      candidate.profile.zaloNumber = encryptText(candidate.profile.zaloNumber);
+    }
+    if (candidate['profile.zaloNumber']) {
+      candidate['profile.zaloNumber'] = encryptText(candidate['profile.zaloNumber']);
+    }
+  }
+  next();
+});
+
+function decryptPrivateContact(doc) {
+  if (doc?.profile?.zaloNumber) {
+    doc.profile.zaloNumber = decryptText(doc.profile.zaloNumber);
+  }
+}
+
+DataSchema.post('init', decryptPrivateContact);
+DataSchema.post('save', decryptPrivateContact);
 
 const Data = mongoose.model('Data', DataSchema);
 

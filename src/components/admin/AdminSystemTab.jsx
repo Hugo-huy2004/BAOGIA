@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { api } from "../../services/api/BaseApi";
 
 // Admin "Giám sát hệ thống" — the supreme control panel: live vitals, AI quota,
-// the community-bot kill-switch, and the persistent error log viewer.
+// và trình xem nhật ký lỗi lưu lâu dài.
 const LEVEL_META = {
   error: { label: "Lỗi", cls: "bg-rose-500/12 text-rose-600 dark:text-rose-400", dot: "bg-rose-500" },
   warn: { label: "Cảnh báo", cls: "bg-amber-500/12 text-amber-600 dark:text-amber-400", dot: "bg-amber-500" },
@@ -38,7 +38,6 @@ export default function AdminSystemTab({ showNotification }) {
   const [last24h, setLast24h] = useState({ error: 0, warn: 0, info: 0 });
   const [levelFilter, setLevelFilter] = useState("");
   const [expanded, setExpanded] = useState(null);
-  const [busy, setBusy] = useState(false);
 
   const loadOverview = useCallback(async () => {
     try { const d = await api.get("/admin/system-overview"); if (d.success) setOverview(d); } catch { /* ignore */ }
@@ -59,16 +58,6 @@ export default function AdminSystemTab({ showNotification }) {
     return () => clearInterval(t);
   }, [loadOverview, loadLogs]);
 
-  const toggleBot = async () => {
-    if (!overview) return;
-    setBusy(true);
-    try {
-      const d = await api.post("/admin/community-bot", { enabled: !overview.botEnabled });
-      if (d.success) { setOverview((o) => ({ ...o, botEnabled: d.botEnabled })); showNotification?.(d.botEnabled ? "Đã bật bot cộng đồng" : "Đã tắt bot cộng đồng", "success"); }
-    } catch { showNotification?.("Không đổi được trạng thái bot", "error"); }
-    finally { setBusy(false); }
-  };
-
   const clearLogs = async () => {
     if (!window.confirm(levelFilter ? `Xóa toàn bộ log mức "${levelFilter}"?` : "Xóa TẤT CẢ log lỗi?")) return;
     try {
@@ -84,15 +73,14 @@ export default function AdminSystemTab({ showNotification }) {
   return (
     <div className="space-y-5 animate-fadeIn">
       {/* Vitals */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Stat icon="group" label="Thành viên" value={fmt(overview?.users)} sub={`+${fmt(overview?.newUsers24h)} trong 24h`} accent="text-indigo-500" />
-        <Stat icon="forum" label="Bài công khai" value={fmt(overview?.posts)} sub={`${fmt(overview?.pendingPosts)} chờ duyệt`} accent="text-sky-500" />
         <Stat icon="bolt" label="JOY lưu hành" value={fmt(overview?.joyCirculating)} accent="text-amber-500" />
         <Stat icon="error" label="Lỗi 24h" value={fmt(overview?.errors24h)} accent={overview?.errors24h ? "text-rose-500" : "text-emerald-500"} sub={overview ? `uptime ${Math.floor((overview.uptimeSec || 0) / 60)} phút` : ""} />
       </div>
 
-      {/* AI health + bot control */}
-      <div className="grid gap-3 lg:grid-cols-2">
+      {/* AI health */}
+      <div className="grid gap-3">
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <p className="flex items-center gap-1.5 text-sm font-black text-foreground"><span className="material-symbols-outlined text-[18px] text-indigo-500">smart_toy</span>Sức khỏe AI (Gemini)</p>
@@ -104,22 +92,6 @@ export default function AdminSystemTab({ showNotification }) {
           <p className="mt-1.5 text-[11px] text-muted-foreground">
             Dùng {quotaPct}% hạn mức · RPM {q?.rpm ?? "—"}/{q?.rpmLimit ?? "—"} · Ngày {q?.rpd ?? "—"}/{q?.rpdLimit ?? "—"} · {fmt(q?.tokensToday)} token
           </p>
-        </div>
-
-        <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm">
-          <div>
-            <p className="flex items-center gap-1.5 text-sm font-black text-foreground"><span className="material-symbols-outlined text-[18px] text-violet-500">robot_2</span>Bot đăng bài cộng đồng</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">{overview?.botEnabled ? "Đang chạy — tự đăng & nhường quota khi tải cao" : "Đang tắt"}</p>
-          </div>
-          <button
-            type="button"
-            onClick={toggleBot}
-            disabled={busy || !overview}
-            className={`relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${overview?.botEnabled ? "bg-emerald-500" : "bg-foreground/25"}`}
-            aria-label="Bật/tắt bot"
-          >
-            <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${overview?.botEnabled ? "translate-x-[22px]" : "translate-x-0.5"}`} />
-          </button>
         </div>
       </div>
 

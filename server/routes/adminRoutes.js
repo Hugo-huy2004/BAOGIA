@@ -282,18 +282,16 @@ router.get('/users/search', requireAdmin, async (req, res) => {
   }
 });
 
-// ─── Community moderation (admin) ────────────────────────────────────────────
-import CommunityMessage from '../models/CommunityMessage.js';
+// ─── Admin: thông báo, AI, nhật ký lỗi ───────────────────────────────────────
 import InAppNotification from '../models/InAppNotification.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { getQuotaStatus, generate } from '../services/aiGateway.js';
-import { setBotEnabled, isBotEnabled } from '../utils/communityBot.js';
 import ErrorLog from '../models/ErrorLog.js';
 
 // GET /admin/ai-status - Gemini quota/health + auto-poster switch (the "đèn cảnh báo").
 router.get('/ai-status', requireAdmin, async (req, res) => {
   try {
-    res.json({ success: true, quota: getQuotaStatus(), botEnabled: isBotEnabled() });
+    res.json({ success: true, quota: getQuotaStatus() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -335,10 +333,8 @@ router.delete('/error-logs', requireAdmin, async (req, res) => {
 router.get('/system-overview', requireAdmin, async (req, res) => {
   try {
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const [users, posts, pendingPosts, joyAgg, errors24h, newUsers24h] = await Promise.all([
+    const [users, joyAgg, errors24h, newUsers24h] = await Promise.all([
       Bio.countDocuments({}),
-      CommunityMessage.countDocuments({ status: 'approved' }),
-      CommunityMessage.countDocuments({ status: 'pending' }),
       Bio.aggregate([{ $group: { _id: null, total: { $sum: '$joyBalance' } } }]),
       ErrorLog.countDocuments({ level: 'error', createdAt: { $gte: dayAgo } }),
       Bio.countDocuments({ createdAt: { $gte: dayAgo } }),
@@ -347,12 +343,9 @@ router.get('/system-overview', requireAdmin, async (req, res) => {
       success: true,
       users,
       newUsers24h,
-      posts,
-      pendingPosts,
       joyCirculating: joyAgg?.[0]?.total || 0,
       errors24h,
       quota: getQuotaStatus(),
-      botEnabled: isBotEnabled(),
       uptimeSec: Math.round(process.uptime()),
     });
   } catch (error) {
@@ -360,91 +353,10 @@ router.get('/system-overview', requireAdmin, async (req, res) => {
   }
 });
 
-// POST /admin/community-bot { enabled: bool } - runtime kill-switch for the bot.
-router.post('/community-bot', requireAdmin, async (req, res) => {
-  try {
-    setBotEnabled(!!req.body?.enabled);
-    res.json({ success: true, botEnabled: isBotEnabled() });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
-const ADMIN_POST_EMAIL = process.env.ADMIN_BOT_EMAIL || 'huylggcs230377@fpt.edu.vn';
 
-// POST /admin/purge-community-database - Purge all community messages from database
-router.post('/purge-community-database', requireAdmin, async (req, res) => {
-  try {
-    const result = await CommunityMessage.deleteMany({});
-    res.json({ success: true, deletedCount: result.deletedCount, message: "Đã xóa toàn bộ bài viết cộng đồng khỏi Database thành công!" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
-// POST /admin/community/posts - publish immediately as the verified admin
-// identity (no moderation queue; the admin IS the moderator).
-router.post('/community/posts', requireAdmin, async (req, res) => {
-  try {
-    const message = String(req.body?.message || '').trim();
-    if (!message) return res.status(400).json({ error: 'Nội dung không được trống' });
-    if (message.length > 2000) return res.status(400).json({ error: 'Bài viết quá dài' });
 
-    const post = await CommunityMessage.create({
-      senderEmail: ADMIN_POST_EMAIL,
-      senderName: 'Hugo Studio',
-      senderAvatar: '',
-      senderSlug: '',
-      message,
-      location: { lat: 10.8, lng: 106.6 },
-      sentiment: 'tích cực',
-      category: req.body?.category === 'câu hỏi' ? 'câu hỏi' : 'chia sẻ',
-      status: 'approved',
-      moderatedAt: new Date(),
-      createdAt: new Date()
-    });
-    res.json({ success: true, post });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// DELETE /admin/community/posts/:id - remove any post; the optional reason is
-// delivered to the author as an in-app notification + web push.
-router.delete('/community/posts/:id', requireAdmin, async (req, res) => {
-  try {
-    const post = await CommunityMessage.findById(req.params.id);
-    if (!post) return res.status(404).json({ error: 'Không tìm thấy bài viết' });
-
-    const reason = String(req.body?.reason || '').trim().slice(0, 300);
-    await CommunityMessage.deleteOne({ _id: post._id });
-
-    // Notify the author (skip bots — they have no inbox).
-    if (!post.isBot && post.senderEmail) {
-      const preview = (post.message || '').slice(0, 60);
-      const body = reason
-        ? `Bài viết "${preview}..." đã bị quản trị viên gỡ. Lý do: ${reason}`
-        : `Bài viết "${preview}..." đã bị quản trị viên gỡ do không phù hợp tiêu chuẩn cộng đồng.`;
-      try {
-        await InAppNotification.create({
-          email: post.senderEmail,
-          type: 'warning',
-          category: 'system',
-          title: 'Bài viết cộng đồng đã bị gỡ',
-          message: body,
-          actionUrl: '/member/account'
-        });
-        sendPushNotification(post.senderEmail, 'Bài viết cộng đồng đã bị gỡ', body, '/member/account').catch(() => {});
-      } catch (notifyErr) {
-        console.warn('[AdminCommunity] notify failed:', notifyErr.message);
-      }
-    }
-
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 // GET /admin/coder-submissions
 router.get('/coder-submissions', requireAdmin, async (req, res) => {
   try {
@@ -626,16 +538,6 @@ function localFallbackInterpret(text) {
       }
     }
   }
-  // POSTS MODERATION
-  else if (hasWord(["bai viet", "posts", "post", "feed", "tin nhan cong dong"])) {
-    intent = "posts";
-    const isDelete = hasWord(["xoa", "huy", "delete", "remove", "go"]);
-    reason = isDelete ? "delete" : "list";
-    const matchId = text.match(/([a-fA-F0-9]{24})/);
-    if (matchId) query = matchId[0];
-    const matchEmail = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-    if (matchEmail) recipient = matchEmail[0];
-  }
   // UTILITY STORE ORDERS MANAGEMENT
   else if (hasWord(["don hang", "orders", "order", "don mua"])) {
     intent = "orders";
@@ -801,7 +703,6 @@ Analyze the input text to map it to one of these intents:
 - "users": to list or search users. Examples: "danh sách user", "tìm thành viên alice", "users".
 - "lock": to lock a member. Examples: "khóa tài khoản member@test.com", "lock phucphgcs230327@fpt.edu.vn".
 - "unlock": to unlock a member. Examples: "mở khóa tài khoản member@test.com", "unlock phucphgcs230327@fpt.edu.vn".
-- "bot": to toggle the community bot. Examples: "bật bot", "bot off", "tắt bot".
 - "clean-logs": to clear server-cached errors. Examples: "clean logs", "dọn dẹp logs", "xóa log sự cố".
 - "clear": to clear the terminal screen. Examples: "clear", "xóa màn hình".
 - "help": to view help. Examples: "help", "trợ giúp", "hướng dẫn".

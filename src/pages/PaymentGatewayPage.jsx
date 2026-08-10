@@ -1,819 +1,299 @@
-import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import dataApi from "../services/dataApi";
 import HugoLogo from "../components/HugoLogo";
-import { usePayOS } from "@payos/payos-checkout";
 import { isAdminAuthenticated } from "../services/authSession";
 import { notify } from "../lib/notify";
-import { HugoConfirmNotice } from "../components/shared/HugoNotice";
 
 const BANKS = [
-  { name: 'Vietcombank', code: 'vcb', bin: '970436', logo: 'https://cdn.vietqr.io/img/VCB.png' },
-  { name: 'MBBank', code: 'mbbank', bin: '970422', logo: 'https://cdn.vietqr.io/img/MB.png' },
-  { name: 'Techcombank', code: 'tcb', bin: '970407', logo: 'https://cdn.vietqr.io/img/TCB.png' },
-  { name: 'VietinBank', code: 'vietinbank', bin: '970415', logo: 'https://cdn.vietqr.io/img/ICB.png' },
-  { name: 'BIDV', code: 'bidv', bin: '970418', logo: 'https://cdn.vietqr.io/img/BIDV.png' },
-  { name: 'ACB', code: 'acb', bin: '970416', logo: 'https://cdn.vietqr.io/img/ACB.png' },
-  { name: 'VPBank', code: 'vpbank', bin: '970432', logo: 'https://cdn.vietqr.io/img/VPB.png' },
-  { name: 'TPBank', code: 'tpbank', bin: '970423', logo: 'https://cdn.vietqr.io/img/TPB.png' }
+  { name: "Vietcombank", code: "vcb", logo: "https://cdn.vietqr.io/img/VCB.png" },
+  { name: "MBBank", code: "mbbank", logo: "https://cdn.vietqr.io/img/MB.png" },
+  { name: "Techcombank", code: "tcb", logo: "https://cdn.vietqr.io/img/TCB.png" },
+  { name: "VietinBank", code: "vietinbank", logo: "https://cdn.vietqr.io/img/ICB.png" },
+  { name: "BIDV", code: "bidv", logo: "https://cdn.vietqr.io/img/BIDV.png" },
+  { name: "ACB", code: "acb", logo: "https://cdn.vietqr.io/img/ACB.png" },
+  { name: "VPBank", code: "vpbank", logo: "https://cdn.vietqr.io/img/VPB.png" },
+  { name: "TPBank", code: "tpbank", logo: "https://cdn.vietqr.io/img/TPB.png" },
 ];
 
-const getMerchantBankName = (bin) => {
-  const bank = BANKS.find(b => b.bin === bin || b.code === bin);
-  if (bank) return bank.name;
-  
-  const fallbackRegistry = {
-    '970436': 'Vietcombank',
-    '970422': 'MBBank',
-    '970407': 'Techcombank',
-    '970415': 'VietinBank',
-    '970418': 'BIDV',
-    '970416': 'ACB',
-    '970432': 'VPBank',
-    '970423': 'TPBank',
-    '970405': 'Agribank',
-    '970403': 'Sacombank',
-    '970443': 'SHB',
-    '970441': 'VIB',
-    '970426': 'MSB',
-    '970437': 'HDBank',
-    '970440': 'SeABank',
-    '970449': 'LPBank',
-    '970431': 'Eximbank',
-    '970448': 'OCB',
-  };
-  return fallbackRegistry[bin] || 'Đối tác PayOS';
+const TABS = [
+  { id: "bank", label: "Ứng dụng ngân hàng", icon: "account_balance" },
+  { id: "qr", label: "VietQR", icon: "qr_code_2" },
+  { id: "momo", label: "MoMo", icon: "account_balance_wallet" },
+  { id: "shopeepay", label: "ShopeePay", icon: "wallet" },
+];
+
+const bankNames = {
+  "970436": "Vietcombank", "970422": "MBBank", "970407": "Techcombank",
+  "970415": "VietinBank", "970418": "BIDV", "970416": "ACB",
+  "970432": "VPBank", "970423": "TPBank", "970405": "Agribank",
 };
+
+function LoadingState() {
+  return (
+    <main className="grid min-h-screen place-items-center bg-background px-5 text-foreground">
+      <div className="text-center">
+        <div className="mx-auto size-10 animate-spin rounded-full border-4 border-primary/15 border-t-primary" />
+        <p className="mt-4 text-xs font-bold text-muted-foreground">Đang chuẩn bị thông tin thanh toán…</p>
+      </div>
+    </main>
+  );
+}
 
 export default function PaymentGatewayPage() {
   const { id } = useParams();
-  const location = useLocation();
+  const qrRef = useRef(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
+  const [activeTab, setActiveTab] = useState("bank");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [copiedField, setCopiedField] = useState('');
-  const [activeTab, setActiveTab] = useState('banking'); // banking, vietqr, momo, applepay
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState("");
   const [cancelling, setCancelling] = useState(false);
-  const [cancelError, setCancelError] = useState('');
-  const [isApplePaySupported, setIsApplePaySupported] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-
-
-  // Check if there's a status in URL after PayOS redirect
-  const searchParams = new URLSearchParams(location.search);
-  const payosStatus = searchParams.get('status');
 
   useEffect(() => {
-    // Detect mobile device
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    setIsMobile(isMobileDevice);
+    let alive = true;
+    let timer;
 
-    // Detect Apple Pay support
-    try {
-      if (window.ApplePaySession && window.ApplePaySession.canMakePayments()) {
-        setIsApplePaySupported(true);
-      }
-    } catch {
-      // Safe fallback
-    }
-  }, []);
-
-  useEffect(() => {
-    let intervalId;
-    
-    const fetchPaymentInfo = async (showLoading = false) => {
-      if (showLoading) setLoading(true);
+    const fetchInfo = async () => {
       try {
-        const res = await dataApi.get(`/api/payos/info/${id}`);
-        if (res.data.success) {
-          const paymentData = res.data.data;
-          setPaymentInfo(paymentData);
-          setError(null);
-          
-          // AUTOMATIC REDIRECT TO PAYOS CHECKOUT (REMOVED)
-          // We no longer automatically redirect so the user can see our beautiful custom UI first.
-
-          if (paymentData.status !== 'PENDING' && intervalId) {
-            clearInterval(intervalId);
-          }
-        } else {
-          setError(res.data.error || "Không tìm thấy giao dịch.");
-          if (intervalId) clearInterval(intervalId);
-        }
-      } catch (err) {
-        setError("Không tìm thấy giao dịch hoặc lỗi kết nối.");
-        if (intervalId) clearInterval(intervalId);
+        const response = await dataApi.get(`/api/payos/info/${id}`);
+        if (!alive) return;
+        if (!response.data.success) throw new Error(response.data.error);
+        setPaymentInfo(response.data.data);
+        setError("");
+        if (response.data.data.status !== "PENDING") clearInterval(timer);
+      } catch (requestError) {
+        if (!alive) return;
+        setError(requestError?.message || "Không tìm thấy giao dịch.");
+        clearInterval(timer);
       } finally {
-        if (showLoading) setLoading(false);
+        if (alive) setLoading(false);
       }
     };
 
-    fetchPaymentInfo(true);
+    const initialize = async () => {
+      await fetchInfo();
+      timer = setInterval(fetchInfo, 5000);
+    };
 
-    // Poll payment status every 2 seconds to update realtime (increased frequency for automation feel)
-    intervalId = setInterval(() => {
-      fetchPaymentInfo(false);
-    }, 2000);
-
+    initialize();
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      alive = false;
+      clearInterval(timer);
     };
   }, [id]);
 
-  const handleCopy = (text, fieldName) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(fieldName);
-    const label = fieldName === 'accountNumber' ? 'Đã sao chép số tài khoản!' : 'Đã sao chép nội dung!';
-    notify.success(label);
-    setTimeout(() => setCopiedField(''), 2000);
-  };
+  const fallbackQrUrl = useMemo(() => {
+    if (!paymentInfo?.bin || !paymentInfo?.accountNumber) return "";
+    const params = new URLSearchParams({
+      amount: String(paymentInfo.amount),
+      addInfo: paymentInfo.reason,
+      accountName: paymentInfo.accountName || "",
+    });
+    return `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?${params}`;
+  }, [paymentInfo]);
 
-  const handleOpenBankApp = (bankCode) => {
-    if (!paymentInfo) return;
-    const deepLink = `https://dl.vietqr.io/pay?app=${bankCode}&ba=${paymentInfo.accountNumber}@${paymentInfo.bin}&am=${paymentInfo.amount}&tn=${encodeURIComponent(paymentInfo.reason)}&bn=${encodeURIComponent(paymentInfo.accountName)}`;
-    window.location.href = deepLink;
-  };
-
-  const handleOpenQRNewTab = () => {
-    if (!paymentInfo) return;
-    const qrImageUrl = `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?amount=${paymentInfo.amount}&addInfo=${encodeURIComponent(paymentInfo.reason)}&accountName=${encodeURIComponent(paymentInfo.accountName)}`;
-    window.open(qrImageUrl, '_blank');
-  };
-
-  const handleDownloadQR = async () => {
-    if (!paymentInfo) return;
-    const qrImageUrl = `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?amount=${paymentInfo.amount}&addInfo=${encodeURIComponent(paymentInfo.reason)}&accountName=${encodeURIComponent(paymentInfo.accountName)}`;
-    
-    const loadId = notify.loading('Đang chuẩn bị tải ảnh QR...');
-
+  const copy = async (value, field) => {
     try {
-      const response = await fetch(qrImageUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = `vietqr_${paymentInfo.customLinkId}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
-
-      notify.success('Mã QR đã được tải về máy của bạn!', { id: loadId });
-    } catch (error) {
-      console.error('Download QR Error:', error);
-      window.open(qrImageUrl, '_blank');
-      notify.dismiss(loadId);
+      await navigator.clipboard.writeText(String(value));
+      setCopied(field);
+      notify.success(field === "account" ? "Đã sao chép số tài khoản." : "Đã sao chép nội dung chuyển khoản.");
+      setTimeout(() => setCopied(""), 1800);
+    } catch {
+      notify.error("Trình duyệt không cho phép sao chép tự động.");
     }
   };
 
-  const executeCancelPayment = async () => {
-    setCancelling(true);
-    setCancelError('');
-    const loadId = notify.loading('Đang xử lý hủy giao dịch...');
-    try {
-      const res = await dataApi.post(`/api/payos/cancel/${id}`);
-      if (res.data.success) {
-        notify.success('Hủy giao dịch chuyển khoản thành công!', { id: loadId });
-        setPaymentInfo(prev => ({ ...prev, status: 'CANCELLED' }));
-      } else {
-        const errMsg = res.data.error || 'Hủy giao dịch thất bại.';
-        setCancelError(errMsg);
-        notify.error(errMsg, { id: loadId });
+  const openBank = (bankCode) => {
+    const query = new URLSearchParams({
+      app: bankCode,
+      ba: `${paymentInfo.accountNumber}@${paymentInfo.bin}`,
+      am: String(paymentInfo.amount),
+      tn: paymentInfo.reason,
+      bn: paymentInfo.accountName || "",
+    });
+    window.location.assign(`https://dl.vietqr.io/pay?${query}`);
+  };
+
+  const downloadQr = () => {
+    if (paymentInfo.qrCode && qrRef.current) {
+      const svg = qrRef.current.querySelector("svg");
+      if (svg) {
+        const blob = new Blob([new XMLSerializer().serializeToString(svg)], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `hugo-studio-${paymentInfo.customLinkId}.svg`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+        return;
       }
-    } catch (err) {
-      const errMsg = err.response?.data?.error || 'Lỗi kết nối khi hủy giao dịch.';
-      setCancelError(errMsg);
-      notify.error(errMsg, { id: loadId });
+    }
+    window.open(fallbackQrUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const openWallet = (scheme) => {
+    downloadQr();
+    setTimeout(() => window.location.assign(`${scheme}://`), 350);
+  };
+
+  const cancelPayment = async () => {
+    const confirmed = await notify.confirm({
+      title: "Hủy giao dịch?",
+      message: "Liên kết sẽ bị xóa khỏi hệ thống nếu giao dịch chưa được thanh toán.",
+      confirmText: "Hủy giao dịch",
+      danger: true,
+    });
+    if (!confirmed) return;
+    setCancelling(true);
+    try {
+      const response = await dataApi.post(`/api/payos/cancel/${id}`);
+      if (!response.data.success) throw new Error(response.data.error);
+      setPaymentInfo((current) => ({ ...current, status: "CANCELLED" }));
+      notify.success("Đã hủy giao dịch.");
+    } catch (requestError) {
+      notify.error(requestError?.response?.data?.error || requestError?.message || "Không thể hủy giao dịch.");
     } finally {
       setCancelling(false);
     }
   };
 
-  const handleCancelPayment = () => {
-    notify.info((t) => (
-      <HugoConfirmNotice
-        type="error"
-        title="Xác nhận hủy"
-        message="Bạn có chắc chắn muốn hủy giao dịch chuyển khoản này không? Bản ghi sẽ được xóa khỏi hệ thống."
-        confirmLabel="Xác nhận hủy"
-        onCancel={() => notify.dismiss(t.id)}
-        onConfirm={() => {
-          notify.dismiss(t.id);
-          executeCancelPayment();
-        }}
-      />
-    ), {
-      duration: 10000,
-      position: 'top-center',
-      style: { padding: 0, background: 'transparent', boxShadow: 'none' }
-    });
-  };
-
-  const handleOpenPayOS = () => {
-    if (!paymentInfo?.checkoutUrl) return;
-
-    const { open } = usePayOS({
-      RETURN_URL: window.location.href.split('?')[0],
-      ELEMENT_ID: "payos-checkout-iframe-container",
-      CHECKOUT_URL: paymentInfo.checkoutUrl,
-      embedded: false,
-      onSuccess: () => {},
-      onCancel: () => {},
-      onExit: () => {}
-    });
-
-    open();
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center space-y-4 transition-colors duration-300">
-        <div className="w-12 h-12 border-4 border-success/20 border-t-success rounded-full animate-spin" />
-        <p className="text-muted-foreground font-bold tracking-widest uppercase text-[10px] animate-pulse">
-          Đang tải thông tin hóa đơn...
-        </p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState />;
 
   if (error || !paymentInfo) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-6 text-center space-y-6 transition-colors duration-300">
-        <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center text-destructive border border-destructive/20 shadow-md">
-          <span className="material-symbols-outlined text-4xl">error</span>
+      <main className="grid min-h-screen place-items-center bg-background px-5 text-center text-foreground">
+        <div className="max-w-sm">
+          <span className="material-symbols-outlined text-5xl text-destructive">error</span>
+          <h1 className="mt-3 text-2xl font-black">Giao dịch không hợp lệ</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{error || "Liên kết không tồn tại hoặc đã hết hạn."}</p>
+          <a href="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-foreground px-5 text-sm font-bold text-background">Về trang chủ</a>
         </div>
-        <h1 className="text-2xl font-black tracking-tight text-foreground">Hóa đơn không hợp lệ</h1>
-        <p className="text-muted-foreground max-w-sm text-sm">{error || "Giao dịch không tồn tại hoặc đã hết hạn."}</p>
-        <button 
-          onClick={() => window.location.href = '/'}
-          className="px-6 py-3 bg-card hover:bg-muted hover:scale-[1.02] border border-border/50 rounded-xl font-bold transition-all text-xs shadow-sm text-foreground"
-        >
-          Về Trang Chủ
-        </button>
-      </div>
+      </main>
     );
   }
 
-  const isPaid = paymentInfo.status === 'PAID';
-  const isCancelled = paymentInfo.status === 'CANCELLED' || payosStatus === 'cancelled';
-  const hasBankDetails = paymentInfo.bin && paymentInfo.accountNumber;
-  const qrImageUrl = hasBankDetails
-    ? `https://img.vietqr.io/image/${paymentInfo.bin}-${paymentInfo.accountNumber}-compact2.png?amount=${paymentInfo.amount}&addInfo=${encodeURIComponent(paymentInfo.reason)}&accountName=${encodeURIComponent(paymentInfo.accountName)}`
-    : null;
-
-  const tabs = [
-    { id: 'banking', name: 'Banking App', icon: 'phone_iphone', desc: 'Mở App tự động điền' },
-    { id: 'vietqr', name: 'Mã VietQR', icon: 'qr_code_scanner', desc: 'Quét mã chuyển khoản' },
-    { id: 'momo', name: 'Ví MoMo', icon: 'account_balance_wallet', desc: 'Quét qua MoMo' },
-    { 
-      id: 'applepay', 
-      name: isApplePaySupported ? 'Thẻ / Apple Pay' : 'Thẻ Visa / ATM', 
-      icon: 'credit_card', 
-      desc: isApplePaySupported ? 'Visa, Master, Apple Pay' : 'Thẻ quốc tế, ATM nội địa' 
-    }
-  ];
-
-  const RECOMMENDED_BANKS = ['vcb', 'mbbank', 'tcb'];
+  const isDonation = paymentInfo.kind === "DONATION";
+  const isPaid = paymentInfo.status === "PAID";
+  const isCancelled = paymentInfo.status === "CANCELLED";
+  const amountLabel = `${paymentInfo.amount.toLocaleString("vi-VN")} VNĐ`;
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans relative overflow-x-hidden pb-12 transition-colors duration-300">
-      {/* Ambient background glows */}
-      <div className="absolute top-0 right-[-10%] w-[600px] h-[600px] bg-success/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
-
-      {/* Top Brand Header */}
-      <header className="py-5 px-6 relative z-10 flex items-center justify-between border-b border-border/50 bg-card/60 backdrop-blur-md">
-        <div className="w-8" /> {/* Spacer for centering logo */}
-        <div className="flex flex-col items-center justify-center">
-          <HugoLogo className="text-2xl mb-1.5" />
-          <span className="text-[9px] font-bold text-success uppercase tracking-[0.25em] bg-success/10 px-4 py-1 rounded-full border border-success/20">
-            CỔNG CHUYỂN KHOẢN THÔNG MINH
+    <div className="min-h-screen bg-background px-4 py-6 text-foreground sm:py-10">
+      <main className="mx-auto w-full max-w-3xl">
+        <header className="mb-5 flex items-center justify-between">
+          <a href="/" aria-label="Hugo Studio"><HugoLogo className="h-8 w-auto" /></a>
+          <span className="rounded-full border border-border bg-card px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
+            PayOS API · VietQR
           </span>
-        </div>
-        
-        <div className="w-8" /> {/* Spacer to balance centering */}
-      </header>
+        </header>
 
-      {/* Main Payment Section */}
-      <main className="flex-1 w-full max-w-2xl mx-auto p-4 sm:p-6 flex flex-col justify-center relative z-10 space-y-6">
-        
-        {/* SUCCESS / PAID STATE */}
-        {isPaid && (
-          <div className="bg-card/80 backdrop-blur-2xl border border-success/20 rounded-[32px] p-6 sm:p-8 shadow-xl dark:shadow-2xl relative overflow-hidden text-center space-y-6 animate-fadeIn">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-success" />
-            <div className="w-20 h-20 bg-success/10 border border-success/20 rounded-full flex items-center justify-center text-success mx-auto drop-shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-              <span className="material-symbols-outlined text-4xl animate-bounce-gentle">check_circle</span>
+        {isPaid ? (
+          <section className="rounded-[28px] border border-success/25 bg-card p-7 text-center shadow-sm sm:p-10">
+            <span className="material-symbols-outlined text-6xl text-success">verified</span>
+            <h1 className="mt-3 text-2xl font-black sm:text-3xl">{isDonation ? "Cảm ơn bạn đã đồng hành" : "Thanh toán thành công"}</h1>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+              {isDonation ? "Thư cảm ơn và thông tin về Hugo Studio đang được gửi đến email bạn đã cung cấp." : "Giao dịch đã được PayOS xác nhận."}
+            </p>
+            <div className="mx-auto mt-6 max-w-sm rounded-2xl bg-muted/60 p-4 text-left text-sm">
+              <div className="flex justify-between gap-4"><span className="text-muted-foreground">Số tiền</span><strong>{amountLabel}</strong></div>
+              <div className="mt-2 flex justify-between gap-4"><span className="text-muted-foreground">Mã</span><strong className="font-mono">{paymentInfo.customLinkId.slice(-10)}</strong></div>
             </div>
-            
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black text-success">Chuyển Khoản Thành Công!</h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Hệ thống đã nhận được tiền của bạn. Dưới đây là biên lai giao dịch điện tử của bạn.
-              </p>
-            </div>
-
-            {/* Virtual Dotted Receipt */}
-            <div className="bg-muted rounded-2xl p-5 border border-border/50 text-left text-xs space-y-4 relative">
-              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
-                <span className="text-muted-foreground font-bold uppercase tracking-wider">Số tiền đã trả</span>
-                <span className="text-lg font-black text-success">
-                  {paymentInfo.amount.toLocaleString('vi-VN')} <span className="text-[10px] text-success font-extrabold">VNĐ</span>
-                </span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
-                <span className="text-muted-foreground font-bold uppercase tracking-wider">Nội dung</span>
-                <span className="font-semibold text-foreground">{paymentInfo.reason}</span>
-              </div>
-              <div className="flex justify-between items-center py-1.5 border-b border-border/50">
-                <span className="text-muted-foreground font-bold uppercase tracking-wider">Mã giao dịch</span>
-                <span className="font-mono text-foreground bg-muted px-2.5 py-1 rounded-md">{paymentInfo.customLinkId}</span>
-              </div>
-              <div className="flex justify-between items-center pt-1.5">
-                <span className="text-muted-foreground font-bold uppercase tracking-wider">Thời gian nhận</span>
-                <span className="text-foreground font-semibold">{new Date(paymentInfo.createdAt).toLocaleString('vi-VN')}</span>
-              </div>
+            <a href="/" className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-primary px-6 text-sm font-bold text-white">Về Hugo Studio</a>
+          </section>
+        ) : isCancelled ? (
+          <section className="rounded-[28px] border border-destructive/25 bg-card p-8 text-center shadow-sm">
+            <span className="material-symbols-outlined text-6xl text-destructive">cancel</span>
+            <h1 className="mt-3 text-2xl font-black">Giao dịch đã hủy</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Bạn có thể quay lại Hugo Studio và tạo một khoản ủng hộ mới.</p>
+            <a href="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-foreground px-5 text-sm font-bold text-background">Về trang chủ</a>
+          </section>
+        ) : (
+          <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm">
+            <div className="border-b border-border bg-muted/35 px-5 py-6 text-center sm:px-8">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{isDonation ? "Khoản ủng hộ tự nguyện" : "Yêu cầu thanh toán"}</p>
+              <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{amountLabel}</h1>
+              <p className="mt-2 text-xs text-muted-foreground">Nội dung: <strong className="text-foreground">{paymentInfo.reason}</strong></p>
             </div>
 
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-3 text-xs font-bold transition-all border border-border/50 hover:scale-[1.01]"
-            >
-              Quay lại trang chủ
-            </button>
-          </div>
-        )}
-
-        {/* CANCELLED STATE */}
-        {isCancelled && !isPaid && (
-          <div className="bg-card/80 backdrop-blur-2xl border border-destructive/20 rounded-[32px] p-6 sm:p-8 shadow-xl dark:shadow-2xl relative overflow-hidden text-center space-y-6 animate-fadeIn">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-destructive" />
-            <div className="w-20 h-20 bg-destructive/10 border border-destructive/20 rounded-full flex items-center justify-center text-destructive mx-auto drop-shadow-[0_0_20px_rgba(244,63,94,0.15)]">
-              <span className="material-symbols-outlined text-4xl">cancel</span>
-            </div>
-            
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black text-destructive">Giao dịch đã hủy</h2>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Yêu cầu chuyển khoản này đã bị hủy hoặc không thành công. Vui lòng thử lại hoặc liên hệ với chúng tôi để được trợ giúp.
-              </p>
+            <div className="grid grid-cols-2 gap-2 border-b border-border p-3 sm:grid-cols-4">
+              {TABS.map((tab) => (
+                <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`min-h-14 rounded-2xl px-2 text-[10px] font-bold transition-colors ${activeTab === tab.id ? "bg-foreground text-background" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}>
+                  <span className="material-symbols-outlined mb-0.5 block text-xl">{tab.icon}</span>{tab.label}
+                </button>
+              ))}
             </div>
 
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-3 text-xs font-bold transition-all border border-border/50 hover:scale-[1.01]"
-            >
-              Về Trang Chủ
-            </button>
-          </div>
-        )}
-
-        {/* ACTIVE PENDING STATE */}
-        {!isPaid && !isCancelled && (
-          <div className="bg-card/80 backdrop-blur-2xl border border-border/50 rounded-[32px] shadow-xl dark:shadow-2xl overflow-hidden animate-fadeIn space-y-6">
-            
-            {/* Header / Amount Block */}
-            <div className="p-6 sm:p-8 bg-gradient-to-b from-muted to-transparent border-b border-border/50 text-center relative">
-              <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-warning/10 border border-warning/20 rounded-full px-2.5 py-1 text-[9px] font-bold text-warning">
-                <span className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse-soft" />
-                CHỜ THANH TOÁN
-              </div>
-
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Tổng Số Tiền</span>
-              <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-[hsl(var(--success))] via-[hsl(var(--secondary))] to-[hsl(var(--primary))] bg-clip-text text-transparent filter drop-shadow-[0_2px_15px_rgba(52,211,153,0.1)]">
-                {paymentInfo.amount.toLocaleString('vi-VN')} <span className="text-lg text-success font-black">VNĐ</span>
-              </h2>
-              <p className="text-muted-foreground text-xs mt-2 italic max-w-md mx-auto truncate" title={paymentInfo.reason}>
-                "{paymentInfo.reason}"
-              </p>
-            </div>
-
-            {/* AUTOMATION WIDGET: Mobile Quick Launch App Banner */}
-            {isMobile && hasBankDetails && (
-              <div className="px-6 mx-auto w-full animate-fadeIn">
-                <div className="p-5 bg-gradient-to-r from-success/5 via-secondary/5 to-primary/5 dark:from-success/10 dark:via-secondary/10 dark:to-primary/10 border border-success/20 rounded-[28px] text-center space-y-4 shadow-inner">
-                  <div className="flex items-center justify-center gap-1.5">
-                    <span className="material-symbols-outlined text-sm text-success animate-pulse">bolt</span>
-                    <span className="text-[10px] font-black text-success uppercase tracking-widest">
-                      THANH TOÁN TỰ ĐỘNG SIÊU TỐC
-                    </span>
-                  </div>
-                  
-                  <div className="text-left space-y-3.5">
-                    {/* Step 1 */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-success/20 text-success text-[10px] font-black">1</span>
-                        <span className="text-[11px] font-bold text-foreground">Tải mã QR để quét</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground pl-7 leading-relaxed">
-                        Tải ảnh QR vào thư viện ảnh để dễ dàng mở quét từ ảnh trong ứng dụng ngân hàng.
-                      </p>
-                      <div className="pl-7">
-                        <button
-                          onClick={handleDownloadQR}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-success hover:bg-success/90 text-white text-[10.5px] font-black uppercase tracking-wider rounded-xl active:scale-[0.98] transition-all shadow-[0_4px_12px_rgba(16,185,129,0.2)]"
-                        >
-                          <span className="material-symbols-outlined text-xs">download</span>
-                          Tải ảnh QR vào máy
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Step 2 */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-success/20 text-success text-[10px] font-black">2</span>
-                        <span className="text-[11px] font-bold text-foreground">Mở ứng dụng ngân hàng</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground pl-7 leading-relaxed">
-                        Chọn logo ngân hàng dưới đây để tự động mở ứng dụng và điền đầy đủ thông tin thanh toán. Hoặc chọn **"Quét mã QR từ thư viện ảnh"** trong ứng dụng ngân hàng bất kỳ.
-                      </p>
-                      
-                      <div className="pl-7 grid grid-cols-3 gap-2 pt-1">
-                        {BANKS.map(bank => (
-                          <button
-                            key={bank.code}
-                            onClick={() => handleOpenBankApp(bank.code)}
-                            className="flex items-center gap-1.5 p-2 bg-card hover:bg-muted rounded-xl border border-border/60 active:scale-95 transition-all text-[9.5px] font-extrabold text-foreground shadow-sm truncate group"
-                            title={`Mở app ${bank.name}`}
-                          >
-                            <img src={bank.logo} alt={bank.name} className="w-4.5 h-4.5 object-contain shrink-0 group-hover:scale-105 transition-transform" />
-                            <span className="truncate">{bank.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Methods Selector (Tabs Navigation - Premium Glass Pill layout) */}
-            <div className="px-4 py-1">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-muted p-1.5 rounded-[22px] border border-border/50">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all relative overflow-hidden ${
-                      activeTab === tab.id
-                        ? 'bg-card border border-border/50 text-success shadow-[0_4px_20px_-5px_rgba(16,185,129,0.15)] font-bold'
-                        : 'hover:bg-muted border border-transparent text-muted-foreground font-medium hover:text-foreground'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg mb-1">{tab.icon}</span>
-                    <span className="text-[10px] uppercase tracking-wider">{tab.name}</span>
-                    <span className="text-[8px] text-muted-foreground mt-0.5 hidden sm:inline-block font-normal">{tab.desc}</span>
-                    {activeTab === tab.id && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-success rounded-full" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Active Tab Panel */}
-            <div className="p-6 sm:p-8 !pt-0 space-y-6">
-              
-              {/* TAB 1: BANKING APP */}
-              {activeTab === 'banking' && (
-                <div className="space-y-5 animate-fadeIn">
-                  <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Mở Ứng Dụng Ngân Hàng</h3>
-                    <p className="text-[11px] text-muted-foreground">
-                      Chọn logo ngân hàng bạn dùng dưới đây. App Banking sẽ tự động mở lên và điền sẵn mọi thông tin.
-                    </p>
-                  </div>
-
-                  {hasBankDetails ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-                      {BANKS.map(bank => (
-                        <button
-                          key={bank.code}
-                          onClick={() => handleOpenBankApp(bank.code)}
-                          className="flex flex-col items-center justify-center p-4 rounded-2xl bg-muted/50 border border-border/50 hover:border-success/30 hover:bg-success/10 hover:shadow-sm transition-all group active:scale-95 text-center relative overflow-hidden"
-                          title={`Mở ứng dụng ${bank.name}`}
-                        >
-                          {RECOMMENDED_BANKS.includes(bank.code) && (
-                            <span className="absolute top-1 right-1 bg-success/20 border border-success/30 text-success text-[6px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full scale-90">
-                              Nhanh
-                            </span>
-                          )}
-                          <div className="w-12 h-12 bg-card rounded-xl flex items-center justify-center p-1.5 mb-2 group-hover:bg-muted transition-colors border border-border/50">
-                            <img 
-                              src={bank.logo} 
-                              alt={bank.name} 
-                              className="w-full h-full object-contain filter brightness-95 group-hover:brightness-100 group-hover:scale-105 transition-all"
-                            />
-                          </div>
-                          <span className="text-[10px] font-bold text-muted-foreground group-hover:text-foreground transition-colors truncate w-full uppercase tracking-tight">
-                            {bank.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-4 bg-warning/10 border border-warning/20 rounded-2xl text-center text-xs text-warning">
-                      Không có sẵn cấu hình ngân hàng. Vui lòng dùng nút thanh toán cổng PayOS ở Tab Thẻ/Apple Pay.
-                    </div>
-                  )}
-
-                  <div className="pt-2 text-center text-[10px] text-muted-foreground flex items-center justify-center gap-1.5">
-                    <span className="material-symbols-outlined text-xs text-muted-foreground">info</span>
-                    <span>Chức năng tự động điền chỉ khả dụng khi thao tác trên thiết bị di động (Mobile).</span>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: VIETQR */}
-              {activeTab === 'vietqr' && (
-                <div className="space-y-6 animate-fadeIn">
-                  <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Quét Mã VietQR Chuyển Khoản</h3>
-                    <p className="text-[11px] text-muted-foreground">
-                      Mở ứng dụng ngân hàng bất kỳ, quét mã QR này và kiểm tra thông tin trước khi chuyển.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row items-center gap-6 bg-muted/50 border border-border/50 p-5 sm:p-6 rounded-[28px]">
-                    {/* QR Display Card */}
-                    {qrImageUrl ? (
-                      <div className="w-full md:w-auto shrink-0 flex flex-col items-center">
-                        <div className="relative p-4 bg-white rounded-[24px] shadow-lg w-52 h-52 flex items-center justify-center border-4 border-border group overflow-hidden">
-                          <div className="absolute inset-0 border border-success/25 rounded-[20px] pointer-events-none z-10" />
-                          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-success to-transparent shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-scan z-10" />
-                          <img 
-                            src={qrImageUrl} 
-                            alt="VietQR Code" 
-                            className="w-full h-full object-contain relative z-0"
-                          />
-                        </div>
-                        <div className="flex gap-4 mt-3.5">
-                          <button
-                            onClick={handleDownloadQR}
-                            className="inline-flex items-center gap-1.5 text-[10px] font-bold text-success hover:text-success/80 transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[13px]">download</span>
-                            Tải ảnh QR
-                          </button>
-                          <span className="text-muted-foreground text-xs">|</span>
-                          <button
-                            onClick={handleOpenQRNewTab}
-                            className="inline-flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[13px]">open_in_new</span>
-                            Xem ảnh lớn
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-52 h-52 bg-muted border border-dashed border-border/50 rounded-[24px] flex items-center justify-center text-center text-xs text-muted-foreground">
-                        Không tạo được mã QR
-                      </div>
-                    )}
-
-                    {/* Detailed Invoice Info (With automated cell copy triggers) */}
-                    <div className="flex-1 w-full space-y-4 text-xs text-foreground">
-                      
-                      <div 
-                        onClick={() => handleCopy(paymentInfo.accountNumber, 'accountNumber')}
-                        className="space-y-1 p-2.5 rounded-xl border border-transparent hover:border-border hover:bg-muted cursor-pointer transition-all relative group"
-                        title="Bấm để copy số tài khoản"
-                      >
-                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Số tài khoản nhận</span>
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono font-black text-sm text-foreground">{paymentInfo.accountNumber}</span>
-                          <span className="material-symbols-outlined text-sm text-success">
-                            {copiedField === 'accountNumber' ? 'check_circle' : 'content_copy'}
-                          </span>
-                        </div>
-                        {copiedField === 'accountNumber' && (
-                          <span className="absolute right-8 top-1.5 text-[9px] font-bold text-success animate-fadeIn">Đã copy!</span>
-                        )}
-                      </div>
-
-                      <div 
-                        onClick={() => handleCopy(paymentInfo.reason, 'reason')}
-                        className="space-y-1 p-2.5 rounded-xl border border-transparent hover:border-border hover:bg-muted cursor-pointer transition-all relative group"
-                        title="Bấm để copy nội dung chuyển khoản"
-                      >
-                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider block">Nội dung chuyển khoản</span>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-foreground text-sm">{paymentInfo.reason}</span>
-                          <span className="material-symbols-outlined text-sm text-success">
-                            {copiedField === 'reason' ? 'check_circle' : 'content_copy'}
-                          </span>
-                        </div>
-                        {copiedField === 'reason' && (
-                          <span className="absolute right-8 top-1.5 text-[9px] font-bold text-success animate-fadeIn">Đã copy!</span>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 px-2.5 pt-1">
-                        <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Ngân hàng thụ hưởng</span>
-                          <div className="font-bold text-foreground">{getMerchantBankName(paymentInfo.bin)}</div>
-                        </div>
-
-                        <div className="space-y-1">
-                          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Chủ tài khoản nhận</span>
-                          <div className="font-bold text-foreground uppercase">{paymentInfo.accountName}</div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 3: MOMO */}
-              {activeTab === 'momo' && (
-                <div className="space-y-5 animate-fadeIn">
-                  <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Thanh Toán Bằng Ví MoMo</h3>
-                    <p className="text-[11px] text-muted-foreground">
-                      Sử dụng tính năng quét mã VietQR có sẵn trên MoMo để chuyển khoản ngân hàng nhanh.
-                    </p>
-                  </div>
-
-                  <div className="bg-[#a2195b]/5 border border-[#a2195b]/20 p-5 rounded-2xl space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 shrink-0 bg-[#a2195b] rounded-xl flex items-center justify-center text-white text-base font-extrabold shadow-[0_0_15px_rgba(162,25,91,0.3)]">
-                        MoMo
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-white uppercase tracking-wider">Hướng dẫn quét mã ví MoMo</h4>
-                        <p className="text-[10px] text-white/70 mt-0.5">Thao tác chuyển khoản ngân hàng hoàn toàn miễn phí</p>
-                      </div>
-                    </div>
-
-                    <ol className="text-xs text-foreground space-y-2 list-decimal list-inside leading-relaxed border-t border-border/50 pt-3">
-                      <li>Bấm chọn tab <button onClick={() => setActiveTab('vietqr')} className="text-success font-bold hover:underline">Mã VietQR</button> và chụp ảnh màn hình hoặc tải ảnh mã QR về máy.</li>
-                      <li>Click nút **Mở Ví MoMo** bên dưới hoặc tự mở ứng dụng MoMo trên điện thoại.</li>
-                      <li>Chọn tính năng **Quét Mã** (góc trên bên phải) rồi chọn hình ảnh QR vừa lưu.</li>
-                      <li>Kiểm tra thông tin giao dịch thụ hưởng và thực hiện chuyển khoản.</li>
-                    </ol>
-                  </div>
-
-                  <button
-                    onClick={() => window.location.href = 'momo://'}
-                    className="w-full relative group overflow-hidden bg-[#a2195b] hover:bg-[#b81d68] text-white rounded-2xl py-3.5 transition-all text-xs font-bold uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
-                  >
-                    <span>Mở ứng dụng Ví MoMo</span>
-                    <span className="material-symbols-outlined text-sm">open_in_new</span>
-                  </button>
-                </div>
-              )}
-
-              {/* TAB 4: APPLE PAY / CREDIT CARD */}
-              {activeTab === 'applepay' && (
-                <div className="space-y-6 animate-fadeIn">
-                  <div className="text-center space-y-1">
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                      {isApplePaySupported ? "Thẻ Quốc Tế / Apple Pay" : "Thẻ Quốc Tế / ATM Nội Địa"}
-                    </h3>
-                    <p className="text-[11px] text-muted-foreground">
-                      {isApplePaySupported 
-                        ? "Sử dụng thẻ Visa, Mastercard, JCB hoặc thanh toán một chạm bằng Apple Pay an toàn."
-                        : "Sử dụng thẻ Visa, Mastercard, JCB hoặc thẻ ATM nội địa Việt Nam an toàn."}
-                    </p>
-                  </div>
-
-                  {/* Glassmorphic Credit Card mockup */}
-                  <div className="relative w-full max-w-sm mx-auto h-44 bg-gradient-to-br from-foreground to-background border border-border/50 rounded-2xl p-6 shadow-xl flex flex-col justify-between overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700" />
-                    <div className="flex justify-between items-start">
-                      <span className="material-symbols-outlined text-3xl text-white/70">contactless</span>
-                      <span className="text-[10px] font-bold text-white/50 tracking-widest uppercase">HUGO STUDIO</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-[10px] text-white/30 tracking-widest uppercase">Thanh toán an toàn qua PayOS</div>
-                      <div className="flex gap-1.5 items-center">
-                        <div className="w-5 h-3 bg-white/20 rounded-sm" />
-                        <div className="w-5 h-3 bg-white/20 rounded-sm" />
-                        <div className="w-5 h-3 bg-white/20 rounded-sm" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Primary checkout button */}
-                  <button 
-                    onClick={handleOpenPayOS}
-                    className="w-full relative group overflow-hidden bg-success hover:bg-success/90 rounded-2xl p-3.5 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-[0_10px_30px_-10px_rgba(16,185,129,0.3)]"
-                  >
-                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                    <div className="relative flex items-center justify-center gap-2">
-                      <span className="font-bold text-xs text-white uppercase tracking-wider">
-                        {isApplePaySupported 
-                          ? "Thanh toán bằng Thẻ / Apple Pay qua PayOS" 
-                          : "Thanh toán bằng Thẻ Quốc Tế / ATM qua PayOS"}
-                      </span>
-                      <span className="material-symbols-outlined text-white text-sm">arrow_forward</span>
-                    </div>
-                  </button>
-
-                  {/* Informational tip for Apple Pay */}
-                  {isApplePaySupported && (
-                    <div className="p-3 bg-primary/10 dark:bg-primary/15 border border-primary/20 rounded-xl text-[10px] text-primary leading-relaxed text-center animate-fadeIn">
-                      💡 <strong>Lưu ý về Apple Pay:</strong> Nút Apple Pay sẽ tự động xuất hiện trên màn hình cổng PayOS sau khi click nút ở trên, nếu bạn đang sử dụng trình duyệt **Safari** trên thiết bị của Apple (iPhone, iPad, Mac) và đã kích hoạt thẻ trong **Apple Wallet**.
-                    </div>
-                  )}
-
-                  {/* Brand verification logos */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                    <div className="flex items-center gap-2 text-muted-foreground grayscale dark:grayscale-0 dark:opacity-60 hover:grayscale-0 hover:opacity-100 transition-all text-[9px] uppercase tracking-wider font-extrabold">
-                      <span>Visa</span>
-                      <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                      <span>Mastercard</span>
-                      <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                      <span>JCB</span>
-                      {isApplePaySupported && (
-                        <>
-                          <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                          <span>Apple Pay</span>
-                        </>
-                      )}
-                    </div>
-                    <span className="hidden sm:inline text-muted-foreground text-xs">|</span>
-                    <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-all">
-                      <img src="https://payos.vn/wp-content/uploads/2025/06/Casso-payOSLogo-1.svg" alt="PayOS" className="h-3.5 dark:brightness-125" />
-                      <span className="text-[9px] font-extrabold uppercase tracking-widest text-muted-foreground">Bảo mật</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </div>
-
-            {/* Bottom metadata and Action buttons */}
-            <div className="px-6 py-4 bg-muted/50 border-t border-border/50 flex flex-col space-y-4">
-              
-              {/* Info text */}
-              <div className="text-[10px] text-muted-foreground flex flex-col sm:flex-row justify-between items-center gap-2">
-                <div className="flex items-center gap-1">
-                  <span>Mã giao dịch:</span>
-                  <span className="font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">{paymentInfo.customLinkId}</span>
-                </div>
+            <div className="p-5 sm:p-8">
+              {activeTab === "bank" && (
                 <div>
-                  Ngày tạo: <span className="font-semibold text-muted-foreground">{new Date(paymentInfo.createdAt).toLocaleString('vi-VN')}</span>
-                </div>
-              </div>
-
-              {/* Cancel Button */}
-              {isAdminAuthenticated() && (
-                <div className="pt-3 border-t border-border/60 flex flex-col items-center">
-                  <button
-                    onClick={handleCancelPayment}
-                    disabled={cancelling}
-                    className="w-full sm:w-auto px-8 py-3 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/30 rounded-xl text-xs font-black uppercase tracking-wider transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    {cancelling ? (
-                      <div className="w-4.5 h-4.5 border-2 border-destructive border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <span className="material-symbols-outlined text-sm font-bold">cancel</span>
-                    )}
-                    Hủy Giao Dịch Chuyển Khoản
-                  </button>
-                  {cancelError && (
-                    <span className="text-[10px] text-destructive mt-1.5 font-bold animate-shake">{cancelError}</span>
-                  )}
+                  <h2 className="text-base font-black">Mở ứng dụng ngân hàng</h2>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Trên điện thoại, chọn ngân hàng để mở ứng dụng với số tiền, tài khoản và nội dung đã điền sẵn.</p>
+                  <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {BANKS.map((bank) => (
+                      <button key={bank.code} type="button" onClick={() => openBank(bank.code)} className="flex min-h-16 items-center gap-2 rounded-2xl border border-border bg-background p-3 text-left text-xs font-bold transition-colors hover:bg-muted">
+                        <img src={bank.logo} alt="" className="size-8 rounded-lg object-contain" /><span>{bank.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
+              {activeTab === "qr" && (
+                <QrPanel paymentInfo={paymentInfo} fallbackQrUrl={fallbackQrUrl} qrRef={qrRef} downloadQr={downloadQr} copy={copy} copied={copied} />
+              )}
+
+              {(activeTab === "momo" || activeTab === "shopeepay") && (
+                <div className="text-center">
+                  <h2 className="text-base font-black">Thanh toán bằng {activeTab === "momo" ? "MoMo" : "ShopeePay"}</h2>
+                  <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">Hệ thống sẽ tải mã VietQR đã điền sẵn, sau đó thử mở ví. Trong ứng dụng, chọn quét QR từ thư viện ảnh và kiểm tra thông tin trước khi xác nhận.</p>
+                  <button type="button" onClick={() => openWallet(activeTab)} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-foreground px-6 text-sm font-bold text-background">
+                    <span className="material-symbols-outlined">open_in_new</span>Mở {activeTab === "momo" ? "MoMo" : "ShopeePay"}
+                  </button>
+                  <p className="mt-3 text-[10px] text-muted-foreground">Khả năng mở trực tiếp phụ thuộc thiết bị và phiên bản ứng dụng ví.</p>
+                </div>
+              )}
+
+              <div className="mt-7 grid gap-2 rounded-2xl border border-border bg-muted/35 p-4 text-xs sm:grid-cols-2">
+                <button type="button" onClick={() => copy(paymentInfo.accountNumber, "account")} className="flex items-center justify-between rounded-xl bg-background p-3 text-left">
+                  <span><span className="block text-[10px] text-muted-foreground">Số tài khoản</span><strong className="font-mono">{paymentInfo.accountNumber}</strong></span>
+                  <span className="material-symbols-outlined text-lg">{copied === "account" ? "check" : "content_copy"}</span>
+                </button>
+                <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="flex items-center justify-between rounded-xl bg-background p-3 text-left">
+                  <span><span className="block text-[10px] text-muted-foreground">Nội dung</span><strong>{paymentInfo.reason}</strong></span>
+                  <span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>
+                </button>
+                <div className="sm:col-span-2 text-muted-foreground">Người nhận: <strong className="text-foreground">{paymentInfo.accountName}</strong> · {bankNames[paymentInfo.bin] || "Ngân hàng đối tác PayOS"}</div>
+              </div>
+
+              <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground"><span className="material-symbols-outlined text-base">verified_user</span><span>Không đóng trang cho đến khi giao dịch được xác nhận. Hugo Studio chỉ hiển thị dữ liệu thanh toán do API PayOS cung cấp và không lưu thông tin đăng nhập ngân hàng.</span></p>
+
+              {isAdminAuthenticated() && (
+                <button type="button" disabled={cancelling} onClick={cancelPayment} className="mt-5 min-h-11 w-full rounded-xl border border-destructive/30 text-xs font-bold text-destructive disabled:opacity-50">{cancelling ? "Đang hủy…" : "Hủy và xóa giao dịch"}</button>
+              )}
             </div>
-
-          </div>
+          </section>
         )}
-
-        {/* Optional Branding Banner */}
-        <div className="bg-card/50 backdrop-blur-xl rounded-[24px] p-5 border border-border/50 flex flex-col sm:flex-row items-center gap-4 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 dark:bg-primary/10 blur-[50px] pointer-events-none" />
-          <div className="w-11 h-11 shrink-0 bg-primary/10 rounded-full flex items-center justify-center border border-primary/20">
-            <span className="material-symbols-outlined text-xl text-primary animate-bounce-gentle">auto_awesome</span>
-          </div>
-          <div className="text-center sm:text-left relative z-10 flex-1">
-            <h4 className="text-foreground font-bold text-xs mb-0.5">Thiết kế Profile Chuyên Nghiệp</h4>
-            <p className="text-muted-foreground text-[10px] leading-relaxed mb-2">Nâng tầm thương hiệu cá nhân của bạn với danh thiếp điện tử Bento từ Hugo Studio.</p>
-            <a 
-              href="https://www.hugowishpax.studio" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="inline-block text-primary hover:text-primary/80 font-bold text-[9px] uppercase tracking-widest transition-colors"
-            >
-              Khám phá ngay →
-            </a>
-          </div>
-        </div>
-
       </main>
+    </div>
+  );
+}
 
-      {/* Footer */}
-      <footer className="py-6 text-center text-muted-foreground text-xs font-semibold relative z-10 mt-auto">
-        &copy; {new Date().getFullYear()} Hugo Studio. All rights reserved.
-      </footer>
-      <div id="payos-checkout-iframe-container" className="fixed top-0 left-0 w-full h-full z-[9999] pointer-events-none empty:hidden"></div>
+function QrPanel({ paymentInfo, fallbackQrUrl, qrRef, downloadQr, copy, copied }) {
+  return (
+    <div className="grid items-center gap-6 sm:grid-cols-[220px_1fr]">
+      <div ref={qrRef} className="mx-auto grid size-[220px] place-items-center rounded-3xl border border-border bg-white p-4 shadow-sm">
+        {paymentInfo.qrCode
+          ? <QRCodeSVG value={paymentInfo.qrCode} size={184} level="M" marginSize={1} />
+          : <img src={fallbackQrUrl} alt="Mã VietQR thanh toán" className="size-full object-contain" />}
+      </div>
+      <div>
+        <h2 className="text-base font-black">Quét VietQR</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Mở ứng dụng ngân hàng hoặc ví hỗ trợ VietQR, quét mã và kiểm tra số tiền trước khi chuyển.</p>
+        <button type="button" onClick={downloadQr} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-foreground px-4 text-xs font-bold text-background"><span className="material-symbols-outlined text-lg">download</span>Tải mã QR</button>
+        <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="ml-2 mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>Sao chép nội dung</button>
+      </div>
     </div>
   );
 }

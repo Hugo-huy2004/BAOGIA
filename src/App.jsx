@@ -31,6 +31,7 @@ import { PWAKeepAlive } from "./utils/pwaKeepAlive";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
+import { SecurityBlockBoundary } from "./components/SecurityBlockScreen";
 
 // Only navbar + footer ship with the entry chunk; the rest of the dictionary
 // is fetched per language (see i18n/config.js). Every screen below lives
@@ -51,7 +52,6 @@ const CoderCertificatePage = lazyRoute(() => import("./pages/public/CoderCertifi
 const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
-const StudentBenefitsPage = lazyRoute(() => import("./pages/public/StudentBenefitsPage"));
 const StudentPricingPage = lazyRoute(() => import("./pages/public/StudentPricingPage"));
 const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPage"));
 const UserGuidePage = lazyRoute(() => import("./pages/public/UserGuidePage"));
@@ -115,8 +115,6 @@ function AppContent() {
     !isBioRoute &&
     !isPartnerBioRoute &&
     !isPreviewRoute &&
-    location.pathname !== "/introduction" &&
-    location.pathname !== "/" &&
     !location.pathname.startsWith("/member") &&
     !location.pathname.startsWith("/admin") &&
     // Login is a focused, form-only screen (esp. as an installed PWA) — the full
@@ -221,7 +219,8 @@ function AppContent() {
             {/* Ví JOY chỉ còn một bản: tab /member/joy. Trang /joy cũ là bản
                 thứ hai, trùng chức năng nhưng khác hẳn giao diện. */}
             <Route path="/joy" element={<Navigate to="/member/joy" replace />} />
-            <Route path="/student-benefits" element={<StudentBenefitsPage />} />
+            {/* Quyền lợi HSSV + bảng giá HSSV đã gộp thành một trang. */}
+            <Route path="/student-benefits" element={<Navigate to="/student-pricing" replace />} />
             <Route path="/student-pricing" element={<StudentPricingPage />} />
             <Route path="/templates" element={<Navigate to="/services#templates" replace />} />
             <Route path="/faq" element={<FAQPage />} />
@@ -328,7 +327,8 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <LazyMotion features={loadMotionFeatures}>
+      <SecurityBlockBoundary>
+        <LazyMotion features={loadMotionFeatures}>
         <DataProvider>
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <TooltipProvider>
@@ -377,7 +377,8 @@ export default function App() {
             </TooltipProvider>
           </BrowserRouter>
         </DataProvider>
-      </LazyMotion>
+        </LazyMotion>
+      </SecurityBlockBoundary>
     </ErrorBoundary>
   );
 }

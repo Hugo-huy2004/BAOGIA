@@ -30,7 +30,7 @@ Kiểm tra chốt chặn cache: `node server/scripts/check-cache-headers.mjs`
 
 ## Bước 1 — Deploy Python AI lên Vercel ✅ ĐÃ XONG
 
-Project: **`hugo-huy2004s-projects/hugostudio-ai`** → https://hugostudio-ai.vercel.app
+Project: **`<vercel-team>/hugostudio-ai`** → https://hugostudio-ai.vercel.app
 
 Đã kiểm chứng trên bản production:
 

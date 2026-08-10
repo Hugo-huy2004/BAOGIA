@@ -72,7 +72,6 @@ const COMMAND_TEMPLATES = [
   "/help",
   "/stats",
   "/users",
-  "/bot",
   "/clean-logs",
   "/create-joy-voucher",
   "/create-payment",
@@ -310,18 +309,6 @@ export default function AdminDashboard({
       }
     }
 
-    else if (intent === "posts") {
-      if (step === "waiting_query") {
-        if (!input) {
-          addLog("[ERROR] ID bài viết cần xóa không được để trống.", "error");
-          addLog("[AI INTERACTIVE] Bạn muốn xóa bài viết nào? (Nhập ID bài viết):", "warning");
-          return;
-        }
-        setPendingCommand(null);
-        triggerCommandDirectly(`/posts delete ${input}`);
-      }
-    }
-
     else if (intent === "orders") {
       if (step === "waiting_query") {
         if (!input) {
@@ -404,7 +391,6 @@ export default function AdminDashboard({
       addLog("  /create-payment [người_nhận] [số_tiền] [nội_dung]      - Tạo link thanh toán/QR PayOS (Cú pháp 2).");
       addLog("  /lock [email/sđt]                                     - Khóa tài khoản thành viên.");
       addLog("  /unlock [email/sđt]                                   - Mở khóa tài khoản thành viên.");
-      addLog("  /bot [on/off]                                         - Bật/tắt AI Community Bot.");
       addLog("  /clean-logs                                           - Xóa sạch logs rác lưu trên máy chủ.");
       addLog("  /clear                                                - Xóa sạch màn hình Terminal.");
       addLog("  (Hoặc gõ tự do bằng Tiếng Việt, AI sẽ tự động phân tích và thực thi!)", "warning");
@@ -489,7 +475,7 @@ export default function AdminDashboard({
         return;
       }
 
-      let { intent, amount, recipient, reason, botState, query } = aiResult;
+      let { intent, amount, recipient, reason, query } = aiResult;
 
       // Automatically override recipient in contextual session
       if (focusedUser && !recipient) {
@@ -670,19 +656,6 @@ export default function AdminDashboard({
         } else {
           throw new Error("Không lấy được checkoutUrl từ PayOS.");
         }
-        return;
-      }
-
-      // 8. TOGGLE BOT COMMAND
-      if (intent === "bot") {
-        if (!botState) {
-          addLog("[ERROR] Thiếu trạng thái Bot (on/off). Ví dụ: 'bật bot' hoặc 'tắt bot'.", "error");
-          return;
-        }
-        const state = botState === "on";
-        addLog(`[PROCESSING] Đang cập nhật AI Bot trạng thái: ${botState.toUpperCase()}...`, "info");
-        await apiPost(`${VITE_API}/admin/community-bot`, { enabled: state });
-        addLog(`[SUCCESS] AI Community Bot đã chuyển sang: ${botState.toUpperCase()}`, "success");
         return;
       }
 
@@ -933,35 +906,6 @@ export default function AdminDashboard({
           addLog(`[PROCESSING] Đang thay đổi trạng thái hoạt động thiết bị: "${query}"...`, "info");
           const res = await apiPost(`${VITE_API}/admin/iot/toggle`, { deviceId: query });
           addLog(`[SUCCESS] ${res.message}`, "success");
-          return;
-        }
-      }
-
-      // COMMUNITY POSTS MODERATION
-      if (intent === "posts") {
-        if (reason === "list") {
-          addLog("[PROCESSING] Đang tải danh sách bài viết cộng đồng...", "info");
-          const posts = await apiFetch(`${VITE_API}/admin/community/posts`);
-          if (posts.length === 0) {
-            addLog("[INFO] Bảng tin cộng đồng trống.", "warning");
-            return;
-          }
-          addLog("--- BÀI VIẾT CỘNG ĐỒNG GẦN ĐÂY ---", "info");
-          posts.forEach((p) => {
-            addLog(`- [ID: ${p._id}] Tác giả: ${p.senderName} (${p.senderEmail}) · Nội dung: "${p.message}" · Lượt thích: ${p.likesCount || 0}`);
-          });
-          return;
-        }
-
-        if (reason === "delete") {
-          if (!query) {
-            setPendingCommand({ intent: "posts", step: "waiting_query" });
-            addLog("[AI INTERACTIVE] Bạn muốn xóa bài viết nào? (Nhập ID bài viết):", "warning");
-            return;
-          }
-          addLog(`[PROCESSING] Đang gỡ bỏ bài viết cộng đồng [ID: ${query}]...`, "info");
-          await apiDelete(`${VITE_API}/admin/community/posts/${query}`);
-          addLog(`[SUCCESS] Đã gỡ bỏ bài viết [ID: ${query}] thành công.`, "success");
           return;
         }
       }

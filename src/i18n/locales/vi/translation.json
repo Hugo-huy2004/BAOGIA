@@ -79,6 +79,34 @@
     "supportServer": "Ủng Hộ Server",
     "userGuide": "Hướng dẫn sử dụng"
   },
+  "donationUI": {
+    "title": "Ủng hộ Hugo Studio",
+    "description": "Nhập khoản bạn muốn gửi. Các mức bên dưới chỉ là gợi ý nhanh.",
+    "open": "Mở bảng ủng hộ",
+    "hide": "Ẩn nút ủng hộ nổi",
+    "close": "Đóng bảng ủng hộ",
+    "creating": "Đang tạo thanh toán PayOS…",
+    "error": "Chưa thể tạo thanh toán. Vui lòng thử lại.",
+    "continuePayOS": "Tạo mã ủng hộ · {{amount}}đ",
+    "securePayOS": "Giao diện Hugo Studio · Dữ liệu thanh toán từ API PayOS",
+    "suggestions": "Mức ủng hộ gợi ý",
+    "amountLabel": "Số tiền bạn muốn ủng hộ",
+    "minimum": "Tối thiểu 5.000 VNĐ",
+    "minimumError": "Số tiền ủng hộ tối thiểu là 5.000 VNĐ.",
+    "nameLabel": "Tên của bạn",
+    "emailLabel": "Email nhận thư cảm ơn",
+    "identityError": "Vui lòng nhập tên và email hợp lệ.",
+    "recognitionNotice": "Ủng hộ thành công là tên bạn sẽ ghé vào góc cảm ơn nhỏ xinh của Hugo Studio nha.",
+    "terms": "Khi tiếp tục, bạn xác nhận đây là khoản ủng hộ tự nguyện, không mua hay mở khóa tính năng và nhìn chung không hoàn lại, trừ giao dịch trùng, lỗi kỹ thuật hoặc trường hợp pháp luật quy định khác.",
+    "termsError": "Vui lòng xác nhận điều khoản khoản ủng hộ.",
+    "packs": {
+      "tea": "Trà đá",
+      "breakfast": "Bữa sáng",
+      "coffee": "Ly cà phê",
+      "server": "Duy trì server",
+      "supporter": "Người đồng hành"
+    }
+  },
   "intro": {
     "nav": {
       "welcome": "Chào mừng",
@@ -97,7 +125,7 @@
       "discoveries": "Khám Phá"
     },
     "about": {
-      "desc": "Mình là Hugo — một người mộng mơ viết code. Sinh năm 2004, lớn lên giữa thế giới số đầy logic, mình luôn khao khát kiến tạo nên những góc nhỏ ấm áp, thơ mộng và chứa đựng cảm xúc chân thành. Với mình, mỗi sản phẩm số là một hành tinh nhỏ, nơi từng chi tiết, từng nút bấm đều được nâng niu để sưởi ấm cho người bạn đồng hành.",
+      "desc": "Mình là Hugo — một người Gen Z yêu viết code và biến ý tưởng thành những trải nghiệm số có cảm xúc.",
       "hello": "Xin chào, tôi là"
     },
     "slide1": {
@@ -204,24 +232,27 @@
       "badge": "✦ Triết Lý Thiết Kế",
       "title1": "Cách tôi kiến tạo",
       "title2": "Trải nghiệm người dùng",
-      "quote": "\"Kiến tạo trải nghiệm bằng cả trái tim. Mỗi dòng code đều phải có linh hồn, mang lại sự ngạc nhiên và ngọt ngào.\"",
-      "wowTitle": "Sự Ngạc Nhiên (Wow Factor)",
-      "wowDesc": "Tôi tin rằng giao diện kỹ thuật số không được vô cảm. Mọi nút bấm, thẻ thông tin hay hiệu ứng cuộn trang đều phải được phủ lên một lớp chuyển động tinh tế để kích thích sự hào hứng.",
-      "sweetTitle": "Sự Ngọt Ngào & Chỉn Chu",
-      "sweetDesc": "Sự mượt mà trong bảng màu, khoảng cách thiết kế và độ phản hồi của dữ liệu tạo nên một trải nghiệm liền mạch, dễ hiểu và an tâm.",
+      "quote": "\"Mình ưu tiên sự rõ ràng và ổn định trước; cá tính đến sau, trong những chi tiết thật sự có lý do để tồn tại.\"",
+      "wowTitle": "Thẩm mỹ có mục đích",
+      "wowDesc": "Màu sắc, chuyển động và khoảng trắng phải giúp người dùng hiểu giao diện hoặc cảm nhận được trạng thái của hệ thống, không chỉ để trang trông cầu kỳ hơn.",
+      "sweetTitle": "Chỉn chu trong cách dùng",
+      "sweetDesc": "Mình quan tâm đến những chi tiết nhỏ như vùng chạm trên điện thoại, trạng thái tải, thông báo lỗi và khả năng đọc nội dung trong nhiều kích thước màn hình.",
       "principles": "NGUYÊN TẮC SÁNG TẠO",
-      "p1": "Đặt trái tim làm trung tâm trải nghiệm.",
-      "p2": "Tối giản thư viện ngoài để đạt hiệu năng tối đa.",
-      "p3": "Đồng bộ ngôn ngữ thiết kế từ đầu đến cuối."
+      "p1": "Bắt đầu từ nhu cầu thật của người dùng.",
+      "p2": "Ưu tiên hiệu năng, mobile và khả năng tiếp cận.",
+      "p3": "Giữ giao diện nhất quán và mã nguồn dễ bảo trì."
     },
     "slide9": {
-      "badge": "✦ Giữ Liên Lạc",
+      "badge": "✦ Liên Hệ",
       "title": "Liên Kết Kết Nối Với Hugo",
-      "desc": "Nhấn vào các biểu tượng bên dưới để chuyển tiếp kết nối trực tiếp đến các trang mạng xã hội và kênh thông tin liên hệ chính thức của tôi.",
+      "desc": "Trao đổi dự án, cơ hội hoặc đơn giản là chào nhau.",
       "zalo": "Zalo Chat",
       "email": "Gửi Email",
       "fb": "Facebook",
-      "tiktok": "TikTok"
+      "tiktok": "TikTok",
+      "supporters": "Những người bạn đồng hành cùng Hugo Studio",
+      "supporterItem": "{{name}}",
+      "supportersEmpty": "Một chỗ nhỏ xinh đang chờ tên bạn nè."
     },
     "slide10": {
       "badge": "✦ Bắt Đầu Ngay",
@@ -243,7 +274,7 @@
       "badge": "✦ Người Đứng Sau Studio",
       "title1": "Sinh viên năm cuối,",
       "title2": "kiến tạo trải nghiệm đẹp.",
-      "desc": "Mình là Hugo — sinh viên năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Hugo Studio bắt đầu từ những trang web mình làm để học, rồi trở thành một không gian để HSSV tạo Bio, dùng tiện ích và mạnh dạn xây dấu ấn số đầu tiên. Mình cũng trực tiếp nhận những dự án website phù hợp cho cá nhân và cửa hàng nhỏ. Jason Phan đồng hành cùng mình trong vai trò đối tác đồng phát triển.",
+      "desc": "Mình là Peter Hugo Wishpax Lê, thuộc thế hệ Gen Z và đang học năm cuối ngành Kỹ thuật Phần mềm tại Greenwich Việt Nam. Mình tập trung vào web app, UI/UX và trải nghiệm trên điện thoại. Hugo Studio là portfolio ghi lại các dự án, kỹ năng và hướng phát triển của mình. Jason Phan đồng hành trong một số hạng mục.",
       "founderRole": "Sinh viên thiết kế & phát triển",
       "partnerRole": "Đối Tác Đồng Phát Triển",
       "openToWork": "Sẵn sàng thực tập & cơ hội việc làm",
@@ -317,19 +348,37 @@
       "navServices": "Dịch vụ",
       "navBooking": "Đặt lịch",
       "heroWord": "Hugo",
-      "heroEyebrow": "Hugo Studio · Đồng hành cùng người học",
+      "heroEyebrow": "Hugo Lê · Portfolio",
       "heroTitle1": "Mình là Hugo.",
-      "heroTitle2": "Mình xây một góc số cho người học.",
-      "heroDesc": "HSSV có thể tạo Bio, dùng tiện ích học tập và khám phá các sản phẩm miễn phí. Khi bạn cần một website riêng, mình cũng trực tiếp lắng nghe và đồng hành từ ý tưởng đến lúc chạy thật.",
-      "heroCta": "Khám phá quyền lợi HSSV",
+      "heroTitle2": "Mình thiết kế và xây sản phẩm số.",
+      "heroDesc": "Sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam. Đây là portfolio các dự án mình đã xây dựng.",
+      "heroCta": "Xem dự án",
       "heroSecondaryCta": "Kể nhu cầu website",
+      "heroSwipe": "Vuốt để xem portfolio",
+      "heroScroll": "Cuộn để xem portfolio",
       "previewStatus": "Đang hoạt động",
       "previewName": "Hugo Student",
       "previewTagline": "Một danh tính số, nhiều tiện ích.",
-      "aboutLabel": "Người đứng sau Hugo Studio",
-      "aboutH1": "Mình là Hugo,",
-      "aboutH2": "sinh viên năm cuối mê thiết kế.",
-      "aboutH3": "Mình bắt đầu Hugo Studio để người học có một nơi thân thiện để tạo dấu ấn, thử công nghệ và được đồng hành.",
+      "aboutLabel": "Về mình",
+      "aboutH1": "Peter Hugo Wishpax Lê,",
+      "aboutH2": "sinh viên năm cuối Kỹ thuật Phần mềm.",
+      "aboutH3": "Mình học tốt nhất khi tự tay biến kiến thức thành những sản phẩm có thể chạy và được sử dụng.",
+      "education": {
+        "highSchool": {
+          "label": "Trung học phổ thông",
+          "name": "THPT Nguyễn Đình Chiểu",
+          "detail": "Mỹ Tho · Thành lập 1879",
+          "slogan": "Truyền thống cách mạng · Dạy giỏi — Học giỏi",
+          "logoAlt": "Logo THPT Nguyễn Đình Chiểu Mỹ Tho"
+        },
+        "university": {
+          "label": "Đại học",
+          "name": "Greenwich Việt Nam",
+          "detail": "Kỹ thuật Phần mềm · Năm cuối",
+          "slogan": "Education without Boundaries",
+          "logoAlt": "Logo Greenwich Việt Nam liên kết FPT Education"
+        }
+      },
       "featT1": "Một điểm bắt đầu nhỏ cho hành trình số của bạn.",
       "featT2": "Tạo Bio, khám phá tiện ích học tập hoặc kể mình nghe website bạn đang cần.",
       "cardVideo": "Mỗi dự án bắt đầu bằng một câu chuyện cần được kể rõ.",
@@ -352,53 +401,49 @@
       "weakTitle": "Điểm cần cải thiện",
       "weak1": "Kinh nghiệm làm nhóm của mình mới ở mức đồ án trường — chạy Scrum, phối hợp frontend với backend. Mình muốn học cách một đội ngũ chuyên nghiệp thật sự vận hành.",
       "weak2": "Đôi khi quá cầu toàn về chi tiết, nên mình luôn thống nhất phạm vi và deadline rõ ràng ngay từ đầu.",
-      "howTitle": "Cách mình tạo trải nghiệm cho người dùng",
-      "stat1v": "Miễn phí",
-      "stat1l": "Quyền lợi cốt lõi cho HSSV xác minh",
+      "howTitle": "Cách mình làm sản phẩm",
+      "stat1v": "Gen Z",
+      "stat1l": "Thế hệ",
       "stat2v": "Greenwich",
       "stat2l": "Năm cuối · Kỹ thuật Phần mềm",
-      "stat3v": "8+",
-      "stat3l": "Tiện ích miễn phí cho HSSV",
-      "stat4v": "12 tháng",
-      "stat4l": "Bio .edu miễn phí trọn gói",
-      "partnerLabel": "Đồng hành cùng mình",
-      "contactTitle": "Bắt đầu dấu ấn số đầu tiên của bạn.",
+      "partnerLabel": "Cùng phát triển với",
+      "contactTitle": "Kết nối với mình.",
       "marqueeTitle": "Công nghệ mình được học",
       "work": {
-        "eyebrow": "Những chương đã thành hình",
-        "title": "Ba sản phẩm kể tiếp câu chuyện Hugo Studio.",
-        "desc": "Hugo Bio .edu giúp người học kể câu chuyện của mình; JOY ghi nhận hành trình sử dụng và đóng góp; Hugo Arcade mở ra khoảng nghỉ bằng những trò chơi nhẹ.",
+        "eyebrow": "Dự án tiêu biểu",
+        "title": "Những sản phẩm mình đã trực tiếp xây dựng.",
+        "desc": "Mỗi dự án dưới đây đánh dấu một nhóm bài toán khác nhau: hồ sơ cá nhân, dữ liệu giao dịch và trải nghiệm tương tác. Chúng cũng cho thấy cách mình kết hợp giao diện, logic hệ thống và thiết kế cho điện thoại.",
         "items": [
           {
-            "badge": "Ưu tiên",
-            "kind": "Miễn phí cho HSSV xác minh",
+            "badge": "Hồ sơ số",
+            "kind": "Web app · PWA",
             "title": "Hugo Bio .edu",
-            "desc": "Hồ sơ số được cá nhân hóa để học sinh, sinh viên giới thiệu bản thân, dự án, thành tích và các liên kết quan trọng bằng một đường dẫn riêng.",
-            "outcome": "Xác minh email giáo dục tự động, tùy chỉnh giao diện, khu dự án, đặt lịch và liên kết cá nhân — miễn phí trong 12 tháng.",
-            "cta": "Tạo Bio .edu"
+            "desc": "Hệ thống hồ sơ số cho phép người dùng trình bày thông tin cá nhân, dự án, thành tích và các liên kết trong một trang riêng có thể tùy chỉnh.",
+            "outcome": "Mình phụ trách trải nghiệm React, giao diện responsive, xác thực thành viên và luồng quản lý nội dung Bio.",
+            "cta": "Xem dự án"
           },
           {
-            "badge": "Phần thưởng",
-            "kind": "Ví điểm toàn hệ sinh thái",
+            "badge": "Bảo mật",
+            "kind": "Hạ tầng sản phẩm",
             "title": "JOY",
-            "desc": "Điểm thưởng chung cho các hoạt động học tập, thử thách, thành tích và đóng góp trong Hugo Studio.",
-            "outcome": "Theo dõi số dư và lịch sử rõ ràng, nhận thưởng thông minh, chuyển JOY và sử dụng xuyên các ứng dụng hỗ trợ.",
-            "cta": "Mở ví JOY"
+            "desc": "Ví điểm nội bộ kết nối hoạt động, thành tích và phần thưởng giữa nhiều ứng dụng trong Hugo Studio.",
+            "outcome": "Mình xây luồng số dư, lịch sử giao dịch, chuyển điểm và mã QR được máy chủ ký để tránh dữ liệu giả từ phía trình duyệt.",
+            "cta": "Xem dự án"
           },
           {
-            "badge": "Giải trí",
-            "kind": "Game nhẹ · Toàn màn hình",
+            "badge": "Trò chơi",
+            "kind": "Lập trình tương tác",
             "title": "Hugo Arcade",
-            "desc": "Thư viện game được làm lại cho điện thoại với 2048, Chess 3D, Snake, Tetris, Space Survivor và nhiều thử thách.",
-            "outcome": "Gameplay theo chặng, BOT và Boss đa dạng, hiệu ứng mượt, bảng thành tích cùng phần thưởng JOY.",
-            "cta": "Vào Hugo Arcade"
+            "desc": "Thư viện trò chơi trên trình duyệt gồm 2048, Chess 3D, Snake, Tetris, Space Survivor và các thử thách ngắn.",
+            "outcome": "Mình tập trung vào điều khiển cảm ứng, trạng thái trò chơi, hiệu năng animation và bố cục toàn màn hình trên mobile.",
+            "cta": "Xem dự án"
           }
         ]
       },
       "meta": {
-        "title": "Hugo Studio — Bio Và Tiện Ích Số Cho Học Sinh, Sinh Viên",
-        "description": "Hugo Studio giúp HSSV tạo Bio cá nhân, dùng tiện ích học tập và xây dấu ấn số; đồng thời tư vấn website trực tiếp cho cá nhân và cửa hàng nhỏ.",
-        "keywords": "Hugo Studio, Bio sinh viên miễn phí, portfolio sinh viên, tiện ích học tập, thiết kế website cá nhân, website quán nhỏ"
+        "title": "Peter Hugo Wishpax Lê — Portfolio Lập Trình Và Thiết Kế Sản Phẩm",
+        "description": "Portfolio cá nhân của Peter Hugo Wishpax Lê, sinh viên năm cuối Kỹ thuật Phần mềm tại Greenwich Việt Nam, gồm hành trình học tập, kỹ năng và các sản phẩm đã xây dựng.",
+        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, dự án React"
       },
       "heroCvCta": "Tải CV",
       "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào."
@@ -437,6 +482,8 @@
       "desc": "Bạn chỉ cần kể mục tiêu, điều đang vướng hoặc sản phẩm muốn tạo. Mình sẽ giúp xác định hướng làm vừa đủ — từ Bio và portfolio cho HSSV đến website cho cá nhân, quán và cửa hàng nhỏ.",
       "viewPricing": "Chọn tình huống của bạn",
       "contact": "Kể mình nghe nhu cầu",
+      "swipe": "Vuốt để xem tiếp",
+      "scroll": "Cuộn để xem tiếp",
       "trust": [
         "Trao đổi trực tiếp với người thiết kế và phát triển",
         "Phạm vi, thời gian và chi phí được thống nhất trước",
@@ -614,96 +661,132 @@
     "studentPlans": {
       "orderCta": "Liên hệ đăng ký",
       "detailsCta": "Xem điều kiện xác minh & Chi tiết gói HSSV",
-      "exclusiveBio": {
-        "label": "HSSV",
-        "name": "Trang Bio Cá Nhân",
-        "price": "99.000đ",
-        "note": "Thiết kế theo câu chuyện và nhu cầu riêng, không dùng bố cục rập khuôn.",
-        "desc": "Một trang giới thiệu bản thân hoàn toàn độc lập với thiết kế riêng dành riêng cho bạn. Tối ưu để xin việc, học bổng hay kết nối mạng xã hội — mọi thứ trên một trang bio mình chọn.",
-        "tagline": "Khác biệt trong vài dòng",
-        "includes": [
-          "Thiết kế trang Bio độc đáo, không trùng lặp — riêng biệt cho bạn",
-          "Tối đa 5 liên kết (GitHub, LinkedIn, hồ sơ năng lực, mạng xã hội...)",
-          "Phần giới thiệu về bản thân (tóm tắt, sở thích, kỹ năng chọn lọc)",
-          "Tối ưu hiển thị đẹp trên Desktop & Mobile (Responsive)"
-        ]
+      "capLabel": "Trần phạm vi",
+      "compareLabel": "So với bảng giá thường",
+      "groupCoursework": {
+        "title": "Hỗ trợ bài coursework cuối môn",
+        "desc": "Bài được chấm điểm, nên mọi gói ở đây đều bàn giao kèm tài liệu giải thích code, và kèm một điều kiện: bạn phải tự bảo vệ được bài."
+      },
+      "groupProfile": {
+        "title": "Hồ sơ cá nhân — không liên quan điểm số",
+        "desc": "Không phải bài tập, không nộp cho ai chấm. Đây là hồ sơ bạn mang đi xin việc, xin học bổng."
       },
       "bug": {
         "label": "HSSV",
-        "name": "Sửa lỗi Coursework",
-        "price": "Từ 120.000đ",
-        "note": "Báo giá nhanh theo yêu cầu đề bài. Giải quyết nhanh trước thời hạn nộp bài.",
-        "desc": "Bài tập lớn cuối kỳ bị lỗi logic, kết nối DB hoặc vỡ layout? Mình hỗ trợ debug để bài chạy hoàn hảo.",
-        "tagline": "Cứu cánh nộp bài",
+        "name": "Chẩn đoán & Sửa lỗi",
+        "price": "120.000đ",
+        "unit": "/lỗi",
+        "tagline": "Kẹt sát hạn nộp bài",
+        "note": "Tính theo từng lỗi đã chốt. Mình chỉ chạm vào đúng đoạn hỏng, phần còn lại vẫn là code của bạn.",
+        "desc": "Bài sai logic, không kết nối được database hoặc vỡ layout. Mình tìm nguyên nhân, sửa đúng chỗ đó và giải thích vì sao nó hỏng.",
         "includes": [
-          "Khắc phục đúng lỗi logic code hoặc lỗi hiển thị đã chốt",
-          "Hướng dẫn nhanh qua Zalo cách deploy lên host free (Vercel/Render)",
-          "Bảo hành chạy thử ổn định trong 3 ngày",
-          "Bàn giao code chạy hoàn chỉnh"
+          "Tìm và sửa đúng lỗi đã chốt trước khi bắt đầu",
+          "Ghi chú giải thích nguyên nhân để bạn trả lời được khi giảng viên hỏi",
+          "Link Git để bạn clone code đã sửa về máy",
+          "Bảo hành 3 ngày cho đúng lỗi đã sửa"
+        ],
+        "cap": [
+          "Tối đa 2 lỗi mỗi đơn",
+          "Chỉ sửa phần đang hỏng — không viết mới chức năng"
+        ]
+      },
+      "html": {
+        "label": "HTML/CSS/JS",
+        "name": "Coursework Web tĩnh",
+        "price": "490.000đ",
+        "tagline": "Giao diện responsive",
+        "note": "Nhóm 2 bạn chia ra còn ~245.000đ/người.",
+        "desc": "Bài cuối môn Thiết kế web: dựng layout responsive và hiệu ứng DOM cơ bản. Không backend, không cơ sở dữ liệu.",
+        "includes": [
+          "Link Git riêng để bạn clone toàn bộ source về",
+          "Giao diện responsive chạy tốt trên điện thoại",
+          "Hiệu ứng chuyển động DOM và JavaScript cơ bản",
+          "Tài liệu hướng dẫn: cấu trúc thư mục, vai trò từng file, cách chạy",
+          "Code chú thích tiếng Việt + hướng dẫn tự deploy miễn phí"
+        ],
+        "cap": [
+          "1 môn, tối đa 4 trang tĩnh",
+          "Không backend, không cơ sở dữ liệu",
+          "Không nhận đồ án chuyên ngành hoặc đồ án tốt nghiệp"
+        ],
+        "compare": "Bằng khoảng 1/3 gói Website Một Trang (1.490.000đ)."
+      },
+      "php": {
+        "label": "PHP/SQL",
+        "name": "Coursework Web động",
+        "price": "990.000đ",
+        "tagline": "CRUD & phân quyền",
+        "note": "Nhóm 3 bạn chia ra còn ~330.000đ/người.",
+        "desc": "Bài cuối môn Lập trình web động: xử lý dữ liệu CRUD, đăng ký và đăng nhập phân quyền cơ bản.",
+        "includes": [
+          "Link Git riêng để bạn clone toàn bộ source về",
+          "Xử lý dữ liệu bằng PHP + cơ sở dữ liệu MySQL",
+          "Đăng ký, đăng nhập và phân quyền cơ bản",
+          "File SQL và dữ liệu mẫu sẵn để chạy thử ngay",
+          "Tài liệu hướng dẫn: cài XAMPP, import database, luồng chạy từng chức năng"
+        ],
+        "cap": [
+          "1 môn, tối đa 6 bảng dữ liệu",
+          "Tối đa 2 nhóm chức năng CRUD + đăng nhập",
+          "Không nhận đồ án chuyên ngành hoặc đồ án tốt nghiệp"
+        ],
+        "compare": "Rẻ hơn 1/3 so với gói Website Một Trang (1.490.000đ)."
+      },
+      "react": {
+        "label": "REACT/NODE",
+        "name": "Coursework Web nâng cao",
+        "price": "1.690.000đ",
+        "tagline": "SPA + REST API",
+        "note": "Nhóm 4 bạn chia ra còn ~425.000đ/người.",
+        "desc": "Bài cuối môn Web nâng cao: SPA React nối REST API Node/Express, dữ liệu trên MongoDB hoặc PostgreSQL.",
+        "includes": [
+          "Link Git riêng để bạn clone toàn bộ source về",
+          "Kiến trúc SPA React + REST API Node.js/Express",
+          "Đăng nhập và tối đa 3 nhóm chức năng CRUD",
+          "Dữ liệu mẫu (seed data) sẵn để chạy thử ngay",
+          "Tài liệu hướng dẫn: cài môi trường, biến môi trường, sơ đồ luồng dữ liệu từng API"
+        ],
+        "cap": [
+          "1 môn, tối đa 3 nhóm chức năng CRUD + đăng nhập",
+          "1 REST API và 1 cơ sở dữ liệu",
+          "Không nhận đồ án chuyên ngành hoặc đồ án tốt nghiệp"
+        ],
+        "compare": "Rẻ hơn 43% so với gói Website Nhiều Trang (2.990.000đ)."
+      },
+      "exclusiveBio": {
+        "label": "HSSV",
+        "name": "Bio Thiết Kế Riêng",
+        "price": "99.000đ",
+        "tagline": "Nâng cấp từ bản miễn phí",
+        "note": "Bản miễn phí bạn tự dựng bằng trình soạn thảo có sẵn. Bản này mình vẽ riêng theo câu chuyện của bạn.",
+        "desc": "Một trang giới thiệu bản thân với bố cục và màu sắc làm riêng, không dùng theme dựng sẵn. Tối ưu để gắn vào CV, hồ sơ học bổng hay mạng xã hội.",
+        "includes": [
+          "Bố cục và bảng màu thiết kế riêng, không trùng ai",
+          "Tối đa 5 liên kết (GitHub, LinkedIn, hồ sơ năng lực, mạng xã hội...)",
+          "Phần giới thiệu bản thân: tóm tắt, sở thích, kỹ năng chọn lọc",
+          "Hiển thị đẹp trên cả máy tính và điện thoại"
+        ],
+        "cap": [
+          "1 trang, tối đa 5 liên kết",
+          "2 lượt chỉnh sửa sau khi bàn giao"
         ]
       },
       "bento": {
         "label": "HSSV",
         "name": "Bento CV / Hồ Sơ Năng Lực",
         "price": "799.000đ",
-        "oldPrice": "1.500.000đ",
-        "discount": "-46%",
-        "note": "Thiết kế Bento Grid hiện đại. Tối ưu cho xin việc, học bổng hoặc du học.",
-        "desc": "Khoe thành tích học tập, bài tập nổi bật và các link liên kết cá nhân một cách aesthetic chuẩn Apple-style.",
         "tagline": "Tối ưu xin việc & học bổng",
+        "note": "Hồ sơ cá nhân, không phải bài tập — không ảnh hưởng gì tới điểm số của bạn.",
+        "desc": "Trình bày thành tích học tập, dự án cá nhân nổi bật và các liên kết theo bố cục Bento Grid gọn gàng, dễ đọc trong 30 giây đầu.",
         "includes": [
-          "1 trang hồ sơ năng lực theo bố cục Bento Grid, tối đa 7 phần nội dung",
-          "Kết nối link Github, mạng xã hội, thông tin liên lạc",
-          "Form nhận liên hệ/tin nhắn đổ về Google Sheet miễn phí",
-          "Deploy lên hosting miễn phí trọn đời (Vercel/Netlify)"
-        ]
-      },
-      "html": {
-        "label": "HTML/CSS/JS",
-        "name": "Web App Coursework (HTML)",
-        "price": "Từ 590.000đ",
-        "oldPrice": "1.200.000đ",
-        "discount": "-50%",
-        "note": "Cắt giao diện tĩnh, hiệu ứng DOM JS cơ bản. Nhóm 2 bạn chia ra chỉ ~295k/người.",
-        "desc": "Phù hợp môn Thiết kế web, xây dựng layout Responsive, làm đồ án môn học giao diện tĩnh.",
-        "tagline": "Giao diện Responsive",
-        "includes": [
-          "Thiết kế giao diện Responsive tương thích di động",
-          "Hiệu ứng chuyển động DOM, Javascript cơ bản",
-          "Tài liệu hướng dẫn tự chạy code chi tiết",
-          "Bàn giao source code sạch + hướng dẫn tự deploy free"
-        ]
-      },
-      "php": {
-        "label": "PHP/SQL",
-        "name": "Web App Coursework (PHP)",
-        "price": "Từ 1.490.000đ",
-        "oldPrice": "2.500.000đ",
-        "discount": "-40%",
-        "note": "Web động PHP/MySQL cơ bản. Nhóm 3 bạn chia ra chỉ ~495k/người.",
-        "desc": "Phù hợp môn Lập trình web động cơ bản, quản lý dữ liệu CRUD, đăng ký/đăng nhập.",
-        "tagline": "Dữ liệu động",
-        "includes": [
-          "Xử lý dữ liệu bằng ngôn ngữ PHP + database MySQL",
-          "Tính năng Đăng ký, Đăng nhập phân quyền cơ bản",
-          "Tích hợp sẵn bộ dữ liệu mẫu (Seed Mock Data) để chạy thử",
-          "Tặng kèm: 1 buổi Call trực tiếp hướng dẫn setup và chạy thử"
-        ]
-      },
-      "react": {
-        "label": "React/Node",
-        "name": "Web App Coursework (REACT)",
-        "price": "Từ 2.490.000đ",
-        "oldPrice": "4.000.000đ",
-        "discount": "-37%",
-        "note": "Full-stack React/Node.js nâng cao. Nhóm 4 bạn chia ra chỉ ~620k/người.",
-        "desc": "Phù hợp bài tập lớn Web nâng cao, Single Page App React, REST API, MongoDB/PostgreSQL.",
-        "tagline": "Full-stack React/Node.js",
-        "includes": [
-          "Kiến trúc SPA React + REST API Backend Node.js/Express",
-          "Tặng kèm: 1 buổi Call trực tiếp giải thích code và hướng dẫn chạy",
-          "Tích hợp sẵn bộ dữ liệu mẫu (Seed Mock Data) để chạy thử",
-          "Đồng hành hỗ trợ cài đặt môi trường chạy thực tế"
+          "1 trang hồ sơ năng lực theo bố cục Bento Grid",
+          "Kết nối GitHub, mạng xã hội và thông tin liên lạc",
+          "Form nhận liên hệ đổ thẳng về Google Sheet miễn phí",
+          "Đưa lên hosting miễn phí trọn đời (Vercel/Netlify)"
+        ],
+        "cap": [
+          "Tối đa 7 khối nội dung",
+          "2 lượt chỉnh sửa sau khi bàn giao"
         ]
       }
     },
@@ -991,40 +1074,143 @@
     }
   },
   "bookingPage": {
+    "meta": {
+      "title": "Trao Đổi Dự Án Website | Hugo Studio",
+      "description": "Chia sẻ nhu cầu bằng biểu mẫu gợi ý ngắn gọn. Hugo sẽ phản hồi để cùng xác định phạm vi, thời gian và chi phí phù hợp trước khi bắt đầu.",
+      "keywords": "trao đổi dự án website, tư vấn website, portfolio cá nhân, website cửa hàng, Hugo Studio"
+    },
     "toast": {
-      "success": "Yêu cầu của bạn đã được gửi thành công! Tôi sẽ liên hệ trong 24h.",
-      "error": "Có lỗi khi gửi form. Vui lòng thử lại sau.",
-      "networkError": "Lỗi kết nối. Vui lòng kiểm tra internet và thử lại."
+      "success": "Đã gửi yêu cầu. Mình sẽ phản hồi trong vòng 24 giờ làm việc.",
+      "error": "Chưa thể gửi yêu cầu. Vui lòng kiểm tra kết nối và thử lại.",
+      "networkError": "Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.",
+      "chooseProject": "Bạn hãy chọn một loại nhu cầu trước nhé."
     },
     "header": {
-      "title": "Đặt Lịch Thiết Kế.",
-      "desc": "Mình làm việc trực tiếp 1-1 và nhận một dự án tại một thời điểm. Bạn hãy phác thảo nhu cầu, mình sẽ phản hồi qua Zalo hoặc email trong vòng 24 giờ để trao đổi, báo giá và xếp lịch thực hiện."
+      "eyebrow": "Trao đổi trực tiếp với Hugo",
+      "title": "Kể mình nghe bạn đang cần gì.",
+      "desc": "Bạn không cần biết thuật ngữ kỹ thuật hay chuẩn bị một bản mô tả hoàn chỉnh. Chỉ cần chọn những gợi ý gần nhất với nhu cầu; mình sẽ cùng bạn làm rõ phần còn lại."
     },
-    "features": [
-      {
-        "title": "Ý tưởng khác biệt",
-        "desc": "Không dùng template rập khuôn. Giao diện được may đo phù hợp định dạng thương hiệu."
+    "expectations": {
+      "brief": {
+        "title": "Không cần viết brief dài",
+        "desc": "Các lựa chọn có sẵn giúp bạn mô tả dự án trong khoảng hai phút."
       },
-      {
-        "title": "Hiệu năng & SEO",
-        "desc": "Mã nguồn được viết sạch sẽ, tối ưu chuẩn Apple giúp tải trang nhanh và đạt thứ hạng Google tốt."
+      "scope": {
+        "title": "Chốt phạm vi trước khi báo giá",
+        "desc": "Mình sẽ hỏi lại những điểm còn thiếu và chỉ đề xuất phần thật sự cần thiết."
       },
-      {
-        "title": "Hỗ trợ 1-1 qua Zalo",
-        "desc": "Trao đổi nhanh chóng trực tiếp. Cam kết bảo trì và sửa lỗi trọn đời sản phẩm."
+      "reply": {
+        "title": "Phản hồi trong 24 giờ làm việc",
+        "desc": "Bạn nhận được email hoặc tin nhắn để thống nhất bước trao đổi tiếp theo."
       }
-    ],
+    },
+    "progress": {
+      "label": "Bước {{step}} / 4",
+      "complete": "Hoàn tất"
+    },
+    "steps": {
+      "1": { "title": "Bạn đang cần hỗ trợ gì?" },
+      "2": { "title": "Ngân sách và thời gian" },
+      "3": { "title": "Mục tiêu của dự án" },
+      "4": { "title": "Kiểm tra và gửi yêu cầu" }
+    },
+    "projectTypes": {
+      "newWebsite": {
+        "title": "Làm website mới",
+        "desc": "Cho cá nhân, thương hiệu, quán hoặc cửa hàng."
+      },
+      "portfolio": {
+        "title": "Portfolio / Bio",
+        "desc": "Giới thiệu bản thân, dự án, CV hoặc hồ sơ nghề nghiệp."
+      },
+      "improve": {
+        "title": "Nâng cấp website hiện có",
+        "desc": "Sửa giao diện, mobile, tốc độ hoặc tính năng."
+      },
+      "student": {
+        "title": "Dự án dành cho HSSV",
+        "desc": "Portfolio, coursework hoặc hỗ trợ gỡ lỗi có hướng dẫn."
+      },
+      "unsure": {
+        "title": "Mình chưa rõ loại nào",
+        "desc": "Chỉ cần kể mục tiêu; Hugo sẽ giúp bạn xác định hướng phù hợp."
+      }
+    },
+    "sections": {
+      "project": "Bạn đang cần hỗ trợ việc gì?",
+      "projectHint": "Chọn phương án gần nhất. Bạn vẫn có thể thay đổi sau khi trao đổi.",
+      "budget": "Mức đầu tư dự kiến",
+      "budgetHint": "Thông tin này chỉ giúp mình đề xuất phạm vi vừa sức, chưa phải cam kết chi phí.",
+      "timeline": "Thời gian bạn mong muốn",
+      "notes": "Mô tả thêm (không bắt buộc)",
+      "notesHint": "Chạm vào câu gợi ý để thêm nhanh, rồi sửa lại theo tình huống của bạn."
+    },
+    "budgets": {
+      "unsure": "Chưa xác định",
+      "underOne": "Dưới 1 triệu",
+      "oneToThree": "1–3 triệu",
+      "threeToEight": "3–8 triệu",
+      "overEight": "Trên 8 triệu"
+    },
+    "timelines": {
+      "flexible": "Linh hoạt",
+      "twoWeeks": "Trong 1–2 tuần",
+      "oneMonth": "Trong 1 tháng",
+      "twoMonths": "Trong 1–2 tháng"
+    },
+    "promptLabels": {
+      "identity": "Giới thiệu bản thân / dự án",
+      "sales": "Giúp khách xem và liên hệ",
+      "mobile": "Website đang lỗi trên mobile",
+      "unsure": "Chưa biết bắt đầu từ đâu"
+    },
+    "prompts": {
+      "identity": "Mình cần một nơi gọn gàng để giới thiệu bản thân, dự án và các liên kết quan trọng.",
+      "sales": "Mình muốn khách hàng dễ xem sản phẩm, hiểu dịch vụ và biết cách liên hệ.",
+      "mobile": "Mình đã có website nhưng giao diện trên điện thoại đang khó dùng hoặc hiển thị chưa đúng.",
+      "unsure": "Mình chưa biết loại website nào phù hợp và muốn được gợi ý phạm vi vừa đủ."
+    },
     "form": {
-      "nameLabel": "Quý danh:",
-      "namePlaceholder": "Nhập tên của bạn...",
-      "emailLabel": "Email:",
-      "emailPlaceholder": "yourname@domain.com",
-      "phoneLabel": "Số Điện Thoại (Zalo):",
-      "phonePlaceholder": "Số kết nối Zalo...",
-      "messageLabel": "Lời Nhắn (Tùy Chọn):",
-      "messagePlaceholder": "Chia sẻ mong muốn của bạn về giao diện, tính năng hoặc ý tưởng riêng...",
-      "submitBtn": "Gửi Yêu Cầu Đặt Lịch",
-      "disclaimer": "Tôi cung cấp dịch vụ trực tuyến (Online). Thông tin của quý khách sẽ được bảo mật tuyệt đối và chỉ dùng để thực hiện cuộc gọi Zalo tư vấn."
+      "nameLabel": "Tên bạn",
+      "namePlaceholder": "Ví dụ: Minh Anh",
+      "emailLabel": "Email nhận phản hồi",
+      "emailHint": "Bắt buộc",
+      "phoneLabel": "Số điện thoại / Zalo",
+      "phoneHint": "Bắt buộc · không công khai",
+      "phonePlaceholder": "Ví dụ: 09xx xxx xxx",
+      "messagePlaceholder": "Ví dụ: Mình đang bán đồ thủ công và cần một website để khách xem sản phẩm...",
+      "disclaimer": "Thông tin này chỉ được dùng để phản hồi yêu cầu và trao đổi dự án. Số điện thoại của bạn không được hiển thị công khai."
+    },
+    "actions": {
+      "continue": "Tiếp tục",
+      "back": "Quay lại",
+      "submit": "Gửi yêu cầu trao đổi",
+      "sending": "Đang gửi..."
+    },
+    "summary": {
+      "title": "Tóm tắt yêu cầu",
+      "project": "Nhu cầu",
+      "budget": "Mức đầu tư",
+      "timeline": "Thời gian",
+      "notes": "Ghi chú"
+    },
+    "success": {
+      "title": "Mình đã nhận được yêu cầu.",
+      "desc": "Hugo sẽ đọc nội dung và phản hồi qua email hoặc Zalo trong vòng 24 giờ làm việc. Bạn chưa cần chuẩn bị thêm tài liệu ở bước này.",
+      "another": "Gửi một yêu cầu khác",
+      "donateTitle": "Bạn có muốn đồng hành cùng Hugo Studio?",
+      "donateDesc": "Hoàn toàn tùy chọn. Quyết định này không ảnh hưởng đến yêu cầu vừa gửi, báo giá hay bất kỳ tính năng nào.",
+      "donateYes": "Ủng hộ tự nguyện",
+      "donateNo": "Không, cảm ơn",
+      "donateSkipped": "Đã ghi nhận lựa chọn. Yêu cầu đặt lịch của bạn vẫn được xử lý bình thường."
+    },
+    "prefill": {
+      "general": "Mình là HSSV và muốn tìm hiểu dịch vụ phù hợp với dự án học tập của mình.",
+      "bug": "Mình là HSSV và cần hỗ trợ tìm, giải thích và sửa lỗi trong coursework.",
+      "bento": "Mình muốn trao đổi về một Bento CV / Portfolio dành cho HSSV.",
+      "courseworkHtml": "Mình muốn trao đổi về Web App Coursework dùng HTML, CSS và JavaScript.",
+      "courseworkPhp": "Mình muốn trao đổi về Web App Coursework dùng PHP và MySQL.",
+      "courseworkReact": "Mình muốn trao đổi về Web App Coursework dùng React và Node.js."
     }
   },
   "templatesPage": {
@@ -1760,7 +1946,6 @@
       "utilities": "Tiện Ích",
       "history": "Thông báo",
       "joy": "Ví JOY",
-      "community": "Cộng đồng",
       "settings": "Cá nhân",
       "verify": "Xác minh",
       "verifyEduPending": "Sinh viên chưa xác minh",
@@ -1894,7 +2079,7 @@
       "placeholderHeadline": "Nhà thiết kế, Kiến trúc sư web, Lập trình viên...",
       "gmail": "GMAIL",
       "placeholderName": "Họ tên của bạn...",
-      "placeholderBirthday": "Ví dụ: 20/10/2004...",
+      "placeholderBirthday": "Ví dụ: DD/MM/YYYY...",
       "placeholderEmail": "Email hợp tác/công việc...",
       "viewBio": "Xem Bio",
       "noName": "Chưa đặt tên",

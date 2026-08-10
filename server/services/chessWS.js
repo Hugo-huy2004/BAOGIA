@@ -5,6 +5,32 @@ import ChessRating from '../models/ChessRating.js';
 import ChessGame from '../models/ChessGame.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
+import { findActiveSecurityBlock } from './securityEnforcement.js';
+
+const CHESS_DAILY_POSITIVE_JOY_CAP = 150;
+
+async function reserveChessReward(email, amount) {
+  if (amount <= 0 || amount > CHESS_DAILY_POSITIVE_JOY_CAP) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const owner = { $or: [{ email }, { contactEmail: email }] };
+  await Bio.updateOne(
+    { ...owner, arcadeJoyDate: { $ne: today } },
+    { $set: { arcadeJoyDate: today, arcadeJoyToday: 0 } },
+  );
+  return Bio.findOneAndUpdate(
+    { ...owner, arcadeJoyDate: today, arcadeJoyToday: { $lte: CHESS_DAILY_POSITIVE_JOY_CAP - amount } },
+    { $inc: { arcadeJoyToday: amount } },
+    { new: true, projection: { arcadeJoyToday: 1 } },
+  );
+}
+
+async function releaseChessReward(email, amount) {
+  const today = new Date().toISOString().slice(0, 10);
+  await Bio.updateOne(
+    { $or: [{ email }, { contactEmail: email }], arcadeJoyDate: today, arcadeJoyToday: { $gte: amount } },
+    { $inc: { arcadeJoyToday: -amount } },
+  );
+}
 
 // In-memory state
 const rooms = new Map();     // roomId -> RoomState
@@ -130,6 +156,8 @@ async function saveGame(room) {
 
     for (const [email, delta] of [[wEmail, whiteDelta], [bEmail, blackDelta]]) {
       if (delta === 0) continue;
+      const reservation = delta > 0 ? await reserveChessReward(email, delta) : true;
+      if (!reservation) continue;
       try {
         await awardJoy(
           email,
@@ -140,6 +168,7 @@ async function saveGame(room) {
         );
       } catch (e) {
         console.error('[ChessWS] joy award error:', e.message);
+        if (delta > 0) await releaseChessReward(email, delta);
       }
     }
 
@@ -338,7 +367,15 @@ async function handleAuth(ws, msg) {
       const { default: jwt } = await import('jsonwebtoken');
       const { JWT_SECRET } = await import('../utils/secrets.js');
       const decoded = jwt.verify(msg.token, JWT_SECRET);
-      if (decoded.role === 'member' && decoded.email) client.email = decoded.email;
+      if (decoded.role === 'member' && decoded.email) {
+        const block = await findActiveSecurityBlock({ email: decoded.email });
+        if (block) {
+          send(ws, { type: 'error', code: 'ACCESS_BLOCKED', message: 'Truy cập đã bị chặn theo tiêu chuẩn an toàn.' });
+          ws.close(4003, 'Access blocked');
+          return;
+        }
+        client.email = decoded.email;
+      }
     } catch (_) { /* fall through as guest */ }
   }
   client.displayName = msg.displayName || 'Guest';

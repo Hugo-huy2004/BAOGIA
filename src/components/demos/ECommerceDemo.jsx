@@ -1,545 +1,525 @@
-import { useState, useEffect } from "react";
-import { HugoNoticeToast } from "../shared/HugoNotice";
+import { useMemo, useState } from "react";
+import { IosApp, AppShell, SectionTitle, Segmented, SearchField, ListGroup, ListRow, Card, Button, Stepper, Sheet, Field, Toast, useToast, Chip, vnd } from "./iosKit";
+import { Art, HeroArt, Avatar } from "./demoArt";
+
+const ACCENT = "#0A84FF";
+
+const PRODUCTS = [
+  { id: "sneaker", art: "sneaker", name: "Hugo Sneaker Pro V2", type: "Giày", price: 1850000, oldPrice: 2050000, colors: ["black", "blue", "gold"], sizes: ["39", "40", "41", "42", "43"], stock: 12, rating: 4.8, sold: 320, tag: "hot", desc: "Sneaker bọt khí siêu nhẹ, đệm nâng tuần hoàn, phối màu thời trang." },
+  { id: "bomber", art: "jacket", name: "Áo Khoác Bomber Techwear", type: "Thời trang", price: 1250000, oldPrice: 1500000, colors: ["black", "blue"], sizes: ["M", "L", "XL"], stock: 8, rating: 4.7, sold: 184, tag: "hot", desc: "Dù dệt lỗ khí chống gió, chống thấm nhẹ, nhiều ngăn đa dụng." },
+  { id: "hoodie", art: "hoodie", name: "Hoodie Nỉ Bông Oversize", type: "Thời trang", price: 690000, oldPrice: 850000, colors: ["black", "rose"], sizes: ["M", "L", "XL"], stock: 32, rating: 4.6, sold: 410, desc: "Nỉ bông chải lông 380gsm, form rộng, mũ hai lớp giữ phom." },
+  { id: "backpack", art: "backpack", name: "Balo Da Chống Nước Carbon", type: "Phụ kiện", price: 950000, oldPrice: 1100000, colors: ["black"], sizes: ["Standard"], stock: 25, rating: 4.9, sold: 512, tag: "best", desc: "Vải da phối sợi carbon chống nước, ngăn laptop 16 inch chuyên biệt." },
+  { id: "cap", art: "cap", name: "Nón Lưỡi Trai Thêu Logo", type: "Phụ kiện", price: 320000, oldPrice: 390000, colors: ["black", "mint"], sizes: ["Free size"], stock: 60, rating: 4.5, sold: 780, desc: "Kaki cotton dày dặn, khoá kim loại điều chỉnh, thêu nổi chỉ dày." },
+  { id: "glasses", art: "glasses", name: "Kính Mát Polarized UV400", type: "Phụ kiện", price: 540000, oldPrice: 700000, colors: ["black", "gold"], sizes: ["Standard"], stock: 18, rating: 4.7, sold: 233, desc: "Tròng phân cực chống loá, gọng nhựa acetate nhẹ 22g." },
+  { id: "smartwatch", art: "watch", name: "Đồng Hồ GPS Smart Sport", type: "Thiết bị", price: 3200000, oldPrice: 3800000, colors: ["black", "gold"], sizes: ["Standard"], stock: 5, rating: 4.6, sold: 96, tag: "new", desc: "AMOLED chống chói, GPS định vị, đo nhịp tim 24/7." },
+  { id: "earbuds", art: "earbuds", name: "Tai Nghe Bluetooth Pro Sound", type: "Thiết bị", price: 1500000, oldPrice: 1800000, colors: ["black", "blue", "gold"], sizes: ["Standard"], stock: 18, rating: 4.8, sold: 274, tag: "best", desc: "Chống ồn ANC, bass mạnh, pin liên tục 36 giờ." },
+  { id: "speaker", art: "speaker", name: "Loa Di Động Bass Kép", type: "Thiết bị", price: 2100000, oldPrice: 2450000, colors: ["black"], sizes: ["Standard"], stock: 9, rating: 4.7, sold: 141, desc: "Hai màng bass đối xứng, chuẩn kháng nước IPX7, pin 20 giờ." },
+  { id: "keyboard", art: "keyboard", name: "Bàn Phím Cơ Không Dây 75%", type: "Thiết bị", price: 1690000, oldPrice: 1950000, colors: ["black", "mint"], sizes: ["Standard"], stock: 14, rating: 4.9, sold: 302, tag: "new", desc: "Switch êm gasket mount, kết nối ba chế độ, hotswap 5 chân." },
+  { id: "bottle", art: "bottle", name: "Bình Giữ Nhiệt Thép 600ml", type: "Gia dụng", price: 380000, oldPrice: 450000, colors: ["blue", "mint"], sizes: ["600ml"], stock: 48, rating: 4.6, sold: 654, desc: "Thép 316 hai lớp, giữ nóng 12 giờ, nắp chống rò khi nghiêng." },
+  { id: "lamp", art: "lamp", name: "Đèn Bàn LED Chống Cận", type: "Gia dụng", price: 720000, oldPrice: 880000, colors: ["gold"], sizes: ["Standard"], stock: 21, rating: 4.7, sold: 189, desc: "Ba nhiệt màu, không nhấp nháy, cảm biến sáng tự điều chỉnh." },
+];
+
+const COLOR_NAMES = { black: "Carbon Black", blue: "Navy Blue", gold: "Rich Gold", rose: "Dusty Rose", mint: "Sage Mint" };
+const COLOR_HEX = { black: "#1C1C1E", blue: "#0A84FF", gold: "#D4A017", rose: "#E8A0AC", mint: "#7FC8A9" };
+
+const CATEGORIES = [
+  { id: "all", label: "Tất cả" },
+  { id: "Thời trang", label: "Thời trang" },
+  { id: "Phụ kiện", label: "Phụ kiện" },
+  { id: "Thiết bị", label: "Thiết bị" },
+  { id: "Gia dụng", label: "Gia dụng" },
+];
+
+const SORTS = [
+  { id: "hot", label: "Phổ biến" },
+  { id: "low", label: "Giá thấp" },
+  { id: "high", label: "Giá cao" },
+];
+
+const REVIEWS = [
+  { name: "Lê Thu Duyên", text: "Giày nhẹ hơn mình tưởng, đi cả ngày không mỏi. Đóng gói kỹ.", stars: 5 },
+  { name: "Hoàng Văn Nam", text: "Balo chống nước thật, đi mưa 20 phút laptop vẫn khô ráo.", stars: 5 },
+  { name: "Phạm Khánh Huyền", text: "Tai nghe chống ồn tốt trong tầm giá, pin dùng gần một tuần.", stars: 4 },
+];
+
+const COUPONS = { FREESHIP: 0, HUGO10: 10, SUMMER50: 50 };
+const SHIPPING_FEE = 30000;
+const TAG_LABEL = { hot: "Bán chạy", new: "Mới về", best: "Yêu thích" };
 
 export default function ECommerceDemo({ isMobile = false }) {
-  const [activePage, setActivePage] = useState("shop");
-  const [cart, setCart] = useState({}); // { [item_key]: { product, color, size, qty } }
-  const [selectedProduct, setSelectedProduct] = useState(null); // active product for detail modal
-  const [modalColor, setModalColor] = useState("");
-  const [modalSize, setModalSize] = useState("");
-  const [modalQty, setModalQty] = useState(1);
-  const [couponCode, setCouponCode] = useState("");
-  const [discountPercent, setDiscountPercent] = useState(0);
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
-  const [shippingInfo, setShippingInfo] = useState({ name: "", phone: "", address: "" });
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [toast, setToast] = useState({ show: false, message: "" });
+  const [tab, setTab] = useState("home");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState("hot");
+  const [cart, setCart] = useState([]);
+  const [saved, setSaved] = useState(["backpack"]);
+  const [detail, setDetail] = useState(null);
+  const [variant, setVariant] = useState({ color: "", size: "", qty: 1 });
+  const [coupon, setCoupon] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [ship, setShip] = useState({ name: "", phone: "", address: "" });
+  const [placedOrder, setPlacedOrder] = useState(null);
+  const [toast, showToast] = useToast();
 
-  const triggerToast = (msg) => {
-    setToast({ show: true, message: msg });
-    setTimeout(() => setToast({ show: false, message: "" }), 3000);
+  const visible = useMemo(() => {
+    const list = PRODUCTS.filter(
+      (product) =>
+        (category === "all" || product.type === category) &&
+        product.name.toLowerCase().includes(query.trim().toLowerCase()),
+    );
+    if (sort === "low") return [...list].sort((a, b) => a.price - b.price);
+    if (sort === "high") return [...list].sort((a, b) => b.price - a.price);
+    return [...list].sort((a, b) => b.sold - a.sold);
+  }, [category, query, sort]);
+
+  const cartQty = cart.reduce((sum, line) => sum + line.qty, 0);
+  const subtotal = cart.reduce((sum, line) => sum + line.price * line.qty, 0);
+  const discountAmount = Math.round((subtotal * discount) / 100);
+  const shippingFee = subtotal >= 500000 || coupon.toUpperCase() === "FREESHIP" ? 0 : SHIPPING_FEE;
+  const grandTotal = Math.max(0, subtotal - discountAmount + (subtotal > 0 ? shippingFee : 0));
+
+  const openDetail = (product) => {
+    setDetail(product);
+    setVariant({ color: product.colors[0], size: product.sizes[0], qty: 1 });
   };
 
-  // 5 Carousel Slides Banner content
-  const slides = [
-    { title: "SUMMER BOOMING SALE 2026", desc: "Bùng nổ ưu đãi hè, giảm giá tới 50% toàn bộ giày sneaker thể thao.", btnText: "Khám phá ngay", badge: "Hè rực rỡ" },
-    { title: "Áo Khoác Bomber Techwear Độc Bản", desc: "Dòng bomber chống nước nhẹ siêu bền, phong cách futuristic thành thị.", btnText: "Mua ngay", badge: "Xu Hướng" },
-    { title: "Balo Sợi Carbon Chống Nước Tuyệt Đối", desc: "Được gia cố sợi carbon cao cấp, sạc USB thông minh, chống trộm.", btnText: "Xem phụ kiện", badge: "Bán chạy" },
-    { title: "Miễn Phí Ship Toàn Quốc Đơn Từ 500k", desc: "Nhập mã FREESHIP nhận ngay ưu đãi vận chuyển nhanh từ Viettel Post.", btnText: "Xem chi tiết", badge: "Ưu đãi ship" },
-    { title: "Thành Viên Hugo Club - Tích Điểm 5%", desc: "Trở thành thành viên thân thiết để nhận thêm 10% giảm giá vào sinh nhật.", btnText: "Đăng ký thành viên", badge: "Hugo Member" }
-  ];
-
-  // 5 Commercial Products
-  const products = [
-    { id: "sneaker", name: "Hugo Sneaker Pro V2", type: "Giày thể thao", price: 1850000, oldPrice: 2050000, img: "/image/avt5.png", colors: ["black", "blue", "gold"], sizes: ["39", "40", "41", "42", "43"], desc: "Sneaker bọt khí siêu nhẹ tuần hoàn đệm nâng, phối màu thời trang sành điệu." },
-    { id: "bomber", name: "Áo Khoác Bomber Techwear", type: "Thời trang", price: 1250000, oldPrice: 1500000, img: "/image/avt1.png", colors: ["black", "blue"], sizes: ["M", "L", "XL"], desc: "Dù dù dệt lỗ khí chống gió gió, chống thấm nhẹ nhiều ngăn đa dụng." },
-    { id: "backpack", name: "Balo Da Chống Nước Carbon", type: "Phụ kiện", price: 950000, oldPrice: 1100000, img: "/image/avt2.png", colors: ["black"], sizes: ["Standard"], desc: "Vải da phối sợi carbon siêu chống nước, ngăn laptop 16 inch chuyên biệt." },
-    { id: "smartwatch", name: "Đồng Hồ GPS Smart Sport", type: "Thiết bị", price: 3200000, oldPrice: 3800000, img: "/image/avt3.png", colors: ["black", "gold"], sizes: ["Standard"], desc: "AMOLED chống chói, GPS định vị, đo sức khỏe nhịp tim 24/7." },
-    { id: "earbuds", name: "Tai Nghe Bluetooth Pro Sound", type: "Âm thanh", price: 1500000, oldPrice: 1800000, img: "/image/avt4.png", colors: ["black", "blue", "gold"], sizes: ["Standard"], desc: "Chống ồn ANC đàm thoại, âm bass mạnh mẽ, pin trâu liên tục 36h." }
-  ];
-
-  const colorNames = { black: "Carbon Black", blue: "Navy Blue", gold: "Rich Gold" };
-  const colorHex = {
-    black: "bg-zinc-950 border-zinc-500",
-    blue: "bg-indigo-600 border-indigo-400",
-    gold: "bg-amber-500 border-amber-300",
-  };
-
-  // Auto scroll carousel every 4 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const openProductModal = (product) => {
-    setSelectedProduct(product);
-    setModalColor(product.colors[0]);
-    setModalSize(product.sizes[0]);
-    setModalQty(1);
-  };
-
-  const handleAddToCart = () => {
-    if (!selectedProduct) return;
-    const key = `${selectedProduct.id}_${modalColor}_${modalSize}`;
+  const addToCart = () => {
+    const key = `${detail.id}-${variant.color}-${variant.size}`;
     setCart((prev) => {
-      const existing = prev[key] || { product: selectedProduct, color: modalColor, size: modalSize, qty: 0 };
-      return {
-        ...prev,
-        [key]: { ...existing, qty: existing.qty + modalQty }
-      };
+      const found = prev.find((line) => line.key === key);
+      if (found) return prev.map((line) => (line.key === key ? { ...line, qty: line.qty + variant.qty } : line));
+      return [...prev, { key, id: detail.id, art: detail.art, name: detail.name, price: detail.price, color: variant.color, size: variant.size, qty: variant.qty }];
     });
-    setSelectedProduct(null);
-    triggerToast(`Đã thêm ${modalQty} sản phẩm vào giỏ hàng!`);
+    showToast(`Đã thêm ${detail.name}`);
+    setDetail(null);
   };
 
-  const updateCartItemQty = (key, change) => {
-    setCart((prev) => {
-      const item = prev[key];
-      if (!item) return prev;
-      const newQty = item.qty + change;
-      if (newQty <= 0) {
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      }
-      return {
-        ...prev,
-        [key]: { ...item, qty: newQty }
-      };
-    });
-  };
-
-  const removeCartItem = (key) => {
-    setCart((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  };
-
-  const handleApplyCoupon = (e) => {
-    e.preventDefault();
-    if (couponCode.trim().toUpperCase() === "HUGO20") {
-      setDiscountPercent(20);
-      triggerToast("Áp dụng mã giảm giá 20% thành công!");
+  const applyCoupon = () => {
+    const code = coupon.trim().toUpperCase();
+    if (code in COUPONS) {
+      setDiscount(COUPONS[code]);
+      showToast(code === "FREESHIP" ? "Áp dụng miễn phí vận chuyển" : `Giảm ${COUPONS[code]}%`);
     } else {
-      triggerToast("Mã không hợp lệ. Vui lòng thử 'HUGO20'");
+      setDiscount(0);
+      showToast("Mã không hợp lệ");
     }
   };
 
-  const cartItems = Object.entries(cart);
-  const totalQty = cartItems.reduce((acc, [_, item]) => acc + item.qty, 0);
-  const subtotal = cartItems.reduce((acc, [_, item]) => acc + item.product.price * item.qty, 0);
-  const discountAmount = subtotal * (discountPercent / 100);
-  const deliveryFee = subtotal > 500000 ? 0 : 30000;
-  const totalPayable = subtotal - discountAmount + (subtotal > 0 ? deliveryFee : 0);
-
-  const handlePayment = (e) => {
-    e.preventDefault();
-    if (shippingInfo.name && shippingInfo.phone) {
-      setCheckoutSuccess(true);
+  const checkout = () => {
+    if (!ship.name.trim() || !ship.phone.trim() || !ship.address.trim()) {
+      showToast("Điền đủ thông tin nhận hàng");
+      return;
     }
+    setPlacedOrder({ id: `HG${Math.floor(Math.random() * 900000 + 100000)}`, total: grandTotal, items: cart.length, eta: "2 – 4 ngày" });
+    setCart([]);
+    setDiscount(0);
+    setCoupon("");
+    setCheckoutOpen(false);
+    setTab("account");
   };
+
+  const toggleSaved = (id) => setSaved((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+
+  const gridCols = isMobile ? "grid-cols-2" : "grid-cols-4";
+
+  const ProductCard = ({ product }) => (
+    <Card padded={false} onClick={() => openDetail(product)} className="h-full">
+      <span className="relative block">
+        <span className="block aspect-square w-full overflow-hidden">
+          <Art kind={product.art} />
+        </span>
+        {product.tag && (
+          <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-white">{TAG_LABEL[product.tag]}</span>
+        )}
+        {product.oldPrice > product.price && (
+          <span className="absolute right-2 top-2 rounded-full bg-[#FF3B30] px-2 py-0.5 text-[11px] font-semibold text-white">
+            -{Math.round(100 - (product.price / product.oldPrice) * 100)}%
+          </span>
+        )}
+      </span>
+      <span className="block p-3">
+        <span className="block truncate text-[15px] font-semibold">{product.name}</span>
+        <span className="mt-0.5 block text-[13px]" style={{ color: "var(--ios-label-2)" }}>★ {product.rating} · đã bán {product.sold}</span>
+        <span className="mt-1 flex flex-wrap items-baseline gap-x-1.5">
+          <span className="text-[17px] font-semibold" style={{ color: ACCENT }}>{vnd(product.price)}</span>
+          <span className="text-[13px] line-through" style={{ color: "var(--ios-label-3)" }}>{vnd(product.oldPrice)}</span>
+        </span>
+      </span>
+    </Card>
+  );
+
+  const title = { home: "Hugo Store", shop: "Cửa hàng", cart: "Giỏ hàng", saved: "Đã lưu", account: "Tài khoản" }[tab];
 
   return (
-    <div className="w-full h-full relative overflow-hidden bg-slate-50 text-slate-800 font-sans selection:bg-indigo-500/20">
-      
-      {/* Scrollable Container */}
-      <div className="w-full h-full overflow-y-auto scrollbar-hide flex flex-col justify-between">
-        
-        {/* Retail Header */}
-        <header className={`sticky top-0 z-30 backdrop-blur-md bg-white/90 border-b border-slate-200 px-4 pb-3 flex justify-between items-center transition-all ${isMobile ? "pt-12" : "pt-4"}`}>
-          <button onClick={() => { setActivePage("shop"); setCheckoutSuccess(false); }} className="flex items-center gap-1.5 hover:opacity-90">
-            <span className="material-symbols-outlined text-indigo-600 text-xl font-black">shopping_bag</span>
-            <span className="font-extrabold text-base tracking-widest text-slate-900">HUGO BOUTIQUE</span>
-          </button>
-
-          <nav className={`${isMobile ? "hidden" : "hidden md:flex"} items-center gap-8 text-xs font-bold uppercase tracking-wider text-slate-500`}>
-            <button onClick={() => { setActivePage("shop"); setCheckoutSuccess(false); }} className={`hover:text-indigo-600 transition-colors ${activePage === "shop" ? "text-indigo-600 font-black" : ""}`}>Cửa Hàng</button>
-            <button onClick={() => { setActivePage("details"); setCheckoutSuccess(false); }} className={`hover:text-indigo-600 transition-colors ${activePage === "details" ? "text-indigo-600 font-black" : ""}`}>Chi Tiết Kỹ Thuật</button>
-            <button onClick={() => { setActivePage("cart"); setCheckoutSuccess(false); }} className={`hover:text-indigo-600 transition-colors ${activePage === "cart" ? "text-indigo-600 font-black" : ""}`}>Giỏ Hàng ({totalQty})</button>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            {!isMobile && (
-              <button
-                onClick={() => {
-                  setActivePage("cart");
-                  setCheckoutSuccess(false);
-                }}
-                className="relative p-2.5 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-650 transition-colors"
-              >
-                <span className="material-symbols-outlined text-base">shopping_cart</span>
-                {totalQty > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-indigo-600 text-white font-mono text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-black animate-scaleIn">
-                    {totalQty}
-                  </span>
-                )}
-              </button>
+    <IosApp scheme="light" accent={ACCENT}>
+      <AppShell
+        isMobile={isMobile}
+        title={title}
+        subtitle={tab === "home" ? `${PRODUCTS.length} sản phẩm · giao toàn quốc` : undefined}
+        brand={{ name: "Hugo Store", icon: "storefront", note: "Thời trang & thiết bị" }}
+        sidebarNote="Demo tương tác — dữ liệu chỉ nằm trong trình duyệt của bạn."
+        tabs={[
+          { id: "home", label: "Trang chủ", icon: "home" },
+          { id: "shop", label: "Cửa hàng", icon: "storefront" },
+          { id: "saved", label: "Đã lưu", icon: "favorite", badge: saved.length },
+          { id: "cart", label: "Giỏ", icon: "shopping_cart", badge: cartQty },
+          { id: "account", label: "Tài khoản", icon: "person" },
+        ]}
+        value={tab}
+        onChange={setTab}
+        actions={
+          <button type="button" onClick={() => setTab("cart")} className="relative flex h-9 w-9 items-center justify-center" aria-label="Giỏ hàng">
+            <span className="material-symbols-outlined text-[24px]" style={{ color: ACCENT }}>shopping_bag</span>
+            {cartQty > 0 && (
+              <span className="absolute right-0 top-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF3B30] px-1 text-[11px] font-semibold text-white">{cartQty}</span>
             )}
-          </div>
-        </header>
+          </button>
+        }
+      >
+        {/* ------------------------------------------------------ TRANG CHỦ */}
+        {tab === "home" && (
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-[18px]">
+              <span className="absolute inset-0"><HeroArt from="#0A84FF" to="#0B2E63" /></span>
+              <div className={`relative ${isMobile ? "p-5" : "p-8"}`}>
+                <Chip tint="#fff" filled><span style={{ color: "#0A84FF" }}>Summer Sale 2026</span></Chip>
+                <p className={`mt-2 font-bold leading-tight text-white ${isMobile ? "text-[26px]" : "text-[34px]"}`}>Giảm đến 50%<br />toàn bộ sneaker</p>
+                <p className="mt-1.5 max-w-md text-[15px] text-white/75">Miễn phí vận chuyển cho đơn từ 500.000đ, đổi trả trong 7 ngày.</p>
+                <Button className="mt-4" onClick={() => setTab("shop")} style={{ background: "#fff", color: "#0A84FF" }}>
+                  Mua ngay
+                  <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                </Button>
+              </div>
+            </div>
 
-        {/* Navigation for Mobile inside frame - Hidden when using custom bottom tab bar */}
-        {!isMobile && (
-          <div className="md:hidden flex justify-around py-3 border-b border-slate-200 bg-white/80 text-xs uppercase tracking-wider font-extrabold sticky top-[80px] z-20">
-            <button onClick={() => { setActivePage("shop"); setCheckoutSuccess(false); }} className={`px-3 py-1 rounded transition-colors ${activePage === "shop" ? "bg-indigo-550/10 text-indigo-600 font-black" : "text-slate-505"}`}>Cửa Hàng</button>
-            <button onClick={() => { setActivePage("details"); setCheckoutSuccess(false); }} className={`px-3 py-1 rounded transition-colors ${activePage === "details" ? "bg-indigo-550/10 text-indigo-600 font-black" : "text-slate-505"}`}>Thông Số</button>
-            <button onClick={() => { setActivePage("cart"); setCheckoutSuccess(false); }} className={`px-3 py-1 rounded transition-colors ${activePage === "cart" ? "bg-indigo-550/10 text-indigo-600 font-black" : "text-slate-505"}`}>Giỏ ({totalQty})</button>
+            <div className={`grid gap-3 ${isMobile ? "grid-cols-3" : "grid-cols-5"}`}>
+              {CATEGORIES.filter((item) => item.id !== "all").map((item) => (
+                <Card key={item.id} padded={false} onClick={() => { setCategory(item.id); setTab("shop"); }}>
+                  <span className="block aspect-[4/3] w-full overflow-hidden">
+                    <Art kind={PRODUCTS.find((product) => product.type === item.id)?.art || "cart"} ratio="wide" />
+                  </span>
+                  <span className="block truncate p-2 text-center text-[13px] font-semibold">{item.label}</span>
+                </Card>
+              ))}
+            </div>
+
+            <section>
+              <SectionTitle action={<Button variant="plain" size="sm" onClick={() => setTab("shop")}>Xem tất cả</Button>}>Bán chạy nhất</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {[...PRODUCTS].sort((a, b) => b.sold - a.sold).slice(0, isMobile ? 4 : 4).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Mới về</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {PRODUCTS.filter((product) => product.tag === "new" || product.tag === "best").slice(0, 4).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Khách hàng nói gì</SectionTitle>
+              <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+                {REVIEWS.map((review) => (
+                  <Card key={review.name}>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar name={review.name} tint={ACCENT} />
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-semibold">{review.name}</p>
+                        <p className="text-[13px]" style={{ color: "#FF9F0A" }}>{"★".repeat(review.stars)}</p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>{review.text}</p>
+                  </Card>
+                ))}
+              </div>
+            </section>
+
+            <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+              {[
+                { icon: "local_shipping", tint: "#FF9500", title: "Giao 2 – 4 ngày", desc: "Đối tác Viettel Post toàn quốc" },
+                { icon: "assignment_return", tint: "#34C759", title: "Đổi trả 7 ngày", desc: "Miễn phí nếu lỗi từ nhà sản xuất" },
+                { icon: "verified_user", tint: "#0A84FF", title: "Bảo hành 12 tháng", desc: "Áp dụng cho nhóm thiết bị" },
+              ].map((item) => (
+                <Card key={item.title} className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px]" style={{ background: item.tint }}>
+                    <span className="material-symbols-outlined text-[22px] text-white">{item.icon}</span>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[15px] font-semibold">{item.title}</span>
+                    <span className="block truncate text-[13px]" style={{ color: "var(--ios-label-2)" }}>{item.desc}</span>
+                  </span>
+                </Card>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Main Body content area */}
-        <main className={`flex-grow w-full ${isMobile ? "p-4" : ""} space-y-12`}>
-          {activePage === "shop" && (
-            <div className="space-y-12 animate-fadeIn text-left">
-              
-              {/* Auto-playing Promo Slider Banner (5 Slides) */}
-              <section className="relative w-full overflow-hidden bg-gradient-to-r from-slate-900 to-indigo-955 text-white p-6 md:p-10 flex flex-col justify-center min-h-[180px] md:min-h-[220px]">
-                <div className="space-y-4 max-w-xl transition-all duration-500">
-                  <span className="inline-block px-2.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest bg-indigo-500 text-white">
-                    {slides[currentSlide].badge}
-                  </span>
-                  <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-extrabold text-white leading-tight">
-                    {slides[currentSlide].title}
-                  </h2>
-                  <p className="text-xs text-slate-300 leading-relaxed font-light">
-                    {slides[currentSlide].desc}
-                  </p>
-                  <button 
-                    onClick={() => {
-                      if (currentSlide === 1) openProductModal(products[1]);
-                      else if (currentSlide === 2) openProductModal(products[2]);
-                      else openProductModal(products[0]);
-                    }} 
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 self-start"
-                  >
-                    {slides[currentSlide].btnText} <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                  </button>
-                </div>
+        {/* ----------------------------------------------------- CỬA HÀNG */}
+        {tab === "shop" && (
+          <div className="space-y-4">
+            <div className={isMobile ? "space-y-3" : "flex items-center gap-3"}>
+              <div className={isMobile ? "" : "w-[280px]"}><SearchField value={query} onChange={setQuery} placeholder="Tìm sản phẩm" /></div>
+              <div className={isMobile ? "" : "ml-auto w-[240px]"}><Segmented items={SORTS} value={sort} onChange={setSort} /></div>
+            </div>
 
-                {/* Slider Dots */}
-                <div className="absolute bottom-4 right-6 flex gap-1.5 z-10">
-                  {slides.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentSlide(idx)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        currentSlide === idx ? "bg-indigo-500 w-5" : "bg-white/30"
-                      }`}
+            <div className="scrollbar-hide -mx-1 flex gap-2 overflow-x-auto px-1">
+              {CATEGORIES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setCategory(item.id)}
+                  className="min-h-[34px] shrink-0 rounded-full px-4 text-[15px] font-medium transition-transform active:scale-95"
+                  style={category === item.id ? { background: ACCENT, color: "#fff" } : { background: "var(--ios-fill)", color: "var(--ios-label)" }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-[13px]" style={{ color: "var(--ios-label-2)" }}>{visible.length} sản phẩm</p>
+
+            {visible.length === 0 ? (
+              <p className="py-10 text-center text-[15px]" style={{ color: "var(--ios-label-2)" }}>Không tìm thấy sản phẩm nào.</p>
+            ) : (
+              <div className={`grid gap-3 ${gridCols}`}>
+                {visible.map((product) => <ProductCard key={product.id} product={product} />)}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* -------------------------------------------------------- GIỎ HÀNG */}
+        {tab === "cart" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-[1fr_320px] items-start gap-5"}>
+            {cart.length === 0 ? (
+              <Card className="flex flex-col items-center gap-2 py-10 text-center">
+                <span className="material-symbols-outlined text-[44px]" style={{ color: "var(--ios-label-3)" }}>shopping_bag</span>
+                <p className="text-[17px] font-semibold">Giỏ hàng trống</p>
+                <Button variant="tinted" size="sm" className="mt-1" onClick={() => setTab("shop")}>Tiếp tục mua sắm</Button>
+              </Card>
+            ) : (
+              <>
+                <ListGroup header={`${cartQty} sản phẩm`}>
+                  {cart.map((line, index) => (
+                    <ListRow
+                      key={line.key}
+                      last={index === cart.length - 1}
+                      title={line.name}
+                      subtitle={`${COLOR_NAMES[line.color] || line.color} · Size ${line.size} · ${vnd(line.price)}`}
+                      icon={null}
+                      trailing={
+                        <span className="flex items-center gap-2">
+                          <span className="hidden h-11 w-11 shrink-0 overflow-hidden rounded-[10px] sm:block"><Art kind={line.art} /></span>
+                          <Stepper
+                            value={line.qty}
+                            min={0}
+                            onChange={(next) =>
+                              setCart((prev) => (next === 0 ? prev.filter((l) => l.key !== line.key) : prev.map((l) => (l.key === line.key ? { ...l, qty: next } : l))))
+                            }
+                          />
+                        </span>
+                      }
                     />
                   ))}
-                </div>
-              </section>
-
-              {/* Product Grid Section */}
-              <section className="px-6 md:px-10 max-w-5xl mx-auto space-y-6">
-                <div className="space-y-2">
-                  <h3 className="font-serif text-xl font-bold text-slate-900">Danh Mục Sản Phẩm</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">Chọn sản phẩm bất kỳ để tinh chỉnh thông số màu sắc, kích thước và thêm vào giỏ hàng.</p>
-                </div>
-
-                <div className={`grid ${isMobile ? "grid-cols-2 gap-3.5" : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"}`}>
-                  {products.map((product) => (
-                    <div 
-                      key={product.id} 
-                      onClick={() => openProductModal(product)}
-                      className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col justify-between h-full group"
-                    >
-                      <div className={`bg-slate-100 flex items-center justify-center relative aspect-square ${isMobile ? "p-3" : "p-6"}`}>
-                        <img 
-                          src={product.img} 
-                          alt={product.name} 
-                          className={`object-cover transition-transform duration-500 group-hover:scale-105 ${isMobile ? "w-20 h-20" : "w-32 h-32 md:w-36 md:h-36"}`} 
-                        />
-                        <span className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm text-[8px] font-bold text-slate-505 px-2 py-0.5 rounded uppercase font-mono">
-                          {product.type}
-                        </span>
-                      </div>
-
-                      <div className={`space-y-3 flex-grow flex flex-col justify-between ${isMobile ? "p-3" : "p-4"}`}>
-                        <div className="space-y-1">
-                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-indigo-650 transition-colors uppercase tracking-wider truncate">{product.name}</h4>
-                          {!isMobile && <p className="text-[10px] text-slate-400 font-light leading-relaxed line-clamp-2">{product.desc}</p>}
-                        </div>
-
-                        <div className="flex justify-between items-baseline pt-2 border-t border-slate-50">
-                          <span className="text-xs font-mono font-black text-[#4F46E5]">{product.price.toLocaleString("vi-VN")}đ</span>
-                          {!isMobile && <span className="text-[9px] text-slate-400 line-through">{product.oldPrice.toLocaleString("vi-VN")}đ</span>}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
-
-          {activePage === "details" && (
-            <div className={`grid ${isMobile ? "grid-cols-1 gap-6" : "grid-cols-1 md:grid-cols-12 gap-8"} px-6 md:px-10 max-w-5xl mx-auto text-left animate-fadeIn`}>
-              {/* Specs Column */}
-              <div className={`${isMobile ? "" : "md:col-span-7"} space-y-6`}>
-                <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                  <span className="material-symbols-outlined text-indigo-600 text-base font-bold">settings_suggest</span>
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider">Thông Số Kỹ Thuật Chi Tiết</h3>
-                </div>
+                </ListGroup>
 
                 <div className="space-y-4">
-                  {[
-                    {
-                      name: "Hugo Sneaker Pro V2",
-                      type: "Giày thể thao",
-                      img: "/image/avt5.png",
-                      specs: [
-                        { label: "Đế giày", val: "Phylon bọt khí tuần hoàn 4cm siêu êm" },
-                        { label: "Thân giày", val: "Vải Mesh 3D dệt kim co giãn 4 chiều" },
-                        { label: "Tính năng", val: "Hấp thụ lực, thoáng khí chống mùi" }
-                      ]
-                    },
-                    {
-                      name: "Áo Khoác Bomber Techwear",
-                      type: "Thời trang",
-                      img: "/image/avt1.png",
-                      specs: [
-                        { label: "Chất liệu", val: "Dù 2 lớp dệt chéo phủ Nano chống thấm" },
-                        { label: "Thiết kế", val: "Ergonomic 3D, 6 ngăn túi tiện dụng" },
-                        { label: "Cản gió", val: "Chống gió lạnh & tia UV bảo vệ da" }
-                      ]
-                    },
-                    {
-                      name: "Balo Da Chống Nước Carbon",
-                      type: "Phụ kiện",
-                      img: "/image/avt2.png",
-                      specs: [
-                        { label: "Chất liệu", val: "Da PU phối sợi carbon siêu nhẹ chịu lực" },
-                        { label: "Ngăn chứa", val: "Đệm chống sốc Laptop 16 inch chuyên biệt" },
-                        { label: "Khóa kéo", val: "YKK phản quang chống thấm nước" }
-                      ]
-                    },
-                    {
-                      name: "Đồng Hồ GPS Smart Sport",
-                      type: "Thiết bị",
-                      img: "/image/avt3.png",
-                      specs: [
-                        { label: "Màn hình", val: "AMOLED 1.43 inch độ sáng 1000 nits" },
-                        { label: "Cảm biến", val: "PPG đo nhịp tim, SpO2 & theo dõi giấc ngủ" },
-                        { label: "Chống nước", val: "Tiêu chuẩn 5ATM đi mưa, bơi lội an toàn" }
-                      ]
-                    },
-                    {
-                      name: "Tai Nghe Bluetooth Pro Sound",
-                      type: "Âm thanh",
-                      img: "/image/avt4.png",
-                      specs: [
-                        { label: "Khử tiếng ồn", val: "ANC chủ động lọc 98% tạp âm môi trường" },
-                        { label: "Thời lượng pin", val: "8h liên tục, hộp sạc hỗ trợ thêm 28h" },
-                        { label: "Driver âm thanh", val: "Củ loa Dynamic 10mm tăng cường âm bass" }
-                      ]
-                    }
-                  ].map((p, idx) => (
-                    <div key={idx} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow flex gap-4 items-start">
-                      <img src={p.img} alt={p.name} className="w-12 h-12 object-cover bg-slate-50 rounded-lg border border-slate-100 shrink-0" />
-                      <div className="flex-grow space-y-2 min-w-0">
-                        <div className="flex justify-between items-center gap-2">
-                          <h4 className="text-[11px] font-bold text-slate-900 uppercase tracking-wide truncate">{p.name}</h4>
-                          <span className="text-[8px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded shrink-0 uppercase tracking-wider">{p.type}</span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-1 text-[10px]">
-                          {p.specs.map((s, sIdx) => (
-                            <div key={sIdx} className="flex gap-1.5 items-baseline">
-                              <span className="text-slate-500 font-bold w-16 shrink-0 text-right">{s.label}:</span>
-                              <span className="text-slate-600 truncate">{s.val}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                  <ListGroup header="Mã giảm giá" footer="Thử FREESHIP, HUGO10 hoặc SUMMER50.">
+                    <div className="flex items-center gap-2 p-3">
+                      <input
+                        value={coupon}
+                        onChange={(event) => setCoupon(event.target.value)}
+                        placeholder="Nhập mã"
+                        className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[17px] uppercase outline-none focus:ring-0"
+                        style={{ background: "var(--ios-fill)" }}
+                      />
+                      <Button size="sm" variant="tinted" onClick={applyCoupon}>Áp dụng</Button>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </ListGroup>
 
-              {/* Reviews Column */}
-              <div className={`${isMobile ? "" : "md:col-span-5"} space-y-6`}>
-                <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
-                  <span className="material-symbols-outlined text-indigo-650 text-base font-bold">reviews</span>
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider">Đánh Giá Từ Khách Hàng</h3>
-                </div>
+                  <ListGroup header="Tạm tính">
+                    <ListRow title="Tiền hàng" value={vnd(subtotal)} />
+                    <ListRow title="Giảm giá" value={discountAmount ? `-${vnd(discountAmount)}` : "—"} />
+                    <ListRow title="Vận chuyển" value={shippingFee ? vnd(shippingFee) : "Miễn phí"} />
+                    <ListRow title="Tổng thanh toán" value={vnd(grandTotal)} last />
+                  </ListGroup>
 
-                {/* Rating Summary Card */}
-                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center gap-4 justify-center">
-                  <div className="text-center shrink-0">
-                    <span className="text-3xl font-black text-slate-900 leading-none">4.8</span>
-                    <p className="text-[10px] text-slate-400 font-bold mt-1">trên 5 sao</p>
-                    <div className="text-amber-500 font-bold text-xs mt-1">★★★★★</div>
-                  </div>
-                  <div className="h-12 w-px bg-slate-200 shrink-0"></div>
-                  <div className="flex-grow space-y-1 text-[9px] font-bold">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-8 text-slate-500 text-right">5 sao</span>
-                      <div className="flex-grow h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: "85%" }}></div>
-                      </div>
-                      <span className="w-8 text-slate-500 text-right">85%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-8 text-slate-500 text-right">4 sao</span>
-                      <div className="flex-grow h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: "12%" }}></div>
-                      </div>
-                      <span className="w-8 text-slate-500 text-right">12%</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-8 text-slate-500 text-right">3 sao</span>
-                      <div className="flex-grow h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full rounded-full" style={{ width: "3%" }}></div>
-                      </div>
-                      <span className="w-8 text-slate-500 text-right">3%</span>
-                    </div>
-                  </div>
+                  <Button full size="lg" onClick={() => setCheckoutOpen(true)}>Thanh toán · {vnd(grandTotal)}</Button>
                 </div>
-
-                {/* Reviews Feed */}
-                <div className={`space-y-3 ${isMobile ? "max-h-[220px]" : "max-h-[380px]"} overflow-y-auto pr-1 scrollbar-hide`}>
-                  {[
-                    { name: "Nguyễn Văn Hùng", rate: 5, date: "24/05/2026", comment: "Giày Sneaker đi siêu êm chân, bọt khí đàn hồi tốt, đóng gói cẩn thận có cả túi vải bảo quản xịn sò." },
-                    { name: "Lê Thị Thu Thảo", rate: 5, date: "22/05/2026", comment: "Đồng hồ GPS đo nhịp tim rất chuẩn xác khi chạy bộ, màn hình AMOLED hiển thị cực kỳ sắc nét dưới nắng gắt." },
-                    { name: "Trần Thế Minh", rate: 4, date: "19/05/2026", comment: "Tai nghe Bluetooth pin cực trâu, chống ồn ANC hoạt động ổn định trong tầm giá. Giao hàng rất nhanh." },
-                    { name: "Phạm Minh Hoàng", rate: 5, date: "15/05/2026", comment: "Áo bomber techwear chống nước và chống gió siêu tốt, mặc đi phượt ban đêm rất ấm áp và thời trang." }
-                  ].map((rev, idx) => (
-                    <div key={idx} className="p-4 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
-                      <div className="flex justify-between items-center text-[10px]">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-slate-800">{rev.name}</span>
-                          <span className="text-[8px] bg-emerald-50 text-emerald-600 px-1 py-0.2 rounded border border-emerald-100 flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-[8px] font-black">verified</span>Đã mua
-                          </span>
-                        </div>
-                        <span className="text-slate-400 font-mono text-[9px]">{rev.date}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-amber-500 text-xs font-bold font-mono">{"★".repeat(rev.rate)}</span>
-                      </div>
-                      <p className="text-[10px] text-slate-500 font-light leading-relaxed">{rev.comment}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
-
-        {/* Footer Branding - Hidden on mobile to save space */}
-        {!isMobile && (
-          <footer className="border-t border-slate-200 py-6 mt-12 bg-white select-none">
-            <div className="max-w-5xl mx-auto px-6 flex justify-between items-center text-xs text-slate-400">
-              <span>© 2026 Hugo E-Store. Đa Mẫu Mã - Bảo Hành Vàng.</span>
-              <span className="font-mono">Ver 3.2 - 256bit Encrypted</span>
-            </div>
-          </footer>
+              </>
+            )}
+          </div>
         )}
 
-      </div>
-
-      {/* Custom Bottom Tab Bar for Mobile */}
-      {isMobile && (
-        <div className="bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 pt-3 pb-5 flex justify-around items-center shrink-0 z-30 select-none">
-          <button 
-            onClick={() => { setActivePage("shop"); setCheckoutSuccess(false); }} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "shop" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-600"}`}
-          >
-            <span className="material-symbols-outlined text-xl">storefront</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Cửa hàng</span>
-          </button>
-          <button 
-            onClick={() => { setActivePage("details"); setCheckoutSuccess(false); }} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "details" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-600"}`}
-          >
-            <span className="material-symbols-outlined text-xl">table_chart</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Thông số</span>
-          </button>
-          <button 
-            onClick={() => { setActivePage("cart"); setCheckoutSuccess(false); }} 
-            className={`flex flex-col items-center gap-1 transition-colors relative ${activePage === "cart" ? "text-indigo-600 font-bold" : "text-slate-400 hover:text-slate-600"}`}
-          >
-            <span className="material-symbols-outlined text-xl">shopping_cart</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Giỏ hàng</span>
-            {totalQty > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-650 text-white font-mono text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-black animate-scaleIn">
-                {totalQty}
-              </span>
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* Product Detail Customization Overlay Modal */}
-      {selectedProduct && (
-        <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className={`bg-white text-slate-800 rounded-2xl max-w-lg w-full shadow-2xl relative animate-scaleIn text-left ${isMobile ? "p-4 space-y-4" : "p-6 md:p-8 space-y-6"}`}>
-            <button 
-              onClick={() => setSelectedProduct(null)} 
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 flex items-center justify-center"
-            >
-              <span className="material-symbols-outlined text-lg">close</span>
-            </button>
-
-            <div className={`flex ${isMobile ? "flex-col gap-4" : "flex-col sm:flex-row gap-6"}`}>
-              {/* Image preview */}
-              <div className={`bg-slate-100 rounded-xl flex items-center justify-center ${isMobile ? "w-20 h-20 p-2 mx-auto" : "w-full sm:w-1/3 p-4"}`}>
-                <img src={selectedProduct.img} alt={selectedProduct.name} className={`${isMobile ? "w-16 h-16" : "w-24 h-24"} object-cover`} />
-              </div>
-              
-              {/* Product specifications */}
-              <div className="flex-grow space-y-3.5">
-                <div className="space-y-1">
-                  <span className="text-[9px] font-bold text-indigo-650 uppercase font-mono">{selectedProduct.type}</span>
-                  <h3 className="text-xs sm:text-base font-extrabold text-slate-900">{selectedProduct.name}</h3>
-                  <p className="text-xs font-mono font-bold text-[#4F46E5]">{selectedProduct.price.toLocaleString("vi-VN")}đ</p>
-                </div>
-
-                <p className="text-[10px] sm:text-xs text-slate-505 leading-relaxed font-light">{selectedProduct.desc}</p>
-                
-                {/* Modal Color picker */}
-                <div className="space-y-1">
-                  <span className="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Màu sắc:</span>
-                  <div className="flex gap-2">
-                    {selectedProduct.colors.map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setModalColor(c)}
-                        className={`w-5 h-5 rounded-full border transition-all ${colorHex[c]} ${
-                          modalColor === c ? "scale-115 ring-2 ring-indigo-550/20" : "opacity-60"
-                        }`}
-                        title={colorNames[c] || c}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Modal Size picker */}
-                {selectedProduct.sizes.length > 1 && (
-                  <div className="space-y-1">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Kích cỡ (EU):</span>
-                    <div className="flex gap-1.5">
-                      {selectedProduct.sizes.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => setModalSize(s)}
-                          className={`px-2 py-0.5 rounded text-[9px] font-bold border transition-colors ${
-                            modalSize === s ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Modal Quantity selector */}
-                <div className="flex items-center justify-between border-t border-slate-100 pt-3.5 mt-2">
-                  <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-full py-1 px-3">
-                    <button onClick={() => setModalQty((prev) => Math.max(1, prev - 1))} className="text-xs font-bold w-4 text-center">-</button>
-                    <span className="text-xs font-mono font-bold w-4 text-center">{modalQty}</span>
-                    <button onClick={() => setModalQty((prev) => prev + 1)} className="text-xs font-bold w-4 text-center">+</button>
-                  </div>
-                  <button
-                    onClick={handleAddToCart}
-                    className="bg-indigo-650 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold text-[10px] sm:text-xs uppercase tracking-wider transition-colors shadow-md shadow-indigo-500/10"
-                  >
-                    Thêm vào giỏ
-                  </button>
-                </div>
-              </div>
+        {/* --------------------------------------------------------- ĐÃ LƯU */}
+        {tab === "saved" && (
+          saved.length === 0 ? (
+            <p className="py-10 text-center text-[15px]" style={{ color: "var(--ios-label-2)" }}>Chưa lưu sản phẩm nào.</p>
+          ) : (
+            <div className={`grid gap-3 ${gridCols}`}>
+              {PRODUCTS.filter((product) => saved.includes(product.id)).map((product) => <ProductCard key={product.id} product={product} />)}
             </div>
+          )
+        )}
+
+        {/* ------------------------------------------------------ TÀI KHOẢN */}
+        {tab === "account" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-2 items-start gap-5"}>
+            {placedOrder && (
+              <Card className={isMobile ? "" : "col-span-2"}>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#34C759]">
+                    <span className="material-symbols-outlined text-[24px] text-white">check</span>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[17px] font-semibold">Đặt hàng thành công</span>
+                    <span className="block text-[13px]" style={{ color: "var(--ios-label-2)" }}>Mã đơn {placedOrder.id} · giao {placedOrder.eta}</span>
+                  </span>
+                  <span className="ml-auto text-[17px] font-semibold" style={{ color: ACCENT }}>{vnd(placedOrder.total)}</span>
+                </div>
+              </Card>
+            )}
+
+            <ListGroup header="Hugo Club">
+              <ListRow icon="workspace_premium" iconBg="#FF9500" title="Hạng thành viên" value="Vàng" />
+              <ListRow icon="stars" title="Điểm tích luỹ" value="1.240" subtitle="Tích 5% mỗi đơn" last />
+            </ListGroup>
+
+            <ListGroup header="Đơn hàng">
+              <ListRow icon="local_shipping" title="Đang giao" value={placedOrder ? "1" : "0"} chevron />
+              <ListRow icon="inventory_2" iconBg="#8E8E93" title="Lịch sử mua" value="14" chevron />
+              <ListRow icon="assignment_return" iconBg="#FF3B30" title="Đổi trả" subtitle="Miễn phí trong 7 ngày" chevron last />
+            </ListGroup>
+
+            <ListGroup header="Địa chỉ">
+              <ListRow icon="home" title="Nhà riêng" subtitle="128 Nguyễn Trãi, Quận 1, TP.HCM" chevron />
+              <ListRow icon="apartment" iconBg="#8E8E93" title="Văn phòng" subtitle="Toà Bitexco, Quận 1, TP.HCM" chevron last />
+            </ListGroup>
+
+            <ListGroup header="Hỗ trợ">
+              <ListRow icon="support_agent" title="Chat với tư vấn viên" chevron onClick={() => showToast("Đang kết nối tư vấn viên")} />
+              <ListRow icon="help" iconBg="#8E8E93" title="Câu hỏi thường gặp" chevron last />
+            </ListGroup>
           </div>
+        )}
+      </AppShell>
+
+      {/* Chi tiết sản phẩm */}
+      <Sheet
+        open={Boolean(detail)}
+        onClose={() => setDetail(null)}
+        title={detail?.name}
+        action={
+          <div className="flex gap-2">
+            <Button variant="gray" size="lg" onClick={() => toggleSaved(detail.id)} aria-label="Lưu sản phẩm">
+              <span
+                className="material-symbols-outlined text-[22px]"
+                style={{ fontVariationSettings: saved.includes(detail?.id) ? "'FILL' 1" : "'FILL' 0", color: saved.includes(detail?.id) ? "#FF3B30" : undefined }}
+              >
+                favorite
+              </span>
+            </Button>
+            <Button size="lg" className="flex-1" onClick={addToCart}>
+              Thêm vào giỏ · {vnd(detail ? detail.price * variant.qty : 0)}
+            </Button>
+          </div>
+        }
+      >
+        {detail && (
+          <div className="space-y-4 pb-2">
+            <span className="block h-48 w-full overflow-hidden rounded-[14px]"><Art kind={detail.art} ratio="wide" /></span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[24px] font-bold" style={{ color: ACCENT }}>{vnd(detail.price)}</span>
+              <span className="text-[15px] line-through" style={{ color: "var(--ios-label-3)" }}>{vnd(detail.oldPrice)}</span>
+              <Chip tint="#FF3B30" filled>-{Math.round(100 - (detail.price / detail.oldPrice) * 100)}%</Chip>
+            </div>
+            <p className="text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>{detail.desc}</p>
+            <div className="flex flex-wrap gap-2">
+              <Chip>★ {detail.rating}</Chip>
+              <Chip tint="#8E8E93">Đã bán {detail.sold}</Chip>
+              <Chip tint={detail.stock < 10 ? "#FF9500" : "#34C759"}>Còn {detail.stock}</Chip>
+            </div>
+
+            <ListGroup header="Màu sắc">
+              {detail.colors.map((color, index) => (
+                <ListRow
+                  key={color}
+                  onClick={() => setVariant({ ...variant, color })}
+                  title={COLOR_NAMES[color] || color}
+                  last={index === detail.colors.length - 1}
+                  trailing={
+                    <span className="flex items-center gap-2">
+                      <span className="h-5 w-5 rounded-full border" style={{ background: COLOR_HEX[color], borderColor: "var(--ios-sep)" }} />
+                      {variant.color === color && <span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check</span>}
+                    </span>
+                  }
+                />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Kích cỡ">
+              <div className="flex flex-wrap gap-2 p-3">
+                {detail.sizes.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => setVariant({ ...variant, size })}
+                    className="min-h-[38px] min-w-[52px] rounded-[10px] px-3 text-[15px] font-semibold transition-transform active:scale-95"
+                    style={variant.size === size ? { background: ACCENT, color: "#fff" } : { background: "var(--ios-fill)", color: "var(--ios-label)" }}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </ListGroup>
+
+            <ListGroup header="Số lượng">
+              <ListRow title="Số lượng" last trailing={<Stepper value={variant.qty} min={1} max={detail.stock} onChange={(qty) => setVariant({ ...variant, qty })} />} />
+            </ListGroup>
+
+            <ListGroup header="Vận chuyển">
+              <ListRow icon="local_shipping" iconBg="#FF9500" title="Giao 2 – 4 ngày" subtitle="Miễn phí cho đơn từ 500.000đ" />
+              <ListRow icon="verified_user" iconBg="#34C759" title="Bảo hành 12 tháng" last />
+            </ListGroup>
+          </div>
+        )}
+      </Sheet>
+
+      {/* Thanh toán */}
+      <Sheet
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        title="Thanh toán"
+        action={<Button full size="lg" onClick={checkout}>Đặt hàng · {vnd(grandTotal)}</Button>}
+      >
+        <div className="space-y-4 pb-2">
+          <ListGroup header="Thông tin nhận hàng">
+            <Field label="Họ tên" value={ship.name} onChange={(event) => setShip({ ...ship, name: event.target.value })} placeholder="Nguyễn Văn A" />
+            <Field label="Điện thoại" value={ship.phone} onChange={(event) => setShip({ ...ship, phone: event.target.value })} placeholder="09xx xxx xxx" inputMode="tel" />
+            <Field label="Địa chỉ" value={ship.address} onChange={(event) => setShip({ ...ship, address: event.target.value })} placeholder="Số nhà, phường, quận" />
+          </ListGroup>
+
+          <ListGroup header="Phương thức" footer="Demo không thu tiền thật.">
+            <ListRow icon="qr_code_2" title="Chuyển khoản VietQR" subtitle="Xác nhận tự động" trailing={<span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check</span>} />
+            <ListRow icon="payments" iconBg="#34C759" title="Thanh toán khi nhận hàng" last />
+          </ListGroup>
+
+          <ListGroup header="Tổng kết">
+            <ListRow title="Tiền hàng" value={vnd(subtotal)} />
+            <ListRow title="Giảm giá" value={discountAmount ? `-${vnd(discountAmount)}` : "—"} />
+            <ListRow title="Vận chuyển" value={shippingFee ? vnd(shippingFee) : "Miễn phí"} />
+            <ListRow title="Tổng cộng" value={vnd(grandTotal)} last />
+          </ListGroup>
         </div>
-      )}
+      </Sheet>
 
-      <HugoNoticeToast open={toast.show} type="success" message={toast.message} zIndex={80} />
-
-    </div>
+      <Toast message={toast} />
+    </IosApp>
   );
 }

@@ -183,6 +183,7 @@ const TRANSFER_MAX = 1000;
 const TRANSFER_DAILY_CAP = 1000;
 const TRANSFER_FEE_RATE = 0.05;
 const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
+const FOCUS_DAILY_JOY_CAP = 150;
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -662,12 +663,14 @@ router.post('/claim-info-bonus', requireMember, async (req, res) => {
       return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
     }
 
+    const claimed = await Bio.findOneAndUpdate(
+      { _id: bio._id, infoBonusClaimed: { $ne: true } },
+      { $set: { infoBonusClaimed: true } },
+      { new: true },
+    );
+    if (!claimed) return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
+
     const result = await awardJoy(email, 20, 'info_bonus', 'Khám phá Info & Version (+20 JOY)');
-    // Use a narrow update instead of bio.save(). Older profiles can contain
-    // legacy fields that no longer pass the full current schema validation;
-    // saving the entire document used to turn an otherwise successful claim
-    // into HTTP 400 after JOY had already been credited.
-    await Bio.updateOne({ _id: bio._id }, { $set: { infoBonusClaimed: true } });
 
     res.json({ success: true, balance: result.balance });
   } catch (error) {
@@ -692,8 +695,14 @@ router.post('/claim-info-read-bonus', requireMember, async (req, res) => {
       return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
     }
 
+    const claimed = await Bio.findOneAndUpdate(
+      { _id: bio._id, infoReadBonusClaimed: { $ne: true } },
+      { $set: { infoReadBonusClaimed: true } },
+      { new: true },
+    );
+    if (!claimed) return res.json({ success: true, alreadyClaimed: true, balance: bio.joyBalance });
+
     const result = await awardJoy(email, 50, 'info_read_bonus', 'Đọc hết bản nâng cấp 2.0 (+50 JOY)');
-    await Bio.updateOne({ _id: bio._id }, { $set: { infoReadBonusClaimed: true } });
 
     res.json({ success: true, balance: result.balance });
   } catch (error) {
@@ -706,7 +715,10 @@ router.post('/award-focus', requireMember, async (req, res) => {
   try {
     const { minutes } = req.body;
     const email = req.memberEmail;
-    if (!email || !minutes) return res.status(400).json({ error: 'Email and minutes are required' });
+    const numMinutes = Number(minutes);
+    if (!email || !Number.isFinite(numMinutes) || !Number.isInteger(numMinutes) || numMinutes < 1 || numMinutes > 1440) {
+      return res.status(400).json({ error: 'Số phút tập trung không hợp lệ.' });
+    }
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
@@ -714,17 +726,40 @@ router.post('/award-focus', requireMember, async (req, res) => {
 
     // Base rewards x3.
     let joyAmount = 0;
-    if (minutes >= 180) joyAmount = 150;
-    else if (minutes >= 60) joyAmount = 45;
-    else if (minutes >= 25) joyAmount = 15;
+    if (numMinutes >= 180) joyAmount = 150;
+    else if (numMinutes >= 60) joyAmount = 45;
+    else if (numMinutes >= 25) joyAmount = 15;
 
     if (joyAmount <= 0) {
       return res.status(400).json({ error: 'Thời gian tập trung chưa đủ để nhận thưởng JOY.' });
     }
 
-    const result = await awardJoy(email, joyAmount, 'focus_session', `Tập trung sâu HugoAura: ${minutes} phút`);
+    const today = todayStr();
+    await Bio.updateOne(
+      { _id: bio._id, focusJoyDate: { $ne: today } },
+      { $set: { focusJoyDate: today, focusJoyToday: 0 } },
+    );
+    const reserved = await Bio.findOneAndUpdate(
+      { _id: bio._id, focusJoyDate: today, focusJoyToday: { $lte: FOCUS_DAILY_JOY_CAP - joyAmount } },
+      { $inc: { focusJoyToday: joyAmount } },
+      { new: true, projection: { focusJoyToday: 1 } },
+    );
+    if (!reserved) {
+      return res.status(429).json({ error: `Đã đạt giới hạn ${FOCUS_DAILY_JOY_CAP} JOY tập trung trong ngày.` });
+    }
 
-    res.json({ success: true, balance: result.balance, awarded: joyAmount });
+    let result;
+    try {
+      result = await awardJoy(email, joyAmount, 'focus_session', `Tập trung sâu HugoAura: ${numMinutes} phút`);
+    } catch (error) {
+      await Bio.updateOne(
+        { _id: bio._id, focusJoyDate: today, focusJoyToday: { $gte: joyAmount } },
+        { $inc: { focusJoyToday: -joyAmount } },
+      );
+      throw error;
+    }
+
+    res.json({ success: true, balance: result.balance, awarded: joyAmount, dailyAwarded: reserved.focusJoyToday });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

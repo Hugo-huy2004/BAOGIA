@@ -9,7 +9,6 @@ const PRIVATE_ROBOTS = "noindex, nofollow, noarchive";
 const PUBLIC_PATHS = new Set([
   "/introduction",
   "/services",
-  "/student-benefits",
   "/student-pricing",
   "/faq",
   "/booking",

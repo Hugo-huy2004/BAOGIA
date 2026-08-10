@@ -18,14 +18,17 @@ const DMCABadge = () => {
   return (
     <a 
       href="https://www.dmca.com/Protection/Status.aspx?ID=aba9f9ae-db80-4fb1-ae26-dd34c9b352e8" 
-      title="DMCA.com Protection Status" 
+      title="Check the current DMCA.com status"
+      aria-label="Check the current DMCA.com status in a new tab"
       className="dmca-badge hover:scale-105 transition-transform inline-block"
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
     >
       <img 
         src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=aba9f9ae-db80-4fb1-ae26-dd34c9b352e8"  
-        alt="DMCA.com Protection Status" 
+        alt="Check DMCA.com status"
+        loading="lazy"
+        decoding="async"
         className="h-8 w-auto object-contain drop-shadow-sm"
       />
     </a>

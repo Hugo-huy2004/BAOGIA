@@ -63,6 +63,16 @@ export default function Navbar() {
         {/* Right controls */}
         <div className="ml-auto flex h-9 flex-shrink-0 items-center gap-1.5 sm:gap-2">
 
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))}
+            className="hidden h-8 items-center gap-1.5 rounded-full border border-border/70 px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-muted lg:inline-flex"
+            aria-label={t("footer.supportServer", "Ủng hộ Hugo Studio")}
+          >
+            <span className="material-symbols-outlined text-[17px]" aria-hidden="true">volunteer_activism</span>
+            {t("footer.supportServer", "Ủng hộ")}
+          </button>
+
           {/* Language toggle */}
           <button
             onClick={toggleLanguage}

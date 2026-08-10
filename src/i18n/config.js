@@ -13,6 +13,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // stays the single canonical file and overwrites core when it lands — if the
 // two ever drift, the full file wins.
 import coreVI from './locales/vi/core.json';
+import coreEN from './locales/en/core.json';
 
 const FULL_LOCALES = {
   vi: () => import('./locales/vi/translation.json'),
@@ -23,7 +24,10 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { vi: { translation: coreVI } },
+    resources: {
+      vi: { translation: coreVI },
+      en: { translation: coreEN },
+    },
     fallbackLng: 'vi',
     debug: false,
 

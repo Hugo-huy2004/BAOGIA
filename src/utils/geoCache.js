@@ -11,7 +11,7 @@ const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
 // Only an explicit user action may trigger the native prompt ({ ask: true } —
 // the permission onboarding button). Every other caller reads silently and
 // gives up when permission isn't granted yet; otherwise whichever component
-// mounted first (weather layer, community feed, map) re-prompted on every
+// mounted first (weather layer, map) re-prompted on every
 // single PWA launch.
 async function permissionGranted() {
   try {

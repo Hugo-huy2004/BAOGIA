@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { JWT_SECRET } from '../utils/secrets.js';
+import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 
 const MEMBER_TOKEN_TTL = '14d';
 
@@ -96,6 +97,15 @@ export const requireMember = async (req, res, next) => {
     if (decoded.role === 'member' && decoded.email) {
       req.memberEmail = decoded.email;
       req.member = decoded;
+
+      // JWT validity is not account validity. A permanently blacklisted email
+      // must stay blocked even if an old 14-day token is still valid.
+      try {
+        const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
+        if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
+      } catch (securityError) {
+        console.error('[member security block check]', securityError.message);
+      }
 
       // Note: User-Agent headers fluctuate dynamically across browser reloads,
       // DevTools toggles, and SW requests. We log req.memberEmail without destroying valid sessions.

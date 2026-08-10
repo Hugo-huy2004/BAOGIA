@@ -7,7 +7,7 @@ Automatic email service for sending transactional emails via Gmail SMTP.
 
 ### Environment Variables (.env)
 ```
-EMAIL_SMTP_USER=hugowishpax@gmail.com
+EMAIL_SMTP_USER=contact@hugowishpax.studio
 EMAIL_SMTP_PASS=mjuu xwhk ymtd cwwg
 EMAIL_SMTP_HOST=smtp.gmail.com
 EMAIL_SMTP_PORT=587

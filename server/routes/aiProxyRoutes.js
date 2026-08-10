@@ -2,6 +2,12 @@ import express from 'express';
 import { Readable } from 'stream';
 import CompanionHistory from '../models/CompanionHistory.js';
 import { embedText, cosine } from '../services/embeddingService.js';
+import {
+  assessHugoPsyContent,
+  recordSecurityViolation,
+  sendSecurityBlockResponse,
+  serverAiUserId,
+} from '../services/securityEnforcement.js';
 
 const router = express.Router();
 
@@ -19,6 +25,65 @@ const MEMORY_RECALL_MAX_HISTORY_TURNS = 1;
 const MEMORY_RECALL_MIN_SCORE = 0.55;
 const MEMORY_RECALL_TOP_K = 2;
 const MAX_REPORT_REQUEST_BYTES = 11 * 1024 * 1024;
+
+// Node owns both identity and enforcement. The browser-supplied userId can be
+// changed in DevTools, so it must never be the key for quota or abuse history.
+// Political criticism, discussion of war, profanity and distress disclosures
+// are deliberately not security violations; only concrete attack/exfiltration,
+// credible threats and requests for violent operational instructions match.
+async function enforceTextChatSecurity(req, res, next) {
+  if (!req.body || typeof req.body.message !== 'string') return next();
+  req.body.userId = serverAiUserId(req.memberEmail);
+
+  const threat = assessHugoPsyContent(req.body.message);
+  if (!threat) return next();
+
+  try {
+    const result = await recordSecurityViolation({
+      req,
+      email: req.memberEmail,
+      ...threat,
+    });
+
+    if (result.block && !req.path.endsWith('/stream')) {
+      return sendSecurityBlockResponse(res, result.block);
+    }
+
+    const status = result.block ? 403 : 422;
+    const payload = result.block
+      ? {
+          error: 'ACCESS_BLOCKED',
+          message: result.block.permanent
+            ? 'Tài khoản đã bị khóa vĩnh viễn theo tiêu chuẩn an toàn.'
+            : 'Tài khoản và mạng truy cập đã bị khóa 30 ngày theo tiêu chuẩn an toàn.',
+          caseId: result.caseId,
+          permanent: Boolean(result.block.permanent),
+          blockedUntil: result.block.expiresAt || null,
+        }
+      : {
+          error: 'CONTENT_REJECTED',
+          message: 'Yêu cầu này không thể được xử lý vì có dấu hiệu hướng dẫn bạo lực hoặc gây hại. Nếu bạn đang gặp nguy hiểm thực tế, hãy liên hệ người tin cậy hoặc dịch vụ khẩn cấp tại nơi bạn sống.',
+          caseId: result.caseId,
+        };
+
+    if (req.path.endsWith('/stream')) {
+      res.status(status);
+      res.set('Content-Type', 'text/event-stream; charset=utf-8');
+      res.set('Cache-Control', 'no-store');
+      if (result.block) {
+        res.set('X-Security-Blocked', '1');
+        res.set('X-Security-Case', result.caseId);
+        res.set('X-Security-Permanent', result.block.permanent ? '1' : '0');
+        if (result.block.expiresAt) res.set('X-Security-Until', new Date(result.block.expiresAt).toISOString());
+      }
+      return res.end(`data: ${JSON.stringify(payload)}\n\n`);
+    }
+    return res.status(status).json(payload);
+  } catch (error) {
+    console.error('[HugoPsy security enforcement]', error.message);
+    return res.status(503).json({ error: 'Không thể kiểm tra tiêu chuẩn an toàn lúc này.' });
+  }
+}
 
 // Long-term semantic recall: this router sits behind requireMember (see
 // server.js), so req.memberEmail identifies the real user even though the
@@ -62,15 +127,20 @@ async function enrichWithLongTermMemory(req, _res, next) {
 async function forwardJson(req, res) {
   const targetUrl = `${AI_SERVER_URL}/api/ai${req.path}${req._parsedUrl?.search || ''}`;
   try {
+    const upstreamBody = { ...(req.body || {}), userId: serverAiUserId(req.memberEmail) };
     const upstream = await fetch(targetUrl, {
       method: req.method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
+        'X-Member-Id': serverAiUserId(req.memberEmail),
       },
-      body: req.method === 'GET' || req.method === 'HEAD' ? undefined : JSON.stringify(req.body || {})
+      body: req.method === 'GET' || req.method === 'HEAD' ? undefined : JSON.stringify(upstreamBody)
     });
     const text = await upstream.text();
+    if (upstream.status >= 500) {
+      return res.status(upstream.status).json({ error: 'Dịch vụ AI tạm thời không khả dụng.' });
+    }
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
     res.send(text);
@@ -99,12 +169,16 @@ router.post('/analyze-report', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': contentType,
-        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
+        'X-Member-Id': serverAiUserId(req.memberEmail),
       },
       body: Readable.toWeb(req),
       duplex: 'half'
     });
     const text = await upstream.text();
+    if (upstream.status >= 500) {
+      return res.status(upstream.status).json({ error: 'Dịch vụ phân tích tạm thời không khả dụng.' });
+    }
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
     res.set('Cache-Control', 'no-store');
@@ -117,6 +191,7 @@ router.post('/analyze-report', async (req, res) => {
 
 // Applies to /chat and /chat/stream (both declared below); /chat/audio's
 // multipart body has no req.body.message so it passes through untouched.
+router.use('/chat', enforceTextChatSecurity);
 router.use('/chat', enrichWithLongTermMemory);
 
 // Streaming endpoint (Server-Sent Events) — pipe the upstream stream straight
@@ -129,10 +204,14 @@ router.post('/chat/stream', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
+        'X-Member-Id': serverAiUserId(req.memberEmail),
       },
       body: JSON.stringify(req.body || {})
     });
+    if (upstream.status >= 500) {
+      return res.status(upstream.status).json({ error: 'Dịch vụ AI tạm thời không khả dụng.' });
+    }
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'text/event-stream');
     res.set('Cache-Control', 'no-cache');
@@ -156,12 +235,16 @@ router.post('/chat/audio', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': req.headers['content-type'],
-        'X-Internal-Key': process.env.INTERNAL_API_KEY || ''
+        'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
+        'X-Member-Id': serverAiUserId(req.memberEmail),
       },
       body: Readable.toWeb(req),
       duplex: 'half'
     });
     const text = await upstream.text();
+    if (upstream.status >= 500) {
+      return res.status(upstream.status).json({ error: 'Dịch vụ hội thoại âm thanh tạm thời không khả dụng.' });
+    }
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
     res.send(text);

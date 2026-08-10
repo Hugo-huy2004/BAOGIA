@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -14,16 +14,22 @@ import {
   AboutCard,
   CINE_CSS,
   CineSectionHeading,
+  CoverColorShift,
   EASE,
   INK,
   INK_DIM,
   ScrollProgressBar,
+  SwipeDownCue,
   WordsPullUp,
+  useCineScrollSnap,
 } from "../../components/public/cineKit";
 
 const PhotographyDemo = lazy(() => import("../../components/demos/PhotographyDemo"));
 const CoffeeDemo = lazy(() => import("../../components/demos/CoffeeDemo"));
 const PortfolioDemo = lazy(() => import("../../components/demos/PortfolioDemo"));
+const ECommerceDemo = lazy(() => import("../../components/demos/ECommerceDemo"));
+const JewelryDemo = lazy(() => import("../../components/demos/JewelryDemo"));
+const DashboardDemo = lazy(() => import("../../components/demos/DashboardDemo"));
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -68,10 +74,208 @@ const STEP_ICONS = ["chat", "request_quote", "timeline", "handshake"];
 const STUDENT_ICONS = ["verified", "school", "smart_toy", "forum"];
 
 const DEMO_META = [
-  { id: "portfolio", url: "hugo.dev/portfolio", icon: "person", Demo: PortfolioDemo },
-  { id: "cafe", url: "hugo.dev/cafe", icon: "local_cafe", Demo: CoffeeDemo },
-  { id: "photography", url: "hugo.dev/photography", icon: "photo_camera", Demo: PhotographyDemo },
+  { id: "portfolio", icon: "person", Demo: PortfolioDemo },
+  { id: "cafe", icon: "local_cafe", Demo: CoffeeDemo },
+  { id: "photography", icon: "photo_camera", Demo: PhotographyDemo },
+  { id: "ecommerce", icon: "storefront", Demo: ECommerceDemo },
+  { id: "jewelry", icon: "diamond", Demo: JewelryDemo },
+  { id: "dashboard", icon: "space_dashboard", Demo: DashboardDemo },
 ];
+
+// Các nhãn mới tạm đặt cạnh component để tránh chạm vào hai file locale trong
+// lúc nhiều phần của trang đang được chỉnh song song. Nội dung gốc, giá và tên
+// mẫu vẫn lấy nguyên vẹn từ i18n.
+const DEMO_LIBRARY_COPY = {
+  vi: {
+    description: "Chọn một mẫu để xem thử trên điện thoại, tablet hoặc máy tính.",
+    live: "Demo tương tác",
+    open: "Xem mẫu chi tiết",
+    selected: "Đang xem",
+    previewTitle: "Phòng xem mẫu",
+    close: "Đóng bản xem trước",
+    previewHint: "Chạm từng mẫu, sau đó đổi thiết bị để hình dung website trước khi trao đổi.",
+    included: "Có thể triển khai",
+    liveNotice: "Bạn có thể cuộn và tương tác trực tiếp trong khung này.",
+    fits: "Phù hợp với",
+    details: {
+      portfolio: { fit: "Sinh viên, freelancer, người làm sáng tạo", features: ["Giới thiệu", "Dự án", "Liên hệ"] },
+      cafe: { fit: "Quán cà phê, bistro, tiệm bánh nhỏ", features: ["Thực đơn", "Đặt bàn", "Bản đồ"] },
+      photography: { fit: "Nhiếp ảnh gia, studio, dịch vụ cưới", features: ["Album", "Dịch vụ", "Đặt lịch"] },
+      ecommerce: { fit: "Shop thời trang, mỹ phẩm, đồ thủ công", features: ["Sản phẩm", "Bộ lọc", "Giỏ hàng"] },
+      jewelry: { fit: "Tiệm vàng, trang sức, thương hiệu cao cấp", features: ["Bộ sưu tập", "Giá tham khảo", "Tư vấn"] },
+      dashboard: { fit: "Đội nhóm cần quản lý đơn và dữ liệu", features: ["Tổng quan", "Báo cáo", "Phân quyền"] },
+    },
+  },
+  en: {
+    description: "Choose a template, then preview it on phone, tablet or desktop.",
+    live: "Interactive demo",
+    open: "View details",
+    selected: "Viewing",
+    previewTitle: "Template room",
+    close: "Close preview",
+    previewHint: "Choose a template, then switch devices to picture your website before we talk.",
+    included: "Can be included",
+    liveNotice: "You can scroll and interact directly inside this frame.",
+    fits: "Best for",
+    details: {
+      portfolio: { fit: "Students, freelancers and independent creatives", features: ["Profile", "Projects", "Contact"] },
+      cafe: { fit: "Cafes, bistros and small bakeries", features: ["Menu", "Booking", "Map"] },
+      photography: { fit: "Photographers, studios and wedding services", features: ["Gallery", "Services", "Booking"] },
+      ecommerce: { fit: "Fashion, beauty and handmade shops", features: ["Products", "Filters", "Cart"] },
+      jewelry: { fit: "Jewellers and premium accessory brands", features: ["Collections", "Reference price", "Consultation"] },
+      dashboard: { fit: "Teams managing orders and business data", features: ["Overview", "Reports", "Roles"] },
+    },
+  },
+};
+
+function DemoTeaserArt({ id }) {
+  const reduceMotion = useReducedMotion();
+  const floatTransition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 3.6, repeat: Infinity, ease: "easeInOut" };
+
+  return (
+    <div className="relative h-32 overflow-hidden rounded-[1.35rem] border border-white/40 bg-[linear-gradient(145deg,hsl(var(--background)/0.9),hsl(var(--primary)/0.1),rgba(175,82,222,0.1))] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] sm:h-36">
+      <div className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
+      <div className="absolute -bottom-12 -left-10 h-28 w-28 rounded-full bg-foreground/5 blur-2xl" />
+      {id === "portfolio" && (
+        <motion.div
+          whileInView={reduceMotion ? undefined : { y: [0, -5, 0], rotate: [-1, 1, -1] }}
+          viewport={{ amount: 0.25 }}
+          transition={floatTransition}
+          className="absolute inset-x-7 bottom-[-1rem] top-5 rounded-t-[1.35rem] border border-white/50 bg-card/90 p-3 shadow-xl backdrop-blur-xl"
+        >
+          <div className="flex items-center justify-between">
+            <span className="h-1.5 w-14 rounded-full bg-foreground/15" />
+            <span className="material-symbols-outlined text-base text-primary">menu</span>
+          </div>
+          <div className="mx-auto mt-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span className="material-symbols-outlined text-xl">person</span>
+          </div>
+          <div className="mx-auto mt-2 h-2 w-24 rounded-full bg-foreground/15" />
+          <div className="mx-auto mt-1.5 h-1.5 w-16 rounded-full bg-foreground/10" />
+          <div className="mt-2.5 grid grid-cols-3 gap-1.5">
+            {[0, 1, 2].map((item) => <span key={item} className="h-7 rounded-lg bg-primary/10" />)}
+          </div>
+        </motion.div>
+      )}
+      {id === "cafe" && (
+        <>
+          <motion.span
+            whileInView={reduceMotion ? undefined : { y: [2, -5, 2], opacity: [0.35, 0.9, 0.35] }}
+            viewport={{ amount: 0.25 }}
+            transition={{ ...floatTransition, duration: 2.6 }}
+            className="material-symbols-outlined absolute left-1/2 top-5 -translate-x-1/2 text-6xl text-primary"
+          >
+            local_cafe
+          </motion.span>
+          <div className="absolute inset-x-5 bottom-5 grid grid-cols-3 gap-2">
+            {["bakery_dining", "lunch_dining", "icecream"].map((icon, index) => (
+              <motion.span
+                key={icon}
+                whileInView={reduceMotion ? undefined : { y: [0, index % 2 ? 3 : -3, 0] }}
+                viewport={{ amount: 0.25 }}
+                transition={{ ...floatTransition, delay: index * 0.2 }}
+                className="material-symbols-outlined flex h-10 items-center justify-center rounded-xl border border-white/40 bg-card/75 text-base text-foreground shadow-sm backdrop-blur-xl"
+              >
+                {icon}
+              </motion.span>
+            ))}
+          </div>
+        </>
+      )}
+      {id === "photography" && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          {[-1, 0, 1].map((offset) => (
+            <motion.div
+              key={offset}
+              whileInView={reduceMotion ? undefined : { y: [0, offset === 0 ? -6 : -3, 0], rotate: [offset * 8, offset * 5, offset * 8] }}
+              viewport={{ amount: 0.25 }}
+              transition={{ ...floatTransition, delay: (offset + 1) * 0.18 }}
+              className={`absolute h-24 w-[4.5rem] rounded-xl border border-white/50 bg-card/90 p-1.5 shadow-xl backdrop-blur-xl ${offset === 0 ? "z-10" : ""}`}
+              style={{ transform: `translateX(${offset * 48}px) rotate(${offset * 8}deg)` }}
+            >
+              <div className="flex h-full items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <span className="material-symbols-outlined">{offset === 0 ? "photo_camera" : "image"}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+      {id === "ecommerce" && (
+        <div className="absolute inset-4 rounded-[1.25rem] border border-white/50 bg-card/80 p-3 shadow-xl backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <span className="h-2 w-16 rounded-full bg-foreground/15" />
+            <span className="material-symbols-outlined text-lg text-primary">shopping_bag</span>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {["checkroom", "styler", "watch"].map((icon, index) => (
+              <motion.div
+                key={icon}
+                whileInView={reduceMotion ? undefined : { y: [0, index === 1 ? -4 : 2, 0] }}
+                viewport={{ amount: 0.25 }}
+                transition={{ ...floatTransition, delay: index * 0.16 }}
+                className="rounded-xl bg-primary/[0.08] p-2 text-center"
+              >
+                <span className="material-symbols-outlined text-2xl text-primary">{icon}</span>
+                <span className="mx-auto mt-2 block h-1.5 w-8 rounded-full bg-foreground/15" />
+                <span className="mx-auto mt-1 block h-1 w-5 rounded-full bg-foreground/10" />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+      {id === "jewelry" && (
+        <div className="absolute inset-4 flex overflow-hidden rounded-[1.25rem] border border-white/50 bg-card/80 shadow-xl backdrop-blur-xl">
+          <div className="flex w-2/5 flex-col justify-between p-3">
+            <span className="h-1.5 w-10 rounded-full bg-foreground/15" />
+            <div>
+              <span className="block h-2 w-14 rounded-full bg-foreground/20" />
+              <span className="mt-2 block h-1.5 w-10 rounded-full bg-foreground/10" />
+            </div>
+            <span className="flex h-6 w-14 items-center justify-center rounded-full bg-foreground text-background">
+              <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
+            </span>
+          </div>
+          <motion.div
+            whileInView={reduceMotion ? undefined : { scale: [0.96, 1.04, 0.96], rotate: [-3, 3, -3] }}
+            viewport={{ amount: 0.25 }}
+            transition={{ ...floatTransition, duration: 4.4 }}
+            className="m-2 flex flex-1 items-center justify-center rounded-2xl bg-primary/[0.08] text-primary"
+          >
+            <span className="material-symbols-outlined text-6xl">diamond</span>
+          </motion.div>
+        </div>
+      )}
+      {id === "dashboard" && (
+        <div className="absolute inset-4 flex overflow-hidden rounded-[1.25rem] border border-white/50 bg-card/85 p-2 shadow-xl backdrop-blur-xl">
+          <div className="flex w-9 flex-col items-center gap-2 rounded-xl bg-foreground/[0.05] py-2">
+            {["home", "receipt_long", "group", "settings"].map((icon) => (
+              <span key={icon} className="material-symbols-outlined text-[13px] text-foreground/45">{icon}</span>
+            ))}
+          </div>
+          <div className="min-w-0 flex-1 p-2">
+            <div className="flex gap-1.5">
+              {[0, 1, 2].map((item) => <span key={item} className="h-7 flex-1 rounded-lg bg-primary/[0.08]" />)}
+            </div>
+            <div className="mt-2 flex h-[4.6rem] items-end gap-1 rounded-xl bg-foreground/[0.04] px-3 pb-2 pt-3">
+              {[34, 58, 44, 78, 62, 88].map((height, index) => (
+                <motion.span
+                  key={height}
+                  initial={reduceMotion ? false : { height: "12%" }}
+                  whileInView={{ height: `${height}%` }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  transition={{ delay: index * 0.08, duration: 0.5, ease: EASE }}
+                  className="flex-1 rounded-t bg-primary/45"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // Chữ + giá lấy từ i18n (servicesPage.microJobs.*) — ở đây chỉ giữ cấu trúc
 const MICRO_JOBS = [
@@ -95,6 +299,24 @@ function usePlans() {
       })),
     [t, i18n]
   );
+}
+
+const MOBILE_SERVICE_QUERY = "(max-width: 767px), (max-width: 1023px) and (pointer: coarse), (max-height: 500px) and (pointer: coarse)";
+
+function useMobileServiceLayout() {
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== "undefined" && window.matchMedia(MOBILE_SERVICE_QUERY).matches
+  ));
+
+  useEffect(() => {
+    const query = window.matchMedia(MOBILE_SERVICE_QUERY);
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener?.("change", update);
+    return () => query.removeEventListener?.("change", update);
+  }, []);
+
+  return isMobile;
 }
 
 function MonoIcon({ name, className = "" }) {
@@ -128,16 +350,30 @@ function CtaButton({ to = "/booking", children, className = "", wrapClassName = 
    HERO — khung lớn cùng mascot CSS chuyển động với Introduction
    ------------------------------------------------------------------------- */
 
-function HeroSection({ t }) {
-  const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
+function HeroSection({ t, mobileLayout = false }) {
+  const sectionRef = useRef(null);
+  const scrollRootRef = useRef(typeof document === "undefined" ? null : document.getElementById("root"));
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    container: scrollRootRef,
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.62, 0.94], [1, 0.94, 0]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -44]);
+  const filmScale = useTransform(scrollYProgress, [0, 1], [1, 1.035]);
 
   return (
-    <>
-      <section className="px-3 pb-4 pt-3 sm:px-4 sm:pt-4 md:px-6 md:pt-6">
-        <div className="ios-hero mx-auto max-w-7xl">
+      <section ref={sectionRef} className="ios-hero studio-cover studio-cover--service">
+        <motion.div className="studio-cover-film-shell" style={{ scale: reduceMotion || mobileLayout ? 1 : filmScale }}>
           <CodeHeroFilm variant="chat" />
-          <div className="code-film-content grid min-h-[min(740px,calc(100svh-88px))] items-center gap-6 px-6 py-14 sm:px-10 sm:py-16 md:px-14 lg:grid-cols-[1.12fr_0.88fr] lg:gap-12 lg:px-16 lg:py-20">
-            <div className="max-w-3xl">
+        </motion.div>
+        <CoverColorShift progress={scrollYProgress} variant="service" />
+          <div className="code-film-content studio-cover-grid grid items-center gap-4 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
+            <motion.div
+              className="studio-cover-copy max-w-3xl"
+              style={{ opacity: reduceMotion ? 1 : copyOpacity, y: reduceMotion ? 0 : copyY }}
+            >
               <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE }} className="ios-kicker mb-5">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                 {t("servicesPage.hero.badge")}
@@ -146,35 +382,95 @@ function HeroSection({ t }) {
                 <WordsPullUp text={t("servicesPage.hero.title1")} />
                 <span className="block cine-grad"><WordsPullUp text={t("servicesPage.hero.title2")} /></span>
               </h1>
-              <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.6, ease: EASE }} className="mt-6 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg" style={{ color: INK_DIM }}>
-                {t("servicesPage.hero.desc")}
-              </motion.p>
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.6, ease: EASE }} className="mt-8 flex flex-wrap items-center gap-3">
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.48, duration: 0.6, ease: EASE }} className="mt-7 flex flex-wrap items-center gap-3">
                 <Link to="/booking" className="ios-primary-button inline-flex items-center gap-2">
                   {t("servicesPage.hero.contact")}<CalendarCheck size={15} />
                 </Link>
-                <a href="#service-fit" className="ios-secondary-button inline-flex items-center gap-2">
-                  {t("servicesPage.hero.viewPricing")}
-                  <span className="material-symbols-outlined text-base">keyboard_arrow_down</span>
-                </a>
               </motion.div>
-            </div>
+            </motion.div>
             <div className="code-film-stage-space" aria-hidden="true" />
           </div>
-        </div>
+        <SwipeDownCue
+          targetId="service-fit"
+          touchLabel={t("servicesPage.hero.swipe")}
+          desktopLabel={t("servicesPage.hero.scroll")}
+          style={{ opacity: reduceMotion ? 0.78 : undefined }}
+        />
       </section>
+  );
+}
 
-      <section className="px-4 pb-4 pt-2 md:px-6 md:pb-6 md:pt-3">
-        <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border lg:grid-cols-4">
-          {trustPoints.map((label, index) => (
-            <motion.div key={label} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06, duration: 0.45, ease: EASE }} className={`flex items-center gap-3 px-4 py-5 sm:px-6 ${index % 2 === 0 ? "border-r border-border/55" : ""} ${index < 2 ? "border-b border-border/55 lg:border-b-0" : ""} ${index > 0 ? "lg:border-l lg:border-border/55" : ""}`}>
-              <span className="ios-icon-surface h-9 w-9 shrink-0"><span className="material-symbols-outlined text-[17px]">{TRUST_ICONS[index]}</span></span>
-              <p className="cine-faint text-[11px] leading-snug sm:text-xs">{label}</p>
-            </motion.div>
-          ))}
+// Bước phân nhóm, không chiếm trọn màn hình: khách phải thấy ngay nội dung kế
+// tiếp thay vì phải cuộn hết một khung hình mới có gì để đọc.
+function ServiceChoiceSlide({ t, activeMode, onChoose }) {
+  const outcomes = t("servicesPage.outcomes.items", { returnObjects: true });
+  const choices = [
+    { mode: "commercial", icon: "language" },
+    { mode: "micro", icon: "handyman" },
+    { mode: "student", icon: "school" },
+  ];
+
+  return (
+    <section id="service-fit" className="studio-content-slide studio-content-slide--service relative z-10 flex items-center px-4 py-10 md:px-6 md:py-14">
+      <div className="mx-auto w-full max-w-6xl">
+        <CineSectionHeading
+          eyebrow={t("servicesPage.outcomes.eyebrow")}
+          title={t("servicesPage.outcomes.title")}
+          desc={t("servicesPage.outcomes.desc")}
+        />
+        <div className="mt-9 grid gap-4 lg:grid-cols-3" aria-label={t("servicesPage.outcomes.eyebrow")}>
+          {choices.map((choice, index) => {
+            const item = outcomes[index];
+            const selected = activeMode === choice.mode;
+            return (
+              <motion.button
+                key={choice.mode}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onChoose(choice.mode)}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: index * 0.08, duration: 0.5, ease: EASE }}
+                whileTap={{ scale: 0.985 }}
+                className={`group flex min-h-[12rem] flex-col rounded-[1.75rem] border p-5 text-left transition-colors sm:p-6 ${
+                  selected
+                    ? "border-primary/45 bg-primary/10 shadow-[0_18px_45px_hsl(var(--primary)/0.1)]"
+                    : "cine-card-bg cine-border-c cine-hover-border"
+                }`}
+              >
+                <span className="ios-icon-surface h-10 w-10">
+                  <span className="material-symbols-outlined text-[19px]">{choice.icon}</span>
+                </span>
+                <span className="mt-5 text-base font-extrabold leading-snug sm:text-lg" style={{ color: INK }}>{item.title}</span>
+                <span className="cine-muted mt-2 text-xs leading-relaxed sm:text-sm">{item.desc}</span>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-xs font-bold" style={{ color: ACCENT }}>
+                  {item.cta}
+                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </motion.button>
+            );
+          })}
         </div>
-      </section>
-    </>
+        <p className="cine-faint mx-auto mt-5 max-w-2xl text-center text-xs italic">{t("servicesPage.disclaimer")}</p>
+      </div>
+    </section>
+  );
+}
+
+function TrustStrip({ t }) {
+  const trustPoints = t("servicesPage.hero.trust", { returnObjects: true });
+  return (
+    <section className="px-4 pb-4 pt-2 md:px-6 md:pb-6 md:pt-3">
+      <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border lg:grid-cols-4">
+        {trustPoints.map((label, index) => (
+          <motion.div key={label} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.06, duration: 0.45, ease: EASE }} className={`flex items-center gap-3 px-4 py-5 sm:px-6 ${index % 2 === 0 ? "border-r border-border/55" : ""} ${index < 2 ? "border-b border-border/55 lg:border-b-0" : ""} ${index > 0 ? "lg:border-l lg:border-border/55" : ""}`}>
+            <span className="ios-icon-surface h-9 w-9 shrink-0"><span className="material-symbols-outlined text-[17px]">{TRUST_ICONS[index]}</span></span>
+            <p className="cine-faint text-[11px] leading-snug sm:text-xs">{label}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -323,7 +619,7 @@ function StudentPrioritySection({ items }) {
   const { t } = useTranslation();
 
   return (
-    <section id="student-first" className="px-4 py-16 md:px-6 md:py-24">
+    <section id="student-first" className="px-4 py-10 md:px-6 md:py-14">
       <AboutCard className="relative mx-auto max-w-6xl overflow-hidden p-6 sm:p-10 md:p-12">
         <div className="absolute inset-x-0 top-0 h-1 bg-primary" />
         <div className="relative grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
@@ -337,7 +633,7 @@ function StudentPrioritySection({ items }) {
             </h2>
             <p className="cine-muted mt-5 text-sm leading-relaxed sm:text-base">{t("servicesPage.student.desc")}</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <CtaButton to="/student-benefits" wrapClassName="w-full sm:w-auto">
+              <CtaButton to="/student-pricing" wrapClassName="w-full sm:w-auto">
                 {t("servicesPage.student.cta")}
               </CtaButton>
               <Link
@@ -370,7 +666,7 @@ function StudentCustomSupport() {
   const icons = ["badge", "handyman", "code_blocks"];
 
   return (
-    <section id="pricing" className="relative scroll-mt-24 px-4 py-14 md:px-6 md:py-20">
+    <section id="pricing" className="relative scroll-mt-24 px-4 py-10 md:px-6 md:py-14">
       <div className="mx-auto max-w-5xl">
         <CineSectionHeading
           eyebrow={t("servicesPage.student.customEyebrow")}
@@ -403,143 +699,491 @@ function StudentCustomSupport() {
   );
 }
 
-function DemoShowcaseSection() {
-  const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
+function DemoShowcaseSection({ compact = false }) {
+  const { t, i18n } = useTranslation();
+  const reduceMotion = useReducedMotion();
+  const previewRef = useRef(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeId, setActiveId] = useState("portfolio");
   const [device, setDevice] = useState("mobile"); // "desktop" | "tablet" | "mobile"
-  const active = DEMO_META.find((tpl) => tpl.id === activeId);
+  const language = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi";
+  const copy = DEMO_LIBRARY_COPY[language];
+  const active = DEMO_META.find((tpl) => tpl.id === activeId) || DEMO_META[0];
   const ActiveDemo = active.Demo;
+  const activeDetail = copy.details[active.id];
 
-  // Responsive device container sizes
-  let mockupWidthClasses = "w-[300px] sm:w-[340px] h-[550px] md:h-[600px]";
-  if (device === "desktop") {
-    mockupWidthClasses = "w-full max-w-[820px] aspect-[16/10] h-[480px] md:h-[520px]";
-  } else if (device === "tablet") {
-    mockupWidthClasses = "w-[440px] max-w-full aspect-[3/4] h-[580px]";
+  const selectTemplate = (id, moveToPreview = false) => {
+    setActiveId(id);
+    if (!moveToPreview) return;
+    setIsPreviewOpen(true);
+    window.setTimeout(() => {
+      previewRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    }, 60);
+  };
+
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    window.setTimeout(() => {
+      document.getElementById("templates")?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    }, 30);
+  };
+
+  // Mỗi chế độ chỉ thay kích thước khung; demo React vẫn chỉ mount đúng một mẫu.
+  let mockupWidthClasses = compact
+    ? "h-[min(60svh,32rem)] min-h-[20rem] w-full max-w-[23rem]"
+    : "h-[540px] w-[300px] max-w-full sm:w-[340px] md:h-[590px]";
+  if (!compact && device === "desktop") {
+    mockupWidthClasses = "h-[460px] w-full max-w-[820px] md:h-[520px]";
+  } else if (!compact && device === "tablet") {
+    mockupWidthClasses = "h-[570px] w-[440px] max-w-full";
   }
 
-  return (
-    <section id="templates" className="relative scroll-mt-24 px-4 py-16 md:px-6 md:py-24">
-      <div className="cine-bg-noise pointer-events-none absolute inset-0 opacity-[0.15]" />
-      <div className="relative mx-auto max-w-6xl">
-        <CineSectionHeading
-          eyebrow={t("servicesPage.demo.eyebrow")}
-          title={t("servicesPage.demo.title")}
-          highlight={t("servicesPage.demo.highlight")}
-          desc={t("servicesPage.demo.desc")}
-        />
+  const devices = [
+    { id: "desktop", label: t("servicesPage.devices.desktop"), icon: "laptop" },
+    { id: "tablet", label: t("servicesPage.devices.tablet"), icon: "tablet_mac" },
+    { id: "mobile", label: t("servicesPage.devices.mobile"), icon: "smartphone" },
+  ];
 
-        {!isOpen ? (
-          <motion.div {...reveal} className="mt-10 flex justify-center">
+  return (
+    <section id="templates" className={`relative scroll-mt-24 overflow-hidden px-4 md:px-6 ${compact ? "py-8" : "py-10 md:py-12"}`}>
+      <div className="cine-bg-noise pointer-events-none absolute inset-0 opacity-[0.12]" />
+      <div className="pointer-events-none absolute -left-40 top-1/4 h-96 w-96 rounded-full bg-primary/[0.07] blur-3xl" />
+      <div className="pointer-events-none absolute -right-40 bottom-1/4 h-96 w-96 rounded-full bg-foreground/[0.04] blur-3xl" />
+
+      <div className="relative mx-auto max-w-6xl">
+        <div className="w-full">
+          <CineSectionHeading
+            eyebrow={t("servicesPage.demo.eyebrow")}
+            title={t("servicesPage.demo.title")}
+            highlight={t("servicesPage.demo.highlight")}
+            desc={compact ? undefined : copy.description}
+          />
+        </div>
+
+        <motion.div {...reveal} className={`scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 lg:grid lg:grid-cols-6 lg:overflow-visible lg:pb-0 ${compact ? "mt-5" : "mt-7"}`}>
+          {DEMO_META.map((tpl) => {
+            const selected = isPreviewOpen && activeId === tpl.id;
+            return (
+              <motion.button
+                key={tpl.id}
+                type="button"
+                aria-pressed={selected}
+                aria-expanded={selected}
+                aria-controls="template-preview"
+                aria-label={`${copy.open}: ${t(`servicesPage.demo.templates.${tpl.id}.title`)}`}
+                onClick={() => selectTemplate(tpl.id, true)}
+                whileTap={{ scale: 0.985 }}
+                className={`group w-[72vw] max-w-[17rem] shrink-0 snap-center overflow-hidden rounded-[1.6rem] border p-1.5 text-left shadow-[0_12px_36px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow,transform] duration-300 sm:w-[15rem] lg:w-auto lg:max-w-none ${
+                  selected
+                    ? "border-primary/45 bg-primary/[0.06] shadow-[0_20px_60px_hsl(var(--primary)/0.12)]"
+                    : "cine-card-bg cine-border-c hover:border-primary/30"
+                }`}
+              >
+                <span className="relative block">
+                  <DemoTeaserArt id={tpl.id} />
+                  <span className="absolute left-3 top-3 rounded-full border border-white/60 bg-background/75 px-2.5 py-1 text-[8px] font-extrabold uppercase tracking-[0.12em] text-foreground shadow-sm backdrop-blur-xl">
+                    {copy.live}
+                  </span>
+                </span>
+
+                <span className="block px-2.5 pb-2.5 pt-3">
+                  <span className="flex items-start gap-3">
+                    <MonoIcon name={tpl.icon} className="h-8 w-8 rounded-xl" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-extrabold leading-tight" style={{ color: INK }}>
+                        {t(`servicesPage.demo.templates.${tpl.id}.title`)}
+                      </span>
+                      <span className="cine-faint mt-1 block truncate text-[9px]">{t(`servicesPage.demo.templates.${tpl.id}.subtitle`)}</span>
+                    </span>
+                  </span>
+                  <span className="cine-border-c mt-3 flex items-center justify-between border-t pt-2.5 text-[9px] font-extrabold text-primary">
+                    {selected ? copy.selected : copy.open}
+                    <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
+                  </span>
+                </span>
+              </motion.button>
+            );
+          })}
+        </motion.div>
+
+        {isPreviewOpen && (
+          <div
+            ref={previewRef}
+            id="template-preview"
+            className={`${compact ? "mt-6" : "mt-8"} relative scroll-mt-24 rounded-[2.25rem] border border-white/40 bg-background/55 p-3 shadow-[0_32px_100px_rgba(15,23,42,0.1)] backdrop-blur-2xl sm:p-4 md:rounded-[2.5rem] md:p-5`}
+          >
+          {compact && (
             <button
               type="button"
-              onClick={() => setIsOpen(true)}
-              className="cine-border-c cine-hover-border group inline-flex items-center gap-3 rounded-full border px-6 py-3 text-sm font-bold transition-colors"
-              style={{ color: INK }}
+              aria-label={copy.close}
+              onClick={closePreview}
+              className="absolute right-3 top-3 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-border/60 bg-background/90 text-foreground shadow-sm backdrop-blur-xl"
             >
-              {t("servicesPage.demo.openCta")}
-              <ArrowRight size={16} className="-rotate-45 transition-transform group-hover:rotate-0" />
+              <span className="material-symbols-outlined text-[19px]">close</span>
             </button>
-          </motion.div>
-        ) : (
-          <>
-            <div className="mt-12 flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
-          {/* Danh sách chọn demo */}
-          <div className="w-full shrink-0 lg:w-1/4">
-            <div className="scrollbar-hide flex snap-x gap-3 overflow-x-auto pb-4 lg:flex-col lg:overflow-visible lg:pb-0">
-              {DEMO_META.map((tpl) => (
+          )}
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className={`max-w-2xl ${compact ? "pr-12" : ""}`}>
+              <p className="ios-kicker">{copy.previewTitle}</p>
+              <h3 className="font-display mt-3 text-2xl font-extrabold leading-tight sm:text-3xl" style={{ color: INK }}>
+                {t(`servicesPage.demo.templates.${active.id}.title`)}
+              </h3>
+              <p className="cine-muted mt-2 text-xs leading-relaxed sm:text-sm">{compact ? activeDetail.fit : copy.previewHint}</p>
+              {compact && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {activeDetail.features.map((feature) => (
+                    <span key={feature} className="rounded-full bg-foreground/[0.055] px-2.5 py-1 text-[9px] font-bold" style={{ color: INK }}>
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            {!compact && <div className="grid w-full grid-cols-3 gap-1 rounded-2xl border border-border/50 bg-card/70 p-1 sm:w-fit" aria-label={copy.previewTitle}>
+              {devices.map((item) => (
                 <button
-                  key={tpl.id}
-                  onClick={() => setActiveId(tpl.id)}
-                  className={`flex w-[150px] flex-shrink-0 snap-center items-center gap-4 rounded-2xl border p-4 transition-all duration-300 lg:w-full ${
-                    activeId === tpl.id
-                      ? "border-transparent bg-primary text-white shadow-lg shadow-primary/25"
-                      : "cine-card-bg cine-border-c cine-hover-border"
+                  key={item.id}
+                  type="button"
+                  aria-pressed={device === item.id}
+                  aria-label={item.label}
+                  onClick={() => setDevice(item.id)}
+                  className={`flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-[10px] font-bold transition-colors sm:px-4 ${
+                    device === item.id ? "bg-foreground text-background shadow-sm" : "cine-muted hover:bg-foreground/[0.05]"
                   }`}
-                  style={activeId === tpl.id ? undefined : { color: INK }}
                 >
-                  <span className="material-symbols-outlined shrink-0 text-2xl">{tpl.icon}</span>
-                  <div className="hidden text-left lg:block">
-                    <p className="font-display text-sm font-bold leading-tight">{t(`servicesPage.demo.templates.${tpl.id}.title`)}</p>
-                    <p className={`mt-0.5 text-[10px] ${activeId === tpl.id ? "text-white/70" : "cine-faint"}`}>
-                      {t(`servicesPage.demo.templates.${tpl.id}.subtitle`)}
-                    </p>
-                  </div>
-                  <p className="w-full text-center text-xs font-bold lg:hidden">{t(`servicesPage.demo.templates.${tpl.id}.short`)}</p>
+                  <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                  <span className="hidden sm:inline">{item.label}</span>
                 </button>
               ))}
-            </div>
-            <p className="cine-muted mt-5 hidden text-xs leading-relaxed lg:block">{t("servicesPage.demo.hint")}</p>
-            <CtaButton wrapClassName="mt-5 hidden w-full lg:block">{t("servicesPage.demo.cta")}</CtaButton>
+            </div>}
           </div>
 
-          {/* Khung mockup trình duyệt & Device Switcher */}
-          <div className="flex w-full flex-grow flex-col items-center gap-4 lg:items-end">
-            {/* Device Selector toolbar - hidden on extra small mobile */}
-            <div className="cine-card2-bg cine-border-c hidden w-fit items-center gap-1.5 rounded-2xl border p-1 sm:flex">
-              {[
-                { id: "desktop", label: t("servicesPage.devices.desktop"), icon: "laptop" },
-                { id: "tablet", label: t("servicesPage.devices.tablet"), icon: "tablet_mac" },
-                { id: "mobile", label: t("servicesPage.devices.mobile"), icon: "smartphone" }
-              ].map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() => setDevice(d.id)}
-                  className={`flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
-                    device === d.id ? "bg-primary text-white shadow" : "cine-muted hover:opacity-70"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[16px]">{d.icon}</span>
-                  {d.label}
-                </button>
-              ))}
-            </div>
+          <div className="scrollbar-hide mt-6 flex snap-x gap-2 overflow-x-auto pb-2" role="tablist" aria-label={copy.previewTitle}>
+            {DEMO_META.map((tpl) => (
+              <button
+                key={tpl.id}
+                type="button"
+                role="tab"
+                aria-selected={activeId === tpl.id}
+                aria-controls="template-preview-panel"
+                onClick={() => selectTemplate(tpl.id)}
+                className={`flex min-h-11 min-w-max snap-start items-center gap-2 rounded-2xl border px-3.5 text-[10px] font-extrabold transition-colors ${
+                  activeId === tpl.id
+                    ? "border-foreground bg-foreground text-background"
+                    : "cine-card-bg cine-border-c hover:border-primary/35"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">{tpl.icon}</span>
+                {t(`servicesPage.demo.templates.${tpl.id}.short`)}
+              </button>
+            ))}
+          </div>
 
-            <div className={`cine-card2-bg cine-border-c relative flex flex-col rounded-[2rem] border p-2 shadow-2xl transition-all duration-300 md:rounded-[2.5rem] md:p-3 ${mockupWidthClasses}`}>
-              <div className="cine-card-bg cine-border-c z-20 flex w-full shrink-0 items-center gap-2 rounded-t-[1.5rem] border-b p-2 md:p-3">
-                <div className="flex shrink-0 gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
-                </div>
-                <div className="cine-card2-bg cine-faint flex-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full px-4 py-1.5 text-center font-mono text-[9px] md:text-[10px]">
-                  {active.url}
-                </div>
-              </div>
-              <div className="cine-card-bg relative isolate w-full flex-1 overflow-hidden rounded-b-[1.5rem]">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`${activeId}-${device}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="scrollbar-hide h-full w-full overflow-y-auto"
-                    style={{ zoom: device === "desktop" ? "0.75" : "0.85" }}
-                  >
-                    <Suspense
-                      fallback={
-                        <div className="cine-muted flex h-full items-center justify-center text-sm">{t("servicesPage.demo.loading")}</div>
-                      }
+          <div className={`mt-4 grid items-start gap-5 ${compact ? "" : "xl:grid-cols-[15rem_minmax(0,1fr)]"}`}>
+            {!compact && <aside className="cine-card-bg cine-border-c rounded-[1.75rem] border p-5">
+              <span className="inline-flex rounded-full bg-foreground/[0.06] px-2.5 py-1 text-[8px] font-extrabold uppercase tracking-[0.12em]" style={{ color: INK }}>
+                {copy.live}
+              </span>
+              <p className="cine-faint mt-5 text-[9px] font-bold uppercase tracking-[0.14em]">{copy.fits}</p>
+              <p className="mt-2 text-sm font-bold leading-relaxed" style={{ color: INK }}>{activeDetail.fit}</p>
+              <p className="cine-faint mt-5 text-[9px] font-bold uppercase tracking-[0.14em]">{copy.included}</p>
+              <ul className="mt-3 space-y-2.5">
+                {activeDetail.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-xs font-semibold" style={{ color: INK }}>
+                    <span className="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <p className="cine-muted mt-5 border-t border-border/50 pt-4 text-[10px] leading-relaxed">
+                {copy.liveNotice}
+              </p>
+              <CtaButton wrapClassName="mt-5 w-full">{t("servicesPage.demo.cta")}</CtaButton>
+            </aside>}
+
+            <div className="flex w-full justify-center">
+              <div className={`cine-card2-bg cine-border-c relative flex flex-col rounded-[1.75rem] border p-2 shadow-2xl transition-[width,height] duration-300 md:rounded-[2.25rem] md:p-3 ${mockupWidthClasses}`}>
+                <div
+                  id="template-preview-panel"
+                  role="tabpanel"
+                  aria-live="polite"
+                  className="cine-card-bg relative isolate w-full flex-1 overflow-hidden rounded-[1.25rem] md:rounded-[1.5rem]"
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`${activeId}-${device}`}
+                      initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={reduceMotion ? undefined : { opacity: 0, y: -10 }}
+                      transition={{ duration: reduceMotion ? 0 : 0.25 }}
+                      className="scrollbar-hide h-full w-full overflow-y-auto"
+                      style={{ zoom: device === "desktop" ? "0.75" : "0.85" }}
                     >
-                      <ActiveDemo isMobile={device !== "desktop"} />
-                    </Suspense>
-                  </motion.div>
-                </AnimatePresence>
+                      <Suspense
+                        fallback={
+                          <div className="cine-muted flex h-full items-center justify-center text-sm">{t("servicesPage.demo.loading")}</div>
+                        }
+                      >
+                        <ActiveDemo isMobile={device !== "desktop"} />
+                      </Suspense>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           </div>
-            </div>
-
-            {/* CTA mobile (bản desktop nằm dưới danh sách) */}
-            <div className="mt-8 flex justify-center lg:hidden">
-              <CtaButton wrapClassName="w-full max-w-xs">{t("servicesPage.demo.cta")}</CtaButton>
-            </div>
-          </>
+          </div>
         )}
+
       </div>
     </section>
+  );
+}
+
+function MobileCommercialOffers({ plans, t }) {
+  const visiblePlans = ["landing", "website", "system"]
+    .map((id) => plans.find((plan) => plan.id === id))
+    .filter(Boolean);
+
+  return (
+    <div className="space-y-2.5">
+      {visiblePlans.map((plan) => (
+        <details key={plan.id} className="group cine-card-bg cine-border-c overflow-hidden rounded-2xl border">
+          <summary className="flex min-h-[4.5rem] cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+            <MonoIcon name={plan.icon} className="h-9 w-9 rounded-xl" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-extrabold" style={{ color: INK }}>{plan.name}</span>
+              <span className="cine-faint mt-0.5 block truncate text-[10px]">{plan.desc}</span>
+            </span>
+            <span className="material-symbols-outlined cine-faint text-[19px] transition-transform group-open:rotate-180">expand_more</span>
+          </summary>
+          <div className="cine-border-c border-t px-4 pb-4 pt-3">
+            <ul className="space-y-2">
+              {plan.includes.map((item) => (
+                <li key={item} className="flex gap-2 text-[11px] leading-snug" style={{ color: INK_DIM }}>
+                  <span className="material-symbols-outlined text-[15px] text-primary">check_circle</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <Link
+              to={`/booking?plan=${plan.id}`}
+              className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-xs font-bold text-white"
+            >
+              {t("servicesPage.common.getQuote")}
+              <ArrowRight size={13} />
+            </Link>
+          </div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+function MobileMicroOffers({ jobs, t }) {
+  return (
+    <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+      {jobs.map((job) => (
+        <article key={job.id} className="cine-card-bg cine-border-c flex w-[74vw] max-w-[17rem] shrink-0 snap-center flex-col rounded-2xl border p-4">
+          <div className="flex items-center justify-between gap-3">
+            <MonoIcon name={job.icon} className="h-9 w-9 rounded-xl" />
+            <span className="cine-faint text-[9px] font-bold">{job.time}</span>
+          </div>
+          <h3 className="mt-3 text-sm font-extrabold" style={{ color: INK }}>{job.name}</h3>
+          <p className="cine-muted mt-1.5 line-clamp-2 text-[10px] leading-relaxed">{job.desc}</p>
+          <Link
+            to={`/booking?type=micro&plan=${job.id}`}
+            className="cine-border-c mt-3 flex min-h-11 items-center justify-between border-t pt-2 text-[10px] font-bold text-primary"
+          >
+            {t("servicesPage.micro.cta")}
+            <ArrowRight size={12} className="-rotate-45" />
+          </Link>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function MobileStudentOffers({ t }) {
+  const items = t("servicesPage.student.customItems", { returnObjects: true });
+  const icons = ["badge", "handyman", "code_blocks"];
+
+  return (
+    <div>
+      <div className="space-y-2.5">
+        {items.map((item, index) => (
+          <details key={item.title} className="group cine-card-bg cine-border-c overflow-hidden rounded-2xl border">
+            <summary className="flex min-h-[4.25rem] cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+              <MonoIcon name={icons[index]} className="h-9 w-9 rounded-xl" />
+              <span className="min-w-0 flex-1 text-sm font-extrabold" style={{ color: INK }}>{item.title}</span>
+              <span className="material-symbols-outlined cine-faint text-[19px] transition-transform group-open:rotate-180">expand_more</span>
+            </summary>
+            <p className="cine-border-c cine-muted border-t px-4 py-3 text-[11px] leading-relaxed">{item.desc}</p>
+          </details>
+        ))}
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Link to="/student-pricing" className="ios-secondary-button flex min-h-11 items-center justify-center px-3 text-center text-[10px]">
+          {t("servicesPage.student.cta")}
+        </Link>
+        <Link to="/booking?type=student" className="ios-primary-button flex min-h-11 items-center justify-center px-3 text-center text-[10px]">
+          {t("servicesPage.student.customCta")}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function MobileServicePicker({ t, activeMode, onChoose, plans, microJobsList }) {
+  const outcomes = t("servicesPage.outcomes.items", { returnObjects: true });
+  const choices = [
+    { mode: "commercial", icon: "storefront", label: t("servicesPage.tabs.commercial") },
+    { mode: "micro", icon: "handyman", label: t("servicesPage.tabs.micro") },
+    { mode: "student", icon: "school", label: t("servicesPage.tabs.student") },
+  ];
+  const activeIndex = Math.max(0, choices.findIndex((choice) => choice.mode === activeMode));
+  const activeChoice = choices[activeIndex];
+  const activeOutcome = outcomes[activeIndex];
+
+  return (
+    <section id="service-fit" className="relative px-4 pb-9 pt-8">
+      <div className="mx-auto max-w-md">
+        <p className="ios-kicker">{t("servicesPage.outcomes.eyebrow")}</p>
+        <h2 className="mt-3 text-[1.75rem] font-extrabold leading-[1.05] tracking-[-0.035em]" style={{ color: INK }}>
+          {t("servicesPage.hero.viewPricing")}
+        </h2>
+
+        <div className="services-mobile-switch sticky z-20 -mx-1 mt-5 grid grid-cols-3 gap-1 rounded-[1.15rem] border border-white/55 bg-background/80 p-1 shadow-[0_10px_34px_rgba(15,23,42,0.08)] backdrop-blur-2xl">
+          {choices.map((choice) => {
+            const selected = choice.mode === activeMode;
+            return (
+              <button
+                key={choice.mode}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onChoose(choice.mode)}
+                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-[0.9rem] px-1 text-[8px] font-extrabold leading-tight transition-colors ${
+                  selected ? "bg-foreground text-background shadow-sm" : "cine-muted"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[17px]">{choice.icon}</span>
+                <span>{choice.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex items-start gap-3 rounded-2xl bg-primary/[0.08] p-4">
+          <MonoIcon name={activeChoice.icon} className="h-9 w-9 rounded-xl" />
+          <div className="min-w-0">
+            <p className="text-sm font-extrabold leading-snug" style={{ color: INK }}>{activeOutcome.title}</p>
+            <p className="cine-muted mt-1 line-clamp-2 text-[10px] leading-relaxed">{activeOutcome.desc}</p>
+          </div>
+        </div>
+
+        <div id="pricing" className="scroll-mt-28 pt-5">
+          {activeMode === "commercial" && <MobileCommercialOffers plans={plans} t={t} />}
+          {activeMode === "micro" && <MobileMicroOffers jobs={microJobsList} t={t} />}
+          {activeMode === "student" && <MobileStudentOffers t={t} />}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MobileConfidenceSection({ t, workSteps }) {
+  const faqs = t("servicesPage.faq.items", { returnObjects: true });
+  const disclosures = [
+    { id: "proof", icon: "verified", label: t("servicesPage.proof.eyebrow") },
+    { id: "process", icon: "timeline", label: `${t("servicesPage.process.title")} ${t("servicesPage.process.highlight")}` },
+    { id: "faq", icon: "help", label: `${t("servicesPage.faq.title")} ${t("servicesPage.faq.highlight")}` },
+  ];
+
+  return (
+    <section className="px-4 py-8">
+      <div className="mx-auto max-w-md space-y-2.5">
+        {disclosures.map((item) => (
+          <details key={item.id} className="group cine-card-bg cine-border-c overflow-hidden rounded-2xl border">
+            <summary className="flex min-h-[3.75rem] cursor-pointer list-none items-center gap-3 px-4 [&::-webkit-details-marker]:hidden">
+              <span className="material-symbols-outlined text-[19px] text-primary">{item.icon}</span>
+              <span className="flex-1 text-sm font-extrabold" style={{ color: INK }}>{item.label}</span>
+              <span className="material-symbols-outlined cine-faint text-[19px] transition-transform group-open:rotate-180">expand_more</span>
+            </summary>
+
+            {item.id === "proof" && (
+              <div className="cine-border-c border-t px-4 pb-4 pt-3">
+                <p className="text-base font-extrabold" style={{ color: INK }}>{t("servicesPage.proof.clientName")}</p>
+                <p className="cine-muted mt-1 text-[11px] leading-relaxed">{t("servicesPage.proof.clientScope")}</p>
+                <a href={PROOF_SITE} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
+                  {t("servicesPage.proof.cta")}<ArrowRight size={12} className="-rotate-45" />
+                </a>
+              </div>
+            )}
+
+            {item.id === "process" && (
+              <ol className="cine-border-c space-y-3 border-t px-4 py-4">
+                {workSteps.map((step, index) => (
+                  <li key={step} className="flex gap-3 text-[11px] leading-relaxed" style={{ color: INK_DIM }}>
+                    <span className="font-mono font-extrabold text-primary">0{index + 1}</span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            {item.id === "faq" && (
+              <div className="cine-border-c space-y-1.5 border-t p-2">
+                {faqs.map(({ q, a }) => (
+                  <details key={q} className="rounded-xl bg-foreground/[0.035] px-3">
+                    <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[11px] font-bold [&::-webkit-details-marker]:hidden">
+                      <span className="min-w-0 flex-1" style={{ color: INK }}>{q}</span>
+                      <span className="material-symbols-outlined cine-faint text-[16px]">add</span>
+                    </summary>
+                    <p className="cine-muted pb-3 text-[10px] leading-relaxed">{a}</p>
+                  </details>
+                ))}
+              </div>
+            )}
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MobileFinalCta({ t }) {
+  return (
+    <section className="px-4 pb-10 pt-4">
+      <div className="mx-auto max-w-md rounded-[1.75rem] bg-foreground px-5 py-7 text-background shadow-[0_18px_55px_rgba(15,23,42,0.18)]">
+        <h2 className="text-2xl font-extrabold leading-tight tracking-[-0.03em]">
+          {t("servicesPage.finalCta.title1")} {t("servicesPage.finalCta.title2")}
+        </h2>
+        <Link to="/booking" className="mt-5 flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-4 text-xs font-bold text-white">
+          {t("servicesPage.finalCta.cta")}<ArrowRight size={13} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function MobileServicesExperience({ t, activeMode, onChoose, plans, microJobsList, workSteps }) {
+  return (
+    <div className="services-mobile-layout pb-[max(0px,env(safe-area-inset-bottom,0px))]">
+      <HeroSection t={t} mobileLayout />
+      <MobileServicePicker
+        t={t}
+        activeMode={activeMode}
+        onChoose={onChoose}
+        plans={plans}
+        microJobsList={microJobsList}
+      />
+      <DemoShowcaseSection compact />
+      <MobileConfidenceSection t={t} workSteps={workSteps} />
+      <MobileFinalCta t={t} />
+    </div>
   );
 }
 
@@ -549,7 +1193,7 @@ function FaqSection() {
   const faqs = t("servicesPage.faq.items", { returnObjects: true });
 
   return (
-    <section id="faq" className="scroll-mt-24 px-4 py-16 md:px-6 md:py-24">
+    <section id="faq" className="scroll-mt-24 px-4 py-10 md:px-6 md:py-14">
       <div className="mx-auto max-w-4xl">
         <CineSectionHeading
           eyebrow={t("servicesPage.faq.eyebrow")}
@@ -599,6 +1243,8 @@ export default function ServicesPage() {
   const { hash } = useLocation();
   const { t, i18n } = useTranslation();
   const plans = usePlans();
+  const isMobileLayout = useMobileServiceLayout();
+  useCineScrollSnap(!isMobileLayout);
   useExchangeRate(); // Fetch tỷ giá VCB khi page load
 
   const [priceMode, setPriceMode] = useState(() => {
@@ -758,48 +1404,59 @@ export default function ServicesPage() {
       <ScrollProgressBar />
 
       <div className="print:hidden">
+        {isMobileLayout ? (
+          <MobileServicesExperience
+            t={t}
+            activeMode={priceMode}
+            onChoose={choosePriceMode}
+            plans={plans}
+            microJobsList={microJobsList}
+            workSteps={workSteps}
+          />
+        ) : (
+          <>
+        {/* Thứ tự trang bán hàng: lời hứa → tin cậy → khách tự phân nhóm →
+            bằng chứng sản phẩm chạy được → khách thật → cách làm việc → bảng
+            giá → gỡ phản đối → chốt. Giá nằm sau bằng chứng để con số được đọc
+            trong bối cảnh, còn khách vội vẫn tới thẳng bằng ba thẻ phân nhóm
+            (mỗi thẻ cuộn thẳng xuống #pricing). */}
         <HeroSection t={t} />
+        <TrustStrip t={t} />
+        <ServiceChoiceSlide t={t} activeMode={priceMode} onChoose={choosePriceMode} />
 
-        <StudentPrioritySection items={studentItems} />
+        <DemoShowcaseSection />
 
-        {/* Khách chọn theo tình huống; phạm vi và chi phí được trao đổi 1-1. */}
-        <section id="service-fit" className="relative z-10 scroll-mt-24 px-4 text-center md:px-6">
-          <div role="tablist" aria-label={t("servicesPage.outcomes.eyebrow")} className="cine-card2-bg cine-border-c relative mx-auto grid w-full max-w-[680px] grid-cols-3 rounded-[1.15rem] border p-1">
-            {/* Background sliding indicator */}
-            <motion.div
-              className="absolute bottom-1 top-1 z-0 rounded-[0.9rem] bg-card shadow-[0_1px_6px_hsl(var(--shadow)/0.12)]"
-              animate={{
-                left: priceMode === "commercial" ? "4px" : priceMode === "student" ? "calc(33.33% + 2px)" : "calc(66.66% + 2px)",
-              }}
-              style={{ width: "calc(33.33% - 6px)" }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        <section className="px-4 py-10 md:px-6 md:py-14">
+          <ClientProof />
+        </section>
+
+        {/* ================= QUY TRÌNH — TĂNG NIỀM TIN TRƯỚC KHI BÁO GIÁ ================= */}
+        <section className="px-4 py-10 md:px-6 md:py-14">
+          <div className="mx-auto max-w-6xl">
+            <CineSectionHeading
+              eyebrow={t("servicesPage.process.eyebrow")}
+              title={t("servicesPage.process.title")}
+              highlight={t("servicesPage.process.highlight")}
+              desc={t("servicesPage.process.desc")}
             />
-            {[
-              { id: "commercial", label: t("servicesPage.tabs.commercial") },
-              { id: "student", label: t("servicesPage.tabs.student") },
-              { id: "micro", label: t("servicesPage.tabs.micro") },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={priceMode === tab.id}
-                onClick={() => setPriceMode(tab.id)}
-                className={`relative z-10 rounded-[0.9rem] py-2.5 text-[10px] font-bold tracking-wide transition-colors duration-300 sm:text-xs ${
-                  priceMode === tab.id ? "text-foreground" : "cine-muted hover:opacity-70"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            <motion.ol {...reveal} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {workSteps.map((step, index) => (
+                <li key={step} className="cine-card-bg cine-hover-border relative overflow-hidden rounded-2xl border border-transparent p-6 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <MonoIcon name={STEP_ICONS[index]} />
+                    <span className="font-mono text-2xl font-extrabold opacity-20" style={{ color: INK }}>0{index + 1}</span>
+                  </div>
+                  <p className="cine-muted mt-5 text-sm leading-relaxed">{step}</p>
+                </li>
+              ))}
+            </motion.ol>
           </div>
-          <p className="cine-faint mx-auto mt-4 max-w-2xl text-xs italic">{t("servicesPage.disclaimer")}</p>
         </section>
 
         {priceMode === "commercial" && (
-          <section id="pricing" className="relative scroll-mt-24 space-y-16 px-4 py-14 md:px-6 md:py-20">
+          <section id="pricing" className="relative scroll-mt-24 space-y-10 px-4 py-10 md:px-6 md:py-14">
             <div id="build" className="absolute -top-24" />
-            <div className="mx-auto max-w-6xl space-y-16">
+            <div className="mx-auto max-w-6xl space-y-10">
               {/* Ba gói xây mới — hết. Sửa/tối ưu web cũ nằm ở tab "Chỉnh sửa
                   nhanh" bên dưới, không dựng thêm thẻ giá ở đây. */}
               <div className="space-y-10">
@@ -846,7 +1503,7 @@ export default function ServicesPage() {
         {priceMode === "student" && <StudentCustomSupport />}
 
         {priceMode === "micro" && (
-          <section id="pricing" className="relative scroll-mt-24 px-4 py-14 md:px-6 md:py-20">
+          <section id="pricing" className="relative scroll-mt-24 px-4 py-10 md:px-6 md:py-14">
             <div className="mx-auto max-w-6xl">
               <CineSectionHeading
                 eyebrow={t("servicesPage.micro.eyebrow")}
@@ -855,7 +1512,7 @@ export default function ServicesPage() {
                 desc={t("servicesPage.micro.desc")}
               />
 
-              <div className="mt-12 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="mt-8 grid items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {microJobsList.map((job, index) => (
                   <motion.article
                     key={job.id}
@@ -895,7 +1552,7 @@ export default function ServicesPage() {
                 ))}
               </div>
 
-              <AboutCard className="mx-auto mt-12 flex max-w-2xl flex-col items-center gap-4 px-6 py-10 text-center sm:px-10">
+              <AboutCard className="mx-auto mt-8 flex max-w-2xl flex-col items-center gap-4 px-6 py-10 text-center sm:px-10">
                 <span className="material-symbols-outlined text-4xl" style={{ color: ACCENT }}>support_agent</span>
                 <h4 className="font-display text-lg font-bold" style={{ color: INK }}>{t("servicesPage.micro.customTitle")}</h4>
                 <p className="cine-muted text-xs leading-relaxed sm:text-sm">{t("servicesPage.micro.customDesc")}</p>
@@ -905,40 +1562,13 @@ export default function ServicesPage() {
           </section>
         )}
 
-        <section className="px-4 py-16 md:px-6 md:py-24">
-          <ClientProof />
-        </section>
-
-        <DemoShowcaseSection />
-
-        {/* ================= QUY TRÌNH — TĂNG NIỀM TIN ================= */}
-        <section className="px-4 py-16 md:px-6 md:py-24">
-          <div className="mx-auto max-w-6xl">
-            <CineSectionHeading
-              eyebrow={t("servicesPage.process.eyebrow")}
-              title={t("servicesPage.process.title")}
-              highlight={t("servicesPage.process.highlight")}
-              desc={t("servicesPage.process.desc")}
-            />
-            <motion.ol {...reveal} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {workSteps.map((step, index) => (
-                <li key={step} className="cine-card-bg cine-hover-border relative overflow-hidden rounded-2xl border border-transparent p-6 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <MonoIcon name={STEP_ICONS[index]} />
-                    <span className="font-mono text-2xl font-extrabold opacity-20" style={{ color: INK }}>0{index + 1}</span>
-                  </div>
-                  <p className="cine-muted mt-5 text-sm leading-relaxed">{step}</p>
-                </li>
-              ))}
-            </motion.ol>
-          </div>
-        </section>
+        <StudentPrioritySection items={studentItems} />
 
         <FaqSection />
 
         {/* ================= CTA CUỐI — TƯ VẤN MIỄN PHÍ, KHÔNG RÀO CẢN ================= */}
-        <section className="px-4 pb-16 md:px-6 md:pb-24">
-          <AboutCard className="mx-auto max-w-6xl space-y-8 px-6 py-16 text-center sm:px-10 sm:py-20 md:px-16">
+        <section className="px-4 pb-10 md:px-6 md:pb-14">
+          <AboutCard className="mx-auto max-w-6xl space-y-8 px-6 py-10 text-center sm:px-10 sm:py-14 md:px-16">
             <h2 className="font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
               <WordsPullUp text={t("servicesPage.finalCta.title1")} center style={{ color: INK }} />
               <WordsPullUp text={t("servicesPage.finalCta.title2")} center wordClassName="cine-grad" />
@@ -949,6 +1579,8 @@ export default function ServicesPage() {
             </div>
           </AboutCard>
         </section>
+          </>
+        )}
       </div>
     </div>
   );

@@ -155,7 +155,15 @@ class CbtWorksheetRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _client_id(user_id: str, req: Request) -> str:
-    """Resolve a stable per-user identifier for rate limiting."""
+    """Resolve a stable per-user identifier for rate limiting.
+
+    X-Member-Id is injected by the authenticated Node proxy and cannot be set
+    by browsers because FastAPI rejects requests without the internal key.
+    Prefer it over the form/JSON userId, which a client can edit.
+    """
+    trusted_member_id = req.headers.get("x-member-id", "") if req else ""
+    if trusted_member_id:
+        return trusted_member_id
     if user_id and user_id != "unknown":
         return user_id
     if req and req.client:

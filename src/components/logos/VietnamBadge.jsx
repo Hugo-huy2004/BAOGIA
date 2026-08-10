@@ -3,7 +3,9 @@ const VietnamBadge = () => {
   return (
     <div
       className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 hover:scale-105 transition-transform cursor-default"
-      title="Proudly Handcrafted in Vietnam"
+      title="Studio identity: designed and built in Vietnam"
+      role="note"
+      aria-label="Studio identity: designed and built in Vietnam"
     >
       <div className="flex items-center gap-1">
         <svg viewBox="0 0 24 24" className="w-4 h-4 rounded-[2px] overflow-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

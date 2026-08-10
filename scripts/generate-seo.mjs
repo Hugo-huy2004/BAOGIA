@@ -154,22 +154,16 @@ const routes = [
       `<h1>${esc(t.bookingPage.header.title)}</h1><p>${esc(t.bookingPage.header.desc)}</p>`,
   },
   {
-    path: "/student-benefits",
-    title: t.studentBenefitsPage.metaTitle,
-    description: t.studentBenefitsPage.metaDesc,
-    body: () =>
-      `<h1>${esc(t.studentBenefitsPage.title)}</h1>` +
-      `<p>${esc(t.studentBenefitsPage.desc)}</p>`,
-  },
-  {
+    // Quyền lợi HSSV (/student-benefits cũ) đã gộp vào trang này.
     path: "/student-pricing",
-    title: "Bảng Giá Dành Cho Học Sinh, Sinh Viên | Hugo Studio",
+    title: "Đặc Quyền & Bảng Giá Học Sinh, Sinh Viên | Hugo Studio",
     description:
-      "Các gói trang Bio, hồ sơ năng lực và hỗ trợ kỹ thuật dành cho học sinh, sinh viên, kèm điều kiện xác minh và nguyên tắc liêm chính học thuật.",
+      "Xác minh email giáo dục để nhận trang Bio miễn phí 12 tháng, xem bảng giá gói HSSV, biết rõ nhận được gì và không bao gồm gì.",
     keywords:
-      "bảng giá sinh viên, trang Bio sinh viên, hồ sơ năng lực, hỗ trợ kỹ thuật, liêm chính học thuật",
+      "bảng giá sinh viên, quyền lợi HSSV, trang Bio sinh viên, email edu, liêm chính học thuật",
     body: () =>
-      `<h1>Bảng giá dành cho học sinh, sinh viên</h1>` +
+      `<h1>Đặc quyền và bảng giá dành cho học sinh, sinh viên</h1>` +
+      `<p>${esc(t.studentBenefitsPage.desc)}</p>` +
       `<p>${esc("Các gói dịch vụ được trình bày cùng điều kiện xác minh và phạm vi hỗ trợ rõ ràng.")}</p>` +
       `<ul>${studentPlans.map((p) => `<li>${esc(p.name)} — ${esc(p.price)}</li>`).join("")}</ul>`,
   },

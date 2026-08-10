@@ -1,390 +1,363 @@
-import { useState, useEffect } from "react";
-import { HugoNoticeToast } from "../shared/HugoNotice";
+import { useEffect, useState } from "react";
+import { IosApp, AppShell, SectionTitle, ListGroup, ListRow, Card, Button, Stepper, Sheet, Toast, useToast, Chip, Segmented, vnd } from "./iosKit";
+import { Art, HeroArt, Avatar } from "./demoArt";
+
+const ACCENT = "#B08D3F";
+const BASE_RATE = 7500000; // giá tham chiếu mỗi chỉ
+
+const BARS = [
+  { id: "sjc_1chi", art: "goldbar", cat: "bar", name: "Thỏi Vàng SJC 1 Chỉ 9999", weight: 1, fee: 150000, desc: "Đúc nguyên khối, bọc vỉ nhựa bảo an, tiện tích luỹ cá nhân." },
+  { id: "sjc_2chi", art: "goldbar", cat: "bar", name: "Thỏi Vàng SJC 2 Chỉ 9999", weight: 2, fee: 200000, desc: "Lựa chọn tiết kiệm cho gia đình nhỏ, dễ bảo quản." },
+  { id: "sjc_5chi", art: "goldbar", cat: "bar", name: "Thỏi Vàng SJC 5 Chỉ 9999", weight: 5, fee: 350000, desc: "Phù hợp làm quà cưới cao cấp hoặc tích luỹ trung hạn." },
+  { id: "sjc_1luong", art: "goldbar", cat: "bar", name: "Thỏi Vàng SJC 1 Lượng", weight: 10, fee: 600000, desc: "Miếng vàng tiêu chuẩn lưu thông quốc gia, thanh khoản nhanh." },
+  { id: "gold_10luong", art: "coin", cat: "bar", name: "Bánh Vàng Hoàng Gia 10 Lượng", weight: 100, fee: 2500000, desc: "Đúc khối nguyên bản 99.99% cho quỹ đầu tư lớn." },
+];
+
+const JEWELS = [
+  { id: "ring_eternal", art: "ring", cat: "jewel", name: "Nhẫn Cưới Eternal Love", price: 12800000, desc: "Vàng 18K đính kim cương tấm, khắc chữ chìm bên trong lòng nhẫn.", stone: "Kim cương 3.0mm" },
+  { id: "ring_solitaire", art: "ring", cat: "jewel", name: "Nhẫn Kim Cương Solitaire", price: 28500000, desc: "Ổ chấu sáu ngạnh cổ điển tôn tối đa độ tán sắc của viên chủ.", stone: "Kim cương 4.5mm" },
+  { id: "necklace_lotus", art: "necklace", cat: "jewel", name: "Dây Chuyền Sen Vàng 18K", price: 9600000, desc: "Mặt sen chạm tay, dây bi tròn 45cm, khoá móc an toàn hai lớp.", stone: "Vàng 18K" },
+  { id: "earring_drop", art: "earring", cat: "jewel", name: "Bông Tai Giọt Ngọc Trai", price: 6400000, desc: "Ngọc trai Akoya 8mm, chuôi vàng trắng chống dị ứng.", stone: "Ngọc trai Akoya" },
+  { id: "bracelet_beads", art: "bracelet", cat: "jewel", name: "Lắc Tay Charm Vàng Ta", price: 15200000, desc: "Chuỗi bi vàng 24K, có thể thêm charm theo dịp kỷ niệm.", stone: "Vàng 24K" },
+];
+
+const CATALOG = [...BARS, ...JEWELS];
+
+const FONTS = [
+  { id: "serif", label: "Cổ điển", css: "'Times New Roman', serif" },
+  { id: "script", label: "Thư pháp", css: "'Brush Script MT', cursive" },
+  { id: "mono", label: "Khắc máy", css: "'SF Mono', ui-monospace, monospace" },
+];
+
+const POLICIES = [
+  { icon: "verified", tint: "#34C759", title: "Bảo hành trọn đời", desc: "Đánh bóng, xi mạ, làm mới miễn phí không giới hạn." },
+  { icon: "local_shipping", tint: "#0A84FF", title: "Giao hàng bảo hiểm 100%", desc: "Niêm phong bởi đối tác vận tải an ninh, đền bù tuyệt đối." },
+  { icon: "handshake", tint: "#FF9500", title: "Thu đổi minh bạch", desc: "Thu lại theo giá niêm yết cùng ngày, trừ phí gia công." },
+  { icon: "workspace_premium", tint: "#8E8E93", title: "Kiểm định SJC", desc: "Mỗi sản phẩm kèm giấy kiểm định và mã seri riêng." },
+];
+
+const REVIEWS = [
+  { name: "Nguyễn Văn Tuấn", text: "Mua thỏi 1 chỉ, nhân viên tư vấn kỹ, giấy kiểm định đầy đủ.", stars: 5 },
+  { name: "Phạm Thị Mai", text: "Khắc chữ lên nhẫn cưới rất sắc nét, đúng kiểu chữ đã chọn.", stars: 5 },
+];
 
 export default function JewelryDemo({ isMobile = false }) {
-  const [activePage, setActivePage] = useState("home");
-  const [selectedBarId, setSelectedBarId] = useState("sjc_1chi");
-  const [engravingText, setEngravingText] = useState("");
-  const [showCheckoutQR, setShowCheckoutQR] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [toast, setToast] = useState({ show: false, message: "" });
+  const [tab, setTab] = useState("home");
+  const [catalogTab, setCatalogTab] = useState("bar");
+  const [barId, setBarId] = useState("sjc_1chi");
+  const [qty, setQty] = useState(1);
+  const [engraving, setEngraving] = useState("");
+  const [font, setFont] = useState("serif");
+  const [detail, setDetail] = useState(null);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [toast, showToast] = useToast();
 
-  const triggerToast = (msg) => {
-    setToast({ show: true, message: msg });
-    setTimeout(() => setToast({ show: false, message: "" }), 3000);
-  };
-
-  // 5 Carousel Slides Banner content
-  const slides = [
-    { title: "BST Nhẫn Cưới Eternal Love 2026", desc: "Tặng gói khắc chữ chìm nghệ thuật độc bản cho 50 cặp đôi đăng ký đầu tiên.", btnText: "Xem nhẫn cưới", badge: "New Campaign" },
-    { title: "Tích Trữ An Toàn Với Thỏi Vàng SJC 9999", desc: "Thỏi vàng miếng SJC 9999 đúc nguyên khối, vỉ nhựa bảo an tiện lợi tích lũy cá nhân.", btnText: "Mua vàng thỏi", badge: "Best Seller" },
-    { title: "Tuyệt Tác Thủ Công Từ Nghệ Nhân Kim Hoàn", desc: "Từng đường nét được đẽo gọt tỉ mỉ dưới bàn tay nghệ nhân trên 20 năm kinh nghiệm.", btnText: "Tìm hiểu chế tác", badge: "Handcrafted" },
-    { title: "Chính Sách Đặc Quyền Bảo Hành Trọn Đời", desc: "Đánh bóng, xi mạ, làm mới sản phẩm không giới hạn hoàn toàn miễn phí.", btnText: "Xem chính sách", badge: "Membership" },
-    { title: "Giao Hàng An Ninh Cao - Bảo Hiểm 100%", desc: "Vận chuyển niêm phong bởi đối tác vận tải an ninh, đền bù tuyệt đối giá trị.", btnText: "Hỗ trợ vận chuyển", badge: "Insured Shipping" }
-  ];
-
-  // Auto scroll carousel every 4 seconds
+  // Giá vàng nhích nhẹ theo thời gian như bảng điện tử ngoài tiệm
+  const [rate, setRate] = useState(BASE_RATE);
+  const [trend, setTrend] = useState(1);
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(timer);
+    const id = setInterval(() => {
+      setRate((prev) => {
+        const delta = Math.round((Math.random() - 0.45) * 20000);
+        setTrend(Math.sign(delta) || 1);
+        return Math.max(BASE_RATE * 0.98, Math.min(BASE_RATE * 1.02, prev + delta));
+      });
+    }, 5000);
+    return () => clearInterval(id);
   }, []);
 
-  const baseRate = 7500000; // 7.500.000đ per chỉ
-  const goldBars = [
-    { id: "sjc_1chi", name: "Thỏi Vàng SJC 1 Chỉ 9999", weight: 1, fee: 150000, desc: "Thỏi vàng miếng SJC 9999 đúc nguyên khối, bọc vỉ nhựa bảo an tiện lợi tích lũy cá nhân." },
-    { id: "sjc_2chi", name: "Thỏi Vàng SJC 2 Chỉ 9999", weight: 2, fee: 200000, desc: "Lựa chọn tiết kiệm tối ưu cho gia đình nhỏ, chống hao mòn vật lý, dễ dàng bảo quản." },
-    { id: "sjc_5chi", name: "Thỏi Vàng SJC 5 Chỉ 9999", weight: 5, fee: 350000, desc: "Trọng lượng trung bình phù hợp làm quà tặng cưới cao cấp hoặc tích lũy tài sản trung hạn." },
-    { id: "sjc_1luong", name: "Thỏi Vàng SJC 1 Lượng (10 Chỉ)", weight: 10, fee: 600000, desc: "Miếng vàng SJC tiêu chuẩn lưu thông quốc gia, giữ giá vượt trội, thanh khoản nhanh chóng." },
-    { id: "gold_10luong", name: "Bánh Vàng Hoàng Gia 10 Lượng", weight: 100, desc: "Bánh vàng đúc khối nguyên bản 99.99% dành cho các quỹ đầu tư tài chính lớn.", fee: 2500000 }
-  ];
+  const priceOf = (item) => (item.cat === "bar" ? rate * item.weight + item.fee : item.price);
+  const bar = BARS.find((item) => item.id === barId) || BARS[0];
+  const engravingFee = engraving.trim() ? 250000 : 0;
+  const total = (rate * bar.weight + bar.fee + engravingFee) * qty;
 
-  const activeBar = goldBars.find((b) => b.id === selectedBarId) || goldBars[0];
-  const totalPrice = baseRate * activeBar.weight + activeBar.fee;
+  const gridCols = isMobile ? "grid-cols-2" : "grid-cols-4";
+  const list = CATALOG.filter((item) => item.cat === catalogTab);
+  const title = { home: "Hugo Jewelry", shop: "Cửa hàng", engrave: "Khắc chữ", policy: "Chính sách" }[tab];
+
+  const ItemCard = ({ item }) => (
+    <Card padded={false} onClick={() => setDetail(item)} className="h-full">
+      <span className="block aspect-square w-full overflow-hidden"><Art kind={item.art} /></span>
+      <span className="block p-3">
+        <span className="block truncate text-[15px] font-semibold">{item.name}</span>
+        <span className="mt-0.5 block text-[13px]" style={{ color: "var(--ios-label-2)" }}>
+          {item.cat === "bar" ? `${item.weight} chỉ · SJC 9999` : item.stone}
+        </span>
+        <span className="mt-1 block text-[17px] font-semibold" style={{ color: ACCENT }}>{vnd(priceOf(item))}</span>
+      </span>
+    </Card>
+  );
 
   return (
-    <div className="w-full h-full relative overflow-hidden bg-[#FAF9F6] text-[#2C3E29] font-sans selection:bg-[#B89855]/30 border-t-8 border-[#B89855]">
-      
-      {/* Scrollable Container */}
-      <div className="w-full h-full overflow-y-auto scrollbar-hide flex flex-col justify-between">
-        
-        {/* Luxury Header */}
-        <header className={`sticky top-0 z-30 backdrop-blur-md bg-[#FAF9F6]/90 border-b border-[#B89855]/20 px-4 pb-3 flex justify-between items-center transition-all ${isMobile ? "pt-12" : "pt-4"}`}>
-          <button onClick={() => setActivePage("home")} className="flex items-center gap-2 font-serif text-base font-black hover:opacity-90 tracking-[0.15em] text-[#2C3E29]">
-            <span className="material-symbols-outlined text-[#B89855] text-lg font-bold">diamond</span>
-            <span>HUGO JEWELRY</span>
-          </button>
+    <IosApp scheme="light" accent={ACCENT}>
+      <AppShell
+        isMobile={isMobile}
+        title={title}
+        subtitle={tab === "home" ? "Vàng miếng & trang sức · kiểm định SJC" : undefined}
+        brand={{ name: "Hugo Jewelry", icon: "diamond", note: "Boutique Quận 1" }}
+        sidebarNote="Giá vàng cập nhật mỗi 5 giây trong bản demo."
+        tabs={[
+          { id: "home", label: "Trang chủ", icon: "home" },
+          { id: "shop", label: "Cửa hàng", icon: "diamond" },
+          { id: "engrave", label: "Khắc chữ", icon: "edit" },
+          { id: "policy", label: "Chính sách", icon: "shield" },
+        ]}
+        value={tab}
+        onChange={setTab}
+        actions={
+          <span className="flex items-center gap-2 rounded-full px-3 py-1.5" style={{ background: "var(--ios-fill)" }}>
+            <span className="material-symbols-outlined text-[18px]" style={{ color: trend >= 0 ? "#34C759" : "#FF3B30" }}>
+              {trend >= 0 ? "trending_up" : "trending_down"}
+            </span>
+            <span className="text-[13px] font-semibold tabular-nums">{vnd(rate)}/chỉ</span>
+          </span>
+        }
+      >
+        {tab === "home" && (
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-[18px]">
+              <span className="absolute inset-0"><HeroArt from="#6B5418" to="#D9B44A" /></span>
+              <div className={`relative ${isMobile ? "p-5" : "p-8"}`}>
+                <Chip tint="#fff" filled><span style={{ color: "#6B5418" }}>Eternal Love 2026</span></Chip>
+                <p className={`mt-2 font-bold leading-tight text-white ${isMobile ? "text-[26px]" : "text-[34px]"}`}>Khắc tên lên<br />kỷ vật của bạn</p>
+                <p className="mt-1.5 max-w-md text-[15px] text-white/80">Tặng gói khắc chữ chìm nghệ thuật cho 50 cặp đôi đăng ký đầu tiên.</p>
+                <Button className="mt-4" onClick={() => setTab("engrave")} style={{ background: "#fff", color: "#6B5418" }}>
+                  Thử khắc chữ
+                  <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                </Button>
+              </div>
+            </div>
 
-          <nav className={`${isMobile ? "hidden" : "hidden md:flex"} items-center gap-8 text-xs font-bold uppercase tracking-widest text-[#2C3E29]/70`}>
-            <button onClick={() => setActivePage("home")} className={`hover:text-[#B89855] transition-colors ${activePage === "home" ? "text-[#B89855] font-black" : ""}`}>Sản Phẩm</button>
-            <button onClick={() => setActivePage("customizer")} className={`hover:text-[#B89855] transition-colors ${activePage === "customizer" ? "text-[#B89855] font-black" : ""}`}>Khắc Chữ Thỏi Vàng</button>
-            <button onClick={() => setActivePage("policy")} className={`hover:text-[#B89855] transition-colors ${activePage === "policy" ? "text-[#B89855] font-black" : ""}`}>Chính Sách</button>
-          </nav>
+            <Card>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-[13px] uppercase tracking-wide" style={{ color: "var(--ios-label-2)" }}>Giá tham chiếu / chỉ</p>
+                  <p className="mt-1 text-[28px] font-bold leading-none tabular-nums">{vnd(rate)}</p>
+                </div>
+                <Chip tint={trend >= 0 ? "#34C759" : "#FF3B30"}>
+                  <span className="material-symbols-outlined text-[16px]">{trend >= 0 ? "trending_up" : "trending_down"}</span>
+                  {trend >= 0 ? "+" : "−"}{Math.abs(Math.round(((rate - BASE_RATE) / BASE_RATE) * 1000) / 10)}%
+                </Chip>
+              </div>
+              <p className="mt-2 text-[13px]" style={{ color: "var(--ios-label-2)" }}>Cập nhật mỗi 5 giây · chỉ mang tính minh hoạ trong bản demo.</p>
+            </Card>
 
-          <div className="flex items-center gap-3">
-            <span className="bg-[#B89855]/10 border border-[#B89855]/30 text-[#B89855] text-[10px] font-extrabold px-2.5 py-1 rounded tracking-wider uppercase">LUXURY BOUTIQUE</span>
-          </div>
-        </header>
+            <section>
+              <SectionTitle action={<Button variant="plain" size="sm" onClick={() => { setCatalogTab("bar"); setTab("shop"); }}>Xem tất cả</Button>}>Vàng miếng SJC</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {BARS.slice(0, 4).map((item) => <ItemCard key={item.id} item={item} />)}
+              </div>
+            </section>
 
-        {/* Navigation for Mobile inside frame - Hidden when using custom bottom tab bar */}
-        {!isMobile && (
-          <div className="md:hidden flex justify-around py-3 border-b border-[#B89855]/10 bg-[#FAF9F6]/80 text-xs uppercase tracking-wider font-extrabold sticky top-[80px] z-20">
-            <button onClick={() => setActivePage("home")} className={`px-3 py-1 rounded transition-colors ${activePage === "home" ? "bg-[#B89855]/10 text-[#B89855] font-black" : "text-[#2C3E29]/60"}`}>Sản Phẩm</button>
-            <button onClick={() => setActivePage("customizer")} className={`px-3 py-1 rounded transition-colors ${activePage === "customizer" ? "bg-[#B89855]/10 text-[#B89855] font-black" : "text-[#2C3E29]/60"}`}>Khắc Thỏi</button>
-            <button onClick={() => setActivePage("policy")} className={`px-3 py-1 rounded transition-colors ${activePage === "policy" ? "bg-[#B89855]/10 text-[#B89855] font-black" : "text-[#2C3E29]/60"}`}>Chính Sách</button>
+            <section>
+              <SectionTitle action={<Button variant="plain" size="sm" onClick={() => { setCatalogTab("jewel"); setTab("shop"); }}>Xem tất cả</Button>}>Trang sức chế tác</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {JEWELS.slice(0, 4).map((item) => <ItemCard key={item.id} item={item} />)}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Khách hàng</SectionTitle>
+              <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-2"}`}>
+                {REVIEWS.map((review) => (
+                  <Card key={review.name}>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar name={review.name} tint={ACCENT} />
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-semibold">{review.name}</p>
+                        <p className="text-[13px]" style={{ color: "#FF9F0A" }}>{"★".repeat(review.stars)}</p>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>{review.text}</p>
+                  </Card>
+                ))}
+              </div>
+            </section>
           </div>
         )}
 
-        {/* Main Content Area */}
-        <main className={`flex-grow w-full ${isMobile ? "p-4" : ""} space-y-12`}>
-          {activePage === "home" && (
-            <div className="space-y-12 animate-fadeIn text-left">
-              
-              {/* Auto-playing Promo Slider Banner (5 Slides) */}
-              <section className="relative w-full overflow-hidden bg-gradient-to-r from-[#172516] to-[#243523] text-white p-6 md:p-10 flex flex-col justify-center min-h-[180px] md:min-h-[220px]">
-                {/* Dynamic Slides render */}
-                <div className="space-y-4 max-w-xl transition-all duration-500">
-                  <span className="inline-block px-2.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest bg-[#B89855] text-zinc-950">
-                    {slides[currentSlide].badge}
-                  </span>
-                  <h2 className="font-serif text-lg sm:text-2xl md:text-3xl font-light text-white leading-tight">
-                    {slides[currentSlide].title}
-                  </h2>
-                  <p className="text-xs text-zinc-300 leading-relaxed font-light">
-                    {slides[currentSlide].desc}
-                  </p>
-                  <button 
-                    onClick={() => {
-                      setActivePage("customizer");
-                      if (currentSlide === 1) setSelectedBarId("sjc_1luong");
-                    }} 
-                    className="px-4 py-2 bg-[#B89855] hover:bg-[#A38345] text-zinc-950 text-[10px] font-bold uppercase tracking-wider rounded transition-colors flex items-center gap-1.5 self-start"
+        {tab === "shop" && (
+          <div className="space-y-4">
+            <div className={isMobile ? "" : "w-[280px]"}>
+              <Segmented
+                items={[{ id: "bar", label: "Vàng miếng" }, { id: "jewel", label: "Trang sức" }]}
+                value={catalogTab}
+                onChange={setCatalogTab}
+              />
+            </div>
+            <p className="text-[13px]" style={{ color: "var(--ios-label-2)" }}>{list.length} sản phẩm</p>
+            <div className={`grid gap-3 ${gridCols}`}>
+              {list.map((item) => <ItemCard key={item.id} item={item} />)}
+            </div>
+          </div>
+        )}
+
+        {tab === "engrave" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-2 items-start gap-6"}>
+            <div className="space-y-4">
+              <div
+                className="flex h-[200px] items-center justify-center rounded-[16px] p-5"
+                style={{ background: "linear-gradient(135deg,#F3E3B3,#C9A227 45%,#8C6D1F)" }}
+              >
+                <div className="flex h-full w-full flex-col items-center justify-center rounded-[10px] border border-black/15 px-4 text-center" style={{ background: "rgba(255,255,255,0.14)" }}>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-black/45">SJC 9999</span>
+                  <span
+                    className="mt-1.5 line-clamp-2 break-words text-[22px] font-bold leading-tight text-black/75"
+                    style={{ fontFamily: FONTS.find((item) => item.id === font)?.css }}
                   >
-                    {slides[currentSlide].btnText} <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                  </button>
-                </div>
-
-                {/* Slider Dots */}
-                <div className="absolute bottom-4 right-6 flex gap-1.5 z-10">
-                  {slides.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentSlide(idx)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        currentSlide === idx ? "bg-[#B89855] w-5" : "bg-white/30"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </section>
-
-              {/* Gold Bar Catalog Grid Section */}
-              <section className={`${isMobile ? "px-0" : "px-6 md:px-10"} max-w-5xl mx-auto space-y-6`}>
-                <div className="space-y-2">
-                  <h3 className="font-serif text-xl font-bold text-[#2C3E29]">Danh Sách Thỏi Vàng SJC 9999</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Bảng giá niêm yết thỏi vàng và bánh vàng đúc nguyên chất. Giá bán tỉ lệ thuận theo trọng lượng và chi phí vỉ bảo an.
-                  </p>
-                </div>
-
-                <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-6`}>
-                  {goldBars.map((bar) => {
-                    const barPrice = baseRate * bar.weight + bar.fee;
-                    return (
-                      <div key={bar.id} className="bg-white border border-[#B89855]/20 p-5 rounded-2xl flex flex-col justify-between hover:shadow-md transition-all">
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="text-sm font-bold text-[#2C3E29] uppercase tracking-wider">{bar.name}</h4>
-                              <p className="text-[10px] text-slate-400 font-mono mt-0.5">Trọng lượng: {bar.weight} chỉ ({bar.weight * 3.75} gram)</p>
-                            </div>
-                            <span className="bg-[#B89855]/10 text-[#B89855] text-[9px] font-bold px-2 py-0.5 rounded font-mono">
-                              SJC 99.99%
-                            </span>
-                          </div>
-                          
-                          <p className="text-xs text-slate-500 leading-relaxed font-light">{bar.desc}</p>
-                        </div>
-
-                        <div className="border-t border-slate-100 pt-4 mt-4 flex justify-between items-center">
-                          <div className="text-left font-mono">
-                            <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">ĐƠN GIÁ NIÊM YẾT</p>
-                            <p className="text-base font-black text-[#B89855]">{barPrice.toLocaleString("vi-VN")}đ</p>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedBarId(bar.id);
-                              setActivePage("customizer");
-                            }}
-                            className="bg-[#2C3E29] hover:bg-[#1E291C] text-white px-3.5 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
-                          >
-                            Chọn khắc
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            </div>
-          )}
-
-          {activePage === "customizer" && (
-            <div className={`${isMobile ? "px-0" : "px-6 md:px-10"} max-w-5xl mx-auto space-y-8 animate-fadeIn text-left`}>
-              <div className="space-y-2">
-                <h2 className="font-serif text-2xl font-bold text-[#2C3E29]">Thiết Kế Khắc Chữ Thỏi Vàng</h2>
-                <p className="text-xs text-[#2C3E29]/75">Lựa chọn thỏi vàng theo trọng lượng tích lũy, nhập tên hoặc nội dung để nghệ nhân khắc laser chìm trực tiếp lên bề mặt miếng vàng.</p>
-              </div>
-
-              <div className={`grid ${isMobile ? "grid-cols-1 gap-6" : "grid-cols-12 gap-8"} items-stretch`}>
-                {/* Left visual representation */}
-                <div className={`${isMobile ? "w-full p-4 min-h-[250px]" : "col-span-5 p-6 min-h-[300px]"} bg-white border border-[#B89855]/20 rounded-2xl flex flex-col items-center justify-center relative shadow-sm`}>
-                  <span className="absolute top-4 left-4 text-[9px] font-bold tracking-widest text-[#B89855] uppercase bg-[#B89855]/5 border border-[#B89855]/20 px-2.5 py-1 rounded">Miếng Vàng Khắc Laser</span>
-                  
-                  {/* Gold bar representation */}
-                  <div className="relative w-36 h-48 bg-gradient-to-tr from-[#D4AF37] via-[#FFFDD0] to-[#AA7C11] rounded-xl border border-[#AA7C11] p-4 shadow-xl flex flex-col justify-between items-center text-center">
-                    <div className="space-y-1">
-                      <p className="text-[7px] font-bold text-amber-950/80 uppercase tracking-[0.25em] leading-none">RỒNG VÀO SJC</p>
-                      <p className="text-[9px] font-bold text-amber-900 tracking-wider">999.9 PURE GOLD</p>
-                    </div>
-
-                    {engravingText ? (
-                      <div className="w-full bg-[#1e2e1d]/90 text-[#B89855] border border-[#B89855]/50 py-1.5 px-2 rounded shadow-lg text-center rotate-[-12deg] animate-scaleIn">
-                        <p className="text-[9px] font-serif italic font-bold tracking-widest">"{engravingText}"</p>
-                      </div>
-                    ) : (
-                      <div className="w-16 h-8 border border-dashed border-amber-950/40 rounded flex items-center justify-center text-[7px] text-amber-950/50 uppercase">
-                        Laser Logo
-                      </div>
-                    )}
-
-                    <div className="space-y-0.5">
-                      <p className="text-[10px] font-extrabold text-amber-950 font-mono">{activeBar.weight} CHỈ</p>
-                      <p className="text-[6px] text-amber-900/80 leading-none">NET WEIGHT</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right configuration settings */}
-                <div className={`${isMobile ? "w-full p-4" : "col-span-7 p-6 md:p-8"} bg-white border border-[#B89855]/10 rounded-2xl flex flex-col justify-between space-y-6 shadow-sm`}>
-                  <div className="space-y-4">
-                    {/* Select Bar Option */}
-                    <div className="space-y-2">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Bước 1: Chọn Thỏi Vàng Cần Mua</span>
-                      <select
-                        value={selectedBarId}
-                        onChange={(e) => setSelectedBarId(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold outline-none focus:border-[#B89855]"
-                      >
-                        {goldBars.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name} - {b.weight} chỉ ({(baseRate * b.weight + b.fee).toLocaleString("vi-VN")}đ)
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Engraving Input Box */}
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Bước 2: Nội dung Khắc Laser (Tối đa 12 ký tự)</label>
-                      <input
-                        type="text"
-                        maxLength="12"
-                        placeholder="Ví dụ: HUGO WISHPAX, LOVE 2026..."
-                        value={engravingText}
-                        onChange={(e) => setEngravingText(e.target.value)}
-                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-xs bg-white text-slate-800 focus:outline-none focus:border-[#B89855] transition-colors font-mono"
-                      />
-                    </div>
-
-                    {/* Detailed Description */}
-                    <div className="bg-[#FAF9F6] border border-slate-100 p-4 rounded-xl space-y-1">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">Thông số thỏi chọn</p>
-                      <p className="text-xs text-slate-600 font-light leading-relaxed">{activeBar.desc}</p>
-                    </div>
-                  </div>
-
-                  {/* Calculation summary */}
-                  <div className="border-t border-slate-100 pt-4 flex justify-between items-center">
-                    <div className="text-left font-mono">
-                      <p className="text-[8px] text-slate-400 font-bold uppercase tracking-wider">GIÁ ĐƠN HÀNG TỔNG CỘNG</p>
-                      <p className="text-lg font-black text-[#B89855] mt-0.5">{totalPrice.toLocaleString("vi-VN")}đ</p>
-                      <p className="text-[8px] text-slate-400 mt-0.5">(Đã bao gồm thuế SJC & phí vỉ)</p>
-                    </div>
-                    <button
-                      onClick={() => setShowCheckoutQR(true)}
-                      className="bg-[#2C3E29] hover:bg-[#1E291C] text-white px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 hover:scale-102 active:scale-98"
-                    >
-                      MUA <span className="material-symbols-outlined text-xs">qr_code</span>
-                    </button>
-                  </div>
+                    {engraving.trim() || "Nội dung khắc"}
+                  </span>
+                  <span className="mt-1.5 text-[11px] tracking-[0.12em] text-black/40">{bar.weight} CHỈ · {bar.id.toUpperCase()}</span>
                 </div>
               </div>
-            </div>
-          )}
 
-          {activePage === "policy" && (
-            <div className={`${isMobile ? "px-0" : "px-6 md:px-10"} max-w-5xl mx-auto space-y-8 animate-fadeIn text-left text-xs leading-relaxed`}>
-              <div className="space-y-2">
-                <h3 className="font-serif text-xl font-bold text-[#2C3E29]">Chính Sách Bảo Hành & Cam Kết Kim Hoàn</h3>
-                <p className="text-xs text-slate-500">Hugo Jewelry cam kết mang lại trải nghiệm tích trữ vàng miếng minh bạch và an toàn.</p>
-              </div>
-
-              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-6`}>
-                <div className="p-6 bg-white border border-slate-200 rounded-xl space-y-3">
-                  <span className="material-symbols-outlined text-[#B89855] text-2xl">verified_user</span>
-                  <h4 className="font-bold text-[#2C3E29]">Kiểm Định Tuổi Vàng</h4>
-                  <p className="text-slate-500">Miếng vàng được phân tích quang phổ huỳnh quang đảm bảo đúng chuẩn hàm lượng SJC 99.99%. Hỗ trợ đền bù gấp đôi nếu phát hiện sai lệch tuổi vàng.</p>
+              <ListGroup header="Nội dung" footer={`${engraving.length}/24 ký tự · phí khắc ${vnd(250000)} nếu có nội dung.`}>
+                <div className="p-3">
+                  <input
+                    value={engraving}
+                    maxLength={24}
+                    onChange={(event) => setEngraving(event.target.value)}
+                    placeholder="Ví dụ: Gia đình an khang"
+                    className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[17px] outline-none focus:ring-0"
+                    style={{ background: "var(--ios-fill)" }}
+                  />
                 </div>
+              </ListGroup>
 
-                <div className="p-6 bg-white border border-slate-200 rounded-xl space-y-3">
-                  <span className="material-symbols-outlined text-[#B89855] text-2xl">swap_horiz</span>
-                  <h4 className="font-bold text-[#2C3E29]">Thu Mua Biên Độ Nhỏ</h4>
-                  <p className="text-slate-500">Hugo Jewelry cam kết thu mua lại các thỏi vàng SJC do chúng tôi phân phối với biên độ mua-bán chênh lệch cực nhỏ, đảm bảo tối đa tài sản khách hàng tích lũy.</p>
-                </div>
-
-                <div className="p-6 bg-white border border-slate-200 rounded-xl space-y-3">
-                  <span className="material-symbols-outlined text-[#B89855] text-2xl">local_shipping</span>
-                  <h4 className="font-bold text-[#2C3E29]">Vận Chuyển An Ninh</h4>
-                  <p className="text-slate-500">Sử dụng hộp ký gửi bọc chì niêm phong có gắn mã định vị GPS. Vận chuyển tuyệt đối an toàn đến tay chủ sở hữu thông qua đội ngũ chuyển phát chuyên biệt.</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
-
-        {/* Footer Branding - Hidden on mobile to save vertical space */}
-        {!isMobile && (
-          <footer className="border-t border-[#B89855]/20 py-6 mt-12 bg-white select-none">
-            <div className="max-w-5xl mx-auto px-6 flex justify-between items-center text-xs text-[#2C3E29]/50">
-              <span>© 2026 Hugo Jewelry. Chế Tác Thỏi Vàng SJC 9999 Độc Bản.</span>
-              <span className="font-mono">SBV Approved Licence</span>
-            </div>
-          </footer>
-        )}
-
-      </div>
-
-      {/* Custom Bottom Tab Bar for Mobile */}
-      {isMobile && (
-        <div className="bg-[#FAF9F6]/95 backdrop-blur-md border-t border-[#B89855]/20 px-6 pt-3 pb-5 flex justify-around items-center shrink-0 z-30 select-none">
-          <button 
-            onClick={() => setActivePage("home")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "home" ? "text-[#B89855] font-bold" : "text-[#2C3E29]/50 hover:text-[#2C3E29]"}`}
-          >
-            <span className="material-symbols-outlined text-xl">diamond</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Sản phẩm</span>
-          </button>
-          <button 
-            onClick={() => setActivePage("customizer")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "customizer" ? "text-[#B89855] font-bold" : "text-[#2C3E29]/50 hover:text-[#2C3E29]"}`}
-          >
-            <span className="material-symbols-outlined text-xl">border_color</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Khắc thỏi</span>
-          </button>
-          <button 
-            onClick={() => setActivePage("policy")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${activePage === "policy" ? "text-[#B89855] font-bold" : "text-[#2C3E29]/50 hover:text-[#2C3E29]"}`}
-          >
-            <span className="material-symbols-outlined text-xl">verified_user</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Chính sách</span>
-          </button>
-        </div>
-      )}
-
-      <HugoNoticeToast open={toast.show} type="success" message={toast.message} zIndex={80} />
-
-      {/* Checkout VietQR Payment popup */}
-      {showCheckoutQR && (
-        <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-50 animate-fadeIn">
-          <div className="bg-white text-slate-800 p-6 rounded-2xl max-w-sm w-full shadow-2xl relative border-t-8 border-[#B89855] space-y-4">
-            
-            <h4 className="font-serif text-sm font-black uppercase tracking-widest text-[#2C3E29]">THANH TOÁN ĐƠN HÀNG</h4>
-            <p className="text-[11px] text-slate-400">Quét mã chuyển khoản VietQR để khởi chạy chế tác khắc laser thỏi vàng miếng.</p>
-
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col items-center justify-center relative">
-              <div className="bg-white p-3 rounded-lg shadow-md border border-slate-200/50 flex flex-col items-center justify-center">
-                {/* Simulated VietQR QR Graphic */}
-                <div className="w-28 h-28 bg-[#FAF9F6] flex flex-col items-center justify-center gap-1.5 border border-dashed border-[#B89855]/50">
-                  <span className="material-symbols-outlined text-[#2C3E29] text-4xl animate-pulse">qr_code_2</span>
-                  <span className="text-[8px] text-[#B89855] font-mono tracking-widest">VIETQR_VERIFIED</span>
-                </div>
-              </div>
-              
-              <div className="mt-3 text-left w-full text-[11px] font-mono space-y-1 text-slate-600 border-t border-slate-200/50 pt-3">
-                <p>Ngân hàng: <span className="font-bold text-slate-800">Vietcombank</span></p>
-                <p>Số tài khoản: <span className="font-bold text-slate-800">101 234 5678</span></p>
-                <p>Chủ TK: <span className="font-bold text-slate-800">LÊ HUGO WISHPAX</span></p>
-                <p>Số tiền: <span className="font-bold text-[#B89855] text-xs">{totalPrice.toLocaleString("vi-VN")}đ</span></p>
-                <p className="truncate">Nội dung: <span className="text-slate-800 font-bold">HUGO_GOLD_{engravingText || "BAR"}</span></p>
+              <div>
+                <p className="px-1 pb-1.5 text-[13px] uppercase" style={{ color: "var(--ios-label-2)" }}>Kiểu chữ</p>
+                <Segmented items={FONTS.map((item) => ({ id: item.id, label: item.label }))} value={font} onChange={setFont} />
               </div>
             </div>
 
-            <p className="text-[10px] text-slate-400 leading-relaxed">Sau khi nhận được khoản thanh toán, chúng tôi sẽ lập tức khắc chữ và bàn giao hộp ký gửi niêm phong cho đối tác vận tải an ninh.</p>
+            <div className="space-y-4">
+              <ListGroup header="Sản phẩm nền">
+                {BARS.slice(0, 4).map((item, index) => (
+                  <ListRow
+                    key={item.id}
+                    onClick={() => setBarId(item.id)}
+                    last={index === 3}
+                    title={item.name}
+                    value={`${item.weight} chỉ`}
+                    trailing={barId === item.id ? <span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check</span> : null}
+                  />
+                ))}
+              </ListGroup>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowCheckoutQR(false)}
-                className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded text-xs font-semibold uppercase tracking-wider transition-colors"
-              >
-                Quay lại
-              </button>
-              <button
-                onClick={() => {
-                  setShowCheckoutQR(false);
-                  triggerToast("Đặt hàng thỏi vàng thành công!");
-                  setEngravingText("");
-                  setActivePage("home");
-                }}
-                className="w-1/2 bg-[#2C3E29] hover:bg-[#1E291C] text-white py-2 rounded text-xs font-bold uppercase tracking-wider transition-colors"
-              >
-                Xác nhận đã chuyển
-              </button>
+              <ListGroup header="Tạm tính">
+                <ListRow title="Giá vàng" value={vnd(rate * bar.weight)} />
+                <ListRow title="Phí gia công" value={vnd(bar.fee)} />
+                <ListRow title="Phí khắc chữ" value={engravingFee ? vnd(engravingFee) : "—"} />
+                <ListRow title="Số lượng" trailing={<Stepper value={qty} min={1} max={10} onChange={setQty} />} last />
+              </ListGroup>
+
+              <Button full size="lg" onClick={() => setQrOpen(true)}>Đặt cọc · {vnd(total)}</Button>
             </div>
           </div>
+        )}
+
+        {tab === "policy" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-2 items-start gap-5"}>
+            <ListGroup header="Đặc quyền khách hàng">
+              {POLICIES.map((policy, index) => (
+                <ListRow key={policy.title} icon={policy.icon} iconBg={policy.tint} title={policy.title} subtitle={policy.desc} last={index === POLICIES.length - 1} />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Cửa hàng">
+              <ListRow icon="location_on" iconBg="#FF3B30" title="Boutique Quận 1" subtitle="128 Nguyễn Trãi, TP.HCM" chevron onClick={() => showToast("Mở bản đồ")} />
+              <ListRow icon="schedule" iconBg="#8E8E93" title="Giờ mở cửa" value="08:00 – 20:00" />
+              <ListRow icon="call" iconBg="#34C759" title="Tư vấn viên" value="1900 6868" chevron onClick={() => showToast("Đang gọi 1900 6868")} last />
+            </ListGroup>
+
+            <ListGroup header="Kiểm định" footer="Mỗi sản phẩm có mã seri tra cứu trên hệ thống SJC.">
+              <ListRow icon="qr_code_scanner" title="Tra cứu mã seri" chevron onClick={() => showToast("Mở trình quét mã")} last />
+            </ListGroup>
+
+            <ListGroup header="Thanh toán">
+              <ListRow icon="account_balance" title="Chuyển khoản ngân hàng" subtitle="Vietcombank · 0071 0007 8899" />
+              <ListRow icon="credit_card" iconBg="#8E8E93" title="Trả góp 0%" subtitle="Kỳ hạn 3 – 12 tháng" last />
+            </ListGroup>
+          </div>
+        )}
+      </AppShell>
+
+      {/* Chi tiết sản phẩm */}
+      <Sheet
+        open={Boolean(detail)}
+        onClose={() => setDetail(null)}
+        title={detail?.name}
+        action={
+          <Button full size="lg" onClick={() => { if (detail?.cat === "bar") setBarId(detail.id); setDetail(null); setTab(detail?.cat === "bar" ? "engrave" : "policy"); }}>
+            {detail?.cat === "bar" ? "Tuỳ chỉnh khắc chữ" : "Xem chính sách bảo hành"}
+          </Button>
+        }
+      >
+        {detail && (
+          <div className="space-y-4 pb-2">
+            <span className="block h-44 w-full overflow-hidden rounded-[16px]"><Art kind={detail.art} ratio="wide" /></span>
+            <p className="text-[24px] font-bold" style={{ color: ACCENT }}>{vnd(priceOf(detail))}</p>
+            <p className="text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>{detail.desc}</p>
+
+            <ListGroup header="Thông số">
+              {detail.cat === "bar" ? (
+                <>
+                  <ListRow title="Trọng lượng" value={`${detail.weight} chỉ`} />
+                  <ListRow title="Tuổi vàng" value="9999 (24K)" />
+                  <ListRow title="Giá vàng hiện tại" value={vnd(rate * detail.weight)} />
+                  <ListRow title="Phí gia công" value={vnd(detail.fee)} last />
+                </>
+              ) : (
+                <>
+                  <ListRow title="Chất liệu" value={detail.stone} />
+                  <ListRow title="Bảo hành" value="Trọn đời" />
+                  <ListRow title="Kiểm định" value="Kèm giấy SJC" last />
+                </>
+              )}
+            </ListGroup>
+
+            {detail.cat === "bar" && (
+              <ListGroup header="Số lượng">
+                <ListRow title="Số miếng" last trailing={<Stepper value={qty} min={1} max={10} onChange={setQty} />} />
+              </ListGroup>
+            )}
+          </div>
+        )}
+      </Sheet>
+
+      {/* Thanh toán QR */}
+      <Sheet
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        title="Chuyển khoản đặt cọc"
+        action={<Button full size="lg" onClick={() => { setQrOpen(false); showToast("Đã ghi nhận đặt cọc"); }}>Tôi đã chuyển khoản</Button>}
+      >
+        <div className="space-y-4 pb-2">
+          <Card className="flex flex-col items-center gap-3 py-6">
+            {/* ponytail: mã QR vẽ bằng lưới ô vuông tất định — demo không cần thư viện QR thật */}
+            <div className="grid h-[132px] w-[132px] grid-cols-11 gap-px rounded-[10px] bg-white p-2">
+              {Array.from({ length: 121 }, (_, index) => (
+                <span key={index} className="rounded-[1px]" style={{ background: (index * 7 + (index % 11) * 3) % 5 < 2 ? "#000" : "transparent" }} />
+              ))}
+            </div>
+            <p className="text-[13px]" style={{ color: "var(--ios-label-2)" }}>Quét bằng ứng dụng ngân hàng bất kỳ</p>
+          </Card>
+
+          <ListGroup header="Thông tin chuyển khoản">
+            <ListRow title="Ngân hàng" value="Vietcombank" />
+            <ListRow title="Chủ tài khoản" value="HUGO JEWELRY" />
+            <ListRow title="Số tài khoản" value="0071 0007 8899" />
+            <ListRow title="Nội dung" value={`COC ${bar.id.toUpperCase()}`} />
+            <ListRow title="Số tiền cọc (20%)" value={vnd(Math.round(total * 0.2))} last />
+          </ListGroup>
+
+          <p className="px-1 text-[13px]" style={{ color: "var(--ios-label-2)" }}>
+            Phần còn lại thanh toán khi nhận hàng tại boutique hoặc qua đối tác vận chuyển bảo hiểm.
+          </p>
         </div>
-      )}
-    </div>
+      </Sheet>
+
+      <Toast message={toast} />
+    </IosApp>
   );
 }

@@ -61,6 +61,27 @@ const BioSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    // Server-authoritative daily reward reservations. These counters are kept
+    // on the wallet owner (not in client game state) so concurrent requests
+    // cannot race past the JOY caps.
+    arcadeJoyDate: {
+      type: String,
+      default: ''
+    },
+    arcadeJoyToday: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    focusJoyDate: {
+      type: String,
+      default: ''
+    },
+    focusJoyToday: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
     hobbies: {
       type: String,
       default: ''

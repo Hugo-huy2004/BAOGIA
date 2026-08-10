@@ -8,6 +8,7 @@
 import { getMemberToken, getAdminToken, clearMemberSession } from "./authSession";
 import { recordApiOutcome, reportClientEvent, SLOW_API_MS } from "../utils/clientMonitoring";
 import { authDecision } from "./apiAuthHeaders";
+import { SECURITY_BLOCK_STORAGE_KEY } from "../components/SecurityBlockScreen";
 
 const AUTH_EXEMPT_PATHS = [
   "/api/auth/member/google",
@@ -96,6 +97,12 @@ const safely = (fn) => {
   }
 };
 
+const publishSecurityBlock = (payload) => {
+  if (!payload || payload.error !== "ACCESS_BLOCKED") return;
+  safely(() => sessionStorage.setItem(SECURITY_BLOCK_STORAGE_KEY, JSON.stringify(payload)));
+  safely(() => window.dispatchEvent(new CustomEvent("hugo:security-blocked", { detail: payload })));
+};
+
 export function installApiAuthInterceptor() {
   // Guard against a second install stacking another wrapper on top of the
   // first: every layer would re-decorate headers and double-report metrics.
@@ -140,6 +147,23 @@ export function installApiAuthInterceptor() {
         if (res.status === 401 && sentAuth && !isAuthExemptRequest(url)) {
           // Token rejected by server -> clear invalid member session to halt 401 loops
           safely(clearMemberSession);
+        }
+
+        if (res.status === 403) {
+          // Read a clone so callers retain the original body. A blocked SSE
+          // response advertises itself by header because JSON parsing an event
+          // stream would be invalid.
+          if (res.headers.get("x-security-blocked") === "1") {
+            publishSecurityBlock({
+              error: "ACCESS_BLOCKED",
+              message: "Tài khoản và mạng truy cập đã bị khóa theo tiêu chuẩn an toàn.",
+              caseId: res.headers.get("x-security-case") || "",
+              permanent: res.headers.get("x-security-permanent") === "1",
+              blockedUntil: res.headers.get("x-security-until") || null,
+            });
+          } else {
+            res.clone().json().then(publishSecurityBlock).catch(() => {});
+          }
         }
 
         // Don't report transient/non-actionable statuses: 401 (guest/unauthenticated),

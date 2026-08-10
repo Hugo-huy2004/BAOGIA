@@ -10,6 +10,8 @@ import { fileURLToPath } from 'url';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import { requireMember } from '../middleware/authMiddleware.js';
+import { serverAiUserId } from '../services/securityEnforcement.js';
 
 const COMPRESS_CHARGE = 50; // JOY/file, only for 'medium'/'strong' — 'light' stays free
 
@@ -17,6 +19,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+const MAX_ZIP_ENTRIES = 1000;
+const MAX_ZIP_UNCOMPRESSED_BYTES = 200 * 1024 * 1024;
+const MAX_ZIP_ENTRY_BYTES = 50 * 1024 * 1024;
 
 // Define temporary upload directory
 const tempDir = path.join(__dirname, '../uploads/temp_file_tools');
@@ -30,7 +35,8 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const uniqueId = crypto.randomBytes(8).toString('hex');
     const ext = path.extname(file.originalname);
-    cb(null, `${uniqueId}${ext}`);
+    const owner = serverAiUserId(req.memberEmail).slice(0, 16);
+    cb(null, `${owner}_${uniqueId}${ext}`);
   }
 });
 const upload = multer({ 
@@ -47,9 +53,14 @@ const cleanupFile = (filePath) => {
   }
 };
 
+const ownsTempFile = (req, fileId) => (
+  typeof fileId === 'string'
+  && fileId.startsWith(`${serverAiUserId(req.memberEmail).slice(0, 16)}_`)
+);
+
 // 1. EXTRACT API
 // Upload a ZIP file and return its contents
-router.post('/extract/upload', upload.single('file'), (req, res) => {
+router.post('/extract/upload', requireMember, upload.single('file'), (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Không tìm thấy file tải lên.' });
     
@@ -60,6 +71,16 @@ router.post('/extract/upload', upload.single('file'), (req, res) => {
 
     const zip = new AdmZip(req.file.path);
     const zipEntries = zip.getEntries(); // an array of ZipEntry records
+    const totalUncompressed = zipEntries.reduce((sum, entry) => sum + Number(entry.header?.size || 0), 0);
+    const hasOversizedEntry = zipEntries.some((entry) => Number(entry.header?.size || 0) > MAX_ZIP_ENTRY_BYTES);
+    if (
+      zipEntries.length > MAX_ZIP_ENTRIES
+      || totalUncompressed > MAX_ZIP_UNCOMPRESSED_BYTES
+      || hasOversizedEntry
+    ) {
+      cleanupFile(req.file.path);
+      return res.status(413).json({ error: 'File ZIP có dấu hiệu giải nén quá lớn hoặc chứa quá nhiều mục.' });
+    }
     
     const entries = zipEntries.map(entry => ({
       name: entry.entryName,
@@ -80,12 +101,12 @@ router.post('/extract/upload', upload.single('file'), (req, res) => {
 });
 
 // Download a specific file from the uploaded ZIP
-router.get('/extract/download/:fileId', (req, res) => {
+router.get('/extract/download/:fileId', requireMember, (req, res) => {
   try {
     const { fileId } = req.params;
     const { entryName } = req.query; // The path of the file inside the zip
 
-    if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..')) {
+    if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..') || !ownsTempFile(req, fileId)) {
       return res.status(400).json({ error: 'ID file không hợp lệ.' });
     }
 
@@ -99,6 +120,9 @@ router.get('/extract/download/:fileId', (req, res) => {
 
     if (!zipEntry || zipEntry.isDirectory) {
       return res.status(404).json({ error: 'Không tìm thấy file hoặc đây là một thư mục.' });
+    }
+    if (Number(zipEntry.header?.size || 0) > MAX_ZIP_ENTRY_BYTES) {
+      return res.status(413).json({ error: 'Mục trong ZIP vượt quá giới hạn giải nén an toàn.' });
     }
 
     const fileData = zipEntry.getData();
@@ -115,9 +139,9 @@ router.get('/extract/download/:fileId', (req, res) => {
 });
 
 // Delete ZIP file when user is done (or let cron job clean it up later)
-router.delete('/extract/cleanup/:fileId', (req, res) => {
+router.delete('/extract/cleanup/:fileId', requireMember, (req, res) => {
   const { fileId } = req.params;
-  if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..')) {
+  if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..') || !ownsTempFile(req, fileId)) {
     return res.status(400).json({ error: 'ID file không hợp lệ.' });
   }
   const zipPath = path.join(tempDir, fileId);
@@ -127,14 +151,14 @@ router.delete('/extract/cleanup/:fileId', (req, res) => {
 
 // 2. COMPRESS API
 // Upload a file, compress it, and stream back
-router.post('/compress', upload.single('file'), async (req, res) => {
+router.post('/compress', requireMember, upload.single('file'), async (req, res) => {
   let outputFilePath = null;
   
   try {
     if (!req.file) return res.status(400).json({ error: 'Không tìm thấy file tải lên.' });
 
     const level = req.body.level || 'medium'; // light, medium, strong
-    const email = req.body.email;
+    const email = req.memberEmail;
     const willCharge = level !== 'light';
     const inputPath = req.file.path;
     const originalExt = path.extname(req.file.originalname).toLowerCase();
@@ -161,11 +185,10 @@ router.post('/compress', upload.single('file'), async (req, res) => {
     }
 
     // Charged only after a successful compression — never for failures.
-    const chargeIfNeeded = () => {
+    const chargeIfNeeded = async () => {
       if (!willCharge) return;
       const { tax, total } = calcExchangeTotal(COMPRESS_CHARGE);
-      awardJoy(email, -total, 'file_compression', `Nén file mức ${level === 'strong' ? 'Mạnh' : 'Vừa'} qua HugoTractare (gồm ${tax} JOY thuế giao dịch)`)
-        .catch((e) => console.error('[file_compression charge]', e.message));
+      await awardJoy(email, -total, 'file_compression', `Nén file mức ${level === 'strong' ? 'Mạnh' : 'Vừa'} qua HugoTractare (gồm ${tax} JOY thuế giao dịch)`);
     };
 
     // IMAGE COMPRESSION
@@ -180,7 +203,7 @@ router.post('/compress', upload.single('file'), async (req, res) => {
         .webp({ quality, force: false })
         .toFile(outputFilePath);
 
-      chargeIfNeeded();
+      await chargeIfNeeded();
       res.download(outputFilePath, `compressed_${req.file.originalname}`, (err) => {
         cleanupFile(inputPath);
         cleanupFile(outputFilePath);
@@ -203,12 +226,18 @@ router.post('/compress', upload.single('file'), async (req, res) => {
           cleanupFile(outputFilePath);
           if (!res.headersSent) res.status(500).json({ error: 'Lỗi nén video.' });
         })
-        .on('end', () => {
-          chargeIfNeeded();
-          res.download(outputFilePath, `compressed_${path.basename(req.file.originalname, originalExt)}.mp4`, (err) => {
+        .on('end', async () => {
+          try {
+            await chargeIfNeeded();
+            res.download(outputFilePath, `compressed_${path.basename(req.file.originalname, originalExt)}.mp4`, () => {
+              cleanupFile(inputPath);
+              cleanupFile(outputFilePath);
+            });
+          } catch (error) {
             cleanupFile(inputPath);
             cleanupFile(outputFilePath);
-          });
+            if (!res.headersSent) res.status(400).json({ error: error.message === 'INSUFFICIENT_JOY' ? 'Số dư JOY không đủ.' : 'Không thể hoàn tất trao đổi JOY.' });
+          }
         })
         .save(outputFilePath);
 

@@ -122,6 +122,18 @@ export default function MobileDrawer() {
             {accountLabel}
           </Link>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpen(false);
+            window.dispatchEvent(new CustomEvent("open-donation"));
+          }}
+          className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-[1rem] border border-primary/25 bg-primary/10 px-4 text-xs font-bold text-primary"
+        >
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">volunteer_activism</span>
+          {t("footer.supportServer", "Ủng hộ Hugo Studio")}
+        </button>
       </aside>
     </>
   );

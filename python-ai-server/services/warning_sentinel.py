@@ -91,10 +91,9 @@ HACK_WARNINGS = [
 # Hỏi admin/owner/thông tin nội bộ hệ thống. Không flag các câu hỏi bình thường
 # như "HugoPSY là ai" để tránh làm hỏng trải nghiệm hỗ trợ tâm lý.
 SYSTEM_PROBE_PATTERNS = re.compile(
-    r"(admin|owner|super.?admin|root|chu he thong|chủ hệ thống|database|source.?code|"
-    r"api.?key|backend|server.?bên|hệ thống|thông tin hệ thống|"
-    r"gặp dev|liên hệ dev|contact admin|find.?admin|get.?admin|developer|team dev|"
-    r"noi bo|nội bộ|cau hinh|cấu hình|env|secret|token he thong|token hệ thống)",
+    r"((?:tiết\s*lộ|cho\s*xem|đưa\s*tôi|reveal|show|dump).{0,60}"
+    r"(?:api.?key|system.?prompt|source.?code|mật\s*khẩu|secret|\.env|token\s*hệ\s*thống)|"
+    r"(?:đọc|mở|download|tải).{0,40}(?:\.env|\/etc\/passwd|database\s*dump))",
     re.IGNORECASE
 )
 
@@ -109,13 +108,12 @@ PROFANITY_PATTERNS = re.compile(
 
 # Hack / code injection / prompt injection
 HACK_ATTEMPT_PATTERNS = re.compile(
-    r"(https?://(?!hugostudio\.vn|hugowishpax\.studio)[^\s]+|"   # URL lạ
-    r"<script|javascript:|eval\(|exec\(|import os|__import__|"   # code injection
-    r"SELECT\s+\*|DROP\s+TABLE|INSERT\s+INTO|UPDATE\s+SET|"       # SQL injection
-    r"ignore.{0,20}previous|forget.{0,20}everything|"            # prompt injection
-    r"you are now|bạn là|pretend.{0,10}you|act as|"
-    r"jailbreak|bypass|overr?ide.{0,10}system|"
-    r"\.exe|\.php\?|\.sh\s|curl\s|wget\s|base64|atob\()",
+    r"(<script\b|javascript\s*:|\$\{jndi\s*:(?:ldap|rmi)|"   # injection rõ ràng
+    r"UNION\s+(?:ALL\s+)?SELECT.{0,120}\sFROM|"
+    r";\s*(?:DROP|TRUNCATE)\s+(?:TABLE|DATABASE)|"
+    r"(?:ignore|bỏ\s*qua).{0,30}(?:previous|trước|system).{0,60}(?:prompt|instruction|chỉ\s*dẫn)|"
+    r"(?:jailbreak|bypass).{0,40}(?:safety|guard|bảo\s*mật|hệ\s*thống)|"
+    r"(?:curl|wget).{0,80}(?:\|\s*(?:sh|bash)|-o\s+\/tmp))",
     re.IGNORECASE
 )
 
@@ -307,8 +305,8 @@ class WarningSentinel:
             return "hack_attempt"
         if SYSTEM_PROBE_PATTERNS.search(text):
             return "system_probe"
-        if PROFANITY_PATTERNS.search(text):
-            return "profanity"
+        # Profanity can be part of a distress disclosure. It may be redirected
+        # conversationally by the model, but is not an account-security event.
         return None
 
     def check_and_warn(self, user_id: str, ip: str, violation_type: str) -> dict:

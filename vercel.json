@@ -29,10 +29,6 @@
       "destination": "/booking/index.html"
     },
     {
-      "source": "/student-benefits",
-      "destination": "/student-benefits/index.html"
-    },
-    {
       "source": "/student-pricing",
       "destination": "/student-pricing/index.html"
     },

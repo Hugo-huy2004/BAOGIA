@@ -8,7 +8,6 @@ const GROUP_LABELS = {
   banbe: "Bạn bè",
   choi: "Giải trí",
   hoc: "Học tập",
-  congdong: "Cộng đồng",
   muasam: "Mua sắm",
   khuyenmai: "Khuyến mãi",
   khac: "Khác"

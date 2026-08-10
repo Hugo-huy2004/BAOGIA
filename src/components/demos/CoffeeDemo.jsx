@@ -1,474 +1,419 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { IosApp, AppShell, SectionTitle, Segmented, ListGroup, ListRow, Card, Button, Stepper, Sheet, Toast, useToast, Chip, ProgressBar, vnd } from "./iosKit";
+import { Art, HeroArt, Avatar } from "./demoArt";
+
+const ACCENT = "#B87333";
+
+const MENU = [
+  { id: "espresso", art: "espresso", cat: "coffee", name: "Espresso Đậm Vị", price: 45000, kcal: 12, prep: 3, rating: 4.8, sold: 420, desc: "Cà phê nguyên chất pha máy dưới áp suất cao, giữ trọn hương vị." },
+  { id: "latte", art: "latte", cat: "coffee", name: "Café Latte Nghệ Thuật", price: 55000, kcal: 180, prep: 5, rating: 4.9, sold: 610, tag: "Bán chạy", desc: "Espresso và sữa nóng đánh bọt mịn, vẽ hình latte art." },
+  { id: "coldbrew", art: "coldbrew", cat: "coffee", name: "Cold Brew Cam Sả", price: 60000, kcal: 90, prep: 2, rating: 4.7, sold: 380, tag: "Mới", desc: "Cà phê ủ lạnh 16 tiếng, lát cam tươi và sả thơm." },
+  { id: "capu", art: "espresso", cat: "coffee", name: "Cappuccino Bọt Dày", price: 52000, kcal: 150, prep: 4, rating: 4.7, sold: 295, desc: "Tỉ lệ 1:1:1 cà phê, sữa nóng và bọt sữa dày mịn." },
+  { id: "peachtea", art: "tea", cat: "tea", name: "Trà Đào Cam Sả", price: 55000, kcal: 150, prep: 4, rating: 4.8, sold: 520, tag: "Bán chạy", desc: "Trà đen đậm vị, đào tươi giòn, lát cam vàng và sả thơm." },
+  { id: "matcha", art: "matcha", cat: "tea", name: "Matcha Latte Nhật Bản", price: 65000, kcal: 210, prep: 5, rating: 4.6, sold: 340, desc: "Bột trà xanh Uji nguyên chất hoà cùng sữa tươi không đường." },
+  { id: "oolong", art: "tea", cat: "tea", name: "Trà Ô Long Sữa Kem", price: 50000, kcal: 190, prep: 4, rating: 4.5, sold: 210, desc: "Ô long ủ nóng phủ lớp kem sữa mặn nhẹ, ít ngọt." },
+  { id: "croissant", art: "croissant", cat: "cakes", name: "Croissant Bơ Tỏi", price: 35000, kcal: 330, prep: 6, rating: 4.9, sold: 720, tag: "Bán chạy", desc: "Bánh sừng bò nướng giòn tan, thơm bơ tỏi và phô mai kéo sợi." },
+  { id: "tiramisu", art: "tiramisu", cat: "cakes", name: "Tiramisu Truyền Thống", price: 50000, kcal: 380, prep: 2, rating: 4.8, sold: 410, desc: "Bánh ngọt Ý vị cà phê thơm nồng, hương rượu rum nhẹ." },
+  { id: "cheesecake", art: "tiramisu", cat: "cakes", name: "Cheesecake Chanh Dây", price: 48000, kcal: 350, prep: 2, rating: 4.7, sold: 288, desc: "Phô mai kem béo nhẹ, sốt chanh dây chua thanh phủ mặt." },
+];
+
+const CATEGORIES = [
+  { id: "coffee", label: "Cà phê" },
+  { id: "tea", label: "Trà" },
+  { id: "cakes", label: "Bánh" },
+];
+
+const SIZES = [
+  { id: "s", label: "Nhỏ", extra: 0 },
+  { id: "m", label: "Vừa", extra: 6000 },
+  { id: "l", label: "Lớn", extra: 12000 },
+];
+
+const TOPPINGS = [
+  { id: "shot", label: "Thêm 1 shot espresso", extra: 10000 },
+  { id: "oat", label: "Đổi sữa yến mạch", extra: 12000 },
+  { id: "cream", label: "Kem phô mai macchiato", extra: 15000 },
+  { id: "pearl", label: "Trân châu trắng", extra: 8000 },
+];
+
+const SUGAR = ["Không đường", "30% đường", "70% đường", "100% đường"];
+const ICE = ["Không đá", "Ít đá", "Đá bình thường"];
+const TRACK_STEPS = ["Quán đã nhận đơn", "Barista đang pha", "Đang mang ra bàn", "Hoàn tất"];
+
+const REVIEWS = [
+  { name: "Trần Quốc Hưng", text: "Cold brew cam sả thanh, ngồi làm việc cả buổi vẫn thấy dễ chịu.", stars: 5 },
+  { name: "Nguyễn Hương Giang", text: "Croissant nóng giòn, nhân phô mai kéo sợi đúng như mô tả.", stars: 5 },
+  { name: "Đỗ Gia Bảo", text: "Gọi món tại bàn tiện, không phải xếp hàng ở quầy.", stars: 4 },
+];
 
 export default function CoffeeDemo({ isMobile = false }) {
-  const [activePage, setActivePage] = useState("home");
-  const [cart, setCart] = useState({});
-  const [orderSubmitted, setOrderSubmitted] = useState(false);
-  const [menuTab, setMenuTab] = useState("coffee");
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [tab, setTab] = useState("home");
+  const [category, setCategory] = useState("coffee");
+  const [cart, setCart] = useState([]);
+  const [detail, setDetail] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [order, setOrder] = useState(null);
+  const [toast, showToast] = useToast();
 
-  const slides = [
-    { title: "Ưu Đãi Sáng Sớm - Đồng Giá 29k", desc: "Thưởng thức Combo Espresso & Croissant bơ tỏi nóng hổi từ 7h - 9h sáng hằng ngày.", btnText: "Gọi món ngay", badge: "Morning Combo" },
-    { title: "Trải Nghiệm Cold Brew Ủ Lạnh Mới", desc: "Độc quyền dòng cà phê ủ chậm 16h thanh mát kết hợp lát cam chín mọng và sả thơm.", btnText: "Xem menu nước", badge: "New Arrival" },
-    { title: "Thành Viên Hugo Cafe - Tặng 10%", desc: "Tích lũy điểm đổi đồ uống miễn phí, nhận mã ưu đãi giảm 10% cho đơn hàng tiếp theo.", btnText: "Đăng ký thành viên", badge: "Loyalty Club" },
-    { title: "Freeship Đơn Gọi Nhóm Trên 150k", desc: "Đặt tiệc trà bánh chiều văn phòng, miễn phí vận chuyển nhanh trong phạm vi 2km.", btnText: "Đặt nhóm ngay", badge: "Freeship" },
-    { title: "Đặt Phòng Workshop Riêng Tư", desc: "Không gian máy chiếu, bảng vẽ, máy lạnh đầy đủ tiện nghi cho các cuộc họp dưới 30 người.", btnText: "Liên hệ đặt chỗ", badge: "Workshop Room" }
-  ];
+  const [size, setSize] = useState("m");
+  const [sugar, setSugar] = useState(SUGAR[1]);
+  const [ice, setIce] = useState(ICE[2]);
+  const [toppings, setToppings] = useState([]);
+  const [qty, setQty] = useState(1);
 
+  const totalQty = cart.reduce((sum, line) => sum + line.qty, 0);
+  const subtotal = cart.reduce((sum, line) => sum + line.unit * line.qty, 0);
+
+  // Đơn tự chạy qua các bước như quầy pha chế thật đang xử lý
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
+    if (!order || order.step >= TRACK_STEPS.length - 1) return undefined;
+    const id = setTimeout(() => setOrder((prev) => (prev ? { ...prev, step: prev.step + 1 } : prev)), 4000);
+    return () => clearTimeout(id);
+  }, [order]);
 
-  const menuItems = {
-    coffee: [
-      { id: "espresso", name: "Espresso Đậm Vị", price: 45000, desc: "Cà phê nguyên chất pha máy dưới áp suất cao, giữ trọn hương vị." },
-      { id: "latte", name: "Café Latte Nghệ Thuật", price: 55000, desc: "Sự kết hợp hoàn hảo giữa Espresso và sữa nóng đánh bọt mịn vẽ hình." },
-      { id: "coldbrew", name: "Cold Brew Cam Sả", price: 60000, desc: "Cà phê ủ lạnh 16 tiếng thanh mát kết hợp lát cam tươi và sả thơm." }
-    ],
-    tea: [
-      { id: "peachtea", name: "Trà Đào Cam Sả", price: 55000, desc: "Trà đen đậm vị đào tươi giòn, lát cam vàng chín mọng và sả thơm." },
-      { id: "matcha", name: "Matcha Latte Nhật Bản", price: 65000, desc: "Bột trà xanh Uji nguyên chất hòa quyện cùng sữa tươi không đường." }
-    ],
-    cakes: [
-      { id: "croissant", name: "Croissant Bơ Tỏi", price: 35000, desc: "Bánh sừng bò nướng giòn tan thơm lừng bơ tỏi và phô mai kéo sợi." },
-      { id: "tiramisu", name: "Tiramisu Truyền Thống", price: 50000, desc: "Bánh ngọt Ý vị cà phê thơm nồng hương rượu rum nhẹ nhàng." }
-    ]
+  const openDetail = (item) => {
+    setDetail(item);
+    setSize("m");
+    setSugar(SUGAR[1]);
+    setIce(ICE[2]);
+    setToppings([]);
+    setQty(1);
   };
 
-  const updateCart = (id, change) => {
-    setCart((prev) => {
-      const val = (prev[id] || 0) + change;
-      return { ...prev, [id]: Math.max(0, val) };
-    });
+  const detailUnit = useMemo(() => {
+    if (!detail) return 0;
+    const sizeExtra = SIZES.find((item) => item.id === size)?.extra || 0;
+    const topExtra = toppings.reduce((sum, id) => sum + (TOPPINGS.find((item) => item.id === id)?.extra || 0), 0);
+    return detail.price + sizeExtra + topExtra;
+  }, [detail, size, toppings]);
+
+  const addToCart = () => {
+    const opts = [SIZES.find((item) => item.id === size)?.label, sugar, ice, ...toppings.map((id) => TOPPINGS.find((item) => item.id === id)?.label)].filter(Boolean);
+    setCart((prev) => [...prev, { key: `${detail.id}-${Date.now()}`, art: detail.art, name: detail.name, unit: detailUnit, qty, opts }]);
+    showToast(`Đã thêm ${qty} ${detail.name}`);
+    setDetail(null);
   };
 
-  const allItems = [...menuItems.coffee, ...menuItems.tea, ...menuItems.cakes];
-  const totalQty = Object.values(cart).reduce((a, b) => a + b, 0);
-  const totalPrice = allItems.reduce((acc, item) => acc + (cart[item.id] || 0) * item.price, 0);
+  const setLineQty = (key, next) =>
+    setCart((prev) => (next === 0 ? prev.filter((line) => line.key !== key) : prev.map((line) => (line.key === key ? { ...line, qty: next } : line))));
+
+  const placeOrder = () => {
+    setOrder({ id: `#${Math.floor(Math.random() * 9000 + 1000)}`, step: 0, items: cart, total: subtotal });
+    setCart([]);
+    setCartOpen(false);
+    setTab("orders");
+    showToast("Đã gửi đơn xuống quầy");
+  };
+
+  const gridCols = isMobile ? "grid-cols-2" : "grid-cols-4";
+  const items = MENU.filter((item) => item.cat === category);
+  const title = { home: "Hugo Cafe", menu: "Thực đơn", orders: "Đơn của bạn", store: "Cửa hàng" }[tab];
+
+  const MenuCard = ({ item }) => (
+    <Card padded={false} onClick={() => openDetail(item)} className="h-full">
+      <span className="relative block">
+        <span className="block aspect-square w-full overflow-hidden"><Art kind={item.art} /></span>
+        {item.tag && <span className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-white">{item.tag}</span>}
+      </span>
+      <span className="block p-3">
+        <span className="block truncate text-[15px] font-semibold">{item.name}</span>
+        <span className="mt-0.5 block text-[13px]" style={{ color: "var(--ios-label-2)" }}>★ {item.rating} · {item.kcal} kcal</span>
+        <span className="mt-1 block text-[17px] font-semibold" style={{ color: ACCENT }}>{vnd(item.price)}</span>
+      </span>
+    </Card>
+  );
 
   return (
-    <div className="w-full h-full overflow-y-auto scrollbar-hide bg-[#FAF6F0] text-[#4E342E] flex flex-col justify-between font-sans selection:bg-[#8D6E63]/30 relative">
-      
-      {/* Cozy Header */}
-      <header className={`sticky top-0 z-30 backdrop-blur-md bg-[#FAF6F0]/90 border-b border-[#4E342E]/10 px-4 pb-3 flex justify-between items-center transition-all ${isMobile ? "pt-12" : "pt-4"}`}>
-        <button onClick={() => setActivePage("home")} className="flex items-center gap-2 font-serif text-base font-black hover:opacity-90">
-          <span className="material-symbols-outlined text-amber-800 text-lg">local_cafe</span>
-          <span className="tracking-wider">HUGO CAFE</span>
-        </button>
-
-        <nav className={`${isMobile ? "hidden" : "hidden md:flex"} items-center gap-8 text-xs font-bold uppercase tracking-wider text-[#4E342E]/70`}>
-          <button onClick={() => setActivePage("home")} className={`hover:text-amber-800 transition-colors ${activePage === "home" ? "text-amber-800" : ""}`}>Trang Chủ</button>
-          <button onClick={() => setActivePage("menu")} className={`hover:text-amber-800 transition-colors ${activePage === "menu" ? "text-amber-800" : ""}`}>E-Menu</button>
-          <button onClick={() => setActivePage("contact")} className={`hover:text-amber-800 transition-colors ${activePage === "contact" ? "text-amber-800" : ""}`}>Liên Hệ</button>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <span className="bg-[#8D6E63]/10 border border-[#8D6E63]/30 text-amber-900 text-[10px] px-2.5 py-1 rounded font-mono font-bold">BÀN 08</span>
-          {/* Hamburger button — only on mobile */}
-          {isMobile && (
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="w-8 h-8 flex flex-col items-center justify-center gap-[5px] rounded-lg bg-[#4E342E]/8 hover:bg-amber-800/10 transition-colors"
-              aria-label="Mở menu"
-            >
-              <span className="w-[18px] h-0.5 bg-[#4E342E] rounded-full block"></span>
-              <span className="w-[18px] h-0.5 bg-[#4E342E] rounded-full block"></span>
-              <span className="w-3 h-0.5 bg-[#4E342E] rounded-full block self-start ml-[3px]"></span>
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Navigation for Mobile inside frame - Hidden when using custom bottom tab bar */}
-      {!isMobile && (
-        <div className="md:hidden flex justify-around py-3 border-b border-[#4E342E]/5 bg-[#FAF6F0]/80 text-xs uppercase tracking-wider font-extrabold sticky top-[53px] z-20">
-          <button onClick={() => setActivePage("home")} className={`px-3 py-1 rounded transition-colors ${activePage === "home" ? "bg-amber-800/10 text-amber-800 font-black" : "text-[#4E342E]/60"}`}>Trang Chủ</button>
-          <button onClick={() => setActivePage("menu")} className={`px-3 py-1 rounded transition-colors ${activePage === "menu" ? "bg-amber-800/10 text-amber-800 font-black" : "text-[#4E342E]/60"}`}>E-Menu</button>
-          <button onClick={() => setActivePage("contact")} className={`px-3 py-1 rounded transition-colors ${activePage === "contact" ? "bg-amber-800/10 text-amber-800 font-black" : "text-[#4E342E]/60"}`}>Liên Hệ</button>
-        </div>
-      )}
-
-      {/* Main Body */}
-      <main className={`flex-grow ${isMobile ? "p-4" : "p-6 md:p-10"} max-w-5xl mx-auto w-full space-y-12`}>
-        {activePage === "home" && (
-          <div className="space-y-12 animate-fadeIn text-left">
-            
-            {/* Auto-playing Promo Slider Banner (5 Slides) */}
-            <section className="relative w-full overflow-hidden bg-gradient-to-r from-[#3E2723] to-[#5D4037] text-white p-6 md:p-8 rounded-2xl flex flex-col justify-center min-h-[160px]">
-              <div className="space-y-3 max-w-xl transition-all duration-500 text-left">
-                <span className="inline-block px-2 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-widest bg-amber-600 text-white">
-                  {slides[currentSlide].badge}
-                </span>
-                <h2 className="font-serif text-base sm:text-xl md:text-2xl font-black text-white leading-tight">
-                  {slides[currentSlide].title}
-                </h2>
-                <p className="text-[10px] sm:text-xs text-amber-100 leading-relaxed font-light">
-                  {slides[currentSlide].desc}
-                </p>
-                <button 
-                  onClick={() => {
-                    if (currentSlide === 4) setActivePage("contact");
-                    else setActivePage("menu");
-                  }} 
-                  className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[9px] font-bold uppercase tracking-wider rounded transition-colors flex items-center gap-1 self-start"
-                >
-                  {slides[currentSlide].btnText} <span className="material-symbols-outlined text-[10px]">arrow_forward</span>
-                </button>
-              </div>
-
-              {/* Slider Dots */}
-              <div className="absolute bottom-3 right-6 flex gap-1.5 z-10">
-                {slides.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all ${
-                      currentSlide === idx ? "bg-amber-500 w-4" : "bg-white/30"
-                    }`}
-                  />
-                ))}
-              </div>
-            </section>
-
-            {/* Hero Section */}
-            <section className={`grid ${isMobile ? "grid-cols-1 gap-6" : "grid-cols-12 gap-8"} items-center`}>
-              <div className={`${isMobile ? "w-full space-y-4" : "col-span-7 space-y-6"} text-left`}>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-800/10 text-amber-800 border border-amber-800/25">
-                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Mở cửa phục vụ hằng ngày
-                </span>
-                <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-black text-amber-950 leading-tight">
-                  Tận Hưởng <br />
-                  <span className="italic font-light text-amber-800">Hương Vị Mộc</span> & Tĩnh Lặng
-                </h1>
-                <p className="text-sm text-[#4E342E]/70 leading-relaxed max-w-lg">
-                  Chúng tôi tự hào tuyển chọn kỹ lưỡng từng hạt cà phê Organic từ cao nguyên LangBiang, chế biến thủ công giữ trọn sự mộc mạc nguyên bản để mang lại một tách cà phê hoàn hảo trong không gian yên ả.
-                </p>
-                <div className="flex gap-4 pt-2">
-                  <button onClick={() => setActivePage("menu")} className="px-5 py-2.5 bg-[#5D4037] hover:bg-[#4E342E] text-white text-xs font-bold uppercase tracking-wider rounded transition-all hover:scale-102 flex items-center gap-2 shadow-md">
-                    Xem E-Menu <span className="material-symbols-outlined text-sm">restaurant_menu</span>
-                  </button>
-                  <button onClick={() => setActivePage("contact")} className="px-5 py-2.5 bg-white hover:bg-zinc-50 border border-amber-900/15 text-[#4E342E] text-xs font-bold uppercase tracking-wider rounded transition-all hover:scale-102">
-                    Đặt Bàn
-                  </button>
-                </div>
-              </div>
-
-              <div className={`${isMobile ? "w-full" : "col-span-5"} relative group`}>
-                <div className="absolute -inset-1 bg-amber-800/10 rounded-2xl blur-lg opacity-40 group-hover:opacity-70 transition duration-500"></div>
-                <div className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden border border-amber-900/10 shadow-xl bg-white">
-                  <img 
-                    src="/image/avt2.png" 
-                    alt="Coffee Cup Aesthetic" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                  />
-                  <div className="absolute top-3 left-3 bg-[#5D4037]/80 text-white text-[10px] px-2.5 py-1 rounded font-bold uppercase tracking-widest backdrop-blur-sm">
-                    Aesthetic Workspace
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Specialties Section */}
-            <section className="border-t border-[#4E342E]/10 pt-12 text-left space-y-6">
-              <h3 className="font-serif text-xl font-bold text-amber-950">Giá Trị Cốt Lõi</h3>
-              <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-6`}>
-                {[
-                  { title: "Hạt Cà Phê Mộc", desc: "Được rang mộc 100%, không pha tạp chất hay tẩm bơ đường để đảm bảo hương vị sạch nhất.", icon: "eco" },
-                  { title: "Bánh Nướng Mỗi Sáng", desc: "Đội ngũ baker nướng tươi mỗi sáng từ bột nhập khẩu, bánh luôn nóng giòn khi phục vụ.", icon: "bakery_dining" },
-                  { title: "Không Gian Trầm Ấm", desc: "Thiết kế gỗ tối giản, tích hợp ổ cắm sạc tại bàn và nhạc lo-fi nhẹ nhàng lý tưởng để làm việc.", icon: "chair" }
-                ].map((item, idx) => (
-                  <div key={idx} className="p-6 bg-white/50 rounded-xl border border-amber-900/5 space-y-3 hover:bg-white transition-all shadow-sm">
-                    <span className="material-symbols-outlined text-amber-800 text-2xl">{item.icon}</span>
-                    <h4 className="text-sm font-bold text-amber-950">{item.title}</h4>
-                    <p className="text-xs text-[#4E342E]/70 leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        )}
-
-        {activePage === "menu" && (
-          <div className="space-y-8 animate-fadeIn text-left">
-            <div className="space-y-2">
-              <h2 className="font-serif text-2xl font-black text-amber-950">E-Menu Gọi Món Tự Động</h2>
-              <p className="text-xs text-[#4E342E]/70">Khách hàng tự do thêm sản phẩm vào khay giỏ hàng, hệ thống tự động cộng dồn báo giá chi tiết.</p>
-            </div>
-
-            {/* Menu Navigation Categories */}
-            <div className="flex gap-2 border-b border-amber-900/10 pb-2 overflow-x-auto scrollbar-hide">
-              {[
-                { id: "coffee", name: "Cà Phê Mộc", icon: "coffee" },
-                { id: "tea", name: "Trà & Nước Ép", icon: "local_drink" },
-                { id: "cakes", name: "Bánh Nướng", icon: "cake" }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setMenuTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all border shrink-0 ${
-                    menuTab === tab.id
-                      ? "bg-[#5D4037] text-white border-[#5D4037] shadow-sm"
-                      : "bg-white text-[#4E342E]/70 border-amber-900/5 hover:bg-[#5D4037]/5"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-xs">{tab.icon}</span>
-                  <span>{tab.name}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Menu Items Grid */}
-            <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}>
-              {menuItems[menuTab].map((item) => (
-                <div key={item.id} className="flex justify-between items-center bg-white p-4 rounded-xl border border-amber-900/5 shadow-sm transition-all hover:shadow-md">
-                  <div className="space-y-1.5 pr-4 flex-grow">
-                    <h4 className="text-xs font-bold text-[#4E342E] uppercase tracking-wider">{item.name}</h4>
-                    <p className="text-[10px] text-[#4E342E]/70 leading-relaxed">{item.desc}</p>
-                    <p className="text-xs font-mono font-extrabold text-amber-800">{item.price.toLocaleString("vi-VN")}đ</p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0 bg-[#FAF6F0] border border-amber-900/10 py-1 px-2.5 rounded-full">
-                    <button
-                      onClick={() => updateCart(item.id, -1)}
-                      className="w-5 h-5 rounded-full bg-white hover:bg-amber-100 text-[#4E342E] flex items-center justify-center text-xs font-black shadow-sm"
-                    >
-                      -
-                    </button>
-                    <span className="text-xs font-mono font-black w-4 text-center">{cart[item.id] || 0}</span>
-                    <button
-                      onClick={() => updateCart(item.id, 1)}
-                      className="w-5 h-5 rounded-full bg-[#5D4037] hover:bg-[#4E342E] text-white flex items-center justify-center text-xs font-black shadow-sm"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Total Price Bar */}
-            <div className="flex justify-between items-center bg-white border border-amber-900/5 p-4 rounded-xl shadow-sm mt-6">
-              <div>
-                <p className="text-[9px] text-[#4E342E]/50 font-bold uppercase tracking-wider">Tổng Đơn Hàng ({totalQty} món)</p>
-                <p className="text-sm font-mono font-black text-amber-900 mt-0.5">{totalPrice.toLocaleString("vi-VN")}đ</p>
-              </div>
-              <button
-                onClick={() => {
-                  if (totalPrice > 0) setOrderSubmitted(true);
-                }}
-                disabled={totalPrice === 0}
-                className={`px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 shadow ${
-                  totalPrice > 0
-                    ? "bg-[#5D4037] hover:bg-[#4E342E] text-white cursor-pointer hover:scale-102 active:scale-98"
-                    : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
-                }`}
-              >
-                Gửi Đơn <span className="material-symbols-outlined text-xs">send</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {activePage === "contact" && (
-          <div className={`grid ${isMobile ? "grid-cols-1 gap-6" : "grid-cols-2 gap-8"} text-left animate-fadeIn`}>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <h3 className="font-serif text-xl font-bold text-amber-950">Thông Tin Liên Hệ</h3>
-                <p className="text-xs text-[#4E342E]/70">Ghé thăm hoặc liên hệ với chúng tôi để nhận các ưu đãi đặt chỗ trước.</p>
-              </div>
-              <div className="space-y-3">
-                {[
-                  { icon: "schedule", title: "Giờ Mở Cửa", desc: "Hằng ngày: 07:00 AM - 10:00 PM" },
-                  { icon: "location_on", title: "Địa Chỉ Cửa Hàng", desc: "128 Nguyễn Trãi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh" },
-                  { icon: "call", title: "Điện Thoại Đặt Bàn", desc: "090 123 4567" },
-                  { icon: "mail", title: "Email Thư Tín", desc: "bistro@hugocafe.vn" }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4 p-4 bg-white rounded-xl border border-amber-900/5 shadow-sm">
-                    <span className="material-symbols-outlined text-amber-800 text-xl">{item.icon}</span>
-                    <div className="space-y-0.5">
-                      <p className="text-xs font-bold text-amber-950">{item.title}</p>
-                      <p className="text-xs text-[#4E342E]/70">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white border border-amber-900/5 rounded-2xl p-6 shadow-sm flex flex-col justify-center space-y-4 text-center">
-              <span className="material-symbols-outlined text-amber-800 text-5xl">event_seat</span>
-              <div className="space-y-1.5">
-                <h4 className="text-sm font-bold text-amber-950 uppercase tracking-wider">Đặt Chỗ Trước Riêng Tư</h4>
-                <p className="text-xs text-[#4E342E]/70 max-w-sm mx-auto leading-relaxed">Bạn cần một không gian họp nhóm riêng, tổ chức sinh nhật ấm cúng hoặc workshop nhỏ? Nhấn nút gọi nhanh để giữ bàn tốt nhất.</p>
-              </div>
-              <a href="tel:0901234567" className="inline-block px-6 py-3 bg-[#5D4037] hover:bg-[#4E342E] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-all shadow-md self-center">
-                Gọi Ngay: 090 123 4567
-              </a>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Footer Copyright - Hidden on mobile to save space */}
-      {!isMobile && (
-        <footer className="border-t border-amber-900/10 py-6 mt-12 select-none">
-          <div className="max-w-5xl mx-auto px-6 flex justify-between items-center text-xs text-[#4E342E]/50">
-            <span>© 2026 Hugo Cafe Bistro. Mộc Mạc & Chân Thành.</span>
-            <span className="font-mono">Tables v1.4</span>
-          </div>
-        </footer>
-      )}
-
-      {/* Mobile Page Indicator Bar \u2014 thin bottom bar showing current page (nav is via drawer) */}
-      {isMobile && (
-        <div className="bg-[#FAF6F0]/95 backdrop-blur-md border-t border-[#4E342E]/10 px-4 pt-2 pb-5 flex justify-between items-center shrink-0 z-30 select-none">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-800 text-[15px]">
-              {activePage === "home" ? "home" : activePage === "menu" ? "restaurant_menu" : "contact_support"}
-            </span>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#4E342E]">
-              {activePage === "home" ? "Trang Chủ" : activePage === "menu" ? "E-Menu Gọi Món" : "Liên Hệ & Đặt Bàn"}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
+    <IosApp scheme="light" accent={ACCENT}>
+      <AppShell
+        isMobile={isMobile}
+        title={title}
+        subtitle={tab === "home" ? "Bàn 08 · đang phục vụ" : undefined}
+        brand={{ name: "Hugo Cafe", icon: "local_cafe", note: "Bàn 08 · Quận 1" }}
+        sidebarNote="Gọi món tại bàn, thanh toán khi nhận."
+        tabs={[
+          { id: "home", label: "Trang chủ", icon: "home" },
+          { id: "menu", label: "Thực đơn", icon: "restaurant_menu" },
+          { id: "orders", label: "Đơn hàng", icon: "receipt_long", badge: order && order.step < TRACK_STEPS.length - 1 ? 1 : 0 },
+          { id: "store", label: "Cửa hàng", icon: "storefront" },
+        ]}
+        value={tab}
+        onChange={setTab}
+        actions={
+          <button type="button" onClick={() => setCartOpen(true)} className="relative flex h-9 w-9 items-center justify-center" aria-label="Giỏ hàng">
+            <span className="material-symbols-outlined text-[24px]" style={{ color: ACCENT }}>shopping_bag</span>
             {totalQty > 0 && (
-              <span className="flex items-center gap-1 bg-amber-800/10 text-amber-900 text-[9px] font-bold px-2 py-0.5 rounded-full">
-                <span className="material-symbols-outlined text-[11px]">shopping_bag</span>
-                {totalQty} món · {totalPrice.toLocaleString("vi-VN")}đ
-              </span>
+              <span className="absolute right-0 top-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF3B30] px-1 text-[11px] font-semibold text-white">{totalQty}</span>
             )}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-1.5 text-[10px] font-bold text-[#4E342E]/60 hover:text-[#4E342E] transition-colors"
-            >
-              <span className="material-symbols-outlined text-[15px]">menu</span>
-              <span className="uppercase tracking-wider">Menu</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Hamburger Drawer Sidebar — Mobile Only */}
-      {isMobile && (
-        <>
-          {/* Backdrop Overlay */}
-          <div
-            onClick={() => setDrawerOpen(false)}
-            className={`absolute inset-0 bg-zinc-950/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${drawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-          />
-          {/* Drawer Panel */}
-          <div
-            className={`absolute top-0 left-0 h-full w-[75%] max-w-[270px] bg-[#FAF6F0] shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out ${drawerOpen ? "translate-x-0" : "-translate-x-full"}`}
-          >
-            {/* Drawer Header */}
-            <div className="pt-12 px-5 pb-4 border-b border-[#4E342E]/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-amber-800 text-xl">local_cafe</span>
-                <span className="font-serif text-base font-black tracking-wider text-[#4E342E]">HUGO CAFE</span>
+          </button>
+        }
+        bottomBar={
+          totalQty > 0 && (tab === "home" || tab === "menu") ? (
+            <Button full size="lg" onClick={() => setCartOpen(true)}>Xem giỏ · {totalQty} món · {vnd(subtotal)}</Button>
+          ) : null
+        }
+      >
+        {tab === "home" && (
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-[18px]">
+              <span className="absolute inset-0"><HeroArt from="#4A2C16" to="#B87333" /></span>
+              <div className={`relative ${isMobile ? "p-5" : "p-8"}`}>
+                <Chip tint="#fff" filled><span style={{ color: "#8A4B18" }}>Ưu đãi sáng 7–9h</span></Chip>
+                <p className={`mt-2 font-bold leading-tight text-white ${isMobile ? "text-[26px]" : "text-[34px]"}`}>Combo Espresso<br />&amp; Croissant 29k</p>
+                <p className="mt-1.5 max-w-md text-[15px] text-white/75">Hạt rang mộc 100% từ cao nguyên LangBiang, bánh nướng tươi mỗi sáng.</p>
+                <Button className="mt-4" onClick={() => setTab("menu")} style={{ background: "#fff", color: "#8A4B18" }}>
+                  Gọi món ngay
+                  <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                </Button>
               </div>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full bg-[#4E342E]/8 hover:bg-amber-800/15 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[#4E342E] text-base">close</span>
-              </button>
             </div>
 
-            {/* Drawer Navigation Links */}
-            <nav className="flex-grow px-4 py-6 space-y-1">
-              {[
-                { id: "home", label: "Trang Chủ", icon: "home" },
-                { id: "menu", label: "E-Menu Gọi Món", icon: "restaurant_menu" },
-                { id: "contact", label: "Liên Hệ & Đặt Bàn", icon: "contact_support" },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => { setActivePage(item.id); setDrawerOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all text-left ${
-                    activePage === item.id
-                      ? "bg-amber-800 text-white shadow-sm"
-                      : "text-[#4E342E]/70 hover:bg-[#4E342E]/8 hover:text-[#4E342E]"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-lg">{item.icon}</span>
-                  <span>{item.label}</span>
-                  {item.id === "menu" && totalQty > 0 && (
-                    <span className="ml-auto bg-red-500 text-white text-[9px] font-mono w-4.5 h-4.5 rounded-full flex items-center justify-center font-black">{totalQty}</span>
-                  )}
-                </button>
+            <div className="grid grid-cols-3 gap-3">
+              {CATEGORIES.map((item) => (
+                <Card key={item.id} padded={false} onClick={() => { setCategory(item.id); setTab("menu"); }}>
+                  <span className="block aspect-[4/3] w-full overflow-hidden">
+                    <Art kind={MENU.find((menu) => menu.cat === item.id)?.art} ratio="wide" />
+                  </span>
+                  <span className="block truncate p-2 text-center text-[13px] font-semibold">{item.label}</span>
+                </Card>
               ))}
-            </nav>
-
-            {/* Drawer Footer Info */}
-            <div className="px-5 py-5 border-t border-[#4E342E]/10 space-y-3">
-              <div className="flex items-center gap-2 text-xs text-[#4E342E]/60">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                <span className="font-semibold">Đang mở cửa · 07:00 – 22:00</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-[#4E342E]/50">
-                <span className="material-symbols-outlined text-xs">location_on</span>
-                <span>128 Nguyễn Trãi, Q.1</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-[#4E342E]/50">
-                <span className="material-symbols-outlined text-xs">table_restaurant</span>
-                <span className="font-mono font-bold text-amber-900">BÀN 08</span>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Order Complete Print Receipt Animation Modal Overlay - Made absolute inside mobile container */}
-      {orderSubmitted && (
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-50 animate-fadeIn">
-          <div className="bg-white text-zinc-800 p-6 rounded-2xl max-w-xs w-full shadow-2xl relative border-t-8 border-dashed border-[#5D4037] animate-slideUp">
-            
-            <div className="text-center pb-4 border-b border-dashed border-zinc-200">
-              <span className="material-symbols-outlined text-amber-800 text-3xl mb-1">receipt_long</span>
-              <h3 className="font-serif text-sm font-black uppercase tracking-widest text-[#4E342E]">HÓA ĐƠN GỌI MÓN</h3>
-              <p className="text-[10px] text-zinc-400 font-mono mt-0.5">Mã số: #0823052026</p>
             </div>
 
-            <div className="py-4 space-y-2 border-b border-dashed border-zinc-200 text-xs font-mono max-h-[140px] overflow-y-auto scrollbar-hide">
-              {allItems.map((item) => {
-                const qty = cart[item.id] || 0;
-                if (qty === 0) return null;
-                return (
-                  <div key={item.id} className="flex justify-between items-center text-left">
-                    <div className="truncate max-w-[120px]">
-                      <span>{item.name}</span>
+            <section>
+              <SectionTitle action={<Button variant="plain" size="sm" onClick={() => setTab("menu")}>Xem thực đơn</Button>}>Món được gọi nhiều</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {[...MENU].sort((a, b) => b.sold - a.sold).slice(0, 4).map((item) => <MenuCard key={item.id} item={item} />)}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Giá trị cốt lõi</SectionTitle>
+              <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+                {[
+                  { icon: "eco", tint: "#34C759", title: "Hạt cà phê mộc", desc: "Rang mộc 100%, không tẩm bơ đường." },
+                  { icon: "bakery_dining", tint: "#FF9500", title: "Bánh nướng mỗi sáng", desc: "Baker nướng tươi từ bột nhập khẩu." },
+                  { icon: "chair", tint: "#8E8E93", title: "Không gian trầm ấm", desc: "Ổ cắm tại bàn, nhạc lo-fi nhẹ." },
+                ].map((item) => (
+                  <Card key={item.title} className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px]" style={{ background: item.tint }}>
+                      <span className="material-symbols-outlined text-[22px] text-white">{item.icon}</span>
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[15px] font-semibold">{item.title}</span>
+                      <span className="block truncate text-[13px]" style={{ color: "var(--ios-label-2)" }}>{item.desc}</span>
+                    </span>
+                  </Card>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Khách nói gì</SectionTitle>
+              <div className={`grid gap-3 ${isMobile ? "grid-cols-1" : "grid-cols-3"}`}>
+                {REVIEWS.map((review) => (
+                  <Card key={review.name}>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar name={review.name} tint={ACCENT} />
+                      <div className="min-w-0">
+                        <p className="truncate text-[15px] font-semibold">{review.name}</p>
+                        <p className="text-[13px]" style={{ color: "#FF9F0A" }}>{"★".repeat(review.stars)}</p>
+                      </div>
                     </div>
-                    <span>{qty} x {item.price.toLocaleString("vi-VN")}đ</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="py-3 flex justify-between items-center font-mono text-xs font-bold text-[#4E342E] uppercase">
-              <span>Tổng thanh toán:</span>
-              <span className="text-amber-800 text-sm font-black">{totalPrice.toLocaleString("vi-VN")}đ</span>
-            </div>
-
-            <div className="p-3 bg-[#FAF6F0] rounded-lg text-center space-y-1.5 border border-amber-900/5 mt-2">
-              <p className="text-[10px] text-amber-950 font-bold">Bắt đầu pha chế!</p>
-              <p className="text-[9px] text-[#4E342E]/70 leading-relaxed">Ekip đang chuẩn bị nước uống tại quầy. Bánh ngọt sẽ được hâm nóng giòn trước khi bưng tới bàn số 08.</p>
-            </div>
-
-            <button
-              onClick={() => {
-                setOrderSubmitted(false);
-                setCart({});
-                setActivePage("home");
-              }}
-              className="w-full bg-[#5D4037] hover:bg-[#4E342E] text-white py-2 rounded text-xs font-bold uppercase tracking-wider transition-colors mt-4 shadow-sm"
-            >
-              CẢM ƠN & TIẾP TỤC
-            </button>
+                    <p className="mt-2 text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>{review.text}</p>
+                  </Card>
+                ))}
+              </div>
+            </section>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {tab === "menu" && (
+          <div className="space-y-4">
+            <div className={isMobile ? "" : "w-[320px]"}>
+              <Segmented items={CATEGORIES} value={category} onChange={setCategory} />
+            </div>
+            <p className="text-[13px]" style={{ color: "var(--ios-label-2)" }}>{items.length} món</p>
+            <div className={`grid gap-3 ${gridCols}`}>
+              {items.map((item) => <MenuCard key={item.id} item={item} />)}
+            </div>
+          </div>
+        )}
+
+        {tab === "orders" && (
+          <div className={isMobile || !order ? "space-y-5" : "grid grid-cols-2 items-start gap-5"}>
+            {!order ? (
+              <Card className="flex flex-col items-center gap-2 py-10 text-center">
+                <span className="material-symbols-outlined text-[44px]" style={{ color: "var(--ios-label-3)" }}>receipt_long</span>
+                <p className="text-[17px] font-semibold">Chưa có đơn nào</p>
+                <p className="text-[15px]" style={{ color: "var(--ios-label-2)" }}>Chọn món ở tab Thực đơn để bắt đầu.</p>
+                <Button variant="tinted" size="sm" className="mt-2" onClick={() => setTab("menu")}>Xem thực đơn</Button>
+              </Card>
+            ) : (
+              <>
+                <Card>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[17px] font-semibold">Đơn {order.id}</span>
+                    <Chip tint={order.step === TRACK_STEPS.length - 1 ? "#34C759" : ACCENT}>{TRACK_STEPS[order.step]}</Chip>
+                  </div>
+                  <div className="mt-3"><ProgressBar value={((order.step + 1) / TRACK_STEPS.length) * 100} /></div>
+                  <ul className="mt-4 space-y-3">
+                    {TRACK_STEPS.map((step, index) => (
+                      <li key={step} className="flex items-center gap-2.5 text-[15px]">
+                        <span className="material-symbols-outlined text-[20px]" style={{ color: index <= order.step ? ACCENT : "var(--ios-label-3)" }}>
+                          {index <= order.step ? "check_circle" : "radio_button_unchecked"}
+                        </span>
+                        <span style={{ color: index <= order.step ? "var(--ios-label)" : "var(--ios-label-2)" }}>{step}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+
+                <div className="space-y-4">
+                  <ListGroup header="Chi tiết" footer="Bàn 08 · thanh toán tại quầy">
+                    {order.items.map((line, index) => (
+                      <ListRow
+                        key={line.key}
+                        title={`${line.qty}× ${line.name}`}
+                        subtitle={line.opts.join(" · ")}
+                        value={vnd(line.unit * line.qty)}
+                        last={index === order.items.length - 1}
+                      />
+                    ))}
+                  </ListGroup>
+                  <div className="flex items-center justify-between px-1 text-[17px] font-semibold">
+                    <span>Tổng cộng</span>
+                    <span style={{ color: ACCENT }}>{vnd(order.total)}</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {tab === "store" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-2 items-start gap-5"}>
+            <ListGroup header="Thông tin quán">
+              <ListRow icon="schedule" iconBg="#34C759" title="Giờ mở cửa" value="07:00 – 22:00" />
+              <ListRow icon="location_on" iconBg="#FF3B30" title="Địa chỉ" subtitle="128 Nguyễn Trãi, Bến Thành, Quận 1, TP.HCM" chevron onClick={() => showToast("Mở bản đồ chỉ đường")} />
+              <ListRow icon="call" iconBg="#0A84FF" title="Gọi đặt bàn" value="090 123 4567" chevron onClick={() => showToast("Đang gọi 090 123 4567")} />
+              <ListRow icon="mail" iconBg="#8E8E93" title="Email" subtitle="bistro@hugocafe.vn" last />
+            </ListGroup>
+
+            <ListGroup header="Đặt chỗ" footer="Phòng workshop có máy chiếu, bảng vẽ, sức chứa 30 người.">
+              <ListRow icon="event_seat" title="Giữ bàn trước" subtitle="Xác nhận trong 5 phút" chevron onClick={() => showToast("Đã gửi yêu cầu giữ bàn")} />
+              <ListRow icon="groups" title="Đặt phòng workshop" subtitle="Riêng tư, tối đa 30 khách" chevron onClick={() => showToast("Nhân viên sẽ gọi lại")} last />
+            </ListGroup>
+
+            <ListGroup header="Thành viên" footer="Tích 1 điểm cho mỗi 10.000đ. Đủ 100 điểm đổi 1 đồ uống.">
+              <ListRow icon="loyalty" iconBg="#FF9500" title="Điểm tích luỹ" value="68 điểm" />
+              <ListRow icon="redeem" title="Đổi thưởng" subtitle="Cần thêm 32 điểm" chevron last />
+            </ListGroup>
+
+            <ListGroup header="Không gian">
+              <ListRow icon="wifi" title="Wi-Fi miễn phí" value="hugocafe_5G" />
+              <ListRow icon="power" iconBg="#8E8E93" title="Ổ cắm tại bàn" value="24 bàn" />
+              <ListRow icon="pets" iconBg="#AF52DE" title="Cho phép thú cưng" value="Tầng trệt" last />
+            </ListGroup>
+          </div>
+        )}
+      </AppShell>
+
+      {/* Chi tiết món */}
+      <Sheet
+        open={Boolean(detail)}
+        onClose={() => setDetail(null)}
+        title={detail?.name}
+        action={<Button full size="lg" onClick={addToCart}>Thêm {qty} món · {vnd(detailUnit * qty)}</Button>}
+      >
+        {detail && (
+          <div className="space-y-4 pb-2">
+            <span className="block h-44 w-full overflow-hidden rounded-[14px]"><Art kind={detail.art} ratio="wide" /></span>
+            <p className="text-[15px]" style={{ color: "var(--ios-label-2)" }}>{detail.desc}</p>
+            <div className="flex flex-wrap gap-2">
+              <Chip>★ {detail.rating}</Chip>
+              <Chip tint="#8E8E93">{detail.kcal} kcal</Chip>
+              <Chip tint="#8E8E93">~{detail.prep} phút</Chip>
+            </div>
+
+            <ListGroup header="Kích cỡ">
+              {SIZES.map((option, index) => (
+                <ListRow
+                  key={option.id}
+                  onClick={() => setSize(option.id)}
+                  title={option.label}
+                  value={option.extra ? `+${vnd(option.extra)}` : "Chuẩn"}
+                  last={index === SIZES.length - 1}
+                  trailing={size === option.id ? <span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check</span> : null}
+                />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Đường">
+              {SUGAR.map((option, index) => (
+                <ListRow key={option} onClick={() => setSugar(option)} title={option} last={index === SUGAR.length - 1}
+                  trailing={sugar === option ? <span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check</span> : null} />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Đá">
+              {ICE.map((option, index) => (
+                <ListRow key={option} onClick={() => setIce(option)} title={option} last={index === ICE.length - 1}
+                  trailing={ice === option ? <span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check</span> : null} />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Thêm topping">
+              {TOPPINGS.map((option, index) => (
+                <ListRow
+                  key={option.id}
+                  onClick={() => setToppings((prev) => (prev.includes(option.id) ? prev.filter((item) => item !== option.id) : [...prev, option.id]))}
+                  title={option.label}
+                  value={`+${vnd(option.extra)}`}
+                  last={index === TOPPINGS.length - 1}
+                  trailing={toppings.includes(option.id) ? <span className="material-symbols-outlined text-[20px]" style={{ color: ACCENT }}>check_circle</span> : null}
+                />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Số lượng">
+              <ListRow title="Số ly" last trailing={<Stepper value={qty} min={1} max={20} onChange={setQty} />} />
+            </ListGroup>
+          </div>
+        )}
+      </Sheet>
+
+      {/* Giỏ hàng */}
+      <Sheet
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        title="Giỏ hàng"
+        action={<Button full size="lg" disabled={cart.length === 0} onClick={placeOrder}>Gửi đơn · {vnd(subtotal)}</Button>}
+      >
+        {cart.length === 0 ? (
+          <p className="py-10 text-center text-[15px]" style={{ color: "var(--ios-label-2)" }}>Giỏ hàng đang trống.</p>
+        ) : (
+          <div className="space-y-4 pb-2">
+            <ListGroup>
+              {cart.map((line, index) => (
+                <ListRow
+                  key={line.key}
+                  title={line.name}
+                  subtitle={`${line.opts.join(" · ")} — ${vnd(line.unit)}`}
+                  last={index === cart.length - 1}
+                  trailing={<Stepper value={line.qty} min={0} onChange={(next) => setLineQty(line.key, next)} />}
+                />
+              ))}
+            </ListGroup>
+            <ListGroup footer="Đơn được gửi thẳng xuống quầy pha chế, thanh toán khi nhận món.">
+              <ListRow title="Tạm tính" value={vnd(subtotal)} />
+              <ListRow title="Phí phục vụ" value="Miễn phí" />
+              <ListRow title="Bàn" value="08" last />
+            </ListGroup>
+          </div>
+        )}
+      </Sheet>
+
+      <Toast message={toast} />
+    </IosApp>
   );
 }

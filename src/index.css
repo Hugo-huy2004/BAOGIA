@@ -81,6 +81,11 @@
     min-height: 100dvh;
   }
 
+  /* Framer Motion measures public-page scroll offsets from this container. */
+  #root {
+    position: relative;
+  }
+
   .dark {
     --primary:             211 100% 62%;
     --primary-foreground:  0 0% 100%;
@@ -693,6 +698,14 @@
   100% { transform: translateX(200%) skewX(-25deg); }
 }
 .group:hover .group-hover\:animate-shine { animation: shine 1.2s cubic-bezier(0.2,0.8,0.2,1); }
+
+/* Footer logo marquee — track holds the list twice, so -50% loops seamlessly */
+@keyframes logo-marquee { to { transform: translateX(-50%); } }
+.animate-logo-marquee { animation: logo-marquee 40s linear infinite; }
+.animate-logo-marquee:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-logo-marquee { animation: none; }
+}
 
 /* Toast slide in */
 @keyframes toast-slide-in {
@@ -2498,4 +2511,178 @@ html.standalone-pwa .animate-bounce-gentle {
 }
 @media (prefers-reduced-motion: reduce) {
   .pwa-login-rise { animation: none; }
+}
+
+/* =========================================================================
+   MOBILE PORTAL NAV — COMPACT DOCK
+   A quiet, predictable four-item dock. The active state belongs to the icon,
+   so labels no longer jump and the whole control stays easy to scan.
+   ========================================================================= */
+.mobile-portal-nav {
+  padding:
+    6px
+    max(12px, env(safe-area-inset-right, 0px))
+    max(8px, env(safe-area-inset-bottom, 0px))
+    max(12px, env(safe-area-inset-left, 0px));
+  border-top: 0;
+  background: linear-gradient(to top, hsl(var(--background)) 58%, hsl(var(--background) / 0));
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.mobile-portal-nav__track {
+  display: grid;
+  width: min(100%, 430px);
+  height: 64px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid hsl(var(--border) / .64);
+  border-radius: 22px;
+  background: hsl(var(--card) / .96);
+  box-shadow:
+    0 12px 32px hsl(var(--shadow) / .12),
+    inset 0 1px 0 hsl(var(--background) / .8);
+}
+
+.mobile-portal-nav button {
+  width: 100%;
+  min-width: 0;
+  height: 54px;
+  flex: none;
+  gap: 2px;
+  padding: 3px 2px 2px;
+  border-radius: 16px;
+  background: transparent;
+  color: hsl(var(--muted-foreground) / .78);
+  box-shadow: none;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.mobile-portal-nav button::before {
+  display: none;
+}
+
+.mobile-portal-nav button:active {
+  transform: scale(.96);
+}
+
+.mobile-portal-nav button.is-active {
+  background: transparent;
+  color: hsl(var(--foreground));
+  box-shadow: none;
+}
+
+.mobile-portal-nav__icon {
+  width: 36px;
+  height: 28px;
+  border-radius: 10px;
+  transition:
+    background-color .2s ease,
+    color .2s ease,
+    transform .2s cubic-bezier(.2, .8, .2, 1);
+}
+
+.mobile-portal-nav button.is-active .mobile-portal-nav__icon {
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  box-shadow: 0 4px 12px hsl(var(--shadow) / .14);
+  transform: translateY(-1px);
+}
+
+.mobile-portal-nav__icon > .material-symbols-outlined {
+  font-size: 21px;
+}
+
+.mobile-portal-nav__label {
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: .01em;
+}
+
+.mobile-portal-nav__badge {
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding-inline: 4px;
+  border: 2px solid hsl(var(--card));
+  font-size: 8px;
+  line-height: 12px;
+}
+
+.dark .mobile-portal-nav {
+  background: linear-gradient(to top, rgb(12 11 17) 58%, rgb(12 11 17 / 0));
+}
+
+.dark .mobile-portal-nav__track {
+  border-color: rgb(255 255 255 / .1);
+  background: rgb(24 23 30 / .96);
+  box-shadow:
+    0 14px 34px rgb(0 0 0 / .34),
+    inset 0 1px 0 rgb(255 255 255 / .06);
+}
+
+/* The native shell keeps the dock floating above scrollable content, but uses
+   the same geometry and active state as the web/PWA shell. */
+html.native-ios .mobile-portal-nav {
+  padding:
+    6px
+    max(12px, env(safe-area-inset-right, 0px))
+    calc(env(safe-area-inset-bottom, 0px) + 10px)
+    max(12px, env(safe-area-inset-left, 0px));
+}
+
+html.native-ios .mobile-portal-nav__track {
+  display: grid;
+  width: min(100%, 430px);
+  max-width: 430px;
+  height: 64px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid hsl(var(--border) / .64);
+  border-radius: 22px;
+  background: hsl(var(--card) / .96);
+  box-shadow:
+    0 12px 32px hsl(var(--shadow) / .14),
+    inset 0 1px 0 hsl(var(--background) / .8);
+}
+
+html.native-ios .mobile-portal-nav__track::before {
+  display: none;
+}
+
+html.native-ios .mobile-portal-nav button {
+  width: 100%;
+  min-width: 0;
+  height: 54px;
+  flex: none;
+  padding: 3px 2px 2px;
+  border-radius: 16px;
+}
+
+html.native-ios .mobile-portal-nav button.is-active,
+html.native-ios.dark .mobile-portal-nav button.is-active {
+  background: transparent;
+  box-shadow: none;
+}
+
+html.native-ios.dark .mobile-portal-nav__track {
+  border-color: rgb(255 255 255 / .1);
+  background: rgb(24 23 30 / .96);
+  box-shadow:
+    0 14px 34px rgb(0 0 0 / .34),
+    inset 0 1px 0 rgb(255 255 255 / .06);
+}
+
+html.native-ios .radio-mini {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
+}
+
+html.native-ios .portal-mobile-main:has(.radio-mini) .mobile-portal-content {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 154px);
 }

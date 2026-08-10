@@ -1,13 +1,11 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useData } from "../../context/DataContext";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
+import { API_BASE } from "../../config/apiBase";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
-  Check,
-  School,
   Sparkles,
   Heart,
   Mail,
@@ -15,25 +13,28 @@ import {
   Users,
   Play,
   IdCard,
-  PenTool,
-  Rocket,
-  CalendarCheck,
-  BriefcaseBusiness,
+  Download,
+  Gamepad2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { StudioSpaceScene } from "../../components/public/IntroScenes";
+import {
+  ArcadeScene,
+  JoyScene,
+  StudentBioScene,
+} from "../../components/public/IntroScenes";
 import CodeHeroFilm from "../../components/public/CodeHeroFilm";
 import {
   ACCENT,
   AboutCard,
   CINE_CSS,
+  CoverColorShift,
   EASE,
   INK,
   INK_DIM,
-  Magnetic,
-  PillButton,
   ScrollProgressBar,
   ScrollRevealParagraph,
+  SwipeDownCue,
+  useCineScrollSnap,
   WordsPullUp,
   WordsPullUpMultiStyle,
 } from "../../components/public/cineKit";
@@ -49,17 +50,55 @@ import {
 const JASON_PHOTO =
   "https://res.cloudinary.com/dyehwoscu/image/upload/v1779259064/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-20_lu%CC%81c_13.37.35_kfmbw3.png";
 
+const EDUCATION_LOGOS = {
+  highSchool: "https://eduoka.com/uploads/0000/1/2023/08/14/logo-cua-truong-thpt-nguyen-dinh-chieu-my-tho.png",
+  university: "https://static.topcv.vn/company_logos/DPX1OIsPVO0j1cUvuirtL2L9E3N2pa4z_1633611636____044ccea5a7dcffdbbddfd5dda49c077a.png",
+};
+
+const DEVICON = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
+const LEARNED_TECH = [
+  { name: "C#", icon: `${DEVICON}/csharp/csharp-original.svg` },
+  { name: "Python", icon: `${DEVICON}/python/python-original.svg` },
+  { name: "HTML", icon: `${DEVICON}/html5/html5-original.svg` },
+  { name: "CSS", icon: `${DEVICON}/css3/css3-original.svg` },
+  { name: "JavaScript", icon: `${DEVICON}/javascript/javascript-original.svg` },
+  { name: "PHP", icon: `${DEVICON}/php/php-original.svg` },
+  { name: "MySQL", icon: `${DEVICON}/mysql/mysql-original.svg` },
+  { name: "React.js", icon: `${DEVICON}/react/react-original.svg` },
+  { name: "Unity", icon: `${DEVICON}/unity/unity-original.svg` },
+  { name: "Node.js", icon: `${DEVICON}/nodejs/nodejs-original.svg` },
+  { name: "Tailwind", icon: `${DEVICON}/tailwindcss/tailwindcss-original.svg` },
+  { name: "MongoDB", icon: `${DEVICON}/mongodb/mongodb-original.svg` },
+];
+
 /* ---------------------------------------------------------------------------
    SECTION 1 — HERO (mascot chuyển động dựng hoàn toàn bằng code)
    ------------------------------------------------------------------------- */
 
 function HeroSection({ t }) {
+  const sectionRef = useRef(null);
+  const scrollRootRef = useRef(typeof document === "undefined" ? null : document.getElementById("root"));
+  const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    container: scrollRootRef,
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.62, 0.94], [1, 0.94, 0]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, -44]);
+  const filmScale = useTransform(scrollYProgress, [0, 1], [1, 1.035]);
+
   return (
-    <section className="px-3 pb-4 pt-3 sm:px-4 sm:pt-4 md:px-6 md:pt-6">
-      <div className="ios-hero mx-auto max-w-7xl">
+    <section ref={sectionRef} className="ios-hero studio-cover studio-cover--intro">
+      <motion.div className="studio-cover-film-shell" style={{ scale: reduceMotion ? 1 : filmScale }}>
         <CodeHeroFilm variant="code" />
-        <div className="code-film-content grid min-h-[min(760px,calc(100svh-88px))] items-center gap-6 px-6 py-14 sm:px-10 sm:py-16 md:px-14 lg:grid-cols-[1.12fr_0.88fr] lg:gap-12 lg:px-16 lg:py-20">
-          <div className="max-w-3xl">
+      </motion.div>
+      <CoverColorShift progress={scrollYProgress} variant="intro" />
+      <div className="code-film-content studio-cover-grid grid items-center gap-4 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
+          <motion.div
+            className="studio-cover-copy max-w-3xl"
+            style={{ opacity: reduceMotion ? 1 : copyOpacity, y: reduceMotion ? 0 : copyY }}
+          >
               <motion.p
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -78,37 +117,39 @@ function HeroSection({ t }) {
                   <WordsPullUp text={t("intro.cine.heroTitle2")} />
                 </span>
               </h1>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.7, ease: EASE }}
-                className="mt-6 max-w-2xl text-sm leading-relaxed sm:text-base md:text-lg"
-                style={{ color: INK_DIM }}
-              >
-                {t("intro.cine.heroDesc")}
-              </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, duration: 0.7, ease: EASE }}
-                className="mt-8 flex flex-wrap items-center gap-3"
+                transition={{ delay: 0.58, duration: 0.65, ease: EASE }}
+                className="mt-6 max-w-2xl"
               >
-                <Link to="/student-benefits" className="ios-primary-button inline-flex items-center gap-2">
-                  {t("intro.cine.heroCta")}
-                  <ArrowRight size={15} />
-                </Link>
-                <Link
-                  to="/booking"
-                  className="ios-secondary-button inline-flex items-center gap-2"
-                >
-                  <BriefcaseBusiness size={16} />
-                  {t("intro.cine.heroSecondaryCta")}
-                </Link>
+                <p className="text-sm leading-relaxed text-foreground/75 sm:text-base">
+                  {t("intro.cine.heroDesc")}
+                </p>
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <a href="#cine-work" className="ios-primary-button inline-flex items-center gap-2">
+                    {t("intro.cine.heroCta")}
+                    <ArrowRight size={15} />
+                  </a>
+                  <a
+                    href="/cv-le-gia-huy.pdf"
+                    download
+                    className="ios-secondary-button inline-flex items-center gap-2"
+                  >
+                    <Download size={15} />
+                    {t("intro.cine.heroCvCta")}
+                  </a>
+                </div>
               </motion.div>
-          </div>
+          </motion.div>
           <div className="code-film-stage-space" aria-hidden="true" />
-        </div>
       </div>
+      <SwipeDownCue
+        targetId="cine-work"
+        touchLabel={t("intro.cine.heroSwipe")}
+        desktopLabel={t("intro.cine.heroScroll")}
+        style={{ opacity: reduceMotion ? 0.78 : undefined }}
+      />
     </section>
   );
 }
@@ -121,12 +162,10 @@ function StatsStrip({ t }) {
   const stats = [
     { v: t("intro.cine.stat1v"), l: t("intro.cine.stat1l") },
     { v: t("intro.cine.stat2v"), l: t("intro.cine.stat2l") },
-    { v: t("intro.cine.stat3v"), l: t("intro.cine.stat3l") },
-    { v: t("intro.cine.stat4v"), l: t("intro.cine.stat4l") },
   ];
   return (
     <section className="px-4 pb-4 pt-2 md:px-6 md:pb-6 md:pt-3">
-      <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border lg:grid-cols-4">
+      <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border">
         {stats.map((s, i) => (
           <motion.div
             key={s.l}
@@ -134,7 +173,7 @@ function StatsStrip({ t }) {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ delay: i * 0.1, duration: 0.6, ease: EASE }}
-            className={`space-y-1.5 px-5 py-6 sm:px-7 sm:py-8 ${i % 2 === 0 ? "border-r border-border/55" : ""} ${i < 2 ? "border-b border-border/55 lg:border-b-0" : ""} ${i > 0 ? "lg:border-l lg:border-border/55" : ""}`}
+            className={`space-y-1.5 px-5 py-6 sm:px-7 sm:py-8 ${i === 0 ? "border-r border-border/55" : ""}`}
           >
             <p className="text-2xl font-extrabold tracking-[-0.035em] text-foreground sm:text-3xl">
               {s.v}
@@ -147,13 +186,37 @@ function StatsStrip({ t }) {
   );
 }
 
-function SelectedWorkSection({ t }) {
-  const work = t("intro.cine.work.items", { returnObjects: true });
-  const icons = [IdCard, Sparkles, Rocket];
-  const routes = ["/student-benefits", "/member/joy", "/member/utilities/arcade"];
+function WorkScenePreview({ Scene, Icon, badge, index }) {
+  const ref = useRef(null);
+  const isVisible = useInView(ref, { margin: "120px 0px", amount: 0.15 });
 
   return (
-    <section id="cine-work" className="px-4 py-16 md:px-6 md:py-24">
+    <div
+      ref={ref}
+      className="relative mb-6 h-36 overflow-hidden rounded-[1.5rem] bg-muted/60"
+      style={{ "--scene-play-state": isVisible ? "running" : "paused" }}
+    >
+      <Scene />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,hsl(var(--card)/0.72),transparent_58%)]" />
+      <span className="ios-glass absolute bottom-3 left-3 inline-flex h-9 w-9 items-center justify-center rounded-xl text-primary">
+        <Icon size={17} />
+      </span>
+      <span className="ios-glass absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-mono text-[9px] font-bold text-foreground">
+        <span className="material-symbols-outlined text-[13px]">motion_photos_on</span>
+        0{index + 1} · {badge}
+      </span>
+    </div>
+  );
+}
+
+function SelectedWorkSection({ t }) {
+  const work = t("intro.cine.work.items", { returnObjects: true });
+  const icons = [IdCard, Sparkles, Gamepad2];
+  const scenes = [StudentBioScene, JoyScene, ArcadeScene];
+  const routes = ["/student-pricing", "/member/joy", "/member/utilities/arcade"];
+
+  return (
+    <section id="cine-work" className="studio-content-slide studio-content-slide--intro px-4 py-16 md:px-6 md:py-24">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-end">
           <div>
@@ -172,6 +235,7 @@ function SelectedWorkSection({ t }) {
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {work.map((item, index) => {
             const Icon = icons[index];
+            const Scene = scenes[index];
             return (
               <motion.article
                 key={item.title}
@@ -182,15 +246,7 @@ function SelectedWorkSection({ t }) {
                 whileHover={{ y: -3 }}
                 className="cine-card-bg cine-border-c cine-hover-border group flex min-h-[330px] flex-col overflow-hidden rounded-[2rem] border p-5 transition-colors sm:p-6"
               >
-                <div className="relative mb-6 flex h-36 items-center justify-center overflow-hidden rounded-[1.5rem] bg-muted/60">
-                  <div className="absolute h-28 w-28 rounded-full bg-primary/15 blur-2xl" />
-                  <span className="ios-icon-surface relative h-16 w-16 rounded-[1.35rem] shadow-[0_14px_36px_hsl(var(--primary)/0.16)]">
-                    <Icon size={27} />
-                  </span>
-                  <span className="absolute right-3 top-3 rounded-full bg-card/80 px-3 py-1.5 font-mono text-[9px] font-bold text-muted-foreground backdrop-blur">
-                    0{index + 1} · {item.badge}
-                  </span>
-                </div>
+                <WorkScenePreview Scene={Scene} Icon={Icon} badge={item.badge} index={index} />
                 <p className="cine-accent-t text-[9px] font-bold uppercase tracking-[0.2em]">{item.kind}</p>
                 <h3 className="mt-2 font-display text-xl font-extrabold" style={{ color: INK }}>{item.title}</h3>
                 <p className="cine-muted mt-3 text-xs leading-relaxed sm:text-sm">{item.desc}</p>
@@ -243,6 +299,39 @@ function AboutSection({ t, jasonPhoto }) {
           className="text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed"
           style={{ color: INK }}
         />
+
+        {/* Học vấn — hai mốc ngắn gọn, không hiển thị niên khoá hay địa chỉ. */}
+        <div className="mx-auto grid w-full max-w-2xl gap-3 text-left sm:grid-cols-2">
+          {["highSchool", "university"].map((item) => (
+            <div key={item} className="cine-border-c flex min-h-28 items-center gap-4 rounded-xl border px-4 py-3.5">
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm">
+                <img
+                  src={EDUCATION_LOGOS[item]}
+                  alt={t(`intro.cine.education.${item}.logoAlt`)}
+                  width="64"
+                  height="64"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="h-full w-full object-contain"
+                />
+              </span>
+              <div className="min-w-0">
+                <p className="cine-faint text-[9px] font-bold uppercase tracking-[0.18em]">
+                  {t(`intro.cine.education.${item}.label`)}
+                </p>
+                <p className="mt-1 text-sm font-bold" style={{ color: INK }}>
+                  {t(`intro.cine.education.${item}.name`)}
+                </p>
+                <p className="cine-muted mt-0.5 text-[11px]">
+                  {t(`intro.cine.education.${item}.detail`)}
+                </p>
+                <p className="mt-1.5 text-[10px] font-semibold italic" style={{ color: ACCENT }}>
+                  “{t(`intro.cine.education.${item}.slogan`)}”
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Đối tác đồng hành */}
         <motion.div
@@ -313,123 +402,43 @@ function AboutSection({ t, jasonPhoto }) {
   );
 }
 
-/* ---------------------------------------------------------------------------
-   SECTION 3 — FEATURES
-   ------------------------------------------------------------------------- */
-
-function FeatureCard({ i, className = "", children }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={inView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ delay: i * 0.15, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -3 }}
-      className={`overflow-hidden rounded-[1.75rem] ${className}`}
+/* Dải công nghệ từng có trên Introduction: hai bản sao giống hệt nhau tạo
+   vòng lặp liền mạch; bản thứ hai ẩn khỏi accessibility tree để không đọc lặp. */
+function TechMarquee({ t }) {
+  const track = (duplicate = false) => (
+    <div
+      aria-hidden={duplicate || undefined}
+      className="flex shrink-0 items-center gap-10 pr-10 sm:gap-14 sm:pr-14"
     >
-      {children}
-    </motion.div>
+      {LEARNED_TECH.map((technology) => (
+        <span
+          key={`${duplicate ? "copy" : "source"}-${technology.name}`}
+          className="cine-muted inline-flex shrink-0 items-center gap-2.5 opacity-80 transition-opacity hover:opacity-100"
+        >
+          <img
+            src={technology.icon}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-6 w-6 object-contain sm:h-7 sm:w-7"
+          />
+          <span className="text-xs font-semibold sm:text-sm">{technology.name}</span>
+        </span>
+      ))}
+    </div>
   );
-}
 
-function ChecklistCard({ i, num, Icon, title, checks, to, t }) {
   return (
-    <FeatureCard
-      i={i}
-      className="cine-card-bg cine-hover-border flex flex-col border p-5 transition-colors sm:p-6"
-    >
-      <div className="ios-icon-surface h-10 w-10 sm:h-12 sm:w-12">
-        <Icon size={20} style={{ color: ACCENT }} />
-      </div>
-      <h3 className="font-display pt-4 sm:pt-5 text-base sm:text-lg font-bold" style={{ color: INK }}>
-        {title} <span className="cine-faint font-normal text-sm">({num})</span>
-      </h3>
-      <ul className="pt-4 space-y-2.5 flex-1">
-        {checks.map((c) => (
-          <li key={c} className="flex items-start gap-2 text-left">
-            <Check size={14} className="mt-0.5 shrink-0" style={{ color: ACCENT }} />
-            <span className="cine-muted text-xs sm:text-sm leading-snug">{c}</span>
-          </li>
-        ))}
-      </ul>
-      <Link
-        to={to}
-        className="group inline-flex items-center gap-1.5 pt-5 text-xs sm:text-sm font-medium"
-        style={{ color: INK }}
-      >
-        {t("intro.cine.learnMore")}
-        <ArrowRight size={14} className="-rotate-45 transition-transform group-hover:rotate-0" />
-      </Link>
-    </FeatureCard>
-  );
-}
-
-function FeaturesSection({ t }) {
-  return (
-    <section id="cine-features" className="relative px-4 md:px-6 py-16 md:py-24">
-      <div className="absolute inset-0 cine-bg-noise opacity-[0.15] pointer-events-none" />
-
-      <div className="relative max-w-6xl mx-auto space-y-12 md:space-y-16">
-        <h2 className="mx-auto max-w-3xl text-center text-2xl font-extrabold leading-snug tracking-[-0.025em] sm:text-3xl md:text-4xl" style={{ color: INK }}>
-          <WordsPullUpMultiStyle
-            segments={[
-              { text: t("intro.cine.featT1"), className: "" },
-              { text: t("intro.cine.featT2"), className: "cine-faint" },
-            ]}
-          />
-        </h2>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <FeatureCard i={0} className="cine-card-bg relative min-h-[320px] border">
-            <StudioSpaceScene />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,hsl(var(--card))_3%,hsl(var(--card)/0.84)_26%,transparent_64%)]" />
-            <div className="absolute inset-x-0 bottom-0 p-6">
-              <span className="ios-glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold text-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                CODE MOTION
-              </span>
-              <p className="mt-3 text-lg font-extrabold leading-snug tracking-[-0.025em]" style={{ color: INK }}>
-                {t("intro.cine.cardVideo")}
-              </p>
-            </div>
-          </FeatureCard>
-
-          <ChecklistCard
-            i={1}
-            num="01"
-            Icon={IdCard}
-            title={t("intro.cine.card2Title")}
-            checks={[
-              t("intro.cine.card2c1"),
-              t("intro.cine.card2c2"),
-              t("intro.cine.card2c3"),
-              t("intro.cine.card2c4"),
-            ]}
-            to="/login"
-            t={t}
-          />
-
-          <ChecklistCard
-            i={2}
-            num="02"
-            Icon={PenTool}
-            title={t("intro.cine.card3Title")}
-            checks={[t("intro.cine.card3c1"), t("intro.cine.card3c2"), t("intro.cine.card3c3")]}
-            to="/services"
-            t={t}
-          />
-
-          <ChecklistCard
-            i={3}
-            num="03"
-            Icon={School}
-            title={t("intro.cine.card4Title")}
-            checks={[t("intro.cine.card4c1"), t("intro.cine.card4c2"), t("intro.cine.card4c3")]}
-            to="/public-tools/banhocduong"
-            t={t}
-          />
+    <section className="overflow-hidden py-10 md:py-14" aria-labelledby="intro-tech-marquee-title">
+      <p id="intro-tech-marquee-title" className="cine-faint text-center text-[10px] font-bold uppercase tracking-[0.2em] sm:text-xs">
+        {t("intro.cine.marqueeTitle")}
+      </p>
+      <div className="relative mt-5">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-[linear-gradient(to_right,var(--cine-bg),transparent)] sm:w-32" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-[linear-gradient(to_left,var(--cine-bg),transparent)] sm:w-32" />
+        <div className="cine-marquee flex w-max items-center">
+          {track()}
+          {track(true)}
         </div>
       </div>
     </section>
@@ -437,7 +446,7 @@ function FeaturesSection({ t }) {
 }
 
 /* ---------------------------------------------------------------------------
-   SECTION 4 — CONTACT + CTA cuối trang
+   SECTION 3 — CONTACT
    ------------------------------------------------------------------------- */
 
 // Mở Gmail web soạn thư sẵn địa chỉ; nếu Gmail không mở được (popup chặn,
@@ -445,31 +454,31 @@ function FeaturesSection({ t }) {
 const CONTACT_EMAIL = "contact@hugowishpax.studio";
 const GMAIL_COMPOSE = `https://mail.google.com/mail/?view=cm&fs=1&to=${CONTACT_EMAIL}`;
 
-function ContactSection({ t, profile }) {
+function ContactSection({ t }) {
   const contacts = [
-    { href: `https://zalo.me/${profile?.zaloNumber || ""}`, Icon: MessageCircle, label: t("intro.slide9.zalo") },
+    { href: `${API_BASE}/contact/zalo`, Icon: MessageCircle, label: t("intro.slide9.zalo") },
     { href: GMAIL_COMPOSE, fallback: `mailto:${CONTACT_EMAIL}`, Icon: Mail, label: t("intro.slide9.email") },
     { href: "https://facebook.com/hugowishpax.le", Icon: Users, label: t("intro.slide9.fb") },
     { href: "https://www.tiktok.com/@pethugowishpaxle?_r=1&_t=ZS-96UW9Neg8UW", Icon: Play, label: t("intro.slide9.tiktok") },
   ];
 
   return (
-    <section className="px-4 md:px-6 pb-16 md:pb-24">
-      <AboutCard className="max-w-6xl mx-auto px-6 sm:px-10 md:px-16 py-16 sm:py-20 text-center space-y-10">
-        <div className="space-y-4">
+    <section className="px-4 pb-14 md:px-6 md:pb-20">
+      <AboutCard className="mx-auto max-w-4xl space-y-6 px-5 py-8 text-center sm:px-8 sm:py-10">
+        <div className="space-y-2.5">
           <p className="ios-kicker">
             {t("intro.slide9.badge")}
           </p>
-          <h2 className="text-3xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:text-5xl">
+          <h2 className="text-2xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-3xl">
             <WordsPullUp text={t("intro.cine.contactTitle")} center wordClassName="cine-grad" />
           </h2>
-          <p className="cine-muted text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="cine-muted mx-auto max-w-lg text-xs leading-relaxed">
             {t("intro.slide9.desc")}
           </p>
         </div>
 
         {/* Contact tiles — trên thiết bị cảm ứng, email dùng mailto để mở app Mail */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-3xl mx-auto">
+        <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4">
           {contacts.map((c, i) => {
             const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
             const href = c.fallback && isTouch ? c.fallback : c.href;
@@ -484,34 +493,77 @@ function ContactSection({ t, profile }) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.5, ease: EASE }}
               whileHover={{ y: -2 }}
-              className="group cine-card2-bg cine-border-c cine-hover-border flex flex-col items-center gap-2.5 rounded-[1.25rem] border p-5 transition-colors sm:p-6"
+              className="group cine-card2-bg cine-border-c cine-hover-border flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 transition-colors"
             >
-              <c.Icon size={20} className="cine-contact-ic" />
-              <span className="text-xs sm:text-sm font-medium" style={{ color: INK }}>{c.label}</span>
+              <c.Icon size={17} className="cine-contact-ic" />
+              <span className="text-xs font-medium" style={{ color: INK }}>{c.label}</span>
             </motion.a>
             );
           })}
         </div>
 
-        {/* CTA */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 pt-2">
-          <Magnetic>
-            <PillButton to="/login" Icon={Rocket}>
-              {t("intro.slide10.registerBtn")}
-            </PillButton>
-          </Magnetic>
-          <Magnetic>
-            <Link
-              to="/booking"
-              className="ios-secondary-button inline-flex items-center gap-2"
-            >
-              <CalendarCheck size={15} />
-              {t("intro.slide10.bookBtn")}
-            </Link>
-          </Magnetic>
-        </div>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))}
+          className="cine-border-c mx-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-full border px-4 text-xs font-bold transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:hover:bg-white/5"
+        >
+          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">volunteer_activism</span>
+          {t("footer.supportServer")}
+        </button>
+
       </AboutCard>
+      <SupporterMarquee t={t} />
     </section>
+  );
+}
+
+function SupporterMarquee({ t }) {
+  const [supporters, setSupporters] = useState([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadSupporters = () => {
+      fetch(`${API_BASE}/payos/supporters?limit=30`, { signal: controller.signal, cache: "no-store" })
+        .then((response) => response.ok ? response.json() : Promise.reject(new Error("supporters_unavailable")))
+        .then((payload) => setSupporters(Array.isArray(payload.data) ? payload.data : []))
+        .catch((error) => {
+          if (error.name !== "AbortError") setSupporters([]);
+        });
+    };
+    loadSupporters();
+    const refreshTimer = window.setInterval(loadSupporters, 30000);
+    return () => {
+      window.clearInterval(refreshTimer);
+      controller.abort();
+    };
+  }, []);
+
+  const minimumNames = 12;
+  const loopNames = supporters.length
+    ? Array.from(
+        { length: Math.max(1, Math.ceil(minimumNames / supporters.length)) },
+        () => supporters,
+      ).flat()
+    : [];
+
+  return (
+    <div className="mx-auto mt-5 max-w-4xl overflow-hidden rounded-2xl border border-black/10 bg-white/45 py-3 dark:border-white/10 dark:bg-white/[0.03]">
+      <p className="px-4 text-center text-[9px] font-black uppercase tracking-[0.18em] text-muted-foreground">{t("intro.slide9.supporters")}</p>
+      {supporters.length ? (
+        <div className="mt-2 overflow-hidden" aria-label={t("intro.slide9.supporters")}>
+          <div className="animate-logo-marquee flex w-max items-center">
+            {[...loopNames, ...loopNames].map((supporter, index) => (
+              <span key={`${supporter.name}-${index}`} className="flex items-center gap-3 px-4 text-xs font-bold text-foreground">
+                <span className="material-symbols-outlined text-[15px] text-primary" aria-hidden="true">favorite</span>
+                {t("intro.slide9.supporterItem", { name: supporter.name })}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <p className="mt-1 px-4 text-center text-xs text-muted-foreground">{t("intro.slide9.supportersEmpty")}</p>
+      )}
+    </div>
   );
 }
 
@@ -520,8 +572,8 @@ function ContactSection({ t, profile }) {
    ------------------------------------------------------------------------- */
 
 export default function IntroductionPage() {
-  const { data } = useData();
   const { t } = useTranslation();
+  useCineScrollSnap();
 
   useHeadMeta({
     title: t("intro.cine.meta.title"),
@@ -538,10 +590,10 @@ export default function IntroductionPage() {
       <ScrollProgressBar />
       <HeroSection t={t} />
       <StatsStrip t={t} />
-      <SelectedWorkSection t={t} />
-      <FeaturesSection t={t} />
       <AboutSection t={t} jasonPhoto={jasonPhoto} />
-      <ContactSection t={t} profile={data?.profile} />
+      <TechMarquee t={t} />
+      <SelectedWorkSection t={t} />
+      <ContactSection t={t} />
     </div>
   );
 }

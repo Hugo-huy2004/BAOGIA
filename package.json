@@ -43,7 +43,6 @@
     "@capgo/capacitor-updater": "^8.51.3",
     "@hwagfu/cursor": "^1.2.1",
     "@monaco-editor/react": "^4.7.0",
-    "@payos/payos-checkout": "^1.0.8",
     "@radix-ui/react-tooltip": "^1.2.11",
     "@simplewebauthn/browser": "^10.0.0",
     "@tanstack/react-query": "^5.101.4",

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { decryptText, encryptText } from '../utils/cryptoUtils.js';
 
 const BookingSchema = new mongoose.Schema(
   {
@@ -18,6 +19,25 @@ const BookingSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    projectType: {
+      type: String,
+      enum: ['newWebsite', 'portfolio', 'improve', 'student', 'unsure'],
+    },
+    budget: {
+      type: String,
+      enum: ['unsure', 'underOne', 'oneToThree', 'threeToEight', 'overEight'],
+      default: 'unsure',
+    },
+    timeline: {
+      type: String,
+      enum: ['flexible', 'twoWeeks', 'oneMonth', 'twoMonths'],
+      default: 'flexible',
+    },
+    notes: {
+      type: String,
+      default: '',
+      maxlength: 1600,
+    },
     contacted: {
       type: Boolean,
       default: false
@@ -33,8 +53,22 @@ const BookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// A prospective client's phone is sensitive too. Encrypt it at rest while
+// keeping the authenticated admin interface unchanged through hydration hooks.
+BookingSchema.pre('save', function encryptBookingPhone(next) {
+  if (this.isModified('phone') && this.phone) this.phone = encryptText(this.phone);
+  next();
+});
+
+function decryptBookingPhone(doc) {
+  if (doc?.phone) doc.phone = decryptText(doc.phone);
+}
+
+BookingSchema.post('init', decryptBookingPhone);
+BookingSchema.post('save', decryptBookingPhone);
+
 BookingSchema.index({ email: 1, createdAt: -1 });
-BookingSchema.index({ status: 1 });
+BookingSchema.index({ projectType: 1, createdAt: -1 });
 
 const Booking = mongoose.model('Booking', BookingSchema);
 

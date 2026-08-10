@@ -54,17 +54,28 @@ export default function MemberFileToolsTab({ showToast, bio }) {
     }
   };
 
-  const handleDownloadZipEntry = (entryName) => {
+  const handleDownloadZipEntry = async (entryName) => {
     if (!zipResult) return;
     const downloadUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/files/extract/download/${zipResult.fileId}?entryName=${encodeURIComponent(entryName)}`;
-    
-    // Create a temporary link to download
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = entryName.split('/').pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Use fetch instead of a naked <a href>: the global API interceptor can
+      // attach the member Bearer token for native/cross-origin deployments.
+      const response = await fetch(downloadUrl, { credentials: "include" });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || t("utilities.fileTools.extract.toastReadError"));
+      }
+      const blobUrl = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = entryName.split('/').pop();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      showToast(error.message || t("utilities.fileTools.extract.toastReadError"), "error");
+    }
   };
 
   // === COMPRESS HANDLERS ===

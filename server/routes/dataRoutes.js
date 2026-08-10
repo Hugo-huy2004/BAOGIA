@@ -34,17 +34,17 @@ const initialData = {
     headline: "Xin chào! Tôi là Peter Hugo Wishpax Lê",
     subtitle: "Kiến tạo thế giới số bằng những dòng code kẹo ngọt, thiết kế Claymorphism tinh tế kết hợp hiệu năng vượt trội.",
     country: "Việt Nam 🇻🇳",
-    birthday: "2004",
+    birthday: "Gen Z",
     education: "Software Engineering • Greenwich VN 🎓",
     storyTitle: "Kiến tạo trải nghiệm bằng cả trái tim",
     storyContent: "Tôi theo đuổi triết lý lập trình kết hợp nghệ thuật: mỗi giao diện đều phải có linh hồn, mang lại sự ngạc nhiên, ngọt ngào cho người sử dụng từ cái nhìn đầu tiên, nhưng đồng thời bên dưới phải là hệ thống mã nguồn cực kỳ gọn gàng, hiệu năng vượt trội và chuẩn SEO tối đa.",
     avatarUrl: "https://res.cloudinary.com/dyehwoscu/image/upload/e_bgremoval,f_auto,q_auto,w_300/v1779116182/A%CC%89nh_ma%CC%80n_hi%CC%80nh_2026-05-18_lu%CC%81c_21.56.14_imhujt.png",
-    meetingQrUrl: "https://img.vietqr.io/image/MB-827052004-compact.png?amount=0&addInfo=Hugo%20Dat%20Lich%20Hen%20Thiet%20Ke&accountName=LE%20GIA%20HUY",
-    bankName: "MBBank",
-    accountNumber: "827052004",
-    accountHolder: "LE GIA HUY",
-    zaloNumber: "0839909399",
-    emailAddress: "hugowishpax@gmail.com"
+    meetingQrUrl: "",
+    bankName: "",
+    accountNumber: "",
+    accountHolder: "",
+    zaloNumber: "",
+    emailAddress: "contact@hugowishpax.studio"
   },
   hobbies: [
     {
@@ -160,14 +160,23 @@ router.get('/', async (req, res) => {
         delete sanitized.profile.accountNumber;
         delete sanitized.profile.bankName;
         delete sanitized.profile.accountHolder;
+        delete sanitized.profile.meetingQrUrl;
+        delete sanitized.profile.zaloNumber;
+        sanitized.profile.birthday = 'Gen Z';
+        sanitized.profile.emailAddress = 'contact@hugowishpax.studio';
       }
+      // These biography sections reveal protected personal attributes and are
+      // not required by the current public portfolio UI.
+      delete sanitized.dongThap;
+      delete sanitized.catholicism;
       return sanitized;
     });
 
     res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     res.json(sanitizedData);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('[public data]', error.message);
+    res.status(500).json({ error: 'Không thể tải dữ liệu công khai.' });
   }
 });
 

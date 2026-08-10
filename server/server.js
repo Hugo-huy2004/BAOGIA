@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import dataRoutes from './routes/dataRoutes.js';
 import bioRoutes from './routes/bioRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
@@ -26,6 +27,14 @@ import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireMember } from './middleware/authMiddleware.js';
 import { broadcastToUser } from './services/redisWsAdapter.js';
+import {
+  findActiveSecurityBlock,
+  recordSecurityViolation,
+  requestThreatGuard,
+  safeServerErrors,
+  securityIpGate,
+  sendSecurityBlockResponse,
+} from './services/securityEnforcement.js';
 
 dotenv.config();
 
@@ -90,8 +99,17 @@ app.use(cors({
 
 app.use(cookieParser());
 
+// Reject blocked networks before parsing or buffering their request bodies.
+app.use(securityIpGate);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// High-confidence exploit and server-owned JOY-field detection.
+app.use(requestThreatGuard);
+
+// Never expose driver paths, query details or stack-like diagnostics in 5xx.
+app.use(safeServerErrors);
 
 // Security Headers (Helmet protects against well known web vulnerabilities)
 app.use(helmet({
@@ -106,10 +124,11 @@ app.use(helmet({
       imgSrc: [
         "'self'", "data:",
         "https://res.cloudinary.com", "https://img.vietqr.io",
+        "https://eduoka.com", "https://static.topcv.vn",
         "https://*.vnecdn.net", "https://*.tuoitre.vn", "https://*.thanhnien.vn",
         "https://ichef.bbci.co.uk", "https://*.bbci.co.uk",
       ],
-      connectSrc: ["'self'", "wss:", "ws:", "https://api.cloudinary.com", "https://accounts.google.com"],
+      connectSrc: ["'self'", "wss:", "ws:", "https://api.cloudinary.com", "https://accounts.google.com", "https://api.exchangerate-api.com"],
       frameSrc: ["'self'", "https://accounts.google.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
@@ -157,7 +176,25 @@ const globalLimiter = rateLimit({
   // gets reported as another /api hit — a self-amplifying loop that keeps the
   // user rate-limited. Excluding it breaks that feedback loop.
   skip: (req) => isDev || LOCALHOST_IPS.has(req.ip) || req.originalUrl.startsWith('/api/ops'),
-  message: { error: 'Quá nhiều truy cập từ IP này, vui lòng thử lại sau 15 phút.' }
+  message: { error: 'Quá nhiều truy cập từ IP này, vui lòng thử lại sau 15 phút.' },
+  handler: async (req, res, _next, options) => {
+    try {
+      // One runaway browser receives 429; a repeated window breach within 24h
+      // is treated as an availability attack and blocks the network for 30d.
+      const result = await recordSecurityViolation({
+        req,
+        category: 'availability_attack',
+        severity: 'high',
+        ruleId: 'global_rate_limit_repeated',
+        evidence: `${req.method} ${req.originalUrl}`,
+        enforcement: 'threshold',
+      });
+      if (result.block) return sendSecurityBlockResponse(res, result.block);
+    } catch (error) {
+      console.error('[rate-limit security event]', error.message);
+    }
+    return res.status(options.statusCode).json(options.message);
+  },
 });
 app.use('/api', globalLimiter);
 
@@ -232,6 +269,7 @@ import hugoTeamRoutes from './routes/hugoTeamRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
 import otaRoutes from './routes/otaRoutes.js';
+import securityRoutes from './routes/securityRoutes.js';
 import joyDecoRoutes from './routes/joyDecoRoutes.js';
 import coderLessonRoutes from './routes/coderLessonRoutes.js';
 import todayRoutes from './routes/todayRoutes.js';
@@ -241,6 +279,7 @@ import storePlanRoutes from './routes/storePlanRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
+app.use('/api/security', securityRoutes);
 // Unauthenticated on purpose: the store builds hit this before anyone signs
 // in, and it only ever returns the public release pointer.
 app.use('/api/ota', otaRoutes);
@@ -248,6 +287,7 @@ app.use('/api/auth/member', memberAuthRoutes);
 app.use('/api/member/progress', memberProgressRoutes);
 app.use('/api/hugoteam', hugoTeamRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/bios', bioRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -319,7 +359,6 @@ import { initSmartNotificationService } from './services/smartNotificationServic
 import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCompanionMemoryCron } from './services/companionMemoryCron.js';
-import { initCommunityBot } from './utils/communityBot.js';
 import { sendAlert, logError } from './utils/alert.js';
 
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
@@ -338,8 +377,34 @@ const wss = new WebSocketServer({ noServer: true });
 const chessWss = initChessWS({ noServer: true });
 
 // Manual WebSocket upgrade dispatcher
-server.on('upgrade', (request, socket, head) => {
-  const { pathname } = new URL(request.url, `http://${request.headers.host}`);
+server.on('upgrade', async (request, socket, head) => {
+  const requestUrl = new URL(request.url, `http://${request.headers.host || 'localhost'}`);
+  const { pathname } = requestUrl;
+
+  try {
+    const forwarded = String(request.headers['x-forwarded-for'] || '').split(',').map((item) => item.trim()).filter(Boolean);
+    const clientIp = forwarded.at(-1) || request.socket.remoteAddress || '';
+    let email = '';
+    if (pathname === '/ws') {
+      const token = requestUrl.searchParams.get('token');
+      if (token) {
+        try {
+          const decoded = jwt.verify(token, JWT_SECRET);
+          if (decoded.role === 'member') email = decoded.email || '';
+        } catch {
+          // The connection handler below returns the normal auth close code.
+        }
+      }
+    }
+    const block = await findActiveSecurityBlock({ ip: clientIp, email });
+    if (block) {
+      socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\nContent-Type: application/json\r\nCache-Control: no-store\r\n\r\n{"error":"ACCESS_BLOCKED"}');
+      socket.destroy();
+      return;
+    }
+  } catch (error) {
+    console.error('[WebSocket security gate]', error.message);
+  }
 
   if (pathname === '/ws') {
     wss.handleUpgrade(request, socket, head, (ws) => {
@@ -449,7 +514,6 @@ server.listen(PORT, () => {
   initCompanionMemoryCron();
 
   // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
-  initCommunityBot();
 
   // Keep-warm is deliberately NOT done here any more. A self-ping kept the free
   // instance awake 24/7 (~730h of the 750h monthly quota) and could never wake

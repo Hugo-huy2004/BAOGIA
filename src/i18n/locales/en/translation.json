@@ -62,22 +62,50 @@
     "login": "Log In"
   },
   "footer": {
-    "tagline": "A digital space for learners, individuals and small shops that want a thoughtful presence online.",
+    "tagline": "A considered digital space for learners, individuals and small enterprises seeking a distinctive online presence.",
     "services": "Services",
     "landingPage": "Landing Page",
     "portfolio": "Personal Portfolio",
     "bioLink": "Bio Link (edu)",
     "customUIUX": "Custom UI/UX",
-    "links": "Links",
+    "links": "Explore",
     "home": "Home",
     "introduction": "Introduction",
     "pricing": "Pricing",
-    "booking": "Book a Meeting",
+    "booking": "Start a Conversation",
     "connect": "Connect",
     "partner": "Partners",
     "privacyPolicy": "Privacy Policy",
     "supportServer": "Support the Server",
     "userGuide": "User Guide"
+  },
+  "donationUI": {
+    "title": "Support Hugo Studio",
+    "description": "Name your contribution; the figures below are merely handy benchmarks.",
+    "open": "Open the contribution panel",
+    "hide": "Hide the floating contribution button",
+    "close": "Close the contribution panel",
+    "creating": "Preparing your PayOS checkout…",
+    "error": "The checkout could not be prepared. Please try again.",
+    "continuePayOS": "Create contribution · {{amount}}₫",
+    "securePayOS": "Hugo Studio interface · Payment data furnished by the PayOS API",
+    "suggestions": "Suggested contributions",
+    "amountLabel": "Your chosen amount",
+    "minimum": "Minimum 5,000 VND",
+    "minimumError": "The minimum contribution is 5,000 VND.",
+    "nameLabel": "Your name",
+    "emailLabel": "Email for your thank-you note",
+    "identityError": "Please provide a valid name and email address.",
+    "recognitionNotice": "Once your contribution lands safely, your name will pop into Hugo Studio’s little roll of thanks.",
+    "terms": "By proceeding, you acknowledge that this voluntary contribution purchases no feature or access and is ordinarily non-refundable, save for duplicates, technical errors, or where applicable law stipulates otherwise.",
+    "termsError": "Please acknowledge the contribution terms.",
+    "packs": {
+      "tea": "A glass of iced tea",
+      "breakfast": "Breakfast",
+      "coffee": "A cup of coffee",
+      "server": "Server upkeep",
+      "supporter": "Studio patron"
+    }
   },
   "intro": {
     "nav": {
@@ -97,7 +125,7 @@
       "discoveries": "Discoveries"
     },
     "about": {
-      "desc": "I am Hugo — a dreamer who codes. Born in 2004 and growing up in a cold digital world of logic, I always strive to create warm, poetic, and emotional spaces. To me, every digital product is a small planet where every detail and button is carefully crafted to warm the hearts of my companions.",
+      "desc": "I am Hugo — a Gen Z developer who turns ideas into considered, characterful digital experiences.",
       "hello": "Hi there, I'm"
     },
     "slide1": {
@@ -204,24 +232,27 @@
       "badge": "✦ Design Philosophy",
       "title1": "How I Create",
       "title2": "User Experiences",
-      "quote": "\"Crafting experiences with all my heart. Every line of code must have a soul, bringing surprise and sweetness.\"",
-      "wowTitle": "The Wow Factor",
-      "wowDesc": "I believe digital interfaces shouldn't be emotionless. Every button, info card, or scroll effect must be coated with delicate animations to stimulate excitement.",
-      "sweetTitle": "Sweetness & Neatness",
-      "sweetDesc": "The smoothness and consistency in color palettes, design spacing, and instantaneous database responses create a complete and secure whole for the experiencer.",
+      "quote": "\"I prioritise clarity and resilience; personality comes afterwards, in details that have earned their place.\"",
+      "wowTitle": "Purposeful aesthetics",
+      "wowDesc": "Colour, motion and negative space should elucidate an interface or convey system state, rather than merely embellish the page for spectacle's sake.",
+      "sweetTitle": "Meticulous usability",
+      "sweetDesc": "I pay particular attention to ostensibly minor details: generous touch targets, intelligible loading states, candid error messages and legible layouts across disparate viewports.",
       "principles": "CREATIVE PRINCIPLES",
-      "p1": "Put the heart at the center of the experience.",
-      "p2": "Minimize external libraries to achieve 100% performance.",
-      "p3": "Synchronize design language from start to finish."
+      "p1": "Begin with a demonstrable user need.",
+      "p2": "Prioritise performance, mobile ergonomics and accessibility.",
+      "p3": "Keep interfaces coherent and source code maintainable."
     },
     "slide9": {
-      "badge": "✦ Keep In Touch",
+      "badge": "✦ Contact",
       "title": "Connect with Hugo",
-      "desc": "Click on the icons below to connect directly to my official social media and communication channels.",
+      "desc": "For projects, prospects, or simply to break the ice.",
       "zalo": "Zalo Chat",
       "email": "Send Email",
       "fb": "Facebook",
-      "tiktok": "TikTok"
+      "tiktok": "TikTok",
+      "supporters": "Kindred spirits alongside Hugo Studio",
+      "supporterItem": "{{name}}",
+      "supportersEmpty": "A darling little spot is waiting for your name."
     },
     "slide10": {
       "badge": "✦ Start Now",
@@ -243,7 +274,7 @@
       "badge": "✦ The Person Behind The Studio",
       "title1": "Final-year student,",
       "title2": "crafting beautiful experiences.",
-      "desc": "I'm Hugo — a final-year Software Engineering student at Greenwich Vietnam. Hugo Studio began with websites I built while learning, then became a space where students can create a Bio, use helpful tools and confidently build their first digital identity. I also work directly on suitable website projects for individuals and small businesses. Jason Phan joins me as a co-development partner.",
+      "desc": "I am Peter Hugo Wishpax Lê, a Gen Z developer completing my final year in Software Engineering at Greenwich Vietnam. My practice spans web applications, interface design and mobile ergonomics. Hugo Studio is my portfolio: a considered record of my projects, capabilities and evolving direction. Jason Phan collaborates with me on selected work.",
       "founderRole": "Student Designer & Developer",
       "partnerRole": "Co-Development Partner",
       "openToWork": "Open to internships & job opportunities",
@@ -317,19 +348,37 @@
       "navServices": "Services",
       "navBooking": "Book",
       "heroWord": "Hugo",
-      "heroEyebrow": "Hugo Studio · Built alongside learners",
+      "heroEyebrow": "Hugo Lê · Portfolio",
       "heroTitle1": "I'm Hugo.",
-      "heroTitle2": "I build a digital space for learners.",
-      "heroDesc": "Students can create a Bio, use learning tools and explore free products. When you need a website of your own, I also listen and work with you from the first idea to launch.",
-      "heroCta": "Explore student benefits",
+      "heroTitle2": "I design and engineer digital products.",
+      "heroDesc": "A final-year Software Engineering student at Greenwich Vietnam. This portfolio distils my selected work and evolving practice.",
+      "heroCta": "View my work",
       "heroSecondaryCta": "Tell me your website needs",
+      "heroSwipe": "Swipe through my portfolio",
+      "heroScroll": "Scroll through my portfolio",
       "previewStatus": "Online",
       "previewName": "Hugo Student",
       "previewTagline": "One digital identity, many useful tools.",
-      "aboutLabel": "The person behind Hugo Studio",
-      "aboutH1": "I am Hugo,",
-      "aboutH2": "a final-year student in love with design.",
-      "aboutH3": "I started Hugo Studio so learners would have a friendly place to build their identity, try technology and feel supported.",
+      "aboutLabel": "Beyond the screen",
+      "aboutH1": "Peter Hugo Wishpax Lê,",
+      "aboutH2": "a final-year Software Engineering student.",
+      "aboutH3": "I learn most incisively by turning theory into products that people can genuinely use.",
+      "education": {
+        "highSchool": {
+          "label": "Secondary education",
+          "name": "Nguyen Dinh Chieu High School",
+          "detail": "My Tho · Founded in 1879",
+          "slogan": "Revolutionary tradition · Excellence in teaching and learning",
+          "logoAlt": "Emblem of Nguyen Dinh Chieu High School, My Tho"
+        },
+        "university": {
+          "label": "University",
+          "name": "Greenwich Vietnam",
+          "detail": "Software Engineering · Final year",
+          "slogan": "Education without Boundaries",
+          "logoAlt": "Greenwich Vietnam in alliance with FPT Education logo"
+        }
+      },
       "featT1": "A small starting point for your digital journey.",
       "featT2": "Create a Bio, explore learning tools, or tell me about the website you need.",
       "cardVideo": "Every project begins with a story that deserves clarity.",
@@ -352,55 +401,51 @@
       "weakTitle": "Things I'm improving",
       "weak1": "My teamwork experience so far comes from university projects — running Scrum, coordinating frontend with backend. I want to learn how a professional team actually works.",
       "weak2": "Sometimes too much of a perfectionist about details, so I always agree on scope and deadlines upfront.",
-      "howTitle": "How I craft experiences for users",
-      "stat1v": "Free",
-      "stat1l": "Core benefits for verified students",
+      "howTitle": "How I approach product craft",
+      "stat1v": "Gen Z",
+      "stat1l": "Generation",
       "stat2v": "Greenwich",
       "stat2l": "Final year · Software Engineering",
-      "stat3v": "8+",
-      "stat3l": "Free utilities for students",
-      "stat4v": "12 months",
-      "stat4l": "Free .edu Bio, all included",
-      "partnerLabel": "Working alongside me",
-      "contactTitle": "Start building your first digital identity.",
+      "partnerLabel": "Co-developing with",
+      "contactTitle": "Let's stay in touch.",
       "marqueeTitle": "Technologies I have learned",
       "work": {
-        "eyebrow": "Chapters brought to life",
-        "title": "Three products continuing the Hugo Studio story.",
-        "desc": "Hugo Bio .edu helps learners tell their story; JOY records participation and progress; Hugo Arcade creates a playful pause between study sessions.",
+        "eyebrow": "Selected work",
+        "title": "Products I have built from the ground up.",
+        "desc": "Each project confronts a distinct class of problem: personal publishing, transactional data and interactive systems. Together, they illustrate how I reconcile interface craft, application logic and mobile-first design.",
         "items": [
           {
-            "badge": "Priority",
-            "kind": "Free for verified students",
+            "badge": "Digital identity",
+            "kind": "Web application · PWA",
             "title": "Hugo Bio .edu",
-            "desc": "A distinctive digital profile where students can present themselves, their projects, achievements and important links through one personal URL.",
-            "outcome": "Automatic education-email verification, customizable design, portfolio, booking and a personal link — free for 12 months.",
-            "cta": "Create a Bio .edu"
+            "desc": "A configurable digital-profile system through which users can present their background, projects, achievements and salient links on a dedicated page.",
+            "outcome": "I devised the React experience, responsive interface, member-authentication journey and Bio content-management flow.",
+            "cta": "View the project"
           },
           {
-            "badge": "Rewards",
-            "kind": "Ecosystem-wide points wallet",
+            "badge": "Security",
+            "kind": "Product infrastructure",
             "title": "JOY",
-            "desc": "A shared rewards currency for learning activities, challenges, achievements and contributions across Hugo Studio.",
-            "outcome": "Clear balances and history, smart rewards, JOY transfers and usage across supported applications.",
-            "cta": "Open JOY wallet"
+            "desc": "An internal points ledger that interweaves activity, achievement and rewards across several Hugo Studio applications.",
+            "outcome": "I engineered balance and transaction histories, peer transfers and server-signed QR payloads that preclude client-side forgery.",
+            "cta": "View the project"
           },
           {
-            "badge": "Play",
-            "kind": "Lightweight · Full-screen games",
+            "badge": "Game systems",
+            "kind": "Interactive engineering",
             "title": "Hugo Arcade",
-            "desc": "A mobile-first game library featuring 2048, 3D Chess, Snake, Tetris, Space Survivor and more challenges.",
-            "outcome": "Stage-based gameplay, varied bots and bosses, smooth effects, leaderboards and JOY rewards.",
-            "cta": "Enter Hugo Arcade"
+            "desc": "A browser-based collection encompassing 2048, 3D Chess, Snake, Tetris, Space Survivor and a succession of compact challenges.",
+            "outcome": "My work centred on tactile controls, deterministic game state, animation performance and immersive mobile layouts.",
+            "cta": "View the project"
           }
         ]
       },
       "meta": {
-        "title": "Hugo Studio — Bio Pages And Digital Tools For Students",
-        "description": "Hugo Studio helps students create a personal Bio, use learning tools and build a digital identity, with direct website consulting for individuals and small shops.",
-        "keywords": "Hugo Studio, free student Bio, student portfolio, learning tools, personal website design, small business website"
+        "title": "Peter Hugo Wishpax Lê — Software Engineering & Product Design Portfolio",
+        "description": "The personal portfolio of Peter Hugo Wishpax Lê, a final-year Software Engineering student at Greenwich Vietnam, encompassing his education, technical repertoire and selected digital products.",
+        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, software engineer portfolio, Software Engineering student, Greenwich Vietnam, React projects"
       },
-      "heroCvCta": "Download CV",
+      "heroCvCta": "Download résumé",
       "weak3": "My degree covered many languages broadly rather than one deeply — I can read and modify code, but I am not yet specialised in any single language."
     }
   },
@@ -437,6 +482,8 @@
       "desc": "Tell me your goal, what is getting in the way, or what you want to create. I will help identify the right-sized approach — from student Bios and portfolios to websites for individuals and small shops.",
       "viewPricing": "Choose your situation",
       "contact": "Tell me what you need",
+      "swipe": "Swipe to continue",
+      "scroll": "Scroll to continue",
       "trust": [
         "Work directly with the designer and developer",
         "Scope, timeline and cost agreed up front",
@@ -612,98 +659,134 @@
       }
     },
     "studentPlans": {
-      "orderCta": "Order Student Plan",
-      "detailsCta": "Verification Requirements & Student Plan Details",
-      "exclusiveBio": {
-        "label": "Students",
-        "name": "Exclusive Bio Page",
-        "price": "From $4.99",
-        "note": "Bespoke design — no one else will have the same page.",
-        "desc": "A standalone personal bio page with a unique design custom-made for you. Optimized for internships, scholarships, or networking — everything on one elegant page.",
-        "tagline": "Stand out",
-        "includes": [
-          "Exclusive bio page design — uniquely yours, not shared with anyone",
-          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
-          "About section (summary, interests, select skills)",
-          "Beautiful responsive design (Desktop & Mobile)"
-        ]
+      "orderCta": "Contact to order",
+      "detailsCta": "See verification terms & student plan details",
+      "capLabel": "Scope limits",
+      "compareLabel": "Vs. standard pricing",
+      "groupCoursework": {
+        "title": "Help with end-of-term coursework",
+        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+      },
+      "groupProfile": {
+        "title": "Personal profile — nothing to do with grades",
+        "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
       },
       "bug": {
-        "label": "Students",
-        "name": "Coursework Bug Fix",
-        "price": "From $4.99",
-        "note": "Quick quotes based on coursework criteria. Speed delivery before deadlines.",
-        "desc": "Logic errors, DB connection issue or broken layout in your end-of-term assignment? I'll fix it for you.",
-        "tagline": "Save your submission",
+        "label": "STUDENT",
+        "name": "Diagnose & Fix",
+        "price": "120.000đ",
+        "unit": "/bug",
+        "tagline": "Stuck near the deadline",
+        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
+        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
         "includes": [
-          "Fix exact logic code errors or styling bugs agreed upon",
-          "Zalo walkthrough on how to deploy on free hosting (Vercel/Render)",
-          "3 days of stability warranty",
-          "Full working code handover"
-        ]
-      },
-      "bento": {
-        "label": "Students",
-        "name": "Bento CV / Portfolio",
-        "price": "$32.99",
-        "oldPrice": "$60.99",
-        "discount": "-46%",
-        "note": "Modern Bento Grid design. Tailored for internship, scholarship, or study abroad applications.",
-        "desc": "Showcase your achievements, projects, Git links and profile in a beautiful Apple-inspired aesthetic.",
-        "tagline": "Make a strong impression",
-        "includes": [
-          "1 Bento Grid page layout, up to 7 sections max",
-          "Github, social media, and contact link integration",
-          "Contact form dumping messages directly to a free Google Sheet",
-          "Deploy on free hosting for life (Vercel/Netlify)"
+          "Find and fix the exact bug agreed before we start",
+          "Written notes on the root cause so you can answer when asked",
+          "A Git link to clone the fixed code from",
+          "3-day warranty on the bug that was fixed"
+        ],
+        "cap": [
+          "Up to 2 bugs per order",
+          "Repairs only — no new features written"
         ]
       },
       "html": {
         "label": "HTML/CSS/JS",
-        "name": "Web App Coursework (HTML)",
-        "price": "From $23.99",
-        "oldPrice": "$48.99",
-        "discount": "-50%",
-        "note": "Static HTML/CSS/JS coursework. Split the bill from ~295k/member (group of 2).",
-        "desc": "Perfect for Web Design basics, building responsive layouts, static assignment templates.",
-        "tagline": "Responsive layout",
+        "name": "Static Web Coursework",
+        "price": "490.000đ",
+        "tagline": "Responsive front end",
+        "note": "Split between 2 students: ~245.000đ each.",
+        "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
         "includes": [
-          "Responsive layout design compatible with mobile devices",
-          "DOM animation effects & basic native Javascript",
-          "Detailed README setup documentation for local run",
-          "Clean source code + free deployment setup guidance"
-        ]
+          "Your own Git link to clone the whole source from",
+          "Responsive interface that holds up on phones",
+          "DOM animation and basic JavaScript behaviour",
+          "Documentation: folder structure, what each file does, how to run it",
+          "Commented code plus free deploy instructions"
+        ],
+        "cap": [
+          "One course, up to 4 static pages",
+          "No backend, no database",
+          "No capstone or graduation projects"
+        ],
+        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
       },
       "php": {
         "label": "PHP/SQL",
-        "name": "Web App Coursework (PHP)",
-        "price": "From $60.99",
-        "oldPrice": "$101.99",
-        "discount": "-40%",
-        "note": "Dynamic PHP/MySQL coursework. Split the bill from ~495k/member (group of 3).",
-        "desc": "Perfect for Database Web basics, dynamic data CRUD, registering & logins.",
-        "tagline": "Dynamic database",
+        "name": "Dynamic Web Coursework",
+        "price": "990.000đ",
+        "tagline": "CRUD & permissions",
+        "note": "Split between 3 students: ~330.000đ each.",
+        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
         "includes": [
-          "Dynamic server handling with PHP + MySQL database",
-          "Simple registration, login, and authorization logic",
-          "Pre-loaded mock database (Seed Data) for quick demo",
-          "Bonus: 1 live call session for setup guidance and live run demo"
-        ]
+          "Your own Git link to clone the whole source from",
+          "Data handling in PHP with a MySQL database",
+          "Registration, login and basic role permissions",
+          "SQL dump and seed data included so it runs on first try",
+          "Documentation: XAMPP setup, database import, the flow behind each feature"
+        ],
+        "cap": [
+          "One course, up to 6 database tables",
+          "Up to 2 CRUD feature groups plus login",
+          "No capstone or graduation projects"
+        ],
+        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
       },
       "react": {
-        "label": "React/Node",
-        "name": "Web App Coursework (REACT)",
-        "price": "From $101.99",
-        "oldPrice": "$162.99",
-        "discount": "-37%",
-        "note": "Full-stack React/Node.js coursework. Split the bill from ~620k/member (group of 4).",
-        "desc": "Perfect for Advanced Web, React SPA, REST APIs, MongoDB/PostgreSQL.",
-        "tagline": "Full-stack React/Node.js",
+        "label": "REACT/NODE",
+        "name": "Advanced Web Coursework",
+        "price": "1.690.000đ",
+        "tagline": "SPA + REST API",
+        "note": "Split between 4 students: ~425.000đ each.",
+        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
         "includes": [
-          "React SPA architecture + Node.js/Express REST API Backend",
-          "Bonus: 1 live call session (45 mins) explaining code structure",
-          "Pre-loaded mock database (Seed Data) for quick demo",
-          "Dedicated help with setting up execution environments"
+          "Your own Git link to clone the whole source from",
+          "React SPA architecture with a Node.js/Express REST API",
+          "Authentication plus up to 3 CRUD feature groups",
+          "Seed data included so it runs on first try",
+          "Documentation: environment setup, env vars, a data-flow map for every API"
+        ],
+        "cap": [
+          "One course, up to 3 CRUD feature groups plus login",
+          "One REST API and one database",
+          "No capstone or graduation projects"
+        ],
+        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
+      },
+      "exclusiveBio": {
+        "label": "STUDENT",
+        "name": "Custom-Designed Bio",
+        "price": "99.000đ",
+        "tagline": "An upgrade on the free one",
+        "note": "The free version you build yourself in the editor. This one I design around your story.",
+        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
+        "includes": [
+          "Layout and colour palette designed for you alone",
+          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
+          "An about-you section: summary, interests, selected skills",
+          "Looks right on both desktop and mobile"
+        ],
+        "cap": [
+          "One page, up to 5 links",
+          "2 rounds of revisions after handover"
+        ]
+      },
+      "bento": {
+        "label": "STUDENT",
+        "name": "Bento CV / Portfolio",
+        "price": "799.000đ",
+        "tagline": "Built for jobs & scholarships",
+        "note": "A personal profile, not an assignment — it touches none of your grades.",
+        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
+        "includes": [
+          "A one-page portfolio in a Bento Grid layout",
+          "GitHub, socials and contact details wired in",
+          "Contact form feeding straight into a free Google Sheet",
+          "Deployed to free lifetime hosting (Vercel/Netlify)"
+        ],
+        "cap": [
+          "Up to 7 content blocks",
+          "2 rounds of revisions after handover"
         ]
       }
     },
@@ -991,40 +1074,143 @@
     }
   },
   "bookingPage": {
+    "meta": {
+      "title": "Discuss a Website Project | Hugo Studio",
+      "description": "Outline your requirements through a concise, guided form. Hugo will respond to clarify scope, timing and an appropriate investment before any work begins.",
+      "keywords": "website project enquiry, website consultation, personal portfolio, small business website, Hugo Studio"
+    },
     "toast": {
-      "success": "Your request has been sent successfully! I will contact you within 24 hours.",
-      "error": "An error occurred while sending the form. Please try again later.",
-      "networkError": "Connection error. Please check your internet and try again."
+      "success": "Your enquiry has been received. I shall respond within one business day.",
+      "error": "Your enquiry could not be sent. Please check your connection and try again.",
+      "networkError": "Connection error. Please check your internet and try again.",
+      "chooseProject": "Please choose the option that most closely reflects your needs."
     },
     "header": {
-      "title": "Book a Design.",
-      "desc": "I work directly 1-1 and only accept 1 project at a time to ensure the highest quality. Please briefly sketch your needs, and I will contact you via Zalo/Email within 24 hours to discuss details, provide a quote, and place your project in the queue."
+      "eyebrow": "A direct conversation with Hugo",
+      "title": "Tell me what you need. I’ll help define the rest.",
+      "desc": "You need neither technical jargon nor an exhaustive brief. Choose the prompts that best approximate your situation, and I will help articulate the remaining scope."
     },
-    "features": [
-      {
-        "title": "Exclusive ideas",
-        "desc": "No cookie-cutter templates. Interfaces are tailor-made to fit brand formats."
+    "expectations": {
+      "brief": {
+        "title": "No elaborate brief required",
+        "desc": "Guided choices let you outline the project in approximately two minutes."
       },
-      {
-        "title": "Performance & SEO",
-        "desc": "Clean code, Apple-standard optimization for fast loading and good Google rankings."
+      "scope": {
+        "title": "Scope precedes quotation",
+        "desc": "I shall clarify any omissions and recommend only what the project genuinely warrants."
       },
-      {
-        "title": "1-on-1 Zalo support",
-        "desc": "Direct and quick communication. Committed to lifetime maintenance and bug fixes."
+      "reply": {
+        "title": "A reply within one business day",
+        "desc": "You will receive an email or message arranging the most appropriate next step."
       }
-    ],
+    },
+    "progress": {
+      "label": "Step {{step}} of 4",
+      "complete": "Complete"
+    },
+    "steps": {
+      "1": { "title": "What may I help with?" },
+      "2": { "title": "Investment and timeframe" },
+      "3": { "title": "The outcome you have in mind" },
+      "4": { "title": "Review and send your enquiry" }
+    },
+    "projectTypes": {
+      "newWebsite": {
+        "title": "A new website",
+        "desc": "For an individual, brand, café or small enterprise."
+      },
+      "portfolio": {
+        "title": "Portfolio / Bio",
+        "desc": "A considered home for your work, résumé and professional identity."
+      },
+      "improve": {
+        "title": "Improve an existing site",
+        "desc": "Refine its interface, mobile experience, performance or functionality."
+      },
+      "student": {
+        "title": "A student project",
+        "desc": "Portfolio, coursework or guided debugging support."
+      },
+      "unsure": {
+        "title": "I am not yet certain",
+        "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
+      }
+    },
+    "sections": {
+      "project": "What would you like help with?",
+      "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
+      "budget": "Indicative investment",
+      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
+      "timeline": "Preferred timeframe",
+      "notes": "A little more context (optional)",
+      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances."
+    },
+    "budgets": {
+      "unsure": "Not determined",
+      "underOne": "Below VND 1m",
+      "oneToThree": "VND 1–3m",
+      "threeToEight": "VND 3–8m",
+      "overEight": "Above VND 8m"
+    },
+    "timelines": {
+      "flexible": "Flexible",
+      "twoWeeks": "Within 1–2 weeks",
+      "oneMonth": "Within one month",
+      "twoMonths": "Within 1–2 months"
+    },
+    "promptLabels": {
+      "identity": "Present myself and my work",
+      "sales": "Help customers browse and enquire",
+      "mobile": "My website falters on mobile",
+      "unsure": "I do not know where to begin"
+    },
+    "prompts": {
+      "identity": "I need a coherent place to present myself, my work and my most pertinent links.",
+      "sales": "I would like customers to understand my offer, browse my products and contact me without friction.",
+      "mobile": "I already have a website, but its mobile interface is cumbersome or renders incorrectly.",
+      "unsure": "I am uncertain which kind of website would be appropriate and would value a proportionate recommendation."
+    },
     "form": {
-      "nameLabel": "Full Name:",
-      "namePlaceholder": "Enter your name...",
-      "emailLabel": "Email:",
-      "emailPlaceholder": "yourname@domain.com",
-      "phoneLabel": "Phone Number (Zalo):",
-      "phonePlaceholder": "Zalo connection number...",
-      "messageLabel": "Message (Optional):",
-      "messagePlaceholder": "Share your desires about interface, features or personal ideas...",
-      "submitBtn": "Submit Booking Request",
-      "disclaimer": "I provide online services. Your information will be kept strictly confidential and used only to make consulting Zalo calls."
+      "nameLabel": "Your name",
+      "namePlaceholder": "For example, Minh Anh",
+      "emailLabel": "Email for the reply",
+      "emailHint": "Required",
+      "phoneLabel": "Telephone / Zalo",
+      "phoneHint": "Required · never published",
+      "phonePlaceholder": "For example, 09xx xxx xxx",
+      "messagePlaceholder": "For example, I sell handmade goods and need a website where customers can browse the collection...",
+      "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
+    },
+    "actions": {
+      "continue": "Continue",
+      "back": "Back",
+      "submit": "Send my enquiry",
+      "sending": "Sending..."
+    },
+    "summary": {
+      "title": "Enquiry summary",
+      "project": "Requirement",
+      "budget": "Investment",
+      "timeline": "Timeframe",
+      "notes": "Notes"
+    },
+    "success": {
+      "title": "Your enquiry is safely with me.",
+      "desc": "Hugo will review it and respond by email or Zalo within one business day. No further documentation is required at this stage.",
+      "another": "Send another enquiry",
+      "donateTitle": "Would you care to stand with Hugo Studio?",
+      "donateDesc": "Entirely optional. Your choice has no bearing on the enquiry, quotation, or access to any feature.",
+      "donateYes": "Make a voluntary contribution",
+      "donateNo": "Not this time",
+      "donateSkipped": "Choice noted. Your enquiry will proceed in precisely the same manner."
+    },
+    "prefill": {
+      "general": "I am a student and would like to discuss an appropriate form of support for my academic project.",
+      "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
+      "bento": "I would like to discuss a Bento CV / Portfolio for a student profile.",
+      "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
+      "courseworkPhp": "I would like to discuss a Web App coursework project using PHP and MySQL.",
+      "courseworkReact": "I would like to discuss a Web App coursework project using React and Node.js."
     }
   },
   "templatesPage": {
@@ -1760,7 +1946,6 @@
       "utilities": "Utilities",
       "history": "Notifications",
       "joy": "JOY Wallet",
-      "community": "Community",
       "settings": "Profile",
       "verify": "Verify",
       "verifyEduPending": "Student not verified",
@@ -1894,7 +2079,7 @@
       "placeholderHeadline": "Designer, Web Architect, Developer...",
       "gmail": "GMAIL",
       "placeholderName": "Your full name...",
-      "placeholderBirthday": "Example: 20/10/2004...",
+      "placeholderBirthday": "Example: DD/MM/YYYY...",
       "placeholderEmail": "Cooperation/work email...",
       "viewBio": "View Bio",
       "noName": "Unnamed",

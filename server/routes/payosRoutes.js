@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import pkg from '@payos/node';
 const PayOS = pkg.PayOS || pkg;
 
@@ -6,16 +7,105 @@ import crypto from 'crypto';
 import PaymentLink from '../models/PaymentLink.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { logError } from '../utils/alert.js';
+import { sendDonationThankYou } from '../services/donationThankYouService.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
+
+const getFrontendUrl = (req) => {
+  const officialOrigin = 'https://www.hugowishpax.studio';
+  const configured = process.env.FRONTEND_URL;
+  const candidate = configured || (process.env.NODE_ENV === 'production' ? officialOrigin : req.headers.origin);
+
+  try {
+    const origin = new URL(candidate || 'http://localhost:3000').origin;
+    if (process.env.NODE_ENV === 'production' && ![
+      officialOrigin,
+      'https://hugowishpax.studio',
+    ].includes(origin)) return officialOrigin;
+    return origin;
+  } catch {
+    return process.env.NODE_ENV === 'production' ? officialOrigin : 'http://localhost:3000';
+  }
+};
 
 const payos = new PayOS({
   clientId: process.env.PAYOS_CLIENT_ID || 'dummy-client-id',
   apiKey: process.env.PAYOS_API_KEY || 'dummy-api-key',
   checksumKey: process.env.PAYOS_CHECKSUM_KEY || 'dummy-checksum-key'
 });
+
+const DONATION_MIN_AMOUNT = 5000;
+const DONATION_MAX_AMOUNT = 100000000;
+const DONATION_TERMS_VERSION = '2026-08-10';
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const donationCreateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 12,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Bạn đã tạo quá nhiều yêu cầu ủng hộ. Vui lòng thử lại sau.' },
+});
+
+const createCustomLinkId = () => crypto.randomBytes(12).toString('hex');
+
+const cleanPersonName = (value) => String(value || '')
+  .replace(/[<>\r\n]/g, '')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .slice(0, 80);
+
+const getCounterAccountName = (transaction = {}) => cleanPersonName(
+  transaction.counterAccountName
+  || transaction.counterAccount?.accountName
+  || transaction.accountName
+  || ''
+);
+
+const deliverDonationThankYou = async (link) => {
+  if (link.kind !== 'DONATION' || !link.donorEmail) return;
+
+  const claimed = await PaymentLink.findOneAndUpdate(
+    {
+      _id: link._id,
+      thankYouEmailStatus: { $in: ['PENDING', 'FAILED'] },
+    },
+    { $set: { thankYouEmailStatus: 'SENDING' } },
+    { new: true },
+  );
+  if (!claimed) return;
+
+  const result = await sendDonationThankYou(claimed);
+  await PaymentLink.updateOne(
+    { _id: claimed._id },
+    result.success
+      ? { $set: { thankYouEmailStatus: 'SENT', thankYouEmailSentAt: new Date() } }
+      : { $set: { thankYouEmailStatus: 'FAILED' } },
+  );
+};
+
+const finalizePaidLink = async (link, transaction = {}) => {
+  if (!link) return null;
+
+  const bankName = getCounterAccountName(transaction);
+  link.status = 'PAID';
+  const transactionDate = transaction.transactionDateTime
+    ? new Date(transaction.transactionDateTime)
+    : new Date();
+  link.paidAt ||= Number.isNaN(transactionDate.getTime()) ? new Date() : transactionDate;
+
+  if (link.kind === 'DONATION') {
+    if (bankName) link.donorBankName = bankName;
+    if (link.publicRecognition) {
+      link.donorDisplayName = bankName || link.donorName || 'Người bạn đồng hành';
+    }
+  }
+
+  await link.save();
+  await deliverDonationThankYou(link);
+  return link;
+};
 
 // [Admin] Create a new Payment Link
 router.post('/create', requireAdmin, async (req, res) => {
@@ -30,11 +120,11 @@ router.post('/create', requireAdmin, async (req, res) => {
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
     
     // Generate custom Link ID for frontend
-    const customLinkId = crypto.randomBytes(4).toString('hex');
+    const customLinkId = createCustomLinkId();
     
     // The domain where the frontend is hosted
     // Should be from process.env or fallback
-    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:3000';
+    const frontendUrl = getFrontendUrl(req);
     
     const requestData = {
       orderCode,
@@ -91,8 +181,8 @@ router.post('/request-payment', requireAdmin, async (req, res) => {
     }
 
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
-    const customLinkId = crypto.randomBytes(4).toString('hex');
-    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:3000';
+    const customLinkId = createCustomLinkId();
+    const frontendUrl = getFrontendUrl(req);
     
     const requestData = {
       orderCode,
@@ -148,31 +238,43 @@ router.post('/request-payment', requireAdmin, async (req, res) => {
 });
 
 // [Public] Create a Donation Link
-router.post('/donate', async (req, res) => {
+router.post('/donate', donationCreateLimiter, async (req, res) => {
   try {
-    const { amount, name } = req.body;
-    
-    // Allowed amounts: 9.999, 19.999, 29.999, 59.999, 99.999
-    const allowedAmounts = [9999, 19999, 29999, 59999, 99999];
-    if (!allowedAmounts.includes(Number(amount))) {
-      return res.status(400).json({ error: 'Số tiền ủng hộ không hợp lệ.' });
-    }
+    const { amount, name, email, termsAccepted } = req.body;
+    const numericAmount = Number(amount);
+    const donorName = cleanPersonName(name);
+    const donorEmail = String(email || '').trim().toLowerCase().slice(0, 254);
 
-    const donatorName = name ? name.substring(0, 15).toUpperCase() : 'GUEST';
-    const reason = `DONATE ${donatorName}`.substring(0, 25);
+    if (!Number.isSafeInteger(numericAmount)
+      || numericAmount < DONATION_MIN_AMOUNT
+      || numericAmount > DONATION_MAX_AMOUNT) {
+      return res.status(400).json({ error: 'Số tiền ủng hộ phải từ 5.000 VNĐ.' });
+    }
+    if (!donorName) {
+      return res.status(400).json({ error: 'Vui lòng nhập tên của bạn.' });
+    }
+    if (!EMAIL_PATTERN.test(donorEmail)) {
+      return res.status(400).json({ error: 'Vui lòng nhập email hợp lệ để nhận thư cảm ơn.' });
+    }
+    if (termsAccepted !== true) {
+      return res.status(400).json({ error: 'Vui lòng xác nhận đây là khoản ủng hộ tự nguyện.' });
+    }
 
     // Generate unique Order Code (must be integer, max 53 bit)
     const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(Math.random() * 1000));
     
     // Generate custom Link ID for frontend
-    const customLinkId = crypto.randomBytes(4).toString('hex');
+    const customLinkId = createCustomLinkId();
+    const reason = `UH${String(orderCode).slice(-7)}`;
     
-    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:3000';
+    const frontendUrl = getFrontendUrl(req);
     
     const requestData = {
       orderCode,
       amount: Number(amount),
       description: reason,
+      buyerName: donorName,
+      buyerEmail: donorEmail,
       cancelUrl: `${frontendUrl}/pay/${customLinkId}?status=cancelled`,
       returnUrl: `${frontendUrl}/pay/${customLinkId}?status=success`,
     };
@@ -190,23 +292,58 @@ router.post('/donate', async (req, res) => {
       orderCode,
       amount: Number(amount),
       reason,
+      kind: 'DONATION',
       checkoutUrl: paymentData.checkoutUrl,
       status: 'PENDING',
       bin: paymentData.bin,
       accountNumber: paymentData.accountNumber,
       accountName: paymentData.accountName,
-      qrCode: paymentData.qrCode
+      qrCode: paymentData.qrCode,
+      donorName,
+      donorEmail,
+      publicRecognition: true,
+      termsVersion: DONATION_TERMS_VERSION,
     });
 
     await newLink.save();
 
     res.status(201).json({
       success: true,
-      data: newLink
+      data: { customLinkId: newLink.customLinkId }
     });
 
   } catch (error) {
     console.error('Error creating donation link:', error);
+    res.status(500).json({ error: 'Lỗi server' });
+  }
+});
+
+// [Public] Paid donors from the current flow are added automatically.
+router.get('/supporters', async (req, res) => {
+  try {
+    const requestedLimit = Number.parseInt(req.query.limit, 10);
+    const limit = Math.min(Math.max(requestedLimit || 24, 1), 50);
+    const supporters = await PaymentLink.find({
+      kind: 'DONATION',
+      status: 'PAID',
+      publicRecognition: true,
+      donorDisplayName: { $exists: true, $ne: '' },
+    })
+      .sort({ paidAt: -1, createdAt: -1 })
+      .limit(limit)
+      .select({ donorDisplayName: 1, paidAt: 1, _id: 0 })
+      .lean();
+
+    res.set('Cache-Control', 'no-store');
+    res.json({
+      success: true,
+      data: supporters.map((supporter) => ({
+        name: supporter.donorDisplayName,
+        paidAt: supporter.paidAt,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching supporters:', error);
     res.status(500).json({ error: 'Lỗi server' });
   }
 });
@@ -235,8 +372,7 @@ router.get('/info/:customLinkId', async (req, res) => {
       if (link.status === 'PENDING') {
         const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
         if (paymentInfo.status === 'PAID') {
-          link.status = 'PAID';
-          await link.save();
+          await finalizePaidLink(link, paymentInfo.transactions?.[0]);
         } else if (paymentInfo.status === 'CANCELLED') {
           link.status = 'CANCELLED';
           await link.save();
@@ -252,13 +388,13 @@ router.get('/info/:customLinkId', async (req, res) => {
         customLinkId: link.customLinkId,
         amount: link.amount,
         reason: link.reason,
+        kind: link.kind,
         status: link.status,
-        checkoutUrl: link.checkoutUrl,
         createdAt: link.createdAt,
         bin: link.bin,
         accountNumber: link.accountNumber,
         accountName: link.accountName,
-        qrCode: link.qrCode
+        qrCode: link.qrCode,
       }
     });
 
@@ -282,8 +418,7 @@ router.post('/cancel/:customLinkId', requireAdmin, async (req, res) => {
         // First verify status with PayOS to be sure it wasn't already paid
         const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
         if (paymentInfo.status === 'PAID') {
-          link.status = 'PAID';
-          await link.save();
+          await finalizePaidLink(link, paymentInfo.transactions?.[0]);
           return res.status(400).json({ error: 'Giao dịch đã được thanh toán thành công, không thể hủy.' });
         }
 
@@ -311,16 +446,16 @@ router.post('/cancel/:customLinkId', requireAdmin, async (req, res) => {
 router.post('/webhook', async (req, res) => {
   try {
     // Verify webhook signature (Requires body to be parsed properly)
-    const webhookData = payos.webhooks.verify(req.body);
+    const webhookData = await payos.webhooks.verify(req.body);
 
-    if (webhookData && webhookData.code === '00') {
-      const { orderCode, success } = webhookData.data;
-      if (success) {
-        await PaymentLink.findOneAndUpdate(
-          { orderCode: Number(orderCode) },
-          { status: 'PAID' }
-        );
-      }
+    // SDK v2 returns the verified transaction data directly. Keeping the
+    // `.data` fallback makes this compatible with the older response shape.
+    const verifiedData = webhookData?.data || webhookData;
+    const isSuccessful = verifiedData?.code === '00'
+      || verifiedData?.success === true;
+    if (isSuccessful && verifiedData?.orderCode) {
+      const link = await PaymentLink.findOne({ orderCode: Number(verifiedData.orderCode) });
+      await finalizePaidLink(link, verifiedData);
     }
     
     res.json({ success: true });
@@ -343,8 +478,7 @@ const autoVerifyPendingPayments = async () => {
       try {
         const paymentInfo = await payos.paymentRequests.get(String(link.orderCode));
         if (paymentInfo.status === 'PAID') {
-          link.status = 'PAID';
-          await link.save();
+          await finalizePaidLink(link, paymentInfo.transactions?.[0]);
           console.log(`[Auto-Verify] Link ${link.customLinkId} (Order ${link.orderCode}) updated to PAID`);
         } else if (paymentInfo.status === 'CANCELLED') {
           link.status = 'CANCELLED';

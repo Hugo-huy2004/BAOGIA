@@ -170,6 +170,7 @@ const SCENE_CSS = `
   --surface: #322d6b;
 }
 .sky-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sky-scene * { animation-play-state: var(--scene-play-state, running); }
 
 /* ── Shared ── */
 @keyframes sky-twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }

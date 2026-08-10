@@ -18,8 +18,12 @@ const paymentLinkSchema = new mongoose.Schema({
   },
   reason: {
     type: String,
-    
     required: true,
+  },
+  kind: {
+    type: String,
+    enum: ['PAYMENT', 'DONATION'],
+    default: 'PAYMENT',
   },
   checkoutUrl: {
     type: String,
@@ -41,6 +45,45 @@ const paymentLinkSchema = new mongoose.Schema({
     type: String,
     enum: ['PENDING', 'PAID', 'CANCELLED'],
     default: 'PENDING'
+  },
+  donorName: {
+    type: String,
+    trim: true,
+    maxlength: 80,
+  },
+  donorEmail: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    maxlength: 254,
+  },
+  donorBankName: {
+    type: String,
+    trim: true,
+    maxlength: 120,
+  },
+  donorDisplayName: {
+    type: String,
+    trim: true,
+    maxlength: 120,
+  },
+  publicRecognition: {
+    type: Boolean,
+    default: false,
+  },
+  termsVersion: {
+    type: String,
+  },
+  paidAt: {
+    type: Date,
+  },
+  thankYouEmailStatus: {
+    type: String,
+    enum: ['PENDING', 'SENDING', 'SENT', 'FAILED'],
+    default: 'PENDING',
+  },
+  thankYouEmailSentAt: {
+    type: Date,
   },
   createdAt: {
     type: Date,

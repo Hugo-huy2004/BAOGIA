@@ -1,457 +1,328 @@
-import { useState, useEffect, useRef } from "react";
-import { HugoNoticeToast } from "../shared/HugoNotice";
+import { useEffect, useRef, useState } from "react";
+import { IosApp, AppShell, SectionTitle, ListGroup, ListRow, Card, Button, Sheet, Toast, useToast, Chip, ProgressBar, Segmented } from "./iosKit";
+import { Art, HeroArt, Avatar } from "./demoArt";
+
+const ACCENT = "#0A84FF";
+
+const PROJECTS = [
+  { id: "mediaviet", art: "news", title: "Mình Ơi Media", category: "Web báo chí số", tech: ["HTML5", "CSS3", "Vercel"], year: "2026", desc: "Cổng báo chí số tải trang siêu tốc, hỗ trợ dựng tin tức độc bản.", metrics: [["Lighthouse", "99"], ["LCP", "0.9s"], ["Bài/tháng", "120"]] },
+  { id: "gold", art: "cart", title: "Hugo Gold E-Store", category: "Thương mại trang sức", tech: ["React", "Canvas", "VietQR"], year: "2026", desc: "Tính giá vàng SJC thời gian thực và khắc tên laser lên thỏi vàng.", metrics: [["Đơn/tháng", "310"], ["Tỉ lệ chốt", "7.4%"], ["Uptime", "99.9%"]] },
+  { id: "cafe", art: "espresso", title: "Hugo Cafe & Bistro", category: "E-menu gọi món", tech: ["Tailwind", "Audio", "Printing"], year: "2025", desc: "Gọi món tại bàn, in biên lai và theo dõi tiến trình pha chế.", metrics: [["Bàn phục vụ", "24"], ["Ra món", "6 phút"], ["Đánh giá", "4.8★"]] },
+  { id: "dashboard", art: "chart", title: "Dashboard Admin Portal", category: "Quản lý hệ thống", tech: ["Chart.js", "Node.js", "WebSocket"], year: "2025", desc: "Biểu đồ doanh thu realtime, chuyển đổi chủ đề sáng tối.", metrics: [["Sự kiện/ngày", "12k"], ["Độ trễ", "80ms"], ["Người dùng", "36"]] },
+  { id: "bio", art: "screen", title: "Hugo Personal Bio", category: "Hồ sơ năng lực", tech: ["React", "Bento", "Terminal"], year: "2026", desc: "Bento box trực quan tích hợp giả lập terminal command prompt.", metrics: [["Lượt xem", "8.2k"], ["Ở lại", "2:40"], ["Bounce", "22%"]] },
+  { id: "studio", art: "studio", title: "Hugo Photo Studio", category: "Đặt lịch chụp", tech: ["React", "Calendar", "Cloud"], year: "2026", desc: "Thư viện tác phẩm, bộ lọc màu và luồng đặt lịch có đặt cọc.", metrics: [["Lịch/tháng", "48"], ["Huỷ lịch", "4%"], ["Đánh giá", "4.9★"]] },
+];
+
+const SKILLS = [
+  { name: "React / Next.js", value: 95 },
+  { name: "CSS / Tailwind", value: 95 },
+  { name: "SEO & Performance", value: 90 },
+  { name: "Node.js / API", value: 80 },
+];
+
+const STACK = ["HTML5", "CSS3", "JavaScript", "React", "Next.js", "TailwindCSS", "Node.js", "Express", "PostgreSQL", "Git", "RESTful API", "SEO Tuning", "Vercel"];
+
+const TIMELINE = [
+  { year: "2026", title: "Freelance fullstack", desc: "Nhận dự án web trọn gói cho cửa hàng nhỏ và cá nhân." },
+  { year: "2025", title: "Dev nội bộ hệ thống bán hàng", desc: "Xây dashboard quản trị và cổng thanh toán." },
+  { year: "2024", title: "Bắt đầu với front-end", desc: "Học React, Tailwind và tối ưu hiệu năng web." },
+];
+
+const COMMANDS = {
+  help: "Lệnh hỗ trợ:\n  skills  — thang điểm chuyên môn\n  about   — thông tin tóm tắt\n  stack   — công nghệ đang dùng\n  clear   — xoá màn hình",
+  skills: SKILLS.map((s) => `  ${s.name.padEnd(20)} ${"█".repeat(Math.round(s.value / 10))}${"░".repeat(10 - Math.round(s.value / 10))} ${s.value}%`).join("\n"),
+  about: "Lê Hugo Wishpax — kỹ sư fullstack. Thiết kế giao diện mượt, cấu trúc SEO chuẩn và chuyển động tinh gọn.",
+  stack: STACK.join(", "),
+};
 
 export default function PortfolioDemo({ isMobile = false }) {
-  const [dark, setDark] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [tab, setTab] = useState("home");
+  const [scheme, setScheme] = useState("dark");
+  const [detail, setDetail] = useState(null);
+  const [projectView, setProjectView] = useState("list");
+  const [toast, showToast] = useToast();
+
   const [command, setCommand] = useState("");
-  const [activeMobileTab, setActiveMobileTab] = useState("bio");
-  const [terminalLogs, setTerminalLogs] = useState([
-    { type: "system", text: "Hugo Dev Shell v2.1.0 - Type 'help' for commands" },
-    { type: "input", text: "visitor@hugo.dev:~$ welcome" },
-    { type: "output", text: "Chào mừng! Gõ 'skills' để xem xếp hạng kỹ năng, hoặc 'clear' để xóa màn hình." }
+  const [logs, setLogs] = useState([
+    { type: "system", text: "Hugo Dev Shell v2.1.0 — gõ 'help' để xem lệnh" },
+    { type: "output", text: "Chào mừng! Gõ 'skills' để xem xếp hạng kỹ năng." },
   ]);
-  const [guestMessages, setGuestMessages] = useState([
-    { id: 1, name: "Jason Dev", text: "Thiết kế Bento Grid rất thời thượng và chuyên nghiệp!", date: "Vừa xong" },
-    { id: 2, name: "Mình Ơi Media", text: "Tối ưu hóa SEO chuẩn, tải trang trong chớp mắt.", date: "1h trước" },
-    { id: 3, name: "Minh Khôi", text: "Hiệu ứng co giãn tỷ lệ thật rất sáng tạo.", date: "Hôm qua" }
+  const logEndRef = useRef(null);
+
+  const [guest, setGuest] = useState({ name: "", text: "" });
+  const [messages, setMessages] = useState([
+    { id: 1, name: "Jason Dev", text: "Thiết kế bento grid rất thời thượng và chuyên nghiệp!", date: "Vừa xong" },
+    { id: 2, name: "Mình Ơi Media", text: "Tối ưu SEO chuẩn, tải trang trong chớp mắt.", date: "1 giờ trước" },
+    { id: 3, name: "Minh Khôi", text: "Hiệu ứng co giãn tỷ lệ thật rất sáng tạo.", date: "Hôm qua" },
   ]);
-  const [visitorName, setVisitorName] = useState("");
-  const [visitorMsg, setVisitorMsg] = useState("");
-  const [projectSlide, setProjectSlide] = useState(0);
-  const [toast, setToast] = useState({ show: false, message: "" });
-
-  const terminalEndRef = useRef(null);
-
-  const triggerToast = (msg) => {
-    setToast({ show: true, message: msg });
-    setTimeout(() => setToast({ show: false, message: "" }), 3000);
-  };
-
-  // 5 Project Slides for the Bento Carousel
-  const projects = [
-    { title: "Mình Ơi Media", category: "Web Báo Chí Số", tech: "HTML5 / CSS3 / Vercel", desc: "Cổng báo chí số tải trang siêu tốc 99đ Lighthouse, hỗ trợ thiết kế tin tức độc bản.", image: "/image/avt1.png" },
-    { title: "Hugo Gold E-Store", category: "Thương Mại Trang Sức", tech: "React / Canvas / VietQR", desc: "Tích hợp tính giá vàng tự động SJC thời gian thực và khắc tên laser lên thỏi vàng.", image: "/image/avt3.png" },
-    { title: "Hugo Cafe & Bistro", category: "E-Menu Gọi Món", tech: "Tailwind / Audio / Printing", desc: "Giao diện quán nước ấm cúng, gọi món tại bàn và in biên lai hóa đơn hoạt họa.", image: "/image/avt2.png" },
-    { title: "Dashboard Admin Portal", category: "Quản Lý Hệ Thống", tech: "Chart.js / Node.js / Websockets", desc: "Giao diện quản lý doanh nghiệp tích hợp biểu đồ SVG, chuyển đổi chủ đề sáng tối.", image: "/image/avt6.png" },
-    { title: "Hugo Personal Bio", category: "Hồ Sơ Năng Lực", tech: "React / Bento Grid / Terminal", desc: "Thiết kế Bento Box trực quan tích hợp giả lập Terminal command prompt.", image: "/image/avt4.png" }
-  ];
-
-  // Auto advance project slider every 4.5 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setProjectSlide((prev) => (prev + 1) % projects.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
-    if (terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [terminalLogs]);
+    logEndRef.current?.scrollIntoView({ block: "nearest" });
+  }, [logs]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText("contact@hugo.dev");
-    setCopied(true);
-    triggerToast("Đã sao chép địa chỉ Email!");
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCommandSubmit = (e) => {
-    e.preventDefault();
-    if (!command.trim()) return;
-
-    const cmd = command.trim().toLowerCase();
-    const newLogs = [...terminalLogs, { type: "input", text: `visitor@hugo.dev:~$ ${command}` }];
-
-    switch (cmd) {
-      case "help":
-        newLogs.push({
-          type: "output",
-          text: "Lệnh hỗ trợ:\n  - skills : Thang điểm chuyên môn kỹ năng\n  - about  : Thông tin tóm tắt về Hugo\n  - clear  : Xóa nhật ký dòng lệnh\n  - help   : Trợ giúp này"
-        });
-        break;
-      case "skills":
-        newLogs.push({
-          type: "output",
-          text: "Xếp hạng chuyên môn:\n  - Front-end (React/Next) : ■■■■■■■■■■ 95%\n  - UI/UX Design (Figma)  : ■■■■■■■■■□ 90%\n  - Back-end (Node/API)    : ■■■■■■■■□□ 80%\n  - SEO & Performance     : ■■■■■■■■■□ 90%"
-        });
-        break;
-      case "about":
-        newLogs.push({
-          type: "output",
-          text: "Lê Hugo Wishpax - Kỹ sư Fullstack. Chuyên môn thiết kế các giao diện web mượt mà, cấu trúc SEO chuẩn chỉnh và trải nghiệm chuyển động tinh xảo."
-        });
-        break;
-      case "clear":
-        setTerminalLogs([]);
-        setCommand("");
-        return;
-      default:
-        newLogs.push({ type: "error", text: `Lệnh '${cmd}' không tồn tại. Gõ 'help' để xem hỗ trợ.` });
-    }
-
-    setTerminalLogs(newLogs);
+  const runCommand = (event) => {
+    event.preventDefault();
+    const raw = command.trim();
+    if (!raw) return;
+    const cmd = raw.toLowerCase();
     setCommand("");
+    if (cmd === "clear") {
+      setLogs([]);
+      return;
+    }
+    const output = COMMANDS[cmd];
+    setLogs((prev) => [
+      ...prev,
+      { type: "input", text: `visitor@hugo.dev:~$ ${raw}` },
+      output ? { type: "output", text: output } : { type: "error", text: `Lệnh '${cmd}' không tồn tại. Gõ 'help'.` },
+    ]);
   };
 
-  const handleAddMessage = (e) => {
-    e.preventDefault();
-    if (!visitorName.trim() || !visitorMsg.trim()) return;
-    const newMessage = {
-      id: Date.now(),
-      name: visitorName.trim(),
-      text: visitorMsg.trim(),
-      date: "Vừa xong"
-    };
-    setGuestMessages([newMessage, ...guestMessages]);
-    setVisitorName("");
-    setVisitorMsg("");
-    triggerToast("Gửi lưu bút live thành công!");
+  const submitGuest = (event) => {
+    event.preventDefault();
+    if (!guest.name.trim() || !guest.text.trim()) return;
+    setMessages((prev) => [{ id: Date.now(), name: guest.name.trim(), text: guest.text.trim(), date: "Vừa xong" }, ...prev]);
+    setGuest({ name: "", text: "" });
+    showToast("Đã gửi lưu bút");
   };
 
-  const textPrimary = dark ? "text-white" : "text-slate-900";
-  const textSecondary = dark ? "text-slate-400" : "text-slate-600";
-  const bgCard = dark ? "bg-[#111726]/40 border-white/5" : "bg-white border-slate-200 shadow-sm";
-  const borderSubtle = dark ? "border-white/5" : "border-slate-100";
+  const copyEmail = () => {
+    navigator.clipboard?.writeText("contact@hugo.dev");
+    showToast("Đã sao chép contact@hugo.dev");
+  };
+
+  const inputClass = "w-full rounded-[10px] border-0 px-3 py-2.5 text-[17px] outline-none focus:ring-0";
+  const inputStyle = { background: "var(--ios-fill)", color: "var(--ios-label)" };
+  const gridCols = isMobile ? "grid-cols-1" : "grid-cols-3";
+  const title = { home: "Hugo Lê", work: "Dự án", about: "Giới thiệu", contact: "Liên hệ" }[tab];
+
+  const ProjectCard = ({ project }) => (
+    <Card padded={false} onClick={() => setDetail(project)} className="h-full">
+      <span className="block h-28 w-full overflow-hidden"><Art kind={project.art} ratio="wide" /></span>
+      <span className="block p-4">
+        <span className="block text-[17px] font-semibold">{project.title}</span>
+        <span className="mt-0.5 block text-[15px]" style={{ color: "var(--ios-label-2)" }}>{project.category} · {project.year}</span>
+      </span>
+    </Card>
+  );
 
   return (
-    <div className={`w-full h-full relative overflow-hidden transition-colors duration-300 font-sans ${
-      dark ? "bg-[#0B0F19] text-[#E2E8F0]" : "bg-[#F8FAFC] text-slate-800"
-    }`}>
-      
-      {/* Scrollable Container */}
-      <div className="w-full h-full overflow-y-auto scrollbar-hide p-4 md:p-8 flex flex-col justify-between">
-        
-        {/* Mini Header */}
-        <header className={`sticky top-0 z-30 backdrop-blur-md px-4 pb-3 flex justify-between items-center border-b rounded-t-2xl mb-6 transition-all ${
-          isMobile ? "pt-12" : "pt-4"
-        } ${
-          dark ? "bg-[#0B0F19]/90 border-white/5" : "bg-[#F8FAFC]/90 border-slate-200"
-        }`}>
-          <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${dark ? "bg-indigo-400" : "bg-indigo-650"} animate-pulse`}></span>
-            <span className="font-extrabold text-xs uppercase tracking-widest font-mono">hugo.portfolio_bento</span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setDark(!dark)}
-              className={`p-2 rounded-lg flex items-center justify-center transition-all border ${
-                dark ? "bg-white/5 text-yellow-400 border border-white/5" : "bg-slate-100 text-slate-600 border border-slate-300"
-              }`}
-              title={dark ? "Chế độ Sáng" : "Chế độ Tối"}
-            >
-              <span className="material-symbols-outlined text-sm">{dark ? "light_mode" : "dark_mode"}</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Bento Box Grid - adapts to tab views on mobile */}
-        <main className={`flex-grow w-full max-w-5xl mx-auto ${isMobile ? "flex flex-col gap-6" : "grid grid-cols-1 md:grid-cols-3 gap-6"} items-start`}>
-          
-          {/* COLUMN 1: Bio Info & Tech Tags */}
-          {(!isMobile || activeMobileTab === "bio") && (
-            <div className="flex flex-col gap-6 w-full">
-              {/* Bio Card */}
-              <section className={`p-6 rounded-3xl border flex flex-col items-center text-center relative ${bgCard}`}>
-                <div className="space-y-4 flex flex-col items-center">
-                  <div className="relative">
-                    <img
-                      src="/image/avt4.png"
-                      alt="Peter Hugo Avatar"
-                      className="w-20 h-20 rounded-full object-cover border-4 border-indigo-500 shadow-md hover:scale-105 transition-transform duration-300"
-                    />
-                    <span className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-4 border-zinc-900"></span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <h2 className={`font-serif text-base font-black ${textPrimary}`}>
-                      Lê Hugo Wishpax
-                    </h2>
-                    <p className="text-[10px] text-indigo-500 dark:text-indigo-400 font-mono font-bold uppercase tracking-wider">
-                      Fullstack Engineer & UI/UX
-                    </p>
-                  </div>
-
-                  <p className={`text-xs leading-relaxed font-light ${textSecondary}`}>
-                    Kỹ sư lập trình với tư duy thiết kế mỹ thuật cao. Đồng hành cùng các thương hiệu xây dựng các giải pháp website độc bản, mượt mà và tối ưu hóa SEO tốc độ cao.
-                  </p>
+    <IosApp scheme={scheme} accent={ACCENT}>
+      <AppShell
+        isMobile={isMobile}
+        title={title}
+        subtitle={tab === "home" ? "Fullstack Engineer & UI/UX" : undefined}
+        brand={{ name: "Lê Hugo Wishpax", icon: "code", note: "Fullstack Engineer" }}
+        sidebarNote="Đang nhận dự án · phản hồi trong 2 giờ."
+        tabs={[
+          { id: "home", label: "Trang chủ", icon: "home" },
+          { id: "work", label: "Dự án", icon: "grid_view" },
+          { id: "about", label: "Giới thiệu", icon: "account_circle" },
+          { id: "contact", label: "Liên hệ", icon: "forum" },
+        ]}
+        value={tab}
+        onChange={setTab}
+        actions={
+          <button type="button" onClick={() => setScheme(scheme === "dark" ? "light" : "dark")} aria-label="Đổi giao diện sáng tối" className="flex h-9 w-9 items-center justify-center">
+            <span className="material-symbols-outlined text-[22px]" style={{ color: ACCENT }}>{scheme === "dark" ? "light_mode" : "dark_mode"}</span>
+          </button>
+        }
+      >
+        {tab === "home" && (
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-[18px]">
+              <span className="absolute inset-0"><HeroArt from="#0B2E63" to="#0A84FF" /></span>
+              <div className={`relative ${isMobile ? "p-5" : "p-8"}`}>
+                <Chip tint="#fff" filled><span style={{ color: "#0B2E63" }}>Đang nhận dự án</span></Chip>
+                <p className={`mt-2 font-bold leading-tight text-white ${isMobile ? "text-[26px]" : "text-[34px]"}`}>Website gọn, nhanh<br />và đúng nhu cầu</p>
+                <p className="mt-1.5 max-w-md text-[15px] text-white/80">Fullstack engineer với tư duy thiết kế — làm web cho cửa hàng nhỏ, cá nhân và người học.</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button onClick={() => setTab("contact")} style={{ background: "#fff", color: "#0B2E63" }}>Liên hệ</Button>
+                  <Button variant="gray" onClick={() => setTab("work")} style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}>Xem dự án</Button>
                 </div>
-
-                <div className="w-full space-y-2 mt-6">
-                  <button
-                    onClick={handleCopy}
-                    className="w-full py-2 bg-indigo-650 hover:bg-indigo-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all"
-                  >
-                    {copied ? "Copied Email ✓" : "Copy Email"}
-                  </button>
-                  <button
-                    onClick={() => triggerToast("Bắt đầu tải xuống CV PDF...")}
-                    className={`w-full py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${
-                      dark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    Tải Xuống CV
-                  </button>
-                </div>
-              </section>
-
-              {/* Tech Tags */}
-              <section className={`p-5 rounded-3xl border text-left space-y-3 ${bgCard}`}>
-                <h4 className={`text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 border-b pb-1 ${borderSubtle}`}>
-                  ./Công_nghệ
-                </h4>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["HTML5", "CSS3", "JavaScript", "React", "Next.js", "TailwindCSS", "Node.js", "Express", "PostgreSQL", "Git", "RESTful API", "SEO Tuning", "Vercel"].map((tag, idx) => (
-                    <span key={idx} className="text-[9px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 border border-indigo-500/15">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </section>
-
-              {/* Skills Chart - Displayed here in Bio tab on mobile */}
-              {isMobile && (
-                <section className={`p-5 rounded-3xl border text-left space-y-3 ${bgCard}`}>
-                  <h4 className={`text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 border-b pb-1 ${borderSubtle}`}>
-                    ./Chuyên_môn
-                  </h4>
-                  <div className="space-y-3 text-[10px] font-mono">
-                    {[
-                      { name: "React / Next.js", val: 95 },
-                      { name: "CSS / Tailwind", val: 95 },
-                      { name: "Node.js / API", val: 80 },
-                      { name: "SEO & Performance", val: 90 }
-                    ].map((s, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex justify-between font-bold">
-                          <span>{s.name}</span>
-                          <span className="text-indigo-500">{s.val}%</span>
-                        </div>
-                        <div className="w-full bg-slate-200 dark:bg-zinc-800 h-1 rounded-full overflow-hidden">
-                          <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${s.val}%` }}></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
+              </div>
             </div>
-          )}
 
-          {/* COLUMN 2: Projects Carousel & Interactive Terminal */}
-          {(!isMobile || activeMobileTab === "projects") && (
-            <div className="flex flex-col gap-6 w-full">
-              {/* Featured Project Slide Carousel */}
-              <section className={`p-5 rounded-3xl border relative overflow-hidden flex flex-col justify-between min-h-[180px] ${
-                dark ? "bg-gradient-to-r from-[#131B2E] to-[#1D2B4D] border-white/5 text-white" : "bg-gradient-to-r from-indigo-50 to-indigo-100 border-slate-200 text-slate-800 shadow-sm"
-              }`}>
-                <div className="space-y-2 text-left">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[8px] font-mono font-bold uppercase tracking-widest bg-indigo-650 text-white px-2 py-0.5 rounded-full">
-                      {projects[projectSlide].category}
+            <div className={`grid gap-3 ${isMobile ? "grid-cols-3" : "grid-cols-3"}`}>
+              {[["28", "Dự án bàn giao"], ["97", "Điểm Lighthouse TB"], ["2 giờ", "Phản hồi TB"]].map(([value, label]) => (
+                <Card key={label} className="text-center">
+                  <p className="text-[24px] font-bold leading-tight">{value}</p>
+                  <p className="mt-0.5 text-[13px]" style={{ color: "var(--ios-label-2)" }}>{label}</p>
+                </Card>
+              ))}
+            </div>
+
+            <section>
+              <SectionTitle action={<Button variant="plain" size="sm" onClick={() => setTab("work")}>Xem tất cả</Button>}>Dự án tiêu biểu</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {PROJECTS.slice(0, 3).map((project) => <ProjectCard key={project.id} project={project} />)}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle>Dịch vụ</SectionTitle>
+              <div className={`grid gap-3 ${gridCols}`}>
+                {[
+                  { icon: "web", title: "Landing page", desc: "Một trang, tối ưu chuyển đổi" },
+                  { icon: "storefront", title: "Web bán hàng", desc: "Giỏ hàng, thanh toán, quản trị" },
+                  { icon: "dashboard", title: "Dashboard", desc: "Báo cáo và quản lý nội bộ" },
+                ].map((item) => (
+                  <Card key={item.title} className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px]" style={{ background: ACCENT }}>
+                      <span className="material-symbols-outlined text-[22px] text-white">{item.icon}</span>
                     </span>
-                    <span className="text-[8px] font-mono text-slate-400">Dự án ({projectSlide + 1}/5)</span>
-                  </div>
-                  <h3 className="font-serif text-sm font-black uppercase mt-2">{projects[projectSlide].title}</h3>
-                  <p className={`text-xs font-light leading-relaxed mt-1 ${dark ? "text-slate-300" : "text-slate-600"}`}>{projects[projectSlide].desc}</p>
-                  <p className="text-[9px] font-mono text-indigo-500 font-bold mt-2">{projects[projectSlide].tech}</p>
-                </div>
+                    <span className="min-w-0">
+                      <span className="block truncate text-[15px] font-semibold">{item.title}</span>
+                      <span className="block truncate text-[13px]" style={{ color: "var(--ios-label-2)" }}>{item.desc}</span>
+                    </span>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
 
-                {/* Slider control dots */}
-                <div className="flex gap-1.5 mt-4 justify-end">
-                  {projects.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setProjectSlide(idx)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all ${
-                        projectSlide === idx ? "bg-indigo-500 w-3" : "bg-white/30"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </section>
+        {tab === "work" && (
+          <div className="space-y-4">
+            <div className={isMobile ? "" : "w-[280px]"}>
+              <Segmented value={projectView} onChange={setProjectView} items={[{ id: "list", label: "Dự án" }, { id: "terminal", label: "Terminal" }]} />
+            </div>
 
-              {/* Interactive Bash Terminal Console */}
-              <section className="bg-[#05070c] border border-white/10 rounded-3xl overflow-hidden shadow-xl flex flex-col font-mono text-[11px] text-green-400 min-h-[220px]">
-                <div className="bg-[#0e121b] border-b border-white/5 px-4 py-2 flex justify-between items-center select-none">
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#ff5f56]"></span>
-                    <span className="w-2 h-2 rounded-full bg-[#ffbd2e]"></span>
-                    <span className="w-2 h-2 rounded-full bg-[#27c93f]"></span>
-                  </div>
-                  <span className="text-[8px] text-slate-500 font-bold uppercase">Terminal Shell</span>
-                  <span className="w-8"></span>
+            {projectView === "list" ? (
+              <div className={`grid gap-3 ${gridCols}`}>
+                {PROJECTS.map((project) => <ProjectCard key={project.id} project={project} />)}
+              </div>
+            ) : (
+              <Card padded={false} className={isMobile ? "" : "max-w-[680px]"}>
+                <div className="flex items-center gap-2 border-b-[0.5px] px-3 py-2" style={{ borderColor: "var(--ios-sep)" }}>
+                  <span className="h-3 w-3 rounded-full bg-[#FF5F57]" />
+                  <span className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
+                  <span className="h-3 w-3 rounded-full bg-[#28C840]" />
+                  <span className="ml-auto text-[13px]" style={{ color: "var(--ios-label-2)" }}>zsh — hugo.dev</span>
                 </div>
-                
-                <div className="p-4 flex-grow overflow-y-auto space-y-1.5 max-h-[140px] text-left scrollbar-hide">
-                  {terminalLogs.map((log, idx) => (
-                    <div key={idx} className={log.type === "error" ? "text-red-400" : log.type === "input" ? "text-indigo-300" : "text-green-300"}>
+                <div className="scrollbar-hide max-h-[240px] space-y-1.5 overflow-y-auto px-3 py-3 font-mono text-[13px] leading-relaxed">
+                  {logs.map((log, index) => (
+                    <pre key={index} className="whitespace-pre-wrap break-words" style={{ color: log.type === "error" ? "#FF453A" : log.type === "input" ? ACCENT : "#30D158" }}>
                       {log.text}
-                    </div>
+                    </pre>
                   ))}
-                  <div ref={terminalEndRef} />
+                  <div ref={logEndRef} />
                 </div>
-
-                <form onSubmit={handleCommandSubmit} className="border-t border-white/5 px-4 py-2 flex items-center bg-[#070a11]/80 select-text">
-                  <span className="text-indigo-400 select-none mr-1.5">visitor@hugo.dev:~$</span>
+                <form onSubmit={runCommand} className="flex items-center gap-2 border-t-[0.5px] px-3 py-2" style={{ borderColor: "var(--ios-sep)" }}>
+                  <span className="shrink-0 font-mono text-[13px]" style={{ color: ACCENT }}>$</span>
                   <input
-                    type="text"
                     value={command}
-                    onChange={(e) => setCommand(e.target.value)}
-                    placeholder="Gõ 'skills' hoặc 'help'..."
-                    className="flex-grow bg-transparent border-none outline-none focus:ring-0 p-0 text-[11px] text-green-350 font-mono caret-green-400"
+                    onChange={(event) => setCommand(event.target.value)}
+                    placeholder="help, skills, about, stack, clear"
                     autoComplete="off"
+                    aria-label="Nhập lệnh"
+                    className="w-full border-0 bg-transparent p-0 font-mono text-[15px] outline-none placeholder:text-[var(--ios-label-3)] focus:ring-0"
                   />
                 </form>
-              </section>
-            </div>
-          )}
-
-          {/* COLUMN 3: Skills Chart & Guestbook */}
-          {(!isMobile || activeMobileTab === "guestbook") && (
-            <div className="flex flex-col gap-6 w-full">
-              {/* Skills Progress Metrics - Only show here on desktop */}
-              {!isMobile && (
-                <section className={`p-5 rounded-3xl border text-left space-y-3 ${bgCard}`}>
-                  <h4 className={`text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 border-b pb-1 ${borderSubtle}`}>
-                    ./Chuyên_môn
-                  </h4>
-                  <div className="space-y-3 text-[10px] font-mono">
-                    {[
-                      { name: "React / Next.js", val: 95 },
-                      { name: "CSS / Tailwind", val: 95 },
-                      { name: "Node.js / API", val: 80 },
-                      { name: "SEO & Performance", val: 90 }
-                    ].map((s, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex justify-between font-bold">
-                          <span>{s.name}</span>
-                          <span className="text-indigo-500">{s.val}%</span>
-                        </div>
-                        <div className="w-full bg-slate-200 dark:bg-zinc-800 h-1 rounded-full overflow-hidden">
-                          <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${s.val}%` }}></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Guestbook Card */}
-              <section className={`p-5 rounded-3xl border text-left space-y-4 ${bgCard}`}>
-                <h4 className={`text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 border-b pb-1 ${borderSubtle}`}>
-                  ./Khách_ký_lưu_bút
-                </h4>
-                
-                <div className="space-y-4">
-                  {/* comments logs first */}
-                  <div className="space-y-3 max-h-[110px] overflow-y-auto pr-1 scrollbar-hide">
-                    {guestMessages.map((msg) => (
-                      <div key={msg.id} className={`pb-2 border-b last:border-0 last:pb-0 text-[10px] leading-relaxed ${borderSubtle}`}>
-                        <div className="flex justify-between font-bold">
-                          <span className="text-indigo-500">{msg.name}</span>
-                          <span className="text-[8px] text-slate-400 font-mono">{msg.date}</span>
-                        </div>
-                        <p className={textSecondary}>{msg.text}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* input form below */}
-                  <form onSubmit={handleAddMessage} className="space-y-2 pt-2 border-t border-slate-500/10">
-                    <input
-                      required
-                      type="text"
-                      placeholder="Tên của bạn *"
-                      value={visitorName}
-                      onChange={(e) => setVisitorName(e.target.value)}
-                      className={`w-full px-3 py-1.5 border rounded-lg text-[10px] outline-none focus:border-indigo-500 ${
-                        dark ? "bg-[#0B0F19] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"
-                      }`}
-                    />
-                    <textarea
-                      required
-                      rows="2"
-                      placeholder="Lời lưu bút..."
-                      value={visitorMsg}
-                      onChange={(e) => setVisitorMsg(e.target.value)}
-                      className={`w-full px-3 py-1.5 border rounded-lg text-[10px] outline-none focus:border-indigo-500 resize-none ${
-                        dark ? "bg-[#0B0F19] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"
-                      }`}
-                    />
-                    <button
-                      type="submit"
-                      className="w-full py-2 bg-indigo-650 hover:bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors"
-                    >
-                      Gửi Lưu Bút Live
-                    </button>
-                  </form>
-                </div>
-              </section>
-            </div>
-          )}
-
-        </main>
-
-        {/* Footer - Hidden on mobile to save space */}
-        {!isMobile && (
-          <footer className={`border-t py-6 mt-8 select-none text-[10px] font-mono ${
-            dark ? "border-white/5 text-slate-500" : "border-slate-200 text-slate-400"
-          }`}>
-            <div className="max-w-5xl mx-auto px-6 flex justify-between items-center">
-              <span>© 2026 Peter Hugo. Bento Layout v2.5</span>
-              <span>Built with React</span>
-            </div>
-          </footer>
+              </Card>
+            )}
+          </div>
         )}
-      </div>
 
-      {/* Custom Bottom Tab Bar for Mobile */}
-      {isMobile && (
-        <div className={`border-t px-6 pt-3 pb-5 flex justify-around items-center shrink-0 z-30 select-none ${
-          dark ? "bg-[#0B0F19]/95 border-white/10" : "bg-[#F8FAFC]/95 border-slate-300"
-        }`}>
-          <button 
-            onClick={() => setActiveMobileTab("bio")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${
-              activeMobileTab === "bio" 
-                ? (dark ? "text-indigo-400 font-bold" : "text-indigo-650 font-bold") 
-                : "text-slate-500 hover:text-slate-400"
-            }`}
-          >
-            <span className="material-symbols-outlined text-xl">account_circle</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Hồ sơ</span>
-          </button>
-          <button 
-            onClick={() => setActiveMobileTab("projects")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${
-              activeMobileTab === "projects" 
-                ? (dark ? "text-indigo-400 font-bold" : "text-indigo-650 font-bold") 
-                : "text-slate-500 hover:text-slate-400"
-            }`}
-          >
-            <span className="material-symbols-outlined text-xl">terminal</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Dự án</span>
-          </button>
-          <button 
-            onClick={() => setActiveMobileTab("guestbook")} 
-            className={`flex flex-col items-center gap-1 transition-colors ${
-              activeMobileTab === "guestbook" 
-                ? (dark ? "text-indigo-400 font-bold" : "text-indigo-650 font-bold") 
-                : "text-slate-500 hover:text-slate-400"
-            }`}
-          >
-            <span className="material-symbols-outlined text-xl">rate_review</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider">Lưu bút</span>
-          </button>
-        </div>
-      )}
+        {tab === "about" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-2 items-start gap-5"}>
+            <Card className="flex items-center gap-4">
+              <Avatar name="Lê Hugo Wishpax" size={64} tint={ACCENT} />
+              <span className="min-w-0">
+                <span className="block text-[22px] font-bold leading-tight">Lê Hugo Wishpax</span>
+                <span className="mt-0.5 block text-[15px]" style={{ color: "var(--ios-label-2)" }}>Fullstack Engineer · TP.HCM</span>
+                <span className="mt-2 flex gap-2">
+                  <Chip tint="#34C759">Đang nhận dự án</Chip>
+                  <Chip tint="#8E8E93">5 năm</Chip>
+                </span>
+              </span>
+            </Card>
 
-      <HugoNoticeToast open={toast.show} type="success" message={toast.message} zIndex={80} />
+            <Card>
+              <p className="text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>
+                Kỹ sư lập trình với tư duy thiết kế. Đồng hành cùng thương hiệu xây dựng website độc bản, mượt mà và tối ưu SEO tốc độ cao.
+              </p>
+            </Card>
 
-    </div>
+            <ListGroup header="Chuyên môn">
+              {SKILLS.map((skill, index) => (
+                <ListRow key={skill.name} last={index === SKILLS.length - 1} title={skill.name} value={`${skill.value}%`} subtitle={<ProgressBar value={skill.value} />} />
+              ))}
+            </ListGroup>
+
+            <ListGroup header="Công nghệ" footer={`${STACK.length} công nghệ đang sử dụng hằng ngày.`}>
+              <div className="flex flex-wrap gap-1.5 p-3">
+                {STACK.map((item) => (
+                  <span key={item} className="rounded-[8px] px-2.5 py-1 text-[13px] font-medium" style={{ background: "var(--ios-fill)", color: "var(--ios-label-2)" }}>{item}</span>
+                ))}
+              </div>
+            </ListGroup>
+
+            <ListGroup header="Chặng đường">
+              {TIMELINE.map((item, index) => (
+                <ListRow key={item.year} icon="calendar_today" iconBg="#8E8E93" title={`${item.year} · ${item.title}`} subtitle={item.desc} last={index === TIMELINE.length - 1} />
+              ))}
+            </ListGroup>
+          </div>
+        )}
+
+        {tab === "contact" && (
+          <div className={isMobile ? "space-y-5" : "grid grid-cols-2 items-start gap-5"}>
+            <div className="space-y-4">
+              <ListGroup header="Kênh liên hệ">
+                <ListRow icon="mail" title="Email" value="contact@hugo.dev" chevron onClick={copyEmail} />
+                <ListRow icon="call" iconBg="#34C759" title="Điện thoại" value="083 990 9399" chevron onClick={() => showToast("Đang gọi 083 990 9399")} />
+                <ListRow icon="chat_bubble" iconBg="#0A84FF" title="Zalo" subtitle="Phản hồi trong giờ hành chính" chevron onClick={() => showToast("Mở Zalo")} last />
+              </ListGroup>
+
+              <form onSubmit={submitGuest} className="space-y-2.5">
+                <input required value={guest.name} onChange={(event) => setGuest({ ...guest, name: event.target.value })} placeholder="Tên của bạn" className={inputClass} style={inputStyle} />
+                <textarea required rows={3} value={guest.text} onChange={(event) => setGuest({ ...guest, text: event.target.value })} placeholder="Lời nhắn…" className={`${inputClass} resize-none`} style={inputStyle} />
+                <Button full size="lg" type="submit">Gửi lưu bút</Button>
+              </form>
+            </div>
+
+            <ListGroup header={`Lưu bút (${messages.length})`}>
+              {messages.slice(0, 6).map((message, index) => (
+                <ListRow key={message.id} title={message.name} subtitle={message.text} value={message.date} last={index === Math.min(messages.length, 6) - 1} />
+              ))}
+            </ListGroup>
+          </div>
+        )}
+      </AppShell>
+
+      <Sheet
+        open={Boolean(detail)}
+        onClose={() => setDetail(null)}
+        title={detail?.title}
+        action={<Button full size="lg" onClick={() => showToast("Mở bản demo trực tiếp")}>Xem bản chạy thật</Button>}
+      >
+        {detail && (
+          <div className="space-y-4 pb-2">
+            <span className="block h-40 w-full overflow-hidden rounded-[14px]"><Art kind={detail.art} ratio="wide" /></span>
+            <div className="flex flex-wrap gap-2">
+              <Chip>{detail.category}</Chip>
+              <Chip tint="#8E8E93">{detail.year}</Chip>
+            </div>
+            <p className="text-[15px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>{detail.desc}</p>
+
+            <div className="grid grid-cols-3 gap-2">
+              {detail.metrics.map(([label, value]) => (
+                <div key={label} className="rounded-[12px] p-3 text-center" style={{ background: "var(--ios-surface)" }}>
+                  <p className="text-[20px] font-bold leading-tight">{value}</p>
+                  <p className="mt-0.5 text-[12px] leading-tight" style={{ color: "var(--ios-label-2)" }}>{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <ListGroup header="Công nghệ">
+              {detail.tech.map((tech, index) => <ListRow key={tech} title={tech} last={index === detail.tech.length - 1} />)}
+            </ListGroup>
+          </div>
+        )}
+      </Sheet>
+
+      <Toast message={toast} />
+    </IosApp>
   );
 }

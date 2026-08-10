@@ -2,7 +2,8 @@ import express from 'express';
 import JoyGiftCard from '../models/JoyGiftCard.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
@@ -11,36 +12,42 @@ function generateCode() {
 }
 
 const GIFT_CARD_VALIDITY_MS = 365 * 24 * 60 * 60 * 1000;
+const redeemLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 10 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều lần thử mã quà tặng. Vui lòng thử lại sau 15 phút.' },
+});
 
 // POST /api/joy-gift-cards/redeem  { email, code }  (member-facing)
-router.post('/redeem', async (req, res) => {
+router.post('/redeem', requireMember, redeemLimiter, async (req, res) => {
   try {
-    const { email, code } = req.body;
-    if (!email || !code) return res.status(400).json({ error: 'email and code are required' });
+    const { code } = req.body;
+    const email = req.memberEmail;
+    if (!code) return res.status(400).json({ error: 'code is required' });
 
     const cleanCode = String(code).toUpperCase().trim();
-    const card = await JoyGiftCard.findOne({ code: cleanCode });
-    if (!card) return res.status(404).json({ error: 'Mã không hợp lệ.' });
-    if (card.redeemed) return res.status(400).json({ error: 'Mã này đã được sử dụng.' });
-    if (card.expiresAt && card.expiresAt.getTime() < Date.now()) {
-      return res.status(400).json({ error: 'Mã quà tặng JOY này đã hết hiệu lực sử dụng (quá 365 ngày kể từ ngày phát hành).' });
-    }
-
-    card.redeemed = true;
-    card.redeemedBy = email;
-    card.redeemedAt = new Date();
-    await card.save();
+    const claimedCard = await JoyGiftCard.findOneAndUpdate(
+      { code: cleanCode, redeemed: false, expiresAt: { $gte: new Date() } },
+      { $set: { redeemed: true, redeemedBy: email, redeemedAt: new Date() } },
+      { new: true },
+    );
+    if (!claimedCard) return res.status(400).json({ error: 'Mã không hợp lệ, đã dùng hoặc đã hết hạn.' });
 
     const { balance } = await awardJoy(
       email,
-      card.amount,
+      claimedCard.amount,
       'gift_code',
-      `Đổi mã quà tặng JOY (+${card.amount} JOY)`,
-      { refId: card.code }
+      `Đổi mã quà tặng JOY (+${claimedCard.amount} JOY)`,
+      { refId: claimedCard.code }
     );
 
-    res.json({ success: true, amount: card.amount, balance });
+    res.json({ success: true, amount: claimedCard.amount, balance });
   } catch (error) {
+    // Do not reopen a claimed card after an ambiguous wallet failure: the
+    // balance update may already have committed even if a later notification
+    // write failed, and reopening would enable a second credit.
     res.status(400).json({ error: error.message });
   }
 });

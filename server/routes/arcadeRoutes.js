@@ -3,6 +3,7 @@ import ArcadeScore from '../models/ArcadeScore.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
@@ -16,6 +17,37 @@ const router = express.Router();
 const SCORE_CEILINGS = { '2048': 1000000, caro: 200, wordguess: 20000, survivor: 80000, snake: 8000, tetris: 2000000, chess: 3000, flappy: 20000 };
 
 const RESULTS = ['win', 'lose', 'draw'];
+const ARCADE_DAILY_JOY_CAP = 150;
+const scoreLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: process.env.NODE_ENV === 'production' ? 40 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Gửi kết quả quá nhanh. Vui lòng thử lại sau ít phút.' },
+});
+
+async function reserveDailyArcadeJoy(email, amount) {
+  if (amount <= 0 || amount > ARCADE_DAILY_JOY_CAP) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  const owner = { $or: [{ email }, { contactEmail: email }] };
+  await Bio.updateOne(
+    { ...owner, arcadeJoyDate: { $ne: today } },
+    { $set: { arcadeJoyDate: today, arcadeJoyToday: 0 } },
+  );
+  return Bio.findOneAndUpdate(
+    { ...owner, arcadeJoyDate: today, arcadeJoyToday: { $lte: ARCADE_DAILY_JOY_CAP - amount } },
+    { $inc: { arcadeJoyToday: amount } },
+    { new: true, projection: { arcadeJoyToday: 1 } },
+  ).lean();
+}
+
+async function releaseDailyArcadeJoy(email, amount) {
+  const today = new Date().toISOString().slice(0, 10);
+  await Bio.updateOne(
+    { $or: [{ email }, { contactEmail: email }], arcadeJoyDate: today, arcadeJoyToday: { $gte: amount } },
+    { $inc: { arcadeJoyToday: -amount } },
+  );
+}
 
 // ─── JOY Calculation — per-game tiered formulas (must match src/utils/joyCalculation.js) ─
 // Each game defines score→JOY tiers: [threshold, baseJoy, perPoint]
@@ -65,7 +97,7 @@ function calcJoy(game, score) {
 
 // POST /api/arcade/score — body: { game, score, result, displayName, avatarUrl }
 // Endless mode: difficulty is ignored. JOY is calculated purely from score.
-router.post('/score', requireMember, async (req, res) => {
+router.post('/score', requireMember, scoreLimiter, async (req, res) => {
   try {
     const { game, score, result, displayName, avatarUrl } = req.body;
     const email = req.memberEmail;
@@ -104,24 +136,41 @@ router.post('/score', requireMember, async (req, res) => {
     let joyAwarded = false;
 
     // Standardized JOY: joy = max(1, floor(score × rate))
-    joyDelta = calcJoy(game, numScore);
+    joyDelta = numScore > 0 ? calcJoy(game, numScore) : 0;
+    const reservation = await reserveDailyArcadeJoy(email, joyDelta);
+    if (!reservation) joyDelta = 0;
 
-    try {
-      // Câu mô tả KHÔNG nhắc lại số JOY: `amount` đã là field riêng trên thông
-      // báo và được hiện thành "+N JOY" ở cột phải, viết vào đây nữa là người
-      // dùng thấy hai lần cùng một con số.
-      await awardJoy(
-        email, joyDelta, 'arcade_score',
-        `${game} — ${numScore.toLocaleString('vi-VN')} điểm`,
-        { refId: game }
-      );
-      joyAwarded = true;
-    } catch (e) {
-      console.error('[arcade joy award]', e.message);
+    if (joyDelta > 0) {
+      try {
+        // Câu mô tả KHÔNG nhắc lại số JOY: `amount` đã là field riêng trên thông
+        // báo và được hiện thành "+N JOY" ở cột phải, viết vào đây nữa là người
+        // dùng thấy hai lần cùng một con số.
+        await awardJoy(
+          email, joyDelta, 'arcade_score',
+          `${game} — ${numScore.toLocaleString('vi-VN')} điểm`,
+          { refId: game }
+        );
+        joyAwarded = true;
+      } catch (e) {
+        console.error('[arcade joy award]', e.message);
+        await releaseDailyArcadeJoy(email, joyDelta);
+      }
     }
 
+    const today = new Date().toISOString().slice(0, 10);
+    if (doc.joyAwardedDate !== today) {
+      doc.joyAwardedDate = today;
+      doc.joyAwardedToday = 0;
+    }
+    if (joyAwarded) doc.joyAwardedToday += joyDelta;
+
     await doc.save();
-    res.json({ bestScore: doc.bestScore, joyDelta, joyAwarded, dailyCapReached: false });
+    res.json({
+      bestScore: doc.bestScore,
+      joyDelta,
+      joyAwarded,
+      dailyCapReached: !reservation || Number(reservation.arcadeJoyToday) >= ARCADE_DAILY_JOY_CAP,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

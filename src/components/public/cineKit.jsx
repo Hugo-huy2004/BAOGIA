@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useInView, useMotionValue, useSpring } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+} from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 /* ============================================================================
@@ -18,6 +24,7 @@ export const ACCENT = "var(--cine-accent)";
 
 export const CINE_CSS = `
   .cine-root {
+    --studio-cover-offset: calc(4rem + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
     --cine-bg: hsl(var(--background));
     --cine-card: color-mix(in srgb, hsl(var(--card)) 92%, transparent);
     --cine-card2: color-mix(in srgb, hsl(var(--muted)) 76%, transparent);
@@ -50,14 +57,136 @@ export const CINE_CSS = `
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, hsl(var(--border)) 72%, transparent);
-    border-radius: clamp(1.75rem, 4vw, 3rem);
+    width: 100%;
+    min-height: calc(100svh - var(--studio-cover-offset));
+    min-height: calc(100dvh - var(--studio-cover-offset));
+    border: 0;
+    border-radius: 0;
     background:
       linear-gradient(145deg, color-mix(in srgb, hsl(var(--card)) 94%, transparent), color-mix(in srgb, hsl(var(--card)) 72%, transparent));
-    box-shadow: 0 24px 80px hsl(var(--shadow) / 0.1), inset 0 1px 0 rgba(255,255,255,0.72);
+    box-shadow: none;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
   .dark .ios-hero {
-    box-shadow: 0 30px 90px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08);
+    box-shadow: none;
+  }
+  .studio-cover-film-shell {
+    position: absolute;
+    inset: -2%;
+    z-index: 0;
+    transform-origin: center;
+    will-change: transform;
+  }
+  .studio-cover-color-shift {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+  }
+  .studio-cover-color-shift--intro {
+    background: linear-gradient(135deg, rgba(10,132,255,0.08), rgba(100,210,255,0.42) 46%, rgba(191,90,242,0.72));
+  }
+  .studio-cover-color-shift--service {
+    background: linear-gradient(135deg, rgba(191,90,242,0.12), rgba(100,210,255,0.38) 52%, rgba(10,132,255,0.7));
+  }
+  .studio-cover-grid {
+    width: 100%;
+    max-width: 90rem;
+    min-height: calc(100svh - var(--studio-cover-offset));
+    min-height: calc(100dvh - var(--studio-cover-offset));
+    margin-inline: auto;
+    padding: clamp(2rem, 5vh, 4.5rem) clamp(1.5rem, 5vw, 5rem) max(5.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem));
+  }
+  .studio-cover-copy {
+    position: relative;
+    z-index: 4;
+    will-change: transform, opacity;
+  }
+  .studio-swipe-cue {
+    position: absolute;
+    left: 50%;
+    bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem));
+    z-index: 6;
+    display: inline-flex;
+    min-width: 9rem;
+    min-height: 3.25rem;
+    transform: translateX(-50%);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    color: var(--cine-ink);
+    font-size: 0.625rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 14px hsl(var(--card));
+    touch-action: manipulation;
+  }
+  .studio-swipe-cue__rail {
+    position: relative;
+    width: 1px;
+    height: 1.15rem;
+    overflow: hidden;
+    background: hsl(var(--foreground) / 0.18);
+  }
+  .studio-swipe-cue__dot {
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    width: 3px;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: hsl(var(--primary));
+    transform: translateX(-50%);
+    animation: studio-swipe-down 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+  .studio-content-slide {
+    position: relative;
+    isolation: isolate;
+    scroll-margin-top: 0;
+    scroll-snap-align: start;
+  }
+  .studio-content-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: -1;
+    height: min(34rem, 62svh);
+    pointer-events: none;
+  }
+  .studio-content-slide--intro::before {
+    background: linear-gradient(180deg, hsl(var(--primary) / 0.13), rgba(100,210,255,0.065) 42%, transparent 100%);
+  }
+  .studio-content-slide--service::before {
+    background: linear-gradient(180deg, rgba(175,82,222,0.14), hsl(var(--primary) / 0.06) 48%, transparent 100%);
+  }
+  @keyframes studio-swipe-down {
+    0% { opacity: 0; transform: translate(-50%, -35%); }
+    25% { opacity: 1; }
+    72% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, 180%); }
+  }
+  html.standalone-pwa .cine-root,
+  html.native-ios .cine-root {
+    --studio-cover-offset: 0px;
+  }
+  html.standalone-pwa .studio-cover-grid,
+  html.native-ios .studio-cover-grid {
+    padding-top: max(2rem, calc(env(safe-area-inset-top, 0px) + 1.25rem));
+    padding-right: max(1.5rem, calc(env(safe-area-inset-right, 0px) + 1rem));
+    padding-left: max(1.5rem, calc(env(safe-area-inset-left, 0px) + 1rem));
+  }
+  #root.cine-snap-root {
+    position: relative;
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 4rem;
+  }
+  html.standalone-pwa #root.cine-snap-root,
+  html.native-ios #root.cine-snap-root {
+    scroll-padding-top: 0;
   }
   .ios-aurora {
     position: absolute;
@@ -141,7 +270,79 @@ export const CINE_CSS = `
   .cine-noise-overlay, .cine-bg-noise { background: none; }
   @keyframes cine-marquee { to { transform: translateX(-50%); } }
   .cine-marquee { animation: cine-marquee 32s linear infinite; }
-  .cine-marquee:hover { animation-play-state: paused; }
+  .cine-marquee:hover, .cine-marquee:active { animation-play-state: paused; }
+  @media (max-width: 767px), (max-width: 1023px) and (pointer: coarse) {
+    .services-mobile-layout .studio-cover--service {
+      scroll-snap-stop: normal;
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-film-shell {
+      inset: 0;
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-grid {
+      align-content: center;
+      grid-template-rows: auto clamp(11.5rem, 27svh, 13.5rem);
+      gap: 0.5rem;
+      padding-top: max(1.25rem, calc(env(safe-area-inset-top, 0px) + 0.75rem));
+      padding-right: max(1.125rem, env(safe-area-inset-right, 0px));
+      padding-bottom: max(4rem, calc(env(safe-area-inset-bottom, 0px) + 3.5rem));
+      padding-left: max(1.125rem, env(safe-area-inset-left, 0px));
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-copy {
+      max-width: 21rem;
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-copy .ios-kicker {
+      display: none;
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-copy h1 {
+      font-size: clamp(1.95rem, 8.6vw, 2.2rem) !important;
+      line-height: 1.01 !important;
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-copy .mt-7 {
+      margin-top: 1rem;
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-copy .ios-primary-button {
+      min-height: 2.625rem;
+      padding: 0.65rem 1rem;
+      font-size: 0.78rem;
+    }
+    .services-mobile-layout .studio-cover--service .code-film-stage-space {
+      min-height: clamp(11.5rem, 27svh, 13.5rem);
+    }
+    .services-mobile-switch {
+      top: calc(4rem + env(safe-area-inset-top, 0px));
+    }
+    .services-mobile-layout #service-fit {
+      scroll-margin-top: 4rem;
+    }
+    .services-mobile-layout #template-preview-panel .overscroll-contain {
+      overscroll-behavior: auto;
+      touch-action: pan-y;
+    }
+    html.standalone-pwa .services-mobile-switch,
+    html.native-ios .services-mobile-switch {
+      top: env(safe-area-inset-top, 0px);
+    }
+    html.standalone-pwa .services-mobile-layout #service-fit,
+    html.native-ios .services-mobile-layout #service-fit {
+      scroll-margin-top: 0;
+    }
+  }
+  @media (max-height: 500px) and (pointer: coarse) {
+    .services-mobile-layout .studio-cover--service .studio-cover-grid {
+      grid-template-columns: minmax(0, 1.04fr) minmax(11rem, 0.96fr);
+      grid-template-rows: 1fr;
+      gap: 0.75rem;
+      padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+      padding-bottom: max(2.75rem, calc(env(safe-area-inset-bottom, 0px) + 2.25rem));
+    }
+    .services-mobile-layout .studio-cover--service .studio-cover-copy h1 {
+      font-size: clamp(1.65rem, 7.8vh, 2rem) !important;
+    }
+    .services-mobile-layout .studio-cover--service .code-film-stage-space {
+      min-height: 0;
+      height: 100%;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .cine-root *, .cine-root *::before, .cine-root *::after {
       scroll-behavior: auto !important;
@@ -149,8 +350,115 @@ export const CINE_CSS = `
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+    .studio-swipe-cue__dot { animation: none; top: 35%; }
+  }
+  @media (max-width: 639px) and (max-height: 740px) {
+    .studio-cover-grid {
+      padding-top: 1.5rem;
+      padding-bottom: max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 4rem));
+    }
+  }
+  @media (max-height: 500px) and (pointer: coarse) {
+    .studio-cover-grid {
+      grid-template-columns: minmax(0, 1.06fr) minmax(13rem, 0.94fr);
+      gap: 1rem;
+      padding-top: 0.85rem;
+      padding-bottom: max(3.5rem, calc(env(safe-area-inset-bottom, 0px) + 3rem));
+    }
+    .studio-cover-copy h1 {
+      font-size: clamp(2rem, 9.5vh, 2.45rem) !important;
+      line-height: 1.01 !important;
+    }
+    .studio-cover-copy .ios-kicker { margin-bottom: 0.65rem; }
+    .studio-cover-copy .mt-7 { margin-top: 0.85rem; }
+    .studio-cover-copy .ios-primary-button {
+      min-height: 2.5rem;
+      padding: 0.58rem 1rem;
+      font-size: 0.75rem;
+    }
+    .studio-swipe-cue {
+      bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
+      min-height: 2.75rem;
+    }
   }
 `;
+
+export function CoverColorShift({ progress, variant = "intro" }) {
+  const layerRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return undefined;
+
+    if (reduceMotion || !progress) {
+      layer.style.opacity = "0.16";
+      return undefined;
+    }
+
+    const updateOpacity = (value) => {
+      const stop = 0.58;
+      const middle = variant === "service" ? 0.18 : 0.16;
+      const end = variant === "service" ? 0.46 : 0.42;
+      const next = value <= stop
+        ? (value / stop) * middle
+        : middle + ((value - stop) / (1 - stop)) * (end - middle);
+      layer.style.opacity = String(Math.max(0, Math.min(end, next)));
+    };
+
+    updateOpacity(progress.get());
+    return progress.on("change", updateOpacity);
+  }, [progress, reduceMotion, variant]);
+
+  return (
+    <div
+      ref={layerRef}
+      aria-hidden="true"
+      className={`studio-cover-color-shift studio-cover-color-shift--${variant}`}
+    />
+  );
+}
+
+export function SwipeDownCue({ targetId, touchLabel, desktopLabel, style }) {
+  const reduceMotion = useReducedMotion();
+  const scrollToContent = () => {
+    document.getElementById(targetId)?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
+  return (
+    <motion.button
+      type="button"
+      aria-controls={targetId}
+      onClick={scrollToContent}
+      initial={{ opacity: 0, x: "-50%", y: -5 }}
+      animate={{ opacity: 0.78, x: "-50%", y: 0 }}
+      transition={{ delay: 1, duration: 0.55, ease: EASE }}
+      className="studio-swipe-cue"
+      style={style}
+    >
+      <span className="sm:hidden">{touchLabel}</span>
+      <span className="hidden sm:inline">{desktopLabel}</span>
+      <span className="studio-swipe-cue__rail" aria-hidden="true">
+        <span className="studio-swipe-cue__dot" />
+      </span>
+    </motion.button>
+  );
+}
+
+export function useCineScrollSnap(enabled = true) {
+  useEffect(() => {
+    const root = document.getElementById("root");
+    if (!enabled) {
+      root?.classList.remove("cine-snap-root");
+      return undefined;
+    }
+    root?.classList.add("cine-snap-root");
+    return () => root?.classList.remove("cine-snap-root");
+  }, [enabled]);
+}
 
 // Chữ trồi lên từng từ (pull-up), kích hoạt khi vào viewport.
 export function WordsPullUp({ text, className = "", style, showAsterisk = false, center = false, wordClassName = "" }) {

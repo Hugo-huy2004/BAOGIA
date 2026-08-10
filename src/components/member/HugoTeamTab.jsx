@@ -430,8 +430,8 @@ export default function HugoTeamTab({ onBack }) {
       {/* Contact */}
       <div className="border-t border-border pt-8 text-center">
         <p className="text-sm text-muted-foreground mb-3">Có câu hỏi? Liên hệ tôi</p>
-        <a href="mailto:hugowishpax@gmail.com" className="text-primary font-semibold hover:underline">
-          hugowishpax@gmail.com
+        <a href="mailto:contact@hugowishpax.studio" className="text-primary font-semibold hover:underline">
+          contact@hugowishpax.studio
         </a>
       </div>
       </div>

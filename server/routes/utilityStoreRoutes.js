@@ -3,7 +3,7 @@ import Bio from '../models/Bio.js';
 import UtilityProduct from '../models/UtilityProduct.js';
 import UtilityOrder from '../models/UtilityOrder.js';
 import { awardJoy } from '../utils/joyService.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import InAppNotification from '../models/InAppNotification.js';
 import cloudinaryUtil from '../utils/cloudinary.js';
 import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
@@ -27,10 +27,9 @@ router.get('/products', async (req, res) => {
 });
 
 // GET /api/utility-store/orders?email=
-router.get('/orders', async (req, res) => {
+router.get('/orders', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
-    if (!email) return res.status(400).json({ error: 'Email query param is required' });
+    const email = req.memberEmail;
     const orders = await UtilityOrder.find({ email }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
@@ -39,10 +38,11 @@ router.get('/orders', async (req, res) => {
 });
 
 // POST /api/utility-store/purchase  { email, productId }
-router.post('/purchase', async (req, res) => {
+router.post('/purchase', requireMember, async (req, res) => {
   try {
-    const { email, productId } = req.body;
-    if (!email || !productId) return res.status(400).json({ error: 'email and productId are required' });
+    const { productId } = req.body;
+    const email = req.memberEmail;
+    if (!productId) return res.status(400).json({ error: 'productId is required' });
 
     const product = await UtilityProduct.findById(productId);
     if (!product || !product.active) {

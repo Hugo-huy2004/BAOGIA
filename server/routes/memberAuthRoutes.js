@@ -2,6 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { signMemberToken } from '../middleware/authMiddleware.js';
 import { GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../utils/secrets.js';
+import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 
 const router = express.Router();
 
@@ -64,6 +65,9 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
 
     const email = String(claims.email || '').toLowerCase();
     if (!email) return res.status(401).json({ error: 'Không đọc được email từ Google.' });
+
+    const securityBlock = await findActiveSecurityBlock({ email });
+    if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
 
     const cryptoMod = await import('crypto');
     const ua = req.headers['user-agent'] || '';

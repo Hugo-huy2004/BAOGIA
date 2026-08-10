@@ -16,7 +16,7 @@ Bạn tự dàn trang, phần nhìn bạn giỏi hơn tôi. Đây là **nội du
 **LÊ GIA HUY**
 **UI/UX Designer · Frontend Developer**
 
-hugowishpax@gmail.com · github.com/Hugo-huy2004 · hugowishpax.studio
+contact@hugowishpax.studio · GitHub available on request · hugowishpax.studio
 *(cân nhắc bỏ số điện thoại nếu đăng CV công khai lên web)*
 
 > **Bỏ chữ "FULL-STACK DEVELOPER".** Đây là lỗi nặng nhất của bản cũ: tiêu đề ghi

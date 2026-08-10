@@ -3,13 +3,14 @@ import { Link } from "react-router-dom";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useTranslation } from "react-i18next";
+import { API_BASE } from "../../config/apiBase";
 import { motion } from "framer-motion";
 
 // Thứ tự icon khớp với faqPage.faqs.* trong translation.json
 const FAQS = [
   { icon: "schedule" },
   { icon: "group" },
-  { icon: "featured_seasonal_and_gifts", hasAction: true, actionLink: "/student-benefits" },
+  { icon: "featured_seasonal_and_gifts", hasAction: true, actionLink: "/student-pricing" },
   { icon: "payments" },
   { icon: "flight_takeoff" },
 ];
@@ -205,7 +206,7 @@ export default function FAQPage() {
 
                 <div className="space-y-3">
                   <a
-                    href="https://zalo.me/0839909399"
+                    href={`${API_BASE}/contact/zalo`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-primary hover:bg-primary/90 text-white font-bold text-xs sm:text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/25"
@@ -213,7 +214,7 @@ export default function FAQPage() {
                     <span className="material-symbols-outlined text-lg">chat</span>{t("faqPage.contact.chatBtn")}
                   </a>
                   <a
-                    href="mailto:hugowishpax@gmail.com"
+                    href="mailto:contact@hugowishpax.studio"
                     className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-muted hover:bg-muted/70 text-foreground/80 font-bold text-xs sm:text-sm transition-all border border-border/50"
                   >
                     <span className="material-symbols-outlined text-lg">mail</span>{t("faqPage.contact.emailBtn")}
