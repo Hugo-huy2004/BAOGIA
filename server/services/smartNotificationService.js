@@ -58,7 +58,9 @@ async function runSkincareReminders(timeOfDay) {
       await InAppNotification.create({
         email,
         type: 'info',
-        category: 'system',
+        // 'wellness' chứ không phải 'system': hộp thư hiện icon theo loại, gắn
+        // sai thì nhắc dưỡng da cũng mang bánh răng như thông báo hệ thống.
+        category: 'wellness',
         title,
         message: body,
         actionUrl: '/member/utilities/hugoskin'
@@ -127,7 +129,7 @@ async function runScheduledCompanionPushes() {
       await InAppNotification.create({
         email: item.email,
         type: 'info',
-        category: 'system',
+        category: 'wellness',
         title: aiResult.title || 'Bạn Học Đường Trị Liệu',
         message: aiResult.body || 'Lời khuyên chăm sóc sức khỏe tinh thần dành cho bạn!',
         actionUrl: aiResult.url || '/member/utilities/psychology'

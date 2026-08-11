@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTodayArticle } from "../../hooks/useTodayArticle";
@@ -26,7 +26,12 @@ export default function TodayArticleReader({ articleId, onBack }) {
   }, [fontSize]);
 
   // Mở bài khác thì phải đọc từ đầu, không giữ vị trí cuộn của bài trước.
+  // Trên portal mobile, thứ cuộn KHÔNG phải window mà là `.mobile-portal-content`
+  // (vỏ app là fixed inset:0) — cuộn window ở đó không làm gì cả, và người đọc
+  // rơi thẳng vào giữa thân bài mới.
+  const rootRef = useRef(null);
   useEffect(() => {
+    rootRef.current?.closest(".mobile-portal-content")?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 });
   }, [articleId]);
 
@@ -58,7 +63,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
     : "";
 
   return (
-    <section className="today-article-page">
+    <section className="today-article-page" ref={rootRef}>
       <header className="today-article-topbar">
         <BackButton onClick={onBack} label={t("memberPortal.today.backToFeed")} />
         {article ? (

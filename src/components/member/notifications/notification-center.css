@@ -145,12 +145,39 @@
 
 .hgn-row:active { background: var(--hgn-accent-soft); }
 
-/* Chưa đọc: một vạch màu ở mép trái, không tô nền cả dòng (đọc list dễ hơn). */
-.hgn-row[data-unread="true"] {
-  box-shadow: inset 3px 0 0 var(--hgn-accent);
+/* ── Đã đọc vs chưa đọc ───────────────────────────────────────────────────
+   Khác nhau ở ba tín hiệu cùng lúc: vạch màu mép trái, tiêu đề đậm, chấm tròn
+   bên phải. Một tín hiệu thôi là dễ trôi mắt, nhất là khi lướt nhanh. */
+
+.hgn-row-title {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--hgn-ink-soft);
 }
 
-/* Vòng tròn hướng tiền: mũi tên xuống = vào ví, lên = ra khỏi ví. */
+.hgn-row[data-unread="true"] {
+  box-shadow: inset 3px 0 0 var(--hgn-row-tint, var(--hgn-accent));
+  background: color-mix(in srgb, var(--hgn-row-tint, var(--hgn-accent)) 5%, transparent);
+}
+
+.hgn-row[data-unread="true"] .hgn-row-title {
+  font-weight: 700;
+  color: var(--hgn-ink);
+}
+
+/* Đã đọc: lùi hẳn về sau, nhường mắt cho phần chưa đọc. */
+.hgn-row[data-unread="false"] { opacity: 0.72; }
+
+.hgn-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--hgn-row-tint, var(--hgn-accent));
+  animation: hgn-pulse 2.1s ease-in-out infinite;
+}
+
+/* Vòng tròn icon: chưa đọc thì tô đặc màu của loại, đã đọc thì viền xám. */
 .hgn-dir {
   position: relative;
   display: grid;
@@ -161,11 +188,21 @@
   border-radius: 999px;
   border: 1px solid var(--hgn-line);
   background: var(--hgn-surface);
+  color: var(--hgn-ink-soft);
+  transition: transform 0.18s ease;
 }
 
-.hgn-dir[data-dir="in"] { color: var(--hgn-in); }
-.hgn-dir[data-dir="out"] { color: var(--hgn-out); }
-.hgn-dir[data-dir="none"] { color: var(--hgn-ink-soft); }
+.hgn-dir[data-unread="true"] {
+  border-color: transparent;
+  background: var(--hgn-row-tint, var(--hgn-accent));
+  color: #fff;
+  animation: hgn-icon-pop 0.42s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+}
+
+.hgn-dir[data-unread="false"][data-dir="in"] { color: var(--hgn-in); }
+.hgn-dir[data-unread="false"][data-dir="out"] { color: var(--hgn-out); }
+
+.hgn-row:active .hgn-dir { transform: scale(0.94); }
 
 /* Ảnh người ở đầu bên kia giao dịch, gắn vào góc vòng tròn như ảnh mẫu. */
 .hgn-dir-avatar {
@@ -177,13 +214,38 @@
   border-radius: 999px;
   object-fit: cover;
   border: 2px solid var(--hgn-surface);
-  background: var(--hgn-accent-soft);
+  background: var(--hgn-line);
   display: grid;
   place-items: center;
   font-size: 9px;
   font-weight: 700;
-  color: var(--hgn-accent-deep);
+  color: var(--hgn-ink);
 }
+
+/* ── Chuyển động ──────────────────────────────────────────────────────────
+   Danh sách trôi vào lần lượt (độ trễ do NotificationRow đặt theo thứ tự),
+   chấm chưa đọc thở nhẹ, icon chưa đọc nảy lên một nhịp khi xuất hiện. */
+
+@keyframes hgn-row-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hgn-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.55; }
+}
+
+@keyframes hgn-icon-pop {
+  0% { transform: scale(0.55); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.hgn-row-enter { animation: hgn-row-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Đã đọc thì mờ đi, nhưng vẫn giữ nguyên độ mờ khi animation chạy xong. */
+.hgn-row[data-unread="false"].hgn-row-enter { animation-name: hgn-row-in; }
 
 .hgn-amount {
   font-size: 14.5px;
@@ -214,16 +276,14 @@
 .hgn-daygroup {
   margin-top: 18px;
   padding: 0 4px 8px;
-  /* Khối ngày đầu tiên không cần đẩy xuống — phần nhô lên đã lo khoảng đó. */
-}
-
-.hgn-sheet > section:first-of-type > .hgn-daygroup {
-  margin-top: 2px;
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--hgn-ink-soft);
 }
+
+/* Khối ngày đầu tiên không cần đẩy xuống — phần nhô lên đã lo khoảng đó. */
+.hgn-sheet > section:first-of-type > .hgn-daygroup { margin-top: 2px; }
 
 /* ── Chip lọc ─────────────────────────────────────────────────────────────── */
 
@@ -315,6 +375,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hgn-row-enter,
+  .hgn-unread-dot,
+  .hgn-dir[data-unread="true"] { animation: none; }
+
   .hgn-row,
   .hgn-chip,
   .hgn-btn,

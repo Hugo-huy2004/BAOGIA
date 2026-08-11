@@ -36,7 +36,7 @@ function bioToFormData(b, fallbackDisplayName, emptyTheme) {
   return {
     email: b.email||"", displayName: b.displayName||fallbackDisplayName||"", headline: b.headline||"",
     bio: b.bio||"", birthday: b.birthday||"", phone: b.phone||"", hobbies: b.hobbies||"",
-    birthYear: b.birthYear||0, birthMonth: b.birthMonth||0,
+    birthYear: b.birthYear||0, birthMonth: b.birthMonth||0, birthDay: b.birthDay||0,
     height: b.height||"", weight: b.weight||"", measurements: b.measurements||"",
     address: b.address||"", education: b.education||"", skills: b.skills||"",
     jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
@@ -389,9 +389,10 @@ function MemberPortalPage() {
           // Defer balance/referral-code fetch until onboarding (phone capture) is done —
           // GET /api/joy/balance eagerly calls ensureReferralCode, and we want phone
           // saved first so the generated code is phone-derived, not random.
-          // Thiếu ngày sinh thì buộc khai ngay: cổng độ tuổi đứng trên dữ liệu này.
-          if (b.onboardingCompleted && b.birthYear) hydrateWallet(memberSession.email, bootstrapData.wallet);
-          else setShowOnboarding(true);
+          // Ví vẫn nạp bình thường; modal chỉ hỏi phần hồ sơ còn thiếu và tự
+          // đóng nếu server báo không thiếu gì.
+          hydrateWallet(memberSession.email, bootstrapData.wallet);
+          if (!b.onboardingCompleted || b.profileMissing?.length) setShowOnboarding(true);
           if (b.status === 'active' && b.verificationRequest?.notifiedStatus === 'approved') {
             sendNotification({ category: 'verification', type: 'success', title: t("memberPortal.toast.verifySuccessTitle"), message: t("memberPortal.toast.verifySuccessMsg") });
             memberService.dismissVerificationNotification(memberSession.email).catch(console.error);
@@ -817,12 +818,11 @@ function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
-            requireBirthDate={!bio?.birthYear}
-            onSkip={bio?.birthYear ? () => setShowOnboarding(false) : undefined}
+            onSkip={() => setShowOnboarding(false)}
             onDone={(result) => {
               setShowOnboarding(false);
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
-              if (result?.birth) setBio(prev => prev ? { ...prev, ...result.birth } : prev);
+              if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);
               fetchJoyBalance(memberSession.email);
             }}
           />
@@ -906,7 +906,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} onOpenParticleModal={openParticleModal} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1004,7 +1004,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} onOpenParticleModal={openParticleModal} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1149,13 +1149,12 @@ function MemberPortalPage() {
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
-            requireBirthDate={!bio?.birthYear}
-            onSkip={bio?.birthYear ? () => setShowOnboarding(false) : undefined}
+            onSkip={() => setShowOnboarding(false)}
             onDone={(result) => {
               setShowOnboarding(false);
 
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
-              if (result?.birth) setBio(prev => prev ? { ...prev, ...result.birth } : prev);
+              if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);
               fetchJoyBalance(memberSession.email);
             }}
           />

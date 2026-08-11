@@ -798,6 +798,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     setPresetTest={setPresetTest}
                     showToast={showToast}
                     healingActive={healingActive}
+                    onClaimChallenge={handleClaimChallenge}
                     onProfileUpdate={(newFields) => {
                       if (setFormData && handleSave) {
                         setFormData(prev => {

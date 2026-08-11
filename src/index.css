@@ -1067,6 +1067,41 @@
   line-height: 1.55;
 }
 
+/* Điện thoại: nhãn nằm trên, ô nhập chiếm trọn bề ngang. Lưới ba cột
+   (icon | nhãn 112px | ô nhập) ép ô nhập còn ~150px trên máy 360px, nhãn dài
+   như "Số điện thoại / Zalo" thì xuống dòng loạn cả hàng.
+   Cỡ chữ ô nhập để 17px: dưới 16px là Safari tự phóng to trang khi bấm vào. */
+@media (max-width: 480px) {
+  .apple-account-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-areas: "icon label" "value value";
+    row-gap: 6px;
+    padding: 12px 15px;
+  }
+
+  .apple-account-row > :nth-child(1) { grid-area: icon; }
+  .apple-account-row > :nth-child(2) { grid-area: label; }
+  .apple-account-row > :nth-child(3) { grid-area: value; }
+
+  .apple-account-row--verified {
+    grid-template-columns: 30px minmax(0, 1fr) 22px;
+    grid-template-areas: "icon label lock" "value value value";
+  }
+
+  .apple-account-row--verified > :nth-child(3) { grid-area: value; }
+  .apple-account-row--verified > :nth-child(4) { grid-area: lock; }
+
+  .apple-account-row-label { font-size: 13px; }
+
+  .apple-account-input,
+  .apple-account-row input,
+  .apple-account-row select,
+  .apple-account-row textarea {
+    font-size: 17px;
+    padding-block: 2px;
+  }
+}
+
 .apple-account-security-note .material-symbols-outlined {
   color: hsl(var(--primary));
   font-size: 18px;
@@ -1188,26 +1223,21 @@
   margin-inline: auto;
 }
 
+/* Đầu trang không còn là một cái thẻ: iOS dùng large title trần trên nền, và
+   bỏ được cái khung dày clamp(26px,5vw,48px) là mỗi màn thêm gần một bài. */
 .today-news-hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 28px;
-  padding: clamp(26px, 5vw, 48px);
-  border: 1px solid hsl(var(--border) / 0.62);
-  border-radius: var(--portal-radius-xl, 28px);
-  background: hsl(var(--card) / 0.9);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.055);
+  min-width: 0;
+  padding: 2px 0 0;
 }
 
 .today-edition-note {
   display: flex;
   align-items: center;
-  gap: 6px;
-  width: fit-content;
-  margin-top: -4px;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
   color: hsl(var(--muted-foreground));
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 550;
 }
 
@@ -1216,32 +1246,228 @@
   font-size: 15px;
 }
 
-.today-news-categories {
+/* Thanh công cụ dính đỉnh vùng cuộn: tìm kiếm + nút lọc.
+   KHÔNG có dải nền chạy hết bề ngang. Một dải kính mờ kéo ngang trang cắt bố
+   cục thành hai mảng lệch nhau và để lộ hai đường viền ngang không ăn nhập với
+   thẻ bo tròn bên dưới. iOS để ô tìm kiếm trôi tự do trên nội dung — kính nằm
+   trong chính hai viên đó. */
+.today-news-toolbar {
+  position: sticky;
+  top: 6px;
+  z-index: 20;
   display: flex;
-  /* Xuống hàng chứ KHÔNG cuộn ngang: cuộn ngang luôn để lại một con chữ bị cắt
-     cụt ở mép, nhìn như vỡ giao diện, và trong PWA (chặn pinch-zoom) người dùng
-     không có cách nào nhìn thấy phần bị khuất. */
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
+  /* Khoảng cách với đầu trang do gap của .portal-stack lo; thêm margin trên
+     nữa là hai lớp đệm chồng lên nhau và trang loãng ra. */
+  margin: 0 0 12px;
+}
+
+.today-news-search,
+.today-news-filter-btn {
+  border: 1px solid hsl(var(--border) / .5);
+  background: hsl(var(--card) / .82);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 6px 20px hsl(var(--shadow) / .1);
+}
+
+.today-news-search {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 7px;
   min-width: 0;
-  margin: 14px 0 16px;
-}
-.today-news-categories button {
-  flex: 0 0 auto;
-  min-height: 34px;
+  min-height: 42px;
   padding: 0 14px;
-  border: 1px solid hsl(var(--border) / 0.64);
   border-radius: 999px;
-  background: hsl(var(--card));
   color: hsl(var(--muted-foreground));
-  font-size: 12px;
-  font-weight: 600;
-  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
 }
-.today-news-categories button.is-active {
-  border-color: hsl(var(--primary));
+.today-news-search:focus-within {
+  border-color: hsl(var(--primary) / .55);
+  background: hsl(var(--card));
+}
+.today-news-search > .material-symbols-outlined { font-size: 18px; }
+.today-news-search input {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+  color: hsl(var(--foreground));
+  /* 16px chẵn: dưới ngưỡng này iOS tự phóng to trang lúc gõ. Cỡ chữ cùng nhịp
+     với tiêu đề bài (14.5px) chứ không to hơn cả tin. */
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  outline: none;
+}
+.today-news-search input::placeholder {
+  color: hsl(var(--muted-foreground) / .75);
+  font-weight: 450;
+}
+.today-news-search input::-webkit-search-cancel-button { display: none; }
+.today-news-search-clear {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: hsl(var(--muted-foreground));
+}
+.today-news-search-clear .material-symbols-outlined { font-size: 18px; }
+
+.today-news-filter-btn {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 999px;
+  color: hsl(var(--foreground));
+}
+.today-news-filter-btn .material-symbols-outlined { font-size: 20px; }
+.today-news-filter-btn.is-on {
+  border-color: transparent;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+}
+.today-news-filter-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 999px;
   background: hsl(var(--primary));
   color: white;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+}
+
+.today-news-active-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+}
+.today-news-active-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 8px 0 11px;
+  border-radius: 999px;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  font-size: 12.5px;
+  font-weight: 620;
+}
+.today-news-active-filters .material-symbols-outlined { font-size: 15px; }
+
+/* Bảng lọc: <dialog> trượt từ đáy như sheet iOS. */
+.today-filter-sheet {
+  width: min(100%, 520px);
+  max-width: 100%;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 26px 26px 0 0;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  animation: today-sheet-rise 260ms cubic-bezier(.2, .9, .2, 1);
+}
+.today-filter-sheet::backdrop {
+  background: rgb(0 0 0 / .38);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+@keyframes today-sheet-rise {
+  from { transform: translateY(14px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .today-filter-sheet { animation: none; }
+}
+@media (min-width: 640px) {
+  .today-filter-sheet { margin: auto; border-radius: 26px; }
+}
+
+.today-filter-body {
+  padding: 6px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+}
+.today-filter-body header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+}
+.today-filter-body header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.today-filter-body header button {
+  min-height: 44px;
+  padding-inline: 6px;
+  color: hsl(var(--primary));
+  font-size: 15px;
+  font-weight: 650;
+}
+.today-filter-label {
+  margin: 10px 0 8px;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.today-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.today-filter-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid hsl(var(--border) / .55);
+  border-radius: 999px;
+  background: hsl(var(--muted) / .5);
+  color: hsl(var(--foreground));
+  font-size: 13.5px;
+  font-weight: 600;
+  /* Chủ đề rút từ tiêu đề nên luôn là chữ thường; hoa đầu chip cho gọn mắt. */
+  text-transform: none;
+}
+.today-filter-chips button:first-letter { text-transform: uppercase; }
+.today-filter-chips button.is-active {
+  border-color: transparent;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+}
+.today-filter-chips .material-symbols-outlined { font-size: 18px; }
+.today-filter-chips b {
+  color: hsl(var(--muted-foreground));
+  font-size: 11px;
+  font-weight: 700;
+}
+.today-filter-chips button.is-active b { color: hsl(var(--background) / .7); }
+.today-filter-reset {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
+  border-radius: 16px;
+  background: hsl(var(--muted) / .55);
+  color: hsl(var(--destructive));
+  font-size: 14px;
+  font-weight: 650;
 }
 
 .today-news-list {
@@ -1249,21 +1475,35 @@
   gap: 8px;
 }
 
+/* Màn rộng: hai cột tin, bài đầu ấn bản vẫn trải hết bề ngang. Cùng một lần
+   cuộn đọc được gấp đôi số tiêu đề. */
+@media (min-width: 700px) {
+  .today-news-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .today-news-card.is-lead,
+  .today-news-more { grid-column: 1 / -1; }
+}
+
 .today-news-card {
   width: 100%;
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr) 18px;
-  align-items: center;
+  /* Căn theo đỉnh, không theo giữa: tiêu đề 3 dòng cạnh ảnh 64px mà căn giữa
+     thì dòng nguồn trôi lên khỏi mép ảnh, nhìn như bị lệch khối. */
+  align-items: start;
   gap: 12px;
-  padding: 13px;
-  border: 1px solid hsl(var(--border) / 0.62);
-  border-radius: 16px;
-  background: hsl(var(--card) / 0.86);
+  padding: 12px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  /* 20px: bo tròn cỡ iOS cho thẻ nội dung. Thẻ vẫn ĐẶC (không kính) — chữ
+     nhiều nằm trên nền mờ là thứ khó đọc nhất, và mỗi thẻ một lớp blur là
+     hàng chục layer cho compositor khi cuộn. */
+  border-radius: 20px;
+  background: hsl(var(--card));
   text-align: left;
-  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+  transition: background 160ms ease, transform 160ms ease;
 }
 
-.today-news-card:hover { transform: translateY(-1px); }
+.today-news-card:active { transform: scale(.985); }
+.today-news-card:hover { background: hsl(var(--muted) / .45); }
 
 /* Mọi ô của thẻ phải co lại được. Ô lưới mặc định min-width:auto — chỉ cần một
    tiêu đề dài là cả thẻ phình ra ngoài khung. Không trông cậy vào class
@@ -1298,20 +1538,37 @@
   display: block;
   overflow: hidden;
   color: hsl(var(--muted-foreground));
-  font-size: 10px;
-  line-height: 1.3;
+  font-size: 11px;
+  line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .today-news-card strong {
-  overflow-wrap: anywhere;
+  /* `anywhere` cắt giữa từ: "chuyển đổi" thành "chuy/ển đổi". Tiếng Việt có
+     rất nhiều từ ngắn nên chỉ cần `break-word` cho URL/từ dài bất thường. */
+  overflow-wrap: break-word;
   display: -webkit-box;
-  margin-top: 4px;
+  margin-top: 3px;
   overflow: hidden;
   color: hsl(var(--foreground));
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 620;
-  line-height: 1.35;
+  /* 1.45 chứ không 1.35: dấu tiếng Việt xếp tầng (Ằ, ệ, ỗ) cao hơn chữ Latin,
+     line-height chặt + overflow:hidden là cụt dấu ở dòng đầu và dòng cuối. */
+  line-height: 1.45;
+  letter-spacing: -.01em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+/* Sapo của bài đầu ấn bản: hai dòng, đủ để quyết định có mở hay không. */
+.today-news-dek {
+  display: -webkit-box;
+  margin-top: 6px;
+  overflow: hidden;
+  color: hsl(var(--muted-foreground));
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: break-word;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -1348,23 +1605,24 @@
   object-fit: cover;
 }
 .today-news-card.is-lead .today-news-card-media img { position: static; }
-.today-news-card.is-lead > .min-w-0 { padding: 12px 14px 14px; }
-.today-news-card.is-lead small { font-size: 11px; }
+.today-news-card.is-lead > .min-w-0 { padding: 13px 15px 15px; }
+.today-news-card.is-lead small { font-size: 11.5px; }
 .today-news-card.is-lead strong {
-  font-size: 17px;
-  line-height: 1.28;
-  letter-spacing: -0.015em;
+  font-size: 19px;
+  line-height: 1.34;
+  letter-spacing: -0.02em;
   -webkit-line-clamp: 3;
 }
 .today-news-card.is-lead .today-news-chevron { display: none; }
 
 .today-news-more {
-  min-height: 44px;
-  border: 1px solid hsl(var(--border) / 0.62);
-  border-radius: 16px;
+  min-height: 46px;
+  margin-top: 4px;
+  border: 1px solid hsl(var(--border) / 0.55);
+  border-radius: 20px;
   background: hsl(var(--card));
   color: hsl(var(--primary));
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 620;
 }
 
@@ -1382,9 +1640,10 @@
 }
 
 @media (max-width: 639px) {
-  .today-news-hero { align-items: stretch; flex-direction: column; padding: 24px 18px; }
-  .today-news-card { grid-template-columns: 92px minmax(0, 1fr) 16px; padding: 10px; }
-  .today-news-card-media { width: 92px; height: 70px; }
+  /* Ảnh nhỏ lại một nhịp so với bản cũ (92px): chỗ tiết ra dành cho tiêu đề,
+     đủ để 3 dòng tiếng Việt hiện trọn thay vì cụt giữa chừng. */
+  .today-news-card { grid-template-columns: 84px minmax(0, 1fr) 16px; padding: 11px; }
+  .today-news-card-media { width: 84px; height: 78px; }
   .today-news-grid { grid-template-columns: 1fr; }
 }
 
@@ -1411,8 +1670,12 @@
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 8px;
-  padding: 4px 0;
-  background: hsl(var(--background));
+  padding: 6px 0;
+  /* Cùng chất kính với tab bar: chữ bài báo trôi mờ dần dưới thanh quay lại
+     thay vì bị một dải đặc chặn ngang. */
+  background: hsl(var(--background) / .62);
+  -webkit-backdrop-filter: saturate(190%) blur(24px);
+  backdrop-filter: saturate(190%) blur(24px);
 }
 
 .today-article-origin {
@@ -1695,11 +1958,6 @@ html.standalone-pwa .desktop-apple-layout {
     max(10px, env(safe-area-inset-right, 0px))
     min(6px, max(4px, env(safe-area-inset-bottom, 0px)))
     max(10px, env(safe-area-inset-left, 0px));
-  border-top: 1px solid hsl(var(--border) / .42);
-  background: hsl(var(--background) / .9);
-  box-shadow: 0 -8px 24px hsl(var(--shadow) / .06);
-  -webkit-backdrop-filter: saturate(165%) blur(22px);
-  backdrop-filter: saturate(165%) blur(22px);
 }
 
 .mobile-portal-nav__track {
@@ -1729,10 +1987,6 @@ html.standalone-pwa .desktop-apple-layout {
   transition: background-color .22s ease, color .22s ease;
 }
 
-.mobile-portal-nav button.is-active {
-  background: hsl(var(--primary) / .12);
-  color: hsl(var(--primary));
-}
 
 .mobile-portal-nav__icon {
   position: relative;
@@ -1783,11 +2037,6 @@ html.standalone-pwa .desktop-apple-layout {
   background: hsl(var(--warning));
 }
 
-.dark .mobile-portal-nav {
-  background: rgb(12 11 17 / .9);
-  box-shadow: 0 -10px 28px rgb(0 0 0 / .22);
-}
-
 /* ---------------------------------------------------------------------------
  * Liquid glass — bản App Store trên iOS (html.native-ios, đặt trong NativeShell)
  *
@@ -1805,11 +2054,11 @@ html.standalone-pwa .desktop-apple-layout {
    một hàng riêng trong flex column nên phía sau nó vĩnh viễn là nền trống —
    blur bao nhiêu cũng ra một miếng nhựa đục. Nội dung phải trôi được xuống
    dưới thanh thì mới có gì để khúc xạ. */
-html.native-ios .portal-mobile-main {
+.portal-mobile-main {
   position: relative;
 }
 
-html.native-ios .mobile-portal-nav {
+.mobile-portal-nav {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -1834,7 +2083,7 @@ html.native-ios .mobile-portal-nav {
     max(14px, env(safe-area-inset-left, 0px));
 }
 
-html.native-ios .mobile-portal-nav__track {
+.mobile-portal-nav__track {
   height: 56px;
   padding: 4px 6px;
   /* Co vừa nội dung, không kéo hết chiều ngang: thanh tab iOS là một vật thể
@@ -1859,19 +2108,17 @@ html.native-ios .mobile-portal-nav__track {
    backdrop-filter khi phần tử vừa có filter vừa có con vẽ đè lên — kết quả là
    nền vẫn trong veo, chữ bài báo phía sau đọc rõ mồn một và nhãn tab thì
    không đọc được. Tách ra ::before thì lớp lọc có backdrop riêng của nó. */
-html.native-ios .mobile-portal-nav__track::before {
+.mobile-portal-nav__track::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  /* .62 chứ không phải .30: kính của Apple mờ đủ để chữ trên mặt kính luôn
-     đọc được, dù bên dưới là ảnh báo dày đặc hay nền trắng trơn. Trong hơn
-     nữa thì đẹp lúc chụp ảnh và hỏng lúc dùng thật. */
-  background:
-    linear-gradient(to bottom, rgb(255 255 255 / .40), rgb(255 255 255 / .10)),
-    hsl(var(--background) / .62);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  backdrop-filter: saturate(180%) blur(24px);
+  /* Kính trong suốt 100%: không còn lớp nền đặc nào, chỉ blur + saturate lọc
+     thứ nằm sau. Blur nâng lên 32px để nhãn tab vẫn đọc được khi bên dưới là
+     ảnh/chữ dày đặc — đó là thứ thay cho lớp nền .62 trước đây. */
+  background: transparent;
+  -webkit-backdrop-filter: saturate(190%) blur(32px);
+  backdrop-filter: saturate(190%) blur(32px);
   /* Ép lớp này lên một composited layer riêng. Không có nó, WebKit vẽ kính
      bằng đường raster thường và bỏ qua luôn phần lọc backdrop khi thứ nằm sau
      là một vùng cuộn có layer riêng (.mobile-portal-content) — triệu chứng là
@@ -1959,7 +2206,7 @@ html.native-ios .mobile-portal-nav__track::before {
 
 /* Bản iOS: cùng chất kính với tab bar, và nhấc lên vừa đủ để hai viên kính
    xếp chồng chứ không dính vào nhau. */
-html.native-ios .radio-mini {
+.radio-mini {
   /* Vẫn tuyệt đối, không đưa vào dòng chảy flex: nav cũng đang đè lên vùng
      cuộn, hai viên kính phải xếp chồng trên cùng một mặt phẳng nổi.
      72px = chiều cao thanh tab (56) + đệm trên (6) + đệm dưới (10). */
@@ -1974,46 +2221,38 @@ html.native-ios .radio-mini {
     inset 0 -1px 0 rgb(255 255 255 / .22);
 }
 
-html.native-ios .radio-mini::before {
+.radio-mini::before {
   content: "";
   position: absolute;
   z-index: -1;
   inset: 0;
   border-radius: inherit;
-  background:
-    linear-gradient(to bottom, rgb(255 255 255 / .40), rgb(255 255 255 / .10)),
-    hsl(var(--background) / .62);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  backdrop-filter: saturate(180%) blur(24px);
+  background: transparent;
+  -webkit-backdrop-filter: saturate(190%) blur(32px);
+  backdrop-filter: saturate(190%) blur(32px);
   transform: translateZ(0);
   will-change: backdrop-filter;
 }
 
-html.native-ios.dark .radio-mini::before {
-  background:
-    linear-gradient(to bottom, rgb(255 255 255 / .10), rgb(255 255 255 / .02)),
-    rgb(12 11 17 / .62);
-}
-
 /* Có thanh now-playing thì nội dung phải chừa thêm chiều cao của nó. */
-html.native-ios .portal-mobile-main:has(.radio-mini) .mobile-portal-content {
+.portal-mobile-main:has(.radio-mini) .mobile-portal-content {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 142px);
 }
 
 /* Vùng cuộn cũng phải nằm trên composited layer riêng, nếu không compositor
    không có sẵn ảnh của nó để lớp kính lấy mẫu — bỏ dòng này ra là blur tắt,
    đã thử đi thử lại trên máy thật. */
-html.native-ios .mobile-portal-content {
+.mobile-portal-content {
   transform: translateZ(0);
 }
 
 /* Icon/nhãn phải nằm TRÊN lớp kính. */
-html.native-ios .mobile-portal-nav button {
+.mobile-portal-nav button {
   position: relative;
   z-index: 1;
 }
 
-html.native-ios .mobile-portal-nav button {
+.mobile-portal-nav button {
   /* Nút thôi giãn đều: mỗi nút rộng vừa đủ nhãn, nhờ vậy cả thanh co lại.
      min-width giữ vùng chạm 44px theo HIG kể cả với nhãn ngắn. */
   flex: 0 0 auto;
@@ -2023,30 +2262,25 @@ html.native-ios .mobile-portal-nav button {
   border-radius: 22px;
 }
 
-html.native-ios .mobile-portal-nav button.is-active {
+.mobile-portal-nav button.is-active {
   /* Tab đang chọn là một "thấu kính" nổi trên mặt kính, không phải mảng màu
      phẳng — đây là cách iOS 26 đánh dấu mục đang mở. */
-  background: rgb(255 255 255 / .58);
+  color: hsl(var(--foreground));
+  background: rgb(255 255 255 / .34);
   box-shadow:
     0 2px 8px hsl(var(--shadow) / .12),
     inset 0 1px 0 rgb(255 255 255 / .7);
 }
 
-html.native-ios.dark .mobile-portal-nav__track {
+.dark .mobile-portal-nav__track {
   border-color: rgb(255 255 255 / .12);
   box-shadow:
     0 8px 30px rgb(0 0 0 / .38),
     inset 0 1px 0 rgb(255 255 255 / .14);
 }
 
-html.native-ios.dark .mobile-portal-nav__track::before {
-  background:
-    linear-gradient(to bottom, rgb(255 255 255 / .10), rgb(255 255 255 / .02)),
-    rgb(12 11 17 / .62);
-}
-
-html.native-ios.dark .mobile-portal-nav button.is-active {
-  background: rgb(255 255 255 / .14);
+.dark .mobile-portal-nav button.is-active {
+  background: rgb(255 255 255 / .12);
   box-shadow:
     0 2px 8px rgb(0 0 0 / .3),
     inset 0 1px 0 rgb(255 255 255 / .18);
@@ -2055,9 +2289,20 @@ html.native-ios.dark .mobile-portal-nav button.is-active {
 /* Nav giờ đè lên vùng cuộn nên nó không còn chiếm chỗ: nội dung phải tự chừa
    đúng chiều cao thanh + safe-area, nếu không hàng cuối danh sách sẽ vĩnh viễn
    nằm khuất dưới kính và không cuộn tới được. */
-html.native-ios .mobile-portal-content,
-html.native-ios .mobile-portal-content--app {
+.mobile-portal-content,
+.mobile-portal-content--app {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);
+}
+
+/* Tắt hiệu ứng trong suốt ở cấp hệ điều hành thì kính không còn nghĩa gì: trả
+   lại một thanh đặc để nhãn tab luôn đọc được. */
+@media (prefers-reduced-transparency: reduce) {
+  .mobile-portal-nav__track::before,
+  .radio-mini::before {
+    background: hsl(var(--background));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /*
@@ -2147,18 +2392,14 @@ html.standalone-pwa .mobile-portal-content {
     min-height: 44px;
   }
 
-  .today-news-categories button {
-    min-height: 44px;
-  }
+  /* Vùng chạm 44px theo HIG — nút lọc phải nới cả bề ngang, nếu không nó méo
+     thành hình bầu dục. */
+  .today-news-filter-btn,
+  .today-news-search { min-height: 44px; }
+  .today-news-filter-btn { width: 44px; }
 }
 
 @media (max-height: 500px) and (pointer: coarse) {
-  .portal-mobile-layout .today-news-hero {
-    align-items: center;
-    flex-direction: row;
-    padding: 16px 18px;
-  }
-
   .portal-mobile-layout .apple-account-hero {
     flex-direction: row;
     padding: 16px 18px;
@@ -2513,176 +2754,3 @@ html.standalone-pwa .animate-bounce-gentle {
   .pwa-login-rise { animation: none; }
 }
 
-/* =========================================================================
-   MOBILE PORTAL NAV — COMPACT DOCK
-   A quiet, predictable four-item dock. The active state belongs to the icon,
-   so labels no longer jump and the whole control stays easy to scan.
-   ========================================================================= */
-.mobile-portal-nav {
-  padding:
-    6px
-    max(12px, env(safe-area-inset-right, 0px))
-    max(8px, env(safe-area-inset-bottom, 0px))
-    max(12px, env(safe-area-inset-left, 0px));
-  border-top: 0;
-  background: linear-gradient(to top, hsl(var(--background)) 58%, hsl(var(--background) / 0));
-  box-shadow: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-.mobile-portal-nav__track {
-  display: grid;
-  width: min(100%, 430px);
-  height: 64px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: center;
-  gap: 2px;
-  padding: 5px;
-  border: 1px solid hsl(var(--border) / .64);
-  border-radius: 22px;
-  background: hsl(var(--card) / .96);
-  box-shadow:
-    0 12px 32px hsl(var(--shadow) / .12),
-    inset 0 1px 0 hsl(var(--background) / .8);
-}
-
-.mobile-portal-nav button {
-  width: 100%;
-  min-width: 0;
-  height: 54px;
-  flex: none;
-  gap: 2px;
-  padding: 3px 2px 2px;
-  border-radius: 16px;
-  background: transparent;
-  color: hsl(var(--muted-foreground) / .78);
-  box-shadow: none;
-  transition: color .18s ease, transform .18s ease;
-}
-
-.mobile-portal-nav button::before {
-  display: none;
-}
-
-.mobile-portal-nav button:active {
-  transform: scale(.96);
-}
-
-.mobile-portal-nav button.is-active {
-  background: transparent;
-  color: hsl(var(--foreground));
-  box-shadow: none;
-}
-
-.mobile-portal-nav__icon {
-  width: 36px;
-  height: 28px;
-  border-radius: 10px;
-  transition:
-    background-color .2s ease,
-    color .2s ease,
-    transform .2s cubic-bezier(.2, .8, .2, 1);
-}
-
-.mobile-portal-nav button.is-active .mobile-portal-nav__icon {
-  background: hsl(var(--foreground));
-  color: hsl(var(--background));
-  box-shadow: 0 4px 12px hsl(var(--shadow) / .14);
-  transform: translateY(-1px);
-}
-
-.mobile-portal-nav__icon > .material-symbols-outlined {
-  font-size: 21px;
-}
-
-.mobile-portal-nav__label {
-  font-size: 10px;
-  font-weight: 650;
-  line-height: 1.1;
-  letter-spacing: .01em;
-}
-
-.mobile-portal-nav__badge {
-  top: -5px;
-  right: -7px;
-  min-width: 16px;
-  height: 16px;
-  padding-inline: 4px;
-  border: 2px solid hsl(var(--card));
-  font-size: 8px;
-  line-height: 12px;
-}
-
-.dark .mobile-portal-nav {
-  background: linear-gradient(to top, rgb(12 11 17) 58%, rgb(12 11 17 / 0));
-}
-
-.dark .mobile-portal-nav__track {
-  border-color: rgb(255 255 255 / .1);
-  background: rgb(24 23 30 / .96);
-  box-shadow:
-    0 14px 34px rgb(0 0 0 / .34),
-    inset 0 1px 0 rgb(255 255 255 / .06);
-}
-
-/* The native shell keeps the dock floating above scrollable content, but uses
-   the same geometry and active state as the web/PWA shell. */
-html.native-ios .mobile-portal-nav {
-  padding:
-    6px
-    max(12px, env(safe-area-inset-right, 0px))
-    calc(env(safe-area-inset-bottom, 0px) + 10px)
-    max(12px, env(safe-area-inset-left, 0px));
-}
-
-html.native-ios .mobile-portal-nav__track {
-  display: grid;
-  width: min(100%, 430px);
-  max-width: 430px;
-  height: 64px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2px;
-  padding: 5px;
-  border: 1px solid hsl(var(--border) / .64);
-  border-radius: 22px;
-  background: hsl(var(--card) / .96);
-  box-shadow:
-    0 12px 32px hsl(var(--shadow) / .14),
-    inset 0 1px 0 hsl(var(--background) / .8);
-}
-
-html.native-ios .mobile-portal-nav__track::before {
-  display: none;
-}
-
-html.native-ios .mobile-portal-nav button {
-  width: 100%;
-  min-width: 0;
-  height: 54px;
-  flex: none;
-  padding: 3px 2px 2px;
-  border-radius: 16px;
-}
-
-html.native-ios .mobile-portal-nav button.is-active,
-html.native-ios.dark .mobile-portal-nav button.is-active {
-  background: transparent;
-  box-shadow: none;
-}
-
-html.native-ios.dark .mobile-portal-nav__track {
-  border-color: rgb(255 255 255 / .1);
-  background: rgb(24 23 30 / .96);
-  box-shadow:
-    0 14px 34px rgb(0 0 0 / .34),
-    inset 0 1px 0 rgb(255 255 255 / .06);
-}
-
-html.native-ios .radio-mini {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
-}
-
-html.native-ios .portal-mobile-main:has(.radio-mini) .mobile-portal-content {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 154px);
-}

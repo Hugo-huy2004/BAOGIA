@@ -73,20 +73,6 @@
   gap: 10px;
 }
 
-.bio-studio-app-icon {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 11px;
-  background: linear-gradient(145deg, #64d2ff, #0a84ff 58%, #5e5ce6);
-  color: white;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / .4), 0 5px 13px rgb(10 132 255 / .18);
-}
-
-.bio-studio-app-icon .material-symbols-outlined { font-size: 20px; }
-
 .bio-studio-navbar-copy > span:last-child {
   min-width: 0;
   display: grid;
@@ -141,46 +127,6 @@
 .bio-studio-open-button .material-symbols-outlined,
 .bio-studio-save-button .material-symbols-outlined { font-size: 17px; }
 
-.bio-studio-overview {
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-top: 14px;
-  padding: 22px;
-  border: 1px solid var(--bio-border);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 92% -10%, rgb(100 210 255 / .2), transparent 38%),
-    radial-gradient(circle at 68% 130%, rgb(94 92 230 / .11), transparent 42%),
-    var(--bio-surface);
-  box-shadow: var(--bio-shadow);
-}
-
-.bio-studio-overview-main {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.bio-studio-page-mark {
-  width: 64px;
-  height: 64px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgb(100 210 255 / .22), rgb(10 132 255 / .12));
-  color: #0a84ff;
-}
-
-.bio-studio-page-mark .material-symbols-outlined {
-  font-size: 31px;
-  font-variation-settings: "FILL" 1, "wght" 500;
-}
-
 .bio-studio-overview-main p,
 .bio-studio-section-heading p,
 .bio-studio-preview-heading p {
@@ -189,26 +135,6 @@
   font-weight: 650;
   letter-spacing: .055em;
   text-transform: uppercase;
-}
-
-.bio-studio-overview-main h1 {
-  margin-top: 3px;
-  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(25px, 4vw, 34px);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -.035em;
-}
-
-.bio-studio-overview-main > div > span {
-  display: block;
-  max-width: min(66vw, 600px);
-  margin-top: 5px;
-  overflow: hidden;
-  color: hsl(var(--muted-foreground));
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .bio-studio-status,
@@ -220,20 +146,6 @@
   color: hsl(var(--muted-foreground));
   font-size: 12px;
   font-weight: 650;
-}
-
-.bio-studio-status {
-  min-height: 34px;
-  padding-inline: 12px;
-  border-radius: 999px;
-  background: var(--bio-surface-secondary);
-}
-
-.bio-studio-status > span {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: hsl(var(--muted-foreground));
 }
 
 .bio-studio-status.is-live,
@@ -368,62 +280,6 @@
   border-radius: 14px !important;
 }
 
-.bio-studio-membership {
-  margin-top: 14px;
-  padding: 16px;
-  border: 1px solid var(--bio-border);
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 100% 0%, rgb(255 159 10 / .11), transparent 38%),
-    var(--bio-surface-secondary);
-}
-
-.bio-studio-membership-heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.bio-studio-membership-heading > .material-symbols-outlined {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: rgb(255 159 10 / .13);
-  color: #f28b00;
-  font-size: 20px;
-}
-
-.bio-studio-membership-heading > span:last-child { display: grid; gap: 2px; }
-.bio-studio-membership-heading strong { font-size: 14px; font-weight: 650; }
-.bio-studio-membership-heading small { color: hsl(var(--muted-foreground)); font-size: 11px; }
-
-.bio-studio-membership dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.bio-studio-membership dl > div {
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: hsl(var(--card) / .72);
-}
-
-.bio-studio-membership dt {
-  color: hsl(var(--muted-foreground));
-  font-size: 10px;
-  font-weight: 650;
-}
-
-.bio-studio-membership dd {
-  margin-top: 3px;
-  font-size: 13px;
-  font-weight: 650;
-}
-
 .bio-studio-progress {
   height: 7px;
   margin-top: 14px;
@@ -437,15 +293,6 @@
   display: block;
   border-radius: inherit;
   background: linear-gradient(90deg, #ff9f0a, #ff375f);
-}
-
-.bio-studio-membership > p {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 7px;
-  color: hsl(var(--muted-foreground));
-  font-size: 10px;
 }
 
 .bio-studio-preview {
@@ -629,4 +476,87 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+}
+
+/* ── Bản gọn: bớt thẻ, bớt tiêu đề lặp ────────────────────────────────────
+   Trước đây một màn hình có tới năm thẻ bo góc chồng nhau (thanh điều hướng,
+   tổng quan, soạn thảo, gói thành viên, xem trước) và ba tiêu đề nói cùng một
+   việc. Giờ còn: một thanh đầu trang, một thẻ soạn thảo, một dòng hạn dùng và
+   phần xem trước gập lại. */
+
+.bio-studio-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: hsl(var(--muted-foreground) / .6);
+  vertical-align: middle;
+}
+
+.bio-studio-dot.is-live {
+  background: #30D158;
+  box-shadow: 0 0 0 3px rgb(48 209 88 / .18);
+}
+
+/* Hạn dùng gói: một dòng chữ + một vạch tiến độ mảnh, không phải cả một thẻ. */
+.bio-studio-lifeline {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bio-border);
+}
+
+.bio-studio-lifeline-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+}
+
+.bio-studio-lifeline-row .material-symbols-outlined { font-size: 18px; }
+.bio-studio-lifeline-text { min-width: 0; flex: 1 1 auto; }
+.bio-studio-lifeline-text strong { color: hsl(var(--foreground)); font-weight: 600; }
+.bio-studio-lifeline-left { flex: 0 0 auto; font-weight: 600; }
+
+.bio-studio-lifeline .bio-studio-progress { margin-top: 8px; }
+
+.bio-studio-save-button {
+  width: 100%;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+/* Xem trước dạng gập */
+details.bio-studio-preview { padding: 4px 6px; }
+
+details.bio-studio-preview > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 10px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+details.bio-studio-preview > summary::-webkit-details-marker { display: none; }
+
+.bio-studio-preview-caret {
+  margin-left: auto;
+  font-size: 20px;
+  color: hsl(var(--muted-foreground));
+  transition: transform .2s ease;
+}
+
+details.bio-studio-preview[open] .bio-studio-preview-caret { transform: rotate(180deg); }
+
+@media (max-width: 639px) {
+  /* Thẻ soạn thảo bớt đệm để nội dung được nhiều chỗ hơn trên màn nhỏ. */
+  .bio-studio-editor { padding: 14px; border-radius: 22px; }
+  .bio-studio-segmented { margin-top: 0; }
+  .bio-studio-segmented button { min-height: 44px; }
+  .bio-studio-workspace { gap: 12px; margin-top: 12px; }
 }

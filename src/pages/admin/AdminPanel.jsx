@@ -273,6 +273,18 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
     if (userPage < totalPages) setUserPage(prev => prev + 1);
   };
 
+  // Star-VIP là hạng danh dự do người quyết định; Star-14/Star-18 tự suy ra từ
+  // ngày sinh nên không có nút nào sửa được.
+  const handleToggleVip = async (bioId, currentVip) => {
+    try {
+      await userApi.setVip(bioId, !currentVip);
+      setUsers(prev => prev.map(u => u._id === bioId ? { ...u, starVip: !currentVip } : u));
+      showNotification(!currentVip ? "Đã gắn hạng Star-VIP!" : "Đã gỡ hạng Star-VIP.");
+    } catch (e) {
+      showNotification("Lỗi cập nhật hạng thành viên", "error");
+    }
+  };
+
   const handleToggleBioStatus = async (bioId, currentStatus) => {
     const newStatus = currentStatus === "active" ? "locked" : "active";
     try {
@@ -448,6 +460,7 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
                 setUserSortOrder={setUserSortOrder} userLimit={userLimit} setUserLimit={setUserLimit}
                 totalMatchedUsers={totalMatchedUsers} users={users} handleCopyText={handleCopyText}
                 copiedUserId={copiedUserId} handleToggleBioStatus={handleToggleBioStatus}
+                handleToggleVip={handleToggleVip}
                 triggerConfirm={triggerConfirm} setDeleteTarget={setDeleteTarget}
                 userPage={userPage} totalPages={totalPages} searchQuery={searchQuery}
                 getExpirationDaysOnly={getExpirationDaysOnly} formatExpiration={formatExpiration}

@@ -1,3 +1,4 @@
+import { memberTier, TierBadge } from "../../lib/memberTier";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import OptimizedInput from "../common/OptimizedInput";
 
@@ -41,6 +42,21 @@ function VerifiedRow({ icon, label, value, lockLabel }) {
 // Tháng/năm sinh quyết định quyền dùng các tính năng 18+, nên khai một lần là
 // khoá luôn — sửa được thì cổng độ tuổi chỉ còn là hình thức. Không hỏi ngày
 // sinh vì việc chặn chỉ cần tới tháng.
+// Hạng Star tự suy ra từ ngày sinh nên không có gì để sửa ở đây — chỉ hiển thị.
+function TierRow({ bio, formData }) {
+  const tier = memberTier({ ...formData, starVip: bio?.starVip });
+  if (!tier) return null;
+  return (
+    <div className="apple-account-row">
+      <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">military_tech</span>
+      <span className="apple-account-row-label">Hạng thành viên</span>
+      <span className="flex min-w-0 flex-1 justify-end">
+        <TierBadge tier={tier} />
+      </span>
+    </div>
+  );
+}
+
 function BirthGateRow({ formData, onChange }) {
   const locked = Boolean(formData.birthYear);
   const thisYear = new Date().getFullYear();
@@ -218,6 +234,7 @@ export default function PersonalInfoSubTab({
           placeholder={t("memberPortal.bio.placeholderBirthday")}
         />
         <BirthGateRow formData={formData} onChange={handleFieldChange} />
+        <TierRow bio={bio} formData={formData} />
         <label className="apple-account-row apple-account-row--textarea">
           <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">notes</span>
           <span className="apple-account-row-label">{t("memberPortal.account.about")}</span>

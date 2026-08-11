@@ -1921,7 +1921,15 @@
       "readOriginal": "Đọc bài gốc",
       "noSummary": "Nguồn chưa cung cấp phần tóm tắt cho bài viết này.",
       "sourceNotice": "Nội dung đầy đủ thuộc về nguồn xuất bản.",
-      "previewTitle": "Xem trước: {{title}}"
+      "previewTitle": "Xem trước: {{title}}",
+      "searchPlaceholder": "Tìm bài báo, chủ đề, nguồn…",
+      "clearSearch": "Xoá ô tìm kiếm",
+      "filters": "Bộ lọc",
+      "smartTopics": "Chủ đề nổi bật hôm nay",
+      "clearFilters": "Xoá bộ lọc",
+      "done": "Xong",
+      "noResults": "Không có bài nào khớp với bộ lọc này.",
+      "resultCount": "{{n}} bài"
     },
     "notificationCenter": {
       "title": "Hoạt động",

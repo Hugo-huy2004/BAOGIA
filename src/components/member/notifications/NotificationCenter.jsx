@@ -144,10 +144,11 @@ export default function NotificationCenter({
                 <section key={day.bucket}>
                   <h2 className="hgn-daygroup">{day.label}</h2>
                   <div className="hgn-card hgn-divide">
-                    {day.items.map(item => (
+                    {day.items.map((item, index) => (
                       <NotificationRow
                         key={item.key}
                         item={item}
+                        index={index}
                         onOpen={handleOpen}
                         onAction={handleAction}
                         onDismiss={handleDismiss}

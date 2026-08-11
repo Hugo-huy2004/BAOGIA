@@ -21,17 +21,45 @@ const CATEGORY_GROUP = new Map(
   Object.values(GROUPS).flatMap(g => g.categories.map(c => [c, g.id]))
 );
 
-/** Icon cho thông báo không phải giao dịch. */
-const CATEGORY_ICON = {
-  verification: "verified_user",
-  security: "shield",
-  package: "inventory_2",
-  payment: "credit_card",
-  wellness: "spa",
-  system: "settings",
-  general: "notifications",
-  joy: "toll",
+/**
+ * Icon + màu theo loại thông báo. Mỗi loại một khuôn mặt riêng để lướt mắt là
+ * biết ngay việc gì, thay vì cả trang chỉ toàn một cái chuông giống nhau.
+ *
+ * Giao dịch JOY vẫn ưu tiên mũi tên hướng tiền (xem directionOf) — hướng tiền
+ * quan trọng hơn chủ đề.
+ */
+export const CATEGORY_STYLE = {
+  verification: { icon: "verified", tint: "#0A84FF" },
+  security: { icon: "shield_person", tint: "#FF453A" },
+  package: { icon: "inventory_2", tint: "#BF5AF2" },
+  payment: { icon: "credit_card", tint: "#30D158" },
+  wellness: { icon: "spa", tint: "#40C8E0" },
+  system: { icon: "settings", tint: "#8E8E93" },
+  general: { icon: "campaign", tint: "#FF9F0A" },
+  joy: { icon: "toll", tint: "#FF9F0A" },
 };
+
+/** Icon riêng cho vài mốc lịch sử hồ sơ hay gặp. */
+export const HISTORY_STYLE = {
+  welcome: { icon: "celebration", tint: "#FF375F" },
+  birthday_wish: { icon: "cake", tint: "#FF375F" },
+  birthday_voucher: { icon: "redeem", tint: "#FF9F0A" },
+  referral_bonus: { icon: "group_add", tint: "#30D158" },
+  package_redeemed: { icon: "card_giftcard", tint: "#BF5AF2" },
+  profile_update: { icon: "edit_note", tint: "#0A84FF" },
+};
+
+const CATEGORY_ICON = Object.fromEntries(
+  Object.entries(CATEGORY_STYLE).map(([key, value]) => [key, value.icon])
+);
+
+/** Màu của một dòng — dùng cho vòng tròn icon và chấm chưa đọc. */
+export function tintOf(item) {
+  if (item.direction === "in") return "#30D158";
+  if (item.direction === "out") return "#FF9F0A";
+  if (item.source === "history") return (HISTORY_STYLE[item.historyType] || {}).tint || "#8E8E93";
+  return (CATEGORY_STYLE[item.category] || CATEGORY_STYLE.system).tint;
+}
 
 export const groupOf = (category) => CATEGORY_GROUP.get(category) || "system";
 
@@ -113,7 +141,7 @@ export function fromHistory(entry, index, fallbackTitle = "Cập nhật hồ sơ
     direction: "none",
     category: "system",
     group: "system",
-    icon: entry.icon || "history",
+    icon: (HISTORY_STYLE[entry.type] || {}).icon || entry.icon || "history",
     actionUrl: "",
     read: true,
     dismissible: false,

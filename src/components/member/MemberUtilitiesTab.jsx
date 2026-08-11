@@ -22,7 +22,7 @@ const MemberJoyTab = lazy(() => import("./MemberJoyTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const HugoSOApp = lazy(() => import("./hugoSO/HugoSOApp"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, onOpenParticleModal, ideLessonId }) {
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -165,7 +165,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <div className="text-left">
           {/* Ví JOY tự dựng phần đỉnh: thẻ JOY đã là tiêu đề, thêm thanh header
               nữa thành hai lớp chrome chồng nhau. */}
-          <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} onBack={() => onSelectUtility(null)} />
+          <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} onBioUpdate={onBioUpdate} onOpenParticleModal={onOpenParticleModal} onBack={() => onSelectUtility(null)} />
         </div>
       )}
 

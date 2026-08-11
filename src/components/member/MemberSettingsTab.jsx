@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { memberTier, TierBadge } from "../../lib/memberTier";
 import BiometricLoginCard from "./BiometricLoginCard";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { pushService } from "../../services/pushService";
@@ -150,6 +151,8 @@ export default function MemberSettingsTab({
             <p className="text-[11px] font-medium text-muted-foreground truncate mt-0.5">
               {memberSession?.email || t("memberPortal.settings.account.personalInformation")}
             </p>
+            {/* Hạng Star nằm ngay dưới tên — đây là nơi người dùng tìm "mình là ai". */}
+            <TierBadge tier={memberTier({ ...formData, starVip: bio?.starVip })} className="mt-1.5" />
           </div>
         </div>
 
@@ -171,203 +174,125 @@ export default function MemberSettingsTab({
         />
       </section>
 
-      {/* ── 3. SUB PROFILE CARD: HUGO BIO PROFILE ──────────────────────────── */}
-      <div>
-        <div
+      {/* ── 3. CÁC NHÓM CÀI ĐẶT (danh sách inset kiểu iOS Settings) ────────── */}
+      <AccountSection title={t("memberPortal.settings.account.bioTitle")}>
+        <AccountRow
+          icon={Sparkles}
+          tint="violet"
+          title={t("memberPortal.settings.account.bioTitle")}
+          detail={t("memberPortal.settings.account.bioDescription")}
           onClick={() => {
             hapticSelect();
             if (onSelectUtility) onSelectUtility("bio");
             else if (onSelectTab) onSelectTab("utilities");
             else navigate("/member/utilities/bio");
           }}
-          className="hugo-account-bio-card flex items-center justify-between cursor-pointer transition-all active:scale-[0.99]"
-        >
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-500 flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.bioTitle")}</h3>
-              <p className="text-[10.5px] text-muted-foreground truncate">
-                {t("memberPortal.settings.account.bioDescription")}
-              </p>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
-        </div>
-      </div>
+        />
+        {publicLink && (
+          <AccountRow
+            as="a"
+            href={publicLink}
+            icon={Share2}
+            tint="sky"
+            title={t("memberPortal.settings.account.publicBio")}
+            detail={t("memberPortal.settings.account.publicBioDescription")}
+            trailingIcon="open_in_new"
+          />
+        )}
+      </AccountSection>
 
-      {/* ── 4. GROUP 1: APPLE ACCOUNT SETTINGS INSET GROUP ──────────────────── */}
-      <div className="hugo-account-group">
-
-
-        {/* Notifications */}
-        <div
-          onClick={() => { hapticSelect(); setActiveSheet("notifications"); }}
-          className="hugo-account-row flex items-center justify-between cursor-pointer"
-          data-tone="blue"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
-              <Bell className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.notifications")}</h4>
-              <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.notificationsDescription")}</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-        </div>
-
-        {/* Quyền định vị & thông báo đẩy — bảng quyền chỉ tự hiện đúng một lần
-            sau khi đăng nhập; đây là lối vào duy nhất để mở lại khi đổi ý. */}
-        <div
-          onClick={() => {
-            hapticSelect();
-            window.dispatchEvent(new Event("hugo:show-permission-primer"));
-          }}
-          className="hugo-account-row flex items-center justify-between cursor-pointer"
-          data-tone="blue"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-              <LocateFixed className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-foreground">{t("memberPortal.permissions.title")}</h4>
-              <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.permissions.description")}</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-        </div>
-
-        {/* Privacy & Access */}
-        <div
-          onClick={() => { hapticSelect(); setActiveSheet("security"); }}
-          className="hugo-account-row flex items-center justify-between cursor-pointer"
-          data-tone="purple"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
-              <Lock className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.privacy")}</h4>
-              <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.privacyDescription")}</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-        </div>
-      </div>
-
-      {/* ── 5. QUICK ACTION PILL BUTTONS (APPLE ACCOUNT 3-COLUMN PILL GRID) ───── */}
-      <div className="hugo-account-actions grid grid-cols-3 gap-2.5 text-center">
-        <button
-          onClick={() => {
-            hapticSelect();
-            if (onSelectTab) onSelectTab("joy");
-            else navigate("/member/joy");
-          }}
-          className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
-          data-tone="orange"
-        >
-          <PlusCircle className="w-5 h-5 text-primary" />
-          <span className="text-[10.5px] font-black">{t("memberPortal.settings.account.topUpJoy")}</span>
-        </button>
-
-        <button
-          onClick={() => {
-            hapticSelect();
-            if (onSelectTab) onSelectTab("joy");
-            else navigate("/member/joy");
-          }}
-          className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
-          data-tone="pink"
-        >
-          <Gift className="w-5 h-5 text-primary" />
-          <span className="text-[10.5px] font-black">{t("memberPortal.settings.account.redeemCode")}</span>
-        </button>
-
-        <button
+      <AccountSection title="Ví & JOY">
+        <AccountRow
+          icon={PlusCircle}
+          tint="orange"
+          title={t("memberPortal.settings.account.topUpJoy")}
+          onClick={() => { hapticSelect(); if (onSelectTab) onSelectTab("joy"); else navigate("/member/joy"); }}
+        />
+        <AccountRow
+          icon={Gift}
+          tint="pink"
+          title={t("memberPortal.settings.account.redeemCode")}
+          onClick={() => { hapticSelect(); if (onSelectTab) onSelectTab("joy"); else navigate("/member/joy"); }}
+        />
+        <AccountRow
+          icon={QrCode}
+          tint="green"
+          title={t("memberPortal.settings.account.giftJoy")}
           onClick={() => {
             hapticSelect();
             if (onOpenParticleModal) onOpenParticleModal();
             else if (onSelectTab) onSelectTab("joy");
             else navigate("/member/joy");
           }}
-          className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
-          data-tone="green"
-        >
-          <QrCode className="w-5 h-5 text-primary" />
-          <span className="text-[10.5px] font-black">{t("memberPortal.settings.account.giftJoy")}</span>
-        </button>
-      </div>
+        />
+      </AccountSection>
 
-      {/* ── 6. GROUP 2: SYSTEM & LANGUAGE INSET GROUP ────────────────────────── */}
-      <div className="hugo-account-group">
-        {/* Language Selection */}
-        <div
+      <AccountSection title="Quyền riêng tư & thông báo">
+        <AccountRow
+          icon={Bell}
+          tint="blue"
+          title={t("memberPortal.settings.account.notifications")}
+          detail={t("memberPortal.settings.account.notificationsDescription")}
+          onClick={() => { hapticSelect(); setActiveSheet("notifications"); }}
+        />
+        <AccountRow
+          icon={LocateFixed}
+          tint="emerald"
+          title={t("memberPortal.permissions.title")}
+          detail={t("memberPortal.permissions.description")}
+          onClick={() => { hapticSelect(); window.dispatchEvent(new Event("hugo:show-permission-primer")); }}
+        />
+        <AccountRow
+          icon={Lock}
+          tint="purple"
+          title={t("memberPortal.settings.account.privacy")}
+          detail={t("memberPortal.settings.account.privacyDescription")}
+          onClick={() => { hapticSelect(); setActiveSheet("security"); }}
+        />
+      </AccountSection>
+
+      <AccountSection title="Hệ thống">
+        <AccountRow
+          icon={Globe}
+          tint="teal"
+          title={t("memberPortal.settings.account.language")}
+          value={currentLang === "vi" ? "Tiếng Việt" : "English"}
           onClick={() => { hapticSelect(); setActiveSheet("language"); }}
-          className="hugo-account-row flex items-center justify-between cursor-pointer"
-          data-tone="teal"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-500 flex items-center justify-center">
-              <Globe className="w-4 h-4" />
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.language")}</h4>
-              <span className="text-[10.5px] text-muted-foreground block">{currentLang === "vi" ? "Tiếng Việt" : "English"}</span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-        </div>
-
-        {/* Public Bio Page Link */}
-        {publicLink && (
-          <a
-            href={publicLink}
-            target="_blank"
-            rel="noreferrer"
-            className="hugo-account-row flex items-center justify-between"
-            data-tone="cyan"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center">
-                <Share2 className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.account.publicBio")}</h4>
-                <span className="text-[10.5px] text-muted-foreground block">{t("memberPortal.settings.account.publicBioDescription")}</span>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground/60" />
-          </a>
-        )}
-      </div>
+        />
+      </AccountSection>
 
       {/* ── 6b. CHẾ ĐỘ BẢO VỆ MÔI TRƯỜNG (dưới mọi mục, trên nút đăng xuất) ─── */}
       <EcoToggle />
 
       {/* ── 7. SIGN OUT BUTTON (DESTRUCTIVE RED ROW) ─────────────────────────── */}
-      <button
-        onClick={handleLogout}
-        className="hugo-account-logout w-full active:scale-98 transition-all flex items-center justify-center gap-2"
-      >
-        <LogOut className="w-4 h-4" />
-        <span>{t("memberPortal.settings.account.signOut")}</span>
-      </button>
+      <div className="hugo-account-group">
+        <button type="button" onClick={handleLogout} className="hugo-account-logout">
+          <LogOut className="w-[18px] h-[18px]" />
+          <span>{t("memberPortal.settings.account.signOut")}</span>
+        </button>
+      </div>
 
       {/* ── 8. MODAL SHEET: PERSONAL INFO ─────────────────────────────────────── */}
       {activeSheet === "personal" && (
-        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
-          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-lg w-full space-y-4 shadow-2xl animate-slideUp text-left max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.personalInformation")}</h3>
-              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+        <div className="portal-safe-modal fixed inset-0 bg-black/45 backdrop-blur-xl flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
+          {/* Sheet kiểu iOS: thanh kéo, tiêu đề lớn, nút "Xong" bên phải. */}
+          <div className="ios-sheet-panel bg-card border-t sm:border border-border/60 rounded-t-[34px] sm:rounded-[30px] max-w-lg w-full shadow-2xl animate-slideUp text-left flex flex-col max-h-[92dvh] sm:max-h-[88vh]">
+            <div className="shrink-0 px-5 pt-2.5 pb-3">
+              <span className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-foreground/15 sm:hidden" aria-hidden="true" />
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-[22px] font-bold tracking-[-0.02em] text-foreground">
+                  {t("memberPortal.settings.account.personalInformation")}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setActiveSheet(null)}
+                  className="min-h-11 shrink-0 px-1 text-[17px] font-semibold text-primary active:opacity-60"
+                >
+                  Xong
+                </button>
+              </div>
             </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
 
             <PersonalInfoSubTab
               formData={formData}
@@ -388,6 +313,7 @@ export default function MemberSettingsTab({
               hideAvatarSection={false}
               t={t}
             />
+            </div>
           </div>
         </div>
       )}
@@ -482,5 +408,49 @@ export default function MemberSettingsTab({
         </div>
       )}
     </div>
+  );
+}
+
+const ROW_TINTS = {
+  violet: "#7C5CFF", sky: "#0A84FF", blue: "#0A84FF", emerald: "#30D158",
+  purple: "#BF5AF2", teal: "#40C8E0", orange: "#FF9F0A", pink: "#FF375F",
+  green: "#30D158",
+};
+
+/** Tiêu đề nhóm + khối inset — cấu trúc của Cài đặt trên iOS. */
+function AccountSection({ title, children }) {
+  return (
+    <section className="hugo-account-section">
+      {title && <h3 className="hugo-account-section-title">{title}</h3>}
+      <div className="hugo-account-group">{children}</div>
+    </section>
+  );
+}
+
+/**
+ * Một hàng cài đặt. Trước đây mỗi hàng là <div onClick> nên bàn phím không tới
+ * được và không có viền focus — bấm bằng chuột thì chạy, dùng phím thì như nút
+ * chết. Giờ luôn là <button> (hoặc <a> khi mở link ngoài).
+ */
+function AccountRow({ as = "button", icon: Icon, tint = "blue", title, detail, value, trailingIcon = "chevron", onClick, href }) {
+  const Tag = as;
+  const props = as === "a"
+    ? { href, target: "_blank", rel: "noreferrer" }
+    : { type: "button", onClick };
+
+  return (
+    <Tag {...props} className="hugo-account-row">
+      <span className="hugo-account-row-icon" style={{ background: ROW_TINTS[tint] || ROW_TINTS.blue }}>
+        <Icon className="w-[17px] h-[17px]" strokeWidth={2.2} />
+      </span>
+      <span className="hugo-account-row-text">
+        <span className="hugo-account-row-title">{title}</span>
+        {detail && <span className="hugo-account-row-detail">{detail}</span>}
+      </span>
+      {value && <span className="hugo-account-row-value">{value}</span>}
+      {trailingIcon === "chevron"
+        ? <ChevronRight className="hugo-account-row-chevron" />
+        : <span className="material-symbols-outlined hugo-account-row-chevron" aria-hidden="true">{trailingIcon}</span>}
+    </Tag>
   );
 }

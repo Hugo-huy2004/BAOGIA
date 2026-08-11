@@ -67,47 +67,11 @@ export const runBirthdayAutomation = async () => {
         }
       }
 
-      // 2. Automated birthday voucher
-      if (month === currentMonth) {
-        const voucherSent = bio.history.some(
-          h => h.type === 'birthday_voucher' && 
-               new Date(h.timestamp).getMonth() + 1 === currentMonth && 
-               new Date(h.timestamp).getFullYear() === currentYear
-        );
-
-        if (!voucherSent) {
-          let remainingDays = 0;
-          if (bio.expiresAt) {
-            const diffTime = new Date(bio.expiresAt).getTime() - now.getTime();
-            remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          }
-
-          // Conditions: expiresAt not set or remaining days < 365
-          if (!bio.expiresAt || remainingDays < 365) {
-            const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-            const voucherCode = `BDAY-${month.toString().padStart(2, '0')}-${randomSuffix}`;
-
-            bio.birthdayVoucherCode = voucherCode;
-            bio.birthdayVoucherClaimed = false;
-            bio.birthdayVoucherYear = currentYear;
-
-            bio.history.push({
-              type: 'birthday_voucher',
-              icon: 'card_giftcard',
-              title: `Quà tặng sinh nhật từ Hugo Studio! 🎁`,
-              detail: `Hugo Studio gửi tặng bạn mã voucher sinh nhật: ${voucherCode} (thêm 14 ngày sử dụng và Card sinh nhật vào phần gói dịch vụ của bạn).\nHiệu lực mã: Từ 01/${month.toString().padStart(2, '0')}/${currentYear} đến ngày cuối của tháng.`,
-              timestamp: new Date()
-            });
-            sendPushNotification(
-              bio.email,
-              'Quà tặng sinh nhật từ Hugo Studio! 🎁',
-              `Bạn vừa nhận được mã quà tặng sinh nhật mới. Kích hoạt ngay nhé!`,
-              '/member/activity'
-            ).catch(console.error);
-            console.log(`[Birthday Automation] Birthday voucher code generated: ${voucherCode} for ${bio.displayName} (${bio.email})`);
-          }
-        }
-      }
+      // Trước đây chỗ này tự phát mã BDAY-xx (thêm 14 ngày, phải tự đi đổi ở
+      // trang Gói dịch vụ). Quà sinh nhật giờ nằm gọn trong lượt quay theo hạng
+      // Star (xem POST /api/joy/birthday-spin): cộng ngày và voucher ngay khi
+      // quay, không bắt người dùng nhớ mã. Phần đổi mã cũ trong packageRoutes
+      // vẫn giữ để những mã đã phát trước đó không chết.
 
       await bio.save();
     }

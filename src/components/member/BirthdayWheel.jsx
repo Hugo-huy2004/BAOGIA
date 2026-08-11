@@ -65,6 +65,8 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
   const [phase, setPhase] = useState("loading"); // loading | ready | spinning | done
   const [angle, setAngle] = useState(0);
   const [prize, setPrize] = useState(null);
+  const [reward, setReward] = useState(null); // quà theo hạng: ngày duy trì + voucher
+  const [tierLabel, setTierLabel] = useState("");
   const [error, setError] = useState("");
   const timerRef = useRef(null);
   // Người bật "giảm chuyển động" không phải ngồi nhìn 4,6 giây quay vòng.
@@ -80,6 +82,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
       .then((data) => {
         if (!alive) return;
         if (Array.isArray(data.prizes) && data.prizes.length) setPrizes(data.prizes);
+        setTierLabel(data.tierLabel || "");
         // Hết lượt hoặc không phải tháng sinh thì đóng luôn, không hiện vòng quay trống.
         if (!data.available) return onClose?.();
         setPhase("ready");
@@ -123,6 +126,8 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
       // Muốn ô đó dừng dưới kim (12 giờ) thì xoay ngược lại đúng chừng ấy độ.
       // Lệch nhẹ trong lòng ô cho tự nhiên, vẫn nằm gọn trong ô đã trúng.
       setAngle(targetAngle(data.index, list.length, TURNS, (Math.random() - 0.5) * 1.2));
+      setReward({ days: data.days || 0, vouchers: data.vouchers || [] });
+      if (data.tierLabel) setTierLabel(data.tierLabel);
       timerRef.current = window.setTimeout(() => {
         setPrize(data.prize);
         setPhase("done");
@@ -139,10 +144,12 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
 
   return (
     <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/55 p-0 backdrop-blur-xl sm:items-center sm:p-4">
-      <div className="ios-sheet w-full max-w-[380px] rounded-t-[32px] bg-[#F2F2F7] px-6 pb-9 pt-6 text-center dark:bg-[#1C1C1E] sm:rounded-[32px]">
+      <div className="ios-sheet max-h-[92vh] w-full max-w-[380px] overflow-y-auto rounded-t-[32px] bg-[#F2F2F7] px-6 pb-9 pt-6 text-center dark:bg-[#1C1C1E] sm:rounded-[32px]">
         <span className="mx-auto mb-5 block h-1.5 w-10 rounded-full bg-black/15 dark:bg-white/20 sm:hidden" aria-hidden="true" />
 
-        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[#8A8A8E]">Quà tháng sinh nhật</p>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[#8A8A8E]">
+          Quà tháng sinh nhật{tierLabel ? ` · ${tierLabel}` : ""}
+        </p>
         <h2 className="mt-1 text-[26px] font-bold leading-tight tracking-[-0.02em] text-[#1C1C1E] dark:text-white">
           {phase === "done" ? "Chúc mừng!" : "Một lượt quay cho bạn"}
         </h2>
@@ -208,6 +215,31 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
               +{formatJoy(prize)}
               <span className="ml-1.5 text-[17px] font-semibold text-[#8A8A8E]">JOY</span>
             </p>
+          </div>
+        )}
+
+        {phase === "done" && reward && (reward.days > 0 || reward.vouchers.length > 0) && (
+          <div className="ios-prize mt-3 space-y-2 text-left">
+            {reward.days > 0 && (
+              <div className="flex items-center gap-3 rounded-[18px] bg-white px-4 py-3 dark:bg-[#2C2C2E]">
+                <span className="material-symbols-outlined text-[22px] text-[#30D158]" aria-hidden="true">event_available</span>
+                <p className="text-[15px] font-semibold text-[#1C1C1E] dark:text-white">
+                  +{reward.days} ngày duy trì tài khoản
+                </p>
+              </div>
+            )}
+            {reward.vouchers.map((voucher) => (
+              <div key={voucher.code} className="rounded-[18px] bg-white px-4 py-3 dark:bg-[#2C2C2E]">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-[22px] text-[#FF9F0A]" aria-hidden="true">confirmation_number</span>
+                  <p className="text-[15px] font-semibold leading-snug text-[#1C1C1E] dark:text-white">{voucher.label}</p>
+                </div>
+                <p className="mt-1.5 font-mono text-[15px] font-bold tracking-wider text-[#0A84FF]">{voucher.code}</p>
+                <p className="mt-0.5 text-[12px] text-[#8A8A8E]">
+                  Dùng đến {new Date(voucher.expiresAt).toLocaleDateString("vi-VN")} · đưa mã này khi trao đổi dự án
+                </p>
+              </div>
+            ))}
           </div>
         )}
 

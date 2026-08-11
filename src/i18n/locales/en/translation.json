@@ -1921,7 +1921,15 @@
       "readOriginal": "Read original",
       "noSummary": "The source did not provide a summary for this article.",
       "sourceNotice": "Full content belongs to the original publisher.",
-      "previewTitle": "Preview: {{title}}"
+      "previewTitle": "Preview: {{title}}",
+      "searchPlaceholder": "Search stories, topics, sources…",
+      "clearSearch": "Clear search",
+      "filters": "Filters",
+      "smartTopics": "Trending topics today",
+      "clearFilters": "Clear filters",
+      "done": "Done",
+      "noResults": "No stories match these filters.",
+      "resultCount": "{{n}} stories"
     },
     "notificationCenter": {
       "title": "Activity",

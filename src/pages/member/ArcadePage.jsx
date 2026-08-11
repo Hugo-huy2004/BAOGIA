@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMemberSession } from "../../services/authSession";
 import memberService from "../../services/classes/MemberService";
+import { notify } from "../../lib/notify";
 
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 
@@ -25,7 +26,7 @@ export default function ArcadePage() {
   return (
     <div className="fixed inset-0 w-screen h-[100dvh] overflow-hidden bg-background">
       <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-        <HugoArcadeTab bio={bio} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} onBack={() => navigate("/member/utilities")} />
+        <HugoArcadeTab bio={bio} showToast={(message, type) => notify[type === "error" ? "error" : type === "warning" ? "warning" : "success"](message)} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} onBack={() => navigate("/member/utilities")} />
       </Suspense>
     </div>
   );

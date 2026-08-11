@@ -57,6 +57,32 @@ const BioSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    // Hạng Star-14/Star-18 suy ra từ ngày sinh (utils/memberTier.js), chỉ hạng
+    // danh dự là do admin gắn tay nên mới cần lưu.
+    starVip: {
+      type: Boolean,
+      default: false
+    },
+    // Voucher giảm giá dịch vụ làm web, phát kèm quà sinh nhật theo hạng.
+    // Không tự trừ tiền ở đâu cả: đây là mã người dùng đưa khi trao đổi dự án.
+    serviceVouchers: {
+      type: [{
+        code: { type: String, required: true },
+        percent: { type: Number, required: true },
+        scope: { type: String, default: '' },
+        label: { type: String, default: '' },
+        issuedAt: { type: Date, default: Date.now },
+        expiresAt: { type: Date, required: true },
+        usedAt: { type: Date, default: null }
+      }],
+      default: []
+    },
+    // Năm đã nhận quà sinh nhật theo hạng (ngày duy trì + voucher). Tách khỏi
+    // birthdaySpinYear để nếu sau này tách hai luồng thì không đụng nhau.
+    birthdayGiftYear: {
+      type: Number,
+      default: 0
+    },
     phone: {
       type: String,
       default: ''

@@ -23,6 +23,7 @@ const AdminUsersTab = ({
   handleCopyText,
   copiedUserId,
   handleToggleBioStatus,
+  handleToggleVip,
   triggerConfirm,
   setDeleteTarget,
   userPage,
@@ -351,6 +352,18 @@ const AdminUsersTab = ({
                                 Khóa
                               </button>
                             )}
+                            <button
+                              onClick={() => handleToggleVip?.(user._id, user.starVip)}
+                              title={user.starVip ? "Gỡ hạng danh dự Star-VIP" : "Gắn hạng danh dự Star-VIP"}
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase shadow-sm active:scale-95 flex items-center gap-1.5 ${
+                                user.starVip
+                                  ? "bg-amber-500 hover:bg-amber-600 text-white"
+                                  : "bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground"
+                              }`}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
+                              {user.starVip ? "Star-VIP" : "VIP"}
+                            </button>
                             <button
                               onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
                               className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground transition-all shadow-sm active:scale-95"

@@ -11,7 +11,8 @@ import UtilityProduct from '../models/UtilityProduct.js';
 import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
-import { randomInt } from 'node:crypto';
+import { randomInt, randomBytes } from 'node:crypto';
+import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../utils/memberTier.js';
 import NodeCache from 'node-cache';
 
 const idempotencyCache = new NodeCache({ stdTTL: 300 });
@@ -1082,17 +1083,24 @@ const BIRTHDAY_PRIZES = [10, 50, 100, 500, 1000, 5000, 10000];
 // GET /api/joy/birthday-spin — còn lượt quay không, và danh sách ô để vẽ vòng.
 router.get('/birthday-spin', requireMember, async (req, res) => {
   try {
-    const bio = await Bio.findOne({ email: req.memberEmail }, 'birthMonth birthdaySpinYear birthdaySpinPrize displayName').lean();
+    const bio = await Bio.findOne(
+      { email: req.memberEmail },
+      'birthDay birthMonth birthYear starVip birthdaySpinYear birthdaySpinPrize displayName',
+    ).lean();
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
     const now = new Date();
     const isBirthMonth = Number(bio.birthMonth) === now.getMonth() + 1;
     const spunThisYear = Number(bio.birthdaySpinYear) === now.getFullYear();
+    const tier = memberTier(bio);
     res.json({
       prizes: BIRTHDAY_PRIZES,
       isBirthMonth,
-      available: isBirthMonth && !spunThisYear,
+      available: isBirthMonth && !spunThisYear && Boolean(tier),
       spunThisYear,
       lastPrize: spunThisYear ? Number(bio.birthdaySpinPrize) || 0 : 0,
+      tier,
+      tierLabel: tier ? TIER_LABELS[tier] : '',
+      gifts: tierGifts(tier),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1108,6 +1116,9 @@ router.post('/birthday-spin', requireMember, async (req, res) => {
     const now = new Date();
     if (Number(bio.birthMonth) !== now.getMonth() + 1) {
       return res.status(403).json({ error: 'Vòng quay chỉ mở trong tháng sinh nhật của bạn.' });
+    }
+    if (!memberTier(bio)) {
+      return res.status(403).json({ error: 'Cần khai đủ ngày sinh để nhận quà sinh nhật.' });
     }
 
     // Chốt lượt TRƯỚC khi cộng JOY: hai request bấm cùng lúc thì chỉ một cái
@@ -1133,9 +1144,52 @@ router.post('/birthday-spin', requireMember, async (req, res) => {
       await Bio.updateOne({ _id: bio._id }, { $set: { birthdaySpinYear: Number(bio.birthdaySpinYear) || 0 } });
       throw awardError;
     }
+
+    // Quà theo hạng đi cùng lượt quay: cộng ngày duy trì và phát voucher.
+    // `claimed` là bản đã chốt lượt ở trên nên đọc từ đó, không đọc lại bio cũ.
+    const tier = memberTier(claimed);
+    const gifts = tierGifts(tier);
+    const issuedVouchers = [];
+    let days = 0;
+
+    if (gifts && Number(claimed.birthdayGiftYear) !== now.getFullYear()) {
+      days = gifts.days;
+      const expires = new Date(Math.max(new Date(claimed.expiresAt || 0).getTime(), now.getTime()));
+      expires.setDate(expires.getDate() + days);
+
+      const voucherExpiry = new Date(now);
+      voucherExpiry.setDate(voucherExpiry.getDate() + VOUCHER_VALID_DAYS);
+      for (const voucher of gifts.vouchers) {
+        issuedVouchers.push({
+          ...voucher,
+          code: voucherCode(voucher.percent, randomBytes(3).toString('hex').toUpperCase()),
+          issuedAt: now,
+          expiresAt: voucherExpiry,
+          usedAt: null,
+        });
+      }
+
+      await Bio.updateOne(
+        { _id: bio._id },
+        {
+          $set: { expiresAt: expires, birthdayGiftYear: now.getFullYear() },
+          ...(issuedVouchers.length ? { $push: { serviceVouchers: { $each: issuedVouchers } } } : {}),
+        },
+      );
+    }
+
     await Bio.updateOne({ _id: bio._id }, { $set: { birthdaySpinPrize: prize } });
 
-    res.json({ success: true, prize, index, prizes: BIRTHDAY_PRIZES });
+    res.json({
+      success: true,
+      prize,
+      index,
+      prizes: BIRTHDAY_PRIZES,
+      tier,
+      tierLabel: tier ? TIER_LABELS[tier] : '',
+      days,
+      vouchers: issuedVouchers.map(({ code, percent, label, expiresAt }) => ({ code, percent, label, expiresAt })),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

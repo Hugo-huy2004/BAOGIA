@@ -74,6 +74,12 @@ export default function MemberJoyTab({
   }, [email]);
 
   useEffect(() => {
+    const onPinSet = () => setHasPin(true);
+    window.addEventListener("hugo:pin-set", onPinSet);
+    return () => window.removeEventListener("hugo:pin-set", onPinSet);
+  }, []);
+
+  useEffect(() => {
     if (!email) return;
     fetchBalance(email);
     fetch(`${apiBase}/referral/me?email=${encodeURIComponent(email)}`, { credentials: "include" })
@@ -184,6 +190,28 @@ export default function MemberJoyTab({
     }
   }
 
+  // Nút gộp: nhận hết phần thưởng đang chờ. Trước đây nó chỉ nhận đúng một
+  // nhiệm vụ rồi im, xong ba nhiệm vụ vẫn phải bấm ba lần mà không nói gì.
+  async function handleClaimAll() {
+    const pending = challenges.filter((c) => c.completed && !c.claimed);
+    if (!pending.length || claimingId) return;
+    setClaimingId("all");
+    let total = 0;
+    try {
+      for (const mission of pending) {
+        const data = await claimChallenge(email, mission.id);
+        setBalance(data.balance);
+        total += Number(mission.amount) || 0;
+      }
+      showToast?.(`Đã nhận ${total} JOY từ ${pending.length} nhiệm vụ.`, "success");
+    } catch (err) {
+      showToast?.(err.message, "error");
+    } finally {
+      setClaimingId(null);
+      loadChallenges();
+    }
+  }
+
   const completedCount = challenges.filter((c) => c.completed).length;
 
   return (
@@ -241,7 +269,7 @@ export default function MemberJoyTab({
             {hasPin === false && (
               <button
                 type="button"
-                onClick={() => onOpenParticleModal?.("search")}
+                onClick={() => onOpenParticleModal?.("setup-pin")}
                 className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition-colors hover:bg-muted"
               >
                 <span className="material-symbols-outlined text-[22px] text-muted-foreground">lock_open</span>
@@ -263,7 +291,7 @@ export default function MemberJoyTab({
                     {referralCount} <span className="text-sm text-muted-foreground font-normal">người</span>
                   </h2>
                   <span className="text-xs text-muted-foreground block mt-0.5">
-                    Hạng: <strong className="font-semibold" style={{ color: MembershipFactory.getCurrentTier(referralCount).colorHex === "#FFFFF0" ? "#D97706" : MembershipFactory.getCurrentTier(referralCount).colorHex }}>{MembershipFactory.getCurrentTier(referralCount).name}</strong>
+                    Cấp giới thiệu: <strong className="font-semibold" style={{ color: MembershipFactory.getCurrentTier(referralCount).colorHex === "#FFFFF0" ? "#D97706" : MembershipFactory.getCurrentTier(referralCount).colorHex }}>{MembershipFactory.getCurrentTier(referralCount).name}</strong>
                   </span>
                 </div>
               </div>
@@ -280,15 +308,20 @@ export default function MemberJoyTab({
                   </span>
                 </div>
                 <button
-                  onClick={() => handleClaimChallenge(challenges.find((c) => c.completed && !c.claimed)?.id || "")}
-                  disabled={!challenges.some((c) => c.completed && !c.claimed)}
+                  onClick={handleClaimAll}
+                  disabled={!challenges.some((c) => c.completed && !c.claimed) || claimingId === "all"}
                   className={`w-full py-2 px-3 rounded-full font-semibold text-sm transition-all active:scale-95 text-center mt-1 ${
                     challenges.some((c) => c.completed && !c.claimed)
                       ? "bg-amber-500 text-white hover:bg-amber-600"
                       : "bg-muted text-muted-foreground cursor-not-allowed"
                   }`}
                 >
-                  Nhận JOY
+                  {claimingId === "all"
+                    ? "Đang nhận…"
+                    : (() => {
+                        const pending = challenges.filter((c) => c.completed && !c.claimed);
+                        return pending.length ? `Nhận ${pending.reduce((sum, c) => sum + (Number(c.amount) || 0), 0)} JOY` : "Chưa có thưởng";
+                      })()}
                 </button>
               </div>
             </div>

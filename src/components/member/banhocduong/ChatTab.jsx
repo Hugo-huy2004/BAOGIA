@@ -106,7 +106,8 @@ export default function ChatTab({
   onProfileUpdate,
   onExitFullscreen,
   journeyProgress,
-  sleepAutoDetect
+  sleepAutoDetect,
+  onClaimChallenge
 }) {
   const { t } = useTranslation();
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
@@ -1144,6 +1145,7 @@ export default function ChatTab({
         </div>
         <div className="flex-1 overflow-y-auto">
           <TherapyTab
+            onClaimChallenge={onClaimChallenge}
             bio={bio}
             historyLogs={historyLogs}
             chatMessages={messages}
@@ -1607,6 +1609,7 @@ export default function ChatTab({
                 {activeModalDrawer === "therapy" && (
                   <TherapyTab
                     onNavigateToTab={onNavigateToTab}
+                    onClaimChallenge={onClaimChallenge}
                     bio={bio}
                     historyLogs={historyLogs}
                     chatMessages={messages}

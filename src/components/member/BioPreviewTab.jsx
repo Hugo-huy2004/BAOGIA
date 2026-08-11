@@ -68,13 +68,15 @@ export default function BioPreviewTab({
           <span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>
         </button>
 
+        {/* Tên trang + đường dẫn + trạng thái gộp vào một dòng. Trước đây phần
+            này là một thẻ riêng ngay dưới thanh điều hướng, lặp lại y hệt. */}
         <div className="bio-studio-navbar-copy">
-          <span className="bio-studio-app-icon" aria-hidden="true">
-            <span className="material-symbols-outlined">badge</span>
-          </span>
           <span>
-            <strong>{t("memberPortal.bioPreview.studioTitle")}</strong>
-            <small>{t("memberPortal.bioPreview.subtitle")}</small>
+            <strong>{bio?.displayName || session?.displayName || t("memberPortal.bioPreview.studioTitle")}</strong>
+            <small>
+              <span className={`bio-studio-dot ${ready ? "is-live" : ""}`} aria-hidden="true" />
+              {ready ? publicLink.replace(/^https?:\/\//, "") : t("memberPortal.bioPreview.notReadyTitle")}
+            </small>
           </span>
         </div>
 
@@ -93,39 +95,8 @@ export default function BioPreviewTab({
         </div>
       </header>
 
-      <section className="bio-studio-overview">
-        <div className="bio-studio-overview-main">
-          <span className="bio-studio-page-mark" aria-hidden="true">
-            <span className="material-symbols-outlined">person</span>
-          </span>
-          <div className="min-w-0">
-            <p>{t("memberPortal.bioPreview.pageEyebrow")}</p>
-            <h1>{bio?.displayName || session?.displayName || t("memberPortal.navigation.memberFallback")}</h1>
-            <span>{ready ? publicLink : t("memberPortal.bioPreview.notReadyTitle")}</span>
-          </div>
-        </div>
-
-        <div className={`bio-studio-status ${ready ? "is-live" : ""}`}>
-          <span aria-hidden="true" />
-          {ready ? t("memberPortal.bioPreview.live") : t("memberPortal.bioPreview.draft")}
-        </div>
-      </section>
-
       <div className="bio-studio-workspace">
         <main className="bio-studio-editor">
-          <div className="bio-studio-section-heading">
-            <div>
-              <p>{t("memberPortal.bioPreview.customizeTitle")}</p>
-              <h2>{t("memberPortal.bioPreview.editorTitle")}</h2>
-            </div>
-            {handleSave ? (
-              <button type="button" onClick={handleSave} className="bio-studio-save-button">
-                <span className="material-symbols-outlined" aria-hidden="true">check</span>
-                {t("memberPortal.bio.saveChanges")}
-              </button>
-            ) : null}
-          </div>
-
           <div className="bio-studio-segmented" role="tablist" aria-label={t("memberPortal.bioPreview.customizeTitle")}>
             {EDITOR_SECTIONS.map((section) => {
               const active = activeSection === section.id;
@@ -149,47 +120,39 @@ export default function BioPreviewTab({
             {renderAccountForm?.(activeSection)}
           </section>
 
+          {handleSave ? (
+            <button type="button" onClick={handleSave} className="bio-studio-save-button">
+              <span className="material-symbols-outlined" aria-hidden="true">check</span>
+              {t("memberPortal.bio.saveChanges")}
+            </button>
+          ) : null}
+
           {ready && session?.email ? (
-            <section className="bio-studio-membership">
-              <div className="bio-studio-membership-heading">
+            <section className="bio-studio-lifeline" aria-label={t("memberPortal.bioPreview.membershipHeader")}>
+              <div className="bio-studio-lifeline-row">
                 <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
-                <span>
-                  <strong>{t("memberPortal.bioPreview.membershipHeader")}</strong>
-                  <small>{t("memberPortal.bioPreview.packageName")}</small>
+                <span className="bio-studio-lifeline-text">
+                  {t("memberPortal.bioPreview.bioExpiry")}: <strong>{formatDate(membership.end)}</strong>
+                </span>
+                <span className="bio-studio-lifeline-left">
+                  {t("memberPortal.bioPreview.daysLeft", { count: membership.remaining })}
                 </span>
               </div>
-              <dl>
-                <div>
-                  <dt>{t("memberPortal.bioPreview.startDate")}</dt>
-                  <dd>{formatDate(membership.start)}</dd>
-                </div>
-                <div>
-                  <dt>{t("memberPortal.bioPreview.bioExpiry")}</dt>
-                  <dd>{formatDate(membership.end)}</dd>
-                </div>
-              </dl>
-              <div className="bio-studio-progress" aria-label={t("memberPortal.bioPreview.daysElapsed", {
-                elapsed: membership.elapsed,
-                total: membership.total,
-              })}>
+              <div className="bio-studio-progress">
                 <span style={{ width: `${membership.progress}%` }} />
               </div>
-              <p>
-                <span>{t("memberPortal.bioPreview.daysElapsed", { elapsed: membership.elapsed, total: membership.total })}</span>
-                <span>{t("memberPortal.bioPreview.daysLeft", { count: membership.remaining })}</span>
-              </p>
             </section>
           ) : null}
         </main>
 
-        <aside className="bio-studio-preview">
-          <div className="bio-studio-preview-heading">
-            <div>
-              <p>{t("memberPortal.bioPreview.previewLabel")}</p>
-              <h2>{t("memberPortal.bioPreview.previewTitle")}</h2>
-            </div>
+        {/* Trên điện thoại, khung xem trước là mục gập lại: mở trang thật chỉ
+            một chạm, không cần thẻ iframe cao gần hết màn hình lúc nào cũng bày. */}
+        <details className="bio-studio-preview" open={typeof window !== "undefined" && window.innerWidth >= 980}>
+          <summary className="bio-studio-preview-heading">
+            <span>{t("memberPortal.bioPreview.previewTitle")}</span>
             {ready ? <span className="bio-studio-live-dot">{t("memberPortal.bioPreview.live")}</span> : null}
-          </div>
+            <span className="material-symbols-outlined bio-studio-preview-caret" aria-hidden="true">expand_more</span>
+          </summary>
 
           {ready ? (
             <div className="bio-studio-device">
@@ -214,7 +177,7 @@ export default function BioPreviewTab({
               <p>{t("memberPortal.bioPreview.notReadyDesc")}</p>
             </div>
           )}
-        </aside>
+        </details>
       </div>
     </div>
   );

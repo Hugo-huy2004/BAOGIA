@@ -71,7 +71,7 @@ router.post('/plans/trial', requireMember, async (req, res) => {
     await InAppNotification.create({
       email: req.memberEmail,
       type: 'success',
-      category: 'system',
+      category: 'package',
       title: `Đã mở dùng thử ${APP_PLANS[appId].label}`,
       message: `Bạn có ${result.days} ngày dùng thử miễn phí. Hết hạn ngày ${new Date(result.expiresAt).toLocaleDateString('vi-VN')}.`,
       actionUrl: '/member/utilities/store',

@@ -5,7 +5,8 @@ import Bio from '../models/Bio.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
 import { requireAdmin, requireMember, attachMemberAge } from '../middleware/authMiddleware.js';
-import { bioAge, isMinorAge, ageFromBirth, MEMBER_MIN_AGE } from '../utils/memberAge.js';
+import { bioAge, isMinorAge } from '../utils/memberAge.js';
+import { missingProfileFields, applyProfileValues, describeField } from '../utils/profileRequirements.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
 import { encryptText, decryptText, hashPassword, comparePassword } from '../utils/cryptoUtils.js';
 import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation.js';
@@ -302,6 +303,21 @@ async function removeDuplicateIdentityAccounts(bio) {
   await Bio.deleteMany({ _id: { $ne: bio._id }, $or: identityFilters });
 }
 
+// PATCH: gắn/gỡ hạng danh dự Star-VIP. Star-14 và Star-18 suy ra từ ngày sinh
+// nên không có (và không cần) endpoint sửa tay — chỉ hạng danh dự là quyết định
+// của con người.
+router.patch('/:id/vip', requireAdmin, async (req, res) => {
+  try {
+    const starVip = Boolean(req.body?.starVip);
+    const bio = await Bio.findByIdAndUpdate(req.params.id, { $set: { starVip } }, { new: true });
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    clearCache(`bio_slug_${bio.slug}`);
+    res.json({ success: true, starVip: bio.starVip });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // PATCH: Lock/Unlock/Approve/Reject bio
 router.patch('/:id/status', requireAdmin, async (req, res) => {
   try {
@@ -487,6 +503,9 @@ router.get('/me', requireMember, async (req, res) => {
           password: '' // Hide hashed password from frontend, allow user to input new one if needed
         }));
       }
+      // Kèm luôn "hồ sơ còn thiếu gì" để portal khỏi tự đoán bằng luật riêng —
+      // đó chính là chỗ trước đây client và server lệch nhau.
+      bioObj.profileMissing = missingProfileFields(bioDoc).map(describeField);
       return res.json({ bio: bioObj });
     }
   } catch (error) {
@@ -650,43 +669,45 @@ router.post('/me/verification', requireMember, async (req, res) => {
 
 // POST /me/onboarding - One-time post-signup step: collect phone (so referral
 // codes can be phone-derived) and optionally apply a referrer's code.
+// GET /me/profile-gaps — hồ sơ còn thiếu thông tin bắt buộc nào. Client dựng
+// form từ đúng danh sách này, nên không bao giờ hỏi thừa hay hỏi thiếu.
+router.get('/me/profile-gaps', requireMember, async (req, res) => {
+  try {
+    let bio = await Bio.findOne({ email: req.memberEmail });
+    if (!bio) bio = await Bio.findOne({ contactEmail: req.memberEmail });
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    res.json({
+      missing: missingProfileFields(bio).map(describeField),
+      onboardingCompleted: Boolean(bio.onboardingCompleted),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/onboarding — ghi những thông tin client vừa điền (mục nào gửi thì
+// ghi mục đó), sinh mã giới thiệu và áp mã người giới thiệu nếu có.
 router.post('/me/onboarding', requireMember, async (req, res) => {
   try {
-    const { phone, referrerCode, birthDay, birthMonth, birthYear } = req.body;
+    const { referrerCode } = req.body;
     const email = req.memberEmail;
     if (!email) return res.status(400).json({ error: 'Missing email' });
-    if (await rejectBlacklistedPhone(res, phone)) return;
+    if (await rejectBlacklistedPhone(res, req.body.phone)) return;
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
 
-    if (phone && String(phone).trim()) {
-      bio.phone = String(phone).trim();
-    }
-
-    // Ngày sinh: bắt buộc và chỉ khai một lần. Cổng 18+ đứng trên dữ liệu này
-    // nên không thể để trống rồi đi tiếp, cũng không cho sửa lại sau.
-    if (!bio.birthYear) {
-      const day = Number(birthDay);
-      const month = Number(birthMonth);
-      const year = Number(birthYear);
-      const thisYear = new Date().getFullYear();
-      const valid = Number.isInteger(day) && day >= 1 && day <= 31
-        && Number.isInteger(month) && month >= 1 && month <= 12
-        && Number.isInteger(year) && year >= 1900 && year <= thisYear
-        && new Date(year, month - 1, day).getDate() === day;
-      if (!valid) return res.status(400).json({ error: 'Ngày sinh không hợp lệ.' });
-      if (ageFromBirth(year, month, day) < MEMBER_MIN_AGE) {
-        return res.status(403).json({ error: `Hugo Studio chỉ dành cho người từ đủ ${MEMBER_MIN_AGE} tuổi.` });
-      }
-      bio.birthDay = day;
-      bio.birthMonth = month;
-      bio.birthYear = year;
+    try {
+      applyProfileValues(bio, req.body);
+    } catch (validationError) {
+      return res.status(400).json({ error: validationError.message });
     }
 
     const referralCode = await ensureReferralCode(bio);
 
+    // Mã giới thiệu áp được hay không KHÔNG được làm hỏng phần lưu hồ sơ —
+    // trước đây một lỗi ở đây là mất cả hai.
     let referralResult = null;
     let referralError = null;
     if (referrerCode && String(referrerCode).trim()) {
@@ -697,7 +718,8 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
       }
     }
 
-    bio.onboardingCompleted = true;
+    const stillMissing = missingProfileFields(bio);
+    bio.onboardingCompleted = stillMissing.length === 0;
     await bio.save();
 
     res.json({
@@ -705,7 +727,15 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
       referralCode,
       joyAwarded: referralResult?.joyAwarded || 0,
       bioExtendedDays: referralResult?.bioExtendedDays || 0,
-      referralError
+      referralError,
+      missing: stillMissing.map(describeField),
+      onboardingCompleted: bio.onboardingCompleted,
+      profile: {
+        phone: bio.phone || '',
+        birthDay: bio.birthDay || 0,
+        birthMonth: bio.birthMonth || 0,
+        birthYear: bio.birthYear || 0,
+      },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

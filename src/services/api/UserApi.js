@@ -14,6 +14,10 @@ class UserApi extends BaseApi {
     return this.patch(`/bios/${bioId}/status`, { status });
   }
 
+  async setVip(bioId, starVip) {
+    return this.patch(`/bios/${bioId}/vip`, { starVip });
+  }
+
   async deleteBio(bioId) {
     return this.delete(`/bios/${bioId}`);
   }

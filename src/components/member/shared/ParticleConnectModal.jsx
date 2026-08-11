@@ -513,7 +513,12 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
   useEffect(() => {
     if (!open) return;
-    setStep("select"); setMode(initialMode || "search"); setRecipient(null);
+    // initialMode "setup-pin": mở thẳng màn đặt PIN. Trước đây PIN chỉ đặt được
+    // giữa chừng một lượt chuyển JOY, nên muốn khoá ví trước là không có đường.
+    const pinOnly = initialMode === "setup-pin";
+    setStep(pinOnly ? "setup-pin" : "select");
+    setMode(pinOnly ? "search" : (initialMode || "search"));
+    setRecipient(null);
     setAmount(""); setNote(""); setSearchQ(""); setSearchResults([]);
     setError(""); setResult(null); setIgnoredScanPayloads(new Set());
     scanResolvingRef.current = false;
@@ -645,6 +650,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
       try {
         await setTransactionPin(enteredPin);
         setHasPin(true);
+        // Đặt PIN đứng một mình (mở từ ví) thì xong là xong — không có giao
+        // dịch nào phía sau để gửi.
+        if (!recipient || !Number(amount)) {
+          window.dispatchEvent(new CustomEvent("hugo:pin-set"));
+          playWin();
+          onClose();
+          return;
+        }
         handleVerifyAndSend(enteredPin);
       } catch (e) {
         setError(e.message || "Không thể thiết lập mã PIN.");
@@ -925,6 +938,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                         <ParticleScanner
                           inline
                           onScanSuccess={handleQRDetected}
+                          onError={(err) => setError(err?.message?.includes("not supported")
+                            ? "Trình duyệt không hỗ trợ camera. Hãy dùng mã hoặc số điện thoại."
+                            : "Không mở được camera. Kiểm tra quyền truy cập camera của trình duyệt.")}
                           ignoredPayloads={ignoredScanPayloads}
                           scanBoxSize={240}
                         />
