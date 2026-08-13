@@ -113,38 +113,60 @@ export function installApiAuthInterceptor() {
   const originalFetch = window.fetch.bind(window);
 
   window.fetch = (input, init = {}) => {
+    // Cosmetic requests such as theme selection may deliberately fall back
+    // to member-scoped local state. Keep this client-only option away from
+    // native fetch() and normalize transport failure into a regular response.
+    const networkFallback = init?.hugoNetworkFallback === true;
+    const requestInit = networkFallback
+      ? Object.fromEntries(Object.entries(init).filter(([key]) => key !== "hugoNetworkFallback"))
+      : init;
     const startedAt = performance.now();
     const url = typeof input === "string" ? input : input?.url || "";
     if (shouldBypassInterception(url)) {
-      return originalFetch(input, init);
+      return originalFetch(input, requestInit);
     }
 
     let isApi = false;
     let decision = null;
+    let memberToken = null;
     try {
       isApi = isApiRequest(url);
-      if (isApi) decision = authDecision(input, init, getAdminToken() || getMemberToken());
+      if (isApi) {
+        memberToken = getMemberToken();
+        const adminToken = getAdminToken();
+        const parsed = parseRequestUrl(url);
+        const isAdminRoute = parsed?.pathname === "/api/admin"
+          || parsed?.pathname.startsWith("/api/admin/");
+
+        // Trong portal thành viên, token thành viên phải thắng token admin cũ
+        // còn lưu trong trình duyệt. Route admin vẫn ưu tiên đúng phiên admin;
+        // Authorization do chính call site gửi luôn được authDecision giữ lại.
+        const preferredToken = isAdminRoute
+          ? (adminToken || memberToken)
+          : (memberToken || adminToken);
+        decision = authDecision(input, requestInit, preferredToken);
+      }
     } catch {
       // Never let auth decoration break the request itself.
-      return originalFetch(input, init);
+      return originalFetch(input, requestInit);
     }
 
-    if (!isApi) return originalFetch(input, init);
+    if (!isApi) return originalFetch(input, requestInit);
 
-    const method = (init.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
+    const method = (requestInit.method || (typeof input !== "string" ? input.method : "") || "GET").toUpperCase();
     const shouldTrack = !url.includes("/api/ops/client-event");
-    const { headers, sentAuth } = decision;
+    const { headers, sentAuth, authToken } = decision;
 
     const response = headers
-      ? originalFetch(input, { credentials: "include", ...init, headers })
-      : originalFetch(input, { credentials: "include", ...init });
+      ? originalFetch(input, { credentials: "include", ...requestInit, headers })
+      : originalFetch(input, { credentials: "include", ...requestInit });
 
     return response
       .then((res) => {
         const durationMs = performance.now() - startedAt;
         if (shouldTrack) safely(() => recordApiOutcome(res.ok));
 
-        if (res.status === 401 && sentAuth && !isAuthExemptRequest(url)) {
+        if (res.status === 401 && sentAuth && authToken === memberToken && !isAuthExemptRequest(url)) {
           // Token rejected by server -> clear invalid member session to halt 401 loops
           safely(clearMemberSession);
         }
@@ -184,9 +206,19 @@ export function installApiAuthInterceptor() {
       .catch((error) => {
         // Network errors (backend down / restarting / offline) are transient
         // connectivity, not actionable app bugs — reporting them just fires
-        // another doomed request. Swallow the report; still reject so the
-        // caller's own retry/fallback logic runs.
+        // another doomed request. Optional cosmetic calls receive a regular
+        // 503 response; all other callers keep their existing rejection path.
         if (shouldTrack) safely(() => recordApiOutcome(false));
+        if (networkFallback) {
+          return new Response(JSON.stringify({
+            success: false,
+            code: "NETWORK_UNAVAILABLE",
+            networkUnavailable: true,
+          }), {
+            status: 503,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
         throw error;
       });
   };

@@ -1,44 +1,40 @@
 /**
  * OOP Membership Tier Models & Factory
  * Manages member privileges, threshold calculation, card themes, and visual styles.
+ *
+ * Bảng màu thẻ (2026-08): pastel nhạt + chữ cùng tông đậm, hạng đỉnh là nền mực
+ * + chữ vàng. Bộ cũ là gradient neon bão hoà với chữ trắng — hạng Gold gần như
+ * không đọc nổi, và năm hạng là năm bảng màu rời rạc chứ không thành một dải.
+ *
+ * Mỗi hạng chỉ còn đúng những token thẻ THẬT SỰ dùng tới. Bảy token cũ
+ * (neonGlow, chipGradient, actionBtnStyle, ringsColor, joyTextColor,
+ * accentColorClass, secondaryColorHex, badgeTitle) không còn chỗ nào đọc sau khi
+ * thẻ bỏ chip EMV và vòng tròn đồng tâm — đã xoá.
  */
 
 export class BaseMembershipTier {
   constructor({
     id,
     name,
-    badgeTitle,
     colorHex,
-    secondaryColorHex,
     cardBgStyle,
-    neonGlow,
-    neonBorder,
     textClass,
-    accentColorClass,
     pillStyle,
-    joyTextColor,
-    chipGradient,
-    actionBtnStyle,
-    ringsColor,
+    borderColor,
+    pattern,
     minReferrals,
     privileges = [],
     description = ""
   }) {
     this.id = id;
     this.name = name;
-    this.badgeTitle = badgeTitle;
     this.colorHex = colorHex;
-    this.secondaryColorHex = secondaryColorHex;
     this.cardBgStyle = cardBgStyle;
-    this.neonGlow = neonGlow;
-    this.neonBorder = neonBorder;
     this.textClass = textClass;
-    this.accentColorClass = accentColorClass;
     this.pillStyle = pillStyle;
-    this.joyTextColor = joyTextColor;
-    this.chipGradient = chipGradient;
-    this.actionBtnStyle = actionBtnStyle;
-    this.ringsColor = ringsColor;
+    this.borderColor = borderColor;
+    /** Hoạ tiết nền riêng của hạng — xem CardPattern trong card/JoyCard.jsx. */
+    this.pattern = pattern;
     this.minReferrals = minReferrals;
     this.privileges = privileges;
     this.description = description;
@@ -69,25 +65,18 @@ export class BaseMembershipTier {
   }
 }
 
-// 1. MemberShip Tier (0 Referrals - Warm Ivory Gold & Silk Pearl)
+// 1. MemberShip (0 giới thiệu) — bạc ngọc trai
 export class MemberTier extends BaseMembershipTier {
   constructor() {
     super({
       id: "membership",
       name: "MemberShip",
-      badgeTitle: "MEMBER",
-      colorHex: "#F59E0B",
-      secondaryColorHex: "#FEF3C7",
-      cardBgStyle: "linear-gradient(135deg, #FFFDF0 0%, #FEF3C7 45%, #FDE68A 100%)",
-      neonGlow: "0 10px 30px rgba(245, 158, 11, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.9)",
-      neonBorder: "#F59E0B",
-      textClass: "text-amber-950",
-      accentColorClass: "text-amber-800",
-      pillStyle: "bg-amber-950/10 border-amber-950/20 text-amber-950 font-bold backdrop-blur-md",
-      joyTextColor: "text-amber-800 font-black",
-      chipGradient: "linear-gradient(135deg, #FFF099 0%, #D4AF37 50%, #997A00 100%)",
-      actionBtnStyle: "bg-amber-950 text-white hover:bg-black border-amber-950/30",
-      ringsColor: "rgba(180, 83, 9, 0.14)",
+      colorHex: "#8FA3BC",
+      cardBgStyle: "linear-gradient(135deg, #F0F3F8 0%, #CFD8E4 52%, #A9B6C8 100%)",
+      textClass: "text-slate-800",
+      pillStyle: "bg-slate-900/[0.08] text-slate-800",
+      borderColor: "#9FAFC4",
+      pattern: "guilloche",
       minReferrals: 0,
       description: "Đặc quyền cơ bản dành cho thành viên mới tạo tài khoản",
       privileges: [
@@ -98,25 +87,18 @@ export class MemberTier extends BaseMembershipTier {
   }
 }
 
-// 2. Silver Tier (2 Referrals - Electric Cyber Fuchsia Pink)
+// 2. Silver (2 giới thiệu) — xanh trời
 export class SilverTier extends BaseMembershipTier {
   constructor() {
     super({
       id: "silver",
       name: "Silver",
-      badgeTitle: "SILVER",
-      colorHex: "#C026D3",
-      secondaryColorHex: "#E024D6",
-      cardBgStyle: "linear-gradient(135deg, #E024D6 0%, #C026D3 55%, #9333EA 100%)",
-      neonGlow: "0 12px 35px rgba(192, 38, 211, 0.55), inset 0 0 25px rgba(255, 255, 255, 0.3)",
-      neonBorder: "#F472B6",
-      textClass: "text-white drop-shadow-xs",
-      accentColorClass: "text-pink-100",
-      pillStyle: "bg-white/20 border-white/35 text-white font-bold backdrop-blur-md",
-      joyTextColor: "text-amber-300 font-black drop-shadow-xs",
-      chipGradient: "linear-gradient(135deg, #FFE066 0%, #D4AF37 50%, #886600 100%)",
-      actionBtnStyle: "bg-white/25 text-white hover:bg-white/35 border-white/40",
-      ringsColor: "rgba(255, 255, 255, 0.18)",
+      colorHex: "#2FA8FF",
+      cardBgStyle: "linear-gradient(135deg, #DCEEFF 0%, #A6D4FF 52%, #74BEFF 100%)",
+      textClass: "text-sky-900",
+      pillStyle: "bg-sky-950/10 text-sky-900",
+      borderColor: "#7FC2FF",
+      pattern: "waves",
       minReferrals: 2,
       description: "Dành cho thành viên đã giới thiệu 2 người mới",
       privileges: [
@@ -127,25 +109,18 @@ export class SilverTier extends BaseMembershipTier {
   }
 }
 
-// 3. Gold Tier (5 Referrals - High-Beam Champion Cyberpunk Gold)
+// 3. Gold (5 giới thiệu) — cam đào
 export class GoldTier extends BaseMembershipTier {
   constructor() {
     super({
       id: "gold",
       name: "Gold",
-      badgeTitle: "GOLD",
-      colorHex: "#EAB308",
-      secondaryColorHex: "#FACC15",
-      cardBgStyle: "linear-gradient(135deg, #EAB308 0%, #CA8A04 50%, #A16207 100%)",
-      neonGlow: "0 12px 35px rgba(234, 179, 8, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.4)",
-      neonBorder: "#FDE047",
-      textClass: "text-white drop-shadow-xs",
-      accentColorClass: "text-amber-100",
-      pillStyle: "bg-white/20 border-white/35 text-white font-bold backdrop-blur-md",
-      joyTextColor: "text-amber-200 font-black drop-shadow-xs",
-      chipGradient: "linear-gradient(135deg, #FFF099 0%, #D4AF37 50%, #664E00 100%)",
-      actionBtnStyle: "bg-white/25 text-white hover:bg-white/35 border-white/40",
-      ringsColor: "rgba(255, 255, 255, 0.18)",
+      colorHex: "#FF9F1A",
+      cardBgStyle: "linear-gradient(135deg, #FFF0C9 0%, #FFD183 52%, #FFB347 100%)",
+      textClass: "text-amber-900",
+      pillStyle: "bg-amber-950/10 text-amber-900",
+      borderColor: "#FFC966",
+      pattern: "rays",
       minReferrals: 5,
       description: "Dành cho thành viên đã giới thiệu 5 người mới",
       privileges: [
@@ -157,25 +132,18 @@ export class GoldTier extends BaseMembershipTier {
   }
 }
 
-// 4. Diamond Tier (15 Referrals - Royal Ultra-Violet Magenta)
+// 4. Diamond (15 giới thiệu) — tím lavender
 export class DiamondTier extends BaseMembershipTier {
   constructor() {
     super({
       id: "diamond",
       name: "Diamond",
-      badgeTitle: "DIAMOND",
-      colorHex: "#7E22CE",
-      secondaryColorHex: "#A855F7",
-      cardBgStyle: "linear-gradient(135deg, #A855F7 0%, #7E22CE 50%, #581C87 100%)",
-      neonGlow: "0 12px 35px rgba(126, 34, 206, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.3)",
-      neonBorder: "#C084FC",
-      textClass: "text-white drop-shadow-xs",
-      accentColorClass: "text-purple-100",
-      pillStyle: "bg-white/20 border-white/35 text-white font-bold backdrop-blur-md",
-      joyTextColor: "text-amber-300 font-black drop-shadow-xs",
-      chipGradient: "linear-gradient(135deg, #FFE066 0%, #D4AF37 50%, #664E00 100%)",
-      actionBtnStyle: "bg-white/25 text-white hover:bg-white/35 border-white/40",
-      ringsColor: "rgba(255, 255, 255, 0.18)",
+      colorHex: "#9B5CFF",
+      cardBgStyle: "linear-gradient(135deg, #F0E4FF 0%, #D3B4FF 52%, #B189FF 100%)",
+      textClass: "text-violet-900",
+      pillStyle: "bg-violet-950/10 text-violet-900",
+      borderColor: "#BC93FF",
+      pattern: "facets",
       minReferrals: 15,
       description: "Dành cho thành viên đã giới thiệu 15 người mới",
       privileges: [
@@ -187,25 +155,18 @@ export class DiamondTier extends BaseMembershipTier {
   }
 }
 
-// 5. Premium Tier (50 Referrals - Cyber Electric Lime Green)
+// 5. Premium (50 giới thiệu) — mực đêm + vàng, hạng đỉnh nên phá tông pastel
 export class PremiumTier extends BaseMembershipTier {
   constructor() {
     super({
       id: "premium",
       name: "Premium",
-      badgeTitle: "PREMIUM",
-      colorHex: "#15803D",
-      secondaryColorHex: "#22C55E",
-      cardBgStyle: "linear-gradient(135deg, #16A34A 0%, #15803D 50%, #14532D 100%)",
-      neonGlow: "0 12px 35px rgba(21, 128, 61, 0.6), inset 0 0 25px rgba(255, 255, 255, 0.3)",
-      neonBorder: "#4ADE80",
-      textClass: "text-white drop-shadow-xs",
-      accentColorClass: "text-emerald-100",
-      pillStyle: "bg-white/20 border-white/35 text-white font-bold backdrop-blur-md",
-      joyTextColor: "text-amber-300 font-black drop-shadow-xs",
-      chipGradient: "linear-gradient(135deg, #FFF099 0%, #D4AF37 50%, #4D3D00 100%)",
-      actionBtnStyle: "bg-white/25 text-white hover:bg-white/35 border-white/40",
-      ringsColor: "rgba(255, 255, 255, 0.18)",
+      colorHex: "#F0CE84",
+      cardBgStyle: "linear-gradient(135deg, #333A4D 0%, #1D2331 52%, #0D1015 100%)",
+      textClass: "text-[#F5E2B4]",
+      pillStyle: "bg-white/[0.14] text-[#F5E2B4]",
+      borderColor: "#7A6947",
+      pattern: "stars",
       minReferrals: 50,
       description: "Dành cho thành viên đã giới thiệu 50 người mới",
       privileges: [

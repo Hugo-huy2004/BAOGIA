@@ -1,4 +1,4 @@
-import { ageFromBirth, MEMBER_MIN_AGE } from './memberAge.js';
+import { ageFromBirth, bioAge, MEMBER_MIN_AGE, GUARDIAN_CONSENT_AGE } from './memberAge.js';
 
 /**
  * MỘT danh sách duy nhất về "hồ sơ còn thiếu gì".
@@ -40,6 +40,28 @@ export const PROFILE_FIELDS = [
     },
   },
   {
+    // Chỉ hỏi khi đã biết tuổi và tuổi nằm trong khoảng 14–15. Vì `isMissing`
+    // đọc ngày sinh vừa ghi ở mục trên, lượt onboarding đầu tiên chưa hỏi mục
+    // này; server tính lại `missing` sau khi lưu nên modal sẽ hỏi ngay ở bước
+    // kế tiếp thay vì đóng lại.
+    key: 'guardianConsent',
+    type: 'checkbox',
+    label: 'Xác nhận của cha mẹ / người giám hộ',
+    hint: `Bạn chưa đủ ${GUARDIAN_CONSENT_AGE} tuổi. Theo tiêu chuẩn bảo vệ người chưa thành niên của Hugo Studio, cha mẹ hoặc người giám hộ cần đọc Chính sách bảo mật và đồng ý trước khi tài khoản tiếp tục xử lý dữ liệu.`,
+    checkboxLabel: 'Cha mẹ hoặc người giám hộ của tôi đã đọc Chính sách bảo mật và đồng ý cho tôi dùng Hugo Studio.',
+    required: true,
+    isMissing: (bio) => {
+      const age = bioAge(bio);
+      return age !== null && age < GUARDIAN_CONSENT_AGE && !bio.guardianConsentAt;
+    },
+    apply(bio, value) {
+      if (value !== true && value !== 'true') {
+        throw new Error('Cần xác nhận của cha mẹ hoặc người giám hộ để tiếp tục.');
+      }
+      bio.guardianConsentAt = new Date();
+    },
+  },
+  {
     key: 'phone',
     type: 'tel',
     label: 'Số điện thoại / Zalo',
@@ -61,7 +83,9 @@ export function missingProfileFields(bio) {
 }
 
 /** Bản rút gọn gửi xuống client để dựng form. */
-export const describeField = ({ key, type, label, hint }) => ({ key, type, label, hint });
+export const describeField = ({ key, type, label, hint, checkboxLabel }) => (
+  { key, type, label, hint, ...(checkboxLabel ? { checkboxLabel } : {}) }
+);
 
 /**
  * Ghi những giá trị client gửi lên. Chỉ đụng tới mục CÓ trong payload — gửi

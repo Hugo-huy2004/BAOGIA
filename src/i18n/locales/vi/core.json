@@ -12,7 +12,11 @@
     "loginAdmin": "Đăng Nhập Quản Trị",
     "hello": "Xin Chào",
     "mainMenu": "Menu Chính",
-    "login": "Đăng Nhập"
+    "login": "Đăng Nhập",
+    "language": "Ngôn ngữ",
+    "chooseLanguage": "Chọn ngôn ngữ",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu"
   },
   "footer": {
     "tagline": "Kiến tạo trải nghiệm số kẹo ngọt và chuyên nghiệp. Chuyên cung cấp Bio Link và giải pháp thiết kế website tối ưu hiệu năng.",

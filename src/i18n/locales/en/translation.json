@@ -16,8 +16,27 @@
     "lofiWaves": "Lofi Focus Track",
     "timelineScrub": "Music timeline progress",
     "volumeLabel": "Volume",
-    "themeShop": "Aura Theme Shop",
-    "themeShopDesc": "Rent unique dynamic aurora backgrounds that apply to your entire portal. 50 JOY for 24 hours of usage.",
+    "themeShop": "Personal Theme Gallery",
+    "themeShopDesc": "Choose themes from Account to personalize your entire Member Portal.",
+    "accountThemeTitle": "Personal Background & Themes",
+    "accountThemeDescription": "Choose the colours, patterns and atmosphere for your entire Member Portal.",
+    "galleryTitle": "A space that feels like you",
+    "galleryKicker": "HUGO PERSONAL SPACE",
+    "galleryDescription": "Themes update the background, glass materials and navigation tint across your account. HugoAura cannot change this choice.",
+    "liveWeather": "Live weather",
+    "weatherOn": "Blended with your theme",
+    "weatherOff": "Weather layer is off",
+    "filterLabel": "Filter the theme gallery",
+    "filterAll": "All",
+    "filterFree": "Free",
+    "filterStudio": "Hugo Collection",
+    "filterIdentity": "Identity",
+    "filterMood": "Mood",
+    "badgeFree": "FREE",
+    "badgeStudio": "HUGO COLLECTION",
+    "badgeAura": "PREMIUM",
+    "badgeRainbow": "RAINBOW",
+    "applying": "Applying…",
     "themeUsed": "In Use",
     "themeApply": "Apply",
     "themeRentCost": "{{price}} JOY",
@@ -33,18 +52,53 @@
     "toastSelectFailed": "Could not select theme.",
     "toastSelectSuccess": "Applied theme {{name}}!",
     "toastNetworkError": "Connection error occurred.",
+    "toastSavedLocally": "Theme applied on this device. It will sync when the connection is stable.",
     "remainingHoursMinutes": "{{hours}}h {{minutes}}m left",
     "remainingMinutes": "{{minutes}}m left",
-    "themeDefaultName": "Classic Cosmic",
-    "themeDefaultDesc": "Cosmic space with mystical purple-blue aurora glow.",
-    "themeSunsetName": "Sunset Aura",
-    "themeSunsetDesc": "Warm sunset orange blending with peach-pink vibes.",
-    "themeCyberpunkName": "Cyberpunk Neon",
-    "themeCyberpunkDesc": "Vibrant neon cyan, fuchsia and electric purple streaks.",
-    "themeEmeraldName": "Emerald Healing",
-    "themeEmeraldDesc": "Refreshing emerald green accented with golden rays.",
-    "themeObsidianName": "Obsidian Eclipse",
-    "themeObsidianDesc": "Mystical obsidian dark grey with silver particles."
+    "themeDefaultName": "Default Light/Dark",
+    "themeDefaultDesc": "A plain system light or dark interface with no patterns or effects.",
+    "themeSunsetName": "Evening Glow",
+    "themeSunsetDesc": "Warm late-day orange blending with a soft rose light.",
+    "themeCyberpunkName": "Electric Night",
+    "themeCyberpunkDesc": "Bright blue, pink and violet streaks across a night setting.",
+    "themeEmeraldName": "Verdant Calm",
+    "themeEmeraldDesc": "Refreshing green tones accented with gentle golden light.",
+    "themeObsidianName": "Mineral Night",
+    "themeObsidianDesc": "A deep night sky with silver particles and a subtle violet glow.",
+    "themeIos27Name": "Clear Glass",
+    "themeIos27Desc": "A clear blue glass surface with crisp light and restrained depth.",
+    "themePrideName": "Rainbow Spectrum",
+    "themePrideDesc": "A vivid, open rainbow spectrum filled with positive energy.",
+    "themeOceanName": "Tidal Blue",
+    "themeOceanDesc": "Soft layers of blue waves designed for calm and focus.",
+    "themeHugoStudioName": "Creative Beams",
+    "themeHugoStudioDesc": "Violet, pink and blue beams intersect in a creative space.",
+    "themeLotusName": "Lotus Dawn",
+    "themeLotusDesc": "Soft lotus petals over warm pink and golden light.",
+    "themeSolarName": "Sunlit Energy",
+    "themeSolarDesc": "Radiant geometric sunlight shaped for positive energy.",
+    "themeSakuraName": "Petal Breeze",
+    "themeSakuraDesc": "Light petals drift across clear pink, violet and sky-blue tones.",
+    "receipt": {
+      "paymentSuccessful": "Payment successful",
+      "rentalSuccessful": "The theme has been added to your account",
+      "title": "Personal theme rental receipt",
+      "date": "DATE",
+      "time": "TIME",
+      "transaction": "TRANSACTION",
+      "oneDay": "1 day",
+      "thirtyDays": "30 days",
+      "systemTheme": "Colours and materials across the Member Portal",
+      "originalPattern": "The theme's own animated pattern",
+      "duration": "Duration: {{duration}}",
+      "creativeFee": "Creative fee (9%)",
+      "creativeFeeDescription": "Platform maintenance and feature development",
+      "total": "TOTAL",
+      "paid": "PAID",
+      "processing": "Processing transaction…",
+      "cancel": "Cancel",
+      "pay": "Pay"
+    }
   },
   "navbar": {
     "home": "Home",
@@ -59,7 +113,11 @@
     "loginAdmin": "Admin Login",
     "hello": "Hello",
     "mainMenu": "Main Menu",
-    "login": "Log In"
+    "login": "Log In",
+    "language": "Language",
+    "chooseLanguage": "Choose language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "footer": {
     "tagline": "A considered digital space for learners, individuals and small enterprises seeking a distinctive online presence.",
@@ -434,7 +492,7 @@
             "badge": "Game systems",
             "kind": "Interactive engineering",
             "title": "Hugo Arcade",
-            "desc": "A browser-based collection encompassing 2048, 3D Chess, Snake, Tetris, Space Survivor and a succession of compact challenges.",
+            "desc": "A browser-based collection encompassing 2048, 3D Chess, Snake, Blocks, Space Survivor and a succession of compact challenges.",
             "outcome": "My work centred on tactile controls, deterministic game state, animation performance and immersive mobile layouts.",
             "cta": "View the project"
           }
@@ -1868,10 +1926,6 @@
           "title": "Apps",
           "description": "Open your tools"
         },
-        "map": {
-          "title": "Discover",
-          "description": "Find nearby places"
-        },
         "wallet": {
           "title": "JOY Wallet",
           "description": "Balance and transactions"
@@ -1890,6 +1944,7 @@
       "localEdition": "{{country}} edition",
       "dailyReset": "Refreshes daily at 09:00",
       "updatedAt": "Updated {{time}}",
+      "rightsMode": "{{articles}} stories from {{sources}} sources · headlines and publisher-supplied summaries only",
       "loadMore": "Show {{n}} more stories",
       "categories": "Article categories",
       "category": {
@@ -1914,6 +1969,7 @@
       "summaryBySource": "Summary written by {{source}} themselves.",
       "contentTitle": "Article content",
       "contentUnavailable": "This publisher does not allow automatic full-text. Open the original to read it all.",
+      "contentBySource": "The full text of this article is copyrighted by {{source}}. Hugo Studio shows the summary only — open the original below to read it in full.",
       "attribution": "Content is copyright of {{source}}.",
       "readMinutes": "{{n}} min read",
       "fontSize": "Text size",
@@ -1929,7 +1985,9 @@
       "clearFilters": "Clear filters",
       "done": "Done",
       "noResults": "No stories match these filters.",
-      "resultCount": "{{n}} stories"
+      "resultCount": "{{n}} stories",
+      "fullAccess": "This source allows the available content to be read in the app",
+      "summaryAccess": "Showing the summary supplied by the publisher"
     },
     "notificationCenter": {
       "title": "Activity",
@@ -1962,51 +2020,6 @@
         "earlier": "Earlier"
       }
     },
-    "discovery": {
-      "discover": "discover",
-      "loadError": "Could not load places",
-      "webglError": "This device does not support WebGL maps.",
-      "nameRequired": "Enter a place name.",
-      "locationRequired": "Your location is not available yet.",
-      "submitError": "Could not add this place.",
-      "submitSuccess": "The place was added to the map.",
-      "toggle3d": "Switch between 3D and 2D",
-      "recenter": "Return to my location",
-      "addPlace": "Add a new place",
-      "searchPlaceholder": "Search food, cafés…",
-      "destination": "Destination",
-      "match": "{{score}}% match",
-      "away": "{{distance}} away",
-      "openNow": "Open now",
-      "routeSummary": "About {{minutes}} min · {{distance}}",
-      "hideDirections": "Hide directions",
-      "showDirections": "View directions",
-      "navigate": "Directions",
-      "categories": {
-        "all": "All",
-        "food": "Food",
-        "cafe": "Cafés",
-        "play": "Entertainment"
-      },
-      "form": {
-        "name": "Place name *",
-        "address": "Address *",
-        "services": "Services, for example air conditioning or strong Wi-Fi",
-        "submitting": "Adding…",
-        "submit": "Add to map"
-      },
-      "directions": {
-        "continue": "Continue",
-        "onto": " onto {{street}}",
-        "distance": " for about {{distance}} m",
-        "depart": "Depart{{street}}{{distance}}",
-        "arrive": "Arrive at your destination",
-        "turnLeft": "Turn left",
-        "turnRight": "Turn right",
-        "turn": "Turn",
-        "straight": "Continue straight"
-      }
-    },
     "tabs": {
       "bio": "Bio Profile",
       "package": "Services Package",
@@ -2016,8 +2029,7 @@
       "joy": "JOY Wallet",
       "settings": "Profile",
       "verify": "Verify",
-      "verifyEduPending": "Student not verified",
-      "map": "Discover"
+      "verifyEduPending": "Student not verified"
     },
     "status": {
       "active": "Verified",
@@ -2173,6 +2185,9 @@
       "aboutPlaceholder": "Share a little about yourself, your learning goals, or what interests you…",
       "verifiedIdentity": "Education Identity",
       "verifiedIdentityDescription": "Information used to verify students is protected by the system.",
+      "membershipTier": "Membership tier",
+      "birthMonthYear": "Birth month/year",
+      "birthDateLocked": "Your date of birth is entered once. Contact support if it needs to be corrected.",
       "eduFieldLocked": "Can only be changed through education verification",
       "eduProtectionNote": "Email, phone number, and school cannot be edited here. Contact support if your verified information changes.",
       "optionalDetails": "Additional Details",
@@ -2180,6 +2195,188 @@
       "saveTitle": "Update Account",
       "saveDescription": "Changes are securely synced with your profile.",
       "membershipCard": "Hugo membership card"
+    },
+    "accountHub": {
+      "done": "Done",
+      "opening": "Opening…",
+      "perksLoadError": "Could not load your perks.",
+      "eyebrow": "HUGO ACCOUNT",
+      "title": "Account",
+      "subtitle": "Your profile, JOY, and settings.",
+      "verified": "Verified",
+      "edit": "Edit",
+      "overviewAria": "Account overview",
+      "balance": "BALANCE",
+      "missions": "MISSIONS",
+      "open": "Open",
+      "pendingJoy": "{{amount}} JOY to claim",
+      "today": "Today",
+      "perks": "PERKS",
+      "spinAvailable": "Spin available",
+      "activeVouchers": "Active vouchers",
+      "quickActionsAria": "Quick JOY actions",
+      "center": "Wallet",
+      "sendJoy": "Send JOY",
+      "receiveJoy": "Receive JOY",
+      "scanCode": "Scan code",
+      "attentionAria": "Items that need attention",
+      "attention": "Needs attention",
+      "setPin": "Set a transaction PIN",
+      "pinMissing": "Transaction PIN not set",
+      "pinDescription": "Use a 6-digit PIN to protect every JOY transfer.",
+      "claimJoy": "Claim {{amount}} JOY",
+      "missionsWaiting": "{{count}} missions have rewards ready to claim.",
+      "walletSection": "JOY Wallet",
+      "myPerks": "My perks",
+      "luckySpinRemaining": "You have one lucky spin available",
+      "perksSummary": "{{vouchers}} vouchers available · {{orders}} purchased items",
+      "todayMissions": "Today's missions",
+      "loading": "Loading…",
+      "pendingJoyLong": "{{amount}} JOY is ready to claim",
+      "missionProgress": "Completed {{completed}}/{{total}} today",
+      "walletHistory": "Wallet history",
+      "walletHistoryDetail": "Every credit and debit, plus your 30-day summary",
+      "walletHistoryShort": "Every credit and debit",
+      "perksStore": "Perks store",
+      "perksStoreDetail": "Exchange JOY for items and service packages",
+      "perksStoreShort": "Exchange JOY for items and services",
+      "redeemReferral": "Codes and referrals",
+      "redeemReferralDetail": "Gift codes, referral codes, and friend invitations",
+      "redeemReferralShort": "Gift codes and friend invitations",
+      "memberSection": "Membership",
+      "manageTitle": "Service packages and Bio page",
+      "manageDetail": "Owned packages, expiry dates, and Bio page deletion",
+      "privacySection": "Privacy and notifications",
+      "systemSection": "System",
+      "joyCenterTitle": "JOY Center",
+      "joyCenterSubtitle": "Membership card, daily check-in, transactions, and perks",
+      "joyActionsAria": "JOY actions",
+      "voucherCount": "{{count}} vouchers available",
+      "myPerksSubtitle": "Gifted vouchers, purchases, and your lucky spin",
+      "todayMissionsSubtitle": "Complete missions and claim JOY here",
+      "walletHistorySubtitle": "Every credit and debit with its reason",
+      "balanceSubtitle": "Balance: {{balance}} JOY",
+      "memberDocument": "Member document",
+      "missionCopy": {
+        "claimedJoy": "Claimed {{amount}} JOY.",
+        "claimedAll": "Claimed {{total}} JOY from {{count}} missions.",
+        "claiming": "Claiming…",
+        "claimAll": "Claim all · {{amount}} JOY",
+        "heading": "Today's missions ({{completed}}/{{total}})",
+        "loading": "Loading missions…",
+        "empty": "No new missions today.",
+        "rewardClaimed": "Reward claimed",
+        "rewardReady": "+{{amount}} JOY reward",
+        "incomplete": "Not completed · +{{amount}} JOY",
+        "claimed": "Claimed",
+        "claim": "Claim"
+      },
+      "redeemCopy": {
+        "giftError": "This code cannot be redeemed.",
+        "giftSuccess": "Added {{amount}} JOY to your wallet.",
+        "referralError": "This referral code is not valid.",
+        "referralSuccess": "Applied · +{{days}} days of account access.",
+        "shareText": "Use code {{code}} when you sign up.",
+        "linkCopied": "Invitation link copied.",
+        "giftCode": "Gift code",
+        "enterCode": "Enter code",
+        "redeem": "Redeem",
+        "giftHint": "Redeem a JOY code issued by Hugo Studio to add JOY to your wallet.",
+        "referralCode": "Referrer's code",
+        "referralPlaceholder": "Code or invitation link",
+        "apply": "Apply",
+        "referralHint": "Each account can enter a referral code once.",
+        "inviteFriends": "Invite friends",
+        "rewardPerFriend": "+100 JOY for each person who signs up with your code",
+        "referralCount": "{{count}} people referred · your code",
+        "shareLink": "Share invitation link"
+      },
+      "historyCopy": {
+        "loadError": "Could not load wallet history.",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last30Days": "Last 30 days",
+        "received": "Received",
+        "spent": "Spent",
+        "net": "Net",
+        "topSources": "Top JOY sources",
+        "loading": "Loading wallet history…",
+        "empty": "No transactions yet.",
+        "noMatch": "No transactions match this filter.",
+        "balanceAfter": "{{balance}} left",
+        "filters": {
+          "all": "All",
+          "in": "Received",
+          "out": "Spent"
+        },
+        "groups": {
+          "checkin": "Check-ins",
+          "friends": "Friends",
+          "entertainment": "Entertainment",
+          "learning": "Learning",
+          "shopping": "Shopping",
+          "promotions": "Promotions",
+          "other": "Other"
+        }
+      },
+      "notificationCopy": {
+        "justNow": "just now",
+        "minutesAgo": "{{count}} minutes ago",
+        "hoursAgo": "{{count}} hours ago",
+        "markRead": "Mark as read",
+        "dismiss": "Dismiss",
+        "title": "Notifications",
+        "readAll": "Read all",
+        "all": "All",
+        "unread": "Unread",
+        "noUnread": "No unread notifications",
+        "empty": "No notifications yet",
+        "retention": "Notifications are automatically removed after 90 days"
+      },
+      "radioCopy": {
+        "open": "Open radio — now playing {{station}}",
+        "connecting": "Connecting…",
+        "live": "Live now",
+        "paused": "Paused",
+        "pause": "Pause",
+        "play": "Play",
+        "stop": "Stop playback"
+      },
+      "perksCopy": {
+        "noExpiry": "No expiry",
+        "codeCopied": "Code copied.",
+        "discount": "{{percent}}% off",
+        "perk": "Perk",
+        "usedOn": "Used on {{date}}",
+        "expiresOn": "Expires: {{date}}",
+        "voucherHint": "Share this code when discussing your project. Each code can be used once.",
+        "loading": "Loading perks…",
+        "retry": "Try again",
+        "luckySpin": "Lucky spin",
+        "spinAvailable": "You have one spin available this year.",
+        "spunThisYear": "Spun this year · received {{amount}} JOY",
+        "opensInBirthMonth": "Opens in {{month}}, your birthday month.",
+        "addBirthday": "Complete your date of birth to unlock the birthday spin.",
+        "spinNow": "Spin now",
+        "activeVouchers": "Available vouchers ({{count}})",
+        "noActiveVouchers": "You do not have a voucher yet. Tier rewards and spin prizes will appear here.",
+        "pastVouchers": "Used and expired ({{count}})",
+        "purchasedWithJoy": "Purchased with JOY ({{count}})",
+        "noPurchases": "You have not purchased anything from the Perks Store yet.",
+        "fulfilled": " · fulfilled",
+        "cancelled": " · cancelled"
+      },
+      "documents": {
+        "rightsTitle": "Rights and access",
+        "rightsSubtitle": "Access scope, device permissions, and each party's responsibilities",
+        "rightsDetail": "What you can use, device permissions, and each party's responsibilities",
+        "privilegesTitle": "Member privileges",
+        "privilegesSubtitle": "Tier benefits, how to earn them, and how privileges are protected",
+        "privilegesDetail": "Card tiers, benefits at each tier, and how to move up",
+        "conditionsTitle": "Member rights and responsibilities",
+        "conditionsSubtitle": "Core rights, age rules, safe use, and JOY rules",
+        "conditionsDetail": "Core rights, age rules, safe use, and JOY"
+      }
     },
     "bento": {
       "profileSub": "Avatar, name & introduction",
@@ -2308,7 +2505,33 @@
       "healingSuccess": "Wish you always remain resilient and peaceful! ❤️",
       "eduVerified": "Verification successful! You can now use all features.",
       "sessionExpired": "Your session has expired for security. The system has automatically logged out to protect your account.",
-      "sleepDetected": "The system has automatically detected your sleep last night!"
+      "sleepDetected": "The system has automatically detected your sleep last night!",
+      "loadError": "Unable to load your member data.",
+      "largeImage": "Please choose an image smaller than 20 MB.",
+      "cropSuccess": "Avatar cropped successfully.",
+      "avatarRemovedTemp": "Avatar removed. Save changes to confirm.",
+      "descLimit": "Your bio can contain up to 110 words.",
+      "linkLimit": "You can add up to 5 links.",
+      "linkEmpty": "Please enter both a link name and URL.",
+      "partnerLinkAdded": "Partner link added.",
+      "partnerLinkDeleted": "Partner link removed.",
+      "descLimitExceeded": "Your bio exceeds the 110-word limit.",
+      "partnerSaveSuccess": "Partner Bio saved successfully.",
+      "saveSuccess": "Your profile has been saved.",
+      "activateSuccess": "Your Hugo Bio profile is now active.",
+      "saveError": "Unable to save your changes.",
+      "deleteLocalSuccess": "Local Partner Bio deleted.",
+      "deletePersonalSuccess": "Your personal Bio has been deleted.",
+      "deletePersonalError": "Unable to delete your personal Bio.",
+      "copySuccess": "Public link copied."
+    },
+    "radio": {
+      "token": {
+        "expired": "Weekly listening time used up",
+        "weeklyFree": "Free listening this week",
+        "purchased": "Purchased listening time",
+        "buyMore": "Get more time"
+      }
     },
     "headlineEmpty": "No headline set",
     "settingsBtn": "Edit Bio",
@@ -2521,6 +2744,18 @@
     "onboarding": {
       "title": "Welcome! 🎉",
       "subtitle": "Complete your profile to receive JOY and special perks",
+      "missingTitle": "Complete your required information",
+      "missingDescription": "{{count}} required items remain. Information already provided will not be requested again.",
+      "completeRequired": "Please complete all required fields.",
+      "invalidFields": "Some information is not valid. Please review it and try again.",
+      "genericError": "Your information could not be saved. Please try again.",
+      "day": "Day",
+      "month": "Month",
+      "year": "Year",
+      "dayAria": "Day of birth",
+      "monthAria": "Month of birth",
+      "yearAria": "Year of birth",
+      "monthOption": "Month {{month}}",
       "phoneLabel": "Phone number",
       "phonePlaceholder": "Enter your phone number",
       "referralLabel": "Referral code (optional)",
@@ -2528,7 +2763,69 @@
       "referralHint": "Enter a referrer's code to get +10 JOY and +15 free days of Bio link",
       "submitting": "Submitting...",
       "submitButton": "Finish",
-      "skipButton": "Skip for now"
+      "skipButton": "Skip for now",
+      "fields": {
+        "birthDate": {
+          "label": "Date of birth",
+          "hint": "This is entered once and then locked. It determines age-appropriate features and unlocks birthday-month rewards."
+        },
+        "guardianConsent": {
+          "label": "Parent or guardian confirmation",
+          "hint": "If you are under 16, a parent or guardian must read the Privacy Policy and consent before the account continues processing personal data.",
+          "checkboxLabel": "My parent or guardian has read the Privacy Policy and agrees that I may use Hugo Studio."
+        },
+        "phone": {
+          "label": "Phone number or Zalo",
+          "hint": "Used when contact is needed and to create your referral code."
+        }
+      }
+    },
+    "birthdaySurprise": {
+      "monthTitle": "Your birthday month!",
+      "dayTitle": "Happy birthday!",
+      "monthGreeting": "Welcome to your birthday month, {{name}}!",
+      "dayGreeting": "Happy birthday, {{name}}!",
+      "monthMessage": "Hugo Studio wishes you a bright month. A reward is waiting in the next spin.",
+      "dayMessage": "Hugo Studio wishes you a joyful, healthy year filled with memorable milestones.",
+      "openGift": "Open birthday-month gift",
+      "acceptWish": "Continue"
+    },
+    "birthdayWheel": {
+      "spinError": "The wheel is unavailable right now. Please try again later.",
+      "kicker": "Birthday-month reward",
+      "congratulations": "Congratulations!",
+      "title": "One spin for you",
+      "addedToWallet": "JOY has been added to your wallet.",
+      "description": "One spin each year, with an equal chance for every segment.",
+      "wheelAria": "Wheel with {{count}} JOY reward segments",
+      "youReceived": "You received",
+      "accountDays": "+{{count}} days of account access",
+      "voucherExpiry": "Valid through {{date}} · share this code when discussing your project",
+      "spinning": "Spinning…",
+      "done": "Done",
+      "spinNow": "Spin now",
+      "later": "Later"
+    },
+    "ageProtection": {
+      "badge": "Age-based protection",
+      "title": "Available only to people aged 14 or older",
+      "description": "A person under 14 may view public content but is not eligible to create or use a Hugo Studio member account.",
+      "groupTitle": "Protection for each age group",
+      "rules": [
+        "Ages 14 to under 16: a parent or guardian must read the Privacy Policy and consent before the account continues.",
+        "Ages 16 to under 18: regular member features are available; adult features and transactions requiring full legal capacity remain restricted.",
+        "Provide only the minimum data requested in official forms. Do not publish documents, an address, an OTP or another private secret on a Bio or in a conversation.",
+        "Names and identifying details of people under 18 are hidden from public search and rankings where the feature's safety design requires it.",
+        "Necessary data may still be processed by sign-in, storage, email or payment providers as described in the Privacy Policy."
+      ],
+      "commitment": "Hugo Studio gives priority to the best interests of minors and applies safeguards proportionate to risk. Access may be paused for verification if an account uses an inaccurate age or presents a risk of harm."
+    },
+    "locationAnomaly": {
+      "title": "Unusual sign-in location detected",
+      "description": "This device is approximately {{distance}} km from your usual location. Was this you?",
+      "trust": "This was me — update the location",
+      "logout": "This was not me — sign out",
+      "guidance": "If you do not recognize this activity, sign out immediately and change your Google password."
     },
     "permissions": {
       "eyebrow": "One-time setup",
@@ -2537,7 +2834,7 @@
       "pushTitle": "Important notifications",
       "pushDescription": "Receive verification, JOY, security, and account updates even after closing the app.",
       "locationTitle": "Local experience",
-      "locationDescription": "Used for local news, Discovery Map, and unusual sign-in alerts.",
+      "locationDescription": "Used for local news and unusual sign-in alerts.",
       "privacyTitle": "Your privacy stays in your control",
       "privacyDescription": "Location is not used for advertising. You can revoke either permission in device settings at any time.",
       "enable": "Enable",
@@ -2556,7 +2853,22 @@
         "cardName": "HUGO CARD",
         "availableBalance": "Available balance",
         "smartChip": "Hugo member chip",
-        "transfer": "Send JOY"
+        "transfer": "Send JOY",
+        "flipFront": "Flip back to the front of the card",
+        "flipRules": "Flip the card to view its usage rules",
+        "referralsToTier": "{{count}} to {{tier}}",
+        "locked": "Locked",
+        "referralsNeeded": "{{count}} more successful referrals needed",
+        "cardholder": "Cardholder",
+        "cardCode": "Card code",
+        "usageRules": "Usage rules",
+        "viewTier": "View {{tier}} tier card",
+        "rules": [
+          "The card belongs to one account and cannot be transferred.",
+          "JOY is an internal reward balance and cannot be exchanged for cash.",
+          "Your card tier updates after successful referrals.",
+          "JOY and benefits may be revoked if fraud is detected."
+        ]
       },
       "particle": {
         "title": "Hugo Studio - Intelligent Connection",
@@ -2596,6 +2908,7 @@
         "scanCloudCode": "Scan Particle Cloud Code",
         "cameraUnsupported": "Camera not supported",
         "cameraError": "Camera error",
+        "invalidQr": "This JOY code is invalid or expired. Please scan a newer code.",
         "cameraHintInline": "Point camera at someone else's Particle Cloud Code to connect.",
         "cameraHint": "Point camera at Particle Cloud Code",
         "tabNfc": "Tap NFC",
@@ -2682,7 +2995,19 @@
         "confirmBalanceAfter": "Balance after purchase",
         "confirmCancel": "Cancel",
         "confirmButton": "Confirm purchase",
-        "confirmProcessing": "Processing..."
+        "confirmProcessing": "Processing...",
+        "searchPlaceholder": "Search products…",
+        "noResults": "No matching products found.",
+        "listeningDays": "+{{count}} listening days",
+        "listeningHours": "+{{count}} listening hours",
+        "fulfillmentFee": "Fulfillment fee (2%)",
+        "supportFee": "Support fee (5%)",
+        "maintenanceFee": "Maintenance fee (2%)",
+        "totalPayment": "Total payment",
+        "categories": {
+          "all": "All",
+          "general": "General"
+        }
       },
       "send": {
         "title": "Send JOY",
@@ -2725,7 +3050,14 @@
       "locked": "Locked",
       "claimSuccess": "Checked in! +{{amount}} JOY",
       "claimSuccessBonus": "Checked in! +{{total}} JOY (includes +{{bonus}} JOY milestone bonus)",
-      "claimError": "Couldn't check in right now."
+      "claimError": "Couldn't check in right now.",
+      "weekLockedTitle": "Streak ended · reopens Monday",
+      "streakTooltip": "{{count}}-day streak · complete 7 days for +{{reward}} JOY{{milestones}}",
+      "dayReward": "Day {{day}} · +{{amount}} JOY",
+      "claiming": "Claiming…",
+      "reopensMonday": "Reopens Monday",
+      "alreadyClaimedToday": "Checked in today",
+      "claimToday": "Check in · +{{amount}} JOY"
     },
     "settings": {
       "title": "Settings",
@@ -2837,7 +3169,7 @@
       "desc": "About Hugo Studio, the current version, and a small reward just for you.",
       "aboutTitle": "About Hugo Studio",
       "aboutBody": "Hugo Studio is a personal Bio-link platform combined with a versatile utility toolkit, built so everyone can find their own corner that fits their personality and pace of life — there's no one-size-fits-all here.",
-      "aboutBody2": "From your personal Bio page and a daily JOY rewards system, to utilities like HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade and HugoAura — every tool lives in one place, so you can build your personal image, work, study and unwind without switching between different apps.",
+      "aboutBody2": "From your personal Bio page and a daily JOY rewards system, to utilities like HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade and HugoAura — every tool lives in one place, so you can build your personal image, work, study and unwind without switching between different apps.",
       "featuresTitle": "Key features",
       "features": {
         "bio": {
@@ -2857,8 +3189,8 @@
           "desc": "AI-assisted study counseling, sleep tracking, and emotional therapy support."
         },
         "ide": {
-          "title": "HugoCoder",
-          "desc": "A multi-language code editor with code suggestions and beginner programming lessons."
+          "title": "Study with Hugo",
+          "desc": "Two original collections covering Web Development, Digital Productivity, and AI."
         },
         "radio": {
           "title": "HugoRadio",
@@ -3433,9 +3765,14 @@
   "companion": {
     "tab": {
       "title": "HugoPSY",
+      "subtitle": "Your mental wellbeing companion",
+      "today": "Today",
+      "statsDays": "Days together",
+      "statsStreak": "Check-in streak",
+      "statsNoTest": "No assessment yet",
       "settings": "Settings",
       "chat": "Chat",
-      "therapy": "Therapy",
+      "therapy": "Unwind",
       "sleep": "Sleep",
       "evaluation": "Evaluation",
       "loading": "Loading...",
@@ -3495,7 +3832,9 @@
       "desc": "Our system noticed you may be going through a hard time. If you're in immediate danger, call 115 (Emergency) or go to the nearest medical facility now. Reach out to a trusted family member or friend to be with you.",
       "hotlineLabel": "Mental health hotline",
       "talkNow": "I need to talk now",
-      "imSafe": "I'm safe / I've reached out for help"
+      "imSafe": "I'm safe / I've reached out for help",
+      "descShort": "If you are in immediate danger, call the numbers below or contact someone you trust now.",
+      "imSafeShort": "I'm safe"
     },
     "profile": {
       "title": "Personal Information",
@@ -3591,6 +3930,7 @@
     },
     "library": {
       "installedToast": "App installed (+{{size}} MB on this device)!",
+      "appCount": "{{count}} apps",
       "removedToast": "App removed ({{size}} MB released)!",
       "positionUpdated": "App position updated!",
       "radioPaused": "Radio paused",
@@ -3653,7 +3993,7 @@
           "button": "Open HugoPSY"
         },
         "ide": {
-          "title": "HugoCoder AI Workspace",
+          "title": "AI Learning Workspace",
           "description": "A multilingual code editor for visual learning, algorithm testing, and hands-on programming.",
           "button": "Start coding"
         },
@@ -3703,13 +4043,18 @@
         "title": "Hugo Library",
         "description": "The app library for the Hugo ecosystem"
       },
+      "study": {
+        "title": "Study with Hugo",
+        "description": "Web Development, Digital Productivity, and AI",
+        "fullDescription": "One guided learning system with practice, assessment, and clear outcomes for every Hugo Studio path."
+      },
       "ide": {
-        "title": "HugoCoder",
-        "description": "Code editor and programming lessons"
+        "title": "Study with Hugo",
+        "description": "Professional Web Development Collection"
       },
       "hugoso": {
-        "title": "HugoSO",
-        "description": "Google Workspace and Gemini skills",
+        "title": "Study with Hugo",
+        "description": "Digital Productivity and AI Collection",
         "fullDescription": "Hugo Study Office Skills — step-by-step Calendar, Docs, Sheets, and Gemini courses with guided video, hands-on practice, and in-lesson skill checks."
       },
       "team": {
@@ -3719,10 +4064,6 @@
       "psychology": {
         "title": "HugoPSY",
         "description": "AI wellbeing and sleep tracking"
-      },
-      "hugoskin": {
-        "title": "HugoSkin",
-        "description": "Skin analysis and personal care"
       },
       "radio": {
         "title": "HugoRadio",
@@ -3744,10 +4085,6 @@
         "title": "HugoAura",
         "description": "Pomodoro focus and ambient sound"
       },
-      "deco": {
-        "title": "Deco Studio",
-        "description": "Decorate your virtual space"
-      },
       "info": {
         "title": "Info and Version",
         "description": "System information and release notes"
@@ -3759,10 +4096,6 @@
       "store": {
         "title": "Hugo Store",
         "description": "Apps, tokens and services shop"
-      },
-      "map": {
-        "title": "Discover",
-        "description": "Community map and places near you"
       },
       "arcade_chess": {
         "title": "AI Chess",
@@ -3781,7 +4114,7 @@
         "description": "Vietnamese vocabulary challenge"
       },
       "arcade_tetris": {
-        "title": "Tetris Neon",
+        "title": "Hugo Blocks Neon",
         "description": "Smooth 60-fps block stacking"
       },
       "arcade_snake": {
@@ -3831,7 +4164,7 @@
         "btnText": "Open Utility"
       },
       "ide": {
-        "title": "HugoCoder",
+        "title": "Study with Hugo",
         "desc": "Versatile code editor (C, C++, C#, Python, Web, PHP) with code suggestions, basic lessons, and local file saving guides.",
         "btnText": "Open Code IDE"
       },
@@ -4311,11 +4644,15 @@
     "joyBalance": "JOY balance",
     "loading": "Preparing your learning journey…",
     "tabs": {
-      "label": "HugoCoder navigation",
+      "label": "Study with Hugo navigation",
       "learn": "Learn",
       "lab": "Lab",
       "resources": "Resources",
+      "quality": "Quality",
       "progress": "Progress"
+    },
+    "studioSeal": {
+      "prefix": "Curated and authored by"
     },
     "hero": {
       "kicker": "Learn daily, build real products",
@@ -4339,6 +4676,55 @@
       "stage": "Stage {{number}}",
       "lesson": "Lesson {{number}}",
       "next": "Up next"
+    },
+    "sync": {
+      "label": "Learn and pass workflow",
+      "eyebrow": "ONE LESSON · ONE ASSIGNMENT · ONE RESULT",
+      "title": "Learn, practise, and pass as one connected flow.",
+      "learn": "Learn",
+      "learnDescription": "Clear goals and essential concepts",
+      "practice": "Complete the assignment",
+      "practiceDescription": "Practice uses the lesson you just learned",
+      "pass": "Pass",
+      "passDescription": "Verify the result and save progress",
+      "lesson": "Lesson",
+      "assignment": "Pass assignment",
+      "linked": "Linked",
+      "passed": "Passed"
+    },
+    "quality": {
+      "eyebrow": "HUGO STUDIO ORIGINAL",
+      "title": "Quality is more than a promise.",
+      "description": "Study with Hugo checks the real structure of every lesson: learning goals, linked practice, and assessment rules. The figures below are calculated from the live curriculum.",
+      "metricsLabel": "Course quality metrics",
+      "metrics": {
+        "goals": "Lessons with clear learning goals",
+        "practice": "Lessons with linked practice",
+        "assessment": "Lessons with assessment rules"
+      },
+      "standardEyebrow": "AUTHORING STANDARD",
+      "standardTitle": "Four layers of quality control",
+      "points": {
+        "goal": {
+          "title": "Goals that can be verified",
+          "description": "Every lesson states what learners should understand and be able to build."
+        },
+        "sync": {
+          "title": "Lessons and assignments share one topic",
+          "description": "Practice comes directly from the lesson, without unrelated or out-of-scope questions."
+        },
+        "feedback": {
+          "title": "Feedback immediately after practice",
+          "description": "The system checks code, answers, or submitted work so learners can improve straight away."
+        },
+        "evidence": {
+          "title": "Progress is recorded after requirements are met",
+          "description": "A lesson is completed only when its own assessment conditions are satisfied."
+        }
+      },
+      "curriculumEyebrow": "EXCLUSIVE CURRICULUM",
+      "curriculumTitle": "100 lessons authored by Hugo Studio",
+      "note": "The Hugo Studio Original mark identifies core content authored exclusively for this learning path. External references, when used, are credited separately."
     },
     "resources": {
       "title": "Learning resources",
@@ -4378,14 +4764,14 @@
     "tetris": {
       "stage": "STAGE {{stage}}",
       "speed": "SPEED {{level}}",
-      "boardLabel": "Tetris board. Tap to rotate, swipe sideways to move, and swipe down to hard drop.",
+      "boardLabel": "Blocks board. Tap to rotate, swipe sideways to move, and swipe down to hard drop.",
       "piecePanel": "Held and upcoming pieces",
       "hold": "Hold",
       "next": "Next",
       "linesCleared": "Lines",
       "mission": "Mission",
       "rowsLeft": "lines left",
-      "controls": "Tetris controls",
+      "controls": "Blocks controls",
       "left": "Left",
       "rotate": "Rotate",
       "down": "Down",

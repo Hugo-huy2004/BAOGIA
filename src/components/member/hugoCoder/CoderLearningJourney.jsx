@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Atom,
   Bot,
+  BookOpenCheck,
   Check,
   ChevronDown,
   Flame,
@@ -11,6 +12,7 @@ import {
   Lock,
   Microscope,
   Play,
+  ShieldCheck,
   Sparkles,
   Star,
   Trophy,
@@ -136,6 +138,11 @@ export default function CoderLearningJourney({
             <Sparkles aria-hidden="true" />
             {t("hugoCoderLearning.hero.kicker")}
           </span>
+          <span className="coder-studio-seal">
+            <ShieldCheck aria-hidden="true" />
+            {t("hugoCoderLearning.studioSeal.prefix")}
+            <strong>Hugo Studio</strong>
+          </span>
           <h1>{t("hugoCoderLearning.hero.title")}</h1>
           <p>{t("hugoCoderLearning.hero.description")}</p>
         </div>
@@ -160,6 +167,35 @@ export default function CoderLearningJourney({
             </span>
             <ArrowRight aria-hidden="true" />
           </button>
+        </div>
+      </section>
+
+      <section className="coder-learning-contract" aria-label={t("hugoCoderLearning.sync.label")}>
+        <div className="coder-learning-contract-heading">
+          <span><ShieldCheck aria-hidden="true" /></span>
+          <div>
+            <small>{t("hugoCoderLearning.sync.eyebrow")}</small>
+            <strong>{t("hugoCoderLearning.sync.title")}</strong>
+          </div>
+        </div>
+        <div className="coder-learning-contract-flow">
+          <div>
+            <span>01</span>
+            <p><BookOpenCheck aria-hidden="true" /><strong>{t("hugoCoderLearning.sync.learn")}</strong></p>
+            <small>{t("hugoCoderLearning.sync.learnDescription")}</small>
+          </div>
+          <i aria-hidden="true"><ArrowRight /></i>
+          <div>
+            <span>02</span>
+            <p><FlaskConical aria-hidden="true" /><strong>{t("hugoCoderLearning.sync.practice")}</strong></p>
+            <small>{t("hugoCoderLearning.sync.practiceDescription")}</small>
+          </div>
+          <i aria-hidden="true"><ArrowRight /></i>
+          <div>
+            <span>03</span>
+            <p><Check aria-hidden="true" /><strong>{t("hugoCoderLearning.sync.pass")}</strong></p>
+            <small>{t("hugoCoderLearning.sync.passDescription")}</small>
+          </div>
         </div>
       </section>
 
@@ -278,6 +314,12 @@ export default function CoderLearningJourney({
                             {t("hugoCoderLearning.path.lesson", { number: lessonNumber(course) })}
                           </small>
                           <strong>{course.title.replace(/^\d+\.\s*/, "")}</strong>
+                          <span className="coder-lesson-sync">
+                            <span><BookOpenCheck aria-hidden="true" />{t("hugoCoderLearning.sync.lesson")}</span>
+                            <ArrowRight aria-hidden="true" />
+                            <span><FlaskConical aria-hidden="true" />{t("hugoCoderLearning.sync.assignment")}</span>
+                            <b>{complete ? t("hugoCoderLearning.sync.passed") : t("hugoCoderLearning.sync.linked")}</b>
+                          </span>
                           {current && <em>{t("hugoCoderLearning.path.next")}</em>}
                         </span>
                         {index < stageCourses.length - 1 && (

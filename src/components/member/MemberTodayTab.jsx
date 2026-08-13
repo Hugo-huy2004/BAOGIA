@@ -3,16 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 import { extractTopics, matchesQuery, matchesTopic } from "../../lib/todayTopics";
 import { givenName } from "./memberName";
+import { languageCode } from "../../i18n/languages";
 
 const CATEGORIES = ["all", "academic", "technology", "community", "world", "catholic"];
 const PAGE_SIZE = 15;
-
-const QUICK_ACTIONS = [
-  { id: "apps", icon: "apps", path: "/member/apps" },
-  { id: "map", icon: "explore", path: "/member/map" },
-  { id: "wallet", icon: "account_balance_wallet", path: "/member/utilities/joy_wallet" },
-  { id: "profile", icon: "person", path: "/member/account" },
-];
 
 const CATEGORY_ICONS = Object.freeze({
   academic: "school",
@@ -28,7 +22,7 @@ export default function MemberTodayTab({
   onNavigate,
 }) {
   const { t, i18n } = useTranslation();
-  const language = i18n.resolvedLanguage === "en" ? "en" : "vi";
+  const language = languageCode(i18n.resolvedLanguage || i18n.language);
   const [category, setCategory] = useState("all");
   const [topic, setTopic] = useState("");
   const [query, setQuery] = useState("");
@@ -53,6 +47,10 @@ export default function MemberTodayTab({
   // Chủ đề được rút từ ấn bản hiện tại; đổi chuyên mục là ấn bản khác, chip cũ
   // không còn bài nào khớp nên phải bỏ.
   useEffect(() => { setTopic(""); }, [category]);
+
+  // Từ khoá/chủ đề thuộc ngôn ngữ của ấn bản cũ. Xoá chúng ngay khi đổi ngôn
+  // ngữ để bản tin mới không bị lọc rỗng bởi một cụm từ tiếng Việt/Thái cũ.
+  useEffect(() => { setTopic(""); setQuery(""); }, [language]);
 
   // Ngón tay kéo danh sách rồi nhả ra vẫn sinh ra một click. Chỉ mở bài khi
   // ngón không đi quá 10px và không giữ quá 700ms — còn lại là lướt.
@@ -104,6 +102,15 @@ export default function MemberTodayTab({
     () => new Intl.DateTimeFormat(language, { hour: "2-digit", minute: "2-digit" }),
     [language],
   );
+  const countryLabel = useMemo(() => {
+    const country = data?.meta?.country;
+    if (!country) return "";
+    try {
+      return new Intl.DisplayNames([language], { type: "region" }).of(country) || country;
+    } catch {
+      return country;
+    }
+  }, [data?.meta?.country, language]);
 
   return (
     <section className="portal-stack today-news-shell" aria-labelledby="portal-today-title">
@@ -120,7 +127,7 @@ export default function MemberTodayTab({
           <span className="material-symbols-outlined" aria-hidden="true">language</span>
           <span>
             {t("memberPortal.today.localEdition", {
-              country: data?.meta?.country || (language === "vi" ? "VN" : "US"),
+              country: countryLabel || language.toUpperCase(),
             })}
           </span>
           <span aria-hidden="true">·</span>
@@ -130,6 +137,15 @@ export default function MemberTodayTab({
             })}
           </span>
         </p>
+        {data?.meta ? (
+          <p className="today-edition-rights">
+            <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
+            {t("memberPortal.today.rightsMode", {
+              articles: data.meta.articleCount || 0,
+              sources: data.meta.sourceCount || 0,
+            })}
+          </p>
+        ) : null}
       </header>
 
       <section aria-labelledby="today-feed-title">
@@ -230,39 +246,28 @@ export default function MemberTodayTab({
                 type="button"
                 className={[
                   "today-news-card",
-                  index === 0 && article.imageUrl ? "is-lead" : "",
+                  index === 0 ? "is-lead" : "",
                 ].filter(Boolean).join(" ")}
+                data-category={article.category}
                 onPointerDown={onPressStart}
                 onClick={(event) => openArticle(event, article)}
               >
-                <span
-                  className={`today-news-card-media ${article.imageUrl ? "has-image" : ""}`}
-                  data-category={article.category}
-                >
-                  {article.imageUrl ? (
-                    <img
-                      src={article.imageUrl}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      referrerPolicy="no-referrer"
-                      onError={(event) => {
-                        event.currentTarget.hidden = true;
-                        event.currentTarget.parentElement?.classList.remove("has-image");
-                      }}
-                    />
-                  ) : null}
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    {CATEGORY_ICONS[article.category] || CATEGORY_ICONS.all}
-                  </span>
-                </span>
+                {/* Bố cục thuần chữ kiểu mục lục báo: KHÔNG dùng ảnh của toà
+                    soạn (xem normalizeArticle() trong studentNewsService.js).
+                    Nhận diện chuyên mục nằm ở vạch màu bên trái + icon nhỏ
+                    trong dòng nguồn, và tiêu đề được thêm gần 100px bề ngang. */}
                 <span className="min-w-0">
+                  {/* Nhãn "nổi bật" nằm TRÊN tiêu đề như eyebrow của báo in.
+                      Đặt dưới tít thì nó chen giữa tít và sapo, đọc gãy nhịp. */}
+                  {index === 0 ? <em>{t("memberPortal.today.featured")}</em> : null}
                   <small>
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      {CATEGORY_ICONS[article.category] || CATEGORY_ICONS.all}
+                    </span>
                     {article.source}
                     {article.publishedAt ? ` · ${dateFormatter.format(new Date(article.publishedAt))}` : ""}
                   </small>
                   <strong>{article.title}</strong>
-                  {index === 0 ? <em>{t("memberPortal.today.featured")}</em> : null}
                   {index === 0 && article.description ? (
                     <span className="today-news-dek">{article.description}</span>
                   ) : null}
@@ -284,30 +289,6 @@ export default function MemberTodayTab({
         )}
       </section>
 
-      <section>
-        <div className="portal-section-heading">
-          <h3>{t("memberPortal.navigation.quickActions")}</h3>
-        </div>
-        <div className="portal-action-grid">
-          {QUICK_ACTIONS.map((action) => (
-            <button
-              key={action.id}
-              type="button"
-              className="portal-card portal-action"
-              onClick={() => onNavigate(action.path)}
-            >
-              <span className="portal-app-icon" data-app={action.id}>
-                <span className="material-symbols-outlined">{action.icon}</span>
-              </span>
-              <span>
-                <strong>{t(`memberPortal.navigation.quick.${action.id}.title`)}</strong>
-                <small>{t(`memberPortal.navigation.quick.${action.id}.description`)}</small>
-              </span>
-              <span className="material-symbols-outlined portal-disclosure">chevron_right</span>
-            </button>
-          ))}
-        </div>
-      </section>
     </section>
   );
 }

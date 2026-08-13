@@ -169,12 +169,21 @@ const routes = [
   },
   {
     path: "/privacy-policy",
-    title: "Điều Khoản Sử Dụng Và Chính Sách Bảo Mật | Hugo Studio",
+    title: "Chính Sách Bảo Mật | Hugo Studio",
     description:
-      "Tìm hiểu cách Hugo Studio cung cấp dịch vụ, xử lý dữ liệu cá nhân, vận hành JOY, thanh toán và bảo vệ quyền riêng tư của người dùng.",
+      "Tìm hiểu cách Hugo Studio thu thập, xử lý và bảo vệ dữ liệu cá nhân, cùng ranh giới trách nhiệm với các dịch vụ bên thứ ba.",
     body: () =>
-      `<h1>Điều khoản sử dụng và chính sách bảo mật</h1>` +
-      `<p>${esc("Tài liệu trình bày phạm vi dịch vụ, dữ liệu được xử lý, quyền của người dùng, thanh toán và các biện pháp bảo vệ tài khoản.")}</p>`,
+      `<h1>Chính sách bảo mật</h1>` +
+      `<p>${esc("Tài liệu trình bày dữ liệu được xử lý, quyền của người dùng và các biện pháp bảo vệ tài khoản.")}</p>`,
+  },
+  {
+    path: "/terms",
+    title: "Điều Khoản Sử Dụng | Hugo Studio",
+    description:
+      "Điều kiện sử dụng Hugo Studio: tài khoản và độ tuổi, nội dung bạn đăng, quy trình gỡ nội dung vi phạm bản quyền, điểm JOY, dịch vụ trả phí và giới hạn trách nhiệm.",
+    body: () =>
+      `<h1>Điều khoản sử dụng</h1>` +
+      `<p>${esc("Phạm vi dịch vụ, quyền với nội dung người dùng đăng tải, quy trình báo cáo vi phạm bản quyền, quy định về JOY và thanh toán.")}</p>`,
   },
   {
     path: "/user-guide",

@@ -1,7 +1,7 @@
 /**
  * localVectorRAG.js
  * Tìm kiếm Cosine Similarity Véctơ ngay trên trình duyệt (Local Vector RAG).
- * Tìm bài tập CBT, phác đồ hít thở, giải tỏa stress và Skincare trong 5ms.
+ * Tìm bài tập CBT, phác đồ hít thở và giải tỏa stress trong 5ms.
  */
 
 const KNOWLEDGE_VECTORS = [
@@ -28,14 +28,6 @@ const KNOWLEDGE_VECTORS = [
     title: "Phác Đồ Vệ Sinh Giấc Ngủ (Sleep Hygiene Protocol)",
     reply: "Dưới đây là 3 nguyên tắc giúp khôi phục nhịp sinh học tự nhiên:\n\n1. Tắt màn hình xanh 30 phút trước khi ngủ\n2. Giữ phòng tối và nhiệt độ mát nhẹ (24°C)\n3. Thả lỏng cơ thể từ đầu đến chân bằng kỹ thuật Body Scan.",
     showInlineSleep: true
-  },
-  {
-    id: "skincare_hydration",
-    topic: "Chăm sóc da, da khô, da dầu, mụn, tỷ lệ vàng, skincare routine",
-    keywords: ["chăm sóc da", "skincare", "da kho", "da dau", "mun", "ty le vang", "da mat"],
-    title: "Tư Vấn Chu Trình Skincare Cá Nhân Hóa",
-    reply: "Chu trình dưỡng da cốt lõi gồm 3 bước: Làm sạch dịu nhẹ -> Cấp ẩm đa tầng (Hyaluronic Acid/Niacinamide) -> Bảo vệ da bằng kem chống nắng SPF50+. Cậu có thể dùng tiện ích HugoSkin để quét tỷ lệ vàng và phân tích sắc tố da chi tiết nhé!",
-    showInlineTherapy: true
   }
 ];
 

@@ -94,7 +94,7 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
                   className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md px-3 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
                 >
                   <option value="psychology">HugoPSY (Tâm lý & Giấc ngủ)</option>
-                  <option value="ide">HugoCoder (Lập trình)</option>
+                  <option value="ide">Study with Hugo (Phát triển Web)</option>
                   <option value="arcade">HugoArcade (Giải trí)</option>
                   <option value="helpdesk">HugoHelpdesk (Mã QR/NFC)</option>
                   <option value="handle">HugoHandle (Bảo mật Link/Ảnh)</option>

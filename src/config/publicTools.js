@@ -7,8 +7,7 @@
  *   - scripts/generate-seo.mjs — static HTML + sitemap entries per tool
  *
  * Before this existed the allowed-path list was hardcoded in App.jsx and drifted
- * out of sync with the tools UtilityPublicPage could actually render, so /ide,
- * /hugoskin and /arcade were bounced to /introduction despite being supported.
+ * out of sync with the tools UtilityPublicPage could actually render.
  *
  * gate:
  *   "open"   — no account needed at all.
@@ -61,7 +60,7 @@ export const PUBLIC_TOOLS = {
     gate: "level",
     title: "Hugo Arcade — Game Nhẹ Chơi Ngay Trên Trình Duyệt",
     description:
-      "Kho game nhẹ của Hugo Studio: cờ vua 3D, 2048, Snake, Tetris và nhiều thử thách khác, chơi trực tiếp trên trình duyệt.",
+      "Kho game nhẹ của Hugo Studio: cờ vua 3D, 2048, Snake, xếp hình và nhiều thử thách khác, chơi trực tiếp trên trình duyệt.",
     heading: "Hugo Arcade",
     summary:
       "Game nhẹ chạy thẳng trên trình duyệt, không cài đặt. Chơi ngay được; mở màn mới thì cần tài khoản sinh viên.",
@@ -73,15 +72,6 @@ export const PUBLIC_TOOLS = {
       "Trình soạn thảo code chạy trực tiếp trên trình duyệt: viết HTML, CSS, JavaScript và xem kết quả ngay, không cần cài đặt.",
     heading: "Hugo Web IDE",
     summary: "Viết và chạy code ngay trên trình duyệt, không cần cài gì. Dùng tự do.",
-  },
-  hugoskin: {
-    gate: "result",
-    title: "HugoSkin — Tùy Biến Giao Diện Cá Nhân | Hugo Studio",
-    description:
-      "HugoSkin giúp bạn tùy biến giao diện, màu sắc và ảnh nền cho không gian cá nhân trong hệ sinh thái Hugo Studio.",
-    heading: "HugoSkin",
-    summary:
-      "Tùy biến giao diện và ảnh nền cá nhân. Thử thoải mái; lưu bộ giao diện của bạn thì cần tài khoản đã xác minh.",
   },
 };
 

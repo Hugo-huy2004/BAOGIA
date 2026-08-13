@@ -13,6 +13,7 @@ const PUBLIC_PATHS = new Set([
   "/faq",
   "/booking",
   "/privacy-policy",
+  "/terms",
   "/user-guide",
   "/banhocduong",
   "/therapy",

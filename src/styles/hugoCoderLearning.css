@@ -120,7 +120,7 @@
   margin: 0 auto 9px;
   padding: 4px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 3px;
   border: 1px solid var(--coder-border);
   border-radius: 16px;
@@ -1141,4 +1141,103 @@
   .coder-lab-bubble {
     animation: none;
   }
+}
+
+/* HugoCoder remake — unified lesson, assignment and quality experience */
+.coder-studio-seal {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 4px;
+  padding: 7px 10px;
+  border: 1px solid rgba(0, 122, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--coder-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.dark .coder-studio-seal { background: rgba(28, 28, 30, 0.64); }
+.coder-studio-seal svg { width: 14px; height: 14px; color: var(--coder-blue); }
+.coder-studio-seal strong { color: var(--color-foreground); }
+.coder-studio-seal-light { margin: 0; background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .24); color: rgba(255,255,255,.76); }
+.coder-studio-seal-light svg, .coder-studio-seal-light strong { color: #fff; }
+
+.coder-learning-contract {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--coder-border);
+  border-radius: 24px;
+  background: var(--coder-surface);
+  box-shadow: var(--coder-shadow);
+}
+
+.coder-learning-contract-heading { display: flex; align-items: center; gap: 11px; }
+.coder-learning-contract-heading > span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: rgba(0, 122, 255, .11); color: var(--coder-blue); }
+.coder-learning-contract-heading svg { width: 20px; height: 20px; }
+.coder-learning-contract-heading div { display: grid; gap: 2px; }
+.coder-learning-contract-heading small { color: var(--coder-blue); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.coder-learning-contract-heading strong { font-size: 16px; letter-spacing: -.02em; }
+.coder-learning-contract-flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: center; gap: 12px; margin-top: 18px; }
+.coder-learning-contract-flow > div { min-width: 0; padding: 14px; border: 1px solid var(--coder-border); border-radius: 17px; background: color-mix(in srgb, var(--coder-surface-solid) 80%, transparent); }
+.coder-learning-contract-flow > div > span { color: var(--coder-blue); font-size: 9px; font-weight: 900; letter-spacing: .1em; }
+.coder-learning-contract-flow p { display: flex; align-items: center; gap: 7px; margin: 7px 0 4px; }
+.coder-learning-contract-flow p svg { width: 16px; height: 16px; color: var(--coder-blue); }
+.coder-learning-contract-flow p strong { font-size: 12px; }
+.coder-learning-contract-flow div > small { display: block; color: var(--coder-secondary); font-size: 10px; line-height: 1.45; }
+.coder-learning-contract-flow > i { color: var(--coder-blue); opacity: .55; }
+.coder-learning-contract-flow > i svg { width: 17px; height: 17px; }
+
+.coder-lesson-sync { display: flex; align-items: center; gap: 5px; margin-top: 7px; color: var(--coder-secondary); flex-wrap: wrap; }
+.coder-lesson-sync > span { display: inline-flex; align-items: center; gap: 3px; font-size: 8px; font-weight: 800; }
+.coder-lesson-sync svg { width: 11px; height: 11px; color: var(--coder-blue); }
+.coder-lesson-sync > b { margin-left: 2px; padding: 3px 6px; border-radius: 999px; background: rgba(52, 199, 89, .12); color: #21883d; font-size: 7px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+
+.coder-quality-page { width: min(920px, 100%); margin: 0 auto; padding: 28px 22px calc(60px + env(safe-area-inset-bottom, 0px)); color: var(--color-foreground); }
+.coder-quality-hero { padding: 32px; border-radius: 28px; background: linear-gradient(135deg, #0066d6, #5856d6 58%, #af52de); color: #fff; box-shadow: 0 22px 55px rgba(0, 86, 180, .24); }
+.coder-quality-hero > p { margin: 22px 0 8px; font-size: 10px; font-weight: 900; letter-spacing: .14em; opacity: .78; }
+.coder-quality-hero h1 { max-width: 650px; margin: 0; font-size: clamp(31px, 6vw, 52px); line-height: .98; letter-spacing: -.055em; }
+.coder-quality-hero > span:last-child { display: block; max-width: 700px; margin-top: 17px; font-size: 13px; line-height: 1.65; color: rgba(255,255,255,.82); }
+.coder-quality-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.coder-quality-metrics article { min-width: 0; padding: 18px; border: 1px solid var(--coder-border); border-radius: 20px; background: var(--coder-surface); box-shadow: var(--coder-shadow); }
+.coder-quality-metrics svg { width: 20px; height: 20px; color: var(--coder-blue); }
+.coder-quality-metrics strong { display: block; margin-top: 12px; font-size: 28px; letter-spacing: -.045em; }
+.coder-quality-metrics span { display: block; margin-top: 4px; color: var(--coder-secondary); font-size: 10px; line-height: 1.45; }
+.coder-quality-standard, .coder-quality-curriculum { margin-top: 16px; padding: 24px; border: 1px solid var(--coder-border); border-radius: 24px; background: var(--coder-surface); }
+.coder-quality-standard-heading { display: flex; gap: 12px; align-items: center; }
+.coder-quality-standard-heading > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: rgba(0,122,255,.11); color: var(--coder-blue); }
+.coder-quality-standard-heading svg { width: 21px; height: 21px; }
+.coder-quality-standard-heading small, .coder-quality-curriculum > div:first-child small { color: var(--coder-blue); font-size: 9px; font-weight: 900; letter-spacing: .12em; }
+.coder-quality-standard-heading h2, .coder-quality-curriculum h2 { margin: 3px 0 0; font-size: 20px; letter-spacing: -.035em; }
+.coder-quality-points { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.coder-quality-points article { display: flex; gap: 11px; padding: 14px; border: 1px solid var(--coder-border); border-radius: 17px; background: color-mix(in srgb, var(--coder-surface-solid) 78%, transparent); }
+.coder-quality-points article > span { color: var(--coder-blue); font-size: 9px; font-weight: 900; letter-spacing: .08em; }
+.coder-quality-points strong { display: block; font-size: 11px; }
+.coder-quality-points p { margin: 5px 0 0; color: var(--coder-secondary); font-size: 10px; line-height: 1.55; }
+.coder-quality-stage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; margin-top: 17px; }
+.coder-quality-stage-grid article { display: flex; align-items: center; gap: 10px; padding: 13px; border: 1px solid var(--coder-border); border-radius: 16px; background: color-mix(in srgb, var(--coder-surface-solid) 78%, transparent); }
+.coder-quality-stage-grid article > span { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 10px; background: rgba(0,122,255,.1); color: var(--coder-blue); font-size: 11px; font-weight: 900; }
+.coder-quality-stage-grid article > div { min-width: 0; display: grid; gap: 2px; }
+.coder-quality-stage-grid strong { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.coder-quality-stage-grid small { color: var(--coder-secondary); font-size: 9px; }
+.coder-quality-stage-grid svg { width: 16px; height: 16px; margin-left: auto; color: #21883d; }
+.coder-quality-note { display: flex; gap: 9px; align-items: flex-start; margin: 14px 4px 0; color: var(--coder-secondary); font-size: 10px; line-height: 1.55; }
+.coder-quality-note svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--coder-blue); }
+
+@media (max-width: 720px) {
+  .coder-hub-tabs { width: calc(100% - 16px); }
+  .coder-hub-tabs button { gap: 4px; padding: 0 4px; font-size: 10px; }
+  .coder-learning-contract-flow { grid-template-columns: 1fr; }
+  .coder-learning-contract-flow > i { display: none; }
+  .coder-quality-page { padding: 18px 14px calc(44px + env(safe-area-inset-bottom, 0px)); }
+  .coder-quality-hero { padding: 24px 20px; border-radius: 23px; }
+  .coder-quality-metrics { grid-template-columns: 1fr; gap: 9px; }
+  .coder-quality-metrics article { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px; padding: 14px; }
+  .coder-quality-metrics strong { margin: 0; font-size: 22px; }
+  .coder-quality-metrics span { margin: 0; }
+  .coder-quality-points, .coder-quality-stage-grid { grid-template-columns: 1fr; }
+  .coder-quality-standard, .coder-quality-curriculum { padding: 18px; }
 }

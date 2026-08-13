@@ -262,7 +262,7 @@ function InlineTherapyReportCard() {
     <div className="mt-2.5 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-primary/5 to-muted/20 border border-emerald-500/30 text-left space-y-3 shadow-md max-w-sm">
       <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
         <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-          🌿 Liệu Pháp Trị Liệu Thích Ứng
+          🌿 Gợi Ý Thư Giãn Phù Hợp
         </span>
         <span className="px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
           Khuyên Dùng
@@ -395,7 +395,7 @@ function BotBubble({ msg, completedMessageIds, setCompletedMessageIds, onStartTe
         {msg.showTherapyButton && (
           <button type="button" onClick={() => onNavigateToTab?.("therapy")}
             className="mt-2.5 flex items-center gap-1.5 w-full justify-center py-2 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold rounded-xl transition-all active:scale-95">
-            <Heart className="w-3.5 h-3.5" /> Mở Trị Liệu ngay
+            <Heart className="w-3.5 h-3.5" /> Mở bài thư giãn
           </button>
         )}
       </div>

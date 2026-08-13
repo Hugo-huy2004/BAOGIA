@@ -15,7 +15,6 @@ const TherapyTab = lazy(() => import("../../components/member/banhocduong/Therap
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
 const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
-const HugoSkinTab = lazy(() => import("../../components/member/HugoSkinTab"));
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 
 
@@ -107,8 +106,6 @@ export default function UtilityPublicPage() {
       case "therapy":
       case "psychology":
         return <TherapyTab {...commonProps} />;
-      case "hugoskin":
-        return <HugoSkinTab bio={player} showToast={commonProps.showToast} />;
       case "radio":
         return <MemberRadioTab />;
       case "aura":

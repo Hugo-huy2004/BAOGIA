@@ -1,23 +1,14 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 import SubUtilityHeader from "./SubUtilityHeader";
 import FeatureGate from "./shared/FeatureGate";
 import { motion } from "framer-motion";
-import AuraReceiptModal from "./AuraReceiptModal";
 
 const LOFI_PLAYLIST = [
   { id: "stream_africa", title: "Lofi Hip Hop Radio", artist: "Stream Africa", url: "https://play.streamafrica.net/lofi" },
   { id: "epic_lounge", title: "Workday Lounge", artist: "Epic Lounge", url: "https://stream.epic-lounge.com/workday-lounge" },
   { id: "hotmix_lofi", title: "Hotmix Lofi", artist: "Hotmix Radio", url: "https://streaming.hotmixradio.com/hotmix-lofi-en-mp3" }
-];
-
-const THEME_SHOP = [
-  { id: "default", name: "Classic Cosmic", desc: "Không gian vũ trụ dải sáng tím lam huyền ảo.", price: 0, preview: "from-primary via-accent to-secondary" },
-  { id: "sunset", name: "Sunset Aura", desc: "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.", price: 50, preview: "from-secondary via-accent to-warning", exclusiveTrack: { id: "sunset_exclusive", title: "Sunset Dreams", artist: "Aura Exclusives", url: "https://0nlineradio.radioho.st/0r-lo-fi" } },
-  { id: "cyberpunk", name: "Cyberpunk Neon", desc: "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.", price: 50, preview: "from-secondary via-accent to-primary", exclusiveTrack: { id: "cyber_exclusive", title: "Neon City", artist: "Aura Exclusives", url: "https://listen.moe/stream" } },
-  { id: "emerald", name: "Emerald Healing", desc: "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.", price: 50, preview: "from-success via-success/70 to-warning", exclusiveTrack: { id: "emerald_exclusive", title: "Nature's Breath", artist: "Aura Exclusives", url: "https://stream.zeno.fm/tabzverz0fctv" } },
-  { id: "obsidian", name: "Obsidian Eclipse", desc: "Sắc xám obsidian huyền bí cùng hạt sáng bạc.", price: 50, preview: "from-warning via-muted to-warning/80", exclusiveTrack: { id: "obsidian_exclusive", title: "Dark Matter", artist: "Aura Exclusives", url: "https://radio.digitalmalayali.in/listen/stream/radio.mp3" } }
 ];
 
 // Base rewards x3.
@@ -75,66 +66,14 @@ const THEME_ACCENTS = {
   }
 };
 
-const AuraVFX = ({ themeId }) => {
-  if (themeId === "default") return null;
-
-  const particles = Array.from({ length: 15 });
-  
-  let colorClass = "bg-white";
-  let animateProps = {};
-  
-  if (themeId === "sunset") {
-    colorClass = "bg-warning";
-    animateProps = { y: ["100vh", "-10vh"], opacity: [0, 0.8, 0], scale: [0.5, 1.5, 0.5] };
-  } else if (themeId === "cyberpunk") {
-    colorClass = "bg-accent shadow-[0_0_10px_#f0f]";
-    animateProps = { y: ["-10vh", "100vh"], x: [0, 50, -50, 0], opacity: [0, 1, 0] };
-  } else if (themeId === "emerald") {
-    colorClass = "bg-success";
-    animateProps = { y: ["-10vh", "100vh"], x: [0, 30, -30, 0], rotate: [0, 360], opacity: [0, 0.5, 0] };
-  } else if (themeId === "obsidian") {
-    colorClass = "bg-zinc-500 shadow-[0_0_5px_#fff]";
-    animateProps = { opacity: [0, 1, 0], scale: [0, 2, 0] };
-  }
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
-      {particles.map((_, i) => {
-        const left = `${Math.random() * 100}%`;
-        const duration = 5 + Math.random() * 10;
-        const delay = Math.random() * 5;
-        const size = Math.random() * (themeId === "cyberpunk" ? 2 : 8) + 2;
-        
-        return (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0 }}
-            animate={animateProps}
-            transition={{ duration, delay, repeat: Infinity, ease: "linear" }}
-            className={`absolute rounded-full ${colorClass} opacity-30`}
-            style={{ left, top: themeId === 'obsidian' ? `${Math.random() * 100}%` : undefined, width: size, height: themeId === "cyberpunk" ? size * 5 : size }}
-          />
-        );
-      })}
-    </div>
-  );
-};
-
 export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   const { t } = useTranslation();
   const fetchJoyBalance = useJoyStore((s) => s.fetchBalance);
 
   // Derive theme aesthetics
-  const activeThemeId = bio?.activeAuraTheme || "default";
-  const activeThemeObj = THEME_SHOP.find(t => t.id === activeThemeId) || THEME_SHOP[0];
-  const accent = THEME_ACCENTS[activeThemeId] || THEME_ACCENTS.default;
-
-  const currentPlaylist = useMemo(() => {
-    if (activeThemeObj.exclusiveTrack) {
-      return [activeThemeObj.exclusiveTrack, ...LOFI_PLAYLIST];
-    }
-    return LOFI_PLAYLIST;
-  }, [activeThemeObj]);
+  // HugoAura owns only focus and audio. Portal backgrounds live in Account.
+  const accent = THEME_ACCENTS.default;
+  const currentPlaylist = LOFI_PLAYLIST;
 
   // --- Pomodoro State ---
   const [selectedMinutes, setSelectedMinutes] = useState(25);
@@ -153,21 +92,6 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
   const [visHeights, setVisHeights] = useState([12, 18, 10, 24, 15, 20, 8, 16]);
 
   const audioRef = useRef(null);
-  const [selectedRentTheme, setSelectedRentTheme] = useState(null);
-  const [isProcessingRent, setIsProcessingRent] = useState(false);
-  const [rentSuccess, setRentSuccess] = useState(false);
-  const [timeTick, setTimeTick] = useState(Date.now()); // for countdown labels sync
-
-  useEffect(() => {
-    // Reset to first track (exclusive if available) when theme changes
-    setCurrentTrackIndex(0);
-  }, [currentPlaylist]);
-
-  // Track timer interval for relative countdown strings refresh
-  useEffect(() => {
-    const it = setInterval(() => setTimeTick(Date.now()), 15000);
-    return () => clearInterval(it);
-  }, []);
 
   // Sync volume of audio element
   useEffect(() => {
@@ -420,95 +344,6 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Theme Shop APIs
-  const handleRentThemeClick = (theme) => {
-    if (!bio?.email) {
-      showToast?.(t("aura.toastLoginRequired"), "warning");
-      return;
-    }
-    setSelectedRentTheme(theme);
-  };
-
-  const handleConfirmRent = async (themeId) => {
-    setIsProcessingRent(true);
-    try {
-      const apiBase = import.meta.env.VITE_API_URL || "/api";
-      const res = await fetch(`${apiBase}/joy/rent-theme`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: bio.email, themeId })
-      });
-      const data = await res.json();
-      
-      setTimeout(() => {
-        if (!res.ok) {
-          showToast?.(data.error || t("aura.toastRentFailed"), "error");
-          setIsProcessingRent(false);
-          // don't close modal on error, allow them to cancel
-          return;
-        }
-        
-        setRentSuccess(true);
-        const themeName = t(`aura.theme${themeId.charAt(0).toUpperCase() + themeId.slice(1)}Name`);
-        showToast?.(t("aura.toastRentSuccess", { name: themeName }), "success");
-        onBioUpdate?.(data.bio);
-        fetchJoyBalance(bio.email);
-        
-        setTimeout(() => {
-          setIsProcessingRent(false);
-          setRentSuccess(false);
-          setSelectedRentTheme(null);
-        }, 2500);
-
-      }, 1500);
-    } catch {
-      showToast?.(t("aura.toastNetworkError"), "error");
-      setIsProcessingRent(false);
-    }
-  };
-
-  const handleSelectTheme = async (themeId) => {
-    if (!bio?.email) return;
-    try {
-      const apiBase = import.meta.env.VITE_API_URL || "/api";
-      const res = await fetch(`${apiBase}/joy/set-theme`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: bio.email, themeId })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast?.(data.error || t("aura.toastSelectFailed"), "error");
-        return;
-      }
-      onBioUpdate?.(data.bio);
-      const themeName = t(`aura.theme${themeId.charAt(0).toUpperCase() + themeId.slice(1)}Name`);
-      showToast?.(t("aura.toastSelectSuccess", { name: themeName }), "success");
-    } catch {
-      showToast?.(t("aura.toastNetworkError"), "error");
-    }
-  };
-
-  const isThemeRented = (themeId) => {
-    if (themeId === "default") return true;
-    const record = bio?.rentedThemes?.find(t => t.themeId === themeId);
-    return record && new Date(record.expiresAt).getTime() > Date.now();
-  };
-
-  const getThemeExpiryText = (themeId) => {
-    if (themeId === "default") return "";
-    const record = bio?.rentedThemes?.find(t => t.themeId === themeId);
-    if (!record) return "";
-    const msLeft = new Date(record.expiresAt).getTime() - Date.now();
-    if (msLeft <= 0) return "";
-    
-    const hrs = Math.floor(msLeft / (60 * 60 * 1000));
-    const mins = Math.floor((msLeft % (60 * 60 * 1000)) / (60 * 1000));
-    
-    if (hrs > 0) return t("aura.remainingHoursMinutes", { hours: hrs, minutes: mins });
-    return t("aura.remainingMinutes", { minutes: mins });
-  };
-
   // Dial SVG configurations
   const maxTime = timerMode === "focus" ? selectedMinutes * 60 : 5 * 60;
   const progressRatio = maxTime > 0 ? (maxTime - timeLeft) / maxTime : 0;
@@ -534,8 +369,6 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
         {/* Left Column: Pomodoro Board */}
         <div className="lg:col-span-7 flex flex-col items-center justify-between bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden text-center">
           <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-50`} />
-          <AuraVFX themeId={activeThemeId} />
-          
           <div className="relative z-10 w-full flex flex-col items-center">
             <h3 className="text-xs font-black text-foreground uppercase tracking-wider mb-5 flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">alarm</span>
@@ -657,14 +490,14 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           </div>
         </div>
 
-        {/* Right Column: Lofi Player & Theme Shop — gated behind a monthly
-            JOY subscription. Pomodoro (left column) stays free for everyone. */}
+        {/* Lofi is the only subscription feature left in HugoAura. Portal
+            backgrounds are managed independently from Account. */}
         <FeatureGate
           bio={bio}
           featureKey="hugoAura"
           priceJoy={150}
           icon="music_note"
-          title="Mở khóa Lofi & Cửa hàng giao diện bằng JOY"
+          title="Mở khóa Lofi Focus bằng JOY"
           description="Pomodoro tập trung vẫn luôn miễn phí cho mọi người."
           onBioUpdate={onBioUpdate}
           className="lg:col-span-5"
@@ -773,98 +606,9 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
             </div>
           </div>
 
-          {/* Theme Shop Card */}
-          <div className="bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between flex-1">
-            <div className={`absolute inset-0 bg-gradient-to-br ${accent.themeBg} pointer-events-none opacity-40`} />
-            
-            <div className="relative z-10 space-y-4">
-              <div>
-                <h4 className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-base">palette</span>
-                  {t("aura.themeShop")}
-                </h4>
-                <p className="text-[9px] text-muted-foreground leading-snug mt-1">
-                  {t("aura.themeShopDesc")}
-                </p>
-              </div>
-
-              {/* Theme Shop Items */}
-              <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
-                {THEME_SHOP.map((theme) => {
-                  const isRented = isThemeRented(theme.id);
-                  const isActive = activeThemeId === theme.id;
-                  const expiryText = getThemeExpiryText(theme.id);
-                  const isPurchasing = false;
-
-                  return (
-                    <div
-                      key={theme.id}
-                      className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all ${isActive ? "bg-card/60 border-border/60 shadow-sm" : "bg-card/10 border-transparent"}`}
-                    >
-                      {/* Gradient preview circle */}
-                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${theme.preview} shrink-0 ring-2 ring-border`} />
-
-                      {/* Details */}
-                      <div className="flex-1 min-w-0 text-left leading-tight">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] font-black text-foreground">
-                            {t(`aura.theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}Name`)}
-                          </span>
-                          {expiryText && (
-                            <span className="text-[8px] font-bold text-success px-1 rounded bg-success/5 uppercase border border-success/10 shrink-0">
-                              {expiryText}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[8.5px] text-muted-foreground/70 block truncate mt-0.5">
-                          {t(`aura.theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}Desc`)}
-                        </span>
-                      </div>
-
-                      {/* Buy or Select Button */}
-                      <div className="shrink-0">
-                        {isRented ? (
-                          isActive ? (
-                            <span className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border border-transparent select-none bg-muted/50 text-muted-foreground/70`}>
-                              {t("aura.themeUsed")}
-                            </span>
-                          ) : (
-                            <button
-                              onClick={() => handleSelectTheme(theme.id)}
-                              className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all border-border/60 bg-card/80 hover:bg-white dark:hover:bg-zinc-900 text-foreground/80 active:scale-95`}
-                            >
-                              {t("aura.themeApply")}
-                            </button>
-                          )
-                        ) : (
-                          <button
-                            onClick={() => handleRentThemeClick(theme)}
-                            className={`text-[8.5px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl text-white transition-all active:scale-95 ${accent.accentBg} ${accent.glow} flex items-center gap-1`}
-                          >
-                            <span className="material-symbols-outlined text-[10px]">paid</span>
-                            {t("aura.themeRentCost", { price: theme.price })}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
         </div>
         </FeatureGate>
       </div>
-
-      <AuraReceiptModal
-        isOpen={!!selectedRentTheme}
-        theme={selectedRentTheme}
-        isProcessing={isProcessingRent}
-        isSuccess={rentSuccess}
-        onConfirm={handleConfirmRent}
-        onCancel={() => !isProcessingRent && !rentSuccess && setSelectedRentTheme(null)}
-      />
     </div>
   );
 }

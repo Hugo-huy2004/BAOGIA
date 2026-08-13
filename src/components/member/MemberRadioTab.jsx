@@ -40,20 +40,24 @@ const toStation = (found) => ({
   found: true,
 });
 
+// Chỉ nhận hai loại đài: đài phát thanh công (VOV, VOH, NPR, RTÉ, CBC, RFI,
+// SWR) và đài tự phát trên nền tảng streaming công khai (zeno.fm). KHÔNG thêm
+// đài thương mại có chèn quảng cáo (BBC, CNN, Fox, Global/musicradio, ESPN,
+// talkSPORT) — điều khoản của họ cấm phát ngoài player chính chủ — và tuyệt
+// đối không dán URL bóc từ CDN của dịch vụ nhạc bản quyền (Zing MP3, Spotify,
+// Apple Music…): đó là nội dung có bản quyền, không phải sóng phát thanh.
 const RADIO_CATEGORIES = [
   { id: "vn_news", icon: "newspaper", label: "Đài Việt Nam", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
-  { id: "intl_news", icon: "public", label: "Tin Tức Quốc Tế", labelKey: "utilities.radio.categories.intlNews", names: ["BBC World Service", "NPR 24 Hour Program Stream", "CNN", "Fox News Radio", "RTE1"] },
-  { id: "music", icon: "music_note", label: "Âm Nhạc", labelKey: "utilities.radio.categories.music", names: ["ZING BOLERO", "M Radio Vietnam", "Cherry Radio Music 247", "CHẠM RADIO", "SWR3", "Heart 80s"] },
-  { id: "lofi_chill", icon: "headphones", label: "Lofi & Tập Trung", labelKey: "utilities.radio.categories.lofiChill", names: ["Lofi Girl Radio", "Chillhop Radio", "Smooth Jazz 247", "Classical FM", "Chillout Lounge"] },
-  { id: "sports_talk", icon: "podcasts", label: "Thể Thao & Talk", labelKey: "utilities.radio.categories.sportsTalk", names: ["ESPN Radio", "TalkSPORT", "CBC Radio One", "Radio France Internationale"] }
+  { id: "intl_news", icon: "public", label: "Tin Tức Quốc Tế", labelKey: "utilities.radio.categories.intlNews", names: ["NPR 24 Hour Program Stream", "RTE1", "CBC Radio One", "Radio France Internationale"] },
+  { id: "music", icon: "music_note", label: "Âm Nhạc", labelKey: "utilities.radio.categories.music", names: ["M Radio Vietnam", "Cherry Radio Music 247", "SWR3"] },
+  { id: "lofi_chill", icon: "headphones", label: "Lofi & Tập Trung", labelKey: "utilities.radio.categories.lofiChill", names: ["Lofi Girl Radio", "Chillhop Radio", "Smooth Jazz 247", "Chillout Lounge"] }
 ];
 
 const STATION_FREQUENCIES = {
   "VOV1": 91.0, "VOV2": 96.5, "VOV3": 102.7, "VOV Giao thông Hà Nội": 91.5, "VOV5 WORLD RADIO": 105.5, "RFI Tiếng Việt": 93.3, "VOH FM 87.7": 87.7,
-  "BBC World Service": 88.9, "NPR 24 Hour Program Stream": 90.1, "CNN": 92.5, "Fox News Radio": 94.7, "RTE1": 98.1,
-  "ZING BOLERO": 95.0, "M Radio Vietnam": 98.9, "Cherry Radio Music 247": 101.5, "CHẠM RADIO": 104.0, "SWR3": 106.2, "Heart 80s": 107.5,
-  "Lofi Girl Radio": 88.5, "Chillhop Radio": 92.1, "Smooth Jazz 247": 97.3, "Classical FM": 100.1, "Chillout Lounge": 103.5,
-  "ESPN Radio": 89.5, "TalkSPORT": 94.1, "CBC Radio One": 99.5, "Radio France Internationale": 106.8
+  "NPR 24 Hour Program Stream": 90.1, "RTE1": 98.1, "CBC Radio One": 99.5, "Radio France Internationale": 106.8,
+  "M Radio Vietnam": 98.9, "Cherry Radio Music 247": 101.5, "SWR3": 106.2,
+  "Lofi Girl Radio": 88.5, "Chillhop Radio": 92.1, "Smooth Jazz 247": 97.3, "Chillout Lounge": 103.5
 };
 
 const FALLBACK_STATIONS = {
@@ -67,32 +71,21 @@ const FALLBACK_STATIONS = {
     { stationuuid: "voh_87.7", name: "VOH FM 87.7", url_resolved: "https://live.voh.com.vn/voh/fm87.7.stream/playlist.m3u8", url: "https://live.voh.com.vn/voh/fm87.7.stream/playlist.m3u8" }
   ],
   intl_news: [
-    { stationuuid: "a347209e-6ce6-4c94-81ed-003c1275188f", name: "BBC World Service", url_resolved: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_east_asia", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_east_asia" },
     { stationuuid: "7ba4c184-fc2b-11e9-bbf2-52543be04c81", name: "NPR 24 Hour Program Stream", url_resolved: "https://npr-ice.streamguys1.com/live.mp3", url: "https://npr-ice.streamguys1.com/live.mp3" },
-    { stationuuid: "33178054-56cd-449c-8cf7-412cc7be936a", name: "CNN", url_resolved: "https://tunein.cdnstream1.com/2868_96.mp3", url: "https://tunein.cdnstream1.com/2868_96.mp3" },
-    { stationuuid: "510aeeac-e7a0-41c2-aea2-e572e811ffe7", name: "Fox News Radio", url_resolved: "https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web", url: "https://live.amperwave.net/direct/foxnewsradio-foxnewsradioaac-imc?source=fnr.web" },
-    { stationuuid: "8643cfcb-a7bb-4c46-8391-fffe266bce16", name: "RTE1", url_resolved: "http://icecast.rte.ie/radio1", url: "http://icecast.rte.ie/radio1" }
+    { stationuuid: "8643cfcb-a7bb-4c46-8391-fffe266bce16", name: "RTE1", url_resolved: "http://icecast.rte.ie/radio1", url: "http://icecast.rte.ie/radio1" },
+    { stationuuid: "cbc_03", name: "CBC Radio One", url_resolved: "https://cbclive.akamaized.net/hls/live/2041060/cbc_r1_tor/master.m3u8", url: "https://cbclive.akamaized.net/hls/live/2041060/cbc_r1_tor/master.m3u8" },
+    { stationuuid: "rfi_04", name: "Radio France Internationale", url_resolved: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3", url: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3" }
   ],
   music: [
-    { stationuuid: "afff5851-a5d8-45ed-afe9-bc95915cd3c3", name: "ZING BOLERO", url_resolved: "https://vnno-ne-3-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8", url: "https://vnno-ne-3-tf-multi-playlist-zmp3.zmdcdn.me/BJ7DyJjfG_E/zhls/playback-realtime/audio/5bace800d4453d1b6454/audio.m3u8" },
     { stationuuid: "204b63f8-6629-4984-bbe0-0773c8220a91", name: "M Radio Vietnam", url_resolved: "https://stream-155.zeno.fm/4q7y9hvkp2zuv", url: "https://stream-155.zeno.fm/4q7y9hvkp2zuv" },
     { stationuuid: "3d35f6b4-0ade-42ca-a378-e8f3dfd66426", name: "Cherry Radio Music 247", url_resolved: "https://stream-176.zeno.fm/umt5gqmg3reuv", url: "https://stream-176.zeno.fm/umt5gqmg3reuv" },
-    { stationuuid: "fa114bd0-1fef-45ba-b7ac-ebe4d3f22464", name: "CHẠM RADIO", url_resolved: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8", url: "https://vnno-ne-2-tf-multi-playlist-zmp3.zmdcdn.me/j20SDlO5EQk/zhls/playback-realtime/audio/59a2ee0ed24b3b15625a/audio.m3u8" },
-    { stationuuid: "6c0ac59d-c625-458c-9a50-5fac90a73df9", name: "SWR3", url_resolved: "https://liveradio.swr.de/sw331ch/swr3/play.aac", url: "https://liveradio.swr.de/sw331ch/swr3/play.aac" },
-    { stationuuid: "962e9a46-0601-11e8-ae97-52543be04c81", name: "Heart 80s", url_resolved: "https://media-ice.musicradio.com/Heart80sMP3", url: "https://media-ice.musicradio.com/Heart80sMP3" }
+    { stationuuid: "6c0ac59d-c625-458c-9a50-5fac90a73df9", name: "SWR3", url_resolved: "https://liveradio.swr.de/sw331ch/swr3/play.aac", url: "https://liveradio.swr.de/sw331ch/swr3/play.aac" }
   ],
   lofi_chill: [
     { stationuuid: "lofi_girl_01", name: "Lofi Girl Radio", url_resolved: "https://stream.zeno.fm/f3wvbbqmdg8uv", url: "https://stream.zeno.fm/f3wvbbqmdg8uv" },
     { stationuuid: "chillhop_02", name: "Chillhop Radio", url_resolved: "https://stream.zeno.fm/0r0xa792kwzuv", url: "https://stream.zeno.fm/0r0xa792kwzuv" },
     { stationuuid: "smooth_jazz_03", name: "Smooth Jazz 247", url_resolved: "https://stream.zeno.fm/n2p984hkp2zuv", url: "https://stream.zeno.fm/n2p984hkp2zuv" },
-    { stationuuid: "classical_04", name: "Classical FM", url_resolved: "https://media-ice.musicradio.com/ClassicFMMP3", url: "https://media-ice.musicradio.com/ClassicFMMP3" },
     { stationuuid: "chillout_05", name: "Chillout Lounge", url_resolved: "https://stream.zeno.fm/80y7y0wkp2zuv", url: "https://stream.zeno.fm/80y7y0wkp2zuv" }
-  ],
-  sports_talk: [
-    { stationuuid: "espn_01", name: "ESPN Radio", url_resolved: "https://live.amperwave.net/direct/espn-espnradioaac-imc", url: "https://live.amperwave.net/direct/espn-espnradioaac-imc" },
-    { stationuuid: "talksport_02", name: "TalkSPORT", url_resolved: "https://talksport-radio.streamguys1.com/talksport-live.mp3", url: "https://talksport-radio.streamguys1.com/talksport-live.mp3" },
-    { stationuuid: "cbc_03", name: "CBC Radio One", url_resolved: "https://cbclive.akamaized.net/hls/live/2041060/cbc_r1_tor/master.m3u8", url: "https://cbclive.akamaized.net/hls/live/2041060/cbc_r1_tor/master.m3u8" },
-    { stationuuid: "rfi_04", name: "Radio France Internationale", url_resolved: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3", url: "https://rfimonde64k.ice.infomaniak.ch/rfimonde-64.mp3" }
   ]
 };
 
@@ -774,7 +767,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm đài: VOV1, BBC, Jazz…"
+              placeholder="Tìm đài: VOV1, NPR, Jazz…"
               className="flex-1 min-w-0 bg-transparent outline-none text-[15px] font-semibold text-foreground placeholder:text-muted-foreground"
             />
           </div>

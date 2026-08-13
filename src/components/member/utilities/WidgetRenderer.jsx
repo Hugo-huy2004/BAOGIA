@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import JoyCoinBadge from "../../shared/JoyCoinBadge";
 
 export default function WidgetRenderer({
   myWidgets,
@@ -167,21 +166,13 @@ export default function WidgetRenderer({
                       </div>
                     </div>
                   )}
-                  {app.id === "joy_wallet" && (
-                    <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2">
-                      <div className="flex items-center gap-1.5">
-                        <JoyCoinBadge size="sm" />
-                      </div>
-                      <span className="text-[8.5px] font-black tracking-widest text-primary uppercase bg-primary/10 px-2 py-0.5 rounded-md">{t("utilities.library.widget.joyGold")}</span>
-                    </div>
-                  )}
                   {app.id === "arcade" && (
                     <div className="flex items-center justify-between bg-muted/40 border border-border/30 rounded-xl p-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                       <span>{t("utilities.library.widget.highScore")}</span>
                       <span className="text-warning">1,540 JOY</span>
                     </div>
                   )}
-                  {!["psychology", "ide", "aura", "radio", "joy_wallet", "arcade"].includes(app.id) && (
+                  {!["psychology", "ide", "aura", "radio", "arcade"].includes(app.id) && (
                     <p className="text-[11px] text-muted-foreground italic truncate leading-snug">
                       {app.subLabel}
                     </p>
@@ -353,35 +344,6 @@ export default function WidgetRenderer({
                     </div>
                   )}
 
-                  {app.id === "joy_wallet" && (
-                    <div className="space-y-3">
-                      <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 flex justify-between items-center">
-                        <div className="text-left">
-                          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider block">{t("utilities.library.widget.availableJoy")}</span>
-                          <JoyCoinBadge size="md" className="mt-0.5" />
-                        </div>
-                        <span className="material-symbols-outlined text-orange-500 text-3xl">account_balance_wallet</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-2 px-1">
-                        <span className="text-[9px] text-muted-foreground font-semibold">{t("utilities.library.widget.fiveDayIncome")}</span>
-                        <svg className="w-24 h-6 text-orange-500" viewBox="0 0 100 20">
-                          <path 
-                            d="M 0,20 Q 25,5 50,15 T 100,5" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2.5" 
-                            strokeLinecap="round" 
-                            style={{
-                              strokeDasharray: 120,
-                              strokeDashoffset: 120,
-                              animation: "drawChart 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards"
-                            }}
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-
                   {app.id === "bio" && (
                     <div className="flex items-center gap-4 bg-muted/40 border border-border/30 rounded-2xl p-3.5">
                       <div className="w-12 h-12 rounded-full bg-muted border-2 border-primary/40 flex items-center justify-center shrink-0">
@@ -397,7 +359,7 @@ export default function WidgetRenderer({
                     </div>
                   )}
 
-                  {!["psychology", "ide", "aura", "radio", "joy_wallet", "bio"].includes(app.id) && (
+                  {!["psychology", "ide", "aura", "radio", "bio"].includes(app.id) && (
                     <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 text-xs text-muted-foreground space-y-1">
                       <p className="text-[10px] leading-relaxed italic">"{app.subLabel}"</p>
                       <div className="text-[10.5px] font-black text-warning pt-1">★ {t("utilities.library.widget.ratingUsers", { rating: app.rating, users: app.users })}</div>

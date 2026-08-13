@@ -1,4 +1,5 @@
 import { withTranslation } from "react-i18next";
+import { languageCode, localeForLanguage } from "../../i18n/languages";
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -172,18 +173,17 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const isEn = i18n?.language?.startsWith('en');
-  const dateLocale = isEn ? 'en-US' : 'vi-VN';
+  const currentLanguage = languageCode(i18n?.resolvedLanguage || i18n?.language);
+  const dateLocale = localeForLanguage(currentLanguage);
 
   const basePkg = getBasePackageDetails(bio?.serviceLabel, t);
-  const startLabel = bio?.createdAt ? new Date(bio.createdAt).toLocaleDateString(dateLocale) : (isEn ? '05/15/2026' : '15/05/2026');
-  const expiresLabel = bio?.expiresAt ? new Date(bio.expiresAt).toLocaleDateString(dateLocale) : t("memberTabs.manage.lifetime", "Lifetime (Vĩnh viễn)");
+  const startLabel = (bio?.createdAt ? new Date(bio.createdAt) : new Date(2026, 4, 15)).toLocaleDateString(dateLocale);
+  const expiresLabel = bio?.expiresAt ? new Date(bio.expiresAt).toLocaleDateString(dateLocale) : t("memberTabs.manage.lifetime");
 
   return (
     <div className="max-w-xl mx-auto space-y-6 px-3 sm:px-0 animate-fadeIn">
-      {/* Header */}
-      <ServiceVouchers bio={bio} />
-
+      {/* Voucher dịch vụ đã dời sang màn "Ưu đãi của tôi" trong ví JOY
+          (src/components/member/joy/JoyPerks.jsx) — một chỗ đứng cho mọi ưu đãi. */}
       <div className="space-y-1 text-left">
         <h2 className="text-sm font-black text-foreground uppercase tracking-wider flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">wallet</span>{t("memberTabs.manage.ownedPackagesTitle")}</h2>
@@ -301,38 +301,3 @@ function MemberManageTab({ bio, publicLink, handleCopyLink, handleDeleteBio, sav
 }
 
 export default withTranslation()(MemberManageTab);
-
-// Voucher giảm giá dịch vụ web, phát kèm quà sinh nhật theo hạng Star. Người
-// dùng cần xem lại mã sau khi đóng vòng quay, nên phải có chỗ đứng cố định.
-function ServiceVouchers({ bio }) {
-  const now = Date.now();
-  const active = (bio?.serviceVouchers || []).filter(
-    (voucher) => !voucher.usedAt && new Date(voucher.expiresAt).getTime() > now,
-  );
-  if (!active.length) return null;
-
-  return (
-    <div className="space-y-3 text-left">
-      <div className="space-y-1">
-        <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-foreground">
-          <span className="material-symbols-outlined text-base text-primary">confirmation_number</span>
-          Voucher dịch vụ
-        </h2>
-        <p className="text-[10px] text-muted-foreground/70">
-          Đưa mã khi trao đổi dự án để được giảm giá. Mỗi mã dùng một lần.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {active.map((voucher) => (
-          <div key={voucher.code} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs font-bold leading-snug text-foreground">{voucher.label}</p>
-            <p className="mt-2 font-mono text-base font-black tracking-wider text-primary">{voucher.code}</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">
-              Hạn dùng: {new Date(voucher.expiresAt).toLocaleDateString("vi-VN")}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}

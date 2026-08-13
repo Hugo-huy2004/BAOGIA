@@ -26,16 +26,19 @@ const TOKEN = "live-token-123";
 let d = authDecision("/api/bios/me", {}, null);
 assert.equal(d.headers, null, "no token and no auth header must forward untouched");
 assert.equal(d.sentAuth, false);
+assert.equal(d.authToken, null);
 
 // 2. Session token present → attach it.
 d = authDecision("/api/bios/me", {}, TOKEN);
 assert.equal(d.headers.Authorization, `Bearer ${TOKEN}`);
 assert.equal(d.sentAuth, true);
+assert.equal(d.authToken, TOKEN);
 
 // 3. Caller already sent a valid Bearer → keep theirs, do not overwrite.
 d = authDecision("/api/bios/me", { headers: { Authorization: "Bearer caller-token" } }, TOKEN);
 assert.equal(d.headers, null, "a valid caller token needs no rewrite");
 assert.equal(d.sentAuth, true);
+assert.equal(d.authToken, "caller-token");
 
 // 4. Malformed header → strip it and use the live token.
 for (const bad of ["Bearer undefined", "Bearer null", "Bearer "]) {
@@ -49,6 +52,7 @@ for (const bad of ["Bearer undefined", "Bearer null", "Bearer "]) {
 d = authDecision("/api/bios/me", { headers: { Authorization: "Bearer undefined" } }, null);
 assert.equal(d.headers.Authorization, undefined, "malformed header must be removed");
 assert.equal(d.sentAuth, false, "a stripped header must not count as sent auth");
+assert.equal(d.authToken, null);
 
 // 6. Header casing varies across call sites.
 d = authDecision("/api/bios/me", { headers: { authorization: "Bearer undefined" } }, TOKEN);

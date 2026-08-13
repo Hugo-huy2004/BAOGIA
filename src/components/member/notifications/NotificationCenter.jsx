@@ -4,14 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useInfiniteScroll } from "../../../hooks/useInfiniteScroll";
 import { hapticSelect } from "../../../utils/haptics";
 import NotificationRow from "./NotificationRow";
-import { buildFeed, applyFilter, availableFilters, groupByDay } from "./notificationModel";
+import { buildFeed, groupByDay } from "./notificationModel";
 import "./notification-center.css";
 
 /**
  * Trung tâm thông báo.
  *
- * Bố cục theo ảnh mẫu user gửi: mảng màu bo cong ở đỉnh, danh sách là thẻ trắng
- * nhô lên chồng mép mảng màu, mỗi giao dịch có mũi tên hướng tiền + số JOY.
+ * Bố cục Liquid Glass dùng trực tiếp màu Aura đang chọn của portal.
  *
  * Việc "hiện cái gì" nằm ở `notificationModel.js`; ở đây chỉ vẽ.
  */
@@ -24,25 +23,11 @@ export default function NotificationCenter({
 }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [filter, setFilter] = useState("all");
-
   // Inbox chỉ hiển thị thông báo thực. Lịch sử sửa hồ sơ là một nguồn khác,
   // luôn được coi là đã đọc và từng khiến badge không thể về 0 sau "Đọc hết".
   const feed = useMemo(() => buildFeed(notifications), [notifications]);
 
-  const chips = useMemo(() => availableFilters(feed, {
-    all: t("memberPortal.notificationCenter.filters.all"),
-    unread: count => t("memberPortal.notificationCenter.filters.unread", { count }),
-    joy: t("memberPortal.notificationCenter.filters.joy"),
-    account: t("memberPortal.notificationCenter.filters.account"),
-    system: t("memberPortal.notificationCenter.filters.system"),
-  }), [feed, t]);
-  // Chip đang chọn có thể biến mất (đọc hết thì hết "Chưa đọc") — rơi về "Tất cả"
-  // thay vì hiện một danh sách rỗng không lý do.
-  const activeFilter = chips.some(c => c.id === filter) ? filter : "all";
-  const filtered = useMemo(() => applyFilter(feed, activeFilter), [feed, activeFilter]);
-
-  const { visibleItems, sentinelRef, hasMore } = useInfiniteScroll(filtered, { pageSize: 25 });
+  const { visibleItems, sentinelRef, hasMore } = useInfiniteScroll(feed, { pageSize: 25 });
   const days = useMemo(() => groupByDay(visibleItems, new Date(), {
     today: t("memberPortal.notificationCenter.days.today"),
     yesterday: t("memberPortal.notificationCenter.days.yesterday"),
@@ -81,22 +66,28 @@ export default function NotificationCenter({
   }, [onDismiss]);
 
   return (
-    <div className="hgn -mx-[var(--space-page)] pb-24 text-left sm:mx-0 sm:rounded-[28px] sm:overflow-hidden">
-      {/* ── Đỉnh trang ────────────────────────────────────────────────────── */}
+    <div className="hgn pb-24 text-left">
+      {/* Header nhỏ, danh sách là nội dung chính. */}
       <header className="hgn-hero">
-        <div className="flex items-start justify-between gap-3">
+        <div className="hgn-hero-copy">
+          <span className="hgn-hero-mark" aria-hidden="true">
+            <span className="material-symbols-outlined">notifications</span>
+            {unread > 0 ? <b>{unread > 99 ? "99+" : unread}</b> : null}
+          </span>
           <div className="min-w-0">
+            <h1 className="hgn-hero-title">{t("memberPortal.notificationCenter.title")}</h1>
             <p className="hgn-hero-kicker">
               {unread > 0
                 ? t("memberPortal.notificationCenter.unreadCount", { count: unread })
                 : t("memberPortal.notificationCenter.allCaughtUp")}
             </p>
-            <h1 className="hgn-hero-title">{t("memberPortal.notificationCenter.title")}</h1>
           </div>
+        </div>
+        {unread > 0 ? (
           <button
             type="button"
             onClick={handleMarkAll}
-            disabled={unread === 0 || markingAll}
+            disabled={markingAll}
             className="hgn-hero-btn"
           >
             <span className={`material-symbols-outlined text-[18px] ${markingAll ? "animate-spin" : ""}`}>
@@ -106,67 +97,36 @@ export default function NotificationCenter({
               ? t("memberPortal.notificationCenter.markingAllRead")
               : t("memberPortal.notificationCenter.markAllRead")}
           </button>
-        </div>
+        ) : null}
       </header>
 
-      {feed.length === 0 ? <EmptyState onGo={() => navigate("/member/joy")} /> : (
-        <>
-          {/* Chỉ hiện chip khi có nhiều hơn một lựa chọn thật. */}
-          {chips.length > 1 && (
-            <div className="hgn-rail">
-              {chips.map(chip => (
-                <button
-                  key={chip.id}
-                  type="button"
-                  onClick={() => { hapticSelect(); setFilter(chip.id); }}
-                  aria-pressed={activeFilter === chip.id}
-                  className="hgn-chip"
-                >
-                  <span className="material-symbols-outlined text-[16px]">{chip.icon}</span>
-                  {chip.label}
-                </button>
-              ))}
+      {feed.length === 0 ? <EmptyState onGo={() => navigate("/member/account")} /> : (
+        <div className="hgn-sheet">
+          {days.map(day => (
+            <section key={day.bucket}>
+              <h2 className="hgn-daygroup">{day.label}</h2>
+              <div className="hgn-card hgn-divide">
+                {day.items.map((item, index) => (
+                  <NotificationRow
+                    key={item.key}
+                    item={item}
+                    index={index}
+                    onOpen={handleOpen}
+                    onAction={handleAction}
+                    onDismiss={handleDismiss}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+
+          <div ref={sentinelRef} className="h-1" />
+          {hasMore && (
+            <div className="flex justify-center py-5">
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--hgn-accent)] border-t-transparent" />
             </div>
           )}
-
-          <div className="hgn-sheet">
-            {filtered.length === 0 ? (
-              <div className="hgn-card p-8 text-center">
-                <p className="hgn-ink text-[15px] font-semibold">
-                  {t("memberPortal.notificationCenter.emptyFilterTitle")}
-                </p>
-                <p className="hgn-dim mt-0.5 text-[13px]">
-                  {t("memberPortal.notificationCenter.emptyFilterDescription")}
-                </p>
-              </div>
-            ) : (
-              days.map(day => (
-                <section key={day.bucket}>
-                  <h2 className="hgn-daygroup">{day.label}</h2>
-                  <div className="hgn-card hgn-divide">
-                    {day.items.map((item, index) => (
-                      <NotificationRow
-                        key={item.key}
-                        item={item}
-                        index={index}
-                        onOpen={handleOpen}
-                        onAction={handleAction}
-                        onDismiss={handleDismiss}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ))
-            )}
-
-            <div ref={sentinelRef} className="h-1" />
-            {hasMore && (
-              <div className="flex justify-center py-5">
-                <span className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--hgn-accent)] border-t-transparent" />
-              </div>
-            )}
-          </div>
-        </>
+        </div>
       )}
     </div>
   );

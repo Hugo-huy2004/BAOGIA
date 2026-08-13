@@ -15,17 +15,17 @@ const verifyLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Phải khớp với trường CÓ THẬT trên bài học (xem lessons/*.js và bài test
+// server/tests/coderLessons.test.js). Danh sách cũ khai `subtitle`,
+// `description`, `reward`, `level` — không bài nào có, nên endpoint danh sách
+// lặng lẽ trả về ít hơn 4 trường so với hợp đồng nó tự công bố.
 const SUMMARY_FIELDS = [
   "id",
   "title",
-  "subtitle",
-  "description",
   "lang",
   "file",
   "practiceType",
-  "reward",
   "duration",
-  "level",
 ];
 
 function lessonSummary(course) {

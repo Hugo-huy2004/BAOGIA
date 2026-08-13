@@ -3,26 +3,21 @@ import { useTranslation } from "react-i18next";
 import { isMinorMember } from "../../lib/memberAge";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
-import SubUtilityHeader from "./SubUtilityHeader";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoHelpdeskTab = lazy(() => import("./HugoHelpdeskTab"));
 const HugoHandleTab = lazy(() => import("./HugoHandleTab"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
-const HugoCoderHub = lazy(() => import("./hugoCoder/HugoCoderHub"));
 const HugoTeamTab = lazy(() => import("./HugoTeamTab"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
 const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
-const DecoStudioTab = lazy(() => import("./DecoStudioTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
-const HugoSkinTab = lazy(() => import("./HugoSkinTab"));
-const MemberJoyTab = lazy(() => import("./MemberJoyTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
-const HugoSOApp = lazy(() => import("./hugoSO/HugoSOApp"));
+const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, onOpenParticleModal, ideLessonId }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
   const { t } = useTranslation();
   const { data } = useData();
 
@@ -43,7 +38,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "deco" || selectedUtility === "store" || selectedUtility === "hugoso";
+  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "study" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "store" || selectedUtility === "hugoso";
 
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
@@ -102,18 +97,15 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
-      {/* Web IDE Tool */}
-      {selectedUtility === "ide" && (
-        <HugoCoderHub onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} urlLessonId={ideLessonId} />
-      )}
-
-      {/* HugoSO — Study Office Skills */}
-      {selectedUtility === "hugoso" && (
-        <HugoSOApp
+      {/* Study with Hugo — cổng học tập chung. Hai ID cũ vẫn mở đúng nội dung
+          để bookmark và liên kết đã chia sẻ không bị hỏng. */}
+      {["study", "ide", "hugoso"].includes(selectedUtility) && (
+        <StudyWithHugoApp
           onBack={() => onSelectUtility(null)}
           bio={bio}
           showToast={showToast}
           onBioUpdate={onBioUpdate}
+          coderLessonId={ideLessonId}
         />
       )}
 
@@ -142,31 +134,9 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <MemberInfoVersionTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
       )}
 
-      {/* Deco Studio */}
-      {selectedUtility === "deco" && (
-        <DecoStudioTab onBack={() => onSelectUtility(null)} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
-      )}
-
       {/* Trang Bio — public bio preview (edit via Settings) */}
       {selectedUtility === "bio" && (
         <BioPreviewTab onBack={() => onSelectUtility(null)} bio={bio} publicLink={publicLink} showToast={showToast} renderAccountForm={renderAccountForm} handleSave={handleSave} />
-      )}
-
-      {/* HugoSkin */}
-      {selectedUtility === "hugoskin" && (
-        <div className="text-left">
-          <SubUtilityHeader title="HugoSkin" icon="face" colorClass="text-slate-500" onBack={() => onSelectUtility(null)} appId="hugoskin" />
-          <HugoSkinTab />
-        </div>
-      )}
-
-      {/* Ví JOY Wallet */}
-      {selectedUtility === "joy_wallet" && (
-        <div className="text-left">
-          {/* Ví JOY tự dựng phần đỉnh: thẻ JOY đã là tiêu đề, thêm thanh header
-              nữa thành hai lớp chrome chồng nhau. */}
-          <MemberJoyTab bio={bio} showToast={showToast} publicLink={publicLink} onBioUpdate={onBioUpdate} onOpenParticleModal={onOpenParticleModal} onBack={() => onSelectUtility(null)} />
-        </div>
       )}
 
       {/* Hugo Store */}

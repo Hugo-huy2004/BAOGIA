@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { studentNewsService } from '../services/studentNewsService.js';
+import { resolveNewsEdition, studentNewsService } from '../services/studentNewsService.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -22,27 +22,31 @@ const readerLimiter = rateLimit({
   message: { error: 'Too many article requests. Please try again shortly.' },
 });
 
-// Chỉ đọc header CDN; studentNewsService mới là nơi quy về ấn bản hợp lệ, vì
-// đó là nơi country trở thành cache key.
-const detectCountry = (req) => req.headers['cf-ipcountry']
-  || req.headers['x-vercel-ip-country']
-  || req.headers['x-country-code']
-  || '';
+const normalizeLanguage = (value) => {
+  const language = String(value || '').toLowerCase().split('-')[0];
+  return ['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', 'es', 'fr'].includes(language)
+    ? language
+    : 'en';
+};
 
 router.get('/feed', feedLimiter, async (req, res) => {
   try {
+    const language = normalizeLanguage(req.query.lang);
+    const expectedEdition = resolveNewsEdition(language);
     const feed = await studentNewsService.getFeed({
-      language: req.query.lang,
+      language,
       category: req.query.category,
-      country: detectCountry(req),
-      timeZone: req.query.timezone,
       page: req.query.page,
       limit: req.query.limit,
     });
-    // Trình duyệt chỉ được giữ 2 phút: quá lâu thì tin mới bị kẹt ở cache máy
-    // người dùng dù server đã làm mới.
-    const browserTtl = Math.min(120, feed.meta.secondsUntilReset);
-    res.set('Cache-Control', `public, max-age=${browserTtl}, stale-while-revalidate=600`);
+    if (feed.meta.language !== expectedEdition.language || feed.meta.country !== expectedEdition.country) {
+      throw new Error(`Edition mismatch: expected ${expectedEdition.language}-${expectedEdition.country}`);
+    }
+    // Cache nội bộ của service đã tránh fan-out nguồn tin. Tắt cache HTTP để
+    // CDN/service worker không giữ nhầm ấn bản khi người dùng đổi ngôn ngữ.
+    res.set('Cache-Control', 'private, no-store');
+    res.set('Content-Language', expectedEdition.locale);
+    res.set('X-Today-Edition', expectedEdition.country);
     return res.json(feed);
   } catch (error) {
     console.error('[Today Feed]', error);
@@ -50,15 +54,13 @@ router.get('/feed', feedLimiter, async (req, res) => {
   }
 });
 
-// Trang đọc: tóm tắt ngắn + toàn văn, đọc thẳng trong portal.
+// Trang đọc: metadata + tóm tắt; toàn văn chỉ có khi nguồn cấp quyền rõ ràng.
 router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
   try {
-    const language = req.query.lang === 'en' ? 'en' : 'vi';
+    const language = normalizeLanguage(req.query.lang);
     const article = await studentNewsService.findArticleById(req.params.id, {
       language,
       category: req.query.category,
-      country: detectCountry(req),
-      timeZone: req.query.timezone,
     });
     if (!article) {
       return res.status(404).json({ error: 'Article is no longer in today\'s edition.' });
@@ -67,6 +69,7 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
     const content = await studentNewsService.readArticle(article);
     const summary = studentNewsService.summarizeArticle(article, content);
     res.set('Cache-Control', 'private, max-age=900');
+    res.set('Content-Language', resolveNewsEdition(language).locale);
     return res.json({ article, summary, content });
   } catch (error) {
     console.error('[Today Article]', error);

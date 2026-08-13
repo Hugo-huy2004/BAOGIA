@@ -16,8 +16,27 @@
     "lofiWaves": "Sóng Nhạc Lofi",
     "timelineScrub": "Tiến trình phát nhạc",
     "volumeLabel": "Âm lượng",
-    "themeShop": "Cửa Hàng Giao Diện Aura",
-    "themeShopDesc": "Thuê giao diện aurora động được cá nhân hóa cho toàn bộ trang của bạn. 50 JOY sử dụng trong 24 giờ.",
+    "themeShop": "Thư viện Theme cá nhân",
+    "themeShopDesc": "Chọn theme trong trang Tài khoản để cá nhân hoá toàn bộ Member Portal.",
+    "accountThemeTitle": "Nền & Theme cá nhân",
+    "accountThemeDescription": "Chọn màu sắc, hoạ tiết và không khí riêng cho toàn bộ Member Portal.",
+    "galleryTitle": "Không gian mang dấu ấn của bạn",
+    "galleryKicker": "KHÔNG GIAN CÁ NHÂN HUGO",
+    "galleryDescription": "Theme thay đổi nền, vật liệu kính và sắc thái điều hướng trên toàn bộ tài khoản. HugoAura không thể thay đổi lựa chọn này.",
+    "liveWeather": "Thời tiết trực tiếp",
+    "weatherOn": "Đang hoà cùng theme",
+    "weatherOff": "Đã tắt lớp thời tiết",
+    "filterLabel": "Lọc thư viện theme",
+    "filterAll": "Tất cả",
+    "filterFree": "Miễn phí",
+    "filterStudio": "Bộ sưu tập Hugo",
+    "filterIdentity": "Bản sắc",
+    "filterMood": "Cảm xúc",
+    "badgeFree": "MIỄN PHÍ",
+    "badgeStudio": "BỘ SƯU TẬP HUGO",
+    "badgeAura": "CAO CẤP",
+    "badgeRainbow": "CẦU VỒNG",
+    "applying": "Đang áp dụng…",
     "themeUsed": "Sử dụng",
     "themeApply": "Áp dụng",
     "themeRentCost": "{{price}} JOY",
@@ -33,18 +52,53 @@
     "toastSelectFailed": "Không thể chọn giao diện.",
     "toastSelectSuccess": "Đã áp dụng giao diện {{name}}!",
     "toastNetworkError": "Đã xảy ra lỗi kết nối.",
+    "toastSavedLocally": "Đã áp dụng giao diện trên thiết bị. Hệ thống sẽ đồng bộ khi kết nối ổn định.",
     "remainingHoursMinutes": "Còn {{hours}}h {{minutes}}m",
     "remainingMinutes": "Còn {{minutes}}m",
-    "themeDefaultName": "Classic Cosmic",
-    "themeDefaultDesc": "Không gian vũ trụ dải sáng tím lam huyền ảo.",
-    "themeSunsetName": "Sunset Aura",
-    "themeSunsetDesc": "Sắc cam hoàng hôn ấm áp hòa cùng ánh hồng đào.",
-    "themeCyberpunkName": "Cyberpunk Neon",
-    "themeCyberpunkDesc": "Dải sáng neon xanh lam, fuchsia và tím rực rỡ.",
-    "themeEmeraldName": "Emerald Healing",
-    "themeEmeraldDesc": "Xanh ngọc bích mát lành điểm thêm tia sáng vàng.",
-    "themeObsidianName": "Obsidian Eclipse",
-    "themeObsidianDesc": "Sắc xám obsidian huyền bí cùng hạt sáng bạc."
+    "themeDefaultName": "Mặc định Sáng/Tối",
+    "themeDefaultDesc": "Giao diện sáng hoặc tối theo hệ thống, không hoạ tiết và không hiệu ứng.",
+    "themeSunsetName": "Ráng Chiều",
+    "themeSunsetDesc": "Sắc cam cuối ngày hòa cùng ánh hồng ấm áp.",
+    "themeCyberpunkName": "Đêm Điện Quang",
+    "themeCyberpunkDesc": "Dải sáng xanh, hồng và tím nổi bật trên không gian đêm.",
+    "themeEmeraldName": "Xanh An Nhiên",
+    "themeEmeraldDesc": "Sắc xanh mát lành điểm thêm những tia sáng vàng dịu.",
+    "themeObsidianName": "Đêm Khoáng Thạch",
+    "themeObsidianDesc": "Bầu trời tối sâu với hạt sáng bạc và ánh tím nhẹ.",
+    "themeIos27Name": "Kính Trong",
+    "themeIos27Desc": "Bề mặt kính xanh trong, ánh sáng rõ và chiều sâu tối giản.",
+    "themePrideName": "Dải Cầu Vồng",
+    "themePrideDesc": "Dải màu cầu vồng sống động, cởi mở và giàu năng lượng.",
+    "themeOceanName": "Sóng Xanh",
+    "themeOceanDesc": "Những lớp sóng xanh chuyển động nhẹ, mát và dễ tập trung.",
+    "themeHugoStudioName": "Tia Sáng Sáng Tạo",
+    "themeHugoStudioDesc": "Các tia tím, hồng và xanh giao nhau trong không gian sáng tạo.",
+    "themeLotusName": "Sen Sớm",
+    "themeLotusDesc": "Cánh sen mềm trên nền hồng cùng ánh vàng ấm áp.",
+    "themeSolarName": "Nắng Rực",
+    "themeSolarDesc": "Những tia nắng hình học mang nguồn năng lượng tích cực.",
+    "themeSakuraName": "Gió Hoa",
+    "themeSakuraDesc": "Cánh hoa nhẹ trôi trên nền hồng, tím và xanh trời trong trẻo.",
+    "receipt": {
+      "paymentSuccessful": "Thanh toán thành công",
+      "rentalSuccessful": "Theme đã được thêm vào tài khoản của bạn",
+      "title": "Biên nhận thuê theme cá nhân",
+      "date": "NGÀY",
+      "time": "GIỜ",
+      "transaction": "MÃ GIAO DỊCH",
+      "oneDay": "1 ngày",
+      "thirtyDays": "30 ngày",
+      "systemTheme": "Màu sắc và vật liệu trên toàn Member Portal",
+      "originalPattern": "Hoạ tiết chuyển động riêng của theme",
+      "duration": "Thời hạn: {{duration}}",
+      "creativeFee": "Phí sáng tạo (9%)",
+      "creativeFeeDescription": "Duy trì nền tảng và phát triển tính năng",
+      "total": "TỔNG CỘNG",
+      "paid": "ĐÃ THANH TOÁN",
+      "processing": "Đang xử lý giao dịch…",
+      "cancel": "Hủy",
+      "pay": "Thanh toán"
+    }
   },
   "navbar": {
     "home": "Trang chủ",
@@ -59,7 +113,11 @@
     "loginAdmin": "Đăng Nhập Quản Trị",
     "hello": "Xin Chào",
     "mainMenu": "Menu Chính",
-    "login": "Đăng Nhập"
+    "login": "Đăng Nhập",
+    "language": "Ngôn ngữ",
+    "chooseLanguage": "Chọn ngôn ngữ",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu"
   },
   "footer": {
     "tagline": "Một góc số dành cho người học, cá nhân và những cửa hàng nhỏ cần hiện diện chỉn chu trên internet.",
@@ -434,7 +492,7 @@
             "badge": "Trò chơi",
             "kind": "Lập trình tương tác",
             "title": "Hugo Arcade",
-            "desc": "Thư viện trò chơi trên trình duyệt gồm 2048, Chess 3D, Snake, Tetris, Space Survivor và các thử thách ngắn.",
+            "desc": "Thư viện trò chơi trên trình duyệt gồm 2048, Chess 3D, Snake, Blocks, Space Survivor và các thử thách ngắn.",
             "outcome": "Mình tập trung vào điều khiển cảm ứng, trạng thái trò chơi, hiệu năng animation và bố cục toàn màn hình trên mobile.",
             "cta": "Xem dự án"
           }
@@ -1868,10 +1926,6 @@
           "title": "Ứng dụng",
           "description": "Mở công cụ của bạn"
         },
-        "map": {
-          "title": "Khám phá",
-          "description": "Tìm địa điểm gần đây"
-        },
         "wallet": {
           "title": "Ví JOY",
           "description": "Số dư và giao dịch"
@@ -1890,6 +1944,7 @@
       "localEdition": "Ấn bản {{country}}",
       "dailyReset": "Làm mới mỗi ngày lúc 09:00",
       "updatedAt": "Cập nhật {{time}}",
+      "rightsMode": "{{articles}} bài từ {{sources}} nguồn · chỉ hiển thị tiêu đề và phần tóm tắt được nguồn cung cấp",
       "loadMore": "Xem thêm {{n}} bài",
       "categories": "Danh mục bài viết",
       "category": {
@@ -1914,6 +1969,7 @@
       "summaryBySource": "Tóm tắt do chính toà soạn {{source}} viết.",
       "contentTitle": "Nội dung bài báo",
       "contentUnavailable": "Nguồn này không cho lấy toàn văn tự động. Bạn mở bài gốc để đọc đầy đủ nhé.",
+      "contentBySource": "Toàn văn bài này thuộc bản quyền của {{source}}. Hugo Studio chỉ hiện tóm tắt — bấm bên dưới để đọc trọn bài trên trang gốc.",
       "attribution": "Nội dung thuộc bản quyền của {{source}}.",
       "readMinutes": "{{n}} phút đọc",
       "fontSize": "Cỡ chữ",
@@ -1929,7 +1985,9 @@
       "clearFilters": "Xoá bộ lọc",
       "done": "Xong",
       "noResults": "Không có bài nào khớp với bộ lọc này.",
-      "resultCount": "{{n}} bài"
+      "resultCount": "{{n}} bài",
+      "fullAccess": "Nguồn này cho phép đọc phần nội dung hiện có ngay trong ứng dụng",
+      "summaryAccess": "Đang hiển thị phần tóm tắt do nhà xuất bản cung cấp"
     },
     "notificationCenter": {
       "title": "Hoạt động",
@@ -1962,51 +2020,6 @@
         "earlier": "Cũ hơn"
       }
     },
-    "discovery": {
-      "discover": "khám phá",
-      "loadError": "Không tải được địa điểm",
-      "webglError": "Thiết bị không hỗ trợ WebGL để hiển thị bản đồ.",
-      "nameRequired": "Hãy nhập tên địa điểm.",
-      "locationRequired": "Chưa xác định được vị trí của bạn.",
-      "submitError": "Không đăng được địa điểm.",
-      "submitSuccess": "Đã thêm địa điểm lên bản đồ.",
-      "toggle3d": "Chuyển chế độ 3D hoặc 2D",
-      "recenter": "Về vị trí của tôi",
-      "addPlace": "Thêm địa điểm mới",
-      "searchPlaceholder": "Tìm quán ăn, cà phê…",
-      "destination": "Điểm đến",
-      "match": "Hợp gu {{score}}%",
-      "away": "Cách bạn {{distance}}",
-      "openNow": "Đang mở cửa",
-      "routeSummary": "Khoảng {{minutes}} phút · {{distance}}",
-      "hideDirections": "Ẩn lối đi",
-      "showDirections": "Xem lối đi",
-      "navigate": "Chỉ đường",
-      "categories": {
-        "all": "Tất cả",
-        "food": "Ăn uống",
-        "cafe": "Cà phê",
-        "play": "Vui chơi"
-      },
-      "form": {
-        "name": "Tên địa điểm *",
-        "address": "Địa chỉ *",
-        "services": "Dịch vụ, ví dụ: máy lạnh hoặc Wi-Fi mạnh",
-        "submitting": "Đang đăng…",
-        "submit": "Đăng lên bản đồ"
-      },
-      "directions": {
-        "continue": "Đi tiếp",
-        "onto": " vào {{street}}",
-        "distance": " khoảng {{distance}} m",
-        "depart": "Khởi hành{{street}}{{distance}}",
-        "arrive": "Đến điểm đích",
-        "turnLeft": "Rẽ trái",
-        "turnRight": "Rẽ phải",
-        "turn": "Rẽ",
-        "straight": "Tiếp tục đi thẳng"
-      }
-    },
     "tabs": {
       "bio": "Hồ sơ Bio",
       "package": "Gói dịch vụ",
@@ -2016,8 +2029,7 @@
       "joy": "Ví JOY",
       "settings": "Cá nhân",
       "verify": "Xác minh",
-      "verifyEduPending": "Sinh viên chưa xác minh",
-      "map": "Khám Phá"
+      "verifyEduPending": "Sinh viên chưa xác minh"
     },
     "status": {
       "active": "Đã xác minh",
@@ -2173,6 +2185,9 @@
       "aboutPlaceholder": "Chia sẻ ngắn gọn về bạn, mục tiêu học tập hoặc điều bạn quan tâm…",
       "verifiedIdentity": "Danh tính giáo dục",
       "verifiedIdentityDescription": "Các thông tin dùng để xác minh học sinh, sinh viên được hệ thống bảo vệ.",
+      "membershipTier": "Hạng thành viên",
+      "birthMonthYear": "Tháng/năm sinh",
+      "birthDateLocked": "Ngày sinh chỉ được khai một lần. Hãy liên hệ hỗ trợ nếu cần sửa thông tin.",
       "eduFieldLocked": "Chỉ có thể thay đổi thông qua quy trình xác minh giáo dục",
       "eduProtectionNote": "Email, số điện thoại và trường học không thể chỉnh sửa tại đây. Hãy liên hệ hỗ trợ nếu thông tin xác minh của bạn thay đổi.",
       "optionalDetails": "Thông tin bổ sung",
@@ -2180,6 +2195,188 @@
       "saveTitle": "Cập nhật tài khoản",
       "saveDescription": "Thay đổi được đồng bộ an toàn với hồ sơ của bạn.",
       "membershipCard": "Thẻ thành viên Hugo"
+    },
+    "accountHub": {
+      "done": "Xong",
+      "opening": "Đang mở…",
+      "perksLoadError": "Không tải được ưu đãi.",
+      "eyebrow": "TÀI KHOẢN HUGO",
+      "title": "Tài khoản",
+      "subtitle": "Hồ sơ, JOY và cài đặt của bạn.",
+      "verified": "Đã xác minh",
+      "edit": "Sửa",
+      "overviewAria": "Tổng quan tài khoản",
+      "balance": "SỐ DƯ",
+      "missions": "NHIỆM VỤ",
+      "open": "Mở",
+      "pendingJoy": "{{amount}} JOY chờ nhận",
+      "today": "Hôm nay",
+      "perks": "ƯU ĐÃI",
+      "spinAvailable": "Có lượt quay",
+      "activeVouchers": "Voucher đang dùng",
+      "quickActionsAria": "Thao tác JOY nhanh",
+      "center": "Trung tâm",
+      "sendJoy": "Gửi JOY",
+      "receiveJoy": "Nhận JOY",
+      "scanCode": "Quét mã",
+      "attentionAria": "Việc cần chú ý",
+      "attention": "Cần chú ý",
+      "setPin": "Đặt mã PIN giao dịch",
+      "pinMissing": "Chưa đặt mã PIN giao dịch",
+      "pinDescription": "Dùng PIN 6 số để bảo vệ mọi lượt chuyển JOY.",
+      "claimJoy": "Nhận {{amount}} JOY",
+      "missionsWaiting": "{{count}} nhiệm vụ đang chờ nhận thưởng.",
+      "walletSection": "Ví JOY",
+      "myPerks": "Ưu đãi của tôi",
+      "luckySpinRemaining": "Bạn còn một lượt quay may mắn",
+      "perksSummary": "{{vouchers}} voucher đang có · {{orders}} món đã mua",
+      "todayMissions": "Nhiệm vụ hôm nay",
+      "loading": "Đang tải…",
+      "pendingJoyLong": "Có {{amount}} JOY đang chờ nhận",
+      "missionProgress": "Hoàn thành {{completed}}/{{total}} hôm nay",
+      "walletHistory": "Lịch sử ví",
+      "walletHistoryDetail": "Mọi khoản nhận, đã dùng và tổng kết 30 ngày",
+      "walletHistoryShort": "Mọi khoản nhận và đã sử dụng",
+      "perksStore": "Cửa hàng ưu đãi",
+      "perksStoreDetail": "Đổi JOY lấy vật phẩm và gói dịch vụ",
+      "perksStoreShort": "Đổi JOY lấy vật phẩm và dịch vụ",
+      "redeemReferral": "Đổi mã và giới thiệu",
+      "redeemReferralDetail": "Mã quà tặng, mã người giới thiệu và lời mời bạn bè",
+      "redeemReferralShort": "Mã quà tặng và lời mời bạn bè",
+      "memberSection": "Thành viên",
+      "manageTitle": "Gói dịch vụ và trang Bio",
+      "manageDetail": "Gói đang sở hữu, hạn dùng và quyền xoá trang Bio",
+      "privacySection": "Quyền riêng tư và thông báo",
+      "systemSection": "Hệ thống",
+      "joyCenterTitle": "Trung tâm JOY",
+      "joyCenterSubtitle": "Thẻ thành viên, điểm danh, giao dịch và ưu đãi",
+      "joyActionsAria": "Thao tác JOY",
+      "voucherCount": "{{count}} voucher đang có",
+      "myPerksSubtitle": "Voucher được tặng, món đã mua và lượt quay may mắn",
+      "todayMissionsSubtitle": "Hoàn thành nhiệm vụ và nhận JOY ngay tại đây",
+      "walletHistorySubtitle": "Từng lần cộng trừ kèm lý do",
+      "balanceSubtitle": "Số dư {{balance}} JOY",
+      "memberDocument": "Tài liệu thành viên",
+      "missionCopy": {
+        "claimedJoy": "Đã nhận {{amount}} JOY.",
+        "claimedAll": "Đã nhận {{total}} JOY từ {{count}} nhiệm vụ.",
+        "claiming": "Đang nhận…",
+        "claimAll": "Nhận tất cả · {{amount}} JOY",
+        "heading": "Nhiệm vụ hôm nay ({{completed}}/{{total}})",
+        "loading": "Đang tải nhiệm vụ…",
+        "empty": "Chưa có nhiệm vụ mới hôm nay.",
+        "rewardClaimed": "Đã nhận thưởng",
+        "rewardReady": "Thưởng +{{amount}} JOY",
+        "incomplete": "Chưa hoàn thành · +{{amount}} JOY",
+        "claimed": "Đã nhận",
+        "claim": "Nhận"
+      },
+      "redeemCopy": {
+        "giftError": "Mã không dùng được.",
+        "giftSuccess": "Đã cộng {{amount}} JOY vào ví.",
+        "referralError": "Mã giới thiệu không hợp lệ.",
+        "referralSuccess": "Đã áp dụng · +{{days}} ngày duy trì tài khoản.",
+        "shareText": "Dùng mã {{code}} khi đăng ký nhé.",
+        "linkCopied": "Đã sao chép liên kết mời.",
+        "giftCode": "Mã quà tặng",
+        "enterCode": "Nhập mã",
+        "redeem": "Đổi",
+        "giftHint": "Mã JOY do Hugo Studio phát. Đổi mã để nhận JOY ngay vào ví.",
+        "referralCode": "Mã người giới thiệu",
+        "referralPlaceholder": "Mã hoặc liên kết mời",
+        "apply": "Áp dụng",
+        "referralHint": "Mỗi tài khoản chỉ nhập được một lần.",
+        "inviteFriends": "Mời bạn bè",
+        "rewardPerFriend": "+100 JOY cho mỗi người đăng ký bằng mã của bạn",
+        "referralCount": "Đã giới thiệu {{count}} người · mã của bạn",
+        "shareLink": "Chia sẻ liên kết mời"
+      },
+      "historyCopy": {
+        "loadError": "Không tải được lịch sử.",
+        "today": "Hôm nay",
+        "yesterday": "Hôm qua",
+        "last30Days": "30 ngày qua",
+        "received": "Nhận",
+        "spent": "Đã dùng",
+        "net": "Chênh lệch",
+        "topSources": "Nguồn JOY lớn nhất",
+        "loading": "Đang tải lịch sử…",
+        "empty": "Chưa có giao dịch nào.",
+        "noMatch": "Không có giao dịch phù hợp với bộ lọc.",
+        "balanceAfter": "còn {{balance}}",
+        "filters": {
+          "all": "Tất cả",
+          "in": "Nhận",
+          "out": "Dùng"
+        },
+        "groups": {
+          "checkin": "Điểm danh",
+          "friends": "Bạn bè",
+          "entertainment": "Giải trí",
+          "learning": "Học tập",
+          "shopping": "Mua sắm",
+          "promotions": "Khuyến mãi",
+          "other": "Khác"
+        }
+      },
+      "notificationCopy": {
+        "justNow": "vừa xong",
+        "minutesAgo": "{{count}} phút trước",
+        "hoursAgo": "{{count}} giờ trước",
+        "markRead": "Đánh dấu đã đọc",
+        "dismiss": "Xoá",
+        "title": "Thông báo",
+        "readAll": "Đọc tất cả",
+        "all": "Tất cả",
+        "unread": "Chưa đọc",
+        "noUnread": "Không có thông báo chưa đọc",
+        "empty": "Không có thông báo nào",
+        "retention": "Thông báo tự xoá sau 90 ngày"
+      },
+      "radioCopy": {
+        "open": "Mở radio — đang phát {{station}}",
+        "connecting": "Đang kết nối…",
+        "live": "Đang phát trực tiếp",
+        "paused": "Tạm dừng",
+        "pause": "Tạm dừng",
+        "play": "Phát",
+        "stop": "Dừng phát"
+      },
+      "perksCopy": {
+        "noExpiry": "Không hết hạn",
+        "codeCopied": "Đã sao chép mã.",
+        "discount": "Giảm {{percent}}%",
+        "perk": "Ưu đãi",
+        "usedOn": "Đã dùng ngày {{date}}",
+        "expiresOn": "Hạn dùng: {{date}}",
+        "voucherHint": "Đưa mã này khi trao đổi dự án. Mỗi mã chỉ dùng một lần.",
+        "loading": "Đang tải ưu đãi…",
+        "retry": "Thử lại",
+        "luckySpin": "Vòng quay may mắn",
+        "spinAvailable": "Bạn còn một lượt quay trong năm nay.",
+        "spunThisYear": "Đã quay trong năm nay · nhận {{amount}} JOY",
+        "opensInBirthMonth": "Mở vào {{month}} — tháng sinh nhật của bạn.",
+        "addBirthday": "Hoàn tất ngày sinh để mở lượt quay sinh nhật.",
+        "spinNow": "Quay ngay",
+        "activeVouchers": "Voucher đang có ({{count}})",
+        "noActiveVouchers": "Bạn chưa có voucher. Quà theo hạng và vòng quay sẽ xuất hiện tại đây.",
+        "pastVouchers": "Đã dùng và hết hạn ({{count}})",
+        "purchasedWithJoy": "Đã mua bằng JOY ({{count}})",
+        "noPurchases": "Bạn chưa mua món nào trong Cửa hàng ưu đãi.",
+        "fulfilled": " · đã giao",
+        "cancelled": " · đã hủy"
+      },
+      "documents": {
+        "rightsTitle": "Quyền và truy cập",
+        "rightsSubtitle": "Phạm vi truy cập, quyền thiết bị và trách nhiệm của hai bên",
+        "rightsDetail": "Quyền sử dụng, quyền thiết bị và trách nhiệm của hai bên",
+        "privilegesTitle": "Đặc quyền thành viên",
+        "privilegesSubtitle": "Quyền lợi từng hạng, cách nhận và nguyên tắc bảo vệ đặc quyền",
+        "privilegesDetail": "Hạng thẻ, quyền lợi từng hạng và cách lên hạng",
+        "conditionsTitle": "Quyền và nghĩa vụ thành viên",
+        "conditionsSubtitle": "Quyền cốt lõi, độ tuổi, sử dụng an toàn và quy tắc với JOY",
+        "conditionsDetail": "Quyền cốt lõi, độ tuổi, sử dụng an toàn và JOY"
+      }
     },
     "bento": {
       "profileSub": "Ảnh đại diện, tên & giới thiệu",
@@ -2308,7 +2505,33 @@
       "healingSuccess": "Chúc cậu luôn kiên cường và bình an nhé! ❤️",
       "eduVerified": "Xác minh thành công! Bạn đã có thể sử dụng đầy đủ tính năng.",
       "sessionExpired": "Phiên làm việc đã hết hạn bảo mật. Hệ thống tự động đăng xuất để bảo vệ tài khoản.",
-      "sleepDetected": "Hệ thống tự động ghi nhận giấc ngủ đêm qua!"
+      "sleepDetected": "Hệ thống tự động ghi nhận giấc ngủ đêm qua!",
+      "loadError": "Không thể tải dữ liệu thành viên.",
+      "largeImage": "Vui lòng chọn ảnh nhỏ hơn 20 MB.",
+      "cropSuccess": "Đã cắt ảnh đại diện thành công.",
+      "avatarRemovedTemp": "Đã gỡ ảnh đại diện. Hãy lưu thay đổi để xác nhận.",
+      "descLimit": "Phần giới thiệu tối đa 110 từ.",
+      "linkLimit": "Bạn có thể thêm tối đa 5 liên kết.",
+      "linkEmpty": "Vui lòng nhập đủ tên và địa chỉ liên kết.",
+      "partnerLinkAdded": "Đã thêm liên kết đối tác.",
+      "partnerLinkDeleted": "Đã xoá liên kết đối tác.",
+      "descLimitExceeded": "Phần giới thiệu vượt quá giới hạn 110 từ.",
+      "partnerSaveSuccess": "Đã lưu Bio đối tác.",
+      "saveSuccess": "Đã lưu hồ sơ của bạn.",
+      "activateSuccess": "Hồ sơ Hugo Bio đã được kích hoạt.",
+      "saveError": "Không thể lưu thay đổi.",
+      "deleteLocalSuccess": "Đã xoá Bio đối tác trên thiết bị.",
+      "deletePersonalSuccess": "Đã xoá Bio cá nhân.",
+      "deletePersonalError": "Không thể xoá Bio cá nhân.",
+      "copySuccess": "Đã sao chép liên kết công khai."
+    },
+    "radio": {
+      "token": {
+        "expired": "Đã dùng hết thời gian nghe trong tuần",
+        "weeklyFree": "Thời gian nghe miễn phí tuần này",
+        "purchased": "Thời gian nghe đã mua",
+        "buyMore": "Nhận thêm thời gian"
+      }
     },
     "headlineEmpty": "Chưa thiết lập tiêu đề tiểu sử",
     "settingsBtn": "Cài đặt Bio",
@@ -2521,6 +2744,18 @@
     "onboarding": {
       "title": "Chào mừng bạn! 🎉",
       "subtitle": "Hoàn tất hồ sơ để nhận JOY và các quyền lợi đặc biệt",
+      "missingTitle": "Bổ sung thông tin còn thiếu",
+      "missingDescription": "Còn {{count}} mục cần điền. Những phần đã có sẽ không được hỏi lại.",
+      "completeRequired": "Vui lòng điền đủ các mục bắt buộc.",
+      "invalidFields": "Một số thông tin chưa hợp lệ. Vui lòng kiểm tra lại.",
+      "genericError": "Chưa thể lưu thông tin. Vui lòng thử lại.",
+      "day": "Ngày",
+      "month": "Tháng",
+      "year": "Năm",
+      "dayAria": "Ngày sinh",
+      "monthAria": "Tháng sinh",
+      "yearAria": "Năm sinh",
+      "monthOption": "Tháng {{month}}",
       "phoneLabel": "Số điện thoại",
       "phonePlaceholder": "Nhập số điện thoại của bạn",
       "referralLabel": "Mã giới thiệu (nếu có)",
@@ -2528,7 +2763,69 @@
       "referralHint": "Nhập mã của người giới thiệu để nhận +10 JOY và +15 ngày Bio link miễn phí",
       "submitting": "Đang xử lý...",
       "submitButton": "Hoàn tất",
-      "skipButton": "Để sau"
+      "skipButton": "Để sau",
+      "fields": {
+        "birthDate": {
+          "label": "Ngày sinh",
+          "hint": "Chỉ khai một lần rồi khóa. Thông tin này dùng để xác định tính năng phù hợp độ tuổi và mở quà tháng sinh nhật."
+        },
+        "guardianConsent": {
+          "label": "Xác nhận của cha mẹ hoặc người giám hộ",
+          "hint": "Nếu bạn chưa đủ 16 tuổi, cha mẹ hoặc người giám hộ cần đọc Chính sách bảo mật và đồng ý trước khi tài khoản tiếp tục xử lý dữ liệu.",
+          "checkboxLabel": "Cha mẹ hoặc người giám hộ của tôi đã đọc Chính sách bảo mật và đồng ý cho tôi sử dụng Hugo Studio."
+        },
+        "phone": {
+          "label": "Số điện thoại hoặc Zalo",
+          "hint": "Dùng để liên hệ khi cần và tạo mã giới thiệu của bạn."
+        }
+      }
+    },
+    "birthdaySurprise": {
+      "monthTitle": "Tháng sinh nhật!",
+      "dayTitle": "Chúc mừng sinh nhật!",
+      "monthGreeting": "Chào tháng sinh nhật của {{name}}!",
+      "dayGreeting": "Chúc mừng sinh nhật, {{name}}!",
+      "monthMessage": "Hugo Studio chúc bạn một tháng thật rực rỡ. Một phần quà đang chờ bạn ở lượt quay tiếp theo.",
+      "dayMessage": "Hugo Studio chúc bạn tuổi mới nhiều niềm vui, sức khỏe và những cột mốc đáng nhớ.",
+      "openGift": "Mở quà tháng sinh nhật",
+      "acceptWish": "Nhận lời chúc"
+    },
+    "birthdayWheel": {
+      "spinError": "Chưa thể quay. Vui lòng thử lại sau.",
+      "kicker": "Quà tháng sinh nhật",
+      "congratulations": "Chúc mừng!",
+      "title": "Một lượt quay dành cho bạn",
+      "addedToWallet": "JOY đã được cộng vào ví của bạn.",
+      "description": "Mỗi năm một lượt và mỗi ô có cơ hội như nhau.",
+      "wheelAria": "Vòng quay gồm {{count}} ô phần thưởng JOY",
+      "youReceived": "Bạn nhận được",
+      "accountDays": "+{{count}} ngày duy trì tài khoản",
+      "voucherExpiry": "Dùng đến {{date}} · đưa mã này khi trao đổi dự án",
+      "spinning": "Đang quay…",
+      "done": "Xong",
+      "spinNow": "Quay ngay",
+      "later": "Để sau"
+    },
+    "ageProtection": {
+      "badge": "Bảo vệ theo độ tuổi",
+      "title": "Chỉ dành cho người từ đủ 14 tuổi",
+      "description": "Người dưới 14 tuổi có thể xem nội dung công khai nhưng không đủ điều kiện tạo hoặc sử dụng tài khoản thành viên Hugo Studio.",
+      "groupTitle": "Bảo vệ theo từng nhóm tuổi",
+      "rules": [
+        "Từ đủ 14 đến dưới 16 tuổi: cần cha mẹ hoặc người giám hộ đọc Chính sách bảo mật và đồng ý trước khi tiếp tục dùng tài khoản.",
+        "Từ đủ 16 đến dưới 18 tuổi: dùng được tính năng thành viên thông thường; tính năng 18+ và giao dịch cần năng lực hành vi đầy đủ vẫn bị giới hạn.",
+        "Chỉ cung cấp dữ liệu tối thiểu trong biểu mẫu chính thức; không đưa giấy tờ, địa chỉ, OTP hoặc bí mật riêng tư lên Bio hay nội dung trò chuyện.",
+        "Tên và thông tin nhận dạng của người dưới 18 tuổi được ẩn khỏi tìm kiếm công khai và bảng xếp hạng theo thiết kế an toàn của từng tính năng.",
+        "Dữ liệu cần thiết vẫn có thể được xử lý bởi nhà cung cấp đăng nhập, lưu trữ, email hoặc thanh toán theo Chính sách bảo mật."
+      ],
+      "commitment": "Hugo Studio ưu tiên lợi ích tốt nhất của người chưa thành niên và áp dụng biện pháp phù hợp với rủi ro. Nếu phát hiện tài khoản khai sai tuổi hoặc có nguy cơ gây hại, quyền truy cập có thể được tạm dừng để xác minh."
+    },
+    "locationAnomaly": {
+      "title": "Phát hiện vị trí đăng nhập bất thường",
+      "description": "Thiết bị này cách vị trí thường lệ của bạn khoảng {{distance}} km. Đây có phải là bạn không?",
+      "trust": "Đây là tôi — cập nhật vị trí mới",
+      "logout": "Không phải tôi — đăng xuất",
+      "guidance": "Nếu bạn không nhận ra hoạt động này, hãy đăng xuất ngay và đổi mật khẩu Google."
     },
     "permissions": {
       "eyebrow": "Thiết lập một lần",
@@ -2537,7 +2834,7 @@
       "pushTitle": "Thông báo quan trọng",
       "pushDescription": "Nhận cập nhật xác minh, JOY, bảo mật và hoạt động tài khoản ngay cả khi đã đóng ứng dụng.",
       "locationTitle": "Trải nghiệm theo khu vực",
-      "locationDescription": "Dùng cho tin tức địa phương, Discovery Map và cảnh báo đăng nhập bất thường.",
+      "locationDescription": "Dùng cho tin tức địa phương và cảnh báo đăng nhập bất thường.",
       "privacyTitle": "Quyền riêng tư được tôn trọng",
       "privacyDescription": "Vị trí không dùng cho quảng cáo. Bạn có thể thu hồi cả hai quyền trong cài đặt thiết bị bất cứ lúc nào.",
       "enable": "Bật",
@@ -2556,7 +2853,22 @@
         "cardName": "HUGO CARD",
         "availableBalance": "Số dư khả dụng",
         "smartChip": "Chip thành viên Hugo",
-        "transfer": "Chuyển JOY"
+        "transfer": "Chuyển JOY",
+        "flipFront": "Lật lại mặt trước thẻ",
+        "flipRules": "Lật thẻ để xem quy định sử dụng",
+        "referralsToTier": "còn {{count}} → {{tier}}",
+        "locked": "Chưa mở khóa",
+        "referralsNeeded": "Còn {{count}} lượt giới thiệu nữa",
+        "cardholder": "Chủ thẻ",
+        "cardCode": "Mã thẻ",
+        "usageRules": "Quy định sử dụng",
+        "viewTier": "Xem thẻ hạng {{tier}}",
+        "rules": [
+          "Thẻ gắn với một tài khoản và không thể chuyển nhượng.",
+          "JOY là điểm thưởng nội bộ, không quy đổi thành tiền mặt.",
+          "Hạng thẻ tự cập nhật theo số lượt giới thiệu thành công.",
+          "JOY và quyền lợi có thể bị thu hồi khi phát hiện gian lận."
+        ]
       },
       "particle": {
         "title": "Hugo Studio - Kết nối thông minh",
@@ -2591,14 +2903,15 @@
         "next": "Tiếp tục",
         "totalDeduction": "Tổng trừ",
         "warning": "Giao dịch JOY không thể hoàn lại — vui lòng kiểm tra kỹ trước khi xác nhận",
-        "back": "Back",
+        "back": "Quay lại",
         "sendNow": "Gửi ngay",
         "scanCloudCode": "Quét Mã Particle Cloud",
         "cameraUnsupported": "Thiết bị không hỗ trợ camera",
         "cameraError": "Lỗi camera",
+        "invalidQr": "Mã JOY không hợp lệ hoặc đã hết hạn. Hãy quét mã mới hơn.",
         "cameraHintInline": "Hướng camera vào Mã Particle Cloud của người khác để kết nối.",
         "cameraHint": "Hướng camera vào Mã Particle Cloud",
-        "tabNfc": "Tap NFC",
+        "tabNfc": "Chạm NFC",
         "nfcWriteBtn": "Ghi NFC",
         "nfcWrite": "Đang ghi NFC...",
         "nfcWriteSuccess": "Đã ghi NFC thành công!",
@@ -2655,7 +2968,7 @@
         "success": "Áp dụng mã thành công! +10 JOY và +{{days}} ngày Bio Link.",
         "error": "Không thể áp dụng mã này."
       },
-      "earnInfo": "Kiếm JOY bằng cách: giới thiệu bạn bè, tham gia trị liệu tâm lý, chơi cờ vua, hoặc nhập mã quà tặng từ Admin.",
+      "earnInfo": "Kiếm JOY bằng cách: giới thiệu bạn bè, tham gia hoạt động chăm sóc tinh thần, chơi cờ vua, hoặc nhập mã quà tặng từ Admin.",
       "history": {
         "transactions": "Lịch sử giao dịch JOY",
         "empty": "Chưa có giao dịch nào.",
@@ -2682,7 +2995,19 @@
         "confirmBalanceAfter": "Số dư sau khi mua",
         "confirmCancel": "Huỷ",
         "confirmButton": "Xác nhận mua",
-        "confirmProcessing": "Đang xử lý..."
+        "confirmProcessing": "Đang xử lý...",
+        "searchPlaceholder": "Tìm sản phẩm…",
+        "noResults": "Không tìm thấy sản phẩm phù hợp.",
+        "listeningDays": "+{{count}} ngày nghe",
+        "listeningHours": "+{{count}} giờ nghe",
+        "fulfillmentFee": "Phí cấp hàng (2%)",
+        "supportFee": "Phí hỗ trợ (5%)",
+        "maintenanceFee": "Phí bảo dưỡng (2%)",
+        "totalPayment": "Tổng thanh toán",
+        "categories": {
+          "all": "Tất cả",
+          "general": "Chung"
+        }
       },
       "send": {
         "title": "Gửi JOY",
@@ -2725,7 +3050,14 @@
       "locked": "Đã khoá",
       "claimSuccess": "Điểm danh thành công! +{{amount}} JOY",
       "claimSuccessBonus": "Điểm danh thành công! +{{total}} JOY (gồm mốc thưởng +{{bonus}} JOY)",
-      "claimError": "Không thể điểm danh lúc này."
+      "claimError": "Không thể điểm danh lúc này.",
+      "weekLockedTitle": "Chuỗi đã ngắt · mở lại thứ Hai",
+      "streakTooltip": "Điểm danh liên tiếp {{count}} ngày · đủ 7 ngày nhận +{{reward}} JOY{{milestones}}",
+      "dayReward": "Ngày {{day}} · +{{amount}} JOY",
+      "claiming": "Đang nhận…",
+      "reopensMonday": "Mở lại vào thứ Hai",
+      "alreadyClaimedToday": "Đã điểm danh hôm nay",
+      "claimToday": "Điểm danh · +{{amount}} JOY"
     },
     "settings": {
       "title": "Cài đặt",
@@ -2837,7 +3169,7 @@
       "desc": "Giới thiệu về Hugo Studio, phiên bản hiện tại và một phần thưởng nhỏ chỉ dành cho bạn.",
       "aboutTitle": "Giới thiệu Hugo Studio",
       "aboutBody": "Hugo Studio là nền tảng Bio-link cá nhân kết hợp bộ công cụ tiện ích đa năng, được xây dựng để mỗi người đều tìm được một góc riêng phù hợp với cá tính và nhịp sống của mình — không có khuôn mẫu chung cho tất cả.",
-      "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, HugoCoder, HugoRadio, HugoArcade và HugoAura — các công cụ cùng nằm trong một hệ sinh thái để bạn xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
+      "aboutBody2": "Từ trang Bio cá nhân, hệ thống JOY tích lũy mỗi ngày, đến các tiện ích như HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade và HugoAura — các công cụ cùng nằm trong một hệ sinh thái để bạn xây dựng hình ảnh cá nhân, làm việc, học tập và giải trí mà không cần chuyển qua nhiều ứng dụng khác nhau.",
       "featuresTitle": "Tính năng nổi bật",
       "features": {
         "bio": {
@@ -2854,11 +3186,11 @@
         },
         "psychology": {
           "title": "HugoPSY",
-          "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc."
+          "desc": "AI đồng hành chuyện học, theo dõi giấc ngủ và bài tập thư giãn cảm xúc."
         },
         "ide": {
-          "title": "HugoCoder",
-          "desc": "Trình soạn thảo code đa ngôn ngữ với gợi ý code và bài học lập trình cơ bản."
+          "title": "Study with Hugo",
+          "desc": "Hai bộ lộ trình độc quyền về Phát triển Web, Năng suất số và AI."
         },
         "radio": {
           "title": "HugoRadio",
@@ -2870,7 +3202,7 @@
         },
         "aura": {
           "title": "HugoAura",
-          "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn & trị liệu."
+          "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn."
         }
       },
       "guideTitle": "Hướng dẫn sử dụng",
@@ -3433,9 +3765,14 @@
   "companion": {
     "tab": {
       "title": "HugoPSY",
+      "subtitle": "Người bạn đồng hành tinh thần",
+      "today": "Hôm nay",
+      "statsDays": "Ngày đồng hành",
+      "statsStreak": "Chuỗi điểm danh",
+      "statsNoTest": "Chưa đánh giá",
       "settings": "Cài đặt",
       "chat": "Tâm Sự",
-      "therapy": "Trị Liệu",
+      "therapy": "Thư Giãn",
       "sleep": "Giấc Ngủ",
       "evaluation": "Đánh Giá",
       "loading": "Đang tải...",
@@ -3495,7 +3832,9 @@
       "desc": "Hệ thống nhận thấy cậu đang trải qua giai đoạn khó khăn. Nếu đang gặp nguy hiểm tức thời, hãy gọi 115 (Cấp cứu) hoặc đến cơ sở y tế gần nhất ngay. Hãy liên hệ người thân, bạn bè đáng tin cậy để được ở bên cạnh.",
       "hotlineLabel": "Tổng đài tư vấn tâm lý",
       "talkNow": "Tớ cần nói chuyện ngay",
-      "imSafe": "Tớ đã an toàn / đã liên hệ trợ giúp"
+      "imSafe": "Tớ đã an toàn / đã liên hệ trợ giúp",
+      "descShort": "Nếu đang gặp nguy hiểm tức thời, hãy gọi ngay các số dưới đây hoặc liên hệ người thân đáng tin cậy.",
+      "imSafeShort": "Tớ đã an toàn"
     },
     "profile": {
       "title": "Thông Tin Cá Nhân",
@@ -3591,6 +3930,7 @@
     },
     "library": {
       "installedToast": "Đã tải ứng dụng (+{{size}} MB bộ nhớ máy)!",
+      "appCount": "{{count}} ứng dụng",
       "removedToast": "Đã gỡ ứng dụng (giải phóng {{size}} MB)!",
       "positionUpdated": "Đã cập nhật vị trí ứng dụng!",
       "radioPaused": "Đã tạm dừng Radio",
@@ -3653,7 +3993,7 @@
           "button": "Mở HugoPSY"
         },
         "ide": {
-          "title": "Không gian HugoCoder AI",
+          "title": "Không gian học tập AI",
           "description": "Trình soạn thảo đa ngôn ngữ để học trực quan, kiểm thử thuật toán và luyện lập trình thực chiến.",
           "button": "Bắt đầu code"
         },
@@ -3703,13 +4043,18 @@
         "title": "Hugo Library",
         "description": "Thư viện ứng dụng trong hệ sinh thái"
       },
+      "study": {
+        "title": "Study with Hugo",
+        "description": "Lộ trình Phát triển Web, Năng suất số và AI",
+        "fullDescription": "Một hệ thống học tập có hướng dẫn, thực hành, đánh giá và kết quả đầu ra rõ ràng cho mọi lộ trình của Hugo Studio."
+      },
       "ide": {
-        "title": "HugoCoder",
-        "description": "Soạn code và học lập trình"
+        "title": "Study with Hugo",
+        "description": "Bộ Phát triển Web Chuyên nghiệp"
       },
       "hugoso": {
-        "title": "HugoSO",
-        "description": "Kỹ năng Google Workspace và Gemini",
+        "title": "Study with Hugo",
+        "description": "Bộ Năng suất số và AI",
         "fullDescription": "Hugo Study Office Skills — học Calendar, Docs, Sheets và Gemini theo từng bước, có video minh họa, bài thực hành và đánh giá kỹ năng trong mỗi bài."
       },
       "team": {
@@ -3719,10 +4064,6 @@
       "psychology": {
         "title": "HugoPSY",
         "description": "AI tâm lý và theo dõi giấc ngủ"
-      },
-      "hugoskin": {
-        "title": "HugoSkin",
-        "description": "Phân tích da và chăm sóc cá nhân"
       },
       "radio": {
         "title": "HugoRadio",
@@ -3744,10 +4085,6 @@
         "title": "HugoAura",
         "description": "Tập trung Pomodoro và âm thanh thư giãn"
       },
-      "deco": {
-        "title": "Deco Studio",
-        "description": "Trang trí không gian ảo của bạn"
-      },
       "info": {
         "title": "Thông tin và phiên bản",
         "description": "Thông tin hệ thống và nhật ký cập nhật"
@@ -3759,10 +4096,6 @@
       "store": {
         "title": "Hugo Store",
         "description": "Cửa hàng ứng dụng, token và dịch vụ"
-      },
-      "map": {
-        "title": "Khám phá",
-        "description": "Bản đồ cộng đồng và địa điểm gần bạn"
       },
       "arcade_chess": {
         "title": "Cờ vua AI",
@@ -3781,7 +4114,7 @@
         "description": "Trò chơi từ vựng tiếng Việt"
       },
       "arcade_tetris": {
-        "title": "Tetris Neon",
+        "title": "Hugo Blocks Neon",
         "description": "Xếp hình mượt mà 60 khung hình/giây"
       },
       "arcade_snake": {
@@ -3827,11 +4160,11 @@
       },
       "psychology": {
         "title": "HugoPSY",
-        "desc": "AI hỗ trợ tư vấn tâm lý học tập, theo dõi giấc ngủ và trị liệu cảm xúc.",
+        "desc": "AI đồng hành chuyện học, theo dõi giấc ngủ và bài tập thư giãn cảm xúc.",
         "btnText": "Mở Tiện Ích"
       },
       "ide": {
-        "title": "HugoCoder",
+        "title": "Study with Hugo",
         "desc": "Trình soạn thảo code đa năng (C, C++, C#, Python, Web, PHP) với gợi ý code, bài học cơ bản và hướng dẫn lưu file local.",
         "btnText": "Mở Trình Code"
       },
@@ -4311,11 +4644,15 @@
     "joyBalance": "Số dư JOY",
     "loading": "Đang chuẩn bị hành trình học…",
     "tabs": {
-      "label": "Điều hướng HugoCoder",
+      "label": "Điều hướng Study with Hugo",
       "learn": "Học",
       "lab": "Phòng lab",
       "resources": "Học liệu",
+      "quality": "Chất lượng",
       "progress": "Tiến độ"
+    },
+    "studioSeal": {
+      "prefix": "Được biên soạn bởi"
     },
     "hero": {
       "kicker": "Học mỗi ngày, xây sản phẩm thật",
@@ -4339,6 +4676,55 @@
       "stage": "Chặng {{number}}",
       "lesson": "Bài {{number}}",
       "next": "Tiếp theo"
+    },
+    "sync": {
+      "label": "Quy trình học và qua môn",
+      "eyebrow": "MỘT BÀI · MỘT BÀI TẬP · MỘT KẾT QUẢ",
+      "title": "Học đến đâu, thực hành và qua môn đến đó.",
+      "learn": "Học bài",
+      "learnDescription": "Mục tiêu và kiến thức cốt lõi",
+      "practice": "Làm bài tập",
+      "practiceDescription": "Bài tập dùng đúng nội dung vừa học",
+      "pass": "Qua môn",
+      "passDescription": "Kiểm tra kết quả và lưu tiến độ",
+      "lesson": "Bài học",
+      "assignment": "Bài tập qua môn",
+      "linked": "Đồng bộ",
+      "passed": "Đã đạt"
+    },
+    "quality": {
+      "eyebrow": "HUGO STUDIO ORIGINAL",
+      "title": "Chất lượng không chỉ là một lời hứa.",
+      "description": "Study with Hugo kiểm tra trực tiếp cấu trúc của từng bài: mục tiêu học tập, bài tập đồng bộ và điều kiện đánh giá. Các tỷ lệ bên dưới được tính từ nội dung khóa học đang vận hành.",
+      "metricsLabel": "Chỉ số chất lượng khóa học",
+      "metrics": {
+        "goals": "Bài có mục tiêu học tập rõ ràng",
+        "practice": "Bài có thực hành đồng bộ",
+        "assessment": "Bài có điều kiện đánh giá"
+      },
+      "standardEyebrow": "TIÊU CHUẨN BIÊN SOẠN",
+      "standardTitle": "Bốn lớp kiểm soát chất lượng",
+      "points": {
+        "goal": {
+          "title": "Mục tiêu có thể kiểm chứng",
+          "description": "Mỗi bài nói rõ người học cần hiểu và làm được gì sau khi hoàn thành."
+        },
+        "sync": {
+          "title": "Bài học và bài tập dùng chung một chủ đề",
+          "description": "Bài tập lấy trực tiếp từ nội dung vừa học, không tách rời hoặc đánh đố ngoài phạm vi."
+        },
+        "feedback": {
+          "title": "Phản hồi ngay sau khi thực hành",
+          "description": "Hệ thống kiểm tra code, câu trả lời hoặc sản phẩm và trả kết quả để người học sửa ngay."
+        },
+        "evidence": {
+          "title": "Tiến độ chỉ ghi nhận khi đạt yêu cầu",
+          "description": "Bài hoàn thành được lưu khi điều kiện đánh giá của chính bài đó đã được đáp ứng."
+        }
+      },
+      "curriculumEyebrow": "LỘ TRÌNH ĐỘC QUYỀN",
+      "curriculumTitle": "100 bài do Hugo Studio biên soạn",
+      "note": "Dấu Hugo Studio Original xác nhận nội dung cốt lõi được biên soạn độc quyền cho lộ trình này. Tài liệu tham khảo bên ngoài, nếu có, luôn được ghi nguồn riêng."
     },
     "resources": {
       "title": "Học liệu",
@@ -4378,14 +4764,14 @@
     "tetris": {
       "stage": "CHẶNG {{stage}}",
       "speed": "TỐC ĐỘ {{level}}",
-      "boardLabel": "Bàn chơi Tetris. Chạm để xoay, vuốt ngang để di chuyển, vuốt xuống để thả nhanh.",
+      "boardLabel": "Bàn chơi xếp hình. Chạm để xoay, vuốt ngang để di chuyển, vuốt xuống để thả nhanh.",
       "piecePanel": "Khối giữ và các khối tiếp theo",
       "hold": "Giữ",
       "next": "Tiếp theo",
       "linesCleared": "Hàng xoá",
       "mission": "Mục tiêu",
       "rowsLeft": "hàng nữa",
-      "controls": "Điều khiển Tetris",
+      "controls": "Điều khiển xếp hình",
       "left": "Trái",
       "rotate": "Xoay",
       "down": "Xuống",

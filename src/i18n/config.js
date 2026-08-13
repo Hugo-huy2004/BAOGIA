@@ -14,22 +14,61 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // two ever drift, the full file wins.
 import coreVI from './locales/vi/core.json';
 import coreEN from './locales/en/core.json';
+import {
+  APP_LANGUAGE_STORAGE_KEY,
+  SUPPORTED_LANGUAGES,
+  getStoredAppLanguage,
+  languageCode,
+  persistAppLanguage,
+} from './languages';
+import { MEMBER_TODAY_TRANSLATIONS } from './locales/memberTodayTranslations';
+import { MEMBER_APP_TRANSLATIONS } from './locales/memberAppTranslations';
 
 const FULL_LOCALES = {
   vi: () => import('./locales/vi/translation.json'),
   en: () => import('./locales/en/translation.json'),
+  zh: () => import('./locales/zh/translation.json'),
+  th: () => import('./locales/th/translation.json'),
+  ja: () => import('./locales/ja/translation.json'),
+  ko: () => import('./locales/ko/translation.json'),
+  id: () => import('./locales/id/translation.json'),
+  es: () => import('./locales/es/translation.json'),
+  fr: () => import('./locales/fr/translation.json'),
 };
+
+const resources = Object.fromEntries(
+  // i18next treats a completely empty bundle as unavailable and immediately
+  // resolves the language to the fallback. A tiny internal sentinel keeps the
+  // detected/saved language active until its lazy dictionary is attached.
+  SUPPORTED_LANGUAGES.map(({ code }) => [code, { translation: { __locale: code } }]),
+);
+resources.vi.translation = coreVI;
+resources.en.translation = coreEN;
+
+const storedLanguage = getStoredAppLanguage();
+if (storedLanguage) persistAppLanguage(storedLanguage);
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: {
-      vi: { translation: coreVI },
-      en: { translation: coreEN },
-    },
-    fallbackLng: 'vi',
+    resources,
+    ...(storedLanguage ? { lng: storedLanguage } : {}),
+    fallbackLng: ['en', 'vi'],
+    supportedLngs: SUPPORTED_LANGUAGES.map(({ code }) => code),
+    nonExplicitSupportedLngs: true,
+    load: 'languageOnly',
     debug: false,
+
+    detection: {
+      // Never let an old cookie or a stray `?lng=en` overwrite the choice the
+      // user made in Settings. Browser language is only consulted once, when
+      // this app has no saved preference at all.
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      lookupLocalStorage: APP_LANGUAGE_STORAGE_KEY,
+      caches: ['localStorage'],
+      convertDetectedLanguage: languageCode,
+    },
 
     interpolation: {
       escapeValue: false,
@@ -46,15 +85,43 @@ const inFlight = new Map();
  * covers both, which is why no screen ever flashes raw `a.b.c` keys.
  */
 export function ensureTranslations(language = i18n.language) {
-  const lng = String(language || 'vi').split('-')[0];
-  const load = FULL_LOCALES[lng] ? lng : 'vi';
+  const load = languageCode(language);
   if (i18n.hasResourceBundle(load, 'translation') && inFlight.get(load) === 'done') {
     return Promise.resolve();
   }
   if (!inFlight.has(load)) {
-    const p = FULL_LOCALES[load]()
+    // Partial locale packs deliberately fall back to the complete English
+    // dictionary. Load that dictionary first so a language switch never
+    // exposes raw translation keys while the fallback bundle is still small.
+    const fallbackReady = ['vi', 'en'].includes(load)
+      ? Promise.resolve()
+      : ensureTranslations('en');
+    const p = fallbackReady
+      .then(() => FULL_LOCALES[load]())
       .then((mod) => {
-        i18n.addResourceBundle(load, 'translation', mod.default, true, true);
+        const appCopy = MEMBER_APP_TRANSLATIONS[load];
+        const todayCopy = MEMBER_TODAY_TRANSLATIONS[load];
+        const dictionary = {
+          ...mod.default,
+          ...(appCopy ? {
+            utilities: {
+              ...(mod.default.utilities || {}),
+              categories: appCopy.categories,
+              badges: appCopy.badges,
+              catalog: {
+                ...(mod.default.utilities?.catalog || {}),
+                ...appCopy.catalog,
+              },
+            },
+          } : {}),
+          ...(todayCopy ? {
+            memberPortal: {
+              ...(mod.default.memberPortal || {}),
+              today: todayCopy,
+            },
+          } : {}),
+        };
+        i18n.addResourceBundle(load, 'translation', dictionary, true, true);
         inFlight.set(load, 'done');
         // i18next resolved this language against the core bundle already;
         // nudge it so mounted components pick up the real strings.
@@ -75,7 +142,7 @@ export function ensureTranslations(language = i18n.language) {
 
 const syncDocumentLanguage = (language) => {
   if (typeof document === 'undefined') return;
-  document.documentElement.lang = String(language || 'vi').split('-')[0];
+  document.documentElement.lang = languageCode(language);
 };
 
 // Kick the fetch immediately: by the time the first route chunk arrives this
@@ -83,8 +150,18 @@ const syncDocumentLanguage = (language) => {
 ensureTranslations(i18n.language);
 syncDocumentLanguage(i18n.resolvedLanguage);
 i18n.on('languageChanged', (lng) => {
+  persistAppLanguage(lng);
   ensureTranslations(lng);
   syncDocumentLanguage(lng);
 });
+
+/** The only language-changing entry point used by application UI. */
+export async function changeAppLanguage(language) {
+  const code = languageCode(language);
+  await ensureTranslations(code);
+  persistAppLanguage(code);
+  await i18n.changeLanguage(code);
+  return code;
+}
 
 export default i18n;

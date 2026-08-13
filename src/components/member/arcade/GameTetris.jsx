@@ -21,19 +21,23 @@ const GARBAGE_FROM_LEVEL = 6;
 const LOCK_DELAY_MS = 420;
 const MAX_PARTICLES = 140;
 
+// Bảng màu neon riêng của Hugo Blocks. ĐỪNG đổi về bộ màu quen thuộc
+// (I lam, O vàng, T tím, S lục, Z đỏ, J xanh dương, L cam): đó là bộ màu gắn
+// với Tetris®, và án lệ Tetris Holding v. Xio Interactive (2012) coi cách phối
+// màu — khối nào màu nào — là phần biểu đạt được bảo hộ, không chỉ cái tên.
 const SHAPES = {
-  I: { matrix: [[1, 1, 1, 1]], color: "#06b6d4", glow: "rgba(6, 182, 212, 0.8)" },
-  O: { matrix: [[1, 1], [1, 1]], color: "#eab308", glow: "rgba(234, 179, 8, 0.8)" },
-  T: { matrix: [[0, 1, 0], [1, 1, 1]], color: "#a855f7", glow: "rgba(168, 85, 247, 0.8)" },
-  S: { matrix: [[0, 1, 1], [1, 1, 0]], color: "#22c55e", glow: "rgba(34, 197, 94, 0.8)" },
-  Z: { matrix: [[1, 1, 0], [0, 1, 1]], color: "#ef4444", glow: "rgba(239, 68, 68, 0.8)" },
-  J: { matrix: [[1, 0, 0], [1, 1, 1]], color: "#3b82f6", glow: "rgba(59, 130, 246, 0.8)" },
-  L: { matrix: [[0, 0, 1], [1, 1, 1]], color: "#f97316", glow: "rgba(249, 115, 22, 0.8)" },
+  I: { matrix: [[1, 1, 1, 1]], color: "#f43f5e", glow: "rgba(244, 63, 94, 0.8)" },
+  O: { matrix: [[1, 1], [1, 1]], color: "#8b5cf6", glow: "rgba(139, 92, 246, 0.8)" },
+  T: { matrix: [[0, 1, 0], [1, 1, 1]], color: "#14b8a6", glow: "rgba(20, 184, 166, 0.8)" },
+  S: { matrix: [[0, 1, 1], [1, 1, 0]], color: "#f59e0b", glow: "rgba(245, 158, 11, 0.8)" },
+  Z: { matrix: [[1, 1, 0], [0, 1, 1]], color: "#6366f1", glow: "rgba(99, 102, 241, 0.8)" },
+  J: { matrix: [[1, 0, 0], [1, 1, 1]], color: "#ec4899", glow: "rgba(236, 72, 153, 0.8)" },
+  L: { matrix: [[0, 0, 1], [1, 1, 1]], color: "#84cc16", glow: "rgba(132, 204, 22, 0.8)" },
 };
 
 const SHAPE_KEYS = Object.keys(SHAPES);
 const GARBAGE = "#5b6478";
-const LINE_LABEL = ["", "SINGLE", "DOUBLE", "TRIPLE", "TETRIS"];
+const LINE_LABEL = ["", "SINGLE", "DOUBLE", "TRIPLE", "QUAD"];
 
 function makePiece(key) {
   const item = SHAPES[key];

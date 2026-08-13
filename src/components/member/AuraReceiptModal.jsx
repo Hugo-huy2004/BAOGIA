@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../i18n/languages";
 
 export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, isProcessing, isSuccess }) {
   const { t, i18n } = useTranslation();
   const [stampVisible, setStampVisible] = useState(false);
   const [duration, setDuration] = useState('day'); // 'day' or 'month'
-  
-  const isEn = i18n.language === 'en';
+  const language = i18n.resolvedLanguage || i18n.language || "vi";
+  const locale = localeForLanguage(language);
 
   // Play cash register sound when processing starts
   useEffect(() => {
@@ -73,8 +74,8 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                 >
                   <span className="material-symbols-outlined text-4xl">check_circle</span>
                 </motion.div>
-                <h2 className="text-xl font-black uppercase tracking-widest mb-2">{isEn ? "Payment Successful" : "Thanh Toán Thành Công"}</h2>
-                <p className="text-zinc-500 text-sm font-medium">{isEn ? "You have successfully rented the theme" : "Bạn đã thuê thành công giao diện"}</p>
+                <h2 className="text-xl font-black uppercase tracking-widest mb-2">{t("aura.receipt.paymentSuccessful")}</h2>
+                <p className="text-zinc-500 text-sm font-medium">{t("aura.receipt.rentalSuccessful")}</p>
                 <p className="font-bold text-lg mt-1">{themeName}</p>
                 
                 <motion.div 
@@ -90,17 +91,17 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
             <>
               {/* Header */}
               <div className="pt-8 pb-4 px-6 text-center border-b border-border border-dashed">
-                <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">Hugo Aura</h2>
-                <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">{isEn ? "Premium Theme Receipt" : "Hóa Đơn Thuê Giao Diện"}</p>
+                <h2 className="font-black text-2xl tracking-tighter uppercase mb-1">Hugo Personal Space</h2>
+                <p className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">{t("aura.receipt.title")}</p>
                 <div className="mt-4 text-left">
                   <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
-                    <span>{isEn ? "DATE" : "NGÀY"}:</span> <span>{new Date().toLocaleDateString(isEn ? 'en-US' : 'vi-VN')}</span>
+                    <span>{t("aura.receipt.date")}:</span> <span>{new Date().toLocaleDateString(locale)}</span>
                   </p>
                   <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
-                    <span>{isEn ? "TIME" : "GIỜ"}:</span> <span>{new Date().toLocaleTimeString(isEn ? 'en-US' : 'vi-VN')}</span>
+                    <span>{t("aura.receipt.time")}:</span> <span>{new Date().toLocaleTimeString(locale)}</span>
                   </p>
                   <p className="text-[10px] font-mono text-zinc-500 flex justify-between">
-                    <span>{isEn ? "TXN" : "MÃ GD"}:</span> <span>#{Math.floor(Math.random() * 900000) + 100000}</span>
+                    <span>{t("aura.receipt.transaction")}:</span> <span>#{Math.floor(Math.random() * 900000) + 100000}</span>
                   </p>
                 </div>
               </div>
@@ -114,30 +115,36 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                     onClick={() => setDuration('day')}
                     className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-all ${duration === 'day' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}
                   >
-                    {isEn ? "1 Day" : "1 Ngày"} (50 JOY)
+                    {t("aura.receipt.oneDay")} ({theme.price} JOY)
                   </button>
                   <button 
                     onClick={() => setDuration('month')}
                     className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-all ${duration === 'month' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}
                   >
-                    {isEn ? "30 Days" : "30 Ngày"} (1200 JOY)
+                    {t("aura.receipt.thirtyDays")} (1200 JOY)
                   </button>
                 </div>
 
                 <div className="flex justify-between items-start">
                   <div className="max-w-[70%]">
                     <span className="font-bold block uppercase">{themeName}</span>
-                    <span className="text-[10px] text-zinc-500 block">+ {isEn ? "1 Exclusive Lofi Track" : "1 Nhạc Lofi độc quyền"}</span>
-                    <span className="text-[10px] text-zinc-500 block">+ {isEn ? "Premium Visual Effects" : "Hiệu ứng hạt rơi VIP"}</span>
-                    <span className="text-[10px] text-zinc-500 block mt-1">({isEn ? "Rent duration: " : "Thời hạn: "} {duration === 'month' ? '30 Days/Ngày' : '1 Day/Ngày'})</span>
+                    <span className="text-[10px] text-zinc-500 block">+ {t("aura.receipt.systemTheme")}</span>
+                    <span className="text-[10px] text-zinc-500 block">+ {t("aura.receipt.originalPattern")}</span>
+                    <span className="text-[10px] text-zinc-500 block mt-1">
+                      ({t("aura.receipt.duration", {
+                        duration: duration === "month"
+                          ? t("aura.receipt.thirtyDays")
+                          : t("aura.receipt.oneDay"),
+                      })})
+                    </span>
                   </div>
                   <span className="font-bold">{basePrice} JOY</span>
                 </div>
                 
                 <div className="flex justify-between items-start pt-2">
                   <div className="max-w-[70%]">
-                    <span className="font-bold block text-xs">{isEn ? "Creative Fee (9%)" : "Phí sáng tạo (9%)"}</span>
-                    <span className="text-[10px] text-zinc-500 block">{isEn ? "Platform maintenance & features" : "Bảo trì nền tảng & tính năng mới"}</span>
+                    <span className="font-bold block text-xs">{t("aura.receipt.creativeFee")}</span>
+                    <span className="text-[10px] text-zinc-500 block">{t("aura.receipt.creativeFeeDescription")}</span>
                   </div>
                   <span className="font-bold">{creativeFee} JOY</span>
                 </div>
@@ -146,7 +153,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
               {/* Total */}
               <div className="py-4 px-6 border-t border-border border-dashed font-mono bg-muted/50">
                 <div className="flex justify-between items-center text-lg font-black">
-                  <span>{isEn ? "TOTAL" : "TỔNG CỘNG"}</span>
+                  <span>{t("aura.receipt.total")}</span>
                   <span>{totalPrice} JOY</span>
                 </div>
               </div>
@@ -160,7 +167,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-destructive text-destructive font-black text-4xl px-6 py-2 uppercase tracking-widest rounded-lg"
                   style={{ textShadow: "0 0 4px rgba(239,68,68,0.5)" }}
                 >
-                  {isEn ? "PAID" : "ĐÃ THU"}
+                  {t("aura.receipt.paid")}
                 </motion.div>
               )}
 
@@ -169,7 +176,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                 {isProcessing ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-2 text-zinc-500 font-mono text-xs">
                     <div className="w-5 h-5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
-                    <span>{isEn ? "Processing Transaction..." : "Đang xử lý giao dịch..."}</span>
+                    <span>{t("aura.receipt.processing")}</span>
                   </div>
                 ) : (
                   <div className="flex gap-3">
@@ -177,13 +184,13 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                       onClick={onCancel}
                       className="flex-1 py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-white dark:bg-zinc-700 text-muted-foreground hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors border border-border"
                     >
-                      {isEn ? "Cancel" : "Hủy"}
+                      {t("aura.receipt.cancel")}
                     </button>
                     <button
                       onClick={() => onConfirm(theme.id, duration)}
                       className="flex-[2] py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider text-white bg-zinc-900 hover:bg-foreground dark:text-black dark:hover:bg-zinc-200 transition-colors shadow-lg"
                     >
-                      {isEn ? "Pay" : "Thanh Toán"} {totalPrice} JOY
+                      {t("aura.receipt.pay")} {totalPrice} JOY
                     </button>
                   </div>
                 )}

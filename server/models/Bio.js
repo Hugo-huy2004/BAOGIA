@@ -47,6 +47,13 @@ const BioSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    // Thời điểm thành viên dưới 16 tuổi xác nhận đã có sự đồng ý của cha mẹ /
+    // người giám hộ (Nghị định 13/2023 Điều 20). Rỗng = chưa xác nhận; xem
+    // utils/profileRequirements.js.
+    guardianConsentAt: {
+      type: Date,
+      default: null
+    },
     // Vòng quay tháng sinh nhật: mỗi năm đúng một lượt. Năm đã quay nằm ở đây
     // nên client có làm gì cũng không quay lại được lượt thứ hai.
     birthdaySpinYear: {
@@ -347,49 +354,8 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: null
     },
-    lastRecommendationAt: {
-      type: Date,
-      default: null
-    },
-    skinAnalysis: {
-      score: { type: Number, default: 0 },
-      goldenRatioScore: { type: Number, default: 0 },
-      skinType: { type: String, default: "" },
-      skinTone: { type: String, default: "" },
-      undertone: { type: String, default: "" },
-      gender: { type: String, default: "" },
-      concerns: { type: [String], default: [] },
-      hydrationScore: { type: Number, default: 0 },
-      smoothnessScore: { type: Number, default: 0 },
-      clarityScore: { type: Number, default: 0 },
-      plan: { type: Object, default: {} },
-      updatedAt: { type: Date, default: null }
-    },
-    skinHistory: [
-      {
-        id: { type: String },
-        score: { type: Number, default: 0 },
-        goldenRatioScore: { type: Number, default: 0 },
-        skinType: { type: String, default: "" },
-        skinTone: { type: String, default: "" },
-        undertone: { type: String, default: "" },
-        hydrationScore: { type: Number, default: 0 },
-        smoothnessScore: { type: Number, default: 0 },
-        clarityScore: { type: Number, default: 0 },
-        concerns: { type: [String], default: [] },
-        date: { type: Date, default: Date.now }
-      }
-    ],
-    dailySkincareChecklist: {
-      date: { type: String, default: "" },
-      completedSteps: { type: [String], default: [] }
-    },
-    skincareReminderEnabled: {
-      type: Boolean,
-      default: false
-    },
     // Cross-job push cooldown gate (see server/services/pushGuard.js) — shared
-    // by every push cron (proactive, smart, skincare, scheduled companion) so
+    // by every push cron (proactive, smart, scheduled companion) so
     // a user never gets stacked notifications from unrelated jobs firing close
     // together, regardless of which job sends first.
     lastPushSentAt: {
@@ -442,7 +408,15 @@ const BioSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    // Legacy HugoAura preference. Kept for old records only; portal rendering
+    // must use activePortalTheme below.
     activeAuraTheme: {
+      type: String,
+      default: 'default'
+    },
+    // Nền cá nhân của Member Portal. Tách riêng khỏi HugoAura để Pomodoro/Lofi
+    // không còn quyền đọc hay thay đổi giao diện toàn hệ thống.
+    activePortalTheme: {
       type: String,
       default: 'default'
     },
@@ -464,8 +438,8 @@ const BioSchema = new mongoose.Schema(
       }],
       default: []
     },
-    // Monthly JOY subscriptions gating HugoCoder / HugoAura (Lofi + Theme Shop
-    // only — Pomodoro stays free) / HugoRadio / HugoArcade (Bứt phá + Huyền
+    // Monthly JOY subscriptions gating HugoCoder / HugoAura (Lofi only —
+    // Pomodoro stays free) / HugoRadio / HugoArcade (Bứt phá + Huyền
     // thoại tiers). `active` is a cosmetic cache only, written by the nightly
     // cron sweep (cronJobs.js) — actual gating ALWAYS re-derives from
     // `expiresAt` live (see featureSubscriptionService.js's isFeatureActive),
@@ -534,44 +508,6 @@ const BioSchema = new mongoose.Schema(
     bioThemeRental: {
       template: { type: String, default: 'default' },
       expiresAt: { type: Date, default: null }
-    },
-      decoRoom: {
-       enabled: { type: Boolean, default: false },
-      expiresAt: { type: Date, default: null },
-      visitedRooms: { type: [String], default: [] },
-      lastCleanedAt: { type: Date, default: () => new Date(Date.now() - 12 * 60 * 60 * 1000) },
-      trashCount: { type: Number, default: 6 },
-      lastTrashSpawnedAt: { type: Date, default: Date.now },
-      petFedAt: { type: Date, default: Date.now },
-      petStatus: { type: String, default: 'alive' },
-      wallColor: { type: String, default: '#f4f4f5' },
-      floorStyle: { type: String, default: 'wood_basic' },
-      items: {
-        desk: { type: String, default: 'desk_basic' },
-        chair: { type: String, default: 'chair_basic' },
-        computer: { type: String, default: 'laptop' },
-        pet: { type: String, default: null },
-        poster: { type: String, default: null },
-        window: { type: String, default: 'window_day' },
-        rug: { type: String, default: null },
-        plant: { type: String, default: null },
-        lamp: { type: String, default: null },
-        shelf: { type: String, default: null },
-        clock: { type: String, default: null }
-      },
-      positions: { type: mongoose.Schema.Types.Mixed, default: {} },
-      unlockedItems: { type: [String], default: [] },
-      story: {
-        claimedChapters: { type: [Number], default: [] },
-        startedAt: { type: Date, default: Date.now },
-        completedAt: { type: Date, default: null },
-        lastDailyClaimKey: { type: String, default: '' },
-        dailyStreak: { type: Number, default: 0 },
-        stats: {
-          cleaned: { type: Number, default: 0 },
-          fed: { type: Number, default: 0 }
-        }
-      }
     },
     hugoCoderBasicLifetime: {
       type: Boolean,

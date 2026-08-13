@@ -178,7 +178,7 @@ export default function DesktopAppleLayout({
               <>
                 {/* JOY balance */}
                 <button
-                  onClick={() => navigate("/member/utilities/joy_wallet")}
+                  onClick={() => navigate("/member/account")}
                   className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-sm transition-colors hover:bg-amber-500/20 active:scale-95"
                   title={t("memberPortal.navigation.joyBalance")}
                 >

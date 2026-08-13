@@ -213,7 +213,7 @@ function SelectedWorkSection({ t }) {
   const work = t("intro.cine.work.items", { returnObjects: true });
   const icons = [IdCard, Sparkles, Gamepad2];
   const scenes = [StudentBioScene, JoyScene, ArcadeScene];
-  const routes = ["/student-pricing", "/member/joy", "/member/utilities/arcade"];
+  const routes = ["/student-pricing", "/member/account", "/member/utilities/arcade"];
 
   return (
     <section id="cine-work" className="studio-content-slide studio-content-slide--intro px-4 py-16 md:px-6 md:py-24">

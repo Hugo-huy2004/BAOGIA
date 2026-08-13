@@ -1050,14 +1050,14 @@ const ranking = ["An", "Bình", "Chi"];
 
 **Open Graph** (chuẩn do Facebook khởi xướng, Zalo/LinkedIn/Discord đều dùng) quyết định khung xem trước khi chia sẻ link:
 \`\`\`html
-<meta property="og:title" content="Khóa học HugoCoder">
+<meta property="og:title" content="Bộ Phát triển Web">
 <meta property="og:description" content="Lộ trình 100 bài từ cơ bản đến DevOps.">
 <meta property="og:image" content="https://hugo.vn/cover.png">
 \`\`\`
 Thiếu og:image = chia sẻ link chỉ ra chữ trơ trọi — mất 80% lượt bấm.`,
     labSteps: [
       "Mở src/lesson24.html — trang bán khóa học chỉ có title trống trơn.",
-      "Viết <title> ~55 ký tự có từ khóa: 'Khóa học lập trình web HugoCoder — Từ cơ bản đến DevOps'.",
+      "Viết <title> khoảng 55 ký tự có từ khóa: 'Phát triển Web Chuyên nghiệp — Từ cơ bản đến DevOps'.",
       "Thêm meta name=\"description\" ~155 ký tự mô tả giá trị khóa học.",
       "Thêm bộ Open Graph: og:title, og:description, og:image (URL ảnh 1200x630).",
       "Rà lại body: đúng 1 thẻ h1, các mục con là h2 — sửa nếu sai."
@@ -1085,7 +1085,7 @@ Thiếu og:image = chia sẻ link chỉ ra chữ trơ trọi — mất 80% lư�
   <!-- TODO 3: og:title, og:description, og:image -->
 </head>
 <body>
-  <h1>Khóa học lập trình web HugoCoder</h1>
+  <h1>Bộ Phát triển Web Chuyên nghiệp</h1>
   <h2>Lộ trình 100 bài học</h2>
   <p>Từ HTML cơ bản đến triển khai DevOps thực chiến.</p>
 </body>

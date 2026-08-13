@@ -403,7 +403,7 @@ router.post('/verify-graduation-project', requireAdmin, async (req, res) => {
           4000,
           'ide_course_completion',
           // Số JOY đã là field `amount` trên thông báo, không viết lại vào câu.
-          'Đạt thành tích Xuất Sắc khi tốt nghiệp HugoCoder.',
+          'Đạt thành tích Xuất sắc khi tốt nghiệp bộ Phát triển Web.',
           { bioDoc: bio, refId: 'lesson100_completion' }
         );
         bio.hugoCoderRewardClaimed7 = true;

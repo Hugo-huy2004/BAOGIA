@@ -93,7 +93,6 @@ export default defineConfig(({ mode }) => {
         // avoids downloading several megabytes before the member opens them.
         globIgnores: [
           '**/Admin*',
-          '**/DiscoveryMap-*',
           '**/MemberRadioTab-*',
           '**/MemberIdeTab-*',
           '**/BanhocduongTab-*',
@@ -119,6 +118,13 @@ export default defineConfig(({ mode }) => {
               networkTimeoutSeconds: 1.5,
               expiration: { maxEntries: 20, maxAgeSeconds: 600 },
             },
+          },
+          // TODAY đã có cache theo ấn bản/ngôn ngữ ở Node và cache riêng của
+          // Eco Mode. Không để service worker trả một ấn bản cũ sau khi người
+          // dùng đổi ngôn ngữ (ví dụ UI tiếng Thái nhưng cache tin Việt Nam).
+          {
+            urlPattern: /\/api\/today\//,
+            handler: 'NetworkOnly',
           },
           // Generic API Cache — NetworkFirst with 2.0s FAST TIMEOUT
           {
@@ -177,19 +183,6 @@ export default defineConfig(({ mode }) => {
           { src: 'favicon/web-app-manifest-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'favicon/web-app-manifest-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
-        share_target: {
-          action: '/hugoskin',
-          method: 'POST',
-          enctype: 'multipart/form-data',
-          params: {
-            files: [
-              {
-                name: 'image',
-                accept: ['image/*']
-              }
-            ]
-          }
-        },
         shortcuts: [
           {
             name: 'HugoArcade',

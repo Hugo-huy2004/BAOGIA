@@ -34,13 +34,13 @@
   font-optical-sizing: auto;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  background-color: hsl(var(--background) / 0.78);
+  background-color: transparent !important;
 }
 
 .member-portal-shell[data-portal-area="apps"] { --portal-glass-tint: 175 82 222; }
 .member-portal-shell[data-portal-area="activity"] { --portal-glass-tint: 255 55 95; }
 .member-portal-shell[data-portal-area="account"] { --portal-glass-tint: 48 209 88; }
-.member-portal-shell[data-portal-area="account"] .portal-chromatic-field { opacity: .16; }
+.member-portal-shell[data-portal-area="account"] .portal-chromatic-field { opacity: 1; }
 
 .dark .member-portal-shell {
   --portal-glass: hsl(240 18% 9% / 0.62);
@@ -59,18 +59,171 @@
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 1;
   contain: strict;
+  background:
+    linear-gradient(145deg,
+      color-mix(in srgb, var(--portal-spectrum-1) 22%, hsl(var(--background))) 0%,
+      color-mix(in srgb, var(--portal-spectrum-2) 18%, hsl(var(--background))) 34%,
+      color-mix(in srgb, var(--portal-spectrum-3) 16%, hsl(var(--background))) 68%,
+      color-mix(in srgb, var(--portal-spectrum-4) 20%, hsl(var(--background))) 100%);
+  transition: background 280ms ease, opacity 220ms ease;
 }
 
-.dark .portal-chromatic-field { opacity: 0.28; }
+.portal-chromatic-field::before,
+.portal-chromatic-field::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.portal-chromatic-field::before { opacity: .72; }
+.portal-chromatic-field::after { opacity: .56; }
+
+/* Theme mặc định: nền hệ thống sáng/tối thuần, không aura hay hoạ tiết. */
+.portal-chromatic-field[data-pattern="plain"] {
+  background: hsl(var(--background));
+}
+
+.portal-chromatic-field[data-pattern="plain"]::before,
+.portal-chromatic-field[data-pattern="plain"]::after {
+  display: none;
+}
+
+/* Mỗi Aura có cấu trúc riêng, không chỉ đổi bốn màu của cùng một gradient. */
+.portal-chromatic-field[data-pattern="liquid"]::before {
+  inset: 8% 10% auto;
+  height: 42%;
+  border: 2px solid rgb(255 255 255 / .68);
+  border-radius: 999px;
+  background: linear-gradient(125deg, rgb(255 255 255 / .42), rgb(255 255 255 / .08));
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / .82), 0 34px 70px rgb(0 98 255 / .24);
+  transform: rotate(-8deg);
+  backdrop-filter: blur(14px) saturate(180%);
+}
+
+.portal-chromatic-field[data-pattern="pride"]::before {
+  background: linear-gradient(118deg, #ff3b30 0 14%, #ff9500 14% 28%, #ffcc00 28% 42%, #34c759 42% 57%, #007aff 57% 72%, #af52de 72% 86%, #ff2d55 86%);
+  filter: saturate(128%);
+  opacity: .62;
+  transform: scale(1.12) rotate(-6deg);
+}
+
+.portal-chromatic-field[data-pattern="pride"]::after {
+  background: linear-gradient(110deg, transparent 34%, rgb(255 255 255 / .5) 48%, transparent 62%);
+  animation: portal-pride-shimmer 14s ease-in-out infinite alternate;
+}
+
+.portal-chromatic-field[data-pattern="waves"]::before {
+  inset: auto -18% -42%;
+  height: 78%;
+  border: 4px solid color-mix(in srgb, var(--portal-spectrum-2) 62%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 -38px 0 color-mix(in srgb, var(--portal-spectrum-1) 24%, transparent), 0 -78px 0 color-mix(in srgb, var(--portal-spectrum-4) 18%, transparent);
+  transform: rotate(-5deg);
+}
+
+.portal-chromatic-field[data-pattern="studio"]::before {
+  inset: -70% 26% -70% auto;
+  width: 22%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .48), transparent);
+  filter: blur(5px);
+  opacity: .72;
+  transform: rotate(24deg);
+  animation: portal-studio-beam 18s ease-in-out infinite alternate;
+}
+
+.portal-chromatic-field[data-pattern="studio"]::after {
+  background: radial-gradient(circle at 72% 18%, rgb(255 255 255 / .6) 0 2px, transparent 3px), radial-gradient(circle at 23% 72%, rgb(255 255 255 / .45) 0 1px, transparent 2px);
+  background-size: 72px 72px, 48px 48px;
+}
+
+.portal-chromatic-field[data-pattern="bloom"]::before {
+  inset: 12% 22%;
+  border-radius: 68% 32% 64% 36%;
+  background: color-mix(in srgb, var(--portal-spectrum-2) 46%, transparent);
+  filter: blur(6px);
+  transform: rotate(42deg);
+  box-shadow: 160px -80px 0 color-mix(in srgb, var(--portal-spectrum-1) 34%, transparent), -120px 130px 0 color-mix(in srgb, var(--portal-spectrum-3) 30%, transparent);
+}
+
+.portal-chromatic-field[data-pattern="rays"]::before {
+  inset: -80%;
+  background: repeating-conic-gradient(from 18deg, color-mix(in srgb, var(--portal-spectrum-2) 32%, transparent) 0 7deg, transparent 7deg 22deg);
+  animation: portal-ray-turn 80s linear infinite;
+}
+
+.portal-chromatic-field[data-pattern="grid"]::before {
+  background-image: linear-gradient(color-mix(in srgb, var(--portal-spectrum-1) 46%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--portal-spectrum-2) 42%, transparent) 1px, transparent 1px);
+  background-size: 42px 42px;
+  transform: perspective(420px) rotateX(28deg) scale(1.32) translateY(18%);
+  transform-origin: bottom;
+}
+
+.portal-chromatic-field[data-pattern="forest"]::before {
+  inset: auto 0 0;
+  height: 48%;
+  background: linear-gradient(150deg, transparent 0 32%, color-mix(in srgb, var(--portal-spectrum-1) 44%, transparent) 33% 45%, transparent 46%), linear-gradient(210deg, transparent 0 36%, color-mix(in srgb, var(--portal-spectrum-2) 38%, transparent) 37% 49%, transparent 50%);
+  background-size: 180px 240px, 230px 290px;
+}
+
+.portal-chromatic-field[data-pattern="petals"]::before {
+  background-image: radial-gradient(ellipse at center, rgb(255 255 255 / .88) 0 3px, transparent 4px), radial-gradient(ellipse at center, color-mix(in srgb, var(--portal-spectrum-1) 76%, transparent) 0 4px, transparent 5px);
+  background-position: 12px 8px, 36px 44px;
+  background-size: 74px 82px, 95px 104px;
+  transform: rotate(-10deg) scale(1.1);
+  animation: portal-petal-drift 30s linear infinite;
+}
+
+.portal-chromatic-field[data-pattern="stars"]::before {
+  background-image: radial-gradient(circle, rgb(255 255 255 / .76) 0 1px, transparent 1.5px), radial-gradient(circle, color-mix(in srgb, var(--portal-spectrum-4) 70%, transparent) 0 1px, transparent 2px);
+  background-position: 5px 12px, 38px 52px;
+  background-size: 58px 62px, 91px 97px;
+  opacity: .82;
+}
+
+.portal-chromatic-field[data-pattern="horizon"]::before {
+  inset: auto 0 0;
+  height: 52%;
+  background: linear-gradient(to top, color-mix(in srgb, var(--portal-spectrum-2) 42%, transparent), transparent), repeating-linear-gradient(90deg, transparent 0 54px, color-mix(in srgb, var(--portal-spectrum-4) 34%, transparent) 55px 57px);
+  clip-path: polygon(0 100%, 0 54%, 8% 54%, 8% 36%, 18% 36%, 18% 68%, 32% 68%, 32% 25%, 45% 25%, 45% 58%, 60% 58%, 60% 12%, 72% 12%, 72% 62%, 84% 62%, 84% 39%, 94% 39%, 94% 70%, 100% 70%, 100% 100%);
+}
+
+@keyframes portal-pride-shimmer { to { transform: translateX(22%); } }
+@keyframes portal-studio-beam { to { transform: translateX(-180%) rotate(24deg); } }
+@keyframes portal-ray-turn { to { transform: rotate(360deg); } }
+@keyframes portal-petal-drift { to { background-position: 90px 130px, -40px 160px; } }
+
+/* Theme cũng nhuộm vật liệu điều hướng để toàn portal có cùng cá tính. */
+.member-portal-shell[data-aura-theme="ios27"] { --portal-glass-tint: 0 122 255; --portal-tab-active: rgb(0 122 255 / .15); }
+.member-portal-shell[data-aura-theme="pride"] { --portal-glass-tint: 191 90 242; --portal-tab-active: rgb(191 90 242 / .16); }
+.member-portal-shell[data-aura-theme="ocean"] { --portal-glass-tint: 0 199 190; --portal-tab-active: rgb(0 199 190 / .15); }
+.member-portal-shell[data-aura-theme="hugoStudio"] { --portal-glass-tint: 109 93 252; --portal-tab-active: rgb(109 93 252 / .17); }
+.member-portal-shell[data-aura-theme="lotus"],
+.member-portal-shell[data-aura-theme="sakura"] { --portal-glass-tint: 255 111 174; --portal-tab-active: rgb(255 111 174 / .15); }
+.member-portal-shell[data-aura-theme="solar"],
+.member-portal-shell[data-aura-theme="sunset"] { --portal-glass-tint: 255 159 10; --portal-tab-active: rgb(255 159 10 / .16); }
+.member-portal-shell[data-aura-theme="cyberpunk"],
+.member-portal-shell[data-aura-theme="obsidian"] { --portal-glass-tint: 191 90 242; --portal-tab-active: rgb(191 90 242 / .17); }
+.member-portal-shell[data-aura-theme="emerald"] { --portal-glass-tint: 48 209 88; --portal-tab-active: rgb(48 209 88 / .15); }
+.member-portal-shell[data-aura-theme="default"] {
+  --portal-glass-tint: 142 142 147;
+  --portal-tab-active: rgb(118 118 128 / .12);
+}
+
+.dark .member-portal-shell[data-aura-theme="default"] {
+  --portal-tab-active: rgb(235 235 245 / .12);
+}
+
+.dark .portal-chromatic-field { opacity: 1; }
 
 .portal-chromatic-field span {
   position: absolute;
   width: min(72vw, 880px);
   aspect-ratio: 1;
   border-radius: 50%;
-  filter: blur(92px);
+  filter: blur(18px);
   will-change: transform;
   animation: portal-aura-drift 24s cubic-bezier(.45, 0, .2, 1) infinite alternate;
 }
@@ -645,9 +798,9 @@
   color: hsl(var(--muted-foreground));
 }
 
-.hugo-account-joy-card { margin: 10px 0 6px; }
+.hugo-account-joy-card { margin: 8px 0 2px; }
 
-.hugo-account-section + .hugo-account-section { margin-top: 22px; }
+.hugo-account-section + .hugo-account-section { margin-top: 16px; }
 
 .hugo-account-section-title {
   margin: 0 0 7px 17px;
@@ -753,13 +906,126 @@
 
 .hugo-account-logout:active { background: rgb(255 69 58 / .1); }
 
+/* Account remake — one glance first, details only after intent. */
+.hugo-account-shell--remade {
+  width: min(100%, 760px);
+  display: grid;
+  gap: 12px;
+}
+
+.hugo-account-shell--remade > :not([hidden]) ~ :not([hidden]) { margin-top: 0; }
+
+.hugo-account-shell--remade .hugo-account-header { padding: 3px 2px 0; }
+.hugo-account-shell--remade .hugo-account-titlebar { min-height: auto; margin-bottom: 12px; }
+.hugo-account-titlebar > span { display: grid; gap: 2px; }
+.hugo-account-titlebar small { color: hsl(var(--primary)); font-size: 9px; font-weight: 850; letter-spacing: .14em; }
+.hugo-account-titlebar strong { color: hsl(var(--foreground)); font-size: clamp(27px, 5vw, 38px); font-weight: 760; line-height: 1.04; letter-spacing: -.045em; }
+.hugo-account-titlebar em { color: hsl(var(--muted-foreground)); font-size: 12px; font-style: normal; font-weight: 450; }
+
+.hugo-account-shell--remade .hugo-account-member {
+  min-height: 92px;
+  padding: 15px 17px;
+  border-radius: 25px;
+  background:
+    radial-gradient(circle at 94% 12%, hsl(var(--primary) / .11), transparent 34%),
+    hsl(var(--card));
+  box-shadow: 0 14px 34px rgb(15 23 42 / .07);
+}
+.dark .hugo-account-shell--remade .hugo-account-member { box-shadow: 0 14px 34px rgb(0 0 0 / .22); }
+.hugo-account-shell--remade .hugo-account-avatar { width: 62px; height: 62px; box-shadow: 0 0 0 4px hsl(var(--background)), 0 0 0 5px hsl(var(--border) / .6); }
+
+.hugo-account-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.hugo-account-overview > button {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 112px;
+  align-content: start;
+  gap: 3px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / .55);
+  border-radius: 21px;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  text-align: left;
+  transition: transform 150ms ease, background 150ms ease;
+}
+.hugo-account-overview > button:active { transform: scale(.975); background: hsl(var(--muted) / .55); }
+.hugo-account-overview .material-symbols-outlined { position: absolute; top: 13px; right: 13px; color: hsl(var(--primary)); font-size: 19px; }
+.hugo-account-overview small { color: hsl(var(--muted-foreground)); font-size: 8px; font-weight: 850; letter-spacing: .1em; }
+.hugo-account-overview strong { margin-top: 10px; overflow: hidden; font-size: 24px; line-height: 1; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
+.hugo-account-overview em { overflow: hidden; margin-top: 3px; color: hsl(var(--muted-foreground)); font-size: 9px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+
+.hugo-account-quickbar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / .55);
+  border-radius: 19px;
+  background: hsl(var(--border) / .5);
+}
+.hugo-account-quickbar > button { display: grid; min-height: 65px; place-items: center; align-content: center; gap: 5px; padding: 9px 4px; background: hsl(var(--card)); color: hsl(var(--foreground)); }
+.hugo-account-quickbar > button:active { background: hsl(var(--muted) / .6); }
+.hugo-account-quickbar .material-symbols-outlined { color: hsl(var(--primary)); font-size: 21px; }
+.hugo-account-quickbar small { font-size: 10px; font-weight: 650; }
+
+.hugo-account-attention { overflow: hidden; border: 1px solid rgb(245 158 11 / .28); border-radius: 20px; background: rgb(245 158 11 / .065); }
+.hugo-account-attention > header { display: flex; align-items: center; gap: 7px; padding: 11px 14px 7px; color: #b66b00; }
+.dark .hugo-account-attention > header { color: #fbbf24; }
+.hugo-account-attention > header .material-symbols-outlined { font-size: 17px; }
+.hugo-account-attention > header strong { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.hugo-account-attention > button { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; width: 100%; padding: 11px 14px; color: hsl(var(--foreground)); text-align: left; }
+.hugo-account-attention > button + button { border-top: 1px solid rgb(245 158 11 / .18); }
+.hugo-account-attention > button > .material-symbols-outlined { font-size: 21px; color: #d97706; }
+.hugo-account-attention > button > span:nth-child(2) { display: grid; gap: 2px; }
+.hugo-account-attention > button strong { font-size: 13px; }
+.hugo-account-attention > button small { color: hsl(var(--muted-foreground)); font-size: 10px; }
+.hugo-account-attention > button svg { width: 16px; color: hsl(var(--muted-foreground)); }
+
+.hugo-account-shell--remade .hugo-account-section { margin: 0; }
+.hugo-account-section-summary {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 16px;
+  border: 1px solid hsl(var(--border) / .5);
+  border-radius: 19px;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 680;
+}
+.hugo-account-section-summary::-webkit-details-marker { display: none; }
+.hugo-account-section-summary svg { width: 18px; height: 18px; color: hsl(var(--muted-foreground)); transition: transform 180ms ease; }
+.hugo-account-section[open] .hugo-account-section-summary { border-radius: 19px 19px 10px 10px; }
+.hugo-account-section[open] .hugo-account-section-summary svg { transform: rotate(90deg); }
+.hugo-account-section > .hugo-account-group { margin-top: 5px; border-radius: 10px 10px 19px 19px; }
+
+.hugo-account-eco-inset { padding: 9px; border-top: 1px solid hsl(var(--border) / .45); }
+.hugo-account-eco-inset > * { margin: 0; }
+
+.hugo-account-wallet-sheet { display: grid; gap: 13px; }
+.hugo-account-wallet-sheet .hugo-account-quickbar { grid-template-columns: repeat(3, 1fr); }
+.hugo-account-wallet-pin { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; width: 100%; padding: 13px 14px; border: 1px solid rgb(245 158 11 / .28); border-radius: 17px; background: rgb(245 158 11 / .07); color: hsl(var(--foreground)); text-align: left; }
+.hugo-account-wallet-pin > .material-symbols-outlined { color: #d97706; font-size: 22px; }
+.hugo-account-wallet-pin > span:nth-child(2) { display: grid; gap: 2px; }
+.hugo-account-wallet-pin strong { font-size: 13px; }
+.hugo-account-wallet-pin small { color: hsl(var(--muted-foreground)); font-size: 10px; }
+.hugo-account-wallet-pin svg { width: 16px; color: hsl(var(--muted-foreground)); }
+
 @media (max-width: 767px) {
   .portal-mobile-layout {
     padding-bottom: 0;
   }
 
   .portal-liquid-toolbar { display: none; }
-  .portal-chromatic-field span { width: 120vw; filter: blur(78px); }
+  .portal-chromatic-field span { width: 120vw; filter: blur(20px); }
   .activity-inbox-header { padding-inline: 2px; }
   .activity-inbox-titleline h2 { font-size: 28px; }
   .activity-inbox-header p {
@@ -770,6 +1036,15 @@
   .activity-artifact:first-child { padding: 14px 15px; }
   .hugo-account-header { padding-inline: 2px; }
   .hugo-account-section-title { margin-left: 15px; }
+  .hugo-account-shell--remade { gap: 10px; }
+  .hugo-account-shell--remade .hugo-account-member { min-height: 84px; padding: 12px 13px; }
+  .hugo-account-shell--remade .hugo-account-avatar { width: 54px; height: 54px; }
+  .hugo-account-overview > button { min-height: 102px; padding: 12px 10px; border-radius: 18px; }
+  .hugo-account-overview .material-symbols-outlined { top: 10px; right: 10px; font-size: 17px; }
+  .hugo-account-overview strong { margin-top: 9px; font-size: 20px; }
+  .hugo-account-overview em { font-size: 8px; }
+  .hugo-account-quickbar > button { min-height: 59px; }
+  .hugo-account-quickbar small { font-size: 9px; }
 }
 
 .portal-safe-modal {
@@ -789,8 +1064,345 @@
 
 .ios-sheet-panel { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
+/* Personal profile — iOS 27-style identity card and edit sheet. */
+.hugo-account-member--ios27 {
+  position: relative;
+  overflow: hidden;
+  border-color: hsl(var(--border) / .42);
+  background:
+    radial-gradient(circle at 82% -18%, hsl(var(--primary) / .18), transparent 45%),
+    linear-gradient(145deg, hsl(var(--card) / .98), hsl(var(--card) / .88));
+  box-shadow: 0 18px 45px rgb(15 23 42 / .08), inset 0 1px 0 rgb(255 255 255 / .65);
+}
+
+.dark .hugo-account-member--ios27 {
+  box-shadow: 0 18px 45px rgb(0 0 0 / .26), inset 0 1px 0 rgb(255 255 255 / .06);
+}
+
+.hugo-account-member-kicker {
+  display: block;
+  margin-bottom: 2px;
+  color: hsl(var(--primary));
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: .14em;
+}
+
+.hugo-account-member-statuses {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.hugo-account-verified {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 3px;
+  color: #16a34a;
+  font-size: 9px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.hugo-account-verified .material-symbols-outlined { font-size: 13px; }
+
+.hugo-account-member--ios27 .hugo-account-member-edit {
+  width: auto;
+  min-width: 54px;
+  height: 32px;
+  gap: 1px;
+  padding: 0 7px 0 10px;
+  border: 1px solid hsl(var(--primary) / .14);
+  background: hsl(var(--primary) / .09);
+  color: hsl(var(--primary));
+  font-size: 11px;
+  font-weight: 720;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 {
+  gap: 18px;
+  padding: 2px 0 112px;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  gap: 20px;
+  padding: 22px;
+  border-color: hsl(var(--border) / .42);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 10% 0%, hsl(var(--primary) / .13), transparent 38%),
+    radial-gradient(circle at 100% 100%, hsl(var(--primary) / .08), transparent 36%),
+    hsl(var(--card) / .92);
+  box-shadow: 0 18px 44px rgb(15 23 42 / .07), inset 0 1px 0 rgb(255 255 255 / .68);
+}
+
+.dark .portal-safe-modal .apple-account-shell--ios27 .apple-account-hero {
+  box-shadow: 0 18px 44px rgb(0 0 0 / .24), inset 0 1px 0 rgb(255 255 255 / .06);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar-control {
+  width: 94px;
+  height: 94px;
+  flex-basis: 94px;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar {
+  border-width: 4px;
+  box-shadow: 0 0 0 1px hsl(var(--border) / .65), 0 14px 32px rgb(15 23 42 / .15);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar-action {
+  right: -5px;
+  bottom: 0;
+  width: 36px;
+  height: 36px;
+  border-color: hsl(var(--card));
+  box-shadow: 0 8px 20px hsl(var(--primary) / .28);
+}
+
+.apple-account-identity-kicker {
+  color: hsl(var(--primary));
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.apple-account-hero-copy > h2 {
+  margin-top: 3px;
+  color: hsl(var(--foreground));
+  font-size: clamp(25px, 5vw, 31px);
+  font-weight: 760;
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.apple-account-hero-copy > p:not(.apple-account-identity-kicker) {
+  overflow: hidden;
+  margin-top: 4px;
+  color: hsl(var(--muted-foreground));
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.apple-account-hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.apple-account-hero-badges .apple-account-status { margin: 0; }
+
+.apple-account-section { display: grid; gap: 8px; }
+
+.apple-account-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 0 4px;
+}
+
+.apple-account-section-heading > .material-symbols-outlined {
+  margin-top: 1px;
+  color: hsl(var(--primary));
+  font-size: 17px;
+}
+
+.apple-account-section-heading h3 {
+  color: hsl(var(--foreground));
+  font-size: 13px;
+  font-weight: 720;
+  letter-spacing: -.01em;
+}
+
+.apple-account-section-heading p {
+  margin-top: 1px;
+  color: hsl(var(--muted-foreground));
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-group {
+  border-color: hsl(var(--border) / .44);
+  border-radius: 20px;
+  background: hsl(var(--card) / .88);
+  box-shadow: 0 8px 26px rgb(15 23 42 / .035), inset 0 1px 0 rgb(255 255 255 / .5);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-row {
+  min-height: 64px;
+  grid-template-columns: 32px minmax(105px, .48fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-row--verified {
+  grid-template-columns: 32px minmax(105px, .48fr) minmax(0, 1fr) 22px;
+  background: hsl(var(--muted) / .18);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-row-icon {
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, hsl(var(--primary) / .16), hsl(var(--primary) / .07));
+  font-size: 16px;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-row-label {
+  font-size: 11px;
+  font-weight: 720;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-input {
+  min-height: 36px;
+  padding: 5px 8px;
+  border-radius: 9px;
+  color: hsl(var(--foreground));
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-input:hover {
+  background: hsl(var(--muted) / .32);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-input:focus {
+  background: hsl(var(--primary) / .07);
+  box-shadow: 0 0 0 2px hsl(var(--primary) / .16);
+}
+
+.apple-account-section--optional {
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / .44);
+  border-radius: 20px;
+  background: hsl(var(--card) / .84);
+}
+
+.apple-account-section--optional > summary {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  list-style: none;
+}
+
+.apple-account-section--optional > summary::-webkit-details-marker { display: none; }
+.apple-account-section--optional > summary > .material-symbols-outlined:first-child { color: hsl(var(--primary)); font-size: 21px; }
+.apple-account-section--optional > summary strong { display: block; font-size: 13px; }
+.apple-account-section--optional > summary small { display: block; overflow: hidden; margin-top: 2px; color: hsl(var(--muted-foreground)); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.apple-account-disclosure { color: hsl(var(--muted-foreground) / .6); font-size: 19px; transition: transform 180ms ease; }
+.apple-account-section--optional[open] .apple-account-disclosure { transform: rotate(90deg); }
+.apple-account-section--optional > .apple-account-group { border: 0 !important; border-top: 1px solid hsl(var(--border) / .4) !important; border-radius: 0 0 20px 20px !important; box-shadow: none !important; }
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar {
+  bottom: 10px;
+  gap: 12px;
+  margin: 4px 0 0;
+  padding: 10px 11px 10px 14px;
+  border-color: rgb(255 255 255 / .34);
+  border-radius: 22px;
+  background: hsl(var(--background) / .82);
+  box-shadow: 0 18px 48px rgb(15 23 42 / .18), inset 0 1px 0 rgb(255 255 255 / .55);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.apple-account-save-state {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: hsl(var(--success));
+  box-shadow: 0 0 0 5px hsl(var(--success) / .1);
+}
+
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar strong,
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar small { display: block; }
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar strong { font-size: 12px; }
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar small { overflow: hidden; max-width: 290px; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.portal-safe-modal .apple-account-shell--ios27 .apple-account-save { min-width: 132px; min-height: 44px; font-size: 14px; }
+
+@media (max-width: 639px) {
+  .hugo-account-member--ios27 { padding: 13px 12px; }
+  .hugo-account-member-statuses { gap: 5px; }
+  .hugo-account-member--ios27 .hugo-account-member-edit { min-width: 44px; padding-inline: 8px 5px; }
+  .hugo-account-member--ios27 .hugo-account-member-edit > span { display: none; }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-hero {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 17px;
+  }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar-control {
+    width: 76px;
+    height: 76px;
+    flex-basis: 76px;
+  }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar--compact { width: 100%; height: 100%; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar-action { width: 31px; height: 31px; right: -3px; border-width: 2px; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-avatar-action .material-symbols-outlined { font-size: 15px; }
+  .apple-account-hero-copy { text-align: left !important; }
+  .apple-account-hero-copy > h2 { font-size: 23px; }
+  .apple-account-hero-copy > p:not(.apple-account-identity-kicker) { max-width: 220px; font-size: 11px; }
+  .apple-account-hero-badges { margin-top: 8px; }
+  .apple-account-hero-badges .apple-account-status { margin-inline: 0; font-size: 9px; }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row,
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row--verified {
+    grid-template-columns: 30px minmax(0, 1fr) 20px;
+    grid-template-areas: "icon label lock" "value value value";
+    row-gap: 5px;
+    padding: 11px 13px;
+  }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row:not(.apple-account-row--verified) {
+    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-areas: "icon label" "value value";
+  }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row-icon { grid-area: icon; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row-label { grid-area: label; align-self: center; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row > :nth-child(3) { grid-area: value; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-row--verified > :nth-child(4) { grid-area: lock; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-input { min-height: 40px; padding: 6px 8px; font-size: 17px; }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar {
+    bottom: 6px;
+    padding: 9px;
+  }
+
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-savebar small { display: none; }
+  .portal-safe-modal .apple-account-shell--ios27 .apple-account-save { min-width: 128px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .portal-chromatic-field span { animation: none; }
+  .portal-chromatic-field::before,
+  .portal-chromatic-field::after { animation: none !important; }
 }
 
 @media (prefers-reduced-transparency: reduce) {

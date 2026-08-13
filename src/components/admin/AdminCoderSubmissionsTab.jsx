@@ -107,7 +107,7 @@ export default function AdminCoderSubmissionsTab() {
         <div>
           <h2 className="text-lg font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
             <Award className="w-5 h-5 text-amber-400" />
-            Duyệt Tốt Nghiệp HugoCoder
+            Duyệt tốt nghiệp Phát triển Web
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
             Chỉ hiển thị những học viên đạt Chặng 6+ (Hoàn thành bài 62 kiểm tra).

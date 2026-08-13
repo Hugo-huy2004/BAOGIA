@@ -18,14 +18,14 @@ export const FEATURE_PRICES = {
 };
 
 const FEATURE_LABELS = {
-  hugoCoder: 'Phí bảo trì HugoCoder',
-  hugoCoderIntermediate: 'HugoCoder Trung Cấp',
-  hugoCoderAdvanced: 'HugoCoder Cao Cấp',
-  hugoCoderSecurity: 'HugoCoder Bảo Mật (Chặng 4)',
-  hugoCoderExam: 'HugoCoder Kiểm Tra (Chặng 5)',
-  hugoCoderOptimize: 'HugoCoder Tối Ưu & AI (Chặng 6)',
-  hugoCoderUltimate: 'HugoCoder Lập Trình Web Nâng Cao (Chặng 7)',
-  hugoAura: 'HugoAura (Lofi & Cửa hàng giao diện)',
+  hugoCoder: 'Phí bảo trì bộ Phát triển Web',
+  hugoCoderIntermediate: 'Tư duy Kiến trúc',
+  hugoCoderAdvanced: 'Giải thuật và Mật mã',
+  hugoCoderSecurity: 'Bảo mật và AI (Phần 4)',
+  hugoCoderExam: 'Kiểm tra Năng lực (Phần 5)',
+  hugoCoderOptimize: 'Tối ưu và AI (Phần 6)',
+  hugoCoderUltimate: 'Đồ án Web Nâng cao',
+  hugoAura: 'HugoAura (Lofi Focus)',
   hugoRadio: 'HugoRadio',
   hugoArcade: 'HugoArcade (Bứt phá & Huyền thoại)',
   hugoChess: 'HugoChess'

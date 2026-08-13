@@ -180,7 +180,6 @@ class VectorService:
 - Ví JOY & Giftcards: Tích điểm JOY qua học tập, chơi game, giới thiệu bạn bè, đổi quà/quà tặng.
 - HugoArcade: Hệ thống minigames giải trí mượt mà (Cờ vua, xếp hình, thử thách daily).
 - Bạn Học Đường (HugoPSY): Trợ lý AI đồng hành sức khỏe tinh thần, tư vấn tâm lý, nhật ký cảm xúc, 6 liệu pháp tự chữa lành (hít thở 4-7-8, âm thanh thiên nhiên, CBT worksheet, viết cảm xúc, vận động nhẹ, kết nối xã hội).
-- HugoSkin: Phân tích và nhắc nhở liệu trình chăm sóc da AI.
 - Bài test tâm lý: PHQ-9 (trầm cảm), GAD-7 (lo âu), DASS-21/42, WHO-5, MMPI, Big Five nhân cách.""",
                 "metadata": {"category": "system_features", "title": "Tính năng Hugo Studio Portal"}
             },
@@ -226,4 +225,3 @@ class VectorService:
                 logger.warning(f"Error seeding vector knowledge {doc['id']}: {e}")
 
 vector_service = VectorService()
-

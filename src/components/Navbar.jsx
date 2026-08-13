@@ -3,6 +3,7 @@ import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSes
 import { useData } from "../context/DataContext";
 import MobileDrawer from "./MobileDrawer";
 import { useTranslation } from "react-i18next";
+import LanguageSelect from "./LanguageSelect";
 
 function NavLink({ to, active, children }) {
   const className = `inline-flex h-8 items-center rounded-full px-3.5 text-[12px] font-semibold leading-none transition-all duration-200 select-none ${
@@ -16,15 +17,10 @@ function NavLink({ to, active, children }) {
 export default function Navbar() {
   const location = useLocation();
   const { data } = useData();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const allowBooking = data?.systemSettings?.allowBooking !== false;
 
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
-    i18n.changeLanguage(newLang);
-  };
 
   const isAt = (path) => location.pathname === path;
 
@@ -73,14 +69,7 @@ export default function Navbar() {
             {t("footer.supportServer", "Ủng hộ")}
           </button>
 
-          {/* Language toggle */}
-          <button
-            onClick={toggleLanguage}
-            className="hidden h-8 w-8 items-center justify-center rounded-full bg-muted/75 text-[10px] font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
-            aria-label="Toggle language"
-          >
-            {i18n.language.startsWith("en") ? "EN" : "VI"}
-          </button>
+          <LanguageSelect compact className="hidden sm:inline-flex" />
 
 
           <Link

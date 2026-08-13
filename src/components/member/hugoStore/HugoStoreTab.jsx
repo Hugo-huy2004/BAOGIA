@@ -221,7 +221,7 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
             className="rounded-[14px] border border-[var(--hgs-line)] bg-[var(--hgs-surface)]"
           />
           <h1 className="hgs-ink min-w-0 flex-1 truncate text-[19px] font-bold tracking-[-0.01em]">
-            {t("store.title", "Hugo Store")}
+            {t("utilities.store.title", "Hugo Store")}
           </h1>
           {/* JOY giữ đồng xu vàng làm dấu hiệu ngữ nghĩa, chỉ bọc lại bằng
               viên nang phẳng cho khớp phần còn lại. */}
@@ -238,7 +238,7 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
             type="search"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder={t("store.shop.search", "Tìm ứng dụng và vật phẩm")}
+            placeholder={t("utilities.store.shop.search", "Tìm ứng dụng và vật phẩm")}
             className="hgs-input pl-11 pr-11"
           />
           {search && (

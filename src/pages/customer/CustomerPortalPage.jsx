@@ -6,12 +6,7 @@ import CustomerServiceTab from '../../components/customer/CustomerServiceTab';
 import CustomerRequestsTab from '../../components/customer/CustomerRequestsTab';
 
 export default function CustomerPortalPage() {
-  const { t, i18n } = useTranslation();
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language.startsWith("vi") ? "en" : "vi";
-    i18n.changeLanguage(newLang);
-  };
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   const [project, setProject] = useState(null);

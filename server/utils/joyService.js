@@ -96,7 +96,7 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
       category: 'joy',
       title: opts.notificationTitle || joyTitleFor(source, numAmount),
       message: opts.notificationMessage || description || '',
-      actionUrl: opts.actionUrl || '/member/joy',
+      actionUrl: opts.actionUrl || '/member/account',
       // Số liệu đi thành field, không nhét vào câu để client phải regex bóc ra.
       amount: numAmount,
       balanceAfter: newBalance,
@@ -124,7 +124,7 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
       bio.email,
       opts.pushTitle || notification.title,
       opts.pushBody || notification.message,
-      notification.actionUrl || '/member/joy'
+      notification.actionUrl || '/member/account'
     );
   }
 

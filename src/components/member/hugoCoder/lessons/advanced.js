@@ -439,7 +439,7 @@ const key = await crypto.subtle.generateKey(
       { symptom: "Đưa private key lên frontend/git.", cause: "Chưa phân biệt vai trò cặp khóa.", fix: "Private key CHỈ nằm trên server, không bao giờ rời khỏi đó." },
       { symptom: "crypto.subtle undefined khi chạy.", cause: "Web Crypto yêu cầu secure context (https hoặc localhost).", fix: "Chạy trên localhost hoặc trang https." }
     ],
-    challenge: "Dùng crypto.subtle.encrypt/decrypt AES-GCM mã hóa rồi giải mã chuỗi 'HugoCoder' hoàn chỉnh (cần TextEncoder và iv ngẫu nhiên).",
+    challenge: "Dùng crypto.subtle.encrypt/decrypt AES-GCM mã hóa rồi giải mã chuỗi 'StudyWithHugo' hoàn chỉnh (cần TextEncoder và iv ngẫu nhiên).",
     checklist: [
       "Phân biệt đối xứng/bất đối xứng trong 2 câu",
       "Kể đúng 3 bước phối hợp RSA + AES của HTTPS",
@@ -505,7 +505,7 @@ Cùng mật khẩu "123456", hai người dùng có 2 mã băm khác nhau → b�
 Ứng dụng thứ hai của hash: **checksum** — so mã băm file tải về với mã công bố để biết file có bị sửa đổi.`,
     labSteps: [
       "Mở src/lesson32.php — thí nghiệm 3 tính chất của hash.",
-      "Băm 'HugoCoder' bằng hash('sha256', ...) hai lần — xác nhận 2 kết quả giống hệt (tất định).",
+      "Băm 'StudyWithHugo' bằng hash('sha256', ...) hai lần — xác nhận 2 kết quả giống hệt (tất định).",
       "Đổi 1 ký tự thành 'hugoCoder' băm lại — chứng kiến mã băm khác hoàn toàn (avalanche).",
       "Sinh salt bằng bin2hex(random_bytes(16)) rồi băm $password . $salt.",
       "Băm '123456' với 2 salt khác nhau — 2 kết quả khác nhau: đây chính là đòn hạ Rainbow Table."
@@ -524,7 +524,7 @@ Cùng mật khẩu "123456", hai người dùng có 2 mã băm khác nhau → b�
     tasks: ["Băm sha256 hai lần chứng minh tất định, băm kèm salt sinh từ random_bytes."],
     starterCode: `<?php
 // BÀI 32: Hash một chiều & Salt
-// TODO 1: hash("sha256", "HugoCoder") hai lần — so sánh
+// TODO 1: hash("sha256", "StudyWithHugo") hai lần — so sánh
 // TODO 2: đổi 1 ký tự, băm lại — avalanche effect
 // TODO 3: $salt = bin2hex(random_bytes(16)); hash sha256 của $password . $salt
 ?>`,
@@ -648,13 +648,13 @@ if (password_verify($inputPassword, $hash)) { /* đúng mật khẩu */ }
 > **URL Encoding** — ký tự đặc biệt thành %XX để an toàn trên URL: \`encodeURIComponent("xin chào") → "xin%20ch%C3%A0o"\`.
 
 \`\`\`javascript
-const encoded = btoa("HugoCoder");            // SHVnb0NvZGVy
-const decoded = atob(encoded);                // HugoCoder
+const encoded = btoa("StudyWithHugo");        // U3R1ZHlXaXRoSHVnbw==
+const decoded = atob(encoded);                // StudyWithHugo
 const safe = encodeURIComponent("a=1&b=2");   // a%3D1%26b%3D2
 \`\`\``,
     labSteps: [
       "Mở src/lesson34.js — thí nghiệm 3 loại encoding.",
-      "Base64: btoa('HugoCoder') rồi atob ngược lại — in cả hai, xác nhận khứ hồi nguyên vẹn.",
+      "Base64: btoa('StudyWithHugo') rồi atob ngược lại — in cả hai, xác nhận khứ hồi nguyên vẹn.",
       "Tự 'giải mã' chuỗi 'aHVnb0BzdHVkaW8udm4=' bằng atob — thấy ngay vì sao Base64 không phải bảo mật.",
       "URL: encodeURIComponent('tên=Hugo&lớp=12') và decode ngược — để ý các ký tự %.",
       "Hex: chuyển 'Hi' thành hex bằng codePointAt(0).toString(16) từng ký tự.",
@@ -673,7 +673,7 @@ const safe = encodeURIComponent("a=1&b=2");   // a%3D1%26b%3D2
     ],
     tasks: ["Dùng btoa + atob khứ hồi Base64 và encodeURIComponent + decodeURIComponent cho query string."],
     starterCode: `// BÀI 34: Encoding — đổi vỏ, không phải bảo mật
-// TODO 1: btoa("HugoCoder") -> atob ngược lại
+// TODO 1: btoa("StudyWithHugo") -> atob ngược lại
 // TODO 2: atob("aHVnb0BzdHVkaW8udm4=") — đọc được gì?
 // TODO 3: encodeURIComponent("tên=Hugo&lớp=12") -> decode ngược
 `,
@@ -684,7 +684,7 @@ const safe = encodeURIComponent("a=1&b=2");   // a%3D1%26b%3D2
     practiceType: "code_challenge",
     mobilePuzzle: {
       prompt: "Hàm nào ENCODE một chuỗi sang Base64 trong trình duyệt?",
-      snippet: "const encoded = [ ... ](\"HugoCoder\"); // \"SHVnb0NvZGVy\"",
+      snippet: "const encoded = [ ... ](\"StudyWithHugo\"); // \"U3R1ZHlXaXRoSHVnbw==\"",
       options: [
         { text: "atob()", correct: false },
         { text: "btoa()", correct: true },
@@ -734,7 +734,7 @@ Mọi sự cố đều chạm ít nhất một đỉnh: DB rò rỉ (C), hacker 
       { symptom: "Xếp hash/checksum vào Confidentiality.", cause: "Nhầm vai trò: hash không giấu dữ liệu, nó phát hiện SỬA ĐỔI.", fix: "Hash/chữ ký số thuộc Integrity; giấu dữ liệu (encryption) mới thuộc C." },
       { symptom: "Bật xác thực 2 lớp cho mọi thao tác khiến người dùng bỏ đi.", cause: "Dồn hết vào C mà quên tính khả dụng/tiện dụng.", fix: "Cân bằng theo mức rủi ro: thao tác nhạy cảm mới cần lớp bảo vệ dày." }
     ],
-    challenge: "Phân tích hệ thống HugoCoder JOY wallet theo CIA: liệt kê cho mỗi đỉnh 2 rủi ro và 2 biện pháp tương ứng.",
+    challenge: "Phân tích ví JOY trong Study with Hugo theo CIA: liệt kê cho mỗi đỉnh 2 rủi ro và 2 biện pháp tương ứng.",
     checklist: [
       "Đọc thuộc 3 trụ cột kèm định nghĩa 1 câu",
       "Gắn đúng tối thiểu 6 kỹ thuật vào 3 đỉnh",
@@ -1437,7 +1437,7 @@ const cache = new Map();
 {
   "@context": "https://schema.org",
   "@type": "Product",
-  "name": "Khóa học HugoCoder",
+  "name": "Bộ Phát triển Web Chuyên nghiệp",
   "offers": { "@type": "Offer", "price": "1500", "priceCurrency": "VND" }
 }
 </script>
@@ -1469,7 +1469,7 @@ const cache = new Map();
   <!-- TODO 1: script type="application/ld+json" — @type Product + offers -->
 </head>
 <body>
-  <h1>Khóa học HugoCoder</h1>
+  <h1>Bộ Phát triển Web Chuyên nghiệp</h1>
   <h2>robots.txt mẫu</h2>
   <pre><!-- TODO 2: User-agent, Disallow /admin/, Sitemap: ... --></pre>
   <h2>sitemap.xml mẫu</h2>
@@ -1531,7 +1531,7 @@ const cache = new Map();
       { symptom: "SSR mọi trang kể cả trang giá tĩnh, server è cổ.", cause: "Không tận dụng SSG cho nội dung ít đổi.", fix: "Ít đổi → build sẵn (SSG); đổi từng giây mới cần SSR." },
       { symptom: "Trang SSG hiện nội dung nhưng bấm nút không phản ứng trong 2 giây đầu.", cause: "Chưa hydrate xong — JS còn đang tải.", fix: "Bình thường của mô hình; giảm JS bundle để hydrate nhanh hơn (bài 41)." }
     ],
-    challenge: "Thiết kế kiến trúc cho 'trang bán khóa học HugoCoder': liệt kê 5 loại trang của site và gán chiến lược render + lý do từng loại.",
+    challenge: "Thiết kế kiến trúc cho trang bán bộ Phát triển Web: liệt kê 5 loại trang của site và gán chiến lược render cùng lý do từng loại.",
     checklist: [
       "Kể đúng cơ chế 3 mô hình không nhìn bảng",
       "Gán đúng chiến lược cho 4 tình huống trong bài",
@@ -1753,8 +1753,8 @@ Network-First đảo thứ tự: \`fetch(e.request).catch(() => caches.match(e.r
 
 \`\`\`json
 {
-  "name": "HugoCoder Learning IDE",
-  "short_name": "HugoCoder",
+  "name": "Study with Hugo Learning IDE",
+  "short_name": "Study with Hugo",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

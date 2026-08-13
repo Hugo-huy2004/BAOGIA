@@ -2,7 +2,7 @@ import webpush from 'web-push';
 import Bio from '../models/Bio.js';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 
-// Shared by every push cron (proactive, smart, skincare, scheduled companion)
+// Shared by every push cron (proactive, smart, scheduled companion)
 // so a sleepy/insomniac user never gets woken up by a "mindless" reminder,
 // and doesn't get stacked notifications from unrelated jobs firing close
 // together on the same day.

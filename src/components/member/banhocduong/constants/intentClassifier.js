@@ -504,7 +504,7 @@ export const INTENT_DATABASE = [
       "bài tập tự chữa lành", "phương pháp trị liệu", "các bài trị liệu"
     ],
     generateResponse: () => {
-      return [`Có 4 liệu pháp chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), Đọc sách Trị liệu (chiêm nghiệm) và Viết Tự Do (xả áp lực).`, `Còn vài món AI cao cấp mở bằng JOY nữa. Ghé tab 'Trị Liệu' khám phá nha!`];
+      return [`Có 4 hoạt động chính nè: Thở 4-7-8 (lo âu/mất ngủ), Ngồi Tĩnh Tâm (căng thẳng), Đọc sách (chiêm nghiệm) và Viết Tự Do (xả áp lực).`, `Còn vài món AI cao cấp mở bằng JOY nữa. Ghé tab 'Thư Giãn' khám phá nha!`];
     }
   },
   {
@@ -1393,7 +1393,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: () => {
       return [
-        "Trình Web-based IDE (HugoCoder ở Tab Utilities) là trình soạn thảo lập trình trực quan (C, C++, C#, Python, Web, PHP) chạy ngay trên trình duyệt.",
+        "IDE trong Study with Hugo là trình soạn thảo lập trình trực quan (C, C++, C#, Python, Web, PHP) chạy ngay trên trình duyệt.",
         "Trình IDE đi kèm các bài học lập trình cơ bản và hỗ trợ tải code về máy."
       ];
     }
@@ -1661,7 +1661,7 @@ const INTENT_QUICK_REPLIES = {
   guide_booking:     ["Xem lịch ở đâu", "Chỉnh theme thế nào", "Vào Quản lý lịch"],
   guide_qr:          ["Tạo QR danh bạ", "Tạo QR Wi-Fi", "Vào thẻ Tiện ích"],
   guide_signature:   ["Tạo chữ ký thế nào", "Vào HugoSMail"],
-  guide_ide:         ["Học lập trình", "Vào HugoCoder"],
+  guide_ide:         ["Học lập trình", "Vào Study with Hugo"],
   guide_chess:       ["Đấu với AI", "Vào HugoChess"],
   guide_partners:    ["Nhúng Iframe thế nào", "Khóa bảo mật ở đâu"],
   existential_crisis: ["Kể thêm nha", "Tớ thấy vô định", "Làm sao tìm mục tiêu?"],

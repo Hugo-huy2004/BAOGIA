@@ -1,8 +1,7 @@
 export const REQUIRED_APP_IDS = Object.freeze([
   'store',
   'bio',
-  'ide',
-  'hugoso',
+  'study',
   'team',
   'psychology',
   'radio',
@@ -10,8 +9,12 @@ export const REQUIRED_APP_IDS = Object.freeze([
   'handle',
   'info',
   'joy_wallet',
-  'map',
 ]);
+
+// Các app đã ngừng hoạt động phải bị lọc cả khỏi dữ liệu cũ trong MongoDB và
+// localStorage, nếu không icon "ma" vẫn quay lại sau mỗi lần đồng bộ.
+export const RETIRED_APP_IDS = Object.freeze(['deco', 'map', 'hugoskin', 'ide', 'hugoso']);
+const RETIRED_APP_SET = new Set(RETIRED_APP_IDS);
 
 export class AppInstallationPolicy {
   constructor(requiredAppIds = REQUIRED_APP_IDS) {
@@ -36,7 +39,9 @@ export class AppInstallationPolicy {
   }
 
   normalizeInstalled(appIds = []) {
-    const requested = Array.isArray(appIds) ? appIds.filter(Boolean) : [];
+    const requested = Array.isArray(appIds)
+      ? appIds.filter((appId) => appId && !RETIRED_APP_SET.has(String(appId)))
+      : [];
     return [...new Set([...this.requiredAppIds, ...requested])];
   }
 

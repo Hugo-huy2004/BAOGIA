@@ -639,7 +639,7 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
     <div className="space-y-4 font-sans bg-zinc-900/50 p-4 border border-border/60 rounded-2xl">
       <div className="text-center space-y-1">
         <Sparkles className="w-8 h-8 text-amber-400 mx-auto animate-pulse" />
-        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">Đồ Án Kết Khóa HugoCoder</h3>
+        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">Đồ án kết khóa Phát triển Web</h3>
         <p className="text-[10px] text-zinc-400">
           Nộp sản phẩm hoàn thiện nhất của bạn để hoàn tất Chặng 7 và nhận Chứng nhận hoàn thành & +4,000 JOY.
         </p>
@@ -647,7 +647,7 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
 
       {status === "approved" && (
         <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center space-y-2">
-          <p className="text-xs font-bold text-emerald-500">Chúc mừng! Bạn đã hoàn thành HugoCoder! 🎉</p>
+          <p className="text-xs font-bold text-emerald-500">Chúc mừng! Bạn đã hoàn thành bộ Phát triển Web! 🎉</p>
           {certUrl ? (
             <a
               href={certUrl}
@@ -658,7 +658,7 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
               Xem chứng nhận hoàn thành
             </a>
           ) : (
-            <p className="text-[9px] text-zinc-400">Đang chờ admin đính kèm link chứng chỉ...</p>
+            <p className="text-[9px] text-zinc-400">Đang chờ admin đính kèm link giấy chứng nhận...</p>
           )}
         </div>
       )}

@@ -1,15 +1,20 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { DEFAULT_LANGUAGE, getStoredAppLanguage, persistAppLanguage } from '../i18n/languages'
 
 export const useUIStore = create(persist(
-  (set, get) => ({
+  (set) => ({
     theme: 'light',
-    language: 'vi',
+    language: getStoredAppLanguage() || DEFAULT_LANGUAGE,
     sidebarOpen: false,
     notifications: [],
 
     setTheme: (theme) => set({ theme }),
-    setLanguage: (lang) => set({ language: lang }),
+    setLanguage: (lang) => {
+      const language = persistAppLanguage(lang)
+      set({ language })
+      void import('../i18n/config').then(({ changeAppLanguage }) => changeAppLanguage(language))
+    },
     toggleSidebar: () => set(s => ({ sidebarOpen: !s.sidebarOpen })),
     addNotification: (notif) => set(s => ({
       notifications: [notif, ...s.notifications].slice(0, 50)

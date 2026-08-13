@@ -1,3 +1,5 @@
+import { localeForLanguage } from "../../../i18n/languages";
+
 /**
  * Chuẩn hoá dữ liệu cho trung tâm thông báo.
  *
@@ -77,10 +79,16 @@ export function notificationDestination(rawUrl) {
 
   try {
     const parsed = new URL(raw, "https://hugo.local");
-    const pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+    let pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+
+    // Ví JOY đã dọn vào trang Tài khoản. Thông báo cũ trong hộp thư vẫn trỏ
+    // `/member/joy`, nên đổi đích thay vì để nó thành liên kết chết.
+    if (pathname === "/member/joy" || pathname.startsWith("/member/joy/")) {
+      pathname = "/member/account";
+    }
+
     const isMeaningfulMemberRoute = (
-      pathname === "/member/joy"
-      || pathname.startsWith("/member/joy/")
+      pathname === "/member/account"
       || pathname.startsWith("/member/utilities/")
     );
     const isPaymentRoute = /^\/pay\/[^/]+$/.test(pathname);
@@ -231,21 +239,22 @@ export function timeAgo(at, now = new Date(), language = "vi") {
   const value = new Date(at);
   if (Number.isNaN(value.getTime())) return "";
   const seconds = Math.max(0, (now.getTime() - value.getTime()) / 1000);
-  const english = String(language).startsWith("en");
-  if (seconds < 60) return english ? "just now" : "vừa xong";
+  const locale = localeForLanguage(language);
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "auto", style: "short" });
+  if (seconds < 60) return relative.format(0, "second");
   if (seconds < 3600) {
     const minutes = Math.floor(seconds / 60);
-    return english ? `${minutes} min ago` : `${minutes} phút`;
+    return relative.format(-minutes, "minute");
   }
   if (seconds < 86400) {
     const hours = Math.floor(seconds / 3600);
-    return english ? `${hours} hr ago` : `${hours} giờ`;
+    return relative.format(-hours, "hour");
   }
   if (seconds < 604800) {
     const days = Math.floor(seconds / 86400);
-    return english ? `${days} days ago` : `${days} ngày`;
+    return relative.format(-days, "day");
   }
-  return value.toLocaleDateString(english ? "en-US" : "vi-VN", {
+  return value.toLocaleDateString(locale, {
     day: "2-digit",
     month: "short",
   });
@@ -253,7 +262,7 @@ export function timeAgo(at, now = new Date(), language = "vi") {
 
 /** Số JOY có dấu, để hiện "+150" / "−165". Dùng dấu trừ thật (U+2212). */
 export function signedJoy(amount, language = "vi") {
-  const locale = String(language).startsWith("en") ? "en-US" : "vi-VN";
+  const locale = localeForLanguage(language);
   const value = Math.abs(Number(amount) || 0).toLocaleString(locale);
   return `${amount > 0 ? "+" : "−"}${value} JOY`;
 }

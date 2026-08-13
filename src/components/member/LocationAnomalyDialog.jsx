@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { logoutAuth } from "../../services/authSession";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onDismiss }) {
+  const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
 
   const handleTrustNewLocation = async () => {
@@ -15,7 +17,7 @@ export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onD
         credentials: "include",
         body: JSON.stringify({ email, lat, lng }),
       });
-    } catch (_) {
+    } catch {
       // fail open — dismiss anyway
     } finally {
       setBusy(false);
@@ -35,11 +37,9 @@ export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onD
         <div className="flex items-start gap-3">
           <span className="material-symbols-outlined text-warning text-3xl shrink-0 mt-0.5">location_off</span>
           <div>
-            <h2 className="font-bold text-base text-foreground leading-tight">Vị trí bất thường được phát hiện</h2>
+            <h2 className="font-bold text-base text-foreground leading-tight">{t("memberPortal.locationAnomaly.title")}</h2>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Thiết bị này đang ở cách xa vị trí thường lệ của bạn khoảng{" "}
-              <span className="font-semibold text-warning">{distanceKm} km</span>.
-              Đây có phải là bạn không?
+              {t("memberPortal.locationAnomaly.description", { distance: distanceKm })}
             </p>
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onD
             className="w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-base">check_circle</span>
-            Đây là tôi — Cập nhật vị trí mới
+            {t("memberPortal.locationAnomaly.trust")}
           </button>
           <button
             type="button"
@@ -61,12 +61,12 @@ export default function LocationAnomalyDialog({ email, distanceKm, lat, lng, onD
             className="w-full py-3 border border-destructive/50 text-destructive hover:bg-destructive/5 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-base">logout</span>
-            Không phải tôi — Đăng xuất
+            {t("memberPortal.locationAnomaly.logout")}
           </button>
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-          Nếu bạn không nhận ra hoạt động này, hãy đăng xuất ngay và đổi mật khẩu Google.
+          {t("memberPortal.locationAnomaly.guidance")}
         </p>
       </div>
     </div>

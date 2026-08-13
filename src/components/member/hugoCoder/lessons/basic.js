@@ -487,7 +487,7 @@ Mỗi câu có 4 lựa chọn, 1 đáp án đúng. Sai có thể đổi đề th
       ]
     },
     theory: `### KIẾN THỨC CỐT LÕI
-Theo **W3Schools SQL Tutorial** và chuẩn **ANSI SQL**, dữ liệu quan hệ lưu trong bảng (cột + dòng). Bộ tứ CRUD:
+Theo chuẩn **ANSI SQL**, dữ liệu quan hệ lưu trong bảng (cột + dòng). Bộ tứ CRUD:
 
 > **SELECT** \`SELECT * FROM users WHERE status = 'active' LIMIT 5;\` — đọc
 > **INSERT** \`INSERT INTO users (name, email) VALUES ('Hugo', 'a@b.com');\` — thêm

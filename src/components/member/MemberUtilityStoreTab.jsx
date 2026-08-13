@@ -1,24 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import JoyCoinBadge from "../shared/JoyCoinBadge";
+import { localeForLanguage } from "../../i18n/languages";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-const CATEGORY_LABELS = {
-  all: "Tất cả",
-  general: "Chung",
-  joy: "JOY",
-  radio: "HugoRadio",
-};
-
 export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBioUpdate, showToast }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
   const [confirmProduct, setConfirmProduct] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
+  const categoryLabels = {
+    all: t("memberPortal.joy.store.categories.all"),
+    general: t("memberPortal.joy.store.categories.general"),
+    joy: "JOY",
+    radio: "HugoRadio",
+  };
 
   useEffect(() => {
     fetch(`${apiBase}/utility-store/products`)
@@ -101,7 +102,9 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
     if (product.productType === "radio_time" && product.radioMinutes > 0) {
       const hours = Math.floor(product.radioMinutes / 60);
       const days = Math.floor(hours / 24);
-      return days > 0 ? `+${days} ngày nghe` : `+${hours}h nghe`;
+      return days > 0
+        ? t("memberPortal.joy.store.listeningDays", { count: days })
+        : t("memberPortal.joy.store.listeningHours", { count: hours });
     }
     return null;
   };
@@ -116,7 +119,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm sản phẩm..."
+            placeholder={t("memberPortal.joy.store.searchPlaceholder")}
             className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-white dark:bg-[#181622] text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-warning/40"
           />
         </div>
@@ -129,7 +132,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
                 category === c ? "bg-warning border-warning text-white shadow-sm" : "bg-white dark:bg-[#181622] border-border text-muted-foreground"
               }`}
             >
-              {CATEGORY_LABELS[c] || c}
+              {categoryLabels[c] || c}
             </button>
           ))}
         </div>
@@ -138,10 +141,13 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
       {filteredProducts.length === 0 ? (
         <div className="py-12 text-center bg-muted/50 rounded-2xl border border-dashed border-border">
           <span className="material-symbols-outlined text-3xl text-muted-foreground/70 mb-2">search_off</span>
-          <p className="text-xs text-zinc-400">Không tìm thấy sản phẩm phù hợp.</p>
+          <p className="text-xs text-zinc-400">{t("memberPortal.joy.store.noResults")}</p>
         </div>
       ) : (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      // Cửa hàng giờ chỉ mở trong sheet của trang Tài khoản (rộng tối đa 2xl),
+      // nên breakpoint theo KHUNG NHÌN mà nhảy tới 5 cột sẽ nhồi 5 thẻ vào một
+      // tấm panel hẹp. Hai cột trên điện thoại, ba cột khi panel đủ rộng.
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {filteredProducts.map(product => {
         const insufficient = balance < (product.priceJoy + Math.floor(product.priceJoy * 0.09));
         const outOfStock = product.stock !== -1 && product.stock <= 0;
@@ -235,30 +241,30 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
                 </div>
               )}
               <div className="flex items-center justify-between pt-2 border-t border-border">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPrice", "Giá gốc")}</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmPrice")}</span>
                 <JoyCoinBadge amount={confirmProduct.priceJoy} size="sm" />
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] font-medium text-zinc-500">Phí cấp hàng (2%)</span>
+                <span className="text-[10px] font-medium text-zinc-500">{t("memberPortal.joy.store.fulfillmentFee")}</span>
                 <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] font-medium text-zinc-500">Phí hỗ trợ (5%)</span>
+                <span className="text-[10px] font-medium text-zinc-500">{t("memberPortal.joy.store.supportFee")}</span>
                 <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.05)} JOY</span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[10px] font-medium text-zinc-500">Phí bảo dưỡng (2%)</span>
+                <span className="text-[10px] font-medium text-zinc-500">{t("memberPortal.joy.store.maintenanceFee")}</span>
                 <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-dashed border-border">
-                <span className="text-[10px] font-black text-foreground/80 uppercase tracking-wider">Tổng thanh toán</span>
+                <span className="text-[10px] font-black text-foreground/80 uppercase tracking-wider">{t("memberPortal.joy.store.totalPayment")}</span>
                 <span className="text-sm font-black text-foreground">
-                  {(confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)).toLocaleString("vi-VN")} JOY
+                  {(confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)).toLocaleString(locale)} JOY
                 </span>
               </div>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter", "Số dư sau mua")}</span>
-                <span className="text-xs font-bold text-muted-foreground">{(balance - (confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09))).toLocaleString("vi-VN")} JOY</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter")}</span>
+                <span className="text-xs font-bold text-muted-foreground">{(balance - (confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09))).toLocaleString(locale)} JOY</span>
               </div>
             </div>
 

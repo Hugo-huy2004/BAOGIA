@@ -4,6 +4,7 @@
  */
 import { getMemberToken } from "../services/authSession";
 import { IS_NATIVE, isStandalone } from "../config/platform";
+import { getStoredAppLanguage, localeForLanguage } from "../i18n/languages";
 
 // Hàm phụ để convert khóa VAPID Public Key dạng base64 sang Uint8Array
 function urlBase64ToUint8Array(base64String) {
@@ -150,7 +151,7 @@ export const webPushHelper = {
           email: String(email || '').trim().toLowerCase(),
           subscription,
           device: {
-            locale: navigator.language || '',
+            locale: localeForLanguage(getStoredAppLanguage() || navigator.language),
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
             platform: navigator.userAgentData?.platform || navigator.platform || '',
             standalone: isStandalone(),

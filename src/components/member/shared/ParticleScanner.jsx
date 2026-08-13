@@ -257,7 +257,7 @@ export default function ParticleScanner({
           color: "rgba(255,255,255,.5)", fontSize: 11, fontWeight: 700,
           letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40,
         }}>
-          {t("joy.particle.scanCloudCode", "Quét mã đám mây hạt")}
+          {t("memberPortal.joy.particle.scanCloudCode", "Quét mã đám mây hạt")}
         </p>
       )}
 
@@ -294,7 +294,7 @@ export default function ParticleScanner({
           <div style={{ position: "absolute", inset: 0, background: inline ? "rgba(239,68,68,.05)" : "#111", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
             <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#ef4444", marginBottom: 8 }}>camera_off</span>
             <p style={{ color: inline ? "#ef4444" : "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
-              {status === "unsupported" ? t("joy.particle.cameraUnsupported", "Chưa hỗ trợ camera") : t("joy.particle.cameraError", "Lỗi camera")}
+              {status === "unsupported" ? t("memberPortal.joy.particle.cameraUnsupported", "Chưa hỗ trợ camera") : t("memberPortal.joy.particle.cameraError", "Lỗi camera")}
             </p>
           </div>
         )}
@@ -302,11 +302,11 @@ export default function ParticleScanner({
 
       {inline ? (
         <p style={{ color: "#64748b", fontSize: 12, marginTop: 16, textAlign: "center", maxWidth: 260 }}>
-          {t("joy.particle.cameraHintInline", "Hướng camera vào mã Particle Cloud Code của người khác để kết nối.")}
+          {t("memberPortal.joy.particle.cameraHintInline", "Hướng camera vào mã Particle Cloud Code của người khác để kết nối.")}
         </p>
       ) : (
         <p style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginTop: 24, fontWeight: 600 }}>
-          {t("joy.particle.cameraHint", "Hướng camera vào mã đám mây hạt")}
+          {t("memberPortal.joy.particle.cameraHint", "Hướng camera vào mã đám mây hạt")}
         </p>
       )}
 

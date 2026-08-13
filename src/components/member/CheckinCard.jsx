@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
+import { localeForLanguage } from "../../i18n/languages";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 export default function CheckinCard({ email, showToast }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const claimingRef = useRef(false);
   const setBalance = useJoyStore((s) => s.setBalance);
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
 
   const fetchStatus = useCallback(() => {
     if (!email) {
@@ -58,197 +60,118 @@ export default function CheckinCard({ email, showToast }) {
 
   if (loading || !status) {
     return (
-      <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-2 font-sans">
-        <span className="material-symbols-outlined animate-spin text-primary">sync</span>
-        <span>{t("memberPortal.checkin.loading", "Đang tải dữ liệu điểm danh...")}</span>
+      <div className="flex min-h-[112px] items-center justify-center rounded-2xl border border-border bg-card text-[13px] text-muted-foreground">
+        {t("memberPortal.checkin.loading")}
       </div>
     );
   }
 
   if (status.error) {
     return (
-      <div className="py-6 text-center text-xs text-rose-500 flex flex-col items-center gap-2 bg-rose-500/5 rounded-2xl border border-rose-500/20 p-4 font-sans">
-        <span className="material-symbols-outlined text-lg">error</span>
-        <span>{status.error}</span>
+      <div className="rounded-2xl border border-border bg-card px-4 py-3 text-[13px] text-rose-500">
+        {status.error}
       </div>
     );
   }
 
   const rewardTable = status.rewardTable || [150, 240, 240, 240, 240, 240, 450];
   const claimedDays = status.claimedDaysThisWeek || [];
+  const todayReward = rewardTable[(status.todayDayOfWeek || 1) - 1];
+  // Chỉ nhắc những mốc CHƯA nhận — mốc đã nhận rồi thì nhắc làm gì nữa.
+  const pendingMilestones = [
+    { label: t("memberPortal.checkin.milestone", { days: 14 }), bonus: 2100, awarded: status.milestone14Awarded },
+    { label: t("memberPortal.checkin.milestone", { days: 30 }), bonus: 4500, awarded: status.milestone30Awarded },
+  ].filter((m) => !m.awarded);
 
   return (
-    <div className="bg-card border border-border/40 rounded-[22px] p-4 sm:p-5 space-y-4 shadow-xs text-left font-sans select-none">
-      {/* ── 1. HEADER & STREAK BADGE ───────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-2 border-b border-border/30 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div
-            className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 ${
-              status.weekLocked ? "bg-rose-500/10 text-rose-500" : "bg-amber-500/10 text-amber-500"
-            }`}
-          >
-            <span className="material-symbols-outlined text-lg">
-              {status.weekLocked ? "lock" : "local_fire_department"}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-              <span>{t("memberPortal.checkin.title", "Điểm Danh Nhận JOY")}</span>
-            </h3>
-            <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">
-              {status.weekLocked
-                ? "Chuỗi bị ngắt do bỏ lỡ. Mở lại vào Thứ Hai."
-                : t("memberPortal.checkin.subtitle", "Điểm danh liên tục 7 ngày để nhận quà JOY lớn")}
-            </p>
-          </div>
-        </div>
-
-        {/* Consecutive Streak Pill */}
-        <div className="px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 font-mono font-bold text-[11px] flex items-center gap-1 shrink-0">
-          <span className="material-symbols-outlined text-xs text-amber-500">bolt</span>
-          <span>{status.consecutiveDays} ngày</span>
-        </div>
+    <div className="rounded-2xl border border-border bg-card p-4 text-left font-sans select-none">
+      {/* Một dòng tiêu đề + chuỗi ngày. Bản cũ dành nguyên một khối header có
+          icon 36px, tiêu đề in hoa và hai dòng mô tả cho việc này. */}
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="min-w-0 truncate text-[15px] font-semibold text-foreground">
+          {status.weekLocked
+            ? t("memberPortal.checkin.weekLockedTitle")
+            : t("memberPortal.checkin.title")}
+        </h3>
+        {/* Mốc thưởng và phần thưởng ngày 7 vào tooltip: đó là thông tin để TRA
+            một lần, không đáng chiếm hai dòng chữ mỗi ngày. */}
+        <span
+          className="flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[13px] font-semibold tabular-nums text-foreground"
+          title={t("memberPortal.checkin.streakTooltip", {
+            count: status.consecutiveDays,
+            reward: rewardTable[6].toLocaleString(locale),
+            milestones: pendingMilestones.length
+              ? ` · ${pendingMilestones.map((m) => `${m.label} +${m.bonus.toLocaleString(locale)}`).join(" · ")}`
+              : "",
+          })}
+        >
+          <span className="material-symbols-outlined text-[16px] text-muted-foreground" aria-hidden="true">
+            local_fire_department
+          </span>
+          {status.consecutiveDays}
+        </span>
       </div>
 
-      {/* ── 2. 7-DAY REWARD GRID (APPLE FITNESS TILES) ────────────────────── */}
-      <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+      {/* Bảy ô một hàng, mỗi ô cao 32px: trạng thái nói bằng màu, số JOY của
+          từng ngày nằm ở tooltip — nhét cả icon lẫn "+240" vào mỗi ô là thứ
+          đẩy thẻ cao gấp đôi mà chẳng ai đọc bảy lần. */}
+      <div className="mt-2.5 grid grid-cols-7 gap-1.5">
         {rewardTable.map((amount, idx) => {
           const day = idx + 1;
           const claimed = claimedDays.includes(day);
           const isToday = status.todayDayOfWeek === day;
-          const isDay7 = day === 7;
+          const pending = isToday && !status.alreadyClaimedToday && !status.weekLocked;
 
           return (
-            <div
+            <span
               key={day}
-              className={`flex min-w-0 flex-col items-center justify-between py-2 px-1 rounded-2xl border text-center transition-all duration-200 ${
+              title={t("memberPortal.checkin.dayReward", {
+                day,
+                amount: amount.toLocaleString(locale),
+              })}
+              className={`flex h-7 items-center justify-center rounded-lg text-[12px] font-semibold tabular-nums ${
                 claimed
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-xs"
-                  : status.weekLocked
-                  ? "bg-muted/40 border-border/20 opacity-50 grayscale"
-                  : isToday && !status.alreadyClaimedToday
-                  ? "bg-amber-500 text-white border-amber-400 shadow-sm scale-[1.03] ring-2 ring-amber-400/40"
-                  : isToday
-                  ? "bg-amber-500/15 border-amber-500/40 text-amber-600 dark:text-amber-400 font-bold"
-                  : "bg-background border-border/40 text-foreground/80 opacity-85"
-              }`}
+                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                  : pending
+                    ? "bg-amber-500 text-white"
+                    : isToday
+                      ? "bg-muted text-foreground ring-1 ring-inset ring-border"
+                      : "bg-muted text-muted-foreground"
+              } ${status.weekLocked && !claimed ? "opacity-50" : ""}`}
             >
-              <span className="text-[9px] font-extrabold uppercase tracking-tight opacity-75">
-                N{day}
-              </span>
-
-              <div className="my-1">
-                {claimed ? (
-                  <span className="material-symbols-outlined text-sm text-emerald-500">check_circle</span>
-                ) : status.weekLocked ? (
-                  <span className="material-symbols-outlined text-sm opacity-50">lock</span>
-                ) : isDay7 ? (
-                  <span className="material-symbols-outlined text-sm text-amber-400">card_giftcard</span>
-                ) : (
-                  <span className={`material-symbols-outlined text-sm ${isToday && !status.alreadyClaimedToday ? "text-white" : "text-amber-500"}`}>
-                    paid
-                  </span>
-                )}
-              </div>
-
-              <span
-                className={`text-[9px] font-mono font-black tracking-tight ${
-                  claimed
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : isToday && !status.alreadyClaimedToday
-                    ? "text-white"
-                    : "text-foreground"
-                }`}
-              >
-                +{amount}
-              </span>
-            </div>
+              {claimed ? (
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">check</span>
+              ) : day === 7 ? (
+                <span className="material-symbols-outlined text-[16px]" aria-hidden="true">card_giftcard</span>
+              ) : (
+                day
+              )}
+            </span>
           );
         })}
       </div>
 
-      {/* ── 3. MILESTONE BONUS PILLS ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-2 pt-1">
-        {[
-          { threshold: 14, bonus: 2100, awarded: status.milestone14Awarded, label: "Mốc 14 ngày" },
-          { threshold: 30, bonus: 4500, awarded: status.milestone30Awarded, label: "Mốc 30 ngày" }
-        ].map((m) => (
-          <div
-            key={m.threshold}
-            className={`flex items-center justify-between px-3 py-2 rounded-xl border text-[10px] font-semibold transition-all ${
-              m.awarded
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-xs"
-                : "bg-background/60 border-border/30 text-muted-foreground"
-            }`}
-          >
-            <span className="flex min-w-0 items-center gap-1 font-bold truncate">
-              <span className="material-symbols-outlined text-xs text-amber-500">
-                {m.awarded ? "verified" : "military_tech"}
-              </span>
-              <span>{m.label}</span>
-            </span>
-            <span className={`font-mono font-bold ${m.awarded ? "text-emerald-500" : "text-amber-500"}`}>
-              +{m.bonus.toLocaleString("vi-VN")}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* ── 4. CLAIM BUTTON ────────────────────────────────────────────────── */}
-      <div className="pt-2 border-t border-border/30 flex items-center justify-between gap-3">
-        <div className="text-left">
-          <span className="text-[10px] font-bold text-muted-foreground block">
-            {status.weekLocked ? "Tự động reset:" : "Trạng thái hôm nay:"}
-          </span>
-          <span
-            className={`text-xs font-bold block ${
-              status.weekLocked
-                ? "text-rose-500"
-                : status.alreadyClaimedToday
-                ? "text-emerald-500"
-                : "text-amber-500"
-            }`}
-          >
-            {status.weekLocked
-              ? "Mở lại vào thứ Hai"
-              : status.alreadyClaimedToday
-              ? "✓ Đã nhận quà hôm nay"
-              : "🔥 Sẵn sàng điểm danh"}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleClaim}
-          disabled={!status.canClaimToday || claiming}
-          className={`py-2.5 px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all shrink-0 ${
-            status.weekLocked
-              ? "bg-muted text-muted-foreground border border-border/40 cursor-not-allowed opacity-60"
-              : status.alreadyClaimedToday
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-not-allowed"
-              : "bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/20"
-          }`}
-        >
-          {claiming ? (
-            <span className="material-symbols-outlined text-sm animate-spin">sync</span>
-          ) : status.weekLocked ? (
-            <>
-              <span className="material-symbols-outlined text-sm">lock</span>
-              <span>Đã Khoá</span>
-            </>
-          ) : status.alreadyClaimedToday ? (
-            <>
-              <span className="material-symbols-outlined text-sm">check_circle</span>
-              <span>Đã Điểm Danh</span>
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-sm">touch_app</span>
-              <span>Điểm Danh Ngay</span>
-            </>
-          )}
-        </button>
-      </div>
+      {/* Nút nói luôn trạng thái hôm nay — không cần thêm một cột chữ bên cạnh. */}
+      <button
+        type="button"
+        onClick={handleClaim}
+        disabled={!status.canClaimToday || claiming}
+        className={`mt-3 min-h-[44px] w-full rounded-xl text-[15px] font-semibold transition-transform active:scale-[0.99] ${
+          status.canClaimToday && !claiming
+            ? "bg-amber-500 text-white"
+            : "bg-muted text-muted-foreground"
+        }`}
+      >
+        {claiming
+          ? t("memberPortal.checkin.claiming")
+          : status.weekLocked
+            ? t("memberPortal.checkin.reopensMonday")
+            : status.alreadyClaimedToday
+              ? t("memberPortal.checkin.alreadyClaimedToday")
+              : t("memberPortal.checkin.claimToday", {
+                amount: todayReward?.toLocaleString(locale),
+              })}
+      </button>
     </div>
   );
 }

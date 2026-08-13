@@ -13,9 +13,9 @@ const TOPICS = {
   mental: ['tâm lý', 'stress', 'lo âu', 'buồn', 'cảm xúc', 'động lực', 'áp lực', 'cô đơn', 'mệt mỏi'],
   science: ['vật lý', 'khoa học', 'vũ trụ', 'hoá', 'sinh học', 'bí ẩn', 'thí nghiệm'],
   news: ['tin tức', 'thời sự', 'mới nhất', 'sự kiện', 'ra mắt'],
-  cafe: ['cà phê', 'cafe', 'coffee', 'trà sữa', 'trà đá', 'discover_cafe'],
-  food: ['quán ăn', 'nhà hàng', 'ẩm thực', 'ăn vặt', 'món ngon', 'discover_food'],
-  play: ['vui chơi', 'giải trí', 'rạp phim', 'karaoke', 'công viên', 'arcade', 'discover_play'],
+  cafe: ['cà phê', 'cafe', 'coffee', 'trà sữa', 'trà đá'],
+  food: ['quán ăn', 'nhà hàng', 'ẩm thực', 'ăn vặt', 'món ngon'],
+  play: ['vui chơi', 'giải trí', 'rạp phim', 'karaoke', 'công viên', 'arcade'],
 };
 
 // Vietnamese label used to build the embedding text for each topic.

@@ -1,5 +1,10 @@
 export const MEMBER_MIN_AGE = 14;
 export const ADULT_AGE = 18;
+// Hugo Studio chọn ngưỡng bảo vệ dưới 16 tuổi để đồng bộ với khái niệm "trẻ
+// em" của pháp luật Việt Nam. Luật BVDLCN 2025 giao người đại diện thực hiện
+// quyền dữ liệu của trẻ em; sản phẩm giữ bước đồng ý này như một lớp bảo vệ cao
+// hơn trước khi tài khoản 14–15 tuổi tiếp tục xử lý dữ liệu.
+export const GUARDIAN_CONSENT_AGE = 16;
 
 /**
  * Tuổi tính theo đúng ngày sinh nhật: sinh 20/09/2008 thì đủ 18 vào 20/09/2026.

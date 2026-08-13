@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { extractBlocks, parseHtmlListing } from '../services/studentNewsService.js';
+import { SUPPORTED_LANGUAGES } from '../../src/i18n/languages.js';
+import {
+  articleBelongsToEdition, diversifyArticles, extractBlocks, parseHtmlListing,
+  parseThaiPbsPayload, PUBLISHER_FEEDS, PUBLISHER_JSON_FEEDS, PublisherJsonProvider,
+  resolveNewsEdition, resolveNewsPolicy, StudentNewsService,
+} from '../services/studentNewsService.js';
 
 const p = (text) => `<p>${text}</p>`;
 const long = (seed) => `${seed} `.repeat(12).trim(); // > 20 ký tự
@@ -129,5 +134,178 @@ describe('parseHtmlListing', () => {
   it('bỏ tiêu đề quá ngắn (nút điều hướng)', () => {
     const html = '<a href="/bai-viet/abc-12345678">Xem thêm</a>';
     expect(parseHtmlListing(html, config)).toEqual([]);
+  });
+});
+
+describe('parseThaiPbsPayload', () => {
+  const payload = {
+    sections: [
+      {
+        data: [
+          {
+            id: 509386,
+            title: 'ข่าวสิ่งแวดล้อมฉบับทดสอบ',
+            description: 'รายละเอียดข่าวภาษาไทย',
+            date: '2026-08-13T13:01:29+07:00',
+            url: '/news/content/509386',
+            category: 'สิ่งแวดล้อม',
+            categoryUrl: '/news/categories/environment',
+          },
+          {
+            id: 509381,
+            title: 'ข่าววิทยาศาสตร์ฉบับทดสอบ',
+            description: 'ข่าวเทคโนโลยีภาษาไทย',
+            date: '2026-08-13T11:30:00+07:00',
+            url: 'https://www.thaipbs.or.th/news/content/509381',
+            category: 'วิทยาศาสตร์เทคโนโลยี',
+            categoryUrl: '/news/categories/science-technology',
+          },
+        ],
+      },
+      { data: [{ id: 509386, title: 'ข่าวซ้ำ', url: '/news/content/509386' }] },
+    ],
+  };
+
+  it('normalizes official Thai PBS stories and removes duplicates', () => {
+    const articles = parseThaiPbsPayload(payload);
+    expect(articles).toHaveLength(2);
+    expect(articles[0]).toMatchObject({
+      source: 'Thai PBS',
+      category: 'community',
+      url: 'https://www.thaipbs.or.th/news/content/509386',
+    });
+    expect(articles[1].category).toBe('technology');
+  });
+
+  it('does not relabel unrelated stories as a requested category', () => {
+    expect(parseThaiPbsPayload(payload, 'technology')).toHaveLength(1);
+    expect(parseThaiPbsPayload(payload, 'academic')).toEqual([]);
+  });
+
+  it('fetches the configured Thai edition and stamps every article th-TH', async () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = async (url, options) => {
+      expect(url).toBe(PUBLISHER_JSON_FEEDS.th.url);
+      expect(options.headers['User-Agent']).toMatch(/^[\x20-\x7E]+$/);
+      return { ok: true, json: async () => payload };
+    };
+    try {
+      const articles = await new PublisherJsonProvider().fetchArticles({
+        language: 'th', category: 'all', country: 'TH', limit: 10,
+      });
+      expect(articles).toHaveLength(2);
+      expect(articles.every((article) => article.language === 'th' && article.country === 'TH')).toBe(true);
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+});
+
+// Toàn văn chỉ được dựng lại cho nguồn truy cập mở. Nếu ai đó lỡ tay mở lại cho
+// báo chí, bài test này gãy trước khi lên production.
+describe('readArticle — hàng rào bản quyền', () => {
+  const service = new StudentNewsService([]);
+  const noFetch = () => { throw new Error('readArticle KHÔNG được gọi mạng cho nguồn có bản quyền'); };
+
+  it('không tải trang với nguồn báo chí, chỉ trả cờ policy', async () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = noFetch;
+    try {
+      const content = await service.readArticle({ id: 'x1', source: 'VnExpress', url: 'https://vnexpress.net/a' });
+      expect(content).toMatchObject({
+        blocks: [],
+        readMinutes: 0,
+        available: false,
+        policy: { fullTextInPortal: false },
+      });
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+
+  it('vẫn cho phép nguồn truy cập mở (arXiv) đi tiếp tới bước tải', async () => {
+    const original = globalThis.fetch;
+    let called = false;
+    globalThis.fetch = async () => { called = true; return { ok: false }; };
+    try {
+      const content = await service.readArticle({ id: 'x2', source: 'arXiv', url: 'https://arxiv.org/abs/1' });
+      expect(called).toBe(true);
+      expect(content.policy).toBeUndefined();
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+});
+
+describe('country-aware news policy', () => {
+  it('uses the EU press-publication profile for France and Spain', () => {
+    expect(resolveNewsPolicy('FR').id).toBe('eu-press-publication');
+    expect(resolveNewsPolicy('ES').fullTextRule).toBe('explicit-license-only');
+  });
+
+  it('never treats an unknown jurisdiction as permission for full text', () => {
+    expect(resolveNewsPolicy('TH')).toMatchObject({
+      id: 'berne-source-first',
+      fullTextRule: 'explicit-license-only',
+    });
+  });
+
+  it('locks every supported language to its own country and market timezone', () => {
+    expect(SUPPORTED_LANGUAGES.map(({ code }) => code).sort())
+      .toEqual(['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', 'es', 'fr'].sort());
+    for (const { code } of SUPPORTED_LANGUAGES) {
+      const hasLocalSource = Boolean(PUBLISHER_FEEDS[code]?.all?.length || PUBLISHER_JSON_FEEDS[code]);
+      expect(hasLocalSource, `${code} must have local news sources`).toBe(true);
+    }
+    expect(Object.fromEntries(
+      ['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', 'es', 'fr']
+        .map((language) => [language, resolveNewsEdition(language).country]),
+    )).toEqual({
+      vi: 'VN', en: 'US', zh: 'CN', th: 'TH', ja: 'JP', ko: 'KR', id: 'ID', es: 'ES', fr: 'FR',
+    });
+    expect(resolveNewsEdition('ja').timeZone).toBe('Asia/Tokyo');
+  });
+
+  it('rejects publisher domains from another language edition', () => {
+    expect(articleBelongsToEdition({ url: 'https://vnexpress.net/tin-moi' }, 'vi')).toBe(true);
+    expect(articleBelongsToEdition({ url: 'https://vnexpress.net/tin-moi' }, 'en')).toBe(false);
+    expect(articleBelongsToEdition({ url: 'https://www.npr.org/story' }, 'en')).toBe(true);
+  });
+
+  it('ignores a conflicting network country and uses the selected language edition', async () => {
+    const provider = {
+      name: 'fixture',
+      isAvailable: () => true,
+      fetchArticles: async ({ language, country }) => [{
+        id: 'fixture', title: `${language}-${country}`, description: '', source: 'Fixture',
+        category: 'all', url: 'https://thailand.go.th/story', publishedAt: null,
+      }],
+    };
+    const service = new StudentNewsService([provider]);
+    const feed = await service.getFeed({ language: 'th', country: 'JP', timeZone: 'Asia/Tokyo' });
+    expect(feed.meta).toMatchObject({ language: 'th', country: 'TH', timeZone: 'Asia/Bangkok' });
+    expect(feed.items[0].title).toBe('th-TH');
+  });
+
+  it('uses the strict EU excerpt ceiling and never exposes full publisher text', async () => {
+    const provider = {
+      name: 'fixture',
+      isAvailable: () => true,
+      fetchArticles: async () => [{
+        title: 'Una noticia española de prueba', description: 'x'.repeat(800), source: 'RTVE',
+        category: 'all', url: 'https://www.rtve.es/noticias/prueba', publishedAt: null,
+      }],
+    };
+    const feed = await new StudentNewsService([provider]).getFeed({ language: 'es' });
+    expect(feed.items[0].description.length).toBeLessThanOrEqual(180);
+    expect(feed.items[0].contentAccess?.fullTextInPortal).not.toBe(true);
+  });
+
+  it('rotates publishers without dropping any stories', () => {
+    const input = [
+      { id: 'a1', source: 'A' }, { id: 'a2', source: 'A' }, { id: 'a3', source: 'A' },
+      { id: 'b1', source: 'B' }, { id: 'c1', source: 'C' },
+    ];
+    expect(diversifyArticles(input).map(({ id }) => id)).toEqual(['a1', 'b1', 'c1', 'a2', 'a3']);
   });
 });

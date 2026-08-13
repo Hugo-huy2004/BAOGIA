@@ -15,6 +15,36 @@ const GOOGLE_HELP = {
   gemini: "https://support.google.com/gemini/",
 };
 
+const CONTENT_STOP_WORDS = new Set([
+  "cach", "cho", "co", "cua", "de", "duoc", "gi", "khi", "la", "lam", "mot",
+  "nao", "nen", "nguoi", "nhung", "the", "thi", "trong", "tu", "va", "voi",
+]);
+
+const contentTokens = (value = "") => new Set(
+  value
+    .toLocaleLowerCase("vi-VN")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(" ")
+    .filter((token) => token.length > 2 && !CONTENT_STOP_WORDS.has(token)),
+);
+
+const findRelatedGuideIndex = (guide, question, explanation) => {
+  const assessmentTokens = contentTokens(`${question} ${explanation}`);
+  let best = { index: 0, score: -1 };
+  guide.forEach((item, index) => {
+    const guideTokens = contentTokens(`${item.heading} ${item.detail}`);
+    const score = [...assessmentTokens].reduce(
+      (total, token) => total + (guideTokens.has(token) ? 1 : 0),
+      0,
+    );
+    if (score > best.score) best = { index, score };
+  });
+  return best.index;
+};
+
 /**
  * Mọi lesson dùng cùng một hợp đồng dữ liệu để giao diện và bộ chấm không bị
  * thiếu phần. `guide`, `quiz`, `practice` được viết dạng tuple cho giáo trình
@@ -34,7 +64,15 @@ const defineLesson = ({
   practice,
   free = false,
 }) => {
-  const normalizedGuide = guide.map(([heading, detail]) => ({ heading, detail }));
+  const normalizedGuide = guide.map(([heading, detail], index) => ({
+    id: `${id}-action-${index + 1}`,
+    heading,
+    detail,
+    checkpoint: `Hoàn thành và kiểm tra: ${heading.toLocaleLowerCase("vi-VN")}.`,
+  }));
+  const quizGuideIndex = Number.isInteger(quiz[4])
+    ? quiz[4]
+    : findRelatedGuideIndex(normalizedGuide, quiz[0], quiz[3]);
   return {
     id,
     stage,
@@ -45,26 +83,46 @@ const defineLesson = ({
     availability,
     free,
     guide: normalizedGuide,
-    learn: normalizedGuide.slice(0, 3).map(
-      ({ heading }) => `Tự thực hiện được: ${heading.toLocaleLowerCase("vi-VN")}.`,
+    mission: summary,
+    deliverable: practice[0],
+    learn: normalizedGuide.map(
+      ({ heading }) => `Tự thực hiện và kiểm tra được: ${heading.toLocaleLowerCase("vi-VN")}.`,
     ),
     tip,
     video: {
       title: `${stage}: ${title}`,
-      scenes: normalizedGuide.slice(0, 3).map(({ heading }) => heading),
+      scenes: normalizedGuide.map(({ id: sceneId, heading, detail, checkpoint }, index) => ({
+        id: sceneId,
+        chapter: index + 1,
+        heading,
+        detail,
+        checkpoint,
+      })),
     },
     quiz: {
       question: quiz[0],
       options: quiz[1],
       correct: quiz[2],
       explanation: quiz[3],
+      guideIndex: quizGuideIndex,
+      guideHeading: normalizedGuide[quizGuideIndex].heading,
     },
     practice: {
       prompt: practice[0],
       placeholder: practice[1],
       keywords: practice[2],
       minimumKeywords: practice[3],
-      checklist: normalizedGuide.slice(-3).map(({ heading }) => heading),
+      checklist: normalizedGuide.map(({ heading, checkpoint }, index) => ({
+        id: `${id}-check-${index + 1}`,
+        guideIndex: index,
+        heading,
+        checkpoint,
+      })),
+    },
+    alignment: {
+      flow: ["Xem thao tác", "Hiểu từng bước", "Làm trên công cụ thật", "Trả lời và nộp"],
+      actionCount: normalizedGuide.length,
+      quizGuideIndex,
     },
   };
 };
@@ -86,7 +144,7 @@ const calendarSteps = [
       ["Kiểm tra thực tế", "Tạo một event thử ở ngày mai, mở lại và xác nhận giờ hiển thị đúng trên web lẫn điện thoại."],
     ],
     tip: "Calendar lưu thời điểm theo UTC rồi hiển thị theo múi giờ người xem; đừng cộng trừ giờ thủ công trong tiêu đề.",
-    quiz: ["Người được mời ở múi giờ khác sẽ thấy event thế nào?", ["Cùng con số giờ với người tạo", "Theo múi giờ của chính họ", "Luôn theo UTC"], 1, "Calendar tự hiển thị thời điểm theo múi giờ của từng người."],
+    quiz: ["Người được mời ở múi giờ khác sẽ thấy event thế nào?", ["Cùng con số giờ với người tạo", "Theo múi giờ của chính họ", "Luôn theo UTC"], 1, "Calendar tự hiển thị thời điểm theo múi giờ của từng người.", 1],
     practice: ["Ghi múi giờ chính, múi giờ phụ và giờ của một event thử.", "Asia/Ho_Chi_Minh · London · Event 09:00 VN = … UK", ["asia", "ho_chi_minh", "event", "giờ", "múi"], 3],
   }),
   C({
@@ -231,7 +289,7 @@ const docsSteps = [
       ["Kiểm thử cập nhật", "Thêm một heading mới, bấm Refresh trên mục lục và kiểm tra liên kết dẫn đúng vị trí."],
     ],
     tip: "Chữ to và in đậm không tự trở thành heading; outline và mục lục chỉ hiểu Paragraph styles.",
-    quiz: ["Mục lục Google Docs lấy cấu trúc từ đâu?", ["Các đoạn in đậm", "Title và Heading styles", "Comment"], 1, "Table of contents liên kết đến các title/heading."],
+    quiz: ["Mục lục Google Docs lấy cấu trúc từ đâu?", ["Các đoạn in đậm", "Title và Heading styles", "Comment"], 1, "Table of contents liên kết đến các title/heading.", 1],
     practice: ["Viết cây cấu trúc có ít nhất ba Heading 1 và hai Heading 2 rồi mô tả kết quả refresh mục lục.", "H1 Introduction… H2 Scope… TOC đã refresh…", ["heading 1", "heading 2", "mục lục", "refresh"], 3],
   }),
   D({
@@ -360,7 +418,7 @@ const sheetsSteps = [
       ["Kiểm tra view", "Tạo table filter view; xác nhận việc lọc/sort không làm thay đổi góc nhìn của cộng tác viên."],
     ],
     tip: "Table references như `DeptSales[Sales Amount]` tự mở rộng khi thêm/xóa dữ liệu và dễ đọc hơn range cứng.",
-    quiz: ["Table view có lợi ích gì khi cộng tác?", ["Mọi người bị ép cùng bộ lọc", "Có thể lọc mà không ảnh hưởng góc nhìn người khác", "Tự khóa toàn bộ sheet"], 1, "Mỗi view có cấu hình filter/sort riêng."],
+    quiz: ["Table view có lợi ích gì khi cộng tác?", ["Mọi người bị ép cùng bộ lọc", "Có thể lọc mà không ảnh hưởng góc nhìn người khác", "Tự khóa toàn bộ sheet"], 1, "Mỗi view có cấu hình filter/sort riêng.", 3],
     practice: ["Mô tả Table task tracker gồm tên table, bốn column types và một quy tắc reject input.", "Tasks: Due=Date, Status=Dropdown… reject Status ngoài danh sách…", ["table", "date", "dropdown", "reject", "status"], 4],
   }),
   S({
@@ -458,7 +516,7 @@ const geminiSteps = [
       ["Kiểm tra Activity", "Đọc Gemini Apps Privacy Hub và cài đặt activity/connected apps trước khi dùng dữ liệu công việc."],
     ],
     tip: "Ẩn tên chưa chắc đã ẩn danh; ngày, chức danh và ngữ cảnh vẫn có thể nhận diện một người.",
-    quiz: ["Cách đúng để dùng đầu ra Gemini trong công việc là gì?", ["Xuất bản ngay", "Xem như bản nháp và kiểm chứng", "Tin khi câu trả lời dài"], 1, "Mô hình có thể tạo thông tin sai dù văn phong tự tin."],
+    quiz: ["Cách đúng để dùng đầu ra Gemini trong công việc là gì?", ["Xuất bản ngay", "Xem như bản nháp và kiểm chứng", "Tin khi câu trả lời dài"], 1, "Mô hình có thể tạo thông tin sai dù văn phong tự tin.", 1],
     practice: ["Phân loại bốn ví dụ dữ liệu thành Có thể dùng, Cần ẩn danh hoặc Không đưa vào.", "Agenda công khai: Có thể… / Danh sách khách hàng: Không…", ["có thể", "ẩn danh", "không", "khách hàng"], 3],
   }),
   G({
@@ -522,13 +580,13 @@ const geminiSteps = [
     sourceUrl: "https://support.google.com/gemini/answer/15146780",
     availability: "Cần đăng nhập; tạo/chỉnh/xóa custom Gem trên Gemini web, sau đó có thể dùng ở web/mobile/Workspace side panel.",
     guide: [
-      ["Chọn tác vụ lặp", "Gem phù hợp với mục tiêu và quy tắc ổn định; không tạo Gem cho một việc duy nhất hoặc quy trình đổi hàng ngày."],
+      ["Mở Gems trên web và chọn tác vụ lặp", "Trên Gemini web, mở Explore Gems → New Gem. Chỉ chọn tác vụ có mục tiêu và quy tắc ổn định; không tạo Gem cho một việc duy nhất hoặc quy trình đổi hàng ngày."],
       ["Viết instruction", "Nêu nhiệm vụ, người dùng, input cần hỏi, workflow, output format, tiêu chí và các lỗi phải tránh."],
       ["Thêm Knowledge", "Chỉ thêm file được phép dùng, mô tả độ ưu tiên của nguồn và quy tắc khi knowledge không đủ."],
       ["Preview và test", "Chạy ca chuẩn, ca thiếu dữ liệu và ca có yêu cầu trái instruction; sửa rồi Save/Update."],
     ],
     tip: "Gems không dùng được với Gemini Live; khả dụng của một số tính năng có thể khác theo tài khoản.",
-    quiz: ["Nơi tạo và chỉnh custom Gem hiện nay là đâu?", ["Gemini web app", "Gemini Live", "Google Calendar"], 0, "Google cho phép dùng Gem trên nhiều bề mặt nhưng quản lý custom Gem trên web."],
+    quiz: ["Nơi tạo và chỉnh custom Gem hiện nay là đâu?", ["Gemini web app", "Gemini Live", "Google Calendar"], 0, "Google cho phép dùng Gem trên nhiều bề mặt nhưng quản lý custom Gem trên web.", 0],
     practice: ["Viết instruction cho Gem review báo cáo tuần, gồm input, workflow, output, rubric và lỗi tránh.", "Input: report… Workflow:… Output: Summary/Risks/Actions… Không bịa số…", ["input", "workflow", "output", "risks", "không"], 5],
   }),
   G({
@@ -571,7 +629,7 @@ const geminiSteps = [
       ["Phê duyệt và lưu dấu vết", "Đặt review trên Calendar, nhận approval của người chịu trách nhiệm và lưu nguồn, version cùng decision log."],
     ],
     tip: "AI rút ngắn quãng đường từ dữ liệu đến bản nháp; người phê duyệt vẫn chịu trách nhiệm với quyết định cuối.",
-    quiz: ["Ai chịu trách nhiệm cuối với tài liệu được Gemini hỗ trợ?", ["Gemini", "Người kiểm tra và phê duyệt", "File nguồn"], 1, "Trách nhiệm không chuyển sang mô hình AI."],
+    quiz: ["Ai chịu trách nhiệm cuối với tài liệu được Gemini hỗ trợ?", ["Gemini", "Người kiểm tra và phê duyệt", "File nguồn"], 1, "Trách nhiệm không chuyển sang mô hình AI.", 3],
     practice: ["Mô tả workflow tám bước có Sheets, Gemini, Docs, Calendar, checkpoint kiểm chứng và approval.", "1 Sheets clean… 2 Freeze… 3 Gemini draft… 4 Claim audit… 5 Docs… 6 Calendar review…", ["sheets", "gemini", "docs", "calendar", "audit", "approval"], 6],
   }),
 ];
@@ -650,6 +708,28 @@ export const HUGOSO_COURSES = {
 export const HUGOSO_ALL_STEPS = HUGOSO_COURSE_ORDER.flatMap(
   (courseId) => HUGOSO_COURSES[courseId].steps,
 );
+
+export const HUGOSO_CONTENT_AUDIT = (() => {
+  const lessons = HUGOSO_ALL_STEPS;
+  const checks = lessons.map((lesson) => {
+    const guideCount = lesson.guide.length;
+    const issues = [];
+    if (!lesson.sourceUrl?.startsWith("https://")) issues.push("missing-source");
+    if (guideCount < 4) issues.push("short-guide");
+    if (lesson.video.scenes.length !== guideCount) issues.push("video-guide-mismatch");
+    if (lesson.practice.checklist.length !== guideCount) issues.push("practice-guide-mismatch");
+    if (!lesson.quiz.guideHeading) issues.push("quiz-not-linked");
+    if (lesson.practice.minimumKeywords > lesson.practice.keywords.length) issues.push("invalid-threshold");
+    return { id: lesson.id, passed: issues.length === 0, issues };
+  });
+  const passed = checks.filter((item) => item.passed).length;
+  return {
+    total: checks.length,
+    passed,
+    percent: Math.round((passed / checks.length) * 100),
+    checks,
+  };
+})();
 
 export const getCourseProgress = (course, completedIds) => {
   const completed = course.steps.filter((step) => completedIds.has(`hugoso-${step.id}`)).length;

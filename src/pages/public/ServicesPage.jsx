@@ -7,6 +7,7 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { withUsdPrices } from "../../utils/priceFormatter";
+import { isVietnameseLanguage } from "../../i18n/languages";
 import WebMagnet from "../../components/ui/WebMagnet";
 import CodeHeroFilm from "../../components/public/CodeHeroFilm";
 import {
@@ -706,7 +707,7 @@ function DemoShowcaseSection({ compact = false }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeId, setActiveId] = useState("portfolio");
   const [device, setDevice] = useState("mobile"); // "desktop" | "tablet" | "mobile"
-  const language = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi";
+  const language = isVietnameseLanguage(i18n.resolvedLanguage || i18n.language) ? "vi" : "en";
   const copy = DEMO_LIBRARY_COPY[language];
   const active = DEMO_META.find((tpl) => tpl.id === activeId) || DEMO_META[0];
   const ActiveDemo = active.Demo;

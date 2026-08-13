@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../i18n/languages";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
@@ -26,7 +28,7 @@ function segmentPath(cx, cy, r, from, to) {
   return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
 }
 
-const formatJoy = (value) => value.toLocaleString("vi-VN");
+const formatJoy = (value, locale) => value.toLocaleString(locale);
 
 /**
  * Góc phải xoay để ô thứ `index` dừng dưới kim (12 giờ).
@@ -61,6 +63,7 @@ const buzz = (pattern) => {
  * khi JOY đã được cộng, nên không có cách nào "quay lại cho ra số khác".
  */
 export default function BirthdayWheel({ onClose, onAwarded }) {
+  const { t, i18n } = useTranslation();
   const [prizes, setPrizes] = useState(FALLBACK_PRIZES);
   const [phase, setPhase] = useState("loading"); // loading | ready | spinning | done
   const [angle, setAngle] = useState(0);
@@ -74,6 +77,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
     typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
   ).current;
   const spinMs = reduceMotion ? 0 : SPIN_MS;
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
 
   useEffect(() => {
     let alive = true;
@@ -117,7 +121,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
         credentials: "include",
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Chưa quay được, thử lại sau nhé.");
+      if (!response.ok) throw new Error(data.error || t("memberPortal.birthdayWheel.spinError"));
 
       const list = Array.isArray(data.prizes) && data.prizes.length ? data.prizes : prizes;
       if (list !== prizes) setPrizes(list);
@@ -148,15 +152,17 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
         <span className="mx-auto mb-5 block h-1.5 w-10 rounded-full bg-black/15 dark:bg-white/20 sm:hidden" aria-hidden="true" />
 
         <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[#8A8A8E]">
-          Quà tháng sinh nhật{tierLabel ? ` · ${tierLabel}` : ""}
+          {t("memberPortal.birthdayWheel.kicker")}{tierLabel ? ` · ${tierLabel}` : ""}
         </p>
         <h2 className="mt-1 text-[26px] font-bold leading-tight tracking-[-0.02em] text-[#1C1C1E] dark:text-white">
-          {phase === "done" ? "Chúc mừng!" : "Một lượt quay cho bạn"}
+          {phase === "done"
+            ? t("memberPortal.birthdayWheel.congratulations")
+            : t("memberPortal.birthdayWheel.title")}
         </h2>
         <p className="mx-auto mt-1.5 max-w-[17rem] text-[13px] leading-snug text-[#8A8A8E]">
           {phase === "done"
-            ? "JOY đã được cộng vào ví của bạn."
-            : "Mỗi năm một lượt, cơ hội bảy ô như nhau."}
+            ? t("memberPortal.birthdayWheel.addedToWallet")
+            : t("memberPortal.birthdayWheel.description")}
         </p>
 
         <div className="relative mx-auto mt-6 w-[300px] max-w-full">
@@ -173,7 +179,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
               transition: phase === "ready" || !spinMs ? "none" : `transform ${spinMs}ms cubic-bezier(0.13, 0.78, 0.16, 1)`,
             }}
             role="img"
-            aria-label={`Vòng quay ${prizes.length} ô phần thưởng JOY`}
+            aria-label={t("memberPortal.birthdayWheel.wheelAria", { count: prizes.length })}
           >
             <circle cx={wheel.cx} cy={wheel.cy} r={wheel.r + 5} fill="#FFFFFF" className="dark:fill-[#2C2C2E]" />
             {prizes.map((value, index) => {
@@ -196,7 +202,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
                     dominantBaseline="central"
                     transform={`rotate(${textAngle} ${tx} ${ty})`}
                   >
-                    {formatJoy(value)}
+                    {formatJoy(value, locale)}
                   </text>
                 </g>
               );
@@ -210,9 +216,9 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
 
         {phase === "done" && (
           <div className="ios-prize mt-6 rounded-[22px] bg-white px-5 py-4 dark:bg-[#2C2C2E]">
-            <p className="text-[13px] font-medium text-[#8A8A8E]">Bạn nhận được</p>
+            <p className="text-[13px] font-medium text-[#8A8A8E]">{t("memberPortal.birthdayWheel.youReceived")}</p>
             <p className="mt-0.5 text-[34px] font-bold leading-none tracking-[-0.03em] text-[#0A84FF]">
-              +{formatJoy(prize)}
+              +{formatJoy(prize, locale)}
               <span className="ml-1.5 text-[17px] font-semibold text-[#8A8A8E]">JOY</span>
             </p>
           </div>
@@ -224,7 +230,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
               <div className="flex items-center gap-3 rounded-[18px] bg-white px-4 py-3 dark:bg-[#2C2C2E]">
                 <span className="material-symbols-outlined text-[22px] text-[#30D158]" aria-hidden="true">event_available</span>
                 <p className="text-[15px] font-semibold text-[#1C1C1E] dark:text-white">
-                  +{reward.days} ngày duy trì tài khoản
+                  {t("memberPortal.birthdayWheel.accountDays", { count: reward.days })}
                 </p>
               </div>
             )}
@@ -236,7 +242,9 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
                 </div>
                 <p className="mt-1.5 font-mono text-[15px] font-bold tracking-wider text-[#0A84FF]">{voucher.code}</p>
                 <p className="mt-0.5 text-[12px] text-[#8A8A8E]">
-                  Dùng đến {new Date(voucher.expiresAt).toLocaleDateString("vi-VN")} · đưa mã này khi trao đổi dự án
+                  {t("memberPortal.birthdayWheel.voucherExpiry", {
+                    date: new Date(voucher.expiresAt).toLocaleDateString(locale),
+                  })}
                 </p>
               </div>
             ))}
@@ -251,7 +259,11 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
           disabled={phase === "spinning"}
           className="mt-6 min-h-[52px] w-full rounded-[16px] bg-[#0A84FF] text-[17px] font-semibold text-white transition-transform active:scale-[0.97] disabled:opacity-60"
         >
-          {phase === "spinning" ? "Đang quay…" : phase === "done" ? "Xong" : "Quay ngay"}
+          {phase === "spinning"
+            ? t("memberPortal.birthdayWheel.spinning")
+            : phase === "done"
+              ? t("memberPortal.birthdayWheel.done")
+              : t("memberPortal.birthdayWheel.spinNow")}
         </button>
 
         {phase !== "done" && (
@@ -261,7 +273,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
             disabled={phase === "spinning"}
             className="mt-2 min-h-11 w-full text-[15px] font-medium text-[#8A8A8E] transition-opacity active:opacity-60 disabled:opacity-40"
           >
-            Để sau
+            {t("memberPortal.birthdayWheel.later")}
           </button>
         )}
       </div>

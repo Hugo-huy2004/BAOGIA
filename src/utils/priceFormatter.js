@@ -1,8 +1,9 @@
 import { vndToUsdWithFee } from "../services/exchangeRateService";
+import { isVietnameseLanguage } from "../i18n/languages";
 
 // Format giá theo language
 export function formatPrice(vndPrice, language = "vi") {
-  if (language === "en") {
+  if (!isVietnameseLanguage(language)) {
     // Chuyển sang USD với phí VCB
     const usdPrice = vndToUsdWithFee(vndPrice);
     return `$${usdPrice.toFixed(2)}`;
@@ -33,7 +34,7 @@ export function usdPriceLabel(viPrice) {
 
 // Ghi đè price/oldPrice bằng giá USD quy đổi từ locale vi khi đang xem EN
 export function withUsdPrices(i18n, baseKey, data) {
-  if (!i18n.language?.startsWith("en")) return data;
+  if (isVietnameseLanguage(i18n.resolvedLanguage || i18n.language)) return data;
   const tVi = i18n.getFixedT("vi");
   const out = { ...data };
   for (const field of ["price", "oldPrice"]) {

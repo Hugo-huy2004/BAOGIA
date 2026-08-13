@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Share2,
   ShieldCheck,
+  Target,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -27,14 +28,123 @@ import { hugoCoderApi } from "../../../services/hugoCoderApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
 import "../../../styles/hugoCoderLearning.css";
+import "../study/study-course-ios17.css";
 
 const MemberIdeTab = lazy(() => import("../MemberIdeTab"));
 
 const TABS = [
   { id: "learning", labelKey: "hugoCoderLearning.tabs.learn", icon: BookOpenCheck },
   { id: "resources", labelKey: "hugoCoderLearning.tabs.resources", icon: Library },
+  { id: "quality", labelKey: "hugoCoderLearning.tabs.quality", icon: ShieldCheck },
   { id: "progress", labelKey: "hugoCoderLearning.tabs.progress", icon: BarChart3 },
 ];
+
+function percentage(part, total) {
+  return total > 0 ? Math.round((part / total) * 100) : 0;
+}
+
+function HugoStudioQuality({ courses, stages }) {
+  const { t } = useTranslation();
+  const quality = useMemo(() => {
+    const total = courses.length;
+    const withGoals = courses.filter((course) => course.overview?.outcomes?.length > 0).length;
+    const withPractice = courses.filter((course) => (
+      course.tasks?.length > 0
+      || Boolean(course.challenge)
+      || Boolean(course.practiceType)
+    )).length;
+    const withAssessment = courses.filter((course) => (
+      Boolean(course.verify)
+      || course.miniQuiz?.length > 0
+      || course.practiceType === "graduation_submission"
+    )).length;
+    return {
+      total,
+      goals: percentage(withGoals, total),
+      practice: percentage(withPractice, total),
+      assessment: percentage(withAssessment, total),
+    };
+  }, [courses]);
+
+  const metrics = [
+    { value: quality.goals, label: t("hugoCoderLearning.quality.metrics.goals"), icon: Target },
+    { value: quality.practice, label: t("hugoCoderLearning.quality.metrics.practice"), icon: BookOpenCheck },
+    { value: quality.assessment, label: t("hugoCoderLearning.quality.metrics.assessment"), icon: ShieldCheck },
+  ];
+
+  return (
+    <main className="coder-quality-page">
+      <section className="coder-quality-hero">
+        <span className="coder-studio-seal coder-studio-seal-light">
+          <ShieldCheck aria-hidden="true" />
+          {t("hugoCoderLearning.studioSeal.prefix")}
+          <strong>Hugo Studio</strong>
+        </span>
+        <p>{t("hugoCoderLearning.quality.eyebrow")}</p>
+        <h1>{t("hugoCoderLearning.quality.title")}</h1>
+        <span>{t("hugoCoderLearning.quality.description")}</span>
+      </section>
+
+      <section className="coder-quality-metrics" aria-label={t("hugoCoderLearning.quality.metricsLabel")}>
+        {metrics.map(({ value, label, icon: Icon }) => (
+          <article key={label}>
+            <Icon aria-hidden="true" />
+            <strong>{value}%</strong>
+            <span>{label}</span>
+          </article>
+        ))}
+      </section>
+
+      <section className="coder-quality-standard">
+        <div className="coder-quality-standard-heading">
+          <span><ShieldCheck aria-hidden="true" /></span>
+          <div>
+            <small>{t("hugoCoderLearning.quality.standardEyebrow")}</small>
+            <h2>{t("hugoCoderLearning.quality.standardTitle")}</h2>
+          </div>
+        </div>
+        <div className="coder-quality-points">
+          {["goal", "sync", "feedback", "evidence"].map((key, index) => (
+            <article key={key}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <strong>{t(`hugoCoderLearning.quality.points.${key}.title`)}</strong>
+                <p>{t(`hugoCoderLearning.quality.points.${key}.description`)}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="coder-quality-curriculum">
+        <div>
+          <small>{t("hugoCoderLearning.quality.curriculumEyebrow")}</small>
+          <h2>{t("hugoCoderLearning.quality.curriculumTitle")}</h2>
+        </div>
+        <div className="coder-quality-stage-grid">
+          {stages.map((stage) => {
+            const stageCourses = courses.slice(stage.from, stage.to);
+            return (
+              <article key={stage.id}>
+                <span>{stage.phaseNumber}</span>
+                <div>
+                  <strong>{stage.title.replace(/^Chặng \d+:\s*/, "")}</strong>
+                  <small>{stageCourses.length} {t("hugoCoderLearning.stats.lessons").toLowerCase()}</small>
+                </div>
+                <ShieldCheck aria-hidden="true" />
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <p className="coder-quality-note">
+        <ShieldCheck aria-hidden="true" />
+        {t("hugoCoderLearning.quality.note")}
+      </p>
+    </main>
+  );
+}
 
 // Thẻ skeleton — dùng khi đang tải HOẶC chưa có học liệu nào (giữ layout không trống trải)
 function ResourceSkeleton() {
@@ -232,7 +342,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
 
   const payMaintenance = async () => {
     const ok = await notify.confirm({
-      title: "Gia hạn bảo trì HugoCoder",
+      title: "Gia hạn lộ trình Phát triển Web",
       message: "Dùng 50 JOY (+10% phí sáng tạo) để gia hạn 30 ngày quyền truy cập học tập?",
       confirmText: "Gia hạn 50 JOY"
     });
@@ -282,7 +392,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
           <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-widest text-white/70">Danh hiệu hiện tại</p>
             <h3 className="text-lg font-black leading-tight truncate">{rank}</h3>
-            <p className="text-[11px] text-white/80 mt-0.5">{completed.length}/100 bài • {earnedCount}/6 chặng đạt chứng chỉ</p>
+            <p className="text-[11px] text-white/80 mt-0.5">{completed.length}/100 bài • {earnedCount}/6 chặng đạt giấy chứng nhận</p>
           </div>
         </div>
       </section>
@@ -318,7 +428,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
       <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
         <h3 className="text-[13px] font-black text-foreground flex items-center gap-2">
           <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><Award className="w-3.5 h-3.5 text-foreground" /></span>
-          Chứng chỉ của tôi
+          Giấy chứng nhận của tôi
         </h3>
         <div className="space-y-2">
           {stages.map((stage) => {
@@ -409,7 +519,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
 // ====== Vỏ 4 tab thống nhất của HugoCoder ======
 // Shell fullscreen DUY NHẤT: header + tab bar dùng chung cho cả 4 tab.
 // Gate JOY một lần ở đây; MemberIdeTab/MobileGuidebook chạy embedded (không tự bọc shell).
-export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId }) {
+export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", unifiedHome = false }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState("learning");
@@ -455,14 +565,18 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
   };
 
   const exitLesson = () => {
+    if (unifiedHome) {
+      onBack?.();
+      return;
+    }
     setLearningView("journey");
     setSelectedLessonId(null);
-    navigate("/member/utilities/ide", { replace: true });
+    navigate(basePath, { replace: true });
   };
 
   const selectTab = (nextTab) => {
     setTab(nextTab);
-    if (nextTab === "learning") setLearningView("journey");
+    if (nextTab === "learning") setLearningView(unifiedHome ? "lesson" : "journey");
   };
 
   return (
@@ -471,8 +585,8 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
       featureKey="hugoCoder"
       priceJoy={1500}
       icon="terminal"
-      title="Trao đổi JOY để mở khóa HugoCoder"
-      description="Học 100 bài lập trình web, xem video, đọc tài liệu học thuật và nhận chứng chỉ."
+      title="Trao đổi JOY để mở khóa bộ Phát triển Web"
+      description="Học 100 bài theo 6 phần từ nền tảng đến DevOps, có thực hành, đánh giá và sản phẩm đầu ra."
       onBioUpdate={onBioUpdate}
       onBack={onBack}
       className="max-w-lg mx-auto mt-10"
@@ -484,21 +598,21 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
               onClick={learningView === "lesson" && tab === "learning" ? exitLesson : onBack}
               className="coder-hub-back"
               aria-label={
-                learningView === "lesson" && tab === "learning"
+                !unifiedHome && learningView === "lesson" && tab === "learning"
                   ? t("hugoCoderLearning.lesson.path")
                   : t("hugoCoderLearning.back")
               }
             >
               <ChevronLeft />
               <span>
-                {learningView === "lesson" && tab === "learning"
+                {!unifiedHome && learningView === "lesson" && tab === "learning"
                   ? t("hugoCoderLearning.lesson.path")
                   : t("hugoCoderLearning.back")}
               </span>
             </button>
             <div className="coder-hub-brand">
               <span><Braces /></span>
-              <h2>HugoCoder</h2>
+              <h2>Study with Hugo</h2>
             </div>
             <div className="coder-hub-balance" aria-label={t("hugoCoderLearning.joyBalance")}>
               <Coins />
@@ -510,7 +624,7 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
         </header>
 
         <div className="flex-1 min-h-0">
-          {tab === "learning" && learningView === "journey" && (
+          {!unifiedHome && tab === "learning" && learningView === "journey" && (
             <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
               <CoderLearningJourney
                 courses={courses}
@@ -538,6 +652,11 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
               <div className="max-w-3xl mx-auto px-4 py-5">
                 <LearningResources stages={stages} />
               </div>
+            </div>
+          )}
+          {tab === "quality" && (
+            <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
+              <HugoStudioQuality courses={courses} stages={stages} />
             </div>
           )}
           {tab === "progress" && (

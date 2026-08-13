@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+import { localeForLanguage } from '../../../i18n/languages';
 
 // Each category gets its own accent (icon + left bar), not just a generic
 // success/warning/info/error tint — makes the list scannable at a glance
@@ -16,32 +18,34 @@ const CATEGORY = {
 };
 const FALLBACK = CATEGORY.system;
 
-function timeAgo(iso) {
+function timeAgo(iso, locale, t) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return 'vừa xong';
-  if (m < 60) return `${m} phút trước`;
+  if (m < 1) return t('memberPortal.accountHub.notificationCopy.justNow');
+  if (m < 60) return t('memberPortal.accountHub.notificationCopy.minutesAgo', { count: m });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} giờ trước`;
-  return new Date(iso).toLocaleDateString('vi-VN');
+  if (h < 24) return t('memberPortal.accountHub.notificationCopy.hoursAgo', { count: h });
+  return new Date(iso).toLocaleDateString(locale);
 }
 
 // Buckets items into "Hôm nay / Hôm qua / Cũ hơn" sections so a long list
 // reads like a real notification center instead of one undifferentiated feed.
-function groupByDay(items) {
+function groupByDay(items, labels) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
-  const groups = { 'Hôm nay': [], 'Hôm qua': [], 'Cũ hơn': [] };
+  const groups = { [labels.today]: [], [labels.yesterday]: [], [labels.earlier]: [] };
   for (const n of items) {
     const d = new Date(n.createdAt); d.setHours(0, 0, 0, 0);
-    if (d.getTime() === today.getTime()) groups['Hôm nay'].push(n);
-    else if (d.getTime() === yesterday.getTime()) groups['Hôm qua'].push(n);
-    else groups['Cũ hơn'].push(n);
+    if (d.getTime() === today.getTime()) groups[labels.today].push(n);
+    else if (d.getTime() === yesterday.getTime()) groups[labels.yesterday].push(n);
+    else groups[labels.earlier].push(n);
   }
   return Object.entries(groups).filter(([, list]) => list.length > 0);
 }
 
 function NotificationItem({ n, onMarkRead, onDismiss }) {
+  const { t, i18n } = useTranslation();
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const cfg = CATEGORY[n.category] || FALLBACK;
   return (
     <div
@@ -55,7 +59,7 @@ function NotificationItem({ n, onMarkRead, onDismiss }) {
       <div className="flex-1 min-w-0">
         <p className={`text-[11px] font-bold leading-snug ${n.read ? 'text-muted-foreground' : 'text-foreground'}`}>{n.title}</p>
         {n.message && <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>}
-        <p className="text-[9px] text-muted-foreground mt-1 font-mono">{timeAgo(n.createdAt)}</p>
+        <p className="text-[9px] text-muted-foreground mt-1 font-mono">{timeAgo(n.createdAt, locale, t)}</p>
       </div>
       <div className="flex items-center gap-1 shrink-0 mt-0.5">
         {!n.read && (
@@ -63,8 +67,8 @@ function NotificationItem({ n, onMarkRead, onDismiss }) {
             type="button"
             onClick={(e) => { e.stopPropagation(); onMarkRead(n._id); }}
             className="text-primary hover:bg-primary/10 rounded-full p-1 transition-colors active:scale-90"
-            title="Đánh dấu đã đọc"
-            aria-label="Đánh dấu đã đọc"
+            title={t('memberPortal.accountHub.notificationCopy.markRead')}
+            aria-label={t('memberPortal.accountHub.notificationCopy.markRead')}
           >
             <span className="material-symbols-outlined text-sm font-bold">done_all</span>
           </button>
@@ -73,8 +77,8 @@ function NotificationItem({ n, onMarkRead, onDismiss }) {
           type="button"
           onClick={(e) => { e.stopPropagation(); onDismiss(n._id); }}
           className="text-muted-foreground hover:text-destructive transition-colors shrink-0 p-1 active:scale-90"
-          title="Xóa"
-          aria-label="Xóa"
+          title={t('memberPortal.accountHub.notificationCopy.dismiss')}
+          aria-label={t('memberPortal.accountHub.notificationCopy.dismiss')}
         >
           <span className="material-symbols-outlined text-sm">close</span>
         </button>
@@ -84,6 +88,7 @@ function NotificationItem({ n, onMarkRead, onDismiss }) {
 }
 
 export default function NotificationBell({ notifications, unreadCount, onMarkRead, onMarkAllRead, onDismiss, onOpen }) {
+  const { t } = useTranslation();
   const [open, setOpen]       = useState(false);
   const [filter, setFilter]   = useState('all');
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
@@ -115,14 +120,19 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
   };
 
   const visible = filter === 'unread' ? notifications.filter(n => !n.read) : notifications;
-  const grouped = useMemo(() => groupByDay(visible), [visible]);
+  const dayLabels = useMemo(() => ({
+    today: t('memberPortal.notificationCenter.days.today'),
+    yesterday: t('memberPortal.notificationCenter.days.yesterday'),
+    earlier: t('memberPortal.notificationCenter.days.earlier'),
+  }), [t]);
+  const grouped = useMemo(() => groupByDay(visible, dayLabels), [visible, dayLabels]);
 
   const panelContent = (
     <>
       <div className="px-4 py-3 border-b border-border space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-black uppercase tracking-wider text-foreground">Thông báo</span>
+            <span className="text-xs font-black uppercase tracking-wider text-foreground">{t('memberPortal.accountHub.notificationCopy.title')}</span>
             {unreadCount > 0 && (
               <span className="px-1.5 py-0.5 bg-destructive text-white rounded-full text-[9px] font-black">{unreadCount}</span>
             )}
@@ -130,7 +140,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
           <div className="flex items-center gap-3">
             {unreadCount > 0 && (
               <button type="button" onClick={onMarkAllRead} className="text-[10px] font-bold text-primary hover:underline">
-                Đọc tất cả
+                {t('memberPortal.accountHub.notificationCopy.readAll')}
               </button>
             )}
             {isMobile && (
@@ -141,7 +151,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
           </div>
         </div>
         <div className="flex gap-1.5 p-0.5 bg-muted rounded-lg w-fit">
-          {[['all', 'Tất cả'], ['unread', 'Chưa đọc']].map(([id, label]) => (
+          {[['all', t('memberPortal.accountHub.notificationCopy.all')], ['unread', t('memberPortal.accountHub.notificationCopy.unread')]].map(([id, label]) => (
             <button
               key={id}
               type="button"
@@ -158,7 +168,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
         {grouped.length === 0 ? (
           <div className="py-12 text-center space-y-2">
             <span className="material-symbols-outlined text-4xl text-muted-foreground/40 block">notifications_off</span>
-            <p className="text-xs text-muted-foreground font-semibold">{filter === 'unread' ? 'Không có thông báo chưa đọc' : 'Không có thông báo nào'}</p>
+            <p className="text-xs text-muted-foreground font-semibold">{filter === 'unread' ? t('memberPortal.accountHub.notificationCopy.noUnread') : t('memberPortal.accountHub.notificationCopy.empty')}</p>
           </div>
         ) : (
           grouped.map(([label, items]) => (
@@ -174,7 +184,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
 
       {notifications.length > 0 && (
         <div className="px-4 py-2.5 border-t border-border shrink-0">
-          <p className="text-[9px] text-muted-foreground text-center font-semibold">Thông báo tự xóa sau 90 ngày</p>
+          <p className="text-[9px] text-muted-foreground text-center font-semibold">{t('memberPortal.accountHub.notificationCopy.retention')}</p>
         </div>
       )}
     </>
@@ -198,7 +208,7 @@ export default function NotificationBell({ notifications, unreadCount, onMarkRea
           type="button"
           onClick={toggle}
           className="relative w-9 h-9 rounded-full bg-muted border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/70 active:scale-95 transition-all overflow-visible"
-          aria-label="Thông báo"
+          aria-label={t('memberPortal.accountHub.notificationCopy.title')}
         >
           <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: unreadCount > 0 ? "'FILL' 1" : "'FILL' 0" }}>
             notifications

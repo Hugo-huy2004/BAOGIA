@@ -20,5 +20,9 @@ export function useMemberBootstrap(email, enabled = true) {
     initialData: cached || undefined,
     // Local data paints immediately but is always revalidated on mount.
     initialDataUpdatedAt: cached ? 0 : undefined,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }

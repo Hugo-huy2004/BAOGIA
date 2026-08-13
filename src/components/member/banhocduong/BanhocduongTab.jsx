@@ -14,6 +14,7 @@ import dataApi from "../../../services/dataApi";
 import AIBot from "../../../services/classes/CompanionBot/AIBot";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../../i18n/languages";
 import { useCompanionSessionTimer } from "../../../hooks/useCompanionSessionTimer";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 import { notify } from "../../../lib/notify";
@@ -183,7 +184,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
   const shortenedDays   = Math.floor(qualifiedCount * 0.6);
   const effectiveDur    = Math.max(1, duration - shortenedDays);
   const progressPercent = Math.min(100, Math.round((currentDay / duration) * 100) + qualifiedCount * 2);
-  const startStr        = startDate ? new Date(startDate).toLocaleDateString(i18n.language.startsWith('en') ? "en-US" : "vi-VN") : t("companion.tab.today", "Hôm nay");
+  const startStr        = startDate ? new Date(startDate).toLocaleDateString(localeForLanguage(i18n.resolvedLanguage || i18n.language)) : t("companion.tab.today");
 
   const handleEnablePush = async () => {
     if (!webPushHelper.isSupported()) return;
@@ -649,7 +650,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
           the only app bar shown in that mode. Always visible on desktop. */}
       <div className={`psy-app-header relative z-20 items-center justify-between gap-3 ${effectiveSubTab === "chat" ? "hidden md:flex" : "flex"}`}>
         <div className="psy-app-brand">
-          <button type="button" onClick={onBack} aria-label={t("common.back", "Quay lại")}>
+          <button type="button" onClick={onBack} aria-label={t("utilities.library.back", "Quay lại")}>
             <ChevronLeft />
           </button>
           <span className="psy-app-icon"><BrainCircuit /></span>

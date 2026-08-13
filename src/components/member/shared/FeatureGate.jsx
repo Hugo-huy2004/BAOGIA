@@ -9,7 +9,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 // Reusable monthly-subscription paywall. Wraps gated content; renders a
 // "trao đổi JOY" unlock card instead when the subscription isn't active.
 // Used by MemberIdeTab (whole tab), MemberRadioTab (whole tab), and
-// MemberAuraTab (Lofi + Theme Shop section only — Pomodoro stays outside).
+// MemberAuraTab (Lofi section only — Pomodoro and Account themes stay outside).
 export default function FeatureGate({ bio, featureKey, priceJoy, icon, title, description, onBioUpdate, onBack, className = "", children }) {
   const { active } = useFeatureGate(bio, featureKey);
   const [showInvoice, setShowInvoice] = useState(false);

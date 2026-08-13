@@ -102,7 +102,7 @@ export function getStageBenefits(stageId) {
   if (examCount > 0) {
     benefits.push(`${examCount} bài kiểm tra chấm tại máy chủ — MỖI BÀI 1 lượt thi trong gói (thi lại 250 JOY/lượt)`);
   }
-  benefits.push("Chứng chỉ chặng công khai — link chia sẻ, xác thực trực tuyến, in/lưu PDF");
+  benefits.push("Giấy chứng nhận chặng công khai — link chia sẻ, xác thực trực tuyến, in/lưu PDF");
   if ([3, 4, 5].includes(stage.phaseNumber)) {
     benefits.push("Thưởng hoàn thành chặng +800 JOY");
   }

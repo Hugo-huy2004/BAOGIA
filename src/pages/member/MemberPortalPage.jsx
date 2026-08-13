@@ -4,7 +4,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getMemberSession, logoutAuth } from "../../services/authSession";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import memberService from "../../services/classes/MemberService";
-import dataApi from "../../services/dataApi";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useHealingJourney } from "../../hooks/useHealingJourney";
 import { useTourStore } from "../../stores/tourStore";
@@ -17,6 +16,7 @@ import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import WeatherLayer from "../../components/weather/WeatherLayer";
 import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
+import { isAuraThemeFree, resolveActivePortalTheme } from "../../data/auraThemes";
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { useQueryClient } from "@tanstack/react-query";
 import { memberBootstrapKey, useMemberBootstrap } from "../../hooks/useMemberBootstrap";
@@ -27,6 +27,14 @@ import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
+import { setPortalTheme as syncPortalTheme } from "../../services/portalThemeApi";
+import {
+  clearPendingPortalThemeSync,
+  getPendingPortalThemeSync,
+  getPortalThemePreference,
+  setPendingPortalThemeSync,
+  setPortalThemePreference,
+} from "../../utils/portalThemePreference";
 import { DashboardSkeleton } from "../../components/ui/SkeletonLayouts";
 import "../../styles/memberPortal27.css";
 // Maps a raw Bio document onto the editable formData shape — pulled out so
@@ -117,8 +125,6 @@ const AchievementsSubTab = React.lazy(() => import("../../components/member/Achi
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
 const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
-const MemberJoyTab       = React.lazy(() => import("../../components/member/MemberJoyTab"));
-const DiscoveryMap       = React.lazy(() => import("../../components/member/DiscoveryMap"));
 const MemberSettingsTab  = React.lazy(() => import("../../components/member/MemberSettingsTab"));
 const MemberTodayTab     = React.lazy(() => import("../../components/member/MemberTodayTab"));
 const TodayArticleReader = React.lazy(() => import("../../components/member/TodayArticleReader"));
@@ -147,9 +153,18 @@ function MemberPortalPage() {
   // Ví JOY mở modal này ở ba chế độ khác nhau (gửi / mã của tôi / quét).
   // Chỉ nhận chuỗi: nhiều nút truyền thẳng event handler vào đây.
   const [particleMode, setParticleMode] = useState("search");
+  const [weatherBackgroundOn, setWeatherBackgroundOn] = useState(() => isWeatherBgEnabled());
   const openParticleModal = useCallback((mode) => {
     setParticleMode(typeof mode === "string" ? mode : "search");
     setParticleOpen(true);
+  }, []);
+
+  useEffect(() => {
+    const syncWeatherBackground = (event) => {
+      setWeatherBackgroundOn(event.detail?.enabled ?? isWeatherBgEnabled());
+    };
+    window.addEventListener("hugo:weather-bg-changed", syncWeatherBackground);
+    return () => window.removeEventListener("hugo:weather-bg-changed", syncWeatherBackground);
   }, []);
   const fetchJoyBalance = useJoyStore(s => s.fetchBalance);
   const hydrateWallet = useJoyStore(s => s.hydrateWallet);
@@ -198,8 +213,8 @@ function MemberPortalPage() {
 
   const activeTab = tab || (isGuestMode ? "apps" : "today");
   const portalArea = useMemo(() => {
-    if (activeTab === "today" || activeTab === "joy") return "today";
-    if (["apps", "utilities", "map", "partner"].includes(activeTab)) return "apps";
+    if (activeTab === "today") return "today";
+    if (["apps", "utilities", "partner"].includes(activeTab)) return "apps";
     if (["activity", "history"].includes(activeTab)) return "activity";
     return "account";
   }, [activeTab]);
@@ -210,17 +225,20 @@ function MemberPortalPage() {
   // ── Utilities navigation — synced to the URL so a page refresh keeps the
   // member on the exact same utility/sub-tab instead of bouncing them back to
   // the utilities dashboard (e.g. /member/utilities/psychology/therapy). ──────
-  const utilitySelection = activeTab === "utilities" ? (subTab || null) : null;
+  const retiredUtility = activeTab === "map" || (
+    activeTab === "utilities" && ["deco", "hugoskin", "map"].includes(subTab)
+  );
+  const utilitySelection = activeTab === "utilities" && !retiredUtility ? (subTab || null) : null;
   const psychologySubTabFromUrl = activeTab === "utilities" && subTab === "psychology" ? (psychTab || "chat") : "chat";
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   const handleSelectUtility = (utilityId) => {
-    if (utilityId === "map") {
-      navigate("/member/map");
-      return;
-    }
     navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
   };
+
+  useEffect(() => {
+    if (retiredUtility) navigate("/member/apps", { replace: true });
+  }, [retiredUtility, navigate]);
   const handleSelectPsychologySubTab = (subTabId) => {
     navigate(`/member/utilities/psychology/${subTabId}`);
   };
@@ -228,7 +246,7 @@ function MemberPortalPage() {
   const { notifications, unreadCount: loadedUnreadCount, toast, setToast,
     showToast, sendNotification, markRead, markAllRead, dismiss, refresh: refreshNotifications,
   } = useNotifications(
-    memberSession?.email || null,
+    bootstrapData ? (memberSession?.email || null) : null,
     bootstrapData?.notifications?.recent,
     bootstrapData?.notifications?.unreadCount,
   );
@@ -370,19 +388,38 @@ function MemberPortalPage() {
         const res = { bio: bootstrapData.bio };
         if (res?.bio) {
           const b = res.bio;
+          const themeSubject = b._id || memberSession.email;
+          const portalThemeApiSupported = Object.prototype.hasOwnProperty.call(b, 'activePortalTheme');
+          const localPortalTheme = getPortalThemePreference(themeSubject);
+          let pendingPortalTheme = getPendingPortalThemeSync(themeSubject);
+          b.__portalThemeApiSupported = portalThemeApiSupported;
+          if (localPortalTheme) {
+            b.activePortalTheme = localPortalTheme;
+            b.activeAuraTheme = localPortalTheme;
+          }
           
           // Theme rental expiration validation
-          if (b.activeAuraTheme && b.activeAuraTheme !== 'default') {
-            const themeRecord = b.rentedThemes?.find(t => t.themeId === b.activeAuraTheme);
+          const savedPortalTheme = resolveActivePortalTheme(b);
+          if (!isAuraThemeFree(savedPortalTheme)) {
+            const themeRecord = b.rentedThemes?.find(t => t.themeId === savedPortalTheme);
             if (!themeRecord || new Date(themeRecord.expiresAt).getTime() <= Date.now()) {
+              b.activePortalTheme = 'default';
               b.activeAuraTheme = 'default';
-              const apiBase = import.meta.env.VITE_API_URL || '/api';
-              fetch(`${apiBase}/joy/set-theme`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: b.email, themeId: 'default' })
-              }).catch(console.error);
+              setPortalThemePreference(themeSubject, 'default');
+              if (portalThemeApiSupported) {
+                pendingPortalTheme = 'default';
+                setPendingPortalThemeSync(themeSubject, 'default');
+              }
             }
+          }
+
+          // A failed cosmetic update remains local and is retried once during
+          // the next authenticated bootstrap. The request helper never rejects,
+          // so an unavailable API cannot create another console error loop.
+          if (portalThemeApiSupported && pendingPortalTheme === resolveActivePortalTheme(b)) {
+            void syncPortalTheme(pendingPortalTheme).then((result) => {
+              if (result.ok) clearPendingPortalThemeSync(themeSubject);
+            });
           }
           
           setBio(b);
@@ -417,21 +454,6 @@ function MemberPortalPage() {
             }
           }
           setFormData(bioToFormData(b, memberSession.displayName, emptyTheme));
-          // Fire-and-forget — Companion/banhocduong history only seeds a localStorage
-          // cache for a separate utility tab, it must not block the portal's own render.
-          dataApi.getCompanionHistory(memberSession.email).then(comp => {
-            if (!comp) return;
-            healing.setHistoryLogs(comp.historyLogs || []);
-            if (comp.healingActive && comp.healingStartDate) {
-              const diffDays = Math.floor((Date.now() - new Date(comp.healingStartDate).getTime()) / 86_400_000) + 1;
-              healing.setState({ active: comp.healingActive, day: diffDays, duration: comp.healingDuration, isExpired: diffDays > comp.healingDuration });
-            }
-            ['mode','duration','start_date','last_checkin_date','last_test_date','chat_distress_count'].forEach(k => {
-              const val = { mode: comp.healingActive?'active':'', duration: comp.healingDuration, start_date: comp.healingStartDate||'', last_checkin_date: comp.lastCheckinDate||'', last_test_date: comp.lastTestDate||'', chat_distress_count: comp.chatDistressCount||0 }[k];
-              localStorage.setItem(`banhocduong_${k}`, String(val));
-            });
-            localStorage.setItem("banhocduong_history", JSON.stringify(comp.historyLogs||[]));
-          }).catch(() => {});
         }
       } catch (err) { showToast(t("memberPortal.toast.loadError"), "error"); }
       finally { setLoading(false); }
@@ -439,15 +461,17 @@ function MemberPortalPage() {
     load();
   }, [memberSession?.email, isGuestMode, bootstrapData, bootstrapLoading, bootstrapError]); // eslint-disable-line
 
-  // Verification polling
+  // Tối đa hai lượt kiểm tra cho hồ sơ đang chờ, thay vì gọi máy chủ mỗi 5 giây.
   useEffect(() => {
     if (!bio || bio.status !== 'pending' || !bio.verificationRequest?.submitted || isGuestMode || !memberSession?.email) return;
-    const interval = setInterval(async () => {
+    let stopped = false;
+    const checkVerification = async () => {
       try {
         const res = await memberService.getMemberBio(memberSession.email, memberSession.displayName, memberSession.avatarUrl);
-        if (res?.bio) {
+        if (!stopped && res?.bio) {
           const b = res.bio;
           if (b.status === 'active' || b.status === 'rejected') {
+            stopped = true;
             setBio(b);
             if (b.status === 'active') {
               setFormData(prev => ({ ...prev, ...b, theme: { ...prev.theme, ...b.theme } }));
@@ -459,8 +483,12 @@ function MemberPortalPage() {
           }
         }
       } catch { /* ignore */ }
-    }, 5000);
-    return () => clearInterval(interval);
+    };
+    const timers = [15_000, 45_000].map((delay) => setTimeout(checkVerification, delay));
+    return () => {
+      stopped = true;
+      timers.forEach(clearTimeout);
+    };
   }, [bio?.status, bio?.verificationRequest?.submitted, isGuestMode, memberSession]); // eslint-disable-line
 
   // Preview iframe sync
@@ -679,11 +707,14 @@ function MemberPortalPage() {
       handleRemoveAvatar={handleRemoveAvatar}
       handleSave={handleSave}
       isGuestMode={isGuestMode}
+      initialHasPin={bootstrapData?.wallet?.hasPin}
       handleCopyLink={handleCopyLink}
       handleDeleteBio={handleDeleteBio}
+      onBioUpdate={patchMemberBio}
       onOpenParticleModal={openParticleModal}
       onSelectTab={(tabId) => navigate(`/member/${tabId}`)}
       onSelectUtility={handleSelectUtility}
+      accountSubTab={accountSubTab}
     />
   );
 
@@ -695,7 +726,7 @@ function MemberPortalPage() {
   useEffect(() => {
     if (activeTab === "verify") {
       setShowVerifyModal(true);
-      navigate("/member/joy", { replace: true });
+      navigate("/member/account", { replace: true });
     }
   }, [activeTab, navigate]);
 
@@ -750,13 +781,10 @@ function MemberPortalPage() {
   // are gone from the mobile nav, Therapy opens as an in-chat overlay) — so
   // any psychology sub-tab gets the fullscreen takeover there. Desktop is
   // unchanged from before — normal sidebar+tabs UI, never fullscreen.
-  // Bản đồ là một ỨNG DỤNG chứ không phải tab: mở ra là chiếm trọn màn hình,
-  // thanh tab của portal biến mất, và lối duy nhất quay lại là nút thoát của
-  // chính nó — giống HugoIDE / HugoArcade.
   const isFullscreenUtility = (activeTab === "utilities" && (
-    subTab === "ide" || subTab === "arcade" || subTab === "store" || subTab === "hugoso" || subTab === "deco" ||
+    subTab === "study" || subTab === "ide" || subTab === "arcade" || subTab === "store" || subTab === "hugoso" ||
     (subTab === "psychology" && isMobileView)
-  )) || activeTab === "map";
+  ));
 
   // Một ứng dụng đang mở thì nó chiếm trọn màn hình: điều hướng diễn ra BÊN
   // TRONG app và lối ra là nút "Quay lại" của chính app đó. Giữ thêm thanh tab
@@ -787,13 +815,6 @@ function MemberPortalPage() {
         <div className="flex-1 w-full h-full overflow-hidden">
           <ErrorBoundary>
             <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-              {activeTab === "map" ? (
-                <DiscoveryMap
-                  userAvatarUrl={formData.avatarUrl || bio?.avatarUrl}
-                  userName={formData.displayName || memberSession?.displayName}
-                  onExit={() => navigate("/member/apps")}
-                />
-              ) : (
               <MemberUtilitiesTab
                 bio={bio}
                 publicLink={publicLink}
@@ -807,9 +828,8 @@ function MemberPortalPage() {
                 defaultPsychologyPresetTest={defaultPsychologyPresetTest}
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
-                ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null}
+                ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null}
               />
-              )}
             </React.Suspense>
           </ErrorBoundary>
         </div>
@@ -832,16 +852,17 @@ function MemberPortalPage() {
   }
 
   // ── Render ───────────────────────────────────────────────────
-  const weatherOn = isWeatherBgEnabled();
+  const activePortalTheme = resolveActivePortalTheme(bio);
   return (
     <>
       <WeatherAlertWatcher />
       <div
         className={`member-portal-shell ${isMobileView ? "portal-mobile-layout" : "portal-workspace-layout"} relative isolate min-h-[100dvh] bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300`}
         data-portal-area={portalArea}
+        data-aura-theme={activePortalTheme}
       >
-        <AuraBackground theme={bio?.activeAuraTheme || 'default'} area={portalArea} />
-        {weatherOn && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
+        <AuraBackground theme={activePortalTheme} area={portalArea} />
+        {weatherBackgroundOn && <WeatherLayer preferGeo zIndex={-1} opacity={0.25} />}
 
         {/* ── 💻 DESKTOP APPLE WORKSPACE (hidden md:block) ────────────────── */}
         {!isMobileView && (
@@ -894,11 +915,6 @@ function MemberPortalPage() {
                       </>
                     )
                   )}
-                  {activeTab === "joy" && (
-                    <div>
-                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={openParticleModal} />
-                    </div>
-                  )}
                   {activeTab === "partner" && (
                     <div>
                       <MemberPartnerTab />
@@ -906,40 +922,12 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} onOpenParticleModal={openParticleModal} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
                     <div>
                       <MemberHistoryTab showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
-                    </div>
-                  )}
-                  {activeTab === "settings" && (
-                    <div>
-                      <MemberSettingsTab
-                        memberSession={memberSession}
-                        showToast={showToast}
-                        handleLogout={handleLogout}
-                        bio={bio}
-                        joyBalance={joyBalance}
-                        formData={formData}
-                        setFormData={setFormData}
-                        handleFieldChange={handleFieldChange}
-                        publicLink={publicLink}
-                        saving={saving}
-                        isDragOver={isDragOver}
-                        setIsDragOver={setIsDragOver}
-                        processFile={processFile}
-                        avatarInputRef={avatarInputRef}
-                        handleAvatarChange={handleAvatarChange}
-                        handleRemoveAvatar={handleRemoveAvatar}
-                        handleSave={handleSave}
-                        isGuestMode={isGuestMode}
-                        handleCopyLink={handleCopyLink}
-                        handleDeleteBio={handleDeleteBio}
-                        onOpenParticleModal={openParticleModal}
-                        renderAccountForm={renderAccountForm}
-                      />
                     </div>
                   )}
                   {activeTab === "account" && (
@@ -992,11 +980,6 @@ function MemberPortalPage() {
                       )}
                     </div>
                   )}
-                  {activeTab === "joy" && (
-                    <div style={{ padding: "0 12px" }}>
-                      <MemberJoyTab bio={bio} showToast={showToast} onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} onOpenParticleModal={openParticleModal} />
-                    </div>
-                  )}
                   {activeTab === "partner" && (
                     <div style={{ padding: "0 12px"  }}>
                       <MemberPartnerTab />
@@ -1004,40 +987,12 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} onOpenParticleModal={openParticleModal} ideLessonId={activeTab === "utilities" && subTab === "ide" ? psychTab : null} />
+                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
                     <div style={{ padding: "0 12px"  }}>
                       <MemberHistoryTab showToast={showToast} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onDismiss={dismiss} />
-                    </div>
-                  )}
-                  {activeTab === "settings" && (
-                    <div style={{ padding: "0 12px"  }}>
-                      <MemberSettingsTab
-                        memberSession={memberSession}
-                        showToast={showToast}
-                        handleLogout={handleLogout}
-                        bio={bio}
-                        joyBalance={joyBalance}
-                        formData={formData}
-                        setFormData={setFormData}
-                        handleFieldChange={handleFieldChange}
-                        publicLink={publicLink}
-                        saving={saving}
-                        isDragOver={isDragOver}
-                        setIsDragOver={setIsDragOver}
-                        processFile={processFile}
-                        avatarInputRef={avatarInputRef}
-                        handleAvatarChange={handleAvatarChange}
-                        handleRemoveAvatar={handleRemoveAvatar}
-                        handleSave={handleSave}
-                        isGuestMode={isGuestMode}
-                        handleCopyLink={handleCopyLink}
-                        handleDeleteBio={handleDeleteBio}
-                        onOpenParticleModal={openParticleModal}
-                        renderAccountForm={renderAccountForm}
-                      />
                     </div>
                   )}
                   {activeTab === "account" && (

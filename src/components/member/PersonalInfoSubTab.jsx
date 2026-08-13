@@ -3,7 +3,7 @@ import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import OptimizedInput from "../common/OptimizedInput";
 
 const FIELD_CLASS =
-  "apple-account-input w-full min-w-0 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground/55 focus:outline-none";
+  "apple-account-input w-full min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus:outline-none";
 
 function EditableRow({ icon, label, name, value, onChange, placeholder, type = "text", required = false }) {
   return (
@@ -43,13 +43,13 @@ function VerifiedRow({ icon, label, value, lockLabel }) {
 // khoá luôn — sửa được thì cổng độ tuổi chỉ còn là hình thức. Không hỏi ngày
 // sinh vì việc chặn chỉ cần tới tháng.
 // Hạng Star tự suy ra từ ngày sinh nên không có gì để sửa ở đây — chỉ hiển thị.
-function TierRow({ bio, formData }) {
+function TierRow({ bio, formData, t }) {
   const tier = memberTier({ ...formData, starVip: bio?.starVip });
   if (!tier) return null;
   return (
     <div className="apple-account-row">
       <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">military_tech</span>
-      <span className="apple-account-row-label">Hạng thành viên</span>
+      <span className="apple-account-row-label">{t("memberPortal.account.membershipTier")}</span>
       <span className="flex min-w-0 flex-1 justify-end">
         <TierBadge tier={tier} />
       </span>
@@ -57,7 +57,7 @@ function TierRow({ bio, formData }) {
   );
 }
 
-function BirthGateRow({ formData, onChange }) {
+function BirthGateRow({ formData, onChange, t }) {
   const locked = Boolean(formData.birthYear);
   const thisYear = new Date().getFullYear();
 
@@ -65,9 +65,9 @@ function BirthGateRow({ formData, onChange }) {
     return (
       <VerifiedRow
         icon="calendar_month"
-        label="Tháng/năm sinh"
+        label={t("memberPortal.account.birthMonthYear")}
         value={`${String(formData.birthMonth || 1).padStart(2, "0")}/${formData.birthYear}`}
-        lockLabel="Chỉ khai một lần. Cần sửa thì liên hệ quản trị viên."
+        lockLabel={t("memberPortal.account.birthDateLocked")}
       />
     );
   }
@@ -75,16 +75,16 @@ function BirthGateRow({ formData, onChange }) {
   return (
     <div className="apple-account-row">
       <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">calendar_month</span>
-      <span className="apple-account-row-label">Tháng/năm sinh</span>
+      <span className="apple-account-row-label">{t("memberPortal.account.birthMonthYear")}</span>
       <span className="flex min-w-0 flex-1 gap-2">
-        <select className={FIELD_CLASS} name="birthMonth" value={formData.birthMonth || ""} onChange={onChange} aria-label="Tháng sinh">
-          <option value="">Tháng</option>
+        <select className={FIELD_CLASS} name="birthMonth" value={formData.birthMonth || ""} onChange={onChange} aria-label={t("memberPortal.onboarding.monthAria")}>
+          <option value="">{t("memberPortal.onboarding.month")}</option>
           {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
-            <option key={month} value={month}>Tháng {month}</option>
+            <option key={month} value={month}>{t("memberPortal.onboarding.monthOption", { month })}</option>
           ))}
         </select>
-        <select className={FIELD_CLASS} name="birthYear" value={formData.birthYear || ""} onChange={onChange} aria-label="Năm sinh">
-          <option value="">Năm</option>
+        <select className={FIELD_CLASS} name="birthYear" value={formData.birthYear || ""} onChange={onChange} aria-label={t("memberPortal.onboarding.yearAria")}>
+          <option value="">{t("memberPortal.onboarding.year")}</option>
           {Array.from({ length: 80 }, (_, index) => thisYear - 14 - index).map((year) => (
             <option key={year} value={year}>{year}</option>
           ))}
@@ -94,15 +94,38 @@ function BirthGateRow({ formData, onChange }) {
   );
 }
 
-function AccountGroup({ title, description, children }) {
-  return (
-    <section className="space-y-2.5">
-      <div className="px-1">
-        <h3 className="text-[13px] font-semibold tracking-tight text-foreground">{title}</h3>
-        {description ? <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{description}</p> : null}
+function AccountGroup({ title, description, icon, children, optional = false }) {
+  const content = (
+    <>
+      <div className="apple-account-section-heading">
+        {icon ? <span className="material-symbols-outlined" aria-hidden="true">{icon}</span> : null}
+        <span>
+          <h3>{title}</h3>
+          {description ? <p>{description}</p> : null}
+        </span>
       </div>
       <div className="apple-account-group">{children}</div>
-    </section>
+    </>
+  );
+
+  if (optional) {
+    return (
+      <details className="apple-account-section apple-account-section--optional">
+        <summary>
+          <span className="material-symbols-outlined" aria-hidden="true">{icon}</span>
+          <span className="min-w-0 flex-1">
+            <strong>{title}</strong>
+            {description ? <small>{description}</small> : null}
+          </span>
+          <span className="material-symbols-outlined apple-account-disclosure" aria-hidden="true">chevron_right</span>
+        </summary>
+        <div className="apple-account-group">{children}</div>
+      </details>
+    );
+  }
+
+  return (
+    <section className="apple-account-section">{content}</section>
   );
 }
 
@@ -131,7 +154,7 @@ export default function PersonalInfoSubTab({
     "";
 
   return (
-    <form className="apple-account-shell animate-fadeIn" onSubmit={handleSave}>
+    <form className="apple-account-shell apple-account-shell--ios27 animate-fadeIn" onSubmit={handleSave}>
       <header className="apple-account-hero">
         <div className={`apple-account-avatar-control ${hideAvatarSection ? "apple-account-avatar-control--compact" : ""}`}>
         <div
@@ -178,19 +201,22 @@ export default function PersonalInfoSubTab({
           </span>
         </button>
         </div>
-        <div className="min-w-0 flex-1 text-center sm:text-left">
-          <p className="portal-eyebrow">{t("memberPortal.account.appleAccount")}</p>
-          <h2 className="mt-1 break-words text-[28px] font-semibold leading-tight tracking-[-0.035em] text-foreground sm:text-[32px]">
+        <div className="apple-account-hero-copy min-w-0 flex-1 text-center sm:text-left">
+          <p className="apple-account-identity-kicker">{t("memberPortal.account.appleAccount")}</p>
+          <h2>
             {formData.displayName || t("memberPortal.bio.noName")}
           </h2>
-          <p className="mt-1 truncate text-sm text-muted-foreground">{memberSession?.email || "—"}</p>
-          <div className={`apple-account-status ${bio?.isEduVerified ? "is-verified" : ""}`}>
-            <span className="material-symbols-outlined" aria-hidden="true">
-              {bio?.isEduVerified ? "verified" : "schedule"}
-            </span>
-            {bio?.isEduVerified
-              ? t("memberPortal.account.eduVerified")
-              : t("memberPortal.account.verificationPending")}
+          <p>{memberSession?.email || "—"}</p>
+          <div className="apple-account-hero-badges">
+            <div className={`apple-account-status ${bio?.isEduVerified ? "is-verified" : ""}`}>
+              <span className="material-symbols-outlined" aria-hidden="true">
+                {bio?.isEduVerified ? "verified" : "schedule"}
+              </span>
+              {bio?.isEduVerified
+                ? t("memberPortal.account.eduVerified")
+                : t("memberPortal.account.verificationPending")}
+            </div>
+            <TierBadge tier={memberTier({ ...formData, starVip: bio?.starVip })} />
           </div>
         </div>
       </header>
@@ -207,6 +233,7 @@ export default function PersonalInfoSubTab({
       <AccountGroup
         title={t("memberPortal.account.personalInformation")}
         description={t("memberPortal.account.personalInformationDescription")}
+        icon="person"
       >
         <EditableRow
           icon="person"
@@ -233,8 +260,8 @@ export default function PersonalInfoSubTab({
           onChange={handleFieldChange}
           placeholder={t("memberPortal.bio.placeholderBirthday")}
         />
-        <BirthGateRow formData={formData} onChange={handleFieldChange} />
-        <TierRow bio={bio} formData={formData} />
+        <BirthGateRow formData={formData} onChange={handleFieldChange} t={t} />
+        <TierRow bio={bio} formData={formData} t={t} />
         <label className="apple-account-row apple-account-row--textarea">
           <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">notes</span>
           <span className="apple-account-row-label">{t("memberPortal.account.about")}</span>
@@ -252,6 +279,7 @@ export default function PersonalInfoSubTab({
       <AccountGroup
         title={t("memberPortal.account.verifiedIdentity")}
         description={t("memberPortal.account.verifiedIdentityDescription")}
+        icon="verified_user"
       >
         <VerifiedRow
           icon="mail"
@@ -277,7 +305,12 @@ export default function PersonalInfoSubTab({
         </div>
       </AccountGroup>
 
-      <AccountGroup title={t("memberPortal.career.title")}>
+      <AccountGroup
+        title={t("memberPortal.career.title")}
+        description={t("memberPortal.career.placeholderSkills")}
+        icon="work"
+        optional
+      >
         <EditableRow
           icon="work"
           label={t("memberPortal.career.role")}
@@ -299,6 +332,8 @@ export default function PersonalInfoSubTab({
       <AccountGroup
         title={t("memberPortal.account.optionalDetails")}
         description={t("memberPortal.account.optionalDetailsDescription")}
+        icon="tune"
+        optional
       >
         <EditableRow icon="height" label={t("memberPortal.physical.height")} name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} />
         <EditableRow icon="monitor_weight" label={t("memberPortal.physical.weight")} name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} />
@@ -308,8 +343,11 @@ export default function PersonalInfoSubTab({
 
       <div className="apple-account-savebar">
         <div>
-          <strong>{t("memberPortal.account.saveTitle")}</strong>
-          <small>{t("memberPortal.account.saveDescription")}</small>
+          <span className="apple-account-save-state" aria-hidden="true" />
+          <span>
+            <strong>{t("memberPortal.account.saveTitle")}</strong>
+            <small>{t("memberPortal.account.saveDescription")}</small>
+          </span>
         </div>
         <button type="submit" className="apple-account-save" disabled={saving}>
           {saving ? (

@@ -4,6 +4,7 @@ import { useData } from "../context/DataContext";
 import { useTranslation } from "react-i18next";
 import logos from "./logos";
 import { API_BASE } from "../config/apiBase";
+import { isVietnameseLanguage } from "../i18n/languages";
 
 const linkClass = "inline-flex min-h-9 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnBase = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -97,7 +98,7 @@ export default function Footer() {
   const { data } = useData();
   const { t, i18n } = useTranslation();
   const email = "contact@hugowishpax.studio";
-  const locale = i18n.resolvedLanguage?.startsWith("en") ? "en" : "vi";
+  const locale = isVietnameseLanguage(i18n.resolvedLanguage || i18n.language) ? "vi" : "en";
   const trust = trustContent[locale];
 
   return (
@@ -148,6 +149,7 @@ export default function Footer() {
                 </button>
               </li>
               <li><Link to="/privacy-policy" className={linkClass}>{t("footer.privacyPolicy", "Chính sách bảo mật")}</Link></li>
+              <li><Link to="/terms" className={linkClass}>{t("footer.terms", "Điều khoản sử dụng")}</Link></li>
               <li><Link to="/user-guide" className={linkClass}>{t("footer.userGuide", "Hướng dẫn sử dụng")}</Link></li>
             </ul>
           </nav>

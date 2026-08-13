@@ -48,7 +48,7 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
     { label: "Đi tới Control Hub & AI Terminal", icon: "dashboard", tab: "dashboard" },
     { label: "Đi tới Quản lý Thành Viên & Support", icon: "group", tab: "users" },
     { label: "Đi tới Cửa Hàng & Dịch Vụ VIP", icon: "storefront", tab: "ecosystem" },
-    { label: "Đi tới HugoCoder Portal", icon: "school", tab: "coder" },
+    { label: "Đi tới quản lý Study · Web Dev", icon: "school", tab: "coder" },
     { label: "Đi tới Giám Sát & Cài Đặt Hệ Thống", icon: "tune", tab: "system" },
   ].filter(t => t.label.toLowerCase().includes(query.toLowerCase()));
 

@@ -5,9 +5,7 @@
  */
 
 const DB_NAME = "HugoStudioEdgeDB";
-const DB_VERSION = 2;
-const STORE_SKIN_HISTORY = "skin_history";
-const STORE_CHECKLIST = "skincare_checklist";
+const DB_VERSION = 3;
 const STORE_SYNC_QUEUE = "sync_queue";
 const STORE_BOOTSTRAP_CACHE = "bootstrap_cache";
 const STORE_USER_SETTINGS = "user_settings";
@@ -23,12 +21,9 @@ function openDB() {
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      if (!db.objectStoreNames.contains(STORE_SKIN_HISTORY)) {
-        db.createObjectStore(STORE_SKIN_HISTORY, { keyPath: "id" });
-      }
-      if (!db.objectStoreNames.contains(STORE_CHECKLIST)) {
-        db.createObjectStore(STORE_CHECKLIST, { keyPath: "date" });
-      }
+      // HugoSkin đã ngừng hoạt động: xóa luôn dữ liệu cục bộ cũ khi DB nâng cấp.
+      if (db.objectStoreNames.contains("skin_history")) db.deleteObjectStore("skin_history");
+      if (db.objectStoreNames.contains("skincare_checklist")) db.deleteObjectStore("skincare_checklist");
       if (!db.objectStoreNames.contains(STORE_SYNC_QUEUE)) {
         db.createObjectStore(STORE_SYNC_QUEUE, { keyPath: "id", autoIncrement: true });
       }
@@ -46,39 +41,6 @@ function openDB() {
 }
 
 export const IndexedDBStorage = {
-  async saveSkinScan(scanResult) {
-    try {
-      const db = await openDB();
-      const tx = db.transaction(STORE_SKIN_HISTORY, "readwrite");
-      const store = tx.objectStore(STORE_SKIN_HISTORY);
-      const record = {
-        id: scanResult.id || `scan_${Date.now()}`,
-        ...scanResult,
-        createdAt: scanResult.createdAt || new Date().toISOString()
-      };
-      store.put(record);
-      return record;
-    } catch (err) {
-      console.warn("Lỗi lưu IndexedDB:", err);
-      return null;
-    }
-  },
-
-  async getAllSkinScans() {
-    try {
-      const db = await openDB();
-      const tx = db.transaction(STORE_SKIN_HISTORY, "readonly");
-      const store = tx.objectStore(STORE_SKIN_HISTORY);
-      return new Promise((resolve) => {
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result ? req.result.reverse() : []);
-        req.onerror = () => resolve([]);
-      });
-    } catch {
-      return [];
-    }
-  },
-
   async enqueuePendingSync(endpoint, payload) {
     try {
       const db = await openDB();

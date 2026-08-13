@@ -11,7 +11,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
         { id: "dashboard", label: "Tổng quan", icon: "dashboard", accent: "from-blue-500 to-indigo-600" },
         { id: "users", label: "Thành viên & Hỗ trợ", icon: "group", count: counts.users, accent: "from-emerald-500 to-teal-600" },
         { id: "ecosystem", label: "Hệ sinh thái & Cửa hàng", icon: "storefront", count: counts.utilityStore, accent: "from-purple-500 to-pink-600" },
-        { id: "coder", label: "HugoCoder", icon: "school", accent: "from-amber-500 to-orange-600" },
+        { id: "coder", label: "Study · Web Dev", icon: "school", accent: "from-amber-500 to-orange-600" },
         { id: "system", label: "Giám sát & Cài đặt", icon: "tune", count: counts.openTickets, alert: counts.openTickets > 0, accent: "from-rose-500 to-red-600" },
       ]
     }

@@ -577,13 +577,13 @@ export default function LessonsSidebar({
                             rel="noopener noreferrer"
                             onClick={() => {
                               navigator.clipboard?.writeText(`${window.location.origin}/certificate/${bio.slug}/${phase.phaseNumber}`).then(
-                                () => notify.success("Đã sao chép liên kết chứng chỉ — chia sẻ ngay!"),
+                                () => notify.success("Đã sao chép liên kết giấy chứng nhận — chia sẻ ngay!"),
                                 () => {}
                               );
                             }}
                             className="block w-full py-1.5 text-center bg-foreground text-background font-black rounded-lg text-[9px] uppercase tracking-wider transition-all active:scale-[0.98]"
                           >
-                            Xem & chia sẻ chứng chỉ chặng
+                            Xem & chia sẻ giấy chứng nhận chặng
                           </a>
                         )}
 

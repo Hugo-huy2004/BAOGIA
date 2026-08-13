@@ -5,10 +5,10 @@ import BackButton from "../../shared/BackButton";
 export default function TherapyPanelShell({ method, onBack, children }) {
   if (!method) return children;
 
-  const title = method.name || method.title || "Bài Tập Trị Liệu";
+  const title = method.name || method.title || "Bài Tập Thư Giãn";
   const desc = method.desc || method.description || "";
   const duration = method.duration || "5–15 phút";
-  const category = method.category || "Trị liệu tâm lý";
+  const category = method.category || "Thư giãn & tự chăm sóc";
 
   return (
     <motion.div

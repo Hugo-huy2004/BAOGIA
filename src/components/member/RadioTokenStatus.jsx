@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -35,6 +36,7 @@ export async function sendRadioHeartbeat(email, minutes, { keepalive = false } =
 }
 
 export default function RadioTokenStatus({ bio, onBuyMore }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +67,7 @@ export default function RadioTokenStatus({ bio, onBuyMore }) {
     );
   }
 
-  const { freeRemaining, freeUsed, freeMinutes, purchasedMinutes, canListen } = status;
+  const { freeRemaining, freeMinutes, purchasedMinutes, canListen } = status;
   const freePercent = freeMinutes > 0 ? Math.round((freeRemaining / freeMinutes) * 100) : 0;
   const isLow = freeRemaining <= 30 && freeRemaining > 0;
   const isEmpty = !canListen;
@@ -83,7 +85,7 @@ export default function RadioTokenStatus({ bio, onBuyMore }) {
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${isEmpty ? "bg-rose-500" : isLow ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
           <span className="text-[11px] font-black tracking-wide uppercase">
-            {isEmpty ? "Hết thời gian" : "Tuần này"}
+            {isEmpty ? t("memberPortal.radio.token.expired") : t("memberPortal.radio.token.weeklyFree")}
           </span>
         </div>
         <span className="font-mono text-sm font-black">
@@ -107,7 +109,7 @@ export default function RadioTokenStatus({ bio, onBuyMore }) {
         <div className="flex items-center justify-between pt-1 border-t border-zinc-200/50 dark:border-white/5">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[14px] opacity-60">shopping_bag</span>
-            <span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">Mua thêm</span>
+            <span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">{t("memberPortal.radio.token.purchased")}</span>
           </div>
           <span className="font-mono text-xs font-bold">
             {formatMinutes(purchasedMinutes)}
@@ -122,7 +124,7 @@ export default function RadioTokenStatus({ bio, onBuyMore }) {
           className="flex items-center justify-center gap-1.5 py-1.5 rounded-xl bg-[#06b6d4]/10 dark:bg-[#06b6d4]/20 text-[#06b6d4] text-[10px] font-black uppercase tracking-wider hover:bg-[#06b6d4]/20 transition-all active:scale-95"
         >
           <span className="material-symbols-outlined text-[14px]">add_shopping_cart</span>
-          <span>Mua thêm thời gian</span>
+          <span>{t("memberPortal.radio.token.buyMore")}</span>
         </button>
       )}
     </div>

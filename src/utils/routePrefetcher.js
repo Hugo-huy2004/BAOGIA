@@ -5,7 +5,6 @@
  */
 
 const PREFETCH_MAP = {
-  hugoskin: () => import("../components/member/HugoSkinTab"),
   psychology: () => import("../components/member/banhocduong/TherapyTab"),
   therapy: () => import("../components/member/banhocduong/TherapyTab"),
   banhocduong: () => import("../components/member/banhocduong/BanhocduongTab"),

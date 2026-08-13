@@ -388,7 +388,6 @@
     width: 2.5rem;
   }
 
-  .portal-app-icon[data-app="map"] { color: hsl(156 62% 39%); background: hsl(156 62% 39% / 0.11); }
   .portal-app-icon[data-app="wallet"] { color: hsl(35 92% 44%); background: hsl(35 92% 50% / 0.12); }
   .portal-app-icon[data-app="profile"] { color: hsl(265 64% 55%); background: hsl(265 64% 55% / 0.11); }
 
@@ -1246,6 +1245,22 @@
   font-size: 15px;
 }
 
+.today-edition-rights {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0 0;
+  color: hsl(var(--muted-foreground));
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.today-edition-rights .material-symbols-outlined {
+  flex: 0 0 auto;
+  color: hsl(var(--success));
+  font-size: 14px;
+}
+
 /* Thanh công cụ dính đỉnh vùng cuộn: tìm kiếm + nút lọc.
    KHÔNG có dải nền chạy hết bề ngang. Một dải kính mờ kéo ngang trang cắt bố
    cục thành hai mảng lệch nhau và để lộ hai đường viền ngang không ăn nhập với
@@ -1486,12 +1501,13 @@
 .today-news-card {
   width: 100%;
   display: grid;
-  grid-template-columns: 86px minmax(0, 1fr) 18px;
-  /* Căn theo đỉnh, không theo giữa: tiêu đề 3 dòng cạnh ảnh 64px mà căn giữa
-     thì dòng nguồn trôi lên khỏi mép ảnh, nhìn như bị lệch khối. */
+  /* Không còn cột ảnh 86px: bề ngang đó trả hết cho tiêu đề, nên tít dài không
+     bị cắt giữa chừng. Nhận diện chuyên mục chuyển sang vạch màu bên trái. */
+  grid-template-columns: minmax(0, 1fr) 18px;
   align-items: start;
   gap: 12px;
-  padding: 12px;
+  padding: 13px 14px;
+  border-left: 3px solid var(--today-accent, hsl(var(--primary)));
   border: 1px solid hsl(var(--border) / 0.55);
   /* 20px: bo tròn cỡ iOS cho thẻ nội dung. Thẻ vẫn ĐẶC (không kính) — chữ
      nhiều nằm trên nền mờ là thứ khó đọc nhất, và mỗi thẻ một lớp blur là
@@ -1509,39 +1525,28 @@
    tiêu đề dài là cả thẻ phình ra ngoài khung. Không trông cậy vào class
    `min-w-0` trong markup vì chỉ cần sửa JSX quên nó là vỡ. */
 .today-news-card > * { min-width: 0; }
-.today-news-card-media {
-  position: relative;
-  width: 86px;
-  height: 64px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border-radius: 13px;
-  background: hsl(var(--primary) / 0.1);
-  color: hsl(var(--primary));
-}
 
-.today-news-card-media img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 300ms ease;
-}
-.today-news-card:hover .today-news-card-media img { transform: scale(1.035); }
-.today-news-card-media.has-image .material-symbols-outlined { display: none; }
-.today-news-card-media[data-category="community"] { color: hsl(var(--success)); background: hsl(var(--success) / 0.1); }
-.today-news-card-media[data-category="world"] { color: hsl(var(--warning)); background: hsl(var(--warning) / 0.1); }
-.today-news-card-media .material-symbols-outlined { font-size: 23px; }
+/* Một biến màu cho cả vạch trái lẫn icon chuyên mục — đổi một chỗ, hai nơi
+   theo. Giữ đúng bảng màu portal, không thêm màu mới. */
+.today-news-card[data-category="community"] { --today-accent: hsl(var(--success)); }
+.today-news-card[data-category="world"] { --today-accent: hsl(var(--warning)); }
+
 .today-news-card small {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   overflow: hidden;
   color: hsl(var(--muted-foreground));
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 600;
   line-height: 1.45;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.today-news-card small .material-symbols-outlined {
+  flex-shrink: 0;
+  color: var(--today-accent, hsl(var(--primary)));
+  font-size: 15px;
 }
 .today-news-card strong {
   /* `anywhere` cắt giữa từ: "chuyển đổi" thành "chuy/ển đổi". Tiếng Việt có
@@ -1551,7 +1556,9 @@
   margin-top: 3px;
   overflow: hidden;
   color: hsl(var(--foreground));
-  font-size: 14.5px;
+  /* 15.5px: cột ảnh biến mất nên tiêu đề vừa rộng hơn vừa đọc được ở khoảng
+     cách cầm điện thoại — cùng ngưỡng "chữ ≥ 15px" của portal. */
+  font-size: 15.5px;
   font-weight: 620;
   /* 1.45 chứ không 1.35: dấu tiếng Việt xếp tầng (Ằ, ệ, ỗ) cao hơn chữ Latin,
      line-height chặt + overflow:hidden là cụt dấu ở dòng đầu và dòng cuối. */
@@ -1574,8 +1581,8 @@
 }
 .today-news-card em {
   display: inline-block;
-  margin-top: 7px;
-  color: hsl(var(--primary));
+  margin-bottom: 5px;
+  color: var(--today-accent, hsl(var(--primary)));
   font-size: 9px;
   font-style: normal;
   font-weight: 700;
@@ -1584,28 +1591,9 @@
 }
 .today-news-chevron { color: hsl(var(--muted-foreground) / 0.55); font-size: 17px; }
 
-/* Bài đầu ấn bản: ảnh lớn 16:9 thay vì thumbnail. */
-.today-news-card.is-lead {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
-  padding: 0;
-  overflow: hidden;
-}
-.today-news-card.is-lead .today-news-card-media {
-  width: 100%;
-  /* 16/9 trên máy dọc chiếm gần hết màn, làm mấy thẻ còn lại trông tí hon.
-     Kẹp lại theo chiều cao thật để tỉ lệ giữa các thẻ cân nhau. */
-  height: clamp(150px, 34vw, 210px);
-  aspect-ratio: auto;
-  border-radius: 0;
-}
-.today-news-card.is-lead .today-news-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.today-news-card.is-lead .today-news-card-media img { position: static; }
-.today-news-card.is-lead > .min-w-0 { padding: 13px 15px 15px; }
+/* Bài đầu ấn bản: nổi bật bằng CHỮ (tiêu đề lớn + sapo), không bằng ảnh lớn.
+   Trước đây chỗ này là khung ảnh 16:9 của toà soạn; bỏ ảnh đi rồi thì khung
+   đó chỉ còn là một mảng màu trống cao 200px, xấu hơn là không có. */
 .today-news-card.is-lead small { font-size: 11.5px; }
 .today-news-card.is-lead strong {
   font-size: 19px;
@@ -1613,7 +1601,6 @@
   letter-spacing: -0.02em;
   -webkit-line-clamp: 3;
 }
-.today-news-card.is-lead .today-news-chevron { display: none; }
 
 .today-news-more {
   min-height: 46px;
@@ -1640,10 +1627,9 @@
 }
 
 @media (max-width: 639px) {
-  /* Ảnh nhỏ lại một nhịp so với bản cũ (92px): chỗ tiết ra dành cho tiêu đề,
-     đủ để 3 dòng tiếng Việt hiện trọn thay vì cụt giữa chừng. */
-  .today-news-card { grid-template-columns: 84px minmax(0, 1fr) 16px; padding: 11px; }
-  .today-news-card-media { width: 84px; height: 78px; }
+  /* Máy hẹp: giữ nguyên bố cục thuần chữ, chỉ siết lề. Không đặt lại cột ảnh
+     ở đây — thẻ không còn ảnh, thêm cột là thừa một khoảng trống 84px. */
+  .today-news-card { grid-template-columns: minmax(0, 1fr) 16px; padding: 12px 13px; }
   .today-news-grid { grid-template-columns: 1fr; }
 }
 
@@ -1743,15 +1729,6 @@
 .today-article-fontsize button.is-large { font-size: 20px; }
 .today-article-fontsize button:disabled { opacity: 0.35; }
 
-.today-article-image {
-  width: 100%;
-  max-height: 320px;
-  object-fit: cover;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  background: hsl(var(--muted));
-}
-
 .today-article-summary {
   margin-bottom: 28px;
   padding: 18px 20px;
@@ -1850,7 +1827,8 @@
 
 .today-article-locked p { margin: 0; flex: 1; min-width: 0; }
 
-.today-article-locked button {
+.today-article-locked button,
+.today-article-locked > a {
   min-height: 40px;
   flex-shrink: 0;
   padding: 0 14px;
@@ -1860,6 +1838,14 @@
   font-size: 13px;
   font-weight: 700;
 }
+
+.today-article-locked > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+}
+.today-article-locked > a .material-symbols-outlined { font-size: 16px; }
 
 .today-article-attribution {
   margin: 24px 0 0;
@@ -2753,4 +2739,3 @@ html.standalone-pwa .animate-bounce-gentle {
 @media (prefers-reduced-motion: reduce) {
   .pwa-login-rise { animation: none; }
 }
-

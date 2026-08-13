@@ -675,7 +675,7 @@ export default function ChatTab({
         sender: "user",
         text: isCurrentlyActive
           ? `Dạ, tớ đồng ý điều chỉnh thời gian lộ trình thành ${duration} ngày cùng cậu.`
-          : `Dạ, tớ đồng ý kích hoạt lộ trình trị liệu ${duration} ngày cùng cậu.`,
+          : `Dạ, tớ đồng ý bắt đầu lộ trình tự chăm sóc ${duration} ngày cùng cậu.`,
         time: new Date()
       };
       const botMsg = {
@@ -1141,7 +1141,7 @@ export default function ChatTab({
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
-          <p className="text-[13px] font-extrabold text-foreground">Trị Liệu Tâm Lý</p>
+          <p className="text-[13px] font-extrabold text-foreground">Thư Giãn & Tự Chăm Sóc</p>
         </div>
         <div className="flex-1 overflow-y-auto">
           <TherapyTab
@@ -1444,7 +1444,7 @@ export default function ChatTab({
             className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <HeartPulse className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">Trị liệu</span>
+            <span className="truncate">Thư giãn</span>
           </button>
           <button
             type="button"
@@ -1592,7 +1592,7 @@ export default function ChatTab({
             >
               <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
                 <span className="flex min-w-0 items-center gap-2 text-xs font-black uppercase tracking-wider text-foreground">
-                  {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>Liệu Pháp Trị Liệu Tĩnh Tâm</span></>}
+                  {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>Bài Tập Tĩnh Tâm</span></>}
                   {activeModalDrawer === "sleep" && <><MoonStar className="h-4 w-4 shrink-0" /><span>Nhật Ký & Chu Kỳ Giấc Ngủ Sinh Học</span></>}
                   {activeModalDrawer === "evaluation" && <><ClipboardCheck className="h-4 w-4 shrink-0" /><span>Báo Cáo Đánh Giá Sức Khỏe Tinh Thần</span></>}
                 </span>

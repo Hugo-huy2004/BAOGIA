@@ -204,7 +204,7 @@ export default function MobileGuidebook({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase text-primary">HugoCoder Mobile</p>
+              <p className="text-[10px] font-black uppercase text-primary">Study with Hugo · Web</p>
               <h2 className="text-sm font-black truncate">
                 {activeCourseId && mobileCourse ? mobileCourse.title : "Sách hướng dẫn lập trình"}
               </h2>
@@ -240,7 +240,7 @@ export default function MobileGuidebook({
                 </div>
                 
                 <div className="mt-4">
-                  <h3 className="text-base font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">HugoCoder Mobile Academy</h3>
+                  <h3 className="text-base font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Web Development Academy</h3>
                   <p className="text-[11px] text-zinc-400 mt-1">Đã chinh phục {mobileCompletedCount} trên tổng số {WEB_COURSES.length} bài học thực chiến</p>
                 </div>
                 
@@ -392,7 +392,7 @@ export default function MobileGuidebook({
                                   rel="noopener noreferrer"
                                   className="block w-full py-2 text-center bg-foreground text-background font-black rounded-xl text-[10px] uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
-                                  Xem & chia sẻ chứng chỉ chặng
+                                  Xem & chia sẻ giấy chứng nhận chặng
                                 </a>
                               )}
 
@@ -986,7 +986,7 @@ export default function MobileGuidebook({
                     </div>
                   ) : (
                     <div className="border-t border-zinc-800 p-4 text-xs leading-6 text-zinc-400">
-                      Bài này là dạng truy vấn hoặc backend nên điện thoại sẽ hiển thị code mẫu và hướng dẫn chạy. Khi mở trên desktop, HugoCoder sẽ chuyển về IDE đầy đủ.
+                      Bài này là dạng truy vấn hoặc backend nên điện thoại sẽ hiển thị code mẫu và hướng dẫn chạy. Khi mở trên desktop, hệ thống học sẽ chuyển về IDE đầy đủ.
                     </div>
                   )}
                 </section>
@@ -1046,7 +1046,7 @@ export default function MobileGuidebook({
       featureKey="hugoCoder"
       priceJoy={1500}
       icon="terminal"
-      title="Trao đổi JOY để mở khóa HugoCoder"
+      title="Trao đổi JOY để mở khóa bộ Phát triển Web"
       description="Đọc sách hướng dẫn, xem demo chạy code và học lập trình ngay trên điện thoại."
       onBioUpdate={onBioUpdate}
       onBack={onBack}

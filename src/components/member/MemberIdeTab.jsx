@@ -313,10 +313,10 @@ export default function MemberIdeTab({
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
-        title="Gia hạn phí bảo trì HugoCoder"
+        title="Gia hạn bộ Phát triển Web"
         message={
           <>
-            Bạn có đồng ý dùng <strong>50 JOY</strong> (+ 10% phí sáng tạo) để đóng phí bảo trì 30 ngày cho HugoCoder không?
+            Bạn có đồng ý dùng <strong>50 JOY</strong> (+ 10% phí sáng tạo) để gia hạn 30 ngày cho bộ Phát triển Web không?
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -364,7 +364,7 @@ export default function MemberIdeTab({
         title="Mua Trọn Gói 6 Chặng"
         message={
           <>
-            Bạn có đồng ý dùng <strong>16.000 JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn TOÀN BỘ 6 chặng học HugoCoder và được miễn phí phí bảo trì trọn đời không?
+            Bạn có đồng ý dùng <strong>16.000 JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn toàn bộ 6 phần của bộ Phát triển Web và được miễn phí bảo trì trọn đời không?
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -2309,7 +2309,7 @@ services:
       featureKey="hugoCoder"
       priceJoy={1500}
       icon="terminal"
-      title="Trao đổi JOY để mở khóa HugoCoder"
+      title="Trao đổi JOY để mở khóa bộ Phát triển Web"
       description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
       onBioUpdate={onBioUpdate}
       onBack={onBack}

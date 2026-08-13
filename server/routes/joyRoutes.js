@@ -1,6 +1,5 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
-import JoyLedger from '../models/JoyLedger.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
@@ -8,19 +7,20 @@ import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import { ownExchangeItems } from '../utils/appPlanService.js';
 import UtilityProduct from '../models/UtilityProduct.js';
+import UtilityOrder from '../models/UtilityOrder.js';
 import { startExam, submitExam, consumeExamPass, isQuizLesson } from '../utils/coderExamService.js';
 import { signQrToken, verifyQrToken, JOY_QR_BUCKET_MS } from '../utils/joyQrToken.js';
 import bcrypt from 'bcryptjs';
 import { randomInt, randomBytes } from 'node:crypto';
 import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../utils/memberTier.js';
 import NodeCache from 'node-cache';
+import { isAuraThemeFree, isAuraThemeId } from '../../shared/auraThemes.js';
 
 const idempotencyCache = new NodeCache({ stdTTL: 300 });
 
 const BIO_THEME_RENTAL_PRICE = 150;
 const COMPRESS_CHARGE = 50;
 const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${index + 1}`);
-const CODER_MIN_STUDY_MS = 10 * 60 * 1000;
 const CODER_QUIZ_LESSONS = new Set(['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']);
 const CODER_SCREENSHOT_LESSONS = new Set(['lesson10']);
 const HUGOSO_COURSES = Object.freeze({
@@ -155,14 +155,14 @@ function getCoderStageQuote(bio, tier) {
 // calls /exchange-quote — kept here (not duplicated client-side) so price
 // changes only ever need updating in one place.
 const EXCHANGE_ITEMS = {
-  hugoCoder: { label: 'HugoCoder Cơ Bản (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoder },
-  hugoCoderIntermediate: { label: 'HugoCoder Trung Cấp (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderIntermediate },
-  hugoCoderAdvanced: { label: 'HugoCoder Cao Cấp (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderAdvanced },
-  hugoCoderSecurity: { label: 'HugoCoder Bảo Mật (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderSecurity },
-  hugoCoderExam: { label: 'HugoCoder Kiểm Tra (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderExam },
-  hugoCoderOptimize: { label: 'HugoCoder Tối Ưu & AI (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderOptimize },
-  hugoCoderUltimate: { label: 'HugoCoder Lập Trình Web Nâng Cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderUltimate },
-  hugoAura: { label: 'HugoAura — Lofi & Cửa hàng giao diện (1 tháng)', priceJoy: FEATURE_PRICES.hugoAura },
+  hugoCoder: { label: 'Study · Phát triển Web (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoder },
+  hugoCoderIntermediate: { label: 'Study · Tư duy Kiến trúc (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderIntermediate },
+  hugoCoderAdvanced: { label: 'Study · Giải thuật và Mật mã (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderAdvanced },
+  hugoCoderSecurity: { label: 'Study · Bảo mật và AI (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderSecurity },
+  hugoCoderExam: { label: 'Study · Kiểm tra Năng lực (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderExam },
+  hugoCoderOptimize: { label: 'Study · Tối ưu và AI (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderOptimize },
+  hugoCoderUltimate: { label: 'Study · Đồ án Web Nâng cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoCoderUltimate },
+  hugoAura: { label: 'HugoAura — Lofi Focus (1 tháng)', priceJoy: FEATURE_PRICES.hugoAura },
   hugoRadio: { label: 'HugoRadio (1 tháng)', priceJoy: FEATURE_PRICES.hugoRadio },
   hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
   hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
@@ -308,7 +308,7 @@ router.post('/buy-hugoso-course', requireMember, async (req, res) => {
     const email = req.memberEmail;
     const courseId = String(req.body?.courseId || '');
     if (courseId !== 'bundle' && !HUGOSO_COURSES[courseId]) {
-      return res.status(400).json({ error: 'Khóa học HugoSO không hợp lệ.' });
+      return res.status(400).json({ error: 'Khóa học Năng suất số và AI không hợp lệ.' });
     }
 
     let bio = await Bio.findOne({ email });
@@ -318,7 +318,7 @@ router.post('/buy-hugoso-course', requireMember, async (req, res) => {
     const owned = new Set(bio.hugoSOCourses || []);
     const { pricing, remaining } = hugoSOPricing(bio);
     if (courseId === 'bundle' && remaining.length === 0) {
-      return res.status(400).json({ error: 'Bạn đã sở hữu toàn bộ khóa học HugoSO.' });
+      return res.status(400).json({ error: 'Bạn đã sở hữu toàn bộ bộ Năng suất số và AI.' });
     }
     if (courseId !== 'bundle' && owned.has(courseId)) {
       return res.status(400).json({ error: 'Bạn đã sở hữu khóa học này.' });
@@ -462,7 +462,7 @@ router.post('/coder-exam/start', requireMember, async (req, res) => {
           email,
           -CODER_EXAM_RETAKE_FEE,
           'coder_exam_retake',
-          `Phí thi lại HugoCoder ${lessonId} (lượt ${attemptsUsed + 1})`,
+          `Phí thi lại Study with Hugo ${lessonId} (lượt ${attemptsUsed + 1})`,
           { bioDoc: bio, refId: `${lessonId}_retake_${attemptsUsed + 1}` }
         );
         charged = CODER_EXAM_RETAKE_FEE;
@@ -516,7 +516,7 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
     const lessonIndex = CODER_LESSON_IDS.indexOf(lessonId);
     if (lessonIndex === -1) {
-      return res.status(400).json({ error: 'Bài học HugoCoder không hợp lệ.' });
+      return res.status(400).json({ error: 'Bài học Phát triển Web không hợp lệ.' });
     }
 
     let bio = await Bio.findOne({ email });
@@ -639,7 +639,7 @@ router.post('/claim-milestone-reward', requireMember, async (req, res) => {
       email,
       rewardAmount,
       `ide_phase_${phaseNum}_completion`,
-      `Nhận thưởng hoàn thành Chặng ${phaseNum} HugoCoder (+800 JOY)`,
+      `Nhận thưởng hoàn thành Phần ${phaseNum} · Phát triển Web (+800 JOY)`,
       { bioDoc: bio, refId: `${requiredLesson}_phase_completion` }
     );
 
@@ -776,6 +776,12 @@ router.post('/rent-theme', requireMember, async (req, res) => {
     if (!email || !themeId) {
       return res.status(400).json({ error: 'Email and themeId are required' });
     }
+    if (!isAuraThemeId(themeId)) {
+      return res.status(400).json({ code: 'INVALID_PORTAL_THEME', error: 'Giao diện không hợp lệ.' });
+    }
+    if (isAuraThemeFree(themeId)) {
+      return res.status(400).json({ code: 'PORTAL_THEME_IS_FREE', error: 'Giao diện này miễn phí và không cần thuê.' });
+    }
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
@@ -791,7 +797,7 @@ router.post('/rent-theme', requireMember, async (req, res) => {
 
     const durationLabel = duration === 'month' ? '30 ngày' : '1 ngày';
     // Deduct JOY and create ledger record
-    const result = await awardJoy(bio.email, -price, 'aura_theme_rent', `Thuê giao diện Aura: ${themeId} + 10% Phí sáng tạo (${durationLabel})`);
+    const result = await awardJoy(bio.email, -price, 'portal_theme_rent', `Thuê giao diện cá nhân: ${themeId} + 9% Phí sáng tạo (${durationLabel})`);
     
     // Extends or creates theme expiration in rentedThemes
     const extensionMs = duration === 'month' ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
@@ -810,6 +816,9 @@ router.post('/rent-theme', requireMember, async (req, res) => {
     }
 
     // Automatically set it as active
+    result.bio.activePortalTheme = themeId;
+    // Mirror the legacy field during the transition so older app builds and
+    // newly deployed builds display the same choice.
     result.bio.activeAuraTheme = themeId;
     result.bio.markModified('rentedThemes');
     await result.bio.save();
@@ -828,18 +837,22 @@ router.post('/set-theme', requireMember, async (req, res) => {
     if (!email || !themeId) {
       return res.status(400).json({ error: 'Email and themeId are required' });
     }
+    if (!isAuraThemeId(themeId)) {
+      return res.status(400).json({ code: 'INVALID_PORTAL_THEME', error: 'Giao diện không hợp lệ.' });
+    }
 
     let bio = await Bio.findOne({ email });
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
-    if (themeId !== 'default') {
-      const existingTheme = bio.rentedThemes.find(t => t.themeId === themeId);
+    if (!isAuraThemeFree(themeId)) {
+      const existingTheme = (bio.rentedThemes || []).find(t => t.themeId === themeId);
       if (!existingTheme || new Date(existingTheme.expiresAt).getTime() <= Date.now()) {
-        return res.status(400).json({ error: 'Giao diện chưa được thuê hoặc đã hết hạn sử dụng.' });
+        return res.status(400).json({ code: 'PORTAL_THEME_NOT_OWNED', error: 'Giao diện chưa được thuê hoặc đã hết hạn sử dụng.' });
       }
     }
 
+    bio.activePortalTheme = themeId;
     bio.activeAuraTheme = themeId;
     await bio.save();
 
@@ -959,7 +972,7 @@ router.post('/buy-lifetime-unlock', requireMember, async (req, res) => {
       bio.email,
       -quote.total,
       'lifetime_unlock',
-      `Trao đổi JOY mở khóa vĩnh viễn HugoCoder ${quote.label} (gồm ${quote.tax} JOY phí sáng tạo)`,
+      `Trao đổi JOY mở khóa vĩnh viễn Study with Hugo · ${quote.label} (gồm ${quote.tax} JOY phí sáng tạo)`,
       { bioDoc: bio, skipSave: true, refId: CODER_STAGE_DEFINITIONS[tier].key }
     );
 
@@ -1002,7 +1015,7 @@ router.post('/buy-all-stages-bundle', requireMember, async (req, res) => {
       bio.email,
       -total,
       'lifetime_unlock_all',
-      `Trao đổi JOY trọn gói vĩnh viễn 6 chặng HugoCoder (Miễn phí bảo trì trọn đời, gồm ${tax} JOY phí sáng tạo)`,
+      `Trao đổi JOY trọn bộ vĩnh viễn 6 phần Phát triển Web (miễn phí bảo trì trọn đời, gồm ${tax} JOY phí sáng tạo)`,
       { bioDoc: bio, skipSave: true, refId: 'hugoCoderAll7Lifetime' }
     );
 
@@ -1080,6 +1093,25 @@ router.post('/subscribe-bio-theme', requireMember, async (req, res) => {
 // tự bốc thì sửa vài dòng trong DevTools là ra 10.000 JOY.
 const BIRTHDAY_PRIZES = [10, 50, 100, 500, 1000, 5000, 10000];
 
+// Trạng thái vòng quay sinh nhật. Dùng chung cho GET /birthday-spin và /perks —
+// ví hỏi cùng một câu, đừng trả lời bằng hai bản sao dễ lệch nhau.
+export function birthdaySpinStatus(bio, now = new Date()) {
+  const isBirthMonth = Number(bio.birthMonth) === now.getMonth() + 1;
+  const spunThisYear = Number(bio.birthdaySpinYear) === now.getFullYear();
+  const tier = memberTier(bio);
+  return {
+    prizes: BIRTHDAY_PRIZES,
+    isBirthMonth,
+    birthMonth: Number(bio.birthMonth) || 0,
+    available: isBirthMonth && !spunThisYear && Boolean(tier),
+    spunThisYear,
+    lastPrize: spunThisYear ? Number(bio.birthdaySpinPrize) || 0 : 0,
+    tier,
+    tierLabel: tier ? TIER_LABELS[tier] : '',
+    gifts: tierGifts(tier),
+  };
+}
+
 // GET /api/joy/birthday-spin — còn lượt quay không, và danh sách ô để vẽ vòng.
 router.get('/birthday-spin', requireMember, async (req, res) => {
   try {
@@ -1088,19 +1120,63 @@ router.get('/birthday-spin', requireMember, async (req, res) => {
       'birthDay birthMonth birthYear starVip birthdaySpinYear birthdaySpinPrize displayName',
     ).lean();
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
-    const now = new Date();
-    const isBirthMonth = Number(bio.birthMonth) === now.getMonth() + 1;
-    const spunThisYear = Number(bio.birthdaySpinYear) === now.getFullYear();
-    const tier = memberTier(bio);
+    res.json(birthdaySpinStatus(bio));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/joy/perks — mọi ưu đãi người dùng đang cầm, gom về một chỗ:
+// voucher hệ thống tặng (quà sinh nhật theo hạng + vòng quay), đơn đã mua bằng
+// JOY, và trạng thái vòng quay. Trước đây voucher nằm lẫn trong tab Gói dịch vụ,
+// đơn hàng không hiện ở đâu cả, còn vòng quay chỉ mở được từ popup tự bật —
+// đóng nhầm là mất lượt xem.
+router.get('/perks', requireMember, async (req, res) => {
+  try {
+    const [bio, orders] = await Promise.all([
+      Bio.findOne(
+        { email: req.memberEmail },
+        'birthDay birthMonth birthYear starVip birthdaySpinYear birthdaySpinPrize serviceVouchers birthdayVoucherCode birthdayVoucherClaimed',
+      ).lean(),
+      UtilityOrder.find({ email: req.memberEmail }).sort({ createdAt: -1 }).limit(50).lean(),
+    ]);
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
+
+    const vouchers = (bio.serviceVouchers || []).map((v) => ({
+      code: v.code,
+      label: v.label,
+      percent: v.percent,
+      scope: v.scope,
+      issuedAt: v.issuedAt,
+      expiresAt: v.expiresAt,
+      usedAt: v.usedAt,
+    }));
+
+    // Mã BDAY-xx phát trước khi quà sinh nhật dời vào vòng quay. Không phát mới
+    // nữa nhưng vẫn đổi được ở trang Gói dịch vụ, nên vẫn phải nhìn thấy.
+    if (bio.birthdayVoucherCode && !bio.birthdayVoucherClaimed) {
+      vouchers.push({
+        code: bio.birthdayVoucherCode,
+        label: 'Mã sinh nhật cũ · +14 ngày hạn dùng tài khoản',
+        percent: 0,
+        scope: 'legacy_birthday',
+        issuedAt: null,
+        expiresAt: null,
+        usedAt: null,
+      });
+    }
+
     res.json({
-      prizes: BIRTHDAY_PRIZES,
-      isBirthMonth,
-      available: isBirthMonth && !spunThisYear && Boolean(tier),
-      spunThisYear,
-      lastPrize: spunThisYear ? Number(bio.birthdaySpinPrize) || 0 : 0,
-      tier,
-      tierLabel: tier ? TIER_LABELS[tier] : '',
-      gifts: tierGifts(tier),
+      vouchers,
+      orders: orders.map((o) => ({
+        id: String(o._id),
+        code: o.purchaseCode,
+        name: o.productName,
+        priceJoy: o.priceJoy,
+        status: o.status,
+        createdAt: o.createdAt,
+      })),
+      spin: birthdaySpinStatus(bio),
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -1489,7 +1565,7 @@ router.post('/transfer', requireMember, async (req, res) => {
           pushNotify: true,
           pushTitle: 'Bạn vừa nhận được JOY',
           pushBody: `${senderName} đã chuyển ${numAmount} JOY cho bạn.${customMsg}`,
-          actionUrl: '/member/joy'
+          actionUrl: '/member/account'
         }
       )
     ]);

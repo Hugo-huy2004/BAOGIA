@@ -54,6 +54,7 @@ const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
 const StudentPricingPage = lazyRoute(() => import("./pages/public/StudentPricingPage"));
 const PrivacyPolicyPage = lazyRoute(() => import("./pages/public/PrivacyPolicyPage"));
+const TermsPage = lazyRoute(() => import("./pages/public/TermsPage"));
 const UserGuidePage = lazyRoute(() => import("./pages/public/UserGuidePage"));
 const LivePreviewPage = lazyRoute(() => import("./pages/member/LivePreviewPage"));
 const SupportRequestPage = lazyRoute(() => import("./pages/public/SupportRequestPage"));
@@ -62,7 +63,6 @@ const AdminProjectsPage = lazyRoute(() => import("./pages/admin/AdminProjectsPag
 const AdminProjectDetailPage = lazyRoute(() => import("./pages/admin/AdminProjectDetailPage"));
 const SecretLinkUnlock = lazyRoute(() => import("./pages/member/SecretLinkUnlock"));
 const PaymentGatewayPage = lazyRoute(() => import("./pages/PaymentGatewayPage"));
-const MemberIdeTab = lazyRoute(() => import("./components/member/MemberIdeTab"));
 const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
 // Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
 const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
@@ -82,15 +82,6 @@ function AppContent() {
       StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
       if (isMemberAuthenticated()) {
         PWAKeepAlive.startKeepAlive();
-        // Preserve skincare reminders for members who already opted in,
-        // without loading the module or prompting for permission at startup.
-        if ("Notification" in window && Notification.permission === "granted") {
-          import("./utils/applePushNotificationManager")
-            .then(({ ApplePushNotificationManager }) => {
-              ApplePushNotificationManager.scheduleEveningSkincareRoutine();
-            })
-            .catch(() => {});
-        }
       }
     };
 
@@ -216,9 +207,10 @@ function AppContent() {
                 : <IntroductionPage />
             } />
             <Route path="/services" element={<ServicesPage />} />
-            {/* Ví JOY chỉ còn một bản: tab /member/joy. Trang /joy cũ là bản
-                thứ hai, trùng chức năng nhưng khác hẳn giao diện. */}
-            <Route path="/joy" element={<Navigate to="/member/joy" replace />} />
+            {/* Ví JOY không còn là app riêng — số dư, ưu đãi và mọi thao tác
+                nằm trong trang Tài khoản. Hai đường cũ đều dẫn về đó. */}
+            <Route path="/joy" element={<Navigate to="/member/account" replace />} />
+            <Route path="/member/joy" element={<Navigate to="/member/account" replace />} />
             {/* Quyền lợi HSSV + bảng giá HSSV đã gộp thành một trang. */}
             <Route path="/student-benefits" element={<Navigate to="/student-pricing" replace />} />
             <Route path="/student-pricing" element={<StudentPricingPage />} />
@@ -252,6 +244,7 @@ function AppContent() {
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
             <Route path="/partner/bio-editor" element={<PartnerBioPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
             <Route path="/user-guide" element={<UserGuidePage />} />
             <Route path="/admin" element={
               <AdminProtectedRoute>

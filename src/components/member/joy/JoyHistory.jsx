@@ -1,42 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchJoyHistory } from "../../../services/joyApi";
+import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../../i18n/languages";
 
 // Nhãn nhóm — thuần trình bày. Khoá nhóm do máy chủ gắn (utils/joySources.js),
 // nhóm lạ rơi về "Khác" nên thêm nguồn mới ở server không làm vỡ chỗ này.
-const GROUP_LABELS = {
-  diemdanh: "Điểm danh",
-  banbe: "Bạn bè",
-  choi: "Giải trí",
-  hoc: "Học tập",
-  muasam: "Mua sắm",
-  khuyenmai: "Khuyến mãi",
-  khac: "Khác"
-};
-
-const FILTERS = [
-  { id: "all", label: "Tất cả" },
-  { id: "in", label: "Nhận" },
-  { id: "out", label: "Dùng" }
-];
-
-const fmt = (n) => Number(n || 0).toLocaleString("vi-VN");
-
-function dayKey(iso) {
+function dayKey(iso, locale) {
   const d = new Date(iso);
-  return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
-function dayLabel(iso) {
+function dayLabel(iso, locale, t) {
   const d = new Date(iso);
   const today = new Date();
   const diffDays = Math.floor((today.setHours(0, 0, 0, 0) - new Date(iso).setHours(0, 0, 0, 0)) / 86400000);
-  if (diffDays === 0) return "Hôm nay";
-  if (diffDays === 1) return "Hôm qua";
-  return d.toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit" });
+  if (diffDays === 0) return t("memberPortal.accountHub.historyCopy.today");
+  if (diffDays === 1) return t("memberPortal.accountHub.historyCopy.yesterday");
+  return d.toLocaleDateString(locale, { weekday: "long", day: "2-digit", month: "2-digit" });
 }
 
-function timeLabel(iso) {
-  return new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+function timeLabel(iso, locale) {
+  return new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 }
 
 /**
@@ -46,6 +30,23 @@ function timeLabel(iso) {
  * đó) — không polling.
  */
 export default function JoyHistory({ limit = 50 }) {
+  const { t, i18n } = useTranslation();
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
+  const fmt = (n) => Number(n || 0).toLocaleString(locale);
+  const groupLabels = {
+    diemdanh: t("memberPortal.accountHub.historyCopy.groups.checkin"),
+    banbe: t("memberPortal.accountHub.historyCopy.groups.friends"),
+    choi: t("memberPortal.accountHub.historyCopy.groups.entertainment"),
+    hoc: t("memberPortal.accountHub.historyCopy.groups.learning"),
+    muasam: t("memberPortal.accountHub.historyCopy.groups.shopping"),
+    khuyenmai: t("memberPortal.accountHub.historyCopy.groups.promotions"),
+    khac: t("memberPortal.accountHub.historyCopy.groups.other"),
+  };
+  const filters = [
+    { id: "all", label: t("memberPortal.accountHub.historyCopy.filters.all") },
+    { id: "in", label: t("memberPortal.accountHub.historyCopy.filters.in") },
+    { id: "out", label: t("memberPortal.accountHub.historyCopy.filters.out") },
+  ];
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,9 +60,9 @@ export default function JoyHistory({ limit = 50 }) {
         setTransactions(d.transactions);
         setSummary(d.summary);
       })
-      .catch((e) => setError(e.message || "Không tải được lịch sử."))
+      .catch((e) => setError(e.message || t("memberPortal.accountHub.historyCopy.loadError")))
       .finally(() => setLoading(false));
-  }, [limit]);
+  }, [limit, t]);
 
   useEffect(() => {
     load();
@@ -78,14 +79,14 @@ export default function JoyHistory({ limit = 50 }) {
     );
     const buckets = new Map();
     for (const tx of rows) {
-      const key = dayKey(tx.createdAt);
-      if (!buckets.has(key)) buckets.set(key, { label: dayLabel(tx.createdAt), items: [], net: 0 });
+      const key = dayKey(tx.createdAt, locale);
+      if (!buckets.has(key)) buckets.set(key, { label: dayLabel(tx.createdAt, locale, t), items: [], net: 0 });
       const b = buckets.get(key);
       b.items.push(tx);
       b.net += tx.amount;
     }
     return [...buckets.values()];
-  }, [transactions, filter]);
+  }, [transactions, filter, locale, t]);
 
   const topGroups = useMemo(
     () => (summary?.groups || []).filter((g) => g.total > 0).slice(0, 3),
@@ -98,15 +99,15 @@ export default function JoyHistory({ limit = 50 }) {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-[20px] text-muted-foreground">insights</span>
-          <h3 className="text-[15px] font-semibold text-foreground">30 ngày qua</h3>
+          <h3 className="text-[15px] font-semibold text-foreground">{t("memberPortal.accountHub.historyCopy.last30Days")}</h3>
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           {[
-            { label: "Nhận", value: `+${fmt(summary?.earned)}` },
-            { label: "Đã dùng", value: `−${fmt(summary?.spent)}` },
+            { label: t("memberPortal.accountHub.historyCopy.received"), value: `+${fmt(summary?.earned)}` },
+            { label: t("memberPortal.accountHub.historyCopy.spent"), value: `−${fmt(summary?.spent)}` },
             {
-              label: "Chênh lệch",
+              label: t("memberPortal.accountHub.historyCopy.net"),
               value: `${(summary?.net ?? 0) >= 0 ? "+" : "−"}${fmt(Math.abs(summary?.net ?? 0))}`
             }
           ].map((s) => (
@@ -121,14 +122,14 @@ export default function JoyHistory({ limit = 50 }) {
 
         {topGroups.length > 0 && (
           <div className="mt-3 border-t border-border pt-3">
-            <span className="text-[12.5px] text-muted-foreground">JOY đến nhiều nhất từ</span>
+            <span className="text-[12.5px] text-muted-foreground">{t("memberPortal.accountHub.historyCopy.topSources")}</span>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {topGroups.map((g) => (
                 <span
                   key={g.group}
                   className="rounded-full bg-muted px-2.5 py-1 text-[12.5px] font-medium text-foreground"
                 >
-                  {GROUP_LABELS[g.group] || GROUP_LABELS.khac} · +{fmt(g.total)}
+                  {groupLabels[g.group] || groupLabels.khac} · +{fmt(g.total)}
                 </span>
               ))}
             </div>
@@ -138,7 +139,7 @@ export default function JoyHistory({ limit = 50 }) {
 
       {/* Bộ lọc */}
       <div className="flex gap-2">
-        {FILTERS.map((f) => (
+        {filters.map((f) => (
           <button
             key={f.id}
             type="button"
@@ -157,7 +158,7 @@ export default function JoyHistory({ limit = 50 }) {
       {/* Dòng tiền */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {loading ? (
-          <p className="p-4 text-center text-[14px] text-muted-foreground">Đang tải lịch sử…</p>
+          <p className="p-4 text-center text-[14px] text-muted-foreground">{t("memberPortal.accountHub.historyCopy.loading")}</p>
         ) : error ? (
           <div className="p-4 text-center">
             <p className="text-[14px] text-muted-foreground">{error}</p>
@@ -166,12 +167,12 @@ export default function JoyHistory({ limit = 50 }) {
               onClick={load}
               className="mt-2 min-h-[44px] rounded-xl border border-border px-4 text-[14px] font-medium text-foreground"
             >
-              Thử lại
+              {t("memberPortal.today.tryAgain")}
             </button>
           </div>
         ) : days.length === 0 ? (
           <p className="p-4 text-center text-[14px] text-muted-foreground">
-            {filter === "all" ? "Chưa có giao dịch nào." : "Không có giao dịch phù hợp bộ lọc."}
+            {filter === "all" ? t("memberPortal.accountHub.historyCopy.empty") : t("memberPortal.accountHub.historyCopy.noMatch")}
           </p>
         ) : (
           days.map((day, di) => (
@@ -193,7 +194,7 @@ export default function JoyHistory({ limit = 50 }) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[15px] font-medium text-foreground">{tx.title}</p>
                     <p className="truncate text-[12.5px] text-muted-foreground">
-                      {timeLabel(tx.createdAt)}
+                      {timeLabel(tx.createdAt, locale)}
                       {tx.description ? ` · ${tx.description}` : ""}
                     </p>
                   </div>
@@ -207,7 +208,7 @@ export default function JoyHistory({ limit = 50 }) {
                       {fmt(Math.abs(tx.amount))}
                     </p>
                     <p className="font-mono text-[12.5px] text-muted-foreground">
-                      còn {fmt(tx.balanceAfter)}
+                      {t("memberPortal.accountHub.historyCopy.balanceAfter", { balance: fmt(tx.balanceAfter) })}
                     </p>
                   </div>
                 </div>

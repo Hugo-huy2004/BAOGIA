@@ -12,7 +12,11 @@
     "loginAdmin": "Admin Login",
     "hello": "Hello",
     "mainMenu": "Main Menu",
-    "login": "Log In"
+    "login": "Log In",
+    "language": "Language",
+    "chooseLanguage": "Choose language",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "footer": {
     "tagline": "A considered digital space for learners, individuals and small enterprises seeking a distinctive online presence.",

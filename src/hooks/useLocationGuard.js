@@ -10,10 +10,9 @@ import { useEffect, useRef } from "react";
 import { getCachedGeolocation } from "../utils/geoCache.js";
 import { getMemberToken } from "../services/authSession.js";
 
-const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-const LOCATION_CHECK_COOLDOWN_MS = 60_000;
+const LOCATION_CHECK_COOLDOWN_MS = 6 * 60 * 60 * 1000;
 const LOCATION_GRANT_KEY = "hugo:pwa:location-granted:v1";
 const LAST_CHECK_KEY = "hugo:pwa:last-location-check";
 
@@ -87,11 +86,9 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
     };
 
     runCheck();
-    const tid = setInterval(runCheck, CHECK_INTERVAL_MS);
     const handlePermissionUpdate = () => runCheck();
     window.addEventListener("hugo:permissions-updated", handlePermissionUpdate);
     return () => {
-      clearInterval(tid);
       window.removeEventListener("hugo:permissions-updated", handlePermissionUpdate);
     };
   }, [enabled, email]);

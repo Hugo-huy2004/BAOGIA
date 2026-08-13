@@ -80,7 +80,7 @@ export function useNotifications(
     } catch (_) {}
   }, [commitItems, commitUnreadCount, email]);
 
-  // Bootstrap cho lần vẽ đầu, sau đó GET /inbox xác nhận danh sách đầy đủ.
+  // Bootstrap là nguồn dữ liệu đầu tiên; không gọi lại /inbox ngay sau đó.
   // Khi bootstrap được revalidate, trạng thái read:true ở máy luôn thắng bản
   // snapshot cũ read:false để badge không nhảy ngược.
   useEffect(() => {
@@ -126,8 +126,9 @@ export function useNotifications(
       return;
     }
 
-    refresh();
-  }, [commitItems, commitUnreadCount, email, refresh]);
+    const hasBootstrapSnapshot = Number.isFinite(Number(bootstrapUnreadCount));
+    if (!hasBootstrapSnapshot) refresh();
+  }, [bootstrapUnreadCount, commitItems, commitUnreadCount, email, refresh]);
 
   // The WS path (PWARealtimeBridge) already hands us the full persisted
   // notification document — splice it straight into state instead of paying

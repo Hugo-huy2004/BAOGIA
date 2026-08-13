@@ -11,18 +11,14 @@ const STAGE_OPTIONS = [
   { id: "devops", label: "Chặng 6: DevOps" }
 ];
 
-// Nhận diện link YouTube để nhúng preview
+// Nhận diện link YouTube để nhúng preview. Dùng youtube-nocookie: trình phát
+// chính chủ (YouTube cho phép nhúng) nhưng không đặt cookie theo dõi trước khi
+// người xem bấm play.
 export function toYouTubeEmbed(url) {
   const m = String(url || "").match(
     /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,20})/i
   );
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
-}
-
-// Link Google Drive → chế độ preview nhúng được
-export function toDrivePreview(url) {
-  const m = String(url || "").match(/drive\.google\.com\/file\/d\/([\w-]+)/i);
-  return m ? `https://drive.google.com/file/d/${m[1]}/preview` : null;
+  return m ? `https://www.youtube-nocookie.com/embed/${m[1]}` : null;
 }
 
 // Preview trực quan dùng chung (admin soạn + member xem)
@@ -38,13 +34,14 @@ export function ResourcePreview({ type, url, className = "" }) {
   if (type === "video" && yt) {
     return <iframe src={yt} title="Xem trước video" allowFullScreen className={`rounded-xl border border-border bg-black ${className}`} />;
   }
-  if (type === "video" && /\.(mp4|webm)(\?|$)/i.test(url)) {
-    return <video src={url} controls className={`rounded-xl border border-border bg-black ${className}`} />;
-  }
-  const drive = toDrivePreview(url);
-  if (type === "document" && (drive || /\.pdf(\?|$)/i.test(url))) {
-    return <iframe src={drive || url} title="Xem trước tài liệu" className={`rounded-xl border border-border bg-background ${className}`} />;
-  }
+  // CHỈ nhúng trình phát YouTube chính chủ — đó là thứ YouTube làm ra để được
+  // nhúng, và người xem vẫn thấy kênh, quảng cáo, nút xem trên YouTube.
+  //
+  // Mọi thứ khác (PDF, Google Drive, file .mp4 rời) chỉ dẫn link ra ngoài.
+  // Nhúng thẳng tài liệu của người khác vào trong portal là trình bày nội dung
+  // đó như của mình, cắt mất trang gốc của họ, và nếu tệp là sách/giáo trình
+  // vi phạm bản quyền thì Hugo Studio thành nơi phát tán chứ không phải nơi
+  // dẫn nguồn. Đừng thêm lại iframe ở đây.
   return (
     <a
       href={url}
@@ -122,7 +119,7 @@ export default function AdminCoderResourcesTab() {
   return (
     <div className="space-y-6 font-sans">
       <div>
-        <h2 className="text-lg font-black text-foreground">Học liệu HugoCoder</h2>
+        <h2 className="text-lg font-black text-foreground">Học liệu Phát triển Web</h2>
         <p className="text-xs text-muted-foreground">Đăng video bài học và tài liệu học thuật — hiển thị ở tab Video / Tài liệu của học viên kèm preview trực quan.</p>
       </div>
 
@@ -147,8 +144,14 @@ export default function AdminCoderResourcesTab() {
             className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
           <input value={form.url} onChange={set("url")} required placeholder="URL — YouTube / mp4 / PDF / Google Drive / trang sách"
             className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground font-mono" />
-          <input value={form.source} onChange={set("source")} maxLength={200} placeholder="Nguồn học thuật (vd: MDN Web Docs, Eloquent JavaScript — Marijn Haverbeke)"
+          {/* Bắt buộc, khớp với kiểm tra ở server (coderResourceRoutes.js). */}
+          <input value={form.source} onChange={set("source")} required maxLength={200} placeholder="Nguồn — bắt buộc (vd: MDN Web Docs, Eloquent JavaScript — Marijn Haverbeke)"
             className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
+          <p className="text-[10px] leading-relaxed text-muted-foreground">
+            Chỉ đăng học liệu miễn phí công khai hoặc do chính bạn viết. Không đăng bản
+            scan sách, giáo trình hay khoá học trả phí của người khác — kể cả khi chỉ là
+            link Drive.
+          </p>
           <textarea value={form.description} onChange={set("description")} rows={3} maxLength={2000} placeholder="Mô tả ngắn — học viên đọc gì, học được gì"
             className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm text-foreground" />
           <div className="flex items-center gap-3">

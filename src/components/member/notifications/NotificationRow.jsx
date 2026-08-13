@@ -1,5 +1,6 @@
 import { signedJoy, timeAgo, tintOf } from "./notificationModel";
 import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../../i18n/languages";
 
 const DIRECTION_ICON = { in: "arrow_downward", out: "arrow_upward" };
 
@@ -19,7 +20,7 @@ const initial = (name) => (name || "?").trim().charAt(0).toUpperCase();
 export default function NotificationRow({ item, index = 0, onOpen, onAction, onDismiss }) {
   const { t, i18n } = useTranslation();
   const language = i18n.resolvedLanguage || i18n.language || "vi";
-  const locale = String(language).startsWith("en") ? "en-US" : "vi-VN";
+  const locale = localeForLanguage(language);
   const isMoney = item.direction !== "none";
   const tint = tintOf(item);
   const icon = DIRECTION_ICON[item.direction] || item.icon || "notifications";
@@ -43,7 +44,7 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
       <button
         type="button"
         onClick={() => (item.actionUrl ? onAction?.(item) : onOpen?.(item))}
-        className="min-w-0 flex-1 text-left"
+        className="hgn-row-copy min-w-0 flex-1 text-left"
       >
         <span className="hgn-row-head">
           <span className="hgn-row-title">{item.title}</span>

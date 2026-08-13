@@ -22,7 +22,7 @@ export default function CoderCertificatePage() {
 
   useEffect(() => {
     if (cert) {
-      document.title = `Chứng chỉ ${cert.stageTitle} — ${cert.displayName} | HugoCoder`;
+      document.title = `Giấy chứng nhận ${cert.stageTitle} — ${cert.displayName} | Study with Hugo`;
     }
     return () => { document.title = "Hugo Studio"; };
   }, [cert]);
@@ -30,7 +30,7 @@ export default function CoderCertificatePage() {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      notify.success("Đã sao chép liên kết chứng chỉ!");
+      notify.success("Đã sao chép liên kết giấy chứng nhận!");
     } catch {
       notify.error("Không sao chép được, hãy copy từ thanh địa chỉ.");
     }
@@ -50,9 +50,9 @@ export default function CoderCertificatePage() {
         <span className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
           <span className="material-symbols-outlined text-2xl text-foreground">workspace_premium</span>
         </span>
-        <h1 className="text-lg font-black text-foreground">Không tìm thấy chứng chỉ</h1>
+        <h1 className="text-lg font-black text-foreground">Không tìm thấy giấy chứng nhận</h1>
         <p className="text-sm text-muted-foreground max-w-sm">
-          Chứng chỉ không tồn tại hoặc học viên chưa hoàn thành chặng học này trên HugoCoder.
+          Giấy chứng nhận không tồn tại hoặc học viên chưa hoàn thành phần học này trên Study with Hugo.
         </p>
         <Link to="/" className="text-sm font-bold text-foreground underline underline-offset-4">Về trang chủ Hugo Studio</Link>
       </div>
@@ -62,7 +62,7 @@ export default function CoderCertificatePage() {
   return (
     <div className="min-h-screen bg-background py-10 px-4 font-sans">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Tấm chứng chỉ — thiết kế trang trọng, in được */}
+        {/* Tấm giấy chứng nhận — thiết kế trang trọng, in được */}
         <div className="relative bg-card border-2 border-foreground/80 rounded-sm p-8 sm:p-12 print:border-black">
           {/* Viền kép cổ điển */}
           <div className="absolute inset-2 border border-foreground/30 rounded-sm pointer-events-none" />
@@ -72,8 +72,8 @@ export default function CoderCertificatePage() {
               <span className="inline-flex w-14 h-14 rounded-full bg-muted items-center justify-center">
                 <span className="material-symbols-outlined text-3xl text-foreground">workspace_premium</span>
               </span>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">Hugo Studio — HugoCoder</p>
-              <h1 className="text-2xl sm:text-3xl font-black text-foreground uppercase tracking-wide">Chứng chỉ hoàn thành</h1>
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-muted-foreground">Study with Hugo · Hugo Studio Original</p>
+              <h1 className="text-2xl sm:text-3xl font-black text-foreground uppercase tracking-wide">Giấy chứng nhận hoàn thành</h1>
             </div>
 
             <div className="space-y-1">
@@ -132,6 +132,15 @@ export default function CoderCertificatePage() {
                 <p className="text-[10px] font-mono text-muted-foreground">hugo.io.vn/certificate/{cert.slug}/{cert.phaseNumber}</p>
               </div>
             </div>
+
+            {/* Bắt buộc giữ: "chứng chỉ" trong hệ thống giáo dục quốc dân chỉ do
+                cơ sở được cấp phép cấp. Đây là giấy ghi nhận tiến độ học trong
+                ứng dụng, phải nói rõ để không bị hiểu là văn bằng. */}
+            <p className="text-[9px] leading-relaxed text-muted-foreground border-t border-border/60 pt-3">
+              Giấy chứng nhận này do Hugo Studio cấp, ghi nhận tiến độ hoàn thành khoá học
+              Phát triển Web trong ứng dụng Study with Hugo. Đây không phải văn bằng, chứng chỉ thuộc hệ thống
+              giáo dục quốc dân và không có giá trị thay thế các văn bằng đó.
+            </p>
           </div>
         </div>
 
@@ -156,7 +165,7 @@ export default function CoderCertificatePage() {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-muted text-foreground border border-border text-xs font-black uppercase tracking-wider transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-sm">school</span>
-            Học HugoCoder
+            Học cùng Study with Hugo
           </Link>
         </div>
 

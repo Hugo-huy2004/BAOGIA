@@ -17,7 +17,7 @@ import UtilityAppIcon from "./utilities/UtilityAppIcon";
 
 // Dynamic On-Demand PWA App Storage Footprint (MB)
 export const APP_STORAGE_MB = {
-  hugoskin: 2.8,
+  study: 8.1,
   ide: 4.5,
   psychology: 3.2,
   arcade: 5.1,
@@ -25,12 +25,9 @@ export const APP_STORAGE_MB = {
   helpdesk: 1.4,
   handle: 1.2,
   aura: 1.8,
-  deco: 3.8,
   team: 1.6,
   bio: 1.5,
   info: 0.8,
-  joy_wallet: 1.1,
-  map: 2.4,
   hugoso: 3.6
 };
 
@@ -87,30 +84,25 @@ const readDownloadedGameAppIds = () => (
 );
 
 const APP_CATALOG = [
-  ["bio", "badge", "purple", "edu", "4.9", "12k", "HOT"],
-  ["ide", "code", "blue", "edu", "4.8", "8k", "PRO"],
-  ["hugoso", "school", "purple", "edu", "5.0", "3k", "NEW"],
-  ["team", "groups", "teal", "edu", "4.7", "2k", "JOIN"],
-  ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "AI"],
-  ["hugoskin", "face", "slate", "wellness", "4.7", "4k", "AI"],
-  ["radio", "radio", "teal", "wellness", "4.6", "5k", "LOFI"],
-  ["helpdesk", "support_agent", "indigo", "tools", "4.8", "9k", "FREE"],
-  ["handle", "handyman", "rose", "tools", "4.9", "10k", "UTILITY"],
-  ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "GAMES"],
-  ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "FOCUS"],
-  ["deco", "chair", "pink", "arcade", "4.5", "3k", "CREATIVE"],
-  ["info", "info", "slate", "tools", "4.8", "6k", "SYSTEM"],
-  ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "30k", "WALLET"],
-  ["map", "explore", "teal", "tools", "4.9", "20k", "DISCOVER"],
-  ["store", "store", "blue", "tools", "5.0", "50k", "STORE"],
-  ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "GAME"],
-  ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "GAME"],
-  ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "GAME"],
-  ["arcade_wordguess", "keyboard", "purple", "arcade", "4.6", "4k", "GAME"],
-  ["arcade_tetris", "grid_view", "cyan", "arcade", "4.9", "15k", "GAME"],
-  ["arcade_snake", "all_inclusive", "teal", "arcade", "4.8", "9k", "GAME"],
-  ["arcade_survivor", "rocket_launch", "indigo", "arcade", "5.0", "18k", "GAME"],
-  ["arcade_flappy", "bolt", "rose", "arcade", "4.7", "7k", "GAME"],
+  ["bio", "badge", "purple", "edu", "4.9", "12k", "hot"],
+  ["study", "school", "purple", "edu", "5.0", "11k", "new"],
+  ["team", "groups", "teal", "edu", "4.7", "2k", "join"],
+  ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "ai"],
+  ["radio", "radio", "teal", "wellness", "4.6", "5k", "lofi"],
+  ["helpdesk", "support_agent", "indigo", "tools", "4.8", "9k", "free"],
+  ["handle", "handyman", "rose", "tools", "4.9", "10k", "utility"],
+  ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "games"],
+  ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "focus"],
+  ["info", "info", "slate", "tools", "4.8", "6k", "system"],
+  ["store", "store", "blue", "tools", "5.0", "50k", "store"],
+  ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "game"],
+  ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "game"],
+  ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "game"],
+  ["arcade_wordguess", "keyboard", "purple", "arcade", "4.6", "4k", "game"],
+  ["arcade_tetris", "grid_view", "cyan", "arcade", "4.9", "15k", "game"],
+  ["arcade_snake", "all_inclusive", "teal", "arcade", "4.8", "9k", "game"],
+  ["arcade_survivor", "rocket_launch", "indigo", "arcade", "5.0", "18k", "game"],
+  ["arcade_flappy", "bolt", "rose", "arcade", "4.7", "7k", "game"],
 ];
 
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
@@ -140,7 +132,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       category,
       rating,
       users,
-      badge,
+      badge: t(`utilities.badges.${badge}`),
       title: t(`utilities.catalog.${id}.title`),
       subLabel: t(`utilities.catalog.${id}.description`),
     })),
@@ -457,9 +449,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       setSearchQuery(app.title);
       return;
     }
-    if (app.id === "map") {
-      navigate("/member/map");
-    } else if (app.id === "store") {
+    if (app.id === "store") {
       setSelectedUtility("store");
     } else {
       setSelectedUtility(app.id);
@@ -851,10 +841,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         setSelectedUtility("store");
         return;
       }
-      if (app.id === "map") {
-        navigate("/member/map");
-        return;
-      }
       if (app.id.startsWith("arcade_")) {
         const gameKey = app.id.replace("arcade_", "");
         navigate(`/member/utilities/arcade?game=${gameKey}&from=utilities`, { state: { from: "/member/utilities" } });
@@ -877,19 +863,16 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   const prefetchUtility = (appId) => {
     try {
       switch (appId) {
+        case "study": import("./study/StudyWithHugoApp"); break;
         case "helpdesk": import("./HugoHelpdeskTab"); break;
         case "handle": import("./HugoHandleTab"); break;
         case "psychology": import("./banhocduong/BanhocduongTab"); break;
-        case "ide": import("./hugoCoder/HugoCoderHub"); break;
-        case "hugoso": import("./hugoSO/HugoSOApp"); break;
         case "team": import("./HugoTeamTab"); break;
         case "radio": import("./MemberRadioTab"); break;
         case "arcade": import("./arcade/HugoArcadeTab"); break;
         case "aura": import("./MemberAuraTab"); break;
         case "info": import("./MemberInfoVersionTab"); break;
-        case "deco": import("./DecoStudioTab"); break;
         case "bio": import("./BioPreviewTab"); break;
-        case "hugoskin": import("./HugoSkinTab"); break;
         default: break;
       }
     } catch (err) {

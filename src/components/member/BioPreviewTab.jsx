@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../i18n/languages";
 import { getMemberSession } from "../../services/authSession";
 import "../../styles/bioStudio.css";
 
@@ -42,14 +43,14 @@ export default function BioPreviewTab({
   }, [bio?.bioExpiresAt, bio?.createdAt, bio?.membershipEndDate]);
 
   const formatDate = useMemo(() => {
-    const locale = i18n.resolvedLanguage === "en" ? "en-US" : "vi-VN";
+    const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
     const formatter = new Intl.DateTimeFormat(locale, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
     return (date) => formatter.format(date);
-  }, [i18n.resolvedLanguage]);
+  }, [i18n.language, i18n.resolvedLanguage]);
 
   const copyLink = async () => {
     if (!ready) return;

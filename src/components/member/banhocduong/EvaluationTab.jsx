@@ -557,12 +557,12 @@ export default function EvaluationTab({
 
             {historyLogs.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-[11px] font-bold">
-                Chưa ghi nhận hoạt động trị liệu hoặc kiểm tra nào.
+                Chưa ghi nhận hoạt động thư giãn hoặc bài tự đánh giá nào.
               </div>
             ) : (
               <div className={`relative border-l-2 border-border ml-4 space-y-6 py-2 overflow-hidden transition-all duration-300 ${timelineExpanded ? "max-h-[9999px]" : "max-h-80"}`}>
                 {[...historyLogs].reverse().map((log, idx) => {
-                  let title = "Hoạt động trị liệu";
+                  let title = "Hoạt động thư giãn";
                   let color = "bg-primary border-primary/30";
                   let desc  = log.reason || log.desc || "";
 
@@ -642,7 +642,7 @@ export default function EvaluationTab({
                     <p className="text-base font-black text-foreground mt-0.5">{weeklyDigest.checkinDaysCount} / 7 ngày</p>
                   </div>
                   <div className="p-3 rounded-xl bg-muted/40 border border-border/50">
-                    <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Hoạt Động Trị Liệu</p>
+                    <p className="text-[9px] font-black uppercase tracking-wider text-muted-foreground">Hoạt Động Thư Giãn</p>
                     <p className="text-base font-black text-foreground mt-0.5">{weeklyDigest.activityCount} lượt hoàn thành</p>
                   </div>
                 </div>

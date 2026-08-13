@@ -12,8 +12,12 @@ import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
 
 const RECENT_KEY = "joy_recent_contacts";
 const QUICK_AMOUNTS = [50, 100, 200, 500];
-const NOTE_CHIPS = ["Cảm ơn!", "Tặng bạn" ];
 const TRANSFER_FEE_RATE = 0.05;
+const CONNECT_MODES = [
+  { id: "search", icon: "send", label: "Gửi", title: "Gửi JOY", description: "Tìm đúng người nhận, kiểm tra thông tin rồi chuyển an toàn." },
+  { id: "myqr", icon: "qr_code_2", label: "Nhận", title: "Nhận JOY", description: "Đưa mã động này cho người gửi hoặc chia sẻ trực tiếp." },
+  { id: "scan", icon: "qr_code_scanner", label: "Quét", title: "Quét mã", description: "Camera tự nhận diện và xác minh người nhận trước khi chuyển." },
+];
 
 // The particle code carries an opaque, server-signed token (base64url). The
 // client never interprets it — it just decodes base64url to the raw bytes the
@@ -82,6 +86,61 @@ const css = `
 .joy-modal-panel {
   animation: jtSlideUp .35s cubic-bezier(.34,1.1,.64,1);
 }
+.joy-connect-select { padding: 16px 18px 20px; }
+.joy-connect-hero { display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: center; margin-bottom: 13px; padding: 13px 14px; border: 1px solid rgba(99,102,241,.14); border-radius: 18px; background: linear-gradient(135deg,rgba(99,102,241,.1),rgba(14,165,233,.055)); }
+.joy-connect-hero > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; box-shadow: 0 9px 22px rgba(79,70,229,.24); font-size: 21px; }
+.joy-connect-hero div { display: grid; gap: 2px; }
+.joy-connect-hero strong { color: #0f172a; font-size: 15px; letter-spacing: -.025em; }
+.joy-connect-hero small { color: #64748b; font-size: 10px; line-height: 1.4; }
+.dark .joy-connect-hero strong { color: #fff; }
+.dark .joy-connect-hero small { color: #94a3b8; }
+.joy-connect-modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 15px; padding: 4px; border: 1px solid rgba(148,163,184,.2); border-radius: 17px; background: rgba(148,163,184,.09); }
+.joy-connect-mode { display: flex; min-width: 0; align-items: center; justify-content: center; gap: 6px; padding: 9px 7px; border-radius: 12px; color: #64748b; font-size: 11px; font-weight: 750; transition: .16s ease; }
+.joy-connect-mode .material-symbols-outlined { font-size: 17px; }
+.joy-connect-mode.is-active { background: #fff; color: #4f46e5; box-shadow: 0 5px 16px rgba(30,41,59,.1); }
+.dark .joy-connect-mode.is-active { background: rgba(255,255,255,.11); color: #c4b5fd; }
+.joy-connect-search { position: relative; }
+.joy-connect-search > .material-symbols-outlined:first-child { position: absolute; z-index: 1; left: 14px; top: 18px; color: #6366f1; font-size: 20px; }
+.joy-connect-search input { width: 100%; min-height: 56px; padding: 10px 42px 10px 43px; border: 1px solid rgba(148,163,184,.28); border-radius: 17px; outline: none; background: rgba(248,250,252,.92); color: #0f172a; font-size: 13px; font-weight: 700; transition: .16s ease; }
+.joy-connect-search input:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,.1); }
+.dark .joy-connect-search input { border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.055); color: #fff; }
+.joy-connect-search > .is-loading { position: absolute; right: 14px; top: 18px; color: #6366f1; font-size: 18px; animation: jtSpin 1s linear infinite; }
+.joy-connect-search-intent { display: flex; align-items: center; gap: 5px; margin: 7px 3px 13px; color: #94a3b8; font-size: 9px; }
+.joy-connect-search-intent .material-symbols-outlined { font-size: 13px; color: #22c55e; }
+.joy-connect-list-label { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 7px; color: #94a3b8; font-size: 9px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.joy-connect-empty { display: grid; place-items: center; gap: 7px; min-height: 150px; padding: 20px; border: 1px dashed rgba(148,163,184,.3); border-radius: 18px; color: #94a3b8; text-align: center; }
+.joy-connect-empty > .material-symbols-outlined { font-size: 34px; color: #cbd5e1; }
+.joy-connect-empty strong { color: #475569; font-size: 12px; }
+.joy-connect-empty small { max-width: 260px; font-size: 10px; line-height: 1.45; }
+.dark .joy-connect-empty strong { color: #cbd5e1; }
+.joy-connect-receive { display: grid; justify-items: center; gap: 12px; padding: 5px 0 2px; }
+.joy-connect-receive-card { position: relative; display: grid; width: 100%; justify-items: center; padding: 19px 14px 15px; overflow: hidden; border: 1px solid rgba(99,102,241,.15); border-radius: 23px; background: radial-gradient(circle at 50% 20%,rgba(99,102,241,.12),transparent 42%),#f8fafc; }
+.dark .joy-connect-receive-card { background: radial-gradient(circle at 50% 20%,rgba(139,92,246,.19),transparent 42%),rgba(255,255,255,.035); }
+.joy-connect-live { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border-radius: 999px; background: rgba(34,197,94,.11); color: #15803d; font-size: 7px; font-weight: 850; letter-spacing: .07em; }
+.dark .joy-connect-live { color: #86efac; }
+.joy-connect-live i { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.13); }
+.joy-connect-receive-name { display: grid; justify-items: center; gap: 2px; }
+.joy-connect-receive-name strong { color: #0f172a; font-size: 14px; }
+.joy-connect-receive-name small { color: #94a3b8; font-size: 9px; }
+.dark .joy-connect-receive-name strong { color: #fff; }
+.joy-connect-receive-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.joy-connect-receive-actions button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 43px; border: 1px solid rgba(148,163,184,.25); border-radius: 14px; background: #fff; color: #334155; font-size: 11px; font-weight: 750; }
+.joy-connect-receive-actions button:first-child { border: 0; background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; }
+.dark .joy-connect-receive-actions button { background: rgba(255,255,255,.07); color: #e2e8f0; }
+.joy-connect-receive-actions .material-symbols-outlined { font-size: 17px; }
+.joy-connect-share-status { min-height: 14px; color: #22c55e; font-size: 9px; font-weight: 700; }
+.joy-connect-scan { display: grid; gap: 11px; }
+.joy-connect-scan-status { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 14px; background: rgba(34,197,94,.08); color: #166534; }
+.dark .joy-connect-scan-status { color: #86efac; }
+.joy-connect-scan-status > span { font-size: 18px; }
+.joy-connect-scan-status div { display: grid; gap: 1px; }
+.joy-connect-scan-status strong { font-size: 10px; }
+.joy-connect-scan-status small { opacity: .75; font-size: 8px; }
+.joy-connect-scan-frame { overflow: hidden; padding: 7px; border: 1px solid rgba(99,102,241,.18); border-radius: 23px; background: linear-gradient(135deg,rgba(99,102,241,.14),rgba(14,165,233,.08)); }
+.joy-connect-scan-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.joy-connect-scan-tools button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border: 1px solid rgba(148,163,184,.22); border-radius: 13px; color: #475569; font-size: 10px; font-weight: 700; }
+.dark .joy-connect-scan-tools button { color: #cbd5e1; }
+.joy-connect-scan-tools .material-symbols-outlined { font-size: 17px; color: #6366f1; }
 @media (min-width: 640px) {
   .joy-modal-overlay {
     align-items: center;
@@ -117,7 +176,7 @@ function Avatar({ name, url, size = 40 }) {
   );
 }
 
-function JoySeal({ payload, tokenBytes, displayName, avatarUrl, onOpen, compact = false, interactive = true }) {
+function JoySeal({ payload, tokenBytes, onOpen, compact = false, interactive = true }) {
   const code = String(payload || "");
   const shortCode = code ? `${code.slice(0, 2)} ✦ ${code.slice(-2)}` : "JOY";
   const size = compact ? 190 : 262;
@@ -371,7 +430,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
       </button>
 
       <p style={{ color: "rgba(253,230,138,.75)", fontSize: 11, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", marginBottom: 40, textShadow: "0 0 12px rgba(250,204,21,.35)" }}>
-        {t("joy.particle.qrTitle", "Mã QR JOY")}
+        {t("memberPortal.joy.particle.qrTitle", "Mã QR JOY")}
       </p>
 
       {/* Ring container */}
@@ -393,7 +452,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
           ? <img src={avatarUrl} alt={displayName} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(168,85,247,.6)", marginBottom: 2 }} />
           : null}
         <p style={{ color: "#fff", fontWeight: 900, fontSize: 16, letterSpacing: "-.02em" }}>{displayName}</p>
-        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>{t("joy.particle.internalCode", "Mã nội bộ để gửi JOY")}</p>
+        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>{t("memberPortal.joy.particle.internalCode", "Mã nội bộ để gửi JOY")}</p>
       </div>
 
       <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
@@ -410,7 +469,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>share</span>
-          {t("joy.particle.share", "Chia sẻ")}
+          {t("memberPortal.joy.particle.share", "Chia sẻ")}
         </button>
       </div>
     </div>
@@ -478,14 +537,19 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const [recentContacts, setRecentContacts] = useState([]);
   const [myQR, setMyQR] = useState(null);
   const [qrFullscreen, setQrFullscreen] = useState(false);
-  const [scanOpen, setScanOpen] = useState(false);
   const [scanResolving, setScanResolving] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [ignoredScanPayloads, setIgnoredScanPayloads] = useState(() => new Set());
   const [nfcScanning, setNfcScanning] = useState(false);
   const [nfcWriteStatus, setNfcWriteStatus] = useState(""); // "" | "writing" | "done" | "error"
-  const nfc = useNfc();
+  const [shareStatus, setShareStatus] = useState("");
+  const {
+    supported: nfcSupported,
+    writeTag: writeNfcTag,
+    startScan: startNfcScan,
+    stopScan: stopNfcScan,
+  } = useNfc();
   const [hasPin, setHasPin] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [setupPinStep, setSetupPinStep] = useState(1);
@@ -502,6 +566,26 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const numAmount = parseInt(amount, 10) || 0;
   const fee = Math.floor(numAmount * TRANSFER_FEE_RATE);
   const total = numAmount + fee;
+  const availableBalance = Number(bio?.joyBalance);
+  const balanceKnown = Number.isFinite(availableBalance) && availableBalance >= 0;
+  const insufficientBalance = balanceKnown && total > availableBalance;
+  const suggestedAmounts = useMemo(() => {
+    if (!balanceKnown) return QUICK_AMOUNTS;
+    const maxSend = Math.min(1000, Math.floor(availableBalance / (1 + TRANSFER_FEE_RATE)));
+    const adaptive = [50, 100, 200, 500, Math.floor(maxSend / 2 / 10) * 10, maxSend]
+      .filter((value) => value >= 10 && value <= maxSend);
+    const unique = [...new Set(adaptive)].sort((a, b) => a - b);
+    return unique.slice(Math.max(0, unique.length - 4));
+  }, [availableBalance, balanceKnown]);
+  const visibleMode = mode === "nfc" ? "scan" : mode;
+  const activeConnectMode = CONNECT_MODES.find((item) => item.id === visibleMode) || CONNECT_MODES[0];
+  const searchIntent = useMemo(() => {
+    const query = searchQ.trim();
+    if (!query) return "Nhập tên, số điện thoại hoặc mã giới thiệu";
+    if (/^#?[a-z0-9_-]{5,}$/i.test(query) && !/\s/.test(query)) return "Đang tìm theo mã hoặc tài khoản";
+    if (/^[+\d][\d\s.-]{6,}$/.test(query)) return "Đang tìm theo số điện thoại";
+    return "Đang tìm theo tên hiển thị";
+  }, [searchQ]);
 
   // Match the Particle Cloud Code's disc to the modal card so it blends in
   // seamlessly (white in light mode, near-black in dark mode). The generator
@@ -521,9 +605,10 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     setRecipient(null);
     setAmount(""); setNote(""); setSearchQ(""); setSearchResults([]);
     setError(""); setResult(null); setIgnoredScanPayloads(new Set());
+    setShareStatus("");
     scanResolvingRef.current = false;
     setNfcScanning(false); setNfcWriteStatus("");
-    nfc.stopScan();
+    stopNfcScan();
     setRecentContacts(getRecent());
     setPinInput("");
     setSetupPinStep(1);
@@ -531,7 +616,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     checkHasPin()
       .then(d => setHasPin(d.hasPin))
       .catch(() => setHasPin(false));
-  }, [open, initialMode]);
+  }, [open, initialMode, stopNfcScan]);
 
   // Debounced search
   useEffect(() => {
@@ -548,16 +633,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     return () => clearTimeout(debounceRef.current);
   }, [searchQ, bio?.email]);
 
-  // Load My QR when "my code" is shown, and refresh it periodically so the
-  // signed, time-bound token never expires while on screen (server rotates it
-  // ~every 2 min; we refetch at 90s to stay comfortably inside the window).
+  // Load once and refresh at most once if the sheet stays open unusually long.
   useEffect(() => {
     if (mode !== "myqr" || !bio?.email) return;
     let active = true;
     const load = () => getJoyQrPayload(bio.email).then(d => { if (active) setMyQR(d); }).catch(() => {});
     load();
-    const id = setInterval(load, 90000);
-    return () => { active = false; clearInterval(id); };
+    const id = setTimeout(load, 90000);
+    return () => { active = false; clearTimeout(id); };
   }, [mode, bio?.email]);
 
   // Opaque token bytes for the generator; recomputed only when the token changes.
@@ -568,6 +651,22 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     setStep("amount");
     setError("");
   }, []);
+
+  const shareReceiveCode = useCallback(async () => {
+    if (!myQR?.payload) return;
+    const shareData = {
+      title: "Nhận JOY",
+      text: `Gửi JOY cho ${myQR.displayName || bio?.displayName || "tôi"} bằng mã JOY này:\n${myQR.payload}`,
+    };
+    try {
+      if (navigator.share) await navigator.share(shareData);
+      else await navigator.clipboard.writeText(myQR.payload);
+      setShareStatus(navigator.share ? "Đã mở bảng chia sẻ" : "Đã sao chép mã");
+      window.setTimeout(() => setShareStatus(""), 2200);
+    } catch (shareError) {
+      if (shareError?.name !== "AbortError") setShareStatus("Không thể chia sẻ. Hãy thử sao chép lại.");
+    }
+  }, [bio?.displayName, myQR]);
 
   const handleQRDetected = useCallback(async (rawValue) => {
     if (!rawValue || scanResolvingRef.current || Date.now() < scanCooldownUntilRef.current || ignoredScanPayloads.has(rawValue)) return;
@@ -598,7 +697,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
           return next;
         });
       }, 30000);
-      setError(e.message || t("joy.particle.invalidQr", "Mã JOY không hợp lệ hoặc đã hết hạn. Hãy quét mã mới hơn."));
+      setError(e.message || t("memberPortal.joy.particle.invalidQr", "Mã JOY không hợp lệ hoặc đã hết hạn. Hãy quét mã mới hơn."));
     } finally {
       scanResolvingRef.current = false;
       setScanResolving(false);
@@ -689,7 +788,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
 
 
-  if (!open && !qrFullscreen && !scanOpen) return null;
+  if (!open && !qrFullscreen) return null;
 
   return createPortal(
     <>
@@ -762,13 +861,13 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.6)", letterSpacing: ".14em", textTransform: "uppercase" }}>HugoStudio</p>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#fff", letterSpacing: "-.02em" }}>
-                    {step === "select" && t("joy.particle.title", "Hugo Studio - Intelligent Connection")}
-                    {step === "amount" && `${t("joy.particle.sendTo", "Gửi")} → ${recipient?.displayName}`}
-                    {step === "invoice" && t("joy.particle.confirm", "Xác nhận")}
+                    {step === "select" && t("memberPortal.joy.particle.title", "Hugo Studio - Intelligent Connection")}
+                    {step === "amount" && `${t("memberPortal.joy.particle.sendTo", "Gửi")} → ${recipient?.displayName}`}
+                    {step === "invoice" && t("memberPortal.joy.particle.confirm", "Xác nhận")}
                     {step === "pin" && "Mã PIN Giao Dịch"}
                     {step === "setup-pin" && "Thiết lập mã PIN"}
-                    {step === "sending" && t("joy.particle.sending", "Đang xử lý...")}
-                    {step === "success" && t("joy.particle.success", "Thành công!")}
+                    {step === "sending" && t("memberPortal.joy.particle.sending", "Đang xử lý...")}
+                    {step === "success" && t("memberPortal.joy.particle.success", "Thành công!")}
                   </p>
                 </div>
                 <button onClick={close} disabled={step === "sending"} style={{
@@ -782,26 +881,24 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
               {/* ── Step: Select ── */}
               {step === "select" && (
-                <div style={{ padding: "14px 18px 18px" }}>
+                <div className="joy-connect-select">
+                  <section className="joy-connect-hero">
+                    <span className="material-symbols-outlined">{activeConnectMode.icon}</span>
+                    <div><strong>{activeConnectMode.title}</strong><small>{activeConnectMode.description}</small></div>
+                  </section>
                   {/* Mode tabs */}
-                  <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-                    {[
-                      { id: "search", icon: "person_search", label: t("joy.particle.tabSearch", "Tìm kiếm") },
-                      { id: "myqr", icon: "qr_code_2", label: t("joy.particle.tabMyQr", "Mã của tôi") },
-                      { id: "scan", icon: "qr_code_scanner", label: t("joy.particle.tabScanQr", "Quét QR") },
-                      ...(nfc.supported ? [{ id: "nfc", icon: "nfc", label: t("joy.particle.tabNfc", "Tap NFC") }] : []),
-                    ].map(m => (
+                  <div className="joy-connect-modes" role="tablist" aria-label="Chế độ JOY Connect">
+                    {CONNECT_MODES.map(m => (
                       <button
+                        type="button"
+                        role="tab"
+                        aria-selected={visibleMode === m.id}
                         key={m.id}
-                        onClick={() => setMode(m.id)}
-                        className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-                          mode === m.id
-                            ? "bg-indigo-600 text-white shadow-md font-black"
-                            : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold border border-slate-200/60 dark:border-white/5 hover:bg-slate-200/70 dark:hover:bg-white/10"
-                        }`}
+                        onClick={() => { setMode(m.id); setError(""); }}
+                        className={`joy-connect-mode ${visibleMode === m.id ? "is-active" : ""}`}
                       >
-                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>{m.icon}</span>
-                        <span className="text-[10px] tracking-tight">{m.label}</span>
+                        <span className="material-symbols-outlined">{m.icon}</span>
+                        <span>{m.label}</span>
                       </button>
                     ))}
                   </div>
@@ -809,32 +906,28 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   {/* Search mode */}
                   {mode === "search" && (
                     <>
-                      <div style={{ position: "relative", marginBottom: 12 }}>
-                        <span className="material-symbols-outlined" style={{
-                          position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
-                          fontSize: 18, color: "#94a3b8",
-                        }}>search</span>
+                      <div className="joy-connect-search">
+                        <span className="material-symbols-outlined">person_search</span>
                         <input
                           value={searchQ}
                           onChange={e => setSearchQ(e.target.value)}
-                          placeholder={t("joy.particle.searchPlaceholder", "Tên, SĐT, mã giới thiệu...")}
-                          className="w-full py-2.5 pl-10 pr-10 rounded-xl border-2 border-slate-200/70 bg-slate-50 text-[13px] font-bold text-slate-800 outline-none transition-all focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:focus:border-primary dark:focus:bg-white/10"
+                          placeholder={t("memberPortal.joy.particle.searchPlaceholder", "Tên, số điện thoại hoặc mã giới thiệu")}
+                          autoComplete="off"
+                          inputMode="search"
                         />
                         {searching && (
-                          <span className="material-symbols-outlined" style={{
-                            position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                            fontSize: 16, color: "#6366f1", animation: "jtSpin 1s linear infinite",
-                          }}>progress_activity</span>
+                          <span className="material-symbols-outlined is-loading">progress_activity</span>
                         )}
                       </div>
+                      <p className="joy-connect-search-intent"><span className="material-symbols-outlined">verified_user</span>{searchIntent}</p>
 
                       {/* Results */}
                       {searchQ.trim() && searchResults.length > 0 && (
                         <div style={{ marginBottom: 12 }}>
-                          <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>{t("joy.particle.searchResults", "Kết quả tìm kiếm")}</p>
-                          <div style={{ borderTop: "1px solid #f1f5f9" }}>
+                          <p className="joy-connect-list-label"><span>{t("memberPortal.joy.particle.searchResults", "Kết quả phù hợp")}</span><span>{searchResults.length} người</span></p>
+                          <div className="grid gap-2">
                             {searchResults.map(c => (
-                              <div key={c.referralCode} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                              <div key={c.referralCode}>
                                 <ContactCard contact={c} onSelect={selectRecipient} />
                               </div>
                             ))}
@@ -843,14 +936,14 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       )}
 
                       {searchQ.trim() && !searching && searchResults.length === 0 && (
-                        <p style={{ textAlign: "center", color: "#94a3b8", fontSize: 12, padding: "12px 0" }}>{t("joy.particle.noUserFound", "Không tìm thấy người dùng")}</p>
+                        <div className="joy-connect-empty"><span className="material-symbols-outlined">person_off</span><strong>{t("memberPortal.joy.particle.noUserFound", "Không tìm thấy người dùng")}</strong><small>Kiểm tra lại số điện thoại hoặc thử nhập mã giới thiệu chính xác.</small></div>
                       )}
 
                       {/* Recent contacts */}
                       {!searchQ.trim() && recentContacts.length > 0 && (
                         <div>
-                          <p style={{ fontSize: 9, fontWeight: 700, color: "#94a3b8", letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 4 }}>{t("joy.particle.recent", "Gần đây")}</p>
-                          <div className="border-t border-slate-100 dark:border-white/10 divide-y divide-slate-100 dark:divide-white/10">
+                          <p className="joy-connect-list-label"><span>{t("memberPortal.joy.particle.recent", "Gửi gần đây")}</span><span>Chạm để chọn</span></p>
+                          <div className="grid gap-2">
                             {recentContacts.map(c => (
                               <div key={c.referralCode}>
                                 <ContactCard contact={c} onSelect={selectRecipient} />
@@ -861,46 +954,60 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       )}
 
                       {!searchQ.trim() && recentContacts.length === 0 && (
-                        <div style={{ textAlign: "center", padding: "24px 0 8px" }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 36, color: "#e5e7eb" }}>person_search</span>
-                          <p style={{ color: "#94a3b8", fontSize: 12, marginTop: 8 }}>{t("joy.particle.searchHint", "Tìm theo tên, SĐT hoặc mã giới thiệu")}</p>
-                        </div>
+                        <div className="joy-connect-empty"><span className="material-symbols-outlined">group_add</span><strong>Chọn người nhận đầu tiên</strong><small>{t("memberPortal.joy.particle.searchHint", "Tìm theo tên, số điện thoại hoặc mã giới thiệu. Người đã gửi sẽ xuất hiện ở đây lần sau.")}</small></div>
                       )}
                     </>
                   )}
 
                   {/* My QR mode */}
                   {mode === "myqr" && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0 4px" }}>
+                    <div className="joy-connect-receive">
                       {!myQR ? (
                         <div style={{ padding: "32px 0" }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
                         </div>
                       ) : (
                         <>
-                          <div style={{ borderRadius: "50%", lineHeight: 0 }}>
-                            <ParticleGenerator bytes={myTokenBytes} size={240} background={cardBg} />
+                          <section className="joy-connect-receive-card">
+                            <span className="joy-connect-live"><i />MÃ ĐỘNG</span>
+                            <button type="button" onClick={() => setQrFullscreen(true)} aria-label="Mở mã JOY toàn màn hình" style={{ borderRadius: "50%", lineHeight: 0 }}>
+                              <ParticleGenerator bytes={myTokenBytes} size={226} background={cardBg} />
+                            </button>
+                            <div className="joy-connect-receive-name">
+                              <strong>{myQR.displayName}</strong>
+                              <small>Chạm vào mã để mở toàn màn hình · tự làm mới an toàn</small>
+                            </div>
+                          </section>
+                          <div className="joy-connect-receive-actions">
+                            <button type="button" onClick={shareReceiveCode}><span className="material-symbols-outlined">ios_share</span>Chia sẻ mã</button>
+                            <button type="button" onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(myQR.payload);
+                                setShareStatus("Đã sao chép mã nhận JOY");
+                                window.setTimeout(() => setShareStatus(""), 2200);
+                              } catch { setShareStatus("Không thể sao chép mã"); }
+                            }}><span className="material-symbols-outlined">content_copy</span>Sao chép</button>
                           </div>
-                          <p className="mt-3 text-sm font-black text-slate-900 dark:text-white">{myQR.displayName}</p>
+                          <p className="joy-connect-share-status" role="status">{shareStatus}</p>
                           {/* Write NFC button */}
-                          {nfc.supported && (
-                            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                          {nfcSupported && (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                               {nfcWriteStatus === "writing" ? (
                                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 10, background: "rgba(99,102,241,.06)" }}>
                                   <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1" }}>{t("joy.particle.nfcWrite", "Đang ghi NFC...")}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1" }}>{t("memberPortal.joy.particle.nfcWrite", "Đang ghi NFC...")}</span>
                                 </div>
                               ) : nfcWriteStatus === "done" ? (
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 10, background: "rgba(34,197,94,.08)" }}>
                                   <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#22c55e" }}>check_circle</span>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#22c55e" }}>{t("joy.particle.nfcWriteSuccess", "Đã ghi NFC thành công!")}</span>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#22c55e" }}>{t("memberPortal.joy.particle.nfcWriteSuccess", "Đã ghi NFC thành công!")}</span>
                                 </div>
                               ) : (
                                 <button onClick={async () => {
                                   if (!myQR?.referralCode) return;
                                   setNfcWriteStatus("writing");
                                   try {
-                                    await nfc.writeTag(myQR.referralCode);
+                                    await writeNfcTag(myQR.referralCode);
                                     setNfcWriteStatus("done");
                                     playBeep();
                                     setTimeout(() => setNfcWriteStatus(""), 3000);
@@ -911,13 +1018,11 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                                   }
                                 }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 cursor-pointer transition-all hover:bg-slate-100 dark:hover:bg-white/10">
                                   <span className="material-symbols-outlined text-base text-indigo-500">nfc</span>
-                                  <span className="text-xs font-bold text-slate-900 dark:text-white">{t("joy.particle.nfcWriteBtn", "Ghi NFC")}</span>
+                                  <span className="text-xs font-bold text-slate-900 dark:text-white">{t("memberPortal.joy.particle.nfcWriteBtn", "Ghi NFC")}</span>
                                 </button>
                               )}
                               {nfcWriteStatus !== "writing" && (
-                                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 text-center">
-                                  {t("joy.particle.nfcWriteHint", "Chạm thẻ NFC vật lý vào mặt sau điện thoại để ghi mã")}
-                                </p>
+                                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 text-center">{t("memberPortal.joy.particle.nfcWriteHint", "Tuỳ chọn: ghi mã nhận JOY lên thẻ NFC cá nhân")}</p>
                               )}
                             </div>
                           )}
@@ -928,23 +1033,39 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
                   {/* Scan mode - inline camera */}
                   {mode === "scan" && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div className="joy-connect-scan">
+                      <div className="joy-connect-scan-status">
+                        <span className="material-symbols-outlined">shield_lock</span>
+                        <div><strong>Xác minh tự động trước khi chuyển</strong><small>Camera chỉ đọc mã JOY động; ứng dụng không lưu hình ảnh.</small></div>
+                      </div>
                       {scanResolving ? (
-                        <div style={{ padding: "40px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                        <div className="joy-connect-empty">
                           <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                          <p style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>{t("joy.particle.verifying", "Đang xác minh mã...")}</p>
+                          <strong>{t("memberPortal.joy.particle.verifying", "Đang xác minh người nhận…")}</strong>
+                          <small>Giữ nguyên màn hình trong giây lát.</small>
                         </div>
                       ) : (
-                        <ParticleScanner
-                          inline
-                          onScanSuccess={handleQRDetected}
-                          onError={(err) => setError(err?.message?.includes("not supported")
-                            ? "Trình duyệt không hỗ trợ camera. Hãy dùng mã hoặc số điện thoại."
-                            : "Không mở được camera. Kiểm tra quyền truy cập camera của trình duyệt.")}
-                          ignoredPayloads={ignoredScanPayloads}
-                          scanBoxSize={240}
-                        />
+                        <div className="joy-connect-scan-frame">
+                          <ParticleScanner
+                            inline
+                            onScanSuccess={handleQRDetected}
+                            onError={(err) => setError(err?.message?.includes("not supported")
+                              ? "Thiết bị này không hỗ trợ camera. Hãy tìm người nhận thủ công."
+                              : "Không mở được camera. Hãy cấp quyền camera rồi thử lại.")}
+                            ignoredPayloads={ignoredScanPayloads}
+                            scanBoxSize={250}
+                          />
+                        </div>
                       )}
+                      {error && <p className="text-center text-[10px] font-semibold text-red-500">{error}</p>}
+                      <div className="joy-connect-scan-tools">
+                        <button type="button" onClick={() => { setMode("search"); setError(""); }}><span className="material-symbols-outlined">person_search</span>Tìm thủ công</button>
+                        {nfcSupported ? (
+                          <button type="button" onClick={() => { setMode("nfc"); setError(""); }}><span className="material-symbols-outlined">nfc</span>Dùng NFC</button>
+                        ) : (
+                          <button type="button" onClick={() => { setMode("myqr"); setError(""); }}><span className="material-symbols-outlined">qr_code_2</span>Mã của tôi</button>
+                        )}
+                      </div>
                     </div>
                   )}
 
@@ -954,7 +1075,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       {scanResolving ? (
                         <div style={{ padding: "40px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                          <p style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>{t("joy.particle.verifying", "Đang xác minh mã...")}</p>
+                          <p style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>{t("memberPortal.joy.particle.verifying", "Đang xác minh mã...")}</p>
                         </div>
                       ) : nfcScanning ? (
                         <div style={{ padding: "32px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
@@ -962,21 +1083,21 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                             <span className="material-symbols-outlined" style={{ fontSize: 80, color: "#6366f1", animation: "jtSigilBreathe 2s ease-in-out infinite" }}>nfc</span>
                           </div>
                           <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
-                            {t("joy.particle.nfcScanHint", "Đặt thẻ NFC vào mặt sau điện thoại")}
+                            {t("memberPortal.joy.particle.nfcScanHint", "Đặt thẻ NFC vào mặt sau điện thoại")}
                           </p>
                           <p style={{ color: "#94a3b8", fontSize: 11, textAlign: "center" }}>
-                            {t("joy.particle.nfcScanTitle", "Đang tìm thẻ NFC...")}
+                            {t("memberPortal.joy.particle.nfcScanTitle", "Đang tìm thẻ NFC...")}
                           </p>
-                          <button onClick={() => { setNfcScanning(false); nfc.stopScan(); }} style={{
+                          <button onClick={() => { setNfcScanning(false); stopNfcScan(); }} style={{
                             padding: "8px 20px", borderRadius: 10, border: "1px solid #e5e7eb",
                             background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 700, cursor: "pointer",
-                          }}>{t("joy.particle.cancel", "Hủy")}</button>
+                          }}>{t("memberPortal.joy.particle.cancel", "Hủy")}</button>
                         </div>
                       ) : (
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "20px 0" }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 56, color: "#e5e7eb" }}>nfc</span>
                           <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
-                            {t("joy.particle.nfcTapHint", "Chạm thẻ NFC của người nhận để bắt đầu chuyển JOY")}
+                            {t("memberPortal.joy.particle.nfcTapHint", "Chạm thẻ NFC của người nhận để bắt đầu chuyển JOY")}
                           </p>
                           {error && (
                             <p style={{ color: "#ef4444", fontSize: 12, fontWeight: 600, textAlign: "center" }}>{error}</p>
@@ -984,12 +1105,12 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           <button onClick={async () => {
                             setError("");
                             setNfcScanning(true);
-                            const cleanup = nfc.startScan((code) => {
+                            const cleanup = startNfcScan((code) => {
                               setNfcScanning(false);
                               setScanResolving(true);
                               resolveNfcCode(code)
                                 .then(data => { playBeep(); selectRecipient(data); })
-                                .catch(e => { playLose(); setError(e.message || t("joy.particle.nfcReadError", "Không đọc được thẻ NFC")); })
+                                .catch(e => { playLose(); setError(e.message || t("memberPortal.joy.particle.nfcReadError", "Không đọc được thẻ NFC")); })
                                 .finally(() => setScanResolving(false));
                             });
                             // Auto-timeout after 30s
@@ -1002,7 +1123,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                             boxShadow: "0 4px 20px rgba(99,102,241,.4)",
                           }}>
                             <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>nfc</span>
-                            {t("joy.particle.nfcStartScan", "Bắt đầu quét NFC")}
+                            {t("memberPortal.joy.particle.nfcStartScan", "Bắt đầu quét NFC")}
                           </button>
                         </div>
                       )}
@@ -1022,36 +1143,36 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   }}>
                     <Avatar name={recipient.displayName} url={recipient.avatarUrl} size={38} />
                     <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.recipientLabel", "Người nhận")}</p>
+                      <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.recipientLabel", "Người nhận")}</p>
                       <p style={{ margin: "2px 0 0", fontSize: 13, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{recipient.displayName}</p>
                     </div>
-                    <button onClick={() => { setStep("select"); setError(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 11, fontWeight: 700 }}>{t("joy.particle.changeBtn", "Đổi")}</button>
+                    <button onClick={() => { setStep("select"); setError(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 11, fontWeight: 700 }}>{t("memberPortal.joy.particle.changeBtn", "Đổi")}</button>
                   </div>
 
                   {/* Amount input */}
                   <div style={{ marginBottom: 12 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.amountTitle", "Số JOY gửi")}</p>
+                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</p>
                     <div style={{ position: "relative" }}>
                       <input
                         type="number" min="10" max="1000"
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
-                        placeholder={t("joy.particle.amountPlaceholder", "Tối thiểu 10 JOY")}
+                        placeholder={t("memberPortal.joy.particle.amountPlaceholder", "Tối thiểu 10 JOY")}
                         className="w-full py-3 pl-3.5 pr-14 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-lg font-black outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                       />
                       <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 11, fontWeight: 800, color: "#94a3b8" }}>JOY</span>
                     </div>
                     {numAmount > 0 && (
                       <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-                        {t("joy.particle.fee", "Phí sáng tạo")}: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{fee} JOY</strong>
-                        {" · "}{t("joy.particle.total", "Tổng")}: <strong className="text-slate-900 dark:text-white font-black">{total} JOY</strong>
+                        {t("memberPortal.joy.particle.fee", "Phí sáng tạo")}: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{fee} JOY</strong>
+                        {" · "}{t("memberPortal.joy.particle.total", "Tổng")}: <strong className="text-slate-900 dark:text-white font-black">{total} JOY</strong>
                       </p>
                     )}
                   </div>
 
                   {/* Quick amounts */}
                   <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-                    {QUICK_AMOUNTS.map(q => (
+                    {suggestedAmounts.map(q => (
                       <button
                         key={q}
                         onClick={() => setAmount(String(q))}
@@ -1066,19 +1187,26 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     ))}
                   </div>
 
+                  {balanceKnown && (
+                    <div className={`mb-3 flex items-center justify-between rounded-xl px-3 py-2 text-[10px] font-bold ${insufficientBalance ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-300" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>
+                      <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">{insufficientBalance ? "error" : "account_balance_wallet"}</span>{insufficientBalance ? "Số dư chưa đủ cho tổng giao dịch" : "Số dư sau giao dịch"}</span>
+                      <strong>{Math.max(0, availableBalance - total).toLocaleString("vi-VN")} JOY</strong>
+                    </div>
+                  )}
+
                   {/* Note */}
                   <div style={{ marginBottom: 14 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.noteTitle", "Nội dung (tùy chọn)")}</p>
+                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.noteTitle", "Nội dung (tùy chọn)")}</p>
                     <input
                       value={note}
                       onChange={e => setNote(e.target.value)}
-                      placeholder={t("joy.particle.notePlaceholder", "Nhập nội dung...")}
+                      placeholder={t("memberPortal.joy.particle.notePlaceholder", "Nhập nội dung...")}
                       maxLength={100}
                       className="w-full py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-xs font-bold outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                     />
                     {/* Suggestion chips */}
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-                      {[t("joy.particle.chipThanks", "Cảm ơn!"), t("joy.particle.chipGift", "Tặng bạn")].map(chip => (
+                      {[t("memberPortal.joy.particle.chipThanks", "Cảm ơn!"), t("memberPortal.joy.particle.chipGift", "Tặng bạn")].map(chip => (
                         <button
                           key={chip}
                           onClick={() => setNote(chip)}
@@ -1095,16 +1223,16 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   </div>
 
                   <button
-                    disabled={numAmount < 10 || numAmount > 1000}
+                    disabled={numAmount < 10 || numAmount > 1000 || insufficientBalance}
                     onClick={() => { setStep("invoice"); setError(""); }}
                     style={{
                       width: "100%", padding: "13px 0", borderRadius: 14, border: "none",
-                      background: numAmount < 10 ? "#c7d2fe" : "linear-gradient(135deg,#6366f1,#8b5cf6)",
-                      color: "#fff", fontWeight: 800, fontSize: 13, cursor: numAmount < 10 ? "not-allowed" : "pointer",
-                      boxShadow: numAmount >= 10 ? "0 4px 20px rgba(99,102,241,.4)" : "none",
+                      background: numAmount < 10 || insufficientBalance ? "#c7d2fe" : "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                      color: "#fff", fontWeight: 800, fontSize: 13, cursor: numAmount < 10 || insufficientBalance ? "not-allowed" : "pointer",
+                      boxShadow: numAmount >= 10 && !insufficientBalance ? "0 4px 20px rgba(99,102,241,.4)" : "none",
                     }}
                   >
-                    {t("joy.particle.next", "Tiếp theo")}
+                    {t("memberPortal.joy.particle.next", "Tiếp theo")}
                   </button>
                 </div>
               )}
@@ -1118,7 +1246,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                         <Avatar name={recipient.displayName} url={recipient.avatarUrl} size={42} />
                         <div>
-                          <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("joy.particle.sendTo", "Gửi tới")}</p>
+                          <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.sendTo", "Gửi tới")}</p>
                           <p style={{ margin: "2px 0 0", fontSize: 14, fontWeight: 900, color: "#0f172a" }} className="dark:text-white">{recipient.displayName}</p>
                         </div>
                       </div>
@@ -1133,11 +1261,11 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
                     <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>{t("joy.particle.amountTitle", "Số JOY gửi")}</span>
+                        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</span>
                         <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{numAmount.toLocaleString("vi-VN")} JOY</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>{t("joy.particle.fee", "Phí sáng tạo")} ({TRANSFER_FEE_RATE * 100}%)</span>
+                        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>{t("memberPortal.joy.particle.fee", "Phí sáng tạo")} ({TRANSFER_FEE_RATE * 100}%)</span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>{fee.toLocaleString("vi-VN")} JOY</span>
                       </div>
                     </div>
@@ -1146,7 +1274,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
                     <div style={{ padding: "12px 14px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{t("joy.particle.totalDeduction", "Tổng khấu trừ")}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{t("memberPortal.joy.particle.totalDeduction", "Tổng khấu trừ")}</span>
                         <span style={{ fontSize: 16, fontWeight: 900, color: "#6366f1" }}>{total.toLocaleString("vi-VN")} JOY</span>
                       </div>
                     </div>
@@ -1159,7 +1287,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   )}
 
                   <p style={{ textAlign: "center", fontSize: 9, color: "#cbd5e1", marginTop: 10, marginBottom: 14, fontWeight: 600, letterSpacing: ".04em" }}>
-                    {t("joy.particle.warning", "Giao dịch JOY không thể hoàn lại — kiểm tra kỹ trước khi xác nhận")}
+                    {t("memberPortal.joy.particle.warning", "Giao dịch JOY không thể hoàn lại — kiểm tra kỹ trước khi xác nhận")}
                   </p>
 
                   <div style={{ display: "flex", gap: 10 }}>
@@ -1167,7 +1295,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       onClick={() => setStep("amount")}
                       className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-white/10 transition-all cursor-pointer"
                     >
-                      {t("joy.particle.back", "Quay lại")}
+                      {t("memberPortal.joy.particle.back", "Quay lại")}
                     </button>
                     <button onClick={handleSend} style={{
                       flex: 2, padding: "13px 0", borderRadius: 14, border: "none",
@@ -1177,7 +1305,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       boxShadow: "0 4px 20px rgba(99,102,241,.4)",
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>send</span>
-                      {t("joy.particle.sendNow", "Chuyển ngay")}
+                      {t("memberPortal.joy.particle.sendNow", "Chuyển ngay")}
                     </button>
                   </div>
                 </div>

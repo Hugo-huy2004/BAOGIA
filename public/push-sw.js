@@ -178,7 +178,9 @@ self.addEventListener('push', function (event) {
       data: {
         url: payload.url || '/member/portal?tab=banhocduong'
       },
-      tag: payload.tag || (payload.url === '/member/joy' ? 'hugo-joy-wallet' : undefined)
+      // Ví JOY nay nằm trong trang Tài khoản; `/member/joy` là đường cũ nhưng
+      // thông báo đã đẩy đi từ trước vẫn mang nó, nên gộp cả hai vào một tag.
+      tag: payload.tag || (['/member/account', '/member/joy'].includes(payload.url) ? 'hugo-joy-wallet' : undefined)
     };
     // Chrome bắt buộc renotify phải đi kèm tag khác rỗng
     if (options.tag) options.renotify = true;

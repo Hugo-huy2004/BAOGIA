@@ -49,16 +49,16 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
 
   const setValue = (key, value) => setValues((current) => ({ ...current, [key]: value }));
 
-  const isFilled = (field) => (
-    field.type === "birthDate"
-      ? values.birthDay && values.birthMonth && values.birthYear
-      : String(values[field.key] || "").trim()
-  );
+  const isFilled = (field) => {
+    if (field.type === "birthDate") return values.birthDay && values.birthMonth && values.birthYear;
+    if (field.type === "checkbox") return values[field.key] === true;
+    return String(values[field.key] || "").trim();
+  };
   const ready = (missing || []).every(isFilled);
 
   async function handleSubmit() {
     if (!ready) {
-      setError("Vui lòng điền đủ các mục còn thiếu.");
+      setError(t("memberPortal.onboarding.completeRequired"));
       return;
     }
     setSubmitting(true);
@@ -71,18 +71,18 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
         body: JSON.stringify({ email, referrerCode, ...values }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || "Có lỗi xảy ra.");
+      if (!r.ok) throw new Error(data.error || t("memberPortal.onboarding.genericError"));
       // Server vẫn báo thiếu thì giữ modal lại và hỏi tiếp đúng phần còn thiếu.
       if (Array.isArray(data.missing) && data.missing.length) {
         setMissing(data.missing);
-        setError("Vẫn còn thông tin chưa hợp lệ, bạn kiểm tra lại giúp mình nhé.");
+        setError(t("memberPortal.onboarding.invalidFields"));
         setSubmitting(false);
         return;
       }
       if (data.referralError) setError(data.referralError);
       onDone?.(data);
     } catch (err) {
-      setError(err.message || "Có lỗi xảy ra.");
+      setError(err.message || t("memberPortal.onboarding.genericError"));
       setSubmitting(false);
     }
   }
@@ -99,37 +99,54 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
             </span>
           </div>
           <h2 className="font-black text-lg text-foreground">
-            {missing.length ? "Bổ sung thông tin còn thiếu" : t("memberPortal.onboarding.title")}
+            {missing.length ? t("memberPortal.onboarding.missingTitle") : t("memberPortal.onboarding.title")}
           </h2>
           <p className="text-xs text-muted-foreground">
             {missing.length
-              ? `Còn ${missing.length} mục cần điền. Những phần đã có mình không hỏi lại.`
+              ? t("memberPortal.onboarding.missingDescription", { count: missing.length })
               : t("memberPortal.onboarding.subtitle")}
           </p>
         </div>
 
         <div className="space-y-3">
-          {missing.map((field) => (
-            <div key={field.key} className="space-y-1.5">
+          {missing.map((field) => {
+            const label = t(`memberPortal.onboarding.fields.${field.key}.label`, { defaultValue: field.label });
+            const hint = t(`memberPortal.onboarding.fields.${field.key}.hint`, { defaultValue: field.hint || "" });
+            const checkboxLabel = t(`memberPortal.onboarding.fields.${field.key}.checkboxLabel`, {
+              defaultValue: field.checkboxLabel || label,
+            });
+            return <div key={field.key} className="space-y-1.5">
               <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">
-                {field.label} <span className="text-destructive">*</span>
+                {label} <span className="text-destructive">*</span>
               </label>
 
               {field.type === "birthDate" ? (
                 <div className="grid grid-cols-3 gap-2">
-                  <select className={SELECT_CLASS} value={values.birthDay || ""} onChange={(e) => setValue("birthDay", e.target.value)} aria-label="Ngày sinh">
-                    <option value="">Ngày</option>
+                  <select className={SELECT_CLASS} value={values.birthDay || ""} onChange={(e) => setValue("birthDay", e.target.value)} aria-label={t("memberPortal.onboarding.dayAria")}>
+                    <option value="">{t("memberPortal.onboarding.day")}</option>
                     {range(31, (i) => i + 1).map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
-                  <select className={SELECT_CLASS} value={values.birthMonth || ""} onChange={(e) => setValue("birthMonth", e.target.value)} aria-label="Tháng sinh">
-                    <option value="">Tháng</option>
-                    {range(12, (i) => i + 1).map((m) => <option key={m} value={m}>Tháng {m}</option>)}
+                  <select className={SELECT_CLASS} value={values.birthMonth || ""} onChange={(e) => setValue("birthMonth", e.target.value)} aria-label={t("memberPortal.onboarding.monthAria")}>
+                    <option value="">{t("memberPortal.onboarding.month")}</option>
+                    {range(12, (i) => i + 1).map((m) => <option key={m} value={m}>{t("memberPortal.onboarding.monthOption", { month: m })}</option>)}
                   </select>
-                  <select className={SELECT_CLASS} value={values.birthYear || ""} onChange={(e) => setValue("birthYear", e.target.value)} aria-label="Năm sinh">
-                    <option value="">Năm</option>
+                  <select className={SELECT_CLASS} value={values.birthYear || ""} onChange={(e) => setValue("birthYear", e.target.value)} aria-label={t("memberPortal.onboarding.yearAria")}>
+                    <option value="">{t("memberPortal.onboarding.year")}</option>
                     {range(80, (i) => thisYear - 14 - i).map((y) => <option key={y} value={y}>{y}</option>)}
                   </select>
                 </div>
+              ) : field.type === "checkbox" ? (
+                <label className="flex items-start gap-2.5 rounded-2xl border border-border bg-muted/40 p-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={values[field.key] === true}
+                    onChange={(e) => setValue(field.key, e.target.checked)}
+                    className="mt-0.5 w-4 h-4 shrink-0 accent-primary"
+                  />
+                  <span className="text-[12px] leading-relaxed text-foreground">
+                    {checkboxLabel}
+                  </span>
+                </label>
               ) : (
                 <input
                   type={field.type === "tel" ? "tel" : "text"}
@@ -140,9 +157,9 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
                 />
               )}
 
-              {field.hint && <p className="ml-1 text-[10px] text-muted-foreground">{field.hint}</p>}
+              {hint && <p className="ml-1 text-[10px] text-muted-foreground">{hint}</p>}
             </div>
-          ))}
+          })}
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">
@@ -176,7 +193,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
             disabled={submitting}
             className="w-full -mt-1 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
           >
-            {t("memberPortal.onboarding.skipButton", "Để sau")}
+            {t("memberPortal.onboarding.skipButton")}
           </button>
         )}
       </div>

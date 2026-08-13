@@ -25,8 +25,7 @@ import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
-import { requireMember, requireAdultMember } from './middleware/authMiddleware.js';
-import { broadcastToUser } from './services/redisWsAdapter.js';
+import { requireAdultMember } from './middleware/authMiddleware.js';
 import {
   findActiveSecurityBlock,
   recordSecurityViolation,
@@ -270,7 +269,6 @@ import emailRoutes from './routes/emailRoutes.js';
 import opsRoutes from './routes/opsRoutes.js';
 import otaRoutes from './routes/otaRoutes.js';
 import securityRoutes from './routes/securityRoutes.js';
-import joyDecoRoutes from './routes/joyDecoRoutes.js';
 import coderLessonRoutes from './routes/coderLessonRoutes.js';
 import todayRoutes from './routes/todayRoutes.js';
 import storeCartRoutes from './routes/storeCartRoutes.js';
@@ -322,7 +320,6 @@ app.use('/api/webauthn', webauthnRoutes);
 app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
-app.use('/api/deco', joyDecoRoutes);
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {
   try {

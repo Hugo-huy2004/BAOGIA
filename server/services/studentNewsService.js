@@ -2,79 +2,127 @@ import crypto from 'crypto';
 import { decodeHTML } from 'entities';
 
 const REQUEST_TIMEOUT_MS = 5500;
-// Vài toà soạn (TGP Hà Nội…) trả 403 cho User-Agent lạ. Dùng UA trình duyệt
-// thật để đọc đúng những feed công khai đó.
-const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-  + '(KHTML, like Gecko) Chrome/126 Safari/537.36';
+// Khai đúng danh tính và để lại địa chỉ liên hệ. Trước đây chỗ này giả UA của
+// Chrome để lách 403 — nghĩa là cố tình vượt qua rào chặn bot của toà soạn.
+// Nếu một nguồn chặn UA này thì đó là câu trả lời "không", không phải lỗi kỹ
+// thuật cần né: bỏ nguồn đó ra khỏi danh sách.
+// HTTP header chỉ nhận ByteString; giữ User-Agent ASCII để Node không ném
+// TypeError trước cả khi request được gửi đi.
+const BROWSER_UA = 'HugoWishpaxStudentPortal/1.0 (+https://www.hugowishpax.studio; public-feed-reader)';
 // Kho bài đủ sâu để cuộn vô hạn: client tải một lần rồi tự hé dần theo cuộn,
 // rẻ hơn nhiều so với phân trang (mỗi trang là một lượt request).
-const MAX_ARTICLES = 120;
+const MAX_ARTICLES = 180;
 // Ấn bản vẫn tính theo ngày (để đặt tên bản tin), nhưng nội dung làm mới mỗi
 // 10 phút để tin nóng chảy vào. Không có key GNews/NewsAPI nên chỉ đọc RSS —
 // làm mới dày cỡ này không đụng hạn mức nào.
 const FEED_REFRESH_MS = 10 * 60 * 1000;
-const EDITION_COUNTRIES = new Set(['VN', 'US']);
+const SUPPORTED_LANGUAGES = new Set(['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', 'es', 'fr']);
+// TODAY có đúng một ấn bản cho mỗi ngôn ngữ của ứng dụng. Đổi ngôn ngữ đồng
+// nghĩa đổi thị trường tin; IP không được phép tạo ra một cặp lệch như vi-US.
+// `domains` là hàng rào cuối cho cả RSS lẫn API bên thứ ba.
+export const NEWS_EDITIONS = Object.freeze({
+  vi: Object.freeze({ country: 'VN', locale: 'vi-VN', timeZone: 'Asia/Ho_Chi_Minh', domains: ['vnexpress.net', 'tuoitre.vn', 'thanhnien.vn', 'dantri.com.vn', 'vietnamnet.vn', 'dcctvn.org', 'gpcantho.com', 'tonggiaophanhanoi.org', 'tntt.vn', 'tgpsaigon.net', 'hdgmvietnam.com'] }),
+  en: Object.freeze({ country: 'US', locale: 'en-US', timeZone: 'America/New_York', domains: ['npr.org', 'nytimes.com', 'catholicnewsagency.com'] }),
+  zh: Object.freeze({ country: 'CN', locale: 'zh-CN', timeZone: 'Asia/Shanghai', domains: ['people.com.cn', 'news.cn', 'xinhuanet.com'] }),
+  th: Object.freeze({ country: 'TH', locale: 'th-TH', timeZone: 'Asia/Bangkok', domains: ['thailand.go.th', 'tmd.go.th', 'thaipbs.or.th', 'mdes.go.th'] }),
+  ja: Object.freeze({ country: 'JP', locale: 'ja-JP', timeZone: 'Asia/Tokyo', domains: ['nhk.or.jp'] }),
+  ko: Object.freeze({ country: 'KR', locale: 'ko-KR', timeZone: 'Asia/Seoul', domains: ['korea.kr', 'yonhapnewstv.co.kr', 'yna.co.kr'] }),
+  id: Object.freeze({ country: 'ID', locale: 'id-ID', timeZone: 'Asia/Jakarta', domains: ['antaranews.com'] }),
+  es: Object.freeze({ country: 'ES', locale: 'es-ES', timeZone: 'Europe/Madrid', domains: ['rtve.es', 'elpais.com'] }),
+  fr: Object.freeze({ country: 'FR', locale: 'fr-FR', timeZone: 'Europe/Paris', domains: ['france24.com', 'lemonde.fr', 'radiofrance.fr'] }),
+});
+
+export function resolveNewsEdition(language = 'en') {
+  const code = String(language || '').toLowerCase().split('-')[0];
+  const normalized = NEWS_EDITIONS[code] ? code : 'en';
+  return { language: normalized, ...NEWS_EDITIONS[normalized] };
+}
+
+function domainBelongsToEdition(value, edition) {
+  try {
+    const hostname = new URL(value).hostname.toLowerCase().replace(/^www\./, '');
+    return edition.domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`));
+  } catch {
+    return false;
+  }
+}
+
+export function articleBelongsToEdition(article, language) {
+  return domainBelongsToEdition(article?.url, resolveNewsEdition(language));
+}
+
+export function diversifyArticles(articles = []) {
+  const queues = new Map();
+  for (const article of articles) {
+    const source = article.source || 'News';
+    if (!queues.has(source)) queues.set(source, []);
+    queues.get(source).push(article);
+  }
+  const result = [];
+  while (result.length < articles.length) {
+    let added = false;
+    for (const queue of queues.values()) {
+      const article = queue.shift();
+      if (!article) continue;
+      result.push(article);
+      added = true;
+    }
+    if (!added) break;
+  }
+  return result;
+}
 
 const CATEGORY_QUERIES = Object.freeze({
   all: {
     vi: 'giáo dục OR học sinh OR sinh viên OR khoa học OR công nghệ',
     en: 'education OR students OR science OR technology',
+    zh: '教育 OR 学生 OR 科学 OR 技术',
+    th: 'การศึกษา OR นักเรียน OR วิทยาศาสตร์ OR เทคโนโลยี',
+    ja: '教育 OR 学生 OR 科学 OR テクノロジー',
+    ko: '교육 OR 학생 OR 과학 OR 기술',
+    id: 'pendidikan OR pelajar OR sains OR teknologi',
+    es: 'educación OR estudiantes OR ciencia OR tecnología',
+    fr: 'éducation OR étudiants OR science OR technologie',
   },
   academic: {
     vi: 'giáo dục OR nghiên cứu OR học bổng OR đại học',
     en: 'education OR research OR scholarship OR university',
+    zh: '教育 OR 研究 OR 奖学金 OR 大学', th: 'การศึกษา OR วิจัย OR ทุนการศึกษา OR มหาวิทยาลัย',
+    ja: '教育 OR 研究 OR 奨学金 OR 大学', ko: '교육 OR 연구 OR 장학금 OR 대학',
+    id: 'pendidikan OR riset OR beasiswa OR universitas', es: 'educación OR investigación OR becas OR universidad',
+    fr: 'éducation OR recherche OR bourse OR université',
   },
   technology: {
     vi: 'công nghệ OR trí tuệ nhân tạo OR lập trình',
     en: 'technology OR artificial intelligence OR programming',
+    zh: '技术 OR 人工智能 OR 编程', th: 'เทคโนโลยี OR ปัญญาประดิษฐ์ OR การเขียนโปรแกรม',
+    ja: 'テクノロジー OR 人工知能 OR プログラミング', ko: '기술 OR 인공지능 OR 프로그래밍',
+    id: 'teknologi OR kecerdasan buatan OR pemrograman', es: 'tecnología OR inteligencia artificial OR programación',
+    fr: 'technologie OR intelligence artificielle OR programmation',
   },
   community: {
     vi: 'học sinh OR sinh viên OR cộng đồng OR tình nguyện',
     en: 'students OR campus OR community OR volunteering',
+    zh: '学生 OR 校园 OR 社区 OR 志愿服务', th: 'นักเรียน OR มหาวิทยาลัย OR ชุมชน OR อาสาสมัคร',
+    ja: '学生 OR キャンパス OR 地域 OR ボランティア', ko: '학생 OR 캠퍼스 OR 지역사회 OR 자원봉사',
+    id: 'pelajar OR kampus OR komunitas OR relawan', es: 'estudiantes OR campus OR comunidad OR voluntariado',
+    fr: 'étudiants OR campus OR communauté OR bénévolat',
   },
   world: {
     vi: 'thời sự quốc tế OR khoa học thế giới',
     en: 'world news OR global science',
+    zh: '国际新闻 OR 全球科学', th: 'ข่าวต่างประเทศ OR วิทยาศาสตร์โลก',
+    ja: '国際ニュース OR 世界の科学', ko: '국제 뉴스 OR 세계 과학', id: 'berita dunia OR sains global',
+    es: 'noticias internacionales OR ciencia mundial', fr: 'actualité internationale OR science mondiale',
   },
   catholic: {
     vi: 'Giáo hội Công giáo OR Vatican OR giáo phận',
     en: 'Catholic Church OR Vatican OR diocese',
+    zh: '天主教会 OR 梵蒂冈 OR 教区', th: 'คริสตจักรคาทอลิก OR วาติกัน OR สังฆมณฑล',
+    ja: 'カトリック教会 OR バチカン OR 教区', ko: '가톨릭 교회 OR 바티칸 OR 교구',
+    id: 'Gereja Katolik OR Vatikan OR keuskupan', es: 'Iglesia católica OR Vaticano OR diócesis',
+    fr: 'Église catholique OR Vatican OR diocèse',
   },
-});
-
-const FALLBACK_ARTICLES = Object.freeze({
-  vi: [
-    {
-      title: 'Không gian học thuật đang được cập nhật',
-      description: 'Feed sẽ tự động tổng hợp nghiên cứu, giáo dục và tin tức phù hợp ngay khi nhà cung cấp API khả dụng.',
-      source: 'Hugo Learning',
-      category: 'academic',
-      url: 'https://arxiv.org/',
-    },
-    {
-      title: 'Khám phá nghiên cứu mở cho học sinh, sinh viên',
-      description: 'Tìm các công trình khoa học mới và luyện kỹ năng đọc tóm tắt nghiên cứu bằng nguồn mở.',
-      source: 'arXiv',
-      category: 'technology',
-      url: 'https://arxiv.org/search/',
-    },
-  ],
-  en: [
-    {
-      title: 'The academic feed is being refreshed',
-      description: 'Research, education, and relevant current-affairs stories will appear automatically when an API provider is available.',
-      source: 'Hugo Learning',
-      category: 'academic',
-      url: 'https://arxiv.org/',
-    },
-    {
-      title: 'Explore open research for students',
-      description: 'Discover recent science and practice reading research abstracts through an open source.',
-      source: 'arXiv',
-      category: 'technology',
-      url: 'https://arxiv.org/search/',
-    },
-  ],
 });
 
 // Vài nguồn (VietnamNet, The Guardian) mã hoá hai lần trong RSS: `&amp;apos;`
@@ -98,6 +146,14 @@ function cleanText(value = '') {
     .trim();
 }
 
+function truncateAtBoundary(value, max) {
+  const clean = cleanText(value);
+  if (clean.length <= max) return clean;
+  const slice = clean.slice(0, max - 1);
+  const lastSpace = slice.lastIndexOf(' ');
+  return `${(lastSpace > max * 0.7 ? slice.slice(0, lastSpace) : slice).trim()}…`;
+}
+
 function safeUrl(value) {
   try {
     const url = new URL(cleanText(value));
@@ -111,10 +167,6 @@ function safeUrl(value) {
 // không ký tham số trong URL — VnExpress ký (`s=`) nên đổi `w=` là 401, đành
 // nhận bản gốc; phần còn lại đã có loading="lazy" gánh.
 // ponytail: rewrite theo từng CDN, thêm nguồn mới thì thêm một dòng ở đây.
-function shrinkImage(url) {
-  return url.replace(/\/thumb_w\/\d+\//, '/thumb_w/800/');
-}
-
 function stableId(article) {
   return crypto
     .createHash('sha256')
@@ -123,25 +175,111 @@ function stableId(article) {
     .slice(0, 18);
 }
 
+const EU_PRESS_COUNTRIES = new Set(['FR', 'ES', 'BE']);
+
+export function resolveNewsPolicy(country = 'US') {
+  const code = String(country || 'US').toUpperCase();
+  if (EU_PRESS_COUNTRIES.has(code)) {
+    return {
+      id: 'eu-press-publication',
+      jurisdiction: code,
+      fullTextRule: 'explicit-license-only',
+      excerptRule: 'publisher-supplied-or-very-short',
+      headlineMaxChars: 180,
+      excerptMaxChars: 180,
+      attributionRequired: true,
+      publisherImagesInPortal: false,
+      originalLinkRequired: true,
+    };
+  }
+  if (code === 'US') {
+    return {
+      id: 'us-contextual-fair-use',
+      jurisdiction: code,
+      fullTextRule: 'explicit-license-only',
+      excerptRule: 'publisher-supplied-or-contextual-fair-use',
+      headlineMaxChars: 240,
+      excerptMaxChars: 320,
+      attributionRequired: true,
+      publisherImagesInPortal: false,
+      originalLinkRequired: true,
+    };
+  }
+  return {
+    id: 'berne-source-first',
+    jurisdiction: code,
+    fullTextRule: 'explicit-license-only',
+    excerptRule: 'publisher-supplied-or-purpose-limited',
+    headlineMaxChars: 220,
+    excerptMaxChars: 260,
+    attributionRequired: true,
+    publisherImagesInPortal: false,
+    originalLinkRequired: true,
+  };
+}
+
+function contentAccessFor(provider) {
+  if (provider === 'arxiv') {
+    return {
+      mode: 'open-summary',
+      fullTextInPortal: true,
+      rightsBasis: 'open-research-abstract',
+    };
+  }
+  if (['publisher-rss', 'publisher-json'].includes(provider)) {
+    return {
+      mode: 'publisher-summary',
+      fullTextInPortal: false,
+      rightsBasis: 'publisher-supplied-feed',
+    };
+  }
+  if (provider === 'catholic-html') {
+    return {
+      mode: 'headline-link',
+      fullTextInPortal: false,
+      rightsBasis: 'link-only',
+    };
+  }
+  return {
+    mode: 'licensed-excerpt',
+    fullTextInPortal: false,
+    rightsBasis: 'provider-api',
+  };
+}
+
 function normalizeArticle(article, defaults = {}) {
   const url = safeUrl(article.url);
   const title = cleanText(article.title);
   if (!url || !title) return null;
+  const provider = defaults.provider || article.provider || 'api';
+  const access = contentAccessFor(provider);
+  // RSS/API descriptions are publisher-supplied syndication fields. Preserve
+  // them as completely as practical; the limit is a payload-safety ceiling,
+  // not an invented copyright word count. Full article text remains gated by
+  // an explicit source grant in readArticle().
+  const descriptionLimit = access.mode === 'headline-link' ? 0 : 4_000;
   const normalized = {
     id: '',
     title: title.slice(0, 240),
-    description: cleanText(article.description).slice(0, 520),
+    description: cleanText(article.description).slice(0, descriptionLimit),
     source: cleanText(article.source || defaults.source || 'News').slice(0, 80),
     author: cleanText(article.author).slice(0, 100),
     category: article.category || defaults.category || 'academic',
     url,
-    imageUrl: shrinkImage(safeUrl(article.imageUrl)),
+    // KHÔNG gửi ảnh của toà soạn xuống client. Ảnh trong RSS thường thuộc về
+    // phóng viên hoặc hãng thông tấn (TTXVN, AFP, Reuters) chứ không phải toà
+    // soạn, nên việc feed có ảnh không phải là giấy phép cho mình hiển thị nó ở
+    // nơi khác — chưa kể mỗi lượt hiển thị là một lượt ăn băng thông của họ.
+    // Thẻ bài dùng ô icon theo chuyên mục; xem MemberTodayTab.jsx.
     // null nghĩa là "không biết ngày" — thà bỏ trống còn hơn gán giờ hiện tại
     // rồi đẩy bài cũ lên đầu bản tin.
     publishedAt: article.publishedAt === null
       ? null
       : (article.publishedAt || new Date().toISOString()),
-    provider: defaults.provider || article.provider || 'api',
+    provider,
+    language: defaults.language || article.language || '',
+    country: defaults.country || article.country || '',
+    contentAccess: access,
   };
   normalized.id = stableId(normalized);
   return normalized;
@@ -247,13 +385,14 @@ export class GNewsProvider extends NewsProvider {
   async fetchArticles({ language, category, country, limit }) {
     if (!this.isAvailable()) return [];
     const query = CATEGORY_QUERIES[category]?.[language] || CATEGORY_QUERIES.all[language];
+    const gnewsLanguage = new Set(['ar', 'zh', 'nl', 'en', 'fr', 'de', 'el', 'he', 'hi', 'it', 'ja', 'ml', 'mr', 'no', 'pt', 'ro', 'ru', 'es', 'sv', 'ta', 'te', 'uk']);
     const params = new URLSearchParams({
       q: query,
-      lang: language,
       max: String(Math.min(limit, 10)),
       sortby: 'publishedAt',
       apikey: this.apiKey,
     });
+    if (gnewsLanguage.has(language)) params.set('lang', language);
     if (country) params.set('country', country.toLowerCase());
     const payload = await fetchJson(`https://gnews.io/api/v4/search?${params}`);
     return (payload.articles || []).map((article) => normalizeArticle({
@@ -265,14 +404,14 @@ export class GNewsProvider extends NewsProvider {
       url: article.url,
       imageUrl: article.image,
       publishedAt: article.publishedAt,
-    }, { provider: this.name })).filter(Boolean);
+    }, { provider: this.name, language, country })).filter(Boolean);
   }
 }
 
 // RSS trực tiếp của toà soạn, không đi qua news.google.com: có ảnh thật, có
 // tóm tắt thật và link gốc (feed tìm kiếm của Google News không có cả ba).
 // Ảnh nằm ở <enclosure>/<media:*> hoặc thẻ <img> đầu trong description.
-const PUBLISHER_FEEDS = Object.freeze({
+export const PUBLISHER_FEEDS = Object.freeze({
   vi: {
     academic: [
       ['VnExpress', 'https://vnexpress.net/rss/giao-duc.rss'],
@@ -318,39 +457,111 @@ const PUBLISHER_FEEDS = Object.freeze({
       ['Vatican News', 'https://www.vaticannews.va/vi.rss.xml'],
     ],
   },
-  // Ấn bản EN = báo nước ngoài. Một mình BBC thì mỗi chuyên mục chỉ được vài
-  // bài và trùng ảnh; thêm Guardian/Ars/NPR cho đủ dày. Chỉ dùng RSS 2.0
-  // (<item>) vì readFeed không đọc Atom (<entry>).
+  // English trong bộ ngôn ngữ hiện tại là en-US, nên chỉ dùng toà soạn Mỹ.
   en: {
     academic: [
-      ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
-      ['The Guardian', 'https://www.theguardian.com/education/rss'],
+      ['NPR', 'https://feeds.npr.org/1013/rss.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Education.xml'],
     ],
     technology: [
-      ['BBC News', 'https://feeds.bbci.co.uk/news/technology/rss.xml'],
-      ['Ars Technica', 'https://feeds.arstechnica.com/arstechnica/technology-lab'],
-      ['The Guardian', 'https://www.theguardian.com/technology/rss'],
+      ['NPR', 'https://feeds.npr.org/1019/rss.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml'],
     ],
     community: [
-      ['The Guardian', 'https://www.theguardian.com/education/students/rss'],
-      ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
+      ['NPR', 'https://feeds.npr.org/1003/rss.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/US.xml'],
     ],
     world: [
-      ['BBC News', 'https://feeds.bbci.co.uk/news/world/rss.xml'],
       ['NPR', 'https://feeds.npr.org/1004/rss.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml'],
     ],
     catholic: [
-      ['Vatican News', 'https://www.vaticannews.va/en.rss.xml'],
       ['Catholic News Agency', 'https://www.catholicnewsagency.com/rss/news.xml'],
-      ['Aleteia', 'https://aleteia.org/feed/'],
     ],
     all: [
-      ['BBC News', 'https://feeds.bbci.co.uk/news/education/rss.xml'],
-      ['BBC News', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'],
-      ['The Guardian', 'https://www.theguardian.com/science/rss'],
-      ['Ars Technica', 'https://feeds.arstechnica.com/arstechnica/technology-lab'],
+      ['NPR', 'https://feeds.npr.org/1001/rss.xml'],
+      ['NPR', 'https://feeds.npr.org/1013/rss.xml'],
+      ['NPR', 'https://feeds.npr.org/1019/rss.xml'],
       ['NPR', 'https://feeds.npr.org/1004/rss.xml'],
-      ['Vatican News', 'https://www.vaticannews.va/en.rss.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/US.xml'],
+      ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml'],
+    ],
+  },
+  zh: {
+    academic: [
+      ['人民网', 'http://www.people.com.cn/rss/edu.xml'],
+      ['人民网', 'http://www.people.com.cn/rss/scitech.xml'],
+    ],
+    technology: [
+      ['人民网', 'http://www.people.com.cn/rss/scitech.xml'],
+      ['人民网', 'http://www.people.com.cn/rss/it.xml'],
+    ],
+    community: [
+      ['人民网', 'http://www.people.com.cn/rss/society.xml'],
+    ],
+    world: [
+      ['人民网', 'http://www.people.com.cn/rss/world.xml'],
+    ],
+    all: [
+      ['人民网', 'http://www.people.com.cn/rss/ywkx.xml'],
+      ['人民网', 'http://www.people.com.cn/rss/society.xml'],
+      ['人民网', 'http://www.people.com.cn/rss/scitech.xml'],
+      ['人民网', 'http://www.people.com.cn/rss/edu.xml'],
+    ],
+  },
+  ja: {
+    all: [
+      ['NHK NEWS WEB', 'https://www3.nhk.or.jp/rss/news/cat0.xml'],
+    ],
+  },
+  ko: {
+    technology: [
+      ['연합뉴스TV', 'https://www.yonhapnewstv.co.kr/category/news/economy/feed/'],
+    ],
+    community: [
+      ['연합뉴스TV', 'https://www.yonhapnewstv.co.kr/category/news/society/feed/'],
+      ['연합뉴스TV', 'https://www.yonhapnewstv.co.kr/category/news/local/feed/'],
+    ],
+    world: [
+      ['연합뉴스TV', 'https://www.yonhapnewstv.co.kr/category/news/international/feed/'],
+    ],
+    all: [
+      ['대한민국 정책브리핑', 'https://www.korea.kr/rss/policy.xml'],
+      ['연합뉴스TV', 'https://www.yonhapnewstv.co.kr/browse/feed/'],
+    ],
+  },
+  id: {
+    academic: [['ANTARA', 'https://www.antaranews.com/rss/humaniora.xml']],
+    technology: [['ANTARA', 'https://www.antaranews.com/rss/tekno.xml']],
+    world: [['ANTARA', 'https://www.antaranews.com/rss/dunia.xml']],
+    all: [
+      ['ANTARA', 'https://www.antaranews.com/rss/terkini.xml'],
+      ['ANTARA', 'https://www.antaranews.com/rss/top-news.xml'],
+    ],
+  },
+  es: {
+    technology: [
+      ['RTVE', 'https://www.rtve.es/api/noticias/ciencia-tecnologia.xml'],
+    ],
+    community: [
+      ['RTVE', 'https://www.rtve.es/api/noticias/espana.xml'],
+    ],
+    world: [
+      ['RTVE', 'https://www.rtve.es/api/noticias/mundo.xml'],
+    ],
+    all: [
+      ['RTVE', 'https://www.rtve.es/api/noticias.xml'],
+      ['El País', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada'],
+    ],
+  },
+  fr: {
+    academic: [['Le Monde', 'https://www.lemonde.fr/education/rss_full.xml']],
+    technology: [['Le Monde', 'https://www.lemonde.fr/pixels/rss_full.xml']],
+    world: [['Le Monde', 'https://www.lemonde.fr/international/rss_full.xml']],
+    all: [
+      ['France 24', 'https://www.france24.com/fr/rss'],
+      ['Le Monde', 'https://www.lemonde.fr/rss/une.xml'],
     ],
   },
 });
@@ -362,8 +573,12 @@ export class PublisherRssProvider extends NewsProvider {
   }
 
   async fetchArticles({ language, category, limit }) {
-    const feeds = this.feeds[language]?.[category] || this.feeds[language]?.all || [];
-    const perFeed = Math.max(4, Math.ceil(limit / Math.max(1, feeds.length)));
+    const languageFeeds = this.feeds[language] || {};
+    // Không lấy feed tổng rồi gắn nhãn thành một chuyên mục khác: đó là sai
+    // ngữ nghĩa và làm người đọc tưởng tin xã hội là công nghệ/Công giáo.
+    const feeds = languageFeeds[category] || (category === 'all' ? languageFeeds.all : []) || [];
+    if (!feeds.length) return [];
+    const perFeed = Math.max(8, Math.ceil(limit / Math.max(1, feeds.length)));
     const settled = await Promise.allSettled(
       feeds.map(([source, url]) => this.readFeed(source, url, category, perFeed)),
     );
@@ -391,6 +606,7 @@ export class PublisherRssProvider extends NewsProvider {
           title: read('title'),
           description: rawDescription,
           source,
+          author: read('dc:creator') || read('author'),
           category,
           url: read('link'),
           imageUrl: item.match(/<(?:enclosure|media:content|media:thumbnail)[^>]+url=["']([^"']+)["']/i)?.[1]
@@ -399,6 +615,69 @@ export class PublisherRssProvider extends NewsProvider {
           publishedAt: read('pubDate'),
         }, { provider: this.name });
       })
+      .filter(Boolean);
+  }
+}
+
+export const PUBLISHER_JSON_FEEDS = Object.freeze({
+  th: Object.freeze({
+    source: 'Thai PBS',
+    url: 'https://www.thaipbs.or.th/api/public/page/v1/pages/path:news/content',
+  }),
+});
+
+function thaiPbsCategory(article = {}) {
+  const category = `${article.category || ''} ${article.categoryUrl || ''}`.toLowerCase();
+  if (/education|academic|การศึกษา|มหาวิทยาลัย|นักเรียน|วิจัย/.test(category)) return 'academic';
+  if (/science|technology|tech|วิทยาศาสตร์|เทคโนโลยี|ดิจิทัล/.test(category)) return 'technology';
+  if (/world|international|ต่างประเทศ/.test(category)) return 'world';
+  return 'community';
+}
+
+// API trang tin chính thức của Thai PBS trả cùng một bài trong nhiều section.
+// Gom và loại trùng theo URL trước khi đưa vào pipeline chung.
+export function parseThaiPbsPayload(payload, category = 'all') {
+  const found = new Map();
+  for (const section of payload?.sections || []) {
+    for (const item of section?.data || []) {
+      const url = String(item?.url || '');
+      if (!url.includes('/news/content/')) continue;
+      const normalizedCategory = thaiPbsCategory(item);
+      if (category !== 'all' && normalizedCategory !== category) continue;
+      const absoluteUrl = url.startsWith('http') ? url : `https://www.thaipbs.or.th${url}`;
+      if (!found.has(absoluteUrl)) {
+        found.set(absoluteUrl, {
+          title: item.title,
+          description: item.description,
+          source: 'Thai PBS',
+          category: normalizedCategory,
+          url: absoluteUrl,
+          publishedAt: item.date || null,
+        });
+      }
+    }
+  }
+  return [...found.values()];
+}
+
+export class PublisherJsonProvider extends NewsProvider {
+  constructor() {
+    super('publisher-json');
+  }
+
+  async fetchArticles({ language, category, country, limit }) {
+    const config = PUBLISHER_JSON_FEEDS[language];
+    if (!config || category === 'catholic') return [];
+    const payload = await fetchJson(config.url, {
+      headers: { 'User-Agent': BROWSER_UA, Accept: 'application/json' },
+    });
+    return parseThaiPbsPayload(payload, category)
+      .slice(0, limit)
+      .map((article) => normalizeArticle(article, {
+        provider: this.name,
+        language,
+        country,
+      }))
       .filter(Boolean);
   }
 }
@@ -489,19 +768,18 @@ export class NewsApiProvider extends NewsProvider {
     return Boolean(this.apiKey);
   }
 
-  async fetchArticles({ language, category, limit }) {
+  async fetchArticles({ language, category, country, limit }) {
     if (!this.isAvailable()) return [];
     const query = CATEGORY_QUERIES[category]?.[language] || CATEGORY_QUERIES.all[language];
     const params = new URLSearchParams({
       q: query,
       sortBy: 'publishedAt',
-      pageSize: String(Math.min(limit, 20)),
+      pageSize: String(Math.min(limit, 100)),
       page: '1',
     });
-    // NewsAPI does not expose a Vietnamese language filter. Keep the
-    // Vietnamese query but omit `language` so relevant local sources can
-    // still match; use the explicit filter for English.
-    if (language === 'en') params.set('language', 'en');
+    const newsApiLanguages = new Set(['ar', 'de', 'en', 'es', 'fr', 'he', 'it', 'nl', 'no', 'pt', 'ru', 'sv', 'ud', 'zh']);
+    if (newsApiLanguages.has(language)) params.set('language', language);
+    params.set('domains', resolveNewsEdition(language).domains.join(','));
     const payload = await fetchJson(`https://newsapi.org/v2/everything?${params}`, {
       headers: { 'X-Api-Key': this.apiKey },
     });
@@ -514,7 +792,7 @@ export class NewsApiProvider extends NewsProvider {
       url: article.url,
       imageUrl: article.urlToImage,
       publishedAt: article.publishedAt,
-    }, { provider: this.name })).filter(Boolean);
+    }, { provider: this.name, language, country })).filter(Boolean);
   }
 }
 
@@ -523,7 +801,8 @@ export class ArxivProvider extends NewsProvider {
     super('arxiv');
   }
 
-  async fetchArticles({ category, limit }) {
+  async fetchArticles({ language, category, limit }) {
+    if (language !== 'en') return [];
     // Chuyên mục Công giáo là tin Giáo hội — nhét paper arXiv vào đó là lạc đề.
     if (['community', 'world', 'catholic'].includes(category)) return [];
     const search = category === 'technology'
@@ -560,6 +839,14 @@ export class ArxivProvider extends NewsProvider {
 }
 
 // ── Trình đọc: lấy toàn văn + tóm tắt để đọc ngay trong portal ─────────────
+// Nguồn được phép dựng nội dung trong portal. CHỈ có arXiv, và chỉ vì `url` của
+// arXiv là trang /abs — thứ bóc được ở đó là phần tóm tắt (abstract) mà arXiv
+// phát công khai, không phải toàn văn bài báo. ĐỪNG trỏ sang link PDF: giấy
+// phép mặc định của arXiv chỉ cho phép arXiv phân phối bài, không cấp quyền
+// đăng lại cho bên thứ ba. Mọi toà soạn khác: sapo + link bài gốc — xem
+// readArticle().
+const FULL_TEXT_SOURCES = new Set(['arXiv']);
+
 const READER_TTL_MS = 6 * 60 * 60 * 1000;   // bài báo không đổi trong ngày
 const READER_TIMEOUT_MS = 7000;
 const READER_MAX_HTML = 900_000;            // chặn trang khổng lồ ăn băng thông Render
@@ -683,9 +970,9 @@ export class StudentNewsService {
   constructor(providers = [
     new GNewsProvider(),
     new NewsApiProvider(),
+    new PublisherJsonProvider(),
     new PublisherRssProvider(),
     new CatholicHtmlProvider(),
-    new ArxivProvider(),
   ]) {
     this.providers = providers;
     this.cache = new Map();
@@ -697,8 +984,11 @@ export class StudentNewsService {
   async findArticleById(id, options = {}) {
     const wanted = String(id || '').trim();
     if (!wanted) return null;
+    const edition = resolveNewsEdition(options.language);
+    const editionPrefix = `${edition.country}:${edition.language}:`;
     const scan = () => {
-      for (const entry of this.cache.values()) {
+      for (const [cacheKey, entry] of this.cache) {
+        if (!cacheKey.startsWith(editionPrefix)) continue;
         const hit = entry.articles.find((article) => article.id === wanted);
         if (hit) return hit;
       }
@@ -718,6 +1008,20 @@ export class StudentNewsService {
   }
 
   async readArticle(article) {
+    // Chỉ dựng lại toàn văn với nguồn TRUY CẬP MỞ. RSS của toà soạn chỉ cấp
+    // tiêu đề + sapo + link; dựng lại cả bài trong portal là sao chép và truyền
+    // đạt tác phẩm (Điều 20 Luật SHTT), đồng thời cắt mất quảng cáo của họ.
+    // Muốn thêm nguồn vào danh sách này thì phải có giấy phép của toà soạn —
+    // đọc được không có nghĩa là được phép đăng lại.
+    if (!FULL_TEXT_SOURCES.has(article.source) || article.contentAccess?.fullTextInPortal === false) {
+      return {
+        blocks: [],
+        readMinutes: 0,
+        available: false,
+        policy: article.contentAccess || contentAccessFor(article.provider),
+      };
+    }
+
     const cached = this.readerCache.get(article.id);
     if (cached && cached.expiresAt > Date.now()) return cached.value;
 
@@ -768,23 +1072,19 @@ export class StudentNewsService {
   async getFeed({
     language = 'vi',
     category = 'all',
-    country = 'VN',
-    timeZone = 'Asia/Ho_Chi_Minh',
     page = 1,
     limit = 12,
   } = {}) {
-    const normalizedLanguage = language === 'en' ? 'en' : 'vi';
+    const languageCandidate = String(language || '').toLowerCase().split('-')[0];
+    const editionProfile = resolveNewsEdition(
+      SUPPORTED_LANGUAGES.has(languageCandidate) ? languageCandidate : 'en',
+    );
+    const normalizedLanguage = editionProfile.language;
     const normalizedCategory = CATEGORY_QUERIES[category] ? category : 'all';
     const normalizedPage = Math.max(1, Number(page) || 1);
     const normalizedLimit = Math.min(MAX_ARTICLES, Math.max(1, Number(limit) || 12));
-    // Chỉ có hai ấn bản (vi/en) nên chỉ nhận hai mã quốc gia. Nếu để mã tuỳ ý
-    // vào cache key thì 676 mã × 5 category × 2 ngôn ngữ vượt xa giới hạn cache
-    // 80 phần tử → miss liên tục, mỗi miss là một lượt fan-out 4 provider và
-    // đốt quota GNews (100 req/ngày).
-    const normalizedCountry = EDITION_COUNTRIES.has(String(country).toUpperCase())
-      ? String(country).toUpperCase()
-      : (normalizedLanguage === 'vi' ? 'VN' : 'US');
-    const edition = getDailyEdition(new Date(), timeZone);
+    const normalizedCountry = editionProfile.country;
+    const edition = getDailyEdition(new Date(), editionProfile.timeZone);
     const cacheKey = `${normalizedCountry}:${normalizedLanguage}:${normalizedCategory}:${edition.edition}`;
     const cached = this.cache.get(cacheKey);
 
@@ -806,32 +1106,44 @@ export class StudentNewsService {
         name: available[index].name,
         status: result.status === 'fulfilled' ? 'available' : 'unavailable',
       }));
-      const merged = settled.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+      const policy = resolveNewsPolicy(normalizedCountry);
+      const merged = settled
+        .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
+        .filter((article) => articleBelongsToEdition(article, normalizedLanguage))
+        .map((article) => ({
+          ...article,
+          language: normalizedLanguage,
+          country: normalizedCountry,
+          title: truncateAtBoundary(article.title, policy.headlineMaxChars),
+          description: truncateAtBoundary(article.description, policy.excerptMaxChars),
+        }));
       // Dedupe theo tiêu đề, không theo URL: cùng một tin qua hai nguồn có URL
-      // khác nhau. Bản có ảnh được ưu tiên giữ lại.
+      // khác nhau. Giữ bản gặp trước — thứ tự provider đã là thứ tự ưu tiên.
+      // (Trước đây ưu tiên bản CÓ ẢNH; bỏ ảnh của toà soạn rồi thì tiêu chí đó
+      // luôn sai vì không bản nào còn ảnh.)
       const byTitle = new Map();
       for (const article of merged) {
         const key = article.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
-        const kept = byTitle.get(key);
-        if (!kept || (!kept.imageUrl && article.imageUrl)) byTitle.set(key, article);
+        if (!byTitle.has(key)) byTitle.set(key, article);
       }
       const at = (article) => {
         const time = article.publishedAt ? new Date(article.publishedAt).getTime() : NaN;
         return Number.isNaN(time) ? -Infinity : time; // không rõ ngày thì xếp cuối
       };
       const deduplicated = [...byTitle.values()].sort((a, b) => at(b) - at(a));
-      articles = deduplicated.length
-        ? deduplicated
-        : FALLBACK_ARTICLES[normalizedLanguage].map((article) => normalizeArticle(article, { provider: 'fallback' }));
+      // Luân phiên nguồn sau khi xếp mới-cũ: không giảm số bài, nhưng tránh một
+      // toà soạn chiếm trọn màn hình đầu khi feed của họ cập nhật dồn dập.
+      articles = diversifyArticles(deduplicated);
       this.cache.set(cacheKey, {
         articles,
         providerStatus,
         expiresAt: Date.now() + FEED_REFRESH_MS,
       });
-      if (this.cache.size > 80) {
+      if (this.cache.size > 240) {
         for (const [key, value] of this.cache) {
           if (value.expiresAt <= Date.now()) this.cache.delete(key);
         }
+        while (this.cache.size > 240) this.cache.delete(this.cache.keys().next().value);
       }
     }
 
@@ -856,6 +1168,9 @@ export class StudentNewsService {
         generatedAt: new Date().toISOString(),
         cacheTtlSeconds: edition.secondsUntilReset,
         providers: providerStatus,
+        sourceCount: new Set(articles.map((article) => article.source)).size,
+        articleCount: articles.length,
+        contentPolicy: resolveNewsPolicy(normalizedCountry),
       },
     };
   }

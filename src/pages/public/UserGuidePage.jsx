@@ -9,7 +9,7 @@ import DocsLayout from "./DocsLayout";
  * Hình lấy từ guideArt.jsx (vẽ bằng SVG). Đổi giao diện thì sửa hình ở đó,
  * đừng chèn ảnh chụp màn hình: ảnh chụp lỗi thời sau mỗi lần đổi UI.
  */
-const UPDATED_AT = "10/08/2026";
+const UPDATED_AT = "13/08/2026";
 
 export default function UserGuidePage() {
   const email = "contact@hugowishpax.studio";
@@ -31,7 +31,7 @@ export default function UserGuidePage() {
           type: "p",
           text: "Trang này có hai phần. Phần công khai gồm giới thiệu, bảng giá dịch vụ, hỏi đáp — ai cũng xem được, không cần tài khoản. Phần thành viên là một ứng dụng riêng cần đăng nhập, gồm trang Bio, ví JOY, HugoPSY, arcade và các khoá học.",
         },
-        { type: "figure", art: "tabs", caption: "Khu vực thành viên điều hướng bằng thanh tab dưới đáy. Khi bạn mở một ứng dụng con (arcade, cửa hàng, HugoCoder), thanh tab tự ẩn để ứng dụng đó chiếm trọn màn hình — muốn quay ra thì bấm nút quay lại ở góc trên." },
+        { type: "figure", art: "tabs", caption: "Khu vực thành viên điều hướng bằng thanh tab dưới đáy. Khi bạn mở một ứng dụng con (arcade, cửa hàng, Study with Hugo), thanh tab tự ẩn để ứng dụng đó chiếm trọn màn hình — muốn quay ra thì bấm nút quay lại ở góc trên." },
         {
           type: "table",
           head: ["Khu vực", "Dùng để làm gì", "Cần đăng nhập"],
@@ -42,8 +42,45 @@ export default function UserGuidePage() {
             ["Bio", "Dựng và sửa trang cá nhân của bạn", "Có"],
             ["Ví JOY", "Xem điểm, đổi vật phẩm, tạo mã QR", "Có"],
             ["HugoPSY", "Ghi tâm trạng, nhật ký giấc ngủ", "Có"],
-            ["Arcade, HugoCoder", "Chơi game, học lập trình, kiếm JOY", "Có"],
+            ["Arcade, Study with Hugo", "Chơi game; học lập trình, kỹ năng văn phòng và AI", "Có"],
           ],
+        },
+      ],
+    },
+    {
+      id: "quyen-va-truy-cap",
+      title: "Xem quyền và phạm vi truy cập của bạn",
+      blocks: [
+        {
+          type: "p",
+          text: "Mỗi tài khoản được mở tính năng theo độ tuổi, tình trạng xác minh HSSV, hạng thẻ và quyền lợi còn hiệu lực. Bạn có thể tra toàn bộ căn cứ ngay trong tài khoản, không cần đoán vì sao một mục đang mở hoặc bị giới hạn.",
+        },
+        {
+          type: "steps",
+          items: [
+            "Mở khu vực thành viên và chọn Tài khoản ở thanh điều hướng.",
+            "Mở nhóm Thành viên, chọn Quyền và truy cập.",
+            "Đọc bảng nhóm truy cập để biết tính năng công khai, thành viên cơ bản, HSSV đã xác minh, quyền theo hạng và tính năng 18+.",
+            "Xem mục Quyền trên thiết bị để biết vị trí, thông báo, camera, microphone hoặc sinh trắc học được dùng khi nào và điều gì xảy ra nếu bạn từ chối.",
+            "Nếu quyền hiển thị không đúng, gửi phản hồi theo hướng dẫn cuối tài liệu; kèm ảnh màn hình và email tài khoản để được đối soát.",
+          ],
+        },
+        {
+          type: "table",
+          head: ["Trạng thái", "Ý nghĩa", "Cách xử lý"],
+          rows: [
+            ["Cần đăng nhập", "Tính năng cần gắn dữ liệu với đúng chủ tài khoản", "Đăng nhập bằng Google hoặc passkey đã đăng ký"],
+            ["Cần xác minh HSSV", "Quyền lợi dành riêng cho người học", "Dùng email trường hoặc gửi yêu cầu xác minh theo biểu mẫu"],
+            ["Chỉ dành cho 18+", "Tính năng không phù hợp người chưa thành niên", "Không thể mở sớm; ngày sinh đã khai được dùng làm căn cứ"],
+            ["Cần quyền thiết bị", "Tính năng cần vị trí, camera hoặc thông báo", "Chỉ cấp đúng quyền nếu muốn dùng; các tính năng khác vẫn hoạt động"],
+            ["Tạm hạn chế", "Hệ thống đang bảo vệ tài khoản, đối soát hoặc xử lý vi phạm", "Đọc lý do hiển thị và gửi phản hồi nếu cho rằng quyết định chưa đúng"],
+          ],
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Quyền truy cập không phải quyền sở hữu hệ thống",
+          text: "Bạn được sử dụng tính năng theo điều kiện đang áp dụng và giữ quyền đối với nội dung của mình. Mã nguồn, hạ tầng, dữ liệu của người khác và công cụ quản trị không thuộc phạm vi truy cập của tài khoản thành viên.",
         },
       ],
     },
@@ -95,7 +132,7 @@ export default function UserGuidePage() {
         {
           type: "steps",
           items: [
-            "Vào Cài đặt trong khu vực thành viên và bật Đăng nhập nhanh.",
+            "Vào Tài khoản → Quyền riêng tư & thông báo → Quyền riêng tư và sinh trắc học.",
             "Trình duyệt hiện hộp thoại của hệ điều hành — chạm vân tay, quét khuôn mặt hoặc nhập mã mở khoá máy.",
             "Đặt tên cho thiết bị để sau này bạn biết đâu là máy nào trong danh sách.",
           ],
@@ -168,7 +205,7 @@ export default function UserGuidePage() {
         {
           type: "steps",
           items: [
-            "Mở tab Ví JOY để xem số dư hiện tại.",
+            "Mở Tài khoản → Trung tâm JOY để xem số dư hiện tại.",
             "Cuộn xuống xem lịch sử: mỗi dòng ghi rõ cộng hay trừ bao nhiêu và vì lý do gì.",
             "Cần nhận hay trao JOY thì tạo mã QR và đưa cho đúng người trong lúc mã còn hiệu lực.",
           ],
@@ -178,7 +215,7 @@ export default function UserGuidePage() {
           head: ["Cách kiếm JOY", "Ghi chú"],
           rows: [
             ["Vào ứng dụng đều đặn", "Tính theo chuỗi ngày liên tiếp"],
-            ["Hoàn thành bài học HugoCoder", "Mỗi bài một lần duy nhất"],
+            ["Hoàn thành bài học Study with Hugo", "Mỗi bài một lần duy nhất"],
             ["Chơi arcade đạt mốc điểm", "Có giới hạn theo ngày để tránh cày máy"],
           ],
         },
@@ -268,7 +305,7 @@ export default function UserGuidePage() {
         {
           type: "steps",
           items: [
-            "Vào Cài đặt trong khu vực thành viên, bật Thông báo đẩy.",
+            "Vào Tài khoản → Quyền riêng tư & thông báo → Thông báo, rồi bật Thông báo đẩy.",
             "Trình duyệt hiện hộp thoại hỏi quyền — bấm Cho phép.",
             "Muốn kiểm tra, gửi thử một thông báo từ chính phần cài đặt đó.",
           ],
@@ -327,15 +364,15 @@ export default function UserGuidePage() {
           head: ["Bạn muốn", "Làm ở đâu"],
           rows: [
             ["Sửa hoặc xoá nội dung đã tạo", "Ngay trong ứng dụng, tại chính mục đó"],
-            ["Tắt chia sẻ vị trí", "Cài đặt → tắt nền thời tiết và điểm danh theo vị trí"],
-            ["Tắt thông báo", "Cài đặt → Thông báo đẩy"],
-            ["Ngừng dùng tính năng AI", "Cài đặt → tắt trợ lý"],
-            ["Đăng xuất khỏi một máy", "Xoá dữ liệu trang trong trình duyệt của máy đó"],
+            ["Tắt chia sẻ vị trí", "Thu hồi quyền vị trí trong trình duyệt/hệ điều hành và tắt tính năng liên quan"],
+            ["Tắt thông báo", "Tài khoản → Thông báo; nếu đã chặn ở hệ điều hành thì đổi tại cài đặt hệ thống"],
+            ["Ngừng dùng tính năng AI", "Ngừng gửi nội dung mới và xoá lịch sử tại tính năng nếu có"],
+            ["Đăng xuất khỏi máy đang dùng", "Tài khoản → Đăng xuất; trên máy dùng chung nên xoá thêm dữ liệu trang"],
             ["Lấy bản sao toàn bộ dữ liệu", `Gửi email tới ${email}`],
             ["Xoá hẳn tài khoản", `Gửi email từ chính địa chỉ đã đăng nhập tới ${email}`],
           ],
         },
-        { type: "p", text: "Yêu cầu về dữ liệu được xử lý trong vòng 30 ngày. Chi tiết đầy đủ nằm ở trang Chính sách bảo mật." },
+        { type: "p", text: "Yêu cầu dữ liệu hợp lệ được phản hồi ban đầu trong 02 ngày làm việc. Thời gian thực hiện thông thường là 15 ngày và có thể là 20–30 ngày khi cần phối hợp bên thứ ba hoặc xử lý yêu cầu phức tạp theo pháp luật. Chi tiết đầy đủ nằm ở Chính sách bảo mật." },
       ],
     },
     {
@@ -385,9 +422,9 @@ export default function UserGuidePage() {
   return (
     <DocsLayout
       eyebrow="Hướng dẫn"
-      version="v3"
+      version="v4"
       title="Hướng dẫn sử dụng"
-      intro="Từng bước có hình minh hoạ: đăng nhập, dựng trang Bio, dùng ví JOY, cài ứng dụng lên máy, bật thông báo, đặt lịch và xử lý lỗi thường gặp."
+      intro="Từng bước để đăng nhập, xem quyền truy cập, dựng Bio, dùng JOY, quản lý quyền thiết bị, đặt dịch vụ và thực hiện quyền dữ liệu."
       updatedAt={UPDATED_AT}
       sections={sections}
       footerNote={`Còn vướng ở đâu thì gửi email tới ${email}, kèm ảnh chụp màn hình và tên trình duyệt nếu được.`}

@@ -3,17 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
 import { useData } from "../context/DataContext";
 import { useTranslation } from "react-i18next";
+import LanguageSelect from "./LanguageSelect";
 
 export default function MobileDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  const { t, i18n } = useTranslation();
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language.startsWith('vi') ? 'en' : 'vi';
-    i18n.changeLanguage(newLang);
-  };
+  const { t } = useTranslation();
 
   const isLoggedIn = isMemberAuthenticated() || isAdminAuthenticated();
   const accountPath = isAdminAuthenticated() ? "/admin" : (isMemberAuthenticated() ? "/member" : "/login");
@@ -44,7 +40,7 @@ export default function MobileDrawer() {
       <button
         className="flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 text-foreground transition-transform active:scale-95 lg:hidden"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label={isOpen ? "Đóng menu" : "Mở menu"}
+        aria-label={isOpen ? t("navbar.closeMenu") : t("navbar.openMenu")}
         aria-expanded={isOpen}
       >
         <span className="material-symbols-outlined text-[19px] leading-none">{isOpen ? "close" : "menu"}</span>
@@ -80,7 +76,7 @@ export default function MobileDrawer() {
           <button
             onClick={() => setIsOpen(false)}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground"
-            aria-label="Đóng menu"
+            aria-label={t("navbar.closeMenu")}
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
@@ -105,13 +101,7 @@ export default function MobileDrawer() {
         </nav>
 
         <div className="mt-2 grid grid-cols-2 gap-2">
-          <button
-            onClick={toggleLanguage}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-[1rem] border border-border/60 bg-card/75 px-3 text-xs font-semibold text-foreground"
-          >
-            <span className="material-symbols-outlined text-base">language</span>
-            {i18n.language.startsWith('en') ? 'Tiếng Việt' : 'English'}
-          </button>
+          <LanguageSelect className="w-full" />
 
           <Link
             to={accountPath}

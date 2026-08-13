@@ -56,3 +56,28 @@ describe('applyProfileValues', () => {
     expect(applyProfileValues(doc, { birthDay: '', birthMonth: '', birthYear: '', phone: '' })).toEqual([]);
   });
 });
+
+// Tiêu chuẩn bảo vệ của sản phẩm: dưới 16 tuổi cần xác nhận của người giám hộ.
+// Nếu ai đó lỡ tay bỏ mục này khỏi PROFILE_FIELDS, bài test dưới đây gãy.
+describe('xác nhận của người giám hộ (dưới 16 tuổi)', () => {
+  const thisYear = new Date().getFullYear();
+  const teen = (extra = {}) => bio({ birthYear: thisYear - 15, birthMonth: 1, birthDay: 1, phone: '0912345678', ...extra });
+
+  it('hỏi khi thành viên 15 tuổi và chưa xác nhận', () => {
+    expect(missingProfileFields(teen()).map((f) => f.key)).toEqual(['guardianConsent']);
+  });
+
+  it('không hỏi khi đã xác nhận, và không hỏi người từ 16 tuổi', () => {
+    expect(missingProfileFields(teen({ guardianConsentAt: new Date() }))).toEqual([]);
+    const older = bio({ birthYear: thisYear - 17, birthMonth: 1, birthDay: 1, phone: '0912345678' });
+    expect(missingProfileFields(older)).toEqual([]);
+  });
+
+  it('chỉ chấp nhận đánh dấu đồng ý, từ chối giá trị false', () => {
+    const doc = teen();
+    expect(() => applyProfileValues(doc, { guardianConsent: false })).toThrow(/cha mẹ|giám hộ/i);
+    expect(doc.guardianConsentAt).toBeUndefined();
+    expect(applyProfileValues(doc, { guardianConsent: true })).toEqual(['guardianConsent']);
+    expect(doc.guardianConsentAt).toBeInstanceOf(Date);
+  });
+});

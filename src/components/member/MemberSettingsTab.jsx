@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { memberTier, TierBadge } from "../../lib/memberTier";
@@ -8,29 +8,48 @@ import { pushService } from "../../services/pushService";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { hapticSelect } from "../../utils/haptics";
 import PersonalInfoSubTab from "./PersonalInfoSubTab";
-import JoyCard from "./card/JoyCard";
+import CheckinCard from "./CheckinCard";
+import MemberCardStack from "./card/MemberCardStack";
+import AccountSheet from "./account/AccountSheet";
+import AccountThemeSheet from "./account/AccountThemeSheet";
+import { auraThemeTranslationKey, resolveActivePortalTheme } from "../../data/auraThemes";
 import { useJoyStore } from "../../stores/joyStore";
+import { fetchJoyPerks, fetchChallengeStatus, checkHasPin } from "../../services/joyApi";
+import { isVoucherActive } from "./joy/voucherStatus";
 import {
   ChevronRight,
   Bell,
   Lock,
   Globe,
   Sparkles,
-  QrCode,
-  Gift,
-  PlusCircle,
   LogOut,
   Check,
-  X,
   Share2,
   LocateFixed,
 } from "lucide-react";
 import EcoToggle from "../../Save_E/EcoToggle";
+import {
+  SUPPORTED_LANGUAGES,
+  languageCode,
+  languageLabel,
+  localeForLanguage,
+} from "../../i18n/languages";
+import { changeAppLanguage } from "../../i18n/config";
 
-const LANGUAGES = [
-  { code: "vi", label: "Tiếng Việt" },
-  { code: "en", label: "English" }
-];
+// Ví JOY sống trong Tài khoản, nhưng mỗi màn chỉ nạp khi thật sự mở ra — trang
+// Tài khoản là màn hay vào nhất, đừng bắt nó tải cả cửa hàng lẫn tài liệu.
+const JoyPerks = React.lazy(() => import("./joy/JoyPerks"));
+const JoyMissions = React.lazy(() => import("./joy/JoyMissions"));
+const JoyHistory = React.lazy(() => import("./joy/JoyHistory"));
+const JoyRedeem = React.lazy(() => import("./joy/JoyRedeem"));
+const MemberUtilityStoreTab = React.lazy(() => import("./MemberUtilityStoreTab"));
+const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
+const MemberDocReader = React.lazy(() => import("./account/MemberDocReader"));
+
+const SheetFallback = () => {
+  const { t } = useTranslation();
+  return <p className="py-10 text-center text-[14px] text-muted-foreground">{t("memberPortal.accountHub.opening")}</p>;
+};
 
 export default function MemberSettingsTab({
   memberSession,
@@ -48,13 +67,39 @@ export default function MemberSettingsTab({
   handleAvatarChange,
   handleRemoveAvatar,
   handleSave,
+  handleCopyLink,
+  handleDeleteBio,
+  onBioUpdate,
   onOpenParticleModal,
   onSelectTab,
-  onSelectUtility
+  onSelectUtility,
+  accountSubTab,
+  isGuestMode,
+  initialHasPin,
 }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [activeSheet, setActiveSheet] = useState(null); // null | "personal" | "notifications" | "security" | "language"
+  const memberDocuments = useMemo(() => ({
+    "doc:privileges": {
+      id: "privileges",
+      title: t("memberPortal.accountHub.documents.privilegesTitle"),
+      subtitle: t("memberPortal.accountHub.documents.privilegesSubtitle"),
+    },
+    "doc:conditions": {
+      id: "conditions",
+      title: t("memberPortal.accountHub.documents.conditionsTitle"),
+      subtitle: t("memberPortal.accountHub.documents.conditionsSubtitle"),
+    },
+    "doc:rights-access": {
+      id: "rights-access",
+      title: t("memberPortal.accountHub.documents.rightsTitle"),
+      subtitle: t("memberPortal.accountHub.documents.rightsSubtitle"),
+    },
+  }), [t]);
+  // null | personal | notifications | security | language | wallet | perks | missions
+  //      | history | store | redeem | manage | doc:privileges | doc:conditions
+  //      | doc:rights-access
+  const [activeSheet, setActiveSheet] = useState(null);
 
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
@@ -63,6 +108,66 @@ export default function MemberSettingsTab({
   const joyBalance = useJoyStore((state) => state.balance);
   const referralCode = useJoyStore((state) => state.referralCode);
   const referralCount = useJoyStore((state) => state.referralCount);
+  const setBalance = useJoyStore((state) => state.setBalance);
+
+  // Dữ liệu phụ của ví chỉ tải khi mở đúng sheet. Trang Tài khoản dùng dữ liệu
+  // bootstrap sẵn có nên không tạo thêm request ngay khi vừa vào.
+  const [perks, setPerks] = useState(null);
+  const [perksLoading, setPerksLoading] = useState(false);
+  const [perksLoaded, setPerksLoaded] = useState(false);
+  const [perksError, setPerksError] = useState("");
+  const [challenges, setChallenges] = useState([]);
+  const [challengesLoading, setChallengesLoading] = useState(false);
+  const [challengesLoaded, setChallengesLoaded] = useState(false);
+  const [hasPin, setHasPin] = useState(
+    typeof initialHasPin === "boolean" ? initialHasPin : null,
+  );
+  const perksRequestRef = useRef(null);
+  const challengesRequestRef = useRef(null);
+
+  const walletReady = Boolean(email) && !isGuestMode;
+
+  const loadPerks = useCallback(() => {
+    if (!walletReady) return Promise.resolve();
+    if (perksRequestRef.current) return perksRequestRef.current;
+    setPerksError("");
+    setPerksLoading(true);
+    const request = fetchJoyPerks(bio)
+      .then(setPerks)
+      .catch((e) => setPerksError(e.message || t("memberPortal.accountHub.perksLoadError")))
+      .finally(() => {
+        setPerksLoading(false);
+        setPerksLoaded(true);
+        perksRequestRef.current = null;
+      });
+    perksRequestRef.current = request;
+    return request;
+  }, [walletReady, bio, t]);
+
+  const loadChallenges = useCallback(() => {
+    if (!walletReady) return Promise.resolve();
+    if (challengesRequestRef.current) return challengesRequestRef.current;
+    setChallengesLoading(true);
+    const request = fetchChallengeStatus(email)
+      .then(setChallenges)
+      .finally(() => {
+        setChallengesLoading(false);
+        setChallengesLoaded(true);
+        challengesRequestRef.current = null;
+      });
+    challengesRequestRef.current = request;
+    return request;
+  }, [walletReady, email]);
+
+  useEffect(() => {
+    if (typeof initialHasPin === "boolean") setHasPin(initialHasPin);
+  }, [initialHasPin]);
+
+  useEffect(() => {
+    const onPinSet = () => setHasPin(true);
+    window.addEventListener("hugo:pin-set", onPinSet);
+    return () => window.removeEventListener("hugo:pin-set", onPinSet);
+  }, []);
 
   useEffect(() => {
     pushService.isSubscribed().then(setPushEnabled);
@@ -102,10 +207,11 @@ export default function MemberSettingsTab({
     }
   };
 
-  const currentLang = i18n.language?.startsWith("en") ? "en" : "vi";
-  const selectLanguage = (code) => {
+  const currentLang = languageCode(i18n.resolvedLanguage || i18n.language);
+  const numberLocale = localeForLanguage(currentLang);
+  const selectLanguage = async (code) => {
     if (code === currentLang) return;
-    i18n.changeLanguage(code);
+    await changeAppLanguage(code);
   };
 
   const displayName = formData?.displayName || bio?.displayName || memberSession?.displayName || t("memberPortal.navigation.memberFallback");
@@ -121,17 +227,62 @@ export default function MemberSettingsTab({
     }
   };
 
+  const openSheet = (id) => {
+    hapticSelect();
+    setActiveSheet(id);
+    if ((id === "wallet" || id === "perks") && !perksLoaded) loadPerks();
+    if ((id === "wallet" || id === "missions") && !challengesLoaded) loadChallenges();
+    if (id === "wallet" && hasPin === null && typeof initialHasPin !== "boolean") {
+      checkHasPin().then((data) => setHasPin(Boolean(data.hasPin))).catch(() => {});
+    }
+  };
+  const openMemberDocument = (id) => {
+    hapticSelect();
+    navigate(`/member/account/${id}`);
+  };
+  const closeSheet = () => {
+    if (activeSheet?.startsWith("doc:")) navigate("/member/account", { replace: true });
+    setActiveSheet(null);
+  };
+
+  useEffect(() => {
+    const sheetId = `doc:${accountSubTab || ""}`;
+    setActiveSheet((current) => {
+      if (memberDocuments[sheetId]) return sheetId;
+      return current?.startsWith("doc:") ? null : current;
+    });
+  }, [accountSubTab, memberDocuments]);
+
+  // ── Tóm tắt cho các hàng: cái gì đang chờ người dùng thì nói ra ngay ở hàng,
+  //    khỏi phải mở từng mục để dò.
+  const activeVoucherCount = useMemo(() => {
+    const vouchers = perksLoaded
+      ? (perks?.vouchers || [])
+      : (Array.isArray(bio?.serviceVouchers) ? bio.serviceVouchers : []);
+    return vouchers.filter((voucher) => isVoucherActive(voucher)).length;
+  }, [bio?.serviceVouchers, perks, perksLoaded]);
+  const spinAvailable = Boolean(perks?.spin?.available);
+  const pendingMissions = challenges.filter((c) => c.completed && !c.claimed);
+  const pendingJoy = pendingMissions.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+  const completedCount = challenges.filter((c) => c.completed).length;
+
+  const quickActions = [
+    { mode: "search", icon: "send", label: t("memberPortal.accountHub.sendJoy") },
+    { mode: "myqr", icon: "qr_code_2", label: t("memberPortal.accountHub.receiveJoy") },
+    { mode: "scan", icon: "qr_code_scanner", label: t("memberPortal.accountHub.scanCode") },
+  ];
+
   return (
-    <div className="hugo-account-shell mx-auto space-y-3 animate-fadeIn text-left select-none pb-28 font-sans">
+    <div className="hugo-account-shell hugo-account-shell--remade mx-auto space-y-3 animate-fadeIn text-left select-none pb-28 font-sans">
       {/* Identity sits outside the settings cards, like an Apple Account header. */}
       <header className="hugo-account-header">
         <div className="hugo-account-titlebar">
-          <span>Hugo Account</span>
+          <span><small>{t("memberPortal.accountHub.eyebrow")}</small><strong>{t("memberPortal.accountHub.title")}</strong><em>{t("memberPortal.accountHub.subtitle")}</em></span>
         </div>
       <button
         type="button"
-        onClick={() => { hapticSelect(); setActiveSheet("personal"); }}
-        className="hugo-account-member flex items-center justify-between text-left"
+        onClick={() => openSheet("personal")}
+        className="hugo-account-member hugo-account-member--ios27 flex items-center justify-between text-left"
       >
         <div className="flex items-center gap-3.5 min-w-0 flex-1">
           <div className="hugo-account-avatar relative rounded-full bg-muted overflow-hidden shrink-0">
@@ -145,36 +296,229 @@ export default function MemberSettingsTab({
           </div>
 
           <div className="min-w-0 flex-1">
+            <span className="hugo-account-member-kicker">{t("memberPortal.accountHub.eyebrow")}</span>
             <h2 className="text-base font-black text-foreground truncate leading-snug">
               {displayName}
             </h2>
             <p className="text-[11px] font-medium text-muted-foreground truncate mt-0.5">
               {memberSession?.email || t("memberPortal.settings.account.personalInformation")}
             </p>
-            {/* Hạng Star nằm ngay dưới tên — đây là nơi người dùng tìm "mình là ai". */}
-            <TierBadge tier={memberTier({ ...formData, starVip: bio?.starVip })} className="mt-1.5" />
+            <div className="hugo-account-member-statuses">
+              <TierBadge tier={memberTier({ ...formData, starVip: bio?.starVip })} />
+              {bio?.isEduVerified ? (
+                <span className="hugo-account-verified"><span className="material-symbols-outlined">verified</span>{t("memberPortal.accountHub.verified")}</span>
+              ) : null}
+            </div>
           </div>
         </div>
 
         <span className="hugo-account-member-edit" aria-hidden="true">
-          <ChevronRight className="w-4 h-4" />
+          <span>{t("memberPortal.accountHub.edit")}</span><ChevronRight className="w-4 h-4" />
         </span>
       </button>
       </header>
 
-      <section className="hugo-account-joy-card" aria-label={t("memberPortal.account.membershipCard")}>
-        <JoyCard
+      {walletReady && (
+        <>
+          <section className="hugo-account-overview" aria-label={t("memberPortal.accountHub.overviewAria")}>
+            <button type="button" onClick={() => openSheet("wallet")}>
+              <span className="material-symbols-outlined">toll</span>
+              <small>{t("memberPortal.accountHub.balance")}</small>
+              <strong>{(joyBalance || 0).toLocaleString(numberLocale)}</strong>
+              <em>JOY</em>
+            </button>
+            <button type="button" onClick={() => openSheet("missions")}>
+              <span className="material-symbols-outlined">task_alt</span>
+              <small>{t("memberPortal.accountHub.missions")}</small>
+              <strong>{challengesLoaded ? `${completedCount}/${challenges.length}` : t("memberPortal.accountHub.open")}</strong>
+              <em>{pendingMissions.length ? t("memberPortal.accountHub.pendingJoy", { amount: pendingJoy }) : t("memberPortal.accountHub.today")}</em>
+            </button>
+            <button type="button" onClick={() => openSheet("perks")}>
+              <span className="material-symbols-outlined">confirmation_number</span>
+              <small>{t("memberPortal.accountHub.perks")}</small>
+              <strong>{activeVoucherCount}</strong>
+              <em>{spinAvailable ? t("memberPortal.accountHub.spinAvailable") : t("memberPortal.accountHub.activeVouchers")}</em>
+            </button>
+          </section>
+
+          <section className="hugo-account-quickbar" aria-label={t("memberPortal.accountHub.quickActionsAria")}>
+            <button type="button" onClick={() => openSheet("wallet")}>
+              <span className="material-symbols-outlined">account_balance_wallet</span><small>{t("memberPortal.accountHub.center")}</small>
+            </button>
+            {quickActions.map((action) => (
+              <button
+                key={action.mode}
+                type="button"
+                onClick={() => { hapticSelect(); onOpenParticleModal?.(action.mode); }}
+              >
+                <span className="material-symbols-outlined">{action.icon}</span><small>{action.label}</small>
+              </button>
+            ))}
+          </section>
+
+          {(hasPin === false || pendingMissions.length > 0) && (
+            <section className="hugo-account-attention" aria-label={t("memberPortal.accountHub.attentionAria")}>
+              <header><span className="material-symbols-outlined">notifications_active</span><strong>{t("memberPortal.accountHub.attention")}</strong></header>
+              {hasPin === false && (
+                <button type="button" onClick={() => { hapticSelect(); onOpenParticleModal?.("setup-pin"); }}>
+                  <span className="material-symbols-outlined">lock_open</span>
+                  <span><strong>{t("memberPortal.accountHub.setPin")}</strong><small>{t("memberPortal.accountHub.pinDescription")}</small></span>
+                  <ChevronRight />
+                </button>
+              )}
+              {pendingMissions.length > 0 && (
+                <button type="button" onClick={() => openSheet("missions")}>
+                  <span className="material-symbols-outlined">redeem</span>
+                  <span><strong>{t("memberPortal.accountHub.claimJoy", { amount: pendingJoy })}</strong><small>{t("memberPortal.accountHub.missionsWaiting", { count: pendingMissions.length })}</small></span>
+                  <ChevronRight />
+                </button>
+              )}
+            </section>
+          )}
+        </>
+      )}
+
+      {/* ── THẺ THÀNH VIÊN + VÍ JOY ─────────────────────────────────────────
+          Ví không còn là một "app" riêng: số dư, ba nút hay dùng nhất và mọi
+          việc của ví đều nằm thẳng ở đây. */}
+      {activeSheet === "__legacy-card" && <section className="hugo-account-joy-card" aria-label={t("memberPortal.account.membershipCard")}>
+        <MemberCardStack
           referralCount={referralCount}
           balance={joyBalance}
           referralCode={referralCode || bio?.referralCode}
           displayName={displayName}
           email={email}
           onCopyReferral={copyReferralCode}
-          onOpenTransferModal={() => onOpenParticleModal?.()}
         />
-      </section>
+      </section>}
 
-      {/* ── 3. CÁC NHÓM CÀI ĐẶT (danh sách inset kiểu iOS Settings) ────────── */}
+      {activeSheet === "__legacy-wallet" && walletReady && (
+        <>
+          {/* Ba lối vào ví: vòng tròn icon, không khung thẻ. Ba tấm thẻ trắng
+              cao 76px cho ba nút là ba khối chữ nhật nữa trong một trang vốn
+              đã toàn khối chữ nhật. */}
+          <div className="flex items-start justify-center gap-7">
+            {quickActions.map((a) => (
+              <button
+                key={a.mode}
+                type="button"
+                onClick={() => { hapticSelect(); onOpenParticleModal?.(a.mode); }}
+                className="flex w-[72px] flex-col items-center gap-1.5 text-foreground"
+              >
+                <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-card border border-border/60 transition-colors active:bg-muted">
+                  <span className="material-symbols-outlined text-[24px]">{a.icon}</span>
+                </span>
+                <span className="text-[12.5px] font-medium">{a.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Điểm danh: thao tác một chạm mỗi ngày, để trong sheet là bắt người
+              dùng mở thêm một lớp mới bấm được. CheckinCard tự nó đã là một
+              thẻ — đừng bọc thêm khung nữa. */}
+          <CheckinCard email={email} showToast={showToast} />
+
+          {hasPin === false && (
+            <button
+              type="button"
+              onClick={() => { hapticSelect(); onOpenParticleModal?.("setup-pin"); }}
+              className="flex w-full items-center gap-3 rounded-2xl border border-border/50 bg-card px-4 py-3.5 text-left transition-colors active:bg-muted"
+            >
+              <span className="material-symbols-outlined text-[22px] text-muted-foreground">lock_open</span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-semibold text-foreground">{t("memberPortal.accountHub.pinMissing")}</span>
+                <span className="block text-[12.5px] text-muted-foreground">{t("memberPortal.accountHub.pinDescription")}</span>
+              </span>
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </button>
+          )}
+
+          <AccountSection title={t("memberPortal.accountHub.walletSection")}>
+            <AccountRow
+              symbol="confirmation_number"
+              tint="orange"
+              title={t("memberPortal.accountHub.myPerks")}
+              detail={
+                spinAvailable
+                  ? t("memberPortal.accountHub.luckySpinRemaining")
+                  : t("memberPortal.accountHub.perksSummary", { vouchers: activeVoucherCount, orders: perks?.orders?.length || 0 })
+              }
+              badge={(spinAvailable ? 1 : 0) + activeVoucherCount}
+              onClick={() => openSheet("perks")}
+            />
+            <AccountRow
+              symbol="task_alt"
+              tint="green"
+              title={t("memberPortal.accountHub.todayMissions")}
+              detail={
+                challengesLoading
+                  ? t("memberPortal.accountHub.loading")
+                  : pendingMissions.length
+                    ? t("memberPortal.accountHub.pendingJoyLong", { amount: pendingJoy })
+                    : t("memberPortal.accountHub.missionProgress", { completed: completedCount, total: challenges.length })
+              }
+              badge={pendingMissions.length}
+              onClick={() => openSheet("missions")}
+            />
+            <AccountRow
+              symbol="receipt_long"
+              tint="blue"
+              title={t("memberPortal.accountHub.walletHistory")}
+              detail={t("memberPortal.accountHub.walletHistoryDetail")}
+              onClick={() => openSheet("history")}
+            />
+            <AccountRow
+              symbol="storefront"
+              tint="pink"
+              title={t("memberPortal.accountHub.perksStore")}
+              detail={t("memberPortal.accountHub.perksStoreDetail")}
+              onClick={() => openSheet("store")}
+            />
+            <AccountRow
+              symbol="redeem"
+              tint="violet"
+              title={t("memberPortal.accountHub.redeemReferral")}
+              detail={t("memberPortal.accountHub.redeemReferralDetail")}
+              onClick={() => openSheet("redeem")}
+            />
+          </AccountSection>
+        </>
+      )}
+
+      {/* ── TÀI LIỆU THÀNH VIÊN ────────────────────────────────────────────
+          Đặc quyền và điều kiện là thứ để TRA, nên viết thành văn bản như trang
+          chính sách chứ không phải carousel thẻ vuốt ngang. */}
+      <AccountSection title={t("memberPortal.accountHub.memberSection")}>
+        <AccountRow
+          symbol="shield_lock"
+          tint="blue"
+          title={t("memberPortal.accountHub.documents.rightsTitle")}
+          detail={t("memberPortal.accountHub.documents.rightsDetail")}
+          onClick={() => openMemberDocument("rights-access")}
+        />
+        <AccountRow
+          symbol="workspace_premium"
+          tint="teal"
+          title={t("memberPortal.accountHub.documents.privilegesTitle")}
+          detail={t("memberPortal.accountHub.documents.privilegesDetail")}
+          onClick={() => openMemberDocument("privileges")}
+        />
+        <AccountRow
+          symbol="gavel"
+          tint="purple"
+          title={t("memberPortal.accountHub.documents.conditionsTitle")}
+          detail={t("memberPortal.accountHub.documents.conditionsDetail")}
+          onClick={() => openMemberDocument("conditions")}
+        />
+        <AccountRow
+          symbol="package_2"
+          tint="emerald"
+          title={t("memberPortal.accountHub.manageTitle")}
+          detail={t("memberPortal.accountHub.manageDetail")}
+          onClick={() => openSheet("manage")}
+        />
+      </AccountSection>
+
       <AccountSection title={t("memberPortal.settings.account.bioTitle")}>
         <AccountRow
           icon={Sparkles}
@@ -201,39 +545,13 @@ export default function MemberSettingsTab({
         )}
       </AccountSection>
 
-      <AccountSection title="Ví & JOY">
-        <AccountRow
-          icon={PlusCircle}
-          tint="orange"
-          title={t("memberPortal.settings.account.topUpJoy")}
-          onClick={() => { hapticSelect(); if (onSelectTab) onSelectTab("joy"); else navigate("/member/joy"); }}
-        />
-        <AccountRow
-          icon={Gift}
-          tint="pink"
-          title={t("memberPortal.settings.account.redeemCode")}
-          onClick={() => { hapticSelect(); if (onSelectTab) onSelectTab("joy"); else navigate("/member/joy"); }}
-        />
-        <AccountRow
-          icon={QrCode}
-          tint="green"
-          title={t("memberPortal.settings.account.giftJoy")}
-          onClick={() => {
-            hapticSelect();
-            if (onOpenParticleModal) onOpenParticleModal();
-            else if (onSelectTab) onSelectTab("joy");
-            else navigate("/member/joy");
-          }}
-        />
-      </AccountSection>
-
-      <AccountSection title="Quyền riêng tư & thông báo">
+      <AccountSection title={t("memberPortal.accountHub.privacySection")}>
         <AccountRow
           icon={Bell}
           tint="blue"
           title={t("memberPortal.settings.account.notifications")}
           detail={t("memberPortal.settings.account.notificationsDescription")}
-          onClick={() => { hapticSelect(); setActiveSheet("notifications"); }}
+          onClick={() => openSheet("notifications")}
         />
         <AccountRow
           icon={LocateFixed}
@@ -247,24 +565,28 @@ export default function MemberSettingsTab({
           tint="purple"
           title={t("memberPortal.settings.account.privacy")}
           detail={t("memberPortal.settings.account.privacyDescription")}
-          onClick={() => { hapticSelect(); setActiveSheet("security"); }}
+          onClick={() => openSheet("security")}
         />
       </AccountSection>
 
-      <AccountSection title="Hệ thống">
+      <AccountSection title={t("memberPortal.accountHub.systemSection")}>
+        <AccountRow
+          symbol="palette"
+          tint="violet"
+          title={t("aura.accountThemeTitle")}
+          detail={t(auraThemeTranslationKey(resolveActivePortalTheme(bio), "Name"))}
+          onClick={() => openSheet("themes")}
+        />
         <AccountRow
           icon={Globe}
           tint="teal"
           title={t("memberPortal.settings.account.language")}
-          value={currentLang === "vi" ? "Tiếng Việt" : "English"}
-          onClick={() => { hapticSelect(); setActiveSheet("language"); }}
+          value={languageLabel(currentLang)}
+          onClick={() => openSheet("language")}
         />
+        <div className="hugo-account-eco-inset"><EcoToggle /></div>
       </AccountSection>
 
-      {/* ── 6b. CHẾ ĐỘ BẢO VỆ MÔI TRƯỜNG (dưới mọi mục, trên nút đăng xuất) ─── */}
-      <EcoToggle />
-
-      {/* ── 7. SIGN OUT BUTTON (DESTRUCTIVE RED ROW) ─────────────────────────── */}
       <div className="hugo-account-group">
         <button type="button" onClick={handleLogout} className="hugo-account-logout">
           <LogOut className="w-[18px] h-[18px]" />
@@ -272,140 +594,223 @@ export default function MemberSettingsTab({
         </button>
       </div>
 
-      {/* ── 8. MODAL SHEET: PERSONAL INFO ─────────────────────────────────────── */}
+      {/* ── SHEETS ─────────────────────────────────────────────────────────── */}
       {activeSheet === "personal" && (
-        <div className="portal-safe-modal fixed inset-0 bg-black/45 backdrop-blur-xl flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
-          {/* Sheet kiểu iOS: thanh kéo, tiêu đề lớn, nút "Xong" bên phải. */}
-          <div className="ios-sheet-panel bg-card border-t sm:border border-border/60 rounded-t-[34px] sm:rounded-[30px] max-w-lg w-full shadow-2xl animate-slideUp text-left flex flex-col max-h-[92dvh] sm:max-h-[88vh]">
-            <div className="shrink-0 px-5 pt-2.5 pb-3">
-              <span className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-foreground/15 sm:hidden" aria-hidden="true" />
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-[22px] font-bold tracking-[-0.02em] text-foreground">
-                  {t("memberPortal.settings.account.personalInformation")}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setActiveSheet(null)}
-                  className="min-h-11 shrink-0 px-1 text-[17px] font-semibold text-primary active:opacity-60"
-                >
-                  Xong
-                </button>
-              </div>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
+        <AccountSheet
+          title={t("memberPortal.settings.account.personalInformation")}
+          subtitle={t("memberPortal.account.personalInformationDescription")}
+          onClose={closeSheet}
+          wide
+        >
+          <PersonalInfoSubTab
+            formData={formData}
+            handleFieldChange={handleFieldChange}
+            handleSave={async (event) => {
+              await handleSave(event);
+              closeSheet();
+            }}
+            saving={saving}
+            isDragOver={isDragOver}
+            setIsDragOver={setIsDragOver}
+            processFile={processFile}
+            avatarInputRef={avatarInputRef}
+            handleAvatarChange={handleAvatarChange}
+            handleRemoveAvatar={handleRemoveAvatar}
+            memberSession={memberSession}
+            bio={bio}
+            hideAvatarSection={false}
+            t={t}
+          />
+        </AccountSheet>
+      )}
 
-            <PersonalInfoSubTab
-              formData={formData}
-              handleFieldChange={handleFieldChange}
-              handleSave={async (event) => {
-                await handleSave(event);
-                setActiveSheet(null);
-              }}
-              saving={saving}
-              isDragOver={isDragOver}
-              setIsDragOver={setIsDragOver}
-              processFile={processFile}
-              avatarInputRef={avatarInputRef}
-              handleAvatarChange={handleAvatarChange}
-              handleRemoveAvatar={handleRemoveAvatar}
-              memberSession={memberSession}
-              bio={bio}
-              hideAvatarSection={false}
-              t={t}
+      {activeSheet === "wallet" && (
+        <AccountSheet title={t("memberPortal.accountHub.joyCenterTitle")} subtitle={t("memberPortal.accountHub.joyCenterSubtitle")} onClose={closeSheet} wide>
+          <div className="hugo-account-wallet-sheet">
+            <MemberCardStack
+              referralCount={referralCount}
+              balance={joyBalance}
+              referralCode={referralCode || bio?.referralCode}
+              displayName={displayName}
+              email={email}
+              onCopyReferral={copyReferralCode}
             />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── 9. MODAL SHEET: NOTIFICATIONS ────────────────────────────────────── */}
-      {activeSheet === "notifications" && (
-        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
-          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
-            <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.notificationSettings")}</h3>
-              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                <X className="w-4 h-4 text-muted-foreground" />
+            <section className="hugo-account-quickbar" aria-label={t("memberPortal.accountHub.joyActionsAria")}>
+              {quickActions.map((action) => (
+                <button
+                  key={action.mode}
+                  type="button"
+                  onClick={() => { hapticSelect(); onOpenParticleModal?.(action.mode); }}
+                >
+                  <span className="material-symbols-outlined">{action.icon}</span><small>{action.label}</small>
+                </button>
+              ))}
+            </section>
+            <CheckinCard email={email} showToast={showToast} />
+            {hasPin === false && (
+              <button type="button" className="hugo-account-wallet-pin" onClick={() => { hapticSelect(); onOpenParticleModal?.("setup-pin"); }}>
+                <span className="material-symbols-outlined">lock_open</span>
+                <span><strong>{t("memberPortal.accountHub.pinMissing")}</strong><small>{t("memberPortal.accountHub.pinDescription")}</small></span>
+                <ChevronRight />
               </button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border/30">
-              <div>
-                <h4 className="text-xs font-black text-foreground">{t("memberPortal.settings.pushTitle")}</h4>
-                <p className="text-[10.5px] text-muted-foreground">{t("memberPortal.settings.account.pushDescription")}</p>
-              </div>
-              <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
-            </div>
-
-            <button
-              onClick={() => setActiveSheet(null)}
-              className="w-full py-2.5 bg-muted text-foreground font-black text-xs uppercase tracking-wider rounded-xl"
-            >
-              {t("memberPortal.settings.account.done")}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── 10. MODAL SHEET: PRIVACY & ACCESS ──────────────────────────────────── */}
-      {activeSheet === "security" && (
-        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
-          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
-            <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.privacyBiometrics")}</h3>
-              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </div>
-
-            {biometricSupported && email ? (
-              <div className="p-2">
-                <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">{t("memberPortal.settings.account.biometricUnsupported")}</p>
             )}
-
-            <button
-              onClick={() => setActiveSheet(null)}
-              className="w-full py-2.5 bg-muted text-foreground font-black text-xs uppercase tracking-wider rounded-xl"
-            >
-              {t("memberPortal.settings.account.done")}
-            </button>
+            <div className="hugo-account-group">
+              <AccountRow
+                symbol="task_alt"
+                tint="green"
+                title={t("memberPortal.accountHub.todayMissions")}
+                detail={pendingMissions.length ? t("memberPortal.accountHub.pendingJoyLong", { amount: pendingJoy }) : t("memberPortal.accountHub.missionProgress", { completed: completedCount, total: challenges.length })}
+                badge={pendingMissions.length}
+                onClick={() => openSheet("missions")}
+              />
+              <AccountRow
+                symbol="confirmation_number"
+                tint="orange"
+                title={t("memberPortal.accountHub.myPerks")}
+                detail={spinAvailable ? t("memberPortal.accountHub.luckySpinRemaining") : t("memberPortal.accountHub.voucherCount", { count: activeVoucherCount })}
+                badge={(spinAvailable ? 1 : 0) + activeVoucherCount}
+                onClick={() => openSheet("perks")}
+              />
+              <AccountRow symbol="receipt_long" tint="blue" title={t("memberPortal.accountHub.walletHistory")} detail={t("memberPortal.accountHub.walletHistoryShort")} onClick={() => openSheet("history")} />
+              <AccountRow symbol="storefront" tint="pink" title={t("memberPortal.accountHub.perksStore")} detail={t("memberPortal.accountHub.perksStoreShort")} onClick={() => openSheet("store")} />
+              <AccountRow symbol="redeem" tint="violet" title={t("memberPortal.accountHub.redeemReferral")} detail={t("memberPortal.accountHub.redeemReferralShort")} onClick={() => openSheet("redeem")} />
+            </div>
           </div>
-        </div>
+        </AccountSheet>
       )}
 
-      {/* ── 11. MODAL SHEET: LANGUAGE SELECTION ──────────────────────────────── */}
-      {activeSheet === "language" && (
-        <div className="portal-safe-modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center z-[500] p-0 sm:p-4 animate-fadeIn">
-          <div className="bg-card border-t sm:border border-border/60 rounded-t-[32px] sm:rounded-[32px] p-6 max-w-sm w-full space-y-4 shadow-2xl animate-slideUp text-left">
-            <div className="flex items-center justify-between border-b border-border/30 pb-3">
-              <h3 className="text-base font-black text-foreground">{t("memberPortal.settings.account.chooseLanguage")}</h3>
-              <button onClick={() => setActiveSheet(null)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </div>
+      {activeSheet === "themes" && (
+        <AccountSheet
+          title={t("aura.accountThemeTitle")}
+          subtitle={t("aura.accountThemeDescription")}
+          onClose={closeSheet}
+          wide
+        >
+          <AccountThemeSheet bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+        </AccountSheet>
+      )}
 
-            <div className="space-y-2">
-              {LANGUAGES.map((lng) => {
-                const active = currentLang === lng.code;
-                return (
-                  <button
-                    key={lng.code}
-                    onClick={() => { selectLanguage(lng.code); setActiveSheet(null); }}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
-                      active ? "bg-primary/10 border-primary text-primary font-black" : "bg-card border-border/40 text-foreground font-bold"
-                    }`}
-                  >
-                    <span>{lng.label}</span>
-                    {active && <Check className="w-4 h-4 text-primary" />}
-                  </button>
-                );
-              })}
+      {activeSheet === "perks" && (
+        <AccountSheet title={t("memberPortal.accountHub.myPerks")} subtitle={t("memberPortal.accountHub.myPerksSubtitle")} onClose={closeSheet}>
+          <React.Suspense fallback={<SheetFallback />}>
+            <JoyPerks perks={perks} loading={perksLoading} error={perksError} onReload={loadPerks} email={email} />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "missions" && (
+        <AccountSheet title={t("memberPortal.accountHub.todayMissions")} subtitle={t("memberPortal.accountHub.todayMissionsSubtitle")} onClose={closeSheet}>
+          <React.Suspense fallback={<SheetFallback />}>
+            <JoyMissions
+              email={email}
+              showToast={showToast}
+              challenges={challenges}
+              loading={challengesLoading}
+              onReload={loadChallenges}
+            />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "history" && (
+        <AccountSheet title={t("memberPortal.accountHub.walletHistory")} subtitle={t("memberPortal.accountHub.walletHistorySubtitle")} onClose={closeSheet}>
+          <React.Suspense fallback={<SheetFallback />}>
+            <JoyHistory />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "store" && (
+        <AccountSheet title={t("memberPortal.accountHub.perksStore")} subtitle={t("memberPortal.accountHub.balanceSubtitle", { balance: (joyBalance || 0).toLocaleString(numberLocale) })} onClose={closeSheet} wide>
+          <React.Suspense fallback={<SheetFallback />}>
+            <MemberUtilityStoreTab
+              bio={bio}
+              balance={joyBalance}
+              onPurchased={(newBalance) => { setBalance(newBalance); loadPerks(); }}
+              onBioUpdate={onBioUpdate}
+              showToast={showToast}
+            />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "redeem" && (
+        <AccountSheet title={t("memberPortal.accountHub.redeemReferral")} onClose={closeSheet}>
+          <React.Suspense fallback={<SheetFallback />}>
+            <JoyRedeem email={email} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "manage" && (
+        <AccountSheet title={t("memberPortal.accountHub.manageTitle")} onClose={closeSheet} wide>
+          <React.Suspense fallback={<SheetFallback />}>
+            <MemberManageTab
+              bio={bio}
+              publicLink={publicLink}
+              handleCopyLink={handleCopyLink}
+              handleDeleteBio={handleDeleteBio}
+              saving={saving}
+            />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet?.startsWith("doc:") && (
+        <AccountSheet
+          title={memberDocuments[activeSheet]?.title || t("memberPortal.accountHub.memberDocument")}
+          subtitle={memberDocuments[activeSheet]?.subtitle}
+          onClose={closeSheet}
+          wide
+        >
+          <React.Suspense fallback={<SheetFallback />}>
+            <MemberDocReader docId={memberDocuments[activeSheet]?.id} />
+          </React.Suspense>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "notifications" && (
+        <AccountSheet title={t("memberPortal.settings.account.notificationSettings")} onClose={closeSheet}>
+          <div className="flex items-center justify-between rounded-2xl border border-border bg-card p-4">
+            <div className="min-w-0 pr-3">
+              <h4 className="text-[15px] font-semibold text-foreground">{t("memberPortal.settings.pushTitle")}</h4>
+              <p className="text-[12.5px] text-muted-foreground">{t("memberPortal.settings.account.pushDescription")}</p>
             </div>
+            <ToggleSwitch checked={pushEnabled} onChange={handleTogglePush} disabled={pushBusy} label={t("memberPortal.settings.pushTitle")} />
           </div>
-        </div>
+        </AccountSheet>
+      )}
+
+      {activeSheet === "security" && (
+        <AccountSheet title={t("memberPortal.settings.account.privacyBiometrics")} onClose={closeSheet}>
+          {biometricSupported && email ? (
+            <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
+          ) : (
+            <p className="text-[14px] text-muted-foreground">{t("memberPortal.settings.account.biometricUnsupported")}</p>
+          )}
+        </AccountSheet>
+      )}
+
+      {activeSheet === "language" && (
+        <AccountSheet title={t("memberPortal.settings.account.chooseLanguage")} onClose={closeSheet}>
+          <div className="space-y-2">
+            {SUPPORTED_LANGUAGES.map((lng) => {
+              const active = currentLang === lng.code;
+              return (
+                <button
+                  key={lng.code}
+                  onClick={async () => { await selectLanguage(lng.code); closeSheet(); }}
+                  className={`flex min-h-[52px] w-full items-center justify-between rounded-2xl border px-4 text-[16px] transition-colors ${
+                    active ? "border-primary bg-primary/10 font-semibold text-primary" : "border-border bg-card text-foreground"
+                  }`}
+                >
+                  <span>{lng.label}</span>
+                  {active && <Check className="h-4 w-4 text-primary" />}
+                </button>
+              );
+            })}
+          </div>
+        </AccountSheet>
       )}
     </div>
   );
@@ -417,22 +822,31 @@ const ROW_TINTS = {
   green: "#30D158",
 };
 
-/** Tiêu đề nhóm + khối inset — cấu trúc của Cài đặt trên iOS. */
+/** Nhóm thu gọn: màn chính chỉ cho thấy danh mục, chạm mới mở các thao tác con. */
 function AccountSection({ title, children }) {
   return (
-    <section className="hugo-account-section">
-      {title && <h3 className="hugo-account-section-title">{title}</h3>}
+    <details className="hugo-account-section">
+      <summary className="hugo-account-section-summary">
+        <span>{title}</span>
+        <ChevronRight aria-hidden="true" />
+      </summary>
       <div className="hugo-account-group">{children}</div>
-    </section>
+    </details>
   );
 }
 
 /**
- * Một hàng cài đặt. Trước đây mỗi hàng là <div onClick> nên bàn phím không tới
- * được và không có viền focus — bấm bằng chuột thì chạy, dùng phím thì như nút
- * chết. Giờ luôn là <button> (hoặc <a> khi mở link ngoài).
+ * Một hàng cài đặt. Luôn là <button> (hoặc <a> khi mở link ngoài) để bàn phím
+ * tới được và có viền focus.
+ *
+ * `icon` là component lucide, `symbol` là tên Material Symbol — các hàng của ví
+ * dùng đúng bộ icon đơn sắc mà phần còn lại của portal đang dùng. `badge` là số
+ * việc đang chờ; 0 thì không vẽ gì.
  */
-function AccountRow({ as = "button", icon: Icon, tint = "blue", title, detail, value, trailingIcon = "chevron", onClick, href }) {
+function AccountRow({
+  as = "button", icon: Icon, symbol, tint = "blue", title, detail, value,
+  badge = 0, trailingIcon = "chevron", onClick, href,
+}) {
   const Tag = as;
   const props = as === "a"
     ? { href, target: "_blank", rel: "noreferrer" }
@@ -441,12 +855,19 @@ function AccountRow({ as = "button", icon: Icon, tint = "blue", title, detail, v
   return (
     <Tag {...props} className="hugo-account-row">
       <span className="hugo-account-row-icon" style={{ background: ROW_TINTS[tint] || ROW_TINTS.blue }}>
-        <Icon className="w-[17px] h-[17px]" strokeWidth={2.2} />
+        {Icon
+          ? <Icon className="w-[17px] h-[17px]" strokeWidth={2.2} />
+          : <span className="material-symbols-outlined text-[17px]" aria-hidden="true">{symbol}</span>}
       </span>
       <span className="hugo-account-row-text">
         <span className="hugo-account-row-title">{title}</span>
         {detail && <span className="hugo-account-row-detail">{detail}</span>}
       </span>
+      {badge > 0 && (
+        <span className="shrink-0 rounded-full bg-primary px-2 py-0.5 text-[12.5px] font-semibold tabular-nums text-white">
+          {badge}
+        </span>
+      )}
       {value && <span className="hugo-account-row-value">{value}</span>}
       {trailingIcon === "chevron"
         ? <ChevronRight className="hugo-account-row-chevron" />

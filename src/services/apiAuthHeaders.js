@@ -41,9 +41,17 @@ export const authDecision = (input, init, availableToken) => {
   const mustStrip = Boolean(authKey) && !hasValidAuth;
   const token = hasValidAuth ? null : (availableToken || null);
 
-  if (!mustStrip && !token) return { headers: null, sentAuth: hasValidAuth };
+  const existingToken = hasValidAuth ? existing.replace(/^Bearer\s+/i, "") : null;
+
+  if (!mustStrip && !token) {
+    return { headers: null, sentAuth: hasValidAuth, authToken: existingToken };
+  }
 
   if (mustStrip) delete headers[authKey];
   if (token) headers.Authorization = `Bearer ${token}`;
-  return { headers, sentAuth: hasValidAuth || Boolean(token) };
+  return {
+    headers,
+    sentAuth: hasValidAuth || Boolean(token),
+    authToken: existingToken || token,
+  };
 };

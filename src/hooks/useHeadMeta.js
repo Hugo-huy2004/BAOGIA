@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { languageCode, languageLabel, localeForLanguage } from "../i18n/languages";
 
 const SITE_ORIGIN = "https://www.hugowishpax.studio";
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/og-image.png`;
@@ -40,7 +41,8 @@ export const useHeadMeta = (options = {}) => {
     options.language ||
     (typeof document !== "undefined" ? document.documentElement.lang : "vi") ||
     "vi";
-  const locale = options.locale || (language.startsWith("en") ? "en_US" : "vi_VN");
+  const normalizedLanguage = languageCode(language);
+  const locale = options.locale || localeForLanguage(normalizedLanguage).replace("-", "_");
   const robots = options.robots || INDEX_ROBOTS;
   const imageAlt = options.imageAlt || ogTitle;
 
@@ -52,7 +54,7 @@ export const useHeadMeta = (options = {}) => {
     updateOrCreateMeta("author", options.author || "Hugo Studio");
     updateOrCreateMeta("robots", robots);
     updateOrCreateMeta("googlebot", robots);
-    updateOrCreateMeta("language", language.startsWith("en") ? "English" : "Vietnamese");
+    updateOrCreateMeta("language", languageLabel(normalizedLanguage));
 
     updateOrCreateMeta("og:type", options.ogType || "website", "property");
     updateOrCreateMeta("og:site_name", "Hugo Studio", "property");
@@ -93,6 +95,7 @@ export const useHeadMeta = (options = {}) => {
     description,
     imageAlt,
     language,
+    normalizedLanguage,
     locale,
     ogDescription,
     ogImage,

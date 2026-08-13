@@ -9,7 +9,7 @@ import JoyCoinBadge from "../../shared/JoyCoinBadge";
 
 // Kept in sync with the same map in MemberUtilitiesDashboard.jsx
 const APP_STORAGE_MB = {
-  hugoskin: 2.8,
+  study: 8.1,
   ide: 4.5,
   psychology: 3.2,
   arcade: 5.1,
@@ -17,30 +17,24 @@ const APP_STORAGE_MB = {
   helpdesk: 1.4,
   handle: 1.2,
   aura: 1.8,
-  deco: 3.8,
   team: 1.6,
   bio: 1.5,
   info: 0.8,
-  joy_wallet: 1.1,
-  map: 2.4,
   hugoso: 3.6
 };
 
 const APP_VERSIONS = {
   bio: "3.2.0",
+  study: "1.0.0",
   ide: "2.8.1",
   team: "1.4.0",
   psychology: "4.1.0",
-  hugoskin: "2.0.3",
   radio: "1.6.0",
   helpdesk: "2.3.0",
   handle: "1.9.0",
   arcade: "3.5.0",
   aura: "2.1.0",
-  deco: "1.7.0",
   info: "2.0.0",
-  joy_wallet: "2.4.0",
-  map: "1.0.0",
   hugoso: "1.0.0"
 };
 

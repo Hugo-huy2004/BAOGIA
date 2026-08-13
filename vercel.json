@@ -33,6 +33,10 @@
       "destination": "/privacy-policy/index.html"
     },
     {
+      "source": "/terms",
+      "destination": "/terms/index.html"
+    },
+    {
       "source": "/user-guide",
       "destination": "/user-guide/index.html"
     },
@@ -59,10 +63,6 @@
     {
       "source": "/ide",
       "destination": "/ide/index.html"
-    },
-    {
-      "source": "/hugoskin",
-      "destination": "/hugoskin/index.html"
     },
     {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",

@@ -15,8 +15,6 @@ const SCHEDULES = {
   wake_check:     '0 7  * * *',    // 07:00 — good morning check
   wellness_noon:  '0 12 * * *',    // 12:00 — midday wellness nudge
   streak_check:   '0 19 * * *',    // 19:00 — streak protect before evening
-  skincare_morning: '0 8 * * *',   // 08:00 — skincare morning nudge
-  skincare_night:   '30 21 * * *', // 21:30 — skincare evening nudge
 };
 
 async function pMap(items, limit, fn) {
@@ -33,55 +31,6 @@ async function pMap(items, limit, fn) {
     }
   }
   return Promise.all(results);
-}
-
-async function runSkincareReminders(timeOfDay) {
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const todayName = daysOfWeek[new Date().getDay()];
-
-  const bios = await Bio.find({ skincareReminderEnabled: true }).lean();
-  if (!bios.length) return;
-
-  await pMap(bios, 5, async (bio) => {
-    try {
-      const email = bio.email;
-      const plan = bio.skinAnalysis?.plan;
-      if (!plan || !plan[todayName]) return;
-
-      const steps = timeOfDay === 'morning' ? plan[todayName].morning : plan[todayName].night;
-      if (!steps || !steps.length) return;
-
-      const title = timeOfDay === 'morning' ? '✨ HugoSkin: Skincare Buổi Sáng!' : '🌙 HugoSkin: Skincare Buổi Tối!';
-      const body = `Hôm nay là ${todayName}. Liệu trình dưỡng da của bạn gồm: ${steps.join(', ')}. Hãy bắt đầu ngay nhé!`;
-
-      // 1. Tạo In-App Notification
-      await InAppNotification.create({
-        email,
-        type: 'info',
-        // 'wellness' chứ không phải 'system': hộp thư hiện icon theo loại, gắn
-        // sai thì nhắc dưỡng da cũng mang bánh răng như thông báo hệ thống.
-        category: 'wellness',
-        title,
-        message: body,
-        actionUrl: '/member/utilities/hugoskin'
-      });
-
-      // 2. Gửi Web Push
-      const subs = await NotificationSubscription.find({ email }).lean();
-      if (subs.length) {
-        await sendPushToUser(email, subs, {
-          title,
-          body,
-          icon: '/image/avt7.png',
-          badge: '/image/badge.png',
-          url: '/member/utilities/hugoskin',
-          tag: 'skincare_reminder'
-        });
-      }
-    } catch (err) {
-      console.error(`[SkincareReminder] Lỗi gửi nhắc nhở cho ${bio.email}:`, err.message);
-    }
-  });
 }
 
 async function runScheduledCompanionPushes() {
@@ -237,17 +186,7 @@ export function initSmartNotificationService() {
     runScheduledCompanionPushes().catch(console.error);
   }, tz);
 
-  // Nhắc nhở skincare buổi sáng (08:00)
-  cron.schedule(SCHEDULES.skincare_morning, () => {
-    runSkincareReminders('morning').catch(console.error);
-  }, tz);
-
-  // Nhắc nhở skincare buổi tối (21:30)
-  cron.schedule(SCHEDULES.skincare_night, () => {
-    runSkincareReminders('night').catch(console.error);
-  }, tz);
-
-  console.log('SmartNotification service initialized (sleep_reminder 21h, wake 7h, wellness 12h, streak 19h, companion_push 10min, skincare 8h/21h30)');
+  console.log('SmartNotification service initialized (sleep_reminder 21h, wake 7h, wellness 12h, streak 19h, companion_push 10min)');
 }
 
 export async function triggerSmartPushNow(contextHint = 'wellness_nudge') {

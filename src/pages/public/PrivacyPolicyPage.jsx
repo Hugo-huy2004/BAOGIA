@@ -1,7 +1,7 @@
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import DocsLayout from "./DocsLayout";
 
-const UPDATED_AT = "10/08/2026";
+const UPDATED_AT = "13/08/2026";
 const CONTACT_EMAIL = "contact@hugowishpax.studio";
 
 export default function PrivacyPolicyPage() {
@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
             "Không bán, cho thuê hoặc trao đổi dữ liệu cá nhân cho mạng quảng cáo.",
             "Bạn có thể dùng trang công khai mà không tạo hồ sơ thành viên.",
             "Dữ liệu do một dịch vụ bên thứ ba xử lý sẽ tuân theo chính sách của chính dịch vụ đó.",
-            "Bạn có thể sửa phần lớn dữ liệu ngay trong tài khoản và yêu cầu xoá dữ liệu do Hugo Studio lưu.",
+            "Bạn có quyền biết, xem, sửa, yêu cầu cung cấp hoặc xoá dữ liệu; hạn chế hoặc phản đối xử lý; rút lại sự đồng ý; khiếu nại và yêu cầu bồi thường theo pháp luật.",
           ],
         },
         {
@@ -32,6 +32,21 @@ export default function PrivacyPolicyPage() {
           tone: "info",
           title: "Một nguyên tắc dễ nhớ",
           text: "Không dùng tính năng nào thì Hugo Studio không cần thu thập dữ liệu riêng của tính năng đó. Quyền vị trí, thông báo và các tiện ích cá nhân đều có thể tắt.",
+        },
+      ],
+    },
+    {
+      id: "chu-the-va-co-so",
+      title: "Ai kiểm soát dữ liệu và chính sách dựa trên đâu",
+      blocks: [
+        {
+          type: "list",
+          items: [
+            "Bên quyết định mục đích và phương tiện xử lý dữ liệu trong hệ thống Hugo Studio là Lê Gia Huy, đơn vị vận hành Hugo Studio.",
+            `Đầu mối tiếp nhận yêu cầu về dữ liệu cá nhân: ${CONTACT_EMAIL}. Bạn nên gửi từ email đang gắn với tài khoản để việc xác minh nhanh hơn.`,
+            "Chính sách này được xây dựng theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Nghị định 356/2025/NĐ-CP, Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15 và quy định liên quan đang có hiệu lực.",
+            "Trường hợp quy định pháp luật thay đổi hoặc yêu cầu bắt buộc cao hơn nội dung tại đây, quy định bắt buộc được ưu tiên áp dụng và chính sách sẽ được cập nhật tương ứng.",
+          ],
         },
       ],
     },
@@ -68,6 +83,69 @@ export default function PrivacyPolicyPage() {
               a: "Không. Hệ thống không dùng công cụ quay lại toàn bộ phiên truy cập.",
             },
           ],
+        },
+      ],
+    },
+    {
+      id: "quyen-du-lieu",
+      title: "Quyền dữ liệu của bạn và cách thực hiện",
+      blocks: [
+        {
+          type: "table",
+          head: ["Quyền", "Bạn có thể yêu cầu", "Lưu ý"],
+          rows: [
+            ["Được biết", "Biết dữ liệu nào được xử lý, mục đích, cách xử lý, bên liên quan, thời gian và rủi ro có thể có", "Thông tin cốt lõi được công bố tại chính sách này và ngay tại tính năng khi cần"],
+            ["Đồng ý hoặc từ chối", "Chọn có dùng tính năng tuỳ chọn và có cấp quyền thiết bị hay không", "Từ chối chỉ làm tắt phần cần đúng dữ liệu đó"],
+            ["Xem và chỉnh sửa", "Xem dữ liệu tài khoản, sửa nội dung hoặc yêu cầu sửa dữ liệu bị khoá", "Dữ liệu ảnh hưởng chống gian lận có thể cần xác minh trước khi sửa"],
+            ["Cung cấp bản sao", "Nhận dữ liệu cá nhân của chính bạn ở định dạng hợp lý trong khả năng hệ thống", "Thông tin của người khác và bí mật an toàn sẽ được loại bỏ"],
+            ["Xoá hoặc hạn chế", "Xoá dữ liệu, ngừng hoặc giới hạn hoạt động xử lý cụ thể", "Có ngoại lệ khi pháp luật, đối soát, tranh chấp hoặc quyền của người khác yêu cầu tiếp tục lưu"],
+            ["Rút lại hoặc phản đối", "Rút lại sự đồng ý, phản đối xử lý hoặc quảng cáo dùng dữ liệu cá nhân", "Không làm mất tính hợp pháp của việc xử lý đã hoàn thành trước thời điểm yêu cầu"],
+            ["Khiếu nại và bồi thường", "Yêu cầu giải thích, khiếu nại, tố cáo, khởi kiện và yêu cầu bồi thường", "Thực hiện theo thủ tục và căn cứ thiệt hại của pháp luật"],
+          ],
+        },
+        {
+          type: "steps",
+          items: [
+            `Gửi yêu cầu tới ${CONTACT_EMAIL}, nêu email tài khoản, quyền muốn thực hiện và phạm vi dữ liệu liên quan.`,
+            "Hugo Studio xác minh người yêu cầu là chủ thể dữ liệu hoặc người đại diện hợp pháp; chỉ yêu cầu thông tin ở mức cần thiết để ngăn mạo danh.",
+            "Yêu cầu hợp lệ được phản hồi ban đầu trong 02 ngày làm việc. Thời gian thực hiện thông thường là 15 ngày; trường hợp cần phối hợp bên xử lý/bên thứ ba hoặc yêu cầu phức tạp có thể cần 20–30 ngày theo quy định hiện hành.",
+            "Nếu cần gia hạn, không thể thực hiện hoặc chỉ có thể thực hiện một phần, Hugo Studio thông báo lý do và phạm vi xử lý trong thời hạn pháp luật yêu cầu.",
+          ],
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Thực hiện quyền không làm bạn mất quyền lợi khác",
+          text: "Hugo Studio không phân biệt đối xử vì bạn thực hiện quyền dữ liệu. Nếu dữ liệu là điều kiện kỹ thuật bắt buộc của một tính năng, việc xoá hoặc rút lại đồng ý chỉ khiến đúng tính năng đó ngừng hoạt động; các quyền độc lập khác vẫn được giữ.",
+        },
+      ],
+    },
+    {
+      id: "du-lieu-nhay-cam",
+      title: "Dữ liệu nhạy cảm và việc chuyển ra nước ngoài",
+      blocks: [
+        {
+          type: "p",
+          text: "Một số tính năng xử lý nhóm dữ liệu được pháp luật xếp vào loại nhạy cảm. Những tính năng này đều là tuỳ chọn: không bật thì hệ thống không thu thập gì cho chúng.",
+        },
+        {
+          type: "table",
+          head: ["Tính năng", "Dữ liệu nhạy cảm", "Bạn kiểm soát bằng cách"],
+          rows: [
+            ["HugoPSY và bài tự đánh giá", "Nội dung trò chuyện và câu trả lời liên quan tới sức khoẻ tinh thần.", "Không dùng tính năng, hoặc xoá lịch sử trò chuyện trong phần cài đặt."],
+            ["Theo dõi giấc ngủ, phân tích chỉ số sức khoẻ", "Thông tin về giấc ngủ và chỉ số cơ thể bạn tự nhập hoặc thiết bị gửi.", "Tắt tính năng và xoá nhật ký đã lưu."],
+            ["Thời tiết", "Vị trí gần đúng của bạn.", "Tắt quyền vị trí trong trình duyệt hoặc hệ điều hành."],
+          ],
+        },
+        {
+          type: "note",
+          tone: "warn",
+          title: "Dữ liệu có thể được xử lý ngoài lãnh thổ Việt Nam",
+          text: "Hạ tầng và dịch vụ AI mà Hugo Studio sử dụng (Google, MongoDB Atlas, Cloudinary, Pinecone, SendGrid, Render, Vercel, Cloudflare) đặt máy chủ ở nhiều quốc gia. Khi bạn dùng các tính năng liên quan, dữ liệu tương ứng có thể được truyền và lưu ngoài Việt Nam theo chính sách của từng nhà cung cấp.",
+        },
+        {
+          type: "p",
+          text: `Bạn có quyền rút lại sự đồng ý với từng nhóm dữ liệu nhạy cảm bất cứ lúc nào bằng cách tắt tính năng tương ứng, hoặc gửi yêu cầu tới ${CONTACT_EMAIL}. Rút lại sự đồng ý không ảnh hưởng tới việc xử lý đã diễn ra hợp pháp trước đó.`,
         },
       ],
     },
@@ -123,7 +201,11 @@ export default function PrivacyPolicyPage() {
           type: "note",
           tone: "warn",
           title: "Khai đúng tuổi là điều kiện sử dụng",
-          text: "Hugo Studio không yêu cầu giấy tờ để xác minh tuổi, nhưng khai sai để vượt điều kiện là vi phạm điều kiện sử dụng. Khi phát hiện tài khoản dưới 14 tuổi, hệ thống sẽ ngừng phục vụ và xoá dữ liệu liên quan.",
+          text: "Người dưới 14 tuổi không được tạo tài khoản. Thành viên từ đủ 14 đến dưới 16 tuổi cần xác nhận đã có sự đồng ý của cha mẹ hoặc người giám hộ theo tiêu chuẩn bảo vệ của Hugo Studio. Nhóm 16–17 tuổi được dùng tính năng thông thường nhưng bị chặn khỏi phần 18+ và giao dịch cần năng lực hành vi đầy đủ. Hugo Studio không mặc định yêu cầu tải giấy tờ tuỳ thân để xác minh tuổi; nếu có dấu hiệu khai sai, tài khoản có thể bị tạm ngừng trong lúc xác minh.",
+        },
+        {
+          type: "p",
+          text: "Với người chưa thành niên, người đại diện theo pháp luật có thể thực hiện quyền dữ liệu theo quy định. Khi việc công khai dữ liệu đời sống riêng tư của trẻ em từ đủ 07 tuổi trở lên cần sự đồng ý, Hugo Studio tôn trọng ý kiến của cả trẻ em và người đại diện theo pháp luật theo phạm vi luật định.",
         },
       ],
     },
@@ -139,20 +221,24 @@ export default function PrivacyPolicyPage() {
           type: "table",
           head: ["Bên cung cấp", "Vai trò", "Dữ liệu liên quan"],
           rows: [
-            ["Google", "Đăng nhập, bản đồ và Gemini AI.", "Thông tin đăng nhập cơ bản, vị trí tìm kiếm hoặc nội dung gửi tới tính năng AI."],
+            ["Google", "Đăng nhập và Gemini AI.", "Thông tin đăng nhập cơ bản, nội dung bạn gửi tới tính năng AI."],
             ["PayOS, VietQR và ngân hàng", "Tạo mã thanh toán, mở app ngân hàng và xác nhận giao dịch.", "Thông tin đơn, số tiền, nội dung chuyển khoản và dữ liệu giao dịch do họ xử lý."],
             ["MongoDB Atlas", "Cơ sở dữ liệu.", "Dữ liệu ứng dụng cần lưu lâu dài."],
+            ["Pinecone", "Kho vector phục vụ tìm kiếm và gợi ý theo ngữ nghĩa.", "Biểu diễn dạng vector của nội dung bạn tạo trong tính năng liên quan; vector không được mô tả như một biện pháp mã hoá."],
             ["Cloudinary", "Lưu ảnh và tệp tải lên.", "Tệp bạn chủ động gửi."],
             ["Render, Vercel, Cloudflare", "Chạy website, API, bảo vệ và phân phối nội dung.", "Yêu cầu mạng, địa chỉ IP và nhật ký kỹ thuật."],
+            ["Redis", "Bộ nhớ đệm và hàng đợi tạm.", "Dữ liệu phiên và kết quả tạm, tự hết hạn sau thời gian ngắn."],
             ["SendGrid và dịch vụ email", "Gửi thư xác minh, thông báo hoặc cảm ơn.", "Địa chỉ email và nội dung thư cần gửi."],
             ["Open-Meteo", "Cung cấp thời tiết.", "Toạ độ gần đúng khi bạn bật tính năng liên quan."],
+            ["Radio Browser", "Danh bạ đài phát thanh công khai.", "Tên đài bạn tìm; không gửi kèm danh tính."],
+            ["GNews, NewsAPI, arXiv và RSS của các toà soạn", "Nguồn bản tin hôm nay.", "Chỉ chuyên mục và ngôn ngữ bạn chọn; không gửi kèm danh tính."],
           ],
         },
         {
           type: "note",
           tone: "info",
           title: "Ranh giới trách nhiệm",
-          text: "Hugo Studio quản lý phần dữ liệu nằm trong hệ thống Hugo Studio. Hồ sơ, nhật ký hoặc dữ liệu do nhà cung cấp tạo và giữ trên hệ thống của họ thuộc quy trình của nhà cung cấp đó. Hugo Studio không thể truy xuất, sửa hoặc xoá thay dữ liệu trong tài khoản bên thứ ba; bạn cần dùng kênh quyền riêng tư hoặc hỗ trợ chính thức của họ.",
+          text: "Hugo Studio chịu trách nhiệm lựa chọn nhà cung cấp phù hợp, giới hạn chỉ dẫn xử lý và bảo vệ phần dữ liệu nằm trong khả năng kiểm soát của mình. Dữ liệu do nhà cung cấp tự tạo và giữ trong tài khoản độc lập của họ thuộc quy trình của nhà cung cấp; Hugo Studio không có quyền truy cập để tự sửa hoặc xoá thay bạn, nhưng sẽ hướng dẫn đúng kênh và phối hợp trong phạm vi hợp đồng, kỹ thuật và pháp luật cho phép.",
         },
         {
           type: "external-links",
@@ -271,6 +357,7 @@ export default function PrivacyPolicyPage() {
             "Tắt thu thập theo tính năng: thu hồi quyền vị trí, thông báo hoặc ngừng dùng tính năng đó.",
             `Xoá dữ liệu Hugo Studio khi không có nút tự xoá: gửi yêu cầu từ email tài khoản tới ${CONTACT_EMAIL}.`,
             "Dữ liệu thuộc Google, PayOS, ngân hàng hoặc nhà cung cấp khác: thực hiện yêu cầu trực tiếp theo chính sách của bên đó.",
+            "Hugo Studio chỉ tiếp tục giữ dữ liệu sau yêu cầu xoá khi có căn cứ pháp luật, nghĩa vụ đối soát, tranh chấp, yêu cầu bảo vệ quyền của người khác hoặc ngoại lệ hợp pháp khác; phần bị giữ được hạn chế sử dụng đúng mục đích đó.",
           ],
         },
         {
@@ -288,7 +375,7 @@ export default function PrivacyPolicyPage() {
         {
           type: "list",
           items: [
-            "Khu vực thành viên bắt buộc từ đủ 14 tuổi; thành viên 14 đến dưới 18 tuổi cần sự biết và giám sát của cha mẹ hoặc người giám hộ (xem phần Điều kiện độ tuổi).",
+            "Khu vực thành viên bắt buộc từ đủ 14 tuổi; nhóm 14–15 tuổi cần xác nhận của cha mẹ/người giám hộ, còn nhóm 16–17 tuổi bị giới hạn khỏi tính năng 18+ và giao dịch cần năng lực hành vi đầy đủ.",
             "Trang Bio là nội dung công khai. Chỉ đăng thông tin bạn chấp nhận để người khác nhìn thấy.",
             "Không tải lên mật khẩu, OTP, dữ liệu thẻ đầy đủ, giấy tờ tuỳ thân hoặc bí mật của người khác.",
             "Nếu Hugo Studio dừng hoạt động có kế hoạch, hệ thống sẽ cố gắng báo trước để thành viên sao lưu dữ liệu; dữ liệu không được bán lại như một tài sản người dùng.",
@@ -309,12 +396,12 @@ export default function PrivacyPolicyPage() {
   return (
     <DocsLayout
       eyebrow="Quyền riêng tư"
-      version="v11"
+      version="v12"
       title="Chính sách bảo mật"
-      intro="Một bản giải thích dễ đọc về dữ liệu trong Hugo Studio, cách hệ thống bảo vệ dữ liệu và ranh giới với các dịch vụ bên thứ ba."
+      intro="Quyền dữ liệu của bạn, dữ liệu Hugo Studio xử lý, cách bảo vệ, thời hạn phản hồi và ranh giới trách nhiệm với dịch vụ bên thứ ba."
       updatedAt={UPDATED_AT}
       sections={sections}
-      footerNote="Bạn nên đọc chính sách của dịch vụ bên thứ ba trước khi dùng tính năng có kết nối tới dịch vụ đó. Hugo Studio chỉ trả lời và xử lý phần dữ liệu do chính hệ thống quản lý."
+      footerNote="Bạn nên đọc chính sách của dịch vụ bên thứ ba trước khi dùng tính năng có kết nối. Hugo Studio chịu trách nhiệm đối với phần xử lý nằm trong khả năng kiểm soát của mình và phối hợp thực hiện quyền dữ liệu theo phạm vi pháp luật, hợp đồng và kỹ thuật cho phép."
     />
   );
 }

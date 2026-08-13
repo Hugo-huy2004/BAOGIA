@@ -100,8 +100,8 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
           {/* Headings */}
           <h2 className="text-base md:text-xl font-serif font-black text-amber-400 tracking-wider uppercase">
             {certType === "advanced" 
-              ? "CHỨNG CHỈ TỐT NGHIỆP HUGOCODER CAO CẤP" 
-              : "CHỨNG CHỈ HOÀN THÀNH KHÓA HỌC TRUNG CẤP"}
+              ? "GIẤY CHỨNG NHẬN HOÀN THÀNH HUGOCODER CAO CẤP"
+              : "GIẤY CHỨNG NHẬN HOÀN THÀNH KHÓA HỌC TRUNG CẤP"}
           </h2>
           <p className="text-zinc-500 text-[9px] tracking-widest uppercase mt-0.5 font-bold">
             Hugo Studio Academic Board
@@ -122,7 +122,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
           {certType === "intermediate" ? (
             <div className="space-y-4">
               <p className="text-[11px] text-zinc-400 max-w-md mx-auto mt-2 leading-relaxed font-sans">
-                đã hoàn thành xuất sắc chặng <strong>HugoCoder Trung Cấp Nâng Cao (Bài 11-25)</strong>, nắm vững kiến thức về thiết kế RESTful API, quản trị định dạng dữ liệu JSON, mô hình lập trình MVC, quan hệ nâng cao CSDL MySQL và các quy tắc tối ưu giao diện UI/UX chuẩn mực.
+                đã hoàn thành xuất sắc <strong>Phần Tư duy Kiến trúc (Bài 11–25)</strong> thuộc bộ Phát triển Web, nắm vững RESTful API, JSON, MVC, quan hệ dữ liệu MySQL và các nguyên tắc UI/UX nền tảng.
               </p>
 
               {/* Exam Scores table for intermediate */}
@@ -143,7 +143,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
           ) : (
             <div className="space-y-4">
               <p className="text-[11px] text-zinc-400 max-w-md mx-auto mt-2 leading-relaxed font-sans">
-                đã xuất sắc chinh phục toàn bộ 50 bài học thực chiến của lộ trình <strong>HugoCoder Advanced Engineering & Cryptography</strong>. Hoàn thành đầy đủ các thuật toán nâng cao, cấu trúc dữ liệu, mật mã học bảo mật hệ thống và SEO/PWAs hiệu năng cao.
+                đã xuất sắc chinh phục 50 bài đầu của bộ <strong>Phát triển Web Chuyên nghiệp</strong>, hoàn thành thuật toán, cấu trúc dữ liệu, mật mã ứng dụng, bảo mật hệ thống và tối ưu PWA.
               </p>
 
               {/* Advanced grading and average */}
@@ -233,6 +233,12 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
             <div className="w-12 h-[1px] bg-zinc-800" />
           </div>
 
+          {/* Bắt buộc giữ — xem ghi chú ở CoderCertificatePage.jsx. */}
+          <p className="mt-3 text-[8px] leading-relaxed text-zinc-600 text-center">
+            Giấy chứng nhận nội bộ của Hugo Studio, ghi nhận tiến độ học trong ứng dụng.
+            Không phải văn bằng, chứng chỉ thuộc hệ thống giáo dục quốc dân.
+          </p>
+
         </div>
 
         {/* Actions */}
@@ -241,7 +247,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
             onClick={() => window.print()}
             className="px-4 py-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-zinc-950 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-amber-500/10"
           >
-            <Award className="w-3.5 h-3.5" /> In chứng chỉ
+            <Award className="w-3.5 h-3.5" /> In giấy chứng nhận
           </button>
           <button
             onClick={onClose}

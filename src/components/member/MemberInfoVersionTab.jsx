@@ -37,19 +37,14 @@ const SEMVER_PARTS = [
 // Nguồn tên/mô tả là `utilities.catalog.*` — cùng nguồn với kho ứng dụng.
 const ECOSYSTEM = [
   ["bio", "badge"],
-  ["joy_wallet", "account_balance_wallet"],
   ["psychology", "psychology"],
-  ["ide", "code"],
-  ["hugoso", "school"],
+  ["study", "school"],
   ["arcade", "stadium"],
   ["aura", "blur_on"],
   ["helpdesk", "support_agent"],
   ["handle", "handyman"],
   ["radio", "radio"],
-  ["hugoskin", "face"],
   ["team", "groups"],
-  ["deco", "chair"],
-  ["map", "explore"],
   ["library", "store"],
 ];
 
@@ -139,7 +134,7 @@ function Mock({ id, label }) {
             <span>Offline · đã lưu cục bộ</span>
           </div>
           <div className="mock-sync__queue">
-            <span>Tetris · 12,480<b>chờ</b></span>
+            <span>Blocks · 12,480<b>chờ</b></span>
             <span>Snake · 8,120<b>chờ</b></span>
           </div>
         </div>

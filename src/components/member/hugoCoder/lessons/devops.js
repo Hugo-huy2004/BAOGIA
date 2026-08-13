@@ -808,7 +808,7 @@ curl -sf https://doan.vn/api/health || echo "CANH BAO: health check fail!"
   },
   {
     id: "lesson100",
-    title: "100. Bảo vệ & Nộp Đề Án Tốt Nghiệp HugoCoder",
+    title: "100. Bảo vệ và Nộp Đồ án Tốt nghiệp Phát triển Web",
     lang: "html",
     file: "src/lesson100.html",
     duration: "Buổi bảo vệ",

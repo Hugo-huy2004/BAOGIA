@@ -256,7 +256,7 @@ session_start();
     file: "src/lesson54.php",
     duration: "55 phút",
     overview: {
-      description: "Lắp ráp lá chắn hoàn chỉnh cho API: đọc JWT từ header Authorization, kiểm định dạng 3 phần, trả đúng mã 401/403 — kiến trúc xác thực của chính hệ thống HugoCoder.",
+      description: "Lắp ráp lá chắn hoàn chỉnh cho API: đọc JWT từ header Authorization, kiểm định dạng 3 phần, trả đúng mã 401/403 — kiến trúc xác thực của Study with Hugo.",
       outcomes: [
         "Bóc token từ header 'Authorization: Bearer <token>' bằng regex",
         "Kiểm cấu trúc JWT 3 phần và đọc payload (base64)",
@@ -357,7 +357,7 @@ Luồng Authorization Code (rút gọn):
 4. Backend **verify** ID token với Google → biết chắc email thật.
 5. Backend phát hành **JWT nội bộ** của hệ thống cho phiên làm việc.
 
-> Nguyên tắc sống còn: bước verify và client_secret PHẢI ở backend — frontend gửi lên một ID token thì backend không được tin mù, phải kiểm với Google (đúng kiến trúc requireMember của hệ thống HugoCoder).`,
+> Nguyên tắc sống còn: bước verify và client_secret PHẢI ở backend — frontend gửi lên một ID token thì backend không được tin mù, phải kiểm với Google (đúng kiến trúc requireMember của Study with Hugo).`,
     labSteps: [
       "Mở src/lesson55.js — mô phỏng luồng phía client + backend.",
       "Viết hằng OAUTH_URL gồm client_id, redirect_uri, scope, response_type=code — chú thích từng tham số.",

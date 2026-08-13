@@ -27,7 +27,7 @@ export const APP_PLANS = Object.freeze({
   aura: { appId: 'aura', featureKey: 'hugoAura', label: 'HugoAura', trialDays: 7 },
   chess: { appId: 'chess', featureKey: 'hugoChess', label: 'HugoChess', trialDays: 7 },
   // HugoCoder đã có cờ sở hữu riêng từ trước — dùng lại chứ không tạo cờ thứ hai.
-  ide: { appId: 'ide', featureKey: 'hugoCoder', label: 'HugoCoder', trialDays: 14, ownFlag: 'hugoCoderAll7Lifetime' },
+  ide: { appId: 'ide', featureKey: 'hugoCoder', label: 'Study · Phát triển Web', trialDays: 14, ownFlag: 'hugoCoderAll7Lifetime' },
 });
 
 export const PLAN_APP_IDS = Object.freeze(Object.keys(APP_PLANS));

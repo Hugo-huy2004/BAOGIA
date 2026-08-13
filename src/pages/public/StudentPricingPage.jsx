@@ -7,6 +7,7 @@ import { withUsdPrices } from "../../utils/priceFormatter";
 import { getMemberSession, loginMemberWithGoogle } from "../../services/authSession";
 import { isEduEmail } from "../../utils/eduEmail";
 import { notify } from "../../lib/notify";
+import { isVietnameseLanguage } from "../../i18n/languages";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -154,7 +155,7 @@ function PlanCard({ plan, vi, t }) {
 
 export default function StudentPricingPage() {
   const { t, i18n } = useTranslation();
-  const vi = i18n.language.startsWith("vi");
+  const vi = isVietnameseLanguage(i18n.resolvedLanguage || i18n.language);
 
   useHeadMeta({
     title: vi

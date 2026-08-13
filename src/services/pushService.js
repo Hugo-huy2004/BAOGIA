@@ -14,12 +14,13 @@
 import { IS_NATIVE } from "../config/platform";
 import { API_BASE } from "../config/apiBase";
 import { webPushHelper } from "../utils/webPushHelper";
+import { getStoredAppLanguage, localeForLanguage } from "../i18n/languages";
 
 /** Remembered so unsubscribe can name the exact device to remove. */
 let currentNativeToken = null;
 
 const deviceContext = () => ({
-  locale: navigator.language || "",
+  locale: localeForLanguage(getStoredAppLanguage() || navigator.language),
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "",
 });
 

@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTodayArticle } from "../../hooks/useTodayArticle";
 import { retryReaderEndpoint } from "../../services/todayFeedApi";
 import BackButton from "./shared/BackButton";
+import { languageCode } from "../../i18n/languages";
 
 const FONT_KEY = "today.readerFontSize";
 const FONT_MIN = 16;
@@ -11,7 +12,7 @@ const FONT_MAX = 26;
 
 export default function TodayArticleReader({ articleId, onBack }) {
   const { t, i18n } = useTranslation();
-  const language = i18n.resolvedLanguage === "en" ? "en" : "vi";
+  const language = languageCode(i18n.resolvedLanguage || i18n.language);
   // Phải tra cứu trong đúng ấn bản đã sinh ra id này (VI hay EN) và đúng
   // chuyên mục mà người đọc vừa bấm từ đó.
   const category = new URLSearchParams(window.location.search).get("c") || "all";
@@ -40,12 +41,12 @@ export default function TodayArticleReader({ articleId, onBack }) {
   // vì ném người đọc vào màn hình lỗi.
   const queryClient = useQueryClient();
   const cachedArticle = useMemo(() => {
-    for (const [, feed] of queryClient.getQueriesData({ queryKey: ["today-feed"] })) {
+    for (const [, feed] of queryClient.getQueriesData({ queryKey: ["today-feed", language] })) {
       const hit = feed?.items?.find((item) => item.id === articleId);
       if (hit) return hit;
     }
     return null;
-  }, [queryClient, articleId]);
+  }, [queryClient, articleId, language]);
 
   const article = data?.article || cachedArticle;
   const summary = data?.summary
@@ -94,6 +95,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
           <div className="today-article-head">
             <p className="today-article-kicker">
               <span>{article.source}</span>
+              {article.author ? <span>· {article.author}</span> : null}
               {dateLabel ? <span>· {dateLabel}</span> : null}
               {content?.readMinutes ? (
                 <span>· {t("memberPortal.today.readMinutes", { n: content.readMinutes })}</span>
@@ -123,17 +125,6 @@ export default function TodayArticleReader({ articleId, onBack }) {
             </div>
           </div>
 
-          {article.imageUrl ? (
-            <img
-              className="today-article-image"
-              src={article.imageUrl}
-              alt=""
-              loading="eager"
-              referrerPolicy="no-referrer"
-              onError={(event) => { event.currentTarget.hidden = true; }}
-            />
-          ) : null}
-
           {/* ── PHẦN 1: TÓM TẮT NGẮN ── */}
           <section className="today-article-summary" aria-labelledby="today-article-summary-title">
             <h2 id="today-article-summary-title">
@@ -148,9 +139,16 @@ export default function TodayArticleReader({ articleId, onBack }) {
             </p>
           </section>
 
-          {/* ── PHẦN 2: NỘI DUNG BÀI BÁO ── */}
+          {/* Phần nội dung chỉ mở khi nguồn cấp quyền rõ ràng; tin báo chí thông
+              thường dừng ở tóm tắt và dẫn người đọc về trang xuất bản gốc. */}
           <section className="today-article-body" aria-labelledby="today-article-body-title">
             <h2 id="today-article-body-title">{t("memberPortal.today.contentTitle")}</h2>
+            <p className="mb-4 flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+              <span className="material-symbols-outlined text-sm" aria-hidden="true">
+                {content?.available ? "verified_user" : "policy"}
+              </span>
+              {t(content?.available ? "memberPortal.today.fullAccess" : "memberPortal.today.summaryAccess")}
+            </p>
 
             {content?.available ? (
               <div className="today-article-text" style={{ fontSize: `${fontSize}px` }}>
@@ -169,6 +167,20 @@ export default function TodayArticleReader({ articleId, onBack }) {
                 ) : (
                   <p key={index}>{block.text}</p>
                 )))}
+              </div>
+            ) : content?.policy ? (
+              // Không phải lỗi tải: toà soạn giữ bản quyền toàn văn nên portal
+              // chỉ hiện sapo. Đừng mời "Thử lại" — thử bao nhiêu lần cũng vậy.
+              <div className="today-article-locked">
+                <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
+                <p>{t("memberPortal.today.contentBySource", { source: article.source })}</p>
+                {/* Nút thật, không phải link chữ nhỏ: người đọc dừng ở đây, và
+                    lượt bấm sang trang gốc chính là thứ toà soạn nhận lại khi
+                    cho phép trích sapo. Đặt CTA ở đúng chỗ đó. */}
+                <a href={article.url} target="_blank" rel="noopener noreferrer external">
+                  {t("memberPortal.today.readOriginal")}
+                  <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+                </a>
               </div>
             ) : (
               <div className="today-article-locked">

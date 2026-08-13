@@ -348,7 +348,8 @@ export default function PWALoginPage() {
 
           <p className="text-center text-[11px] leading-relaxed text-muted-foreground">
             Bằng việc tiếp tục, bạn đồng ý với{" "}
-            <a href="/privacy-policy" className="underline underline-offset-2">Chính sách bảo mật</a>{" "}
+            <a href="/privacy-policy" className="underline underline-offset-2">Chính sách bảo mật</a>{" "}và{" "}
+            <a href="/terms" className="underline underline-offset-2">Điều khoản sử dụng</a>{" "}
             của Hugo Studio
           </p>
         </div>

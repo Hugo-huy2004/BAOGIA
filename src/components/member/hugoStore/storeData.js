@@ -29,20 +29,16 @@ export const GRADIENTS = {
  * không phải việc của lớp hiển thị.
  */
 export const STORE_APPS = [
-  { id: "hugoso", color: "purple", label: "HugoSO", tagline: "Kỹ năng Calendar, Docs, Sheets và Gemini" },
+  { id: "hugoso", color: "purple", label: "Năng suất số & AI", tagline: "Bộ Calendar, Docs, Sheets và Gemini" },
   { id: "radio", color: "teal", label: "HugoRadio", tagline: "Sóng nhạc lofi để tập trung", paid: true },
   { id: "arcade", color: "orange", label: "HugoArcade", tagline: "Bộ sưu tập game đổi JOY", paid: true },
   { id: "aura", color: "purple", label: "HugoAura", tagline: "Phiên tập trung sâu có nhịp thở", paid: true },
-  { id: "ide", color: "blue", label: "HugoCoder", tagline: "Học lập trình theo lộ trình 100 bài", paid: true },
+  { id: "ide", color: "blue", label: "Phát triển Web", tagline: "Bộ 6 phần, 100 bài từ nền tảng đến DevOps", paid: true },
   { id: "bio", color: "purple", label: "HugoBio", tagline: "Trang cá nhân chia sẻ bằng một liên kết" },
   { id: "psychology", color: "cyan", label: "HugoPSY", tagline: "Đồng hành sức khoẻ tinh thần" },
   { id: "team", color: "teal", label: "HugoTeam", tagline: "Không gian làm việc nhóm" },
-  { id: "hugoskin", color: "slate", label: "HugoSkin", tagline: "Phân tích làn da bằng camera" },
-  { id: "deco", color: "pink", label: "Deco Studio", tagline: "Bày biện căn phòng của riêng bạn" },
-  { id: "map", color: "teal", label: "Discover", tagline: "Tìm quán xá quanh bạn" },
   { id: "helpdesk", color: "indigo", label: "HugoHelp", tagline: "Gửi yêu cầu hỗ trợ, quét mã QR" },
   { id: "handle", color: "rose", label: "HugoHandle", tagline: "Hộp tiện ích xử lý nhanh" },
-  { id: "joy_wallet", color: "orange", label: "Ví JOY", tagline: "Số dư, giao dịch và mã nhận JOY" },
 ];
 
 const APP_INDEX = new Map(STORE_APPS.map(app => [app.id, app]));

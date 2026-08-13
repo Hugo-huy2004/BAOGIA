@@ -32,6 +32,12 @@ router.post('/', requireAdmin, async (req, res) => {
     if (!/^https?:\/\//i.test(url)) {
       return res.status(400).json({ error: 'URL phải bắt đầu bằng http(s)://' });
     }
+    // Học liệu là nội dung của người khác. Bắt buộc khai nguồn để trang hiển
+    // thị được "Nguồn: ..." — không có dòng đó thì tài liệu trông như của Hugo
+    // Studio, và đó chính là ranh giới giữa dẫn nguồn và chiếm dụng.
+    if (!String(source || '').trim()) {
+      return res.status(400).json({ error: 'Phải khai nguồn (tác giả/đơn vị phát hành) của học liệu.' });
+    }
     const item = await CoderResource.create({ type, title, description, url, stageId, source, pinned });
     res.status(201).json({ item });
   } catch (error) {

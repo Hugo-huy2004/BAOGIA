@@ -1,10 +1,9 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import { createHash } from 'node:crypto';
 import Bio from '../models/Bio.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
-import { requireAdmin, requireMember, attachMemberAge } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { missingProfileFields, applyProfileValues, describeField } from '../utils/profileRequirements.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
@@ -14,36 +13,16 @@ import { sendPushNotification } from '../utils/pushNotifier.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
 import { broadcastToEmail } from '../utils/realtime.js';
-import { embedText, cosine } from '../services/embeddingService.js';
-import { generate as aiGenerate } from '../services/aiGateway.js';
-import { recordSignal, getTopInterests, getPeakHour, getInterestEmbedding, refreshInterestEmbedding } from '../services/userUnderstanding.js';
-import { checkAndResetDecoRoom, updateTrashAndPetStatus } from '../utils/decoHelper.js';
 import { getStageCertificate } from '../utils/coderExamService.js';
 import InAppNotification from '../models/InAppNotification.js';
-import NotificationSubscription from '../models/NotificationSubscription.js';
-import { discoverPlaces } from '../services/discoveryService.js';
-import CommunityPlace from '../models/CommunityPlace.js';
-import webpush from 'web-push';
 import rateLimit from 'express-rate-limit';
 import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
-
-const discoverLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 20,
-  message: { error: 'Bạn đang tìm kiếm quá nhanh. Vui lòng đợi một chút.' }
-});
 
 const checkLocationLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   max: 10,
   message: { error: 'Bạn đang cập nhật vị trí quá nhanh. Vui lòng đợi vài phút.' }
-});
-
-const skinAnalysisLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { error: 'Bạn đang thực hiện quét da quá thường xuyên. Vui lòng đợi 15 phút.' }
 });
 
 const router = express.Router();
@@ -777,8 +756,6 @@ function distanceKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const ANOMALY_RADIUS_KM = 50;
-
 // POST /me/check-location  { email, lat, lng }  — member opts in via the
 // browser's native geolocation permission prompt (no separate consent UI
 // needed, the prompt itself IS the consent). First reading becomes the
@@ -789,7 +766,7 @@ const ANOMALY_RADIUS_KM = 50;
 // revocation list for its stateless JWTs.
 router.post('/me/check-location', requireMember, checkLocationLimiter, async (req, res) => {
   try {
-    const { lat, lng, force } = req.body;
+    const { lat, lng } = req.body;
     const email = req.memberEmail;
     if (!email || typeof lat !== 'number' || typeof lng !== 'number') {
       return res.status(400).json({ error: 'email, lat and lng are required' });
@@ -807,94 +784,8 @@ router.post('/me/check-location', requireMember, checkLocationLimiter, async (re
 
     const distance = distanceKm(bio.trustedLocation.lat, bio.trustedLocation.lng, lat, lng);
     
-    // Check if they stayed in place (dist < 150m for 10-15 mins)
-    const prevCheck = bio.lastLocationCheck;
-    let stayedInLocation = false;
-    if (prevCheck && prevCheck.lat && prevCheck.checkedAt) {
-      const timeDiffMins = (Date.now() - new Date(prevCheck.checkedAt).getTime()) / (60 * 1000);
-      const distMeters = distanceKm(prevCheck.lat, prevCheck.lng, lat, lng) * 1000;
-      
-      // Stayed within 150m for between 10 and 45 minutes
-      if (distMeters < 150 && timeDiffMins >= 10 && timeDiffMins <= 45) {
-        stayedInLocation = true;
-      }
-    }
-
     bio.lastLocationCheck = { lat, lng, distanceKm: distance, checkedAt: new Date() };
     await bio.save();
-
-    // Trigger recommendation if stayed in location or forced via request
-    if (stayedInLocation || force === true) {
-      (async () => {
-        try {
-          let addressName = '';
-          try {
-            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
-              headers: { 'User-Agent': 'HugoStudio/1.0 (support@hugostudio.vn)' }
-            });
-            if (geoRes.ok) {
-              const geoData = await geoRes.json();
-              addressName = geoData.display_name || '';
-            }
-          } catch (geoErr) {
-            console.warn('[Nominatim] Reverse geocoding failed:', geoErr.message);
-          }
-
-          // Chỉ dùng địa điểm THẬT (Google khi có key, OpenStreetMap khi không).
-          // Không tìm được quán thật nào quanh đây thì không gửi gợi ý —
-          // tuyệt đối không sinh dữ liệu giả.
-          let placesList = [];
-          try {
-            const { places } = await discoverPlaces({ lat, lng });
-            placesList = places.slice(0, 8);
-          } catch (discErr) {
-            console.warn('[LocalRec] discoverPlaces failed:', discErr.message);
-          }
-          if (placesList.length === 0) return;
-
-          const title = 'Bạn đang dừng chân tại ' + (addressName ? addressName.split(',')[0] : 'khu vực này') + '?';
-          const body = 'Hugo tìm thấy ' + placesList.length + ' địa điểm ăn uống, giải trí có thật gần bạn. Mở tab Khám phá xem ngay nhé!';
-          // Route thật là /member/map (xem App.jsx). '/member/portal?tab=map'
-          // không khớp route nào — bấm vào thông báo là rơi về trang trắng.
-          const url = '/member/map';
-
-          await InAppNotification.create({
-            email,
-            // 'inbox' KHÔNG có trong enum của schema → Mongoose từ chối và
-            // thông báo này chưa bao giờ được lưu. Xem InAppNotification.js.
-            type: 'info',
-            category: 'system',
-            title,
-            message: body,
-            actionUrl: url
-          });
-
-          const subs = await NotificationSubscription.find({ email });
-          if (subs.length) {
-            for (const sub of subs) {
-              try {
-                await webpush.sendNotification(sub.subscription, JSON.stringify({
-                  title,
-                  body,
-                  icon: '/image/avt7.png',
-                  badge: '/image/badge.png',
-                  url,
-                  tag: 'local_rec'
-                }));
-              } catch (pushErr) {
-                if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
-                  await NotificationSubscription.deleteOne({ _id: sub._id });
-                }
-              }
-            }
-          }
-
-          await Bio.updateOne({ email }, { $set: { lastRecommendationAt: new Date() } });
-        } catch (err) {
-          console.error('[LocalRec] Error generating local recommendations:', err.message);
-        }
-      })();
-    }
 
     const isAnomaly = distance > 50;
     if (isAnomaly) {
@@ -942,445 +833,16 @@ router.post('/me/reset-trusted-location', requireMember, async (req, res) => {
   }
 });
 
-// GET /me/discover?lat=&lng=&category=&q=&open=&sort= — live nearby places
-// (Google Places khi có GOOGLE_MAPS_API_KEY, fallback OpenStreetMap), lọc và
-// xếp hạng theo cá tính người dùng (UserProfile.interests).
-// Địa điểm không hợp với thành viên dưới 18 — lọc khỏi kết quả Khám phá thay
-// vì chỉ ẩn nút trên giao diện.
-const ADULT_VENUE_RE = /(\bbar\b|\bpub\b|beer|bia hơi|bia tươi|rượu|wine|whisky|cocktail|club|lounge|karaoke|casino|shisha|vape|cigar|thuốc lá|massage|hookah|nightlife)/i;
-
-const INTEREST_CATEGORY_KEYWORDS = {
-  cafe: /cà phê|cafe|coffee|trà|đồ uống|check-?in|discover_cafe/i,
-  food: /ăn|food|món|ẩm thực|nấu|quán|discover_food/i,
-  play: /game|chơi|phim|nhạc|giải trí|thể thao|du lịch|arcade|discover_play/i
-};
-
-// Time-of-day category boost (hour is the CLIENT's local hour — server may be UTC).
-function timeOfDayBoosts(hour) {
-  if (hour >= 6 && hour < 11) return { cafe: 2, food: 1 };        // sáng: cà phê, ăn sáng
-  if (hour >= 11 && hour < 14) return { food: 2.5 };              // trưa: ăn uống
-  if (hour >= 14 && hour < 17) return { cafe: 2 };                // xế: cà phê chill
-  if (hour >= 17 && hour < 22) return { food: 1.5, play: 2 };     // tối: ăn tối, vui chơi
-  return { play: 1.5 };                                           // khuya
-}
-
-function parseDiscoveryBounds(raw) {
-  const values = String(raw || "").split(",").map(Number);
-  if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) return null;
-  const [west, south, east, north] = values;
-  if (west >= east || south >= north) return null;
-  return { west, south, east, north };
-}
-
-function clusterDiscoveryPlaces(places, zoom = 14) {
-  if (zoom >= 15 || places.length < 2) return places;
-  const cellSize = Math.max(0.0015, 360 / (2 ** (zoom + 5)));
-  const buckets = new Map();
-
-  for (const place of places) {
-    const key = `${Math.floor(place.lat / cellSize)}:${Math.floor(place.lng / cellSize)}`;
-    if (!buckets.has(key)) buckets.set(key, []);
-    buckets.get(key).push(place);
-  }
-
-  return [...buckets.entries()].map(([key, bucket]) => {
-    if (bucket.length === 1) return bucket[0];
-    const lats = bucket.map((item) => item.lat);
-    const lngs = bucket.map((item) => item.lng);
-    return {
-      id: `cluster-${zoom}-${key}`,
-      cluster: true,
-      pointCount: bucket.length,
-      lat: lats.reduce((sum, value) => sum + value, 0) / bucket.length,
-      lng: lngs.reduce((sum, value) => sum + value, 0) / bucket.length,
-      bounds: [
-        Math.min(...lngs),
-        Math.min(...lats),
-        Math.max(...lngs),
-        Math.max(...lats),
-      ],
-    };
-  });
-}
-
-router.get('/me/discover', requireMember, attachMemberAge, discoverLimiter, async (req, res) => {
-  try {
-    const lat = Number(req.query.lat);
-    const lng = Number(req.query.lng);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      return res.status(400).json({ error: 'lat and lng are required' });
-    }
-    const category = ['food', 'cafe', 'play'].includes(req.query.category) ? req.query.category : '';
-    const q = String(req.query.q || '').slice(0, 80);
-    const openOnly = req.query.open === '1';
-    const sort = req.query.sort || 'smart';
-    const bounds = parseDiscoveryBounds(req.query.bbox);
-    const zoom = Math.min(20, Math.max(1, Number(req.query.zoom) || 14));
-    const queryLat = bounds ? (bounds.south + bounds.north) / 2 : lat;
-    const queryLng = bounds ? (bounds.west + bounds.east) / 2 : lng;
-    const clientHour = Number.isInteger(Number(req.query.hour)) && Number(req.query.hour) >= 0 && Number(req.query.hour) < 24
-      ? Number(req.query.hour)
-      : new Date().getHours();
-
-    const [{ places, source }, interests, communityDocs] = await Promise.all([
-      discoverPlaces({ lat: queryLat, lng: queryLng, category, q }).catch(err => {
-        console.warn('[Discovery] discoverPlaces failed:', err.message);
-        return { places: [], source: 'none' };
-      }),
-      getTopInterests(req.memberEmail, 12).catch(() => []),
-      CommunityPlace.find(bounds ? {
-        lat: { $gte: bounds.south, $lte: bounds.north },
-        lng: { $gte: bounds.west, $lte: bounds.east },
-        ...(category ? { category } : {})
-      } : {}).limit(300).lean().catch(() => [])
-    ]);
-
-    // Venues added by members themselves, merged in within the same radius
-    const qLower = q.toLowerCase();
-    const communityPlaces = communityDocs
-      .filter(c =>
-        (!category || c.category === category) &&
-        (!qLower || c.name.toLowerCase().includes(qLower) || (c.services || '').toLowerCase().includes(qLower)) &&
-        (bounds || distanceKm(lat, lng, c.lat, c.lng) * 1000 <= 2500))
-      .map(c => ({
-        id: `cp-${c._id}`,
-        name: c.name,
-        category: c.category,
-        lat: c.lat,
-        lng: c.lng,
-        rating: null,
-        ratingCount: null,
-        openNow: null,
-        address: c.address || '',
-        priceRange: '',
-        review: '',
-        googleMapsUri: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${c.name} ${c.lat},${c.lng}`)}`,
-        website: c.website || '',
-        services: c.services || '',
-        menu: c.menu || '',
-        phone: c.phone || '',
-        source: 'community',
-        mine: c.email === req.memberEmail
-      }));
-
-    // Which categories match this user's learned interests?
-    // Topics 'cafe'/'food'/'play' map 1-1; the regexes catch related topics
-    // (e.g. 'game' interest boosts 'play' places).
-    const boosts = {};
-    for (const { topic, weight } of interests) {
-      const w = Math.min(weight, 3);
-      if (INTEREST_CATEGORY_KEYWORDS[topic]) {
-        boosts[topic] = Math.max(boosts[topic] || 0, w);
-        continue;
-      }
-      for (const [cat, re] of Object.entries(INTEREST_CATEGORY_KEYWORDS)) {
-        if (re.test(topic)) boosts[cat] = Math.max(boosts[cat] || 0, w);
-      }
-    }
-    const todBoosts = timeOfDayBoosts(clientHour);
-
-    let result = [...places, ...communityPlaces].map(p => {
-      const distM = Math.round(distanceKm(lat, lng, p.lat, p.lng) * 1000);
-      const interestBoost = boosts[p.category] || 0;
-      const todBoost = todBoosts[p.category] || 0;
-      const trusted = (p.ratingCount || 0) >= 50; // enough reviews to trust the rating
-      // Proximity dominates: -1 điểm mỗi 200m — quán 2km phải xuất sắc vượt
-      // trội mới thắng nổi quán ngay cạnh bạn.
-      const score =
-        (p.rating || 3.5) * (trusted ? 2.2 : 1.8) +
-        (p.openNow === true ? 3 : p.openNow === false ? -6 : 0) +
-        interestBoost * 2 +
-        todBoost +
-        (p.source === 'community' ? 2 : 0) -
-        distM / 200;
-
-      // Human-readable "why this place" chips, ordered by strength
-      const reasons = [];
-      if (p.source === 'community') reasons.push('Quán của thành viên');
-      if (distM <= 500) reasons.push('Rất gần bạn');
-      if (interestBoost > 0) reasons.push('Hợp gu của bạn');
-      if (p.openNow === true) reasons.push('Đang mở cửa');
-      if ((p.rating || 0) >= 4.5 && trusted) reasons.push('Đánh giá rất cao');
-      if (todBoost >= 2) reasons.push('Hợp khung giờ này');
-
-      return { ...p, distM, score: Math.round(score * 100) / 100, reasons: reasons.slice(0, 3) };
-    });
-
-    if (openOnly) result = result.filter(p => p.openNow !== false);
-    if (bounds) {
-      result = result.filter((place) => (
-        place.lng >= bounds.west
-        && place.lng <= bounds.east
-        && place.lat >= bounds.south
-        && place.lat <= bounds.north
-      ));
-    }
-    if (sort === 'near') result.sort((a, b) => a.distM - b.distM);
-    else if (sort === 'top') result.sort((a, b) => (b.rating || 0) - (a.rating || 0) || a.distM - b.distM);
-    else result.sort((a, b) => b.score - a.score);
-
-    if (isMinorAge(req.memberAge)) {
-      result = result.filter((place) => !ADULT_VENUE_RE.test(`${place.name || ''} ${place.address || ''} ${place.category || ''}`));
-    }
-
-    const visiblePlaces = result.slice(0, 120);
-    res.json({
-      success: true,
-      source,
-      personalized: Object.keys(boosts).length > 0,
-      places: visiblePlaces,
-      mapFeatures: clusterDiscoveryPlaces(visiblePlaces, zoom),
-      viewport: bounds
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /me/discover/tap { name, category } — learning signal: every place the
-// member opens teaches UserProfile.interests, so "Hợp gu" gets smarter over time.
-router.post('/me/discover/tap', requireMember, attachMemberAge, discoverLimiter, async (req, res) => {
-  const { name, category } = req.body || {};
-  // Không xây hồ sơ thói quen đi lại của thành viên dưới 18.
-  if (!isMinorAge(req.memberAge) && typeof name === 'string' && ['food', 'cafe', 'play'].includes(category)) {
-    recordSignal(req.memberEmail, {
-      text: name.slice(0, 120),
-      category: `discover_${category}`,
-      weight: 1.5
-    });
-  }
-  res.status(204).end();
-});
-
-// POST /me/discover/places — member registers their own venue (name, services,
-// menu…) so other members can find it on the Discovery map.
-router.post('/me/discover/places', requireMember, discoverLimiter, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const { name, category, lat, lng, address, services, menu, phone, website } = req.body || {};
-    if (!name || typeof name !== 'string' || !['food', 'cafe', 'play'].includes(category) ||
-        !Number.isFinite(lat) || !Number.isFinite(lng)) {
-      return res.status(400).json({ error: 'Cần tên quán, danh mục và vị trí hợp lệ' });
-    }
-    const count = await CommunityPlace.countDocuments({ email });
-    if (count >= 5) {
-      return res.status(400).json({ error: 'Mỗi thành viên chỉ đăng tối đa 5 địa điểm' });
-    }
-    const doc = await CommunityPlace.create({
-      email,
-      name: name.trim().slice(0, 80),
-      category,
-      lat,
-      lng,
-      address: String(address || '').slice(0, 160),
-      services: String(services || '').slice(0, 300),
-      menu: String(menu || '').slice(0, 1200),
-      phone: String(phone || '').replace(/[^0-9+ ]/g, '').slice(0, 20),
-      website: String(website || '').slice(0, 200)
-    });
-    res.json({ success: true, id: doc._id });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// DELETE /me/discover/places/:id — owner removes their venue
-router.delete('/me/discover/places/:id', requireMember, async (req, res) => {
-  try {
-    const r = await CommunityPlace.deleteOne({ _id: req.params.id, email: req.memberEmail });
-    if (!r.deletedCount) return res.status(404).json({ error: 'Không tìm thấy địa điểm của bạn' });
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /discover/logo?domain= — favicon proxy so the client never logs 404s.
-// Returns the site's favicon (via Google's favicon service) or 204 when the
-// site has none — the client then falls back to its monochrome category icon.
-const logoCache = new Map(); // ponytail: in-process cache; fine single-node
-router.get('/discover/logo', discoverLimiter, async (req, res) => {
-  try {
-    const domain = String(req.query.domain || '').toLowerCase().replace(/[^a-z0-9.-]/g, '').slice(0, 100);
-    if (!domain || !domain.includes('.')) return res.status(204).end();
-
-    const hit = logoCache.get(domain);
-    if (hit !== undefined) {
-      if (!hit) return res.status(204).end();
-      res.set('Content-Type', hit.type).set('Cache-Control', 'public, max-age=86400');
-      return res.send(hit.buf);
-    }
-
-    const upstream = await fetch(
-      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`,
-      { signal: AbortSignal.timeout(5000) }
-    );
-    if (!upstream.ok) {
-      logoCache.set(domain, null);
-      return res.status(204).end();
-    }
-    const buf = Buffer.from(await upstream.arrayBuffer());
-    const type = upstream.headers.get('content-type') || 'image/png';
-    if (logoCache.size > 500) logoCache.clear();
-    logoCache.set(domain, { buf, type });
-    res.set('Content-Type', type).set('Cache-Control', 'public, max-age=86400');
-    res.send(buf);
-  } catch {
-    res.status(204).end();
-  }
-});
-
-// POST /me/skin-analysis — Lưu kế hoạch, kết quả quét da và lịch sử định kỳ
-router.post('/me/skin-analysis', requireMember, skinAnalysisLimiter, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const {
-      score,
-      goldenRatioScore,
-      skinType,
-      skinTone,
-      undertone,
-      gender,
-      concerns,
-      hydrationScore,
-      smoothnessScore,
-      clarityScore,
-      plan
-    } = req.body;
-    if (!email) return res.status(401).json({ error: 'Unauthorized' });
-
-    const newAnalysis = {
-      score: score || 0,
-      goldenRatioScore: goldenRatioScore || 0,
-      skinType: skinType || "",
-      skinTone: skinTone || "",
-      undertone: undertone || "",
-      gender: gender || "",
-      concerns: Array.isArray(concerns) ? concerns : [],
-      hydrationScore: hydrationScore || 0,
-      smoothnessScore: smoothnessScore || 0,
-      clarityScore: clarityScore || 0,
-      plan: plan || {},
-      updatedAt: new Date()
-    };
-
-    const historyEntry = {
-      id: "scan_" + Date.now(),
-      score: score || 0,
-      goldenRatioScore: goldenRatioScore || 0,
-      skinType: skinType || "",
-      skinTone: skinTone || "",
-      undertone: undertone || "",
-      hydrationScore: hydrationScore || 0,
-      smoothnessScore: smoothnessScore || 0,
-      clarityScore: clarityScore || 0,
-      concerns: Array.isArray(concerns) ? concerns : [],
-      date: new Date()
-    };
-
-    const bio = await Bio.findOneAndUpdate(
-      { email },
-      {
-        $set: { skinAnalysis: newAnalysis },
-        $push: {
-          skinHistory: {
-            $each: [historyEntry],
-            $slice: -50 // Giữ tối đa 50 bản ghi lịch sử mới nhất
-          }
-        }
-      },
-      { new: true, upsert: true }
-    );
-    res.json({ success: true, skinAnalysis: bio.skinAnalysis, skinHistory: bio.skinHistory || [] });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /me/skin-history — Lấy lịch sử quét da định kỳ
-router.get('/me/skin-history', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    if (!email) return res.status(401).json({ error: 'Unauthorized' });
-    const bio = await Bio.findOne({ email }).select('skinHistory skinAnalysis');
-    res.json({
-      success: true,
-      skinHistory: bio?.skinHistory || [],
-      skinAnalysis: bio?.skinAnalysis || null
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /me/skin-checklist — Lấy bảng check-list dưỡng da hôm nay
-router.get('/me/skin-checklist', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    if (!email) return res.status(401).json({ error: 'Unauthorized' });
-    const bio = await Bio.findOne({ email }).select('dailySkincareChecklist');
-    res.json({
-      success: true,
-      dailySkincareChecklist: bio?.dailySkincareChecklist || { date: "", completedSteps: [] }
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /me/skin-checklist — Cập nhật checklist dưỡng da hôm nay
-router.post('/me/skin-checklist', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const { date, completedSteps } = req.body;
-    if (!email) return res.status(401).json({ error: 'Unauthorized' });
-
-    const bio = await Bio.findOneAndUpdate(
-      { email },
-      {
-        $set: {
-          dailySkincareChecklist: {
-            date: date || new Date().toISOString().split("T")[0],
-            completedSteps: Array.isArray(completedSteps) ? completedSteps : []
-          }
-        }
-      },
-      { new: true, upsert: true }
-    );
-    res.json({ success: true, dailySkincareChecklist: bio.dailySkincareChecklist });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /me/skin-reminder — Cập nhật cấu hình nhắc nhở skincare
-router.post('/me/skin-reminder', requireMember, async (req, res) => {
-  try {
-    const email = req.memberEmail;
-    const { enabled } = req.body;
-    if (!email) return res.status(401).json({ error: 'Unauthorized' });
-
-    const bio = await Bio.findOneAndUpdate(
-      { email },
-      { $set: { skincareReminderEnabled: !!enabled } },
-      { new: true, upsert: true }
-    );
-    res.json({ success: true, skincareReminderEnabled: bio.skincareReminderEnabled });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /api/bios/certificate/:slug/:phase — chứng chỉ chặng HugoCoder công khai.
+// GET /api/bios/certificate/:slug/:phase — giấy chứng nhận chặng HugoCoder.
 // Xác thực từ completedLessons trên server: không thể giả mạo bằng cách sửa URL.
 router.get('/certificate/:slug/:phase', async (req, res) => {
   try {
     const { slug, phase } = req.params;
     if (global.validSlugs && !global.validSlugs.has(slug)) {
-      return res.status(404).json({ error: 'Không tìm thấy chứng chỉ.' });
+      return res.status(404).json({ error: 'Không tìm thấy giấy chứng nhận.' });
     }
     const bio = await Bio.findOne({ slug });
-    if (!bio) return res.status(404).json({ error: 'Không tìm thấy chứng chỉ.' });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy giấy chứng nhận.' });
 
     const certificate = getStageCertificate(bio, phase);
     if (!certificate) {
@@ -1400,7 +862,7 @@ router.get('/certificate/:slug/:phase', async (req, res) => {
 // mã học sinh, số Zalo) — đã giải mã sẵn bởi hook post('init').
 const PUBLIC_BIO_FIELDS = [
   'slug', 'displayName', 'name', 'avatarUrl', 'headline', 'bio', 'status', 'theme',
-  'links', 'projects', 'services', 'tabs', 'decoRoom', 'hobbies', 'jobTitle',
+  'links', 'projects', 'services', 'tabs', 'hobbies', 'jobTitle',
   'skills', 'education', 'birthday', 'height', 'weight', 'measurements',
   'address', 'phone', 'contactEmail', 'secretLinks',
 ];
@@ -1439,10 +901,6 @@ router.get('/slug/:slug', async (req, res) => {
     // Kích hoạt Single-flight & Stale-while-revalidate (giữ fresh trong 60 giây)
     const bio = await fetchWithCache(cacheKey, 60000, async () => {
       const found = await Bio.findOne({ slug });
-      if (found) {
-        await checkAndResetDecoRoom(found);
-        await updateTrashAndPetStatus(found);
-      }
       const bioDoc = await removeExpiredBioIfNeeded(found);
       if (bioDoc) {
         const doc = bioDoc.toObject();

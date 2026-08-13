@@ -5,9 +5,7 @@
  */
 
 const PREFETCH_MAP = {
-  hugoskin: () => import("../components/member/HugoSkinTab"),
-  ide: () => import("../components/member/MemberIdeTab"),
-  hugoso: () => import("../components/member/hugoSO/HugoSOApp"),
+  study: () => import("../components/member/study/StudyWithHugoApp"),
   psychology: () => import("../components/member/banhocduong/TherapyTab"),
   arcade: () => import("../components/member/arcade/HugoArcadeTab"),
   radio: () => import("../components/member/MemberRadioTab"),

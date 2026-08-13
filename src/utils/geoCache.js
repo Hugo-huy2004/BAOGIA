@@ -23,8 +23,7 @@ async function permissionGranted() {
   return typeof localStorage !== "undefined" && localStorage.getItem(LOCATION_GRANT_KEY) === "true";
 }
 
-// { fresh: true } bypasses the cache and requests a high-accuracy GPS fix
-// (used by the Discovery map's refresh button); default behaviour unchanged.
+// { fresh: true } bypasses the cache and requests a high-accuracy GPS fix.
 export async function getCachedGeolocation({ fresh = false, ask = false } = {}) {
   if (!fresh && cachedPos && (Date.now() - lastFetchTime < CACHE_DURATION)) {
     return cachedPos;
