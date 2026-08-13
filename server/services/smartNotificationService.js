@@ -6,6 +6,7 @@ import CompanionHistory from '../models/CompanionHistory.js';
 import ScheduledPush from '../models/ScheduledPush.js';
 import InAppNotification from '../models/InAppNotification.js';
 import { sendPushToUser, isQuietHours } from './pushGuard.js';
+import { notificationLanguage, renderNotification } from '../../shared/notificationText.js';
 
 const PYTHON_AI_URL = process.env.PYTHON_AI_URL || 'http://localhost:8000';
 
@@ -16,6 +17,17 @@ const SCHEDULES = {
   wellness_noon:  '0 12 * * *',    // 12:00 — midday wellness nudge
   streak_check:   '0 19 * * *',    // 19:00 — streak protect before evening
 };
+
+/**
+ * Ngôn ngữ để AI viết thông báo: lấy từ thiết bị đã đăng ký push gần nhất.
+ * Không có thiết bị nào thì rơi về tiếng Việt.
+ */
+function languageOf(subscriptions = []) {
+  const newest = [...subscriptions].sort(
+    (a, b) => new Date(b.lastSeenAt || 0) - new Date(a.lastSeenAt || 0),
+  )[0];
+  return notificationLanguage(newest?.device?.locale);
+}
 
 async function pMap(items, limit, fn) {
   const results = [];
@@ -48,12 +60,16 @@ async function runScheduledCompanionPushes() {
     if (isQuietHours()) continue;
     try {
       const bio = await Bio.findOne({ email: item.email }).lean();
+      // Lấy thiết bị TRƯỚC khi gọi AI: ngôn ngữ của người nhận là đầu vào của
+      // prompt, không phải thứ chọn sau khi đã có chữ.
+      const subs = await NotificationSubscription.find({ email: item.email }).lean();
       const response = await fetch(`${PYTHON_AI_URL}/api/notifications/companion-push`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bio: bio || {},
-          feature_label: item.label
+          feature_label: item.label,
+          language: languageOf(subs)
         }),
       });
 
@@ -62,11 +78,13 @@ async function runScheduledCompanionPushes() {
 
       // Cooldown only suppresses the OS push (avoids stacking with another
       // job's notification) — the in-app inbox record below still lands.
-      const subs = await NotificationSubscription.find({ email: item.email }).lean();
+      // Câu dự phòng khi AI không trả về gì cũng phải đúng ngôn ngữ người
+      // nhận — nếu không thì mọi lần AI hỏng là một lần rơi về tiếng Việt.
+      const fallback = renderNotification('event.wellnessNudge', {}, languageOf(subs));
       if (subs.length) {
         await sendPushToUser(item.email, subs, {
-          title: aiResult.title || 'Bạn Học Đường',
-          body:  aiResult.body  || 'Gợi ý trị liệu hôm nay dành cho bạn!',
+          title: aiResult.title || fallback.title,
+          body:  aiResult.body  || fallback.message,
           icon:  '/image/avt7.png',
           badge: '/image/badge.png',
           url:   aiResult.url  || '/member/utilities/psychology',
@@ -79,8 +97,8 @@ async function runScheduledCompanionPushes() {
         email: item.email,
         type: 'info',
         category: 'wellness',
-        title: aiResult.title || 'Bạn Học Đường Trị Liệu',
-        message: aiResult.body || 'Lời khuyên chăm sóc sức khỏe tinh thần dành cho bạn!',
+        title: aiResult.title || fallback.title,
+        message: aiResult.body || fallback.message,
         actionUrl: aiResult.url || '/member/utilities/psychology'
       });
 
@@ -126,6 +144,7 @@ async function runSmartPushJob(contextHint) {
           streak,
           lastCheckin,
           pendingActions: [contextHint],
+          language: languageOf(subs),
         }),
       });
 
@@ -134,9 +153,10 @@ async function runSmartPushJob(contextHint) {
       const aiResult = await response.json();
       if (!aiResult?.should_send) return;
 
+      const fallback = renderNotification('event.wellnessNudge', {}, languageOf(subs));
       await sendPushToUser(email, subs, {
-        title: aiResult.title || 'Bạn Học Đường',
-        body:  aiResult.body  || 'Cậu ơi, mình có điều muốn chia sẻ!',
+        title: aiResult.title || fallback.title,
+        body:  aiResult.body  || fallback.message,
         icon:  '/image/avt7.png',
         badge: '/image/badge.png',
         url:   aiResult.url  || '/member/utilities/psychology',

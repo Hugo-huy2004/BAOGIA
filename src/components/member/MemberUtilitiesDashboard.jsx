@@ -22,8 +22,7 @@ export const APP_STORAGE_MB = {
   psychology: 3.2,
   arcade: 5.1,
   radio: 1.9,
-  helpdesk: 1.4,
-  handle: 1.2,
+  handle: 1.6,
   aura: 1.8,
   team: 1.6,
   bio: 1.5,
@@ -89,8 +88,7 @@ const APP_CATALOG = [
   ["team", "groups", "teal", "edu", "4.7", "2k", "join"],
   ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "ai"],
   ["radio", "radio", "teal", "wellness", "4.6", "5k", "lofi"],
-  ["helpdesk", "support_agent", "indigo", "tools", "4.8", "9k", "free"],
-  ["handle", "handyman", "rose", "tools", "4.9", "10k", "utility"],
+  ["handle", "handyman", "indigo", "tools", "4.9", "10k", "utility"],
   ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "games"],
   ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "focus"],
   ["info", "info", "slate", "tools", "4.8", "6k", "system"],
@@ -98,11 +96,8 @@ const APP_CATALOG = [
   ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "game"],
   ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "game"],
   ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "game"],
-  ["arcade_wordguess", "keyboard", "purple", "arcade", "4.6", "4k", "game"],
-  ["arcade_tetris", "grid_view", "cyan", "arcade", "4.9", "15k", "game"],
   ["arcade_snake", "all_inclusive", "teal", "arcade", "4.8", "9k", "game"],
   ["arcade_survivor", "rocket_launch", "indigo", "arcade", "5.0", "18k", "game"],
-  ["arcade_flappy", "bolt", "rose", "arcade", "4.7", "7k", "game"],
 ];
 
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
@@ -864,8 +859,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     try {
       switch (appId) {
         case "study": import("./study/StudyWithHugoApp"); break;
-        case "helpdesk": import("./HugoHelpdeskTab"); break;
-        case "handle": import("./HugoHandleTab"); break;
+        case "handle": import("./hugoKit/HugoKitApp"); break;
         case "psychology": import("./banhocduong/BanhocduongTab"); break;
         case "team": import("./HugoTeamTab"); break;
         case "radio": import("./MemberRadioTab"); break;

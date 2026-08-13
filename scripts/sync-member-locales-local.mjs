@@ -92,11 +92,23 @@ const CRITICAL_ACCOUNT_COPY = {
     "memberPortal.accountHub.documents.conditionsTitle": "Droits et obligations des membres",
   },
 };
+// Hand-written copy the compact local model cannot be trusted with (marketing
+// blurbs, brand voice). Applied after generation, so a re-run never clobbers it.
+const OVERRIDES = JSON.parse(await fs.readFile(path.join(ROOT, "scripts/locale-overrides.json"), "utf8"));
 const MEMBER_ROOTS = [
   "aura", "memberPortal", "memberTabs", "utilities", "companion",
   "hugoPsy", "hugoCoderLearning", "arcadeGame", "arcadeIntro",
   "navbar",
 ];
+// Public pages a visitor can reach before signing in. They used to fall back to
+// English for every non-Vietnamese reader. The admin roots stay out: one
+// operator reads them, and Vietnamese/English already covers that.
+const PUBLIC_ROOTS = [
+  "footer", "donationUI", "intro", "servicesPage", "faqPage",
+  "bookingPage", "templatesPage", "loginPage", "customerPortal",
+  "studentBenefitsPage",
+];
+const TRANSLATED_ROOTS = [...MEMBER_ROOTS, ...PUBLIC_ROOTS];
 // Small batches are intentionally faster overall on compact local models:
 // they obey the exact-array contract reliably and avoid expensive retries.
 const MAX_CHUNK_CHARS = 1_000;
@@ -109,12 +121,15 @@ function flatten(value, parts = [], output = []) {
   return output;
 }
 
+// The locale is seeded from a clone of the English dictionary, so every
+// container already exists with the right shape. Guessing array-vs-object from
+// the key turned the game id "2048" into a 2049-slot sparse array.
 function setAtPath(target, dottedPath, value) {
   const parts = dottedPath.split(".");
   let cursor = target;
   for (let index = 0; index < parts.length - 1; index += 1) {
     const part = parts[index];
-    if (cursor[part] == null) cursor[part] = /^\d+$/.test(parts[index + 1]) ? [] : {};
+    if (cursor[part] == null) return;
     cursor = cursor[part];
   }
   cursor[parts.at(-1)] = value;
@@ -138,12 +153,16 @@ function chunkEntries(entries) {
   return chunks;
 }
 
-const tokens = (text) => [...String(text).matchAll(/{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w/g)].map((match) => match[0]).sort();
+// Prices, dates and counts are facts, not copy. Masking them alongside the
+// interpolation tokens means a translation can never quietly restate 1.900.000
+// as 1,900,000 — or invent a different number on the services page.
+const PROTECTED = () => /{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w|\d[\d.,]*/g;
+const tokens = (text) => [...String(text).matchAll(PROTECTED())].map((match) => match[0]).sort();
 const hasSameTokens = (source, target) => JSON.stringify(tokens(source)) === JSON.stringify(tokens(target));
 
 function maskProtectedTokens(text) {
   const protectedTokens = [];
-  const masked = String(text).replace(/{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w/g, (token) => {
+  const masked = String(text).replace(PROTECTED(), (token) => {
     const marker = `__HUGO_${protectedTokens.length}__`;
     protectedTokens.push(token);
     return marker;
@@ -244,7 +263,7 @@ async function main() {
   const requested = process.argv.slice(2);
   const languages = requested.length ? requested : Object.keys(TARGETS);
   const source = JSON.parse(await fs.readFile(path.join(LOCALES_DIR, "en/translation.json"), "utf8"));
-  const dictionary = Object.fromEntries(MEMBER_ROOTS.map((root) => [root, source[root]]).filter(([, value]) => value));
+  const dictionary = Object.fromEntries(TRANSLATED_ROOTS.map((root) => [root, source[root]]).filter(([, value]) => value));
   const entries = flatten(dictionary);
   // The portal deliberately repeats common actions such as “Done”, “Back” and
   // “Try again”. Translate each source sentence once, then fan it back out to
@@ -287,12 +306,15 @@ async function main() {
     // regular UI keys, whose English source intentionally does not duplicate
     // the full document bodies.
     const memberDocumentContent = output.memberPortal?.accountHub?.documents?.content;
-    MEMBER_ROOTS.forEach((root) => { delete output[root]; });
+    // Seed from the English shape so arrays stay arrays and objects stay
+    // objects, then overwrite every leaf with its translation.
+    Object.assign(output, structuredClone(dictionary));
     entries.forEach(({ id, text }) => {
       const translated = translatedById[canonicalForId.get(id)];
       setAtPath(output, id, translated && !translated.includes("__HUGO_") ? translated : text);
     });
-    Object.entries(CRITICAL_ACCOUNT_COPY[code] || {}).forEach(([id, text]) => setAtPath(output, id, text));
+    Object.entries({ ...CRITICAL_ACCOUNT_COPY[code], ...OVERRIDES[code] })
+      .forEach(([id, text]) => setAtPath(output, id, text));
     if (memberDocumentContent) {
       output.memberPortal.accountHub.documents.content = memberDocumentContent;
     }

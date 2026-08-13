@@ -34,7 +34,7 @@ describe("arcadeBest", () => {
 
   it("kỷ lục tách riêng theo từng game", () => {
     recordBest("snake", 100);
-    expect(getBest("tetris")).toBe(0);
+    expect(getBest("2048")).toBe(0);
   });
 
   it("hụt trong 15% tính là sát nút, xa hơn thì không", () => {

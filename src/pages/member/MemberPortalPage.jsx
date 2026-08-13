@@ -782,7 +782,7 @@ function MemberPortalPage() {
   // any psychology sub-tab gets the fullscreen takeover there. Desktop is
   // unchanged from before — normal sidebar+tabs UI, never fullscreen.
   const isFullscreenUtility = (activeTab === "utilities" && (
-    subTab === "study" || subTab === "ide" || subTab === "arcade" || subTab === "store" || subTab === "hugoso" ||
+    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk"].includes(subTab) ||
     (subTab === "psychology" && isMobileView)
   ));
 

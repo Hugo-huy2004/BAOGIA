@@ -12,6 +12,15 @@ const schema = new mongoose.Schema({
   actionUrl: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
 
+  // ── Nội dung đa ngôn ngữ ────────────────────────────────────────────────
+  // `title`/`message` ở trên là câu tiếng Việt dựng sẵn: chỉ còn dùng cho tin
+  // admin tự viết và cho những bản ghi cũ tạo trước khi có khoá. Mọi thông báo
+  // hệ thống sinh ra giờ lưu KHOÁ + THAM SỐ, còn câu chữ do phía hiển thị dựng
+  // theo ngôn ngữ người đọc (shared/notificationText.js). Chữ đã ghi vào DB thì
+  // vĩnh viễn không đổi ngôn ngữ được nữa — đó là lý do phải tách ra.
+  i18nKey:    { type: String, default: '' },
+  i18nParams: { type: mongoose.Schema.Types.Mixed, default: null },
+
   // ── Dữ liệu có cấu trúc cho thông báo giao dịch ──────────────────────────
   // Trước đây client phải regex bóc câu tiếng Việt trong `message` để lấy số
   // tiền / mã GD / số dư (MemberHistoryTab.parseJoyDetail). Đổi một chữ ở

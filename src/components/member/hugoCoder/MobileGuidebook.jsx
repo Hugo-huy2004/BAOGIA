@@ -199,14 +199,14 @@ export default function MobileGuidebook({
               className={`w-11 h-11 rounded-xl border border-border bg-background items-center justify-center text-foreground active:scale-95 transition-all shadow-sm ${
                 embedded && !activeCourseId ? "hidden" : "flex"
               }`}
-              aria-label="Quay lại"
+              aria-label={t("hugoCoderLearning.guidebook.quayLai")}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-black uppercase text-primary">Study with Hugo · Web</p>
               <h2 className="text-sm font-black truncate">
-                {activeCourseId && mobileCourse ? mobileCourse.title : "Sách hướng dẫn lập trình"}
+                {activeCourseId && mobileCourse ? mobileCourse.title : t("hugoCoderLearning.guidebook.sachHuongDanLap")}
               </h2>
             </div>
             <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
@@ -235,13 +235,13 @@ export default function MobileGuidebook({
                     {rankTitle}
                   </span>
                   <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/25">
-                    {mobileProgress}% Hoàn thành
+                    {mobileProgress}{t("hugoCoderLearning.guidebook.hoanThanh")}
                   </span>
                 </div>
                 
                 <div className="mt-4">
                   <h3 className="text-base font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Web Development Academy</h3>
-                  <p className="text-[11px] text-zinc-400 mt-1">Đã chinh phục {mobileCompletedCount} trên tổng số {WEB_COURSES.length} bài học thực chiến</p>
+                  <p className="text-[11px] text-zinc-400 mt-1">{t("hugoCoderLearning.guidebook.daChinhPhuc")} {mobileCompletedCount} {t("hugoCoderLearning.guidebook.trenTongSo")} {WEB_COURSES.length} {t("hugoCoderLearning.guidebook.baiHocThucChien")}</p>
                 </div>
                 
                 <div className="mt-5 space-y-1.5">
@@ -255,14 +255,14 @@ export default function MobileGuidebook({
                   {bio?.hugoCoderAll7Lifetime ? (
                     <div className="flex items-center gap-1.5 text-[10px] font-black text-amber-300">
                       <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      Sở hữu Trọn gói Vĩnh viễn (Miễn phí bảo trì trọn đời)
+                      {t("hugoCoderLearning.guidebook.soHuuTronGoi")}
                     </div>
                   ) : (() => {
                     const expiresAt = bio?.featureSubscriptions?.hugoCoder?.expiresAt;
                     if (!expiresAt) {
                       return (
                         <div className="text-[10px] text-zinc-400">
-                          Chưa kích hoạt phí bảo trì hàng tháng (50 JOY)
+                          {t("hugoCoderLearning.guidebook.chuaKichHoatPhi")}
                         </div>
                       );
                     }
@@ -276,10 +276,10 @@ export default function MobileGuidebook({
                         <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-2.5 space-y-1.5 text-left text-red-200">
                           <div className="text-[10.5px] font-black flex items-center gap-1.5">
                             <Lock className="w-3.5 h-3.5 text-red-400 animate-pulse" />
-                            Phí bảo trì đã Hết Hạn!
+                            {t("hugoCoderLearning.guidebook.phiBaoTriDa")}
                           </div>
                           <p className="text-[9.5px] text-zinc-300 leading-normal">
-                            Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học. Còn <strong>{daysUntilReset > 0 ? daysUntilReset : 0} ngày</strong> đóng phí trước khi tiến trình học bị reset hoàn toàn về 0.
+                            {t("hugoCoderLearning.guidebook.vuiLongGiaHan")} <strong>{daysUntilReset > 0 ? daysUntilReset : 0} {t("hugoCoderLearning.guidebook.ngay")}</strong> {t("hugoCoderLearning.guidebook.dongPhiTruocKhi")}
                           </p>
                         </div>
                       );
@@ -287,8 +287,8 @@ export default function MobileGuidebook({
                       const daysLeft = Math.ceil((expTime - now) / (24 * 60 * 60 * 1000));
                       return (
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-zinc-400">Phí bảo trì hàng tháng:</span>
-                          <span className="font-bold text-emerald-400">Đã kích hoạt (Còn {daysLeft} ngày)</span>
+                          <span className="text-zinc-400">{t("hugoCoderLearning.guidebook.phiBaoTriHang")}</span>
+                          <span className="font-bold text-emerald-400">{t("hugoCoderLearning.guidebook.daKichHoatCon")} {daysLeft} {t("hugoCoderLearning.guidebook.ngay2")}</span>
                         </div>
                       );
                     }
@@ -299,10 +299,10 @@ export default function MobileGuidebook({
               {/* Title & Total Complete Stats */}
               <div className="flex items-center justify-between px-1">
                 <div>
-                  <h3 className="text-xs font-black uppercase text-muted-foreground tracking-wider">Mục lục lộ trình</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Vui lòng học tuần tự để mở khóa các bài tiếp theo</p>
+                  <h3 className="text-xs font-black uppercase text-muted-foreground tracking-wider">{t("hugoCoderLearning.guidebook.mucLucLoTrinh")}</h3>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{t("hugoCoderLearning.guidebook.vuiLongHocTuan")}</p>
                 </div>
-                <span className="text-[10px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">{mobileCompletedCount}/{WEB_COURSES.length} Bài đã học</span>
+                <span className="text-[10px] font-black text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">{mobileCompletedCount}/{WEB_COURSES.length} {t("hugoCoderLearning.guidebook.baiDaHoc")}</span>
               </div>
               
               {/* Stages List */}
@@ -364,15 +364,15 @@ export default function MobileGuidebook({
                             <div className={`rounded-2xl border bg-gradient-to-br ${meta.gradient} p-3.5 space-y-2.5`}>
                               <p className={`text-[11px] font-black italic ${meta.accentColor.split(" ")[0]}`}>“{phase.intro.tagline}”</p>
                               <div className="space-y-1.5">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Bạn sẽ học</span>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{t("hugoCoderLearning.guidebook.banSeHoc")}</span>
                                 <div className="flex flex-wrap gap-1">
                                   {phase.intro.learn.map((item, i) => (
                                     <span key={i} className={`text-[9.5px] font-bold px-2 py-1 rounded-full border ${meta.badgeColor}`}>{item}</span>
                                   ))}
                                 </div>
                               </div>
-                              <p className="text-[10.5px] leading-5 text-muted-foreground"><strong className="text-foreground">Thách thức:</strong> {phase.intro.challenge}</p>
-                              <p className="text-[10.5px] leading-5 text-muted-foreground"><strong className="text-foreground">Hứa hẹn:</strong> {phase.intro.promise}</p>
+                              <p className="text-[10.5px] leading-5 text-muted-foreground"><strong className="text-foreground">{t("hugoCoderLearning.guidebook.thachThuc")}</strong> {phase.intro.challenge}</p>
+                              <p className="text-[10.5px] leading-5 text-muted-foreground"><strong className="text-foreground">{t("hugoCoderLearning.guidebook.huaHen")}</strong> {phase.intro.promise}</p>
                             </div>
                           )}
 
@@ -382,7 +382,7 @@ export default function MobileGuidebook({
                               <div className="absolute top-0 right-0 -mr-4 -mt-4 w-12 h-12 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
                               <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 font-black text-xs uppercase tracking-wider">
                                 <Trophy className="w-4.5 h-4.5 text-amber-400 animate-bounce" />
-                                Chúc mừng hoàn thành {phase.title}
+                                {t("hugoCoderLearning.guidebook.chucMungHoanThanh")} {phase.title}
                               </div>
                               
                               {bio?.slug && (
@@ -392,7 +392,7 @@ export default function MobileGuidebook({
                                   rel="noopener noreferrer"
                                   className="block w-full py-2 text-center bg-foreground text-background font-black rounded-xl text-[10px] uppercase tracking-wider transition-all active:scale-[0.98]"
                                 >
-                                  Xem & chia sẻ giấy chứng nhận chặng
+                                  {t("hugoCoderLearning.guidebook.xemChiaSeGiay")}
                                 </a>
                               )}
 
@@ -406,18 +406,18 @@ export default function MobileGuidebook({
                                 return (
                                   <div className="space-y-2.5">
                                     <p className="text-[10px] text-muted-foreground leading-relaxed font-sans">
-                                      Bạn đã hoàn thành xuất sắc toàn bộ thử thách của chặng này! Hãy nhận phần thưởng vinh danh.
+                                      {t("hugoCoderLearning.guidebook.banDaHoanThanh")}
                                     </p>
                                     {hasClaimed ? (
                                       <div className="py-2.5 bg-emerald-500/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-black rounded-xl text-[10px] uppercase tracking-widest shadow-sm">
-                                        Đã nhận thưởng +800 JOY ✓
+                                        {t("hugoCoderLearning.guidebook.daNhanThuong800")}
                                       </div>
                                     ) : (
                                       <button
                                         onClick={() => handleClaimMilestoneReward(phase.phaseNumber)}
                                         className="w-full py-2.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
                                       >
-                                        Nhận phần thưởng (+800 JOY)
+                                        {t("hugoCoderLearning.guidebook.nhanPhanThuong800")}
                                       </button>
                                     )}
                                   </div>
@@ -433,27 +433,27 @@ export default function MobileGuidebook({
                                   <div className="space-y-2.5 text-[10px] font-sans text-muted-foreground">
                                     {status === 'idle' && (
                                       <p className="leading-relaxed">
-                                        Hãy hoàn thành đồ án kết khóa và nộp đường link dự án của bạn tại <strong>Bài 100</strong> để nhận đánh giá từ Hugo Studio.
+                                        {t("hugoCoderLearning.guidebook.hayHoanThanhDo")} <strong>{t("hugoCoderLearning.guidebook.bai100")}</strong> {t("hugoCoderLearning.guidebook.deNhanDanhGia")}
                                       </p>
                                     )}
                                     {status === 'pending' && (
                                       <div className="p-3 bg-amber-500/15 border border-amber-500/25 rounded-xl text-amber-600 dark:text-amber-400 font-black shadow-sm">
-                                        Đang chờ duyệt đồ án kết khóa... ⏳
-                                        <p className="text-[9px] font-normal text-muted-foreground mt-1">Hugo Studio đang rà soát dự án và mã nguồn của bạn.</p>
+                                        {t("hugoCoderLearning.guidebook.dangChoDuyetDo")}
+                                        <p className="text-[9px] font-normal text-muted-foreground mt-1">{t("hugoCoderLearning.guidebook.hugoStudioDangRa")}</p>
                                       </div>
                                     )}
                                     {status === 'rejected' && (
                                       <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive font-black text-left space-y-1.5 shadow-sm">
-                                        <div>Đồ án chưa đạt yêu cầu ❌</div>
-                                        {adminNote && <p className="text-[9px] font-normal text-zinc-300">Phản hồi: {adminNote}</p>}
-                                        <p className="text-[9px] font-normal text-muted-foreground">Bạn có thể sửa đổi và nộp lại link mới ở Bài 100.</p>
+                                        <div>{t("hugoCoderLearning.guidebook.doAnChuaDat")}</div>
+                                        {adminNote && <p className="text-[9px] font-normal text-zinc-300">{t("hugoCoderLearning.guidebook.phanHoi")} {adminNote}</p>}
+                                        <p className="text-[9px] font-normal text-muted-foreground">{t("hugoCoderLearning.guidebook.banCoTheSua")}</p>
                                       </div>
                                     )}
                                     {status === 'approved' && (
                                       <div className="space-y-2.5">
                                         <div className="p-3 bg-emerald-500/15 border border-emerald-500/25 rounded-xl text-emerald-600 dark:text-emerald-400 font-black shadow-sm">
-                                          Đồ án đã được duyệt thành công! 🎉
-                                          <p className="text-[9px] font-normal text-muted-foreground mt-1">Đã nhận thưởng hoàn thành khóa học 4,000 JOY & phần quà VVIP.</p>
+                                          {t("hugoCoderLearning.guidebook.doAnDaDuoc")}
+                                          <p className="text-[9px] font-normal text-muted-foreground mt-1">{t("hugoCoderLearning.guidebook.daNhanThuongHoan")}</p>
                                         </div>
                                         {certUrl ? (
                                           <a
@@ -462,10 +462,10 @@ export default function MobileGuidebook({
                                             rel="noopener noreferrer"
                                             className="block w-full py-2.5 text-center bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-zinc-950 font-black rounded-xl text-[10px] uppercase tracking-wider transition-all shadow-md"
                                           >
-                                            Nhận chứng nhận hoàn thành
+                                            {t("hugoCoderLearning.guidebook.nhanChungNhanHoan")}
                                           </a>
                                         ) : (
-                                          <p className="text-[9px] text-amber-400 font-bold">Chứng nhận đang được chuẩn bị bởi Admin...</p>
+                                          <p className="text-[9px] text-amber-400 font-bold">{t("hugoCoderLearning.guidebook.chungNhanDangDuoc")}</p>
                                         )}
                                       </div>
                                     )}
@@ -488,7 +488,7 @@ export default function MobileGuidebook({
                                   key={course.id}
                                   onClick={() => {
                                     if (isLocked) {
-                                      notify.error("Vui lòng hoàn thành bài học trước để mở khóa bài này!");
+                                      notify.error(t("hugoCoderLearning.guidebook.vuiLongHoanThanh"));
                                       return;
                                     }
                                     setActiveCourseId(course.id);
@@ -525,7 +525,7 @@ export default function MobileGuidebook({
                                         {course.title.replace(/^\d+\.\s*/, "")}
                                       </span>
                                       <span className="text-[9px] text-muted-foreground mt-0.5 truncate max-w-[200px]">
-                                        {course.file || "Thực hành lý thuyết"}
+                                        {course.file || t("hugoCoderLearning.guidebook.thucHanhLyThuyet")}
                                       </span>
                                     </div>
                                   </div>
@@ -580,8 +580,8 @@ export default function MobileGuidebook({
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">
                       {!tierInfo.lifetime 
-                        ? "Nội dung bài học này đang bị khóa. Vui lòng mở khóa vĩnh viễn chặng học tập này hoặc sở hữu trọn gói 7 chặng để bắt đầu học."
-                        : "Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học tập."}
+                        ? t("hugoCoderLearning.guidebook.noiDungBaiHoc")
+                        : t("hugoCoderLearning.guidebook.thueBaoBaoTri")}
                     </p>
                   </div>
 
@@ -592,14 +592,14 @@ export default function MobileGuidebook({
                         {/* Option 1: Lifetime Stage Unlock */}
                         <div className="border border-border bg-white dark:bg-zinc-900 rounded-xl p-4 space-y-3">
                           <div className="flex justify-between items-center text-xs">
-                            <span className="font-bold text-foreground">Mở khóa vĩnh viễn chặng</span>
+                            <span className="font-bold text-foreground">{t("hugoCoderLearning.guidebook.moKhoaVinhVien")}</span>
                             <span className="font-black text-primary">{tierInfo.price} JOY</span>
                           </div>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            Mở khóa vĩnh viễn quyền học và thực hành toàn bộ bài học thuộc {tierInfo.tierLabel}.
+                            {t("hugoCoderLearning.guidebook.moKhoaVinhVien2")} {tierInfo.tierLabel}.
                           </p>
                           <div className="rounded-xl border border-border bg-background p-3 space-y-1.5 text-left">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-primary">Trong gói này bạn nhận được</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-primary">{t("hugoCoderLearning.guidebook.trongGoiNayBan")}</span>
                             {getStageBenefits(tierInfo.tier).map((b, i) => (
                               <p key={i} className="text-[10.5px] leading-5 text-muted-foreground">— {b}</p>
                             ))}
@@ -609,7 +609,7 @@ export default function MobileGuidebook({
                             disabled={exchangeSubmitting}
                             className="w-full py-3 bg-primary hover:bg-primary/95 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
                           >
-                            Mở khóa chặng vĩnh viễn
+                            {t("hugoCoderLearning.guidebook.moKhoaChangVinh")}
                           </button>
                         </div>
 
@@ -618,19 +618,19 @@ export default function MobileGuidebook({
                           <div className="flex justify-between items-center text-xs">
                             <span className="font-bold text-amber-500 flex items-center gap-1.5">
                               <Award className="w-4 h-4 text-amber-400" />
-                              Trọn gói vĩnh viễn 6 chặng
+                              {t("hugoCoderLearning.guidebook.tronGoiVinhVien")}
                             </span>
                             <span className="font-black text-amber-500">16.000 JOY</span>
                           </div>
                           <p className="text-xs text-muted-foreground leading-relaxed">
-                            Mở khóa toàn bộ 100 bài học của 6 chặng vĩnh viễn & được <strong>miễn phí phí bảo trì trọn đời</strong>.
+                            {t("hugoCoderLearning.guidebook.moKhoaToanBo")} <strong>{t("hugoCoderLearning.guidebook.mienPhiPhiBao")}</strong>.
                           </p>
                           <button
                             onClick={() => handleBuyAllStagesBundle()}
                             disabled={exchangeSubmitting}
                             className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
                           >
-                            Mua trọn gói 16k JOY
+                            {t("hugoCoderLearning.guidebook.muaTronGoi16k")}
                           </button>
                         </div>
                       </>
@@ -640,18 +640,18 @@ export default function MobileGuidebook({
                     {tierInfo.lifetime && !tierInfo.maintenanceActive && (
                       <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-4 space-y-3">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="font-bold text-red-500">Gia hạn phí bảo trì tháng</span>
+                          <span className="font-bold text-red-500">{t("hugoCoderLearning.guidebook.giaHanPhiBao")}</span>
                           <span className="font-black text-red-500">50 JOY</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Phí bảo trì cần đóng hàng tháng để giữ quyền truy cập. Quá hạn 3 tháng sẽ bị reset tiến trình học về 0.
+                          {t("hugoCoderLearning.guidebook.phiBaoTriCan")}
                         </p>
                         <button
                           onClick={() => handlePayMaintenance()}
                           disabled={exchangeSubmitting}
                           className="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow active:scale-95 disabled:opacity-50"
                         >
-                          Đóng phí bảo trì 50 JOY
+                          {t("hugoCoderLearning.guidebook.dongPhiBaoTri")}
                         </button>
                       </div>
                     )}
@@ -757,7 +757,7 @@ export default function MobileGuidebook({
                 {/* 2.3. Visual Artwork Panels */}
                 <section className="space-y-3 font-sans">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-black uppercase text-muted-foreground">Hình minh họa sống động</h3>
+                    <h3 className="text-xs font-black uppercase text-muted-foreground">{t("hugoCoderLearning.guidebook.hinhMinhHoaSong")}</h3>
                     <span className="text-[10px] font-bold text-primary">{mobileVisualSet.panels.length} tranh</span>
                   </div>
                   <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
@@ -769,7 +769,7 @@ export default function MobileGuidebook({
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
                   <div className="flex items-center gap-2">
                     <Target className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-black">Tổng quan & Mục tiêu</h3>
+                    <h3 className="text-sm font-black">{t("hugoCoderLearning.guidebook.tongQuanMucTieu")}</h3>
                     {mobileCourse.duration && <span className="ml-auto text-[9px] font-bold text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5">{mobileCourse.duration}</span>}
                   </div>
                   {renderMobileIllustration(mobileExtra.visualType, mobileCourse?.id)}
@@ -790,7 +790,7 @@ export default function MobileGuidebook({
                   <>
                 {/* 2.5. Deep Dive Section */}
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
-                  <h3 className="text-sm font-black">Thực hành & Code mẫu từng bước</h3>
+                  <h3 className="text-sm font-black">{t("hugoCoderLearning.guidebook.thucHanhCodeMau")}</h3>
                   {(mobileExtra.deepDive || []).map((item) => (
                     <div key={item.title} className="rounded-lg border border-border bg-background p-3">
                       <h4 className="text-xs font-black text-foreground">{item.title}</h4>
@@ -803,7 +803,7 @@ export default function MobileGuidebook({
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
                   <div className="flex items-center gap-2">
                     <ListChecks className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-black">Checklist hiểu bài</h3>
+                    <h3 className="text-sm font-black">{t("hugoCoderLearning.guidebook.checklistHieuBai")}</h3>
                   </div>
                   <ul className="space-y-3">
                     {mobileCourse.tasks.map((task, i) => (
@@ -815,12 +815,12 @@ export default function MobileGuidebook({
                   </ul>
                   {mobileCourse.challenge && (
                     <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-                      <p className="text-sm leading-6 text-muted-foreground"><strong className="text-primary">Thử thách mở rộng:</strong> {mobileCourse.challenge}</p>
+                      <p className="text-sm leading-6 text-muted-foreground"><strong className="text-primary">{t("hugoCoderLearning.guidebook.thuThachMoRong")}</strong> {mobileCourse.challenge}</p>
                     </div>
                   )}
                   {mobileCourse.checklist?.length > 0 && (
                     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
-                      <h4 className="text-xs font-black text-foreground">Checklist thuộc bài</h4>
+                      <h4 className="text-xs font-black text-foreground">{t("hugoCoderLearning.guidebook.checklistThuocBai")}</h4>
                       {mobileCourse.checklist.map((item, i) => (
                         <label key={i} className="flex items-start gap-2 text-sm leading-6 text-muted-foreground cursor-pointer select-none">
                           <input type="checkbox" className="mt-1 accent-current" />
@@ -839,19 +839,19 @@ export default function MobileGuidebook({
                 <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-4 font-sans">
                   <div className="flex items-center gap-2 border-b border-border pb-2.5">
                     <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                    <h3 className="text-sm font-black">Thực hành tương tác</h3>
+                    <h3 className="text-sm font-black">{t("hugoCoderLearning.guidebook.thucHanhTuongTac")}</h3>
                   </div>
                   {timeLeft > 0 && (
                     <div className="bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-xl text-[11px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-2 justify-center">
                       <span className="material-symbols-outlined text-[14px] animate-spin">history</span>
-                      <span>Bạn cần tìm hiểu thêm: {Math.floor(timeLeft / 60)} phút {timeLeft % 60} giây để có thể kiểm tra.</span>
+                      <span>{t("hugoCoderLearning.guidebook.banCanTimHieu")} {Math.floor(timeLeft / 60)} {t("hugoCoderLearning.guidebook.phut")} {timeLeft % 60} {t("hugoCoderLearning.guidebook.giayDeCoThe")}</span>
                     </div>
                   )}
                   {verificationStatus === "success" ? (
                     <div className="bg-success/10 border border-success/20 p-4 rounded-xl text-center space-y-2">
                       <span className="material-symbols-outlined text-4xl text-success animate-bounce">verified</span>
-                      <p className="text-sm font-black text-success uppercase tracking-wider">Hoàn thành xuất sắc!</p>
-                      <p className="text-xs text-muted-foreground font-sans">Bạn đã vượt qua các thử thách của bài học này và nhận phần thưởng JOY.</p>
+                      <p className="text-sm font-black text-success uppercase tracking-wider">{t("hugoCoderLearning.guidebook.hoanThanhXuatSac")}</p>
+                      <p className="text-xs text-muted-foreground font-sans">{t("hugoCoderLearning.guidebook.banDaVuotQua")}</p>
                     </div>
                   ) : (
                     <InteractivePuzzles
@@ -904,7 +904,7 @@ export default function MobileGuidebook({
                 {/* 2.8. Common mistakes / Self-quizzes */}
                 <section className="grid grid-cols-1 gap-3 font-sans">
                   <div className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3">
-                    <h3 className="text-sm font-black">Bẫy lỗi & Cách khắc phục</h3>
+                    <h3 className="text-sm font-black">{t("hugoCoderLearning.guidebook.bayLoiCachKhac")}</h3>
                     <ul className="space-y-2">
                       {(mobileExtra.commonMistakes || []).map((mistake) => (
                         <li key={mistake} className="text-sm leading-6 text-muted-foreground border-l-2 border-warning pl-3">{mistake}</li>
@@ -924,11 +924,11 @@ export default function MobileGuidebook({
                     <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
                       <div className="flex items-center gap-2">
                         <Library className="w-4 h-4 text-primary" />
-                        <h3 className="text-sm font-black">Tài liệu & Sách học thuật</h3>
+                        <h3 className="text-sm font-black">{t("hugoCoderLearning.guidebook.taiLieuSachHoc")}</h3>
                       </div>
                       {lessonReading.length > 0 && (
                         <div className="space-y-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cho bài này</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("hugoCoderLearning.guidebook.choBaiNay")}</span>
                           {lessonReading.map((r, i) => (
                             <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
                               <span className="material-symbols-outlined text-base mt-0.5 shrink-0">open_in_new</span>
@@ -939,7 +939,7 @@ export default function MobileGuidebook({
                       )}
                       {stageReading.length > 0 && (
                         <div className="space-y-1.5">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Nguồn chuẩn quốc tế của chặng</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t("hugoCoderLearning.guidebook.nguonChuanQuocTe")}</span>
                           {stageReading.map((r, i) => (
                             <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
                               <span className="material-symbols-outlined text-base mt-0.5 shrink-0">menu_book</span>
@@ -960,7 +960,7 @@ export default function MobileGuidebook({
                 <section className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden text-zinc-100 font-sans">
                   <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase text-emerald-400">Chạy thử để xem</p>
+                      <p className="text-[10px] font-black uppercase text-emerald-400">{t("hugoCoderLearning.guidebook.chayThuDeXem")}</p>
                       <h3 className="text-sm font-black truncate">{mobileCourse.file}</h3>
                     </div>
                     <button
@@ -968,7 +968,7 @@ export default function MobileGuidebook({
                       className="shrink-0 h-9 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black flex items-center gap-1.5 active:scale-95 transition-all"
                     >
                       <Play className="w-3.5 h-3.5" />
-                      Chạy
+                      {t("hugoCoderLearning.guidebook.chay")}
                     </button>
                   </div>
                   <pre className="max-h-56 overflow-auto p-4 text-[11px] leading-5 font-mono text-zinc-300 whitespace-pre-wrap">
@@ -986,7 +986,7 @@ export default function MobileGuidebook({
                     </div>
                   ) : (
                     <div className="border-t border-zinc-800 p-4 text-xs leading-6 text-zinc-400">
-                      Bài này là dạng truy vấn hoặc backend nên điện thoại sẽ hiển thị code mẫu và hướng dẫn chạy. Khi mở trên desktop, hệ thống học sẽ chuyển về IDE đầy đủ.
+                      {t("hugoCoderLearning.guidebook.baiNayLaDang")}
                     </div>
                   )}
                 </section>
@@ -1046,7 +1046,7 @@ export default function MobileGuidebook({
       featureKey="hugoCoder"
       priceJoy={1500}
       icon="terminal"
-      title="Trao đổi JOY để mở khóa bộ Phát triển Web"
+      title={t("hugoCoderLearning.guidebook.traoDoiJoyDe")}
       description="Đọc sách hướng dẫn, xem demo chạy code và học lập trình ngay trên điện thoại."
       onBioUpdate={onBioUpdate}
       onBack={onBack}

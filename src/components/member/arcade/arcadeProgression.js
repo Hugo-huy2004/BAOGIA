@@ -1,20 +1,17 @@
 // Nguồn duy nhất cho ba thứ mọi game arcade đều cần: độ khó tự động, chuỗi
 // combo và chữ điểm bay lên trên canvas.
 //
-// Trước đây mỗi game tự chế một công thức tăng tốc riêng (snake: score/3,
-// tetris: score/400, flappy: không có gì cả), nên "độ khó" mỗi game một kiểu và
-// không game nào cho người chơi biết mình đang ở đâu. Giờ tất cả đọc chung
+// Trước đây mỗi game tự chế một công thức tăng tốc riêng (snake: score/3, các
+// game khác mỗi kiểu một khác), nên "độ khó" mỗi game một kiểu và không game
+// nào cho người chơi biết mình đang ở đâu. Giờ tất cả đọc chung
 // `levelFor()` + `ramp()`, và HUD hiển thị đúng cấp đó.
 
 // Mỗi game: `step` = số điểm để lên 1 cấp, `max` = cấp trần (độ khó bão hoà).
 // Cân theo thang điểm MỚI của từng game (xem chú thích ở mỗi file game).
 const CURVES = {
   snake:     { step: 60,   max: 12 },
-  flappy:    { step: 55,   max: 12 },
-  tetris:    { step: 1500, max: 15 },
   survivor:  { step: 900,  max: 15 },
   "2048":    { step: 1400, max: 10 },
-  wordguess: { step: 150,  max: 8 },
   caro:      { step: 40,   max: 5 },
 };
 

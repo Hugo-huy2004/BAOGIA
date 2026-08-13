@@ -4,7 +4,7 @@ import { levelFor, levelProgress, maxLevel } from "./arcadeProgression";
 import { getBest } from "./arcadeBest";
 
 // HUD dùng chung cho mọi game. Trước đây mỗi game tự dựng thẻ điểm với màu
-// hardcode (tetris cyan/tím, survivor hồng, wordguess xanh lá…) nên cùng một
+// hardcode (mỗi game một bộ hex riêng) nên cùng một
 // arcade mà mỗi màn một tông. Giờ tất cả đọc bảng màu `--intro-*` của chính
 // game đó, và cùng hiện một thứ: điểm, cấp độ tự động, combo.
 

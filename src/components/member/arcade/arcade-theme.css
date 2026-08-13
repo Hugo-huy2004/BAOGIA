@@ -265,6 +265,17 @@
   font-size: 12px; line-height: 16px; color: var(--arc-t3);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+/* Nhãn "Độc quyền bởi Hugo Studio" — chữ + icon đơn sắc, không huy hiệu màu. */
+.arc-row__studio {
+  margin-top: 3px;
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; line-height: 16px; font-weight: 600; color: var(--arc-t2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.arc-row__studio .material-symbols-outlined {
+  font-size: 14px; font-variation-settings: "FILL" 1;
+}
+.arc-row__studio--credit { font-weight: 400; color: var(--arc-t3); }
 
 /* Nút GET/OPEN — viên thuốc 28px nhưng vùng chạm đủ 44px */
 .arc-get {

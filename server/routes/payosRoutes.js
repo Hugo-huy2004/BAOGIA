@@ -217,7 +217,7 @@ router.post('/create', requireAdmin, async (req, res) => {
   }
 });
 
-import InAppNotification from '../models/InAppNotification.js';
+import { notifyMember } from '../utils/notifyMember.js';
 
 // [Admin] Request Payment from a specific user
 router.post('/request-payment', requireAdmin, async (req, res) => {
@@ -264,13 +264,13 @@ router.post('/request-payment', requireAdmin, async (req, res) => {
     await newLink.save();
 
     // Send In-App Notification to the user
-    await InAppNotification.create({
+    await notifyMember({
       email,
       type: 'warning',
       category: 'payment',
-      title: 'Yêu cầu thanh toán',
-      message: `Admin đã gửi một yêu cầu thanh toán trị giá ${(Number(amount)).toLocaleString('vi-VN')} ₫. Lý do: ${reason}`,
-      actionUrl: `/pay/${customLinkId}`
+      key: 'event.paymentRequest',
+      params: { amount: Number(amount), reason },
+      actionUrl: `/pay/${customLinkId}`,
     });
 
     res.status(201).json({

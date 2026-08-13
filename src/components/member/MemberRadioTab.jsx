@@ -658,7 +658,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                     isPlaying && !isDragging ? "bg-info" : (isStatic || isDragging || isBuffering) ? "bg-muted-foreground" : "bg-transparent border border-muted-foreground/50"
                   }`} />
                   <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                    {isDragging ? "Đang dò" : isBuffering ? "Đang kết nối" : isStatic ? "Nhiễu sóng" : isPlaying ? "Đang phát" : nowPlaying ? "Tạm dừng" : "Chờ"}
+                    {isDragging ? t("utilities.radio.dangDo") : isBuffering ? t("utilities.radio.dangKetNoi") : isStatic ? t("utilities.radio.nhieuSong") : isPlaying ? t("utilities.radio.dangPhat") : nowPlaying ? t("utilities.radio.tamDung") : t("utilities.radio.cho")}
                   </span>
                 </div>
                 <p className="text-[17px] font-bold leading-tight truncate text-foreground">
@@ -667,7 +667,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                 {nowPlaying && (
                   <p className="text-[13px] text-muted-foreground mt-1 truncate">
                     {STATUS_TITLE[stationStatus(nowPlaying.stationuuid)]}
-                    {healthTick >= 0 && learnedUrl(nowPlaying.stationuuid) ? " · đã học địa chỉ mới" : ""}
+                    {healthTick >= 0 && learnedUrl(nowPlaying.stationuuid) ? t("utilities.radio.daHocDiaChi") : ""}
                   </p>
                 )}
               </div>
@@ -701,26 +701,26 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                 <div className="absolute top-0 bottom-0 w-0.5 bg-info pointer-events-none z-10 rounded-full" style={{ left: needleLeft }} />
 
                 <input type="range" min="87.5" max="108.0" step="0.1" value={visualFreq}
-                       aria-label="Dò tần số" onChange={(e) => handleDialDrag(Number(e.target.value))}
+                       aria-label={t("utilities.radio.doTanSo")} onChange={(e) => handleDialDrag(Number(e.target.value))}
                        onPointerDown={() => setIsDragging(true)} onPointerUp={() => { if (isDragging) handleDialRelease(visualFreq); }}
                        className="w-full h-full opacity-0 absolute inset-0 cursor-ew-resize z-20 touch-none" />
               </div>
 
               {/* Điều khiển chính — mọi nút tối thiểu 44px */}
               <div className="flex items-center justify-center gap-3">
-                <button onClick={() => autoScan("down")} aria-label="Dò xuống"
+                <button onClick={() => autoScan("down")} aria-label={t("utilities.radio.doXuong")}
                   className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
                   <span className="material-symbols-outlined">skip_previous</span>
                 </button>
 
-                <button onClick={togglePlayPause} aria-label={isPlaying ? "Dừng" : "Phát"}
+                <button onClick={togglePlayPause} aria-label={isPlaying ? t("utilities.radio.dung") : t("utilities.radio.phat")}
                   className="w-14 h-14 shrink-0 rounded-full bg-info text-info-foreground flex items-center justify-center active:scale-95 transition-transform">
                   <span className="material-symbols-outlined text-3xl">
                     {(isPlaying || isStatic || isBuffering) ? "stop" : "play_arrow"}
                   </span>
                 </button>
 
-                <button onClick={() => autoScan("up")} aria-label="Dò lên"
+                <button onClick={() => autoScan("up")} aria-label={t("utilities.radio.doLen")}
                   className="w-12 h-12 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
                   <span className="material-symbols-outlined">skip_next</span>
                 </button>
@@ -734,7 +734,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                 </span>
                 <input
                   type="range" min="0" max="100" step="1" value={volume}
-                  aria-label="Âm lượng"
+                  aria-label={t("utilities.radio.amLuong")}
                   onChange={(e) => setVolume(Number(e.target.value))}
                   className="flex-1 h-11 accent-info cursor-pointer"
                 />
@@ -746,14 +746,14 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                 <button onClick={playRandom}
                   className="flex items-center gap-2 h-11 px-4 rounded-full border border-border bg-card text-foreground text-sm font-bold active:scale-95 transition-transform">
                   <span className="material-symbols-outlined text-lg">shuffle</span>
-                  <span>Ngẫu nhiên</span>
+                  <span>{t("utilities.radio.ngauNhien")}</span>
                 </button>
                 <button onClick={cycleSleepTimer}
                   className={`flex items-center gap-2 h-11 px-4 rounded-full border text-sm font-bold active:scale-95 transition-transform ${
                     sleepTimer ? "border-info text-info bg-card" : "border-border bg-card text-foreground"
                   }`}>
                   <span className="material-symbols-outlined text-lg">bedtime</span>
-                  <span>{sleepTimer ? `Tắt sau ${formatSleepTime(sleepTimeLeft)}` : "Hẹn giờ tắt"}</span>
+                  <span>{sleepTimer ? `Tắt sau ${formatSleepTime(sleepTimeLeft)}` : t("utilities.radio.henGioTat")}</span>
                 </button>
               </div>
             </div>
@@ -767,13 +767,13 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm đài: VOV1, NPR, Jazz…"
+              placeholder={t("utilities.radio.timDaiVov1Npr")}
               className="flex-1 min-w-0 bg-transparent outline-none text-[15px] font-semibold text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <button type="submit" disabled={searching || !search.trim()}
             className="h-12 px-5 rounded-xl bg-info text-info-foreground font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-40">
-            {searching ? "Đang dò…" : "Tìm"}
+            {searching ? t("utilities.radio.dangDo2") : t("utilities.radio.tim")}
           </button>
         </form>
 
@@ -785,7 +785,7 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
                 activeCategory === FOUND_CATEGORY ? "bg-info text-info-foreground border-info" : "bg-card text-foreground border-border"
               }`}>
               <span className="material-symbols-outlined text-lg">bookmark</span>
-              <span>Đã tìm ({foundList.length})</span>
+              <span>{t("utilities.radio.daTim")}{foundList.length})</span>
             </button>
           )}
           {RADIO_CATEGORIES.map((cat) => {
@@ -862,12 +862,12 @@ export default function MemberRadioTab({ onBack, showToast, bio, onBioUpdate }) 
         <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => { setShowStore(false); refetchTokens(); }}>
           <div className="bg-white dark:bg-[#15141c] w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[80vh] overflow-y-auto p-5 space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="font-black text-base text-foreground">Mua thêm thời gian nghe</h3>
+              <h3 className="font-black text-base text-foreground">{t("utilities.radio.muaThemThoiGian")}</h3>
               <button onClick={() => { setShowStore(false); refetchTokens(); }} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
             </div>
-            <p className="text-xs text-muted-foreground">Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần.</p>
+            <p className="text-xs text-muted-foreground">{t("utilities.radio.thoiGianMuaDuoc")}</p>
             <RadioStoreInline bio={bio} showToast={showToast} onPurchased={refetchTokens} />
           </div>
         </div>

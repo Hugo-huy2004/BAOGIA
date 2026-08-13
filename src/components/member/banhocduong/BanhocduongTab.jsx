@@ -82,7 +82,7 @@ function CrisisBanner({ flag, onResolve, onTalkNow, onDismiss, compact = false }
         >
           <button type="button" onClick={onDismiss}
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center active:scale-95 transition-transform"
-            aria-label="Đóng tạm thời">
+            aria-label={t("hugoPsy.tab.dongTamThoi")}>
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
 
@@ -209,15 +209,15 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
         <div className="min-w-0 flex-1 flex flex-col md:flex-row md:items-center md:gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Lộ trình</p>
+              <p className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{t("hugoPsy.tab.loTrinh")}</p>
               {shortenedDays > 0 && (
                 <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
-                  -{shortenedDays} ngày
+                  -{shortenedDays} {t("hugoPsy.tab.ngay")}
                 </span>
               )}
             </div>
             <p className="text-[11px] font-bold text-foreground/80 leading-tight">
-              Ngày {currentDay}/{effectiveDur} · Bắt đầu {startStr}
+              {t("hugoPsy.tab.ngay2")} {currentDay}/{effectiveDur} {t("hugoPsy.tab.batDau")} {startStr}
             </p>
           </div>
           {/* Thin progress bar side-by-side */}

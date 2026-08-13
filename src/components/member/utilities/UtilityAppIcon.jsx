@@ -13,7 +13,6 @@ import {
   QrCode,
   Radio,
   Rocket,
-  ShieldCheck,
   ShoppingBag,
   Sparkles,
   Swords,
@@ -30,8 +29,7 @@ const ICONS = Object.freeze({
   team: UsersRound,
   psychology: Brain,
   radio: Radio,
-  helpdesk: QrCode,
-  handle: ShieldCheck,
+  handle: QrCode,
   arcade: Gamepad2,
   aura: Waves,
   info: Info,
@@ -39,11 +37,8 @@ const ICONS = Object.freeze({
   arcade_chess: Castle,
   arcade_2048: Blocks,
   arcade_caro: Swords,
-  arcade_wordguess: Keyboard,
-  arcade_tetris: Grid3X3,
   arcade_snake: InfinityIcon,
   arcade_survivor: Rocket,
-  arcade_flappy: Zap,
 });
 
 const SIZE_CLASS = Object.freeze({

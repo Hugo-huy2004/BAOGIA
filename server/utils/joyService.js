@@ -1,8 +1,8 @@
 import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
-import InAppNotification from '../models/InAppNotification.js';
 import ChessRating from '../models/ChessRating.js';
-import { sendPushNotification } from './pushNotifier.js';
+import { notifyMember } from './notifyMember.js';
+import { NOTIFICATION_TEXT } from '../../shared/notificationText.js';
 
 import { JOY_SOURCES, JOY_SOURCE_GROUPS } from './joySources.js';
 
@@ -90,14 +90,22 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
 
   let notification = null;
   if (opts.notify !== false) {
-    notification = await InAppNotification.create({
+    // Tiêu đề đi bằng KHOÁ chứ không phải câu: cùng một bản ghi hiện ra tiếng
+    // Việt hay tiếng Hàn là tuỳ ngôn ngữ người đọc, không tuỳ lúc nó được ghi.
+    //
+    // `description` KHÔNG còn được dùng làm nội dung thông báo — nó là câu
+    // tiếng Việt do hàng chục nơi gọi tự viết, và nó vẫn được lưu nguyên vẹn ở
+    // JoyLedger để đối soát. Trong hộp thư, số tiền / số dư / mã GD / tên người
+    // đối diện đã là field riêng, nên câu đó chỉ lặp lại thứ đang hiện.
+    notification = await notifyMember({
       email: bio.email,
       type: numAmount >= 0 ? 'success' : 'info',
       category: 'joy',
-      title: opts.notificationTitle || joyTitleFor(source, numAmount),
-      message: opts.notificationMessage || description || '',
+      key: NOTIFICATION_TEXT.vi[`source.${source}`]
+        ? `source.${source}`
+        : (numAmount >= 0 ? 'source.credit' : 'source.debit'),
       actionUrl: opts.actionUrl || '/member/account',
-      // Số liệu đi thành field, không nhét vào câu để client phải regex bóc ra.
+      push: opts.pushNotify === true,
       amount: numAmount,
       balanceAfter: newBalance,
       refCode: opts.refId || '',
@@ -117,15 +125,6 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   });
   for (const client of global.wsClients?.[bio.email] || []) {
     if (client.readyState === 1) client.send(realtimeEvent);
-  }
-
-  if (opts.pushNotify === true && notification) {
-    await sendPushNotification(
-      bio.email,
-      opts.pushTitle || notification.title,
-      opts.pushBody || notification.message,
-      notification.actionUrl || '/member/account'
-    );
   }
 
   return { balance: bio.joyBalance, bio, notification };

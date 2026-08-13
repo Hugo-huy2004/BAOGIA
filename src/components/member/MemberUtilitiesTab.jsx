@@ -5,8 +5,7 @@ import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
-const HugoHelpdeskTab = lazy(() => import("./HugoHelpdeskTab"));
-const HugoHandleTab = lazy(() => import("./HugoHandleTab"));
+const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 const HugoTeamTab = lazy(() => import("./HugoTeamTab"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
@@ -38,7 +37,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = selectedUtility === "psychology" || selectedUtility === "study" || selectedUtility === "ide" || selectedUtility === "arcade" || selectedUtility === "store" || selectedUtility === "hugoso";
+  const isFullscreenLikeUtility = ["psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk"].includes(selectedUtility);
 
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
@@ -55,19 +54,10 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       </div>
 
-      {/* HugoHelpdesk — QR/NFC + Email Signature merged */}
-      {selectedUtility === "helpdesk" && (
-        <HugoHelpdeskTab
-          bio={bio}
-          publicLink={publicLink}
-          showToast={showToast}
-          onBack={() => onSelectUtility(null)}
-        />
-      )}
-
-      {/* HugoHandle — Secret Link + File Tools merged */}
-      {selectedUtility === "handle" && (
-        <HugoHandleTab
+      {/* HugoKit — QR/NFC, chữ ký email, link bảo mật và xử lý tệp gộp làm một.
+          Id cũ "helpdesk" vẫn mở app này để bookmark và icon đã cài không hỏng. */}
+      {["handle", "helpdesk"].includes(selectedUtility) && (
+        <HugoKitApp
           bio={bio}
           publicLink={publicLink}
           showToast={showToast}

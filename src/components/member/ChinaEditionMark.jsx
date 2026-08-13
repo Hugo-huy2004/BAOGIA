@@ -1,0 +1,46 @@
+// Chinese edition mark for the Today page.
+//
+// The land outline is generated from Natural Earth public-domain data
+// (mainland + Hainan + Taiwan) and carries no maritime claim lines of any
+// kind. It is filled with the national flag — PRC red #EE1C25 with the five
+// golden stars at their official flag proportions (big star r=3 and four
+// r=1 stars on a 30x20 canvas, each small star pointing at the big one).
+const CHINA_OUTLINE = "M597.6 692.1L583.5 701.6L570.2 695.5L569.7 678.3L577.7 669.3L595.5 663.8L604.9 664.2L608.5 671.8L601.4 680.6L597.6 692.1ZM879.9 73.6L908.3 80L927.6 94.1L934.2 112.8L958.9 112.8L973.1 105L1000 99.1L991.4 117L985.1 124.3L979.5 146.1L968.6 165.4L948.8 161.9L934.8 169L939.1 186L936.7 209.5L928.4 210L928.5 220.1L918 208.4L911.5 219.6L886.3 228.1L888.9 238.6L874.8 237.9L867 231.7L855.8 245.8L837.9 256.5L824.6 269.2L801.8 275L789.8 284.3L772.3 289.7L780.9 280.5L777.5 272.8L790.4 259.4L781.8 249L767.6 256L749.2 269.8L739.2 282.7L723.2 283.6L714.9 292.9L723.4 306.4L736.8 309.6L737.3 318.6L750.2 324.4L768.5 310.2L783 317.9L793.5 318.5L796.2 328.9L773.1 334.4L765.5 345.2L749.6 355.2L741.2 369.1L758.8 380L765.2 399.6L775.1 417.8L786.2 433.1L785.9 447.9L775.7 453.3L779.6 463.9L789.2 470.1L786.7 486.3L782.5 502.1L773.4 503.9L761.5 525.4L748.3 551.5L733.2 575.3L710.8 593.6L688.1 610.4L669.7 612.7L659.8 621.5L654.1 615.1L644.9 625L622.1 634.9L604.9 638L599.3 659L590.3 660.2L586 645.7L589.9 638L568 631.6L560.3 634.9L543.9 629.7L536.1 621.6L538.7 610.2L523.8 606.5L515.9 599.1L502.1 609.7L486.2 612L473.2 611.9L464.5 616.7L456 619.6L458.5 642.4L449.8 641.9L448.3 637.2L447.8 629L435.9 634.8L416.7 623.6L421.5 607.1L411.1 603.2L407.2 584.9L390 588.2L392 564.6L407.4 548L408.1 531.6L407.6 516.4L400.5 511.6L395 499.9L385.5 501.4L367.9 498.4L373.4 490L365.8 477.7L354.2 486.1L340.5 481.2L321.7 493.8L306.9 508.6L293.7 511.1L286.6 505.8L278 505.3L266.3 500.7L257.5 505.7L246.8 520.5L245.4 504.9L235.4 509L216.4 507.1L198 502.5L184.8 493.8L172.1 489.9L166.6 480.3L157.5 477.5L141 464.5L128 458.4L121.2 463.1L98.5 449.2L82.5 436.6L78 414.7L89.7 417.4L90.2 407.2L83.7 397L85.4 380.8L67.8 357.5L41 349.4L36.2 334.1L24.2 324.9L21.3 319.1L18.8 307.8L19.4 300.1L9.5 295.5L4.1 297.5L0 279.1L4.6 274.6L2.4 269.9L18 260.5L29.2 256.6L46.5 259.3L52.6 246.6L73.5 244.2L79.4 236.3L105 225.5L107.3 221L106 209.7L117.2 204.5L102.5 170L134.8 162L143.2 157.6L154.9 122L187.3 128.5L196.3 119.5L197.1 99.6L210.6 97.7L223.1 84.4L229.4 82.8L233.7 96.7L247.4 107.2L270.7 114.7L281.9 130.7L275.6 154L281.5 162.6L300.9 166L322.8 168.8L342.5 181.2L352.6 183.4L360 201.8L369.6 213.6L387.5 213.1L421.2 217.6L442.9 214.8L459 217.8L483.1 229.9L502.8 229.8L510 236L529 225.3L555.3 218.4L579.8 217.7L598.8 210.7L610.5 200L621.9 193.3L619.3 186.8L614.1 179.1L622.6 166.3L648.5 172.1L664.8 161.6L689.6 153.8L701.6 140.7L713.1 135L736.7 132.4L749.6 134.6L751.4 127.6L736.6 113.7L723.5 107.3L711 114.6L694.9 111.5L685.7 114.1L681.5 105.9L700.9 71L720.5 78.6L743.5 66L743.3 57.2L758 36.1L767.1 29.7L766.9 18.8L758 14L771.4 4.1L791.7 0.5L813.3 0L837.7 5.9L852 13.3L862.1 33.3L868.2 41.9L873.9 54.1L879.9 73.6ZM784.1 578.3L774.2 610.2L767.3 626.6L758.7 609.8L756.8 595L766.4 575.5L779.4 560.4L786.9 566.3L784.1 578.3Z";
+const FLAG_STARS = "M250 238L263.9 280.8L309 280.8L272.5 307.3L286.4 350.2L250 323.7L213.6 350.2L227.5 307.3L191 280.8L236.1 280.8ZM335.6 248.6L345.5 237.3L337.7 224.4L351.6 230.3L361.4 219L360.1 233.9L373.9 239.8L359.3 243.2L358 258.1L350.2 245.3ZM374.2 282.3L387.7 275.6L385.6 260.8L396 271.6L409.5 264.9L402.5 278.2L412.9 289L398.1 286.4L391.1 299.7L389 284.8ZM374.8 335.7L389.8 335.1L393.9 320.7L399.1 334.8L414.1 334.2L402.3 343.5L407.4 357.6L394.9 349.2L383.1 358.5L387.3 344ZM337.2 369.8L351.2 375.1L360.6 363.3L359.9 378.3L374 383.6L359.5 387.6L358.8 402.6L350.5 390.1L336.1 394L345.4 382.3Z";
+
+export default function ChinaEditionMark() {
+  return (
+    <figure className="today-china-mark">
+      <svg viewBox="0 0 1000 702" role="img" aria-label="中华人民共和国">
+        <defs>
+          <linearGradient id="china-red" x1="0" y1="0" x2="0.35" y2="1">
+            <stop offset="0%" stopColor="#F5333B" />
+            <stop offset="55%" stopColor="#EE1C25" />
+            <stop offset="100%" stopColor="#C8151C" />
+          </linearGradient>
+          <linearGradient id="china-gold" x1="0" y1="0" x2="0.2" y2="1">
+            <stop offset="0%" stopColor="#FFE14D" />
+            <stop offset="100%" stopColor="#FFD100" />
+          </linearGradient>
+          <radialGradient id="china-sheen" cx="0.3" cy="0.22" r="0.72">
+            <stop offset="0%" stopColor="#fff" stopOpacity="0.16" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+          </radialGradient>
+          <clipPath id="china-clip">
+            <path d={CHINA_OUTLINE} />
+          </clipPath>
+        </defs>
+
+        <g clipPath="url(#china-clip)">
+          <rect x="0" y="0" width="1000" height="702" fill="url(#china-red)" />
+          {/* Soft sheen so the fill does not read as flat print. It has to
+              fade to zero: a solid shape leaves a visible arc across the map. */}
+          <rect x="0" y="0" width="1000" height="702" fill="url(#china-sheen)" />
+          <path d={FLAG_STARS} fill="url(#china-gold)" />
+        </g>
+        <path d={CHINA_OUTLINE} fill="none" stroke="#8E0F14" strokeWidth="3" strokeLinejoin="round" opacity="0.45" />
+      </svg>
+      <figcaption lang="zh-CN">中华人民共和国</figcaption>
+    </figure>
+  );
+}

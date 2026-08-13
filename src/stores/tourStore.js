@@ -56,9 +56,9 @@ export const TOUR_DEFINITIONS = {
       beforeStep: (actions) => actions.switchTab('utilities')
     },
     {
-      selector: '#utility-card-helpdesk',
-      title: 'HugoHelpdesk',
-      content: 'Tạo mã QR chứa thông tin liên hệ (NFC) và thiết kế mẫu chữ ký email xịn xò để chèn vào Gmail hoặc Outlook.',
+      selector: '#utility-card-handle',
+      title: 'HugoKit',
+      content: 'Hộp công cụ: tạo mã QR (hồ sơ, danh bạ, WiFi), chữ ký email, link bảo mật có mật khẩu và giải nén/nén tệp.',
       placement: 'top',
       beforeStep: (actions) => actions.switchTab('utilities')
     },

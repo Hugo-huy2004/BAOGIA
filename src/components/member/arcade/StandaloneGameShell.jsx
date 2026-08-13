@@ -14,11 +14,8 @@ import "./game-shell.css";
 const GAME_COMPONENTS = {
   chess:     React.lazy(() => import("./GameChess3D")),
   survivor:  React.lazy(() => import("./GameSpaceSurvivor")),
-  flappy:    React.lazy(() => import("./GameFlappyCyber")),
-  tetris:    React.lazy(() => import("./GameTetris")),
   "2048":    React.lazy(() => import("./Game2048")),
   caro:      React.lazy(() => import("./GameCaro")),
-  wordguess: React.lazy(() => import("./GameWordGuess")),
   snake:     React.lazy(() => import("./GameSnake")),
 };
 

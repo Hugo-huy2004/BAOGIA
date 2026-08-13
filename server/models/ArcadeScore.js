@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 
 const ArcadeScoreSchema = new mongoose.Schema({
   email: { type: String, required: true, index: true },
+  // 'wordguess' | 'tetris' | 'flappy' vẫn nằm trong enum dù 3 game đã bị gỡ:
+  // enum chỉ chặn ghi MỚI, còn tài liệu cũ phải đọc/ghi lại được (leaderboard
+  // "tất cả" và số ván đã chơi của thành viên). Chặn điểm mới nằm ở
+  // SCORE_CEILINGS trong arcadeRoutes.js.
   game: { type: String, enum: ['2048', 'caro', 'wordguess', 'survivor', 'snake', 'tetris', 'chess', 'flappy'], required: true },
   displayName: { type: String, default: '' },
   avatar: { type: String, default: null },

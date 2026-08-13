@@ -41,7 +41,6 @@ const ECOSYSTEM = [
   ["study", "school"],
   ["arcade", "stadium"],
   ["aura", "blur_on"],
-  ["helpdesk", "support_agent"],
   ["handle", "handyman"],
   ["radio", "radio"],
   ["team", "groups"],

@@ -6,8 +6,8 @@ import UtilityOrder from '../models/UtilityOrder.js';
 import PromoCode from '../models/PromoCode.js';
 import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
-import InAppNotification from '../models/InAppNotification.js';
 import { requireMember, requireAdmin } from '../middleware/authMiddleware.js';
+import { notifyMember } from '../utils/notifyMember.js';
 
 const router = express.Router();
 const TAX_RATE = 0.09;
@@ -240,11 +240,11 @@ router.post('/cart/checkout', requireMember, async (req, res) => {
     }
 
     // Notification
-    await InAppNotification.create({
+    await notifyMember({
       email, type: 'success', category: 'joy',
-      title: 'Thanh toán Hugo Store thành công!',
-      message: `${cart.items.length} sản phẩm · ${total} JOY · Mã: ${orders[0]?.purchaseCode}`,
-      actionUrl: '/member'
+      key: 'event.cartCheckout',
+      params: { count: cart.items.length, total, code: orders[0]?.purchaseCode || '' },
+      actionUrl: '/member/utilities/store',
     });
 
     res.json({ success: true, orders, newBalance: balance, total, discount });

@@ -87,6 +87,29 @@ CRISIS_TERMS = [
     "uoc gi minh bien mat", "khong con ly do song",
 ]
 
+
+# Ngôn ngữ của người nhận thông báo đẩy. Thiết bị đăng ký push gửi kèm locale
+# (NotificationSubscription.device.locale), Node chuyển tiếp xuống đây — không
+# đoán theo ngôn ngữ của prompt.
+PUSH_LANGUAGE_NAMES = {
+    "vi": "tiếng Việt",
+    "en": "English",
+    "zh": "简体中文",
+    "th": "ภาษาไทย",
+    "ja": "日本語",
+    "ko": "한국어",
+    "id": "Bahasa Indonesia",
+    "es": "español",
+    "fr": "français",
+}
+
+
+def push_language_name(code: str) -> str:
+    """Tên ngôn ngữ để nhắc thẳng trong prompt; mã lạ rơi về tiếng Việt."""
+    key = str(code or "vi").lower().replace("_", "-").split("-")[0]
+    return PUSH_LANGUAGE_NAMES.get(key, PUSH_LANGUAGE_NAMES["vi"])
+
+
 class GeminiService:
     def __init__(self):
         # Cập nhật sang gemini-2.5-flash để đảm bảo tương thích quota miễn phí
@@ -1366,12 +1389,14 @@ Trả về JSON CHÍNH XÁC:
         name_parts = (bio.get("displayName") or "bạn").split()
         name = name_parts[-1] if name_parts else "bạn"
         feature_label = user_data.get("feature_label", "Trị liệu")
+        language_name = push_language_name(user_data.get("language"))
 
         system_instruction = f"""
 Bạn là HugoPsy AI - trợ lý tâm lý trị liệu thông minh của Hugo Studio.
 Nhiệm vụ: Tạo 1 thông báo đẩy (push notification) cá nhân hóa, ấm áp, động viên {name} sử dụng tính năng '{feature_label}' mà họ đã mở khoá hôm qua.
 
 YÊU CẦU:
+- NGÔN NGỮ: viết TOÀN BỘ tiêu đề và nội dung bằng {language_name}. Đây là ngôn ngữ người nhận đang dùng, không phải ngôn ngữ của hướng dẫn này.
 - Phong cách: Cảm thông, ấm áp, thúc đẩy nhẹ nhàng nhưng chuyên nghiệp (nhà trị liệu thân thiện).
 - Độ dài: Cực kỳ ngắn gọn (Tiêu đề dưới 50 ký tự, Nội dung dưới 120 ký tự).
 - Dùng 1-2 emoji phù hợp để tạo cảm xúc tích cực.
@@ -1425,12 +1450,14 @@ Trả về JSON CHÍNH XÁC:
         bio  = user_data.get("bio", {})
         name_parts = (bio.get("displayName") or "bạn").split()
         name = name_parts[-1] if name_parts else "bạn"
+        language_name = push_language_name(user_data.get("language"))
 
         system_instruction = f"""
 Bạn là trợ lý cá nhân hoá thông minh của Hugo Studio AI (như Duolingo nhưng cho sức khoẻ tâm lý).
 Nhiệm vụ: Tạo 1 push notification ĐỘC ĐÁO, CÁ NHÂN HÓA hoàn toàn cho {name}.
 
 PHONG CÁCH DUOLINGO:
+- NGÔN NGỮ: viết TOÀN BỘ tiêu đề và nội dung bằng {language_name}. Đây là ngôn ngữ người nhận đang dùng, không phải ngôn ngữ của hướng dẫn này.
 - Ngắn gọn, vui vẻ nhưng tạo FOMO (fear of missing out).
 - Dùng emoji phù hợp (1-2 cái).
 - Tạo cảm giác cấp bách nhẹ nhàng (không gây lo lắng).

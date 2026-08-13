@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 import { extractTopics, matchesQuery, matchesTopic } from "../../lib/todayTopics";
 import { givenName } from "./memberName";
+import ChinaEditionMark from "./ChinaEditionMark";
 import { languageCode } from "../../i18n/languages";
 
 const CATEGORIES = ["all", "academic", "technology", "community", "world", "catholic"];
@@ -123,29 +124,37 @@ export default function MemberTodayTab({
             name: givenName(bio?.displayName, language) || t("memberPortal.navigation.memberFallback"),
           })}
         </h2>
-        <p className="today-edition-note" aria-live="polite">
-          <span className="material-symbols-outlined" aria-hidden="true">language</span>
-          <span>
-            {t("memberPortal.today.localEdition", {
-              country: countryLabel || language.toUpperCase(),
-            })}
-          </span>
-          <span aria-hidden="true">·</span>
-          <span>
-            {t("memberPortal.today.updatedAt", {
-              time: dataUpdatedAt ? timeFormatter.format(new Date(dataUpdatedAt)) : "--:--",
-            })}
-          </span>
-        </p>
-        {data?.meta ? (
-          <p className="today-edition-rights">
-            <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
-            {t("memberPortal.today.rightsMode", {
-              articles: data.meta.articleCount || 0,
-              sources: data.meta.sourceCount || 0,
-            })}
-          </p>
-        ) : null}
+        {/* The Chinese edition leads with the national emblem instead of the
+            two meta lines: one clean mark reads better than stacked counters. */}
+        {language === "zh" ? (
+          <ChinaEditionMark />
+        ) : (
+          <>
+            <p className="today-edition-note" aria-live="polite">
+              <span className="material-symbols-outlined" aria-hidden="true">language</span>
+              <span>
+                {t("memberPortal.today.localEdition", {
+                  country: countryLabel || language.toUpperCase(),
+                })}
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>
+                {t("memberPortal.today.updatedAt", {
+                  time: dataUpdatedAt ? timeFormatter.format(new Date(dataUpdatedAt)) : "--:--",
+                })}
+              </span>
+            </p>
+            {data?.meta ? (
+              <p className="today-edition-rights">
+                <span className="material-symbols-outlined" aria-hidden="true">verified_user</span>
+                {t("memberPortal.today.rightsMode", {
+                  articles: data.meta.articleCount || 0,
+                  sources: data.meta.sourceCount || 0,
+                })}
+              </p>
+            ) : null}
+          </>
+        )}
       </header>
 
       <section aria-labelledby="today-feed-title">

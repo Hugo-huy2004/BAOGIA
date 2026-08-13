@@ -86,6 +86,18 @@
       if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
         document.documentElement.classList.add("standalone-pwa");
       }
+      // ponytail: iOS dựng màn hình khởi động cho web app bằng ẢNH CHỤP phiên
+      // trước, rồi phóng to chồng lên giao diện thật — thấy hai lớp nội dung
+      // khác nhau, khác cỡ chữ, đè nhau. Không tắt được từ CSS; chỉ điều khiển
+      // được NỘI DUNG của tấm ảnh đó: ẩn thân trang lúc app vào nền thì iOS
+      // chụp được một nền trơn, cross-fade thành ra vô hình.
+      // Đổi lại: thẻ app trong App Switcher cũng trơn. Muốn có ảnh thương hiệu
+      // thì phải bộ apple-touch-startup-image đủ mọi cỡ máy.
+      if (window.navigator.standalone === true) {
+        document.addEventListener("visibilitychange", function () {
+          document.documentElement.classList.toggle("ios-launch-blank", document.hidden);
+        });
+      }
     </script>
 
     <!-- Google Fonts & Resource Hints -->
@@ -175,6 +187,12 @@
         padding: 0;
         overflow: hidden;
       }
+
+      /* Nền phải đặt trên <html>: visibility:hidden bỏ luôn nền của chính
+         <body>, không còn gì để chụp thì ra ảnh trắng lệch theme. */
+      html.ios-launch-blank { background: #ffffff; }
+      html.ios-launch-blank.dark { background: #0b0a0f; }
+      html.ios-launch-blank body { visibility: hidden; }
 
       body {
         padding-top: env(safe-area-inset-top);

@@ -648,7 +648,7 @@ function DevTasks({ tasks, reload }) {
               <p className="font-bold text-foreground text-sm">{t.title}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 Giao {fmtDate(t.assignedAt)}
-                {t.deadline && <> · Hạn <span className="font-semibold text-foreground">{fmtDate(t.deadline)}</span></>}
+                {t.deadline && <> {t("memberPortal.team.han")} <span className="font-semibold text-foreground">{fmtDate(t.deadline)}</span></>}
               </p>
             </div>
             <StatusChip meta={TASK_STATUS_META[t.status] || TASK_STATUS_META.assigned} />
@@ -656,18 +656,18 @@ function DevTasks({ tasks, reload }) {
 
           {t.guide && (
             <div className="p-3 rounded-xl bg-muted/60 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
-              <p className="font-bold text-foreground mb-1">Hướng dẫn từ admin</p>
+              <p className="font-bold text-foreground mb-1">{t("memberPortal.team.huongDanTuAdmin")}</p>
               {t.guide}
             </div>
           )}
           {t.adminNote && (
             <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
-              <p className="font-bold text-foreground mb-1">Nhận xét nghiệm thu</p>
+              <p className="font-bold text-foreground mb-1">{t("memberPortal.team.nhanXetNghiemThu")}</p>
               {t.adminNote}
             </div>
           )}
           {t.devNote && t.status !== "doing" && (
-            <p className="text-xs text-muted-foreground italic">Ghi chú của bạn: {t.devNote}</p>
+            <p className="text-xs text-muted-foreground italic">{t("memberPortal.team.ghiChuCuaBan")} {t.devNote}</p>
           )}
 
           {t.status === "assigned" && (
@@ -675,7 +675,7 @@ function DevTasks({ tasks, reload }) {
               onClick={() => updateTask(t._id, { status: "doing" })}
               className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
             >
-              Bắt đầu thực hiện
+              {t("memberPortal.team.batDauThucHien")}
             </button>
           )}
           {t.status === "doing" && (
@@ -684,7 +684,7 @@ function DevTasks({ tasks, reload }) {
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  placeholder="Mô tả ngắn những gì bạn đã hoàn thành (link PR, kết quả...)"
+                  placeholder={t("memberPortal.team.moTaNganNhung")}
                   rows={3}
                   className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
                 />
@@ -693,13 +693,13 @@ function DevTasks({ tasks, reload }) {
                     onClick={() => updateTask(t._id, { status: "submitted", devNote: note })}
                     className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
                   >
-                    Xác nhận nộp
+                    {t("memberPortal.team.xacNhanNop")}
                   </button>
                   <button
                     onClick={() => { setNoteFor(null); setNote(""); }}
                     className="px-4 py-2 rounded-xl bg-muted text-muted-foreground text-xs font-bold"
                   >
-                    Hủy
+                    {t("memberPortal.team.huy")}
                   </button>
                 </div>
               </div>
@@ -708,7 +708,7 @@ function DevTasks({ tasks, reload }) {
                 onClick={() => { setNoteFor(t._id); setNote(t.devNote || ""); }}
                 className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
               >
-                Nộp task
+                {t("memberPortal.team.nopTask")}
               </button>
             )
           )}

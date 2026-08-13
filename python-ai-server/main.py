@@ -122,6 +122,7 @@ class SleepAnalyzeRequest(BaseModel):
     bio: Optional[Dict[str, Any]] = None
 
 class SmartPushRequest(BaseModel):
+    language: Optional[str] = "vi"
     bio: Optional[Dict[str, Any]] = None
     sleepLogs: Optional[List[Dict[str, Any]]] = None
     historyLogs: Optional[List[Dict[str, Any]]] = None
@@ -130,6 +131,7 @@ class SmartPushRequest(BaseModel):
     pendingActions: Optional[List[str]] = None
 
 class CompanionPushRequest(BaseModel):
+    language: Optional[str] = "vi"
     bio: Optional[Dict[str, Any]] = None
     feature_label: str
 
@@ -569,6 +571,7 @@ async def smart_push(request: SmartPushRequest):
             "streak":         request.streak,
             "lastCheckin":    request.lastCheckin,
             "pendingActions": request.pendingActions or [],
+            "language":       request.language or "vi",
         }
         result = await ai_service.generate_smart_push(user_data)
         return result
@@ -582,7 +585,8 @@ async def companion_push(request: CompanionPushRequest):
     try:
         user_data = {
             "bio": request.bio or {},
-            "feature_label": request.feature_label
+            "feature_label": request.feature_label,
+            "language": request.language or "vi"
         }
         result = await ai_service.generate_companion_push(user_data)
         return result

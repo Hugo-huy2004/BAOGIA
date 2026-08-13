@@ -1,6 +1,5 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
-import InAppNotification from '../models/InAppNotification.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import {
   APP_PLANS,
@@ -11,6 +10,7 @@ import {
   startTrial,
   purchasePlan,
 } from '../utils/appPlanService.js';
+import { notifyMember } from '../utils/notifyMember.js';
 
 const router = express.Router();
 
@@ -68,12 +68,16 @@ router.post('/plans/trial', requireMember, async (req, res) => {
 
     const result = await startTrial(req.memberEmail, appId);
 
-    await InAppNotification.create({
+    await notifyMember({
       email: req.memberEmail,
       type: 'success',
       category: 'package',
-      title: `Đã mở dùng thử ${APP_PLANS[appId].label}`,
-      message: `Bạn có ${result.days} ngày dùng thử miễn phí. Hết hạn ngày ${new Date(result.expiresAt).toLocaleDateString('vi-VN')}.`,
+      key: 'event.trialStarted',
+      params: {
+        app: APP_PLANS[appId].label,
+        days: result.days,
+        date: new Date(result.expiresAt).toISOString(),
+      },
       actionUrl: '/member/utilities/store',
     });
 
@@ -127,12 +131,12 @@ router.post('/plans/gift', requireMember, async (req, res) => {
       : `${APP_PLANS[appId].label} (${result.months} tháng)`;
     const note = String(message).trim().slice(0, 200);
 
-    await InAppNotification.create({
+    await notifyMember({
       email: recipient.email,
       type: 'success',
       category: 'joy',
-      title: `${senderName} đã tặng bạn ${what}`,
-      message: note || 'Mở Hugo Store để bắt đầu dùng ngay.',
+      key: 'event.appGift',
+      params: { sender: senderName, item: what, ...(note ? { note } : {}) },
       actionUrl: '/member/utilities/store',
     });
 

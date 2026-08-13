@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
-import { Blocks, Swords, Castle, Keyboard, Grid3X3, Infinity as InfinityIcon, Rocket, Zap } from "lucide-react";
+import { Blocks, Swords, Castle, Infinity as InfinityIcon, Rocket } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import StandaloneGameShell from "./StandaloneGameShell";
 import BackButton from "../shared/BackButton";
@@ -29,15 +29,17 @@ const readStoredList = (key) => {
   }
 };
 
+// `studio: true` = game do Hugo Studio tự dựng từ đầu (luật thuộc phạm vi công
+// cộng hoặc do chính hệ thống thiết kế) → được gắn nhãn "Độc quyền". Game dựa
+// trên thiết kế của người khác thì ghi `credit` thay vì nhãn độc quyền — không
+// nhận vơ, và cũng là lý do 3 game clone (xếp khối tetromino, chim bay qua ống,
+// đoán từ kiểu Wordle) đã bị gỡ khỏi hệ thống.
 const GAMES = [
-  { id: "chess",     name: "HugoChess Table 3D", tagline: "Đấu BOT hoặc hai người trên cùng thiết bị.", label: "Cờ Vua · Offline Table", Icon: Castle },
-  { id: "survivor",  name: "Hugo Space Survivor",tagline: "Không chiến Neon 3D & 4 lớp Boss.", label: "Bắn Súng 3D · Multi-Boss", Icon: Rocket },
-  { id: "flappy",    name: "Hugo Flappy Cyber",   tagline: "Bay qua thành phố neon 3D — 7 vật phẩm, combo.PERFECT.", label: "Cyberpunk 3D · Power-ups", Icon: Zap },
-  { id: "tetris",    name: "Hugo Blocks Neon", tagline: "Xếp hình Neon 3D 60 FPS.", label: "Xếp Hình Neon", Icon: Grid3X3 },
-  { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm.", label: "Trí Tuệ · Logic", Icon: Blocks },
-  { id: "caro",      name: "Caro 3×3 Arena",    tagline: "Ba quân tạo nên chiến thắng.", label: "Đối Kháng · AI 3 Cấp", Icon: Swords },
-  { id: "wordguess", name: "Mật Mã Từ 3D",      tagline: "Từ Hán-Việt tri thức.", label: "Từ Vựng · Thẻ Lật", Icon: Keyboard },
-  { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.", label: "Cổ Điển 3D", Icon: InfinityIcon },
+  { id: "chess",     name: "HugoChess Table 3D", tagline: "Đấu BOT hoặc hai người trên cùng thiết bị.", label: "Cờ Vua · Offline Table", Icon: Castle, studio: true },
+  { id: "survivor",  name: "Hugo Space Survivor",tagline: "Không chiến Neon 3D & 4 lớp Boss.", label: "Bắn Súng 3D · Multi-Boss", Icon: Rocket, studio: true },
+  { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.", label: "Cổ Điển 3D", Icon: InfinityIcon, studio: true },
+  { id: "caro",      name: "Caro 3×3 Arena",    tagline: "Ba quân tạo nên chiến thắng.", label: "Đối Kháng · AI 3 Cấp", Icon: Swords, studio: true },
+  { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm.", label: "Trí Tuệ · Logic", Icon: Blocks, credit: "Dựa trên 2048 của Gabriele Cirulli (giấy phép MIT)" },
 ];
 
 // Game được đưa lên thẻ "Tâm điểm" đầu trang.
@@ -45,7 +47,7 @@ const FEATURED = GAMES[0];
 
 const CATEGORIES = [
   { id: "all",      label: "Tất cả" },
-  { id: "featured", label: "Nổi bật" },
+  { id: "studio",   label: "Hugo Studio" },
   { id: "pvp",      label: "Đối kháng" },
 ];
 
@@ -88,6 +90,14 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
       <div className="arc-row__body">
         <p className="arc-row__name">{game.name}</p>
         <p className="arc-row__sub">{game.tagline}</p>
+        {game.studio ? (
+          <p className="arc-row__studio">
+            <span className="material-symbols-outlined">verified</span>
+            Độc quyền bởi Hugo Studio
+          </p>
+        ) : game.credit ? (
+          <p className="arc-row__studio arc-row__studio--credit">{game.credit}</p>
+        ) : null}
         <p className="arc-row__meta">
           {game.label}{best ? ` · Kỷ lục ${best.toLocaleString("vi-VN")}` : ""}
         </p>
@@ -196,7 +206,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const filteredGames = GAMES.filter((g) => {
-    if (selectedCategory === "featured") return g.id === "chess" || g.id === "survivor" || g.id === "tetris";
+    if (selectedCategory === "studio") return !!g.studio;
     if (selectedCategory === "pvp") return g.id === "chess" || g.id === "caro";
     return true;
   });

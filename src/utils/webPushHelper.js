@@ -189,6 +189,42 @@ export const webPushHelper = {
   },
 
   /**
+   * Báo cho server biết thiết bị này vừa đổi ngôn ngữ.
+   *
+   * Thông báo đẩy do máy chủ soạn sẵn (hệ điều hành vẽ nó khi app đã đóng), nên
+   * ngôn ngữ phải nằm ở server. Không có bước này thì người đổi sang tiếng Hàn
+   * vẫn nhận push tiếng Việt cho tới lần đăng ký lại tiếp theo.
+   */
+  async syncLanguage() {
+    if (!this.isSupported()) return;
+    try {
+      const registration = await navigator.serviceWorker.getRegistration('/');
+      const subscription = await registration?.pushManager.getSubscription();
+      if (!subscription) return;
+
+      await fetch(`${API_BASE_URL}/notifications/subscribe`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getMemberToken() ? { Authorization: `Bearer ${getMemberToken()}` } : {}),
+        },
+        body: JSON.stringify({
+          subscription,
+          device: {
+            locale: localeForLanguage(getStoredAppLanguage() || navigator.language),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+            platform: navigator.userAgentData?.platform || navigator.platform || '',
+            standalone: isStandalone(),
+          },
+        }),
+      });
+    } catch {
+      // Đổi ngôn ngữ không được phép hỏng vì một lần gọi mạng thất bại.
+    }
+  },
+
+  /**
    * Hủy push subscription trên cả trình duyệt và server — đúng nghĩa "tắt"
    * thông báo đẩy, không chỉ ẩn giao diện.
    */

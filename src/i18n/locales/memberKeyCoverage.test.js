@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { parse } from "@babel/parser";
 import traverseModule from "@babel/traverse";
 import en from "./en/translation.json";
+import { MEMBER_APP_TRANSLATIONS } from "./memberAppTranslations.js";
 
 const traverse = traverseModule.default || traverseModule;
 
@@ -41,5 +42,31 @@ describe("Member Portal translation key coverage", () => {
       });
     }
     expect(missing).toEqual([]);
+  });
+});
+
+describe("Member app catalog", () => {
+  const languages = Object.entries(MEMBER_APP_TRANSLATIONS);
+  const ids = Object.keys(MEMBER_APP_TRANSLATIONS.en.catalog);
+
+  it("names the same apps in every language", () => {
+    for (const [code, pack] of languages) {
+      expect(Object.keys(pack.catalog).sort(), code).toEqual([...ids].sort());
+      expect(Object.keys(pack.badges).sort(), code)
+        .toEqual(Object.keys(MEMBER_APP_TRANSLATIONS.en.badges).sort());
+    }
+  });
+
+  it("keeps every title short enough for the home-screen label", () => {
+    // The label is two lines of ~12 characters under an 84px icon. CJK glyphs
+    // are double width, so they get half the budget.
+    const tooLong = [];
+    for (const [code, pack] of languages) {
+      for (const [id, { title }] of Object.entries(pack.catalog)) {
+        const budget = /[぀-ヿ一-鿿가-힯]/.test(title) ? 8 : 16;
+        if (title.length > budget) tooLong.push(`${code}.${id}: ${title} (${title.length} > ${budget})`);
+      }
+    }
+    expect(tooLong).toEqual([]);
   });
 });

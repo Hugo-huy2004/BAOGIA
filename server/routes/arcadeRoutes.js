@@ -13,9 +13,11 @@ const router = express.Router();
 // from the win/loss-driven reward table + shared daily net-JOY cap below.
 // Nới theo thang điểm mới (combo + hệ số nhân + thưởng cấp) — vẫn chỉ là chặn
 // giá trị bịa đặt, không phải xác thực ván chơi.
-// wordguess trước đây để 100 là SAI: chế độ vô tận giải ~3 từ đã vượt trần nên
-// server trả 400 và người chơi mất trắng điểm của cả ván dài.
-const SCORE_CEILINGS = { '2048': 1000000, caro: 200, wordguess: 20000, survivor: 80000, snake: 8000, tetris: 2000000, chess: 3000, flappy: 20000 };
+//
+// Đây cũng là danh sách trắng game duy nhất của server: 3 game gỡ khỏi hệ thống
+// (tetris/flappy/wordguess) không còn ở đây nên điểm mới bị từ chối. Điểm CŨ
+// trong DB vẫn đọc được bình thường — không xoá dữ liệu người chơi đã đạt.
+const SCORE_CEILINGS = { '2048': 1000000, caro: 200, survivor: 80000, snake: 8000, chess: 3000 };
 
 const RESULTS = ['win', 'lose', 'draw'];
 const ARCADE_DAILY_JOY_CAP = 150;
@@ -56,25 +58,16 @@ async function releaseDailyArcadeJoy(email, amount) {
 // 2026-07-27 — thang điểm trong game đã đổi (combo/hệ số nhân/thưởng cấp). Các
 // mốc dưới đây nhân theo hệ số lạm phát của từng game và chia lại perPoint, nên
 // JOY cho cùng một trình độ chơi không đổi.
-// Hệ số: snake ×6, flappy ×7, tetris ×3, survivor ×3, 2048 ×2, wordguess ×3.
+// Hệ số: snake ×6, survivor ×3, 2048 ×2.
 const JOY_TIERS = {
   snake: [
     [0,    2,  0.0833333],  [60,   7,  0.0583333],  [240, 17,  0.0333333],  [600, 29,  0.0200],  [1200,41,  0.0133333],
-  ],
-  flappy: [
-    [0,    2,  0.2142857],  [21,   6,  0.1142857],  [70,  12,  0.0714286],  [175, 20,  0.0428571],
-  ],
-  tetris: [
-    [0,     2,  0.0026667],  [1500,  6,  0.0016667],  [6000, 13,  0.00100],  [18000,25,  0.0006667],
   ],
   survivor: [
     [0,     1,  0.00150],  [600,   2,  0.00100],  [3000,  5,  0.00050],  [9000,  8,  0.00030],
   ],
   '2048': [
     [0,     5.5,  0.0055],  [1000,  11,   0.0055],  [2000,  16.5, 0.0055],  [4000,  27.5, 0.0055],
-  ],
-  wordguess: [
-    [0,   2,  0.4000],  [15,  8,  0.2666667],  [45, 16,  0.1666667],  [90, 23,  0.1166667],
   ],
   caro: [
     [0,   2,  0.40],   [15,  8,  0.25],   [50, 17,  0.20],   [120,31,  0.12],

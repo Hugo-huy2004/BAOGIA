@@ -4,9 +4,9 @@ import UtilityProduct from '../models/UtilityProduct.js';
 import UtilityOrder from '../models/UtilityOrder.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
-import InAppNotification from '../models/InAppNotification.js';
 import cloudinaryUtil from '../utils/cloudinary.js';
 import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import { notifyMember } from '../utils/notifyMember.js';
 
 const router = express.Router();
 
@@ -136,13 +136,13 @@ router.post('/purchase', requireMember, async (req, res) => {
       await product.save();
     }
 
-    await InAppNotification.create({
+    await notifyMember({
       email,
       type: 'success',
       category: 'joy',
-      title: 'Mua hàng thành công!',
-      message: `Bạn đã mua "${product.name}" với ${totalCost} JOY${fulfillmentNote}. Mã đơn hàng: ${purchaseCode}`,
-      actionUrl: '/member'
+      key: 'event.productPurchase',
+      params: { product: product.name, total: totalCost, code: purchaseCode },
+      actionUrl: '/member/utilities/store',
     });
 
     res.json({

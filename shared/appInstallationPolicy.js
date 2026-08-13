@@ -5,7 +5,6 @@ export const REQUIRED_APP_IDS = Object.freeze([
   'team',
   'psychology',
   'radio',
-  'helpdesk',
   'handle',
   'info',
   'joy_wallet',
@@ -13,7 +12,9 @@ export const REQUIRED_APP_IDS = Object.freeze([
 
 // Các app đã ngừng hoạt động phải bị lọc cả khỏi dữ liệu cũ trong MongoDB và
 // localStorage, nếu không icon "ma" vẫn quay lại sau mỗi lần đồng bộ.
-export const RETIRED_APP_IDS = Object.freeze(['deco', 'map', 'hugoskin', 'ide', 'hugoso']);
+// 'helpdesk' đã gộp vào 'handle' (HugoKit): icon cũ phải biến mất khỏi kho và
+// màn hình chính, còn đường dẫn cũ thì vẫn mở HugoKit (xem MemberUtilitiesTab).
+export const RETIRED_APP_IDS = Object.freeze(['deco', 'map', 'hugoskin', 'ide', 'hugoso', 'helpdesk']);
 const RETIRED_APP_SET = new Set(RETIRED_APP_IDS);
 
 export class AppInstallationPolicy {

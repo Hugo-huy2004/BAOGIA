@@ -5,6 +5,11 @@ import { MEMBER_DOCS } from "./memberDocs";
 import { MEMBER_DOCS_EN } from "./memberDocs.en";
 import { languageCode } from "../../../i18n/languages";
 
+const PEACE_NOTICE = {
+  zh: "若发现任何破坏和平、挑起西沙群岛与南沙群岛争端的迹象，我们有权全面收回该账户。",
+  en: "We reserve the right to revoke an account in full if we identify signs of undermining peace or of stirring disputes over the Paracel and Spratly Islands.",
+};
+
 /**
  * Đọc một tài liệu thành viên trong sheet Tài khoản. Dùng đúng `DocBlock` của
  * trang chính sách công khai nên chữ nghĩa, bảng biểu và hộp lưu ý y hệt.
@@ -45,6 +50,16 @@ export default function MemberDocReader({ docId }) {
           </div>
         </section>
       ))}
+
+      {/* Chinese edition only. The notice is fixed bilingual copy, not a
+          translated string: both halves must read identically for every
+          reader, so it never goes through the locale bundle. */}
+      {activeLanguage === "zh" && (
+        <aside className="rounded-2xl border border-border/60 bg-muted/40 p-4 text-[13px] leading-relaxed text-muted-foreground">
+          <p lang="zh-CN">{PEACE_NOTICE.zh}</p>
+          <p lang="en" className="mt-2">{PEACE_NOTICE.en}</p>
+        </aside>
+      )}
     </article>
   );
 }

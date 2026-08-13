@@ -1,5 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import dataApi from '../services/dataApi';
+import { renderNotification } from '../../shared/notificationText';
 import { playNotificationSound } from '../utils/audio';
 import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
@@ -26,6 +28,8 @@ export function useNotifications(
       ? initialCount
       : countUnread(initialItems)
   ));
+  const { i18n } = useTranslation();
+  const language = i18n.language;
   const [toast, setToast] = useState({ message: '', type: '' });
   const toastTimer = useRef(null);
   const itemsRef = useRef(initialItems);
@@ -276,8 +280,17 @@ export function useNotifications(
     }
   }, [commitItems, commitUnreadCount]);
 
+  // Máy chủ lưu KHOÁ + THAM SỐ chứ không lưu câu (xem shared/notificationText.js),
+  // nên câu chữ dựng ở đây theo ngôn ngữ đang dùng — và dựng lại ngay khi người
+  // dùng đổi ngôn ngữ. Bản ghi cũ (và tin admin tự viết) không có khoá thì giữ
+  // nguyên `title`/`message` đã lưu.
+  const localized = useMemo(() => items.map((item) => {
+    const text = renderNotification(item.i18nKey, item.i18nParams || {}, language);
+    return text ? { ...item, title: text.title, message: text.message } : item;
+  }), [items, language]);
+
   return {
-    notifications: items,
+    notifications: localized,
     unreadCount,
     toast,
     setToast,

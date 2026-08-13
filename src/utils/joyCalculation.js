@@ -19,7 +19,7 @@
 // nên cùng một trình độ chơi giờ ra con số điểm lớn hơn trước. Các mốc dưới đây
 // đã được NHÂN theo đúng hệ số lạm phát của từng game (và perPoint chia lại),
 // nên JOY nhận được cho cùng một màn chơi vẫn y như cũ — chỉ con số điểm to lên.
-// Hệ số: snake ×6, flappy ×7, tetris ×3, survivor ×3, 2048 ×2, wordguess ×3.
+// Hệ số: snake ×6, survivor ×3, 2048 ×2.
 const JOY_TIERS = {
   snake: [
     [0,    2,  0.0833333],  // ~0-10 mồi cũ:    2-7 JOY
@@ -27,18 +27,6 @@ const JOY_TIERS = {
     [240, 17,  0.0333333],
     [600, 29,  0.0200],
     [1200,41,  0.0133333],
-  ],
-  flappy: [
-    [0,    2,  0.2142857],
-    [21,   6,  0.1142857],
-    [70,  12,  0.0714286],
-    [175, 20,  0.0428571],
-  ],
-  tetris: [
-    [0,     2,  0.0026667],
-    [1500,  6,  0.0016667],
-    [6000, 13,  0.00100],
-    [18000,25,  0.0006667],
   ],
   survivor: [
     [0,     1,  0.00150],
@@ -51,12 +39,6 @@ const JOY_TIERS = {
     [1000,  11,   0.0055],
     [2000,  16.5, 0.0055],
     [4000,  27.5, 0.0055],
-  ],
-  wordguess: [
-    [0,   2,  0.4000],
-    [15,  8,  0.2666667],
-    [45, 16,  0.1666667],
-    [90, 23,  0.1166667],
   ],
   caro: [
     [0,   2,  0.40],   // 0-15 pts:    2-8 JOY

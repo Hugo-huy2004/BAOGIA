@@ -1366,7 +1366,7 @@ export const INTENT_DATABASE = [
     ],
     generateResponse: () => {
       return [
-        "Trình tạo QR (trong HugoHelpdesk ở thẻ Tiện ích) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản, hoặc cả Danh bạ (vCard).",
+        "Trình tạo QR (trong HugoKit ở thẻ Tiện ích) cho phép cậu tạo mã QR cho Wi-Fi, URL, Văn bản, hoặc cả Danh bạ (vCard).",
         "Chỉ cần quét là điện thoại tự động bật popup lưu danh bạ mà không cần Internet!",
         "Cậu có thể tải về file ảnh siêu nét (PNG) hoặc in ra quét offline mượt mà."
       ];
@@ -1712,7 +1712,7 @@ const STATIC_RULES = [
   { id: "lgbtq_confusion",     regex: /(thich con trai|thich con gai|co phai lgbt|hoang mang gioi tinh|come out|so bi ky thi tinh duc|\blgbt\b|\bgay\b|\bles\b|\blesbian\b|comeout)/ },
   { id: "guide_bio_link",      regex: /(tao bio|chinh bio|sua bio|trang ca nhan|thong tin lien he|link bio|bio link|chinh theme|theme editor|giao dien bio|brutalism|glassmorphism|bo goc|do bong|vien nut|mau nen|background bio|chieu cao|can nang|so do|ba vong|vong nguc|vong eo|vong mong|thong so co ban|ky nang|portfolio)/ },
   { id: "guide_booking",       regex: /(dat lich|hen lich|lich hen|hen chup|book|booking|khach dat|khach hen|khach book|quan ly lich|xem lich|zalo khach|email khach)/ },
-  { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr|helpdesk|nfc)/ },
+  { id: "guide_qr",            regex: /(ma qr|tao qr|qr wifi|wifi qr|qr vcard|vcard|qr danh ba|danh ba qr|quet wifi|quet qr|quet offline|in qr|tai qr|download qr|helpdesk|hugokit|nfc)/ },
   { id: "guide_signature",     regex: /(chu ky|signature|hugosmail|font chu ky|mau chu ky|tao chu ky|outlook|gmail)/ },
   { id: "guide_ide",           regex: /(code|lap trinh|viet code|ide|hugocoder|hoc lap trinh|compiler|chay code|download code|tai code|python|cpp)/ },
   { id: "guide_chess",         regex: /(co vua|chess|hugochess|dau co|choi co|phong co|giao huu|stockfish|dau co vua|choi co vua)/ },

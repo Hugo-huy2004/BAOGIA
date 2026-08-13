@@ -4,11 +4,8 @@ import "./game-intro.css";
 const GAME_META = {
   chess: { icon: "castle", detail: "8 × 8", badge: "BOT · LOCAL" },
   survivor: { icon: "rocket_launch", detail: "4 BOSS", badge: "3D ASSAULT" },
-  flappy: { icon: "bolt", detail: "1 TAP", badge: "CYBER 3D" },
-  tetris: { icon: "view_compact", detail: "10 × 20", badge: "NEON" },
   "2048": { icon: "grid_view", detail: "4 × 4", badge: "FUSION" },
   caro: { icon: "close", detail: "3 IN ROW", badge: "3 × 3" },
-  wordguess: { icon: "spellcheck", detail: "6 TRIES", badge: "WORDS" },
   snake: { icon: "route", detail: "18×18", badge: "3D PRO" },
 };
 
@@ -69,52 +66,14 @@ function GameArtwork({ gameId }) {
     );
   }
 
-  if (gameId === "flappy") {
-    return (
-      <div className="intro-art intro-art--flappy" aria-hidden="true">
-        <div className="flappy-sun" />
-        <div className="flappy-cloud flappy-cloud--one" />
-        <div className="flappy-cloud flappy-cloud--two" />
-        <div className="flappy-pipe flappy-pipe--top" />
-        <div className="flappy-pipe flappy-pipe--bottom" />
-        <div className="flappy-bird"><span className="material-symbols-outlined">bolt</span></div>
-        <span className="flappy-trail">•••</span>
-      </div>
-    );
-  }
-
-  if (gameId === "tetris") {
-    return (
-      <div className="intro-art intro-art--tetris" aria-hidden="true">
-        <div className="tetris-well">
-          {["a", "b", "c", "d", "e", "f", "g"].map((shape) => <div className={`tetromino tetromino--${shape}`} key={shape}><i /><i /><i /><i /></div>)}
-        </div>
-        <span className="tetris-score">ENDLESS<br /><b>NEON</b></span>
-      </div>
-    );
-  }
-
-  if (gameId === "caro") {
-    return (
-      <div className="intro-art intro-art--caro" aria-hidden="true">
-        <div className="caro-grid" />
-        <span className="caro-mark caro-mark--x">×</span>
-        <span className="caro-mark caro-mark--o">○</span>
-        <span className="caro-mark caro-mark--x2">×</span>
-        <div className="caro-line" />
-        <span className="caro-vs">YOU <b>VS</b> AI</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="intro-art intro-art--wordguess" aria-hidden="true">
-      <div className="word-book">
-        <span>HUGO</span>
-        <div>{["W", "O", "R", "D", "S"].map((letter, index) => <i className={index < 3 ? "is-found" : ""} key={letter}>{letter}</i>)}</div>
-      </div>
-      <div className="word-pencil" />
-      <span className="word-note">ENDLESS</span>
+    <div className="intro-art intro-art--caro" aria-hidden="true">
+      <div className="caro-grid" />
+      <span className="caro-mark caro-mark--x">×</span>
+      <span className="caro-mark caro-mark--o">○</span>
+      <span className="caro-mark caro-mark--x2">×</span>
+      <div className="caro-line" />
+      <span className="caro-vs">YOU <b>VS</b> AI</span>
     </div>
   );
 }

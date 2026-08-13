@@ -161,6 +161,12 @@ export async function changeAppLanguage(language) {
   await ensureTranslations(code);
   persistAppLanguage(code);
   await i18n.changeLanguage(code);
+  // Thông báo đẩy được máy chủ soạn sẵn theo ngôn ngữ đã đăng ký của thiết bị,
+  // nên đổi ngôn ngữ ở đây phải báo lên server. Nạp động để phần push không bị
+  // kéo vào bundle chính chỉ vì i18n.
+  import("../utils/webPushHelper")
+    .then(({ webPushHelper }) => webPushHelper.syncLanguage())
+    .catch(() => {});
   return code;
 }
 

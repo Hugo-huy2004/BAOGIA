@@ -344,8 +344,7 @@ router.post('/buy-hugoso-course', requireMember, async (req, res) => {
         bioDoc: bio,
         skipSave: true,
         refId: `hugoso_${courseId}`,
-        actionUrl: '/member/utilities/hugoso',
-        notificationMessage: `Bạn đã sở hữu trọn đời ${label}.`
+        actionUrl: '/member/utilities/hugoso'
       }
     );
 
@@ -1550,8 +1549,7 @@ router.post('/transfer', requireMember, async (req, res) => {
         {
           refId: txCode,
           bioDoc: sender,
-          counterparty: recipientName,
-          notificationTitle: `Đã gửi JOY cho ${recipientName}`
+          counterparty: recipientName
         }
       ),
       awardJoy(
@@ -1561,10 +1559,7 @@ router.post('/transfer', requireMember, async (req, res) => {
           refId: txCode,
           bioDoc: recipient,
           counterparty: senderName,
-          notificationTitle: `${senderName} đã gửi JOY cho bạn`,
           pushNotify: true,
-          pushTitle: 'Bạn vừa nhận được JOY',
-          pushBody: `${senderName} đã chuyển ${numAmount} JOY cho bạn.${customMsg}`,
           actionUrl: '/member/account'
         }
       )

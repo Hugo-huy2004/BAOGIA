@@ -1141,7 +1141,7 @@ export default function ChatTab({
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
-          <p className="text-[13px] font-extrabold text-foreground">Thư Giãn & Tự Chăm Sóc</p>
+          <p className="text-[13px] font-extrabold text-foreground">{t("hugoPsy.chat.thuGianTuCham")}</p>
         </div>
         <div className="flex-1 overflow-y-auto">
           <TherapyTab
@@ -1163,7 +1163,7 @@ export default function ChatTab({
           email={bio?.email}
           onSuccess={() => {
             // Gửi lại tin nhắn tự động hoặc yêu cầu người dùng thử lại
-            showToast?.("Bạn đã có Token mới, có thể trò chuyện tiếp!", "success");
+            showToast?.(t("hugoPsy.chat.banDaCoToken"), "success");
           }}
           showToast={showToast}
         />
@@ -1221,7 +1221,7 @@ export default function ChatTab({
             HugoPSY
           </p>
           <p className="text-[9.5px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
-            {loading ? typingLabel : "● Trực tuyến"}
+            {loading ? typingLabel : t("hugoPsy.chat.trucTuyen")}
           </p>
         </div>
 
@@ -1229,7 +1229,7 @@ export default function ChatTab({
         {adaptivePersona?.autoEnabled && (
           <div
             className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-500 dark:text-indigo-400 shrink-0 cursor-pointer"
-            title={adaptivePersona.hint || "Chế độ tự động thích ứng đang bật"}
+            title={adaptivePersona.hint || t("hugoPsy.chat.cheDoTuDong")}
           >
             <span className="material-symbols-outlined text-[13px]">{adaptivePersona.icon}</span>
             <span className="text-[10px] font-black whitespace-nowrap">{adaptivePersona.label}</span>
@@ -1240,7 +1240,7 @@ export default function ChatTab({
         {journeyProgress && (
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-emerald-600 dark:text-emerald-400 shrink-0">
             <span className="material-symbols-outlined text-[12px]">route</span>
-            <span className="text-[10px] font-black whitespace-nowrap">Ngày {journeyProgress.currentDay}/{journeyProgress.duration}</span>
+            <span className="text-[10px] font-black whitespace-nowrap">{t("hugoPsy.chat.ngay")} {journeyProgress.currentDay}/{journeyProgress.duration}</span>
           </div>
         )}
 
@@ -1288,7 +1288,7 @@ export default function ChatTab({
                   <TokenIcon className="absolute h-2.5 w-2.5 text-foreground/75" strokeWidth={2.25} />
                 </div>
                 <span className="font-extrabold text-foreground/80">
-                  {tokenLockMinutes > 0 ? "Khóa" : `${totalTokens}/${maxChatTokens}`}
+                  {tokenLockMinutes > 0 ? t("hugoPsy.chat.khoa") : `${totalTokens}/${maxChatTokens}`}
                 </span>
               </button>
             );
@@ -1307,7 +1307,7 @@ export default function ChatTab({
               }}
               className="hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black active:scale-90 transition-all">
               <span className="material-symbols-outlined text-[11px]">refresh</span>
-              Test lại
+              {t("hugoPsy.chat.testLai")}
             </button>
           )}
 
@@ -1326,7 +1326,7 @@ export default function ChatTab({
 
           {/* Venting mode toggle */}
           <button type="button" onClick={toggleVentingMode}
-            title={isVentingMode ? "Thoát chế độ trút giận" : "Chế độ trút giận an toàn"}
+            title={isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
               isVentingMode
                 ? "bg-foreground/10 text-foreground border border-foreground/15"
@@ -1417,10 +1417,10 @@ export default function ChatTab({
               </button>
             </div>
             {[
-              { id:'phq9',    label:'PHQ-9',    desc:'Sàng lọc triệu chứng khí sắc', cls:'text-rose-600 bg-rose-500/8 border-rose-300/40 dark:text-rose-400 dark:border-rose-700/30' },
-              { id:'gad7',    label:'GAD-7',    desc:'Sàng lọc triệu chứng lo âu', cls:'text-cyan-600 bg-cyan-500/8 border-cyan-300/40 dark:text-cyan-400 dark:border-cyan-700/30' },
-              { id:'who5',    label:'WHO-5',    desc:'Trạng thái tinh thần',  cls:'text-emerald-600 bg-emerald-500/8 border-emerald-300/40 dark:text-emerald-400 dark:border-emerald-700/30' },
-              { id:'bigfive', label:'Big Five', desc:'Trắc nghiệm Nhân cách', cls:'text-indigo-600 bg-indigo-500/8 border-indigo-300/40 dark:text-indigo-400 dark:border-indigo-700/30' },
+              { id:'phq9',    label:'PHQ-9',    desc:t("hugoPsy.chat.sangLocTrieuChung"), cls:'text-rose-600 bg-rose-500/8 border-rose-300/40 dark:text-rose-400 dark:border-rose-700/30' },
+              { id:'gad7',    label:'GAD-7',    desc:t("hugoPsy.chat.sangLocTrieuChung2"), cls:'text-cyan-600 bg-cyan-500/8 border-cyan-300/40 dark:text-cyan-400 dark:border-cyan-700/30' },
+              { id:'who5',    label:'WHO-5',    desc:t("hugoPsy.chat.trangThaiTinhThan"),  cls:'text-emerald-600 bg-emerald-500/8 border-emerald-300/40 dark:text-emerald-400 dark:border-emerald-700/30' },
+              { id:'bigfive', label:'Big Five', desc:t("hugoPsy.chat.tracNghiemNhanCach"), cls:'text-indigo-600 bg-indigo-500/8 border-indigo-300/40 dark:text-indigo-400 dark:border-indigo-700/30' },
             ].map(t => (
               <button key={t.id} type="button"
                 onClick={() => { handleStartTest(t.id); setShowTestsMenu(false); }}
@@ -1444,7 +1444,7 @@ export default function ChatTab({
             className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <HeartPulse className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">Thư giãn</span>
+            <span className="truncate">{t("hugoPsy.chat.thuGian")}</span>
           </button>
           <button
             type="button"
@@ -1452,7 +1452,7 @@ export default function ChatTab({
             className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <MoonStar className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">Giấc ngủ</span>
+            <span className="truncate">{t("hugoPsy.chat.giacNgu")}</span>
           </button>
           <button
             type="button"
@@ -1460,7 +1460,7 @@ export default function ChatTab({
             className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <ClipboardCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-            <span className="truncate">Đánh giá</span>
+            <span className="truncate">{t("hugoPsy.chat.danhGia")}</span>
           </button>
       </div>
 
@@ -1530,14 +1530,14 @@ export default function ChatTab({
               <div className="mx-2 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-amber-500 text-sm animate-pulse">bolt</span>
-                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">Hết token trò chuyện hôm nay</span>
+                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">{t("hugoPsy.chat.hetTokenTroChuyen")}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowTokenExchangeModal(true)}
                   className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-[10px] font-black transition-all shadow-md shrink-0"
                 >
-                  Mua nhanh bằng JOY
+                  {t("hugoPsy.chat.muaNhanhBangJoy")}
                 </button>
               </div>
             )}
@@ -1553,10 +1553,10 @@ export default function ChatTab({
                   tokenLockMinutes > 0
                     ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
                     : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
-                    ? "Hết token hôm nay..."
+                    ? t("hugoPsy.chat.hetTokenHomNay")
                     : isVentingMode
-                    ? "Trút bỏ mọi muộn phiền tại đây (riêng tư)..."
-                    : "Nhắn tin với HugoPSY..."
+                    ? t("hugoPsy.chat.trutBoMoiMuon")
+                    : t("hugoPsy.chat.nhanTinVoiHugopsy")
                 }
                 quickReplies={chatQuickReplies}
                 onQuickReply={(qr) => {
@@ -1576,7 +1576,7 @@ export default function ChatTab({
         onClose={() => setShowTokenExchangeModal(false)}
         email={bio?.email}
         onSuccess={() => {
-          showToast?.("Bạn đã có Token mới, có thể trò chuyện tiếp!", "success");
+          showToast?.(t("hugoPsy.chat.banDaCoToken"), "success");
         }}
         showToast={showToast}
       />
@@ -1592,9 +1592,9 @@ export default function ChatTab({
             >
               <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
                 <span className="flex min-w-0 items-center gap-2 text-xs font-black uppercase tracking-wider text-foreground">
-                  {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>Bài Tập Tĩnh Tâm</span></>}
-                  {activeModalDrawer === "sleep" && <><MoonStar className="h-4 w-4 shrink-0" /><span>Nhật Ký & Chu Kỳ Giấc Ngủ Sinh Học</span></>}
-                  {activeModalDrawer === "evaluation" && <><ClipboardCheck className="h-4 w-4 shrink-0" /><span>Báo Cáo Đánh Giá Sức Khỏe Tinh Thần</span></>}
+                  {activeModalDrawer === "therapy" && <><HeartPulse className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.baiTapTinhTam")}</span></>}
+                  {activeModalDrawer === "sleep" && <><MoonStar className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.nhatKyChuKy")}</span></>}
+                  {activeModalDrawer === "evaluation" && <><ClipboardCheck className="h-4 w-4 shrink-0" /><span>{t("hugoPsy.chat.baoCaoDanhGia")}</span></>}
                 </span>
                 <button
                   type="button"

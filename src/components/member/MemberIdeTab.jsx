@@ -179,10 +179,10 @@ export default function MemberIdeTab({
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
-        title="Xác nhận trao đổi"
+        title={t("utilities.ide.xacNhanTraoDoi")}
         message={
           <>
-            Bạn có đồng ý dùng <strong>{tierInfo.price} JOY</strong> (+ 10% phí sáng tạo) để đăng ký 1 tháng cho gói <strong>{tierInfo.tierLabel}</strong> không?
+            {t("utilities.ide.banCoDongY")} <strong>{tierInfo.price} JOY</strong> {t("utilities.ide.10PhiSangTao")} <strong>{tierInfo.tierLabel}</strong> {t("utilities.ide.khong")}
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -196,7 +196,7 @@ export default function MemberIdeTab({
               months: 1,
             });
             
-            notify.success("Đăng ký thành công! Giai đoạn học này đã được mở khóa.");
+            notify.success(t("utilities.ide.dangKyThanhCong"));
             useJoyStore.getState().setBalance(data.balance);
             if (onBioUpdate) {
               const updatedBio = {
@@ -210,7 +210,7 @@ export default function MemberIdeTab({
               onBioUpdate(updatedBio);
             }
           } catch (err) {
-            notify.error(err.message || "Lỗi giao dịch.");
+            notify.error(err.message || t("utilities.ide.loiGiaoDich"));
           } finally {
             setExchangeSubmitting(false);
           }
@@ -258,10 +258,10 @@ export default function MemberIdeTab({
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
-        title="Mua gói Vĩnh Viễn"
+        title={t("utilities.ide.muaGoiVinhVien")}
         message={
           <>
-            Bạn có đồng ý dùng <strong>{quote.total} JOY</strong> gồm {price} JOY và {quote.tax} JOY phí sáng tạo để mở khóa vĩnh viễn <strong>{tierLabel}</strong>?
+            {t("utilities.ide.banCoDongY")} <strong>{quote.total} JOY</strong> {t("utilities.ide.gom")} {price} {t("utilities.ide.joyVa")} {quote.tax} {t("utilities.ide.joyPhiSangTao")} <strong>{tierLabel}</strong>?
             <span className="block mt-1.5 text-[11px] opacity-90">
               {getStageBenefits(tier).map((b, i) => (
                 <span key={i} className="block">— {b}</span>
@@ -296,7 +296,7 @@ export default function MemberIdeTab({
               onBioUpdate(updatedBio);
             }
           } catch (err) {
-            notify.error(err.message || "Lỗi giao dịch.");
+            notify.error(err.message || t("utilities.ide.loiGiaoDich"));
           } finally {
             setExchangeSubmitting(false);
           }
@@ -313,10 +313,10 @@ export default function MemberIdeTab({
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
-        title="Gia hạn bộ Phát triển Web"
+        title={t("utilities.ide.giaHanBoPhat")}
         message={
           <>
-            Bạn có đồng ý dùng <strong>50 JOY</strong> (+ 10% phí sáng tạo) để gia hạn 30 ngày cho bộ Phát triển Web không?
+            {t("utilities.ide.banCoDongY")} <strong>50 JOY</strong> {t("utilities.ide.10PhiSangTao2")}
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -330,7 +330,7 @@ export default function MemberIdeTab({
               months: 1,
             });
             
-            notify.success("Đóng phí bảo trì thành công!");
+            notify.success(t("utilities.ide.dongPhiBaoTri"));
             useJoyStore.getState().setBalance(data.balance);
             if (onBioUpdate) {
               const updatedBio = {
@@ -344,7 +344,7 @@ export default function MemberIdeTab({
               onBioUpdate(updatedBio);
             }
           } catch (err) {
-            notify.error(err.message || "Lỗi giao dịch.");
+            notify.error(err.message || t("utilities.ide.loiGiaoDich"));
           } finally {
             setExchangeSubmitting(false);
           }
@@ -361,10 +361,10 @@ export default function MemberIdeTab({
     notify.info((t) => (
       <HugoConfirmNotice
         type="warning"
-        title="Mua Trọn Gói 6 Chặng"
+        title={t("utilities.ide.muaTronGoi6")}
         message={
           <>
-            Bạn có đồng ý dùng <strong>16.000 JOY</strong> (+ 10% phí sáng tạo) để mở khóa vĩnh viễn toàn bộ 6 phần của bộ Phát triển Web và được miễn phí bảo trì trọn đời không?
+            {t("utilities.ide.banCoDongY")} <strong>16.000 JOY</strong> {t("utilities.ide.10PhiSangTao3")}
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -375,16 +375,16 @@ export default function MemberIdeTab({
             const data = await hugoCoderApi.buyAllStagesBundle();
             
             if (data.alreadyOwned) {
-              notify.success("Quyền sở hữu trọn gói đã được đồng bộ.");
+              notify.success(t("utilities.ide.quyenSoHuuTron"));
             } else {
-              notify.success("Mở khóa trọn gói vĩnh viễn thành công! Bạn đã được kích hoạt toàn bộ các chặng học và được miễn phí bảo trì trọn đời.");
+              notify.success(t("utilities.ide.moKhoaTronGoi"));
             }
             useJoyStore.getState().setBalance(data.balance);
             if (onBioUpdate) {
               onBioUpdate(data.bio);
             }
           } catch (err) {
-            notify.error(err.message || "Lỗi giao dịch.");
+            notify.error(err.message || t("utilities.ide.loiGiaoDich"));
           } finally {
             setExchangeSubmitting(false);
           }
@@ -1236,8 +1236,8 @@ export default function MemberIdeTab({
     notify.info((t) => (
       <HugoConfirmNotice
         type="error"
-        title="Xác nhận xóa"
-        message={<>Bạn có chắc chắn muốn xóa {type === "folder" ? "thư mục" : "file"} "{targetPath.split('/').pop()}" không? Hành động này không thể hoàn tác.</>}
+        title={t("utilities.ide.xacNhanXoa")}
+        message={<>{t("utilities.ide.banCoChacChan")} {type === "folder" ? t("utilities.ide.thuMuc") : "file"} "{targetPath.split('/').pop()}{t("utilities.ide.khongHanhDongNay")}</>}
         onCancel={() => notify.dismiss(t.id)}
         onConfirm={async () => {
           notify.dismiss(t.id);

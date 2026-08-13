@@ -1,3 +1,5 @@
+import i18n from "../../../i18n/config";
+
 /**
  * Dữ liệu tĩnh của Hugo Store.
  *
@@ -28,7 +30,7 @@ export const GRADIENTS = {
  * miễn phí — biến đồ đang cho không thành đồ thu phí là quyết định sản phẩm,
  * không phải việc của lớp hiển thị.
  */
-export const STORE_APPS = [
+const RAW_APPS = [
   { id: "hugoso", color: "purple", label: "Năng suất số & AI", tagline: "Bộ Calendar, Docs, Sheets và Gemini" },
   { id: "radio", color: "teal", label: "HugoRadio", tagline: "Sóng nhạc lofi để tập trung", paid: true },
   { id: "arcade", color: "orange", label: "HugoArcade", tagline: "Bộ sưu tập game đổi JOY", paid: true },
@@ -37,9 +39,18 @@ export const STORE_APPS = [
   { id: "bio", color: "purple", label: "HugoBio", tagline: "Trang cá nhân chia sẻ bằng một liên kết" },
   { id: "psychology", color: "cyan", label: "HugoPSY", tagline: "Đồng hành sức khoẻ tinh thần" },
   { id: "team", color: "teal", label: "HugoTeam", tagline: "Không gian làm việc nhóm" },
-  { id: "helpdesk", color: "indigo", label: "HugoHelp", tagline: "Gửi yêu cầu hỗ trợ, quét mã QR" },
-  { id: "handle", color: "rose", label: "HugoHandle", tagline: "Hộp tiện ích xử lý nhanh" },
+  { id: "handle", color: "indigo", label: "HugoKit", tagline: "QR, chữ ký email, link bảo mật và nén tệp" },
 ];
+
+// Tên hiển thị lấy từ danh mục dịch dùng chung (memberAppTranslations): mỗi
+// ngôn ngữ gọi app theo tiếng của mình, và cửa hàng không được gọi khác Home
+// hay Thư viện. Nhãn trong RAW_APPS chỉ còn là phương án dự phòng khi thiếu
+// bản dịch. Getter chứ không phải giá trị tính sẵn: người dùng đổi ngôn ngữ
+// giữa chừng thì lần đọc sau đã ra tên mới.
+export const STORE_APPS = RAW_APPS.map(app => ({
+  ...app,
+  get label() { return i18n.t(`utilities.catalog.${app.id}.title`, { defaultValue: app.label }); },
+}));
 
 const APP_INDEX = new Map(STORE_APPS.map(app => [app.id, app]));
 

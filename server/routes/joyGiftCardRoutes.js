@@ -77,7 +77,7 @@ router.post('/', requireAdmin, async (req, res) => {
   }
 });
 
-import InAppNotification from '../models/InAppNotification.js';
+import { notifyMember } from '../utils/notifyMember.js';
 
 // POST /api/joy-gift-cards/direct-add (admin) { email, amount, note }
 // `email` accepts an email address OR a phone number (the admin terminal UI
@@ -104,12 +104,12 @@ router.post('/direct-add', requireAdmin, async (req, res) => {
       { bioDoc: bio, skipSave: true }
     );
 
-    await InAppNotification.create({
+    await notifyMember({
       email: bio.email,
       type: 'success',
       category: 'joy',
-      title: 'Nhận điểm JOY thưởng',
-      message: `Bạn vừa được Admin tặng trực tiếp ${numericAmount} JOY. ${note ? `Lý do: ${note}` : ''}`
+      key: note ? 'event.adminBonusReason' : 'event.adminBonus',
+      params: { amount: numericAmount, ...(note ? { reason: note } : {}) },
     });
 
     res.json({ success: true, balance, message: `Đã nạp ${numericAmount} JOY cho ${bio.email}` });
