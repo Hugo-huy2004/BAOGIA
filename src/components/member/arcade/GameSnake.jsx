@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useGesture } from "@use-gesture/react";
 import { playGameMerge, playGameLose, playGameSelect } from "../../../utils/audio";
 import { hapticMerge, hapticLose, hapticMove } from "../../../utils/haptics";
 import { readGamePalette, withAlpha, shade } from "./arcadePalette";
 import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
+import { createFrameScaler, decay } from "./arcadeLoop";
+import { queueTurn, nextTurn } from "./snakeRules";
 import ArcadeHud from "./ArcadeHud";
 
 // Snake 3D Pro is a chapter-based endless run. Every six pickups the arena
@@ -30,12 +33,11 @@ const MINE = "#ff3b30";
 const GOLDEN_EVERY = 5;      // cứ 5 mồi thường thì tới lượt mồi vàng
 const GOLDEN_TICKS = 380;    // ~6.3s ở 60fps trước khi mồi vàng biến mất
 
+// Mỗi chặng chỉ còn khoá dịch + tham số hình ảnh. Tên/nhiệm vụ/gợi ý nằm ở
+// arcadeGame.snakeStage*, nên chặng nói đúng ngôn ngữ người chơi.
 const STAGES = [
   {
-    name: "Vườn Neon",
-    kicker: "CHẶNG KHỞI ĐỘNG",
-    mission: "Thu thập 6 lõi năng lượng",
-    hint: "Giữ nhịp ăn để kích hoạt combo.",
+    key: "snakeStage1",
     accent: "#a78bfa",
     accent2: "#22d3ee",
     bg: "#090619",
@@ -43,10 +45,7 @@ const STAGES = [
     speed: 1,
   },
   {
-    name: "Bãi Mìn Đỏ",
-    kicker: "THỬ THÁCH SINH TỒN",
-    mission: "Lách qua mìn và ăn đủ 6 mồi",
-    hint: "Mìn đỏ phát sáng nhưng không thể phá.",
+    key: "snakeStage2",
     accent: "#fb7185",
     accent2: "#f97316",
     bg: "#18070d",
@@ -54,10 +53,7 @@ const STAGES = [
     speed: 0.96,
   },
   {
-    name: "Cổng Lượng Tử",
-    kicker: "THỬ THÁCH DỊCH CHUYỂN",
-    mission: "Làm chủ cặp cổng không gian",
-    hint: "Đi vào một cổng để xuất hiện ở cổng còn lại.",
+    key: "snakeStage3",
     accent: "#22d3ee",
     accent2: "#818cf8",
     bg: "#04141c",
@@ -66,10 +62,7 @@ const STAGES = [
     speed: 0.92,
   },
   {
-    name: "Săn Vàng",
-    kicker: "THỬ THÁCH TỐC ĐỘ",
-    mission: "Săn lõi vàng trước khi biến mất",
-    hint: "Lõi vàng cho 10 điểm và duy trì combo lớn.",
+    key: "snakeStage4",
     accent: "#fbbf24",
     accent2: "#fb7185",
     bg: "#181006",
@@ -78,10 +71,7 @@ const STAGES = [
     speed: 0.88,
   },
   {
-    name: "Hyper Grid",
-    kicker: "CHẶNG TỐI THƯỢNG",
-    mission: "Sống sót trong lưới siêu tốc",
-    hint: "Tốc độ cao, nhiều mìn và cổng dịch chuyển.",
+    key: "snakeStage5",
     accent: "#34d399",
     accent2: "#a3e635",
     bg: "#04150f",
@@ -166,14 +156,16 @@ function spawnTrail(particles, x, y, color) {
   });
 }
 
-function updateParticles(particles) {
+// `f` = số nhịp 60Hz đã trôi qua kể từ khung trước (xem arcadeLoop.js). Không
+// có nó thì trên màn 120Hz hạt lửa tắt nhanh gấp đôi.
+function updateParticles(particles, f = 1) {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vx *= 0.96;
-    p.vy *= 0.96;
-    p.life -= p.decay;
+    p.x += p.vx * f;
+    p.y += p.vy * f;
+    p.vx *= decay(0.96, f);
+    p.vy *= decay(0.96, f);
+    p.life -= p.decay * f;
     if (p.life <= 0) particles.splice(i, 1);
   }
 }
@@ -193,6 +185,11 @@ function drawParticles(ctx, particles) {
 }
 
 export default function GameSnake({ paused = false, onGameOver }) {
+  const { t } = useTranslation();
+  // Vòng lặp game nằm ngoài chu kỳ render của React; đọc `t` qua ref để thông
+  // báo trong ván luôn theo ngôn ngữ hiện tại mà không phải dựng lại vòng lặp.
+  const tRef = useRef(t);
+  useEffect(() => { tRef.current = t; }, [t]);
   const canvasRef   = useRef(null);
   const containerRef = useRef(null);
   const [countdown, setCountdown] = useState(3);
@@ -209,7 +206,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
   const state = useRef({
     snake:   [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }],
     dir:     DIR.right,
-    nextDir: DIR.right,
+    dirQueue: [],   // tối đa 2 cú rẽ chờ — xem snakeRules.js
     food:    { x: 12, y: 9 },
     golden:  null,          // { x, y, ttl }
     mines:   [],
@@ -231,6 +228,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
     flash: 0,
     stagePauseUntil: 0,
     trailTimer: 0,
+    frameFactor: 1,   // hệ số nhịp của khung đang vẽ
     dead: false,
   });
 
@@ -349,14 +347,14 @@ export default function GameSnake({ paused = false, onGameOver }) {
       const theme = stageThemeFor(s.stage);
       const headColor = theme.accent;
       const bodyDeep = shade(headColor, -0.28);
-      s.foodPulse = (s.foodPulse + 0.04) % (Math.PI * 2);
+      s.foodPulse = (s.foodPulse + 0.04 * s.frameFactor) % (Math.PI * 2);
       const pulseScale = 1 + Math.sin(s.foodPulse) * 0.12;
       s.combo.tick();
 
       if (s.shakeMag > 0.1) {
         s.shakeX = (Math.random() - 0.5) * s.shakeMag;
         s.shakeY = (Math.random() - 0.5) * s.shakeMag;
-        s.shakeMag *= 0.88;
+        s.shakeMag *= decay(0.88, s.frameFactor);
       } else {
         s.shakeX = 0; s.shakeY = 0; s.shakeMag = 0;
       }
@@ -463,7 +461,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
         spawnTrail(s.particles, px(s.snake[0]), py(s.snake[0]), withAlpha(theme.accent, 0.62));
       }
 
-      updateParticles(s.particles);
+      updateParticles(s.particles, s.frameFactor);
       drawParticles(ctx, s.particles);
 
       // Render Snake
@@ -602,7 +600,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
       if (s.flash > 0.01) {
         ctx.fillStyle = withAlpha(theme.accent, s.flash);
         ctx.fillRect(0, 0, size, size);
-        s.flash *= 0.9;
+        s.flash *= decay(0.9, s.frameFactor);
       }
     };
 
@@ -620,8 +618,11 @@ export default function GameSnake({ paused = false, onGameOver }) {
       setTimeout(() => onGameOver?.(s.score, "lose"), 800);
     };
 
+    const scaler = createFrameScaler();
+
     const step = (ts) => {
       if (stopped) return;
+      s.frameFactor = scaler.factor(ts);
       if (s.lastTick === 0) s.lastTick = ts;
 
       if (s.stagePauseUntil > ts) {
@@ -632,7 +633,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
       }
 
       if (s.golden) {
-        s.golden.ttl -= 1;
+        s.golden.ttl -= s.frameFactor;
         if (s.golden.ttl <= 0) s.golden = null;
       }
 
@@ -640,8 +641,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
         s.prevSnake = s.snake.map((segment) => ({ ...segment }));
         s.lastTick = ts;
 
-        const d = s.nextDir;
-        if (!(d.x === -s.dir.x && d.y === -s.dir.y)) s.dir = d;
+        s.dir = nextTurn(s.dirQueue, s.dir);
 
         const head = s.snake[0];
         const rawNext = { x: head.x + s.dir.x, y: head.y + s.dir.y };
@@ -738,7 +738,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
             s.shakeMag = 9;
             s.stagePauseUntil = ts + 1650;
             announceStage(nextStage);
-            syncHud(`${nextTheme.name} · thử thách mới đã mở`);
+            syncHud(tRef.current("arcadeGame.snakeNewStage", { stage: tRef.current(`arcadeGame.${nextTheme.key}`) }));
             setTimeout(() => setHud((h) => ({ ...h, notice: "" })), 1800);
           }
 
@@ -752,7 +752,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
               s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
             }
             s.flash = 0.22;
-            syncHud(`Cấp ${level} · tốc độ và thử thách tăng`);
+            syncHud(tRef.current("arcadeGame.snakeLevelUp", { level }));
             setTimeout(() => setHud((h) => ({ ...h, notice: "" })), 1800);
           } else if (!stageChanged) {
             syncHud();
@@ -783,7 +783,11 @@ export default function GameSnake({ paused = false, onGameOver }) {
     const map = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
     const onKey = (e) => {
       const dir = map[e.key];
-      if (dir) { e.preventDefault(); state.current.nextDir = DIR[dir]; }
+      if (dir) {
+        e.preventDefault();
+        const s = state.current;
+        queueTurn(s.dirQueue, DIR[dir], s.dir);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -801,11 +805,11 @@ export default function GameSnake({ paused = false, onGameOver }) {
       const dx = x - g.startX, dy = y - g.startY;
       if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
       g.fired = true;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        state.current.nextDir = DIR[dx > 0 ? "right" : "left"];
-      } else {
-        state.current.nextDir = DIR[dy > 0 ? "down" : "up"];
-      }
+      const s = state.current;
+      const swiped = Math.abs(dx) > Math.abs(dy)
+        ? DIR[dx > 0 ? "right" : "left"]
+        : DIR[dy > 0 ? "down" : "up"];
+      queueTurn(s.dirQueue, swiped, s.dir);
       hapticMove?.();
     },
   }, { drag: { filterTaps: true } });
@@ -839,7 +843,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
           combo={hud.combo}
           multiplier={hud.mult}
           notice={hud.notice}
-          stats={[{ label: "Mồi", value: hud.eaten }, { label: "Chặng", value: hud.stage }]}
+          stats={[{ label: t("arcadeGame.snakeFood"), value: hud.eaten }, { label: t("arcadeGame.snakeStageLabel"), value: hud.stage }]}
         />
 
         <div
@@ -850,7 +854,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
           {!playing && countdown > 0 && (
             <div className="snake-countdown absolute inset-0 flex items-center justify-center z-10">
               <div>
-                <small>SẴN SÀNG</small>
+                <small>{t("arcadeGame.ready")}</small>
                 <span>{countdown}</span>
               </div>
             </div>
@@ -860,26 +864,26 @@ export default function GameSnake({ paused = false, onGameOver }) {
         </div>
       </section>
 
-      <aside className="snake-mission" aria-label={`Chặng ${hud.stage}: ${activeStage.name}`}>
+      <aside className="snake-mission" aria-label={t("arcadeGame.snakeStageOf", { index: hud.stage, name: t(`arcadeGame.${activeStage.key}`) })}>
         <div className="snake-mission__top">
           <span className="snake-mission__number">{String(hud.stage).padStart(2, "0")}</span>
           <div>
-            <small>{activeStage.kicker}</small>
-            <h3>{activeStage.name}</h3>
+            <small>{t(`arcadeGame.${activeStage.key}Kicker`)}</small>
+            <h3>{t(`arcadeGame.${activeStage.key}`)}</h3>
           </div>
         </div>
 
         <div className="snake-mission__challenge">
           <span className="material-symbols-outlined">flag</span>
           <div>
-            <small>NHIỆM VỤ HIỆN TẠI</small>
-            <strong>{activeStage.mission}</strong>
+            <small>{t("arcadeGame.snakeCurrentMission")}</small>
+            <strong>{t(`arcadeGame.${activeStage.key}Goal`)}</strong>
           </div>
         </div>
 
         <div className="snake-mission__progress">
           <div>
-            <span>TIẾN ĐỘ CHẶNG</span>
+            <span>{t("arcadeGame.snakeStageProgress")}</span>
             <b>{hud.stageProgress}/{STAGE_GOAL}</b>
           </div>
           <div className="snake-mission__rail"><span style={{ width: `${stagePercent}%` }} /></div>
@@ -891,10 +895,10 @@ export default function GameSnake({ paused = false, onGameOver }) {
         </p>
 
         <div className="snake-mission__legend">
-          <span><i className="is-food" />+2 lõi thường</span>
-          <span><i className="is-gold" />+10 lõi vàng</span>
-          <span><i className="is-mine" />Mìn: kết thúc</span>
-          {activeStage.portals && <span><i className="is-portal" />Cổng dịch chuyển</span>}
+          <span><i className="is-food" />{t("arcadeGame.snakeCoreNormal")}</span>
+          <span><i className="is-gold" />{t("arcadeGame.snakeCoreGold")}</span>
+          <span><i className="is-mine" />{t("arcadeGame.snakeMine")}</span>
+          {activeStage.portals && <span><i className="is-portal" />{t("arcadeGame.snakePortal")}</span>}
         </div>
 
         <p className="game-control-hint snake-controls">

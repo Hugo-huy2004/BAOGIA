@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { localeForLanguage } from '../../../i18n/languages';
+// Một cách tính "bao lâu trước" cho cả chuông lẫn trang Thông báo. Bản chép
+// tay ở đây trước kia cần ba khoá dịch riêng và dừng ở "x giờ trước";
+// Intl.RelativeTimeFormat lo đủ 9 ngôn ngữ mà không cần khoá nào.
+import { timeAgo } from '../notifications/notificationModel';
 
 // Each category gets its own accent (icon + left bar), not just a generic
 // success/warning/info/error tint — makes the list scannable at a glance
@@ -17,16 +20,6 @@ const CATEGORY = {
   system:       { icon: 'notifications', accent: 'text-primary', bar: 'bg-primary', bg: 'bg-primary/10' },
 };
 const FALLBACK = CATEGORY.system;
-
-function timeAgo(iso, locale, t) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return t('memberPortal.accountHub.notificationCopy.justNow');
-  if (m < 60) return t('memberPortal.accountHub.notificationCopy.minutesAgo', { count: m });
-  const h = Math.floor(m / 60);
-  if (h < 24) return t('memberPortal.accountHub.notificationCopy.hoursAgo', { count: h });
-  return new Date(iso).toLocaleDateString(locale);
-}
 
 // Buckets items into "Hôm nay / Hôm qua / Cũ hơn" sections so a long list
 // reads like a real notification center instead of one undifferentiated feed.
@@ -45,7 +38,7 @@ function groupByDay(items, labels) {
 
 function NotificationItem({ n, onMarkRead, onDismiss }) {
   const { t, i18n } = useTranslation();
-  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
+  const language = i18n.resolvedLanguage || i18n.language;
   const cfg = CATEGORY[n.category] || FALLBACK;
   return (
     <div
@@ -59,7 +52,7 @@ function NotificationItem({ n, onMarkRead, onDismiss }) {
       <div className="flex-1 min-w-0">
         <p className={`text-[11px] font-bold leading-snug ${n.read ? 'text-muted-foreground' : 'text-foreground'}`}>{n.title}</p>
         {n.message && <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{n.message}</p>}
-        <p className="text-[9px] text-muted-foreground mt-1 font-mono">{timeAgo(n.createdAt, locale, t)}</p>
+        <p className="text-[9px] text-muted-foreground mt-1 font-mono">{timeAgo(n.createdAt, new Date(), language)}</p>
       </div>
       <div className="flex items-center gap-1 shrink-0 mt-0.5">
         {!n.read && (

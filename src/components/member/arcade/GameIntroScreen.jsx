@@ -113,7 +113,7 @@ export default function GameIntroScreen({
         <div className="arcade-intro__footer">
           <div className="arcade-intro__facts">
             <span><b>{meta.detail}</b>{t("arcadeIntro.board")}</span>
-            <span><b>+ JOY theo điểm</b>{t("arcadeIntro.reward")}</span>
+            <span><b>{t("arcadeGame.joyByScore")}</b>{t("arcadeIntro.reward")}</span>
             <span><b>∞</b>{t("arcadeIntro.endless")}</span>
           </div>
           <p className="arcade-intro__hint">{t(`${gameKey}.hint`)}</p>

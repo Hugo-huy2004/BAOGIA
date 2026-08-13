@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Chess } from "chess.js";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -238,9 +239,10 @@ const ChessBoardGrid3D = React.memo(function ChessBoardGrid3D({
   onSquareClick,
   onDropMove
 }) {
+  const { t } = useTranslation();
   return (
     <div className="chess-board-wrapper">
-      <div className="chess-board-grid" role="grid" aria-label="Bàn cờ vua 3D">
+      <div className="chess-board-grid" role="grid" aria-label={t("arcadeGame.chessBoard")}>
         {board.map((rank, row) => rank.map((piece, col) => {
           const square = squareName(row, col);
           const isDark = (row + col) % 2 === 1;
@@ -301,6 +303,7 @@ const ChessBoardGrid3D = React.memo(function ChessBoardGrid3D({
 });
 
 export default function GameChess3D({ paused = false, onGameOver }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState(null);
   const [botLevel, setBotLevel] = useState(2);
   const [chess, setChess] = useState(() => new Chess());
@@ -378,11 +381,11 @@ export default function GameChess3D({ paused = false, onGameOver }) {
     if (!nextChess.isGameOver()) return false;
     let nextResult;
     if (nextChess.isCheckmate()) {
-      nextResult = { winner: movingColor, label: `Chiếu Hết! ${movingColor === "w" ? "Quân Trắng" : "Quân Đen"} đại thắng!` };
+      nextResult = { winner: movingColor, label: t("arcadeGame.chessCheckmate", { side: t(movingColor === "w" ? "arcadeGame.chessWhite" : "arcadeGame.chessBlack") }) };
     } else if (nextChess.isDraw()) {
-      nextResult = { winner: null, label: "Trận đấu Hòa (Stalemate)" };
+      nextResult = { winner: null, label: t("arcadeGame.chessStalemate") };
     } else {
-      nextResult = { winner: null, label: "Ván đấu kết thúc" };
+      nextResult = { winner: null, label: t("arcadeGame.chessOver") };
     }
     setResult(nextResult);
     return true;
@@ -553,7 +556,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
             <span>♞</span>
           </div>
           <small className="chess-hero-tag">HUGO CHESS TABLE 3D</small>
-          <h2 className="chess-hero-title">Đấu Trường Cờ Vua 3D</h2>
+          <h2 className="chess-hero-title">{t("arcadeGame.chessArena")}</h2>
           <p className="chess-hero-desc">
             Bàn cờ gỗ hoàng gia · Đồ họa 3D sống động · Hiệu ứng đạp phá ăn quân kịch tính.
           </p>
@@ -563,8 +566,8 @@ export default function GameChess3D({ paused = false, onGameOver }) {
           <button type="button" className="chess-btn-mode mode-bot" onClick={() => resetGame("bot")}>
             <span className="material-symbols-outlined">smart_toy</span>
             <div className="chess-btn-text">
-              <strong>Đấu với Hugo AI BOT</strong>
-              <small>Cầm quân Trắng · Thử thách trí tuệ thuật toán</small>
+              <strong>{t("arcadeGame.chessVsBot")}</strong>
+              <small>{t("arcadeGame.chessVsBotDesc")}</small>
             </div>
             <span className="material-symbols-outlined arrow">arrow_forward</span>
           </button>
@@ -572,20 +575,20 @@ export default function GameChess3D({ paused = false, onGameOver }) {
           <button type="button" className="chess-btn-mode mode-pvp" onClick={() => resetGame("local")}>
             <span className="material-symbols-outlined">groups</span>
             <div className="chess-btn-text">
-              <strong>Hai Người Cùng Máy (Pass & Play)</strong>
-              <small>Đặt thiết bị ở giữa hai người như bàn cờ thật</small>
+              <strong>{t("arcadeGame.chessPassPlay")}</strong>
+              <small>{t("arcadeGame.chessPassPlayDesc")}</small>
             </div>
             <span className="material-symbols-outlined arrow">arrow_forward</span>
           </button>
         </div>
 
         <div className="chess-bot-selector">
-          <span className="chess-selector-label">Cấp độ BOT AI:</span>
+          <span className="chess-selector-label">{t("arcadeGame.chessBotLevelLabel")}</span>
           <div className="chess-selector-pills">
             {[
-              { lvl: 1, label: "Tập Sự", desc: "Dễ" },
-              { lvl: 2, label: "Chiến Thuật", desc: "Vừa" },
-              { lvl: 3, label: "Cao Thủ", desc: "Khó" }
+              { lvl: 1, label: t("arcadeGame.chessLevelEasy"), desc: t("arcadeGame.chessEasy") },
+              { lvl: 2, label: t("arcadeGame.chessLevelMid"), desc: t("arcadeGame.chessMid") },
+              { lvl: 3, label: t("arcadeGame.chessLevelHard"), desc: t("arcadeGame.chessHard") }
             ].map(item => (
               <button
                 type="button"
@@ -604,7 +607,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
   }
 
   const statusText = result?.label
-    || (thinking ? "Hugo BOT đang tính nước đi..." : isCheck ? "⚠️ ĐANG CHIẾU VUA!" : `Lượt đi: ${turn === "w" ? "Quân Trắng" : "Quân Đen"}`);
+    || (thinking ? t("arcadeGame.chessThinking") : isCheck ? t("arcadeGame.chessInCheck") : t("arcadeGame.chessTurn", { side: t(turn === "w" ? "arcadeGame.chessWhite" : "arcadeGame.chessBlack") }));
 
   return (
     <div className={`chess-main-layout ${mode === "local" ? "is-local-pvp" : ""}`}>
@@ -612,7 +615,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
       <PlayerEdge
         color="b"
         active={turn === "b" && !result}
-        label={mode === "bot" ? (thinking ? "Hugo BOT (Đang tính...)" : `Hugo AI BOT · Cấp ${botLevel}`) : "Người Chơi Đen"}
+        label={mode === "bot" ? (thinking ? t("arcadeGame.chessBotThinking") : t("arcadeGame.chessBotLevel", { level: botLevel })) : t("arcadeGame.chessBlackPlayer")}
         seconds={blackSeconds}
         captured={capturedWhite}
         advantage={blackAdvantage}
@@ -626,7 +629,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
             type="button"
             className={`chess-ctrl-btn btn-toggle-3d ${is3DView ? "is-on" : ""}`}
             onClick={() => setIs3DView(v => !v)}
-            title="Góc nhìn 3D"
+            title={t("arcadeGame.chessView3d")}
           >
             <span className="material-symbols-outlined">view_in_ar</span>
             <span>{is3DView ? "3D Tilt" : "2D Flat"}</span>
@@ -640,19 +643,19 @@ export default function GameChess3D({ paused = false, onGameOver }) {
             className="chess-ctrl-btn"
             onClick={handleUndo}
             disabled={historyList.length === 0 || thinking || !!result}
-            title="Hoàn nước"
+            title={t("arcadeGame.chessUndo")}
           >
             <span className="material-symbols-outlined">undo</span>
-            <span>Hoàn nước</span>
+            <span>{t("arcadeGame.chessUndo")}</span>
           </button>
           <button
             type="button"
             className="chess-ctrl-btn"
             onClick={() => resetGame()}
-            title="Ván mới"
+            title={t("arcadeGame.chessNewGame")}
           >
             <span className="material-symbols-outlined">refresh</span>
-            <span>Ván mới</span>
+            <span>{t("arcadeGame.chessNewGame")}</span>
           </button>
         </div>
       </div>
@@ -675,7 +678,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
       <PlayerEdge
         color="w"
         active={turn === "w" && !result}
-        label={mode === "bot" ? "Bạn (Quân Trắng)" : "Người Chơi Trắng"}
+        label={mode === "bot" ? t("arcadeGame.chessYouWhite") : t("arcadeGame.chessWhitePlayer")}
         seconds={whiteSeconds}
         captured={capturedBlack}
         advantage={whiteAdvantage}
@@ -684,7 +687,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
       {/* Recent Moves Log Ribbon */}
       {historyList.length > 0 && (
         <div className="chess-history-ribbon">
-          <span className="chess-history-label">Lịch sử:</span>
+          <span className="chess-history-label">{t("arcadeGame.chessHistory")}</span>
           <div className="chess-history-moves">
             {historyList.slice(-6).map((moveSan, idx) => (
               <span key={idx} className="chess-move-tag">{moveSan}</span>
@@ -703,7 +706,7 @@ export default function GameChess3D({ paused = false, onGameOver }) {
               </span>
             </div>
             <h3>{result.label}</h3>
-            <p>Ván đấu kết thúc sau {historyList.length} nước đi.</p>
+            <p>{t("arcadeGame.chessMovesPlayed", { count: historyList.length })}</p>
             <div className="chess-result-btns">
               <button type="button" className="chess-result-btn primary" onClick={() => resetGame()}>
                 Chơi Ván Mới

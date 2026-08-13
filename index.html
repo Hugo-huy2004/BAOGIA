@@ -59,6 +59,20 @@
       sizes="180x180"
       href="/favicon/apple-touch-icon.png"
     />
+    <!-- ios-splash:start (scripts/generate-ios-splash.mjs) -->
+    <link rel="apple-touch-startup-image" href="/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <link rel="apple-touch-startup-image" href="/splash/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+    <!-- ios-splash:end -->
+
     <!-- Không khai báo thẻ manifest ở đây: vite-plugin-pwa tự chèn
          /manifest.webmanifest lúc build. Nếu có hai thẻ manifest, trình duyệt
          chỉ đọc thẻ đầu tiên và bỏ qua thẻ còn lại. -->
@@ -86,13 +100,11 @@
       if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
         document.documentElement.classList.add("standalone-pwa");
       }
-      // ponytail: iOS dựng màn hình khởi động cho web app bằng ẢNH CHỤP phiên
-      // trước, rồi phóng to chồng lên giao diện thật — thấy hai lớp nội dung
-      // khác nhau, khác cỡ chữ, đè nhau. Không tắt được từ CSS; chỉ điều khiển
-      // được NỘI DUNG của tấm ảnh đó: ẩn thân trang lúc app vào nền thì iOS
-      // chụp được một nền trơn, cross-fade thành ra vô hình.
-      // Đổi lại: thẻ app trong App Switcher cũng trơn. Muốn có ảnh thương hiệu
-      // thì phải bộ apple-touch-startup-image đủ mọi cỡ máy.
+      // ponytail: LƯỚI AN TOÀN cho ảnh khởi động. Máy nào khớp một thẻ
+      // apple-touch-startup-image ở trên thì iOS dùng ảnh đó và hết chồng lớp.
+      // Máy không khớp (đời mới, xoay ngang, iPad) iOS quay lại lấy ẢNH CHỤP
+      // phiên trước → ẩn thân trang lúc app vào nền để tấm ảnh chụp được chỉ
+      // còn nền trơn. Đổi lại: thẻ app trong App Switcher cũng trơn.
       if (window.navigator.standalone === true) {
         document.addEventListener("visibilitychange", function () {
           document.documentElement.classList.toggle("ios-launch-blank", document.hidden);

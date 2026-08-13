@@ -1,44 +1,25 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
 import { API_BASE } from "../../config/apiBase";
+import { localeForLanguage } from "../../i18n/languages";
 
-// Nội dung lợi ích thành viên HugoTeam — thuần tĩnh, sửa chữ ở đây.
+// Sáu lợi ích của thành viên HugoTeam. Chỉ giữ icon + khoá dịch: chữ nằm ở
+// memberPortal.team.benefit* nên đổi ngôn ngữ là đổi theo, không phải sửa code.
 const BENEFITS = [
-  {
-    icon: "school",
-    title: "Cùng làm sản phẩm chạy thật",
-    desc: "Tụi mình cùng phát triển hệ thống phục vụ các bạn HSSV mỗi ngày (React, Node.js, MongoDB, AI). Có cơ hội thử sức với các tính năng thực tế thay vì chỉ làm bài tập lớn rồi bỏ.",
-  },
-  {
-    icon: "co_present",
-    title: "Không lo cô đơn khi gỡ bug",
-    desc: "Tụi mình sẽ cùng review code và trao đổi. Gặp bug khó hay chưa hiểu kiến trúc cứ thoải mái hỏi, tụi mình cùng tìm cách giải quyết trên tinh thần học hỏi lẫn nhau.",
-  },
-  {
-    icon: "work_history",
-    title: "Tích lũy kinh nghiệm thực tế",
-    desc: "Cùng trải qua quy trình làm việc thực tế (Git, code review, debug). Đây là những câu chuyện thực chất giúp bạn tự tin chia sẻ khi đi phỏng vấn thực tập.",
-  },
-  {
-    icon: "workspace_premium",
-    title: "Ghi nhận qua commit Github",
-    desc: "Vì là dự án phi lợi nhuận của sinh viên nên việc xác nhận bằng văn bản/đóng dấu khá khó. Thay vào đó, mọi đóng góp của bạn sẽ hiển thị công khai qua lịch sử commit Github - bằng chứng năng lực thực tế nhất.",
-  },
-  {
-    icon: "schedule",
-    title: "Việc học luôn được ưu tiên",
-    desc: "Hoàn toàn tự chọn thời gian làm việc (tầm 5-10h/tuần). Mùa thi cử có thể tạm nghỉ để tập trung học tập, không áp lực tiến độ hay KPI gò bó.",
-  },
-  {
-    icon: "diversity_3",
-    title: "Kết nối bạn bè cùng ngành",
-    desc: "Gặp gỡ những bạn sinh viên IT cùng chí hướng để chia sẻ tài liệu, kinh nghiệm học tập và hỗ trợ nhau trên con đường phát triển sự nghiệp sau này.",
-  },
+  { icon: "school", key: "benefit1" },
+  { icon: "co_present", key: "benefit2" },
+  { icon: "work_history", key: "benefit3" },
+  { icon: "workspace_premium", key: "benefit4" },
+  { icon: "schedule", key: "benefit5" },
+  { icon: "diversity_3", key: "benefit6" },
 ];
 
 export default function HugoTeamTab({ onBack }) {
+  const { t, i18n } = useTranslation();
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const [developers, setDevelopers] = useState([]);
   const [cvFile, setCvFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,28 +58,28 @@ export default function HugoTeamTab({ onBack }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        notify.error("CV phải nhỏ hơn 5MB");
+        notify.error(t("memberPortal.team.toastCvTooLarge"));
         return;
       }
       if (!file.name.toLowerCase().endsWith(".pdf")) {
-        notify.error("Vui lòng upload file PDF");
+        notify.error(t("memberPortal.team.toastPdfOnly"));
         return;
       }
       setCvFile(file);
-      notify.success(`CV được chọn: ${file.name}`);
+      notify.success(t("memberPortal.team.toastCvSelected", { name: file.name }));
     }
   };
 
   const handleSubmitCV = async () => {
     try {
       if (!cvFile) {
-        notify.error("Vui lòng chọn CV");
+        notify.error(t("memberPortal.team.toastPickCv"));
         return;
       }
 
       const session = await getMemberSession();
       if (!session?.email) {
-        notify.error("Vui lòng đăng nhập");
+        notify.error(t("memberPortal.team.toastNeedLogin"));
         return;
       }
 
@@ -116,15 +97,15 @@ export default function HugoTeamTab({ onBack }) {
 
       const data = await res.json();
       if (res.ok) {
-        notify.success("Đơn đăng ký của bạn đã được gửi! Admin sẽ xem xét sớm.");
+        notify.success(t("memberPortal.team.toastApplied"));
         setCvFile(null);
         setMe((m) => ({ ...(m || {}), status: "pending" }));
       } else {
-        notify.error(data.error || "Lỗi khi gửi đơn");
+        notify.error(data.error || t("memberPortal.team.toastApplyError"));
       }
     } catch (error) {
       console.error("Submit error:", error);
-      notify.error("Lỗi khi gửi đơn, vui lòng thử lại");
+      notify.error(t("memberPortal.team.toastApplyRetry"));
     } finally {
       setIsSubmitting(false);
     }
@@ -142,15 +123,15 @@ export default function HugoTeamTab({ onBack }) {
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-2xl text-amber-500">verified_user</span>
             <div>
-              <p className="font-semibold text-foreground">Developer Member</p>
+              <p className="font-semibold text-foreground">{t("memberPortal.team.devMember")}</p>
               <p className="text-xs text-muted-foreground">
-                Membership hết hạn: {membershipEnd?.toLocaleDateString("vi-VN")} ({daysRemaining} ngày)
+                {t("memberPortal.team.membershipEnds", { date: membershipEnd?.toLocaleDateString(locale), days: daysRemaining })}
               </p>
             </div>
           </div>
           <span className="text-2xl font-semibold text-amber-500">VVIP</span>
         </div>
-        <DevWorkspace me={me} reload={loadMe} membershipEnd={membershipEnd} />
+        <DevWorkspace me={me} reload={loadMe} membershipEnd={membershipEnd} locale={locale} />
       </div>
     );
   }
@@ -166,18 +147,14 @@ export default function HugoTeamTab({ onBack }) {
       <div className="space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
           <span className="material-symbols-outlined text-sm">rocket_launch</span>
-          Cơ hội tham gia dự án thực tế
+          {t("memberPortal.team.badge")}
         </div>
-        <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">Đồng hành dự án cộng đồng</h1>
+        <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight">{t("memberPortal.team.heroTitle")}</h1>
         <div className="space-y-3 max-w-3xl">
+          <p className="text-base text-muted-foreground">{t("memberPortal.team.heroP1")}</p>
           <p className="text-base text-muted-foreground">
-            Bạn học CNTT năm 2–3, code đã hòm hòm nhưng muốn cọ xát với dự án thực tế chạy thật?
-            Tụi mình hiểu cảm giác muốn học hỏi thêm ngoài giờ lên lớp nhưng chưa biết bắt đầu từ đâu.
-          </p>
-          <p className="text-base text-muted-foreground">
-            HugoTeam là nhóm nhỏ sinh viên IT cùng nhau xây dựng các sản phẩm thực tế phục vụ cộng đồng HSSV.
-            Hoạt động hoàn toàn <span className="font-semibold text-foreground">phi lợi nhuận</span>, hỗ trợ và chia sẻ kinh nghiệm lẫn nhau.
-            Mọi đóng góp của bạn được ghi nhận trên Github, làm việc <span className="font-semibold text-foreground">5–10 giờ/tuần</span> tự do theo lịch học.
+            {t("memberPortal.team.heroP2a")} <span className="font-semibold text-foreground">{t("memberPortal.team.nonProfit")}</span>{t("memberPortal.team.heroP2b")}{" "}
+            <span className="font-semibold text-foreground">{t("memberPortal.team.hoursPerWeek")}</span> {t("memberPortal.team.heroP2c")}
           </p>
         </div>
       </div>
@@ -185,19 +162,17 @@ export default function HugoTeamTab({ onBack }) {
       {/* Benefits */}
       <div className="border-t border-border pt-8">
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Những thứ tụi mình có thể làm cho nhau</h2>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Dự án cộng đồng phi lợi nhuận hoạt động trên tinh thần tự nguyện. Không có tiền lương, nhưng có giá trị thực chất:
-          </p>
+          <h2 className="text-xl font-semibold text-foreground mb-2">{t("memberPortal.team.benefitsTitle")}</h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">{t("memberPortal.team.benefitsDesc")}</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {BENEFITS.map((b) => (
-            <div key={b.title} className="p-5 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors space-y-3">
+            <div key={b.key} className="p-5 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors space-y-3">
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <span className="material-symbols-outlined text-[22px]">{b.icon}</span>
               </span>
-              <p className="font-semibold text-foreground text-[15px] leading-snug">{b.title}</p>
-              <p className="text-[13px] leading-relaxed text-muted-foreground">{b.desc}</p>
+              <p className="font-semibold text-foreground text-[15px] leading-snug">{t(`memberPortal.team.${b.key}Title`)}</p>
+              <p className="text-[13px] leading-relaxed text-muted-foreground">{t(`memberPortal.team.${b.key}Desc`)}</p>
             </div>
           ))}
         </div>
@@ -205,28 +180,19 @@ export default function HugoTeamTab({ onBack }) {
 
       {/* How Hugo Studio takes care of members */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Cách Hugo Studio đồng hành cùng bạn</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t("memberPortal.team.careTitle")}</h2>
         <div className="space-y-4 text-sm leading-relaxed text-muted-foreground max-w-2xl">
           <p>
-            <span className="font-semibold text-foreground">Tuần đầu tiên</span> — bạn được hướng dẫn
-            setup môi trường, đọc hiểu kiến trúc hệ thống và nhận task đầu tiên vừa sức (thường là một
-            bug nhỏ có hướng dẫn). Mục tiêu duy nhất của tuần này: bạn merge được dòng code đầu tiên
-            vào sản phẩm thật.
+            <span className="font-semibold text-foreground">{t("memberPortal.team.careWeek1Label")}</span> {t("memberPortal.team.careWeek1")}
           </p>
           <p>
-            <span className="font-semibold text-foreground">Hàng tuần</span> — trao đổi tiến độ ngắn
-            gọn qua chat, không họp hành rườm rà. Task giao theo năng lực và tăng dần độ khó: từ fix
-            bug, viết test, đến tự thiết kế và xây feature hoàn chỉnh. Mọi pull request đều được
-            review kỹ kèm giải thích — review chính là buổi học.
+            <span className="font-semibold text-foreground">{t("memberPortal.team.careWeeklyLabel")}</span> {t("memberPortal.team.careWeekly")}
           </p>
           <p>
-            <span className="font-semibold text-foreground">Khi bạn gặp khó</span> — hỏi bất cứ lúc
-            nào, không có câu hỏi nào là ngớ ngẩn. Kẹt quá 2 tiếng thì dừng lại và hỏi ngay; văn hóa
-            của HugoTeam là gỡ rối cùng nhau thay vì để một người tự vật lộn.
+            <span className="font-semibold text-foreground">{t("memberPortal.team.careStuckLabel")}</span> {t("memberPortal.team.careStuck")}
           </p>
           <p>
-            <span className="font-semibold text-foreground">Số giờ đồng hành của bạn được ghi nhận</span> —
-            từng giờ đóng góp đều được cập nhật minh bạch trong workspace này, làm cơ sở cho việc vinh danh đóng góp và các mốc tri ân bên dưới.
+            <span className="font-semibold text-foreground">{t("memberPortal.team.careHoursLabel")}</span> {t("memberPortal.team.careHours")}
           </p>
         </div>
       </div>
@@ -238,31 +204,26 @@ export default function HugoTeamTab({ onBack }) {
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <span className="material-symbols-outlined text-[24px]">military_tech</span>
             </span>
-            <h2 className="text-lg font-semibold text-foreground">Sự bền bỉ và tri ân nhẹ nhàng</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t("memberPortal.team.loyaltyTitle")}</h2>
           </div>
 
           {/* Membership info */}
           <div className="bg-muted/50 rounded-xl p-3.5 space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <span className="material-symbols-outlined text-base text-primary">verified</span>
-              <span className="font-semibold text-foreground">Membership: 3 năm (1095 ngày)</span>
+              <span className="font-semibold text-foreground">{t("memberPortal.team.membershipLine")}</span>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Khi được chấp thuận tham gia, bạn nhận membership 3 năm (không phải 365 ngày) với quyền lợi VVIP Developer.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("memberPortal.team.membershipDesc")}</p>
           </div>
 
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Đồng hành cùng nhau lâu dài là điều rất đáng quý. Hành trình phi lợi nhuận này hoạt động
-            dựa trên sự tự nguyện, không ràng buộc nhưng tụi mình luôn trân trọng sự kiên trì của bạn.
-          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{t("memberPortal.team.loyaltyText")}</p>
           <div className="bg-muted/50 rounded-xl p-3.5 space-y-2">
-            <p className="text-sm font-semibold text-foreground">Khi chạm mốc 500 giờ đồng hành:</p>
+            <p className="text-sm font-semibold text-foreground">{t("memberPortal.team.milestone500Title")}</p>
             <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-              <li>• Vinh danh trong mục đóng góp trên hệ thống</li>
-              <li>• Hỗ trợ review CV chuyên sâu từ kinh nghiệm thực tế</li>
-              <li>• Buổi cafe trò chuyện định hướng nghề nghiệp</li>
-              <li>• Phần quà kỷ niệm để cảm ơn sự kiên trì của bạn</li>
+              <li>• {t("memberPortal.team.milestone500a")}</li>
+              <li>• {t("memberPortal.team.milestone500b")}</li>
+              <li>• {t("memberPortal.team.milestone500c")}</li>
+              <li>• {t("memberPortal.team.milestone500d")}</li>
             </ul>
           </div>
         </div>
@@ -270,46 +231,46 @@ export default function HugoTeamTab({ onBack }) {
 
       {/* Requirements */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Yêu cầu &amp; điều kiện</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t("memberPortal.team.reqTitle")}</h2>
         <div className="space-y-3 text-sm">
           <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">Đối tượng:</span>
-            <span className="text-muted-foreground">Sinh viên nam/nữ, năm 2-3, ngành Công Nghệ Thông Tin</span>
+            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqAudienceLabel")}</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.reqAudience")}</span>
           </div>
           <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">Đồng hành:</span>
-            <span className="text-muted-foreground">Học lập trình, fix bug, phát triển feature nhỏ, viết test</span>
+            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqWorkLabel")}</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.reqWork")}</span>
           </div>
           <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">Thời gian:</span>
-            <span className="text-muted-foreground">5-10 giờ/tuần, tự do, linh hoạt theo lịch học của bạn</span>
+            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqTimeLabel")}</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.reqTime")}</span>
           </div>
           <div className="flex gap-3">
-            <span className="font-bold text-foreground w-24">Tính chất:</span>
-            <span className="text-muted-foreground">Dự án phi lợi nhuận, tự nguyện hỗ trợ học tập và tích lũy kinh nghiệm</span>
+            <span className="font-bold text-foreground w-24">{t("memberPortal.team.reqNatureLabel")}</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.reqNature")}</span>
           </div>
         </div>
       </div>
 
       {/* Info about process */}
       <div className="border-t border-border pt-8">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Quy trình tham gia</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t("memberPortal.team.processTitle")}</h2>
         <ol className="space-y-4 text-sm">
           <li className="flex gap-4">
             <span className="font-bold text-foreground flex-shrink-0">1.</span>
-            <span className="text-muted-foreground">Bạn nộp CV dưới đây (PDF, tối đa 5MB)</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.process1")}</span>
           </li>
           <li className="flex gap-4">
             <span className="font-bold text-foreground flex-shrink-0">2.</span>
-            <span className="text-muted-foreground">Tôi sẽ xem xét và liên hệ qua email trong 3-5 ngày</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.process2")}</span>
           </li>
           <li className="flex gap-4">
             <span className="font-bold text-foreground flex-shrink-0">3.</span>
-            <span className="text-muted-foreground">Sau khi phê duyệt, tôi sẽ hướng dẫn chi tiết qua email</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.process3")}</span>
           </li>
           <li className="flex gap-4">
             <span className="font-bold text-foreground flex-shrink-0">4.</span>
-            <span className="text-muted-foreground">Bạn bắt đầu học và đồng hành dự án theo lộ trình</span>
+            <span className="text-muted-foreground">{t("memberPortal.team.process4")}</span>
           </li>
         </ol>
       </div>
@@ -320,11 +281,10 @@ export default function HugoTeamTab({ onBack }) {
       <aside className="lg:col-span-1 mt-10 lg:mt-0">
         <div className="lg:sticky lg:top-4 rounded-2xl border border-border/60 bg-muted/30 p-6 space-y-5">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold text-foreground tracking-tight">Sẵn sàng bắt đầu?</h2>
+            <h2 className="text-xl font-semibold text-foreground tracking-tight">{t("memberPortal.team.applyTitle")}</h2>
             <p className="text-sm text-muted-foreground">
-              CV không cần hoàn hảo — chúng tôi tìm sự <span className="font-semibold text-foreground">nghiêm túc</span> và
-              <span className="font-semibold text-foreground"> ham học</span>, không tìm người đã giỏi sẵn.
-              Dòng code production đầu tiên của bạn có thể được merge ngay trong tuần tới.
+              {t("memberPortal.team.applyDescA")} <span className="font-semibold text-foreground">{t("memberPortal.team.applySerious")}</span> {t("memberPortal.team.applyDescB")}{" "}
+              <span className="font-semibold text-foreground">{t("memberPortal.team.applyEager")}</span>{t("memberPortal.team.applyDescC")}
             </p>
           </div>
 
@@ -332,15 +292,15 @@ export default function HugoTeamTab({ onBack }) {
             <div className="p-4 rounded-2xl bg-warning/10 border border-warning/30 space-y-2">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-warning">hourglass_top</span>
-                <p className="font-semibold text-foreground">Đơn của bạn đang được xem xét</p>
+                <p className="font-semibold text-foreground">{t("memberPortal.team.pendingTitle")}</p>
               </div>
-              <p className="text-sm text-muted-foreground">Tôi sẽ liên hệ qua email trong 3-5 ngày, cảm ơn sự kiên nhẫn!</p>
+              <p className="text-sm text-muted-foreground">{t("memberPortal.team.pendingDesc")}</p>
             </div>
           )}
 
           <div className="space-y-4">
             <label className="block">
-              <span className="text-sm font-semibold text-foreground mb-2 block">Upload CV (PDF)</span>
+              <span className="text-sm font-semibold text-foreground mb-2 block">{t("memberPortal.team.uploadLabel")}</span>
               <input
                 type="file"
                 accept=".pdf"
@@ -354,7 +314,7 @@ export default function HugoTeamTab({ onBack }) {
                     <span className="material-symbols-outlined text-sm text-emerald-500" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                     {cvFile.name}
                   </>
-                ) : "Tối đa 5MB, định dạng PDF"}
+                ) : t("memberPortal.team.uploadHint")}
               </p>
             </label>
 
@@ -363,7 +323,7 @@ export default function HugoTeamTab({ onBack }) {
               disabled={!cvFile || isSubmitting || userStatus === "pending"}
               className="w-full px-6 py-3 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-primary-foreground font-semibold rounded-2xl transition-all disabled:cursor-not-allowed text-sm active:scale-[0.98]"
             >
-              {isSubmitting ? "Đang gửi…" : userStatus === "pending" ? "Đơn đã gửi" : "Nộp đơn"}
+              {isSubmitting ? t("memberPortal.team.submitting") : userStatus === "pending" ? t("memberPortal.team.submitted") : t("memberPortal.team.submit")}
             </button>
           </div>
         </div>
@@ -375,15 +335,13 @@ export default function HugoTeamTab({ onBack }) {
       {/* Developers List — nâng cấp */}
       <div className="border-t border-border pt-8">
         <div className="space-y-4 mb-6">
-          <h2 className="text-lg font-semibold text-foreground">Team phát triển ({developers.length})</h2>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            Những bạn sinh viên đã được chấp nhận tham gia HugoTeam. Mỗi người mang theo ghi chú cam kết 3 năm đồng hành dự án cộng đồng.
-          </p>
+          <h2 className="text-lg font-semibold text-foreground">{t("memberPortal.team.devsTitle", { count: developers.length })}</h2>
+          <p className="text-sm text-muted-foreground max-w-2xl">{t("memberPortal.team.devsDesc")}</p>
         </div>
         {developers.length === 0 ? (
           <div className="p-8 rounded-2xl border border-dashed border-border/50 text-center">
             <span className="material-symbols-outlined text-3xl text-muted-foreground block mb-2">groups</span>
-            <p className="text-sm text-muted-foreground">Tim sẽ bắt đầu từ thành viên đầu tiên</p>
+            <p className="text-sm text-muted-foreground">{t("memberPortal.team.devsEmpty")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -394,7 +352,7 @@ export default function HugoTeamTab({ onBack }) {
               >
                 {/* Developer Badge */}
                 <div className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-medium">
-                  Developer
+                  {t("memberPortal.team.devBadge")}
                 </div>
 
                 {/* Avatar + Name */}
@@ -411,14 +369,14 @@ export default function HugoTeamTab({ onBack }) {
                 {/* Membership Status */}
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <span className="material-symbols-outlined text-sm">verified</span>
-                  <span>Membership: 3 năm</span>
+                  <span>{t("memberPortal.team.membership3y")}</span>
                 </div>
 
                 {/* Verified Check */}
                 <div className="flex items-center pt-1">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium">
                     <span className="material-symbols-outlined text-xs">check_circle</span>
-                    Đã phê duyệt
+                    {t("memberPortal.team.approved")}
                   </span>
                 </div>
               </div>
@@ -429,7 +387,7 @@ export default function HugoTeamTab({ onBack }) {
 
       {/* Contact */}
       <div className="border-t border-border pt-8 text-center">
-        <p className="text-sm text-muted-foreground mb-3">Có câu hỏi? Liên hệ tôi</p>
+        <p className="text-sm text-muted-foreground mb-3">{t("memberPortal.team.contactTitle")}</p>
         <a href="mailto:contact@hugowishpax.studio" className="text-primary font-semibold hover:underline">
           contact@hugowishpax.studio
         </a>
@@ -441,31 +399,37 @@ export default function HugoTeamTab({ onBack }) {
 
 /* ───────────────────────── Dev Workspace (đã được duyệt) ───────────────────────── */
 
+// Nhãn trạng thái đi bằng khoá, màu đi bằng class: bảng này nằm ngoài
+// component nên không gọi được hook dịch, còn StatusChip thì gọi được.
 const TASK_STATUS_META = {
-  assigned:  { label: "Mới giao",    cls: "bg-info/10 text-info" },
-  doing:     { label: "Đang thực hiện", cls: "bg-warning/10 text-warning" },
-  submitted: { label: "Chờ nghiệm thu", cls: "bg-primary/10 text-primary" },
-  done:      { label: "Hoàn thành",  cls: "bg-success/10 text-success" },
-  cancelled: { label: "Đã hủy",      cls: "bg-muted text-muted-foreground" },
+  assigned:  { key: "statusAssigned",  cls: "bg-info/10 text-info" },
+  doing:     { key: "statusDoing",     cls: "bg-warning/10 text-warning" },
+  submitted: { key: "statusSubmitted", cls: "bg-primary/10 text-primary" },
+  done:      { key: "statusDone",      cls: "bg-success/10 text-success" },
+  cancelled: { key: "statusCancelled", cls: "bg-muted text-muted-foreground" },
 };
 
 const LOG_STATUS_META = {
-  pending:  { label: "Chờ duyệt", cls: "bg-warning/10 text-warning" },
-  approved: { label: "Đã duyệt",  cls: "bg-success/10 text-success" },
-  rejected: { label: "Từ chối",   cls: "bg-destructive/10 text-destructive" },
+  pending:  { key: "logPending",  cls: "bg-warning/10 text-warning" },
+  approved: { key: "logApproved", cls: "bg-success/10 text-success" },
+  rejected: { key: "logRejected", cls: "bg-destructive/10 text-destructive" },
 };
 
-const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "—");
+// Ngày tháng cũng là ngôn ngữ: "vi-VN" cứng trong hàm này khiến người đọc
+// tiếng Nhật thấy 13/08/2026 thay vì 2026/08/13.
+const fmtDate = (d, locale) => (d ? new Date(d).toLocaleDateString(locale) : "—");
 
 function StatusChip({ meta }) {
+  const { t } = useTranslation();
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold ${meta.cls}`}>
-      {meta.label}
+      {t(`memberPortal.team.${meta.key}`)}
     </span>
   );
 }
 
-function DevWorkspace({ me, reload, membershipEnd }) {
+function DevWorkspace({ me, reload, membershipEnd, locale }) {
+  const { t } = useTranslation();
   const [section, setSection] = useState("tasks");
   const stats = me?.stats || {};
   const goal = 500;
@@ -473,9 +437,9 @@ function DevWorkspace({ me, reload, membershipEnd }) {
   const isMilestone = (stats.approvedHours || 0) >= goal;
 
   const SECTIONS = [
-    { id: "tasks", label: "Nhiệm vụ", icon: "checklist", badge: stats.openTasks },
-    { id: "hours", label: "Giờ đồng hành", icon: "schedule", badge: 0 },
-    { id: "chat", label: "Trao đổi", icon: "forum", badge: stats.unreadMessages },
+    { id: "tasks", label: t("memberPortal.team.sectionTasks"), icon: "checklist", badge: stats.openTasks },
+    { id: "hours", label: t("memberPortal.team.sectionHours"), icon: "schedule", badge: 0 },
+    { id: "chat", label: t("memberPortal.team.sectionChat"), icon: "forum", badge: stats.unreadMessages },
   ];
 
   return (
@@ -484,9 +448,9 @@ function DevWorkspace({ me, reload, membershipEnd }) {
       <div className="space-y-6">
         {/* Hero Greeting */}
         <div className="rounded-3xl bg-card border border-border/60 shadow-sm p-8 lg:p-10">
-          <p className="text-xs font-medium text-muted-foreground mb-2">Chào mừng trở lại</p>
-          <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight mb-2">Chào {me.name}!</h1>
-          <p className="text-muted-foreground max-w-2xl">Bạn là thành viên HugoTeam — cảm ơn đã cùng xây dựng dự án cộng đồng này.</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">{t("memberPortal.team.welcomeBack")}</p>
+          <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight mb-2">{t("memberPortal.team.greeting", { name: me.name })}</h1>
+          <p className="text-muted-foreground max-w-2xl">{t("memberPortal.team.welcomeDesc")}</p>
         </div>
 
         {/* Quick Stats Row */}
@@ -494,16 +458,16 @@ function DevWorkspace({ me, reload, membershipEnd }) {
           {/* Membership Status */}
           {membershipEnd && (
             <div className="rounded-2xl bg-card border border-border/60 p-4 space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">Membership</p>
-              <p className="text-sm font-semibold text-foreground">{membershipEnd.getFullYear() - new Date().getFullYear()}+ năm</p>
-              <p className="text-xs text-muted-foreground">Hết: {membershipEnd.toLocaleDateString("vi-VN")}</p>
+              <p className="text-xs font-medium text-muted-foreground">{t("memberPortal.team.membership")}</p>
+              <p className="text-sm font-semibold text-foreground">{t("memberPortal.team.yearsPlus", { years: membershipEnd.getFullYear() - new Date().getFullYear() })}</p>
+              <p className="text-xs text-muted-foreground">{t("memberPortal.team.endsOn", { date: membershipEnd.toLocaleDateString(locale) })}</p>
             </div>
           )}
 
           {/* Hours Progress */}
           <div className="rounded-2xl bg-card border border-border/60 p-4 space-y-1">
             <p className="text-xs font-medium text-muted-foreground">
-              {isMilestone ? "Mốc đạt được" : "Hành trình"}
+              {isMilestone ? t("memberPortal.team.milestoneReached") : t("memberPortal.team.journey")}
             </p>
             <p className={`text-lg font-semibold ${isMilestone ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}>
               {stats.approvedHours || 0}h
@@ -513,9 +477,9 @@ function DevWorkspace({ me, reload, membershipEnd }) {
 
           {/* Open Tasks */}
           <div className="rounded-2xl bg-card border border-border/60 p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">Task mở</p>
+            <p className="text-xs font-medium text-muted-foreground">{t("memberPortal.team.openTasksShort")}</p>
             <p className="text-lg font-semibold text-foreground">{stats.openTasks || 0}</p>
-            <p className="text-xs text-muted-foreground">đang thực hiện</p>
+            <p className="text-xs text-muted-foreground">{t("memberPortal.team.inProgress")}</p>
           </div>
         </div>
 
@@ -525,9 +489,9 @@ function DevWorkspace({ me, reload, membershipEnd }) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-base text-primary">schedule</span>
-                <span className="font-semibold text-foreground text-sm">Hành trình {goal} giờ đồng hành</span>
+                <span className="font-semibold text-foreground text-sm">{t("memberPortal.team.journeyHours", { goal })}</span>
               </div>
-              <span className="text-xs font-medium text-muted-foreground">Còn {goal - (stats.approvedHours || 0)}h</span>
+              <span className="text-xs font-medium text-muted-foreground">{t("memberPortal.team.hoursLeft", { hours: goal - (stats.approvedHours || 0) })}</span>
             </div>
             <div className="h-2.5 rounded-full bg-muted overflow-hidden">
               <div
@@ -537,7 +501,7 @@ function DevWorkspace({ me, reload, membershipEnd }) {
             </div>
             {stats.pendingHours > 0 && (
               <p className="text-xs text-muted-foreground">
-                <span className="text-amber-500 font-medium">{stats.pendingHours}h</span> đang chờ admin duyệt
+                <span className="text-amber-500 font-medium">{stats.pendingHours}h</span> {t("memberPortal.team.pendingApproval")}
               </p>
             )}
           </div>
@@ -547,8 +511,8 @@ function DevWorkspace({ me, reload, membershipEnd }) {
           <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-6 space-y-3 text-center">
             <span className="material-symbols-outlined text-5xl text-emerald-500 block">military_tech</span>
             <div>
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-lg mb-1">Bạn đã đạt mốc 500 giờ!</p>
-              <p className="text-sm text-muted-foreground">Liên hệ Hugo để nhận những phần quà tri ân đặc biệt từ Hugo Studio.</p>
+              <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-lg mb-1">{t("memberPortal.team.milestoneTitle")}</p>
+              <p className="text-sm text-muted-foreground">{t("memberPortal.team.milestoneDesc")}</p>
             </div>
           </div>
         )}
@@ -557,9 +521,9 @@ function DevWorkspace({ me, reload, membershipEnd }) {
       {/* Stats nhanh */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: "pending_actions", value: stats.openTasks || 0, label: "Task đang mở", color: "text-blue-600 dark:text-blue-400" },
-          { icon: "task_alt", value: stats.doneTasks || 0, label: "Task hoàn thành", color: "text-emerald-600 dark:text-emerald-400" },
-          { icon: "verified", value: `${stats.approvedHours || 0}h`, label: "Giờ đã duyệt", color: "text-primary" },
+          { icon: "pending_actions", value: stats.openTasks || 0, label: t("memberPortal.team.statOpenTasks"), color: "text-blue-600 dark:text-blue-400" },
+          { icon: "task_alt", value: stats.doneTasks || 0, label: t("memberPortal.team.statDoneTasks"), color: "text-emerald-600 dark:text-emerald-400" },
+          { icon: "verified", value: `${stats.approvedHours || 0}h`, label: t("memberPortal.team.statApprovedHours"), color: "text-primary" },
         ].map((s) => (
           <div key={s.label} className="p-4 rounded-2xl bg-card border border-border/60 text-center space-y-2">
             <span className={`material-symbols-outlined text-[22px] block ${s.color}`}>{s.icon}</span>
@@ -596,8 +560,8 @@ function DevWorkspace({ me, reload, membershipEnd }) {
 
         {/* Content panel */}
         <div className="mt-4 lg:mt-0 min-w-0">
-          {section === "tasks" && <DevTasks tasks={me.tasks || []} reload={reload} />}
-          {section === "hours" && <DevHours hourLogs={me.hourLogs || []} tasks={me.tasks || []} reload={reload} />}
+          {section === "tasks" && <DevTasks tasks={me.tasks || []} reload={reload} locale={locale} />}
+          {section === "hours" && <DevHours hourLogs={me.hourLogs || []} tasks={me.tasks || []} reload={reload} locale={locale} />}
           {section === "chat" && <DevChat messages={me.messages || []} reload={reload} />}
         </div>
       </div>
@@ -605,7 +569,12 @@ function DevWorkspace({ me, reload, membershipEnd }) {
   );
 }
 
-function DevTasks({ tasks, reload }) {
+function DevTasks({ tasks, reload, locale }) {
+  // `t` ở đây từng là BIẾN TASK trong `tasks.map((t) => …)`, trong khi thân map
+  // lại gọi `t("memberPortal.team.…")` — tức là gọi một object như hàm. Mọi dev
+  // có task đều làm nổ trang này. Biến đổi tên thành `task`, `t` trả về đúng
+  // vai trò hàm dịch.
+  const { t } = useTranslation();
   const [noteFor, setNoteFor] = useState(null); // taskId đang nộp
   const [note, setNote] = useState("");
 
@@ -617,8 +586,8 @@ function DevTasks({ tasks, reload }) {
         body: JSON.stringify(body),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lỗi cập nhật task");
-      notify.success(body.status === "submitted" ? "Đã nộp task — chờ nghiệm thu!" : "Đã cập nhật task");
+      if (!res.ok) throw new Error(data.error || t("memberPortal.team.toastTaskUpdateError"));
+      notify.success(body.status === "submitted" ? t("memberPortal.team.toastTaskSubmitted") : t("memberPortal.team.toastTaskUpdated"));
       setNoteFor(null);
       setNote("");
       reload();
@@ -632,8 +601,8 @@ function DevTasks({ tasks, reload }) {
       <div className="p-8 rounded-2xl border border-dashed border-border bg-muted/30 text-center space-y-3">
         <span className="material-symbols-outlined text-[36px] text-muted-foreground block">inbox</span>
         <div>
-          <p className="text-sm font-semibold text-muted-foreground">Chưa có nhiệm vụ nào</p>
-          <p className="text-xs text-muted-foreground mt-1">Admin sẽ giao task qua đây và gửi thông báo qua email</p>
+          <p className="text-sm font-semibold text-muted-foreground">{t("memberPortal.team.tasksEmptyTitle")}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("memberPortal.team.tasksEmptyDesc")}</p>
         </div>
       </div>
     );
@@ -641,45 +610,45 @@ function DevTasks({ tasks, reload }) {
 
   return (
     <div className="space-y-3">
-      {tasks.map((t) => (
-        <div key={t._id} className="p-4 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors space-y-3">
+      {tasks.map((task) => (
+        <div key={task._id} className="p-4 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="font-bold text-foreground text-sm">{t.title}</p>
+              <p className="font-bold text-foreground text-sm">{task.title}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                Giao {fmtDate(t.assignedAt)}
-                {t.deadline && <> {t("memberPortal.team.han")} <span className="font-semibold text-foreground">{fmtDate(t.deadline)}</span></>}
+                {t("memberPortal.team.assignedOn", { date: fmtDate(task.assignedAt, locale) })}
+                {task.deadline && <> {t("memberPortal.team.han")} <span className="font-semibold text-foreground">{fmtDate(task.deadline, locale)}</span></>}
               </p>
             </div>
-            <StatusChip meta={TASK_STATUS_META[t.status] || TASK_STATUS_META.assigned} />
+            <StatusChip meta={TASK_STATUS_META[task.status] || TASK_STATUS_META.assigned} />
           </div>
 
-          {t.guide && (
+          {task.guide && (
             <div className="p-3 rounded-xl bg-muted/60 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
               <p className="font-bold text-foreground mb-1">{t("memberPortal.team.huongDanTuAdmin")}</p>
-              {t.guide}
+              {task.guide}
             </div>
           )}
-          {t.adminNote && (
+          {task.adminNote && (
             <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
               <p className="font-bold text-foreground mb-1">{t("memberPortal.team.nhanXetNghiemThu")}</p>
-              {t.adminNote}
+              {task.adminNote}
             </div>
           )}
-          {t.devNote && t.status !== "doing" && (
-            <p className="text-xs text-muted-foreground italic">{t("memberPortal.team.ghiChuCuaBan")} {t.devNote}</p>
+          {task.devNote && task.status !== "doing" && (
+            <p className="text-xs text-muted-foreground italic">{t("memberPortal.team.ghiChuCuaBan")} {task.devNote}</p>
           )}
 
-          {t.status === "assigned" && (
+          {task.status === "assigned" && (
             <button
-              onClick={() => updateTask(t._id, { status: "doing" })}
+              onClick={() => updateTask(task._id, { status: "doing" })}
               className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
             >
               {t("memberPortal.team.batDauThucHien")}
             </button>
           )}
-          {t.status === "doing" && (
-            noteFor === t._id ? (
+          {task.status === "doing" && (
+            noteFor === task._id ? (
               <div className="space-y-2">
                 <textarea
                   value={note}
@@ -690,7 +659,7 @@ function DevTasks({ tasks, reload }) {
                 />
                 <div className="flex gap-2">
                   <button
-                    onClick={() => updateTask(t._id, { status: "submitted", devNote: note })}
+                    onClick={() => updateTask(task._id, { status: "submitted", devNote: note })}
                     className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
                   >
                     {t("memberPortal.team.xacNhanNop")}
@@ -705,7 +674,7 @@ function DevTasks({ tasks, reload }) {
               </div>
             ) : (
               <button
-                onClick={() => { setNoteFor(t._id); setNote(t.devNote || ""); }}
+                onClick={() => { setNoteFor(task._id); setNote(task.devNote || ""); }}
                 className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
               >
                 {t("memberPortal.team.nopTask")}
@@ -718,7 +687,8 @@ function DevTasks({ tasks, reload }) {
   );
 }
 
-function DevHours({ hourLogs, tasks, reload }) {
+function DevHours({ hourLogs, tasks, reload, locale }) {
+  const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState({ date: today, hours: "", note: "", taskId: "" });
   const [saving, setSaving] = useState(false);
@@ -727,7 +697,7 @@ function DevHours({ hourLogs, tasks, reload }) {
   const submit = async () => {
     const h = Number(form.hours);
     if (!form.date || !Number.isFinite(h) || h <= 0) {
-      notify.error("Nhập ngày và số giờ hợp lệ");
+      notify.error(t("memberPortal.team.toastInvalidHours"));
       return;
     }
     setSaving(true);
@@ -738,8 +708,8 @@ function DevHours({ hourLogs, tasks, reload }) {
         body: JSON.stringify({ ...form, hours: h, taskId: form.taskId || null }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Lỗi ghi giờ");
-      notify.success("Đã ghi giờ đồng hành — chờ admin duyệt");
+      if (!res.ok) throw new Error(data.error || t("memberPortal.team.toastLogError"));
+      notify.success(t("memberPortal.team.toastLogged"));
       setForm({ date: today, hours: "", note: "", taskId: "" });
       reload();
     } catch (e) {
@@ -750,12 +720,12 @@ function DevHours({ hourLogs, tasks, reload }) {
   };
 
   const withdraw = async (logId) => {
-    const ok = await notify.confirm({ title: "Rút lại giờ đã ghi?", message: "Chỉ rút được khi chưa duyệt.", danger: true });
+    const ok = await notify.confirm({ title: t("memberPortal.team.confirmWithdrawTitle"), message: t("memberPortal.team.confirmWithdrawDesc"), danger: true });
     if (!ok) return;
     try {
       const res = await fetch(`${API_BASE}/hugoteam/me/hours/${logId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error((await res.json()).error || "Lỗi");
-      notify.success("Đã rút lại");
+      if (!res.ok) throw new Error((await res.json()).error || t("memberPortal.team.toastError"));
+      notify.success(t("memberPortal.team.toastWithdrawn"));
       reload();
     } catch (e) {
       notify.error(e.message);
@@ -770,59 +740,59 @@ function DevHours({ hourLogs, tasks, reload }) {
       <div className="p-5 rounded-2xl border border-border/60 bg-card space-y-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-base text-primary">schedule</span>
-          <p className="font-bold text-foreground text-sm">Ghi giờ đồng hành</p>
+          <p className="font-bold text-foreground text-sm">{t("memberPortal.team.logHoursTitle")}</p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <label className="text-xs space-y-1">
-            <span className="font-semibold text-muted-foreground">Ngày</span>
+            <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldDate")}</span>
             <input type="date" max={today} value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
               className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
           </label>
           <label className="text-xs space-y-1">
-            <span className="font-semibold text-muted-foreground">Số giờ (0.25–24)</span>
+            <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldHours")}</span>
             <input type="number" min="0.25" max="24" step="0.25" value={form.hours}
               onChange={(e) => setForm({ ...form, hours: e.target.value })}
-              placeholder="VD: 2.5"
+              placeholder={t("memberPortal.team.hoursPlaceholder")}
               className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
           </label>
         </div>
         {openTasks.length > 0 && (
           <label className="text-xs space-y-1 block">
-            <span className="font-semibold text-muted-foreground">Gắn với task (tùy chọn)</span>
+            <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldTask")}</span>
             <select value={form.taskId} onChange={(e) => setForm({ ...form, taskId: e.target.value })}
               className="w-full px-3 py-2 rounded-xl border border-border bg-background">
-              <option value="">— Không gắn task —</option>
+              <option value="">{t("memberPortal.team.noTask")}</option>
               {openTasks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
             </select>
           </label>
         )}
         <label className="text-xs space-y-1 block">
-          <span className="font-semibold text-muted-foreground">Bạn đã đồng hành việc gì?</span>
+          <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldWhat")}</span>
           <input value={form.note} maxLength={500}
             onChange={(e) => setForm({ ...form, note: e.target.value })}
-            placeholder="VD: Fix bug thanh toán, review tài liệu onboarding..."
+            placeholder={t("memberPortal.team.whatPlaceholder")}
             className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
         </label>
         <button onClick={submit} disabled={saving}
           className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-50 active:scale-95 transition-transform">
-          {saving ? "Đang lưu..." : "Ghi giờ"}
+          {saving ? t("memberPortal.team.saving") : t("memberPortal.team.logHours")}
         </button>
       </div>
 
       {/* Lịch sử */}
       {hourLogs.length === 0 ? (
         <div className="p-6 rounded-2xl border border-dashed border-border/50 text-center">
-          <p className="text-sm text-muted-foreground">Chưa có giờ nào được ghi. Bắt đầu ghi giờ đồng hành của bạn!</p>
+          <p className="text-sm text-muted-foreground">{t("memberPortal.team.hoursEmpty")}</p>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider mb-3">Lịch sử ghi giờ</p>
+          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider mb-3">{t("memberPortal.team.hoursHistory")}</p>
           {hourLogs.map((l) => (
             <div key={l._id} className="p-3.5 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors flex items-center gap-3">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">
-                  {l.hours}h · {fmtDate(l.date)}
+                  {l.hours}h · {fmtDate(l.date, locale)}
                 </p>
                 {(l.note || l.taskId) && (
                   <p className="text-xs text-muted-foreground truncate">
@@ -832,7 +802,7 @@ function DevHours({ hourLogs, tasks, reload }) {
               </div>
               <StatusChip meta={LOG_STATUS_META[l.status] || LOG_STATUS_META.pending} />
               {l.status === "pending" && (
-                <button onClick={() => withdraw(l._id)} aria-label="Rút lại"
+                <button onClick={() => withdraw(l._id)} aria-label={t("memberPortal.team.withdraw")}
                   className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted">
                   <span className="material-symbols-outlined text-[16px]">delete</span>
                 </button>
@@ -846,6 +816,7 @@ function DevHours({ hourLogs, tasks, reload }) {
 }
 
 function DevChat({ messages, reload }) {
+  const { t, i18n } = useTranslation();
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -867,7 +838,7 @@ function DevChat({ messages, reload }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: t }),
       });
-      if (!res.ok) throw new Error((await res.json()).error || "Lỗi gửi tin");
+      if (!res.ok) throw new Error((await res.json()).error || t("memberPortal.team.toastSendError"));
       setText("");
       reload();
     } catch (e) {
@@ -884,9 +855,7 @@ function DevChat({ messages, reload }) {
           <div className="h-full flex items-center justify-center">
             <div className="text-center space-y-2">
               <span className="material-symbols-outlined text-3xl text-muted-foreground block">mail</span>
-              <p className="text-sm text-muted-foreground">
-                Chưa có trao đổi nào. Nhắn admin tại đây — tin quan trọng cũng sẽ được gửi qua email cho bạn.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("memberPortal.team.chatEmpty")}</p>
             </div>
           </div>
         )}
@@ -897,7 +866,7 @@ function DevChat({ messages, reload }) {
             }`}>
               {m.text}
               <p className={`mt-1 text-[9px] ${m.from === "dev" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {new Date(m.at).toLocaleString("vi-VN")}
+                {new Date(m.at).toLocaleString(localeForLanguage(i18n.resolvedLanguage || i18n.language))}
               </p>
             </div>
           </div>
@@ -907,11 +876,11 @@ function DevChat({ messages, reload }) {
         <input value={text} maxLength={2000}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-          placeholder="Viết tin nhắn..."
+          placeholder={t("memberPortal.team.chatPlaceholder")}
           className="flex-1 px-4 py-2.5 rounded-2xl border border-border bg-background text-xs focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none transition-all" />
         <button onClick={send} disabled={sending || !text.trim()}
           className="px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground active:scale-95 transition-all">
-          {sending ? "..." : "Gửi"}
+          {sending ? "..." : t("memberPortal.team.send")}
         </button>
       </div>
     </div>

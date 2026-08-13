@@ -135,7 +135,12 @@ export default function TodayArticleReader({ articleId, onBack }) {
               {(summary?.points || []).map((point, index) => <li key={index}>{point}</li>)}
             </ul>
             <p className="today-article-summary-by">
-              {t("memberPortal.today.summaryBySource", { source: article.source })}
+              {t(
+                summary?.by === "ai"
+                  ? "memberPortal.today.summaryByAi"
+                  : "memberPortal.today.summaryBySource",
+                { source: article.source },
+              )}
             </p>
           </section>
 
@@ -147,7 +152,9 @@ export default function TodayArticleReader({ articleId, onBack }) {
               <span className="material-symbols-outlined text-sm" aria-hidden="true">
                 {content?.available ? "verified_user" : "policy"}
               </span>
-              {t(content?.available ? "memberPortal.today.fullAccess" : "memberPortal.today.summaryAccess")}
+              {content?.license
+                ? t("memberPortal.today.licenseNotice", { license: content.license, source: article.source })
+                : t(content?.available ? "memberPortal.today.fullAccess" : "memberPortal.today.summaryAccess")}
             </p>
 
             {content?.available ? (
@@ -196,8 +203,22 @@ export default function TodayArticleReader({ articleId, onBack }) {
             )}
 
             <p className="today-article-attribution">
-              {t("memberPortal.today.attribution", { source: article.source })}
+              {content?.license
+                ? t("memberPortal.today.licenseAttribution", {
+                  source: article.source,
+                  author: article.author || article.source,
+                  license: content.license,
+                })
+                : t("memberPortal.today.attribution", { source: article.source })}
               {" "}
+              {content?.licenseUrl ? (
+                <>
+                  <a href={content.licenseUrl} target="_blank" rel="noopener noreferrer external license">
+                    {content.license}
+                  </a>
+                  {" · "}
+                </>
+              ) : null}
               <a href={article.url} target="_blank" rel="noopener noreferrer external">
                 {t("memberPortal.today.readOriginal")}
                 <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>

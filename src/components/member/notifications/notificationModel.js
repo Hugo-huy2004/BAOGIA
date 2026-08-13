@@ -12,11 +12,15 @@ import { localeForLanguage } from "../../../i18n/languages";
  * chuẩn hoá dữ liệu hiển thị.
  */
 
-/** Nhóm hiển thị — cũng là bộ lọc trên đầu trang. */
+/**
+ * Nhóm hiển thị. Chỉ còn id + danh mục: nhãn tiếng Việt trước đây nằm ngay
+ * trong này là một đường rò ngôn ngữ — mọi chữ hiện ra màn hình phải đi qua
+ * i18n hoặc shared/notificationText.js, không nơi nào khác.
+ */
 export const GROUPS = {
-  joy: { id: "joy", label: "Giao dịch", icon: "swap_horiz", categories: ["joy", "payment"] },
-  account: { id: "account", label: "Tài khoản", icon: "person", categories: ["verification", "security", "package"] },
-  system: { id: "system", label: "Hệ thống", icon: "settings", categories: ["system", "general", "wellness"] },
+  joy: { id: "joy", categories: ["joy", "payment"] },
+  account: { id: "account", categories: ["verification", "security", "package"] },
+  system: { id: "system", categories: ["system", "general", "wellness"] },
 };
 
 const CATEGORY_GROUP = new Map(
@@ -41,16 +45,6 @@ export const CATEGORY_STYLE = {
   joy: { icon: "toll", tint: "#FF9F0A" },
 };
 
-/** Icon riêng cho vài mốc lịch sử hồ sơ hay gặp. */
-export const HISTORY_STYLE = {
-  welcome: { icon: "celebration", tint: "#FF375F" },
-  birthday_wish: { icon: "cake", tint: "#FF375F" },
-  birthday_voucher: { icon: "redeem", tint: "#FF9F0A" },
-  referral_bonus: { icon: "group_add", tint: "#30D158" },
-  package_redeemed: { icon: "card_giftcard", tint: "#BF5AF2" },
-  profile_update: { icon: "edit_note", tint: "#0A84FF" },
-};
-
 const CATEGORY_ICON = Object.fromEntries(
   Object.entries(CATEGORY_STYLE).map(([key, value]) => [key, value.icon])
 );
@@ -59,7 +53,6 @@ const CATEGORY_ICON = Object.fromEntries(
 export function tintOf(item) {
   if (item.direction === "in") return "#30D158";
   if (item.direction === "out") return "#FF9F0A";
-  if (item.source === "history") return (HISTORY_STYLE[item.historyType] || {}).tint || "#8E8E93";
   return (CATEGORY_STYLE[item.category] || CATEGORY_STYLE.system).tint;
 }
 
@@ -133,69 +126,11 @@ export function fromNotification(n) {
   };
 }
 
-/** Một mốc lịch sử trong hồ sơ → cùng hình dạng, luôn coi như đã đọc. */
-export function fromHistory(entry, index, fallbackTitle = "Cập nhật hồ sơ") {
-  return {
-    key: `h:${index}:${entry.timestamp}`,
-    id: null,
-    source: "history",
-    at: entry.timestamp,
-    title: entry.title || fallbackTitle,
-    message: entry.detail || "",
-    amount: null,
-    balanceAfter: null,
-    refCode: "",
-    counterparty: "",
-    direction: "none",
-    category: "system",
-    group: "system",
-    icon: (HISTORY_STYLE[entry.type] || {}).icon || entry.icon || "history",
-    actionUrl: "",
-    read: true,
-    dismissible: false,
-    historyType: entry.type || "",
-  };
-}
-
-/** Gộp hai nguồn, mới nhất lên đầu. */
-export function buildFeed(notifications = [], history = [], fallbackHistoryTitle) {
-  return [
-    ...notifications.map(fromNotification),
-    ...history.map((entry, index) => fromHistory(entry, index, fallbackHistoryTitle)),
-  ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
-}
-
-/**
- * Lọc theo chip đang chọn.
- * `filter`: 'all' | 'unread' | id của GROUPS.
- */
-export function applyFilter(items, filter) {
-  if (!filter || filter === "all") return items;
-  if (filter === "unread") return items.filter(i => !i.read);
-  return items.filter(i => i.group === filter);
-}
-
-/** Chỉ trả về những chip THẬT SỰ có nội dung — không bày tab rỗng. */
-export function availableFilters(items, labels = {}) {
-  const chips = [{ id: "all", label: labels.all || "Tất cả", icon: "inbox" }];
-  const unread = items.filter(i => !i.read).length;
-  if (unread > 0) {
-    chips.push({
-      id: "unread",
-      label: labels.unread ? labels.unread(unread) : `Chưa đọc (${unread})`,
-      icon: "mark_email_unread",
-    });
-  }
-  for (const group of Object.values(GROUPS)) {
-    if (items.some(i => i.group === group.id)) {
-      chips.push({
-        id: group.id,
-        label: labels[group.id] || group.label,
-        icon: group.icon,
-      });
-    }
-  }
-  return chips;
+/** Danh sách để vẽ, mới nhất lên đầu. */
+export function buildFeed(notifications = []) {
+  return notifications
+    .map(fromNotification)
+    .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 }
 
 const DAY_MS = 86_400_000;
@@ -215,21 +150,17 @@ export function dayBucket(at, now = new Date()) {
   return "earlier";
 }
 
-export const BUCKET_LABEL = {
-  today: "Hôm nay",
-  yesterday: "Hôm qua",
-  this_week: "Trong tuần",
-  earlier: "Cũ hơn",
-};
-
-/** Chia danh sách thành các khối theo ngày, giữ nguyên thứ tự đã sắp. */
-export function groupByDay(items, now = new Date(), labels = BUCKET_LABEL) {
+/**
+ * Chia danh sách thành các khối theo ngày, giữ nguyên thứ tự đã sắp.
+ * `labels` do nơi gọi dịch sẵn — model không giữ chữ của bất kỳ ngôn ngữ nào.
+ */
+export function groupByDay(items, now = new Date(), labels = {}) {
   const out = [];
   for (const item of items) {
     const bucket = dayBucket(item.at, now);
     const last = out[out.length - 1];
     if (last?.bucket === bucket) last.items.push(item);
-    else out.push({ bucket, label: labels[bucket] || BUCKET_LABEL[bucket], items: [item] });
+    else out.push({ bucket, label: labels[bucket] || bucket, items: [item] });
   }
   return out;
 }

@@ -156,7 +156,10 @@ function chunkEntries(entries) {
 // Prices, dates and counts are facts, not copy. Masking them alongside the
 // interpolation tokens means a translation can never quietly restate 1.900.000
 // as 1,900,000 — or invent a different number on the services page.
-const PROTECTED = () => /{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w|\d[\d.,]*/g;
+// Only money-shaped numbers are masked: a price such as 1.900.000 must survive
+// verbatim, while masking every single digit filled short strings with markers
+// the compact model then dropped, forcing endless retries.
+const PROTECTED = () => /{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w|\d[\d.,]*[.,]\d[\d.,]*|\d{3,}/g;
 const tokens = (text) => [...String(text).matchAll(PROTECTED())].map((match) => match[0]).sort();
 const hasSameTokens = (source, target) => JSON.stringify(tokens(source)) === JSON.stringify(tokens(target));
 

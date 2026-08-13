@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { playGameMove, playGameMerge, playGameLose } from "../../../utils/audio";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
 import { levelFor, ramp, createCombo } from "./arcadeProgression";
@@ -211,19 +212,9 @@ const STONE_STYLE = { bg: "#3f4657", color: "#c2c9da", border: "#5b647a", glow: 
 const TNT_STYLE = { bg: "#7f1d1d", color: "#fca5a5", border: "#ef4444", glow: "0 0 14px #ef4444,0 0 28px rgba(239,68,68,.6),inset 0 -4px 10px rgba(0,0,0,.3),inset 0 3px 6px rgba(255,255,255,.2)" };
 
 // ── Particles ──────────────────────────────────────────────────────
-const MAX_PARTICLES = 80;
-const createParticle = (x, y, color) => ({
-  id: `p-${++tileSequence}`,
-  x, y,
-  vx: (Math.random() - 0.5) * 6,
-  vy: (Math.random() - 0.5) * 6 - 2,
-  life: 1,
-  decay: 0.02 + Math.random() * 0.02,
-  size: 2 + Math.random() * 4,
-  color,
-});
 
 export default function Game2048({ paused = false, onGameOver }) {
+  const { t } = useTranslation();
   const [grid, setGrid] = useState(createTileGrid);
   const [score, setScore] = useState(0);
   const [displayScore, setDisplayScore] = useState(0);
@@ -233,8 +224,11 @@ export default function Game2048({ paused = false, onGameOver }) {
   const [moveCount, setMoveCount] = useState(0);
   const [undoLeft, setUndoLeft] = useState(3);
   const [hudExtra, setHudExtra] = useState({ combo: 0, mult: 1, notice: "" });
-  const [particles, setParticles] = useState([]);
-  const [shakeMag, setShakeMag] = useState(0);
+  // Rung màn là MỘT lớp CSS, không phải con số giảm dần qua state: bản cũ hạ
+  // `shakeMag` bằng chuỗi setTimeout 30ms nên mỗi cú gộp kéo theo ~10 lần
+  // re-render cả bàn, đúng lúc 16 ô đang trượt. 0 = không rung, 1 = gộp lớn,
+  // 2 = TNT nổ.
+  const [shake, setShake] = useState(0);
   const [fever, setFever] = useState(0);
   const [feverChain, setFeverChain] = useState(0);
   const [milestone, setMilestone] = useState(null);
@@ -259,12 +253,12 @@ export default function Game2048({ paused = false, onGameOver }) {
     return () => clearTimeout(t);
   }, [score, displayScore]);
 
-  // Screen shake decay
+  // Hết animation thì bỏ lớp rung — một lần re-render, không phải mười.
   useEffect(() => {
-    if (shakeMag <= 0) return;
-    const t = setTimeout(() => setShakeMag((s) => s * 0.7), 30);
+    if (!shake) return undefined;
+    const t = setTimeout(() => setShake(0), 280);
     return () => clearTimeout(t);
-  }, [shakeMag]);
+  }, [shake]);
 
   // Fever countdown
   useEffect(() => {
@@ -287,17 +281,6 @@ export default function Game2048({ paused = false, onGameOver }) {
     return () => clearTimeout(t);
   }, [tripleScore]);
 
-  // Particle animation
-  useEffect(() => {
-    if (!particles.length) return;
-    const t = setTimeout(() => {
-      setParticles((prev) => prev
-        .map((p) => ({ ...p, x: p.x + p.vx, y: p.y + p.vy, vy: p.vy + 0.15, life: p.life - p.decay }))
-        .filter((p) => p.life > 0)
-      );
-    }, 32);
-    return () => clearTimeout(t);
-  }, [particles]);
 
   // Milestone celebration auto-dismiss
   useEffect(() => {
@@ -305,13 +288,6 @@ export default function Game2048({ paused = false, onGameOver }) {
     const t = setTimeout(() => setMilestone(null), 2200);
     return () => clearTimeout(t);
   }, [milestone]);
-
-  const spawnParticles = useCallback((x, y, color, count = 8) => {
-    setParticles((prev) => {
-      const next = [...prev, ...Array.from({ length: count }, () => createParticle(x, y, color))];
-      return next.slice(-MAX_PARTICLES);
-    });
-  }, []);
 
   const handleMove = useCallback((direction) => {
     if (status || paused) return;
@@ -331,13 +307,9 @@ export default function Game2048({ paused = false, onGameOver }) {
       next = applyTNTExplosion(next, tntExplosion);
       addedScore += 500;
       setScore((s) => s + 500);
-      setShakeMag(18);
+      setShake(2);
       playGameMerge();
       hapticMerge();
-      // Particles at both TNT locations
-      const { r, c, r2, c2 } = tntExplosion;
-      spawnParticles(c * 90 + 45, r * 90 + 45, "#ef4444", 20);
-      spawnParticles(c2 * 90 + 45, r2 * 90 + 45, "#ef4444", 20);
     }
 
     if (gained > 0) {
@@ -353,14 +325,11 @@ export default function Game2048({ paused = false, onGameOver }) {
       // 3-gộp → kích hoạt ×3 điểm trong 10 giây
       if (tripleBonus) {
         setTripleScore(100);
-        setHudExtra((h) => ({ ...h, notice: "⚡ ×3 ĐIỂM TRONG 10 GIÂY!" }));
-        setShakeMag(8);
+        setHudExtra((h) => ({ ...h, notice: t("arcadeGame.g2048Triple") }));
+        setShake(1);
       }
 
-      // Spawn particles at merge location
-      const mergeColor = gained >= 128 ? "#ffe600" : gained >= 64 ? "#ff2e63" : "#39ff88";
-      spawnParticles(180, 270, mergeColor, gained >= 128 ? 16 : 8);
-      setShakeMag((s) => Math.min(s + (gained >= 128 ? 8 : 3), 15));
+      if (gained >= 128) setShake(1);
 
       // Fever chain tracking
       const newChain = feverChain + merges;
@@ -368,7 +337,7 @@ export default function Game2048({ paused = false, onGameOver }) {
       if (newChain >= FEVER_THRESHOLD && feverRef.current <= 0) {
         setFever(FEVER_DURATION);
         feverRef.current = FEVER_DURATION;
-        setHudExtra((h) => ({ ...h, notice: "🔥 FEVER MODE! ×2 ĐIỂM" }));
+        setHudExtra((h) => ({ ...h, notice: t("arcadeGame.g2048Fever") }));
       }
 
       // Milestone check
@@ -376,8 +345,7 @@ export default function Game2048({ paused = false, onGameOver }) {
       if (MILESTONES.includes(newMax) && newMax > bestTileEver) {
         setMilestone(newMax);
         setBestTileEver(newMax);
-        setShakeMag(12);
-        spawnParticles(180, 270, "#ffe600", 24);
+        setShake(2);
       }
     } else {
       combo.reset();
@@ -404,7 +372,9 @@ export default function Game2048({ paused = false, onGameOver }) {
     setHudExtra({
       combo: combo.chain + (combo.chain > 0 ? 1 : 0),
       mult: combo.mult * (feverRef.current > 0 ? 2 : 1),
-      notice: level !== levelRef.current ? `Cấp ${level}${level >= STONE_FROM_LEVEL ? " · có ô đá" : ""}` : "",
+      notice: level !== levelRef.current
+        ? t(level >= STONE_FROM_LEVEL ? "arcadeGame.g2048LevelStone" : "arcadeGame.g2048Level", { level })
+        : "",
     });
     levelRef.current = level;
 
@@ -413,7 +383,7 @@ export default function Game2048({ paused = false, onGameOver }) {
       playGameLose();
       hapticLose();
     }
-  }, [status, paused, score, maxTile, moveCount, feverChain, bestTileEver, tripleScore, spawnParticles]);
+  }, [status, paused, score, maxTile, moveCount, feverChain, bestTileEver, tripleScore]);
 
   const handleUndo = () => {
     if (paused || status || undoLeft <= 0 || historyRef.current.length === 0) return;
@@ -428,7 +398,7 @@ export default function Game2048({ paused = false, onGameOver }) {
     comboRef.current.reset();
     setFeverChain(0);
     setTripleScore(0);
-    setHudExtra({ combo: 0, mult: 1, notice: "Đã quay lại một lượt" });
+    setHudExtra({ combo: 0, mult: 1, notice: t("arcadeGame.g2048Undone") });
     playGameMove();
     hapticMove();
   };
@@ -508,12 +478,12 @@ export default function Game2048({ paused = false, onGameOver }) {
       <div className="game2048-hud-overlay">
         <div className="game2048-score-display">
           <div className="game2048-score-main">
-            <small>ĐIỂM</small>
+            <small>{t("arcadeGame.g2048Score")}</small>
             <strong>{displayScore.toLocaleString()}</strong>
           </div>
           <div className="game2048-score-secondary">
             <div>
-              <small>LƯỢT</small>
+              <small>{t("arcadeGame.g2048Moves")}</small>
               <b>{moveCount}</b>
             </div>
             <div>
@@ -548,8 +518,7 @@ export default function Game2048({ paused = false, onGameOver }) {
       {/* Board */}
       <div
         ref={boardRef}
-        className={`game2048-board-fullscreen move-${motion.direction || "idle"} ${motion.merged ? "did-merge" : ""} ${fever > 0 ? "is-fever" : ""}`}
-        style={{ transform: shakeMag > 0.5 ? `translate(${(Math.random() - 0.5) * shakeMag}px, ${(Math.random() - 0.5) * shakeMag}px)` : undefined }}
+        className={`game2048-board-fullscreen move-${motion.direction || "idle"} ${motion.merged ? "did-merge" : ""} ${fever > 0 ? "is-fever" : ""}${shake ? ` is-shake-${shake}` : ""}`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -568,7 +537,7 @@ export default function Game2048({ paused = false, onGameOver }) {
                   background: style.bg, color: style.color, borderColor: style.border, boxShadow: style.glow,
                   fontSize: tile.stone || tile.tnt ? "clamp(14px,3.4vw,20px)" : tile.value >= 1000 ? "clamp(16px,4vw,25px)" : "clamp(21px,5vw,34px)",
                 }}
-                aria-label={tile.tnt ? "Ô TNT" : tile.stone ? `Ô đá còn ${tile.life} lượt` : `Ô số ${tile.value}`}>
+                aria-label={tile.tnt ? t("arcadeGame.g2048Tnt") : tile.stone ? t("arcadeGame.g2048Stone", { turns: tile.life }) : t("arcadeGame.g2048Tile", { value: tile.value })}>
                 {tile.tnt ? (
                   <span className="tile-tnt">
                     <span className="material-symbols-outlined">local_fire_department</span>
@@ -584,16 +553,6 @@ export default function Game2048({ paused = false, onGameOver }) {
           }))}
         </div>
 
-        {/* Particles canvas */}
-        {particles.map((p) => (
-          <div key={p.id} className="game2048-particle" style={{
-            left: p.x, top: p.y,
-            width: p.size, height: p.size,
-            background: p.color,
-            opacity: p.life,
-            transform: `scale(${p.life})`,
-          }} />
-        ))}
       </div>
 
       {/* Milestone celebration */}

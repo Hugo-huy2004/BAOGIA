@@ -150,11 +150,16 @@ self.addEventListener("sync", (event) => {
 // Lắng nghe sự kiện nhận thông báo đẩy từ Server (Google Chrome Push Service)
 self.addEventListener('push', function (event) {
   try {
+    // Service worker không có i18n và cũng không cần: chữ trong thông báo đẩy
+    // do máy chủ soạn sẵn theo ngôn ngữ của thiết bị (shared/notificationText.js).
+    // Vì vậy câu dự phòng ở đây chỉ còn tên thương hiệu — không ngôn ngữ nào cả,
+    // thay cho hai câu tiếng Việt cứng trước kia.
+    const FALLBACK_URL = '/member/utilities/psychology';
     let payload = {
-      title: 'Bạn Học Đường - HUGO STUDIO',
-      body: 'Bạn có thông báo mới từ Chuyên viên Đồng Hành.',
+      title: 'Hugo Studio',
+      body: '',
       icon: '/image/avt7.png', // Logo không nền của mascot
-      url: '/member/portal?tab=banhocduong'
+      url: FALLBACK_URL
     };
 
     if (event.data) {
@@ -162,10 +167,10 @@ self.addEventListener('push', function (event) {
         payload = event.data.json();
       } catch (jsonErr) {
         payload = {
-          title: 'Bạn Học Đường - HUGO STUDIO',
-          body: event.data.text() || 'Bạn có thông báo mới từ Chuyên viên Đồng Hành.',
+          title: 'Hugo Studio',
+          body: event.data.text() || '',
           icon: '/image/avt7.png',
-          url: '/member/portal?tab=banhocduong'
+          url: FALLBACK_URL
         };
       }
     }
@@ -176,7 +181,7 @@ self.addEventListener('push', function (event) {
       badge: '/favicon.ico', // Icon hiển thị trên thanh trạng thái (status bar)
       vibrate: [100, 50, 100], // Rung máy (với thiết bị di động hỗ trợ)
       data: {
-        url: payload.url || '/member/portal?tab=banhocduong'
+        url: payload.url || FALLBACK_URL
       },
       // Ví JOY nay nằm trong trang Tài khoản; `/member/joy` là đường cũ nhưng
       // thông báo đã đẩy đi từ trước vẫn mang nó, nên gộp cả hai vào một tag.

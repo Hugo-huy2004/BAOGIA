@@ -4,6 +4,7 @@ import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
 import { readGamePalette, shade, withAlpha } from "./arcadePalette";
 import { createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
+import { createFrameGate } from "./arcadeLoop";
 import ArcadeHud from "./ArcadeHud";
 import { playExplosion, playBossWarning, playWaveClear, playHurt } from "./survivorAudio";
 import {
@@ -103,6 +104,11 @@ const FORMATION_KEYS = Object.keys(FORMATIONS);
 
 export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
   const { t } = useTranslation();
+  // Vòng lặp game chạy trong requestAnimationFrame, ngoài chu kỳ render của
+  // React. Giữ `t` trong ref để popup lấy được bản dịch mới nhất mà không phải
+  // dựng lại cả vòng lặp mỗi lần đổi ngôn ngữ.
+  const tRef = useRef(t);
+  useEffect(() => { tRef.current = t; }, [t]);
   const canvasRef = useRef(null);
   const noticeTimerRef = useRef(null);
   const [layoutRevision, setLayoutRevision] = useState(0);
@@ -345,7 +351,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       const s = state.current;
       // Cố ý KHÔNG cộng điểm ở đây: cách tính điểm và JOY giữ nguyên như cũ,
       // đợt chỉ đổi cách vận hành chứ không đổi phần thưởng.
-      pushPopup(s.popups, W / 2, H / 2 - 40, `ĐỢT ${s.wave} SẠCH`, CORE, 18);
+      pushPopup(s.popups, W / 2, H / 2 - 40, tRef.current("arcadeGame.survivorWaveClear", { wave: s.wave }), CORE, 18);
       playWaveClear();
       if (s.wave % BOSS_EVERY === 0) {
         s.phase = "boss";
@@ -517,7 +523,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
         s.score += bonus;
         pushPopup(s.popups, W / 2, H / 2, `+${bonus}`, OD_COLOR, 20);
       }
-      pushPopup(s.popups, W / 2, H / 2 - 26, "XUNG PHÁ", OD_COLOR, 15);
+      pushPopup(s.popups, W / 2, H / 2 - 26, tRef.current("arcadeGame.survivorSurge"), OD_COLOR, 15);
       playBeep();
       hapticMerge();
       notify(t("arcadeGame.survivor.overdriveActive"));
@@ -1112,7 +1118,10 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
     };
 
     // ── Vòng lặp ───────────────────────────────────────────────────
-    const render = (ts) => {
+    // `frame()` = MỘT nhịp logic 1/60 giây. Toàn bộ vật lý bên trong tính theo
+    // nhịp (`x += speed`, `timer -= 1`), nên nó phải được gọi theo thời gian
+    // thực, không theo tần số quét màn hình — xem arcadeLoop.js.
+    const frame = (ts) => {
       if (stopped) return;
       const s = state.current;
       if (s.isGameOver) { stopped = true; return; }
@@ -1509,7 +1518,7 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
             }
             if (s.graze >= GRAZE_FULL && !s.grazeAnnounced) {
               s.grazeAnnounced = true;
-              pushPopup(s.popups, s.player.x, s.player.y - 40, "SẴN SÀNG", OD_COLOR, 14);
+              pushPopup(s.popups, s.player.x, s.player.y - 40, tRef.current("arcadeGame.ready"), OD_COLOR, 14);
               s.score += 50;
               notify(t("arcadeGame.survivor.overdriveReady"));
             }
@@ -1644,8 +1653,16 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
       }
 
       ctx.restore();
+    };
 
-      rafId = requestAnimationFrame(render);
+    // Cổng nhịp: 120Hz thì một nửa số khung không có nhịp nào để chạy (không gì
+    // đổi → không cần vẽ lại), máy tụt fps thì chạy bù. Trước đây thân vòng lặp
+    // chạy mỗi khung nên trên iPhone ProMotion game nhanh gấp đôi.
+    const gate = createFrameGate();
+    const render = (ts) => {
+      if (stopped) return;
+      for (let i = gate.steps(ts); i > 0 && !stopped; i -= 1) frame(ts);
+      if (!stopped) rafId = requestAnimationFrame(render);
     };
 
     rafId = requestAnimationFrame(render);
@@ -1706,10 +1723,10 @@ export default function GameSpaceSurvivor({ paused = false, onGameOver }) {
               // là thông tin người chơi cần nhất — không có nó thì không biết
               // bao giờ trùm mới ra.
               value: hud.phase === "boss"
-                ? `${hud.wave} · TRÙM`
+                ? t("arcadeGame.survivorBoss", { wave: hud.wave })
                 : hud.waveLeft > 0
-                  ? `${hud.wave} · còn ${hud.waveLeft}`
-                  : `${hud.wave} · sạch`,
+                  ? t("arcadeGame.survivorLeft", { wave: hud.wave, count: hud.waveLeft })
+                  : t("arcadeGame.survivorClear", { wave: hud.wave }),
             },
           ]}
         />

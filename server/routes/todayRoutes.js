@@ -67,7 +67,7 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
     }
 
     const content = await studentNewsService.readArticle(article);
-    const summary = studentNewsService.summarizeArticle(article, content);
+    const summary = await studentNewsService.summarizeArticle(article, content, language);
     res.set('Cache-Control', 'private, max-age=900');
     res.set('Content-Language', resolveNewsEdition(language).locale);
     return res.json({ article, summary, content });

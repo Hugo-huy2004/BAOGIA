@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense, useCallback } from "react";
+import { localeForLanguage } from "../../../i18n/languages";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import GAME_THEMES from "./gameThemes";
@@ -33,7 +34,8 @@ const RESULT_CONFIG = {
 };
 
 export default function StandaloneGameShell({ gameId, bio, onClose }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const theme = GAME_THEMES[gameId] || GAME_THEMES["2048"];
   const GameComp = GAME_COMPONENTS[gameId];
   const sound = useArcadeSound();
@@ -265,8 +267,8 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
             </div>
 
             <p className="gshell__formula">
-              {resultData.score?.toLocaleString("vi-VN")} điểm → {signedJoy} JOY
-              {joyPending && " · đang chờ cộng vào ví"}
+              {t("arcadeGame.shellFormula", { score: (resultData.score || 0).toLocaleString(locale), joy: signedJoy })}
+              {joyPending && ` ${t("arcadeGame.pendingWallet")}`}
             </p>
 
             {/* Ván vừa rồi đứng ở đâu so với chính mình. Ba trường hợp, ba câu
@@ -274,17 +276,17 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
             {resultData.isRecord ? (
               <p className="gshell__chase gshell__chase--record">
                 <span className="material-symbols-outlined">trophy</span>
-                Kỷ lục mới! Hơn lần trước {(resultData.score - resultData.prevBest).toLocaleString("vi-VN")} điểm.
+                {t("arcadeGame.shellRecord", { delta: (resultData.score - resultData.prevBest).toLocaleString(locale) })}
               </p>
             ) : resultData.gap > 0 ? (
               <p className="gshell__chase gshell__chase--near">
                 <span className="material-symbols-outlined">bolt</span>
-                Thiếu {resultData.gap.toLocaleString("vi-VN")} điểm nữa là phá kỷ lục {resultData.prevBest.toLocaleString("vi-VN")}.
+                {t("arcadeGame.shellNear", { gap: resultData.gap.toLocaleString(locale), best: resultData.prevBest.toLocaleString(locale) })}
               </p>
             ) : resultData.prevBest > 0 ? (
               <p className="gshell__chase">
                 <span className="material-symbols-outlined">flag</span>
-                Kỷ lục của bạn: {resultData.prevBest.toLocaleString("vi-VN")}.
+                {t("arcadeGame.shellBest", { best: resultData.prevBest.toLocaleString(locale) })}
               </p>
             ) : null}
 
@@ -292,7 +294,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
               <button type="button" className="gshell__btn gshell__btn--primary" onClick={handleReplay}>
                 {/* Hụt gang tấc thì nút không nên chỉ là "Chơi lại": nó phải nói
                     ra việc người chơi vừa suýt làm được. */}
-                {resultData.gap > 0 ? "Thử lại — sát rồi!" : t("arcadeGame.replay")}
+                {resultData.gap > 0 ? t("arcadeGame.tryAgainClose") : t("arcadeGame.replay")}
               </button>
             </div>
 

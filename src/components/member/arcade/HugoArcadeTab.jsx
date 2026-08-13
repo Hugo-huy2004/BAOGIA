@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { localeForLanguage } from "../../../i18n/languages";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
 import { Blocks, Swords, Castle, Infinity as InfinityIcon, Rocket } from "lucide-react";
@@ -34,30 +36,34 @@ const readStoredList = (key) => {
 // trên thiết kế của người khác thì ghi `credit` thay vì nhãn độc quyền — không
 // nhận vơ, và cũng là lý do 3 game clone (xếp khối tetromino, chim bay qua ống,
 // đoán từ kiểu Wordle) đã bị gỡ khỏi hệ thống.
+// Tên game là danh từ riêng nên giữ nguyên mọi ngôn ngữ. Câu giới thiệu và
+// nhãn thể loại lấy thẳng từ `arcadeIntro.games.*` — bộ chữ đó đã được dịch tay
+// cho cả 9 ngôn ngữ, chép lại ở đây là tự tạo ra bản thứ hai để lệch nhau.
 const GAMES = [
-  { id: "chess",     name: "HugoChess Table 3D", tagline: "Đấu BOT hoặc hai người trên cùng thiết bị.", label: "Cờ Vua · Offline Table", Icon: Castle, studio: true },
-  { id: "survivor",  name: "Hugo Space Survivor",tagline: "Không chiến Neon 3D & 4 lớp Boss.", label: "Bắn Súng 3D · Multi-Boss", Icon: Rocket, studio: true },
-  { id: "snake",     name: "Hugo Snake 3D Pro", tagline: "Rắn săn mồi Khối Cầu Neon 3D.", label: "Cổ Điển 3D", Icon: InfinityIcon, studio: true },
-  { id: "caro",      name: "Caro 3×3 Arena",    tagline: "Ba quân tạo nên chiến thắng.", label: "Đối Kháng · AI 3 Cấp", Icon: Swords, studio: true },
-  { id: "2048",      name: "2048 Mega Fusion",  tagline: "Gộp số 2048. Phá giới hạn điểm.", label: "Trí Tuệ · Logic", Icon: Blocks, credit: "Dựa trên 2048 của Gabriele Cirulli (giấy phép MIT)" },
+  { id: "chess",    name: "HugoChess Table 3D",  Icon: Castle, studio: true },
+  { id: "survivor", name: "Hugo Space Survivor", Icon: Rocket, studio: true },
+  { id: "snake",    name: "Hugo Snake 3D Pro",   Icon: InfinityIcon, studio: true },
+  { id: "caro",     name: "Caro 3×3 Arena",      Icon: Swords, studio: true },
+  { id: "2048",     name: "2048 Mega Fusion",    Icon: Blocks, creditKey: "arcadeGame.credit2048" },
 ];
 
 // Game được đưa lên thẻ "Tâm điểm" đầu trang.
 const FEATURED = GAMES[0];
 
 const CATEGORIES = [
-  { id: "all",      label: "Tất cả" },
-  { id: "studio",   label: "Hugo Studio" },
-  { id: "pvp",      label: "Đối kháng" },
+  { id: "all",    labelKey: "arcadeGame.catAll" },
+  { id: "studio", labelKey: "arcadeGame.catStudio" },
+  { id: "pvp",    labelKey: "arcadeGame.catPvp" },
 ];
 
 // ─── Sub-components ────────────────────────────────────────────────
 
 const JoyChip = React.memo(function JoyChip({ balance }) {
+  const { i18n } = useTranslation();
   return (
     <div className="arc-joy-chip">
       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>toll</span>
-      <span>{(balance ?? 0).toLocaleString("vi-VN")}</span>
+      <span>{(balance ?? 0).toLocaleString(localeForLanguage(i18n.language))}</span>
       <small>JOY</small>
     </div>
   );
@@ -65,6 +71,8 @@ const JoyChip = React.memo(function JoyChip({ balance }) {
 
 // Một hàng trong danh sách kiểu App Store: icon squircle · tên/mô tả · nút NHẬN.
 const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloaded, downloadProgress, onPinToHome, onClick }) {
+  const { t, i18n } = useTranslation();
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const best  = profile?.[game.id]?.bestScore || 0;
   const priceLabel = game.id === "chess" ? "299 JOY" : "199 JOY";
   const isDownloading = downloadProgress !== undefined;
@@ -89,22 +97,22 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
 
       <div className="arc-row__body">
         <p className="arc-row__name">{game.name}</p>
-        <p className="arc-row__sub">{game.tagline}</p>
+        <p className="arc-row__sub">{t(`arcadeIntro.games.${game.id}.title`)}</p>
         {game.studio ? (
           <p className="arc-row__studio">
             <span className="material-symbols-outlined">verified</span>
-            Độc quyền bởi Hugo Studio
+            {t("arcadeGame.exclusive")}
           </p>
-        ) : game.credit ? (
-          <p className="arc-row__studio arc-row__studio--credit">{game.credit}</p>
+        ) : game.creditKey ? (
+          <p className="arc-row__studio arc-row__studio--credit">{t(game.creditKey)}</p>
         ) : null}
         <p className="arc-row__meta">
-          {game.label}{best ? ` · Kỷ lục ${best.toLocaleString("vi-VN")}` : ""}
+          {t(`arcadeIntro.games.${game.id}.eyebrow`)}{best ? ` ${t("arcadeGame.bestScore", { score: best.toLocaleString(locale) })}` : ""}
         </p>
       </div>
 
       {isDownloading ? (
-        <button type="button" className="arc-get" disabled onClick={(e) => e.stopPropagation()} aria-label={`Đang tải ${downloadProgress}%`}>
+        <button type="button" className="arc-get" disabled onClick={(e) => e.stopPropagation()} aria-label={t("arcadeGame.downloading", { percent: downloadProgress })}>
           <span>
             <svg width="22" height="22" viewBox="0 0 22 22" style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
               <circle cx="11" cy="11" r={radius} fill="none" stroke="currentColor" strokeWidth="2" opacity=".25" />
@@ -134,6 +142,8 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
 
 // ─── Main ──────────────────────────────────────────────────────────
 export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
+  const { t, i18n } = useTranslation();
+  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -194,7 +204,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
       body: JSON.stringify({ email: bio.email, featureKey: "hugoArcade" })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Lỗi trao đổi JOY.");
+    if (!res.ok) throw new Error(data.error || t("arcadeGame.exchangeError"));
     return data;
   }, [bio?.email]);
 
@@ -284,7 +294,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
             return next;
           });
           const game = GAMES.find((item) => item.id === gameId);
-          showToast?.(`${game?.name || "Trò chơi"} đã được thêm vào Ứng dụng.`, "success");
+          showToast?.(t("arcadeGame.addedToApps", { game: game?.name || t("arcadeGame.gameFallback") }), "success");
         }, 400);
       } else {
         setDownloading(prev => ({ ...prev, [gameId]: progress }));
@@ -300,7 +310,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
         <header className={`arc-topbar${scrolled ? " is-scrolled" : ""}`}>
           <div className="arc-col">
             <BackButton onClick={onBack} iconOnly />
-            <span className="arc-topbar-title">{activeTab === "rank" ? "Xếp hạng" : "Hugo Arcade"}</span>
+            <span className="arc-topbar-title">{activeTab === "rank" ? t("arcadeGame.rankTitle") : "Hugo Arcade"}</span>
             <JoyChip balance={joyBalance} />
             {!subscribed && (
               <button type="button" className="arc-text-btn" onClick={() => setShowInvoice(true)}>
@@ -316,10 +326,10 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
               <>
                 <div className="arc-largetitle">
                   <h1>Hugo Arcade</h1>
-                  <p>Chơi ngay trong Hugo — không quảng cáo.</p>
+                  <p>{t("arcadeGame.noAds")}</p>
                 </div>
 
-                <div className="arc-seg" role="tablist" aria-label="Lọc trò chơi">
+                <div className="arc-seg" role="tablist" aria-label={t("arcadeGame.filterGames")}>
                   {CATEGORIES.map((cat) => (
                     <button
                       key={cat.id}
@@ -329,7 +339,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
                       className={selectedCategory === cat.id ? "active" : ""}
                       onClick={() => setSelectedCategory(cat.id)}
                     >
-                      {cat.label}
+                      {t(cat.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -339,26 +349,26 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
                     className="arc-feature__art"
                     role="button"
                     tabIndex={0}
-                    aria-label={`Chơi ${FEATURED.name}`}
+                    aria-label={t("arcadeGame.playGame", { game: FEATURED.name })}
                     onClick={() => openGame(FEATURED.id)}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openGame(FEATURED.id); } }}
                   >
-                    <span className="arc-feature__kicker">Tâm điểm hôm nay</span>
+                    <span className="arc-feature__kicker">{t("arcadeGame.spotlight")}</span>
                     <FEATURED.Icon size={64} strokeWidth={1.5} aria-hidden="true" />
                   </div>
                   <div className="arc-feature__bar">
                     <div className="arc-feature__body">
                       <strong>{FEATURED.name}</strong>
-                      <span>{FEATURED.tagline}</span>
+                      <span>{t(`arcadeIntro.games.${FEATURED.id}.title`)}</span>
                     </div>
                     <button type="button" className="arc-get" onClick={() => openGame(FEATURED.id)}>
-                      <span>CHƠI</span>
+                      <span>{t("arcadeGame.play")}</span>
                     </button>
                   </div>
                 </section>
 
                 <div className="arc-section-hd">
-                  <h2 className="arc-section-hd-title">Trò chơi</h2>
+                  <h2 className="arc-section-hd-title">{t("arcadeGame.gamesTitle")}</h2>
                   <span className="arc-section-hd-count">{filteredGames.length} trò chơi</span>
                 </div>
 
@@ -379,24 +389,24 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
 
                 <div className="arc-stats-strip">
                   <div className="arc-stat-box">
-                    <small>Tổng ván</small>
+                    <small>{t("arcadeGame.totalMatches")}</small>
                     <strong>{totalGames}</strong>
                   </div>
                   <div className="arc-stat-box">
-                    <small>Chiến thắng</small>
+                    <small>{t("arcadeGame.wins")}</small>
                     <strong>{totalWins}</strong>
                   </div>
                   <div className="arc-stat-box">
                     <small>JOY</small>
-                    <strong>{(joyBalance ?? 0).toLocaleString("vi-VN")}</strong>
+                    <strong>{(joyBalance ?? 0).toLocaleString(locale)}</strong>
                   </div>
                 </div>
               </>
             ) : (
               <>
                 <div className="arc-largetitle">
-                  <h1>Xếp hạng</h1>
-                  <p>Game thủ xuất sắc nhất toàn hệ thống.</p>
+                  <h1>{t("arcadeGame.rankTitle")}</h1>
+                  <p>{t("arcadeGame.rankDesc")}</p>
                 </div>
                 <div className="arc-rank-body">
                   <ArcadeLeaderboard active={activeTab === "rank"} />
@@ -409,11 +419,11 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
         <nav className={`arc-navbar${scrolled ? " is-compact" : ""}`}>
           <button type="button" className={`arc-nav-btn ${activeTab === "games" ? "active" : ""}`} onClick={() => setTab("games")}>
             <span className="material-symbols-outlined" style={{ fontVariationSettings: activeTab === "games" ? "'FILL' 1" : "" }}>sports_esports</span>
-            <span>Trò chơi</span>
+            <span>{t("arcadeGame.gamesTitle")}</span>
           </button>
           <button type="button" className={`arc-nav-btn ${activeTab === "rank" ? "active" : ""}`} onClick={() => setTab("rank")}>
             <span className="material-symbols-outlined" style={{ fontVariationSettings: activeTab === "rank" ? "'FILL' 1" : "" }}>leaderboard</span>
-            <span>Xếp hạng</span>
+            <span>{t("arcadeGame.rankTitle")}</span>
           </button>
         </nav>
       </div>

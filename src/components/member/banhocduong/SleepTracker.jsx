@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Moon, Sun, Clock, Sparkles, TrendingUp, AlertTriangle, CheckCircle,
@@ -154,6 +155,7 @@ function ScoreRing({ score, size = 80, stroke = 6 }) {
 
 // ── 90-Minute Circadian Sleep Calculator Widget ───────────────────────────
 function CircadianSleepCalculator() {
+  const { t } = useTranslation();
   const [calcMode, setCalcMode] = useState("wake"); // "wake" (wake time target) or "now" (sleep now)
   const [targetTime, setTargetTime] = useState("06:30");
 
@@ -204,11 +206,11 @@ function CircadianSleepCalculator() {
         <div className="flex items-center gap-2">
           <Moon className="w-4 h-4 text-primary animate-pulse" />
           <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
-            Tính Chu Kỳ Giấc Ngủ Sinh Học 90 Phút (Circadian Cycle)
+            {t("hugoPsy.sleep.tinhChuKyGiac")}
           </h4>
         </div>
         <span className="px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase bg-primary/15 text-primary border border-primary/20">
-          Chuẩn Khoa Học NREM/REM
+          {t("hugoPsy.sleep.chuanKhoaHocNrem")}
         </span>
       </div>
 
@@ -221,7 +223,7 @@ function CircadianSleepCalculator() {
             calcMode === "wake" ? "bg-white dark:bg-card text-primary shadow-xs" : "text-muted-foreground"
           }`}
         >
-          ⏰ Thức dậy lúc...
+          {t("hugoPsy.sleep.thucDayLuc")}
         </button>
         <button
           type="button"
@@ -230,14 +232,14 @@ function CircadianSleepCalculator() {
             calcMode === "now" ? "bg-white dark:bg-card text-primary shadow-xs" : "text-muted-foreground"
           }`}
         >
-          🌙 Đi ngủ ngay bây giờ...
+          {t("hugoPsy.sleep.diNguNgayBay")}
         </button>
       </div>
 
       {/* Input target time */}
       {calcMode === "wake" && (
         <div className="flex items-center justify-between bg-muted/30 p-2.5 rounded-xl border border-border/40">
-          <span className="text-[10.5px] font-bold text-muted-foreground">Giờ thức dậy mong muốn:</span>
+          <span className="text-[10.5px] font-bold text-muted-foreground">{t("hugoPsy.sleep.gioThucDayMong")}</span>
           <input
             type="time"
             value={targetTime}
@@ -260,13 +262,13 @@ function CircadianSleepCalculator() {
           >
             <p className="text-[8.5px] font-black uppercase text-muted-foreground">{win.label}</p>
             <p className="text-base font-mono font-black text-foreground mt-0.5">{win.timeStr}</p>
-            <p className="text-[9px] font-bold text-primary">{win.hoursTotal} giờ ngủ</p>
+            <p className="text-[9px] font-bold text-primary">{win.hoursTotal} {t("hugoPsy.sleep.gioNgu")}</p>
           </div>
         ))}
       </div>
 
       <p className="text-[9.5px] text-muted-foreground font-semibold leading-relaxed italic border-t border-border/40 pt-2">
-        💡 **Mẹo:** Mỗi chu kỳ giấc ngủ kéo dài 90 phút (đi qua các pha NREM, Ngủ Sâu N3 & REM). Thức dậy ở cuối chu kỳ giúp cậu tỉnh táo hoàn toàn, không bị uể oải hay nhức đầu.
+        {t("hugoPsy.sleep.meoMoiChuKy")}
       </p>
     </div>
   );
@@ -275,6 +277,7 @@ function CircadianSleepCalculator() {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function SleepTracker({ bio, sleepAutoDetect }) {
+  const { t } = useTranslation();
   const email = bio?.email;
   const isPWA = isStandalone();
 
@@ -575,12 +578,12 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               <span className={`relative inline-flex rounded-full h-2 w-2 ${sensorsConnected ? "bg-success" : "bg-destructive"}`}></span>
             </span>
             <span className="text-[11px] font-bold text-foreground">
-              Bộ cảm biến: {isPWA ? "Tự động kích hoạt (PWA)" : sensorsConnected ? "Đang kết nối" : "Chưa liên kết"}
+              {t("hugoPsy.sleep.boCamBien")} {isPWA ? t("hugoPsy.sleep.tuDongKichHoat") : sensorsConnected ? t("hugoPsy.sleep.dangKetNoi") : t("hugoPsy.sleep.chuaLienKet")}
             </span>
           </div>
           {isPWA ? (
             <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-success/15 text-success border border-success/30">
-              Tự động
+              {t("hugoPsy.sleep.tuDong")}
             </span>
           ) : (
             <button
@@ -592,7 +595,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                   : "bg-primary hover:bg-primary/90 text-white border-transparent"
               }`}
             >
-              {sensorsConnected ? "Đã liên kết" : "Liên kết thiết bị"}
+              {sensorsConnected ? t("hugoPsy.sleep.daLienKet") : t("hugoPsy.sleep.lienKetThietBi")}
             </button>
           )}
         </div>
@@ -601,7 +604,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {sensorsConnected && (
           <div className="grid grid-cols-3 gap-2 bg-black/10 dark:bg-black/30 rounded-xl p-3 border border-border/30">
             <div className="text-center space-y-1">
-              <div className="text-[9px] text-muted-foreground font-medium uppercase">Cử động</div>
+              <div className="text-[9px] text-muted-foreground font-medium uppercase">{t("hugoPsy.sleep.cuDong")}</div>
               <div className="text-xs font-mono font-bold text-accent flex items-center justify-center gap-1">
                 <span className="material-symbols-outlined text-[10px] animate-pulse">waves</span>
                 <span>{motionVal} m/s²</span>
@@ -615,9 +618,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               </div>
             </div>
             <div className="text-center space-y-1">
-              <div className="text-[9px] text-muted-foreground font-medium uppercase">Trạng thái Tab</div>
+              <div className="text-[9px] text-muted-foreground font-medium uppercase">{t("hugoPsy.sleep.trangThaiTab")}</div>
               <div className="text-xs font-bold text-info flex items-center justify-center gap-1">
-                <span className="material-symbols-outlined text-[10px]">{tabVisibility === "Hiện" ? "visibility" : "visibility_off"}</span>
+                <span className="material-symbols-outlined text-[10px]">{tabVisibility === t("hugoPsy.sleep.hien") ? "visibility" : "visibility_off"}</span>
                 <span>{tabVisibility}</span>
               </div>
             </div>
@@ -637,7 +640,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <span className={`w-2 h-2 rounded-full ${detectStateMeta.dot}`} />
                 <h3 className="text-sm font-bold text-foreground">{detectStateMeta.label}</h3>
               </div>
-              <p className="text-[10px] text-muted-foreground">Tự động · 8 tín hiệu thiết bị thật</p>
+              <p className="text-[10px] text-muted-foreground">{t("hugoPsy.sleep.tuDong8Tin")}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -646,7 +649,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/15 hover:bg-primary/25 text-primary text-xs font-semibold transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
-              Thêm thủ công
+              {t("hugoPsy.sleep.themThuCong")}
             </button>
             <button
               onClick={() => { ensureFetched(); runAnalysis(); }}
@@ -654,7 +657,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 hover:bg-accent/25 text-accent text-xs font-semibold transition-all disabled:opacity-50"
             >
               <Brain className="w-3.5 h-3.5" />
-              {analyzing ? "Đang phân tích…" : "Phân tích AI"}
+              {analyzing ? t("hugoPsy.sleep.dangPhanTich") : t("hugoPsy.sleep.phanTichAi")}
             </button>
           </div>
         </div>
@@ -664,7 +667,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           <div className="bg-primary/10 border border-primary/15 rounded-xl px-3 py-2.5 flex items-center gap-2">
             <Moon className="w-4 h-4 text-primary flex-shrink-0" />
             <div className="text-xs">
-              <span className="font-bold text-primary">Ghi nhận ngủ lúc {sleepStart.time}</span>
+              <span className="font-bold text-primary">{t("hugoPsy.sleep.ghiNhanNguLuc")} {sleepStart.time}</span>
               <span className="text-muted-foreground ml-1.5">· {sleepStart.date}</span>
             </div>
           </div>
@@ -674,7 +677,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {detectState === "monitoring" && confidence > 0 && (
           <div className="space-y-1">
             <div className="flex justify-between items-center">
-              <span className="text-[10px] text-muted-foreground font-medium">Tín hiệu ngủ đang thu thập…</span>
+              <span className="text-[10px] text-muted-foreground font-medium">{t("hugoPsy.sleep.tinHieuNguDang")}</span>
               <span className="text-[10px] font-bold text-primary">{confidence}%</span>
             </div>
             <div className="h-1.5 bg-muted/30 rounded-full overflow-hidden">
@@ -707,7 +710,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {/* Recent signal feed */}
         {recentSignals.length > 0 && (
           <div className="flex gap-1.5 flex-wrap">
-            <span className="text-[10px] text-muted-foreground self-center">Tín hiệu gần nhất:</span>
+            <span className="text-[10px] text-muted-foreground self-center">{t("hugoPsy.sleep.tinHieuGanNhat")}</span>
             {recentSignals.map((sig, i) => {
               const meta = SIGNAL_META[sig];
               if (!meta) return null;
@@ -730,9 +733,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         {stats && (
           <div className="grid grid-cols-3 gap-2 pt-1">
             {[
-              { label: "TB ngủ",   value: stats.avgDuration ? `${stats.avgDuration}h` : "—", bg: "bg-primary/10", border: "border-primary/10", text: "text-primary" },
+              { label: t("hugoPsy.sleep.tbNgu"),   value: stats.avgDuration ? `${stats.avgDuration}h` : "—", bg: "bg-primary/10", border: "border-primary/10", text: "text-primary" },
               { label: "TB CL",    value: stats.avgQuality  ? `${stats.avgQuality}/5`  : "—", bg: "bg-accent/10", border: "border-accent/10", text: "text-accent" },
-              { label: "Đêm ghi", value: stats.total ?? 0,                                   bg: "bg-info/10", border: "border-info/10", text: "text-info" },
+              { label: t("hugoPsy.sleep.demGhi"), value: stats.total ?? 0,                                   bg: "bg-info/10", border: "border-info/10", text: "text-info" },
             ].map(({ label, value, bg, border, text }) => (
               <div key={label} className={`${bg} rounded-xl p-2.5 text-center border ${border}`}>
                 <div className={`text-base font-black ${text}`}>{value}</div>
@@ -751,9 +754,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
         <div className={`bg-gradient-to-br ${getScoreGradient(sleepScore.total)} border border-border/50 rounded-2xl p-5 space-y-4`}>
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-              <Target className="w-4 h-4" /> Điểm Số Giấc Ngủ
+              <Target className="w-4 h-4" /> {t("hugoPsy.sleep.diemSoGiacNgu")}
             </h4>
-            <span className="text-[10px] text-muted-foreground">7 ngày gần nhất</span>
+            <span className="text-[10px] text-muted-foreground">{t("hugoPsy.sleep.7NgayGanNhat")}</span>
           </div>
 
           <div className="flex items-center gap-6">
@@ -769,11 +772,11 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             {/* Breakdown bars */}
             <div className="flex-1 space-y-2">
               {[
-                { label: "Thời lượng", score: sleepScore.duration, icon: Clock },
-                { label: "Chất lượng", score: sleepScore.quality, icon: Sparkles },
-                { label: "Ổn định", score: sleepScore.consistency, icon: TrendingUp },
-                { label: "Thời điểm", score: sleepScore.timing, icon: Moon },
-                { label: "Hiệu suất", score: sleepScore.efficiency, icon: Zap },
+                { label: t("hugoPsy.sleep.thoiLuong"), score: sleepScore.duration, icon: Clock },
+                { label: t("hugoPsy.sleep.chatLuong"), score: sleepScore.quality, icon: Sparkles },
+                { label: t("hugoPsy.sleep.onDinh"), score: sleepScore.consistency, icon: TrendingUp },
+                { label: t("hugoPsy.sleep.thoiDiem"), score: sleepScore.timing, icon: Moon },
+                { label: t("hugoPsy.sleep.hieuSuat"), score: sleepScore.efficiency, icon: Zap },
               ].map(({ label, score: s, icon: Icon }) => (
                 <div key={label} className="flex items-center gap-2">
                   <Icon className="w-3 h-3 text-muted-foreground flex-shrink-0" />
@@ -790,7 +793,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           <div className="text-center pt-1">
             <span className="text-xs font-bold text-foreground">{scoreLabel(sleepScore.total)}</span>
             <span className="text-[10px] text-muted-foreground ml-2">
-              · TB {sleepScore.avgDuration}h/đêm · CL {sleepScore.avgQuality}/5
+              · TB {sleepScore.avgDuration}{t("hugoPsy.sleep.hDemCl")} {sleepScore.avgQuality}/5
             </span>
           </div>
         </div>
@@ -806,18 +809,18 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <div className="w-7 h-7 rounded-lg bg-destructive/15 flex items-center justify-center">
                   <TrendingDown className="w-3.5 h-3.5 text-destructive" />
                 </div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">Thiếu ngủ</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">{t("hugoPsy.sleep.thieuNgu")}</span>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-black text-destructive">{sleepDebt.debt}</span>
-                <span className="text-xs text-destructive/70 font-semibold">giờ</span>
+                <span className="text-xs text-destructive/70 font-semibold">{t("hugoPsy.sleep.gio")}</span>
               </div>
               <p className="text-[10px] text-muted-foreground">
-                Trong {sleepDebt.days} ngày · Thiếu TB {sleepDebt.avgDeficit}h/đêm
+                Trong {sleepDebt.days} {t("hugoPsy.sleep.ngayThieuTb")} {sleepDebt.avgDeficit}{t("hugoPsy.sleep.hDem")}
               </p>
               {sleepDebt.recoveryDays > 0 && (
                 <p className="text-[10px] text-destructive/80 font-medium">
-                  Cần ~{sleepDebt.recoveryDays} đêm ngủ bù thêm 1h
+                  {t("hugoPsy.sleep.can")}{sleepDebt.recoveryDays} {t("hugoPsy.sleep.demNguBuThem")}
                 </p>
               )}
             </div>
@@ -829,9 +832,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <div className="w-7 h-7 rounded-lg bg-success/15 flex items-center justify-center">
                   <CheckCircle className="w-3.5 h-3.5 text-success" />
                 </div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">Không thiếu ngủ</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">{t("hugoPsy.sleep.khongThieuNgu")}</span>
               </div>
-              <p className="text-xs text-success font-semibold">Đủ giấc trong {sleepDebt.days} ngày qua ✓</p>
+              <p className="text-xs text-success font-semibold">{t("hugoPsy.sleep.duGiacTrong")} {sleepDebt.days} {t("hugoPsy.sleep.ngayQua")}</p>
             </div>
           )}
 
@@ -842,17 +845,17 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <div className="w-7 h-7 rounded-lg bg-info/15 flex items-center justify-center">
                   <Calendar className="w-3.5 h-3.5 text-info" />
                 </div>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">Ổn định lịch</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">{t("hugoPsy.sleep.onDinhLich")}</span>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-black text-info">{regularity}</span>
                 <span className="text-xs text-info/70 font-semibold">/100</span>
               </div>
               <p className="text-[10px] text-muted-foreground">
-                {regularity >= 80 ? "Lịch ngủ rất ổn định" :
-                 regularity >= 60 ? "Khá ổn định, nên cố định hơn" :
-                 regularity >= 40 ? "Biến động较多, nên ngủ đúng giờ" :
-                 "Lịch ngủ thất thường, cần cải thiện"}
+                {regularity >= 80 ? t("hugoPsy.sleep.lichNguRatOn") :
+                 regularity >= 60 ? t("hugoPsy.sleep.khaOnDinhNen") :
+                 regularity >= 40 ? t("hugoPsy.sleep.bienDongNenNgu") :
+                 t("hugoPsy.sleep.lichNguThatThuong")}
               </p>
             </div>
           )}
@@ -873,11 +876,11 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 <ShieldCheck className="w-4 h-4 text-success" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-success">Tự động ghi nhận giấc ngủ</p>
+                <p className="text-sm font-bold text-success">{t("hugoPsy.sleep.tuDongGhiNhan")}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Hệ thống phát hiện bạn ngủ lúc{" "}
+                  {t("hugoPsy.sleep.heThongPhatHien")}{" "}
                   <span className="font-bold text-foreground">{pendingCycle.bedtime}</span>
-                  {" "}và thức dậy lúc{" "}
+                  {" "}{t("hugoPsy.sleep.vaThucDayLuc")}{" "}
                   <span className="font-bold text-foreground">{pendingCycle.wakeTime}</span>
                   {" "}· {pendingCycle.date}
                 </p>
@@ -885,7 +888,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 {/* Quality + mood quick pick before confirming */}
                 <div className="mt-3 space-y-2">
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground">Chất lượng giấc ngủ?</label>
+                    <label className="text-[10px] font-semibold text-muted-foreground">{t("hugoPsy.sleep.chatLuongGiacNgu")}</label>
                     <div className="flex gap-1.5 mt-1">
                       {[1,2,3,4,5].map(q => (
                         <button key={q} type="button"
@@ -901,7 +904,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-muted-foreground">Tâm trạng khi dậy?</label>
+                    <label className="text-[10px] font-semibold text-muted-foreground">{t("hugoPsy.sleep.tamTrangKhiDay")}</label>
                     <div className="flex gap-1.5 mt-1 flex-wrap">
                       {MOODS.map(m => (
                         <button key={m.value} type="button"
@@ -924,7 +927,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                     className="flex-1 py-2 rounded-lg bg-success hover:bg-success/90 text-white text-xs font-bold transition-all"
                   >
                     <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
-                    Xác nhận & Lưu
+                    {t("hugoPsy.sleep.xacNhanLuu")}
                   </button>
                   <button
                     onClick={() => {
@@ -935,13 +938,13 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                     className="px-3 py-2 rounded-lg bg-muted/20 hover:bg-muted/40 text-muted-foreground text-xs font-semibold transition-all"
                   >
                     <Edit3 className="w-3.5 h-3.5 inline mr-1" />
-                    Chỉnh sửa
+                    {t("hugoPsy.sleep.chinhSua")}
                   </button>
                   <button
                     onClick={() => setPendingCycle(null)}
                     className="px-3 py-2 rounded-lg bg-muted/20 hover:bg-muted/40 text-muted-foreground text-xs font-semibold transition-all"
                   >
-                    Bỏ qua
+                    {t("hugoPsy.sleep.boQua")}
                   </button>
                 </div>
               </div>
@@ -961,7 +964,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Moon className="w-4 h-4 text-primary" />
-                  Ghi Nhật Ký Giấc Ngủ
+                  {t("hugoPsy.sleep.ghiNhatKyGiac")}
                 </h4>
                 <button type="button" onClick={() => setShowForm(false)}
                   className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-muted/30 text-muted-foreground">
@@ -972,9 +975,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               {/* Core sleep times */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
-                  { key: "date",     label: "Ngày",     type: "date", max: todayStr(), icon: Calendar },
-                  { key: "bedtime",  label: "Giờ ngủ",  type: "time", icon: Moon },
-                  { key: "wakeTime", label: "Giờ dậy",  type: "time", icon: Sun },
+                  { key: "date",     label: t("hugoPsy.sleep.ngay"),     type: "date", max: todayStr(), icon: Calendar },
+                  { key: "bedtime",  label: t("hugoPsy.sleep.gioNgu2"),  type: "time", icon: Moon },
+                  { key: "wakeTime", label: t("hugoPsy.sleep.gioDay"),  type: "time", icon: Sun },
                 ].map(({ key, label, type, max, icon: Icon }) => (
                   <div key={key}>
                     <label className="text-xs font-semibold text-muted-foreground mb-1 flex items-center gap-1.5">
@@ -990,7 +993,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               {/* Sleep quality */}
               <div>
                 <label className="text-xs font-bold text-muted-foreground mb-2 flex justify-between">
-                  <span>Chất lượng giấc ngủ</span>
+                  <span>{t("hugoPsy.sleep.chatLuongGiacNgu2")}</span>
                   <span className={`font-black ${QUALITY_TEXT[form.quality]}`}>{QUALITY_LABELS[form.quality]}</span>
                 </label>
                 <div className="flex gap-2">
@@ -1010,38 +1013,38 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               {/* Clinical metrics row */}
               <div className="bg-muted/15 dark:bg-muted/10 rounded-2xl p-4 space-y-3 border border-border/50">
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-primary" /> Chỉ số lâm sàng
+                  <Info className="w-3.5 h-3.5 text-primary" /> {t("hugoPsy.sleep.chiSoLamSang")}
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-muted-foreground mb-1 flex items-center gap-1">
-                      <Timer className="w-3 h-3" /> Delay (phút)
+                      <Timer className="w-3 h-3" /> {t("hugoPsy.sleep.delayPhut")}
                     </label>
                     <input type="number" min={0} max={120} value={form.sleepLatency}
                       onChange={e => updateForm("sleepLatency", Number(e.target.value))}
                       className="w-full bg-background/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground font-semibold"
                       placeholder="15" />
-                    <span className="text-[9px] text-muted-foreground mt-0.5 block">Lý tưởng: 10–20 phút</span>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 block">{t("hugoPsy.sleep.lyTuong1020")}</span>
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-muted-foreground mb-1 flex items-center gap-1">
-                      <Zap className="w-3 h-3" /> Tỉnh giấc
+                      <Zap className="w-3 h-3" /> {t("hugoPsy.sleep.tinhGiac")}
                     </label>
                     <input type="number" min={0} max={20} value={form.awakenings}
                       onChange={e => updateForm("awakenings", Number(e.target.value))}
                       className="w-full bg-background/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground font-semibold"
                       placeholder="0" />
-                    <span className="text-[9px] text-muted-foreground mt-0.5 block">Lý tưởng: 0–1 lần</span>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 block">{t("hugoPsy.sleep.lyTuong01")}</span>
                   </div>
                   <div>
                     <label className="text-[10px] font-bold text-muted-foreground mb-1 flex items-center gap-1">
-                      <BedDouble className="w-3 h-3" /> WASO (phút)
+                      <BedDouble className="w-3 h-3" /> {t("hugoPsy.sleep.wasoPhut")}
                     </label>
                     <input type="number" min={0} max={180} value={form.wakeAfterSleepOnset}
                       onChange={e => updateForm("wakeAfterSleepOnset", Number(e.target.value))}
                       className="w-full bg-background/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground font-semibold"
                       placeholder="0" />
-                    <span className="text-[9px] text-muted-foreground mt-0.5 block">Thức sau khi ngủ</span>
+                    <span className="text-[9px] text-muted-foreground mt-0.5 block">{t("hugoPsy.sleep.thucSauKhiNgu")}</span>
                   </div>
                 </div>
               </div>
@@ -1049,21 +1052,21 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               {/* Behavioral context */}
               <div className="bg-muted/15 dark:bg-muted/10 rounded-2xl p-4 space-y-4 border border-border/50">
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-primary" /> Hoạt động trước khi ngủ
+                  <Activity className="w-3.5 h-3.5 text-primary" /> {t("hugoPsy.sleep.hoatDongTruocKhi")}
                 </p>
 
                 {/* Screen time */}
                 <div>
                   <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
-                    <Monitor className="w-3 h-3" /> Thời gian màn hình (phút)
+                    <Monitor className="w-3 h-3" /> {t("hugoPsy.sleep.thoiGianManHinh")}
                   </label>
                   <input type="range" min={0} max={240} step={5} value={form.screenTime}
                     onChange={e => updateForm("screenTime", Number(e.target.value))}
                     className="w-full h-1.5 bg-muted/40 rounded-full appearance-none cursor-pointer accent-primary" />
                   <div className="flex justify-between text-[9px] text-muted-foreground mt-1">
-                    <span>0 phút</span>
+                    <span>{t("hugoPsy.sleep.0Phut")}</span>
                     <span className={`font-black ${form.screenTime > 60 ? "text-destructive" : form.screenTime > 30 ? "text-warning" : "text-success"}`}>
-                      {form.screenTime} phút {form.screenTime > 60 ? "⚠️" : ""}
+                      {form.screenTime} {t("hugoPsy.sleep.phut")} {form.screenTime > 60 ? "⚠️" : ""}
                     </span>
                     <span>4h</span>
                   </div>
@@ -1097,7 +1100,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                   {/* Exercise */}
                   <div>
                     <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
-                      <Dumbbell className="w-3 h-3" /> Vận động
+                      <Dumbbell className="w-3 h-3" /> {t("hugoPsy.sleep.vanDong")}
                     </label>
                     <div className="flex gap-1.5">
                       {EXERCISE_OPTIONS.map(o => {
@@ -1121,7 +1124,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                   {/* Alcohol */}
                   <div>
                     <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
-                      <Droplets className="w-3 h-3" /> Rượu bia
+                      <Droplets className="w-3 h-3" /> {t("hugoPsy.sleep.ruouBia")}
                     </label>
                     <div className="flex gap-1.5">
                       {ALCOHOL_OPTIONS.map(o => {
@@ -1145,7 +1148,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                   {/* Sleep environment */}
                   <div>
                     <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
-                      <BedDouble className="w-3 h-3" /> Môi trường
+                      <BedDouble className="w-3 h-3" /> {t("hugoPsy.sleep.moiTruong")}
                     </label>
                     <div className="flex gap-1.5">
                       {ENV_OPTIONS.map(o => (
@@ -1164,7 +1167,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 {/* Stress level */}
                 <div>
                   <label className="text-[10px] font-bold text-muted-foreground mb-1.5 flex items-center gap-1">
-                    <Brain className="w-3 h-3" /> Căng thẳng trước khi ngủ
+                    <Brain className="w-3 h-3" /> {t("hugoPsy.sleep.cangThangTruocKhi")}
                   </label>
                   <div className="flex gap-1.5">
                     {[1,2,3,4,5].map(s => (
@@ -1175,7 +1178,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                             ? `${s <= 2 ? "bg-success/20 border-success/50 text-success" : s === 3 ? "bg-warning/20 border-warning/50 text-warning" : "bg-destructive/20 border-destructive/50 text-destructive"}`
                             : "bg-background/80 border-border/50 text-muted-foreground hover:bg-muted/40"}`}
                       >
-                        {s === 1 ? "Rất ít" : s === 2 ? "Ít" : s === 3 ? "Vừa" : s === 4 ? "Nhiều" : "Rất nhiều"}
+                        {s === 1 ? t("hugoPsy.sleep.ratIt") : s === 2 ? t("hugoPsy.sleep.it") : s === 3 ? t("hugoPsy.sleep.vua") : s === 4 ? t("hugoPsy.sleep.nhieu") : t("hugoPsy.sleep.ratNhieu")}
                       </button>
                     ))}
                   </div>
@@ -1184,7 +1187,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
               {/* Mood */}
               <div>
-                <label className="text-xs font-bold text-muted-foreground mb-2 block">Tâm trạng khi dậy</label>
+                <label className="text-xs font-bold text-muted-foreground mb-2 block">{t("hugoPsy.sleep.tamTrangKhiDay2")}</label>
                 <div className="flex gap-2 flex-wrap">
                   {MOODS.map(m => {
                     const Icon = m.icon;
@@ -1204,8 +1207,8 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
               {/* Notes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { key: "notes",      label: "Ghi chú",     placeholder: "Giấc ngủ cảm giác thế nào…" },
-                  { key: "dreamNotes", label: "Giấc mơ",     placeholder: "Giấc mơ đêm qua…" },
+                  { key: "notes",      label: t("hugoPsy.sleep.ghiChu"),     placeholder: t("hugoPsy.sleep.giacNguCamGiac") },
+                  { key: "dreamNotes", label: t("hugoPsy.sleep.giacMo"),     placeholder: t("hugoPsy.sleep.giacMoDemQua") },
                 ].map(({ key, label, placeholder }) => (
                   <div key={key}>
                     <label className="text-xs font-semibold text-muted-foreground mb-1 block">{label}</label>
@@ -1220,9 +1223,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={() => setShowForm(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold bg-muted/30 hover:bg-muted/50 text-muted-foreground transition-all">Huỷ</button>
+                  className="px-4 py-2 rounded-lg text-xs font-semibold bg-muted/30 hover:bg-muted/50 text-muted-foreground transition-all">{t("hugoPsy.sleep.huy")}</button>
                 <button type="submit"
-                  className="px-5 py-2 rounded-lg text-xs font-bold bg-primary hover:bg-primary/90 text-white transition-all">Lưu</button>
+                  className="px-5 py-2 rounded-lg text-xs font-bold bg-primary hover:bg-primary/90 text-white transition-all">{t("hugoPsy.sleep.luu")}</button>
               </div>
             </form>
           </motion.div>
@@ -1233,7 +1236,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       {!didFetch && !loadingLogs && (
         <button onClick={ensureFetched}
           className="w-full py-3 rounded-2xl border border-border/50 text-xs text-muted-foreground hover:bg-muted/10 transition-all flex items-center justify-center gap-2">
-          <BarChart2 className="w-4 h-4" /> Tải lịch sử giấc ngủ
+          <BarChart2 className="w-4 h-4" /> {t("hugoPsy.sleep.taiLichSuGiac")}
         </button>
       )}
 
@@ -1246,9 +1249,9 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       {didFetch && last7.length > 0 && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
-            <span className="flex items-center gap-2"><BarChart2 className="w-4 h-4" /> 7 Ngày Gần Nhất</span>
+            <span className="flex items-center gap-2"><BarChart2 className="w-4 h-4" /> {t("hugoPsy.sleep.7NgayGanNhat2")}</span>
             <span className="text-[10px] normal-case font-normal flex items-center gap-1.5">
-              Mục tiêu: {targetHours}h/đêm
+              {t("hugoPsy.sleep.mucTieu")} {targetHours}{t("hugoPsy.sleep.hDem")}
               {debtTrend !== null && (
                 <span className={`flex items-center gap-0.5 ${debtTrend > 0 ? "text-success" : debtTrend < 0 ? "text-destructive" : "text-muted-foreground"}`}>
                   <TrendIcon value={debtTrend} />
@@ -1271,16 +1274,16 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                     <div className="font-bold text-foreground">{dur ? `${dur}h` : "—"}</div>
                     <div className="text-muted-foreground">{log.bedtime || "?"} → {log.wakeTime || "?"}</div>
                     {log.quality && <div className={QUALITY_TEXT[log.quality]}>{QUALITY_LABELS[log.quality]}</div>}
-                    {log.sleepLatency != null && <div className="text-muted-foreground">Delay: {log.sleepLatency} phút</div>}
-                    {log.awakenings != null && log.awakenings > 0 && <div className="text-muted-foreground">Tỉnh: {log.awakenings} lần</div>}
-                    {log.sleepEfficiency != null && <div className="text-muted-foreground">Hiệu suất: {log.sleepEfficiency}%</div>}
-                    {log.passiveDetected && <div className="text-primary">Tự động ✓</div>}
+                    {log.sleepLatency != null && <div className="text-muted-foreground">Delay: {log.sleepLatency} {t("hugoPsy.sleep.phut")}</div>}
+                    {log.awakenings != null && log.awakenings > 0 && <div className="text-muted-foreground">{t("hugoPsy.sleep.tinh")} {log.awakenings} {t("hugoPsy.sleep.lan")}</div>}
+                    {log.sleepEfficiency != null && <div className="text-muted-foreground">{t("hugoPsy.sleep.hieuSuat2")} {log.sleepEfficiency}%</div>}
+                    {log.passiveDetected && <div className="text-primary">{t("hugoPsy.sleep.tuDong2")}</div>}
                   </div>
                   <div className={`w-full rounded-t-lg ${fill} opacity-75 group-hover:opacity-100 transition-all`}
                     style={{ height: `${pct}%` }} />
                   <span className="text-[9px] text-muted-foreground font-medium">{day}</span>
                   {log.quality && <div className={`w-1.5 h-1.5 rounded-full ${QUALITY_COLORS[log.quality]}`} />}
-                  {log.passiveDetected && <div className="w-1.5 h-1.5 rounded-full bg-primary ring-1 ring-primary/40" title="Tự động" />}
+                  {log.passiveDetected && <div className="w-1.5 h-1.5 rounded-full bg-primary ring-1 ring-primary/40" title={t("hugoPsy.sleep.tuDong")} />}
                 </div>
               );
             })}
@@ -1291,13 +1294,13 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             <div className="flex-1 border-t border-dashed border-primary/30" />
             <span className="flex items-center gap-1">
               <Target className="w-3 h-3 text-primary" />
-              Khoảng mục tiêu: {targetHours - 1}h – {targetHours + 1}h
+              {t("hugoPsy.sleep.khoangMucTieu")} {targetHours - 1}h – {targetHours + 1}h
             </span>
             <div className="flex-1 border-t border-dashed border-primary/30" />
           </div>
 
           <div className="flex gap-4 flex-wrap text-[10px] text-muted-foreground">
-            {[["bg-primary","≥ 100%"],["bg-success","80–99%"],["bg-warning","65–79%"],["bg-destructive","< 65%"],["bg-primary","Tự động"]].map(([c,l]) => (
+            {[["bg-primary","≥ 100%"],["bg-success","80–99%"],["bg-warning","65–79%"],["bg-destructive","< 65%"],["bg-primary",t("hugoPsy.sleep.tuDong")]].map(([c,l]) => (
               <div key={l} className="flex items-center gap-1.5">
                 <div className={`w-2.5 h-2.5 rounded-sm ${c}`} />
                 {l}
@@ -1309,14 +1312,14 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           {logs[0]?.sleepStages && (
             <div className="bg-muted/10 rounded-xl p-3 border border-border/30 space-y-2">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <Moon className="w-3 h-3" /> Giai đoạn giấc ngủ (mô phỏng)
+                <Moon className="w-3 h-3" /> {t("hugoPsy.sleep.giaiDoanGiacNgu")}
               </p>
               <div className="flex rounded-lg overflow-hidden h-6">
                 {[
-                  { label: "Sâu", pct: logs[0].sleepStages.deep || 20, color: "bg-primary" },
+                  { label: t("hugoPsy.sleep.sau"), pct: logs[0].sleepStages.deep || 20, color: "bg-primary" },
                   { label: "REM", pct: logs[0].sleepStages.rem || 25, color: "bg-accent" },
-                  { label: "Nhẹ", pct: logs[0].sleepStages.light || 45, color: "bg-info/60" },
-                  { label: "Thức", pct: logs[0].sleepStages.awake || 10, color: "bg-warning/60" },
+                  { label: t("hugoPsy.sleep.nhe"), pct: logs[0].sleepStages.light || 45, color: "bg-info/60" },
+                  { label: t("hugoPsy.sleep.thuc"), pct: logs[0].sleepStages.awake || 10, color: "bg-warning/60" },
                 ].map(({ label, pct, color }) => (
                   <div key={label} className={`${color} flex items-center justify-center text-[9px] font-bold text-white`}
                     style={{ width: `${pct}%`, minWidth: pct > 5 ? "auto" : 0 }}>
@@ -1325,10 +1328,10 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                 ))}
               </div>
               <div className="flex gap-3 text-[9px] text-muted-foreground">
-                <span>● <span className="text-primary">Sâu</span>: Ngủ sâu phục hồi</span>
-                <span>● <span className="text-accent">REM</span>: Giấc mơ, trí nhớ</span>
-                <span>● <span className="text-info">Nhẹ</span>: Thư giãn</span>
-                <span>● <span className="text-warning">Thức</span>: Tỉnh giấc</span>
+                <span>● <span className="text-primary">{t("hugoPsy.sleep.sau")}</span>{t("hugoPsy.sleep.nguSauPhucHoi")}</span>
+                <span>● <span className="text-accent">REM</span>{t("hugoPsy.sleep.giacMoTriNho")}</span>
+                <span>● <span className="text-info">{t("hugoPsy.sleep.nhe")}</span>{t("hugoPsy.sleep.thuGian")}</span>
+                <span>● <span className="text-warning">{t("hugoPsy.sleep.thuc")}</span>{t("hugoPsy.sleep.tinhGiac2")}</span>
               </div>
             </div>
           )}
@@ -1345,7 +1348,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
           >
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-accent" />
-              <h4 className="text-sm font-bold text-foreground">Phân Tích AI Giấc Ngủ</h4>
+              <h4 className="text-sm font-bold text-foreground">{t("hugoPsy.sleep.phanTichAiGiac")}</h4>
               <span className={`ml-auto text-2xl font-black ${getScoreColor(analysis.score)}`}>
                 {analysis.score ?? "—"}<span className="text-sm font-bold text-muted-foreground">/100</span>
               </span>
@@ -1353,10 +1356,10 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {[
-                { label: "Trạng thái",   value: analysis.status            || "—" },
-                { label: "TB ngủ",       value: analysis.avg_duration  ? `${analysis.avg_duration}h` : "—" },
-                { label: "TB chất lượng",value: analysis.avg_quality   ? `${analysis.avg_quality}/5`  : "—" },
-                { label: "Nhịp sinh học",value: analysis.bedtime_consistency || "—" },
+                { label: t("hugoPsy.sleep.trangThai"),   value: analysis.status            || "—" },
+                { label: t("hugoPsy.sleep.tbNgu"),       value: analysis.avg_duration  ? `${analysis.avg_duration}h` : "—" },
+                { label: t("hugoPsy.sleep.tbChatLuong"),value: analysis.avg_quality   ? `${analysis.avg_quality}/5`  : "—" },
+                { label: t("hugoPsy.sleep.nhipSinhHoc"),value: analysis.bedtime_consistency || "—" },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-background/50 rounded-xl p-2.5 text-center">
                   <div className="text-sm font-bold text-foreground">{value}</div>
@@ -1368,7 +1371,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             {analysis.risk_flags?.length > 0 && (
               <div className="space-y-1.5">
                 <p className="text-xs font-bold text-destructive flex items-center gap-1.5">
-                  <AlertTriangle className="w-3.5 h-3.5" /> Cảnh báo
+                  <AlertTriangle className="w-3.5 h-3.5" /> {t("hugoPsy.sleep.canhBao")}
                 </p>
                 {analysis.risk_flags.map((f, i) => (
                   <div key={i} className="text-xs text-foreground/80 bg-destructive/5 border border-destructive/10 rounded-lg px-3 py-2 flex gap-2">
@@ -1381,7 +1384,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             {analysis.strengths?.length > 0 && (
               <div className="space-y-1.5">
                 <p className="text-xs font-bold text-success flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5" /> Điểm mạnh
+                  <CheckCircle className="w-3.5 h-3.5" /> {t("hugoPsy.sleep.diemManh")}
                 </p>
                 {analysis.strengths.map((s, i) => (
                   <div key={i} className="text-xs text-foreground/80 bg-success/5 border border-success/10 rounded-lg px-3 py-2 flex gap-2">
@@ -1394,7 +1397,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             {analysis.recommendations?.length > 0 && (
               <div className="space-y-1.5">
                 <p className="text-xs font-bold text-primary flex items-center gap-1.5">
-                  <Brain className="w-3.5 h-3.5" /> Khuyến nghị AI
+                  <Brain className="w-3.5 h-3.5" /> {t("hugoPsy.sleep.khuyenNghiAi")}
                 </p>
                 {analysis.recommendations.map((r, i) => (
                   <div key={i} className="text-xs text-foreground/80 bg-primary/5 border border-primary/10 rounded-lg px-3 py-2 flex gap-2">
@@ -1407,7 +1410,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             {analysis.tonight_advice && (
               <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
                 <p className="text-xs font-bold text-primary flex items-center gap-1.5 mb-1">
-                  <Moon className="w-3.5 h-3.5" /> Lời khuyên tối nay
+                  <Moon className="w-3.5 h-3.5" /> {t("hugoPsy.sleep.loiKhuyenToiNay")}
                 </p>
                 <p className="text-xs text-foreground/80">{analysis.tonight_advice}</p>
               </div>
@@ -1431,7 +1434,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
             className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/10 transition-colors"
           >
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Lịch sử ({logs.length} đêm)
+              {t("hugoPsy.sleep.lichSu")}{logs.length} {t("hugoPsy.sleep.dem")}
             </span>
             <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showHistory ? "rotate-180" : ""}`} />
           </button>
@@ -1452,7 +1455,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                             </span>
                             {log.passiveDetected && (
                               <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-semibold">
-                                Tự động{log.autoConfidence ? ` ${log.autoConfidence}%` : ""}
+                                {t("hugoPsy.sleep.tuDong")}{log.autoConfidence ? ` ${log.autoConfidence}%` : ""}
                               </span>
                             )}
                             {log.quality && (
@@ -1462,14 +1465,14 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                             )}
                             {log.sleepEfficiency != null && (
                               <span className="text-[9px] px-1.5 py-0.5 rounded bg-info/10 text-info font-semibold">
-                                {log.sleepEfficiency}% hiệu suất
+                                {log.sleepEfficiency}{t("hugoPsy.sleep.hieuSuat3")}
                               </span>
                             )}
                           </div>
                           <div className="text-[10px] text-muted-foreground mt-0.5">
                             {log.bedtime && log.wakeTime
                               ? `${log.bedtime} → ${log.wakeTime} · ${log.duration ? `${log.duration}h` : "?"}`
-                              : "Chưa đủ dữ liệu"}
+                              : t("hugoPsy.sleep.chuaDuDuLieu")}
                             {log.mood && ` · ${MOODS.find(m => m.value === log.mood)?.label || ""}`}
                             {log.sleepLatency != null && ` · Delay ${log.sleepLatency}m`}
                             {log.awakenings > 0 && ` · ${log.awakenings} lần tỉnh`}
@@ -1504,38 +1507,38 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
                             <div className="mt-3 bg-muted/10 rounded-xl p-3 border border-border/30 space-y-2">
                               <div className="grid grid-cols-3 gap-2 text-[10px]">
                                 {log.sleepLatency != null && (
-                                  <div><span className="text-muted-foreground">Delay:</span> <span className="font-bold">{log.sleepLatency} phút</span></div>
+                                  <div><span className="text-muted-foreground">Delay:</span> <span className="font-bold">{log.sleepLatency} {t("hugoPsy.sleep.phut")}</span></div>
                                 )}
                                 {log.awakenings != null && (
-                                  <div><span className="text-muted-foreground">Tỉnh:</span> <span className="font-bold">{log.awakenings} lần</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.tinh")}</span> <span className="font-bold">{log.awakenings} {t("hugoPsy.sleep.lan")}</span></div>
                                 )}
                                 {log.sleepEfficiency != null && (
-                                  <div><span className="text-muted-foreground">Hiệu suất:</span> <span className="font-bold">{log.sleepEfficiency}%</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.hieuSuat2")}</span> <span className="font-bold">{log.sleepEfficiency}%</span></div>
                                 )}
                                 {log.screenTime != null && (
-                                  <div><span className="text-muted-foreground">Màn hình:</span> <span className="font-bold">{log.screenTime} phút</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.manHinh")}</span> <span className="font-bold">{log.screenTime} {t("hugoPsy.sleep.phut")}</span></div>
                                 )}
                                 {log.stressLevel != null && (
-                                  <div><span className="text-muted-foreground">Căng thẳng:</span> <span className="font-bold">{log.stressLevel}/5</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.cangThang")}</span> <span className="font-bold">{log.stressLevel}/5</span></div>
                                 )}
                                 {log.caffeine && log.caffeine !== "none" && (
                                   <div><span className="text-muted-foreground">Caffeine:</span> <span className="font-bold">{CAFFEINE_OPTIONS.find(o => o.value === log.caffeine)?.label || log.caffeine}</span></div>
                                 )}
                                 {log.exercise && log.exercise !== "none" && (
-                                  <div><span className="text-muted-foreground">Vận động:</span> <span className="font-bold">{EXERCISE_OPTIONS.find(o => o.value === log.exercise)?.label || log.exercise}</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.vanDong2")}</span> <span className="font-bold">{EXERCISE_OPTIONS.find(o => o.value === log.exercise)?.label || log.exercise}</span></div>
                                 )}
                                 {log.alcohol && log.alcohol !== "none" && (
-                                  <div><span className="text-muted-foreground">Rượu:</span> <span className="font-bold">{ALCOHOL_OPTIONS.find(o => o.value === log.alcohol)?.label || log.alcohol}</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.ruou")}</span> <span className="font-bold">{ALCOHOL_OPTIONS.find(o => o.value === log.alcohol)?.label || log.alcohol}</span></div>
                                 )}
                                 {log.sleepEnvironment && log.sleepEnvironment !== "" && (
-                                  <div><span className="text-muted-foreground">Môi trường:</span> <span className="font-bold">{ENV_OPTIONS.find(o => o.value === log.sleepEnvironment)?.label || log.sleepEnvironment}</span></div>
+                                  <div><span className="text-muted-foreground">{t("hugoPsy.sleep.moiTruong2")}</span> <span className="font-bold">{ENV_OPTIONS.find(o => o.value === log.sleepEnvironment)?.label || log.sleepEnvironment}</span></div>
                                 )}
                               </div>
                               {log.notes && (
                                 <p className="text-[10px] text-muted-foreground italic">"{log.notes}"</p>
                               )}
                               {log.dreamNotes && (
-                                <p className="text-[10px] text-accent italic">Giấc mơ: "{log.dreamNotes}"</p>
+                                <p className="text-[10px] text-accent italic">{t("hugoPsy.sleep.giacMo2")}{log.dreamNotes}"</p>
                               )}
                             </div>
                           </motion.div>
@@ -1554,8 +1557,8 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       {didFetch && logs.length === 0 && (
         <div className="text-center py-10 space-y-3">
           <Moon className="w-10 h-10 text-primary/40 mx-auto" />
-          <p className="text-sm text-muted-foreground">Hệ thống đang theo dõi. Ngủ ngon nhé!</p>
-          <p className="text-xs text-muted-foreground/60">Nhật ký sẽ tự động xuất hiện sau khi bạn thức dậy.</p>
+          <p className="text-sm text-muted-foreground">{t("hugoPsy.sleep.heThongDangTheo")}</p>
+          <p className="text-xs text-muted-foreground/60">{t("hugoPsy.sleep.nhatKySeTu")}</p>
         </div>
       )}
     </div>

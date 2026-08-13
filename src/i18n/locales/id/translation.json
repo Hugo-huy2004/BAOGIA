@@ -169,12 +169,15 @@
       "readFull": "Baca secara lengkap di Hugo",
       "backToFeed": "Rapat",
       "articleUnavailable": "Artikel ini tidak dapat dibuka",
-      "summaryTitle": "Quick summary",
+      "summaryTitle": "Detailed summary",
       "summaryBySource": "Artikel ini disusun oleh {{source}} sendiri.",
+      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
       "contentTitle": "Isi artikel ini",
       "contentUnavailable": "Penerbit tidak mengizinkan pembacaan seluruh isi artikel secara otomatis. Buka asli untuk membacanya keseluruhan.",
       "contentBySource": "Seluruh isi artikel ini diproteksi hak cipta oleh {{source}}.",
       "attribution": "Isi adalah hak cipta dari {{source}}.",
+      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
+      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
       "readMinutes": "{{n}} minimal baca",
       "fontSize": "Ukuran teks",
       "openSource": "Sumber terbuka",
@@ -524,9 +527,6 @@
         }
       },
       "notificationCopy": {
-        "justNow": "Kini",
-        "minutesAgo": "{{count}} menit yang lalu",
-        "hoursAgo": "{{count}} hours ago",
         "markRead": "Baca ulang",
         "dismiss": "Keluar",
         "title": "Notifikasi",
@@ -2119,6 +2119,160 @@
       "bonusClaimed": "Already claimed",
       "bonusSuccess": "+20 JOY claimed, thanks for exploring!",
       "bonusError": "Couldn't claim the bonus right now."
+    },
+    "team": {
+      "han": "· Hingga",
+      "huongDanTuAdmin": "Hak Dari Admin",
+      "nhanXetNghiemThu": "Pesan dari Pengguna",
+      "ghiChuCuaBan": "Catatan Anda:",
+      "batDauThucHien": "Mulai Melakukan",
+      "moTaNganNhung": "Briefly describe what you finished (PR link, results…)",
+      "xacNhanNop": "Konfirmasi Pengajuan",
+      "huy": "Batal",
+      "nopTask": "Kirim Task",
+      "badge": "Peluang untuk bekerja pada proyek nyata",
+      "heroTitle": "Buat proyek komunitas bersama-sama",
+      "heroP1": "Mahasiswa IT kedua atau ketiga yang nyaman dengan kode tapi haus akan proyek yang sebenarnya berjalan di produksi? Kami tahu perasaan ingin belajar lebih jauh dari jam kuliah tanpa mengetahui dimana untuk memulainya.",
+      "heroP2a": "HugoTeam adalah kelompok kecil mahasiswa IT yang sedang merancang produk nyata untuk komunitas mahasiswa. Ini sepenuhnya",
+      "nonProfit": "non-profit",
+      "heroP2b": ", dibangun atas dukungan saling dan pengalaman bersama. Setiap kontribusi di catatkan di GitHub, dan Anda bekerja",
+      "hoursPerWeek": "5–10 jam setiap minggu",
+      "heroP2c": "dengan jadwal kelas Anda.",
+      "benefitsTitle": "Apapun yang bisa kami lakukan untuk satu sama lain",
+      "benefitsDesc": "Proyek komunitas nirlaba berjalan pada kebaikan hati. Tidak ada gaji, tetapi ada nilai nyata:",
+      "benefit1Title": "Kirim produk yang orang-orang sebenarnya gunakan",
+      "benefit1Desc": "Kami membangun sistem yang melayani siswa setiap hari (React, Node.js, MongoDB, AI). Anda bisa mencoba fitur nyata bukan tugas kuliah yang akhirnya masuk ke dalam lemari.",
+      "benefit2Title": "Selalu debug tidak sendirian",
+      "benefit2Desc": "Kami melakukan pengecekkan kode dan berbicara bersama. Terjebak pada bug sulit atau tersesat di arsitektur? Tanyakan — kami menyelesaikannya bersama, dengan semangat belajar.",
+      "benefit3Title": "Pengalaman kerja nyata",
+      "benefit3Desc": "You go through a real workflow (Git, code review, debugging). These are the stories that give you something concrete to say in an internship interview.",
+      "benefit4Title": "Anda melewati proses kerja nyata (Git, review kode, debugging). Ini adalah cerita yang memberikan Anda sesuatu konkret untuk uji internasi.",
+      "benefit4Desc": "Pembayaran melalui komit GitHub",
+      "benefit5Title": "Sebagai organisasi non-profit yang dipimpin oleh mahasiswa kami tidak dapat mengeluarkan sertifikat terstempel. Sebaliknya, setiap kontribusi yang Anda buat publik dalam riwayat komit GitHub — bukti kemampuan paling jujur.",
+      "benefit5Desc": "Studi selalu berada di urutan pertama",
+      "benefit6Title": "Anda memilih jam sendiri (sekitar 5-10 per minggu). Saat musim ujian Anda dapat menghentikan dan fokus pada sekolah — tidak ada tekanan waktu, tidak ada KPI yang rigid.",
+      "benefit6Desc": "Meet like-minded IT students to swap resources and study tips, and support each other through the career ahead.",
+      "careTitle": "Dapatkan teman-teman yang punya minat serupa dalam IT untuk berbagi sumber daya, tips belajar, dan mendukung satu sama lain selama karier Anda.",
+      "careWeek1Label": "Bagaimana Hugo Studio Membantu Anda",
+      "careWeek1": "— we walk you through the environment setup, the system architecture, and hand you a first task you can handle (usually a small bug with guidance). The only goal that week: your first line of code merged into the real product.",
+      "careWeeklyLabel": "Setiap minggu",
+      "careWeekly": "Ketika Anda Stuck",
+      "careStuckLabel": "When you get stuck",
+      "careStuck": "— tanyakan kapan saja; tidak ada pertanyaan yang lucu. Stuck lebih dari dua jam? Berhenti dan tanyakan. Kultur tim Hugo adalah bersama-sama mengurai masalah, bukan membiarkan satu orang sendirian.",
+      "careHoursLabel": "— Jam kontribusi Anda tercatat",
+      "careHours": "— Setiap jam diikutsertakan secara transparan dalam ruang kerja ini, dan halaman penghargaan dan apresiasi berikutnya didasarkan pada hal ini.",
+      "loyaltyTitle": "Ketahanan, dipercayai dengan tenang",
+      "membershipLine": "Pembiayaan: 3 tahun (1,095 hari)",
+      "membershipDesc": "Setelah diterima, Anda menerima pembiayaan 3 tahun (bukan 365 hari) dengan keuntungan Developer VIP.",
+      "loyaltyText": "Berinvestasi dalam hubungan jangka panjang dengan orang lain memiliki makna yang besar. Jalan hidup ini berjalan di dasar kebaikan tanpa syarat dan kami benar menghargai ketabahan Anda.",
+      "milestone500Title": "Ketika Anda mencapai 500 jam kontribusi:",
+      "milestone500a": "Pengakuan dalam bagian kontributor sistem",
+      "milestone500b": "Review CV mendalam berdasarkan pengalaman nyata",
+      "milestone500c": "Makan malam diskusi tentang arah karir Anda",
+      "milestone500d": "Hadiah kenangan untuk menghargai ketabahan Anda",
+      "reqTitle": "Persyaratan dan kondisi",
+      "reqAudienceLabel": "Siapa: ",
+      "reqAudience": "Setiap mahasiswa, tahun 2-3, sedang mempelajari Teknologi Informasi",
+      "reqWorkLabel": "Kerja:",
+      "reqWork": "Pelatihan untuk pemrograman, memperbaiki bug, membangun fitur kecil, menulis tes",
+      "reqTimeLabel": "Waktu: 5–10 jam per minggu, fleksibel, sekitar jadwal kelas Anda",
+      "reqTime": "Tipe: Proyek nirlaba — dukungan sukarela untuk belajar dan pengalaman nyata",
+      "reqNatureLabel": "Bagaimana cara bergabung?",
+      "reqNature": "Kirim CV Anda di bawah ini (PDF, maks 5MB)",
+      "processTitle": "Saya memeriksa dan menjawab melalui email dalam waktu 3–5 hari",
+      "process1": "Setelah disetujui, saya mengirimkan detail onboarding melalui email kepada Anda",
+      "process2": "Anda mulai belajar dan berkontribusi seiring jalan yang jelas",
+      "process3": "Beri tahu kami jika Anda memiliki pertanyaan atau masalah",
+      "process4": "Klik di sini untuk memeriksa syarat dan ketentuan, kebijakan privasi, dan informasi tentang umur",
+      "applyTitle": "Siap untuk mulai?",
+      "applyDescA": "CV Anda tidak perlu sempurna—kami mencari",
+      "applySerious": "seriusitas",
+      "applyDescB": "dan",
+      "applyEager": "keinginan untuk belajar",
+      "applyDescC": ", bukan orang-orang yang sudah ahli. Line produksi kode pertama Anda bisa diintegrasikan minggu depan.",
+      "pendingTitle": "Permintaan Anda sedang ditinjau",
+      "pendingDesc": "Saya akan merespon melalui email dalam 3-5 hari—terima kasih atas kesabaran Anda!",
+      "uploadLabel": "Unggah CV (PDF)",
+      "uploadHint": "Maks. 5MB, format PDF",
+      "submitting": "Mengirim…",
+      "submitted": "Permintaan telah dikirim",
+      "submit": "Apakankan",
+      "devsTitle": "Tim pengembangan ({{count}})",
+      "devsDesc": "Mahasiswa yang telah diterima ke dalam HugoTeam. Setiap satu di antaranya membawa catatan komitmen selama tiga tahun terhadap proyek ini.",
+      "devsEmpty": "Tim mulai dengan anggota pertamanya",
+      "devBadge": "Pemrogram",
+      "membership3y": "Pendafataran: 3 tahun",
+      "approved": "Disetujui",
+      "contactTitle": "Ada pertanyaan? Hubungi kami",
+      "toastCvTooLarge": "CV Anda harus lebih kecil dari 5MB",
+      "toastPdfOnly": "Silakan mengunggah file PDF",
+      "toastCvSelected": "CV yang dipilih: {{name}}",
+      "toastPickCv": "Silakan pilih CV anda",
+      "toastNeedLogin": "Silakan masuk",
+      "toastApplied": "Permintaan anda telah dikirim. Admin akan memeriksa permintaan anda segera.",
+      "toastApplyError": "Gagal mengirim permintaan",
+      "toastApplyRetry": "Gagal mengirim permintaan, silakan coba lagi",
+      "devMember": "Anggota Pengembang",
+      "membershipEnds": "Berakhirnya keanggotaan: {{date}} ({{days}} hari)",
+      "welcomeBack": "Selamat datang kembali",
+      "greeting": "Halo {{name}}!",
+      "welcomeDesc": "Kamu adalah anggota HugoTeam — terima kasih telah membantu membangun proyek komunitas ini.",
+      "membership": "Jasa anggota",
+      "yearsPlus": "{{years}} tahun",
+      "endsOn": "Berakhir: {{date}}",
+      "milestoneReached": "Milestone yang dicapai",
+      "journey": "Journey",
+      "openTasksShort": "Open tasks",
+      "inProgress": "Tugas yang Dibuka",
+      "journeyHours": "Journey ke Jam Kontribusi {{goal}}",
+      "hoursLeft": "Sisa 1 jam untuk {{hours}}",
+      "pendingApproval": "Menunggu persetujuan dari admin",
+      "milestoneTitle": "Anda mencapai 500 jam!",
+      "milestoneDesc": "Hubungi Hugo untuk menerima ucapan khusus dari Hugo Studio.",
+      "statOpenTasks": "Open tasks",
+      "statDoneTasks": "Tugas yang telah diselesaikan",
+      "statApprovedHours": "Jam yang disetujui",
+      "sectionTasks": "Tugas",
+      "sectionHours": "Jam",
+      "sectionChat": "Pesan",
+      "statusAssigned": "Baru",
+      "statusDoing": "Sedang berlangsung",
+      "statusSubmitted": "Menunggu Review",
+      "statusDone": "Selesai",
+      "statusCancelled": "Dibatalkan",
+      "logPending": "Menunggu persetujuan",
+      "logApproved": "Disetujui",
+      "logRejected": "Ditolak",
+      "tasksEmptyTitle": "Belum ada tugas yang ditambahkan",
+      "tasksEmptyDesc": "Admin menempatkan tugas dan menghubungi Anda melalui email",
+      "assignedOn": "Tugas disetujui oleh {{date}}",
+      "toastTaskUpdateError": "Gagal untuk memperbarui tugas",
+      "toastTaskSubmitted": "Tugas telah dikirim — Menunggu Review!",
+      "toastTaskUpdated": "Tugas berhasil diperbarui",
+      "logHoursTitle": "Log kontribusi jam kerja Anda",
+      "fieldDate": "Tanggal",
+      "fieldHours": "Jam (0.25–24)",
+      "hoursPlaceholder": "Misalnya 2.5",
+      "fieldTask": "Tautan ke tugas (opsional)",
+      "noTask": "-- Tugas tidak ada --",
+      "fieldWhat": "Apa yang kamu kerjakan?",
+      "whatPlaceholder": "Contoh: Mengatasi bug pembayaran, memeriksa dokumen onboarding…",
+      "saving": "Menyimpan...",
+      "logHours": "Log jam",
+      "hoursEmpty": "Jam kontribusi belum diproses. Mulai logkan kontribusi Anda!",
+      "hoursHistory": "Jam telah dikonversi",
+      "withdraw": "Tarik",
+      "toastInvalidHours": "Masukkan tanggal dan jumlah jam yang valid",
+      "toastLogError": "Gagal untuk mengisi jam Anda",
+      "toastLogged": "Jam telah ditambahkan—menunggu persetujuan dari administrator",
+      "confirmWithdrawTitle": "Menghapus jam yang telah ditambahkan?",
+      "confirmWithdrawDesc": "Anda hanya dapat menghapus jam yang belum disetujui.",
+      "toastError": "Error",
+      "toastWithdrawn": "Dihentikan",
+      "chatEmpty": "Belum ada pesan. Tulis di sini untuk admin—pesan penting juga dikirim ke email Anda.",
+      "chatPlaceholder": "Tulis pesan…",
+      "send": "Send",
+      "toastSendError": "Could not send the message"
     }
   },
   "memberTabs": {
@@ -2537,7 +2691,28 @@
         "storeTitle": "Beli lebih banyak waktu mendengarkan",
         "storeDesc": "Jumlah waktu yang dibeli ditambahkan dan digunakan setelah 5 jam gratis setiap minggu habis.",
         "empty": "Tidak ada paket waktu tersedia lagi."
-      }
+      },
+      "dangDo": "Đang dò",
+      "dangKetNoi": "Đang kết nối",
+      "nhieuSong": "Gelombang yang Memicik",
+      "dangPhat": "Đang phát",
+      "tamDung": "Tạm dừng",
+      "cho": "Chờ",
+      "daHocDiaChi": " · đã học địa chỉ mới",
+      "doTanSo": "Dò tần số",
+      "doXuong": "Dò xuống",
+      "dung": "Dừng",
+      "phat": "Phát",
+      "doLen": "Dong lên",
+      "amLuong": "Bật âm lượng",
+      "ngauNhien": "Ngẫu nhiên",
+      "henGioTat": "Tắt tự động",
+      "timDaiVov1Npr": "Máy phát thanh: VOV1, NPR, Jazz…",
+      "dangDo2": "Đang tìm…",
+      "tim": "Tìm",
+      "daTim": "(Đã tìm)",
+      "muaThemThoiGian": "Thời gian mua thêm",
+      "thoiGianMuaDuoc": "Thời gian tích lũy và sử dụng sau"
     },
     "store": {
       "title": "Hugo toko",
@@ -2571,23 +2746,6 @@
         "valid": "Kode Anda valid!",
         "invalid": "Kode tidak sah atau kadaluwarsa"
       }
-    },
-    "nfc": {
-      "cardTitle": "SIM SmartCard Nfc",
-      "tagline": "Tekan untuk Hubungkan · Tekanan Sederhana Sharing Teknologi",
-      "instructionsTitle": "KONFIGURASI KARTU SIM",
-      "step1": "Buka koneksi NFC pada ponsel Anda.",
-      "step2": "Letak belakang ponsel Anda dekat dengan kartu SIM Hugo Nfc untuk membaca.",
-      "step3": "Browser otomatis membuka link dan konfigurasi kartu.",
-      "actionUrlLabel": "URL TANGANAN",
-      "actionUrlDesc": "Link akan aktif segera setelah kartu NFC Anda ditekan.",
-      "placeholderUrl": "Link yang ditangani ketika kartu ditekan... ",
-      "statusLabel": "STATUS KONEKSI",
-      "statusConnected": "Dikonversi ke Bio Anda",
-      "statusNotConnected": "Belum dikonversi",
-      "btnSave": "Update NFC",
-      "toastSuccess": "Konfigurasi berhasil diupdate! 🚀",
-      "toastError": "Konfigurasi NFC error: {{message}}"
     },
     "vcard": {
       "title": "Kontak vCard Smart",
@@ -2630,49 +2788,23 @@
     "signature": {
       "title": "Signature Email Branded",
       "desc": "Buat Signature Professional Khusus Hugo Studio Otomatis. Salin dan Pasang langsung ke Settingan Signature Gmail, Outlook atau Apple Mail.",
-      "formTitle": "CUSTOMIZE SIGNATURE",
       "designLayout": "Desain Layar",
       "templates": {
-        "luxury": "Gold Luxury",
         "modern": "Pintuangan Moderen",
-        "business": "Pro Kerja Corporate",
         "minimal": "Maksimalis"
       },
       "colors": {
-        "gold": "Gold Luxury",
-        "green": "Emas Biru",
+        "gold": "Luxury Emas",
         "blue": "Kuning Hijau",
         "violet": "Serakan Putih",
-        "red": "Coklat Merah",
-        "black": "Obsidian Hitam",
-        "cyan": "Cyan"
+        "black": "Obsidian Hitam"
       },
       "fields": {
-        "font": "Font Family",
-        "layout": "Layout Style",
         "color": "Brand Color",
-        "avatarUrl": "Avatar URL",
         "showAvatar": "Show Avatar Image",
-        "includeQr": "Integrate QR Code",
-        "disclaimer": "Footer Message"
-      },
-      "fonts": {
-        "arial": "Arial (Default)",
-        "georgia": "Georgia (Luxury)",
-        "tahoma": "Tahoma (Rendah)",
-        "verdana": "Verdana (Lebaran)",
-        "times": "Times New Roman (Klasik)"
-      },
-      "disclaimers": {
-        "none": "Tidak terkait",
-        "green": "Eco Friendly (Eko Sehat)",
-        "confidential": "Peringatan Keamanan dan Kekerabatan"
+        "includeQr": "Integrate QR Code"
       },
       "previewTitle": "Pratinjau Live",
-      "emailSubject": "Pertolongan Bisnis Persatuan",
-      "emailDear": "Untuk Partnerku, ",
-      "emailBody": "Saya telah menyertakan kontak saya di bawah ini.",
-      "emailRegards": "Halo,",
       "fallbackName": "Nama Member Anda:",
       "fallbackTitle": "Member",
       "copyBtn": "Kopse (Tekstual)",
@@ -2684,9 +2816,7 @@
     "secretLink": {
       "title": "Buka Link Terjamin",
       "desc": "Buat link yang terenkripsi. Hanya mereka yang memiliki password yang benar dapat mengakses konten atau sumber daya rahasia Anda.",
-      "infoTitle": "Tentang Fitur Ini",
       "infoDesc": "Anda dapat membuat sebuah link spesial yang meminta pengguna untuk masuk dengan kata sandi untuk mengarahkan ke tujuan (Google Drive, foto shoot privat, dokumen internal). Max 5 link.",
-      "formTitle": "Buat LINK YANG SAKIT",
       "fields": {
         "title": "Nama Label (Dalam)",
         "url": "URL Tujuan",
@@ -2722,7 +2852,6 @@
         "btnUpload": "Upload & Baca konten",
         "processing": "Processing...",
         "resultTitle": "Dokumen dalam ZIP:",
-        "btnDownloadTooltip": "Unduh File ini",
         "toastSelectZip": "Silakan pilih file ZIP",
         "toastZipFormat": "Hanya format ZIP yang diperbolehkan",
         "toastSizeLimit": "Ukuran file melebihi 50 MB",
@@ -2747,9 +2876,6 @@
     "qrCode": {
       "title": "Buat QR Code Sederhana",
       "desc": "Atur data untuk mereka yang dapat membaca dan mengatur langsung.",
-      "selectType": "1. Pilih jenis data",
-      "configureContent": "2. Configure konten",
-      "profileUrlLabel": "URL Profil Utama",
       "profileUrlDesc": "Scanning akan secara instan membuka halaman Bio Anda.",
       "iceContactLabel": "Jika Ada Masalah (JAM) KONTAK",
       "vcardDesc": "Scanning akan menangkap popup tambahan ke Daftar Kontak.",
@@ -2830,7 +2956,128 @@
       "syncFolderInfo": "Sementara berubah, setiap perubahan disimpan secara otomatis ke file fisik Anda ketika mengetik berhenti selama 1 detik.",
       "tutorialsIntro": "Pilih bahasa untuk mengunduh contoh interaktif:",
       "loadSample": "Load Sample",
-      "tutorialsTitle": "Tutorial & Pelatihan"
+      "tutorialsTitle": "Tutorial & Pelatihan",
+      "xacNhanTraoDoi": "Konfirmasi Exchange",
+      "banCoDongY": "Apakah Anda Setuju dengan Menggunakan",
+      "10PhiSangTao": "(+ 10% Biaya Kreativitas) untuk Melakukan Pendaftaran 1 Bulan pada Paket",
+      "khong": "Tidak?",
+      "dangKyThanhCong": "Pendaftaran Berhasil! Stages Belajar ini telah Dibuka.",
+      "loiGiaoDich": "Transaksi Gagal.",
+      "muaGoiVinhVien": "Membeli Paket Terus Menerus",
+      "gom": "gồm",
+      "joyVa": "gồm JOY dan",
+      "joyPhiSangTao": "JOY Fiyas Kreativ untuk membuka kunci abadi",
+      "giaHanBoPhat": "Menggandakan Paket Pembangunan Web",
+      "10PhiSangTao2": "(+ 10% Fiyas Kreativ) untuk menggandakan 30 hari paket Pembangunan Web tanpa?",
+      "dongPhiBaoTri": "Berhasil Mengganti Fiyas Perawatan!",
+      "muaTronGoi6": "Paket Lengkap 6 Tahap",
+      "10PhiSangTao3": "(+ 10% Fiyas Kreativ) untuk membuka kunci abadi seluruh 6 bagian dari Paket Pembangunan Web dan mendapatkan foya perawatan tanpa batas?",
+      "quyenSoHuuTron": "Hak Pemilik Abadi telah diperbarui.",
+      "moKhoaTronGoi": "Berhasil Membuka Kunci Abadi Seluruh. Anda Telah Diaktifkan Semua Pelajaran dan Mendapatkan Foya Perawatan Tanpa Batas.",
+      "xacNhanXoa": "Konfirmasi Menghapus",
+      "banCoChacChan": "Anda yakin ingin menghapus",
+      "thuMuc": "folder",
+      "khongHanhDongNay": "? Aksi ini tidak dapat dibatalkan lagi."
+    },
+    "hugoso": {
+      "bai": "artikel ·",
+      "daMoKhoa": "Dibuka",
+      "studyWithHugoNang": "STUDI DENGAN HUGO · KUALITAS NUMERIK DAN AI",
+      "xinChao": "Halo,",
+      "homNayMinhCung": "Kesampingkan hari ini kita selesaikan satu keterampilan yang nyata.",
+      "baiDat": "artikel berhasil",
+      "baiTiepTheo": "BÀI TIẾP THEO ·",
+      "baiHoanThanh": "bài hoàn thành",
+      "tiepTucHoc": "Tiếp tục học",
+      "batDauBaiMien": "Bắt đầu bài miễn phí",
+      "lamNgayTrenCong": "Làm ngay trên công cụ thật",
+      "xemTatCa": "Xem tất cả",
+      "lopHocCuaBan": "LỚP HỌC CỦA BẠN",
+      "hocTheoKetQua": "Học theo kết quả cần đạt",
+      "tatCaKhoaHoc": "Tất cả khóa học",
+      "4LoTrinhThuc": "4 LỘ TRÌNH THỰC CHIẾN",
+      "kyNangDungDuoc": "Kỹ năng dùng được ngay,",
+      "khongHocChiDe": "Kemampuan yang dapat digunakan langsung,",
+      "moiKhoaGomVideo": "Belajar hanya untuk melihat saja.",
+      "motLoTrinhCho": "Setiap kursus berisi video dalam situasi nyata, tugas di alat nyata dan ujian wajib.",
+      "calendarDocsSheetsGemini": "Rute lengkap untuk semua pekerjaan Anda.",
+      "joySoVoiMua": "Calendar → Dokumen → Google Sheets → Gemini, hemat ruang.",
+      "moTronBo": "JOY dibandingkan beli secara terpisah.",
+      "tuBaiHocSang": "Buka paket lengkapnya.",
+      "moUngDungGoogle": "Mulai dari pelajaran hingga produk nyata.",
+      "moKhongGianLam": "Buka aplikasi Google di tab baru, ikuti checklist lalu kembali ke Study with Hugo untuk mengirim hasil.",
+      "apDungChecklistTrong": "Áp dụng checklist trong bài học",
+      "quayLaiNopPhan": "Kirim checklist ke dalam kelas",
+      "hoSoKyNang": "Daftar Anggota Studio Hugo",
+      "hanhTrinhBatDau": "Pendakar Pembelajaran",
+      "baiDaDatTien": "Profil Pengembangan Karir Anda",
+      "noiDungDaDoi": "Isi Berita Dalam Akun Anda",
+      "googleGoogleCalendarDocs": "Konfirmasi Konten yang Sudah Disetujui",
+      "dieuHuongStudyWith": "Google, Google Calendar, Docs, Sheets dan Gemini adalah merek dagang dari Google LLC.\n              Study with Hugo adalah sistem belajar mandiri yang tidak terhubung dengan dan tidak didukung atau diakui oleh Google.",
+      "homNay": "Navigasi Study with Hugo",
+      "khoaHoc": "Hari ini",
+      "thucHanh": "Praktik",
+      "tienDo": "Perkembangan",
+      "baiDanhGia": "Review",
+      "baiDauTienMien": "Review Pertama Gratis",
+      "moKhoaTronDoi": "Pemutakhiran Tanpa Batas ·",
+      "sanPhamCuoiKhoa": "PRODUK TERAKHIR",
+      "phuongPhap": "METODE",
+      "xemDemoLamTren": "Dapatkan Demo · Lakukan di Alat Nyata · Kirim Check Skill",
+      "noiDung": "Bahan Belajar",
+      "doiChieuHuongDan": "Periksa Dengan Standar Resmi Google Setiap Hari",
+      "kiemDinhDongBo": "KIỂM ĐỊNH DOSEN BAHASU",
+      "baiKhopVideoNoi": "Video Sync, Konten, Praktek, dan Evaluasi",
+      "giaoTrinhVaBai": "Modul dan Praktek",
+      "nguonChinhThucGoogle": "Sumber Google Resmi",
+      "buoc": "· LANGKAH",
+      "hocThu": "· BELAJAR DENGAN MENCUBA",
+      "giaoTrinh": "Modul",
+      "buoc2": "Langkah",
+      "nhiemVuBaiHoc": "Tugas Modul",
+      "bonPhanDongBo": "Empat Bagian Bersepadu dari Modul",
+      "hieu": "Hi",
+      "lam": "Lakukan",
+      "motSanPhamThat": "Satu produk nyata",
+      "kiemTra": "Periksa",
+      "motCauHoiLien": "Pertanyaan terkait: ",
+      "sanPhamCanNop": "Produk yang perluas:",
+      "chuanBiThucHanh": "Persiapan Praktek:",
+      "mo": "Buka",
+      "canhBaiHocNay": "Samping dari ini",
+      "huongDanChiTiet": "Rincian Lanjut",
+      "lamLanLuotKhong": "Lakukan satu per satu, jangan lupa langkah mana pun.",
+      "nguonGoogle": "Google Source",
+      "khaDungTinhNang": "Fungsionalitas Aktivasi",
+      "noiDungTrongTam": "ISI TERPUKAS",
+      "sauBuocNayBan": "Apakah yang bisa Anda lakukan setelah langkah ini?",
+      "goiYHocTap": "PENGGUNAAN UNTUK BELAJAR",
+      "lamTruocKiemTra": "Lakukan sebelum memeriksa kembali",
+      "thucHienDungSan": "Selesaikan produk dari langkah tersebut sebelum menjawab pertanyaan yang diambil langsung dari instruksinya.",
+      "02TracNghiemLien": "02 · PELUANGAN KONEKSI",
+      "kiemTraKienThuc": "Pemeriksaan Pengetahuan Setelah Langkah",
+      "chinhXac": "Champak. ",
+      "chuaChinhXac": "Tidak tepat. ",
+      "01ThucHanhBat": "01 · AKBAR",
+      "lamTrucTiepTren": "Lakukan langsung di aplikasi Google.",
+      "lamDuChecklist": "Selesaikan semua checklist.",
+      "hoanThanhDung": "Selesai dengan benar.",
+      "thaoTacDaXem": "Aksi yang telah dilihat dan dibaca.",
+      "ghiKetQua": "Masukkan hasil akhir.",
+      "dienVaoOTra": "Isi kotak jawaban sesuai model, lalu konfirmasikan.",
+      "deThucHanh": "untuk praktek",
+      "checklistThaoTacKhop": "Daftar tugas — sesuaikan setiap episode video dan langkah panduan",
+      "huongDan": "· Panduan",
+      "khungThamKhaoKhong": "Ruang Referensi — bukan jawaban yang dapat Anda salin",
+      "ghiKetQuaBan": "Masukkan Hasil Anda di sini…",
+      "yToiThieuDa": "Minimal telah dikenali",
+      "toiXacNhanDa": "Saya mengakui bahwa tindakan tersebut dilakukan secara langsung oleh saya",
+      "baiLamDuocDanh": "Penyelesaian Anda akan dinilai langsung pada perangkat Anda. Jangan upload praktik ke layanan AI.",
+      "daHoanThanh": "Selesai",
+      "nopVaMoBuoc": "Kirim dan buka langkah selanjutnnya",
+      "tiepTheo": "SEBELUM BERLANGSUNG",
+      "nangSuatSoAi": "Efisiensi Digital & AI",
+      "dangTaiKhoaHoc": "Sedang memuat kursus"
     }
   },
   "companion": {
@@ -3005,6 +3252,226 @@
     },
     "assessment": {
       "title": "Ulasan"
+    },
+    "chat": {
+      "thuGianTuCham": "Relaksasi dan Perawatan Sendiri",
+      "banDaCoToken": "Anda telah Mendapatkan Token Baru, Anda Bisa Berbicara Lanjut!",
+      "trucTuyen": "● Online",
+      "cheDoTuDong": "Chế độ tự động thích ứng đang bật",
+      "ngay": "Tanggal",
+      "khoa": "Kunci",
+      "testLai": "Ulangi Tes",
+      "thoatCheDoTrut": "Batalkan Pengaturan",
+      "cheDoTrutGian": "Pengaturan Keamanan Tes",
+      "sangLocTrieuChung": "Saring Gejala Kesehatan Mental",
+      "sangLocTrieuChung2": "Saring Gejala Stres",
+      "trangThaiTinhThan": "Status Sikap",
+      "tracNghiemNhanCach": "Tes Karakter",
+      "thuGian": "Relaxasi",
+      "giacNgu": "Tidur",
+      "danhGia": "Review",
+      "hetTokenTroChuyen": "Hampers token percakapan hari ini",
+      "muaNhanhBangJoy": "Belanja cepat dengan JOY",
+      "hetTokenHomNay": "Hampers token hari ini...",
+      "trutBoMoiMuon": "Buang semua stres di sini (privasi)...",
+      "nhanTinVoiHugopsy": "Kirim pesan ke HugoPSY...",
+      "baiTapTinhTam": "Pembaruan Pikiran & Periode Tidur Natural",
+      "nhatKyChuKy": "Jurnal dan Kalendar Periode Tidur Budi Pekerti",
+      "baoCaoDanhGia": "Báo Cáo Đánh Giá Sức Khỏe Tinh Thần"
+    },
+    "evaluation": {
+      "tongQuan": "Tentang",
+      "haoQuangCamXuc": "Aura Emosi",
+      "hoSoTamLy": "Portofolio Kesehatan Mental & Big Five",
+      "lichSuTienTrinh": "Sejarah dan Progres",
+      "nhatKyTuCham": "Catatan Perawatan 7 Hari",
+      "batDauTuDanh": "Mulai Penilaian Diri Anda",
+      "denHanTuDanh": "Penilaian Diri Berikutnya Tertentu",
+      "danhGiaSucKhoe": "Penilaian Total Kesehatan Emosi",
+      "mucDuyTri": "Biaya Pemeliharaan",
+      "chuaDuDuLieu": "Belum足够的数据",
+      "duyTriDeu": "Dapatkan kebiasaan secara teratur",
+      "dangHinhThanhThoi": "Sedang mengembangkan kebiasaan",
+      "troChuyenAiNgay": "Diskusi AI segera",
+      "tongKetTuCham": "Ringkasan perawatan mandiri dalam seminggu",
+      "7NgayGanNhat": "7 hari terakhir",
+      "7Ngay": "/7 hari",
+      "baiTapHoanThanh": "Pelatihan Selesai",
+      "luot": "Kali",
+      "bienThienPhq9": "Perubahan PHQ-9",
+      "onDinh": "Ổn định",
+      "tongGhiNhan": "Tentang On-Demand:",
+      "hoatDong": "Tentang Aktivitas:",
+      "xemChiTietBao": "Lihat Detail Laporan:",
+      "taiDanhGiaDinh": "Revaluasi Berikat Setiap 7 Hari:",
+      "chuKy": "Frekuensi:",
+      "7NgayLuot": "Setiap 7 Hari / Per Kali Penggunaan",
+      "lanTestGanNhat": "Tes Terakhir:",
+      "chuaThucHien": "Belum Dilakukan",
+      "chuaCoKetQua": "Tidak Ada Hasil Dasar. Anda Bisa Mulai Dengan Tes Self-Assessment Ringkas.",
+      "daDu7Ngay": "Đã\\u00a07 hari dari lần tự đánh giá gần nhất. Cậu có thể làm lại nếu muốn theo dõi xu hướng.",
+      "tuDanhGiaLai": "Tự đánh giá lại",
+      "xemCacBaiDanh": "Xem các bài đánh giá",
+      "ketQuaTuDanh": "Kết quả tự đánh giá đã ghi nhận",
+      "chuaDo": "Chưa đo",
+      "ghiNhanCaNhan": "Ghi nhận cá nhân & Big Five",
+      "ghiNhanHoiThoai": "Ghi nhận hội thoại",
+      "bieuDoNetTinh": "Biểu Đồ Nét Tính Cách Big Five",
+      "chuaCoDuLieu": "Chưa có dữ liệu Big Five. Biểu đồ sẽ chỉ xuất hiện sau khi cậu hoàn thành bài đánh giá.",
+      "chuDeApLuc": "Chủ Đề Áp Lực Hay Gặp",
+      "chuaCoChuDe": "Belum ada topik khusus.",
+      "xuHuongNetTam": "Tren Ngetat Logika",
+      "dangTuDongPhan": "Sedang otomatis analisis melalui diskusi...",
+      "lichSuHoatDong": "Sejarah Aktivitas & Penilaian Diri Sendiri",
+      "thuGon": "Kompres",
+      "xemTatCa": "Xem tất cả",
+      "chuaGhiNhanHoat": "Belum ada aktivitas relaksasi atau penilaian apa pun yang diberikan.",
+      "hoatDongThuGian": "Aktivitas Relaksasi",
+      "ratTot": "Sangat Baik",
+      "tot": "Baik",
+      "binhThuong": "Biasa",
+      "moiMet": "Leletan",
+      "kietSuc": "Pulih",
+      "checkInCamXuc": "Check-in Emosi",
+      "mucDuyTriHoat": "Otot Aktif dalam Seminggu",
+      "streakCheckInCam": "Streak Check-in Emosi",
+      "7Ngay2": "/ 7 hari",
+      "hoatDongThuGian2": "Aktivitas Relaksasi",
+      "luotHoanThanh": "Laporan Selesai",
+      "dongBaoCao": "Tutup Laporan"
+    },
+    "tab": {
+      "dongTamThoi": "Tutup Sementara",
+      "loTrinh": "Lokasi Journey",
+      "ngay": "Hari",
+      "ngay2": "Tanggal",
+      "batDau": "· Mulai"
+    },
+    "sleep": {
+      "tinhChuKyGiac": "Kalendar Durasi Kondisi Tubuh 90 Menit (Circadian Cycle)",
+      "chuanKhoaHocNrem": "Standar Ilmiah NREM/REM",
+      "thucDayLuc": "⏰ Waktunya Bangun Sekarang...",
+      "diNguNgayBay": "🌙 Jangan Tidur Sekarang...",
+      "gioThucDayMong": "Waktu Bangun yang Diharapkan:",
+      "gioNgu": "jam tidur",
+      "meoMoiChuKy": "💡 **Tip:** Setiap periode tidur berlangsung 90 menit (melalui fase NREM, tidur dalam N3 & REM). Bangun di akhir periode untuk merasa segar tanpa merasa lelah atau pusing.",
+      "boCamBien": "Sensor: ",
+      "tuDongKichHoat": "Aktifkan Otomatis (PWA)",
+      "dangKetNoi": "Đang kết nối",
+      "chuaLienKet": "Belum Terkait",
+      "tuDong": "Otomatis",
+      "daLienKet": "Terkait",
+      "lienKetThietBi": "Koneksikan Perangkat",
+      "cuDong": "Gaya Gerakan",
+      "trangThaiTab": "Status Tab",
+      "hien": "Ya",
+      "tuDong8Tin": "Otomatis · 8 Indikator Perangkat Asli",
+      "themThuCong": "Thêm thủ công",
+      "dangPhanTich": "Diproses...",
+      "phanTichAi": "Analisis Otomatis",
+      "ghiNhanNguLuc": "Mengenali Tidur...",
+      "tinHieuNguDang": "Data Tidur Sedang Diperoleh...",
+      "tinHieuGanNhat": "Poin Terkini:",
+      "tbNgu": "Rata-Rata Tidur",
+      "demGhi": "Tidur Malam Ini",
+      "diemSoGiacNgu": "Skor Kualitas Tidur",
+      "7NgayGanNhat": "7 hari terakhir",
+      "thoiLuong": "Thời lượng",
+      "chatLuong": "Chất lượng",
+      "onDinh": "Ổn định",
+      "thoiDiem": "Thời điểm",
+      "hieuSuat": "Hiệu suất",
+      "hDemCl": "h/đêm · CL",
+      "thieuNgu": "Thiếu ngủ",
+      "gio": "giờ",
+      "ngayThieuTb": "ngày · Thiếu TB",
+      "hDem": "h/đêm",
+      "can": "Cần ~",
+      "demNguBuThem": "đêm ngủ bù thêm 1h",
+      "khongThieuNgu": "Tidak Kurang dari Istirahat",
+      "duGiacTrong": "Stabilitas Jadwal Istirahat ✓",
+      "ngayQua": "Jadwal Istirahat Sempurna",
+      "onDinhLich": "Stabilkan Jadwal Anda",
+      "lichNguRatOn": "Istirahat Sempurna, Jaga Waktu",
+      "khaOnDinhNen": "Biak Bergerak, Jaga Waktu",
+      "bienDongNenNgu": "Berubah Banyak, Jaga Waktu",
+      "lichNguThatThuong": "Jadwal Istirahat Tidak Teratur, Perbaiki",
+      "tuDongGhiNhan": "Auto Merekam Istirahat",
+      "heThongPhatHien": "Sistem Mendeteksi Anda Sedang Istirahat",
+      "vaThucDayLuc": "và thức dậy lúc",
+      "chatLuongGiacNgu": "và waktu thức dậy lúc",
+      "tamTrangKhiDay": "Tâm trạng khi dậy?",
+      "xacNhanLuu": "Konfirmasi & Simpan",
+      "chinhSua": "Edit",
+      "boQua": "Lewati",
+      "ghiNhatKyGiac": "Catat Jurnal Tidur Anda",
+      "ngay": "Tanggal",
+      "gioNgu2": "Waktu Terbang",
+      "gioDay": "Waktu Bangun",
+      "chatLuongGiacNgu2": "Chất Lượng Giấc Ngủ",
+      "chiSoLamSang": "Indeks Klinis",
+      "delayPhut": "Delay (menit)",
+      "lyTuong1020": "Lemah: 10–20 menit",
+      "tinhGiac": "Tidur",
+      "lyTuong01": "Lemah: 0–1 kali",
+      "wasoPhut": "WASO (menit)",
+      "thucSauKhiNgu": "Sobek Tidur",
+      "hoatDongTruocKhi": "Aktivitas Sebelum Tidur",
+      "thoiGianManHinh": "Masa Aktif Layar",
+      "0Phut": "0 menit",
+      "phut": "phút",
+      "vanDong": "Motivasi",
+      "ruouBia": "><!-- Motivation -->",
+      "moiTruong": "Minuman Beralkohol",
+      "cangThangTruocKhi": "Lokal",
+      "ratIt": "Stres Sebelum Tidur",
+      "it": "Sangat Sedikit",
+      "vua": "Sedikit",
+      "nhieu": "Sedang",
+      "ratNhieu": "Banyak",
+      "tamTrangKhiDay2": "Tâm trạng khi dậy",
+      "ghiChu": "Catatan",
+      "giacNguCamGiac": "Bagaimana perasaan tidurmu...",
+      "giacMo": "Bermimpi",
+      "giacMoDemQua": "Bermimpi malam lalu...",
+      "huy": "Batal",
+      "luu": "Simpan",
+      "taiLichSuGiac": "Tampilkan riwayat tidur",
+      "7NgayGanNhat2": "7 Hari Terakhir",
+      "mucTieu": "Tujuan:",
+      "tinh": "Tỉnh:",
+      "lan": "Pengulangan:",
+      "hieuSuat2": "Efisiensi:",
+      "tuDong2": "Auto ✓",
+      "khoangMucTieu": "Rentang Tujuan:",
+      "giaiDoanGiacNgu": "Stadium Tidur (Simulasi)",
+      "sau": "Tepi",
+      "nhe": "Ringan",
+      "thuc": "Waking: Deep Sleep Recovery",
+      "nguSauPhucHoi": ": Ngủ sâu phục hồi",
+      "giacMoTriNho": ": Giấc mơ, trí nhớ",
+      "thuGian": "Relaksasi",
+      "tinhGiac2": "Bangun",
+      "phanTichAiGiac": "Analisis AI Mimpi",
+      "trangThai": "Status",
+      "tbChatLuong": "Kualitas TB",
+      "nhipSinhHoc": "Siklus Biologis",
+      "canhBao": "Pemberitahuan",
+      "diemManh": "Kelebihan",
+      "khuyenNghiAi": "Rekomendasi AI",
+      "loiKhuyenToiNay": "Lời khuyên tối nay",
+      "lichSu": "Lagi Tips",
+      "dem": "Sejarah (",
+      "hieuSuat3": "% Efisiensi",
+      "chuaDuDuLieu": "Belum足够的数据",
+      "manHinh": "Layar:",
+      "cangThang": "Stres:",
+      "vanDong2": "Kebugaran:",
+      "ruou": "Rokok:",
+      "moiTruong2": "Lokasi:",
+      "giacMo2": "Mimpi: \"",
+      "heThongDangTheo": "Hệ thống đang theo dõi. Ngủ ngon nhé!",
+      "nhatKySeTu": "Nhật ký sẽ tự động xuất hiện sau khi bạn thức dậy."
     }
   },
   "hugoCoderLearning": {
@@ -3113,6 +3580,81 @@
       "previous": "Kembali",
       "continue": "Kemudahan",
       "nextLesson": "Selanjutnya kelas"
+    },
+    "guidebook": {
+      "quayLai": "Kembali",
+      "sachHuongDanLap": "Buku Panduan Pengembangan",
+      "hoanThanh": "% Hoàn thành",
+      "daChinhPhuc": "Berhasil Menguasai",
+      "trenTongSo": "Dari Total",
+      "baiHocThucChien": "Pelajaran Praktek",
+      "soHuuTronGoi": "Pemilik Langganan Selam (Gratis Perawatan Selam)",
+      "chuaKichHoatPhi": "Belum Aktif Biaya Bulanan ($50 JOY)",
+      "phiBaoTriDa": "Biaya Perawatan Telah Berakhir!",
+      "vuiLongGiaHan": "Harap memperpanjangan pembayaran JOY sebesar 50 per bulan untuk melanjutkan belajar. Jika tidak, proses belajar akan dikembalikan ke nol.",
+      "ngay": "Hari",
+      "dongPhiTruocKhi": "đóng phí trước khi tiến trình học bị reset hoàn toàn về 0.",
+      "phiBaoTriHang": "Phí bảo trì hàng tháng:",
+      "daKichHoatCon": "Pilih metode pembayaran Anda untuk memperpanjang pembayaran sebesar 50 JOY per bulan.",
+      "ngay2": "ngày)",
+      "mucLucLoTrinh": "Mục lục lộ trình",
+      "vuiLongHocTuan": "Silakan ikuti urutan untuk membuka akses ke artikel berikutnya",
+      "baiDaHoc": "Bahan yang telah dipelajari",
+      "banSeHoc": "Anda akan mempelajari",
+      "thachThuc": "Tantangan:",
+      "huaHen": "Hứa hẹn:",
+      "chucMungHoanThanh": "Chúc mừng hoàn thành",
+      "xemChiaSeGiay": "Xem & chia sẻ giấy chứng nhận chặng",
+      "banDaHoanThanh": "And you have completed this challenge excellently! Congratulations on your achievement. Please claim your special award.",
+      "daNhanThuong800": "You've received the reward +800 JOY ✓",
+      "nhanPhanThuong800": "Claim the reward (+800 JOY)",
+      "hayHoanThanhDo": "Please complete your graduation project and submit your project link at",
+      "bai100": "Bài 100",
+      "deNhanDanhGia": "to receive Hugo Studio's feedback.",
+      "dangChoDuyetDo": "Awaiting review of your graduation project... ⏳",
+      "hugoStudioDangRa": "Hugo Studio sedang memeriksa proyek dan kode Anda.",
+      "doAnChuaDat": "Proyek belum mencapai persyaratan ❌",
+      "phanHoi": "Balasan:",
+      "banCoTheSua": "Anda dapat merubah dan kirim ulang link baru di 100.",
+      "doAnDaDuoc": "Proyek telah disetujui dengan sukses! 🎉",
+      "daNhanThuongHoan": "Menerima hadiah untuk menyelesaikan kursus 4,000 JOY & hadiah VIP.",
+      "nhanChungNhanHoan": "Menerima sertifikat pengakuan",
+      "chungNhanDangDuoc": "Sertifikat sedang dipersiapkan oleh Admin...",
+      "vuiLongHoanThanh": "Selesaikan pelajaran terlebih dahulu sebelum membuka latihan ini!",
+      "thucHanhLyThuyet": "Latihan teori sudah siap dilakukan.",
+      "noiDungBaiHoc": "Bahan belajar ini terkunci. Silakan buka secara permanen bahan belajar ini atau membeli paket lengkap 7 bahan untuk mulai belajar.",
+      "thueBaoBaoTri": "Subsriber perawatan telah habis. Silakan mengganti paket perawatan bulanan 50 JOY untuk melanjutkan belajar.",
+      "moKhoaVinhVien": "Buka secara permanen",
+      "moKhoaVinhVien2": "Buka secara permanen hak belajar dan praktik seluruh bahan belajar dalam",
+      "trongGoiNayBan": "Paket ini memberikan kepada Anda",
+      "moKhoaChangVinh": "Buka secara permanen pilihan bahan belajar",
+      "tronGoiVinhVien": "Paket lengkap secara permanen 6 bahan",
+      "moKhoaToanBo": "Buka semua 100 bahan belajar 6 paket secara permanen & mendapatkan",
+      "mienPhiPhiBao": "bebas biaya perawatan selamanya",
+      "muaTronGoi16k": "Beli paket lengkap 16k JOY",
+      "giaHanPhiBao": "Mengganti biaya perawatan bulanan 16k",
+      "phiBaoTriCan": "Biaya perawatan harus dibayar setiap bulan untuk mempertahankan akses. Jika lebih dari 3 bulan tidak membayar, proses belajar akan dikembalikan ke nol.",
+      "dongPhiBaoTri": "Bayar biaya perawatan dengan 50 JOY",
+      "hinhMinhHoaSong": "Gambar yang hidup dan menarik",
+      "tongQuanMucTieu": "Panduan Umum & Tujuan",
+      "thucHanhCodeMau": "Praktek & Contoh Code Langkah demi Langkah",
+      "checklistHieuBai": "Daftar Pemeriksaan Penjelasan",
+      "thuThachMoRong": "Ujian Luar Biasa: ",
+      "checklistThuocBai": "Checklist thuộc bài",
+      "thucHanhTuongTac": "Thực hành tương tác",
+      "banCanTimHieu": "Bạn cần tìm hiểu thêm:",
+      "phut": "phút",
+      "giayDeCoThe": "giây để có thể kiểm tra.",
+      "hoanThanhXuatSac": "Hoàn thành xuất sắc!",
+      "banDaVuotQua": "Anda telah melewati tantangan dari pembelajaran ini dan menerima hadiah JOY.",
+      "bayLoiCachKhac": "Bẫy lỗi & Cách khắc phục",
+      "taiLieuSachHoc": "Buku Bahan & Dokumen Ilmiah",
+      "choBaiNay": "Untuk Pembahasan Ini",
+      "nguonChuanQuocTe": "Sumber Internasional Terpercaya",
+      "chayThuDeXem": "Uji Coba untuk Melihat",
+      "chay": "Uji Coba",
+      "baiNayLaDang": "Bisnis ini adalah bentuk query atau backend, sehingga pada ponsel Anda akan menampilkan contoh dan petunjuk pengujian. Ketika dijalankan di desktop, sistem belajar akan berpindah ke IDE yang lengkap.",
+      "traoDoiJoyDe": "Komunikasi JOY untuk Membuka Akses Pemrograman Web"
     }
   },
   "arcadeGame": {
@@ -3160,7 +3702,138 @@
       "win": "Kemenangan",
       "lose": "Coba lagi",
       "draw": "Serangan"
-    }
+    },
+    "catAll": "Semua",
+    "catStudio": "Hugo Studio",
+    "catPvp": "Versus",
+    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
+    "bestScore": "· Best {{score}}",
+    "downloading": "Downloading {{percent}}%",
+    "exchangeError": "JOY exchange failed.",
+    "addedToApps": "{{game}} was added to your apps.",
+    "gameFallback": "Game",
+    "rankTitle": "Leaderboard",
+    "noAds": "Play right inside Hugo — no ads.",
+    "filterGames": "Filter games",
+    "playGame": "Play {{game}}",
+    "spotlight": "Today's spotlight",
+    "play": "PLAY",
+    "gamesTitle": "Games",
+    "totalMatches": "Matches",
+    "wins": "Wins",
+    "rankDesc": "The best players across the whole system.",
+    "newBest": "New best!",
+    "beatBest": "Beat {{score}}",
+    "combo": "{{count}}× combo",
+    "multiplier": "Multiplier x{{value}}",
+    "best": "Best",
+    "hugoMember": "Hugo member",
+    "rankSss": "RANK SSS • GRANDMASTER",
+    "rankS": "RANK S • CODE WARRIOR",
+    "joyByScore": "+ JOY based on score",
+    "pendingWallet": "· waiting to land in your wallet",
+    "tryAgainClose": "Try again — so close!",
+    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
+    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "g2048Level": "Level {{level}}",
+    "g2048LevelStone": "Level {{level}} · with stone tiles",
+    "g2048Undone": "One move undone",
+    "g2048Tnt": "TNT tile",
+    "g2048Stone": "Stone tile, {{turns}} moves left",
+    "g2048Tile": "Tile {{value}}",
+    "g2048Score": "SCORE",
+    "g2048Moves": "MOVES",
+    "snakeStage1": "Neon Garden",
+    "snakeStage1Kicker": "WARM-UP STAGE",
+    "snakeStage1Goal": "Collect 6 energy cores",
+    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
+    "snakeStage2": "Red Minefield",
+    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
+    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
+    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
+    "snakeStage3": "Quantum Gates",
+    "snakeStage3Kicker": "TELEPORT CHALLENGE",
+    "snakeStage3Goal": "Master the pair of space gates",
+    "snakeStage3Hint": "Enter one gate to appear at the other.",
+    "snakeStage4": "Gold Hunt",
+    "snakeStage4Kicker": "SPEED CHALLENGE",
+    "snakeStage4Goal": "Catch the golden cores before they vanish",
+    "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
+    "snakeStage5Kicker": "FINAL STAGE",
+    "snakeStage5Goal": "Survive the high-speed grid",
+    "snakeStage5Hint": "High speed, more mines and teleport gates.",
+    "snakeNewStage": "{{stage}} · a new challenge is open",
+    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
+    "snakeFood": "Cores",
+    "snakeStageLabel": "Stage",
+    "snakeStageOf": "Stage {{index}}: {{name}}",
+    "ready": "READY",
+    "snakeStageProgress": "STAGE PROGRESS",
+    "snakeCoreNormal": "+2 normal core",
+    "snakeCoreGold": "+10 golden core",
+    "snakeMine": "Mine: game over",
+    "snakePortal": "Teleport gate",
+    "chessBoard": "3D chess board",
+    "chessWhite": "White",
+    "chessBlack": "Black",
+    "chessCheckmate": "Checkmate! {{side}} wins!",
+    "chessStalemate": "Draw (stalemate)",
+    "chessOver": "Game over",
+    "chessLevelEasy": "Apprentice",
+    "chessEasy": "Easy",
+    "chessLevelMid": "Tactician",
+    "chessMid": "Beranda",
+    "chessLevelHard": "Master",
+    "chessHard": "Hard",
+    "chessThinking": "Hugo BOT is thinking…",
+    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
+    "chessTurn": "Turn: {{side}}",
+    "chessBotThinking": "Hugo BOT (thinking…)",
+    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
+    "chessBlackPlayer": "Black player",
+    "chessView3d": "3D view",
+    "chessUndo": "Undo",
+    "chessNewGame": "New game",
+    "chessYouWhite": "You (White)",
+    "chessWhitePlayer": "White player",
+    "caroThinking": "The AI is thinking",
+    "caroYourTurn": "Your turn (X)",
+    "caroWin": "You win! 🎉",
+    "caroLose": "The AI won — try again!",
+    "caroDraw": "Draw! The board is full.",
+    "caroYou": "You",
+    "caroRule": "3 in a row",
+    "survivorWaveClear": "WAVE {{wave}} CLEAR",
+    "survivorSurge": "SURGE",
+    "survivorBoss": "{{wave}} · BOSS",
+    "survivorLeft": "{{wave}} · {{count}} left",
+    "survivorClear": "{{wave}} · clear",
+    "rankSs": "RANK SS • NEON ACE",
+    "rankA": "RANK A • SENIOR FIGHTER",
+    "rankB": "RANK B • RISING PLAYER",
+    "shellFormula": "{{score}} points → {{joy}} JOY",
+    "shellRecord": "New best! {{delta}} points more than last time.",
+    "shellNear": "{{gap}} points short of your best {{best}}.",
+    "shellBest": "Your best: {{best}}.",
+    "lbWinner": "{{name}} is the winner!",
+    "lbRealtime": "Total score updates in real time • {{date}}",
+    "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
+    "lbLoading": "Adding up scores across every game…",
+    "lbMatches": "{{count}} matches played",
+    "lbTotalScore": "TOTAL SCORE",
+    "lbEmpty": "Nobody on the board yet. Be the first!",
+    "snakeStage5": "Hyper Grid",
+    "snakeCurrentMission": "CURRENT MISSION",
+    "chessMovesPlayed": "Game finished after {{count}} moves.",
+    "chessArena": "3D Chess Arena",
+    "chessVsBot": "Play the Hugo AI BOT",
+    "chessVsBotDesc": "You play White · a test against the algorithm",
+    "chessPassPlay": "Two players, one device (pass & play)",
+    "chessPassPlayDesc": "Put the device between you like a real board",
+    "chessBotLevelLabel": "AI BOT level:",
+    "chessHistory": "History:",
+    "exclusive": "Exclusive to Hugo Studio",
+    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
   },
   "arcadeIntro": {
     "close": "Kembali ke Aplikasi",
@@ -3219,5 +3892,1480 @@
     "chooseLanguage": "Pilih bahasa",
     "openMenu": "Buka menu",
     "closeMenu": "Tutup menu"
+  },
+  "footer": {
+    "tagline": "Ruang Digital yang Diperhatikan untuk Pelajar, Individu, dan Perusahaan Kecil yang Mencari Presensi Online yang Unik.",
+    "services": "Jasa",
+    "landingPage": "Landing Page",
+    "portfolio": "Portfolio Pribadi",
+    "bioLink": "Bio Link (edu)",
+    "customUIUX": "Custom UI/UX",
+    "links": "Explore",
+    "home": "Rumah",
+    "introduction": "Introduction",
+    "pricing": "Harga",
+    "booking": "Start a Conversation",
+    "connect": "Connect",
+    "partner": "Partners",
+    "privacyPolicy": "Privacy Policy",
+    "supportServer": "Support the Server",
+    "userGuide": "Petunjuk Pengguna"
+  },
+  "donationUI": {
+    "title": "Bantuan Hugo Studio",
+    "description": "Nama kontribusi Anda; angka-angka berikut hanyalah pedoman yang berguna.",
+    "open": "Buka panel kontribusi",
+    "hide": "Sembunyikan tombol kontribusi yang bergerak",
+    "close": "Tutup panel kontribusi",
+    "creating": "Mempersiapkan checkout Anda…",
+    "error": "Kesalahan dalam mempersiapkan checkout. Silakan coba lagi.",
+    "continuePayOS": "Membuat kontribusi · {{amount}}₫",
+    "securePayOS": "Layar Hugo Studio · Data pembayaran yang diserahkan oleh API PayOS",
+    "suggestions": "Kontribusi yang direkomendasikan",
+    "amountLabel": "Jumlah yang Anda pilih",
+    "minimum": "Minimum 5,000 VND",
+    "minimumError": "Batas minimum kontribusi adalah 5,000 VND.",
+    "nameLabel": "Nama Anda",
+    "emailLabel": "Email untuk surat terima kasih Anda",
+    "identityError": "Silakan berikan nama dan alamat email yang valid.",
+    "recognitionNotice": "Setelah kontribusi Anda aman sampai di, namamu akan muncul dalam ucapan terima kasih Hugo Studio kecil.",
+    "terms": "Dengan melanjutkan, Anda setuju bahwa kontribusi ini membeli tidak ada fitur atau akses dan biasanya tidak dapat dikembalikan, kecuali penipuan teknis atau sesuai hukum yang berlaku.",
+    "termsError": "Silakan setujui ketentuan kontribusi tersebut.",
+    "packs": {
+      "tea": "Cara minuman es teh",
+      "breakfast": "Makan pagi",
+      "coffee": "Cup air kopi",
+      "server": "Pemeliharan server",
+      "supporter": "Patron studio"
+    }
+  },
+  "intro": {
+    "nav": {
+      "welcome": "Selamat datang",
+      "webDev": "Web Development",
+      "personalInfo": "Informasi Pribadi",
+      "teammateInfo": "Teammate Info",
+      "bioEdu": "Bio Edu Layanan",
+      "webService": "Portal Layanan Web",
+      "hobbies": "Pengertian",
+      "philosophy": "Prinsip",
+      "contacts": "Contacts",
+      "start": "Get Started",
+      "studio": "Hugo Studio",
+      "partners": "Founder",
+      "about": "Tentang Saya",
+      "discoveries": "Temuan"
+    },
+    "about": {
+      "desc": "Saya adalah Hugo — seorang pengembang Gen Z yang mengubah ide menjadi pengalaman digital yang terperinci dan memiliki karakter.",
+      "hello": "Hi there, saya adalah "
+    },
+    "slide1": {
+      "badge": "✦ Karya Desainer Portal",
+      "title1": "Menggabungkan dunia digital",
+      "title2": "dengan semua hatiku.",
+      "desc": "Selamat datang di ruang kreatif <1>{{name}}</1>. Di sini, saya menggabungkan seni yang lembut dan kekuatan teknis untuk menciptakan produk digital berkualitas tinggi.",
+      "explore": "Telusuri Portofolio",
+      "book": "Booking Pertemuan",
+      "available": "Tersedia untuk Proyek",
+      "scrollDown": "Scroll Down"
+    },
+    "slide2": {
+      "badge": "✦ Web Development",
+      "title1": "Web Development",
+      "title2": "Dimensi Pengembangan Web",
+      "desc": "Pengembangan web adalah perjalanan dari mengubah ide kreatif menjadi ruang website yang hidup. Ini bukan hanya tentang pemrograman yang penuh; pengembangan web membutuhkan pemikiran estetika tingkat tinggi dikombinasikan dengan solusi teknis optimal untuk menciptakan pengalaman pengguna yang sempurna.",
+      "viewProfile": "Lihat Profil Pribadi"
+    },
+    "slide3": {
+      "badge": "✦ Informasi Pribadi",
+      "title1": "Latar Belakang &",
+      "title2": "Pendidikan",
+      "eduTitle": "Pendidikan / Gelar-Gelar",
+      "highSchool": "Sekolah Tinggi Nguyen Dinh Chieu",
+      "highSchoolDesc": "My Tho (Collège de MyTho)",
+      "uni": "Greenwich Vietnam",
+      "uniDesc": "Greenwich University",
+      "hsBadge": "High School",
+      "hsSub": "Di mana mind-set pemrogramanku dibentuk dan ditanamkan",
+      "hsFull": "Sekolah Tinggi Nguyen Dinh Chieu",
+      "hsAddress": "8 Jalan Bis Hung Vuong, My Tho, Dong Thap",
+      "v1t": "Karakter & Disiplin",
+      "v1d": "Keberanian melalui tantangan, kekuatan niat dalam belajar yang mandiri.",
+      "v2t": "Keterampilan Utama",
+      "v2d": "Pemikiran kritis tajam, pemecahan masalah, dan penelitian independen.",
+      "v3t": "Dokumentasi",
+      "v3d": "Logika matematika dan algoritma dasar.",
+      "uniTitle": "University of Greenwich",
+      "uniSub": "kurikulum internasional standar uk"
+    },
+    "slide4": {
+      "idTitle": "GREENWICH CO-DEVELOPER",
+      "badge": "✦ Pembangkuat Desainer Pemimpin",
+      "title1": "Membuat pengalaman digital unik bersama Jason Phan. Kami kombinasikan pemikiran sistem dan minat dalam teknologi untuk mengubah ide kompleks menjadi aplikasi yang lancar dan dioptimalkan.",
+      "title2": "Sekolah Cabang Cay Duong",
+      "desc": "Jason Phan adalah teman saya di perjalanan pembelajaran dan pengembangan proyek. Kami kombinasikan pemikiran sistem dan minat dalam teknologi untuk mengubah ide kompleks menjadi aplikasi yang lancar dan dioptimalkan.",
+      "highSchool": "Cay Duong High School",
+      "highSchoolDesc": "Dynamic high school in Kien Giang.",
+      "highSchoolProvince": "An Giang (sebelumnya Kien Giang)",
+      "uniTitle": "Greenwich Vietnam",
+      "uniDesc": "Enviroment pelatihan internasional yang terkait dengan Greenwich UK.",
+      "uniTag": "Fakultas Terkait"
+    },
+    "slide5": {
+      "badge": "✦ Manfaat Pelajar",
+      "title1": "Link Bio Gratis",
+      "title2": "Untuk Pelajar dengan Email .edu",
+      "desc": "Saya berusaha sepenuhnya mendukung pelajar dalam membangun mereka personal brand digital. Setiap akun yang menggunakan alamat email pendidikan berakhir dengan <1>.edu</1> akan secara otomatis aktifkan halaman Bio yang dapat diatur kustom.",
+      "check1": "Verifikasi alamat email pendidikan otomatis dalam 3 detik.",
+      "check2": "Mendukung pembuatan tautan unik dan indah (misalnya, bio/your-name).",
+      "check3": "Tengaran Link 12 Bulan Untuk Bio Anda.",
+      "createBtn": "Mulai Membuat .edu Bio Anda",
+      "idTitle": "Identifikasi Pelajar",
+      "idName": "SISTEM PORTAL BIO HUGO",
+      "idEmailTitle": "Alamat Email Wajib",
+      "idBenefitTitle": "Manfaat",
+      "idBenefitDesc": "BIO GRATIS 1",
+      "idValidityTitle": "Berlaku",
+      "idValidityDesc": "12 Bulan",
+      "idAuth": "Verifikasi",
+      "benefitsTitle": "Verifikasi berhasil dan Anda menerima:",
+      "b1t": "Bio pribadi gratis",
+      "b1d": "Customisasi layout, efek, latar belakang, dan setiap tautan sosial — kartu profesional digital bisnis Anda sendiri.",
+      "b2t": "Tautan bersih yang dirancang secara personal",
+      "b2d": "Seperti bio/your-name — mudah diingat dan proffesional pada CV, Facebook atau Instagram.",
+      "b3t": "3 verifikasi otomatis kedua",
+      "b3d": "Hanya akun email dengan ekstensi .edu — sistem mengverifikasi instan, tidak ada review manual.",
+      "b4t": "Setangkup alat mahasiswa lengkap",
+      "b4d": "Buku Pelajaran Mahasiswa, Hugo PSY, Web IDE, Hugo Radio dan Aura AI — gratis selama 12 bulan.",
+      "toolsTitle": "Alat mahasiswa yang gratis termasuk",
+      "flipHint": "Penggerak kartu atau tap untuk mengubah kartu"
+    },
+    "slide6": {
+      "badge": "✦ Layanan Web Profesional",
+      "title1": "Desain Web Profesional",
+      "title2": "Optimasi Pengalaman Digital",
+      "desc": "Saya merancang aplikasi web dengan filosofi kode sumber yang pendek, loading cepat, efek gerakan optimal, dan standar SEO untuk membantu merek Anda mencapai pengguna terbaik.",
+      "pricingBtn": "Lihat Harga & Detail",
+      "bookBtn": "Buku Konsultasi Desain",
+      "serviceOption": "Pilihan Layanan",
+      "item1Title": "Tema Visual",
+      "item1Desc": "Desain unik, satu halaman",
+      "item2Title": "Aplikasi Web Terkuat",
+      "item2Desc": "Dashboard Admin, Pengelolaan Produk"
+    },
+    "slide7": {
+      "badge": "✦ Personal Hobby",
+      "title1": "Corner Penawaran Hobi Anda",
+      "title2": "Tanaman Rafflesia.",
+      "desc": "Setelah berjam-jam bekerja keras dengan kode, hobiku yang paling kuat adalah menikmati dan merawat pot tanaman rafflesia. Vitalitasnya yang ekstrem dan kecantikan alami memberikan damai tak terbatas."
+    },
+    "slide8": {
+      "badge": "✦ Filosofi Desain",
+      "title1": "Bagaimana Saya Membuat",
+      "title2": "Pengalaman Pengguna",
+      "quote": "\"Prioritaskan jelas dan ketahanan; karakteristik bermoral datang setelah itu, dalam detail yang telah mendapatkan tempatnya.\"",
+      "wowTitle": "Estetika Tujuan",
+      "wowDesc": "Warna, gerakan, dan ruang negatif harus menunjukkan sebuah interface atau menggambarkan keadaan sistem, bukan sekedar mempercantik halaman untuk keindahan saja.",
+      "sweetTitle": "Meticulous Usability",
+      "sweetDesc": "Saya memperhatikan dengan hati-hati detail yang tampaknya tidak penting: target sentuhan yang luas, tata letak yang jelas saat memuat, pesan kesalahan yang terbuka dan layout yang legible di berbagai ukuran layar.",
+      "principles": "Prinsip Kreatif",
+      "p1": "Bergulir dengan kebutuhan pengguna yang demonstratif.",
+      "p2": "Prioritaskan performa, ergonomi mobile dan aksesibilitas.",
+      "p3": "Jaga agar antarmukanya konsisten dan kode sumber mudah diperbarui."
+    },
+    "slide9": {
+      "badge": "✦ Hubungi",
+      "title": "Hubungi Hugo",
+      "desc": "Untuk proyek, potensi atau sekadar untuk membangunkan esensi.",
+      "zalo": "Zalo Chat",
+      "email": "Send Email",
+      "fb": "Facebook",
+      "tiktok": "TikTok",
+      "supporters": "Kindred spirits alongside Hugo Studio",
+      "supporterItem": "{{name}}",
+      "supportersEmpty": "A darling little spot is waiting for your name."
+    },
+    "slide10": {
+      "badge": "✦ Mulai Sekarang",
+      "title1": "Buat Akun dan Mulai",
+      "title2": "Journey Digital Anda.",
+      "desc": "Buat halaman link siswa yang menakjubkan secara gratis, atau hubungi saya untuk merancang situs web profesional kustom hari ini.",
+      "registerBtn": "Mulai Gratis",
+      "bookBtn": "Diskusikan Website Anda"
+    },
+    "studio": {
+      "badge": "✦ Hugo Wishpax Studio",
+      "title1": "Hugo Studio",
+      "title2": "Menggabungkan pengalaman digital dengan hati.",
+      "desc": "Hugo Studio adalah workshop digital — di mana setiap website, halaman Bio dan alat siswa dipolishing seperti karya seni kecil: indah, lembut, dan hangat bagi penggunanya.",
+      "explore": "Telusuri Workshop",
+      "scrollHint": "Geser untuk memulai perjalanan Anda"
+    },
+    "partners": {
+      "badge": "✦ Si Penggagas Workshop ini",
+      "title1": "Mahasiswa akhir tahun ini",
+      "title2": "Menggabungkan pengalaman yang indah.",
+      "desc": "Peter Hugo Wishpax Lê adalah pengembang Gen Z yang sedang menyelesaikan tahun akhir di Teknik Informatika di Greenwich Vietnam. Praktikannya meliputi aplikasi web, desain antarmuka dan ergonomi perangkat mobile. Hugo Studio adalah portofolio saya: catatan terperinci tentang proyek-proyek, kapabilitas, dan arah yang sedang berkembang. Jason Phan bekerja sama dengan saya pada beberapa pekerjaan.",
+      "founderRole": "Desainer & Pengembang Mahasiswa",
+      "partnerRole": "Co-Development Partner",
+      "openToWork": "Buka untuk kesempatan kerja dan program magang pada tahun akhir · Teknik Informatika",
+      "finalYear": "Tahun akhir · Pembelajaran Informatika",
+      "motto": "Mengembangkan pengalaman dengan semua hatiku",
+      "stackTitle": "Hobi yang saya rintis",
+      "v1": "Konsentrasi",
+      "v2": "Polished",
+      "v3": "Creative",
+      "v4": "Berawan",
+      "v5": "Menghargai"
+    },
+    "discoveries": {
+      "badge": "✦ Ecosystem Layanan",
+      "title1": "Planetas Layanan",
+      "title2": "Inisiatif digital Anda yang pribadi.",
+      "desc": "Layanan yang dibuat oleh tangan saya — mulai dari AI dan musik hingga dukungan kesehatan mental, semuanya gratis untuk mahasiswa.",
+      "auraTitle": "Aura AI",
+      "auraDesc": "Seorang teman fokus yang membantu Anda belajar dengan lebih baik dan memicu inspirasi kreatif.",
+      "psyTitle": "Hugo PSY",
+      "psyDesc": "Seorang pendengar yang mendukung apa pun yang ada di pikiran Anda — membantu kesehatan mental Anda, terutama saat malam hari.",
+      "hocduongTitle": "Buku Pelajaran",
+      "hocduongDesc": "Ruangan belajar bersama: tukarkan dokumen, tanyakan pertanyaan dan hubungi komunitas siswa.",
+      "radioTitle": "Radio Hugo",
+      "radioDesc": "Stasiun radio lofi yang tenang untuk sesi belajar malammu.",
+      "ideTitle": "IDE Web",
+      "ideDesc": "Tulis dan jalankan kode langsung di browsermu — bahkan di ponselmu.",
+      "arcadeTitle": "Arcade Hugo",
+      "arcadeDesc": "Permainan retro dan chess multiplayer untuk melepas stres setelah sesi studi yang menegangkan.",
+      "joyTitle": "Wallet JOY PWA",
+      "joyDesc": "Dompet hadiah JOY — dapatkan dan gunakan poin di seluruh ekosistem.",
+      "bioTitle": "Bio Signature",
+      "bioDesc": "Sebuah halaman pribadi yang unik yang merefleksikan gaya dan pengetahuan Anda secara benar.",
+      "hint": "✦ Jelajahi setiap manfaat dengan menjatuhkan planet-planet tersebut"
+    },
+    "transition": {
+      "title": "Dari kata-kata hingga tindakan",
+      "quote": "Lihat harga referensi — jelas dan transparan untuk setiap paket."
+    },
+    "holo": {
+      "tag": "Studio digital kreatif",
+      "cta": "Buat proyek baru"
+    },
+    "mascots": {
+      "eyebrow": "Sambut Hugo",
+      "title1": "Tujuh mood, ",
+      "title2": "Satu Hugo",
+      "desc": "Every working moment has its mood — always caring, always fun.",
+      "m1w": "Hello!",
+      "m1d": "Friendly from the first hi",
+      "m2w": "Coding",
+      "m2d": "Fast, clean websites",
+      "m3w": "Care",
+      "m3d": "HugoPSY untuk pikiran Anda",
+      "m4w": "Kualitas",
+      "m4d": "Detail in everything",
+      "m5w": "Wow",
+      "m5d": "Always a little surprise",
+      "m6w": "Let's go",
+      "m6d": "Growing together, far",
+      "m7w": "Fun",
+      "m7d": "Bekerja, tetapi buatnya menyenangkan"
+    },
+    "cine": {
+      "nav1": "About",
+      "nav2": "Sumber Daya",
+      "nav3": "Jasa",
+      "nav4": "Booking",
+      "nav5": "Harga",
+      "navPortfolio": "Portofolio",
+      "navServices": "Jasa",
+      "navBooking": "Book",
+      "heroWord": "Hugo",
+      "heroEyebrow": "Hugo Lê · Portfolio",
+      "heroTitle1": "Saya adalah Hugo.",
+      "heroTitle2": "Saya merancang dan mengembangkan produk digital.",
+      "heroDesc": "Lulusan Tahun Akhir Ilmu Komputer di Greenwich Vietnam. Portofolio ini menyederhanakan pekerjaan yang dipilih dan praktik yang terus berkembang.",
+      "heroCta": "Lihat pekerjaan",
+      "heroSecondaryCta": "Tell me your website needs",
+      "heroSwipe": "Gulir melalui portofolio saya",
+      "heroScroll": "Gulir melalui portofolio saya",
+      "previewStatus": "Online",
+      "previewName": "Hugo Student",
+      "previewTagline": "One digital identity, many useful tools.",
+      "aboutLabel": "Beyond the screen",
+      "aboutH1": "Peter Hugo Wishpax Lê,",
+      "aboutH2": "Seorang mahasiswa akhir dari Prodi Informatika.",
+      "aboutH3": "Saya belajar paling mendalam dengan mengubah teori menjadi produk yang dapat digunakan secara nyata oleh orang-orang.",
+      "education": {
+        "highSchool": {
+          "label": "Pendidikan Menengah Kejuruhan",
+          "name": "Sekolah Tinggi Nguyen Dinh Chieu",
+          "detail": "My Tho · Didirikan pada 1879",
+          "slogan": "Tradisi Revolusioner · Ketelitian dalam pembelajaran dan pengajaran",
+          "logoAlt": "Emblem dari SMKN My Tho, Chieu Dwi Ngoyen"
+        },
+        "university": {
+          "label": "Universitas",
+          "name": "Greenwich Vietnam",
+          "detail": "Prodi Informatika · Akhirnya",
+          "slogan": "Pendidikan Tanpa Batas",
+          "logoAlt": "Greenwich Vietnam berkolaborasi dengan FPT Education logo"
+        }
+      },
+      "featT1": "Awal kecil untuk perjalanan digital Anda.",
+      "featT2": "Buat Bio, eksplorasi alat pembelajaran atau beritahu saya tentang website yang Anda butuhkan.",
+      "cardVideo": "Setiap proyek dimulai dengan cerita yang pantas terangkat.",
+      "card2Title": "Bio gratis .edu.",
+      "card2c1": "Verifikasi email .edu otomatis dalam 3 detik.",
+      "card2c2": "Link bersih pribadi — bio/your-name",
+      "card2c3": "Berlaku selama 12 bulan tanpa biaya tambahan",
+      "card2c4": "Dibundling dengan perangkat lunak desain web lengkap gratis untuk siswa",
+      "card3Title": "Desain Web.",
+      "card3c1": "Halaman landing yang dikustomisasi",
+      "card3c2": "Semua situs dengan mudah untuk dipelihara sendiri.",
+      "card3c3": "Optimasi mesin pencari, kecepatan dan responsif untuk perangkat mobile.",
+      "card4Title": "Student Utilities.",
+      "card4c1": "Hugo PSY — pendamping mendengarkan",
+      "card4c2": "Web IDE — kode langsung dalam browser",
+      "card4c3": "Hugo Radio — Lo-fi untuk studi malam",
+      "learnMore": "Baca lebih lanjut",
+      "stackTitle": "What I've studied",
+      "strengthTitle": "Kelebihan",
+      "weakTitle": "Hal-hal yang Saya Coba Perbaiki",
+      "weak1": "Pengalaman kerja sama saya hingga saat ini berasal dari proyek di universitas — mengelola Scrum dan koordinasi antara frontend dengan backend. Saya ingin belajar bagaimana sebuah tim profesional benar-benarnya bekerja.",
+      "weak2": "Sangat perfectionist tentang detail, sehingga saya selalu setuju pada skop dan tenggat waktu sebelumnya.",
+      "howTitle": "How I approach product craft",
+      "stat1v": "Gen Z",
+      "stat1l": "Generation",
+      "stat2v": "Greenwich",
+      "stat2l": "Tahun akhir · Pembelajaran Informatika",
+      "partnerLabel": "Co-developing with",
+      "contactTitle": "Let's stay in touch.",
+      "marqueeTitle": "Pendekatan Teknologi yang Saya Pelajari",
+      "work": {
+        "eyebrow": "Pekerjaan yang Dipilih",
+        "title": "Products I have built from the ground up.",
+        "desc": "Produk yang Saya Buat dari Nol.",
+        "items": [
+          {
+            "badge": "Setiap proyek menantangkan kelas berbeda dari masalah: publikasi pribadi, data transaksi dan sistem interaktif. Bersama-sama, mereka menggambarkan bagaimana saya menyatukan desain antarmuka, logika aplikasi, dan arsitektur mobile.",
+            "kind": "Identitas Digital",
+            "title": "Aplikasi Web · PWA",
+            "desc": "A configurable digital-profile system through which users can present their background, projects, achievements and salient links on a dedicated page.",
+            "outcome": "Ini adalah sistem digital-profile yang dapat diatur melalui portal ini, dimana pengguna dapat menampilkan latar belakang, proyek-proyek, pencapaian dan tautan penting pada halaman yang khusus.",
+            "cta": "I desain pengalaman React, antarmuka responsif, jalan-jalan pengiriman autentikasi pengguna dan aliran pembuatan konten Bio."
+          },
+          {
+            "badge": "Lihat Proyek",
+            "kind": "Keamanan",
+            "title": "Infrastruktur produk",
+            "desc": "JOY",
+            "outcome": "Ledger internal poin yang saling terhubungkan dengan aktivitas, pencapaian dan hadiah di beberapa aplikasi Hugo Studio aplikasi Hugo.",
+            "cta": "I desain pengalaman React, antarmuka responsif, jalan-jalan pengiriman autentikasi pengguna dan aliran pembuatan konten Bio."
+          },
+          {
+            "badge": "Game Sistem",
+            "kind": "Engineering Interaktif",
+            "title": "Arcade Hugo",
+            "desc": "Koleksi berbasis browser yang mencakup 2048, 3D Chess, Snake, Blok, Survivor di Ruang dan sucession dari tantangan compact.",
+            "outcome": "Pekerjaan saya fokus pada kontrol tactile, state game deterministik, penampilan animasi dan layout mobile yang menarik.",
+            "cta": "I desain pengalaman React, antarmuka responsif, jalan-jalan pengiriman autentikasi pengguna dan aliran pembuatan konten Bio."
+          }
+        ]
+      },
+      "meta": {
+        "title": "Peter Hugo Wishpax Lê — Portofolio Engineering Software & Desain Produk",
+        "description": "Portofolio pribadi Peter Hugo Wishpax Lê, seorang mahasiswa akhir Teknik Komputer di Greenwich Vietnam, mencakup pendidikan, rekaman teknis dan produk digital yang dipilih.",
+        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portofolio pengembang software, Mahasiswa Teknik Software, Greenwich Vietnam, proyek-proyek React"
+      },
+      "heroCvCta": "Download résumé",
+      "weak3": "Berkumit laporan resume"
+    }
+  },
+  "servicesPage": {
+    "meta": {
+      "title": "Jurusan saya meliputi banyak bahasa secara luas bukan satu yang mendalam — Saya boleh membaca dan mengubah kod, tetapi belum spesialis dalam bahasa yang mana pun.",
+      "description": "Penasehat Situs Web Untuk Pelajar, Individu Dan Toko Kecil | Hugo Studio",
+      "keywords": "Hidupkan Hugo dengan apa yang anda perlukan sebelum memilih solusi. Penasehat 1-ke-1 untuk pelajar, individu dan tokoh kecil, dengan batasan dan kos ditetapkan sebelum kerja dimulakan."
+    },
+    "common": {
+      "youGet": "Website pelajar, portofolio pelajar, situs web pribadi, situs web usaha kecil, penasehat situs web, Hugo Studio",
+      "notIncluded": "Yang anda peroleh",
+      "discussPlan": "Tidak termasuk",
+      "discussProject": "Bicaralah tentang paket ini",
+      "revealPrice": "Lihat jangkauan investasi",
+      "priceHint": "Poin awal. Angka akhir ditetapkan setelah skop jelas.",
+      "getQuote": "Beri tahu saya apa yang Anda butuhkan",
+      "quoteAfterChat": "Diskusikan terlebih dahulu, lalu berikan anggaran"
+    },
+    "whispers": {
+      "intro": "Tidak ada situs web sempurna. Hanya situs yang tepat saja.",
+      "between1": "Setiap bug adalah sinyal. Dengarkanlah itu",
+      "between2": "Kecepatan bukan tujuan. Kecepatan adalah prasyarat.",
+      "between3": "Situs yang lambat tetapi indah seperti warna pada lukisan di sore hari — indah, tapi tidak ada yang melihatnya.",
+      "between4": "Dari satu halaman ke dunia seluruh. Langkah pertama adalah langkah yang perlu Anda khawatirkan.",
+      "between5": "Hanya ketika dunia dapat menemukan Anda, Anda benar-benar berada di dunia online.",
+      "climax": "Dan itu bukan hanya bicara — ia berpikir, bertindak, dan bekerja untukmu.",
+      "closing": "Setiap angka adalah pintu. Mana yang akan kamu buka?"
+    },
+    "hero": {
+      "badge": "Direct 1-to-1 · Pelajar pertama",
+      "title1": "Anda tidak memerlukan paket saat ini.",
+      "title2": "Mulai dengan apa yang Anda butuhkan.",
+      "desc": "Beri tahu saya tujuanmu, apa yang menghalangi, atau apa yang ingin kamu buat. Saya akan membantu menentukan pendekatan yang tepat — dari Bio pelajar dan portofolio hingga situs web untuk individu dan toko kecil.",
+      "viewPricing": "Pilih situasimu",
+      "contact": "Beri tahu saya apa yang Anda butuhkan",
+      "swipe": "Geser untuk melanjutkan",
+      "scroll": "Scroll untuk melanjutkan",
+      "trust": [
+        "Kerjasama langsung dengan desainer dan pengembang",
+        "Skop, timeline dan biaya sudah disepakati sebelumnya",
+        "Dibuat untuk perangkat mobile, kecepatan dan penemuan",
+        "Kebijakan khusus dan jalur dukungan yang ditujukan kepada pelajar"
+      ]
+    },
+    "outcomes": {
+      "eyebrow": "Panduan pertama",
+      "title": "Apakah website Anda harus berubah?",
+      "desc": "Pilihlah cerita yang mirip dengan situasi Anda untuk melihat layanan yang relevan.",
+      "items": [
+        {
+          "title": "Saya ingin konsumen memahami dan memilih merek saya",
+          "desc": "Landing page atau situs multi halaman yang menjelaskan siapa Anda, apa yang Anda tawarkan dan apa yang pengunjung harus lakukan selanjutnya.",
+          "cta": "Lihat perjalanan pembuatan situs web"
+        },
+        {
+          "title": "Situs website saya saat ini kehilangan pengunjung",
+          "desc": "I review the interface, mobile experience, speed, SEO and the friction blocking customer action.",
+          "cta": "See ways to improve"
+        },
+        {
+          "title": "I want to tell my own story",
+          "desc": "Portfolio, Bio and learning-support options created for students.",
+          "cta": "See student options"
+        }
+      ]
+    },
+    "pricingPhilosophy": {
+      "title": "The story behind each price",
+      "desc": "I am a final-year Software Engineering student and stay with each project from the first conversation to handover. With no layers of account management, the budget goes toward the design, development and support you actually need.",
+      "philosophy": "I take on one active project at a time so it receives focused attention. Scope, timing, cost and exclusions are discussed before work begins, so you always know where the project stands and what comes next."
+    },
+    "pricing": {
+      "eyebrow": "Common starting points",
+      "title": "Three ways to begin,",
+      "highlight": "not three rigid boxes",
+      "desc": "These are common scopes, not fixed packages. I first understand your needs, recommend what is enough, then confirm timing and cost."
+    },
+    "journey": {
+      "stone1": {
+        "badge": "✦ The First Stone",
+        "desc": "It starts when you notice — something needs fixing. I come in, find the exact spot, and heal it. That's the first time you feel your website touched by someone who loves it."
+      },
+      "stone2": {
+        "badge": "✦ The Stone That Lights Up",
+        "desc": "A beautiful site no one has seen? Now I turn the lights on. It gets fast, Google finds you, and customers feel the quality from the very first visit."
+      },
+      "stone3": {
+        "badge": "✦ The Stone That Takes Shape",
+        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
+      },
+      "stone4": {
+        "badge": "✦ The Grand Stone",
+        "desc": "Your complete face to the world. Every page is a story, every link an opportunity. The website doesn't just talk — it *invites* people into your world."
+      },
+      "stone5": {
+        "badge": "✦ The Pearl — Alive",
+        "desc": "The website doesn't just talk — it lives. It thinks, it decides, it works for you 24/7. That's when technology becomes your software, no longer just a tool."
+      }
+    },
+    "plans": {
+      "fix": {
+        "label": "Quick fix",
+        "name": "Fix an existing site",
+        "price": "From $6.99",
+        "note": "Each task quoted up front, pay when it's done — no hidden extras.",
+        "desc": "Site running but small bugs are costing you customers? I fix exactly what needs fixing — no big package required.",
+        "includes": [
+          "A quote per task first — work starts only when you approve",
+          "Fixed and tested on both phone and desktop",
+          "Free 7-day warranty on the exact bug fixed",
+          "All files and access handed back when done"
+        ],
+        "excludes": [
+          "Full redesign of the whole site (see the build packages)",
+          "Domain and hosting fees — I'll hook them up for free"
+        ],
+        "timeline": "Same day – next day",
+        "payment": "Pay when it is done"
+      },
+      "seo": {
+        "label": "Optimize",
+        "name": "SEO & speed-up",
+        "price": "From $36.99",
+        "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
+        "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
+        "includes": [
+          "Speed tune-up: compressed images, cleaned code, caching and lazy-load on",
+          "On-page SEO: metadata, rich share previews, schema markup",
+          "Google Search Console setup, sitemap and robots.txt submitted",
+          "Optimization for your 5 key pages (or the whole site if it's small)",
+          "Before–after PageSpeed report with recommended next steps",
+          "A walkthrough of what to optimize next if you want to keep going"
+        ],
+        "excludes": [
+          "SEO copywriting, backlinks, paid ads"
+        ],
+        "timeline": "5–7 days"
+      },
+      "landing": {
+        "label": "Mulai",
+        "name": "One-page landing page",
+        "oldPrice": "$80.99",
+        "price": "$60.99",
+        "discount": "-25%",
+        "note": "Custom design, no mass-market templates. Done in 5-7 days.",
+        "desc": "One page, one goal: visitors finish reading and want to contact you.",
+        "tagline": "Easy to start",
+        "includes": [
+          "1 page custom-designed to your brand, up to 7 sections",
+          "2 revision rounds based on your feedback",
+          "Contact form, click-to-call, or direct Zalo/Messenger chat",
+          "Basic SEO: metadata, rich share previews, mobile-friendly",
+          "Deployed live with your domain hooked up",
+          "A 30-minute hands-on walkthrough over Zalo",
+          "Free bug support for 14 days after handover"
+        ],
+        "excludes": [
+          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
+          "Copy and images — you provide them, I polish and design",
+          "Booking or online payment systems → see the Website Pro package"
+        ],
+        "timeline": "5–7 days"
+      },
+      "website": {
+        "label": "Grow",
+        "name": "Multi-page website",
+        "oldPrice": "$202.99",
+        "price": "$121.99",
+        "discount": "-40%",
+        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
+        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
+        "tagline": "Most popular",
+        "includes": [
+          "4-6 finished pages: home, about, products/services, news (optional), contact",
+          "Cohesive design matched to your brand (logo placement, colors, fonts...)",
+          "3 revision rounds based on your feedback",
+          "Advanced SEO: Google Search Console, sitemap, schema markup",
+          "Zalo, Messenger, Google Maps + advanced contact forms",
+          "1 month of free maintenance (4 small tweaks included)",
+          "A 30-minute training session + 14 days of post-handover support"
+        ],
+        "excludes": [
+          "Yearly domain & hosting fees (~300-800k, sourced externally)",
+          "Blog copywriting and product photography — you provide those",
+          "Booking management, online payments → Web System (the advanced package)"
+        ],
+        "timeline": "2–3 weeks",
+        "payment": "Paid in stages"
+      },
+      "system": {
+        "label": "Sistem",
+        "name": "Dynamic web app",
+        "price": "From $283.99",
+        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
+        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
+        "tagline": "Long-term asset",
+        "includes": [
+          "1 core flow of your choice: bookings OR basic orders",
+          "Admin dashboard: orders, customers, key numbers",
+          "Login with 2 permission levels: owner and staff",
+          "1 data connection: Google Sheet or Zalo",
+          "Full source code handover — the site is your asset",
+          "1 month of technical support after handover"
+        ],
+        "excludes": [
+          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
+          "VIP membership, points & loyalty programs → separate add-on",
+          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
+        ]
+      }
+    },
+    "studentPlans": {
+      "orderCta": "Contact to order",
+      "detailsCta": "See verification terms & student plan details",
+      "capLabel": "Scope limits",
+      "compareLabel": "Vs. standard pricing",
+      "groupCoursework": {
+        "title": "Help with end-of-term coursework",
+        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+      },
+      "groupProfile": {
+        "title": "Personal profile — nothing to do with grades",
+        "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
+      },
+      "bug": {
+        "label": "STUDENT",
+        "name": "Diagnose & Fix",
+        "price": "120.000đ",
+        "unit": "/bug",
+        "tagline": "Stuck near the deadline",
+        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
+        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
+        "includes": [
+          "Find and fix the exact bug agreed before we start",
+          "Written notes on the root cause so you can answer when asked",
+          "A Git link to clone the fixed code from",
+          "3-day warranty on the bug that was fixed"
+        ],
+        "cap": [
+          "Up to 2 bugs per order",
+          "Repairs only — no new features written"
+        ]
+      },
+      "html": {
+        "label": "HTML/CSS/JS",
+        "name": "Static Web Coursework",
+        "price": "490.000đ",
+        "tagline": "Responsive front end",
+        "note": "Split between 2 students: ~245.000đ each.",
+        "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
+        "includes": [
+          "Your own Git link to clone the whole source from",
+          "Responsive interface that holds up on phones",
+          "DOM animation and basic JavaScript behaviour",
+          "Documentation: folder structure, what each file does, how to run it",
+          "Commented code plus free deploy instructions"
+        ],
+        "cap": [
+          "One course, up to 4 static pages",
+          "No backend, no database",
+          "No capstone or graduation projects"
+        ],
+        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
+      },
+      "php": {
+        "label": "PHP/SQL",
+        "name": "Dynamic Web Coursework",
+        "price": "990.000đ",
+        "tagline": "CRUD & permissions",
+        "note": "Split between 3 students: ~330.000đ each.",
+        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
+        "includes": [
+          "Your own Git link to clone the whole source from",
+          "Data handling in PHP with a MySQL database",
+          "Registration, login and basic role permissions",
+          "SQL dump and seed data included so it runs on first try",
+          "Documentation: XAMPP setup, database import, the flow behind each feature"
+        ],
+        "cap": [
+          "One course, up to 6 database tables",
+          "Up to 2 CRUD feature groups plus login",
+          "No capstone or graduation projects"
+        ],
+        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
+      },
+      "react": {
+        "label": "REACT/NODE",
+        "name": "Advanced Web Coursework",
+        "price": "1.690.000đ",
+        "tagline": "SPA + REST API",
+        "note": "Split between 4 students: ~425.000đ each.",
+        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
+        "includes": [
+          "Your own Git link to clone the whole source from",
+          "React SPA architecture with a Node.js/Express REST API",
+          "Authentication plus up to 3 CRUD feature groups",
+          "Seed data included so it runs on first try",
+          "Documentation: environment setup, env vars, a data-flow map for every API"
+        ],
+        "cap": [
+          "One course, up to 3 CRUD feature groups plus login",
+          "One REST API and one database",
+          "No capstone or graduation projects"
+        ],
+        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
+      },
+      "exclusiveBio": {
+        "label": "STUDENT",
+        "name": "Custom-Designed Bio",
+        "price": "99.000đ",
+        "tagline": "An upgrade on the free one",
+        "note": "The free version you build yourself in the editor. This one I design around your story.",
+        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
+        "includes": [
+          "Layout and colour palette designed for you alone",
+          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
+          "An about-you section: summary, interests, selected skills",
+          "Looks right on both desktop and mobile"
+        ],
+        "cap": [
+          "One page, up to 5 links",
+          "2 rounds of revisions after handover"
+        ]
+      },
+      "bento": {
+        "label": "STUDENT",
+        "name": "Bento CV / Portfolio",
+        "price": "799.000đ",
+        "tagline": "Built for jobs & scholarships",
+        "note": "A personal profile, not an assignment — it touches none of your grades.",
+        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
+        "includes": [
+          "A one-page portfolio in a Bento Grid layout",
+          "GitHub, socials and contact details wired in",
+          "Contact form feeding straight into a free Google Sheet",
+          "Deployed to free lifetime hosting (Vercel/Netlify)"
+        ],
+        "cap": [
+          "Up to 7 content blocks",
+          "2 rounds of revisions after handover"
+        ]
+      }
+    },
+    "demo": {
+      "eyebrow": "See for yourself",
+      "title": "Try out",
+      "highlight": "real design demos",
+      "desc": "Three focused examples for personal profiles, small shops and creative services. Open them only when you want a closer look.",
+      "openCta": "Open 3 relevant demos",
+      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
+      "cta": "Build something like this",
+      "loading": "Loading demo...",
+      "templates": {
+        "photography": {
+          "title": "Photography Studio",
+          "short": "Photo",
+          "subtitle": "Photographer"
+        },
+        "cafe": {
+          "title": "Cafe & Bistro",
+          "short": "Cafe",
+          "subtitle": "Restaurant"
+        },
+        "jewelry": {
+          "title": "Gold & Jewelry Store",
+          "short": "Jewelry",
+          "subtitle": "Jeweler"
+        },
+        "portfolio": {
+          "title": "Portfolio Pribadi",
+          "short": "Portofolio",
+          "subtitle": "Profil Saya"
+        },
+        "ecommerce": {
+          "title": "Online Store",
+          "short": "E-Commerce",
+          "subtitle": "Multi-industry"
+        },
+        "dashboard": {
+          "title": "Admin Panel",
+          "short": "Dashboard",
+          "subtitle": "Dashboard"
+        }
+      }
+    },
+    "care": {
+      "eyebrow": "Already have a website?",
+      "title": "No rebuild needed —",
+      "highlight": "fix just what's broken",
+      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
+    },
+    "micro": {
+      "eyebrow": "Having trouble with an existing site?",
+      "title": "Fix only what is needed,",
+      "highlight": "without forcing a rebuild",
+      "desc": "Send the site link or a screenshot of the issue. I will review the current state, explain what can be fixed and quote only after we agree on the same scope.",
+      "costLabel": "Cost:",
+      "cta": "Contact",
+      "customTitle": "Got a unique idea or custom request?",
+      "customDesc": "Send me the current state and the result you want. If it is a good fit, I will propose the approach, scope and timeline before quoting.",
+      "customCta": "Let's chat about it!"
+    },
+    "app": {
+      "badge": "Full web system",
+      "title1": "A website that",
+      "title2": "works for you.",
+      "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
+      "extendTitle": "Extensions when you need them — quoted separately",
+      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+    },
+    "student": {
+      "badge": "Hugo Studio's priority",
+      "title1": "Students always have",
+      "title2": "a free place to begin.",
+      "desc": "Once verified, you can use a standard Bio and the core learning tools for free. Bespoke design, an advanced portfolio or technical help beyond those benefits is discussed clearly before any work begins.",
+      "cta": "See free benefits",
+      "customEyebrow": "When you want to go further",
+      "customTitle": "Personal support while you still learn and own your work",
+      "customDesc": "You do not need to choose a package or guess the cost first. Send your goal, deadline and where you are stuck; I will clarify what is free, what needs custom work and the most responsible path forward.",
+      "customCta": "Tell me about your goal",
+      "customItems": [
+        {
+          "title": "Bespoke Bio & portfolio",
+          "desc": "For internships, scholarships or personal branding that needs a distinct story and layout."
+        },
+        {
+          "title": "Guided debugging",
+          "desc": "We find the cause, fix the agreed area and explain the solution so you understand it."
+        },
+        {
+          "title": "Web project direction",
+          "desc": "Review requirements, architecture and setup so you can responsibly complete your own learning project."
+        }
+      ],
+      "items": [
+        {
+          "title": "Personal Bio",
+          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+        },
+        {
+          "title": "Study tools",
+          "desc": "Notes, Q&A, resources and utilities for self-study."
+        },
+        {
+          "title": "Personal support bot",
+          "desc": "Quick answers, study tips, reminders and everyday help."
+        },
+        {
+          "title": "Q&A community",
+          "desc": "A space to ask about homework and projects, and get direction within support scope."
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Process",
+      "title": "Clear steps,",
+      "highlight": "start to finish",
+      "desc": "You always know the current step, what is in scope and what happens next.",
+      "steps": [
+        "You send your needs, current site or idea.",
+        "I advise on the approach and give a clear quote first.",
+        "We lock scope and timeline, then work in milestones.",
+        "Handover with guidance, plus support for small tweaks."
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Quick questions,",
+      "highlight": "honest answers",
+      "desc": "Common questions before starting a web project with Hugo Studio.",
+      "items": [
+        {
+          "q": "What should I prepare before getting in touch?",
+          "a": "Send your goal, your current website if you have one, your preferred timing and one or two references you like. It is fine if the details are still unclear — the first conversation is for shaping the need together."
+        },
+        {
+          "q": "How is the cost determined?",
+          "a": "I look at scope, content, features, timing and the support required. Once the need is clear, I send a written proposal and quote; work starts only after both sides agree."
+        },
+        {
+          "q": "How do free student benefits differ from custom support?",
+          "a": "The standard Bio and core tools are free for verified students under the published conditions. Exclusive design, an advanced portfolio or requested technical support is separate and always discussed before work begins."
+        },
+        {
+          "q": "Can you build it if I don't have a design yet?",
+          "a": "Yes. Describe who will use the page and what you want them to do next. I will propose the structure, content to prepare and a fitting visual direction."
+        },
+        {
+          "q": "Is there support after handover?",
+          "a": "Yes. Each project clearly states the warranty and support period. I provide a walkthrough, fix issues within the agreed scope and tell you before any new item becomes separate work."
+        }
+      ]
+    },
+    "finalCta": {
+      "title1": "Every project starts with",
+      "title2": "one clear conversation.",
+      "desc": "You do not need to know a package name or prepare a perfect brief. Share your current site, a screenshot or a few lines about the goal, and I will help identify the right next step.",
+      "cta": "Beri tahu saya apa yang Anda butuhkan"
+    },
+    "promo": {
+      "title": "Free Aesthetic Bio Page for Students!",
+      "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
+      "cta": "Verify Me!"
+    },
+    "tabs": {
+      "commercial": "Business / Personal",
+      "student": "For Students",
+      "micro": "Quick Fixes"
+    },
+    "microJobs": {
+      "bug-ui": {
+        "name": "Squish Interface Bugs",
+        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
+        "price": "From $6.99",
+        "time": "Done today!"
+      },
+      "style-content": {
+        "name": "Colors & Copy Polish",
+        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
+        "price": "From $8.99",
+        "time": "Done today!"
+      },
+      "mobile-beauty": {
+        "name": "Mobile Glow-up",
+        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
+        "price": "From $10.99",
+        "time": "Done today!"
+      },
+      "web-widget": {
+        "name": "Sweet Widgets",
+        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
+        "price": "From $6.99",
+        "time": "Done today!"
+      },
+      "deploy-domain": {
+        "name": "Web Launch",
+        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
+        "price": "From $10.99",
+        "time": "Done today!"
+      },
+      "seo-quick": {
+        "name": "Quick SEO Boost",
+        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
+        "price": "From $8.99",
+        "time": "Done today!"
+      },
+      "speed-optimize": {
+        "name": "Speed Boost",
+        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
+        "price": "From $12.99",
+        "time": "Done today!"
+      },
+      "monthly-maintenance": {
+        "name": "Monthly Cozy Care",
+        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
+        "price": "From $12.99/mo",
+        "time": "Ongoing care"
+      }
+    },
+    "disclaimer": "Each option below is a starting direction. Scope, timing and cost are confirmed only after we discuss the real need.",
+    "section": {
+      "newBuildsTitle": "New Designs & Custom Builds",
+      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
+      "optimizeTitle": "SEO, Speed & Bug Squishing",
+      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
+      "upkeep": "If you need upkeep after the included support period, I will propose it separately based on the real update frequency — always optional."
+    },
+    "devices": {
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile"
+    },
+    "proof": {
+      "eyebrow": "Delivered work",
+      "title": "What a multi-page website looks like in production",
+      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
+      "clientLabel": "Client",
+      "fieldLabel": "Industry",
+      "scopeLabel": "Scope",
+      "buildLabel": "Build",
+      "planLabel": "Package",
+      "clientName": "Mình Ơi Media",
+      "clientField": "Wedding photojournalism",
+      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
+      "clientBuild": "Custom design — no CMS, no template",
+      "clientPlan": "Multi-page website with a needs-based scope",
+      "cta": "Open the client site"
+    }
+  },
+  "faqPage": {
+    "header": {
+      "badge": "Customer Support",
+      "title1": "Answering",
+      "title2": "your questions",
+      "desc": "Have questions about Hugo Studio? Below are the most frequently asked questions. If you still can't find an answer, don't hesitate to contact us directly!"
+    },
+    "faqs": [
+      {
+        "question": "Does Hugo Studio have fixed working hours?",
+        "answer": "I work directly 1-1, so there are no rigid working hours. Feel free to message me anytime, and I will get back to you as soon as possible!"
+      },
+      {
+        "question": "How many members are in the Hugo Studio team?",
+        "answer": "I am Hugo, a final-year Software Engineering student and the primary developer. I collaborate with Jason Phan (co-development partner) on technical discussions and optimizing the full-stack experience."
+      },
+      {
+        "question": "Is there any promotional or trial policy at Hugo Studio?",
+        "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
+        "actionText": "Claim the Student Offer"
+      },
+      {
+        "question": "How is the design cost at Hugo Studio?",
+        "answer": "Since I work directly 1-1, the pricing is highly affordable and tailored to students or small businesses. To maintain quality, I only accept 1 project at a time in a queue."
+      },
+      {
+        "question": "Does Hugo Studio work on holidays?",
+        "answer": "When there is a long holiday, I will post an update directly on the homepage. (Secret: Sometimes I take a short trip to recharge 🏖️)"
+      }
+    ],
+    "contact": {
+      "title": "Still have questions?",
+      "desc": "Don't worry! Send a direct message to the Hugo Studio team for a detailed 1:1 answer.",
+      "chatBtn": "Message",
+      "emailBtn": "Email the team"
+    }
+  },
+  "bookingPage": {
+    "meta": {
+      "title": "Discuss a Website Project | Hugo Studio",
+      "description": "Outline your requirements through a concise, guided form. Hugo will respond to clarify scope, timing and an appropriate investment before any work begins.",
+      "keywords": "website project enquiry, website consultation, personal portfolio, small business website, Hugo Studio"
+    },
+    "toast": {
+      "success": "Your enquiry has been received. I shall respond within one business day.",
+      "error": "Your enquiry could not be sent. Please check your connection and try again.",
+      "networkError": "Connection error. Please check your internet and try again.",
+      "chooseProject": "Please choose the option that most closely reflects your needs.",
+      "chooseAge": "Please select your age group first.",
+      "underAge": "Hugo Studio accepts enquiries only from those aged 14 and above."
+    },
+    "header": {
+      "eyebrow": "A direct conversation with Hugo",
+      "title": "Tell me what you need. I’ll help define the rest.",
+      "desc": "You need neither technical jargon nor an exhaustive brief. Choose the prompts that best approximate your situation, and I will help articulate the remaining scope."
+    },
+    "expectations": {
+      "brief": {
+        "title": "No elaborate brief required",
+        "desc": "Guided choices let you outline the project in approximately two minutes."
+      },
+      "scope": {
+        "title": "Scope precedes quotation",
+        "desc": "I shall clarify any omissions and recommend only what the project genuinely warrants."
+      },
+      "reply": {
+        "title": "A reply within one business day",
+        "desc": "You will receive an email or message arranging the most appropriate next step."
+      }
+    },
+    "progress": {
+      "label": "Step {{step}} of {{total}}",
+      "complete": "Complete"
+    },
+    "steps": {
+      "age": {
+        "title": "How old are you?",
+        "hint": "Hugo Studio accepts enquiries only from those aged 14 and above."
+      },
+      "project": {
+        "title": "What may I help with?",
+        "hint": "Choose the nearest fit; nothing is settled yet."
+      },
+      "budget": {
+        "title": "Indicative investment",
+        "hint": "A rough figure lets me recommend a proportionate scope."
+      },
+      "timeline": {
+        "title": "When do you need it?",
+        "hint": "A timeframe makes the schedule realistic."
+      },
+      "details": {
+        "title": "The outcome you have in mind",
+        "hint": "A few sentences suffice; no formal brief required."
+      },
+      "contact": {
+        "title": "How should I reply?",
+        "hint": "Used solely to answer your enquiry, never published."
+      },
+      "review": {
+        "title": "Review and send your enquiry",
+        "hint": "One last look before it reaches Hugo."
+      }
+    },
+    "projectTypes": {
+      "newWebsite": {
+        "title": "A new website",
+        "desc": "For an individual, brand, café or small enterprise."
+      },
+      "portfolio": {
+        "title": "Portfolio / Bio",
+        "desc": "A considered home for your work, résumé and professional identity."
+      },
+      "improve": {
+        "title": "Improve an existing site",
+        "desc": "Refine its interface, mobile experience, performance or functionality."
+      },
+      "student": {
+        "title": "A student project",
+        "desc": "Portfolio, coursework or guided debugging support."
+      },
+      "unsure": {
+        "title": "I am not yet certain",
+        "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
+      }
+    },
+    "sections": {
+      "project": "What would you like help with?",
+      "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
+      "budget": "Indicative investment",
+      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
+      "timeline": "Preferred timeframe",
+      "notes": "A little more context (optional)",
+      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
+      "timelineHint": "Choose whichever is closest to your expectation."
+    },
+    "budgets": {
+      "unsure": "Not determined",
+      "underOne": "Below VND 1m",
+      "oneToThree": "VND 1–3m",
+      "threeToEight": "VND 3–8m",
+      "overEight": "Above VND 8m"
+    },
+    "timelines": {
+      "flexible": "Flexible",
+      "twoWeeks": "Within 1–2 weeks",
+      "oneMonth": "Within one month",
+      "twoMonths": "Within 1–2 months"
+    },
+    "promptLabels": {
+      "identity": "Present myself and my work",
+      "sales": "Help customers browse and enquire",
+      "mobile": "My website falters on mobile",
+      "unsure": "I do not know where to begin"
+    },
+    "prompts": {
+      "identity": "I need a coherent place to present myself, my work and my most pertinent links.",
+      "sales": "I would like customers to understand my offer, browse my products and contact me without friction.",
+      "mobile": "I already have a website, but its mobile interface is cumbersome or renders incorrectly.",
+      "unsure": "I am uncertain which kind of website would be appropriate and would value a proportionate recommendation."
+    },
+    "form": {
+      "nameLabel": "Nama Anda",
+      "namePlaceholder": "For example, Minh Anh",
+      "emailLabel": "Email for the reply",
+      "emailHint": "Required",
+      "phoneLabel": "Telephone / Zalo",
+      "phoneHint": "Required · never published",
+      "phonePlaceholder": "For example, 09xx xxx xxx",
+      "messagePlaceholder": "For example, I sell handmade goods and need a website where customers can browse the collection...",
+      "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
+    },
+    "actions": {
+      "continue": "Kemudahan",
+      "back": "Kembali",
+      "submit": "Send my enquiry",
+      "sending": "Sedang mengirim...",
+      "editAnswers": "Start the answers again"
+    },
+    "summary": {
+      "title": "Enquiry summary",
+      "project": "Requirement",
+      "budget": "Investment",
+      "timeline": "Timeframe",
+      "notes": "Notes",
+      "age": "Age group",
+      "contact": "Contact"
+    },
+    "success": {
+      "title": "Your enquiry is safely with me.",
+      "desc": "Hugo will review it and respond by email or Zalo within one business day. No further documentation is required at this stage.",
+      "another": "Send another enquiry",
+      "donateTitle": "Would you care to stand with Hugo Studio?",
+      "donateDesc": "Entirely optional. Your choice has no bearing on the enquiry, quotation, or access to any feature.",
+      "donateYes": "Make a voluntary contribution",
+      "donateNo": "Not this time",
+      "donateSkipped": "Choice noted. Your enquiry will proceed in precisely the same manner."
+    },
+    "prefill": {
+      "general": "I am a student and would like to discuss an appropriate form of support for my academic project.",
+      "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
+      "bento": "I would like to discuss a Bento CV / Portfolio for a student profile.",
+      "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
+      "courseworkPhp": "I would like to discuss a Web App coursework project using PHP and MySQL.",
+      "courseworkReact": "I would like to discuss a Web App coursework project using React and Node.js."
+    },
+    "age": {
+      "badge": "A firm requirement",
+      "legend": "Your age group",
+      "hint": "This determines how Hugo Studio handles and protects your data. No documents required — simply answer honestly.",
+      "teenTitle": "Members aged 14 to under 18",
+      "teenRules": {
+        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
+        "limited": "Support is limited or declined where a request would require sensitive personal data.",
+        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
+        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+      },
+      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
+      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
+      "blockedTitle": "Not eligible to send an enquiry",
+      "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
+    },
+    "ageBands": {
+      "adult": {
+        "title": "18 and above",
+        "desc": "You may discuss and agree terms directly, without a guardian."
+      },
+      "teen": {
+        "title": "14 to under 18",
+        "desc": "Support is available, with supervision and limits on personal data."
+      },
+      "under14": {
+        "title": "Under 14",
+        "desc": "Not eligible to use Hugo Studio's services."
+      }
+    }
+  },
+  "templatesPage": {
+    "hero": {
+      "badge": "Galaxy of Art",
+      "title1": "The Universe of",
+      "title2": "Digital Art",
+      "desc": "Surf through silent galaxies. Each website is a unique star."
+    },
+    "core": {
+      "badge": "The Core",
+      "title1": "Brand",
+      "title2": "Nucleus",
+      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
+      "redBold": "Red:",
+      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
+      "orangeBold": "Orange:",
+      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
+      "yellowBold": "Yellow:",
+      "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
+      "greenBold": "Green:",
+      "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
+      "blueBold": "Blue:",
+      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
+      "purpleBold": "Purple:",
+      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+    },
+    "typography": {
+      "badge": "The Language",
+      "title": "Typography Choice",
+      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
+      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+    },
+    "souls": {
+      "badge": "The Souls",
+      "title": "Cosmic Souls",
+      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "values": [
+        {
+          "title": "Dedication",
+          "desc": "Meticulous in every code nebula"
+        },
+        {
+          "title": "Empathy",
+          "desc": "Listening to the depths of the universe"
+        },
+        {
+          "title": "Creativity",
+          "desc": "Shining bright like a supernova"
+        },
+        {
+          "title": "Connection",
+          "desc": "A strong galactic network"
+        },
+        {
+          "title": "Speed",
+          "desc": "Fast as the speed of light"
+        },
+        {
+          "title": "Protection",
+          "desc": "Absolute safety shield"
+        }
+      ]
+    },
+    "demos": {
+      "badge": "The Constellations",
+      "title1": "Interactive",
+      "title2": "Dashboards",
+      "desc": "Surf through interactive real-world design constellations.",
+      "templates": [
+        {
+          "title": "Photography Studio",
+          "short": "Photography",
+          "subtitle": "Photographer"
+        },
+        {
+          "title": "Cafe & Bistro",
+          "short": "Cafe",
+          "subtitle": "Restaurant"
+        },
+        {
+          "title": "Jewelry Web",
+          "short": "Jewelry",
+          "subtitle": "Jewelry store"
+        },
+        {
+          "title": "Personal Intro",
+          "short": "Portofolio",
+          "subtitle": "Portofolio"
+        },
+        {
+          "title": "E-Commerce",
+          "short": "E-Commerce",
+          "subtitle": "Multi-industry"
+        },
+        {
+          "title": "Admin Page",
+          "short": "Dashboard",
+          "subtitle": "Dashboard"
+        }
+      ]
+    },
+    "archive": {
+      "badge": "The Archive",
+      "title": "Project Archive",
+      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+    }
+  },
+  "loginPage": {
+    "toast": {
+      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
+      "loginError": "Login error",
+      "loginPortalError": "Portal login error",
+      "invalidLink": "Link is invalid or has expired",
+      "noGoogle": "Could not retrieve Google profile info",
+      "useGoogleBtn": "Please click the 'Continue with Google' button below",
+      "adminError": "Incorrect admin username or password",
+      "adminNetworkError": "Could not connect to the server, please check your network and try again",
+      "adminServerError": "Server error, please try again later",
+      "codeLength": "Login code must be exactly 6 characters",
+      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+    },
+    "biometric": {
+      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "verifying": "Verifying...",
+      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
+      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
+      "or": "or"
+    },
+    "header": {
+      "titleCustomer": "Project Management",
+      "titleMember": "Activate Student Bio",
+      "titleAdmin": "Login Admin",
+      "descCustomer": "Track progress & manage your services",
+      "descMember": "Create an exclusive Bio Link completely free",
+      "descAdmin": "Access the developer dashboard system"
+    },
+    "tabs": {
+      "customer": "Client",
+      "member": "Student (.edu)",
+      "admin": "Admin"
+    },
+    "customerForm": {
+      "title": "Access Project Management",
+      "desc": "Manage projects, track progress and communicate with the team.",
+      "codeLabel": "Project Code (6 Chars)",
+      "codePlaceholder": "Ex: 1A2B3C",
+      "btn": "Enter Project Portal",
+      "securityTitle": "Information Security",
+      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+    },
+    "memberForm": {
+      "title": "Google Workspace Authentication",
+      "desc": "To ensure the authenticity of student benefits, please link via Google.",
+      "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
+      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
+      "gisLoading": "Loading Google component...",
+      "reqTitle": "Educational Email Requirement (.edu)",
+      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+    },
+    "adminForm": {
+      "title": "Login Admin",
+      "desc": "Enter developer credentials",
+      "userLabel": "Username",
+      "userPlaceholder": "Enter username...",
+      "userRequired": "Please enter your username",
+      "passLabel": "Kata Sandi",
+      "passPlaceholder": "••••••••",
+      "passRequired": "Please enter your password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "remember": "Remember me on this device",
+      "btn": "Masuk",
+      "submitting": "Signing in...",
+      "https": "Secure synchronization via HTTPS"
+    }
+  },
+  "customerPortal": {
+    "header": {
+      "logout": "Logout"
+    },
+    "tabs": {
+      "profile": "Profile",
+      "service": "Service",
+      "requests": "Requests"
+    },
+    "profile": {
+      "title": "Verifikasi identitas pendidikan sedang dilakukan",
+      "subtitle": "Update your contact info so we can support you best.",
+      "completedWarn": "Project is completed, information cannot be changed.",
+      "fullName": "Full Name",
+      "phone": "Nomor Telepon",
+      "email": "Contact Email",
+      "birthday": "Date of Birth",
+      "address": "Address",
+      "updateSuccess": "Updated successfully!",
+      "saveBtn": "Save Info",
+      "savingBtn": "Sedang menyimpan..."
+    },
+    "service": {
+      "title": "Project Overview",
+      "desc": "Track progress and basic information about your service package.",
+      "status": "Status",
+      "package": "Service Package",
+      "startDate": "Mulai Tanggal",
+      "notesTitle": "Logs & Updates",
+      "notesEmpty": "Project is in preparation...",
+      "completed": "Completed",
+      "maintenance": "Maintenance",
+      "summary": "Project Summary"
+    },
+    "requests": {
+      "supportTitle": "Support Team",
+      "supportSubtitle": "Managing your project",
+      "loading": "Loading messages...",
+      "empty": "No requests yet. Message us if you have any questions!",
+      "placeholderNormal": "Enter request or message...",
+      "placeholderCompleted": "Enter maintenance request or message..."
+    }
+  },
+  "studentBenefitsPage": {
+    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
+    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
+    "backToServices": "Back to Services",
+    "giftSpark": "12 Months of Spark — On the House!",
+    "title": "Your Dream Bio Link",
+    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
+    "marketValue": "Normal price",
+    "perYear": "/year",
+    "marketPrice": "$20.99",
+    "giftToYou": "Hugo's Gift",
+    "giftPrice": "$0.99",
+    "priceless": " — Priceless!",
+    "verificationTitle": "Verify & Claim Your Spark!",
+    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
+    "orManual": "or click below if it doesn't prompt",
+    "clickSelect": "Choose Google Account",
+    "warningClientId": "Warning: Missing Google Client ID",
+    "originError": "Authorized JavaScript origins must include current origin and production domain.",
+    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
+    "ready": "OAuth robot is ready!",
+    "loading": "Waking up OAuth robot...",
+    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
+    "toastFail": "Oh no! Google verification failed.",
+    "toastNetwork": "Server connection lost. Let's try again in a bit!",
+    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "benefits": {
+      "free": {
+        "title": "Free of Charge",
+        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+      },
+      "creative": {
+        "title": "Creative Playground",
+        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+      },
+      "fast": {
+        "title": "Lightning Fast",
+        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+      },
+      "yours": {
+        "title": "Truly Yours",
+        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+      }
+    }
   }
 }

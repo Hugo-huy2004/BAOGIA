@@ -171,10 +171,13 @@
       "articleUnavailable": "Cette article ne peut pas être ouvert",
       "summaryTitle": "Rapide résumé",
       "summaryBySource": "Résumé écrit par {{source}} eux-mêmes.",
+      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
       "contentTitle": "Contenu de l'article",
       "contentUnavailable": "Ce propriétaire n'autorise pas automatiquement la lecture intégrale. Ouvrez le document original pour lire tout ce qu'il contient.",
       "contentBySource": "Le contenu complet de cet article est protégé par une licence de copyright de {{source}} . Hugo Studio affiche seulement un résumé — ouvrez le document original ci-dessous pour lire l'article entier en entier.",
       "attribution": "Contenu est protégé par la licence de copyright de {{source}}.",
+      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
+      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
       "readMinutes": "{{n}} minutes à lire",
       "fontSize": "Taille du texte",
       "openSource": "Source open source",
@@ -524,9 +527,6 @@
         }
       },
       "notificationCopy": {
-        "justNow": "Il y a quelques minutes",
-        "minutesAgo": "Il y a {{count}} minutes",
-        "hoursAgo": "Il y a {{count}} heures",
         "markRead": "Marquer comme lus",
         "dismiss": "Écouter",
         "title": "Notifications",
@@ -2119,6 +2119,160 @@
       "bonusClaimed": "Déjà réclamé",
       "bonusSuccess": "20 JOY réclamés, merci d'explorer !",
       "bonusError": "Impossible de réclamer le bonus actuellement."
+    },
+    "team": {
+      "han": "· Hors de délais",
+      "huongDanTuAdmin": "Guide du gestionnaire",
+      "nhanXetNghiemThu": "Évaluation des commentaires",
+      "ghiChuCuaBan": "Notes de votre part :",
+      "batDauThucHien": "Commencer l'exécution",
+      "moTaNganNhung": "Décrivez ce que vous avez terminé (lien PR, résultats...)",
+      "xacNhanNop": "Confirmer le paiement",
+      "huy": "Annuler",
+      "nopTask": "Soumettre l'ordre",
+      "badge": "Une chance de travailler sur un projet réel",
+      "heroTitle": "Construisez un projet communautaire ensemble",
+      "heroP1": "Deuxième ou troisième année d'études en informatique, confortable avec le code mais désireux d'un projet qui fonctionne vraiment dans la production ? Nous comprenons l'envie de vouloir apprendre au-delà des heures de cours sans savoir où commencer.",
+      "heroP2a": "HugoTeam est un groupe petit de jeunes étudiants en informatique construisant des produits réels pour la communauté étudiante. C'est entièrement",
+      "nonProfit": "sans but lucratif",
+      "heroP2b": ", construit sur le soutien mutuel et l'expérience partagée. Toute contribution est enregistrée sur GitHub, et vous travaillez",
+      "hoursPerWeek": "5–10 heures par semaine",
+      "heroP2c": "en fonction de votre emploi du temps d'étude.",
+      "benefitsTitle": "Ce que nous pouvons faire l'un pour l'autre",
+      "benefitsDesc": "Un projet communautaire non lucratif repose sur la bonne volonté. Il n'y a pas de salaire, mais il y a une valeur réelle :",
+      "benefit1Title": "Expédier un produit que les gens utilisent vraiment",
+      "benefit1Desc": "Nous construisons le système qui sert chaque étudiant (React, Node.js, MongoDB, IA). Vous avez l'opportunité d'utiliser des fonctionnalités réelles au lieu de travailler sur du cours qui finit dans un tiroir.",
+      "benefit2Title": "Ne déboguez jamais seul",
+      "benefit2Desc": "Nous examinons le code et discutons ensemble. Enlisé dans une faille difficile ou perdu dans l'architecture ? Demande : nous résolvons ensemble, avec un esprit d'apprentissage.",
+      "benefit3Title": "Expérience de travail réelle",
+      "benefit3Desc": "Vous passez par un vrai workflow (Git, revue de code, débogage). Ces histoires vous donnent quelque chose de concret à dire lors d'une interview d'internship.",
+      "benefit4Title": "Crédit via les commits sur GitHub",
+      "benefit4Desc": "En tant qu’association étudiante sans but lucratif, nous ne pouvons pas émettre des certificats imprimés. Au lieu de cela, chaque contribution que vous effectuez est publique dans l'historique des commits sur GitHub — la preuve la plus honnête de vos compétences.",
+      "benefit5Title": "La formation prime toujours",
+      "benefit5Desc": "Vous choisissez votre propre horaire (environ 5 à 10 heures par semaine). Pendant les périodes d'examen, vous pouvez vous arrêter et vous concentrer sur l'école — pas de pression des délais, pas de KPIs rigides.",
+      "benefit6Title": "Amis dans le même domaine",
+      "benefit6Desc": "Meet like-minded IT students to swap resources and study tips, and support each other through the career ahead.",
+      "careTitle": "Assurez-vous de partager des ressources et des conseils d'étude avec des étudiants en informatique qui ont des centres d'intérêt similaires, et soutenez-vous mutuellement vers l'avant dans votre carrière.",
+      "careWeek1Label": "Comment Hugo Studio vous aide",
+      "careWeek1": "— we walk you through the environment setup, the system architecture, and hand you a first task you can handle (usually a small bug with guidance). The only goal that week: your first line of code merged into the real product.",
+      "careWeeklyLabel": "Votre première semaine",
+      "careWeekly": "— Nous vous guiderons à travers la configuration de l'environnement, l'architecture système, puis vous remettront un premier travail que vous pouvez gérer (généralement une petite faille avec des conseils). L'objectif pour cette semaine : votre première ligne de code intégrée dans le produit réel.",
+      "careStuckLabel": "When you get stuck",
+      "careStuck": "— Demandez à tout moment ; aucune question n'est stupide. Vous êtes coincé(e) pendant plus de deux heures ? Arrêtez-vous et demandez ! La culture Hugo est de résoudre ensemble plutôt que de laisser une personne s'efforcer seule.",
+      "careHoursLabel": "— Vos heures de contribution sont enregistrées",
+      "careHours": "— Chaque heure est suivie transparentement dans ce espace de travail, et c'est à partir de cela que les points clés de reconnaissance et d'appreciation ci-dessous sont basés.",
+      "loyaltyTitle": "Durabilité, appréciée discrètement",
+      "membershipLine": "Souscription : 3 ans (1,095 jours)",
+      "membershipDesc": "Une fois accepté, vous recevez une souscription de 3 ans (pas 365 jours) avec les avantages du développeur VVIP.",
+      "loyaltyText": "Restant ensemble à long terme signifie beaucoup. Cette aventure non lucratif se nourrit de bonne volonté sans condition et nous valorisons sincèrement votre persévérance.",
+      "milestone500Title": "Lorsque vous atteignez 500 heures de contribution :",
+      "milestone500a": "Reconnaissance dans la section des contributeurs du système",
+      "milestone500b": "Une revue détaillée d'un CV basée sur l'expérience réelle",
+      "milestone500c": "Un entretien café sur votre orientation professionnelle",
+      "milestone500d": "Un cadeau souvenir pour vous remercier de rester le temps nécessaire",
+      "reqTitle": "Conditions et conditions requises",
+      "reqAudienceLabel": "Qui :",
+      "reqAudience": "Tout étudiant, en 2e ou 3ème année, en études d'Informatique",
+      "reqWorkLabel": "Travail :",
+      "reqWork": "Apprentissage de la programmation, réparation des bugs, construction de petits fonctionnements, écriture de tests",
+      "reqTimeLabel": "Durée :",
+      "reqTime": "5 à 10 heures par semaine, flexible, autour de votre emploi du temps scolaire",
+      "reqNatureLabel": "Nature :",
+      "reqNature": "Projet non lucratif — soutien volontaire pour la formation et l’expérience réelle",
+      "processTitle": "Comment rejoindre :",
+      "process1": "Soumettez votre CV ci-dessous (PDF, maximum 5 Mo)",
+      "process2": "Je le revue et réponds par email dans les 3 à 5 jours",
+      "process3": "Une fois approuvé, je vous envoie un suivi détaillé par email",
+      "process4": "Vous commencez à apprendre et à contribuer suivant une voie claire",
+      "applyTitle": "Prêt à commencer ?",
+      "applyDescA": "Votre CV n'a pas besoin d'être parfait — nous cherchons plutôt",
+      "applySerious": "la sérieuxité",
+      "applyDescB": "et",
+      "applyEager": "l'enthousiasme pour apprendre",
+      "applyDescC": ",",
+      "pendingTitle": "pas de personnes déjà experts. Votre première ligne de code pourrait être fusionnée la semaine prochaine.",
+      "pendingDesc": "Votre demande est en cours d'examen",
+      "uploadLabel": "Je vous répondrai par email dans les 3 à 5 jours — merci de votre patience !",
+      "uploadHint": "Téléchargez votre CV (PDF)",
+      "submitting": "Envoi…",
+      "submitted": "Demande envoyée",
+      "submit": "S'appliquer",
+      "devsTitle": "Equipe de développement ({{count}})",
+      "devsDesc": "Les étudiants acceptés dans HugoTeam. Chacun porte une promesse à trois ans avec ce projet communautaire.",
+      "devsEmpty": "L'équipe commence par son premier membre",
+      "devBadge": "Développeur",
+      "membership3y": "Souscription : 3 ans",
+      "approved": "Approuvé",
+      "contactTitle": "Questions ? Contactez-nous",
+      "toastCvTooLarge": "Votre CV doit peser moins de 5 Mo",
+      "toastPdfOnly": "Veuillez uploader un fichier PDF",
+      "toastCvSelected": "CV sélectionné : {{name}}",
+      "toastPickCv": "Veuillez choisir un CV",
+      "toastNeedLogin": "Connectez-vous",
+      "toastApplied": "Votre demande a été envoyée. L'administrateur la réévaluera bientôt.",
+      "toastApplyError": "Impossible d'envoyer la demande",
+      "toastApplyRetry": "Impossible d'envoyer la demande, veuillez réessayer",
+      "devMember": "Membre développeur",
+      "membershipEnds": "Durée de la souscription : {{date}} ({{days}} jours)",
+      "welcomeBack": "Bienvenue de nouveau",
+      "greeting": "Bonjour {{name}}!",
+      "welcomeDesc": "Vous êtes un membre HugoTeam — merci de contribuer à ce projet communautaire.",
+      "membership": "Membre",
+      "yearsPlus": "{{years}} ans",
+      "endsOn": "Termine le: {{date}}",
+      "milestoneReached": "Milestone atteint",
+      "journey": "Voyage",
+      "openTasksShort": "Tâches ouvertes",
+      "inProgress": "En cours",
+      "journeyHours": "Voyage vers {{goal}} heures de contribution",
+      "hoursLeft": "{{hours}}h à faire",
+      "pendingApproval": "En attente d'approbation par l'admin.",
+      "milestoneTitle": "500 heures atteintes !",
+      "milestoneDesc": "Contactez Hugo pour recevoir un remerciement spécial de la part de Hugo Studio.",
+      "statOpenTasks": "Tâches ouvertes",
+      "statDoneTasks": "Tâches terminées",
+      "statApprovedHours": "Heures approuvées",
+      "sectionTasks": "Tâches",
+      "sectionHours": "Heures",
+      "sectionChat": "Messages",
+      "statusAssigned": "Nouveau",
+      "statusDoing": "En cours",
+      "statusSubmitted": "En attente de validation",
+      "statusDone": "Terminer",
+      "statusCancelled": "Annulé",
+      "logPending": "En attente",
+      "logApproved": "Approuvé",
+      "logRejected": "Rejeté",
+      "tasksEmptyTitle": "Aucun tâche pour l'instant",
+      "tasksEmptyDesc": "Le gestionnaire assigne les tâches ici et vous en informe par email",
+      "assignedOn": "Tâche attribuée à {{date}}",
+      "toastTaskUpdateError": "Échec lors de la mise à jour de la tâche",
+      "toastTaskSubmitted": "Tâche soumise — en attente de validation !",
+      "toastTaskUpdated": "Tâche mise à jour",
+      "logHoursTitle": "Comptabiliser les heures de contribution",
+      "fieldDate": "Date",
+      "fieldHours": "Heures (0.25–24)",
+      "hoursPlaceholder": "par exemple 2.5",
+      "fieldTask": "Lien vers une tâche (optionnel)",
+      "noTask": "-- Aucune tâche --",
+      "fieldWhat": "Qu'est-ce que vous avez fait ?",
+      "whatPlaceholder": "par exemple: Corrigez le bug de paiement, révisez les documents d'inscription…",
+      "saving": "Enregistrement en cours...",
+      "logHours": "Enregistrer des heures",
+      "hoursEmpty": "Aucunes heures enregistrées encore. Commencez à enregistrer vos heures de contribution !",
+      "hoursHistory": "Heures enregistrées",
+      "withdraw": "Retirer",
+      "toastInvalidHours": "Entrez une date et un nombre d'heures valides",
+      "toastLogError": "Impossible de loguer les heures",
+      "toastLogged": "Heures loguées — en attente d'approbation par l'administrateur",
+      "confirmWithdrawTitle": "Retirer les heures loguées ?",
+      "confirmWithdrawDesc": "Vous pouvez retirer uniquement les heures non encore approuvées.",
+      "toastError": "Erreur",
+      "toastWithdrawn": "Retiré",
+      "chatEmpty": "Aucun message pour le moment. Écrivez au gestionnaire ici — les messages importants sont également envoyés par email à vous.",
+      "chatPlaceholder": "Écrire un message…",
+      "send": "Send",
+      "toastSendError": "Could not send the message"
     }
   },
   "memberTabs": {
@@ -2537,7 +2691,28 @@
         "storeTitle": "Acheter plus de temps d'écoute",
         "storeDesc": "Le temps acheté est accumulé et utilisé après que les 5 heures gratuites chaque semaine soient épuisées.",
         "empty": "Aucune offre de temps non disponible encore."
-      }
+      },
+      "dangDo": "Đang dò",
+      "dangKetNoi": "Se connecter",
+      "nhieuSong": "Niveau d'émission",
+      "dangPhat": "En cours de diffusion",
+      "tamDung": "Arrêter",
+      "cho": "Attente",
+      "daHocDiaChi": "· Nouveau",
+      "doTanSo": "Chercher fréquence",
+      "doXuong": "Chercher haut",
+      "dung": "Arrêter",
+      "phat": "Diffuser",
+      "doLen": "Charger",
+      "amLuong": "Volume",
+      "ngauNhien": "Aléatoire",
+      "henGioTat": "Arrêter à l'heure",
+      "timDaiVov1Npr": "Recherche de radio : VOV1, NPR, Jazz…",
+      "dangDo2": "Đang dò…",
+      "tim": "Recherche",
+      "daTim": "Trouvé (",
+      "muaThemThoiGian": "Acquérir plus de temps d'écoute",
+      "thoiGianMuaDuoc": "Le temps acquis peut être accumulé et utilisé après l'épuisement des 5 heures gratuites hebdomadaires."
     },
     "store": {
       "title": "Magasin Hugo",
@@ -2571,23 +2746,6 @@
         "valid": "Le code est valide !",
         "invalid": "Code invalide ou expiré"
       }
-    },
-    "nfc": {
-      "cardTitle": "Carte SmartHugo NFC",
-      "tagline": "Tap to Connect · Technologie de partage en un seul touché",
-      "instructionsTitle": "GUIDE DE CONFIGURATION DE LA CARTE HUGO",
-      "step1": "Activez la connexion NFC sur votre téléphone mobile.",
-      "step2": "Placez le revers de votre téléphone près de la carte NFC Hugo pour scanner.",
-      "step3": "Le navigateur ouvre automatiquement l'URL et configura la carte.",
-      "actionUrlLabel": "Lien activé dès que vous taperez la carte NFC.",
-      "actionUrlDesc": "Redirige vers l'URL lorsque vous taperez la carte...",
-      "placeholderUrl": "STATUT DE LA CONNEXION",
-      "statusLabel": "REDIRIGE AVEC LE TAP DU NFC... ",
-      "statusConnected": " lié à votre Bio",
-      "statusNotConnected": "pas encore lié",
-      "btnSave": "Mise à jour NFC",
-      "toastSuccess": "NFC configuration mise à jour avec succès! 🚀",
-      "toastError": "configuration NFC incorrecte: {{message}}"
     },
     "vcard": {
       "title": "Contacts vCard intelligents",
@@ -2630,49 +2788,23 @@
     "signature": {
       "title": "Signature Email personnalisée",
       "desc": "Créer automatiquement des signatures professionnelles personnalisées correspondant à Hugo Studio. Copiez et collez directement dans les paramètres de signature du compte Gmail, Outlook ou Apple Mail.",
-      "formTitle": "PERSONNALISER SIGNATURE",
       "designLayout": "Layout de design",
       "templates": {
-        "luxury": "Orpailleur doré",
         "modern": "Accent moderne",
-        "business": "Pro corporate",
         "minimal": "Minimiste"
       },
       "colors": {
-        "gold": "Orpailleur doré",
-        "green": "Vert émeraude",
+        "gold": "Luxury Gold",
         "blue": "Bleu royal",
         "violet": "Violet foncé",
-        "red": "Crimson rouge",
-        "black": "Noir obsidien",
-        "cyan": "Cyan"
+        "black": "Noir obsidien"
       },
       "fields": {
-        "font": "Couleur du texte",
-        "layout": "Style de layout",
         "color": "Couleur du logo",
-        "avatarUrl": "AVATAR URL",
         "showAvatar": "Afficher l'image d'utilisateur",
-        "includeQr": "Intégrer un code QR",
-        "disclaimer": "MessageFooter"
-      },
-      "fonts": {
-        "arial": "Arial (Défaut)",
-        "georgia": "Georgia (Luxury)",
-        "tahoma": "Tahoma (Clair)",
-        "verdana": "Verdana (Espacé)",
-        "times": "Arial (Classique)"
-      },
-      "disclaimers": {
-        "none": "Ne pas attacher",
-        "green": "Écologique (eco)",
-        "confidential": "Notice de confidentialité"
+        "includeQr": "Intégrer un code QR"
       },
       "previewTitle": "Prévisualisation en direct",
-      "emailSubject": "Invitation à la collaboration commerciale",
-      "emailDear": "Cher Partenaire, ",
-      "emailBody": "Je vous envoie ci-dessous mes coordonnées de contact.",
-      "emailRegards": "Bonjour,",
       "fallbackName": "Nom du membre",
       "fallbackTitle": "Membre",
       "copyBtn": "Copie de la signature (Format texte riche)",
@@ -2684,9 +2816,7 @@
     "secretLink": {
       "title": "Cléfer les liens sécurisés",
       "desc": "Créer des liens cryptés. Seuls ceux qui ont le bon mot de passe peuvent accéder à vos contenus secrets ou ressources.",
-      "infoTitle": "À propos de cette fonctionnalité",
       "infoDesc": "Vous pouvez créer un lien spécial nécessitant à l'utilisateur d'entrer une mot de passe pour rediriger vers le destination (Google Drive, photoshoot privés, documents interne). Max 5 liens.",
-      "formTitle": "CREATE NEW SECURE LINK",
       "fields": {
         "title": "Nom du Label (Interne)",
         "url": "URL de cible",
@@ -2722,7 +2852,6 @@
         "btnUpload": "Télécharger et lire les contenus",
         "processing": "Processing...",
         "resultTitle": "Contenus dans ce fichier ZIP :",
-        "btnDownloadTooltip": "Téléchargez ce fichier",
         "toastSelectZip": "Veuillez sélectionner un fichier ZIP",
         "toastZipFormat": "Seules les formats ZIP sont supportés",
         "toastSizeLimit": "Taille du fichier dépasse 50 Mo",
@@ -2747,9 +2876,6 @@
     "qrCode": {
       "title": "Créer un QR Code intelligent",
       "desc": "Configurez les données pour que quelqu'un puisse les scanner et configurer immédiatement.",
-      "selectType": "1. Sélectionnez le type de données",
-      "configureContent": "2. Configurez le contenu",
-      "profileUrlLabel": "URL PRÉFIL MAÎTRE",
       "profileUrlDesc": "Scanner ouvrira automatiquement votre page Bio.",
       "iceContactLabel": "CONTACTS EN CAS D'URGENCE (ICE)",
       "vcardDesc": "Scanner activera la boîte de dialogue d'ajout à la liste des contacts.",
@@ -2830,7 +2956,128 @@
       "syncFolderInfo": "Synchronisez immédiatement. Tous les changements sont automatiquement sauvegardés dans vos fichiers physiques lorsque vous arrêtez d'écrire pendant 1 seconde.",
       "tutorialsIntro": "Choisissez une langue pour charger des exemples interactifs :",
       "loadSample": "Chargez un exemple",
-      "tutorialsTitle": "Tutoriels et apprentissage"
+      "tutorialsTitle": "Tutoriels et apprentissage",
+      "xacNhanTraoDoi": "Confirmation of Exchange",
+      "banCoDongY": "Êtes-vous d'accord pour utiliser",
+      "10PhiSangTao": "+ 10% frais de création",
+      "khong": "pour s'inscrire pendant un mois au",
+      "dangKyThanhCong": "abonnement ?",
+      "loiGiaoDich": "Succès du rafraîchissement ! Cette période d'étude est désormais ouverte.",
+      "muaGoiVinhVien": "Erreur de transaction.",
+      "gom": "gồm",
+      "joyVa": "JOY et",
+      "joyPhiSangTao": "JOY frais création pour ouvrir à vie",
+      "giaHanBoPhat": "Renouvellement du Pack Web Développement",
+      "10PhiSangTao2": "(+ 10% frais création) pour renouveler le Pack Web Développement pendant 30 jours sans frais de maintenance ?",
+      "dongPhiBaoTri": "Maintenance réussie !",
+      "muaTronGoi6": "Pack Full 6 Stages acheté en pack complet",
+      "10PhiSangTao3": "(+ 10% frais création) pour ouvrir à vie tous les 6 étapes du Pack Web Développement et bénéficier d'une maintenance gratuite illimitée ?",
+      "quyenSoHuuTron": "La propriété totale a été mise à jour.",
+      "moKhoaTronGoi": "Ouverture à vie complète réussie ! Vous avez activé tous les cours et bénéficierez d'une maintenance gratuite illimitée.",
+      "xacNhanXoa": "Confirmer la suppression",
+      "banCoChacChan": "Voulez-vous vraiment supprimer",
+      "thuMuc": "dossier",
+      "khongHanhDongNay": "Cette action ne peut être annulée."
+    },
+    "hugoso": {
+      "bai": "article ·",
+      "daMoKhoa": "Débloqué",
+      "studyWithHugoNang": "APPRENIR AVEC HUGO · CAPACITÉS NUMÉRIQUES ET AI",
+      "xinChao": "Cher utilisateur",
+      "homNayMinhCung": "Bonjour aujourd'hui nous allons compléter une compétence ensemble.",
+      "baiDat": "article atteint",
+      "baiTiepTheo": "BÀI TIẾP THEO ·",
+      "baiHoanThanh": "bài hoàn thành",
+      "tiepTucHoc": "Tiếp tục học",
+      "batDauBaiMien": "Bắt đầu bài miễn phí",
+      "lamNgayTrenCong": "Làm ngay trên công cụ thật",
+      "xemTatCa": "Xem tất cả",
+      "lopHocCuaBan": "LỚP HỌC CỦA BẠN",
+      "hocTheoKetQua": "Học theo kết quả cần đạt",
+      "tatCaKhoaHoc": "Tất cả khóa học",
+      "4LoTrinhThuc": "4 LỘ TRÌNH THỰC CHIẾN",
+      "kyNangDungDuoc": "Kỹ năng dùng được ngay,",
+      "khongHocChiDe": "Kỹ năng utilisables immédiatement,",
+      "moiKhoaGomVideo": "pas d'apprentissage uniquement pour voir.",
+      "motLoTrinhCho": "Chaque module comprend des vidéos en situation, des exercices sur l'outil réel et une vérification obligatoire.",
+      "calendarDocsSheetsGemini": "Un parcours complet de travail.",
+      "joySoVoiMua": "Calendrier → Docs → Sheets → Gemini, économisez du temps.",
+      "moTronBo": "JOY par rapport à acheter séparément.",
+      "tuBaiHocSang": "Ouvrir le pack complet.",
+      "moUngDungGoogle": "De la formation aux produits réels.",
+      "moKhongGianLam": "Ouvrir l'application Google dans une nouvelle fenêtre, suivre les étapes de contrôle et revenir à Study with Hugo pour soumettre vos résultats.",
+      "apDungChecklistTrong": "Áp dụng checklist trong bài học",
+      "quayLaiNopPhan": "Appliquer le checklist dans la fiche de cours",
+      "hoSoKyNang": "Portefeuille des membres du Studio Hugo",
+      "hanhTrinhBatDau": "Débuter votre parcours avec une pratique",
+      "baiDaDatTien": "Étapes suivies · Avancement synchronisé par compte.",
+      "noiDungDaDoi": "Contenu vérifié contre les documents officiels Google",
+      "googleGoogleCalendarDocs": "Google, Google Calendar, Docs et Sheets sont marqués par Google LLC.\n              Study with Hugo est un système d'apprentissage autonome, indépendant de Google et non approuvé ou certifié par Google.",
+      "dieuHuongStudyWith": "Navigation dans Study with Hugo",
+      "homNay": "Aujourd'hui",
+      "khoaHoc": "Programme",
+      "thucHanh": "Pratique",
+      "tienDo": "Développement",
+      "baiDanhGia": "Évaluation",
+      "baiDauTienMien": "Première évaluation gratuite",
+      "moKhoaTronDoi": "Accès illimité · ",
+      "sanPhamCuoiKhoa": "PRODUIT FINAL",
+      "phuongPhap": "METHODE",
+      "xemDemoLamTren": "Visionner le démo · Faire sur un outil réel · Soumettre l'auto-évaluation",
+      "noiDung": "CONTENU",
+      "doiChieuHuongDan": "Comparer avec les directives officielles de Google du jour",
+      "kiemDinhDongBo": "KIÉM ĐỊNH ĐỒNG BỘ",
+      "baiKhopVideoNoi": "VIDEOS ALIGNMENT, CONTENT, PRACTICE AND EVALUATION",
+      "giaoTrinhVaBai": "MODULES AND PRACTICAL SESSIONS",
+      "nguonChinhThucGoogle": "RÉFÉRENCES GOOGLE OFFICIELLES",
+      "buoc": "· STEP",
+      "hocThu": "· TRY LEARNING",
+      "giaoTrinh": "MODULES",
+      "buoc2": "STEP",
+      "nhiemVuBaiHoc": "LEARNING TASKS",
+      "bonPhanDongBo": "FOUR PARTS OF THE LESSON",
+      "hieu": "Comprendre",
+      "lam": "Faire",
+      "motSanPhamThat": "Un produit réel",
+      "kiemTra": "Vérifier",
+      "motCauHoiLien": "Une question liée",
+      "sanPhamCanNop": "Produit à soumettre:",
+      "chuanBiThucHanh": "PRÉPARATION DE LA PRATIQUE",
+      "mo": "Ouvrir",
+      "canhBaiHocNay": "à côté de cette leçon",
+      "huongDanChiTiet": "DÉTAILS",
+      "lamLanLuotKhong": "Par étape, pas à perdre.",
+      "nguonGoogle": "Source Google",
+      "khaDungTinhNang": "Activités disponibles",
+      "noiDungTrongTam": "CONTENU PRINCIPAL",
+      "sauBuocNayBan": "Qu'est-ce que vous pouvez faire après ce pas ?",
+      "goiYHocTap": "Suggestions d'apprentissage",
+      "lamTruocKiemTra": "Faites-le en avance, vérifiez ensuite.",
+      "thucHienDungSan": "Réponds aux questions tirées du guide lui-même une fois que tu as terminé le produit de la étape.",
+      "02TracNghiemLien": "02 · EXERCICES LIÉS",
+      "kiemTraKienThuc": "Vérifier les connaissances après avoir fait l'étape.",
+      "chinhXac": "Chargé. ",
+      "chuaChinhXac": "Non chargé. ",
+      "01ThucHanhBat": "01 · TRAVERSE DIRECTE",
+      "lamTrucTiepTren": "Faire directement sur l'application Google.",
+      "lamDuChecklist": "Fermez la liste de vérification",
+      "hoanThanhDung": "Terminé correctement",
+      "thaoTacDaXem": "Opérations déjà vues et lues.",
+      "ghiKetQua": "Enregistrez les résultats",
+      "dienVaoOTra": "Remplissez le champ de réponse selon le modèle, puis confirmez.",
+      "deThucHanh": "Pour mettre en œuvre",
+      "checklistThaoTacKhop": "Liste des opérations — correspondant à chaque vidéo chapitre et étape guidée",
+      "huongDan": "· Guide",
+      "khungThamKhaoKhong": "Zone d'inspiration — pas d'exemple à copier-coller",
+      "ghiKetQuaBan": "Enregistrez ici les résultats que vous avez effectués…",
+      "yToiThieuDa": "ý minimum a été identifié",
+      "toiXacNhanDa": "J'accepte que cette action ait été effectuée directement par moi",
+      "baiLamDuocDanh": "Le travail est évalué directement sur l'appareil. Ne téléchargez pas les exercices sur le service d'intelligence artificielle.",
+      "daHoanThanh": "Terminé",
+      "nopVaMoBuoc": "Suivant le pas suivant",
+      "tiepTheo": "TIẾP THEO",
+      "nangSuatSoAi": "Productivité numérique & IA",
+      "dangTaiKhoaHoc": "Chargement du module de formation"
     }
   },
   "companion": {
@@ -3005,6 +3252,226 @@
     },
     "assessment": {
       "title": "Évaluation du profil"
+    },
+    "chat": {
+      "thuGianTuCham": "Relaxation et Autoguiderance",
+      "banDaCoToken": "Vous avez un nouveau Jeton, vous pouvez continuer à discuter !",
+      "trucTuyen": "● En ligne",
+      "cheDoTuDong": "La mise en page adaptative est activée",
+      "ngay": "Jour",
+      "khoa": "Bloqué",
+      "testLai": "Réessayer",
+      "thoatCheDoTrut": "Désactiver le mode décharge",
+      "cheDoTrutGian": "Mode décharge sécurisé",
+      "sangLocTrieuChung": "Sélectionner les symptômes de santé",
+      "sangLocTrieuChung2": "Sélectionner les symptômes d'anxiété",
+      "trangThaiTinhThan": "État mental",
+      "tracNghiemNhanCach": "Test de personnalité",
+      "thuGian": "Relax",
+      "giacNgu": "Sommeil",
+      "danhGia": "Évaluation",
+      "hetTokenTroChuyen": "Token de conversation épuisé pour aujourd'hui",
+      "muaNhanhBangJoy": "Acheter rapidement avec JOY",
+      "hetTokenHomNay": "Token d'aujourd'hui... épuisé",
+      "trutBoMoiMuon": "Déverser tous vos soucis ici (confidentialité)...",
+      "nhanTinVoiHugopsy": "Envoyer un message à HugoPSY...",
+      "baiTapTinhTam": "Exercice de méditation",
+      "nhatKyChuKy": "Journal et Cycles de Sommeil Systémique",
+      "baoCaoDanhGia": "Báo Cáo Đánh Giá Sức Khỏe Tinh Thần"
+    },
+    "evaluation": {
+      "tongQuan": "Généralités",
+      "haoQuangCamXuc": "Lumière Intérieure",
+      "hoSoTamLy": "Portraits Psychologiques et Big Five",
+      "lichSuTienTrinh": "Historique et Évolution",
+      "nhatKyTuCham": "Journal de Soins Personnalisés",
+      "batDauTuDanh": "Commencer la Self-Assessment",
+      "denHanTuDanh": "Prochain Auto-Évaluation Prochaine Expiraison",
+      "danhGiaSucKhoe": "Assessment Global de Santé Mentale",
+      "mucDuyTri": "Souscription",
+      "chuaDuDuLieu": "Chưa đủ dữ liệu",
+      "duyTriDeu": "Rester en forme",
+      "dangHinhThanhThoi": "En cours de formation",
+      "troChuyenAiNgay": "Parlez-vous IA directement",
+      "tongKetTuCham": "Résumé de la soins auto-gauche hebdomadaire",
+      "7NgayGanNhat": "Les 7 derniers jours",
+      "7Ngay": "/ les 7 derniers jours",
+      "baiTapHoanThanh": "Exercices Terminés",
+      "luot": "fois",
+      "bienThienPhq9": "PHQ-9 Evolutive",
+      "onDinh": "Ổn định",
+      "tongGhiNhan": "Tout est en ordre :",
+      "hoatDong": "Activité",
+      "xemChiTietBao": "Voir le rapport détaillé",
+      "taiDanhGiaDinh": "Évaluation régulière hebdomadaire",
+      "chuKy": "Cycle :",
+      "7NgayLuot": "1 fois par semaine / par visite",
+      "lanTestGanNhat": "Dernier test :",
+      "chuaThucHien": "Aucun test effectué encore",
+      "chuaCoKetQua": "Résultat initial manquant. Vous pouvez commencer avec une courte auto-évaluation.",
+      "daDu7Ngay": "Déjà 7 jours depuis votre dernière évaluation manuelle. Vous pouvez la refaire si vous souhaitez suivre les tendances.",
+      "tuDanhGiaLai": "Évaluer à nouveau",
+      "xemCacBaiDanh": "Voir les évaluations",
+      "ketQuaTuDanh": "Les résultats de l'évaluation ont été enregistrés",
+      "chuaDo": "Pas encore mesuré",
+      "ghiNhanCaNhan": "Enregistrement personnel et Big Five",
+      "ghiNhanHoiThoai": "Enregistrement du dialogue",
+      "bieuDoNetTinh": "Diagramme des cinq grandes qualités de caractère",
+      "chuaCoDuLieu": "Aucune donnée Big Five. Le diagramme apparaîtra uniquement après que vous ayez terminé l'évaluation.",
+      "chuDeApLuc": "Thèmes d'impact ou de rencontre",
+      "chuaCoChuDe": "Il n'y a pas de thème spécifique.",
+      "xuHuongNetTam": "Tendance Style Intégré",
+      "dangTuDongPhan": "Analyse en cours automatique par dialogue...",
+      "lichSuHoatDong": "Historique des activités & auto-evaluation",
+      "thuGon": "Réduire",
+      "xemTatCa": "Xem tất cả",
+      "chuaGhiNhanHoat": "Aucune activité détente ou auto-evaluation notée.",
+      "hoatDongThuGian": "Activités détente",
+      "ratTot": "Très bien",
+      "tot": "Bien",
+      "binhThuong": "Normal",
+      "moiMet": "Se fatigué",
+      "kietSuc": "Se reposer",
+      "checkInCamXuc": "Check-in émotionnel",
+      "mucDuyTriHoat": "Durée d'activité par semaine",
+      "streakCheckInCam": "Rang de check-ins émotionnels",
+      "7Ngay2": "/ 7 jours",
+      "hoatDongThuGian2": "Activité de détente",
+      "luotHoanThanh": "Nombre de fins",
+      "dongBaoCao": "Fermer rapport"
+    },
+    "tab": {
+      "dongTamThoi": "Fermer temporairement",
+      "loTrinh": "Lộ trình",
+      "ngay": "jours",
+      "ngay2": "Jour",
+      "batDau": "· Démarrez"
+    },
+    "sleep": {
+      "tinhChuKyGiac": "Cycle de Sommeil en Temps Réel (Circadian Cycle)",
+      "chuanKhoaHocNrem": "Préparation Klinique NREM/REM",
+      "thucDayLuc": "⏰ Tenez-vous prêt à se lever...",
+      "diNguNgayBay": "🌙 Allons dormir maintenant...",
+      "gioThucDayMong": "Heure d'Éveil souhaitée:",
+      "gioNgu": "heure de sommeil",
+      "meoMoiChuKy": "💡 **Sage-femme:** Chaque cycle de sommeil dure environ 90 minutes (passant par les phases NREM, le sommeil profond N3 et REM). Se lever à la fin du cycle permet de se réveiller en pleine forme, sans fatigue ni douleur.",
+      "boCamBien": "Systèmes de capteurs:",
+      "tuDongKichHoat": "Activation automatique (PWA)",
+      "dangKetNoi": "Se connecter",
+      "chuaLienKet": "Pas encore lié",
+      "tuDong": "Automatique",
+      "daLienKet": "Pris en charge",
+      "lienKetThietBi": "Lier le dispositif",
+      "cuDong": "Mouvement détecté",
+      "trangThaiTab": "État du Tab",
+      "hien": "Actif",
+      "tuDong8Tin": "Automatique · 8 signaux réels",
+      "themThuCong": "Ajouter manuellement",
+      "dangPhanTich": "En cours d’analyse…",
+      "phanTichAi": "Analyse IA",
+      "ghiNhanNguLuc": "Sommeil détecté",
+      "tinHieuNguDang": "Signaux de sommeil enregistrés…",
+      "tinHieuGanNhat": "Signal le plus récent:",
+      "tbNgu": "Sommeil moyen",
+      "demGhi": "Nuit précédente",
+      "diemSoGiacNgu": "Score Sommeil",
+      "7NgayGanNhat": "Les 7 derniers jours",
+      "thoiLuong": "Durée",
+      "chatLuong": "Qualité",
+      "onDinh": "Ổn định",
+      "thoiDiem": "Heure",
+      "hieuSuat": "Efficacité",
+      "hDemCl": "par nuit · C/L",
+      "thieuNgu": "Insuffisance de sommeil",
+      "gio": "heure",
+      "ngayThieuTb": "par jour · TB insuffisant",
+      "hDem": "par nuit",
+      "can": "Nécessite ~",
+      "demNguBuThem": "heure(s) de sommeil supplémentaire",
+      "khongThieuNgu": "Ne pas manquer de sommeil",
+      "duGiacTrong": "Suffisamment de repos dans",
+      "ngayQua": "la journée dernière ✓",
+      "onDinhLich": "Fixer le calendrier",
+      "lichNguRatOn": "Le calendrier de sommeil est bien fixé",
+      "khaOnDinhNen": "Il est assez régulier, il faudrait être plus rigoureux",
+      "bienDongNenNgu": "Il y a beaucoup de fluctuations, donc il faut se mettre à l'heure",
+      "lichNguThatThuong": "Le calendrier du sommeil est imprécis, il faudrait améliorer",
+      "tuDongGhiNhan": "Enregistrement automatique des périodes de sommeil",
+      "heThongPhatHien": "Système détectant votre sommeil",
+      "vaThucDayLuc": "và se lever à",
+      "chatLuongGiacNgu": "Qualité du sommeil ?",
+      "tamTrangKhiDay": "État d'esprit au réveil ?",
+      "xacNhanLuu": "Confirmer & Enregistrer",
+      "chinhSua": "Modifier",
+      "boQua": "Ignorer",
+      "ghiNhatKyGiac": "Écrire un Journal de Sommeil",
+      "ngay": "Jour",
+      "gioNgu2": "Heure de sommeil",
+      "gioDay": "Heure de réveil",
+      "chatLuongGiacNgu2": "Qualité du sommeil",
+      "chiSoLamSang": "Indice clinique",
+      "delayPhut": "Délai (minutes)",
+      "lyTuong1020": "Idéal: 10–20 minutes",
+      "tinhGiac": "Réveil",
+      "lyTuong01": "Idéal: 0–1 fois",
+      "wasoPhut": "WASO (minutes)",
+      "thucSauKhiNgu": "Sommeil éveillé après le réveil",
+      "hoatDongTruocKhi": "Activité avant le sommeil",
+      "thoiGianManHinh": "Temps d'écran (minutes)",
+      "0Phut": "0 minutes",
+      "phut": "phút",
+      "vanDong": "Activité physique",
+      "ruouBia": "Alcool",
+      "moiTruong": "Environnement",
+      "cangThangTruocKhi": "Anxiété avant le sommeil",
+      "ratIt": "Peu",
+      "it": "Peu",
+      "vua": "Moyen",
+      "nhieu": "Beaucoup",
+      "ratNhieu": "Très beaucoup",
+      "tamTrangKhiDay2": "État de santé au réveil",
+      "ghiChu": "Notes",
+      "giacNguCamGiac": "Comment avez-vous ressenti votre sommeil...",
+      "giacMo": "Rêves",
+      "giacMoDemQua": "Votre rêve du soir...",
+      "huy": "Annuler",
+      "luu": "Enregistrer",
+      "taiLichSuGiac": "Historique des nuits de sommeil",
+      "7NgayGanNhat2": "7 Nuits Récemment",
+      "mucTieu": "Objectif : ",
+      "tinh": "Tỉnh:",
+      "lan": "Nombre:",
+      "hieuSuat2": "Hiệu suất:",
+      "tuDong2": "Automatique ✓",
+      "khoangMucTieu": "Khoảng mục tiêu:",
+      "giaiDoanGiacNgu": "Stade de sommeil (simulation)",
+      "sau": "Sâu",
+      "nhe": "Tendu",
+      "thuc": "Thức",
+      "nguSauPhucHoi": "Léger",
+      "giacMoTriNho": ": Giấc mơ, trí nhớ",
+      "thuGian": "Relaxation",
+      "tinhGiac2": "Wake Up",
+      "phanTichAiGiac": "AI Sleep Analysis",
+      "trangThai": "Status",
+      "tbChatLuong": "Quality Level",
+      "nhipSinhHoc": "Biological Rhythm",
+      "canhBao": "Sleep Warning",
+      "diemManh": "Strengths",
+      "khuyenNghiAi": "AI Recommendation",
+      "loiKhuyenToiNay": "Conseil d'aujourd'hui",
+      "lichSu": "% Éfficacité",
+      "dem": "Histoire : ",
+      "hieuSuat3": "Nuit : ",
+      "chuaDuDuLieu": "Chưa đủ dữ liệu",
+      "manHinh": "Écran : ",
+      "cangThang": "Stress : ",
+      "vanDong2": "Activités physiques : ",
+      "ruou": "Alcool : ",
+      "moiTruong2": "Environnement : ",
+      "giacMo2": "Rêves : \"",
+      "heThongDangTheo": "Le système surveille. Dormez bien !",
+      "nhatKySeTu": "Votre journal se générera automatiquement une fois que vous serez réveillé."
     }
   },
   "hugoCoderLearning": {
@@ -3113,6 +3580,81 @@
       "previous": "Retour",
       "continue": "Continuer",
       "nextLesson": "Étape suivante"
+    },
+    "guidebook": {
+      "quayLai": "Retourner",
+      "sachHuongDanLap": "Manuel de programmation",
+      "hoanThanh": "% Hoàn thành",
+      "daChinhPhuc": "Terminé",
+      "trenTongSo": "sur le total",
+      "baiHocThucChien": "de modules pratiques",
+      "soHuuTronGoi": "Abonnement illimité et gratuit (Maintenance gratuite à vie)",
+      "chuaKichHoatPhi": "Non activé, frais mensuels de 50 JOY",
+      "phiBaoTriDa": "Frais de maintenance Expire!",
+      "vuiLongGiaHan": "Veuillez prolonger les 50 JOY de maintenance mensuelle pour continuer à apprendre. Il reste encore",
+      "ngay": "jours",
+      "dongPhiTruocKhi": "payer le forfait avant que l'avancement du cours ne soit réinitialisé à zéro.",
+      "phiBaoTriHang": "Prix de maintenance mensuelle :",
+      "daKichHoatCon": "Actif (Il reste encore",
+      "ngay2": "les chapitres du parcours)",
+      "mucLucLoTrinh": "Table des matières du parcours",
+      "vuiLongHocTuan": "Veuillez suivre les modules dans l'ordre pour ouvrir les prochains modules d'apprentissage.",
+      "baiDaHoc": "Modules appris",
+      "banSeHoc": "Vous allez apprendre",
+      "thachThuc": "Défi :",
+      "huaHen": "Hứa hẹn:",
+      "chucMungHoanThanh": "Chúc mừng hoàn thành",
+      "xemChiaSeGiay": "Xem & chia sẻ giấy chứng nhận chặng",
+      "banDaHoanThanh": "Bạn đã hoàn thành xuất sắc toàn bộ thử thách của chặng này! Hãy nhận phần thưởng vinh danh.",
+      "daNhanThuong800": "Đã nhận thưởng +800 JOY ✓",
+      "nhanPhanThuong800": "Nhận phần thưởng (+800 JOY)",
+      "hayHoanThanhDo": "Hãy hoàn thành đồ án kết khóa và nộp đường link dự án của bạn tại",
+      "bai100": "Bài 100",
+      "deNhanDanhGia": "để nhận đánh giá từ Hugo Studio.",
+      "dangChoDuyetDo": "Đang chờ duyệt đồ án kết khóa... ⏳",
+      "hugoStudioDangRa": "Hugo Studio examine votre projet et le code source.",
+      "doAnChuaDat": "Le projet n'est pas conforme ❌",
+      "phanHoi": "Réponse :",
+      "banCoTheSua": "Vous pouvez modifier et soumettre un nouveau lien dans l'article 100.",
+      "doAnDaDuoc": "Votre projet a été approuvé avec succès! 🎉",
+      "daNhanThuongHoan": "Vous avez reçu le récompense pour avoir terminé la formation du module 4,000 JOY ainsi que le cadeau VIP.",
+      "nhanChungNhanHoan": "Obtenir le certificat de fin de formation",
+      "chungNhanDangDuoc": "Le certificat est préparé par l'Administrateur...",
+      "vuiLongHoanThanh": "Veuillez compléter les modules avant d'accéder à cet exercice !",
+      "thucHanhLyThuyet": "Faire des exercices théoriques",
+      "noiDungBaiHoc": "Le contenu de cette leçon est verrouillé. Veuillez ouvrir la version illimitée de cette leçon ou acquérir l'ensemble des 7 leçons pour commencer à apprendre.",
+      "thueBaoBaoTri": "Les abonnés en maintenance ont expiré. Veuillez renouveler votre abonnement de maintenance JOY mensuel de 50 fois pour continuer à apprendre.",
+      "moKhoaVinhVien": "Déverrouiller illimité",
+      "moKhoaVinhVien2": "Déverrouiller illimité les droits d'apprentissage et d'exercice sur l'ensemble de la leçon",
+      "trongGoiNayBan": "Dans ce pack vous recevez",
+      "moKhoaChangVinh": "Déverrouiller illimité cette leçon illimitée",
+      "tronGoiVinhVien": "Pack illimité à vie 6 leçons",
+      "moKhoaToanBo": "Déverrouiller tous les 100 leçons illimitées des 6 leçons à vie & obtenir",
+      "mienPhiPhiBao": "gratuit pour la maintenance à vie",
+      "muaTronGoi16k": "Acheter en package complet 16k JOY",
+      "giaHanPhiBao": "Renouveler le forfait de maintenance mensuel",
+      "phiBaoTriCan": "La maintenance nécessite un paiement mensuel pour conserver l'accès. Si vous manquez 3 mois, votre progression apprendre sera réinitialisée à zéro.",
+      "dongPhiBaoTri": "Payer la maintenance annuelle de 50 JOY",
+      "hinhMinhHoaSong": "Illustration vivante et dynamique",
+      "tongQuanMucTieu": "Vue d'ensemble et Objectif",
+      "thucHanhCodeMau": "Pratiques et Modèles de code étape par étape",
+      "checklistHieuBai": "Liste de vérification pour comprendre les concepts",
+      "thuThachMoRong": "Défi d'étendue :",
+      "checklistThuocBai": "Vérifier le checklist de l'article",
+      "thucHanhTuongTac": "Pratiquer les interactions",
+      "banCanTimHieu": "Vous devez vous renseigner davantage :",
+      "phut": "phút",
+      "giayDeCoThe": "\n\t1 seconde pour vérifier.",
+      "hoanThanhXuatSac": "Faites un excellent travail !",
+      "banDaVuotQua": "Vous avez réussi les défis de cette leçon et obtenu le récompense JOY.",
+      "bayLoiCachKhac": "Bẫy lỗi & Cách khắc phục",
+      "taiLieuSachHoc": "Bâts d'erreur & Méthode de résolution",
+      "choBaiNay": "Pour ce chapitre",
+      "nguonChuanQuocTe": "Sources internationales fiables",
+      "chayThuDeXem": "Tester pour voir",
+      "chay": "Tester",
+      "baiNayLaDang": "Ce contenu est en format requête ou backend, donc le téléphone affichera un exemple de code et des instructions d'exécution. Lorsqu'il est ouvert sur l'ordinateur, le système d'apprentissage se déplacera vers l'IDE complet.",
+      "traoDoiJoyDe": "Échanger JOY pour activer le Développement Web"
     }
   },
   "arcadeGame": {
@@ -3160,7 +3702,138 @@
       "win": "Victoire",
       "lose": "Recommencer",
       "draw": "Pendre"
-    }
+    },
+    "catAll": "Tous",
+    "catStudio": "Hugo Studio",
+    "catPvp": "Versus",
+    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
+    "bestScore": "· Best {{score}}",
+    "downloading": "Downloading {{percent}}%",
+    "exchangeError": "JOY exchange failed.",
+    "addedToApps": "{{game}} was added to your apps.",
+    "gameFallback": "Game",
+    "rankTitle": "Leaderboard",
+    "noAds": "Play right inside Hugo — no ads.",
+    "filterGames": "Filter games",
+    "playGame": "Play {{game}}",
+    "spotlight": "Today's spotlight",
+    "play": "PLAY",
+    "gamesTitle": "Jeux",
+    "totalMatches": "Matches",
+    "wins": "Wins",
+    "rankDesc": "The best players across the whole system.",
+    "newBest": "New best!",
+    "beatBest": "Beat {{score}}",
+    "combo": "{{count}}× combo",
+    "multiplier": "Multiplier x{{value}}",
+    "best": "Best",
+    "hugoMember": "Hugo member",
+    "rankSss": "RANK SSS • GRANDMASTER",
+    "rankS": "RANK S • CODE WARRIOR",
+    "joyByScore": "+ JOY based on score",
+    "pendingWallet": "· waiting to land in your wallet",
+    "tryAgainClose": "Try again — so close!",
+    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
+    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "g2048Level": "{{level}} DE LA VIEILLE ÉQUIPE",
+    "g2048LevelStone": "Level {{level}} · with stone tiles",
+    "g2048Undone": "One move undone",
+    "g2048Tnt": "TNT tile",
+    "g2048Stone": "Stone tile, {{turns}} moves left",
+    "g2048Tile": "Tile {{value}}",
+    "g2048Score": "SCORE",
+    "g2048Moves": "MOVES",
+    "snakeStage1": "Neon Garden",
+    "snakeStage1Kicker": "WARM-UP STAGE",
+    "snakeStage1Goal": "Collect 6 energy cores",
+    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
+    "snakeStage2": "Red Minefield",
+    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
+    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
+    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
+    "snakeStage3": "Quantum Gates",
+    "snakeStage3Kicker": "TELEPORT CHALLENGE",
+    "snakeStage3Goal": "Master the pair of space gates",
+    "snakeStage3Hint": "Enter one gate to appear at the other.",
+    "snakeStage4": "Gold Hunt",
+    "snakeStage4Kicker": "SPEED CHALLENGE",
+    "snakeStage4Goal": "Catch the golden cores before they vanish",
+    "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
+    "snakeStage5Kicker": "FINAL STAGE",
+    "snakeStage5Goal": "Survive the high-speed grid",
+    "snakeStage5Hint": "High speed, more mines and teleport gates.",
+    "snakeNewStage": "{{stage}} · a new challenge is open",
+    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
+    "snakeFood": "Cores",
+    "snakeStageLabel": "Stage",
+    "snakeStageOf": "Stage {{index}}: {{name}}",
+    "ready": "READY",
+    "snakeStageProgress": "STAGE PROGRESS",
+    "snakeCoreNormal": "+2 normal core",
+    "snakeCoreGold": "+10 golden core",
+    "snakeMine": "Mine: game over",
+    "snakePortal": "Teleport gate",
+    "chessBoard": "3D chess board",
+    "chessWhite": "White",
+    "chessBlack": "Black",
+    "chessCheckmate": "Checkmate! {{side}} wins!",
+    "chessStalemate": "Draw (stalemate)",
+    "chessOver": "Game over",
+    "chessLevelEasy": "Apprentice",
+    "chessEasy": "Easy",
+    "chessLevelMid": "Tactician",
+    "chessMid": "Moyen",
+    "chessLevelHard": "Master",
+    "chessHard": "Hard",
+    "chessThinking": "Hugo BOT is thinking…",
+    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
+    "chessTurn": "Turn: {{side}}",
+    "chessBotThinking": "Hugo BOT (thinking…)",
+    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
+    "chessBlackPlayer": "Black player",
+    "chessView3d": "3D view",
+    "chessUndo": "Undo",
+    "chessNewGame": "New game",
+    "chessYouWhite": "You (White)",
+    "chessWhitePlayer": "White player",
+    "caroThinking": "The AI is thinking",
+    "caroYourTurn": "Your turn (X)",
+    "caroWin": "You win! 🎉",
+    "caroLose": "The AI won — try again!",
+    "caroDraw": "Draw! The board is full.",
+    "caroYou": "You",
+    "caroRule": "3 in a row",
+    "survivorWaveClear": "WAVE {{wave}} CLEAR",
+    "survivorSurge": "SURGE",
+    "survivorBoss": "{{wave}} · BOSS",
+    "survivorLeft": "{{wave}} · {{count}} left",
+    "survivorClear": "{{wave}} · clear",
+    "rankSs": "RANK SS • NEON ACE",
+    "rankA": "RANK A • SENIOR FIGHTER",
+    "rankB": "RANK B • RISING PLAYER",
+    "shellFormula": "{{score}} points → {{joy}} JOY",
+    "shellRecord": "New best! {{delta}} points more than last time.",
+    "shellNear": "{{gap}} points short of your best {{best}}.",
+    "shellBest": "Your best: {{best}}.",
+    "lbWinner": "{{name}} is the winner!",
+    "lbRealtime": "Total score updates in real time • {{date}}",
+    "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
+    "lbLoading": "Adding up scores across every game…",
+    "lbMatches": "{{count}} matches played",
+    "lbTotalScore": "TOTAL SCORE",
+    "lbEmpty": "Nobody on the board yet. Be the first!",
+    "snakeStage5": "Hyper Grid",
+    "snakeCurrentMission": "CURRENT MISSION",
+    "chessMovesPlayed": "Game finished after {{count}} moves.",
+    "chessArena": "3D Chess Arena",
+    "chessVsBot": "Play the Hugo AI BOT",
+    "chessVsBotDesc": "You play White · a test against the algorithm",
+    "chessPassPlay": "Two players, one device (pass & play)",
+    "chessPassPlayDesc": "Put the device between you like a real board",
+    "chessBotLevelLabel": "AI BOT level:",
+    "chessHistory": "History:",
+    "exclusive": "Exclusive to Hugo Studio",
+    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
   },
   "arcadeIntro": {
     "close": "Retourner aux Applications",
@@ -3219,5 +3892,1480 @@
     "chooseLanguage": "Choisir la langue",
     "openMenu": "Ouvrir le menu",
     "closeMenu": "Fermer le menu"
+  },
+  "footer": {
+    "tagline": "Un espace numérique réfléchi pour les apprenants, les individus et les petites entreprises cherchant une présence en ligne unique.",
+    "services": "Services",
+    "landingPage": "Page d'accueil",
+    "portfolio": "Portefeuille personnel",
+    "bioLink": "Liens de Bio (edu)",
+    "customUIUX": "UI/UX personnalisés",
+    "links": "Explorer",
+    "home": "Accueil",
+    "introduction": "Introduction",
+    "pricing": "Tarifs",
+    "booking": "Start a Conversation",
+    "connect": "Se connecter",
+    "partner": "Partenaires",
+    "privacyPolicy": "Privacy Policy",
+    "supportServer": "Soutenir le Serveur",
+    "userGuide": "Guide Utilisateur"
+  },
+  "donationUI": {
+    "title": "Soutien Hugo Studio",
+    "description": "Nommez votre contribution ; les chiffres ci-dessous sont des références pratiques uniquement.",
+    "open": "Ouvrez le panneau de contribution",
+    "hide": "Cachez le bouton de contribution flottant",
+    "close": "Fermez le panneau de contribution",
+    "creating": "Préparation du paiement via PayOS…",
+    "error": "La préparation du paiement a échoué. Veuillez réessayer.",
+    "continuePayOS": "Création de la contribution · {{amount}}₫",
+    "securePayOS": "Interface Hugo Studio · Données de paiement fournies par l'API PayOS",
+    "suggestions": "Contributions suggérées",
+    "amountLabel": "Montant choisi",
+    "minimum": "Minimum 5,000 VND",
+    "minimumError": "Le minimum de la contribution est de 5,000 VND.",
+    "nameLabel": "Votre nom",
+    "emailLabel": "Email pour votre note de remerciement",
+    "identityError": "Veuillez fournir un nom et une adresse e-mail valide.",
+    "recognitionNotice": "Une fois que votre contribution est arrivée sainement, votre nom apparaîtra dans la petite liste de remerciements de Hugo Studio.",
+    "terms": "En continuant, vous reconnaîtrez que cette contribution volontaire achète aucun fonctionnalité ou accès et n'est généralement pas remboursable, sauf si c'est le cas pour les doublons, les erreurs techniques ou selon la loi applicable.",
+    "termsError": "Veuillez valider les termes de la contribution.",
+    "packs": {
+      "tea": "Une tasse de thé glacé",
+      "breakfast": "Petit déjeuner",
+      "coffee": "Une tasse de café",
+      "server": "Entretien du serveur",
+      "supporter": "Patron de studio"
+    }
+  },
+  "intro": {
+    "nav": {
+      "welcome": "Bienvenue",
+      "webDev": "Développement Web",
+      "personalInfo": "Informations personnelles",
+      "teammateInfo": "Info Équipe",
+      "bioEdu": "Service Bio Édu",
+      "webService": "Service Web",
+      "hobbies": "Fois de Jardinage",
+      "philosophy": "Principe",
+      "contacts": "Contacts",
+      "start": "Démarrage rapide",
+      "studio": "Hugo Studio",
+      "partners": "Le Fondateur",
+      "about": "À Propos de Moi",
+      "discoveries": "Découvertes"
+    },
+    "about": {
+      "desc": "Je suis Hugo — un développeur Gen Z qui transforme des idées en expériences numériques bien réfléchies et caractérisantes.",
+      "hello": "Salut, je m'appelle"
+    },
+    "slide1": {
+      "badge": "✦ Portail de Développeur Créatif",
+      "title1": "Construisons des univers numériques",
+      "title2": "avec tout mon cœur.",
+      "desc": "Bienvenue dans l'espace créatif de <1>{{name}}</1>. Là où je mélange une art délicate et une puissance technique pour créer des produits numériques de haute qualité.",
+      "explore": "Explorer le Portail",
+      "book": "Réserver une Réunion",
+      "available": "Disponible pour les Projets",
+      "scrollDown": "Basculer Down"
+    },
+    "slide2": {
+      "badge": "✦ Développement Web",
+      "title1": "Développement Web",
+      "title2": "Où les Idées Deviennent Espaces Interactifs",
+      "desc": "Le développement web est le voyage de transformer des idées créatives en sites vitrines vivantes. Cela ne se limite pas à la codification pure ; le développement web nécessite une pensée esthétique élevée combinée avec des solutions techniques optimales pour offrir des expériences utilisateur parfaites.",
+      "viewProfile": "Voir Profil Personnel"
+    },
+    "slide3": {
+      "badge": "✦ Informations Personnelles",
+      "title1": "Précedent &",
+      "title2": "Formation",
+      "eduTitle": "Éducation / Diplômes",
+      "highSchool": "Nguyễn ĐìnhChi High School",
+      "highSchoolDesc": "My Tho (Collège de MyTho)",
+      "uni": "Greenwich Vietnam",
+      "uniDesc": "Université Greenwich",
+      "hsBadge": "Lycée",
+      "hsSub": "Où mon esprit de programmation a été forgé et nourri",
+      "hsFull": "Nguyễn ĐìnhChi High School",
+      "hsAddress": "8 Bis Hung Vuong St., My Tho, Dong Thap",
+      "v1t": "Caractère & Discipline",
+      "v1d": "Perseverance face aux défis, volonté forte et apprendre avec une profonde autonomie.",
+      "v2t": "Compétences Fondamentales",
+      "v2d": "Pensée critique acérée, résolution de problèmes et recherche indépendante.",
+      "v3t": "Fondations",
+      "v3d": "Logique mathématique fondamentale et algorithmes essentiels.",
+      "uniTitle": "Université de Greenwich",
+      "uniSub": "Programme international standard britannique"
+    },
+    "slide4": {
+      "idTitle": "CO-DEVELOPÉ PAR GREENWICH",
+      "badge": "✦ Partenaire co-développeur",
+      "title1": "Nous créons des expériences numériques uniques.",
+      "title2": "Jason Phan est mon compagnon sur le parcours d'apprentissage et de développement de projets. Nous combinons la pensée systémique et notre passion pour l'informatique pour transformer les idées complexes en applications fluides et optimisées.",
+      "desc": "Collège Cay Duong",
+      "highSchool": "Conseil juridique, politique et sécurité précises",
+      "highSchoolDesc": "Dynamic high school in Kien Giang.",
+      "highSchoolProvince": "An Giang (anciennement Kien Giang)",
+      "uniTitle": "Greenwich Vietnam",
+      "uniDesc": "Environnement de formation international lié à Greenwich UK.",
+      "uniTag": "Université affiliée"
+    },
+    "slide5": {
+      "badge": "✦ Bénéfices des étudiants",
+      "title1": "Page Bio gratuite",
+      "title2": "Pour les étudiants avec une adresse e-mail .edu",
+      "desc": "Je veux soutenir pleinement les étudiants dans la construction de leur marque personnelle numérique. Tous les comptes enregistrés utilisant une adresse éducative terminée par <1>.edu</1> seront activés automatiquement d'une page Bio personnalisable gratuite.",
+      "check1": "Vérification automatique des adresses e-mail éducatives dans 3 secondes.",
+      "check2": "Aide à la création de liens personnalisés beaux (par exemple, bio/your-name).",
+      "check3": "Période de validité du lien Bio de 12 mois.",
+      "createBtn": "Commencer à Créer .edu Bio",
+      "idTitle": "Identification Étudiante",
+      "idName": "Système Portail Hugo",
+      "idEmailTitle": "Adresse E-mail Requise",
+      "idBenefitTitle": "Avantage",
+      "idBenefitDesc": "1 Pages Bio Gratuites",
+      "idValidityTitle": "Durée de Validité",
+      "idValidityDesc": "12 Mois",
+      "idAuth": "Authentifié",
+      "benefitsTitle": "Vous avez vérifié avec succès et vous recevez :",
+      "b1t": "Page de bio gratuite personnelle",
+      "b1d": "Personnalisez la disposition, les effets, le fond et chaque lien social — votre carte de visite numérique personnalisée.",
+      "b2t": "Un lien propre et personnelisé",
+      "b2d": "Comme bio/your-name — mémorable et professionnel sur votre CV, Facebook ou Instagram.",
+      "b3t": "3-deux vérifications automatiques",
+      "b3d": "Juste un nom d'extension .edu — le système vérifie instantanément sans examen manuel.",
+      "b4t": "Kit complet de l'étudiant",
+      "b4d": "Vous êtes étudiant Hugo PSY, Web IDE, Hugo Radio et Aura AI — gratuit pendant une période complète de 12 mois.",
+      "toolsTitle": "Incluses les outils gratuits pour l'étudiant",
+      "flipHint": "Déplacer ou appuyer pour inverser la carte"
+    },
+    "slide6": {
+      "badge": "✦ Services Web Professionnels",
+      "title1": "Design Web Professionnel",
+      "title2": "Optimisation de l'Expérience Numérique",
+      "desc": "Je développe des applications web avec une philosophie de code source minimaliste, de chargement rapide, d'effets de mouvement optimaux et de normes SEO pour aider votre marque à atteindre les utilisateurs de manière optimale.",
+      "pricingBtn": "Voir les Prix & Détails",
+      "bookBtn": "Réserver la Consultation sur le Design",
+      "serviceOption": "OPTIONS DE SERVICE",
+      "item1Title": "Signature Portfolio",
+      "item1Desc": "Design unique, une page seule",
+      "item2Title": "Application web ultime",
+      "item2Desc": "Tableau d'administration, Gestion des produits"
+    },
+    "slide7": {
+      "badge": "✦ Personal Hobby",
+      "title1": "Corner de Loisir Personnel :",
+      "title2": "Pots d’Epiphytes.",
+      "desc": "Après des heures stressantes de codage, mon passion la plus grande est l'admiration et le soin des pots d'epiphytes. Leur vitalité intense et leur beauté primitive me donnent une paix inépuisable."
+    },
+    "slide8": {
+      "badge": "Philosophie de la Création",
+      "title1": "\"Je privilégie la clarté et la résilience ; la personnalité vient ensuite, dans les détails qui ont gagné leur place.\"",
+      "title2": "Esthétique Déléguée",
+      "quote": "\"La couleur, le mouvement et l’espace négatif doivent élucider une interface ou transmettre l’état du système plutôt que de se limiter à embellir la page pour des spectacles sans fin.」",
+      "wowTitle": "Mécanismes de paiement",
+      "wowDesc": "Vos informations de paiement sont sécurisées et protégées par nos systèmes de sécurité. Nous respectons votre confidentialité et nous vous assurons une expérience de paiement sûre.",
+      "sweetTitle": "Précision de la utilité",
+      "sweetDesc": "Je m'attends particulièrement aux détails apparents : des touches de cibles généreuses, des états de chargement intelligibles, des messages d'erreur clairs et des layouts lisible sur diverses fenêtres de visualisation.",
+      "principles": "PRINCIPES CRÉATIFS",
+      "p1": "Commencez par une nécessité utilisateur démontrable.",
+      "p2": "Priorisez la performance, l'ergonomie mobile et l'accessibilité.",
+      "p3": "Rappelez-vous d'une cohérence des interfaces et de la maintenabilité du code source."
+    },
+    "slide9": {
+      "badge": "✦ Contact",
+      "title": "Connectez-vous avec Hugo",
+      "desc": "Pour des projets, des prospects ou simplement pour briser le silence.",
+      "zalo": "Zalo Chat",
+      "email": "Envoyer un email",
+      "fb": "Facebook",
+      "tiktok": "TikTok",
+      "supporters": "Compagnons de voyage auprès de Hugo Studio",
+      "supporterItem": "{{name}}",
+      "supportersEmpty": "Un petit coin charmant attend votre nom."
+    },
+    "slide10": {
+      "badge": "✦ Commencer maintenant",
+      "title1": "S'inscrire et commencer",
+      "title2": "Votre Jourde Numérique.",
+      "desc": "Créez des pages de lien étudiant incroyablement belles complètement gratuitement, ou connectez-vous avec moi pour concevoir aujourd'hui des sites web Bespoke professionnels.",
+      "registerBtn": "Commencez Gratuitement",
+      "bookBtn": "Parlez d'une Site Web"
+    },
+    "studio": {
+      "badge": "✦ Hugo Wishpax Studio",
+      "title1": "Hugo Studio",
+      "title2": "Création de expériences numériques avec du cœur.",
+      "desc": "Hugo Studio est un atelier de création numérique — où chaque site web, page Bio et utilité étudiante sont polis comme une petite œuvre d'art : belle, lisse et chaude pour ses utilisateurs.",
+      "explore": "Découvrez L'Atelier",
+      "scrollHint": "Déroulez pour commencer votre voyage"
+    },
+    "partners": {
+      "badge": "✦ Le Créateur de L'Atelier",
+      "title1": "Etudiant en dernière année,",
+      "title2": "créant des expériences magnifiques.",
+      "desc": "Je suis Peter Hugo Wishpax Lê, un développeur Gen Z en fin de cursus d'ingénierie logicielle à Greenwich Vietnam. Mon pratique englobe les applications web, la conception d'interfaces et l'érgonomie mobile. Hugo Studio est mon portfolio : une documentation réfléchie des projets, capacités et direction évolutive. Jason Phan collabore avec moi sur certains de mes travaux.",
+      "founderRole": "Stagiaire en Design & Développement",
+      "partnerRole": "Partenaire de Développement Coordonné",
+      "openToWork": "Accès aux opportunités d'internat et de travail",
+      "finalYear": "Mise à jour : Baccalauréat · Ingénierie logicielle",
+      "motto": "Construisant des expériences avec tout mon cœur",
+      "stackTitle": "Les valeurs que je poursuis",
+      "v1": "Dédié",
+      "v2": "Poli",
+      "v3": "Créatif",
+      "v4": "Amical",
+      "v5": "Supportif"
+    },
+    "discoveries": {
+      "badge": "✦ Systèmes Écossiers",
+      "title1": "Planètes Utilitaires",
+      "title2": "Vos découvertes numériques personnelles.",
+      "desc": "Utilitaires que j'ai construits à la main — de l'IA et de la musique à la soutien du bien-être mental, tous gratuits pour les étudiants.",
+      "auraTitle": "Aura AI",
+      "auraDesc": "Un compagnon d'étude doux qui vous aide à vous concentrer sur vos études et à stimuler votre créativité.",
+      "psyTitle": "Hugo PSY",
+      "psyDesc": "Un ami écoutant pour tout ce qui est dans votre esprit — soutenant votre bien-être mental, surtout la nuit tard.",
+      "hocduongTitle": "Étude ensemble",
+      "hocduongDesc": "Un espace de partage pour l'étude : échanger des documents, poser des questions et vous connecter à la communauté étudiante.",
+      "radioTitle": "Hugo Radio",
+      "radioDesc": "Une station lo-fi apaisante pour vos sessions d'étude tardives.",
+      "ideTitle": "Web IDE",
+      "ideDesc": "Écrivez et exécutez du code directement dans votre navigateur — même sur votre téléphone.",
+      "arcadeTitle": "Hugo Arcade",
+      "arcadeDesc": "Retro games and multiplayer chess to unwind after stressful study sessions.",
+      "joyTitle": "Joy PWA",
+      "joyDesc": "Le portefeuille des récompenses Joy — gagner et dépenser des points dans l'ensemble de l'écosystème.",
+      "bioTitle": "Bio Signature",
+      "bioDesc": "Une page personnelle unique qui reflète votre style et vos connaissances authentiques.",
+      "hint": "✦ Suspendre le curseur sur les planètes pour explorer chaque utilité"
+    },
+    "transition": {
+      "title": "Du texte à l'action",
+      "quote": "Voir les prix de référence — clairs et transparents pour tous les packages."
+    },
+    "holo": {
+      "tag": "Studio de création numérique",
+      "cta": "Commencer un projet"
+    },
+    "mascots": {
+      "eyebrow": "Rencontrer Hugo",
+      "title1": "Sept humeurs, ",
+      "title2": "un seul Hugo",
+      "desc": "Tous les moments de travail ont leur humeur — toujours attentifs, toujours amusants.",
+      "m1w": "Bonjour !",
+      "m1d": "Bienvenue avec plaisir.",
+      "m2w": "Coding",
+      "m2d": "Fast, clean websites",
+      "m3w": "Préoccupation",
+      "m3d": "HugoPSY pour votre esprit",
+      "m4w": "Qualité",
+      "m4d": "Détails dans tout",
+      "m5w": "Wouah",
+      "m5d": "Toujours un petit surprise",
+      "m6w": "Aller prochainement",
+      "m6d": "Grandir ensemble, loin",
+      "m7w": "Fun",
+      "m7d": "Travail, mais fait plaisir"
+    },
+    "cine": {
+      "nav1": "About",
+      "nav2": "Services Utilitaires",
+      "nav3": "Services",
+      "nav4": "Réserver",
+      "nav5": "Tarifs",
+      "navPortfolio": "Portefeuille",
+      "navServices": "Services",
+      "navBooking": "Écouter",
+      "heroWord": "Pay",
+      "heroEyebrow": "Hugo Lê · Portfolio",
+      "heroTitle1": "Je suis Hugo.",
+      "heroTitle2": "Je conçois et développe des produits digitaux.",
+      "heroDesc": "Voir mes travaux",
+      "heroCta": "Consulter mon travail",
+      "heroSecondaryCta": "Tell me your website needs",
+      "heroSwipe": "Passer en revue mon portefeuille",
+      "heroScroll": "Passer en revue mon portefeuille",
+      "previewStatus": "En ligne",
+      "previewName": "Etudiant Hugo",
+      "previewTagline": "Une identité numérique unique, de nombreuses outils utiles.",
+      "aboutLabel": "Beyond the screen",
+      "aboutH1": "Peter Hugo Wishpax Lê,",
+      "aboutH2": "Un étudiant en dernière année d'ingénierie logicielle.",
+      "aboutH3": "Je m'apprends le mieux en transformant la théorie en produits que les gens peuvent utiliser réellement.",
+      "education": {
+        "highSchool": {
+          "label": "Éducation secondaire",
+          "name": "Nguyễn ĐìnhChi High School",
+          "detail": "My Tho · Fondée en 1879",
+          "slogan": "Tradition révolutionnaire · Excellence dans l'enseignement et la formation",
+          "logoAlt": "Symbole de l'école primaire Nguyen Dinh Chieu à My Tho"
+        },
+        "university": {
+          "label": "Éducation sans frontières",
+          "name": "Greenwich Vietnam",
+          "detail": "Logo Greenwich Vietnam en alliance avec FPT Education",
+          "slogan": "Licences d'étudiants gratuits pour les étudiants de terminale",
+          "logoAlt": "Politique de confidentialité et conditions d'utilisation"
+        }
+      },
+      "featT1": "Un point de départ petit pour votre voyage numérique.",
+      "featT2": "Créez un Bio, explorez les outils d'apprentissage ou me disquez sur le site web dont vous avez besoin.",
+      "cardVideo": "Tous les projets commencent par une histoire qui mérite de la clarté.",
+      "card2Title": "Bio gratuit .edu.",
+      "card2c1": "Vérification automatique d'email .edu dans 3 secondes",
+      "card2c2": "Un lien personnel propre — bio/your-name",
+      "card2c3": "Valable pour un full 12 mois, sans frais cachés",
+      "card2c4": "Bundled avec l'ensemble complet du kit de base étudiant",
+      "card3Title": "Web Design.",
+      "card3c1": "Pages de débarquement personnalisées.",
+      "card3c2": "Toutes les sites web, facile à gérer par vous-même.",
+      "card3c3": "Optimisé pour la recherche d'informations sur le Web (SEO), la vitesse et l'appareil mobile.",
+      "card4Title": "Outils pour étudiants.",
+      "card4c1": "Hugo PSY — un compagnon deécoute.",
+      "card4c2": "IDE Web — écrire du code directement dans votre navigateur.",
+      "card4c3": "Hugo Radio — lo-fi pour les soirées d'étude tardives.",
+      "learnMore": "En savoir plus",
+      "stackTitle": "Ce que j'ai étudié",
+      "strengthTitle": "Mes forces",
+      "weakTitle": "Les choses dont je peux améliorer.",
+      "weak1": "Mon expérience de travail en équipe jusqu'à présent vient des projets universitaires — gérer Scrum et coordonner le front-end avec le back-end. Je veux apprendre comment une équipe professionnelle fonctionne vraiment.",
+      "weak2": "Parfois, un perfectionniste excessive sur les détails, donc je suis toujours d'accord pour définir l'horizon et les délais au début.",
+      "howTitle": "Comment j'approche la fabrication de produits",
+      "stat1v": "Gen Z",
+      "stat1l": "Generation",
+      "stat2v": "Greenwich",
+      "stat2l": "Mise à jour : Baccalauréat · Ingénierie logicielle",
+      "partnerLabel": "Co-développant avec",
+      "contactTitle": "Let's stay in touch.",
+      "marqueeTitle": "Technologies que j'ai apprises",
+      "work": {
+        "eyebrow": "Travaux sélectionnés",
+        "title": "Produits que j'ai construits à partir du sol.",
+        "desc": "Chaque projet affronte une classe distincte de problème : la publication personnelle, les données transactionnelles et les systèmes interactifs. Ensemble, ils illustrent comment je concilie le craft d'interface, la logique d'application et la conception mobile-first.",
+        "items": [
+          {
+            "badge": "Identité numérique",
+            "kind": "Application web · PWA",
+            "title": "Bio Hugo .edu",
+            "desc": "Un système de profil numérique configurable à travers lequel les utilisateurs peuvent présenter leur background, leurs projets, leurs réalisations et des liens pertinents sur une page dédiée.",
+            "outcome": "Visez la conception de l'expérience React, l'interface réactive, le parcours d'authentification des membres et le flux de gestion du contenu Bio. ",
+            "cta": "Voir le projet"
+          },
+          {
+            "badge": "Sécurité",
+            "kind": "Infrastructures de produit",
+            "title": "JOY",
+            "desc": "Un registre interconnecté des activités, des réalisations et des récompenses qui se chevauchent dans plusieurs applications Hugo Studio.",
+            "outcome": "J'ai conçu des historiques d'équilibre et de transactions, des transferts par paquets et des payloads signés par serveur qui empêchent toute falsification côté client.",
+            "cta": "Voir le projet"
+          },
+          {
+            "badge": "Systèmes de jeux",
+            "kind": "Ingénierie interactive",
+            "title": "Hugo Arcade",
+            "desc": "Une collection de jeu accessible via navigateur comprenant 2048, 3D Chess, Snake, Blocs, Survivien dans l'espace et une succession d'ateliers de taille réduite.",
+            "outcome": "Mon travail s'est concentré sur les contrôles tactiles, le statut du jeu déterministe, la performance des animations et les layouts mobiles immersifs.",
+            "cta": "Voir le projet"
+          }
+        ]
+      },
+      "meta": {
+        "title": "Peter Hugo Wishpax Lê — Portefeuille de logiciels et design de produits",
+        "description": "Le portefeuille personnel de Peter Hugo Wishpax Lê, étudiant en dernière année de formation en ingénierie logicielle à Greenwich Vietnam, couvrant son éducation, sa répertoire technique et ses produits numériques sélectionnés.",
+        "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portefeuille de logiciels, étudiant en ingénierie logicielle, Greenwich Vietnam, projets React"
+      },
+      "heroCvCta": "Télécharger le résumé",
+      "weak3": "Mon diplôme couvrait de nombreux langages d'une manière générale plutôt qu'un seul en profondeur — je peux lire et modifier du code, mais je n'ai pas encore été spécialisé dans un seul langage."
+    }
+  },
+  "servicesPage": {
+    "meta": {
+      "title": "Consultation de site web pour étudiants, individus et petits commerces | Hugo Studio",
+      "description": "Dites à Hugo ce dont vous avez besoin avant de choisir une solution. Consultation 1-à1 directe pour les étudiants, individus et petites boutiques, avec un coût et un périmètre convenus avant le début du travail.",
+      "keywords": "Site web étudiant, portfolio d'étudiant, site personnel, site web petit commerce, consultation de conception de site web"
+    },
+    "common": {
+      "youGet": "Ce que vous obtenez",
+      "notIncluded": "Non inclus",
+      "discussPlan": "Abordez cette package",
+      "discussProject": "Abordez votre projet",
+      "revealPrice": "Voir la gamme d'investissement",
+      "priceHint": "Un point de départ. Le chiffre final est convenu une fois le périmètre clair.",
+      "getQuote": "Dites-moi ce dont vous avez besoin",
+      "quoteAfterChat": "Parlez-en d'abord · faites un devis ensuite"
+    },
+    "whispers": {
+      "intro": "Il n'existe pas de site web parfait. Il existe seulement le bon.",
+      "between1": "Tout bug est un signal. Écoute-le.",
+      "between2": "La vitesse n'est pas l'objectif. La vitesse est la condition préalable.",
+      "between3": "Une belle page qui charge lentement est comme une couleur sur toile à l'heure du coucher — jolie, mais personne ne la voit.",
+      "between4": "De la première page jusqu'à un monde entier. Le premier pas est le seul que vous devez vous soucier de lui.",
+      "between5": "Seulement lorsque le monde peut te trouver es-tu réellement présent en ligne.",
+      "climax": "Et ensuite, le site web n'est plus seulement une voix — il pense, décide et travaille pour toi.",
+      "closing": "Tout nombre est une porte. Quelle ouvriras-tu ?"
+    },
+    "hero": {
+      "badge": "Direct 1-à1 · Les étudiants sont en priorité",
+      "title1": "Vous n'avez pas encore besoin d'un package.",
+      "title2": "Commencez avec ce que vous avez besoin.",
+      "desc": "Dites-moi votre objectif, ce qui bloque votre chemin ou ce que vous voulez créer. Je vais aider à identifier l’approche correcte — de Bios et portfolios pour les étudiants aux sites web pour individus et petites boutiques.",
+      "viewPricing": "Choisissez votre situation",
+      "contact": "Dites-moi ce dont vous avez besoin",
+      "swipe": "Glissez pour continuer.",
+      "scroll": "Sauter vers la suite",
+      "trust": [
+        "Travailler directement avec le graphiste et le développeur",
+        "Le scénario, le calendrier et le coût sont convenus à l'avance",
+        "Conçu pour les appareils mobiles, la vitesse et la découverte",
+        "Profils exclusifs et pistes de soutien dédiés aux étudiants"
+      ]
+    },
+    "outcomes": {
+      "eyebrow": "La première chapitre",
+      "title": "Quelle modification souhaitez-vous apporter à votre site web ?",
+      "desc": "Choisissez le récit qui correspond à votre situation pour voir les services liés.",
+      "items": [
+        {
+          "title": "Je veux que mes clients comprennent et choisissent ma marque",
+          "desc": "Une page de landing ou un site multi-pages expliquant qui vous êtes, ce que vous offre et ce que les visiteurs devraient faire ensuite.",
+          "cta": "Voir le parcours de construction"
+        },
+        {
+          "title": "Mon site actuel perd des visiteurs",
+          "desc": "Je revue l'interface, l'expérience mobile, la vitesse, l'optimisation pour les moteurs de recherche et la friction bloquant l'action du client.",
+          "cta": "Voir comment améliorer"
+        },
+        {
+          "title": "J'aimerais vous raconter ma propre histoire",
+          "desc": "Options de portfolio, bio et d’appui à la formation créées pour les étudiants.",
+          "cta": "Voir les options des étudiants"
+        }
+      ]
+    },
+    "pricingPhilosophy": {
+      "title": "La story derrière chaque prix",
+      "desc": "Je suis un étudiant en dernière année d’ingénierie logicielle et je reste avec chaque projet depuis notre première conversation jusqu’à l’évaluation. Sans couche de gestion d’utilisateur, le budget est alloué aux designs, développements et soutiens que vous avez réellement besoin.",
+      "philosophy": "Je prends un projet en charge à la fois pour qu'il reçoive une attention dédiée. Les limites du projet, son calendrier, le coût et les exclusions sont discutés avant que le travail commence, afin que vous connaissiez toujours où se trouve votre projet et ce qui va suivre."
+    },
+    "pricing": {
+      "eyebrow": "Points de départ communs",
+      "title": "Trois façons de commencer,",
+      "highlight": "non trois boîtes rigides",
+      "desc": "Ces sont des scénarios courants, pas des packages fixes. Je commence par comprendre vos besoins, recommande ce qui est suffisant, puis je confirme le timing et le coût."
+    },
+    "journey": {
+      "stone1": {
+        "badge": "✦ La Première Pierre",
+        "desc": "Lorsque vous remarquez quelque chose qui nécessite une réparation — c'est là que je viens, je trouve l'emplacement précis et je le guéris. C'est la première fois où vous ressentez votre site web touché par quelqu'un qui l'aime."
+      },
+      "stone2": {
+        "badge": "✦ La Pierre Qui Éclaire",
+        "desc": "Un site beau personne n'en a jamais vu ? Maintenant, j'allume les lumières. Il devient rapide et Google le trouve, et les clients sentent la qualité dès leur première visite."
+      },
+      "stone3": {
+        "badge": "✦ La Pierre Qui Prend Forme",
+        "desc": "Une seule page. Une seule histoire. Vous regardez votre client dans les yeux à travers l'écran et ils disent : 'Oui, vous êtes celui que je cherchais.'"
+      },
+      "stone4": {
+        "badge": "✦ Le Grand Pierre",
+        "desc": "Tout votre monde face au monde. Chaque page est une histoire, chaque lien une opportunité. La site web ne parle pas — il *invite* les gens à entrer dans votre monde."
+      },
+      "stone5": {
+        "badge": "✦ L'Émeraude — Vivante",
+        "desc": "La plateforme ne parle pas seulement — elle vit. Elle pense, elle décide, elle travaille pour vous 24/7. C'est là que la technologie devient votre logiciel, plus qu'un simple outil."
+      }
+    },
+    "plans": {
+      "fix": {
+        "label": "Rapide et efficace",
+        "name": "Corrigez un site existant",
+        "price": "De $6.99",
+        "note": "Chaque tâche facturée en avance, payez seulement quand c'est fait — pas de frais cachés.",
+        "desc": "Votre site fonctionne mais des petits bugs coûtent à vos clients ? Je corrige uniquement ce qui nécessite une correction — pas besoin d'un grand package.",
+        "includes": [
+          "Un devis par tâche en premier lieu — le travail commence uniquement après votre approbation",
+          "Corrigé et testé sur téléphone et ordinateur",
+          "Garantie gratuite de 7 jours sur la petite erreur corrigée",
+          "Tous les fichiers et accès sont rendus à la fin"
+        ],
+        "excludes": [
+          "Ré构思整化整个网站（查看构建包）",
+          "Frais de domaine et hébergement — je m'occupe de tout gratuitement"
+        ],
+        "timeline": "Du jour – Du lendemain",
+        "payment": "Pay when it is done"
+      },
+      "seo": {
+        "label": "Optimize",
+        "name": "SEO & speed-up",
+        "price": "De $36.99",
+        "note": "Meilleur pour les sites React/Next.js ou n'importe quel site qui est lent et difficile à trouver sur Google.",
+        "desc": "Un beau site qui est lent et invisible sur Google est une boutique sans enseigne. Ce package corrige exactement cela.",
+        "includes": [
+          "Tune-up de la vitesse : compression des images, nettoyage du code, cache et chargement en retard",
+          "SEO sur page : métadonnées, prévisualisations riches de partages, marquage de schéma",
+          "Configuration Google Search Console, sitemap et robots.txt soumis",
+          "Optimisation pour vos pages clés 5 (ou tout le site si c'est petit)",
+          "Rapport PageSpeed avant-après avec des étapes de prochaines actions recommandées",
+          "Une visite guidée des choses à optimiser si vous voulez continuer"
+        ],
+        "excludes": [
+          "Copie de contenu SEO, liens, publicités payantes"
+        ],
+        "timeline": "5–7 jours"
+      },
+      "landing": {
+        "label": "Commencer",
+        "name": "Page d'accueil un paragraphe",
+        "oldPrice": "80.99",
+        "price": "60.99",
+        "discount": "-25%",
+        "note": "Décoration personnalisée, sans modèles de masse. Fait en 5–7 jours.",
+        "desc": "Une page parmi, un objectif : les visiteurs terminent la lecture et veulent vous contacter.",
+        "tagline": "Facile à démarrer",
+        "includes": [
+          "1 page conçue spécifiquement pour votre marque, jusqu'à 7 sections",
+          "2 révisions basées sur vos retours",
+          "Formulaire de contact, appel par clic ou chat direct Zalo/Messenger",
+          "SEO basique : métadonnées, prévisualisations riches de partages mobiles",
+          "Déployé en ligne avec votre domaine connecté",
+          "30 minutes d'initiation pratique sur Zalo",
+          "Support gratuit des bugs pendant 14 jours après la remise"
+        ],
+        "excludes": [
+          "Frais de domaine et hébergement (~300—500k/an — vous les achetez, je vous aide à choisir)",
+          "Copie et images — vous les fournissez, je les polisse et j'en fais la mise en page.",
+          "Systèmes de réservation ou paiement en ligne → voir le package Pro du Site Web"
+        ],
+        "timeline": "5–7 jours"
+      },
+      "website": {
+        "label": "Croissance",
+        "name": "Site web multi-pages",
+        "oldPrice": " $202.99",
+        "price": "$121.99",
+        "discount": "-40%",
+        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
+        "desc": "Une présence en ligne complète qui rend une petite boutique, un café ou une marque personnelle plus fiable qu'une page Facebook.",
+        "tagline": "Populaire",
+        "includes": [
+          "4-6 fini pages: home, about, produits/services, news (optionnelles), contact",
+          "Design cohérent conforme à votre marque (placement de logo, couleurs, polices...)",
+          "3 rounds de révision basés sur vos retours",
+          "SEO avancé : Google Search Console, sitemap, marquage schéma",
+          "Zalo, Messenger, Google Maps + formulaires de contact avancés",
+          "1 mois de maintenance gratuite (4 petites modifications incluses)",
+          "Session d'entraînement de 30 minutes + 14 jours de soutien post-handover"
+        ],
+        "excludes": [
+          "Frais annuels de domaine et hébergement (~300 - 800k, sources externes)",
+          "Écriture de contenu et photographie de produit — vous fourni ces éléments",
+          "Gestion des réservations, paiements en ligne → Système Web (package avancé)"
+        ],
+        "timeline": "2–3 semaines",
+        "payment": "Paiement progressif"
+      },
+      "system": {
+        "label": "Système",
+        "name": "App web dynamique",
+        "price": "Depuis $283.99",
+        "note": "Projets avec paiements, tableaux de bord ou plusieurs rôles fonctionnent généralement entre 12 et 20 millions.",
+        "desc": "Ce n'est pas un simple catalogue — une page web qui vous sert : prendre des commandes, des réservations et gérer vos clients.",
+        "tagline": "Actif à long terme",
+        "includes": [
+          "1 flux de base de votre choix : réservation ou commande basique",
+          "Panneau de gestion des administrateurs : commandes, clients, chiffres clés",
+          "Connexion avec les niveaux d'autorisation 2 : propriétaire et personnel",
+          "1 connexion à la données : Google Sheet ou Zalo",
+          "Transmission du code source complet — le site est votre propriété",
+          "1 mois de support technique après transmission"
+        ],
+        "excludes": [
+          "Paiements en ligne (PayOS, Momo, Stripe) → ajout externe, environ 1-3M",
+          "Abonnement VIP, points et programmes de fidélité → ajout externe",
+          "Coûts mensuels pour les domaines et VPS (~300k-1M par mois, fournis externement)"
+        ]
+      }
+    },
+    "studentPlans": {
+      "orderCta": "Contactez-nous pour commander",
+      "detailsCta": "Vérifiez les termes de vérification et les détails du plan étudiant",
+      "capLabel": "Limites d'application",
+      "compareLabel": "Comparer aux tarifs standard",
+      "groupCoursework": {
+        "title": "Aide avec les travaux à la fin du semestre",
+        "desc": "Ce travail est noté, donc chaque plan comprend des documents expliquant le code, et une condition : vous devez être capable de défendre votre travail."
+      },
+      "groupProfile": {
+        "title": "Profil personnel — rien à voir avec les notes",
+        "desc": "Ceci n'est pas un exercice d'évaluation, personne ne l'élève. C'est le profil que vous prenez pour vos demandes d'emploi et de bourses."
+      },
+      "bug": {
+        "label": "STUDENT",
+        "name": "Diagnostiquer et corriger",
+        "price": "120.000đ",
+        "unit": "/bug",
+        "tagline": "En panne au dernier moment",
+        "note": "Prix par erreur convenu. Je me contente du côté défectueux — le reste est votre code.",
+        "desc": "Logique cassée, une connexion à la base de données qui ne s'ouvre pas, ou un layout effondré. Je trouve l'origine, corrige ce coin, et explique pourquoi il a cassé.",
+        "includes": [
+          "Trouve et corrige exactement l'erreur convenue avant le début",
+          "Notes écrites sur la cause racine pour pouvoir répondre quand on vous pose des questions",
+          "Un lien Git pour cloner le code corrigé",
+          "3-jour de garantie sur l'erreur qui a été corrigée"
+        ],
+        "cap": [
+          "Up à 2 bugs par commande",
+          "Réparations uniquement — pas de nouvelles fonctionnalités écrites"
+        ]
+      },
+      "html": {
+        "label": "HTML/CSS/JS",
+        "name": "Cours de conception web statique",
+        "price": "490.000đ",
+        "tagline": "Interface frontale réactive",
+        "note": "Partagé entre 2 étudiants : ~245.000đ chacun.",
+        "desc": "Travaux de conception web à la fin du trimestre : layout réactif et effets DOM basiques. Pas de backend, pas de base de données.",
+        "includes": [
+          "Votre lien Git propre pour cloner l'ensemble des sources",
+          "Interface réactive qui tient la route sur les smartphones",
+          "Animation de dom et comportements basiques de javascript",
+          "Documentation : structure des dossiers, ce que chaque fichier fait, comment les exécuter",
+          "Code annoté avec des instructions de déploiement gratuits"
+        ],
+        "cap": [
+          "Un cours, jusqu'à 4 pages statiques",
+          "Aucun backend, aucune base de données",
+          "Aucun projet capstone ou de graduation"
+        ],
+        "compare": "Environ un tiers du plan One-Page Website (1.490.000đ)."
+      },
+      "php": {
+        "label": "PHP/SQL",
+        "name": "Cours d'enseignement dynamique de la web",
+        "price": "990.000đ",
+        "tagline": "CRUD & permissions",
+        "note": "Divisé entre les étudiants 3: ~330.000é chacun.",
+        "desc": "Travail de site web dynamique à la fin du terme : gestion des données CRUD et inscription, avec des autorisations basées sur le rôle simple.",
+        "includes": [
+          "Votre lien Git propre pour cloner l'ensemble des sources",
+          "Gestion des données en PHP avec une base de données MySQL",
+          "Inscription, connexion et autorisations basiques de rôle",
+          "Fichiers SQL de débogage et de semis inclus pour qu'ils fonctionnent à la première tentative",
+          "Documentation : configuration XAMPP, importation de la base de données, le filon derrière chaque fonctionnalité"
+        ],
+        "cap": [
+          "Un cours, jusqu'à 6 tables de base de données",
+          "Jusqu'à 2 groupes de CRUD avec connexion",
+          "Aucun projet capstone ou de graduation"
+        ],
+        "compare": "Trois fois moins cher que le plan One-Page Website (1.490.000đ)."
+      },
+      "react": {
+        "label": "REACT/NODE",
+        "name": "Formation avancée en Web",
+        "price": "1.690.000đ",
+        "tagline": "SPA + API REST",
+        "note": "Partagé entre 4 étudiants : ~425.000đ par étudiant.",
+        "desc": "Travail web avancé à la fin du semestre : un SPA React contre une API REST Node/Express, soutenu par MongoDB ou PostgreSQL.",
+        "includes": [
+          "Votre lien Git propre pour cloner l'ensemble des sources",
+          "Architecture SPA React avec une API REST Node.js/Express",
+          "Authentification et jusqu'à 3 groupes de CRUD personnalisés",
+          "Données initiales incluses pour qu'elle fonctionne dès la première utilisation.",
+          "Documentation : configuration de l'environnement, variables d'environnement, un flux de données pour chaque API"
+        ],
+        "cap": [
+          "Un cours, jusqu'à 3 groupes de fonctionnalités CRUD plus connexion",
+          "Un API REST et une base de données",
+          "Aucun projet capstone ou de graduation"
+        ],
+        "compare": "43% moins cher que le forfait Site Web Multi-Pages (2.990.000€)."
+      },
+      "exclusiveBio": {
+        "label": "STUDENT",
+        "name": "Bio personnalisé",
+        "price": "99.000€",
+        "tagline": "Une amélioration par rapport au gratuit",
+        "note": "La version gratuite que vous créez en utilisant l'éditeur. Cette version est conçue autour de votre histoire.",
+        "desc": "Une page de personnalité avec un layout et une palette de couleurs conçus spécifiquement pour vous, pas un thème standard.",
+        "includes": [
+          "Layout et palette de couleur conçus uniquement pour vous.",
+          "De jusqu'à 5 liens (GitHub, LinkedIn, portfolio, réseaux sociaux...)",
+          ":",
+          "Se montre correctement sur ordinateur et mobile"
+        ],
+        "cap": [
+          "Une seule page, jusqu'à 5 liens",
+          "2 retouches après remise de dossier"
+        ]
+      },
+      "bento": {
+        "label": "STUDENT",
+        "name": "CV/Biographie / Portfolio Bento",
+        "price": "799.000B",
+        "tagline": "Créé pour les emplois et les bourses",
+        "note": "Un profil personnel, pas une tâche — il ne touche à aucune de vos notes.",
+        "desc": "Résultats académiques, projets personnels brillants et vos liens présentés dans un grid Bento lisible en moins de 30 secondes.",
+        "includes": [
+          "Un portfolio sur une seule page avec un layout Bento",
+          "GitHub, réseaux sociaux et informations de contact intégrées",
+          "Formulaire de contact envoyé directement vers un Google Sheet gratuit",
+          "Déployé à des hébergements gratuits pendant toute la vie (Vercel/Netlify)"
+        ],
+        "cap": [
+          "Jusqu'à 7 blocs de contenu",
+          "2 retouches après remise de dossier"
+        ]
+      }
+    },
+    "demo": {
+      "eyebrow": "Vérifiez par vous-même",
+      "title": "Essayez-vous",
+      "highlight": "démos de design réelles",
+      "desc": "Trois exemples focalisés sur les profils personnels, les petites boutiques et les services créatifs. Ouvrez-les uniquement lorsque vous voulez un regard plus attentif.",
+      "openCta": "Ouvrez 3 les démos pertinentes",
+      "hint": "Aimez l'un de ces ? Message-moi avec son nom et je le personnaliserai à votre marque.",
+      "cta": "Construisez quelque chose comme ça",
+      "loading": "Chargement du démo...",
+      "templates": {
+        "photography": {
+          "title": "Studio photo",
+          "short": "Photo",
+          "subtitle": "Photographe"
+        },
+        "cafe": {
+          "title": "Bistrot et Café",
+          "short": "Cafe",
+          "subtitle": "Restaurant"
+        },
+        "jewelry": {
+          "title": "Gold & Jewelry Store",
+          "short": "Jewelry",
+          "subtitle": "Jeweler"
+        },
+        "portfolio": {
+          "title": "Portefeuille personnel",
+          "short": "Portefeuille",
+          "subtitle": "Profil personnel"
+        },
+        "ecommerce": {
+          "title": "Online Store",
+          "short": "E-commerce",
+          "subtitle": "Multidisciplinaire"
+        },
+        "dashboard": {
+          "title": "Panel Administrateur",
+          "short": "Tableau de bord",
+          "subtitle": "Tableau de bord"
+        }
+      }
+    },
+    "care": {
+      "eyebrow": "Vous avez déjà une page web ?",
+      "title": "Pas de refonte nécessaire —",
+      "highlight": "corrigez juste ce qui ne va pas",
+      "desc": "Si votre site nécessite quelques réparations ou un boost en vitesse, vous n'avez pas besoin d'acheter un package complet."
+    },
+    "micro": {
+      "eyebrow": "En difficulté avec un site existant ?",
+      "title": "Corrigez uniquement ce qui est nécessaire,",
+      "highlight": "sans forcer une refonte",
+      "desc": "Envoyez le lien du site ou une capture d'écran de l'issue. Je reviendrai sur l'état actuel, expliquerai ce qui peut être corrigé et donnerai un devis uniquement après avoir convenu du même périmètre.",
+      "costLabel": "Coût :",
+      "cta": "Contactez-nous :",
+      "customTitle": "Vous avez une idée unique ou un besoin personnalisé ?",
+      "customDesc": "Envoyez-moi l'état actuel et le résultat que vous souhaitez obtenir. Si c'est approprié, je proposerai une approche, un périmètre et un calendrier avant de faire une offre.",
+      "customCta": "Nous discuterons de cela !"
+    },
+    "app": {
+      "badge": "Système complet web :",
+      "title1": "Une page qui",
+      "title2": "vous sert.",
+      "desc": "Comme embaucher quelqu'un pour gérer votre page — prendre des commandes, réserver des places, rapporter — mais vous payez une fois et elle fonctionne 24/7.",
+      "extendTitle": "Extensions lorsque vous en avez besoin — facturées séparément",
+      "extendDesc": "Paiements en ligne, multiples rôles, API personnalisées. Ces projets sont généralement entre 12 et 20 millions d'euros ; le périmètre est confirmé par écrit avant le début des travaux."
+    },
+    "student": {
+      "badge": "Priorité de Hugo Studio",
+      "title1": "Les étudiants ont toujours un espace gratuit pour commencer.",
+      "title2": "Une fois vérifié, vous pouvez utiliser un Bio standard et les outils de formation clé gratuitement. Les designs personnalisés, une plateforme avancée ou du soutien technique au-delà de ces avantages sont discutés avec précision avant que tout travail ne commence.",
+      "desc": "Voir les avantages gratuits",
+      "cta": "Quand vous voulez aller plus loin",
+      "customEyebrow": "Soutien personnel pendant que vous apprenez et détenez votre travail",
+      "customTitle": "Assistance juridique, politique de confidentialité, conditions d'utilisation, mentions légales, politiques de sécurité, politiques de paiement",
+      "customDesc": "Vous n'avez pas besoin de choisir un package ou d'estimer le coût avant. Envoyez votre objectif, la date limite et où vous êtes bloqué ; je clarifierai ce qui est gratuit, ce qui nécessite du travail personnalisé et la voie de responsabilité la plus appropriée.",
+      "customCta": "Dites-moi à quoi vous aspirez",
+      "customItems": [
+        {
+          "title": "Bio Bespoke & portfolio",
+          "desc": "Pour les stages, bourses ou personnalisation d'image qui nécessitent une histoire distincte et un layout."
+        },
+        {
+          "title": "Débogage guidé",
+          "desc": "Nous trouvons la cause, réparons l'aire convenue et expliquons la solution de manière que vous compreniez."
+        },
+        {
+          "title": "Direction du projet web",
+          "desc": "Évaluer les exigences, l'architecture et la mise en place afin de pouvoir terminer votre propre projet d'apprentissage de manière responsable."
+        }
+      ],
+      "items": [
+        {
+          "title": "Bio personnel",
+          "desc": "Une page présentant vous-même avec des liens vers les réseaux sociaux, études et mini-portefeuille."
+        },
+        {
+          "title": "Outils d'étude",
+          "desc": "Notes, Q&A, ressources et outils pour l'apprentissage autodidacte."
+        },
+        {
+          "title": "Bot de soutien personnel",
+          "desc": "Réponses rapides, conseils d'étude, rappels et aide quotidienne."
+        },
+        {
+          "title": "Communauté Q&A",
+          "desc": "Un espace pour poser des questions sur les devoirs et les projets, ainsi qu'obtenir du direction au sein de l'horizon de soutien."
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Processus",
+      "title": "Nettoie les étapes,",
+      "highlight": "de la start à la fin",
+      "desc": "Vous connaissez toujours l'étape actuelle, ce qui est en scope et ce qui se passe ensuite.",
+      "steps": [
+        "Vous envoyez vos besoins, site ou idée actuel.",
+        "Je vous conseille sur l'approche et donne un devis clair d'abord.",
+        "Nous fixons l'étendue et le calendrier, puis travaillons en maturités.",
+        "Handover avec des conseils, plus de soutien pour les petites modifications mineures."
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Questions rapides,",
+      "highlight": "réponses honnêtes",
+      "desc": "Questions courantes avant de commencer un projet web avec Hugo Studio.",
+      "items": [
+        {
+          "q": "Quels préparatifs devrais-je faire avant de me contacter ?",
+          "a": "Envoyez votre objectif, votre site web actuel s'il en existe un, votre timing préféré et une ou deux références que vous aimez. Il est parfaitement normal si les détails ne sont pas encore clairs — la première conversation vise à définir ensemble vos besoins."
+        },
+        {
+          "q": "Comment est déterminé le coût ? ",
+          "a": "Je considère l'étendue, le contenu, les fonctionnalités, le timing et les soutiens nécessaires. Une fois que les besoins sont clairs, je vous envoie une proposition écrite et un devis ; la travail commence uniquement après l'accord de part et d'autre."
+        },
+        {
+          "q": "Quels différences existent entre les avantages gratuits pour les étudiants et le support personnalisé ?",
+          "a": "La bio standard et les outils de base sont gratuits pour les étudiants vérifiés sous réserve des conditions publiées. Le design exclusif, un portefeuille avancé ou le support technique demandé sont séparés et discutés avant le début du travail."
+        },
+        {
+          "q": "Oui. Décrivez qui utilisera la page et ce qu'on veut qu'ils fassent ensuite. Je proposerai la structure, le contenu à préparer et une direction visuelle appropriée.",
+          "a": "Oui. Chaque projet indique clairement la garantie et le période de soutien. Je vous fournirai un tour d'horizon, corrigerai les problèmes dans l'espace convenu et vous informerai avant que tout nouveau élément ne devienne du travail séparé."
+        },
+        {
+          "q": "Tous les projets commencent par",
+          "a": "une conversation claire."
+        }
+      ]
+    },
+    "finalCta": {
+      "title1": "Support après livraison ?",
+      "title2": "Oui. Chaque projet indique clairement la garantie et le période de soutien. Je vous fournirai un tour d'horizon, corrigerai les problèmes dans l'espace convenu et vous informerai avant que tout nouveau élément ne devienne du travail séparé.",
+      "desc": "Vous n'avez pas besoin de connaître un nom de package ou de préparer un bref parfait. Partagez votre site actuel, une capture d'écran ou quelques lignes sur l'objectif et je vous aiderai à identifier le prochain pas à faire.",
+      "cta": "Dites-moi ce dont vous avez besoin"
+    },
+    "promo": {
+      "title": "Bio Page Aesthetic Gratuite pour Étudiants !",
+      "desc": "Vous avez un email .edu ? Votre page bio sans publicité gratuite est à votre disposition !",
+      "cta": "Vérifiez-moi!"
+    },
+    "tabs": {
+      "commercial": "Entreprises / Personnelles",
+      "student": "Pour les Étudiants",
+      "micro": "Corrections Rapides"
+    },
+    "microJobs": {
+      "bug-ui": {
+        "name": "Réparer les Failles de l'Interface",
+        "desc": "Corrigez les boutons cassés, les images mal alignées, les erreurs de taille de police ou les éléments de texte superposés.",
+        "price": "De $6.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "style-content": {
+        "name": "Polish des Couleurs et du Copié-Collé",
+        "desc": "Modifier les couleurs de marque, échanger le type d'écriture, mettre à jour les graphiques d'avatar ou réécrire les sections de texte.",
+        "price": "Du Portail 8.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "mobile-beauty": {
+        "name": "Glow-up Mobile",
+        "desc": "Optimiser l'espace entre les lignes, les polices adaptatives et les zones de clic pour les écrans mobiles.",
+        "price": "Du Portail 10.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "web-widget": {
+        "name": "Widgets Sucrés",
+        "desc": "Intégrer des chats flottants Zalo/Messenger mignons, des formulaires de contact, des cartes Google ou des lignes directrices par clic.",
+        "price": "De $6.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "deploy-domain": {
+        "name": "Lancement Web",
+        "desc": "Déployez votre site sur Vercel/Netlify/VPS, connectez des noms de domaine personnalisés et sécurisez avec un certificat SSL gratuit.",
+        "price": "Du Portail 10.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "seo-quick": {
+        "name": "Amélioration rapide SEO",
+        "desc": "Configurez correctement les balises meta (Titre/Déscription) et configurez les prévisualisations de liens attrayants pour le partage Facebook/Zalo.",
+        "price": "Du Portail 8.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "speed-optimize": {
+        "name": "Amélioration de la vitesse",
+        "desc": "Comprimaison sans perte pour des images lourdes, nettoyage des fichiers JS/CSS superflus et amélioration des scores PageSpeed.",
+        "price": "À partir de $12.99",
+        "time": "Terminé aujourd'hui!"
+      },
+      "monthly-maintenance": {
+        "name": "Soin mensuel Cozy",
+        "desc": "Restores réguliers, vérifications de sécurité rapides, correctifs d'erreurs de bug rapides et révisions légères du contenu chaque mois.",
+        "price": "12.99/mo",
+        "time": "Soins en cours"
+      }
+    },
+    "disclaimer": "Chaque option ci-dessous représente une direction de départ. La portée, le timing et le coût sont confirmés uniquement après avoir discuté des vrais besoins.",
+    "section": {
+      "newBuildsTitle": "Nouvelles Designs & Constructions personnalisées",
+      "newBuildsDesc": "Pour les marques, créateurs et entreprises nécessitant la construction d'une nouvelle page web à partir du sol.",
+      "optimizeTitle": "SEO, Vitesse et Squelette de Bug",
+      "optimizeDesc": "Pour les pages web existantes qui ont besoin d'un classement Google amélioré, des temps de chargement plus rapides ou des bugs techniques résolus.",
+      "upkeep": "Si vous avez besoin d'entretien après le période de soutien incluse, je proposerai cela séparément en fonction de la fréquence réelle d'actualisation — toujours optionnel."
+    },
+    "devices": {
+      "desktop": "Éditionnel",
+      "tablet": "Tablette",
+      "mobile": "Mobile"
+    },
+    "proof": {
+      "eyebrow": "Travail livré",
+      "title": "Quel spectacle d'un site web multi-pages dans la production",
+      "desc": "Un client réel, un site web en direct. Ouvrez-le vous-même — pas besoin de faire confiance à une capture d'écran.",
+      "clientLabel": "Client",
+      "fieldLabel": "Industrie",
+      "scopeLabel": "Scope",
+      "buildLabel": "Construction",
+      "planLabel": "Packs",
+      "clientName": "Maison Même",
+      "clientField": "Photographie photojournalistique de mariage",
+      "clientScope": "Site multi-pages : Tarification, Photographie, Vidéographie, FAQ, Contact",
+      "clientBuild": "Décoration personnalisée — sans CMS, sans template",
+      "clientPlan": "Site web multi-pages avec un périmètre basé sur les besoins",
+      "cta": "Ouvrir le site client"
+    }
+  },
+  "faqPage": {
+    "header": {
+      "badge": "Support Client",
+      "title1": "Résoudre",
+      "title2": "vos questions",
+      "desc": "Avez-vous des questions concernant le portail Hugo Studio ? Voici les questions les plus fréquemment posées. Si vous ne trouvez toujours pas une réponse, n'hésitez pas à nous contacter directement !"
+    },
+    "faqs": [
+      {
+        "question": "Hugo Studio a-t-il des heures de travail fixes ?",
+        "answer": "1-1,"
+      },
+      {
+        "question": "Combien de membres compose le team Hugo Studio ?",
+        "answer": "Je suis Hugo, un étudiant en dernière année d'ingénierie logicielle et développeur principal. Je collabore avec Jason Phan (partenaire de développement partenaire) sur les discussions techniques et l'amélioration de l'expérience full-stack."
+      },
+      {
+        "question": "Est-il possible de bénéficier d'une politique promotionnelle ou d'un essai à Hugo Studio ?",
+        "answer": "Comprendre que les étudiants aspirent à une marque personnelle professionnelle, je soutiens la création de portfolios bio personnalisés entièrement gratuits pour les étudiants possédant des adresses éducatives .edu ou .edu.vn.",
+        "actionText": "Offre Étudiante"
+      },
+      {
+        "question": "Quel est le coût du design à Hugo Studio ?",
+        "answer": "En travaillant directement avec vous 1 1, la tarification est extrêmement abordable et adaptée aux étudiants ou aux petites entreprises. Pour maintenir la qualité, je reçois uniquement 1 projet à la fois dans une file d'attente."
+      },
+      {
+        "question": "Est-ce que Hugo Studio fonctionne pendant les jours fériés ?",
+        "answer": "Quand il y a une longue période de vacances, je publierai directement un update sur la page d'accueil. (Secret: Parfois, j'aille faire un court voyage pour me recharger 🏖️)"
+      }
+    ],
+    "contact": {
+      "title": "Vous avez encore des questions ?",
+      "desc": "Ne vous inquiétez pas ! Envoyez un message direct au team de Hugo Studio pour obtenir une réponse détaillée 1:1.",
+      "chatBtn": "Message",
+      "emailBtn": "Émettez un message à l'équipe"
+    }
+  },
+  "bookingPage": {
+    "meta": {
+      "title": "Discuter d'un Projet de Site Web | Hugo Studio",
+      "description": "Définissez vos besoins à travers un formulaire guidé. Hugo répondra pour clarifier le périmètre, les délais et une investissement approprié avant que tout travail ne commence.",
+      "keywords": "enquête sur le projet de site web, consultation du site web, portefeuille personnel, sites web d'entreprise petite taille, Hugo Studio"
+    },
+    "toast": {
+      "success": "Votre demande a été reçue. Je répondrai dans un délai d'une journée ouvrable.",
+      "error": "Votre demande n'a pas pu être envoyée. Veuillez vérifier votre connexion et réessayez.",
+      "networkError": "Erreur de connexion. Veuillez vérifier votre internet et réessayez.",
+      "chooseProject": "Veuillez choisir l'option qui correspond le mieux à vos besoins.",
+      "chooseAge": "Veuillez sélectionner votre groupe d'âge en premier.",
+      "underAge": "Hugo Studio accepte uniquement les demandes de personnes âgées de 14 ans et plus."
+    },
+    "header": {
+      "eyebrow": "Une conversation directe avec Hugo",
+      "title": "Dites-moi ce que vous avez besoin. Je vais aider à définir le reste.",
+      "desc": "Vous n'avez ni besoin de jargon technique ni d'un bref exhaustif. Choisissez les prompts qui approximent le mieux votre situation, et je vous aiderai à articuler la partie restante du périmètre."
+    },
+    "expectations": {
+      "brief": {
+        "title": "Aucun bref élaboré requis",
+        "desc": "Les choix guidés vous permettent d'élaborer sur le projet en environ deux minutes."
+      },
+      "scope": {
+        "title": "Le périmètre précède l'estimation de prix.",
+        "desc": "Je clarifierai tout ce qui manque et recommanderai uniquement ce qui est réellement nécessaire."
+      },
+      "reply": {
+        "title": "Une réponse dans une journée de travail",
+        "desc": "Vous recevrez un e-mail ou un message indiquant le pas d'action approprié suivant."
+      }
+    },
+    "progress": {
+      "label": "Étape {{step}} de {{total}}",
+      "complete": "Complète"
+    },
+    "steps": {
+      "age": {
+        "title": "Quel âge as-tu ?",
+        "hint": "Hugo Studio accepte uniquement les demandes de personnes âgées de 14 ans et plus."
+      },
+      "project": {
+        "title": "Qu'est-ce que je peux vous aider avec ?",
+        "hint": "Choisis la réponse qui convient le mieux, rien n'est encore décidé."
+      },
+      "budget": {
+        "title": "Investissement approximatif",
+        "hint": "Une estimation permet de recommander un périmètre proportionnel."
+      },
+      "timeline": {
+        "title": "Quand cela est-il nécessaire ?",
+        "hint": "Une durée de temps rend le calendrier réaliste."
+      },
+      "details": {
+        "title": "Le résultat que vous avez en tête",
+        "hint": "Un peu de texte suffit ; pas de bref formel requis."
+      },
+      "contact": {
+        "title": "Comment dois-je répondre ?",
+        "hint": "Utilisé uniquement pour répondre à votre question, ne sera jamais publié."
+      },
+      "review": {
+        "title": "Revue et envoyez votre question",
+        "hint": "Une dernière inspection avant qu'elle atteigne Hugo."
+      }
+    },
+    "projectTypes": {
+      "newWebsite": {
+        "title": "Un nouveau site web",
+        "desc": "Pour une personne, un marqueur, un café ou une petite entreprise."
+      },
+      "portfolio": {
+        "title": "Portefeuille / Bio",
+        "desc": "Un espace considéré pour votre travail, votre curriculum vitae et votre identité professionnelle."
+      },
+      "improve": {
+        "title": "Améliorez un site existant",
+        "desc": "Réélaborez son interface, sa expérience mobile, sa performance ou ses fonctionnalités."
+      },
+      "student": {
+        "title": "Projet étudiant",
+        "desc": "Portefeuille, cours de formation ou soutien guidé pour la débogage."
+      },
+      "unsure": {
+        "title": "Je ne suis pas encore certain",
+        "desc": "Décrivez le résultat; Hugo aidera à déterminer une approche proportionnelle."
+      }
+    },
+    "sections": {
+      "project": "Qu'aimeriez-vous que nous aidions ?",
+      "projectHint": "Choisissez la meilleure correspondance. Rien ici n'exclut une direction différente plus tard.",
+      "budget": "Investissement approximatif",
+      "budgetHint": "Cela informe une recommandation proportionnelle ; il n'est pas un engagement financier.",
+      "timeline": "Période préférée",
+      "notes": "Un peu plus de contexte (optionnel)",
+      "notesHint": "Sélectionnez un prompt pour commencer, puis le modifiez pour qu'il reflète vos circonstances.",
+      "timelineHint": "Choisissez celui qui est le plus proche de votre attente."
+    },
+    "budgets": {
+      "unsure": "Non déterminé",
+      "underOne": "Moins de 1 million de VND",
+      "oneToThree": "1 à 3 millions de VND",
+      "threeToEight": "3 à 8 millions de VND",
+      "overEight": "Plus de 8 millions de VND"
+    },
+    "timelines": {
+      "flexible": "Flexible",
+      "twoWeeks": "Dans 1–2 semaines",
+      "oneMonth": "Dans une semaine",
+      "twoMonths": "Dans 1–2 mois"
+    },
+    "promptLabels": {
+      "identity": "Présentez-moi et mon travail",
+      "sales": "Aide les clients à naviguer et à poser des questions",
+      "mobile": "Mon site web flanche sur mobile",
+      "unsure": "Je ne sais pas par où commencer"
+    },
+    "prompts": {
+      "identity": "J'ai besoin d'un endroit cohérent pour présenter moi-même, mon travail et mes liens pertinents.",
+      "sales": "Je souhaite que les clients comprennent ma proposition, visitent mes produits et me contacter sans friction.",
+      "mobile": "Je possède déjà un site web, mais son interface mobile est trop compliquée ou ne s'affiche pas correctement.",
+      "unsure": "Je suis incertain quant au type de site web approprié et j'apprécierais une recommandation proportionnelle."
+    },
+    "form": {
+      "nameLabel": "Votre nom",
+      "namePlaceholder": "Par exemple, Minh Anh",
+      "emailLabel": "Email pour la réponse",
+      "emailHint": "Requis",
+      "phoneLabel": "Téléphone / Zalo",
+      "phoneHint": "Requis · ne sera jamais publié",
+      "phonePlaceholder": "Par exemple, 09xx xxx xxx",
+      "messagePlaceholder": "Par exemple, je vend des articles faits main et j'aurais besoin d'un site web où les clients pourraient consulter la collection... ",
+      "disclaimer": "Ces détails sont utilisés uniquement pour répondre à votre demande et discuter du projet."
+    },
+    "actions": {
+      "continue": "Continuer",
+      "back": "Retour",
+      "submit": "Envoyer ma demande",
+      "sending": "Envoi en cours...",
+      "editAnswers": "Récommencer les réponses"
+    },
+    "summary": {
+      "title": "Rapport de demande",
+      "project": "Requête",
+      "budget": "Investissement",
+      "timeline": "Durée",
+      "notes": "Notes",
+      "age": "Âge",
+      "contact": "Contactez-nous :"
+    },
+    "success": {
+      "title": "Votre demande est en sécurité avec moi.",
+      "desc": "Hugo vous examinerait et répondrait par email ou Zalo dans une journée de travail maximum. Aucune documentation supplémentaire n'est requise à ce stade.",
+      "another": "Envoyez une autre demande d'information",
+      "donateTitle": "Avez-vous envie de soutenir Hugo Studio ?",
+      "donateDesc": "C'est entièrement facultatif. Votre choix n'affecte en rien la demande, le devis ou l'accès à tout fonctionnalité.",
+      "donateYes": "Faites un don volontaire",
+      "donateNo": "Ce n'est pas cette fois-ci",
+      "donateSkipped": "Notez votre choix. Votre demande poursuivra dans exactement la même manière."
+    },
+    "prefill": {
+      "general": "Je suis étudiant et j'aimerais discuter d'un type approprié de soutien pour mon projet académique.",
+      "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
+      "bento": "Je cherche de l'aide guidée pour identifier, comprendre et corriger les erreurs dans mes travaux académiques.",
+      "courseworkHtml": "J'aimerais discuter d'un CV / Portefeuille Bento pour un profil étudiant.",
+      "courseworkPhp": "J'aimerais discuter d'un projet de travail académique Web avec une utilisation d'HTML, CSS et JavaScript.",
+      "courseworkReact": "J'aimerais discuter d'un projet de travail académique Web avec l'utilisation de PHP et MySQL."
+    },
+    "age": {
+      "badge": "J'aimerais discuter d'un projet de travail académique Web avec React et Node.js.",
+      "legend": "Une exigence ferme",
+      "hint": "Votre groupe d'âge",
+      "teenTitle": "Cela détermine comment Hugo Studio gère et protège vos données. Aucun document nécessaire — répond simplement honnêtement.",
+      "teenRules": {
+        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
+        "limited": "Support is limited or declined where a request would require sensitive personal data.",
+        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
+        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+      },
+      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
+      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
+      "blockedTitle": "Not eligible to send an enquiry",
+      "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
+    },
+    "ageBands": {
+      "adult": {
+        "title": "18 and above",
+        "desc": "You may discuss and agree terms directly, without a guardian."
+      },
+      "teen": {
+        "title": "14 to under 18",
+        "desc": "Support is available, with supervision and limits on personal data."
+      },
+      "under14": {
+        "title": "Under 14",
+        "desc": "Not eligible to use Hugo Studio's services."
+      }
+    }
+  },
+  "templatesPage": {
+    "hero": {
+      "badge": "Galaxy of Art",
+      "title1": "The Universe of",
+      "title2": "Digital Art",
+      "desc": "Surf through silent galaxies. Each website is a unique star."
+    },
+    "core": {
+      "badge": "The Core",
+      "title1": "Brand",
+      "title2": "Nucleus",
+      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
+      "redBold": "Red:",
+      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
+      "orangeBold": "Orange:",
+      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
+      "yellowBold": "Yellow:",
+      "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
+      "greenBold": "Green:",
+      "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
+      "blueBold": "Blue:",
+      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
+      "purpleBold": "Purple:",
+      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+    },
+    "typography": {
+      "badge": "The Language",
+      "title": "Typography Choice",
+      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
+      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+    },
+    "souls": {
+      "badge": "The Souls",
+      "title": "Cosmic Souls",
+      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "values": [
+        {
+          "title": "Dedication",
+          "desc": "Meticulous in every code nebula"
+        },
+        {
+          "title": "Empathy",
+          "desc": "Listening to the depths of the universe"
+        },
+        {
+          "title": "Creativity",
+          "desc": "Shining bright like a supernova"
+        },
+        {
+          "title": "Connection",
+          "desc": "A strong galactic network"
+        },
+        {
+          "title": "Speed",
+          "desc": "Fast as the speed of light"
+        },
+        {
+          "title": "Protection",
+          "desc": "Absolute safety shield"
+        }
+      ]
+    },
+    "demos": {
+      "badge": "The Constellations",
+      "title1": "Interactive",
+      "title2": "Dashboards",
+      "desc": "Surf through interactive real-world design constellations.",
+      "templates": [
+        {
+          "title": "Studio photo",
+          "short": "Photography",
+          "subtitle": "Photographe"
+        },
+        {
+          "title": "Bistrot et Café",
+          "short": "Cafe",
+          "subtitle": "Restaurant"
+        },
+        {
+          "title": "Jewelry Web",
+          "short": "Jewelry",
+          "subtitle": "Jewelry store"
+        },
+        {
+          "title": "Personal Intro",
+          "short": "Portefeuille",
+          "subtitle": "Portefeuille"
+        },
+        {
+          "title": "E-commerce",
+          "short": "E-commerce",
+          "subtitle": "Multidisciplinaire"
+        },
+        {
+          "title": "Admin Page",
+          "short": "Tableau de bord",
+          "subtitle": "Tableau de bord"
+        }
+      ]
+    },
+    "archive": {
+      "badge": "The Archive",
+      "title": "Project Archive",
+      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+    }
+  },
+  "loginPage": {
+    "toast": {
+      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
+      "loginError": "Login error",
+      "loginPortalError": "Portal login error",
+      "invalidLink": "Link is invalid or has expired",
+      "noGoogle": "Could not retrieve Google profile info",
+      "useGoogleBtn": "Please click the 'Continue with Google' button below",
+      "adminError": "Incorrect admin username or password",
+      "adminNetworkError": "Could not connect to the server, please check your network and try again",
+      "adminServerError": "Server error, please try again later",
+      "codeLength": "Login code must be exactly 6 characters",
+      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+    },
+    "biometric": {
+      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "verifying": "Verifying...",
+      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
+      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
+      "or": "or"
+    },
+    "header": {
+      "titleCustomer": "Project Management",
+      "titleMember": "Activate Student Bio",
+      "titleAdmin": "Connexion Admin",
+      "descCustomer": "Track progress & manage your services",
+      "descMember": "Create an exclusive Bio Link completely free",
+      "descAdmin": "Access the developer dashboard system"
+    },
+    "tabs": {
+      "customer": "Client",
+      "member": "Student (.edu)",
+      "admin": "Admin"
+    },
+    "customerForm": {
+      "title": "Access Project Management",
+      "desc": "Manage projects, track progress and communicate with the team.",
+      "codeLabel": "Project Code (6 Chars)",
+      "codePlaceholder": "Ex: 1A2B3C",
+      "btn": "Enter Project Portal",
+      "securityTitle": "Information Security",
+      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+    },
+    "memberForm": {
+      "title": "Google Workspace Authentication",
+      "desc": "To ensure the authenticity of student benefits, please link via Google.",
+      "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
+      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
+      "gisLoading": "Loading Google component...",
+      "reqTitle": "Educational Email Requirement (.edu)",
+      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+    },
+    "adminForm": {
+      "title": "Connexion Admin",
+      "desc": "Enter developer credentials",
+      "userLabel": "Username",
+      "userPlaceholder": "Enter username...",
+      "userRequired": "Please enter your username",
+      "passLabel": "Mot de passe",
+      "passPlaceholder": "••••••••",
+      "passRequired": "Please enter your password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "remember": "Remember me on this device",
+      "btn": "Se connecter",
+      "submitting": "Signing in...",
+      "https": "Secure synchronization via HTTPS"
+    }
+  },
+  "customerPortal": {
+    "header": {
+      "logout": "Logout"
+    },
+    "tabs": {
+      "profile": "Profil",
+      "service": "Service",
+      "requests": "Requests"
+    },
+    "profile": {
+      "title": "Informations personnelles",
+      "subtitle": "Update your contact info so we can support you best.",
+      "completedWarn": "Project is completed, information cannot be changed.",
+      "fullName": "Full Name",
+      "phone": "Numéro de téléphone",
+      "email": "Contact Email",
+      "birthday": "Date of Birth",
+      "address": "Address",
+      "updateSuccess": "Updated successfully!",
+      "saveBtn": "Save Info",
+      "savingBtn": "En cours de sauvegarde..."
+    },
+    "service": {
+      "title": "Project Overview",
+      "desc": "Track progress and basic information about your service package.",
+      "status": "Statut",
+      "package": "Service Package",
+      "startDate": "Date de début",
+      "notesTitle": "Logs & Updates",
+      "notesEmpty": "Project is in preparation...",
+      "completed": "Completed",
+      "maintenance": "Maintenance",
+      "summary": "Project Summary"
+    },
+    "requests": {
+      "supportTitle": "Support Team",
+      "supportSubtitle": "Managing your project",
+      "loading": "Loading messages...",
+      "empty": "No requests yet. Message us if you have any questions!",
+      "placeholderNormal": "Enter request or message...",
+      "placeholderCompleted": "Enter maintenance request or message..."
+    }
+  },
+  "studentBenefitsPage": {
+    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
+    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
+    "backToServices": "Back to Services",
+    "giftSpark": "12 Months of Spark — On the House!",
+    "title": "Your Dream Bio Link",
+    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
+    "marketValue": "Normal price",
+    "perYear": "/year",
+    "marketPrice": "$20.99",
+    "giftToYou": "Hugo's Gift",
+    "giftPrice": "$0.99",
+    "priceless": " — Priceless!",
+    "verificationTitle": "Verify & Claim Your Spark!",
+    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
+    "orManual": "or click below if it doesn't prompt",
+    "clickSelect": "Choose Google Account",
+    "warningClientId": "Warning: Missing Google Client ID",
+    "originError": "Authorized JavaScript origins must include current origin and production domain.",
+    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
+    "ready": "OAuth robot is ready!",
+    "loading": "Waking up OAuth robot...",
+    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
+    "toastFail": "Oh no! Google verification failed.",
+    "toastNetwork": "Server connection lost. Let's try again in a bit!",
+    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "benefits": {
+      "free": {
+        "title": "Free of Charge",
+        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+      },
+      "creative": {
+        "title": "Creative Playground",
+        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+      },
+      "fast": {
+        "title": "Lightning Fast",
+        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+      },
+      "yours": {
+        "title": "Truly Yours",
+        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+      }
+    }
   }
 }

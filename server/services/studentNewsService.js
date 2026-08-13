@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { decodeHTML } from 'entities';
+import { generateRaw } from './aiGateway.js';
 
 const REQUEST_TIMEOUT_MS = 5500;
 // Khai đúng danh tính và để lại địa chỉ liên hệ. Trước đây chỗ này giả UA của
@@ -22,14 +23,14 @@ const SUPPORTED_LANGUAGES = new Set(['vi', 'en', 'zh', 'th', 'ja', 'ko', 'id', '
 // `domains` là hàng rào cuối cho cả RSS lẫn API bên thứ ba.
 export const NEWS_EDITIONS = Object.freeze({
   vi: Object.freeze({ country: 'VN', locale: 'vi-VN', timeZone: 'Asia/Ho_Chi_Minh', domains: ['vnexpress.net', 'tuoitre.vn', 'thanhnien.vn', 'dantri.com.vn', 'vietnamnet.vn', 'dcctvn.org', 'gpcantho.com', 'tonggiaophanhanoi.org', 'tntt.vn', 'tgpsaigon.net', 'hdgmvietnam.com'] }),
-  en: Object.freeze({ country: 'US', locale: 'en-US', timeZone: 'America/New_York', domains: ['npr.org', 'nytimes.com', 'catholicnewsagency.com'] }),
+  en: Object.freeze({ country: 'US', locale: 'en-US', timeZone: 'America/New_York', domains: ['npr.org', 'nytimes.com', 'catholicnewsagency.com', 'theconversation.com', 'nasa.gov', 'nsf.gov', 'energy.gov'] }),
   zh: Object.freeze({ country: 'CN', locale: 'zh-CN', timeZone: 'Asia/Shanghai', domains: ['people.com.cn', 'news.cn', 'xinhuanet.com'] }),
   th: Object.freeze({ country: 'TH', locale: 'th-TH', timeZone: 'Asia/Bangkok', domains: ['thailand.go.th', 'tmd.go.th', 'thaipbs.or.th', 'mdes.go.th'] }),
   ja: Object.freeze({ country: 'JP', locale: 'ja-JP', timeZone: 'Asia/Tokyo', domains: ['nhk.or.jp'] }),
   ko: Object.freeze({ country: 'KR', locale: 'ko-KR', timeZone: 'Asia/Seoul', domains: ['korea.kr', 'yonhapnewstv.co.kr', 'yna.co.kr'] }),
-  id: Object.freeze({ country: 'ID', locale: 'id-ID', timeZone: 'Asia/Jakarta', domains: ['antaranews.com'] }),
-  es: Object.freeze({ country: 'ES', locale: 'es-ES', timeZone: 'Europe/Madrid', domains: ['rtve.es', 'elpais.com'] }),
-  fr: Object.freeze({ country: 'FR', locale: 'fr-FR', timeZone: 'Europe/Paris', domains: ['france24.com', 'lemonde.fr', 'radiofrance.fr'] }),
+  id: Object.freeze({ country: 'ID', locale: 'id-ID', timeZone: 'Asia/Jakarta', domains: ['antaranews.com', 'theconversation.com'] }),
+  es: Object.freeze({ country: 'ES', locale: 'es-ES', timeZone: 'Europe/Madrid', domains: ['rtve.es', 'elpais.com', 'theconversation.com'] }),
+  fr: Object.freeze({ country: 'FR', locale: 'fr-FR', timeZone: 'Europe/Paris', domains: ['france24.com', 'lemonde.fr', 'radiofrance.fr', 'theconversation.com'] }),
 });
 
 export function resolveNewsEdition(language = 'en') {
@@ -218,12 +219,51 @@ export function resolveNewsPolicy(country = 'US') {
   };
 }
 
-function contentAccessFor(provider) {
-  if (provider === 'arxiv') {
+// ── Nguồn được phép hiện TOÀN VĂN trong portal ─────────────────────────────
+// Không nước nào bỏ bản quyền cho bài báo: Công ước Berne điều 2(8) chỉ loại
+// "tin tức thời sự thuần tuý đưa tin" — tức DỮ KIỆN trần trụi, không phải bài
+// viết. Luật VN (SHTT đ.15), Nhật (đ.10.2), Hàn (đ.7), Trung (đ.5), Thái (m.7),
+// Indonesia (đ.42) đều chép lại đúng ngoại lệ hẹp đó. Nên thứ mở khoá được toàn
+// văn không phải QUỐC GIA mà là GIẤY PHÉP của từng nguồn:
+//   • CC BY-ND 4.0 — The Conversation phát hành để được đăng lại: đăng nguyên
+//     vẹn, không sửa, ghi tên tác giả + toà soạn, dẫn link gốc, không bán lại.
+//     Ảnh của họ thường thuộc bên thứ ba nên KHÔNG nằm trong giấy phép.
+//   • Tác phẩm của chính phủ liên bang Mỹ — 17 U.S.C. §105, thuộc phạm vi công
+//     cộng ngay từ đầu (NASA, NSF, Bộ Năng lượng).
+//   • arXiv — chỉ phần tóm tắt (abstract) ở trang /abs. ĐỪNG trỏ sang PDF.
+// Thêm dòng mới ở đây = đã đọc giấy phép của nguồn đó, không phải "tải được".
+export const OPEN_LICENSE_SOURCES = Object.freeze({
+  arXiv: Object.freeze({
+    license: 'arXiv (abstract)', licenseUrl: 'https://arxiv.org/help/license',
+    basis: 'open-research-abstract', images: false,
+  }),
+  'The Conversation': Object.freeze({
+    license: 'CC BY-ND 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-nd/4.0/',
+    basis: 'creative-commons', images: false,
+  }),
+  NASA: Object.freeze({
+    license: 'U.S. Government work — public domain', licenseUrl: 'https://www.usa.gov/government-works',
+    basis: 'us-federal-public-domain', images: true,
+  }),
+  'U.S. National Science Foundation': Object.freeze({
+    license: 'U.S. Government work — public domain', licenseUrl: 'https://www.usa.gov/government-works',
+    basis: 'us-federal-public-domain', images: false,
+  }),
+  'U.S. Department of Energy': Object.freeze({
+    license: 'U.S. Government work — public domain', licenseUrl: 'https://www.usa.gov/government-works',
+    basis: 'us-federal-public-domain', images: false,
+  }),
+});
+
+function contentAccessFor(provider, source) {
+  const open = OPEN_LICENSE_SOURCES[source];
+  if (open) {
     return {
-      mode: 'open-summary',
+      mode: 'open-license',
       fullTextInPortal: true,
-      rightsBasis: 'open-research-abstract',
+      rightsBasis: open.basis,
+      license: open.license,
+      licenseUrl: open.licenseUrl,
     };
   }
   if (['publisher-rss', 'publisher-json'].includes(provider)) {
@@ -252,7 +292,8 @@ function normalizeArticle(article, defaults = {}) {
   const title = cleanText(article.title);
   if (!url || !title) return null;
   const provider = defaults.provider || article.provider || 'api';
-  const access = contentAccessFor(provider);
+  const source = cleanText(article.source || defaults.source || 'News').slice(0, 80);
+  const access = contentAccessFor(provider, source);
   // RSS/API descriptions are publisher-supplied syndication fields. Preserve
   // them as completely as practical; the limit is a payload-safety ceiling,
   // not an invented copyright word count. Full article text remains gated by
@@ -262,7 +303,7 @@ function normalizeArticle(article, defaults = {}) {
     id: '',
     title: title.slice(0, 240),
     description: cleanText(article.description).slice(0, descriptionLimit),
-    source: cleanText(article.source || defaults.source || 'News').slice(0, 80),
+    source,
     author: cleanText(article.author).slice(0, 100),
     category: article.category || defaults.category || 'academic',
     url,
@@ -458,12 +499,18 @@ export const PUBLISHER_FEEDS = Object.freeze({
     ],
   },
   // English trong bộ ngôn ngữ hiện tại là en-US, nên chỉ dùng toà soạn Mỹ.
+  // The Conversation (CC BY-ND) và các cơ quan liên bang Mỹ (phạm vi công cộng)
+  // là những nguồn portal được đọc TRỌN BÀI — xem OPEN_LICENSE_SOURCES.
   en: {
     academic: [
+      ['The Conversation', 'https://theconversation.com/us/articles.atom'],
+      ['U.S. National Science Foundation', 'https://www.nsf.gov/rss/rss_www_news.xml'],
       ['NPR', 'https://feeds.npr.org/1013/rss.xml'],
       ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Education.xml'],
     ],
     technology: [
+      ['NASA', 'https://www.nasa.gov/news-release/feed/'],
+      ['U.S. Department of Energy', 'https://www.energy.gov/rss/articles.xml'],
       ['NPR', 'https://feeds.npr.org/1019/rss.xml'],
       ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml'],
       ['The New York Times', 'https://rss.nytimes.com/services/xml/rss/nyt/Science.xml'],
@@ -480,6 +527,8 @@ export const PUBLISHER_FEEDS = Object.freeze({
       ['Catholic News Agency', 'https://www.catholicnewsagency.com/rss/news.xml'],
     ],
     all: [
+      ['The Conversation', 'https://theconversation.com/us/articles.atom'],
+      ['NASA', 'https://www.nasa.gov/news-release/feed/'],
       ['NPR', 'https://feeds.npr.org/1001/rss.xml'],
       ['NPR', 'https://feeds.npr.org/1013/rss.xml'],
       ['NPR', 'https://feeds.npr.org/1019/rss.xml'],
@@ -532,16 +581,24 @@ export const PUBLISHER_FEEDS = Object.freeze({
     ],
   },
   id: {
-    academic: [['ANTARA', 'https://www.antaranews.com/rss/humaniora.xml']],
+    academic: [
+      ['The Conversation', 'https://theconversation.com/id/articles.atom'],
+      ['ANTARA', 'https://www.antaranews.com/rss/humaniora.xml'],
+    ],
     technology: [['ANTARA', 'https://www.antaranews.com/rss/tekno.xml']],
     world: [['ANTARA', 'https://www.antaranews.com/rss/dunia.xml']],
     all: [
+      ['The Conversation', 'https://theconversation.com/id/articles.atom'],
       ['ANTARA', 'https://www.antaranews.com/rss/terkini.xml'],
       ['ANTARA', 'https://www.antaranews.com/rss/top-news.xml'],
     ],
   },
   es: {
+    academic: [
+      ['The Conversation', 'https://theconversation.com/es/articles.atom'],
+    ],
     technology: [
+      ['The Conversation', 'https://theconversation.com/es/articles.atom'],
       ['RTVE', 'https://www.rtve.es/api/noticias/ciencia-tecnologia.xml'],
     ],
     community: [
@@ -551,15 +608,25 @@ export const PUBLISHER_FEEDS = Object.freeze({
       ['RTVE', 'https://www.rtve.es/api/noticias/mundo.xml'],
     ],
     all: [
+      ['The Conversation', 'https://theconversation.com/es/articles.atom'],
       ['RTVE', 'https://www.rtve.es/api/noticias.xml'],
       ['El País', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada'],
     ],
   },
+  // Pháp là nơi chặt nhất châu Âu (quyền lân cận cho nhà xuất bản báo chí,
+  // CPI L.218) — nên toàn văn ở đây chỉ có nhờ giấy phép CC của The Conversation.
   fr: {
-    academic: [['Le Monde', 'https://www.lemonde.fr/education/rss_full.xml']],
-    technology: [['Le Monde', 'https://www.lemonde.fr/pixels/rss_full.xml']],
+    academic: [
+      ['The Conversation', 'https://theconversation.com/fr/articles.atom'],
+      ['Le Monde', 'https://www.lemonde.fr/education/rss_full.xml'],
+    ],
+    technology: [
+      ['The Conversation', 'https://theconversation.com/fr/articles.atom'],
+      ['Le Monde', 'https://www.lemonde.fr/pixels/rss_full.xml'],
+    ],
     world: [['Le Monde', 'https://www.lemonde.fr/international/rss_full.xml']],
     all: [
+      ['The Conversation', 'https://theconversation.com/fr/articles.atom'],
       ['France 24', 'https://www.france24.com/fr/rss'],
       ['Le Monde', 'https://www.lemonde.fr/rss/une.xml'],
     ],
@@ -596,23 +663,28 @@ export class PublisherRssProvider extends NewsProvider {
     });
     if (!response.ok) throw new Error(`${source} RSS returned ${response.status}`);
     const xml = await response.text();
-    return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]
+    // RSS dùng <item>, Atom dùng <entry> (The Conversation phát Atom). Khác biệt
+    // duy nhất còn lại là tên thẻ và chỗ đặt link — gom vào `read`/`link` bên dưới.
+    return [...xml.matchAll(/<(item|entry)\b[^>]*>([\s\S]*?)<\/\1>/g)]
       .slice(0, limit)
-      .map((itemMatch) => {
-        const item = itemMatch[1];
+      .map(([, , item]) => {
         const read = (tag) => item.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`))?.[1] || '';
-        const rawDescription = read('description');
+        const rawDescription = read('description') || read('content') || read('summary');
         return normalizeArticle({
           title: read('title'),
           description: rawDescription,
           source,
-          author: read('dc:creator') || read('author'),
+          author: read('dc:creator') || read('name') || read('author'),
           category,
-          url: read('link'),
+          // Atom để link ở thuộc tính href; rel="alternate" là trang bài, các rel
+          // khác là self/edit/replies nên không được lấy nhầm.
+          url: read('link')
+            || item.match(/<link\b[^>]*rel=["']alternate["'][^>]*href=["']([^"']+)["']/i)?.[1]
+            || item.match(/<link\b[^>]*href=["']([^"']+)["']/i)?.[1] || '',
           imageUrl: item.match(/<(?:enclosure|media:content|media:thumbnail)[^>]+url=["']([^"']+)["']/i)?.[1]
             || rawDescription.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]
             || '',
-          publishedAt: read('pubDate'),
+          publishedAt: read('pubDate') || read('published') || read('updated'),
         }, { provider: this.name });
       })
       .filter(Boolean);
@@ -839,14 +911,7 @@ export class ArxivProvider extends NewsProvider {
 }
 
 // ── Trình đọc: lấy toàn văn + tóm tắt để đọc ngay trong portal ─────────────
-// Nguồn được phép dựng nội dung trong portal. CHỈ có arXiv, và chỉ vì `url` của
-// arXiv là trang /abs — thứ bóc được ở đó là phần tóm tắt (abstract) mà arXiv
-// phát công khai, không phải toàn văn bài báo. ĐỪNG trỏ sang link PDF: giấy
-// phép mặc định của arXiv chỉ cho phép arXiv phân phối bài, không cấp quyền
-// đăng lại cho bên thứ ba. Mọi toà soạn khác: sapo + link bài gốc — xem
-// readArticle().
-const FULL_TEXT_SOURCES = new Set(['arXiv']);
-
+// Danh sách nguồn mở nằm ở OPEN_LICENSE_SOURCES phía trên.
 const READER_TTL_MS = 6 * 60 * 60 * 1000;   // bài báo không đổi trong ngày
 const READER_TIMEOUT_MS = 7000;
 const READER_MAX_HTML = 900_000;            // chặn trang khổng lồ ăn băng thông Render
@@ -966,6 +1031,96 @@ function splitSentences(text = '', max = 3) {
     .slice(0, max);
 }
 
+const READER_UA = 'HugoWishpaxStudentPortal/1.0 (reader)';
+
+// Tải trang bài và bóc thành block. Trả [] cho mọi thất bại (chặn bot, timeout,
+// trang render bằng JS) — không có nhánh nào ném ra ngoài.
+async function fetchArticleBlocks(url) {
+  try {
+    const response = await fetch(url, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(READER_TIMEOUT_MS),
+      headers: { 'User-Agent': READER_UA, Accept: 'text/html' },
+    });
+    if (!response.ok) return [];
+    // response.url = URL sau redirect: ảnh tương đối phải nối vào đó mới đúng.
+    return extractBlocks((await response.text()).slice(0, READER_MAX_HTML), response.url);
+  } catch {
+    return [];
+  }
+}
+
+const blocksToText = (blocks = []) => blocks
+  .filter((block) => block.type === 'text')
+  .map((block) => block.text)
+  .join('\n');
+
+function cacheRead(cache, key) {
+  const entry = cache.get(key);
+  return entry && entry.expiresAt > Date.now() ? entry.value : null;
+}
+
+function cacheWrite(cache, key, value, ttl = READER_TTL_MS, max = 120) {
+  cache.set(key, { value, expiresAt: Date.now() + ttl });
+  if (cache.size > max) {
+    for (const [entryKey, entry] of cache) {
+      if (entry.expiresAt <= Date.now()) cache.delete(entryKey);
+    }
+    while (cache.size > max) cache.delete(cache.keys().next().value);
+  }
+  return value;
+}
+
+// ── Tóm tắt dài ────────────────────────────────────────────────────────────
+// Toàn văn vẫn thuộc về toà soạn nên portal không dựng lại nó (xem readArticle).
+// Nhưng SỰ KIỆN trong bài — ai, ở đâu, con số nào — là dữ kiện, không phải thứ
+// luật bản quyền bảo hộ; cái được bảo hộ là hình thức thể hiện. Nên bản tóm tắt
+// này do AI viết lại bằng câu chữ mới, và văn bản gốc chỉ tồn tại trong RAM của
+// server trong đúng lượt gọi này — không bao giờ đi xuống client.
+const SUMMARY_LANGUAGE_NAMES = Object.freeze({
+  vi: 'Vietnamese', en: 'English', zh: 'Simplified Chinese', th: 'Thai', ja: 'Japanese',
+  ko: 'Korean', id: 'Indonesian', es: 'Spanish', fr: 'French',
+});
+const SUMMARY_INPUT_CHARS = 12_000;   // đủ cho một phóng sự dài, vẫn rẻ token
+const SUMMARY_MIN_BODY = 400;         // ngắn hơn thì sapo của toà soạn đã đủ
+const SUMMARY_MAX_POINTS = 7;
+
+function summaryPrompt(article, body, language) {
+  return [
+    `Bạn là biên tập viên bản tin cho cổng học sinh Hugo Studio. Dưới đây là một bài báo của ${article.source}.`,
+    'Người đọc KHÔNG mở được toàn văn trong portal, nên bản tóm tắt phải đủ để họ nắm trọn câu chuyện.',
+    '',
+    'YÊU CẦU:',
+    `- Viết bằng ${SUMMARY_LANGUAGE_NAMES[language] || 'English'}.`,
+    '- 5 đến 7 gạch đầu dòng, mỗi dòng 2–3 câu hoàn chỉnh (tổng khoảng 250–400 từ).',
+    '- Dòng đầu: chuyện gì xảy ra, ai liên quan, khi nào, ở đâu.',
+    '- Các dòng sau: số liệu và mốc thời gian cụ thể, diễn biến chính, phát biểu quan trọng (diễn đạt lại, không trích nguyên văn), bối cảnh, và ý nghĩa với học sinh — sinh viên.',
+    '- DIỄN ĐẠT LẠI bằng lời của bạn. Không chép quá 10 từ liên tiếp của bài gốc.',
+    '- Chỉ dùng thông tin có trong bài. Không suy đoán, không thêm dữ kiện bên ngoài.',
+    '- Trả về đúng các dòng bắt đầu bằng "- ". Không tiêu đề, không lời dẫn, không kết luận thừa.',
+    '',
+    `TIÊU ĐỀ: ${article.title}`,
+    'NỘI DUNG:',
+    body.slice(0, SUMMARY_INPUT_CHARS),
+  ].join('\n');
+}
+
+async function aiSummaryPoints(article, body, language) {
+  if (!body || body.length < SUMMARY_MIN_BODY) return [];
+  const text = await generateRaw({
+    contents: [{ role: 'user', parts: [{ text: summaryPrompt(article, body, language) }] }],
+    generationConfig: { temperature: 0.3 },
+    cacheKey: `today:summary:${language}:${article.id}`,
+    cacheTtlMs: READER_TTL_MS,
+  });
+  return String(text || '')
+    .split('\n')
+    .map((line) => line.replace(/^\s*(?:[-*•–—]|\d+[.)])\s*/, '').trim())
+    // Dưới 40 ký tự là dòng rác của model ("Tóm tắt:", "Bối cảnh"), không phải ý.
+    .filter((line) => line.length >= 40)
+    .slice(0, SUMMARY_MAX_POINTS);
+}
+
 export class StudentNewsService {
   constructor(providers = [
     new GNewsProvider(),
@@ -1008,65 +1163,59 @@ export class StudentNewsService {
   }
 
   async readArticle(article) {
-    // Chỉ dựng lại toàn văn với nguồn TRUY CẬP MỞ. RSS của toà soạn chỉ cấp
+    // Chỉ dựng lại toàn văn với nguồn CÓ GIẤY PHÉP. RSS của toà soạn chỉ cấp
     // tiêu đề + sapo + link; dựng lại cả bài trong portal là sao chép và truyền
     // đạt tác phẩm (Điều 20 Luật SHTT), đồng thời cắt mất quảng cáo của họ.
-    // Muốn thêm nguồn vào danh sách này thì phải có giấy phép của toà soạn —
-    // đọc được không có nghĩa là được phép đăng lại.
-    if (!FULL_TEXT_SOURCES.has(article.source) || article.contentAccess?.fullTextInPortal === false) {
+    // Thêm nguồn = đọc giấy phép của nguồn đó — tải được không phải là được phép.
+    const open = OPEN_LICENSE_SOURCES[article.source];
+    if (!open || article.contentAccess?.fullTextInPortal === false) {
       return {
         blocks: [],
         readMinutes: 0,
         available: false,
-        policy: article.contentAccess || contentAccessFor(article.provider),
+        policy: article.contentAccess || contentAccessFor(article.provider, article.source),
       };
     }
 
-    const cached = this.readerCache.get(article.id);
-    if (cached && cached.expiresAt > Date.now()) return cached.value;
+    const cached = cacheRead(this.readerCache, article.id);
+    if (cached) return cached;
 
-    let blocks = [];
-    try {
-      const response = await fetch(article.url, {
-        redirect: 'follow',
-        signal: AbortSignal.timeout(READER_TIMEOUT_MS),
-        headers: { 'User-Agent': 'HugoWishpaxStudentPortal/1.0 (reader)', Accept: 'text/html' },
-      });
-      if (response.ok) {
-        // response.url = URL sau redirect: ảnh tương đối phải nối vào đó mới đúng.
-        blocks = extractBlocks((await response.text()).slice(0, READER_MAX_HTML), response.url);
-      }
-    } catch {
-      // Nguồn chặn bot / quá chậm: vẫn trả tóm tắt, người đọc bấm sang bài gốc.
-    }
-
-    const paragraphs = blocks.filter((block) => block.type === 'text').map((block) => block.text);
-    const words = paragraphs.join(' ').split(/\s+/).filter(Boolean).length;
-    const value = {
+    // Nguồn chặn bot / quá chậm: blocks rỗng, người đọc bấm sang bài gốc.
+    const fetched = await fetchArticleBlocks(article.url);
+    // Ảnh trong bài thường thuộc bên thứ ba (AFP, Getty, tác giả ảnh) và KHÔNG
+    // đi kèm giấy phép của phần chữ — The Conversation nói rõ điều này. Nguồn
+    // nào không ghi `images: true` thì chỉ lấy chữ.
+    const blocks = open.images ? fetched : fetched.filter((block) => block.type === 'text');
+    const words = blocksToText(blocks).split(/\s+/).filter(Boolean).length;
+    return cacheWrite(this.readerCache, article.id, {
       blocks,
       readMinutes: words ? Math.max(1, Math.round(words / 200)) : 0,
-      available: paragraphs.length > 0,
-    };
-    this.readerCache.set(article.id, { value, expiresAt: Date.now() + READER_TTL_MS });
-    if (this.readerCache.size > 120) {
-      for (const [key, entry] of this.readerCache) {
-        if (entry.expiresAt <= Date.now()) this.readerCache.delete(key);
-      }
-    }
-    return value;
+      available: blocks.some((block) => block.type === 'text'),
+      license: open.license,
+      licenseUrl: open.licenseUrl,
+    });
   }
 
-  // ponytail: KHÔNG gọi AI ở đây. Mọi nguồn RSS đều đã kèm sapo do chính toà
-  // soạn viết — dùng lại `article.description` là đủ tóm tắt và tốn 0 token.
-  // Chỉ khi nào sapo rỗng mới lấy tạm 2 câu đầu của bài.
-  summarizeArticle(article, content) {
-    const points = article.description
-      ? [article.description]
-      : splitSentences(
-        content.blocks.filter((block) => block.type === 'text').map((block) => block.text).join(' '),
-        2,
-      );
-    return { points, by: 'source' };
+  // Sapo của toà soạn dài 180–320 ký tự — quá mỏng khi người đọc KHÔNG xem được
+  // toàn văn trong portal. Nên tóm tắt bằng AI: đọc bài ở phía server, viết lại
+  // 5–7 ý bằng lời khác. Bài gốc không được lưu và không đi xuống client; hỏng
+  // ở bất kỳ khâu nào (chặn bot, hết quota, không có key) thì rơi về sapo cũ.
+  async summarizeArticle(article, content, language = article.language || 'en') {
+    const cacheKey = `summary:${language}:${article.id}`;
+    const cached = cacheRead(this.readerCache, cacheKey);
+    if (cached) return cached;
+
+    const body = content.available
+      ? blocksToText(content.blocks)
+      : blocksToText(await fetchArticleBlocks(article.url));
+    const points = await aiSummaryPoints(article, body, language);
+    if (points.length) {
+      return cacheWrite(this.readerCache, cacheKey, { points, by: 'ai' });
+    }
+    return {
+      points: article.description ? [article.description] : splitSentences(body, 2),
+      by: 'source',
+    };
   }
 
   async getFeed({

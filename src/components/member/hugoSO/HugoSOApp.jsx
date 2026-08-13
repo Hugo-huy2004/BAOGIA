@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import BackButton from "../shared/BackButton";
 import { useJoyStore } from "../../../stores/joyStore";
 import {
@@ -347,6 +348,7 @@ function PurchaseSheet({ target, access, onClose, onConfirm, buying }) {
 }
 
 export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initialCourseId = null, unifiedHome = false }) {
+  const { t } = useTranslation();
   const walletBalance = useJoyStore((state) => state.balance);
   const setWalletBalance = useJoyStore((state) => state.setBalance);
   const [view, setView] = useState(() => (
@@ -533,11 +535,11 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               <span className="material-symbols-outlined hso-class-card__arrow">chevron_right</span>
             </button>
             <footer>
-              <span>{course.steps.length} bài · {course.duration}</span>
+              <span>{course.steps.length} {t("utilities.hugoso.bai")} {course.duration}</span>
               {progress.completed > 0 ? (
                 <span className="hso-class-card__progress"><i><b style={{ width: `${progress.percent}%` }} /></i>{progress.percent}%</span>
               ) : courseOwned ? (
-                <strong>Đã mở khóa</strong>
+                <strong>{t("utilities.hugoso.daMoKhoa")}</strong>
               ) : (
                 <strong>{course.priceJoy} JOY</strong>
               )}
@@ -562,13 +564,13 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
       <div className="hso-classroom">
         <header className="hso-classroom__welcome">
           <div>
-            <span>STUDY WITH HUGO · NĂNG SUẤT SỐ VÀ AI</span>
-            <h1>Xin chào, {firstName}!</h1>
-            <p>Hôm nay mình cùng hoàn thành một kỹ năng thật nhé.</p>
+            <span>{t("utilities.hugoso.studyWithHugoNang")}</span>
+            <h1>{t("utilities.hugoso.xinChao")} {firstName}!</h1>
+            <p>{t("utilities.hugoso.homNayMinhCung")}</p>
           </div>
           <div className="hso-learner-badge" aria-label={`${overallPercent}% toàn bộ lộ trình`}>
             <ProgressRing percent={overallPercent} />
-            <span><b>{completedCount}</b>/{totalSteps}<small>bài đạt</small></span>
+            <span><b>{completedCount}</b>/{totalSteps}<small>{t("utilities.hugoso.baiDat")}</small></span>
           </div>
         </header>
 
@@ -576,16 +578,16 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
           <>
             <section className="hso-active-class">
               <div className="hso-active-class__copy">
-                <span className="hso-active-class__eyebrow"><i /> BÀI TIẾP THEO · {focusLesson.step.duration}</span>
+                <span className="hso-active-class__eyebrow"><i /> {t("utilities.hugoso.baiTiepTheo")} {focusLesson.step.duration}</span>
                 <h2>{focusLesson.step.title}</h2>
                 <p>{focusLesson.step.summary}</p>
                 <div className="hso-active-class__progress">
-                  <span><b>{focusLesson.course.shortTitle}</b><small>{focusProgress.completed}/{focusLesson.course.steps.length} bài hoàn thành</small></span>
+                  <span><b>{focusLesson.course.shortTitle}</b><small>{focusProgress.completed}/{focusLesson.course.steps.length} {t("utilities.hugoso.baiHoanThanh")}</small></span>
                   <i><b style={{ width: `${focusProgress.percent}%` }} /></i>
                 </div>
                 <button type="button" onClick={() => openStep(focusLesson.course.id, focusLesson.step.id)}>
                   <span className="material-symbols-outlined">play_arrow</span>
-                  {completedCount ? "Tiếp tục học" : "Bắt đầu bài miễn phí"}
+                  {completedCount ? t("utilities.hugoso.tiepTucHoc") : t("utilities.hugoso.batDauBaiMien")}
                 </button>
               </div>
               <div className="hso-active-class__phone" aria-hidden="true">
@@ -603,8 +605,8 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
 
             <section className="hso-dashboard-section">
               <div className="hso-dashboard-heading">
-                <div><span>OFFICE LAB</span><h2>Làm ngay trên công cụ thật</h2></div>
-                <button type="button" onClick={() => setHomeTab("lab")}>Xem tất cả</button>
+                <div><span>OFFICE LAB</span><h2>{t("utilities.hugoso.lamNgayTrenCong")}</h2></div>
+                <button type="button" onClick={() => setHomeTab("lab")}>{t("utilities.hugoso.xemTatCa")}</button>
               </div>
               <div className="hso-tool-strip">
                 {courses.map((course) => {
@@ -623,8 +625,8 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
 
             <section className="hso-dashboard-section">
               <div className="hso-dashboard-heading">
-                <div><span>LỚP HỌC CỦA BẠN</span><h2>Học theo kết quả cần đạt</h2></div>
-                <button type="button" onClick={() => setHomeTab("courses")}>Tất cả khóa học</button>
+                <div><span>{t("utilities.hugoso.lopHocCuaBan")}</span><h2>{t("utilities.hugoso.hocTheoKetQua")}</h2></div>
+                <button type="button" onClick={() => setHomeTab("courses")}>{t("utilities.hugoso.tatCaKhoaHoc")}</button>
               </div>
               {renderCourseCards()}
             </section>
@@ -634,9 +636,9 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
         {homeTab === "courses" && (
           <>
             <section className="hso-page-intro">
-              <span>4 LỘ TRÌNH THỰC CHIẾN</span>
-              <h2>Kỹ năng dùng được ngay,<br />không học chỉ để xem.</h2>
-              <p>Mỗi khóa gồm video theo tình huống, bài làm trên công cụ thật và kiểm tra bắt buộc.</p>
+              <span>{t("utilities.hugoso.4LoTrinhThuc")}</span>
+              <h2>{t("utilities.hugoso.kyNangDungDuoc")}<br />{t("utilities.hugoso.khongHocChiDe")}</h2>
+              <p>{t("utilities.hugoso.moiKhoaGomVideo")}</p>
             </section>
             {renderCourseCards()}
             {!courses.every((course) => isOwned(course.id)) && (
@@ -644,13 +646,13 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                 <div className="hso-bundle__seal"><span>4</span><small>CLASSES</small></div>
                 <div>
                   <p className="hso-kicker">OFFICE READY BUNDLE</p>
-                  <h2>Một lộ trình cho toàn bộ công việc</h2>
-                  <p>Calendar → Docs → Sheets → Gemini, tiết kiệm {HUGOSO_BUNDLE.saving} JOY so với mua lẻ.</p>
+                  <h2>{t("utilities.hugoso.motLoTrinhCho")}</h2>
+                  <p>{t("utilities.hugoso.calendarDocsSheetsGemini")} {HUGOSO_BUNDLE.saving} {t("utilities.hugoso.joySoVoiMua")}</p>
                 </div>
                 <div className="hso-bundle__action">
                   <small><s>{HUGOSO_BUNDLE.regularJoy.toLocaleString("vi-VN")} JOY</s></small>
                   <strong>{HUGOSO_BUNDLE.priceJoy.toLocaleString("vi-VN")} JOY</strong>
-                  <button type="button" onClick={() => setPurchaseTarget("bundle")}>Mở trọn bộ</button>
+                  <button type="button" onClick={() => setPurchaseTarget("bundle")}>{t("utilities.hugoso.moTronBo")}</button>
                 </div>
               </section>
             )}
@@ -661,8 +663,8 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
           <>
             <section className="hso-page-intro">
               <span>OFFICE LAB</span>
-              <h2>Từ bài học sang sản phẩm thật.</h2>
-              <p>Mở ứng dụng Google trong tab mới, làm theo checklist rồi quay lại Study with Hugo để nộp kết quả.</p>
+              <h2>{t("utilities.hugoso.tuBaiHocSang")}</h2>
+              <p>{t("utilities.hugoso.moUngDungGoogle")}</p>
             </section>
             <section className="hso-lab-grid">
               {courses.map((course) => {
@@ -677,9 +679,9 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                     <h3>{tool.template}</h3>
                     <p>{course.outcome}</p>
                     <ol>
-                      <li><span>1</span>Mở không gian làm việc mới</li>
-                      <li><span>2</span>Áp dụng checklist trong bài học</li>
-                      <li><span>3</span>Quay lại nộp phần mô tả kết quả</li>
+                      <li><span>1</span>{t("utilities.hugoso.moKhongGianLam")}</li>
+                      <li><span>2</span>{t("utilities.hugoso.apDungChecklistTrong")}</li>
+                      <li><span>3</span>{t("utilities.hugoso.quayLaiNopPhan")}</li>
                     </ol>
                     <a href={tool.href} target="_blank" rel="noreferrer">
                       {tool.action}<span className="material-symbols-outlined">north_east</span>
@@ -696,9 +698,9 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
             <section className="hso-progress-hero">
               <ProgressRing percent={overallPercent} />
               <div>
-                <span>HỒ SƠ KỸ NĂNG</span>
-                <h2>{overallPercent ? `Bạn đã hoàn thành ${overallPercent}%` : "Hành trình bắt đầu từ một bài thực hành"}</h2>
-                <p>{completedCount}/{totalSteps} bài đã đạt · Tiến độ được đồng bộ theo tài khoản.</p>
+                <span>{t("utilities.hugoso.hoSoKyNang")}</span>
+                <h2>{overallPercent ? `Bạn đã hoàn thành ${overallPercent}%` : t("utilities.hugoso.hanhTrinhBatDau")}</h2>
+                <p>{completedCount}/{totalSteps} {t("utilities.hugoso.baiDaDatTien")}</p>
               </div>
             </section>
             <section className="hso-progress-list">
@@ -707,30 +709,29 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                 return (
                   <button type="button" key={course.id} onClick={() => openCourse(course.id)} style={{ "--course": course.color, "--course-soft": course.soft }}>
                     <ProductMark course={course} />
-                    <span><small>{course.shortTitle}</small><strong>{progress.completed}/{course.steps.length} bài đạt</strong><i><b style={{ width: `${progress.percent}%` }} /></i></span>
+                    <span><small>{course.shortTitle}</small><strong>{progress.completed}/{course.steps.length} {t("utilities.hugoso.baiDat")}</strong><i><b style={{ width: `${progress.percent}%` }} /></i></span>
                     <em>{progress.percent}%</em>
                   </button>
                 );
               })}
             </section>
-            <p className="hso-verified-note"><span className="material-symbols-outlined">verified</span>Nội dung đã đối chiếu tài liệu chính thức Google ngày {VERIFIED_AT}.</p>
+            <p className="hso-verified-note"><span className="material-symbols-outlined">verified</span>{t("utilities.hugoso.noiDungDaDoi")} {VERIFIED_AT}.</p>
             {/* Bắt buộc giữ: khoá học có thu phí và nhắc tên sản phẩm của Google.
                 Nêu tên để hướng dẫn sử dụng là hợp lệ, nhưng phải nói rõ không
                 có quan hệ liên kết, nếu không sẽ bị hiểu là được Google bảo trợ. */}
             <p className="hso-verified-note">
               <span className="material-symbols-outlined">info</span>
-              Google, Google Calendar, Docs, Sheets và Gemini là nhãn hiệu của Google LLC.
-              Study with Hugo là hệ thống học độc lập, không liên kết với và không được Google bảo trợ hay chứng thực.
+              {t("utilities.hugoso.googleGoogleCalendarDocs")}
             </p>
           </>
         )}
 
-        <nav className="hso-classroom-nav" aria-label="Điều hướng Study with Hugo">
+        <nav className="hso-classroom-nav" aria-label={t("utilities.hugoso.dieuHuongStudyWith")}>
           {[
-            ["today", "home", "Hôm nay"],
-            ["courses", "school", "Khóa học"],
-            ["lab", "construction", "Thực hành"],
-            ["progress", "donut_large", "Tiến độ"],
+            ["today", "home", t("utilities.hugoso.homNay")],
+            ["courses", "school", t("utilities.hugoso.khoaHoc")],
+            ["lab", "construction", t("utilities.hugoso.thucHanh")],
+            ["progress", "donut_large", t("utilities.hugoso.tienDo")],
           ].map(([id, icon, label]) => (
             <button type="button" key={id} className={homeTab === id ? "is-active" : ""} onClick={() => setHomeTab(id)}>
               <span className="material-symbols-outlined">{icon}</span>
@@ -750,7 +751,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
       <>
         <section className="hso-course-hero" style={{ "--course": course.color, "--course-soft": course.soft }}>
           <button type="button" className="hso-inline-back" onClick={unifiedHome ? onBack : () => setView({ name: "home" })}>
-            <span className="material-symbols-outlined">arrow_back</span> Tất cả khóa học
+            <span className="material-symbols-outlined">arrow_back</span> {t("utilities.hugoso.tatCaKhoaHoc")}
           </button>
           <div className="hso-course-hero__body">
             <ProductMark course={course} size="hero" />
@@ -759,16 +760,16 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               <h1>{course.title}</h1>
               <p>{course.outcome}</p>
               <div className="hso-course-hero__tags">
-                <span>{course.level}</span><span>{course.duration}</span><span>{course.steps.length} bài đánh giá</span>
+                <span>{course.level}</span><span>{course.duration}</span><span>{course.steps.length} {t("utilities.hugoso.baiDanhGia")}</span>
               </div>
             </div>
             <ProgressRing percent={progress.percent} />
           </div>
           {!courseOwned && (
             <div className="hso-course-hero__offer">
-              <span>Bài đầu tiên miễn phí</span>
+              <span>{t("utilities.hugoso.baiDauTienMien")}</span>
               <button type="button" onClick={() => setPurchaseTarget(course.id)}>
-                Mở khóa trọn đời · {course.priceJoy} JOY
+                {t("utilities.hugoso.moKhoaTronDoi")} {course.priceJoy} JOY
               </button>
             </div>
           )}
@@ -777,32 +778,32 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
         <section className="hso-course-value-grid">
           <article>
             <span className="material-symbols-outlined">flag</span>
-            <small>SẢN PHẨM CUỐI KHÓA</small>
+            <small>{t("utilities.hugoso.sanPhamCuoiKhoa")}</small>
             <strong>{course.outcome}</strong>
           </article>
           <article>
             <span className="material-symbols-outlined">touch_app</span>
-            <small>PHƯƠNG PHÁP</small>
-            <strong>Xem demo · Làm trên công cụ thật · Nộp skill check</strong>
+            <small>{t("utilities.hugoso.phuongPhap")}</small>
+            <strong>{t("utilities.hugoso.xemDemoLamTren")}</strong>
           </article>
           <article>
             <span className="material-symbols-outlined">verified</span>
-            <small>NỘI DUNG</small>
-            <strong>Đối chiếu hướng dẫn chính thức Google ngày {VERIFIED_AT}</strong>
+            <small>{t("utilities.hugoso.noiDung")}</small>
+            <strong>{t("utilities.hugoso.doiChieuHuongDan")} {VERIFIED_AT}</strong>
           </article>
           <article>
             <span className="material-symbols-outlined">fact_check</span>
-            <small>KIỂM ĐỊNH ĐỒNG BỘ</small>
-            <strong>{HUGOSO_CONTENT_AUDIT.passed}/{HUGOSO_CONTENT_AUDIT.total} bài khớp video, nội dung, thực hành và đánh giá</strong>
+            <small>{t("utilities.hugoso.kiemDinhDongBo")}</small>
+            <strong>{HUGOSO_CONTENT_AUDIT.passed}/{HUGOSO_CONTENT_AUDIT.total} {t("utilities.hugoso.baiKhopVideoNoi")}</strong>
           </article>
         </section>
 
         <section className="hso-syllabus">
           <div className="hso-section-heading">
-            <div><p className="hso-kicker">STEP BY STEP</p><h2>Giáo trình và bài thực hành</h2></div>
+            <div><p className="hso-kicker">STEP BY STEP</p><h2>{t("utilities.hugoso.giaoTrinhVaBai")}</h2></div>
             <a href={course.sourceUrl} target="_blank" rel="noreferrer">
               <span className="material-symbols-outlined">verified</span>
-              Nguồn chính thức Google
+              {t("utilities.hugoso.nguonChinhThucGoogle")}
             </a>
           </div>
           <div className="hso-step-list">
@@ -823,7 +824,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                       : String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="hso-step-row__copy">
-                    <small>{step.stage.toLocaleUpperCase("vi-VN")} · BƯỚC {index + 1} {step.free ? "· HỌC THỬ" : ""}</small>
+                    <small>{step.stage.toLocaleUpperCase("vi-VN")} {t("utilities.hugoso.buoc")} {index + 1} {step.free ? t("utilities.hugoso.hocThu") : ""}</small>
                     <strong>{step.title}</strong>
                     <span>{step.summary}</span>
                   </span>
@@ -853,14 +854,14 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
         <nav className="hso-lesson__nav">
           <button type="button" onClick={() => openCourse(course.id)}>
             <span className="material-symbols-outlined">arrow_back</span>
-            Giáo trình
+            {t("utilities.hugoso.giaoTrinh")}
           </button>
-          <span>Bước {index + 1}/{course.steps.length}</span>
+          <span>{t("utilities.hugoso.buoc2")} {index + 1}/{course.steps.length}</span>
           <strong style={{ color: course.color }}>{course.shortTitle}</strong>
         </nav>
 
         <header className="hso-lesson__header">
-          <p className="hso-kicker">{lesson.stage.toLocaleUpperCase("vi-VN")} · BƯỚC {String(index + 1).padStart(2, "0")} · {lesson.duration}</p>
+          <p className="hso-kicker">{lesson.stage.toLocaleUpperCase("vi-VN")} {t("utilities.hugoso.buoc")} {String(index + 1).padStart(2, "0")} · {lesson.duration}</p>
           <h1>{lesson.title}</h1>
           <p>{lesson.summary}</p>
         </header>
@@ -868,14 +869,14 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
         <section className="hso-lesson-contract" style={{ "--course": course.color, "--course-soft": course.soft }}>
           <div className="hso-lesson-contract__mission">
             <span className="material-symbols-outlined">flag</span>
-            <div><small>NHIỆM VỤ BÀI HỌC</small><strong>{lesson.mission}</strong></div>
+            <div><small>{t("utilities.hugoso.nhiemVuBaiHoc")}</small><strong>{lesson.mission}</strong></div>
           </div>
-          <div className="hso-lesson-contract__flow" aria-label="Bốn phần đồng bộ của bài học">
+          <div className="hso-lesson-contract__flow" aria-label={t("utilities.hugoso.bonPhanDongBo")}>
             {[
               ["01", "smart_display", "Xem", `${lesson.video.scenes.length} thao tác`],
-              ["02", "menu_book", "Hiểu", `${lesson.guide.length} bước chi tiết`],
-              ["03", "touch_app", "Làm", "Một sản phẩm thật"],
-              ["04", "quiz", "Kiểm tra", "Một câu hỏi liên kết"],
+              ["02", "menu_book", t("utilities.hugoso.hieu"), `${lesson.guide.length} bước chi tiết`],
+              ["03", "touch_app", t("utilities.hugoso.lam"), t("utilities.hugoso.motSanPhamThat")],
+              ["04", "quiz", t("utilities.hugoso.kiemTra"), t("utilities.hugoso.motCauHoiLien")],
             ].map(([number, icon, title, detail]) => (
               <article key={number}>
                 <span>{number}</span>
@@ -884,13 +885,13 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               </article>
             ))}
           </div>
-          <p><span className="material-symbols-outlined">inventory_2</span><strong>Sản phẩm cần nộp:</strong> {lesson.deliverable}</p>
+          <p><span className="material-symbols-outlined">inventory_2</span><strong>{t("utilities.hugoso.sanPhamCanNop")}</strong> {lesson.deliverable}</p>
         </section>
 
         <section className="hso-lesson-workbench" style={{ "--course": course.color, "--course-soft": course.soft }}>
           <div>
             <span className="material-symbols-outlined">{OFFICE_LAB[course.id].icon}</span>
-            <p><small>CHUẨN BỊ THỰC HÀNH</small><strong>Mở {course.shortTitle} cạnh bài học này</strong></p>
+            <p><small>{t("utilities.hugoso.chuanBiThucHanh")}</small><strong>{t("utilities.hugoso.mo")} {course.shortTitle} {t("utilities.hugoso.canhBaiHocNay")}</strong></p>
           </div>
           <a href={OFFICE_LAB[course.id].href} target="_blank" rel="noreferrer">
             {OFFICE_LAB[course.id].action}
@@ -904,17 +905,17 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
           <header>
             <span className="material-symbols-outlined">format_list_numbered</span>
             <div>
-              <p className="hso-kicker">HƯỚNG DẪN CHI TIẾT</p>
-              <h2>Làm lần lượt, không bỏ bước</h2>
+              <p className="hso-kicker">{t("utilities.hugoso.huongDanChiTiet")}</p>
+              <h2>{t("utilities.hugoso.lamLanLuotKhong")}</h2>
             </div>
             <a href={lesson.sourceUrl} target="_blank" rel="noreferrer">
-              Nguồn Google
+              {t("utilities.hugoso.nguonGoogle")}
               <span className="material-symbols-outlined">north_east</span>
             </a>
           </header>
           <aside>
             <span className="material-symbols-outlined">info</span>
-            <p><strong>Khả dụng tính năng</strong>{lesson.availability}</p>
+            <p><strong>{t("utilities.hugoso.khaDungTinhNang")}</strong>{lesson.availability}</p>
           </aside>
           <div className="hso-guide__steps">
             {lesson.guide.map((guideStep, guideIndex) => (
@@ -934,7 +935,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
         <section className="hso-learning-block">
           <div className="hso-learning-block__title">
             <span className="material-symbols-outlined">menu_book</span>
-            <div><p className="hso-kicker">NỘI DUNG TRỌNG TÂM</p><h2>Sau bước này bạn làm được gì?</h2></div>
+            <div><p className="hso-kicker">{t("utilities.hugoso.noiDungTrongTam")}</p><h2>{t("utilities.hugoso.sauBuocNayBan")}</h2></div>
           </div>
           <ol>
             {lesson.learn.map((item, itemIndex) => (
@@ -943,18 +944,18 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               </li>
             ))}
           </ol>
-          <aside><span className="material-symbols-outlined">lightbulb</span><div><strong>GỢI Ý HỌC TẬP</strong><p>{lesson.tip}</p></div></aside>
+          <aside><span className="material-symbols-outlined">lightbulb</span><div><strong>{t("utilities.hugoso.goiYHocTap")}</strong><p>{lesson.tip}</p></div></aside>
         </section>
 
         <section className="hso-assessment" style={{ "--course": course.color }}>
           <header>
             <span className="material-symbols-outlined">verified_user</span>
-            <div><p className="hso-kicker">SKILL CHECK</p><h2>Làm trước, kiểm tra sau</h2><p>Thực hiện đúng sản phẩm của bài rồi trả lời câu hỏi lấy từ chính hướng dẫn trên.</p></div>
+            <div><p className="hso-kicker">SKILL CHECK</p><h2>{t("utilities.hugoso.lamTruocKiemTra")}</h2><p>{t("utilities.hugoso.thucHienDungSan")}</p></div>
           </header>
 
           <div className="hso-check-part hso-check-part--quiz">
-            <span className="hso-check-part__label">02 · TRẮC NGHIỆM LIÊN KẾT</span>
-            <p className="hso-quiz-source"><span className="material-symbols-outlined">link</span>Kiểm tra kiến thức ở bước {lesson.quiz.guideIndex + 1}: <strong>{lesson.quiz.guideHeading}</strong></p>
+            <span className="hso-check-part__label">{t("utilities.hugoso.02TracNghiemLien")}</span>
+            <p className="hso-quiz-source"><span className="material-symbols-outlined">link</span>{t("utilities.hugoso.kiemTraKienThuc")} {lesson.quiz.guideIndex + 1}: <strong>{lesson.quiz.guideHeading}</strong></p>
             <h3>{lesson.quiz.question}</h3>
             <div className="hso-options">
               {lesson.quiz.options.map((option, optionIndex) => (
@@ -973,45 +974,45 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                 <span className="material-symbols-outlined">
                   {quizAnswer === lesson.quiz.correct ? "check_circle" : "cancel"}
                 </span>
-                {quizAnswer === lesson.quiz.correct ? "Chính xác. " : "Chưa chính xác. "}
+                {quizAnswer === lesson.quiz.correct ? t("utilities.hugoso.chinhXac") : t("utilities.hugoso.chuaChinhXac")}
                 {lesson.quiz.explanation}
               </p>
             )}
           </div>
 
           <div className="hso-check-part hso-check-part--practice">
-            <span className="hso-check-part__label">01 · THỰC HÀNH BẮT BUỘC</span>
+            <span className="hso-check-part__label">{t("utilities.hugoso.01ThucHanhBat")}</span>
             <h3>{lesson.practice.prompt}</h3>
             <div className="hso-practice-how">
               <div>
                 <span>1</span>
-                <p><strong>Mở {course.shortTitle}</strong>Làm trực tiếp trên ứng dụng Google.</p>
+                <p><strong>{t("utilities.hugoso.mo")} {course.shortTitle}</strong>{t("utilities.hugoso.lamTrucTiepTren")}</p>
               </div>
               <div>
                 <span>2</span>
-                <p><strong>Làm đủ checklist</strong>Hoàn thành đúng {lesson.practice.checklist.length} thao tác đã xem và đọc.</p>
+                <p><strong>{t("utilities.hugoso.lamDuChecklist")}</strong>{t("utilities.hugoso.hoanThanhDung")} {lesson.practice.checklist.length} {t("utilities.hugoso.thaoTacDaXem")}</p>
               </div>
               <div>
                 <span>3</span>
-                <p><strong>Ghi kết quả</strong>Điền vào ô trả lời theo mẫu, rồi xác nhận.</p>
+                <p><strong>{t("utilities.hugoso.ghiKetQua")}</strong>{t("utilities.hugoso.dienVaoOTra")}</p>
               </div>
             </div>
             <a className="hso-practice-open" href={OFFICE_LAB[course.id].href} target="_blank" rel="noreferrer">
               <span className="material-symbols-outlined">{OFFICE_LAB[course.id].icon}</span>
-              Mở {course.shortTitle} để thực hành
+              {t("utilities.hugoso.mo")} {course.shortTitle} {t("utilities.hugoso.deThucHanh")}
               <span className="material-symbols-outlined">north_east</span>
             </a>
-            <p className="hso-practice-caption">Checklist thao tác — khớp từng chương video và bước hướng dẫn</p>
+            <p className="hso-practice-caption">{t("utilities.hugoso.checklistThaoTacKhop")}</p>
             <ul className="hso-practice-criteria">
               {lesson.practice.checklist.map((criterion, criterionIndex) => (
                 <li key={criterion.id}>
                   <span>{criterionIndex + 1}</span>
-                  <p><strong>{criterion.heading}</strong><small>Video {criterionIndex + 1} · Hướng dẫn {criterion.guideIndex + 1}</small></p>
+                  <p><strong>{criterion.heading}</strong><small>Video {criterionIndex + 1} {t("utilities.hugoso.huongDan")} {criterion.guideIndex + 1}</small></p>
                 </li>
               ))}
             </ul>
             <aside className="hso-practice-example">
-              <div><strong>Khung tham khảo — không phải đáp án để sao chép</strong><p>{lesson.practice.placeholder}</p></div>
+              <div><strong>{t("utilities.hugoso.khungThamKhaoKhong")}</strong><p>{lesson.practice.placeholder}</p></div>
             </aside>
             <textarea
               value={practiceText}
@@ -1019,13 +1020,13 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                 setPracticeText(event.target.value);
                 setSubmissionError("");
               }}
-              placeholder="Ghi kết quả bạn vừa thực hiện tại đây…"
+              placeholder={t("utilities.hugoso.ghiKetQuaBan")}
               rows={5}
             />
             <div className="hso-evidence">
               <p>
                 <span>{matchedEvidence}/{lesson.practice.minimumKeywords}</span>
-                ý tối thiểu đã được nhận diện
+                {t("utilities.hugoso.yToiThieuDa")}
               </p>
               <div>
                 {practiceEvidence.map((item) => (
@@ -1047,12 +1048,12 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               }}
             >
               <span className="material-symbols-outlined">check</span>
-              Tôi xác nhận đã trực tiếp thực hiện thao tác trên {course.shortTitle}.
+              {t("utilities.hugoso.toiXacNhanDa")} {course.shortTitle}.
             </button>
           </div>
 
           <footer>
-            <div><span className="material-symbols-outlined">shield</span><p>Bài làm được đánh giá ngay trên thiết bị. Không tải nội dung thực hành lên dịch vụ AI.</p></div>
+            <div><span className="material-symbols-outlined">shield</span><p>{t("utilities.hugoso.baiLamDuocDanh")}</p></div>
             {submissionError && (
               <p className="hso-submit-error" role="alert">
                 <span className="material-symbols-outlined">error</span>
@@ -1060,7 +1061,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               </p>
             )}
             <button type="button" onClick={markCompleted} disabled={done}>
-              {done ? "Đã hoàn thành" : "Nộp và mở bước tiếp"}
+              {done ? t("utilities.hugoso.daHoanThanh") : t("utilities.hugoso.nopVaMoBuoc")}
               <span className="material-symbols-outlined">{done ? "verified" : "arrow_forward"}</span>
             </button>
           </footer>
@@ -1068,7 +1069,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
 
         {done && nextStep && canOpenStep(course, nextStep, index + 1) && (
           <button type="button" className="hso-next-lesson" onClick={() => openStep(course.id, nextStep.id)}>
-            <span><small>TIẾP THEO</small><strong>{nextStep.title}</strong></span>
+            <span><small>{t("utilities.hugoso.tiepTheo")}</small><strong>{nextStep.title}</strong></span>
             <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         )}
@@ -1086,7 +1087,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
             : () => setView({ name: "home", courseId: null, stepId: null })
         } />
         <button type="button" className="hso-wordmark" onClick={unifiedHome ? onBack : () => setView({ name: "home", courseId: null, stepId: null })}>
-          <span>H</span><strong>Study with Hugo</strong><small>Năng suất số &amp; AI</small>
+          <span>H</span><strong>Study with Hugo</strong><small>{t("utilities.hugoso.nangSuatSoAi")}</small>
         </button>
         <div className="hso-wallet">
           <span className="material-symbols-outlined">toll</span>
@@ -1097,7 +1098,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
 
       <main className="hso-main">
         {!unifiedHome && loading && view.name === "home" ? (
-          <div className="hso-loading" aria-label="Đang tải khóa học">
+          <div className="hso-loading" aria-label={t("utilities.hugoso.dangTaiKhoaHoc")}>
             <span /><span /><span />
           </div>
         ) : (

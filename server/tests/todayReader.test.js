@@ -1,8 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SUPPORTED_LANGUAGES } from '../../src/i18n/languages.js';
+import { generateRaw } from '../services/aiGateway.js';
 import {
   articleBelongsToEdition, diversifyArticles, extractBlocks, parseHtmlListing,
   parseThaiPbsPayload, PUBLISHER_FEEDS, PUBLISHER_JSON_FEEDS, PublisherJsonProvider,
+  PublisherRssProvider, OPEN_LICENSE_SOURCES,
   resolveNewsEdition, resolveNewsPolicy, StudentNewsService,
 } from '../services/studentNewsService.js';
 
@@ -234,6 +236,142 @@ describe('readArticle — hàng rào bản quyền', () => {
     } finally {
       globalThis.fetch = original;
     }
+  });
+
+  it('mọi nguồn mở phải khai giấy phép — không có dòng "vì tải được nên đăng"', () => {
+    for (const [name, open] of Object.entries(OPEN_LICENSE_SOURCES)) {
+      expect(open.license, `${name} thiếu tên giấy phép`).toBeTruthy();
+      expect(open.licenseUrl, `${name} thiếu link giấy phép`).toMatch(/^https:\/\//);
+    }
+  });
+});
+
+describe('readArticle — nguồn giấy phép mở', () => {
+  // Ba đoạn phải KHÁC nhau: bộ bóc nội dung loại đoạn trùng.
+  const para = (n) => `<p>Đoạn thứ ${n} đủ dài để vượt ngưỡng hai mươi ký tự của bộ bóc nội dung.</p>`;
+  const html = `<article>${para(1)}`
+    + '<figure><img src="https://images.theconversation.com/a.jpg" width="800"/></figure>'
+    + `${para(2)}${para(3)}</article>`;
+  let service;
+  let originalFetch;
+
+  beforeEach(() => {
+    service = new StudentNewsService([]);
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => ({ ok: true, url: 'https://theconversation.com/a-123', text: async () => html });
+  });
+  afterEach(() => { globalThis.fetch = originalFetch; });
+
+  it('dựng toàn văn kèm giấy phép cho The Conversation (CC BY-ND)', async () => {
+    const content = await service.readArticle({
+      id: 'o1', source: 'The Conversation', url: 'https://theconversation.com/a-123',
+    });
+    expect(content).toMatchObject({ available: true, license: 'CC BY-ND 4.0' });
+    expect(content.blocks.filter((block) => block.type === 'text')).toHaveLength(3);
+    expect(content.readMinutes).toBeGreaterThan(0);
+  });
+
+  it('bỏ ảnh của nguồn không cấp phép ảnh, giữ ảnh của nguồn phạm vi công cộng', async () => {
+    const openImages = await service.readArticle({ id: 'o2', source: 'NASA', url: 'https://www.nasa.gov/a' });
+    expect(openImages.blocks.some((block) => block.type === 'image')).toBe(true);
+    const textOnly = await service.readArticle({
+      id: 'o3', source: 'The Conversation', url: 'https://theconversation.com/b-456',
+    });
+    expect(textOnly.blocks.every((block) => block.type === 'text')).toBe(true);
+  });
+
+  it('cờ contentAccess của bài quyết định sau cùng, kể cả khi tên nguồn nằm trong danh sách', async () => {
+    const content = await service.readArticle({
+      id: 'o4', source: 'The Conversation', url: 'https://theconversation.com/c-789',
+      contentAccess: { fullTextInPortal: false },
+    });
+    expect(content.available).toBe(false);
+    expect(content.blocks).toEqual([]);
+  });
+});
+
+vi.mock('../services/aiGateway.js', () => ({ generateRaw: vi.fn() }));
+
+// The Conversation phát Atom (<entry>, link ở href) chứ không phải RSS.
+describe('PublisherRssProvider — feed Atom', () => {
+  const atom = `<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom">
+    <entry>
+      <title>Les pesticides et le risque de SLA</title>
+      <link rel="edit" href="https://theconversation.com/edit/1"/>
+      <link rel="alternate" type="text/html" href="https://theconversation.com/sla-pesticides-289730"/>
+      <summary>Une nouvelle étude suggère un lien.</summary>
+      <published>2026-08-13T06:00:00Z</published>
+      <author><name>Marie Dupont</name></author>
+    </entry>
+  </feed>`;
+
+  it('đọc tiêu đề, link alternate, sapo và ngày đăng của một entry', async () => {
+    const original = globalThis.fetch;
+    globalThis.fetch = async () => ({ ok: true, text: async () => atom });
+    try {
+      const [article] = await new PublisherRssProvider({
+        fr: { all: [['The Conversation', 'https://theconversation.com/fr/articles.atom']] },
+      }).fetchArticles({ language: 'fr', category: 'all', limit: 5 });
+      expect(article).toMatchObject({
+        title: 'Les pesticides et le risque de SLA',
+        url: 'https://theconversation.com/sla-pesticides-289730', // không lấy nhầm rel="edit"
+        description: 'Une nouvelle étude suggère un lien.',
+        author: 'Marie Dupont',
+      });
+      expect(article.publishedAt).toBe('2026-08-13T06:00:00.000Z');
+      expect(article.contentAccess).toMatchObject({ fullTextInPortal: true, license: 'CC BY-ND 4.0' });
+    } finally {
+      globalThis.fetch = original;
+    }
+  });
+});
+
+describe('summarizeArticle — tóm tắt dài', () => {
+  const article = {
+    id: 's1', source: 'VnExpress', title: 'Kỳ thi tốt nghiệp', language: 'vi',
+    description: 'Sapo do toà soạn viết.', url: 'https://vnexpress.net/a',
+  };
+  // Câu văn của toà soạn: được đọc để tóm tắt, nhưng KHÔNG được trả về client.
+  const sentence = 'Nguyên văn của bài báo thuộc bản quyền toà soạn và không được đăng lại. ';
+  const html = `<article><p>${sentence.repeat(12)}</p></article>`;
+  const locked = { blocks: [], readMinutes: 0, available: false, policy: { fullTextInPortal: false } };
+  let service;
+  let originalFetch;
+
+  beforeEach(() => {
+    service = new StudentNewsService([]);
+    originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => ({ ok: true, url: article.url, text: async () => html });
+    generateRaw.mockReset();
+  });
+  afterEach(() => { globalThis.fetch = originalFetch; });
+
+  it('trả các ý do AI viết lại, không kèm nguyên văn bài gốc', async () => {
+    generateRaw.mockResolvedValue([
+      '- Bộ vừa công bố phương án thi, áp dụng cho học sinh lớp 12 từ năm học tới.',
+      '- Số môn thi giảm còn bốn, trong đó hai môn bắt buộc và hai môn tự chọn.',
+      'Tóm tắt:',
+    ].join('\n'));
+    const summary = await service.summarizeArticle(article, locked, 'vi');
+    expect(summary.by).toBe('ai');
+    expect(summary.points).toHaveLength(2);          // dòng rác "Tóm tắt:" bị loại
+    expect(summary.points[0]).toMatch(/^Bộ vừa công bố/); // gạch đầu dòng đã bóc
+    expect(summary.points.join(' ')).not.toContain(sentence.trim());
+    // Bài gốc được gửi cho model nhưng không rời khỏi server.
+    expect(generateRaw.mock.calls[0][0].contents[0].parts[0].text).toContain(sentence.trim());
+  });
+
+  it('rơi về sapo của toà soạn khi không có AI', async () => {
+    generateRaw.mockResolvedValue(null);
+    expect(await service.summarizeArticle(article, locked, 'vi'))
+      .toEqual({ points: [article.description], by: 'source' });
+  });
+
+  it('không gọi lại AI cho bài đã tóm tắt', async () => {
+    generateRaw.mockResolvedValue('- Một ý tóm tắt đủ dài để vượt ngưỡng lọc dòng rác của bộ phân tích.');
+    await service.summarizeArticle(article, locked, 'vi');
+    await service.summarizeArticle(article, locked, 'vi');
+    expect(generateRaw).toHaveBeenCalledTimes(1);
   });
 });
 

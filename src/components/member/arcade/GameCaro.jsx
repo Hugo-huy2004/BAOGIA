@@ -1,303 +1,139 @@
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { playGameSelect, playGameWin, playGameLose, playGameMove } from "../../../utils/audio";
 import { hapticSelect, hapticWin, hapticLose, hapticMove } from "../../../utils/haptics";
+import { SIZE, WIN_LEN, EMPTY, PLAYER, AI, checkWin, winningLine, emptyBoard, pickMove } from "./caroAi";
 
-const SIZE = 3;
-const WIN_LEN = 3;
-const EMPTY = 0, PLAYER = 1, AI = 2;
-
-const DIRECTIONS = [
-  [0, 1],  // horizontal
-  [1, 0],  // vertical
-  [1, 1],  // diagonal \
-  [1, -1], // diagonal /
-];
-
-function inBounds(r, c) {
-  return r >= 0 && r < SIZE && c >= 0 && c < SIZE;
-}
-
-// Checks whether `player` has WIN_LEN in a row through (r, c) in any direction.
-export function checkWin(board, r, c, player) {
-  for (const [dr, dc] of DIRECTIONS) {
-    let count = 1;
-    let rr = r + dr, cc = c + dc;
-    while (inBounds(rr, cc) && board[rr][cc] === player) { count++; rr += dr; cc += dc; }
-    rr = r - dr; cc = c - dc;
-    while (inBounds(rr, cc) && board[rr][cc] === player) { count++; rr -= dr; cc -= dc; }
-    if (count >= WIN_LEN) return true;
-  }
-  return false;
-}
-
-// Heuristic value of placing `player`'s stone at (r, c): for each direction,
-// counts the consecutive run through that cell and how many ends are open
-// (not blocked by an opponent stone or the board edge), then looks up a
-// hand-tuned score table — open threats are worth far more than blocked ones.
-const SCORE_TABLE = (count, openEnds) => {
-  if (count >= WIN_LEN) return 100000;
-  if (count === 2) return openEnds >= 1 ? 1200 : 80;
-  return 1;
-};
-
-function lineScore(board, r, c, player) {
-  let total = 0;
-  for (const [dr, dc] of DIRECTIONS) {
-    let count = 1;
-    let openEnds = 0;
-
-    let rr = r + dr, cc = c + dc;
-    while (inBounds(rr, cc) && board[rr][cc] === player) { count++; rr += dr; cc += dc; }
-    if (inBounds(rr, cc) && board[rr][cc] === EMPTY) openEnds++;
-
-    rr = r - dr; cc = c - dc;
-    while (inBounds(rr, cc) && board[rr][cc] === player) { count++; rr -= dr; cc -= dc; }
-    if (inBounds(rr, cc) && board[rr][cc] === EMPTY) openEnds++;
-
-    total += SCORE_TABLE(count, openEnds);
-  }
-  return total;
-}
-
-function hasNeighbor(board, r, c) {
-  for (const [dr, dc] of DIRECTIONS) {
-    if ((inBounds(r + dr, c + dc) && board[r + dr][c + dc] !== EMPTY) ||
-        (inBounds(r - dr, c - dc) && board[r - dr][c - dc] !== EMPTY)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Dễ: only blocks the opponent's IMMEDIATE winning cell, otherwise plays a
-// lightly neighbor-biased near-random move — no offense/defense theory at all,
-// so this tier is meaningfully beatable.
-export function pickAiMoveEasy(board) {
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (board[r][c] !== EMPTY) continue;
-      const trial = board.map((row) => [...row]);
-      trial[r][c] = PLAYER;
-      if (checkWin(trial, r, c, PLAYER)) return [r, c];
-    }
-  }
-
-  const candidates = [];
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (board[r][c] !== EMPTY) continue;
-      candidates.push({ r, c, weight: hasNeighbor(board, r, c) ? 3 : 1 });
-    }
-  }
-  if (!candidates.length) return null;
-  const totalWeight = candidates.reduce((s, cand) => s + cand.weight, 0);
-  let roll = Math.random() * totalWeight;
-  for (const cand of candidates) {
-    roll -= cand.weight;
-    if (roll <= 0) return [cand.r, cand.c];
-  }
-  const last = candidates[candidates.length - 1];
-  return [last.r, last.c];
-}
-
-// Trung bình: scores every empty cell by (AI's own offense) + (threat denied
-// to the opponent), favoring blocks slightly. No deep search.
-export function pickAiMove(board) {
-  let best = null;
-  let bestScore = -Infinity;
-  const center = (SIZE - 1) / 2;
-
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (board[r][c] !== EMPTY) continue;
-      const aiScore = lineScore(board, r, c, AI);
-      const oppScore = lineScore(board, r, c, PLAYER);
-      const centerBonus = -(Math.abs(r - center) + Math.abs(c - center)) * 0.5;
-      const total = aiScore + oppScore * 1.05 + centerBonus;
-      if (total > bestScore) {
-        bestScore = total;
-        best = [r, c];
-      }
-    }
-  }
-  return best;
-}
-
-// Khó: shortlists the top candidates by the same heuristic as Trung bình, then
-// adds one bounded lookahead ply — for each shortlisted AI move, evaluates the
-// opponent's best heuristic response and subtracts it, so the AI avoids moves
-// that look good now but hand the opponent a strong follow-up. Still no
-// minimax/recursion (one ply, bounded shortlist), so cost stays small.
-export function pickAiMoveHard(board) {
-  const minimax = (state, maximizing, depth) => {
-    let hasEmpty = false;
-    for (let r = 0; r < SIZE; r++) {
-      for (let c = 0; c < SIZE; c++) {
-        if (state[r][c] === AI && checkWin(state, r, c, AI)) return 10 - depth;
-        if (state[r][c] === PLAYER && checkWin(state, r, c, PLAYER)) return depth - 10;
-        if (state[r][c] === EMPTY) hasEmpty = true;
-      }
-    }
-    if (!hasEmpty) return 0;
-
-    let best = maximizing ? -Infinity : Infinity;
-    for (let r = 0; r < SIZE; r++) {
-      for (let c = 0; c < SIZE; c++) {
-        if (state[r][c] !== EMPTY) continue;
-        state[r][c] = maximizing ? AI : PLAYER;
-        const score = minimax(state, !maximizing, depth + 1);
-        state[r][c] = EMPTY;
-        best = maximizing ? Math.max(best, score) : Math.min(best, score);
-      }
-    }
-    return best;
-  };
-
-  let bestMove = null;
-  let bestScore = -Infinity;
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (board[r][c] !== EMPTY) continue;
-      const trial = board.map(row => [...row]);
-      trial[r][c] = AI;
-      const score = minimax(trial, false, 0);
-      if (score > bestScore || (score === bestScore && r === 1 && c === 1)) {
-        bestScore = score;
-        bestMove = [r, c];
-      }
-    }
-  }
-  return bestMove;
-}
-
-const AI_PICKERS = { easy: pickAiMoveEasy, medium: pickAiMove, hard: pickAiMoveHard };
-
-function emptyBoard() {
-  return Array.from({ length: SIZE }, () => Array(SIZE).fill(EMPTY));
-}
+// Luật chơi và AI nằm trong caroAi.js (có test). File này chỉ là bàn cờ + trạng
+// thái ván. Bàn 10×10, thắng 5 quân liền — bản 3×3 cũ là tic-tac-toe, một game
+// đã giải nên mức Khó chỉ có thể hoà.
 
 function ThinkingDots() {
   return (
-    <span className="inline-flex gap-0.5 ml-1">
-      <span className="w-1 h-1 rounded-full bg-zinc-400 animate-bounce-soft" style={{ animationDelay: "0ms" }} />
-      <span className="w-1 h-1 rounded-full bg-zinc-400 animate-bounce-soft" style={{ animationDelay: "150ms" }} />
-      <span className="w-1 h-1 rounded-full bg-zinc-400 animate-bounce-soft" style={{ animationDelay: "300ms" }} />
+    <span className="caro-dots" aria-hidden="true">
+      <i /><i /><i />
     </span>
   );
 }
 
 export default function GameCaro({ difficulty = "medium", onGameOver }) {
+  const { t } = useTranslation();
   const [board, setBoard] = useState(emptyBoard);
-  const [turn, setTurn] = useState(PLAYER); // whose turn
+  const [turn, setTurn] = useState(PLAYER);
   const [status, setStatus] = useState("playing"); // playing | win | lose | draw
   const [moveCount, setMoveCount] = useState(0);
   const [thinking, setThinking] = useState(false);
   const [lastMove, setLastMove] = useState(null);
+  const [winLine, setWinLine] = useState([]);
   const reportedRef = useRef(false);
-  const pickMove = AI_PICKERS[difficulty] || pickAiMove;
 
   const reportGameOver = useCallback((finalStatus, totalMoves) => {
     if (reportedRef.current) return;
     reportedRef.current = true;
-    const score = finalStatus === "win" ? Math.max(20, 200 - totalMoves) : 0;
+    // Thắng nhanh được nhiều điểm hơn; bàn 10×10 nên một ván tử tế dài ~10–20
+    // nước mỗi bên, khác hẳn 3×3 trước đây.
+    const score = finalStatus === "win" ? Math.max(30, 220 - totalMoves * 3) : 0;
     onGameOver?.(score, finalStatus);
   }, [onGameOver]);
+
+  const finish = useCallback((finalStatus, moves, line = []) => {
+    setStatus(finalStatus);
+    setWinLine(line);
+    if (finalStatus === "win") { playGameWin(); hapticWin(); }
+    if (finalStatus === "lose") { playGameLose(); hapticLose(); }
+    reportGameOver(finalStatus, moves);
+  }, [reportGameOver]);
 
   const handleCellClick = (r, c) => {
     if (status !== "playing" || turn !== PLAYER || board[r][c] !== EMPTY || thinking) return;
 
     const next = board.map((row) => [...row]);
     next[r][c] = PLAYER;
-    const newMoveCount = moveCount + 1;
+    const playerMoves = moveCount + 1;
     setBoard(next);
-    setMoveCount(newMoveCount);
+    setMoveCount(playerMoves);
     setLastMove({ r, c });
     playGameSelect();
     hapticSelect();
 
-    if (checkWin(next, r, c, PLAYER)) {
-      setStatus("win");
-      playGameWin();
-      hapticWin();
-      reportGameOver("win", newMoveCount);
-      return;
-    }
-    if (newMoveCount >= SIZE * SIZE) {
-      setStatus("draw");
-      reportGameOver("draw", newMoveCount);
-      return;
-    }
+    if (checkWin(next, r, c, PLAYER)) return finish("win", playerMoves, winningLine(next, r, c, PLAYER));
+    if (playerMoves >= SIZE * SIZE) return finish("draw", playerMoves);
 
     setTurn(AI);
     setThinking(true);
+    // Trả khung hình lại cho trình duyệt trước khi tính: mức Khó xét ~10 nước ×
+    // ~60 nước đáp, đủ để chặn luồng chính vài chục ms.
     setTimeout(() => {
-      const aiMove = pickMove(next);
-      if (!aiMove) {
-        setStatus("draw");
-        reportGameOver("draw", newMoveCount);
-        setThinking(false);
-        return;
-      }
+      const aiMove = pickMove(next, difficulty);
+      setThinking(false);
+      if (!aiMove) return finish("draw", playerMoves);
+
       const [ar, ac] = aiMove;
       const afterAi = next.map((row) => [...row]);
       afterAi[ar][ac] = AI;
-      const aiMoveCount = newMoveCount + 1;
+      const aiMoves = playerMoves + 1;
       setBoard(afterAi);
-      setMoveCount(aiMoveCount);
-      setThinking(false);
+      setMoveCount(aiMoves);
       setLastMove({ r: ar, c: ac });
       playGameMove();
       hapticMove();
 
-      if (checkWin(afterAi, ar, ac, AI)) {
-        setStatus("lose");
-        playGameLose();
-        hapticLose();
-        reportGameOver("lose", aiMoveCount);
-        return;
-      }
-      if (aiMoveCount >= SIZE * SIZE) {
-        setStatus("draw");
-        reportGameOver("draw", aiMoveCount);
-        return;
-      }
+      if (checkWin(afterAi, ar, ac, AI)) return finish("lose", aiMoves, winningLine(afterAi, ar, ac, AI));
+      if (aiMoves >= SIZE * SIZE) return finish("draw", aiMoves);
       setTurn(PLAYER);
-    }, 350);
+    }, 240);
   };
 
   const statusText = status === "playing"
-    ? (thinking ? "AI đang suy nghĩ" : "Lượt của cậu (X)")
-    : { win: "Cậu thắng! 🎉", lose: "AI thắng rồi, thử lại nhé!", draw: "Hòa! Bàn cờ đã đầy." }[status];
+    ? (thinking ? t("arcadeGame.caroThinking") : t("arcadeGame.caroYourTurn"))
+    : { win: t("arcadeGame.caroWin"), lose: t("arcadeGame.caroLose"), draw: t("arcadeGame.caroDraw") }[status];
+
+  const isWinCell = (r, c) => winLine.some(([wr, wc]) => wr === r && wc === c);
 
   return (
-    <div className="caro-shell flex flex-col items-center gap-4 w-full">
-      <div className="caro-status"><span className={`caro-turn-dot ${turn === PLAYER && status === "playing" ? "active" : ""}`} /><div><small>{thinking ? "HUGO AI" : "CARO 3 × 3"}</small><strong>{statusText}</strong></div>{thinking && <ThinkingDots />}</div>
+    <div className="caro-shell">
+      <div className="caro-status">
+        <span className={`caro-turn-dot ${turn === PLAYER && status === "playing" ? "active" : ""}`} />
+        <div>
+          <small>{thinking ? "HUGO AI" : t("arcadeGame.caroBoardLabel", { size: SIZE, win: WIN_LEN })}</small>
+          <strong>{statusText}</strong>
+        </div>
+        {thinking && <ThinkingDots />}
+      </div>
 
       <div className="caro-board-wrap">
-        <div className="caro-board" style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)` }}>
+        <div
+          className="caro-board"
+          style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)` }}
+          role="grid"
+          aria-label={t("arcadeGame.caroBoardLabel", { size: SIZE, win: WIN_LEN })}
+        >
           {board.map((row, r) =>
             row.map((cell, c) => {
               const isLast = lastMove && lastMove.r === r && lastMove.c === c;
               return (
                 <button
                   key={`${r}-${c}`}
+                  type="button"
                   onClick={() => handleCellClick(r, c)}
                   disabled={status !== "playing" || cell !== EMPTY || turn !== PLAYER}
-                  className={`caro-cell flex items-center justify-center font-black transition-colors disabled:cursor-default ${
-                    isLast
-                      ? "last-move"
-                      : ""
-                  }`}
+                  className={`caro-cell${isLast ? " last-move" : ""}${isWinCell(r, c) ? " win-cell" : ""}`}
+                  aria-label={`${r + 1}·${c + 1}`}
                 >
-                  {cell === PLAYER && <span className="caro-x animate-scale-in">X</span>}
-                  {cell === AI && <span className="caro-o animate-scale-in">O</span>}
+                  {cell === PLAYER && <span className="caro-x">X</span>}
+                  {cell === AI && <span className="caro-o">O</span>}
                 </button>
               );
             })
           )}
         </div>
       </div>
-      <div className="caro-legend"><span><i className="x">X</i> Bạn</span><span><i className="o">O</i> Hugo AI</span><span>3 ô liên tiếp</span></div>
+
+      <div className="caro-legend">
+        <span><i className="x">X</i> {t("arcadeGame.caroYou")}</span>
+        <span><i className="o">O</i> Hugo AI</span>
+        <span>{t("arcadeGame.caroRule", { win: WIN_LEN })}</span>
+      </div>
     </div>
   );
 }

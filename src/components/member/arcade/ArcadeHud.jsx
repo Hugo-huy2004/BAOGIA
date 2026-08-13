@@ -44,8 +44,8 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
     setToast({
       id: toastSequenceRef.current,
       icon: "trophy",
-      title: "Kỷ lục mới!",
-      detail: `Vượt ${fmt(best)}`,
+      title: t("arcadeGame.newBest"),
+      detail: t("arcadeGame.beatBest", { score: fmt(best) }),
       kind: "record",
     });
     toastTimerRef.current = window.setTimeout(() => setToast(null), 1800);
@@ -61,8 +61,8 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
     setToast({
       id: toastSequenceRef.current,
       icon: "bolt",
-      title: `${combo}× liên hoàn`,
-      detail: `Hệ số x${multiplier.toFixed(2).replace(/\.?0+$/, "")}`,
+      title: t("arcadeGame.combo", { count: combo }),
+      detail: t("arcadeGame.multiplier", { value: multiplier.toFixed(2).replace(/\.?0+$/, "") }),
       kind: "combo",
     });
     toastTimerRef.current = window.setTimeout(() => setToast(null), 1350);
@@ -106,7 +106,7 @@ export default function ArcadeHud({ gameId, score = 0, combo = 0, multiplier = 1
         {/* Mốc để đuổi. Không có nó, điểm chỉ là một con số tăng dần. */}
         {best > 0 && (
           <div className={`ahud__stat ahud__best${score > best ? " is-beaten" : ""}`}>
-            <small>Kỷ lục</small>
+            <small>{t("arcadeGame.best")}</small>
             <strong>{fmt(score > best ? score : best)}</strong>
           </div>
         )}
