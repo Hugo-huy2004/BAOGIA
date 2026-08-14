@@ -50,6 +50,23 @@ describe("EN/VI translation parity", () => {
   });
 });
 
+describe("Vietnam-only region note", () => {
+  // The note is what stops a reader abroad from thinking they can buy a
+  // service that only ships in Vietnam, so a missing language is a real gap.
+  // It is hand-written in every locale and never machine-translated: `common`
+  // is deliberately outside the sync script's TRANSLATED_ROOTS.
+  const locales = { en, vi, zh, th, ja, ko, id, es, fr };
+
+  it("carries every scope in every language", () => {
+    for (const [code, locale] of Object.entries(locales)) {
+      const note = locale.common?.regionVietnamOnly;
+      expect(note && Object.keys(note).sort(), code)
+        .toEqual(["booking", "donate", "service", "title"]);
+      expect(Object.values(note).filter((text) => !String(text).trim()), code).toEqual([]);
+    }
+  });
+});
+
 describe("Member Portal locale parity", () => {
   const memberSource = Object.fromEntries(MEMBER_ROOTS.map((root) => [root, en[root]]));
   const flatSource = flatten(memberSource);

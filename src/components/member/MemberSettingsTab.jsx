@@ -95,6 +95,11 @@ export default function MemberSettingsTab({
       title: t("memberPortal.accountHub.documents.rightsTitle"),
       subtitle: t("memberPortal.accountHub.documents.rightsSubtitle"),
     },
+    "doc:full-text": {
+      id: "full-text",
+      title: t("memberPortal.accountHub.documents.fullTextTitle"),
+      subtitle: t("memberPortal.accountHub.documents.fullTextSubtitle"),
+    },
   }), [t]);
   // null | personal | notifications | security | language | wallet | perks | missions
   //      | history | store | redeem | manage | doc:privileges | doc:conditions
@@ -509,6 +514,13 @@ export default function MemberSettingsTab({
           title={t("memberPortal.accountHub.documents.conditionsTitle")}
           detail={t("memberPortal.accountHub.documents.conditionsDetail")}
           onClick={() => openMemberDocument("conditions")}
+        />
+        <AccountRow
+          symbol="menu_book"
+          tint="violet"
+          title={t("memberPortal.accountHub.documents.fullTextTitle")}
+          detail={t("memberPortal.accountHub.documents.fullTextDetail")}
+          onClick={() => openMemberDocument("full-text")}
         />
         <AccountRow
           symbol="package_2"

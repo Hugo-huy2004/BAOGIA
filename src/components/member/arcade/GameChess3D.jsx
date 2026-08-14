@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Chess } from "chess.js";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
+import { chooseBotMove } from "./chessAi";
 import { playGameMove, playGameSelect, playGameWin, playGameLose, playChessCaptureSound, playChessCheckSound } from "../../../utils/audio";
 import { hapticMove, hapticSelect, hapticWin, hapticLose } from "../../../utils/haptics";
 
@@ -137,7 +138,6 @@ const PIECE_TEXT = {
   b: { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" },
 };
 
-const VALUE = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20_000 };
 const MATERIAL_VAL = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 const FILES = "abcdefgh";
 const GAME_SECONDS = 15 * 60;
@@ -153,36 +153,6 @@ export function squareName(row, col) {
   return `${FILES[col]}${8 - row}`;
 }
 
-export function chooseBotMove(chess, level = 2) {
-  const moves = chess.moves({ verbose: true });
-  if (!moves.length) return null;
-
-  const ranked = moves.map(move => {
-    const trial = new Chess(chess.fen());
-    trial.move(move);
-    if (trial.isCheckmate()) return { move, score: 1_000_000 };
-
-    let score = (move.captured ? VALUE[move.captured] : 0)
-      + (move.promotion ? VALUE[move.promotion] : 0)
-      + (trial.inCheck() ? 65 : 0);
-
-    const file = move.to.charCodeAt(0) - 97;
-    const rank = Number(move.to[1]) - 1;
-    score += 16 - (Math.abs(file - 3.5) + Math.abs(rank - 3.5)) * 3;
-
-    if (level >= 2) {
-      const replies = trial.moves({ verbose: true });
-      const worstReply = replies.reduce((max, reply) => (
-        Math.max(max, reply.captured ? VALUE[reply.captured] : 0)
-      ), 0);
-      score -= worstReply * (level >= 3 ? 0.95 : 0.5);
-    }
-    return { move, score: score + Math.random() * (level === 1 ? 280 : level === 2 ? 75 : 8) };
-  });
-
-  ranked.sort((a, b) => b.score - a.score);
-  return ranked[0].move;
-}
 
 // Fire Harry Potter Stone Debris Confetti Explosion
 function fireSmashExplosion(color = "w") {

@@ -1092,6 +1092,68 @@
       "clientBuild": "Custom design — no CMS, no template",
       "clientPlan": "Multi-page website with a needs-based scope",
       "cta": "Open the client site"
+    },
+    "demoLibrary": {
+      "description": "Choose a template, then preview it on phone, tablet or desktop.",
+      "live": "Interactive demo",
+      "open": "View details",
+      "selected": "Viewing",
+      "previewTitle": "Template room",
+      "close": "Close preview",
+      "previewHint": "Choose a template, then switch devices to picture your website before we talk.",
+      "included": "Can be included",
+      "liveNotice": "You can scroll and interact directly inside this frame.",
+      "fits": "Best for",
+      "details": {
+        "portfolio": {
+          "fit": "Students, freelancers and independent creatives",
+          "features": [
+            "Profile",
+            "Projects",
+            "Contact"
+          ]
+        },
+        "cafe": {
+          "fit": "Cafes, bistros and small bakeries",
+          "features": [
+            "Menu",
+            "Booking",
+            "Map"
+          ]
+        },
+        "photography": {
+          "fit": "Photographers, studios and wedding services",
+          "features": [
+            "Gallery",
+            "Services",
+            "Booking"
+          ]
+        },
+        "ecommerce": {
+          "fit": "Fashion, beauty and handmade shops",
+          "features": [
+            "Products",
+            "Filters",
+            "Cart"
+          ]
+        },
+        "jewelry": {
+          "fit": "Jewellers and premium accessory brands",
+          "features": [
+            "Collections",
+            "Reference price",
+            "Consultation"
+          ]
+        },
+        "dashboard": {
+          "fit": "Teams managing orders and business data",
+          "features": [
+            "Overview",
+            "Reports",
+            "Roles"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
@@ -1129,6 +1191,11 @@
       "desc": "Don't worry! Send a direct message to the Hugo Studio team for a detailed 1:1 answer.",
       "chatBtn": "Message",
       "emailBtn": "Email the team"
+    },
+    "meta": {
+      "title": "Frequently Asked Questions About Hugo Studio",
+      "description": "Answers about website design services, Bio pages for learners, pricing, delivery time and how Hugo Studio works alongside each project.",
+      "keywords": "Hugo Studio questions, website design service, student Bio page, website cost"
     }
   },
   "bookingPage": {
@@ -1944,7 +2011,7 @@
       "localEdition": "{{country}} edition",
       "dailyReset": "Refreshes daily at 09:00",
       "updatedAt": "Updated {{time}}",
-      "rightsMode": "{{articles}} stories from {{sources}} sources · headlines and publisher-supplied summaries only",
+      "rightsMode": "{{articles}} stories from {{sources}} sources · full article text not displayed",
       "loadMore": "Show {{n}} more stories",
       "categories": "Article categories",
       "category": {
@@ -1967,12 +2034,15 @@
       "articleUnavailable": "This article could not be opened.",
       "summaryTitle": "Detailed summary",
       "summaryBySource": "Summary written by {{source}} themselves.",
-      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
+      "summaryByAi": "Hugo AI rewrote this summary in its own words. The full article is copyrighted by {{source}}. Read the original for complete content.",
       "contentTitle": "Article content",
       "contentUnavailable": "This publisher does not allow automatic full-text. Open the original to read it all.",
       "contentBySource": "The full text of this article is copyrighted by {{source}}. Hugo Studio shows the summary only — open the original below to read it in full.",
+      "copyrightNotice": "The full article is copyrighted by {{source}}. Hugo Studio displays the summary only. Tap \"Read original\" to view the full article on the official page.",
+      "sourceInfo": "Source: {{source}}{{author}} · {{date}}",
       "attribution": "Content is copyright of {{source}}.",
       "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
+      "fullInApp": "Full text",
       "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
       "readMinutes": "{{n}} min read",
       "fontSize": "Text size",
@@ -2375,7 +2445,10 @@
         "privilegesDetail": "Card tiers, benefits at each tier, and how to move up",
         "conditionsTitle": "Member rights and responsibilities",
         "conditionsSubtitle": "Core rights, age rules, safe use, and JOY rules",
-        "conditionsDetail": "Core rights, age rules, safe use, and JOY"
+        "conditionsDetail": "Core rights, age rules, safe use, and JOY",
+        "fullTextTitle": "Full terms",
+        "fullTextSubtitle": "The complete text in nine languages, one after another",
+        "fullTextDetail": "Terms, privacy and membership rules in nine languages"
       }
     },
     "bento": {
@@ -4404,27 +4477,27 @@
         "storeDesc": "Purchased time is accumulated and used after the 5 free hours each week are exhausted.",
         "empty": "No time packages available yet."
       },
-      "dangDo": "Đang dò",
-      "dangKetNoi": "Đang kết nối",
-      "nhieuSong": "Nhiễu sóng",
-      "dangPhat": "Đang phát",
-      "tamDung": "Tạm dừng",
-      "cho": "Chờ",
-      "daHocDiaChi": " · đã học địa chỉ mới",
-      "doTanSo": "Dò tần số",
-      "doXuong": "Dò xuống",
-      "dung": "Dừng",
+      "dangDo": "Scanning",
+      "dangKetNoi": "Connecting",
+      "nhieuSong": "Signal noise",
+      "dangPhat": "Playing",
+      "tamDung": "Paused",
+      "cho": "Waiting",
+      "daHocDiaChi": " · learned a new address",
+      "doTanSo": "Scan up",
+      "doXuong": "Scan down",
+      "dung": "Stop",
       "phat": "Phát",
       "doLen": "Dò lên",
-      "amLuong": "Âm lượng",
-      "ngauNhien": "Ngẫu nhiên",
-      "henGioTat": "Hẹn giờ tắt",
-      "timDaiVov1Npr": "Tìm đài: VOV1, NPR, Jazz…",
-      "dangDo2": "Đang dò…",
+      "amLuong": "Volume",
+      "ngauNhien": "Shuffle",
+      "henGioTat": "Sleep timer",
+      "timDaiVov1Npr": "Find a station: VOV1, NPR, Jazz…",
+      "dangDo2": "Scanning…",
       "tim": "Tìm",
-      "daTim": "Đã tìm (",
-      "muaThemThoiGian": "Mua thêm thời gian nghe",
-      "thoiGianMuaDuoc": "Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần."
+      "daTim": "Found (",
+      "muaThemThoiGian": "Buy more listening time",
+      "thoiGianMuaDuoc": "Purchased time is saved and used once the 5 free hours each week run out."
     },
     "store": {
       "title": "Hugo Store",
@@ -4669,27 +4742,27 @@
       "tutorialsIntro": "Choose a language to load interactive code samples:",
       "loadSample": "Load Sample",
       "tutorialsTitle": "Tutorials & Learning",
-      "xacNhanTraoDoi": "Xác nhận trao đổi",
-      "banCoDongY": "Bạn có đồng ý dùng",
-      "10PhiSangTao": "(+ 10% phí sáng tạo) để đăng ký 1 tháng cho gói",
+      "xacNhanTraoDoi": "Confirm exchange",
+      "banCoDongY": "Do you agree to spend",
+      "10PhiSangTao": "(+ 10% creation fee) for a one-month subscription to",
       "khong": "không?",
-      "dangKyThanhCong": "Đăng ký thành công! Giai đoạn học này đã được mở khóa.",
-      "loiGiaoDich": "Lỗi giao dịch.",
-      "muaGoiVinhVien": "Mua gói Vĩnh Viễn",
-      "gom": "gồm",
+      "dangKyThanhCong": "Subscribed! This learning stage is now unlocked.",
+      "loiGiaoDich": "Transaction failed.",
+      "muaGoiVinhVien": "Buy lifetime access",
+      "gom": "including",
       "joyVa": "JOY và",
-      "joyPhiSangTao": "JOY phí sáng tạo để mở khóa vĩnh viễn",
-      "giaHanBoPhat": "Gia hạn bộ Phát triển Web",
-      "10PhiSangTao2": "(+ 10% phí sáng tạo) để gia hạn 30 ngày cho bộ Phát triển Web không?",
-      "dongPhiBaoTri": "Đóng phí bảo trì thành công!",
-      "muaTronGoi6": "Mua Trọn Gói 6 Chặng",
-      "10PhiSangTao3": "(+ 10% phí sáng tạo) để mở khóa vĩnh viễn toàn bộ 6 phần của bộ Phát triển Web và được miễn phí bảo trì trọn đời không?",
-      "quyenSoHuuTron": "Quyền sở hữu trọn gói đã được đồng bộ.",
-      "moKhoaTronGoi": "Mở khóa trọn gói vĩnh viễn thành công! Bạn đã được kích hoạt toàn bộ các chặng học và được miễn phí bảo trì trọn đời.",
-      "xacNhanXoa": "Xác nhận xóa",
-      "banCoChacChan": "Bạn có chắc chắn muốn xóa",
-      "thuMuc": "thư mục",
-      "khongHanhDongNay": "\" không? Hành động này không thể hoàn tác."
+      "joyPhiSangTao": "JOY creation fee for lifetime access",
+      "giaHanBoPhat": "Renew the Web Development track",
+      "10PhiSangTao2": "(+ 10% creation fee) to renew the Web Development track for 30 days?",
+      "dongPhiBaoTri": "Maintenance fee paid!",
+      "muaTronGoi6": "Buy all 6 stages",
+      "10PhiSangTao3": "(+ 10% creation fee) to unlock all 6 parts of the Web Development track for life, with free maintenance forever?",
+      "quyenSoHuuTron": "Your full ownership has been synced.",
+      "moKhoaTronGoi": "Lifetime access unlocked! Every stage is active and maintenance is free for life.",
+      "xacNhanXoa": "Confirm deletion",
+      "banCoChacChan": "Are you sure you want to delete",
+      "thuMuc": "folder",
+      "khongHanhDongNay": "\"? This cannot be undone."
     },
     "hugoso": {
       "bai": "bài ·",
@@ -5017,11 +5090,11 @@
       "dongBaoCao": "Đóng Báo Cáo"
     },
     "tab": {
-      "dongTamThoi": "Đóng tạm thời",
-      "loTrinh": "Lộ trình",
+      "dongTamThoi": "Close for now",
+      "loTrinh": "Path",
       "ngay": "ngày",
       "ngay2": "Ngày",
-      "batDau": "· Bắt đầu"
+      "batDau": "· Start"
     },
     "sleep": {
       "tinhChuKyGiac": "Tính Chu Kỳ Giấc Ngủ Sinh Học 90 Phút (Circadian Cycle)",
@@ -5478,7 +5551,7 @@
     "caroLose": "The AI won — try again!",
     "caroDraw": "Draw! The board is full.",
     "caroYou": "You",
-    "caroRule": "3 in a row",
+    "caroRule": "{{win}} in a row",
     "survivorWaveClear": "WAVE {{wave}} CLEAR",
     "survivorSurge": "SURGE",
     "survivorBoss": "{{wave}} · BOSS",
@@ -5509,7 +5582,10 @@
     "chessBotLevelLabel": "AI BOT level:",
     "chessHistory": "History:",
     "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row",
+    "openApp": "OPEN",
+    "getApp": "GET",
+    "gameCount": "{{count}} games"
   },
   "arcadeIntro": {
     "close": "Back to Apps",
@@ -5537,10 +5613,10 @@
         "hint": "Graze incoming fire to charge Overdrive, upgrade your weapons, and adapt to every boss."
       },
       "caro": {
-        "eyebrow": "3 × 3 grid duel",
-        "title": "Three marks. One winning line.",
-        "description": "A fast dimensional X-and-O board against Hugo AI at three skill levels.",
-        "hint": "Control the center and create two winning threats at once."
+        "eyebrow": "Five in a row",
+        "title": "Five stones win the board.",
+        "description": "A 10 × 10 gomoku board against Hugo AI at three levels: it blocks open threes and looks ahead at your reply.",
+        "hint": "Build two open threats at once — the opponent can only block one."
       },
       "snake": {
         "eyebrow": "Neon journey",
@@ -5593,6 +5669,14 @@
         "title": "Truly Yours",
         "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "Available in Vietnam only.",
+      "service": "Prices are quoted in Vietnamese đồng and paid through PayOS and Vietnamese banks.",
+      "booking": "Hugo Studio takes on projects in Vietnam; budgets are in đồng and we talk over email or Zalo.",
+      "donate": "Contributions are made in Vietnamese đồng through PayOS and Vietnamese banks."
     }
   }
 }

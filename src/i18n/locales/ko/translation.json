@@ -148,7 +148,7 @@
       "localEdition": "{{country}} 버전",
       "dailyReset": "일일로 09:00에 갱신",
       "updatedAt": "{{time}}가 업데이트되었습니다",
-      "rightsMode": "{{articles}}의 {{sources}} 출처에서 콘텐츠 · 뉴스 headline와 제공된 요약만 보여주기",
+      "rightsMode": "{{sources}}개 출처의 기사 {{articles}}개 · 기사 전문은 표시하지 않습니다",
       "loadMore": "{{n}} 더 많은 콘텐츠 보기",
       "categories": "분류",
       "category": {
@@ -171,13 +171,16 @@
       "articleUnavailable": "이 기사가 열 수 없습니다.",
       "summaryTitle": "Detailed summary",
       "summaryBySource": "{{source}}가 작성한 요약",
-      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
+      "summaryByAi": "Hugo AI가 이 요약을 자체적인 문장으로 다시 작성했습니다. 기사 전문의 저작권은 {{source}}에 있습니다. 원문에서 전체 내용을 확인하세요.",
       "contentTitle": "이 편집사가 제공하는 내용",
       "contentUnavailable": "자동으로 전체문서를 읽을 수 없습니다. 원본을 열어 읽으세요.",
       "contentBySource": "이 기사의 전문은 {{source}}에게 저작권이 있습니다. Hugo Studio는 요약만 보여주지만, 원본을 아래에서 전체로 읽으세요.",
+      "copyrightNotice": "기사 전문의 저작권은 {{source}}에 있습니다. Hugo Studio는 요약만 표시합니다. \"원문 읽기\"를 눌러 공식 사이트에서 전체 기사를 확인하세요.",
+      "sourceInfo": "출처: {{source}}{{author}} · {{date}}",
       "attribution": "콘텐츠는 {{source}}의 저작권입니다.",
-      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
-      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
+      "licenseNotice": "Full text shown under the {{source}} licence from {{license}}",
+      "fullInApp": "Full text",
+      "licenseAttribution": "{{author}} — {{source}}의 재배포에 따릅니다. {{license}}",
       "readMinutes": "{{n}}은 단 한 페이지도 읽지 않습니다.",
       "fontSize": "텍스트 크기",
       "openSource": "오픈 소스",
@@ -580,6 +583,9 @@
         "conditionsTitle": "회원의 권리와 의무",
         "conditionsSubtitle": "본인의 권리와 나이 제한, 안전 사용 및 JOY 규칙",
         "conditionsDetail": "본인의 권리와 나이 제한, 안전 사용 및 JOY",
+        "fullTextTitle": "모든 조건",
+        "fullTextSubtitle": "구성 요약문은 9개 언어로 하나씩 나열됩니다.",
+        "fullTextDetail": "구성 요약문, 개인정보 보호 및 멤버십 규칙은 9개 언어로 제공됩니다.",
         "content": {
           "privileges": {
             "id": "privileges",
@@ -2692,26 +2698,26 @@
         "storeDesc": "주간에 5 무료시간이 다 사용되면 추가 시간을 구매할 수 있습니다.",
         "empty": "현재 시간 패키지가 없습니다."
       },
-      "dangDo": "Đang dò",
-      "dangKetNoi": "Đang kết nối",
+      "dangDo": "Scanning",
+      "dangKetNoi": "Connecting",
       "nhieuSong": "노이즈 웜브",
-      "dangPhat": "Đang phát",
-      "tamDung": "Tạm dừng",
-      "cho": "Chờ",
-      "daHocDiaChi": " · đã học địa chỉ mới",
-      "doTanSo": "Dò tần số",
-      "doXuong": "Dò xuống",
-      "dung": "Dừng",
+      "dangPhat": "Playing",
+      "tamDung": "정지됨",
+      "cho": "Waiting",
+      "daHocDiaChi": " · learned a new address",
+      "doTanSo": "Scan up",
+      "doXuong": "Scan down",
+      "dung": "중지",
       "phat": "Phát",
       "doLen": "Dò lên",
-      "amLuong": "Âm lượng",
+      "amLuong": "볼륨",
       "ngauNhien": "Ngẫu nhiên",
       "henGioTat": "Hẹn giờ tắt",
       "timDaiVov1Npr": "Tìm đài: VOV1, NPR, Jazz…",
       "dangDo2": "Đang dò…",
       "tim": "Tìm",
       "daTim": "Đã tìm (",
-      "muaThemThoiGian": "Mua thêm thời gian nghe",
+      "muaThemThoiGian": "더 많은 듣기 시간 구매하기",
       "thoiGianMuaDuoc": "Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần."
     },
     "store": {
@@ -2959,12 +2965,12 @@
       "tutorialsTitle": "튜토리얼 및 학습",
       "xacNhanTraoDoi": "확인 대화",
       "banCoDongY": "당신은 사용자료고를 동의하여",
-      "10PhiSangTao": "(+ 10% phí sáng tạo) để đăng ký 1 tháng cho gói",
+      "10PhiSangTao": "(+ 10% creation fee) for a one-month subscription to",
       "khong": "계약 성공! 이 학습 단계가 열렸습니다.",
       "dangKyThanhCong": "거래 오류.",
-      "loiGiaoDich": "지불 계정 구매",
+      "loiGiaoDich": "거래가 실패했습니다.",
       "muaGoiVinhVien": "永恒 패키지 구매",
-      "gom": "gồm",
+      "gom": "including",
       "joyVa": "JOY와",
       "joyPhiSangTao": "JOY 창작 비용을 해제하여 영구적으로 열립니다",
       "giaHanBoPhat": "웹 개발 멤버 포털 연장",
@@ -3705,135 +3711,138 @@
     },
     "catAll": "전체",
     "catStudio": "Hugo Studio",
-    "catPvp": "Versus",
-    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
-    "bestScore": "· Best {{score}}",
-    "downloading": "Downloading {{percent}}%",
-    "exchangeError": "JOY exchange failed.",
-    "addedToApps": "{{game}} was added to your apps.",
-    "gameFallback": "Game",
-    "rankTitle": "Leaderboard",
-    "noAds": "Play right inside Hugo — no ads.",
-    "filterGames": "Filter games",
-    "playGame": "Play {{game}}",
-    "spotlight": "Today's spotlight",
-    "play": "PLAY",
+    "catPvp": "대국",
+    "credit2048": "Gabriele Cirulli의 2048을 바탕으로 제작 (MIT 라이선스)",
+    "bestScore": "· 최고의 {{score}}",
+    "downloading": "다운로드 {{percent}}%",
+    "exchangeError": "JOY 교환이 실패했습니다.",
+    "addedToApps": "{{game}}이 앱에 추가되었습니다.",
+    "gameFallback": "게임",
+    "rankTitle": "리더보드",
+    "noAds": "호구에서 바로 플레이 — 광고 없음.",
+    "filterGames": "게임 필터링",
+    "playGame": "{{game}} 플레이",
+    "spotlight": "오늘의 랜드마크",
+    "play": "재생",
     "gamesTitle": "게임",
-    "totalMatches": "Matches",
-    "wins": "Wins",
-    "rankDesc": "The best players across the whole system.",
-    "newBest": "New best!",
-    "beatBest": "Beat {{score}}",
-    "combo": "{{count}}× combo",
-    "multiplier": "Multiplier x{{value}}",
-    "best": "Best",
-    "hugoMember": "Hugo member",
+    "totalMatches": "매치",
+    "wins": "승리",
+    "rankDesc": "전체 시스템에서 가장 좋은 플레이어들.",
+    "newBest": "신규 최고! ",
+    "beatBest": "{{score}}을 이기다",
+    "combo": "{{count}}× 콤보",
+    "multiplier": "배당 x{{value}}",
+    "best": "최고",
+    "hugoMember": "호구 멤버",
     "rankSss": "RANK SSS • GRANDMASTER",
     "rankS": "RANK S • CODE WARRIOR",
-    "joyByScore": "+ JOY based on score",
-    "pendingWallet": "· waiting to land in your wallet",
-    "tryAgainClose": "Try again — so close!",
-    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
-    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "joyByScore": "+ JOY 기반 점수",
+    "pendingWallet": "· 지갑에 떨어지기 전까지 기다리세요",
+    "tryAgainClose": "더 가까워졌어요! 다시 시도해보세요",
+    "g2048Triple": "⚡ 10초 동안 ×3 포인트!",
+    "g2048Fever": "🔥 열정 모드! ×2 포인트",
     "g2048Level": "레벨 {{level}}",
-    "g2048LevelStone": "Level {{level}} · with stone tiles",
-    "g2048Undone": "One move undone",
-    "g2048Tnt": "TNT tile",
-    "g2048Stone": "Stone tile, {{turns}} moves left",
+    "g2048LevelStone": "레벨 {{level}} · 돌판 위에",
+    "g2048Undone": "한 페어를 되돌립니다",
+    "g2048Tnt": "TNT 틀",
+    "g2048Stone": "Stone 틀, {{turns}} 왼쪽으로 이동합니다.",
     "g2048Tile": "Tile {{value}}",
     "g2048Score": "SCORE",
     "g2048Moves": "MOVES",
-    "snakeStage1": "Neon Garden",
+    "snakeStage1": "Neon 정원",
     "snakeStage1Kicker": "WARM-UP STAGE",
-    "snakeStage1Goal": "Collect 6 energy cores",
-    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
+    "snakeStage1Goal": "6 에너지 코어 수집",
+    "snakeStage1Hint": "진동에 맞춰 춤추면서 연속을 일으키세요.",
     "snakeStage2": "Red Minefield",
-    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
-    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
-    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
-    "snakeStage3": "Quantum Gates",
-    "snakeStage3Kicker": "TELEPORT CHALLENGE",
-    "snakeStage3Goal": "Master the pair of space gates",
-    "snakeStage3Hint": "Enter one gate to appear at the other.",
-    "snakeStage4": "Gold Hunt",
-    "snakeStage4Kicker": "SPEED CHALLENGE",
-    "snakeStage4Goal": "Catch the golden cores before they vanish",
-    "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
-    "snakeStage5Kicker": "FINAL STAGE",
-    "snakeStage5Goal": "Survive the high-speed grid",
-    "snakeStage5Hint": "High speed, more mines and teleport gates.",
-    "snakeNewStage": "{{stage}} · a new challenge is open",
-    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
-    "snakeFood": "Cores",
-    "snakeStageLabel": "Stage",
-    "snakeStageOf": "Stage {{index}}: {{name}}",
-    "ready": "READY",
+    "snakeStage2Kicker": "생존 도전",
+    "snakeStage2Goal": "폭탄을 피하고 6개의 코어를 먹으세요.",
+    "snakeStage2Hint": "빨간 폭탄은 빛나지만 파괴할 수 없습니다.",
+    "snakeStage3": "quantum gates",
+    "snakeStage3Kicker": " teleport 도전",
+    "snakeStage3Goal": "공간 두 개의 공간 문을 제 mastery",
+    "snakeStage3Hint": "하나의 문으로 다른 문으로 나타납니다.",
+    "snakeStage4": "금속 캐ught",
+    "snakeStage4Kicker": "속도 도전",
+    "snakeStage4Goal": "코어가 사라질 전에 잡으세요.",
+    "snakeStage4Hint": " golden_core는 10점이고, 큰 콤보를 유지합니다 .",
+    "snakeStage5Kicker": "최종 단계",
+    "snakeStage5Goal": "고속 도로에서 생존하세요",
+    "snakeStage5Hint": "고속, 더 많은 미네랄과 이동 gate.",
+    "snakeNewStage": "{{stage}} · 새로운 도전이 열립니다",
+    "snakeLevelUp": "레벨 {{level}} · 속도와 난이도가 높아집니다",
+    "snakeFood": "코어",
+    "snakeStageLabel": "스테이지",
+    "snakeStageOf": "스테이지 {{index}}: {{name}}",
+    "ready": "준비",
     "snakeStageProgress": "STAGE PROGRESS",
-    "snakeCoreNormal": "+2 normal core",
-    "snakeCoreGold": "+10 golden core",
-    "snakeMine": "Mine: game over",
-    "snakePortal": "Teleport gate",
-    "chessBoard": "3D chess board",
-    "chessWhite": "White",
-    "chessBlack": "Black",
-    "chessCheckmate": "Checkmate! {{side}} wins!",
-    "chessStalemate": "Draw (stalemate)",
-    "chessOver": "Game over",
-    "chessLevelEasy": "Apprentice",
-    "chessEasy": "Easy",
-    "chessLevelMid": "Tactician",
+    "snakeCoreNormal": "+2 일반 코어",
+    "snakeCoreGold": "+10 골드 코어",
+    "snakeMine": "Mine: 게임 오버",
+    "snakePortal": " teleport gate",
+    "chessBoard": "3D 체스 보드",
+    "chessWhite": "백색",
+    "chessBlack": "검정색",
+    "chessCheckmate": "체스 종료! {{side}} 승!",
+    "chessStalemate": "무승부 (격렬한 상황)",
+    "chessOver": "게임 종료",
+    "chessLevelEasy": "신입사원",
+    "chessEasy": "쉬움",
+    "chessLevelMid": " tactical",
     "chessMid": "중간",
-    "chessLevelHard": "Master",
-    "chessHard": "Hard",
-    "chessThinking": "Hugo BOT is thinking…",
-    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
-    "chessTurn": "Turn: {{side}}",
-    "chessBotThinking": "Hugo BOT (thinking…)",
-    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
-    "chessBlackPlayer": "Black player",
-    "chessView3d": "3D view",
-    "chessUndo": "Undo",
-    "chessNewGame": "New game",
-    "chessYouWhite": "You (White)",
-    "chessWhitePlayer": "White player",
-    "caroThinking": "The AI is thinking",
-    "caroYourTurn": "Your turn (X)",
-    "caroWin": "You win! 🎉",
-    "caroLose": "The AI won — try again!",
-    "caroDraw": "Draw! The board is full.",
-    "caroYou": "You",
-    "caroRule": "3 in a row",
-    "survivorWaveClear": "WAVE {{wave}} CLEAR",
-    "survivorSurge": "SURGE",
-    "survivorBoss": "{{wave}} · BOSS",
-    "survivorLeft": "{{wave}} · {{count}} left",
-    "survivorClear": "{{wave}} · clear",
-    "rankSs": "RANK SS • NEON ACE",
+    "chessLevelHard": "마스터",
+    "chessHard": "어려움",
+    "chessThinking": "Hugo BOT이 생각 중...",
+    "chessInCheck": "⚠ YOUR KING IS IN CHECK!",
+    "chessTurn": "턴: {{side}}",
+    "chessBotThinking": "Hugo BOT( thinking…)",
+    "chessBotLevel": "호가 AI 보트 · 레벨 {{level}}",
+    "chessBlackPlayer": "검은 플레이어",
+    "chessView3d": "3D 시각화",
+    "chessUndo": "시행복구",
+    "chessNewGame": "새 게임",
+    "chessYouWhite": "당신 (백)",
+    "chessWhitePlayer": "백 플레이어",
+    "caroThinking": "AI가 생각 중입니다",
+    "caroYourTurn": "당신의 차례 (X)",
+    "caroWin": "당신이 이겼습니다 🎉",
+    "caroLose": "재시도해주세요!",
+    "caroDraw": "보드가 가득 찼습니다.",
+    "caroYou": "당신",
+    "caroRule": "{{win}}목 완성",
+    "survivorWaveClear": "{{wave}} 휘파람",
+    "survivorSurge": "승리",
+    "survivorBoss": "{{wave}} · 보스",
+    "survivorLeft": "{{wave}} · {{count}} 남음",
+    "survivorClear": "{{wave}} · 정리됨",
+    "rankSs": "SS • NEON ACE",
     "rankA": "RANK A • SENIOR FIGHTER",
     "rankB": "RANK B • RISING PLAYER",
-    "shellFormula": "{{score}} points → {{joy}} JOY",
-    "shellRecord": "New best! {{delta}} points more than last time.",
-    "shellNear": "{{gap}} points short of your best {{best}}.",
-    "shellBest": "Your best: {{best}}.",
-    "lbWinner": "{{name}} is the winner!",
-    "lbRealtime": "Total score updates in real time • {{date}}",
+    "shellFormula": "{{score}} 점 → {{joy}} JOY",
+    "shellRecord": "최신 최고! {{delta}} 점 더 많은 거래.",
+    "shellNear": "{{gap}} 점이 당신의 최고 {{best}}에 미치지 못해요.",
+    "shellBest": "당신의 최고: {{best}} 점",
+    "lbWinner": "{{name}}은 우승자!",
+    "lbRealtime": "전체 점수는 실시간으로 업데이트됩니다 • {{date}}",
     "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
-    "lbLoading": "Adding up scores across every game…",
+    "lbLoading": "모든 게임에서 점수 합산 중…",
     "lbMatches": "{{count}} matches played",
     "lbTotalScore": "TOTAL SCORE",
-    "lbEmpty": "Nobody on the board yet. Be the first!",
+    "lbEmpty": "게임에 아직 아무도 참여하지 않았습니다. 첫 번째 사람을 찾아보세요!",
     "snakeStage5": "Hyper Grid",
-    "snakeCurrentMission": "CURRENT MISSION",
-    "chessMovesPlayed": "Game finished after {{count}} moves.",
-    "chessArena": "3D Chess Arena",
-    "chessVsBot": "Play the Hugo AI BOT",
-    "chessVsBotDesc": "You play White · a test against the algorithm",
-    "chessPassPlay": "Two players, one device (pass & play)",
-    "chessPassPlayDesc": "Put the device between you like a real board",
-    "chessBotLevelLabel": "AI BOT level:",
-    "chessHistory": "History:",
-    "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "snakeCurrentMission": "현재 미션",
+    "chessMovesPlayed": "게임은 {{count}} 개의 움직임 후에 종료되었습니다.",
+    "chessArena": "3D 체스 아레나",
+    "chessVsBot": "호구 AI BOT 플레이하기",
+    "chessVsBotDesc": "당신이 백색을 플레이합니다. 알고리즘과 테스트 대결",
+    "chessPassPlay": "두 명의 플레이어, 하나의 장치 (패스 및 플레이)",
+    "chessPassPlayDesc": "장치를 실제 보드처럼 당신 주변에 배치해주세요.",
+    "chessBotLevelLabel": "AI BOT 수준:",
+    "chessHistory": "역사:",
+    "exclusive": "Hugo Studio 단독",
+    "caroBoardLabel": "오목 {{size}} × {{size}} · {{win}}목",
+    "openApp": "열기",
+    "getApp": "받기",
+    "gameCount": "게임 {{count}}개"
   },
   "arcadeIntro": {
     "close": "앱으로 돌아가기",
@@ -4283,8 +4292,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "학생, 개인 및 소규모 상점을 위한 웹사이트 컨설팅 | 호구 스토리",
-      "description": "Hugo가 필요하신 것을 먼저 선택하시면 됩니다. 1와 1 간 상담을 통해 학생, 개인 및 소규모 기업에 맞춘 서비스를 제공합니다. 작업 시작 전에 범위와 비용이 결정됩니다.",
+      "title": "학생·개인·소상공인을 위한 웹사이트 상담 | Hugo Studio",
+      "description": "방법을 고르기 전에 목적부터 들려주세요. 학생·개인·소상공인을 위한 1:1 상담, 범위와 비용은 착수 전에 확정합니다.",
       "keywords": "학생 웹사이트, 학생 포트폴리오, 개인 웹사이트, 소규모 기업 웹사이트, 웹컨설팅, Hugo 스토리"
     },
     "common": {
@@ -4308,12 +4317,12 @@
       "closing": "모든 숫자는 문입니다. 어떤 문을 열까요?"
     },
     "hero": {
-      "badge": "직접 1-to-1 · 학생들이 먼저",
-      "title1": "대기상태는 아직 패키지를 필요하지 않습니다.",
-      "title2": "필요한 것부터 시작해보세요.",
-      "desc": "목표나 방해 요소, 또는 원하는 결과에 대해 알려주세요. 저는 올바른 크기의 접근법을 도와드릴 것입니다 — 학생 블로그와 포트폴리오부터 개인 및 소규모 상점 웹사이트까지.",
-      "viewPricing": "당신의 상황을 선택해 주세요.",
-      "contact": "당신이 필요하신 것을 말씀해주세요",
+      "badge": "1:1 직접 상담 · 학생 우선",
+      "title1": "아직 패키지를 고르지 않아도 됩니다.",
+      "title2": "필요한 것부터 시작하세요.",
+      "desc": "목표, 지금 걸리는 점, 만들고 싶은 것을 들려주세요. 딱 맞는 크기의 방법을 찾아 드립니다 — 학생 Bio와 포트폴리오부터 개인과 작은 가게의 웹사이트까지.",
+      "viewPricing": "내 상황 고르기",
+      "contact": "필요한 것 알려주기",
       "swipe": "슬라이드하여 계속 진행하세요.",
       "scroll": "상세 정보를 직접 디자이너와 개발자에게 제공해보세요.",
       "trust": [
@@ -4325,8 +4334,8 @@
     },
     "outcomes": {
       "eyebrow": "첫 번째 장",
-      "title": "당신의 웹사이트가 어떻게 바뀌어야 할까요?",
-      "desc": "당신의 상황과 유사한 스토리를 선택하여 관련 서비스를 볼 수 있습니다.",
+      "title": "웹사이트로 무엇을 바꾸고 싶나요?",
+      "desc": "상황과 비슷한 이야기를 고르면 관련 서비스가 나타납니다.",
       "items": [
         {
           "title": "고객이 당신 브랜드를 이해하고 선택할 수 있도록 해야 합니다.",
@@ -4352,9 +4361,9 @@
     },
     "pricing": {
       "eyebrow": "일반적인 시작 지점",
-      "title": "세 가지 방법으로 시작합니다.",
+      "title": "흔히 쓰는 세 가지 시작 방법",
       "highlight": "not three rigid boxes",
-      "desc": "이것들은 일반적인 범위들입니다, 단정한 패키지가 아닙니다. 먼저 제 needs를 이해하고 충분히 필요한 것을 추천합니다. 그리고 시간과 비용을 확인하는 것이죠."
+      "desc": "고정된 패키지가 아니라 자주 쓰이는 작업 범위입니다. 먼저 필요한 것을 파악해 딱 알맞은 구성을 제안한 뒤 일정과 비용을 확정합니다."
     },
     "journey": {
       "stone1": {
@@ -4419,233 +4428,233 @@
       },
       "landing": {
         "label": "시작",
-        "name": "하위 페이지 레이어링 페이지",
+        "name": "한 페이지 랜딩 페이지",
         "oldPrice": "80.99",
-        "price": "$60.99",
+        "price": "60.99",
         "discount": "-25%",
         "note": "Custom design, no mass-market templates. Done in 5-7 days.",
         "desc": "One page, one goal: visitors finish reading and want to contact you.",
-        "tagline": "Easy to start",
+        "tagline": "시작하기 쉬움",
         "includes": [
-          "1 page custom-designed to your brand, up to 7 sections",
-          "2 revision rounds based on your feedback",
-          "Contact form, click-to-call, or direct Zalo/Messenger chat",
-          "Basic SEO: metadata, rich share previews, mobile-friendly",
-          "Deployed live with your domain hooked up",
-          "A 30-minute hands-on walkthrough over Zalo",
-          "Free bug support for 14 days after handover"
+          "1 페이지를 당신의 브랜드에 맞게 최적화된 설계로, 최대 7개의 섹션을 제공합니다.",
+          "2차 피드백 기반으로 이루어진 수정_round이 포함됩니다.",
+          "연락하기 폼, 클릭하여 통화, 또는 직접 Zalo/Messenger 채팅",
+          "기본 SEO: 메타데이터, 빈티지 공유 예보, 모바일 친화적",
+          "도메인 연결된 현장에 배포",
+          "Zalo에서 30분 동안 직접 체험하는 워크아웃 스케치",
+          "14일간의 보조 이후 무료 버그 지원 (무료)"
         ],
         "excludes": [
-          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
-          "Copy and images — you provide them, I polish and design",
-          "Booking or online payment systems → see the Website Pro package"
+          "도메인 및 호스팅 비용 (~300-500k/년 — 당신이 구매하면, 저는 당신을 도와 선택합니다)",
+          "대본과 이미지 — 당신이 제공합니다, 저는 편집하고 디스킨",
+          "예약 또는 온라인 결제 시스템 → 웹 프로 패키지를 확인해 주세요"
         ],
         "timeline": "5-7일 이내 완료"
       },
       "website": {
         "label": "Grow",
-        "name": "Multi-page website",
-        "oldPrice": "$202.99",
+        "name": "여러 페이지 웹사이트",
+        "oldPrice": "회원 포털 202.99",
         "price": "$121.99",
         "discount": "-40%",
         "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
         "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
-        "tagline": "Most popular",
+        "tagline": "가장 인기",
         "includes": [
-          "4-6 finished pages: home, about, products/services, news (optional), contact",
+          "4-6 완료 페이지: 홈, 소개, 상품/서비스, 뉴스(선택사항), 연락처",
           "Cohesive design matched to your brand (logo placement, colors, fonts...)",
           "3 revision rounds based on your feedback",
-          "Advanced SEO: Google Search Console, sitemap, schema markup",
-          "Zalo, Messenger, Google Maps + advanced contact forms",
-          "1 month of free maintenance (4 small tweaks included)",
-          "A 30-minute training session + 14 days of post-handover support"
+          "고급 키워드 최적화: Google 검색控制台, 사이트맵, 스키마 마크업",
+          "Zalo, 메신저, Google 맵스 + 고급 연락 양식",
+          "1개월간 무료 유지보수 (4개의 작은 수정이 포함되어 있습니다)",
+          "30분 트레이닝 세션 + 포스트-over 관리 후 14일간의 지원"
         ],
         "excludes": [
-          "Yearly domain & hosting fees (~300-800k, sourced externally)",
-          "Blog copywriting and product photography — you provide those",
-          "Booking management, online payments → Web System (the advanced package)"
+          "연간 도메인 및 호스팅 비용 (~300-800천원, 외부에서 제공)",
+          "블로그 콘텐츠 작성 및 제품 사진 — 당신이 제공합니다",
+          "예약 관리, 온라인 결제 → 웹 시스템 (고급 패키지)"
         ],
-        "timeline": "2–3 weeks",
-        "payment": "Paid in stages"
+        "timeline": "2–3 주",
+        "payment": "단계별 결제"
       },
       "system": {
         "label": "시스템",
-        "name": "Dynamic web app",
+        "name": "동적 웹 앱",
         "price": "From $283.99",
         "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
-        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
-        "tagline": "Long-term asset",
+        "desc": "도서보다는 웹사이트: 주문 관리 및 고객 관리를 위한 장기 자산입니다.",
+        "tagline": "오래 쓰는 자산",
         "includes": [
-          "1 core flow of your choice: bookings OR basic orders",
-          "Admin dashboard: orders, customers, key numbers",
-          "Login with 2 permission levels: owner and staff",
-          "1 data connection: Google Sheet or Zalo",
-          "Full source code handover — the site is your asset",
-          "1 month of technical support after handover"
+          "1개의 콘텐츠 흐름을 선택하세요: 예약 또는 기본 주문",
+          "관리자 대시보드: 주문, 고객, 핵심 수치",
+          "2가지 권한 레벨로 로그인: 소유자와 직원",
+          "1개의 데이터 연결: Google 시트 또는 Zalo",
+          "전체 소스 코드 전달 — 웹사이트는 당신의 자산입니다.",
+          "전환 후 1개월간 기술 지원 제공"
         ],
         "excludes": [
-          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
-          "VIP membership, points & loyalty programs → separate add-on",
-          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
+          "온라인 결제 플랫폼 (PayOS, Momo, Stripe) → 별도 추가 요금, 약 1-3M",
+          "VIP 멤버십, 포인트 및 리텐션 프로그램 → 별도의 추가 항목",
+          "~300천-1억/월(외부에서 제공됨)의 월간 도메인 및 VPS 비용"
         ]
       }
     },
     "studentPlans": {
-      "orderCta": "Contact to order",
-      "detailsCta": "See verification terms & student plan details",
-      "capLabel": "Scope limits",
-      "compareLabel": "Vs. standard pricing",
+      "orderCta": "문의하여 주문하기",
+      "detailsCta": "확인 조건과 학생 계획 세부 정보 보기",
+      "capLabel": "범위 제한",
+      "compareLabel": "대비 표준 가격",
       "groupCoursework": {
-        "title": "Help with end-of-term coursework",
-        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+        "title": "종료 시즌 과제에 대한 도움을 드리기",
+        "desc": "이 작업은 평가되므로 모든 계획에는 코드 설명이 포함되어 있으며, 한 가지 조건: 당신 자신으로 작업을 defend할 수 있어야 합니다."
       },
       "groupProfile": {
-        "title": "Personal profile — nothing to do with grades",
-        "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
+        "title": "개인 프로필 — 학점을 관련하지 않습니다",
+        "desc": "대상은 이 프로필입니다. 당신이 일과 입학서 및 장학금 지원에 사용하는 것입니다."
       },
       "bug": {
         "label": "STUDENT",
-        "name": "Diagnose & Fix",
+        "name": "진단 및 수정",
         "price": "120.000đ",
         "unit": "/bug",
-        "tagline": "Stuck near the deadline",
-        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
-        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
+        "tagline": "마감일 근처에 있습니다",
+        "note": "약정된 버그당 가격입니다. 나는 단지 부러진 부분만 만지고 — 그 외의 코드는 당신이 유지합니다.",
+        "desc": "부적절한 논리, 열리지 않는 데이터베이스 연결 또는 축소된 레이아웃. 나는 원인을 찾아 수정하고 그것이 왜 부러졌는지 설명합니다.",
         "includes": [
-          "Find and fix the exact bug agreed before we start",
-          "Written notes on the root cause so you can answer when asked",
-          "A Git link to clone the fixed code from",
-          "3-day warranty on the bug that was fixed"
+          "시작하기 전에 약정했던 정확한 버그를 찾고 수정",
+          "문서에 원인을 기재하여 물어볼 때 답변할 수 있습니다。",
+          "수정된 코드를 클론할 Git 링크입니다。",
+          "수정된 버그가 해결된 3일 보증"
         ],
         "cap": [
-          "Up to 2 bugs per order",
-          "Repairs only — no new features written"
+          "최대 2개의 버그당 주문",
+          "수리만 — 새로운 기능은 작성되지 않습니다。"
         ]
       },
       "html": {
         "label": "HTML/CSS/JS",
-        "name": "Static Web Coursework",
+        "name": "비주얼 웹 과제작",
         "price": "490.000đ",
-        "tagline": "Responsive front end",
-        "note": "Split between 2 students: ~245.000đ each.",
+        "tagline": "응답형 전면 디스플레이",
+        "note": "2명의 학생에게 분배: 각 ~245.000đ",
         "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
         "includes": [
-          "Your own Git link to clone the whole source from",
-          "Responsive interface that holds up on phones",
-          "DOM animation and basic JavaScript behaviour",
-          "Documentation: folder structure, what each file does, how to run it",
-          "Commented code plus free deploy instructions"
+          "프로젝트의 Git 링크: 전체 소스를 클론할 수 있습니다.",
+          "모바일에서도 잘 작동하는responsive 인터페이스",
+          "DOM 애니메이션과 기본적인 JavaScript 동작",
+          "도큐먼트: 폴더 구조, 각 파일의 역할, 실행 방법",
+          "코드에 대한 주석 및 무료 배포 지침"
         ],
         "cap": [
-          "One course, up to 4 static pages",
-          "No backend, no database",
-          "No capstone or graduation projects"
+          "한 개의 코스로 최대 4개의 정적 페이지",
+          "Backend 없음, 데이터베이스 없음",
+          "캡스톤 프로젝트나 학위 논문 없음"
         ],
-        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
+        "compare": "One-Page 웹사이트 계획 (1.490.000%)"
       },
       "php": {
         "label": "PHP/SQL",
-        "name": "Dynamic Web Coursework",
-        "price": "990.000đ",
-        "tagline": "CRUD & permissions",
-        "note": "Split between 3 students: ~330.000đ each.",
-        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
+        "name": "동적 웹 과제",
+        "price": "990.000원",
+        "tagline": "CRUD 및 권한",
+        "note": "3명의 학생에게 분배: 각각 ~330.000원",
+        "desc": "학기말 동적 웹 작업: CRUD 데이터 처리와 등록, 기본 역할 기반 로그인 포함",
         "includes": [
-          "Your own Git link to clone the whole source from",
-          "Data handling in PHP with a MySQL database",
-          "Registration, login and basic role permissions",
-          "SQL dump and seed data included so it runs on first try",
-          "Documentation: XAMPP setup, database import, the flow behind each feature"
+          "프로젝트의 Git 링크: 전체 소스를 클론할 수 있습니다.",
+          "PHP로 데이터 처리와 MySQL 데이터베이스 사용",
+          "등록, 로그인 및 기본 역할 권한",
+          "SQL 덤프와 시드 데이터가 포함되어 있어 처음 실행시 작동합니다.",
+          "도움말: XAMPP 설정, 데이터베이스 인ポート, 각 기능 뒤의 과정"
         ],
         "cap": [
-          "One course, up to 6 database tables",
-          "Up to 2 CRUD feature groups plus login",
-          "No capstone or graduation projects"
+          "한 개의 코스, 최대 6개의 데이터베이스 테이블",
+          "최대 2개의 CRUD 특징 그룹과 로그인 포함",
+          "캡스톤 프로젝트나 학위 논문 없음"
         ],
-        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
+        "compare": "일반 웹사이트 계획보다 세 배 저렴 (1.490.000đ)."
       },
       "react": {
         "label": "REACT/NODE",
-        "name": "Advanced Web Coursework",
+        "name": "고급 웹 과정 강좌",
         "price": "1.690.000đ",
         "tagline": "SPA + REST API",
-        "note": "Split between 4 students: ~425.000đ each.",
-        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
+        "note": "4명의 학생에게 분배: 각각 ~425.000đ",
+        "desc": "학기말 고급 웹 작업: 리액트 SPA와 노드/Express REST API, MongoDB 또는 PostgreSQL을 기반으로 한 백엔드",
         "includes": [
-          "Your own Git link to clone the whole source from",
-          "React SPA architecture with a Node.js/Express REST API",
-          "Authentication plus up to 3 CRUD feature groups",
-          "Seed data included so it runs on first try",
-          "Documentation: environment setup, env vars, a data-flow map for every API"
+          "프로젝트의 Git 링크: 전체 소스를 클론할 수 있습니다.",
+          "React SPA 아키텍처와 Node.js/Express REST API",
+          "인증 및 최대 3개의 CRUD 기능 그룹 포함",
+          "시드 데이터가 포함되어 처음 실행 시 작동합니다",
+          "도큐먼트: 환경 설정, 환경 변수, 모든 API의 데이터 흐름 맵"
         ],
         "cap": [
-          "One course, up to 3 CRUD feature groups plus login",
-          "One REST API and one database",
-          "No capstone or graduation projects"
+          "한 개의 코스와 최대 3개의 CRUD 기능 그룹 및 로그인 포함",
+          "하나의 REST API와 하나의 데이터베이스",
+          "캡스톤 프로젝트나 학위 논문 없음"
         ],
-        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
+        "compare": "다중 페이지 웹사이트 계획보다 43% 저렴 (2.990.000đ)."
       },
       "exclusiveBio": {
         "label": "STUDENT",
-        "name": "Custom-Designed Bio",
+        "name": "고객 맞춤 설계된 Bio",
         "price": "99.000đ",
-        "tagline": "An upgrade on the free one",
-        "note": "The free version you build yourself in the editor. This one I design around your story.",
-        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
+        "tagline": "프리뷰 버전은 무료 버전과 다릅니다.",
+        "note": "이것은 에디터에서 만든 무료 버전을 기반으로 디자인했습니다.",
+        "desc": "개인용 랩터 페이지입니다. CV, 학교 지원서 또는 사회 프로필에 적합한 레이아웃과 색상 팔레트가 포함되어 있습니다.",
         "includes": [
-          "Layout and colour palette designed for you alone",
-          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
-          "An about-you section: summary, interests, selected skills",
-          "Looks right on both desktop and mobile"
+          "개인적으로 디자인된 레이아웃과 색상 팔레트",
+          "최대 5개의 링크 (깃허브, 리니어드, 포트폴리오, 소셜 미디어 등)",
+          "자기소개 섹션: 요약, 관심사, 선택된 기술들",
+          "모바일과 디스플레이 모두에서 잘 보입니다."
         ],
         "cap": [
-          "One page, up to 5 links",
-          "2 rounds of revisions after handover"
+          "한 페이지에 최대 5개의 링크",
+          "손递后进行两轮修订"
         ]
       },
       "bento": {
         "label": "STUDENT",
-        "name": "Bento CV / Portfolio",
-        "price": "799.000đ",
-        "tagline": "Built for jobs & scholarships",
-        "note": "A personal profile, not an assignment — it touches none of your grades.",
-        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
+        "name": "便当式简历/作品集",
+        "price": "799.000",
+        "tagline": "专为求职和奖学金设计",
+        "note": "仅是一个个人资料，不涉及你的成绩。",
+        "desc": "学术成果、突出的个人项目以及你的链接以干净的便当网格布局展示，在30秒内即可阅读。",
         "includes": [
-          "A one-page portfolio in a Bento Grid layout",
-          "GitHub, socials and contact details wired in",
+          "一个页面的作品集采用便当网格布局",
+          "GitHub、社交账号及联系方式已集成",
           "Contact form feeding straight into a free Google Sheet",
-          "Deployed to free lifetime hosting (Vercel/Netlify)"
+          "프리미엄 무료 호스팅 (Vercel/Netlify)로 배포됨"
         ],
         "cap": [
-          "Up to 7 content blocks",
-          "2 rounds of revisions after handover"
+          "최대 7개의 컨텐츠 블록을 사용할 수 있습니다",
+          "손递后进行两轮修订"
         ]
       }
     },
     "demo": {
-      "eyebrow": "See for yourself",
-      "title": "Try out",
-      "highlight": "real design demos",
-      "desc": "Three focused examples for personal profiles, small shops and creative services. Open them only when you want a closer look.",
-      "openCta": "Open 3 relevant demos",
-      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
-      "cta": "Build something like this",
+      "eyebrow": "본인에게 직접 확인해보세요",
+      "title": "테스트 해보세요",
+      "highlight": "실제 디자인 예시들 보기",
+      "desc": "개인 프로필, 소규모 상점 및 창작 서비스에 초점을 맞춘 세 가지 예시입니다. 필요할 때만 열려 있습니다.",
+      "openCta": "3가지 관련 예시 열기",
+      "hint": "이와 유사한 것을 좋아하시나요? 그 이름을 메시지로 보내주시면, 브랜드에 맞게 조정해 드리겠습니다.",
+      "cta": "이와 유사한 것들을 만들어보세요",
       "loading": "Loading demo...",
       "templates": {
         "photography": {
-          "title": "Photography Studio",
-          "short": "Photo",
-          "subtitle": "Photographer"
+          "title": "사진 스튜디오",
+          "short": "사진",
+          "subtitle": " photographer"
         },
         "cafe": {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "카페 및 레스토랑",
+          "short": "카페",
+          "subtitle": "레스토랑"
         },
         "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
+          "title": "金银珠宝店",
+          "short": "珠宝",
+          "subtitle": "珠宝商"
         },
         "portfolio": {
           "title": "개인 포트폴리오",
@@ -4654,197 +4663,197 @@
         },
         "ecommerce": {
           "title": "Online Store",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "short": "온라인 쇼핑몰",
+          "subtitle": "다수-industry"
         },
         "dashboard": {
-          "title": "Admin Panel",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
+          "title": "관리 패널",
+          "short": "대시보드",
+          "subtitle": "대시보드"
         }
       }
     },
     "care": {
-      "eyebrow": "Already have a website?",
-      "title": "No rebuild needed —",
-      "highlight": "fix just what's broken",
-      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
+      "eyebrow": "이미 웹사이트가 있나요?",
+      "title": " rebuild 없음 —",
+      "highlight": "만들어진 것만 고쳐서",
+      "desc": "만일 사이트에 몇 가지 수정이나 속도 향상만 필요하다면, 전액 패키지보다는 낮은 비용으로 해결할 수 있습니다."
     },
     "micro": {
-      "eyebrow": "Having trouble with an existing site?",
+      "eyebrow": "기존 사이트에서 문제가 있나요?",
       "title": "Fix only what is needed,",
-      "highlight": "without forcing a rebuild",
-      "desc": "Send the site link or a screenshot of the issue. I will review the current state, explain what can be fixed and quote only after we agree on the same scope.",
-      "costLabel": "Cost:",
-      "cta": "Contact",
-      "customTitle": "Got a unique idea or custom request?",
-      "customDesc": "Send me the current state and the result you want. If it is a good fit, I will propose the approach, scope and timeline before quoting.",
-      "customCta": "Let's chat about it!"
+      "highlight": "불필요한 부분만 수정합니다.",
+      "desc": "필수 수정 사항만 강요하지 않습니다.",
+      "costLabel": "문제 해결 후 사이트 링크 또는 문제를 설명하는 스크린샷을 보내주세요. 현재 상태를 검토하고, 수정할 수 있는 내용과 함께 제시하겠습니다.",
+      "cta": "비용: ",
+      "customTitle": "연락해 주세요:",
+      "customDesc": "특이한 아이디어나 개인 요청 있으신가요?",
+      "customCta": "현재 상태와 원하는 결과를 알려주시면 감사하겠습니다. 적절하다면, 제안을 제공하기 전에 접근 방법, 범위 및 일정을 검토하겠습니다."
     },
     "app": {
-      "badge": "Full web system",
+      "badge": "그런 상황이라면 대화해보세요!",
       "title1": "A website that",
-      "title2": "works for you.",
-      "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
-      "extendTitle": "Extensions when you need them — quoted separately",
-      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+      "title2": "대용량 프로젝트에 최적화된 온라인 결제, 다수의 역할, 고유 API 제공",
+      "desc": "고객을 운영하는 사람을 대행 — 주문 받기, 시간표 예약, 보고서 작성 등 — 하지만 한 번만 지불하고 24시간 7일간 작동합니다.",
+      "extendTitle": "필요한 시점에 사용할 수 있는 확장 기능 — 별도로 계약됩니다",
+      "extendDesc": "12-20억 규모의 프로젝트는 작업 시작 전 작성된 사항을 확인합니다. 법인은 고유 API 제공, 여러 역할, 온라인 결제 등"
     },
     "student": {
-      "badge": "Hugo Studio's priority",
-      "title1": "Students always have",
-      "title2": "a free place to begin.",
-      "desc": "Once verified, you can use a standard Bio and the core learning tools for free. Bespoke design, an advanced portfolio or technical help beyond those benefits is discussed clearly before any work begins.",
-      "cta": "See free benefits",
-      "customEyebrow": "When you want to go further",
-      "customTitle": "Personal support while you still learn and own your work",
-      "customDesc": "You do not need to choose a package or guess the cost first. Send your goal, deadline and where you are stuck; I will clarify what is free, what needs custom work and the most responsible path forward.",
-      "customCta": "Tell me about your goal",
+      "badge": "호구 스토리의 우선 순위",
+      "title1": "학생들에게 항상 무료 공간이 있습니다.",
+      "title2": "확인되면 표준 Bio와 기본 학습 도구를 무료로 사용할 수 있습니다. 고유 디자인, 전문 포트폴리오 또는 기술적 지원은 작업 시작 전에 명확하게 논의됩니다.",
+      "desc": "무료 혜택을 볼 수 있는 무료 프로필 보여주기",
+      "cta": "호구 스토리 회원 포털 인터페이스 콘텐츠 번역 결과",
+      "customEyebrow": "대한 멤버가 더 나아갈 때",
+      "customTitle": "공유하고 배우며 당신의 작업을 소유하는 동안 개인적인 지원을 제공합니다.",
+      "customDesc": "패키지를 선택하거나 비용을 추측할 필요가 없습니다. 목표, 마감일 및 어디에 걸려있는지 알려주세요; 저는 무료로 무엇이 가능하며, 어떻게 커스텀 작업이 필요한지 그리고 가장 책임감 있는 앞으로의 길을 설명하겠습니다.",
+      "customCta": "당신의 목표에 대해 말해줘",
       "customItems": [
         {
-          "title": "Bespoke Bio & portfolio",
-          "desc": "For internships, scholarships or personal branding that needs a distinct story and layout."
+          "title": "개별 Bio와 포트폴리오",
+          "desc": "인턴십, 장학금 또는 개인 브랜딩이 필요하며 독특한 이야기와 디자인이 필요한 경우입니다."
         },
         {
-          "title": "Guided debugging",
-          "desc": "We find the cause, fix the agreed area and explain the solution so you understand it."
+          "title": "지도된 오류 수정",
+          "desc": "원인을 찾고 합의된 영역을 고치고 해결 방법을 설명하여 이해할 수 있도록 합니다."
         },
         {
-          "title": "Web project direction",
-          "desc": "Review requirements, architecture and setup so you can responsibly complete your own learning project."
+          "title": "웹 프로젝트 방향",
+          "desc": "요구 사항, 아키텍처 및 설정을 검토하여 책임감 있게 자신의 학습 프로젝트를 완료할 수 있습니다."
         }
       ],
       "items": [
         {
-          "title": "Personal Bio",
-          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+          "title": "개인 블로그",
+          "desc": "자신을 소개하는 페이지에 사회, 학습 및 미니 포트폴리오 링크가 포함됩니다."
         },
         {
-          "title": "Study tools",
-          "desc": "Notes, Q&A, resources and utilities for self-study."
+          "title": "학습 도구",
+          "desc": "자기 학습용 노트, Q&A, 리소스 및 도구"
         },
         {
-          "title": "Personal support bot",
-          "desc": "Quick answers, study tips, reminders and everyday help."
+          "title": "개인 지원봇",
+          "desc": "질문과 답변, 학습 팁, 일상적인 도움을 제공하는 빠른 응답"
         },
         {
-          "title": "Q&A community",
-          "desc": "A space to ask about homework and projects, and get direction within support scope."
+          "title": "Q&A 커뮤니티",
+          "desc": "고사와 프로젝트에 대한 질문을 하고 지정된 지원 범위 내에서 방향을 얻을 수 있는 공간"
         }
       ]
     },
     "process": {
-      "eyebrow": "Process",
-      "title": "Clear steps,",
-      "highlight": "start to finish",
-      "desc": "You always know the current step, what is in scope and what happens next.",
+      "eyebrow": "프로세스",
+      "title": "시작부터 끝까지의 단계를 항상 알고 있습니다.",
+      "highlight": "현재 진행 상황과 범위가 무엇인지 그리고 다음에 일어날 일을 이해할 수 있습니다.",
+      "desc": "당신이 요청하거나 현재 사이트나 아이디어를 보내주세요.",
       "steps": [
-        "You send your needs, current site or idea.",
-        "I advise on the approach and give a clear quote first.",
-        "We lock scope and timeline, then work in milestones.",
-        "Handover with guidance, plus support for small tweaks."
+        "먼저 접근 방법을 제안하고 명확한 가격을 제공합니다.",
+        "범위와 타임라인을 확정한 후 마스터를 작업합니다.",
+        "지도하에 전환과 작은 수정 지원을 포함한 훈련을 제공합니다.",
+        "빠른 질문"
       ]
     },
     "faq": {
       "eyebrow": "FAQ",
-      "title": "Quick questions,",
-      "highlight": "honest answers",
-      "desc": "Common questions before starting a web project with Hugo Studio.",
+      "title": "진실된 답변들입니다.",
+      "highlight": "개인 정보 보호 정책",
+      "desc": "대시튜터스 웹 프로젝트 시작 전에 자주 묻는 질문.",
       "items": [
         {
-          "q": "What should I prepare before getting in touch?",
-          "a": "Send your goal, your current website if you have one, your preferred timing and one or two references you like. It is fine if the details are still unclear — the first conversation is for shaping the need together."
+          "q": "대시튜터스와 연락하기 전에 준비해야 할 사항은 무엇인가요?",
+          "a": "목표, 현재 웹사이트(있다면), 원하는 시기 및 좋아하는 1-2개의 참고자료를 보내주세요. 상세한 내용이 아직 모不清楚할 수도 있습니다 — 첫 번째 대화는 필요성을 함께 형상화하는 데 사용됩니다."
         },
         {
-          "q": "How is the cost determined?",
-          "a": "I look at scope, content, features, timing and the support required. Once the need is clear, I send a written proposal and quote; work starts only after both sides agree."
+          "q": "비용은 어떻게 결정되나요?",
+          "a": "범위, 컨텐츠, 기능, 시기 및 필요한 지원을 고려합니다. 필요성이 명확해지면 쓰여진 제안서와 가격을 보내고, 양측이 동의하면 작업이 시작됩니다."
         },
         {
-          "q": "How do free student benefits differ from custom support?",
-          "a": "The standard Bio and core tools are free for verified students under the published conditions. Exclusive design, an advanced portfolio or requested technical support is separate and always discussed before work begins."
+          "q": "무료 학생 혜택과 개인 맞춤형 지원은 어떻게 다릅니까?",
+          "a": "대한 학생들이 공개 조건에 따라 인증된 사용자들에게 표준 Bio와 기본 도구는 무료입니다. 전용 디자인, 고급 포트폴리오 또는 요청된 기술 지원은 별도이며 작업이 시작되기 전에 항상 논의됩니다."
         },
         {
-          "q": "Can you build it if I don't have a design yet?",
-          "a": "Yes. Describe who will use the page and what you want them to do next. I will propose the structure, content to prepare and a fitting visual direction."
+          "q": "아직 디자인이 없는데 만들 수 있을까요?",
+          "a": "네, 사용자가 페이지를 어떻게 사용할지 설명하고 다음으로 무엇을 수행해야 하는지 설명하면 제안합니다. 구조, 내용 준비 및 적합한 시각적 방향이 필요합니다."
         },
         {
-          "q": "Is there support after handover?",
-          "a": "Yes. Each project clearly states the warranty and support period. I provide a walkthrough, fix issues within the agreed scope and tell you before any new item becomes separate work."
+          "q": "제공 후에는 지원이 있나요?",
+          "a": "네, 각 프로젝트는 보증 기간과 지원 기간을 명확히 표시됩니다. 저는 약정된 범위 내에서 walkthrough를 제공하고 문제를 수정하며 새로운 항목이 별도의 작업으로 변하지 않도록 알려드립니다."
         }
       ]
     },
     "finalCta": {
-      "title1": "Every project starts with",
-      "title2": "one clear conversation.",
-      "desc": "You do not need to know a package name or prepare a perfect brief. Share your current site, a screenshot or a few lines about the goal, and I will help identify the right next step.",
-      "cta": "당신이 필요하신 것을 말씀해주세요"
+      "title1": "모든 프로젝트는",
+      "title2": "분명한 대화 한 번에서 시작합니다.",
+      "desc": "패키지 이름을 알 필요도, 완벽한 기획서를 준비할 필요도 없습니다. 지금 쓰는 사이트나 스크린샷, 목표를 적은 몇 줄만 보내 주시면 다음 단계를 함께 찾아 드립니다.",
+      "cta": "필요한 것 알려주기"
     },
     "promo": {
-      "title": "Free Aesthetic Bio Page for Students!",
+      "title": "학생용 아름다운 생애 페이지 무료!",
       "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
-      "cta": "Verify Me!"
+      "cta": "확인해주세요!"
     },
     "tabs": {
-      "commercial": "Business / Personal",
-      "student": "For Students",
-      "micro": "Quick Fixes"
+      "commercial": "비즈니스 / 개인",
+      "student": "학생들용",
+      "micro": "빠른 수정"
     },
     "microJobs": {
       "bug-ui": {
-        "name": "Squish Interface Bugs",
-        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
+        "name": "인터페이스 버그 수정",
+        "desc": "누락된 버튼, 이미지의 잘못된 정렬, 폰트 크기 오류 또는 텍스트 요소의 겹침을 고치세요.",
         "price": " $6.99 에서",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "style-content": {
-        "name": "Colors & Copy Polish",
-        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
+        "name": "색상 및 콘텐츠 정리",
+        "desc": "브랜드 색상을 변경하고, 글꼴을 교체하거나, 그래픽을 업데이트하거나, 텍스트 섹션을 재작성할 수 있습니다.",
         "price": "From $8.99",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "mobile-beauty": {
-        "name": "Mobile Glow-up",
-        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
+        "name": "모바일 러그업",
+        "desc": "모바일 화면에 맞게 간격을 조정하고, 반응형 글꼴을 업데이트하며, 콜-투-액tion 타겟 영역을 최적화합니다.",
         "price": "From $10.99",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "web-widget": {
-        "name": "Sweet Widgets",
-        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
+        "name": "달콤한 위젯",
+        "desc": "장난스러운 Zalo/Messenger 플로팅 채팅, 연락처 양식, Google 맵 또는 클릭하여 전화를 걸 수 있는 화상통화를 통합합니다.",
         "price": " $6.99 에서",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "deploy-domain": {
-        "name": "Web Launch",
-        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
+        "name": "웹 런시",
+        "desc": "Vercel/Netlify/VPS로 사이트 배포, 커스텀 도메인 연결 및 무료 SSL 인증서로 보안 설정.",
         "price": "From $10.99",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "seo-quick": {
-        "name": "Quick SEO Boost",
-        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
+        "name": "빠른 SEO 향상",
+        "desc": "정확한 메타 태그 (제목/설명) 설정과 Facebook/Zalo 공유용 예쁘게 생긴 링크 표시를 구성합니다.",
         "price": "From $8.99",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "speed-optimize": {
-        "name": "Speed Boost",
-        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
+        "name": "속도 향상",
+        "desc": "중요 이미지의 손실 없이 압축, 부적절한 JS/CSS 파일 제거 및 페이지 서프리즈 점수를 높입니다.",
         "price": "From $12.99",
-        "time": "Done today!"
+        "time": "오늘 완료!"
       },
       "monthly-maintenance": {
-        "name": "Monthly Cozy Care",
-        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
-        "price": "From $12.99/mo",
-        "time": "Ongoing care"
+        "name": "월간 조용한 관리",
+        "desc": "정기적인 백업, 보안 검사, 빠른 버그 수정 및 가벼운 컨텐츠 변경이 매달 이루어집니다.",
+        "price": "12.99/mo",
+        "time": "진행 중인 치 sóc"
       }
     },
-    "disclaimer": "Each option below is a starting direction. Scope, timing and cost are confirmed only after we discuss the real need.",
+    "disclaimer": "하단의 각 옵션은 실제 필요성을 논의한 후에만 범위, 시기 및 비용이 확인됩니다.",
     "section": {
-      "newBuildsTitle": "New Designs & Custom Builds",
-      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
-      "optimizeTitle": "SEO, Speed & Bug Squishing",
-      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
-      "upkeep": "If you need upkeep after the included support period, I will propose it separately based on the real update frequency — always optional."
+      "newBuildsTitle": "새로운 디자인 및 개인화된 구축",
+      "newBuildsDesc": "브랜드, 크리에이터 및 기업이 새로운 웹사이트를 부모로부터 지면으로부터 다시 만드는 데 필요한 경우 사용합니다.",
+      "optimizeTitle": "SEO, 속도 및 버그 제거",
+      "optimizeDesc": "Google의 더 나은 순위, 더 빠른 로딩 시간 또는 기술적 문제 해결을 필요로 하는 이미지 웹사이트에 대한 옵션입니다.",
+      "upkeep": "included 지원 기간 후 유지보수가 필요한 경우 실제 업데이트 주기에 따라 별도로 제안됩니다. 항상 선택 사항입니다."
     },
     "devices": {
       "desktop": "Desktop",
@@ -4852,256 +4861,323 @@
       "mobile": "Mobile"
     },
     "proof": {
-      "eyebrow": "Delivered work",
-      "title": "What a multi-page website looks like in production",
-      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
-      "clientLabel": "Client",
-      "fieldLabel": "Industry",
-      "scopeLabel": "Scope",
-      "buildLabel": "Build",
+      "eyebrow": "작업물 전달",
+      "title": "실제 웹사이트가 생산 환경에서 어떻게 보이는지的样子",
+      "desc": "진짜 고객님의 실제 웹사이트를 직접 열어보세요. 스크린샷을 믿지 않아도 됩니다.",
+      "clientLabel": "고객",
+      "fieldLabel": "산업",
+      "scopeLabel": "범위",
+      "buildLabel": "구축",
       "planLabel": "Package",
-      "clientName": "Mình Ơi Media",
-      "clientField": "Wedding photojournalism",
-      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
-      "clientBuild": "Custom design — no CMS, no template",
-      "clientPlan": "Multi-page website with a needs-based scope",
-      "cta": "Open the client site"
+      "clientName": "패키지",
+      "clientField": "미디어 미니스토리",
+      "clientScope": "결혼 사진기자사",
+      "clientBuild": "다이어사이트: 가격, 사진, 비디오, 자주 묻는 질문, 연락",
+      "clientPlan": "개인화된 디자인 — CMS 없음, 템플릿 없음",
+      "cta": "필요에 따른 범위로 다이어사이트 만들기"
+    },
+    "demoLibrary": {
+      "description": "템플릿을 선택하고 모바일, 태블릿 또는 데스크톱에서 미리보기 하세요.",
+      "live": "인터랙티브 디마이",
+      "open": "상세 정보 보기",
+      "selected": "보기",
+      "previewTitle": "템플릿 방",
+      "close": "프리뷰 닫기",
+      "previewHint": "템플릿을 선택하고, 디스위치를 변경하여 우리와 대화하기 전에 웹사이트를 상상해보세요.",
+      "included": "포함될 수 있음",
+      "liveNotice": "이 프레임 안에서 직접 스크롤과 상호작용할 수 있습니다.",
+      "fits": "최적의 선택",
+      "details": {
+        "portfolio": {
+          "fit": "학생, 독립 창조자 및 프리랜서들",
+          "features": [
+            "프로필",
+            "프로젝트",
+            "비용: "
+          ]
+        },
+        "cafe": {
+          "fit": "카페, 비스트로와 작은 빵집",
+          "features": [
+            "Menu",
+            "예약",
+            "지도"
+          ]
+        },
+        "photography": {
+          "fit": " photographers, studios and wedding services",
+          "features": [
+            "갤러리",
+            "서비스",
+            "예약"
+          ]
+        },
+        "ecommerce": {
+          "fit": "패션, 미용 및 손工艺品店",
+          "features": [
+            "제품",
+            "필터링",
+            "장바구니"
+          ]
+        },
+        "jewelry": {
+          "fit": "귀금속 가게와 고급 액세서리 브랜드",
+          "features": [
+            "컬렉션",
+            "대비 가격",
+            "상담"
+          ]
+        },
+        "dashboard": {
+          "fit": "매출 관리 및 사업 데이터 관리 팀",
+          "features": [
+            "개요",
+            "보고서",
+            "권한"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
     "header": {
-      "badge": "Customer Support",
-      "title1": "Answering",
-      "title2": "your questions",
-      "desc": "Have questions about Hugo Studio? Below are the most frequently asked questions. If you still can't find an answer, don't hesitate to contact us directly!"
+      "badge": "클라이언트 사이트 열기",
+      "title1": "고객 지원",
+      "title2": "질문 답변",
+      "desc": "Hugo Studio의 질문이 있으신가요? 아래는 가장 자주 묻는 질문입니다. 아직도 답변을 찾지 못하신다면 직접 연락해 주시기 바랍니다!"
     },
     "faqs": [
       {
-        "question": "Does Hugo Studio have fixed working hours?",
-        "answer": "I work directly 1-1, so there are no rigid working hours. Feel free to message me anytime, and I will get back to you as soon as possible!"
+        "question": "Hugo Studio에는 정해진 근무 시간이 있나요?",
+        "answer": "1-1 상담으로 진행되므로, 구체적인 근무 시간은 없습니다. 언제든지 메시지를 보내주시면 가능한 한 빨리 답변 드리겠습니다!"
       },
       {
-        "question": "How many members are in the Hugo Studio team?",
-        "answer": "I am Hugo, a final-year Software Engineering student and the primary developer. I collaborate with Jason Phan (co-development partner) on technical discussions and optimizing the full-stack experience."
+        "question": "Hugo Studio에 몇 명의 멤버가 있는가요?",
+        "answer": "저는 Hugo입니다. Software Engineering 학부생으로, 기술적 대화와 전 full-stack 경험을 최적화하는 Jason Phan(협력 개발 파트너)와 함께 작업하고 있습니다."
       },
       {
-        "question": "Is there any promotional or trial policy at Hugo Studio?",
+        "question": "Hugo Studio에는 할인이나 테스트 정책이 있나요?",
         "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
         "actionText": "Claim the Student Offer"
       },
       {
-        "question": "How is the design cost at Hugo Studio?",
-        "answer": "Since I work directly 1-1, the pricing is highly affordable and tailored to students or small businesses. To maintain quality, I only accept 1 project at a time in a queue."
+        "question": "학생 혜택 제공",
+        "answer": "호가 스토디오에서 디자인 비용은 어떻게 되나요?"
       },
       {
-        "question": "Does Hugo Studio work on holidays?",
-        "answer": "When there is a long holiday, I will post an update directly on the homepage. (Secret: Sometimes I take a short trip to recharge 🏖️)"
+        "question": "직접 1:1로 일일 작업을 처리하여 가격은 매우 저렴하며 학생이나 소규모 기업에 맞춰져 있습니다. 품질을 유지하기 위해 저는 한 번만 대기열에서 프로젝트를 수락합니다.",
+        "answer": "호가 스토디오가 공휴일 동안 작동하나요?"
       }
     ],
     "contact": {
-      "title": "Still have questions?",
-      "desc": "Don't worry! Send a direct message to the Hugo Studio team for a detailed 1:1 answer.",
-      "chatBtn": "Message",
-      "emailBtn": "Email the team"
+      "title": "장기간의 공휴일이 있을 때는 홈페이지에 직접 업데이트를 게시합니다. (비밀: 종종 휴식을 취하기 위해 짧은 여행을 가는 날 🏖️)",
+      "desc": "안심하세요! 직접 메시지를 Hugo 스토리지 팀으로 보내서 상세 1:1 답변을 받으세요.",
+      "chatBtn": "메시지",
+      "emailBtn": "팀에 이메일 보내기"
+    },
+    "meta": {
+      "title": "Frequently Asked Questions About Hugo Studio",
+      "description": "웹사이트 디자인 서비스에 대한 질문, 학습자의 Bio 페이지, 웹 사이트 비용 및 Hugo Studio가 각 프로젝트와 함께 어떻게 작동하는지에 대한 정보.",
+      "keywords": "Hugo Studio 관련 질문, 웹 사이트 디자인 서비스, 학생 Bio 페이지"
     }
   },
   "bookingPage": {
     "meta": {
-      "title": "Discuss a Website Project | Hugo Studio",
-      "description": "Outline your requirements through a concise, guided form. Hugo will respond to clarify scope, timing and an appropriate investment before any work begins.",
-      "keywords": "website project enquiry, website consultation, personal portfolio, small business website, Hugo Studio"
+      "title": "웹사이트 프로젝트 | Hugo 스토리지",
+      "description": " concise, guided form를 통해 요구 사항을 정의하세요. Hugo는 작업 시작 전 범위, 일정 및 적절한 투자를 명확히 답변하겠습니다.",
+      "keywords": "웹사이트 프로젝트 문의, 웹사이트 상담, 개인 포트폴리오, 소규모 기업용 웹사이트, Hugo 스토리지"
     },
     "toast": {
-      "success": "Your enquiry has been received. I shall respond within one business day.",
-      "error": "Your enquiry could not be sent. Please check your connection and try again.",
-      "networkError": "Connection error. Please check your internet and try again.",
-      "chooseProject": "Please choose the option that most closely reflects your needs.",
-      "chooseAge": "Please select your age group first.",
-      "underAge": "Hugo Studio accepts enquiries only from those aged 14 and above."
+      "success": "문의가 수신되었습니다. 일주일 내에 답변하겠습니다.",
+      "error": "문의를 보내는 중 오류가 발생했습니다. 연결을 확인하고 다시 시도해 주세요.",
+      "networkError": "연결 오류입니다. 인터넷을 확인하고 다시 시도해 주세요.",
+      "chooseProject": "대상이 되는 옵션을 선택해 주세요.",
+      "chooseAge": "먼저 나이 그룹을 선택해주세요.",
+      "underAge": "호구 스토리만 14세 이상의 고객에게 문의를 받습니다."
     },
     "header": {
-      "eyebrow": "A direct conversation with Hugo",
-      "title": "Tell me what you need. I’ll help define the rest.",
-      "desc": "You need neither technical jargon nor an exhaustive brief. Choose the prompts that best approximate your situation, and I will help articulate the remaining scope."
+      "eyebrow": "호구와 대화하기",
+      "title": "당신이 원하는 것을 알려주세요. 나머지는 도와드릴게요.",
+      "desc": "기술 용어도 필요하지 않고, 모든 세부 사항을 제공해 주셔야 합니다. 당신의 상황에 가장 가까운 질문들을 골라서, 나머지 범위를 명확히 표현하는 데 도움이 될 수 있습니다."
     },
     "expectations": {
       "brief": {
-        "title": "No elaborate brief required",
-        "desc": "Guided choices let you outline the project in approximately two minutes."
+        "title": "자세한 세부 사항이 필요 없습니다",
+        "desc": "단계적인 선택은 프로젝트를 약 2분 안에 요약할 수 있게 해줍니다."
       },
       "scope": {
-        "title": "Scope precedes quotation",
-        "desc": "I shall clarify any omissions and recommend only what the project genuinely warrants."
+        "title": "범위가 계약을 결정하기 전에 우선됩니다.",
+        "desc": "대략적인 투자 금액을 제공해 주셔서, 적절한 범위를 추천할 수 있습니다."
       },
       "reply": {
-        "title": "A reply within one business day",
-        "desc": "You will receive an email or message arranging the most appropriate next step."
+        "title": "반응은 일주일 내로 이루어질 것입니다.",
+        "desc": "최적의 다음 단계에 대한 이메일 또는 메시지를 보내드립니다."
       }
     },
     "progress": {
-      "label": "Step {{step}} of {{total}}",
+      "label": "단계 {{step}} 중 {{total}} 에서",
       "complete": "Complete"
     },
     "steps": {
       "age": {
-        "title": "How old are you?",
-        "hint": "Hugo Studio accepts enquiries only from those aged 14 and above."
+        "title": "당신은 몇 살입니까?",
+        "hint": "호구 스토리만 14세 이상의 고객에게 문의를 받습니다."
       },
       "project": {
-        "title": "What may I help with?",
-        "hint": "Choose the nearest fit; nothing is settled yet."
+        "title": "무엇을 도와드릴까요?",
+        "hint": "가능한 대안을 선택하세요; 아직 결정되지 않았습니다."
       },
       "budget": {
-        "title": "Indicative investment",
-        "hint": "A rough figure lets me recommend a proportionate scope."
+        "title": "대략적인 투자 금액으로 인해 추천 범위를 제공합니다.",
+        "hint": "대략적인 투자 금액을 제공해 주셔서, 적절한 범위를 추천할 수 있습니다."
       },
       "timeline": {
-        "title": "When do you need it?",
-        "hint": "A timeframe makes the schedule realistic."
+        "title": "대체 언제 필요하십니까?",
+        "hint": "시 allotment이 있어 계획을 현실적이고 구체적으로 만듭니다."
       },
       "details": {
-        "title": "The outcome you have in mind",
-        "hint": "A few sentences suffice; no formal brief required."
+        "title": "목표로 생각하시는 결과",
+        "hint": "약간의 문장만으로도 충분합니다. 형식적인 요약서가 필요하지 않습니다."
       },
       "contact": {
-        "title": "How should I reply?",
-        "hint": "Used solely to answer your enquiry, never published."
+        "title": "제게 어떻게 답해야 하나요?",
+        "hint": "단순히 질문에 답변하는 데 사용되며, 공유되지 않습니다."
       },
       "review": {
-        "title": "Review and send your enquiry",
-        "hint": "One last look before it reaches Hugo."
+        "title": "질문을 다시 확인하고 보내세요.",
+        "hint": "그리고 Hugo에게 도달하기 전 마지막으로 한 번 더 확인해보세요."
       }
     },
     "projectTypes": {
       "newWebsite": {
-        "title": "A new website",
-        "desc": "For an individual, brand, café or small enterprise."
+        "title": "새 웹사이트",
+        "desc": "개인, 브랜드, 카페 또는 소규모 기업에 적합합니다."
       },
       "portfolio": {
-        "title": "Portfolio / Bio",
-        "desc": "A considered home for your work, résumé and professional identity."
+        "title": "포트폴리오 / 블로그",
+        "desc": "작업, 채용서 및 전문적 이미지의 고유한 토양입니다."
       },
       "improve": {
-        "title": "Improve an existing site",
-        "desc": "Refine its interface, mobile experience, performance or functionality."
+        "title": "기존 사이트 개선",
+        "desc": "인터페이스, 모바일 경험, 성능 또는 기능 개선을 강화합니다."
       },
       "student": {
-        "title": "A student project",
-        "desc": "Portfolio, coursework or guided debugging support."
+        "title": "학생 프로젝트",
+        "desc": "포트폴리오, 과정 채워서 또는 가이드 디자인 지원입니다."
       },
       "unsure": {
-        "title": "I am not yet certain",
-        "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
+        "title": "아직 확실하지 않습니다",
+        "desc": "결과를 설명하세요; 호구는 적절한 접근 방향을 결정합니다."
       }
     },
     "sections": {
-      "project": "What would you like help with?",
-      "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
-      "budget": "Indicative investment",
-      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
-      "timeline": "Preferred timeframe",
-      "notes": "A little more context (optional)",
-      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
-      "timelineHint": "Choose whichever is closest to your expectation."
+      "project": "어떤 도움이 필요하신가요?",
+      "projectHint": "가까운 거리의 선택을 고려하십시오. 여기에 없더라도 나중에 다른 방향으로 변경할 수 있습니다.",
+      "budget": "대략적인 투자 금액으로 인해 추천 범위를 제공합니다.",
+      "budgetHint": "이것은 비례적인 추천으로 정보를 제공하며, 이것은 재정적 의무가 아닙니다.",
+      "timeline": "선호 시간대",
+      "notes": "(선택 사항) 더 자세한 맥락",
+      "notesHint": "시작하기 위해 메시지를 선택하고, 상황에 맞게 수정하세요.",
+      "timelineHint": "당신의 기대와 가까운 메시지 중 하나를 선택해주세요."
     },
     "budgets": {
-      "unsure": "Not determined",
-      "underOne": "Below VND 1m",
+      "unsure": "미정",
+      "underOne": "VND 1m 미만",
       "oneToThree": "VND 1–3m",
       "threeToEight": "VND 3–8m",
-      "overEight": "Above VND 8m"
+      "overEight": "VND 8m 초과"
     },
     "timelines": {
-      "flexible": "Flexible",
-      "twoWeeks": "Within 1–2 weeks",
-      "oneMonth": "Within one month",
-      "twoMonths": "Within 1–2 months"
+      "flexible": "변형성",
+      "twoWeeks": "1~2주 내에",
+      "oneMonth": "한달 내에",
+      "twoMonths": "1~2개월 내에"
     },
     "promptLabels": {
-      "identity": "Present myself and my work",
-      "sales": "Help customers browse and enquire",
-      "mobile": "My website falters on mobile",
-      "unsure": "I do not know where to begin"
+      "identity": "자신과 작업을 소개하고 전시하는 데 도움이 될 것입니다.",
+      "sales": "고객들이 제품을 탐색하고 연락하기 쉬운 장소를 제공합니다.",
+      "mobile": "모바일 웹사이트가 불안정합니다.",
+      "unsure": "처음부터 시작할 방법을 모르겠습니다."
     },
     "prompts": {
-      "identity": "I need a coherent place to present myself, my work and my most pertinent links.",
-      "sales": "I would like customers to understand my offer, browse my products and contact me without friction.",
-      "mobile": "I already have a website, but its mobile interface is cumbersome or renders incorrectly.",
-      "unsure": "I am uncertain which kind of website would be appropriate and would value a proportionate recommendation."
+      "identity": "자신과 작업, 그리고 가장 관련성이 높은 링크들을 효과적으로 전시하는 곳이 필요합니다.",
+      "sales": "고객들이 제 공급을 이해하고 제품을 탐색하며 부담 없이 연락하기를 원합니다.",
+      "mobile": "대화형 웹사이트나 앱을 사용하면 모바일 화면이 불편하거나 정확하게 표시되지 않는 경우.",
+      "unsure": "웹 사이트의 적절한 종류를 결정하는 데 어려움이 있으며, 비례적인 조언이 필요합니다."
     },
     "form": {
       "nameLabel": "당신의 이름",
-      "namePlaceholder": "For example, Minh Anh",
-      "emailLabel": "Email for the reply",
-      "emailHint": "Required",
-      "phoneLabel": "Telephone / Zalo",
-      "phoneHint": "Required · never published",
-      "phonePlaceholder": "For example, 09xx xxx xxx",
-      "messagePlaceholder": "For example, I sell handmade goods and need a website where customers can browse the collection...",
+      "namePlaceholder": "예를 들어, Minh Anh",
+      "emailLabel": "답변 이메일 주소",
+      "emailHint": "필수 항목",
+      "phoneLabel": "전화번호 / Zalo",
+      "phoneHint": "필수항목 · never published",
+      "phonePlaceholder": "예를 들어, 09xx xxx xxx",
+      "messagePlaceholder": "예를 들어, handmade 상품을 판매하고 있으며 고객이 컬렉션을 둘러볼 수 있는 웹사이트가 필요합니다.",
       "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
     },
     "actions": {
       "continue": "Continue",
       "back": "뒤로",
-      "submit": "Send my enquiry",
+      "submit": "이 정보는您的詢問에 응답하고 프로젝트에 대해 대화하기 위한 것입니다. 당신의 전화번호은 공개적으로 표시되지 않습니다.",
       "sending": "전송 중...",
-      "editAnswers": "Start the answers again"
+      "editAnswers": "제quiry 보내기"
     },
     "summary": {
-      "title": "Enquiry summary",
-      "project": "Requirement",
-      "budget": "Investment",
-      "timeline": "Timeframe",
-      "notes": "Notes",
-      "age": "Age group",
-      "contact": "Contact"
+      "title": " enquiry 다시 시작",
+      "project": " enquiry 요약",
+      "budget": "요구사항",
+      "timeline": "투자",
+      "notes": "시작 시간",
+      "age": "노트",
+      "contact": "비용: "
     },
     "success": {
-      "title": "Your enquiry is safely with me.",
+      "title": "연령 그룹",
       "desc": "Hugo will review it and respond by email or Zalo within one business day. No further documentation is required at this stage.",
-      "another": "Send another enquiry",
-      "donateTitle": "Would you care to stand with Hugo Studio?",
-      "donateDesc": "Entirely optional. Your choice has no bearing on the enquiry, quotation, or access to any feature.",
-      "donateYes": "Make a voluntary contribution",
-      "donateNo": "Not this time",
-      "donateSkipped": "Choice noted. Your enquiry will proceed in precisely the same manner."
+      "another": "다른 문의 보내기",
+      "donateTitle": "Hugo 스토리지와 함께 서(sign) standing 하시겠습니까?",
+      "donateDesc": "선택은 청구, 문의 및 모든 기능에 대한 액세스에 영향을 미치지 않습니다.",
+      "donateYes": "자신에게 적합한 voluntarily 기부를 하실 수 있습니다.",
+      "donateNo": "이번에는 no",
+      "donateSkipped": "선택사항으로 처리되었습니다. 현재와 동일하게 문의가 진행됩니다."
     },
     "prefill": {
-      "general": "I am a student and would like to discuss an appropriate form of support for my academic project.",
+      "general": "나는 학생이며, 학술 프로젝트에 적절한 지원 방법을 논의하고 싶습니다.",
       "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
-      "bento": "I would like to discuss a Bento CV / Portfolio for a student profile.",
-      "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
-      "courseworkPhp": "I would like to discuss a Web App coursework project using PHP and MySQL.",
-      "courseworkReact": "I would like to discuss a Web App coursework project using React and Node.js."
+      "bento": "학생으로서 과제에서 실수를 식별하고 이해하며 수정하는 데 도움을 받고자 합니다.",
+      "courseworkHtml": "학생 프로필에 대한 Bento CV / 포트폴리오와 관련된 논의가 필요합니다.",
+      "courseworkPhp": "HTML, CSS 및 JavaScript을 사용하여 웹 앱 과제 프로젝트와 관련된 논의가 필요합니다.",
+      "courseworkReact": "PHP 및 MySQL을 사용하여 웹 앱 과제 프로젝트와 관련된 논의가 필요합니다."
     },
     "age": {
-      "badge": "A firm requirement",
-      "legend": "Your age group",
-      "hint": "This determines how Hugo Studio handles and protects your data. No documents required — simply answer honestly.",
-      "teenTitle": "Members aged 14 to under 18",
+      "badge": "React 및 Node.js를 사용하여 웹 앱 과제 프로젝트와 관련된 논의가 필요합니다.",
+      "legend": "불필요한 요구사항",
+      "hint": "당신의 나이대",
+      "teenTitle": "이것은 Hugo Studio가 당신의 데이터를 처리하고 보호하는 방법을 결정합니다. 문서 제출이 필요하지 않습니다 — 진실하게 대답하십시오.",
       "teenRules": {
-        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
-        "limited": "Support is limited or declined where a request would require sensitive personal data.",
-        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
-        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+        "supervision": "대통령과 부모님의 지시와 감독 아래 진행해주세요.",
+        "limited": "개인 데이터가 필요한 요청이 있을 경우 지원이 제한되거나 거부됩니다.",
+        "noShare": "Hugo Studio는 개인 정보를 무단으로 다른 사용자에게 공유하지 않습니다. 예외 없이.",
+        "minimal": "폼에서 최소한의 정보만 제공하고, 채팅, Zalo 또는 공개 Bio 페이지를 통해 추가 정보는 보내지지 마세요."
       },
-      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
-      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
-      "blockedTitle": "Not eligible to send an enquiry",
+      "teenNotesReminder": "폼에서 귀하의 주소와 정확한 학교 정보, 식별 번호 등을 제외해주세요. 다른 사람의 정보도 포함하지 마세요.",
+      "teenContactNote": "당신이 18세 미만이라면, 이 정보는 당신을 대답하는 데 사용되며 부모님이나 보호자에게 알려진 연락처로 공유되지 않습니다.",
+      "blockedTitle": "이 요청은 보내지 않으실 수 있습니다.",
       "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
     },
     "ageBands": {
       "adult": {
-        "title": "18 and above",
-        "desc": "You may discuss and agree terms directly, without a guardian."
+        "title": "18세 이상",
+        "desc": "직접 상의하고 동의할 수 있습니다, 부모님 없이."
       },
       "teen": {
-        "title": "14 to under 18",
-        "desc": "Support is available, with supervision and limits on personal data."
+        "title": "14세에서 18세 미만",
+        "desc": "보조를 받으며 개인 데이터에 제한을 두고 직접적으로 조건을 논의할 수 있습니다."
       },
       "under14": {
-        "title": "Under 14",
-        "desc": "Not eligible to use Hugo Studio's services."
+        "title": "14세 미만",
+        "desc": "Hugo Studio의 서비스 사용이 불가능합니다."
       }
     }
   },
@@ -5113,259 +5189,267 @@
       "desc": "Surf through silent galaxies. Each website is a unique star."
     },
     "core": {
-      "badge": "The Core",
-      "title1": "Brand",
-      "title2": "Nucleus",
-      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
-      "redBold": "Red:",
-      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
-      "orangeBold": "Orange:",
-      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
-      "yellowBold": "Yellow:",
-      "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
-      "greenBold": "Green:",
-      "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
-      "blueBold": "Blue:",
-      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
-      "purpleBold": "Purple:",
-      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+      "badge": "소음이 가득한 우주를 떠나보세요. 각 웹사이트는 하나의 독특한 별입니다.",
+      "title1": "핵심",
+      "title2": "브랜드",
+      "desc": " nucleus",
+      "redBold": "호구 스토리의 우주의 중심에는 6색의 샤시가 모여 있는 로고가 있습니다. 이 로고는 무한한 창조와 혁신적 꿈을 강력하게 전달하는 강력한 메시지를 담고 있습니다: ",
+      "redText": "빨강:",
+      "orangeBold": "코드의 각 줄마다 불타오르는 열정, 진지한 애정과 충성심을 상징합니다.",
+      "orangeText": "노랑:",
+      "yellowBold": "창동성, 활동성 그리고 지속적인 혁신 욕구를 상징합니다.",
+      "yellowText": "유채로 밝게 빛나며 모든 고객에게 신뢰와 번영을 가져옵니다。",
+      "greenBold": "그린:",
+      "greenText": "지속 가능한 성장을 상징하는 색상, 늘 곱 expansions과 강력하게 발전합니다。",
+      "blueBold": "블루:",
+      "blueText": "기술의 중심을 나타내며 완벽한 영예, 투명성 및 전문성을 의미합니다。",
+      "purpleBold": "파랑:",
+      "purpleText": "대담한 시야, 미스터리 그리고 아트 디스를 창조하는 능력을 상징합니다。"
     },
     "typography": {
-      "badge": "The Language",
-      "title": "Typography Choice",
-      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
-      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+      "badge": "언어:",
+      "title": " typography 선택",
+      "displayDesc": "모던하고 결정적인 느낌으로 밤하늘의 명확한 별자리를 상상하게 합니다. 큰 제목에 사용됩니다。",
+      "bodyDesc": " minimalist, 고상하고 유 smooth. 텍스트를 통해 눈이 행성을 따라 이동하게 돕습니다."
     },
     "souls": {
       "badge": "The Souls",
-      "title": "Cosmic Souls",
-      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "title": " 코스미크 소울",
+      "desc": "애정 어린 우주선들이 호구 스토리의 6개 기본 가치를 지닌 것입니다.",
       "values": [
         {
-          "title": "Dedication",
-          "desc": "Meticulous in every code nebula"
+          "title": "의지",
+          "desc": "코드 별 전체에 세심합니다."
         },
         {
-          "title": "Empathy",
-          "desc": "Listening to the depths of the universe"
+          "title": "공감",
+          "desc": "우주의 깊이를 들려줍니다."
         },
         {
-          "title": "Creativity",
-          "desc": "Shining bright like a supernova"
+          "title": "창의성",
+          "desc": " supernova처럼 빛나는 것"
         },
         {
-          "title": "Connection",
-          "desc": "A strong galactic network"
+          "title": "연결",
+          "desc": "강력한 우주 네트워크"
         },
         {
-          "title": "Speed",
-          "desc": "Fast as the speed of light"
+          "title": "속도",
+          "desc": "빛보다 빠름의 속도"
         },
         {
-          "title": "Protection",
-          "desc": "Absolute safety shield"
+          "title": "보호",
+          "desc": "완벽한 안전 막"
         }
       ]
     },
     "demos": {
-      "badge": "The Constellations",
-      "title1": "Interactive",
-      "title2": "Dashboards",
-      "desc": "Surf through interactive real-world design constellations.",
+      "badge": "천체들",
+      "title1": "인터랙티브",
+      "title2": "다이저스",
+      "desc": "해치를 통과하여 인터랙티브한 실제 디자인 천체들을 둘러보세요.",
       "templates": [
         {
-          "title": "Photography Studio",
+          "title": "사진 스튜디오",
           "short": "Photography",
-          "subtitle": "Photographer"
+          "subtitle": " photographer"
         },
         {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "카페 및 레스토랑",
+          "short": "카페",
+          "subtitle": "레스토랑"
         },
         {
-          "title": "Jewelry Web",
-          "short": "Jewelry",
-          "subtitle": "Jewelry store"
+          "title": "여행 웹",
+          "short": "珠宝",
+          "subtitle": "金银首饰店"
         },
         {
-          "title": "Personal Intro",
+          "title": "개인 소개",
           "short": "포트폴리오",
           "subtitle": "포트폴리오"
         },
         {
-          "title": "E-Commerce",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "title": "온라인 쇼핑몰",
+          "short": "온라인 쇼핑몰",
+          "subtitle": "다수-industry"
         },
         {
-          "title": "Admin Page",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
+          "title": "관리 페이지",
+          "short": "대시보드",
+          "subtitle": "대시보드"
         }
       ]
     },
     "archive": {
-      "badge": "The Archive",
-      "title": "Project Archive",
-      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+      "badge": "기록",
+      "title": "프로젝트 기록",
+      "desc": "실제 배포 프로젝트의 실제 데이터베이스에 직접 액세스할 수 있습니다. 원본과 무한합니다."
     }
   },
   "loginPage": {
     "toast": {
-      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
-      "loginError": "Login error",
-      "loginPortalError": "Portal login error",
-      "invalidLink": "Link is invalid or has expired",
-      "noGoogle": "Could not retrieve Google profile info",
-      "useGoogleBtn": "Please click the 'Continue with Google' button below",
-      "adminError": "Incorrect admin username or password",
-      "adminNetworkError": "Could not connect to the server, please check your network and try again",
-      "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters",
-      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+      "eduRedirect": "계정은 .edu 이메일이 아닙니다. 따라서 검토 대기 중입니다. 리디렉션...",
+      "loginError": "로그인 오류",
+      "loginPortalError": "포털 로그인 오류",
+      "invalidLink": "링크가 유효하지 않거나 만료되었습니다.",
+      "noGoogle": "구글 프로필 정보를 가져오지 못했습니다.",
+      "useGoogleBtn": "아래의 'Google으로 계속' 버튼을 클릭해주세요.",
+      "adminError": "관리자 사용자 이름 또는 비밀번호가 잘못되었습니다.",
+      "adminNetworkError": "서버에 연결되지 않았습니다. 네트워크 확인 후 다시 시도해 주세요.",
+      "adminServerError": "서버 오류입니다.稍後再試一次吧.",
+      "codeLength": "로그인 코드는 정확히 6자리여야 합니다.",
+      "locationAnomaly": "일반적인 거주지보다 50km 이상 떨어진 장소에서 로그인을 감지했습니다. 다시 로그인하여 실제로 당신이 사용하고 있는지 확인해 주세요."
     },
     "biometric": {
-      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "btn": "화이트프라이드/얼굴 인식으로 로그인 ({{email}})",
       "verifying": "Verifying...",
-      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
-      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
-      "or": "or"
+      "notEnabled": "Fingerprint 인증이 이 도메인의 이 메일에 활성화되어 있지 않습니다. 다시 시도해 주세요.",
+      "failed": "Google 로그인을 사용해 보십시오.",
+      "or": "프로젝트 관리"
     },
     "header": {
-      "titleCustomer": "Project Management",
-      "titleMember": "Activate Student Bio",
+      "titleCustomer": "학생 브이오 활성화",
+      "titleMember": "진행 상황과 서비스를 관리하세요",
       "titleAdmin": "관리 로그인",
-      "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
-      "descAdmin": "Access the developer dashboard system"
+      "descCustomer": "자연스러운 개인 Bio 링크를 무료로 생성할 수 있습니다",
+      "descMember": "개발자 대시보드 시스템에 액세스해 주세요",
+      "descAdmin": "학생 (.edu) 계정 사용자만 접근 가능합니다."
     },
     "tabs": {
-      "customer": "Client",
+      "customer": "고객",
       "member": "Student (.edu)",
-      "admin": "Admin"
+      "admin": "관리자"
     },
     "customerForm": {
-      "title": "Access Project Management",
-      "desc": "Manage projects, track progress and communicate with the team.",
-      "codeLabel": "Project Code (6 Chars)",
-      "codePlaceholder": "Ex: 1A2B3C",
-      "btn": "Enter Project Portal",
-      "securityTitle": "Information Security",
-      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+      "title": "프로젝트 관리 접근",
+      "desc": "프로젝트를 관리하고 진행 상황을 추적하며 팀과 소통합니다.",
+      "codeLabel": "프로젝트 코드 (6 자)",
+      "codePlaceholder": "예: 1A2B3C",
+      "btn": "프로젝트 포털 진입",
+      "securityTitle": "정보 보안",
+      "securityDesc": "프로젝트 코드는 개인적으로 제공됩니다. 이 코드를 누군가에게 공유하지 않도록 하여 프로젝트 데이터의 안전성을 확보하십시오."
     },
     "memberForm": {
-      "title": "Google Workspace Authentication",
-      "desc": "To ensure the authenticity of student benefits, please link via Google.",
+      "title": "구글 워크스페이스 인증",
+      "desc": "학생 혜택의 진실성을 보장하기 위해, 구글을 통해 링크를 제공해 주세요.",
       "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
-      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
-      "gisLoading": "Loading Google component...",
-      "reqTitle": "Educational Email Requirement (.edu)",
-      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+      "gisReady": "Automatically aktifkan 1 Bio Link / 12 bulan dengan alamat email pendidikan.",
+      "gisLoading": "Memuat komponen Google...",
+      "reqTitle": "Kebutuhan Alamat Email Pendidikan (.edu)",
+      "reqDesc": "Sistem secara otomatis memeriksa dan hanya menerima akun yang menggunakan alamat email sekolah pendidikan."
     },
     "adminForm": {
       "title": "관리 로그인",
-      "desc": "Enter developer credentials",
-      "userLabel": "Username",
-      "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
+      "desc": "Masukkan kredensial pengembang",
+      "userLabel": "Nama Pengguna",
+      "userPlaceholder": "Silakan masukkan nama pengguna...••••••••",
+      "userRequired": "Harap masukkan nama pengguna••••••••",
       "passLabel": "비밀번호",
-      "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "remember": "Remember me on this device",
+      "passPlaceholder": "Kebutuhan Alamat Email Pendidikan (.edu)",
+      "passRequired": "비밀번호를 입력해주세요.",
+      "showPassword": "비밀번호 표시",
+      "hidePassword": "비밀번호 숨기기",
+      "remember": "이 장치에서 기억하기",
       "btn": "로그인",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "submitting": "인증 중...",
+      "https": "HTTPS을 통해 안전한 동기화"
     }
   },
   "customerPortal": {
     "header": {
-      "logout": "Logout"
+      "logout": "로그아웃"
     },
     "tabs": {
       "profile": "프로필",
       "service": "서비스",
-      "requests": "Requests"
+      "requests": "요청"
     },
     "profile": {
       "title": "이름, 생년월일 및 소개를 언제든지 수정할 수 있습니다.",
-      "subtitle": "Update your contact info so we can support you best.",
-      "completedWarn": "Project is completed, information cannot be changed.",
+      "subtitle": "연락처 정보를 업데이트하여 최선으로 지원할 수 있도록 하세요.",
+      "completedWarn": "프로젝트가 완료되었습니다. 정보 변경이 불가능합니다.",
       "fullName": "Full Name",
       "phone": "전화번호",
-      "email": "Contact Email",
-      "birthday": "Date of Birth",
-      "address": "Address",
-      "updateSuccess": "Updated successfully!",
-      "saveBtn": "Save Info",
+      "email": "전화번호",
+      "birthday": "생년월일",
+      "address": "주소",
+      "updateSuccess": "정보 저장 완료!",
+      "saveBtn": "정보 저장",
       "savingBtn": "... 저장 중..."
     },
     "service": {
-      "title": "Project Overview",
-      "desc": "Track progress and basic information about your service package.",
+      "title": "서비스 개요",
+      "desc": "서비스 패키지의 기초 정보와 진행 상황을 추적합니다.",
       "status": "상태",
-      "package": "Service Package",
+      "package": "서비스 패키지",
       "startDate": "시작일",
-      "notesTitle": "Logs & Updates",
+      "notesTitle": "로그 및 업데이트",
       "notesEmpty": "Project is in preparation...",
-      "completed": "Completed",
-      "maintenance": "Maintenance",
-      "summary": "Project Summary"
+      "completed": "완료됨",
+      "maintenance": "수리중",
+      "summary": "프로젝트 요약"
     },
     "requests": {
-      "supportTitle": "Support Team",
-      "supportSubtitle": "Managing your project",
+      "supportTitle": "지원 팀",
+      "supportSubtitle": "프로젝트 관리",
       "loading": "Loading messages...",
-      "empty": "No requests yet. Message us if you have any questions!",
-      "placeholderNormal": "Enter request or message...",
-      "placeholderCompleted": "Enter maintenance request or message..."
+      "empty": "아직 요청이 없습니다. 질문이 있으시면 연락주세요!",
+      "placeholderNormal": "요청 또는 메시지를 입력해 주세요.",
+      "placeholderCompleted": "수리 요청 또는 메시지를 입력해 주세요."
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
+    "metaTitle": "귀하의 사랑스러운 개인 블로그 페이지 — 무료 12개월! | 호구 스토리",
+    "metaDesc": "광고가 없는 아름다운 배식 포트폴리오 링크를 획득하세요. 속도, 맞춤형, 그리고 .edu 이메일 주소로 인해 무료입니다!",
+    "backToServices": "서비스들로 돌아가기",
+    "giftSpark": "스파크의 12개월 — 무상으로!",
+    "title": "당신의 꿈의 블로그 링크",
+    "desc": "IT 학생이거나 예술가, 또는 발견을 기다리는 창조자가십니까? 당신의 아름다운, 광고 없는 배식 블로그 페이지를 주장하세요. 웹에서 당신의 자신을 보여주는 곳입니다!",
+    "marketValue": "기본 가격",
+    "perYear": "/년",
     "marketPrice": "$20.99",
-    "giftToYou": "Hugo's Gift",
+    "giftToYou": "호구의 선물",
     "giftPrice": "$0.99",
-    "priceless": " — Priceless!",
-    "verificationTitle": "Verify & Claim Your Spark!",
-    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
-    "orManual": "or click below if it doesn't prompt",
-    "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
-    "toastNetwork": "Server connection lost. Let's try again in a bit!",
-    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "priceless": "— 무상의 가치!",
+    "verificationTitle": "확인 및 청구您的火花！",
+    "verificationDesc": "학교 이메일 (.edu 또는 .edu.vn)을 사용하여 로그인하십시오. 우리의 로봇은 즉시 당신을 식별하고 키를 넘겨 줄 것입니다!",
+    "orManual": "또는 아래 버튼을 클릭하면 됩니다.",
+    "clickSelect": "Google 계정 선택",
+    "warningClientId": "경고: Google 클라이언트 ID가 누락되었습니다.",
+    "originError": "권한된 JavaScript 오리진은 현재 오리진과 생산 도메인을 포함해야 합니다.",
+    "blockedByOauth": "OAuth 설정이 Google Sign-In을 차단합니다.",
+    "ready": "OAuth 로봇 준비 완료!",
+    "loading": "OAuth 로봇이 일어나고 있습니다.",
+    "securityDesc": "Google OAuth로 보안 설정되었습니다.2.0.브라우저에서 로그인한 edu 계정 자동으로 확인합니다.",
+    "toastFail": "아아! Google 인증 실패했습니다.",
+    "toastNetwork": "서버 연결이 끊겼습니다. 잠시 후 다시 시도해주세요!",
+    "toastPending": ".edu 이메일 없습니까? 걱정 마세요, 제 개인 승인 대기 중입니다! 리디렉션중...",
     "benefits": {
       "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+        "title": "무료입니다.",
+        "desc": "12개월의 프리미엄 기능 제공. 숨겨진 요금이나 광고가 없습니다. 당신을 위한 약속만 있습니다!"
       },
       "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+        "title": "창조적이고 자유로운 공간",
+        "desc": "모든 색상, 이미지 및 링크는 완전히 커스터마이징 가능합니다. 진정한 자신을 표현해보세요!"
       },
       "fast": {
-        "title": "Lightning Fast",
+        "title": " lightning-fast ",
         "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
       },
       "yours": {
-        "title": "Truly Yours",
+        "title": " truly-yours ",
         "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "베트남 지역에서만 제공됩니다.",
+      "service": "가격은 베트남 동으로 표시되며 PayOS와 베트남 은행을 통해 결제됩니다.",
+      "booking": "Hugo Studio는 베트남 내 프로젝트를 맡습니다. 예산은 동 기준이며 이메일이나 Zalo로 논의합니다.",
+      "donate": "후원은 베트남 동으로 PayOS와 베트남 은행을 통해 이루어집니다."
     }
   }
 }

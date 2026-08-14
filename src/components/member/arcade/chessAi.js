@@ -114,6 +114,19 @@ const moveOrder = (move) => (
 
 const sorted = (moves) => [...moves].sort((a, b) => moveOrder(b) - moveOrder(a));
 
+// Hết hạn giờ chưa? Không gọi Date.now() ở mỗi nút (cũng tốn), nhưng cũng
+// không thưa quá: chess.js sinh nước rất chậm nên 512 nút đã trôi qua ~300ms,
+// tức là hạn 60ms bị vượt gấp năm lần trước khi kịp nhận ra.
+const CHECK_EVERY = 48;
+function outOfTime(budget) {
+  if (budget.expired) return true;
+  budget.checks -= 1;
+  if (budget.checks > 0) return false;
+  budget.checks = CHECK_EVERY;
+  if (Date.now() >= budget.deadline) budget.expired = true;
+  return budget.expired;
+}
+
 /**
  * Tìm kiếm yên tĩnh: ở đáy cây chỉ xét tiếp các nước ĂN QUÂN. Không có bước
  * này thì bot "nhìn" hết độ sâu ngay giữa một pha đổi quân và tưởng mình đang
@@ -121,7 +134,7 @@ const sorted = (moves) => [...moves].sort((a, b) => moveOrder(b) - moveOrder(a))
  */
 function quiescence(chess, alpha, beta, budget) {
   const standPat = evaluate(chess);
-  if (standPat >= beta || budget.nodes <= 0) return standPat;
+  if (standPat >= beta || outOfTime(budget)) return standPat;
 
   // Phải là "fail-soft": giá trị trả về luôn là điểm THẬT của thế cục, không
   // bao giờ là `alpha`. Trả về alpha (fail-hard) làm mọi nước tệ được nâng lên
@@ -131,8 +144,7 @@ function quiescence(chess, alpha, beta, budget) {
   if (best > alpha) alpha = best;
 
   for (const move of sorted(chess.moves({ verbose: true }).filter((m) => m.captured))) {
-    budget.nodes -= 1;
-    if (budget.nodes <= 0) break;
+    if (outOfTime(budget)) break;
     chess.move(move);
     const score = -quiescence(chess, -beta, -alpha, budget);
     chess.undo();
@@ -146,29 +158,32 @@ function quiescence(chess, alpha, beta, budget) {
 function negamax(chess, depth, alpha, beta, budget) {
   if (chess.isCheckmate()) return -MATE - depth;   // bị hết càng sớm càng tệ
   if (chess.isDraw() || chess.isStalemate()) return 0;
-  if (depth === 0 || budget.nodes <= 0) return quiescence(chess, alpha, beta, budget);
+  if (depth === 0 || outOfTime(budget)) return quiescence(chess, alpha, beta, budget);
 
   let best = -Infinity;
   for (const move of sorted(chess.moves({ verbose: true }))) {
-    budget.nodes -= 1;
     chess.move(move);
     const score = -negamax(chess, depth - 1, -beta, -alpha, budget);
     chess.undo();
     if (score > best) best = score;
     if (best > alpha) alpha = best;
     if (alpha >= beta) break;          // cắt tỉa
-    if (budget.nodes <= 0) break;
+    if (outOfTime(budget)) break;
   }
   return best === -Infinity ? evaluate(chess) : best;
 }
 
 // Cấp độ = chiều sâu + độ nhiễu. Cấp 1 phải THẮNG ĐƯỢC cho người mới, nên chỉ
-// nhìn 1 nước và chọn khá ngẫu nhiên trong các nước tử tế; cấp 3 nhìn 3 nước và
+// nhìn 1 nước và chọn khá ngẫu nhiên trong các nước tử tế; cấp 3 nhìn 4 nước và
 // gần như không nhiễu.
+//
+// `timeMs` là hạn mức THỜI GIAN, không phải số nút: cùng một số nút, máy yếu
+// mất gấp mấy lần máy mạnh. Tìm kiếm chạy trên luồng chính (trong setTimeout)
+// nên vượt ~400ms là người chơi thấy giao diện đứng.
 const LEVELS = {
-  1: { depth: 1, noise: 120, nodes: 6_000 },
-  2: { depth: 2, noise: 35,  nodes: 30_000 },
-  3: { depth: 3, noise: 0,   nodes: 120_000 },
+  1: { depth: 1, noise: 120, timeMs: 120 },
+  2: { depth: 3, noise: 30,  timeMs: 300 },
+  3: { depth: 4, noise: 0,   timeMs: 500 },
 };
 
 /**
@@ -180,29 +195,64 @@ export function chooseBotMove(chess, level = 2) {
   const moves = chess.moves({ verbose: true });
   if (!moves.length) return null;
 
-  const { depth, noise, nodes } = LEVELS[level] || LEVELS[2];
+  const { depth: maxDepth, noise, timeMs } = LEVELS[level] || LEVELS[2];
   // Bản sao riêng để tìm kiếm: hàm này không được để lại dấu vết trên ván thật.
   const work = new Chess(chess.fen());
-  const budget = { nodes };
+  // Tầng 1 chạy KHÔNG giới hạn giờ, các tầng sau mới bấm đồng hồ. Lý do: nếu
+  // tầng 1 bị cắt giữa đường thì `quiescence` trả về điểm tĩnh cho những nước
+  // còn lại — nước ăn quân bỗng trông như ăn không, và bot thí quân đúng kiểu
+  // bot tham ăn cũ. Tầng 1 + quiescence là mức tối thiểu để KHÔNG treo quân.
+  const started = Date.now();
+  const budget = { deadline: Infinity, checks: CHECK_EVERY, expired: false };
 
-  let bestMove = null;
-  let bestScore = -Infinity;
-  let alpha = -Infinity;
+  // ĐÀO SÂU DẦN: chạy xong tầng 1 mới sang tầng 2... Hết giờ giữa một tầng thì
+  // bỏ tầng đó và dùng kết quả tầng trước — luôn có nước tử tế để đi, mà không
+  // bao giờ đóng băng giao diện quá `timeMs`. Bonus: thứ tự nước tốt của tầng
+  // trước làm tầng sau cắt tỉa nhanh hơn nhiều.
+  let ordered = sorted(moves);
+  let bestMove = ordered[0];
 
-  for (const move of sorted(moves)) {
-    work.move(move);
-    // Chiếu hết là hết, không cần tính gì thêm.
-    const mate = work.isCheckmate();
-    const score = mate ? MATE : -negamax(work, depth - 1, -Infinity, -alpha, budget);
-    work.undo();
-    if (mate) return move;
+  for (let depth = 1; depth <= maxDepth; depth += 1) {
+    const scoredMoves = [];
+    let mateMove = null;
 
-    const jittered = score + (noise ? Math.random() * noise : 0);
-    if (jittered > bestScore) {
-      bestScore = jittered;
-      bestMove = move;
-      if (score > alpha) alpha = score;
+    for (const move of ordered) {
+      work.move(move);
+      if (work.isCheckmate()) { work.undo(); mateMove = move; break; }
+      // Cửa sổ ĐẦY ĐỦ cho từng nước ở gốc. Trước đây truyền `beta = -alpha`
+      // (cửa sổ hẹp) để cắt tỉa thêm, nhưng khi đó nhánh bị cắt trả về GIÁ TRỊ
+      // BIÊN ("không hơn được X") chứ không phải điểm thật — mà ở gốc ta cần
+      // điểm thật để XẾP HẠNG các nước. Hệ quả: một nước tầm thường nhận đúng
+      // điểm của nước tốt nhất rồi được chọn ngang hàng. Cắt tỉa bên trong các
+      // tầng sâu vẫn còn nguyên, đó mới là phần tiết kiệm chính.
+      const score = -negamax(work, depth - 1, -Infinity, Infinity, budget);
+      work.undo();
+      scoredMoves.push({ move, score });
+      if (budget.expired) break;
+    }
+
+    if (mateMove) return mateMove;                 // chiếu hết thì hết bàn
+    if (budget.expired || !scoredMoves.length) break;
+
+    scoredMoves.sort((a, b) => b.score - a.score);
+    ordered = scoredMoves.map((entry) => entry.move);
+    // Hạn giờ tính từ LÚC BẮT ĐẦU, không cộng thêm sau tầng 1: nếu tầng 1 đã
+    // ngốn hết hạn thì đi luôn bằng kết quả tầng 1. Nhờ vậy tổng thời gian đóng
+    // băng luồng chính không bao giờ vượt quá ~timeMs + một tầng dở.
+    if (depth === 1) budget.deadline = started + timeMs;
+
+    // Nhiễu chỉ áp ở tầng cuối cùng chạy xong: cấp 1 phải đi hơi hớ cho người
+    // mới thắng được, nhưng vẫn không phải đi ngẫu nhiên hoàn toàn.
+    if (noise) {
+      // Nhiễu phải cộng MỘT LẦN cho mỗi nước rồi mới so; cộng lại ngẫu nhiên ở
+      // từng lần so sánh thì cùng một nước lúc cao lúc thấp, không còn là "hơi
+      // hớ" mà thành xổ số.
+      const jittered = scoredMoves.map((entry) => ({ move: entry.move, key: entry.score + Math.random() * noise }));
+      bestMove = jittered.reduce((best, entry) => (entry.key > best.key ? entry : best)).move;
+    } else {
+      bestMove = ordered[0];
     }
   }
-  return bestMove || moves[0];
+
+  return bestMove;
 }

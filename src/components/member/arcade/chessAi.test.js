@@ -45,7 +45,10 @@ describe("chooseBotMove", () => {
   });
 
   it("phong cấp thành hậu khi có cơ hội", () => {
-    const chess = at("8/4P3/8/8/8/8/8/4K2k w - - 0 1");
+    // Xe đen a7 đang nhắm tốt e7: chần chừ một nước là mất tốt, nên nước phong
+    // cấp phải được chọn NGAY. (Thế cục không có xe thì "phong bây giờ" và
+    // "phong nước sau" cùng điểm — máy chọn nước nào cũng không sai.)
+    const chess = at("8/r3P3/8/8/8/8/8/4K2k w - - 0 1");
     const move = chooseBotMove(chess, 2);
     expect(move.promotion).toBe("q");
   });

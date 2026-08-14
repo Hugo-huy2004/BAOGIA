@@ -1,14 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTodayArticle } from "../../hooks/useTodayArticle";
-import { retryReaderEndpoint } from "../../services/todayFeedApi";
+
 import BackButton from "./shared/BackButton";
 import { languageCode } from "../../i18n/languages";
-
-const FONT_KEY = "today.readerFontSize";
-const FONT_MIN = 16;
-const FONT_MAX = 26;
 
 export default function TodayArticleReader({ articleId, onBack }) {
   const { t, i18n } = useTranslation();
@@ -17,14 +13,6 @@ export default function TodayArticleReader({ articleId, onBack }) {
   // chuyên mục mà người đọc vừa bấm từ đó.
   const category = new URLSearchParams(window.location.search).get("c") || "all";
   const { data, isLoading, refetch } = useTodayArticle(articleId, language, category);
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = Number(localStorage.getItem(FONT_KEY));
-    return saved >= FONT_MIN && saved <= FONT_MAX ? saved : 18;
-  });
-
-  useEffect(() => {
-    localStorage.setItem(FONT_KEY, String(fontSize));
-  }, [fontSize]);
 
   // Mở bài khác thì phải đọc từ đầu, không giữ vị trí cuộn của bài trước.
   // Trên portal mobile, thứ cuộn KHÔNG phải window mà là `.mobile-portal-content`
@@ -51,12 +39,6 @@ export default function TodayArticleReader({ articleId, onBack }) {
   const article = data?.article || cachedArticle;
   const summary = data?.summary
     || (article?.description ? { points: [article.description] } : null);
-  const content = data?.content;
-  // Server cũ (chưa deploy bản có ảnh) trả `paragraphs`; dev proxy còn fallback
-  // sang backend production nên hai dạng dữ liệu sống song song một thời gian.
-  const blocks = content?.blocks
-    || content?.paragraphs?.map((text) => ({ type: "text", text }))
-    || [];
 
   const dateLabel = article?.publishedAt
     ? new Intl.DateTimeFormat(language, { day: "numeric", month: "short", year: "numeric" })
@@ -64,7 +46,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
     : "";
 
   return (
-    <section className="today-article-page" ref={rootRef}>
+    <section className="today-article-page" data-lang={language} ref={rootRef}>
       <header className="today-article-topbar">
         <BackButton onClick={onBack} label={t("memberPortal.today.backToFeed")} />
         {article ? (
@@ -97,32 +79,8 @@ export default function TodayArticleReader({ articleId, onBack }) {
               <span>{article.source}</span>
               {article.author ? <span>· {article.author}</span> : null}
               {dateLabel ? <span>· {dateLabel}</span> : null}
-              {content?.readMinutes ? (
-                <span>· {t("memberPortal.today.readMinutes", { n: content.readMinutes })}</span>
-              ) : null}
             </p>
             <h1 className="today-article-title">{article.title}</h1>
-
-            <div className="today-article-fontsize" role="group" aria-label={t("memberPortal.today.fontSize")}>
-              <span className="material-symbols-outlined" aria-hidden="true">format_size</span>
-              <button
-                type="button"
-                onClick={() => setFontSize((size) => Math.max(FONT_MIN, size - 2))}
-                disabled={fontSize <= FONT_MIN}
-                aria-label={`${t("memberPortal.today.fontSize")} −`}
-              >
-                A
-              </button>
-              <button
-                type="button"
-                className="is-large"
-                onClick={() => setFontSize((size) => Math.min(FONT_MAX, size + 2))}
-                disabled={fontSize >= FONT_MAX}
-                aria-label={`${t("memberPortal.today.fontSize")} +`}
-              >
-                A
-              </button>
-            </div>
           </div>
 
           {/* ── PHẦN 1: TÓM TẮT NGẮN ── */}
@@ -134,96 +92,36 @@ export default function TodayArticleReader({ articleId, onBack }) {
             <ul>
               {(summary?.points || []).map((point, index) => <li key={index}>{point}</li>)}
             </ul>
+            {/* Thông tin nguồn: tên nguồn, tác giả, ngày đăng */}
+            <p className="today-article-source-info">
+              <span className="material-symbols-outlined" aria-hidden="true">flag</span>
+              {t("memberPortal.today.sourceInfo", {
+                source: article.source,
+                author: article.author || "",
+                date: dateLabel,
+              })}
+            </p>
             <p className="today-article-summary-by">
-              {t(
-                summary?.by === "ai"
-                  ? "memberPortal.today.summaryByAi"
-                  : "memberPortal.today.summaryBySource",
-                { source: article.source },
-              )}
+              {t("memberPortal.today.summaryByAi", { source: article.source })}
             </p>
           </section>
 
-          {/* Phần nội dung chỉ mở khi nguồn cấp quyền rõ ràng; tin báo chí thông
-              thường dừng ở tóm tắt và dẫn người đọc về trang xuất bản gốc. */}
+          {/* ── PHẦN 2: THÔNG BẢN BẢN QUYỀN + NÚT ĐỌC BÀI GỐC ── */}
           <section className="today-article-body" aria-labelledby="today-article-body-title">
             <h2 id="today-article-body-title">{t("memberPortal.today.contentTitle")}</h2>
-            <p className="mb-4 flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-              <span className="material-symbols-outlined text-sm" aria-hidden="true">
-                {content?.available ? "verified_user" : "policy"}
-              </span>
-              {content?.license
-                ? t("memberPortal.today.licenseNotice", { license: content.license, source: article.source })
-                : t(content?.available ? "memberPortal.today.fullAccess" : "memberPortal.today.summaryAccess")}
-            </p>
-
-            {content?.available ? (
-              <div className="today-article-text" style={{ fontSize: `${fontSize}px` }}>
-                {blocks.map((block, index) => (block.type === "image" ? (
-                  <figure key={index} className="today-article-figure">
-                    <img
-                      src={block.src}
-                      alt={block.caption || ""}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      // Ảnh hỏng/CDN chặn hotlink: giấu cả figure, đừng để ô vỡ giữa bài.
-                      onError={(event) => { event.currentTarget.parentElement.hidden = true; }}
-                    />
-                    {block.caption ? <figcaption>{block.caption}</figcaption> : null}
-                  </figure>
-                ) : (
-                  <p key={index}>{block.text}</p>
-                )))}
-              </div>
-            ) : content?.policy ? (
-              // Không phải lỗi tải: toà soạn giữ bản quyền toàn văn nên portal
-              // chỉ hiện sapo. Đừng mời "Thử lại" — thử bao nhiêu lần cũng vậy.
-              <div className="today-article-locked">
-                <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
-                <p>{t("memberPortal.today.contentBySource", { source: article.source })}</p>
-                {/* Nút thật, không phải link chữ nhỏ: người đọc dừng ở đây, và
-                    lượt bấm sang trang gốc chính là thứ toà soạn nhận lại khi
-                    cho phép trích sapo. Đặt CTA ở đúng chỗ đó. */}
-                <a href={article.url} target="_blank" rel="noopener noreferrer external">
-                  {t("memberPortal.today.readOriginal")}
-                  <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
-                </a>
-              </div>
-            ) : (
-              <div className="today-article-locked">
-                <span className="material-symbols-outlined" aria-hidden="true">lock</span>
-                <p>{t("memberPortal.today.contentUnavailable")}</p>
-                <button
-                  type="button"
-                  onClick={() => { retryReaderEndpoint(); refetch(); }}
-                >
-                  {t("memberPortal.today.tryAgain")}
-                </button>
-              </div>
-            )}
-
-            <p className="today-article-attribution">
-              {content?.license
-                ? t("memberPortal.today.licenseAttribution", {
-                  source: article.source,
-                  author: article.author || article.source,
-                  license: content.license,
-                })
-                : t("memberPortal.today.attribution", { source: article.source })}
-              {" "}
-              {content?.licenseUrl ? (
-                <>
-                  <a href={content.licenseUrl} target="_blank" rel="noopener noreferrer external license">
-                    {content.license}
-                  </a>
-                  {" · "}
-                </>
-              ) : null}
-              <a href={article.url} target="_blank" rel="noopener noreferrer external">
+            <div className="today-article-locked">
+              <span className="material-symbols-outlined" aria-hidden="true">policy</span>
+              <p>{t("memberPortal.today.copyrightNotice", { source: article.source })}</p>
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer external"
+                className="today-article-read-original"
+              >
                 {t("memberPortal.today.readOriginal")}
-                <span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                <span className="material-symbols-outlined" aria-hidden="true">open_in_new</span>
               </a>
-            </p>
+            </div>
           </section>
         </>
       )}

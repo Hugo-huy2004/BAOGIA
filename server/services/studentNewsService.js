@@ -815,8 +815,9 @@ export class CatholicHtmlProvider extends NewsProvider {
     if (language !== 'vi' || !['catholic', 'all'].includes(category)) return [];
     const settled = await Promise.allSettled(this.listings.map(async (config) => {
       const response = await fetch(config.url, {
-        // Trang chủ HTML nặng hơn RSS nhiều — 5.5s là hụt với hdgmvietnam.com.
-        signal: AbortSignal.timeout(9000),
+        // Trang chủ HTML nặng hơn RSS nhiều — 5.5s là hụt với hdgmvietnam.com,
+        // nhưng 9s quá chậm khi cả request phải chờ provider chậm nhất.
+        signal: AbortSignal.timeout(6000),
         headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html' },
       });
       if (!response.ok) throw new Error(`${config.source} trả ${response.status}`);
@@ -1032,10 +1033,34 @@ function splitSentences(text = '', max = 3) {
 }
 
 const READER_UA = 'HugoWishpaxStudentPortal/1.0 (reader)';
+// Cache kết quả fetchArticleBlocks theo URL: cùng một bài có thể được cả
+// readArticle() lẫn summarizeArticle() gọi — tránh hai lượt fetch trùng lặp.
+const fetchBlocksCache = new Map();
+const FETCH_BLOCKS_TTL_MS = 6 * 60 * 60 * 1000;
+const FETCH_BLOCKS_MAX = 60;
+
+function fetchBlocksCacheRead(url) {
+  const entry = fetchBlocksCache.get(url);
+  return entry && entry.expiresAt > Date.now() ? entry.value : null;
+}
+
+function fetchBlocksCacheWrite(url, value) {
+  fetchBlocksCache.set(url, { value, expiresAt: Date.now() + FETCH_BLOCKS_TTL_MS });
+  if (fetchBlocksCache.size > FETCH_BLOCKS_MAX) {
+    for (const [key, entry] of fetchBlocksCache) {
+      if (entry.expiresAt <= Date.now()) fetchBlocksCache.delete(key);
+    }
+    while (fetchBlocksCache.size > FETCH_BLOCKS_MAX) {
+      fetchBlocksCache.delete(fetchBlocksCache.keys().next().value);
+    }
+  }
+}
 
 // Tải trang bài và bóc thành block. Trả [] cho mọi thất bại (chặn bot, timeout,
 // trang render bằng JS) — không có nhánh nào ném ra ngoài.
 async function fetchArticleBlocks(url) {
+  const cached = fetchBlocksCacheRead(url);
+  if (cached) return cached;
   try {
     const response = await fetch(url, {
       redirect: 'follow',
@@ -1044,7 +1069,9 @@ async function fetchArticleBlocks(url) {
     });
     if (!response.ok) return [];
     // response.url = URL sau redirect: ảnh tương đối phải nối vào đó mới đúng.
-    return extractBlocks((await response.text()).slice(0, READER_MAX_HTML), response.url);
+    const blocks = extractBlocks((await response.text()).slice(0, READER_MAX_HTML), response.url);
+    fetchBlocksCacheWrite(url, blocks);
+    return blocks;
   } catch {
     return [];
   }
@@ -1088,14 +1115,17 @@ const SUMMARY_MAX_POINTS = 7;
 function summaryPrompt(article, body, language) {
   return [
     `Bạn là biên tập viên bản tin cho cổng học sinh Hugo Studio. Dưới đây là một bài báo của ${article.source}.`,
-    'Người đọc KHÔNG mở được toàn văn trong portal, nên bản tóm tắt phải đủ để họ nắm trọn câu chuyện.',
+    'Người đọc KHÔNG xem được toàn văn trong portal — họ sẽ nhấn "Đọc bài gốc" để đọc trên trang chính thức của nguồn.',
+    'Mục đích bản tóm tắt: giúp người đọc nhanh chóng hiểu bài nói về vấn đề gì, KHÔNG thay thế bài gốc.',
     '',
     'YÊU CẦU:',
     `- Viết bằng ${SUMMARY_LANGUAGE_NAMES[language] || 'English'}.`,
-    '- 5 đến 7 gạch đầu dòng, mỗi dòng 2–3 câu hoàn chỉnh (tổng khoảng 250–400 từ).',
+    '- 3 đến 5 gạch đầu dòng, mỗi dòng 1–2 câu hoàn chỉnh (tổng khoảng 150–350 từ).',
     '- Dòng đầu: chuyện gì xảy ra, ai liên quan, khi nào, ở đâu.',
-    '- Các dòng sau: số liệu và mốc thời gian cụ thể, diễn biến chính, phát biểu quan trọng (diễn đạt lại, không trích nguyên văn), bối cảnh, và ý nghĩa với học sinh — sinh viên.',
-    '- DIỄN ĐẠT LẠI bằng lời của bạn. Không chép quá 10 từ liên tiếp của bài gốc.',
+    '- Các dòng sau: số liệu chính, diễn biến quan trọng, phát biểu nổi bật (diễn đạt lại bằng lời của bạn).',
+    '- KHÔNG sao chép nguyên văn任何 đoạn nào từ bài gốc — luôn diễn đạt lại.',
+    '- KHÔNG viết lại toàn bộ bài báo dưới dạng paraphrase. Chỉ nêu ý chính và thông tin quan trọng.',
+    '- KHÔNG đưa quá nhiều chi tiết đến mức người dùng có thể thay thế việc đọc bài gốc.',
     '- Chỉ dùng thông tin có trong bài. Không suy đoán, không thêm dữ kiện bên ngoài.',
     '- Trả về đúng các dòng bắt đầu bằng "- ". Không tiêu đề, không lời dẫn, không kết luận thừa.',
     '',

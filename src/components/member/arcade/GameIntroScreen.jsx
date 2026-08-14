@@ -5,7 +5,7 @@ const GAME_META = {
   chess: { icon: "castle", detail: "8 × 8", badge: "BOT · LOCAL" },
   survivor: { icon: "rocket_launch", detail: "4 BOSS", badge: "3D ASSAULT" },
   "2048": { icon: "grid_view", detail: "4 × 4", badge: "FUSION" },
-  caro: { icon: "close", detail: "3 IN ROW", badge: "3 × 3" },
+  caro: { icon: "close", detail: "5 IN ROW", badge: "10 × 10" },
   snake: { icon: "route", detail: "18×18", badge: "3D PRO" },
 };
 

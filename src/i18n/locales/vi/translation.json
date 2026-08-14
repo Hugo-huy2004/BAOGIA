@@ -1092,6 +1092,68 @@
       "clientBuild": "Thiết kế riêng, không dùng CMS hay template",
       "clientPlan": "Website nhiều trang, phạm vi chốt theo nhu cầu",
       "cta": "Mở website khách hàng"
+    },
+    "demoLibrary": {
+      "description": "Chọn một mẫu để xem thử trên điện thoại, tablet hoặc máy tính.",
+      "live": "Demo tương tác",
+      "open": "Xem mẫu chi tiết",
+      "selected": "Đang xem",
+      "previewTitle": "Phòng xem mẫu",
+      "close": "Đóng bản xem trước",
+      "previewHint": "Chạm từng mẫu, sau đó đổi thiết bị để hình dung website trước khi trao đổi.",
+      "included": "Có thể triển khai",
+      "liveNotice": "Bạn có thể cuộn và tương tác trực tiếp trong khung này.",
+      "fits": "Phù hợp với",
+      "details": {
+        "portfolio": {
+          "fit": "Sinh viên, freelancer, người làm sáng tạo",
+          "features": [
+            "Giới thiệu",
+            "Dự án",
+            "Liên hệ"
+          ]
+        },
+        "cafe": {
+          "fit": "Quán cà phê, bistro, tiệm bánh nhỏ",
+          "features": [
+            "Thực đơn",
+            "Đặt bàn",
+            "Bản đồ"
+          ]
+        },
+        "photography": {
+          "fit": "Nhiếp ảnh gia, studio, dịch vụ cưới",
+          "features": [
+            "Album",
+            "Dịch vụ",
+            "Đặt lịch"
+          ]
+        },
+        "ecommerce": {
+          "fit": "Shop thời trang, mỹ phẩm, đồ thủ công",
+          "features": [
+            "Sản phẩm",
+            "Bộ lọc",
+            "Giỏ hàng"
+          ]
+        },
+        "jewelry": {
+          "fit": "Tiệm vàng, trang sức, thương hiệu cao cấp",
+          "features": [
+            "Bộ sưu tập",
+            "Giá tham khảo",
+            "Tư vấn"
+          ]
+        },
+        "dashboard": {
+          "fit": "Đội nhóm cần quản lý đơn và dữ liệu",
+          "features": [
+            "Tổng quan",
+            "Báo cáo",
+            "Phân quyền"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
@@ -1129,6 +1191,11 @@
       "desc": "Đừng lo lắng! Hãy nhắn tin trực tiếp cho đội ngũ Hugo Studio để được giải đáp cặn kẽ 1:1 nhé.",
       "chatBtn": "Nhắn tin",
       "emailBtn": "Gửi Email cho team"
+    },
+    "meta": {
+      "title": "Câu Hỏi Thường Gặp Về Hugo Studio",
+      "description": "Giải đáp về dịch vụ thiết kế website, trang Bio dành cho người học, chi phí, thời gian thực hiện và cách Hugo Studio đồng hành cùng từng dự án.",
+      "keywords": "câu hỏi Hugo Studio, dịch vụ thiết kế website, trang Bio sinh viên, chi phí làm website"
     }
   },
   "bookingPage": {
@@ -1944,7 +2011,7 @@
       "localEdition": "Ấn bản {{country}}",
       "dailyReset": "Làm mới mỗi ngày lúc 09:00",
       "updatedAt": "Cập nhật {{time}}",
-      "rightsMode": "{{articles}} bài từ {{sources}} nguồn · chỉ hiển thị tiêu đề và phần tóm tắt được nguồn cung cấp",
+      "rightsMode": "{{articles}} bài từ {{sources}} nguồn · không hiển thị toàn văn bài báo",
       "loadMore": "Xem thêm {{n}} bài",
       "categories": "Danh mục bài viết",
       "category": {
@@ -1967,12 +2034,15 @@
       "articleUnavailable": "Không mở được bài viết này.",
       "summaryTitle": "Tóm tắt chi tiết",
       "summaryBySource": "Tóm tắt do chính toà soạn {{source}} viết.",
-      "summaryByAi": "Hugo AI tóm tắt lại bài của {{source}} bằng lời khác. Bấm đọc bài gốc để xem toàn văn.",
+      "summaryByAi": "Hugo AI tóm tắt lại bài viết bằng lời khác. Toàn văn thuộc bản quyền của {{source}}. Đọc bài gốc để xem đầy đủ nội dung.",
       "contentTitle": "Nội dung bài báo",
       "contentUnavailable": "Nguồn này không cho lấy toàn văn tự động. Bạn mở bài gốc để đọc đầy đủ nhé.",
       "contentBySource": "Toàn văn bài này thuộc bản quyền của {{source}}. Hugo Studio chỉ hiện tóm tắt — bấm bên dưới để đọc trọn bài trên trang gốc.",
+      "copyrightNotice": "Toàn văn bài viết thuộc bản quyền của {{source}}. Hugo Studio chỉ hiển thị phần tóm tắt. Nhấn \"Đọc bài gốc\" để xem toàn bộ bài viết trên trang chính thức.",
+      "sourceInfo": "Nguồn: {{source}}{{author}} · {{date}}",
       "attribution": "Nội dung thuộc bản quyền của {{source}}.",
       "licenseNotice": "Toàn văn hiển thị theo giấy phép {{license}} của {{source}}",
+      "fullInApp": "Đọc trọn bài",
       "licenseAttribution": "Bài của {{author}} — {{source}}, đăng lại theo giấy phép {{license}}.",
       "readMinutes": "{{n}} phút đọc",
       "fontSize": "Cỡ chữ",
@@ -2375,7 +2445,10 @@
         "privilegesDetail": "Hạng thẻ, quyền lợi từng hạng và cách lên hạng",
         "conditionsTitle": "Quyền và nghĩa vụ thành viên",
         "conditionsSubtitle": "Quyền cốt lõi, độ tuổi, sử dụng an toàn và quy tắc với JOY",
-        "conditionsDetail": "Quyền cốt lõi, độ tuổi, sử dụng an toàn và JOY"
+        "conditionsDetail": "Quyền cốt lõi, độ tuổi, sử dụng an toàn và JOY",
+        "fullTextTitle": "Điều khoản toàn văn",
+        "fullTextSubtitle": "Toàn văn bằng chín ngôn ngữ, nối tiếp nhau",
+        "fullTextDetail": "Điều khoản, bảo mật và quy tắc thành viên bằng chín ngôn ngữ"
       }
     },
     "bento": {
@@ -5478,7 +5551,7 @@
     "caroLose": "AI thắng rồi, thử lại nhé!",
     "caroDraw": "Hòa! Bàn cờ đã đầy.",
     "caroYou": "Bạn",
-    "caroRule": "3 ô liên tiếp",
+    "caroRule": "{{win}} ô liên tiếp",
     "survivorWaveClear": "ĐỢT {{wave}} SẠCH",
     "survivorSurge": "XUNG PHÁ",
     "survivorBoss": "{{wave}} · TRÙM",
@@ -5509,7 +5582,10 @@
     "chessBotLevelLabel": "Cấp độ BOT AI:",
     "chessHistory": "Lịch sử:",
     "exclusive": "Độc quyền bởi Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · thắng {{win}} ô"
+    "caroBoardLabel": "CARO {{size}} × {{size}} · thắng {{win}} ô",
+    "openApp": "MỞ",
+    "getApp": "NHẬN",
+    "gameCount": "{{count}} trò chơi"
   },
   "arcadeIntro": {
     "close": "Quay lại Apps",
@@ -5537,10 +5613,10 @@
         "hint": "Bay sát làn đạn để nạp Xung Phá, nâng cấp súng và đổi chiến thuật theo từng Boss."
       },
       "caro": {
-        "eyebrow": "Caro 3 × 3",
-        "title": "Ba dấu. Một đường thắng.",
-        "description": "Bàn đấu X và O 3D gọn, nhanh, đối đầu Hugo AI ở ba cấp độ.",
-        "hint": "Chiếm ô giữa và tạo hai hướng thắng cùng lúc."
+        "eyebrow": "Caro 5 quân",
+        "title": "Năm quân liền là thắng.",
+        "description": "Bàn 10 × 10 đúng luật caro Việt Nam, đấu Hugo AI ba cấp độ: nó biết chặn ba mở và tính trước nước đáp của bạn.",
+        "hint": "Tạo hai đòn cùng lúc (hai đầu đều mở) thì đối thủ chỉ chặn được một."
       },
       "snake": {
         "eyebrow": "Hành trình Neon",
@@ -5593,6 +5669,14 @@
         "title": "Chỉ Là Của Bạn",
         "desc": "Bio Link riêng biệt — tên riêng của bạn, thiết kế riêng của bạn. Không mẫu mực, không công thức, chỉ bạn."
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "Chỉ phục vụ Việt Nam.",
+      "service": "Báo giá bằng đồng Việt Nam, thanh toán qua PayOS và ngân hàng trong nước.",
+      "booking": "Hugo Studio nhận dự án tại Việt Nam; ngân sách tính bằng đồng và trao đổi qua email hoặc Zalo.",
+      "donate": "Ủng hộ thực hiện bằng VNĐ qua PayOS và ngân hàng Việt Nam."
     }
   }
 }

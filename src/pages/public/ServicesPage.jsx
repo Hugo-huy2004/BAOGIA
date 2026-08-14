@@ -7,8 +7,8 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useJsonLd } from "../../hooks/useJsonLd";
 import { useExchangeRate } from "../../hooks/useExchangeRate";
 import { withUsdPrices } from "../../utils/priceFormatter";
-import { isVietnameseLanguage } from "../../i18n/languages";
 import WebMagnet from "../../components/ui/WebMagnet";
+import RegionNote from "../../components/public/RegionNote";
 import CodeHeroFilm from "../../components/public/CodeHeroFilm";
 import {
   ACCENT,
@@ -82,52 +82,6 @@ const DEMO_META = [
   { id: "jewelry", icon: "diamond", Demo: JewelryDemo },
   { id: "dashboard", icon: "space_dashboard", Demo: DashboardDemo },
 ];
-
-// Các nhãn mới tạm đặt cạnh component để tránh chạm vào hai file locale trong
-// lúc nhiều phần của trang đang được chỉnh song song. Nội dung gốc, giá và tên
-// mẫu vẫn lấy nguyên vẹn từ i18n.
-const DEMO_LIBRARY_COPY = {
-  vi: {
-    description: "Chọn một mẫu để xem thử trên điện thoại, tablet hoặc máy tính.",
-    live: "Demo tương tác",
-    open: "Xem mẫu chi tiết",
-    selected: "Đang xem",
-    previewTitle: "Phòng xem mẫu",
-    close: "Đóng bản xem trước",
-    previewHint: "Chạm từng mẫu, sau đó đổi thiết bị để hình dung website trước khi trao đổi.",
-    included: "Có thể triển khai",
-    liveNotice: "Bạn có thể cuộn và tương tác trực tiếp trong khung này.",
-    fits: "Phù hợp với",
-    details: {
-      portfolio: { fit: "Sinh viên, freelancer, người làm sáng tạo", features: ["Giới thiệu", "Dự án", "Liên hệ"] },
-      cafe: { fit: "Quán cà phê, bistro, tiệm bánh nhỏ", features: ["Thực đơn", "Đặt bàn", "Bản đồ"] },
-      photography: { fit: "Nhiếp ảnh gia, studio, dịch vụ cưới", features: ["Album", "Dịch vụ", "Đặt lịch"] },
-      ecommerce: { fit: "Shop thời trang, mỹ phẩm, đồ thủ công", features: ["Sản phẩm", "Bộ lọc", "Giỏ hàng"] },
-      jewelry: { fit: "Tiệm vàng, trang sức, thương hiệu cao cấp", features: ["Bộ sưu tập", "Giá tham khảo", "Tư vấn"] },
-      dashboard: { fit: "Đội nhóm cần quản lý đơn và dữ liệu", features: ["Tổng quan", "Báo cáo", "Phân quyền"] },
-    },
-  },
-  en: {
-    description: "Choose a template, then preview it on phone, tablet or desktop.",
-    live: "Interactive demo",
-    open: "View details",
-    selected: "Viewing",
-    previewTitle: "Template room",
-    close: "Close preview",
-    previewHint: "Choose a template, then switch devices to picture your website before we talk.",
-    included: "Can be included",
-    liveNotice: "You can scroll and interact directly inside this frame.",
-    fits: "Best for",
-    details: {
-      portfolio: { fit: "Students, freelancers and independent creatives", features: ["Profile", "Projects", "Contact"] },
-      cafe: { fit: "Cafes, bistros and small bakeries", features: ["Menu", "Booking", "Map"] },
-      photography: { fit: "Photographers, studios and wedding services", features: ["Gallery", "Services", "Booking"] },
-      ecommerce: { fit: "Fashion, beauty and handmade shops", features: ["Products", "Filters", "Cart"] },
-      jewelry: { fit: "Jewellers and premium accessory brands", features: ["Collections", "Reference price", "Consultation"] },
-      dashboard: { fit: "Teams managing orders and business data", features: ["Overview", "Reports", "Roles"] },
-    },
-  },
-};
 
 function DemoTeaserArt({ id }) {
   const reduceMotion = useReducedMotion();
@@ -701,14 +655,15 @@ function StudentCustomSupport() {
 }
 
 function DemoShowcaseSection({ compact = false }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const reduceMotion = useReducedMotion();
   const previewRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [activeId, setActiveId] = useState("portfolio");
   const [device, setDevice] = useState("mobile"); // "desktop" | "tablet" | "mobile"
-  const language = isVietnameseLanguage(i18n.resolvedLanguage || i18n.language) ? "vi" : "en";
-  const copy = DEMO_LIBRARY_COPY[language];
+  // Nhãn của phòng xem mẫu đi qua i18n như phần còn lại của trang, nên nó có
+  // đủ chín ngôn ngữ thay vì chỉ vi/en như bản tạm trước đây.
+  const copy = t("servicesPage.demoLibrary", { returnObjects: true });
   const active = DEMO_META.find((tpl) => tpl.id === activeId) || DEMO_META[0];
   const ActiveDemo = active.Demo;
   const activeDetail = copy.details[active.id];
@@ -980,6 +935,7 @@ function MobileCommercialOffers({ plans, t }) {
           </div>
         </details>
       ))}
+      <RegionNote scope="service" />
     </div>
   );
 }
@@ -1473,6 +1429,8 @@ export default function ServicesPage() {
                   <PlanCard plan={plans.find((p) => p.id === "website")} emphasized />
                   <PlanCard plan={plans.find((p) => p.id === "system")} />
                 </div>
+
+                <RegionNote scope="service" />
 
                 <p className="cine-faint mx-auto max-w-xl text-center text-xs">
                   <span className="material-symbols-outlined mr-1 align-[-3px] text-sm">shield</span>

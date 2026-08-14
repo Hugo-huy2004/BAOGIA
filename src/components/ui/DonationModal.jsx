@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import RegionNote from "../public/RegionNote";
 import { useNavigate } from "react-router-dom";
 import { m, AnimatePresence } from "framer-motion";
 import { dataApi } from "../../services/dataApi";
@@ -197,6 +198,7 @@ export default function DonationModal({ isOpen: propIsOpen, onClose: propOnClose
                 <span className="text-xs font-bold text-muted-foreground">VNĐ</span>
               </div>
               <span id="donation-minimum" className="mt-1 block text-[10px] font-normal text-muted-foreground">{t("donationUI.minimum")}</span>
+              <RegionNote scope="donate" />
             </label>
 
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">

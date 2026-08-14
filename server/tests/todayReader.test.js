@@ -318,7 +318,7 @@ describe('PublisherRssProvider — feed Atom', () => {
         description: 'Une nouvelle étude suggère un lien.',
         author: 'Marie Dupont',
       });
-      expect(article.publishedAt).toBe('2026-08-13T06:00:00.000Z');
+      expect(article.publishedAt).toBe('2026-08-13T06:00:00Z');
       expect(article.contentAccess).toMatchObject({ fullTextInPortal: true, license: 'CC BY-ND 4.0' });
     } finally {
       globalThis.fetch = original;

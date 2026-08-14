@@ -10,7 +10,7 @@ const GAME_THEMES = {
   chess:     { name: "HugoChess Table 3D" },
   survivor:  { name: "Space Survivor" },
   "2048":    { name: "2048 Mega Fusion" },
-  caro:      { name: "Caro 3×3 Arena" },
+  caro:      { name: "Caro 5 Arena" },
   snake:     { name: "Snake 3D Pro" },
 };
 

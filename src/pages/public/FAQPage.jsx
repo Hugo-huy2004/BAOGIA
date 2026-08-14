@@ -18,9 +18,9 @@ const FAQS = [
 export default function FAQPage() {
   const { t, i18n } = useTranslation();
   useHeadMeta({
-    title: "Câu Hỏi Thường Gặp Về Hugo Studio",
-    description: "Giải đáp về dịch vụ thiết kế website, trang Bio dành cho người học, chi phí, thời gian thực hiện và cách Hugo Studio đồng hành cùng từng dự án.",
-    keywords: "câu hỏi Hugo Studio, dịch vụ thiết kế website, trang Bio sinh viên, chi phí làm website",
+    title: t("faqPage.meta.title"),
+    description: t("faqPage.meta.description"),
+    keywords: t("faqPage.meta.keywords"),
     canonicalUrl: "https://www.hugowishpax.studio/faq"
   });
 

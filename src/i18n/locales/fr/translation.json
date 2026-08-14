@@ -148,7 +148,7 @@
       "localEdition": "{{country}} édition",
       "dailyReset": "Rafraîchit quotidiennement à 09:00",
       "updatedAt": "Mise à jour {{time}}",
-      "rightsMode": "{{articles}} nouvelles d'{{sources}} sources · titres et résumés fournis par les éditeurs uniquement",
+      "rightsMode": "{{articles}} articles de {{sources}} sources · le texte intégral ne s'affiche pas",
       "loadMore": "Montrer plus {{n}}",
       "categories": "Catégories de l'article",
       "category": {
@@ -171,13 +171,16 @@
       "articleUnavailable": "Cette article ne peut pas être ouvert",
       "summaryTitle": "Rapide résumé",
       "summaryBySource": "Résumé écrit par {{source}} eux-mêmes.",
-      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
+      "summaryByAi": "Hugo AI a réécrit ce résumé avec ses propres mots. L'article complet est protégé par les droits de {{source}}. Lisez l'original pour le contenu complet.",
       "contentTitle": "Contenu de l'article",
       "contentUnavailable": "Ce propriétaire n'autorise pas automatiquement la lecture intégrale. Ouvrez le document original pour lire tout ce qu'il contient.",
       "contentBySource": "Le contenu complet de cet article est protégé par une licence de copyright de {{source}} . Hugo Studio affiche seulement un résumé — ouvrez le document original ci-dessous pour lire l'article entier en entier.",
+      "copyrightNotice": "L'article complet est protégé par les droits de {{source}}. Hugo Studio affiche uniquement le résumé. Appuyez sur \"Lire l'original\" pour voir l'article complet sur la page officielle.",
+      "sourceInfo": "Source : {{source}}{{author}} · {{date}}",
       "attribution": "Contenu est protégé par la licence de copyright de {{source}}.",
-      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
-      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
+      "licenseNotice": "Texte complet affiché sous la licence {{source}} de l'article {{license}}.",
+      "fullInApp": "Texte complet",
+      "licenseAttribution": "{{author}} par {{source}}, réédité sous {{license}}.",
       "readMinutes": "{{n}} minutes à lire",
       "fontSize": "Taille du texte",
       "openSource": "Source open source",
@@ -580,6 +583,9 @@
         "conditionsTitle": "Droits et obligations des membres",
         "conditionsSubtitle": "Droits fondamentaux, règles d'âge, usage sûr et JOY",
         "conditionsDetail": "Droits fondamentaux, règles d'âge, usage sûr, et JOY",
+        "fullTextTitle": "Tous les termes",
+        "fullTextSubtitle": "Le texte complet en neuf langues, une après l'autre",
+        "fullTextDetail": "Conditions, politique de confidentialité et règles de membre en neuf langues",
         "content": {
           "privileges": {
             "id": "privileges",
@@ -2692,26 +2698,26 @@
         "storeDesc": "Le temps acheté est accumulé et utilisé après que les 5 heures gratuites chaque semaine soient épuisées.",
         "empty": "Aucune offre de temps non disponible encore."
       },
-      "dangDo": "Đang dò",
+      "dangDo": "Scanning",
       "dangKetNoi": "Se connecter",
       "nhieuSong": "Niveau d'émission",
       "dangPhat": "En cours de diffusion",
-      "tamDung": "Arrêter",
+      "tamDung": "Pause",
       "cho": "Attente",
       "daHocDiaChi": "· Nouveau",
       "doTanSo": "Chercher fréquence",
       "doXuong": "Chercher haut",
-      "dung": "Arrêter",
+      "dung": "Arrêtez",
       "phat": "Diffuser",
       "doLen": "Charger",
       "amLuong": "Volume",
       "ngauNhien": "Aléatoire",
       "henGioTat": "Arrêter à l'heure",
       "timDaiVov1Npr": "Recherche de radio : VOV1, NPR, Jazz…",
-      "dangDo2": "Đang dò…",
+      "dangDo2": "Scanning…",
       "tim": "Recherche",
       "daTim": "Trouvé (",
-      "muaThemThoiGian": "Acquérir plus de temps d'écoute",
+      "muaThemThoiGian": "Acheter plus de temps d'écoute",
       "thoiGianMuaDuoc": "Le temps acquis peut être accumulé et utilisé après l'épuisement des 5 heures gratuites hebdomadaires."
     },
     "store": {
@@ -2962,9 +2968,9 @@
       "10PhiSangTao": "+ 10% frais de création",
       "khong": "pour s'inscrire pendant un mois au",
       "dangKyThanhCong": "abonnement ?",
-      "loiGiaoDich": "Succès du rafraîchissement ! Cette période d'étude est désormais ouverte.",
+      "loiGiaoDich": "Transaction échouée.",
       "muaGoiVinhVien": "Erreur de transaction.",
-      "gom": "gồm",
+      "gom": "including",
       "joyVa": "JOY et",
       "joyPhiSangTao": "JOY frais création pour ouvrir à vie",
       "giaHanBoPhat": "Renouvellement du Pack Web Développement",
@@ -2976,7 +2982,7 @@
       "moKhoaTronGoi": "Ouverture à vie complète réussie ! Vous avez activé tous les cours et bénéficierez d'une maintenance gratuite illimitée.",
       "xacNhanXoa": "Confirmer la suppression",
       "banCoChacChan": "Voulez-vous vraiment supprimer",
-      "thuMuc": "dossier",
+      "thuMuc": "folder",
       "khongHanhDongNay": "Cette action ne peut être annulée."
     },
     "hugoso": {
@@ -3357,7 +3363,7 @@
       "meoMoiChuKy": "💡 **Sage-femme:** Chaque cycle de sommeil dure environ 90 minutes (passant par les phases NREM, le sommeil profond N3 et REM). Se lever à la fin du cycle permet de se réveiller en pleine forme, sans fatigue ni douleur.",
       "boCamBien": "Systèmes de capteurs:",
       "tuDongKichHoat": "Activation automatique (PWA)",
-      "dangKetNoi": "Se connecter",
+      "dangKetNoi": "Đang kết nối",
       "chuaLienKet": "Pas encore lié",
       "tuDong": "Automatique",
       "daLienKet": "Pris en charge",
@@ -3705,135 +3711,138 @@
     },
     "catAll": "Tous",
     "catStudio": "Hugo Studio",
-    "catPvp": "Versus",
-    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
-    "bestScore": "· Best {{score}}",
-    "downloading": "Downloading {{percent}}%",
-    "exchangeError": "JOY exchange failed.",
-    "addedToApps": "{{game}} was added to your apps.",
-    "gameFallback": "Game",
-    "rankTitle": "Leaderboard",
-    "noAds": "Play right inside Hugo — no ads.",
-    "filterGames": "Filter games",
-    "playGame": "Play {{game}}",
-    "spotlight": "Today's spotlight",
-    "play": "PLAY",
+    "catPvp": "Duel",
+    "credit2048": "D'après 2048 de Gabriele Cirulli (licence MIT)",
+    "bestScore": "· Meilleur {{score}}",
+    "downloading": "Téléchargement de {{percent}}%",
+    "exchangeError": "Échange JOY échoué.",
+    "addedToApps": "{{game}} a été ajouté à vos applications.",
+    "gameFallback": "Jeux",
+    "rankTitle": "Classement",
+    "noAds": "Jouez directement dans Hugo — sans publicités.",
+    "filterGames": "Filtrez les jeux",
+    "playGame": "Jouez {{game}}",
+    "spotlight": "Focus de la journée",
+    "play": "JOUER",
     "gamesTitle": "Jeux",
     "totalMatches": "Matches",
-    "wins": "Wins",
-    "rankDesc": "The best players across the whole system.",
-    "newBest": "New best!",
-    "beatBest": "Beat {{score}}",
+    "wins": "Victoires",
+    "rankDesc": "Les meilleurs joueurs sur tout le système.",
+    "newBest": "Nouveau !",
+    "beatBest": "Battre {{score}}",
     "combo": "{{count}}× combo",
     "multiplier": "Multiplier x{{value}}",
-    "best": "Best",
-    "hugoMember": "Hugo member",
-    "rankSss": "RANK SSS • GRANDMASTER",
-    "rankS": "RANK S • CODE WARRIOR",
-    "joyByScore": "+ JOY based on score",
-    "pendingWallet": "· waiting to land in your wallet",
-    "tryAgainClose": "Try again — so close!",
-    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
-    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "best": "Meilleur",
+    "hugoMember": "Membre Hugo",
+    "rankSss": "RANG SSS • GRANDMASTER",
+    "rankS": "RANG S • CODE WARRIOR",
+    "joyByScore": "+ JOY basé sur le score",
+    "pendingWallet": "· en attente dans votre portefeuille",
+    "tryAgainClose": "Essayez encore — si vous êtes près !",
+    "g2048Triple": "⚡ ×3 POINTS POUR 10 SECONDES !",
+    "g2048Fever": "🔥 MODE FEVER ! ×2 POINTS",
     "g2048Level": "{{level}} DE LA VIEILLE ÉQUIPE",
-    "g2048LevelStone": "Level {{level}} · with stone tiles",
-    "g2048Undone": "One move undone",
-    "g2048Tnt": "TNT tile",
-    "g2048Stone": "Stone tile, {{turns}} moves left",
-    "g2048Tile": "Tile {{value}}",
+    "g2048LevelStone": "Niveau {{level}} · avec des dalles de pierre",
+    "g2048Undone": "Un mouvement annulé",
+    "g2048Tnt": "Dalles TNT",
+    "g2048Stone": "Dalle de pierre, {{turns}} mouvements restants",
+    "g2048Tile": "Dalle {{value}}",
     "g2048Score": "SCORE",
-    "g2048Moves": "MOVES",
-    "snakeStage1": "Neon Garden",
-    "snakeStage1Kicker": "WARM-UP STAGE",
-    "snakeStage1Goal": "Collect 6 energy cores",
-    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
-    "snakeStage2": "Red Minefield",
-    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
-    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
-    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
-    "snakeStage3": "Quantum Gates",
-    "snakeStage3Kicker": "TELEPORT CHALLENGE",
-    "snakeStage3Goal": "Master the pair of space gates",
-    "snakeStage3Hint": "Enter one gate to appear at the other.",
-    "snakeStage4": "Gold Hunt",
-    "snakeStage4Kicker": "SPEED CHALLENGE",
-    "snakeStage4Goal": "Catch the golden cores before they vanish",
-    "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
-    "snakeStage5Kicker": "FINAL STAGE",
-    "snakeStage5Goal": "Survive the high-speed grid",
-    "snakeStage5Hint": "High speed, more mines and teleport gates.",
-    "snakeNewStage": "{{stage}} · a new challenge is open",
-    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
-    "snakeFood": "Cores",
-    "snakeStageLabel": "Stage",
-    "snakeStageOf": "Stage {{index}}: {{name}}",
-    "ready": "READY",
-    "snakeStageProgress": "STAGE PROGRESS",
-    "snakeCoreNormal": "+2 normal core",
-    "snakeCoreGold": "+10 golden core",
-    "snakeMine": "Mine: game over",
-    "snakePortal": "Teleport gate",
-    "chessBoard": "3D chess board",
-    "chessWhite": "White",
-    "chessBlack": "Black",
-    "chessCheckmate": "Checkmate! {{side}} wins!",
-    "chessStalemate": "Draw (stalemate)",
-    "chessOver": "Game over",
-    "chessLevelEasy": "Apprentice",
-    "chessEasy": "Easy",
-    "chessLevelMid": "Tactician",
+    "g2048Moves": "MOUVEMENTS",
+    "snakeStage1": "Jardin de Neon",
+    "snakeStage1Kicker": "Étape d'Accompagnement",
+    "snakeStage1Goal": "Collectez 6 coeurs d'énergie",
+    "snakeStage1Hint": "Mangez en rythme pour déclencher une combinaison.",
+    "snakeStage2": "Mine Rouge",
+    "snakeStage2Kicker": "Défi de Survie",
+    "snakeStage2Goal": "Evitez les mines et collectez 6 coeurs",
+    "snakeStage2Hint": "Les mines rouges sont lumineuses mais ne peuvent pas être détruites.",
+    "snakeStage3": "Portails Quantiques",
+    "snakeStage3Kicker": "Défi de Téléportation",
+    "snakeStage3Goal": "Master le paires de portes spatiales",
+    "snakeStage3Hint": "Entrez une porte pour apparaître à l'autre.",
+    "snakeStage4": "Chasse aux ormes d'or",
+    "snakeStage4Kicker": "Challenge de vitesse",
+    "snakeStage4Goal": "Attrapez les noyaux d'or avant qu'ils ne s'évanouissent",
+    "snakeStage4Hint": "Un noyau d'or est évalué à 10 points et maintient une grande combinaison en vie.",
+    "snakeStage5Kicker": "STAGE FINAL",
+    "snakeStage5Goal": "Survivez au réseau de vitesse élevé",
+    "snakeStage5Hint": "Vitesse élevée, plus de mines et de portes de téléportation.",
+    "snakeNewStage": "{{stage}} · un nouveau défi est ouvert.",
+    "snakeLevelUp": "Niveau {{level}} · vitesse et difficulté augmentent",
+    "snakeFood": "Cœurs",
+    "snakeStageLabel": "Étape",
+    "snakeStageOf": "Étape {{index}} : {{name}}",
+    "ready": "PRÊTS",
+    "snakeStageProgress": "PROGRESS DE L'ÉTAGE",
+    "snakeCoreNormal": "+2 cœur normal",
+    "snakeCoreGold": "+10 coeurs or",
+    "snakeMine": "Mine : fin du jeu",
+    "snakePortal": "Portail de téléportation",
+    "chessBoard": "Échiquier 3D",
+    "chessWhite": "Blanc",
+    "chessBlack": "Noir",
+    "chessCheckmate": "{{side}} a gagné ! Checkmate !",
+    "chessStalemate": "Nul (stalemate)",
+    "chessOver": "Fin de partie",
+    "chessLevelEasy": "Apprenti",
+    "chessEasy": "Facile",
+    "chessLevelMid": "Strategiste",
     "chessMid": "Moyen",
-    "chessLevelHard": "Master",
-    "chessHard": "Hard",
-    "chessThinking": "Hugo BOT is thinking…",
-    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
-    "chessTurn": "Turn: {{side}}",
-    "chessBotThinking": "Hugo BOT (thinking…)",
-    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
-    "chessBlackPlayer": "Black player",
-    "chessView3d": "3D view",
-    "chessUndo": "Undo",
-    "chessNewGame": "New game",
-    "chessYouWhite": "You (White)",
-    "chessWhitePlayer": "White player",
-    "caroThinking": "The AI is thinking",
-    "caroYourTurn": "Your turn (X)",
-    "caroWin": "You win! 🎉",
-    "caroLose": "The AI won — try again!",
-    "caroDraw": "Draw! The board is full.",
-    "caroYou": "You",
-    "caroRule": "3 in a row",
-    "survivorWaveClear": "WAVE {{wave}} CLEAR",
+    "chessLevelHard": "Maître",
+    "chessHard": "Dur",
+    "chessThinking": "Hugo BOT est en train de penser…",
+    "chessInCheck": "⚠️ Votre Roi est en échec !",
+    "chessTurn": "Tour: {{side}}",
+    "chessBotThinking": "Hugo BOT (pensant…)",
+    "chessBotLevel": "Hugo AI BOT · Niveau {{level}}",
+    "chessBlackPlayer": "Joueur noir",
+    "chessView3d": "Vue 3D",
+    "chessUndo": "Annuler",
+    "chessNewGame": "Nouvelle partie",
+    "chessYouWhite": "Vous (Blanc)",
+    "chessWhitePlayer": "Joueur Blanc",
+    "caroThinking": "L'IA réfléchit...",
+    "caroYourTurn": "C'est votre tour (X)",
+    "caroWin": "Vous avez gagné ! 🎉",
+    "caroLose": "L'IA a gagné — essayez encore !",
+    "caroDraw": "Égalité ! La grille est pleine.",
+    "caroYou": "Vous",
+    "caroRule": "{{win}} alignés",
+    "survivorWaveClear": "{{wave}} nettoyer",
     "survivorSurge": "SURGE",
     "survivorBoss": "{{wave}} · BOSS",
-    "survivorLeft": "{{wave}} · {{count}} left",
-    "survivorClear": "{{wave}} · clear",
-    "rankSs": "RANK SS • NEON ACE",
-    "rankA": "RANK A • SENIOR FIGHTER",
-    "rankB": "RANK B • RISING PLAYER",
+    "survivorLeft": "{{wave}} · {{count}} a quitté",
+    "survivorClear": "{{wave}} · effacer",
+    "rankSs": "RANG SS • ACE NEON",
+    "rankA": "RANG A • FIGHTEUR AVANCÉ",
+    "rankB": "RANG B • JUNIOR PLAYEUR",
     "shellFormula": "{{score}} points → {{joy}} JOY",
-    "shellRecord": "New best! {{delta}} points more than last time.",
-    "shellNear": "{{gap}} points short of your best {{best}}.",
-    "shellBest": "Your best: {{best}}.",
-    "lbWinner": "{{name}} is the winner!",
-    "lbRealtime": "Total score updates in real time • {{date}}",
-    "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
-    "lbLoading": "Adding up scores across every game…",
-    "lbMatches": "{{count}} matches played",
-    "lbTotalScore": "TOTAL SCORE",
-    "lbEmpty": "Nobody on the board yet. Be the first!",
-    "snakeStage5": "Hyper Grid",
-    "snakeCurrentMission": "CURRENT MISSION",
-    "chessMovesPlayed": "Game finished after {{count}} moves.",
-    "chessArena": "3D Chess Arena",
-    "chessVsBot": "Play the Hugo AI BOT",
-    "chessVsBotDesc": "You play White · a test against the algorithm",
-    "chessPassPlay": "Two players, one device (pass & play)",
-    "chessPassPlayDesc": "Put the device between you like a real board",
-    "chessBotLevelLabel": "AI BOT level:",
-    "chessHistory": "History:",
-    "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "shellRecord": "Meilleur de la journée! {{delta}} points de plus que la dernière fois.",
+    "shellNear": "{{gap}} points en dessous de votre meilleur {{best}}.",
+    "shellBest": "Votre meilleur: {{best}}.",
+    "lbWinner": "{{name}} est le gagnant !",
+    "lbRealtime": "Mises à jour en temps réel des scores • {{date}}",
+    "lbBoard": "LEADERBOARD MONDIAL HUGO (TOP 10)",
+    "lbLoading": "Somme des scores sur tous les jeux…",
+    "lbMatches": "{{count}} joués",
+    "lbTotalScore": "SCORE TOTAL",
+    "lbEmpty": "Aucun joueur en vue. Soyez le premier !",
+    "snakeStage5": "Grid Hyper",
+    "snakeCurrentMission": "MISSION EN COURS",
+    "chessMovesPlayed": "Le jeu se termine après {{count}} coups.",
+    "chessArena": "Arena de Chesse 3D",
+    "chessVsBot": "Jouez contre l'IA Hugo BOT",
+    "chessVsBotDesc": "Vous jouez en Blanc · un test contre l'algorithme",
+    "chessPassPlay": "Deux joueurs, un appareil (passer et jouer)",
+    "chessPassPlayDesc": "Placez l'appareil entre vous comme une vraie échiquière",
+    "chessBotLevelLabel": "Niveau de l'IA BOT :",
+    "chessHistory": "Historique :",
+    "exclusive": "Exclusivité Hugo Studio",
+    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} alignés",
+    "openApp": "OUVRIR",
+    "getApp": "OBTENIR",
+    "gameCount": "{{count}} jeux"
   },
   "arcadeIntro": {
     "close": "Retourner aux Applications",
@@ -4283,8 +4292,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "Consultation de site web pour étudiants, individus et petits commerces | Hugo Studio",
-      "description": "Dites à Hugo ce dont vous avez besoin avant de choisir une solution. Consultation 1-à1 directe pour les étudiants, individus et petites boutiques, avec un coût et un périmètre convenus avant le début du travail.",
+      "title": "Conseil web pour étudiants, particuliers et petits commerces | Hugo Studio",
+      "description": "Dites-moi ce dont vous avez besoin avant de choisir une solution. Conseil individuel pour étudiants, particuliers et petits commerces, périmètre et budget fixés avant de commencer.",
       "keywords": "Site web étudiant, portfolio d'étudiant, site personnel, site web petit commerce, consultation de conception de site web"
     },
     "common": {
@@ -4308,12 +4317,12 @@
       "closing": "Tout nombre est une porte. Quelle ouvriras-tu ?"
     },
     "hero": {
-      "badge": "Direct 1-à1 · Les étudiants sont en priorité",
-      "title1": "Vous n'avez pas encore besoin d'un package.",
-      "title2": "Commencez avec ce que vous avez besoin.",
-      "desc": "Dites-moi votre objectif, ce qui bloque votre chemin ou ce que vous voulez créer. Je vais aider à identifier l’approche correcte — de Bios et portfolios pour les étudiants aux sites web pour individus et petites boutiques.",
+      "badge": "Échange direct en tête-à-tête · Les étudiants d'abord",
+      "title1": "Pas besoin de choisir une formule.",
+      "title2": "Commencez par ce dont vous avez besoin.",
+      "desc": "Dites-moi votre objectif, ce qui vous bloque ou ce que vous voulez créer. Je vous aide à trouver l'approche à la bonne échelle — des Bio et portfolios étudiants aux sites de particuliers et de petits commerces.",
       "viewPricing": "Choisissez votre situation",
-      "contact": "Dites-moi ce dont vous avez besoin",
+      "contact": "Dites-moi ce qu'il vous faut",
       "swipe": "Glissez pour continuer.",
       "scroll": "Sauter vers la suite",
       "trust": [
@@ -4324,9 +4333,9 @@
       ]
     },
     "outcomes": {
-      "eyebrow": "La première chapitre",
-      "title": "Quelle modification souhaitez-vous apporter à votre site web ?",
-      "desc": "Choisissez le récit qui correspond à votre situation pour voir les services liés.",
+      "eyebrow": "Le premier chapitre",
+      "title": "Que voulez-vous que votre site change ?",
+      "desc": "Choisissez l'histoire qui ressemble à votre situation pour voir les services associés.",
       "items": [
         {
           "title": "Je veux que mes clients comprennent et choisissent ma marque",
@@ -4352,9 +4361,9 @@
     },
     "pricing": {
       "eyebrow": "Points de départ communs",
-      "title": "Trois façons de commencer,",
+      "title": "Trois façons courantes de commencer",
       "highlight": "non trois boîtes rigides",
-      "desc": "Ces sont des scénarios courants, pas des packages fixes. Je commence par comprendre vos besoins, recommande ce qui est suffisant, puis je confirme le timing et le coût."
+      "desc": "Ce sont des périmètres courants, pas des forfaits figés. Je comprends d'abord votre besoin, je propose le strict nécessaire, puis nous fixons délais et budget."
     },
     "journey": {
       "stone1": {
@@ -4419,13 +4428,13 @@
       },
       "landing": {
         "label": "Commencer",
-        "name": "Page d'accueil un paragraphe",
+        "name": "Landing page d'une seule page",
         "oldPrice": "80.99",
         "price": "60.99",
         "discount": "-25%",
         "note": "Décoration personnalisée, sans modèles de masse. Fait en 5–7 jours.",
         "desc": "Une page parmi, un objectif : les visiteurs terminent la lecture et veulent vous contacter.",
-        "tagline": "Facile à démarrer",
+        "tagline": "Facile à lancer",
         "includes": [
           "1 page conçue spécifiquement pour votre marque, jusqu'à 7 sections",
           "2 révisions basées sur vos retours",
@@ -4444,13 +4453,13 @@
       },
       "website": {
         "label": "Croissance",
-        "name": "Site web multi-pages",
+        "name": "Site web multipage",
         "oldPrice": " $202.99",
         "price": "$121.99",
         "discount": "-40%",
         "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
         "desc": "Une présence en ligne complète qui rend une petite boutique, un café ou une marque personnelle plus fiable qu'une page Facebook.",
-        "tagline": "Populaire",
+        "tagline": "Le plus choisi",
         "includes": [
           "4-6 fini pages: home, about, produits/services, news (optionnelles), contact",
           "Design cohérent conforme à votre marque (placement de logo, couleurs, polices...)",
@@ -4470,11 +4479,11 @@
       },
       "system": {
         "label": "Système",
-        "name": "App web dynamique",
+        "name": "Application web dynamique",
         "price": "Depuis $283.99",
         "note": "Projets avec paiements, tableaux de bord ou plusieurs rôles fonctionnent généralement entre 12 et 20 millions.",
         "desc": "Ce n'est pas un simple catalogue — une page web qui vous sert : prendre des commandes, des réservations et gérer vos clients.",
-        "tagline": "Actif à long terme",
+        "tagline": "Un actif durable",
         "includes": [
           "1 flux de base de votre choix : réservation ou commande basique",
           "Panneau de gestion des administrateurs : commandes, clients, chiffres clés",
@@ -4773,10 +4782,10 @@
       ]
     },
     "finalCta": {
-      "title1": "Support après livraison ?",
-      "title2": "Oui. Chaque projet indique clairement la garantie et le période de soutien. Je vous fournirai un tour d'horizon, corrigerai les problèmes dans l'espace convenu et vous informerai avant que tout nouveau élément ne devienne du travail séparé.",
-      "desc": "Vous n'avez pas besoin de connaître un nom de package ou de préparer un bref parfait. Partagez votre site actuel, une capture d'écran ou quelques lignes sur l'objectif et je vous aiderai à identifier le prochain pas à faire.",
-      "cta": "Dites-moi ce dont vous avez besoin"
+      "title1": "Chaque projet commence par",
+      "title2": "une conversation claire.",
+      "desc": "Inutile de connaître le nom d'une formule ou de préparer un brief parfait. Envoyez votre site actuel, une capture ou quelques lignes sur l'objectif, et je vous aide à trouver la prochaine étape.",
+      "cta": "Dites-moi ce qu'il vous faut"
     },
     "promo": {
       "title": "Bio Page Aesthetic Gratuite pour Étudiants !",
@@ -4866,6 +4875,68 @@
       "clientBuild": "Décoration personnalisée — sans CMS, sans template",
       "clientPlan": "Site web multi-pages avec un périmètre basé sur les besoins",
       "cta": "Ouvrir le site client"
+    },
+    "demoLibrary": {
+      "description": "Choisissez un modèle, puis prévisualisez-le sur téléphone, tablette ou ordinateur.",
+      "live": "Prévisualisation interactive",
+      "open": "Voir les détails",
+      "selected": "Voir",
+      "previewTitle": "Salle de modèles",
+      "close": "Fermer la prévisualisation",
+      "previewHint": "Choisissez un modèle puis passez à d'autres appareils pour visualiser votre site web avant que nous ne discutions.",
+      "included": "Peut être inclus",
+      "liveNotice": "Vous pouvez glisser-déplacer et interagir directement dans cette cadre.",
+      "fits": "Parfait pour",
+      "details": {
+        "portfolio": {
+          "fit": "Étudiants, freelances et créatifs indépendants",
+          "features": [
+            "Profil",
+            "Projets",
+            "Contactez-nous :"
+          ]
+        },
+        "cafe": {
+          "fit": "Bistrots, cafés et petites boulangeries",
+          "features": [
+            "Menu",
+            "Réserver",
+            "Carte"
+          ]
+        },
+        "photography": {
+          "fit": "Photographes, ateliers et prestataires de mariage",
+          "features": [
+            "Galerie",
+            "Services",
+            "Réserver"
+          ]
+        },
+        "ecommerce": {
+          "fit": "Mode, beauté et boutiques à main levée",
+          "features": [
+            "Produits",
+            "Filtres",
+            "Panier"
+          ]
+        },
+        "jewelry": {
+          "fit": "Joailleries et marques d'accessoires de luxe",
+          "features": [
+            "Collections",
+            "Prix référence",
+            "Consultation"
+          ]
+        },
+        "dashboard": {
+          "fit": "Gestion des commandes et de la données d'affaires",
+          "features": [
+            "Vue d'ensemble",
+            "Rapports",
+            "Rôles"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
@@ -4903,6 +4974,11 @@
       "desc": "Ne vous inquiétez pas ! Envoyez un message direct au team de Hugo Studio pour obtenir une réponse détaillée 1:1.",
       "chatBtn": "Message",
       "emailBtn": "Émettez un message à l'équipe"
+    },
+    "meta": {
+      "title": "Frequently Asked Questions About Hugo Studio",
+      "description": "Réponses aux services de conception de site web, les pages Bio pour les apprenants, le coût, la livraison et comment Hugo Studio fonctionne avec chaque projet.",
+      "keywords": "Questions sur Hugo Studio, services de conception de site web, page Bio d'étudiant, coûts du site web"
     }
   },
   "bookingPage": {
@@ -5080,98 +5156,98 @@
       "hint": "Votre groupe d'âge",
       "teenTitle": "Cela détermine comment Hugo Studio gère et protège vos données. Aucun document nécessaire — répond simplement honnêtement.",
       "teenRules": {
-        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
-        "limited": "Support is limited or declined where a request would require sensitive personal data.",
-        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
-        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+        "supervision": "Veuillez procéder avec la connaissance et l'accompagnement d'un parent ou d'un tuteur.",
+        "limited": "Le soutien est limité ou refusé où une demande nécessiterait des données personnelles sensibles.",
+        "noShare": "Hugo Studio divulgue vos détails personnels à aucun autre utilisateur — sans exception.",
+        "minimal": "Donnez uniquement le minimum dans ce formulaire ; envoyez rien de plus par chat, Zalo ou un profil public Bio."
       },
-      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
-      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
-      "blockedTitle": "Not eligible to send an enquiry",
-      "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
+      "teenNotesReminder": "Omettez votre adresse résidentielle, les détails scolaires précis, les numéros d'identité ou toute autre information.",
+      "teenContactNote": "Compte tenu de votre âge inférieur à 18 ans, ces informations sont utilisées uniquement pour vous répondre et sont partagées avec aucun autre utilisateur. Utilisez un contact que votre parent ou tuteur connaît.",
+      "blockedTitle": "Non éligible pour envoyer une demande",
+      "blockedDesc": "Hugo Studio ne reçoit pas de demandes d’individus de moins de 14 ans. Veuillez faire la demande à leur nommé en leur nom."
     },
     "ageBands": {
       "adult": {
-        "title": "18 and above",
-        "desc": "You may discuss and agree terms directly, without a guardian."
+        "title": "18 ans et plus",
+        "desc": "Vous pouvez discuter et convenir des termes directement, sans l’aide d’un tuteur."
       },
       "teen": {
-        "title": "14 to under 18",
-        "desc": "Support is available, with supervision and limits on personal data."
+        "title": "14 ans et plus jeunes que 18 ans",
+        "desc": "L’appui est disponible avec un suivi et des limites sur les données personnelles."
       },
       "under14": {
-        "title": "Under 14",
-        "desc": "Not eligible to use Hugo Studio's services."
+        "title": "Moins de 14 ans",
+        "desc": "Non éligible pour utiliser les services de Hugo Studio."
       }
     }
   },
   "templatesPage": {
     "hero": {
-      "badge": "Galaxy of Art",
-      "title1": "The Universe of",
-      "title2": "Digital Art",
-      "desc": "Surf through silent galaxies. Each website is a unique star."
+      "badge": "Galaxie de l’Art",
+      "title1": "Univers de l'Art Numérique",
+      "title2": "Art Numérique",
+      "desc": "Surfes dans des galaxies silencieuses. Chaque site web est une unique étoile."
     },
     "core": {
-      "badge": "The Core",
-      "title1": "Brand",
+      "badge": "Le Coeur",
+      "title1": "Marque",
       "title2": "Nucleus",
-      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
-      "redBold": "Red:",
-      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
+      "desc": "Au cœur de l'univers Hugo Studio se trouve un logo qui converge en six bandes colorées, une déclaration puissante de créativité sans limites et d'aspiration pionnière :",
+      "redBold": "Rouge:",
+      "redText": "Il représente une flamme ardente, une passion intense et une dévotion dans chaque ligne de code.",
       "orangeBold": "Orange:",
-      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
-      "yellowBold": "Yellow:",
-      "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
-      "greenBold": "Green:",
-      "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
-      "blueBold": "Blue:",
-      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
-      "purpleBold": "Purple:",
-      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+      "orangeText": "Il symbolise l'énergie positive, la dynamisme et une constante envie d'innovation.",
+      "yellowBold": "Jaune:",
+      "yellowText": "Lumineux de positivité, apportant confiance et prospérité à chaque client.",
+      "greenBold": "Vert :",
+      "greenText": "Un symbole de croissance durable, toujours multipliant et développant vigoureusement.",
+      "blueBold": " Bleu :",
+      "blueText": "Le noyau de la technologie, représentant une prestige absolu, transparence et professionnalisme.",
+      "purpleBold": "Violet :",
+      "purpleText": "Une vision à long terme, mystère et capacité à créer des ruptures artistiques."
     },
     "typography": {
-      "badge": "The Language",
-      "title": "Typography Choice",
-      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
-      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+      "badge": "La Langue",
+      "title": "Choix d'écriture typographique",
+      "displayDesc": "Modern et définitif, comme de claires constellations dans le ciel nocturne. Utilisé pour les en-têtes grands.",
+      "bodyDesc": "Minimaliste, raffiné et lisse. Guide les yeux à travers le texte comme les orbites des planètes."
     },
     "souls": {
-      "badge": "The Souls",
-      "title": "Cosmic Souls",
-      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "badge": "Les âmes",
+      "title": "âmes cosmiques",
+      "desc": "Astronautes adorables portant les 6 valeurs fondamentales de Hugo Studio.",
       "values": [
         {
           "title": "Dedication",
-          "desc": "Meticulous in every code nebula"
+          "desc": "Méthodique dans chaque nébuleuse de code"
         },
         {
-          "title": "Empathy",
-          "desc": "Listening to the depths of the universe"
+          "title": "Empathie",
+          "desc": "Écoute au plus profond des univers"
         },
         {
-          "title": "Creativity",
-          "desc": "Shining bright like a supernova"
+          "title": "Créativité",
+          "desc": "Brillant comme une supernova"
         },
         {
-          "title": "Connection",
-          "desc": "A strong galactic network"
+          "title": "Connexion",
+          "desc": "Réseau galactique fort"
         },
         {
-          "title": "Speed",
-          "desc": "Fast as the speed of light"
+          "title": "Vitesse",
+          "desc": "Très rapide, comme la lumière"
         },
         {
           "title": "Protection",
-          "desc": "Absolute safety shield"
+          "desc": "Porte de sécurité absolue"
         }
       ]
     },
     "demos": {
-      "badge": "The Constellations",
-      "title1": "Interactive",
-      "title2": "Dashboards",
-      "desc": "Surf through interactive real-world design constellations.",
+      "badge": "Les Constellations",
+      "title1": "Interactif",
+      "title2": "Tableaux de bord",
+      "desc": "Naviguez à travers des constellations de design réels interactifs.",
       "templates": [
         {
           "title": "Studio photo",
@@ -5184,12 +5260,12 @@
           "subtitle": "Restaurant"
         },
         {
-          "title": "Jewelry Web",
+          "title": "Présentation de l'artiste",
           "short": "Jewelry",
-          "subtitle": "Jewelry store"
+          "subtitle": "Page d'administration"
         },
         {
-          "title": "Personal Intro",
+          "title": "Informations personnelles",
           "short": "Portefeuille",
           "subtitle": "Portefeuille"
         },
@@ -5199,173 +5275,181 @@
           "subtitle": "Multidisciplinaire"
         },
         {
-          "title": "Admin Page",
+          "title": "Portefeuille de joaillerie",
           "short": "Tableau de bord",
           "subtitle": "Tableau de bord"
         }
       ]
     },
     "archive": {
-      "badge": "The Archive",
-      "title": "Project Archive",
-      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+      "badge": "La Documentation",
+      "title": "Archivage du Projet",
+      "desc": "Accès direct au base de données des projets déployés réels, originaux et illimités."
     }
   },
   "loginPage": {
     "toast": {
       "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
       "loginError": "Login error",
-      "loginPortalError": "Portal login error",
-      "invalidLink": "Link is invalid or has expired",
-      "noGoogle": "Could not retrieve Google profile info",
-      "useGoogleBtn": "Please click the 'Continue with Google' button below",
-      "adminError": "Incorrect admin username or password",
-      "adminNetworkError": "Could not connect to the server, please check your network and try again",
-      "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters",
-      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+      "loginPortalError": "Erreur de connexion au portail",
+      "invalidLink": "Le lien est invalide ou a expiré",
+      "noGoogle": "Impossible de récupérer les informations du profil Google",
+      "useGoogleBtn": "Cliquez sur le bouton 'Continuer avec Google' ci-dessous",
+      "adminError": "Nom d'utilisateur ou mot de passe admin incorrects",
+      "adminNetworkError": "Échec de la connexion au serveur, veuillez vérifier votre réseau et réessayer",
+      "adminServerError": "Erreur du serveur, veuillez réessayer plus tard",
+      "codeLength": "Le code de connexion doit être exactement 6 caractères",
+      "locationAnomaly": "Nous avons détecté une inscription depuis un endroit à plus de 50 km de votre zone habituelle. Veuillez vous reconnecter pour vérifier que c'est bien vous."
     },
     "biometric": {
-      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
-      "verifying": "Verifying...",
-      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
-      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
-      "or": "or"
+      "btn": "Connectez-vous avec la reconnaissance faciale/empreinte digitale ({{email}})",
+      "verifying": "Vérification en cours...",
+      "notEnabled": "Le verrou de signature n'est pas activé pour cette adresse e-mail sur ce dispositif.",
+      "failed": "Impossible de vous connecter avec le viseur ou la reconnaissance faciale. Veuillez utiliser Google.",
+      "or": "\"or\""
     },
     "header": {
-      "titleCustomer": "Project Management",
-      "titleMember": "Activate Student Bio",
+      "titleCustomer": "\"Gestion du projet\"",
+      "titleMember": "Activer votre Bio étudiante",
       "titleAdmin": "Connexion Admin",
-      "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
+      "descCustomer": "Suivre le progrès et gérer vos services",
+      "descMember": "Créer un lien Bio exclusif complètement gratuit",
       "descAdmin": "Access the developer dashboard system"
     },
     "tabs": {
       "customer": "Client",
       "member": "Student (.edu)",
-      "admin": "Admin"
+      "admin": "Administrateur"
     },
     "customerForm": {
-      "title": "Access Project Management",
+      "title": "Accès au Gestionnaire de Projet",
       "desc": "Manage projects, track progress and communicate with the team.",
       "codeLabel": "Project Code (6 Chars)",
       "codePlaceholder": "Ex: 1A2B3C",
-      "btn": "Enter Project Portal",
-      "securityTitle": "Information Security",
-      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+      "btn": "Entrez le Portail du Projet",
+      "securityTitle": "Sécurité de l’information",
+      "securityDesc": "Le code du projet est fourni confidentiellement. Veuillez absolument ne pas partager ce code avec d'autres pour garantir la sécurité des données de votre projet."
     },
     "memberForm": {
-      "title": "Google Workspace Authentication",
-      "desc": "To ensure the authenticity of student benefits, please link via Google.",
+      "title": "Authentification Google Workspace",
+      "desc": "Pour garantir l'authenticité des avantages étudiants, veuillez lier via Google.",
       "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
-      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
-      "gisLoading": "Loading Google component...",
-      "reqTitle": "Educational Email Requirement (.edu)",
-      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+      "gisReady": "Activer automatiquement 1 lien Bio par an avec une adresse e-mail éducative.",
+      "gisLoading": "Chargement du composant Google...",
+      "reqTitle": "Règle d'Utilisation de l'email scolaire (.edu) requis",
+      "reqDesc": "Le système vérifie automatiquement et accepte uniquement les comptes utilisant une adresse école d'emails (.edu)."
     },
     "adminForm": {
       "title": "Connexion Admin",
-      "desc": "Enter developer credentials",
-      "userLabel": "Username",
-      "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
+      "desc": "Entrez les identifiants de développeur",
+      "userLabel": "Nom d'utilisateur",
+      "userPlaceholder": "Entrez un nom d'utilisateur...",
+      "userRequired": "Veuillez entrer votre nom d'utilisateur",
       "passLabel": "Mot de passe",
       "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "remember": "Remember me on this device",
+      "passRequired": "Veuillez entrer votre mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Cacher le mot de passe",
+      "remember": "Se souvenir de moi sur cet appareil",
       "btn": "Se connecter",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "submitting": "Connexion en cours...",
+      "https": "Synchronisation sécurisée via HTTPS"
     }
   },
   "customerPortal": {
     "header": {
-      "logout": "Logout"
+      "logout": "Déconnexion"
     },
     "tabs": {
       "profile": "Profil",
       "service": "Service",
-      "requests": "Requests"
+      "requests": "Demandes"
     },
     "profile": {
       "title": "Informations personnelles",
-      "subtitle": "Update your contact info so we can support you best.",
-      "completedWarn": "Project is completed, information cannot be changed.",
+      "subtitle": "Mettez à jour vos informations de contact afin que nous puissions vous soutenir le mieux possible.",
+      "completedWarn": "Le projet est terminé, les informations ne peuvent plus être modifiées.",
       "fullName": "Full Name",
       "phone": "Numéro de téléphone",
-      "email": "Contact Email",
-      "birthday": "Date of Birth",
-      "address": "Address",
-      "updateSuccess": "Updated successfully!",
-      "saveBtn": "Save Info",
+      "email": "Email de contact",
+      "birthday": "Date de naissance",
+      "address": "Adresse",
+      "updateSuccess": "Enregistré avec succès!",
+      "saveBtn": "Sauvegarder les informations",
       "savingBtn": "En cours de sauvegarde..."
     },
     "service": {
-      "title": "Project Overview",
-      "desc": "Track progress and basic information about your service package.",
+      "title": "Présentation du projet",
+      "desc": "Suivez le progrès et l'information basique sur votre paquet de service.",
       "status": "Statut",
-      "package": "Service Package",
+      "package": "Paquet de service",
       "startDate": "Date de début",
-      "notesTitle": "Logs & Updates",
+      "notesTitle": "Journal & Mises à jour",
       "notesEmpty": "Project is in preparation...",
-      "completed": "Completed",
+      "completed": "Complété",
       "maintenance": "Maintenance",
-      "summary": "Project Summary"
+      "summary": "Résumé du projet"
     },
     "requests": {
-      "supportTitle": "Support Team",
-      "supportSubtitle": "Managing your project",
-      "loading": "Loading messages...",
-      "empty": "No requests yet. Message us if you have any questions!",
-      "placeholderNormal": "Enter request or message...",
-      "placeholderCompleted": "Enter maintenance request or message..."
+      "supportTitle": "Equipe de soutien",
+      "supportSubtitle": "Gestion de votre projet",
+      "loading": "Chargement des messages...",
+      "empty": "Aucun message pour le moment. N'hésitez pas à nous contacter si vous avez des questions !",
+      "placeholderNormal": "Entrez votre demande ou votre message... ",
+      "placeholderCompleted": "Entrez votre demande ou votre message en maintenance..."
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
+    "metaTitle": "Obtenez votre page de bio personnelle mignonne — 12 mois gratuits ! | Hugo Studio",
+    "metaDesc": "Obtenez un lien Bento sans publicité. Rapide, personnalisé et totalement gratuit avec une adresse e-mail .edu !",
+    "backToServices": "Retour aux Services",
+    "giftSpark": "12 Mois de Spark — À la Carte !",
+    "title": "Votre Lien de Bio Idéal",
+    "desc": "Êtes-vous étudiant en informatique, artiste ou créateur qui attend d'être découvert ? Votre page de bio ad-lib est à vous. C'est votre maison sur le web pour montrer qui vous êtes !",
+    "marketValue": "Prix normal",
+    "perYear": "/an",
     "marketPrice": "$20.99",
-    "giftToYou": "Hugo's Gift",
-    "giftPrice": "$0.99",
-    "priceless": " — Priceless!",
-    "verificationTitle": "Verify & Claim Your Spark!",
-    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
-    "orManual": "or click below if it doesn't prompt",
-    "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
-    "toastNetwork": "Server connection lost. Let's try again in a bit!",
-    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "giftToYou": "Offre Spéciale Hugo",
+    "giftPrice": ":0.99",
+    "priceless": " — Inestimable !",
+    "verificationTitle": "Vérifiez et Clamez Votre Éclat !",
+    "verificationDesc": "Utilisez votre adresse e-mail scolaire (.edu ou .edu.vn) pour vous connecter. Notre robot reconnaîtra immédiatement qui vous êtes et vous donnera la clé !",
+    "orManual": "ou cliquez ci-dessous si cela ne suggère rien",
+    "clickSelect": "Choisissez votre Compte Google",
+    "warningClientId": "Attention : Identifiant client Google manquant",
+    "originError": "Les origines JavaScript autorisées doivent inclure l'origine actuelle et le domaine de production.",
+    "blockedByOauth": "Le Système d'authentification par Google est bloqué par la configuration OAuth.",
+    "ready": "Robot OAuth prêt !",
+    "loading": "Sevrant avec le robot OAuth...",
+    "securityDesc": "Protégé par l'OAuth de Google 2.0. Demande automatique des identifiants d'utilisateur éducatifs enregistrés dans votre navigateur.",
+    "toastFail": "Oh non ! Le vérification de Google a échoué.",
+    "toastNetwork": "Connexion au serveur perdue. Essayons à nouveau plus tard!",
+    "toastPending": "Pas d'adresse e-mail .edu ? Pas de souci, votre compte est en attente d'une approbation personnalisée ! Redirection...",
     "benefits": {
       "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+        "title": "Gratuit",
+        "desc": "12 mois de fonctionnalités premium sans frais cachés ni publicités. Seulement une promesse de ma part à vous!"
       },
       "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+        "title": "Jardin de la Créativité",
+        "desc": "Tout le ton, l'image et le lien est entièrement personnalisable. Exprimez votre authenticité authentique!"
       },
       "fast": {
-        "title": "Lightning Fast",
-        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+        "title": "Lumineux et Rapide",
+        "desc": "Chargement instantané sans ralentissement. Lisse comme de la neige fraîche — vivez l'effet de vitesse pur !"
       },
       "yours": {
         "title": "Truly Yours",
-        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+        "desc": "Liens de sous-domaine personnalisés. Aucun modèle à gratter, aucune boîte générique. Sors-toi du lot !"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "Disponible au Vietnam uniquement.",
+      "service": "Les prix sont indiqués en dôngs vietnamiens et réglés via PayOS et les banques vietnamiennes.",
+      "booking": "Hugo Studio prend des projets au Vietnam ; les budgets sont en dôngs et les échanges se font par e-mail ou Zalo.",
+      "donate": "Les dons sont effectués en dôngs vietnamiens via PayOS et les banques vietnamiennes."
     }
   }
 }

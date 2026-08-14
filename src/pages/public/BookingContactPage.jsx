@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import RegionNote from "../../components/public/RegionNote";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -453,6 +454,7 @@ export default function BookingContactPage() {
                     />
                   ))}
                 </div>
+                <RegionNote scope="booking" />
               </fieldset>
               <StepNav onBack={goBack} onForward={goForward} forwardLabel={navLabels} />
             </div>

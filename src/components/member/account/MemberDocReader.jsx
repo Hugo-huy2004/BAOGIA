@@ -4,6 +4,7 @@ import DocBlock from "../../docs/DocBlock";
 import { MEMBER_DOCS } from "./memberDocs";
 import { MEMBER_DOCS_EN } from "./memberDocs.en";
 import { languageCode } from "../../../i18n/languages";
+import { LEGAL_FULL_TEXT, LEGAL_LANGUAGES } from "./legalFullText";
 
 const PEACE_NOTICE = {
   zh: "若发现任何破坏和平、挑起西沙群岛与南沙群岛争端的迹象，我们有权全面收回该账户。",
@@ -14,10 +15,49 @@ const PEACE_NOTICE = {
  * Đọc một tài liệu thành viên trong sheet Tài khoản. Dùng đúng `DocBlock` của
  * trang chính sách công khai nên chữ nghĩa, bảng biểu và hộp lưu ý y hệt.
  */
+/**
+ * Bản hợp nhất: chín ngôn ngữ nối tiếp nhau trong cùng một tài liệu, không phụ
+ * thuộc ngôn ngữ đang chọn. Người đọc cuộn thẳng tới khối tiếng của mình, và
+ * bản dịch nào cũng nằm cạnh bản gốc để đối chiếu.
+ */
+function FullTextDocument() {
+  return (
+    <article className="space-y-12">
+      {LEGAL_LANGUAGES.map(({ code, name, htmlLang }) => {
+        const doc = LEGAL_FULL_TEXT[code];
+        if (!doc) return null;
+        return (
+          <section key={code} id={`legal-${code}`} lang={htmlLang} className="scroll-mt-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">{name}</p>
+            <h2 className="mt-1 text-xl font-bold tracking-[-0.02em] text-foreground">{doc.title}</h2>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{doc.intro}</p>
+            <div className="mt-6 space-y-7">
+              {doc.sections.map((section) => (
+                <section key={section.id} id={`legal-${code}-${section.id}`}>
+                  <h3 className="text-[15px] font-bold tracking-[-0.01em] text-foreground">{section.title}</h3>
+                  <ul className="mt-2.5 space-y-2">
+                    {section.items.map((item, index) => (
+                      <li key={index} className="flex gap-2.5 text-[13px] leading-relaxed text-muted-foreground">
+                        <span className="mt-[0.45em] size-1 shrink-0 rounded-full bg-muted-foreground/50" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </article>
+  );
+}
+
 export default function MemberDocReader({ docId }) {
   const { i18n } = useTranslation();
   const activeLanguage = languageCode(i18n.resolvedLanguage || i18n.language);
   const doc = useMemo(() => {
+    if (docId === "full-text") return null;
     if (activeLanguage === "vi") return MEMBER_DOCS[docId];
     if (activeLanguage === "en") return MEMBER_DOCS_EN[docId];
 
@@ -33,6 +73,7 @@ export default function MemberDocReader({ docId }) {
     if (!doc) return [];
     return typeof doc.sections === "function" ? doc.sections() : (doc.sections || []);
   }, [doc]);
+  if (docId === "full-text") return <FullTextDocument />;
   if (!doc) return null;
 
   return (

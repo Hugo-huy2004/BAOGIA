@@ -148,7 +148,7 @@
       "localEdition": "{{country}} 版本",
       "dailyReset": "อัปเดตทุกวันเวลา 09:00",
       "updatedAt": "อัปเดต {{time}}",
-      "rightsMode": "{{articles}} เรื่องราวจากแหล่งข้อมูล {{sources}} · แต่เพียงเนื้อหาหัวข้อและสรุปโดยผู้จัดการสื่อเท่านั้น",
+      "rightsMode": "{{articles}} เรื่องจาก {{sources}} แหล่ง · ไม่แสดงเนื้อหาเต็ม",
       "loadMore": "แสดง {{n}} มากขึ้นเรื่องราว",
       "categories": "หมวดหมู่บทความ",
       "category": {
@@ -171,13 +171,16 @@
       "articleUnavailable": "บทความนี้ไม่สามารถเปิดได้",
       "summaryTitle": "การสรุปที่รวดเร็ว",
       "summaryBySource": "การสรุปเขียนโดย {{source}}เอง",
-      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
+      "summaryByAi": "ฮูโก AI เขียนสรุปนี้ใหม่ด้วยคำของตัวเอง เนื้อหาทั้งหมดเป็นลิขสิทธิ์ของ {{source}} อ่านต้นฉบับเพื่อดูเนื้อหาที่สมบูรณ์",
       "contentTitle": "เนื้อหาของบทความ",
       "contentUnavailable": "ผู้จัดการสื่อไม่อนุญาตให้ใช้งานทั่วไปสำหรับเนื้อหาทั้งหมด. เปิดดูเพิ่มเติมเพื่อเข้าถึงเนื้อหาทั้งหมด.",
       "contentBySource": "เนื้อหาทั้งหมดของบทความนี้ได้รับการป้องกันโดย {{source}}. Hugo Studio แสดงเฉพาะส่วนสรุป — เปิดดูเพิ่มเติมเพื่อเข้าถึงเนื้อหาทั้งหมดในลักษณะเดียวกัน.",
+      "copyrightNotice": "เนื้อหาทั้งหมดเป็นลิขสิทธิ์ของ {{source}} Hugo Studio แสดงเฉพาะส่วนสรุป แตะ\"อ่านต้นฉบับ\"เพื่อดูบทความเต็มบนเว็บไซต์ทางการ",
+      "sourceInfo": "แหล่งที่มา: {{source}}{{author}} · {{date}}",
       "attribution": "เนื้อหาเป็นสิทธิบัตรของ {{source}}.",
-      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
-      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
+      "licenseNotice": "เนื้อหาทั้งหมดแสดงใต้สัญญา {{source}} จาก {{license}}",
+      "fullInApp": "Full text",
+      "licenseAttribution": "{{author}}—{{source}} ซ้ำใหม่ภายใต้{{license}}.",
       "readMinutes": "{{n}} ต้องการอ่านเพียงครึ่งหนึ่ง",
       "fontSize": "ขนาดข้อความ",
       "openSource": "เปิดใช้งานอย่างถูกต้อง",
@@ -580,6 +583,9 @@
         "conditionsTitle": "สิทธิและหน้าที่ของสมาชิก",
         "conditionsSubtitle": "สิทธิ์หลัก, ข้อกำหนดอายุ, การใช้งานปลอดภัย, และกฎ JOY",
         "conditionsDetail": "สิทธิ์หลัก, ข้อกำหนดอายุ, การใช้งานปลอดภัย, และกฎ JOY",
+        "fullTextTitle": "Full terms",
+        "fullTextSubtitle": "ข้อกำหนดทั้งหมด",
+        "fullTextDetail": "ข้อกำหนด ความเป็นส่วนตัว และเงื่อนไขการสมัครสมาชิกในหกภาษา",
         "content": {
           "privileges": {
             "id": "privileges",
@@ -2696,7 +2702,7 @@
       "dangKetNoi": "เชื่อมต่อ",
       "nhieuSong": "เสียงดัง",
       "dangPhat": "กำลังเล่น",
-      "tamDung": "หยุดเล่น",
+      "tamDung": "หยุด",
       "cho": "รอก่อน",
       "daHocDiaChi": " · ได้เรียนรู้ที่อยู่ใหม่",
       "doTanSo": "หาคลื่น",
@@ -2704,14 +2710,14 @@
       "dung": "หยุด",
       "phat": "เล่น",
       "doLen": "ดูขึ้น",
-      "amLuong": "เสียง",
+      "amLuong": "Volume",
       "ngauNhien": "สุ่ม",
       "henGioTat": "ปิดเวลา",
       "timDaiVov1Npr": "ค้นหาสถานี: VOV1, NPR, Jazz…",
       "dangDo2": "กำลังค้นหา...",
       "tim": "ค้นหา",
       "daTim": "(พบ)",
-      "muaThemThoiGian": "เพิ่มเวลาฟังได้",
+      "muaThemThoiGian": "ซื้อเวลาฟังเพิ่มเติม",
       "thoiGianMuaDuoc": "เวลาที่ซื้อสามารถสะสมและใช้งานหลังจากหมดเวลาฟรีสัปดาห์ละ 5 ชั่วโมง"
     },
     "store": {
@@ -2962,9 +2968,9 @@
       "10PhiSangTao": "(เพิ่ม 10% ของค่าสร้างสรรค์) เพื่อสมัครแพ็คเกจเดือนละหนึ่งเดือนไม่?",
       "khong": "สมัครสำเร็จ! ส่วนเรียนนี้ได้เปิดให้ใช้งานแล้ว",
       "dangKyThanhCong": "การชำระเงินล้มเหลว",
-      "loiGiaoDich": "ซื้อแพ็คเกจถาวร",
+      "loiGiaoDich": "ไม่สามารถทำรายการได้",
       "muaGoiVinhVien": "ข้อผิดพลาดในการทำธุรกรรม",
-      "gom": "gồm",
+      "gom": "including",
       "joyVa": "JOY คิดสร้างเพื่อเปิดใช้งานตลอดชีพ",
       "joyPhiSangTao": "ยืดอายุโครงการเว็บไซต์ของคุณ",
       "giaHanBoPhat": "(เพิ่ม 10% ค่าการคิดสร้าง) เพื่อยืดอายุโครงการเว็บไซต์ไม่กี่วันโดยไม่มีค่าใช้จ่ายการดูแลตลอดชีพ",
@@ -2976,7 +2982,7 @@
       "moKhoaTronGoi": "เงื่อนไขการชำระเงินเป็นไปตามนโยบายความปลอดภัยของเรา",
       "xacNhanXoa": "ยืนยันการลบ",
       "banCoChacChan": "คุณแน่ใจว่าต้องการลบ",
-      "thuMuc": "โฟลเดอร์",
+      "thuMuc": "folder",
       "khongHanhDongNay": "ไม่ ขั้นตอนนี้ไม่มีการยกเลิกได้"
     },
     "hugoso": {
@@ -3357,7 +3363,7 @@
       "meoMoiChuKy": "💡 **คำแนะนำ:** เส้นทางการนอนแต่ละวงจรมีความยาว 90 นาที (ผ่านไปตาม Phases NREM, การหลับลึก N3 และ REM). ตื่นในตอนสุดท้ายของวงจรจะทำให้คุณรู้สึกสดชื่นและพร้อมทำงานอย่างเต็มที่, ไม่เป็นอันตรายหรือปวดหัว.",
       "boCamBien": "เซ็นเซอร์: ",
       "tuDongKichHoat": "การสตาร์ทอัตโนมัติ (PWA)",
-      "dangKetNoi": "เชื่อมต่อ",
+      "dangKetNoi": "เชื่อมต่ออยู่",
       "chuaLienKet": "ยังไม่เชื่อมโยง",
       "tuDong": "ทำงานอัตโนมัติ",
       "daLienKet": "เชื่อมโยงแล้ว",
@@ -3703,137 +3709,140 @@
       "lose": "ลองอีกครั้ง",
       "draw": "เสมอ"
     },
-    "catAll": "All",
+    "catAll": "ทั้งหมด",
     "catStudio": "Hugo Studio",
-    "catPvp": "Versus",
-    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
-    "bestScore": "· Best {{score}}",
-    "downloading": "Downloading {{percent}}%",
+    "catPvp": "ประชัน",
+    "credit2048": "สร้างจาก 2048 ของ Gabriele Cirulli (สัญญาอนุญาต MIT)",
+    "bestScore": "· เวอร์ชั่น {{score}} ที่ดีที่สุด",
+    "downloading": "การดาวน์โหลด {{percent}}% ไม่สำเร็จ",
     "exchangeError": "JOY exchange failed.",
-    "addedToApps": "{{game}} was added to your apps.",
-    "gameFallback": "Game",
-    "rankTitle": "Leaderboard",
-    "noAds": "Play right inside Hugo — no ads.",
-    "filterGames": "Filter games",
-    "playGame": "Play {{game}}",
-    "spotlight": "Today's spotlight",
-    "play": "PLAY",
+    "addedToApps": "{{game}} ถูกเพิ่มเข้าไปในแอปของคุณ",
+    "gameFallback": "เกม",
+    "rankTitle": "สถิติผู้เล่น",
+    "noAds": "เล่นตรงนี้ในฮูโก้ — ไม่มีโฆษณา。",
+    "filterGames": "กรองเกม",
+    "playGame": "เล่น {{game}}",
+    "spotlight": " spotlight วันนี้",
+    "play": "เล่น",
     "gamesTitle": "เกม",
-    "totalMatches": "Matches",
-    "wins": "Wins",
-    "rankDesc": "The best players across the whole system.",
-    "newBest": "New best!",
-    "beatBest": "Beat {{score}}",
-    "combo": "{{count}}× combo",
-    "multiplier": "Multiplier x{{value}}",
-    "best": "Best",
-    "hugoMember": "Hugo member",
-    "rankSss": "RANK SSS • GRANDMASTER",
-    "rankS": "RANK S • CODE WARRIOR",
-    "joyByScore": "+ JOY based on score",
-    "pendingWallet": "· waiting to land in your wallet",
-    "tryAgainClose": "Try again — so close!",
-    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
-    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "totalMatches": "การแข่งขัน",
+    "wins": "ชัยชนะ",
+    "rankDesc": "ผู้เล่นที่ดีที่สุดในระบบทั้งหมด",
+    "newBest": "ใหม่ที่สุด!",
+    "beatBest": "ชนะ {{score}}",
+    "combo": "{{count}}× สปินคู่",
+    "multiplier": "เทิร์นโอเวอร์ x{{value}}",
+    "best": "ที่ดีที่สุด",
+    "hugoMember": "สมาชิก Hugo",
+    "rankSss": "ระดับ SSS • ผู้ชนะใหญ่",
+    "rankS": "ระดับ S • เจ้าของรหัส",
+    "joyByScore": "+ JOY ตามคะแนน",
+    "pendingWallet": "กำลังรอลงในกระเป๋าคุณ",
+    "tryAgainClose": "ลองอีกครั้ง — ใกล้มาก!",
+    "g2048Triple": "⚡ ×3 คะแนนสำหรับ 10 วินาที!",
+    "g2048Fever": "🔥 เฟเวอร์โมเดล! ×2 คะแนน",
     "g2048Level": "ระดับ {{level}}",
-    "g2048LevelStone": "Level {{level}} · with stone tiles",
-    "g2048Undone": "One move undone",
-    "g2048Tnt": "TNT tile",
-    "g2048Stone": "Stone tile, {{turns}} moves left",
-    "g2048Tile": "Tile {{value}}",
-    "g2048Score": "SCORE",
-    "g2048Moves": "MOVES",
-    "snakeStage1": "Neon Garden",
-    "snakeStage1Kicker": "WARM-UP STAGE",
-    "snakeStage1Goal": "Collect 6 energy cores",
-    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
-    "snakeStage2": "Red Minefield",
-    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
-    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
-    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
-    "snakeStage3": "Quantum Gates",
-    "snakeStage3Kicker": "TELEPORT CHALLENGE",
-    "snakeStage3Goal": "Master the pair of space gates",
-    "snakeStage3Hint": "Enter one gate to appear at the other.",
-    "snakeStage4": "Gold Hunt",
-    "snakeStage4Kicker": "SPEED CHALLENGE",
-    "snakeStage4Goal": "Catch the golden cores before they vanish",
-    "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
-    "snakeStage5Kicker": "FINAL STAGE",
-    "snakeStage5Goal": "Survive the high-speed grid",
-    "snakeStage5Hint": "High speed, more mines and teleport gates.",
-    "snakeNewStage": "{{stage}} · a new challenge is open",
-    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
-    "snakeFood": "Cores",
-    "snakeStageLabel": "Stage",
-    "snakeStageOf": "Stage {{index}}: {{name}}",
-    "ready": "READY",
-    "snakeStageProgress": "STAGE PROGRESS",
-    "snakeCoreNormal": "+2 normal core",
-    "snakeCoreGold": "+10 golden core",
-    "snakeMine": "Mine: game over",
-    "snakePortal": "Teleport gate",
-    "chessBoard": "3D chess board",
-    "chessWhite": "White",
-    "chessBlack": "Black",
-    "chessCheckmate": "Checkmate! {{side}} wins!",
-    "chessStalemate": "Draw (stalemate)",
-    "chessOver": "Game over",
-    "chessLevelEasy": "Apprentice",
-    "chessEasy": "Easy",
-    "chessLevelMid": "Tactician",
+    "g2048LevelStone": "ระดับ {{level}} · กับหินทราย",
+    "g2048Undone": "การเคลื่อนที่หนึ่ง undone",
+    "g2048Tnt": "ปุ่ม TNT",
+    "g2048Stone": "หินทราย, {{turns}} การเคลื่อนที่เหลือ",
+    "g2048Tile": "ชิ้นหิน {{value}}",
+    "g2048Score": "คะแนน",
+    "g2048Moves": "การเคลื่อนที่",
+    "snakeStage1": "Neon เกย์น",
+    "snakeStage1Kicker": "STAGE ฟื้นฟู",
+    "snakeStage1Goal": "สะสม 6 จุดพลังงาน",
+    "snakeStage1Hint": "ดื่มด่ำตามรитามเพื่อกระตุ้นคอมโบ",
+    "snakeStage2": "Minefield สีแดง",
+    "snakeStage2Kicker": "CHALLENGE เล่นอยู่",
+    "snakeStage2Goal": "หลบ避开地雷并收集6个核心",
+    "snakeStage2Hint": "ระเบิดไม่ได้",
+    "snakeStage3": "ประตูควอนตัม",
+    "snakeStage3Kicker": "CHALLENGE 传送",
+    "snakeStage3Goal": "ควบ종력의 쌍방문 공간을 휘두르세요",
+    "snakeStage3Hint": "하나의 문으로 다른 문에 나타납니다.",
+    "snakeStage4": "금화 캐스팅",
+    "snakeStage4Kicker": "속도 경주",
+    "snakeStage4Goal": "금화를 잡아버리기 전까지 잡으세요",
+    "snakeStage4Hint": "한 개의 금화는 10점이고 큰 연속을 유지합니다.",
+    "snakeStage5Kicker": "최종 단계",
+    "snakeStage5Goal": "고속 격자에서 생존하세요",
+    "snakeStage5Hint": "고속, 더 많은 미네랄과 이동 문이 있습니다.",
+    "snakeNewStage": "{{stage}} · 새로운 도전이 열립니다.",
+    "snakeLevelUp": "ระดับ {{level}} · ความเร็วและความยากเพิ่มขึ้น",
+    "snakeFood": "คอร์ส",
+    "snakeStageLabel": "ช่วงเวลา",
+    "snakeStageOf": "ช่วงเวลา {{index}}: {{name}}",
+    "ready": "พร้อมทีม",
+    "snakeStageProgress": "การ progresses ของช่วงเวลา",
+    "snakeCoreNormal": "+2 คอร์สปกติ",
+    "snakeCoreGold": "+10 คอร์สทองคำ",
+    "snakeMine": "ฐานความดันหมดแล้ว",
+    "snakePortal": "ประตูย้ายที่",
+    "chessBoard": "สามชัยboard 3D",
+    "chessWhite": "ขาว",
+    "chessBlack": "ดำ",
+    "chessCheckmate": "การถูกทำให้แพ้! {{side}} เป็นผู้ชนะ!",
+    "chessStalemate": "เสมอกัน ( stalemate )",
+    "chessOver": "เกมสิ้นสุดลง",
+    "chessLevelEasy": "นักเรียน",
+    "chessEasy": "ง่าย",
+    "chessLevelMid": "กลยุทธ์",
     "chessMid": "หน้าเว็บไซต์สมาชิกฮูจู",
-    "chessLevelHard": "Master",
+    "chessLevelHard": "มือโปร",
     "chessHard": "Hard",
-    "chessThinking": "Hugo BOT is thinking…",
-    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
-    "chessTurn": "Turn: {{side}}",
-    "chessBotThinking": "Hugo BOT (thinking…)",
-    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
-    "chessBlackPlayer": "Black player",
-    "chessView3d": "3D view",
-    "chessUndo": "Undo",
-    "chessNewGame": "New game",
-    "chessYouWhite": "You (White)",
-    "chessWhitePlayer": "White player",
-    "caroThinking": "The AI is thinking",
-    "caroYourTurn": "Your turn (X)",
-    "caroWin": "You win! 🎉",
-    "caroLose": "The AI won — try again!",
-    "caroDraw": "Draw! The board is full.",
-    "caroYou": "You",
-    "caroRule": "3 in a row",
-    "survivorWaveClear": "WAVE {{wave}} CLEAR",
+    "chessThinking": "Hugo BOT กำลังคิด…",
+    "chessInCheck": "⚠️ คุณมีนัทเจอในช่วงเวลานี้!",
+    "chessTurn": "回合: {{side}}",
+    "chessBotThinking": "Hugo BOT (กำลังคิด…)",
+    "chessBotLevel": "Hugo AI BOT · เทคนิค {{level}}",
+    "chessBlackPlayer": "ผู้เล่นสีดำ",
+    "chessView3d": "วิว 3D",
+    "chessUndo": "ย้อนกลับ",
+    "chessNewGame": "เกมใหม่",
+    "chessYouWhite": "คุณ (ขาว)",
+    "chessWhitePlayer": "ผู้เล่นขาว",
+    "caroThinking": "ระบบ AI ยังคิดอยู่...",
+    "caroYourTurn": "ถึงคิวของคุณ (X)",
+    "caroWin": "คุณชนะ! 🎉",
+    "caroLose": "ระบบ AI เอาชนะ — ลองใหม่!",
+    "caroDraw": "เสมอ! ช่องทางเต็มแล้ว.",
+    "caroYou": "ขาว",
+    "caroRule": "เรียง {{win}} ตัว",
+    "survivorWaveClear": "วาว {{wave}} ผ่าน",
     "survivorSurge": "SURGE",
     "survivorBoss": "{{wave}} · BOSS",
-    "survivorLeft": "{{wave}} · {{count}} left",
-    "survivorClear": "{{wave}} · clear",
-    "rankSs": "RANK SS • NEON ACE",
-    "rankA": "RANK A • SENIOR FIGHTER",
-    "rankB": "RANK B • RISING PLAYER",
-    "shellFormula": "{{score}} points → {{joy}} JOY",
-    "shellRecord": "New best! {{delta}} points more than last time.",
-    "shellNear": "{{gap}} points short of your best {{best}}.",
-    "shellBest": "Your best: {{best}}.",
-    "lbWinner": "{{name}} is the winner!",
-    "lbRealtime": "Total score updates in real time • {{date}}",
-    "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
-    "lbLoading": "Adding up scores across every game…",
-    "lbMatches": "{{count}} matches played",
-    "lbTotalScore": "TOTAL SCORE",
-    "lbEmpty": "Nobody on the board yet. Be the first!",
-    "snakeStage5": "Hyper Grid",
-    "snakeCurrentMission": "CURRENT MISSION",
-    "chessMovesPlayed": "Game finished after {{count}} moves.",
-    "chessArena": "3D Chess Arena",
-    "chessVsBot": "Play the Hugo AI BOT",
-    "chessVsBotDesc": "You play White · a test against the algorithm",
-    "chessPassPlay": "Two players, one device (pass & play)",
-    "chessPassPlayDesc": "Put the device between you like a real board",
-    "chessBotLevelLabel": "AI BOT level:",
-    "chessHistory": "History:",
-    "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "survivorLeft": "{{wave}} · {{count}} หมด",
+    "survivorClear": "{{wave}} · ล้าง",
+    "rankSs": "อันดับ SS • NEON ACE",
+    "rankA": "ท็อป A • นักสู้ระดับมืออาชีพ",
+    "rankB": "ท็อป B • มือใหม่ที่กำลังเติบโต",
+    "shellFormula": "{{score}} คะแนน → {{joy}} JOY",
+    "shellRecord": "คุณเป็นที่หนึ่ง! เพิ่ม {{delta}} คะแนนจากครั้งก่อนๆ。",
+    "shellNear": "{{gap}} คะแนนยังไม่ถึงจุดสูงสุดของคุณ ({{best}})",
+    "shellBest": "ที่ดีที่สุด: {{best}}.",
+    "lbWinner": "{{name}} ชนะ!",
+    "lbRealtime": "คะแนนปรับเปลี่ยนอย่างเรียลไทม์ • {{date}}",
+    "lbBoard": "HUGO วอร์ลด ไลบาร์โพร (ท็อป 10)",
+    "lbLoading": "รวมคะแนนจากเกมทุกเกม…",
+    "lbMatches": "{{count}} เกมเล่นแล้ว",
+    "lbTotalScore": "ผลรวมคะแนน",
+    "lbEmpty": "ยังไม่มีใครบนกระดาน! เป็นคนแรก!",
+    "snakeStage5": "กริดไฮเปอร์",
+    "snakeCurrentMission": "ภารกิจปัจจุบัน",
+    "chessMovesPlayed": "เกมส์จบลงหลังการขยับ {{count}} ครั้ง。",
+    "chessArena": "ชิงกีฬาสามมิติ",
+    "chessVsBot": "เล่นบอทฮูเก็ต AI",
+    "chessVsBotDesc": "คุณเป็นผู้เล่น White · การทดสอบแข่งขันกับระบบ",
+    "chessPassPlay": "สองผู้เล่นบนหนึ่งเครื่อง (ส่งและเล่น)",
+    "chessPassPlayDesc": "วางเครื่องในระหว่างคุณเหมือนชั้นจริง",
+    "chessBotLevelLabel": "ระดับบอท AI: ",
+    "chessHistory": "ประวัติ: ",
+    "exclusive": "เฉพาะที่ Hugo Studio",
+    "caroBoardLabel": "คาโร {{size}} × {{size}} · เรียง {{win}} ตัว",
+    "openApp": "เปิด",
+    "getApp": "รับ",
+    "gameCount": "{{count}} เกม"
   },
   "arcadeIntro": {
     "close": "กลับไปในแอป",
@@ -3951,7 +3960,7 @@
       "philosophy": "ปรัชญา",
       "contacts": "ติดต่อเรา",
       "start": "เริ่มใช้งาน",
-      "studio": "Hugo Studio",
+      "studio": "ฮูโกสตูดิโอ",
       "partners": "ผู้ก่อตั้ง",
       "about": "เกี่ยวกับฉัน",
       "discoveries": "การค้นพบ"
@@ -4096,7 +4105,7 @@
     },
     "studio": {
       "badge": "✦ สตูดิโอ Wishpax Hugo",
-      "title1": "Hugo Studio",
+      "title1": "ฮูโกสตูดิโอ",
       "title2": "สร้างประสบการณ์ดิจิตอลด้วยใจ.",
       "desc": "สตูดิโอยอดนิยม Hugo เป็นที่พักสำหรับงานฝีมือดิจิตอล - ทุกเว็บไซต์, สปีดบี้และเครื่องมือของนักศึกษาจะถูกตกแต่งเหมือนงานฝีมือที่สวยงาม: มีความงดงาม, เลื่อนผ่านและอบอุ่นสำหรับผู้ใช้.",
       "explore": "สำรวจสตูดิโอมากกว่า",
@@ -4283,8 +4292,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "บริการคำปรึกษาเว็บไซต์",
-      "description": "ระบุสิ่งที่คุณต้องการก่อนเลือกวิธีแก้ปัญหา ปรึกษาตรง 1-1 กับนักศึกษา, บุคคล และร้านค้าขนาดเล็ก โดยมีขอบเขตและค่าใช้จ่ายที่ตกลงกันก่อนเริ่มงาน。",
+      "title": "ที่ปรึกษาเว็บไซต์สำหรับนักเรียน คนทำงานอิสระ และร้านเล็ก | Hugo Studio",
+      "description": "บอกความต้องการก่อนเลือกวิธีทำ ปรึกษาตัวต่อตัวสำหรับนักเรียน คนทั่วไป และร้านเล็ก ตกลงขอบเขตและค่าใช้จ่ายให้ชัดก่อนเริ่มงาน",
       "keywords": "เว็บไซต์นักศึกษา, เว็บไซต์โปรไฟล์นักศึกษา, เว็บไซต์บุคคล, เว็บไซต์ขนาดเล็กของธุรกิจ, การปรึกษาด้านการสร้างเว็บไซต์"
     },
     "common": {
@@ -4308,12 +4317,12 @@
       "closing": "ทุกเลขเป็นประตู ประตูไหนคุณจะเป ou?"
     },
     "hero": {
-      "badge": "ตรงไปยัง 1-to-1 · อัจฉริยะเริ่มต้นด้วยนักเรียน",
-      "title1": "ยังไม่ต้องซื้อแพ็คเกจ",
-      "title2": "เริ่มจากสิ่งที่คุณต้องการ",
-      "desc": "บอกฉันว่าเป้าหมายของคุณ, อะไรที่ขัดขวางความสำเร็จ, หรืออะไรที่คุณต้องการสร้าง. ผมจะช่วยในการระบุแนวทางที่เหมาะสม - จากบัฟเฟติส์นักศึกษาและโปรไฟล์ไปจนถึงเว็บไซต์สำหรับบุคคลและร้านค้าขนาดเล็ก",
-      "viewPricing": "เลือกสถานการณ์ของคุณเอง",
-      "contact": "บอกฉันว่าคุณต้องการอะไร",
+      "badge": "คุยตัวต่อตัว · นักเรียนมาก่อน",
+      "title1": "ยังไม่ต้องเลือกแพ็กเกจก็ได้",
+      "title2": "เริ่มจากสิ่งที่คุณต้องการจริง ๆ",
+      "desc": "บอกเป้าหมายของคุณ อุปสรรคที่เจอ หรือสิ่งที่อยากสร้าง แล้วผมจะช่วยหาขนาดงานที่พอดี ตั้งแต่หน้า Bio และพอร์ตโฟลิโอของนักเรียน ไปจนถึงเว็บไซต์ของคนทั่วไปและร้านเล็ก",
+      "viewPricing": "เลือกสถานการณ์ของคุณ",
+      "contact": "บอกสิ่งที่คุณต้องการ",
       "swipe": "ย้ายเพื่อต่อเนื่อง",
       "scroll": "scrollเพื่อต่อเนื่อง",
       "trust": [
@@ -4324,9 +4333,9 @@
       ]
     },
     "outcomes": {
-      "eyebrow": "หน้าแรก",
-      "title": "คุณต้องการเปลี่ยนแปลงเว็บไซต์ของคุณอย่างไร?",
-      "desc": "เลือกเรื่องราวที่คล้ายกับสถานการณ์ของคุณเพื่อดูบริการที่เกี่ยวข้อง",
+      "eyebrow": "บทแรก",
+      "title": "อยากให้เว็บไซต์เปลี่ยนอะไร",
+      "desc": "เลือกเรื่องที่ใกล้เคียงสถานการณ์ของคุณ เพื่อดูบริการที่เกี่ยวข้อง",
       "items": [
         {
           "title": "ฉันอยากให้ลูกค้าเข้าใจและเลือกแบรนด์ของคุณ",
@@ -4352,9 +4361,9 @@
     },
     "pricing": {
       "eyebrow": "จุดเริ่มต้นทั่วไป",
-      "title": "สามวิธีในการเริ่มต้น",
+      "title": "สามวิธีเริ่มต้นที่พบบ่อย",
       "highlight": "ไม่ใช่สามกล่องที่แน่นอน",
-      "desc": "นี่คือขอบเขตอนั้น ไม่ได้มีการจัดส่งที่แน่นอน"
+      "desc": "นี่คือขอบเขตงานที่พบบ่อย ไม่ใช่แพ็กเกจตายตัว ผมจะทำความเข้าใจสิ่งที่คุณต้องการก่อน แนะนำเท่าที่พอดี แล้วค่อยตกลงเวลาและค่าใช้จ่าย"
     },
     "journey": {
       "stone1": {
@@ -4419,13 +4428,13 @@
       },
       "landing": {
         "label": "Start",
-        "name": "หน้าหลักเพียงหนึ่งหน้า",
+        "name": "แลนดิงเพจหน้าเดียว",
         "oldPrice": "80.99",
         "price": "60.99",
         "discount": "-25%",
         "note": "การตกแต่งด้วยตนเอง, ไม่มีแบบฟอร์มทั่วไปสำหรับตลาดขนาดใหญ่. เสร็จใน 5–7 วัน",
         "desc": "หน้าเดียว มุ่งมั่นเพียงหนึ่งเป้าหมาย: ผู้เข้าชมจบการอ่านและต้องการที่จะติดต่อคุณ.",
-        "tagline": "เริ่มต้นง่าย",
+        "tagline": "เริ่มง่าย",
         "includes": [
           "1 หน้าเว็บไซต์ที่ออกแบบมาตามแบรนด์ของคุณ สูงสุดถึง 7 ส่วน",
           "2 เวอร์ชันทบทวนพื้นฐานจากข้อเสนอแนะของคุณ",
@@ -4444,13 +4453,13 @@
       },
       "website": {
         "label": "เติบโต",
-        "name": "เว็บไซต์มีหลายหน้า",
+        "name": "เว็บไซต์หลายหน้า",
         "oldPrice": " $202.99",
         "price": "เข้าถึงระบบสมาชิก 121.99",
         "discount": "ข้อกำหนดความเป็นส่วนตัวของระบบสมาชิก 40",
         "note": "ราคาสุดท้ายขึ้นอยู่กับจำนวนหน้าและฟีเจอร์ ปรับให้เข้ากับงบประมาณของคุณด้วยการชำระเงินแบบช่วงๆ.",
         "desc": "ระบบสมาชิก Hugo Studio ที่ให้คุณมีการเข้าถึงออนไลน์อย่างสมบูรณ์แบบ เพื่อสร้างความเชื่อมั่นให้กับร้านค้าขนาดเล็ก, เคาสเทอร์หรือแบรนด์ส่วนตัวมากกว่าเพจเฟซบุ๊ก。",
-        "tagline": "ที่เป็นที่นิยมมากที่สุด",
+        "tagline": "ได้รับความนิยมที่สุด",
         "includes": [
           "4-6 หน้าสุดท้าย: เว็บไซต์หลัก, เกี่ยวกับเรา, สินค้า/บริการ, อัปเดต (เลือกได้), ติดต่อเรา",
           "การออกแบบที่ cohesive และเข้ากับธุรกิจของคุณ (การวางโลโก้, สี, เฟรมเวิร์ค...)",
@@ -4470,11 +4479,11 @@
       },
       "system": {
         "label": "ระบบ",
-        "name": "แอพเว็บที่ปรับแต่งได้",
+        "name": "เว็บแอปแบบไดนามิก",
         "price": "โครงการจาก $283.99",
         "note": "โครงการที่มีการจัดการเงินและการดูแลลูกค้าหลายบทบาทหรือโครงการที่มีความยาวนานจะใช้ 12–20 ล้านบาท",
         "desc": "ไม่เพียงแค่บัตรแสดง — เว็บไซต์ที่ทำงานให้คุณ: การสั่งซื้อและการจัดการลูกค้า",
-        "tagline": "ทรัพย์สินระยะยาว",
+        "tagline": "สินทรัพย์ระยะยาว",
         "includes": [
           "1 กระบวนการหลักของคุณ: การจัดการการจองหรือการสั่งซื้อฐานะเดิม",
           "แดิชาร์ชั่นแอดมิน: คำสั่งซื้อ, ลูกค้า, ข้อมูลสำคัญ",
@@ -4773,10 +4782,10 @@
       ]
     },
     "finalCta": {
-      "title1": "แต่ละโปรเจ็ตเริ่มต้นด้วยการสนทนากลุ่มเพียงครั้งเดียว",
-      "title2": "คุณจะได้รับคำแนะนำที่ชัดเจน",
-      "desc": "คุณไม่จำเป็นต้องรู้จักชื่อแพ็คเกจหรือเตรียมคำแนะนำที่สมบูรณ์แบบ แชรงเว็บไซต์ของคุณ เล่นสกринชีต หรือเพียงแค่บรรยายว่าเป้าหมายคืออะไร และฉันจะช่วยให้คุณทราบถึงขั้นตอนที่เหมาะสม",
-      "cta": "บอกฉันว่าคุณต้องการอะไร"
+      "title1": "ทุกโปรเจกต์เริ่มต้นด้วย",
+      "title2": "การคุยกันให้ชัดหนึ่งครั้ง",
+      "desc": "คุณไม่ต้องรู้ชื่อแพ็กเกจ และไม่ต้องเตรียมบรีฟให้สมบูรณ์แบบ ส่งเว็บที่มีอยู่ ภาพหน้าจอ หรือเขียนสั้น ๆ ว่าอยากได้อะไร แล้วผมจะช่วยหาก้าวถัดไปที่เหมาะ",
+      "cta": "บอกสิ่งที่คุณต้องการ"
     },
     "promo": {
       "title": "บุคลากรแบบดูแลรักษาสำหรับนักศึกษาฟรี!",
@@ -4866,6 +4875,68 @@
       "clientBuild": "เว็บไซต์หลายหน้า: ราคา, การถ่ายภาพ, การทำวิดีโอ, FAQ, ส่งจดหมาย",
       "clientPlan": "ออกแบบตามความต้องการ — ไม่มี CMS และไม่มีแบบจำลอง",
       "cta": "เว็บไซต์หลายหน้าที่มีขอบเขตตามความต้องการ"
+    },
+    "demoLibrary": {
+      "description": "เลือกแบบอย่างแล้วค่อยดูที่มือถือ แท็บเล็ตหรือคอมพิวเตอร์",
+      "live": "ดูตัวอย่างจริง",
+      "open": "ดูรายละเอียด",
+      "selected": "ดู",
+      "previewTitle": "ห้องแบบอย่าง",
+      "close": "ปิดการดูที่ตัวอย่าง",
+      "previewHint": "เลือกแบบอย่างแล้วเปลี่ยนอุปกรณ์เพื่อดูเว็บไซต์ของคุณก่อนที่เราจะพูดคุยกัน",
+      "included": "สามารถรวมได้",
+      "liveNotice": "คุณสามารถข้ามไปและInteractionได้ภายในขอบเขตนี้โดยตรง",
+      "fits": "เหมาะสมสำหรับ",
+      "details": {
+        "portfolio": {
+          "fit": "นักศึกษา, ผู้จ้างงานอิสระ และ创作者",
+          "features": [
+            "個人檔案",
+            "โครงการ",
+            "ติดต่อเรา:"
+          ]
+        },
+        "cafe": {
+          "fit": "คาเฟ่, บาร์บีคิว และ bakery",
+          "features": [
+            "เมนู",
+            "จอง",
+            "แผนที่"
+          ]
+        },
+        "photography": {
+          "fit": "นักถ่ายภาพ ศิลปินและบริการแต่งงาน",
+          "features": [
+            "ร้านค้าภาพ",
+            "บริการ",
+            "จอง"
+          ]
+        },
+        "ecommerce": {
+          "fit": "แฟชั่น เครื่องสำอาง และร้านขายของ handmade",
+          "features": [
+            "สินค้า",
+            "ค้นหา",
+            "ตะกร้า"
+          ]
+        },
+        "jewelry": {
+          "fit": "ร้านสร้อยข้อมือและแบรนด์อุปกรณ์พรีเมียม",
+          "features": [
+            "การจัดแสดง",
+            "ราคาเป็นต้นที่แนะนำ",
+            "ปรึกษา"
+          ]
+        },
+        "dashboard": {
+          "fit": "ทีมจัดการคำสั่งและข้อมูลธุรกิจ",
+          "features": [
+            "สรุป",
+            "รายงาน",
+            "บทบาท"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
@@ -4903,6 +4974,11 @@
       "desc": "ไม่ต้องกังวล! ส่งข้อความตรงๆไปยังทีม Hugo Studio เพื่อคำตอบแบบ 1:1 ที่ละเอียด",
       "chatBtn": "แชท",
       "emailBtn": "ส่งข้อความไปยังทีม"
+    },
+    "meta": {
+      "title": "Frequently Asked Questions About Hugo Studio",
+      "description": "ข้อมูลเกี่ยวกับบริการออกแบบเว็บไซต์, หน้าโปรไฟล์ของผู้เรียนสำหรับการสร้างเว็บไซต์, การกำหนดราคา, เวลาที่จะส่งมอบ และวิธีการทำงานของ Hugo Studio ในแต่ละโครงการ。",
+      "keywords": "คำถามเกี่ยวกับ Hugo Studio, บริการออกแบบเว็บไซต์, หน้าโปรไฟล์ของผู้เรียน, ค่าบริการ"
     }
   },
   "bookingPage": {
@@ -5122,60 +5198,60 @@
       "orangeBold": "แทนความกระหายที่ร้อนแรง ความกระหายที่มีพลัง และความจริงใจในแต่ละบรรทัดของโค้ด",
       "orangeText": "น้ำตาลเข้ม:",
       "yellowBold": "แทนพลังงานบวก ความกระตือรือร้น และความปรารถนาที่จะพัฒนาอย่างไม่หยุดยั้ง",
-      "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
-      "greenBold": "Green:",
-      "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
-      "blueBold": "Blue:",
-      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
-      "purpleBold": "Purple:",
-      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+      "yellowText": "มุ่งมั่นด้วยความหวัง สร้างไว้วางใจและร่ำรวยให้กับลูกค้าทุกคน。",
+      "greenBold": "สีเขียว:",
+      "greenText": "การเติบโตอย่างยั่งยืน สัญลักษณ์ของความยั่งยืน ขยายและเจริญเติบโตอย่างแข็งแกร่งตลอดเวลา。",
+      "blueBold": "สีน้ำเงิน:",
+      "blueText": "เทคโนโลยีที่เป็นแก่นแท้ สัญลักษณ์ของการมี Prestige, 透明度 และความโปร่งใส",
+      "purpleBold": "สีม่วง:",
+      "purpleText": "วิสัยทัศน์ที่ไกลตัว สัญลักษณ์ของความลับและความสามารถในการสร้างการเปลี่ยนแปลงทางศิลปะ"
     },
     "typography": {
-      "badge": "The Language",
-      "title": "Typography Choice",
-      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
-      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+      "badge": "ภาษา",
+      "title": "เลือกแบบจัด typography",
+      "displayDesc": "รูปลักษณ์ที่เป็นมิติ และชัดเจน คล้าย constellations ในคืนท้องฟ้า ใช้สำหรับ headingใหญ่",
+      "bodyDesc": " minimalist, เรียบง่าย และนุ่มนวล นำสายตาผ่านเนื้อหาเหมือนวงโคจรของดวงดาว"
     },
     "souls": {
       "badge": "The Souls",
-      "title": "Cosmic Souls",
-      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "title": "สวรรค์ที่มีชีวิต",
+      "desc": "อัศวินที่น่ารัก carrying the 6 core values of Hugo Studio.",
       "values": [
         {
-          "title": "Dedication",
-          "desc": "Meticulous in every code nebula"
+          "title": "ความจงใจ",
+          "desc": "ละเอียดในแต่ละคลื่นของรหัสโค้ด"
         },
         {
-          "title": "Empathy",
-          "desc": "Listening to the depths of the universe"
+          "title": "เมตตา",
+          "desc": "ฟังถึงลึกซึ้งของสวรรค์"
         },
         {
-          "title": "Creativity",
-          "desc": "Shining bright like a supernova"
+          "title": "สร้างสรรค์",
+          "desc": "สว่างไสวเหมือน supernova"
         },
         {
-          "title": "Connection",
-          "desc": "A strong galactic network"
+          "title": "เชื่อมต่อ",
+          "desc": "ระบบสังเคราะห์ีนิยมที่แข็งแกร่ง"
         },
         {
-          "title": "Speed",
-          "desc": "Fast as the speed of light"
+          "title": "ความเร็ว",
+          "desc": "เร็วกว่าความเร็วแสง"
         },
         {
-          "title": "Protection",
-          "desc": "Absolute safety shield"
+          "title": "การป้องกัน",
+          "desc": "กำแพงด้านความปลอดภัยที่สมบูรณ์แบบ"
         }
       ]
     },
     "demos": {
-      "badge": "The Constellations",
-      "title1": "Interactive",
-      "title2": "Dashboards",
-      "desc": "Surf through interactive real-world design constellations.",
+      "badge": "Constellations",
+      "title1": " interactive",
+      "title2": "แดชบอร์ด",
+      "desc": "สำรวจ Constellations ที่ออกแบบจริงอย่าง interactivity",
       "templates": [
         {
           "title": "ศูนยงภาพ",
-          "short": "Photography",
+          "short": "ภาพถ่าย",
           "subtitle": "ช่างภาพ"
         },
         {
@@ -5184,12 +5260,12 @@
           "subtitle": "Restaurant"
         },
         {
-          "title": "Jewelry Web",
+          "title": "เว็บไซต์เครื่องประดับ",
           "short": "Jewelry",
-          "subtitle": "Jewelry store"
+          "subtitle": "ร้านเครื่องประดับ"
         },
         {
-          "title": "Personal Intro",
+          "title": "สรุปตนเอง",
           "short": "โปรไฟโพร",
           "subtitle": "โปรไฟโพร"
         },
@@ -5199,116 +5275,116 @@
           "subtitle": "หลากหลายอุตสาหกรรม"
         },
         {
-          "title": "Admin Page",
+          "title": "หน้าผู้ดูแลระบบ",
           "short": "แดชบอร์ด",
           "subtitle": "แดชบอร์ด"
         }
       ]
     },
     "archive": {
-      "badge": "The Archive",
-      "title": "Project Archive",
-      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+      "badge": "การจัดเก็บข้อมูล",
+      "title": "การจัดเก็บโครงการ",
+      "desc": "เข้าถึงฐานข้อมูลจริงของโครงการที่ได้รับการติดตั้ง ซึ่งเป็นแบบเดิมและไม่มีจำกัด"
     }
   },
   "loginPage": {
     "toast": {
-      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
-      "loginError": "Login error",
-      "loginPortalError": "Portal login error",
-      "invalidLink": "Link is invalid or has expired",
-      "noGoogle": "Could not retrieve Google profile info",
-      "useGoogleBtn": "Please click the 'Continue with Google' button below",
-      "adminError": "Incorrect admin username or password",
-      "adminNetworkError": "Could not connect to the server, please check your network and try again",
-      "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters",
-      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+      "eduRedirect": "บัญชีของคุณจะอยู่ระหว่างการตรวจสอบเนื่องจากนี่ไม่ใช่อีเมล .edu Redirecting...",
+      "loginError": "เข้าสู่ระบบล้มเหลว",
+      "loginPortalError": "การเข้าสู่ระบบของโปรโต็คอลผู้ใช้ต้องมีข้อผิดพลาด",
+      "invalidLink": "ลิงก์ไม่ถูกต้องหรือหมดอายุแล้ว",
+      "noGoogle": "เราไม่สามารถรับข้อมูลโปรไฟล์ Google ได้",
+      "useGoogleBtn": "กรุณาคลิกปุ่ม 'เข้าสู่ระบบด้วย Google' ที่อยู่ด้านล่าง",
+      "adminError": "ชื่อผู้ใช้งานหรือรหัสผ่านของผู้ดูแลไม่ถูกต้อง",
+      "adminNetworkError": "เราไม่สามารถเชื่อมต่อไปยังเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่อเน็ตเวิร์กและลองอีกครั้ง",
+      "adminServerError": "เกิดข้อผิดพลาดของเซิร์ฟเวอร์ กรุณาลองใหม่ในภายหลัง",
+      "codeLength": "รหัสเข้าสู่ระบบต้องมีอย่างละ 6 ตัวอักษรเท่านั้น",
+      "locationAnomaly": "เราตรวจพบการเข้าสู่ระบบจากที่อยู่ที่ห่างเกินกว่า 50 กิโลเมตร จากพื้นที่ปกติของคุณ กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อตรวจสอบว่าเป็นคุณจริงๆหรือไม่"
     },
     "biometric": {
-      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "btn": "เข้าสู่ระบบด้วยการถอดลายนิ้วมือ/ใบหน้า ({{email}})",
       "verifying": "Verifying...",
-      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
-      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
-      "or": "or"
+      "notEnabled": "การตรวจสอบ...",
+      "failed": "การเข้าสู่ระบบด้วยลายมือชิปไม่ได้เปิดใช้งานสำหรับอีเมลนี้ในเครื่องนี้。",
+      "or": "การเข้าสู่ระบบด้วยลายมือ/ใบหน้าไม่สามารถทำได้ กรุณาใช้ Google แทน"
     },
     "header": {
-      "titleCustomer": "Project Management",
-      "titleMember": "Activate Student Bio",
+      "titleCustomer": "การจัดการโปรเจค",
+      "titleMember": "เปิดใช้งานบิโอของนักศึกษา",
       "titleAdmin": "เข้าสู่ระบบผู้ administrate",
-      "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
-      "descAdmin": "Access the developer dashboard system"
+      "descCustomer": "ติดตามความก้าวหน้าและจัดการบริการของคุณ",
+      "descMember": "สร้างลิงก์บิโอที่ exclusive ได้ฟรี",
+      "descAdmin": "เข้าถึงระบบแดชบอร์ดพัฒนาเมเนจเมนท์"
     },
     "tabs": {
       "customer": "Client",
-      "member": "Student (.edu)",
+      "member": "นักศึกษา (.edu)",
       "admin": "Admin"
     },
     "customerForm": {
-      "title": "Access Project Management",
-      "desc": "Manage projects, track progress and communicate with the team.",
-      "codeLabel": "Project Code (6 Chars)",
-      "codePlaceholder": "Ex: 1A2B3C",
-      "btn": "Enter Project Portal",
-      "securityTitle": "Information Security",
-      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+      "title": "Access บริหารจัดการโครงการ, Monitorsความก้าวหน้า และสื่อสารกับทีม.",
+      "desc": "Project Code (6 Chars)",
+      "codeLabel": "Ex: 1A2B3C",
+      "codePlaceholder": "Enter Project Portal",
+      "btn": "ข้อมูลความปลอดภัย",
+      "securityTitle": "รหัสโครงการถูกให้แก่ผู้ใช้งานในลักษณะเป็นความลับ เพื่อให้มั่นใจว่าข้อมูลของโครงการของคุณจะได้รับการดูแลอย่างดี",
+      "securityDesc": "Google Workspace Authentication"
     },
     "memberForm": {
-      "title": "Google Workspace Authentication",
-      "desc": "To ensure the authenticity of student benefits, please link via Google.",
-      "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
-      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
-      "gisLoading": "Loading Google component...",
-      "reqTitle": "Educational Email Requirement (.edu)",
-      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+      "title": "เพื่อให้มั่นใจถึงความถูกต้องของการใช้งานสิทธิประโยชน์นักศึกษา กรุณาเชื่อมโยงผ่าน Google.",
+      "desc": "Privacy Policy",
+      "missingClientId": "ขาดいた VITE_GOOGLE_CLIENT_ID ใน 설정 파일。",
+      "gisReady": "โดยอัตโนมัติให้การสนับสนุน 1 ลิงก์บีโอ / 12 เดือนพร้อมอีเมลการศึกษา。",
+      "gisLoading": "กำลังโหลดองค์ประกอบ Google...",
+      "reqTitle": "ความต้องการอีเมลการศึกษา (.edu)",
+      "reqDesc": "ระบบตรวจสอบและยอมรับเฉพาะบัญชีที่ใช้อีเมลการศึกษาของโรงเรียนเท่านั้น"
     },
     "adminForm": {
       "title": "เข้าสู่ระบบผู้ administrate",
-      "desc": "Enter developer credentials",
-      "userLabel": "Username",
+      "desc": "กรุณาป้อนข้อมูลการเข้าสู่ระบบของพัฒนาการ",
+      "userLabel": "ชื่อผู้ใช้",
       "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
+      "userRequired": "กรุณาป้อนชื่อผู้ใช้ของคุณ",
       "passLabel": "รหัสผ่าน",
       "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "remember": "Remember me on this device",
+      "passRequired": "กรุณาป้อนรหัสผ่านของคุณ",
+      "showPassword": "แสดงรหัสผ่าน",
+      "hidePassword": "ซ่อนรหัสผ่าน",
+      "remember": "จดจำการใช้งานนี้บนอุปกรณ์ของคุณ",
       "btn": "เข้าสู่ระบบ",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "submitting": "เข้าสู่ระบบ...",
+      "https": "เชื่อมต่อแบบปลอดภัยผ่าน HTTPS"
     }
   },
   "customerPortal": {
     "header": {
-      "logout": "Logout"
+      "logout": "ออกจากระบบ"
     },
     "tabs": {
       "profile": "個人檔案",
       "service": "Service",
-      "requests": "Requests"
+      "requests": "คำขอ"
     },
     "profile": {
       "title": "ข้อมูลส่วนตัวของคุณ",
-      "subtitle": "Update your contact info so we can support you best.",
-      "completedWarn": "Project is completed, information cannot be changed.",
+      "subtitle": "ปรับข้อมูลติดต่อบริการของเราเพื่อให้เราสามารถสนับสนุนคุณได้อย่างดีที่สุด.",
+      "completedWarn": "โครงการเสร็จสมบูรณ์ ข้อมูลไม่สามารถเปลี่ยนแปลงได้.",
       "fullName": "Full Name",
       "phone": "เบอร์โทรศัพท์",
-      "email": "Contact Email",
-      "birthday": "Date of Birth",
-      "address": "Address",
-      "updateSuccess": "Updated successfully!",
-      "saveBtn": "Save Info",
+      "email": "อีเมลสำหรับการติดต่อ",
+      "birthday": "วันและปีเกิดของคุณ",
+      "address": "ที่อยู่ของคุณ",
+      "updateSuccess": "ได้รับการอัพเดตแล้ว!",
+      "saveBtn": "บันทึกข้อมูล",
       "savingBtn": "กำลังเก็บข้อมูล..."
     },
     "service": {
-      "title": "Project Overview",
-      "desc": "Track progress and basic information about your service package.",
+      "title": "สรุปโครงการ",
+      "desc": "ตรวจสอบความก้าวหน้าและข้อมูลพื้นฐานเกี่ยวกับแพ็คเกจบริการของคุณ.",
       "status": "สถานะ",
-      "package": "Service Package",
+      "package": "แพ็คเกจบริการ",
       "startDate": "วันที่เริ่มต้น",
-      "notesTitle": "Logs & Updates",
+      "notesTitle": "ประวัติและการอัปเดต",
       "notesEmpty": "Project is in preparation...",
       "completed": "Completed",
       "maintenance": "Maintenance",
@@ -5316,56 +5392,64 @@
     },
     "requests": {
       "supportTitle": "Support Team",
-      "supportSubtitle": "Managing your project",
-      "loading": "Loading messages...",
-      "empty": "No requests yet. Message us if you have any questions!",
-      "placeholderNormal": "Enter request or message...",
-      "placeholderCompleted": "Enter maintenance request or message..."
+      "supportSubtitle": "การจัดการโปรเจคของคุณ",
+      "loading": "กำลังโหลดข้อความ...",
+      "empty": "ยังไม่มีคำขอที่ส่งมา ติดต่อเราถ้ามีคำถาม",
+      "placeholderNormal": "กรุณาป้อนคำขอหรือข้อความ...",
+      "placeholderCompleted": "กรุณาป้อนคำขอซ่อมแซมหรือข้อความ..."
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
+    "metaTitle": "รับส่วนลดบุคลากรที่น่ารักสำหรับหน้าข้อมูลส่วนตัวของคุณฟรี 12 เดือน | Hugo Studio",
+    "metaDesc": "รับลิงก์พอร์ตโฟลิโอที่ไม่มีโฆษณาและมีความสวยงาม รวดเร็ว ปรับแต่ง และ absolutely ฟรีสำหรับอีเมล .edu ของคุณ!",
+    "backToServices": "กลับไปยังบริการ",
+    "giftSpark": "12 เดือนของ Spark — ฟรีทันที!",
+    "title": "ลิงก์ข้อมูลส่วนตัวของความฝันของคุณ",
+    "desc": "คุณเป็นนักเรียนด้านเทคโนโลยีสารสนเทศ ศิลปิน หรือผู้สร้างที่รอการค้นพบ? ยืนยันหน้า Bento บิโอของคุณที่สวยงามและไม่มีโฆษณา! มันคือที่อยู่อาศัยบนอินเทอร์เน็ตของคุณสำหรับการเปิดเผยตัวเอง!",
+    "marketValue": "ราคาปกติ",
+    "perYear": "/ปี",
     "marketPrice": "$20.99",
     "giftToYou": "Hugo's Gift",
     "giftPrice": "$0.99",
-    "priceless": " — Priceless!",
+    "priceless": "—  priceless!",
     "verificationTitle": "Verify & Claim Your Spark!",
-    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
-    "orManual": "or click below if it doesn't prompt",
-    "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
+    "verificationDesc": "ใช้อีเมลจากโรงเรียน (.edu หรือ .edu.vn) เพื่อเข้าสู่ระบบ โรบอตของเราจะระบุคุณอย่างรวดเร็วและมอบหนึ่งในชุดกุญแจให้คุณ!",
+    "orManual": "หรือคลิกที่ลิงค์ด้านล่างหากไม่มีการ prompts",
+    "clickSelect": "เลือกบัญชี Gmail",
+    "warningClientId": "เตือน: ไม่มีคีย์ลูกค้า Google",
+    "originError": "ที่อยู่เว็บไซต์ JavaScript ที่ได้รับอนุญาตต้องรวมที่อยู่ปัจจุบันและโดเมนการผลิต。",
+    "blockedByOauth": "การเข้าสู่ระบบด้วย Google ถูกระงับโดยการกำหนดค่า OAuth",
+    "ready": "โรบอท OAuth พร้อมแล้ว!",
+    "loading": "เริ่มต้นการสื่อสารกับโรบอท OAuth...",
+    "securityDesc": "ได้รับความปลอดภัยด้วย Google OAuth 2.0. จะขอแสดงคุณสมบัติการเข้าสู่ระบบของ edu ที่บันทึกไว้ในเบราว์เซอร์โดยอัตโนมัติ.",
+    "toastFail": "อ้อไม่ทันใจ! การตรวจสอบความถูกต้องจาก Google ล้มเหลว.",
     "toastNetwork": "Server connection lost. Let's try again in a bit!",
     "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
     "benefits": {
       "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+        "title": " absolutelyฟรี",
+        "desc": "สิทธิประโยชน์พรีเมียม 12 เดือน ไม่มีค่าธรรมเนียมซ่อนอยู่ ไม่มีโฆษณาเพียงคำมั่นสัญญาจากฉันให้กับคุณเท่านั้น!"
       },
       "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+        "title": "ที่พักผ่อนของศิลปิน",
+        "desc": "ทุกเฉด สื่อ และลิงค์สามารถปรับแต่งได้อย่างเต็มที่ แสดงความเป็นตัวเองอย่างแท้จริง!"
       },
       "fast": {
-        "title": "Lightning Fast",
-        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+        "title": " Lightning ฟ้าสูง ",
+        "desc": " เรียลไทม์โหลดโดยไม่มีการลื่นไถล ราบรื่นเหมือนหิมะใหม่ — 体验纯粹的速度！"
       },
       "yours": {
-        "title": "Truly Yours",
-        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+        "title": " เทรลเลอร์ของคุณเอง ",
+        "desc": " สubโดเมนลิงค์ที่กำหนดเอง. ไม่มีแบบจำลองที่ทำให้รู้สึกเหมือนมีการตัดเย็บ, ไม่มีช่องทางทั่วไป. เผยโฉมอย่างเป็นเอกลักษณ์!"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "ให้บริการเฉพาะในเวียดนาม",
+      "service": "ราคาคิดเป็นเงินด่งเวียดนาม ชำระผ่าน PayOS และธนาคารในเวียดนาม",
+      "booking": "Hugo Studio รับงานในเวียดนาม งบประมาณคิดเป็นเงินด่ง และพูดคุยผ่านอีเมลหรือ Zalo",
+      "donate": "การสนับสนุนชำระเป็นเงินด่งเวียดนามผ่าน PayOS และธนาคารในเวียดนาม"
     }
   }
 }

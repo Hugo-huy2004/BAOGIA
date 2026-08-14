@@ -148,7 +148,7 @@
       "localEdition": "{{country}}版本",
       "dailyReset": "每天早上九点刷新",
       "updatedAt": "更新了 {{time}}",
-      "rightsMode": "{{articles}} 来自 {{sources}} 源头的故事 · 只有头条和出版商提供的摘要",
+      "rightsMode": "{{articles}} 来自 {{sources}} 个来源的报道 · 不显示文章全文",
       "loadMore": "Show {{n}} more stories",
       "categories": "文章分类",
       "category": {
@@ -171,13 +171,16 @@
       "articleUnavailable": "此文章无法打开",
       "summaryTitle": "快速摘要",
       "summaryBySource": "{{source}}自己撰写",
-      "summaryByAi": "Hugo AI重写了这篇总结，用自己的话从{{source}}文章中进行。打开原文以查看完整内容。",
+      "summaryByAi": "Hugo AI 重新编写了该摘要。文章全文版权归 {{source}} 所有。请阅读原文获取完整内容。",
       "contentTitle": "文章内容",
       "contentUnavailable": "该出版商不允许自动全文。打开原始以阅读全部。",
       "contentBySource": "这篇文章的完整文本由 {{source}} 所有，仅展示摘要 —— 点击下方查看原文全文。",
+      "copyrightNotice": "文章全文版权归 {{source}} 所有。Hugo Studio 仅显示摘要。点击\"阅读原文\"在官方网站查看完整文章。",
+      "sourceInfo": "来源：{{source}}{{author}} · {{date}}",
       "attribution": "内容受 {{source}} 知识产权保护。",
-      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
-      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
+      "licenseNotice": "在 {{source}} 的许可下显示 {{license}} 原文的全文。",
+      "fullInApp": "Full text",
+      "licenseAttribution": "{{author}}——{{source}}，本内容重新发布遵循{{license}}。”",
       "readMinutes": "阅读时间：{{n}} 分钟",
       "fontSize": "文本大小",
       "openSource": "开源",
@@ -580,6 +583,9 @@
         "conditionsTitle": "会员权利与义务",
         "conditionsSubtitle": "核心权利、年龄规则、安全使用和JOY规则",
         "conditionsDetail": "核心权利、年龄规则、安全使用和JOY",
+        "fullTextTitle": "Full terms",
+        "fullTextSubtitle": "九种语言，一一展示的完整文本",
+        "fullTextDetail": "九种语言的条款、隐私和会员规则",
         "content": {
           "privileges": {
             "id": "privileges",
@@ -2692,8 +2698,8 @@
         "storeDesc": "每周的免费时长用完后，购买的时间会累积并使用。",
         "empty": "目前没有可用的时间包。"
       },
-      "dangDo": "Đang dò",
-      "dangKetNoi": "Đang kết nối",
+      "dangDo": "Scanning",
+      "dangKetNoi": "Connecting",
       "nhieuSong": "噪波",
       "dangPhat": "正在播放",
       "tamDung": "暂停",
@@ -2711,7 +2717,7 @@
       "dangDo2": "正在搜索中…",
       "tim": "搜索",
       "daTim": "已找到 (",
-      "muaThemThoiGian": "购买更多播放时间",
+      "muaThemThoiGian": "购买更多听歌时间",
       "thoiGianMuaDuoc": "剩余可使用的试听时间积累并将在免费每周五小时结束后继续使用。"
     },
     "store": {
@@ -2962,7 +2968,7 @@
       "10PhiSangTao": "(+10% 创造力费用) 来订阅一个月的套餐",
       "khong": "呢？",
       "dangKyThanhCong": "注册成功！此学习阶段已解锁。",
-      "loiGiaoDich": "交易错误。",
+      "loiGiaoDich": "交易失败。",
       "muaGoiVinhVien": "购买永久套餐",
       "gom": "gồm",
       "joyVa": "JOY和费用创造来解锁永久",
@@ -2976,8 +2982,8 @@
       "moKhoaTronGoi": "JOY费用创造来解锁永久",
       "xacNhanXoa": "确认删除",
       "banCoChacChan": "您确定要删除吗？此操作不可撤销。",
-      "thuMuc": "目录",
-      "khongHanhDongNay": "\" không? Hành động này không thể hoàn tác."
+      "thuMuc": "folder",
+      "khongHanhDongNay": "\"? This cannot be undone."
     },
     "hugoso": {
       "bai": "文章",
@@ -3625,11 +3631,11 @@
       "noiDungBaiHoc": "课程内容已锁定。请解锁永久学习此课程或购买全套7个章节以开始学习。",
       "thueBaoBaoTri": "维护订阅已到期。请续订每月50份维护凭证以继续学习。",
       "moKhoaVinhVien": "永久解锁",
-      "moKhoaVinhVien2": "永久解锁学习和实践所有课程的权利",
+      "moKhoaVinhVien2": "永久解锁学习和实践整个课程的权利",
       "trongGoiNayBan": "在这个套餐中，您将获得",
       "moKhoaChangVinh": "永久解锁章节",
       "tronGoiVinhVien": "永久包6个章节",
-      "moKhoaToanBo": "永久解锁100全部6个章节的学习",
+      "moKhoaToanBo": "永久解锁100所有6个章节的完整课程",
       "mienPhiPhiBao": "免费终身维护费",
       "muaTronGoi16k": "购买全套16k JOY",
       "giaHanPhiBao": "月度续费维护费",
@@ -3642,19 +3648,19 @@
       "thuThachMoRong": "扩展挑战：",
       "checklistThuocBai": "Checklist thuộc bài",
       "thucHanhTuongTac": "Thực hành tương tác",
-      "banCanTimHieu": "Bạn cần tìm hiểu thêm:",
+      "banCanTimHieu": " 您需要进一步了解：",
       "phut": "phút",
-      "giayDeCoThe": "giây để có thể kiểm tra.",
+      "giayDeCoThe": " 请等待约一秒以进行检查。",
       "hoanThanhXuatSac": "Hoàn thành xuất sắc!",
       "banDaVuotQua": "Bạn đã vượt qua các thử thách của bài học này và nhận phần thưởng JOY.",
-      "bayLoiCachKhac": "Bẫy lỗi & Cách khắc phục",
-      "taiLieuSachHoc": "Tài liệu & Sách học thuật",
-      "choBaiNay": "Cho bài này",
-      "nguonChuanQuocTe": "Nguồn chuẩn quốc tế của chặng",
-      "chayThuDeXem": "Chạy thử để xem",
-      "chay": "Chạy",
-      "baiNayLaDang": "Bài này là dạng truy vấn hoặc backend nên điện thoại sẽ hiển thị code mẫu và hướng dẫn chạy. Khi mở trên desktop, hệ thống học sẽ chuyển về IDE đầy đủ.",
-      "traoDoiJoyDe": "Trao đổi JOY để mở khóa bộ Phát triển Web"
+      "bayLoiCachKhac": "您已经通过了本课程的挑战并获得了JOY奖励。",
+      "taiLieuSachHoc": "错误示例及解决方法",
+      "choBaiNay": "资料与学术文献",
+      "nguonChuanQuocTe": "关于此课件的内容介绍或说明文本内容提示（如：学习指南、常见问题解答等）提示”，“国际标准来源链接或引用”], [",
+      "chayThuDeXem": "试运行以查看",
+      "chay": "试运行",
+      "baiNayLaDang": "这段是查询或后端的内容，手机将显示示例代码和运行指南。在桌面设备上打开时，系统学习功能会切换到完整的IDE界面。",
+      "traoDoiJoyDe": "JOY交流以解锁Web开发课程"
     }
   },
   "arcadeGame": {
@@ -3705,135 +3711,138 @@
     },
     "catAll": "全部",
     "catStudio": "Hugo Studio",
-    "catPvp": "Versus",
-    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
-    "bestScore": "· Best {{score}}",
-    "downloading": "Downloading {{percent}}%",
-    "exchangeError": "JOY exchange failed.",
-    "addedToApps": "{{game}} was added to your apps.",
-    "gameFallback": "Game",
-    "rankTitle": "Leaderboard",
-    "noAds": "Play right inside Hugo — no ads.",
-    "filterGames": "Filter games",
-    "playGame": "Play {{game}}",
-    "spotlight": "Today's spotlight",
-    "play": "PLAY",
+    "catPvp": "对弈",
+    "credit2048": "基于 Gabriele Cirulli 的 2048（MIT 许可）",
+    "bestScore": "· 最佳 {{score}}",
+    "downloading": "下载 {{percent}}%",
+    "exchangeError": "JOY 交换失败。",
+    "addedToApps": "{{game}} 已添加到您的应用中。",
+    "gameFallback": "游戏",
+    "rankTitle": "排行榜",
+    "noAds": "在 Hugo 内部直接玩 — 没有广告。",
+    "filterGames": "过滤游戏",
+    "playGame": "玩 {{game}}",
+    "spotlight": "今日聚焦",
+    "play": "播放",
     "gamesTitle": "游戏",
-    "totalMatches": "Matches",
-    "wins": "Wins",
-    "rankDesc": "The best players across the whole system.",
-    "newBest": "New best!",
-    "beatBest": "Beat {{score}}",
-    "combo": "{{count}}× combo",
-    "multiplier": "Multiplier x{{value}}",
-    "best": "Best",
-    "hugoMember": "Hugo member",
+    "totalMatches": "匹配",
+    "wins": "胜利",
+    "rankDesc": "整个系统中最好的玩家。",
+    "newBest": "新最好！",
+    "beatBest": "击败 {{score}} ",
+    "combo": "{{count}}×连击",
+    "multiplier": "倍数 x{{value}}",
+    "best": "最佳",
+    "hugoMember": "Hugo会员",
     "rankSss": "RANK SSS • GRANDMASTER",
     "rankS": "RANK S • CODE WARRIOR",
-    "joyByScore": "+ JOY based on score",
-    "pendingWallet": "· waiting to land in your wallet",
-    "tryAgainClose": "Try again — so close!",
-    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
-    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "joyByScore": "+ JOY 根据分数",
+    "pendingWallet": "· 正在进入您的钱包中",
+    "tryAgainClose": "再试一次 — 非常接近!",
+    "g2048Triple": "⚡ ×3 点数 10 秒内完成动作",
+    "g2048Fever": "🔥 激情模式！×2 点数",
     "g2048Level": "等级：{{level}}",
-    "g2048LevelStone": "Level {{level}} · with stone tiles",
-    "g2048Undone": "One move undone",
+    "g2048LevelStone": "Level {{level}} · 使用石板",
+    "g2048Undone": "一步未动",
     "g2048Tnt": "TNT tile",
-    "g2048Stone": "Stone tile, {{turns}} moves left",
-    "g2048Tile": "Tile {{value}}",
-    "g2048Score": "SCORE",
-    "g2048Moves": "MOVES",
-    "snakeStage1": "Neon Garden",
-    "snakeStage1Kicker": "WARM-UP STAGE",
-    "snakeStage1Goal": "Collect 6 energy cores",
-    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
-    "snakeStage2": "Red Minefield",
-    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
-    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
-    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
-    "snakeStage3": "Quantum Gates",
-    "snakeStage3Kicker": "TELEPORT CHALLENGE",
-    "snakeStage3Goal": "Master the pair of space gates",
-    "snakeStage3Hint": "Enter one gate to appear at the other.",
-    "snakeStage4": "Gold Hunt",
-    "snakeStage4Kicker": "SPEED CHALLENGE",
-    "snakeStage4Goal": "Catch the golden cores before they vanish",
+    "g2048Stone": "石砖，{{turns}} 向左移动",
+    "g2048Tile": "第 {{value}} 块砖",
+    "g2048Score": "分数",
+    "g2048Moves": "步数",
+    "snakeStage1": "霓虹花园",
+    "snakeStage1Kicker": "暖身阶段",
+    "snakeStage1Goal": "收集6个能量核心",
+    "snakeStage1Hint": "保持节奏进食以触发连击。",
+    "snakeStage2": "红minefield",
+    "snakeStage2Kicker": "SURVIVAL_挑战",
+    "snakeStage2Goal": "躲避地雷并吃掉6颗核心",
+    "snakeStage2Hint": "红色的地雷会发光但无法摧毁。",
+    "snakeStage3": "量子门户",
+    "snakeStage3Kicker": "传送挑战",
+    "snakeStage3Goal": "掌握一对空间门户的技巧",
+    "snakeStage3Hint": "通过一个门户出现到另一个门户处。",
+    "snakeStage4": "黄金寻觅",
+    "snakeStage4Kicker": "速度挑战",
+    "snakeStage4Goal": "在它们消失前抓住金色的核心",
     "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
-    "snakeStage5Kicker": "FINAL STAGE",
-    "snakeStage5Goal": "Survive the high-speed grid",
-    "snakeStage5Hint": "High speed, more mines and teleport gates.",
-    "snakeNewStage": "{{stage}} · a new challenge is open",
-    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
-    "snakeFood": "Cores",
-    "snakeStageLabel": "Stage",
-    "snakeStageOf": "Stage {{index}}: {{name}}",
-    "ready": "READY",
+    "snakeStage5Kicker": "最终阶段",
+    "snakeStage5Goal": "穿越高速赛道",
+    "snakeStage5Hint": "高速，更多地雷和传送门。",
+    "snakeNewStage": "{{stage}} · 开启新的挑战",
+    "snakeLevelUp": "第 {{level}} 章 · 速度与难度提升",
+    "snakeFood": "核心",
+    "snakeStageLabel": "关卡",
+    "snakeStageOf": "第 {{index}} 章： {{name}}",
+    "ready": "准备",
     "snakeStageProgress": "STAGE PROGRESS",
-    "snakeCoreNormal": "+2 normal core",
-    "snakeCoreGold": "+10 golden core",
-    "snakeMine": "Mine: game over",
-    "snakePortal": "Teleport gate",
-    "chessBoard": "3D chess board",
-    "chessWhite": "White",
-    "chessBlack": "Black",
-    "chessCheckmate": "Checkmate! {{side}} wins!",
-    "chessStalemate": "Draw (stalemate)",
-    "chessOver": "Game over",
-    "chessLevelEasy": "Apprentice",
-    "chessEasy": "Easy",
-    "chessLevelMid": "Tactician",
+    "snakeCoreNormal": "+2正常核心",
+    "snakeCoreGold": "+10金色核心",
+    "snakeMine": "游戏结束",
+    "snakePortal": "传送门",
+    "chessBoard": "三维棋盘",
+    "chessWhite": "白色",
+    "chessBlack": "黑色",
+    "chessCheckmate": "checkmate！{{side}} 胜！",
+    "chessStalemate": "平局（ stalemate ）",
+    "chessOver": "游戏结束",
+    "chessLevelEasy": "学徒",
+    "chessEasy": "简单",
+    "chessLevelMid": " tactician ",
     "chessMid": "中等",
-    "chessLevelHard": "Master",
-    "chessHard": "Hard",
-    "chessThinking": "Hugo BOT is thinking…",
-    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
-    "chessTurn": "Turn: {{side}}",
-    "chessBotThinking": "Hugo BOT (thinking…)",
-    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
-    "chessBlackPlayer": "Black player",
-    "chessView3d": "3D view",
-    "chessUndo": "Undo",
-    "chessNewGame": "New game",
-    "chessYouWhite": "You (White)",
-    "chessWhitePlayer": "White player",
-    "caroThinking": "The AI is thinking",
-    "caroYourTurn": "Your turn (X)",
-    "caroWin": "You win! 🎉",
-    "caroLose": "The AI won — try again!",
-    "caroDraw": "Draw! The board is full.",
+    "chessLevelHard": "大师",
+    "chessHard": "困难",
+    "chessThinking": " Hugo BOT 正在思考……",
+    "chessInCheck": " ⚠️ 你的国王处于将军！",
+    "chessTurn": " 轮到： {{side}} ",
+    "chessBotThinking": " Hugo BOT (正在思考中) ",
+    "chessBotLevel": "Hugo AI BOT · 等级 {{level}}",
+    "chessBlackPlayer": "黑棋",
+    "chessView3d": "3D 观察",
+    "chessUndo": "撤销",
+    "chessNewGame": "新游戏",
+    "chessYouWhite": "你（白）",
+    "chessWhitePlayer": "白棋",
+    "caroThinking": "AI 正在思考",
+    "caroYourTurn": "你的回合 (X)",
+    "caroWin": "你赢了！ 🎉",
+    "caroLose": "尝试再次！",
+    "caroDraw": "轮到你了！",
     "caroYou": "You",
-    "caroRule": "3 in a row",
-    "survivorWaveClear": "WAVE {{wave}} CLEAR",
+    "caroRule": "{{win}} 子连珠",
+    "survivorWaveClear": "恭喜你清空了{{wave}}的波纹！",
     "survivorSurge": "SURGE",
-    "survivorBoss": "{{wave}} · BOSS",
-    "survivorLeft": "{{wave}} · {{count}} left",
-    "survivorClear": "{{wave}} · clear",
-    "rankSs": "RANK SS • NEON ACE",
-    "rankA": "RANK A • SENIOR FIGHTER",
-    "rankB": "RANK B • RISING PLAYER",
-    "shellFormula": "{{score}} points → {{joy}} JOY",
-    "shellRecord": "New best! {{delta}} points more than last time.",
-    "shellNear": "{{gap}} points short of your best {{best}}.",
-    "shellBest": "Your best: {{best}}.",
-    "lbWinner": "{{name}} is the winner!",
-    "lbRealtime": "Total score updates in real time • {{date}}",
-    "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
-    "lbLoading": "Adding up scores across every game…",
-    "lbMatches": "{{count}} matches played",
-    "lbTotalScore": "TOTAL SCORE",
-    "lbEmpty": "Nobody on the board yet. Be the first!",
-    "snakeStage5": "Hyper Grid",
-    "snakeCurrentMission": "CURRENT MISSION",
-    "chessMovesPlayed": "Game finished after {{count}} moves.",
-    "chessArena": "3D Chess Arena",
-    "chessVsBot": "Play the Hugo AI BOT",
-    "chessVsBotDesc": "You play White · a test against the algorithm",
-    "chessPassPlay": "Two players, one device (pass & play)",
-    "chessPassPlayDesc": "Put the device between you like a real board",
-    "chessBotLevelLabel": "AI BOT level:",
-    "chessHistory": "History:",
-    "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "survivorBoss": "挑战{{wave}}·BOSS吧！",
+    "survivorLeft": "还有{{wave}}个{{count}}未解锁！",
+    "survivorClear": "恭喜你清除了{{wave}}的所有障碍！",
+    "rankSs": "恭喜你获得了SS级的成就，成为NEON ACE！",
+    "rankA": "RANK A • 高級戰士",
+    "rankB": "RANK B • 新星玩家",
+    "shellFormula": "{{score}} 点 → {{joy}} JOY",
+    "shellRecord": "新紀錄！ 比上次多 {{delta}} 点。",
+    "shellNear": "距離你最好的 {{best}} 程還差 {{gap}} 点。",
+    "shellBest": "你的最好： {{best}} 点。",
+    "lbWinner": "{{name}} 是勝利者！",
+    "lbRealtime": "所有遊戲的總分實時更新 • {{date}}",
+    "lbBoard": "HUGO 全球排行榜 (TOP 10)",
+    "lbLoading": "累計每個遊戲的得分…",
+    "lbMatches": "{{count}} 匹配播放",
+    "lbTotalScore": "TOTAL 分数",
+    "lbEmpty": "目前还没有玩家。你是第一个！",
+    "snakeStage5": "超格网格",
+    "snakeCurrentMission": "当前任务",
+    "chessMovesPlayed": "游戏在 {{count}} 步后结束。",
+    "chessArena": "三维象棋竞技场",
+    "chessVsBot": "玩 Hugo AI 机器人",
+    "chessVsBotDesc": "你执白棋——一次对算法的测试",
+    "chessPassPlay": "两名玩家，一个设备（接力 & 下棋）",
+    "chessPassPlayDesc": "将设备放置在您面前，如同真实的木板一样",
+    "chessBotLevelLabel": "AI BOT 级别：",
+    "chessHistory": "历史：",
+    "exclusive": "Hugo Studio 独家",
+    "caroBoardLabel": "五子棋 {{size}} × {{size}} · 连 {{win}} 子",
+    "openApp": "打开",
+    "getApp": "获取",
+    "gameCount": "{{count}} 款游戏"
   },
   "arcadeIntro": {
     "close": "返回应用",
@@ -4166,9 +4175,9 @@
       "m5w": "Wow",
       "m5d": "Always a little surprise",
       "m6w": "Let's go",
-      "m6d": "Growing together, far",
-      "m7w": "Fun",
-      "m7d": "Work, but make it fun"
+      "m6d": "一起成长，更远",
+      "m7w": "乐趣",
+      "m7d": "工作也要有趣味"
     },
     "cine": {
       "nav1": "About",
@@ -4176,99 +4185,99 @@
       "nav3": "服务",
       "nav4": "预订",
       "nav5": "定价",
-      "navPortfolio": "Portfolio",
+      "navPortfolio": "作品集",
       "navServices": "服务",
-      "navBooking": "Book",
+      "navBooking": "书",
       "heroWord": "Hugo",
-      "heroEyebrow": "Hugo Lê · Portfolio",
-      "heroTitle1": "I'm Hugo.",
-      "heroTitle2": "I design and engineer digital products.",
-      "heroDesc": "A final-year Software Engineering student at Greenwich Vietnam. This portfolio distils my selected work and evolving practice.",
-      "heroCta": "View my work",
-      "heroSecondaryCta": "Tell me your website needs",
-      "heroSwipe": "Swipe through my portfolio",
-      "heroScroll": "Scroll through my portfolio",
-      "previewStatus": "Online",
-      "previewName": "Hugo Student",
-      "previewTagline": "One digital identity, many useful tools.",
-      "aboutLabel": "Beyond the screen",
+      "heroEyebrow": "Hugo Lê · 作品集",
+      "heroTitle1": "我是Hugo。",
+      "heroTitle2": "我设计和开发数字产品。",
+      "heroDesc": "越南格林威治大学软件工程专业的最后一年学生。这个作品集浓缩了我的精选作品和不断演变的实践。",
+      "heroCta": "查看我的作品",
+      "heroSecondaryCta": "告诉我你的网站需求",
+      "heroSwipe": "浏览我的作品集",
+      "heroScroll": "滚动浏览我的作品集",
+      "previewStatus": "在线",
+      "previewName": "学生会员",
+      "previewTagline": "一个数字身份，多种实用工具。",
+      "aboutLabel": "超越屏幕之外",
       "aboutH1": "Peter Hugo Wishpax Lê,",
-      "aboutH2": "a final-year Software Engineering student.",
-      "aboutH3": "I learn most incisively by turning theory into products that people can genuinely use.",
+      "aboutH2": "一名软件工程专业的最后一年学生。",
+      "aboutH3": "我最深刻的学习是将理论转化为人们可以真正使用的商品。",
       "education": {
         "highSchool": {
-          "label": "Secondary education",
+          "label": "中等教育",
           "name": "Nguyen Dinh Chieu High School",
-          "detail": "My Tho · Founded in 1879",
-          "slogan": "Revolutionary tradition · Excellence in teaching and learning",
+          "detail": "胡志道 · 成立于 1879",
+          "slogan": "革命传统 · 教学和学习的卓越",
           "logoAlt": "Emblem of Nguyen Dinh Chieu High School, My Tho"
         },
         "university": {
-          "label": "University",
+          "label": "软件工程·毕业年份",
           "name": "Greenwich越南",
-          "detail": "Software Engineering · Final year",
-          "slogan": "Education without Boundaries",
-          "logoAlt": "Greenwich Vietnam in alliance with FPT Education logo"
+          "detail": "无边界教育",
+          "slogan": "格林威治越南与FPT教育的徽标",
+          "logoAlt": "南越中学 Nguyen Dinh Chieu 学校 emblem"
         }
       },
       "featT1": "A small starting point for your digital journey.",
-      "featT2": "Create a Bio, explore learning tools, or tell me about the website you need.",
-      "cardVideo": "Every project begins with a story that deserves clarity.",
-      "card2Title": "Free .edu Bio.",
-      "card2c1": "Automatic .edu email verification in 3 seconds",
-      "card2c2": "A clean personal link — bio/your-name",
-      "card2c3": "Valid for a full 12 months, no hidden fees",
-      "card2c4": "Bundled with the full free student toolkit",
-      "card3Title": "Web Design.",
-      "card3c1": "Custom landing pages",
-      "card3c2": "Full websites, easy to self-manage",
-      "card3c3": "Optimized for SEO, speed and mobile",
-      "card4Title": "Student Utilities.",
-      "card4c1": "Hugo PSY — a listening companion",
-      "card4c2": "Web IDE — code right in the browser",
+      "featT2": "创建你的生物，探索学习工具，或者告诉我你需要的网站是什么样子。",
+      "cardVideo": "每一个项目都始于一个值得清晰的故事。",
+      "card2Title": "免费 .edu 生物。",
+      "card2c1": "在三秒钟内自动验证 .edu 邮箱。",
+      "card2c2": "A 清晰的个人链接 — 个人简介/你的名字",
+      "card2c3": "有效期为整整12个月，无隐藏费用",
+      "card2c4": "包含完整的免费学生工具包",
+      "card3Title": "网页设计。",
+      "card3c1": "自定义落地页",
+      "card3c2": "完整网站，易于自我管理",
+      "card3c3": "优化SEO、速度和移动设备兼容性",
+      "card4Title": "学生实用工具。",
+      "card4c1": "Hugo PSY — 一个聆听伴侣",
+      "card4c2": "Web IDE — 在浏览器中编写代码",
       "card4c3": "Hugo Radio — lofi for late-night study",
       "learnMore": "Learn more",
       "stackTitle": "What I've studied",
       "strengthTitle": "Strengths",
       "weakTitle": "Things I'm improving",
-      "weak1": "My teamwork experience so far comes from university projects — running Scrum, coordinating frontend with backend. I want to learn how a professional team actually works.",
-      "weak2": "Sometimes too much of a perfectionist about details, so I always agree on scope and deadlines upfront.",
-      "howTitle": "How I approach product craft",
+      "weak1": "我的团队合作经验主要来自大学项目——包括运行Scrum，协调前端与后端。我想学习一个专业团队是如何运作的。",
+      "weak2": "有时对细节的要求过高，所以我总是提前确定范围和截止日期。",
+      "howTitle": "如何处理产品创作",
       "stat1v": "Gen Z",
       "stat1l": "Generation",
       "stat2v": "Greenwich",
       "stat2l": "大四 · 软件工程",
       "partnerLabel": "Co-developing with",
-      "contactTitle": "Let's stay in touch.",
-      "marqueeTitle": "Technologies I have learned",
+      "contactTitle": "让我们保持联系。",
+      "marqueeTitle": "我学习的技术",
       "work": {
-        "eyebrow": "Selected work",
+        "eyebrow": "精选作品",
         "title": "Products I have built from the ground up.",
-        "desc": "Each project confronts a distinct class of problem: personal publishing, transactional data and interactive systems. Together, they illustrate how I reconcile interface craft, application logic and mobile-first design.",
+        "desc": "每个项目都面对着一个独特的类问题：个人出版、交易数据和交互式系统。它们共同展示了我如何在界面工艺、应用程序逻辑和移动优先设计之间取得平衡。",
         "items": [
           {
-            "badge": "Digital identity",
-            "kind": "Web application · PWA",
+            "badge": "数字身份",
+            "kind": "Web应用 · PWA",
             "title": "Hugo Bio .edu",
             "desc": "A configurable digital-profile system through which users can present their background, projects, achievements and salient links on a dedicated page.",
             "outcome": "I devised the React experience, responsive interface, member-authentication journey and Bio content-management flow.",
-            "cta": "View the project"
+            "cta": "查看项目"
           },
           {
             "badge": "Security",
-            "kind": "Product infrastructure",
+            "kind": "产品基础设施",
             "title": "JOY",
-            "desc": "An internal points ledger that interweaves activity, achievement and rewards across several Hugo Studio applications.",
-            "outcome": "I engineered balance and transaction histories, peer transfers and server-signed QR payloads that preclude client-side forgery.",
-            "cta": "View the project"
+            "desc": "一个交织着活动、成就和奖励的内部积分记录，贯穿多个Hugo Studio应用程序。",
+            "outcome": "我设计了平衡和交易历史、转账以及由服务器签名的二维码负载，以防止客户端伪造。",
+            "cta": "查看项目"
           },
           {
-            "badge": "Game systems",
-            "kind": "Interactive engineering",
+            "badge": "游戏系统",
+            "kind": "互动工程",
             "title": "Hugo Arcade",
-            "desc": "A browser-based collection encompassing 2048, 3D Chess, Snake, Blocks, Space Survivor and a succession of compact challenges.",
-            "outcome": "My work centred on tactile controls, deterministic game state, animation performance and immersive mobile layouts.",
-            "cta": "View the project"
+            "desc": "一个涵盖 2048、3D 棋盘游戏、蛇、方块、太空幸存者以及一系列紧凑挑战的浏览器平台。",
+            "outcome": "我的工作集中在触控控制、确定性游戏状态、动画性能和沉浸式移动布局上。",
+            "cta": "查看项目"
           }
         ]
       },
@@ -4277,14 +4286,14 @@
         "description": "The personal portfolio of Peter Hugo Wishpax Lê, a final-year Software Engineering student at Greenwich Vietnam, encompassing his education, technical repertoire and selected digital products.",
         "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, software engineer portfolio, Software Engineering student, Greenwich Vietnam, React projects"
       },
-      "heroCvCta": "Download résumé",
+      "heroCvCta": "下载简历",
       "weak3": "My degree covered many languages broadly rather than one deeply — I can read and modify code, but I am not yet specialised in any single language."
     }
   },
   "servicesPage": {
     "meta": {
-      "title": "Website Consulting For Students, Individuals And Small Shops | Hugo Studio",
-      "description": "Tell Hugo what you need before choosing a solution. Direct 1-to-1 consulting for students, individuals and small shops, with scope and cost agreed before work begins.",
+      "title": "面向学生、个人与小店的网站咨询 | Hugo Studio",
+      "description": "先说需求，再谈方案。面向学生、个人与小店的一对一咨询，范围与费用在开工前谈定。",
       "keywords": "student website, student portfolio, personal website, small business website, website consultation, Hugo Studio"
     },
     "common": {
@@ -4293,226 +4302,226 @@
       "discussPlan": "Discuss this package",
       "discussProject": "Discuss your project",
       "revealPrice": "See the investment range",
-      "priceHint": "A starting point. The final figure is agreed once the scope is clear.",
-      "getQuote": "Tell me what you need",
-      "quoteAfterChat": "Discuss first · quote second"
+      "priceHint": "投资范围一览",
+      "getQuote": "你需要什么告诉我",
+      "quoteAfterChat": "先谈需求，后报价"
     },
     "whispers": {
-      "intro": "There is no perfect website. Only the right one.",
-      "between1": "Every bug is a signal. Listen to it.",
-      "between2": "Speed isn't the goal. Speed is the prerequisite.",
-      "between3": "A beautiful site that loads slowly is color on canvas at dusk — lovely, but no one sees it.",
-      "between4": "From one page to a whole world. The first step is the only one you need to worry about.",
-      "between5": "Only when the world can find you do you truly exist online.",
-      "climax": "And then, the website doesn't just talk — it thinks, it decides, it works for you.",
-      "closing": "Every number is a door. Which one will you open?"
+      "intro": "没有完美的网站，只有正确的那个",
+      "between1": "每一个bug都是信号，倾听它",
+      "between2": "速度不是目的，而是前提",
+      "between3": "加载缓慢的美丽网站就像黄昏时分画布上的色彩——漂亮但没人看见",
+      "between4": "从一个页面到整个世界，第一步是唯一需要担心的一步",
+      "between5": "只有当世界能找到你，你在网络上才真正存在",
+      "climax": "然后，网站不只是说话——它会思考、做决定并为你工作。",
+      "closing": "每一个数字都是一个门。你会打开哪一个？"
     },
     "hero": {
-      "badge": "Direct 1-to-1 · Students come first",
-      "title1": "You do not need a package yet.",
-      "title2": "Start with what you need.",
-      "desc": "Tell me your goal, what is getting in the way, or what you want to create. I will help identify the right-sized approach — from student Bios and portfolios to websites for individuals and small shops.",
-      "viewPricing": "Choose your situation",
-      "contact": "Tell me what you need",
+      "badge": "一对一直接沟通 · 学生优先",
+      "title1": "现在还不用选套餐。",
+      "title2": "从你真正需要的开始。",
+      "desc": "告诉我你的目标、遇到的阻碍，或者想做出什么。我会帮你找到分寸刚好的做法 —— 从学生 Bio 与作品集，到个人和小店的网站。",
+      "viewPricing": "选择你的情况",
+      "contact": "说说你的需求",
       "swipe": "Swipe to continue",
-      "scroll": "Scroll to continue",
+      "scroll": ":scroll:继续滚动:",
       "trust": [
-        "Work directly with the designer and developer",
-        "Scope, timeline and cost agreed up front",
-        "Designed for mobile, speed and discoverability",
+        "与设计师和开发者直接合作:",
+        ":scope-timeline-and-cost-agreed-upfront",
+        "设计用于移动设备，速度和发现性",
         "Dedicated benefits and support paths for students"
       ]
     },
     "outcomes": {
-      "eyebrow": "The first chapter",
-      "title": "What should your website change?",
-      "desc": "Choose the story that resembles your situation to see the related services.",
+      "eyebrow": "第一章",
+      "title": "你希望网站改变什么？",
+      "desc": "选一个和你处境相似的故事，看看对应的服务。",
       "items": [
         {
-          "title": "I want customers to understand and choose my brand",
-          "desc": "A landing page or multi-page site that explains who you are, what you offer and what visitors should do next.",
-          "cta": "See the build journey"
+          "title": "选择一个与您的情况相似的故事以查看相关服务。",
+          "desc": "我想让客户了解并选择我的品牌",
+          "cta": "一个解释您是谁、您提供什么以及访客下一步应该做什么的落地页或多页网站。"
         },
         {
-          "title": "My current site is losing visitors",
-          "desc": "I review the interface, mobile experience, speed, SEO and the friction blocking customer action.",
-          "cta": "See ways to improve"
+          "title": "看看我们的建设历程",
+          "desc": "我审核界面、移动体验、速度、SEO 以及阻碍客户行动的摩擦。",
+          "cta": "查看如何改进"
         },
         {
-          "title": "I want to tell my own story",
-          "desc": "Portfolio, Bio and learning-support options created for students.",
-          "cta": "See student options"
+          "title": "我想讲述自己的故事",
+          "desc": "为学生创建的档案、个人简介和学习支持选项。",
+          "cta": "查看学生选项"
         }
       ]
     },
     "pricingPhilosophy": {
-      "title": "The story behind each price",
-      "desc": "I am a final-year Software Engineering student and stay with each project from the first conversation to handover. With no layers of account management, the budget goes toward the design, development and support you actually need.",
+      "title": "每个价格背后的故事",
+      "desc": "我是最后一年软件工程的学生，从第一次对话到交付，我都参与每个项目。没有账户管理层，预算将用于您真正需要的设计、开发和支持。",
       "philosophy": "I take on one active project at a time so it receives focused attention. Scope, timing, cost and exclusions are discussed before work begins, so you always know where the project stands and what comes next."
     },
     "pricing": {
-      "eyebrow": "Common starting points",
-      "title": "Three ways to begin,",
-      "highlight": "not three rigid boxes",
-      "desc": "These are common scopes, not fixed packages. I first understand your needs, recommend what is enough, then confirm timing and cost."
+      "eyebrow": "我一次只承接一个项目，确保它得到专注的关注。在开始工作前会讨论范围、时间表、成本和排除事项，因此你始终知道项目的状况以及接下来会发生什么。",
+      "title": "三种常见的起步方式",
+      "highlight": "三种方式开始，",
+      "desc": "这是三种常见的范围，不是固定的套餐。我会先了解你的需求，建议刚好够用的部分，再确定时间和费用。"
     },
     "journey": {
       "stone1": {
-        "badge": "✦ The First Stone",
-        "desc": "It starts when you notice — something needs fixing. I come in, find the exact spot, and heal it. That's the first time you feel your website touched by someone who loves it."
+        "badge": "这些是常见的范围，而不是固定的产品包。我首先了解你的需求，推荐足够的内容，然后确认时间和费用。",
+        "desc": "✦ 第一块石头"
       },
       "stone2": {
-        "badge": "✦ The Stone That Lights Up",
-        "desc": "A beautiful site no one has seen? Now I turn the lights on. It gets fast, Google finds you, and customers feel the quality from the very first visit."
+        "badge": "✦ 亮起的石灯",
+        "desc": "一个没有人见过的美丽站点？现在我打开灯光。它很快，谷歌能找到你，客户从第一次访问就能感受到你的品质。"
       },
       "stone3": {
-        "badge": "✦ The Stone That Takes Shape",
-        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
+        "badge": "✦ 形成的巨石",
+        "desc": "一页页面，一个故事。你在屏幕上看着你的顾客，他们说：‘是的，你是我在寻找的人’。"
       },
       "stone4": {
-        "badge": "✦ The Grand Stone",
-        "desc": "Your complete face to the world. Every page is a story, every link an opportunity. The website doesn't just talk — it *invites* people into your world."
+        "badge": "✦ 巨大的珍珠 — 活着",
+        "desc": "你的世界完整呈现。每一个页面都是一个故事，每一个链接都是一次机会。这个网站不只是在说话——它是在邀请人们进入你的世界。"
       },
       "stone5": {
-        "badge": "✦ The Pearl — Alive",
-        "desc": "The website doesn't just talk — it lives. It thinks, it decides, it works for you 24/7. That's when technology becomes your software, no longer just a tool."
+        "badge": "✦ 珍珠 — 生命",
+        "desc": "网站不只是说，它还活着。它思考、决定，并为你24/7工作。这就是当技术成为你的软件时，而不是仅仅是一个工具。"
       }
     },
     "plans": {
       "fix": {
-        "label": "Quick fix",
-        "name": "Fix an existing site",
-        "price": "From $6.99",
-        "note": "Each task quoted up front, pay when it's done — no hidden extras.",
-        "desc": "Site running but small bugs are costing you customers? I fix exactly what needs fixing — no big package required.",
+        "label": "快速解决",
+        "name": "修复现有站点",
+        "price": "从$6.99",
+        "note": "每个任务明码标价，完成后再付款——没有隐藏的附加费用。",
+        "desc": "您的站点正在运行，但小bug正在为您流失客户？我只修复需要修复的部分——不需要大包服务。",
         "includes": [
-          "A quote per task first — work starts only when you approve",
-          "Fixed and tested on both phone and desktop",
-          "Free 7-day warranty on the exact bug fixed",
-          "All files and access handed back when done"
+          "先报价每项任务——只有在您批准后才开始工作。",
+          "固定并测试了手机和平板电脑",
+          "精确修复的7天免费保修",
+          "所有文件和访问在完成后收回"
         ],
         "excludes": [
-          "Full redesign of the whole site (see the build packages)",
-          "Domain and hosting fees — I'll hook them up for free"
+          "整个站点的全面重设计（查看构建包）",
+          "域名和托管费用——我免费搞定"
         ],
-        "timeline": "Same day – next day",
-        "payment": "Pay when it is done"
+        "timeline": "当天完成 – 下个工作日开始",
+        "payment": "项目完成后付款"
       },
       "seo": {
-        "label": "Optimize",
-        "name": "SEO & speed-up",
-        "price": "From $36.99",
-        "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
-        "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
+        "label": "优化",
+        "name": "SEO 和加速",
+        "price": "从$36.99开始",
+        "note": "最适合 React/Next.js 站点，或者任何加载速度慢且在 Google 上难以找到的站点。",
+        "desc": "一个加载缓慢且对 Google 隐形的漂亮网站就像没有招牌的商店。这个套餐正好解决了这个问题。",
         "includes": [
-          "Speed tune-up: compressed images, cleaned code, caching and lazy-load on",
-          "On-page SEO: metadata, rich share previews, schema markup",
-          "Google Search Console setup, sitemap and robots.txt submitted",
-          "Optimization for your 5 key pages (or the whole site if it's small)",
-          "Before–after PageSpeed report with recommended next steps",
-          "A walkthrough of what to optimize next if you want to keep going"
+          "优化：压缩图片、清理代码、缓存和懒加载启用",
+          "页面上的SEO：元数据、丰富的分享预览、Schema标记",
+          "提交Google搜索控制台设置、网站地图和robots.txt文件",
+          "针对你的5个关键页面进行优化（或如果你的网站很小，整个站点）",
+          "包含前后的PageSpeed报告及推荐下一步行动",
+          "如果你想继续优化，请查看接下来要优化的内容指南"
         ],
         "excludes": [
-          "SEO copywriting, backlinks, paid ads"
+          "SEO文案撰写、反向链接、付费广告"
         ],
-        "timeline": "5–7 days"
+        "timeline": "5-7天内完成"
       },
       "landing": {
         "label": "开始",
-        "name": "One-page landing page",
+        "name": "单页落地页",
         "oldPrice": "$80.99",
-        "price": "$60.99",
+        "price": "60.99",
         "discount": "-25%",
-        "note": "Custom design, no mass-market templates. Done in 5-7 days.",
-        "desc": "One page, one goal: visitors finish reading and want to contact you.",
-        "tagline": "Easy to start",
+        "note": "定制设计，无大众市场模板。5-7天完成。",
+        "desc": "一个页面，一个目标：访客读完后想联系你。",
+        "tagline": "容易起步",
         "includes": [
-          "1 page custom-designed to your brand, up to 7 sections",
-          "2 revision rounds based on your feedback",
-          "Contact form, click-to-call, or direct Zalo/Messenger chat",
-          "Basic SEO: metadata, rich share previews, mobile-friendly",
-          "Deployed live with your domain hooked up",
-          "A 30-minute hands-on walkthrough over Zalo",
-          "Free bug support for 14 days after handover"
+          "1页根据你的品牌定制设计，最多包含7个部分",
+          "基于您的反馈进行两次修订",
+          "包含联系表单、一键拨号或直接通过Zalo/Messenger聊天",
+          "基本SEO：元数据、丰富的分享预览、移动友好型页面",
+          "部署到您的域名下",
+          "30分钟在线操作演示Zalo",
+          "转交后14天免费bug支持"
         ],
         "excludes": [
-          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
-          "Copy and images — you provide them, I polish and design",
-          "Booking or online payment systems → see the Website Pro package"
+          "域名及托管费用（约300—500k/年 — 你购买，我帮你选择）",
+          "复制和图片——你提供，我润色设计",
+          "预订或在线支付系统→查看网站专业版包"
         ],
-        "timeline": "5–7 days"
+        "timeline": "5-7天内完成"
       },
       "website": {
-        "label": "Grow",
-        "name": "Multi-page website",
+        "label": "成长",
+        "name": "多页网站",
         "oldPrice": "$202.99",
         "price": "$121.99",
         "discount": "-40%",
         "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
-        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
-        "tagline": "Most popular",
+        "desc": "一个完整的在线存在使小商店、咖啡馆或个人品牌比Facebook页面更可信。",
+        "tagline": "最受欢迎",
         "includes": [
-          "4-6 finished pages: home, about, products/services, news (optional), contact",
-          "Cohesive design matched to your brand (logo placement, colors, fonts...)",
-          "3 revision rounds based on your feedback",
-          "Advanced SEO: Google Search Console, sitemap, schema markup",
-          "Zalo, Messenger, Google Maps + advanced contact forms",
-          "1 month of free maintenance (4 small tweaks included)",
-          "A 30-minute training session + 14 days of post-handover support"
+          "4-6个完成的页面：首页、关于、产品/服务、新闻（可选）、联系",
+          "与您的品牌匹配的设计（LOGO放置、颜色、字体...）",
+          "基于您的反馈进行3轮修订",
+          "高级SEO：Google搜索控制台、站点地图、schema标记",
+          "Zalo，Messenger，Google Maps + 高级联系方式表",
+          "1 个月免费维护（包含4个小调整）",
+          "30分钟培训课程 + 手交后14天的支持服务"
         ],
         "excludes": [
-          "Yearly domain & hosting fees (~300-800k, sourced externally)",
-          "Blog copywriting and product photography — you provide those",
-          "Booking management, online payments → Web System (the advanced package)"
+          "每年域名及主机费用 (~$300-$800k，外部获取)",
+          "您提供博客文案和产品摄影",
+          "预约管理、在线支付 → 网页系统（高级版）"
         ],
-        "timeline": "2–3 weeks",
-        "payment": "Paid in stages"
+        "timeline": "2-3周",
+        "payment": "分阶段付款"
       },
       "system": {
         "label": "系统",
-        "name": "Dynamic web app",
-        "price": "From $283.99",
-        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
-        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
-        "tagline": "Long-term asset",
+        "name": "动态网页应用",
+        "price": "从 $283.99",
+        "note": "包含支付、仪表板或多个角色的项目通常运行12-20亿。",
+        "desc": "不是简单的宣传册——一个为你工作的网站：处理订单、预订和管理客户。",
+        "tagline": "长期资产",
         "includes": [
-          "1 core flow of your choice: bookings OR basic orders",
-          "Admin dashboard: orders, customers, key numbers",
-          "Login with 2 permission levels: owner and staff",
-          "1 data connection: Google Sheet or Zalo",
-          "Full source code handover — the site is your asset",
-          "1 month of technical support after handover"
+          "你选择的核心流程之一：预订或基本订单",
+          "管理员控制面板：订单、客户和关键指标",
+          "两种权限级别登录：所有者和员工",
+          "一个数据连接：Google 表格或Zalo",
+          "完整源代码交付——网站是你的资产",
+          "转移后一个月的技术支持"
         ],
         "excludes": [
-          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
-          "VIP membership, points & loyalty programs → separate add-on",
-          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
+          "在线支付网关（PayOS, Momo, Stripe）→ 分别作为附加功能，大约1-3M",
+          "VIP会员，积分及忠诚度计划 → 分别购买附加品",
+          "每月域名及VPS费用（约300k-1M/月，外部获取）"
         ]
       }
     },
     "studentPlans": {
-      "orderCta": "Contact to order",
-      "detailsCta": "See verification terms & student plan details",
-      "capLabel": "Scope limits",
-      "compareLabel": "Vs. standard pricing",
+      "orderCta": "联系下单",
+      "detailsCta": "查看验证条款及学生套餐详情",
+      "capLabel": "范围限制",
+      "compareLabel": "与标准定价相比",
       "groupCoursework": {
-        "title": "Help with end-of-term coursework",
-        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+        "title": "协助期末作业完成",
+        "desc": "此工作需评分，因此每个计划都附带了说明代码的文档，并有一个条件：您必须能够为自己辩护。"
       },
       "groupProfile": {
-        "title": "Personal profile — nothing to do with grades",
-        "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
+        "title": "个人资料 — 与成绩无关",
+        "desc": "这不是作业，没有人来评分。这是你带到求职和奖学金申请中的个人资料。"
       },
       "bug": {
         "label": "STUDENT",
-        "name": "Diagnose & Fix",
+        "name": "诊断与修复",
         "price": "120.000đ",
         "unit": "/bug",
-        "tagline": "Stuck near the deadline",
-        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
-        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
+        "tagline": "临近截止日期",
+        "note": "按约定的错误收费。我只处理坏的部分——其余都是你的代码。",
+        "desc": "逻辑出错、无法打开数据库连接，或者布局坍塌。我找到原因，修复那个地方，并解释为什么它会出问题。",
         "includes": [
-          "Find and fix the exact bug agreed before we start",
+          "找出并修复我们在开始时达成一致的具体错误",
           "Written notes on the root cause so you can answer when asked",
           "A Git link to clone the fixed code from",
           "3-day warranty on the bug that was fixed"
@@ -4530,150 +4539,150 @@
         "note": "Split between 2 students: ~245.000đ each.",
         "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
         "includes": [
-          "Your own Git link to clone the whole source from",
-          "Responsive interface that holds up on phones",
-          "DOM animation and basic JavaScript behaviour",
-          "Documentation: folder structure, what each file does, how to run it",
-          "Commented code plus free deploy instructions"
+          "你的专属Git链接来克隆整个源代码库",
+          "响应式的界面在手机上也能良好显示",
+          "DOM动画和基础JavaScript行为",
+          "文档：文件夹结构、每个文件的作用、如何运行它",
+          "带注释的代码加上免费部署说明"
         ],
         "cap": [
-          "One course, up to 4 static pages",
-          "No backend, no database",
-          "No capstone or graduation projects"
+          "一个课程，最多4个静态页面",
+          "无后端，无数据库",
+          "无结业项目或毕业设计"
         ],
-        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
+        "compare": "关于三分之一的一站式网站计划(1.490.000đ)."
       },
       "php": {
         "label": "PHP/SQL",
-        "name": "Dynamic Web Coursework",
+        "name": "动态网页课程作业",
         "price": "990.000đ",
-        "tagline": "CRUD & permissions",
-        "note": "Split between 3 students: ~330.000đ each.",
-        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
+        "tagline": "CRUD及权限管理",
+        "note": "分给3名学生：每人约330.000đ.",
+        "desc": "学期末的动态网页工作：包括CRUD数据处理、注册和基本的角色基础登录.",
         "includes": [
-          "Your own Git link to clone the whole source from",
-          "Data handling in PHP with a MySQL database",
-          "Registration, login and basic role permissions",
-          "SQL dump and seed data included so it runs on first try",
-          "Documentation: XAMPP setup, database import, the flow behind each feature"
+          "你的专属Git链接来克隆整个源代码库",
+          "使用PHP与MySQL数据库进行数据处理",
+          "注册、登录和基本的角色权限设置",
+          "包含SQL备份和种子数据，以便首次运行时即可正常工作.",
+          "Documentation: XAMPP 设置，数据库导入，每个功能背后的流程"
         ],
         "cap": [
-          "One course, up to 6 database tables",
-          "Up to 2 CRUD feature groups plus login",
-          "No capstone or graduation projects"
+          "一门课程，最多可关联6个数据库表",
+          "最多可包含2个CRUD 特性组加上登录功能",
+          "无结业项目或毕业设计"
         ],
-        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
+        "compare": "比单页网站计划便宜三分之一(1.490.000đ)"
       },
       "react": {
         "label": "REACT/NODE",
-        "name": "Advanced Web Coursework",
+        "name": "高级网页课程作业",
         "price": "1.690.000đ",
         "tagline": "SPA + REST API",
-        "note": "Split between 4 students: ~425.000đ each.",
-        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
+        "note": "分给4名学生：每人约425.000đ。",
+        "desc": "学期末的高级网页工作：一个React SPA对抗Node/Express REST API，由MongoDB或PostgreSQL支持。",
         "includes": [
-          "Your own Git link to clone the whole source from",
-          "React SPA architecture with a Node.js/Express REST API",
-          "Authentication plus up to 3 CRUD feature groups",
-          "Seed data included so it runs on first try",
-          "Documentation: environment setup, env vars, a data-flow map for every API"
+          "你的专属Git链接来克隆整个源代码库",
+          "React SPA 架构搭配 Node.js/Express REST API",
+          "包含认证以及最多 3 组 CRUD 特性",
+          "种子数据已包含，首次使用即能运行",
+          "文档：环境设置、环境变量、每个 API 的数据流图"
         ],
         "cap": [
-          "One course, up to 3 CRUD feature groups plus login",
-          "One REST API and one database",
-          "No capstone or graduation projects"
+          "一个课程，最多 3 组 CRUD 特性加上登录",
+          "一个 REST API 和一个数据库",
+          "无结业项目或毕业设计"
         ],
-        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
+        "compare": "比多页网站计划便宜 43% (2.990.000đ)."
       },
       "exclusiveBio": {
         "label": "STUDENT",
-        "name": "Custom-Designed Bio",
+        "name": "定制设计的个人简介",
         "price": "99.000đ",
-        "tagline": "An upgrade on the free one",
-        "note": "The free version you build yourself in the editor. This one I design around your story.",
-        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
+        "tagline": "一个升级版的免费版本",
+        "note": "你可以在编辑器中构建的免费版本。这个版本是为你的故事设计的。",
+        "desc": "为你定制的一个个人主页，布局和配色方案不是通用主题。专为简历、申请奖学金或社交资料页面设计。",
         "includes": [
-          "Layout and colour palette designed for you alone",
-          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
-          "An about-you section: summary, interests, selected skills",
-          "Looks right on both desktop and mobile"
+          "为你单独设计的布局和色彩配色方案",
+          "最多5个链接（GitHub、LinkedIn、作品集、社交媒体...）",
+          "关于你的一节：简介、兴趣、精选技能",
+          "在桌面和移动设备上都看起来很合适"
         ],
         "cap": [
-          "One page, up to 5 links",
-          "2 rounds of revisions after handover"
+          "一頁，最多可連結至5個網站",
+          "交稿後兩輪修改"
         ]
       },
       "bento": {
         "label": "STUDENT",
-        "name": "Bento CV / Portfolio",
+        "name": "便當簡歷/作品集",
         "price": "799.000đ",
-        "tagline": "Built for jobs & scholarships",
-        "note": "A personal profile, not an assignment — it touches none of your grades.",
-        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
+        "tagline": "為職業與獎學金打造",
+        "note": "僅是一個個人檔案，而非作業——它不會影響你的成績。",
+        "desc": "學術成績、 standout 个人项目以及你的連結在一個清潔的便當式網格中呈現，讀者可在30秒內瀏覽完畢。",
         "includes": [
-          "A one-page portfolio in a Bento Grid layout",
-          "GitHub, socials and contact details wired in",
+          "一頁的簡歷以便當式布局呈現",
+          "GitHub、社交媒體和聯絡方式已預設好",
           "Contact form feeding straight into a free Google Sheet",
-          "Deployed to free lifetime hosting (Vercel/Netlify)"
+          "部署到免费的终身托管（Vercel/Netlify）"
         ],
         "cap": [
-          "Up to 7 content blocks",
-          "2 rounds of revisions after handover"
+          "最多7个内容区块",
+          "交稿後兩輪修改"
         ]
       }
     },
     "demo": {
-      "eyebrow": "See for yourself",
-      "title": "Try out",
-      "highlight": "real design demos",
-      "desc": "Three focused examples for personal profiles, small shops and creative services. Open them only when you want a closer look.",
-      "openCta": "Open 3 relevant demos",
-      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
-      "cta": "Build something like this",
+      "eyebrow": "亲身体验",
+      "title": "试一试",
+      "highlight": "真实的界面演示",
+      "desc": "为个人资料、小型商店和创意服务提供了三个专注的例子。只有当你想深入了解时才打开它们。",
+      "openCta": "查看3个相关的演示文稿",
+      "hint": "你喜欢其中的一个吗？告诉我它的名字，我会根据你的品牌进行定制调整。",
+      "cta": "构建类似的东西",
       "loading": "Loading demo...",
       "templates": {
         "photography": {
-          "title": "Photography Studio",
-          "short": "Photo",
-          "subtitle": "Photographer"
+          "title": "摄影工作室",
+          "short": "照片",
+          "subtitle": "摄影师"
         },
         "cafe": {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "咖啡厅及酒吧",
+          "short": "咖啡厅",
+          "subtitle": "餐厅"
         },
         "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
+          "title": "珠宝店",
+          "short": "珠宝",
+          "subtitle": "珠宝商"
         },
         "portfolio": {
           "title": "个人作品集",
-          "short": "Portfolio",
+          "short": "作品集",
           "subtitle": "个人资料"
         },
         "ecommerce": {
-          "title": "Online Store",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "title": "在线商店",
+          "short": "电子商务",
+          "subtitle": "多行业"
         },
         "dashboard": {
-          "title": "Admin Panel",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
+          "title": "管理面板",
+          "short": "仪表盘",
+          "subtitle": "仪表盘"
         }
       }
     },
     "care": {
-      "eyebrow": "Already have a website?",
-      "title": "No rebuild needed —",
-      "highlight": "fix just what's broken",
-      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
+      "eyebrow": "已有网站？",
+      "title": "无需重新构建——",
+      "highlight": "只修修补",
+      "desc": "如果你的站点只需要几个修复或速度提升，你不需要为全套服务付费。"
     },
     "micro": {
-      "eyebrow": "Having trouble with an existing site?",
+      "eyebrow": "遇到现有站点的问题？",
       "title": "Fix only what is needed,",
-      "highlight": "without forcing a rebuild",
+      "highlight": "without forcing a rebuild.",
       "desc": "Send the site link or a screenshot of the issue. I will review the current state, explain what can be fixed and quote only after we agree on the same scope.",
       "costLabel": "Cost:",
       "cta": "Contact",
@@ -4685,166 +4694,166 @@
       "badge": "Full web system",
       "title1": "A website that",
       "title2": "works for you.",
-      "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
-      "extendTitle": "Extensions when you need them — quoted separately",
-      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+      "desc": "为你服务。",
+      "extendTitle": "像是雇佣一个人来管理你的页面——处理订单、预约时间、报告等任务，但你只需支付一次，它就能24/7运行。",
+      "extendDesc": "你需要时使用的扩展功能（单独报价）"
     },
     "student": {
-      "badge": "Hugo Studio's priority",
-      "title1": "Students always have",
-      "title2": "a free place to begin.",
-      "desc": "Once verified, you can use a standard Bio and the core learning tools for free. Bespoke design, an advanced portfolio or technical help beyond those benefits is discussed clearly before any work begins.",
-      "cta": "See free benefits",
-      "customEyebrow": "When you want to go further",
-      "customTitle": "Personal support while you still learn and own your work",
-      "customDesc": "You do not need to choose a package or guess the cost first. Send your goal, deadline and where you are stuck; I will clarify what is free, what needs custom work and the most responsible path forward.",
-      "customCta": "Tell me about your goal",
+      "badge": "在线支付、多种角色和定制API。这类项目通常规模在12-20百万；在开始工作前会书面确认项目的范围。",
+      "title1": "Hugo Studio的优先事项",
+      "title2": "学生总是有一个免费开始的地方。",
+      "desc": "一旦验证，你可以使用标准的个人简介和核心学习工具免费使用。超出这些好处的定制设计、高级作品集或技术帮助将在任何工作开始前明确讨论。",
+      "cta": "查看免费福利",
+      "customEyebrow": "当您想要更进一步时",
+      "customTitle": "在学习并拥有您的作品的同时获得个人支持",
+      "customDesc": "您无需先选择套餐或猜测成本。只需告诉我您的目标、截止日期以及您卡住的地方，我会明确免费的内容、需要定制的工作以及最负责任的前进路径。",
+      "customCta": "告诉我您的目标是什么",
       "customItems": [
         {
-          "title": "Bespoke Bio & portfolio",
-          "desc": "For internships, scholarships or personal branding that needs a distinct story and layout."
+          "title": "量身定制的个人简介和作品集",
+          "desc": "针对实习、奖学金和个人品牌的需求，需要一个独特的故事和布局设计。"
         },
         {
-          "title": "Guided debugging",
-          "desc": "We find the cause, fix the agreed area and explain the solution so you understand it."
+          "title": "指导性的调试",
+          "desc": "我们找出问题所在，修复约定区域，并解释解决方案以便您理解它。"
         },
         {
-          "title": "Web project direction",
-          "desc": "Review requirements, architecture and setup so you can responsibly complete your own learning project."
+          "title": "Web项目方向",
+          "desc": "审核需求、架构和设置，确保您能够负责任地完成自己的学习项目。"
         }
       ],
       "items": [
         {
-          "title": "Personal Bio",
-          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+          "title": "个人简介",
+          "desc": "介绍您的页面，包含社交、学习及迷你作品集的链接。"
         },
         {
-          "title": "Study tools",
-          "desc": "Notes, Q&A, resources and utilities for self-study."
+          "title": "学习工具",
+          "desc": "笔记、问答、资源和实用工具用于自学。"
         },
         {
-          "title": "Personal support bot",
-          "desc": "Quick answers, study tips, reminders and everyday help."
+          "title": "个人支持机器人",
+          "desc": "快速回复、学习建议、提醒以及日常帮助。"
         },
         {
-          "title": "Q&A community",
-          "desc": "A space to ask about homework and projects, and get direction within support scope."
+          "title": "问答社区",
+          "desc": "一个提问作业和项目的空间，并在支持范围内获得指导的地方。"
         }
       ]
     },
     "process": {
       "eyebrow": "Process",
       "title": "Clear steps,",
-      "highlight": "start to finish",
-      "desc": "You always know the current step, what is in scope and what happens next.",
+      "highlight": "You always know the current step, what is in scope and what happens next.",
+      "desc": "You send your needs, current site or idea.",
       "steps": [
-        "You send your needs, current site or idea.",
         "I advise on the approach and give a clear quote first.",
         "We lock scope and timeline, then work in milestones.",
-        "Handover with guidance, plus support for small tweaks."
+        "Handover with guidance, plus support for small tweaks.",
+        "Quick questions,"
       ]
     },
     "faq": {
       "eyebrow": "常见问题",
-      "title": "Quick questions,",
-      "highlight": "honest answers",
+      "title": "honest answers",
+      "highlight": "Payment details",
       "desc": "Common questions before starting a web project with Hugo Studio.",
       "items": [
         {
           "q": "What should I prepare before getting in touch?",
-          "a": "Send your goal, your current website if you have one, your preferred timing and one or two references you like. It is fine if the details are still unclear — the first conversation is for shaping the need together."
+          "a": "发送您的目标，如果您有现有的网站，请一并提供，以及您期望的时间和两个或两个以上的您喜欢的参考。细节不明确也没关系——第一次交流是为了共同塑造需求。"
         },
         {
-          "q": "How is the cost determined?",
-          "a": "I look at scope, content, features, timing and the support required. Once the need is clear, I send a written proposal and quote; work starts only after both sides agree."
+          "q": "如何确定成本？",
+          "a": "我根据范围、内容、功能、时间安排及所需支持来考虑成本。一旦需求清晰，我会发送书面提案和报价；只有双方同意后才会开始工作。"
         },
         {
-          "q": "How do free student benefits differ from custom support?",
+          "q": "免费学生福利与定制支持有何不同？",
           "a": "The standard Bio and core tools are free for verified students under the published conditions. Exclusive design, an advanced portfolio or requested technical support is separate and always discussed before work begins."
         },
         {
-          "q": "Can you build it if I don't have a design yet?",
-          "a": "Yes. Describe who will use the page and what you want them to do next. I will propose the structure, content to prepare and a fitting visual direction."
+          "q": "可以没有设计吗？",
+          "a": "是的。描述谁将使用该页面以及他们下一步想要做什么。我将提出结构、内容准备和合适的视觉方向。"
         },
         {
-          "q": "Is there support after handover?",
-          "a": "Yes. Each project clearly states the warranty and support period. I provide a walkthrough, fix issues within the agreed scope and tell you before any new item becomes separate work."
+          "q": "交付后有支持吗？",
+          "a": "是的。每个项目明确说明保修期和支持期限。我提供演示、在约定范围内解决任何问题，并在任何新项目成为单独工作前告知你。"
         }
       ]
     },
     "finalCta": {
-      "title1": "Every project starts with",
-      "title2": "one clear conversation.",
-      "desc": "You do not need to know a package name or prepare a perfect brief. Share your current site, a screenshot or a few lines about the goal, and I will help identify the right next step.",
-      "cta": "Tell me what you need"
+      "title1": "每个项目都始于",
+      "title2": "一次说清楚的对话。",
+      "desc": "你不需要知道套餐名称，也不用准备完美的需求文档。发来现有网站、一张截图，或几句话说明目标，我来帮你找出下一步该做什么。",
+      "cta": "说说你的需求"
     },
     "promo": {
       "title": "Free Aesthetic Bio Page for Students!",
       "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
-      "cta": "Verify Me!"
+      "cta": "验证我！"
     },
     "tabs": {
-      "commercial": "Business / Personal",
-      "student": "For Students",
-      "micro": "Quick Fixes"
+      "commercial": "商业/个人",
+      "student": "为学生",
+      "micro": "快速修复"
     },
     "microJobs": {
       "bug-ui": {
-        "name": "Squish Interface Bugs",
-        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
-        "price": "From $6.99",
+        "name": "修复按钮、图像错位、字体大小错误或文本元素重叠。",
+        "desc": "今天搞定！",
+        "price": "从$6.99",
         "time": "Done today!"
       },
       "style-content": {
-        "name": "Colors & Copy Polish",
-        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
-        "price": "From $8.99",
+        "name": "颜色与文案润色",
+        "desc": "修改品牌颜色，替换字体样式，更新头像图形或重写文本段落。",
+        "price": "从$8.99",
         "time": "Done today!"
       },
       "mobile-beauty": {
-        "name": "Mobile Glow-up",
-        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
-        "price": "From $10.99",
+        "name": "移动焕新",
+        "desc": "优化间距、响应式字体和行动呼吁触摸区域以适应移动屏幕。",
+        "price": "从$10.99",
         "time": "Done today!"
       },
       "web-widget": {
-        "name": "Sweet Widgets",
-        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
-        "price": "From $6.99",
+        "name": "甜蜜小部件",
+        "desc": "集成可爱的Zalo/Messenger悬浮聊天框、联系表单、Google地图或点击拨号热线。",
+        "price": "从$6.99",
         "time": "Done today!"
       },
       "deploy-domain": {
-        "name": "Web Launch",
-        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
-        "price": "From $10.99",
+        "name": "网页发布",
+        "desc": "将你的站点部署到Vercel/Netlify/VPS，连接自定义域名，并使用免费SSL证书进行安全防护。",
+        "price": "从$10.99",
         "time": "Done today!"
       },
       "seo-quick": {
-        "name": "Quick SEO Boost",
-        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
-        "price": "From $8.99",
+        "name": "快速SEO提升",
+        "desc": "为Facebook/Zalo分享配置正确的元标签（标题/描述），并优化链接预览。",
+        "price": "从$8.99",
         "time": "Done today!"
       },
       "speed-optimize": {
-        "name": "Speed Boost",
-        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
-        "price": "From $12.99",
+        "name": "速度提升",
+        "desc": "对重型图片进行无损压缩，清理冗余的JS/CSS文件，并提高PageSpeed评分。",
+        "price": "从$12.99开始",
         "time": "Done today!"
       },
       "monthly-maintenance": {
-        "name": "Monthly Cozy Care",
-        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
-        "price": "From $12.99/mo",
-        "time": "Ongoing care"
+        "name": "每月温馨关怀",
+        "desc": "定期备份、安全检查、快速bug修复以及轻量内容修订服务。",
+        "price": "From 12.99/mo",
+        "time": "持续护理"
       }
     },
-    "disclaimer": "Each option below is a starting direction. Scope, timing and cost are confirmed only after we discuss the real need.",
+    "disclaimer": "下方每个选项都是一个起始方向。只有在我们讨论实际需求后，才会确认范围、时间表和成本。",
     "section": {
-      "newBuildsTitle": "New Designs & Custom Builds",
-      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
-      "optimizeTitle": "SEO, Speed & Bug Squishing",
-      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
-      "upkeep": "If you need upkeep after the included support period, I will propose it separately based on the real update frequency — always optional."
+      "newBuildsTitle": "新设计与定制构建",
+      "newBuildsDesc": "为需要从头开始建立全新网站的品牌、创作者和企业而设计。",
+      "optimizeTitle": "SEO、速度与 Bug 消除",
+      "optimizeDesc": "为需要更好的 Google 排名、更快加载时间和技术问题解决的现有网站提供服务。",
+      "upkeep": "如果在包含的支持期后还需要维护，我将根据实际更新频率单独提出建议——始终可选."
     },
     "devices": {
       "desktop": "Desktop",
@@ -4861,148 +4870,215 @@
       "buildLabel": "Build",
       "planLabel": "Package",
       "clientName": "Mình Ơi Media",
-      "clientField": "Wedding photojournalism",
-      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
-      "clientBuild": "Custom design — no CMS, no template",
-      "clientPlan": "Multi-page website with a needs-based scope",
-      "cta": "Open the client site"
+      "clientField": "纪实摄影——婚礼写真",
+      "clientScope": "多页网站：定价、摄影、摄像、常见问题、联系我们",
+      "clientBuild": "定制设计 — 不使用CMS，不使用模板",
+      "clientPlan": "基于需求的多页网站设计",
+      "cta": "打开客户站点"
+    },
+    "demoLibrary": {
+      "description": "Choose a template, then preview it on phone, tablet or desktop.",
+      "live": "Interactive demo",
+      "open": "View details",
+      "selected": "查看",
+      "previewTitle": "模板间",
+      "close": "关闭预览",
+      "previewHint": "选择一个模板，然后切换设备来预览网站，我们讨论之前。",
+      "included": "可以包含",
+      "liveNotice": "可以直接在该框架内滚动和互动。",
+      "fits": "最佳用于",
+      "details": {
+        "portfolio": {
+          "fit": "学生、自由职业者和独立创作者",
+          "features": [
+            "个人资料",
+            "项目",
+            "Contact"
+          ]
+        },
+        "cafe": {
+          "fit": "咖啡馆、小酒馆和小面包店",
+          "features": [
+            "Menu",
+            "预订",
+            "地图"
+          ]
+        },
+        "photography": {
+          "fit": "摄影师、工作室和婚礼服务",
+          "features": [
+            "画廊",
+            "服务",
+            "预订"
+          ]
+        },
+        "ecommerce": {
+          "fit": "时尚、美妆和手工店",
+          "features": [
+            "产品",
+            "过滤器",
+            "购物车"
+          ]
+        },
+        "jewelry": {
+          "fit": "珠宝商和高端配饰品牌",
+          "features": [
+            "系列",
+            "参考价格",
+            "咨询"
+          ]
+        },
+        "dashboard": {
+          "fit": "管理团队订单和业务数据情况",
+          "features": [
+            "概览",
+            "报告",
+            "角色"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
     "header": {
-      "badge": "Customer Support",
-      "title1": "Answering",
-      "title2": "your questions",
-      "desc": "Have questions about Hugo Studio? Below are the most frequently asked questions. If you still can't find an answer, don't hesitate to contact us directly!"
+      "badge": "客户服务",
+      "title1": "回答您的问题",
+      "title2": "支付方式",
+      "desc": "关于Hugo Studio有疑问？以下是常见问题。如果您仍然找不到答案，请不要犹豫直接联系我们！"
     },
     "faqs": [
       {
-        "question": "Does Hugo Studio have fixed working hours?",
-        "answer": "I work directly 1-1, so there are no rigid working hours. Feel free to message me anytime, and I will get back to you as soon as possible!"
+        "question": "Hugo Studio是否有固定的上班时间？",
+        "answer": "我是一对一工作，因此没有固定的工作时间。随时与我联系，我会尽快回复您！"
       },
       {
-        "question": "How many members are in the Hugo Studio team?",
-        "answer": "I am Hugo, a final-year Software Engineering student and the primary developer. I collaborate with Jason Phan (co-development partner) on technical discussions and optimizing the full-stack experience."
+        "question": "Hugo Studio团队有多少成员？",
+        "answer": "我是Hugo，一名即将毕业的软件工程学生，也是主要开发者。我与Jason Phan（共同开发伙伴）合作进行技术讨论，并优化全栈体验。"
       },
       {
-        "question": "Is there any promotional or trial policy at Hugo Studio?",
+        "question": "Hugo Studio是否有任何促销或试用政策？",
         "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
-        "actionText": "Claim the Student Offer"
+        "actionText": "领取学生优惠"
       },
       {
-        "question": "How is the design cost at Hugo Studio?",
-        "answer": "Since I work directly 1-1, the pricing is highly affordable and tailored to students or small businesses. To maintain quality, I only accept 1 project at a time in a queue."
+        "question": "Hugo Studio的设计费用是多少？",
+        "answer": "由于直接一对一的工作方式，定价非常实惠且针对学生或小型企业进行了个性化。为了保持质量，我只接受队列中一次一个项目。"
       },
       {
-        "question": "Does Hugo Studio work on holidays?",
-        "answer": "When there is a long holiday, I will post an update directly on the homepage. (Secret: Sometimes I take a short trip to recharge 🏖️)"
+        "question": "Hugo Studio在节假日工作吗？",
+        "answer": "当有较长的假期时，我会直接在首页发布更新。（秘密：有时我会短途旅行充电 🏖️）"
       }
     ],
     "contact": {
-      "title": "Still have questions?",
-      "desc": "Don't worry! Send a direct message to the Hugo Studio team for a detailed 1:1 answer.",
+      "title": "还有其他问题吗？",
+      "desc": "不要担心！发送直接消息给Hugo Studio团队以获得详细的1:1解答。",
       "chatBtn": "Message",
       "emailBtn": "Email the team"
+    },
+    "meta": {
+      "title": "关于 Hugo Studio 的常见问题解答",
+      "description": "Answers about website design services, Bio pages for learners, pricing, delivery time and how Hugo Studio works alongside each project.",
+      "keywords": "Hugo Studio questions, website design service, student Bio page, website cost"
     }
   },
   "bookingPage": {
     "meta": {
-      "title": "Discuss a Website Project | Hugo Studio",
-      "description": "Outline your requirements through a concise, guided form. Hugo will respond to clarify scope, timing and an appropriate investment before any work begins.",
-      "keywords": "website project enquiry, website consultation, personal portfolio, small business website, Hugo Studio"
+      "title": "讨论网站项目 | Hugo Studio",
+      "description": "通过简洁的引导式表单提出您的需求。Hugo将回应以澄清范围、时间安排以及开始工作前的适当投资。",
+      "keywords": "网站项目咨询，网站咨询，个人作品集，小型企业网站，Hugo Studio"
     },
     "toast": {
-      "success": "Your enquiry has been received. I shall respond within one business day.",
-      "error": "Your enquiry could not be sent. Please check your connection and try again.",
-      "networkError": "Connection error. Please check your internet and try again.",
-      "chooseProject": "Please choose the option that most closely reflects your needs.",
-      "chooseAge": "Please select your age group first.",
-      "underAge": "Hugo Studio accepts enquiries only from those aged 14 and above."
+      "success": "您的询问已收到。我将在一个工作日内回复您。",
+      "error": "无法发送您的询问。请检查您的网络连接并尝试再次发送。",
+      "networkError": "网络错误。请检查您的互联网连接并尝试再次操作。",
+      "chooseProject": "请选择最符合您需求的选项。",
+      "chooseAge": "请先选择您的年龄段。",
+      "underAge": "Hugo Studio 只接受14岁及以上用户的咨询。"
     },
     "header": {
-      "eyebrow": "A direct conversation with Hugo",
-      "title": "Tell me what you need. I’ll help define the rest.",
-      "desc": "You need neither technical jargon nor an exhaustive brief. Choose the prompts that best approximate your situation, and I will help articulate the remaining scope."
+      "eyebrow": "与 Hugo 直接对话",
+      "title": "告诉我您需要什么，我会帮助定义其余部分。",
+      "desc": "您既不需要技术术语，也不需要详尽的背景介绍。只需选择那些最接近您情况的提示，并协助阐述剩余的部分。"
     },
     "expectations": {
       "brief": {
-        "title": "No elaborate brief required",
-        "desc": "Guided choices let you outline the project in approximately two minutes."
+        "title": "无需详细背景介绍",
+        "desc": "引导性的选择让您在大约两分钟内概述项目。"
       },
       "scope": {
-        "title": "Scope precedes quotation",
-        "desc": "I shall clarify any omissions and recommend only what the project genuinely warrants."
+        "title": "范围优先于报价",
+        "desc": "我将澄清任何遗漏，并仅推荐项目真正需要的内容。"
       },
       "reply": {
-        "title": "A reply within one business day",
-        "desc": "You will receive an email or message arranging the most appropriate next step."
+        "title": "请在下一个工作日内回复。",
+        "desc": "您将会收到一封或一条消息，安排最合适的下一步操作。"
       }
     },
     "progress": {
-      "label": "Step {{step}} of {{total}}",
-      "complete": "Complete"
+      "label": "步骤 {{step}} 共 {{total}} 步",
+      "complete": "完成"
     },
     "steps": {
       "age": {
-        "title": "How old are you?",
-        "hint": "Hugo Studio accepts enquiries only from those aged 14 and above."
+        "title": "你多大年纪？",
+        "hint": "Hugo Studio 只接受14岁及以上用户的咨询。"
       },
       "project": {
-        "title": "What may I help with?",
-        "hint": "Choose the nearest fit; nothing is settled yet."
+        "title": "我能帮你什么？",
+        "hint": "请选择最接近的选项；目前尚未做出决定。"
       },
       "budget": {
-        "title": "Indicative investment",
-        "hint": "A rough figure lets me recommend a proportionate scope."
+        "title": "大致的投资金额让我能推荐一个相应的范围。",
+        "hint": "提供一个大概的投资数额，以便我为你推荐一个合适的范围。"
       },
       "timeline": {
         "title": "When do you need it?",
-        "hint": "A timeframe makes the schedule realistic."
+        "hint": "设定一个时间框架可以使计划更加现实。"
       },
       "details": {
-        "title": "The outcome you have in mind",
-        "hint": "A few sentences suffice; no formal brief required."
+        "title": "你心中所想的结果是什么？",
+        "hint": "几句话就足够了，不需要正式的简报。"
       },
       "contact": {
-        "title": "How should I reply?",
-        "hint": "Used solely to answer your enquiry, never published."
+        "title": "我应该如何回复？",
+        "hint": "仅用于回答您的问题，不会发布。"
       },
       "review": {
-        "title": "Review and send your enquiry",
-        "hint": "One last look before it reaches Hugo."
+        "title": "请审阅并发送您的问题",
+        "hint": "最后检查一下再提交给 Hugo。"
       }
     },
     "projectTypes": {
       "newWebsite": {
-        "title": "A new website",
-        "desc": "For an individual, brand, café or small enterprise."
+        "title": "一个新的网站页面",
+        "desc": "为个人、品牌、咖啡馆或小型企业创建。"
       },
       "portfolio": {
         "title": "Portfolio / Bio",
-        "desc": "A considered home for your work, résumé and professional identity."
+        "desc": "个人作品集/简历的专业身份空间。"
       },
       "improve": {
-        "title": "Improve an existing site",
-        "desc": "Refine its interface, mobile experience, performance or functionality."
+        "title": "改进现有站点",
+        "desc": "优化其界面、移动体验、性能或功能。"
       },
       "student": {
-        "title": "A student project",
-        "desc": "Portfolio, coursework or guided debugging support."
+        "title": "学生项目",
+        "desc": "作品集、作业或指导性调试支持。"
       },
       "unsure": {
-        "title": "I am not yet certain",
-        "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
+        "title": "我不确定是否应该继续",
+        "desc": "描述预期结果；Hugo将帮助您决定一个适当的策略。"
       }
     },
     "sections": {
-      "project": "What would you like help with?",
-      "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
-      "budget": "Indicative investment",
-      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
-      "timeline": "Preferred timeframe",
-      "notes": "A little more context (optional)",
-      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
-      "timelineHint": "Choose whichever is closest to your expectation."
+      "project": "您需要什么帮助？",
+      "projectHint": "请选择最接近的选项。这里的内容不会阻止稍后选择不同的方向。",
+      "budget": "大致的投资金额让我能推荐一个相应的范围。",
+      "budgetHint": "这是一项适度的推荐；这不是一项财务承诺。",
+      "timeline": "首选时间范围",
+      "notes": "一些额外的背景信息（可选）",
+      "notesHint": "选择一个提示开始，然后根据您的情况对其进行修改。",
+      "timelineHint": "请选择最接近您期望的那个。"
     },
     "budgets": {
       "unsure": "Not determined",
@@ -5018,14 +5094,14 @@
       "twoMonths": "Within 1–2 months"
     },
     "promptLabels": {
-      "identity": "Present myself and my work",
-      "sales": "Help customers browse and enquire",
-      "mobile": "My website falters on mobile",
-      "unsure": "I do not know where to begin"
+      "identity": "展示自己和作品",
+      "sales": "帮助客户浏览并咨询",
+      "mobile": "我的网站在移动设备上出现问题",
+      "unsure": "我不知道从何开始"
     },
     "prompts": {
-      "identity": "I need a coherent place to present myself, my work and my most pertinent links.",
-      "sales": "I would like customers to understand my offer, browse my products and contact me without friction.",
+      "identity": "我需要一个连贯的地方来展示自己、作品以及最相关的链接。",
+      "sales": "我希望客户能够理解我的提议，浏览我的产品并与我联系而没有摩擦。",
       "mobile": "I already have a website, but its mobile interface is cumbersome or renders incorrectly.",
       "unsure": "I am uncertain which kind of website would be appropriate and would value a proportionate recommendation."
     },
@@ -5043,31 +5119,31 @@
     "actions": {
       "continue": "Continue",
       "back": "後",
-      "submit": "Send my enquiry",
+      "submit": "这些细节仅用于回复您的咨询并讨论项目。您的电话号码从未在公共场合显示。",
       "sending": "正在发送...",
-      "editAnswers": "Start the answers again"
+      "editAnswers": "发送我的咨询"
     },
     "summary": {
-      "title": "Enquiry summary",
-      "project": "Requirement",
-      "budget": "Investment",
-      "timeline": "Timeframe",
-      "notes": "Notes",
-      "age": "Age group",
+      "title": "开始重新回答",
+      "project": "咨询摘要",
+      "budget": "需求",
+      "timeline": "投资",
+      "notes": "时间框架",
+      "age": "备注",
       "contact": "Contact"
     },
     "success": {
-      "title": "Your enquiry is safely with me.",
+      "title": "年龄组",
       "desc": "Hugo will review it and respond by email or Zalo within one business day. No further documentation is required at this stage.",
-      "another": "Send another enquiry",
-      "donateTitle": "Would you care to stand with Hugo Studio?",
-      "donateDesc": "Entirely optional. Your choice has no bearing on the enquiry, quotation, or access to any feature.",
-      "donateYes": "Make a voluntary contribution",
-      "donateNo": "Not this time",
-      "donateSkipped": "Choice noted. Your enquiry will proceed in precisely the same manner."
+      "another": "发送另一份咨询请求",
+      "donateTitle": "您愿意与 Hugo Studio 站在一起吗？",
+      "donateDesc": "完全自愿，您的选择不会影响咨询、报价或访问任何功能。",
+      "donateYes": "自愿捐款",
+      "donateNo": "这次不捐了",
+      "donateSkipped": "已记录。您的咨询将按照完全相同的方式继续进行。"
     },
     "prefill": {
-      "general": "I am a student and would like to discuss an appropriate form of support for my academic project.",
+      "general": "我是学生，并希望讨论一种适合我学术项目的适当支持形式。",
       "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
       "bento": "I would like to discuss a Bento CV / Portfolio for a student profile.",
       "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
@@ -5080,55 +5156,55 @@
       "hint": "This determines how Hugo Studio handles and protects your data. No documents required — simply answer honestly.",
       "teenTitle": "Members aged 14 to under 18",
       "teenRules": {
-        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
-        "limited": "Support is limited or declined where a request would require sensitive personal data.",
-        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
-        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+        "supervision": "请在了解并获得监护人监督的情况下继续。",
+        "limited": "仅限于需要敏感个人数据的情况，我们不支持或拒绝请求。",
+        "noShare": "Hugo Studio不会将您的个人信息透露给其他任何人——没有例外。",
+        "minimal": "在此表单中提供最少的信息；不要通过聊天、Zalo或公开的Bio页面发送更多信息。"
       },
-      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
-      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
-      "blockedTitle": "Not eligible to send an enquiry",
-      "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
+      "teenNotesReminder": "请勿在本表单中提供家庭地址、精确学校信息、身份证号码或其他人的信息。",
+      "teenContactNote": "由于您未满18岁，这些信息仅用于回复您的问题，并且不会与任何其他用户分享。使用您监护人知道的人作为联系点。",
+      "blockedTitle": "不符合发送询问的资格。",
+      "blockedDesc": "Hugo Studio不接受任何14岁以下人士的咨询。请让监护人为您进行咨询。"
     },
     "ageBands": {
       "adult": {
-        "title": "18 and above",
-        "desc": "You may discuss and agree terms directly, without a guardian."
+        "title": "18岁以上",
+        "desc": "您可以直接讨论并同意条款，无需监护人协助。"
       },
       "teen": {
-        "title": "14 to under 18",
-        "desc": "Support is available, with supervision and limits on personal data."
+        "title": "14至未满18岁",
+        "desc": "支持可获得，并在必要时限制个人数据。"
       },
       "under14": {
-        "title": "Under 14",
-        "desc": "Not eligible to use Hugo Studio's services."
+        "title": "14岁以下",
+        "desc": "不符合使用Hugo Studio服务的资格。"
       }
     }
   },
   "templatesPage": {
     "hero": {
-      "badge": "Galaxy of Art",
-      "title1": "The Universe of",
-      "title2": "Digital Art",
+      "badge": "艺术星系",
+      "title1": "宇宙中的",
+      "title2": "数字艺术",
       "desc": "Surf through silent galaxies. Each website is a unique star."
     },
     "core": {
       "badge": "The Core",
-      "title1": "Brand",
-      "title2": "Nucleus",
-      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
-      "redBold": "Red:",
-      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
-      "orangeBold": "Orange:",
-      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
-      "yellowBold": "Yellow:",
+      "title1": "品牌",
+      "title2": "核能中心",
+      "desc": "Hugo Studio的核心宇宙中，有一个由六条彩色带汇聚而成的logo，这是一个无限创意和先锋精神的强大宣言：",
+      "redBold": "红色：",
+      "redText": "代表每行代码中的燃烧热情、炽热激情和奉献精神。",
+      "orangeBold": "橙色：",
+      "orangeText": "象征积极能量、活力以及不断追求创新的愿望。",
+      "yellowBold": "黄色：",
       "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
       "greenBold": "Green:",
       "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
       "blueBold": "Blue:",
       "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
       "purpleBold": "Purple:",
-      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+      "purpleText": " Far-sights vision, mystery, and the ability to create artistic breakthroughs."
     },
     "typography": {
       "badge": "The Language",
@@ -5137,235 +5213,243 @@
       "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
     },
     "souls": {
-      "badge": "The Souls",
-      "title": "Cosmic Souls",
-      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "badge": "灵魂",
+      "title": "宇宙灵魂",
+      "desc": "可爱宇航员承载着Hugo Studio的6大核心价值观。",
       "values": [
         {
-          "title": "Dedication",
-          "desc": "Meticulous in every code nebula"
+          "title": "奉献",
+          "desc": "每一个代码星云都一丝不苟地被精细处理。"
         },
         {
-          "title": "Empathy",
-          "desc": "Listening to the depths of the universe"
+          "title": "同理心",
+          "desc": "倾听宇宙深处的声音。"
         },
         {
-          "title": "Creativity",
-          "desc": "Shining bright like a supernova"
+          "title": "创造力",
+          "desc": "像超新星一样闪耀"
         },
         {
-          "title": "Connection",
-          "desc": "A strong galactic network"
+          "title": "连接",
+          "desc": "一个强大的星系网络"
         },
         {
-          "title": "Speed",
-          "desc": "Fast as the speed of light"
+          "title": "速度",
+          "desc": "快如光速"
         },
         {
-          "title": "Protection",
-          "desc": "Absolute safety shield"
+          "title": "保护",
+          "desc": "绝对安全盾"
         }
       ]
     },
     "demos": {
-      "badge": "The Constellations",
-      "title1": "Interactive",
-      "title2": "Dashboards",
-      "desc": "Surf through interactive real-world design constellations.",
+      "badge": "星座",
+      "title1": "互动",
+      "title2": "仪表板",
+      "desc": "浏览互动的现实世界星座",
       "templates": [
         {
-          "title": "Photography Studio",
-          "short": "Photography",
-          "subtitle": "Photographer"
+          "title": "摄影工作室",
+          "short": "摄影",
+          "subtitle": "摄影师"
         },
         {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "咖啡厅及酒吧",
+          "short": "咖啡厅",
+          "subtitle": "餐厅"
         },
         {
-          "title": "Jewelry Web",
-          "short": "Jewelry",
-          "subtitle": "Jewelry store"
+          "title": "珠宝网页",
+          "short": "珠宝",
+          "subtitle": "珠宝店"
         },
         {
-          "title": "Personal Intro",
-          "short": "Portfolio",
-          "subtitle": "Portfolio"
+          "title": "个人简介",
+          "short": "作品集",
+          "subtitle": "作品集"
         },
         {
-          "title": "E-Commerce",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "title": "电子商务",
+          "short": "电子商务",
+          "subtitle": "多行业"
         },
         {
-          "title": "Admin Page",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
+          "title": "管理员页面",
+          "short": "仪表盘",
+          "subtitle": "仪表盘"
         }
       ]
     },
     "archive": {
-      "badge": "The Archive",
-      "title": "Project Archive",
-      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+      "badge": "档案",
+      "title": "项目档案",
+      "desc": "直接访问实际部署项目的数据库，原始和无限。"
     }
   },
   "loginPage": {
     "toast": {
-      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
-      "loginError": "Login error",
-      "loginPortalError": "Portal login error",
-      "invalidLink": "Link is invalid or has expired",
-      "noGoogle": "Could not retrieve Google profile info",
-      "useGoogleBtn": "Please click the 'Continue with Google' button below",
-      "adminError": "Incorrect admin username or password",
-      "adminNetworkError": "Could not connect to the server, please check your network and try again",
-      "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters",
-      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+      "eduRedirect": "您的账户因不是.edu邮件而处于待审核状态。正在重定向...",
+      "loginError": "登录错误",
+      "loginPortalError": "Portal登录错误",
+      "invalidLink": "链接无效或已过期",
+      "noGoogle": "无法获取Google个人资料信息",
+      "useGoogleBtn": "请单击下方的'使用Google继续'按钮",
+      "adminError": "管理员用户名或密码不正确",
+      "adminNetworkError": "无法连接到服务器，请检查您的网络并重试",
+      "adminServerError": "服务器错误，请稍后再试一次",
+      "codeLength": "登录码必须正好是6个字符",
+      "locationAnomaly": "我们检测到从您通常所在区域50公里以外的位置进行了登录。请再次登录以验证确实是您本人操作的。"
     },
     "biometric": {
-      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
-      "verifying": "Verifying...",
-      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
-      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
-      "or": "or"
+      "btn": "使用指纹/面容识别登录({{email}})",
+      "verifying": "正在验证...",
+      "notEnabled": "此设备上未启用指纹登录功能。",
+      "failed": "无法使用指纹/面部识别进行登录，请尝试使用Google登录。",
+      "or": "或"
     },
     "header": {
-      "titleCustomer": "Project Management",
-      "titleMember": "Activate Student Bio",
+      "titleCustomer": "项目管理",
+      "titleMember": "激活学生个人简介",
       "titleAdmin": "管理员登录",
-      "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
-      "descAdmin": "Access the developer dashboard system"
+      "descCustomer": "跟踪进度并管理您的服务",
+      "descMember": "创建一个完全免费的专属个人简介链接",
+      "descAdmin": "访问开发者控制台系统"
     },
     "tabs": {
       "customer": "Client",
-      "member": "Student (.edu)",
-      "admin": "Admin"
+      "member": "学生 (.edu)",
+      "admin": "管理员"
     },
     "customerForm": {
-      "title": "Access Project Management",
-      "desc": "Manage projects, track progress and communicate with the team.",
-      "codeLabel": "Project Code (6 Chars)",
-      "codePlaceholder": "Ex: 1A2B3C",
-      "btn": "Enter Project Portal",
-      "securityTitle": "Information Security",
-      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+      "title": "管理项目，跟踪进度并与团队沟通。",
+      "desc": "项目代码（6位字符）",
+      "codeLabel": "例如：1A2B3C",
+      "codePlaceholder": "安全协议",
+      "btn": "进入项目门户",
+      "securityTitle": "信息安全",
+      "securityDesc": "项目代码为私有提供。绝对不要将此代码分享给他人以确保您的项目数据安全。"
     },
     "memberForm": {
-      "title": "Google Workspace Authentication",
-      "desc": "To ensure the authenticity of student benefits, please link via Google.",
+      "title": "Google Workspace认证",
+      "desc": "为了确保学生福利的真实性，请通过Google进行链接。",
       "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
-      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
-      "gisLoading": "Loading Google component...",
-      "reqTitle": "Educational Email Requirement (.edu)",
-      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+      "gisReady": "自动激活 1 条 Bio 链接 / 12 个月，需使用教育邮箱。",
+      "gisLoading": "加载 Google 组件...",
+      "reqTitle": "教育邮箱要求 (.edu)",
+      "reqDesc": "系统会自动检查，并仅接受使用学校教育邮箱的账户。"
     },
     "adminForm": {
       "title": "管理员登录",
-      "desc": "Enter developer credentials",
-      "userLabel": "Username",
-      "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
+      "desc": "输入开发者凭证",
+      "userLabel": "用户名",
+      "userPlaceholder": "请输入您的用户名",
+      "userRequired": "••••••••",
       "passLabel": "密码",
       "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "remember": "Remember me on this device",
+      "passRequired": "请输入您的密码",
+      "showPassword": "显示密码",
+      "hidePassword": "隐藏密码",
+      "remember": "记住本设备上的登录信息",
       "btn": "登录",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "submitting": "正在登录...",
+      "https": "通过HTTPS进行安全同步"
     }
   },
   "customerPortal": {
     "header": {
-      "logout": "Logout"
+      "logout": "登出"
     },
     "tabs": {
       "profile": "个人资料",
       "service": "服务",
-      "requests": "Requests"
+      "requests": "请求"
     },
     "profile": {
       "title": "个人信息",
-      "subtitle": "Update your contact info so we can support you best.",
-      "completedWarn": "Project is completed, information cannot be changed.",
+      "subtitle": "更新您的联系信息，以便我们能更好地为您服务。",
+      "completedWarn": "项目已完成，相关信息无法更改。",
       "fullName": "Full Name",
       "phone": "电话号码",
-      "email": "Contact Email",
-      "birthday": "Date of Birth",
-      "address": "Address",
-      "updateSuccess": "Updated successfully!",
-      "saveBtn": "Save Info",
+      "email": "联系邮箱",
+      "birthday": "出生日期",
+      "address": "地址",
+      "updateSuccess": "保存成功!",
+      "saveBtn": "保存信息",
       "savingBtn": "正在保存..."
     },
     "service": {
-      "title": "Project Overview",
-      "desc": "Track progress and basic information about your service package.",
+      "title": "项目概述",
+      "desc": "跟踪您的服务包的进度和基本信息。",
       "status": "状态",
-      "package": "Service Package",
+      "package": "服务包",
       "startDate": "开始日期",
-      "notesTitle": "Logs & Updates",
-      "notesEmpty": "Project is in preparation...",
-      "completed": "Completed",
-      "maintenance": "Maintenance",
-      "summary": "Project Summary"
+      "notesTitle": "日志与更新",
+      "notesEmpty": "项目正在准备中...",
+      "completed": "已完成",
+      "maintenance": "维护中",
+      "summary": "项目概览"
     },
     "requests": {
-      "supportTitle": "Support Team",
-      "supportSubtitle": "Managing your project",
-      "loading": "Loading messages...",
-      "empty": "No requests yet. Message us if you have any questions!",
-      "placeholderNormal": "Enter request or message...",
-      "placeholderCompleted": "Enter maintenance request or message..."
+      "supportTitle": "支持团队",
+      "supportSubtitle": "管理您的项目",
+      "loading": "加载消息…",
+      "empty": "暂无请求。如有问题，请联系我们！",
+      "placeholderNormal": "请输入请求或信息…",
+      "placeholderCompleted": "请输入维护请求或信息…"
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
+    "metaTitle": "获取你的可爱个人简介页面 —— 免费12个月！ | Hugo Studio",
+    "metaDesc": "获得无广告、美观的便当型作品集链接。任何 .edu 邮箱地址即可享受快速定制且完全免费的服务！",
+    "backToServices": "返回服务",
+    "giftSpark": "Spark 的 12 个月 —— 免费提供！",
+    "title": "你的梦想简介页面",
+    "desc": "你是 IT 学生，艺术家还是等待被发现的创作者吗？请领取你美丽的无广告便当型简介页面。这是你在网络上的家，用来展示你自己！",
+    "marketValue": "正常价格",
+    "perYear": "/年",
     "marketPrice": "$20.99",
-    "giftToYou": "Hugo's Gift",
+    "giftToYou": "Hugo 的礼物",
     "giftPrice": "$0.99",
-    "priceless": " — Priceless!",
-    "verificationTitle": "Verify & Claim Your Spark!",
-    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
-    "orManual": "or click below if it doesn't prompt",
-    "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
-    "toastNetwork": "Server connection lost. Let's try again in a bit!",
-    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "priceless": " — 无价！",
+    "verificationTitle": "验证并领取你的火花！",
+    "verificationDesc": "使用你的学校邮箱 (.edu 或 .edu.vn) 登录。我们的机器人会立即识别你，并将钥匙交给你！",
+    "orManual": "或者点击下方如果未提示",
+    "clickSelect": "选择 Google 账户",
+    "warningClientId": "警告：缺少 Google 客户端 ID",
+    "originError": "授权的 JavaScript 原点必须包含当前原点和生产域。",
+    "blockedByOauth": "Google 登入因 OAuth 配置被阻止！",
+    "ready": "OAuth 机器人已就绪！",
+    "loading": "唤醒 OAuth 机器人…",
+    "securityDesc": "使用 Google OAuth 2.0. 自动提示您浏览器中已登录的 edu 身份验证信息。”",
+    "toastFail": "哎呀！Google 验证失败了。”",
+    "toastNetwork": "服务器连接丢失。稍后重试吧！”",
+    "toastPending": "没有 .edu 邮箱？没问题，您的账户正在排队等待定制审核！跳转中…",
     "benefits": {
       "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+        "title": "免费使用",
+        "desc": "12 个月的高级功能。无隐藏费用，无广告。只有一份来自我的承诺给您！”"
       },
       "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+        "title": "创意乐园",
+        "desc": "每一种颜色、每一幅图片和每一个链接都可以完全自定义。展现真实的自我！”"
       },
       "fast": {
-        "title": "Lightning Fast",
-        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+        "title": "闪电般快速",
+        "desc": "瞬间加载，无任何延迟。流畅如初雪——体验纯粹的速度！"
       },
       "yours": {
-        "title": "Truly Yours",
-        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+        "title": "真正属于你",
+        "desc": "专属子域名链接。没有模板化的样式，没有通用的盒子。脱颖而出！"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "仅面向越南地区。",
+      "service": "报价以越南盾计算，通过 PayOS 与越南本地银行支付。",
+      "booking": "Hugo Studio 承接位于越南的项目；预算以越南盾计算，沟通通过电子邮件或 Zalo。",
+      "donate": "捐助以越南盾支付，经由 PayOS 与越南银行完成。"
     }
   }
 }

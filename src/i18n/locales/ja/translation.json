@@ -148,7 +148,7 @@
       "localEdition": "{{country}} 版",
       "dailyReset": "一日に一度、9:00に更新されます。",
       "updatedAt": "{{time}}が更新されました。",
-      "rightsMode": ".{{sources}}のソースから.{{articles}}のストories · ニュースと出版元からの簡略的な要約のみを表示します。",
+      "rightsMode": "{{sources}}メディアから{{articles}}件 · 記事全文は表示しません",
       "loadMore": ".{{n}}のさらに多くのストORIESを表示します。",
       "categories": "記事のカテゴリー",
       "category": {
@@ -171,13 +171,16 @@
       "articleUnavailable": "この記事を開けませんでした",
       "summaryTitle": "一瞬の要約",
       "summaryBySource": "{{source}}自身による要約。",
-      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
+      "summaryByAi": "Hugo AI がこの要約を独自の言葉で書き直しました。記事全文の著作権は{{source}}に帰属します。原文で完全な内容をお読みください。",
       "contentTitle": "記事内容",
       "contentUnavailable": "この_publisherは自動的に全文を読むことを許可しません。原文を開いて全体を読むことをお勧めします。",
       "contentBySource": "この記事の全文は{{source}}によって著作権保護されています。Hugo Studioでは、本文のみ表示します—原文を下に開くと、完全な内容を読むことができます。",
+      "copyrightNotice": "記事全文の著作権は{{source}}に帰属します。Hugo Studioは要約のみ表示します。「元記事を読む」で公式サイトの完全な記事をご覧ください。",
+      "sourceInfo": "出典：{{source}}{{author}} · {{date}}",
       "attribution": "コンテンツは {{source}} の著作権です。",
-      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
-      "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
+      "licenseNotice": "{{license}}の著作権に基づく本文は、{{source}}で表示されています。",
+      "fullInApp": "Full text",
+      "licenseAttribution": "{{author}}—{{source}}、{{license}}で再公開。",
       "readMinutes": "{{n}} 以下に読む",
       "fontSize": "テキストサイズ",
       "openSource": "オープンソース",
@@ -580,6 +583,9 @@
         "conditionsTitle": "会員の権利と義務",
         "conditionsSubtitle": "基本的な権利、年齢規則、安全使用、JOYルール",
         "conditionsDetail": "基本的な権利、年齢規則、安全使用、JOY",
+        "fullTextTitle": "Full terms",
+        "fullTextSubtitle": "九言語ごとの完全な文書、一文ずつ。",
+        "fullTextDetail": "Terms, privacy and membership rules in nine languages",
         "content": {
           "privileges": {
             "id": "privileges",
@@ -2692,26 +2698,26 @@
         "storeDesc": "週に5時間の無料聴き放題が完売すると、購入した時間を使用します。",
         "empty": "まだタイムパックは販売されていません。"
       },
-      "dangDo": "Đang dò",
-      "dangKetNoi": "Đang kết nối",
+      "dangDo": "Scanning",
+      "dangKetNoi": "Connecting",
       "nhieuSong": "ノイズ",
-      "dangPhat": "Đang phát",
-      "tamDung": "Tạm dừng",
-      "cho": "Chờ",
-      "daHocDiaChi": " · đã học địa chỉ mới",
-      "doTanSo": "Dò tần số",
-      "doXuong": "Dò xuống",
-      "dung": "Dừng",
+      "dangPhat": "Playing",
+      "tamDung": "停止",
+      "cho": "Waiting",
+      "daHocDiaChi": " · learned a new address",
+      "doTanSo": "Scan up",
+      "doXuong": "Scan down",
+      "dung": "停止",
       "phat": "Phát",
       "doLen": "Dò lên",
-      "amLuong": "Volume",
+      "amLuong": "音量",
       "ngauNhien": "ランダム",
       "henGioTat": "切る時刻",
       "timDaiVov1Npr": "検索: VOV1、NPR、ジャズ…",
       "dangDo2": "検索中…",
       "tim": "検索",
       "daTim": "見つかった (",
-      "muaThemThoiGian": "追加の聴取時間",
+      "muaThemThoiGian": "もっと聴き放題を購入する",
       "thoiGianMuaDuoc": "残りの聴取時間"
     },
     "store": {
@@ -2962,9 +2968,9 @@
       "10PhiSangTao": "(+ 10% 创意費)で1ヶ月のプランを登録するに同意しましたか？",
       "khong": "登録成功！この学習段階が開かれました。",
       "dangKyThanhCong": "決済エラー",
-      "loiGiaoDich": "購入：永続プラン']}user\nCould you also translate these additional strings into Japanese? Please return the JSON array format as before.\n[",
+      "loiGiaoDich": "取引が失敗しました。",
       "muaGoiVinhVien": "Đăng ký thành công! Giai đoạn học này đã được mở khóa。",
-      "gom": "gồm",
+      "gom": "including",
       "joyVa": "JOYと",
       "joyPhiSangTao": "JOYの創造費を解除して永続的にアクセスできる",
       "giaHanBoPhat": "ウェブ開発者プレミアムを延長するには",
@@ -2976,7 +2982,7 @@
       "moKhoaTronGoi": "全6コースの永久無制限アクセス権が解除されました。",
       "xacNhanXoa": "確認削除",
       "banCoChacChan": "あなたは本当に削除をしたいですか",
-      "thuMuc": "フォルダ",
+      "thuMuc": "folder",
       "khongHanhDongNay": "します。このアクションは取り消せません。"
     },
     "hugoso": {
@@ -3703,137 +3709,140 @@
       "lose": "もう一度試す",
       "draw": "引き分け"
     },
-    "catAll": "全件",
+    "catAll": "すべて",
     "catStudio": "Hugo Studio",
-    "catPvp": "Versus",
-    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
-    "bestScore": "· Best {{score}}",
-    "downloading": "Downloading {{percent}}%",
-    "exchangeError": "JOY exchange failed.",
-    "addedToApps": "{{game}} was added to your apps.",
-    "gameFallback": "Game",
-    "rankTitle": "Leaderboard",
-    "noAds": "Play right inside Hugo — no ads.",
-    "filterGames": "Filter games",
-    "playGame": "Play {{game}}",
-    "spotlight": "Today's spotlight",
+    "catPvp": "対戦",
+    "credit2048": "Gabriele Cirulli の 2048 をもとに（MIT ライセンス）",
+    "bestScore": "·最高の{{score}}",
+    "downloading": "{{percent}}をダウンロードしました。",
+    "exchangeError": "JOY交換に失敗しました。",
+    "addedToApps": "{{game}}があなたのアプリケーションに追加されました。",
+    "gameFallback": "ゲーム",
+    "rankTitle": "ランキング",
+    "noAds": "ホグーアプリ内でプレイ — 广告なしで。",
+    "filterGames": "ゲームをフィルター",
+    "playGame": "{{game}}をプレイします。",
+    "spotlight": "今日のスポットライト",
     "play": "PLAY",
     "gamesTitle": "ゲーム",
-    "totalMatches": "Matches",
-    "wins": "Wins",
-    "rankDesc": "The best players across the whole system.",
-    "newBest": "New best!",
-    "beatBest": "Beat {{score}}",
-    "combo": "{{count}}× combo",
-    "multiplier": "Multiplier x{{value}}",
-    "best": "Best",
-    "hugoMember": "Hugo member",
+    "totalMatches": "マッチング",
+    "wins": "勝利",
+    "rankDesc": "システム全体で最も優れたプレイヤー。",
+    "newBest": "新記録！",
+    "beatBest": "{{score}}を破った",
+    "combo": "{{count}}×コンボ",
+    "multiplier": "倍率x{{value}}",
+    "best": "最上位",
+    "hugoMember": "ホグーメンバー",
     "rankSss": "RANK SSS • GRANDMASTER",
     "rankS": "RANK S • CODE WARRIOR",
-    "joyByScore": "+ JOY based on score",
-    "pendingWallet": "· waiting to land in your wallet",
-    "tryAgainClose": "Try again — so close!",
-    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
-    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "joyByScore": "+ JOY ボイススコアに応じて",
+    "pendingWallet": "· ギケウカまで待っていますあなたのウォレット",
+    "tryAgainClose": "もう少しで試してみてください",
+    "g2048Triple": "⚡ ×3 ポイント 10 秒間!",
+    "g2048Fever": "🔥 ファーバー モード ×2 ポイント",
     "g2048Level": "{{level}}レベル",
-    "g2048LevelStone": "Level {{level}} · with stone tiles",
-    "g2048Undone": "One move undone",
-    "g2048Tnt": "TNT tile",
-    "g2048Stone": "Stone tile, {{turns}} moves left",
-    "g2048Tile": "Tile {{value}}",
-    "g2048Score": "SCORE",
-    "g2048Moves": "MOVES",
-    "snakeStage1": "Neon Garden",
-    "snakeStage1Kicker": "WARM-UP STAGE",
-    "snakeStage1Goal": "Collect 6 energy cores",
-    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
-    "snakeStage2": "Red Minefield",
+    "g2048LevelStone": "レベル {{level}} · 石のタイルで",
+    "g2048Undone": "一度に動かし直せない一歩",
+    "g2048Tnt": "TNT テイル",
+    "g2048Stone": "石のテールが左に動きます,{{turns}}",
+    "g2048Tile": "テール {{value}} のタイル",
+    "g2048Score": "スコア",
+    "g2048Moves": "ターン数",
+    "snakeStage1": "ネオンガーデン",
+    "snakeStage1Kicker": "ウォームアップステージ",
+    "snakeStage1Goal": "6つのエネルギー核を集めましょう",
+    "snakeStage1Hint": "リズムに合わせて食べ続けることでコンボを引き起こしましょう",
+    "snakeStage2": "赤いミネラルフィールド",
     "snakeStage2Kicker": "SURVIVAL CHALLENGE",
-    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
-    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
-    "snakeStage3": "Quantum Gates",
-    "snakeStage3Kicker": "TELEPORT CHALLENGE",
-    "snakeStage3Goal": "Master the pair of space gates",
-    "snakeStage3Hint": "Enter one gate to appear at the other.",
-    "snakeStage4": "Gold Hunt",
-    "snakeStage4Kicker": "SPEED CHALLENGE",
-    "snakeStage4Goal": "Catch the golden cores before they vanish",
+    "snakeStage2Goal": "避難チャレンジ",
+    "snakeStage2Hint": "赤いミネラルは光るが破壊できない。",
+    "snakeStage3": "量子ゲート",
+    "snakeStage3Kicker": " teleport チャレンジ",
+    "snakeStage3Goal": "空間のゲートを Mastery する",
+    "snakeStage3Hint": "一つのゲートに到着するともう一方に出る。",
+    "snakeStage4": "黄金の狩り",
+    "snakeStage4Kicker": "スピード チャレンジ",
+    "snakeStage4Goal": "黄金のコアを消える前にキャッチする。",
     "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
     "snakeStage5Kicker": "FINAL STAGE",
-    "snakeStage5Goal": "Survive the high-speed grid",
-    "snakeStage5Hint": "High speed, more mines and teleport gates.",
-    "snakeNewStage": "{{stage}} · a new challenge is open",
-    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
-    "snakeFood": "Cores",
-    "snakeStageLabel": "Stage",
-    "snakeStageOf": "Stage {{index}}: {{name}}",
-    "ready": "READY",
-    "snakeStageProgress": "STAGE PROGRESS",
-    "snakeCoreNormal": "+2 normal core",
-    "snakeCoreGold": "+10 golden core",
-    "snakeMine": "Mine: game over",
-    "snakePortal": "Teleport gate",
-    "chessBoard": "3D chess board",
-    "chessWhite": "White",
-    "chessBlack": "Black",
-    "chessCheckmate": "Checkmate! {{side}} wins!",
-    "chessStalemate": "Draw (stalemate)",
-    "chessOver": "Game over",
-    "chessLevelEasy": "Apprentice",
-    "chessEasy": "Easy",
-    "chessLevelMid": "Tactician",
+    "snakeStage5Goal": "高速グリッドでの生存",
+    "snakeStage5Hint": "高速、多くのミネスと teleport ポイントがあります。",
+    "snakeNewStage": "{{stage}} · 新たな挑戦が開かれています",
+    "snakeLevelUp": "レベル {{level}} · 速度と難易度が上昇します",
+    "snakeFood": "核",
+    "snakeStageLabel": "ステージ",
+    "snakeStageOf": "ステージ {{index}}: {{name}}",
+    "ready": "準備万端",
+    "snakeStageProgress": "ステージプロgreso",
+    "snakeCoreNormal": "+2 ノーマルコア",
+    "snakeCoreGold": "+10 ゴールドコア",
+    "snakeMine": "Mine: 終了",
+    "snakePortal": " teleportゲート",
+    "chessBoard": "3Dチェスボード",
+    "chessWhite": "白",
+    "chessBlack": "黒",
+    "chessCheckmate": "チェックマト！ {{side}} の勝利！",
+    "chessStalemate": "引き分け（詰み）",
+    "chessOver": "ゲームオーバー",
+    "chessLevelEasy": "アドベントチャー",
+    "chessEasy": "簡単",
+    "chessLevelMid": " tactician",
     "chessMid": "プロフェッショナルなユーザー体験を提供します。",
-    "chessLevelHard": "Master",
-    "chessHard": "Hard",
-    "chessThinking": "Hugo BOT is thinking…",
-    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
-    "chessTurn": "Turn: {{side}}",
-    "chessBotThinking": "Hugo BOT (thinking…)",
-    "chessBotLevel": "Hugo AI BOT · Level {{level}}",
-    "chessBlackPlayer": "Black player",
-    "chessView3d": "3D view",
-    "chessUndo": "Undo",
-    "chessNewGame": "New game",
-    "chessYouWhite": "You (White)",
-    "chessWhitePlayer": "White player",
-    "caroThinking": "The AI is thinking",
-    "caroYourTurn": "Your turn (X)",
-    "caroWin": "You win! 🎉",
+    "chessLevelHard": "マスター",
+    "chessHard": "難易度",
+    "chessThinking": "Hugo BOT が考え中…",
+    "chessInCheck": "⚠️ キングはチェック中！",
+    "chessTurn": "ターン：{{side}}",
+    "chessBotThinking": "Hugo BOT (考え中…)",
+    "chessBotLevel": "Hugo AI BOT · 水平 {{level}}",
+    "chessBlackPlayer": "黒プレイヤー",
+    "chessView3d": "3D視点",
+    "chessUndo": "取り消し",
+    "chessNewGame": "新ゲーム",
+    "chessYouWhite": "あなた（白）",
+    "chessWhitePlayer": "白プレイヤー",
+    "caroThinking": "AIが考え中",
+    "caroYourTurn": "あなたの番（X）",
+    "caroWin": "あなた勝利！ 🎉",
     "caroLose": "The AI won — try again!",
     "caroDraw": "Draw! The board is full.",
-    "caroYou": "You",
-    "caroRule": "3 in a row",
-    "survivorWaveClear": "WAVE {{wave}} CLEAR",
+    "caroYou": "あなた",
+    "caroRule": "{{win}}目ならべ",
+    "survivorWaveClear": "{{wave}} を振って勝利！",
     "survivorSurge": "SURGE",
-    "survivorBoss": "{{wave}} · BOSS",
-    "survivorLeft": "{{wave}} · {{count}} left",
-    "survivorClear": "{{wave}} · clear",
-    "rankSs": "RANK SS • NEON ACE",
-    "rankA": "RANK A • SENIOR FIGHTER",
-    "rankB": "RANK B • RISING PLAYER",
-    "shellFormula": "{{score}} points → {{joy}} JOY",
-    "shellRecord": "New best! {{delta}} points more than last time.",
-    "shellNear": "{{gap}} points short of your best {{best}}.",
-    "shellBest": "Your best: {{best}}.",
-    "lbWinner": "{{name}} is the winner!",
-    "lbRealtime": "Total score updates in real time • {{date}}",
+    "survivorBoss": "{{wave}} · オーロラエース",
+    "survivorLeft": "{{wave}} · {{count}} 前",
+    "survivorClear": "{{wave}} · 清除",
+    "rankSs": "SS 級 • ネオンエース",
+    "rankA": "A ランク • スターター",
+    "rankB": "B ランク • ジループプレイヤー",
+    "shellFormula": "{{score}}ポイント → {{joy}} JOY",
+    "shellRecord": "新しい最高記録！ {{delta}}ポイント多く獲得しました。",
+    "shellNear": "{{gap}}ポイントで、あなたの最良の {{best}}に達していません。",
+    "shellBest": "{{best}}はあなたの最良のパートナーです。",
+    "lbWinner": "{{name}}が勝ちました！",
+    "lbRealtime": "合計スコアは即時更新します • {{date}}",
     "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
-    "lbLoading": "Adding up scores across every game…",
-    "lbMatches": "{{count}} matches played",
-    "lbTotalScore": "TOTAL SCORE",
-    "lbEmpty": "Nobody on the board yet. Be the first!",
-    "snakeStage5": "Hyper Grid",
-    "snakeCurrentMission": "CURRENT MISSION",
-    "chessMovesPlayed": "Game finished after {{count}} moves.",
-    "chessArena": "3D Chess Arena",
-    "chessVsBot": "Play the Hugo AI BOT",
-    "chessVsBotDesc": "You play White · a test against the algorithm",
-    "chessPassPlay": "Two players, one device (pass & play)",
+    "lbLoading": "すべてのゲームでのスコアの合計化...",
+    "lbMatches": "{{count}} マッチが行われています",
+    "lbTotalScore": "合計スコア",
+    "lbEmpty": "まだボードには誰もいません。最初の一人を勝ち取ろう！",
+    "snakeStage5": "ハイパーグrid",
+    "snakeCurrentMission": "現在のミッション",
+    "chessMovesPlayed": "{{count}} 回でゲームは終了します。",
+    "chessArena": "3Dチェスアレーナ",
+    "chessVsBot": "ホギAI BOT をプレイしてください",
+    "chessVsBotDesc": "あなたが白を選び、アルゴリズムと対戦してみましょう",
+    "chessPassPlay": "2人のプレイヤー、1つのデバイス (パス & プレイ)",
     "chessPassPlayDesc": "Put the device between you like a real board",
-    "chessBotLevelLabel": "AI BOT level:",
-    "chessHistory": "History:",
-    "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "chessBotLevelLabel": "AI BOTレベル：",
+    "chessHistory": "履歴：",
+    "exclusive": "Hugo Studio 独占",
+    "caroBoardLabel": "五目ならべ {{size}} × {{size}} · {{win}}目",
+    "openApp": "ひらく",
+    "getApp": "入手",
+    "gameCount": "{{count}} 本のゲーム"
   },
   "arcadeIntro": {
     "close": "アプリに戻る",
@@ -4283,8 +4292,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "学生、個人および小規模なショップ向けのウェブサイトコンサルティング | ホジスタイドック",
-      "description": "解決策を選択する前にホジにあなたが必要とするものを伝えましょう。学生、個人と小規模なショップに対する直接の1対1のコンサルティングで、仕事が始まる前にスケジュールとコストが決定されます。",
+      "title": "学生・個人・小さなお店のためのウェブサイト相談 | Hugo Studio",
+      "description": "方法を選ぶ前に、まず目的を聞かせてください。学生・個人・小さなお店向けの1対1相談。範囲と費用は着手前に決めます。",
       "keywords": "学生ウェブサイト、学生ポートフォリオ、個人用ウェブサイト、小規模ビジネスウェブサイト、ウェブサイトコンサルティング、ホジスタイドック"
     },
     "common": {
@@ -4293,7 +4302,7 @@
       "discussPlan": "このパッケージについて話し合いをしましょう",
       "discussProject": "あなたのプロジェクトについて話し合いをしましょう",
       "revealPrice": "See the investment range",
-      "priceHint": "A starting point. The final figure is agreed once the scope is clear.",
+      "priceHint": "プロジェクトのスケジュールが明確になったら、最終的な金額は合意されます。",
       "getQuote": "Tell me what you need",
       "quoteAfterChat": "Discuss first · quote second"
     },
@@ -4304,29 +4313,29 @@
       "between3": "A beautiful site that loads slowly is color on canvas at dusk — lovely, but no one sees it.",
       "between4": "From one page to a whole world. The first step is the only one you need to worry about.",
       "between5": "Only when the world can find you do you truly exist online.",
-      "climax": "And then, the website doesn't just talk — it thinks, it decides, it works for you.",
-      "closing": "Every number is a door. Which one will you open?"
+      "climax": "そして、ウェブサイトはただ話すだけでなく、考え、判断し、あなたのために働きます。",
+      "closing": "すべての数字はドアです。どの一つを開くか？"
     },
     "hero": {
-      "badge": "Direct 1-to-1 · Students come first",
-      "title1": "You do not need a package yet.",
-      "title2": "Start with what you need.",
-      "desc": "Tell me your goal, what is getting in the way, or what you want to create. I will help identify the right-sized approach — from student Bios and portfolios to websites for individuals and small shops.",
-      "viewPricing": "Choose your situation",
-      "contact": "Tell me what you need",
-      "swipe": "Swipe to continue",
-      "scroll": "Scroll to continue",
+      "badge": "1対1で直接 · 学生を最優先",
+      "title1": "まだプランを選ばなくて大丈夫。",
+      "title2": "必要なことから始めましょう。",
+      "desc": "目標、いま引っかかっていること、つくりたいものを聞かせてください。ちょうどよい規模のやり方を一緒に見つけます — 学生の Bio やポートフォリオから、個人や小さなお店のウェブサイトまで。",
+      "viewPricing": "あなたの状況を選ぶ",
+      "contact": "相談してみる",
+      "swipe": "スワイプして続行",
+      "scroll": "スクロールして続行",
       "trust": [
-        "Work directly with the designer and developer",
+        "デザイナーと開発者に直接働きかけ",
         "Scope, timeline and cost agreed up front",
         "Designed for mobile, speed and discoverability",
         "Dedicated benefits and support paths for students"
       ]
     },
     "outcomes": {
-      "eyebrow": "The first chapter",
-      "title": "What should your website change?",
-      "desc": "Choose the story that resembles your situation to see the related services.",
+      "eyebrow": "第一章",
+      "title": "サイトで何を変えたいですか。",
+      "desc": "ご自身の状況に近いストーリーを選ぶと、関連するサービスが表示されます。",
       "items": [
         {
           "title": "I want customers to understand and choose my brand",
@@ -4336,316 +4345,316 @@
         {
           "title": "My current site is losing visitors",
           "desc": "I review the interface, mobile experience, speed, SEO and the friction blocking customer action.",
-          "cta": "See ways to improve"
+          "cta": "改善方法を見る"
         },
         {
-          "title": "I want to tell my own story",
-          "desc": "Portfolio, Bio and learning-support options created for students.",
-          "cta": "See student options"
+          "title": "自分のストーリーを伝えたいです",
+          "desc": "学生向けに作成されたポートフォイメント、ビオと学習支援のオプションがあります。",
+          "cta": "学生のオプションを見る"
         }
       ]
     },
     "pricingPhilosophy": {
-      "title": "The story behind each price",
-      "desc": "I am a final-year Software Engineering student and stay with each project from the first conversation to handover. With no layers of account management, the budget goes toward the design, development and support you actually need.",
+      "title": "各価格のストーリー",
+      "desc": "私は最終年Software Engineeringの学生で、最初の会話から完了までプロジェクトに参加します。アカウント管理の層がなく、必要なデザイン、開発、サポートだけが予算を向けています。",
       "philosophy": "I take on one active project at a time so it receives focused attention. Scope, timing, cost and exclusions are discussed before work begins, so you always know where the project stands and what comes next."
     },
     "pricing": {
-      "eyebrow": "Common starting points",
-      "title": "Three ways to begin,",
-      "highlight": "not three rigid boxes",
-      "desc": "These are common scopes, not fixed packages. I first understand your needs, recommend what is enough, then confirm timing and cost."
+      "eyebrow": "一般的な出発点",
+      "title": "よくある三つの始め方",
+      "highlight": "これは三つではなく、柔軟な箱ではありません。",
+      "desc": "これは固定パッケージではなく、よくある作業範囲です。まずご要望を伺い、必要十分な内容をご提案してから、期間と費用を確定します。"
     },
     "journey": {
       "stone1": {
-        "badge": "✦ The First Stone",
-        "desc": "It starts when you notice — something needs fixing. I come in, find the exact spot, and heal it. That's the first time you feel your website touched by someone who loves it."
+        "badge": "✦ 初の石",
+        "desc": "何かが直さなければならないことに気づいたときに始めます。私はその場所を見つけ、あなたのお手伝いをするのです。これが初めてあなたのウェブサイトに愛を注ぐ人が触れた瞬間です。"
       },
       "stone2": {
-        "badge": "✦ The Stone That Lights Up",
-        "desc": "A beautiful site no one has seen? Now I turn the lights on. It gets fast, Google finds you, and customers feel the quality from the very first visit."
+        "badge": "✦ 燃える石",
+        "desc": "見られなかった美しいサイト？今、光を点ける。それが速く、Googleがあなたを見つけ、顧客は初めて訪問から品質を感じるようになるんだよ。"
       },
       "stone3": {
-        "badge": "✦ The Stone That Takes Shape",
-        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
+        "badge": "✦ 形づくる石",
+        "desc": "一つのページ。一つの物語。画面越しにあなたの顧客と目を合わせて、彼らは言う：'はい、私は探していた人だね。'"
       },
       "stone4": {
-        "badge": "✦ The Grand Stone",
-        "desc": "Your complete face to the world. Every page is a story, every link an opportunity. The website doesn't just talk — it *invites* people into your world."
+        "badge": "✦ 大きな石",
+        "desc": "世界全体のあなたへの完全な顔ぶれ。全てのページが物語であり、全てのリンクが機会である。ウェブサイトはただ話すだけでなく、人々をあなたの世界に招くんだよ。"
       },
       "stone5": {
-        "badge": "✦ The Pearl — Alive",
-        "desc": "The website doesn't just talk — it lives. It thinks, it decides, it works for you 24/7. That's when technology becomes your software, no longer just a tool."
+        "badge": "✦ 生きる珠",
+        "desc": "ウェブサイトはただ話すだけでなく、生きています。考え、判断、あなたを24/7サポートします。それがテクノロジーがあなたのソフトウェアになるときです、単なるツール以上のものではありません。"
       }
     },
     "plans": {
       "fix": {
-        "label": "Quick fix",
-        "name": "Fix an existing site",
-        "price": "From $6.99",
-        "note": "Each task quoted up front, pay when it's done — no hidden extras.",
+        "label": "すぐに解決",
+        "name": "既存のサイトを修正",
+        "price": " $6.99 から",
+        "note": "各タスクは先に提示され、完了時に支払いを行います。隠された追加料金はありません",
         "desc": "Site running but small bugs are costing you customers? I fix exactly what needs fixing — no big package required.",
         "includes": [
-          "A quote per task first — work starts only when you approve",
-          "Fixed and tested on both phone and desktop",
-          "Free 7-day warranty on the exact bug fixed",
+          "一つのタスクごとにクォートを取得 — 承認したら作業開始",
+          "両端でテストと修正済み",
+          "修正した特定のバグに対する7日間の無料保証",
           "All files and access handed back when done"
         ],
         "excludes": [
-          "Full redesign of the whole site (see the build packages)",
-          "Domain and hosting fees — I'll hook them up for free"
+          "サイト全体のフルリニューアル（ビルドパッケージをご覧ください）",
+          "ドメインとホスティング料金 — これらは無料で設定します"
         ],
-        "timeline": "Same day – next day",
-        "payment": "Pay when it is done"
+        "timeline": "即日 – 次日以内",
+        "payment": "完了したら支払い"
       },
       "seo": {
-        "label": "Optimize",
-        "name": "SEO & speed-up",
-        "price": "From $36.99",
-        "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
-        "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
+        "label": "最適化",
+        "name": "SEOと高速化",
+        "price": "から $36.99",
+        "note": "React/Next.jsサイトや、Googleで見つけづらいサイトに最適です。",
+        "desc": "Googleで見つからない美しいサイトは、店の看板がないようなもの。このパッケージはその問題を解決します。",
         "includes": [
-          "Speed tune-up: compressed images, cleaned code, caching and lazy-load on",
-          "On-page SEO: metadata, rich share previews, schema markup",
-          "Google Search Console setup, sitemap and robots.txt submitted",
-          "Optimization for your 5 key pages (or the whole site if it's small)",
-          "Before–after PageSpeed report with recommended next steps",
+          "高速化：圧縮された画像、コードのクリーンアップ、キャッシュと遅延ロード",
+          "ページレベルのSEO:メタデータ、豊富な共有プレビュー、スキ마マーケット",
+          "Google検索コンソール設定、サムバイトとロボットツリーの提出",
+          "あなたの5つのキーページ（またはサイトが小さい場合全体）への最適化",
+          "前後のページスピードレポートと推奨された次のステップ",
           "A walkthrough of what to optimize next if you want to keep going"
         ],
         "excludes": [
-          "SEO copywriting, backlinks, paid ads"
+          "SEOコピー作成、バックリンク、有料広告"
         ],
         "timeline": "5–7 days"
       },
       "landing": {
         "label": "開始",
-        "name": "One-page landing page",
+        "name": "1ページのランディングページ",
         "oldPrice": "$80.99",
         "price": "$60.99",
         "discount": "-25%",
         "note": "Custom design, no mass-market templates. Done in 5-7 days.",
         "desc": "One page, one goal: visitors finish reading and want to contact you.",
-        "tagline": "Easy to start",
+        "tagline": "始めやすい",
         "includes": [
-          "1 page custom-designed to your brand, up to 7 sections",
-          "2 revision rounds based on your feedback",
-          "Contact form, click-to-call, or direct Zalo/Messenger chat",
-          "Basic SEO: metadata, rich share previews, mobile-friendly",
-          "Deployed live with your domain hooked up",
-          "A 30-minute hands-on walkthrough over Zalo",
-          "Free bug support for 14 days after handover"
+          "1 ページをあなたのブランドにカスタマイズして設計されています。最大で7つのセクションがあります。",
+          "2 回のリビジョンに基づいてフィードバックから修正します。",
+          "お問い合わせフォーム、クリックして電話するか、直接Zalo/Messengerチャット",
+          "基本のSEO：メタデータ、豊富な共有プレビュー、モバイルフリーダウンロード",
+          "あなたのドメインをつないだライブデプロイ",
+          "30分の実践 walkthroughをZaloで",
+          "手渡し後14日間の無料バグサポート"
         ],
         "excludes": [
-          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
-          "Copy and images — you provide them, I polish and design",
-          "Booking or online payment systems → see the Website Pro package"
+          "ドメインとホスティング費用（約300-500k/年 — あなたが購入します、私は選択を助ける）",
+          "コピーと画像 — あなたが提供します、私はリファインしデザインします",
+          "予約やオンライン決済システム → ワークスヘッドのプロパッケージを見ます"
         ],
         "timeline": "5–7 days"
       },
       "website": {
-        "label": "Grow",
-        "name": "Multi-page website",
+        "label": "成長",
+        "name": "複数ページのウェブサイト",
         "oldPrice": "$202.99",
         "price": "$121.99",
         "discount": "-40%",
-        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
-        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
-        "tagline": "Most popular",
+        "note": "最終価格はページ数と機能により決まり、予算に合わせて段階的な支払いでカスタマイズされます。",
+        "desc": "あなたの小規模店舗、カフェや個人ブランドがフェイスブックのページよりも信頼性が高いオンラインプレゼンスです。",
+        "tagline": "いちばん人気",
         "includes": [
-          "4-6 finished pages: home, about, products/services, news (optional), contact",
-          "Cohesive design matched to your brand (logo placement, colors, fonts...)",
-          "3 revision rounds based on your feedback",
-          "Advanced SEO: Google Search Console, sitemap, schema markup",
-          "Zalo, Messenger, Google Maps + advanced contact forms",
-          "1 month of free maintenance (4 small tweaks included)",
-          "A 30-minute training session + 14 days of post-handover support"
+          "4-6完了ページ：ホーム、 About、商品/サービス、ニュース（オプション）、連絡先",
+          "あなたのブランドにマッチした統一されたデザイン（ロゴ配置、色、フォント...）",
+          "あなたのフィードバックに基づく3回のリビジョンサイクル",
+          "高度なSEO：Google検索コンソール、サitemap、スキーママークアップ",
+          "Zalo、Messenger、Googleマップと高度な連絡先フォーム",
+          "1か月間の無料メンテナンス（4つの小さな修正が含まれています）",
+          "30分のトレーニングセッション + 手動移行後のサポート14日間"
         ],
         "excludes": [
-          "Yearly domain & hosting fees (~300-800k, sourced externally)",
-          "Blog copywriting and product photography — you provide those",
-          "Booking management, online payments → Web System (the advanced package)"
+          "年間ドメインとホスティング費用（約300-800千円、外部で調達）",
+          "ブログコピー作成と製品写真——あなたがそれを持っています",
+          "予約管理、オンライン支払い → ウェブシステム（高度なパッケージ）"
         ],
-        "timeline": "2–3 weeks",
-        "payment": "Paid in stages"
+        "timeline": "2週間から3週間",
+        "payment": "段階的に支払います"
       },
       "system": {
         "label": "システム",
-        "name": "Dynamic web app",
+        "name": "動的ウェブアプリ",
         "price": "From $283.99",
-        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
-        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
-        "tagline": "Long-term asset",
+        "note": "プロジェクトの支払い、ダッシュボードや複数の役割が含まれる場合、通常12万から20百万円",
+        "desc": "ブロ셔ー以上のウェブサイト——あなたのための資産：注文、予約と顧客管理。",
+        "tagline": "長く効く資産",
         "includes": [
-          "1 core flow of your choice: bookings OR basic orders",
-          "Admin dashboard: orders, customers, key numbers",
-          "Login with 2 permission levels: owner and staff",
-          "1 data connection: Google Sheet or Zalo",
-          "Full source code handover — the site is your asset",
-          "1 month of technical support after handover"
+          "1つの基本フロー（予約または基本注文）を選択：",
+          "管理者ダッシュボード：注文、顧客、重要な数値",
+          "2つの権限レベルでログイン：所有者とスタッフ",
+          "1つのデータ接続：GoogleスプレッドシートやZalo",
+          "フルソースコードの手渡し——サイトはあなたの資産です",
+          "手渡し後1ヶ月間の技術サポート"
         ],
         "excludes": [
-          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
-          "VIP membership, points & loyalty programs → separate add-on",
-          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
+          "オンライン決済ゲートウェイ（PayOS、Momo、Stripe）→別追加オプション、約1-3M",
+          "VIP メンバー権利、ポイント & 忠誠度プログラム → 分離オプション",
+          "月間ドメイン & VPS コスト (~300k-1M/月、外部から取得)"
         ]
       }
     },
     "studentPlans": {
-      "orderCta": "Contact to order",
-      "detailsCta": "See verification terms & student plan details",
-      "capLabel": "Scope limits",
-      "compareLabel": "Vs. standard pricing",
+      "orderCta": "お問い合わせで注文をお願いします",
+      "detailsCta": "確認条件と学生プランの詳細を参照してください",
+      "capLabel": "スコープ制限",
+      "compareLabel": "標準価格に比べて",
       "groupCoursework": {
-        "title": "Help with end-of-term coursework",
-        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+        "title": "期末の課題をサポートします",
+        "desc": "この作業は評価されるため、すべてのプランにはコードの説明が付属し、ただしあなた自身で作品を正当化できることが条件です。"
       },
       "groupProfile": {
-        "title": "Personal profile — nothing to do with grades",
+        "title": "個人プロフィール — 成績と関係ありません",
         "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
       },
       "bug": {
         "label": "STUDENT",
-        "name": "Diagnose & Fix",
+        "name": "診断と修正",
         "price": "120.000đ",
         "unit": "/bug",
-        "tagline": "Stuck near the deadline",
-        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
-        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
+        "tagline": "期限ギリギリ",
+        "note": "契約したバグごとに価格設定。私は壊れた部分だけを触る——それ以外はあなたのコードを維持します。",
+        "desc": "破損したロジック、開けられないデータベース接続、またはcollapsedレイアウト。原因を見つけて修正し、なぜ壊れたのか説明します。",
         "includes": [
-          "Find and fix the exact bug agreed before we start",
+          "私たちが始める前に約定した具体的なバグを見つけ、修正します",
           "Written notes on the root cause so you can answer when asked",
-          "A Git link to clone the fixed code from",
-          "3-day warranty on the bug that was fixed"
+          "修正コードをクローンするためのGitリンクがあります。",
+          "修正されたバグに対する3日間の保証があります。"
         ],
         "cap": [
-          "Up to 2 bugs per order",
-          "Repairs only — no new features written"
+          "最大2つのバグが含まれる注文ごとに適用されます。",
+          "修理のみ — 新しい機能は書かれていません。"
         ]
       },
       "html": {
         "label": "HTML/CSS/JS",
-        "name": "Static Web Coursework",
-        "price": "490.000đ",
-        "tagline": "Responsive front end",
-        "note": "Split between 2 students: ~245.000đ each.",
+        "name": "静的ウェブコースワーク",
+        "price": "490.000の原因を記載したメモで、質問されたときに答えられるようにします。",
+        "tagline": "レスポンシブフロントエンド",
+        "note": "2人の学生に分割されます：約245.000です。",
         "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
         "includes": [
           "Your own Git link to clone the whole source from",
-          "Responsive interface that holds up on phones",
-          "DOM animation and basic JavaScript behaviour",
-          "Documentation: folder structure, what each file does, how to run it",
-          "Commented code plus free deploy instructions"
+          "スマートフォンでも見やすいレスポンシブインターフェイス",
+          "DOMアニメーションと基本的なJavaScriptの動作",
+          "ドキュメンテーション: フォルダ構造、各ファイルの役割、どのように実行するか",
+          "コメント付きコードと無料デプロイの手順"
         ],
         "cap": [
-          "One course, up to 4 static pages",
-          "No backend, no database",
-          "No capstone or graduation projects"
+          "1コースで最大4つの静的ページ",
+          "バックエンドなし、データベースなし",
+          "キャップストーンや卒業プロジェクトなし"
         ],
-        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
+        "compare": "One-Pages ワークスヘッダーのプラン (1.490.000đ)."
       },
       "php": {
         "label": "PHP/SQL",
-        "name": "Dynamic Web Coursework",
+        "name": "動的ウェブコースワーク",
         "price": "990.000đ",
-        "tagline": "CRUD & permissions",
-        "note": "Split between 3 students: ~330.000đ each.",
-        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
+        "tagline": "CRUD と権限",
+        "note": "3人の学生に分かれて：約 330.000đ 毎。",
+        "desc": "期末の動的ウェブ作業： CRUD データ処理、登録と基本的なロールベースのログイン。",
         "includes": [
           "Your own Git link to clone the whole source from",
-          "Data handling in PHP with a MySQL database",
-          "Registration, login and basic role permissions",
-          "SQL dump and seed data included so it runs on first try",
-          "Documentation: XAMPP setup, database import, the flow behind each feature"
+          "PHPでデータを処理する MySQL データベース",
+          "登録、ログインと基本的なロール権限",
+          "SQL ダンプとシードデータが含まれているため、最初から動作します。",
+          "ドキュメンテーション：XAMPPのセットアップ、データベースのインポート、各機能の後ろに隠れた流れ"
         ],
         "cap": [
-          "One course, up to 6 database tables",
-          "Up to 2 CRUD feature groups plus login",
-          "No capstone or graduation projects"
+          "一つのコース、最大で6つのデータベーステーブル",
+          "最大で2つのCRUD機能グループとログイン",
+          "キャップストーンや卒業プロジェクトなし"
         ],
-        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
+        "compare": "One-Page Websiteプランより30%安 (1.490.000đ)."
       },
       "react": {
         "label": "REACT/NODE",
-        "name": "Advanced Web Coursework",
+        "name": "高度なウェブ coursework",
         "price": "1.690.000đ",
         "tagline": "SPA + REST API",
-        "note": "Split between 4 students: ~425.000đ each.",
-        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
+        "note": "4人の学生に分かれる：約425.000đ一人ずつ。",
+        "desc": "期末の高度なウェブ作業：React SPAとNode/Express REST API、MongoDBやPostgreSQLでバックエンドをサポートします。",
         "includes": [
           "Your own Git link to clone the whole source from",
-          "React SPA architecture with a Node.js/Express REST API",
-          "Authentication plus up to 3 CRUD feature groups",
-          "Seed data included so it runs on first try",
-          "Documentation: environment setup, env vars, a data-flow map for every API"
+          "React SPA アーキテクチャとNode.js/Express REST API",
+          "認証機能と最大3つのCRUD機能グループ",
+          "シードデータが含まれているため、初めて起動時に動作します",
+          "ドキュメンテーション：環境セットアップ、env変数、各APIのデータフロー図"
         ],
         "cap": [
-          "One course, up to 3 CRUD feature groups plus login",
-          "One REST API and one database",
-          "No capstone or graduation projects"
+          "1コース、最大3つのCRUD機能グループとログイン",
+          "1つのREST APIと1つのデータベース",
+          "キャップストーンや卒業プロジェクトなし"
         ],
-        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
+        "compare": "Multi-Page ワークサイトプランよりも43%安 (2.990.000đ)."
       },
       "exclusiveBio": {
         "label": "STUDENT",
-        "name": "Custom-Designed Bio",
+        "name": "カスタマイズされたバイオ",
         "price": "99.000đ",
         "tagline": "An upgrade on the free one",
-        "note": "The free version you build yourself in the editor. This one I design around your story.",
-        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
+        "note": "無料バージョンは、エディタで作成します。このバージョンはあなたのストーリを設計しています。",
+        "desc": "あなただけのためにレイアウトとカラーパレットが描かれた個人用のランディングページです。キャリアカウンター、奨学金申請やソーシャルプロフィールに最適です。",
         "includes": [
-          "Layout and colour palette designed for you alone",
-          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
-          "An about-you section: summary, interests, selected skills",
-          "Looks right on both desktop and mobile"
+          "あなただけのためにデザインされたレイアウトと色のパレット",
+          "最大5つのリンク（GitHub、LinkedIn、ポートフォリオ、ソーシャルネットワーク...）",
+          "自己紹介セクション：概要、興味、選択スキル",
+          "デスクトップやモバイルで見やすく表示されます"
         ],
         "cap": [
-          "One page, up to 5 links",
-          "2 rounds of revisions after handover"
+          "1ページに最大5つのリンク",
+          "受け取り後2回のリvisions"
         ]
       },
       "bento": {
         "label": "STUDENT",
-        "name": "Bento CV / Portfolio",
-        "price": "799.000đ",
-        "tagline": "Built for jobs & scholarships",
+        "name": "コンビーナイフカレル/ポートフォリオ",
+        "price": "799.000じ",
+        "tagline": "ジョブズキョウシーケン",
         "note": "A personal profile, not an assignment — it touches none of your grades.",
-        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
+        "desc": "アカデミック結果、個々のプロジェクトの強みとあなたのリンクが、30秒以内に読みやすくビンゴグリッドでレイアウトされています。",
         "includes": [
-          "A one-page portfolio in a Bento Grid layout",
-          "GitHub, socials and contact details wired in",
+          "ビンゴグリッドレイアウトの1ページポートフォリオ",
+          "GitHub、ソーシャルメディアと連絡先情報が組み込まれています。",
           "Contact form feeding straight into a free Google Sheet",
-          "Deployed to free lifetime hosting (Vercel/Netlify)"
+          "無料の永続的なホスティング（Vercel/Netlify）でデプロイされています"
         ],
         "cap": [
-          "Up to 7 content blocks",
-          "2 rounds of revisions after handover"
+          "最大7つのコンテンツブロックがあります",
+          "受け取り後2回のリvisions"
         ]
       }
     },
     "demo": {
-      "eyebrow": "See for yourself",
-      "title": "Try out",
-      "highlight": "real design demos",
-      "desc": "Three focused examples for personal profiles, small shops and creative services. Open them only when you want a closer look.",
-      "openCta": "Open 3 relevant demos",
-      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
-      "cta": "Build something like this",
+      "eyebrow": "ご確認ください",
+      "title": "試してみてください",
+      "highlight": "実際のデザインデモをチェックしてください",
+      "desc": "個人向け、小規模なショップ、Creative Services用に焦点を当てた3つの例があります。必要な場合のみ開きます。",
+      "openCta": "3つの関連したデモを開く",
+      "hint": "これらのどれに興味があるか？その名前とメッセージを送ってください。私はあなたのブランドにカスタマイズします。",
+      "cta": "何か似ているものを作成してください",
       "loading": "Loading demo...",
       "templates": {
         "photography": {
-          "title": "Photography Studio",
-          "short": "Photo",
-          "subtitle": "Photographer"
+          "title": "写真スタジオ",
+          "short": "写真",
+          "subtitle": "フォトグラファー"
         },
         "cafe": {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "カフェ＆ビストロ",
+          "short": "カフェ",
+          "subtitle": "レストラン"
         },
         "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
+          "title": "金・ジュエリー店",
+          "short": "ジュエリ",
+          "subtitle": "ジュエラー"
         },
         "portfolio": {
           "title": "Personal Portfolio",
@@ -4654,718 +4663,793 @@
         },
         "ecommerce": {
           "title": "Online Store",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "short": "e-Commerce",
+          "subtitle": "多業種向け"
         },
         "dashboard": {
-          "title": "Admin Panel",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
+          "title": "管理者パネル",
+          "short": "ダッシュボード",
+          "subtitle": "ダッシュボード"
         }
       }
     },
     "care": {
-      "eyebrow": "Already have a website?",
-      "title": "No rebuild needed —",
-      "highlight": "fix just what's broken",
-      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
+      "eyebrow": "既にウェブサイトがありますか？",
+      "title": "再構築は不要 —",
+      "highlight": "壊れている部分だけ直すだけで済みます",
+      "desc": "あなたのサイトが一部の修正や速度向上のみ必要なら、フルパッケージを購入するよりも安くなります。"
     },
     "micro": {
-      "eyebrow": "Having trouble with an existing site?",
+      "eyebrow": "現在使用中のサイトで問題がある場合",
       "title": "Fix only what is needed,",
-      "highlight": "without forcing a rebuild",
-      "desc": "Send the site link or a screenshot of the issue. I will review the current state, explain what can be fixed and quote only after we agree on the same scope.",
-      "costLabel": "Cost:",
-      "cta": "Contact",
-      "customTitle": "Got a unique idea or custom request?",
-      "customDesc": "Send me the current state and the result you want. If it is a good fit, I will propose the approach, scope and timeline before quoting.",
-      "customCta": "Let's chat about it!"
+      "highlight": "問題が解決したら、サイトリンクやスクリーンショットをお送りください。",
+      "desc": "料金：",
+      "costLabel": "お問い合わせ：",
+      "cta": "ユニークなアイデアやカスタムリクエストがありますか？",
+      "customTitle": "現在の状態と望む結果を私に送ってください。",
+      "customDesc": "フィードバックを共有し、提案します。",
+      "customCta": "詳細についてはお話ししましょう！"
     },
     "app": {
-      "badge": "Full web system",
-      "title1": "A website that",
+      "badge": "フルウェブシステム",
+      "title1": "ウェブサイトは",
       "title2": "works for you.",
       "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
       "extendTitle": "Extensions when you need them — quoted separately",
-      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+      "extendDesc": "オンライン決済、複数の役割、カスタムAPI。このようなプロジェクトは通常1億2千万から2億円で実行されます。開始前に仕事が始まる前に書面でスケジュールが確認されます。"
     },
     "student": {
-      "badge": "Hugo Studio's priority",
-      "title1": "Students always have",
-      "title2": "a free place to begin.",
-      "desc": "Once verified, you can use a standard Bio and the core learning tools for free. Bespoke design, an advanced portfolio or technical help beyond those benefits is discussed clearly before any work begins.",
-      "cta": "See free benefits",
+      "badge": "ホグスタジオの優先順位",
+      "title1": "学生は常に始めるための無料の場があります。",
+      "title2": "一旦確認が完了すると、標準的なBioと基本的な学習ツールを使用できます。",
+      "desc": "カスタマイズされたデザイン、専門的なポートフォリオや技術的な助けなど、これらの利益を超えたものは、実際の作業が始まる前に明確に説明されます。",
+      "cta": "無料の恩恵を見る",
       "customEyebrow": "When you want to go further",
-      "customTitle": "Personal support while you still learn and own your work",
-      "customDesc": "You do not need to choose a package or guess the cost first. Send your goal, deadline and where you are stuck; I will clarify what is free, what needs custom work and the most responsible path forward.",
-      "customCta": "Tell me about your goal",
+      "customTitle": "学びとあなたの作品を所有する間、個別サポートをお受けください。",
+      "customDesc": "あなたはパッケージを選ぶ必要も、料金を予想する前に送信してください。目標、期限、どこで詰まっているかを教えてください。私は無料であるもの、カスタマイズが必要なもの、そして最も責任ある道の進むべき方向性を説明します。",
+      "customCta": "あなたの目標についてお話ししましょう。",
       "customItems": [
         {
-          "title": "Bespoke Bio & portfolio",
-          "desc": "For internships, scholarships or personal branding that needs a distinct story and layout."
+          "title": " bespoke ボディ & ポートフォリオ",
+          "desc": "インターンシップ、 scholarships または個人ブランディングが異なるストーリとレイアウトが必要な場合。"
         },
         {
-          "title": "Guided debugging",
-          "desc": "We find the cause, fix the agreed area and explain the solution so you understand it."
+          "title": "ガイド付きのデバッグ",
+          "desc": "原因を見つけて、合意したエリアを直し、あなたが理解できるように説明します。"
         },
         {
-          "title": "Web project direction",
-          "desc": "Review requirements, architecture and setup so you can responsibly complete your own learning project."
+          "title": "Web プロジェクト方向",
+          "desc": "あなたの自身の学習プロジェクトを責任感を持って完了するための要件、アーキテクチャとセットアップをレビューしてください。"
         }
       ],
       "items": [
         {
-          "title": "Personal Bio",
-          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+          "title": "個人のプロフィール",
+          "desc": "自己紹介ページでソーシャル、学習、ミニポートフォリオリンクを含めます。"
         },
         {
-          "title": "Study tools",
-          "desc": "Notes, Q&A, resources and utilities for self-study."
+          "title": "学習ツール",
+          "desc": "自習用ノート、Q&A、リソースおよびユーティリティ。"
         },
         {
-          "title": "Personal support bot",
-          "desc": "Quick answers, study tips, reminders and everyday help."
+          "title": "個人サポートボット",
+          "desc": "速答、学習ヒント、メモリと日常の助け。"
         },
         {
-          "title": "Q&A community",
-          "desc": "A space to ask about homework and projects, and get direction within support scope."
+          "title": "Q&Aコミュニティ",
+          "desc": "ホワイトボードやプロジェクトについて質問し、サポート範囲内で方向を示します。"
         }
       ]
     },
     "process": {
-      "eyebrow": "Process",
-      "title": "Clear steps,",
-      "highlight": "start to finish",
-      "desc": "You always know the current step, what is in scope and what happens next.",
+      "eyebrow": "プロセス",
+      "title": "ステップを始から終わりまで、",
+      "highlight": "常に現在のステップ、取り組むべき内容と次の手順がわかります。",
+      "desc": "あなたのニーズや現在のサイト/アイデアを送信してください。",
       "steps": [
-        "You send your needs, current site or idea.",
-        "I advise on the approach and give a clear quote first.",
-        "We lock scope and timeline, then work in milestones.",
-        "Handover with guidance, plus support for small tweaks."
+        "まずアドバイスを提供し、明確な見積もりをお渡しします。",
+        "スコープとタイムラインを固定し、 milestonesで進めていきます。",
+        "手順を案内しながら、小さな修正にも対応します。",
+        "すぐに質問がありますか？"
       ]
     },
     "faq": {
       "eyebrow": "FAQ",
-      "title": "Quick questions,",
-      "highlight": "honest answers",
+      "title": "率直にお答えします。",
+      "highlight": "お問い合わせください",
       "desc": "Common questions before starting a web project with Hugo Studio.",
       "items": [
         {
-          "q": "What should I prepare before getting in touch?",
-          "a": "Send your goal, your current website if you have one, your preferred timing and one or two references you like. It is fine if the details are still unclear — the first conversation is for shaping the need together."
+          "q": "ウェブプロジェクトを開始する前に何が必要ですか？",
+          "a": "あなたの目標、現在使用しているウェブサイト（ある場合）、希望する期限と好きな2つのリファレンスをお送りください。詳細がまだ曖昧なのは問題ありません——最初の会話では、要件を一緒に形作ることです。"
         },
         {
-          "q": "How is the cost determined?",
-          "a": "I look at scope, content, features, timing and the support required. Once the need is clear, I send a written proposal and quote; work starts only after both sides agree."
+          "q": "料金はどのように決定されますか？",
+          "a": "私はスコープ、コンテンツ、機能、期限、必要なサポートを見ています。要件が明確になったら、書面での提案と見積もりをお送りします；両方の側から同意を得た後で始まります。"
         },
         {
-          "q": "How do free student benefits differ from custom support?",
+          "q": "無料学生割引はカスタムサポートとはどのように異なりますか？",
           "a": "The standard Bio and core tools are free for verified students under the published conditions. Exclusive design, an advanced portfolio or requested technical support is separate and always discussed before work begins."
         },
         {
           "q": "Can you build it if I don't have a design yet?",
-          "a": "Yes. Describe who will use the page and what you want them to do next. I will propose the structure, content to prepare and a fitting visual direction."
+          "a": "はい。ページを誰が使うのか、そして彼らが次のステップを取るべきかを説明してください。私は構造、コンテンツを準備するための提案と適切な視覚方向を提示します。"
         },
         {
           "q": "Is there support after handover?",
-          "a": "Yes. Each project clearly states the warranty and support period. I provide a walkthrough, fix issues within the agreed scope and tell you before any new item becomes separate work."
+          "a": "はい。各プロジェクトで保証期間とサポート期間が明確に記載されています。私は約定された範囲内で walkthroughを行い、問題を修正し、新しいアイテムが別々の作業になる前にあなたに知らせる責任があります。"
         }
       ]
     },
     "finalCta": {
-      "title1": "Every project starts with",
-      "title2": "one clear conversation.",
-      "desc": "You do not need to know a package name or prepare a perfect brief. Share your current site, a screenshot or a few lines about the goal, and I will help identify the right next step.",
-      "cta": "Tell me what you need"
+      "title1": "どのプロジェクトも始まりは",
+      "title2": "一度の率直な対話です。",
+      "desc": "プラン名を知っている必要も、完璧な要件書を用意する必要もありません。いまのサイト、スクリーンショット、目的を数行 — それだけで次の一手を一緒に決められます。",
+      "cta": "相談してみる"
     },
     "promo": {
-      "title": "Free Aesthetic Bio Page for Students!",
-      "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
-      "cta": "Verify Me!"
+      "title": "学生向け美術的な自己紹介ページ無料！",
+      "desc": "__.edu__メールをお持ちですか？無料で広告なしの個々の自己紹介ページを宣言することができます！",
+      "cta": "確認してください！"
     },
     "tabs": {
-      "commercial": "Business / Personal",
-      "student": "For Students",
-      "micro": "Quick Fixes"
+      "commercial": "ビジネス/個人",
+      "student": "学生向け",
+      "micro": "素早い修正"
     },
     "microJobs": {
       "bug-ui": {
-        "name": "Squish Interface Bugs",
-        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
-        "price": "From $6.99",
-        "time": "Done today!"
+        "name": "インターフェースバグの修正",
+        "desc": "壊れたボタン、配置が間違った画像、フォントサイズのミス、またはテキスト要素が重なっている問題を直します。",
+        "price": " $6.99 から",
+        "time": "今日で完了！"
       },
       "style-content": {
-        "name": "Colors & Copy Polish",
-        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
-        "price": "From $8.99",
-        "time": "Done today!"
+        "name": "カラーポリッシュ&amp;コピー修正",
+        "desc": "ブランドカラーの変更、 typography の交換、 アバター画像の更新、またはテキストセクションの書き換えを実施します。",
+        "price": "8.99から",
+        "time": "今日で完了！"
       },
       "mobile-beauty": {
-        "name": "Mobile Glow-up",
-        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
-        "price": "From $10.99",
-        "time": "Done today!"
+        "name": "モバイルグロウアップ",
+        "desc": "モバイル画面用に間隔を調整し、レスポンシブなフォントとコールトゥアクションのタッチゾーンを最適化します。",
+        "price": "10.99から",
+        "time": "今日で完了！"
       },
       "web-widget": {
-        "name": "Sweet Widgets",
-        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
-        "price": "From $6.99",
-        "time": "Done today!"
+        "name": "スウィートウィジェット",
+        "desc": "カワイイ Zalo/Messenger フローティングチャット、問い合わせフォーム、Google 地図、またはクリックで通話可能なホットラインを統合します。",
+        "price": " $6.99 から",
+        "time": "今日で完了！"
       },
       "deploy-domain": {
-        "name": "Web Launch",
-        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
-        "price": "From $10.99",
-        "time": "Done today!"
+        "name": "ウェブローンチ",
+        "desc": "Vercel/Netlify/VPSへのサイトデプロイ、カスタムドメインの接続と無料SSL証明書によるセキュリティを設定してください。",
+        "price": "10.99から",
+        "time": "今日で完了！"
       },
       "seo-quick": {
-        "name": "Quick SEO Boost",
-        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
-        "price": "From $8.99",
-        "time": "Done today!"
+        "name": "Quick SEO強化",
+        "desc": "正しくなめたメタタグ（タイトル/説明）をセットし、Facebook/Zalo共有用の美しくてプレビューリンクを構成します。",
+        "price": "8.99から",
+        "time": "今日で完了！"
       },
       "speed-optimize": {
-        "name": "Speed Boost",
-        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
+        "name": "スピードアップ",
+        "desc": "重い画像の無損失圧縮、冗長なJS/CSSファイルのクリーンアップを行い、PageSpeedスコアを上げます。",
         "price": "From $12.99",
-        "time": "Done today!"
+        "time": "今日で完了！"
       },
       "monthly-maintenance": {
-        "name": "Monthly Cozy Care",
-        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
-        "price": "From $12.99/mo",
-        "time": "Ongoing care"
+        "name": "月間くつろぎケア",
+        "desc": "定期的なバックアップ、セキュリティチェック、すぐに解決するバグの修正と軽いコンテンツの変更が毎月行われます。",
+        "price": "From 12.99/mo",
+        "time": "継続ケア"
       }
     },
-    "disclaimer": "Each option below is a starting direction. Scope, timing and cost are confirmed only after we discuss the real need.",
+    "disclaimer": "下記の各オプションは、実際のニーズに基づいてスコープ、タイミングとコストが確認される前に開始方向となります。",
     "section": {
-      "newBuildsTitle": "New Designs & Custom Builds",
-      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
-      "optimizeTitle": "SEO, Speed & Bug Squishing",
-      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
-      "upkeep": "If you need upkeep after the included support period, I will propose it separately based on the real update frequency — always optional."
+      "newBuildsTitle": "新デザイン・カスタムビルディング",
+      "newBuildsDesc": "ブランド、クリエイター、ビジネス向けに、完全から新しいウェブサイトを建設するためのオプションです。",
+      "optimizeTitle": "SEO、スピードとバグ解決",
+      "optimizeDesc": "既存のウェブサイトがGoogleランキングが良い、速いロードタイム、または技術的なバグが修正された場合に必要となるものです。",
+      "upkeep": "サポート期間中のアップデート頻度に基づいて提案しますので、常に選択可能です。"
     },
     "devices": {
-      "desktop": "Desktop",
-      "tablet": "Tablet",
-      "mobile": "Mobile"
+      "desktop": "デスクトップ",
+      "tablet": "タブレット",
+      "mobile": "モバイル"
     },
     "proof": {
-      "eyebrow": "Delivered work",
-      "title": "What a multi-page website looks like in production",
-      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
-      "clientLabel": "Client",
-      "fieldLabel": "Industry",
-      "scopeLabel": "Scope",
-      "buildLabel": "Build",
-      "planLabel": "Package",
-      "clientName": "Mình Ơi Media",
-      "clientField": "Wedding photojournalism",
-      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
-      "clientBuild": "Custom design — no CMS, no template",
-      "clientPlan": "Multi-page website with a needs-based scope",
-      "cta": "Open the client site"
+      "eyebrow": "納品された仕事",
+      "title": "生産環境でのマルチページウェブサイトの見せ方",
+      "desc": "実際のクライアント、ライブウェブサイト。自分で開いてみてください — サンプルスクリーンショットに頼らずに。",
+      "clientLabel": "クライアント",
+      "fieldLabel": "業界",
+      "scopeLabel": "スコープ",
+      "buildLabel": "構築",
+      "planLabel": "パッケージ",
+      "clientName": "ミニャー メディア",
+      "clientField": "ウェディング フォトジャーナリズム",
+      "clientScope": "マルチページ サイト: 料金、フォトグラフィー、ビデオグラフィー、FAQ、問い合わせ",
+      "clientBuild": "カスタマイズされたデザイン — CMSなし、テンプレートなし",
+      "clientPlan": "ニーズに基づいたスケジュールでマルチページウェブサイト",
+      "cta": "クライアント ファースト サイトを開く"
+    },
+    "demoLibrary": {
+      "description": "テンプレートを選んでから、携帯電話、タブレットまたはデスクトップでプレビューしてください。",
+      "live": "インタラクティブなデモを見る",
+      "open": "詳細を確認する",
+      "selected": "Viewing",
+      "previewTitle": "テンプレートルーム",
+      "close": "プリ뷰を閉じる",
+      "previewHint": "テンプレートを選んで、デバイスを変更して私たちが話す前にウェブサイトのイメージを想像してください。",
+      "included": "含まれることができます",
+      "liveNotice": "このフレーム内で直接スクロールとインタラクションできます。",
+      "fits": "最適な選択肢",
+      "details": {
+        "portfolio": {
+          "fit": "学生、フリーランサーおよび独立したクリエイター向け",
+          "features": [
+            "プロフィール",
+            "プロジェクト",
+            "ユニークなアイデアやカスタムリクエストがありますか？"
+          ]
+        },
+        "cafe": {
+          "fit": "カフェ、ビストロと小さなベーカリー",
+          "features": [
+            "メニュー",
+            "予約",
+            "マップ"
+          ]
+        },
+        "photography": {
+          "fit": "フォトグラファー、スタジオとウェディングサービス",
+          "features": [
+            "ギャラリー",
+            "サービス",
+            "予約"
+          ]
+        },
+        "ecommerce": {
+          "fit": "ファッション、ビューティーとハンドメイドショップ",
+          "features": [
+            "製品",
+            "フィルター",
+            "カート"
+          ]
+        },
+        "jewelry": {
+          "fit": "ジュエリーサプライヤーとプレミアムアクセサリーブランド",
+          "features": [
+            "コレクション",
+            "参考価格",
+            "相談"
+          ]
+        },
+        "dashboard": {
+          "fit": "チームが注文とビジネスデータを管理します。",
+          "features": [
+            "概観",
+            "レポート",
+            "役割"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
     "header": {
-      "badge": "Customer Support",
-      "title1": "Answering",
-      "title2": "your questions",
+      "badge": "顧客サポート",
+      "title1": "お答えします",
+      "title2": "あなたの質問",
       "desc": "Have questions about Hugo Studio? Below are the most frequently asked questions. If you still can't find an answer, don't hesitate to contact us directly!"
     },
     "faqs": [
       {
-        "question": "Does Hugo Studio have fixed working hours?",
-        "answer": "I work directly 1-1, so there are no rigid working hours. Feel free to message me anytime, and I will get back to you as soon as possible!"
+        "question": "Hugo Studioには固定の作業時間がありますか？",
+        "answer": "私は直接1対1で働いているため、rigidな作業時間がありません。いつでもメッセージしてください。すぐに返信いたします！"
       },
       {
-        "question": "How many members are in the Hugo Studio team?",
-        "answer": "I am Hugo, a final-year Software Engineering student and the primary developer. I collaborate with Jason Phan (co-development partner) on technical discussions and optimizing the full-stack experience."
+        "question": "Hugo Studioには何人のメンバーがいますか？",
+        "answer": "私はHugoです。Software Engineeringの最終年生で、技術的な議論とフルスタック体験の最適化にJason Phan（共同開発パートナー）と一緒に協力しています。"
       },
       {
-        "question": "Is there any promotional or trial policy at Hugo Studio?",
+        "question": "Hugo Studioにはプロモーションやトライアル政策がありますか？",
         "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
-        "actionText": "Claim the Student Offer"
+        "actionText": "学生特典をご利用ください。"
       },
       {
-        "question": "How is the design cost at Hugo Studio?",
-        "answer": "Since I work directly 1-1, the pricing is highly affordable and tailored to students or small businesses. To maintain quality, I only accept 1 project at a time in a queue."
+        "question": "ホグースタイルのデザイン料金は?",
+        "answer": "私は直接1対1で仕事を行っているため、価格は非常にリーズナブルで、学生さんや小規模企業向けにカスタマイズされています。品質を維持するため、一度に一プロジェクトずつクイックランキッシュに受け付けます。"
       },
       {
-        "question": "Does Hugo Studio work on holidays?",
-        "answer": "When there is a long holiday, I will post an update directly on the homepage. (Secret: Sometimes I take a short trip to recharge 🏖️)"
+        "question": "ホグースタイルは休日でも稼働しますか?",
+        "answer": "長期の休暇があるときには、トップページで直接更新を行います。（秘密：時々リフレッシュのために短い旅行を取る 🏖️）"
       }
     ],
     "contact": {
-      "title": "Still have questions?",
-      "desc": "Don't worry! Send a direct message to the Hugo Studio team for a detailed 1:1 answer.",
-      "chatBtn": "Message",
-      "emailBtn": "Email the team"
+      "title": "まだ質問がありますか?",
+      "desc": "安心してください！直接ハugo スタイルチームにメッセージを送って、詳細な1対1の回答をお求めください。",
+      "chatBtn": "メッセージ",
+      "emailBtn": "チームにメールを送信"
+    },
+    "meta": {
+      "title": "Frequently Asked Questions About Hugo Studio",
+      "description": "ウェブサイトデザインサービス、学生のビオページ、ウェブサイトのコスト、ホグスタジオがプロジェクトごとにどのように機能するかについての質問。",
+      "keywords": "ホグスタジオに関する質問、ウェブサイトデザインサービス"
     }
   },
   "bookingPage": {
     "meta": {
-      "title": "Discuss a Website Project | Hugo Studio",
-      "description": "Outline your requirements through a concise, guided form. Hugo will respond to clarify scope, timing and an appropriate investment before any work begins.",
-      "keywords": "website project enquiry, website consultation, personal portfolio, small business website, Hugo Studio"
+      "title": "ウェブサイトプロジェクト | ハゴースタイル",
+      "description": "コンパクトでガイドされたフォームを通じて要件を説明します。ハゴーはスコープ、タイムラインと適切な投資について詳細を説明し、実際の作業が開始される前に答えます。",
+      "keywords": "ウェブサイトプロジェクトの問い合わせ、ウェブコンサルティング、個人ポートフォリオ、小規模ビジネスウェブサイト、ハゴースタイル"
     },
     "toast": {
-      "success": "Your enquiry has been received. I shall respond within one business day.",
-      "error": "Your enquiry could not be sent. Please check your connection and try again.",
-      "networkError": "Connection error. Please check your internet and try again.",
+      "success": "お問い合わせは受付されました。1営業日以内に返答します。",
+      "error": "お問い合わせが送信できませんでした。接続を確認し、再度試してみてください。",
+      "networkError": "接続エラーです。インターネットをご確認いただき、再度お試しください。",
       "chooseProject": "Please choose the option that most closely reflects your needs.",
-      "chooseAge": "Please select your age group first.",
-      "underAge": "Hugo Studio accepts enquiries only from those aged 14 and above."
+      "chooseAge": "まずあなたの年齢グループを選びитеください。",
+      "underAge": "ホグスタジオは14歳以上のユーザーからの問い合わせのみを受け付けます。"
     },
     "header": {
-      "eyebrow": "A direct conversation with Hugo",
-      "title": "Tell me what you need. I’ll help define the rest.",
-      "desc": "You need neither technical jargon nor an exhaustive brief. Choose the prompts that best approximate your situation, and I will help articulate the remaining scope."
+      "eyebrow": "ホグスタジオと直接の会話",
+      "title": "あなたが必要とするものを教えてください。残りの部分は私が助けるでしょう。",
+      "desc": "技術的な用語もしくは詳細な提案を必要としないでください。あなたの状況に最も近い質問を選んでいただき、残りのスケジュールを説明していただければと思います。"
     },
     "expectations": {
       "brief": {
-        "title": "No elaborate brief required",
-        "desc": "Guided choices let you outline the project in approximately two minutes."
+        "title": "詳細な提案が不要です",
+        "desc": "ガイド付きの選択により、プロジェクトを約2分で概要化できます。"
       },
       "scope": {
-        "title": "Scope precedes quotation",
+        "title": "スケジュールは見積もりの前にあります",
         "desc": "I shall clarify any omissions and recommend only what the project genuinely warrants."
       },
       "reply": {
-        "title": "A reply within one business day",
-        "desc": "You will receive an email or message arranging the most appropriate next step."
+        "title": "1営業日内にお答えします。",
+        "desc": "最適な次のステップについてあなたにメールまたはメッセージを送信します。"
       }
     },
     "progress": {
       "label": "Step {{step}} of {{total}}",
-      "complete": "Complete"
+      "complete": "完了"
     },
     "steps": {
       "age": {
-        "title": "How old are you?",
-        "hint": "Hugo Studio accepts enquiries only from those aged 14 and above."
+        "title": "あなたは何歳ですか？",
+        "hint": "ホグスタジオは14歳以上のユーザーからの問い合わせのみを受け付けます。"
       },
       "project": {
-        "title": "What may I help with?",
-        "hint": "Choose the nearest fit; nothing is settled yet."
+        "title": "何かお手伝いできますか？",
+        "hint": "まだ決定ではありません。選択の幅があります。"
       },
       "budget": {
-        "title": "Indicative investment",
-        "hint": "A rough figure lets me recommend a proportionate scope."
+        "title": "概算投資額",
+        "hint": "目安となる金額が私に適切なスケジュールを推奨します。"
       },
       "timeline": {
         "title": "When do you need it?",
-        "hint": "A timeframe makes the schedule realistic."
+        "hint": "期限を設定することでスケジュールが現実的になります。"
       },
       "details": {
-        "title": "The outcome you have in mind",
-        "hint": "A few sentences suffice; no formal brief required."
+        "title": "あなたが思い描く結果は？",
+        "hint": "一言で良いので、形式的な要件はありません。"
       },
       "contact": {
-        "title": "How should I reply?",
-        "hint": "Used solely to answer your enquiry, never published."
+        "title": "どのようにお答えすればよろしいでしょうか？",
+        "hint": "この質問への回答のみを使用し、公開しません。"
       },
       "review": {
-        "title": "Review and send your enquiry",
-        "hint": "One last look before it reaches Hugo."
+        "title": "あなたの質問をもう一度確認してください。",
+        "hint": "送信前に最後の見直しを行ってください。"
       }
     },
     "projectTypes": {
       "newWebsite": {
-        "title": "A new website",
-        "desc": "For an individual, brand, café or small enterprise."
+        "title": "新しいウェブサイトを作成します。",
+        "desc": "個人、ブランド、カフェや小さな企業向けに"
       },
       "portfolio": {
-        "title": "Portfolio / Bio",
-        "desc": "A considered home for your work, résumé and professional identity."
+        "title": "ポートフォリオ / ビイ",
+        "desc": "あなたの作品、カレッジロマスとプロフェッショナルアイデンティティのための考慮されたホームです。"
       },
       "improve": {
-        "title": "Improve an existing site",
-        "desc": "Refine its interface, mobile experience, performance or functionality."
+        "title": "既存のサイトを改善する",
+        "desc": "インターフェース、モバイルエクスペリエンス、パフォーマンスまたは機能性を refinify します。"
       },
       "student": {
-        "title": "A student project",
-        "desc": "Portfolio, coursework or guided debugging support."
+        "title": "学生プロジェクト",
+        "desc": "ポートフォリオ、カレッジワークやガイド付きデバッグサポート。"
       },
       "unsure": {
-        "title": "I am not yet certain",
-        "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
+        "title": "まだはっきりしません",
+        "desc": "結果を説明してください。ホグは適切なアプローチの割合を助けることができます。"
       }
     },
     "sections": {
-      "project": "What would you like help with?",
-      "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
-      "budget": "Indicative investment",
-      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
-      "timeline": "Preferred timeframe",
-      "notes": "A little more context (optional)",
-      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
-      "timelineHint": "Choose whichever is closest to your expectation."
+      "project": "何かお手伝いできることはありますか？",
+      "projectHint": "最も近いものをお選びください。これには、今後異なる方向に移行することはありません",
+      "budget": "概算投資額",
+      "budgetHint": "これは適切な推奨であり、財務的なコミittalではありません。",
+      "timeline": "希望する期間",
+      "notes": "少しの追加の説明（オプション）",
+      "notesHint": "開始するためにプロンプトを選択し、状況に合わせて修正してください。",
+      "timelineHint": "どちらがあなたの期待に最も近いかを選択してください。"
     },
     "budgets": {
-      "unsure": "Not determined",
-      "underOne": "Below VND 1m",
-      "oneToThree": "VND 1–3m",
-      "threeToEight": "VND 3–8m",
-      "overEight": "Above VND 8m"
+      "unsure": "未決定",
+      "underOne": "VND 1万以下",
+      "oneToThree": "VND 1万～3百万",
+      "threeToEight": "VND 3万～8百万",
+      "overEight": "VND 8百万以上"
     },
     "timelines": {
-      "flexible": "Flexible",
-      "twoWeeks": "Within 1–2 weeks",
-      "oneMonth": "Within one month",
-      "twoMonths": "Within 1–2 months"
+      "flexible": "柔軟",
+      "twoWeeks": "1週間から2週間以内",
+      "oneMonth": "1ヶ月以内",
+      "twoMonths": "1か月から2か月以内"
     },
     "promptLabels": {
-      "identity": "Present myself and my work",
-      "sales": "Help customers browse and enquire",
-      "mobile": "My website falters on mobile",
-      "unsure": "I do not know where to begin"
+      "identity": "自分と作品を紹介する",
+      "sales": "顧客が商品を閲覧し、問い合わせをするのを助けます",
+      "mobile": "スマートフォンではウェブサイトが機能しません",
+      "unsure": "何から始めたら良いのか分かりません"
     },
     "prompts": {
-      "identity": "I need a coherent place to present myself, my work and my most pertinent links.",
-      "sales": "I would like customers to understand my offer, browse my products and contact me without friction.",
-      "mobile": "I already have a website, but its mobile interface is cumbersome or renders incorrectly.",
-      "unsure": "I am uncertain which kind of website would be appropriate and would value a proportionate recommendation."
+      "identity": "自分自身、作品、そして最も関連性のあるリンクを一貫して紹介する場所が必要です。",
+      "sales": "顧客が私の提案を理解し、商品を閲覧し、摩擦なく私に問い合わせができるようにしたいです。",
+      "mobile": "既にウェブサイトがありますが、そのモバイルインターフェースが煩わしくて正しく表示されません。",
+      "unsure": "適切なウェブサイトの種類について不確かなため、比例する推奨を価値あるものとしています。"
     },
     "form": {
       "nameLabel": "あなたの名前",
-      "namePlaceholder": "For example, Minh Anh",
-      "emailLabel": "Email for the reply",
-      "emailHint": "Required",
-      "phoneLabel": "Telephone / Zalo",
-      "phoneHint": "Required · never published",
-      "phonePlaceholder": "For example, 09xx xxx xxx",
-      "messagePlaceholder": "For example, I sell handmade goods and need a website where customers can browse the collection...",
-      "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
+      "namePlaceholder": "例えば、Minh Anh",
+      "emailLabel": "返信先メールアドレス",
+      "emailHint": "必須",
+      "phoneLabel": "電話/ザラオ",
+      "phoneHint": "必須・公開されません",
+      "phonePlaceholder": "例えば、09xx xxx xxx",
+      "messagePlaceholder": "例えば、私は手作りの商品を販売しており、顧客がコレクションを閲覧できるウェブサイトが必要です...",
+      "disclaimer": "これらの詳細は、お問い合わせの対応とプロジェクトについての議論にのみ使用されます。あなたの電話番号は公開されることはありません。"
     },
     "actions": {
       "continue": "Continue",
       "back": "Back",
-      "submit": "Send my enquiry",
+      "submit": "お問い合わせを送信",
       "sending": "送信中...",
-      "editAnswers": "Start the answers again"
+      "editAnswers": "答えを再開"
     },
     "summary": {
-      "title": "Enquiry summary",
-      "project": "Requirement",
-      "budget": "Investment",
-      "timeline": "Timeframe",
-      "notes": "Notes",
-      "age": "Age group",
-      "contact": "Contact"
+      "title": "お問い合わせの要約",
+      "project": "要求",
+      "budget": "投資",
+      "timeline": "期限",
+      "notes": "メモ",
+      "age": "対象年齢グループ",
+      "contact": "ユニークなアイデアやカスタムリクエストがありますか？"
     },
     "success": {
-      "title": "Your enquiry is safely with me.",
+      "title": "お問い合わせは安全に私のところにあります。",
       "desc": "Hugo will review it and respond by email or Zalo within one business day. No further documentation is required at this stage.",
       "another": "Send another enquiry",
-      "donateTitle": "Would you care to stand with Hugo Studio?",
-      "donateDesc": "Entirely optional. Your choice has no bearing on the enquiry, quotation, or access to any feature.",
-      "donateYes": "Make a voluntary contribution",
-      "donateNo": "Not this time",
-      "donateSkipped": "Choice noted. Your enquiry will proceed in precisely the same manner."
+      "donateTitle": "ホグースタイルと立つことはできますか？",
+      "donateDesc": "完全に選択肢です。ご質問、見積もり、または何らかの機能へのアクセスには影響ありません。",
+      "donateYes": "自由に寄付してください",
+      "donateNo": "今回は寄付しません",
+      "donateSkipped": "ご希望に沿って進めさせていただきます"
     },
     "prefill": {
-      "general": "I am a student and would like to discuss an appropriate form of support for my academic project.",
+      "general": "私は学生で、私の学術プロジェクトに対する適切な支援について話ししたいです",
       "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
-      "bento": "I would like to discuss a Bento CV / Portfolio for a student profile.",
-      "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
-      "courseworkPhp": "I would like to discuss a Web App coursework project using PHP and MySQL.",
-      "courseworkReact": "I would like to discuss a Web App coursework project using React and Node.js."
+      "bento": "学生として、コースワークの誤りを特定し、理解し、修正するためのガイド付きサポートをお探しです。",
+      "courseworkHtml": "私はBentoカレッジ/ポートフォリオについての学生プロファイル向けのウェブアプリケーションプロジェクトについて話し合いたいです。HTML、CSS、JavaScriptを使用します。",
+      "courseworkPhp": "私はPHPとMySQLを使用したウェブアプリケーションコースワークプロジェクトについて話し合いたいです。",
+      "courseworkReact": "私はReactとNode.jsを使用したウェブアプリケーションコースワークプロジェクトについて話し合いたいです。"
     },
     "age": {
-      "badge": "A firm requirement",
-      "legend": "Your age group",
-      "hint": "This determines how Hugo Studio handles and protects your data. No documents required — simply answer honestly.",
-      "teenTitle": "Members aged 14 to under 18",
+      "badge": "必須事項",
+      "legend": "あなたの年齢層",
+      "hint": "これは、Hugo Studioがどのようにあなたのデータを処理し保護するかを決定します。文書は不要 — 真実に答えてください。",
+      "teenTitle": "14歳から18歳未満のメンバー",
       "teenRules": {
         "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
-        "limited": "Support is limited or declined where a request would require sensitive personal data.",
-        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
-        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+        "limited": "敏感な個人情報が必要な場合はサポートが制限または拒否されます。",
+        "noShare": "Hugo Studioはあなたの個人情報を他のユーザーに披露しません。例外なく。",
+        "minimal": "このフォームでは最小限の情報を提供してください。チャット、Zaloや公開のBioページでさらに送信しないでください。"
       },
-      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
-      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
-      "blockedTitle": "Not eligible to send an enquiry",
+      "teenNotesReminder": "このフォームでは住所を除き、学校の詳細や身分証明書の詳細も含めずに情報を提供してください。",
+      "teenContactNote": "あなたは18歳未満なので、これらの情報はあなたの回答に使用され、他のユーザーと共有されることはありません。親または監督が知っている連絡先を使用してください。",
+      "blockedTitle": "この件については送信できません",
       "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
     },
     "ageBands": {
       "adult": {
-        "title": "18 and above",
-        "desc": "You may discuss and agree terms directly, without a guardian."
+        "title": "18歳以上",
+        "desc": "直接ご相談・合意いただけます。"
       },
       "teen": {
-        "title": "14 to under 18",
-        "desc": "Support is available, with supervision and limits on personal data."
+        "title": "14歳から18歳未満",
+        "desc": "サポートは利用できますが、監督と個人情報の制限があります。"
       },
       "under14": {
-        "title": "Under 14",
-        "desc": "Not eligible to use Hugo Studio's services."
+        "title": "14歳未満",
+        "desc": "Hugo Studioのサービスをご利用いただけません。"
       }
     }
   },
   "templatesPage": {
     "hero": {
-      "badge": "Galaxy of Art",
-      "title1": "The Universe of",
-      "title2": "Digital Art",
+      "badge": "アートの世界",
+      "title1": "宇宙の世界",
+      "title2": "デジタルアート",
       "desc": "Surf through silent galaxies. Each website is a unique star."
     },
     "core": {
-      "badge": "The Core",
-      "title1": "Brand",
-      "title2": "Nucleus",
-      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
-      "redBold": "Red:",
-      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
-      "orangeBold": "Orange:",
-      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
-      "yellowBold": "Yellow:",
+      "badge": "Core",
+      "title1": "ブランド",
+      "title2": "核",
+      "desc": "ホグスタジオの宇宙の中心には、6色バンドが交差するロゴがあり、無限の創造性と先駆的な意欲を象徴する強力なメッセージを持つ。",
+      "redBold": "赤：",
+      "redText": "コードのラインに燃える情熱、激しい情熱、そして献身を表現します。",
+      "orangeBold": "オレンジ：",
+      "orangeText": "ポジティブなエネルギー、ダイナミズム、そして常に革新への強い欲望を示す。",
+      "yellowBold": "黄：",
       "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
       "greenBold": "Green:",
       "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
       "blueBold": "Blue:",
-      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
+      "blueText": "テクノロジーの核心を表し、絶対の尊厳、透明性、プロフェッショナリズムを示しています。",
       "purpleBold": "Purple:",
-      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+      "purpleText": "遠くを見据えた視野、謎、そして芸術的な breakthrough を創出する能力。"
     },
     "typography": {
-      "badge": "The Language",
-      "title": "Typography Choice",
-      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
-      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+      "badge": "言語",
+      "title": " typography の選択",
+      "displayDesc": "現代的で決定的なもの、夜空の明るい星座のように。大きなヘッダー用に使用されます。",
+      "bodyDesc": "シンプルで洗練され、滑らかです。テキストを通り抜けるように、惑星の軌道のようにガイドします。"
     },
     "souls": {
-      "badge": "The Souls",
-      "title": "Cosmic Souls",
-      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "badge": "ソウル",
+      "title": "コズミック・ソウル",
+      "desc": "ホジスタジオの6つの核心価値を持つ愛らしい宇宙人アストロバット。",
       "values": [
         {
-          "title": "Dedication",
-          "desc": "Meticulous in every code nebula"
+          "title": "奉仕",
+          "desc": "コードのすべてを精密に計算する。"
         },
         {
-          "title": "Empathy",
-          "desc": "Listening to the depths of the universe"
+          "title": "共感",
+          "desc": "宇宙の深淵を聴く。"
         },
         {
-          "title": "Creativity",
-          "desc": "Shining bright like a supernova"
+          "title": "創造性",
+          "desc": " supernova のように輝きます"
         },
         {
-          "title": "Connection",
-          "desc": "A strong galactic network"
+          "title": "接続",
+          "desc": "強力な銀河ネットワーク"
         },
         {
-          "title": "Speed",
-          "desc": "Fast as the speed of light"
+          "title": "速度",
+          "desc": "光速より速いスピード"
         },
         {
-          "title": "Protection",
-          "desc": "Absolute safety shield"
+          "title": "保護",
+          "desc": "絶対的安全シャドウ"
         }
       ]
     },
     "demos": {
-      "badge": "The Constellations",
-      "title1": "Interactive",
-      "title2": "Dashboards",
-      "desc": "Surf through interactive real-world design constellations.",
+      "badge": "星座",
+      "title1": "インタラクティブ",
+      "title2": "ダッシュボード",
+      "desc": "インタラクティブな実世界デザインの星座をスキャンする",
       "templates": [
         {
-          "title": "Photography Studio",
-          "short": "Photography",
-          "subtitle": "Photographer"
+          "title": "写真スタジオ",
+          "short": "写真",
+          "subtitle": "フォトグラファー"
         },
         {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "カフェ＆ビストロ",
+          "short": "カフェ",
+          "subtitle": "レストラン"
         },
         {
-          "title": "Jewelry Web",
-          "short": "Jewelry",
-          "subtitle": "Jewelry store"
+          "title": "ジュエリーネットワーク",
+          "short": "ジュエリ",
+          "subtitle": "ジュエリーストア"
         },
         {
-          "title": "Personal Intro",
+          "title": "自己紹介ページ",
           "short": "ポートフォリオ",
           "subtitle": "ポートフォリオ"
         },
         {
-          "title": "E-Commerce",
-          "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "title": "e-Commerce",
+          "short": "e-Commerce",
+          "subtitle": "多業種向け"
         },
         {
-          "title": "Admin Page",
-          "short": "Dashboard",
-          "subtitle": "Dashboard"
+          "title": "管理者ページ",
+          "short": "ダッシュボード",
+          "subtitle": "ダッシュボード"
         }
       ]
     },
     "archive": {
-      "badge": "The Archive",
-      "title": "Project Archive",
-      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+      "badge": "アーカイブ",
+      "title": "プロジェクトアーカイブ",
+      "desc": "直接実行中のプロジェクトのデータベースへのアクセス、オリジナルで無制限です。"
     }
   },
   "loginPage": {
     "toast": {
       "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
-      "loginError": "Login error",
+      "loginError": "ログインエラー",
       "loginPortalError": "Portal login error",
-      "invalidLink": "Link is invalid or has expired",
-      "noGoogle": "Could not retrieve Google profile info",
-      "useGoogleBtn": "Please click the 'Continue with Google' button below",
-      "adminError": "Incorrect admin username or password",
-      "adminNetworkError": "Could not connect to the server, please check your network and try again",
-      "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters",
-      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+      "invalidLink": "リンクが無効または期限切れです",
+      "noGoogle": "Googleプロフィール情報を取得できませんでした",
+      "useGoogleBtn": "下の'Googleでログイン'ボタンをクリックしてください",
+      "adminError": "管理者ユーザー名またはパスワードが正しくありません",
+      "adminNetworkError": "サーバーに接続できませんでした。ネットワークをご確認ください再試してください",
+      "adminServerError": "サーバーエラー、もう一度後でご確認ください",
+      "codeLength": "ログインコードは6文字でなければなりません",
+      "locationAnomaly": "通常の地域から50キロメートル以上離れた場所からのサインインを検出しました。再度ログインして本当にあなたがいることを確認してください"
     },
     "biometric": {
-      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "btn": "指紋/顔認証でログイン({{email}})",
       "verifying": "Verifying...",
-      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
-      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
+      "notEnabled": "Fingerprint認証は、このメールアドレスとこのデバイスには有効化されていません。",
+      "failed": "Fingerprint/Face IDでログインに失敗しました。Googleを使用してください。",
       "or": "or"
     },
     "header": {
-      "titleCustomer": "Project Management",
-      "titleMember": "Activate Student Bio",
+      "titleCustomer": "プロジェクト管理",
+      "titleMember": "学生のビオを活性化",
       "titleAdmin": "管理者ログイン",
-      "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
-      "descAdmin": "Access the developer dashboard system"
+      "descCustomer": "進捗を追跡し、サービスを管理します",
+      "descMember": "完全無料で専用のビオリンクを作成できます",
+      "descAdmin": "開発者ダッシュボードシステムへのアクセス"
     },
     "tabs": {
-      "customer": "Client",
-      "member": "Student (.edu)",
-      "admin": "Admin"
+      "customer": "クライアント",
+      "member": "学生 (.edu)",
+      "admin": "アドミン"
     },
     "customerForm": {
-      "title": "Access Project Management",
-      "desc": "Manage projects, track progress and communicate with the team.",
-      "codeLabel": "Project Code (6 Chars)",
-      "codePlaceholder": "Ex: 1A2B3C",
-      "btn": "Enter Project Portal",
-      "securityTitle": "Information Security",
-      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+      "title": "プロジェクト管理アクセス",
+      "desc": "プロジェクトを管理し、進捗を追跡し、チームとコミュニケーションします。",
+      "codeLabel": "プロジェクトコード（6Chars）",
+      "codePlaceholder": "例: 1A2B3C",
+      "btn": "プロジェクトポータル入力",
+      "securityTitle": "情報セキュリティ",
+      "securityDesc": "プロジェクトコードはプライベートで提供されます。このコードを他人に共有しないでください。これにより、あなたのプロジェクトデータの安全性が確保されます。"
     },
     "memberForm": {
-      "title": "Google Workspace Authentication",
-      "desc": "To ensure the authenticity of student benefits, please link via Google.",
+      "title": "Google Workspace認証",
+      "desc": "学生の利益を確認するためには、Googleを通じてリンクしてください。",
       "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
-      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
-      "gisLoading": "Loading Google component...",
-      "reqTitle": "Educational Email Requirement (.edu)",
-      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+      "gisReady": "教育メール要件(.edu)",
+      "gisLoading": "システムは自動的に確認し、学校の教育メールを使用するアカウントのみを承認します。",
+      "reqTitle": "開発者資格情報",
+      "reqDesc": "ユーザー名"
     },
     "adminForm": {
       "title": "管理者ログイン",
-      "desc": "Enter developer credentials",
-      "userLabel": "Username",
-      "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
+      "desc": "ユーザー名...",
+      "userLabel": "ユーザーネームを入力してください",
+      "userPlaceholder": "••••••••",
+      "userRequired": "Googleコンポーネントのロード中…",
       "passLabel": "パスワード",
       "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "remember": "Remember me on this device",
+      "passRequired": "パスワードを入力してください",
+      "showPassword": "パスワードを表示する",
+      "hidePassword": "パスワードを隠す",
+      "remember": "このデバイスでログイン情報を記憶する",
       "btn": "ログイン",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "submitting": "ログイン中...",
+      "https": "HTTPSを使用したセキュア同期"
     }
   },
   "customerPortal": {
     "header": {
-      "logout": "Logout"
+      "logout": "ログアウト"
     },
     "tabs": {
       "profile": "プロフィール",
       "service": "サービス",
-      "requests": "Requests"
+      "requests": "リクエスト"
     },
     "profile": {
       "title": "あなたの名前、生年月日、および自己紹介はいつでも更新できます。",
-      "subtitle": "Update your contact info so we can support you best.",
-      "completedWarn": "Project is completed, information cannot be changed.",
+      "subtitle": "あなたの情報をお持ちのまま更新してください。私たちがあなたを最適にサポートできるように。",
+      "completedWarn": "プロジェクト完了、情報変更不可",
       "fullName": "Full Name",
       "phone": "電話番号",
-      "email": "Contact Email",
-      "birthday": "Date of Birth",
-      "address": "Address",
-      "updateSuccess": "Updated successfully!",
-      "saveBtn": "Save Info",
+      "email": "メールアドレス",
+      "birthday": "生年月日",
+      "address": "住所",
+      "updateSuccess": "情報の更新が完了しました!",
+      "saveBtn": "情報を保存する",
       "savingBtn": "保存中..."
     },
     "service": {
-      "title": "Project Overview",
-      "desc": "Track progress and basic information about your service package.",
+      "title": "プロジェクト概要",
+      "desc": "サービスパッケージの進捗と基本的な情報について追跡します。",
       "status": "ステータス",
-      "package": "Service Package",
+      "package": "サービスパッケージ",
       "startDate": "開始日",
-      "notesTitle": "Logs & Updates",
-      "notesEmpty": "Project is in preparation...",
-      "completed": "Completed",
-      "maintenance": "Maintenance",
-      "summary": "Project Summary"
+      "notesTitle": "ログ・アップデート",
+      "notesEmpty": "プロジェクトは準備中...",
+      "completed": "完了",
+      "maintenance": "メンテナンス中",
+      "summary": "プロジェクト概要"
     },
     "requests": {
-      "supportTitle": "Support Team",
-      "supportSubtitle": "Managing your project",
-      "loading": "Loading messages...",
-      "empty": "No requests yet. Message us if you have any questions!",
-      "placeholderNormal": "Enter request or message...",
-      "placeholderCompleted": "Enter maintenance request or message..."
+      "supportTitle": "サポートチーム",
+      "supportSubtitle": "プロジェクトを管理する",
+      "loading": "メッセージを読み込み中...",
+      "empty": "まだリクエストはありません。質問がある場合は私たちに連絡してください！",
+      "placeholderNormal": "リクエストまたはメッセージを入力...",
+      "placeholderCompleted": "メンテナンスリクエストまたはメッセージを入力..."
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
-    "marketPrice": "$20.99",
-    "giftToYou": "Hugo's Gift",
-    "giftPrice": "$0.99",
-    "priceless": " — Priceless!",
-    "verificationTitle": "Verify & Claim Your Spark!",
-    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
-    "orManual": "or click below if it doesn't prompt",
-    "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
-    "toastNetwork": "Server connection lost. Let's try again in a bit!",
-    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "metaTitle": "カuteな個人のビオページを手に入れよう — 12ヶ月無料！ | ホグスタジオ",
+    "metaDesc": "無広告で美しくボンベのポートフォリオリンクをゲット。任意の .edu メールアドレスを持つと、すぐにカスタマイズし、完全に無料です！",
+    "backToServices": "サービスに戻る",
+    "giftSpark": "12ヶ月のスパーク — 完全無料！",
+    "title": "あなたの夢のビオリンク",
+    "desc": "IT学生、アーティスト、または発見を待つクリエイターの方はいませんか？あなたの美しい無広告ボンベビオページを主張してください。それはあなたがウェブ上で自分自身を披露するためのホームです！",
+    "marketValue": "通常の価格",
+    "perYear": "/年",
+    "marketPrice": "$20.99$",
+    "giftToYou": "ホグの贈り物",
+    "giftPrice": "__$0.99",
+    "priceless": "— 価値ある!",
+    "verificationTitle": "確認 & 売り出しをリクエストしてください！",
+    "verificationDesc": "あなたの学校のメールアドレス (.edu もしくは .edu.vn) を使用してログインします。私たちのロボットが瞬時にあなたを認識し、キーを手渡します！",
+    "orManual": "または下記のリンクをクリックしてください。",
+    "clickSelect": "Google アカウントを選択してください",
+    "warningClientId": "警告：Google ロ bot クライアント ID が欠けている",
+    "originError": "認証された JavaScript の元のリストには現在の元とプロダクションドメインが含まれなければなりません。",
+    "blockedByOauth": "OAuth 開発設定により Google Sign-In がブロックされました。",
+    "ready": "OAuth ロボットは準備完了！",
+    "loading": "OAuthロボットが起動中...",
+    "securityDesc": "Google OAuthでセキュアに 2.0. ブラウザでログインしている教育用の認証情報を自動的に要求します。",
+    "toastFail": "Oh no! Googleの確認に失敗しました。",
+    "toastNetwork": "サーバーとの接続が切れていたようです。もう少しご待たせいただきます！",
+    "toastPending": ".eduメールをお持ちではありませんか？大丈夫です、あなたのアカウントは個別審査のため一時保留中です！リダイレクトします...",
     "benefits": {
       "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+        "title": "無料でご利用ください",
+        "desc": "12ヶ月間のプレミアム機能が無料でお楽しみいただけます。隠れた費用もありませんし、広告もありません。私からあなたへの約束だけです！"
       },
       "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+        "title": "クリエイティブな遊園地",
+        "desc": "すべての色、画像、リンクは完全にカスタマイズ可能です。あなたの真実を表現してください！"
       },
       "fast": {
-        "title": "Lightning Fast",
-        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+        "title": " Lightning 快速 ",
+        "desc": " 瞬間ロードで、ノギーなスnow — 純粋な速度を体験してください！"
       },
       "yours": {
-        "title": "Truly Yours",
-        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+        "title": " あなたのものに",
+        "desc": " テーマなしのサブドメインリンク。カッコイイテンプレートや一般的なボックスはありません。差別化しましょう！"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "ベトナム国内限定のサービスです。",
+      "service": "料金はベトナムドン建てで、PayOS およびベトナム国内の銀行を通じてお支払いいただきます。",
+      "booking": "Hugo Studio はベトナム国内の案件を承ります。予算はドン建てで、やり取りはメールまたは Zalo です。",
+      "donate": "寄付はベトナムドンで、PayOS とベトナムの銀行を通じて行われます。"
     }
   }
 }

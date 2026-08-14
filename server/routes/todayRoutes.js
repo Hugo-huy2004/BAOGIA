@@ -66,8 +66,13 @@ router.get('/article/:id', readerLimiter, requireMember, async (req, res) => {
       return res.status(404).json({ error: 'Article is no longer in today\'s edition.' });
     }
 
-    const content = await studentNewsService.readArticle(article);
-    const summary = await studentNewsService.summarizeArticle(article, content, language);
+    // readArticle() trả ngay với nguồn không có giấy phép mở (phần lớn bài),
+    // còn summarizeArticle() tự fetch bài + gọi AI — hai thao tác độc lập nên
+    // chạy song song để giảm thời gian chờ tổng.
+    const [content, summary] = await Promise.all([
+      studentNewsService.readArticle(article),
+      studentNewsService.summarizeArticle(article, { available: false, blocks: [] }, language),
+    ]);
     res.set('Cache-Control', 'private, max-age=900');
     res.set('Content-Language', resolveNewsEdition(language).locale);
     return res.json({ article, summary, content });

@@ -43,7 +43,7 @@ const GAMES = [
   { id: "chess",    name: "HugoChess Table 3D",  Icon: Castle, studio: true },
   { id: "survivor", name: "Hugo Space Survivor", Icon: Rocket, studio: true },
   { id: "snake",    name: "Hugo Snake 3D Pro",   Icon: InfinityIcon, studio: true },
-  { id: "caro",     name: "Caro 3×3 Arena",      Icon: Swords, studio: true },
+  { id: "caro",     name: "Caro 5 Arena",        Icon: Swords, studio: true },
   { id: "2048",     name: "2048 Mega Fusion",    Icon: Blocks, creditKey: "arcadeGame.credit2048" },
 ];
 
@@ -128,11 +128,11 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
         </button>
       ) : isDownloaded ? (
         <button type="button" className="arc-get" onClick={(e) => { e.stopPropagation(); onClick(); }}>
-          <span>MỞ</span>
+          <span>{t("arcadeGame.openApp")}</span>
         </button>
       ) : (
         <button type="button" className="arc-get" onClick={(e) => { e.stopPropagation(); onPinToHome(game.id); }}>
-          <span>NHẬN</span>
+          <span>{t("arcadeGame.getApp")}</span>
           {isLocked && <small className="arc-get__price">{priceLabel}</small>}
         </button>
       )}

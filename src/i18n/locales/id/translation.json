@@ -148,7 +148,7 @@
       "localEdition": "{{country}} Edisi",
       "dailyReset": "Diperbarui setiap hari pukul 09:00",
       "updatedAt": "Diperbarui {{time}}",
-      "rightsMode": "{{articles}} cerita dari sumber-sumber {{sources}} · hanya berita dan sumbangan penulis yang diberikan saja",
+      "rightsMode": "{{articles}} berita dari {{sources}} sumber · tidak menampilkan teks lengkap",
       "loadMore": "Tampilkan lebih banyak cerita {{n}}",
       "categories": "Kategori artikel",
       "category": {
@@ -171,12 +171,15 @@
       "articleUnavailable": "Artikel ini tidak dapat dibuka",
       "summaryTitle": "Detailed summary",
       "summaryBySource": "Artikel ini disusun oleh {{source}} sendiri.",
-      "summaryByAi": "Hugo AI rewrote this summary in its own words from the {{source}} article. Open the original for the full text.",
+      "summaryByAi": "Hugo AI menulis ulang ringkasan ini dengan kata-katanya sendiri. Seluruh artikel dilindungi hak cipta {{source}}. Baca artikel asli untuk konten lengkap.",
       "contentTitle": "Isi artikel ini",
-      "contentUnavailable": "Penerbit tidak mengizinkan pembacaan seluruh isi artikel secara otomatis. Buka asli untuk membacanya keseluruhan.",
+      "contentUnavailable": "Penerbit tidak mengizinkan teks lengkap ditampilkan otomatis. Buka artikel asli untuk membaca selengkapnya.",
       "contentBySource": "Seluruh isi artikel ini diproteksi hak cipta oleh {{source}}.",
+      "copyrightNotice": "Seluruh artikel dilindungi hak cipta oleh {{source}}. Hugo Studio hanya menampilkan ringkasan. Ketuk \"Baca asli\" untuk melihat artikel lengkap di situs resmi.",
+      "sourceInfo": "Sumber: {{source}}{{author}} · {{date}}",
       "attribution": "Isi adalah hak cipta dari {{source}}.",
-      "licenseNotice": "Full text shown under the {{license}} licence from {{source}}",
+      "licenseNotice": "{{license}} Lisensi yang Ditemukan di Bawah {{source}}",
+      "fullInApp": "Full text",
       "licenseAttribution": "By {{author}} — {{source}}, republished under {{license}}.",
       "readMinutes": "{{n}} minimal baca",
       "fontSize": "Ukuran teks",
@@ -580,6 +583,9 @@
         "conditionsTitle": "Hak dan kewajiban anggota",
         "conditionsSubtitle": "Kekayaan dasar, aturan usia, penggunaan aman, dan aturan JOY",
         "conditionsDetail": "Kekayaan dasar, aturan usia, penggunaan aman, dan aturan JOY",
+        "fullTextTitle": "Full terms",
+        "fullTextSubtitle": "Seluruh Syarat dan Ketentuan",
+        "fullTextDetail": "Syarat, Privasi, dan Aturan Anggota dalam Delapan Bahasa",
         "content": {
           "privileges": {
             "id": "privileges",
@@ -2692,26 +2698,26 @@
         "storeDesc": "Jumlah waktu yang dibeli ditambahkan dan digunakan setelah 5 jam gratis setiap minggu habis.",
         "empty": "Tidak ada paket waktu tersedia lagi."
       },
-      "dangDo": "Đang dò",
-      "dangKetNoi": "Đang kết nối",
+      "dangDo": "Scanning",
+      "dangKetNoi": "Connecting",
       "nhieuSong": "Gelombang yang Memicik",
-      "dangPhat": "Đang phát",
-      "tamDung": "Tạm dừng",
-      "cho": "Chờ",
-      "daHocDiaChi": " · đã học địa chỉ mới",
-      "doTanSo": "Dò tần số",
-      "doXuong": "Dò xuống",
-      "dung": "Dừng",
+      "dangPhat": "Playing",
+      "tamDung": "Tidak berjalan",
+      "cho": "Waiting",
+      "daHocDiaChi": " · learned a new address",
+      "doTanSo": "Scan up",
+      "doXuong": "Scan down",
+      "dung": "Putuskan",
       "phat": "Phát",
       "doLen": "Dong lên",
-      "amLuong": "Bật âm lượng",
+      "amLuong": "Volum",
       "ngauNhien": "Ngẫu nhiên",
       "henGioTat": "Tắt tự động",
       "timDaiVov1Npr": "Máy phát thanh: VOV1, NPR, Jazz…",
       "dangDo2": "Đang tìm…",
       "tim": "Tìm",
       "daTim": "(Đã tìm)",
-      "muaThemThoiGian": "Thời gian mua thêm",
+      "muaThemThoiGian": "Beli lebih banyak waktu mendengarkan",
       "thoiGianMuaDuoc": "Thời gian tích lũy và sử dụng sau"
     },
     "store": {
@@ -2962,9 +2968,9 @@
       "10PhiSangTao": "(+ 10% Biaya Kreativitas) untuk Melakukan Pendaftaran 1 Bulan pada Paket",
       "khong": "Tidak?",
       "dangKyThanhCong": "Pendaftaran Berhasil! Stages Belajar ini telah Dibuka.",
-      "loiGiaoDich": "Transaksi Gagal.",
+      "loiGiaoDich": "Transaksi gagal.",
       "muaGoiVinhVien": "Membeli Paket Terus Menerus",
-      "gom": "gồm",
+      "gom": "including",
       "joyVa": "gồm JOY dan",
       "joyPhiSangTao": "JOY Fiyas Kreativ untuk membuka kunci abadi",
       "giaHanBoPhat": "Menggandakan Paket Pembangunan Web",
@@ -3705,135 +3711,138 @@
     },
     "catAll": "Semua",
     "catStudio": "Hugo Studio",
-    "catPvp": "Versus",
-    "credit2048": "Based on 2048 by Gabriele Cirulli (MIT licence)",
-    "bestScore": "· Best {{score}}",
-    "downloading": "Downloading {{percent}}%",
-    "exchangeError": "JOY exchange failed.",
-    "addedToApps": "{{game}} was added to your apps.",
+    "catPvp": "Tanding",
+    "credit2048": "Berdasarkan 2048 karya Gabriele Cirulli (lisensi MIT)",
+    "bestScore": "· Terbaik {{score}}",
+    "downloading": "Download {{percent}}%",
+    "exchangeError": "Gaya hidup JOY gagal.",
+    "addedToApps": "{{game}} ditambahkan ke aplikasi Anda.",
     "gameFallback": "Game",
-    "rankTitle": "Leaderboard",
-    "noAds": "Play right inside Hugo — no ads.",
-    "filterGames": "Filter games",
-    "playGame": "Play {{game}}",
-    "spotlight": "Today's spotlight",
-    "play": "PLAY",
+    "rankTitle": "Papan juara",
+    "noAds": "Main langsung di Hugo — tidak ada iklan.",
+    "filterGames": "Filter game",
+    "playGame": "Main {{game}}",
+    "spotlight": "Spotlight hari ini",
+    "play": "Tontonlah",
     "gamesTitle": "Games",
-    "totalMatches": "Matches",
-    "wins": "Wins",
-    "rankDesc": "The best players across the whole system.",
-    "newBest": "New best!",
-    "beatBest": "Beat {{score}}",
-    "combo": "{{count}}× combo",
-    "multiplier": "Multiplier x{{value}}",
-    "best": "Best",
-    "hugoMember": "Hugo member",
+    "totalMatches": "Sesuai",
+    "wins": "Menang",
+    "rankDesc": "Pemain terbaik di seluruh sistem.",
+    "newBest": "Terbaru! ",
+    "beatBest": "Kalahkan {{score}}",
+    "combo": "{{count}}× kombinasi",
+    "multiplier": "X{{value}} lipat",
+    "best": "Pemain Terbaik",
+    "hugoMember": "Hugo anggota",
     "rankSss": "RANK SSS • GRANDMASTER",
     "rankS": "RANK S • CODE WARRIOR",
-    "joyByScore": "+ JOY based on score",
-    "pendingWallet": "· waiting to land in your wallet",
-    "tryAgainClose": "Try again — so close!",
-    "g2048Triple": "⚡ ×3 POINTS FOR 10 SECONDS!",
-    "g2048Fever": "🔥 FEVER MODE! ×2 POINTS",
+    "joyByScore": "+ JOY berdasarkan skor",
+    "pendingWallet": "· menunggu di dalam dompet Anda",
+    "tryAgainClose": "Coba lagi — sangat dekat!",
+    "g2048Triple": "⚡ ×3 PONTUAN Dalam 10 DETIK!",
+    "g2048Fever": "🔥 MODE PANAS! ×2 PONTUAN",
     "g2048Level": "Level {{level}}",
-    "g2048LevelStone": "Level {{level}} · with stone tiles",
-    "g2048Undone": "One move undone",
+    "g2048LevelStone": "Level {{level}} · dengan batu lantai",
+    "g2048Undone": "Satu langkah yang diulang",
     "g2048Tnt": "TNT tile",
-    "g2048Stone": "Stone tile, {{turns}} moves left",
+    "g2048Stone": "Tile {{turns}}",
     "g2048Tile": "Tile {{value}}",
-    "g2048Score": "SCORE",
-    "g2048Moves": "MOVES",
-    "snakeStage1": "Neon Garden",
-    "snakeStage1Kicker": "WARM-UP STAGE",
-    "snakeStage1Goal": "Collect 6 energy cores",
-    "snakeStage1Hint": "Keep eating in rhythm to trigger a combo.",
-    "snakeStage2": "Red Minefield",
-    "snakeStage2Kicker": "SURVIVAL CHALLENGE",
-    "snakeStage2Goal": "Dodge the mines and eat 6 cores",
-    "snakeStage2Hint": "Red mines glow but cannot be destroyed.",
-    "snakeStage3": "Quantum Gates",
-    "snakeStage3Kicker": "TELEPORT CHALLENGE",
-    "snakeStage3Goal": "Master the pair of space gates",
-    "snakeStage3Hint": "Enter one gate to appear at the other.",
-    "snakeStage4": "Gold Hunt",
-    "snakeStage4Kicker": "SPEED CHALLENGE",
-    "snakeStage4Goal": "Catch the golden cores before they vanish",
-    "snakeStage4Hint": "A golden core is worth 10 points and keeps a big combo alive.",
-    "snakeStage5Kicker": "FINAL STAGE",
-    "snakeStage5Goal": "Survive the high-speed grid",
-    "snakeStage5Hint": "High speed, more mines and teleport gates.",
-    "snakeNewStage": "{{stage}} · a new challenge is open",
-    "snakeLevelUp": "Level {{level}} · speed and difficulty rise",
-    "snakeFood": "Cores",
-    "snakeStageLabel": "Stage",
-    "snakeStageOf": "Stage {{index}}: {{name}}",
-    "ready": "READY",
-    "snakeStageProgress": "STAGE PROGRESS",
-    "snakeCoreNormal": "+2 normal core",
-    "snakeCoreGold": "+10 golden core",
-    "snakeMine": "Mine: game over",
-    "snakePortal": "Teleport gate",
-    "chessBoard": "3D chess board",
-    "chessWhite": "White",
-    "chessBlack": "Black",
-    "chessCheckmate": "Checkmate! {{side}} wins!",
-    "chessStalemate": "Draw (stalemate)",
-    "chessOver": "Game over",
-    "chessLevelEasy": "Apprentice",
-    "chessEasy": "Easy",
-    "chessLevelMid": "Tactician",
+    "g2048Score": "Skor",
+    "g2048Moves": "Putaran",
+    "snakeStage1": "Garden Neon",
+    "snakeStage1Kicker": "STAGE WARNA-WARAN",
+    "snakeStage1Goal": "Kumpulkan 6 core energi",
+    "snakeStage1Hint": "Makan dalam ritme untuk mengaktifkan kombinasi.",
+    "snakeStage2": "Pertambangan Merah",
+    "snakeStage2Kicker": "PENGEMBANGAN PEMBELAJARAN",
+    "snakeStage2Goal": "Loloskan diri dari bom dan makan 6 biji",
+    "snakeStage2Hint": "Bom merah bercahaya tetapi tidak dapat dihapus.",
+    "snakeStage3": "Kunci Gerbang Quantum",
+    "snakeStage3Kicker": "PERGERAKAN CHALLENGE",
+    "snakeStage3Goal": "Pelajari pasangan gerbang ruang angkasa",
+    "snakeStage3Hint": "Muncul di satu gerbang ke gerbang lainnya.",
+    "snakeStage4": "Perjuangan Tembak Ular",
+    "snakeStage4Kicker": "PENGEMBANGAN KECEPATAN",
+    "snakeStage4Goal": "Ngemil biji emas sebelum hilang.",
+    "snakeStage4Hint": "Poin Emas sebesar 10 dan menjaga Big Combo hidup.",
+    "snakeStage5Kicker": "TAHAP AKHIR",
+    "snakeStage5Goal": "Selamatkan diri di grid tinggi",
+    "snakeStage5Hint": "Kecepatan tinggi, lebih banyak medannya dan pintu teleportnya.",
+    "snakeNewStage": "{{stage}} · ada tantangan baru yang terbuka",
+    "snakeLevelUp": "Level {{level}} · kecepatan dan kesulitan naik",
+    "snakeFood": "Emas",
+    "snakeStageLabel": "Stadium",
+    "snakeStageOf": "Stadium {{index}}: {{name}}",
+    "ready": "Siap",
+    "snakeStageProgress": "PROGRES STAGE",
+    "snakeCoreNormal": "+2 Core Biasa",
+    "snakeCoreGold": "+10 Core Emas",
+    "snakeMine": "Lokasi: Game Over",
+    "snakePortal": "Pintu Teleport",
+    "chessBoard": "Board 3D Bisbol",
+    "chessWhite": "Putih",
+    "chessBlack": "Hitam",
+    "chessCheckmate": "Menang (Mate)! {{side}} Menang!",
+    "chessStalemate": "Seri (Stalemate)",
+    "chessOver": "Game Over",
+    "chessLevelEasy": "Pemula",
+    "chessEasy": "Sederhana",
+    "chessLevelMid": "Taktisi",
     "chessMid": "Beranda",
     "chessLevelHard": "Master",
-    "chessHard": "Hard",
-    "chessThinking": "Hugo BOT is thinking…",
-    "chessInCheck": "⚠️ YOUR KING IS IN CHECK!",
-    "chessTurn": "Turn: {{side}}",
-    "chessBotThinking": "Hugo BOT (thinking…)",
+    "chessHard": "Sulit",
+    "chessThinking": "Hugo BOT sedang memikirkan…",
+    "chessInCheck": "⚠️ Raja ANDA BERADA DI BAHAN!",
+    "chessTurn": "Putaran: {{side}}",
+    "chessBotThinking": "Hugo BOT (sedang memikirkan…)",
     "chessBotLevel": "Hugo AI BOT · Level {{level}}",
-    "chessBlackPlayer": "Black player",
-    "chessView3d": "3D view",
+    "chessBlackPlayer": "Pemain Hitam",
+    "chessView3d": "View 3D",
     "chessUndo": "Undo",
-    "chessNewGame": "New game",
-    "chessYouWhite": "You (White)",
-    "chessWhitePlayer": "White player",
-    "caroThinking": "The AI is thinking",
-    "caroYourTurn": "Your turn (X)",
-    "caroWin": "You win! 🎉",
-    "caroLose": "The AI won — try again!",
-    "caroDraw": "Draw! The board is full.",
-    "caroYou": "You",
-    "caroRule": "3 in a row",
-    "survivorWaveClear": "WAVE {{wave}} CLEAR",
-    "survivorSurge": "SURGE",
-    "survivorBoss": "{{wave}} · BOSS",
-    "survivorLeft": "{{wave}} · {{count}} left",
-    "survivorClear": "{{wave}} · clear",
-    "rankSs": "RANK SS • NEON ACE",
-    "rankA": "RANK A • SENIOR FIGHTER",
-    "rankB": "RANK B • RISING PLAYER",
-    "shellFormula": "{{score}} points → {{joy}} JOY",
-    "shellRecord": "New best! {{delta}} points more than last time.",
-    "shellNear": "{{gap}} points short of your best {{best}}.",
-    "shellBest": "Your best: {{best}}.",
-    "lbWinner": "{{name}} is the winner!",
-    "lbRealtime": "Total score updates in real time • {{date}}",
-    "lbBoard": "HUGO WORLD LEADERBOARD (TOP 10)",
-    "lbLoading": "Adding up scores across every game…",
-    "lbMatches": "{{count}} matches played",
-    "lbTotalScore": "TOTAL SCORE",
-    "lbEmpty": "Nobody on the board yet. Be the first!",
-    "snakeStage5": "Hyper Grid",
-    "snakeCurrentMission": "CURRENT MISSION",
-    "chessMovesPlayed": "Game finished after {{count}} moves.",
-    "chessArena": "3D Chess Arena",
-    "chessVsBot": "Play the Hugo AI BOT",
-    "chessVsBotDesc": "You play White · a test against the algorithm",
-    "chessPassPlay": "Two players, one device (pass & play)",
-    "chessPassPlayDesc": "Put the device between you like a real board",
-    "chessBotLevelLabel": "AI BOT level:",
-    "chessHistory": "History:",
-    "exclusive": "Exclusive to Hugo Studio",
-    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} in a row"
+    "chessNewGame": "Game baru",
+    "chessYouWhite": "(Anda) Pemain Putih",
+    "chessWhitePlayer": "Pemain Putih",
+    "caroThinking": "AI sedang berpikir",
+    "caroYourTurn": "Gulungan Anda (X)",
+    "caroWin": "Anda menang! 🎉",
+    "caroLose": "The AI menang — coba lagi!",
+    "caroDraw": "Lakukan gerakan Anda! Meja penuh.",
+    "caroYou": "Anda",
+    "caroRule": "{{win}} berderet",
+    "survivorWaveClear": "MENGAMBIL {{wave}} JARANG",
+    "survivorSurge": "GERAKAN BERSAMA",
+    "survivorBoss": "{{wave}} · PENGAWAL",
+    "survivorLeft": "{{wave}} · tersisa {{count}}",
+    "survivorClear": "{{wave}} · membersihkan",
+    "rankSs": "PERINGATAN SS • ACE NEON",
+    "rankA": "PENINGKATAN A • PEMAIN TUA",
+    "rankB": "PENINGKATAN B • PEMULA YANG MENGEMASUKKAN DIRI",
+    "shellFormula": "{{score}} poin → {{joy}} JOY",
+    "shellRecord": "Terbaik! {{delta}} poin lebih dari yang terakhir.",
+    "shellNear": "{{gap}} poin kurang dari penampilan terbaikmu {{best}}.",
+    "shellBest": "Penampilan Terbaikmu: {{best}}.",
+    "lbWinner": "{{name}} adalah pemenangnya!",
+    "lbRealtime": "Skor total diperbarui secara real time • {{date}}",
+    "lbBoard": "PENJUALAN MUNDUR (TOP 10)",
+    "lbLoading": "Menambahkan skor dari setiap permainan…",
+    "lbMatches": "{{count}} permainan dimenangkan",
+    "lbTotalScore": "SKOR TOTAL",
+    "lbEmpty": "Tidak ada pemain di meja saat ini. Jadiilah posisi Anda!",
+    "snakeStage5": "Grid Hyper",
+    "snakeCurrentMission": "Mis Mis Misaktif",
+    "chessMovesPlayed": "Game selesai setelah {{count}} langkah.",
+    "chessArena": "Arena 3D Chess",
+    "chessVsBot": "Mainkan Bot Hugo AI",
+    "chessVsBotDesc": "Anda bermain putih · uji tuntas dengan algoritma",
+    "chessPassPlay": "Dua pemain, satu perangkat (melewati dan bermain)",
+    "chessPassPlayDesc": "Letakkan perangkat di antara Anda seperti board nyata",
+    "chessBotLevelLabel": "Level AI BOT:",
+    "chessHistory": "Sejarah:",
+    "exclusive": "Eksklusif Hugo Studio",
+    "caroBoardLabel": "CARO {{size}} × {{size}} · {{win}} berderet",
+    "openApp": "BUKA",
+    "getApp": "AMBIL",
+    "gameCount": "{{count}} game"
   },
   "arcadeIntro": {
     "close": "Kembali ke Aplikasi",
@@ -4283,8 +4292,8 @@
   },
   "servicesPage": {
     "meta": {
-      "title": "Jurusan saya meliputi banyak bahasa secara luas bukan satu yang mendalam — Saya boleh membaca dan mengubah kod, tetapi belum spesialis dalam bahasa yang mana pun.",
-      "description": "Penasehat Situs Web Untuk Pelajar, Individu Dan Toko Kecil | Hugo Studio",
+      "title": "Konsultasi Website untuk Pelajar, Perorangan, dan Toko Kecil | Hugo Studio",
+      "description": "Ceritakan kebutuhanmu sebelum memilih solusi. Konsultasi satu lawan satu untuk pelajar, perorangan, dan toko kecil — lingkup dan biaya disepakati sebelum pengerjaan.",
       "keywords": "Hidupkan Hugo dengan apa yang anda perlukan sebelum memilih solusi. Penasehat 1-ke-1 untuk pelajar, individu dan tokoh kecil, dengan batasan dan kos ditetapkan sebelum kerja dimulakan."
     },
     "common": {
@@ -4308,12 +4317,12 @@
       "closing": "Setiap angka adalah pintu. Mana yang akan kamu buka?"
     },
     "hero": {
-      "badge": "Direct 1-to-1 · Pelajar pertama",
-      "title1": "Anda tidak memerlukan paket saat ini.",
-      "title2": "Mulai dengan apa yang Anda butuhkan.",
-      "desc": "Beri tahu saya tujuanmu, apa yang menghalangi, atau apa yang ingin kamu buat. Saya akan membantu menentukan pendekatan yang tepat — dari Bio pelajar dan portofolio hingga situs web untuk individu dan toko kecil.",
+      "badge": "Langsung satu lawan satu · Pelajar didahulukan",
+      "title1": "Kamu belum perlu memilih paket.",
+      "title2": "Mulai dari yang benar-benar kamu butuhkan.",
+      "desc": "Ceritakan tujuanmu, apa yang sedang menghambat, atau apa yang ingin kamu buat. Aku bantu menemukan pendekatan berukuran pas — dari Bio dan portofolio pelajar sampai website perorangan dan toko kecil.",
       "viewPricing": "Pilih situasimu",
-      "contact": "Beri tahu saya apa yang Anda butuhkan",
+      "contact": "Ceritakan kebutuhanmu",
       "swipe": "Geser untuk melanjutkan",
       "scroll": "Scroll untuk melanjutkan",
       "trust": [
@@ -4324,9 +4333,9 @@
       ]
     },
     "outcomes": {
-      "eyebrow": "Panduan pertama",
-      "title": "Apakah website Anda harus berubah?",
-      "desc": "Pilihlah cerita yang mirip dengan situasi Anda untuk melihat layanan yang relevan.",
+      "eyebrow": "Bab pertama",
+      "title": "Apa yang ingin kamu ubah lewat website?",
+      "desc": "Pilih cerita yang mirip situasimu untuk melihat layanan yang terkait.",
       "items": [
         {
           "title": "Saya ingin konsumen memahami dan memilih merek saya",
@@ -4336,198 +4345,198 @@
         {
           "title": "Situs website saya saat ini kehilangan pengunjung",
           "desc": "I review the interface, mobile experience, speed, SEO and the friction blocking customer action.",
-          "cta": "See ways to improve"
+          "cta": "Lihat Cara untuk Meningkatkan"
         },
         {
-          "title": "I want to tell my own story",
-          "desc": "Portfolio, Bio and learning-support options created for students.",
-          "cta": "See student options"
+          "title": "Saya Ingin Menyampaikan Cerita Khas Saya",
+          "desc": "Portofolio, Bio dan Pilihan Pembelajaran Dibuat untuk Pelajar.",
+          "cta": "Lihat pilihan siswa"
         }
       ]
     },
     "pricingPhilosophy": {
-      "title": "The story behind each price",
-      "desc": "I am a final-year Software Engineering student and stay with each project from the first conversation to handover. With no layers of account management, the budget goes toward the design, development and support you actually need.",
+      "title": "Riwayat cerita setiap harga",
+      "desc": "Saya adalah seorang mahasiswa akhir tahun Sistem Informasi dan ikut dengan setiap proyek dari pertemuan pertama hingga penyerahan. Tanpa lapisan pengelolaan akun, anggaran tersebut dialokasikan untuk desain, pembangunan, dan dukungan yang Anda butuhkan sebenarnya.",
       "philosophy": "I take on one active project at a time so it receives focused attention. Scope, timing, cost and exclusions are discussed before work begins, so you always know where the project stands and what comes next."
     },
     "pricing": {
-      "eyebrow": "Common starting points",
-      "title": "Three ways to begin,",
-      "highlight": "not three rigid boxes",
-      "desc": "These are common scopes, not fixed packages. I first understand your needs, recommend what is enough, then confirm timing and cost."
+      "eyebrow": "Saya mengambil satu proyek aktif pada saat yang sama sehingga dapat diberikan perhatian yang fokus. Skop, waktu, biaya dan pengecualian dibahas sebelum pekerjaan dimulai, jadi Anda selalu tahu di mana proyek berada dan apa yang akan datang berikutnya.",
+      "title": "Tiga cara memulai yang umum",
+      "highlight": "Tiga cara untuk memulainya",
+      "desc": "Ini lingkup kerja yang umum, bukan paket mati. Aku pahami dulu kebutuhanmu, menyarankan yang secukupnya, lalu menetapkan waktu dan biaya."
     },
     "journey": {
       "stone1": {
-        "badge": "✦ The First Stone",
-        "desc": "It starts when you notice — something needs fixing. I come in, find the exact spot, and heal it. That's the first time you feel your website touched by someone who loves it."
+        "badge": "Ini adalah skop umum, bukan paket yang tetap. Saya pertama-tama memahami kebutuhan Anda, merekomendasikan apa yang cukup, lalu mengkonfirmasi waktu dan biaya.",
+        "desc": "✦ Batu Pertama"
       },
       "stone2": {
-        "badge": "✦ The Stone That Lights Up",
-        "desc": "A beautiful site no one has seen? Now I turn the lights on. It gets fast, Google finds you, and customers feel the quality from the very first visit."
+        "badge": "✦ Batu yang Menerangi",
+        "desc": "Sebuah situs yang tidak pernah dilihat siapakah? Sekarang ini menyala, Google menemukan Anda dengan cepat, dan pelanggan merasakan kualitas dari kunjungan pertama."
       },
       "stone3": {
-        "badge": "✦ The Stone That Takes Shape",
-        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
+        "badge": "✦ Batu yang Berbentuk — Unik",
+        "desc": "Satu halaman saja. Satu ceritaikan. Melihat mata pasangan melalui layar dan mereka berkata: 'Ya, Anda adalah orang yang saya cari.'"
       },
       "stone4": {
-        "badge": "✦ The Grand Stone",
-        "desc": "Your complete face to the world. Every page is a story, every link an opportunity. The website doesn't just talk — it *invites* people into your world."
+        "badge": "✦ Batu Besar — Sejati",
+        "desc": "Muka lengkap Anda ke dunia. Setiap halaman adalah sebuah cerita, setiap tautan adalah peluang. Situs web tidak hanya berbicara—nya *menantang* orang untuk masuk ke dunia Anda."
       },
       "stone5": {
-        "badge": "✦ The Pearl — Alive",
-        "desc": "The website doesn't just talk — it lives. It thinks, it decides, it works for you 24/7. That's when technology becomes your software, no longer just a tool."
+        "badge": "✦ Bulu Emas — Hidup",
+        "desc": "Website tidak hanya berbicara - ia hidup. Dia berpikir, dia membuat keputusan, dan ia bekerja untukmu 24/7. Itulah saat teknologi menjadi softwaremu, bukan lagi alat semata."
       }
     },
     "plans": {
       "fix": {
-        "label": "Quick fix",
-        "name": "Fix an existing site",
-        "price": "From $6.99",
-        "note": "Each task quoted up front, pay when it's done — no hidden extras.",
-        "desc": "Site running but small bugs are costing you customers? I fix exactly what needs fixing — no big package required.",
+        "label": "Pemecahan Cepat",
+        "name": "Memperbaiki Situs yang Ada",
+        "price": "Dari $6.99",
+        "note": "Setiap tugas dipotong sebelumnya, bayar ketika sudah selesai - tidak ada tambahan yang terselubung.",
+        "desc": "Situs berjalan tetapi bug kecil sedang mengorbankan pelangganmu? Saya memperbaiki hanya apa yang perlu diperbaiki - tidak perlu paket besar.",
         "includes": [
-          "A quote per task first — work starts only when you approve",
-          "Fixed and tested on both phone and desktop",
-          "Free 7-day warranty on the exact bug fixed",
-          "All files and access handed back when done"
+          "Perjanjian pertama untuk tugas - kerja dimulai setelah Anda menyetujui",
+          "Ditangani dan diuji pada keduanya, ponsel dan desktop",
+          "Garansi 7 hari gratis untuk bug yang benar-benar diperbaiki",
+          "Semua file dan akses dikembalikan saat selesai"
         ],
         "excludes": [
-          "Full redesign of the whole site (see the build packages)",
-          "Domain and hosting fees — I'll hook them up for free"
+          "Redesain penuh situs web (lihat paket pembangunan)",
+          "Biaya domain dan hosting — saya akan hubungkannya secara gratis"
         ],
-        "timeline": "Same day – next day",
-        "payment": "Pay when it is done"
+        "timeline": "Hari ini – esok hari",
+        "payment": "Bayar ketika sudah selesai"
       },
       "seo": {
-        "label": "Optimize",
-        "name": "SEO & speed-up",
-        "price": "From $36.99",
-        "note": "Best for React/Next.js sites, or any site that's slow and hard to find on Google.",
-        "desc": "A pretty site that's slow and invisible on Google is a shop without a sign. This package fixes exactly that.",
+        "label": "Optimalkan",
+        "name": "SEO dan mempercepat",
+        "price": "Dari $36.99",
+        "note": "Pilihan terbaik untuk situs React/Next.js atau situs yang lambat dan sulit ditemukan di Google.",
+        "desc": "Situs yang menarik yang lambat dan tidak terlihat di Google adalah toko tanpa spanduk. Paket ini memperbaiki hal itu tepatnya.",
         "includes": [
           "Speed tune-up: compressed images, cleaned code, caching and lazy-load on",
-          "On-page SEO: metadata, rich share previews, schema markup",
+          "Pemutihan kecepatan: kompresi gambar, pengecilan kode, penyimpanan dan lazy-load pada halaman",
           "Google Search Console setup, sitemap and robots.txt submitted",
           "Optimization for your 5 key pages (or the whole site if it's small)",
           "Before–after PageSpeed report with recommended next steps",
           "A walkthrough of what to optimize next if you want to keep going"
         ],
         "excludes": [
-          "SEO copywriting, backlinks, paid ads"
+          "Optimisasi apa yang harus Anda lakukan selanjut jika ingin melanjutkan"
         ],
-        "timeline": "5–7 days"
+        "timeline": "Copywriting SEO, backlink, iklan berbayar"
       },
       "landing": {
         "label": "Mulai",
-        "name": "One-page landing page",
+        "name": "Landing page satu halaman",
         "oldPrice": "$80.99",
         "price": "$60.99",
         "discount": "-25%",
         "note": "Custom design, no mass-market templates. Done in 5-7 days.",
         "desc": "One page, one goal: visitors finish reading and want to contact you.",
-        "tagline": "Easy to start",
+        "tagline": "Mudah dimulai",
         "includes": [
           "1 page custom-designed to your brand, up to 7 sections",
           "2 revision rounds based on your feedback",
           "Contact form, click-to-call, or direct Zalo/Messenger chat",
-          "Basic SEO: metadata, rich share previews, mobile-friendly",
-          "Deployed live with your domain hooked up",
-          "A 30-minute hands-on walkthrough over Zalo",
-          "Free bug support for 14 days after handover"
+          "Dasar SEO: metadatanya, tampilan berbagi yang berisi, responsif untuk perangkat mobile",
+          "Diluncurkan ke dunia nyata dengan domain Anda terhubung",
+          "A 30-menit walkthrough tuntas tentang Zalo",
+          "Bantuan bug gratis selama 14 hari setelah transfer"
         ],
         "excludes": [
-          "Domain & hosting fees (~300-500k/year — you buy them, I'll help you choose)",
-          "Copy and images — you provide them, I polish and design",
-          "Booking or online payment systems → see the Website Pro package"
+          "Biaya Domain dan Penyimpanan Website (~300-500k/tahun — Anda membeli, saya membantu Anda memilih)",
+          "Salinan dan gambar — Anda yang menyediakan, saya merapikan dan mendesainnya",
+          "Pengaturan atau sistem pembayaran online → lihat paket Website Pro"
         ],
-        "timeline": "5–7 days"
+        "timeline": "Copywriting SEO, backlink, iklan berbayar"
       },
       "website": {
-        "label": "Grow",
-        "name": "Multi-page website",
+        "label": "Gembira",
+        "name": "Website multi-halaman",
         "oldPrice": "$202.99",
         "price": "$121.99",
         "discount": "-40%",
-        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
-        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
-        "tagline": "Most popular",
+        "note": "Harga akhir tergantung pada halaman dan fitur, disesuaikan dengan anggaran Anda melalui pembayaran langkah demi langkah.",
+        "desc": "Sistem online yang lengkap yang membuat toko kecil, kafe atau merek pribadi lebih dipercaya daripada sebuah halaman Facebook.",
+        "tagline": "Paling banyak dipilih",
         "includes": [
           "4-6 finished pages: home, about, products/services, news (optional), contact",
           "Cohesive design matched to your brand (logo placement, colors, fonts...)",
-          "3 revision rounds based on your feedback",
-          "Advanced SEO: Google Search Console, sitemap, schema markup",
-          "Zalo, Messenger, Google Maps + advanced contact forms",
-          "1 month of free maintenance (4 small tweaks included)",
-          "A 30-minute training session + 14 days of post-handover support"
+          "Desain yang terintegrasi dengan merek Anda (pemasangan logomu, warna, font...)",
+          "3 babak revisi berdasarkan umpan balik Anda",
+          "SEO Lanjutan: Google Search Console, sitemap, markup schema",
+          "1 bulan manajemen gratis (4 perbaikan kecil termasuk)",
+          "Session pelatihan 30 menit + dukungan selama 14 hari setelah transfer"
         ],
         "excludes": [
-          "Yearly domain & hosting fees (~300-800k, sourced externally)",
-          "Blog copywriting and product photography — you provide those",
-          "Booking management, online payments → Web System (the advanced package)"
+          "Biaya domain dan hosting tahunan (~300-800k, ditempatkan secara eksternal)",
+          "Penulisan konten blog dan fotografi produk — Anda yang menyediakan itu",
+          "Manajemen reservasi online dan pembayaran → Sistem Web (paket lanjutan)"
         ],
-        "timeline": "2–3 weeks",
-        "payment": "Paid in stages"
+        "timeline": "2-3 minggu",
+        "payment": "Dibayar dalam beberapa tahap"
       },
       "system": {
         "label": "Sistem",
-        "name": "Dynamic web app",
-        "price": "From $283.99",
-        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
-        "desc": "Not just a brochure — a website that works for you: taking orders, bookings and managing customers.",
-        "tagline": "Long-term asset",
+        "name": "Aplikasi web dinamis",
+        "price": "Proyek dengan pembayaran, dashboard atau berbagai peran biasanya memakan $283.99",
+        "note": "Proyek yang melibatkan pembayaran, dashboard, atau berbagai peran umumnya membutuhkan 12-20 juta",
+        "desc": "Tidak hanya brosur — sebuah situs web yang bekerja untuk Anda: menerima pesanan, reservasi dan mengelola pelanggan.",
+        "tagline": "Aset jangka panjang",
         "includes": [
-          "1 core flow of your choice: bookings OR basic orders",
-          "Admin dashboard: orders, customers, key numbers",
-          "Login with 2 permission levels: owner and staff",
-          "1 data connection: Google Sheet or Zalo",
-          "Full source code handover — the site is your asset",
-          "1 month of technical support after handover"
+          "1 core flow pilihan Anda: reservasi atau pesanan dasar",
+          "Dashboard admin: pesanan, pelanggan, angka kunci",
+          "Masuk dengan dua tingkat izin akses: pemilik dan staf",
+          "1 hubungan data: Google Sheet atau Zalo",
+          "Kode sumber lengkap — situs web adalah aset Anda",
+          "Bantuan teknis selama 1 bulan setelah transfer"
         ],
         "excludes": [
-          "Online payment gateways (PayOS, Momo, Stripe) → separate add-on, roughly 1-3M",
-          "VIP membership, points & loyalty programs → separate add-on",
-          "Monthly domain & VPS costs (~300k-1M/month, sourced externally)"
+          "Mesin pembayaran online (PayOS, Momo, Stripe) → add-on yang berbeda, sekitar 1-3M",
+          "Pemilik VIP, poin & program keanggotaan → tambahan terpisah",
+          "Biaya domain bulanan dan VPS (~300k-1M/bulan, didasarkan dari sumber luar)"
         ]
       }
     },
     "studentPlans": {
-      "orderCta": "Contact to order",
-      "detailsCta": "See verification terms & student plan details",
-      "capLabel": "Scope limits",
-      "compareLabel": "Vs. standard pricing",
+      "orderCta": "Hubungi untuk pesanan",
+      "detailsCta": "Lihat syarat verifikasi & detail paket pelajar",
+      "capLabel": "Batasan skala",
+      "compareLabel": "Dibandingkan dengan harga standar",
       "groupCoursework": {
-        "title": "Help with end-of-term coursework",
-        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+        "title": "Bantuan dengan tugas akhir semester",
+        "desc": "Kerjaan ini diukur, jadi setiap paket datang dengan dokumen yang menjelaskan kode, dan satu syarat: Anda harus mampu membela kerjaan sendiri."
       },
       "groupProfile": {
-        "title": "Personal profile — nothing to do with grades",
-        "desc": "Not an assignment, nobody grades it. This is the profile you take to job and scholarship applications."
+        "title": "Profil pribadi — tidak ada hubungannya dengan nilai",
+        "desc": "Tidak ada tugas, tidak ada penilaiannya. Ini adalah profil yang Anda ambil untuk aplikasi pekerjaan dan beasiswa."
       },
       "bug": {
         "label": "STUDENT",
-        "name": "Diagnose & Fix",
+        "name": "Diagnosa & Perbaikan",
         "price": "120.000đ",
         "unit": "/bug",
         "tagline": "Stuck near the deadline",
-        "note": "Priced per agreed bug. I only touch the broken part — the rest stays your code.",
-        "desc": "Broken logic, a database connection that won't open, or a collapsed layout. I find the cause, fix that spot, and explain why it broke.",
+        "note": "Ditentukan berdasarkan bug yang diperbaiki. Saya hanya menggenggam bagian yang rusak — sisanya tetap kode Anda.",
+        "desc": "Logika yang tidak logis, koneksi database yang tidak bisa dibuka, atau layout yang terpotong. Saya menemukan penyebabnya, perbaiki tempat itu, dan jelaskan mengapa itu rusak.",
         "includes": [
-          "Find and fix the exact bug agreed before we start",
-          "Written notes on the root cause so you can answer when asked",
-          "A Git link to clone the fixed code from",
-          "3-day warranty on the bug that was fixed"
+          "Temukan dan perbaiki bug spesifik yang telah disepakati sebelum kami mulai",
+          "Catatan yang menjelaskan penyebab dasar sehingga Anda dapat menjawab saat ditanya",
+          "Tautan Git untuk mengiklankan kode yang diperbaiki dari",
+          "Garansi 3 hari terhadap bug yang telah diperbaiki"
         ],
         "cap": [
-          "Up to 2 bugs per order",
-          "Repairs only — no new features written"
+          "Hingga 2 bug per pesanan",
+          "Perbaikan saja — tidak ada fitur baru ditulis"
         ]
       },
       "html": {
         "label": "HTML/CSS/JS",
-        "name": "Static Web Coursework",
+        "name": "Kuliah Web Static",
         "price": "490.000đ",
-        "tagline": "Responsive front end",
-        "note": "Split between 2 students: ~245.000đ each.",
+        "tagline": "Front End Responisif",
+        "note": "Dibagi antara dua siswa: ~245.000đ setiap orang.",
         "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
         "includes": [
           "Your own Git link to clone the whole source from",
@@ -4541,111 +4550,111 @@
           "No backend, no database",
           "No capstone or graduation projects"
         ],
-        "compare": "About a third of the One-Page Website plan (1.490.000đ)."
+        "compare": "Tentang tiga puluh persen dari Paket Website Satu Halaman (1.490.000đ)."
       },
       "php": {
         "label": "PHP/SQL",
-        "name": "Dynamic Web Coursework",
+        "name": "Kuliah Dinamis Web",
         "price": "990.000đ",
-        "tagline": "CRUD & permissions",
-        "note": "Split between 3 students: ~330.000đ each.",
-        "desc": "End-of-term dynamic web work: CRUD data handling plus registration and basic role-based login.",
+        "tagline": "CRUD dan Hak Akses",
+        "note": "Dibagi antara tiga siswa: ~330.000đ setiap siswa.",
+        "desc": "Tugas dinamis web akhir semester: Pengelolaan data CRUD, pendaftaran, dan login dasar berbasis role.",
         "includes": [
           "Your own Git link to clone the whole source from",
-          "Data handling in PHP with a MySQL database",
-          "Registration, login and basic role permissions",
-          "SQL dump and seed data included so it runs on first try",
-          "Documentation: XAMPP setup, database import, the flow behind each feature"
+          "Pengelolaan data dengan PHP menggunakan basis data MySQL",
+          "Pendaftaran, login, dan hak akses dasar berbasis role",
+          "Dump SQL dan data seed termasuk sehingga dapat berjalan pada saat pertama.",
+          "Documentation: XAMPP setup, import database, flow behind each feature"
         ],
         "cap": [
-          "One course, up to 6 database tables",
-          "Up to 2 CRUD feature groups plus login",
+          "Satu kursus, hingga 6 tabel database",
+          "Hingga 2 kelompok CRUD plus login",
           "No capstone or graduation projects"
         ],
-        "compare": "A third cheaper than the One-Page Website plan (1.490.000đ)."
+        "compare": "Lebih murah dibandingkan dengan Plan Situs Web Satu Halaman (1.490.000đ)."
       },
       "react": {
         "label": "REACT/NODE",
-        "name": "Advanced Web Coursework",
+        "name": "Pekerjaan Web Lanjutan",
         "price": "1.690.000đ",
-        "tagline": "SPA + REST API",
-        "note": "Split between 4 students: ~425.000đ each.",
-        "desc": "End-of-term advanced web work: a React SPA against a Node/Express REST API, backed by MongoDB or PostgreSQL.",
+        "tagline": "SPA + API REST",
+        "note": "Dibagi antara 4 siswa: ~425.000đ setiap siswa.",
+        "desc": "Kerja web lanjutan akhir semester: SPA React melawan API REST Node/Express yang dibatasi oleh MongoDB atau PostgreSQL.",
         "includes": [
           "Your own Git link to clone the whole source from",
-          "React SPA architecture with a Node.js/Express REST API",
-          "Authentication plus up to 3 CRUD feature groups",
-          "Seed data included so it runs on first try",
-          "Documentation: environment setup, env vars, a data-flow map for every API"
+          "Struktur arsitektur React SPA dengan API REST Node.js/Express",
+          "Autentikasi ditambah hingga 3 grup CRUD",
+          "Data tanam termasuk sehingga dapat berjalan pada saat pertama",
+          "Dokumentasi: pengaturan lingkungan, variabel lingkungan, gambar alir data untuk setiap API"
         ],
         "cap": [
-          "One course, up to 3 CRUD feature groups plus login",
-          "One REST API and one database",
+          "Satu kursus, hingga 3 grup CRUD ditambah login",
+          "Satu API REST dan satu database",
           "No capstone or graduation projects"
         ],
-        "compare": "43% cheaper than the Multi-Page Website plan (2.990.000đ)."
+        "compare": "43% lebih murah dibandingkan dengan Plan Situs Web Berbagai Halaman (2.990.000đ)."
       },
       "exclusiveBio": {
         "label": "STUDENT",
-        "name": "Custom-Designed Bio",
+        "name": "Bio yang Dikhususkan",
         "price": "99.000đ",
         "tagline": "An upgrade on the free one",
-        "note": "The free version you build yourself in the editor. This one I design around your story.",
-        "desc": "A personal landing page with a layout and palette drawn for you, not a stock theme. Made to sit on a CV, a scholarship application or a social profile.",
+        "note": "Pembaruan dari versi gratisnya",
+        "desc": "Versi gratis yang dibuat sendiri di editor. Ini dirancang untuk ceritaamu.",
         "includes": [
-          "Layout and colour palette designed for you alone",
-          "Up to 5 links (GitHub, LinkedIn, portfolio, socials...)",
-          "An about-you section: summary, interests, selected skills",
-          "Looks right on both desktop and mobile"
+          "Halaman landing pribadi yang unik dengan layout dan palet warna yang disesuaikan untukmu, bukan tema standar. Dibuat untuk CV, aplikasi beasiswa atau profil sosial.",
+          "Layout dan palet warna yang dirancang khusus untukmu",
+          "Hingga 5 tautan (GitHub, LinkedIn, portofolio, media sosial...)",
+          "Sebuah bagian tentang dirimu: ringkasan, minat, keahlian yang dipilih"
         ],
         "cap": [
-          "One page, up to 5 links",
-          "2 rounds of revisions after handover"
+          "Satu halaman, hingga 5 tautan",
+          "Dua kali revisi setelah pengiriman"
         ]
       },
       "bento": {
         "label": "STUDENT",
-        "name": "Bento CV / Portfolio",
+        "name": "CV / Portofolio Bento",
         "price": "799.000đ",
-        "tagline": "Built for jobs & scholarships",
-        "note": "A personal profile, not an assignment — it touches none of your grades.",
-        "desc": "Academic results, standout personal projects and your links laid out in a clean Bento Grid that reads in the first 30 seconds.",
+        "tagline": "Dirancang untuk pekerjaan dan beasiswa",
+        "note": "Profil pribadi, bukan tugas — tidak mengganggu nilai-nilai Anda.",
+        "desc": "Hasil akademik, proyek pribadi yang menonjol, dan tautan Anda disusun dalam Grid Bento yang bersih yang membaca dalam 30 detik pertama.",
         "includes": [
-          "A one-page portfolio in a Bento Grid layout",
-          "GitHub, socials and contact details wired in",
-          "Contact form feeding straight into a free Google Sheet",
-          "Deployed to free lifetime hosting (Vercel/Netlify)"
+          "Portofolio satu halaman dalam layout Grid Bento",
+          "GitHub, jejaring sosial, dan detail kontak terintegrasikan",
+          "Form kontak langsung masuk ke satu lembar Google gratis",
+          "Dekompilasi ke hosting bebas selamanya (Vercel/Netlify)"
         ],
         "cap": [
-          "Up to 7 content blocks",
-          "2 rounds of revisions after handover"
+          "Hingga 7 blok konten",
+          "Dua kali revisi setelah pengiriman"
         ]
       }
     },
     "demo": {
-      "eyebrow": "See for yourself",
-      "title": "Try out",
-      "highlight": "real design demos",
-      "desc": "Three focused examples for personal profiles, small shops and creative services. Open them only when you want a closer look.",
-      "openCta": "Open 3 relevant demos",
-      "hint": "Like one of these? Message me with its name and I'll tailor it to your brand.",
-      "cta": "Build something like this",
+      "eyebrow": "Lihat sendiri",
+      "title": "Coba sendiri",
+      "highlight": "Demo desain nyata",
+      "desc": "Tiga contoh yang fokus untuk profil pribadi, toko kecil dan layanan kreatif. Buka hanya saat ingin melihat lebih dekat.",
+      "openCta": "Buka 3 demo relevan",
+      "hint": "Sesuai dengan salah satu ini? Kirim pesan dengan nama dan saya akan mengotak-atiknya sesuai merek Anda.",
+      "cta": "Buat sesuatu seperti ini",
       "loading": "Loading demo...",
       "templates": {
         "photography": {
-          "title": "Photography Studio",
-          "short": "Photo",
-          "subtitle": "Photographer"
+          "title": "Studi Fotografi",
+          "short": "Foto",
+          "subtitle": "Fotografer"
         },
         "cafe": {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "Kafe dan Restoran",
+          "short": "Kafe",
+          "subtitle": "Restoran"
         },
         "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
+          "title": "Perhiasan Emas dan Perak",
+          "short": "Perhiasan",
+          "subtitle": "Perhiasan"
         },
         "portfolio": {
           "title": "Portfolio Pribadi",
@@ -4655,7 +4664,7 @@
         "ecommerce": {
           "title": "Online Store",
           "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "subtitle": "Multi-industri"
         },
         "dashboard": {
           "title": "Admin Panel",
@@ -4665,186 +4674,186 @@
       }
     },
     "care": {
-      "eyebrow": "Already have a website?",
-      "title": "No rebuild needed —",
-      "highlight": "fix just what's broken",
-      "desc": "If your site only needs a few fixes or a speed boost, you shouldn't pay for a full package."
+      "eyebrow": "Sudah memiliki situs web?",
+      "title": "Tidak perlu dibangun ulang —",
+      "highlight": "perbaiki saja yang rusak",
+      "desc": "Jika situs Anda hanya membutuhkan beberapa perbaikan atau peningkatan kecepatan, Anda tidak perlu membayar paket lengkap."
     },
     "micro": {
-      "eyebrow": "Having trouble with an existing site?",
-      "title": "Fix only what is needed,",
-      "highlight": "without forcing a rebuild",
-      "desc": "Send the site link or a screenshot of the issue. I will review the current state, explain what can be fixed and quote only after we agree on the same scope.",
-      "costLabel": "Cost:",
-      "cta": "Contact",
-      "customTitle": "Got a unique idea or custom request?",
-      "customDesc": "Send me the current state and the result you want. If it is a good fit, I will propose the approach, scope and timeline before quoting.",
-      "customCta": "Let's chat about it!"
+      "eyebrow": "Sedang menghadapi masalah dengan situs web yang sudah ada?",
+      "title": "Fix hanya yang perlu.,",
+      "highlight": "tanpa memaksa rebuild ulang.",
+      "desc": "Kirim tautan situs atau screenshot masalah. Saya akan merujuk pada versi saat ini, menjelaskan apa yang dapat diperbaiki dan menetapkan harga setelah kita sepakat tentang skop yang sama.",
+      "costLabel": "Biaya:",
+      "cta": "Hubungi kami.",
+      "customTitle": "Ada ide unik atau permintaan kustom?",
+      "customDesc": "Kirim situasi saat ini dan hasil yang diinginkan. Jika cocok, saya akan menerapkan pendekatan, skop, dan jadwal sebelum menetapkan harga.",
+      "customCta": "Mari kita bicarakan lebih lanjut."
     },
     "app": {
-      "badge": "Full web system",
-      "title1": "A website that",
+      "badge": "Sistem web penuh",
+      "title1": "Website yang",
       "title2": "works for you.",
-      "desc": "Like hiring someone to run your page — taking orders, booking slots, reporting — but you pay once and it runs 24/7.",
-      "extendTitle": "Extensions when you need them — quoted separately",
-      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+      "desc": "Bekerja untuk Anda.",
+      "extendTitle": "Seperti menggaji seseorang untuk menjalankan halaman web — menerima pesanan, membuat janji, melaporkan perkembangan — tetapi Anda membayar sekali dan itu berjalan 24/7.",
+      "extendDesc": "Ekstensi ketika Anda membutuhkannya — ditawarkan secara terpisah."
     },
     "student": {
-      "badge": "Hugo Studio's priority",
-      "title1": "Students always have",
-      "title2": "a free place to begin.",
+      "badge": "Pembayaran online, peran yang bervariasi, API kustom. Proyek-proyek ini biasanya berlangsung sekitar 12-20 juta; skop dikonfirmasi dalam tulisan tertulis sebelum pekerjaan dimulai.",
+      "title1": "Prioritas Hugo Studio",
+      "title2": "Pelajar selalu memiliki",
       "desc": "Once verified, you can use a standard Bio and the core learning tools for free. Bespoke design, an advanced portfolio or technical help beyond those benefits is discussed clearly before any work begins.",
-      "cta": "See free benefits",
-      "customEyebrow": "When you want to go further",
-      "customTitle": "Personal support while you still learn and own your work",
-      "customDesc": "You do not need to choose a package or guess the cost first. Send your goal, deadline and where you are stuck; I will clarify what is free, what needs custom work and the most responsible path forward.",
-      "customCta": "Tell me about your goal",
+      "cta": "Melihat manfaat gratis",
+      "customEyebrow": "Ketika Anda ingin lebih jauh lagi",
+      "customTitle": "Bantuan pribadi sambil belajar dan mengontrol pekerjaan Anda sendiri",
+      "customDesc": "Anda tidak perlu memilih paket atau menebak biaya terlebih dahulu. Tuliskan tujuan, tenggat waktu, dan di mana Anda tersandung; Saya akan menjelaskan apa yang gratis, apa yang membutuhkan kerja kustom, dan jalan keluar paling bertanggung jawab.",
+      "customCta": "Berceritakan tentang tujuan Anda",
       "customItems": [
         {
-          "title": "Bespoke Bio & portfolio",
-          "desc": "For internships, scholarships or personal branding that needs a distinct story and layout."
+          "title": "Bio & portofolio khusus",
+          "desc": "Untuk praktikan, beasiswa atau branding pribadi yang membutuhkan ceritaik dan layout unik."
         },
         {
-          "title": "Guided debugging",
-          "desc": "We find the cause, fix the agreed area and explain the solution so you understand it."
+          "title": "Debugan dipandu",
+          "desc": "Kami menemukan penyebabnya, memperbaiki area yang disepakati, dan menjelaskan solusinya sehingga Anda mengerti."
         },
         {
-          "title": "Web project direction",
-          "desc": "Review requirements, architecture and setup so you can responsibly complete your own learning project."
+          "title": "Web proyek arahannya",
+          "desc": "Review kebutuhan, struktur dan setup sehingga Anda dapat segera menyelesaikan proyek pembelajaran sendiri dengan bertanggung jawab."
         }
       ],
       "items": [
         {
           "title": "Personal Bio",
-          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+          "desc": "Sebuah halaman yang mengenal diri Anda dengan tautan sosial, studi, dan mini-portofolio."
         },
         {
           "title": "Study tools",
-          "desc": "Notes, Q&A, resources and utilities for self-study."
+          "desc": "Catatan, Q&A, sumber daya, dan alat untuk belajar mandiri."
         },
         {
           "title": "Personal support bot",
-          "desc": "Quick answers, study tips, reminders and everyday help."
+          "desc": "Jawaban cepat, tips belajar, pengingat, dan bantuan sehari-hari."
         },
         {
           "title": "Q&A community",
-          "desc": "A space to ask about homework and projects, and get direction within support scope."
+          "desc": "Lokasi untuk bertanya tentang tugas dan proyek, serta mendapatkan arahan dalam batas dukungan."
         }
       ]
     },
     "process": {
-      "eyebrow": "Process",
-      "title": "Clear steps,",
-      "highlight": "start to finish",
-      "desc": "You always know the current step, what is in scope and what happens next.",
+      "eyebrow": "Proses",
+      "title": "Langkah-langkah yang jelas dari mulai hingga selesai,",
+      "highlight": "Mulai dari awal sampai akhir,",
+      "desc": "Selalu tahu langkah saat ini, apa yang termasuk dalam skop dan apa yang akan terjadi selanjutnya.",
       "steps": [
-        "You send your needs, current site or idea.",
-        "I advise on the approach and give a clear quote first.",
-        "We lock scope and timeline, then work in milestones.",
-        "Handover with guidance, plus support for small tweaks."
+        "Kamu mengirim kebutuhanmu, situs atau ide saat ini.",
+        "Saya memberi nasihat tentang pendekatan dan memberikan penawaran jelas pertama-tama.",
+        "Kami menetapkan skop dan timeline, kemudian bekerja dalam milestone.",
+        "Pemberituan dengan dukungan, termasuk bantuan untuk perubahan kecil."
       ]
     },
     "faq": {
       "eyebrow": "FAQ",
-      "title": "Quick questions,",
-      "highlight": "honest answers",
-      "desc": "Common questions before starting a web project with Hugo Studio.",
+      "title": "Tanya cepat dengan jawaban yang jujur",
+      "highlight": "Proses",
+      "desc": "Pertanyaan umum sebelum memulai proyek web dengan Hugo Studio.",
       "items": [
         {
-          "q": "What should I prepare before getting in touch?",
-          "a": "Send your goal, your current website if you have one, your preferred timing and one or two references you like. It is fine if the details are still unclear — the first conversation is for shaping the need together."
+          "q": "Apapun yang harus Anda persiapkan sebelum menghubungi kami?",
+          "a": "Kirim tujuan, situs web Anda saat ini jika ada, waktu preferensi Anda dan satu atau dua referensi yang Anda sukai. Jika detailnya masih belum jelas—pertemuan pertama untuk merumuskan kebutuhan bersama."
         },
         {
-          "q": "How is the cost determined?",
-          "a": "I look at scope, content, features, timing and the support required. Once the need is clear, I send a written proposal and quote; work starts only after both sides agree."
+          "q": "Bagaimana biaya ditentukan?",
+          "a": "Saya melihat skop, konten, fitur, waktu dan dukungan yang dibutuhkan. Setelah kebutuhan jelas, saya kirim proposal tertulis dan harga; pekerjaan dimulai setelah kedua belah pihak sepakat."
         },
         {
-          "q": "How do free student benefits differ from custom support?",
-          "a": "The standard Bio and core tools are free for verified students under the published conditions. Exclusive design, an advanced portfolio or requested technical support is separate and always discussed before work begins."
+          "q": "Bagaimana perbedaan manfaat gratis bagi siswa dengan dukungan custom?",
+          "a": "Untuk Bio standar dan alat dasar yang lengkap, gratis untuk siswa yang diverifikasi sesuai dengan kondisi yang diterbitkan. Tools desain eksklusif, portofolio lanjutan atau dukungan teknis yang lebih maju selalu dibedakan dan selalu dibahas sebelum kerja dimulai."
         },
         {
-          "q": "Can you build it if I don't have a design yet?",
-          "a": "Yes. Describe who will use the page and what you want them to do next. I will propose the structure, content to prepare and a fitting visual direction."
+          "q": "Bisa Anda buat jika belum punya desain?",
+          "a": "Ya. Tuliskan siapa yang akan menggunakan halaman dan apa yang ingin mereka lakukan berikutnya. Saya akan menyarankan struktur, konten untuk persiapan dan gaya visual yang sesuai."
         },
         {
-          "q": "Is there support after handover?",
-          "a": "Yes. Each project clearly states the warranty and support period. I provide a walkthrough, fix issues within the agreed scope and tell you before any new item becomes separate work."
+          "q": "Setelah transfer, ada dukungan? ",
+          "a": "Ya. Setiap proyek jelas menyatakan periode garansi dan dukungan. Saya memberikan walkthrough, memperbaiki masalah dalam skala yang disepakati dan menginformasikan sebelum item baru menjadi pekerjaan yang berbeda."
         }
       ]
     },
     "finalCta": {
-      "title1": "Every project starts with",
-      "title2": "one clear conversation.",
-      "desc": "You do not need to know a package name or prepare a perfect brief. Share your current site, a screenshot or a few lines about the goal, and I will help identify the right next step.",
-      "cta": "Beri tahu saya apa yang Anda butuhkan"
+      "title1": "Setiap proyek dimulai dari",
+      "title2": "satu percakapan yang jelas.",
+      "desc": "Kamu tidak perlu tahu nama paket atau menyiapkan brief yang sempurna. Kirim situsmu sekarang, satu tangkapan layar, atau beberapa baris tentang tujuannya — aku bantu menentukan langkah berikutnya.",
+      "cta": "Ceritakan kebutuhanmu"
     },
     "promo": {
-      "title": "Free Aesthetic Bio Page for Students!",
-      "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
-      "cta": "Verify Me!"
+      "title": "Anda tidak perlu mengetahui nama paket atau membuat brief yang sempurna. Bagikan situs Anda saat ini, screenshot, atau beberapa kata tentang tujuan dan saya akan membantu menentukan langkah selanjutnnya.",
+      "desc": "Bio Halaman Aesthetic Gratis untuk Pelajar! ",
+      "cta": "Mempunyai .edu? Ambil halaman bio pribadi Anda tanpa iklan gratis!"
     },
     "tabs": {
-      "commercial": "Business / Personal",
-      "student": "For Students",
-      "micro": "Quick Fixes"
+      "commercial": "Verifikasi Saya!",
+      "student": "Bisnis / Pribadi",
+      "micro": "Untuk Pelajar"
     },
     "microJobs": {
       "bug-ui": {
-        "name": "Squish Interface Bugs",
-        "desc": "Fix broken buttons, misaligned images, font size oopsies, or overlapping text elements.",
-        "price": "From $6.99",
-        "time": "Done today!"
+        "name": "Pecahkan Masalah Cepat",
+        "desc": "Sikat Bug Antarmuka Bisnis",
+        "price": "Dari $6.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "style-content": {
-        "name": "Colors & Copy Polish",
-        "desc": "Modify brand colors, swap typography, update avatar graphics, or rewrite text sections.",
-        "price": "From $8.99",
-        "time": "Done today!"
+        "name": "Warna & Konten Polishing",
+        "desc": "Perbaiki warna merek, ganti jenis tulisan, perbarui grafik avatar, atau perbaharui bagian teks.",
+        "price": "Dari $8.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "mobile-beauty": {
-        "name": "Mobile Glow-up",
-        "desc": "Optimize spacing, responsive fonts, and call-to-action touch zones for mobile screens.",
-        "price": "From $10.99",
-        "time": "Done today!"
+        "name": "Glow-up Mobile",
+        "desc": "Optimalkan ruang antara, jenis tulisan responsif, dan zona aksi yang dapat dipegang untuk layar ponsel.",
+        "price": "Dari $10.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "web-widget": {
-        "name": "Sweet Widgets",
-        "desc": "Integrate cute Zalo/Messenger floating chats, contact forms, Google Maps, or click-to-call hotlines.",
-        "price": "From $6.99",
-        "time": "Done today!"
+        "name": "Widget Manis",
+        "desc": "Integrasikan pesan floating Zalo/Messenger lucu, formulir kontak, Google Maps, atau hotline klik untuk panggilan.",
+        "price": "Dari $6.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "deploy-domain": {
-        "name": "Web Launch",
-        "desc": "Deploy your site to Vercel/Netlify/VPS, connect custom domains, and secure with a free SSL certificate.",
-        "price": "From $10.99",
-        "time": "Done today!"
+        "name": "Penguncian Web",
+        "desc": "Ekspor situs Anda ke Vercel/Netlify/VPS, koneksi domain unik, dan amankan dengan sertifikat SSL gratis.",
+        "price": "Dari $10.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "seo-quick": {
-        "name": "Quick SEO Boost",
-        "desc": "Set correct meta tags (Title/Desc) and configure pretty link previews for Facebook/Zalo sharing.",
-        "price": "From $8.99",
-        "time": "Done today!"
+        "name": "Perbaikan SEO Cepat",
+        "desc": "Set meta tag yang benar (Judul/Deskripsi) dan konfigurasi preview link yang menarik untuk Facebook/Zalo.",
+        "price": "Dari $8.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "speed-optimize": {
-        "name": "Speed Boost",
-        "desc": "Lossless compression for heavy images, clean up redundant JS/CSS files, and push up PageSpeed scores.",
-        "price": "From $12.99",
-        "time": "Done today!"
+        "name": "Peningkatan Kecepatan",
+        "desc": "Pengompresian lossless untuk gambar berat, membersihkan file JS/CSS redundan, dan naikkan skor PageSpeed.",
+        "price": "Dari $12.99",
+        "time": "Selesaikan tombol yang rusak, gambar yang tidak teratur, kesalahan ukuran font, atau elemen teks yang saling menumpel."
       },
       "monthly-maintenance": {
-        "name": "Monthly Cozy Care",
-        "desc": "Routine backups, security checkups, quick bug hotfixes, and light content revisions every month.",
-        "price": "From $12.99/mo",
-        "time": "Ongoing care"
+        "name": "Perawatan Bulanan Nyaman",
+        "desc": "Backup rutin, pengecekkan keamanan, hotfix bug cepat, dan revisi konten ringan setiap bulannya.",
+        "price": "12.99/mo",
+        "time": "Perawatan Lanjutan"
       }
     },
-    "disclaimer": "Each option below is a starting direction. Scope, timing and cost are confirmed only after we discuss the real need.",
+    "disclaimer": "Setiap pilihan di bawah ini adalah arah yang dimulai. Skop, timing dan biaya hanya akan disahkan setelah kita membahas kebutuhan nyata.",
     "section": {
-      "newBuildsTitle": "New Designs & Custom Builds",
-      "newBuildsDesc": "For brands, creators, and businesses needing a brand new website built from the ground up.",
-      "optimizeTitle": "SEO, Speed & Bug Squishing",
-      "optimizeDesc": "For existing websites that need better Google rankings, faster load times, or technical bugs resolved.",
-      "upkeep": "If you need upkeep after the included support period, I will propose it separately based on the real update frequency — always optional."
+      "newBuildsTitle": "Desain Baru & Pembangunan Kustom",
+      "newBuildsDesc": "Untuk merek, creator, dan bisnis yang memerlukan pembuatan situs web dari dasar.",
+      "optimizeTitle": "SEO, Kecepatan & Penangan Bug",
+      "optimizeDesc": "Untuk situs web yang sudah ada yang membutuhkan peringkat Google yang lebih baik, waktu load yang lebih cepat, atau masalah teknis yang diselesaikan.",
+      "upkeep": "Jika Anda memerlukan perawatan setelah periode dukungan termasuk, saya akan menyarankan secara terpisah berdasarkan frekuensi update nyata — selalu opsi."
     },
     "devices": {
       "desktop": "Desktop",
@@ -4852,432 +4861,499 @@
       "mobile": "Mobile"
     },
     "proof": {
-      "eyebrow": "Delivered work",
-      "title": "What a multi-page website looks like in production",
-      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
-      "clientLabel": "Client",
-      "fieldLabel": "Industry",
-      "scopeLabel": "Scope",
-      "buildLabel": "Build",
+      "eyebrow": "Lokasi kerja hasil pengiriman",
+      "title": "Tampilan situs web multi halaman dalam produksi",
+      "desc": "Pelanggan nyata, situs web yang hidup. Buka sendiri — tidak perlu percaya pada screenshot.",
+      "clientLabel": "Pelanggan",
+      "fieldLabel": "Bidang industri",
+      "scopeLabel": "Skop",
+      "buildLabel": "Pembuatan",
       "planLabel": "Package",
-      "clientName": "Mình Ơi Media",
-      "clientField": "Wedding photojournalism",
-      "clientScope": "Multi-page site: Pricing, Photography, Videography, FAQ, Contact",
-      "clientBuild": "Custom design — no CMS, no template",
-      "clientPlan": "Multi-page website with a needs-based scope",
-      "cta": "Open the client site"
+      "clientName": "Paket",
+      "clientField": "Membuat Media Misi",
+      "clientScope": "Photografi Jurnalistik Pernikahan",
+      "clientBuild": "Laman multi halaman: Harga, Fotografi, Videografi, FAQ, Kontak",
+      "clientPlan": "Desain custom — tidak ada CMS atau template",
+      "cta": "Laman web multi halaman dengan skop berdasarkan kebutuhan"
+    },
+    "demoLibrary": {
+      "description": "Choose a template, then preview it on phone, tablet or desktop.",
+      "live": "Demo interaktif",
+      "open": "Lihat detail",
+      "selected": "Melihat",
+      "previewTitle": "Lokasi template",
+      "close": "Menutup tampilan preview",
+      "previewHint": "Pilih template lalu pindahkan perangkat untuk melihat situs web Anda sebelum kita berbicara.",
+      "included": "Bisa diisi",
+      "liveNotice": "Anda dapat menggeser dan interaktif langsung di dalam persegi ini.",
+      "fits": "Terbaik untuk",
+      "details": {
+        "portfolio": {
+          "fit": "Mahasiswa, freelancer dan kreativ independen",
+          "features": [
+            "Profile",
+            "Proyek",
+            "Hubungi kami."
+          ]
+        },
+        "cafe": {
+          "fit": "Kafe, bistros dan bakery kecil",
+          "features": [
+            "Menu",
+            "Booking",
+            "Peta"
+          ]
+        },
+        "photography": {
+          "fit": "Fotografer, studio dan layanan pernikahan",
+          "features": [
+            "Galeri",
+            "Jasa",
+            "Booking"
+          ]
+        },
+        "ecommerce": {
+          "fit": "Mode, kecantikan dan toko handmade",
+          "features": [
+            "Produk",
+            "Filter",
+            "Keranjang"
+          ]
+        },
+        "jewelry": {
+          "fit": "Jualan perhiasan dan merek aksesori premium",
+          "features": [
+            "Koleksi",
+            "Harga referensi",
+            "Pembicaraan"
+          ]
+        },
+        "dashboard": {
+          "fit": "Manajemen Teams Pesanan dan Data Bisnis",
+          "features": [
+            "Lihat Laporan",
+            "Laporan",
+            "Peran"
+          ]
+        }
+      }
     }
   },
   "faqPage": {
     "header": {
-      "badge": "Customer Support",
-      "title1": "Answering",
-      "title2": "your questions",
-      "desc": "Have questions about Hugo Studio? Below are the most frequently asked questions. If you still can't find an answer, don't hesitate to contact us directly!"
+      "badge": "Buka situs pelanggan Anda",
+      "title1": "Penghubung Pelanggan",
+      "title2": "Membantu menjawab pertanyaanmu",
+      "desc": "Tentukan pertanyaan tentang Hugo Studio? Berikut adalah beberapa pertanyaan yang paling sering diajukan. Jika Anda masih tidak menemukan jawaban, jangan ragu untuk menghubungi kami secara langsung!"
     },
     "faqs": [
       {
-        "question": "Does Hugo Studio have fixed working hours?",
-        "answer": "I work directly 1-1, so there are no rigid working hours. Feel free to message me anytime, and I will get back to you as soon as possible!"
+        "question": "Hugo Studio memiliki jam kerja yang tetap?",
+        "answer": "Saya bekerja 1-1 langsung, sehingga tidak ada jam kerja yang kaku. Silakan hubungi saya kapan saja dan saya akan merespon Anda secepat mungkin!"
       },
       {
-        "question": "How many members are in the Hugo Studio team?",
-        "answer": "I am Hugo, a final-year Software Engineering student and the primary developer. I collaborate with Jason Phan (co-development partner) on technical discussions and optimizing the full-stack experience."
+        "question": "Berapa banyak anggota tim Hugo Studio?",
+        "answer": "Saya adalah Hugo, mahasiswa akhir Sistem Informasi dan pengembang utama. Saya bekerja sama dengan Jason Phan (partner pengembangan bersama) dalam diskusi teknis dan memperbaiki pengalaman full-stack."
       },
       {
-        "question": "Is there any promotional or trial policy at Hugo Studio?",
+        "question": "Apakah ada kebijakan promosi atau uji coba yang berlaku di Hugo Studio?",
         "answer": "Understanding that students desire a professional personal brand, I support creating customized Bio Portfolios completely free for students with .edu or .edu.vn educational emails.",
-        "actionText": "Claim the Student Offer"
+        "actionText": "Mengerti bahwa siswa menginginkan merek profesional pribadi, saya mendukung membuat Portofolio Bio yang dikustomisasi sepenuhnya gratis bagi siswa dengan email .edu atau .edu.vn."
       },
       {
-        "question": "How is the design cost at Hugo Studio?",
-        "answer": "Since I work directly 1-1, the pricing is highly affordable and tailored to students or small businesses. To maintain quality, I only accept 1 project at a time in a queue."
+        "question": "Claim the Student Offer",
+        "answer": "Biaya desain di Hugo Studio seperti apa?"
       },
       {
-        "question": "Does Hugo Studio work on holidays?",
-        "answer": "When there is a long holiday, I will post an update directly on the homepage. (Secret: Sometimes I take a short trip to recharge 🏖️)"
+        "question": "Karena kerja langsung 1-1, harga sangat terjangkau dan disesuaikan untuk siswa atau bisnis kecil. Untuk menjaga kualitas, saya hanya menerima proyek satu per satu dalam urutan.",
+        "answer": "Hugo Studio bekerja pada hari libur?"
       }
     ],
     "contact": {
-      "title": "Still have questions?",
-      "desc": "Don't worry! Send a direct message to the Hugo Studio team for a detailed 1:1 answer.",
+      "title": "Ketika ada liburan yang lama, saya akan memposting update langsung di halaman utama. (Siperti: Kadang-kadang saya berkelana singkat untuk istirahat 🏖️)กรุณาสอบถามเพิ่มเติมอยู่ยังไง?",
+      "desc": "Tak perlu khawatir! Kirim pesan langsung ke tim Hugo Studio untuk menjawab yang mendalam 1:1.",
       "chatBtn": "Message",
-      "emailBtn": "Email the team"
+      "emailBtn": "Email tim kami"
+    },
+    "meta": {
+      "title": "Frequently Asked Questions About Hugo Studio",
+      "description": "Jawaban tentang layanan desain situs web, halaman Bio untuk pembelajar, harga, waktu pengiriman dan bagaimana Hugo Studio bekerja bersama proyek.",
+      "keywords": "Tanya soal Hugo Studio, layanan desain situs web, halaman Bio pelajar, biaya situs web"
     }
   },
   "bookingPage": {
     "meta": {
-      "title": "Discuss a Website Project | Hugo Studio",
-      "description": "Outline your requirements through a concise, guided form. Hugo will respond to clarify scope, timing and an appropriate investment before any work begins.",
-      "keywords": "website project enquiry, website consultation, personal portfolio, small business website, Hugo Studio"
+      "title": "Diskusikan Projek Situs Web | Hugo Studio",
+      "description": "Rumuskan kebutuhan Anda melalui sebuah formulir yang ringkas dan bimbingan. Hugo akan merespon untuk memperjelas skop, waktu dan investasi yang sesuai sebelum kerja dimulai.",
+      "keywords": "enquiry situs web, konsultasi situs web, portofolio pribadi, website kecil bisnis, Hugo Studio"
     },
     "toast": {
-      "success": "Your enquiry has been received. I shall respond within one business day.",
-      "error": "Your enquiry could not be sent. Please check your connection and try again.",
-      "networkError": "Connection error. Please check your internet and try again.",
-      "chooseProject": "Please choose the option that most closely reflects your needs.",
-      "chooseAge": "Please select your age group first.",
-      "underAge": "Hugo Studio accepts enquiries only from those aged 14 and above."
+      "success": "Enquiry Anda telah diterima. Saya akan merespon dalam satu hari kerja.",
+      "error": "Enquiry tidak dapat dikirim. Silakan periksa koneksi dan coba lagi.",
+      "networkError": "Kesalahan koneksinya. Silakan periksa internet Anda dan coba lagi.",
+      "chooseProject": "Pilih opsi yang paling mendekati kebutuhan Anda.",
+      "chooseAge": "Silakan pilih kelompok usia pertama.",
+      "underAge": "Hugo Studio hanya menerima enqyres dari mereka yang berusia 14 tahun dan di atasnya."
     },
     "header": {
-      "eyebrow": "A direct conversation with Hugo",
-      "title": "Tell me what you need. I’ll help define the rest.",
-      "desc": "You need neither technical jargon nor an exhaustive brief. Choose the prompts that best approximate your situation, and I will help articulate the remaining scope."
+      "eyebrow": "Hoboy Studio, bicaralah langsung dengan Hugo.",
+      "title": "Tentukan apa yang Anda butuhkan. Saya akan membantu menentukan sisanya.",
+      "desc": "Anda tidak memerlukan jargon teknis atau brief yang penuh. Pilih prompt yang paling mendekati situasi Anda dan saya akan membantu mengembangkan skop yang tersisa."
     },
     "expectations": {
       "brief": {
-        "title": "No elaborate brief required",
-        "desc": "Guided choices let you outline the project in approximately two minutes."
+        "title": "Tidak perlu detail yang berlebihan dalam brief.",
+        "desc": "Pilihan yang disesuaikan memungkinkan Anda menentukan proyek dalam sekitar dua menit."
       },
       "scope": {
-        "title": "Scope precedes quotation",
-        "desc": "I shall clarify any omissions and recommend only what the project genuinely warrants."
+        "title": "Skop harus ditekankan sebelum penawaran.",
+        "desc": "Jelaskan dengan jelas apa yang belum saya jelaskan dan sarankan hanya sesuai yang proyek benar-benar membutuhkan."
       },
       "reply": {
-        "title": "A reply within one business day",
-        "desc": "You will receive an email or message arranging the most appropriate next step."
+        "title": "Balas dalam satu hari kerja",
+        "desc": "Anda akan menerima email atau pesan untuk merencanakan langkah selanjutnya yang paling sesuai."
       }
     },
     "progress": {
-      "label": "Step {{step}} of {{total}}",
-      "complete": "Complete"
+      "label": "Langkah {{step}} dari {{total}}",
+      "complete": "Selesaikan"
     },
     "steps": {
       "age": {
-        "title": "How old are you?",
-        "hint": "Hugo Studio accepts enquiries only from those aged 14 and above."
+        "title": "Berapakah umur Anda?",
+        "hint": "Hugo Studio hanya menerima enqyres dari mereka yang berusia 14 tahun dan di atasnya."
       },
       "project": {
-        "title": "What may I help with?",
-        "hint": "Choose the nearest fit; nothing is settled yet."
+        "title": "Apakah saya dapat membantu dengan apa yang Anda minta?",
+        "hint": "Pilih jawaban terbaik; belum ada yang ditentukan."
       },
       "budget": {
-        "title": "Indicative investment",
-        "hint": "A rough figure lets me recommend a proportionate scope."
+        "title": "Investasi sejauhnya",
+        "hint": "Angka sejauhnya membolehkan saya merekomendasikan skala yang sesuai."
       },
       "timeline": {
-        "title": "When do you need it?",
-        "hint": "A timeframe makes the schedule realistic."
+        "title": "Kapan Anda membutuhkannya?",
+        "hint": "Menggunakan waktu membuat jadwal menjadi lebih realistis."
       },
       "details": {
-        "title": "The outcome you have in mind",
-        "hint": "A few sentences suffice; no formal brief required."
+        "title": "Hasil yang Anda pikirkan",
+        "hint": "Sedikit kalimat cukup; tidak diperlukan bimbingan formal."
       },
       "contact": {
-        "title": "How should I reply?",
-        "hint": "Used solely to answer your enquiry, never published."
+        "title": "Bagaimana saya harus merespons?",
+        "hint": "Hanya digunakan untuk menjawab pertanyaan Anda, dan tidak akan dipublikasikan."
       },
       "review": {
-        "title": "Review and send your enquiry",
-        "hint": "One last look before it reaches Hugo."
+        "title": "Periksa dan kirim pertanyaan Anda",
+        "hint": "Satu kali lagi sebelum itu sampai ke Hugo."
       }
     },
     "projectTypes": {
       "newWebsite": {
-        "title": "A new website",
-        "desc": "For an individual, brand, café or small enterprise."
+        "title": "Website baru",
+        "desc": "Untuk individu, merek, kafe atau usaha kecil."
       },
       "portfolio": {
-        "title": "Portfolio / Bio",
-        "desc": "A considered home for your work, résumé and professional identity."
+        "title": "Portofolio / Bio",
+        "desc": "Rumah yang diatur dengan baik untuk pekerjaan, latar belakang, dan identitas profesional Anda."
       },
       "improve": {
-        "title": "Improve an existing site",
-        "desc": "Refine its interface, mobile experience, performance or functionality."
+        "title": "Perbaiki situs web yang sudah ada",
+        "desc": "Perbaiki antarmuka, pengalaman ponsel, performa atau fungsi situs web."
       },
       "student": {
-        "title": "A student project",
-        "desc": "Portfolio, coursework or guided debugging support."
+        "title": "Proyek akademik mahasiswa",
+        "desc": "Portofolio, tugas akademik, atau dukungan penanganan masalah bimbingan."
       },
       "unsure": {
-        "title": "I am not yet certain",
-        "desc": "Describe the outcome; Hugo will help determine a proportionate approach."
+        "title": "Saya belum tentu pasti",
+        "desc": "Berdasarkan hasil yang Anda sampaikan, Hugo akan membantu menentukan pendekatan proporsional."
       }
     },
     "sections": {
-      "project": "What would you like help with?",
-      "projectHint": "Choose the nearest fit. Nothing here precludes a different direction later.",
-      "budget": "Indicative investment",
-      "budgetHint": "This informs a proportionate recommendation; it is not a financial commitment.",
-      "timeline": "Preferred timeframe",
-      "notes": "A little more context (optional)",
-      "notesHint": "Select a prompt to begin, then amend it to reflect your circumstances.",
-      "timelineHint": "Choose whichever is closest to your expectation."
+      "project": "Apakah ada hal lain yang ingin Anda minta bantuan?",
+      "projectHint": "Pilih sesuai dengan kebutuhan. Tidak ada yang membatasi arah yang berbeda nanti.",
+      "budget": "Investasi sejauhnya",
+      "budgetHint": "Ini memberi rekomendasi yang proporsional; ini bukanlah komitmen finansial.",
+      "timeline": "Waktu preferensi",
+      "notes": "Sedikit lebih konteks (opsional)",
+      "notesHint": "Pilih prompt untuk memulai, kemudian perbaikiinya sesuai dengan situasi Anda.",
+      "timelineHint": "Pilih yang dekat dengan harapan Anda."
     },
     "budgets": {
-      "unsure": "Not determined",
-      "underOne": "Below VND 1m",
-      "oneToThree": "VND 1–3m",
-      "threeToEight": "VND 3–8m",
-      "overEight": "Above VND 8m"
+      "unsure": "Belum ditentukan",
+      "underOne": "Lebih dari 1 juta VND",
+      "oneToThree": "1–3 juta VND",
+      "threeToEight": "3–8 juta VND",
+      "overEight": "Lebih dari 8 juta VND"
     },
     "timelines": {
       "flexible": "Flexible",
-      "twoWeeks": "Within 1–2 weeks",
-      "oneMonth": "Within one month",
-      "twoMonths": "Within 1–2 months"
+      "twoWeeks": "Dalam 1-2 minggu",
+      "oneMonth": "Pada bulan ini",
+      "twoMonths": "Pada 1-2 bulan ke depan"
     },
     "promptLabels": {
-      "identity": "Present myself and my work",
-      "sales": "Help customers browse and enquire",
-      "mobile": "My website falters on mobile",
-      "unsure": "I do not know where to begin"
+      "identity": "Tunjukkan diriku dan pekerjaanku",
+      "sales": "Bantu pelanggan melihat dan mengajukan pertanyaan",
+      "mobile": "Websiteku gagal di ponsel",
+      "unsure": "Saya tidak tahu bagaimana cara memulainya"
     },
     "prompts": {
-      "identity": "I need a coherent place to present myself, my work and my most pertinent links.",
-      "sales": "I would like customers to understand my offer, browse my products and contact me without friction.",
+      "identity": "Saya membutuhkan tempat yang terkoordinasi untuk menunjukkan diriku, pekerjaanku dan link terkait saya yang penting.",
+      "sales": "Saya ingin pelanggan mengerti tentang penawaran saya, melihat produkku dan menghubungi tanpa gangguan.",
       "mobile": "I already have a website, but its mobile interface is cumbersome or renders incorrectly.",
-      "unsure": "I am uncertain which kind of website would be appropriate and would value a proportionate recommendation."
+      "unsure": "Saya sudah memiliki situs web, namun antarmuka ponselnya rumit atau tidak tampil dengan benar."
     },
     "form": {
       "nameLabel": "Nama Anda",
-      "namePlaceholder": "For example, Minh Anh",
-      "emailLabel": "Email for the reply",
+      "namePlaceholder": "Saya ragu jenis apa yang situs web yang sesuai dan saya akan menghargai nasihat proporsional.",
+      "emailLabel": "Sebagai contoh, Minh Anh",
       "emailHint": "Required",
-      "phoneLabel": "Telephone / Zalo",
+      "phoneLabel": "Wajib",
       "phoneHint": "Required · never published",
       "phonePlaceholder": "For example, 09xx xxx xxx",
-      "messagePlaceholder": "For example, I sell handmade goods and need a website where customers can browse the collection...",
+      "messagePlaceholder": "Sebagai contoh, 09xx xxx xxx",
       "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
     },
     "actions": {
       "continue": "Kemudahan",
       "back": "Kembali",
-      "submit": "Send my enquiry",
+      "submit": "Kontak ini dikirim ke alamat email Anda dan tidak akan dilihat publik.",
       "sending": "Sedang mengirim...",
-      "editAnswers": "Start the answers again"
+      "editAnswers": "Kirim Permintaan Saya"
     },
     "summary": {
-      "title": "Enquiry summary",
-      "project": "Requirement",
+      "title": "Mulai Kembali Jawaban",
+      "project": "Ringkasan Permintaan",
       "budget": "Investment",
       "timeline": "Timeframe",
       "notes": "Notes",
       "age": "Age group",
-      "contact": "Contact"
+      "contact": "Hubungi kami."
     },
     "success": {
       "title": "Your enquiry is safely with me.",
       "desc": "Hugo will review it and respond by email or Zalo within one business day. No further documentation is required at this stage.",
-      "another": "Send another enquiry",
-      "donateTitle": "Would you care to stand with Hugo Studio?",
-      "donateDesc": "Entirely optional. Your choice has no bearing on the enquiry, quotation, or access to any feature.",
-      "donateYes": "Make a voluntary contribution",
-      "donateNo": "Not this time",
-      "donateSkipped": "Choice noted. Your enquiry will proceed in precisely the same manner."
+      "another": "Silakan kirim lagi pesan Anda",
+      "donateTitle": "Apakah Anda ingin berdiri bersama Hugo Studio?",
+      "donateDesc": "Pilihan Anda tidak mempengaruhi proses permintaan, penawaran, atau akses ke fitur apapun.",
+      "donateYes": "Berikan dukungan yang sukarela",
+      "donateNo": "Tidak pada kesempatan ini",
+      "donateSkipped": "Pilihan telah diperhatikan. Permintaan Anda akan berjalan dalam cara yang sama sekali tanpa perubahan."
     },
     "prefill": {
-      "general": "I am a student and would like to discuss an appropriate form of support for my academic project.",
+      "general": "Saya adalah mahasiswa dan saya ingin membahas bentuk dukungan yang sesuai dengan proyek akademik saya.",
       "bug": "I am a student seeking guided help to identify, understand and rectify errors in my coursework.",
-      "bento": "I would like to discuss a Bento CV / Portfolio for a student profile.",
-      "courseworkHtml": "I would like to discuss a Web App coursework project using HTML, CSS and JavaScript.",
-      "courseworkPhp": "I would like to discuss a Web App coursework project using PHP and MySQL.",
-      "courseworkReact": "I would like to discuss a Web App coursework project using React and Node.js."
+      "bento": "Saya adalah mahasiswa yang mencari bantuan untuk mengidentifikasi, memahami, dan menyelesaikan kesalahan dalam tugas akademik saya.",
+      "courseworkHtml": "Saya ingin membahas proyek aplikasi web coursework dengan menggunakan HTML, CSS, dan JavaScript untuk profil siswa.",
+      "courseworkPhp": "Saya ingin membahas proyek aplikasi web coursework dengan menggunakan PHP dan MySQL untuk profil siswa.",
+      "courseworkReact": "Saya ingin membahas proyek aplikasi web coursework dengan menggunakan React dan Node.js untuk profil siswa."
     },
     "age": {
-      "badge": "A firm requirement",
-      "legend": "Your age group",
-      "hint": "This determines how Hugo Studio handles and protects your data. No documents required — simply answer honestly.",
-      "teenTitle": "Members aged 14 to under 18",
+      "badge": "Kewajiban yang pasti",
+      "legend": "Usia Anda",
+      "hint": "Ini menentukan bagaimana Hugo Studio mengelola dan melindungi data Anda. Tidak ada dokumen diperlukan — hanya jawablah secara jujur saja.",
+      "teenTitle": "Anggota usia 14 sampai di bawah 18 tahun",
       "teenRules": {
-        "supervision": "Please proceed with the knowledge and supervision of a parent or guardian.",
-        "limited": "Support is limited or declined where a request would require sensitive personal data.",
-        "noShare": "Hugo Studio discloses your personal details to no other user — without exception.",
-        "minimal": "Provide only the minimum in this form; send nothing further via chat, Zalo or a public Bio page."
+        "supervision": "Proses dengan pengetahuan dan pengawasan orang tua atau wali.",
+        "limited": "Dukungan tidak tersedia atau ditolak di mana permintaan memerlukan data pribadi yang sensitif.",
+        "noShare": "Hugo Studio memberikan detail Anda kepada user lain — tanpa kecuali— tidak terkecuali.",
+        "minimal": "Kirim hanya minimal dalam formulir ini; jangan kirim lebih lanjut melalui obrolan, Zalo atau halaman Bio publik."
       },
-      "teenNotesReminder": "Please omit your home address, precise school details, identity numbers or anyone else's information.",
-      "teenContactNote": "As you are under 18, these details are used solely to reply to you and are shared with no other user. Use a contact your parent or guardian knows of.",
-      "blockedTitle": "Not eligible to send an enquiry",
-      "blockedDesc": "Hugo Studio does not accept enquiries from anyone under 14. Please ask a parent or guardian to make the enquiry on your behalf."
+      "teenNotesReminder": "Oleskan alamat rumah Anda, detail sekolah yang tepat, nomor identitas atau informasi siapapun lainnya.",
+      "teenContactNote": "Sebab Anda berusia kurang dari 18 tahun, detail ini digunakan hanya untuk merespon Anda dan dibagikan dengan user lain tidak terkecuali. Gunakan kontak yang diketahui oleh orang tua atau wali Anda.",
+      "blockedTitle": "Tidak memenuhi syarat untuk mengirim permintaan",
+      "blockedDesc": "Hugo Studio tidak menerima pertanyaan dari siapa pun yang masih dibawah usia 14. Silakan minta bantuan orang tua atau wali untuk membuat pertanyaan tersebut pada nama Anda."
     },
     "ageBands": {
       "adult": {
-        "title": "18 and above",
-        "desc": "You may discuss and agree terms directly, without a guardian."
+        "title": "18 dan diatasnya",
+        "desc": "Anda dapat membahas dan setuju dengan syarat tanpa adanya guardian."
       },
       "teen": {
-        "title": "14 to under 18",
-        "desc": "Support is available, with supervision and limits on personal data."
+        "title": "14 sampai dibawah 18",
+        "desc": "Bantuan tersedia, dengan pengawasan dan batasan terhadap data pribadi."
       },
       "under14": {
-        "title": "Under 14",
-        "desc": "Not eligible to use Hugo Studio's services."
+        "title": "Dibawah usia 14",
+        "desc": "Tidak layak untuk menggunakan layanan Hugo Studio."
       }
     }
   },
   "templatesPage": {
     "hero": {
       "badge": "Galaxy of Art",
-      "title1": "The Universe of",
+      "title1": "Universe dari",
       "title2": "Digital Art",
       "desc": "Surf through silent galaxies. Each website is a unique star."
     },
     "core": {
-      "badge": "The Core",
-      "title1": "Brand",
-      "title2": "Nucleus",
-      "desc": "At the center of Hugo Studio's universe is a logo converging 6 colorful bands, a powerful statement of limitless creativity and pioneering aspiration:",
-      "redBold": "Red:",
-      "redText": " Represents burning enthusiasm, intense passion, and dedication in every line of code.",
-      "orangeBold": "Orange:",
-      "orangeText": " Symbolizes positive energy, dynamism, and a constant desire for innovation.",
+      "badge": "Lihat galaksi diam. Setiap situs web adalah bintang unik.",
+      "title1": "Dasar",
+      "title2": "Berkatidir",
+      "desc": "Di pusat ruang Hugo Studio terdapat logo yang menggabungkan 6 garis warna-warni, sebuah pernyataan kuat tentang kreativitas tak terbatas dan aspirasi pioneering: ",
+      "redBold": "Merah:",
+      "redText": "Mewakili kehangatan yang bersemi, cinta intens, dan dedikasi dalam setiap baris kode.",
+      "orangeBold": "Kuning:",
+      "orangeText": "Menandakan energi positif, dinamisme, dan dorongan konstan untuk inovasi.",
       "yellowBold": "Yellow:",
-      "yellowText": " Shines with optimism, bringing trust and prosperity to every client.",
-      "greenBold": "Green:",
-      "greenText": " A symbol of sustainable growth, always multiplying and developing strongly.",
-      "blueBold": "Blue:",
-      "blueText": " The core of technology, representing absolute prestige, transparency, and professionalism.",
-      "purpleBold": "Purple:",
-      "purpleText": " Far-sighted vision, mystery, and the ability to create artistic breakthroughs."
+      "yellowText": "Shines with optimism, bringing trust and prosperity to every client.",
+      "greenBold": "Hijau:",
+      "greenText": "Simbol pertumbuhan berkelanjutan, selalu membesar dan berkembang kuat.",
+      "blueBold": "Biru:",
+      "blueText": "Core dari teknologi, merepresentasikan prestigie absolut, transparansi, dan profesionalisme.",
+      "purpleBold": "Merah Unggul:",
+      "purpleText": "Visi yang jauh, misteri, dan kemampuan untuk menciptakan inovasi estetika."
     },
     "typography": {
-      "badge": "The Language",
-      "title": "Typography Choice",
-      "displayDesc": "Modern and definitive, like clear constellations in the night sky. Used for large headings.",
-      "bodyDesc": "Minimalist, refined, and smooth. Guides the eye through text like the orbits of planets."
+      "badge": "Bahasa",
+      "title": "Pilihan Tipe Huruf",
+      "displayDesc": "Tipe bermodern dan definitif, seperti konstelasi jernih di langit malam. Digunakan untuk judul besar.",
+      "bodyDesc": "Minimalist, refined, dan mulus. Mengarahkan pandangan melalui teks seperti orbit planet."
     },
     "souls": {
       "badge": "The Souls",
-      "title": "Cosmic Souls",
-      "desc": "Adorable astronauts carrying the 6 core values of Hugo Studio.",
+      "title": "Souls Kosmik",
+      "desc": "Astronauts yang manis membawa 6 nilai pokok Hugo Studio.",
       "values": [
         {
-          "title": "Dedication",
-          "desc": "Meticulous in every code nebula"
+          "title": "Dedikasi",
+          "desc": "Meticuler dalam setiap nebula kode"
         },
         {
-          "title": "Empathy",
-          "desc": "Listening to the depths of the universe"
+          "title": "Empati",
+          "desc": "Menyimak kedalam ruang alam semesta"
         },
         {
-          "title": "Creativity",
-          "desc": "Shining bright like a supernova"
+          "title": "Kreativitas",
+          "desc": "Bercahaya seperti supernova"
         },
         {
-          "title": "Connection",
-          "desc": "A strong galactic network"
+          "title": "Koneksi",
+          "desc": "Jaringan Galaksi yang Kuat"
         },
         {
-          "title": "Speed",
-          "desc": "Fast as the speed of light"
+          "title": "Kecepatan",
+          "desc": "Cepat seperti kecepatan cahaya"
         },
         {
-          "title": "Protection",
-          "desc": "Absolute safety shield"
+          "title": "Protokol",
+          "desc": "Shield Keamanan Total"
         }
       ]
     },
     "demos": {
-      "badge": "The Constellations",
-      "title1": "Interactive",
-      "title2": "Dashboards",
-      "desc": "Surf through interactive real-world design constellations.",
+      "badge": "Konstellasi",
+      "title1": "Interaktif",
+      "title2": "Papan Kontrol",
+      "desc": "Lewati melalui konstellasi desain nyata interaktif",
       "templates": [
         {
-          "title": "Photography Studio",
-          "short": "Photography",
-          "subtitle": "Photographer"
+          "title": "Studi Fotografi",
+          "short": "Photograpahi",
+          "subtitle": "Fotografer"
         },
         {
-          "title": "Cafe & Bistro",
-          "short": "Cafe",
-          "subtitle": "Restaurant"
+          "title": "Kafe dan Restoran",
+          "short": "Kafe",
+          "subtitle": "Restoran"
         },
         {
-          "title": "Jewelry Web",
-          "short": "Jewelry",
-          "subtitle": "Jewelry store"
+          "title": "Jewel Web",
+          "short": "Perhiasan",
+          "subtitle": "Toko perhiasan"
         },
         {
-          "title": "Personal Intro",
+          "title": "Intro Pribadi",
           "short": "Portofolio",
           "subtitle": "Portofolio"
         },
         {
           "title": "E-Commerce",
           "short": "E-Commerce",
-          "subtitle": "Multi-industry"
+          "subtitle": "Multi-industri"
         },
         {
-          "title": "Admin Page",
+          "title": "Halaman Admin",
           "short": "Dashboard",
           "subtitle": "Dashboard"
         }
       ]
     },
     "archive": {
-      "badge": "The Archive",
-      "title": "Project Archive",
-      "desc": "Direct access to the database of actual deployed projects, original and unlimited."
+      "badge": "Arsip",
+      "title": "Arsip Proyek",
+      "desc": "Akses langsung ke basis data proyek yang sebenarnya, asli dan tak terbatas."
     }
   },
   "loginPage": {
     "toast": {
-      "eduRedirect": "Your account will be pending review because this is not a .edu email. Redirecting...",
-      "loginError": "Login error",
+      "eduRedirect": "Akun Anda akan ditinjau karena ini bukan email .edu. Redirection...",
+      "loginError": "Login Error",
       "loginPortalError": "Portal login error",
-      "invalidLink": "Link is invalid or has expired",
-      "noGoogle": "Could not retrieve Google profile info",
-      "useGoogleBtn": "Please click the 'Continue with Google' button below",
-      "adminError": "Incorrect admin username or password",
-      "adminNetworkError": "Could not connect to the server, please check your network and try again",
-      "adminServerError": "Server error, please try again later",
-      "codeLength": "Login code must be exactly 6 characters",
-      "locationAnomaly": "We detected a sign-in from a location over 50km away from your usual area. Please sign in again to verify it's really you."
+      "invalidLink": "Link tidak valid atau telah kedaluwarsa",
+      "noGoogle": "Gagal mengambil informasi profil Google",
+      "useGoogleBtn": "Klik tombol 'Login dengan Google' di bawah ini",
+      "adminError": "Username atau password admin yang salah",
+      "adminNetworkError": "Gagal terhubunggul ke server, silakan periksa koneksi dan coba lagi",
+      "adminServerError": "Error server, mohon coba lagi nanti",
+      "codeLength": "Kode login harus tepat 6 karakter",
+      "locationAnomaly": " Kami mendeteksi sign-in dari lokasi lebih dari 50 km dari area biasanya. Silakan sign in ulang untuk memverifikasi itu benar-benar Anda."
     },
     "biometric": {
-      "btn": "Sign in with Fingerprint/Face ID ({{email}})",
+      "btn": "Login dengan Entri Fingerprint/Face ID ({{email}})",
       "verifying": "Verifying...",
-      "notEnabled": "Fingerprint sign-in isn't enabled for this email on this device.",
-      "failed": "Couldn't sign in with Fingerprint/Face ID. Please use Google.",
-      "or": "or"
+      "notEnabled": "Verifikasi...",
+      "failed": "Pengakuan tangan bukan diaktifkan untuk alamat email ini pada perangkat Anda.",
+      "or": "Gagal masuk dengan Pengakuan Tangan/Face ID. Gunakan Google saja."
     },
     "header": {
-      "titleCustomer": "Project Management",
-      "titleMember": "Activate Student Bio",
+      "titleCustomer": "Project Manajemen",
+      "titleMember": "Aktivasi Bio Pelajar",
       "titleAdmin": "Login Admin",
-      "descCustomer": "Track progress & manage your services",
-      "descMember": "Create an exclusive Bio Link completely free",
-      "descAdmin": "Access the developer dashboard system"
+      "descCustomer": "Track kemajuan dan manajemen layanan Anda",
+      "descMember": "Buat tautan Bio Khusus yang gratis sepenuhnya",
+      "descAdmin": "Akses dashboard sistem pengembang"
     },
     "tabs": {
-      "customer": "Client",
-      "member": "Student (.edu)",
+      "customer": "Pelanggan",
+      "member": "Pelajar (.edu)",
       "admin": "Admin"
     },
     "customerForm": {
-      "title": "Access Project Management",
-      "desc": "Manage projects, track progress and communicate with the team.",
-      "codeLabel": "Project Code (6 Chars)",
-      "codePlaceholder": "Ex: 1A2B3C",
-      "btn": "Enter Project Portal",
-      "securityTitle": "Information Security",
-      "securityDesc": "The project code is provided privately. Absolutely do not share this code with others to ensure the safety of your project data."
+      "title": "Akses Manajemen Proyek",
+      "desc": "Kelola proyek, track kemajuan dan komunikasikan dengan tim.",
+      "codeLabel": "Kode Proyek (6 Karakter)",
+      "codePlaceholder": "Contoh: 1A2B3C",
+      "btn": "Masuk ke Portofolio Proyek",
+      "securityTitle": "Sistem Keamanan Informasi",
+      "securityDesc": "Kode proyek diberikan secara privat. Jangan pernah berbagi kode ini kepada orang lain untuk memastikan data Anda tetap aman."
     },
     "memberForm": {
-      "title": "Google Workspace Authentication",
-      "desc": "To ensure the authenticity of student benefits, please link via Google.",
-      "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID in configuration file.",
-      "gisReady": "Automatically activate 1 Bio Link / 12 months with educational email.",
-      "gisLoading": "Loading Google component...",
-      "reqTitle": "Educational Email Requirement (.edu)",
-      "reqDesc": "The system automatically checks and only accepts accounts using a school educational email."
+      "title": "Autentikasi Google Workspace",
+      "desc": "Untuk memastikan bahwa manfaat siswa benar-benar, silakan terhubung melalui Google.",
+      "missingClientId": "Missing VITE_GOOGLE_CLIENT_ID dalam file konfigurasi.",
+      "gisReady": "Aktivasi secara otomatis 1 Link Bio / 12 bulan dengan alamat email pendidikan.",
+      "gisLoading": "Memuat komponen Google...",
+      "reqTitle": "Kebutuhan Email Pendidikan (edu).",
+      "reqDesc": "Sistem memeriksa secara otomatis dan hanya menerima akun yang menggunakan alamat email sekolah."
     },
     "adminForm": {
       "title": "Login Admin",
-      "desc": "Enter developer credentials",
-      "userLabel": "Username",
-      "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
+      "desc": "Masukkan kredensial pengembang.",
+      "userLabel": "Nama Pengguna",
+      "userPlaceholder": "Silakan masukkan nama pengguna Anda...",
+      "userRequired": "Silakan masukkan username Anda",
       "passLabel": "Kata Sandi",
       "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "remember": "Remember me on this device",
+      "passRequired": "Masukkan kata sandi Anda",
+      "showPassword": "Tampilkan kata sandi",
+      "hidePassword": "Sembunyikan kata sandi",
+      "remember": "Ingat saya di perangkat ini",
       "btn": "Masuk",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "submitting": "Masuk...",
+      "https": "Penyinkapan melalui HTTPS yang aman"
     }
   },
   "customerPortal": {
@@ -5287,85 +5363,93 @@
     "tabs": {
       "profile": "Profile",
       "service": "Service",
-      "requests": "Requests"
+      "requests": "Permintaan"
     },
     "profile": {
       "title": "Verifikasi identitas pendidikan sedang dilakukan",
-      "subtitle": "Update your contact info so we can support you best.",
-      "completedWarn": "Project is completed, information cannot be changed.",
-      "fullName": "Full Name",
+      "subtitle": "Perbarui info kontak Anda sehingga kami dapat mendukung Anda dengan terbaik.",
+      "completedWarn": "Proyek telah selesai, informasi tidak dapat diubah.",
+      "fullName": "Nama Lengkap",
       "phone": "Nomor Telepon",
-      "email": "Contact Email",
-      "birthday": "Date of Birth",
-      "address": "Address",
-      "updateSuccess": "Updated successfully!",
+      "email": "Alamat Email",
+      "birthday": "Tanggal Lahir",
+      "address": "Alamat",
+      "updateSuccess": "Berhasil Diupdate!",
       "saveBtn": "Save Info",
       "savingBtn": "Sedang menyimpan..."
     },
     "service": {
-      "title": "Project Overview",
-      "desc": "Track progress and basic information about your service package.",
+      "title": "Lihat Project Overview",
+      "desc": "Lihat Project Overview dan informasi dasar tentang paket layananmu.",
       "status": "Status",
-      "package": "Service Package",
+      "package": "Paket Layanan",
       "startDate": "Mulai Tanggal",
-      "notesTitle": "Logs & Updates",
+      "notesTitle": "Log dan Update",
       "notesEmpty": "Project is in preparation...",
-      "completed": "Completed",
-      "maintenance": "Maintenance",
-      "summary": "Project Summary"
+      "completed": "Selesai",
+      "maintenance": "Pemeliharaan",
+      "summary": "Ringkasan proyek"
     },
     "requests": {
-      "supportTitle": "Support Team",
-      "supportSubtitle": "Managing your project",
-      "loading": "Loading messages...",
-      "empty": "No requests yet. Message us if you have any questions!",
-      "placeholderNormal": "Enter request or message...",
-      "placeholderCompleted": "Enter maintenance request or message..."
+      "supportTitle": "Tim dukungan",
+      "supportSubtitle": "Mengatur proyek Anda",
+      "loading": "Memuat pesan...",
+      "empty": "Belum ada permintaan. Hubungi kami jika Anda memiliki pertanyaan!",
+      "placeholderNormal": "Masukkan permintaan atau pesan...",
+      "placeholderCompleted": "Masukkan permintaan pemeliharaan atau pesan..."
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
-    "metaDesc": "Grab an ad-free, aesthetic Bento portfolio link. Fast, custom, and absolutely free with any .edu email address!",
-    "backToServices": "Back to Services",
-    "giftSpark": "12 Months of Spark — On the House!",
-    "title": "Your Dream Bio Link",
-    "desc": "Are you an IT student, an artist, or a creator waiting to be discovered? Claim your beautiful, ad-free Bento bio page. It is your home on the web to show off who you are!",
-    "marketValue": "Normal price",
-    "perYear": "/year",
+    "metaTitle": "Dapatkan Halaman Bio Anak-Anakan Anda — Gratis 12 Bulan! | Hugo Studio",
+    "metaDesc": "Ambil tautan Bento tanpa iklan dan estetika. Cepat, kustom, dan sepenuhnya gratis dengan email .edu apa pun yang Anda miliki!",
+    "backToServices": "Kembali ke Layanan",
+    "giftSpark": "12 Bulan dari Spark — Gratis Tanpa Bayar!",
+    "title": "Halaman Bio Impian Anda",
+    "desc": "Apakah Anda mahasiswa IT, seniman, atau seorang pembuat konten yang menunggu untuk ditemukan? Ambil halaman bio cantik dan tanpa iklan Bento. Itu adalah rumah Anda di web untuk menunjukkan siapa Anda!",
+    "marketValue": "Harga Normal",
+    "perYear": "/tahun",
     "marketPrice": "$20.99",
-    "giftToYou": "Hugo's Gift",
+    "giftToYou": "Hadiah Hugo",
     "giftPrice": "$0.99",
-    "priceless": " — Priceless!",
+    "priceless": "— Mahir!",
     "verificationTitle": "Verify & Claim Your Spark!",
-    "verificationDesc": "Use your school email (.edu or .edu.vn) to login. Our robot will instantly recognize you and hand over the key!",
-    "orManual": "or click below if it doesn't prompt",
+    "verificationDesc": "Masuk menggunakan alamat email sekolah (.edu atau .edu.vn). Robot kami akan segera mengenali Anda dan memberikan kunci tersebut!",
+    "orManual": "atau klik di bawah jika tidak muncul",
     "clickSelect": "Choose Google Account",
-    "warningClientId": "Warning: Missing Google Client ID",
-    "originError": "Authorized JavaScript origins must include current origin and production domain.",
-    "blockedByOauth": "Google Sign-In is blocked by OAuth configuration.",
-    "ready": "OAuth robot is ready!",
-    "loading": "Waking up OAuth robot...",
-    "securityDesc": "Secured with Google OAuth 2.0. Automatically prompts edu credentials logged in on your browser.",
-    "toastFail": "Oh no! Google verification failed.",
-    "toastNetwork": "Server connection lost. Let's try again in a bit!",
-    "toastPending": "No .edu email? No worries, your account is queued for custom approval! Redirecting...",
+    "warningClientId": "Peringatan: ID Client Google hilang",
+    "originError": "Sumber asuransi JavaScript yang diizinkan harus termasuk sumber saat ini dan domain produksi.",
+    "blockedByOauth": "Masuk dengan Google ditolak oleh konfigurasi OAuth.",
+    "ready": "Robot OAuth siap!",
+    "loading": "Mengaktifkan robot OAuth...",
+    "securityDesc": "Diterjamin dengan Google OAuth 2.0. Mengingatkan secara otomatis kredensial edu yang Anda gunakan di browser Anda.",
+    "toastFail": "Oh Tidak! Verifikasi Google gagal.",
+    "toastNetwork": "Koneksi ke server hilang. Coba lagi dalam beberapa saat, ya!",
+    "toastPending": "Tidak memiliki email .edu? Tenang saja, akun Anda sedang diproses untuk persetujuan custom! Redirection...",
     "benefits": {
       "free": {
-        "title": "Free of Charge",
-        "desc": "12 months of premium features. No hidden fees, no ads. Just a promise from me to you!"
+        "title": "Gratis Tanpa Biaya",
+        "desc": "12 bulan fitur premium. Tidak ada biaya tersembunyi, tidak ada iklan. Hanya janji dari saya kepada Anda!"
       },
       "creative": {
-        "title": "Creative Playground",
-        "desc": "Every shade, image, and link is completely customizable. Express your authentic self!"
+        "title": "Tempat Bermain Kreatif",
+        "desc": "Setiap shade, gambar, dan tautan sepenuhnya dapat diatur ulang. Ungkapkan diri Anda secara alami!"
       },
       "fast": {
-        "title": "Lightning Fast",
-        "desc": "Loads instantly without lag. Smooth like fresh snow — experience pure speed!"
+        "title": "Menghitung Cepat",
+        "desc": "Muat instan tanpa gangguan. Ringan seperti salju segar — rasakan kecepatan purna!"
       },
       "yours": {
-        "title": "Truly Yours",
-        "desc": "Custom subdomain link. No cookie-cutter templates, no generic boxes. Stand out!"
+        "title": "Benar-Benar Anda Sendiri",
+        "desc": "Subdomain unik yang dirancang khusus. Tidak ada template standar, tidak ada kotak umum. Jadi terlihat berbeda!"
       }
+    }
+  },
+  "common": {
+    "regionVietnamOnly": {
+      "title": "Hanya tersedia di Vietnam.",
+      "service": "Harga dihitung dalam dong Vietnam dan dibayar melalui PayOS serta bank di Vietnam.",
+      "booking": "Hugo Studio menerima proyek di Vietnam; anggaran dalam dong dan pembahasan lewat email atau Zalo.",
+      "donate": "Donasi dilakukan dalam dong Vietnam melalui PayOS dan bank Vietnam."
     }
   }
 }
