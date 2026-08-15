@@ -1,33 +1,34 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
-function formatMinutes(totalMinutes) {
-  // Giờ nghe giờ được tính theo phút lẻ, nên phải làm tròn trước khi chia —
-  // không thì ra "4:59.60000000001".
-  const total = Math.max(0, Math.round(totalMinutes || 0));
-  if (total <= 0) return "0:00";
-  const h = Math.floor(total / 60);
-  const m = total % 60;
-  return `${h}:${m < 10 ? "0" : ""}${m}`;
-}
-
 /**
- * Báo với máy chủ số phút vừa nghe để trừ vào hạn mức 5 giờ/tuần.
+ * Hạn mức nghe HugoRadio, đo bằng TOKEN — 1 token = 10 phút.
  *
- * `keepalive` cho lượt cuối lúc đóng app/tắt đài: trình duyệt vẫn gửi nốt
- * request sau khi trang đã bị huỷ, nếu không thì quãng nghe cuối cùng mất trắng.
+ * Bản trước bày một đồng hồ đếm ngược HH:MM:SS nhảy từng giây, tự chạy ở client
+ * rồi thỉnh thoảng kéo lại cho khớp máy chủ. Nó vừa khó đọc vừa không bao giờ
+ * khớp: hai nơi cùng giữ một con số (thanh trạng thái tự gọi API, hook heartbeat
+ * gọi lần nữa) và bắc cầu cho nhau bằng một biến toàn cục `window`. Mua thêm
+ * thời gian xong, thanh trạng thái vẫn hiện số cũ vì nó không hề biết chuyện đó.
+ *
+ * Giờ chỉ còn MỘT nguồn: hook `useRadioHeartbeat` giữ trạng thái, thanh hiển thị
+ * là component thuần nhận `status` qua prop. Token là số nguyên, đổi mỗi 10 phút,
+ * nên không cần đồng hồ chạy nền nào cả.
  */
-export async function sendRadioHeartbeat(email, minutes, { keepalive = false } = {}) {
-  if (!email || !(minutes > 0)) return null;
+
+// ── Heartbeat API ────────────────────────────────────────────────────────────
+
+// Danh tính lấy từ cookie/JWT ở máy chủ, không truyền email lên nữa.
+export async function sendRadioHeartbeat(minutes, { keepalive = false } = {}) {
+  if (!(minutes > 0)) return null;
   try {
     const res = await fetch(`${API_BASE}/radio/heartbeat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       keepalive,
-      body: JSON.stringify({ email, listeningMinutes: Number(minutes.toFixed(2)) }),
+      body: JSON.stringify({ listeningMinutes: Number(minutes.toFixed(2)) }),
     });
     return res.ok ? await res.json() : null;
   } catch {
@@ -35,146 +36,47 @@ export async function sendRadioHeartbeat(email, minutes, { keepalive = false } =
   }
 }
 
-export default function RadioTokenStatus({ bio, onBuyMore }) {
-  const { t } = useTranslation();
-  const [status, setStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
+// ── Hook: nguồn sự thật duy nhất về token ────────────────────────────────────
 
-  const fetchStatus = useCallback(async () => {
-    if (!bio?.email) return;
-    try {
-      const res = await fetch(`${API_BASE}/radio/token-status?email=${encodeURIComponent(bio.email)}`, {
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setStatus(data);
-      }
-    } catch {}
-    setLoading(false);
-  }, [bio?.email]);
-
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
-
-  if (loading || !status) {
-    return (
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-zinc-100 dark:bg-[#0e0f17]/90 border border-zinc-200/80 dark:border-white/10 animate-pulse">
-        <div className="h-3 w-3 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-        <div className="h-2.5 w-24 rounded bg-zinc-200 dark:bg-zinc-800" />
-      </div>
-    );
-  }
-
-  const { freeRemaining, freeMinutes, purchasedMinutes, canListen } = status;
-  const freePercent = freeMinutes > 0 ? Math.round((freeRemaining / freeMinutes) * 100) : 0;
-  const isLow = freeRemaining <= 30 && freeRemaining > 0;
-  const isEmpty = !canListen;
-
-  return (
-    <div className={`flex flex-col gap-2.5 px-4 py-3 rounded-2xl border backdrop-blur-xl transition-all ${
-      isEmpty
-        ? "bg-rose-500/10 dark:bg-rose-500/15 border-rose-400/40 text-rose-600 dark:text-rose-400"
-        : isLow
-          ? "bg-amber-500/10 dark:bg-amber-500/15 border-amber-400/40 text-amber-700 dark:text-amber-400"
-          : "bg-zinc-100 dark:bg-[#0e0f17]/90 border-zinc-200/80 dark:border-white/10 text-zinc-900 dark:text-white"
-    }`}>
-      {/* Free pool */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${isEmpty ? "bg-rose-500" : isLow ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
-          <span className="text-[11px] font-black tracking-wide uppercase">
-            {isEmpty ? t("memberPortal.radio.token.expired") : t("memberPortal.radio.token.weeklyFree")}
-          </span>
-        </div>
-        <span className="font-mono text-sm font-black">
-          {formatMinutes(freeRemaining)}
-          <span className="text-[10px] font-bold opacity-50"> / {formatMinutes(freeMinutes)}</span>
-        </span>
-      </div>
-
-      {/* Free pool progress bar */}
-      <div className="h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            isEmpty ? "bg-rose-500" : isLow ? "bg-amber-500" : "bg-emerald-500"
-          }`}
-          style={{ width: `${freePercent}%` }}
-        />
-      </div>
-
-      {/* Purchased pool */}
-      {purchasedMinutes > 0 && (
-        <div className="flex items-center justify-between pt-1 border-t border-zinc-200/50 dark:border-white/5">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[14px] opacity-60">shopping_bag</span>
-            <span className="text-[10px] font-bold opacity-70 uppercase tracking-wider">{t("memberPortal.radio.token.purchased")}</span>
-          </div>
-          <span className="font-mono text-xs font-bold">
-            {formatMinutes(purchasedMinutes)}
-          </span>
-        </div>
-      )}
-
-      {/* Buy more button */}
-      {onBuyMore && (
-        <button
-          onClick={onBuyMore}
-          className="flex items-center justify-center gap-1.5 py-1.5 rounded-xl bg-[#06b6d4]/10 dark:bg-[#06b6d4]/20 text-[#06b6d4] text-[10px] font-black uppercase tracking-wider hover:bg-[#06b6d4]/20 transition-all active:scale-95"
-        >
-          <span className="material-symbols-outlined text-[14px]">add_shopping_cart</span>
-          <span>{t("memberPortal.radio.token.buyMore")}</span>
-        </button>
-      )}
-    </div>
-  );
-}
-
-// Heartbeat hook — sends periodic time deductions while radio is playing.
 export function useRadioHeartbeat(bio, isPlaying) {
   const [tokenStatus, setTokenStatus] = useState(null);
-  const intervalRef = React.useRef(null);
+  const [loading, setLoading] = useState(true);
+  const intervalRef = useRef(null);
+  const startedRef = useRef(0);
 
-  const fetchStatus = useCallback(async () => {
-    if (!bio?.email) return null;
+  const refetch = useCallback(async () => {
+    // Trang công khai (UtilityPublicPage) dựng tab này không kèm hồ sơ. Không có
+    // ai để hỏi hạn mức, nên phải TẮT khung chờ — bản trước để nó đập mãi mãi.
+    if (!bio?.email) {
+      setLoading(false);
+      return null;
+    }
     try {
-      const res = await fetch(`${API_BASE}/radio/token-status?email=${encodeURIComponent(bio.email)}`, {
-        credentials: "include",
-      });
+      const res = await fetch(`${API_BASE}/radio/token-status`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
         setTokenStatus(data);
         return data;
       }
-    } catch {}
+    } catch { /* mạng hỏng: giữ nguyên số đang hiện, đừng xoá trắng */ }
+    finally { setLoading(false); }
     return null;
   }, [bio?.email]);
-
-  // Trừ ĐÚNG số phút đã nghe.
-  //
-  // Trước đây cứ bấm phát là trừ ngay 5 phút rồi mỗi 5 phút trừ thêm 5: nghe 30
-  // giây mất 5 phút, mà nghe 6 phút rồi tắt thì phút lẻ cuối lại không bị trừ.
-  // Giờ đo bằng đồng hồ: cứ 5 phút gửi phần đã trôi qua, và gửi nốt phần dở khi
-  // dừng, rời trang hoặc đóng app.
-  const startedRef = React.useRef(0);
 
   const flush = useCallback(async ({ final = false } = {}) => {
     if (!startedRef.current) return null;
     const minutes = (Date.now() - startedRef.current) / 60000;
     startedRef.current = final ? 0 : Date.now();
-    const data = await sendRadioHeartbeat(bio?.email, minutes, { keepalive: final });
+    const data = await sendRadioHeartbeat(minutes, { keepalive: final });
     if (data) setTokenStatus(data);
     return data;
-  }, [bio?.email]);
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) return undefined;
     startedRef.current = Date.now();
     intervalRef.current = setInterval(() => flush(), 5 * 60 * 1000);
 
-    // Ẩn app hoặc đóng hẳn: chốt sổ quãng vừa nghe ngay, vì lúc đó timer có thể
-    // bị hệ điều hành treo. Mở lại thì tính tiếp từ thời điểm đó.
     const onHide = () => flush({ final: true });
     const onVisibility = () => {
       if (document.hidden) flush({ final: true });
@@ -192,10 +94,117 @@ export function useRadioHeartbeat(bio, isPlaying) {
     };
   }, [isPlaying, flush]);
 
-  // Initial fetch on mount
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
+  useEffect(() => { refetch(); }, [refetch]);
 
-  return { tokenStatus, refetch: fetchStatus, flush };
+  return { tokenStatus, loading, refetch, flush };
+}
+
+// ── Thanh hiển thị ───────────────────────────────────────────────────────────
+
+/** "còn 3 ngày" theo đúng ngôn ngữ đang bật — Intl lo phần số nhiều/ngữ pháp. */
+function useResetIn(nextResetAt) {
+  const { i18n } = useTranslation();
+  if (!nextResetAt) return null;
+  const days = Math.ceil((new Date(nextResetAt).getTime() - Date.now()) / 86400000);
+  if (!Number.isFinite(days)) return null;
+  try {
+    return new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" })
+      .format(Math.max(0, days), "day");
+  } catch {
+    return null;
+  }
+}
+
+export default function RadioTokenStatus({ status, loading = false, onBuyMore }) {
+  const { t } = useTranslation();
+  const resetIn = useResetIn(status?.nextResetAt);
+
+  if (loading && !status) {
+    return <div className="h-[92px] rounded-2xl bg-muted border border-border animate-pulse" />;
+  }
+  if (!status) return null;
+
+  const {
+    tokensLeft = 0, freeTokens = 0, freeTokensLeft = 0, purchasedTokens = 0,
+    partialMinutes = 0, minutesPerToken = 10, canListen, peak,
+  } = status;
+
+  const empty = !canListen;
+  const low = !empty && tokensLeft <= 3;
+  // Vạch: phần token miễn phí còn lại so với hạn mức tuần. Token đã mua không
+  // nằm trong vạch — nó không reset theo tuần nên gộp vào sẽ nói dối về nhịp nạp.
+  const freePercent = freeTokens > 0 ? Math.round((freeTokensLeft / freeTokens) * 100) : 0;
+
+  return (
+    <div className={`rounded-2xl border bg-card p-4 flex flex-col gap-3 ${empty ? "border-destructive" : "border-border"}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="material-symbols-outlined text-xl text-muted-foreground">confirmation_number</span>
+          <div className="min-w-0">
+            <p className="text-[15px] font-bold text-foreground leading-tight">
+              {t("utilities.radio.token.title")}
+            </p>
+            <p className="text-[13px] text-muted-foreground leading-tight mt-0.5">
+              {t("utilities.radio.token.perToken", { minutes: minutesPerToken })}
+            </p>
+          </div>
+        </div>
+
+        <div className="text-right shrink-0">
+          <span className={`text-3xl font-black tabular-nums leading-none ${empty ? "text-destructive" : low ? "text-warning" : "text-foreground"}`}>
+            {tokensLeft}
+          </span>
+          <span className="text-[13px] font-bold text-muted-foreground ml-1">
+            {t("utilities.radio.token.unit")}
+          </span>
+        </div>
+      </div>
+
+      {/* Vạch hạn mức tuần + token đang dùng dở */}
+      <div>
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-[width] duration-500 ${empty ? "bg-destructive" : low ? "bg-warning" : "bg-info"}`}
+            style={{ width: `${freePercent}%` }}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2 mt-2 text-[13px] text-muted-foreground">
+          <span className="truncate">
+            {t("utilities.radio.token.freeLeft", { n: freeTokensLeft, total: freeTokens })}
+            {purchasedTokens > 0 && ` · ${t("utilities.radio.token.purchasedLeft", { n: purchasedTokens })}`}
+          </span>
+          {resetIn && <span className="shrink-0">{t("utilities.radio.token.resetIn", { when: resetIn })}</span>}
+        </div>
+      </div>
+
+      {/* Giờ cao điểm: một token chỉ còn nghe được 5 phút. Nói thẳng bằng phút,
+          vì "x2" không cho biết người dùng mất gì. */}
+      {peak && (
+        <p className="flex items-start gap-2 text-[13px] text-warning">
+          <span className="material-symbols-outlined text-base shrink-0">schedule</span>
+          <span>{t("utilities.radio.token.peakNotice", { minutes: minutesPerToken / 2 })}</span>
+        </p>
+      )}
+
+      {empty && (
+        <p className="text-[13px] text-destructive">{t("utilities.radio.token.emptyDesc")}</p>
+      )}
+      {!empty && partialMinutes > 0 && tokensLeft === 0 && (
+        <p className="text-[13px] text-warning">
+          {t("utilities.radio.token.lastMinutes", { minutes: Math.ceil(partialMinutes) })}
+        </p>
+      )}
+
+      {onBuyMore && (
+        <button
+          type="button"
+          onClick={onBuyMore}
+          className="h-11 rounded-xl bg-info text-info-foreground text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+        >
+          <span className="material-symbols-outlined text-lg">add</span>
+          <span>{t("utilities.radio.token.buyMore")}</span>
+        </button>
+      )}
+    </div>
+  );
 }

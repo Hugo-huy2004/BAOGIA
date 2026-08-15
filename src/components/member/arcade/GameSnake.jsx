@@ -6,7 +6,7 @@ import { hapticMerge, hapticLose, hapticMove } from "../../../utils/haptics";
 import { readGamePalette, withAlpha, shade } from "./arcadePalette";
 import { levelFor, ramp, createCombo, pushPopup, updatePopups, drawPopups } from "./arcadeProgression";
 import { createFrameScaler, decay } from "./arcadeLoop";
-import { queueTurn, nextTurn } from "./snakeRules";
+import { queueTurn, nextTurn, pickReachableCell } from "./snakeRules";
 import ArcadeHud from "./ArcadeHud";
 
 // Snake 3D Pro is a chapter-based endless run. Every six pickups the arena
@@ -124,6 +124,21 @@ function placePortals(snake, food, mines, golden) {
     guard += 1;
   }
   return [first, second];
+}
+
+// Ô sinh vật phẩm: ưu tiên vùng đầu rắn CÒN TỚI ĐƯỢC (xem snakeRules.js). Hai
+// khúc đuôi cuối không tính là tường vì lúc đầu rắn tới thì chúng đã bò đi rồi.
+function spawnCell(state) {
+  const body = state.snake.slice(0, Math.max(1, state.snake.length - 2));
+  const reachable = pickReachableCell({
+    grid: GRID,
+    head: state.snake[0],
+    blocked: [...body, ...state.mines],
+    portals: state.portals,
+    avoid: [...state.portals, state.food, state.golden].filter(Boolean),
+  });
+  // Bí đường thật (rắn tự quây kín mình) thì cứ rơi ngẫu nhiên — ván đó sắp hết.
+  return reachable || randomCell([...state.snake, ...state.mines, ...state.portals]);
 }
 
 // ── Particle helpers ──────────────────────────────────────────────
@@ -700,7 +715,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
             s.golden = null;
             playGameSelect();
           } else {
-            s.food = randomCell([...s.snake, ...s.mines, ...s.portals]);
+            s.food = spawnCell(s);
             playGameMerge();
           }
           hapticMerge();
@@ -708,7 +723,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
           const activeTheme = stageThemeFor(s.stage);
           const goldenEvery = activeTheme.goldenEvery || GOLDEN_EVERY;
           if (!s.golden && s.eaten % goldenEvery === 0) {
-            s.golden = { ...randomCell([...s.snake, ...s.mines, ...s.portals, s.food]), ttl: GOLDEN_TICKS };
+            s.golden = { ...spawnCell(s), ttl: GOLDEN_TICKS };
           }
 
           // ── Chapter + automatic difficulty ──
@@ -729,10 +744,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
               s.mines = placeMines(wanted, s.snake, s.food, next, [...s.portals, s.golden]);
             }
             if (nextTheme.goldenEvery && !s.golden) {
-              s.golden = {
-                ...randomCell([...s.snake, ...s.mines, ...s.portals, s.food]),
-                ttl: GOLDEN_TICKS,
-              };
+              s.golden = { ...spawnCell(s), ttl: GOLDEN_TICKS };
             }
             s.flash = 0.32;
             s.shakeMag = 9;

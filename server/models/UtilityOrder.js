@@ -9,7 +9,7 @@ const UtilityOrderSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'UtilityProduct',
-    required: true
+    default: null
   },
   productName: {
     type: String,

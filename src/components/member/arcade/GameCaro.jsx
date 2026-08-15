@@ -8,6 +8,12 @@ import { SIZE, WIN_LEN, EMPTY, PLAYER, AI, checkWin, winningLine, emptyBoard, pi
 // thái ván. Bàn 10×10, thắng 5 quân liền — bản 3×3 cũ là tic-tac-toe, một game
 // đã giải nên mức Khó chỉ có thể hoà.
 
+const LEVELS = [
+  { id: "easy",   key: "arcadeGame.levelEasy" },
+  { id: "medium", key: "arcadeGame.levelMid" },
+  { id: "hard",   key: "arcadeGame.levelHard" },
+];
+
 function ThinkingDots() {
   return (
     <span className="caro-dots" aria-hidden="true">
@@ -18,6 +24,7 @@ function ThinkingDots() {
 
 export default function GameCaro({ difficulty = "medium", onGameOver }) {
   const { t } = useTranslation();
+  const [level, setLevel] = useState(difficulty);
   const [board, setBoard] = useState(emptyBoard);
   const [turn, setTurn] = useState(PLAYER);
   const [status, setStatus] = useState("playing"); // playing | win | lose | draw
@@ -64,7 +71,7 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
     // Trả khung hình lại cho trình duyệt trước khi tính: mức Khó xét ~10 nước ×
     // ~60 nước đáp, đủ để chặn luồng chính vài chục ms.
     setTimeout(() => {
-      const aiMove = pickMove(next, difficulty);
+      const aiMove = pickMove(next, level);
       setThinking(false);
       if (!aiMove) return finish("draw", playerMoves);
 
@@ -101,10 +108,25 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
         {thinking && <ThinkingDots />}
       </div>
 
+      <div className="caro-levels" role="group" aria-label={t("arcadeGame.caroOpponent")}>
+        <small>{t("arcadeGame.caroOpponent")}</small>
+        {LEVELS.map(({ id, key }) => (
+          <button
+            key={id}
+            type="button"
+            className={`caro-level${level === id ? " is-active" : ""}`}
+            aria-pressed={level === id}
+            onClick={() => { setLevel(id); playGameSelect(); }}
+          >
+            {t(key)}
+          </button>
+        ))}
+      </div>
+
       <div className="caro-board-wrap">
         <div
           className="caro-board"
-          style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)` }}
+          style={{ gridTemplateColumns: `repeat(${SIZE}, minmax(0, 1fr))` }}
           role="grid"
           aria-label={t("arcadeGame.caroBoardLabel", { size: SIZE, win: WIN_LEN })}
         >

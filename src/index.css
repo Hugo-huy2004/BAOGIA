@@ -1225,8 +1225,48 @@
 /* Đầu trang không còn là một cái thẻ: iOS dùng large title trần trên nền, và
    bỏ được cái khung dày clamp(26px,5vw,48px) là mỗi màn thêm gần một bài. */
 .today-news-hero {
+  position: relative;
   min-width: 0;
   padding: 2px 0 0;
+}
+
+/* Nền giấy + hoa văn của từng nước (culturalThemes.js). Đặt ở ::before chứ
+   không đặt thẳng lên hero: hoa văn phải nằm DƯỚI chữ, và tràn ra hai mép màn
+   hình bằng margin âm cho giống tờ báo, trong khi chữ vẫn thẳng lề với danh
+   sách bài. Chỉ trang trí, nên aria bỏ qua. */
+.today-news-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -14px;
+  right: -100vw;
+  bottom: -10px;
+  left: -100vw;
+  background-image: var(--edition-pattern), var(--edition-hero);
+  background-repeat: repeat, no-repeat;
+  opacity: var(--edition-pattern-opacity, .05);
+  pointer-events: none;
+}
+
+/* Chữ chào của từng ấn bản dùng bộ chữ khai trong theme: báo Nhật/Trung dùng
+   Noto Serif CJK, báo Thái dùng Sarabun — mỗi nền chữ có nhịp riêng. */
+.today-news-shell .portal-display,
+.today-edition-mark figcaption {
+  font-family: var(--edition-font, inherit);
+}
+
+/* Màu nhấn của ấn bản thay cho màu brand ở đúng những chi tiết nhỏ của đầu
+   trang. Không đụng tới nút/thẻ bài: đổi màu cả portal theo ngôn ngữ sẽ phá
+   giao diện phẳng một-màu-nhấn của app. */
+.today-news-shell .today-edition-note .material-symbols-outlined {
+  color: var(--edition-accent, hsl(var(--primary)));
+}
+
+.dark .today-news-hero::before {
+  /* Nền giấy sáng của theme sẽ chọc thủng nền tối — ở chế độ tối chỉ giữ hoa
+     văn, bỏ lớp giấy. */
+  background-image: var(--edition-pattern);
+  opacity: calc(var(--edition-pattern-opacity, .05) * 1.6);
 }
 
 .today-edition-note {
@@ -1261,22 +1301,28 @@
   font-size: 14px;
 }
 
-/* Dấu ấn bản tiếng Trung: bản đồ đất liền tô quốc kỳ, không nền, không khung.
+/* Dấu ấn bản: bản đồ nước của người đọc tô quốc kỳ, không nền, không khung.
    Ngoại lệ có chủ đích của quy ước icon đơn sắc — đây là quốc kỳ, phải đúng màu. */
-.today-china-mark {
+.today-china-mark,
+.today-edition-mark {
   margin: 18px 0 2px;
   text-align: center;
 }
 
-.today-china-mark svg {
+.today-china-mark svg,
+.today-edition-mark svg {
   display: block;
-  width: min(124px, 32%);
-  height: auto;
+  /* Chốt theo CHIỀU CAO, không theo bề ngang: Việt Nam cao gấp đôi bề ngang còn
+     Mỹ thì ngược lại — chốt bề ngang sẽ ra con tem Việt Nam dài lê thê. */
+  width: auto;
+  max-width: min(150px, 40%);
+  height: 88px;
   margin: 0 auto;
   filter: drop-shadow(0 6px 14px hsl(var(--foreground) / 0.16));
 }
 
-.today-china-mark figcaption {
+.today-china-mark figcaption,
+.today-edition-mark figcaption {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -1288,13 +1334,95 @@
   text-indent: 0.2em;
 }
 
-/* Hai vạch vàng mảnh hai bên dòng quốc hiệu — trang trọng, không rườm rà. */
+/* Hai vạch mảnh hai bên dòng quốc hiệu — trang trọng, không rườm rà. Màu lấy
+   từ chính lá cờ của nước đó (--edition-accent), mặc định là vàng của TQ. */
 .today-china-mark figcaption::before,
-.today-china-mark figcaption::after {
+.today-china-mark figcaption::after,
+.today-edition-mark figcaption::before,
+.today-edition-mark figcaption::after {
   width: 18px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #d9a521);
+  background: linear-gradient(90deg, transparent, var(--edition-accent, #d9a521));
   content: "";
+}
+
+.today-edition-mark figcaption::after {
+  background: linear-gradient(90deg, var(--edition-accent, #d9a521), transparent);
+}
+
+/* Ấn bản tiếng Anh: bản đồ thế giới nằm ngang, không cờ. Không dùng chung khổ
+   con tem 88px của các ấn bản một-quốc-gia. */
+/* Dòng dưới bản đồ EN là một câu, không phải quốc hiệu ba chữ — nới chữ ra cho
+   khỏi giãn cách kiểu bảng đồng, và cho phép xuống dòng trên máy hẹp. */
+.today-edition-mark--world figcaption {
+  max-width: min(100%, 340px);
+  letter-spacing: .04em;
+  text-indent: 0;
+  text-wrap: balance;
+}
+
+.today-edition-mark--world svg {
+  width: min(100%, 460px);
+  max-width: 100%;
+  height: auto;
+  color: var(--edition-accent, hsl(var(--primary)));
+  filter: none;
+  opacity: .9;
+}
+
+/* Băng chuyền tên nước của ấn bản tiếng Anh. Tràn hết bề ngang màn hình và mờ
+   dần hai mép để không có điểm cắt cứng. */
+.today-edition-ribbon {
+  margin: 10px -100vw 0;
+  padding-inline: 100vw;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.today-edition-ribbon__track {
+  display: flex;
+  width: max-content;
+  animation: today-ribbon 90s linear infinite;
+}
+
+.today-edition-ribbon__run {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 18px;
+  padding-right: 18px;
+}
+
+.today-edition-ribbon__item {
+  color: hsl(var(--muted-foreground) / .85);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+/* Ngăn cách bằng dấu chấm giữa dòng, không phải gạch: nhẹ hơn và không đọc
+   thành dấu trừ khi trình đọc màn hình lướt qua (băng đã aria-hidden). */
+.today-edition-ribbon__item + .today-edition-ribbon__item::before {
+  margin-right: 18px;
+  color: var(--edition-accent, hsl(var(--primary)));
+  content: "·";
+}
+
+@keyframes today-ribbon {
+  /* Dịch đúng một bản danh sách: bản thứ hai lấp vào chỗ trống nên vòng lặp
+     không thấy mối nối. */
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .today-edition-ribbon {
+    overflow-x: auto;
+  }
+
+  .today-edition-ribbon__track {
+    animation: none;
+  }
 }
 
 .today-china-mark figcaption::after {
@@ -2112,12 +2240,12 @@ html.standalone-pwa .desktop-apple-layout {
 .mobile-portal-nav__track {
   height: 56px;
   padding: 4px 6px;
-  /* Co vừa nội dung, không kéo hết chiều ngang: thanh tab iOS là một vật thể
-     nổi giữa màn, thấy được nền ở hai bên. `min(100%, 420px)` vẫn là full
-     width trên điện thoại nên nhìn y hệt một dải dính đáy. */
+  /* Không kéo hết chiều ngang: thanh tab iOS là một vật thể nổi giữa màn, thấy
+     được nền hai bên. Nhưng bề rộng phải CỐ ĐỊNH, không theo nội dung —
+     `fit-content` làm cả thanh phình/co mỗi lần đổi ngôn ngữ ("계정" vs
+     "Tài khoản" vs "Aujourd'hui"), nút nhảy chỗ nên bấm hụt. */
   position: relative;
-  width: fit-content;
-  max-width: 100%;
+  width: min(100%, 320px);
   border-radius: 28px;
   pointer-events: auto;
   border: .5px solid rgb(255 255 255 / .45);
@@ -2279,12 +2407,14 @@ html.standalone-pwa .desktop-apple-layout {
 }
 
 .mobile-portal-nav button {
-  /* Nút thôi giãn đều: mỗi nút rộng vừa đủ nhãn, nhờ vậy cả thanh co lại.
-     min-width giữ vùng chạm 44px theo HIG kể cả với nhãn ngắn. */
-  flex: 0 0 auto;
+  /* Chia đều thanh: mỗi nút một cột bằng nhau, KHÔNG theo bề rộng nhãn — nhờ
+     vậy 4 nút luôn nằm đúng một chỗ ở mọi ngôn ngữ. Nhãn dài thì cắt bằng
+     ellipsis (.mobile-portal-nav__label), thanh không phình ra.
+     min-width giữ vùng chạm 44px theo HIG. */
+  flex: 1 1 0;
   min-width: 44px;
   height: 48px;
-  padding-inline: 12px;
+  padding-inline: 4px;
   border-radius: 22px;
 }
 

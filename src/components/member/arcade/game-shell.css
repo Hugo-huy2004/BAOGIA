@@ -738,6 +738,27 @@
   overflow: visible;
   perspective: 900px;
 }
+/* Hàng chọn đối thủ — nút capsule 44px cho đủ vùng chạm. */
+.arcade-game--caro .caro-levels {
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap;                 /* màn hẹp: xuống dòng thay vì bị cắt */
+  width: min(100%, 520px);
+}
+.arcade-game--caro .caro-levels small {
+  margin-right: auto;
+  color: var(--intro-muted); font-size: 10px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase;
+}
+.arcade-game--caro .caro-level {
+  min-height: 44px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--game-line); background: var(--game-surface);
+  color: var(--intro-muted); font-size: 13px; font-weight: 650;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background .14s ease, color .14s ease;
+}
+.arcade-game--caro .caro-level.is-active {
+  background: var(--intro-accent); color: #0b0f18; border-color: transparent;
+}
+
 /* Bàn 10×10 (thắng 5 quân), không còn 3×3: mỗi ô ~36px trên điện thoại nên
    gap/bo góc/cỡ chữ đều phải nhỏ hơn hẳn bản cũ — cỡ chữ 96px của bàn 3×3 sẽ
    tràn ra ngoài ô. */

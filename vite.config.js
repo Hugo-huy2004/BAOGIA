@@ -174,8 +174,16 @@ export default defineConfig(({ mode }) => {
         id: '/member/',
         theme_color: '#0b0a0f',
         background_color: '#0b0a0f',
+        // `standalone` vẫn chừa thanh trạng thái của hệ điều hành, tô bằng
+        // theme_color — đó là dải đen ở mép trên khi cài trên Android. Xin
+        // `fullscreen` trước để nội dung tràn hết màn; trình duyệt nào không
+        // hiểu display_override thì rơi về `display` bên dưới.
+        //
+        // iOS bỏ qua cả hai: ở đó quyết định nằm ở meta
+        // apple-mobile-web-app-capable + status-bar-style=black-translucent
+        // trong index.html, cộng viewport-fit=cover — đã có sẵn.
         display: 'standalone',
-        display_override: ['standalone'],
+        display_override: ['fullscreen', 'standalone'],
         orientation: 'any',
         scope: '/',
         start_url: '/member/today?source=pwa',

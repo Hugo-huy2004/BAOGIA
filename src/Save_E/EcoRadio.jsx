@@ -63,7 +63,7 @@ async function bill({ final = false } = {}) {
   if (!billSince) return;
   const minutes = (Date.now() - billSince) / 60000;
   billSince = final ? 0 : Date.now();
-  const data = await sendRadioHeartbeat(getMemberSession()?.email, minutes, { keepalive: final });
+  const data = await sendRadioHeartbeat(minutes, { keepalive: final });
   if (!data) return;
   lastStatus = data;
   statusListeners.forEach((listener) => listener(data));
@@ -346,15 +346,11 @@ export default function EcoRadio() {
 
       {healed ? <p className="save-e-note save-e-strong-green">{healed}</p> : null}
       {error ? <p className="save-e-note">{error}</p> : null}
-      {/* API trả `totalRemaining` (miễn phí + đã mua); trước đây chỗ này đọc
-          `remainingMinutes` — một trường không tồn tại, nên dòng giờ nghe còn
-          lại không bao giờ hiện. */}
-      {tokenStatus?.totalRemaining != null ? (
+      {/* Cùng đơn vị với tab HugoRadio: token, 1 token = 10 phút. */}
+      {tokenStatus?.tokensLeft != null ? (
         <p className="save-e-note">
-          Còn <span className="save-e-strong-green">{Math.round(tokenStatus.totalRemaining)} phút</span> nghe radio
-          {tokenStatus.freeRemaining != null
-            ? ` — hạn mức miễn phí 5 giờ/tuần còn ${Math.round(tokenStatus.freeRemaining)} phút.`
-            : "."}
+          Còn <span className="save-e-strong-green">{tokenStatus.tokensLeft} token</span> nghe radio
+          {` (1 token = ${tokenStatus.minutesPerToken} phút) — hạn mức miễn phí tuần này còn ${tokenStatus.freeTokensLeft}/${tokenStatus.freeTokens} token.`}
         </p>
       ) : null}
 

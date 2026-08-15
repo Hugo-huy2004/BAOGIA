@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useTodayFeed } from "../../hooks/useTodayFeed";
 import { extractTopics, matchesQuery, matchesTopic } from "../../lib/todayTopics";
 import { givenName } from "./memberName";
-import ChinaEditionMark from "./ChinaEditionMark";
+import EditionMark from "./today/EditionMark";
+import { getCulturalTheme } from "../../i18n/culturalThemes";
 import { languageCode } from "../../i18n/languages";
 
 const CATEGORIES = ["all", "academic", "technology", "community", "world", "catholic"];
@@ -112,9 +113,27 @@ export default function MemberTodayTab({
       return country;
     }
   }, [data?.meta?.country, language]);
+  const theme = useMemo(() => getCulturalTheme(language), [language]);
 
   return (
-    <section className="portal-stack today-news-shell" aria-labelledby="portal-today-title">
+    <section
+      className="portal-stack today-news-shell"
+      aria-labelledby="portal-today-title"
+      // Khí chất riêng của từng ấn bản: màu nhấn, nền giấy, hoa văn chìm và bộ
+      // chữ — khai trong src/i18n/culturalThemes.js, đổ xuống CSS bằng biến.
+      // Hoa văn để ở opacity rất thấp: nó là nền giấy, không phải hình trang trí.
+      data-lang={language}
+      style={{
+        "--edition-accent": theme.accent,
+        "--edition-accent-fg": theme.accentFg,
+        "--edition-surface": theme.surface,
+        "--edition-surface-alt": theme.surfaceAlt,
+        "--edition-hero": theme.heroGradient,
+        "--edition-pattern": `url("data:image/svg+xml,${theme.pattern}")`,
+        "--edition-pattern-opacity": theme.heroOpacity,
+        "--edition-font": theme.fontFamily,
+      }}
+    >
       {/* Đầu trang kiểu Apple News: ngày + lời chào + dòng ấn bản, không bọc
           trong thẻ. Bớt một lớp khung là thêm gần một bài báo trên mỗi màn. */}
       <header className="today-news-hero">
@@ -124,11 +143,11 @@ export default function MemberTodayTab({
             name: givenName(bio?.displayName, language) || t("memberPortal.navigation.memberFallback"),
           })}
         </h2>
-        {/* The Chinese edition leads with the national emblem instead of the
-            two meta lines: one clean mark reads better than stacked counters. */}
-        {language === "zh" ? (
-          <ChinaEditionMark />
-        ) : (
+        {/* Mỗi ấn bản mở đầu bằng hình đất nước của người đọc, tô quốc kỳ.
+            Riêng ấn bản Trung Quốc dừng ở đó: một hình sạch đọc tốt hơn hai
+            dòng đếm xếp chồng. */}
+        <EditionMark language={language} />
+        {language === "zh" ? null : (
           <>
             <p className="today-edition-note" aria-live="polite">
               <span className="material-symbols-outlined" aria-hidden="true">language</span>

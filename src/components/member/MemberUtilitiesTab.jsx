@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { isMinorMember } from "../../lib/memberAge";
+import { changeAppLanguage } from "../../i18n/config";
+import { psychologyGate } from "../../lib/memberAge";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 
@@ -17,7 +18,7 @@ const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data } = useData();
 
   useEffect(() => {
@@ -37,7 +38,15 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = ["psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk"].includes(selectedUtility);
+  const isFullscreenLikeUtility = ["psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team"].includes(selectedUtility);
+
+  // Chặn ở đây — chỗ app được render — nên mọi đường vào đều bị chặn như nhau:
+  // icon ngoài Home, Thư viện, Spotlight, Hugo Store, liên kết dán tay, và cả
+  // điều hướng từ `useHealingJourney`. Chặn ở từng chỗ bấm thì thiếu một chỗ là
+  // lọt. Thứ tự hai cửa (ngôn ngữ trước tuổi) nằm trong lib/memberAge.js.
+  const psyGate = selectedUtility === "psychology"
+    ? psychologyGate(i18n.resolvedLanguage || i18n.language, bio)
+    : null;
 
   return (
     <div className={isFullscreenLikeUtility ? "h-full min-h-0 overflow-hidden" : "space-y-6 animate-fadeIn"}>
@@ -67,13 +76,19 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
-      {/* HugoPSY chỉ dành cho thành viên từ 18 tuổi */}
-      {selectedUtility === "psychology" && isMinorMember(bio) && (
+      {/* HugoPSY chỉ soạn bằng tiếng Việt (kể cả đường dây nóng là số Việt Nam) */}
+      {psyGate === "language" && (
+        <VietnameseOnlyNotice onBack={() => onSelectUtility(null)} />
+      )}
+
+      {/* HugoPSY chỉ dành cho thành viên từ 18 tuổi. Màn này để nguyên tiếng
+          Việt là đúng: cổng ngôn ngữ ở trên đã lọc trước nó. */}
+      {psyGate === "minor" && (
         <AdultOnlyNotice onBack={() => onSelectUtility(null)} />
       )}
 
       {/* Psychology Advisor Tool - HugoPSY */}
-      {selectedUtility === "psychology" && !isMinorMember(bio) && (
+      {psyGate === "open" && (
         <BanhocduongTab
           onBack={() => onSelectUtility(null)}
           activeSubTab={psychologySubTab}
@@ -147,6 +162,33 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
 // Vào thẳng bằng URL /member/utilities/psychology thì vẫn gặp màn này; API phía
 // sau cũng đã khoá nên đây chỉ là phần giải thích cho người dùng.
+function VietnameseOnlyNotice({ onBack }) {
+  const { t } = useTranslation();
+  return (
+    <div className="mx-auto max-w-md px-4 py-14 text-center">
+      <span className="material-symbols-outlined text-[56px] text-muted-foreground" aria-hidden="true">translate</span>
+      <p className="mt-4 text-lg font-black text-foreground">{t("hugoPsy.vietnameseOnly.title")}</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t("hugoPsy.vietnameseOnly.body")}</p>
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => changeAppLanguage("vi")}
+          className="min-h-11 rounded-full bg-foreground px-5 text-sm font-bold text-background transition-opacity hover:opacity-90"
+        >
+          {t("hugoPsy.vietnameseOnly.switchToVi")}
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          className="min-h-11 rounded-full border border-border px-5 text-sm font-bold text-foreground transition-colors hover:bg-muted"
+        >
+          {t("hugoPsy.vietnameseOnly.back")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function AdultOnlyNotice({ onBack }) {
   return (
     <div className="mx-auto max-w-md px-4 py-14 text-center">

@@ -782,7 +782,10 @@ function MemberPortalPage() {
   // any psychology sub-tab gets the fullscreen takeover there. Desktop is
   // unchanged from before — normal sidebar+tabs UI, never fullscreen.
   const isFullscreenUtility = (activeTab === "utilities" && (
-    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk"].includes(subTab) ||
+    // Danh sách này phải khớp `isFullscreenLikeUtility` trong MemberUtilitiesTab.
+    // Thiếu một id ở đây thì app vẫn dựng vỏ `h-full` của mình nhưng nằm trong
+    // trang có đệm và tự cuộn — hai vùng cuộn lồng nhau làm hỏng vuốt/chạm.
+    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team"].includes(subTab) ||
     (subTab === "psychology" && isMobileView)
   ));
 

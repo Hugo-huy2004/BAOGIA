@@ -68,6 +68,15 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   bio.joyBalance = newBalance;
   if (opts.bioDoc && opts.bioDoc !== bio) opts.bioDoc.joyBalance = newBalance;
 
+  // …nhưng ĐỪNG để lần save() sau đó của người gọi ghi lại con số này. Số dư đã
+  // được cộng/trừ nguyên tử bằng $inc ở trên; một save() toàn tài liệu sẽ $set
+  // đè bằng giá trị đọc được lúc này, và hai giao dịch chạy song song sẽ xoá
+  // nhau — mua hai lần liên tiếp mà chỉ bị trừ một lần. unmarkModified giữ giá
+  // trị đúng trong bộ nhớ nhưng không đưa nó vào lệnh ghi.
+  for (const doc of new Set([bio, opts.bioDoc].filter(Boolean))) {
+    doc.unmarkModified?.('joyBalance');
+  }
+
   // Ghi nhận lịch sử giao dịch (JoyLedger)
   await JoyLedger.create({
     email: updatedBio.email,

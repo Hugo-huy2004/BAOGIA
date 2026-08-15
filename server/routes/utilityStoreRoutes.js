@@ -5,14 +5,32 @@ import UtilityOrder from '../models/UtilityOrder.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import cloudinaryUtil from '../utils/cloudinary.js';
-import { calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import { calcExchangeTotal, EXCHANGE_TAX_RATE } from '../utils/featureSubscriptionService.js';
 import { notifyMember } from '../utils/notifyMember.js';
 
 const router = express.Router();
 
+// ── Token HugoRadio ─────────────────────────────────────────────────────────
+// Phải khớp MINUTES_PER_TOKEN bên server/utils/radioTokens.js.
+const RADIO_MINUTES_PER_TOKEN = 10;
+const JOY_PER_RADIO_TOKEN = 200;              // chưa gồm phí sáng tạo 10%
+const MAX_RADIO_TOKENS = 1008;                // 168 giờ — trần một lần mua
+
 function generatePurchaseCode() {
   return 'ORD-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 }
+
+// GET /api/utility-store/radio-price — bảng giá token do MÁY CHỦ công bố.
+// Giao diện đọc từ đây thay vì tự chép hằng số: giá hiện trên nút mua và giá bị
+// trừ khỏi ví luôn là cùng một con số.
+router.get('/radio-price', (_req, res) => {
+  res.json({
+    minutesPerToken: RADIO_MINUTES_PER_TOKEN,
+    joyPerToken: JOY_PER_RADIO_TOKEN,
+    feeRate: EXCHANGE_TAX_RATE,
+    maxTokens: MAX_RADIO_TOKENS,
+  });
+});
 
 // ── Member-facing ──────────────────────────────────────────────────────────
 
@@ -37,11 +55,108 @@ router.get('/orders', requireMember, async (req, res) => {
   }
 });
 
-// POST /api/utility-store/purchase  { email, productId }
+// POST /api/utility-store/purchase  { productId } | { productType: 'radio_time', tokens }
 router.post('/purchase', requireMember, async (req, res) => {
   try {
-    const { productId } = req.body;
+    const { productId, productType } = req.body;
     const email = req.memberEmail;
+
+    // ── Direct radio_time purchase (no productId needed) ──────────────────
+    if (productType === 'radio_time') {
+      // `tokens` là đơn vị mới; `hours` giữ lại cho bản client cũ chưa cập nhật.
+      // Giá KHÔNG bao giờ lấy từ request — client cũ còn gửi kèm `priceJoy`, và
+      // nó đã luôn bị bỏ qua ở đây; chỉ số lượng mới đến từ người mua.
+      const asked = req.body.tokens != null
+        ? Number(req.body.tokens)
+        : Number(req.body.hours) * (60 / RADIO_MINUTES_PER_TOKEN);
+
+      if (!Number.isInteger(asked) || asked < 1 || asked > MAX_RADIO_TOKENS) {
+        return res.status(400).json({ error: `Số token phải là số nguyên từ 1 đến ${MAX_RADIO_TOKENS}.` });
+      }
+      const tokens = asked;
+      const radioMinutes = tokens * RADIO_MINUTES_PER_TOKEN;
+      // Dùng chung công thức phí sáng tạo với mọi giao dịch JOY khác. Nhánh này
+      // trước đây tự nhân `* 1.1` rồi Math.ceil, trong khi calcExchangeTotal
+      // Math.floor — hai lối mua cùng một thứ ra hai con số lệch nhau.
+      const { tax: taxes, total: expectedJoy } = calcExchangeTotal(tokens * JOY_PER_RADIO_TOKEN);
+
+      let bio = await Bio.findOne({ email });
+      if (!bio) bio = await Bio.findOne({ contactEmail: email });
+      if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
+
+      if (bio.joyBalance < expectedJoy) {
+        return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${expectedJoy} JOY.` });
+      }
+
+      // awardJoy trừ tiền nguyên tử ($inc kèm điều kiện $gte), nên hai lần bấm
+      // song song không thể tiêu quá số dư — lần thứ hai ném INSUFFICIENT_JOY.
+      let balance;
+      try {
+        ({ balance } = await awardJoy(
+          email,
+          -expectedJoy,
+          'store_purchase',
+          `Mua ${tokens} token HugoRadio (${radioMinutes} phút, gồm ${taxes} JOY phí sáng tạo)`,
+          { notify: false, bioDoc: bio, skipSave: true }
+        ));
+      } catch (err) {
+        if (err.message === 'INSUFFICIENT_JOY') {
+          return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${expectedJoy} JOY.` });
+        }
+        throw err;
+      }
+
+      if (!bio.radioTokens) {
+        bio.radioTokens = { weeklyFreeMinutes: 300, weeklyUsedMinutes: 0, weeklyResetAt: null, purchasedMinutes: 0 };
+      }
+      bio.radioTokens.purchasedMinutes = (bio.radioTokens.purchasedMinutes || 0) + radioMinutes;
+
+      bio.history.push({
+        type: 'utility_purchase',
+        icon: 'radio',
+        title: 'Mua token HugoRadio',
+        detail: `+${tokens} token (${radioMinutes} phút)`,
+        timestamp: new Date()
+      });
+      if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
+
+      await bio.save();
+
+      let purchaseCode = generatePurchaseCode();
+      for (let attempt = 0; attempt < 5 && (await UtilityOrder.exists({ purchaseCode })); attempt++) {
+        purchaseCode = generatePurchaseCode();
+      }
+
+      const order = await UtilityOrder.create({
+        email,
+        productId: null,
+        productName: `HugoRadio · ${tokens} token`,
+        priceJoy: expectedJoy,
+        purchaseCode,
+        status: 'completed',
+      });
+
+      await notifyMember({
+        email,
+        type: 'success',
+        category: 'joy',
+        key: 'event.productPurchase',
+        params: { product: `HugoRadio · ${tokens} token`, total: expectedJoy, code: purchaseCode },
+        actionUrl: '/member/utilities/radio',
+      });
+
+      return res.json({
+        ok: true,
+        balance,
+        tokens,
+        radioMinutes,
+        purchasedTokens: Math.floor(bio.radioTokens.purchasedMinutes / RADIO_MINUTES_PER_TOKEN),
+        purchaseCode,
+        order,
+      });
+    }
+
+    // ── Standard product purchase ────────────────────────────────────────
     if (!productId) return res.status(400).json({ error: 'productId is required' });
 
     const product = await UtilityProduct.findById(productId);

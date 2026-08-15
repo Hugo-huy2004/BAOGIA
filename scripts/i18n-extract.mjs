@@ -25,7 +25,53 @@ if (!file || !prefix) {
   process.exit(1);
 }
 const write = flags.includes("--write");
-const source = fs.readFileSync(file, "utf8");
+
+/**
+ * Most components have no `t` in scope, so the extractor used to skip the whole
+ * file. This pass hands them one first: `const { t } = useTranslation();` at the
+ * top of every capitalised function that renders JSX and holds Vietnamese copy.
+ * Restricting it to those two facts is what keeps it from putting a hook inside
+ * a plain helper, which would break the rules of hooks.
+ */
+function addTranslationHook(code) {
+  const tree = parse(code, { sourceType: "module", plugins: ["jsx"] });
+  const inserts = [];
+  const seen = new Set();
+
+  traverse(tree, {
+    "FunctionDeclaration|FunctionExpression|ArrowFunctionExpression"(path) {
+      const name = path.node.id?.name || path.parent?.id?.name;
+      if (!name || !/^[A-Z]/.test(name)) return;
+      if (path.node.body.type !== "BlockStatement" || seen.has(path.node.body.start)) return;
+      if (path.scope.hasBinding("t")) return;
+
+      let rendersJsx = false;
+      let hasVietnamese = false;
+      path.traverse({
+        JSXElement() { rendersJsx = true; },
+        JSXText(inner) { if (VIETNAMESE.test(inner.node.value)) hasVietnamese = true; },
+        StringLiteral(inner) { if (VIETNAMESE.test(inner.node.value)) hasVietnamese = true; },
+      });
+      if (!rendersJsx || !hasVietnamese) return;
+
+      seen.add(path.node.body.start);
+      inserts.push(path.node.body.start + 1);
+    },
+  });
+
+  if (!inserts.length) return code;
+  let patched = inserts
+    .sort((a, b) => b - a)
+    .reduce((text, at) => `${text.slice(0, at)}\n  const { t } = useTranslation();${text.slice(at)}`, code);
+  if (!/from "react-i18next"/.test(patched)) {
+    patched = patched.replace(/^(import .*\n)/, '$1import { useTranslation } from "react-i18next";\n');
+  }
+  return patched;
+}
+
+const original = fs.readFileSync(file, "utf8");
+const source = write ? addTranslationHook(original) : original;
+const hooksAdded = source !== original;
 const ast = parse(source, { sourceType: "module", plugins: ["jsx"] });
 
 const used = new Set();

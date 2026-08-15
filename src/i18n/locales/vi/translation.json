@@ -2598,14 +2598,6 @@
       "deletePersonalError": "Không thể xoá Bio cá nhân.",
       "copySuccess": "Đã sao chép liên kết công khai."
     },
-    "radio": {
-      "token": {
-        "expired": "Đã dùng hết thời gian nghe trong tuần",
-        "weeklyFree": "Thời gian nghe miễn phí tuần này",
-        "purchased": "Thời gian nghe đã mua",
-        "buyMore": "Nhận thêm thời gian"
-      }
-    },
     "headlineEmpty": "Chưa thiết lập tiêu đề tiểu sử",
     "settingsBtn": "Cài đặt Bio",
     "linksLabel": "Liên kết",
@@ -3639,7 +3631,81 @@
       "chatEmpty": "Chưa có trao đổi nào. Nhắn admin tại đây — tin quan trọng cũng sẽ được gửi qua email cho bạn.",
       "chatPlaceholder": "Viết tin nhắn...",
       "send": "Gửi",
-      "toastSendError": "Lỗi gửi tin"
+      "toastSendError": "Lỗi gửi tin",
+      "filterAll": "Tất cả",
+      "pendingHoursShort": "{{hours}}h chờ duyệt",
+      "boardTodo": "Việc cần làm",
+      "allClear": "Không còn việc nào đang mở. Việc mới sẽ hiện ở đây.",
+      "composerHours": "Ghi giờ",
+      "composerMessage": "Nhắn tin",
+      "boardFeed": "Dòng thời gian",
+      "feedEmpty": "Chưa ghi nhận hoạt động nào.",
+      "eventHours": "Đã ghi {{hours}} giờ",
+      "eventMessageAdmin": "Hugo Studio nhắn",
+      "eventMessageDev": "Bạn đã nhắn",
+      "rules": {
+        "title": "Quy chế làm việc",
+        "intro": "Áp dụng cho thành viên HugoTeam đã được duyệt. Mọi điều ở đây đều khớp với cách hệ thống đang vận hành.",
+        "sections": [
+          {
+            "title": "Thời gian và cam kết",
+            "items": [
+              "Nhịp làm việc là 5–10 giờ/tuần, bạn tự sắp theo lịch học. Không có giờ hành chính bắt buộc.",
+              "HugoTeam hoạt động phi lợi nhuận. Đây không phải quan hệ lao động và không có lương; giá trị bạn nhận là dự án thật, ghi công và quyền lợi thành viên.",
+              "Bận thi, thực tập hay việc gia đình thì nhắn báo trước qua kênh trao đổi trong app. Báo trước luôn tốt hơn im lặng rồi trễ hạn."
+            ]
+          },
+          {
+            "title": "Nhận việc và bàn giao",
+            "items": [
+              "Mỗi việc đi qua bốn trạng thái: được giao → đang làm → đã nộp → hoàn tất. Nhấn Bắt đầu khi thật sự bắt tay vào, đừng để việc nằm ở trạng thái được giao rồi làm âm thầm.",
+              "Khi nộp, viết một ghi chú ngắn: đã làm gì, còn vướng gì, xem kết quả ở đâu. Đây là thứ người nghiệm thu đọc đầu tiên.",
+              "Việc chưa đạt sẽ được trả lại kèm nhận xét. Sửa rồi nộp lại trên chính việc đó, không tạo việc mới.",
+              "Gặp vướng quá một buổi làm thì hỏi ngay, đừng ôm. Hỏi sớm rẻ hơn làm lại."
+            ]
+          },
+          {
+            "title": "Ghi giờ",
+            "items": [
+              "Ghi giờ theo ngày thực tế đã làm, mỗi lần từ 0,25 đến 24 giờ. Ghi trong ngày hoặc chậm nhất cuối tuần, đừng dồn cuối tháng.",
+              "Gắn giờ vào đúng việc khi giờ đó thuộc một việc cụ thể — đây là cách đối soát nhanh nhất khi có sai lệch.",
+              "Phần ghi rõ bạn đã làm gì; một dòng cụ thể hơn mười chữ chung chung.",
+              "Giờ ở trạng thái chờ duyệt vẫn tự xoá được. Giờ đã duyệt thì không, muốn sửa phải nhắn.",
+              "Khai giờ không đúng thực tế là căn cứ để thu hồi tư cách thành viên."
+            ]
+          },
+          {
+            "title": "Trao đổi",
+            "items": [
+              "Kênh chính là ô trao đổi trong app; mọi tin đều lưu lại nên về sau tra được.",
+              "Việc cần chứng từ hoặc liên quan tài khoản thì gửi email contact@hugowishpax.studio từ email tài khoản của bạn.",
+              "Thời gian phản hồi thông thường là trong ngày làm việc kế tiếp."
+            ]
+          },
+          {
+            "title": "Chất lượng và ghi công",
+            "items": [
+              "Code bạn viết phải là của bạn hoặc có giấy phép cho phép dùng. Chép nguyên khối từ nguồn khác mà không nói rõ là vi phạm.",
+              "Không đưa khoá bí mật, mật khẩu hay dữ liệu thật của người dùng vào mã nguồn hay ảnh chụp màn hình.",
+              "Đóng góp được ghi công trên GitHub theo đúng phần bạn làm.",
+              "Dữ liệu và nội dung nội bộ của dự án chỉ dùng trong phạm vi công việc, không mang ra ngoài."
+            ]
+          },
+          {
+            "title": "Quyền lợi",
+            "items": [
+              "Tư cách thành viên VVIP có hiệu lực 3 năm kể từ ngày được duyệt.",
+              "Mốc 500 giờ được duyệt là dấu ghi nhận đồng hành dài hạn.",
+              "Bạn được giữ toàn bộ quyền tác giả với phần mình viết và được dùng nó trong hồ sơ xin việc."
+            ]
+          }
+        ]
+      },
+      "translate": "Dịch",
+      "showOriginal": "Xem bản gốc",
+      "translating": "Đang dịch…",
+      "translateUnavailable": "Chưa dịch được lúc này, thử lại sau nhé.",
+      "translateError": "Không dịch được tin này."
     }
   },
   "memberTabs": {
@@ -4454,50 +4520,88 @@
     },
     "radio": {
       "categories": {
-        "vnNews": "Tin Tức Việt Nam",
-        "intlNews": "Tin Tức Quốc Tế",
-        "music": "Nghe Nhạc"
+        "vnNews": "Đài Việt Nam",
+        "intlNews": "Tin tức quốc tế",
+        "music": "Âm nhạc",
+        "chill": "Thư giãn",
+        "found": "Đã tìm ({{n}})"
       },
-      "nowPlaying": "Đang phát",
-      "paused": "Đã tạm dừng",
-      "buffering": "Đang kết nối...",
-      "standby": "Chọn một đài để nghe",
-      "volume": "Âm lượng",
-      "noStations": "Không tìm thấy đài nào trong danh mục này.",
-      "toastPlayError": "Đài này hiện không phát được, vui lòng thử đài khác.",
+      "state": {
+        "connecting": "Đang kết nối",
+        "playing": "Đang phát",
+        "paused": "Tạm dừng",
+        "idle": "Sẵn sàng",
+        "pickStation": "Chọn một đài để nghe"
+      },
+      "control": {
+        "prev": "Đài trước",
+        "next": "Đài sau",
+        "play": "Phát",
+        "stop": "Dừng",
+        "volume": "Âm lượng",
+        "shuffle": "Ngẫu nhiên",
+        "sleep": "Hẹn giờ tắt",
+        "sleepRunning": "Tắt sau {{time}}",
+        "sleepArmed": "Hẹn {{minutes}} phút"
+      },
+      "health": {
+        "good": "Đài này phát tốt",
+        "shaky": "Đài này chập chờn",
+        "dead": "Đang hỏng — sẽ thử lại sau một ngày",
+        "unknown": "Chưa thử đài này"
+      },
+      "learnedUrl": "đã học địa chỉ mới",
+      "searchPlaceholder": "Tìm đài: VOV1, NPR, FIP…",
+      "searchAction": "Tìm",
+      "searching": "Đang tìm…",
+      "loading": "Đang tải…",
+      "noStations": "Không tìm thấy đài nào.",
+      "removeFound": "Bỏ {{name}} khỏi danh sách",
+      "toast": {
+        "playError": "Đài này hiện không phát được, vui lòng thử đài khác.",
+        "autoSkip": "{{from}} không kết nối được — chuyển sang {{to}}.",
+        "outOfTokens": "Hết token nghe radio. Mua thêm token để tiếp tục.",
+        "notFound": "Không tìm thấy đài nào tên “{{name}}”.",
+        "searchError": "Không hỏi được máy chủ tìm đài. Kiểm tra mạng rồi thử lại.",
+        "sleepDone": "Hẹn giờ tắt: đã dừng HugoRadio. Chúc bạn ngủ ngon!"
+      },
+      "legal": {
+        "title": "Nguồn phát và bản quyền",
+        "body": "HugoRadio chỉ là trình phát: nó mở đúng luồng trực tiếp mà mỗi đài tự công bố công khai. Không tải về, không lưu đệm, không ghi âm. Bản quyền chương trình thuộc về đài phát sóng.",
+        "source": "Danh mục đài lấy từ cơ sở dữ liệu mở Radio Browser."
+      },
       "token": {
-        "weeklyFree": "Tuần này",
-        "purchased": "Mua thêm",
-        "buyMore": "Mua thêm thời gian",
-        "expired": "Hết thời gian",
-        "expiredDesc": "Vui lòng mua thêm gói thời gian để tiếp tục nghe.",
-        "weekRemaining": "còn lại tuần này",
-        "totalRemaining": "Tổng thời gian còn lại",
-        "storeTitle": "Mua thêm thời gian nghe",
-        "storeDesc": "Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần.",
-        "empty": "Chưa có gói thời gian nào."
+        "title": "Token nghe",
+        "unit": "token",
+        "perToken": "1 token = {{minutes}} phút nghe",
+        "freeLeft": "Miễn phí tuần này: {{n}}/{{total}}",
+        "purchasedLeft": "Đã mua: {{n}}",
+        "resetIn": "nạp lại {{when}}",
+        "peakNotice": "Đang giờ cao điểm: một token chỉ nghe được {{minutes}} phút.",
+        "emptyDesc": "Đã hết token. Mua thêm để tiếp tục nghe.",
+        "lastMinutes": "Còn chưa tới một token — khoảng {{minutes}} phút.",
+        "buyMore": "Mua thêm token"
       },
-      "dangDo": "Đang dò",
-      "dangKetNoi": "Đang kết nối",
-      "nhieuSong": "Nhiễu sóng",
-      "dangPhat": "Đang phát",
-      "tamDung": "Tạm dừng",
-      "cho": "Chờ",
-      "daHocDiaChi": " · đã học địa chỉ mới",
-      "doTanSo": "Dò tần số",
-      "doXuong": "Dò xuống",
-      "dung": "Dừng",
-      "phat": "Phát",
-      "doLen": "Dò lên",
-      "amLuong": "Âm lượng",
-      "ngauNhien": "Ngẫu nhiên",
-      "henGioTat": "Hẹn giờ tắt",
-      "timDaiVov1Npr": "Tìm đài: VOV1, NPR, Jazz…",
-      "dangDo2": "Đang dò…",
-      "tim": "Tìm",
-      "daTim": "Đã tìm (",
-      "muaThemThoiGian": "Mua thêm thời gian nghe",
-      "thoiGianMuaDuoc": "Thời gian mua được tích lũy và sử dụng sau khi hết 5 giờ miễn phí hàng tuần."
+      "store": {
+        "title": "Mua token nghe",
+        "desc": "1 token = {{minutes}} phút nghe. Token đã mua không hết hạn theo tuần.",
+        "close": "Đóng",
+        "balance": "Số dư của bạn",
+        "amount": "Số token muốn mua",
+        "decrease": "Bớt một token",
+        "increase": "Thêm một token",
+        "equals": "{{n}} token = {{minutes}} phút nghe",
+        "preset": "{{hours}} giờ",
+        "unitPrice": "Đơn giá mỗi token",
+        "fee": "Phí sáng tạo ({{percent}}%)",
+        "total": "Tổng cộng",
+        "peakNotice": "Giờ cao điểm 00:00–05:00 và 11:00–13:00: token bị trừ gấp đôi.",
+        "short": "Còn thiếu {{amount}} JOY.",
+        "buy": "Mua {{n}} token — {{total}} JOY",
+        "buying": "Đang xử lý…",
+        "success": "Đã cộng {{n}} token nghe radio.",
+        "genericError": "Không mua được. Vui lòng thử lại."
+      }
     },
     "store": {
       "title": "Hugo Store",
@@ -5143,7 +5247,7 @@
       "onDinhLich": "Ổn định lịch",
       "lichNguRatOn": "Lịch ngủ rất ổn định",
       "khaOnDinhNen": "Khá ổn định, nên cố định hơn",
-      "bienDongNenNgu": "Biến động较多, nên ngủ đúng giờ",
+      "bienDongNenNgu": "Biến động khá nhiều, nên ngủ đúng giờ",
       "lichNguThatThuong": "Lịch ngủ thất thường, cần cải thiện",
       "tuDongGhiNhan": "Tự động ghi nhận giấc ngủ",
       "heThongPhatHien": "Hệ thống phát hiện bạn ngủ lúc",
@@ -5221,6 +5325,12 @@
       "giacMo2": "Giấc mơ: \"",
       "heThongDangTheo": "Hệ thống đang theo dõi. Ngủ ngon nhé!",
       "nhatKySeTu": "Nhật ký sẽ tự động xuất hiện sau khi bạn thức dậy."
+    },
+    "vietnameseOnly": {
+      "title": "HugoPSY chỉ có tiếng Việt",
+      "body": "Ứng dụng Hugo Psychology chỉ được cung cấp cho người dùng tiếng Việt. Toàn bộ bài trắc nghiệm, nội dung đồng hành và đường dây nóng khủng hoảng đều soạn riêng cho Việt Nam — dịch máy sang ngôn ngữ khác là không an toàn với một ứng dụng sức khoẻ tinh thần.",
+      "switchToVi": "Chuyển sang tiếng Việt",
+      "back": "Quay lại"
     }
   },
   "hugoCoderLearning": {
@@ -5585,7 +5695,11 @@
     "caroBoardLabel": "CARO {{size}} × {{size}} · thắng {{win}} ô",
     "openApp": "MỞ",
     "getApp": "NHẬN",
-    "gameCount": "{{count}} trò chơi"
+    "gameCount": "{{count}} trò chơi",
+    "levelEasy": "Dễ",
+    "levelMid": "Vừa",
+    "levelHard": "Khó",
+    "caroOpponent": "Đối thủ"
   },
   "arcadeIntro": {
     "close": "Quay lại Apps",

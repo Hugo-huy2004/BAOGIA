@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import SubUtilityHeader from "./SubUtilityHeader";
+import { IosApp, NavBar, Scroll, ProgressBar, Segmented, Button, Sheet } from "../demos/iosKit";
+import BackButton from "./shared/BackButton";
 import { notify } from "../../lib/notify";
 import { getMemberSession } from "../../services/authSession";
 import { API_BASE } from "../../config/apiBase";
-import { localeForLanguage } from "../../i18n/languages";
+import { localeForLanguage, languageCode } from "../../i18n/languages";
+import { canTranslate, guessLanguage, translateText } from "../../lib/textTranslator";
 
 // Sáu lợi ích của thành viên HugoTeam. Chỉ giữ icon + khoá dịch: chữ nằm ở
 // memberPortal.team.benefit* nên đổi ngôn ngữ là đổi theo, không phải sửa code.
@@ -16,6 +18,101 @@ const BENEFITS = [
   { icon: "schedule", key: "benefit5" },
   { icon: "diversity_3", key: "benefit6" },
 ];
+
+/**
+ * Quy chế làm việc của HugoTeam. Nội dung nằm trong i18n (memberPortal.team.rules)
+ * nên nó theo ngôn ngữ đang chọn như mọi phần khác, và mỗi điều đều bám đúng cơ
+ * chế hệ thống đang chạy — bốn trạng thái task, luật ghi giờ, mốc 500 giờ.
+ */
+function TeamRulesSheet({ open, onClose }) {
+  const { t } = useTranslation();
+  const sections = t("memberPortal.team.rules.sections", { returnObjects: true });
+
+  return (
+    <Sheet open={open} onClose={onClose} title={t("memberPortal.team.rules.title")}>
+      <p className="pb-1 text-[13px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>
+        {t("memberPortal.team.rules.intro")}
+      </p>
+      <div className="space-y-5 pt-3">
+        {(Array.isArray(sections) ? sections : []).map((section) => (
+          <section key={section.title}>
+            <h3 className="text-[15px] font-semibold tracking-[-0.01em]">{section.title}</h3>
+            <ul className="mt-2 space-y-2">
+              {section.items.map((item, index) => (
+                <li key={index} className="flex gap-2.5 text-[14px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>
+                  <span className="mt-[0.55em] size-[3px] shrink-0 rounded-full" style={{ background: "var(--ios-label-2)" }} aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </Sheet>
+  );
+}
+
+/** Vỏ app: NavBar cố định + vùng cuộn riêng. Lối ra duy nhất là nút back trên
+ *  NavBar — tab-bar của portal đã ẩn khi Hugo Team mở (MemberUtilitiesTab). */
+function TeamShell({ onBack, children }) {
+  const { t } = useTranslation();
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [scrolled, setScrolled] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => setDark(root.classList.contains("dark")));
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <IosApp scheme={dark ? "dark" : "light"} accent="hsl(var(--primary))">
+      {/* Bộ iOS mang bảng màu riêng (--ios-*), còn trang tuyển dụng bên trong vẫn
+          dùng token của app (bg-card, text-foreground). Hai hệ cạnh nhau lệch
+          tông thấy rõ. Trỏ --ios-* về đúng token của app là cả hai cùng một màu,
+          khỏi phải sửa từng chỗ. */}
+      <div
+        className="flex min-h-0 flex-1 flex-col"
+        style={{
+          "--ios-bg": "hsl(var(--background))",
+          "--ios-surface": "hsl(var(--card))",
+          "--ios-label": "hsl(var(--foreground))",
+          "--ios-label-2": "hsl(var(--muted-foreground))",
+          "--ios-sep": "hsl(var(--border))",
+          "--ios-fill": "hsl(var(--muted))",
+          "--ios-fill-2": "hsl(var(--muted))",
+          "--ios-chrome": "hsl(var(--background) / .82)",
+          background: "hsl(var(--background))",
+        }}
+      >
+        <div style={{ paddingTop: "max(4px, env(safe-area-inset-top, 0px))" }} className="shrink-0">
+          <NavBar
+            scrolled={scrolled}
+            large
+            title="Hugo Team"
+            left={<BackButton onClick={onBack} />}
+            right={(
+              <button
+                type="button"
+                onClick={() => setRulesOpen(true)}
+                aria-label={t("memberPortal.team.rules.title")}
+                className="grid h-[30px] w-[30px] place-items-center rounded-full text-[17px] font-bold"
+                style={{ background: "hsl(var(--muted))", color: "hsl(var(--foreground))" }}
+              >
+                !
+              </button>
+            )}
+          />
+        </div>
+        <Scroll onScrolledChange={setScrolled} className="px-4 pb-16">
+          {children}
+        </Scroll>
+        <TeamRulesSheet open={rulesOpen} onClose={() => setRulesOpen(false)} />
+      </div>
+    </IosApp>
+  );
+}
 
 export default function HugoTeamTab({ onBack }) {
   const { t, i18n } = useTranslation();
@@ -116,29 +213,20 @@ export default function HugoTeamTab({ onBack }) {
     const membershipEnd = me?.membershipEnd ? new Date(me.membershipEnd) : null;
     const daysRemaining = membershipEnd ? Math.ceil((membershipEnd - new Date()) / (24 * 60 * 60 * 1000)) : null;
     return (
-      <div className="animate-fadeIn max-w-4xl mx-auto bg-card rounded-3xl border border-border/60 shadow-sm p-6 lg:p-8 space-y-6">
-        <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
-        {/* Dev Badge */}
-        <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-2xl text-amber-500">verified_user</span>
-            <div>
-              <p className="font-semibold text-foreground">{t("memberPortal.team.devMember")}</p>
-              <p className="text-xs text-muted-foreground">
-                {t("memberPortal.team.membershipEnds", { date: membershipEnd?.toLocaleDateString(locale), days: daysRemaining })}
-              </p>
-            </div>
-          </div>
-          <span className="text-2xl font-semibold text-amber-500">VVIP</span>
-        </div>
-        <DevWorkspace me={me} reload={loadMe} membershipEnd={membershipEnd} locale={locale} />
-      </div>
+      <TeamShell onBack={onBack}>
+        {/* Dải VVIP: một dòng chữ, không khung — khung chỉ để trang trí. */}
+        <p className="flex items-baseline justify-between gap-3 pb-3 pt-1 text-[13px]" style={{ color: "var(--ios-label-2)" }}>
+          <span>{t("memberPortal.team.membershipEnds", { date: membershipEnd?.toLocaleDateString(locale), days: daysRemaining })}</span>
+          <span className="shrink-0 font-bold" style={{ color: "var(--ax)" }}>VVIP</span>
+        </p>
+        <DevWorkspace me={me} reload={loadMe} locale={locale} />
+      </TeamShell>
     );
   }
 
   return (
-    <div className="animate-fadeIn max-w-6xl mx-auto bg-card rounded-3xl border border-border/60 shadow-sm p-6 lg:p-8 space-y-8">
-      <SubUtilityHeader title="Hugo Team" icon="groups" colorClass="text-primary" onBack={onBack} />
+    <TeamShell onBack={onBack}>
+      <div className="space-y-8">
 
       {/* Desktop: 2-column (content + sticky CV rail). Mobile: stacked. */}
       <div className="lg:grid lg:grid-cols-3 lg:gap-10 lg:items-start">
@@ -393,7 +481,8 @@ export default function HugoTeamTab({ onBack }) {
         </a>
       </div>
       </div>
-    </div>
+      </div>
+    </TeamShell>
   );
 }
 
@@ -428,159 +517,282 @@ function StatusChip({ meta }) {
   );
 }
 
-function DevWorkspace({ me, reload, membershipEnd, locale }) {
+/**
+ * Bảng làm việc: hàng đợi việc ở trên, dòng thời gian ở dưới.
+ *
+ * Bản cũ chia ba tab rời (Việc / Giờ / Trao đổi) nên muốn biết "hôm nay có gì"
+ * phải mở lần lượt cả ba, và số việc đang mở bị lặp ở hai khối thống kê khác
+ * nhau. Ở đây mọi thứ nằm trên một màn: việc cần tay mình thì nổi lên trên,
+ * còn lại chảy xuống một dòng sự kiện lọc được.
+ */
+function DevWorkspace({ me, reload, locale }) {
   const { t } = useTranslation();
-  const [section, setSection] = useState("tasks");
+  const [filter, setFilter] = useState("all");
+  const [composer, setComposer] = useState(null); // null | "message" | "hours"
   const stats = me?.stats || {};
   const goal = 500;
-  const progress = Math.min(100, ((stats.approvedHours || 0) / goal) * 100);
-  const isMilestone = (stats.approvedHours || 0) >= goal;
+  const approved = stats.approvedHours || 0;
+  const progress = Math.min(100, (approved / goal) * 100);
+  const isMilestone = approved >= goal;
 
-  const SECTIONS = [
-    { id: "tasks", label: t("memberPortal.team.sectionTasks"), icon: "checklist", badge: stats.openTasks },
-    { id: "hours", label: t("memberPortal.team.sectionHours"), icon: "schedule", badge: 0 },
-    { id: "chat", label: t("memberPortal.team.sectionChat"), icon: "forum", badge: stats.unreadMessages },
+  const tasks = me.tasks || [];
+  const openTasks = tasks.filter((task) => ["assigned", "doing", "submitted"].includes(task.status));
+
+  // Mở bảng = đã đọc tin của admin. Trước đây phải bấm sang tab Trao đổi mới
+  // đánh dấu, nên huy hiệu đỏ bám dai dù người dùng đã thấy nội dung.
+  useEffect(() => {
+    if ((me.messages || []).some((m) => m.from === "admin" && !m.readByDev)) {
+      fetch(`${API_BASE}/hugoteam/me/messages/read`, { method: "POST" }).then(reload).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const feed = buildFeed(me, t);
+  const shown = filter === "all" ? feed : feed.filter((item) => item.kind === filter);
+
+  const FILTERS = [
+    { id: "all", label: t("memberPortal.team.filterAll") },
+    { id: "task", label: t("memberPortal.team.sectionTasks") },
+    { id: "hours", label: t("memberPortal.team.sectionHours") },
+    { id: "message", label: t("memberPortal.team.sectionChat") },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Chào + membership info + tiến độ 500h */}
-      <div className="space-y-6">
-        {/* Hero Greeting */}
-        <div className="rounded-3xl bg-card border border-border/60 shadow-sm p-8 lg:p-10">
-          <p className="text-xs font-medium text-muted-foreground mb-2">{t("memberPortal.team.welcomeBack")}</p>
-          <h1 className="text-3xl lg:text-4xl font-bold text-foreground tracking-tight mb-2">{t("memberPortal.team.greeting", { name: me.name })}</h1>
-          <p className="text-muted-foreground max-w-2xl">{t("memberPortal.team.welcomeDesc")}</p>
+    <div className="space-y-5">
+      {/* Dải trạng thái: lời chào, membership và tiến độ giờ gộp trong một thẻ */}
+      <section className="rounded-[12px] p-4" style={{ background: "var(--ios-surface)" }}>
+        <p className="text-[15px] font-semibold tracking-[-0.01em]">
+          {t("memberPortal.team.greeting", { name: me.name })}
+        </p>
+
+        <div className="mt-3 flex items-baseline gap-2">
+          <span className="text-[34px] font-bold leading-none tracking-[-0.02em]" style={{ color: isMilestone ? "#30D158" : "var(--ax)" }}>
+            {approved}h
+          </span>
+          <span className="text-[15px]" style={{ color: "var(--ios-label-2)" }}>/ {goal}h</span>
+        </div>
+        <div className="mt-3">
+          <ProgressBar value={progress} />
         </div>
 
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          {/* Membership Status */}
-          {membershipEnd && (
-            <div className="rounded-2xl bg-card border border-border/60 p-4 space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">{t("memberPortal.team.membership")}</p>
-              <p className="text-sm font-semibold text-foreground">{t("memberPortal.team.yearsPlus", { years: membershipEnd.getFullYear() - new Date().getFullYear() })}</p>
-              <p className="text-xs text-muted-foreground">{t("memberPortal.team.endsOn", { date: membershipEnd.toLocaleDateString(locale) })}</p>
+        <dl className="mt-4 grid grid-cols-3 gap-3 border-t-[0.5px] pt-3.5" style={{ borderColor: "var(--ios-sep)" }}>
+          {[
+            { value: openTasks.length, label: t("memberPortal.team.statOpenTasks") },
+            { value: stats.doneTasks || 0, label: t("memberPortal.team.statDoneTasks") },
+            { value: `${stats.pendingHours || 0}h`, label: t("memberPortal.team.pendingApproval") },
+          ].map((stat) => (
+            <div key={stat.label}>
+              <dd className="text-[20px] font-semibold leading-none">{stat.value}</dd>
+              <dt className="mt-1.5 text-[13px] leading-tight" style={{ color: "var(--ios-label-2)" }}>{stat.label}</dt>
             </div>
-          )}
-
-          {/* Hours Progress */}
-          <div className="rounded-2xl bg-card border border-border/60 p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              {isMilestone ? t("memberPortal.team.milestoneReached") : t("memberPortal.team.journey")}
-            </p>
-            <p className={`text-lg font-semibold ${isMilestone ? "text-emerald-600 dark:text-emerald-400" : "text-primary"}`}>
-              {stats.approvedHours || 0}h
-            </p>
-            <p className="text-xs text-muted-foreground">/ {goal}h</p>
-          </div>
-
-          {/* Open Tasks */}
-          <div className="rounded-2xl bg-card border border-border/60 p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">{t("memberPortal.team.openTasksShort")}</p>
-            <p className="text-lg font-semibold text-foreground">{stats.openTasks || 0}</p>
-            <p className="text-xs text-muted-foreground">{t("memberPortal.team.inProgress")}</p>
-          </div>
-        </div>
-
-        {/* Hours Milestone Progress Bar */}
-        {!isMilestone && (
-          <div className="rounded-2xl bg-card border border-border/60 p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-base text-primary">schedule</span>
-                <span className="font-semibold text-foreground text-sm">{t("memberPortal.team.journeyHours", { goal })}</span>
-              </div>
-              <span className="text-xs font-medium text-muted-foreground">{t("memberPortal.team.hoursLeft", { hours: goal - (stats.approvedHours || 0) })}</span>
-            </div>
-            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full rounded-full bg-primary transition-all duration-700"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            {stats.pendingHours > 0 && (
-              <p className="text-xs text-muted-foreground">
-                <span className="text-amber-500 font-medium">{stats.pendingHours}h</span> {t("memberPortal.team.pendingApproval")}
-              </p>
-            )}
-          </div>
-        )}
+          ))}
+        </dl>
 
         {isMilestone && (
-          <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-6 space-y-3 text-center">
-            <span className="material-symbols-outlined text-5xl text-emerald-500 block">military_tech</span>
-            <div>
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400 text-lg mb-1">{t("memberPortal.team.milestoneTitle")}</p>
-              <p className="text-sm text-muted-foreground">{t("memberPortal.team.milestoneDesc")}</p>
-            </div>
+          <p className="mt-4 flex items-center gap-2 rounded-[10px] px-3 py-2 text-[13px] font-semibold" style={{ background: "rgba(48,209,88,.12)", color: "#30D158" }}>
+            <span className="material-symbols-outlined text-[18px]" aria-hidden="true">military_tech</span>
+            {t("memberPortal.team.milestoneTitle")}
+          </p>
+        )}
+      </section>
+
+      {/* Hàng đợi: chỉ việc còn cần tay mình, mỗi thẻ đúng một hành động chính */}
+      <section aria-labelledby="team-todo">
+        <h2 id="team-todo" className="px-4 pb-1.5 text-[13px] uppercase tracking-[0.03em]" style={{ color: "var(--ios-label-2)" }}>
+          {t("memberPortal.team.boardTodo")} · {openTasks.length}
+        </h2>
+        {openTasks.length === 0 ? (
+          <p className="rounded-[12px] px-4 py-6 text-center text-[15px]" style={{ background: "var(--ios-surface)", color: "var(--ios-label-2)" }}>
+            {t("memberPortal.team.allClear")}
+          </p>
+        ) : (
+          <ul className="overflow-hidden rounded-[12px]" style={{ background: "var(--ios-surface)" }}>
+            {openTasks.map((task, index) => (
+              <li key={task._id}>
+                <TaskCard task={task} reload={reload} locale={locale} last={index === openTasks.length - 1} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Soạn: nhắn tin hoặc ghi giờ, mở ngay tại chỗ thay vì đổi tab */}
+      <section>
+        {composer === null ? (
+          <div className="grid grid-cols-2 gap-2.5">
+            <Button variant="gray" size="md" full onClick={() => setComposer("hours")}>
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">schedule</span>
+              {t("memberPortal.team.composerHours")}
+            </Button>
+            <Button variant="gray" size="md" full onClick={() => setComposer("message")}>
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">forum</span>
+              {t("memberPortal.team.composerMessage")}
+            </Button>
+          </div>
+        ) : (
+          <div className="rounded-[12px] p-4" style={{ background: "var(--ios-surface)" }}>
+            {composer === "hours"
+              ? <HourForm tasks={tasks} reload={reload} onClose={() => setComposer(null)} />
+              : <MessageForm reload={reload} onClose={() => setComposer(null)} />}
           </div>
         )}
-      </div>
+      </section>
 
-      {/* Stats nhanh */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { icon: "pending_actions", value: stats.openTasks || 0, label: t("memberPortal.team.statOpenTasks"), color: "text-blue-600 dark:text-blue-400" },
-          { icon: "task_alt", value: stats.doneTasks || 0, label: t("memberPortal.team.statDoneTasks"), color: "text-emerald-600 dark:text-emerald-400" },
-          { icon: "verified", value: `${stats.approvedHours || 0}h`, label: t("memberPortal.team.statApprovedHours"), color: "text-primary" },
-        ].map((s) => (
-          <div key={s.label} className="p-4 rounded-2xl bg-card border border-border/60 text-center space-y-2">
-            <span className={`material-symbols-outlined text-[22px] block ${s.color}`}>{s.icon}</span>
-            <p className="text-xl font-semibold text-foreground leading-none">{s.value}</p>
-            <p className="text-[11px] text-muted-foreground">{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Workspace: desktop = sidebar rail + content panel; mobile = segmented tabs + content */}
-      <div className="lg:grid lg:grid-cols-[212px_1fr] lg:gap-6 lg:items-start">
-        {/* Nav rail */}
-        <nav className="flex lg:flex-col gap-1 bg-muted/60 lg:bg-transparent p-1 lg:p-0 rounded-2xl lg:sticky lg:top-4">
-          {SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSection(s.id)}
-              className={`relative flex-1 lg:flex-none w-full flex items-center justify-center lg:justify-start gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                section === s.id
-                  ? "bg-card text-foreground shadow-sm lg:border lg:border-border/60"
-                  : "bg-transparent text-muted-foreground hover:text-foreground lg:hover:bg-muted/60"
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px]">{s.icon}</span>
-              <span className="hidden sm:inline">{s.label}</span>
-              {s.badge > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 lg:static lg:ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-semibold flex items-center justify-center">
-                  {s.badge}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
-
-        {/* Content panel */}
-        <div className="mt-4 lg:mt-0 min-w-0">
-          {section === "tasks" && <DevTasks tasks={me.tasks || []} reload={reload} locale={locale} />}
-          {section === "hours" && <DevHours hourLogs={me.hourLogs || []} tasks={me.tasks || []} reload={reload} locale={locale} />}
-          {section === "chat" && <DevChat messages={me.messages || []} reload={reload} />}
+      {/* Dòng thời gian: việc, giờ và tin nhắn trộn chung theo thời gian */}
+      <section aria-labelledby="team-feed">
+        <div className="mb-2.5 flex flex-wrap items-center gap-2">
+          <h2 id="team-feed" className="w-full px-4 text-[13px] uppercase tracking-[0.03em]" style={{ color: "var(--ios-label-2)" }}>{t("memberPortal.team.boardFeed")}</h2>
+          <Segmented items={FILTERS} value={filter} onChange={setFilter} className="w-full" />
         </div>
-      </div>
+
+        {shown.length === 0 ? (
+          <p className="rounded-[12px] px-4 py-6 text-center text-[15px]" style={{ background: "var(--ios-surface)", color: "var(--ios-label-2)" }}>
+            {t("memberPortal.team.feedEmpty")}
+          </p>
+        ) : (
+          <ol className="overflow-hidden rounded-[12px]" style={{ background: "var(--ios-surface)" }}>
+            {shown.map((item, index) => (
+              <FeedRow key={item.id} item={item} locale={locale} reload={reload} last={index === shown.length - 1} />
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   );
 }
 
-function DevTasks({ tasks, reload, locale }) {
-  // `t` ở đây từng là BIẾN TASK trong `tasks.map((t) => …)`, trong khi thân map
-  // lại gọi `t("memberPortal.team.…")` — tức là gọi một object như hàm. Mọi dev
-  // có task đều làm nổ trang này. Biến đổi tên thành `task`, `t` trả về đúng
-  // vai trò hàm dịch.
-  const { t } = useTranslation();
-  const [noteFor, setNoteFor] = useState(null); // taskId đang nộp
-  const [note, setNote] = useState("");
+/** Trộn ba nguồn thành một danh sách sự kiện, mới nhất lên đầu. */
+function buildFeed(me, t) {
+  const events = [];
+  for (const task of me.tasks || []) {
+    events.push({
+      id: `task-${task._id}`,
+      kind: "task",
+      at: task.assignedAt,
+      icon: task.status === "done" ? "task_alt" : "assignment",
+      title: task.title,
+      detail: t(`memberPortal.team.${(TASK_STATUS_META[task.status] || TASK_STATUS_META.assigned).key}`),
+    });
+  }
+  for (const log of me.hourLogs || []) {
+    events.push({
+      id: `hours-${log._id}`,
+      kind: "hours",
+      at: log.date,
+      icon: "schedule",
+      title: t("memberPortal.team.eventHours", { hours: log.hours }),
+      detail: log.note || t(`memberPortal.team.${(LOG_STATUS_META[log.status] || LOG_STATUS_META.pending).key}`),
+      log,
+    });
+  }
+  for (const message of me.messages || []) {
+    events.push({
+      id: `msg-${message._id}`,
+      kind: "message",
+      translatable: message.from === "admin",
+      at: message.at,
+      icon: "forum",
+      title: message.from === "admin" ? t("memberPortal.team.eventMessageAdmin") : t("memberPortal.team.eventMessageDev"),
+      detail: message.text,
+    });
+  }
+  return events.sort((a, b) => new Date(b.at) - new Date(a.at));
+}
 
-  const updateTask = async (taskId, body) => {
+function FeedRow({ item, locale, reload, last }) {
+  const { t, i18n } = useTranslation();
+  const [translated, setTranslated] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  // Admin soạn bằng tiếng Việt hoặc tiếng Anh. Chỉ mời dịch khi ngôn ngữ Dev
+  // đang chọn khác ngôn ngữ của tin — cùng thứ tiếng thì nút chỉ tổ vướng.
+  const uiLanguage = languageCode(i18n.resolvedLanguage || i18n.language);
+  const sourceLanguage = item.translatable ? guessLanguage(item.detail) : null;
+  const offerTranslation = Boolean(item.translatable && canTranslate() && sourceLanguage !== uiLanguage);
+
+  const toggleTranslation = async () => {
+    if (translated) {
+      setTranslated(null);
+      return;
+    }
+    setBusy(true);
     try {
-      const res = await fetch(`${API_BASE}/hugoteam/me/tasks/${taskId}`, {
+      setTranslated(await translateText(item.detail, { from: sourceLanguage, to: uiLanguage }));
+    } catch (error) {
+      notify.error(t(error.message === "unavailable"
+        ? "memberPortal.team.translateUnavailable"
+        : "memberPortal.team.translateError"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const withdraw = async () => {
+    const ok = await notify.confirm({
+      title: t("memberPortal.team.confirmWithdrawTitle"),
+      message: t("memberPortal.team.confirmWithdrawDesc"),
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      const res = await fetch(`${API_BASE}/hugoteam/me/hours/${item.log._id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).error || t("memberPortal.team.toastError"));
+      notify.success(t("memberPortal.team.toastWithdrawn"));
+      reload();
+    } catch (error) {
+      notify.error(error.message);
+    }
+  };
+
+  return (
+    <li className="flex items-start gap-3 px-4">
+      <span className="material-symbols-outlined mt-3.5 text-[18px]" style={{ color: "var(--ios-label-2)" }} aria-hidden="true">{item.icon}</span>
+      <div className={`min-w-0 flex-1 py-3 ${last ? "" : "border-b-[0.5px]"}`} style={{ borderColor: "var(--ios-sep)" }}>
+        <p className="text-[15px] font-semibold leading-snug">{item.title}</p>
+        {item.detail && (
+          <p className="mt-0.5 whitespace-pre-wrap text-[13px] leading-relaxed" style={{ color: "var(--ios-label-2)" }}>
+            {translated ?? item.detail}
+          </p>
+        )}
+        {item.translatable && offerTranslation && (
+          <button
+            type="button"
+            onClick={toggleTranslation}
+            disabled={busy}
+            className="mt-1.5 text-[13px] font-semibold disabled:opacity-60"
+            style={{ color: "var(--ax)" }}
+          >
+            {busy
+              ? t("memberPortal.team.translating")
+              : translated
+                ? t("memberPortal.team.showOriginal")
+                : t("memberPortal.team.translate")}
+          </button>
+        )}
+        <p className="mt-1 text-[11px]" style={{ color: "var(--ios-label-2)" }}>{fmtDate(item.at, locale)}</p>
+      </div>
+      {item.log?.status === "pending" && (
+        <button
+          type="button"
+          onClick={withdraw}
+          aria-label={t("memberPortal.team.withdraw")}
+          className="mt-3 grid h-7 w-7 shrink-0 place-items-center rounded-full" style={{ color: "var(--ios-label-2)" }}
+        >
+          <span className="material-symbols-outlined text-[16px]" aria-hidden="true">delete</span>
+        </button>
+      )}
+    </li>
+  );
+}
+
+function TaskCard({ task, reload, locale, last }) {
+  const { t } = useTranslation();
+  const [submitting, setSubmitting] = useState(false);
+  const [note, setNote] = useState(task.devNote || "");
+
+  const updateTask = async (body) => {
+    try {
+      const res = await fetch(`${API_BASE}/hugoteam/me/tasks/${task._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -588,115 +800,88 @@ function DevTasks({ tasks, reload, locale }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t("memberPortal.team.toastTaskUpdateError"));
       notify.success(body.status === "submitted" ? t("memberPortal.team.toastTaskSubmitted") : t("memberPortal.team.toastTaskUpdated"));
-      setNoteFor(null);
-      setNote("");
+      setSubmitting(false);
       reload();
-    } catch (e) {
-      notify.error(e.message);
+    } catch (error) {
+      notify.error(error.message);
     }
   };
 
-  if (!tasks.length) {
-    return (
-      <div className="p-8 rounded-2xl border border-dashed border-border bg-muted/30 text-center space-y-3">
-        <span className="material-symbols-outlined text-[36px] text-muted-foreground block">inbox</span>
-        <div>
-          <p className="text-sm font-semibold text-muted-foreground">{t("memberPortal.team.tasksEmptyTitle")}</p>
-          <p className="text-xs text-muted-foreground mt-1">{t("memberPortal.team.tasksEmptyDesc")}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-3">
-      {tasks.map((task) => (
-        <div key={task._id} className="p-4 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors space-y-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="font-bold text-foreground text-sm">{task.title}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                {t("memberPortal.team.assignedOn", { date: fmtDate(task.assignedAt, locale) })}
-                {task.deadline && <> {t("memberPortal.team.han")} <span className="font-semibold text-foreground">{fmtDate(task.deadline, locale)}</span></>}
-              </p>
-            </div>
-            <StatusChip meta={TASK_STATUS_META[task.status] || TASK_STATUS_META.assigned} />
-          </div>
-
-          {task.guide && (
-            <div className="p-3 rounded-xl bg-muted/60 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
-              <p className="font-bold text-foreground mb-1">{t("memberPortal.team.huongDanTuAdmin")}</p>
-              {task.guide}
-            </div>
-          )}
-          {task.adminNote && (
-            <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap">
-              <p className="font-bold text-foreground mb-1">{t("memberPortal.team.nhanXetNghiemThu")}</p>
-              {task.adminNote}
-            </div>
-          )}
-          {task.devNote && task.status !== "doing" && (
-            <p className="text-xs text-muted-foreground italic">{t("memberPortal.team.ghiChuCuaBan")} {task.devNote}</p>
-          )}
-
-          {task.status === "assigned" && (
-            <button
-              onClick={() => updateTask(task._id, { status: "doing" })}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
-            >
-              {t("memberPortal.team.batDauThucHien")}
-            </button>
-          )}
-          {task.status === "doing" && (
-            noteFor === task._id ? (
-              <div className="space-y-2">
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder={t("memberPortal.team.moTaNganNhung")}
-                  rows={3}
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => updateTask(task._id, { status: "submitted", devNote: note })}
-                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
-                  >
-                    {t("memberPortal.team.xacNhanNop")}
-                  </button>
-                  <button
-                    onClick={() => { setNoteFor(null); setNote(""); }}
-                    className="px-4 py-2 rounded-xl bg-muted text-muted-foreground text-xs font-bold"
-                  >
-                    {t("memberPortal.team.huy")}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => { setNoteFor(task._id); setNote(task.devNote || ""); }}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold active:scale-95 transition-transform"
-              >
-                {t("memberPortal.team.nopTask")}
-              </button>
-            )
-          )}
+    <article className={`px-4 py-3.5 ${last ? "" : "border-b-[0.5px]"}`} style={{ borderColor: "var(--ios-sep)" }}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-[16px] font-semibold tracking-[-0.01em]">{task.title}</h3>
+          <p className="mt-0.5 text-[12px]" style={{ color: "var(--ios-label-2)" }}>
+            {t("memberPortal.team.assignedOn", { date: fmtDate(task.assignedAt, locale) })}
+            {task.deadline && (
+              <> {t("memberPortal.team.han")} <span className="font-semibold text-foreground">{fmtDate(task.deadline, locale)}</span></>
+            )}
+          </p>
         </div>
+        <StatusChip meta={TASK_STATUS_META[task.status] || TASK_STATUS_META.assigned} />
+      </div>
+
+      {task.guide && (
+        <details className="mt-3">
+          <summary className="cursor-pointer text-xs font-semibold text-muted-foreground">{t("memberPortal.team.huongDanTuAdmin")}</summary>
+          <p className="mt-2 whitespace-pre-wrap rounded-xl bg-muted/60 p-3 text-xs leading-relaxed text-muted-foreground">{task.guide}</p>
+        </details>
+      )}
+      {task.adminNote && (
+        <p className="mt-3 whitespace-pre-wrap rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs leading-relaxed text-muted-foreground">
+          <span className="font-bold text-foreground">{t("memberPortal.team.nhanXetNghiemThu")} </span>
+          {task.adminNote}
+        </p>
+      )}
+
+      {task.status === "assigned" && (
+        <Button variant="filled" size="sm" onClick={() => updateTask({ status: "doing" })} className="mt-3">
+          {t("memberPortal.team.batDauThucHien")}
+        </Button>
+      )}
+
+      {task.status === "doing" && (submitting ? (
+        <div className="mt-3 space-y-2">
+          <textarea
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder={t("memberPortal.team.moTaNganNhung")}
+            rows={3}
+            className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[16px]" style={{ background: "var(--ios-fill)", color: "var(--ios-label)" }}
+          />
+          <div className="flex gap-2">
+            <Button variant="filled" size="sm" onClick={() => updateTask({ status: "submitted", devNote: note })}>
+              {t("memberPortal.team.xacNhanNop")}
+            </Button>
+            <Button variant="gray" size="sm" onClick={() => setSubmitting(false)}>
+              {t("memberPortal.team.huy")}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <Button variant="filled" size="sm" onClick={() => setSubmitting(true)} className="mt-3">
+          {t("memberPortal.team.nopTask")}
+        </Button>
       ))}
-    </div>
+
+      {task.status === "submitted" && task.devNote && (
+        <p className="mt-3 text-xs italic text-muted-foreground">{t("memberPortal.team.ghiChuCuaBan")} {task.devNote}</p>
+      )}
+    </article>
   );
 }
 
-function DevHours({ hourLogs, tasks, reload, locale }) {
+function HourForm({ tasks, reload, onClose }) {
   const { t } = useTranslation();
   const today = new Date().toISOString().slice(0, 10);
   const [form, setForm] = useState({ date: today, hours: "", note: "", taskId: "" });
   const [saving, setSaving] = useState(false);
-  const openTasks = tasks.filter((t) => ["doing", "submitted", "done"].includes(t.status));
+  const linkable = tasks.filter((task) => ["doing", "submitted", "done"].includes(task.status));
 
   const submit = async () => {
-    const h = Number(form.hours);
-    if (!form.date || !Number.isFinite(h) || h <= 0) {
+    const hours = Number(form.hours);
+    if (!form.date || !Number.isFinite(hours) || hours <= 0) {
       notify.error(t("memberPortal.team.toastInvalidHours"));
       return;
     }
@@ -705,183 +890,123 @@ function DevHours({ hourLogs, tasks, reload, locale }) {
       const res = await fetch(`${API_BASE}/hugoteam/me/hours`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, hours: h, taskId: form.taskId || null }),
+        body: JSON.stringify({ ...form, hours, taskId: form.taskId || null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t("memberPortal.team.toastLogError"));
       notify.success(t("memberPortal.team.toastLogged"));
-      setForm({ date: today, hours: "", note: "", taskId: "" });
+      onClose();
       reload();
-    } catch (e) {
-      notify.error(e.message);
+    } catch (error) {
+      notify.error(error.message);
     } finally {
       setSaving(false);
     }
   };
 
-  const withdraw = async (logId) => {
-    const ok = await notify.confirm({ title: t("memberPortal.team.confirmWithdrawTitle"), message: t("memberPortal.team.confirmWithdrawDesc"), danger: true });
-    if (!ok) return;
-    try {
-      const res = await fetch(`${API_BASE}/hugoteam/me/hours/${logId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error((await res.json()).error || t("memberPortal.team.toastError"));
-      notify.success(t("memberPortal.team.toastWithdrawn"));
-      reload();
-    } catch (e) {
-      notify.error(e.message);
-    }
-  };
-
-  const taskTitle = (id) => tasks.find((t) => t._id === id)?.title;
-
   return (
-    <div className="space-y-4">
-      {/* Form ghi giờ */}
-      <div className="p-5 rounded-2xl border border-border/60 bg-card space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-base text-primary">schedule</span>
-          <p className="font-bold text-foreground text-sm">{t("memberPortal.team.logHoursTitle")}</p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="text-xs space-y-1">
-            <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldDate")}</span>
-            <input type="date" max={today} value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
-          </label>
-          <label className="text-xs space-y-1">
-            <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldHours")}</span>
-            <input type="number" min="0.25" max="24" step="0.25" value={form.hours}
-              onChange={(e) => setForm({ ...form, hours: e.target.value })}
-              placeholder={t("memberPortal.team.hoursPlaceholder")}
-              className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
-          </label>
-        </div>
-        {openTasks.length > 0 && (
-          <label className="text-xs space-y-1 block">
-            <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldTask")}</span>
-            <select value={form.taskId} onChange={(e) => setForm({ ...form, taskId: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl border border-border bg-background">
-              <option value="">{t("memberPortal.team.noTask")}</option>
-              {openTasks.map((t) => <option key={t._id} value={t._id}>{t.title}</option>)}
-            </select>
-          </label>
-        )}
-        <label className="text-xs space-y-1 block">
-          <span className="font-semibold text-muted-foreground">{t("memberPortal.team.fieldWhat")}</span>
-          <input value={form.note} maxLength={500}
-            onChange={(e) => setForm({ ...form, note: e.target.value })}
-            placeholder={t("memberPortal.team.whatPlaceholder")}
-            className="w-full px-3 py-2 rounded-xl border border-border bg-background" />
+    <div className="space-y-3">
+      <p className="text-[17px] font-semibold tracking-[-0.01em]">{t("memberPortal.team.logHoursTitle")}</p>
+      <div className="grid grid-cols-2 gap-3">
+        <label className="space-y-1.5 text-[13px]">
+          <span className="font-medium" style={{ color: "var(--ios-label-2)" }}>{t("memberPortal.team.fieldDate")}</span>
+          <input
+            type="date"
+            max={today}
+            value={form.date}
+            onChange={(event) => setForm({ ...form, date: event.target.value })}
+            className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[16px]" style={{ background: "var(--ios-fill)", color: "var(--ios-label)" }}
+          />
         </label>
-        <button onClick={submit} disabled={saving}
-          className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-50 active:scale-95 transition-transform">
-          {saving ? t("memberPortal.team.saving") : t("memberPortal.team.logHours")}
-        </button>
+        <label className="space-y-1.5 text-[13px]">
+          <span className="font-medium" style={{ color: "var(--ios-label-2)" }}>{t("memberPortal.team.fieldHours")}</span>
+          <input
+            type="number"
+            min="0.25"
+            max="24"
+            step="0.25"
+            value={form.hours}
+            onChange={(event) => setForm({ ...form, hours: event.target.value })}
+            placeholder={t("memberPortal.team.hoursPlaceholder")}
+            className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[16px]" style={{ background: "var(--ios-fill)", color: "var(--ios-label)" }}
+          />
+        </label>
       </div>
-
-      {/* Lịch sử */}
-      {hourLogs.length === 0 ? (
-        <div className="p-6 rounded-2xl border border-dashed border-border/50 text-center">
-          <p className="text-sm text-muted-foreground">{t("memberPortal.team.hoursEmpty")}</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider mb-3">{t("memberPortal.team.hoursHistory")}</p>
-          {hourLogs.map((l) => (
-            <div key={l._id} className="p-3.5 rounded-2xl border border-border/60 bg-card hover:border-border transition-colors flex items-center gap-3">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground">
-                  {l.hours}h · {fmtDate(l.date, locale)}
-                </p>
-                {(l.note || l.taskId) && (
-                  <p className="text-xs text-muted-foreground truncate">
-                    {taskTitle(l.taskId) ? `[${taskTitle(l.taskId)}] ` : ""}{l.note}
-                  </p>
-                )}
-              </div>
-              <StatusChip meta={LOG_STATUS_META[l.status] || LOG_STATUS_META.pending} />
-              {l.status === "pending" && (
-                <button onClick={() => withdraw(l._id)} aria-label={t("memberPortal.team.withdraw")}
-                  className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted">
-                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+      {linkable.length > 0 && (
+        <label className="block space-y-1.5 text-[13px]">
+          <span className="font-medium" style={{ color: "var(--ios-label-2)" }}>{t("memberPortal.team.fieldTask")}</span>
+          <select
+            value={form.taskId}
+            onChange={(event) => setForm({ ...form, taskId: event.target.value })}
+            className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[16px]" style={{ background: "var(--ios-fill)", color: "var(--ios-label)" }}
+          >
+            <option value="">{t("memberPortal.team.noTask")}</option>
+            {linkable.map((task) => <option key={task._id} value={task._id}>{task.title}</option>)}
+          </select>
+        </label>
       )}
+      <label className="block space-y-1.5 text-[13px]">
+        <span className="font-medium" style={{ color: "var(--ios-label-2)" }}>{t("memberPortal.team.fieldWhat")}</span>
+        <input
+          value={form.note}
+          maxLength={500}
+          onChange={(event) => setForm({ ...form, note: event.target.value })}
+          placeholder={t("memberPortal.team.whatPlaceholder")}
+          className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[16px]" style={{ background: "var(--ios-fill)", color: "var(--ios-label)" }}
+        />
+      </label>
+      <div className="flex gap-2">
+        <Button variant="filled" size="sm" onClick={submit} disabled={saving}>
+          {saving ? t("memberPortal.team.saving") : t("memberPortal.team.logHours")}
+        </Button>
+        <Button variant="gray" size="sm" onClick={onClose}>{t("memberPortal.team.huy")}</Button>
+      </div>
     </div>
   );
 }
 
-function DevChat({ messages, reload }) {
-  const { t, i18n } = useTranslation();
+function MessageForm({ reload, onClose }) {
+  const { t } = useTranslation();
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
 
-  // Mở tab Trao đổi = đã đọc tin admin
-  useEffect(() => {
-    if (messages.some((m) => m.from === "admin" && !m.readByDev)) {
-      fetch(`${API_BASE}/hugoteam/me/messages/read`, { method: "POST" }).then(reload).catch(() => {});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const send = async () => {
-    const t = text.trim();
-    if (!t) return;
+    const body = text.trim();
+    if (!body) return;
     setSending(true);
     try {
       const res = await fetch(`${API_BASE}/hugoteam/me/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: t }),
+        body: JSON.stringify({ text: body }),
       });
       if (!res.ok) throw new Error((await res.json()).error || t("memberPortal.team.toastSendError"));
       setText("");
+      onClose();
       reload();
-    } catch (e) {
-      notify.error(e.message);
+    } catch (error) {
+      notify.error(error.message);
     } finally {
       setSending(false);
     }
   };
 
   return (
-    <div className="space-y-3 flex flex-col h-[500px]">
-      <div className="flex-1 max-h-[60vh] overflow-y-auto space-y-2 p-2 border border-border/50 rounded-xl bg-muted/30">
-        {messages.length === 0 && (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center space-y-2">
-              <span className="material-symbols-outlined text-3xl text-muted-foreground block">mail</span>
-              <p className="text-sm text-muted-foreground">{t("memberPortal.team.chatEmpty")}</p>
-            </div>
-          </div>
-        )}
-        {messages.map((m) => (
-          <div key={m._id} className={`flex ${m.from === "dev" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
-              m.from === "dev" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-            }`}>
-              {m.text}
-              <p className={`mt-1 text-[9px] ${m.from === "dev" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {new Date(m.at).toLocaleString(localeForLanguage(i18n.resolvedLanguage || i18n.language))}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-2 mt-auto">
-        <input value={text} maxLength={2000}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()}
-          placeholder={t("memberPortal.team.chatPlaceholder")}
-          className="flex-1 px-4 py-2.5 rounded-2xl border border-border bg-background text-xs focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none transition-all" />
-        <button onClick={send} disabled={sending || !text.trim()}
-          className="px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground active:scale-95 transition-all">
-          {sending ? "..." : t("memberPortal.team.send")}
-        </button>
+    <div className="space-y-3">
+      <p className="text-[17px] font-semibold tracking-[-0.01em]">{t("memberPortal.team.composerMessage")}</p>
+      <textarea
+        value={text}
+        maxLength={2000}
+        rows={3}
+        onChange={(event) => setText(event.target.value)}
+        placeholder={t("memberPortal.team.chatPlaceholder")}
+        className="w-full rounded-[10px] border-0 px-3 py-2.5 text-[16px]" style={{ background: "var(--ios-fill)", color: "var(--ios-label)" }}
+      />
+      <div className="flex gap-2">
+        <Button variant="filled" size="sm" onClick={send} disabled={sending || !text.trim()}>
+          {sending ? t("memberPortal.team.saving") : t("memberPortal.team.send")}
+        </Button>
+        <Button variant="gray" size="sm" onClick={onClose}>{t("memberPortal.team.huy")}</Button>
       </div>
     </div>
   );

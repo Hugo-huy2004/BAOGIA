@@ -1,10 +1,17 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
 import { requireMember } from '../middleware/authMiddleware.js';
-import { WEEKLY_FREE_MINUTES, applyListening, ensureWeeklyReset } from '../utils/radioTokens.js';
+import {
+  WEEKLY_FREE_MINUTES, MINUTES_PER_TOKEN, toTokens,
+  applyListening, ensureWeeklyReset, nextResetAt, isPeakHour, PEAK_MULTIPLIER,
+} from '../utils/radioTokens.js';
 
 const router = express.Router();
-const RADIO_API_BASE = 'https://de1.api.radio-browser.info/json';
+// `all.` là bản ghi round-robin chính chủ của Radio Browser. Điều khoản dùng của
+// họ yêu cầu KHÔNG ghim cứng một máy chủ đơn lẻ (bản cũ ghim `de1.`) và phải gửi
+// User-Agent nhận dạng được — cả hai đều là điều kiện để được phép dùng API.
+const RADIO_API_BASE = 'https://all.api.radio-browser.info/json';
+const RADIO_UA = 'HugoStudio-Radio/2.0 (+https://hugowishpax.studio)';
 
 // Ceiling for a single heartbeat. The client reports elapsed wall-clock time, so
 // a tab the OS suspended for hours would otherwise report the whole gap at once.
@@ -129,7 +136,7 @@ async function resolveStationByName(name, excludeUrl, strict = false) {
     // (manifest fetch) — halving candidates halves that outbound; sorted by
     // lastcheckok below so we still test the healthiest first.
     const url = `${RADIO_API_BASE}/stations/search?name=${encodeURIComponent(name)}&limit=5`;
-    const res = await fetch(url, { headers: { 'User-Agent': 'HugoStudio-Radio/1.0' } });
+    const res = await fetch(url, { headers: { 'User-Agent': RADIO_UA } });
     if (!res.ok) return null;
     const data = await res.json();
     if (!data.length) return null;
@@ -171,88 +178,103 @@ router.get('/station', async (req, res) => {
 router.post('/click', async (req, res) => {
   const uuid = req.body?.stationuuid;
   if (uuid) {
-    fetch(`${RADIO_API_BASE}/url/${uuid}`, { headers: { 'User-Agent': 'HugoStudio-Radio/1.0' } }).catch(() => {});
+    fetch(`${RADIO_API_BASE}/url/${uuid}`, { headers: { 'User-Agent': RADIO_UA } }).catch(() => {});
   }
   res.json({ ok: true });
 });
 
 // ── HugoRadio Token System ──────────────────────────────────────────────────
 
-// GET /api/radio/token-status?email=...
-// Returns the user's current radio token status (free + purchased pools).
+// Danh tính LUÔN đến từ token đăng nhập. Trước đây heartbeat đọc email từ thân
+// request, nên bất kỳ thành viên nào cũng gọi được để đốt token của người khác.
+async function findMemberBio(email, projection) {
+  const query = projection ? (q) => Bio.findOne(q).select(projection) : (q) => Bio.findOne(q);
+  return (await query({ email })) || (await query({ contactEmail: email }));
+}
+
+function blankTokens() {
+  return {
+    weeklyFreeMinutes: WEEKLY_FREE_MINUTES,
+    weeklyUsedMinutes: 0,
+    weeklyResetAt: new Date(),
+    purchasedMinutes: 0,
+  };
+}
+
+/** Một hình dạng trả về duy nhất cho cả /token-status lẫn /heartbeat. */
+function tokenPayload(radioTokens) {
+  const freeRemaining = Math.max(0, radioTokens.weeklyFreeMinutes - radioTokens.weeklyUsedMinutes);
+  const purchasedRemaining = Math.max(0, radioTokens.purchasedMinutes);
+  const totalRemaining = freeRemaining + purchasedRemaining;
+  const peak = isPeakHour();
+
+  return {
+    // Đơn vị hiển thị: token.
+    minutesPerToken: MINUTES_PER_TOKEN,
+    freeTokens: toTokens(radioTokens.weeklyFreeMinutes),
+    freeTokensLeft: toTokens(freeRemaining),
+    purchasedTokens: toTokens(purchasedRemaining),
+    tokensLeft: toTokens(totalRemaining),
+    // Số phút lẻ của token đang dùng dở (0–9) — giao diện vẽ thành vạch tiến trình.
+    partialMinutes: Math.round((totalRemaining % MINUTES_PER_TOKEN) * 100) / 100,
+
+    // Đơn vị lưu trữ: phút. Giữ lại để không phá vỡ nơi nào còn đọc.
+    freeMinutes: radioTokens.weeklyFreeMinutes,
+    freeUsed: radioTokens.weeklyUsedMinutes,
+    freeRemaining,
+    purchasedMinutes: purchasedRemaining,
+    totalRemaining,
+
+    canListen: totalRemaining > 0,
+    peak,
+    multiplier: peak ? PEAK_MULTIPLIER : 1,
+    weekResetAt: radioTokens.weeklyResetAt,
+    nextResetAt: nextResetAt(radioTokens),
+  };
+}
+
+// GET /api/radio/token-status — số token còn lại của chính người đang đăng nhập.
 router.get('/token-status', requireMember, async (req, res) => {
   try {
-    const email = req.memberEmail || req.query.email;
-    if (!email) return res.status(400).json({ error: 'email is required' });
-
-    let bio = await Bio.findOne({ email }).select('radioTokens');
-    if (!bio) bio = await Bio.findOne({ contactEmail: email }).select('radioTokens');
+    const bio = await findMemberBio(req.memberEmail, 'radioTokens');
     if (!bio) return res.status(404).json({ error: 'User not found' });
 
+    let dirty = false;
     if (!bio.radioTokens) {
-      bio.radioTokens = {
-        weeklyFreeMinutes: WEEKLY_FREE_MINUTES,
-        weeklyUsedMinutes: 0,
-        weeklyResetAt: new Date(),
-        purchasedMinutes: 0
-      };
-      await bio.save();
+      bio.radioTokens = blankTokens();
+      dirty = true;
     }
+    // Chỉ ghi khi tuần thật sự lật sang mốc mới: endpoint này bị hỏi mỗi lần mở
+    // app, save() vô điều kiện là một lượt ghi database cho mỗi lượt xem.
+    if (ensureWeeklyReset(bio.radioTokens)) dirty = true;
+    if (dirty) await bio.save();
 
-    ensureWeeklyReset(bio.radioTokens);
-    await bio.save();
-
-    const freeRemaining = Math.max(0, bio.radioTokens.weeklyFreeMinutes - bio.radioTokens.weeklyUsedMinutes);
-    const purchasedRemaining = Math.max(0, bio.radioTokens.purchasedMinutes);
-    const totalRemaining = freeRemaining + purchasedRemaining;
-
-    res.json({
-      freeMinutes: bio.radioTokens.weeklyFreeMinutes,
-      freeUsed: bio.radioTokens.weeklyUsedMinutes,
-      freeRemaining,
-      purchasedMinutes: purchasedRemaining,
-      totalRemaining,
-      canListen: totalRemaining > 0,
-      weekResetAt: bio.radioTokens.weeklyResetAt
-    });
+    res.json(tokenPayload(bio.radioTokens));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// POST /api/radio/heartbeat { email, listeningMinutes }
-// Called periodically (every 5 min) by the client while radio is playing.
-// Deducts time from free pool first, then purchased pool.
-// Returns remaining time and whether the user can continue listening.
+// POST /api/radio/heartbeat { listeningMinutes }
+// Called periodically by the client while radio is playing. Deducts from the
+// free pool first, then the purchased pool.
 router.post('/heartbeat', requireMember, async (req, res) => {
   try {
-    const { email, listeningMinutes } = req.body;
-    if (!email) return res.status(400).json({ error: 'email is required' });
-    // The client now reports actual elapsed minutes (fractional), so `|| 5` was
-    // wrong twice over: it turned a legitimate 0 into a 5-minute charge, and it
-    // trusted whatever number arrived. Cap it — a throttled/suspended tab can
-    // wake up hours later and report the whole gap.
-    const asked = Number(listeningMinutes);
-    const minutes = Number.isFinite(asked) ? Math.min(Math.max(asked, 0), MAX_HEARTBEAT_MINUTES) : 5;
+    // Con số duy nhất client được phép gửi, và nó vẫn bị kẹp hai đầu: một tab bị
+    // hệ điều hành treo có thể tỉnh dậy sau nhiều giờ rồi báo cả khoảng trống đó.
+    // Giá trị rác trước đây rơi về 5 phút — tính tiền cho một thứ không đo được.
+    const asked = Number(req.body?.listeningMinutes);
+    const minutes = Number.isFinite(asked) ? Math.min(Math.max(asked, 0), MAX_HEARTBEAT_MINUTES) : 0;
 
-    let bio = await Bio.findOne({ email });
-    if (!bio) bio = await Bio.findOne({ contactEmail: email });
+    const bio = await findMemberBio(req.memberEmail);
     if (!bio) return res.status(404).json({ error: 'User not found' });
 
-    if (!bio.radioTokens) {
-      bio.radioTokens = {
-        weeklyFreeMinutes: WEEKLY_FREE_MINUTES,
-        weeklyUsedMinutes: 0,
-        weeklyResetAt: new Date(),
-        purchasedMinutes: 0
-      };
-    }
-
+    if (!bio.radioTokens) bio.radioTokens = blankTokens();
     ensureWeeklyReset(bio.radioTokens);
-    const result = applyListening(bio.radioTokens, minutes);
+    applyListening(bio.radioTokens, minutes, isPeakHour() ? PEAK_MULTIPLIER : 1);
     await bio.save();
 
-    res.json({ ...result, weekResetAt: bio.radioTokens.weeklyResetAt });
+    res.json(tokenPayload(bio.radioTokens));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
