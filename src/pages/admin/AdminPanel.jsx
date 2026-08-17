@@ -21,6 +21,7 @@ import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminBrainTab from "../../components/admin/AdminBrainTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
+import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 
 function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
   if (!open) return null;
@@ -96,6 +97,35 @@ export default function AdminPanel() {
     })
       .then(() => setCrisisAlerts(prev => prev.filter(a => a.flagId !== alert.flagId)))
       .catch(() => {});
+  };
+
+  // AI Support Proactive Briefing State
+  const [aiBriefingModalOpen, setAiBriefingModalOpen] = useState(false);
+  const [aiBriefingData, setAiBriefingData] = useState(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const apiBase = import.meta.env.VITE_API_URL || "/api";
+      fetch(`${apiBase}/admin/ai-support/briefing`, { credentials: "include" })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.success && data.hasBriefing) {
+            setAiBriefingData(data);
+            setAiBriefingModalOpen(true);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated]);
+
+  const handleCloseAiBriefing = () => {
+    setAiBriefingModalOpen(false);
+    const apiBase = import.meta.env.VITE_API_URL || "/api";
+    fetch(`${apiBase}/admin/ai-support/mark-read`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" }
+    }).catch(() => {});
   };
 
   // Users State
@@ -626,6 +656,12 @@ export default function AdminPanel() {
 
         </section>
       </div>
+
+      <AISupportBriefingModal
+        isOpen={aiBriefingModalOpen}
+        briefingData={aiBriefingData}
+        onClose={handleCloseAiBriefing}
+      />
     </div>
   );
 }

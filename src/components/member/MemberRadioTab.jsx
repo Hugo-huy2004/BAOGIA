@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import SubUtilityHeader from "./SubUtilityHeader";
 import { fetchStationsByNames, fetchStationByName, registerStationClick } from "../../services/radioBrowserApi";
@@ -7,11 +7,8 @@ import {
   resolveByName, rememberFound, forgetFound, foundStations, lastStationId,
 } from "../../services/radioBrain";
 import { setMediaSession, setMediaPlaybackState } from "../../services/mediaSession";
-import RadioTokenStatus, { useRadioHeartbeat } from "./RadioTokenStatus";
+import RadioTokenStatus, { RadioStoreModal, useRadioHeartbeat } from "./RadioTokenStatus";
 import { useRadioStore, getRadioAudio, hlsHandle } from "../../stores/radioStore";
-import { joyText } from "../../lib/joyDisplay";
-
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 // Đài hỏng thì tự nhảy sang đài khác, nhưng có trần: mỗi lần nhảy là một lượt
 // dò trên máy chủ, mất sóng cả cụm thì đừng biến thành vòng lặp gọi mạng.
@@ -689,173 +686,6 @@ export default function MemberRadioTab({ onBack, showToast, bio }) {
           onPurchased={refetchTokens}
         />
       )}
-    </div>
-  );
-}
-
-// ── Mua thêm token ───────────────────────────────────────────────────────────
-
-/** Giá và trần đều do máy chủ công bố (`/utility-store/radio-price`) — chép hằng
-    số sang client là cách chắc chắn để nút mua hiện một số còn ví bị trừ số khác. */
-const PRICE_FALLBACK = { minutesPerToken: 10, joyPerToken: 200, feeRate: 0.1, maxTokens: 1008 };
-
-function RadioStoreModal({ bio, showToast, onClose, onPurchased }) {
-  const { t, i18n } = useTranslation();
-  const [price, setPrice] = useState(PRICE_FALLBACK);
-  const [tokens, setTokens] = useState(6);
-  const [buying, setBuying] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    fetch(`${API_BASE}/utility-store/radio-price`, { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => { if (data?.joyPerToken) setPrice(data); })
-      .catch(() => {});
-  }, []);
-
-  const nf = useMemo(() => new Intl.NumberFormat(i18n.language), [i18n.language]);
-  const base = tokens * price.joyPerToken;
-  // Cùng công thức với calcExchangeTotal ở máy chủ: phí làm tròn XUỐNG.
-  const fee = Math.floor(base * price.feeRate);
-  const total = base + fee;
-  const minutes = tokens * price.minutesPerToken;
-  const balance = bio?.joyBalance ?? 0;
-  const short = total - balance;
-
-  const clamp = (value) => Math.min(Math.max(Math.round(value) || 1, 1), price.maxTokens);
-
-  async function handleBuy() {
-    if (buying) return;
-    setBuying(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_BASE}/utility-store/purchase`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ productType: "radio_time", tokens }),
-      });
-      // Một lỗi 500 hay một proxy trả về HTML sẽ làm res.json() ném
-      // "Unexpected token <" — người mua đọc câu đó thì chịu. Đọc text trước rồi
-      // mới thử phân tích, để mọi trường hợp đều ra một câu nói được thành lời.
-      const raw = await res.text();
-      let data = null;
-      try { data = raw ? JSON.parse(raw) : null; } catch { /* không phải JSON */ }
-      if (!res.ok || !data) throw new Error(data?.error || t("utilities.radio.store.genericError"));
-      showToast?.(t("utilities.radio.store.success", { n: tokens }), "success");
-      await onPurchased?.();
-      onClose();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setBuying(false);
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-[300] flex items-end sm:items-center justify-center bg-black/60" onClick={onClose}>
-      <div
-        role="dialog"
-        aria-label={t("utilities.radio.store.title")}
-        className="bg-card border border-border w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[85vh] overflow-y-auto p-5 flex flex-col gap-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-[17px] font-bold text-foreground">{t("utilities.radio.store.title")}</h3>
-            <p className="text-[13px] text-muted-foreground mt-1">
-              {t("utilities.radio.store.desc", { minutes: price.minutesPerToken })}
-            </p>
-          </div>
-          <button onClick={onClose} aria-label={t("utilities.radio.store.close")}
-            className="w-11 h-11 shrink-0 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        {/* Số dư hiện ngay từ đầu: trước đây người dùng chỉ biết mình thiếu tiền
-            SAU khi bấm mua và máy chủ trả về lỗi. */}
-        <div className="flex items-center justify-between rounded-xl bg-muted border border-border px-4 py-3">
-          <span className="text-[13px] text-muted-foreground">{t("utilities.radio.store.balance")}</span>
-          <span className="text-[15px] font-bold tabular-nums text-foreground">{joyText(balance)}</span>
-        </div>
-
-        {/* Chọn số token */}
-        <div className="flex flex-col gap-3">
-          <label htmlFor="radio-token-amount" className="text-[13px] font-bold text-muted-foreground">
-            {t("utilities.radio.store.amount")}
-          </label>
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setTokens((n) => clamp(n - 1))} aria-label={t("utilities.radio.store.decrease")}
-              className="w-11 h-11 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
-              <span className="material-symbols-outlined">remove</span>
-            </button>
-            <input
-              id="radio-token-amount"
-              type="number"
-              inputMode="numeric"
-              min="1"
-              max={price.maxTokens}
-              value={tokens}
-              onChange={(e) => setTokens(clamp(Number(e.target.value)))}
-              className="flex-1 h-11 text-center rounded-xl border border-border bg-card text-foreground text-lg font-black tabular-nums outline-none focus:border-info"
-            />
-            <button type="button" onClick={() => setTokens((n) => clamp(n + 1))} aria-label={t("utilities.radio.store.increase")}
-              className="w-11 h-11 shrink-0 rounded-full border border-border bg-card text-foreground flex items-center justify-center active:scale-95 transition-transform">
-              <span className="material-symbols-outlined">add</span>
-            </button>
-          </div>
-          <p className="text-[13px] text-muted-foreground">
-            {t("utilities.radio.store.equals", { n: tokens, minutes })}
-          </p>
-        </div>
-
-        {/* Gói nhanh, ghi rõ ra giờ để khỏi phải nhẩm */}
-        <div className="grid grid-cols-4 gap-2">
-          {[6, 18, 36, 72].map((n) => (
-            <button key={n} type="button" onClick={() => setTokens(n)}
-              className={`h-11 rounded-xl border text-[13px] font-bold transition-colors ${
-                tokens === n ? "border-info bg-info text-info-foreground" : "border-border bg-card text-foreground"
-              }`}>
-              {t("utilities.radio.store.preset", { n: n, hours: (n * price.minutesPerToken) / 60 })}
-            </button>
-          ))}
-        </div>
-
-        {/* Bảng giá */}
-        <div className="rounded-xl border border-border bg-muted px-4 py-3 flex flex-col gap-2 text-[13px]">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{t("utilities.radio.store.unitPrice")}</span>
-            <span className="tabular-nums font-bold text-foreground">{joyText(price.joyPerToken)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">{t("utilities.radio.store.fee", { percent: Math.round(price.feeRate * 100) })}</span>
-            <span className="tabular-nums font-bold text-foreground">{joyText(fee)}</span>
-          </div>
-          <div className="flex justify-between border-t border-border pt-2 text-[15px]">
-            <span className="font-bold text-foreground">{t("utilities.radio.store.total")}</span>
-            <span className="tabular-nums font-black text-info">{joyText(total)}</span>
-          </div>
-        </div>
-
-        <p className="text-[13px] text-muted-foreground">{t("utilities.radio.store.peakNotice")}</p>
-
-        {error && <p className="text-[13px] text-destructive">{error}</p>}
-        {!error && short > 0 && (
-          <p className="text-[13px] text-warning">{t("utilities.radio.store.short", { amount: nf.format(short) })}</p>
-        )}
-
-        <button
-          onClick={handleBuy}
-          disabled={buying || short > 0}
-          className="h-12 rounded-xl bg-info text-info-foreground font-bold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 transition-transform"
-        >
-          {buying && <span className="material-symbols-outlined animate-spin text-lg">refresh</span>}
-          {buying
-            ? t("utilities.radio.store.buying")
-            : t("utilities.radio.store.buy", { n: tokens, total: nf.format(total) })}
-        </button>
-      </div>
     </div>
   );
 }

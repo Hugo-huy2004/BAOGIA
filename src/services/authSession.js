@@ -97,6 +97,92 @@ export const loginMemberWithGoogle = async (credential) => {
   }
 };
 
+// Request 6-digit single-use OTP via Email
+export const requestMagicLinkOtp = async (email) => {
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/auth/member/request-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return { success: false, error: data.error || 'Không thể gửi mã OTP' };
+    }
+    return { success: true, message: data.message };
+  } catch (error) {
+    return { success: false, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Verify 6-digit OTP and establish session
+export const verifyMagicLinkOtp = async (email, code) => {
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/auth/member/verify-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Xác thực OTP thất bại' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch (error) {
+    return { session: null, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Apple Sign-In helper
+export const loginMemberWithApple = async (identityToken, email) => {
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/auth/member/apple`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identityToken, email })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Đăng nhập Apple thất bại' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch (error) {
+    return { session: null, error: 'Lỗi kết nối mạng' };
+  }
+};
+
+// Dev-Only Local Login (Strictly disabled in production)
+export const loginDevLocal = async (email = 'dev.member@hugowishpax.studio', name = 'Dev Member') => {
+  if (!import.meta.env.DEV) {
+    return { session: null, error: 'Tính năng chỉ áp dụng ở môi trường phát triển local' };
+  }
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/auth/member/dev-login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Đăng nhập dev thất bại' };
+    }
+    const session = loginMember({ ...data.member, token: data.token });
+    return { session, error: null };
+  } catch (error) {
+    return { session: null, error: 'Lỗi kết nối mạng' };
+  }
+};
+
 // Returns { session, error } instead of throwing/null so the caller can show
 // a specific message (wrong credentials vs. network/server failure).
 export const loginAdmin = async (credentials, { remember = true } = {}) => {
@@ -125,6 +211,17 @@ export const loginAdmin = async (credentials, { remember = true } = {}) => {
       return { session: null, error: 'invalid_credentials' };
     }
 
+    // Handle 2FA Telegram OTP step
+    if (data.requireOtp) {
+      return {
+        session: null,
+        requireOtp: true,
+        tempToken: data.tempToken,
+        telegramDelivered: data.telegramDelivered !== false,
+        message: data.message || 'Mã OTP 4 chữ số đã được gửi qua Telegram.',
+      };
+    }
+
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 14); // Lưu 14 ngày
     expiresAt.setHours(0, 0, 0, 0); // Qua 00:00 tính là 1 ngày dùng
@@ -142,6 +239,40 @@ export const loginAdmin = async (credentials, { remember = true } = {}) => {
   } catch (error) {
     console.error('Lỗi khi đăng nhập admin:', error);
     return { session: null, error: 'network' };
+  }
+};
+
+export const verifyAdminOtp = async (tempToken, otpCode, { remember = true } = {}) => {
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/admin/verify-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tempToken, otpCode })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      return { session: null, error: data.error || 'Mã OTP không chính xác.' };
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14);
+    expiresAt.setHours(0, 0, 0, 0);
+
+    const session = {
+      role: "admin",
+      token: data.token || "",
+      username: "admin",
+      loginAt: new Date().toISOString(),
+      expiresAt: expiresAt.toISOString()
+    };
+
+    writeSession(ADMIN_SESSION_KEY, session, remember);
+    return { session, error: null };
+  } catch (error) {
+    return { session: null, error: 'Lỗi mạng khi xác thực OTP' };
   }
 };
 

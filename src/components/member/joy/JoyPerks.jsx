@@ -126,7 +126,7 @@ export default function JoyPerks({ perks, loading, error, onReload, email }) {
                   ? t("memberPortal.accountHub.perksCopy.spinAvailable")
                   : spin.spunThisYear
                     ? t("memberPortal.accountHub.perksCopy.spunThisYear", {
-                      amount: fmt(spin.lastPrize, locale),
+                      amount: joyText(spin.lastPrize),
                     })
                     : spin.birthMonth
                       ? t("memberPortal.accountHub.perksCopy.opensInBirthMonth", {

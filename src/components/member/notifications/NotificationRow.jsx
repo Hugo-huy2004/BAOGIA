@@ -1,6 +1,7 @@
 import { signedJoy, timeAgo, tintOf } from "./notificationModel";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
+import { joyText } from "../../../lib/joyDisplay";
 
 const DIRECTION_ICON = { in: "arrow_downward", out: "arrow_upward" };
 
@@ -65,7 +66,7 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
             {item.balanceAfter != null && (
               <span>
                 {t("memberPortal.notificationCenter.balance", {
-                  value: Number(item.balanceAfter).toLocaleString(locale),
+                  value: joyText(item.balanceAfter),
                 })}
               </span>
             )}

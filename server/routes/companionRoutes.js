@@ -305,9 +305,12 @@ router.post('/history', requireMember, async (req, res) => {
       const val = Number(chatDistressCount);
       $set.chatDistressCount = !isNaN(val) ? val : 0;
     }
-    if (lastTestDate !== undefined) $set.lastTestDate = lastTestDate;
     if (historyLogs !== undefined) $set.historyLogs = historyLogs;
-    if (chatMessages !== undefined) $set.chatMessages = encryptChatMessages(chatMessages);
+    if (req.body.incognito === true || req.body.incognitoMode === true) {
+      delete $set.chatMessages;
+    } else if (chatMessages !== undefined) {
+      $set.chatMessages = encryptChatMessages(chatMessages);
+    }
 
     let historyDoc = await CompanionHistory.findOneAndUpdate(
       { email },

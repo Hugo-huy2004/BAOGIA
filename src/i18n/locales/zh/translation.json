@@ -6185,5 +6185,66 @@
       "dangXuat": "退出登录",
       "batTatVaMuc": "切换和“自动”级别位于绿标签中。在这种模式下关闭：AI助手、地图、商店、应用库、动画背景以及所有重复的服务器轮询。"
     }
+  },
+  "cinema": {
+    "back": "返回",
+    "searchPlaceholder": "搜索影片、创作者…",
+    "continueWatching": "继续观看",
+    "searchResults": "“{{query}}”的结果",
+    "upNext": "接下来播放",
+    "showMore": "展开",
+    "showLess": "收起",
+    "views": "{{formatted}} 次观看",
+    "libraryNote": "这里的影片均属公共领域或采用开放许可，通过 Internet Archive 播放，任何人都可以合法观看。",
+    "cat": {
+      "all": "全部影片",
+      "classic": "经典",
+      "cartoon": "动画",
+      "scifi": "科幻",
+      "horror": "恐怖",
+      "shorts": "3D 短片",
+      "doc": "纪录片"
+    },
+    "action": {
+      "like": "点赞",
+      "save": "收藏",
+      "saved": "已收藏",
+      "savedOn": "已加入收藏列表",
+      "savedOff": "已从收藏列表移除",
+      "share": "分享",
+      "linkCopied": "影片链接已复制"
+    },
+    "token": {
+      "shared": "观看影片与收听 HugoRadio 共用同一份代币额度。",
+      "ranOut": "代币已用完 — 购买更多才能继续观看。"
+    },
+    "source": {
+      "title": "来源与许可",
+      "body": "影片直接由 Internet Archive 播放。Hugo Cinema 只指向公共领域的版本，不下载也不剪辑。"
+    },
+    "empty": {
+      "title": "片架还是空的",
+      "desc": "在管理后台同步公共领域片库，片架马上就有影片。",
+      "searchTitle": "没有找到影片",
+      "searchDesc": "换个片名，或选择一个类别。",
+      "listTitle": "片单还是空的",
+      "listDesc": "点按影片上的 + 即可保存稍后观看。"
+    },
+    "play": "播放",
+    "resume": "继续播放",
+    "info": "详情",
+    "close": "关闭",
+    "myList": "我的片单",
+    "ratingLabel": "Internet Archive 观众评分：{{rating}}/5",
+    "nav": {
+      "home": "首页",
+      "search": "搜索"
+    },
+    "switchingSource": "正在切换到其他播放源…",
+    "retry": "重试",
+    "videoFailed": {
+      "title": "无法加载影片",
+      "desc": "两个播放源都没有响应。通常是网络无法连接存档服务器 — 请重试或更换网络。"
+    }
   }
 }

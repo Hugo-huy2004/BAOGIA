@@ -105,6 +105,9 @@ export default defineConfig(({ mode }) => {
           '**/BanhocduongTab-*',
           '**/lessons-*',
           '**/hls-*',
+          '**/favicon/**',
+          '**/image/**',
+          '**/splash/**',
         ],
         runtimeCaching: [
           // Arcade leaderboard — StaleWhileRevalidate for instant UI render

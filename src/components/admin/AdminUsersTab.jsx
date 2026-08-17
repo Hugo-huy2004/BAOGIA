@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import UserDetailModal from './UserDetailModal';
 import { formatJoyDual } from '../../utils/joyFormatter';
+import { toDenom } from '../../../shared/joyCurrency.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -292,7 +293,12 @@ const AdminUsersTab = ({
                           </div>
                         </td>
                         <td className="px-6 py-4 font-mono text-xs font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                          {formatJoyDual(user.joyBalance || 0)}
+                          <div>{formatJoyDual(user.joyBalance || 0)}</div>
+                          {user.joyDenom && (
+                            <div className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold font-sans">
+                              {toDenom(user.joyBalance || 0, user.joyDenom).amount.toLocaleString()} {toDenom(user.joyBalance || 0, user.joyDenom).code}
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {formatExpiration(user.expiresAt)}

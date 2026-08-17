@@ -6185,5 +6185,66 @@
       "dangXuat": "로그아웃",
       "batTatVaMuc": "전환과 '자동' 수준은 녹색 탭에 있습니다. 이 모드에서 비활성화: AI 보조, 지도, 스토어, 앱 라이브러리, 동영상 배경 및 모든 반복 서버 팔로."
     }
+  },
+  "cinema": {
+    "back": "뒤로",
+    "searchPlaceholder": "영화, 제작자 검색…",
+    "continueWatching": "계속 보기",
+    "searchResults": "“{{query}}” 검색 결과",
+    "upNext": "다음 볼 영화",
+    "showMore": "더 보기",
+    "showLess": "접기",
+    "views": "조회 {{formatted}}회",
+    "libraryNote": "이곳의 모든 영화는 퍼블릭 도메인이거나 공개 라이선스로 배포된 작품이며, Internet Archive에서 스트리밍되므로 누구나 합법적으로 볼 수 있습니다.",
+    "cat": {
+      "all": "전체 영화",
+      "classic": "고전",
+      "cartoon": "애니메이션",
+      "scifi": "SF",
+      "horror": "공포",
+      "shorts": "3D 단편",
+      "doc": "다큐멘터리"
+    },
+    "action": {
+      "like": "좋아요",
+      "save": "저장",
+      "saved": "저장됨",
+      "savedOn": "저장 목록에 추가했습니다",
+      "savedOff": "저장 목록에서 삭제했습니다",
+      "share": "공유",
+      "linkCopied": "영화 링크를 복사했습니다"
+    },
+    "token": {
+      "shared": "영화 시청과 HugoRadio 청취는 같은 토큰 한도를 함께 씁니다.",
+      "ranOut": "토큰이 없습니다 — 계속 보려면 추가 구매하세요."
+    },
+    "source": {
+      "title": "출처 및 라이선스",
+      "body": "Internet Archive에서 바로 스트리밍합니다. Hugo Cinema는 퍼블릭 도메인 판본만 연결하며 내려받거나 재편집하지 않습니다."
+    },
+    "empty": {
+      "title": "선반이 비어 있습니다",
+      "desc": "관리자 패널에서 퍼블릭 도메인 라이브러리를 동기화하면 바로 채워집니다.",
+      "searchTitle": "영화를 찾을 수 없습니다",
+      "searchDesc": "다른 제목을 검색하거나 카테고리를 선택해 보세요.",
+      "listTitle": "목록이 비어 있습니다",
+      "listDesc": "영화의 + 를 누르면 나중에 보기로 저장됩니다."
+    },
+    "play": "재생",
+    "resume": "이어 보기",
+    "info": "정보",
+    "close": "닫기",
+    "myList": "내 목록",
+    "ratingLabel": "Internet Archive 시청자 평점: {{rating}}/5",
+    "nav": {
+      "home": "홈",
+      "search": "검색"
+    },
+    "switchingSource": "다른 재생 소스로 전환 중…",
+    "retry": "다시 시도",
+    "videoFailed": {
+      "title": "영화를 불러오지 못했습니다",
+      "desc": "두 소스 모두 응답하지 않습니다. 보통 네트워크가 아카이브 서버에 닿지 못하는 경우입니다. 다시 시도하거나 네트워크를 바꿔 보세요."
+    }
   }
 }

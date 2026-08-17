@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import {
-  DEFAULT_DENOM, denomKey, denomOf, toDenom, fromDenom, factorOf, setLiveFactors,
+  JOY_DENOMS, DEFAULT_DENOM, denomKey, denomOf, toDenom, fromDenom, factorOf, setLiveFactors,
 } from "../../shared/joyCurrency.js";
 import { localeForLanguage } from "../i18n/languages";
 
@@ -22,15 +22,21 @@ import { localeForLanguage } from "../i18n/languages";
  */
 const LS_KEY = "joy_denom";
 
+// Chỉ nhận lại đơn vị đã lưu khi nó THẬT SỰ là một đơn vị hợp lệ — tài khoản
+// chưa chọn thì không có gì để nhớ cả.
 const readStored = () => {
   try {
     const saved = localStorage.getItem(LS_KEY);
-    return saved ? denomKey(saved) : DEFAULT_DENOM;
+    return saved && JOY_DENOMS[denomKey(saved)] && saved === denomKey(saved) ? saved : '';
   } catch {
-    return DEFAULT_DENOM;
+    return '';
   }
 };
 
+// `active` rỗng = TÀI KHOẢN CHƯA CHỌN ĐƠN VỊ. Khi đó vẫn phải định dạng được số
+// (để màn onboarding và mọi khung sườn không vỡ), nhưng `chosen` là false để
+// giao diện biết mà từ chối cho tiêu tiền — hệ thống không được tự quyết hộ
+// người dùng đơn vị nào rồi hiển thị như thể họ đã chọn.
 let active = readStored();
 let liveRates = null;
 let i18nRef = null;
@@ -38,12 +44,18 @@ const listeners = new Set();
 
 /** Đơn vị của tài khoản đang đăng nhập. Gọi khi `/bio` về. */
 export function setJoyDenom(value) {
-  const next = denomKey(value);
+  const next = JOY_DENOMS[value] ? value : '';
   if (next === active) return;
   active = next;
-  try { localStorage.setItem(LS_KEY, next); } catch { /* private mode */ }
+  try {
+    if (next) localStorage.setItem(LS_KEY, next);
+    else localStorage.removeItem(LS_KEY);
+  } catch { /* private mode */ }
   listeners.forEach((fn) => fn());
 }
+
+/** Tài khoản đã thật sự chọn đơn vị chưa. `false` = chưa được hỏi. */
+export const joyDenomChosen = () => Boolean(active);
 
 /**
  * Nạp bảng tỷ giá ngày (GET /joy/rates). Gọi một lần sau khi đăng nhập; hỏng
@@ -59,17 +71,20 @@ export function setJoyRates(rates) {
 export const joyRates = () => liveRates;
 
 /** Hệ số đang áp dụng cho đơn vị của tài khoản. */
-export const joyFactor = () => factorOf(active);
+export const joyFactor = () => factorOf(formatting());
+
+/** Đơn vị dùng để ĐỊNH DẠNG; chưa chọn thì tạm lấy mặc định cho khỏi vỡ. */
+const formatting = () => active || DEFAULT_DENOM;
 
 export const joyDenom = () => active;
-export const joyCode = () => denomOf(active).code;
-export const joyName = () => denomOf(active).name;
+export const joyCode = () => denomOf(formatting()).code;
+export const joyName = () => denomOf(formatting()).name;
 
 /** JOY gốc → SỐ theo đơn vị tài khoản (không kèm mã). Chỉ để hiển thị. */
-export const joyValue = (joy) => toDenom(joy, active).amount;
+export const joyValue = (joy) => toDenom(joy, formatting()).amount;
 
 /** Số người dùng gõ theo đơn vị của họ → JOY gốc, để gửi lên server. */
-export const joyToRaw = (amount) => fromDenom(amount, active);
+export const joyToRaw = (amount) => fromDenom(amount, formatting());
 
 const currentLocale = () => localeForLanguage(
   i18nRef?.resolvedLanguage || i18nRef?.language || "vi",
@@ -109,9 +124,10 @@ export function useJoy() {
   const denom = useSyncExternalStore(subscribe, snapshot, snapshot).split("@")[0];
   return {
     denom,
+    chosen: Boolean(denom),
     rates: liveRates,
-    code: denomOf(denom).code,
-    name: denomOf(denom).name,
+    code: denomOf(denom || DEFAULT_DENOM).code,
+    name: denomOf(denom || DEFAULT_DENOM).name,
     value: joyValue,
     number: joyNumber,
     text: joyText,

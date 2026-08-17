@@ -1,23 +1,7 @@
 // App names are product UI, not internal identifiers. Keep stable IDs in code
 // and localize every user-facing name/description from this single catalog so
 // Home, Library, Spotlight and Hugo Store cannot drift into different languages.
-//
-// Naming rule for `title`: it sits under a 84px home-screen icon, so it stays a
-// short label — one or two words, no qualifier the icon or the description
-// already carries. Detail belongs in `description`.
-//
-// Cách đặt tên, chốt 2026-08-16: TỪ PHỔ THÔNG, HIỆN ĐẠI, MỘT–HAI TỪ. Tên phải
-// nói ngay app làm gì — Học Tập / Trò Chơi / Âm Thanh / Công Cụ / Tập Trung.
-//
-// Bảng này từng đặt tên theo điển tích của từng nền văn hoá (学堂/寺子屋/서당,
-// "Gotong Royong", "Compagnons", "오락실"). Đẹp, nhưng người dùng phải đoán app
-// làm gì, nên đã bỏ. Vẫn giữ nguyên tắc MỖI NGÔN NGỮ MỘT BẢN: dịch sang từ phổ
-// thông của tiếng đó, không bê nguyên tiếng Anh.
-//
-// Tên thương hiệu ghép (HugoPSY, HugoRadio, HugoArcade, HugoAura, HugoKit)
-// KHÔNG xuất hiện ở đây — chúng vẫn là tên sản phẩm trong tài liệu và mã nguồn,
-// còn giao diện thì gọi bằng chức năng.
-// JOY là tên đơn vị tiền trong hệ thống nên giữ nguyên ở mọi ngôn ngữ.
+
 const catalog = (entries) => Object.fromEntries(entries.map(([id, title, description]) => [
   id,
   { title, description },
@@ -40,9 +24,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "Công Cụ", "QR, chữ ký email, link bảo mật và nén tệp"],
       ["arcade", "Trò Chơi", "Trò chơi nhận thưởng JOY"],
       ["aura", "Tập Trung", "Tập trung Pomodoro và âm thanh môi trường"],
+      ["cinema", "Chill Premium", "Rạp phim công cộng: kinh điển, hoạt hình, khoa học viễn tưởng và tài liệu"],
       ["info", "Thông Tin", "Thông tin hệ thống và ghi chú phát hành"],
       ["joy_wallet", "Ví JOY", "Số dư và chuyển JOY nhanh"],
       ["store", "Cửa Hàng", "Cửa hàng ứng dụng, token và dịch vụ"],
+      ["supporter", "Supporter AI", "Trợ lý AI hỗ trợ trực tuyến 24/7"],
       ["arcade_chess", "Cờ Vua", "Thách đấu AI trình độ cao"],
       ["arcade_2048", "2048", "Trò chơi ghép số mở rộng"],
       ["arcade_caro", "Cờ Caro", "Cờ năm quân nhiều cấp độ"],
@@ -66,9 +52,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "Tools", "QR codes, email signatures, secure links, and file tools"],
       ["arcade", "Games", "Games that reward JOY"],
       ["aura", "Focus", "Pomodoro focus and ambient sound"],
+      ["cinema", "Chill Premium", "Public-domain cinema: classics, animation, sci-fi and documentaries"],
       ["info", "About", "System information and release notes"],
       ["joy_wallet", "JOY Wallet", "Balance and quick JOY transfers"],
       ["store", "Store", "Apps, tokens, and services shop"],
+      ["supporter", "Supporter AI", "24/7 AI Support Assistant"],
       ["arcade_chess", "Chess", "Challenge a high-level AI"],
       ["arcade_2048", "2048", "An expanded number-merging game"],
       ["arcade_caro", "Caro", "Multi-level five-in-a-row"],
@@ -92,9 +80,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "工具", "二维码、电子邮件签名、加密链接与文件压缩"],
       ["arcade", "游戏", "可赚取 JOY 的游戏"],
       ["aura", "专注", "番茄钟专注与环境音"],
+      ["cinema", "Chill Premium", "公共领域影院：经典、动画、科幻与纪录片"],
       ["info", "关于", "系统信息与更新日志"],
       ["joy_wallet", "JOY 钱包", "余额与快速 JOY 转账"],
       ["store", "商店", "应用、代币与服务商店"],
+      ["supporter", "Supporter AI", "24/7 AI 在线客服助手"],
       ["arcade_chess", "国际象棋", "挑战高水平 AI"],
       ["arcade_2048", "合数", "进阶数字合并游戏"],
       ["arcade_caro", "五子棋", "多难度五子连珠"],
@@ -118,9 +108,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "เครื่องมือ", "คิวอาร์โค้ด ลายเซ็นอีเมล ลิงก์ที่ปลอดภัย และเครื่องมือไฟล์"],
       ["arcade", "เกม", "เกมที่ให้รางวัล JOY"],
       ["aura", "โฟกัส", "โฟกัสแบบ Pomodoro และเสียงบรรยากาศ"],
+      ["cinema", "Chill Premium", "โรงหนังสาธารณสมบัติ: คลาสสิก แอนิเมชัน ไซไฟ และสารคดี"],
       ["info", "ข้อมูล", "ข้อมูลระบบและบันทึกประจำรุ่น"],
       ["joy_wallet", "กระเป๋า JOY", "ยอดคงเหลือและโอน JOY อย่างรวดเร็ว"],
       ["store", "ร้านค้า", "ร้านแอป โทเคน และบริการ"],
+      ["supporter", "Supporter AI", "ผู้ช่วย AI ซัพพอร์ต 24/7"],
       ["arcade_chess", "หมากรุก", "ท้าทาย AI ระดับสูง"],
       ["arcade_2048", "2048", "เกมรวมตัวเลขฉบับขยาย"],
       ["arcade_caro", "ห้าเรียง", "เกมห้าเรียงหลายระดับ"],
@@ -144,9 +136,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "ツール", "QRコード、メール署名、保護リンク、ファイル処理"],
       ["arcade", "ゲーム", "JOYを獲得できるゲーム"],
       ["aura", "集中", "ポモドーロ集中と環境音"],
+      ["cinema", "Chill Premium", "パブリックドメインの映画館：名作・アニメ・SF・ドキュメンタリー"],
       ["info", "情報", "システム情報とリリースノート"],
       ["joy_wallet", "JOYウォレット", "残高とJOYのクイック送金"],
       ["store", "ストア", "アプリ、トークン、サービスのストア"],
+      ["supporter", "Supporter AI", "24/7 AIサポートアシスタント"],
       ["arcade_chess", "チェス", "高レベルAIに挑戦"],
       ["arcade_2048", "2048", "拡張版ナンバー合体ゲーム"],
       ["arcade_caro", "五目並べ", "難易度を選べる五目並べ"],
@@ -170,9 +164,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "도구", "QR 코드, 이메일 서명, 보안 링크, 파일 도구"],
       ["arcade", "게임", "JOY를 보상하는 게임"],
       ["aura", "집중", "포모도로 집중과 주변 소리"],
+      ["cinema", "Chill Premium", "퍼블릭 도메인 영화관: 고전, 애니메이션, SF, 다큐멘터리"],
       ["info", "정보", "시스템 정보와 릴리스 노트"],
       ["joy_wallet", "JOY 지갑", "잔액과 빠른 JOY 송금"],
       ["store", "스토어", "앱, 토큰, 서비스 스토어"],
+      ["supporter", "Supporter AI", "24/7 AI 지원 어시스턴트"],
       ["arcade_chess", "체스", "고난도 AI에 도전"],
       ["arcade_2048", "2048", "확장 숫자 합치기 게임"],
       ["arcade_caro", "오목", "다단계 오목 게임"],
@@ -196,9 +192,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "Alat", "Kode QR, tanda tangan email, tautan aman, dan alat berkas"],
       ["arcade", "Game", "Gim yang memberi hadiah JOY"],
       ["aura", "Fokus", "Fokus Pomodoro dan suara suasana"],
+      ["cinema", "Chill Premium", "Bioskop domain publik: klasik, animasi, fiksi ilmiah, dan dokumenter"],
       ["info", "Info", "Informasi sistem dan catatan rilis"],
       ["joy_wallet", "Dompet JOY", "Saldo dan transfer JOY cepat"],
       ["store", "Toko", "Toko aplikasi, token, dan layanan"],
+      ["supporter", "Supporter AI", "Asisten Dukungan AI 24/7"],
       ["arcade_chess", "Catur", "Tantang AI tingkat tinggi"],
       ["arcade_2048", "2048", "Gim penggabungan angka yang diperluas"],
       ["arcade_caro", "Caro", "Lima berderet dengan banyak tingkat"],
@@ -222,9 +220,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "Herramientas", "Códigos QR, firmas de correo, enlaces seguros y herramientas de archivos"],
       ["arcade", "Juegos", "Juegos que recompensan con JOY"],
       ["aura", "Enfoque", "Concentración Pomodoro y sonido ambiental"],
+      ["cinema", "Chill Premium", "Cine de dominio público: clásicos, animación, ciencia ficción y documentales"],
       ["info", "Info", "Información del sistema y notas de versión"],
       ["joy_wallet", "Cartera JOY", "Saldo y transferencias rápidas de JOY"],
       ["store", "Tienda", "Tienda de aplicaciones, tokens y servicios"],
+      ["supporter", "Supporter AI", "Asistente de soporte IA 24/7"],
       ["arcade_chess", "Ajedrez", "Desafía a una IA de alto nivel"],
       ["arcade_2048", "2048", "Juego ampliado de combinación de números"],
       ["arcade_caro", "Cinco en raya", "Cinco en raya con varios niveles"],
@@ -248,9 +248,11 @@ export const MEMBER_APP_TRANSLATIONS = {
       ["handle", "Outils", "QR codes, signatures d’e-mail, liens sécurisés et outils de fichiers"],
       ["arcade", "Jeux", "Jeux qui récompensent en JOY"],
       ["aura", "Concentration", "Concentration Pomodoro et sons d’ambiance"],
+      ["cinema", "Chill Premium", "Cinéma du domaine public : classiques, animation, science-fiction et documentaires"],
       ["info", "Infos", "Informations système et notes de version"],
       ["joy_wallet", "Portefeuille JOY", "Solde et transferts JOY rapides"],
       ["store", "Boutique", "Boutique d’applications, de jetons et de services"],
+      ["supporter", "Supporter AI", "Assistant de support IA 24/7"],
       ["arcade_chess", "Échecs", "Affrontez une IA de haut niveau"],
       ["arcade_2048", "2048", "Jeu étendu de fusion de nombres"],
       ["arcade_caro", "Cinq en ligne", "Cinq en ligne à plusieurs niveaux"],

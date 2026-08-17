@@ -64,12 +64,33 @@ async function rateBefore(hours) {
   return JoyRate.findOne({ at: { $lte: cutoff } }).sort({ at: -1 }).lean();
 }
 
+let legacyIndexesCleaned = false;
+
+export async function cleanupJoyRateIndexes() {
+  if (legacyIndexesCleaned) return;
+  try {
+    const collection = JoyRate.collection;
+    const indexes = await collection.indexes();
+    for (const idx of indexes) {
+      if (idx.name === 'date_1' || idx.key?.date) {
+        console.log(`[JoyRate] Dropping legacy MongoDB index: ${idx.name}`);
+        await collection.dropIndex(idx.name);
+      }
+    }
+    legacyIndexesCleaned = true;
+  } catch (err) {
+    // Ignore if collection doesn't exist yet or index already dropped
+  }
+}
+
 export async function computeRates({ force = false } = {}) {
   const key = tickKey();
   if (!force) {
     const existing = await JoyRate.findOne({ key }).lean();
     if (existing) return existing;
   }
+
+  await cleanupJoyRateIndexes();
 
   const previous = await previousRate(key);
   const income = await incomeByDenom();
@@ -93,10 +114,23 @@ export async function computeRates({ force = false } = {}) {
   const doc = {
     key,
     at: tickStart(key),
+    date: tickStart(key),
     factors,
     income: { overall: income.overall, byDenom: income.byDenom, members: income.members },
   };
-  await JoyRate.findOneAndUpdate({ key }, doc, { upsert: true, new: true });
+
+  try {
+    await JoyRate.findOneAndUpdate({ key }, doc, { upsert: true, new: true });
+  } catch (err) {
+    if (err.code === 11000 || err.message?.includes('E11000')) {
+      console.warn('⚠️ JoyRate E11000 detected, dropping legacy index date_1...');
+      await JoyRate.collection.dropIndex('date_1').catch(() => {});
+      await JoyRate.findOneAndUpdate({ key }, doc, { upsert: true, new: true });
+    } else {
+      throw err;
+    }
+  }
+
   return doc;
 }
 

@@ -93,4 +93,40 @@ router.post("/:lessonId/verify", verifyLimiter, (req, res) => {
   }
 });
 
+// POST /api/coder-lessons/ai-mentor-debug  { code, question, lang }
+// Trợ lý AI Coder Mentor hỗ trợ giải thích code, tìm lỗi nổ và tư vấn tối ưu 1:1.
+router.post("/ai-mentor-debug", verifyLimiter, async (req, res) => {
+  try {
+    const { code, question, lang = "javascript" } = req.body || {};
+    if (!code && !question) {
+      return res.status(400).json({ error: "Vui lòng cung cấp mã nguồn hoặc câu hỏi để AI Mentor hỗ trợ." });
+    }
+
+    const { generateRaw } = await import("../services/aiGateway.js");
+    const prompt = `
+Bạn là AI Coder Mentor 1:1 của Hugo Studio (chuyên gia tư vấn Lập trình Web & Software Engineering).
+Thành viên đang học bài học thuộc ngôn ngữ/công nghệ [${lang}].
+
+Mã nguồn hiện tại:
+\`\`\`${lang}
+${(code || "").slice(0, 10000)}
+\`\`\`
+
+Câu hỏi / Vấn đề của thành viên:
+"${question || "Hãy giải thích đoạn code này và chỉ ra các điểm có thể tối ưu hiệu năng hoặc sửa lỗi."}"
+
+Hãy trả lời chuyên nghiệp, dễ hiểu, theo phong cách Socratic Mentor (gợi mở và giải thích rõ ràng từng dòng lệnh chính), chèn mã sửa (nếu có) và mẹo tối ưu bằng Tiếng Việt.
+`;
+
+    let advice = await generateRaw(prompt).catch(() => null);
+    if (!advice) {
+      advice = "AI Mentor gợi ý: Hãy kiểm tra kỹ cú pháp, kiểu dữ liệu trả về và đảm bảo không bỏ sót các trường bắt buộc theo yêu cầu bài học.";
+    }
+
+    res.json({ success: true, advice });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

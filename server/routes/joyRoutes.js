@@ -1,5 +1,6 @@
 import express from 'express';
 import Bio from '../models/Bio.js';
+import { JOY_DENOMS } from '../../shared/joyCurrency.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
@@ -191,6 +192,31 @@ const EXCHANGE_ITEMS = {
 };
 
 const router = express.Router();
+
+/**
+ * Chưa chọn đơn vị hiển thị thì KHÔNG động được vào ví.
+ *
+ * Màn onboarding đã chặn ở giao diện, nhưng chặn ở giao diện không phải là
+ * chặn: người dùng chưa từng được hỏi mà ví vẫn trừ được thì con số họ nhìn
+ * thấy lúc đó là đơn vị hệ thống tự quyết hộ — sai ngay ở màn xác nhận số tiền.
+ *
+ * Chỉ chặn lệnh GHI. Lệnh ĐỌC vẫn phải chạy: chính portal cần đọc để dựng được
+ * màn hỏi. Route admin không có `req.memberEmail` nên không dính.
+ */
+router.use(async (req, res, next) => {
+  if (req.method === 'GET' || !req.memberEmail) return next();
+  try {
+    const bio = await Bio.findOne({ $or: [{ email: req.memberEmail }, { contactEmail: req.memberEmail }] })
+      .select('joyDenom').lean();
+    if (JOY_DENOMS[bio?.joyDenom]) return next();
+    return res.status(409).json({
+      error: 'JOY_DENOM_REQUIRED',
+      message: 'Bạn cần chọn đơn vị hiển thị JOY trước khi dùng ví.',
+    });
+  } catch {
+    return next();   // lỗi tra cứu không được biến thành khoá ví
+  }
+});
 
 // Phone-based P2P JOY transfer — "send JOY by phone like MoMo" without real
 // SMS/OTP infra (none exists in this codebase): Bio.phone is enforced unique
@@ -395,6 +421,60 @@ router.get('/history', requireMember, async (req, res) => {
     res.json({ transactions, summary });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/transfer-p2p  { targetEmail, amount, note }
+// Chuyển JOY P2P giữa hai thành viên kèm thiệp chúc mừng & đổi đơn vị cá nhân hoá.
+router.post('/transfer-p2p', requireMember, async (req, res) => {
+  try {
+    const senderEmail = req.memberEmail;
+    const { targetEmail, amount, note } = req.body;
+
+    if (!targetEmail || !amount || Number(amount) <= 0) {
+      return res.status(400).json({ error: 'Vui lòng nhập địa chỉ email người nhận và số JOY hợp lệ (> 0).' });
+    }
+
+    const cleanTarget = String(targetEmail).trim().toLowerCase();
+    if (cleanTarget === senderEmail.toLowerCase()) {
+      return res.status(400).json({ error: 'Bạn không thể tự chuyển JOY cho chính mình.' });
+    }
+
+    const recipientBio = await Bio.findOne({ email: cleanTarget });
+    if (!recipientBio) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản người nhận.' });
+    }
+
+    const numAmount = Math.round(Number(amount));
+
+    // Trừ JOY từ người gửi (atomic operation, kiểm tra đủ số dư)
+    await awardJoy(
+      senderEmail,
+      -numAmount,
+      'member_transfer_out',
+      `Tặng ${numAmount} JOY cho ${recipientBio.displayName} (${cleanTarget})`
+    );
+
+    // Cộng JOY cho người nhận
+    const updatedRecipient = await awardJoy(
+      cleanTarget,
+      numAmount,
+      'member_transfer_in',
+      `Nhận ${numAmount} JOY từ ${senderEmail}: "${note || 'Chúc bạn ngày mới vui vẻ!'}"`
+    );
+
+    res.json({
+      success: true,
+      amountTransferred: numAmount,
+      recipient: {
+        email: cleanTarget,
+        displayName: recipientBio.displayName,
+        customDenom: recipientBio.joyDenom || 'JOY',
+      },
+      message: `Đã tặng ${numAmount.toLocaleString()} JOY cho ${recipientBio.displayName} thành công!`,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

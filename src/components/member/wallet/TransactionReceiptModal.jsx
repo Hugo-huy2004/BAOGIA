@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { hapticSelect } from "../../../utils/haptics";
+import { useJoy } from "../../../lib/joyDisplay";
 
 /**
  * Hóa Đơn Điện Tử Thông Minh (Smart Digital Receipt Modal/Sheet)
@@ -10,6 +11,7 @@ import { hapticSelect } from "../../../utils/haptics";
 export default function TransactionReceiptModal({ tx, onClose, showToast }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
+  const joy = useJoy();
 
   if (!tx) return null;
 
@@ -81,7 +83,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
           <div className={`mt-3 font-mono text-3xl font-black tracking-tight ${
             isCredit ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
           }`}>
-            {isCredit ? "+" : "−"}{absAmount.toLocaleString(locale)} <span className="text-sm font-sans font-bold text-slate-500">JOY</span>
+            {isCredit ? "+" : "−"}{joy.text(absAmount)}
           </div>
         </div>
 
@@ -137,7 +139,7 @@ export default function TransactionReceiptModal({ tx, onClose, showToast }) {
               <div className="flex items-center justify-between pt-2 border-t border-dashed border-slate-200 dark:border-slate-800">
                 <span className="text-slate-500 dark:text-slate-400 font-bold">Số dư JOY còn lại</span>
                 <span className="font-mono font-black text-amber-600 dark:text-amber-400 text-sm">
-                  {Number(tx.balanceAfter).toLocaleString(locale)} JOY
+                  {joy.text(tx.balanceAfter)}
                 </span>
               </div>
             )}

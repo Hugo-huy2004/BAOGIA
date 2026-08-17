@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { DENOM_OPTIONS, CROSS_DENOM_FEE, formatDenom } from "../../../../shared/joyCurrency.js";
 import { localeForLanguage } from "../../../i18n/languages";
 import { chooseJoyDenom } from "../../../services/joyApi";
+import { setJoyDenom } from "../../../lib/joyDisplay";
 import { notify } from "../../../lib/notify";
 
 // Chọn đơn vị JOY — hiện khi tài khoản CHƯA chọn.
@@ -24,6 +25,7 @@ export default function JoyDenomPicker({ balance = 0, onChosen }) {
     setBusy(true);
     try {
       await chooseJoyDenom(picked);
+      setJoyDenom(picked);
       notify.success(t("memberPortal.walletApp.denomSaved"));
       onChosen?.(picked);
     } catch (error) {

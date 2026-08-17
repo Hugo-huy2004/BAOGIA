@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchJoyHistory } from "../../../services/joyApi";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
-import { joyText } from "../../../lib/joyDisplay";
+import { useJoy } from "../../../lib/joyDisplay";
 
 import TransactionReceiptModal from "../wallet/TransactionReceiptModal";
 
@@ -33,7 +33,8 @@ function timeLabel(iso, locale) {
 export default function JoyHistory({ limit = 50 }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
-  const fmt = (n) => Number(n || 0).toLocaleString(locale);
+  const joy = useJoy();
+  const fmt = (n) => joy.text(Math.abs(n || 0));
   const groupLabels = {
     diemdanh: t("memberPortal.accountHub.historyCopy.groups.checkin"),
     banbe: t("memberPortal.accountHub.historyCopy.groups.friends"),

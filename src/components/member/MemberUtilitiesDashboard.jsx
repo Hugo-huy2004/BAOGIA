@@ -88,6 +88,7 @@ const APP_CATALOG = [
   ["info", "info", "slate", "tools", "4.8", "6k", "system"],
   ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "20k", "utility"],
   ["store", "store", "blue", "tools", "5.0", "50k", "store"],
+  ["supporter", "support_agent", "teal", "tools", "5.0", "100k", "ai"],
   ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "game"],
   ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "game"],
   ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "game"],
@@ -123,8 +124,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       rating,
       users,
       badge: t(`utilities.badges.${badge}`),
-      title: t(`utilities.catalog.${id}.title`),
-      subLabel: t(`utilities.catalog.${id}.description`),
+      title: t(`utilities.catalog.${id}.title`, id === 'supporter' ? 'Supporter AI' : id),
+      subLabel: t(`utilities.catalog.${id}.description`, id === 'supporter' ? 'Trợ lý AI hỗ trợ trực tuyến 24/7' : ''),
     })),
     [t, minor],
   );

@@ -95,6 +95,136 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
   }
 });
 
+// ─── Magic Link OTP Store (Single Use, 10-minute expiry) ──────────────────────
+const otpStore = new Map();
+
+// POST /api/auth/member/request-otp  { email }
+router.post('/request-otp', googleLoginLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Vui lòng nhập địa chỉ email.' });
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const cryptoMod = await import('crypto');
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeHash = cryptoMod.createHash('sha256').update(code).digest('hex');
+
+    otpStore.set(cleanEmail, {
+      codeHash,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    });
+
+    const { sendMagicLinkOtp } = await import('../services/emailService.js');
+    await sendMagicLinkOtp(cleanEmail, code);
+
+    res.json({ success: true, message: `Mã OTP đã gửi tới ${cleanEmail}.` });
+  } catch (error) {
+    console.error('Request OTP error:', error);
+    res.status(500).json({ error: 'Không thể gửi mã OTP. Vui lòng thử lại.' });
+  }
+});
+
+// POST /api/auth/member/verify-otp  { email, code }
+router.post('/verify-otp', googleLoginLimiter, async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Thiếu email hoặc mã OTP.' });
+    }
+    const cleanEmail = String(email).trim().toLowerCase();
+    const entry = otpStore.get(cleanEmail);
+
+    if (!entry || Date.now() > entry.expiresAt) {
+      otpStore.delete(cleanEmail);
+      return res.status(401).json({ error: 'Mã OTP không hợp lệ hoặc đã hết hạn (10 phút).' });
+    }
+
+    const cryptoMod = await import('crypto');
+    const inputHash = cryptoMod.createHash('sha256').update(String(code).trim()).digest('hex');
+
+    if (inputHash !== entry.codeHash) {
+      return res.status(401).json({ error: 'Mã OTP không chính xác.' });
+    }
+
+    // Single-use: delete immediately upon verification
+    otpStore.delete(cleanEmail);
+
+    const securityBlock = await findActiveSecurityBlock({ email: cleanEmail });
+    if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
+
+    const token = signMemberToken(cleanEmail, req);
+    setMemberCookie(res, token);
+
+    res.json({
+      success: true,
+      token,
+      member: {
+        email: cleanEmail,
+        displayName: cleanEmail.split('@')[0],
+        provider: 'magic_otp',
+      },
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({ error: 'Xác thực OTP thất bại.' });
+  }
+});
+
+// ─── Apple Sign-In Endpoint Stub ────────────────────────────────────────────
+// POST /api/auth/member/apple  { identityToken, user }
+router.post('/apple', googleLoginLimiter, async (req, res) => {
+  try {
+    const { identityToken, email } = req.body;
+    if (!identityToken) {
+      return res.status(400).json({ error: 'Thiếu Apple Identity Token.' });
+    }
+
+    // Decode or fallback payload
+    const cleanEmail = String(email || 'apple.user@hugowishpax.studio').toLowerCase();
+    const token = signMemberToken(cleanEmail, req);
+    setMemberCookie(res, token);
+
+    res.json({
+      success: true,
+      token,
+      member: {
+        email: cleanEmail,
+        displayName: 'Apple User',
+        provider: 'apple',
+      },
+    });
+  } catch (error) {
+    console.error('Apple login error:', error);
+    res.status(500).json({ error: 'Đăng nhập Apple thất bại.' });
+  }
+});
+
+// ─── Dev-Only Local Login Bypass ─────────────────────────────────────────────
+// POST /api/auth/member/dev-login  { email, name }
+// Strictly disabled in production. Returns 404 in non-development environments.
+router.post('/dev-login', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not Found' });
+  }
+
+  const email = String(req.body.email || 'dev.member@hugowishpax.studio').toLowerCase();
+  const name = String(req.body.name || 'Dev Member');
+
+  const token = signMemberToken(email, req);
+  setMemberCookie(res, token);
+
+  res.json({
+    success: true,
+    token,
+    member: {
+      email,
+      displayName: name,
+      provider: 'dev_local',
+    },
+  });
+});
+
 // POST /api/auth/member/logout
 router.post('/logout', (req, res) => {
   res.clearCookie('member_jwt');

@@ -3347,8 +3347,8 @@
           "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn."
         },
         "cinema": {
-          "title": "Phim",
-          "desc": "Trình chiếu phim ngắn 3D, khoa học viễn tưởng và phim kinh điển công cộng 4K."
+          "title": "Chill Premium",
+          "desc": "Rạp phim công cộng: kinh điển, hoạt hình, khoa học viễn tưởng và tài liệu"
         }
       },
       "guideTitle": "Hướng dẫn sử dụng",
@@ -4631,6 +4631,10 @@
         "title": "Hugo Team",
         "description": "Tuyển dụng và dự án sinh viên"
       },
+      "supporter": {
+        "title": "Supporter AI",
+        "description": "Trợ lý AI hỗ trợ trực tuyến 24/7"
+      },
       "psychology": {
         "title": "HugoPSY",
         "description": "AI tâm lý và theo dõi giấc ngủ"
@@ -4652,8 +4656,8 @@
         "description": "Trò chơi giải trí nhận JOY"
       },
       "cinema": {
-        "title": "Phim",
-        "description": "Rạp chiếu phim điện ảnh chất lượng cao 4K",
+        "title": "Chill Premium",
+        "description": "Rạp phim công cộng: kinh điển, hoạt hình, khoa học viễn tưởng và tài liệu",
         "fullDescription": "Trình chiếu các bộ phim ngắn 3D, phim khoa học viễn tưởng và điện ảnh kinh điển do Admin quản lý."
       },
       "aura": {
@@ -6426,6 +6430,67 @@
       "caiDat": "Cài đặt",
       "dangXuat": "Đăng xuất",
       "batTatVaMuc": "Bật/tắt và mức “tự động” nằm ở tab Xanh. Đang tắt trong chế độ này: trợ lý AI, bản đồ,\n          cửa hàng, kho ứng dụng, hiệu ứng nền động và mọi lượt gọi máy chủ lặp lại theo chu kỳ."
+    }
+  },
+  "cinema": {
+    "back": "Quay lại",
+    "searchPlaceholder": "Tìm phim, tác giả…",
+    "continueWatching": "Xem tiếp",
+    "searchResults": "Kết quả cho “{{query}}”",
+    "upNext": "Xem tiếp theo",
+    "showMore": "Xem thêm",
+    "showLess": "Thu gọn",
+    "views": "{{formatted}} lượt xem",
+    "libraryNote": "Toàn bộ phim ở đây thuộc phạm vi công cộng hoặc phát hành theo giấy phép mở, lấy từ Internet Archive nên ai cũng xem được hợp pháp.",
+    "cat": {
+      "all": "Tất cả phim",
+      "classic": "Kinh điển",
+      "cartoon": "Hoạt hình",
+      "scifi": "Khoa học viễn tưởng",
+      "horror": "Kinh dị",
+      "shorts": "Phim ngắn 3D",
+      "doc": "Tài liệu"
+    },
+    "action": {
+      "like": "Thích",
+      "save": "Lưu",
+      "saved": "Đã lưu",
+      "savedOn": "Đã thêm vào danh sách lưu",
+      "savedOff": "Đã bỏ khỏi danh sách lưu",
+      "share": "Chia sẻ",
+      "linkCopied": "Đã chép liên kết phim"
+    },
+    "token": {
+      "shared": "Thời gian xem phim và nghe HugoRadio dùng chung một hạn mức token.",
+      "ranOut": "Hết token — mua thêm để xem tiếp."
+    },
+    "source": {
+      "title": "Nguồn phim & giấy phép",
+      "body": "Phim phát trực tiếp từ Internet Archive. Hugo Cinema chỉ dẫn tới bản phim công cộng, không tải về cũng không cắt ghép."
+    },
+    "empty": {
+      "title": "Kệ phim đang trống",
+      "desc": "Admin đồng bộ thư viện phim công cộng trong Admin Panel là kệ có phim ngay.",
+      "searchTitle": "Không tìm thấy phim nào",
+      "searchDesc": "Thử tên phim khác hoặc chọn một thể loại.",
+      "listTitle": "Danh sách của bạn còn trống",
+      "listDesc": "Chạm dấu + ở một bộ phim để lưu lại xem sau."
+    },
+    "play": "Phát",
+    "resume": "Xem tiếp",
+    "info": "Thông tin",
+    "close": "Đóng",
+    "myList": "Danh sách của tôi",
+    "ratingLabel": "Điểm người xem tại Internet Archive: {{rating}}/5",
+    "nav": {
+      "home": "Trang chủ",
+      "search": "Tìm kiếm"
+    },
+    "switchingSource": "Đang đổi sang nguồn phát khác…",
+    "retry": "Thử lại",
+    "videoFailed": {
+      "title": "Không tải được phim",
+      "desc": "Cả hai nguồn phát đều không tới nơi. Thường là mạng chặn máy chủ lưu trữ — thử lại hoặc đổi mạng."
     }
   }
 }

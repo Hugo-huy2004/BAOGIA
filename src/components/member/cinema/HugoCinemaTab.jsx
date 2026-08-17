@@ -1,594 +1,906 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect, useRef, useCallback, useMemo, useDeferredValue, memo } from "react";
 import { useTranslation } from "react-i18next";
-import Hls from "hls.js";
-import { cinemaService } from "../../../services/classes/Cinema/CinemaService";
-import { useJoy } from "../../../lib/joyDisplay";
-import { hapticSelect } from "../../../utils/haptics";
+import useSWR from "swr";
+import { cinemaService, mediaUrl, videoSources } from "../../../services/classes/Cinema/CinemaService";
+import RadioTokenStatus, { RadioStoreModal, useRadioHeartbeat } from "../RadioTokenStatus";
+import { CINEMA_CATEGORIES } from "../../../../shared/cinemaCategories";
 import BackButton from "../shared/BackButton";
-const FALLBACK_POSTER = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop&q=80";
-const FALLBACK_BACKDROP = "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1200&auto=format&fit=crop&q=80";
-const FALLBACK_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80";
+import { hapticSelect } from "../../../utils/haptics";
 
-const handleImgError = (e, fallback = FALLBACK_POSTER) => {
-  if (e?.currentTarget) {
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = fallback;
-  }
-};
+/**
+ * Chill Premium — rạp phim công cộng của portal, dựng theo lối Netflix.
+ *
+ * Ba màn: kệ phim (hero + các hàng ngang), chi tiết phim, trình phát toàn màn
+ * hình. Bản trước tự vẽ bộ điều khiển video (thanh tiến trình, nút play, đồng
+ * hồ) mà không có tốc độ phát, phụ đề, PiP hay điều khiển bằng bàn phím; ở đây
+ * dùng `<video controls>` của trình duyệt nên có sẵn tất cả mà không viết dòng
+ * nào. 545 dòng cinema-theme.css cũng đã xoá: app khoá theme TỐI bằng class
+ * `dark` của portal nên vẫn dùng lại được token màu và hai component ví token
+ * của HugoRadio y nguyên.
+ *
+ * Ba luật của app này:
+ *   • XEM TỐN TOKEN, KHÔNG SINH JOY. Thời gian xem trừ vào đúng bộ đếm token
+ *     của HugoRadio (5 giờ/tuần, giờ cao điểm nhân đôi) — cùng `bio.radioTokens`
+ *     ở máy chủ, cùng hook `useRadioHeartbeat`, cùng cửa mua thêm.
+ *   • MỘT lượt gọi API cho cả app. Thư viện chỉ vài chục phim nên tải một lần
+ *     rồi lọc/tìm ngay tại máy: SWR gộp mọi lần mở app trong 5 phút thành một
+ *     request, còn máy chủ trả kèm Cache-Control nên lần mở sau không chạm
+ *     Render. Video và ảnh KHÔNG bao giờ đi qua máy chủ của mình.
+ *   • Mỗi phim có NHIỀU nguồn phát và trình phát tự đổi nguồn (`videoSources`):
+ *     đường từ Việt Nam tới máy dữ liệu của Internet Archive hay chết giữa
+ *     chừng, một URL chết không được phép thành một phim chết.
+ */
 
-export default function HugoCinemaTab({ bio, onBack, showToast }) {
-  const { t } = useTranslation();
-  const joy = useJoy();
+const PROGRESS_SAVE_EVERY_MS = 5000;
+// Không nhích được giây nào trong ngần này thì coi như nguồn không tới nơi —
+// đổi nguồn còn hơn để người xem nhìn vòng xoay tới lúc bỏ cuộc.
+const STALL_TIMEOUT_MS = 12000;
+const RAILS = CINEMA_CATEGORIES.filter((item) => item.id !== "all");
 
-  // 1. Quản lý Theme Light/Dark tự động theo hệ thống (không cho chọn thủ công)
-  const [isDarkTheme, setIsDarkTheme] = useState(() => {
-    return document.documentElement.classList.contains("dark") ||
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+/**
+ * Nhãn độ nét lấy từ chiều cao THẬT của bản phát (máy chủ đọc từ Internet
+ * Archive). Trường `badge` cũ mặc định "4K Ultra HD" cho mọi phim, kể cả bản
+ * quét 320×240 — nên nó đã bị bỏ. Dưới 720p thì không gắn nhãn gì.
+ */
+function qualityLabel(height) {
+  if (height >= 2160) return "4K";
+  if (height >= 1080) return "1080p";
+  if (height >= 720) return "HD";
+  return "";
+}
+
+function getNetworkState() {
+  if (typeof navigator === "undefined") return { type: "Wi-Fi", speed: "Tốt", mbps: 25, recommended: "1080p" };
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!conn) return { type: "Wi-Fi/LAN", speed: "Tốt", mbps: 25, recommended: "1080p" };
+
+  const mbps = conn.downlink ? Math.round(conn.downlink) : 15;
+  const type = (conn.effectiveType || "4g").toUpperCase();
+  let recommended = "1080p";
+  if (mbps < 3) recommended = "480p";
+  else if (mbps < 8) recommended = "720p";
+
+  return {
+    type: type === "4G" ? "4G/Wi-Fi" : type,
+    speed: `${mbps} Mbps`,
+    mbps,
+    recommended,
+  };
+}
+
+function useNetworkQuality() {
+  const [networkInfo, setNetworkInfo] = useState(() => getNetworkState());
 
   useEffect(() => {
-    const updateTheme = () => {
-      const isDark = document.documentElement.classList.contains("dark") ||
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setIsDarkTheme(isDark);
-    };
+    if (typeof navigator === "undefined") return undefined;
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!conn) return undefined;
 
-    updateTheme();
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const listener = (e) => setIsDarkTheme(e.matches);
-    mediaQuery.addEventListener("change", listener);
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-
-    return () => {
-      mediaQuery.removeEventListener("change", listener);
-      observer.disconnect();
-    };
+    const update = () => setNetworkInfo(getNetworkState());
+    conn.addEventListener("change", update);
+    return () => conn.removeEventListener("change", update);
   }, []);
 
-  // State Dữ liệu Phim
-  const [featuredMovie, setFeaturedMovie] = useState(null);
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  return networkInfo;
+}
 
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
+export default function HugoCinemaTab({ bio, onBack, showToast }) {
+  const { t, i18n } = useTranslation();
+  const network = useNetworkQuality();
 
-  // Màn hình 2: Màn Chi Tiết Phim (Movie Detail View)
-  const [detailMovie, setDetailMovie] = useState(null);
-  const [showFullSynopsis, setShowFullSynopsis] = useState(false);
+  const [tab, setTab] = useState("home");
+  const [query, setQuery] = useState("");
+  const [detail, setDetail] = useState(null);
+  const [playing, setPlaying] = useState(null);
+  const [fullDescription, setFullDescription] = useState(false);
 
-  // Màn hình 3: Màn Phát Video Fullscreen (Video Player Modal)
-  const [videoModalMovie, setVideoModalMovie] = useState(null);
-  const [videoSource, setVideoSource] = useState("");
-  const [videoFailed, setVideoFailed] = useState(false);
+  const [progress, setProgress] = useState(() => cinemaService.getProgress());
+  const [saved, setSaved] = useState(() => cinemaService.getSavedIds());
+  const [liked, setLiked] = useState(() => cinemaService.getLikedIds());
+
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-
-  // Danh sách Lưu & Yêu thích
-  const [watchlist, setWatchlist] = useState(() => cinemaService.getWatchlistIds());
-  const [likedMovies, setLikedMovies] = useState(() => cinemaService.getLikedIds());
-  const [claimedRewardMovieIds, setClaimedRewardMovieIds] = useState([]);
-  const [rewardToast, setRewardToast] = useState("");
+  const [showStore, setShowStore] = useState(false);
+  const [sourceIndex, setSourceIndex] = useState(0);
+  const [videoFailed, setVideoFailed] = useState(false);
+  // Chỉ luồng .m3u8 mới có nhiều mức; mp4 để mảng rỗng nên nút chọn tự ẩn.
+  const [qualityLevels, setQualityLevels] = useState([]);
+  const [currentQualityIndex, setCurrentQualityIndex] = useState(-1);
 
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
+  const lastSaveRef = useRef(0);
+  const lastProgressRef = useRef(0);
 
-  // 1. Tải phim nổi bật & danh sách phim từ MongoDB API
-  useEffect(() => {
-    let isMounted = true;
-    cinemaService.getFeaturedMovie().then((feat) => {
-      if (isMounted) setFeaturedMovie(feat);
-    });
-    return () => { isMounted = false; };
+  // Hạn mức xem = hạn mức nghe radio. Đồng hồ chỉ chạy khi video phát thật:
+  // `onWaiting` tắt nó, nên thời gian ngồi chờ mạng không bị tính tiền.
+  const { tokenStatus, loading: tokenLoading, refetch: refetchTokens } = useRadioHeartbeat(bio, isPlaying);
+  const outOfTokens = Boolean(tokenStatus && !tokenStatus.canListen);
+
+  const { data: library = [], isLoading } = useSWR(
+    "cinema/library",
+    () => cinemaService.getMovies({ limit: 100 }),
+    { revalidateOnFocus: false, dedupingInterval: 300000, keepPreviousData: true }
+  );
+
+  const compact = useMemo(
+    () => new Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 }),
+    [i18n.language]
+  );
+
+  const describe = useCallback(
+    (movie) => [
+      movie.year || null,
+      movie.duration || null,
+      qualityLabel(movie.height) || null,
+      movie.views > 0 ? t("cinema.views", { formatted: compact.format(movie.views) }) : null,
+    ].filter(Boolean).join(" · "),
+    [compact, t]
+  );
+
+  const hero = library[0] || null;
+
+  const continueWatching = useMemo(
+    () =>
+      Object.entries(progress)
+        .sort((a, b) => (b[1].at || 0) - (a[1].at || 0))
+        .map(([id]) => library.find((movie) => movie.id === id))
+        .filter(Boolean),
+    [progress, library]
+  );
+
+  // Lọc chạy trên bản trễ của ô tìm kiếm: gõ nhanh thì React vẫn vẽ kịp từng ký
+  // tự, phần lọc danh sách nhường lại cho nhịp rảnh.
+  const deferredQuery = useDeferredValue(query);
+  const results = useMemo(() => {
+    const needle = deferredQuery.trim().toLowerCase();
+    if (!needle) return library;
+    return library.filter((movie) =>
+      [movie.title, movie.creator, movie.description].some((field) =>
+        String(field || "").toLowerCase().includes(needle)
+      )
+    );
+  }, [deferredQuery, library]);
+
+  const myList = useMemo(() => library.filter((movie) => saved.includes(movie.id)), [library, saved]);
+  const sources = useMemo(() => (playing ? videoSources(playing) : []), [playing]);
+
+  // ── Mở phim ────────────────────────────────────────────────────────────────
+  const prefetchStream = useCallback((url) => {
+    if (!url || typeof document === "undefined") return;
+    try {
+      const existing = document.querySelector(`link[rel="prefetch"][href="${CSS.escape(url)}"]`);
+      if (!existing) {
+        const link = document.createElement("link");
+        link.rel = "prefetch";
+        link.href = url;
+        document.head.appendChild(link);
+      }
+    } catch (e) {}
   }, []);
 
-  const loadMovies = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await cinemaService.getMovies({
-        category: selectedCategory,
-        search: searchQuery,
-        limit: 100,
-      });
-      setMovies(list);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory, searchQuery]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      loadMovies();
-    }, 250);
-    return () => clearTimeout(timer);
-  }, [loadMovies]);
-
-  // Chuyển đường dẫn video qua Stream Proxy Backend nếu nguồn không gửi CORS headers (như Archive.org)
-  const getStreamableUrl = (url) => {
-    if (!url) return "";
-    if (url.includes("archive.org/download/") || url.includes("archive.org/details/")) {
-      return `/api/cinema/stream-proxy?url=${encodeURIComponent(url)}`;
-    }
-    return url;
-  };
-
-  // 2. Xử lý mở Màn phát Video (Screen 3)
-  const handlePlayMovie = (movie, e) => {
-    e?.stopPropagation();
+  const openDetail = useCallback(async (movie) => {
     hapticSelect();
-    setVideoModalMovie(movie);
+    setDetail(movie);
+    setFullDescription(false);
+    if (movie?.videoUrl) prefetchStream(movie.videoUrl);
+
+    // Thư viện đã có đủ trường để vẽ ngay; lượt gọi này chỉ để lấy bản mới nhất.
+    const { movie: fresh } = await cinemaService.getMovie(movie.id);
+    if (fresh) {
+      setDetail((current) => (current?.id === fresh.id ? fresh : current));
+      if (fresh?.videoUrl) prefetchStream(fresh.videoUrl);
+    }
+  }, [prefetchStream]);
+
+  const startPlaying = useCallback(async (movie) => {
+    if (outOfTokens) {
+      setShowStore(true);
+      return;
+    }
+    hapticSelect();
+    setSourceIndex(0);
     setVideoFailed(false);
+    if (movie?.videoUrl) prefetchStream(movie.videoUrl);
+
+    const tokenUrl = await cinemaService.getStreamToken(movie.id);
+    const playableMovie = tokenUrl ? { ...movie, secureStreamUrl: tokenUrl } : movie;
+    setPlaying(playableMovie);
+  }, [outOfTokens, prefetchStream]);
+
+  const stopPlaying = () => {
+    const video = videoRef.current;
+    if (video && playing) cinemaService.saveProgress(playing.id, video.currentTime, video.duration);
+    setPlaying(null);
     setIsPlaying(false);
-    const rawUrl = movie.videoUrl || movie.videoFallbackUrl;
-    const finalUrl = getStreamableUrl(rawUrl);
-    setVideoSource(finalUrl);
+    setProgress(cinemaService.getProgress());
   };
 
-  // Khởi tạo HLS.js / Video Player trong Fullscreen Modal
-  useEffect(() => {
-    if (!videoModalMovie || !videoRef.current || !videoSource) return;
-
-    const videoEl = videoRef.current;
-
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-
-    if (videoSource.endsWith(".m3u8") && Hls.isSupported()) {
-      const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-      });
-      hls.loadSource(videoSource);
-      hls.attachMedia(videoEl);
-      hlsRef.current = hls;
-    } else {
-      videoEl.src = videoSource;
-    }
-
-    try {
-      const playPromise = videoEl.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => setIsPlaying(true))
-          .catch((err) => {
-            setIsPlaying(false);
-            if (videoModalMovie?.videoFallbackUrl && videoSource !== videoModalMovie.videoFallbackUrl) {
-              setVideoSource(videoModalMovie.videoFallbackUrl);
-            }
-          });
+  /** Nguồn hiện tại không tới nơi → thử nguồn kế; hết nguồn thì nói thẳng. */
+  const nextSource = useCallback(() => {
+    setSourceIndex((index) => {
+      if (index + 1 >= sources.length) {
+        setVideoFailed(true);
+        return index;
       }
-    } catch {
-      setIsPlaying(false);
+      showToast?.(t("cinema.switchingSource"), "info");
+      return index + 1;
+    });
+  }, [sources.length, showToast, t]);
+
+  // Gắn nguồn phát. Kệ phim là file mp4 của Internet Archive; hls.js chỉ nạp khi
+  // admin tự thêm một luồng .m3u8 — nạp sẵn cho mọi người là phí băng thông.
+  useEffect(() => {
+    const video = videoRef.current;
+    const url = sources[sourceIndex];
+    if (!video || !url) return undefined;
+
+    let cancelled = false;
+    lastProgressRef.current = Date.now();
+    setQualityLevels([]);
+    setCurrentQualityIndex(-1);
+
+    if (url.includes(".m3u8")) {
+      import("hls.js").then(({ default: Hls }) => {
+        if (cancelled) return;
+        if (!Hls.isSupported()) {
+          video.src = url;
+          return;
+        }
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          backBufferLength: 180,
+          maxBufferLength: 120,
+          maxMaxBufferLength: 300,
+          maxBufferSize: 120 * 1024 * 1024,
+          maxBufferHole: 0.5,
+          highBufferWatchdogPeriod: 2,
+          progressive: true,
+          startLevel: -1,
+        });
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, (_evt, data) => {
+          setQualityLevels(
+            data.levels.map((level, index) => ({ index, label: level.height ? `${level.height}p` : `${Math.round(level.bitrate / 1000)}kbps` }))
+          );
+        });
+        hlsRef.current = hls;
+      });
+    } else {
+      video.src = url;
     }
+
+    // Xem dở thì mở lại đúng chỗ cũ, kể cả khi vừa đổi sang nguồn khác.
+    const resumeAt = cinemaService.getProgress()[playing?.id]?.seconds || 0;
+    const seek = () => { video.currentTime = resumeAt; };
+    if (resumeAt > 0) video.addEventListener("loadedmetadata", seek, { once: true });
+    video.play().catch(() => { /* trình duyệt chặn tự phát: người xem bấm nút play */ });
+
+    // Canh nguồn đứng hình. `onError` chỉ nổ khi kết nối bị từ chối; một máy dữ
+    // liệu im lặng thì trình duyệt cứ chờ tới `ERR_TIMED_OUT` — cả phút trắng.
+    const watchdog = setInterval(() => {
+      const stalled = Date.now() - lastProgressRef.current > STALL_TIMEOUT_MS;
+      if (stalled && !video.paused && video.readyState < 3) nextSource();
+    }, 4000);
 
     return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
+      cancelled = true;
+      clearInterval(watchdog);
+      video.removeEventListener("loadedmetadata", seek);
+      hlsRef.current?.destroy();
+      hlsRef.current = null;
     };
-  }, [videoModalMovie, videoSource]);
+  }, [sources, sourceIndex, playing?.id, nextSource]);
 
-  // Thưởng JOY khi xem trọn vẹn
-  const handleVideoEnded = async () => {
-    if (!videoModalMovie || claimedRewardMovieIds.includes(videoModalMovie.id)) return;
+  // Hết token thì dừng ngay giữa phim: để chạy tiếp là cho xem không tính giờ.
+  useEffect(() => {
+    if (outOfTokens && videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+      showToast?.(t("cinema.token.ranOut"), "warning");
+      setShowStore(true);
+    }
+  }, [outOfTokens, showToast, t]);
+
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    lastProgressRef.current = Date.now();
+    if (!video || !playing) return;
+    if (Date.now() - lastSaveRef.current < PROGRESS_SAVE_EVERY_MS) return;
+    lastSaveRef.current = Date.now();
+    cinemaService.saveProgress(playing.id, video.currentTime, video.duration);
+  };
+
+  const handleEnded = () => {
+    if (!playing) return;
+    setIsPlaying(false);
+    cinemaService.clearProgress(playing.id);
+    setProgress(cinemaService.getProgress());
+  };
+
+  const toggleSaved = useCallback((id, event) => {
+    event?.stopPropagation();
+    hapticSelect();
+    const added = cinemaService.toggleSaved(id);
+    setSaved(cinemaService.getSavedIds());
+    showToast?.(added ? t("cinema.action.savedOn") : t("cinema.action.savedOff"), "info");
+  }, [showToast, t]);
+
+  const toggleLiked = useCallback((id, event) => {
+    event?.stopPropagation();
+    hapticSelect();
+    cinemaService.toggleLiked(id);
+    setLiked(cinemaService.getLikedIds());
+  }, []);
+
+  const shareMovie = async (movie) => {
+    const url = movie.sourceUrl || window.location.href;
     try {
-      const reward = videoModalMovie.joyReward || 100;
-      await fetch('/api/joy/reward', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: bio?.email, amount: reward, type: "cinema_watch_complete" })
-      }).catch(() => {});
-      setClaimedRewardMovieIds((prev) => [...prev, videoModalMovie.id]);
-      const msg = `Thưởng +${joy.text(reward)} khi xem trọn vẹn phim ${videoModalMovie.title}!`;
-      setRewardToast(msg);
-      showToast?.(msg, "success");
-      setTimeout(() => setRewardToast(""), 4000);
+      if (navigator.share) await navigator.share({ title: movie.title, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        showToast?.(t("cinema.action.linkCopied"), "success");
+      }
     } catch {
-      // Bỏ qua lỗi mạng
+      // Người xem đóng bảng chia sẻ — không phải lỗi.
     }
   };
 
-  // Định dạng thời gian video (02:15:00)
-  const formatTime = (seconds) => {
-    if (isNaN(seconds) || seconds <= 0) return "00:00:00";
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  };
+  const tokenPanel = (
+    <div className="px-4">
+      <RadioTokenStatus status={tokenStatus} loading={tokenLoading} onBuyMore={() => setShowStore(true)} />
+      <p className="mt-2 text-[13px] text-muted-foreground">{t("cinema.token.shared")}</p>
+    </div>
+  );
 
-  // Thêm/Xóa Yêu thích bằng CinemaService OOP
-  const toggleLike = (movieId, e) => {
-    e?.stopPropagation();
-    hapticSelect();
-    cinemaService.toggleLike(movieId);
-    setLikedMovies(cinemaService.getLikedIds());
-  };
+  return (
+    // `dark` khoá app ở theme tối kể cả khi portal đang sáng — rạp phim thì tối.
+    <div className="dark relative flex h-full flex-col bg-background text-foreground">
+      <header
+        className="shrink-0 border-b border-border/60 bg-background"
+        style={{ paddingTop: "max(4px, env(safe-area-inset-top, 0px))" }}
+      >
+        <div className="flex items-center gap-2 px-2">
+          <BackButton onClick={onBack} label={t("cinema.back")} iconOnly />
+          <p className="min-w-0 flex-1 truncate text-center text-[17px] font-black tracking-[0.14em]">
+            <span className="text-rose-600">CHILL</span>
+            <span className="text-foreground"> PREMIUM</span>
+          </p>
+          <span className="h-11 w-11" aria-hidden="true" />
+        </div>
+      </header>
 
-  // Thêm/Xóa Watchlist bằng CinemaService OOP
-  const toggleWatchlist = (movieId, e) => {
-    e?.stopPropagation();
-    hapticSelect();
-    const added = cinemaService.toggleWatchlist(movieId);
-    setWatchlist(cinemaService.getWatchlistIds());
-    showToast?.(
-      added ? t("cinema.addedWatchlist", "Đã thêm vào danh sách xem sau") : t("cinema.removedWatchlist", "Đã xóa khỏi danh sách xem sau"),
-      "info"
-    );
-  };
-
-  // Danh sách Phim Tiếp Tục Xem & Phim Xu Hướng
-  const continueMovies = movies.slice(0, 5);
-  const trendingMovies = movies.slice(5);
-
-  return createPortal(
-    <div className={`fixed inset-0 z-[99999] w-screen h-screen overflow-y-auto ${isDarkTheme ? "bg-[#0d0e15] text-white" : "bg-[#f5f6fa] text-slate-900"} cinema-app ${!isDarkTheme ? "is-light-theme" : ""}`}>
-      {/* ── MÀN HÌNH 2: DETAIL PAGE / SHEET VIEW ── */}
-      {detailMovie ? (
-        <div className="cinema-detail-view">
-          {/* Top Hero Backdrop với Nút Back & Share */}
-          <div className="cinema-detail-hero">
-            <img
-              src={detailMovie.backdrop || detailMovie.poster || FALLBACK_BACKDROP}
-              alt={detailMovie.title}
-              className="cinema-detail-poster-bg"
-              onError={(e) => handleImgError(e, FALLBACK_BACKDROP)}
-            />
-            <div className="cinema-detail-hero-overlay" />
-
-            <div className="cinema-detail-top-nav">
-              <button type="button" className="cinema-nav-circle-btn" onClick={() => setDetailMovie(null)}>
-                <span className="material-symbols-outlined">arrow_back</span>
-              </button>
-              <button type="button" className="cinema-nav-circle-btn" onClick={() => showToast?.("Đã chia sẻ liên kết phim", "info")}>
-                <span className="material-symbols-outlined">ios_share</span>
-              </button>
-            </div>
-
-            {/* Giant Central Play Button ▶ */}
-            <div className="cinema-detail-giant-play" onClick={(e) => handlePlayMovie(detailMovie, e)}>
-              <span className="material-symbols-outlined text-[44px]">play_arrow</span>
-            </div>
-          </div>
-
-          {/* Chi tiết Tiêu đề, Tags, Mô tả, Cast */}
-          <div className="cinema-detail-content">
-            <div className="cinema-detail-header-row">
-              <h1 className="cinema-detail-main-title">
-                {detailMovie.title} <span>({detailMovie.year})</span>
-              </h1>
-              <button
-                type="button"
-                className={`cinema-favorite-heart-btn ${likedMovies.includes(detailMovie.id) ? "is-active" : ""}`}
-                onClick={(e) => toggleLike(detailMovie.id, e)}
-              >
-                <span className="material-symbols-outlined">favorite</span>
-              </button>
-            </div>
-
-            {/* Thể loại phim */}
-            <div className="cinema-detail-genres">
-              {Array.isArray(detailMovie.genres) ? detailMovie.genres.join(" • ") : "Hài • Kinh Điển • Điện Ảnh"}
-            </div>
-
-            {/* Metadata Pills Tags */}
-            <div className="cinema-detail-meta-pills">
-              <span className="cinema-pill-tag">⏱ {detailMovie.formattedDuration}</span>
-              <span className="cinema-pill-tag is-red">{detailMovie.mpaaRating || "PG-13"}</span>
-              <span className="cinema-pill-tag is-gold">⭐ IMDb {detailMovie.imdbRating || "9.0"}</span>
-              <span className="cinema-pill-tag">{detailMovie.badge || "4K Ultra HD"}</span>
-              <span className="cinema-pill-tag is-red">+{joy.text(detailMovie.joyReward)}</span>
-            </div>
-
-            {/* Synopsis Mô Tả Phim */}
-            <p className="cinema-detail-synopsis">
-              {showFullSynopsis ? detailMovie.description : `${detailMovie.description.slice(0, 140)}...`}
-              <span className="cinema-read-more" onClick={() => setShowFullSynopsis(!showFullSynopsis)}>
-                {showFullSynopsis ? " Thu gọn" : " Xem thêm"}
-              </span>
-            </p>
-
-            {/* Cast Diễn Viên */}
-            {Array.isArray(detailMovie.cast) && detailMovie.cast.length > 0 && (
-              <div className="cinema-cast-section">
-                <div className="cinema-section-header !p-0">
-                  <h3 className="cinema-section-title">Diễn Viên (Cast)</h3>
-                  <span className="cinema-see-all">Xem tất cả</span>
-                </div>
-                <div className="cinema-cast-row">
-                  {detailMovie.cast.map((actor, idx) => (
-                    <div key={idx} className="cinema-cast-item">
-                      <img src={actor.avatar || FALLBACK_AVATAR} alt={actor.name} onError={(e) => handleImgError(e, FALLBACK_AVATAR)} />
-                      <span className="cinema-cast-name">{actor.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+      <div className="min-h-0 flex-1 overflow-y-auto pb-4">
+        {isLoading && !library.length ? (
+          <LibrarySkeleton />
+        ) : !library.length ? (
+          <EmptyShelf />
+        ) : tab === "home" ? (
+          <>
+            {hero && (
+              <Hero
+                movie={hero}
+                inList={saved.includes(hero.id)}
+                onPlay={() => startPlaying(hero)}
+                onDetail={() => openDetail(hero)}
+                onToggleList={(event) => toggleSaved(hero.id, event)}
+              />
             )}
 
-            {/* Phim Tương Tự (More Like This) */}
-            <div className="cinema-cast-section mt-8">
-              <div className="cinema-section-header !p-0">
-                <h3 className="cinema-section-title">Phim Tương Tự</h3>
-                <span className="cinema-see-all" onClick={() => setDetailMovie(null)}>Xem tất cả</span>
-              </div>
-              <div className="cinema-continue-row !p-0 !pt-3">
-                {movies.filter((m) => m.id !== detailMovie.id).slice(0, 6).map((m) => (
-                  <div key={m.id} className="cinema-continue-card" onClick={() => setDetailMovie(m)}>
-                    <img src={m.backdrop || m.poster || FALLBACK_POSTER} alt={m.title} onError={(e) => handleImgError(e, FALLBACK_POSTER)} />
-                    <div className="cinema-play-overlay">
-                      <div className="cinema-play-btn-circle">
-                        <span className="material-symbols-outlined">play_arrow</span>
-                      </div>
-                    </div>
-                    <div className="cinema-continue-info">
-                      <div className="cinema-continue-title">{m.title}</div>
-                      <div className="cinema-continue-time">⏱ {m.formattedDuration}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* ── MÀN HÌNH 1: HOME / FEED PAGE ── */
-        <>
-          {/* HEADER USER PROFILE */}
-          <header className="cinema-home-header">
-            <div className="cinema-user-profile">
-              <BackButton onClick={onBack} className="!p-1" />
-              <img
-                src={bio?.avatarUrl || FALLBACK_AVATAR}
-                alt="Avatar"
-                className="cinema-user-avatar"
-                onError={(e) => handleImgError(e, FALLBACK_AVATAR)}
-              />
-              <div>
-                <div className="cinema-user-greeting">
-                  <span>Hi Welcome</span>
-                  <span>👋</span>
-                </div>
-                <div className="cinema-user-name">{bio?.name || "Jayme Holden"}</div>
-              </div>
-            </div>
+            {continueWatching.length > 0 && (
+              <Rail title={t("cinema.continueWatching")} movies={continueWatching} onOpen={openDetail} progress={progress} />
+            )}
 
-            <div className="cinema-header-actions">
-              <button
-                type="button"
-                className="cinema-icon-btn"
-                onClick={() => setShowSearch(!showSearch)}
-              >
-                <span className="material-symbols-outlined">search</span>
-              </button>
-            </div>
-          </header>
-
-          {/* SEARCH BAR EXPAND */}
-          {showSearch && (
-            <div className="cinema-search-bar">
-              <div className="cinema-search-input-wrap">
-                <span className="material-symbols-outlined">search</span>
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm phim Hài Sạc Lô, 3D, Kinh điển..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
+            {RAILS.map((item) => {
+              const movies = library.filter((movie) => movie.category === item.id);
+              if (!movies.length) return null;
+              return (
+                <Rail
+                  key={item.id}
+                  title={t(`cinema.cat.${item.id}`)}
+                  movies={movies}
+                  onOpen={openDetail}
+                  progress={progress}
                 />
-              </div>
-            </div>
-          )}
+              );
+            })}
 
-          {/* FEATURED SPOTLIGHT CAROUSEL BANNER */}
-          {featuredMovie && !searchQuery && (
-            <div className="cinema-hero-banner" onClick={() => setDetailMovie(featuredMovie)}>
-              <img
-                src={featuredMovie.backdrop || featuredMovie.poster || FALLBACK_BACKDROP}
-                alt={featuredMovie.title}
-                className="cinema-hero-img"
-                onError={(e) => handleImgError(e, FALLBACK_BACKDROP)}
+            <div className="mt-6">{tokenPanel}</div>
+            <p className="mt-6 px-4 text-[13px] leading-relaxed text-muted-foreground">{t("cinema.libraryNote")}</p>
+          </>
+        ) : tab === "search" ? (
+          <div className="px-4 pt-4">
+            <div className="flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-3">
+              <span className="material-symbols-outlined text-[20px] text-muted-foreground" aria-hidden="true">search</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t("cinema.searchPlaceholder")}
+                aria-label={t("cinema.searchPlaceholder")}
+                className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
               />
-              <div className="cinema-hero-gradient" />
-              <div className="cinema-hero-body">
-                <span className="cinema-hero-tag">Phim Nổi Bật</span>
-                <h2 className="cinema-hero-title">{featuredMovie.title}</h2>
-                <div className="cinema-dots-indicator">
-                  <div className="cinema-dot is-active" />
-                  <div className="cinema-dot" />
-                  <div className="cinema-dot" />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SECTION 1: CONTINUE WATCHING (TIẾP TỤC XEM) */}
-          {continueMovies.length > 0 && (
-            <section>
-              <div className="cinema-section-header">
-                <h3 className="cinema-section-title">Continue Watching</h3>
-                <span className="cinema-see-all">Xem tất cả</span>
-              </div>
-
-              <div className="cinema-continue-row">
-                {continueMovies.map((movie) => (
-                  <div key={movie.id} className="cinema-continue-card" onClick={() => setDetailMovie(movie)}>
-                    <img
-                      src={movie.backdrop || movie.poster || FALLBACK_POSTER}
-                      alt={movie.title}
-                      onError={(e) => handleImgError(e, FALLBACK_POSTER)}
-                    />
-                    <div className="cinema-play-overlay">
-                      <div className="cinema-play-btn-circle" onClick={(e) => handlePlayMovie(movie, e)}>
-                        <span className="material-symbols-outlined">play_arrow</span>
-                      </div>
-                    </div>
-                    <div className="cinema-continue-info">
-                      <div className="cinema-continue-title">{movie.title}</div>
-                      <div className="cinema-continue-time">⏱ {movie.formattedDuration}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* SECTION 2: TRENDING NOW (XU HƯỚNG HÀNG ĐẦU) */}
-          <section>
-            <div className="cinema-section-header">
-              <h3 className="cinema-section-title">Danh Sách Phim Hệ Thống</h3>
-              {movies.length > 0 && <span className="cinema-see-all">Xem tất cả</span>}
             </div>
 
-            {loading ? (
-              <div className="py-12 text-center text-zinc-400">
-                <p className="animate-pulse text-sm">Đang tải phim từ MongoDB API...</p>
-              </div>
-            ) : movies.length === 0 ? (
-              <div className="py-16 text-center px-6 space-y-3 bg-black/20 rounded-3xl border border-white/10 my-4">
-                <span className="material-symbols-outlined text-5xl text-rose-500">video_library</span>
-                <h3 className="text-sm font-black text-white">Chưa Có Phim Trong Cơ Sở Dữ Liệu</h3>
-                <p className="text-xs text-zinc-400 max-w-xs mx-auto">
-                  Dữ liệu phim do Admin trực tiếp quản lý trong bảng điều khiển Admin Panel.
-                </p>
-              </div>
-            ) : (
-              <div className="cinema-poster-grid">
-                {trendingMovies.map((movie) => (
-                  <div key={movie.id} className="cinema-poster-card" onClick={() => setDetailMovie(movie)}>
-                    <div className="cinema-poster-thumb-box">
-                      <img
-                        src={movie.poster || FALLBACK_POSTER}
-                        alt={movie.title}
-                        loading="lazy"
-                        onError={(e) => handleImgError(e, FALLBACK_POSTER)}
-                      />
-                      <div className="cinema-rating-badge">
-                        <span className="material-symbols-outlined text-[13px]">star</span>
-                        {movie.rating || "5.0"}
-                      </div>
-                    </div>
-                    <div className="cinema-poster-title">{movie.title}</div>
-                    <div className="cinema-poster-meta">⏱ {movie.formattedDuration || movie.duration}</div>
-                  </div>
-                ))}
-              </div>
+            {query.trim() && (
+              <h2 className="mt-5 text-[15px] font-black">{t("cinema.searchResults", { query: query.trim() })}</h2>
             )}
-          </section>
-        </>
+            <Grid
+              movies={results}
+              emptyTitle={t("cinema.empty.searchTitle")}
+              emptyDesc={t("cinema.empty.searchDesc")}
+              onOpen={openDetail}
+              progress={progress}
+            />
+          </div>
+        ) : (
+          <div className="px-4 pt-4">
+            <h2 className="text-[15px] font-black">{t("cinema.myList")}</h2>
+            <Grid
+              movies={myList}
+              emptyTitle={t("cinema.empty.listTitle")}
+              emptyDesc={t("cinema.empty.listDesc")}
+              onOpen={openDetail}
+              progress={progress}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Thanh điều hướng kiểu Netflix: ba đích đến, không có "Tải xuống" vì phim
+          phát trực tiếp từ nguồn công cộng, app không giữ bản sao nào trên máy. */}
+      <nav
+        className="shrink-0 border-t border-border/60 bg-background"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      >
+        <div className="flex">
+          {[
+            { id: "home", icon: "home", label: t("cinema.nav.home") },
+            { id: "search", icon: "search", label: t("cinema.nav.search") },
+            { id: "list", icon: "bookmark", label: t("cinema.myList") },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => { hapticSelect(); setTab(item.id); }}
+              aria-current={tab === item.id}
+              className={`flex h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-bold transition-colors ${
+                tab === item.id ? "text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[22px]" aria-hidden="true">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {detail && (
+        <DetailScreen
+          movie={detail}
+          related={library.filter((movie) => movie.category === detail.category && movie.id !== detail.id).slice(0, 8)}
+          liked={liked.includes(detail.id)}
+          inList={saved.includes(detail.id)}
+          fullDescription={fullDescription}
+          describe={describe}
+          progress={progress}
+          onToggleDescription={() => setFullDescription((value) => !value)}
+          onPlay={() => startPlaying(detail)}
+          onToggleList={(event) => toggleSaved(detail.id, event)}
+          onToggleLike={(event) => toggleLiked(detail.id, event)}
+          onShare={() => shareMovie(detail)}
+          onOpen={openDetail}
+          onClose={() => setDetail(null)}
+          tokenPanel={tokenPanel}
+        />
       )}
 
-      {/* ── MÀN HÌNH 3: FULLSCREEN VIDEO PLAYER MODAL ── */}
-      {videoModalMovie && (
-        <div className="cinema-video-modal">
-          {/* Top Bar với Nút Đóng X & Cast */}
-          <div className="cinema-video-top-bar">
-            <button
-              type="button"
-              className="cinema-nav-circle-btn"
-              onClick={() => setVideoModalMovie(null)}
-            >
-              <span className="material-symbols-outlined">close</span>
-            </button>
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-white text-xl cursor-pointer">cast</span>
-              <span className="material-symbols-outlined text-white text-xl cursor-pointer">aspect_ratio</span>
+      {playing && (
+        <div className="fixed inset-0 z-[120] flex flex-col bg-black">
+          <div className="flex items-center justify-between px-3 py-2 bg-black/80 backdrop-blur-md z-10" style={{ paddingTop: "max(6px, env(safe-area-inset-top, 0px))" }}>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <BackButton onClick={stopPlaying} label={t("cinema.close")} tone="onDark" iconOnly />
+              <p className="truncate text-xs font-bold text-white">{playing.title}</p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Network Bandwidth Speed Badge */}
+              <div className="flex items-center gap-1 bg-black/60 border border-emerald-500/40 px-2.5 py-1 rounded-full text-[10px] font-bold text-emerald-300">
+                <span className="material-symbols-outlined text-[13px] text-emerald-400">wifi</span>
+                <span>{network.type} ({network.speed})</span>
+                <span className="opacity-70 font-normal hidden sm:inline">• Gợi ý {network.recommended}</span>
+              </div>
+
+              {/* GPU Hardware Resolution Switcher */}
+              {qualityLevels.length > 0 && (
+                <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-[11px] font-bold text-white shrink-0 border border-white/15">
+                  <span className="material-symbols-outlined text-xs text-rose-400">memory</span>
+                  <select
+                    value={currentQualityIndex}
+                    onChange={(e) => {
+                      const idx = parseInt(e.target.value, 10);
+                      setCurrentQualityIndex(idx);
+                      if (hlsRef.current) {
+                        hlsRef.current.currentLevel = idx;
+                      }
+                    }}
+                    className="bg-transparent text-white focus:outline-none cursor-pointer font-bold text-[11px]"
+                  >
+                    <option value={-1} className="bg-slate-900 text-white">⚡ Tự động (GPU Local)</option>
+                    {qualityLevels.map((q) => (
+                      <option key={q.index} value={q.index} className="bg-slate-900 text-white">
+                        🎬 {q.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Frame Video */}
-          <div className="cinema-video-frame-container">
-            <video
-              ref={videoRef}
-              className="cinema-video-element"
-              style={{ filter: "contrast(1.08) saturate(1.1) brightness(1.02)" }}
-              poster={videoModalMovie.poster}
-              controls={false}
-              playsInline
-              onTimeUpdate={() => {
-                if (videoRef.current) {
-                  setCurrentTime(videoRef.current.currentTime);
-                  setDuration(videoRef.current.duration || 0);
-                }
-              }}
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={handleVideoEnded}
-            />
+          <video
+            ref={videoRef}
+            className="min-h-0 w-full flex-1 bg-black"
+            style={{
+              transform: "translateZ(0)",
+              willChange: "transform",
+              filter: "contrast(1.02) saturate(1.04)",
+            }}
+            poster={mediaUrl(playing.poster)}
+            controls
+            autoPlay
+            playsInline
+            preload="auto"
+            onPlaying={() => { lastProgressRef.current = Date.now(); setIsPlaying(true); }}
+            onWaiting={() => setIsPlaying(false)}
+            onPause={() => setIsPlaying(false)}
+            onProgress={() => { lastProgressRef.current = Date.now(); }}
+            onTimeUpdate={handleTimeUpdate}
+            onError={nextSource}
+            onEnded={handleEnded}
+          />
 
-            {/* Thông báo Thưởng JOY */}
-            {rewardToast && (
-              <div className="cinema-reward-toast absolute top-20 left-1/2 -translate-x-1/2 z-40">
-                <span className="material-symbols-outlined text-[24px]">stars</span>
-                <span>{rewardToast}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom Floating Control Bar */}
-          <div className="cinema-video-bottom-bar">
-            {/* Timeline Progress Bar */}
-            <div
-              className="cinema-progress-bar-wrap"
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                if (videoRef.current && duration > 0) {
-                  videoRef.current.currentTime = pos * duration;
-                }
-              }}
-            >
-              <div
-                className="cinema-progress-bar-fill"
-                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
-              />
-            </div>
-
-            {/* Play/Pause, Time, Fullscreen controls */}
-            <div className="cinema-controls-row">
-              <div className="cinema-controls-left">
-                <button
-                  type="button"
-                  className="text-white hover:text-rose-500 transition-colors"
-                  onClick={() => {
-                    if (videoRef.current) {
-                      if (isPlaying) videoRef.current.pause();
-                      else videoRef.current.play();
-                    }
-                  }}
-                >
-                  <span className="material-symbols-outlined text-[32px]">
-                    {isPlaying ? "pause" : "play_arrow"}
-                  </span>
-                </button>
-                <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
-              </div>
-
+          {videoFailed && (
+            <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 rounded-2xl bg-black/85 p-5 text-center">
+              <span className="material-symbols-outlined text-[32px] text-rose-500" aria-hidden="true">wifi_off</span>
+              <p className="mt-2 text-[15px] font-bold text-white">{t("cinema.videoFailed.title")}</p>
+              <p className="mt-1 text-[13px] text-white/70">{t("cinema.videoFailed.desc")}</p>
               <button
                 type="button"
-                className="text-white hover:text-rose-500 transition-colors"
-                onClick={() => {
-                  if (videoRef.current?.requestFullscreen) {
-                    videoRef.current.requestFullscreen();
-                  }
-                }}
+                onClick={() => { setSourceIndex(0); setVideoFailed(false); }}
+                className="mt-3 h-11 w-full rounded-xl bg-rose-600 text-[15px] font-black text-white"
               >
-                <span className="material-symbols-outlined text-[24px]">fullscreen</span>
+                {t("cinema.retry")}
               </button>
             </div>
-          </div>
+          )}
         </div>
       )}
-    </div>,
-    document.body
+
+      {showStore && (
+        <RadioStoreModal
+          bio={bio}
+          showToast={showToast}
+          onClose={() => setShowStore(false)}
+          onPurchased={refetchTokens}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Hero. Ảnh tĩnh 12KB lên trước để màn hình không trống, ảnh động cắt từ chính
+ * bộ phim (khi Internet Archive có) chỉ hiện khi tải xong — mạng yếu thì người
+ * xem không phải chờ 400KB mới thấy gì.
+ */
+function Hero({ movie, inList, onPlay, onDetail, onToggleList }) {
+  const { t } = useTranslation();
+  const [previewReady, setPreviewReady] = useState(false);
+
+  return (
+    <section className="relative">
+      <img
+        src={mediaUrl(movie.poster)}
+        alt=""
+        loading="eager"
+        decoding="async"
+        className="aspect-[4/5] w-full object-cover sm:aspect-[16/9]"
+      />
+      {movie.preview && (
+        <img
+          src={mediaUrl(movie.preview)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setPreviewReady(true)}
+          onError={() => setPreviewReady(false)}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${previewReady ? "opacity-100" : "opacity-0"}`}
+        />
+      )}
+      {/* Lớp tối này để chữ đọc được trên ảnh, không phải để trang trí. */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/45 to-transparent" />
+
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-4">
+        <h2 className="text-[24px] font-black leading-tight text-white drop-shadow">{movie.title}</h2>
+        <p className="mt-1 text-[13px] text-white/80">
+          {[movie.year || null, movie.duration || null, qualityLabel(movie.height) || null].filter(Boolean).join(" · ")}
+        </p>
+
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onPlay}
+            className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-rose-600 text-[15px] font-black text-white transition-transform active:scale-[0.98]"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">play_arrow</span>
+            {t("cinema.play")}
+          </button>
+          <button
+            type="button"
+            onClick={onToggleList}
+            aria-pressed={inList}
+            aria-label={t(inList ? "cinema.action.saved" : "cinema.action.save")}
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/25 bg-black/40 text-white"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">{inList ? "check" : "add"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={onDetail}
+            aria-label={t("cinema.info")}
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/25 bg-black/40 text-white"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">info</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Một hàng ngang kiểu Netflix. */
+const Rail = memo(function Rail({ title, movies, onOpen, progress }) {
+  return (
+    <section className="mt-6">
+      <h2 className="px-4 text-[15px] font-black">{title}</h2>
+      <div className="mt-2 flex snap-x gap-3 overflow-x-auto px-4 pb-1">
+        {movies.map((movie) => (
+          <div key={movie.id} className="w-[168px] shrink-0 snap-start">
+            <PosterCard movie={movie} onOpen={onOpen} watched={progress[movie.id]?.seconds || 0} />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+});
+
+const Grid = memo(function Grid({ movies, emptyTitle, emptyDesc, onOpen, progress }) {
+  if (!movies.length) {
+    return (
+      <div className="mt-6 rounded-2xl border border-border bg-card px-6 py-12 text-center">
+        <span className="material-symbols-outlined text-[40px] text-muted-foreground" aria-hidden="true">movie</span>
+        <p className="mt-2 text-[15px] font-bold text-foreground">{emptyTitle}</p>
+        <p className="mx-auto mt-1 max-w-xs text-[13px] text-muted-foreground">{emptyDesc}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      {movies.map((movie) => (
+        <PosterCard key={movie.id} movie={movie} onOpen={onOpen} watched={progress[movie.id]?.seconds || 0} />
+      ))}
+    </div>
+  );
+});
+
+/**
+ * Thẻ phim. Ảnh của Internet Archive là khung hình ngang 180px, nên thẻ giữ
+ * đúng tỉ lệ 16:9 — bó vào khung dọc kiểu poster thì phải phóng gấp đôi và cắt
+ * mất hai bên. `memo` để cuộn một hàng không vẽ lại cả kệ.
+ */
+const PosterCard = memo(function PosterCard({ movie, onOpen, watched = 0 }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(movie)}
+      className="w-full rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-500"
+    >
+      <div className="relative aspect-video overflow-hidden rounded-lg bg-muted">
+        <img
+          src={mediaUrl(movie.poster)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover"
+          onError={(event) => { event.currentTarget.style.visibility = "hidden"; }}
+        />
+        {movie.duration && (
+          <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-white">
+            {movie.duration}
+          </span>
+        )}
+        {qualityLabel(movie.height) && (
+          <span className="absolute left-1 top-1 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-black text-white">
+            {qualityLabel(movie.height)}
+          </span>
+        )}
+        {watched > 0 && movie.durationSeconds > 0 && (
+          <div className="absolute inset-x-0 bottom-0 h-[3px] bg-black/50">
+            <div
+              className="h-full bg-rose-600"
+              style={{ width: `${Math.min(100, (watched / movie.durationSeconds) * 100)}%` }}
+            />
+          </div>
+        )}
+      </div>
+      <p className="mt-1.5 line-clamp-2 text-[13px] font-bold leading-snug text-foreground">{movie.title}</p>
+    </button>
+  );
+});
+
+function DetailScreen({
+  movie, related, liked, inList, fullDescription, describe, progress,
+  onToggleDescription, onPlay, onToggleList, onToggleLike, onShare, onOpen, onClose, tokenPanel,
+}) {
+  const { t } = useTranslation();
+  const description = movie.description || "";
+  const isLong = description.length > 240;
+
+  return (
+    <div className="absolute inset-0 z-[110] flex flex-col overflow-y-auto bg-background">
+      <div className="relative shrink-0">
+        <img src={mediaUrl(movie.preview || movie.poster)} alt="" decoding="async" className="aspect-video w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-black/40" />
+        <div
+          className="absolute inset-x-0 top-0 flex items-center justify-between px-2"
+          style={{ paddingTop: "max(4px, env(safe-area-inset-top, 0px))" }}
+        >
+          <BackButton onClick={onClose} label={t("cinema.back")} tone="onDark" iconOnly />
+          <button
+            type="button"
+            onClick={onToggleLike}
+            aria-pressed={liked}
+            aria-label={t("cinema.action.like")}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-white"
+          >
+            <span className={`material-symbols-outlined ${liked ? "text-rose-500" : ""}`} aria-hidden="true">
+              {liked ? "favorite" : "favorite_border"}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 pb-10">
+        <h1 className="text-[20px] font-black leading-snug text-foreground">{movie.title}</h1>
+        <p className="mt-1 text-[13px] text-muted-foreground">{describe(movie)}</p>
+        {movie.creator && <p className="mt-0.5 text-[13px] text-muted-foreground">{movie.creator}</p>}
+
+        {movie.rating > 0 && (
+          <div className="mt-2 flex items-center gap-1" aria-label={t("cinema.ratingLabel", { rating: movie.rating.toFixed(1) })}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                aria-hidden="true"
+                className={`material-symbols-outlined text-[18px] ${star <= Math.round(movie.rating) ? "text-amber-400" : "text-muted-foreground/40"}`}
+              >
+                star
+              </span>
+            ))}
+            <span className="ml-1 text-[13px] text-muted-foreground">{movie.rating.toFixed(1)}</span>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onPlay}
+          className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-rose-600 text-[15px] font-black text-white transition-transform active:scale-[0.98]"
+        >
+          <span className="material-symbols-outlined text-[22px]" aria-hidden="true">play_arrow</span>
+          {progress[movie.id]?.seconds > 0 ? t("cinema.resume") : t("cinema.play")}
+        </button>
+
+        <div className="mt-3 flex justify-around">
+          <IconAction
+            icon={inList ? "check" : "add"}
+            label={t(inList ? "cinema.action.saved" : "cinema.action.save")}
+            onClick={onToggleList}
+          />
+          <IconAction icon="ios_share" label={t("cinema.action.share")} onClick={onShare} />
+        </div>
+
+        {description && (
+          <>
+            <p className={`mt-4 whitespace-pre-line text-[14px] leading-relaxed text-foreground/90 ${!fullDescription && isLong ? "line-clamp-5" : ""}`}>
+              {description}
+            </p>
+            {isLong && (
+              <button type="button" onClick={onToggleDescription} className="h-11 text-[14px] font-bold text-rose-500">
+                {fullDescription ? t("cinema.showLess") : t("cinema.showMore")}
+              </button>
+            )}
+          </>
+        )}
+
+        <div className="-mx-4 mt-4">{tokenPanel}</div>
+
+        <SourceNote movie={movie} />
+
+        {related.length > 0 && (
+          <section className="mt-6">
+            <h2 className="text-[15px] font-black">{t("cinema.upNext")}</h2>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {related.map((item) => (
+                <PosterCard key={item.id} movie={item} onOpen={onOpen} watched={progress[item.id]?.seconds || 0} />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function IconAction({ icon, label, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-14 min-w-[72px] flex-col items-center justify-center gap-0.5 text-[12px] font-bold text-muted-foreground"
+    >
+      <span className="material-symbols-outlined text-[24px] text-foreground" aria-hidden="true">{icon}</span>
+      {label}
+    </button>
+  );
+}
+
+/** Nguồn và giấy phép của bản phim: điều kiện để xem hợp pháp, không phải chú thích trang trí. */
+function SourceNote({ movie }) {
+  const { t } = useTranslation();
+  if (!movie.sourceUrl && !movie.license) return null;
+
+  return (
+    <div className="mt-4 flex items-start gap-2 rounded-2xl border border-border bg-card p-4">
+      <span className="material-symbols-outlined shrink-0 text-[20px] text-muted-foreground" aria-hidden="true">gavel</span>
+      <div className="min-w-0 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="font-bold text-foreground">{t("cinema.source.title")}</p>
+        <p className="mt-1">{t("cinema.source.body")}</p>
+        {movie.license && (
+          <a href={movie.license} target="_blank" rel="noreferrer noopener" className="mt-1 block break-all underline">
+            {movie.license}
+          </a>
+        )}
+        {movie.sourceUrl && (
+          <a href={movie.sourceUrl} target="_blank" rel="noreferrer noopener" className="mt-1 block break-all underline">
+            {movie.sourceUrl}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LibrarySkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="aspect-[4/5] w-full bg-muted sm:aspect-[16/9]" />
+      <div className="mt-6 flex gap-3 px-4">
+        {[0, 1, 2].map((slot) => (
+          <div key={slot} className="h-[110px] w-[168px] shrink-0 rounded-lg bg-muted" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EmptyShelf() {
+  const { t } = useTranslation();
+  return (
+    <div className="mx-4 mt-10 rounded-2xl border border-border bg-card px-6 py-14 text-center">
+      <span className="material-symbols-outlined text-[44px] text-muted-foreground" aria-hidden="true">movie</span>
+      <p className="mt-2 text-[15px] font-bold text-foreground">{t("cinema.empty.title")}</p>
+      <p className="mx-auto mt-1 max-w-xs text-[13px] text-muted-foreground">{t("cinema.empty.desc")}</p>
+    </div>
   );
 }

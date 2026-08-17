@@ -27,6 +27,7 @@ import { getLockedFields, fieldLabel } from "./constants/bioFields";
 import { webPushHelper } from "../../../utils/webPushHelper";
 import { useKeyboardInset, useVirtualKeyboardOptIn } from "../../../hooks/useKeyboardVisible";
 import { useChatEngine } from "./hooks/useChatEngine";
+import { joyText } from "../../../lib/joyDisplay";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
 import { computeAdaptivePersona } from "./utils/adaptivePersonaEngine";
@@ -411,7 +412,7 @@ export default function ChatTab({
   const handleUnlockFeature = useCallback(async (action) => {
     if (!bio?.email || unlockingMethodId) return;
     if (joyBalance < action.cost) {
-      showToast?.(`Bạn cần ${action.cost} JOY để mở khoá tính năng này. Số dư hiện tại: ${joyBalance} JOY.`, "warning");
+      showToast?.(`Bạn cần ${joyText(action.cost)} để mở khoá tính năng này. Số dư hiện tại: ${joyText(joyBalance)}.`, "warning");
       return;
     }
     setUnlockingMethodId(action.methodId);

@@ -6185,5 +6185,66 @@
       "dangXuat": "ログアウト",
       "batTatVaMuc": "切り替えと「自動」レベルはグリーンタブにあります。\n          このモードでは無効化されている：AI助手、マップ、ストア、アプリライブラリ、アニメーション背景、そして毎回のサーバーポリル。"
     }
+  },
+  "cinema": {
+    "back": "戻る",
+    "searchPlaceholder": "作品や制作者を検索…",
+    "continueWatching": "続きを見る",
+    "searchResults": "「{{query}}」の検索結果",
+    "upNext": "次のおすすめ",
+    "showMore": "続きを表示",
+    "showLess": "折りたたむ",
+    "views": "{{formatted}} 回視聴",
+    "libraryNote": "ここにある作品はすべてパブリックドメインまたはオープンライセンスで、Internet Archive から配信されるため誰でも合法的に視聴できます。",
+    "cat": {
+      "all": "すべての作品",
+      "classic": "名作",
+      "cartoon": "アニメ",
+      "scifi": "SF",
+      "horror": "ホラー",
+      "shorts": "3D 短編",
+      "doc": "ドキュメンタリー"
+    },
+    "action": {
+      "like": "高評価",
+      "save": "保存",
+      "saved": "保存済み",
+      "savedOn": "保存リストに追加しました",
+      "savedOff": "保存リストから削除しました",
+      "share": "共有",
+      "linkCopied": "作品のリンクをコピーしました"
+    },
+    "token": {
+      "shared": "作品の視聴と HugoRadio の再生は同じトークン枠を使います。",
+      "ranOut": "トークンがありません — 続けて見るには追加購入してください。"
+    },
+    "source": {
+      "title": "出典とライセンス",
+      "body": "Internet Archive から直接配信しています。Hugo Cinema はパブリックドメイン版を指すだけで、ダウンロードも再編集もしません。"
+    },
+    "empty": {
+      "title": "棚がまだ空です",
+      "desc": "管理パネルでパブリックドメイン作品を同期すれば、すぐに棚が埋まります。",
+      "searchTitle": "作品が見つかりません",
+      "searchDesc": "別のタイトルを試すか、カテゴリを選んでください。",
+      "listTitle": "マイリストは空です",
+      "listDesc": "作品の + を押すと後で見るために保存できます。"
+    },
+    "play": "再生",
+    "resume": "続きから再生",
+    "info": "情報",
+    "close": "閉じる",
+    "myList": "マイリスト",
+    "ratingLabel": "Internet Archive の視聴者評価：{{rating}}/5",
+    "nav": {
+      "home": "ホーム",
+      "search": "検索"
+    },
+    "switchingSource": "別の配信元に切り替えています…",
+    "retry": "再試行",
+    "videoFailed": {
+      "title": "作品を読み込めません",
+      "desc": "どちらの配信元も応答しません。ネットワークがアーカイブのサーバーに到達できない場合がほとんどです。再試行するか回線を変えてください。"
+    }
   }
 }

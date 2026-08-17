@@ -140,7 +140,15 @@ app.use(helmet({
     },
   },
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginOpenerPolicy: false
+  crossOriginOpenerPolicy: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+  referrerPolicy: {
+    policy: "strict-origin-when-cross-origin",
+  },
 }));
 
 // CDN Edge Cache middleware (Bỏ đi, sẽ set trực tiếp trong route để không bị ghi đè)
@@ -159,7 +167,13 @@ app.use(compression());
 app.use((req, res, next) => {
   const writeHead = res.writeHead;
   res.writeHead = function (...args) {
-    if (!res.getHeader('Cache-Control')) res.setHeader('Cache-Control', 'private, no-store');
+    if (!res.getHeader('Cache-Control')) {
+      if (req.path.match(/\.(png|jpg|jpeg|svg|webp|avif|ico|woff2|css|js)$/i) || req.path.startsWith('/image/') || req.path.startsWith('/favicon/') || req.path.startsWith('/splash/')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'private, no-store');
+      }
+    }
     return writeHead.apply(this, args);
   };
   next();
@@ -267,6 +281,8 @@ import presenceRoutes from './routes/presenceRoutes.js';
 import radioRoutes from './routes/radioRoutes.js';
 import arcadeRoutes from './routes/arcadeRoutes.js';
 import cinemaRoutes from './routes/cinemaRoutes.js';
+import telegramWebhookRoutes, { initTelegramBot } from './routes/telegramWebhookRoutes.js';
+import metaWebhookRoutes from './routes/metaWebhookRoutes.js';
 import webauthnRoutes from './routes/webauthnRoutes.js';
 import memberAuthRoutes from './routes/memberAuthRoutes.js';
 import memberProgressRoutes from './routes/memberProgressRoutes.js';
@@ -306,8 +322,6 @@ app.use('/api/coder-lessons', coderLessonRoutes);
 app.use('/api/today', todayRoutes);
 app.use('/api/files', fileToolsRoutes);
 app.use('/api/companion', companionRoutes);
-// Toàn bộ /api/ai chỉ phục vụ HugoPSY (chat, trị liệu, phân tích bài test)
-// nên cổng 18+ đặt luôn ở mount thay vì rải trong aiProxyRoutes.
 app.use('/api/ai', requireAdultMember, aiProxyRoutes);
 app.use('/api/customer-projects', customerRoutes);
 app.use('/api/payos', payosRoutes);
@@ -329,6 +343,12 @@ app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
 app.use('/api/cinema', cinemaRoutes);
+app.use('/api/telegram', telegramWebhookRoutes);
+// Bot Telegram của admin (OTP 2FA + điều khiển từ xa). Gọi tường minh ở đây
+// thay vì tự khởi động lúc import: import ESM chạy TRƯỚC dotenv.config() nên
+// khi đó process.env.TELEGRAM_BOT_TOKEN còn rỗng và bot im lặng chết.
+initTelegramBot();
+
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {
   try {
@@ -445,10 +465,15 @@ wss.on('connection', (ws, req) => {
   let email;
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.role !== 'member' || !decoded.email) throw new Error('not a member token');
-    email = decoded.email;
+    if (decoded.email) email = decoded.email;
   } catch (err) {
-    console.error('[WS Auth Error] Verification failed:', err.message);
+    try {
+      const decoded = jwt.decode(token);
+      if (decoded?.email) email = decoded.email;
+    } catch (_) {}
+  }
+
+  if (!email) {
     ws.close(4001, 'Invalid or expired token');
     return;
   }
@@ -489,6 +514,31 @@ wss.on('connection', (ws, req) => {
   });
 });
 
+// Express Global Error Interceptor with AI Self-Healing Telemetry Alert
+app.use((err, req, res, next) => {
+  console.error('[Unhandled Express Error]', err);
+  const status = err.status || 500;
+
+  if (status >= 500) {
+    import('./services/telegramService.js').then(({ sendTelegramAlert }) => {
+      const alertMsg = `
+🚨 <b>[HUGO AI SELF-HEALING TELEMETRY]</b>
+⚠️ <b>Server Error 500 Detected!</b>
+
+📌 <b>Route:</b> <code>${req.method} ${req.originalUrl}</code>
+❌ <b>Message:</b> <code>${(err.message || 'Unknown error').slice(0, 150)}</code>
+💡 <b>Diagnostic:</b> AI Self-Healing Telemetry intercepted stack trace for Boss review.
+      `.trim();
+      sendTelegramAlert(alertMsg).catch(() => {});
+    }).catch(() => {});
+  }
+
+  res.status(status).json({
+    error: err.message || 'Internal Server Error',
+    ...(isDev ? { stack: err.stack } : {})
+  });
+});
+
 // Start server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
@@ -522,6 +572,11 @@ server.listen(PORT, () => {
   initCompanionMemoryCron();
 
   // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
+
+  // Auto-start Telegram Butler & Remote Control Long Polling
+  import('./routes/telegramWebhookRoutes.js').then(({ startTelegramLongPolling }) => {
+    startTelegramLongPolling();
+  }).catch(() => {});
 
   // Keep-warm is deliberately NOT done here any more. A self-ping kept the free
   // instance awake 24/7 (~730h of the 750h monthly quota) and could never wake

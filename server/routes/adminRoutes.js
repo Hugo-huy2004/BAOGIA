@@ -54,27 +54,106 @@ const adminLoginLimiter = rateLimit({
 
 router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
-    const { password } = req.body;
+    const { username, password } = req.body;
 
     if (!password) {
       return res.status(400).json({ error: 'Password is required' });
     }
 
-    const admins = await Admin.find({});
     let matchingAdmin = null;
-    for (const admin of admins) {
-      if (await verifyAndUpgrade(admin, password)) {
-        matchingAdmin = admin;
-        break;
+
+    if (username && typeof username === 'string') {
+      const cleanUser = username.trim().toLowerCase();
+      const adminCandidate = await Admin.findOne({ username: cleanUser });
+      if (adminCandidate && (await verifyAndUpgrade(adminCandidate, password))) {
+        matchingAdmin = adminCandidate;
+      }
+    } else {
+      // Fallback if username was omitted
+      const admins = await Admin.find({});
+      for (const admin of admins) {
+        if (await verifyAndUpgrade(admin, password)) {
+          matchingAdmin = admin;
+          break;
+        }
       }
     }
 
     if (!matchingAdmin) {
-      return res.status(401).json({ error: 'Invalid password' });
+      return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
     }
 
+    // ─── 2FA TELEGRAM OTP REQUIREMENT ─────────────────────────────────────────────
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const tempToken = crypto.randomBytes(24).toString('hex');
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5-minute TTL
+
+    if (!global.ADMIN_2FA_OTPS) global.ADMIN_2FA_OTPS = new Map();
+    global.ADMIN_2FA_OTPS.set(tempToken, {
+      adminId: matchingAdmin._id,
+      adminUsername: matchingAdmin.username || 'admin',
+      otpCode,
+      expiresAt,
+    });
+
+    // Send 4-digit OTP directly to Boss's Telegram phone app
+    const { sendTelegramAlert } = await import('../services/telegramService.js');
+    const otpHtml = `
+🔑 <b>[HUGO ADMIN 2FA OTP]</b>
+
+Mã OTP đăng nhập Admin Dashboard của bạn là: <b>${otpCode}</b>
+
+⏱️ <i>Mã này có hiệu lực trong vòng 5 phút. Vui lòng không chia sẻ mã cho bất kỳ ai.</i>
+    `.trim();
+
+    // ponytail: không nuốt lỗi — Telegram hỏng mà vẫn báo "đã gửi" thì Boss ngồi
+    // chờ mã không bao giờ tới. Mã vẫn nằm trong log server để cứu hộ.
+    const sent = await sendTelegramAlert(otpHtml).catch((e) => ({ success: false, error: e.message }));
+    if (!sent.success || sent.simulated) {
+      console.warn(`⚠️ Admin 2FA OTP không gửi được qua Telegram (${sent.error || 'chưa cấu hình TELEGRAM_BOT_TOKEN/CHAT_ID trong server/.env'}). Mã: ${otpCode}`);
+    }
+
+    return res.json({
+      success: true,
+      requireOtp: true,
+      tempToken,
+      telegramDelivered: Boolean(sent.success && !sent.simulated),
+      message: sent.success && !sent.simulated
+        ? 'Mã OTP 4 chữ số đã được gửi tới Telegram của Boss. Vui lòng nhập mã để hoàn tất đăng nhập.'
+        : 'Không gửi được OTP qua Telegram (bot chưa cấu hình hoặc lỗi mạng). Xem mã trong log server.',
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/admin/verify-otp  { tempToken, otpCode }
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { tempToken, otpCode } = req.body;
+    if (!tempToken || !otpCode) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp mã OTP 4 chữ số.' });
+    }
+
+    if (!global.ADMIN_2FA_OTPS || !global.ADMIN_2FA_OTPS.has(tempToken)) {
+      return res.status(400).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng quay lại nhập mật khẩu.' });
+    }
+
+    const record = global.ADMIN_2FA_OTPS.get(tempToken);
+    if (Date.now() > record.expiresAt) {
+      global.ADMIN_2FA_OTPS.delete(tempToken);
+      return res.status(400).json({ error: 'Mã OTP đã hết hạn (quá 5 phút). Vui lòng thử lại.' });
+    }
+
+    if (String(otpCode).trim() !== String(record.otpCode)) {
+      return res.status(401).json({ error: 'Mã OTP không chính xác. Vui lòng kiểm tra lại Telegram.' });
+    }
+
+    // OTP Verified successfully -> Issue 14-day Admin JWT
+    global.ADMIN_2FA_OTPS.delete(tempToken);
+
     const token = jwt.sign(
-      { id: matchingAdmin._id, role: 'admin' },
+      { id: record.adminId, role: 'admin' },
       JWT_SECRET,
       { expiresIn: '14d' }
     );
@@ -86,17 +165,29 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
       maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days
     });
 
+    try {
+      const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+      await AdminAuditLog.create({
+        adminId: String(record.adminId),
+        adminUsername: record.adminUsername,
+        action: 'login_2fa_telegram',
+        ipAddress: req.ip || '',
+        userAgent: req.headers['user-agent'] || '',
+      });
+    } catch (e) {
+      console.error('[AdminAuditLog login 2fa]', e.message);
+    }
+
     res.json({
       success: true,
       token,
       admin: {
-        id: matchingAdmin._id,
+        id: record.adminId,
         role: 'admin'
       }
     });
   } catch (error) {
-    console.error('Admin login error:', error);
-    res.status(500).json({ error: 'Internal server error during login' });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1219,7 +1310,7 @@ router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
         msgLabel: `관리자 메시지:`
       },
       vi: {
-        subject: `🎁 Bạn đã nhận được Voucher JOY Đặc biệt (${voucherCode || 'GIFT-VOUCHER'})`,
+        subject: `Bạn đã nhận được Voucher JOY Đặc biệt (${voucherCode || 'GIFT-VOUCHER'})`,
         greeting: `Chào ${bio.displayName || 'Thành viên'},`,
         body: `Bạn đã nhận được voucher/quà tặng đặc biệt từ Ban Quản Trị Hugo Studio!`,
         giftText: giftJoy > 0 ? `JOY Tặng kèm: +${giftJoy.toLocaleString()} JOY` : '',
@@ -1311,17 +1402,8 @@ router.post('/users/:id/revoke-session', requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Không tìm thấy người dùng' });
     }
 
-    // Reset trusted location and mark session revoked in history
-    bio.trustedLocation = { lat: null, lng: null, updatedAt: null };
-    bio.history.push({
-      type: 'warning',
-      icon: 'logout',
-      title: 'Thu hồi phiên đăng nhập bởi Admin',
-      detail: 'Admin đã cưỡng chế đăng xuất và yêu cầu xác thực lại.',
-      timestamp: new Date()
-    });
-    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
-    await bio.save();
+    const { revokeMemberSession } = await import('../utils/memberSession.js');
+    await revokeMemberSession(bio, 'Admin');
 
     logAdminAuditAction(req, 'REVOKE_SESSION', bio._id, bio.email, `Thu hồi phiên đăng nhập của ${bio.displayName}`);
 
@@ -1582,6 +1664,31 @@ router.post('/users/:id/toggle-edu-status', requireAdmin, async (req, res) => {
     });
   } catch (err) {
     console.error('Error toggling EDU status:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/ai-support/briefing - Báo cáo chủ động các việc AI Support Admin đã tự động làm
+router.get('/ai-support/briefing', requireAdmin, async (req, res) => {
+  try {
+    const { getPendingBriefing } = await import('../services/aiSupportAdminService.js');
+    const briefingData = await getPendingBriefing();
+    res.json({ success: true, ...briefingData });
+  } catch (err) {
+    console.error('Error fetching AI Support briefing:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/ai-support/mark-read - Đánh dấu đã xem báo cáo của AI
+router.post('/ai-support/mark-read', requireAdmin, async (req, res) => {
+  try {
+    const { markBriefingReported } = await import('../services/aiSupportAdminService.js');
+    const { logIds } = req.body || {};
+    await markBriefingReported(logIds);
+    res.json({ success: true, message: 'Đã đánh dấu đã đọc báo cáo AI thành công' });
+  } catch (err) {
+    console.error('Error marking AI briefing read:', err);
     res.status(500).json({ error: err.message });
   }
 });

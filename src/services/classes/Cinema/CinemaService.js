@@ -1,203 +1,172 @@
-import { MovieModel } from './MovieModel';
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
+
+const MEDIA_PROXY = (import.meta.env.VITE_CINEMA_MEDIA_PROXY || "").replace(/\/+$/, "");
+const ARCHIVE_URL = /^https:\/\/([a-z0-9-]+\.)*archive\.org\//i;
 
 /**
- * Class CinemaService - Đóng gói dịch vụ gọi API MongoDB và quản lý dữ liệu phim theo hướng đối tượng (OOP).
+ * Đưa một URL của Internet Archive qua cửa trung chuyển ở biên Cloudflare khi
+ * `VITE_CINEMA_MEDIA_PROXY` được đặt (xem workers/media-proxy). Không đặt thì
+ * trả nguyên URL — app vẫn chạy, chỉ là đi thẳng ra máy dữ liệu ở Mỹ.
  */
-export class CinemaService {
+export function mediaUrl(url) {
+  if (!url) return "";
+  let targetUrl = url;
+  if (targetUrl.includes("/services/img/")) {
+    const id = targetUrl.split("/services/img/")[1]?.replace(/\/$/, "");
+    if (id) {
+      targetUrl = `https://archive.org/download/${id}/__ia_thumb.jpg`;
+    }
+  }
+  if (!MEDIA_PROXY || !ARCHIVE_URL.test(targetUrl)) return targetUrl;
+  return `${MEDIA_PROXY}/?u=${encodeURIComponent(targetUrl)}`;
+}
+
+export function videoSources(movie) {
+  const secureUrl = movie?.secureStreamUrl || movie?.streamUrl;
+  const direct = [secureUrl, movie?.videoUrl, movie?.videoFallbackUrl].filter(Boolean);
+  const viaEdge = direct.map(mediaUrl).filter((url) => !direct.includes(url));
+  // Direct CDN links first for 0ms latency, edge fallback if direct is blocked
+  return [...new Set([...direct, ...viaEdge])];
+}
+
+/**
+ * Dịch vụ Hugo Cinema: gọi API kệ phim và giữ những gì chỉ máy này cần biết
+ * (đã lưu, đã thích, xem tới đâu).
+ *
+ * Bản trước còn một lớp `MovieModel` bọc mọi phim lại, và chính lớp đó là nơi
+ * dữ liệu giả được sinh ra: thiếu điểm thì gán '9.0', thiếu nhãn thì gán
+ * 'PG-13', thiếu diễn viên thì gán sẵn bốn người kèm ảnh Unsplash. Máy chủ giờ
+ * trả về đúng những trường có thật, nên lớp bọc đó đã bỏ — component đọc thẳng
+ * dữ liệu JSON.
+ */
+class CinemaService {
   constructor() {
-    this.cacheCategories = null;
-    this.cacheFeatured = null;
-    this.cacheMoviesMap = new Map();
-    this.watchlistStorageKey = 'hugo_cinema_watchlist_v2';
-    this.likedStorageKey = 'hugo_cinema_liked_v2';
+    this.savedKey = "hugo_cinema_saved_v3";
+    this.likedKey = "hugo_cinema_liked_v3";
+    this.progressKey = "hugo_cinema_progress_v1";
+    this.moviesCache = new Map();
   }
 
-  /**
-   * Gọi API lấy danh sách thể loại phim từ MongoDB server
-   * @returns {Promise<Array<{id: string, labelVi: string, icon: string}>>}
-   */
-  async getCategories() {
-    if (this.cacheCategories) return this.cacheCategories;
-
-    try {
-      const res = await fetch('/api/cinema/categories');
-      const data = await res.json();
-      if (data?.success && Array.isArray(data.categories)) {
-        this.cacheCategories = data.categories;
-        return this.cacheCategories;
-      }
-    } catch {
-      // Bỏ qua lỗi mạng
-    }
-
-    return [
-      { id: "all", labelVi: "Tất cả Phim", icon: "movie" },
-      { id: "shorts", labelVi: "Phim Ngắn 3D", icon: "animation" },
-      { id: "scifi", labelVi: "Khoa Học Viễn Tưởng", icon: "rocket_launch" },
-      { id: "classic", labelVi: "Hài & Kinh Điển", icon: "theater_comedy" },
-      { id: "horror", labelVi: "Kinh Dị Public Domain", icon: "skull" },
-      { id: "doc", labelVi: "Tài Liệu Vũ Trụ", icon: "public" },
-    ];
+  async #get(path) {
+    const res = await fetch(`${API_BASE}${path}`, { credentials: "include" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
   }
 
-  /**
-   * Gọi API lấy phim nổi bật (Spotlight Hero) từ MongoDB
-   * @returns {Promise<MovieModel|null>}
-   */
-  async getFeaturedMovie() {
-    if (this.cacheFeatured) return this.cacheFeatured;
-
-    try {
-      const res = await fetch('/api/cinema/featured');
-      const data = await res.json();
-      if (data?.success && data.movie) {
-        this.cacheFeatured = MovieModel.fromJSON(data.movie);
-        return this.cacheFeatured;
-      }
-    } catch {
-      // Bỏ qua lỗi mạng
+  /** Kệ phim theo thể loại/từ khoá. Có bộ nhớ đệm RAM 5 phút cho siêu tốc độ. */
+  async getMovies({ category = "all", search = "", limit = 60 } = {}) {
+    const cacheKey = `${category}_${search.trim()}_${limit}`;
+    const cached = this.moviesCache.get(cacheKey);
+    if (cached && Date.now() - cached.time < 5 * 60 * 1000) {
+      return cached.data;
     }
 
-    const fallbackMovies = await this.getMovies();
-    return fallbackMovies[0] || null;
-  }
-
-  /**
-   * Gọi API lấy danh sách phim từ MongoDB với bộ lọc thể loại, tìm kiếm và phân trang
-   * @param {Object} options - { category, search, page, limit }
-   * @returns {Promise<Array<MovieModel>>}
-   */
-  async getMovies({ category = 'all', search = '', page = 1, limit = 20 } = {}) {
-    const cacheKey = `${category}_${search}_${page}_${limit}`;
-
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (category && category !== "all") params.set("category", category);
+    if (search.trim()) params.set("search", search.trim());
     try {
-      const queryParams = new URLSearchParams();
-      if (category && category !== 'all') queryParams.append('category', category);
-      if (search && search.trim()) queryParams.append('search', search.trim());
-      queryParams.append('page', String(page));
-      queryParams.append('limit', String(limit));
-
-      const res = await fetch(`/api/cinema/movies?${queryParams.toString()}`);
-      const data = await res.json();
-      if (data?.success && Array.isArray(data.movies)) {
-        const models = data.movies.map((m) => MovieModel.fromJSON(m));
-        this.cacheMoviesMap.set(cacheKey, models);
-        return models;
-      }
-    } catch {
-      // Bỏ qua lỗi mạng
-    }
-
-    if (this.cacheMoviesMap.has(cacheKey)) {
-      return this.cacheMoviesMap.get(cacheKey);
-    }
-
-    return [];
-  }
-
-  /**
-   * Lấy chi tiết 1 phim theo ID từ API MongoDB
-   * @param {string} id
-   * @returns {Promise<{movie: MovieModel|null, related: Array<MovieModel>}>}
-   */
-  async getMovieById(id) {
-    try {
-      const res = await fetch(`/api/cinema/movies/${id}`);
-      const data = await res.json();
-      if (data?.success && data.movie) {
-        return {
-          movie: MovieModel.fromJSON(data.movie),
-          related: Array.isArray(data.related) ? data.related.map((m) => MovieModel.fromJSON(m)) : [],
-        };
-      }
-    } catch {
-      // Bỏ qua lỗi mạng
-    }
-
-    const all = await this.getMovies();
-    const found = all.find((m) => m.id === id) || null;
-    return {
-      movie: found,
-      related: all.filter((m) => m.id !== id).slice(0, 4),
-    };
-  }
-
-  /**
-   * Lấy danh sách ID phim đã lưu (Watchlist) từ localStorage
-   * @returns {Array<string>}
-   */
-  getWatchlistIds() {
-    try {
-      const saved = localStorage.getItem(this.watchlistStorageKey);
-      return saved ? JSON.parse(saved) : [];
+      const data = await this.#get(`/cinema/movies?${params}`);
+      const list = Array.isArray(data.movies) ? data.movies : [];
+      this.moviesCache.set(cacheKey, { time: Date.now(), data: list });
+      return list;
     } catch {
       return [];
     }
   }
 
-  /**
-   * Lưu hoặc xóa phim khỏi danh sách xem sau (Watchlist)
-   * @param {string} movieId
-   * @returns {boolean} isWatchlisted
-   */
-  toggleWatchlist(movieId) {
-    const list = this.getWatchlistIds();
-    const index = list.indexOf(movieId);
-    let nextList = [];
-    let added = false;
-
-    if (index >= 0) {
-      nextList = list.filter((id) => id !== movieId);
-    } else {
-      nextList = [...list, movieId];
-      added = true;
-    }
-
+  /** Chi tiết một phim + danh sách xem tiếp cùng thể loại. */
+  async getMovie(id) {
     try {
-      localStorage.setItem(this.watchlistStorageKey, JSON.stringify(nextList));
-    } catch {}
+      const data = await this.#get(`/cinema/movies/${encodeURIComponent(id)}`);
+      return { movie: data.movie || null, related: data.related || [] };
+    } catch {
+      return { movie: null, related: [] };
+    }
+  }
 
+  /** Xin token luồng phát có chữ ký HMAC 2 giờ từ server. */
+  async getStreamToken(movieId) {
+    if (!movieId) return null;
+    try {
+      const res = await fetch(`${API_BASE}/cinema/stream-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ movieId }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.success && data.streamUrl ? data.streamUrl : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // ── Trạng thái lưu trên máy ────────────────────────────────────────────────
+
+  #read(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  #write(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Chế độ riêng tư của Safari chặn ghi: mất danh sách lưu, không mất phim.
+    }
+  }
+
+  getSavedIds() {
+    return this.#read(this.savedKey, []);
+  }
+
+  getLikedIds() {
+    return this.#read(this.likedKey, []);
+  }
+
+  /** Bật/tắt một id trong danh sách; trả về `true` nếu vừa được thêm vào. */
+  #toggle(key, id) {
+    const list = this.#read(key, []);
+    const added = !list.includes(id);
+    this.#write(key, added ? [...list, id] : list.filter((item) => item !== id));
     return added;
   }
 
-  /**
-   * Lấy danh sách ID phim đã thích (Liked) từ localStorage
-   * @returns {Array<string>}
-   */
-  getLikedIds() {
-    try {
-      const saved = localStorage.getItem(this.likedStorageKey);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+  toggleSaved(id) {
+    return this.#toggle(this.savedKey, id);
+  }
+
+  toggleLiked(id) {
+    return this.#toggle(this.likedKey, id);
+  }
+
+  /** { [movieId]: { seconds, duration, at } } — để dựng hàng "Xem tiếp". */
+  getProgress() {
+    return this.#read(this.progressKey, {});
   }
 
   /**
-   * Thích hoặc bỏ thích phim
-   * @param {string} movieId
-   * @returns {boolean} isLiked
+   * Ghi lại chỗ đang xem. Phim xem gần xong (>95%) thì xoá khỏi danh sách xem
+   * tiếp, còn dưới 30 giây thì chưa tính là đã bắt đầu.
    */
-  toggleLike(movieId) {
-    const list = this.getLikedIds();
-    const index = list.indexOf(movieId);
-    let nextList = [];
-    let liked = false;
+  saveProgress(id, seconds, duration) {
+    if (!id || !(seconds > 30) || !(duration > 0)) return;
+    const all = this.getProgress();
+    if (seconds / duration > 0.95) delete all[id];
+    else all[id] = { seconds: Math.round(seconds), duration: Math.round(duration), at: Date.now() };
+    this.#write(this.progressKey, all);
+  }
 
-    if (index >= 0) {
-      nextList = list.filter((id) => id !== movieId);
-    } else {
-      nextList = [...list, movieId];
-      liked = true;
-    }
-
-    try {
-      localStorage.setItem(this.likedStorageKey, JSON.stringify(nextList));
-    } catch {}
-
-    return liked;
+  clearProgress(id) {
+    const all = this.getProgress();
+    delete all[id];
+    this.#write(this.progressKey, all);
   }
 }
 
-// Export singleton instance theo nguyên lý OOP Service Object
 export const cinemaService = new CinemaService();

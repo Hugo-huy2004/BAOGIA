@@ -6185,5 +6185,66 @@
       "dangXuat": "Keluar",
       "batTatVaMuc": "Perubahan dan tingkat “otomatis” berada di tab Hijau. Dinyalakan dalam mode ini: asisten AI, peta,\n          toko, perpustakaan aplikasi, latar belakang animasi dan setiap polling server yang berulang."
     }
+  },
+  "cinema": {
+    "back": "Kembali",
+    "searchPlaceholder": "Cari film, pembuat…",
+    "continueWatching": "Lanjut menonton",
+    "searchResults": "Hasil untuk “{{query}}”",
+    "upNext": "Tonton berikutnya",
+    "showMore": "Selengkapnya",
+    "showLess": "Ringkas",
+    "views": "{{formatted}} tayangan",
+    "libraryNote": "Semua film di sini berstatus domain publik atau berlisensi terbuka, disiarkan dari Internet Archive sehingga siapa pun bisa menontonnya secara legal.",
+    "cat": {
+      "all": "Semua film",
+      "classic": "Klasik",
+      "cartoon": "Animasi",
+      "scifi": "Fiksi ilmiah",
+      "horror": "Horor",
+      "shorts": "Film pendek 3D",
+      "doc": "Dokumenter"
+    },
+    "action": {
+      "like": "Suka",
+      "save": "Simpan",
+      "saved": "Tersimpan",
+      "savedOn": "Ditambahkan ke daftar simpan",
+      "savedOff": "Dihapus dari daftar simpan",
+      "share": "Bagikan",
+      "linkCopied": "Tautan film disalin"
+    },
+    "token": {
+      "shared": "Waktu menonton film dan mendengarkan HugoRadio memakai kuota token yang sama.",
+      "ranOut": "Token habis — beli lagi untuk terus menonton."
+    },
+    "source": {
+      "title": "Sumber & lisensi",
+      "body": "Disiarkan langsung dari Internet Archive. Hugo Cinema hanya menunjuk salinan domain publik, tidak mengunduh atau menyunting ulang."
+    },
+    "empty": {
+      "title": "Rak film masih kosong",
+      "desc": "Sinkronkan pustaka domain publik dari Admin Panel, rak langsung terisi.",
+      "searchTitle": "Film tidak ditemukan",
+      "searchDesc": "Coba judul lain, atau pilih satu kategori.",
+      "listTitle": "Daftarmu masih kosong",
+      "listDesc": "Ketuk + pada film mana pun untuk disimpan."
+    },
+    "play": "Putar",
+    "resume": "Lanjutkan",
+    "info": "Info",
+    "close": "Tutup",
+    "myList": "Daftar saya",
+    "ratingLabel": "Skor penonton di Internet Archive: {{rating}}/5",
+    "nav": {
+      "home": "Beranda",
+      "search": "Cari"
+    },
+    "switchingSource": "Beralih ke sumber lain…",
+    "retry": "Coba lagi",
+    "videoFailed": {
+      "title": "Film gagal dimuat",
+      "desc": "Kedua sumber tidak merespons. Biasanya jaringan tidak bisa menjangkau server arsip — coba lagi atau ganti jaringan."
+    }
   }
 }

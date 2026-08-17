@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import adminBrainApi from '../../services/api/AdminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoy, formatJoyCompact, formatJoyDual, formatJoyFullWithFiat, parseJoyInput, JOY_UNITS } from '../../utils/joyFormatter';
+import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency.js';
 
 export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [loading, setLoading] = useState(true);
@@ -306,6 +307,14 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                 <span className="font-mono text-blue-600 dark:text-blue-400">/bio/{bio.slug}</span>
                 <span>•</span>
                 <span className="font-bold text-amber-600 dark:text-amber-400">{formatJoyDual(bio.joyBalance || 0)}</span>
+                {bio.joyDenom && (
+                  <>
+                    <span>•</span>
+                    <span className="font-extrabold text-purple-600 dark:text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20 text-[11px]">
+                      Đơn vị: {toDenom(bio.joyBalance || 0, bio.joyDenom).code} ({JOY_DENOMS[bio.joyDenom]?.name || bio.joyDenom})
+                    </span>
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -785,7 +794,10 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                       <div className="p-3.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-xs text-amber-950 dark:text-amber-200 flex items-center justify-between">
                         <div>
                           <div>Quy đổi cơ sở: <strong className="font-extrabold">{calculatedBaseJoy > 0 ? '+' : ''}{formatJoy(calculatedBaseJoy)}</strong></div>
-                          <div className="text-[11px] opacity-80 mt-0.5">Số dư sau giao dịch: {formatJoyDual(projectedBalance)}</div>
+                          <div className="text-[11px] opacity-80 mt-0.5">
+                            Số dư sau giao dịch: {formatJoyDual(projectedBalance)}
+                            {bio?.joyDenom && ` (Màn hình TV: ${toDenom(projectedBalance, bio.joyDenom).amount.toLocaleString()} ${toDenom(projectedBalance, bio.joyDenom).code})`}
+                          </div>
                         </div>
                         <span className="material-symbols-outlined text-xl text-amber-600">verified</span>
                       </div>

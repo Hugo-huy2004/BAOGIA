@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { loginAdmin, loginMember, loginMemberWithGoogle } from "../../services/authSession";
+import { loginAdmin, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
@@ -31,6 +31,12 @@ export default function LoginPage() {
   const [adminSubmitting, setAdminSubmitting] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [rememberAdmin, setRememberAdmin] = useState(true);
+  // 2FA OTP gửi qua Telegram (POST /api/admin/login -> requireOtp)
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [tempToken, setTempToken] = useState("");
+  const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
+  const [otpError, setOtpError] = useState("");
+  const [otpSubmitting, setOtpSubmitting] = useState(false);
   const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
   const [gisReady, setGisReady] = useState(false);
@@ -117,16 +123,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickDemoLogin = () => {
-    loginMember({
-      email: "huylggcs230377@fpt.edu.vn",
-      name: "Jayme Holden",
-      role: "member",
-    });
-    localStorage.setItem(LAST_EMAIL_KEY, "huylggcs230377@fpt.edu.vn");
-    navigate("/member");
-  };
-
   useEffect(() => {
     if (activeMode !== "member") return;
 
@@ -210,11 +206,20 @@ export default function LoginPage() {
 
     setAdminSubmitting(true);
     try {
-      const { session, error } = await loginAdmin({ username: "admin", password: adminForm.password }, { remember: rememberAdmin });
-      if (!session) {
-        if (error === "network") {
+      const res = await loginAdmin({ username: "admin", password: adminForm.password }, { remember: rememberAdmin });
+      if (res?.requireOtp) {
+        setTempToken(res.tempToken);
+        setOtpDigits(["", "", "", ""]);
+        setOtpError("");
+        setOtpModalOpen(true);
+        showToast(res.message || "🔑 Mã OTP 4 chữ số đã gửi qua Telegram của Boss!", res.telegramDelivered ? "info" : "error");
+        return;
+      }
+
+      if (!res?.session) {
+        if (res?.error === "network") {
           showToast(t("loginPage.toast.adminNetworkError"), "error");
-        } else if (error === "server_error") {
+        } else if (res?.error === "server_error") {
           showToast(t("loginPage.toast.adminServerError"), "error");
         } else {
           setAdminFieldErrors({ username: "", password: " " });
@@ -225,6 +230,28 @@ export default function LoginPage() {
       navigate("/admin");
     } finally {
       setAdminSubmitting(false);
+    }
+  };
+
+  const handleVerifyAdminOtp = async (e) => {
+    e?.preventDefault();
+    setOtpError("");
+    const fullOtp = otpDigits.join("").trim();
+    if (fullOtp.length !== 4) {
+      setOtpError("Vui lòng nhập đủ 4 chữ số mã OTP.");
+      return;
+    }
+    setOtpSubmitting(true);
+    try {
+      const { session, error } = await verifyAdminOtp(tempToken, fullOtp, { remember: rememberAdmin });
+      if (!session) {
+        setOtpError(error || "Mã OTP không chính xác.");
+        return;
+      }
+      showToast("Xác thực 2FA Telegram thành công! 🔐", "success");
+      navigate("/admin");
+    } finally {
+      setOtpSubmitting(false);
     }
   };
 
@@ -439,16 +466,6 @@ export default function LoginPage() {
 
               <div className="py-2 flex flex-col items-center gap-3">
                 <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-300 min-h-[44px]" />
-                
-                {/* Nút Đăng nhập Nhanh Demo khi Google OAuth bị lỗi origin trên localhost */}
-                <button
-                  type="button"
-                  onClick={handleQuickDemoLogin}
-                  className="w-full max-w-[320px] py-3 rounded-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  <span className="material-symbols-outlined text-base text-amber-400">bolt</span>
-                  <span>Đăng Nhập Nhanh Thành Viên Demo (FPT Edu)</span>
-                </button>
               </div>
 
               {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
@@ -462,7 +479,7 @@ export default function LoginPage() {
                     Google Client ID chưa được cấp quyền cho Domain/Port hiện tại ({window.location.origin})
                   </p>
                   <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Bạn cần thêm <code className="bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded font-mono">{window.location.origin}</code> vào mục <strong>Authorized JavaScript origins</strong> trên Google Cloud Console. Hoặc nhấn nút <strong>Đăng Nhập Nhanh</strong> phía trên để truy cập ngay.
+                    Bạn cần thêm <code className="bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded font-mono">{window.location.origin}</code> vào mục <strong>Authorized JavaScript origins</strong> trên Google Cloud Console.
                   </p>
                 </div>
               )}
@@ -547,7 +564,98 @@ export default function LoginPage() {
         </div>
       </section>
 
+      {/* ── 2FA TELEGRAM OTP MODAL ── */}
+      {otpModalOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-fadeIn">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-full max-w-md bg-[#0b0f19] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/50 space-y-6 text-center relative overflow-hidden"
+          >
+            {/* Top Glow Decor */}
+            <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
 
+            {/* Telegram Lock Icon */}
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-0.5 shadow-lg shadow-cyan-500/30 flex items-center justify-center">
+              <div className="w-full h-full bg-[#0f172a] rounded-[14px] flex items-center justify-center text-cyan-400">
+                <span className="material-symbols-outlined text-3xl">lock_reset</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-lg font-black text-white tracking-wide">
+                🔐 BẢO MẬT 2 LỚP ADMIN (2FA)
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Mã OTP <span className="text-cyan-400 font-bold">4 chữ số</span> đã gửi trực tiếp tới điện thoại của Boss qua Telegram.
+              </p>
+            </div>
+
+            <form onSubmit={handleVerifyAdminOtp} className="space-y-6">
+              {/* 4-Digit Input Boxes */}
+              <div className="flex justify-center gap-3">
+                {[0, 1, 2, 3].map((idx) => (
+                  <input
+                    key={idx}
+                    id={`otp-input-${idx}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={otpDigits[idx]}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      const next = [...otpDigits];
+                      next[idx] = val;
+                      setOtpDigits(next);
+                      if (val && idx < 3) {
+                        const nextEl = document.getElementById(`otp-input-${idx + 1}`);
+                        if (nextEl) nextEl.focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace" && !otpDigits[idx] && idx > 0) {
+                        const prevEl = document.getElementById(`otp-input-${idx - 1}`);
+                        if (prevEl) prevEl.focus();
+                      }
+                    }}
+                    className="w-14 h-16 text-center text-2xl font-black bg-slate-900/90 border border-slate-700/80 rounded-2xl text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-inner"
+                  />
+                ))}
+              </div>
+
+              {otpError && (
+                <p className="text-xs text-rose-400 font-semibold animate-pulse">{otpError}</p>
+              )}
+
+              <div className="space-y-3">
+                <button
+                  type="submit"
+                  disabled={otpSubmitting}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white font-black text-sm tracking-wider shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {otpSubmitting ? (
+                    <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-lg">verified_user</span>
+                      <span>XÁC THỰC 2FA & VÀO ADMIN</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setOtpModalOpen(false)}
+                  className="text-xs text-slate-400 hover:text-white font-medium transition-colors"
+                >
+                  Hủy bỏ & Nhập lại mật khẩu
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

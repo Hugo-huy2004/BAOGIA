@@ -519,6 +519,13 @@ router.get('/me/bootstrap', requireMember, async (req, res) => {
         password: ''
       }));
     }
+    // Hồ sơ còn thiếu gì — PHẢI có ở đây, không chỉ ở `GET /me`.
+    //
+    // Portal đọc đúng route bootstrap này, nên thiếu trường đó là màn onboarding
+    // không bao giờ bật lên: tài khoản chưa chọn đơn vị JOY vẫn vào thẳng app và
+    // mọi số tiền hiện bằng đơn vị mặc định — người dùng chưa hề được hỏi mà hệ
+    // thống đã tự quyết hộ. Bốn trên sáu tài khoản đang ở đúng tình trạng đó.
+    bioObj.profileMissing = missingProfileFields(bioDoc).map(describeField);
     bioObj.installedUtilities = appInstallationPolicy.normalizeInstalled(bioObj.installedUtilities);
     bioObj.homeScreenUtilities = appInstallationPolicy.normalizeHomeScreen(
       bioObj.homeScreenUtilities,
@@ -714,7 +721,52 @@ router.post('/me/onboarding', requireMember, async (req, res) => {
         birthDay: bio.birthDay || 0,
         birthMonth: bio.birthMonth || 0,
         birthYear: bio.birthYear || 0,
+        joyDenom: bio.joyDenom || '',
       },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /me/security-sessions - Danh sách thiết bị & phiên làm việc an ninh
+router.get('/me/security-sessions', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const bio = await Bio.findOne({ email }, 'email lastUserAgentHash locationAnomaly updatedAt createdAt').lean();
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
+
+    res.json({
+      success: true,
+      currentSession: {
+        ip: req.ip || '',
+        userAgent: req.headers['user-agent'] || '',
+        locationAnomaly: !!bio.locationAnomaly,
+        lastActive: bio.updatedAt || bio.createdAt,
+      },
+      hasLocationAnomaly: !!bio.locationAnomaly,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /me/revoke-sessions - Hủy phiên làm việc từ xa
+router.post('/me/revoke-sessions', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const cryptoMod = await import('crypto');
+    const ua = req.headers['user-agent'] || '';
+    const uaHash = cryptoMod.createHash('sha256').update(ua).digest('hex');
+
+    await Bio.updateOne(
+      { email },
+      { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } }
+    );
+
+    res.json({
+      success: true,
+      message: 'Đã hủy tất cả phiên làm việc từ xa khác thành công.',
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

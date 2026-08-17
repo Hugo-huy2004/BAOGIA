@@ -1,0 +1,8 @@
+name = "hugostudio-media"
+main = "index.js"
+compatibility_date = "2026-08-17"
+
+# Worker này BẮT BUỘC có URL công khai: trình duyệt gọi thẳng vào nó để lấy phim.
+# Nó chỉ trung chuyển được archive.org (xem allowlist trong index.js), nên URL
+# công khai không mở thêm cửa nào vào hệ thống.
+workers_dev = true

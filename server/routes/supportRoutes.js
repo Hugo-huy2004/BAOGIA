@@ -187,23 +187,44 @@ router.post('/chat', async (req, res) => {
 // POST: Create a support ticket
 router.post('/tickets', async (req, res) => {
   try {
-    const { fullName, email, phone, issue } = req.body;
-    if (!fullName || !email || !phone || !issue) {
-      return res.status(400).json({ error: 'All fields (fullName, email, phone, issue) are required' });
-    }
+    const { fullName, email, phone, issue, message } = req.body;
+    const finalEmail = email || 'guest@hugowishpax.studio';
+    const finalMessage = issue || message || 'Cần hỗ trợ từ Supporter';
+    const finalName = fullName || 'Thành viên Hugo Studio';
+    const finalPhone = phone || 'N/A';
 
     const ticket = await SupportTicket.create({
-      fullName,
-      email,
-      phone,
-      issue,
+      fullName: finalName,
+      email: finalEmail,
+      phone: finalPhone,
+      issue: finalMessage,
+      message: finalMessage,
       status: 'pending'
     });
 
-    res.status(201).json(ticket);
+    // Auto-process ticket via AI Support Admin
+    let aiResponseText = 'Supporter AI đã ghi nhận yêu cầu và xử lý tự động 24/7!';
+    try {
+      const { autoProcessTicket } = await import('../services/aiSupportAdminService.js');
+      const result = await autoProcessTicket(ticket);
+      if (result && result.aiResponse) {
+        aiResponseText = result.aiResponse;
+      }
+    } catch (err) {
+      console.error('[aiSupportAdminService autoProcessTicket trigger error]', err);
+    }
+
+    res.status(201).json({
+      success: true,
+      ticket: {
+        id: ticket._id,
+        status: ticket.status,
+        aiResponse: aiResponseText,
+      }
+    });
   } catch (err) {
     console.error('Error creating support ticket:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message || 'Server error' });
   }
 });
 
@@ -246,9 +267,49 @@ router.get('/tickets', requireAdmin, async (req, res) => {
 router.patch('/tickets/:id/resolve', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    const { adminReply } = req.body || {};
+
+    const updateData = { status: 'resolved' };
+    if (adminReply) {
+      updateData.adminReply = adminReply;
+      updateData.repliedAt = new Date();
+    }
+
+    const ticket = await SupportTicket.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Support ticket not found' });
+    }
+
+    if (adminReply) {
+      import('../services/aiSupportAdminService.js')
+        .then(({ recordAdminResolution }) => recordAdminResolution(id, adminReply))
+        .catch(() => {});
+    }
+
+    res.json(ticket);
+  } catch (err) {
+    console.error('Error resolving support ticket:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST: Admin reply to a support ticket
+router.post('/tickets/:id/reply', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { adminReply } = req.body;
+    if (!adminReply) {
+      return res.status(400).json({ error: 'Nội dung phản hồi không được để trống' });
+    }
+
     const ticket = await SupportTicket.findByIdAndUpdate(
       id,
-      { status: 'resolved' },
+      {
+        status: 'resolved',
+        adminReply,
+        repliedAt: new Date(),
+      },
       { new: true }
     );
 
@@ -256,9 +317,14 @@ router.patch('/tickets/:id/resolve', requireAdmin, async (req, res) => {
       return res.status(404).json({ error: 'Support ticket not found' });
     }
 
+    // Trigger AI Self-Learning Loop
+    import('../services/aiSupportAdminService.js')
+      .then(({ recordAdminResolution }) => recordAdminResolution(id, adminReply))
+      .catch(() => {});
+
     res.json(ticket);
   } catch (err) {
-    console.error('Error resolving support ticket:', err);
+    console.error('Error replying to support ticket:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

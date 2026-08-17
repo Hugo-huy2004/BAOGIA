@@ -19,6 +19,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { notify } from "../../../lib/notify";
+import { useJoy } from "../../../lib/joyDisplay";
 import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import { STAGE_THEME } from "./stageThemes";
 import CoderLearningJourney from "./CoderLearningJourney";
@@ -527,6 +528,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
 // Gate JOY một lần ở đây; MemberIdeTab/MobileGuidebook chạy embedded (không tự bọc shell).
 export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", unifiedHome = false }) {
   const { t } = useTranslation();
+  const joy = useJoy();
   const navigate = useNavigate();
   const [tab, setTab] = useState("learning");
   const [learningView, setLearningView] = useState(urlLessonId ? "lesson" : "journey");
@@ -622,8 +624,7 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
             </div>
             <div className="coder-hub-balance" aria-label={t("hugoCoderLearning.joyBalance")}>
               <Coins />
-              <span>JOY</span>
-              {Number(joyBalance ?? bio?.joyBalance ?? 0).toLocaleString("vi-VN")}
+              <span>{joy.text(joyBalance ?? bio?.joyBalance ?? 0)}</span>
             </div>
           </div>
           <HubTabBar tab={tab} setTab={selectTab} t={t} />

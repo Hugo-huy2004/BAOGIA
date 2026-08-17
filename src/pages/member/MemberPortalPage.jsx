@@ -213,6 +213,9 @@ function MemberPortalPage() {
   } = useMemberBootstrap(memberSession?.email, !isGuestMode);
   const patchMemberBio = React.useCallback((patch) => {
     if (!patch) return;
+    if (patch.joyDenom) {
+      setJoyDenom(patch.joyDenom);
+    }
     setBio((previous) => previous ? { ...previous, ...patch } : patch);
     queryClient.setQueryData(
       memberBootstrapKey(memberSession?.email),
@@ -802,7 +805,7 @@ function MemberPortalPage() {
     // Danh sách này phải khớp `isFullscreenLikeUtility` trong MemberUtilitiesTab.
     // Thiếu một id ở đây thì app vẫn dựng vỏ `h-full` của mình nhưng nằm trong
     // trang có đệm và tự cuộn — hai vùng cuộn lồng nhau làm hỏng vuốt/chạm.
-    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "joy_wallet"].includes(subTab) ||
+    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "joy_wallet", "cinema"].includes(subTab) ||
     (subTab === "psychology" && isMobileView)
   ));
 
@@ -882,6 +885,8 @@ function MemberPortalPage() {
             onSkip={() => setShowOnboarding(false)}
             onDone={(result) => {
               setShowOnboarding(false);
+              const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
+              if (nextDenom) setJoyDenom(nextDenom);
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
               if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);
               fetchJoyBalance(memberSession.email);
@@ -1148,6 +1153,8 @@ function MemberPortalPage() {
             onSkip={() => setShowOnboarding(false)}
             onDone={(result) => {
               setShowOnboarding(false);
+              const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
+              if (nextDenom) setJoyDenom(nextDenom);
 
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
               if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);

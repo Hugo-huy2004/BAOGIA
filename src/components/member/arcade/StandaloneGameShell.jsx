@@ -10,7 +10,7 @@ import { calcJoy, getEventMultiplier } from "../../../utils/joyCalculation";
 import { getBest, recordBest, nearMissGap } from "./arcadeBest";
 import GameIntroScreen from "./GameIntroScreen";
 import "./game-shell.css";
-import { joyCode } from "../../../lib/joyDisplay";
+import { useJoy, joyCode } from "../../../lib/joyDisplay";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {
@@ -37,6 +37,7 @@ const RESULT_CONFIG = {
 
 export default function StandaloneGameShell({ gameId, bio, onClose }) {
   const { t, i18n } = useTranslation();
+  const joy = useJoy();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const theme = GAME_THEMES[gameId] || GAME_THEMES["2048"];
   const GameComp = GAME_COMPONENTS[gameId];
@@ -158,13 +159,13 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
   const outcome = RESULT_CONFIG[resultData?.result] || RESULT_CONFIG.lose;
   // Dấu phải bám theo giá trị: server cũ vẫn có thể trả JOY âm (bảng phạt thua
   // cũ), và "+{-10}" in ra thành "+-10". Ký hiệu tính một lần, dùng cho cả hai chỗ.
-  const joy = resultData?.joyDelta || 0;
-  const signedJoy = `${joy > 0 ? "+" : ""}${joy}`;
+  const joyDelta = resultData?.joyDelta || 0;
+  const signedJoy = `${joyDelta > 0 ? "+" : ""}${joy.text(joyDelta)}`;
   // Trước khi server xác nhận, con số trên màn hình chỉ là ước tính của client
   // (cùng công thức, nhưng ví chưa hề cộng). Nếu điểm gửi hỏng hoặc đang xếp
   // hàng offline, `joyAwarded` vẫn false — lúc đó khoe "+29 JOY" là nói dối,
   // và đó chính là "báo có thưởng nhưng ví không tăng".
-  const joyPending = joy > 0 && !resultData?.joyAwarded;
+  const joyPending = joyDelta > 0 && !resultData?.joyAwarded;
 
   return createPortal(
     <div className={`arcade-game arcade-game--${gameId}`}>
@@ -196,7 +197,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
             {bio && (
               <div className="gshell__joy" title={t("arcadeGame.joyBalance")}>
                 <span className="material-symbols-outlined">toll</span>
-                <b>{(walletLoaded ? walletBalance : bio.joyBalance ?? 0).toLocaleString("vi-VN")}</b>
+                <b>{joy.text(walletLoaded ? walletBalance : bio.joyBalance ?? 0)}</b>
               </div>
             )}
             {stage === "playing" && (

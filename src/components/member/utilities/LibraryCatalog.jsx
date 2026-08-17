@@ -35,7 +35,9 @@ const APP_VERSIONS = {
   aura: "2.1.0",
   info: "2.0.0",
   hugoso: "1.0.0",
-  cinema: "1.0.0"
+  // 2.0.0: đổi tên thành Chill Premium, dựng lại theo lối Netflix, kệ phim
+  // chuyển sang phim công cộng thật lấy từ Internet Archive.
+  cinema: "2.0.0"
 };
 
 export default function LibraryCatalog({

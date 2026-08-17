@@ -9,6 +9,13 @@ const LEVEL_META = {
   info: { label: "Thông tin", cls: "bg-sky-500/12 text-sky-600 dark:text-sky-400", dot: "bg-sky-500" },
 };
 
+const TG_MODE = {
+  webhook: { label: "Đã nối", desc: "Nhận lệnh qua webhook" },
+  polling: { label: "Đã nối", desc: "Nhận lệnh qua long-polling (dev)" },
+  "send-only": { label: "Chỉ gửi", desc: "Gửi được OTP; nhận lệnh tắt ở máy dev" },
+  off: { label: "Tắt", desc: "Chưa cấu hình" },
+};
+
 const fmt = (n) => (n ?? 0).toLocaleString("vi-VN");
 const timeAgo = (d) => {
   const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
@@ -38,6 +45,22 @@ export default function AdminSystemTab({ showNotification }) {
   const [last24h, setLast24h] = useState({ error: 0, warn: 0, info: 0 });
   const [levelFilter, setLevelFilter] = useState("");
   const [expanded, setExpanded] = useState(null);
+  const [tg, setTg] = useState(null);
+  const [tgTesting, setTgTesting] = useState(false);
+
+  const loadTelegram = useCallback(async () => {
+    try { const d = await api.get("/telegram/status"); if (d.success) setTg(d); }
+    catch { setTg({ configured: false, mode: "off", hint: "Không đọc được trạng thái bot (server chưa chạy?)" }); }
+  }, []);
+
+  const sendTelegramTest = async () => {
+    setTgTesting(true);
+    try {
+      const d = await api.post("/telegram/test", {});
+      showNotification?.(d.success ? "Đã gửi tin thử — kiểm tra Telegram của Boss" : `Không gửi được: ${d.error || "bot chưa cấu hình"}`, d.success ? "success" : "error");
+    } catch { showNotification?.("Không gửi được tin thử", "error"); }
+    finally { setTgTesting(false); loadTelegram(); }
+  };
 
   const loadOverview = useCallback(async () => {
     try { const d = await api.get("/admin/system-overview"); if (d.success) setOverview(d); } catch { /* ignore */ }
@@ -51,6 +74,7 @@ export default function AdminSystemTab({ showNotification }) {
   }, [levelFilter]);
 
   useEffect(() => { loadOverview(); }, [loadOverview]);
+  useEffect(() => { loadTelegram(); }, [loadTelegram]);
   useEffect(() => { loadLogs(); }, [loadLogs]);
   // Auto-refresh vitals + logs every 15s.
   useEffect(() => {
@@ -66,6 +90,7 @@ export default function AdminSystemTab({ showNotification }) {
     } catch { showNotification?.("Không xóa được log", "error"); }
   };
 
+  const tgOk = Boolean(tg?.configured && tg?.botOk);
   const q = overview?.quota;
   const quotaPct = Math.min(100, Math.round((q?.level || 0) * 100));
   const quotaColor = quotaPct >= 85 ? "bg-rose-500" : quotaPct >= 60 ? "bg-amber-500" : "bg-emerald-500";
@@ -92,6 +117,42 @@ export default function AdminSystemTab({ showNotification }) {
           <p className="mt-1.5 text-[11px] text-muted-foreground">
             Dùng {quotaPct}% hạn mức · RPM {q?.rpm ?? "—"}/{q?.rpmLimit ?? "—"} · Ngày {q?.rpd ?? "—"}/{q?.rpdLimit ?? "—"} · {fmt(q?.tokensToday)} token
           </p>
+        </div>
+      </div>
+
+      {/* Bot Telegram — đường gửi OTP 2FA lúc đăng nhập admin, hỏng là khóa cửa chính */}
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="flex items-center gap-1.5 text-sm font-black text-foreground"><span className="material-symbols-outlined text-[18px] text-sky-500">send</span>Bot Telegram</p>
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${tgOk ? "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/12 text-rose-600 dark:text-rose-400"}`}>
+            {tg ? (tgOk ? TG_MODE[tg.mode]?.label || "Đã nối" : "Mất kết nối") : "Đang kiểm tra…"}
+          </span>
+        </div>
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          {tg?.configured
+            ? <>
+                {tg.botUsername ? <>@{tg.botUsername} · </> : null}
+                {TG_MODE[tg.mode]?.desc || tg.mode}
+                {tg.webhookUrl ? <> · <span className="font-mono">{tg.webhookUrl.replace(/^https?:\/\//, "")}</span></> : null}
+                {tg.pendingUpdates ? <> · {tg.pendingUpdates} tin chờ</> : null}
+              </>
+            : tg?.hint || "Đang đọc trạng thái…"}
+        </p>
+        {(tg?.botError || tg?.lastError) && (
+          <p className="mt-1 text-[11px] font-semibold text-rose-500">{tg.botError || tg.lastError}</p>
+        )}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            onClick={sendTelegramTest}
+            disabled={tgTesting || !tg?.configured}
+            className="inline-flex items-center gap-1 rounded-lg border border-sky-500/25 px-2.5 py-1 text-[11px] font-bold text-sky-500 transition hover:bg-sky-500/10 disabled:opacity-40"
+          >
+            <span className={`material-symbols-outlined text-[14px] ${tgTesting ? "animate-spin" : ""}`}>{tgTesting ? "progress_activity" : "outgoing_mail"}</span>
+            Gửi tin thử
+          </button>
+          <button onClick={loadTelegram} className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-[11px] font-bold text-muted-foreground transition hover:text-foreground">
+            <span className="material-symbols-outlined text-[14px]">refresh</span>Kiểm tra lại
+          </button>
         </div>
       </div>
 

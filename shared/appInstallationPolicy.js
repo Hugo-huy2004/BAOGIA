@@ -8,6 +8,7 @@ export const REQUIRED_APP_IDS = Object.freeze([
   'handle',
   'info',
   'joy_wallet',
+  'supporter',
 ]);
 
 // Các app đã ngừng hoạt động phải bị lọc cả khỏi dữ liệu cũ trong MongoDB và

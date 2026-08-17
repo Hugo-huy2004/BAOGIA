@@ -1,34 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../i18n/languages";
+import { useJoy } from "../../lib/joyDisplay";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
-
-const TURNS = 6;              // số vòng quay trọn vẹn trước khi dừng
-const SPIN_MS = 4600;
-const FALLBACK_PRIZES = [10, 50, 100, 500, 1000, 5000, 10000];
-
-// Bảng màu iOS (systemBlue/Pink/Orange…) đủ tương phản với chữ trắng ở cả hai
-// chế độ sáng tối, vì mặt vòng quay luôn nằm trên nền tối của lớp phủ.
-const SEGMENT_COLORS = [
-  "#0A84FF", "#FF375F", "#FF9F0A", "#30D158",
-  "#BF5AF2", "#64D2FF", "#FF6482",
-];
-
-const polar = (cx, cy, r, deg) => {
-  const rad = ((deg - 90) * Math.PI) / 180;
-  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
-};
-
-/** Một múi hình quạt, vẽ theo chiều kim đồng hồ từ 12 giờ. */
-function segmentPath(cx, cy, r, from, to) {
-  const [x1, y1] = polar(cx, cy, r, from);
-  const [x2, y2] = polar(cx, cy, r, to);
-  const large = to - from > 180 ? 1 : 0;
-  return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
-}
-
-const formatJoy = (value, locale) => value.toLocaleString(locale);
 
 /**
  * Góc phải xoay để ô thứ `index` dừng dưới kim (12 giờ).
@@ -64,12 +39,13 @@ const buzz = (pattern) => {
  */
 export default function BirthdayWheel({ onClose, onAwarded }) {
   const { t, i18n } = useTranslation();
-  const [prizes, setPrizes] = useState(FALLBACK_PRIZES);
+  const joy = useJoy();
   const [phase, setPhase] = useState("loading"); // loading | ready | spinning | done
-  const [angle, setAngle] = useState(0);
-  const [prize, setPrize] = useState(null);
-  const [reward, setReward] = useState(null); // quà theo hạng: ngày duy trì + voucher
+  const [prizes, setPrizes] = useState(FALLBACK_PRIZES);
   const [tierLabel, setTierLabel] = useState("");
+  const [prize, setPrize] = useState(0);
+  const [reward, setReward] = useState(null); // quà theo hạng: ngày duy trì + voucher
+  const [angle, setAngle] = useState(0);
   const [error, setError] = useState("");
   const timerRef = useRef(null);
   // Người bật "giảm chuyển động" không phải ngồi nhìn 4,6 giây quay vòng.
@@ -123,17 +99,21 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || t("memberPortal.birthdayWheel.spinError"));
 
+      setPrize(data.prize || 0);
+      setReward(data);
+
       const list = Array.isArray(data.prizes) && data.prizes.length ? data.prizes : prizes;
       if (list !== prizes) setPrizes(list);
 
+      const targetIndex = list.indexOf(data.prize);
+      const chosenIndex = targetIndex >= 0 ? targetIndex : 0;
+      
       // Tâm ô thứ i nằm ở i*seg + seg/2 tính theo chiều kim đồng hồ từ 12 giờ.
       // Muốn ô đó dừng dưới kim (12 giờ) thì xoay ngược lại đúng chừng ấy độ.
       // Lệch nhẹ trong lòng ô cho tự nhiên, vẫn nằm gọn trong ô đã trúng.
-      setAngle(targetAngle(data.index, list.length, TURNS, (Math.random() - 0.5) * 1.2));
-      setReward({ days: data.days || 0, vouchers: data.vouchers || [] });
+      setAngle(targetAngle(chosenIndex, list.length, TURNS, (Math.random() - 0.5) * 1.2));
       if (data.tierLabel) setTierLabel(data.tierLabel);
       timerRef.current = window.setTimeout(() => {
-        setPrize(data.prize);
         setPhase("done");
         buzz([0, 30, 60, 30]);
         onAwarded?.(data.prize);
@@ -190,26 +170,26 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
               // cộng thêm 180° để số nào cũng đọc xuôi.
               const textAngle = mid > 90 && mid < 270 ? mid + 180 : mid;
               return (
-                <g key={value}>
+                <g key={index}>
                   <path d={segmentPath(wheel.cx, wheel.cy, wheel.r, from, from + segment)} fill={SEGMENT_COLORS[index % SEGMENT_COLORS.length]} />
                   <text
                     x={tx}
                     y={ty}
                     fill="#FFFFFF"
-                    fontSize={value >= 10000 ? 17 : 19}
+                    fontSize={17}
                     fontWeight="700"
                     textAnchor="middle"
                     dominantBaseline="central"
                     transform={`rotate(${textAngle} ${tx} ${ty})`}
                   >
-                    {formatJoy(value, locale)}
+                    {joy.value(value).toLocaleString(locale)}
                   </text>
                 </g>
               );
             })}
             <circle cx={wheel.cx} cy={wheel.cy} r={30} fill="#FFFFFF" className="dark:fill-[#2C2C2E]" />
             <text x={wheel.cx} y={wheel.cy} fontSize="13" fontWeight="700" textAnchor="middle" dominantBaseline="central" className="fill-[#1C1C1E] dark:fill-white">
-              JOY
+              {joy.code}
             </text>
           </svg>
         </div>
@@ -218,8 +198,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
           <div className="ios-prize mt-6 rounded-[22px] bg-white px-5 py-4 dark:bg-[#2C2C2E]">
             <p className="text-[13px] font-medium text-[#8A8A8E]">{t("memberPortal.birthdayWheel.youReceived")}</p>
             <p className="mt-0.5 text-[34px] font-bold leading-none tracking-[-0.03em] text-[#0A84FF]">
-              +{formatJoy(prize, locale)}
-              <span className="ml-1.5 text-[17px] font-semibold text-[#8A8A8E]">JOY</span>
+              +{joy.text(prize)}
             </p>
           </div>
         )}

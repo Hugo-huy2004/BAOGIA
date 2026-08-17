@@ -6192,5 +6192,66 @@
       "dangXuat": "Déconnexion",
       "batTatVaMuc": "Le changement et le niveau ‘automatique’ se trouvent dans la tab Green. Désactivé dans ce mode : l'assistant AI, les cartes,\n          la boutique, la bibliothèque d'applications, les arrière-plans animés et chaque sondage de serveur répétitif."
     }
+  },
+  "cinema": {
+    "back": "Retour",
+    "searchPlaceholder": "Rechercher un film, un auteur…",
+    "continueWatching": "Reprendre",
+    "searchResults": "Résultats pour « {{query}} »",
+    "upNext": "À suivre",
+    "showMore": "Voir plus",
+    "showLess": "Réduire",
+    "views": "{{formatted}} vues",
+    "libraryNote": "Tous les films présentés sont dans le domaine public ou sous licence ouverte, diffusés depuis Internet Archive : chacun peut donc les regarder légalement.",
+    "cat": {
+      "all": "Tous les films",
+      "classic": "Classiques",
+      "cartoon": "Animation",
+      "scifi": "Science-fiction",
+      "horror": "Horreur",
+      "shorts": "Courts 3D",
+      "doc": "Documentaire"
+    },
+    "action": {
+      "like": "J’aime",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "savedOn": "Ajouté à votre liste",
+      "savedOff": "Retiré de votre liste",
+      "share": "Partager",
+      "linkCopied": "Lien du film copié"
+    },
+    "token": {
+      "shared": "Regarder des films et écouter HugoRadio puisent dans le même quota de jetons.",
+      "ranOut": "Plus de jetons — achetez-en pour continuer."
+    },
+    "source": {
+      "title": "Source et licence",
+      "body": "Diffusion directe depuis Internet Archive. Hugo Cinema ne fait que pointer vers des copies du domaine public, sans téléchargement ni remontage."
+    },
+    "empty": {
+      "title": "L’étagère est vide",
+      "desc": "Synchronisez la bibliothèque du domaine public depuis l’Admin Panel et elle se remplit aussitôt.",
+      "searchTitle": "Aucun film trouvé",
+      "searchDesc": "Essayez un autre titre ou choisissez une catégorie.",
+      "listTitle": "Votre liste est vide",
+      "listDesc": "Touchez + sur un film pour l’enregistrer."
+    },
+    "play": "Lecture",
+    "resume": "Reprendre",
+    "info": "Infos",
+    "close": "Fermer",
+    "myList": "Ma liste",
+    "ratingLabel": "Note du public sur Internet Archive : {{rating}}/5",
+    "nav": {
+      "home": "Accueil",
+      "search": "Rechercher"
+    },
+    "switchingSource": "Passage à une autre source…",
+    "retry": "Réessayer",
+    "videoFailed": {
+      "title": "Impossible de charger le film",
+      "desc": "Aucune source ne répond. C’est souvent le réseau qui n’atteint pas le serveur d’archive : réessayez ou changez de réseau."
+    }
   }
 }

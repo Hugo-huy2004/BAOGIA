@@ -167,6 +167,26 @@ const SCENES = {
     </>
   ),
 
+  // Supporter — tai nghe trợ lý AI 24/7
+  supporter: (f) => (
+    <>
+      <rect x="7" y="7" width="34" height="34" rx="9" fill="#000" opacity="0.2" />
+      <rect x="7" y="7" width="34" height="34" rx="9" fill="url(#supporter-glyph-grad)" />
+      <defs>
+        <linearGradient id="supporter-glyph-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#10b981" />
+          <stop offset="50%" stopColor="#14b8a6" />
+          <stop offset="100%" stopColor="#06b6d4" />
+        </linearGradient>
+      </defs>
+      <path d="M15 25a9 9 0 0 1 18 0v6a3 3 0 0 1-3 3h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h5" fill="none" stroke="#ffffff" strokeWidth="2.8" strokeLinecap="round" />
+      <rect x="12" y="21" width="5" height="9" rx="2.5" fill="#ffffff" opacity="0.9" />
+      <rect x="31" y="21" width="5" height="9" rx="2.5" fill="#ffffff" opacity="0.9" />
+      <circle cx="24" cy="22" r="3.5" fill="#ffffff" />
+      <circle cx="24" cy="22" r="1.5" fill="#0f172a" />
+    </>
+  ),
+
   // Phim (Cinema) — Clapperboard Điện Ảnh & Cuộn Phim Tím Indigo Độc Quyền
   cinema: (f) => (
     <>

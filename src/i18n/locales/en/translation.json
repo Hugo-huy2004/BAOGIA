@@ -4627,6 +4627,10 @@
         "title": "Hugo Team",
         "description": "Student roles and collaborative projects"
       },
+      "supporter": {
+        "title": "Supporter AI",
+        "description": "24/7 AI Support Assistant"
+      },
       "psychology": {
         "title": "HugoPSY",
         "description": "AI wellbeing and sleep tracking"
@@ -4648,8 +4652,8 @@
         "description": "Games that reward JOY"
       },
       "cinema": {
-        "title": "Movies",
-        "description": "High Quality 4K Cinema App",
+        "title": "Chill Premium",
+        "description": "Public-domain cinema: classics, animation, sci-fi and documentaries",
         "fullDescription": "Watch 3D short films, sci-fi movies, and classic cinema managed by Admin."
       },
       "aura": {
@@ -6427,6 +6431,67 @@
       "caiDat": "Settings",
       "dangXuat": "Sign out",
       "batTatVaMuc": "The switch and the “automatic” level live in the Green tab. Turned off in this mode: the AI assistant, maps,\n          the store, the app library, animated backgrounds and every repeating server poll."
+    }
+  },
+  "cinema": {
+    "back": "Back",
+    "searchPlaceholder": "Search films, creators…",
+    "continueWatching": "Continue watching",
+    "searchResults": "Results for “{{query}}”",
+    "upNext": "Up next",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "views": "{{formatted}} views",
+    "libraryNote": "Every film here is in the public domain or released under an open licence, streamed from the Internet Archive, so anyone can watch it legally.",
+    "cat": {
+      "all": "All films",
+      "classic": "Classics",
+      "cartoon": "Animation",
+      "scifi": "Sci-fi",
+      "horror": "Horror",
+      "shorts": "3D shorts",
+      "doc": "Documentary"
+    },
+    "action": {
+      "like": "Like",
+      "save": "Save",
+      "saved": "Saved",
+      "savedOn": "Added to your saved list",
+      "savedOff": "Removed from your saved list",
+      "share": "Share",
+      "linkCopied": "Film link copied"
+    },
+    "token": {
+      "shared": "Watching films and listening to HugoRadio draw on the same token allowance.",
+      "ranOut": "Out of tokens — buy more to keep watching."
+    },
+    "source": {
+      "title": "Source & licence",
+      "body": "Streamed straight from the Internet Archive. Hugo Cinema only points at public-domain prints; nothing is downloaded or re-cut."
+    },
+    "empty": {
+      "title": "The shelf is empty",
+      "desc": "Sync the public-domain library from the Admin Panel and the shelf fills up right away.",
+      "searchTitle": "No films found",
+      "searchDesc": "Try another title, or pick a category.",
+      "listTitle": "Your list is empty",
+      "listDesc": "Tap + on any film to save it for later."
+    },
+    "play": "Play",
+    "resume": "Resume",
+    "info": "Info",
+    "close": "Close",
+    "myList": "My list",
+    "ratingLabel": "Viewer score on Internet Archive: {{rating}}/5",
+    "nav": {
+      "home": "Home",
+      "search": "Search"
+    },
+    "switchingSource": "Switching to another source…",
+    "retry": "Try again",
+    "videoFailed": {
+      "title": "Could not load the film",
+      "desc": "Neither source responded. Usually the network is blocking the archive host — try again or switch network."
     }
   }
 }

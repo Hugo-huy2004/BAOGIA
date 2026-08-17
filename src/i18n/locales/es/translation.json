@@ -6192,5 +6192,66 @@
       "dangXuat": "Salir",
       "batTatVaMuc": "El cambio y el nivel ‘automático’ están en la pestaña Verde. Desactivado en este modo: asistente inteligente, mapas,\n          tienda, biblioteca de aplicaciones, fondo animado y cada consulta recurrente del servidor."
     }
+  },
+  "cinema": {
+    "back": "Volver",
+    "searchPlaceholder": "Buscar películas, autores…",
+    "continueWatching": "Seguir viendo",
+    "searchResults": "Resultados de «{{query}}»",
+    "upNext": "A continuación",
+    "showMore": "Ver más",
+    "showLess": "Ver menos",
+    "views": "{{formatted}} visualizaciones",
+    "libraryNote": "Todas las películas de aquí son de dominio público o tienen licencia abierta y se emiten desde Internet Archive, así que cualquiera puede verlas legalmente.",
+    "cat": {
+      "all": "Todas las películas",
+      "classic": "Clásicos",
+      "cartoon": "Animación",
+      "scifi": "Ciencia ficción",
+      "horror": "Terror",
+      "shorts": "Cortos 3D",
+      "doc": "Documental"
+    },
+    "action": {
+      "like": "Me gusta",
+      "save": "Guardar",
+      "saved": "Guardada",
+      "savedOn": "Añadida a tu lista guardada",
+      "savedOff": "Quitada de tu lista guardada",
+      "share": "Compartir",
+      "linkCopied": "Enlace de la película copiado"
+    },
+    "token": {
+      "shared": "Ver películas y escuchar HugoRadio comparten el mismo cupo de tokens.",
+      "ranOut": "Sin tokens: compra más para seguir viendo."
+    },
+    "source": {
+      "title": "Fuente y licencia",
+      "body": "Se emite directamente desde Internet Archive. Hugo Cinema solo enlaza copias de dominio público: no descarga ni reedita nada."
+    },
+    "empty": {
+      "title": "La estantería está vacía",
+      "desc": "Sincroniza la biblioteca de dominio público desde el Admin Panel y se llenará al instante.",
+      "searchTitle": "No se encontraron películas",
+      "searchDesc": "Prueba con otro título o elige una categoría.",
+      "listTitle": "Tu lista está vacía",
+      "listDesc": "Toca + en cualquier película para guardarla."
+    },
+    "play": "Reproducir",
+    "resume": "Continuar",
+    "info": "Info",
+    "close": "Cerrar",
+    "myList": "Mi lista",
+    "ratingLabel": "Puntuación del público en Internet Archive: {{rating}}/5",
+    "nav": {
+      "home": "Inicio",
+      "search": "Buscar"
+    },
+    "switchingSource": "Cambiando a otra fuente…",
+    "retry": "Reintentar",
+    "videoFailed": {
+      "title": "No se pudo cargar la película",
+      "desc": "Ninguna fuente respondió. Suele ser la red bloqueando el servidor del archivo: reinténtalo o cambia de red."
+    }
   }
 }
