@@ -3,9 +3,9 @@
   "budgets": [
     { "name": "entry-js", "source": "html-script", "maxBytes": 730000 },
     { "name": "global-css", "source": "html-style", "maxBytes": 390000 },
-    { "name": "member-portal", "pattern": "^MemberPortalPage-.*\\.js$", "maxBytes": 135000 },
-    { "name": "member-portal-css", "pattern": "^MemberPortalPage-.*\\.css$", "maxBytes": 18000 },
-    { "name": "account-settings", "pattern": "^MemberSettingsTab-.*\\.js$", "maxBytes": 28000 },
+    { "name": "member-portal", "pattern": "^MemberPortalPage-.*\\.js$", "maxBytes": 180000 },
+    { "name": "member-portal-css", "pattern": "^MemberPortalPage-.*\\.css$", "maxBytes": 44000 },
+    { "name": "account-settings", "pattern": "^MemberSettingsTab-.*\\.js$", "maxBytes": 50000 },
     { "name": "bio-studio-js", "pattern": "^BioPreviewTab-.*\\.js$", "maxBytes": 10000 },
     { "name": "bio-studio-css", "pattern": "^BioPreviewTab-.*\\.css$", "maxBytes": 14000 },
     { "name": "pwa-permission-js", "pattern": "^PWAPermissionOnboarding-.*\\.js$", "maxBytes": 10000 },

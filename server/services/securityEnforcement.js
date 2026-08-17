@@ -179,7 +179,21 @@ async function resolvePhone(email, suppliedPhone) {
   }
 }
 
+// Nhóm vi phạm chỉ chặn MẠNG, không đụng tới tài khoản.
+//
+// Vỡ hạn mức lưu lượng là sự cố của đường truyền chứ không phải hành vi của một
+// con người: một tab chạy loạn, một đợt deploy làm mọi tab tải lại cùng lúc, hay
+// đơn giản là cả nhà mạng dùng chung một IP sau NAT. Trước đây một sự cố như vậy
+// khoá luôn email 30 ngày, và lần thứ hai là khoá VĨNH VIỄN — chính chủ mất tài
+// khoản vì trình duyệt của mình bấm nhiều quá. Chặn IP đã đủ dập lưu lượng;
+// khoá tài khoản để dành cho vi phạm nội dung/xâm nhập, nơi có chủ ý thật.
+const NETWORK_ONLY_CATEGORIES = new Set(['availability_attack']);
+
 async function applyActorBlock({ ip, email, phone, caseId, reasonCode }) {
+  if (NETWORK_ONLY_CATEGORIES.has(reasonCode)) {
+    return applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false });
+  }
+
   const [ipBlock, emailBlock] = await Promise.all([
     applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false }),
     applySubjectBlock('email', email, { caseId, reasonCode }),
@@ -319,27 +333,42 @@ export function assessRequestThreat({ originalUrl = '', body = {}, query = {} } 
   return null;
 }
 
+// ── MỨC XỬ LÝ ──────────────────────────────────────────────────────
+// `immediate` = chặn ngay từ câu đầu tiên. Chỉ để dành cho đe doạ bạo lực có
+// thật, nơi chờ tới lần thứ hai là quá muộn.
+//
+// Mọi luật còn lại dùng `threshold`: lần đầu TỪ CHỐI câu đó và ghi vào sổ, lần
+// thứ hai trong 24 giờ mới chặn. Lý do: đây là app sức khoẻ tinh thần, người
+// dùng gõ đủ thứ câu tò mò; khoá 30 ngày cả mạng truy cập ngay ở câu đầu là
+// hình phạt không tương xứng với một câu chat — và một lần khoá nhầm là mất
+// người dùng thật.
 const PSY_RULES = [
   {
     category: 'system_attack',
     severity: 'critical',
     ruleId: 'targeted_system_attack',
-    enforcement: 'immediate',
+    enforcement: 'threshold',
     pattern: /(?:đánh\s*sập|phá(?:\s+hoại)?|xâm\s*nhập|hack|ddos|dos)\s+(?:website|trang\s*web|hệ\s*thống|server|máy\s*chủ|hugopsy|hugo)|(?:hack|ddos|take\s+down|destroy)\s+(?:the\s+)?(?:site|website|system|server|hugopsy|hugo)/i,
   },
   {
     category: 'joy_abuse',
     severity: 'critical',
     ruleId: 'joy_theft_or_forgery',
-    enforcement: 'immediate',
+    enforcement: 'threshold',
     pattern: /(?:(?:hack|ăn\s*cắp|chiếm|làm\s*giả|sửa|tăng)\s+(?:điểm\s+)?joy|(?:steal|forge|hack|increase)\s+(?:the\s+)?joy)/i,
   },
   {
     category: 'intrusion',
     severity: 'critical',
     ruleId: 'credential_or_prompt_exfiltration',
-    enforcement: 'immediate',
-    pattern: /(?:(?:ignore|bỏ\s*qua).{0,40}(?:previous|trước|system).{0,80}(?:prompt|instruction|chỉ\s*dẫn)|(?:reveal|show|đưa|tiết\s*lộ).{0,50}(?:system\s*prompt|api\s*key|secret|mật\s*khẩu|token\s*hệ\s*thống)|(?:bypass|jailbreak).{0,50}(?:guard|safety|bảo\s*mật|hệ\s*thống))/i,
+    enforcement: 'threshold',
+    // Chỉ khớp khi nhắm vào BÍ MẬT CỦA HỆ THỐNG. Bản cũ bắt cả chữ "mật khẩu"
+    // và "secret" trần, nên "tôi quên mật khẩu, đưa tôi cách lấy lại" hay "show
+    // me the secret santa idea" là chặn 30 ngày — và đó chính là thứ đã khoá
+    // nhầm. Tương tự, "bypass ... bảo mật" bắt luôn câu hỏi lập trình bình
+    // thường ("làm sao bypass lỗi bảo mật CORS"), nên `bypass` giờ phải nhắm
+    // vào bộ lọc/kiểm duyệt của chính hệ thống này.
+    pattern: /(?:(?:ignore|bỏ\s*qua).{0,40}(?:previous|trước|system).{0,80}(?:prompt|instruction|chỉ\s*dẫn)|(?:reveal|show|đưa|tiết\s*lộ).{0,50}(?:system\s*prompt|prompt\s*hệ\s*thống|api\s*key|khoá\s*api|token\s*hệ\s*thống|biến\s*môi\s*trường|(?:mật\s*khẩu|password)\s*(?:quản\s*trị|admin|hệ\s*thống))|jailbreak|bypass.{0,50}(?:guard\s*rail|guardrail|safety|content\s*filter|bộ\s*lọc|kiểm\s*duyệt))/i,
   },
   {
     category: 'violent_facilitation',
