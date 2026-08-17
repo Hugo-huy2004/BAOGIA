@@ -337,8 +337,17 @@
 }
 .arc-stat-box strong {
   display: block; margin-top: 2px;
-  font-size: 22px; line-height: 28px; font-weight: 700;
+  font-size: 20px; line-height: 28px; font-weight: 700;
   font-variant-numeric: tabular-nums; color: var(--arc-t1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.arc-stat-box--balance strong {
+  font-size: 13px !important;
+  line-height: 28px !important;
+  letter-spacing: -0.3px;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* Vùng bảng xếp hạng — cùng lề 16px với các khối grouped khác */

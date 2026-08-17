@@ -3345,6 +3345,10 @@
         "aura": {
           "title": "HugoAura",
           "desc": "Không gian tập trung Pomodoro cùng âm thanh thiên nhiên thư giãn."
+        },
+        "cinema": {
+          "title": "Phim",
+          "desc": "Trình chiếu phim ngắn 3D, khoa học viễn tưởng và phim kinh điển công cộng 4K."
         }
       },
       "guideTitle": "Hướng dẫn sử dụng",
@@ -4646,6 +4650,11 @@
       "arcade": {
         "title": "HugoArcade",
         "description": "Trò chơi giải trí nhận JOY"
+      },
+      "cinema": {
+        "title": "Phim",
+        "description": "Rạp chiếu phim điện ảnh chất lượng cao 4K",
+        "fullDescription": "Trình chiếu các bộ phim ngắn 3D, phim khoa học viễn tưởng và điện ảnh kinh điển do Admin quản lý."
       },
       "aura": {
         "title": "HugoAura",
@@ -6198,6 +6207,12 @@
         "title": "Năm thế giới. Một đường chạy.",
         "description": "Snake 3D Pro trở lại với sân chơi toàn màn hình, chuyển động mượt, cổng dịch chuyển và thử thách mới sau mỗi chặng.",
         "hint": "Giữ một lối thoát, săn lõi vàng và sẵn sàng khi môi trường đổi luật."
+      },
+      "pinball": {
+        "eyebrow": "Pinball 3D Retro Classic",
+        "title": "Căn lực bắn bi. Dội cọc nạp JOY.",
+        "description": "Trải nghiệm bàn Pinball 3D Arcade rực rỡ phong cách Retro Neon với cọc Bumper 3D đa tầng, hố nhân điểm và thưởng JOY thời gian thực.",
+        "hint": "Giữ nút BẮN BI (hoặc phím Space) để căn lực phóng bi, dùng phím A/D hoặc nút cảm ứng gạt Flipper!"
       }
     }
   },

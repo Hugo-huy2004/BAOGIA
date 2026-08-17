@@ -117,6 +117,16 @@ export default function LoginPage() {
     }
   };
 
+  const handleQuickDemoLogin = () => {
+    loginMember({
+      email: "huylggcs230377@fpt.edu.vn",
+      name: "Jayme Holden",
+      role: "member",
+    });
+    localStorage.setItem(LAST_EMAIL_KEY, "huylggcs230377@fpt.edu.vn");
+    navigate("/member");
+  };
+
   useEffect(() => {
     if (activeMode !== "member") return;
 
@@ -427,8 +437,18 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <div className="py-2 flex justify-center">
-                <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-300" />
+              <div className="py-2 flex flex-col items-center gap-3">
+                <div ref={googleButtonRef} className="flex justify-center transition-opacity duration-300 min-h-[44px]" />
+                
+                {/* Nút Đăng nhập Nhanh Demo khi Google OAuth bị lỗi origin trên localhost */}
+                <button
+                  type="button"
+                  onClick={handleQuickDemoLogin}
+                  className="w-full max-w-[320px] py-3 rounded-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <span className="material-symbols-outlined text-base text-amber-400">bolt</span>
+                  <span>Đăng Nhập Nhanh Thành Viên Demo (FPT Edu)</span>
+                </button>
               </div>
 
               {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
@@ -436,9 +456,14 @@ export default function LoginPage() {
               )}
 
               {googleConfigError && (
-                <div className="rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-[10px] text-warning dark:text-amber-300">
-                  <p className="font-semibold">{googleConfigError}</p>
-                  <p className="mt-1 text-muted-foreground">Authorized JavaScript origins cần chứa origin hiện tại và domain production.</p>
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-left text-[11px] text-amber-600 dark:text-amber-300 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-base">info</span>
+                    Google Client ID chưa được cấp quyền cho Domain/Port hiện tại ({window.location.origin})
+                  </p>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    Bạn cần thêm <code className="bg-black/10 dark:bg-white/10 px-1 py-0.5 rounded font-mono">{window.location.origin}</code> vào mục <strong>Authorized JavaScript origins</strong> trên Google Cloud Console. Hoặc nhấn nút <strong>Đăng Nhập Nhanh</strong> phía trên để truy cập ngay.
+                  </p>
                 </div>
               )}
 

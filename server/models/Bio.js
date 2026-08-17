@@ -315,6 +315,10 @@ const BioSchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
+    isJoyWalletFrozen: {
+      type: Boolean,
+      default: false
+    },
     // Ngôn ngữ chính người dùng chọn lúc onboarding. Lưu ở server vì phần dịch
     // thông báo push và phần đơn vị JOY đều cần biết, không thể tin localStorage.
     language: {

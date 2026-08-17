@@ -13,6 +13,7 @@ import partnerRoutes from './routes/partnerRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import adminBrainRoutes from './routes/adminBrainRoutes.js';
 import coderResourceRoutes from './routes/coderResourceRoutes.js';
 import fileToolsRoutes from './routes/fileToolsRoutes.js';
 import companionRoutes from './routes/companionRoutes.js';
@@ -265,6 +266,7 @@ import checkinRoutes from './routes/checkinRoutes.js';
 import presenceRoutes from './routes/presenceRoutes.js';
 import radioRoutes from './routes/radioRoutes.js';
 import arcadeRoutes from './routes/arcadeRoutes.js';
+import cinemaRoutes from './routes/cinemaRoutes.js';
 import webauthnRoutes from './routes/webauthnRoutes.js';
 import memberAuthRoutes from './routes/memberAuthRoutes.js';
 import memberProgressRoutes from './routes/memberProgressRoutes.js';
@@ -298,6 +300,7 @@ app.use('/api/partners', partnerRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/brain', adminBrainRoutes);
 app.use('/api/coder-resources', coderResourceRoutes);
 app.use('/api/coder-lessons', coderLessonRoutes);
 app.use('/api/today', todayRoutes);
@@ -325,6 +328,7 @@ app.use('/api/webauthn', webauthnRoutes);
 app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
+app.use('/api/cinema', cinemaRoutes);
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {
   try {

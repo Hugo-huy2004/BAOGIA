@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { joyText } from "../../../lib/joyDisplay";
 
-// Nhãn nhóm — thuần trình bày. Khoá nhóm do máy chủ gắn (utils/joySources.js),
-// nhóm lạ rơi về "Khác" nên thêm nguồn mới ở server không làm vỡ chỗ này.
+import TransactionReceiptModal from "../wallet/TransactionReceiptModal";
+
 function dayKey(iso, locale) {
   const d = new Date(iso);
   return d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -52,6 +52,7 @@ export default function JoyHistory({ limit = 50 }) {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedTx, setSelectedTx] = useState(null);
   const [filter, setFilter] = useState("all");
 
   const load = useCallback(() => {
@@ -188,12 +189,17 @@ export default function JoyHistory({ limit = 50 }) {
                 </span>
               </div>
               {day.items.map((tx) => (
-                <div key={tx.id} className="flex items-center gap-3 border-t border-border px-4 py-3">
-                  <span className="material-symbols-outlined text-[20px] text-muted-foreground">
-                    {tx.amount >= 0 ? "arrow_downward" : "arrow_upward"}
+                <button
+                  key={tx.id}
+                  type="button"
+                  onClick={() => setSelectedTx(tx)}
+                  className="w-full flex items-center gap-3 border-t border-border px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                >
+                  <span className={`material-symbols-outlined text-[22px] ${tx.amount >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+                    {tx.amount >= 0 ? "south_west" : "north_east"}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] font-medium text-foreground">{tx.title}</p>
+                    <p className="truncate text-[15px] font-bold text-foreground">{tx.title}</p>
                     <p className="truncate text-[12.5px] text-muted-foreground">
                       {timeLabel(tx.createdAt, locale)}
                       {tx.description ? ` · ${tx.description}` : ""}
@@ -201,8 +207,8 @@ export default function JoyHistory({ limit = 50 }) {
                   </div>
                   <div className="shrink-0 text-right">
                     <p
-                      className={`font-mono text-[15px] font-semibold ${
-                        tx.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
+                      className={`font-mono text-[15px] font-black ${
+                        tx.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
                       {tx.amount >= 0 ? "+" : "−"}
@@ -212,12 +218,19 @@ export default function JoyHistory({ limit = 50 }) {
                       {t("memberPortal.accountHub.historyCopy.balanceAfter", { balance: fmt(tx.balanceAfter) })}
                     </p>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           ))
         )}
       </div>
+
+      {selectedTx && (
+        <TransactionReceiptModal
+          tx={selectedTx}
+          onClose={() => setSelectedTx(null)}
+        />
+      )}
     </div>
   );
 }

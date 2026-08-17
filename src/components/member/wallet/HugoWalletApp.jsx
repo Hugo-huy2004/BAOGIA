@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { useJoyStore } from "../../../stores/joyStore";
 import {
   fetchJoyPerks, fetchChallengeStatus, checkHasPin, fetchJoyHistory, getJoyLaterStatus, claimTreeBonus,
@@ -34,6 +35,7 @@ const MembershipTab = lazy(() => import("./MembershipTab"));
 const JoyTree = lazy(() => import("./JoyTree"));
 const JoyConverter = lazy(() => import("./JoyConverter"));
 const JoyDenomPicker = lazy(() => import("./JoyDenomPicker"));
+import TransactionReceiptModal from "./TransactionReceiptModal";
 
 const TABS = [
   { id: "overview", icon: "account_balance_wallet", labelKey: "memberPortal.walletApp.tabOverview" },
@@ -101,8 +103,17 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
   const referralCount = useJoyStore((state) => state.referralCount);
   const setBalance = useJoyStore((state) => state.setBalance);
 
-  const [tab, setTab] = useState("overview");
-  const [sub, setSub] = useState(null);   // perks | store | redeem | convert
+  const [searchParams] = useSearchParams();
+  const paramTab = searchParams.get("tab");
+  const paramSub = searchParams.get("sub");
+  const [tab, setTab] = useState(() => paramTab || "overview");
+  const [sub, setSub] = useState(() => paramSub || null);
+
+  useEffect(() => {
+    if (paramTab) setTab(paramTab);
+    if (paramSub) setSub(paramSub);
+  }, [paramTab, paramSub]);
+  const [selectedTx, setSelectedTx] = useState(null);
   const [perks, setPerks] = useState(null);
   const [perksLoading, setPerksLoading] = useState(false);
   const [perksError, setPerksError] = useState("");
@@ -170,13 +181,22 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
     return () => window.removeEventListener("hugo:notification", refresh);
   }, [loadRecent, loadLoan]);
 
+  useEffect(() => {
+    if (sub === "perks" && !perks) loadPerks();
+    if (tab === "missions" && challenges.length === 0) loadChallenges();
+  }, [sub, tab, perks, challenges.length, loadPerks, loadChallenges]);
+
   const pendingMissions = challenges.filter((item) => item.completed && !item.claimed);
   const claimedCount = challenges.filter((item) => item.claimed).length;
   const pendingJoy = pendingMissions.reduce((sum, item) => sum + (item.amount || 0), 0);
   const activeVoucherCount = perks?.vouchers?.filter((voucher) => !voucher.used)?.length || 0;
   const spinAvailable = Boolean(perks?.spin?.available);
 
-  const openSub = (id) => { hapticSelect(); setSub(id); };
+  const openSub = (id) => {
+    hapticSelect();
+    if (id === "perks" && !perks) loadPerks();
+    setSub(id);
+  };
   const timeOf = (iso) => new Date(iso).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 
   return (
@@ -315,8 +335,13 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
             <section className="wal-group">
               {recent.length === 0 && <p className="wal-empty">{t("memberPortal.walletApp.noTransactions")}</p>}
               {recent.slice(0, 4).map((tx) => (
-                <div key={tx.id} className="wal-row is-static">
-                  <span className="wal-row__icon material-symbols-outlined" aria-hidden="true">
+                <button
+                  key={tx.id}
+                  type="button"
+                  onClick={() => { hapticSelect(); setSelectedTx(tx); }}
+                  className="wal-row text-left"
+                >
+                  <span className={`wal-row__icon material-symbols-outlined ${tx.amount >= 0 ? "text-emerald-500" : "text-rose-500"}`} aria-hidden="true">
                     {tx.amount >= 0 ? "south_west" : "north_east"}
                   </span>
                   <span className="wal-row__body">
@@ -326,7 +351,8 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
                   <span className={`wal-row__value is-${tx.amount >= 0 ? "in" : "out"}`}>
                     {tx.amount >= 0 ? "+" : "−"}{fmt(Math.abs(tx.amount))}
                   </span>
-                </div>
+                  <span className="wal-row__chevron material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                </button>
               ))}
               {recent.length > 0 && (
                 <Row icon="more_horiz" title={t("memberPortal.walletApp.seeAll")} onClick={() => { hapticSelect(); setTab("history"); }} />
@@ -386,7 +412,7 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
             />
           </Panel>
         )}
-        {!sub && tab === "history" && <Panel><JoyHistory /></Panel>}
+        {!sub && tab === "history" && <Panel><JoyHistory showToast={showToast} /></Panel>}
         {!sub && tab === "later" && <Panel><JoyLaterSheet onBalanceChange={() => { loadPerks(); loadRecent(); loadLoan(); }} /></Panel>}
       </main>
 
@@ -412,6 +438,14 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
             </button>
           ))}
         </nav>
+      )}
+
+      {selectedTx && (
+        <TransactionReceiptModal
+          tx={selectedTx}
+          onClose={() => setSelectedTx(null)}
+          showToast={showToast}
+        />
       )}
     </div>
   );

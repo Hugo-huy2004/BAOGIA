@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { userApi } from "../../services/api/UserApi";
+import { useData } from "../../context/DataContext";
+import { dataApi } from "../../services/dataApi";
 import { getAdminSession, logoutAuth } from "../../services/authSession";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import AdminHeader from "../../components/admin/AdminHeader";
@@ -16,6 +18,9 @@ import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
 import AdminCoderSubmissionsTab from "../../components/admin/AdminCoderSubmissionsTab";
 import AdminCoderResourcesTab from "../../components/admin/AdminCoderResourcesTab";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
+import AdminBrainTab from "../../components/admin/AdminBrainTab";
+import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
+import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
 
 function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
   if (!open) return null;
@@ -30,8 +35,12 @@ function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
   );
 }
 
-export default function AdminPanel({ data, updateSystemSettings, updateAdvertisement, handleAdImageUpload, handleAdDelete }) {
+export default function AdminPanel() {
   const { t } = useTranslation();
+  // Lấy thẳng từ DataContext. Trước đây nhận qua prop, nhưng App.jsx render
+  // <AdminPanel /> không kèm prop nào — nên `data` là undefined và mọi công
+  // tắc trong tab Cài đặt ném "updateSystemSettings is not a function".
+  const { data = {}, updateSystemSettings = () => {}, updateAdvertisement = () => {} } = useData() || {};
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
@@ -136,6 +145,42 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
     setToastMsg(msg);
     setToastType(type);
     setTimeout(() => setToastMsg(""), 3500);
+  };
+
+  // Ảnh banner quảng cáo. Hai hàm này trước giờ chỉ là tên prop rỗng — không có
+  // định nghĩa ở bất kỳ đâu trong repo, nên ô chọn ảnh và nút xoá là nút chết.
+  const handleAdImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploadingAd(true);
+    try {
+      const base64Str = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      // Truyền ảnh cũ để Cloudinary xoá bản cũ thay vì để lại rác.
+      const { url } = await dataApi.uploadImage(base64Str, data?.advertisement?.imageUrl || null);
+      await updateAdvertisement({ imageUrl: url });
+      showNotification(t("adminTabs.settings.adUpload"));
+    } catch {
+      showNotification("Tải ảnh quảng cáo thất bại.", "error");
+    } finally {
+      setUploadingAd(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleAdDelete = async () => {
+    const url = data?.advertisement?.imageUrl;
+    // Tắt luôn quảng cáo: giữ isActive khi đã mất ảnh là banner rỗng trên trang.
+    await updateAdvertisement({ imageUrl: "", isActive: false });
+    if (url) {
+      try {
+        await dataApi.delete("/api/data/delete-ad", { body: JSON.stringify({ url }) });
+      } catch { /* ảnh đã rời khỏi trang; dọn Cloudinary lỗi thì bỏ qua */ }
+    }
   };
 
   const triggerConfirm = (message, onConfirm) => {
@@ -423,28 +468,34 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
           />
         )}
 
+        {/* ── CORE HUB: ADMIN BỘ NÃO MÁY TÍNH AI ── */}
+        {activeTab === "brain" && <AdminBrainTab />}
+
+        {/* ── CORE HUB: NHẬT KÝ KIỂM TOÁN TỰ ĐỘNG ── */}
+        {activeTab === "audit" && <AdminAuditLogTab />}
+
         {/* ── CORE HUB 2: USER & SUPPORT HUB ── */}
         {activeTab === "users" && (
           <div className="space-y-6">
-            {/* Sub-view Nav Header */}
-            <div className="flex items-center gap-1 p-1 rounded-2xl bg-muted/60 w-fit">
+            {/* iOS 26 Segmented Control Capsule */}
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
               <button
                 onClick={() => setUserSubView("roster")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${userSubView === "roster" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "roster" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">group</span>
-                <span>Thành viên ({totalMatchedUsers})</span>
+                <span>Thành viên ({totalMatchedUsers.toLocaleString()})</span>
               </button>
               <button
                 onClick={() => setUserSubView("support")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${userSubView === "support" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "support" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">support_agent</span>
                 <span>Hỗ trợ &amp; Tickets</span>
               </button>
               <button
                 onClick={() => setUserSubView("hugoteam")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${userSubView === "hugoteam" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "hugoteam" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">badge</span>
                 <span>Tuyển Dụng Hugo Team</span>
@@ -479,18 +530,18 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
         {/* ── CORE HUB 3: ECOSYSTEM & STORE HUB ── */}
         {activeTab === "ecosystem" && (
           <div className="space-y-6">
-            {/* Sub-view Nav Header */}
-            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+            {/* iOS 26 Segmented Control Capsule */}
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
               <button
                 onClick={() => setEcoSubView("store")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${ecoSubView === "store" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "store" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">shopping_bag</span>
                 <span>Cửa Hàng Utility</span>
               </button>
               <button
                 onClick={() => setEcoSubView("services")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${ecoSubView === "services" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "services" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">card_membership</span>
                 <span>Dịch Vụ & Gói Cước VIP</span>
@@ -502,21 +553,26 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
           </div>
         )}
 
+        {/* ── CORE HUB CINEMA: QUẢN TRỊ PHIM HỆ THỐNG ── */}
+        {activeTab === "cinema" && (
+          <AdminCinemaTab showNotice={showNotification} />
+        )}
+
         {/* ── CORE HUB 4: HUGOCODER PORTAL ── */}
         {activeTab === "coder" && (
           <div className="space-y-6">
-            {/* Sub-view Nav Header */}
-            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+            {/* iOS 26 Segmented Control Capsule */}
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
               <button
                 onClick={() => setCoderSubView("submissions")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${coderSubView === "submissions" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${coderSubView === "submissions" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">assignment_turned_in</span>
                 <span>Duyệt Bài Nộp Đồ Án</span>
               </button>
               <button
                 onClick={() => setCoderSubView("resources")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${coderSubView === "resources" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${coderSubView === "resources" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">video_library</span>
                 <span>Quản Lý Học Liệu & Video</span>
@@ -531,25 +587,25 @@ export default function AdminPanel({ data, updateSystemSettings, updateAdvertise
         {/* ── CORE HUB 5: SYSTEM COMMAND & CONFIG ── */}
         {activeTab === "system" && (
           <div className="space-y-6">
-            {/* Sub-view Nav Header */}
-            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-fit">
+            {/* iOS 26 Segmented Control Capsule */}
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
               <button
                 onClick={() => setSystemSubView("monitor")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${systemSubView === "monitor" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "monitor" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">monitor_heart</span>
                 <span>Giám Sát & Logs Hệ Thống</span>
               </button>
               <button
                 onClick={() => setSystemSubView("projects")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${systemSubView === "projects" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "projects" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">folder_open</span>
                 <span>Quản Lý Dự Án</span>
               </button>
               <button
                 onClick={() => setSystemSubView("settings")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${systemSubView === "settings" ? "bg-white dark:bg-card text-foreground shadow-sm" : "text-muted-foreground"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "settings" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">settings</span>
                 <span>Cài Đặt Admin</span>

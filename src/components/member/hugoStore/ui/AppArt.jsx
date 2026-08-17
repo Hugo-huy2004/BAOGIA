@@ -137,6 +137,28 @@ const SCENES = {
     </>
   ),
 
+  // Phim Ảnh & Giải Trí — Clapperboard Tím Indigo Độc Quyền
+  cinema: (
+    <>
+      <rect x="36" y="24" width="128" height="82" rx="18" fill="#000" opacity="0.25" />
+      <rect x="36" y="24" width="128" height="82" rx="18" fill="url(#cinema-art-grad)" />
+      <defs>
+        <linearGradient id="cinema-art-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8b5cf6" />
+          <stop offset="100%" stopColor="#4f46e5" />
+        </linearGradient>
+      </defs>
+      {/* Clapperboard nghệ thuật */}
+      <rect x="58" y="52" width="84" height="44" rx="6" fill="#ffffff" opacity="0.95" />
+      <path d="M54 44 L146 32 L146 44 L54 56 Z" fill="#ffffff" />
+      <path d="M68 42 L78 40.7 L74 52 L64 53.3 Z" fill="#4f46e5" />
+      <path d="M94 38.6 L104 37.3 L100 48.6 L90 49.9 Z" fill="#4f46e5" />
+      <path d="M120 35.2 L130 33.9 L126 45.2 L116 46.5 Z" fill="#4f46e5" />
+      <circle cx="100" cy="74" r="10" fill="#4f46e5" />
+      <circle cx="100" cy="74" r="4" fill="#ffffff" />
+    </>
+  ),
+
   // Học Tập — ba lớp cửa sổ mã xếp chồng theo chiều sâu
   ide: (
     <>

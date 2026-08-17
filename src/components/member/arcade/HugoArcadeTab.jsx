@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
-import { Blocks, Swords, Castle, Infinity as InfinityIcon, Rocket } from "lucide-react";
+import { Blocks, Swords, Castle, Infinity as InfinityIcon, Rocket, Disc } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
 import StandaloneGameShell from "./StandaloneGameShell";
 import BackButton from "../shared/BackButton";
@@ -32,6 +32,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "/api";
 // nhãn thể loại lấy thẳng từ `arcadeIntro.games.*` — bộ chữ đó đã được dịch tay
 // cho cả 9 ngôn ngữ, chép lại ở đây là tự tạo ra bản thứ hai để lệch nhau.
 const GAMES = [
+  { id: "pinball",  name: "Hugo CyberPinball 3D", Icon: Disc, studio: true },
   { id: "chess",    name: "HugoChess Table 3D",  Icon: Castle, studio: true },
   { id: "survivor", name: "Hugo Space Survivor", Icon: Rocket, studio: true },
   { id: "snake",    name: "Hugo Snake 3D Pro",   Icon: InfinityIcon, studio: true },
@@ -51,12 +52,10 @@ const CATEGORIES = [
 // ─── Sub-components ────────────────────────────────────────────────
 
 const JoyChip = React.memo(function JoyChip({ balance }) {
-  const { i18n } = useTranslation();
   return (
     <div className="arc-joy-chip">
       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>toll</span>
-      <span>{(balance ?? 0).toLocaleString(localeForLanguage(i18n.language))}</span>
-      <small>{joyCode()}</small>
+      <span>{joyText(balance ?? 0)}</span>
     </div>
   );
 });
@@ -351,9 +350,9 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
                     <small>{t("arcadeGame.wins")}</small>
                     <strong>{totalWins}</strong>
                   </div>
-                  <div className="arc-stat-box">
-                    <small>{joyCode()}</small>
-                    <strong>{(joyBalance ?? 0).toLocaleString(locale)}</strong>
+                  <div className="arc-stat-box arc-stat-box--balance">
+                    <small>{t("memberPortal.walletApp.balanceLabel")}</small>
+                    <strong title={joyText(joyBalance ?? 0)}>{joyText(joyBalance ?? 0)}</strong>
                   </div>
                 </div>
               </>

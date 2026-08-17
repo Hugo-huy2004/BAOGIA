@@ -167,6 +167,30 @@ const SCENES = {
     </>
   ),
 
+  // Phim (Cinema) — Clapperboard Điện Ảnh & Cuộn Phim Tím Indigo Độc Quyền
+  cinema: (f) => (
+    <>
+      <rect x="7" y="7" width="34" height="34" rx="9" fill="#000" opacity="0.2" />
+      <rect x="7" y="7" width="34" height="34" rx="9" fill="url(#cinema-glyph-grad)" />
+      <defs>
+        <linearGradient id="cinema-glyph-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8b5cf6" />
+          <stop offset="100%" stopColor="#4f46e5" />
+        </linearGradient>
+      </defs>
+      {/* Bảng bấm máy Clapperboard trắng */}
+      <rect x="13" y="19" width="22" height="16" rx="3" fill="#ffffff" opacity="0.95" />
+      {/* Thanh bấm máy nghiêng */}
+      <path d="M12 17 L36 12 L36 16 L12 21 Z" fill="#ffffff" />
+      <path d="M16 16.2 L19 15.6 L18 19 L15 19.6 Z" fill="#4f46e5" />
+      <path d="M23 14.8 L26 14.2 L25 17.6 L22 18.2 Z" fill="#4f46e5" />
+      <path d="M30 13.4 L33 12.8 L32 16.2 L29 16.8 Z" fill="#4f46e5" />
+      {/* Mắt cuộn phim trung tâm */}
+      <circle cx="24" cy="27" r="3.5" fill="#4f46e5" />
+      <circle cx="24" cy="27" r="1.5" fill="#ffffff" />
+    </>
+  ),
+
   // Bản Tin Hệ Thống — vòng thông tin
   info: (f) => (
     <>

@@ -19,7 +19,8 @@ const APP_STORAGE_MB = {
   team: 1.6,
   bio: 1.5,
   info: 0.8,
-  hugoso: 3.6
+  hugoso: 3.6,
+  cinema: 4.8
 };
 
 const APP_VERSIONS = {
@@ -33,7 +34,8 @@ const APP_VERSIONS = {
   arcade: "3.5.0",
   aura: "2.1.0",
   info: "2.0.0",
-  hugoso: "1.0.0"
+  hugoso: "1.0.0",
+  cinema: "1.0.0"
 };
 
 export default function LibraryCatalog({

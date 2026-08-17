@@ -18,6 +18,7 @@ const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 const HugoWalletApp = lazy(() => import("./wallet/HugoWalletApp"));
+const HugoCinemaTab = lazy(() => import("./cinema/HugoCinemaTab"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -40,7 +41,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = ["joy_wallet", "psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team"].includes(selectedUtility);
+  const isFullscreenLikeUtility = ["joy_wallet", "psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "cinema"].includes(selectedUtility);
 
   // Chặn ở đây — chỗ app được render — nên mọi đường vào đều bị chặn như nhau:
   // icon ngoài Home, Thư viện, Spotlight, Hugo Store, liên kết dán tay, và cả
@@ -172,6 +173,15 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           onBioUpdate={onBioUpdate}
           onBack={() => onSelectUtility(null)}
           onOpenUtility={onSelectUtility}
+        />
+      )}
+
+      {/* Hugo Cinema */}
+      {selectedUtility === "cinema" && (
+        <HugoCinemaTab
+          onBack={() => onSelectUtility(null)}
+          bio={bio}
+          showToast={showToast}
         />
       )}
       </Suspense>

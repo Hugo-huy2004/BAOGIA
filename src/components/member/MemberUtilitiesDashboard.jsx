@@ -84,6 +84,7 @@ const APP_CATALOG = [
   ["handle", "handyman", "indigo", "tools", "4.9", "10k", "utility"],
   ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "games"],
   ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "focus"],
+  ["cinema", "movie", "purple", "arcade", "5.0", "30k", "cinema"],
   ["info", "info", "slate", "tools", "4.8", "6k", "system"],
   ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "20k", "utility"],
   ["store", "store", "blue", "tools", "5.0", "50k", "store"],

@@ -25,8 +25,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
   // Mọi số tiền ra màn hình đều đi qua đơn vị của tài khoản — `fmt` là SỐ,
   // `money` là số kèm mã đơn vị. Không chỗ nào in "JOY" làm đơn vị nữa.
   const joy = useJoy();
-  const fmt = joy.number;
-  const money = joy.text;
+  const { number: fmt, text: money, toRaw } = joy;
   const day = (value) => (value
     ? new Date(value).toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
     : "—");
@@ -50,17 +49,17 @@ export default function JoyLaterSheet({ onBalanceChange }) {
 
   useEffect(() => { load(); }, [load]);
 
-  // Báo giá theo số vừa nhập, chờ người dùng ngừng gõ để không gọi mỗi ký tự.
-  // Một lần gọi trả về bảng giá của CẢ bốn mức chia đợt (`quote.options`), nên
-  // đổi số đợt không phải chờ mạng lần nữa.
+  // Báo giá theo số vừa nhập theo ĐƠN VỊ HIỂN THỊ CỦA NGUYỜI DÙNG -> chuyển sang JOY gốc
   useEffect(() => {
     const value = Number(amount);
     if (!Number.isFinite(value) || value <= 0) { setQuote(null); return undefined; }
+    const rawJoy = toRaw(value);
+    if (!Number.isFinite(rawJoy) || rawJoy <= 0) { setQuote(null); return undefined; }
     const timer = setTimeout(() => {
-      quoteJoyLater(Math.round(value), installments).then(setQuote).catch(() => setQuote(null));
+      quoteJoyLater(Math.round(rawJoy), installments).then(setQuote).catch(() => setQuote(null));
     }, 350);
     return () => clearTimeout(timer);
-  }, [amount, installments]);
+  }, [amount, installments, toRaw]);
 
   const handleOpen = async () => {
     if (!quote?.withinLimit) return;
@@ -78,7 +77,7 @@ export default function JoyLaterSheet({ onBalanceChange }) {
       setInstallments(1);
       setQuote(null);
       onBalanceChange?.();
-      notify.success(t("memberPortal.joyLater.opened", { amount: quote.principal }));
+      notify.success(t("memberPortal.joyLater.opened", { amount: money(quote.principal) }));
     } catch (error) {
       notify.error(error.message);
     } finally {
@@ -243,21 +242,22 @@ export default function JoyLaterSheet({ onBalanceChange }) {
             {t("memberPortal.joyLater.limit")}
           </p>
           <p className="jl-panel__amount">{money(status.limit)}</p>
-          <p className="jl-panel__sub">{t("memberPortal.joyLater.limitFrom", { income: status.medianDaily })}</p>
+          <p className="jl-panel__sub">{t("memberPortal.joyLater.limitFrom", { income: money(status.medianDaily) })}</p>
 
-          <label className="mt-4 block text-sm font-semibold text-foreground" htmlFor="joylater-amount">
-            {t("memberPortal.joyLater.amountLabel")}
+          <label className="mt-4 block text-sm font-semibold text-foreground flex items-center justify-between" htmlFor="joylater-amount">
+            <span>Muốn mở trước bao nhiêu {joy.code}?</span>
+            <span className="text-xs font-bold text-muted-foreground">(Đơn vị: {joy.code})</span>
           </label>
           <input
             id="joylater-amount"
             type="number"
             inputMode="numeric"
             min="1"
-            max={status.limit}
+            max={joy.value(status.limit)}
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
-            placeholder={String(status.limit)}
-            className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground"
+            placeholder={String(Math.round(joy.value(status.limit)))}
+            className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-base text-foreground font-mono font-bold"
           />
 
           {/* Chọn cách trả — hai bước.

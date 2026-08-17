@@ -236,6 +236,63 @@
    ========================================================= */
 
 @layer components {
+  /* iOS 26 Liquid Glass Design System Tokens */
+  .ios-glass {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06), inset 0 1px 1px 0 rgba(255, 255, 255, 0.6);
+  }
+
+  .dark .ios-glass {
+    background: rgba(18, 20, 32, 0.75);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .ios-glass-card {
+    border-radius: 28px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ios-glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.2);
+  }
+
+  .ios-pill {
+    border-radius: 9999px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: all 0.2s ease-out;
+  }
+
+  .ios-segmented-control {
+    padding: 4px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .ios-segmented-control {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .ios-card-adaptive {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(226, 232, 240, 0.8);
+    color: #0f172a;
+  }
+  .dark .ios-card-adaptive {
+    background-color: rgba(18, 20, 36, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+  }
+
   .member-portal-shell {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
     font-size: var(--text-body);
@@ -2090,6 +2147,10 @@ html.standalone-pwa .member-portal-shell {
    */
   overflow-x: clip;
 
+  /* Portal là app, không phải trang web: cấm pinch-zoom và double-tap zoom.
+     Giữ `pan-x` để mấy dải chip cuộn ngang (.activity-gallery-filters…) vẫn
+     lướt được; trang public bên ngoài portal vẫn zoom bình thường cho a11y. */
+  touch-action: pan-x pan-y;
 }
 
 html.standalone-pwa .desktop-apple-layout {
@@ -2499,6 +2560,13 @@ html.standalone-pwa .desktop-apple-layout {
     min-height: 0;
     padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
     overflow-y: auto;
+    /* `overflow-y: auto` một mình biến trục X từ `visible` thành `auto` theo
+       spec, nên đây MỚI là ô cuộn thật của portal và nó cuộn được cả ngang —
+       `overflow-x: clip` ở .member-portal-shell nằm NGOÀI ô này nên không cản
+       được. Một chi tiết tràn mép (nền giấy full-bleed của tab Hôm nay dùng
+       right: -100vw) là lướt được sang phải. Khoá trục X ngay tại ô cuộn: app
+       chỉ lướt dọc, và full-bleed vẫn bị cắt đúng bề ngang màn hình. */
+    overflow-x: hidden;
     overscroll-behavior-y: contain;
   }
 

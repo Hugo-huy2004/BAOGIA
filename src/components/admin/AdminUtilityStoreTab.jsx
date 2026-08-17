@@ -1,382 +1,457 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAdminSession } from '../../services/authSession';
+import adminBrainApi from '../../services/api/AdminBrainApi';
 import { notify } from '../../lib/notify';
+import { formatJoyDual, formatJoyCompact } from '../../utils/joyFormatter';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const EMPTY_FORM = {
   name: '', description: '', priceJoy: '', category: 'general', stock: -1, imageUrl: '',
   productType: 'general', extendDays: '', tokenType: 'chat', tokenAmount: '', radioMinutes: ''
 };
 
-// Icon + badge + color are fully derived from productType — admins never pick an icon manually.
 const PRODUCT_TYPE_META = {
-  general: { icon: 'redeem', badgeKey: 'badgeGeneral', color: 'emerald' },
-  system_validity: { icon: 'event_available', badgeKey: 'badgeSystemValidity', color: 'amber' },
-  psy_study_tokens: { icon: 'psychology', badgeKey: 'badgePsyStudy', color: 'indigo' },
-  radio_time: { icon: 'radio', badgeKey: 'badgeRadioTime', color: 'cyan' }
+  general: { icon: 'redeem', label: 'Thông thường', color: 'emerald' },
+  system_validity: { icon: 'event_available', label: 'Gia hạn HSD', color: 'amber' },
+  psy_study_tokens: { icon: 'psychology', label: 'Token Psy-Study', color: 'indigo' },
+  radio_time: { icon: 'radio', label: 'Phút Radio', color: 'cyan' }
 };
-
-const COLOR_CLASSES = {
-  emerald: { badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400', icon: 'text-emerald-500', glow: 'from-emerald-400/15 to-emerald-600/5', border: 'border-emerald-400' },
-  amber: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400', icon: 'text-amber-500', glow: 'from-amber-400/15 to-amber-600/5', border: 'border-amber-400' },
-  indigo: { badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400', icon: 'text-indigo-500', glow: 'from-indigo-400/15 to-indigo-600/5', border: 'border-indigo-400' },
-  cyan: { badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/40 dark:text-cyan-400', icon: 'text-cyan-500', glow: 'from-cyan-400/15 to-cyan-600/5', border: 'border-cyan-400' }
-};
-
-function getTypeMeta(productType) {
-  return PRODUCT_TYPE_META[productType] || PRODUCT_TYPE_META.general;
-}
 
 export default function AdminUtilityStoreTab() {
   const { t } = useTranslation();
+  const [activeSubTab, setActiveSubTab] = useState('products'); // products | orders
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [refundingId, setRefundingId] = useState(null);
+  const [orderSearch, setOrderSearch] = useState('');
 
-  const getHeaders = () => {
-    const session = getAdminSession();
-    return {
-      'Content-Type': 'application/json',
-      ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {})
-    };
-  };
-
-  const fetchAll = async () => {
+  const fetchAllData = async () => {
+    setLoading(true);
     try {
       const [pRes, oRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/utility-store/admin/products`, { headers: getHeaders(), credentials: 'include' }),
-        fetch(`${API_BASE_URL}/utility-store/admin/orders`, { headers: getHeaders(), credentials: 'include' }),
+        adminBrainApi.getStoreProducts(),
+        adminBrainApi.getStoreOrders(100)
       ]);
-      setProducts(await pRes.json());
-      setOrders(await oRes.json());
-    } catch (_) {} finally { setLoading(false); }
+      setProducts(pRes.products || []);
+      setOrders(oRes.orders || []);
+    } catch (err) {
+      notify.error(err.message || 'Lỗi khi tải dữ liệu Cửa hàng');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
-  async function handleSubmit(e) {
+  const handleSubmitProduct = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.priceJoy) return;
+    if (!form.name || !form.priceJoy) {
+      return notify.error('Tên sản phẩm và Giá JOY là bắt buộc');
+    }
     setSaving(true);
     try {
-      const typeMeta = getTypeMeta(form.productType);
-      const url = editingId ? `${API_BASE_URL}/utility-store/admin/products/${editingId}` : `${API_BASE_URL}/utility-store/admin/products`;
-      const r = await fetch(url, {
-        method: editingId ? 'PUT' : 'POST',
-        headers: getHeaders(),
-        credentials: 'include',
-        body: JSON.stringify({ ...form, icon: typeMeta.icon, priceJoy: Number(form.priceJoy), stock: Number(form.stock) }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Lỗi lưu sản phẩm');
       if (editingId) {
-        setProducts(prev => prev.map(p => p._id === editingId ? data : p));
+        await adminBrainApi.updateStoreProduct(editingId, form);
+        notify.success('Đã cập nhật sản phẩm thành công');
       } else {
-        setProducts(prev => [data, ...prev]);
+        await adminBrainApi.createStoreProduct(form);
+        notify.success('Đã tạo mới sản phẩm Store');
       }
-      notify.success(t('adminTabs.utilityStore.saveSuccess'));
       setForm(EMPTY_FORM);
       setEditingId(null);
+      fetchAllData();
     } catch (err) {
-      notify.error(err.message);
+      notify.error(err.message || 'Lỗi khi lưu sản phẩm');
     } finally {
       setSaving(false);
     }
-  }
+  };
 
-  function startEdit(p) {
+  const startEditProduct = (p) => {
     setEditingId(p._id);
     setForm({
-      name: p.name, description: p.description, priceJoy: p.priceJoy, category: p.category, stock: p.stock, imageUrl: p.imageUrl || '',
-      productType: p.productType || 'general', extendDays: p.extendDays || '', tokenType: p.tokenType || 'chat', tokenAmount: p.tokenAmount || '',
+      name: p.name || '',
+      description: p.description || '',
+      priceJoy: p.priceJoy || '',
+      category: p.category || 'general',
+      stock: p.stock !== undefined ? p.stock : -1,
+      imageUrl: p.imageUrl || '',
+      productType: p.productType || 'general',
+      extendDays: p.extendDays || '',
+      tokenType: p.tokenType || 'chat',
+      tokenAmount: p.tokenAmount || '',
       radioMinutes: p.radioMinutes || ''
     });
-  }
+  };
 
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-  }
-
-  async function handleImageUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return notify.error(t('adminTabs.settings.adImage') + ' không hợp lệ');
-
-    setUploadingImage(true);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        const r = await fetch(`${API_BASE_URL}/utility-store/admin/upload-image`, {
-          method: 'POST',
-          headers: getHeaders(),
-          credentials: 'include',
-          body: JSON.stringify({ base64Str: reader.result, oldUrl: form.imageUrl }),
-        });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || 'Lỗi tải ảnh');
-        setForm(p => ({ ...p, imageUrl: data.url }));
-      } catch (err) {
-        notify.error(err.message);
-      } finally {
-        setUploadingImage(false);
-        e.target.value = '';
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function toggleActive(p) {
+  const handleToggleActive = async (p) => {
     try {
-      const r = await fetch(`${API_BASE_URL}/utility-store/admin/products/${p._id}`, {
-        method: 'PUT', headers: getHeaders(), credentials: 'include',
-        body: JSON.stringify({ active: !p.active }),
-      });
-      const data = await r.json();
-      setProducts(prev => prev.map(x => x._id === p._id ? data : x));
-    } catch (_) {}
-  }
-
-  async function handleDelete(id) {
-    try {
-      const r = await fetch(`${API_BASE_URL}/utility-store/admin/products/${id}`, { method: 'DELETE', headers: getHeaders(), credentials: 'include' });
-      if (!r.ok) throw new Error('Lỗi xoá sản phẩm');
-      setProducts(prev => prev.filter(p => p._id !== id));
-      notify.success(t('adminTabs.utilityStore.deleteSuccess'));
+      const res = await adminBrainApi.toggleStoreProduct(p._id);
+      notify.success(res.message || 'Đã đổi trạng thái sản phẩm');
+      fetchAllData();
     } catch (err) {
-      notify.error(err.message);
+      notify.error(err.message || 'Lỗi khi thao tác');
     }
-  }
+  };
 
-  const formTypeMeta = getTypeMeta(form.productType);
-  const formColors = COLOR_CLASSES[formTypeMeta.color];
+  const handleCancelAndRefund = async (orderId) => {
+    setRefundingId(orderId);
+    try {
+      const res = await adminBrainApi.cancelAndRefundStoreOrder(orderId);
+      notify.success(res.message || 'Đã hủy đơn hàng và hoàn tiền JOY');
+      fetchAllData();
+    } catch (err) {
+      notify.error(err.message || 'Lỗi khi hủy đơn & hoàn tiền JOY');
+    } finally {
+      setRefundingId(null);
+    }
+  };
+
+  const filteredOrders = orders.filter((o) => {
+    if (!orderSearch.trim()) return true;
+    const q = orderSearch.toLowerCase();
+    return (
+      (o.purchaseCode && o.purchaseCode.toLowerCase().includes(q)) ||
+      (o.email && o.email.toLowerCase().includes(q)) ||
+      (o.productName && o.productName.toLowerCase().includes(q))
+    );
+  });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-fadeIn">
-      <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-4">
-        <div className="bg-white dark:bg-background rounded-2xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-500 text-base">{editingId ? 'edit' : 'add_box'}</span>
-            {editingId ? t('adminTabs.utilityStore.editTitle') : t('adminTabs.utilityStore.createTitle')}
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header & Sub-tab Capsule */}
+      <div className="p-6 rounded-3xl bg-white/70 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <span className="material-symbols-outlined text-purple-500">storefront</span>
+            <span>Trung tâm Quản lý Cửa hàng Utility Store</span>
           </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Quản lý kho sản phẩm, định giá JOY và hủy đơn hoàn tiền 1-click cho thành viên.
+          </p>
+        </div>
 
-            {/* Image upload */}
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.imageLabel')}</label>
-              <div className="flex items-center gap-3">
-                <div className={`relative w-20 h-20 shrink-0 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-gradient-to-br ${formColors.glow} flex items-center justify-center`}>
-                  {form.imageUrl ? (
-                    <img src={form.imageUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className={`material-symbols-outlined text-3xl ${formColors.icon}`}>{formTypeMeta.icon}</span>
+        {/* Subtab Segmented Capsule */}
+        <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 backdrop-blur-xl">
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('products')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${
+              activeSubTab === 'products'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">inventory_2</span>
+            <span>Danh mục Sản phẩm ({products.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab('orders')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${
+              activeSubTab === 'orders'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">receipt_long</span>
+            <span>Đơn hàng &amp; Hoàn JOY ({orders.length})</span>
+          </button>
+        </div>
+      </div>
+
+      {/* SUBTAB 1: PRODUCTS MANAGEMENT */}
+      {activeSubTab === 'products' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Form Creator Column */}
+          <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-4">
+            <form onSubmit={handleSubmitProduct} className="p-6 rounded-3xl bg-white/70 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm backdrop-blur-xl space-y-4">
+              <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-purple-500">{editingId ? 'edit' : 'add_circle'}</span>
+                  <span>{editingId ? 'Chỉnh sửa Sản phẩm' : 'Thêm Sản phẩm mới'}</span>
+                </span>
+                {editingId && (
+                  <button
+                    type="button"
+                    onClick={() => { setEditingId(null); setForm(EMPTY_FORM); }}
+                    className="text-[10px] text-rose-500 font-bold hover:underline"
+                  >
+                    Hủy sửa
+                  </button>
+                )}
+              </h4>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Tên sản phẩm *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ví dụ: Gói Gia hạn 30 Ngày"
+                  value={form.name}
+                  onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-purple-500 font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Mô tả ngắn</label>
+                <input
+                  type="text"
+                  placeholder="Ví dụ: Mở rộng thời gian sử dụng tài khoản"
+                  value={form.description}
+                  onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Giá JOY cơ sở *</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    placeholder="Ví dụ: 1000"
+                    value={form.priceJoy}
+                    onChange={(e) => setForm(p => ({ ...p, priceJoy: e.target.value }))}
+                    className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-amber-600 dark:text-amber-400 text-xs font-black outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  {form.priceJoy && !isNaN(Number(form.priceJoy)) && (
+                    <div className="text-[10px] text-amber-600 font-bold ml-2">
+                      = {formatJoyDual(Number(form.priceJoy))}
+                    </div>
                   )}
                 </div>
-                <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-[10px] font-bold uppercase cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors">
-                    <span className="material-symbols-outlined text-sm">{uploadingImage ? 'progress_activity' : 'upload_file'}</span>
-                    {uploadingImage ? t('adminTabs.utilityStore.imageUploading') : t('adminTabs.utilityStore.imageUpload')}
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
-                  </label>
-                  {form.imageUrl && (
-                    <button type="button" onClick={() => setForm(p => ({ ...p, imageUrl: '' }))} className="text-[9px] font-bold uppercase text-rose-500 hover:text-rose-600 py-1">
-                      {t('adminTabs.utilityStore.imageRemove')}
-                    </button>
-                  )}
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Số lượng kho (-1 vô hạn)</label>
+                  <input
+                    type="number"
+                    value={form.stock}
+                    onChange={(e) => setForm(p => ({ ...p, stock: e.target.value }))}
+                    className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500"
+                  />
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.nameLabel')}</label>
-              <input type="text" required value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.descLabel')}</label>
-              <input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+              {/* Product Type Picker */}
               <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.priceLabel')}</label>
-                <input type="number" required min="1" value={form.priceJoy} onChange={e => setForm(p => ({ ...p, priceJoy: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300">Loại sản phẩm (Tính năng tự động)</label>
+                <select
+                  value={form.productType}
+                  onChange={(e) => setForm(p => ({ ...p, productType: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="general">Thông thường (Quà tặng/Dịch vụ)</option>
+                  <option value="system_validity">Gia hạn HSD Tài khoản (Bio.expiresAt)</option>
+                  <option value="psy_study_tokens">Token Psy-Study (Chat/Call)</option>
+                  <option value="radio_time">Phút phát Radio (Member Radio)</option>
+                </select>
               </div>
-              <div className="space-y-1">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.stockLabel')}</label>
-                <input type="number" value={form.stock} onChange={e => setForm(p => ({ ...p, stock: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-              </div>
-            </div>
 
-            {/* Product type — drives icon + badge automatically */}
-            <div className="space-y-1.5">
-              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t('adminTabs.utilityStore.productTypeLabel')}</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {Object.entries(PRODUCT_TYPE_META).map(([key, meta]) => {
-                  const colors = COLOR_CLASSES[meta.color];
-                  const isActive = form.productType === key;
-                  const labelKey = key === 'general' ? 'typeGeneral' : key === 'system_validity' ? 'typeSystemValidity' : key === 'radio_time' ? 'typeRadioTime' : 'typePsyStudy';
+              {form.productType === 'system_validity' && (
+                <div className="space-y-1 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                  <label className="block text-[11px] font-bold text-amber-800 dark:text-amber-300">Số ngày gia hạn thêm (extendDays)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Ví dụ: 30"
+                    value={form.extendDays}
+                    onChange={(e) => setForm(p => ({ ...p, extendDays: e.target.value }))}
+                    className="w-full px-4 py-2 rounded-full bg-white dark:bg-black/40 border border-amber-500/30 text-xs font-bold outline-none"
+                  />
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full py-3 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-black text-xs transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+              >
+                {saving && <span className="material-symbols-outlined animate-spin text-sm">sync</span>}
+                <span>{editingId ? 'Lưu thay đổi sản phẩm' : 'Tạo mới sản phẩm'}</span>
+              </button>
+            </form>
+          </div>
+
+          {/* Product Roster Grid Column */}
+          <div className="lg:col-span-7 space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              Danh sách Sản phẩm Cửa hàng ({products.length})
+            </h4>
+
+            {loading ? (
+              <div className="py-12 text-center text-slate-500 gap-2 flex items-center justify-center">
+                <span className="material-symbols-outlined animate-spin text-xl">sync</span>
+                <span>Đang tải danh sách sản phẩm...</span>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="py-12 text-center text-slate-500 italic">Chưa có sản phẩm nào.</div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {products.map((p) => {
+                  const meta = PRODUCT_TYPE_META[p.productType] || PRODUCT_TYPE_META.general;
                   return (
-                    <button
-                      type="button"
-                      key={key}
-                      onClick={() => setForm(p => ({ ...p, productType: key }))}
-                      className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all ${
-                        isActive ? `${colors.border} ${colors.badge}` : 'border-slate-200 dark:border-slate-800 text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    <div
+                      key={p._id}
+                      className={`p-5 rounded-3xl border transition-all space-y-3 shadow-sm ${
+                        p.active
+                          ? 'bg-white/70 dark:bg-white/5 border-slate-200/80 dark:border-white/10'
+                          : 'bg-slate-100/40 dark:bg-white/[0.02] border-slate-200/40 dark:border-white/5 opacity-60'
                       }`}
                     >
-                      <span className={`material-symbols-outlined text-lg ${isActive ? colors.icon : ''}`}>{meta.icon}</span>
-                      <span className="text-[8px] font-black uppercase tracking-wide text-center leading-tight px-1">{t(`adminTabs.utilityStore.${labelKey}`)}</span>
-                    </button>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                          <span className="material-symbols-outlined text-purple-500 text-xl">{meta.icon}</span>
+                          <div>
+                            <div className="font-extrabold text-slate-900 dark:text-white text-xs">{p.name}</div>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400">{meta.label}</div>
+                          </div>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          p.active ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-slate-500/20 text-slate-600 dark:text-slate-400'
+                        }`}>
+                          {p.active ? 'Bật' : 'Ẩn'}
+                        </span>
+                      </div>
+
+                      {p.description && (
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2">{p.description}</p>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200/50 dark:border-white/5 text-xs">
+                        <span className="font-black text-amber-600 dark:text-amber-400">
+                          {formatJoyDual(p.priceJoy)}
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-500">
+                          Kho: {p.stock === -1 ? 'Vô hạn' : p.stock}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => startEditProduct(p)}
+                          className="flex-1 py-1.5 rounded-full bg-slate-200 hover:bg-slate-300 dark:bg-white/10 dark:hover:bg-white/20 text-slate-900 dark:text-white text-[10px] font-bold transition-all"
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleActive(p)}
+                          className={`flex-1 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+                            p.active
+                              ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 hover:bg-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/30'
+                          }`}
+                        >
+                          {p.active ? 'Ẩn sản phẩm' : 'Bật kích hoạt'}
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-            </div>
+            )}
+          </div>
+        </div>
+      )}
 
-            {form.productType === 'system_validity' && (
-              <div className="space-y-1 p-3 rounded-xl bg-amber-50 dark:bg-amber-500/5 border border-amber-200/60 dark:border-amber-500/20">
-                <label className="block text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">{t('adminTabs.utilityStore.extendDaysLabel')}</label>
-                <input type="number" required min="1" value={form.extendDays} onChange={e => setForm(p => ({ ...p, extendDays: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
+      {/* SUBTAB 2: ORDERS & 1-CLICK JOY REFUND */}
+      {activeSubTab === 'orders' && (
+        <div className="space-y-4">
+          <div className="p-4 rounded-3xl bg-white/70 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm backdrop-blur-xl flex items-center justify-between gap-4">
+            <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              Tra cứu Đơn hàng Mua sắm ({filteredOrders.length}/{orders.length})
+            </div>
+            <input
+              type="text"
+              placeholder="Tìm theo mã mua hàng, email..."
+              value={orderSearch}
+              onChange={(e) => setOrderSearch(e.target.value)}
+              className="px-4 py-2 rounded-full bg-slate-100 dark:bg-black/40 border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500 w-64"
+            />
+          </div>
+
+          <div className="rounded-3xl bg-white/70 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm backdrop-blur-xl overflow-hidden">
+            {loading ? (
+              <div className="py-16 text-center text-slate-500 gap-2 flex items-center justify-center">
+                <span className="material-symbols-outlined animate-spin text-xl">sync</span>
+                <span>Đang tải danh sách đơn hàng...</span>
+              </div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="py-16 text-center text-slate-500 text-xs italic">Chưa có đơn hàng nào phù hợp.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-white/10 font-black uppercase tracking-widest text-[9px]">
+                      <th className="px-6 py-4">Thời gian</th>
+                      <th className="px-6 py-4">Mã Mua Hàng</th>
+                      <th className="px-6 py-4">Người dùng</th>
+                      <th className="px-6 py-4">Sản phẩm</th>
+                      <th className="px-6 py-4">Giá JOY</th>
+                      <th className="px-6 py-4">Trạng thái</th>
+                      <th className="px-6 py-4 text-right">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/60 font-medium">
+                    {filteredOrders.map((o) => (
+                      <tr key={o._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-[11px] text-slate-500 font-mono">
+                          {new Date(o.createdAt).toLocaleString('vi-VN')}
+                        </td>
+                        <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-white">
+                          {o.purchaseCode}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                          {o.email}
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-slate-800 dark:text-slate-200">
+                          {o.productName}
+                        </td>
+                        <td className="px-6 py-4 font-mono font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                          {formatJoyDual(o.priceJoy)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                            o.status === 'cancelled'
+                              ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30'
+                              : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                          }`}>
+                            {o.status === 'cancelled' ? 'Đã hủy & Hoàn JOY' : 'Thành công'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                          {o.status !== 'cancelled' ? (
+                            <button
+                              type="button"
+                              onClick={() => handleCancelAndRefund(o._id)}
+                              disabled={refundingId === o._id}
+                              className="px-3 py-1.5 rounded-full bg-rose-500 hover:bg-rose-600 text-white font-black text-[10px] transition-all shadow-md active:scale-95 disabled:opacity-50"
+                            >
+                              {refundingId === o._id ? 'Đang hoàn tiền...' : 'Hủy đơn & Hoàn JOY'}
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 italic">Đã hoàn tiền</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-
-            {form.productType === 'psy_study_tokens' && (
-              <div className="space-y-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/5 border border-indigo-200/60 dark:border-indigo-500/20">
-                <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{t('adminTabs.utilityStore.tokenTypeLabel')}</label>
-                  <select value={form.tokenType} onChange={e => setForm(p => ({ ...p, tokenType: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold">
-                    <option value="chat">{t('adminTabs.utilityStore.tokenTypeChat')}</option>
-                    <option value="call">{t('adminTabs.utilityStore.tokenTypeCall')}</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{t('adminTabs.utilityStore.tokenAmountLabel')}</label>
-                  <input type="number" required min="1" value={form.tokenAmount} onChange={e => setForm(p => ({ ...p, tokenAmount: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-                </div>
-              </div>
-            )}
-
-            {form.productType === 'radio_time' && (
-              <div className="space-y-3 p-3 rounded-xl bg-cyan-50 dark:bg-cyan-500/5 border border-cyan-200/60 dark:border-cyan-500/20">
-                <div className="space-y-1">
-                  <label className="block text-[9px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">Số phút radio được cộng</label>
-                  <input type="number" required min="1" value={form.radioMinutes} onChange={e => setForm(p => ({ ...p, radioMinutes: e.target.value }))}
-                    placeholder="Ví dụ: 4320 = 3 ngày"
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1f1929] text-xs p-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-primary font-semibold" />
-                  <p className="text-[8px] text-cyan-600/70 dark:text-cyan-400/70 mt-1">
-                    3 ngày = 4320 phút · 7 ngày = 10080 phút · 30 ngày = 43200 phút
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <button type="submit" disabled={saving} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary hover:bg-indigo-650 text-white font-bold text-xs shadow-sm hover:scale-[1.01] active:scale-98 transition-all disabled:opacity-50">
-                <span className="material-symbols-outlined text-sm">save</span>
-                {saving ? '...' : (editingId ? t('adminTabs.utilityStore.saveBtn') : t('adminTabs.utilityStore.createBtn'))}
-              </button>
-              {editingId && (
-                <button type="button" onClick={cancelEdit} className="px-4 py-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold text-xs">
-                  {t('adminTabs.utilityStore.cancelBtn')}
-                </button>
-              )}
-            </div>
-          </form>
+          </div>
         </div>
-      </div>
-
-      <div className="lg:col-span-7 space-y-6">
-        <div className="bg-white dark:bg-background rounded-2xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-muted-foreground text-base">storefront</span>
-            {t('adminTabs.utilityStore.listTitle')} ({products.length})
-          </h3>
-          {loading ? (
-            <p className="text-xs text-slate-400 italic text-center py-6">{t('adminTabs.utilityStore.loading')}</p>
-          ) : products.length === 0 ? (
-            <p className="text-xs text-slate-400 italic text-center py-6">{t('adminTabs.utilityStore.empty')}</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {products.map(p => {
-                const meta = getTypeMeta(p.productType);
-                const colors = COLOR_CLASSES[meta.color];
-                return (
-                  <div key={p._id} className="rounded-2xl border border-zinc-200/70 dark:border-zinc-800 bg-white dark:bg-zinc-900/20 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className={`relative h-28 bg-gradient-to-br ${colors.glow} flex items-center justify-center overflow-hidden`}>
-                      {p.imageUrl ? (
-                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <span className={`material-symbols-outlined text-5xl ${colors.icon}`}>{meta.icon}</span>
-                      )}
-                      <span className={`absolute top-2 left-2 text-[8px] font-black uppercase px-2 py-1 rounded-full ${colors.badge} flex items-center gap-1 shadow-sm`}>
-                        <span className="material-symbols-outlined text-[11px]">{meta.icon}</span>
-                        {t(`adminTabs.utilityStore.${meta.badgeKey}`)}
-                      </span>
-                      <span className={`absolute top-2 right-2 text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${p.active ? 'bg-emerald-500 text-white' : 'bg-zinc-500 text-white'}`}>
-                        {p.active ? t('adminTabs.utilityStore.active') : t('adminTabs.utilityStore.inactive')}
-                      </span>
-                    </div>
-                    <div className="p-4 space-y-2">
-                      <h4 className="font-bold text-xs text-foreground truncate">{p.name}</h4>
-                      <p className="text-[10px] text-zinc-400 truncate">{p.description}</p>
-                      {p.productType === 'system_validity' && (
-                        <span className="inline-block text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 dark:bg-amber-950/30">+{p.extendDays} ngày HSD</span>
-                      )}
-                      {p.productType === 'psy_study_tokens' && (
-                        <span className="inline-block text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600 dark:bg-indigo-950/30">+{p.tokenAmount} {p.tokenType === 'call' ? t('adminTabs.utilityStore.tokenTypeCall') : t('adminTabs.utilityStore.tokenTypeChat')}</span>
-                      )}
-                      {p.productType === 'radio_time' && (
-                        <span className="inline-block text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-600 dark:bg-cyan-950/30">+{p.radioMinutes} phút radio</span>
-                      )}
-                      <div className="flex justify-between text-[10px] pt-1">
-                        <span className="font-mono font-bold text-amber-600 dark:text-amber-400">{p.priceJoy} JOY</span>
-                        <span className="text-zinc-400">{p.stock === -1 ? t('adminTabs.utilityStore.unlimited') : `${t('adminTabs.utilityStore.stockLabel')}: ${p.stock}`}</span>
-                      </div>
-                      <div className="flex gap-1.5 pt-1">
-                        <button onClick={() => startEdit(p)} className="flex-1 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-[9px] font-bold uppercase">{t('adminTabs.utilityStore.editBtn')}</button>
-                        <button onClick={() => toggleActive(p)} className="flex-1 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase">{p.active ? t('adminTabs.utilityStore.disableBtn') : t('adminTabs.utilityStore.enableBtn')}</button>
-                        <button onClick={() => handleDelete(p._id)} className="px-2.5 py-2 rounded-lg bg-rose-50 dark:bg-rose-950/20 text-rose-500"><span className="material-symbols-outlined text-[14px]">delete</span></button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="bg-white dark:bg-background rounded-2xl p-6 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span className="material-symbols-outlined text-muted-foreground text-base">receipt_long</span>
-            {t('adminTabs.utilityStore.ordersTitle')} ({orders.length})
-          </h3>
-          {orders.length === 0 ? (
-            <p className="text-xs text-slate-400 italic text-center py-6">{t('adminTabs.utilityStore.noOrders')}</p>
-          ) : (
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {orders.map(o => (
-                <div key={o._id} className="flex items-center justify-between p-3 bg-zinc-50/50 dark:bg-card rounded-xl border border-zinc-200/50 dark:border-zinc-800/60">
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold text-slate-800 dark:text-zinc-200 block truncate">{o.productName}</span>
-                    <span className="text-[9px] text-zinc-400">{o.email} · {o.purchaseCode}</span>
-                  </div>
-                  <span className="font-mono text-xs font-bold text-amber-600 dark:text-amber-400 shrink-0 ml-2">{o.priceJoy} JOY</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

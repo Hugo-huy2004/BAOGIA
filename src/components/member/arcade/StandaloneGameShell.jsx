@@ -14,6 +14,7 @@ import { joyCode } from "../../../lib/joyDisplay";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {
+  pinball:   React.lazy(() => import("./GamePinball3D")),
   chess:     React.lazy(() => import("./GameChess3D")),
   survivor:  React.lazy(() => import("./GameSpaceSurvivor")),
   "2048":    React.lazy(() => import("./Game2048")),

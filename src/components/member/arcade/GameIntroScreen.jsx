@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import "./game-intro.css";
 
 const GAME_META = {
+  pinball: { icon: "disc_full", detail: "2.5D HYBRID", badge: "PINBALL 3D" },
   chess: { icon: "castle", detail: "8 × 8", badge: "BOT · LOCAL" },
   survivor: { icon: "rocket_launch", detail: "4 BOSS", badge: "3D ASSAULT" },
   "2048": { icon: "grid_view", detail: "4 × 4", badge: "FUSION" },

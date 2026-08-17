@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import UserDetailModal from './UserDetailModal';
+import { formatJoyDual } from '../../utils/joyFormatter';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -36,6 +38,7 @@ const AdminUsersTab = ({
 }) => {
   const { t } = useTranslation();
   const [selectedVerificationUser, setSelectedVerificationUser] = useState(null);
+  const [inspectingUser, setInspectingUser] = useState(null);
   const [onlineStatuses, setOnlineStatuses] = useState({});
   const sentinelRef = useRef(null);
 
@@ -75,8 +78,8 @@ const AdminUsersTab = ({
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Card 1: Total */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-xl">group</span>
           </div>
           <div className="min-w-0">
@@ -85,8 +88,8 @@ const AdminUsersTab = ({
           </div>
         </div>
         {/* Card 2: Active */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-xl">person_play</span>
           </div>
           <div className="min-w-0">
@@ -95,8 +98,8 @@ const AdminUsersTab = ({
           </div>
         </div>
         {/* Card 3: Pending */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 flex items-center justify-center shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-xl">hourglass_empty</span>
           </div>
           <div className="min-w-0">
@@ -105,8 +108,8 @@ const AdminUsersTab = ({
           </div>
         </div>
         {/* Card 4: Rejected */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-xl">cancel</span>
           </div>
           <div className="min-w-0">
@@ -115,8 +118,8 @@ const AdminUsersTab = ({
           </div>
         </div>
         {/* Card 5: Locked */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shrink-0">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-xl">block</span>
           </div>
           <div className="min-w-0">
@@ -125,8 +128,8 @@ const AdminUsersTab = ({
           </div>
         </div>
         {/* Card 6: Lifetime */}
-        <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center shrink-0">
+        <div className="p-4 sm:p-5 rounded-3xl bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-lg flex items-center gap-3.5 hover:scale-[1.02] transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-purple-500/10 text-purple-500 border border-purple-500/20 flex items-center justify-center shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-xl">workspace_premium</span>
           </div>
           <div className="min-w-0">
@@ -137,35 +140,35 @@ const AdminUsersTab = ({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] space-y-3">
+      <div className="bg-white/70 dark:bg-[#141626]/75 backdrop-blur-2xl p-4 sm:p-5 rounded-3xl border border-white/20 dark:border-white/10 shadow-xl space-y-3">
         <div className="flex flex-col md:flex-row gap-3">
-          {/* Search Input */}
+          {/* Search Input Capsule */}
           <div className="relative flex-grow">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-xl">search</span>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t("admin.texts.txt_55")}
-              className="w-full pl-11 pr-10 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/60 text-xs font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder-slate-400 text-foreground outline-none shadow-inner"
+              className="w-full pl-11 pr-10 py-2.5 rounded-full border border-black/5 dark:border-white/10 bg-black/5 dark:bg-black/40 text-xs font-semibold focus:ring-2 focus:ring-blue-500 transition-all placeholder-slate-400 text-foreground outline-none shadow-inner"
             />
             {searchInput && (
               <button
                 onClick={() => setSearchInput("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-6 h-6 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center w-6 h-6 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
               </button>
             )}
           </div>
           
-          {/* Filters */}
+          {/* Filters Capsules */}
           <div className="flex flex-wrap gap-2">
             {/* Status filter */}
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setUserPage(1); }}
-              className="px-3.5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/60 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+              className="px-4 py-2.5 rounded-full border border-black/5 dark:border-white/10 bg-black/5 dark:bg-black/40 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
             >
               <option value="">{t("admin.texts.txt_30")}</option>
               <option value="active">{t("admin.texts.txt_31")}</option>
@@ -177,7 +180,7 @@ const AdminUsersTab = ({
             <select
               value={expirationFilter}
               onChange={(e) => { setExpirationFilter(e.target.value); setUserPage(1); }}
-              className="px-3.5 py-2.5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-slate-100/50 dark:bg-slate-900/60 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+              className="px-4 py-2.5 rounded-full border border-black/5 dark:border-white/10 bg-black/5 dark:bg-black/40 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
             >
               <option value="">{t("admin.texts.txt_33")}</option>
               <option value="active">{t("admin.texts.txt_34")}</option>
@@ -189,7 +192,7 @@ const AdminUsersTab = ({
             <select
               value={userSortBy}
               onChange={(e) => { setUserSortBy(e.target.value); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-4 py-2.5 rounded-full border border-black/5 dark:border-white/10 bg-black/5 dark:bg-black/40 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="createdAt">{t("admin.texts.txt_37")}</option>
               <option value="expiresAt">{t("admin.texts.txt_38")}</option>
@@ -199,9 +202,9 @@ const AdminUsersTab = ({
             {/* Sort Order Toggle */}
             <button
               onClick={() => setUserSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground flex items-center gap-1 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors"
+              className="px-4 py-2.5 rounded-full border border-black/5 dark:border-white/10 bg-black/5 dark:bg-black/40 text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 hover:bg-black/10 dark:hover:bg-white/10 transition-all"
             >
-              <span className="material-symbols-outlined text-sm font-bold">
+              <span className="material-symbols-outlined text-sm font-bold text-blue-500">
                 {userSortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward'}
               </span>
               <span>{userSortOrder === 'asc' ? t("admin.texts.txt_56") : t("admin.texts.txt_57")}</span>
@@ -211,7 +214,7 @@ const AdminUsersTab = ({
             <select
               value={userLimit}
               onChange={(e) => { setUserLimit(parseInt(e.target.value)); setUserPage(1); }}
-              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0c0b11] text-xs text-muted-foreground outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-4 py-2.5 rounded-full border border-black/5 dark:border-white/10 bg-black/5 dark:bg-black/40 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value={10}>{t("admin.texts.txt_40")}</option>
               <option value={20}>{t("admin.texts.txt_41")}</option>
@@ -240,6 +243,7 @@ const AdminUsersTab = ({
                   <tr className="bg-slate-100/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-white/10 font-black uppercase tracking-widest text-[9px]">
                     <th className="px-6 py-4">{t("admin.texts.txt_44")}</th>
                     <th className="px-6 py-4">Bio Link</th>
+                    <th className="px-6 py-4">Ví JOY</th>
                     <th className="px-6 py-4">{t("admin.texts.txt_45")}</th>
                     <th className="px-6 py-4">{t("admin.texts.txt_46")}</th>
                     <th className="px-6 py-4 text-center">{t("admin.texts.txt_47")}</th>
@@ -287,6 +291,9 @@ const AdminUsersTab = ({
                             </button>
                           </div>
                         </td>
+                        <td className="px-6 py-4 font-mono text-xs font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                          {formatJoyDual(user.joyBalance || 0)}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {formatExpiration(user.expiresAt)}
                         </td>
@@ -320,6 +327,14 @@ const AdminUsersTab = ({
                         </td>
                         <td className="px-6 py-4 text-center">
                           <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => setInspectingUser(user)}
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white shadow-md active:scale-95 flex items-center gap-1"
+                              title="Soi hồ sơ chi tiết, ví JOY & gửi Email"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">visibility</span>
+                              Soi chi tiết
+                            </button>
                             {user.verificationRequest?.submitted && (
                               <button
                                 onClick={() => setSelectedVerificationUser(user)}
@@ -668,6 +683,14 @@ const AdminUsersTab = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* User Detail Inspector Modal */}
+      {inspectingUser && (
+        <UserDetailModal
+          user={inspectingUser}
+          onClose={() => setInspectingUser(null)}
+        />
       )}
 
       {/* Infinite scroll sentinel */}

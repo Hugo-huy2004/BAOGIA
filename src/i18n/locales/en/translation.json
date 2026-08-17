@@ -4647,6 +4647,11 @@
         "title": "HugoArcade",
         "description": "Games that reward JOY"
       },
+      "cinema": {
+        "title": "Movies",
+        "description": "High Quality 4K Cinema App",
+        "fullDescription": "Watch 3D short films, sci-fi movies, and classic cinema managed by Admin."
+      },
       "aura": {
         "title": "HugoAura",
         "description": "Pomodoro focus and ambient sound"
@@ -6203,6 +6208,12 @@
         "title": "Five worlds. One endless run.",
         "description": "Snake 3D Pro returns with a full-screen arena, fluid motion, quantum portals, and a fresh challenge in every chapter.",
         "hint": "Keep an escape route, hunt golden cores, and adapt when the arena changes its rules."
+      },
+      "pinball": {
+        "eyebrow": "Pinball 3D Retro Classic",
+        "title": "Precision Launch. Bumper Score Combo.",
+        "description": "Experience Retro Neon 3D Pinball Machine with layered 3D bumpers, multiplier portals, and real-time JOY reward bonuses.",
+        "hint": "Hold the LAUNCH button (or Spacebar) to charge power, press A/D or touch controls to trigger flippers!"
       }
     }
   },

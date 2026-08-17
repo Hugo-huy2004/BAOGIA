@@ -53,6 +53,7 @@ const RAW_APPS = [
   { id: "team", color: "teal" },
   { id: "arcade", color: "orange" },
   { id: "aura", color: "purple" },
+  { id: "cinema", color: "purple" },
 ];
 
 const RAW_GAMES = [

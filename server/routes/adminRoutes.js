@@ -939,4 +939,652 @@ router.post('/orders/update-status', requireAdmin, async (req, res) => {
   }
 });
 
+// ─── DEEP USER MANAGEMENT ROUTES ─────────────────────────────────────────────
+
+// GET /admin/users/:id/details - Soi thông tin chi tiết người dùng
+router.get('/users/:id/details', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const JoyLedger = (await import('../models/JoyLedger.js')).default;
+    const SecurityEvent = (await import('../models/SecurityEvent.js')).default;
+    const SupportTicket = (await import('../models/SupportTicket.js')).default;
+    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+
+    const bio = await Bio.findById(req.params.id).lean();
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng' });
+    }
+
+    const [joyLedger, tickets, securityCount, orders] = await Promise.all([
+      JoyLedger.find({ email: bio.email }).sort({ createdAt: -1 }).limit(20).lean(),
+      SupportTicket.find({ email: bio.email }).sort({ createdAt: -1 }).limit(10).lean(),
+      SecurityEvent.countDocuments({ emailHash: crypto.createHash('sha256').update(bio.email).digest('hex') }),
+      UtilityOrder.find({ email: bio.email }).sort({ createdAt: -1 }).limit(20).lean()
+    ]);
+
+    res.json({
+      success: true,
+      bio,
+      joyLedger,
+      tickets,
+      securityCount,
+      orders
+    });
+  } catch (err) {
+    console.error('Error fetching user details:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /admin/account-settings - Đổi mật khẩu & Cấu hình tài khoản Admin
+router.put('/account-settings', requireAdmin, async (req, res) => {
+  try {
+    const { oldPassword, newPassword, adminEmail } = req.body;
+    const adminId = req.user?.id || req.user?.username;
+
+    let admin = await Admin.findOne({ username: adminId });
+    if (!admin) {
+      admin = await Admin.findOne({});
+    }
+    if (!admin) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản Admin' });
+    }
+
+    if (oldPassword && newPassword) {
+      const isMatch = await verifyAndUpgrade(admin, oldPassword);
+      if (!isMatch) {
+        return res.status(400).json({ error: 'Mật khẩu cũ không chính xác' });
+      }
+      admin.password = await bcrypt.hash(newPassword, 12);
+    }
+
+    if (adminEmail) {
+      admin.email = adminEmail;
+    }
+
+    await admin.save();
+
+    logAdminAuditAction(req, 'UPDATE_ADMIN_SETTINGS', admin._id, admin.email || 'admin', 'Cập nhật tài khoản và đổi mật khẩu Admin');
+
+    res.json({
+      success: true,
+      message: 'Đã cập nhật cài đặt tài khoản Admin thành công'
+    });
+  } catch (err) {
+    console.error('Error updating admin account settings:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /admin/users/:id/update-profile - Chỉnh sửa thông tin hồ sơ & Gia hạn ngày hết hạn (expiresAt)
+router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
+  try {
+    const { displayName, headline, phone, address, jobTitle, education, expiresAt, addDays } = req.body;
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+    }
+
+    if (displayName !== undefined) bio.displayName = displayName;
+    if (headline !== undefined) bio.headline = headline;
+    if (phone !== undefined) bio.phone = phone;
+    if (address !== undefined) bio.address = address;
+    if (jobTitle !== undefined) bio.jobTitle = jobTitle;
+    if (education !== undefined) bio.education = education;
+
+    if (addDays && !isNaN(Number(addDays))) {
+      const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();
+      const baseTime = Math.max(Date.now(), currentExp);
+      bio.expiresAt = new Date(baseTime + Number(addDays) * 24 * 60 * 60 * 1000);
+    } else if (expiresAt) {
+      bio.expiresAt = new Date(expiresAt);
+    }
+
+    bio.history.push({
+      type: 'info',
+      icon: 'edit_note',
+      title: 'Hồ sơ cập nhật bởi Admin',
+      detail: `Admin đã điều chỉnh thông tin cá nhân và thời hạn sử dụng (${new Date(bio.expiresAt).toLocaleDateString('vi-VN')}).`,
+      timestamp: new Date()
+    });
+    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
+    await bio.save();
+
+    logAdminAuditAction(req, 'UPDATE_USER_PROFILE', bio._id, bio.email, `Cập nhật hồ sơ & thời hạn HSD (${new Date(bio.expiresAt).toLocaleDateString('vi-VN')}) cho ${bio.displayName}`);
+
+    res.json({
+      success: true,
+      message: `Đã cập nhật hồ sơ và thời hạn sử dụng cho ${bio.displayName}`,
+      bio
+    });
+  } catch (err) {
+    console.error('Error updating user profile & expiration:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/adjust-joy - Điều chỉnh số dư JOY (Cộng/Trừ) trực tiếp theo đơn vị
+router.post('/users/:id/adjust-joy', requireAdmin, async (req, res) => {
+  try {
+    const { amount, description, unit = 'JOY' } = req.body;
+    const rawNum = Number(amount);
+    if (!rawNum || isNaN(rawNum)) {
+      return res.status(400).json({ error: 'Số lượng JOY không hợp lệ' });
+    }
+
+    let multiplier = 1;
+    if (unit === 'kJOY') multiplier = 1000;
+    if (unit === 'MJOY') multiplier = 1000000;
+
+    const baseJoyAmount = Math.round(rawNum * multiplier);
+    if (!baseJoyAmount) {
+      return res.status(400).json({ error: 'Số lượng quy đổi bằng 0' });
+    }
+
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+    }
+
+    const unitTag = unit !== 'JOY' ? ` (${rawNum > 0 ? '+' : ''}${rawNum} ${unit})` : '';
+    const desc = description ? `${description}${unitTag}` : `Admin điều chỉnh số dư JOY${unitTag}`;
+    const updatedBio = await awardJoy(bio.email, baseJoyAmount, 'admin_adjustment', desc);
+
+    bio.history.push({
+      type: 'info',
+      icon: 'account_balance_wallet',
+      title: 'Số dư JOY thay đổi bởi Admin',
+      detail: `${baseJoyAmount > 0 ? '+' : ''}${baseJoyAmount.toLocaleString()} JOY (${desc})`,
+      timestamp: new Date()
+    });
+    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
+    await bio.save();
+
+    logAdminAuditAction(req, 'ADJUST_JOY', bio._id, bio.email, desc, {
+      rawNum,
+      unit,
+      baseJoyAmount,
+      newBalance: updatedBio.joyBalance
+    });
+
+    res.json({
+      success: true,
+      message: `Đã ${baseJoyAmount > 0 ? 'cộng' : 'trừ'} ${Math.abs(baseJoyAmount).toLocaleString()} JOY cho ${bio.displayName}`,
+      newBalance: updatedBio.joyBalance,
+      baseJoyAmount
+    });
+  } catch (err) {
+    console.error('Error adjusting user JOY:', err);
+    res.status(500).json({ error: err.message || 'Lỗi khi điều chỉnh JOY' });
+  }
+});
+
+// GET /admin/users/:id/joy-reconciliation - Kiểm tra đối soát số dư JOY với tổng sổ cái JoyLedger
+router.get('/users/:id/joy-reconciliation', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const { reconcileJoyBalance } = await import('../utils/joyService.js');
+    const bio = await Bio.findById(req.params.id).lean();
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+
+    const recon = await reconcileJoyBalance(bio.email, false);
+    res.json({ success: true, reconciliation: recon });
+  } catch (err) {
+    console.error('Error checking JOY reconciliation:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/reconcile-joy - Khôi phục & Đồng bộ hóa chuẩn số dư Ví JOY theo Sổ cái
+router.post('/users/:id/reconcile-joy', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const { reconcileJoyBalance } = await import('../utils/joyService.js');
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+
+    const recon = await reconcileJoyBalance(bio.email, true);
+
+    logAdminAuditAction(req, 'RECONCILE_JOY', bio._id, bio.email, `Đồng bộ chuẩn hóa Ví JOY từ ${recon.currentBalance} thành ${recon.totalLedgerSum} JOY`, {
+      oldBalance: recon.currentBalance,
+      newBalance: recon.totalLedgerSum,
+      drift: recon.drift
+    });
+
+    res.json({
+      success: true,
+      message: `Đã đối soát và đồng bộ chuẩn hóa số dư ${recon.totalLedgerSum.toLocaleString()} JOY cho ${bio.displayName}`,
+      reconciliation: recon
+    });
+  } catch (err) {
+    console.error('Error executing JOY reconciliation:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /admin/audit-logs - Lấy danh sách nhật ký kiểm toán hành động quản trị
+router.get('/audit-logs', requireAdmin, async (req, res) => {
+  try {
+    const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
+    const logs = await AdminAuditLog.find().sort({ timestamp: -1 }).limit(limit).lean();
+    res.json({ success: true, logs });
+  } catch (err) {
+    console.error('Error fetching admin audit logs:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/send-voucher - Gửi tặng Voucher / JOY quà tặng kèm Tự động dịch sang ngôn ngữ thành viên
+router.post('/users/:id/send-voucher', requireAdmin, async (req, res) => {
+  try {
+    const { voucherCode, joyReward, message } = req.body;
+    const Bio = (await import('../models/Bio.js')).default;
+    const { awardJoy } = await import('../utils/joyService.js');
+    const { sendCustomEmail } = await import('../services/emailService.js');
+
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+
+    let giftJoy = Number(joyReward) || 0;
+    if (giftJoy > 0) {
+      await awardJoy(bio.email, giftJoy, 'admin_voucher', `Nhận Voucher Quà Tặng Admin (${voucherCode || 'GIFT-VOUCHER'})`);
+    }
+
+    const lang = (bio.preferredLanguage || bio.countryCode || 'vi').toLowerCase();
+    
+    // Auto-translation dictionary for voucher notification emails
+    const translations = {
+      en: {
+        subject: `🎁 You've Received a Special JOY Voucher (${voucherCode || 'GIFT-VOUCHER'})`,
+        greeting: `Hello ${bio.displayName || 'Member'},`,
+        body: `You have received a special voucher/gift from Hugo Studio Admin!`,
+        giftText: giftJoy > 0 ? `Gift JOY Awarded: +${giftJoy.toLocaleString()} JOY` : '',
+        msgLabel: `Message from Admin:`
+      },
+      ja: {
+        subject: `🎁 特別なJOYバウチャーを受け取りました (${voucherCode || 'GIFT-VOUCHER'})`,
+        greeting: `こんにちは ${bio.displayName || '会員様'},`,
+        body: `Hugo Studio Adminより特別なバウチャー/ギフトが贈られました！`,
+        giftText: giftJoy > 0 ? `付与されたJOY: +${giftJoy.toLocaleString()} JOY` : '',
+        msgLabel: `管理者からのメッセージ:`
+      },
+      ko: {
+        subject: `🎁 특별한 JOY 바우처를 받으셨습니다 (${voucherCode || 'GIFT-VOUCHER'})`,
+        greeting: `안녕하세요 ${bio.displayName || '회원님'},`,
+        body: `Hugo Studio Admin으로부터 특별한 바우처/선물을 받으셨습니다!`,
+        giftText: giftJoy > 0 ? `지급된 JOY: +${giftJoy.toLocaleString()} JOY` : '',
+        msgLabel: `관리자 메시지:`
+      },
+      vi: {
+        subject: `🎁 Bạn đã nhận được Voucher JOY Đặc biệt (${voucherCode || 'GIFT-VOUCHER'})`,
+        greeting: `Chào ${bio.displayName || 'Thành viên'},`,
+        body: `Bạn đã nhận được voucher/quà tặng đặc biệt từ Ban Quản Trị Hugo Studio!`,
+        giftText: giftJoy > 0 ? `JOY Tặng kèm: +${giftJoy.toLocaleString()} JOY` : '',
+        msgLabel: `Thông điệp từ Admin:`
+      }
+    };
+
+    const t = translations[lang] || translations.vi;
+    const finalSubject = t.subject;
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #0f172a; color: #f8fafc; border-radius: 20px;">
+        <h2 style="color: #fbbf24;">${finalSubject}</h2>
+        <p>${t.greeting}</p>
+        <p>${t.body}</p>
+        ${giftJoy > 0 ? `<div style="padding: 12px 16px; background: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; border-radius: 12px; color: #fbbf24; font-weight: bold; font-size: 16px; margin: 16px 0;">${t.giftText}</div>` : ''}
+        ${message ? `<p style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;"><strong>${t.msgLabel}</strong><br>${message}</p>` : ''}
+        <hr style="border: none; border-top: 1px solid #334155; margin: 20px 0;">
+        <p style="color: #94a3b8; font-size: 12px;">Email này được tự động gửi và dịch theo ngôn ngữ của thành viên (${lang.toUpperCase()}).</p>
+      </div>
+    `;
+
+    await sendCustomEmail(bio.email, finalSubject, emailHtml);
+
+    logAdminAuditAction(req, 'SEND_VOUCHER', bio._id, bio.email, `Gửi Voucher "${voucherCode || 'GIFT'}" (+${giftJoy} JOY) cho ${bio.displayName} (Tự động dịch: ${lang.toUpperCase()})`);
+
+    res.json({
+      success: true,
+      message: `Đã gửi voucher và ${giftJoy > 0 ? `tặng +${giftJoy.toLocaleString()} JOY` : ''} cho ${bio.displayName} (Đã dịch tự động sang ${lang.toUpperCase()})`
+    });
+  } catch (err) {
+    console.error('Error sending voucher to user:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /admin/brain/auto-moderator/scan - AI Quét tự động rủi ro an ninh & biến động JOY
+router.get('/brain/auto-moderator/scan', requireAdmin, async (req, res) => {
+  try {
+    const { runAutoModerationScan } = await import('../services/adminBrainService.js');
+    const result = await runAutoModerationScan();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('Error running auto moderation scan:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/brain/auto-moderator/resolve - Xử lý / Giải quyết rủi ro an ninh AI
+router.post('/brain/auto-moderator/resolve', requireAdmin, async (req, res) => {
+  try {
+    const { userId, freezeWallet = false, action = 'DISMISS' } = req.body;
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findById(userId);
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+
+    if (freezeWallet) {
+      bio.isJoyWalletFrozen = true;
+      bio.history.push({
+        type: 'security',
+        icon: 'ac_unit',
+        title: 'Ví JOY bị đóng băng bởi AI Auto-Moderator',
+        detail: 'Hệ thống AI đã đóng băng Ví khẩn cấp để ngăn chặn gian lận.',
+        timestamp: new Date()
+      });
+    } else if (action === 'UNFREEZE') {
+      bio.isJoyWalletFrozen = false;
+    }
+
+    await bio.save();
+
+    logAdminAuditAction(req, 'RESOLVE_AI_RISK', bio._id, bio.email, `Xử lý cảnh báo AI risk: ${action} (Freeze: ${freezeWallet})`);
+
+    res.json({
+      success: true,
+      message: `Đã xử lý cảnh báo rủi ro an ninh cho ${bio.displayName}`
+    });
+  } catch (err) {
+    console.error('Error resolving auto moderation risk:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/revoke-session - Đăng xuất cưỡng chế & Thu hồi phiên làm việc
+router.post('/users/:id/revoke-session', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+    }
+
+    // Reset trusted location and mark session revoked in history
+    bio.trustedLocation = { lat: null, lng: null, updatedAt: null };
+    bio.history.push({
+      type: 'warning',
+      icon: 'logout',
+      title: 'Thu hồi phiên đăng nhập bởi Admin',
+      detail: 'Admin đã cưỡng chế đăng xuất và yêu cầu xác thực lại.',
+      timestamp: new Date()
+    });
+    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
+    await bio.save();
+
+    logAdminAuditAction(req, 'REVOKE_SESSION', bio._id, bio.email, `Thu hồi phiên đăng nhập của ${bio.displayName}`);
+
+    res.json({
+      success: true,
+      message: `Đã thu hồi phiên làm việc và đăng xuất cưỡng chế người dùng ${bio.displayName}`
+    });
+  } catch (err) {
+    console.error('Error revoking user session:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/send-email - Gửi email trực tiếp cho người dùng
+router.post('/users/:id/send-email', requireAdmin, async (req, res) => {
+  try {
+    const { subject, htmlMessage, instructions } = req.body;
+    if (!subject) {
+      return res.status(400).json({ error: 'Tiêu đề email (subject) là bắt buộc' });
+    }
+
+    const Bio = (await import('../models/Bio.js')).default;
+    const { sendCustomEmail } = await import('../services/emailService.js');
+
+    const bio = await Bio.findById(req.params.id).lean();
+    if (!bio || !bio.email) {
+      return res.status(404).json({ error: 'Không tìm thấy thông tin email của người dùng' });
+    }
+
+    const bodyContent = htmlMessage || `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0f172a; color: #f8fafc; border-radius: 16px;">
+        <h2 style="color: #38bdf8;">${subject}</h2>
+        <p>Chào <strong>${bio.displayName || bio.email}</strong>,</p>
+        <p>${instructions || 'Bạn có một thông báo mới từ Quản trị viên Hugo Studio.'}</p>
+        <hr style="border: none; border-top: 1px solid #334155; margin: 20px 0;">
+        <p style="color: #94a3b8; font-size: 12px;">Email này được gửi trực tiếp từ Ban Quản Trị Hugo Studio.</p>
+      </div>
+    `;
+
+    const result = await sendCustomEmail(bio.email, subject, bodyContent);
+    if (!result.success) {
+      return res.status(500).json({ error: result.error || 'Gửi email thất bại' });
+    }
+
+    logAdminAuditAction(req, 'SEND_EMAIL', bio._id, bio.email, `Gửi email "${subject}" đến ${bio.email}`);
+
+    res.json({
+      success: true,
+      message: `Đã gửi email thành công tới ${bio.email}`
+    });
+  } catch (err) {
+    console.error('Error sending direct email to user:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+async function logAdminAuditAction(req, action, targetUserId, targetUserEmail, details, metadata = {}) {
+  try {
+    const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+    const adminId = req.user?.username || req.user?.id || 'admin';
+    const adminEmail = req.user?.email || adminId;
+    const ipAddress = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '';
+    
+    await AdminAuditLog.create({
+      adminId,
+      adminEmail,
+      action,
+      targetUserId,
+      targetUserEmail,
+      details,
+      metadata,
+      ipAddress
+    });
+  } catch (err) {
+    console.error('Failed to log admin audit action:', err);
+  }
+}
+
+// GET /admin/store/products - Lấy toàn bộ sản phẩm Utility Store cho Admin (kèm sản phẩm ẩn)
+router.get('/store/products', requireAdmin, async (req, res) => {
+  try {
+    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const products = await UtilityProduct.find().sort({ createdAt: -1 }).lean();
+    res.json({ success: true, products });
+  } catch (err) {
+    console.error('Error fetching admin store products:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/store/products - Tạo mới sản phẩm Utility Store
+router.post('/store/products', requireAdmin, async (req, res) => {
+  try {
+    const { name, description, priceJoy, icon, category, active, stock, imageUrl, productType, extendDays } = req.body;
+    if (!name || !priceJoy) {
+      return res.status(400).json({ error: 'Tên sản phẩm và Giá JOY là bắt buộc' });
+    }
+    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const product = await UtilityProduct.create({
+      name,
+      description: description || '',
+      priceJoy: Number(priceJoy),
+      icon: icon || 'redeem',
+      category: category || 'general',
+      active: active !== undefined ? active : true,
+      stock: stock !== undefined ? Number(stock) : -1,
+      imageUrl: imageUrl || '',
+      productType: productType || 'general',
+      extendDays: Number(extendDays) || 0
+    });
+
+    logAdminAuditAction(req, 'CREATE_STORE_PRODUCT', '', '', `Tạo sản phẩm "${product.name}" với giá ${product.priceJoy} JOY`);
+
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error('Error creating store product:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /admin/store/products/:id - Cập nhật thông tin sản phẩm Utility Store
+router.put('/store/products/:id', requireAdmin, async (req, res) => {
+  try {
+    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const product = await UtilityProduct.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!product) return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
+
+    logAdminAuditAction(req, 'UPDATE_STORE_PRODUCT', '', '', `Cập nhật sản phẩm "${product.name}" (${product.priceJoy} JOY)`);
+
+    res.json({ success: true, product });
+  } catch (err) {
+    console.error('Error updating store product:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /admin/store/products/:id - Bật/tắt sản phẩm Store
+router.delete('/store/products/:id', requireAdmin, async (req, res) => {
+  try {
+    const UtilityProduct = (await import('../models/UtilityProduct.js')).default;
+    const product = await UtilityProduct.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
+
+    product.active = !product.active;
+    await product.save();
+
+    logAdminAuditAction(req, 'TOGGLE_STORE_PRODUCT', '', '', `Đổi trạng thái sản phẩm "${product.name}" thành ${product.active ? 'Bật' : 'Ẩn'}`);
+
+    res.json({ success: true, product, message: `Đã ${product.active ? 'kích hoạt' : 'ẩn'} sản phẩm` });
+  } catch (err) {
+    console.error('Error toggling store product:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /admin/store/orders - Danh sách đơn hàng mua sắm Store
+router.get('/store/orders', requireAdmin, async (req, res) => {
+  try {
+    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 100));
+    const orders = await UtilityOrder.find().sort({ createdAt: -1 }).limit(limit).lean();
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error('Error fetching admin store orders:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/store/orders/:id/cancel-refund - Hủy đơn hàng & Hoàn tiền JOY 1-Click
+router.post('/store/orders/:id/cancel-refund', requireAdmin, async (req, res) => {
+  try {
+    const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
+    const order = await UtilityOrder.findById(req.params.id);
+    if (!order) return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+    if (order.status === 'cancelled') {
+      return res.status(400).json({ error: 'Đơn hàng này đã bị hủy trước đó' });
+    }
+
+    const { awardJoy } = await import('../utils/joyService.js');
+    order.status = 'cancelled';
+    await order.save();
+
+    // Auto refund JOY to user wallet
+    const updatedBio = await awardJoy(order.email, order.priceJoy, 'admin_adjustment', `Admin hủy đơn hàng ${order.purchaseCode} & Hoàn tiền JOY`);
+
+    logAdminAuditAction(req, 'CANCEL_REFUND_ORDER', '', order.email, `Hủy đơn ${order.purchaseCode} & Hoàn ${order.priceJoy} JOY cho ${order.email}`, {
+      orderId: order._id,
+      refundJoy: order.priceJoy
+    });
+
+    res.json({
+      success: true,
+      message: `Đã hủy đơn hàng ${order.purchaseCode} và hoàn +${order.priceJoy.toLocaleString()} JOY cho ${order.email}`,
+      order,
+      newBalance: updatedBio.joyBalance
+    });
+  } catch (err) {
+    console.error('Error cancelling order and refunding JOY:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/toggle-wallet-freeze - Đóng băng / Mở đóng băng Ví JOY
+router.post('/users/:id/toggle-wallet-freeze', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+
+    bio.isJoyWalletFrozen = !bio.isJoyWalletFrozen;
+    bio.history.push({
+      type: bio.isJoyWalletFrozen ? 'warning' : 'info',
+      icon: 'ac_unit',
+      title: bio.isJoyWalletFrozen ? 'Ví JOY bị đóng băng' : 'Mở đóng băng Ví JOY',
+      detail: bio.isJoyWalletFrozen ? 'Ví JOY đã bị Admin tạm thời đóng băng kiểm soát.' : 'Admin đã mở đóng băng Ví JOY.',
+      timestamp: new Date()
+    });
+    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
+    await bio.save();
+
+    logAdminAuditAction(req, 'TOGGLE_WALLET_FREEZE', bio._id, bio.email, `${bio.isJoyWalletFrozen ? 'Đóng băng' : 'Mở đóng băng'} Ví JOY của ${bio.displayName}`);
+
+    res.json({
+      success: true,
+      isJoyWalletFrozen: bio.isJoyWalletFrozen,
+      message: `Đã ${bio.isJoyWalletFrozen ? 'đóng băng' : 'mở đóng băng'} Ví JOY của ${bio.displayName}`
+    });
+  } catch (err) {
+    console.error('Error toggling wallet freeze:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /admin/users/:id/toggle-edu-status - Phê duyệt / Thu hồi EDU Status
+router.post('/users/:id/toggle-edu-status', requireAdmin, async (req, res) => {
+  try {
+    const Bio = (await import('../models/Bio.js')).default;
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+
+    bio.isEduVerified = !bio.isEduVerified;
+    bio.history.push({
+      type: 'info',
+      icon: 'school',
+      title: bio.isEduVerified ? 'Xác minh Sinh viên EDU thành công' : 'Thu hồi trạng thái EDU',
+      detail: bio.isEduVerified ? 'Admin đã phê duyệt xác minh ưu đãi Sinh viên EDU.' : 'Admin đã thu hồi trạng thái Sinh viên EDU.',
+      timestamp: new Date()
+    });
+    if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
+    await bio.save();
+
+    logAdminAuditAction(req, 'TOGGLE_EDU_STATUS', bio._id, bio.email, `${bio.isEduVerified ? 'Xác minh EDU' : 'Thu hồi EDU'} cho ${bio.displayName}`);
+
+    res.json({
+      success: true,
+      isEduVerified: bio.isEduVerified,
+      message: `Đã ${bio.isEduVerified ? 'phê duyệt xác minh EDU' : 'thu hồi trạng thái EDU'} cho ${bio.displayName}`
+    });
+  } catch (err) {
+    console.error('Error toggling EDU status:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
+

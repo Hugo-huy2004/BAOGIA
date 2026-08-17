@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAdminSession } from '../../services/authSession';
+import adminBrainApi from '../../services/api/AdminBrainApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -17,19 +18,11 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
     }
     setChangingPw(true);
     try {
-      const session = getAdminSession();
-      const res = await fetch(`${API_BASE_URL}/admin/change-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {})
-        },
-        credentials: 'include',
-        body: JSON.stringify({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword })
+      const res = await adminBrainApi.updateAdminAccountSettings({
+        oldPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword
       });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Lỗi đổi mật khẩu');
-      showNotification(t('adminTabs.settings.changePasswordSuccess'));
+      showNotification(res.message || t('adminTabs.settings.changePasswordSuccess'));
       setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
       showNotification(err.message, 'error');
@@ -162,6 +155,55 @@ const AdminSettingsTab = ({ data, updateSystemSettings, updateAdvertisement, sho
             >
               <span className={`inline-block w-[20px] h-[20px] transform rounded-full bg-white shadow-sm transition ${data?.systemSettings?.allowBooking !== false ? "translate-x-5" : "translate-x-0"}`} />
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* National Fiat Currency Exchange Rate Mapping Card */}
+      <div className="bg-white dark:bg-background rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-xs uppercase tracking-wider text-amber-500 flex items-center gap-2">
+            <span className="material-symbols-outlined text-amber-500 text-lg">currency_exchange</span>
+            Tỷ Giá Quy Đổi JOY sang Tiền Tệ Quốc Gia (Fiat Conversion Rates)
+          </h3>
+          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400">
+            Chuẩn Hóa Quốc Tế
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Hệ thống tự động quy đổi số dư JOY của thành viên sang đơn vị tiền tệ chính thức theo quốc gia tương ứng để Quản trị viên dễ dàng hỗ trợ và gửi tặng quà chính xác.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 pt-2">
+          <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
+            <div className="font-black text-amber-800 dark:text-amber-300">Việt Nam (VND)</div>
+            <div className="text-sm font-black text-amber-600 dark:text-amber-400">1 JOY = 1,000 ₫</div>
+            <div className="text-[10px] text-slate-500">Quy đổi: 1kJOY = 1,000,000 ₫</div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-xs space-y-1">
+            <div className="font-black text-blue-800 dark:text-blue-300">Mỹ (USD)</div>
+            <div className="text-sm font-black text-blue-600 dark:text-blue-400">1 JOY = $0.04</div>
+            <div className="text-[10px] text-slate-500">Quy đổi: 1kJOY = $40.00</div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-xs space-y-1">
+            <div className="font-black text-indigo-800 dark:text-indigo-300">Châu Âu (EUR)</div>
+            <div className="text-sm font-black text-indigo-600 dark:text-indigo-400">1 JOY = €0.037</div>
+            <div className="text-[10px] text-slate-500">Quy đổi: 1kJOY = €37.00</div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-xs space-y-1">
+            <div className="font-black text-cyan-800 dark:text-cyan-300">Nhật Bản (JPY)</div>
+            <div className="text-sm font-black text-cyan-600 dark:text-cyan-400">1 JOY = ¥6.0</div>
+            <div className="text-[10px] text-slate-500">Quy đổi: 1kJOY = ¥6,000</div>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-xs space-y-1">
+            <div className="font-black text-purple-800 dark:text-purple-300">Hàn Quốc (KRW)</div>
+            <div className="text-sm font-black text-purple-600 dark:text-purple-400">1 JOY = ₩55</div>
+            <div className="text-[10px] text-slate-500">Quy đổi: 1kJOY = ₩55,000</div>
           </div>
         </div>
       </div>

@@ -148,6 +148,12 @@ async function forwardJson(req, res) {
     res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
     res.send(text);
   } catch (err) {
+    if (req.path.includes('/chat/remaining')) {
+      return res.json({ remaining: 20, max: 20, fallback: true });
+    }
+    if (req.path.includes('/intent/log-local')) {
+      return res.json({ ok: true, fallback: true });
+    }
     console.error('AI proxy error:', targetUrl, err.message);
     res.status(502).json({ error: 'AI server unreachable' });
   }

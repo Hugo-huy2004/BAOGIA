@@ -2,11 +2,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useJoyStore } from "../../stores/joyStore";
 import { localeForLanguage } from "../../i18n/languages";
+import { useJoy } from "../../lib/joyDisplay";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 export default function CheckinCard({ email, showToast, onClaimed }) {
   const { t, i18n } = useTranslation();
+  const joy = useJoy();
+  const { text: money } = joy;
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
@@ -102,9 +105,9 @@ export default function CheckinCard({ email, showToast, onClaimed }) {
           className="flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-[13px] font-semibold tabular-nums text-foreground"
           title={t("memberPortal.checkin.streakTooltip", {
             count: status.consecutiveDays,
-            reward: rewardTable[6].toLocaleString(locale),
+            reward: money(rewardTable[6]),
             milestones: pendingMilestones.length
-              ? ` · ${pendingMilestones.map((m) => `${m.label} +${m.bonus.toLocaleString(locale)}`).join(" · ")}`
+              ? ` · ${pendingMilestones.map((m) => `${m.label} +${money(m.bonus)}`).join(" · ")}`
               : "",
           })}
         >
@@ -130,7 +133,7 @@ export default function CheckinCard({ email, showToast, onClaimed }) {
               key={day}
               title={t("memberPortal.checkin.dayReward", {
                 day,
-                amount: amount.toLocaleString(locale),
+                amount: money(amount),
               })}
               className={`flex h-7 items-center justify-center rounded-lg text-[12px] font-semibold tabular-nums ${
                 claimed
@@ -172,7 +175,7 @@ export default function CheckinCard({ email, showToast, onClaimed }) {
             : status.alreadyClaimedToday
               ? t("memberPortal.checkin.alreadyClaimedToday")
               : t("memberPortal.checkin.claimToday", {
-                amount: todayReward?.toLocaleString(locale),
+                amount: todayReward ? money(todayReward) : "—",
               })}
       </button>
     </div>

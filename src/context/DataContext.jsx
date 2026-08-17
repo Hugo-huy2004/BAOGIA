@@ -162,7 +162,18 @@ export const DataProvider = ({ children }) => {
 export const useData = () => {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error("useData must be used within a DataProvider");
+    return {
+      data: initialData,
+      loading: false,
+      updateProfile: async () => {},
+      updateServices: async () => {},
+      updateProjects: async () => {},
+      updatePricing: async () => {},
+      updatePartnerIframe: async () => {},
+      updateAdvertisement: async () => {},
+      updateSystemSettings: async () => {},
+      resetToDefaults: async () => {}
+    };
   }
   return context;
 };

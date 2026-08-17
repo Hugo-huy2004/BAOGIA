@@ -44,6 +44,10 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
   }
   if (!bio) throw new Error('BIO_NOT_FOUND');
 
+  if (bio.isJoyWalletFrozen && source !== 'admin_adjustment' && source !== 'admin_refund') {
+    throw new Error('JOY_WALLET_FROZEN: Ví JOY tài khoản này đang bị đóng băng kiểm soát.');
+  }
+
   // Thực hiện cập nhật số dư nguyên tử (atomic update) ở MongoDB để tránh race condition/double spend
   const query = {
     _id: bio._id,
@@ -221,5 +225,42 @@ export async function getJoySummary(email, days = 30) {
     groups: Object.entries(byGroup)
       .map(([group, total]) => ({ group, total }))
       .sort((a, b) => b.total - a.total)
+  };
+}
+
+/**
+ * Reconciliation check & Auto-fix for user JOY balance vs JoyLedger sum.
+ */
+export async function reconcileJoyBalance(email, autoFix = false) {
+  if (!email) throw new Error('MISSING_EMAIL');
+  const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] });
+  if (!bio) throw new Error('BIO_NOT_FOUND');
+
+  const ledgerResult = await JoyLedger.aggregate([
+    { $match: { email: bio.email } },
+    { $group: { _id: null, totalLedgerSum: { $sum: '$amount' }, txCount: { $sum: 1 } } }
+  ]);
+
+  const totalLedgerSum = ledgerResult[0]?.totalLedgerSum || 0;
+  const txCount = ledgerResult[0]?.txCount || 0;
+  const currentBalance = bio.joyBalance || 0;
+  const drift = currentBalance - totalLedgerSum;
+  const isHealthy = drift === 0;
+
+  if (!isHealthy && autoFix) {
+    bio.joyBalance = totalLedgerSum;
+    await bio.save();
+    await ChessRating.updateOne({ email: bio.email }, { $set: { rating: totalLedgerSum, updatedAt: new Date() } });
+  }
+
+  return {
+    email: bio.email,
+    userId: bio._id,
+    currentBalance,
+    totalLedgerSum,
+    txCount,
+    drift,
+    isHealthy,
+    fixed: !isHealthy && autoFix
   };
 }

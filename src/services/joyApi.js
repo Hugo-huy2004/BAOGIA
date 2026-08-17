@@ -101,12 +101,25 @@ export async function fetchJoyRates() {
   }
 }
 
-/** Chuỗi điểm tỷ giá để vẽ biểu đồ. Hỏng thì trả mảng rỗng, biểu đồ tự báo. */
+const rateHistoryCache = new Map();
+
+/** Chuỗi điểm tỷ giá để vẽ biểu đồ (có bộ nhớ đệm TTL 15s chống lặp request khi đăng nhập). */
 export async function fetchJoyRateHistory(hours = 24) {
+  const cacheKey = `history_${hours}`;
+  const now = Date.now();
+  const cached = rateHistoryCache.get(cacheKey);
+
+  if (cached && now - cached.timestamp < 15000) {
+    return cached.data;
+  }
+
   const res = await fetch(`${getApiUrl()}/joy/rates/history?hours=${hours}`, { credentials: "include" });
   if (!res.ok) throw new Error("RATE_HISTORY_FAILED");
   const data = await res.json();
-  return Array.isArray(data.points) ? data.points : [];
+  const points = Array.isArray(data.points) ? data.points : [];
+
+  rateHistoryCache.set(cacheKey, { timestamp: now, data: points });
+  return points;
 }
 
 export async function fetchJoyHistory({ limit = 50, days = 30 } = {}) {

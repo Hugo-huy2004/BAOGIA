@@ -191,9 +191,10 @@ export function timeAgo(at, now = new Date(), language = "vi") {
   });
 }
 
-/** Số JOY có dấu, để hiện "+150" / "−165". Dùng dấu trừ thật (U+2212). */
-export function signedJoy(amount, language = "vi") {
-  const locale = localeForLanguage(language);
-  const value = Math.abs(Number(amount) || 0).toLocaleString(locale);
-  return `${amount > 0 ? "+" : "−"}${value} JOY`;
+import { joyText } from "../../../lib/joyDisplay";
+
+/** Số JOY có dấu, để hiện "+150 JOYmi" / "−165 JOYlu". Dùng dấu trừ thật (U+2212). */
+export function signedJoy(amount) {
+  const absVal = Math.abs(Number(amount) || 0);
+  return `${amount > 0 ? "+" : "−"}${joyText(absVal)}`;
 }

@@ -35,6 +35,7 @@ import {
   localeForLanguage,
 } from "../../i18n/languages";
 import { changeAppLanguage } from "../../i18n/config";
+import { useJoy } from "../../lib/joyDisplay";
 
 // Ví JOY sống trong Tài khoản, nhưng mỗi màn chỉ nạp khi thật sự mở ra — trang
 // Tài khoản là màn hay vào nhất, đừng bắt nó tải cả cửa hàng lẫn tài liệu.
@@ -110,6 +111,7 @@ export default function MemberSettingsTab({
   const [pushBusy, setPushBusy] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
   const email = memberSession?.email;
+  const joy = useJoy();
   const joyBalance = useJoyStore((state) => state.balance);
   const referralCode = useJoyStore((state) => state.referralCode);
   const referralCount = useJoyStore((state) => state.referralCount);
@@ -244,9 +246,9 @@ export default function MemberSettingsTab({
   };
   // Ví JOY giờ là ỨNG DỤNG riêng. Trang Tài khoản chỉ còn một cửa dẫn vào đó —
   // không giữ bản ví thứ hai để hai nơi không trôi lệch nhau.
-  const openWalletApp = () => {
+  const openWalletApp = (query = "") => {
     hapticSelect();
-    if (onSelectUtility) onSelectUtility("joy_wallet");
+    if (onSelectUtility) onSelectUtility(`joy_wallet${query}`);
     else if (onSelectTab) onSelectTab("utilities");
   };
 
@@ -336,19 +338,19 @@ export default function MemberSettingsTab({
       {walletReady && (
         <>
           <section className="hugo-account-overview" aria-label={t("memberPortal.accountHub.overviewAria")}>
-            <button type="button" onClick={openWalletApp}>
+            <button type="button" onClick={() => openWalletApp()}>
               <span className="material-symbols-outlined">toll</span>
               <small>{t("memberPortal.accountHub.balance")}</small>
-              <strong>{(joyBalance || 0).toLocaleString(numberLocale)}</strong>
-              <em>JOY</em>
+              <strong>{joy.number(joyBalance || 0)}</strong>
+              <em>{joy.code}</em>
             </button>
-            <button type="button" onClick={() => openSheet("missions")}>
+            <button type="button" onClick={() => openWalletApp("?tab=missions")}>
               <span className="material-symbols-outlined">task_alt</span>
               <small>{t("memberPortal.accountHub.missions")}</small>
               <strong>{challengesLoaded ? `${completedCount}/${challenges.length}` : t("memberPortal.accountHub.open")}</strong>
-              <em>{pendingMissions.length ? t("memberPortal.accountHub.pendingJoy", { amount: pendingJoy }) : t("memberPortal.accountHub.today")}</em>
+              <em>{pendingMissions.length ? t("memberPortal.accountHub.pendingJoy", { amount: joy.number(pendingJoy) }) : t("memberPortal.accountHub.today")}</em>
             </button>
-            <button type="button" onClick={() => openSheet("perks")}>
+            <button type="button" onClick={() => openWalletApp("?sub=perks")}>
               <span className="material-symbols-outlined">confirmation_number</span>
               <small>{t("memberPortal.accountHub.perks")}</small>
               <strong>{activeVoucherCount}</strong>
@@ -382,9 +384,9 @@ export default function MemberSettingsTab({
                 </button>
               )}
               {pendingMissions.length > 0 && (
-                <button type="button" onClick={() => openSheet("missions")}>
+                <button type="button" onClick={() => openWalletApp("?tab=missions")}>
                   <span className="material-symbols-outlined">redeem</span>
-                  <span><strong>{t("memberPortal.accountHub.claimJoy", { amount: pendingJoy })}</strong><small>{t("memberPortal.accountHub.missionsWaiting", { count: pendingMissions.length })}</small></span>
+                  <span><strong>{t("memberPortal.accountHub.claimJoy", { amount: joy.number(pendingJoy) })}</strong><small>{t("memberPortal.accountHub.missionsWaiting", { count: pendingMissions.length })}</small></span>
                   <ChevronRight />
                 </button>
               )}
