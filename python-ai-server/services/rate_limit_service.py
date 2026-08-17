@@ -93,10 +93,13 @@ class RateLimitService:
         Utility Store. Returns True if a token was available and consumed.
         """
         if not email or self.db is None:
+            print(f"⚠️ Bonus token bỏ qua: email={bool(email)}, mongo={self.db is not None}")
             return False
         try:
+            # Vài tài khoản đăng nhập bằng contactEmail — Node tra cứu Bio theo cả
+            # hai trường, ở đây phải khớp y hệt, không thì token mua rồi vẫn "hết".
             result = self.db.bios.find_one_and_update(
-                {"email": email, field: {"$gt": 0}},
+                {"$or": [{"email": email}, {"contactEmail": email}], field: {"$gt": 0}},
                 {"$inc": {field: -1}}
             )
             return result is not None

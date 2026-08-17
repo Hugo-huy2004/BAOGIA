@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import dataApi from "../services/dataApi";
@@ -55,17 +56,19 @@ const normalizeSearch = (value) => String(value || "")
   .trim();
 
 function LoadingState() {
+  const { t } = useTranslation();
   return (
     <main className="grid min-h-screen place-items-center bg-background px-5 text-foreground">
       <div className="text-center">
         <div className="mx-auto size-10 animate-spin rounded-full border-4 border-primary/15 border-t-primary" />
-        <p className="mt-4 text-xs font-bold text-muted-foreground">Đang chuẩn bị thông tin thanh toán…</p>
+        <p className="mt-4 text-xs font-bold text-muted-foreground">{t("paymentGateway.dangChuanBiThong")}</p>
       </div>
     </main>
   );
 }
 
 export default function PaymentGatewayPage() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const qrRef = useRef(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
@@ -229,9 +232,9 @@ export default function PaymentGatewayPage() {
       <main className="grid min-h-screen place-items-center bg-background px-5 text-center text-foreground">
         <div className="max-w-sm">
           <span className="material-symbols-outlined text-5xl text-destructive">error</span>
-          <h1 className="mt-3 text-2xl font-black">Giao dịch không hợp lệ</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{error || "Liên kết không tồn tại hoặc đã hết hạn."}</p>
-          <a href="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-foreground px-5 text-sm font-bold text-background">Về trang chủ</a>
+          <h1 className="mt-3 text-2xl font-black">{t("paymentGateway.giaoDichKhongHop")}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{error || t("paymentGateway.lienKetKhongTon")}</p>
+          <a href="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-foreground px-5 text-sm font-bold text-background">{t("paymentGateway.veTrangChu")}</a>
         </div>
       </main>
     );
@@ -255,29 +258,29 @@ export default function PaymentGatewayPage() {
         {isPaid ? (
           <section className="rounded-[28px] border border-success/25 bg-card p-7 text-center shadow-sm sm:p-10">
             <span className="material-symbols-outlined text-6xl text-success">verified</span>
-            <h1 className="mt-3 text-2xl font-black sm:text-3xl">{isDonation ? "Cảm ơn bạn đã đồng hành" : "Thanh toán thành công"}</h1>
+            <h1 className="mt-3 text-2xl font-black sm:text-3xl">{isDonation ? t("paymentGateway.camOnBanDa") : t("paymentGateway.thanhToanThanhCong")}</h1>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-              {isDonation ? "Thư cảm ơn và thông tin về Hugo Studio đang được gửi đến email bạn đã cung cấp." : "Giao dịch đã được PayOS xác nhận."}
+              {isDonation ? t("paymentGateway.thuCamOnVa") : t("paymentGateway.giaoDichDaDuoc")}
             </p>
             <div className="mx-auto mt-6 max-w-sm rounded-2xl bg-muted/60 p-4 text-left text-sm">
-              <div className="flex justify-between gap-4"><span className="text-muted-foreground">Số tiền</span><strong>{amountLabel}</strong></div>
-              <div className="mt-2 flex justify-between gap-4"><span className="text-muted-foreground">Mã</span><strong className="font-mono">{paymentInfo.customLinkId.slice(-10)}</strong></div>
+              <div className="flex justify-between gap-4"><span className="text-muted-foreground">{t("paymentGateway.soTien")}</span><strong>{amountLabel}</strong></div>
+              <div className="mt-2 flex justify-between gap-4"><span className="text-muted-foreground">{t("paymentGateway.ma")}</span><strong className="font-mono">{paymentInfo.customLinkId.slice(-10)}</strong></div>
             </div>
-            <a href="/" className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-primary px-6 text-sm font-bold text-white">Về Hugo Studio</a>
+            <a href="/" className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-primary px-6 text-sm font-bold text-white">{t("paymentGateway.veHugoStudio")}</a>
           </section>
         ) : isCancelled ? (
           <section className="rounded-[28px] border border-destructive/25 bg-card p-8 text-center shadow-sm">
             <span className="material-symbols-outlined text-6xl text-destructive">cancel</span>
-            <h1 className="mt-3 text-2xl font-black">Giao dịch đã hủy</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Bạn có thể quay lại Hugo Studio và tạo một khoản ủng hộ mới.</p>
-            <a href="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-foreground px-5 text-sm font-bold text-background">Về trang chủ</a>
+            <h1 className="mt-3 text-2xl font-black">{t("paymentGateway.giaoDichDaHuy")}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t("paymentGateway.banCoTheQuay")}</p>
+            <a href="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-foreground px-5 text-sm font-bold text-background">{t("paymentGateway.veTrangChu")}</a>
           </section>
         ) : (
           <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm">
             <div className="border-b border-border bg-muted/35 px-5 py-6 text-center sm:px-8">
-              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{isDonation ? "Khoản ủng hộ tự nguyện" : "Yêu cầu thanh toán"}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-primary">{isDonation ? t("paymentGateway.khoanUngHoTu") : t("paymentGateway.yeuCauThanhToan")}</p>
               <h1 className="mt-2 text-4xl font-black tracking-tight sm:text-5xl">{amountLabel}</h1>
-              <p className="mt-2 text-xs text-muted-foreground">Nội dung: <strong className="text-foreground">{paymentInfo.reason}</strong></p>
+              <p className="mt-2 text-xs text-muted-foreground">{t("paymentGateway.noiDung")} <strong className="text-foreground">{paymentInfo.reason}</strong></p>
             </div>
 
             <div className="grid grid-cols-2 gap-2 border-b border-border p-3 sm:grid-cols-4">
@@ -291,21 +294,21 @@ export default function PaymentGatewayPage() {
             <div className="p-5 sm:p-8">
               {activeTab === "bank" && (
                 <div>
-                  <h2 className="text-base font-black">Mở ứng dụng ngân hàng</h2>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Chọn app ngân hàng trên điện thoại. Hệ thống gửi sẵn người nhận, số tiền và nội dung; app có nhãn “Tự điền” sẽ mở thẳng màn hình chuyển khoản đã điền sẵn.</p>
+                  <h2 className="text-base font-black">{t("paymentGateway.moUngDungNgan")}</h2>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("paymentGateway.chonAppNganHang")}</p>
 
                   {!mobileBankPlatform && (
                     <button type="button" onClick={() => setActiveTab("qr")} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-xs font-bold text-background">
                       <span className="material-symbols-outlined text-lg">qr_code_2</span>
-                      Dùng VietQR với mọi ngân hàng
+                      {t("paymentGateway.dungVietqrVoiMoi")}
                     </button>
                   )}
 
                   {mobileBankPlatform && (
                     <label className="mt-4 flex min-h-12 items-center gap-2 rounded-xl border border-border bg-background px-3">
                       <span className="material-symbols-outlined text-lg text-muted-foreground">search</span>
-                      <span className="sr-only">Tìm ứng dụng ngân hàng</span>
-                      <input value={bankSearch} onChange={(event) => setBankSearch(event.target.value)} placeholder="Tìm tên ngân hàng…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+                      <span className="sr-only">{t("paymentGateway.timUngDungNgan")}</span>
+                      <input value={bankSearch} onChange={(event) => setBankSearch(event.target.value)} placeholder={t("paymentGateway.timTenNganHang")} className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
                     </label>
                   )}
 
@@ -317,13 +320,13 @@ export default function PaymentGatewayPage() {
                           <span className="block truncate text-xs font-black">{bank.appName}</span>
                           <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">{bank.bankName}</span>
                         </span>
-                        {bank.autofill && <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[9px] font-black text-primary">Tự điền</span>}
+                        {bank.autofill && <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[9px] font-black text-primary">{t("paymentGateway.tuDien")}</span>}
                       </button>
                     ))}
                   </div>
-                  {!visibleBankApps.length && <p className="mt-4 text-center text-xs text-muted-foreground">Chưa tìm thấy app này. Bạn vẫn có thể dùng VietQR với ngân hàng của mình.</p>}
-                  {mobileBankPlatform && bankAppsSource === "fallback" && <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">Danh sách đầy đủ chưa tải được. Hãy dùng VietQR nếu app ngân hàng của bạn chưa xuất hiện.</p>}
-                  <button type="button" onClick={() => setActiveTab("qr")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">qr_code_2</span>Không thấy app? Dùng VietQR</button>
+                  {!visibleBankApps.length && <p className="mt-4 text-center text-xs text-muted-foreground">{t("paymentGateway.chuaTimThayApp")}</p>}
+                  {mobileBankPlatform && bankAppsSource === "fallback" && <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">{t("paymentGateway.danhSachDayDu")}</p>}
+                  <button type="button" onClick={() => setActiveTab("qr")} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">qr_code_2</span>{t("paymentGateway.khongThayAppDung")}</button>
                 </div>
               )}
 
@@ -333,31 +336,31 @@ export default function PaymentGatewayPage() {
 
               {(activeTab === "momo" || activeTab === "shopeepay") && (
                 <div className="text-center">
-                  <h2 className="text-base font-black">Thanh toán bằng {activeTab === "momo" ? "MoMo" : "ShopeePay"}</h2>
-                  <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">Hệ thống sẽ tải mã VietQR đã điền sẵn, sau đó thử mở ví. Trong ứng dụng, chọn quét QR từ thư viện ảnh và kiểm tra thông tin trước khi xác nhận.</p>
+                  <h2 className="text-base font-black">{t("paymentGateway.thanhToanBang")} {activeTab === "momo" ? "MoMo" : "ShopeePay"}</h2>
+                  <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">{t("paymentGateway.heThongSeTai")}</p>
                   <button type="button" onClick={() => openWallet(activeTab)} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-foreground px-6 text-sm font-bold text-background">
-                    <span className="material-symbols-outlined">open_in_new</span>Mở {activeTab === "momo" ? "MoMo" : "ShopeePay"}
+                    <span className="material-symbols-outlined">open_in_new</span>{t("paymentGateway.mo")} {activeTab === "momo" ? "MoMo" : "ShopeePay"}
                   </button>
-                  <p className="mt-3 text-[10px] text-muted-foreground">Khả năng mở trực tiếp phụ thuộc thiết bị và phiên bản ứng dụng ví.</p>
+                  <p className="mt-3 text-[10px] text-muted-foreground">{t("paymentGateway.khaNangMoTruc")}</p>
                 </div>
               )}
 
               <div className="mt-7 grid gap-2 rounded-2xl border border-border bg-muted/35 p-4 text-xs sm:grid-cols-2">
                 <button type="button" onClick={() => copy(paymentInfo.accountNumber, "account")} className="flex items-center justify-between rounded-xl bg-background p-3 text-left">
-                  <span><span className="block text-[10px] text-muted-foreground">Số tài khoản</span><strong className="font-mono">{paymentInfo.accountNumber}</strong></span>
+                  <span><span className="block text-[10px] text-muted-foreground">{t("paymentGateway.soTaiKhoan")}</span><strong className="font-mono">{paymentInfo.accountNumber}</strong></span>
                   <span className="material-symbols-outlined text-lg">{copied === "account" ? "check" : "content_copy"}</span>
                 </button>
                 <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="flex items-center justify-between rounded-xl bg-background p-3 text-left">
-                  <span><span className="block text-[10px] text-muted-foreground">Nội dung</span><strong>{paymentInfo.reason}</strong></span>
+                  <span><span className="block text-[10px] text-muted-foreground">{t("paymentGateway.noiDung2")}</span><strong>{paymentInfo.reason}</strong></span>
                   <span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>
                 </button>
-                <div className="sm:col-span-2 text-muted-foreground">Người nhận: <strong className="text-foreground">{paymentInfo.accountName}</strong> · {bankNames[paymentInfo.bin] || "Ngân hàng đối tác PayOS"}</div>
+                <div className="sm:col-span-2 text-muted-foreground">{t("paymentGateway.nguoiNhan")} <strong className="text-foreground">{paymentInfo.accountName}</strong> · {bankNames[paymentInfo.bin] || t("paymentGateway.nganHangDoiTac")}</div>
               </div>
 
-              <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground"><span className="material-symbols-outlined text-base">verified_user</span><span>Không đóng trang cho đến khi giao dịch được xác nhận. Hugo Studio chỉ hiển thị dữ liệu thanh toán do API PayOS cung cấp và không lưu thông tin đăng nhập ngân hàng.</span></p>
+              <p className="mt-5 flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground"><span className="material-symbols-outlined text-base">verified_user</span><span>{t("paymentGateway.khongDongTrangCho")}</span></p>
 
               {isAdminAuthenticated() && (
-                <button type="button" disabled={cancelling} onClick={cancelPayment} className="mt-5 min-h-11 w-full rounded-xl border border-destructive/30 text-xs font-bold text-destructive disabled:opacity-50">{cancelling ? "Đang hủy…" : "Hủy và xóa giao dịch"}</button>
+                <button type="button" disabled={cancelling} onClick={cancelPayment} className="mt-5 min-h-11 w-full rounded-xl border border-destructive/30 text-xs font-bold text-destructive disabled:opacity-50">{cancelling ? t("paymentGateway.dangHuy") : t("paymentGateway.huyVaXoaGiao")}</button>
               )}
             </div>
           </section>
@@ -368,18 +371,19 @@ export default function PaymentGatewayPage() {
 }
 
 function QrPanel({ paymentInfo, fallbackQrUrl, qrRef, downloadQr, copy, copied }) {
+  const { t } = useTranslation();
   return (
     <div className="grid items-center gap-6 sm:grid-cols-[220px_1fr]">
       <div ref={qrRef} className="mx-auto grid size-[220px] place-items-center rounded-3xl border border-border bg-white p-4 shadow-sm">
         {paymentInfo.qrCode
           ? <QRCodeSVG value={paymentInfo.qrCode} size={184} level="M" marginSize={1} />
-          : <img src={fallbackQrUrl} alt="Mã VietQR thanh toán" className="size-full object-contain" />}
+          : <img src={fallbackQrUrl} alt={t("paymentGateway.maVietqrThanhToan")} className="size-full object-contain" />}
       </div>
       <div>
-        <h2 className="text-base font-black">Quét VietQR</h2>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Mở ứng dụng ngân hàng hoặc ví hỗ trợ VietQR, quét mã và kiểm tra số tiền trước khi chuyển.</p>
-        <button type="button" onClick={downloadQr} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-foreground px-4 text-xs font-bold text-background"><span className="material-symbols-outlined text-lg">download</span>Tải mã QR</button>
-        <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="ml-2 mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>Sao chép nội dung</button>
+        <h2 className="text-base font-black">{t("paymentGateway.quetVietqr")}</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("paymentGateway.moUngDungNgan2")}</p>
+        <button type="button" onClick={downloadQr} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-foreground px-4 text-xs font-bold text-background"><span className="material-symbols-outlined text-lg">download</span>{t("paymentGateway.taiMaQr")}</button>
+        <button type="button" onClick={() => copy(paymentInfo.reason, "reason")} className="ml-2 mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-xs font-bold"><span className="material-symbols-outlined text-lg">{copied === "reason" ? "check" : "content_copy"}</span>{t("paymentGateway.saoChepNoiDung")}</button>
       </div>
     </div>
   );

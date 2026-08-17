@@ -39,11 +39,11 @@
     "applying": "Appliquant...",
     "themeUsed": "En Utilisation",
     "themeApply": "S'appliquer",
-    "themeRentCost": "{{price}} JOY",
+    "themeRentCost": "{{price, joy}}",
     "presetWarning": "Veuillez arrêter le chronomètre avant de modifier la durée du réglage.",
     "playWarning": "Cliquez sur 'Recommencer' pour jouer de nouveau et commencer la musique.",
     "toastFocusCompleted": "Bravo! Vous avez terminé {{minutes}} minutes d'une concentration profonde !",
-    "toastJoyReceived": "Vous avez reçu +{{amount}} JOY dans votre portefeuille !",
+    "toastJoyReceived": "Vous avez reçu +{{amount, joy}} dans votre portefeuille !",
     "toastJoyFailed": "Échec lors du paiement de points JOY.",
     "toastBreakCompleted": "Le temps de pause est terminé! Allons-y pour un nouveau session de travail.",
     "toastLoginRequired": "Veuillez vous connecter pour louer des fonds d'écran.",
@@ -209,7 +209,7 @@
       "markAllReadError": "Impossible de marquer les notifications comme lues. Veuillez réessayer.",
       "openAction": "Ouvrir: {{title}}",
       "profileUpdated": "Profil mis à jour",
-      "balance": "Balançoire {{value}} JOY",
+      "balance": "Balançoire {{value, joy}}",
       "dismiss": "Écouter les notifications: {{title}}",
       "emptyFilterTitle": "Aucune chose dans cette catégorie",
       "emptyFilterDescription": "Choisissez une autre catégorie ci-dessus.",
@@ -268,7 +268,7 @@
     },
     "bioPreview": {
       "title": "Page de bio",
-      "studioTitle": "Page de personnalité publiée",
+      "studioTitle": "Hugo Bio",
       "subtitle": "Vue prévisualisée du compte personnel",
       "backAria": "Retour",
       "openAria": "Ouvrir la page de personnalité",
@@ -328,7 +328,7 @@
       "settingsBtn": "Paramètres de notifications"
     },
     "joyWallet": {
-      "brand": "JOY Wallet",
+      "brand": "Hugo JOY Trésorier",
       "sub": "JOY can be used for gifts, utilities, and experiences across the Hugo ecosystem.",
       "statReferrals": "Reçu",
       "statBonusChat": "Bonus chat",
@@ -419,7 +419,7 @@
       "balance": "BILLETS",
       "missions": "MISSIONS",
       "open": "Ouvrir",
-      "pendingJoy": "{{amount}} JOY pour s'inscrire",
+      "pendingJoy": "{{amount, joy}} pour s'inscrire",
       "today": "Aujourd'hui",
       "perks": "PENALTÉES",
       "spinAvailable": "Spins disponibles",
@@ -434,7 +434,7 @@
       "setPin": "Set a transaction PIN",
       "pinMissing": "Transaction PIN not set",
       "pinDescription": "Use a 6-digit PIN to protect every JOY transfer.",
-      "claimJoy": "{{amount}} JOY claimable",
+      "claimJoy": "{{amount, joy}} claimable",
       "missionsWaiting": "{{count}} missions have rewards ready to claim.",
       "walletSection": "Portefeuille JOY",
       "myPerks": "My perks",
@@ -442,7 +442,7 @@
       "perksSummary": "{{vouchers}} vouchers available · {{orders}} purchased items",
       "todayMissions": "Today's missions",
       "loading": "Chargement...",
-      "pendingJoyLong": "{{amount}} JOY is ready to claim",
+      "pendingJoyLong": "{{amount, joy}} is ready to claim",
       "missionProgress": "Terminé {{completed}}/{{total}} aujourd'hui",
       "walletHistory": "Historique des paiements",
       "walletHistoryDetail": "Tous les crédits et débits, plus votre résumé mensuel de 30 jours",
@@ -453,7 +453,7 @@
       "redeemReferral": "Codes et renseignements",
       "redeemReferralDetail": "Codes cadeaux, codes de référance et invitations à amis",
       "redeemReferralShort": "Codes cadeaux et invitations à amis",
-      "memberSection": "Membre",
+      "memberSection": "Règles et droits",
       "manageTitle": "Packages d'offre et page Bio",
       "manageDetail": "Packages acquis, dates de validité et suppression de la page Bio",
       "privacySection": "Confidentialité et notifications",
@@ -465,25 +465,25 @@
       "myPerksSubtitle": "Cartes cadeaux, achats et votre chance",
       "todayMissionsSubtitle": "Complétez les mises à jour et obtenez JOY ici",
       "walletHistorySubtitle": "Toutes les crédits et débits avec leur raison",
-      "balanceSubtitle": "Balanço: {{balance}} JOY",
+      "balanceSubtitle": "Balanço: {{balance, joy}}",
       "memberDocument": "Document de membre",
       "missionCopy": {
-        "claimedJoy": "Reçu {{amount}} JOY.",
-        "claimedAll": "Reçu {{total}} JOY depuis {{count}} missions.",
+        "claimedJoy": "Reçu {{amount, joy}}.",
+        "claimedAll": "Reçu {{total, joy}} depuis {{count}} missions.",
         "claiming": "En cours…",
-        "claimAll": "Réclamez tous les {{amount}}",
+        "claimAll": "Tout réclamer · {{amount, joy}}",
         "heading": "Tâches d'aujourd'hui ({{completed}}/{{total}})",
         "loading": "Chargement des tâches...",
         "empty": "Aucune mission n'a été ajoutée aujourd'hui.",
         "rewardClaimed": "Le récompense a été déposée.",
-        "rewardReady": "{{amount}} Récompense pour JOY",
-        "incomplete": "Non terminé · +{{amount}} JOY",
+        "rewardReady": "Récompense +{{amount, joy}}",
+        "incomplete": "Non terminé · +{{amount, joy}}",
         "claimed": "Connexion",
         "claim": "Réclamation"
       },
       "redeemCopy": {
         "giftError": "Ce code ne peut pas être récompensé.",
-        "giftSuccess": "Ajouté {{amount}} JOY à votre portefeuille.",
+        "giftSuccess": "Ajouté {{amount, joy}} à votre portefeuille.",
         "referralError": "Ce code de référance n'est pas valide.",
         "referralSuccess": "Appliqué · +{{days}} jours d'accès à l'account.",
         "shareText": "Utilisez le code {{code}} lors de la création.",
@@ -497,7 +497,7 @@
         "apply": "S'appliquer",
         "referralHint": "Chaque compte peut entrer un code de référance une fois.",
         "inviteFriends": "Invitez vos amis",
-        "rewardPerFriend": "+100 JOY pour chaque personne qui s'inscrit avec votre code",
+        "rewardPerFriend": "+{{amount, joy}} pour chaque personne inscrite avec votre code",
         "referralCount": "{{count}} personnes référées · votre code",
         "shareLink": "Partagez le lien d'invitation"
       },
@@ -556,12 +556,12 @@
         "perk": "Accès",
         "usedOn": "Used on {{date}}",
         "expiresOn": "Vieillissement : {{date}}",
-        "voucherHint": "Partagez ce code lors de la discussion sur votre projet. Chaque code peut être utilisé une seule fois.",
+        "voucherHint": "Saisissez ce code à l'étape de contact lors de la réservation. Chaque code ne sert qu'une fois.",
         "loading": "Chargement des avantages…",
         "retry": "Recommencer",
         "luckySpin": "Tour noyau",
         "spinAvailable": "Vous avez une tentative disponible cette année.",
-        "spunThisYear": "Cette année, Spun · reçu {{amount}} JOY",
+        "spunThisYear": "Cette année, Spun · reçu {{amount, joy}}",
         "opensInBirthMonth": "Ouvrez dans {{month}}, votre mois de naissance.",
         "addBirthday": "Veuillez entrer votre date de naissance pour accéder au tour d'anniversaire.",
         "spinNow": "Tourner maintenant",
@@ -1087,7 +1087,10 @@
               }
             ]
           }
-        }
+        },
+        "joyRulesTitle": "Tableaux et règles JOY",
+        "joyRulesSubtitle": "Comment gagner des JOY, le prix de chaque chose, frais et limites — sous forme de tableaux.",
+        "joyRulesDetail": "Gains quotidiens, prix de location et d'achat, packs, frais"
       }
     },
     "bento": {
@@ -1132,10 +1135,10 @@
       "brutalismDesc": "Défrayer les règles avec des couleurs vives, des bordures noires épaises et des ombres de relief flates.",
       "flatTitle": "Accueil",
       "flatDesc": "Aucun ombre de chute, pas de 3D/graduations, couleurs claires et blocs planaires",
-      "rentalDescription": "JOY est un compte de récompense gratuit. Brutalisme et Flat coûtent {{price}} JOY par mois ; la page retourne à l'Classic une fois le location terminée.",
+      "rentalDescription": "JOY est un compte de récompense gratuit. Brutalisme et Flat coûtent {{price, joy}} par mois ; la page retourne à l'Classic une fois le location terminée.",
       "free": "Libre",
       "daysRemaining": "{{count}} days left",
-      "pricePerMonth": "{{price}} JOY par mois",
+      "pricePerMonth": "{{price, joy}} par mois",
       "exchangeSuccess": "JOY échangée pour le {{template}} thème."
     },
     "links": {
@@ -1203,7 +1206,7 @@
     },
     "toast": {
       "verifySuccessTitle": "Votre adresse e-mail éducative a été confirmée. Bienvenue dans Hugo Studio !",
-      "verifySuccessMsg": "Vos demandes sont en cours de traitement et attendent une validation par l'administrateur.",
+      "verifySuccessMsg": "Your educational email has been confirmed. Welcome to Hugo Studio!",
       "verifyPendingTitle": "Verification en cours",
       "verifyPendingMsg": "Votre demande a été soumise et est en attente d'une évaluation par l'administrateur.",
       "verifyRejectedTitle": "La demande de vérification a été rejetée.",
@@ -1464,7 +1467,7 @@
       "phonePlaceholder": "Enter your phone number",
       "referralLabel": "Referral code (optional)",
       "referralPlaceholder": "e.g. HG123456",
-      "referralHint": "Enter a referrer's code to get +10 JOY and +15 free days of Bio link",
+      "referralHint": "Saisissez le code du parrain pour recevoir +{{amount, joy}} et {{days}} jours de Bio link offerts",
       "submitting": "Submitting...",
       "submitButton": "Finish",
       "skipButton": "Skip for now",
@@ -1481,8 +1484,18 @@
         "phone": {
           "label": "Numéro de téléphone ou Zalo",
           "hint": "Utilisé lorsque des contacts sont nécessaires pour créer votre code référant."
+        },
+        "language": {
+          "label": "Langue principale",
+          "hint": "L'interface passera à cette langue."
+        },
+        "joyDenom": {
+          "label": "Unité JOY",
+          "hint": "Choisie une seule fois puis fixée. Changer de langue plus tard ne change PAS cette unité, afin que les frais de conversion ne puissent pas être contournés."
         }
-      }
+      },
+      "next": "Continuer",
+      "stepOf": "Étape {{current}} sur {{total}}"
     },
     "birthdaySurprise": {
       "monthTitle": "Mois de naissance !",
@@ -1501,7 +1514,7 @@
       "title": "Un tour pour vous",
       "addedToWallet": "JOY a été ajouté à votre portefeuille.",
       "description": "Un tour par an, avec une chance égale pour chaque segment.",
-      "wheelAria": "Tour avec {{count}} segments de récompense JOY",
+      "wheelAria": "Tour avec {{count}} segments de récompense",
       "youReceived": "Vous avez reçu",
       "accountDays": "+{{count}} jours d'accès à l'account",
       "voucherExpiry": "Valide jusqu'à {{date}} · partagez ce code lorsqu'il s'agit de discuter votre projet",
@@ -1597,7 +1610,7 @@
         "recipientLabel": "Destinataire",
         "changeBtn": "Changer",
         "amountTitle": "Montant JOY",
-        "amountPlaceholder": "Minimale 10 JOY",
+        "amountPlaceholder": "Minimum {{amount, joy}}",
         "fee": "Frais de création",
         "total": "Total",
         "noteTitle": "Message (facultatif)",
@@ -1650,15 +1663,15 @@
         "pinSetupFailed": "Impossible de définir le PIN.",
         "pinTitle": "PIN d'achat",
         "pinSetupTitle": "Configurer un PIN",
-        "connectMode": "Mode Connect Joy",
+        "connectMode": "JOY Mode de connexion",
         "noUserFoundHint": "Vérifiez le numéro de téléphone à nouveau, ou entrez le code de référé exact.",
         "tapToSelect": "Cliquez pour sélectionner",
         "pickFirstRecipient": "Choisissez votre premier destinataire",
         "dynamicCode": "CODE DYNAMIQUE",
-        "openFullscreen": "Ouvrir le code Joy en plein écran",
+        "openFullscreen": "Ouvrir le code du JOY en plein écran",
         "fullscreenHint": "Cliquez sur le code pour l'ouvrir en plein écran (règle à nouveau de manière sécurisée)",
         "shareCode": "Partager le code",
-        "receiveCodeCopied": "Le code Joy a été copié",
+        "receiveCodeCopied": "JOY copie le code",
         "copyFailed": "Impossible de copier le code",
         "copy": "Copier",
         "autoVerifyTitle": "Vérification automatique avant le transfert",
@@ -1676,12 +1689,16 @@
         "pinConfirmHeading": "Configurez un code PIN d'achat",
         "pinSetupBody": "Confirmez le code PIN d'achat",
         "pinConfirmBody": "Pour protéger votre solde, entrez un nouveau code PIN de 6 chiffres.",
-        "transferring": "Entrez à nouveau le code PIN que vous venez de créer pour terminer.",
+        "transferring": "JOY…",
         "dontClose": "Transfert de JOY…",
         "transferSuccess": "JOY transferred successfully!",
         "receiptId": "JOY transféré avec succès !",
         "receiptFee": "Creative fee",
-        "receiptNote": "Note : "
+        "receiptNote": "Note : ",
+        "cameraHintWide": "Placez le code n'importe où dans le cadre — inutile de le centrer.",
+        "conversionFee": "Frais de conversion {{from}} → {{to}} ({{percent}}%)",
+        "close": "Fermer",
+        "pinHint": "Saisissez votre code PIN à 6 chiffres pour envoyer {{amount, joy}} à {{name}}"
       },
       "exchange": {
         "exchanged": "Échangé",
@@ -1717,7 +1734,7 @@
         "title": "Obtenez un code JOY pour une récompense",
         "placeholder": "Entrez le code de récompense",
         "button": "Réduire",
-        "success": "Récompensee avec succès! +{{amount}} JOY",
+        "success": "Récompensee avec succès! +{{amount, joy}}",
         "error": "Ce code n'a pas pu être récompensé."
       },
       "applyReferral": {
@@ -1725,7 +1742,7 @@
         "placeholder": "e.g. HG123456",
         "button": "S'appliquer",
         "hint": "Si quelqu'un vous a référé, entrez le code de leur compte ici afin que vous deux puissiez gagner JOY. Chaque compte peut faire cela une fois seulement.",
-        "success": "La référation a été appliquée! +10 JOY et +{{days}} jours Bio Link.",
+        "success": "Code appliqué ! +{{amount, joy}} et +{{days}} jours de Bio Link.",
         "error": "This code could not be applied."
       },
       "earnInfo": "Gagnez JOY en : référer des amis, assister aux séances de thérapie, gagner des jeux de plateau ou échanger un code cadeau administratif.",
@@ -1778,13 +1795,13 @@
         "notFound": "Aucun utilisateur trouvé avec ce numéro de téléphone.",
         "recipientLabel": "Envoyer à",
         "amountLabel": "Montant à envoyer",
-        "amountPlaceholder": "Up to 1000 JOY per transfer",
-        "feeNote": "5% de frais anti-abus: le destinataire reçoit {{net}} JOY (coût: {{fee}} JOY).",
-        "dailyCapNote": "Limitation : 1000 JOY envoyés par jour.",
+        "amountPlaceholder": "Jusqu'à {{amount, joy}} par envoi",
+        "feeNote": "5% de frais anti-abus: le destinataire reçoit {{net, joy}} (coût: {{fee, joy}}).",
+        "dailyCapNote": "Limite d'envoi quotidienne : {{amount, joy}}.",
         "confirmButton": "Confirmer l’envoi",
         "cancelButton": "Annuler",
         "sending": "Envoi en cours...",
-        "success": "Envoyé {{net}} JOY à {{name}} !",
+        "success": "Envoyé {{net, joy}} à {{name}} !",
         "changeRecipient": "Changer le destinataire",
         "ageGateHint": "Votre compte doit avoir au moins 3 jours d'âge pour envoyer JOY."
       },
@@ -1794,12 +1811,12 @@
         "claimButton": "Rejoindre JOY",
         "claimed": "Connexion",
         "notDoneYet": "Not done yet",
-        "claimSuccess": "+{{amount}} JOY!",
+        "claimSuccess": "+{{amount, joy}}!",
         "empty": "Couldn't load missions right now."
       }
     },
     "checkin": {
-      "title": "Vue d'ensemble du portail de membres Hugo Studio",
+      "title": "Daily Check-in for JOY",
       "subtitle": "Vérifiez-vous chaque jour, gagnez JOY chaque semaine - ne manquez pas une journée !",
       "loading": "Chargement de la vérification...",
       "dayLabel": "Jour {{day}}",
@@ -1808,16 +1825,16 @@
       "claimButton": "S'inscrire",
       "alreadyClaimed": "Inscrit",
       "locked": "Bloqué",
-      "claimSuccess": "Inséré avec succès! +{{amount}} JOY",
-      "claimSuccessBonus": "Inséré avec succès! +{{total}} JOY (y compris +{{bonus}} JOY milestones)",
+      "claimSuccess": "Inséré avec succès! +{{amount, joy}}",
+      "claimSuccessBonus": "Inséré avec succès! +{{total, joy}} (y compris +{{bonus, joy}} milestones)",
       "claimError": "Impossible d'insérer à ce moment.",
       "weekLockedTitle": "Streak terminé · réouverture lundi",
-      "streakTooltip": "{{count}}-journée · complété 7 jours pour +{{reward}} JOY{{milestones}}",
-      "dayReward": "Journée {{day}} · +{{amount}} JOY",
+      "streakTooltip": "{{count}}-journée · complété 7 jours pour +{{reward, joy}}{{milestones}}",
+      "dayReward": "Journée {{day}} · +{{amount, joy}}",
       "claiming": "En cours…",
       "reopensMonday": "Rouvrir lundi",
       "alreadyClaimedToday": "Inséré aujourd'hui",
-      "claimToday": "Insérer · +{{amount}} JOY"
+      "claimToday": "Insérer · +{{amount, joy}}"
     },
     "settings": {
       "title": "Paramètres",
@@ -1919,7 +1936,7 @@
         "arcade": "8 games, own identity",
         "cards": "5-tier card set"
       },
-      "reward": "Read the whole upgrade — get 50 JOY",
+      "reward": "Read the whole upgrade — get {{amount, joy}}",
       "cta": "See what's new",
       "later": "Plus tard",
       "optOut": "Don't show again"
@@ -2102,20 +2119,20 @@
       "cardNoticeTitle": "Utilisation uniquement en ligne",
       "cardNoticeBody": "Ce carton numérique appartient au système de Hugo Studio et est utilisé pour identifier votre niveau de membre et ses avantages à l'intérieur du système. Il n'est ni un carton physique, ni une carte bancaire ou un instrument de paiement, et ne peut être utilisé qu'à l'intérieur de Hugo Studio.",
       "readBonusTitle": "Lisez la totalité de l'upgrade",
-      "readBonusDesc": "Vous avez vu toutes les modifications qui ont été faites dans la version 2.0. Voici 50 JOY pour vous remercier.",
-      "readBonusLocked": "Aller à travers l'introduction complète de la version 2.0 pour accéder à cette récompense de 50 JOY.",
-      "readBonusButton": "Rejoindre +50 JOY",
+      "readBonusDesc": "Vous avez vu toutes les modifications qui ont été faites dans la version 2.0. Voici {{amount, joy}} pour vous remercier.",
+      "readBonusLocked": "Aller à travers l'introduction complète de la version 2.0 pour accéder à cette récompense de {{amount, joy}}.",
+      "readBonusButton": "Rejoindre {{amount, joy}}",
       "readBonusLockedButton": "Locked — continuez à lire",
       "readBonusClaiming": "Rejoignant...",
-      "readBonusClaimed": "50 JOY rejointe",
-      "readBonusSuccess": "+50 JOY rejointe. Merci d'avoir lu tout ce contenu !",
+      "readBonusClaimed": "{{amount, joy}} rejointe",
+      "readBonusSuccess": "{{amount, joy}} rejointe. Merci d'avoir lu tout ce contenu !",
       "readBonusError": "Impossible de rejoindre la récompense, veuillez essayer à nouveau.",
       "bonusTitle": "Données de découverte",
       "bonusDesc": "Merci pour votre visite sur l'Info & Version — voici un petit cadeau de JOY.",
-      "bonusButton": "Réclame +20 JOY",
+      "bonusButton": "Réclame {{amount, joy}}",
       "bonusClaiming": "Rejoignant...",
       "bonusClaimed": "Déjà réclamé",
-      "bonusSuccess": "20 JOY réclamés, merci d'explorer !",
+      "bonusSuccess": "{{amount, joy}} réclamés, merci d'explorer !",
       "bonusError": "Impossible de réclamer le bonus actuellement."
     },
     "team": {
@@ -2314,7 +2331,7 @@
             ]
           },
           {
-            "title": "Communication",
+            "title": "Communication et échanges",
             "items": [
               "Le principal canal est la boîte de messages intégrée ; chaque message est conservé pour pouvoir le consulter plus tard.",
               "Pour tout ce qui nécessite un enregistrement ou concerne votre compte, envoyez un email à contact@hugowishpax.studio depuis l'adresse du compte.",
@@ -2333,7 +2350,7 @@
           {
             "title": "Ce que vous obtenez",
             "items": [
-              "VVIP membership runs for 3 years from your approval date.",
+              "L'adhésion VVIP court pendant 3 ans à compter de la date de validation.",
               "Le marqueur d'heures approuvées 500 reconnaît les contributions à long terme.",
               "Vous conservez pleine propriété sur ce que vous écrivez et pouvez le utiliser dans votre portfolio."
             ]
@@ -2345,6 +2362,202 @@
       "translating": "Traduction…",
       "translateUnavailable": "Cet appareil ne prend pas en charge cette paire de langues.",
       "translateError": "Impossible de traduire ce message."
+    },
+    "partnerBio": {
+      "dangXacThucQuyen": "Vérifiant l'accès du partenaire…",
+      "khongCoQuyenTruy": "Accès refusé",
+      "trangTaoBioNay": "Ce constructeur de bio fonctionne uniquement à travers un lien ou un iframe que Hugo Studio a émis à un partenaire.",
+      "kichHoatBioLink": "Activer le lien de la bio",
+      "canCungCapEmail": "Le lien de la bio nécessite l'adresse e-mail pour que Hugo Studio puisse créer et synchroniser un lien gratuit de bio sans se connecter à Hugo Studio.",
+      "emailCuaBan": "Votre adresse e-mail…",
+      "thietKeNgay": "Commencer à dessiner",
+      "dangTaiCauHinh": "Chargement des paramètres de la bio…",
+      "caNhanHoaBio": "Personnalisez le lien de la bio de :",
+      "sua": "SỬA",
+      "anhDaiDien": "Photo de profil",
+      "hinhAnhHienThi": "L'image affichée au centre sur l'appareil du partenaire.",
+      "goAnh": "Supprimer la photo",
+      "hoVaTen": "Nom complet",
+      "bietDanh": "Nom d'utilisateur",
+      "gioiThieu": "Introduction",
+      "hocVan": "Éducation",
+      "ngheNghiep": "Profession",
+      "soDienThoai": "Numéro de téléphone",
+      "emailLienHe": "Adresse e-mail de contact",
+      "lienKetMangXa": "(À jusqu'à 5) Liens sociaux (ex: Zalo, Instagram...)",
+      "nhanVdZaloInstagram": "Catégories (ex: Zalo, Instagram...)",
+      "themLienKetMang": "+ Ajouter un lien social",
+      "luuCaiDat": "SAUVEGARDER LES PARAMÈTRES",
+      "heThongDongBo": "Le système synchronise les données cloud du partenaire.",
+      "dangLuu": "En cours de sauvegarde...",
+      "luuThongTin": "Enregistrer les détails",
+      "chuaNhapTen": "AUCUN NOM YET",
+      "veBanThan": "À propos de moi",
+      "congViec": "Travail",
+      "cacLienKet": "Liens",
+      "chuaThemLienKet": "Aucun lien ajouté pour l'instant...",
+      "duongDanCongKhai": "Adresse publique :",
+      "canChinhHinhAnh": "Personnaliser l'image",
+      "nhanVaKeoDe": "Déplacez et glissez pour déplacer l'emplacement de cadrage.",
+      "tyLePhongTo": "TAILLE DU RÉSIDU",
+      "huy": "Annuler",
+      "luuVungCat": "Enregistrer le cadrage"
+    },
+    "joyLater": {
+      "title": "JOYlater",
+      "detail": "Débloquez maintenant, rendez avec les JOY que vous gagnez",
+      "loading": "Chargement…",
+      "limit": "Votre maximum",
+      "limitFrom": "Calculé sur les {{income, joy}} que vous gagnez par jour",
+      "amountLabel": "Combien de JOY à l'avance ?",
+      "principalRow": "À l'avance",
+      "feeRow": "Ajouté ({{percent}} %)",
+      "totalRow": "Total à rendre",
+      "expectedRow": "Terminé dans environ",
+      "days": "{{count}} jours",
+      "openNow": "Recevoir maintenant",
+      "noInterest": "Rien ne se cumule · Supplément fixé au départ",
+      "overLimit": "Au-dessus de votre maximum",
+      "owing": "Reste à rendre",
+      "progress": "Rendu {{paid, joynum}} / {{total, joy}} ({{percent}} %)",
+      "itemRow": "Débloqué",
+      "garnishRow": "Prélevé sur chaque JOY gagné",
+      "remainingDaysRow": "Encore environ",
+      "payOffNow": "Tout rendre maintenant",
+      "payOffTitle": "Tout rendre",
+      "payOffConfirm": "Prélever {{amount, joy}} de votre portefeuille et terminer ?",
+      "paidOff": "Tout est rendu",
+      "opened": "{{amount, joy}} ajoutés à votre portefeuille",
+      "advanceLabel": "JOY à l'avance",
+      "noDeadline": "Aucune échéance. Le montant n'augmente jamais avec le temps.",
+      "notEligible": "JOYlater n'est pas encore disponible",
+      "reason": {
+        "adult": "Réservé aux membres de 18 ans et plus",
+        "accountAge": "Votre portefeuille doit avoir {{minDays}} jours (actuel : {{days}})",
+        "earned": "Vous devez avoir gagné {{min, joy}} au total (vous : {{earned, joy}})",
+        "openLoan": "Vous en avez encore un en cours",
+        "noIncome": "Pas encore de revenu JOY régulier"
+      },
+      "howTitle": "Comment fonctionne JOYlater",
+      "how1": "Choisissez combien de JOY recevoir à l'avance — votre maximum vient de ce que vous gagnez.",
+      "how2": "Les JOY arrivent aussitôt dans votre portefeuille — dépensez-les normalement.",
+      "how3": "À chaque JOY gagné, {{percent}} % est gardé pour rendre — aucune date à retenir.",
+      "installmentsNote": "Plus vous divisez, plus le supplément est grand. Le montant est fixé au départ et ne change jamais.",
+      "feeShort": "+{{percent}} %",
+      "perStepRow": "Par versement",
+      "stepRow": "Prochain versement",
+      "stepOf": "Versement {{index}} sur {{of}}",
+      "payStepNow": "Rendre cette part · {{amount, joy}}",
+      "payStepTitle": "Rendre la part {{index}} sur {{of}}",
+      "payStepConfirm": "Prélever {{amount, joy}} pour cette part ?",
+      "paidStep": "{{amount, joy}} rendus",
+      "payOffRest": "Terminer le reste · {{amount, joy}}",
+      "payModeLabel": "Comment voulez-vous rendre ?",
+      "payOnce": "Rendre en une fois",
+      "payOnceHint": "Supplément le plus faible, {{percent}} %",
+      "paySplit": "Rendre en plusieurs fois",
+      "paySplitHint": "Jusqu'à {{max}} parts, à partir de {{percent}} %",
+      "perStepShort": "{{amount, joy}} par versement",
+      "extraVsOnce": "{{amount, joy}} de plus",
+      "historyTitle": "Historique",
+      "historyHint": "Touchez une ligne pour le détail complet",
+      "historyDone": "terminé",
+      "historyOpen": "en cours",
+      "historyAdded": "Ajouté",
+      "historySplit": "Divisé en",
+      "historyReturned": "Rendu",
+      "historyClosedAt": "Terminé le",
+      "historyLines": "{{count}} versements",
+      "historyNoLines": "Rien de rendu pour l'instant.",
+      "historyAuto": "Gardé sur les JOY gagnés",
+      "historyManual": "Rendu par vous",
+      "dueRow": "À rendre le",
+      "penaltyRow": "Retard",
+      "lockedUntil": "Ouvre le {{date}}",
+      "lockedNote": "En plusieurs fois, on ne peut rendre qu'à la date prévue.",
+      "lateNote": "Un versement en retard ajoute {{percent}} % de ce versement, une fois.",
+      "lateWarn": "Retard : {{percent}} % de ce versement sont ajoutés, une seule fois."
+    },
+    "walletApp": {
+      "eyebrow": "PORTEFEUILLE",
+      "title": "Portefeuille JOY",
+      "navAria": "Navigation du portefeuille",
+      "tabOverview": "Aperçu",
+      "tabMissions": "Missions",
+      "tabHistory": "Historique",
+      "tabLater": "JOYlater",
+      "sub_perks": "Mes avantages",
+      "sub_store": "Boutique d'avantages",
+      "sub_redeem": "Utiliser un code",
+      "balanceLabel": "Solde",
+      "sendOrReceive": "Envoyer ou recevoir",
+      "monthSummary": "30 derniers jours : {{earned}} reçus · {{spent}} dépensés",
+      "needsYou": "En attente de vous",
+      "claimReady": "JOY à récupérer",
+      "claimCount": "{{count}} missions terminées",
+      "latest": "Dernières opérations",
+      "seeAll": "Tout voir",
+      "noTransactions": "Aucune opération pour l'instant",
+      "more": "Plus",
+      "checkinDetail": "Gagnez des JOY chaque jour",
+      "sub_checkin": "Pointage quotidien",
+      "cardNoName": "Membre Hugo",
+      "cardReferrals": "Parrainages",
+      "cardSince": "Membre depuis",
+      "cardQrAria": "QR de la page Bio — appuyez pour copier le lien",
+      "cardScanHint": "Scannez pour ouvrir votre page Bio",
+      "cardNeedsSlug": "Définissez un lien Bio pour obtenir un QR",
+      "tabMembership": "Carte",
+      "currentTier": "Niveau actuel",
+      "nextTier": "Niveau suivant",
+      "tierNeed": "Parrainez {{count}} personnes de plus pour atteindre {{tier}}",
+      "tierTop": "Vous êtes au niveau le plus élevé",
+      "tierPerks": "Avantages par niveau",
+      "tierDefault": "Par défaut à l'inscription",
+      "tierFrom": "À partir de {{count}} parrainages",
+      "tierOwned": "Acquis",
+      "tierLocked": "Verrouillé",
+      "tree": {
+        "seed": "Une graine",
+        "sprout": "Germination",
+        "sapling": "Un jeune plant",
+        "young": "Un jeune arbre",
+        "mature": "Un arbre adulte",
+        "ancient": "Un arbre centenaire",
+        "progress": "{{claimed}}/{{total}} missions récupérées",
+        "keepGoing": "Encore {{count}} missions et l'arbre sera adulte — bonus de {{amount, joy}}",
+        "claimBonus": "Récupérer le bonus de {{amount, joy}}",
+        "bonusTaken": "Bonus de l'arbre du jour ({{amount, joy}}) récupéré"
+      },
+      "sendJoy": "Envoyer des JOY",
+      "convert": "Taux",
+      "convMyDenom": "Votre unité JOY",
+      "convLocked": "Vous avez choisi cette unité lors de votre première connexion et elle reste fixe. Changer la langue de l'interface ne la modifie pas.",
+      "convAmountIn": "Montant ({{code}})",
+      "convUseBalance": "Utiliser tout le solde · {{amount}}",
+      "convTableTitle": "Le même montant dans chaque unité",
+      "convFeeNote": "envoyer coûte {{percent}}% de plus",
+      "convExplain": "Les JOY n'ont qu'une seule valeur : les {{units}} unités ci-dessus sont {{units}} façons d'écrire le même montant, donc tout le monde achète exactement les mêmes choses. Envoyer des JOY à quelqu'un qui utilise une autre unité ajoute {{percent}}% de frais de conversion.",
+      "denomPickCta": "Choisissez votre unité JOY",
+      "denomPickTitle": "Vous n'avez pas encore choisi d'unité JOY",
+      "denomPickIntro": "Choisissez la façon dont vos montants en JOY s'écrivent. Votre solde et tous les prix restent les mêmes JOY : l'unité ne change que la lecture du nombre.",
+      "denomPickLock": "Une fois choisie, elle est fixe, et changer la langue de l'interface ne la modifie pas. Envoyer des JOY à quelqu'un utilisant une autre unité ajoute {{percent}}% de frais de conversion, l'unité ne peut donc pas être changée à volonté.",
+      "denomPickYourBalance": "votre solde",
+      "denomConfirm": "Utiliser cette unité",
+      "denomSaving": "Enregistrement…",
+      "denomSaved": "Unité JOY définie pour votre compte.",
+      "marketTitle": "Marché du jour",
+      "marketWhy": "Les taux évoluent chaque jour selon deux données : les gains quotidiens moyens de la communauté ({{income}} par personne) et le cours international de l'or ({{gold}} USD/oz).",
+      "marketPricesFixed": "Les prix de l'app NE bougent PAS avec le taux : le taux change seulement l'écriture des nombres.",
+      "sub_convert": "Taux",
+      "range24h": "24 h",
+      "range7d": "7 j",
+      "range30d": "30 j",
+      "chartAria": "Graphique du taux {{code}}, {{percent}}% sur la période choisie",
+      "chartBand": "{{low}} – {{high}}",
+      "chartLoading": "Chargement du graphique…",
+      "chartCollecting": "Collecte des données : un point par heure, la courbe apparaîtra sous quelques heures.",
+      "chartFailed": "Graphique indisponible."
     }
   },
   "memberTabs": {
@@ -2686,18 +2899,22 @@
       "arcade_survivor": {
         "title": "Survive dans l'espace",
         "description": "Rejoignez la survie dans l'espace"
+      },
+      "profile": {
+        "title": "Profil",
+        "description": "A verified record of your work, attached to your Bio"
       }
     },
     "dashboard": {
       "title": "Services de membres",
       "desc": "HugoNFC",
       "nfc": {
-        "title": "Configurer les paramètres de tapotement pour partager rapidement votre lien Bio ou vos coordonnées.",
+        "title": "HugoNFC",
         "desc": "Démarrer immédiatement",
         "btnText": "HugoVCard"
       },
       "vcard": {
-        "title": "Créez des QR codes vCard intelligents pour scanner et sauvegarder directement les contacts.",
+        "title": "HugoVCard",
         "desc": "Create smart vCard QR codes to quickly scan and save contacts directly.",
         "btnText": "HugoVCard"
       },
@@ -2727,7 +2944,7 @@
         "btnText": "Accéder au Code IDE"
       },
       "chess": {
-        "desc": "Communauté de jeux d'échecs mini - Jouez contre les ordinateurs, jouez en ligne à la chance ou créez des salles privées pour partager et jouer avec vos amis.",
+        "desc": "Communauté de mini-échecs — jouez contre des bots, un match aléatoire ou créez des salles privées pour partager et jouer avec vos amis. JOY et système de classement.",
         "btnText": "Entrez dans le Lobby"
       },
       "radio": {
@@ -2741,120 +2958,208 @@
     },
     "radio": {
       "categories": {
-        "vnNews": "Radios du Vietnam",
-        "intlNews": "Actualité internationale",
+        "vnNews": "VOS NEWS vietnamiennes",
+        "intlNews": "INTERNATIONALES internationales",
         "music": "Musique",
-        "chill": "Détente",
-        "found": "Enregistrées ({{n}})"
+        "chill": "Chill",
+        "found": "Enregistré ({{n}})"
       },
       "state": {
-        "connecting": "Connexion",
+        "connecting": "Connectez-vous",
         "playing": "En cours de lecture",
-        "paused": "En pause",
+        "paused": "Pause",
         "idle": "Prêt",
-        "pickStation": "Choisissez une station à écouter"
+        "pickStation": "Choisissez une station pour écouter"
       },
       "control": {
         "prev": "Station précédente",
         "next": "Station suivante",
-        "play": "Lire",
-        "stop": "Arrêter",
+        "play": "Play",
+        "stop": "Arrêtez",
         "volume": "Volume",
-        "shuffle": "Aléatoire",
-        "sleep": "Minuteur",
-        "sleepRunning": "Arrêt dans {{time}}",
-        "sleepArmed": "Réglé sur {{minutes}} min"
+        "shuffle": "Mélanger",
+        "sleep": "Horloge de sommeil",
+        "sleepRunning": "Arrêtez {{time}}",
+        "sleepArmed": "Définissez pour {{minutes}} min"
       },
       "health": {
-        "good": "Cette station passe bien",
+        "good": "Cette station joue bien",
         "shaky": "Cette station est instable",
-        "dead": "Indisponible pour le moment — nouvel essai dans un jour",
-        "unknown": "Pas encore essayée"
+        "dead": "Désactivée en ce moment — réessayer demain",
+        "unknown": "Pas encore testé"
       },
-      "learnedUrl": "nouvelle adresse mémorisée",
-      "searchPlaceholder": "Chercher une station : VOV1, NPR, FIP…",
+      "learnedUrl": "Apprenons une nouvelle adresse",
+      "searchPlaceholder": "Trouvez une station : VOV1, NPR, FIP…",
       "searchAction": "Rechercher",
       "searching": "Recherche…",
-      "loading": "Chargement…",
-      "noStations": "Aucune station trouvée.",
-      "removeFound": "Retirer {{name}} de la liste",
+      "loading": "Chargement...",
+      "noStations": "Aucune station n'a été trouvée dans cette catégorie.",
+      "removeFound": "Supprimez {{name}} de la liste",
       "toast": {
-        "playError": "Cette station ne peut pas être lue pour l'instant, essayez-en une autre.",
-        "autoSkip": "{{from}} ne répond pas — passage à {{to}}.",
-        "outOfTokens": "Vous n'avez plus de jetons d'écoute. Achetez-en pour continuer.",
-        "notFound": "Aucune station nommée « {{name}} ».",
-        "searchError": "Impossible de joindre l'annuaire des stations. Vérifiez votre connexion et réessayez.",
-        "sleepDone": "Minuteur : HugoRadio s'est arrêté. Bonne nuit !"
+        "playError": "This station can't be played right now, please try another one.",
+        "autoSkip": "{{from}} n'a pas réussi à se connecter — changement vers {{to}}.",
+        "outOfTokens": "Vous avez terminé vos tokens de lecture. Achetez plus pour continuer à lire.",
+        "notFound": "Aucune station trouvée nommée “{{name}}”.",
+        "searchError": "Couldn't reach the station directory. Check your connection and try again.",
+        "sleepDone": "Temps de sommeil : HugoRadio s'est arrêté. Dormez bien !"
       },
       "legal": {
-        "title": "Sources et droits d'auteur",
-        "body": "HugoRadio n'est qu'un lecteur : il ouvre le flux en direct que chaque station publie elle-même. Aucun téléchargement, aucune mise en cache, aucun enregistrement. Les droits des programmes appartiennent au diffuseur.",
-        "source": "Annuaire des stations issu de la base de données ouverte Radio Browser."
+        "title": "Sources et droits d’auteur",
+        "body": "HugoRadio is only a player: it opens the live stream each broadcaster publishes itself. Nothing is downloaded, cached or recorded. Programme rights belong to the broadcaster.",
+        "source": "Répertoire des stations depuis la base de données ouverte Radio Browser."
       },
       "token": {
-        "title": "Jetons d'écoute",
-        "unit": "jetons",
-        "perToken": "1 jeton = {{minutes}} minutes d'écoute",
-        "freeLeft": "Gratuits cette semaine : {{n}}/{{total}}",
-        "purchasedLeft": "Achetés : {{n}}",
-        "resetIn": "rechargés {{when}}",
-        "peakNotice": "Heures de pointe : un jeton ne dure que {{minutes}} minutes.",
-        "emptyDesc": "Plus aucun jeton. Achetez-en pour continuer à écouter.",
-        "lastMinutes": "Moins d'un jeton restant — environ {{minutes}} minutes.",
-        "buyMore": "Acheter des jetons"
+        "title": "Écoutez passer",
+        "unit": "Passe",
+        "perToken": "Chaque passe vous donne {{minutes}} minutes",
+        "freeLeft": "{{n}}/{{total}} passes restants gratuits",
+        "purchasedLeft": "{{n}} passes achetés",
+        "resetIn": "Renvois à {{when}}",
+        "peakNotice": "Heures de pointe : chaque passe vous donne uniquement {{minutes}} minutes",
+        "emptyDesc": "Aucun billets restants. Achetez plus ou attendez le réinitialisation la semaine prochaine.",
+        "lastMinutes": "Il reste {{minutes}} minutes sur ce billet.",
+        "buyMore": "À court d'argent"
       },
       "store": {
         "title": "Acheter des jetons d'écoute",
-        "desc": "1 jeton = {{minutes}} minutes d'écoute. Les jetons achetés n'expirent pas chaque semaine.",
+        "desc": "1 jeton = {{minutes}} minutes d'écoute. Les jetons achetés ne pérennisent jamais leur validité semainière.",
         "close": "Fermer",
         "balance": "Votre solde",
-        "amount": "Combien de jetons",
-        "decrease": "Un jeton de moins",
-        "increase": "Un jeton de plus",
+        "amount": "Combien de jetons avez-vous ?",
+        "decrease": "Un jeton en moins",
+        "increase": "Un jeton en plus",
         "equals": "{{n}} jetons = {{minutes}} minutes d'écoute",
         "preset": "{{hours}} h",
         "unitPrice": "Prix par jeton",
-        "fee": "Frais de création ({{percent}} %)",
+        "fee": "Frais créatifs ({{percent}}%)",
         "total": "Total",
-        "peakNotice": "Heures de pointe 00:00–05:00 et 11:00–13:00 : les jetons sont consommés deux fois plus vite.",
-        "short": "Il vous manque {{amount}} JOY.",
-        "buy": "Acheter {{n}} jetons — {{total}} JOY",
+        "peakNotice": "Heures de pointe 00:00–05:00 et 11:00–13:00 : les jetons sont utilisés deux fois plus vite.",
+        "short": "Vous êtes {{amount, joy}} court.",
+        "buy": "Achetez {{n}} jetons — {{total, joy}}",
         "buying": "Traitement…",
-        "success": "{{n}} jetons d'écoute ajoutés.",
-        "genericError": "Achat impossible. Veuillez réessayer."
+        "success": "{{n}} tokens d'écoute ajoutés.",
+        "genericError": "Achat échoué. Veuillez réessayer."
       }
     },
     "store": {
-      "title": "Magasin Hugo",
-      "tabs": {
-        "shop": "Magasin",
-        "cart": "Panier",
-        "orders": "Historique",
-        "promos": "Promos"
+      "error": "La transaction n'a pas abouti.",
+      "search": {
+        "placeholder": "Rechercher applis et articles",
+        "clear": "Effacer la recherche",
+        "results": "{{apps}} applis · {{packs}} articles",
+        "empty": "Rien trouvé",
+        "emptyHint": "Essayez un autre mot."
       },
-      "shop": {
-        "search": "Rechercher...",
-        "free": "GRATUIT",
-        "addToCart": "Ajouter au panier",
-        "installed": "Installé(e)"
+      "home": {
+        "apps": "Applis",
+        "appsHint": "La plupart sont gratuites, il suffit de les ouvrir",
+        "orders": "Achats",
+        "ordersHint": "Vos commandes récentes",
+        "balance": "Votre solde",
+        "balanceHint": "Les JOY viennent des études, des jeux et des présences — ils ne s'achètent pas.",
+        "games": "Jeux",
+        "gamesHint": "Téléchargez ici, jouez dans la salle de jeux"
+      },
+      "expiring": {
+        "title": "En cours",
+        "hint": "À l'échéance, l'accès se ferme — aucun JOY n'est prélevé",
+        "trial": "Découverte",
+        "rent": "Au mois",
+        "today": "se termine aujourd'hui",
+        "tomorrow": "encore un jour",
+        "days": "encore {{count}} jours",
+        "cta": "Voir les offres"
+      },
+      "app": {
+        "free": "Gratuit",
+        "freeHint": "Cette appli est gratuite, aucun JOY nécessaire.",
+        "using": "En cours",
+        "owned": "Acquis",
+        "open": "Ouvrir",
+        "locked": "Verrouillé",
+        "lockedHint": "Choisissez ci-dessous comment y accéder",
+        "giftAria": "Offrir {{app}} à un ami",
+        "choose": "Comment y accéder",
+        "chooseHint": "Découvrir, payer au mois, ou payer une seule fois",
+        "install": "Obtenir",
+        "installing": "Téléchargement {{percent}} %",
+        "installedToast": "{{app}} installé",
+        "viaPlan": "Débloqué par l'offre {{plan}}",
+        "see": "Voir les offres"
+      },
+      "tier": {
+        "trial": "Découverte de {{count}} jours",
+        "trial_one": "Découverte d'un jour",
+        "trialNote": "Aucun JOY. L'accès se ferme à l'échéance.",
+        "trialUsed": "Vous avez déjà utilisé la découverte",
+        "trialStarted": "Découverte de {{count}} jours ouverte",
+        "trialStarted_one": "Découverte d'un jour ouverte",
+        "free": "Gratuit",
+        "start": "Commencer",
+        "rent": "Au mois",
+        "rentNote": "Renouvelez au besoin, arrêtez quand vous voulez",
+        "rentAgainNote": "Un nouvel achat s'ajoute au temps restant",
+        "rentCta": "Prendre",
+        "renewCta": "Renouveler",
+        "own": "À vie",
+        "ownNote": "Au mois pendant {{months}} mois coûte {{joy, joy}}",
+        "ownCta": "Acheter",
+        "save": "{{percent}} % d'économie",
+        "popular": "Populaire",
+        "current": "En cours",
+        "used": "Utilisé",
+        "short": "Il manque {{joy, joy}}"
+      },
+      "packs": {
+        "radio_time": {
+          "title": "Plus de temps d'écoute",
+          "subtitle": "Ajoute des minutes à l'appli radio"
+        },
+        "psy_study_tokens": {
+          "title": "Plus de conversations",
+          "subtitle": "Débloque des sessions de discussion et d'appel"
+        },
+        "system_validity": {
+          "title": "Prolonger le système",
+          "subtitle": "Ajoute des jours à votre compte"
+        },
+        "general": {
+          "title": "Autres articles",
+          "subtitle": "Tout le reste qui vaut le détour"
+        },
+        "soldOut": "Épuisé",
+        "fallback": "Article de la boutique",
+        "perkListenDays": "+{{count}} jours d'écoute",
+        "perkListenDays_one": "+1 jour d'écoute",
+        "perkListenHours": "+{{count}} heures d'écoute",
+        "perkListenHours_one": "+1 heure d'écoute",
+        "perkValidity": "+{{count}} jours d'accès",
+        "perkValidity_one": "+1 jour d'accès",
+        "perkChats": "+{{count}} discussions",
+        "perkChats_one": "+1 discussion",
+        "perkCalls": "+{{count}} appels",
+        "perkCalls_one": "+1 appel"
+      },
+      "gift": {
+        "title": "Offrir {{app}}",
+        "close": "Fermer",
+        "to": "Envoyer à",
+        "toPlaceholder": "Code de parrainage, e-mail ou téléphone",
+        "searching": "Recherche…",
+        "notFound": "Personne ne correspond.",
+        "lookupFailed": "Impossible de vérifier le destinataire.",
+        "code": "Code {{code}}",
+        "member": "Membre Hugo",
+        "tier": "Offre à offrir",
+        "rentNote": "30 jours d'utilisation",
+        "message": "Message",
+        "optional": "(facultatif)",
+        "messagePlaceholder": "Bonne découverte !",
+        "continue": "Continuer · {{joy, joy}}",
+        "choose": "Choisissez un destinataire"
       },
       "cart": {
-        "empty": "Panier est vide",
-        "emptyDesc": "Ajouter les produits de la boutique",
-        "promoPlaceholder": "Entrez le code promotionnel",
-        "subtotal": "Total à payer",
-        "tax": "Taxes (9%)",
-        "discount": "Remise",
-        "total": "Total",
-        "checkout": "Vérifier et continuer avec paiement"
-      },
-      "orders": {
-        "empty": "Aucune commande encore"
-      },
-      "promos": {
-        "placeholder": "Entrez votre code",
-        "valid": "Le code est valide !",
-        "invalid": "Code invalide ou expiré"
+        "checkout": "Payer"
       }
     },
     "vcard": {
@@ -3087,7 +3392,47 @@
       "xacNhanXoa": "Confirmer la suppression",
       "banCoChacChan": "Voulez-vous vraiment supprimer",
       "thuMuc": "folder",
-      "khongHanhDongNay": "\"Ce ne peut pas être annulé."
+      "khongHanhDongNay": "\"Ce ne peut pas être annulé.",
+      "dangTaiLoTrinh": "Chargement du chemin de leçon…",
+      "quayLai": "Retour",
+      "luuTrucTiepDisk": "Enregistrer directement (disque)",
+      "taiVeMayLocal": "Télécharger localement",
+      "xuatToanBoWorkspace": "Exporter l'espace de travail actuel complet en tant que fichier ZIP",
+      "xuatZip": "Exporter ZIP",
+      "dongBoTrucTiep": "Synchro directe avec un dossier sur votre ordinateur via l'API système du système de fichiers",
+      "moThuMucCuc": "Ouvrir un dossier local",
+      "quanLyFile": "Gestion des fichiers",
+      "khoaHocCodeMau": "Cours & codes d'exemple",
+      "deChayPhpVa": "To run PHP and manage the database through phpMyAdmin on your own computer (localhost),\n                Docker Compose is the lightest option and keeps it well away from real data.",
+      "buoc1CaiDat": "Pour gérer la base de données et exécuter du PHP sur votre propre ordinateur (localhost),\nDocker Compose est l'option la plus légère et maintient tout cela à distance des données réelles.",
+      "taiDockerDesktopTu": "Étape 1: Installer Docker Desktop",
+      "buoc2TaoFile": "Téléchargez Docker Desktop depuis docker.com et installez-le sur votre ordinateur.",
+      "taoFileDockerCompose": "Étape 2: Créer un fichier docker-compose.yml",
+      "buoc3KhoiDong": "Créez un fichier docker-compose.yml dans le même dossier que votre projet PHP, avec ce contenu :",
+      "chayTerminalTaiThu": "Étape 3: Démarrer la stack",
+      "buoc4TruyCap": "Ouvrez une console de terminal dans ce dossier et exécutez :",
+      "moTrinhDuyetTruy": "Étape 4: Ouvrir phpMyAdmin",
+      "taiKhoanRootMat": "Username: root / Password: root. This is a local learning environment; never use these sample credentials on a real system.",
+      "khongGianSoanThao": "Le redacteur est verrouillé",
+      "vuiLongKichHoat": "Activer une abonnement, ou acheter l'abonnement permanent dans la colonne à gauche pour commencer à coder cette leçon.",
+      "troLaiEditor": "Retour au redacteur",
+      "khongCoFileNao": "Aucun fichier n'est ouvert. Ouvrez-en un depuis l'Explorateur de fichiers, ou chargez une leçon.",
+      "huongDanChay": "Comment exécuter cela",
+      "heThongNhanNut": "[Système] Appuyez sur “Exécuter du code” pour simuler l'exécution.",
+      "chayThuConsole": "Exécuter dans la console",
+      "loi": "Erreur",
+      "dang": "En cours d'exécution",
+      "chayThuMaNguon": "Exécutez votre code dans un environnement simulé, directement dans le navigateur",
+      "chayCodeThu": "Exécutez le code",
+      "dungXem": "Arrêter de prévisualiser",
+      "fileDangWebHtml": "Un fichier web (HTML/CSS/JS). Appuyez sur **Prévisualisation en direct** dans la partie supérieure droite pour voir l'interface immédiatement dans le navigateur.",
+      "doiVoiPythonBan": "Pour Python, ouvrez une fenêtre de terminal sur votre ordinateur dans le dossier contenant le fichier téléchargé et exécutez :",
+      "doiVoiNgonNgu": "Pour C, installez un compilateur GCC. Compilez et exécutez depuis la fenêtre de terminal :",
+      "doiVoiCBien": "Pour C++, compilez avec g++ :",
+      "doiVoiCHay": "Pour C#, installez l'ensemble SDK .NET. Créez un nouveau projet d'application console et exécutez :",
+      "doiVoiPhpBan": "Pour PHP, vous pouvez utiliser le serveur local fourni pour tester rapidement sans Apache :",
+      "truyCapHttpLocalhost": "Ouvrez http://localhost:8000 sur votre ordinateur pour voir le résultat.",
+      "traoDoiJoyDe": "Échanger JOY pour débloquer l'ensemble du développement web"
     },
     "hugoso": {
       "bai": "bài ·",
@@ -3124,7 +3469,7 @@
       "noiDungDaDoi": "Le contenu est vérifié contre la documentation officielle de Google sur",
       "googleGoogleCalendarDocs": "Google, Google Calendrier, Docs et Sheets sont des marques déposées par Google LLC.\n              Apprendre avec Hugo est un système d'apprentissage indépendant, non affilié à, sponsorisé par ou approuvé par Google.",
       "dieuHuongStudyWith": "Navigation dans le portail Hugo",
-      "homNay": "Aujourd'hui",
+      "homNay": "Hôm nay",
       "khoaHoc": "Cours",
       "thucHanh": "Pratique",
       "tienDo": "Progrès",
@@ -3187,7 +3532,59 @@
       "nopVaMoBuoc": "Soumettre et ouvrir le prochain pas",
       "tiepTheo": "SUCCÈS",
       "nangSuatSoAi": "Productivité numérique & IA",
-      "dangTaiKhoaHoc": "Chargement du cours"
+      "dangTaiKhoaHoc": "Chargement du cours",
+      "dungVaLamTheo": "DURANT ET SE JOINDRE",
+      "loiPhoBien": "ERREUR COMMUNE",
+      "thang7": "Juillet",
+      "baoCaoNghienCuu": "Rapport de recherche",
+      "dangLuuTrenDrive": "Enregistrer sur le stockage",
+      "nguyen2026ChoRang": "2026 Nguyen argumente que…",
+      "hayGiupToiLap": "Aidez-moi à planifier, mais vérifiez avec moi avant de conclure.",
+      "mucTieuQuanTrong": "Quel est votre objectif le plus important et sa date limite ?",
+      "dinhDangHuongDan": "Format d'aide interactive",
+      "banHuongDanTuong": "GUIDE INTERACTIF",
+      "tamDungVideoMinh": "Arrêter la vidéo démonstration",
+      "phatVideoMinhHoa": "Commencer la vidéo démonstration",
+      "chuong": "Chapitre",
+      "khopBuoc": "· MATCHING Étape",
+      "dong": "Fermer",
+      "quyenSoHuuTron": "ACCÈS À VIE",
+      "moToanBo4": "Débloquez tous les 4 cours, chaque exercice actuel et tout ce qui sera ajouté ultérieurement.",
+      "moToanBoLo": "Débloquez le parc entier avec ses exercices et les mises à jour futures pour ce cours.",
+      "giaKhoaHoc": "Prix du cours",
+      "phiSangTao10": "Frais de création 10%",
+      "tongTraoDoi": "Total à échanger",
+      "dangXacNhan": "En attente…",
+      "deSau": "Plus tard",
+      "khongTuGiaHan": "Renouvellement automatique non pris en compte · JOY ne peut pas être converti en argent"
+    },
+    "profile": {
+      "eyebrow": "Parcours vérifié",
+      "loading": "Construction de votre enregistrement…",
+      "generatedAt": "Compilé à {{date}}",
+      "publicNote": "Chaque chiffre ci-dessous est enregistré et validé par Hugo Studio, et non saisi par le titulaire de la page.",
+      "sectionStudent": "Vérification",
+      "studentStatus": "Statut étudiant",
+      "verified": "Vérifié",
+      "notVerified": "Non vérifié",
+      "school": "École",
+      "sectionLearning": "Éducation",
+      "lessons": "Cours terminés",
+      "certificate": "Certificat de fin de formation",
+      "granted": "Gratifié",
+      "notYet": "En cours d'approbation",
+      "studyCourses": "Cours de formation détenus",
+      "sectionTeam": "Contribution au projet",
+      "approvedHours": "Heures approuvées",
+      "tasksDone": "Tâches approuvées",
+      "tasksDoneShort": "{{count}} tâches approuvées",
+      "publishTitle": "Publier sur votre Bio",
+      "publishDesc": "Activer pour afficher le journal sous votre page Bio publique. Les visiteurs peuvent vérifier sans se connecter.",
+      "showOnBio": "Afficher sur la page Bio",
+      "needPlan": "Pour le publier, il faut louer ou acheter Hugo Profile dans la Boutique. Consulter votre propre parcours reste toujours gratuit.",
+      "published": "Enregistrement publié.",
+      "unpublished": "Enregistrement supprimé de votre page Bio.",
+      "saveError": "Impossible de sauvegarder les paramètres."
     }
   },
   "companion": {
@@ -3467,7 +3864,7 @@
       "meoMoiChuKy": "⁇ **Astuce** : chaque cycle de sommeil dure 90 minutes (à travers NREM, profond N3 et REM). Réveiller à la fin d'un cycle vous laisse alerte au lieu de gourmand ou de tête chaude.",
       "boCamBien": "Sensations :",
       "tuDongKichHoat": "⛱ Active automatiquement (PWA)",
-      "dangKetNoi": "Se connecter",
+      "dangKetNoi": "Connectez-vous",
       "chuaLienKet": "Non lié",
       "tuDong": "Automatique",
       "daLienKet": "Connecté",
@@ -3705,9 +4102,9 @@
       "trenTongSo": "de",
       "baiHocThucChien": "Cours pratiques",
       "soHuuTronGoi": "Gérez le paquet de lifetime (maintenance gratuite à vie)",
-      "chuaKichHoatPhi": "Maintenance mensuelle inactive (50 JOY)",
+      "chuaKichHoatPhi": "Maintenance mensuelle inactive ( {{amount, joy}})",
       "phiBaoTriDa": "Votre frais de maintenance a expiré!",
-      "vuiLongGiaHan": "Veuillez renouveler la maintenance mensuelle 50 JOY pour conserver vos apprentissages. Vous devez",
+      "vuiLongGiaHan": "Veuillez renouveler la maintenance mensuelle {{amount, joy}} pour conserver vos apprentissages. Vous devez",
       "ngay": "jours",
       "dongPhiTruocKhi": "payer avant que votre progression d'apprentissage ne soit réinitialisée à zéro.",
       "phiBaoTriHang": "Frais de maintenance mensuel :",
@@ -3715,15 +4112,15 @@
       "ngay2": "jours restants",
       "mucLucLoTrinh": ")",
       "vuiLongHocTuan": "Étudier pour débloquer les prochaines leçons",
-      "baiDaHoc": "Les leçons complétées",
+      "baiDaHoc": "Cours terminés",
       "banSeHoc": "Ce que vous apprendrez",
       "thachThuc": "Défi :",
       "huaHen": "Promesse :",
       "chucMungHoanThanh": "Félicitations pour avoir terminé",
       "xemChiaSeGiay": "Voir et partager votre certificat de scène",
       "banDaHoanThanh": "Vous avez réussi tous les défis de cette étape. Votre récompense est à votre portée.",
-      "daNhanThuong800": "Récompense débloquée (+800 JOY ✓)",
-      "nhanPhanThuong800": "Débloquer la récompense (+800 JOY)",
+      "daNhanThuong800": "Récompense débloquée ( {{amount, joy}} ✓)",
+      "nhanPhanThuong800": "Débloquer la récompense ( {{amount, joy}})",
       "hayHoanThanhDo": "Complétez le projet final et soumettez le lien de votre projet à",
       "bai100": "Leçon 100",
       "deNhanDanhGia": "Pour recevoir une revue de la part de Hugo Studio.",
@@ -3733,13 +4130,13 @@
       "phanHoi": "Feedback :",
       "banCoTheSua": "Vous pouvez réviser et soumettre un nouveau lien à la Leçon 100.",
       "doAnDaDuoc": "Votre projet a été approuvé ! 🎉",
-      "daNhanThuongHoan": "Le récompense de financement du 4,000 JOY ainsi que le cadeau VVIP ont été crédités.",
+      "daNhanThuongHoan": "Le récompense de financement du {{amount, joy}} ainsi que le cadeau VVIP ont été crédités.",
       "nhanChungNhanHoan": "Obtenez votre certificat de complétion",
       "chungNhanDangDuoc": "Le gestionnaire prépare votre certificat...",
       "vuiLongHoanThanh": "Terminez l'ancien cours pour déverrouiller celui-ci !",
       "thucHanhLyThuyet": "Pratique théorique",
       "noiDungBaiHoc": "Ce cours est verrouillé. Déverrouillez ce stade définitivement ou prenez le bundle complet pour commencer à apprendre.",
-      "thueBaoBaoTri": "Votre abonnement de maintenance a expiré. Renouvelez la maintenance mensuelle 50 JOY pour conserver l'apprentissage.",
+      "thueBaoBaoTri": "Votre abonnement de maintenance a expiré. Renouvelez la maintenance mensuelle {{amount, joy}} pour conserver l'apprentissage.",
       "moKhoaVinhVien": "Déverrouillez ce stade définitivement",
       "moKhoaVinhVien2": "Déverrouillez définitivement le droit d'étudier et de pratiquer chaque cours",
       "trongGoiNayBan": "Ce pack comprend",
@@ -3750,7 +4147,7 @@
       "muaTronGoi16k": "Achetez le pack pour 16k JOY",
       "giaHanPhiBao": "Renouvelez l'entretien mensuel",
       "phiBaoTriCan": "Le frais d'entretien est dû chaque mois pour maintenir l'accès. Une fois qu'il est en arrière-pied de 3 mois, votre progrès d'apprentissage sera réinitialisé à zéro.",
-      "dongPhiBaoTri": "Paiement du frais d'entretien de 50 JOY",
+      "dongPhiBaoTri": "Paiement du frais d'entretien de {{amount, joy}}",
       "hinhMinhHoaSong": "Illustrations animées",
       "tongQuanMucTieu": "Vue d'ensemble et objectifs",
       "thucHanhCodeMau": "Pratique et code de démonstration étape par étape",
@@ -3770,7 +4167,72 @@
       "chayThuDeXem": "Exécutez-le pour voir",
       "chay": "Exécution",
       "baiNayLaDang": "Cette leçon traite des requêtes ou du travail backend, donc sur un téléphone vous obtenez les codes et instructions samples. Sur l'ordinateur, le système d'apprentissage ouvre la IDE complète.",
-      "traoDoiJoyDe": "Échangez votre JOY pour débloquer le ensemble de Développement Web"
+      "traoDoiJoyDe": "Échanger JOY pour débloquer l'ensemble du développement web"
+    },
+    "puzzles": {
+      "thucHanhHoanTat": "Pratique terminée ! Répondez correctement aux questions ci-dessous pour passer.",
+      "cauDuoiDayDe": "Soumettre le test",
+      "nopBaiKiemTra": "Leçon terminée !",
+      "baiHocDaHoan": "Vérifier l'ordre",
+      "banDaVuotQua": "Vous avez réussi les défis de cette leçon et vous êtes récompensé par le JOY.",
+      "nhapVaoNutDi": "Requêtes d'interface :",
+      "kiemTraThuTu": "Carte produit :",
+      "yeuCauGiaoDien": "Exigences de l'interface utilisateur :",
+      "cardSanPham": "Règles de paiement :",
+      "viDuHienThi": "Exemple visuel",
+      "mauNen": "Couleur de fond :",
+      "mauChu": "Couleur du texte :",
+      "xacNhanMauSac": "Confirmer les couleurs :",
+      "hayHoanThanhSu": "Complétez l'événement de clic en cliquant 3 fois :",
+      "nhapChuotClick": "Cliquer",
+      "boDemSoLan": "Contre-clic :",
+      "nopBaiThucHanh": "Soumettre l'exercice :",
+      "hayNhanDu3": "Cliquez 3 fois pour terminer :",
+      "bamChon1Tu": "Choisissez une mot-clé à gauche, puis choisissez sa définition correspondante à droite :",
+      "tuKhoa": "Keyword",
+      "dinhNghia": "Definition",
+      "hoanThanhNoiCap": "Finish matching",
+      "dienDoanCodePhp": "Fill the blanks below with the right PHP:",
+      "xinChao": "\"Xin chào\"",
+      "nopKetQuaDien": "Submit the filled-in code",
+      "vietCodeTrenIde": "Write the code in the desktop IDE. Once it runs successfully in the browser, take a screenshot and upload it here so the system can check the format of what you submit.",
+      "daTaiAnhLen": "Image uploaded successfully!",
+      "chonHoacKeoAnh": "Choose or drag a screenshot here",
+      "dangKiemTraAnh": "Checking the submitted image...",
+      "kiemTraDinhDang": "Vérification du format, de la taille et de l'intégrité de l'image.",
+      "tuKiemTraAnh": "Évaluation terminée",
+      "diemNayChiPhan": "Ce score ne reflète que si l'image est appropriée pour passer à la étape suivante ; il ne remplace pas une évaluation par un enseignant ou un administrateur sur le travail réel.",
+      "nopAnhDaKiem": "Soumettre l'image vérifiée",
+      "vuiLongChonAnh": "Veuillez choisir une capture d'écran",
+      "dangNapBoCau": "Chargement des questions du quiz...",
+      "ketQuaKiemTra": "Résultat de la test:",
+      "tuyetVoiBanDa": "Excellent ! Vous avez réussi le test.",
+      "ratTiecDiemSo": "Dommage, votre score est inférieur au seuil minimum de 60%.",
+      "nhanThuongJoyHoan": "Réclamez le récompense JOY et terminez",
+      "doiDeThiKhac": "Obtenez un papier différent et réessayez",
+      "cauHoi": "Question",
+      "daChon": "Sélectionnée :",
+      "cau": "câu",
+      "cauTruoc": "Précédent",
+      "nopBaiThi": "Soumettez le papier",
+      "cauTiep": "Suivant",
+      "khungMaNguon": "Cadre de source :",
+      "xacNhanDapAn": "Confirmez la réponse",
+      "doAnKetKhoa": "Projet final de développement web",
+      "nopSanPhamHoan": "Soumettre votre produit le plus poli pour terminer la Phase 7 et recevoir le certificat de finition et {{amount, joy}}.",
+      "chucMungBanDa": "Félicitations ! Vous avez terminé le set Web Development ! 🎉",
+      "xemChungNhanHoan": "Voir le certificat de finition",
+      "dangChoAdminDinh": "En attente que l'admin ajoute la liens du certificat...",
+      "duAnDangCho": "Projet en attente d'examen... ⏳",
+      "hugoStudioDangXem": "Hugo Studio examine votre soumission.",
+      "duAnChuaDat": "Votre projet ne respecte pas les exigences ❌",
+      "phanHoiCuaAdmin": "Feedback de l'admin :",
+      "banCoTheDieu": "Vous pouvez ajuster et envoyer un nouveau lien pour le projet ci-dessous.",
+      "httpsMyprojectComHoac": "https://myproject.com ou https://github.com/...",
+      "ghiChuChoAdmin": "Note pour l'admin (optionnel)",
+      "nhapGhiChuTai": "Notes, comptes de test, détails d'exploitation...",
+      "dangGui": "Envoi en cours...",
+      "guiDeAnTot": "Soumettre le projet final"
     }
   },
   "arcadeGame": {
@@ -3927,7 +4389,7 @@
     "rankSs": "RANG SS • ACE NEON",
     "rankA": "RANG A • FIGHTEUR AVANCÉ",
     "rankB": "RANG B • JUNIOR PLAYEUR",
-    "shellFormula": "{{score}} points → {{joy}} JOY",
+    "shellFormula": "{{score}} points → {{joy, joy}}",
     "shellRecord": "Meilleur de la journée! {{delta}} points de plus que la dernière fois.",
     "shellNear": "{{gap}} points en dessous de votre meilleur {{best}}.",
     "shellBest": "Votre meilleur: {{best}}.",
@@ -3956,7 +4418,9 @@
     "levelEasy": "Facile",
     "levelMid": "Moyen",
     "levelHard": "Difficile",
-    "caroOpponent": "Adversaire"
+    "caroOpponent": "Adversaire",
+    "eventSaturdayTitle": "Samedi doublé",
+    "eventSaturdayDesc": "Célébrant la Résurrection et la salut du Fils de Dieu — Jouez à des jeux pour 2 × JOY!"
   },
   "arcadeIntro": {
     "close": "Retourner aux Applications",
@@ -4065,18 +4529,18 @@
   "intro": {
     "nav": {
       "welcome": "Bienvenue",
-      "webDev": "Développement Web",
-      "personalInfo": "Informations personnelles",
-      "teammateInfo": "Info Équipe",
-      "bioEdu": "Service Bio Édu",
-      "webService": "Service Web",
-      "hobbies": "Fois de Jardinage",
-      "philosophy": "Principe",
-      "contacts": "Contacts",
-      "start": "Démarrage rapide",
+      "webDev": "Développement web",
+      "personalInfo": "Profil personnel",
+      "teammateInfo": "L'équipe",
+      "bioEdu": "Service Bio Edu",
+      "webService": "Création de sites",
+      "hobbies": "Centres d'intérêt",
+      "philosophy": "Mon message",
+      "contacts": "Liens",
+      "start": "Commencer",
       "studio": "Hugo Studio",
-      "partners": "Le Fondateur",
-      "about": "À Propos de Moi",
+      "partners": "Le fondateur",
+      "about": "À propos de moi",
       "discoveries": "Découvertes"
     },
     "about": {
@@ -4091,11 +4555,11 @@
       "explore": "Explorer le Portail",
       "book": "Réserver une Réunion",
       "available": "Disponible pour les Projets",
-      "scrollDown": "Basculer Down"
+      "scrollDown": "Faites défiler"
     },
     "slide2": {
       "badge": "✦ Développement Web",
-      "title1": "Développement Web",
+      "title1": "Développement web",
       "title2": "Où les Idées Deviennent Espaces Interactifs",
       "desc": "Le développement web est le voyage de transformer des idées créatives en sites vitrines vivantes. Cela ne se limite pas à la codification pure ; le développement web nécessite une pensée esthétique élevée combinée avec des solutions techniques optimales pour offrir des expériences utilisateur parfaites.",
       "viewProfile": "Voir Profil Personnel"
@@ -4103,7 +4567,7 @@
     "slide3": {
       "badge": "✦ Informations Personnelles",
       "title1": "Précedent &",
-      "title2": "Formation",
+      "title2": "Éducation",
       "eduTitle": "Éducation / Diplômes",
       "highSchool": "Nguyensaint-Dinh-Chieu Collège",
       "highSchoolDesc": "My Tho (Collège de MyTho)",
@@ -4129,7 +4593,7 @@
       "title2": "Jason Phan est mon compagnon sur le parcours d'apprentissage et de développement de projets. Nous combinons la pensée systémique et notre passion pour l'informatique pour transformer les idées complexes en applications fluides et optimisées.",
       "desc": "Collège Cay Duong",
       "highSchool": "Conseil juridique, politique et sécurité précises",
-      "highSchoolDesc": "Dynamic high school in Kien Giang.",
+      "highSchoolDesc": "Lycée dynamique à Kien Giang.",
       "highSchoolProvince": "An Giang (anciennement Kien Giang)",
       "uniTitle": "Greenwich Vietnam",
       "uniDesc": "Environnement de formation international lié à Greenwich UK.",
@@ -4147,18 +4611,18 @@
       "idTitle": "Identification Étudiante",
       "idName": "Système Portail Hugo",
       "idEmailTitle": "Adresse E-mail Requise",
-      "idBenefitTitle": "Avantage",
+      "idBenefitTitle": "AVANTAGE",
       "idBenefitDesc": "1 Pages Bio Gratuites",
-      "idValidityTitle": "Durée de Validité",
+      "idValidityTitle": "VALIDITÉ",
       "idValidityDesc": "12 Mois",
-      "idAuth": "Authentifié",
-      "benefitsTitle": "Vous avez vérifié avec succès et vous recevez :",
+      "idAuth": "AUTHENTIFIÉ",
+      "benefitsTitle": "Une fois vérifié, vous recevez :",
       "b1t": "Page de bio gratuite personnelle",
-      "b1d": "Personnalisez la disposition, les effets, le fond et chaque lien social — votre carte de visite numérique personnalisée.",
+      "b1d": "Personnalisez la mise en page, les effets, le fond et chaque lien social : votre carte de visite numérique.",
       "b2t": "Un lien propre et personnelisé",
       "b2d": "Comme bio/your-name — mémorable et professionnel sur votre CV, Facebook ou Instagram.",
       "b3t": "3-deux vérifications automatiques",
-      "b3d": "Juste un nom d'extension .edu — le système vérifie instantanément sans examen manuel.",
+      "b3d": "Il suffit d'une adresse se terminant par .edu — le système vérifie instantanément, sans contrôle manuel.",
       "b4t": "Kit complet de l'étudiant",
       "b4d": "Bénéficiez d’un mois complet gratuit de Bénéficiez d’Hugo PSY, Web IDE et Hugo Radio ainsi que d'Aura AI.",
       "toolsTitle": "Incluses les outils gratuits pour l'étudiant",
@@ -4178,7 +4642,7 @@
       "item2Desc": "Tableau d'administration, Gestion des produits"
     },
     "slide7": {
-      "badge": "✦ Personal Hobby",
+      "badge": "✦ Loisir personnel",
       "title1": "Corner de Loisir Personnel :",
       "title2": "Pots d’Epiphytes.",
       "desc": "Après des heures stressantes de codage, mon passion la plus grande est l'admiration et le soin des pots d'epiphytes. Leur vitalité intense et leur beauté primitive me donnent une paix inépuisable."
@@ -4207,7 +4671,7 @@
       "tiktok": "TikTok",
       "supporters": "Compagnons de voyage auprès de Hugo Studio",
       "supporterItem": "{{name}}",
-      "supportersEmpty": "Un petit coin charmant attend votre nom."
+      "supportersEmpty": "Un petit coin adorable attend votre nom."
     },
     "slide10": {
       "badge": "✦ Commencer maintenant",
@@ -4231,7 +4695,7 @@
       "title2": "créant des expériences magnifiques.",
       "desc": "I am Peter Hugo Wishpax Lê, a Gen Z developer completing my final year in Software Engineering at Greenwich Vietnam. My practice spans web applications, interface design and mobile ergonomics. Hugo Studio is my portfolio: a considered record of my projects, capabilities and evolving direction. Jason Phan collaborates with me on selected work.",
       "founderRole": "Stagiaire en Design & Développement",
-      "partnerRole": "Partenaire de Développement Coordonné",
+      "partnerRole": "Partenaire de co-développement",
       "openToWork": "Accès aux opportunités d'internat et de travail",
       "finalYear": "Mise à jour : Baccalauréat · Ingénierie logicielle",
       "motto": "Construisant des expériences avec tout mon cœur",
@@ -4239,7 +4703,7 @@
       "v1": "Dédié",
       "v2": "Poli",
       "v3": "Créatif",
-      "v4": "Amical",
+      "v4": "Bienveillant",
       "v5": "Supportif"
     },
     "discoveries": {
@@ -4256,11 +4720,11 @@
       "radioTitle": "Hugo Radio",
       "radioDesc": "Une station lo-fi apaisante pour vos sessions d'étude tardives.",
       "ideTitle": "Web IDE",
-      "ideDesc": "Write and run code right in your browser — even on your phone.",
+      "ideDesc": "Écrivez et exécutez du code directement dans le navigateur, même sur téléphone.",
       "arcadeTitle": "Hugo Arcade",
-      "arcadeDesc": "Retro games and multiplayer chess to unwind after stressful study sessions.",
+      "arcadeDesc": "Des jeux rétro et des échecs en multijoueur pour décompresser après les révisions.",
       "joyTitle": "Joy PWA",
-      "joyDesc": "Le portefeuille des récompenses Joy — gagner et dépenser des points dans l'ensemble de l'écosystème.",
+      "joyDesc": "Le JOY portefeuille de récompenses — gagnez et dépensez des points dans l'ensemble de l'écosystème.",
       "bioTitle": "Bio Signature",
       "bioDesc": "Une page personnelle unique qui reflète votre style et vos connaissances authentiques.",
       "hint": "✦ Suspendre le curseur sur les planètes pour explorer chaque utilité"
@@ -4277,24 +4741,24 @@
       "eyebrow": "Rencontrer Hugo",
       "title1": "Sept humeurs, ",
       "title2": "un seul Hugo",
-      "desc": "Tous les moments de travail ont leur humeur — toujours attentifs, toujours amusants.",
+      "desc": "Chaque moment de travail a son humeur : toujours attentionné, toujours amusant.",
       "m1w": "Bonjour !",
-      "m1d": "Bienvenue avec plaisir.",
-      "m2w": "Coding",
-      "m2d": "Fast, clean websites",
+      "m1d": "Sympathique dès le premier bonjour",
+      "m2w": "Code",
+      "m2d": "Des sites rapides et nets",
       "m3w": "Préoccupation",
       "m3d": "HugoPSY pour votre esprit",
       "m4w": "Qualité :",
       "m4d": "Détails dans tout",
       "m5w": "Wouah",
-      "m5d": "Toujours un petit surprise",
+      "m5d": "Toujours une petite surprise",
       "m6w": "Aller prochainement",
       "m6d": "Grandir ensemble, loin",
       "m7w": "Fun",
       "m7d": "Travail, mais fait plaisir"
     },
     "cine": {
-      "nav1": "About",
+      "nav1": "À propos",
       "nav2": "Services Utilitaires",
       "nav3": "Services",
       "nav4": "Réserver",
@@ -4302,7 +4766,7 @@
       "navPortfolio": "Portefeuille",
       "navServices": "Services",
       "navBooking": "Écouter",
-      "heroWord": "Pay",
+      "heroWord": "Hugo",
       "heroEyebrow": "Hugo Lê · Portfolio",
       "heroTitle1": "Je suis Hugo.",
       "heroTitle2": "Je conçois et développe des produits digitaux.",
@@ -4313,7 +4777,7 @@
       "heroScroll": "Passer en revue mon portefeuille",
       "previewStatus": "En ligne",
       "previewName": "Etudiant Hugo",
-      "previewTagline": "Une identité numérique unique, de nombreuses outils utiles.",
+      "previewTagline": "Une identité numérique, de nombreux outils utiles.",
       "aboutLabel": "Beyond the screen",
       "aboutH1": "Peter Hugo Wishpax Lê,",
       "aboutH2": "Un étudiant en dernière année d'ingénierie logicielle.",
@@ -4344,7 +4808,7 @@
       "card2c4": "Bundled avec l'ensemble complet du kit de base étudiant",
       "card3Title": "Web Design.",
       "card3c1": "Pages de débarquement personnalisées.",
-      "card3c2": "Full websites, easy to self-manage",
+      "card3c2": "Des sites complets, faciles à gérer soi-même",
       "card3c3": "Optimisé pour la recherche d'informations sur le Web (SEO), la vitesse et l'appareil mobile.",
       "card4Title": "Outils pour étudiants.",
       "card4c1": "Hugo PSY — un compagnon deécoute.",
@@ -4361,12 +4825,12 @@
       "stat1l": "Generation",
       "stat2v": "Greenwich",
       "stat2l": "Mise à jour : Baccalauréat · Ingénierie logicielle",
-      "partnerLabel": "Co-développant avec",
-      "contactTitle": "Let's stay in touch.",
+      "partnerLabel": "En co-développement avec",
+      "contactTitle": "Restons en contact.",
       "marqueeTitle": "Technologies que j'ai apprises",
       "work": {
         "eyebrow": "Travaux sélectionnés",
-        "title": "Produits que j'ai construits à partir du sol.",
+        "title": "Des produits que j'ai bâtis de zéro.",
         "desc": "Chaque projet affronte une classe distincte de problème : la publication personnelle, les données transactionnelles et les systèmes interactifs. Ensemble, ils illustrent comment je concilie le craft d'interface, la logique d'application et la conception mobile-first.",
         "items": [
           {
@@ -4407,18 +4871,18 @@
   "servicesPage": {
     "meta": {
       "title": "Conseil web pour étudiants, particuliers et petits commerces | Hugo Studio",
-      "description": "Dites-moi ce dont vous avez besoin avant de choisir une solution. Conseil individuel pour étudiants, particuliers et petits commerces, périmètre et budget fixés avant de commencer.",
-      "keywords": "Site web étudiant, portfolio d'étudiant, site personnel, site web petit commerce, consultation de conception de site web"
+      "description": "Dites à Hugo ce dont vous avez besoin avant de choisir une solution. Conseil individuel pour étudiants, particuliers et petits commerces, périmètre et budget fixés avant de commencer.",
+      "keywords": "Hugo Studio"
     },
     "common": {
       "youGet": "Ce que vous obtenez",
       "notIncluded": "Non inclus",
-      "discussPlan": "Abordez cette package",
-      "discussProject": "Abordez votre projet",
-      "revealPrice": "Voir la gamme d'investissement",
-      "priceHint": "Un point de départ. Le chiffre final est convenu une fois le périmètre clair.",
-      "getQuote": "Dites-moi ce dont vous avez besoin",
-      "quoteAfterChat": "Parlez-en d'abord · faites un devis ensuite"
+      "discussPlan": "Discuter de cette formule",
+      "discussProject": "Discuter de votre projet",
+      "revealPrice": "Voir la fourchette d'investissement",
+      "priceHint": "Un point de départ. Le montant final est convenu une fois le périmètre clair.",
+      "getQuote": "Dites-moi, je vous conseille",
+      "quoteAfterChat": "On échange d'abord · devis ensuite"
     },
     "whispers": {
       "intro": "Il n'existe pas de site web parfait. Il existe seulement le bon.",
@@ -4431,14 +4895,14 @@
       "closing": "Tout nombre est une porte. Quelle ouvriras-tu ?"
     },
     "hero": {
-      "badge": "Échange direct en tête-à-tête · Les étudiants d'abord",
-      "title1": "Pas besoin de choisir une formule.",
+      "badge": "Échange direct en 1-à-1 · Priorité aux étudiants",
+      "title1": "Pas besoin de choisir une formule tout de suite.",
       "title2": "Commencez par ce dont vous avez besoin.",
-      "desc": "Dites-moi votre objectif, ce qui vous bloque ou ce que vous voulez créer. Je vous aide à trouver l'approche à la bonne échelle — des Bio et portfolios étudiants aux sites de particuliers et de petits commerces.",
+      "desc": "Dites-moi votre objectif, ce qui vous bloque ou ce que vous voulez créer. Je vous aide à trouver une approche à la bonne échelle — des Bios et portfolios étudiants aux sites pour particuliers et petits commerces.",
       "viewPricing": "Choisissez votre situation",
       "contact": "Dites-moi ce qu'il vous faut",
-      "swipe": "Glissez pour continuer.",
-      "scroll": "Sauter vers la suite",
+      "swipe": "Balayez pour continuer",
+      "scroll": "Faites défiler pour continuer",
       "trust": [
         "Travailler directement avec le graphiste et le développeur",
         "Le scénario, le calendrier et le coût sont convenus à l'avance",
@@ -4453,7 +4917,7 @@
       "items": [
         {
           "title": "Je veux que mes clients comprennent et choisissent ma marque",
-          "desc": "A landing page or multi-page site that explains who you are, what you offer and what visitors should do next.",
+          "desc": "Une landing page ou un site multipage qui explique qui vous êtes, ce que vous proposez et ce que le visiteur doit faire ensuite.",
           "cta": "Voir le parcours de construction"
         },
         {
@@ -4490,7 +4954,7 @@
       },
       "stone3": {
         "badge": "✦ La Pierre Qui Prend Forme",
-        "desc": "A single page. A single story. You look your customer in the eye through the screen and they say: 'Yes, you're the one I've been looking for.'"
+        "desc": "Une seule page. Une seule histoire. Vous regardez votre client dans les yeux à travers l'écran et il se dit : « Oui, c'est vous que je cherchais. »"
       },
       "stone4": {
         "badge": "✦ Le Grand Pierre",
@@ -4505,7 +4969,7 @@
       "fix": {
         "label": "Rapide et efficace",
         "name": "Corrigez un site existant",
-        "price": "De $6.99",
+        "price": "À partir de $6.99",
         "note": "Chaque tâche est facturée en avance, vous payez uniquement quand c'est fait — pas de frais cachés.",
         "desc": "Votre site fonctionne mais des petits bugs coûtent à vos clients ? Je corrige uniquement ce qui nécessite une correction — pas besoin d'un grand package.",
         "includes": [
@@ -4519,12 +4983,12 @@
           "Frais de domaine et hébergement — je m'occupe de tout gratuitement"
         ],
         "timeline": "Du jour – Du lendemain",
-        "payment": "Pay when it is done"
+        "payment": "Payez une fois terminé"
       },
       "seo": {
         "label": "Optimize",
-        "name": "SEO & speed-up",
-        "price": "De $36.99",
+        "name": "SEO et accélération",
+        "price": "À partir de $36.99",
         "note": "Meilleur pour les sites React/Next.js ou n'importe quel site qui est lent et difficile à trouver sur Google.",
         "desc": "Un beau site qui est lent et invisible sur Google est une boutique sans enseigne. Ce package corrige exactement cela.",
         "includes": [
@@ -4543,8 +5007,8 @@
       "landing": {
         "label": "Commencer",
         "name": "Landing page d'une seule page",
-        "oldPrice": "80.99",
-        "price": "60.99",
+        "oldPrice": "$80.99",
+        "price": "$60.99",
         "discount": "-25%",
         "note": "Décoration personnalisée, sans modèles de masse. Fait en 5–7 jours.",
         "desc": "Une page parmi, un objectif : les visiteurs terminent la lecture et veulent vous contacter.",
@@ -4568,10 +5032,10 @@
       "website": {
         "label": "Croissance",
         "name": "Site web multipage",
-        "oldPrice": " $202.99",
+        "oldPrice": "$202.99",
         "price": "$121.99",
         "discount": "-40%",
-        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
+        "note": "Le prix final dépend du nombre de pages et des fonctionnalités, ajusté à votre budget avec un paiement échelonné.",
         "desc": "Une présence en ligne complète qui rend une petite boutique, un café ou une marque personnelle plus fiable qu'une page Facebook.",
         "tagline": "Le plus choisi",
         "includes": [
@@ -4594,8 +5058,8 @@
       "system": {
         "label": "Système",
         "name": "Application web dynamique",
-        "price": "Depuis $283.99",
-        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
+        "price": "À partir de $283.99",
+        "note": "Les projets avec paiement en ligne, tableaux de bord ou plusieurs rôles se situent généralement entre 12 et 20 millions.",
         "desc": "Ce n'est pas un simple catalogue — une page web qui vous sert : prendre des commandes, des réservations et gérer vos clients.",
         "tagline": "Un actif durable",
         "includes": [
@@ -4620,16 +5084,16 @@
       "compareLabel": "Comparer aux tarifs standard",
       "groupCoursework": {
         "title": "Aide avec les travaux à la fin du semestre",
-        "desc": "This work is graded, so every plan ships with documentation explaining the code, and one condition: you must be able to defend the work yourself."
+        "desc": "Ce travail est noté : chaque formule est donc livrée avec une documentation qui explique le code, et une condition — vous devez pouvoir le défendre vous-même."
       },
       "groupProfile": {
         "title": "Profil personnel — rien à voir avec les notes",
         "desc": "Ceci n'est pas un exercice d'évaluation, personne ne l'élève. C'est le profil que vous prenez pour vos demandes d'emploi et de bourses."
       },
       "bug": {
-        "label": "STUDENT",
+        "label": "ÉTUDIANT",
         "name": "Diagnostiquer et corriger",
-        "price": "120.000Dé",
+        "price": "$4.99",
         "unit": "/bug",
         "tagline": "En panne au dernier moment",
         "note": "Pricé par l'entremise des bugs convenus. Je touche uniquement la partie défectueuse — le reste reste votre code.",
@@ -4648,9 +5112,9 @@
       "html": {
         "label": "HTML/CSS/JS",
         "name": "Cours de conception web statique",
-        "price": "490.000é",
+        "price": "$20.99",
         "tagline": "Interface frontale réactive",
-        "note": "Split between 2 students: ~245.000đ each.",
+        "note": "Partagé entre 2 étudiants : ~$10.50 chacun.",
         "desc": "Travaux de conception web à la fin du trimestre : layout réactif et effets DOM basiques. Pas de backend, pas de base de données.",
         "includes": [
           "Votre lien Git propre pour cloner l'ensemble des sources",
@@ -4669,9 +5133,9 @@
       "php": {
         "label": "PHP/SQL",
         "name": "Cours d'enseignement dynamique de la web",
-        "price": "990.000đ",
-        "tagline": "CRUD & permissions",
-        "note": "Divisé entre les étudiants 3: ~330.000é chacun.",
+        "price": "$40.99",
+        "tagline": "CRUD et permissions",
+        "note": "Partagé entre 3 étudiants : ~$13.66 chacun.",
         "desc": "Traitement dynamique de données Web à échéance : gestion CRUD des données, enregistrement et autorisations de base basées sur les rôles.",
         "includes": [
           "Votre lien Git propre pour cloner l'ensemble des sources",
@@ -4690,9 +5154,9 @@
       "react": {
         "label": "REACT/NODE",
         "name": "Formation avancée en Web",
-        "price": "1.690.000đ",
+        "price": "$68.99",
         "tagline": "SPA + API REST",
-        "note": "~425.000đ par étudiant.",
+        "note": "Partagé entre 4 étudiants : ~$17.25 chacun.",
         "desc": "Travail web avancé à la fin du semestre : un SPA React contre une API REST Node/Express, soutenu par MongoDB ou PostgreSQL.",
         "includes": [
           "Votre lien Git propre pour cloner l'ensemble des sources",
@@ -4709,9 +5173,9 @@
         "compare": "43% moins cher que le forfait Site Web Multi-Pages (2.990.000€)."
       },
       "exclusiveBio": {
-        "label": "STUDENT",
+        "label": "ÉTUDIANT",
         "name": "Bio personnalisé",
-        "price": "99.000€",
+        "price": "$4.99",
         "tagline": "Une amélioration par rapport au gratuit",
         "note": "La version gratuite que vous créez en utilisant l'éditeur. Cette version est conçue autour de votre histoire.",
         "desc": "Une page de personnalité avec un layout et une palette de couleurs conçus spécifiquement pour vous, pas un thème standard.",
@@ -4727,11 +5191,11 @@
         ]
       },
       "bento": {
-        "label": "STUDENT",
+        "label": "ÉTUDIANT",
         "name": "CV/Biographie / Portfolio Bento",
-        "price": "799.000B",
+        "price": "$32.99",
         "tagline": "Créé pour les emplois et les bourses",
-        "note": "A personal profile, not an assignment — it touches none of your grades.",
+        "note": "Un profil personnel, pas un devoir — cela ne touche à aucune de vos notes.",
         "desc": "Résultats académiques, projets personnels brillants et vos liens présentés dans un grid Bento lisible en moins de 30 secondes.",
         "includes": [
           "Un portfolio sur une seule page avec un layout Bento",
@@ -4746,7 +5210,7 @@
       }
     },
     "demo": {
-      "eyebrow": "See for yourself",
+      "eyebrow": "Voyez par vous-même",
       "title": "Essayez-vous",
       "highlight": "démos de design réelles",
       "desc": "Trois exemples focalisés sur les profils personnels, les petites boutiques et les services créatifs. Ouvrez-les uniquement lorsque vous voulez un regard plus attentif.",
@@ -4766,9 +5230,9 @@
           "subtitle": "Restaurant"
         },
         "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
+          "title": "Bijouterie et or",
+          "short": "Bijoux",
+          "subtitle": "Bijoutier"
         },
         "portfolio": {
           "title": "Portefeuille personnel",
@@ -4776,12 +5240,12 @@
           "subtitle": "Profil personnel"
         },
         "ecommerce": {
-          "title": "Online Store",
+          "title": "Boutique en ligne",
           "short": "E-commerce",
           "subtitle": "Multidisciplinaire"
         },
         "dashboard": {
-          "title": "Panel Administrateur",
+          "title": "Panneau d'administration",
           "short": "Tableau de bord",
           "subtitle": "Tableau de bord"
         }
@@ -4810,7 +5274,7 @@
       "title2": "vous sert.",
       "desc": "Comme embaucher quelqu'un pour gérer votre page — prendre des commandes, réserver des places, rapporter — mais vous payez une fois et elle fonctionne 24/7.",
       "extendTitle": "Extensions lorsque vous en avez besoin — facturées séparément",
-      "extendDesc": "Online payments, multiple roles, custom APIs. These projects usually run 12-20 million; scope is confirmed in writing before work starts."
+      "extendDesc": "Paiement en ligne, plusieurs rôles, API sur mesure. Ces projets se situent généralement entre 12 et 20 millions ; le périmètre est confirmé par écrit avant le démarrage."
     },
     "student": {
       "badge": "Priorité de Hugo Studio",
@@ -4839,7 +5303,7 @@
       "items": [
         {
           "title": "Bio personnel",
-          "desc": "A page introducing yourself with social, study and mini-portfolio links."
+          "desc": "Une page qui vous présente, avec vos réseaux, vos études et un mini-portfolio."
         },
         {
           "title": "Outils d'étude",
@@ -4898,7 +5362,7 @@
     "finalCta": {
       "title1": "Chaque projet commence par",
       "title2": "une conversation claire.",
-      "desc": "Inutile de connaître le nom d'une formule ou de préparer un brief parfait. Envoyez votre site actuel, une capture ou quelques lignes sur l'objectif, et je vous aide à trouver la prochaine étape.",
+      "desc": "Pas besoin de connaître le nom d'une formule ni de rédiger un brief parfait. Envoyez votre site actuel, une capture d'écran ou quelques lignes sur votre objectif, et je vous aide à déterminer la prochaine étape.",
       "cta": "Dites-moi ce qu'il vous faut"
     },
     "promo": {
@@ -4907,45 +5371,45 @@
       "cta": "Vérifiez-moi!"
     },
     "tabs": {
-      "commercial": "Entreprises / Personnelles",
-      "student": "Pour les Étudiants",
-      "micro": "Corrections Rapides"
+      "commercial": "Commerces et boutiques",
+      "student": "Pour les étudiants",
+      "micro": "Retouches rapides"
     },
     "microJobs": {
       "bug-ui": {
         "name": "Réparer les Failles de l'Interface",
         "desc": "Corrigez les boutons cassés, les images mal alignées, les erreurs de taille de police ou les éléments de texte superposés.",
-        "price": "De $6.99",
+        "price": "À partir de $6.99",
         "time": "Terminé aujourd'hui!"
       },
       "style-content": {
         "name": "Polish des Couleurs et du Copié-Collé",
         "desc": "Modifier les couleurs de marque, échanger le type d'écriture, mettre à jour les graphiques d'avatar ou réécrire les sections de texte.",
-        "price": "Du Portail 8.99",
+        "price": "À partir de $8.99",
         "time": "Terminé aujourd'hui!"
       },
       "mobile-beauty": {
         "name": "Glow-up Mobile",
         "desc": "Optimiser l'espace entre les lignes, les polices adaptatives et les zones de clic pour les écrans mobiles.",
-        "price": "Du Portail 10.99",
+        "price": "À partir de $10.99",
         "time": "Terminé aujourd'hui!"
       },
       "web-widget": {
         "name": "Widgets Sucrés",
         "desc": "Intégrer des chats flottants Zalo/Messenger mignons, des formulaires de contact, des cartes Google ou des lignes directrices par clic.",
-        "price": "De $6.99",
+        "price": "À partir de $6.99",
         "time": "Terminé aujourd'hui!"
       },
       "deploy-domain": {
         "name": "Lancement Web",
         "desc": "Déployez votre site sur Vercel/Netlify/VPS, connectez des noms de domaine personnalisés et sécurisez avec un certificat SSL gratuit.",
-        "price": "Du Portail 10.99",
+        "price": "À partir de $10.99",
         "time": "Terminé aujourd'hui!"
       },
       "seo-quick": {
         "name": "Amélioration rapide SEO",
         "desc": "Configurez correctement les balises meta (Titre/Déscription) et configurez les prévisualisations de liens attrayants pour le partage Facebook/Zalo.",
-        "price": "Du Portail 8.99",
+        "price": "À partir de $8.99",
         "time": "Terminé aujourd'hui!"
       },
       "speed-optimize": {
@@ -4957,17 +5421,17 @@
       "monthly-maintenance": {
         "name": "Soin mensuel Cozy",
         "desc": "Restores réguliers, vérifications de sécurité rapides, correctifs d'erreurs de bug rapides et révisions légères du contenu chaque mois.",
-        "price": "12.99/mo",
+        "price": "À partir de $12.99/mois",
         "time": "Soins en cours"
       }
     },
     "disclaimer": "Chaque option ci-dessous représente une direction de départ. La portée, le timing et le coût sont confirmés uniquement après avoir discuté des vrais besoins.",
     "section": {
-      "newBuildsTitle": "Nouvelles Designs & Constructions personnalisées",
-      "newBuildsDesc": "Pour les marques, créateurs et entreprises nécessitant la construction d'une nouvelle page web à partir du sol.",
-      "optimizeTitle": "SEO, Vitesse et Squelette de Bug",
-      "optimizeDesc": "Pour les pages web existantes qui ont besoin d'un classement Google amélioré, des temps de chargement plus rapides ou des bugs techniques résolus.",
-      "upkeep": "Si vous avez besoin d'entretien après le période de soutien incluse, je proposerai cela séparément en fonction de la fréquence réelle d'actualisation — toujours optionnel."
+      "newBuildsTitle": "Sites pour particuliers, cafés et petites boutiques",
+      "newBuildsDesc": "Pas encore de site, ou un site devenu trop ancien ? Je vous en construis un tout neuf : design sur mesure, prix raisonnable, livraison rapide.",
+      "optimizeTitle": "Retouches et optimisation de votre site actuel",
+      "optimizeDesc": "Votre site a de petits bugs, il est lent ou introuvable sur Google ? Je corrige au bon endroit, sans tout refaire.",
+      "upkeep": "Si vous avez besoin de maintenance après la période de support incluse, je vous la propose séparément selon la fréquence réelle des mises à jour — toujours facultative."
     },
     "devices": {
       "desktop": "Éditionnel",
@@ -4977,7 +5441,7 @@
     "proof": {
       "eyebrow": "Travail livré",
       "title": "Quel spectacle d'un site web multi-pages dans la production",
-      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
+      "desc": "Un vrai client, un site en ligne. Ouvrez-le vous-même — inutile de croire une capture d'écran.",
       "clientLabel": "Client",
       "fieldLabel": "Industrie",
       "scopeLabel": "Scope",
@@ -4998,7 +5462,7 @@
       "previewTitle": "Salle de modèles",
       "close": "Fermer la prévisualisation",
       "previewHint": "Choisissez un modèle puis passez à d'autres appareils pour visualiser votre site web avant que nous ne discutions.",
-      "included": "Can be included",
+      "included": "Peut être inclus",
       "liveNotice": "Vous pouvez glisser-déplacer et interagir directement dans cette cadre.",
       "fits": "Parfait pour",
       "details": {
@@ -5099,7 +5563,7 @@
     "meta": {
       "title": "Discuter d'un Projet de Site Web | Hugo Studio",
       "description": "Définissez vos besoins à travers un formulaire guidé. Hugo répondra pour clarifier le périmètre, les délais et une investissement approprié avant que tout travail ne commence.",
-      "keywords": "Veuillez sélectionner votre groupe d'âge avant de continuer."
+      "keywords": "Hugo Studio: Enquête sur le projet de site web, Consultation sur la conception de site web, Portefeuille personnel, Site web pour petites entreprises"
     },
     "toast": {
       "success": "Votre demande a été reçue. Je répondrai dans un délai d'une journée ouvrable.",
@@ -5227,6 +5691,10 @@
       "phoneLabel": "Téléphone / Zalo",
       "phoneHint": "Requis · ne sera jamais publié",
       "phonePlaceholder": "Par exemple, 09xx xxx xxx",
+      "voucherLabel": "Code de réduction",
+      "voucherHint": "Facultatif · disponible dans Compte → My perks",
+      "voucherPlaceholder": "Par exemple, HUGO20-A1B2C3",
+      "voucherInvalid": "Ce code de réduction est inutilisable (code erroné, déjà utilisé ou expiré). Vérifiez-le ou laissez le champ vide.",
       "messagePlaceholder": "Par exemple, je vend des articles faits main et j'aurais besoin d'un site web où les clients pourraient consulter la collection... ",
       "disclaimer": "Ces détails sont utilisés uniquement pour répondre à votre demande et discuter du projet."
     },
@@ -5564,6 +6032,165 @@
       "service": "Les prix sont indiqués en dôngs vietnamiens et réglés via PayOS et les banques vietnamiennes.",
       "booking": "Hugo Studio prend des projets au Vietnam ; les budgets sont en dôngs et les échanges se font par e-mail ou Zalo.",
       "donate": "Les dons sont effectués en dôngs vietnamiens via PayOS et les banques vietnamiennes."
+    },
+    "vietnameseContentOnly": {
+      "title": "Contenu en vietnamien.",
+      "course": "Les leçons de Study with Hugo sont rédigées en vietnamien par leur auteur. L’interface est traduite, pas le contenu des cours."
+    }
+  },
+  "paymentGateway": {
+    "dangChuanBiThong": "Preparing your payment details…",
+    "giaoDichKhongHop": "Invalid transaction",
+    "lienKetKhongTon": "Ce lien n'existe pas ou est expiré.",
+    "veTrangChu": "Retour à la home",
+    "camOnBanDa": "Merci pour votre soutien",
+    "thanhToanThanhCong": "Le paiement a été effectué avec succès",
+    "thuCamOnVa": "Un remerciement et des informations sur Hugo Studio vous sont en cours de rédaction vers l'adresse email que vous avez fournie.",
+    "giaoDichDaDuoc": "PayOS a confirmé le paiement.",
+    "soTien": "Montant",
+    "ma": "Code",
+    "veHugoStudio": "À propos de Hugo Studio",
+    "giaoDichDaHuy": "Transaction annulée",
+    "banCoTheQuay": "Vous pouvez retourner à Hugo Studio et commencer une nouvelle contribution.",
+    "khoanUngHoTu": "Contribution volontaire",
+    "yeuCauThanhToan": "Demande de paiement",
+    "noiDung": "Référence :",
+    "moUngDungNgan": "Ouvrez l'application bancaire",
+    "chonAppNganHang": "Choisissez votre application bancaire sur cet appareil. Le destinataire, le montant et la référence sont envoyés avec ; une application marquée « Auto-fill » ouvre directement vers un écran de transfert pré-rempli.",
+    "dungVietqrVoiMoi": "Utilisez VietQR avec n'importe quel courtier",
+    "timUngDungNgan": "Trouvez votre application bancaire",
+    "timTenNganHang": "Recherchez un courtier…",
+    "tuDien": "Auto-fill",
+    "chuaTimThayApp": "Cette application n'est pas dans la liste. Vous pouvez toujours utiliser VietQR avec votre propre courtier.",
+    "danhSachDayDu": "La liste complète n'a pas pu être chargée. Utilisez VietQR si votre application de paiement n'est pas affichée.",
+    "khongThayAppDung": "L'application non listée ? Utilisez VietQR",
+    "thanhToanBang": "Paiement avec",
+    "heThongSeTai": "Le code VietQR pré-rempli télécharge d'abord, puis nous essayons d'ouvrir votre portefeuille. Dans l'application, scannez le QR depuis votre bibliothèque de photos et vérifiez les détails avant de confirmer.",
+    "mo": "Ouvrir",
+    "khaNangMoTruc": "La ouverture de l'application dépend directement de votre appareil et de la version de votre portefeuille.",
+    "soTaiKhoan": "Numéro d'identification",
+    "noiDung2": "Référence",
+    "nguoiNhan": "Destinataire :",
+    "nganHangDoiTac": "Partenaire bancaire du partenaire PayOS",
+    "khongDongTrangCho": "Ne fermez pas cette page jusqu'à ce que la transaction soit confirmée. Hugo Studio ne montre que les données de paiement renvoyées par l'API PayOS et ne stocke jamais vos informations de compte bancaire.",
+    "dangHuy": "Annuler...",
+    "huyVaXoaGiao": "Annuler et supprimer la transaction",
+    "maVietqrThanhToan": "Code QR VietQR",
+    "quetVietqr": "Scannez VietQR",
+    "moUngDungNgan2": "Ouvrez un application d'applications bancaires ou une pièce contenant le support de VietQR, scannerez le code et vérifiez l'importance avant de transférer.",
+    "taiMaQr": "Télécharger le code QR",
+    "saoChepNoiDung": "Copiez la référence"
+  },
+  "userGuide": {
+    "huongDanSuDung": "Guide utilisateur"
+  },
+  "studentPricing": {
+    "banNhanDuoc": "Ce que vous obtenez",
+    "quayLaiDichVu": "Retour aux Services",
+    "dacQuyenNguoiHoc": "Bénéfices étudiants",
+    "dacQuyenBangGia": "Bénéfices et prix pour les étudiants uniquement",
+    "xacMinhEmailTruong": "Vérifiez votre adresse e-mail scolaire une fois pour débloquer un page Bio gratuite de 12 mois et le tarif étudiant sur chaque plan ci-dessous.",
+    "chiCourseworkCuoiMon": "Seulement les travaux d'après-modules",
+    "khongDoAnChuyen": "Aucun projet de fin de module, aucun mémoire de graduation et aucune rédaction ne se faisant pour vous.",
+    "banGiaoQuaGit": "Livré par Git",
+    "linkRepoDeBan": "Un lien de dépôt que vous clonez vous-même avec des instructions de lancement et une explication du code.",
+    "giaCoDinhCo": "Prix fixe avec un plafond",
+    "moiGoiGhiRo": "Tous les plans indiquent où ils s'arrêtent, donc rien ne se présente au milieu.",
+    "kiemDuyetTuDong": "Vérifié automatiquement",
+    "khongCanGuiThe": "Aucun carton d'étudiant nécessaire.",
+    "dangNhapBangGoogle": "Se connecter avec Google",
+    "dungTaiKhoanGoogle": "Utilisez votre compte Google scolaire.",
+    "kiemTraEmailGiao": "Vérifiez l'adresse email scolaire.",
+    "dangDoiChieuTen": "En cours de vérification du domaine...",
+    "tenMienEduAc": ".edu / .ac domaine valide.",
+    "khongPhaiEmailTruong": "C'est pas un email scolaire — le processus passe en revue manuellement.",
+    "tuChayNgaySau": "Déverrouillez les avantages étudiants immédiatement après votre connexion.",
+    "moDacQuyenHssv": "Bio gratuite pendant 12 mois et tarification étudiante appliquée.",
+    "bioMienPhi12": "Bio gratuit pendant 12 mois et tarification étudiante sur tous les plans inférieurs.",
+    "bioMienPhi122": "Paiement",
+    "nhanTrangBioMien": "Obtenez votre page Bio gratuite de 12 mois",
+    "emailCuaBanKhong": "Votre adresse e-mail ne fait pas partie d'un domaine scolaire. Envoyez une photo d'une carte étudiante valide correspondant à votre nom d'utilisateur via le formulaire de contact, et je la vérifierai manuellement dans les 24 heures.",
+    "guiTheSinhVien": "Envoyez une carte étudiante pour vérification manuelle",
+    "01BaiDuocCham": "01 — Travaux notés",
+    "daXacMinhGia": "Validez — tarif étudiant appliqué",
+    "xacMinhEmailTruong2": "Vérifiez votre adresse e-mail scolaire pour réserver un plan",
+    "baiNangCaoReact": "Travail avancé (React, Node, full-stack) ?",
+    "minhKhuyenBanTu": "Je préfère que vous appreniez cela par vous-même. Cliquez ici pour savoir pourquoi et comment je vais vous aider.",
+    "toiMucReactRest": "Par le temps où vous atteignez les réacteurs et les API REST, ce qui décide de votre note n'est plus si la code fonctionne, mais pourquoi il fonctionne. C'est aussi exactement la connaissance que vous emporterez dans vos entretiens d'emploi — acheter cela signifie acheter quelque chose que vous devriez avoir gardé pour vous.",
+    "nenMinhUuTien": "C'est donc que les trois plans simples ci-dessus sont d'abord arrivés. Je prends toujours le travail avancé, mais rarement et seulement en tant qu'appui — essayez-le par vous-même dans l'IDE Web gratuite, et quand vous êtes bloqué, le 120.000diagnostic & réparation plan est là.",
+    "soTheThreeSimpler": "C'est donc que les trois plans simples ci-dessus sont d'abord arrivés. Je prends toujours le travail avancé, mais rarement et seulement en tant qu'appui — essayez-le par vous-même dans l'IDE Web gratuite, et quand vous êtes bloqué, le 120.000diagnostic & réparation plan est là.",
+    "tuHocBangWeb": "Apprenez-le de manière autonome dans l'IDE Web gratuite",
+    "02KhongDinhDiem": "02 — Rien qui touche votre note",
+    "quaHssv": "Bon cadeau pour étudiant",
+    "bioTuDung": "Bio que vous construisez par vous-même",
+    "banTuLamTrong": "Vous le construisez par vous-même en 10 minutes",
+    "0d": "0đ",
+    "12Thang": "/ 12 mois",
+    "chiCanEmailTruong": "Just the school email verified above. No bank card needed.",
+    "trinhSoanThaoTrong": "Un éditeur dans votre compte, changez-le quand vous le souhaitez",
+    "chonTuCacTheme": "Choisissez parmi les thèmes et palettes de couleurs intégrés",
+    "lienKetMangXa": "Liens sociaux, photo de profil, introduction courte",
+    "duongDanRiengHugowishpax": "Votre propre adresse à hugowishpax.studio/bio/your-name",
+    "moTrinhSoanThao": "Ouvrez l'éditeur Bio",
+    "xacMinhOTren": "Vérifiez ci-dessus pour le priver",
+    "03QuyTrinh": "03 — Comment ça fonctionne",
+    "banNhanDuocGi": "Ce que vous obtenez, étape par étape",
+    "tuLucXacMinh": "De la vérification au transfert — tout est convenu d'avance, sans rien ajouter plus tard.",
+    "minhKhongNhanKe": "Je ne prends pas ces services-là — même pas pour plus d'argent."
+  },
+  "saveE": {
+    "impact": {
+      "bieuTrungCheDo": "Éco mode : symbole",
+      "dienThoaiNenSang": "Appareil de téléphone passant d'un fond lumineux à noir avec du texte blanc.",
+      "nenSang": "Fond lumineux",
+      "nenDen": "Fond noir",
+      "cotSoSanh720": "720 articles par heure dans le mode normal contre 24 en mode éco.",
+      "720Bai": "720 articles",
+      "cheDoThuong": "Mode normal",
+      "6Luot120Bai": "6 tours × 120 articles",
+      "24Bai": "24 articles",
+      "cheDoTietKiem": "Mode écologique",
+      "1Luot24Bai": "1 tour × 24 articles",
+      "luoiDiemAnhNen": "Un réseau de pixels : sur un fond lumineux, chaque pixel est éclairé ; sur le noir, la plupart sont éteints",
+      "2424DiemAnh": "24/24 pixels éclairés",
+      "324DiemAnh": "3/24 pixels éclairés",
+      "viSaoCheDo": "Pourquoi ce mode réellement économise",
+      "soLieuDoTu": "Les chiffres proviennent de l'origine ; les autres citent les recherches listées ci-dessous.",
+      "nguonThamKhao": "Références",
+      "cacConSoTren": "Ces nombres sont des estimations avec une plage, en fonction du dispositif, de la luminosité de l'écran et de l'infrastructure réseau locale.\n          Nous donnons une plage plutôt qu'un nombre arrondi pour ne pas promettre trop."
+    },
+    "account": {
+      "theThanhVien": "Carte de membre",
+      "thanhVienHugo": "Membre Hugo",
+      "chuaLayDuocSo": "Impossible de charger votre solde. Réouvrir la page pour réessayer.",
+      "viJoy": "Compte JOY",
+      "maQrNhanJoy": "JOY recevoir le code",
+      "layMaMoi": "Obtenir un nouveau code",
+      "duaMaNayCho": "Montrer ce code à qui vous envoie JOY. Il dure environ 2 minutes — après cela, appuyez sur\n                  « Obtenir un nouveau code ».",
+      "diemDanhNhanJoy": "Vérifier votre présence pour JOY",
+      "homNayChuaDiem": "Not checked in today",
+      "homNayDaDiem": "Inséré aujourd'hui",
+      "chuoiLienTiep": "Série :",
+      "ngay": "jours",
+      "diemDanhKhongThanh": "Check-in échoué.",
+      "diemDanh": "S'inscrire",
+      "lichSuGiaoDich": "Historique des transactions",
+      "chuaCoGiaoDich": "Aucune transaction encore.",
+      "chuyenJoy": "ENVOYER JOY",
+      "soDienThoaiNguoi": "Numéro de téléphone destinataire",
+      "soJoy": "JOY montant",
+      "maPinGiaoDich": "PIN d'achat",
+      "dangChuyen": "Envoi…",
+      "thongTinCaNhan": "Informations personnelles",
+      "tenHienThi": "Nom d'affichage",
+      "soDienThoai": "Numéro de téléphone",
+      "truongDonVi": "École / organisation",
+      "dangLuu": "Enregistrement en cours...",
+      "luuThongTin": "Enregistrer les détails",
+      "anhDaiDienAnh": "La photo de profil, l'image de couverture et la page Bio sont modifiés en mode normal —\n            elles sont les plus lourds à télécharger, donc ils ne figurent pas ici.",
+      "caiDat": "Paramètres",
+      "dangXuat": "Déconnexion",
+      "batTatVaMuc": "Le changement et le niveau ‘automatique’ se trouvent dans la tab Green. Désactivé dans ce mode : l'assistant AI, les cartes,\n          la boutique, la bibliothèque d'applications, les arrière-plans animés et chaque sondage de serveur répétitif."
     }
   }
 }

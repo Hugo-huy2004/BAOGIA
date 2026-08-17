@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import UtilityAppIcon from "./UtilityAppIcon";
 
 export default function WidgetRenderer({
   myWidgets,
@@ -91,9 +92,7 @@ export default function WidgetRenderer({
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className={`w-12 h-12 rounded-[14px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm shrink-0`}>
-                      <span className="material-symbols-outlined text-white text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>{app.icon}</span>
-                    </div>
+                    <UtilityAppIcon app={app} gradient={gradient} size="medium" className="!h-12 !w-12 !rounded-[14px]" />
                     <div className="text-left min-w-0">
                       <h3 className="text-sm font-semibold text-foreground leading-snug truncate">
                         {app.title}
@@ -200,9 +199,7 @@ export default function WidgetRenderer({
 
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-[18px] bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm shrink-0`}>
-                      <span className="material-symbols-outlined text-white text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>{app.icon}</span>
-                    </div>
+                    <UtilityAppIcon app={app} gradient={gradient} size="medium" className="!rounded-[18px]" />
                     <div>
                       <h3 className="text-base font-semibold text-foreground leading-snug">
                         {app.title}

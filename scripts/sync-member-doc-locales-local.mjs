@@ -68,13 +68,41 @@ function chunkEntries(entries) {
   return chunks;
 }
 
+// Tên thương hiệu và con số phải được CHE, không phải nhờ vả trong prompt.
+// Bản chỉ-nhờ-vả đã cho ra "ฮูจู" (Hugo đọc kiểu Thái) ngay trong văn bản chính
+// sách quyền lợi — thứ mà người đọc không còn nhận ra là tên sản phẩm. Che thì
+// model không có cơ hội đụng vào, và `hasSameTokens` bên dưới loại thẳng bản
+// dịch nào làm rơi mất một token.
+// Cụm hai chữ phải đứng trước: che mỗi "Hugo" thì model dịch nốt chữ "Studio"
+// còn lại và cho ra "ホジスタ dio".
+const PROTECTED = () => /Hugo\s+(?:Studio|Arcade|Team|Profile|Radio|Store)|Hugo[A-Za-z]*|JOY|Star-\w+|{{[^{}]+}}|[\w.+-]+@[\w.-]+\.\w+|\d[\d.,]*/g;
+const tokens = (text) => [...String(text).matchAll(PROTECTED())].map((match) => match[0]).sort();
+const hasSameTokens = (source, target) => JSON.stringify(tokens(source)) === JSON.stringify(tokens(target));
+
+function maskProtectedTokens(text) {
+  const protectedTokens = [];
+  const masked = String(text).replace(PROTECTED(), (token) => {
+    const marker = `__HUGO_${protectedTokens.length}__`;
+    protectedTokens.push(token);
+    return marker;
+  });
+  return { masked, protectedTokens };
+}
+
+const restoreProtectedTokens = (text, protectedTokens) => protectedTokens.reduce(
+  (result, token, index) => result.replaceAll(`__HUGO_${index}__`, token),
+  String(text),
+);
+
 async function askOllama(entries, language, attempt = 1) {
+  const prepared = entries.map(({ text }) => maskProtectedTokens(text));
   const prompt = [
     `Translate these Hugo Studio Member Portal legal and policy texts from English to ${language}.`,
     `Return ONLY a JSON array of exactly ${entries.length} translated strings in the same order.`,
     "Preserve Hugo Studio, Hugo Arcade, Bio, JOY, Star-14, Star-18, Star-VIP, tier names, email addresses, numbers and legal meaning.",
     "Use clear natural policy language. Do not shorten, summarize, explain or add content.",
-    JSON.stringify(entries.map(({ text }) => text)),
+    "Copy every protected marker such as __HUGO_0__ exactly as it appears.",
+    JSON.stringify(prepared.map(({ masked }) => masked)),
   ].join("\n");
   try {
     const response = await fetch(`${OLLAMA_URL}/api/generate`, {
@@ -118,7 +146,10 @@ async function askOllama(entries, language, attempt = 1) {
     if (translated.some((value) => typeof value !== "string" || !value.trim())) {
       throw new Error("empty translation");
     }
-    return translated;
+    const restored = translated.map((value, index) => restoreProtectedTokens(value, prepared[index].protectedTokens));
+    const broken = restored.findIndex((value, index) => !hasSameTokens(entries[index].text, value));
+    if (broken >= 0) throw new Error(`lost a protected token: ${entries[broken].id}`);
+    return restored;
   } catch (error) {
     if (attempt < 2) return askOllama(entries, language, attempt + 1);
     if (entries.length > 1) {

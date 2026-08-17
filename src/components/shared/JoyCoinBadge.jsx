@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useAnimation, useSpring } from "framer-motion";
 import { useJoyStore } from "../../stores/joyStore";
+import { useJoy } from "../../lib/joyDisplay";
 
 const SIZES = {
   sm: { coin: "w-4 h-4", coinText: "text-[5px]", label: "text-[10px]" },
@@ -18,6 +19,7 @@ const SIZES = {
  * already displayed elsewhere, like the JOY Wallet hero card).
  */
 export default function JoyCoinBadge({ amount: propAmount, size = "md", className = "", hideAmount = false }) {
+  const joy = useJoy();
   const s = SIZES[size] || SIZES.md;
   const storeBalance = useJoyStore(state => state.balance);
   const actualAmount = (propAmount !== undefined ? propAmount : storeBalance) ?? 0;
@@ -96,7 +98,7 @@ export default function JoyCoinBadge({ amount: propAmount, size = "md", classNam
       </motion.span>
       {!hideAmount && (
         <span className={`${s.label} font-mono font-bold transition-colors duration-300 ${flashColor}`}>
-          {Number(displayAmount).toLocaleString("vi-VN")} <span className="text-[0.8em] text-muted-foreground ml-0.5">JOY</span>
+          {joy.number(displayAmount)} <span className="text-[0.8em] text-muted-foreground ml-0.5">{joy.code}</span>
         </span>
       )}
     </span>

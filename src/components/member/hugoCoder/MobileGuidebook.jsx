@@ -11,6 +11,13 @@ import InteractivePuzzles from "./InteractivePuzzles";
 import { renderMobileIllustration, renderVisualArtwork } from "./VisualIllustrations";
 import FeatureGate from "../shared/FeatureGate";
 import { notify } from "../../../lib/notify";
+import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
+import { joyText } from "../../../lib/joyDisplay";
+
+// Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
+const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;
+const MAINTENANCE_PRICE = 50;
+
 
 export default function MobileGuidebook({
   embedded = false,
@@ -593,7 +600,7 @@ export default function MobileGuidebook({
                         <div className="border border-border bg-white dark:bg-zinc-900 rounded-xl p-4 space-y-3">
                           <div className="flex justify-between items-center text-xs">
                             <span className="font-bold text-foreground">{t("hugoCoderLearning.guidebook.moKhoaVinhVien")}</span>
-                            <span className="font-black text-primary">{tierInfo.price} JOY</span>
+                            <span className="font-black text-primary">{joyText(tierInfo.price)}</span>
                           </div>
                           <p className="text-xs text-muted-foreground leading-relaxed">
                             {t("hugoCoderLearning.guidebook.moKhoaVinhVien2")} {tierInfo.tierLabel}.
@@ -620,7 +627,7 @@ export default function MobileGuidebook({
                               <Award className="w-4 h-4 text-amber-400" />
                               {t("hugoCoderLearning.guidebook.tronGoiVinhVien")}
                             </span>
-                            <span className="font-black text-amber-500">16.000 JOY</span>
+                            <span className="font-black text-amber-500">{joyText(ALL_STAGES_PRICE)}</span>
                           </div>
                           <p className="text-xs text-muted-foreground leading-relaxed">
                             {t("hugoCoderLearning.guidebook.moKhoaToanBo")} <strong>{t("hugoCoderLearning.guidebook.mienPhiPhiBao")}</strong>.
@@ -641,7 +648,7 @@ export default function MobileGuidebook({
                       <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-4 space-y-3">
                         <div className="flex justify-between items-center text-xs">
                           <span className="font-bold text-red-500">{t("hugoCoderLearning.guidebook.giaHanPhiBao")}</span>
-                          <span className="font-black text-red-500">50 JOY</span>
+                          <span className="font-black text-red-500">{joyText(MAINTENANCE_PRICE)}</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           {t("hugoCoderLearning.guidebook.phiBaoTriCan")}

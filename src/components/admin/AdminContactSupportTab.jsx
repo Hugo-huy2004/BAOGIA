@@ -399,6 +399,14 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
                     )}
                   </div>
 
+                  {/* Mã ưu đãi đã được server kiểm và trừ lúc nhận đơn — chỉ hiện kết quả. */}
+                  {selectedItem.type === 'booking' && selectedItem.raw.voucherCode && (
+                    <div className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-success/10 border border-success/20 text-success text-xs font-bold">
+                      <span className="material-symbols-outlined text-lg">confirmation_number</span>
+                      Đã dùng mã <span className="font-mono">{selectedItem.raw.voucherCode}</span> · giảm {selectedItem.raw.voucherPercent}%
+                    </div>
+                  )}
+
                   {/* Message Body */}
                   <div>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Nội dung chi tiết</p>

@@ -310,6 +310,57 @@
 .gshell__reward .material-symbols-outlined { color: var(--intro-accent); font-size: 21px; font-variation-settings: "FILL" 1; }
 .gshell__reward b { color: var(--intro-accent); font-size: 24px; font-weight: 950; font-variant-numeric: tabular-nums; }
 .gshell__reward span { color: var(--intro-muted); font-size: 11px; font-weight: 800; }
+.gshell__reward-arrow {
+  color: var(--intro-muted);
+  font-size: 14px;
+  margin: 0 2px;
+}
+
+/* Saturday 2× event badge next to JOY amount */
+.gshell__event-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: color-mix(in srgb, #f59e0b 20%, transparent);
+  color: #f59e0b !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+  animation: gshell-event-pulse 2s ease-in-out infinite;
+}
+@keyframes gshell-event-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Saturday Resurrection event banner */
+.gshell__event-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, #f59e0b 12%, transparent), color-mix(in srgb, #a855f7 12%, transparent));
+  border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
+  text-align: left;
+}
+.gshell__event-banner .material-symbols-outlined {
+  color: #f59e0b;
+  font-size: 20px;
+  flex-shrink: 0;
+  font-variation-settings: "FILL" 1;
+}
+.gshell__event-banner p {
+  margin: 0;
+  color: var(--intro-ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+}
 
 .gshell__formula {
   margin: 6px 0 0;

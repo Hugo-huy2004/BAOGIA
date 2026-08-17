@@ -3,8 +3,25 @@ import crypto from 'crypto';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
+import { JOY_DENOMS } from '../../shared/joyCurrency.js';
 
 const MEMBER_TOKEN_TTL = '14d';
+
+// Những route CẦN gọi được khi hồ sơ chưa xong — nếu chặn cả mấy đường này thì
+// người dùng không có cách nào hoàn tất hồ sơ để được mở chặn (khoá cửa rồi để
+// chìa bên trong).
+// So khớp CHÍNH XÁC, không phải theo tiền tố: '/api/bios/me' dạng tiền tố sẽ mở
+// luôn mọi '/api/bios/me/*' (sửa hồ sơ, đổi giao diện…) — rộng hơn hẳn mức cần.
+const PROFILE_SETUP_ROUTES = [
+  '/api/bios/me',              // portal nạp hồ sơ → biết còn thiếu gì
+  '/api/bios/me/profile-gaps', // danh sách mục còn thiếu
+  '/api/bios/me/onboarding',   // nơi ghi lựa chọn
+];
+// Riêng đăng nhập/đăng xuất thì theo tiền tố: người dùng phải thoát ra được.
+export const isProfileSetupRoute = (url = '') => {
+  const path = String(url).split('?')[0].replace(/\/+$/, '') || '/';
+  return PROFILE_SETUP_ROUTES.includes(path) || path.startsWith('/api/auth/member');
+};
 
 const extractToken = (req, cookieName) => {
   const authHeader = req.headers.authorization;
@@ -122,11 +139,25 @@ export const requireMember = async (req, res, next) => {
         const mongoose = (await import('mongoose')).default;
         if (mongoose.connection.readyState === 1) {
           const Bio = (await import('../models/Bio.js')).default;
-          const bio = await Bio.findOne({ email: decoded.email }, 'locationAnomaly').lean();
+          // Một truy vấn cho cả hai cổng chặn — đừng tách thành hai lượt đọc.
+          const bio = await Bio.findOne({ email: decoded.email }, 'locationAnomaly joyDenom').lean();
           if (bio && bio.locationAnomaly) {
             return res.status(401).json({
               error: 'PHAT_HIEN_VI_TRI_BAT_THUONG',
               message: 'Phát hiện vị trí truy cập bất thường. Vui lòng xác thực lại bằng mã PIN.'
+            });
+          }
+          // Chưa chọn đơn vị JOY thì KHÔNG dùng được hệ thống. Chặn ở server chứ
+          // không chỉ ẩn giao diện: mọi số tiền hiện ra đều đã đổi theo đơn vị
+          // của tài khoản, nên tài khoản không có đơn vị là mọi màn tiền đang
+          // đọc một mặc định mà người dùng chưa từng đồng ý.
+          //
+          // `bio` rỗng thì bỏ qua: tài khoản chưa có hồ sơ, chưa có gì để chọn.
+          if (bio && !JOY_DENOMS[bio.joyDenom] && !isProfileSetupRoute(req.originalUrl)) {
+            return res.status(403).json({
+              error: 'PROFILE_INCOMPLETE',
+              missing: 'joyDenom',
+              message: 'Bạn cần chọn đơn vị JOY trước khi dùng Hugo Studio.'
             });
           }
         }

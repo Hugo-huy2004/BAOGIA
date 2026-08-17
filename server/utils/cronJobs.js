@@ -2,8 +2,27 @@ import cron from 'node-cron';
 import JoyLedger from '../models/JoyLedger.js';
 import Bio from '../models/Bio.js';
 import { FEATURE_PRICES } from './featureSubscriptionService.js';
+import { computeRates } from './joyRateService.js';
 
 export function initCronJobs() {
+  // Một điểm tỷ giá JOY mỗi giờ — đây là thứ vẽ nên đường trong màn Tỷ Giá.
+  //
+  // Job riêng vì nó gọi ra Internet (giá vàng): mạng treo cũng không được kéo
+  // theo hai job dọn dẹp bên dưới. Bản thân `computeRates` đã tự chịu lỗi và
+  // quay về hệ số nền, ở đây chỉ ghi lại cho người trực biết. Chỉ log mỗi 6 giờ
+  // để log không thành 24 dòng giống nhau mỗi ngày.
+  cron.schedule('2 * * * *', async () => {
+    try {
+      const rates = await computeRates({ force: true });
+      if (new Date().getUTCHours() % 6 === 0) {
+        console.log(`[CRON] Tỷ giá JOY ${rates.key}: vàng ${Math.round(rates.gold.price)} USD/oz`
+          + `${rates.gold.stale ? ' (dùng lại giá cũ)' : ''}, thu nhập TB ${Math.round(rates.income.overall)} JOY/ngày`);
+      }
+    } catch (error) {
+      console.error('[CRON] Không tính được tỷ giá JOY:', error.message);
+    }
+  });
+
   // Chạy mỗi đêm lúc 00:00
   cron.schedule('0 0 * * *', async () => {
     try {

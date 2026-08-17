@@ -2,12 +2,20 @@ import { useState } from "react";
 import { Award, Users, Check, Gift } from "lucide-react";
 import { notify } from "../../../lib/notify";
 import { useJoyStore } from "../../../stores/joyStore";
+import { joyText } from "../../../lib/joyDisplay";
+
+// Thưởng hoàn thành toàn khoá, tính bằng JOY gốc.
+const COMPLETION_REWARD = 10000;
+
 
 export default function CertificateModal({ open, bio, onClose, certType, onBioUpdate }) {
-  if (!open) return null;
-
+  // Hook phải gọi TRƯỚC mọi lối thoát sớm. Trước đây `if (!open) return null`
+  // đứng trên hai useState này, nên lần đầu mở modal React đếm được nhiều hook
+  // hơn lần render trước và ném lỗi ngay giữa lúc dựng cây — màn trắng.
   const [claiming, setClaiming] = useState(false);
   const [awardClaimed, setAwardClaimed] = useState(bio?.courseCompletionAwardClaimed || false);
+
+  if (!open) return null;
 
   const getCertificateId = () => {
     if (!bio?.email) return "HGC-TEMP-00000";
@@ -60,7 +68,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
         conf({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
       });
 
-      notify.success("Chúc mừng! Bạn đã nhận phần thưởng +10,000 JOY hoàn thành khóa học!");
+      notify.success(`Chúc mừng! Bạn đã nhận phần thưởng +${joyText(COMPLETION_REWARD)} hoàn thành khóa học!`);
       setAwardClaimed(true);
       if (bio?.email) {
         useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
@@ -188,7 +196,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-black text-amber-400 block">+10,000 JOY</span>
+                  <span className="text-xs font-black text-amber-400 block">+{joyText(COMPLETION_REWARD)}</span>
                 </div>
               </div>
 
@@ -203,7 +211,7 @@ export default function CertificateModal({ open, bio, onClose, certType, onBioUp
                     disabled={claiming}
                     className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 active:scale-[0.98] text-zinc-950 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 shadow"
                   >
-                    {claiming ? "Đang xử lý..." : "Nhận 10,000 JOY thưởng hoàn thành khóa học"}
+                    {claiming ? "Đang xử lý..." : `Nhận ${joyText(COMPLETION_REWARD)} thưởng hoàn thành khóa học`}
                   </button>
                 )
               ) : (

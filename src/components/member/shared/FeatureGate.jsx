@@ -3,6 +3,7 @@ import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
 import JoyExchangeModal from "./JoyExchangeModal";
 import BackButton from "./BackButton";
+import { joyText } from "../../../lib/joyDisplay";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 
@@ -57,7 +58,7 @@ export default function FeatureGate({ bio, featureKey, priceJoy, icon, title, de
         className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:bg-primary/90 transition-all active:scale-95"
       >
         <span className="material-symbols-outlined text-base">bolt</span>
-        Trao đổi {priceJoy} JOY/tháng
+        Trao đổi {joyText(priceJoy)}/tháng
       </button>
       <p className="text-[10px] text-muted-foreground mt-4">JOY là đồng tích góp phi lợi nhuận — không thể nạp bằng tiền.</p>
 

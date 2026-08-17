@@ -1,40 +1,111 @@
 /* ──────────────────────────────────────────────────────────────────────────
-   Hugo Store — bộ mặt theo style user gửi: nền tím indigo, thẻ trắng đặc,
-   bo góc lớn, header gọn một dòng, chip viên nang.
+   Hugo Chợ — dựng theo ngôn ngữ giao diện của App Store / Games trên iOS 26.
 
-   KHÔNG dùng kính mờ / large-title co giãn / gradient nhiều lớp. Thẻ là mảng
-   đặc có bóng mềm, chữ đủ lớn, một màu nhấn duy nhất.
+   Bốn thứ làm nên cái "giống iOS" và phải giữ đúng:
+     1. Large title cuộn khuất rồi mới hiện tiêu đề nhỏ giữa thanh nav.
+     2. Liquid glass: mọi mặt phẳng là kính — `backdrop-filter` mờ + tăng bão
+        hoà, kèm vệt sáng ở mép trên và vệt tối ở mép dưới (`--hgs-spec`).
+        THIẾU vệt sáng thì không ra kính, chỉ ra một mảng mờ.
+     3. Kính phải có MÀU ở phía sau để khúc xạ — đó là việc của lớp nền đa sắc
+        `.hgs::before/::after`. Bỏ lớp đó đi thì kính thành xám xịt.
+     4. Danh sách "inset grouped": đường kẻ giữa các dòng thụt vào đúng bằng bề
+        ngang icon — kẻ hết chiều rộng là dấu hiệu rõ nhất của một app không
+        phải iOS.
 
+   Màu nhấn giữ indigo của Hugo thay cho systemBlue — đó là bản sắc của Chợ.
    Mọi rule scope dưới `.hgs` để không rò ra phần còn lại của portal.
+
+   Hiệu ứng chạy liên tục chỉ có hai: nền đa sắc trôi và vệt sáng quét trên thẻ
+   lớn. Cả hai chỉ animate `transform`, và cả hai tắt khi người dùng bật giảm
+   chuyển động (cuối file).
    ────────────────────────────────────────────────────────────────────────── */
 
 .hgs {
+  /* Nền và chữ lấy đúng bộ màu hệ thống của iOS. */
+  --hgs-page: #f2f2f7;          /* systemGroupedBackground */
+  --hgs-surface: rgb(255 255 255 / 0.62);  /* kính sáng */
+  --hgs-fill: rgb(118 118 128 / 0.14);  /* tertiarySystemFill — ô tìm kiếm, nút */
+  --hgs-ink: #0b0a14;           /* label */
+  --hgs-ink-soft: rgb(60 60 67 / 0.62); /* secondaryLabel */
+  --hgs-line: rgb(60 60 67 / 0.22);     /* separator */
+
+  /* Kính: mờ nền + bắt sáng ở mép trên, tối ở mép dưới. Đây là hai thứ làm nên
+     "liquid glass"; thiếu vệt sáng thì chỉ còn là một mảng mờ. */
+  --hgs-blur: blur(30px) saturate(180%);
+  --hgs-spec:
+    inset 0 1px 0 rgb(255 255 255 / 0.65),
+    inset 0 -1px 0 rgb(0 0 0 / 0.06),
+    0 8px 26px rgb(20 12 60 / 0.1);
+
   --hgs-accent: #5b3fe8;
   --hgs-accent-press: #4a31d1;
-  --hgs-accent-soft: #ece8ff;
+  --hgs-accent-soft: rgb(124 99 255 / 0.16);
   --hgs-accent-ink: #4a31d1;
-  --hgs-surface: #ffffff;
-  --hgs-page: #f6f5fd;
-  --hgs-ink: #1a1630;
-  --hgs-ink-soft: #6f6b85;
-  --hgs-line: #ebe9f5;
-  --hgs-shadow: 0 2px 10px rgb(26 22 48 / 0.05), 0 10px 26px rgb(26 22 48 / 0.06);
 
+  position: relative;
+  isolation: isolate;
   background: var(--hgs-page);
   color: var(--hgs-ink);
+  -webkit-font-smoothing: antialiased;
 }
 
 .dark .hgs {
-  --hgs-accent: #7c63ff;
-  --hgs-accent-press: #6a51f0;
-  --hgs-accent-soft: rgb(124 99 255 / 0.16);
-  --hgs-accent-ink: #b9a8ff;
-  --hgs-surface: #191825;
-  --hgs-page: #100f18;
-  --hgs-ink: #f3f1fb;
-  --hgs-ink-soft: #9b96b3;
-  --hgs-line: rgb(255 255 255 / 0.08);
-  --hgs-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+  --hgs-page: #06050c;
+  --hgs-surface: rgb(255 255 255 / 0.08);
+  --hgs-fill: rgb(255 255 255 / 0.12);
+  --hgs-ink: #ffffff;
+  --hgs-ink-soft: rgb(235 235 245 / 0.62);
+  --hgs-line: rgb(255 255 255 / 0.1);
+
+  --hgs-spec:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 -1px 0 rgb(0 0 0 / 0.3),
+    0 10px 30px rgb(0 0 0 / 0.45);
+
+  --hgs-accent: #8b74ff;
+  --hgs-accent-press: #7a61f5;
+  --hgs-accent-soft: rgb(139 116 255 / 0.24);
+  --hgs-accent-ink: #c4b6ff;
+}
+
+/* ── Nền đa sắc ────────────────────────────────────────────────────────────
+   Kính chỉ đẹp khi có màu ở PHÍA SAU để nó khúc xạ. Lớp này là năm quầng màu
+   lớn, đứng yên dưới nội dung cuộn, chuyển động rất chậm bằng transform (chỉ
+   transform — animate background-position hay filter là ép trình duyệt vẽ lại
+   cả lớp mỗi khung hình). */
+.hgs::before,
+.hgs::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hgs::before {
+  background:
+    radial-gradient(38% 32% at 18% 12%, #7c63ff 0%, transparent 62%),
+    radial-gradient(34% 30% at 86% 8%, #ff5ea8 0%, transparent 62%),
+    radial-gradient(40% 34% at 72% 78%, #22d3ee 0%, transparent 62%);
+  opacity: 0.5;
+  animation: hgs-drift 26s ease-in-out infinite alternate;
+}
+
+.hgs::after {
+  background:
+    radial-gradient(32% 28% at 8% 74%, #fbbf24 0%, transparent 60%),
+    radial-gradient(34% 30% at 54% 42%, #34d399 0%, transparent 60%);
+  opacity: 0.34;
+  animation: hgs-drift 34s ease-in-out infinite alternate-reverse;
+}
+
+.dark .hgs::before { opacity: 0.42; }
+.dark .hgs::after { opacity: 0.26; }
+
+@keyframes hgs-drift {
+  from { transform: translate3d(-4%, -3%, 0) scale(1); }
+  to { transform: translate3d(5%, 4%, 0) scale(1.14); }
 }
 
 /* ── Chữ ────────────────────────────────────────────────────────────────── */
@@ -43,187 +114,203 @@
 .hgs-dim { color: var(--hgs-ink-soft); }
 .hgs-accent-text { color: var(--hgs-accent-ink); }
 
-/* ── Thẻ đặc ───────────────────────────────────────────────────────────── */
-
-.hgs-card {
-  background: var(--hgs-surface);
-  border: 1px solid var(--hgs-line);
-  border-radius: 22px;
-  box-shadow: var(--hgs-shadow);
+/* Large title: 34px/700, âm tracking. Nằm TRONG vùng cuộn để nó trôi lên và
+   khuất đi, đúng cách iOS làm — không phải một tiêu đề dính trên đầu. */
+.hgs-large-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 1.1;
+  color: var(--hgs-ink);
 }
 
-.hgs-divide > * + * {
-  border-top: 1px solid var(--hgs-line);
+/* Tiêu đề nhóm nội dung: 22px/700, kèm chevron nếu bấm được. */
+.hgs-section-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.021em;
+  color: var(--hgs-ink);
 }
 
-/* ── Header gọn một dòng ───────────────────────────────────────────────── */
+/* ── Thanh nav ─────────────────────────────────────────────────────────── */
 
-/* Store chạy trong khung `fixed inset-0` nên nó KHÔNG thừa hưởng phần đệm
-   safe-area của <body>; header phải tự né tai thỏ. Dùng max() chứ không cộng
-   dồn, nếu không máy có notch sẽ thừa ra một mảng trống. */
-.hgs-header {
-  background: var(--hgs-page);
-  padding-top: max(8px, env(safe-area-inset-top, 0px));
+/* Chợ chạy trong khung `fixed inset-0` nên nó KHÔNG thừa hưởng phần đệm
+   safe-area của <body>; thanh nav phải tự né tai thỏ. Dùng max() chứ không
+   cộng dồn, nếu không máy có notch sẽ thừa ra một mảng trống. */
+.hgs-nav {
+  position: relative;
+  z-index: 2;
+  padding-top: max(6px, env(safe-area-inset-top, 0px));
   border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, backdrop-filter 0.2s ease;
 }
 
-.hgs-header[data-scrolled="true"] {
+/* Thanh nav trong suốt khi ở đỉnh, hoá kính khi nội dung trượt lên dưới nó —
+   đúng cách iOS làm, và cũng để lớp màu phía sau lộ ra lúc chưa cuộn. */
+.hgs-nav[data-scrolled="true"] {
   border-bottom-color: var(--hgs-line);
+  background: var(--hgs-surface);
+  backdrop-filter: var(--hgs-blur);
+  -webkit-backdrop-filter: var(--hgs-blur);
+}
+
+/* Tiêu đề nhỏ giữa thanh nav: chỉ hiện sau khi large title đã cuộn khuất. */
+.hgs-nav-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.hgs-nav[data-scrolled="true"] .hgs-nav-title {
+  opacity: 1;
+  transform: none;
 }
 
 .hgs-iconbtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
-  border-radius: 14px;
-  background: var(--hgs-surface);
-  border: 1px solid var(--hgs-line);
-  color: var(--hgs-ink);
-  transition: transform 0.14s ease;
-}
-
-.hgs-iconbtn:active { transform: scale(0.92); }
-
-/* ── Chip lọc / điều hướng ─────────────────────────────────────────────── */
-
-.hgs-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding-inline: 18px;
   border-radius: 999px;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  background: var(--hgs-surface);
-  border: 1px solid var(--hgs-line);
-  color: var(--hgs-ink-soft);
-  transition: transform 0.14s ease, background-color 0.18s ease, color 0.18s ease;
+  background: var(--hgs-fill);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45);
+  color: var(--hgs-ink);
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.14s ease;
 }
 
-.hgs-chip:active { transform: scale(0.95); }
+.hgs-iconbtn:active { opacity: 0.6; transform: scale(0.88); }
 
-.hgs-chip[aria-pressed="true"] {
-  background: var(--hgs-accent);
-  border-color: var(--hgs-accent);
-  color: #fff;
-  box-shadow: 0 6px 16px rgb(91 63 232 / 0.28);
+/* ── Thẻ và danh sách inset grouped ────────────────────────────────────── */
+
+.hgs-card {
+  background: var(--hgs-surface);
+  backdrop-filter: var(--hgs-blur);
+  -webkit-backdrop-filter: var(--hgs-blur);
+  box-shadow: var(--hgs-spec);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Đường kẻ thụt vào bằng bề ngang icon + khoảng cách — đây là chi tiết tạo ra
+   cảm giác iOS rõ nhất, và cũng là thứ hay bị làm sai nhất.
+   VẼ đường kẻ từ chỗ thụt vào, chứ không kẻ hết rồi lấy nền che phần đầu: nền
+   thẻ giờ là kính trong suốt, che bằng nó thì không che được gì. */
+.hgs-list > * + *::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: var(--hgs-inset, 62px);
+  inset-inline-end: 0;
+  top: 0;
+  height: 1px;
+  background: var(--hgs-line);
+}
+
+.hgs-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  min-height: 60px;
 }
 
 /* ── Nút ───────────────────────────────────────────────────────────────── */
 
+/* Viên nang xám của App Store: nền fill, chữ màu nhấn, đậm. */
+.hgs-get {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  height: 32px;
+  padding-inline: 16px;
+  border-radius: 999px;
+  background: var(--hgs-fill);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5);
+  color: var(--hgs-accent-ink);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.14s ease;
+}
+
+.hgs-get:active { opacity: 0.6; transform: scale(0.9); }
+
+.hgs-get[data-action="installing"] {
+  color: var(--hgs-ink-soft);
+  opacity: 1;
+}
+
+/* Nút chính đầy màu — dùng ở trang chi tiết và trong sheet. */
 .hgs-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: 50px;
   padding-inline: 20px;
   border-radius: 14px;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
-  transition: transform 0.14s ease, background-color 0.18s ease, opacity 0.18s ease;
+  letter-spacing: -0.01em;
+  transition: opacity 0.14s ease;
 }
 
-.hgs-btn:active { transform: scale(0.97); }
-.hgs-btn:disabled { opacity: 0.45; transform: none; }
+.hgs-btn:active { opacity: 0.6; }
+.hgs-btn:disabled { opacity: 0.4; }
 
-.hgs-btn--primary {
-  background: var(--hgs-accent);
-  color: #fff;
-  box-shadow: 0 8px 20px rgb(91 63 232 / 0.26);
-}
+.hgs-btn--primary { background: var(--hgs-accent); color: #fff; }
+.hgs-btn--soft { background: var(--hgs-fill); color: var(--hgs-accent-ink); }
 
-.hgs-btn--soft {
-  background: var(--hgs-accent-soft);
-  color: var(--hgs-accent-ink);
-}
-
-.hgs-btn--ghost {
-  background: var(--hgs-surface);
-  border: 1px solid var(--hgs-line);
-  color: var(--hgs-ink);
-}
-
-/* Nút giá / GET trên từng dòng sản phẩm. 44px là ngưỡng chạm tối thiểu —
-   36px như trước là nguồn gốc của việc bấm mãi không trúng. */
-.hgs-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 84px;
-  height: 44px;
-  padding-inline: 16px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 700;
-  background: var(--hgs-accent-soft);
-  color: var(--hgs-accent-ink);
-  transition: transform 0.14s ease;
-}
-
-.hgs-pill:active { transform: scale(0.93); }
-.hgs-pill:disabled {
-  background: var(--hgs-line);
-  color: var(--hgs-ink-soft);
-  transform: none;
-}
-
-/* ── Ô nhập ────────────────────────────────────────────────────────────── */
+/* ── Ô tìm kiếm kiểu iOS ───────────────────────────────────────────────── */
 
 .hgs-input {
-  height: 46px;
+  height: 38px;
   width: 100%;
-  border-radius: 14px;
-  background: var(--hgs-surface);
-  border: 1px solid var(--hgs-line);
+  border-radius: 12px;
+  background: var(--hgs-fill);
+  backdrop-filter: var(--hgs-blur);
+  -webkit-backdrop-filter: var(--hgs-blur);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4);
+  border: none;
   color: var(--hgs-ink);
-  font-size: 15px;
+  font-size: 17px;
+  letter-spacing: -0.01em;
 }
 
 .hgs-input::placeholder { color: var(--hgs-ink-soft); }
-.hgs-input:focus {
-  outline: none;
-  border-color: var(--hgs-accent);
-  box-shadow: 0 0 0 3px rgb(91 63 232 / 0.14);
+.hgs-input:focus { outline: none; }
+
+/* Ô nhập nhiều dòng trong sheet tặng quà cần khung rõ hơn ô tìm kiếm. */
+.hgs-field {
+  width: 100%;
+  border-radius: 10px;
+  background: var(--hgs-surface);
+  border: none;
+  color: var(--hgs-ink);
+  font-size: 17px;
 }
 
-/* ── Khối tím lớn (hero / banner) ──────────────────────────────────────── */
+.hgs-field::placeholder { color: var(--hgs-ink-soft); }
+.hgs-field:focus { outline: none; }
 
-.hgs-violet {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  border-radius: 24px;
-  background: var(--hgs-accent);
-  color: #fff;
-  box-shadow: 0 14px 32px rgb(91 63 232 / 0.3);
-}
+/* ── Băng cuộn ngang ───────────────────────────────────────────────────── */
 
-/* Hai quầng sáng nhẹ cho đỡ phẳng lì — vẫn là một màu, không phải gradient
-   cầu vồng. */
-.hgs-violet::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(circle at 82% 6%, rgb(255 255 255 / 0.22), transparent 46%),
-    radial-gradient(circle at 8% 104%, rgb(0 0 0 / 0.2), transparent 52%);
-}
-
-/* ── Rail cuộn ngang ───────────────────────────────────────────────────── */
-
+/* `proximity` chứ không `mandatory`: mandatory ghì từng thẻ vào mép, vuốt nhẹ
+   một cái là nó tự nhảy — người dùng đọc thành "bấm nhầm". */
 .hgs-rail {
   display: flex;
+  gap: 12px;
   overflow-x: auto;
-  /* proximity chứ không mandatory: mandatory ghì từng thẻ vào mép, vuốt nhẹ
-     một cái là nó tự nhảy — người dùng đọc thành "bấm nhầm". */
   scroll-snap-type: x proximity;
   scroll-padding-inline: 16px;
   overscroll-behavior-x: contain;
@@ -234,9 +321,236 @@
 .hgs-rail::-webkit-scrollbar { display: none; }
 .hgs-rail > * { scroll-snap-align: start; flex: 0 0 auto; }
 
+/* Băng thẻ lớn: mỗi thẻ chiếm gần trọn bề ngang, chừa mép để lộ thẻ kế tiếp —
+   dấu hiệu "còn nữa, vuốt đi" mà không cần vẽ mũi tên. */
+.hgs-hero-rail > * { width: min(86vw, 420px); }
+.hgs-hero-rail { scroll-snap-type: x mandatory; }
+
+.hgs-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 300px;
+}
+
+/* Hai quầng sáng cho khối màu đỡ phẳng lì — vẫn là một màu, không phải gradient
+   cầu vồng. */
+.hgs-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 84% 4%, rgb(255 255 255 / 0.22), transparent 46%),
+    radial-gradient(circle at 6% 104%, rgb(0 0 0 / 0.22), transparent 52%);
+}
+
+/* Vệt sáng quét ngang thẻ — thứ làm khối màu trông như thuỷ tinh chứ không
+   phải giấy màu. Chỉ chạy transform, không đụng tới layout. */
+.hgs-hero::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -40%;
+  width: 40%;
+  height: 220%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgb(255 255 255 / 0.34),
+    transparent
+  );
+  transform: rotate(14deg) translate3d(0, 0, 0);
+  animation: hgs-sheen 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes hgs-sheen {
+  0%, 62% { transform: rotate(14deg) translate3d(-40%, 0, 0); }
+  100% { transform: rotate(14deg) translate3d(420%, 0, 0); }
+}
+
+.hgs-hero-btn {
+  width: 100%;
+  height: 42px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.24);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.6),
+    inset 0 -1px 0 rgb(0 0 0 / 0.12);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.14s ease;
+}
+
+.hgs-hero-btn:active { opacity: 0.7; transform: scale(0.96); }
+.hgs-hero-btn:disabled { opacity: 0.55; }
+
+/* Icon trên nền màu: bỏ gradient riêng, dùng lớp kính trắng mờ để nó thuộc về
+   tấm thẻ chứ không dán lên trên. */
+.hgs-hero-glyph {
+  border: 1px solid rgb(255 255 255 / 0.28);
+  box-shadow: none;
+}
+
+/* Chấm trang của băng thẻ lớn. */
+.hgs-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.hgs-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hgs-ink-soft);
+  opacity: 0.3;
+  transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+.hgs-dot[data-active="true"] {
+  opacity: 1;
+  width: 18px;
+  background: var(--hgs-accent);
+}
+
+/* Thẻ minh hoạ cỡ trung trong băng cuộn. */
+.hgs-art { width: 132px; }
+
+.hgs-art-top {
+  position: relative;
+  display: block;
+  width: 132px;
+  height: 132px;
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+  transition: opacity 0.14s ease;
+}
+
+/* Cảnh minh hoạ: luôn phủ kín khung, cắt bớt hai bên nếu khung hẹp hơn tranh —
+   thà mất mép còn hơn để tranh co lại thành một dải mỏng. */
+.hgs-art-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hgs-hero .hgs-art-svg { height: 156px; }
+
+.hgs-art-top:active { opacity: 0.7; }
+
+.hgs-art-top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(circle at 78% 8%, rgb(255 255 255 / 0.24), transparent 52%);
+}
+
+/* Thẻ số dư đóng trang — cũng là một mảng màu, không phải một ô trắng. */
+.hgs-balance {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(135deg, #f59e0b, #b45309);
+  color: #fff;
+}
+
+.hgs-balance::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 88% 0%, rgb(255 255 255 / 0.26), transparent 50%);
+}
+
+/* ── Lưới ứng dụng ─────────────────────────────────────────────────────── */
+
+/* 4 ứng dụng một hàng, mọi cỡ máy. `minmax(0, 1fr)` chứ không phải `1fr`: tên
+   app dài sẽ nong cột ra và đẩy hàng thành 3 nếu thiếu nó. */
+.hgs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px 4px;
+}
+
+.hgs-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  text-align: center;
+}
+
+/* Nảy nhẹ khi nhả tay — chạm vào thấy có phản hồi. */
+.hgs-tile > button:first-child {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hgs-tile > button:first-child:active { transform: scale(0.88); }
+
+/* Icon trên lưới: viền sáng + bóng màu mềm để nó nổi khỏi nền đa sắc. */
+.hgs-tile .utility-app-icon {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    0 6px 16px rgb(20 12 60 / 0.24);
+}
+
+/* Bốn cột trên máy hẹp thì mỗi ô chỉ còn ~80px — icon phải co theo, nếu không
+   tên app tràn ra ngoài ô. */
+.hgs-tile .utility-app-icon {
+  width: 100%;
+  max-width: 62px;
+  height: auto;
+}
+
+/* Icon ứng dụng: hình VUÔNG bo góc theo tỉ lệ của iOS — bán kính bằng ~22.5%
+   cạnh, tính bằng phần trăm nên icon to nhỏ cỡ nào cũng giữ đúng dáng. Bán
+   kính cố định px làm icon nhỏ tròn ra viên thuốc chứ không ra app. */
+.hgs .utility-app-icon {
+  aspect-ratio: 1;
+  border-radius: 22.5%;
+}
+
+/* ── Trang chi tiết ────────────────────────────────────────────────────── */
+
+/* Một dòng bậc giá. Bậc đề xuất chỉ khác bằng viền nhấn, không phóng to —
+   bậc nhảy cỡ làm cả bảng xô lệch khi trạng thái đổi. */
+.hgs-tier {
+  border-radius: 16px;
+  background: var(--hgs-surface);
+  backdrop-filter: var(--hgs-blur);
+  -webkit-backdrop-filter: var(--hgs-blur);
+  box-shadow: var(--hgs-spec);
+  padding: 14px;
+}
+
+.hgs-tier[data-highlight="true"] {
+  box-shadow: var(--hgs-spec), inset 0 0 0 2px var(--hgs-accent);
+}
+
+.hgs-tier[data-state="current"] { opacity: 0.72; }
+
 /* ── Vùng cuộn nội dung ────────────────────────────────────────────────── */
 
-/* Store nằm trong khung `fixed inset-0` nên đáy cũng phải tự né vạch home. */
+/* Chợ nằm trong khung `fixed inset-0` nên đáy cũng phải tự né vạch home. */
 .hgs-scroll {
   padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
   overscroll-behavior-y: contain;
@@ -246,26 +560,25 @@
 
 .hgs-skeleton {
   background: var(--hgs-surface);
-  border: 1px solid var(--hgs-line);
   animation: hgs-pulse 1.4s ease-in-out infinite;
 }
 
 @keyframes hgs-pulse {
-  50% { opacity: 0.55; }
+  50% { opacity: 0.5; }
 }
 
-/* ── Sheet & dock ──────────────────────────────────────────────────────── */
+/* ── Sheet ─────────────────────────────────────────────────────────────── */
 
 .hgs-sheet {
   background: var(--hgs-page);
-  border-radius: 26px 26px 0 0;
+  border-radius: 12px 12px 0 0;
   animation: hgs-sheet-in 0.34s cubic-bezier(0.22, 1, 0.36, 1);
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 640px) {
   .hgs-sheet {
-    border-radius: 26px;
+    border-radius: 14px;
     animation-name: hgs-sheet-in-center;
   }
 }
@@ -287,12 +600,30 @@
   to { opacity: 1; }
 }
 
+/* Màn chi tiết trượt vào từ phải — đúng kiểu push của UINavigationController. */
+.hgs-page-in { animation: hgs-page-in 0.3s cubic-bezier(0.32, 0.72, 0, 1); }
+
+@keyframes hgs-page-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* Nền đa sắc trôi và vệt sáng quét là hai thứ chạy LIÊN TỤC — với người bật
+   giảm chuyển động thì đó đúng là loại hiệu ứng phải tắt đầu tiên. Màu vẫn
+   giữ nguyên, chỉ đứng yên. */
 @media (prefers-reduced-motion: reduce) {
+  .hgs::before,
+  .hgs::after,
+  .hgs-hero::after,
   .hgs-sheet,
-  .hgs-scrim { animation: none; }
+  .hgs-scrim,
+  .hgs-page-in,
   .hgs-skeleton { animation: none; }
-  .hgs-chip,
+  .hgs-hero::after { opacity: 0; }
   .hgs-btn,
-  .hgs-pill,
+  .hgs-get,
+  .hgs-hero-btn,
+  .hgs-tile > button:first-child,
+  .hgs-nav-title,
   .hgs-iconbtn { transition: none; }
 }

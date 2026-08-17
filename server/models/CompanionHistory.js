@@ -174,7 +174,9 @@ const CompanionHistorySchema = new mongoose.Schema(
     activeSecondsDate: { type: String, default: '' },     // 'YYYY-MM-DD'
     joyAwardedSecondsToday: { type: Number, default: 0 },
     dailyJoyCapReached: { type: Boolean, default: false },
-    claimedChallengesToday: { type: [String], default: [] }
+    claimedChallengesToday: { type: [String], default: [] },
+    // Ngày đã nhận thưởng 'cây nhiệm vụ trưởng thành' — mỗi ngày một lần.
+    treeBonusDate: { type: String, default: '' }
   },
   { timestamps: true, versionKey: false }
 );

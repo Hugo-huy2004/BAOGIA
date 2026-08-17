@@ -8,6 +8,7 @@ import Bio from '../models/Bio.js';
 import { awardJoy } from '../utils/joyService.js';
 import { requireMember, requireAdmin } from '../middleware/authMiddleware.js';
 import { notifyMember } from '../utils/notifyMember.js';
+import { applyProductGrant } from '../utils/productGrant.js';
 
 const router = express.Router();
 const TAX_RATE = 0.09;
@@ -184,6 +185,21 @@ router.post('/cart/checkout', requireMember, async (req, res) => {
       return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${total} JOY.` });
     }
 
+    // Cấp hàng TRƯỚC khi trừ JOY, và chỉ cần một món trong giỏ không cấp được gì
+    // là huỷ cả lượt thanh toán — thà không bán còn hơn trừ tiền rồi không đưa gì.
+    const grants = [];
+    for (const item of cart.items) {
+      const product = products.find(p => p._id.toString() === item.productId.toString());
+      if (!product) continue;
+      const grant = applyProductGrant(bio, product, item.quantity);
+      if (!grant) {
+        return res.status(400).json({
+          error: `"${product.name}" chưa được cấu hình để cấp quyền lợi nào. Chưa trừ JOY của bạn — bỏ món này khỏi giỏ hoặc báo Hugo Studio.`,
+        });
+      }
+      grants.push(grant);
+    }
+
     // Deduct JOY
     const { balance } = await awardJoy(
       email, -total, 'store_purchase',
@@ -191,26 +207,10 @@ router.post('/cart/checkout', requireMember, async (req, res) => {
       { notify: false, bioDoc: bio, skipSave: true }
     );
 
-    // Fulfill each product
     const orders = [];
     for (const item of cart.items) {
       const product = products.find(p => p._id.toString() === item.productId.toString());
       if (!product) continue;
-
-      // Type-specific fulfillment
-      if (product.productType === 'system_validity' && product.extendDays > 0) {
-        let expires = new Date(bio.expiresAt);
-        if (isNaN(expires.getTime()) || expires.getTime() < Date.now()) expires = new Date();
-        expires.setDate(expires.getDate() + product.extendDays * item.quantity);
-        bio.expiresAt = expires;
-      } else if (product.productType === 'psy_study_tokens' && product.tokenAmount > 0) {
-        const amt = product.tokenAmount * item.quantity;
-        if (product.tokenType === 'call') bio.bonusCallTokens = (bio.bonusCallTokens || 0) + amt;
-        else bio.bonusChatTokens = (bio.bonusChatTokens || 0) + amt;
-      } else if (product.productType === 'radio_time' && product.radioMinutes > 0) {
-        if (!bio.radioTokens) bio.radioTokens = { weeklyFreeMinutes: 300, weeklyUsedMinutes: 0, weeklyResetAt: null, purchasedMinutes: 0 };
-        bio.radioTokens.purchasedMinutes = (bio.radioTokens.purchasedMinutes || 0) + product.radioMinutes * item.quantity;
-      }
 
       // Create order per product
       let purchaseCode = genOrderCode();
@@ -247,7 +247,7 @@ router.post('/cart/checkout', requireMember, async (req, res) => {
       actionUrl: '/member/utilities/store',
     });
 
-    res.json({ success: true, orders, newBalance: balance, total, discount });
+    res.json({ success: true, orders, granted: grants, newBalance: balance, total, discount });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

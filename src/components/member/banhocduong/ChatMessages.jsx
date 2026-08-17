@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Heart, Smile, Meh, Frown, Sparkles, Wind } from "lucide-react";
 import TypewriterText from "./TypewriterText";
 import { THERAPY_METHODS } from "./constants/therapyMethods";
+import { joyCode } from "../../../lib/joyDisplay";
 
 // ─── Inline interactive widgets (unchanged logic) ────────────────────────────
 
@@ -349,7 +350,7 @@ function InlinePurchaseCard({ featureKey, onUnlockFeature, unlockingMethodId, jo
       <div className="flex items-center justify-between gap-2 mt-1">
         <div className="flex items-center gap-1">
           <span className="text-[12px] font-black text-indigo-600 dark:text-indigo-400">{method.cost}</span>
-          <span className="text-[9px] font-extrabold text-indigo-500 uppercase">JOY</span>
+          <span className="text-[9px] font-extrabold text-indigo-500 uppercase">{joyCode()}</span>
         </div>
         <motion.button
           type="button"

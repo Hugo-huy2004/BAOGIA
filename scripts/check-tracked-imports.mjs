@@ -30,9 +30,12 @@ const problems = [];
 
 for (const file of sources) {
   const dir = path.dirname(file);
-  // Đọc bản ĐÃ COMMIT, không đọc file trên đĩa: CI build từ HEAD, còn trên đĩa
-  // có thể đang có sửa đổi chưa commit khiến kết quả sai lệch cả hai chiều.
-  const code = sh(`git show HEAD:"${file}"`);
+  // Đọc bản trong INDEX của git, không đọc file trên đĩa: trên đĩa có thể đang
+  // có sửa đổi chưa add, khiến kết quả sai lệch cả hai chiều. Index chứ không
+  // phải HEAD vì `git ls-files` ở trên cũng liệt kê từ index — đọc HEAD thì
+  // mọi file mới vừa `git add` đều làm lệnh này nổ, và đó lại đúng là lúc cần
+  // kiểm tra nhất.
+  const code = sh(`git show :"${file}"`);
   for (const m of code.matchAll(IMPORT_RE)) {
     const spec = m[1] ?? m[2];
     const base = path.normalize(path.join(dir, spec));

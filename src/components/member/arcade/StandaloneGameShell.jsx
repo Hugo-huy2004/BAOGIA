@@ -6,10 +6,11 @@ import GAME_THEMES from "./gameThemes";
 import { submitScore } from "../../../services/arcadeApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
-import { calcJoy } from "../../../utils/joyCalculation";
+import { calcJoy, getEventMultiplier } from "../../../utils/joyCalculation";
 import { getBest, recordBest, nearMissGap } from "./arcadeBest";
 import GameIntroScreen from "./GameIntroScreen";
 import "./game-shell.css";
+import { joyCode } from "../../../lib/joyDisplay";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {
@@ -76,7 +77,9 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
     }
 
     // Calculate JOY immediately using shared formula (client-side prediction)
-    const estimatedJoy = calcJoy(gameId, score);
+    const estimatedMult = getEventMultiplier();
+    const estimatedBase = calcJoy(gameId, score);
+    const estimatedJoy = estimatedBase * estimatedMult;
 
     // Phải đọc kỷ lục CŨ trước khi ghi đè, nếu không thì vừa phá xong kỷ lục
     // đã bằng chính điểm này và màn kết thúc không còn gì để so sánh.
@@ -85,7 +88,7 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
     const isRecord = recordBest(gameId, score);
 
     // Show result screen immediately with estimated JOY
-    setResultData({ score, result, joyDelta: estimatedJoy, joyAwarded: false, prevBest, gap, isRecord });
+    setResultData({ score, result, joyDelta: estimatedJoy, joyBase: estimatedBase, joyAwarded: false, prevBest, gap, isRecord, multiplier: estimatedMult });
     setStage("result");
 
     try {
@@ -97,7 +100,10 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
           score,
           result,
           joyDelta: res.joyDelta ?? estimatedJoy,
+          joyBase: res.joyBase ?? res.joyDelta ?? estimatedBase,
           joyAwarded: res.joyAwarded ?? false,
+          multiplier: res.multiplier ?? 1,
+          event: res.event ?? null,
         }));
       }
     } catch {
@@ -262,9 +268,31 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
 
             <div className="gshell__reward">
               <span className="material-symbols-outlined">toll</span>
-              <b>{signedJoy}</b>
-              <span>JOY</span>
+              {(resultData?.multiplier > 1 && resultData?.joyBase != null && resultData.joyBase !== resultData.joyDelta) ? (
+                <>
+                  <b>{resultData.joyBase}</b>
+                  <span className="gshell__reward-arrow">→</span>
+                  <b>{signedJoy}</b>
+                </>
+              ) : (
+                <b>{signedJoy}</b>
+              )}
+              <span>{joyCode()}</span>
+              {resultData?.multiplier > 1 && (
+                <span className="gshell__event-badge">
+                  <span className="material-symbols-outlined" style={{ fontSize: 14 }}>auto_awesome</span>
+                  x{resultData.multiplier}
+                </span>
+              )}
             </div>
+
+            {/* Saturday Resurrection event banner */}
+            {resultData?.multiplier > 1 && resultData?.joyDelta > 0 && (
+              <div className="gshell__event-banner">
+                <span className="material-symbols-outlined">church</span>
+                <p>{t("arcadeGame.eventSaturdayDesc")}</p>
+              </div>
+            )}
 
             <p className="gshell__formula">
               {t("arcadeGame.shellFormula", { score: (resultData.score || 0).toLocaleString(locale), joy: signedJoy })}

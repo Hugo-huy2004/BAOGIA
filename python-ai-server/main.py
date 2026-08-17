@@ -177,6 +177,16 @@ def _client_ip(req: Request) -> str:
         return req.client.host or ""
     return ""
 
+def _member_email(req: Request) -> str:
+    """Email thật của thành viên, chỉ do proxy Node đưa vào qua X-Member-Email.
+
+    Đây là khoá DUY NHẤT tìm được token đã mua trong Bio. userId trong body là
+    mã băm ẩn danh, còn payload `bio` gửi lên đây là allow-list cố tình không có
+    email (AIBot._bioWithSummary) — nên trước đây consume_bonus_token luôn nhận
+    email rỗng và trả False: token mua bằng JOY không bao giờ tiêu được.
+    """
+    return (req.headers.get("x-member-email", "") if req else "").strip().lower()
+
 def _lock_message(minutes: int) -> str:
     return f"🔒 Token PSY của cậu đang bị khóa tạm thời. Vui lòng quay lại sau khoảng {minutes} phút nữa nhé."
 
@@ -313,7 +323,7 @@ async def chat(request: ChatRequest, req: Request):
 
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
         if remaining < LLM_WEIGHT:
-            email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
+            email = _member_email(req) or ((request.bio or {}).get("email") or "")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 return {"error": "OUT_OF_TOKENS", "message": f"Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?"}
 
@@ -357,7 +367,7 @@ async def chat_stream(request: ChatRequest, req: Request):
 
         remaining = await rate_limiter.get_remaining(client_identifier, "chat", MAX_CHAT_TOKENS)
         if remaining < LLM_WEIGHT:
-            email = request.userId if request.userId and "@" in request.userId else (request.bio or {}).get("email")
+            email = _member_email(req) or ((request.bio or {}).get("email") or "")
             if not await rate_limiter.consume_bonus_token(email, "bonusChatTokens"):
                 async def error_stream():
                     yield f"data: {json.dumps({'error': 'OUT_OF_TOKENS', 'message': 'Bạn đã sử dụng hết token trò chuyện. Bạn có muốn dùng JOY để đổi thêm token không?'}, ensure_ascii=False)}\n\n"
@@ -417,7 +427,8 @@ async def chat_audio(
         is_allowed, _ = await rate_limiter.check_and_increment(client_identifier, action, max_tokens)
         if not is_allowed:
             bonus_field = "bonusCallTokens" if isCallMode else "bonusChatTokens"
-            if not await rate_limiter.consume_bonus_token(parsed_bio.get("email"), bonus_field):
+            bonus_email = _member_email(req) or parsed_bio.get("email") or ""
+            if not await rate_limiter.consume_bonus_token(bonus_email, bonus_field):
                 return {"text": "Bạn đã sử dụng hết token trong ngày hôm nay. Vui lòng quay lại vào ngày mai nhé!", "audio_base64": None}
 
         mime_type = file.content_type or "audio/webm"

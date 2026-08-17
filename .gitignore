@@ -25,3 +25,7 @@ dist-native
 
 # OTA bundles — multi-MB per release, host them, don't commit them
 ota/
+
+# Hồ sơ người dùng tải lên — KHÔNG BAO GIỜ commit. Đây là dữ liệu cá nhân
+# (CV ứng viên HugoTeam), và mỗi lượt nộp mới sẽ làm repo phình thêm.
+server/uploads/

@@ -1,4 +1,5 @@
 import i18n from "../../../i18n/config";
+import { joyNumber, joyText } from "../../../lib/joyDisplay";
 
 /**
  * Dữ liệu tĩnh của Hugo Store.
@@ -6,6 +7,9 @@ import i18n from "../../../i18n/config";
  * Ở đây KHÔNG còn công thức tính tiền nào. Mọi giá, phí và tổng đều do server
  * trả về (`/api/joy/exchange-quote` cho hoá đơn, `/api/store/plans` cho bảng
  * bậc) — client nhân chia lại là kiểu bug hiện một số rồi trừ một số khác.
+ *
+ * Và không còn chữ tiếng Việt nào: mọi nhãn đọc qua `i18n.t` bằng GETTER, để
+ * người dùng đổi ngôn ngữ giữa chừng thì lần đọc sau đã ra tiếng mới.
  */
 
 /** Bảng gradient icon app — trùng khoá màu với MemberUtilitiesDashboard. */
@@ -22,39 +26,105 @@ export const GRADIENTS = {
 };
 
 /**
- * Ứng dụng trong hệ sinh thái. `id` khớp `selectedUtility` của
- * MemberUtilitiesTab nên bấm là mở thẳng app.
+ * Hàng bày trong Chợ. `id` khớp `selectedUtility` của MemberUtilitiesTab (với
+ * game thì khớp `arcade_<gameId>` của Thư viện) nên bấm là mở đúng thứ.
  *
- * `paid: true` = có thang bậc Dùng thử/Thuê/Sở hữu (khớp APP_PLANS ở
- * server/utils/appPlanService.js). Những app còn lại đang miễn phí và PHẢI giữ
- * miễn phí — biến đồ đang cho không thành đồ thu phí là quyết định sản phẩm,
- * không phải việc của lớp hiển thị.
+ * `planId` = khoá bảng giá ở `server/utils/appPlanService.js`. App thì trùng
+ * chính `id`; game thì trỏ tới gói mở khoá nó — Cờ Vua có gói riêng, còn ba
+ * game kia mở bằng gói Trò Chơi, và 2048 miễn phí (khớp đúng điều kiện khoá
+ * trong HugoArcadeTab). Không có `planId` = miễn phí và PHẢI giữ miễn phí:
+ * biến đồ đang cho không thành đồ thu phí là quyết định sản phẩm, không phải
+ * việc của lớp hiển thị.
+ *
+ * ponytail: danh sách id ở đây trùng ý với `APP_CATALOG` trong
+ * MemberUtilitiesDashboard. Gộp lại khi nào có app thứ ba cần cùng danh mục —
+ * lúc này gộp thì phải kéo theo cả icon/badge/hạng mục của Thư viện.
+ *
+ * `study` và `hugoso` cố tình KHÔNG có mặt: cả ba cùng tên "Học Tập" trong
+ * danh mục dịch, và `ide` là cái duy nhất có thứ để bán.
  */
 const RAW_APPS = [
-  { id: "hugoso", color: "purple", label: "Năng suất số & AI", tagline: "Bộ Calendar, Docs, Sheets và Gemini" },
-  { id: "radio", color: "teal", label: "HugoRadio", tagline: "Sóng nhạc lofi để tập trung", paid: true },
-  { id: "arcade", color: "orange", label: "HugoArcade", tagline: "Bộ sưu tập game đổi JOY", paid: true },
-  { id: "aura", color: "purple", label: "HugoAura", tagline: "Phiên tập trung sâu có nhịp thở", paid: true },
-  { id: "ide", color: "blue", label: "Phát triển Web", tagline: "Bộ 6 phần, 100 bài từ nền tảng đến DevOps", paid: true },
-  { id: "bio", color: "purple", label: "HugoBio", tagline: "Trang cá nhân chia sẻ bằng một liên kết" },
-  { id: "psychology", color: "cyan", label: "HugoPSY", tagline: "Đồng hành sức khoẻ tinh thần" },
-  { id: "team", color: "teal", label: "HugoTeam", tagline: "Không gian làm việc nhóm" },
-  { id: "handle", color: "indigo", label: "HugoKit", tagline: "QR, chữ ký email, link bảo mật và nén tệp" },
+  { id: "profile", color: "indigo" },
+  { id: "bio", color: "purple" },
+  { id: "ide", color: "blue" },
+  { id: "psychology", color: "cyan" },
+  { id: "radio", color: "teal" },
+  { id: "handle", color: "indigo" },
+  { id: "team", color: "teal" },
+  { id: "arcade", color: "orange" },
+  { id: "aura", color: "purple" },
 ];
 
-// Tên hiển thị lấy từ danh mục dịch dùng chung (memberAppTranslations): mỗi
-// ngôn ngữ gọi app theo tiếng của mình, và cửa hàng không được gọi khác Home
-// hay Thư viện. Nhãn trong RAW_APPS chỉ còn là phương án dự phòng khi thiếu
-// bản dịch. Getter chứ không phải giá trị tính sẵn: người dùng đổi ngôn ngữ
-// giữa chừng thì lần đọc sau đã ra tên mới.
-export const STORE_APPS = RAW_APPS.map(app => ({
-  ...app,
-  get label() { return i18n.t(`utilities.catalog.${app.id}.title`, { defaultValue: app.label }); },
-}));
+const RAW_GAMES = [
+  { id: "arcade_chess", color: "slate", planId: "chess" },
+  { id: "arcade_survivor", color: "indigo", planId: "arcade" },
+  { id: "arcade_snake", color: "teal", planId: "arcade" },
+  { id: "arcade_caro", color: "blue", planId: "arcade" },
+  { id: "arcade_2048", color: "orange", planId: null },
+];
 
-const APP_INDEX = new Map(STORE_APPS.map(app => [app.id, app]));
+/**
+ * Tên và mô tả lấy từ danh mục dịch dùng chung (`utilities.catalog.*`, nguồn là
+ * memberAppTranslations): mỗi ngôn ngữ gọi app theo tiếng của mình, và cửa hàng
+ * không được gọi khác Trang chủ hay Thư viện.
+ */
+const decorate = ({ id, color, planId = null }, game) => ({
+  id,
+  color,
+  game,
+  planId: game ? planId : id,
+  get label() { return i18n.t(`utilities.catalog.${id}.title`); },
+  get tagline() { return i18n.t(`utilities.catalog.${id}.description`); },
+});
+
+export const STORE_APPS = RAW_APPS.map(app => decorate(app, false));
+export const STORE_GAMES = RAW_GAMES.map(game => decorate(game, true));
+export const STORE_ITEMS = [...STORE_APPS, ...STORE_GAMES];
+
+const APP_INDEX = new Map(STORE_ITEMS.map(app => [app.id, app]));
 
 export const appById = (id) => APP_INDEX.get(id) || null;
+
+/**
+ * Nút của một ô hàng làm gì khi bấm. Lưới và trang chi tiết cùng gọi hàm này
+ * để hai chỗ không bao giờ nói khác nhau về cùng một app.
+ *
+ * Thứ tự xét là bắt buộc: chưa mở khoá thì mọi chuyện khác không có nghĩa —
+ * tải một app mình không có quyền dùng chỉ tạo ra một icon chết.
+ *
+ * @returns {"installing"|"locked"|"install"|"open"}
+ */
+export function tileAction({ ladder, state, installed, installable, progress }) {
+  if (progress !== undefined) return "installing";
+  if (ladder && !state?.unlocked) return "locked";
+  if (installable && !installed) return "install";
+  return "open";
+}
+
+/** Tên cửa hàng — cùng một khoá với Trang chủ và Thư viện. */
+export const storeName = () => i18n.t("utilities.catalog.store.title");
+
+/** Số và ngày theo ngôn ngữ đang chọn, không đóng đinh vi-VN. */
+// Giá trong chợ viết theo ĐƠN VỊ CỦA TÀI KHOẢN, giống hệt ví và mọi màn khác —
+// `money` là số trần, `moneyUnit` là số kèm mã đơn vị.
+export const money = (n) => joyNumber(n);
+export const moneyUnit = (n) => joyText(n);
+
+export const formatDate = (value) =>
+  new Date(value).toLocaleDateString(i18n.language, {
+    day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
+  });
+
+/**
+ * Thời gian còn lại của một quyền dùng. Mốc 1 ngày đọc bằng chữ ("còn một
+ * ngày") chứ không phải "còn 1 ngày" — và nhờ đó chuỗi số nhiều chỉ phải đúng
+ * từ 2 trở lên, khỏi phải nuôi một dạng số ít cho cả chín ngôn ngữ.
+ */
+export const remainingLabel = (days) => (
+  days <= 0 ? i18n.t("utilities.store.expiring.today")
+    : days === 1 ? i18n.t("utilities.store.expiring.tomorrow")
+      : i18n.t("utilities.store.expiring.days", { count: days })
+);
 
 /** Nhãn quyền lợi ngắn của một vật phẩm, hoặc null nếu không có. */
 export function perkLabel(p) {
@@ -62,24 +132,36 @@ export function perkLabel(p) {
   if (p.productType === "radio_time" && p.radioMinutes > 0) {
     const hours = Math.floor(p.radioMinutes / 60);
     const days = Math.floor(hours / 24);
-    return days > 0 ? `+${days} ngày nghe` : `+${hours} giờ nghe`;
+    return days > 0
+      ? i18n.t("utilities.store.packs.perkListenDays", { count: days })
+      : i18n.t("utilities.store.packs.perkListenHours", { count: hours });
   }
-  if (p.productType === "system_validity" && p.extendDays > 0) return `+${p.extendDays} ngày sử dụng`;
+  if (p.productType === "system_validity" && p.extendDays > 0) {
+    return i18n.t("utilities.store.packs.perkValidity", { count: p.extendDays });
+  }
   if (p.productType === "psy_study_tokens" && p.tokenAmount > 0) {
-    return `+${p.tokenAmount} lượt ${p.tokenType === "call" ? "gọi" : "trò chuyện"}`;
+    return i18n.t(
+      p.tokenType === "call" ? "utilities.store.packs.perkCalls" : "utilities.store.packs.perkChats",
+      { count: p.tokenAmount }
+    );
   }
   return null;
 }
 
-/** Nhóm vật phẩm theo productType để dựng kệ hàng. */
-export const PRODUCT_GROUPS = [
-  { type: "radio_time", title: "Thêm thời lượng nghe", subtitle: "Cộng phút cho HugoRadio", icon: "radio" },
-  { type: "psy_study_tokens", title: "Thêm lượt trò chuyện", subtitle: "Mở thêm phiên với HugoPSY", icon: "forum" },
-  { type: "system_validity", title: "Gia hạn hệ thống", subtitle: "Kéo dài ngày sử dụng tài khoản", icon: "verified" },
-  { type: "general", title: "Vật phẩm khác", subtitle: "Những thứ hay ho còn lại", icon: "redeem" },
+/** Nhóm vật phẩm theo productType để dựng kệ hàng, mỗi nhóm một màu. */
+const GROUP_TYPES = [
+  ["radio_time", GRADIENTS.teal],
+  ["psy_study_tokens", GRADIENTS.cyan],
+  ["system_validity", GRADIENTS.orange],
+  ["general", GRADIENTS.pink],
 ];
 
-export const money = (n) => Number(n || 0).toLocaleString("vi-VN");
+export const PRODUCT_GROUPS = GROUP_TYPES.map(([type, color]) => ({
+  type,
+  color,
+  get title() { return i18n.t(`utilities.store.packs.${type}.title`); },
+  get subtitle() { return i18n.t(`utilities.store.packs.${type}.subtitle`); },
+}));
 
 /** Khoá hoá đơn `item` cho từng thứ mua được — khớp EXCHANGE_ITEMS ở server. */
 export const exchangeItemKey = {

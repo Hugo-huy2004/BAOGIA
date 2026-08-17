@@ -10,8 +10,15 @@ import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
 import LibraryCatalog from "./utilities/LibraryCatalog";
 import StandaloneGameShell from "./arcade/StandaloneGameShell";
-import { triggerPWAInstallDirectly } from "../../utils/pwaInstallTrigger";
 import { appInstallationPolicy } from "../../../shared/appInstallationPolicy";
+import {
+  INSTALLED_APPS_KEY,
+  HOME_SCREEN_APPS_KEY,
+  readStoredList,
+  readDownloadedGameAppIds,
+  commitInstall,
+  commitUninstall,
+} from "../../hooks/useAppInstall";
 import { Search, X } from "lucide-react";
 import UtilityAppIcon from "./utilities/UtilityAppIcon";
 
@@ -27,7 +34,8 @@ export const APP_STORAGE_MB = {
   team: 1.6,
   bio: 1.5,
   info: 0.8,
-  hugoso: 3.6
+  hugoso: 3.6,
+  joy_wallet: 1.4
 };
 
 // Styling constants
@@ -45,20 +53,10 @@ const GRADIENTS = {
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
-const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
-const HOME_SCREEN_APPS_KEY = "hugo_home_screen_utilities_v1";
-const ARCADE_DOWNLOADS_KEY = "hugo_arcade_downloaded_v1";
+// Khoá cài đặt và cách ghi chúng nằm ở src/hooks/useAppInstall.js — Thư viện,
+// Arcade và Chợ dùng chung một bản.
 const UTILITY_SIZES_KEY = "hugo_utility_sizes";
 const USER_WIDGET_SIZES = new Set(["medium", "large"]);
-
-const readStoredList = (key) => {
-  try {
-    const value = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(value) ? value.filter(Boolean) : [];
-  } catch {
-    return [];
-  }
-};
 
 const readStoredObject = (key) => {
   try {
@@ -76,14 +74,9 @@ const normalizeUtilitySizes = (sizes = {}) => Object.fromEntries(
   Object.entries(sizes).filter(([, size]) => USER_WIDGET_SIZES.has(size)),
 );
 
-const readDownloadedGameAppIds = () => (
-  readStoredList(ARCADE_DOWNLOADS_KEY).map((gameId) => (
-    String(gameId).startsWith("arcade_") ? String(gameId) : `arcade_${gameId}`
-  ))
-);
-
 const APP_CATALOG = [
   ["bio", "badge", "purple", "edu", "4.9", "12k", "hot"],
+  ["profile", "verified_user", "indigo", "edu", "5.0", "1k", "new"],
   ["study", "school", "purple", "edu", "5.0", "11k", "new"],
   ["team", "groups", "teal", "edu", "4.7", "2k", "join"],
   ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "ai"],
@@ -92,6 +85,7 @@ const APP_CATALOG = [
   ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "games"],
   ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "focus"],
   ["info", "info", "slate", "tools", "4.8", "6k", "system"],
+  ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "20k", "utility"],
   ["store", "store", "blue", "tools", "5.0", "50k", "store"],
   ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "game"],
   ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "game"],
@@ -264,27 +258,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     }
   }, [bio]);
 
-  const syncWorkspaceApps = async (updatedInstalled, updatedHome) => {
-    const appsToSave = appInstallationPolicy.normalizeInstalled(updatedInstalled);
-    const homeToSave = appInstallationPolicy.normalizeHomeScreen(updatedHome, appsToSave);
-    setInstalledApps(appsToSave);
-    setHomeScreenApps(homeToSave);
-    localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(appsToSave));
-    localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(homeToSave));
-
-    if (bio?._id && bio._id !== "guest") {
-      try {
-        const res = await memberService.updateMemberBio(bio._id, {
-          installedUtilities: appsToSave,
-          homeScreenUtilities: homeToSave,
-        });
-        if (res?.bio && onBioUpdate) onBioUpdate(res.bio);
-      } catch {
-        // Offline-first: local state remains usable and can be synced later.
-      }
-    }
-  };
-
   // Keep localStorage synced cleanly with homeScreenApps
   useEffect(() => {
     if (homeScreenApps.length > 0) {
@@ -360,21 +333,13 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
   // Listen for game installs from HugoArcadeTab (or any sub-component) → add to home screen instantly
   useEffect(() => {
+    // Sự kiện mang sẵn hai danh sách đã tính (useAppInstall) — dùng thẳng.
+    // Bản cũ chỉ nhận id rồi tự ghim lên màn hình chính, nên cài "chỉ vào Thư
+    // viện" hay gỡ ở màn khác đều ra sai.
     const handleInstalled = (e) => {
-      const { appId } = e.detail || {};
-      if (!appId) return;
-      setInstalledApps(prev => {
-        if (prev.includes(appId)) return prev;
-        const next = [...prev, appId];
-        localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(next));
-        return next;
-      });
-      setHomeScreenApps(prev => {
-        if (prev.includes(appId)) return prev;
-        const next = [...prev, appId];
-        localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(next));
-        return next;
-      });
+      const { installed, homeScreen } = e.detail || {};
+      if (Array.isArray(installed)) setInstalledApps(installed);
+      if (Array.isArray(homeScreen)) setHomeScreenApps(homeScreen);
     };
 
     // Also listen to storage changes (cross-tab or from HugoArcadeTab writing directly)
@@ -400,9 +365,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     };
 
     window.addEventListener("hugo:app-installed", handleInstalled);
+    window.addEventListener("hugo:app-uninstalled", handleInstalled);
     window.addEventListener("storage", handleStorage);
     return () => {
       window.removeEventListener("hugo:app-installed", handleInstalled);
+      window.removeEventListener("hugo:app-uninstalled", handleInstalled);
       window.removeEventListener("storage", handleStorage);
     };
   }, []);
@@ -517,9 +484,6 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       return;
     }
     if (downloadingAppId || downloadProgress[appId] !== undefined) return;
-    
-    // 🚀 Trigger 1-Tap Native PWA Add to Home Screen Prompt
-    triggerPWAInstallDirectly().catch(() => {});
 
     setDownloadingAppId(appId);
     setDownloadProgress((prev) => ({ ...prev, [appId]: 0 }));
@@ -534,33 +498,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
 
         const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
 
-        // On-Demand PWA Storage Caching
-        try {
-          localStorage.setItem(`hugo_pwa_app_${appId}`, JSON.stringify({
-            installedAt: new Date().toISOString(),
-            sizeMb: appSizeMb
-          }));
-          if ('caches' in window) {
-            caches.open('hugo-on-demand-apps-v1').then((cache) => {
-              cache.put(
-                `/pwa-app-bundle-${appId}`,
-                new Response(JSON.stringify({ appId, sizeMb: appSizeMb, cached: true }), {
-                  headers: { 'Content-Type': 'application/json' }
-                })
-              );
-            }).catch(() => {});
-          }
-        } catch (e) {
-          console.warn("Storage cache error:", e);
-        }
-
         setTimeout(() => {
-          const nextInstalled = [...new Set([...installedApps, appId])];
-          const nextHome = addToHome
-            ? [...new Set([...homeScreenApps, appId])]
-            : homeScreenApps;
-          syncWorkspaceApps(nextInstalled, nextHome);
-          window.dispatchEvent(new CustomEvent("hugo:app-installed", { detail: { appId } }));
+          // Ghi ba kho + bio + bắn sự kiện: xem src/hooks/useAppInstall.js.
+          const { installed, homeScreen } = commitInstall(appId, { bio, onBioUpdate, addToHome });
+          setInstalledApps(installed);
+          setHomeScreenApps(homeScreen);
           setDownloadingAppId(null);
           setDownloadProgress((prev) => {
             const nextProgress = { ...prev };
@@ -581,29 +523,10 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       return;
     }
     const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
-    
-    // Clear On-Demand PWA Storage
-    try {
-      localStorage.removeItem(`hugo_pwa_app_${appId}`);
-      if (appId.startsWith("arcade_")) {
-        const gameId = appId.slice("arcade_".length);
-        const remainingGames = readStoredList(ARCADE_DOWNLOADS_KEY)
-          .filter((savedId) => savedId !== gameId && savedId !== appId);
-        localStorage.setItem(ARCADE_DOWNLOADS_KEY, JSON.stringify(remainingGames));
-      }
-      if ('caches' in window) {
-        caches.open('hugo-on-demand-apps-v1').then((cache) => {
-          cache.delete(`/pwa-app-bundle-${appId}`);
-        }).catch(() => {});
-      }
-    } catch (e) {
-      console.warn("Storage cache clear error:", e);
-    }
 
-    const nextInstalled = installedApps.filter((id) => id !== appId);
-    const nextHomeScreen = homeScreenApps.filter((id) => id !== appId);
-
-    syncWorkspaceApps(nextInstalled, nextHomeScreen);
+    const { installed, homeScreen } = commitUninstall(appId, { bio, onBioUpdate });
+    setInstalledApps(installed);
+    setHomeScreenApps(homeScreen);
 
     setEditingApp(null);
     showToast?.(t("utilities.library.removedToast", { size: appSizeMb }), "info");
@@ -862,6 +785,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         case "handle": import("./hugoKit/HugoKitApp"); break;
         case "psychology": import("./banhocduong/BanhocduongTab"); break;
         case "team": import("./HugoTeamTab"); break;
+        case "profile": import("./HugoProfileTab"); break;
         case "radio": import("./MemberRadioTab"); break;
         case "arcade": import("./arcade/HugoArcadeTab"); break;
         case "aura": import("./MemberAuraTab"); break;
@@ -1020,9 +944,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
             <div className="w-9 h-1 bg-muted rounded-full mx-auto mb-5 sm:hidden" />
 
             <div className="flex items-center gap-4 mb-6">
-              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${GRADIENTS[editingApp.tint] || GRADIENTS.indigo} flex items-center justify-center shadow-sm shrink-0`}>
-                <span className="material-symbols-outlined text-white text-[26px]" style={{ fontVariationSettings: "'FILL' 1" }}>{editingApp.icon}</span>
-              </div>
+              <UtilityAppIcon app={editingApp} gradient={GRADIENTS[editingApp.tint] || GRADIENTS.indigo} size="medium" />
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-semibold text-foreground truncate">
                   {editingApp.title}
@@ -1187,11 +1109,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
               animation: "flyToHome 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards"
             }}
           >
-            <div className={`w-16 h-16 rounded-[16px] bg-gradient-to-br bg-gradient-to-r flex items-center justify-center shadow-2xl relative overflow-hidden`} style={{ background: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }}>
-              <div className={`absolute inset-0 bg-gradient-to-br ${GRADIENTS[flyingApp.tint] || GRADIENTS.indigo} rounded-[16px]`} />
-              <span className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15 opacity-55 pointer-events-none rounded-[16px]" />
-              <span className="material-symbols-outlined text-white text-[32px] z-10" style={{ fontVariationSettings: "'FILL' 1" }}>{flyingApp.icon}</span>
-            </div>
+            <UtilityAppIcon app={flyingApp} gradient={GRADIENTS[flyingApp.tint] || GRADIENTS.indigo} size="large" className="shadow-2xl" />
             <span className="text-[10px] font-black text-white bg-black/75 px-2.5 py-0.5 rounded-lg mt-2 tracking-wider shadow pointer-events-none z-10">
               {flyingApp.title}
             </span>

@@ -153,6 +153,11 @@ function Mock({ id, label }) {
   );
 }
 
+// Thưởng đọc hết trang giới thiệu / thưởng khám phá — server cấp đúng hai con
+// số này (claimInfoReadBonus, claimInfoBonus).
+const READ_BONUS = 50;
+const EXPLORE_BONUS = 20;
+
 export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBack }) {
   const { t } = useTranslation();
   const versionDigits = pkg.version.split(".");
@@ -250,7 +255,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
     };
   }, []);
 
-  const claim = useCallback(async ({ request, setBusy, setDone, bioField, successKey, errorKey }) => {
+  const claim = useCallback(async ({ request, setBusy, setDone, bioField, successKey, errorKey, amount }) => {
     if (!bio?.email || claimLocksRef.current.has(bioField)) return;
     claimLocksRef.current.add(bioField);
     setBusy(true);
@@ -259,7 +264,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
       setDone(true);
       onBioUpdate?.({ [bioField]: true });
       if (!res.alreadyClaimed) {
-        showToast?.(t(successKey), "success");
+        showToast?.(t(successKey, { amount }), "success");
         useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
       }
     } catch (_) {
@@ -278,6 +283,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
       setDone: setClaimed,
       bioField: "infoBonusClaimed",
       successKey: "memberPortal.infoVersion.bonusSuccess",
+      amount: EXPLORE_BONUS,
       errorKey: "memberPortal.infoVersion.bonusError",
     });
   };
@@ -290,11 +296,16 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
       setDone: setReadClaimed,
       bioField: "infoReadBonusClaimed",
       successKey: "memberPortal.infoVersion.readBonusSuccess",
+      amount: READ_BONUS,
       errorKey: "memberPortal.infoVersion.readBonusError",
     });
   };
 
-  const k = (key) => t(`memberPortal.infoVersion.${key}`);
+  // Số JOY thưởng nằm trong MÃ, không nằm trong câu chữ — câu chữ chỉ còn chỗ
+  // trống để bộ định dạng điền theo đơn vị của tài khoản.
+  const k = (key) => t(`memberPortal.infoVersion.${key}`, {
+    amount: key.startsWith("readBonus") ? READ_BONUS : EXPLORE_BONUS,
+  });
 
   return (
     <div className="mx-auto max-w-2xl">

@@ -1,4 +1,5 @@
 import { useHeadMeta } from "../../hooks/useHeadMeta";
+import { useTranslation } from "react-i18next";
 import DocsLayout from "./DocsLayout";
 
 /**
@@ -12,6 +13,7 @@ import DocsLayout from "./DocsLayout";
 const UPDATED_AT = "13/08/2026";
 
 export default function UserGuidePage() {
+  const { t } = useTranslation();
   const email = "contact@hugowishpax.studio";
 
   useHeadMeta({
@@ -423,7 +425,7 @@ export default function UserGuidePage() {
     <DocsLayout
       eyebrow="Hướng dẫn"
       version="v4"
-      title="Hướng dẫn sử dụng"
+      title={t("userGuide.huongDanSuDung")}
       intro="Từng bước để đăng nhập, xem quyền truy cập, dựng Bio, dùng JOY, quản lý quyền thiết bị, đặt dịch vụ và thực hiện quyền dữ liệu."
       updatedAt={UPDATED_AT}
       sections={sections}

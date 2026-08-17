@@ -6,7 +6,11 @@ import { missingProfileFields, applyProfileValues } from '../utils/profileRequir
 // thiệu nhập trong modal cũng mất luôn. Giờ chỉ còn một danh sách, và nó phải
 // chịu được payload thiếu, payload thừa, payload sai.
 
-const bio = (extra = {}) => ({ birthYear: 0, birthMonth: 0, birthDay: 0, phone: '', ...extra });
+// Ngôn ngữ + đơn vị JOY coi như đã chọn: những bài dưới đây kiểm phần ngày sinh /
+// điện thoại / giám hộ. Bài kiểm riêng cho đơn vị JOY ở server/tests/joyDenomLock.test.js.
+const bio = (extra = {}) => (
+  { language: 'vi', joyDenom: 'vi', birthYear: 0, birthMonth: 0, birthDay: 0, phone: '', ...extra }
+);
 
 describe('missingProfileFields', () => {
   it('chỉ liệt kê mục thực sự còn trống', () => {

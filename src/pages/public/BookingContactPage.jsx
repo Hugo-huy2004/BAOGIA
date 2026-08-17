@@ -17,6 +17,7 @@ const EMPTY_FORM = {
   budget: "unsure",
   timeline: "flexible",
   message: "",
+  voucherCode: "",
 };
 
 // Mỗi bước hỏi đúng một việc — form dài nhưng không bước nào phải nghĩ lâu.
@@ -248,9 +249,19 @@ export default function BookingContactPage() {
           timeline: formData.timeline,
           notes: formData.message.trim(),
           message: structuredMessage,
+          voucherCode: formData.voucherCode.trim(),
         }),
       });
 
+      // Mã hỏng là lỗi khách sửa được — nói rõ thay vì báo lỗi chung chung.
+      if (response.status === 400) {
+        const data = await response.json().catch(() => ({}));
+        if (data.error === "voucher_invalid") {
+          setStep(STEP_IDS.indexOf("contact") + 1);
+          setToast({ message: t("bookingPage.form.voucherInvalid"), type: "error" });
+          return;
+        }
+      }
       if (!response.ok) throw new Error(`Booking request failed: ${response.status}`);
 
       setIsComplete(true);
@@ -593,6 +604,20 @@ export default function BookingContactPage() {
                     onChange={(event) => updateField("phone", event.target.value)}
                     placeholder={t("bookingPage.form.phonePlaceholder")}
                     className="min-h-12 w-full rounded-xl border border-border bg-background px-4 text-sm font-semibold outline-none transition-colors placeholder:font-normal placeholder:text-muted-foreground/60 focus:border-primary"
+                  />
+                </Field>
+
+                {/* Mã ưu đãi từ ví JOY — để trống cũng gửi được, server kiểm khi nhận đơn. */}
+                <Field label={t("bookingPage.form.voucherLabel")} hint={t("bookingPage.form.voucherHint")}>
+                  <input
+                    type="text"
+                    name="voucherCode"
+                    autoComplete="off"
+                    maxLength="32"
+                    value={formData.voucherCode}
+                    onChange={(event) => updateField("voucherCode", event.target.value.toUpperCase())}
+                    placeholder={t("bookingPage.form.voucherPlaceholder")}
+                    className="min-h-12 w-full rounded-xl border border-border bg-background px-4 font-mono text-sm font-semibold uppercase outline-none transition-colors placeholder:font-sans placeholder:font-normal placeholder:normal-case placeholder:text-muted-foreground/60 focus:border-primary"
                   />
                 </Field>
               </div>

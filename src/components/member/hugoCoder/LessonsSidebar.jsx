@@ -4,6 +4,14 @@ import remarkGfm from "remark-gfm";
 import { Sparkles, Award, CheckCircle, ChevronDown, ChevronUp, Lock, Clock, Target, ListChecks, Bug, Flame, BookOpen, Wrench, Check, Play, Star, Trophy, Gift, Library } from "lucide-react";
 import { notify } from "../../../lib/notify";
 import { STAGE_THEME } from "./stageThemes";
+import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
+import { joyText } from "../../../lib/joyDisplay";
+
+// Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
+const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;
+const MAINTENANCE_PRICE = 50;
+const PHASE_REWARD = 800;
+
 
 // Helper to resolve language from file extension
 const getLanguageFromExt = (ext) => {
@@ -147,7 +155,7 @@ export default function LessonsSidebar({
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
                   {!tierInfo.lifetime
                     ? "Nội dung bài học này đang bị khóa. Vui lòng mở khóa vĩnh viễn chặng học tập này hoặc sở hữu trọn gói 6 chặng để bắt đầu."
-                    : "Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn 50 JOY bảo trì hàng tháng để tiếp tục học tập."}
+                    : `Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn ${joyText(MAINTENANCE_PRICE)} bảo trì hàng tháng để tiếp tục học tập.`}
                 </p>
               </div>
 
@@ -172,7 +180,7 @@ export default function LessonsSidebar({
                     <div className="border border-border bg-card/50 rounded-xl p-3.5 space-y-2.5">
                       <div className="flex justify-between items-center text-[10.5px]">
                         <span className="font-bold text-foreground">Mở khóa vĩnh viễn chặng</span>
-                        <span className="font-black text-primary">{tierInfo.price} JOY</span>
+                        <span className="font-black text-primary">{joyText(tierInfo.price)}</span>
                       </div>
                       <p className="text-[9.5px] text-muted-foreground leading-relaxed">
                         Mở khóa vĩnh viễn quyền học và thực hành toàn bộ bài học thuộc {tierInfo.tierLabel}.
@@ -192,7 +200,7 @@ export default function LessonsSidebar({
                           <Award className="w-3.5 h-3.5 text-amber-400" />
                           Trọn gói vĩnh viễn 6 chặng
                         </span>
-                        <span className="font-black text-amber-500">16.000 JOY</span>
+                        <span className="font-black text-amber-500">{joyText(ALL_STAGES_PRICE)}</span>
                       </div>
                       <p className="text-[9.5px] text-muted-foreground leading-relaxed">
                         Mở khóa toàn bộ 100 bài học của 6 chặng vĩnh viễn & được <strong>miễn phí phí bảo trì trọn đời</strong>.
@@ -202,7 +210,7 @@ export default function LessonsSidebar({
                         disabled={exchangeSubmitting}
                         className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
                       >
-                        Mua trọn gói 16k JOY
+                        Mua trọn gói · {joyText(ALL_STAGES_PRICE)}
                       </button>
                     </div>
                   </>
@@ -212,7 +220,7 @@ export default function LessonsSidebar({
                   <div className="border border-red-500/20 bg-red-500/5 rounded-xl p-3.5 space-y-2.5">
                     <div className="flex justify-between items-center text-[10.5px]">
                       <span className="font-bold text-red-500">Gia hạn phí bảo trì tháng</span>
-                      <span className="font-black text-red-500">50 JOY</span>
+                      <span className="font-black text-red-500">{joyText(MAINTENANCE_PRICE)}</span>
                     </div>
                     <p className="text-[9.5px] text-muted-foreground leading-relaxed">
                       Phí bảo trì cần đóng hàng tháng để giữ quyền truy cập. Quá hạn 3 tháng sẽ bị reset tiến trình học về 0.
@@ -222,7 +230,7 @@ export default function LessonsSidebar({
                       disabled={exchangeSubmitting}
                       className="w-full py-2 bg-red-500 hover:bg-red-600 text-white font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow active:scale-98 disabled:opacity-50"
                     >
-                      Đóng phí bảo trì 50 JOY
+                      Đóng phí bảo trì {joyText(MAINTENANCE_PRICE)}
                     </button>
                   </div>
                 )}
@@ -592,14 +600,14 @@ export default function LessonsSidebar({
                           const hasClaimed = (claimKeys[phase.phaseNumber] || []).some((k) => !!bio?.[k]);
                           return hasClaimed ? (
                             <div className="py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold rounded-lg text-[9px] uppercase tracking-wider">
-                              Đã nhận thưởng +800 JOY
+                              Đã nhận thưởng +{joyText(PHASE_REWARD)}
                             </div>
                           ) : (
                             <button
                               onClick={() => handleClaimMilestoneReward(phase.phaseNumber)}
                               className="w-full py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-950 font-black rounded-lg text-[9px] uppercase tracking-wider transition-all shadow-md active:scale-[0.98]"
                             >
-                              Nhận thưởng chặng (+800 JOY)
+                              Nhận thưởng chặng (+{joyText(PHASE_REWARD)})
                             </button>
                           );
                         })()}

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { notify } from "../../../lib/notify";
 
@@ -42,6 +43,7 @@ export default function InteractivePuzzles({
   bio,
   onBioUpdate
 }) {
+  const { t } = useTranslation();
   const isCompleted = completedLessons.includes(course.id);
 
   if (course.practiceType === "graduation_submission") {
@@ -69,7 +71,7 @@ export default function InteractivePuzzles({
     return (
       <div className="space-y-6 font-sans">
         <div className="bg-success/10 border border-success/20 p-3 rounded-xl text-center">
-          <p className="text-xs font-bold text-success">Thực hành hoàn tất! Trả lời đúng {course.miniQuiz.length} câu dưới đây để qua bài.</p>
+          <p className="text-xs font-bold text-success">{t("hugoCoderLearning.puzzles.thucHanhHoanTat")} {course.miniQuiz.length} {t("hugoCoderLearning.puzzles.cauDuoiDayDe")}</p>
         </div>
         
         <div className="space-y-6">
@@ -105,7 +107,7 @@ export default function InteractivePuzzles({
           disabled={Object.keys(miniQuizAnswers).length < course.miniQuiz.length}
           className="w-full py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-50 disabled:pointer-events-none mt-4"
         >
-          Nộp bài kiểm tra
+          {t("hugoCoderLearning.puzzles.nopBaiKiemTra")}
         </button>
       </div>
     );
@@ -115,8 +117,8 @@ export default function InteractivePuzzles({
     return (
       <div className="bg-success/10 border border-success/20 p-4 rounded-xl text-center space-y-2 font-sans">
         <span className="material-symbols-outlined text-4xl text-success animate-bounce">verified</span>
-        <p className="text-sm font-black text-success uppercase tracking-wider">Bài học đã hoàn thành!</p>
-        <p className="text-xs text-muted-foreground">Bạn đã vượt qua các thử thách của bài học này và nhận phần thưởng JOY.</p>
+        <p className="text-sm font-black text-success uppercase tracking-wider">{t("hugoCoderLearning.puzzles.baiHocDaHoan")}</p>
+        <p className="text-xs text-muted-foreground">{t("hugoCoderLearning.puzzles.banDaVuotQua")}</p>
       </div>
     );
   }
@@ -126,7 +128,7 @@ export default function InteractivePuzzles({
     const type = course.practiceType === "drag_drop_html" ? "html" : "sql";
     return (
       <div className="space-y-4 font-sans">
-        <p className="text-xs text-muted-foreground">Nhấp vào nút di chuyển để sắp xếp các khối lệnh sau theo đúng thứ tự logic:</p>
+        <p className="text-xs text-muted-foreground">{t("hugoCoderLearning.puzzles.nhapVaoNutDi")}</p>
         <div className="space-y-2.5">
           {blocks.map((block, idx) => (
             <div key={block.id} className="flex items-center justify-between bg-zinc-50 dark:bg-zinc-950 border border-border p-3 rounded-xl text-xs font-mono select-none">
@@ -154,7 +156,7 @@ export default function InteractivePuzzles({
           onClick={verifyInteractivePractice}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md mt-2"
         >
-          Kiểm tra thứ tự
+          {t("hugoCoderLearning.puzzles.kiemTraThuTu")}
         </button>
       </div>
     );
@@ -174,7 +176,7 @@ export default function InteractivePuzzles({
     return (
       <div className="space-y-4 font-sans">
         <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl">
-          <p className="text-xs text-primary font-bold">Yêu cầu giao diện:</p>
+          <p className="text-xs text-primary font-bold">{t("hugoCoderLearning.puzzles.yeuCauGiaoDien")}</p>
           <p className="text-xs font-semibold text-muted-foreground mt-1">{course.themePrompt}</p>
         </div>
 
@@ -182,13 +184,13 @@ export default function InteractivePuzzles({
           className="border border-border p-5 rounded-xl text-center space-y-1 transition-all"
           style={{ backgroundColor: themeBg, color: themeText }}
         >
-          <h4 className="text-sm font-black uppercase">Card Sản Phẩm</h4>
-          <p className="text-[10px] opacity-75">Ví dụ hiển thị trực quan</p>
+          <h4 className="text-sm font-black uppercase">{t("hugoCoderLearning.puzzles.cardSanPham")}</h4>
+          <p className="text-[10px] opacity-75">{t("hugoCoderLearning.puzzles.viDuHienThi")}</p>
         </div>
 
         <div className="space-y-3">
           <div>
-            <p className="text-[10px] font-black uppercase text-muted-foreground mb-1.5">Màu nền:</p>
+            <p className="text-[10px] font-black uppercase text-muted-foreground mb-1.5">{t("hugoCoderLearning.puzzles.mauNen")}</p>
             <div className="flex gap-2">
               {bgColors.map((color) => (
                 <button
@@ -205,7 +207,7 @@ export default function InteractivePuzzles({
           </div>
 
           <div>
-            <p className="text-[10px] font-black uppercase text-muted-foreground mb-1.5">Màu chữ:</p>
+            <p className="text-[10px] font-black uppercase text-muted-foreground mb-1.5">{t("hugoCoderLearning.puzzles.mauChu")}</p>
             <div className="flex gap-2">
               {textColors.map((color) => (
                 <button
@@ -226,7 +228,7 @@ export default function InteractivePuzzles({
           onClick={verifyInteractivePractice}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md mt-2"
         >
-          Xác nhận màu sắc
+          {t("hugoCoderLearning.puzzles.xacNhanMauSac")}
         </button>
       </div>
     );
@@ -235,16 +237,16 @@ export default function InteractivePuzzles({
   if (course.practiceType === "js_button") {
     return (
       <div className="space-y-4 text-center font-sans">
-        <p className="text-xs text-muted-foreground text-left">Hãy hoàn thành sự kiện click bằng cách nhấp đủ 3 lần:</p>
+        <p className="text-xs text-muted-foreground text-left">{t("hugoCoderLearning.puzzles.hayHoanThanhSu")}</p>
         
         <div className="py-6 bg-zinc-50 dark:bg-zinc-950 border border-border rounded-xl space-y-3">
           <button
             onClick={() => setClickCount(prev => Math.min(prev + 1, 3))}
             className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full text-xs font-black uppercase tracking-wider active:scale-90 transition-all shadow-md shadow-emerald-500/10"
           >
-            Nhấp chuột (Click)
+            {t("hugoCoderLearning.puzzles.nhapChuotClick")}
           </button>
-          <p className="text-xs font-bold text-muted-foreground">Bộ đếm số lần: {clickCount} / 3</p>
+          <p className="text-xs font-bold text-muted-foreground">{t("hugoCoderLearning.puzzles.boDemSoLan")} {clickCount} / 3</p>
         </div>
 
         <button
@@ -252,7 +254,7 @@ export default function InteractivePuzzles({
           disabled={clickCount < 3}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none"
         >
-          {clickCount >= 3 ? "Nộp bài thực hành" : "Hãy nhấn đủ 3 lần"}
+          {clickCount >= 3 ? t("hugoCoderLearning.puzzles.nopBaiThucHanh") : t("hugoCoderLearning.puzzles.hayNhanDu3")}
         </button>
       </div>
     );
@@ -263,11 +265,11 @@ export default function InteractivePuzzles({
     const scrambledVals = ["In dữ liệu ra HTML", "Kết nối Cơ sở dữ liệu", "Khai báo biến", "Ghép hai chuỗi ký tự"];
     return (
       <div className="space-y-4 font-sans">
-        <p className="text-xs text-muted-foreground">Bấm chọn 1 từ khóa ở bên trái, sau đó bấm chọn đúng định nghĩa ở bên phải:</p>
+        <p className="text-xs text-muted-foreground">{t("hugoCoderLearning.puzzles.bamChon1Tu")}</p>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase text-muted-foreground">Từ khóa</p>
+            <p className="text-[10px] font-black uppercase text-muted-foreground">{t("hugoCoderLearning.puzzles.tuKhoa")}</p>
             {keys.map((k) => {
               const isMatched = matchedPairs[k] !== undefined;
               const isActive = matchedPairs.activeLeft === k;
@@ -291,7 +293,7 @@ export default function InteractivePuzzles({
           </div>
 
           <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase text-muted-foreground">Định nghĩa</p>
+            <p className="text-[10px] font-black uppercase text-muted-foreground">{t("hugoCoderLearning.puzzles.dinhNghia")}</p>
             {scrambledVals.map((v) => {
               const isMatched = Object.values(matchedPairs).includes(v);
               return (
@@ -317,7 +319,7 @@ export default function InteractivePuzzles({
           disabled={Object.keys(matchedPairs).filter(k => k !== "activeLeft").length < 4}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
         >
-          Hoàn thành nối cặp
+          {t("hugoCoderLearning.puzzles.hoanThanhNoiCap")}
         </button>
       </div>
     );
@@ -326,7 +328,7 @@ export default function InteractivePuzzles({
   if (course.practiceType === "fill_blank") {
     return (
       <div className="space-y-4 font-sans">
-        <p className="text-xs text-muted-foreground">Điền đoạn code PHP thích hợp vào các ô trống bên dưới:</p>
+        <p className="text-xs text-muted-foreground">{t("hugoCoderLearning.puzzles.dienDoanCodePhp")}</p>
         
         <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 font-mono text-xs space-y-4 leading-6">
           <div>{`<h1><?php`}</div>
@@ -338,7 +340,7 @@ export default function InteractivePuzzles({
               onChange={(e) => setBlankAnswers(prev => ({ ...prev, blank1: e.target.value }))}
               className="w-20 bg-zinc-900 border border-zinc-700 rounded px-2 py-0.5 text-center text-primary font-bold outline-none focus:border-primary"
             />
-            <span>"Xin chào"</span>
+            <span>{t("hugoCoderLearning.puzzles.xinChao")}</span>
             <input
               type="text"
               placeholder="[blank2]"
@@ -354,7 +356,7 @@ export default function InteractivePuzzles({
           onClick={verifyInteractivePractice}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md"
         >
-          Nộp kết quả điền code
+          {t("hugoCoderLearning.puzzles.nopKetQuaDien")}
         </button>
       </div>
     );
@@ -364,7 +366,7 @@ export default function InteractivePuzzles({
     return (
       <div className="space-y-4 font-sans">
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Viết code trên IDE Máy tính (Desktop). Sau khi chạy thành công kết quả ra trình duyệt, bạn chụp ảnh màn hình và tải lên đây để hệ thống tự kiểm tra định dạng ảnh nộp.
+          {t("hugoCoderLearning.puzzles.vietCodeTrenIde")}
         </p>
 
         <div className="border-2 border-dashed border-border rounded-xl p-6 text-center bg-zinc-50 dark:bg-zinc-950/20 relative overflow-hidden flex flex-col items-center justify-center min-h-36">
@@ -372,13 +374,13 @@ export default function InteractivePuzzles({
             <div className="space-y-3 w-full">
               <img src={screenshotFile} alt="Preview" className="max-h-32 object-contain mx-auto rounded border border-border shadow-sm" />
               {!isScanning && (
-                <p className="text-[10px] font-bold text-success">Đã tải ảnh lên thành công!</p>
+                <p className="text-[10px] font-bold text-success">{t("hugoCoderLearning.puzzles.daTaiAnhLen")}</p>
               )}
             </div>
           ) : (
             <div className="space-y-2">
               <span className="material-symbols-outlined text-4xl text-muted-foreground animate-pulse">add_photo_alternate</span>
-              <p className="text-xs font-bold text-muted-foreground">Chọn hoặc kéo ảnh chụp màn hình vào đây</p>
+              <p className="text-xs font-bold text-muted-foreground">{t("hugoCoderLearning.puzzles.chonHoacKeoAnh")}</p>
               <input
                 type="file"
                 accept="image/*"
@@ -395,8 +397,8 @@ export default function InteractivePuzzles({
                 <span className="text-[9px] font-black">{scanProgress}%</span>
               </div>
               <div>
-                <p className="text-xs font-black animate-pulse">Đang kiểm tra ảnh nộp...</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Kiểm tra định dạng, kích thước và độ đầy đủ của ảnh.</p>
+                <p className="text-xs font-black animate-pulse">{t("hugoCoderLearning.puzzles.dangKiemTraAnh")}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{t("hugoCoderLearning.puzzles.kiemTraDinhDang")}</p>
               </div>
             </div>
           )}
@@ -405,11 +407,11 @@ export default function InteractivePuzzles({
         {screenshotFile && !isScanning && scanScore > 0 && (
           <div className="bg-success/10 border border-success/20 p-3.5 rounded-xl space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-success uppercase">Tự kiểm tra ảnh hoàn tất</span>
+              <span className="text-xs font-black text-success uppercase">{t("hugoCoderLearning.puzzles.tuKiemTraAnh")}</span>
               <span className="text-sm font-black text-success">{scanScore}/100</span>
             </div>
             <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-              Điểm này chỉ phản ánh độ phù hợp của ảnh nộp để mở khóa bước học tiếp theo; không thay thế việc giáo viên hoặc quản trị viên xem lại bài thật.
+              {t("hugoCoderLearning.puzzles.diemNayChiPhan")}
             </p>
           </div>
         )}
@@ -419,7 +421,7 @@ export default function InteractivePuzzles({
           disabled={!screenshotFile || isScanning}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
         >
-          {screenshotFile && !isScanning ? "Nộp ảnh đã kiểm tra" : "Vui lòng chọn ảnh chụp màn hình"}
+          {screenshotFile && !isScanning ? t("hugoCoderLearning.puzzles.nopAnhDaKiem") : t("hugoCoderLearning.puzzles.vuiLongChonAnh")}
         </button>
       </div>
     );
@@ -427,7 +429,7 @@ export default function InteractivePuzzles({
 
   if (course.practiceType === "quiz") {
     if (quizQuestions.length === 0) {
-      return <div className="text-xs text-muted-foreground text-center py-5 font-sans">Đang nạp bộ câu hỏi trắc nghiệm...</div>;
+      return <div className="text-xs text-muted-foreground text-center py-5 font-sans">{t("hugoCoderLearning.puzzles.dangNapBoCau")}</div>;
     }
 
     if (quizCompleted) {
@@ -438,11 +440,11 @@ export default function InteractivePuzzles({
             {passed ? "emoji_events" : "gpp_bad"}
           </span>
           <div>
-            <h4 className="text-sm font-black uppercase">Kết quả kiểm tra: {quizScore}%</h4>
+            <h4 className="text-sm font-black uppercase">{t("hugoCoderLearning.puzzles.ketQuaKiemTra")} {quizScore}%</h4>
             <p className="text-xs text-muted-foreground mt-1">
               {passed 
-                ? "Tuyệt vời! Bạn đã vượt qua bài kiểm tra thành công." 
-                : "Rất tiếc, điểm số chưa đạt yêu cầu tối thiểu (60%)."}
+                ? t("hugoCoderLearning.puzzles.tuyetVoiBanDa") 
+                : t("hugoCoderLearning.puzzles.ratTiecDiemSo")}
             </p>
           </div>
           
@@ -451,14 +453,14 @@ export default function InteractivePuzzles({
               onClick={verifyInteractivePractice}
               className="w-full py-2.5 bg-success text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md"
             >
-              Nhận thưởng JOY & Hoàn thành
+              {t("hugoCoderLearning.puzzles.nhanThuongJoyHoan")}
             </button>
           ) : (
             <button
               onClick={handleRetakeQuiz}
               className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md"
             >
-              Đổi đề thi khác & Làm lại
+              {t("hugoCoderLearning.puzzles.doiDeThiKhac")}
             </button>
           )}
         </div>
@@ -471,8 +473,8 @@ export default function InteractivePuzzles({
     return (
       <div className="space-y-4 font-sans">
         <div className="flex justify-between items-center text-[10px] text-muted-foreground font-black uppercase">
-          <span>Câu hỏi {quizCurrentIndex + 1} / {quizQuestions.length}</span>
-          <span>Đã chọn: {Object.keys(quizAnswers).length} câu</span>
+          <span>{t("hugoCoderLearning.puzzles.cauHoi")} {quizCurrentIndex + 1} / {quizQuestions.length}</span>
+          <span>{t("hugoCoderLearning.puzzles.daChon")} {Object.keys(quizAnswers).length} {t("hugoCoderLearning.puzzles.cau")}</span>
         </div>
 
         <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border border-border rounded-xl">
@@ -504,7 +506,7 @@ export default function InteractivePuzzles({
             disabled={quizCurrentIndex === 0}
             className="flex-1 py-2 bg-background hover:bg-muted border border-border text-muted-foreground rounded-xl text-xs font-black uppercase active:scale-95 transition-all disabled:opacity-30 disabled:pointer-events-none"
           >
-            Câu trước
+            {t("hugoCoderLearning.puzzles.cauTruoc")}
           </button>
           
           {isLast ? (
@@ -513,14 +515,14 @@ export default function InteractivePuzzles({
               disabled={Object.keys(quizAnswers).length < quizQuestions.length}
               className="flex-1 py-2 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-wider active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none"
             >
-              Nộp bài thi
+              {t("hugoCoderLearning.puzzles.nopBaiThi")}
             </button>
           ) : (
             <button
               onClick={() => setQuizCurrentIndex(prev => Math.min(prev + 1, quizQuestions.length - 1))}
               className="flex-1 py-2 bg-background hover:bg-muted border border-border text-foreground rounded-xl text-xs font-black uppercase active:scale-95 transition-all"
             >
-              Câu tiếp
+              {t("hugoCoderLearning.puzzles.cauTiep")}
             </button>
           )}
         </div>
@@ -554,7 +556,7 @@ export default function InteractivePuzzles({
         <p className="text-xs text-muted-foreground">{puzzle.prompt}</p>
         
         <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 font-mono text-xs text-center space-y-2 select-none">
-          <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Khung mã nguồn:</span>
+          <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">{t("hugoCoderLearning.puzzles.khungMaNguon")}</span>
           <span className="text-amber-400 font-bold block">{puzzle.snippet}</span>
         </div>
 
@@ -582,7 +584,7 @@ export default function InteractivePuzzles({
           disabled={mobilePuzzleAnswer === null}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
         >
-          Xác nhận đáp án
+          {t("hugoCoderLearning.puzzles.xacNhanDapAn")}
         </button>
       </div>
     );
@@ -592,6 +594,7 @@ export default function InteractivePuzzles({
 }
 
 function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, course }) {
+  const { t } = useTranslation();
   const [projectUrl, setProjectUrl] = React.useState(bio?.hugoCoderProjectUrl || "");
   const [projectNote, setProjectNote] = React.useState(bio?.hugoCoderProjectNote || "");
   const [submitting, setSubmitting] = React.useState(false);
@@ -639,15 +642,15 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
     <div className="space-y-4 font-sans bg-zinc-900/50 p-4 border border-border/60 rounded-2xl">
       <div className="text-center space-y-1">
         <Sparkles className="w-8 h-8 text-amber-400 mx-auto animate-pulse" />
-        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">Đồ án kết khóa Phát triển Web</h3>
+        <h3 className="text-sm font-extrabold text-amber-500 uppercase tracking-wider">{t("hugoCoderLearning.puzzles.doAnKetKhoa")}</h3>
         <p className="text-[10px] text-zinc-400">
-          Nộp sản phẩm hoàn thiện nhất của bạn để hoàn tất Chặng 7 và nhận Chứng nhận hoàn thành & +4,000 JOY.
+          {t("hugoCoderLearning.puzzles.nopSanPhamHoan")}
         </p>
       </div>
 
       {status === "approved" && (
         <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center space-y-2">
-          <p className="text-xs font-bold text-emerald-500">Chúc mừng! Bạn đã hoàn thành bộ Phát triển Web! 🎉</p>
+          <p className="text-xs font-bold text-emerald-500">{t("hugoCoderLearning.puzzles.chucMungBanDa")}</p>
           {certUrl ? (
             <a
               href={certUrl}
@@ -655,10 +658,10 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
               rel="noopener noreferrer"
               className="inline-block px-4 py-2 bg-gradient-to-br from-amber-400 to-yellow-600 hover:from-amber-500 hover:to-yellow-700 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-wider transition-all shadow-md"
             >
-              Xem chứng nhận hoàn thành
+              {t("hugoCoderLearning.puzzles.xemChungNhanHoan")}
             </a>
           ) : (
-            <p className="text-[9px] text-zinc-400">Đang chờ admin đính kèm link giấy chứng nhận...</p>
+            <p className="text-[9px] text-zinc-400">{t("hugoCoderLearning.puzzles.dangChoAdminDinh")}</p>
           )}
         </div>
       )}
@@ -667,16 +670,16 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {status === "pending" && (
             <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
-              <p className="text-xs font-bold text-amber-500">Dự án đang chờ duyệt... ⏳</p>
-              <p className="text-[9px] text-zinc-400 mt-1">Hugo Studio đang xem xét bài nộp của bạn.</p>
+              <p className="text-xs font-bold text-amber-500">{t("hugoCoderLearning.puzzles.duAnDangCho")}</p>
+              <p className="text-[9px] text-zinc-400 mt-1">{t("hugoCoderLearning.puzzles.hugoStudioDangXem")}</p>
             </div>
           )}
           
           {status === "rejected" && (
             <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-left space-y-1">
-              <p className="text-xs font-bold text-red-500">Dự án chưa đạt yêu cầu ❌</p>
-              {adminNote && <p className="text-[9px] text-zinc-300">Phản hồi của Admin: {adminNote}</p>}
-              <p className="text-[9px] text-zinc-400">Bạn có thể điều chỉnh và gửi lại link dự án mới dưới đây.</p>
+              <p className="text-xs font-bold text-red-500">{t("hugoCoderLearning.puzzles.duAnChuaDat")}</p>
+              {adminNote && <p className="text-[9px] text-zinc-300">{t("hugoCoderLearning.puzzles.phanHoiCuaAdmin")} {adminNote}</p>}
+              <p className="text-[9px] text-zinc-400">{t("hugoCoderLearning.puzzles.banCoTheDieu")}</p>
             </div>
           )}
 
@@ -688,19 +691,19 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
               disabled={status === "pending"}
               value={projectUrl}
               onChange={(e) => setProjectUrl(e.target.value)}
-              placeholder="https://myproject.com hoặc https://github.com/..."
+              placeholder={t("hugoCoderLearning.puzzles.httpsMyprojectComHoac")}
               className="w-full bg-zinc-950 border border-border p-2.5 rounded-lg text-xs font-mono text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-amber-500/50"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider block">Ghi chú cho Admin (Không bắt buộc)</label>
+            <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider block">{t("hugoCoderLearning.puzzles.ghiChuChoAdmin")}</label>
             <textarea
               rows={3}
               disabled={status === "pending"}
               value={projectNote}
               onChange={(e) => setProjectNote(e.target.value)}
-              placeholder="Nhập ghi chú, tài khoản test, thông tin vận hành..."
+              placeholder={t("hugoCoderLearning.puzzles.nhapGhiChuTai")}
               className="w-full bg-zinc-950 border border-border p-2.5 rounded-lg text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-amber-500/50 resize-none"
             />
           </div>
@@ -710,7 +713,7 @@ function GraduationSubmissionForm({ bio, onBioUpdate, handleRewardMobileLesson, 
             disabled={submitting || status === "pending"}
             className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 disabled:opacity-50 text-zinc-950 font-black rounded-lg text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-[0.98]"
           >
-            {submitting ? "Đang gửi..." : "Gửi Đề Án Tốt Nghiệp"}
+            {submitting ? t("hugoCoderLearning.puzzles.dangGui") : t("hugoCoderLearning.puzzles.guiDeAnTot")}
           </button>
         </form>
       )}

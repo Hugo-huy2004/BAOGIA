@@ -52,6 +52,20 @@ async function releaseDailyArcadeJoy(email, amount) {
   );
 }
 
+// ─── Saturday 2x JOY Event ──────────────────────────────────────────────────
+// Every Saturday (00:00–23:59:59 Vietnam time, UTC+7) all arcade games award
+// 2× JOY — commemorating the Resurrection and salvation of the Son of God.
+const SATURDAY_JOY_MULTIPLIER = 2;
+
+// ponytail: cộng 7h rồi đọc theo UTC — đúng dù máy chủ chạy múi giờ nào.
+export function isSaturdayEvent(date = new Date()) {
+  return new Date(date.getTime() + 7 * 60 * 60 * 1000).getUTCDay() === 6;
+}
+
+function getEventMultiplier() {
+  return isSaturdayEvent() ? SATURDAY_JOY_MULTIPLIER : 1;
+}
+
 // ─── JOY Calculation — per-game tiered formulas (must match src/utils/joyCalculation.js) ─
 // Each game defines score→JOY tiers: [threshold, baseJoy, perPoint]
 // joy = baseJoy + floor((score - threshold) × perPoint)
@@ -131,6 +145,14 @@ router.post('/score', requireMember, scoreLimiter, async (req, res) => {
 
     // Standardized JOY: joy = max(1, floor(score × rate))
     joyDelta = numScore > 0 ? calcJoy(game, numScore) : 0;
+    const joyBase = joyDelta;
+
+    // Nhân đôi thứ Bảy, rồi KẸP xuống trần ngày: reserveDailyArcadeJoy từ chối
+    // thẳng (trả null) khoản lớn hơn trần, nên không kẹp thì ván điểm cao vào
+    // thứ Bảy mất sạch JOY thay vì nhận tối đa.
+    const multiplier = getEventMultiplier();
+    joyDelta = Math.min(joyDelta * multiplier, ARCADE_DAILY_JOY_CAP);
+
     const reservation = await reserveDailyArcadeJoy(email, joyDelta);
     if (!reservation) joyDelta = 0;
 
@@ -162,7 +184,10 @@ router.post('/score', requireMember, scoreLimiter, async (req, res) => {
     res.json({
       bestScore: doc.bestScore,
       joyDelta,
+      joyBase,
       joyAwarded,
+      multiplier,
+      event: multiplier > 1 ? 'resurrection_saturday' : null,
       dailyCapReached: !reservation || Number(reservation.arcadeJoyToday) >= ARCADE_DAILY_JOY_CAP,
     });
   } catch (error) {
@@ -205,8 +230,10 @@ router.post('/eco-caro', requireMember, async (req, res) => {
     }
 
     const delta = result === 'win' ? ECO_CARO_JOY : -ECO_CARO_JOY;
+    const ecoMultiplier = getEventMultiplier();
+    const adjustedDelta = delta > 0 ? delta * ecoMultiplier : delta;
     try {
-      await awardJoy(email, delta, 'arcade_score', `Cờ ca-rô (chế độ tiết kiệm) — ${result === 'win' ? 'thắng' : 'thua'}`, { refId: 'caro' });
+      await awardJoy(email, adjustedDelta, 'arcade_score', `Cờ ca-rô (chế độ tiết kiệm) — ${result === 'win' ? 'thắng' : 'thua'}`, { refId: 'caro' });
     } catch (error) {
       // Không đủ JOY để trừ thì bỏ qua ván này, không đẩy số dư xuống âm.
       if (error.message === 'INSUFFICIENT_JOY') {
@@ -219,7 +246,9 @@ router.post('/eco-caro', requireMember, async (req, res) => {
     doc.joyAwardedToday += 1;
     await doc.save();
     return res.json({
-      joyDelta: delta,
+      joyDelta: adjustedDelta,
+      multiplier: ecoMultiplier,
+      event: ecoMultiplier > 1 ? 'resurrection_saturday' : null,
       remainingGames: ECO_CARO_DAILY_GAMES - doc.joyAwardedToday,
     });
   } catch (error) {

@@ -31,7 +31,10 @@ export default [
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
-      'react-hooks/rules-of-hooks': 'off',
+      // Cùng lý do với `no-undef`: gọi hook sau một `return` sớm là màn trắng
+      // ngay khi component đó hiện lên, không phải chuyện dọn sau. Toàn bộ src
+      // đang sạch quy tắc này nên bật lên không nợ gì.
+      'react-hooks/rules-of-hooks': 'error',
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/purity': 'off',
       'react-hooks/immutability': 'off',
@@ -52,7 +55,17 @@ export default [
       'react/prop-types': 'off',
       'react/no-unescaped-entities': 'off',
       'react/display-name': 'off',
-      'no-undef': 'warn'
+      // LỖI, không phải cảnh báo. Một biến chưa khai báo trong JSX là màn hình
+      // trắng ngay khi component đó render — chứ không phải chuyện dọn sau. Để
+      // 'warn' thì nó nằm lẫn trong hai trăm cảnh báo khác và `npm run lint`
+      // vẫn xanh: đúng cách một `import { useTranslation }` bị thiếu đã lọt ra
+      // tới trình duyệt.
+      'no-undef': 'error'
     },
+  },
+  {
+    // Test chạy bằng Node nên có `process`, `__dirname`… trình duyệt không có.
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
 ]

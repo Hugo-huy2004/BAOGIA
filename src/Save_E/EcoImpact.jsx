@@ -10,6 +10,7 @@
  *  - Trích từ nghiên cứu/báo cáo đã công bố, có tên nguồn và năm ở cuối.
  */
 
+import { useTranslation } from "react-i18next";
 import EcoBadge from "./EcoBadge";
 
 const REFERENCES = [
@@ -46,8 +47,9 @@ const REFERENCES = [
 /* ── Logo: chiếc lá trong vòng tuần hoàn. Tự vẽ, không mượn biểu trưng của bất
    kỳ tổ chức nào — gắn logo của tổ chức thật vào đây là mạo danh họ. ── */
 function EcoLogo({ size = 44 }) {
+  const { t } = useTranslation();
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label="Biểu trưng chế độ Bảo vệ môi trường">
+    <svg width={size} height={size} viewBox="0 0 48 48" role="img" aria-label={t("saveE.impact.bieuTrungCheDo")}>
       <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.35" />
       <path
         d="M24 34c-6 0-10-4-10-9 0-6 5-11 16-13 1 12-2 22-11 24"
@@ -64,6 +66,7 @@ function EcoLogo({ size = 44 }) {
 
 /* ── Hình 1: màn sáng -> màn đen ── */
 function FigureScreens() {
+  const { t } = useTranslation();
   const Phone = ({ x, dark, label }) => (
     <g transform={`translate(${x} 0)`}>
       <rect x="0" y="0" width="66" height="118" rx="12" fill="none" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
@@ -86,46 +89,48 @@ function FigureScreens() {
 
   return (
     <svg viewBox="0 0 210 140" width="100%" height="140" role="img"
-      aria-label="Điện thoại nền sáng đổi sang nền đen chữ trắng">
-      <Phone x={4} dark={false} label="Nền sáng" />
+      aria-label={t("saveE.impact.dienThoaiNenSang")}>
+      <Phone x={4} dark={false} label={t("saveE.impact.nenSang")} />
       <path d="M84 60 h40 m-9 -6 l9 6 l-9 6" fill="none" stroke="currentColor" strokeWidth="1.8"
         strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-      <Phone x={138} dark label="Nền đen" />
+      <Phone x={138} dark label={t("saveE.impact.nenDen")} />
     </svg>
   );
 }
 
 /* ── Hình 2: sơ đồ cột so sánh lượng bài tải về trong một giờ ── */
 function FigureRequests() {
+  const { t } = useTranslation();
   return (
     <svg viewBox="0 0 210 128" width="100%" height="128" role="img"
-      aria-label="Cột so sánh: 720 bài mỗi giờ ở chế độ thường so với 24 bài ở chế độ tiết kiệm">
+      aria-label={t("saveE.impact.cotSoSanh720")}>
       <line x1="8" y1="96" x2="202" y2="96" stroke="currentColor" strokeWidth="1" opacity="0.35" />
 
       <rect x="26" y="16" width="46" height="80" rx="4" fill="currentColor" opacity="0.28" />
-      <text x="49" y="12" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.85">720 bài</text>
-      <text x="49" y="110" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">Chế độ thường</text>
-      <text x="49" y="121" textAnchor="middle" fontSize="8.5" fill="currentColor" opacity="0.5">6 lượt × 120 bài</text>
+      <text x="49" y="12" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.85">{t("saveE.impact.720Bai")}</text>
+      <text x="49" y="110" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">{t("saveE.impact.cheDoThuong")}</text>
+      <text x="49" y="121" textAnchor="middle" fontSize="8.5" fill="currentColor" opacity="0.5">{t("saveE.impact.6Luot120Bai")}</text>
 
       <rect x="138" y="93" width="46" height="3" rx="1.5" fill="currentColor" />
-      <text x="161" y="86" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.85">24 bài</text>
-      <text x="161" y="110" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">Chế độ tiết kiệm</text>
-      <text x="161" y="121" textAnchor="middle" fontSize="8.5" fill="currentColor" opacity="0.5">1 lượt × 24 bài</text>
+      <text x="161" y="86" textAnchor="middle" fontSize="10" fill="currentColor" opacity="0.85">{t("saveE.impact.24Bai")}</text>
+      <text x="161" y="110" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">{t("saveE.impact.cheDoTietKiem")}</text>
+      <text x="161" y="121" textAnchor="middle" fontSize="8.5" fill="currentColor" opacity="0.5">{t("saveE.impact.1Luot24Bai")}</text>
     </svg>
   );
 }
 
 /* ── Hình 3: điểm ảnh OLED bật/tắt ── */
 function FigurePixels() {
+  const { t } = useTranslation();
   const cells = Array.from({ length: 24 }, (_, index) => index);
   return (
     <svg viewBox="0 0 210 96" width="100%" height="96" role="img"
-      aria-label="Lưới điểm ảnh: nền sáng thì mọi điểm đều bật, nền đen thì phần lớn tắt">
+      aria-label={t("saveE.impact.luoiDiemAnhNen")}>
       {cells.map((index) => (
         <rect key={`on-${index}`} x={8 + (index % 8) * 12} y={14 + Math.floor(index / 8) * 12}
           width="9" height="9" rx="2" fill="currentColor" opacity="0.85" />
       ))}
-      <text x="56" y="76" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">24/24 điểm ảnh sáng</text>
+      <text x="56" y="76" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">{t("saveE.impact.2424DiemAnh")}</text>
 
       {cells.map((index) => (
         <rect key={`off-${index}`} x={120 + (index % 8) * 12} y={14 + Math.floor(index / 8) * 12}
@@ -133,7 +138,7 @@ function FigurePixels() {
           fill="currentColor"
           opacity={[2, 9, 17].includes(index) ? 0.85 : 0.12} />
       ))}
-      <text x="168" y="76" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">3/24 điểm ảnh sáng</text>
+      <text x="168" y="76" textAnchor="middle" fontSize="9.5" fill="currentColor" opacity="0.7">{t("saveE.impact.324DiemAnh")}</text>
     </svg>
   );
 }
@@ -172,6 +177,7 @@ const FIGURES = [
 ];
 
 export default function EcoImpact() {
+  const { t } = useTranslation();
   return (
     <div>
       <div style={{ padding: "14px 0 8px" }}>
@@ -181,9 +187,9 @@ export default function EcoImpact() {
             <EcoLogo />
           </span>
           <div>
-            <strong style={{ display: "block", fontSize: 15 }}>Vì sao chế độ này tiết kiệm thật</strong>
+            <strong style={{ display: "block", fontSize: 15 }}>{t("saveE.impact.viSaoCheDo")}</strong>
             <span style={{ fontSize: 13, color: "hsl(var(--muted-foreground))" }}>
-              Số liệu đo từ mã nguồn, phần còn lại dẫn nguồn nghiên cứu bên dưới.
+              {t("saveE.impact.soLieuDoTu")}
             </span>
           </div>
         </div>
@@ -205,7 +211,7 @@ export default function EcoImpact() {
 
       <div style={{ padding: "14px 0 0", borderTop: "1px solid hsl(var(--border) / 0.6)" }}>
         <strong style={{ display: "block", fontSize: 13.5, letterSpacing: "0.04em", textTransform: "uppercase" }}>
-          Nguồn tham khảo
+          {t("saveE.impact.nguonThamKhao")}
         </strong>
         <ol style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 12.5, lineHeight: 1.65, color: "hsl(var(--muted-foreground))" }}>
           {REFERENCES.map((item) => (
@@ -215,8 +221,7 @@ export default function EcoImpact() {
           ))}
         </ol>
         <p style={{ margin: "10px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "hsl(var(--muted-foreground))" }}>
-          Các con số trên là ước tính có khoảng dao động, phụ thuộc thiết bị, độ sáng màn hình và hạ tầng mạng
-          từng nơi. Chúng tôi nêu khoảng thay vì một con số tròn để không hứa quá.
+          {t("saveE.impact.cacConSoTren")}
         </p>
       </div>
     </div>

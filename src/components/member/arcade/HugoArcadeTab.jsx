@@ -12,24 +12,16 @@ import { fetchProfile } from "../../../services/arcadeApi";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
-import memberService from "../../../services/classes/MemberService";
-import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
+import { isEventActive } from "../../../utils/joyCalculation";
+import { useAppInstall, readStoredList, HOME_SCREEN_APPS_KEY } from "../../../hooks/useAppInstall";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import "./arcade-theme.css";
+import { joyText, joyCode } from "../../../lib/joyDisplay";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
-const ARCADE_DL_KEY = "hugo_arcade_downloaded_v1";
-const INSTALLED_APPS_KEY = "hugo_installed_utilities_v2";
-const HOME_SCREEN_APPS_KEY = "hugo_home_screen_utilities_v1";
-
-const readStoredList = (key) => {
-  try {
-    const value = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(value) ? value.filter(Boolean) : [];
-  } catch {
-    return [];
-  }
-};
+// Cổng 8081 là mặc định của Metro/Expo và nó trả HTML 200 cho MỌI đường dẫn,
+// nên gọi API "thành công" mà nhận về một trang web. Backend là 8099, và ở dev
+// thì đi qua proxy của Vite bằng đường dẫn tương đối như phần còn lại của app.
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 // `studio: true` = game do Hugo Studio tự dựng từ đầu (luật thuộc phạm vi công
 // cộng hoặc do chính hệ thống thiết kế) → được gắn nhãn "Độc quyền". Game dựa
@@ -64,7 +56,7 @@ const JoyChip = React.memo(function JoyChip({ balance }) {
     <div className="arc-joy-chip">
       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>toll</span>
       <span>{(balance ?? 0).toLocaleString(localeForLanguage(i18n.language))}</span>
-      <small>JOY</small>
+      <small>{joyCode()}</small>
     </div>
   );
 });
@@ -74,7 +66,7 @@ const GameRow = React.memo(function GameRow({ game, profile, isLocked, isDownloa
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const best  = profile?.[game.id]?.bestScore || 0;
-  const priceLabel = game.id === "chess" ? "299 JOY" : "199 JOY";
+  const priceLabel = joyText(game.id === "chess" ? 299 : 199);
   const isDownloading = downloadProgress !== undefined;
 
   // Vòng tiến trình tròn (App Store)
@@ -221,86 +213,38 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
     return true;
   });
 
-  // ── App Store Download State ────────────────────────────────────────
-  // Use a dedicated key so Dashboard's homeScreenApps sync never overwrites it
-  const [downloading, setDownloading] = useState({}); // { gameId: 0-100 }
-  const [downloaded, setDownloaded]   = useState(() => {
-    // Primary source: dedicated arcade download key
-    const dedicated = readStoredList(ARCADE_DL_KEY);
-    // Fallback: also check the home screen list for any pre-existing arcade games
-    const home = readStoredList(HOME_SCREEN_APPS_KEY);
-    const fromHome = home.filter(id => id.startsWith("arcade_")).map(id => id.slice("arcade_".length));
-    return new Set([...dedicated, ...fromHome]);
-  });
+  // ── Tải game ────────────────────────────────────────────────────────
+  // `installed` là nguồn duy nhất; trước đây màn này giữ một Set riêng rồi tự
+  // cập nhật, nên cài/gỡ ở Thư viện không dội về đây.
+  const { installed, progress: installProgress, install } = useAppInstall({ bio, onBioUpdate });
 
+  const bareGameIds = (list) => list
+    .filter((id) => String(id).startsWith("arcade_"))
+    .map((id) => String(id).slice("arcade_".length));
+
+  // Bản dựng cũ chỉ ghi game vào danh sách màn hình chính, nên vẫn phải ngó qua
+  // đó, nếu không game cài từ lâu lại hiện nút Tải.
+  const downloaded = React.useMemo(
+    () => new Set([...bareGameIds(installed), ...bareGameIds(readStoredList(HOME_SCREEN_APPS_KEY))]),
+    [installed],
+  );
+
+  // Tiến trình theo appId, còn màn này nói chuyện bằng gameId trần.
+  const downloading = Object.fromEntries(
+    Object.entries(installProgress).map(([appId, value]) => [appId.replace("arcade_", ""), value]),
+  );
+
+  // Tải game = cài một app tên `arcade_<id>`. Việc ghi ba kho, đẩy lên server
+  // và báo cho các màn khác nằm ở `useAppInstall` — Arcade chỉ nói cái gì được
+  // cài và báo lại cho người chơi.
   const handlePinToHome = React.useCallback((gameId) => {
-    if (downloading[gameId] !== undefined) return; // already downloading
-
-    // Kick off App Store-style circular progress
-    setDownloading(prev => ({ ...prev, [gameId]: 0 }));
-    let progress = 0;
-
-    const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 15) + 6;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        setDownloading(prev => ({ ...prev, [gameId]: 100 }));
-
-        // 1. Write to dedicated arcade download key (never overwritten by Dashboard)
-        const dedicated = readStoredList(ARCADE_DL_KEY);
-        if (!dedicated.includes(gameId)) {
-          localStorage.setItem(ARCADE_DL_KEY, JSON.stringify([...dedicated, gameId]));
-        }
-
-        // 2. Also add to home screen & installed lists for Dashboard to render icon
-        const fullAppId = `arcade_${gameId}`;
-        const savedHome = readStoredList(HOME_SCREEN_APPS_KEY);
-        const savedInst = readStoredList(INSTALLED_APPS_KEY);
-        const updatedInst = appInstallationPolicy.normalizeInstalled([
-          ...(Array.isArray(bio?.installedUtilities) ? bio.installedUtilities : []),
-          ...savedInst,
-          fullAppId,
-        ]);
-        const updatedHome = appInstallationPolicy.normalizeHomeScreen([
-          ...(Array.isArray(bio?.homeScreenUtilities) ? bio.homeScreenUtilities : []),
-          ...savedHome,
-          fullAppId,
-        ], updatedInst);
-        localStorage.setItem(HOME_SCREEN_APPS_KEY, JSON.stringify(updatedHome));
-        localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(updatedInst));
-
-        // 3. Tell the always-mounted Dashboard to refresh icons immediately
-        window.dispatchEvent(new CustomEvent("hugo:app-installed", { detail: { appId: fullAppId } }));
-
-        // 4. Persist the install so it also appears on the user's other devices.
-        if (bio?._id && bio._id !== "guest") {
-          memberService.updateMemberBio(bio._id, {
-            installedUtilities: updatedInst,
-            homeScreenUtilities: updatedHome,
-          }).then((response) => {
-            if (response?.bio) onBioUpdate?.(response.bio);
-          }).catch(() => {
-            // Offline-first: the local install remains available.
-          });
-        }
-
-        // 5. Update local downloaded state and confirm the action.
-        setTimeout(() => {
-          setDownloaded(prev => new Set([...prev, gameId]));
-          setDownloading(prev => {
-            const next = { ...prev };
-            delete next[gameId];
-            return next;
-          });
-          const game = GAMES.find((item) => item.id === gameId);
-          showToast?.(t("arcadeGame.addedToApps", { game: game?.name || t("arcadeGame.gameFallback") }), "success");
-        }, 400);
-      } else {
-        setDownloading(prev => ({ ...prev, [gameId]: progress }));
-      }
-    }, 100);
-  }, [bio, downloading, onBioUpdate, showToast]);
+    install(`arcade_${gameId}`, {
+      onDone: () => {
+        const game = GAMES.find((item) => item.id === gameId);
+        showToast?.(t("arcadeGame.addedToApps", { game: game?.name || t("arcadeGame.gameFallback") }), "success");
+      },
+    });
+  }, [install, showToast, t]);
 
   return (
     <>
@@ -328,6 +272,17 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
                   <h1>Hugo Arcade</h1>
                   <p>{t("arcadeGame.noAds")}</p>
                 </div>
+
+                {/* Saturday 2× JOY event banner */}
+                {isEventActive() && (
+                  <div className="arc-event-banner">
+                    <span className="material-symbols-outlined">church</span>
+                    <div>
+                      <p className="arc-event-banner__title">{t("arcadeGame.eventSaturdayTitle")}</p>
+                      <p className="arc-event-banner__desc">{t("arcadeGame.eventSaturdayDesc")}</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="arc-seg" role="tablist" aria-label={t("arcadeGame.filterGames")}>
                   {CATEGORIES.map((cat) => (
@@ -397,7 +352,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
                     <strong>{totalWins}</strong>
                   </div>
                   <div className="arc-stat-box">
-                    <small>JOY</small>
+                    <small>{joyCode()}</small>
                     <strong>{(joyBalance ?? 0).toLocaleString(locale)}</strong>
                   </div>
                 </div>

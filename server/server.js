@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import dataRoutes from './routes/dataRoutes.js';
 import bioRoutes from './routes/bioRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
@@ -48,7 +49,10 @@ const app = express();
 // X-Forwarded-For to dodge the limiter.
 app.set('trust proxy', 1);
 
-const PORT = process.env.PORT || 8081;
+// 8099 chứ không phải 8081: 8081 là cổng mặc định của Metro/Expo, mở bất kỳ dự
+// án React Native nào là mất cổng — và Metro trả HTML kèm status 200 cho mọi
+// đường dẫn, nên `/api/*` "thành công" với một trang web thay vì JSON.
+const PORT = process.env.PORT || 8099;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hugo_wishpax';
 
 // Middleware
@@ -288,6 +292,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/bios', bioRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/packages', packageRoutes);

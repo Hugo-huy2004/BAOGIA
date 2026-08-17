@@ -1,11 +1,36 @@
 import express from 'express';
 import Booking from '../models/Booking.js';
+import Bio from '../models/Bio.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const PROJECT_TYPES = new Set(['newWebsite', 'portfolio', 'improve', 'student', 'unsure']);
 const BUDGETS = new Set(['unsure', 'underOne', 'oneToThree', 'threeToEight', 'overEight']);
 const TIMELINES = new Set(['flexible', 'twoWeeks', 'oneMonth', 'twoMonths']);
+
+/**
+ * Tiêu một voucher dịch vụ ngay khi nhận đơn đặt lịch: một lệnh ghi có điều
+ * kiện (chỉ khớp khi mã còn hạn và chưa dùng), nên hai đơn gửi cùng lúc không
+ * thể xài chung một mã. Trả về % giảm, hoặc null nếu mã không dùng được.
+ *
+ * Mã BDAY-xx đời cũ không đi đường này — nó cộng ngày hạn dùng, đổi ở trang Gói
+ * dịch vụ, không phải giảm giá dự án.
+ */
+async function claimServiceVoucher(code, email) {
+  const now = new Date();
+  const before = await Bio.findOneAndUpdate(
+    {
+      $or: [{ email }, { contactEmail: email }],
+      serviceVouchers: {
+        $elemMatch: { code, usedAt: null, expiresAt: { $gt: now } },
+      },
+    },
+    { $set: { 'serviceVouchers.$.usedAt': now } },
+    { projection: 'serviceVouchers' },
+  );
+  const voucher = before?.serviceVouchers?.find((v) => v.code === code);
+  return voucher ? Number(voucher.percent) || 0 : null;
+}
 
 // GET: Fetch all bookings (ordered by newest)
 router.get('/', requireAdmin, async (req, res) => {
@@ -28,6 +53,7 @@ router.post('/', async (req, res) => {
     const budget = String(req.body.budget || 'unsure').trim();
     const timeline = String(req.body.timeline || 'flexible').trim();
     const notes = String(req.body.notes || '').trim();
+    const voucherCode = String(req.body.voucherCode || '').trim().toUpperCase();
     if (!fullName || !email || !phone) {
       return res.status(400).json({ error: 'Missing required fields: fullName, email, phone' });
     }
@@ -47,6 +73,15 @@ router.post('/', async (req, res) => {
     if (!BUDGETS.has(budget) || !TIMELINES.has(timeline)) {
       return res.status(400).json({ error: 'Invalid budget or timeline' });
     }
+    if (voucherCode.length > 32) {
+      return res.status(400).json({ error: 'voucher_invalid' });
+    }
+
+    // Báo mã hỏng ngay để khách sửa, đừng nuốt đơn rồi im lặng bỏ ưu đãi.
+    const voucherPercent = voucherCode ? await claimServiceVoucher(voucherCode, email) : 0;
+    if (voucherPercent === null) {
+      return res.status(400).json({ error: 'voucher_invalid' });
+    }
 
     const booking = await Booking.create({
       fullName,
@@ -57,9 +92,11 @@ router.post('/', async (req, res) => {
       budget,
       timeline,
       notes,
+      voucherCode,
+      voucherPercent,
     });
 
-    res.status(201).json({ success: true, id: booking.id });
+    res.status(201).json({ success: true, id: booking.id, voucherPercent });
   } catch (error) {
     console.error('[booking submission]', error.message);
     res.status(500).json({ error: 'Unable to submit the booking request' });

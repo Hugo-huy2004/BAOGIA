@@ -9,6 +9,7 @@ import {
 import { setMediaSession, setMediaPlaybackState } from "../../services/mediaSession";
 import RadioTokenStatus, { useRadioHeartbeat } from "./RadioTokenStatus";
 import { useRadioStore, getRadioAudio, hlsHandle } from "../../stores/radioStore";
+import { joyText } from "../../lib/joyDisplay";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -776,7 +777,7 @@ function RadioStoreModal({ bio, showToast, onClose, onPurchased }) {
             SAU khi bấm mua và máy chủ trả về lỗi. */}
         <div className="flex items-center justify-between rounded-xl bg-muted border border-border px-4 py-3">
           <span className="text-[13px] text-muted-foreground">{t("utilities.radio.store.balance")}</span>
-          <span className="text-[15px] font-bold tabular-nums text-foreground">{nf.format(balance)} JOY</span>
+          <span className="text-[15px] font-bold tabular-nums text-foreground">{joyText(balance)}</span>
         </div>
 
         {/* Chọn số token */}
@@ -825,15 +826,15 @@ function RadioStoreModal({ bio, showToast, onClose, onPurchased }) {
         <div className="rounded-xl border border-border bg-muted px-4 py-3 flex flex-col gap-2 text-[13px]">
           <div className="flex justify-between">
             <span className="text-muted-foreground">{t("utilities.radio.store.unitPrice")}</span>
-            <span className="tabular-nums font-bold text-foreground">{nf.format(price.joyPerToken)} JOY</span>
+            <span className="tabular-nums font-bold text-foreground">{joyText(price.joyPerToken)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">{t("utilities.radio.store.fee", { percent: Math.round(price.feeRate * 100) })}</span>
-            <span className="tabular-nums font-bold text-foreground">{nf.format(fee)} JOY</span>
+            <span className="tabular-nums font-bold text-foreground">{joyText(fee)}</span>
           </div>
           <div className="flex justify-between border-t border-border pt-2 text-[15px]">
             <span className="font-bold text-foreground">{t("utilities.radio.store.total")}</span>
-            <span className="tabular-nums font-black text-info">{nf.format(total)} JOY</span>
+            <span className="tabular-nums font-black text-info">{joyText(total)}</span>
           </div>
         </div>
 

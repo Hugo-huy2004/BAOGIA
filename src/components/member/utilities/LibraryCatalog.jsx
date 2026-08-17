@@ -332,9 +332,7 @@ export default function LibraryCatalog({
             <div className="w-9 h-1 bg-muted rounded-full mx-auto sm:hidden" />
 
             <div className="flex items-center gap-4">
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradients[selectedApp.tint] || gradients.indigo} flex items-center justify-center text-white shadow-sm shrink-0`}>
-                <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>{selectedApp.icon}</span>
-              </div>
+              <UtilityAppIcon app={selectedApp} gradient={gradients[selectedApp.tint] || gradients.indigo} size="large" />
 
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-semibold text-foreground truncate">{selectedApp.title}</h3>

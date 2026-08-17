@@ -9,6 +9,8 @@ import { useHealingJourney } from "../../hooks/useHealingJourney";
 import { useTourStore } from "../../stores/tourStore";
 import TourSystem from "../../components/TourSystem";
 import { useJoyStore } from "../../stores/joyStore";
+import { setJoyDenom, setJoyRates } from "../../lib/joyDisplay";
+import { fetchJoyRates } from "../../services/joyApi";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
@@ -154,6 +156,15 @@ function MemberPortalPage() {
   // Chỉ nhận chuỗi: nhiều nút truyền thẳng event handler vào đây.
   const [particleMode, setParticleMode] = useState("search");
   const [weatherBackgroundOn, setWeatherBackgroundOn] = useState(() => isWeatherBgEnabled());
+  // Bị server chặn vì chưa chọn đơn vị JOY → mở ngay hộp thoại hồ sơ. Không có
+  // đường nào khác đi tiếp: modal này chỉ cho "để sau" khi không còn mục bắt buộc
+  // nào thiếu, nên đây đúng là chặn bắt buộc chứ không phải nhắc nhở.
+  useEffect(() => {
+    const onBlocked = () => setShowOnboarding(true);
+    window.addEventListener("hugo:profile-incomplete", onBlocked);
+    return () => window.removeEventListener("hugo:profile-incomplete", onBlocked);
+  }, []);
+
   const openParticleModal = useCallback((mode) => {
     setParticleMode(typeof mode === "string" ? mode : "search");
     setParticleOpen(true);
@@ -423,6 +434,12 @@ function MemberPortalPage() {
           }
           
           setBio(b);
+          // Đơn vị hiển thị JOY của tài khoản — đặt MỘT chỗ này rồi cả app đọc
+          // theo (src/lib/joyDisplay.js), không truyền prop qua từng màn.
+          setJoyDenom(b.joyDenom);
+          // Tỷ giá ngày: nạp một lần, mọi con số trong app đi theo. Không await —
+          // ví hiện bằng hệ số nền trước, thị trường về thì tự vẽ lại.
+          fetchJoyRates().then((rates) => rates && setJoyRates(rates));
           // Defer balance/referral-code fetch until onboarding (phone capture) is done —
           // GET /api/joy/balance eagerly calls ensureReferralCode, and we want phone
           // saved first so the generated code is phone-derived, not random.
@@ -785,7 +802,7 @@ function MemberPortalPage() {
     // Danh sách này phải khớp `isFullscreenLikeUtility` trong MemberUtilitiesTab.
     // Thiếu một id ở đây thì app vẫn dựng vỏ `h-full` của mình nhưng nằm trong
     // trang có đệm và tự cuộn — hai vùng cuộn lồng nhau làm hỏng vuốt/chạm.
-    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team"].includes(subTab) ||
+    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "joy_wallet"].includes(subTab) ||
     (subTab === "psychology" && isMobileView)
   ));
 
@@ -799,6 +816,25 @@ function MemberPortalPage() {
     && bio?.status !== "pending"
     && !isAppOpen
     && !fullSheetOpen;
+
+  // Modal gửi/nhận/quét JOY. Phải là MỘT biến dựng ở cả hai nhánh render: nhánh
+  // app toàn màn hình `return` sớm bên dưới, nên khi modal chỉ nằm ở cuối hàm thì
+  // bấm "Gửi JOY" trong ví (ví là app toàn màn hình) bật state mà không có gì
+  // hiện ra — nút trông như hỏng. Cùng lỗi với mọi app fullscreen khác gọi
+  // onOpenParticleModal (Chợ, HugoSO…).
+  const particleModal = particleOpen ? (
+    <React.Suspense fallback={null}>
+      <ParticleConnectModal
+        open
+        bio={bio}
+        initialMode={particleMode}
+        onClose={() => setParticleOpen(false)}
+        onSuccess={() => {
+          if (bio?.email) fetchJoyBalance(bio.email);
+        }}
+      />
+    </React.Suspense>
+  ) : null;
 
   if (isFullscreenUtility) {
     // h-[100dvh] (not h-screen/100vh) so this actually shrinks with the
@@ -819,6 +855,7 @@ function MemberPortalPage() {
           <ErrorBoundary>
             <React.Suspense fallback={<div className="flex items-center justify-center h-full w-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
               <MemberUtilitiesTab
+                onOpenParticleModal={openParticleModal}
                 bio={bio}
                 publicLink={publicLink}
                 showToast={showToast}
@@ -838,6 +875,7 @@ function MemberPortalPage() {
         </div>
         
         <CropModal cropModal={cropModal} setCropModal={setCropModal} handleDragStart={handleDragStart} handleDragMove={handleDragMove} handleDragEnd={handleDragEnd} handleCropSave={handleCropSave} t={t} />
+        {particleModal}
         {showOnboarding && !isGuestMode && memberSession?.email && (
           <OnboardingProfileModal
             email={memberSession.email}
@@ -925,7 +963,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -990,7 +1028,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1131,19 +1169,7 @@ function MemberPortalPage() {
       />
     )}
 
-    {particleOpen && (
-      <React.Suspense fallback={null}>
-        <ParticleConnectModal
-          open
-          bio={bio}
-          initialMode={particleMode}
-          onClose={() => setParticleOpen(false)}
-          onSuccess={() => {
-            if (bio?.email) fetchJoyBalance(bio.email);
-          }}
-        />
-      </React.Suspense>
-    )}
+    {particleModal}
     </>
   );
 }

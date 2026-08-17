@@ -38,11 +38,6 @@ import { changeAppLanguage } from "../../i18n/config";
 
 // Ví JOY sống trong Tài khoản, nhưng mỗi màn chỉ nạp khi thật sự mở ra — trang
 // Tài khoản là màn hay vào nhất, đừng bắt nó tải cả cửa hàng lẫn tài liệu.
-const JoyPerks = React.lazy(() => import("./joy/JoyPerks"));
-const JoyMissions = React.lazy(() => import("./joy/JoyMissions"));
-const JoyHistory = React.lazy(() => import("./joy/JoyHistory"));
-const JoyRedeem = React.lazy(() => import("./joy/JoyRedeem"));
-const MemberUtilityStoreTab = React.lazy(() => import("./MemberUtilityStoreTab"));
 const MemberManageTab = React.lazy(() => import("./MemberManageTab"));
 const MemberDocReader = React.lazy(() => import("./account/MemberDocReader"));
 
@@ -80,6 +75,11 @@ export default function MemberSettingsTab({
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const memberDocuments = useMemo(() => ({
+    "doc:joy-rules": {
+      id: "joy-rules",
+      title: t("memberPortal.accountHub.documents.joyRulesTitle"),
+      subtitle: t("memberPortal.accountHub.documents.joyRulesSubtitle"),
+    },
     "doc:privileges": {
       id: "privileges",
       title: t("memberPortal.accountHub.documents.privilegesTitle"),
@@ -113,16 +113,17 @@ export default function MemberSettingsTab({
   const joyBalance = useJoyStore((state) => state.balance);
   const referralCode = useJoyStore((state) => state.referralCode);
   const referralCount = useJoyStore((state) => state.referralCount);
-  const setBalance = useJoyStore((state) => state.setBalance);
-
+  
   // Dữ liệu phụ của ví chỉ tải khi mở đúng sheet. Trang Tài khoản dùng dữ liệu
   // bootstrap sẵn có nên không tạo thêm request ngay khi vừa vào.
   const [perks, setPerks] = useState(null);
-  const [perksLoading, setPerksLoading] = useState(false);
+  // Giá trị loading/error chỉ dùng để hiện trong sheet ví — sheet đó đã chuyển
+  // sang app Ví JOY, nhưng loader vẫn cần setter để badge ở hàng dẫn vào app đúng.
+  const [, setPerksLoading] = useState(false);
   const [perksLoaded, setPerksLoaded] = useState(false);
-  const [perksError, setPerksError] = useState("");
+  const [, setPerksError] = useState("");
   const [challenges, setChallenges] = useState([]);
-  const [challengesLoading, setChallengesLoading] = useState(false);
+  const [, setChallengesLoading] = useState(false);
   const [challengesLoaded, setChallengesLoaded] = useState(false);
   const [hasPin, setHasPin] = useState(
     typeof initialHasPin === "boolean" ? initialHasPin : null,
@@ -241,6 +242,14 @@ export default function MemberSettingsTab({
       checkHasPin().then((data) => setHasPin(Boolean(data.hasPin))).catch(() => {});
     }
   };
+  // Ví JOY giờ là ỨNG DỤNG riêng. Trang Tài khoản chỉ còn một cửa dẫn vào đó —
+  // không giữ bản ví thứ hai để hai nơi không trôi lệch nhau.
+  const openWalletApp = () => {
+    hapticSelect();
+    if (onSelectUtility) onSelectUtility("joy_wallet");
+    else if (onSelectTab) onSelectTab("utilities");
+  };
+
   const openMemberDocument = (id) => {
     hapticSelect();
     navigate(`/member/account/${id}`);
@@ -271,10 +280,11 @@ export default function MemberSettingsTab({
   const pendingJoy = pendingMissions.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
   const completedCount = challenges.filter((c) => c.completed).length;
 
+  // MỘT lối vào duy nhất. Ba nút "gửi / mã nhận / quét" mở đúng cùng một modal,
+  // và modal đó đã có sẵn ba tab bên trong — ba nút ngoài chỉ làm người dùng phải
+  // chọn trước khi biết mình chọn gì.
   const quickActions = [
-    { mode: "search", icon: "send", label: t("memberPortal.accountHub.sendJoy") },
-    { mode: "myqr", icon: "qr_code_2", label: t("memberPortal.accountHub.receiveJoy") },
-    { mode: "scan", icon: "qr_code_scanner", label: t("memberPortal.accountHub.scanCode") },
+    { mode: "search", icon: "send", label: t("memberPortal.walletApp.sendJoy") },
   ];
 
   return (
@@ -326,7 +336,7 @@ export default function MemberSettingsTab({
       {walletReady && (
         <>
           <section className="hugo-account-overview" aria-label={t("memberPortal.accountHub.overviewAria")}>
-            <button type="button" onClick={() => openSheet("wallet")}>
+            <button type="button" onClick={openWalletApp}>
               <span className="material-symbols-outlined">toll</span>
               <small>{t("memberPortal.accountHub.balance")}</small>
               <strong>{(joyBalance || 0).toLocaleString(numberLocale)}</strong>
@@ -347,7 +357,7 @@ export default function MemberSettingsTab({
           </section>
 
           <section className="hugo-account-quickbar" aria-label={t("memberPortal.accountHub.quickActionsAria")}>
-            <button type="button" onClick={() => openSheet("wallet")}>
+            <button type="button" onClick={openWalletApp}>
               <span className="material-symbols-outlined">account_balance_wallet</span><small>{t("memberPortal.accountHub.center")}</small>
             </button>
             {quickActions.map((action) => (
@@ -389,7 +399,6 @@ export default function MemberSettingsTab({
       {activeSheet === "__legacy-card" && <section className="hugo-account-joy-card" aria-label={t("memberPortal.account.membershipCard")}>
         <MemberCardStack
           referralCount={referralCount}
-          balance={joyBalance}
           referralCode={referralCode || bio?.referralCode}
           displayName={displayName}
           email={email}
@@ -440,51 +449,12 @@ export default function MemberSettingsTab({
 
           <AccountSection title={t("memberPortal.accountHub.walletSection")}>
             <AccountRow
-              symbol="confirmation_number"
+              symbol="account_balance_wallet"
               tint="orange"
-              title={t("memberPortal.accountHub.myPerks")}
-              detail={
-                spinAvailable
-                  ? t("memberPortal.accountHub.luckySpinRemaining")
-                  : t("memberPortal.accountHub.perksSummary", { vouchers: activeVoucherCount, orders: perks?.orders?.length || 0 })
-              }
-              badge={(spinAvailable ? 1 : 0) + activeVoucherCount}
-              onClick={() => openSheet("perks")}
-            />
-            <AccountRow
-              symbol="task_alt"
-              tint="green"
-              title={t("memberPortal.accountHub.todayMissions")}
-              detail={
-                challengesLoading
-                  ? t("memberPortal.accountHub.loading")
-                  : pendingMissions.length
-                    ? t("memberPortal.accountHub.pendingJoyLong", { amount: pendingJoy })
-                    : t("memberPortal.accountHub.missionProgress", { completed: completedCount, total: challenges.length })
-              }
-              badge={pendingMissions.length}
-              onClick={() => openSheet("missions")}
-            />
-            <AccountRow
-              symbol="receipt_long"
-              tint="blue"
-              title={t("memberPortal.accountHub.walletHistory")}
-              detail={t("memberPortal.accountHub.walletHistoryDetail")}
-              onClick={() => openSheet("history")}
-            />
-            <AccountRow
-              symbol="storefront"
-              tint="pink"
-              title={t("memberPortal.accountHub.perksStore")}
-              detail={t("memberPortal.accountHub.perksStoreDetail")}
-              onClick={() => openSheet("store")}
-            />
-            <AccountRow
-              symbol="redeem"
-              tint="violet"
-              title={t("memberPortal.accountHub.redeemReferral")}
-              detail={t("memberPortal.accountHub.redeemReferralDetail")}
-              onClick={() => openSheet("redeem")}
+              title={t("memberPortal.walletApp.title")}
+              detail={t("utilities.catalog.joy_wallet.description")}
+              badge={(spinAvailable ? 1 : 0) + activeVoucherCount + pendingMissions.length}
+              onClick={openWalletApp}
             />
           </AccountSection>
         </>
@@ -494,6 +464,13 @@ export default function MemberSettingsTab({
           Đặc quyền và điều kiện là thứ để TRA, nên viết thành văn bản như trang
           chính sách chứ không phải carousel thẻ vuốt ngang. */}
       <AccountSection title={t("memberPortal.accountHub.memberSection")}>
+        <AccountRow
+          symbol="toll"
+          tint="amber"
+          title={t("memberPortal.accountHub.documents.joyRulesTitle")}
+          detail={t("memberPortal.accountHub.documents.joyRulesDetail")}
+          onClick={() => openMemberDocument("joy-rules")}
+        />
         <AccountRow
           symbol="shield_lock"
           tint="blue"
@@ -522,6 +499,9 @@ export default function MemberSettingsTab({
           detail={t("memberPortal.accountHub.documents.fullTextDetail")}
           onClick={() => openMemberDocument("full-text")}
         />
+      </AccountSection>
+
+      <AccountSection title={t("memberPortal.settings.account.bioTitle")}>
         <AccountRow
           symbol="package_2"
           tint="emerald"
@@ -529,9 +509,6 @@ export default function MemberSettingsTab({
           detail={t("memberPortal.accountHub.manageDetail")}
           onClick={() => openSheet("manage")}
         />
-      </AccountSection>
-
-      <AccountSection title={t("memberPortal.settings.account.bioTitle")}>
         <AccountRow
           icon={Sparkles}
           tint="violet"
@@ -636,60 +613,7 @@ export default function MemberSettingsTab({
         </AccountSheet>
       )}
 
-      {activeSheet === "wallet" && (
-        <AccountSheet title={t("memberPortal.accountHub.joyCenterTitle")} subtitle={t("memberPortal.accountHub.joyCenterSubtitle")} onClose={closeSheet} wide>
-          <div className="hugo-account-wallet-sheet">
-            <MemberCardStack
-              referralCount={referralCount}
-              balance={joyBalance}
-              referralCode={referralCode || bio?.referralCode}
-              displayName={displayName}
-              email={email}
-              onCopyReferral={copyReferralCode}
-            />
-            <section className="hugo-account-quickbar" aria-label={t("memberPortal.accountHub.joyActionsAria")}>
-              {quickActions.map((action) => (
-                <button
-                  key={action.mode}
-                  type="button"
-                  onClick={() => { hapticSelect(); onOpenParticleModal?.(action.mode); }}
-                >
-                  <span className="material-symbols-outlined">{action.icon}</span><small>{action.label}</small>
-                </button>
-              ))}
-            </section>
-            <CheckinCard email={email} showToast={showToast} />
-            {hasPin === false && (
-              <button type="button" className="hugo-account-wallet-pin" onClick={() => { hapticSelect(); onOpenParticleModal?.("setup-pin"); }}>
-                <span className="material-symbols-outlined">lock_open</span>
-                <span><strong>{t("memberPortal.accountHub.pinMissing")}</strong><small>{t("memberPortal.accountHub.pinDescription")}</small></span>
-                <ChevronRight />
-              </button>
-            )}
-            <div className="hugo-account-group">
-              <AccountRow
-                symbol="task_alt"
-                tint="green"
-                title={t("memberPortal.accountHub.todayMissions")}
-                detail={pendingMissions.length ? t("memberPortal.accountHub.pendingJoyLong", { amount: pendingJoy }) : t("memberPortal.accountHub.missionProgress", { completed: completedCount, total: challenges.length })}
-                badge={pendingMissions.length}
-                onClick={() => openSheet("missions")}
-              />
-              <AccountRow
-                symbol="confirmation_number"
-                tint="orange"
-                title={t("memberPortal.accountHub.myPerks")}
-                detail={spinAvailable ? t("memberPortal.accountHub.luckySpinRemaining") : t("memberPortal.accountHub.voucherCount", { count: activeVoucherCount })}
-                badge={(spinAvailable ? 1 : 0) + activeVoucherCount}
-                onClick={() => openSheet("perks")}
-              />
-              <AccountRow symbol="receipt_long" tint="blue" title={t("memberPortal.accountHub.walletHistory")} detail={t("memberPortal.accountHub.walletHistoryShort")} onClick={() => openSheet("history")} />
-              <AccountRow symbol="storefront" tint="pink" title={t("memberPortal.accountHub.perksStore")} detail={t("memberPortal.accountHub.perksStoreShort")} onClick={() => openSheet("store")} />
-              <AccountRow symbol="redeem" tint="violet" title={t("memberPortal.accountHub.redeemReferral")} detail={t("memberPortal.accountHub.redeemReferralShort")} onClick={() => openSheet("redeem")} />
-            </div>
-          </div>
-        </AccountSheet>
-      )}
+      
 
       {activeSheet === "themes" && (
         <AccountSheet
@@ -702,57 +626,17 @@ export default function MemberSettingsTab({
         </AccountSheet>
       )}
 
-      {activeSheet === "perks" && (
-        <AccountSheet title={t("memberPortal.accountHub.myPerks")} subtitle={t("memberPortal.accountHub.myPerksSubtitle")} onClose={closeSheet}>
-          <React.Suspense fallback={<SheetFallback />}>
-            <JoyPerks perks={perks} loading={perksLoading} error={perksError} onReload={loadPerks} email={email} />
-          </React.Suspense>
-        </AccountSheet>
-      )}
+      
 
-      {activeSheet === "missions" && (
-        <AccountSheet title={t("memberPortal.accountHub.todayMissions")} subtitle={t("memberPortal.accountHub.todayMissionsSubtitle")} onClose={closeSheet}>
-          <React.Suspense fallback={<SheetFallback />}>
-            <JoyMissions
-              email={email}
-              showToast={showToast}
-              challenges={challenges}
-              loading={challengesLoading}
-              onReload={loadChallenges}
-            />
-          </React.Suspense>
-        </AccountSheet>
-      )}
+      
 
-      {activeSheet === "history" && (
-        <AccountSheet title={t("memberPortal.accountHub.walletHistory")} subtitle={t("memberPortal.accountHub.walletHistorySubtitle")} onClose={closeSheet}>
-          <React.Suspense fallback={<SheetFallback />}>
-            <JoyHistory />
-          </React.Suspense>
-        </AccountSheet>
-      )}
+      
 
-      {activeSheet === "store" && (
-        <AccountSheet title={t("memberPortal.accountHub.perksStore")} subtitle={t("memberPortal.accountHub.balanceSubtitle", { balance: (joyBalance || 0).toLocaleString(numberLocale) })} onClose={closeSheet} wide>
-          <React.Suspense fallback={<SheetFallback />}>
-            <MemberUtilityStoreTab
-              bio={bio}
-              balance={joyBalance}
-              onPurchased={(newBalance) => { setBalance(newBalance); loadPerks(); }}
-              onBioUpdate={onBioUpdate}
-              showToast={showToast}
-            />
-          </React.Suspense>
-        </AccountSheet>
-      )}
+      
 
-      {activeSheet === "redeem" && (
-        <AccountSheet title={t("memberPortal.accountHub.redeemReferral")} onClose={closeSheet}>
-          <React.Suspense fallback={<SheetFallback />}>
-            <JoyRedeem email={email} bio={bio} showToast={showToast} onBioUpdate={onBioUpdate} />
-          </React.Suspense>
-        </AccountSheet>
-      )}
+      
+
+      
 
       {activeSheet === "manage" && (
         <AccountSheet title={t("memberPortal.accountHub.manageTitle")} onClose={closeSheet} wide>

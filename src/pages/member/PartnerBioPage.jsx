@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import dataApi from "../../services/dataApi";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
@@ -89,6 +90,7 @@ const normalizeEmail = (value = "") => value.trim().toLowerCase();
 const isValidEmail = (value = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 export default function PartnerBioPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const emailParam = normalizeEmail(searchParams.get("email") || "");
   const partnerId = searchParams.get("partnerId");
@@ -359,7 +361,7 @@ export default function PartnerBioPage() {
       <main className="min-h-screen bg-background flex items-center justify-center text-center">
         <div className="space-y-3">
           <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Đang xác thực quyền đối tác...</p>
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{t("memberPortal.partnerBio.dangXacThucQuyen")}</p>
         </div>
       </main>
     );
@@ -372,9 +374,9 @@ export default function PartnerBioPage() {
           <div className="w-12 h-12 mx-auto rounded-lg bg-destructive/10 dark:bg-destructive/15 text-destructive flex items-center justify-center">
             <span className="material-symbols-outlined">lock</span>
           </div>
-          <h2 className="text-base font-bold">Không Có Quyền Truy Cập</h2>
+          <h2 className="text-base font-bold">{t("memberPortal.partnerBio.khongCoQuyenTruy")}</h2>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Trang tạo Bio này chỉ hoạt động qua link hoặc iframe đã được Hugo Studio cấp riêng cho đối tác.
+            {t("memberPortal.partnerBio.trangTaoBioNay")}
           </p>
         </div>
       </main>
@@ -389,9 +391,9 @@ export default function PartnerBioPage() {
             <HugoLogo className="text-sm font-black" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-base font-bold">Kích Hoạt Bio Link</h2>
+            <h2 className="text-base font-bold">{t("memberPortal.partnerBio.kichHoatBioLink")}</h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {partnerName} cần cung cấp email người dùng để Hugo Studio tạo và đồng bộ Bio Link miễn phí, không cần đăng nhập vào hệ thống Hugo Studio.
+              {partnerName} {t("memberPortal.partnerBio.canCungCapEmail")}
             </p>
           </div>
 
@@ -400,7 +402,7 @@ export default function PartnerBioPage() {
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <input
               type="email"
-              placeholder="Email của bạn..."
+              placeholder={t("memberPortal.partnerBio.emailCuaBan")}
               value={inputEmail}
               onChange={(e) => setInputEmail(e.target.value)}
               className="w-full text-center px-4 py-3 rounded-md bg-muted/50 border border-border text-xs focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
@@ -410,7 +412,7 @@ export default function PartnerBioPage() {
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-md text-xs uppercase tracking-wider transition-all"
             >
-              Thiết Kế Ngay
+              {t("memberPortal.partnerBio.thietKeNgay")}
             </button>
           </form>
         </div>
@@ -423,7 +425,7 @@ export default function PartnerBioPage() {
       <main className="min-h-screen bg-background flex items-center justify-center text-center">
         <div className="space-y-3">
           <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Đang tải cấu hình Bio...</p>
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{t("memberPortal.partnerBio.dangTaiCauHinh")}</p>
         </div>
       </main>
     );
@@ -447,7 +449,7 @@ export default function PartnerBioPage() {
               {partnerName} • HUGO STUDIO
             </span>
             <h1 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
-              Cá nhân hóa Bio Link của: <span className="text-muted-foreground dark:text-muted-foreground/70">{email}</span>
+              {t("memberPortal.partnerBio.caNhanHoaBio")} <span className="text-muted-foreground dark:text-muted-foreground/70">{email}</span>
             </h1>
           </div>
 
@@ -485,7 +487,7 @@ export default function PartnerBioPage() {
                       )}
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[8px] font-bold z-20">
                         <span className="material-symbols-outlined text-xs">photo_camera</span>
-                        <span>SỬA</span>
+                        <span>{t("memberPortal.partnerBio.sua")}</span>
                       </div>
                     </div>
                     <input
@@ -496,15 +498,15 @@ export default function PartnerBioPage() {
                       className="hidden"
                     />
                     <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">Ảnh đại diện</p>
-                      <p className="text-[8px] text-zinc-400">Hình ảnh hiển thị trung tâm trên thiết bị của đối tác.</p>
+                      <p className="text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider">{t("memberPortal.partnerBio.anhDaiDien")}</p>
+                      <p className="text-[8px] text-zinc-400">{t("memberPortal.partnerBio.hinhAnhHienThi")}</p>
                       {bioData.avatarUrl && (
                         <button
                           type="button"
                           onClick={removeAvatar}
                           className="text-[9px] font-bold text-destructive hover:underline"
                         >
-                          Gỡ ảnh
+                          {t("memberPortal.partnerBio.goAnh")}
                         </button>
                       )}
                     </div>
@@ -514,7 +516,7 @@ export default function PartnerBioPage() {
                   <div className="bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">person</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Họ và Tên</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.hoVaTen")}</label>
                       <input
                         type="text"
                         name="displayName"
@@ -526,7 +528,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">badge</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Biệt danh</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.bietDanh")}</label>
                       <input
                         type="text"
                         name="headline"
@@ -537,7 +539,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-start gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0 mt-0.5">description</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0 mt-1">Giới thiệu</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0 mt-1">{t("memberPortal.partnerBio.gioiThieu")}</label>
                       <textarea
                         name="bio"
                         rows={2}
@@ -552,7 +554,7 @@ export default function PartnerBioPage() {
                   <div className="bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden divide-y divide-zinc-100 dark:divide-zinc-800/50">
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">school</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Học vấn</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.hocVan")}</label>
                       <input
                         type="text"
                         name="education"
@@ -563,7 +565,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">work</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Nghề nghiệp</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.ngheNghiep")}</label>
                       <input
                         type="text"
                         name="jobTitle"
@@ -574,7 +576,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">call</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Số điện thoại</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.soDienThoai")}</label>
                       <input
                         type="text"
                         name="phone"
@@ -585,7 +587,7 @@ export default function PartnerBioPage() {
                     </div>
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <span className="material-symbols-outlined text-zinc-400 text-lg shrink-0">mail</span>
-                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">Email liên hệ</label>
+                      <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-24 shrink-0">{t("memberPortal.partnerBio.emailLienHe")}</label>
                       <input
                         type="text"
                         name="contactEmail"
@@ -598,7 +600,7 @@ export default function PartnerBioPage() {
 
                   {/* Links Editor */}
                   <div className="bg-white dark:bg-card p-5 rounded-xl border border-border/50 shadow-sm space-y-4">
-                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">LIÊN KẾT MẠNG XÃ HỘI (Tối đa 5)</h3>
+                    <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t("memberPortal.partnerBio.lienKetMangXa")}</h3>
                     
                     {bioData.links.length > 0 && (
                       <div className="space-y-2">
@@ -625,7 +627,7 @@ export default function PartnerBioPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <input
                             type="text"
-                            placeholder="Nhãn (VD: Zalo, Instagram...)"
+                            placeholder={t("memberPortal.partnerBio.nhanVdZaloInstagram")}
                             value={newLinkLabel}
                             onChange={(e) => setNewLinkLabel(e.target.value)}
                             className="bg-white dark:bg-background border border-border rounded-md p-2.5 text-xs focus:outline-none"
@@ -643,7 +645,7 @@ export default function PartnerBioPage() {
                           onClick={addLink}
                           className="w-full bg-primary/10 hover:bg-primary/20 text-primary font-bold py-2 rounded-md text-[10px] uppercase tracking-wider transition-colors"
                         >
-                          + Thêm liên kết mạng xã hội
+                          {t("memberPortal.partnerBio.themLienKetMang")}
                         </button>
                       </div>
                     )}
@@ -653,8 +655,8 @@ export default function PartnerBioPage() {
               {/* Form submit controller */}
               <div className="flex items-center justify-between gap-4 p-4 bg-white dark:bg-card rounded-xl border border-border/50 shadow-sm">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">LƯU CÀI ĐẶT</p>
-                  <p className="text-[8px] text-zinc-400 truncate">Hệ thống đồng bộ dữ liệu đám mây của đối tác.</p>
+                  <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.partnerBio.luuCaiDat")}</p>
+                  <p className="text-[8px] text-zinc-400 truncate">{t("memberPortal.partnerBio.heThongDongBo")}</p>
                 </div>
                 <button
                   type="submit"
@@ -664,12 +666,12 @@ export default function PartnerBioPage() {
                   {saving ? (
                     <>
                       <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Đang lưu...</span>
+                      <span>{t("memberPortal.partnerBio.dangLuu")}</span>
                     </>
                   ) : (
                     <>
                       <span className="material-symbols-outlined text-xs">save</span>
-                      <span>Lưu thông tin</span>
+                      <span>{t("memberPortal.partnerBio.luuThongTin")}</span>
                     </>
                   )}
                 </button>
@@ -737,7 +739,7 @@ export default function PartnerBioPage() {
                       <div className="relative z-20 w-full flex flex-col items-center text-center space-y-4 px-2">
                         <div className="space-y-2 w-full drop-shadow-lg">
                           <h2 className="font-serif text-2xl uppercase tracking-[0.14em] leading-tight we-bare-bears break-words">
-                            <RenderColoredText text={bioData.displayName || "CHƯA NHẬP TÊN"} />
+                            <RenderColoredText text={bioData.displayName || t("memberPortal.partnerBio.chuaNhapTen")} />
                           </h2>
                           {bioData.headline && (
                             <p className="text-[9px] tracking-[0.26em] font-light text-white/80 uppercase we-bare-bears">
@@ -764,7 +766,7 @@ export default function PartnerBioPage() {
                             IDENTITY PROFILE
                           </div>
                           <h3 className="text-xl font-black uppercase tracking-[0.1em] font-serif we-bare-bears hugo-studio-gradient">
-                            Về Bản Thân
+                            {t("memberPortal.partnerBio.veBanThan")}
                           </h3>
                         </div>
 
@@ -784,7 +786,7 @@ export default function PartnerBioPage() {
                               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                                 <div className="flex items-center gap-1.5 text-white/40">
                                   <span className="material-symbols-outlined text-sm">work</span>
-                                  <span className="uppercase tracking-widest text-[8px]">Công việc</span>
+                                  <span className="uppercase tracking-widest text-[8px]">{t("memberPortal.partnerBio.congViec")}</span>
                                 </div>
                                 <p className="font-semibold tracking-wide text-white/90 text-right max-w-[58%]">{bioData.jobTitle}</p>
                               </div>
@@ -793,7 +795,7 @@ export default function PartnerBioPage() {
                               <div className="flex items-center justify-between border-b border-white/5 pb-2">
                                 <div className="flex items-center gap-1.5 text-white/40">
                                   <span className="material-symbols-outlined text-sm">history_edu</span>
-                                  <span className="uppercase tracking-widest text-[8px]">Học vấn</span>
+                                  <span className="uppercase tracking-widest text-[8px]">{t("memberPortal.partnerBio.hocVan")}</span>
                                 </div>
                                 <p className="font-semibold tracking-wide text-white/90 text-right max-w-[58%]">{bioData.education}</p>
                               </div>
@@ -827,7 +829,7 @@ export default function PartnerBioPage() {
 
                       <div className="relative z-20 w-full space-y-7">
                         <div className="text-center">
-                          <h3 className="text-[10px] tracking-[0.35em] uppercase text-white/50 font-bold">Các Liên Kết</h3>
+                          <h3 className="text-[10px] tracking-[0.35em] uppercase text-white/50 font-bold">{t("memberPortal.partnerBio.cacLienKet")}</h3>
                         </div>
 
                         {bioData.links && bioData.links.length > 0 ? (
@@ -846,7 +848,7 @@ export default function PartnerBioPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-center text-[10px] text-white/50 italic">Chưa thêm liên kết nào...</p>
+                          <p className="text-center text-[10px] text-white/50 italic">{t("memberPortal.partnerBio.chuaThemLienKet")}</p>
                         )}
 
                       </div>
@@ -863,7 +865,7 @@ export default function PartnerBioPage() {
             {/* Quick Public Link Preview */}
             {shareUrl && (
               <div className="mt-4 flex flex-col items-center space-y-1 text-center">
-                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Đường dẫn công khai:</span>
+                <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{t("memberPortal.partnerBio.duongDanCongKhai")}</span>
                 <a 
                   href={shareUrl} 
                   target="_blank" 
@@ -886,8 +888,8 @@ export default function PartnerBioPage() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-background border border-border rounded-xl p-6 max-w-sm w-full space-y-4 shadow-2xl">
             <div className="text-center space-y-1">
-              <h3 className="font-bold text-xs text-foreground uppercase tracking-wider">Căn Chỉnh Hình Ảnh</h3>
-              <p className="text-[9px] text-zinc-400">Nhấn và kéo để di chuyển vùng cắt thích hợp.</p>
+              <h3 className="font-bold text-xs text-foreground uppercase tracking-wider">{t("memberPortal.partnerBio.canChinhHinhAnh")}</h3>
+              <p className="text-[9px] text-zinc-400">{t("memberPortal.partnerBio.nhanVaKeoDe")}</p>
             </div>
 
             <div 
@@ -919,7 +921,7 @@ export default function PartnerBioPage() {
             {/* Slider zoom */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-[8px] font-bold text-zinc-400">
-                <span>TỶ LỆ PHÓNG TO</span>
+                <span>{t("memberPortal.partnerBio.tyLePhongTo")}</span>
                 <span>{Math.round(cropper.zoom * 100)}%</span>
               </div>
               <input
@@ -939,14 +941,14 @@ export default function PartnerBioPage() {
                 onClick={() => setCropper({ isOpen: false, imageSrc: null, zoom: 1, aspect: 1, offset: { x: 0, y: 0 } })}
                 className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-zinc-200 py-2.5 rounded-md text-[10px] font-bold transition-all"
               >
-                Hủy
+                {t("memberPortal.partnerBio.huy")}
               </button>
               <button
                 type="button"
                 onClick={saveCroppedImage}
                 className="flex-grow bg-primary hover:bg-primary/90 text-white py-2.5 rounded-md text-[10px] font-bold transition-all"
               >
-                Lưu Vùng Cắt
+                {t("memberPortal.partnerBio.luuVungCat")}
               </button>
             </div>
           </div>

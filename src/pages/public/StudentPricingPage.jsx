@@ -101,7 +101,7 @@ function PlanCard({ plan, vi, t }) {
       <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{plan.desc}</p>
 
       <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-        {vi ? "Bạn nhận được" : "What you get"}
+        {vi ? t("studentPricing.banNhanDuoc") : "What you get"}
       </p>
       <ul className="mt-3 space-y-2">
         {plan.includes?.map((item) => (
@@ -342,7 +342,7 @@ export default function StudentPricingPage() {
             className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span>
-            {vi ? "Quay lại Dịch vụ" : "Back to Services"}
+            {vi ? t("studentPricing.quayLaiDichVu") : "Back to Services"}
           </Link>
         </div>
 
@@ -351,23 +351,23 @@ export default function StudentPricingPage() {
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
               <span className="material-symbols-outlined text-[13px]">school</span>
-              {vi ? "Đặc quyền người học" : "Academic specials"}
+              {vi ? t("studentPricing.dacQuyenNguoiHoc") : "Academic specials"}
             </span>
             <h1 className="font-display mt-4 text-4xl font-black leading-[1.08] tracking-tight text-foreground md:text-5xl">
-              {vi ? "Đặc quyền & bảng giá dành riêng HSSV" : "Student perks & pricing"}
+              {vi ? t("studentPricing.dacQuyenBangGia") : "Student perks & pricing"}
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
               {vi
-                ? "Xác minh email trường một lần là mở khoá trang Bio miễn phí 12 tháng và giá HSSV cho mọi gói bên dưới."
+                ? t("studentPricing.xacMinhEmailTruong")
                 : "Verify your school email once to unlock a free 12-month Bio page and student pricing on every plan below."}
             </p>
 
             <ul className="mt-8 grid gap-3 sm:grid-cols-3">
               {(vi
                 ? [
-                    { icon: "block", title: "Chỉ coursework cuối môn", desc: "Không đồ án chuyên ngành, không đồ án tốt nghiệp, không viết báo cáo hộ." },
-                    { icon: "cloud_download", title: "Bàn giao qua Git", desc: "Link repo để bạn clone về, kèm tài liệu hướng dẫn chạy và giải thích code." },
-                    { icon: "straighten", title: "Giá cố định, có trần", desc: "Mỗi gói ghi rõ dừng ở đâu, nên không có phát sinh giữa chừng." },
+                    { icon: "block", title: t("studentPricing.chiCourseworkCuoiMon"), desc: t("studentPricing.khongDoAnChuyen") },
+                    { icon: "cloud_download", title: t("studentPricing.banGiaoQuaGit"), desc: t("studentPricing.linkRepoDeBan") },
+                    { icon: "straighten", title: t("studentPricing.giaCoDinhCo"), desc: t("studentPricing.moiGoiGhiRo") },
                   ]
                 : [
                     { icon: "block", title: "End-of-term work only", desc: "No capstone projects, no graduation projects, no writing your report." },
@@ -393,10 +393,10 @@ export default function StudentPricingPage() {
               />
               <div>
                 <h2 className="font-display text-base font-bold text-foreground">
-                  {vi ? "Kiểm duyệt tự động" : "Automatic verification"}
+                  {vi ? t("studentPricing.kiemDuyetTuDong") : "Automatic verification"}
                 </h2>
                 <p className="text-[11px] text-muted-foreground">
-                  {vi ? "Không cần gửi thẻ sinh viên." : "No student card uploads."}
+                  {vi ? t("studentPricing.khongCanGuiThe") : "No student card uploads."}
                 </p>
               </div>
             </div>
@@ -405,31 +405,31 @@ export default function StudentPricingPage() {
               <StepRow
                 state={session?.email ? "done" : "todo"}
                 icon="account_circle"
-                title={vi ? "Đăng nhập bằng Google" : "Sign in with Google"}
-                desc={session?.email || (vi ? "Dùng tài khoản Google của trường bạn." : "Use your school Google account.")}
+                title={vi ? t("studentPricing.dangNhapBangGoogle") : "Sign in with Google"}
+                desc={session?.email || (vi ? t("studentPricing.dungTaiKhoanGoogle") : "Use your school Google account.")}
               />
               <StepRow
                 state={eduState === "checking" ? "loading" : verified ? "done" : eduState === "pending" ? "warn" : "todo"}
                 icon="alternate_email"
-                title={vi ? "Kiểm tra email giáo dục" : "Educational email check"}
+                title={vi ? t("studentPricing.kiemTraEmailGiao") : "Educational email check"}
                 desc={
                   eduState === "checking"
-                    ? vi ? "Đang đối chiếu tên miền..." : "Checking the domain..."
+                    ? vi ? t("studentPricing.dangDoiChieuTen") : "Checking the domain..."
                     : verified
-                      ? vi ? "Tên miền .edu / .ac hợp lệ." : "Valid .edu / .ac domain."
+                      ? vi ? t("studentPricing.tenMienEduAc") : "Valid .edu / .ac domain."
                       : eduState === "pending"
-                        ? vi ? "Không phải email trường — hồ sơ chuyển sang chờ duyệt tay." : "Not a school email — moved to manual review."
-                        : vi ? "Tự chạy ngay sau khi đăng nhập." : "Runs automatically after sign-in."
+                        ? vi ? t("studentPricing.khongPhaiEmailTruong") : "Not a school email — moved to manual review."
+                        : vi ? t("studentPricing.tuChayNgaySau") : "Runs automatically after sign-in."
                 }
               />
               <StepRow
                 state={verified ? "done" : eduState === "pending" ? "warn" : "todo"}
                 icon="redeem"
-                title={vi ? "Mở đặc quyền HSSV" : "Unlock student perks"}
+                title={vi ? t("studentPricing.moDacQuyenHssv") : "Unlock student perks"}
                 desc={
                   verified
-                    ? vi ? "Bio miễn phí 12 tháng + giá HSSV đã áp dụng." : "Free 12-month Bio + student pricing applied."
-                    : vi ? "Bio miễn phí 12 tháng và giá HSSV cho mọi gói bên dưới." : "Free 12-month Bio and student pricing on every plan below."
+                    ? vi ? t("studentPricing.bioMienPhi12") : "Free 12-month Bio + student pricing applied."
+                    : vi ? t("studentPricing.bioMienPhi122") : "Free 12-month Bio and student pricing on every plan below."
                 }
               />
             </ul>
@@ -475,7 +475,7 @@ export default function StudentPricingPage() {
                   to="/member"
                   className="block w-full rounded-2xl bg-foreground py-3 text-center text-xs font-bold text-background transition-all hover:bg-foreground/90 active:scale-98"
                 >
-                  {vi ? "Nhận trang Bio miễn phí 12 tháng" : "Claim your free 12-month Bio"}
+                  {vi ? t("studentPricing.nhanTrangBioMien") : "Claim your free 12-month Bio"}
                 </Link>
               )}
 
@@ -483,14 +483,14 @@ export default function StudentPricingPage() {
                 <div className="space-y-3">
                   <p className="text-xs leading-relaxed text-muted-foreground">
                     {vi
-                      ? "Email của bạn không thuộc tên miền trường. Gửi ảnh thẻ học sinh/sinh viên còn hiệu lực (trùng tên tài khoản) qua form liên hệ, mình duyệt tay trong 24h."
+                      ? t("studentPricing.emailCuaBanKhong")
                       : "Your email is not on a school domain. Send a photo of your valid student ID (matching your account name) via the contact form and I'll review it within 24h."}
                   </p>
                   <Link
                     to="/booking?type=student&plan=verify"
                     className="block w-full rounded-2xl border border-border py-3 text-center text-xs font-bold text-foreground transition-all hover:bg-muted"
                   >
-                    {vi ? "Gửi thẻ sinh viên để duyệt tay" : "Send student ID for manual review"}
+                    {vi ? t("studentPricing.guiTheSinhVien") : "Send student ID for manual review"}
                   </Link>
                 </div>
               )}
@@ -549,7 +549,7 @@ export default function StudentPricingPage() {
         {/* Nhóm 1: bài được chấm điểm */}
         <section className="mt-16">
         <SectionHead
-          eyebrow={vi ? "01 — Bài được chấm điểm" : "01 — Graded work"}
+          eyebrow={vi ? t("studentPricing.01BaiDuocCham") : "01 — Graded work"}
           title={t("servicesPage.studentPlans.groupCoursework.title")}
           desc={t("servicesPage.studentPlans.groupCoursework.desc")}
           aside={
@@ -562,8 +562,8 @@ export default function StudentPricingPage() {
             >
               <span className="material-symbols-outlined text-[13px]">{verified ? "verified" : "lock_open_right"}</span>
               {verified
-                ? vi ? "Đã xác minh — giá HSSV đang áp dụng" : "Verified — student pricing active"
-                : vi ? "Xác minh email trường để đặt gói" : "Verify your school email to order"}
+                ? vi ? t("studentPricing.daXacMinhGia") : "Verified — student pricing active"
+                : vi ? t("studentPricing.xacMinhEmailTruong2") : "Verify your school email to order"}
             </span>
           }
         />
@@ -581,11 +581,11 @@ export default function StudentPricingPage() {
               <span className="material-symbols-outlined mt-0.5 text-xl text-muted-foreground">school</span>
               <div>
                 <p className="text-sm font-bold text-foreground">
-                  {vi ? "Bài nâng cao (React, Node, full-stack)?" : "Advanced work (React, Node, full-stack)?"}
+                  {vi ? t("studentPricing.baiNangCaoReact") : "Advanced work (React, Node, full-stack)?"}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {vi
-                    ? "Mình khuyên bạn tự học phần này. Bấm để xem lý do và mức hỗ trợ tối đa mình nhận."
+                    ? t("studentPricing.minhKhuyenBanTu")
                     : "I'd rather you learn this one yourself. Open for the reasoning and the limited support I do take."}
                 </p>
               </div>
@@ -599,20 +599,20 @@ export default function StudentPricingPage() {
             <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
               <p>
                 {vi
-                  ? "Tới mức React + REST API, thứ quyết định điểm không còn là code chạy được, mà là bạn hiểu vì sao nó chạy. Đây cũng đúng là phần kiến thức theo bạn đi phỏng vấn xin việc — mua nó về là mua đúng thứ đáng ra bạn nên tự giữ."
+                  ? t("studentPricing.toiMucReactRest")
                   : "At React + REST API level, the grade no longer hinges on code that runs, but on understanding why it runs. This is also the exact knowledge that follows you into job interviews — buying it means buying the one thing you should have kept."}
               </p>
               <p>
                 {vi
-                  ? "Nên mình ưu tiên nhận 3 gói đơn giản ở trên. Bài nâng cao mình vẫn nhận nhưng số lượng hạn chế và chỉ ở mức hỗ trợ — bạn nên thử tự làm trước bằng Web IDE miễn phí, kẹt chỗ nào thì mua gói Chẩn đoán & Sửa lỗi 120.000đ."
-                  : "So the three simpler plans above come first. I still take advanced work, but rarely and only as support — try it yourself in the free Web IDE, and when you get stuck, the 120.000đ Diagnose & Fix plan is there."}
+                  ? t("studentPricing.nenMinhUuTien")
+                  : t("studentPricing.soTheThreeSimpler")}
               </p>
               <Link
                 to="/ide"
                 className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-border px-4 text-xs font-bold text-foreground transition-all hover:bg-muted"
               >
                 <span className="material-symbols-outlined text-base">terminal</span>
-                {vi ? "Tự học bằng Web IDE miễn phí" : "Learn it in the free Web IDE"}
+                {vi ? t("studentPricing.tuHocBangWeb") : "Learn it in the free Web IDE"}
               </Link>
             </div>
 
@@ -624,7 +624,7 @@ export default function StudentPricingPage() {
         {/* Nhóm 2: hồ sơ cá nhân, không dính điểm số */}
         <section className="mt-16">
         <SectionHead
-          eyebrow={vi ? "02 — Không dính điểm số" : "02 — Nothing graded"}
+          eyebrow={vi ? t("studentPricing.02KhongDinhDiem") : "02 — Nothing graded"}
           title={t("servicesPage.studentPlans.groupProfile.title")}
           desc={t("servicesPage.studentPlans.groupProfile.desc")}
         />
@@ -638,13 +638,13 @@ export default function StudentPricingPage() {
             <div className="flex items-start justify-between gap-4 border-b border-emerald-500/20 pb-5">
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
-                  {vi ? "Quà HSSV" : "Student gift"}
+                  {vi ? t("studentPricing.quaHssv") : "Student gift"}
                 </p>
                 <h3 className="font-display mt-1.5 text-lg font-bold leading-snug text-foreground">
-                  {vi ? "Bio Tự Dựng" : "Self-Built Bio"}
+                  {vi ? t("studentPricing.bioTuDung") : "Self-Built Bio"}
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {vi ? "Bạn tự làm, trong 10 phút" : "You build it, in 10 minutes"}
+                  {vi ? t("studentPricing.banTuLamTrong") : "You build it, in 10 minutes"}
                 </p>
               </div>
               <MonoIcon name="redeem" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
@@ -652,20 +652,20 @@ export default function StudentPricingPage() {
 
             <div>
               <div className="flex items-baseline gap-1.5 pt-5">
-                <span className="text-[26px] font-black leading-none tracking-tight text-foreground">0đ</span>
-                <span className="text-xs font-medium text-muted-foreground">{vi ? "/ 12 tháng" : "/ 12 months"}</span>
+                <span className="text-[26px] font-black leading-none tracking-tight text-foreground">{t("studentPricing.0d")}</span>
+                <span className="text-xs font-medium text-muted-foreground">{vi ? t("studentPricing.12Thang") : "/ 12 months"}</span>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
                 {vi
-                  ? "Chỉ cần email trường đã xác minh ở trên. Không cần thẻ ngân hàng."
+                  ? t("studentPricing.chiCanEmailTruong")
                   : "Just the verified school email above. No card required."}
               </p>
               <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-                {vi ? "Bạn nhận được" : "What you get"}
+                {vi ? t("studentPricing.banNhanDuoc") : "What you get"}
               </p>
               <ul className="mt-3 space-y-2">
                 {(vi
-                  ? ["Trình soạn thảo trong tài khoản, tự đổi bất cứ lúc nào", "Chọn từ các theme và bảng màu có sẵn", "Liên kết mạng xã hội, ảnh đại diện, giới thiệu ngắn", "Đường dẫn riêng hugowishpax.studio/bio/tên-bạn"]
+                  ? [t("studentPricing.trinhSoanThaoTrong"), t("studentPricing.chonTuCacTheme"), t("studentPricing.lienKetMangXa"), t("studentPricing.duongDanRiengHugowishpax")]
                   : ["An editor inside your account, change it anytime", "Pick from the built-in themes and palettes", "Social links, avatar, short intro", "Your own hugowishpax.studio/bio/your-name link"]
                 ).map((item) => (
                   <li key={item} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/80">
@@ -681,8 +681,8 @@ export default function StudentPricingPage() {
                 className="flex min-h-11 items-center justify-center rounded-xl border border-emerald-500/40 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
               >
                 {verified
-                  ? vi ? "Mở trình soạn thảo Bio" : "Open the Bio editor"
-                  : vi ? "Xác minh ở trên để nhận" : "Verify above to claim"}
+                  ? vi ? t("studentPricing.moTrinhSoanThao") : "Open the Bio editor"
+                  : vi ? t("studentPricing.xacMinhOTren") : "Verify above to claim"}
               </Link>
             </div>
           </motion.div>
@@ -696,11 +696,11 @@ export default function StudentPricingPage() {
         {/* Quy trình + ranh giới liêm chính học thuật */}
         <section className="mt-16">
         <SectionHead
-          eyebrow={vi ? "03 — Quy trình" : "03 — How it runs"}
-          title={vi ? "Bạn nhận được gì, theo từng bước" : "What you get, step by step"}
+          eyebrow={vi ? t("studentPricing.03QuyTrinh") : "03 — How it runs"}
+          title={vi ? t("studentPricing.banNhanDuocGi") : "What you get, step by step"}
           desc={
             vi
-              ? "Từ lúc xác minh đến lúc bàn giao — mọi thứ đều được chốt trước, không phát sinh."
+              ? t("studentPricing.tuLucXacMinh")
               : "From verification to handover — everything is agreed up front, no surprises."
           }
         />
@@ -722,7 +722,7 @@ export default function StudentPricingPage() {
             <div className="flex items-center gap-2.5">
               <span className="material-symbols-outlined text-xl text-muted-foreground">history_edu</span>
               <h3 className="font-display text-base font-bold text-foreground">
-                {vi ? "Mình không nhận — kể cả khi bạn trả thêm tiền" : "What I decline — even at a higher price"}
+                {vi ? t("studentPricing.minhKhongNhanKe") : "What I decline — even at a higher price"}
               </h3>
             </div>
             <ul className="mt-5 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">

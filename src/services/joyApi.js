@@ -87,6 +87,28 @@ export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail,
  * Nhãn (`title`) và nhóm (`group`) do máy chủ gắn — client không giữ bản sao
  * nào của danh mục nguồn JOY.
  */
+/**
+ * Bảng tỷ giá JOY của hôm nay. Hỏng thì trả `null` — app chạy tiếp bằng hệ số
+ * nền, mất thị trường không được phép làm mất ví.
+ */
+export async function fetchJoyRates() {
+  try {
+    const res = await fetch(`${getApiUrl()}/joy/rates`, { credentials: "include" });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+/** Chuỗi điểm tỷ giá để vẽ biểu đồ. Hỏng thì trả mảng rỗng, biểu đồ tự báo. */
+export async function fetchJoyRateHistory(hours = 24) {
+  const res = await fetch(`${getApiUrl()}/joy/rates/history?hours=${hours}`, { credentials: "include" });
+  if (!res.ok) throw new Error("RATE_HISTORY_FAILED");
+  const data = await res.json();
+  return Array.isArray(data.points) ? data.points : [];
+}
+
 export async function fetchJoyHistory({ limit = 50, days = 30 } = {}) {
   const res = await fetch(
     `${getApiUrl()}/joy/history?limit=${limit}&days=${days}`,
@@ -228,6 +250,82 @@ export async function claimInfoReadBonus(email) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
     credentials: "include"
+  });
+  return parseOrThrow(res);
+}
+
+// ── JOYlater ───────────────────────────────────────────────────────
+// Mọi con số (hạn mức, phí, số ngày) do server tính từ shared/joyLater.js —
+// client chỉ hiển thị, không tự tính, để màn xác nhận không bao giờ lệch với
+// số thật bị trừ.
+export async function getJoyLaterStatus() {
+  const res = await fetch(`${getApiUrl()}/joy/joylater`, { credentials: "include" });
+  return parseOrThrow(res);
+}
+
+/** Mọi lượt đã mở trước, mới nhất trước, kèm từng dòng đã hoàn. */
+export async function getJoyLaterHistory() {
+  const res = await fetch(`${getApiUrl()}/joy/joylater/history`, { credentials: "include" });
+  return parseOrThrow(res);
+}
+
+/** Báo giá kèm bảng so sánh của MỌI mức chia đợt (`quote.options`). */
+export async function quoteJoyLater(amount, installments = 1) {
+  const query = `amount=${encodeURIComponent(amount)}&installments=${encodeURIComponent(installments)}`;
+  const res = await fetch(`${getApiUrl()}/joy/joylater/quote?${query}`, {
+    credentials: "include",
+  });
+  return parseOrThrow(res);
+}
+
+export async function openJoyLater({ amount, itemLabel, itemKey, installments }) {
+  const res = await fetch(`${getApiUrl()}/joy/joylater/open`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ amount, itemLabel, itemKey, installments }),
+  });
+  return parseOrThrow(res);
+}
+
+/** Trả đúng một đợt. Số tiền do server tính, client không gửi lên. */
+export async function payInstallmentJoyLater() {
+  const res = await fetch(`${getApiUrl()}/joy/joylater/pay-installment`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseOrThrow(res);
+}
+
+export async function payOffJoyLater() {
+  const res = await fetch(`${getApiUrl()}/joy/joylater/payoff`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseOrThrow(res);
+}
+
+/** Thưởng khi cây nhiệm vụ lớn hết — mỗi ngày một lần, server tự chặn trùng. */
+export async function claimTreeBonus() {
+  const res = await fetch(`${getApiUrl()}/companion/claim-tree-bonus`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return parseOrThrow(res);
+}
+
+/**
+ * Chọn đơn vị JOY của tài khoản. Đi qua chính endpoint onboarding vì đó là nơi
+ * duy nhất ghi trường này — và nó vốn BỎ QUA mục đã có giá trị, nên đơn vị vẫn
+ * là ghi-một-lần: không cần thêm khoá riêng ở đây, và cũng không thể lách phí
+ * đổi đơn vị bằng cách gọi lại.
+ */
+export async function chooseJoyDenom(joyDenom) {
+  const res = await fetch(`${getApiUrl()}/bios/me/onboarding`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ joyDenom }),
   });
   return parseOrThrow(res);
 }

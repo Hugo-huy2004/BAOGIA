@@ -2,6 +2,8 @@ import webpush from 'web-push';
 import NotificationSubscription from '../models/NotificationSubscription.js';
 import { vapidKeys } from '../routes/notificationRoutes.js';
 import { renderNotification, notificationLanguage } from '../../shared/notificationText.js';
+import { denomKey } from '../../shared/joyCurrency.js';
+import Bio from '../models/Bio.js';
 
 // Setup VAPID details
 const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:support@hugostudio.vn';
@@ -41,11 +43,24 @@ export async function sendPushNotification(email, title, body, url = '/member/to
  * @param {string} url đường dẫn mở khi chạm vào thông báo
  */
 export async function sendLocalizedPush(email, key, params = {}, url = '/member/today') {
+  // Ngôn ngữ theo THIẾT BỊ, nhưng đơn vị tiền theo TÀI KHOẢN: người dùng chọn
+  // đơn vị một lần và nó cố định, đổi máy hay đổi ngôn ngữ đều không đổi nó.
+  const denom = await denomOfMember(email);
   return deliver(email, (sub) => {
     const language = notificationLanguage(sub.device?.locale);
-    const text = renderNotification(key, params, language);
+    const text = renderNotification(key, params, language, denom);
     return text ? { title: text.title, body: text.message } : null;
   }, url);
+}
+
+/** Đơn vị hiển thị của một thành viên; hỏng hay thiếu thì về đơn vị mặc định. */
+async function denomOfMember(email) {
+  try {
+    const bio = await Bio.findOne({ email }).select('joyDenom').lean();
+    return denomKey(bio?.joyDenom);
+  } catch {
+    return denomKey(null);
+  }
 }
 
 /** Phần chung: tìm thiết bị, gửi, dọn đăng ký chết. */

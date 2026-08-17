@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Sparkles, X, Loader2, CheckCircle2, Ticket } from "lucide-react";
 import { useJoyStore } from "../../../stores/joyStore";
+import { joyText } from "../../../lib/joyDisplay";
+
+// Giá một Token trò chuyện, tính bằng JOY gốc.
+const TOKEN_COST = 25;
 
 export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, showToast }) {
   const [tokenAmount, setTokenAmount] = useState(5);
@@ -11,7 +15,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
 
   if (!isOpen) return null;
 
-  const cost = tokenAmount * 25;
+  const cost = tokenAmount * TOKEN_COST;
 
   const handleExchange = async () => {
     if (tokenAmount < 5 || tokenAmount > 50) {
@@ -19,7 +23,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
       return;
     }
     if (joyBalance < cost) {
-      showToast?.(`Bạn không đủ JOY. Cần ${cost} JOY.`, "error");
+      showToast?.(`Số dư chưa đủ. Cần ${joyText(cost)}.`, "error");
       return;
     }
 
@@ -94,7 +98,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Khấu trừ:</span>
-                  <span className="font-bold text-amber-500">-{invoice.joyPaid} JOY</span>
+                  <span className="font-bold text-amber-500">-{joyText(invoice.joyPaid)}</span>
                 </div>
                 
                 <div className="border-t border-dashed border-zinc-300 dark:border-zinc-700/80 my-2 pt-2 flex justify-between">
@@ -128,7 +132,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
               </div>
               <h3 className="text-lg font-black text-foreground mb-2">Hết Token Trò Chuyện</h3>
               <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-                Bạn đã sử dụng hết Token miễn phí hôm nay. Dùng JOY để đổi thêm Token trò chuyện cùng AI (1 Token = 25 JOY).
+                Bạn đã sử dụng hết Token miễn phí hôm nay. Dùng JOY để đổi thêm Token trò chuyện cùng AI (1 Token = {joyText(TOKEN_COST)}).
               </p>
 
               <div className="bg-zinc-50 dark:bg-zinc-900/60 rounded-2xl p-4 mb-6 text-left border border-zinc-100 dark:border-zinc-800/80">
@@ -143,7 +147,7 @@ export default function TokenExchangeModal({ isOpen, onClose, email, onSuccess, 
                 />
                 <div className="flex justify-between items-center mt-3.5 pt-3.5 border-t border-zinc-200/60 dark:border-zinc-800/60">
                   <span className="text-xs font-bold text-muted-foreground">Tổng chi phí:</span>
-                  <span className="text-xs font-black text-amber-500">{cost} JOY</span>
+                  <span className="text-xs font-black text-amber-500">{joyText(cost)}</span>
                 </div>
               </div>
 

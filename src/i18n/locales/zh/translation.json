@@ -1,6 +1,6 @@
 {
   "aura": {
-    "title": "聚焦与致郁室",
+    "title": "HugoAura 关注与Lo-fi lounge",
     "pomodoroDesk": "番茄工作区",
     "presetLite": "轻量级专注",
     "presetDeep": "<深>度专注",
@@ -22,14 +22,14 @@
     "accountThemeDescription": "为您的整个会员门户选择颜色、图案和氛围。",
     "galleryTitle": "一个让你感觉自在的空间",
     "galleryKicker": "我的专属空间",
-    "galleryDescription": "主题更新账户中的背景、玻璃材料和导航淡色。",
+    "galleryDescription": ": 主题更新您的账户中的背景、玻璃材质和导航透光度。HugoAura 无法更改此选择。",
     "liveWeather": "实时天气",
     "weatherOn": "融入您的主题",
     "weatherOff": "天气层已关闭",
     "filterLabel": "筛选主题画廊",
     "filterAll": "全部",
     "filterFree": "免费",
-    "filterStudio": "我的收藏",
+    "filterStudio": "Hugo 收集",
     "filterIdentity": "身份",
     "filterMood": "情绪",
     "badgeFree": "免费",
@@ -39,11 +39,11 @@
     "applying": "正在申请...",
     "themeUsed": "在使用中",
     "themeApply": "申请",
-    "themeRentCost": "{{price}} JOY",
+    "themeRentCost": "{{price, joy}}",
     "presetWarning": "请在更改预设时暂停计时器。",
     "playWarning": "请点击播放再次开始音乐。",
     "toastFocusCompleted": "恭喜！您已完成了{{minutes}}分钟的深度专注。",
-    "toastJoyReceived": "成功收到+{{amount}} JOY到您的钱包中。",
+    "toastJoyReceived": "成功收到 +{{amount, joy}} 到您的钱包中。",
     "toastJoyFailed": "未能奖励JOY积分。",
     "toastBreakCompleted": "休息时间结束了！开始一个新的工作会话。",
     "toastLoginRequired": "请登录租赁背景。",
@@ -114,7 +114,7 @@
       "todayGreeting": "你好，{{name}}",
       "memberFallback": "这里",
       "todayDescription": "今天最重要的事，在一个平静的地方。",
-      "joyBalance": "Joy平衡",
+      "joyBalance": "JOY 平衡",
       "newActivity": "新活动",
       "quickActions": "快速操作",
       "recentActivity": "最近活动",
@@ -174,7 +174,7 @@
       "summaryByAi": "Hugo AI 重新编写了该摘要，用自己的话从 {{source}} 文章中进行了改写。点击打开原文以查看完整内容。",
       "contentTitle": "文章内容",
       "contentUnavailable": "该出版商不允许自动全文。打开原始以阅读全部。",
-      "contentBySource": "这篇文章的完整文本由 {{source}} 所有，仅展示摘要 —— 点击下方查看原文全文。",
+      "contentBySource": "《本文全文受 {{source}} 著作权保护。Hugo 界面仅展示概要——点击下方可阅读原文。",
       "copyrightNotice": "《全文由{{source}}版权保护。Hugo Studio仅展示概要。点击“阅读原文”可在官方网站查看完整文章。》",
       "sourceInfo": "{{source}}会员中心{{author}}·{{date}}",
       "attribution": "内容受 {{source}} 知识产权保护。",
@@ -209,7 +209,7 @@
       "markAllReadError": "无法标记为已读，请再次尝试。",
       "openAction": "打开：{{title}}",
       "profileUpdated": "个人信息更新",
-      "balance": "余额 {{value}} JOY",
+      "balance": "余额 {{value, joy}}",
       "dismiss": "关闭通知： {{title}}",
       "emptyFilterTitle": "本类别无内容",
       "emptyFilterDescription": "以上选择另一个分类。",
@@ -268,7 +268,7 @@
     },
     "bioPreview": {
       "title": "生物页",
-      "studioTitle": "胡浩",
+      "studioTitle": "Hugo 生物",
       "subtitle": "公共个人页面预览",
       "backAria": "返回",
       "openAria": "打开个人主页",
@@ -328,7 +328,7 @@
       "settingsBtn": "通知设置"
     },
     "joyWallet": {
-      "brand": "JOY钱包",
+      "brand": "Hugo JOY 支付宝",
       "sub": "JOY可用于在Hugo生态系统中兑换礼物、服务和体验。",
       "statReferrals": "推荐",
       "statBonusChat": "奖励聊天",
@@ -419,7 +419,7 @@
       "balance": "余额",
       "missions": "任务",
       "open": "打开",
-      "pendingJoy": "{{amount}}JOY 去领取",
+      "pendingJoy": "{{amount, joy}} 去领取",
       "today": "今天",
       "perks": "福利",
       "spinAvailable": "旋转可用",
@@ -434,7 +434,7 @@
       "setPin": "设置交易密码PIN",
       "pinMissing": "未设置交易密码PIN",
       "pinDescription": "使用6位数字交易密码保护每笔JOY转账",
-      "claimJoy": "{{amount}} JOY已准备好领取。",
+      "claimJoy": "{{amount, joy}} 已准备好领取。",
       "missionsWaiting": "{{count}}任务奖励已准备就绪。",
       "walletSection": "JOY钱包",
       "myPerks": "我的福利",
@@ -442,7 +442,7 @@
       "perksSummary": "{{vouchers}} vouchers available · {{orders}} purchased items",
       "todayMissions": "今天的任务",
       "loading": "加载中...",
-      "pendingJoyLong": "{{amount}} JOY is ready to claim",
+      "pendingJoyLong": "{{amount, joy}} is ready to claim",
       "missionProgress": "Completed {{completed}}/{{total}} today",
       "walletHistory": "钱包历史",
       "walletHistoryDetail": "每笔信用和支出，加上您的30天概览",
@@ -453,37 +453,37 @@
       "redeemReferral": "代码和推荐码",
       "redeemReferralDetail": "礼品码、推荐码和朋友邀请码",
       "redeemReferralShort": "礼品码和朋友邀请码",
-      "memberSection": "会员",
+      "memberSection": "规则与权利",
       "manageTitle": "服务包和Bio页面",
       "manageDetail": "拥有包、过期日期和Bio页面删除",
       "privacySection": "隐私和通知",
       "systemSection": "系统",
       "joyCenterTitle": "JOY中心",
       "joyCenterSubtitle": "会员卡、每日签到、交易和福利",
-      "joyActionsAria": "快乐行动",
+      "joyActionsAria": "JOY actions",
       "voucherCount": "{{count}} 优惠券可用",
       "myPerksSubtitle": "赠送代金券、购买和您的幸运抽奖",
       "todayMissionsSubtitle": "完成任务并在这里领取JOY",
       "walletHistorySubtitle": "每笔信用和现金交易都有其原因",
-      "balanceSubtitle": "余额：{{balance}} JOY",
+      "balanceSubtitle": "余额：{{balance, joy}}",
       "memberDocument": "会员证件",
       "missionCopy": {
-        "claimedJoy": "已领取{{amount}} JOY。",
-        "claimedAll": "已领取{{total}} JOY来自{{count}}任务。",
+        "claimedJoy": "已领取{{amount, joy}}。",
+        "claimedAll": "已领取 {{total, joy}}，来自 {{count}} 个任务。",
         "claiming": "正在领取...",
-        "claimAll": "获取所有 · {{amount}} JOY",
+        "claimAll": "获取所有 · {{amount, joy}}",
         "heading": "今天的任务 ({{completed}}/{{total}})",
         "loading": "加载任务…",
         "empty": "今天没有新任务。",
         "rewardClaimed": "奖励已领取",
-        "rewardReady": "+{{amount}} JOY 奖励",
-        "incomplete": "未完成 · +{{amount}} JOY",
+        "rewardReady": "+{{amount, joy}} 奖励",
+        "incomplete": "未完成 · +{{amount, joy}}",
         "claimed": "已获取",
         "claim": "Claim"
       },
       "redeemCopy": {
         "giftError": "这个代码无法兑换",
-        "giftSuccess": "添加 {{amount}} JOY 到你的钱包。",
+        "giftSuccess": "添加 {{amount, joy}} 到你的钱包。",
         "referralError": "这个推荐码无效。",
         "referralSuccess": "申请 · +{{days}} 天的账户访问权限。",
         "shareText": "使用代码 {{code}} 注册。",
@@ -497,7 +497,7 @@
         "apply": "申请",
         "referralHint": "每个账户可以输入一次推荐码。",
         "inviteFriends": "邀请朋友",
-        "rewardPerFriend": "+100 JOY 每人注册使用您的代码",
+        "rewardPerFriend": "每有一人使用你的代码注册即 +{{amount, joy}}",
         "referralCount": "{{count}} 人被推荐 · 使用您的代码",
         "shareLink": "分享邀请链接"
       },
@@ -556,12 +556,12 @@
         "perk": "Perk",
         "usedOn": "Used on {{date}}",
         "expiresOn": "Expires: {{date}}",
-        "voucherHint": "Share this code when discussing your project. Each code can be used once.",
+        "voucherHint": "预约时在「联系方式」这一步填入此码。每个码仅可使用一次。",
         "loading": "Loading perks…",
         "retry": "重试",
         "luckySpin": "Lucky spin",
         "spinAvailable": "You have one spin available this year.",
-        "spunThisYear": "Spun this year · received {{amount}} JOY",
+        "spunThisYear": "Spun this year · received {{amount, joy}}",
         "opensInBirthMonth": "Opens in {{month}}, your birthday month.",
         "addBirthday": "完成您的出生日期以解锁生日抽奖。",
         "spinNow": "现在旋转",
@@ -1087,7 +1087,10 @@
               }
             ]
           }
-        }
+        },
+        "joyRulesTitle": "JOY 表格与规则",
+        "joyRulesSubtitle": "如何获得 JOY、各项价格、手续费与上限——以表格呈现。",
+        "joyRulesDetail": "每日收入、租用与买断价格、套餐、手续费"
       }
     },
     "bento": {
@@ -1132,10 +1135,10 @@
       "brutalismDesc": "打破规则，用鲜艳的颜色、厚实的黑色边框和扁平的强烈阴影。",
       "flatTitle": "扁平",
       "flatDesc": "没有阴影、没有三维/渐变、明亮的颜色和扁平的二维块。",
-      "rentalDescription": "JOY 是一个非盈利奖励余额。 Brutalism 和 Flat 成本为每月 {{price}} JOY；租赁到期后，页面将返回到经典模式。",
+      "rentalDescription": "JOY 是一个非盈利奖励余额。 Brutalism 和 Flat 成本为每月 {{price, joy}}；租赁到期后，页面将返回到经典模式。",
       "free": "免费",
       "daysRemaining": "{{count}}天剩余",
-      "pricePerMonth": "{{price}} JOY/月",
+      "pricePerMonth": "{{price, joy}}/月",
       "exchangeSuccess": "JOY 转换为 {{template}} 主题。"
     },
     "links": {
@@ -1243,11 +1246,11 @@
     "achievementsLabel": "成就",
     "themeLabel": "主题",
     "settingsPage": {
-      "pageTitle": "设置",
+      "pageTitle": "设置 — Hugo 室",
       "editBtn": "编辑",
       "saveBtn": "保存",
       "savingBtn": "正在保存...",
-      "joyBalance": "Joy余额",
+      "joyBalance": "JOY 平衡",
       "rechargeBtn": "充值",
       "exchangeBtn": "兑换",
       "quickSettings": "快速设置",
@@ -1464,7 +1467,7 @@
       "phonePlaceholder": "请输入手机号",
       "referralLabel": "可选输入推荐码",
       "referralPlaceholder": "例如: HG123456",
-      "referralHint": "+10 JOY 和 +15 Bio 链免费天数",
+      "referralHint": "输入推荐人代码即可获得 +{{amount, joy}} 和 {{days}} 天免费 Bio 链接",
       "submitting": "提交",
       "submitButton": "完成",
       "skipButton": "现在跳过",
@@ -1481,8 +1484,18 @@
         "phone": {
           "label": "手机号或Zalo",
           "hint": "当需要联系时和创建您的推荐代码。"
+        },
+        "language": {
+          "label": "主要语言",
+          "hint": "界面会自动切换到这个语言。"
+        },
+        "joyDenom": {
+          "label": "JOY 单位",
+          "hint": "只选一次，之后固定。日后更换界面语言不会更改此单位，以免绕开跨单位转账手续费。"
         }
-      }
+      },
+      "next": "继续",
+      "stepOf": "第 {{current}} 步，共 {{total}} 步"
     },
     "birthdaySurprise": {
       "monthTitle": "您的生日月份！",
@@ -1501,7 +1514,7 @@
       "title": "One spin for you",
       "addedToWallet": "JOY has been added to your wallet.",
       "description": "One spin each year, with an equal chance for every segment.",
-      "wheelAria": "拥有 {{count}} JOY 奖励段落的轮子",
+      "wheelAria": "拥有 {{count}} 奖励段落的轮子",
       "youReceived": "您收到了",
       "accountDays": "+{{count}} 天的账户访问权限",
       "voucherExpiry": "有效期至 {{date}} · 分享此代码在讨论项目时",
@@ -1596,8 +1609,8 @@
         "verifying": "验证代码",
         "recipientLabel": "收件人",
         "changeBtn": "更改",
-        "amountTitle": "捐赠金额（可选）",
-        "amountPlaceholder": "最低10JOY",
+        "amountTitle": "JOY 金额",
+        "amountPlaceholder": "最少 {{amount, joy}}",
         "fee": "创作者费用",
         "total": "总金额",
         "noteTitle": "消息（可选）",
@@ -1606,7 +1619,7 @@
         "chipGift": "送给你",
         "next": "下一步",
         "totalDeduction": "总扣除金额",
-        "warning": "Joy交易不可退款，请仔细确认后再确认",
+        "warning": "JOY transactions are non-refundable — please review carefully before confirming",
         "back": "後",
         "sendNow": "立即发送",
         "scanCloudCode": "扫描粒子云代码",
@@ -1650,7 +1663,7 @@
         "pinSetupFailed": "无法设置PIN码。",
         "pinTitle": "交易PIN码",
         "pinSetupTitle": "设置PIN码",
-        "connectMode": "连接模式",
+        "connectMode": "JOY 连接模式",
         "noUserFoundHint": "请再次检查手机号码，或者输入正确的推荐码。",
         "tapToSelect": "点击选择",
         "pickFirstRecipient": "请选择您的第一个接收者",
@@ -1681,13 +1694,17 @@
         "transferSuccess": "JOY转移成功！",
         "receiptId": "Txn ID",
         "receiptFee": "创意费用",
-        "receiptNote": "Note"
+        "receiptNote": "Note",
+        "cameraHintWide": "把码放在取景框内任何位置即可，不必对准中央。",
+        "conversionFee": "{{from}} → {{to}} 换算手续费（{{percent}}%）",
+        "close": "关闭",
+        "pinHint": "输入 6 位 PIN 码，向 {{name}} 转账 {{amount, joy}}"
       },
       "exchange": {
         "exchanged": "交换",
         "paid": "PAID",
         "loadError": "无法加载发票。",
-        "receiptTitle": "Joy 交易收据",
+        "receiptTitle": "JOY 交易凭证",
         "trader": "卖家",
         "content": "内容",
         "servicePrice": "服务价格",
@@ -1717,7 +1734,7 @@
         "title": "兑换JOY礼品码",
         "placeholder": "输入礼品码",
         "button": "兑换",
-        "success": "兑换成功！+{{amount}}JOY",
+        "success": "兑换成功！+{{amount, joy}}",
         "error": "此代码无法兑换。"
       },
       "applyReferral": {
@@ -1725,7 +1742,7 @@
         "placeholder": "例如: HG123456",
         "button": "申请",
         "hint": "如果您被推荐，请在这里输入他们的代码，这样您和他们都可以获得JOY。每个账户只能进行一次。",
-        "success": "申请成功！+10 JOY 和 +{{days}} 天的 Bio 链。",
+        "success": "代码已应用！+{{amount, joy}} 及 {{days}} 天 Bio Link。",
         "error": "这个代码无法应用。"
       },
       "earnInfo": "通过：推荐朋友、参加治疗课程、赢得棋类比赛或兑换管理员赠送的代码来赚取 JOY。",
@@ -1778,13 +1795,13 @@
         "notFound": "找不到与该电话号码关联的用户。",
         "recipientLabel": "发送到",
         "amountLabel": "要转账金额",
-        "amountPlaceholder": "单次最多转账1000 JOY",
-        "feeNote": "5% 抗滥用费：接收者获得 {{net}} JOY（费用： {{fee}} JOY）。",
-        "dailyCapNote": "每天发送上限：1000 JOY。",
+        "amountPlaceholder": "每次最多 {{amount, joy}}",
+        "feeNote": "5% 抗滥用费：接收者获得 {{net, joy}}（费用： {{fee, joy}}）。",
+        "dailyCapNote": "每日发送上限为 {{amount, joy}}。",
         "confirmButton": "确认发送",
         "cancelButton": "Cancel",
         "sending": "正在发送...",
-        "success": "已向 {{name}} 发送了 {{net}} JOY！",
+        "success": "已向 {{name}} 发送了 {{net, joy}}！",
         "changeRecipient": "更改接收者",
         "ageGateHint": "您的账户必须至少有3天的历史才能发送 JOY。"
       },
@@ -1794,7 +1811,7 @@
         "claimButton": "领取 JOY",
         "claimed": "已获取",
         "notDoneYet": "尚未完成",
-        "claimSuccess": "+{{amount}} JOY!",
+        "claimSuccess": "+{{amount, joy}}!",
         "empty": "当前无法加载任务。"
       }
     },
@@ -1808,16 +1825,16 @@
       "claimButton": "查看",
       "alreadyClaimed": "已查看",
       "locked": "锁定",
-      "claimSuccess": "已签到！+{{amount}} JOY",
-      "claimSuccessBonus": "已签到！+{{total}} JOY (包含 +{{bonus}} JOY 节点奖励)",
+      "claimSuccess": "已签到！+{{amount, joy}}",
+      "claimSuccessBonus": "已签到！+{{total, joy}} (包含 +{{bonus, joy}} 节点奖励)",
       "claimError": "现在无法签到。",
       "weekLockedTitle": " streak 结束 · 重新开放周一",
-      "streakTooltip": "{{count}} 天 streak 完成 7 天 for +{{reward}} JOY{{milestones}}",
-      "dayReward": "今天是{{day}} · +{{amount}} JOY",
+      "streakTooltip": "{{count}} 天 streak 完成 7 天 for +{{reward, joy}}{{milestones}}",
+      "dayReward": "今天是{{day}} · +{{amount, joy}}",
       "claiming": "正在领取...",
       "reopensMonday": "周一重新开放",
       "alreadyClaimedToday": "今天已检查",
-      "claimToday": "检查入住 · +{{amount}} JOY"
+      "claimToday": "检查入住 · +{{amount, joy}}"
     },
     "settings": {
       "title": "设置",
@@ -1919,7 +1936,7 @@
         "arcade": "8款游戏，自己的身份",
         "cards": "阅读升级全部内容 - 获得50 JOY"
       },
-      "reward": "查看最新功能",
+      "reward": "读完升级 — 获取 {{amount, joy}}",
       "cta": "不再显示",
       "later": "稍后",
       "optOut": "Hugo Studio Member Portal interface copy from English to Simplified Chinese for Mainland China. Return ONLY a JSON array of exactly 10 translated strings in the same order as the input array."
@@ -1937,19 +1954,19 @@
           "desc": "您的个人资料、链接和服务页面——自定义设计并分享一个单个链接。"
         },
         "helpdesk": {
-          "title": "胡波帮助台",
+          "title": "HugoHelpdesk",
           "desc": "智能二维码/近场通信代码和专业电子邮件签名，快速共享您的联系信息。"
         },
         "handle": {
-          "title": "胡波处理",
+          "title": "HugoHandle",
           "desc": "密码保护的可靠链接和在线图像转换/压缩。"
         },
         "psychology": {
-          "title": "胡波PSY",
+          "title": "HugoPSY",
           "desc": "AI辅助学习咨询、睡眠追踪和情绪疗法支持。"
         },
         "ide": {
-          "title": "胡波研究",
+          "title": "学习与 Hugo",
           "desc": "两个原版收藏，涵盖Web开发、数字生产力和人工智能。"
         },
         "radio": {
@@ -2102,20 +2119,20 @@
       "cardNoticeTitle": "仅限在线使用",
       "cardNoticeBody": "这是属于Hugo Studio系统的数字卡片，用于识别系统内的会员等级和福利。它不是实体卡片、银行卡或支付工具，也不适用于Hugo Studio之外。",
       "readBonusTitle": "阅读升级全文",
-      "readBonusDesc": "你已经看到2.0中所有变化。解锁这个50 JOY奖励，滚动整个2.0介绍。",
+      "readBonusDesc": "你已经看到 2.0 中的所有变化。这是 {{amount, joy}} 作为感谢。",
       "readBonusLocked": "浏览整个2.0介绍以获取这个50 JOY奖励。",
       "readBonusButton": "+50 JOY已领取。",
       "readBonusLockedButton": "锁定——继续阅读",
       "readBonusClaiming": "正在领取...",
       "readBonusClaimed": "+50 JOY已领取。感谢你阅读它！",
-      "readBonusSuccess": "无法领取奖励，请再次尝试。",
+      "readBonusSuccess": "{{amount, joy}} 获得。感谢阅读！",
       "readBonusError": "发现礼物",
       "bonusTitle": "感谢访问Info & Version —— 这里有一份小JOY礼物。",
       "bonusDesc": "Thanks for visiting Info & Version — here's a small JOY gift.",
-      "bonusButton": "申请 +20 JOY",
+      "bonusButton": "申请 {{amount, joy}}",
       "bonusClaiming": "正在领取...",
       "bonusClaimed": "已经申请过",
-      "bonusSuccess": "已经申请了+20 JOY，感谢探索！",
+      "bonusSuccess": "已经申请了 {{amount, joy}}，感谢探索！",
       "bonusError": "现在无法领取奖励。"
     },
     "team": {
@@ -2196,7 +2213,7 @@
       "submitted": "申请已发送",
       "submit": "申请",
       "devsTitle": "开发团队 ({{count}})",
-      "devsDesc": "已被录取的学员。每位成员都承载着对这一社区项目的三年承诺。",
+      "devsDesc": "{\"text\":\"学生已获得加入\\nHugoTeam. 每一位都承载着对这一社区项目的三年承诺。\"}",
       "devsEmpty": "团队从第一位成员开始",
       "devBadge": "开发者",
       "membership3y": "会员：3年",
@@ -2297,7 +2314,7 @@
           {
             "title": "承接任务并交付成果。",
             "items": [
-              "Every task moves through four states: assigned → doing → submitted → done. Press Start when you actually begin, rather than leaving a task marked assigned while you work on it quietly.",
+              "每项工作都经过四个状态：已分配 → 进行中 → 已提交 → 已完成。真正动手时就按「开始」，不要让工作停在已分配状态而你在私下推进。",
               "每个任务会经过四个状态：分配 → 正在处理 → 提交 → 完成。当你真正开始一项工作时，点击‘开始’按钮，而不是让它保持分配状态而你悄悄地进行。",
               "提交时写一条简短的备注：你做了什么，还有哪些地方需要跟进，结果在哪里查看。这是评审者首先读到的内容。",
               "不合格的工作会附带评论后被退回。修正并重新提交到同一个任务中，不要创建一个新的。"
@@ -2316,17 +2333,17 @@
           {
             "title": "沟通",
             "items": [
-              "The main channel is the in-app message box; every message is kept so it can be looked up later.",
-              "For anything needing a record, or concerning your account, email contact@hugowishpax.studio from your account address.",
-              "The usual response time is within the next working day."
+              "主要沟通渠道是应用内的消息框；每条消息都会保留，日后可以查回。",
+              "凡是需要留底的事，或涉及你的账户，请用账户邮箱发送至 contact@hugowishpax.studio。",
+              "通常在下一个工作日内回复。"
             ]
           },
           {
-            "title": "Quality and credit",
+            "title": "质量与署名",
             "items": [
               "Your code must be yours, or licensed for use. Copying a block from elsewhere without saying so is a breach.",
-              "Never put secret keys, passwords or real user data in the source or in screenshots.",
-              "Contributions are credited on GitHub for the part you did.",
+              "切勿把密钥、密码或真实用户数据写进源码或放进截图。",
+              "你所完成的部分会在 GitHub 上署名。",
               "内部项目数据和内容仅限于工作范围内，不会泄露。"
             ]
           },
@@ -2345,6 +2362,202 @@
       "translating": "翻译中…",
       "translateUnavailable": "此设备不支持该语言对。",
       "translateError": "无法翻译这条消息。"
+    },
+    "partnerBio": {
+      "dangXacThucQuyen": "验证合作伙伴访问中…",
+      "khongCoQuyenTruy": "无权限访问",
+      "trangTaoBioNay": "此生平构建器仅通过由Hugo Studio向合作伙伴发出的链接或框架工作。",
+      "kichHoatBioLink": "激活生平链接",
+      "canCungCapEmail": "需要用户的电子邮件，以便Hugo Studio可以创建并同步一个免费的生平链接，并且无需登录到Hugo Studio。",
+      "emailCuaBan": "您的邮箱...",
+      "thietKeNgay": "开始设计",
+      "dangTaiCauHinh": "加载生平设置中…",
+      "caNhanHoaBio": "个性化生平链接：",
+      "sua": "SỬA",
+      "anhDaiDien": "Profile photo",
+      "hinhAnhHienThi": "The image shown in the center on the partner’s device.",
+      "goAnh": "Remove photo",
+      "hoVaTen": "全名",
+      "bietDanh": "Nickname",
+      "gioiThieu": "Introduction",
+      "hocVan": "Education",
+      "ngheNghiep": "Occupation",
+      "soDienThoai": "电话号码",
+      "emailLienHe": "Contact email",
+      "lienKetMangXa": "SOCIAL LINKS (up to 5)",
+      "nhanVdZaloInstagram": "Nhãn (VD: Zalo, Instagram...)",
+      "themLienKetMang": "+ Add a social link",
+      "luuCaiDat": "SAVE SETTINGS",
+      "heThongDongBo": "系统同步合作伙伴的云数据。",
+      "dangLuu": "正在保存...",
+      "luuThongTin": "Save details",
+      "chuaNhapTen": "NO NAME YET",
+      "veBanThan": "About me",
+      "congViec": "Work",
+      "cacLienKet": "链接",
+      "chuaThemLienKet": "No links added yet...",
+      "duongDanCongKhai": "公共地址：",
+      "canChinhHinhAnh": "调整图片",
+      "nhanVaKeoDe": "Press and drag to move the crop area.",
+      "tyLePhongTo": "TYPING RATE",
+      "huy": "Cancel",
+      "luuVungCat": "保存裁剪"
+    },
+    "joyLater": {
+      "title": "JOYlater",
+      "detail": "先解锁，用之后赚到的 JOY 慢慢归还",
+      "loading": "加载中…",
+      "limit": "你的上限",
+      "limitFrom": "按你每天赚到的 {{income, joy}} 计算",
+      "amountLabel": "想先拿多少 JOY？",
+      "principalRow": "先拿",
+      "feeRow": "附加（{{percent}}%）",
+      "totalRow": "需归还合计",
+      "expectedRow": "预计还完",
+      "days": "{{count}} 天",
+      "openNow": "现在就拿",
+      "noInterest": "不会利滚利 · 附加金额开通时定下",
+      "overLimit": "超过你的上限",
+      "owing": "尚需归还",
+      "progress": "已归还 {{paid, joynum}} / {{total, joy}}（{{percent}}%）",
+      "itemRow": "已解锁",
+      "garnishRow": "每次获得 JOY 时扣除",
+      "remainingDaysRow": "大约还需",
+      "payOffNow": "立即全部归还",
+      "payOffTitle": "全部归还",
+      "payOffConfirm": "从钱包扣 {{amount, joy}} 一次还清？",
+      "paidOff": "已全部归还",
+      "opened": "已把 {{amount, joy}} 放进钱包",
+      "advanceLabel": "先拿 JOY 到钱包",
+      "noDeadline": "没有期限。需归还的数目不会随时间增长。",
+      "notEligible": "暂时无法使用 JOYlater",
+      "reason": {
+        "adult": "仅限 18 岁及以上会员",
+        "accountAge": "钱包需开通满 {{minDays}} 天（你：{{days}} 天）",
+        "earned": "需累计获得 {{min, joy}}（你：{{earned, joy}}）",
+        "openLoan": "你还有一笔没还完",
+        "noIncome": "还没有稳定的 JOY 收入"
+      },
+      "howTitle": "JOYlater 如何运作",
+      "how1": "选要先拿多少 JOY——上限按你自己赚到的算。",
+      "how2": "JOY 立刻进入钱包，照常使用即可。",
+      "how3": "你每次赚到 JOY，系统会留下 {{percent}}% 用来归还，不用记日子。",
+      "installmentsNote": "分得越多期，附加的就越多。数目在开始时就定下，之后不会变。",
+      "feeShort": "+{{percent}}%",
+      "perStepRow": "每期",
+      "stepRow": "下一期",
+      "stepOf": "第 {{index}}/{{of}} 期",
+      "payStepNow": "归还这一批 · {{amount, joy}}",
+      "payStepTitle": "归还第 {{index}}/{{of}} 批",
+      "payStepConfirm": "从钱包扣 {{amount, joy}} 归还这一批？",
+      "paidStep": "已归还 {{amount, joy}}",
+      "payOffRest": "还清剩余 · {{amount, joy}}",
+      "payModeLabel": "你想怎么归还？",
+      "payOnce": "一次还清",
+      "payOnceHint": "附加最少，{{percent}}%",
+      "paySplit": "分批归还",
+      "paySplitHint": "最多分 {{max}} 批，{{percent}}% 起",
+      "perStepShort": "每期 {{amount, joy}}",
+      "extraVsOnce": "多 {{amount, joy}}",
+      "historyTitle": "过往记录",
+      "historyHint": "点一笔查看完整明细",
+      "historyDone": "已还完",
+      "historyOpen": "归还中",
+      "historyAdded": "附加",
+      "historySplit": "分批",
+      "historyReturned": "已归还",
+      "historyClosedAt": "还完时间",
+      "historyLines": "{{count}} 次归还",
+      "historyNoLines": "还没有归还记录。",
+      "historyAuto": "从赚到的 JOY 中留下",
+      "historyManual": "你主动归还",
+      "dueRow": "到期日",
+      "penaltyRow": "逾期附加",
+      "lockedUntil": "{{date}} 开放",
+      "lockedNote": "分批归还只在到期当天开放。",
+      "lateNote": "逾期一批将附加该批的 {{percent}}%，只加一次。",
+      "lateWarn": "逾期未还：附加该批的 {{percent}}%，只加一次。"
+    },
+    "walletApp": {
+      "eyebrow": "电子钱包",
+      "title": "JOY 钱包",
+      "navAria": "钱包导航",
+      "tabOverview": "总览",
+      "tabMissions": "任务",
+      "tabHistory": "记录",
+      "tabLater": "JOYlater",
+      "sub_perks": "我的权益",
+      "sub_store": "权益商店",
+      "sub_redeem": "兑换代码",
+      "balanceLabel": "余额",
+      "sendOrReceive": "转账或收款",
+      "monthSummary": "近 30 天：收入 {{earned}} · 支出 {{spent}}",
+      "needsYou": "待你处理",
+      "claimReady": "有 JOY 待领取",
+      "claimCount": "{{count}} 个任务已完成",
+      "latest": "最近交易",
+      "seeAll": "查看全部",
+      "noTransactions": "还没有交易",
+      "more": "更多",
+      "checkinDetail": "每天领取 JOY",
+      "sub_checkin": "每日签到",
+      "cardNoName": "Hugo 会员",
+      "cardReferrals": "已推荐",
+      "cardSince": "加入年份",
+      "cardQrAria": "Bio 页面二维码 — 点按复制链接",
+      "cardScanHint": "扫码打开你的 Bio 页面",
+      "cardNeedsSlug": "设置 Bio 链接后即可生成二维码",
+      "tabMembership": "会员卡",
+      "currentTier": "当前等级",
+      "nextTier": "下一等级",
+      "tierNeed": "再推荐 {{count}} 人即可升到 {{tier}}",
+      "tierTop": "你已是最高等级",
+      "tierPerks": "各等级权益",
+      "tierDefault": "注册即拥有",
+      "tierFrom": "推荐 {{count}} 人起",
+      "tierOwned": "已获得",
+      "tierLocked": "未达成",
+      "tree": {
+        "seed": "一颗种子",
+        "sprout": "发芽了",
+        "sapling": "小树苗",
+        "young": "小树",
+        "mature": "大树",
+        "ancient": "参天大树",
+        "progress": "已领取 {{claimed}}/{{total}} 个任务",
+        "keepGoing": "再完成 {{count}} 个任务，树就长成了——奖励 {{amount, joy}}",
+        "claimBonus": "领取 {{amount, joy}} 奖励",
+        "bonusTaken": "已领取今天的树木奖励 {{amount, joy}}"
+      },
+      "sendJoy": "发送 JOY",
+      "convert": "汇率",
+      "convMyDenom": "你的 JOY 单位",
+      "convLocked": "这个单位是你首次登录时选定的，此后固定不变。更换界面语言不会改变它。",
+      "convAmountIn": "金额（{{code}}）",
+      "convUseBalance": "使用全部余额 · {{amount}}",
+      "convTableTitle": "同一金额在各单位下的写法",
+      "convFeeNote": "跨单位转账另加 {{percent}}%",
+      "convExplain": "JOY 只有一种价值——上面 {{units}} 个单位只是同一笔金额的 {{units}} 种写法，因此所有人能买到完全一样的东西。向使用其他单位的人发送 JOY 需另付 {{percent}}% 的换算手续费。",
+      "denomPickCta": "选择你的 JOY 单位",
+      "denomPickTitle": "你还没有选择 JOY 单位",
+      "denomPickIntro": "选择 JOY 数字的书写方式。余额和价格仍然是同样的 JOY，单位只改变数字的读法。",
+      "denomPickLock": "选定后即固定，更换界面语言也不会改变。向使用其他单位的人发送 JOY 需另付 {{percent}}% 换算手续费，因此单位不能来回更改。",
+      "denomPickYourBalance": "你的余额",
+      "denomConfirm": "使用这个单位",
+      "denomSaving": "正在保存…",
+      "denomSaved": "已为你的账户设定 JOY 单位。",
+      "marketTitle": "今日行情",
+      "marketWhy": "汇率每日依两项数据变动：社区人均日收入（{{income}}）与国际金价（{{gold}} 美元/盎司）。",
+      "marketPricesFixed": "应用内的价格不随汇率变动，汇率只改变数字的写法。",
+      "sub_convert": "汇率",
+      "range24h": "24小时",
+      "range7d": "7天",
+      "range30d": "30天",
+      "chartAria": "{{code}} 汇率图表，所选区间内 {{percent}}%",
+      "chartBand": "{{low}} – {{high}}",
+      "chartLoading": "正在加载图表…",
+      "chartCollecting": "正在收集数据 —— 每小时一个点，几小时后曲线就会出现。",
+      "chartFailed": "暂时无法加载图表。"
     }
   },
   "memberTabs": {
@@ -2610,20 +2823,20 @@
         "description": "个人资料和Bio链接"
       },
       "library": {
-        "title": "霍尔库图书馆",
-        "description": "霍尔库生态系统应用程序的图书馆"
+        "title": "Hugo 库",
+        "description": "生态系统的 Hugo 库"
       },
       "study": {
-        "title": "胡波研究",
+        "title": "学习与 Hugo",
         "description": "网页开发、数字生产力和AI",
         "fullDescription": "每条 Hugo 之路都有一套系统化的学习指导，包括实践、评估和明确的结果。"
       },
       "ide": {
-        "title": "胡波研究",
+        "title": "学习与 Hugo",
         "description": "专业 Web 开发集合"
       },
       "hugoso": {
-        "title": "胡波研究",
+        "title": "学习与 Hugo",
         "description": "数字生产力与 AI 集合",
         "fullDescription": "Hugo 学习办公室技能 —— 从逐课日历、文档、表格到 Gemini 的步骤课程，配有引导视频、动手练习和课后技能检查。"
       },
@@ -2632,7 +2845,7 @@
         "description": "学生角色和协作项目"
       },
       "psychology": {
-        "title": "胡波PSY",
+        "title": "HugoPSY",
         "description": "AI 健康与睡眠追踪"
       },
       "radio": {
@@ -2640,11 +2853,11 @@
         "description": "新闻和焦点音乐"
       },
       "helpdesk": {
-        "title": "胡波帮助台",
+        "title": "HugoHelpdesk",
         "description": "二维码、NFC 和电子邮件签名"
       },
       "handle": {
-        "title": "胡波处理",
+        "title": "HugoHandle",
         "description": "图片压缩和安全链接"
       },
       "arcade": {
@@ -2686,18 +2899,22 @@
       "arcade_survivor": {
         "title": "太空生存者",
         "description": "深空生存"
+      },
+      "profile": {
+        "title": "个人资料",
+        "description": "A verified record of your work, attached to your Bio"
       }
     },
     "dashboard": {
       "title": "會員 Utilities",
       "desc": "Explore smart tools to optimize your workflow and personalize your Bio page.",
       "nfc": {
-        "title": "配置触控设置，快速分享Bio链接或联系信息",
+        "title": "HugoNFC",
         "desc": "立即设置",
         "btnText": "HugoVCard"
       },
       "vcard": {
-        "title": "创建智能vCard二维码，直接扫描和保存联系人",
+        "title": "HugoVCard",
         "desc": "HugoNFC",
         "btnText": "HugoVCard"
       },
@@ -2717,12 +2934,12 @@
         "btnText": "Open Tool"
       },
       "psychology": {
-        "title": "胡波PSY",
+        "title": "HugoPSY",
         "desc": "AI 心理健康咨询伙伴，跟踪睡眠并治愈情绪。",
         "btnText": "Open Utility"
       },
       "ide": {
-        "title": "胡波研究",
+        "title": "学习与 Hugo",
         "desc": "具有代码建议、基本教程和本地文件保存指南的多功能代码编辑器（C, C++, C#, Python, Web, PHP）",
         "btnText": "打开代码开发环境"
       },
@@ -2735,126 +2952,207 @@
         "btnText": "打开广播"
       },
       "arcade": {
-        "desc": "2048、Caro vs AI、Word Guess - 挑战分数并获得新个人最佳成绩的奖励。",
+        "desc": "2048, 车尔 VS 人工智能，猜词游戏 —— 比分赛，赢取新个人最佳奖励。JOY",
         "btnText": "进入游戏室"
       }
     },
     "radio": {
       "categories": {
-        "vnNews": "越南电台",
+        "vnNews": "越南新闻",
         "intlNews": "国际新闻",
         "music": "音乐",
-        "chill": "放松",
-        "found": "已保存（{{n}}）"
+        "chill": " Chill ",
+        "found": " 已保存 ({{n}}) "
       },
       "state": {
-        "connecting": "连接中",
-        "playing": "播放中",
-        "paused": "已暂停",
-        "idle": "待机",
-        "pickStation": "选择一个电台开始收听"
+        "connecting": " 连接中 ",
+        "playing": " 正在播放 ",
+        "paused": "暂停",
+        "idle": " 准备好 ",
+        "pickStation": " 选择一个电台收听 "
       },
       "control": {
-        "prev": "上一个电台",
-        "next": "下一个电台",
+        "prev": " 上一电台 ",
+        "next": " 下一电台 ",
         "play": "播放",
         "stop": "停止",
         "volume": "音量",
         "shuffle": "随机",
-        "sleep": "睡眠定时",
-        "sleepRunning": "{{time}} 后停止",
-        "sleepArmed": "已设 {{minutes}} 分钟"
+        "sleep": "睡眠定时器",
+        "sleepRunning": "在 {{time}} 停止",
+        "sleepArmed": "设置为 {{minutes}} 分钟"
       },
       "health": {
-        "good": "该电台播放正常",
-        "shaky": "该电台不太稳定",
-        "dead": "目前无法播放 —— 一天后重试",
-        "unknown": "尚未尝试"
+        "good": "这个电台表现良好",
+        "shaky": "这个电台不稳定",
+        "dead": "目前不可用 — 一天后重试中",
+        "unknown": "还没有尝试过"
       },
-      "learnedUrl": "已记住新地址",
-      "searchPlaceholder": "搜索电台：VOV1、NPR、FIP…",
+      "learnedUrl": "学习了一个新的地址",
+      "searchPlaceholder": "查找电台: VOV1, NPR, FIP…",
       "searchAction": "搜索",
-      "searching": "搜索中…",
-      "loading": "加载中…",
-      "noStations": "没有找到电台。",
+      "searching": "正在搜索…",
+      "loading": "加载中...",
+      "noStations": "在该类别中没有找到电台。",
       "removeFound": "从列表中移除 {{name}}",
       "toast": {
-        "playError": "该电台暂时无法播放，请换一个试试。",
-        "autoSkip": "{{from}} 无法连接 —— 已切换到 {{to}}。",
-        "outOfTokens": "收听代币已用完，请购买后继续收听。",
-        "notFound": "没有找到名为“{{name}}”的电台。",
-        "searchError": "无法连接电台目录，请检查网络后重试。",
-        "sleepDone": "睡眠定时：HugoRadio 已停止播放，晚安！"
+        "playError": "当前无法播放此电台，请尝试其他一个。",
+        "autoSkip": "{{from}} 无法连接 — 切换到 {{to}}。",
+        "outOfTokens": "您已用完听歌券，购买更多以继续听歌。",
+        "notFound": "未找到名为“{{name}}”的电台。",
+        "searchError": "无法访问电台目录，请检查您的网络连接后重试。",
+        "sleepDone": "睡眠定时器：HugoRadio 已停止播放。祝你睡个好觉！"
       },
       "legal": {
         "title": "来源与版权",
-        "body": "HugoRadio 只是一个播放器：它打开各电台自行公开发布的直播流。不下载、不缓存、不录音。节目版权归广播机构所有。",
-        "source": "电台目录来自开放数据库 Radio Browser。"
+        "body": "HugoRadio is only a player: it opens the live stream each broadcaster publishes itself. Nothing is downloaded, cached or recorded. Programme rights belong to the broadcaster.",
+        "source": "Station directory from the open Radio Browser database."
       },
       "token": {
-        "title": "收听代币",
-        "unit": "个",
-        "perToken": "1 个代币 = {{minutes}} 分钟收听",
-        "freeLeft": "本周免费：{{n}}/{{total}}",
-        "purchasedLeft": "已购买：{{n}}",
-        "resetIn": "{{when}}重置",
-        "peakNotice": "高峰时段：一个代币只能听 {{minutes}} 分钟。",
-        "emptyDesc": "代币已用完，购买后可继续收听。",
-        "lastMinutes": "不足一个代币 —— 约 {{minutes}} 分钟。",
-        "buyMore": "购买代币"
+        "title": "Listening passes",
+        "unit": "passes",
+        "perToken": "Each pass gives {{minutes}} minutes.",
+        "freeLeft": "{{n}}/{{total}} free passes left",
+        "purchasedLeft": "{{n}} 拥有通行证",
+        "resetIn": "重置 {{when}}",
+        "peakNotice": "高峰时段：每个通行证只有 {{minutes}} 分钟",
+        "emptyDesc": ":( 您的通行证已用完。请购买更多或等待下周重置。",
+        "lastMinutes": "{{minutes}} 分钟后，您还可以继续使用这个通行证.",
+        "buyMore": "再给一点时间"
       },
       "store": {
-        "title": "购买收听代币",
-        "desc": "1 个代币 = {{minutes}} 分钟收听。已购买的代币不会按周清零。",
+        "title": "购买听币",
+        "desc": "1枚= {{minutes}} 分钟的收听。已购听币每周有效有效期。",
         "close": "关闭",
-        "balance": "你的余额",
-        "amount": "购买数量",
-        "decrease": "减少一个",
-        "increase": "增加一个",
-        "equals": "{{n}} 个代币 = {{minutes}} 分钟收听",
-        "preset": "{{hours}} 小时",
-        "unitPrice": "每个代币单价",
-        "fee": "创作费（{{percent}}%）",
-        "total": "合计",
-        "peakNotice": "高峰时段 00:00–05:00 与 11:00–13:00：代币消耗加倍。",
-        "short": "还差 {{amount}} JOY。",
-        "buy": "购买 {{n}} 个代币 — {{total}} JOY",
+        "balance": "您的余额",
+        "amount": "您拥有的听币数量",
+        "decrease": "少一枚听币",
+        "increase": "多一枚听币",
+        "equals": "{{n}} 枚听币={{minutes}} 分钟的收听",
+        "preset": "{{hours}} h",
+        "unitPrice": "价格/个 token",
+        "fee": "创意费 ({{percent}}) %",
+        "total": "总金额",
+        "peakNotice": "高峰时段 00:00–05:00 和 11:00–13:00：token 花得快两倍。",
+        "short": "你是 {{amount, joy}} 短了。",
+        "buy": "购买 {{n}} 个 token — {{total, joy}}",
         "buying": "处理中…",
-        "success": "已增加 {{n}} 个收听代币。",
+        "success": "添加了 {{n}} 个聆听 token。",
         "genericError": "购买失败，请重试。"
       }
     },
     "store": {
-      "title": "Hugo商店",
-      "tabs": {
-        "shop": "购物车",
-        "cart": "购物车",
-        "orders": "历史记录",
-        "promos": "促销"
+      "error": "交易未能完成。",
+      "search": {
+        "placeholder": "搜索应用和物品",
+        "clear": "清除搜索",
+        "results": "{{apps}} 个应用 · {{packs}} 件物品",
+        "empty": "没有找到",
+        "emptyHint": "换个关键词试试。"
       },
-      "shop": {
-        "search": "搜索...",
+      "home": {
+        "apps": "应用",
+        "appsHint": "大多免费，打开就能用",
+        "orders": "已购买",
+        "ordersHint": "最近的订单",
+        "balance": "你的余额",
+        "balanceHint": "JOY 来自学习、游戏和签到，不能用钱充值。",
+        "games": "游戏",
+        "gamesHint": "在这里下载，到游戏厅里玩"
+      },
+      "expiring": {
+        "title": "正在使用",
+        "hint": "到期即锁定，不会自动扣 JOY",
+        "trial": "体验版",
+        "rent": "按月",
+        "today": "今天到期",
+        "tomorrow": "还剩一天",
+        "days": "还剩 {{count}} 天",
+        "cta": "查看方案"
+      },
+      "app": {
         "free": "免费",
-        "addToCart": "添加到购物车",
-        "installed": "已安装"
+        "freeHint": "这个应用打开就能用，不需要 JOY。",
+        "using": "使用中",
+        "owned": "已拥有",
+        "open": "打开",
+        "locked": "未解锁",
+        "lockedHint": "在下方选择一种解锁方式",
+        "giftAria": "把{{app}}送给朋友",
+        "choose": "解锁方式",
+        "chooseHint": "先体验、按月订阅，或一次买断",
+        "install": "获取",
+        "installing": "下载中 {{percent}}%",
+        "installedToast": "已安装{{app}}",
+        "viaPlan": "用{{plan}}方案解锁",
+        "see": "查看方案"
+      },
+      "tier": {
+        "trial": "体验 {{count}} 天",
+        "trialNote": "不扣 JOY，到期自动锁定。",
+        "trialUsed": "你已经体验过了",
+        "trialStarted": "已开通 {{count}} 天体验",
+        "free": "免费",
+        "start": "开始",
+        "rent": "按月",
+        "rentNote": "需要时续期，随时停止",
+        "rentAgainNote": "再次购买会叠加到剩余期限上",
+        "rentCta": "获取",
+        "renewCta": "续期",
+        "own": "终身",
+        "ownNote": "按月订满 {{months}} 个月要花 {{joy, joy}}",
+        "ownCta": "买断",
+        "save": "省 {{percent}}%",
+        "popular": "热门",
+        "current": "使用中",
+        "used": "已使用",
+        "short": "还差 {{joy, joy}}"
+      },
+      "packs": {
+        "radio_time": {
+          "title": "增加收听时长",
+          "subtitle": "为电台应用增加分钟数"
+        },
+        "psy_study_tokens": {
+          "title": "增加对话次数",
+          "subtitle": "解锁更多聊天和通话"
+        },
+        "system_validity": {
+          "title": "延长系统期限",
+          "subtitle": "为账号增加使用天数"
+        },
+        "general": {
+          "title": "其他物品",
+          "subtitle": "其余值得一看的东西"
+        },
+        "soldOut": "售罄",
+        "fallback": "商店物品",
+        "perkListenDays": "+{{count}} 天收听",
+        "perkListenHours": "+{{count}} 小时收听",
+        "perkValidity": "+{{count}} 天使用期",
+        "perkChats": "+{{count}} 次对话",
+        "perkCalls": "+{{count}} 次通话"
+      },
+      "gift": {
+        "title": "赠送{{app}}",
+        "close": "关闭",
+        "to": "送给",
+        "toPlaceholder": "推荐码、邮箱或手机号",
+        "searching": "查找中…",
+        "notFound": "没有找到符合的人。",
+        "lookupFailed": "无法查询收礼人。",
+        "code": "推荐码 {{code}}",
+        "member": "Hugo 会员",
+        "tier": "赠送方案",
+        "rentNote": "可用 30 天",
+        "message": "留言",
+        "optional": "（可选）",
+        "messagePlaceholder": "祝你学得开心！",
+        "continue": "继续 · {{joy, joy}}",
+        "choose": "先选择收礼人"
       },
       "cart": {
-        "empty": "购物车为空",
-        "emptyDesc": "店铺里的产品",
-        "promoPlaceholder": "输入优惠码",
-        "subtotal": "小计",
-        "tax": "(9%) 税",
-        "discount": "折扣",
-        "total": "总金额",
         "checkout": "结账"
-      },
-      "orders": {
-        "empty": "还没有订单"
-      },
-      "promos": {
-        "placeholder": "请输入代码",
-        "valid": "有效或过期的代码",
-        "invalid": "无效或已过期的代码"
       }
     },
     "vcard": {
@@ -3076,7 +3374,7 @@
       "muaGoiVinhVien": "购买永久套餐",
       "gom": "including",
       "joyVa": "JOY和费用创造来解锁永久",
-      "joyPhiSangTao": "续订Web开发部",
+      "joyPhiSangTao": "JOY 创建终身访问费用",
       "giaHanBoPhat": "+ 10% 费用创造) 来续订30天的Web开发部?",
       "10PhiSangTao2": "维护费成功关闭!",
       "dongPhiBaoTri": "全包套餐6阶段",
@@ -3087,7 +3385,47 @@
       "xacNhanXoa": "确认删除",
       "banCoChacChan": "您确定要删除吗？此操作不可撤销。",
       "thuMuc": "folder",
-      "khongHanhDongNay": "\"? 这不能恢复。"
+      "khongHanhDongNay": "\"? 这不能恢复。",
+      "dangTaiLoTrinh": "Loading the lesson path…",
+      "quayLai": "後",
+      "luuTrucTiepDisk": "直接保存 (磁盘)",
+      "taiVeMayLocal": "本地下载",
+      "xuatToanBoWorkspace": "将当前工作区导出为ZIP文件",
+      "xuatZip": "导出ZIP",
+      "dongBoTrucTiep": "通过File System API同步到计算机上的一个文件夹",
+      "moThuMucCuc": "打开本地文件夹",
+      "quanLyFile": "文件管理",
+      "khoaHocCodeMau": "课程与示例代码",
+      "deChayPhpVa": "To run PHP and manage the database through phpMyAdmin on your own computer (localhost),\n                Docker Compose is the lightest option and keeps it well away from real data.",
+      "buoc1CaiDat": "步骤1：安装Docker Desktop",
+      "taiDockerDesktopTu": "从docker.com下载并安装Docker Desktop到您的计算机上。",
+      "buoc2TaoFile": "步骤2：创建docker-compose.yml",
+      "taoFileDockerCompose": "在PHP项目的同一文件夹中创建一个docker-compose.yml文件，内容如下：",
+      "buoc3KhoiDong": "步骤3：启动堆栈",
+      "chayTerminalTaiThu": "打开该文件夹中的终端，并运行以下命令：",
+      "buoc4TruyCap": "步骤4：打开phpMyAdmin",
+      "moTrinhDuyetTruy": "在浏览器中打开：",
+      "taiKhoanRootMat": "Username: root / 密码: root。这是一个本地学习环境；永远不要在真实系统中使用这些样本凭据。",
+      "khongGianSoanThao": "编辑器已锁定",
+      "vuiLongKichHoat": "激活订阅，或在左侧列中购买永久解锁，以开始编码本课内容。",
+      "troLaiEditor": "返回到编辑器",
+      "khongCoFileNao": "没有打开的文件。从文件资源管理器中打开一个，或者加载一个课程。",
+      "huongDanChay": "如何运行它",
+      "heThongNhanNut": "[系统]按“运行代码”来模拟执行。",
+      "chayThuConsole": "在控制台中运行",
+      "loi": "错误",
+      "dang": "正在运行",
+      "chayThuMaNguon": "在浏览器中直接在模拟沙箱中运行你的代码",
+      "chayCodeThu": "运行代码",
+      "dungXem": "停止预览",
+      "fileDangWebHtml": "一个网页文件（HTML/CSS/JS）。请在右上角点击**实时预览**按钮，立即在浏览器中查看界面。",
+      "doiVoiPythonBan": "对于Python，请在自己的计算机上打开终端，在包含下载文件的文件夹内运行：",
+      "doiVoiNgonNgu": "对于C，请安装GCC编译器。从终端开始编译并运行：",
+      "doiVoiCBien": "对于C++，使用g++进行编译：",
+      "doiVoiCHay": "对于C#，请安装.NET SDK。创建一个新的控制台项目并运行：",
+      "doiVoiPhpBan": "对于PHP，可以使用内置的本地服务器快速测试而不依赖Apache：",
+      "truyCapHttpLocalhost": "在您的计算机上打开http://localhost:8000查看结果。",
+      "traoDoiJoyDe": "用JOY兑换以解锁Web开发套件"
     },
     "hugoso": {
       "bai": "bài ·",
@@ -3124,7 +3462,7 @@
       "noiDungDaDoi": "内容检查符合Google官方文档的",
       "googleGoogleCalendarDocs": "Google, Google Calendar, Docs, Sheets和Gemini是Google LLC的商标。\n              学习Hugo是由独立学习系统，与之无任何关联、赞助或认可关系。",
       "dieuHuongStudyWith": "Hugo导航栏",
-      "homNay": "今天",
+      "homNay": "Hôm nay",
       "khoaHoc": "课程",
       "thucHanh": "练习",
       "tienDo": "进度",
@@ -3187,12 +3525,64 @@
       "nopVaMoBuoc": "提交并开启下一步",
       "tiepTheo": "NEXT",
       "nangSuatSoAi": "数字生产力与AI",
-      "dangTaiKhoaHoc": "加载课程"
+      "dangTaiKhoaHoc": "加载课程",
+      "dungVaLamTheo": "DURING AND FOLLOWING",
+      "loiPhoBien": "FREQUENT ERRORS",
+      "thang7": "七月",
+      "baoCaoNghienCuu": "研究报告",
+      "dangLuuTrenDrive": "将数据保存到驱动器",
+      "nguyen2026ChoRang": "Nguyen (2026)认为……",
+      "hayGiupToiLap": "帮我规划一下，但是在得出结论前先和我确认一下。",
+      "mucTieuQuanTrong": "你最重要的目标是什么，以及它的截止日期是？",
+      "dinhDangHuongDan": "引导格式",
+      "banHuongDanTuong": "互动式引导",
+      "tamDungVideoMinh": "暂停演示视频",
+      "phatVideoMinhHoa": "播放演示视频",
+      "chuong": "章节",
+      "khopBuoc": "· 匹配步骤",
+      "dong": "关闭",
+      "quyenSoHuuTron": "永久访问",
+      "moToanBo4": "解锁所有4门课程、当前的所有练习以及以后添加的任何内容。",
+      "moToanBoLo": "解锁整个路径及其练习和未来更新这门课程的内容。",
+      "giaKhoaHoc": "课程价格",
+      "phiSangTao10": "创建费用10%",
+      "tongTraoDoi": "总成交金额",
+      "dangXacNhan": "确认中…",
+      "deSau": "稍后",
+      "khongTuGiaHan": "无自动续费 · JOY无法兑换现金"
+    },
+    "profile": {
+      "eyebrow": "已验证的履历",
+      "loading": "正在建立您的记录…",
+      "generatedAt": "于 {{date}} 生成",
+      "publicNote": "下方每一项数据都由 Hugo Studio 记录并审核，不是页面主人自行填写的。",
+      "sectionStudent": "验证",
+      "studentStatus": "学生状态",
+      "verified": "已验证",
+      "notVerified": "未通过验证",
+      "school": "学校",
+      "sectionLearning": "学习",
+      "lessons": "已完成课程",
+      "certificate": "颁发证书",
+      "granted": "Granted",
+      "notYet": "未完成",
+      "studyCourses": "你拥有的课程",
+      "sectionTeam": "项目贡献",
+      "approvedHours": "已批准的小时数",
+      "tasksDone": "任务已完成",
+      "tasksDoneShort": "{{count}} 任务已完成",
+      "publishTitle": "在你的Bio上发布",
+      "publishDesc": "打开此开关可以在公共Bio页面下显示记录。访客无需登录即可查看。",
+      "showOnBio": "在Bio页面上展示",
+      "needPlan": "需在商店中租用或购买 Hugo Profile 才能公开发布。查看自己的记录始终免费。",
+      "published": "发布记录。",
+      "unpublished": "从您的个人资料页中移除了该记录。",
+      "saveError": "无法保存设置。"
     }
   },
   "companion": {
     "tab": {
-      "title": "胡波PSY",
+      "title": "HugoPSY",
       "subtitle": "您的精神健康伙伴",
       "today": "今天",
       "statsDays": "一起度过的天数",
@@ -3349,7 +3739,7 @@
   },
   "hugoPsy": {
     "coach": {
-      "title": "胡桃木教练",
+      "title": "HugoPSY 教练",
       "subtitle": "基于您的打卡和旅程的建议",
       "private": "私密",
       "insight": "我最近怎么样？",
@@ -3467,7 +3857,7 @@
       "meoMoiChuKy": "💡 **提示:** 每个睡眠周期持续90分钟（包括NREM、深度N3和REM）。在周期结束时醒来，你会感到完全清醒，而不是昏昏欲睡或头痛。",
       "boCamBien": "传感器:",
       "tuDongKichHoat": "自动激活（PWA)",
-      "dangKetNoi": "Connecting",
+      "dangKetNoi": " 连接中 ",
       "chuaLienKet": "未链接",
       "tuDong": "自动",
       "daLienKet": "已关联",
@@ -3592,7 +3982,7 @@
   },
   "hugoCoderLearning": {
     "back": "应用",
-    "joyBalance": "Joy平衡",
+    "joyBalance": "JOY 平衡",
     "loading": "准备您的学习旅程...",
     "tabs": {
       "label": "Hugo导航栏",
@@ -3705,7 +4095,7 @@
       "trenTongSo": "总共",
       "baiHocThucChien": "hands-on lessons",
       "soHuuTronGoi": "Own the lifetime bundle (免费维护至生命终结)",
-      "chuaKichHoatPhi": "每月维护未激活（50 JOY）",
+      "chuaKichHoatPhi": "每月维护未激活（ {{amount, joy}}）",
       "phiBaoTriDa": "您的维护费用已过期！",
       "vuiLongGiaHan": "请续订50 JOY的每月维护以保持学习。您需在支付前完成当前进度。",
       "ngay": "天",
@@ -3722,8 +4112,8 @@
       "chucMungHoanThanh": "恭喜完成本阶段的学习",
       "xemChiaSeGiay": "查看并分享您的舞台证书",
       "banDaHoanThanh": "您已通过本阶段的所有挑战。领取奖励",
-      "daNhanThuong800": "已领取奖励 (+800 JOY ✓)",
-      "nhanPhanThuong800": "领取奖励 (+800 JOY)",
+      "daNhanThuong800": "已领取奖励 ( {{amount, joy}} ✓)",
+      "nhanPhanThuong800": "领取奖励 ( {{amount, joy}})",
       "hayHoanThanhDo": "完成最终项目并提交你的项目链接以",
       "bai100": "Lesson 100",
       "deNhanDanhGia": "获得 Hugo Studio 的评审。",
@@ -3733,7 +4123,7 @@
       "phanHoi": "反馈：",
       "banCoTheSua": "你可以修订并提交新的链接至 Lesson 100.",
       "doAnDaDuoc": "你的项目已获批准！ 🎉",
-      "daNhanThuongHoan": "完成 4,000 JOY 的奖励以及 VVIP 礼品已被记入。",
+      "daNhanThuongHoan": "完成 {{amount, joy}} 的奖励以及 VVIP 礼品已被记入。",
       "nhanChungNhanHoan": "获取您的完成证书",
       "chungNhanDangDuoc": "管理员正在准备您的证书...",
       "vuiLongHoanThanh": "完成上一个课程解锁此课程！",
@@ -3750,7 +4140,7 @@
       "muaTronGoi16k": "Buy the bundle for 16k JOY",
       "giaHanPhiBao": "续费每月维护费用为16k JOY。",
       "phiBaoTriCan": "逾期三个月后，学习进度将重置为零。",
-      "dongPhiBaoTri": "支付每月维护费用为50 JOY。",
+      "dongPhiBaoTri": "支付每月维护费用为 {{amount, joy}}。",
       "hinhMinhHoaSong": "动画插图",
       "tongQuanMucTieu": "概述及目标",
       "thucHanhCodeMau": "练习与步骤详解代码",
@@ -3770,13 +4160,78 @@
       "chayThuDeXem": "运行以查看",
       "chay": "运行",
       "baiNayLaDang": "本课涵盖查询或后端工作，因此在手机上您会获得示例代码和说明。在桌面环境下学习系统将打开完整的IDE。",
-      "traoDoiJoyDe": "用JOY兑换解锁Web开发套装"
+      "traoDoiJoyDe": "用JOY兑换以解锁Web开发套件"
+    },
+    "puzzles": {
+      "thucHanhHoanTat": "完成练习！正确回答下面的问题以通过。",
+      "cauDuoiDayDe": "提交测试",
+      "nopBaiKiemTra": "课程完成！",
+      "baiHocDaHoan": "使用移动按钮将这些代码块放入正确的逻辑顺序：",
+      "banDaVuotQua": "你已成功完成本课挑战并获得了JOY奖励。",
+      "nhapVaoNutDi": "检查顺序",
+      "kiemTraThuTu": "界面要求：",
+      "yeuCauGiaoDien": "产品卡",
+      "cardSanPham": "支付方式",
+      "viDuHienThi": "Visual example",
+      "mauNen": "Background colour:",
+      "mauChu": "Text colour:",
+      "xacNhanMauSac": "Confirm the colours",
+      "hayHoanThanhSu": "Complete the click event by clicking 3 times:",
+      "nhapChuotClick": "Click",
+      "boDemSoLan": "Click counter:",
+      "nopBaiThucHanh": "Submit the exercise",
+      "hayNhanDu3": "Click 3 times to finish",
+      "bamChon1Tu": "Pick a keyword on the left, then pick its matching definition on the right:",
+      "tuKhoa": "Keyword",
+      "dinhNghia": "Definition",
+      "hoanThanhNoiCap": "Finish matching",
+      "dienDoanCodePhp": "Fill the blanks below with the right PHP:",
+      "xinChao": "\"Xin chào\"",
+      "nopKetQuaDien": "Submit the filled-in code",
+      "vietCodeTrenIde": "Write the code in the desktop IDE. Once it runs successfully in the browser, take a screenshot and upload it here so the system can check the format of what you submit.",
+      "daTaiAnhLen": "Image uploaded successfully!",
+      "chonHoacKeoAnh": "Choose or drag a screenshot here",
+      "dangKiemTraAnh": "Checking the submitted image...",
+      "kiemTraDinhDang": "检查图片的格式、大小和完整性。",
+      "tuKiemTraAnh": "自检完成",
+      "diemNayChiPhan": "此得分仅反映图片是否适合解锁下一步；并不替代教师或管理员对实际作品的审核。",
+      "nopAnhDaKiem": "提交已检查的图片",
+      "vuiLongChonAnh": "请选择一张截图",
+      "dangNapBoCau": "正在加载测验问题...",
+      "ketQuaKiemTra": "测试结果：",
+      "tuyetVoiBanDa": "优秀！你通过了测试。",
+      "ratTiecDiemSo": "遗憾的是，你的得分低于60%的最低要求。",
+      "nhanThuongJoyHoan": "JOY",
+      "doiDeThiKhac": "重试",
+      "cauHoi": "问题",
+      "daChon": "已选：",
+      "cau": "câu",
+      "cauTruoc": "上一頁",
+      "nopBaiThi": "提交論文",
+      "cauTiep": "下一步",
+      "khungMaNguon": "源框架：",
+      "xacNhanDapAn": "確認答案",
+      "doAnKetKhoa": "前端開發最終項目",
+      "nopSanPhamHoan": "提交你的最精美的作品完成第7阶段，以获得结项证书和 {{amount, joy}}。",
+      "chucMungBanDa": "恭喜！你已完成Web开发套件！🎉",
+      "xemChungNhanHoan": "查看结项证书",
+      "dangChoAdminDinh": "管理员正在添加结项链接中...",
+      "duAnDangCho": "项目待审核... ⏳",
+      "hugoStudioDangXem": "Hugo工作室正在审查你的提交内容。",
+      "duAnChuaDat": "该项目未达到要求 ❌",
+      "phanHoiCuaAdmin": "管理员反馈：",
+      "banCoTheDieu": "你可以在这里调整并发送新的项目链接。",
+      "httpsMyprojectComHoac": "https://myproject.com 或 https://github.com/...",
+      "ghiChuChoAdmin": ":note-for-admin (可选)",
+      "nhapGhiChuTai": "备注，测试账户，操作详情…",
+      "dangGui": "正在发送...",
+      "guiDeAnTot": "提交最终项目。:submit-final-project:"
     }
   },
   "arcadeGame": {
     "back": "後",
     "loading": "加载中",
-    "joyBalance": "Joy平衡",
+    "joyBalance": "JOY 平衡",
     "pause": "暂停",
     "resume": "继续",
     "paused": "暂停",
@@ -3927,7 +4382,7 @@
     "rankSs": "恭喜你获得了SS级的成就，成为NEON ACE！",
     "rankA": "RANK A • 高級戰士",
     "rankB": "RANK B • 新星玩家",
-    "shellFormula": "{{score}} 点 → {{joy}} JOY",
+    "shellFormula": "{{score}} 点 → {{joy, joy}}",
     "shellRecord": "新紀錄！ 比上次多 {{delta}} 点。",
     "shellNear": "距離你最好的 {{best}} 程還差 {{gap}} 点。",
     "shellBest": "你的最好： {{best}} 点。",
@@ -3956,7 +4411,9 @@
     "levelEasy": "简单",
     "levelMid": "中等",
     "levelHard": "困难",
-    "caroOpponent": "对手"
+    "caroOpponent": "对手",
+    "eventSaturdayTitle": "双倍星期六",
+    "eventSaturdayDesc": "纪念上帝之子的复活和救赎——为上帝玩游戏，获得双倍奖励！JOY!"
   },
   "arcadeIntro": {
     "close": "返回应用",
@@ -4065,19 +4522,19 @@
   "intro": {
     "nav": {
       "welcome": "欢迎",
-      "webDev": "Web 开发",
-      "personalInfo": "个人资料",
-      "teammateInfo": " teammate_info ",
-      "bioEdu": "生物教育服务",
-      "webService": "Web服务",
-      "hobbies": "爱好",
-      "philosophy": "Philosophy",
-      "contacts": "联系",
-      "start": "开始使用",
+      "webDev": "网页开发",
+      "personalInfo": "个人档案",
+      "teammateInfo": "团队成员",
+      "bioEdu": "Bio Edu 服务",
+      "webService": "建站服务",
+      "hobbies": "兴趣爱好",
+      "philosophy": "理念",
+      "contacts": "联系方式",
+      "start": "开始",
       "studio": "Hugo Studio",
       "partners": "创始人",
       "about": "关于我",
-      "discoveries": "Discoveries"
+      "discoveries": "探索"
     },
     "about": {
       "desc": "I am Hugo — a Gen Z developer who turns ideas into considered, characterful digital experiences.",
@@ -4095,7 +4552,7 @@
     },
     "slide2": {
       "badge": "✦ Web开发",
-      "title1": "Web 开发",
+      "title1": "网页开发",
       "title2": "创意变为互动空间的旅程",
       "desc": "Web开发是将创意想法转化为生动网站的过程。这不仅仅是纯粹的编码；Web开发需要高雅的设计思维与最佳的技术解决方案相结合，以实现完美的用户体验。",
       "viewProfile": "查看个人资料"
@@ -4103,7 +4560,7 @@
     "slide3": {
       "badge": "\"✦ 个人资料\"",
       "title1": "\"背景及\",",
-      "title2": "\"教育\"",
+      "title2": "Education",
       "eduTitle": "教育 / 学历\\n\n- Bachelor of Science in Computer Science\n- Master of Arts in Information Technology\n\n如有任何问题，请联系support@hugostudio.com.",
       "highSchool": "Nguyen Dinh Chieu High School",
       "highSchoolDesc": "我的学院（MyTho学院）",
@@ -4129,7 +4586,7 @@
       "title2": "数字体验。",
       "desc": "Jason Phan 是我学习和项目开发旅程中的伙伴。我们结合系统思维和技术的热情，将复杂的想法转化为流畅且优化的应用程序。",
       "highSchool": "高棉杜昂中学",
-      "highSchoolDesc": "Dynamic high school in Kien Giang.",
+      "highSchoolDesc": "位于坚江的活力高中。",
       "highSchoolProvince": "An Giang (former Kien Giang)",
       "uniTitle": "Greenwich越南",
       "uniDesc": "International training environment affiliated with Greenwich UK.",
@@ -4147,18 +4604,18 @@
       "idTitle": "学生身份",
       "idName": "Hugo Studio 成员门户系统",
       "idEmailTitle": "必需邮箱",
-      "idBenefitTitle": "好处",
+      "idBenefitTitle": "权益",
       "idBenefitDesc": "1 张免费生物页",
-      "idValidityTitle": "有效期限",
+      "idValidityTitle": "有效期",
       "idValidityDesc": "12 月",
-      "idAuth": "认证",
-      "benefitsTitle": "Verify successfully and you receive:",
+      "idAuth": "已认证",
+      "benefitsTitle": "验证成功后你会获得：",
       "b1t": "免费个人简介页",
-      "b1d": "定制布局、效果、背景和每个社交链接——您的专属数字名片。",
+      "b1d": "自定义版式、特效、背景和每个社交链接——属于你的数字名片。",
       "b2t": "一个干净的个性化链接",
       "b2d": "Like bio/your-name — memorable and professional on your CV, Facebook or Instagram.",
       "b3t": "3-second auto verification",
-      "b3d": "仅以.edu结尾的邮箱——系统即时验证，无需人工审核。",
+      "b3d": "只要邮箱以 .edu 结尾——系统即时验证，无需人工审核。",
       "b4t": "全学生工具包",
       "b4d": "学习之路、Hugo PSY、Web IDE、Hugo Radio 和 Aura AI — 免费提供完整 12 个月。",
       "toolsTitle": "免费的学生实用工具包含",
@@ -4198,7 +4655,7 @@
       "p3": " keep interfaces coherent and source code maintainable . "
     },
     "slide9": {
-      "badge": " ✦ 联系 ",
+      "badge": "✦ 联系",
       "title": " Connect with Hugo ",
       "desc": " For projects , prospects , or simply to break the ice . ",
       "zalo": " Zalo Chat ",
@@ -4207,7 +4664,7 @@
       "tiktok": "TikTok",
       "supporters": "Kindred spirits alongside Hugo Studio",
       "supporterItem": "{{name}}",
-      "supportersEmpty": "一个可爱的小角落正等待着你的名字。"
+      "supportersEmpty": "有个可爱的小角落在等你的名字。"
     },
     "slide10": {
       "badge": "✦ 现在开始",
@@ -4239,7 +4696,7 @@
       "v1": "致力于",
       "v2": "Polished",
       "v3": "创意",
-      "v4": "Friendly",
+      "v4": "亲切",
       "v5": "Supportive"
     },
     "discoveries": {
@@ -4256,9 +4713,9 @@
       "radioTitle": "Hugo Radio",
       "radioDesc": "A soothing lofi radio station for your late-night study sessions.",
       "ideTitle": "Web IDE",
-      "ideDesc": "Write and run code right in your browser — even on your phone.",
+      "ideDesc": "直接在浏览器里写代码并运行——手机上也行。",
       "arcadeTitle": "Hugo Arcade",
-      "arcadeDesc": "Retro games and multiplayer chess to unwind after stressful study sessions.",
+      "arcadeDesc": "复古小游戏与联机国际象棋，读书累了用来放松。",
       "joyTitle": "Joy PWA",
       "joyDesc": "JOY奖励钱包 — 在整个生态系统中赚取和使用积分。",
       "bioTitle": "签名生物",
@@ -4277,24 +4734,24 @@
       "eyebrow": "遇见Hugo",
       "title1": "七种情绪， ",
       "title2": "一个Hugo",
-      "desc": "Every working moment has its mood — always caring, always fun.",
+      "desc": "工作的每个时刻都有情绪——始终体贴，始终有趣。",
       "m1w": "你好！",
-      "m1d": "Friendly from the first hi",
-      "m2w": "Coding",
-      "m2d": "快速、干净的网站",
+      "m1d": "从第一句问候就很亲切",
+      "m2w": "写代码",
+      "m2d": "又快又干净的网站",
       "m3w": "Care",
       "m3d": "HugoPSY for your mind",
       "m4w": "质量:",
       "m4d": "Detail in everything",
       "m5w": "Wow",
-      "m5d": "Always a little surprise",
+      "m5d": "总有一点小惊喜",
       "m6w": "Let's go",
       "m6d": "一起成长，更远",
       "m7w": "乐趣",
       "m7d": "工作也要有趣味"
     },
     "cine": {
-      "nav1": "About",
+      "nav1": "关于",
       "nav2": "工具",
       "nav3": "服务",
       "nav4": "预订",
@@ -4312,7 +4769,7 @@
       "heroSwipe": "浏览我的作品集",
       "heroScroll": "滚动浏览我的作品集",
       "previewStatus": "在线",
-      "previewName": "学生会员",
+      "previewName": "Hugo 学生",
       "previewTagline": "一个数字身份，多种实用工具。",
       "aboutLabel": "超越屏幕之外",
       "aboutH1": "Peter Hugo Wishpax Lê,",
@@ -4344,7 +4801,7 @@
       "card2c4": "包含完整的免费学生工具包",
       "card3Title": "网页设计。",
       "card3c1": "自定义落地页",
-      "card3c2": "完整网站，易于自我管理",
+      "card3c2": "完整网站，自己也好打理",
       "card3c3": "优化SEO、速度和移动设备兼容性",
       "card4Title": "学生实用工具。",
       "card4c1": "Hugo PSY — 一个聆听伴侣",
@@ -4361,12 +4818,12 @@
       "stat1l": "Generation",
       "stat2v": "Greenwich",
       "stat2l": "大四 · 软件工程",
-      "partnerLabel": "Co-developing with",
-      "contactTitle": "让我们保持联系。",
+      "partnerLabel": "共同开发：",
+      "contactTitle": "保持联系。",
       "marqueeTitle": "我学习的技术",
       "work": {
         "eyebrow": "精选作品",
-        "title": "Products I have built from the ground up.",
+        "title": "我从零做出来的产品。",
         "desc": "每个项目都面对着一个独特的类问题：个人出版、交易数据和交互式系统。它们共同展示了我如何在界面工艺、应用程序逻辑和移动优先设计之间取得平衡。",
         "items": [
           {
@@ -4407,18 +4864,18 @@
   "servicesPage": {
     "meta": {
       "title": "面向学生、个人与小店的网站咨询 | Hugo Studio",
-      "description": "先说需求，再谈方案。面向学生、个人与小店的一对一咨询，范围与费用在开工前谈定。",
+      "description": "先把需求告诉 Hugo，再谈方案。面向学生、个人与小店的一对一咨询，范围与费用在开工前谈定。",
       "keywords": "学生网站, 学生作品集, 个人网站, 小店网站, 网站咨询, Hugo Studio"
     },
     "common": {
       "youGet": "你会得到",
-      "notIncluded": "Not included",
-      "discussPlan": "咨询这个方案",
-      "discussProject": "聊聊你的项目",
-      "revealPrice": "查看价格区间",
-      "priceHint": "投资范围一览",
-      "getQuote": "你需要什么告诉我",
-      "quoteAfterChat": "先谈需求，后报价"
+      "notIncluded": "不包含",
+      "discussPlan": "咨询这个套餐",
+      "discussProject": "咨询你的项目",
+      "revealPrice": "查看投入区间",
+      "priceHint": "这是起点。最终金额在范围明确后一起确定。",
+      "getQuote": "说说需求，我来建议",
+      "quoteAfterChat": "先沟通 · 后报价"
     },
     "whispers": {
       "intro": "没有完美的网站，只有正确的那个",
@@ -4432,20 +4889,19 @@
     },
     "hero": {
       "badge": "一对一直接沟通 · 学生优先",
-      "title1": "现在还不用选套餐。",
-      "title2": "从你真正需要的开始。",
-      "desc": "告诉我你的目标、遇到的阻碍，或者想做出什么。我会帮你找到分寸刚好的做法 —— 从学生 Bio 与作品集，到个人和小店的网站。",
+      "title1": "还不需要选套餐。",
+      "title2": "从你需要的地方开始。",
+      "desc": "告诉我你的目标、卡在哪里，或者想做什么。我会帮你找到规模合适的做法——从学生的 Bio 和作品集，到个人与小店的网站。",
       "viewPricing": "选择你的情况",
       "contact": "说说你的需求",
       "swipe": "滑动继续",
-      "scroll": ":scroll:继续滚动:",
+      "scroll": "向下滚动继续",
       "trust": [
         "与设计师和开发者直接合作:",
         ":scope-timeline-and-cost-agreed-upfront",
         "设计用于移动设备，速度和发现性",
         "为学生准备的专属权益与支持通道"
-      ],
-      "trust[3]": "为学生准备的专属权益与支持通道"
+      ]
     },
     "outcomes": {
       "eyebrow": "第一章",
@@ -4506,7 +4962,7 @@
       "fix": {
         "label": "快速解决",
         "name": "修复现有站点",
-        "price": "从$6.99",
+        "price": "$6.99 起",
         "note": "每个任务明码标价，完成后再付款——没有隐藏的附加费用。",
         "desc": "您的站点正在运行，但小bug正在为您流失客户？我只修复需要修复的部分——不需要大包服务。",
         "includes": [
@@ -4525,7 +4981,7 @@
       "seo": {
         "label": "优化",
         "name": "SEO 和加速",
-        "price": "从$36.99开始",
+        "price": "$36.99 起",
         "note": "最适合 React/Next.js 站点，或者任何加载速度慢且在 Google 上难以找到的站点。",
         "desc": "一个加载缓慢且对 Google 隐形的漂亮网站就像没有招牌的商店。这个套餐正好解决了这个问题。",
         "includes": [
@@ -4545,7 +5001,7 @@
         "label": "开始",
         "name": "单页落地页",
         "oldPrice": "$80.99",
-        "price": "60.99",
+        "price": "$60.99",
         "discount": "-25%",
         "note": "定制设计，无大众市场模板。5-7天完成。",
         "desc": "一个页面，一个目标：访客读完后想联系你。",
@@ -4595,7 +5051,7 @@
       "system": {
         "label": "系统",
         "name": "动态网页应用",
-        "price": "从 $283.99",
+        "price": "$283.99 起",
         "note": "包含支付、仪表板或多个角色的项目通常运行12-20亿。",
         "desc": "不是简单的宣传册——一个为你工作的网站：处理订单、预订和管理客户。",
         "tagline": "长期资产",
@@ -4628,9 +5084,9 @@
         "desc": "这不是作业，没有人来评分。这是你带到求职和奖学金申请中的个人资料。"
       },
       "bug": {
-        "label": "STUDENT",
+        "label": "学生",
         "name": "诊断与修复",
-        "price": "120.000è",
+        "price": "$4.99",
         "unit": "/bug",
         "tagline": "临近截止日期",
         "note": "按约定的错误收费。我只处理坏的部分——其余都是你的代码。",
@@ -4644,19 +5100,14 @@
         "cap": [
           "每单最多 2 个 bug",
           "只做修复 — 不新增功能"
-        ],
-        "includes[1]": "书面说明问题根因，答辩时你讲得出来",
-        "includes[2]": "一个 Git 链接，可直接克隆修好的代码",
-        "includes[3]": "已修复的这个 bug 提供 3 天保修",
-        "cap[0]": "每单最多 2 个 bug",
-        "cap[1]": "只做修复 — 不新增功能"
+        ]
       },
       "html": {
         "label": "HTML/CSS/JS",
         "name": "静态网页课程作业",
-        "price": "490.000è",
+        "price": "$20.99",
         "tagline": "响应式前端",
-        "note": "两人分摊：每人约 245.000đ。",
+        "note": "2 人分摊，每人约 $10.50。",
         "desc": "期末网页设计作业：响应式布局与基础 DOM 效果。不含后端，不含数据库。",
         "includes": [
           "你的专属Git链接来克隆整个源代码库",
@@ -4675,9 +5126,9 @@
       "php": {
         "label": "PHP/SQL",
         "name": "动态网页课程作业",
-        "price": "990.000đ",
+        "price": "$40.99",
         "tagline": "CRUD及权限管理",
-        "note": "三人分摊：每人约 330.000đ。",
+        "note": "3 人分摊，每人约 $13.66。",
         "desc": "学期末的动态网页工作：包括CRUD数据处理、注册和基本的角色基础登录.",
         "includes": [
           "你的专属Git链接来克隆整个源代码库",
@@ -4696,9 +5147,9 @@
       "react": {
         "label": "REACT/NODE",
         "name": "高级网页课程作业",
-        "price": "1.690.000 元",
+        "price": "$68.99",
         "tagline": "SPA + REST API",
-        "note": "每人分摊约 425.000 元。",
+        "note": "4 人分摊，每人约 $17.25。",
         "desc": "学期末的高级网页工作：一个React SPA对抗Node/Express REST API，由MongoDB或PostgreSQL支持。",
         "includes": [
           "你的专属Git链接来克隆整个源代码库",
@@ -4715,9 +5166,9 @@
         "compare": ":fontawesome-solid-percent: 43% 更便宜，比多页网站计划(2.990.000)更优惠。"
       },
       "exclusiveBio": {
-        "label": "STUDENT",
+        "label": "学生",
         "name": "定制设计的个人简介",
-        "price": "99.000đ",
+        "price": "$4.99",
         "tagline": "一个升级版的免费版本",
         "note": "你可以在编辑器中构建的免费版本。这个版本是为你的故事设计的。",
         "desc": "为你定制的一个个人主页，布局和配色方案不是通用主题。专为简历、申请奖学金或社交资料页面设计。",
@@ -4733,9 +5184,9 @@
         ]
       },
       "bento": {
-        "label": "STUDENT",
+        "label": "学生",
         "name": "便當簡歷/作品集",
-        "price": "799.000è",
+        "price": "$32.99",
         "tagline": "為職業與獎學金打造",
         "note": "僅是一個個人檔案，而非作業——它不會影響你的成績。",
         "desc": "學術成績、 standout 个人项目以及你的連結在一個清潔的便當式網格中呈現，讀者可在30秒內瀏覽完畢。",
@@ -4748,8 +5199,7 @@
         "cap": [
           "最多7个内容区块",
           "交稿後兩輪修改"
-        ],
-        "includes[2]": "联系表单直接写入免费的 Google 表格"
+        ]
       }
     },
     "demo": {
@@ -4775,7 +5225,7 @@
         "jewelry": {
           "title": "珠宝店",
           "short": "珠宝",
-          "subtitle": "珠宝商"
+          "subtitle": "珠宝店"
         },
         "portfolio": {
           "title": "个人作品集",
@@ -4783,13 +5233,13 @@
           "subtitle": "个人资料"
         },
         "ecommerce": {
-          "title": "在线商店",
+          "title": "网上商店",
           "short": "电子商务",
           "subtitle": "多行业"
         },
         "dashboard": {
-          "title": "管理面板",
-          "short": "仪表盘",
+          "title": "后台管理",
+          "short": "仪表板",
           "subtitle": "仪表盘"
         }
       }
@@ -4820,7 +5270,7 @@
       "extendDesc": "你需要时使用的扩展功能（单独报价）"
     },
     "student": {
-      "badge": "在线支付、多种角色和定制API。这类项目通常规模在12-20百万；在开始工作前会书面确认项目的范围。",
+      "badge": "Hugo 宫廷的優先事項",
       "title1": "Hugo Studio的优先事项",
       "title2": "学生总是有一个免费开始的地方。",
       "desc": "一旦验证，你可以使用标准的个人简介和核心学习工具免费使用。超出这些好处的定制设计、高级作品集或技术帮助将在任何工作开始前明确讨论。",
@@ -4904,8 +5354,8 @@
     },
     "finalCta": {
       "title1": "每个项目都始于",
-      "title2": "一次说清楚的对话。",
-      "desc": "你不需要知道套餐名称，也不用准备完美的需求文档。发来现有网站、一张截图，或几句话说明目标，我来帮你找出下一步该做什么。",
+      "title2": "一次清楚的交谈。",
+      "desc": "不必知道套餐名称，也不必准备完整的需求文档。把现在的网站、报错截图，或者几句话说明目标发给我，我来帮你确定下一步。",
       "cta": "说说你的需求"
     },
     "promo": {
@@ -4914,67 +5364,67 @@
       "cta": "验证我！"
     },
     "tabs": {
-      "commercial": "商业/个人",
-      "student": "为学生",
-      "micro": "快速修复"
+      "commercial": "店铺与个人",
+      "student": "学生专属",
+      "micro": "快速修补"
     },
     "microJobs": {
       "bug-ui": {
         "name": "修复按钮、图像错位、字体大小错误或文本元素重叠。",
         "desc": "今天搞定！",
-        "price": "从$6.99",
+        "price": "$6.99 起",
         "time": "Done today!"
       },
       "style-content": {
         "name": "颜色与文案润色",
         "desc": "修改品牌颜色，替换字体样式，更新头像图形或重写文本段落。",
-        "price": "从$8.99",
+        "price": "$8.99 起",
         "time": "Done today!"
       },
       "mobile-beauty": {
         "name": "移动焕新",
         "desc": "优化间距、响应式字体和行动呼吁触摸区域以适应移动屏幕。",
-        "price": "从$10.99",
+        "price": "$10.99 起",
         "time": "Done today!"
       },
       "web-widget": {
         "name": "甜蜜小部件",
         "desc": "集成可爱的Zalo/Messenger悬浮聊天框、联系表单、Google地图或点击拨号热线。",
-        "price": "从$6.99",
+        "price": "$6.99 起",
         "time": "Done today!"
       },
       "deploy-domain": {
         "name": "网页发布",
         "desc": "将你的站点部署到Vercel/Netlify/VPS，连接自定义域名，并使用免费SSL证书进行安全防护。",
-        "price": "从$10.99",
+        "price": "$10.99 起",
         "time": "Done today!"
       },
       "seo-quick": {
         "name": "快速SEO提升",
         "desc": "为Facebook/Zalo分享配置正确的元标签（标题/描述），并优化链接预览。",
-        "price": "从$8.99",
+        "price": "$8.99 起",
         "time": "Done today!"
       },
       "speed-optimize": {
         "name": "速度提升",
         "desc": "对重型图片进行无损压缩，清理冗余的JS/CSS文件，并提高PageSpeed评分。",
-        "price": "从$12.99开始",
+        "price": "$12.99 起",
         "time": "Done today!"
       },
       "monthly-maintenance": {
         "name": "每月温馨关怀",
         "desc": "定期备份、安全检查、快速bug修复以及轻量内容修订服务。",
-        "price": "From 12.99/mo",
+        "price": "每月 $12.99 起",
         "time": "持续护理"
       }
     },
     "disclaimer": "下方每个选项都是一个起始方向。只有在我们讨论实际需求后，才会确认范围、时间表和成本。",
     "section": {
-      "newBuildsTitle": "新设计与定制构建",
-      "newBuildsDesc": "为需要从头开始建立全新网站的品牌、创作者和企业而设计。",
-      "optimizeTitle": "SEO、速度与 Bug 消除",
-      "optimizeDesc": "为需要更好的 Google 排名、更快加载时间和技术问题解决的现有网站提供服务。",
-      "upkeep": "如果在包含的支持期后还需要维护，我将根据实际更新频率单独提出建议——始终可选."
+      "newBuildsTitle": "面向个人、咖啡馆与小店的网站",
+      "newBuildsDesc": "还没有网站，或者旧网站太过时？我从零帮你做一个新的——专属设计、价格合理、交付快。",
+      "optimizeTitle": "现有网站的修改与优化",
+      "optimizeDesc": "网站有小错误、加载慢，或在 Google 上找不到？我只修需要修的地方，不必重做。",
+      "upkeep": "如果在包含的支持期结束后需要维护，我会按实际更新频率单独报价——始终可选。"
     },
     "devices": {
       "desktop": "Desktop",
@@ -5234,6 +5684,10 @@
       "phoneLabel": "Telephone / Zalo",
       "phoneHint": "Required · never published",
       "phonePlaceholder": "For example, 09xx xxx xxx",
+      "voucherLabel": "优惠码",
+      "voucherHint": "选填 · 可在「账户 → 我的福利」中查看",
+      "voucherPlaceholder": "例如：HUGO20-A1B2C3",
+      "voucherInvalid": "该优惠码无法使用（代码有误、已使用或已过期）。请检查后重填，或留空。",
       "messagePlaceholder": "For example, I sell handmade goods and need a website where customers can browse the collection...",
       "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
     },
@@ -5571,6 +6025,165 @@
       "service": "报价以越南盾计算，通过 PayOS 与越南本地银行支付。",
       "booking": "Hugo Studio 承接位于越南的项目；预算以越南盾计算，沟通通过电子邮件或 Zalo。",
       "donate": "捐助以越南盾支付，经由 PayOS 与越南银行完成。"
+    },
+    "vietnameseContentOnly": {
+      "title": "课程内容为越南语。",
+      "course": "Study with Hugo 的课程由作者以越南语编写。界面已翻译，课程内容尚未翻译。"
+    }
+  },
+  "paymentGateway": {
+    "dangChuanBiThong": "准备您的支付详情…",
+    "giaoDichKhongHop": "Invalid transaction",
+    "lienKetKhongTon": "这个链接不存在或已过期。",
+    "veTrangChu": "返回首页",
+    "camOnBanDa": "感谢您的支持",
+    "thanhToanThanhCong": "支付成功",
+    "thuCamOnVa": "感谢信和关于 Hugo 工作室的信息正在发送到您提供的邮箱。",
+    "giaoDichDaDuoc": "PayOS 确认了这次交易。",
+    "soTien": "金额",
+    "ma": "代码",
+    "veHugoStudio": "关于Hugo Studio",
+    "giaoDichDaHuy": "交易取消",
+    "banCoTheQuay": "您可以回到 Hugo 工作室并开始新的贡献。",
+    "khoanUngHoTu": "自愿捐款",
+    "yeuCauThanhToan": "支付请求",
+    "noiDung": "参考：",
+    "moUngDungNgan": "打开您的银行应用",
+    "chonAppNganHang": "在手机上选择银行应用。收款人、金额和参考信息会一并发送；带有“自动填充”标记的应用将直接跳转到预填转账屏幕。",
+    "dungVietqrVoiMoi": "使用VietQR与任何银行一起使用",
+    "timUngDungNgan": "查找您的银行应用",
+    "timTenNganHang": "搜索一家银行……",
+    "tuDien": "自动填充",
+    "chuaTimThayApp": "该应用不在列表中。您仍然可以使用VietQR与自己的银行一起使用。",
+    "danhSachDayDu": "The full list could not be loaded. Use VietQR if your banking app is not shown.",
+    "khongThayAppDung": "应用未列出？请使用VietQR",
+    "thanhToanBang": "用",
+    "heThongSeTai": "预填充的VietQR二维码会先下载，然后我们会尝试打开您的钱包。在应用程序中，从照片库扫描二维码，并在确认前检查详情。",
+    "mo": "打开",
+    "khaNangMoTruc": "是否直接打开应用取决于您的设备和钱包版本。",
+    "soTaiKhoan": "账号号码",
+    "noiDung2": "参考号",
+    "nguoiNhan": "收款人：",
+    "nganHangDoiTac": "PayOS合作伙伴银行",
+    "khongDongTrangCho": "Do not close this page until the transaction is confirmed. Hugo Studio only displays payment data returned by the PayOS API and never stores your banking credentials.",
+    "dangHuy": "Cancelling…",
+    "huyVaXoaGiao": "取消并删除交易",
+    "maVietqrThanhToan": "VietQR支付码",
+    "quetVietqr": "扫描VietQR",
+    "moUngDungNgan2": "请使用支持VietQR的银行应用或钱包扫描二维码，并在转账前检查金额。",
+    "taiMaQr": "下载二维码",
+    "saoChepNoiDung": "复制参考"
+  },
+  "userGuide": {
+    "huongDanSuDung": "用户指南"
+  },
+  "studentPricing": {
+    "banNhanDuoc": "你将获得",
+    "quayLaiDichVu": "返回服务",
+    "dacQuyenNguoiHoc": "学生福利",
+    "dacQuyenBangGia": "Benefits和价格仅限学生使用",
+    "xacMinhEmailTruong": "验证您的学校邮箱一次以解锁每个计划下方的免费12个月Bio页面和所有学生的定价优惠。",
+    "chiCourseworkCuoiMon": "仅限期末作业",
+    "khongDoAnChuyen": "没有毕业项目、无论文，也不代写报告。",
+    "banGiaoQuaGit": "通过Git交付",
+    "linkRepoDeBan": "您自己克隆的一个repo链接，包含运行说明和代码解释。",
+    "giaCoDinhCo": "固定价格且有上限",
+    "moiGoiGhiRo": "每个计划都明确指出其上限，因此不会出现中间状态。",
+    "kiemDuyetTuDong": "自动验证",
+    "khongCanGuiThe": "无需学生卡",
+    "dangNhapBangGoogle": "Sign in with Google",
+    "dungTaiKhoanGoogle": "使用你的学校 Google 账户登录。",
+    "kiemTraEmailGiao": "检查教育邮箱。",
+    "dangDoiChieuTen": "正在检查域名...",
+    "tenMienEduAc": "有效的 .edu / .ac 域名。",
+    "khongPhaiEmailTruong": "这不是学校的邮箱 — 请求将移至人工审核。",
+    "tuChayNgaySau": "登录后自动解锁学生福利。",
+    "moDacQuyenHssv": "免费的个人简介有效期为 12 个月，并且适用于学生价格。",
+    "bioMienPhi12": "所有计划下的每个方案都提供为期 12 个月的免费个人简介和学生价格。",
+    "bioMienPhi122": "Sign in with Google ⇗（Use your school Google account. ⇔Check the education email ⇔Unlock student benefits ⇔Free Bio for 12 months, and student pricing applied ⇔Free Bio for 12 months and student pricing on every plan below.",
+    "nhanTrangBioMien": "获取你的免费12个月生物页",
+    "emailCuaBanKhong": "你的邮箱不在学校域名。请通过联系表发送一张与账户名匹配的有效学生卡的照片，并在24小时内人工审核。",
+    "guiTheSinhVien": "发送一张学生卡进行人工审核",
+    "01BaiDuocCham": "01 — 有评分的工作",
+    "daXacMinhGia": "已验证 — 学生定价适用",
+    "xacMinhEmailTruong2": "验证你的学校邮箱以预订计划",
+    "baiNangCaoReact": "高级工作（React、Node、全栈）？",
+    "minhKhuyenBanTu": "我更希望你自己学习这部分内容。点击查看原因及我能帮助多远。",
+    "toiMucReactRest": "通过React和REST APIs，你的成绩不再取决于代码是否能运行，而是你是否理解它为何能运行。这也是你在面试中需要掌握的知识——购买它就意味着要为自己保留的东西。",
+    "nenMinhUuTien": "因此，上面的三个简单计划优先级最高。我仍然会进行高级工作，但很少且仅作为支持——自己尝试一下免费的Web IDE，在遇到困难时，120.000诊断与修复计划就在那里。",
+    "soTheThreeSimpler": "因此，上面的三个简单计划优先级最高。我仍然会进行高级工作，但很少且仅作为支持——自己尝试一下免费的Web IDE，在遇到困难时，120.000诊断与修复计划就在那里。",
+    "tuHocBangWeb": "自己在免费的Web IDE中学习它",
+    "02KhongDinhDiem": "02 — 与你的成绩无关的事物",
+    "quaHssv": "学生赠品",
+    "bioTuDung": "构建自己的生物信息",
+    "banTuLamTrong": "你亲手完成，只需10分钟",
+    "0d": "0đ",
+    "12Thang": "/ 12个月",
+    "chiCanEmailTruong": "只需验证上述的学校邮箱，无需银行卡。",
+    "trinhSoanThaoTrong": "账户内的编辑器，随时更改它。",
+    "chonTuCacTheme": "从内置的主题和色彩方案中进行选择。",
+    "lienKetMangXa": "社交链接、个人照片、简短介绍",
+    "duongDanRiengHugowishpax": "Your own address at hugowishpax.studio/bio/your-name",
+    "moTrinhSoanThao": "打开编辑器",
+    "xacMinhOTren": "验证以上信息以领取它",
+    "03QuyTrinh": "03 — 这是如何工作的",
+    "banNhanDuocGi": "你将获得什么，一步步",
+    "tuLucXacMinh": "从验证到移交 —— 所有事项都事先达成一致，后期不再添加额外内容。",
+    "minhKhongNhanKe": "我不处理这些 —— 即使是多花点钱也不行。"
+  },
+  "saveE": {
+    "impact": {
+      "bieuTrungCheDo": "生态模式徽标",
+      "dienThoaiNenSang": "手机从浅背景切换至全黑背景，文字为白色。",
+      "nenSang": "浅色背景",
+      "nenDen": "深色背景",
+      "cotSoSanh720": "对比列：正常模式下每小时720篇文章，与生态模式下的24篇文章。",
+      "720Bai": "720篇",
+      "cheDoThuong": "正常模式",
+      "6Luot120Bai": "6轮×120篇文章",
+      "24Bai": "24 演示文稿",
+      "cheDoTietKiem": "生态模式",
+      "1Luot24Bai": "1 圆 × 24 篇文章",
+      "luoiDiemAnhNen": "一个像素网格：在浅色背景上，每个像素都点亮，在黑色背景下大多数都是熄灭的",
+      "2424DiemAnh": "24/24 像素点亮",
+      "324DiemAnh": "3/24 像素点亮",
+      "viSaoCheDo": "为什么这种模式真的能节省",
+      "soLieuDoTu": "这些数字来自源头；其余部分引用了下面列出的研究成果。",
+      "nguonThamKhao": "参考文献",
+      "cacConSoTren": "这些数字是估算值，范围取决于设备、屏幕亮度和本地网络基础设施。\n          我们给出一个范围而不是一个整数，以免做出过多的承诺。"
+    },
+    "account": {
+      "theThanhVien": "Membership card",
+      "thanhVienHugo": "Thành viên Hugo",
+      "chuaLayDuocSo": "Could not load your balance. Reopen the page to try again.",
+      "viJoy": "Ví JOY",
+      "maQrNhanJoy": "JOY接收码",
+      "layMaMoi": "获取新的代码",
+      "duaMaNayCho": "将此代码提供给正在向你发送 JOY 的人。它大约有效2分钟——之后请按\n                  “获取新的代码”。",
+      "diemDanhNhanJoy": "签到 JOY",
+      "homNayChuaDiem": "今天未签到",
+      "homNayDaDiem": "今天已检查",
+      "chuoiLienTiep": "连续打卡：",
+      "ngay": "ngày",
+      "diemDanhKhongThanh": "Check-in failed.",
+      "diemDanh": "查看",
+      "lichSuGiaoDich": "交易历史",
+      "chuaCoGiaoDich": "还没有交易。",
+      "chuyenJoy": "发送 JOY",
+      "soDienThoaiNguoi": "收款的手机号码",
+      "soJoy": "JOY金额",
+      "maPinGiaoDich": "交易PIN码",
+      "dangChuyen": "发送…",
+      "thongTinCaNhan": "个人信息",
+      "tenHienThi": "显示名称",
+      "soDienThoai": "电话号码",
+      "truongDonVi": "学校 / 组织",
+      "dangLuu": "Saving…",
+      "luuThongTin": "Save details",
+      "anhDaiDienAnh": "个人资料照片、封面图和简介页设计在正常模式下编辑 —— 这些是上传的最大图片文件，因此不包含在此处。",
+      "caiDat": "设置",
+      "dangXuat": "退出登录",
+      "batTatVaMuc": "切换和“自动”级别位于绿标签中。在这种模式下关闭：AI助手、地图、商店、应用库、动画背景以及所有重复的服务器轮询。"
     }
   }
 }

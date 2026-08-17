@@ -14,6 +14,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 // two ever drift, the full file wins.
 import coreVI from './locales/vi/core.json';
 import coreEN from './locales/en/core.json';
+import { registerJoyFormat } from '../lib/joyDisplay';
 import {
   APP_LANGUAGE_STORAGE_KEY,
   SUPPORTED_LANGUAGES,
@@ -74,6 +75,10 @@ i18n
       escapeValue: false,
     },
   });
+
+// "{{amount, joy}}" trong chuỗi dịch → số tiền viết theo ĐƠN VỊ CỦA TÀI KHOẢN.
+// Đăng ký sau init vì bộ định dạng chỉ tồn tại khi i18next đã dựng xong service.
+registerJoyFormat(i18n);
 
 const inFlight = new Map();
 

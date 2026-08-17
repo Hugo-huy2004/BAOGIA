@@ -495,9 +495,20 @@ export default function GameChess3D({ paused = false, onGameOver }) {
     const timer = window.setTimeout(() => {
       reportedRef.current = true;
       const wonAgainstBot = mode === "bot" && result.winner === "w";
+      const lostToBot = mode === "bot" && result.winner === "b";
+      let score;
+      if (result.winner) {
+        if (mode === "bot") {
+          score = wonAgainstBot ? 300 + botLevel * 120 : 50 + botLevel * 30;
+        } else {
+          score = 200;
+        }
+      } else {
+        score = 80;
+      }
       onGameOver?.(
-        result.winner ? (mode === "bot" ? (wonAgainstBot ? 300 + botLevel * 120 : 0) : 200) : 80,
-        result.winner ? (mode === "bot" && !wonAgainstBot ? "lose" : "win") : "draw"
+        score,
+        result.winner ? (lostToBot ? "lose" : "win") : "draw"
       );
     }, 800);
     return () => window.clearTimeout(timer);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import JoyCard from "./JoyCard";
 import { MembershipFactory } from "../../../models/membershipTier";
@@ -15,11 +15,12 @@ import { useTranslation } from "react-i18next";
  */
 export default function MemberCardStack({
   referralCount = 0,
-  balance = 0,
   referralCode = "",
   displayName = "",
   email = "",
+  qrValue = "",
   onCopyReferral,
+  onTierChange,
 }) {
   const { t } = useTranslation();
   const tiers = MembershipFactory.getAllTiers();
@@ -29,6 +30,10 @@ export default function MemberCardStack({
   const currentIndex = Math.max(0, tiers.findIndex((t) => t.id === currentTier.id));
   const [index, setIndex] = useState(currentIndex);
   const tier = tiers[index];
+
+  // Thẻ đang xem quyết định danh sách đặc quyền hiện bên dưới — lướt thẻ là đổi
+  // đặc quyền, không phải mở thêm một danh sách gấp nữa.
+  useEffect(() => { onTierChange?.(tier); }, [tier, onTierChange]);
 
   const step = (delta) => setIndex((i) => Math.min(tiers.length - 1, Math.max(0, i + delta)));
 
@@ -53,7 +58,7 @@ export default function MemberCardStack({
           <JoyCard
             tier={tier}
             referralCount={referralCount}
-            balance={balance}
+            qrValue={qrValue}
             referralCode={referralCode}
             displayName={displayName}
             email={email}

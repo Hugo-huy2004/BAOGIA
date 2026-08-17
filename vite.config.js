@@ -5,9 +5,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { visualizer } from 'rollup-plugin-visualizer'
 
-/* Dev thường chỉ chạy mỗi Vite (một cổng), backend 8081 không bật — mỗi request
-   /api đổ ra một stack trace "http proxy error" làm trôi hết log thật. Nuốt đúng
-   trường hợp ECONNREFUSED; lỗi proxy khác vẫn in đầy đủ. */
+/* Cổng backend cục bộ. KHÔNG dùng 8081: đó là cổng mặc định của Metro/Expo, nên
+   bất cứ dự án React Native nào đang mở cũng chiếm mất — và Metro trả về HTML
+   kèm status 200 cho mọi đường dẫn, nên `/api/*` "thành công" với một trang web
+   thay vì JSON. Lỗi đó trông y hệt lỗi backend, mất hàng giờ mới lần ra. */
+const DEV_BACKEND = process.env.VITE_DEV_BACKEND_URL || 'http://localhost:8099'
+const DEV_WS = process.env.VITE_WS_URL || DEV_BACKEND.replace(/^http/, 'ws')
+
+/* Backend chưa bật thì mỗi request /api đổ ra một stack trace "http proxy error"
+   làm trôi hết log thật. Nuốt đúng trường hợp ECONNREFUSED; lỗi proxy khác vẫn
+   in đầy đủ. */
 const quietLogger = createLogger()
 const logError = quietLogger.error.bind(quietLogger)
 quietLogger.error = (msg, opts) => {
@@ -232,27 +239,19 @@ export default defineConfig(({ mode }) => {
     // `/api/ai`, `/api/iot`, `/api/sleep/analyze` sang Python — trình duyệt không
     // có (và không được phép có) internal key nên luôn ăn 401, còn
     // `/api/iot/devices|vitals` thì 404 vì mấy route đó chỉ có ở Node.
+    //
+    // MỘT cổng cho trình duyệt: mọi thứ đi qua http://localhost:3000. Mặc định
+    // proxy về backend CỤC BỘ — muốn chạy với backend production thì nói rõ:
+    //   VITE_DEV_BACKEND_URL=https://baogia-x9lk.onrender.com npm run dev
+    // (Trước đây mặc định là ngược lại, nên sửa xong code server ở máy mà trình
+    //  duyệt vẫn nói chuyện với Render — code cũ trả 400, trông như lỗi mình.)
     proxy: {
       // Chess WebSocket → Node.js backend
-      '/ws/chess': {
-        target: process.env.VITE_WS_URL || 'wss://baogia-x9lk.onrender.com',
-        ws: true,
-        changeOrigin: true,
-        secure: false,
-      },
+      '/ws/chess': { target: DEV_WS, ws: true, changeOrigin: true, secure: false },
       // Member wallet/notification realtime channel → Node.js backend
-      '/ws': {
-        target: process.env.VITE_WS_URL || 'wss://baogia-x9lk.onrender.com',
-        ws: true,
-        changeOrigin: true,
-        secure: false,
-      },
-      // Everything else → Render Node.js production backend (or local 8081 if VITE_DEV_BACKEND_URL is set)
-      '/api': {
-        target: process.env.VITE_DEV_BACKEND_URL || 'https://baogia-x9lk.onrender.com',
-        changeOrigin: true,
-        secure: false,
-      },
+      '/ws': { target: DEV_WS, ws: true, changeOrigin: true, secure: false },
+      // Everything else → Node.js backend
+      '/api': { target: DEV_BACKEND, changeOrigin: true, secure: false },
     },
   },
   build: {

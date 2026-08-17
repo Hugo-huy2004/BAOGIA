@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import dataApi from '../services/dataApi';
 import { renderNotification } from '../../shared/notificationText';
+import { joyDenom } from '../lib/joyDisplay';
 import { playNotificationSound } from '../utils/audio';
 import { isNotificationSoundEnabled } from '../utils/notificationSoundPref';
 
@@ -285,7 +286,7 @@ export function useNotifications(
   // dùng đổi ngôn ngữ. Bản ghi cũ (và tin admin tự viết) không có khoá thì giữ
   // nguyên `title`/`message` đã lưu.
   const localized = useMemo(() => items.map((item) => {
-    const text = renderNotification(item.i18nKey, item.i18nParams || {}, language);
+    const text = renderNotification(item.i18nKey, item.i18nParams || {}, language, joyDenom());
     return text ? { ...item, title: text.title, message: text.message } : item;
   }), [items, language]);
 

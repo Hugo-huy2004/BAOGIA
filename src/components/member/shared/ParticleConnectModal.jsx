@@ -9,10 +9,16 @@ import { searchJoyUser, getJoyQrPayload, resolveJoyQr, resolveNfcCode, transferJ
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
 import { useNfc } from "../../../hooks/useNfc";
 import { FaceIdPayHelper } from "../../../utils/faceIdPayHelper";
+import { TRANSFER_FEE_RATE, TRANSFER_DAILY_CAP } from "../../../../shared/joyPrices.js";
+import { useJoy } from "../../../lib/joyDisplay";
+import { denomKey, transferBreakdown, CROSS_DENOM_FEE } from "../../../../shared/joyCurrency.js";
+
+// Ngưỡng một lần gửi — cùng bộ số server kiểm lại khi nhận lệnh.
+const MIN_SEND = 10;
+const MAX_SEND = TRANSFER_DAILY_CAP;
 
 const RECENT_KEY = "joy_recent_contacts";
 const QUICK_AMOUNTS = [50, 100, 200, 500];
-const TRANSFER_FEE_RATE = 0.05;
 // Labels are resolved at render time, not here: a module constant would freeze
 // whichever language happened to be active when the chunk first loaded.
 const CONNECT_MODES = [
@@ -81,68 +87,181 @@ const css = `
   from { transform: scale(.94) translateY(8px); opacity: 0; }
   to   { transform: scale(1) translateY(0); opacity: 1; }
 }
+/* ── Tấm thẻ chuyển JOY ────────────────────────────────────────────────────
+   Kiểu Apple Pay: một tấm trồi lên từ mép dưới, nền trung tính, chữ TO, và
+   đúng MỘT màu nhấn. Trước đây tấm này tím-violet từ đầu tới cuối với chữ
+   9–11px: nhiều màu mà không màu nào có nghĩa, chữ thì phải nheo mắt.
+
+   Màu lấy từ token theme (--card/--foreground/--border/--muted) nên tự lật
+   sáng/tối, không cần nhân đôi mọi rule dưới ".dark" như bản cũ.
+
+   KHÔNG dùng dấu huyền ngược trong khối này: toàn bộ biến css là một template
+   literal, một dấu huyền ngược lọt vào đây sẽ đóng chuỗi sớm và phần còn lại bị
+   đọc thành mã — đúng thứ đã làm màn Chuyển JOY vỡ trắng. */
 .joy-modal-overlay {
   align-items: flex-end;
   justify-content: center;
 }
 .joy-modal-panel {
+  /* MỘT màu nhấn duy nhất — hổ phách JOY, cùng màu với ví. Nút chính vẫn dùng
+     --foreground (đen/trắng) đúng kiểu Apple: màu nhấn để chỉ số tiền, không để
+     tô nút. */
+  --jc-accent: 32 96% 42%;
+  --jc-ok: 152 62% 36%;
   animation: jtSlideUp .35s cubic-bezier(.34,1.1,.64,1);
 }
-.joy-connect-select { padding: 16px 18px 20px; }
-.joy-connect-hero { display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: center; margin-bottom: 13px; padding: 13px 14px; border: 1px solid rgba(99,102,241,.14); border-radius: 18px; background: linear-gradient(135deg,rgba(99,102,241,.1),rgba(14,165,233,.055)); }
-.joy-connect-hero > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; box-shadow: 0 9px 22px rgba(79,70,229,.24); font-size: 21px; }
-.joy-connect-hero div { display: grid; gap: 2px; }
-.joy-connect-hero strong { color: #0f172a; font-size: 15px; letter-spacing: -.025em; }
-.joy-connect-hero small { color: #64748b; font-size: 10px; line-height: 1.4; }
-.dark .joy-connect-hero strong { color: #fff; }
-.dark .joy-connect-hero small { color: #94a3b8; }
-.joy-connect-modes { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 15px; padding: 4px; border: 1px solid rgba(148,163,184,.2); border-radius: 17px; background: rgba(148,163,184,.09); }
-.joy-connect-mode { display: flex; min-width: 0; align-items: center; justify-content: center; gap: 6px; padding: 9px 7px; border-radius: 12px; color: #64748b; font-size: 11px; font-weight: 750; transition: .16s ease; }
-.joy-connect-mode .material-symbols-outlined { font-size: 17px; }
-.joy-connect-mode.is-active { background: #fff; color: #4f46e5; box-shadow: 0 5px 16px rgba(30,41,59,.1); }
-.dark .joy-connect-mode.is-active { background: rgba(255,255,255,.11); color: #c4b5fd; }
+
+.joy-connect-select { padding: 4px 20px 8px; }
+
+/* Bộ chọn Gửi / Nhận / Quét — thanh phân đoạn kiểu iOS, cao 44px cho ngón tay */
+.joy-connect-modes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  margin-bottom: 18px;
+  padding: 3px;
+  border-radius: 14px;
+  background: hsl(var(--muted));
+}
+.joy-connect-mode {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 11px;
+  background: none;
+  color: hsl(var(--muted-foreground));
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease;
+}
+.joy-connect-mode .material-symbols-outlined { font-size: 19px; }
+.joy-connect-mode.is-active {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  font-weight: 700;
+  box-shadow: 0 1px 3px hsl(0 0% 0% / .12);
+}
+
+/* Ô tìm người nhận — 17px như iOS, đủ to để đọc lúc đang cầm điện thoại */
 .joy-connect-search { position: relative; }
-.joy-connect-search > .material-symbols-outlined:first-child { position: absolute; z-index: 1; left: 14px; top: 18px; color: #6366f1; font-size: 20px; }
-.joy-connect-search input { width: 100%; min-height: 56px; padding: 10px 42px 10px 43px; border: 1px solid rgba(148,163,184,.28); border-radius: 17px; outline: none; background: rgba(248,250,252,.92); color: #0f172a; font-size: 13px; font-weight: 700; transition: .16s ease; }
-.joy-connect-search input:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 4px rgba(99,102,241,.1); }
-.dark .joy-connect-search input { border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.055); color: #fff; }
-.joy-connect-search > .is-loading { position: absolute; right: 14px; top: 18px; color: #6366f1; font-size: 18px; animation: jtSpin 1s linear infinite; }
-.joy-connect-search-intent { display: flex; align-items: center; gap: 5px; margin: 7px 3px 13px; color: #94a3b8; font-size: 9px; }
-.joy-connect-search-intent .material-symbols-outlined { font-size: 13px; color: #22c55e; }
-.joy-connect-list-label { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 7px; color: #94a3b8; font-size: 9px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
-.joy-connect-empty { display: grid; place-items: center; gap: 7px; min-height: 150px; padding: 20px; border: 1px dashed rgba(148,163,184,.3); border-radius: 18px; color: #94a3b8; text-align: center; }
-.joy-connect-empty > .material-symbols-outlined { font-size: 34px; color: #cbd5e1; }
-.joy-connect-empty strong { color: #475569; font-size: 12px; }
-.joy-connect-empty small { max-width: 260px; font-size: 10px; line-height: 1.45; }
-.dark .joy-connect-empty strong { color: #cbd5e1; }
-.joy-connect-receive { display: grid; justify-items: center; gap: 12px; padding: 5px 0 2px; }
-.joy-connect-receive-card { position: relative; display: grid; width: 100%; justify-items: center; padding: 19px 14px 15px; overflow: hidden; border: 1px solid rgba(99,102,241,.15); border-radius: 23px; background: radial-gradient(circle at 50% 20%,rgba(99,102,241,.12),transparent 42%),#f8fafc; }
-.dark .joy-connect-receive-card { background: radial-gradient(circle at 50% 20%,rgba(139,92,246,.19),transparent 42%),rgba(255,255,255,.035); }
-.joy-connect-live { position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 7px; border-radius: 999px; background: rgba(34,197,94,.11); color: #15803d; font-size: 7px; font-weight: 850; letter-spacing: .07em; }
-.dark .joy-connect-live { color: #86efac; }
-.joy-connect-live i { width: 5px; height: 5px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.13); }
-.joy-connect-receive-name { display: grid; justify-items: center; gap: 2px; }
-.joy-connect-receive-name strong { color: #0f172a; font-size: 14px; }
-.joy-connect-receive-name small { color: #94a3b8; font-size: 9px; }
-.dark .joy-connect-receive-name strong { color: #fff; }
-.joy-connect-receive-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
-.joy-connect-receive-actions button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 43px; border: 1px solid rgba(148,163,184,.25); border-radius: 14px; background: #fff; color: #334155; font-size: 11px; font-weight: 750; }
-.joy-connect-receive-actions button:first-child { border: 0; background: linear-gradient(135deg,#4f46e5,#7c3aed); color: #fff; }
-.dark .joy-connect-receive-actions button { background: rgba(255,255,255,.07); color: #e2e8f0; }
-.joy-connect-receive-actions .material-symbols-outlined { font-size: 17px; }
-.joy-connect-share-status { min-height: 14px; color: #22c55e; font-size: 9px; font-weight: 700; }
-.joy-connect-scan { display: grid; gap: 11px; }
-.joy-connect-scan-status { display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 14px; background: rgba(34,197,94,.08); color: #166534; }
-.dark .joy-connect-scan-status { color: #86efac; }
-.joy-connect-scan-status > span { font-size: 18px; }
-.joy-connect-scan-status div { display: grid; gap: 1px; }
-.joy-connect-scan-status strong { font-size: 10px; }
-.joy-connect-scan-status small { opacity: .75; font-size: 8px; }
-.joy-connect-scan-frame { overflow: hidden; padding: 7px; border: 1px solid rgba(99,102,241,.18); border-radius: 23px; background: linear-gradient(135deg,rgba(99,102,241,.14),rgba(14,165,233,.08)); }
-.joy-connect-scan-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.joy-connect-scan-tools button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; border: 1px solid rgba(148,163,184,.22); border-radius: 13px; color: #475569; font-size: 10px; font-weight: 700; }
-.dark .joy-connect-scan-tools button { color: #cbd5e1; }
-.joy-connect-scan-tools .material-symbols-outlined { font-size: 17px; color: #6366f1; }
+.joy-connect-search > .material-symbols-outlined:first-child {
+  position: absolute; z-index: 1; left: 15px; top: 17px;
+  color: hsl(var(--muted-foreground)); font-size: 22px;
+}
+.joy-connect-search input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 44px;
+  border: 1px solid transparent;
+  border-radius: 15px;
+  outline: none;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-size: 17px;
+  font-weight: 500;
+}
+.joy-connect-search input::placeholder { color: hsl(var(--muted-foreground)); font-weight: 400; }
+.joy-connect-search input:focus { border-color: hsl(var(--foreground) / .35); background: hsl(var(--card)); }
+.joy-connect-search > .is-loading {
+  position: absolute; right: 15px; top: 18px;
+  color: hsl(var(--muted-foreground)); font-size: 20px;
+  animation: jtSpin 1s linear infinite;
+}
+.joy-connect-search-intent {
+  display: flex; align-items: center; gap: 6px;
+  margin: 9px 3px 16px;
+  color: hsl(var(--muted-foreground)); font-size: 13px;
+}
+.joy-connect-search-intent .material-symbols-outlined { font-size: 16px; color: hsl(var(--jc-ok)); }
+
+.joy-connect-list-label {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 0 2px 8px;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+}
+
+.joy-connect-empty {
+  display: grid; place-items: center; gap: 8px;
+  min-height: 160px; padding: 24px;
+  border-radius: 18px;
+  background: hsl(var(--muted) / .5);
+  color: hsl(var(--muted-foreground)); text-align: center;
+}
+.joy-connect-empty > .material-symbols-outlined { font-size: 36px; opacity: .5; }
+.joy-connect-empty strong { color: hsl(var(--foreground)); font-size: 15px; font-weight: 700; }
+.joy-connect-empty small { max-width: 280px; font-size: 13px; line-height: 1.5; }
+
+/* Mã nhận JOY */
+.joy-connect-receive { display: grid; justify-items: center; gap: 14px; padding: 2px 0; }
+.joy-connect-receive-card {
+  position: relative;
+  display: grid; width: 100%; justify-items: center;
+  padding: 22px 16px 18px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: hsl(var(--muted) / .6);
+}
+.joy-connect-live {
+  position: absolute; top: 12px; right: 12px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 9px; border-radius: 999px;
+  background: hsl(var(--jc-ok) / .12); color: hsl(var(--jc-ok));
+  font-size: 11px; font-weight: 700; letter-spacing: .04em;
+}
+.joy-connect-live i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: hsl(var(--jc-ok)); box-shadow: 0 0 0 4px hsl(var(--jc-ok) / .16);
+}
+.joy-connect-receive-name { display: grid; justify-items: center; gap: 3px; }
+.joy-connect-receive-name strong { color: hsl(var(--foreground)); font-size: 17px; font-weight: 700; }
+.joy-connect-receive-name small { color: hsl(var(--muted-foreground)); font-size: 13px; }
+.joy-connect-receive-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.joy-connect-receive-actions button {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 50px;
+  border: 0; border-radius: 15px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-size: 15px; font-weight: 650;
+  cursor: pointer;
+}
+.joy-connect-receive-actions button:first-child {
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+}
+.joy-connect-receive-actions .material-symbols-outlined { font-size: 20px; }
+.joy-connect-share-status { min-height: 18px; color: hsl(var(--jc-ok)); font-size: 13px; font-weight: 650; }
+
+/* Quét mã */
+.joy-connect-scan { display: grid; gap: 12px; }
+.joy-connect-scan-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: 15px;
+  background: hsl(var(--jc-ok) / .1); color: hsl(var(--jc-ok));
+}
+.joy-connect-scan-status > span { font-size: 21px; }
+.joy-connect-scan-status div { display: grid; gap: 2px; }
+.joy-connect-scan-status strong { font-size: 14px; font-weight: 700; }
+.joy-connect-scan-status small { opacity: .8; font-size: 12px; }
+.joy-connect-scan-frame { overflow: hidden; padding: 6px; border-radius: 22px; background: hsl(var(--muted)); }
+.joy-connect-scan-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.joy-connect-scan-tools button {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 48px; border: 0; border-radius: 14px;
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  font-size: 14px; font-weight: 650;
+  cursor: pointer;
+}
+.joy-connect-scan-tools .material-symbols-outlined { font-size: 20px; }
+
 @media (min-width: 640px) {
   .joy-modal-overlay {
     align-items: center;
@@ -171,9 +290,9 @@ function Avatar({ name, url, size = 40 }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%", flexShrink: 0,
-      background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
+      background: "hsl(var(--muted))",
       display: "flex", alignItems: "center", justifyContent: "center",
-      color: "#fff", fontWeight: 900, fontSize: size * 0.38,
+      color: "hsl(var(--foreground) / .7)", fontWeight: 800, fontSize: size * 0.4,
     }}>{(name || "?")[0].toUpperCase()}</div>
   );
 }
@@ -432,7 +551,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
         <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
       </button>
 
-      <p style={{ color: "rgba(253,230,138,.75)", fontSize: 11, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", marginBottom: 40, textShadow: "0 0 12px rgba(250,204,21,.35)" }}>
+      <p style={{ color: "rgba(253,230,138,.75)", fontSize: 13, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", marginBottom: 40, textShadow: "0 0 12px rgba(250,204,21,.35)" }}>
         {t("memberPortal.joy.particle.qrTitle", "Mã QR JOY")}
       </p>
 
@@ -455,7 +574,7 @@ function CircularQR({ payload, tokenBytes, displayName, avatarUrl, onClose }) {
           ? <img src={avatarUrl} alt={displayName} style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(168,85,247,.6)", marginBottom: 2 }} />
           : null}
         <p style={{ color: "#fff", fontWeight: 900, fontSize: 16, letterSpacing: "-.02em" }}>{displayName}</p>
-        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 11, fontWeight: 600 }}>{t("memberPortal.joy.particle.internalCode", "Mã nội bộ để gửi JOY")}</p>
+        <p style={{ color: "rgba(255,255,255,.45)", fontSize: 13, fontWeight: 600 }}>{t("memberPortal.joy.particle.internalCode", "Mã nội bộ để gửi JOY")}</p>
       </div>
 
       <div style={{ display: "flex", gap: 12, marginTop: 32 }}>
@@ -490,17 +609,18 @@ function ContactCard({ contact, onSelect }) {
   return (
     <button
       onClick={() => onSelect(contact)}
-      className="flex items-center gap-3 w-full p-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-2xl border border-slate-200/50 dark:border-white/5 transition-all text-left group"
+      className="flex items-center gap-3 w-full min-h-[64px] px-3 py-2.5 bg-muted/60 active:bg-muted rounded-2xl text-left transition-colors"
     >
-      <Avatar name={contact.displayName} url={contact.avatarUrl} size={42} />
+      <Avatar name={contact.displayName} url={contact.avatarUrl} size={46} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p className="m-0 text-sm font-extrabold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+        {/* 17px — cỡ chữ danh sách của iOS. Bản cũ 14px đậm nhìn như chú thích. */}
+        <p className="m-0 truncate text-[17px] font-semibold text-foreground">
           {contact.displayName}
         </p>
-        {contact.maskedPhone && <p className="m-0 mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">{contact.maskedPhone}</p>}
-        {contact.referralCode && <p className="m-0 mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">#{contact.referralCode}</p>}
+        {contact.maskedPhone && <p className="m-0 text-[14px] text-muted-foreground">{contact.maskedPhone}</p>}
+        {contact.referralCode && <p className="m-0 text-[14px] text-muted-foreground">#{contact.referralCode}</p>}
       </div>
-      <span className="material-symbols-outlined text-lg text-slate-400 dark:text-slate-500 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+      <span className="material-symbols-outlined text-[22px] text-muted-foreground">chevron_right</span>
     </button>
   );
 }
@@ -566,20 +686,32 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   // resolve for a short window after a failure.
   const scanCooldownUntilRef = useRef(0);
 
-  const numAmount = parseInt(amount, 10) || 0;
-  const fee = Math.floor(numAmount * TRANSFER_FEE_RATE);
-  const total = numAmount + fee;
+  const joy = useJoy();
+
+  // Người dùng gõ theo ĐƠN VỊ CỦA HỌ; `numAmount` là JOY gốc — con số duy nhất
+  // được gửi lên server và dùng để tính phí. Không bao giờ gửi số hiển thị đi.
+  const numAmount = joy.toRaw(amount);
+  // Cùng một hàm server dùng để trừ ví (shared/joyCurrency.js) — màn xác nhận và
+  // lệnh trừ không thể lệch nhau. Đơn vị người nhận do endpoint tra cứu trả về;
+  // server vẫn tính lại theo `Bio.joyDenom` nên client không quyết được phí.
+  const myDenom = denomKey(bio?.joyDenom);
+  const theirDenom = denomKey(recipient?.joyDenom || myDenom);
+  const bill = transferBreakdown(numAmount, myDenom, theirDenom, TRANSFER_FEE_RATE);
+  const fee = bill.creativeFee;
+  const conversionFee = bill.conversionFee;
+  const total = bill.totalDeducted;
   const availableBalance = Number(bio?.joyBalance);
   const balanceKnown = Number.isFinite(availableBalance) && availableBalance >= 0;
   const insufficientBalance = balanceKnown && total > availableBalance;
   const suggestedAmounts = useMemo(() => {
     if (!balanceKnown) return QUICK_AMOUNTS;
-    const maxSend = Math.min(1000, Math.floor(availableBalance / (1 + TRANSFER_FEE_RATE)));
+    const feeLoad = 1 + TRANSFER_FEE_RATE + (bill.crossDenom ? CROSS_DENOM_FEE : 0);
+    const maxSend = Math.min(MAX_SEND, Math.floor(availableBalance / feeLoad));
     const adaptive = [50, 100, 200, 500, Math.floor(maxSend / 2 / 10) * 10, maxSend]
       .filter((value) => value >= 10 && value <= maxSend);
     const unique = [...new Set(adaptive)].sort((a, b) => a - b);
     return unique.slice(Math.max(0, unique.length - 4));
-  }, [availableBalance, balanceKnown]);
+  }, [availableBalance, balanceKnown, bill.crossDenom]);
   const visibleMode = mode === "nfc" ? "scan" : mode;
   const activeConnectMode = CONNECT_MODES.find((item) => item.id === visibleMode) || CONNECT_MODES[0];
   const searchIntent = useMemo(() => {
@@ -841,13 +973,23 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
             width: "100%", maxWidth: 440,
             "--joy-modal-bg": "#fff",
           }}>
-            <div className="m-3 bg-white dark:bg-[#1c1c1e] text-slate-900 dark:text-white rounded-[28px] shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden transition-colors">
+            {/* Tràn tới mép dưới màn hình và chỉ bo hai góc trên — tấm trồi lên từ
+                đáy, không phải cái thẻ lơ lửng giữa màn. */}
+            <div
+              className="bg-card text-foreground rounded-t-[28px] sm:rounded-[28px] sm:m-3 shadow-2xl overflow-hidden"
+              style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 8px)" }}
+            >
 
-              {/* ── Header ── */}
+              {/* ── Đầu thẻ ──
+                  Tay nắm + một dòng tiêu đề TO. Bản cũ là dải gradient tím với
+                  eyebrow "HUGOSTUDIO" 9px và tiêu đề 14px: dải màu chiếm chỗ mà
+                  không nói gì, tiêu đề thì nhỏ hơn cả tên người nhận bên dưới. */}
+              <div style={{ display: "grid", placeItems: "center", padding: "8px 0 2px" }}>
+                <i style={{ width: 36, height: 5, borderRadius: 999, background: "hsl(var(--border))" }} />
+              </div>
               <div style={{
-                background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-                padding: "16px 18px 14px",
-                display: "flex", alignItems: "center", gap: 10,
+                padding: "6px 20px 16px",
+                display: "flex", alignItems: "center", gap: 12,
               }}>
                 {step !== "select" && (
                   <button
@@ -859,15 +1001,15 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       }
                       setError("");
                     }}
-                    style={{ background: "rgba(255,255,255,.15)", border: "none", borderRadius: "50%", width: 30, height: 30, cursor: "pointer", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+                    aria-label={t("memberPortal.joy.particle.back", "Quay lại")}
+                    style={{ background: "hsl(var(--muted))", border: "none", borderRadius: "50%", width: 34, height: 34, cursor: "pointer", color: "hsl(var(--foreground))", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
                   >
-                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back_ios_new</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back_ios_new</span>
                   </button>
                 )}
-                <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.6)", letterSpacing: ".14em", textTransform: "uppercase" }}>HugoStudio</p>
-                  <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#fff", letterSpacing: "-.02em" }}>
-                    {step === "select" && t("memberPortal.joy.particle.title", "Hugo Studio - Intelligent Connection")}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 21, fontWeight: 800, letterSpacing: "-.5px", lineHeight: 1.2 }}>
+                    {step === "select" && t(`memberPortal.joy.particle.${activeConnectMode.key}Title`)}
                     {step === "amount" && `${t("memberPortal.joy.particle.sendTo", "Gửi")} → ${recipient?.displayName}`}
                     {step === "invoice" && t("memberPortal.joy.particle.confirm", "Xác nhận")}
                     {step === "pin" && t("memberPortal.joy.particle.pinTitle")}
@@ -876,25 +1018,18 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     {step === "success" && t("memberPortal.joy.particle.success", "Thành công!")}
                   </p>
                 </div>
-                <button onClick={close} disabled={step === "sending"} style={{
-                  background: "rgba(255,255,255,.15)", border: "none", borderRadius: 8,
-                  width: 28, height: 28, cursor: "pointer", color: "#fff", opacity: step === "sending" ? .4 : 1,
-                  display: "flex", alignItems: "center", justifyContent: "center",
+                <button onClick={close} disabled={step === "sending"} aria-label={t("memberPortal.joy.particle.close", "Đóng")} style={{
+                  background: "hsl(var(--muted))", border: "none", borderRadius: "50%",
+                  width: 34, height: 34, cursor: "pointer", color: "hsl(var(--foreground) / .7)", opacity: step === "sending" ? .4 : 1,
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
                 </button>
               </div>
 
               {/* ── Step: Select ── */}
               {step === "select" && (
                 <div className="joy-connect-select">
-                  <section className="joy-connect-hero">
-                    <span className="material-symbols-outlined">{activeConnectMode.icon}</span>
-                    <div>
-                      <strong>{t(`memberPortal.joy.particle.${activeConnectMode.key}Title`)}</strong>
-                      <small>{t(`memberPortal.joy.particle.${activeConnectMode.key}Desc`)}</small>
-                    </div>
-                  </section>
                   {/* Mode tabs */}
                   <div className="joy-connect-modes" role="tablist" aria-label={t("memberPortal.joy.particle.connectMode")}>
                     {CONNECT_MODES.map(m => (
@@ -973,7 +1108,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     <div className="joy-connect-receive">
                       {!myQR ? (
                         <div style={{ padding: "32px 0" }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: 28, color: "hsl(var(--foreground) / .55)", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
                         </div>
                       ) : (
                         <>
@@ -1002,9 +1137,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           {nfcSupported && (
                             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                               {nfcWriteStatus === "writing" ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 10, background: "rgba(99,102,241,.06)" }}>
-                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6366f1" }}>{t("memberPortal.joy.particle.nfcWrite", "Đang ghi NFC...")}</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 10, background: "hsl(var(--muted))" }}>
+                                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: "hsl(var(--foreground) / .55)", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                                  <span style={{ fontSize: 12, fontWeight: 700, color: "hsl(var(--foreground) / .55)" }}>{t("memberPortal.joy.particle.nfcWrite", "Đang ghi NFC...")}</span>
                                 </div>
                               ) : nfcWriteStatus === "done" ? (
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 10, background: "rgba(34,197,94,.08)" }}>
@@ -1052,7 +1187,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       </div>
                       {scanResolving ? (
                         <div className="joy-connect-empty">
-                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "hsl(var(--foreground) / .55)", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
                           <strong>{t("memberPortal.joy.particle.verifying", "Đang xác minh người nhận…")}</strong>
                           <small>{t("memberPortal.joy.particle.holdStill")}</small>
                         </div>
@@ -1086,29 +1221,29 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 0 4px" }}>
                       {scanResolving ? (
                         <div style={{ padding: "40px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#6366f1", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
-                          <p style={{ color: "#64748b", fontSize: 13, fontWeight: 600 }}>{t("memberPortal.joy.particle.verifying", "Đang xác minh mã...")}</p>
+                          <span className="material-symbols-outlined" style={{ fontSize: 32, color: "hsl(var(--foreground) / .55)", animation: "jtSpin 1s linear infinite" }}>progress_activity</span>
+                          <p style={{ color: "hsl(var(--muted-foreground))", fontSize: 13, fontWeight: 600 }}>{t("memberPortal.joy.particle.verifying", "Đang xác minh mã...")}</p>
                         </div>
                       ) : nfcScanning ? (
                         <div style={{ padding: "32px 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
                           <div style={{ position: "relative", width: 120, height: 120 }}>
-                            <span className="material-symbols-outlined" style={{ fontSize: 80, color: "#6366f1", animation: "jtSigilBreathe 2s ease-in-out infinite" }}>nfc</span>
+                            <span className="material-symbols-outlined" style={{ fontSize: 80, color: "hsl(var(--foreground) / .55)", animation: "jtSigilBreathe 2s ease-in-out infinite" }}>nfc</span>
                           </div>
-                          <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
+                          <p style={{ color: "hsl(var(--foreground))", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
                             {t("memberPortal.joy.particle.nfcScanHint", "Đặt thẻ NFC vào mặt sau điện thoại")}
                           </p>
-                          <p style={{ color: "#94a3b8", fontSize: 11, textAlign: "center" }}>
+                          <p style={{ color: "hsl(var(--muted-foreground))", fontSize: 13, textAlign: "center" }}>
                             {t("memberPortal.joy.particle.nfcScanTitle", "Đang tìm thẻ NFC...")}
                           </p>
                           <button onClick={() => { setNfcScanning(false); stopNfcScan(); }} style={{
                             padding: "8px 20px", borderRadius: 10, border: "1px solid #e5e7eb",
-                            background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 700, cursor: "pointer",
+                            background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))", fontSize: 12, fontWeight: 700, cursor: "pointer",
                           }}>{t("memberPortal.joy.particle.cancel", "Hủy")}</button>
                         </div>
                       ) : (
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "20px 0" }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 56, color: "#e5e7eb" }}>nfc</span>
-                          <p style={{ color: "#0f172a", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
+                          <span className="material-symbols-outlined" style={{ fontSize: 56, color: "hsl(var(--muted-foreground) / .6)" }}>nfc</span>
+                          <p style={{ color: "hsl(var(--foreground))", fontSize: 13, fontWeight: 700, textAlign: "center" }} className="dark:text-white">
                             {t("memberPortal.joy.particle.nfcTapHint", "Chạm thẻ NFC của người nhận để bắt đầu chuyển JOY")}
                           </p>
                           {error && (
@@ -1129,10 +1264,10 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                             setTimeout(() => { if (nfcScanning) { cleanup(); setNfcScanning(false); } }, 30000);
                           }} style={{
                             padding: "12px 32px", borderRadius: 14, border: "none",
-                            background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff",
+                            background: "hsl(var(--foreground))", color: "hsl(var(--background))",
                             fontSize: 13, fontWeight: 800, cursor: "pointer",
                             display: "flex", alignItems: "center", gap: 8,
-                            boxShadow: "0 4px 20px rgba(99,102,241,.4)",
+                            boxShadow: "none",
                           }}>
                             <span className="material-symbols-outlined" style={{ fontSize: 18, fontVariationSettings: "'FILL' 1" }}>nfc</span>
                             {t("memberPortal.joy.particle.nfcStartScan", "Bắt đầu quét NFC")}
@@ -1150,34 +1285,36 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   {/* Recipient chip */}
                   <div style={{
                     display: "flex", alignItems: "center", gap: 10,
-                    background: "#f8fafc", borderRadius: 14, padding: "10px 14px", marginBottom: 16,
+                    background: "hsl(var(--muted))", borderRadius: 14, padding: "10px 14px", marginBottom: 16,
                     border: "1px solid #f1f5f9",
                   }}>
                     <Avatar name={recipient.displayName} url={recipient.avatarUrl} size={38} />
                     <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.recipientLabel", "Người nhận")}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 13, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{recipient.displayName}</p>
+                      <p style={{ margin: 0, fontSize: 12, color: "hsl(var(--muted-foreground))", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.recipientLabel", "Người nhận")}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 13, fontWeight: 800, color: "hsl(var(--foreground))" }} className="dark:text-white">{recipient.displayName}</p>
                     </div>
-                    <button onClick={() => { setStep("select"); setError(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 11, fontWeight: 700 }}>{t("memberPortal.joy.particle.changeBtn", "Đổi")}</button>
+                    <button onClick={() => { setStep("select"); setError(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "hsl(var(--muted-foreground))", fontSize: 13, fontWeight: 700 }}>{t("memberPortal.joy.particle.changeBtn", "Đổi")}</button>
                   </div>
 
                   {/* Amount input */}
                   <div style={{ marginBottom: 12 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</p>
+                    <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: "hsl(var(--muted-foreground))", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</p>
                     <div style={{ position: "relative" }}>
                       <input
-                        type="number" min="10" max="1000"
+                        type="number"
+                        min={joy.value(MIN_SEND)} max={joy.value(MAX_SEND)} step={joy.value(1)}
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
-                        placeholder={t("memberPortal.joy.particle.amountPlaceholder", "Tối thiểu 10 JOY")}
+                        onBlur={() => amount && setAmount(String(joy.value(joy.toRaw(amount))))}
+                        placeholder={t("memberPortal.joy.particle.amountPlaceholder", { amount: MIN_SEND })}
                         className="w-full py-3 pl-3.5 pr-14 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-white text-lg font-black outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
                       />
-                      <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 11, fontWeight: 800, color: "#94a3b8" }}>JOY</span>
+                      <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 13, fontWeight: 800, color: "hsl(var(--muted-foreground))" }}>{joy.code}</span>
                     </div>
                     {numAmount > 0 && (
                       <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
-                        {t("memberPortal.joy.particle.fee", "Phí sáng tạo")}: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{fee} JOY</strong>
-                        {" · "}{t("memberPortal.joy.particle.total", "Tổng")}: <strong className="text-slate-900 dark:text-white font-black">{total} JOY</strong>
+                        {t("memberPortal.joy.particle.fee", "Phí sáng tạo")}: <strong className="text-indigo-600 dark:text-indigo-400 font-black">{joy.text(fee)}</strong>
+                        {" · "}{t("memberPortal.joy.particle.total", "Tổng")}: <strong className="text-slate-900 dark:text-white font-black">{joy.text(total)}</strong>
                       </p>
                     )}
                   </div>
@@ -1187,9 +1324,9 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     {suggestedAmounts.map(q => (
                       <button
                         key={q}
-                        onClick={() => setAmount(String(q))}
+                        onClick={() => setAmount(String(joy.value(q)))}
                         className={`flex-1 py-1.5 rounded-full text-xs font-black transition-all ${
-                          amount === String(q)
+                          amount === String(joy.value(q))
                             ? "bg-indigo-600 text-white shadow-sm"
                             : "bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10"
                         }`}
@@ -1202,13 +1339,13 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   {balanceKnown && (
                     <div className={`mb-3 flex items-center justify-between rounded-xl px-3 py-2 text-[10px] font-bold ${insufficientBalance ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-300" : "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300"}`}>
                       <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">{insufficientBalance ? "error" : "account_balance_wallet"}</span>{insufficientBalance ? t("memberPortal.joy.particle.insufficientBalance") : t("memberPortal.joy.particle.balanceAfter")}</span>
-                      <strong>{Math.max(0, availableBalance - total).toLocaleString("vi-VN")} JOY</strong>
+                      <strong>{joy.text(Math.max(0, availableBalance - total))}</strong>
                     </div>
                   )}
 
                   {/* Note */}
                   <div style={{ marginBottom: 14 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 9, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.noteTitle", "Nội dung (tùy chọn)")}</p>
+                    <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: "hsl(var(--muted-foreground))", textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.noteTitle", "Nội dung (tùy chọn)")}</p>
                     <input
                       value={note}
                       onChange={e => setNote(e.target.value)}
@@ -1235,13 +1372,13 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   </div>
 
                   <button
-                    disabled={numAmount < 10 || numAmount > 1000 || insufficientBalance}
+                    disabled={numAmount < MIN_SEND || numAmount > MAX_SEND || insufficientBalance}
                     onClick={() => { setStep("invoice"); setError(""); }}
                     style={{
                       width: "100%", padding: "13px 0", borderRadius: 14, border: "none",
-                      background: numAmount < 10 || insufficientBalance ? "#c7d2fe" : "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                      background: numAmount < 10 || insufficientBalance ? "hsl(var(--muted))" : "hsl(var(--foreground))",
                       color: "#fff", fontWeight: 800, fontSize: 13, cursor: numAmount < 10 || insufficientBalance ? "not-allowed" : "pointer",
-                      boxShadow: numAmount >= 10 && !insufficientBalance ? "0 4px 20px rgba(99,102,241,.4)" : "none",
+                      boxShadow: "none",
                     }}
                   >
                     {t("memberPortal.joy.particle.next", "Tiếp theo")}
@@ -1258,8 +1395,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                         <Avatar name={recipient.displayName} url={recipient.avatarUrl} size={42} />
                         <div>
-                          <p style={{ margin: 0, fontSize: 9, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.sendTo", "Gửi tới")}</p>
-                          <p style={{ margin: "2px 0 0", fontSize: 14, fontWeight: 900, color: "#0f172a" }} className="dark:text-white">{recipient.displayName}</p>
+                          <p style={{ margin: 0, fontSize: 12, color: "hsl(var(--muted-foreground))", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em" }}>{t("memberPortal.joy.particle.sendTo", "Gửi tới")}</p>
+                          <p style={{ margin: "2px 0 0", fontSize: 14, fontWeight: 900, color: "hsl(var(--foreground))" }} className="dark:text-white">{recipient.displayName}</p>
                         </div>
                       </div>
                       {note.trim() && (
@@ -1273,32 +1410,43 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
                     <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</span>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{numAmount.toLocaleString("vi-VN")} JOY</span>
+                        <span style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", fontWeight: 600 }}>{t("memberPortal.joy.particle.amountTitle", "Số JOY gửi")}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "hsl(var(--foreground))" }} className="dark:text-white">{joy.text(numAmount)}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>{t("memberPortal.joy.particle.fee", "Phí sáng tạo")} ({TRANSFER_FEE_RATE * 100}%)</span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>{fee.toLocaleString("vi-VN")} JOY</span>
+                        <span style={{ fontSize: 13, color: "hsl(var(--muted-foreground))", fontWeight: 600 }}>{t("memberPortal.joy.particle.fee", "Phí sáng tạo")} ({TRANSFER_FEE_RATE * 100}%)</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "hsl(var(--muted-foreground))" }}>{joy.text(fee)}</span>
                       </div>
+                      {/* Chỉ hiện khi thật sự phải đổi đơn vị — nói rõ đổi từ gì sang gì */}
+                      {bill.crossDenom && (
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ fontSize: 13, color: "#f59e0b", fontWeight: 700 }}>
+                            {t("memberPortal.joy.particle.conversionFee", {
+                              from: bill.fromCode, to: bill.toCode, percent: Math.round(CROSS_DENOM_FEE * 100),
+                            })}
+                          </span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "#f59e0b" }}>{joy.text(conversionFee)}</span>
+                        </div>
+                      )}
                     </div>
 
                     <Divider />
 
                     <div style={{ padding: "12px 14px" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0f172a" }} className="dark:text-white">{t("memberPortal.joy.particle.totalDeduction", "Tổng khấu trừ")}</span>
-                        <span style={{ fontSize: 16, fontWeight: 900, color: "#6366f1" }}>{total.toLocaleString("vi-VN")} JOY</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "hsl(var(--foreground))" }} className="dark:text-white">{t("memberPortal.joy.particle.totalDeduction", "Tổng khấu trừ")}</span>
+                        <span style={{ fontSize: 19, fontWeight: 900, color: "hsl(var(--jc-accent))" }}>{joy.text(total)}</span>
                       </div>
                     </div>
                   </div>
 
                   {error && (
                     <div style={{ marginTop: 10, padding: "10px 14px", borderRadius: 10, background: "rgba(239,68,68,.06)", border: "1px solid rgba(239,68,68,.2)" }}>
-                      <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#ef4444", textAlign: "center" }}>{error}</p>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#ef4444", textAlign: "center" }}>{error}</p>
                     </div>
                   )}
 
-                  <p style={{ textAlign: "center", fontSize: 9, color: "#cbd5e1", marginTop: 10, marginBottom: 14, fontWeight: 600, letterSpacing: ".04em" }}>
+                  <p style={{ textAlign: "center", fontSize: 12, color: "hsl(var(--muted-foreground) / .6)", marginTop: 10, marginBottom: 14, fontWeight: 600, letterSpacing: ".04em" }}>
                     {t("memberPortal.joy.particle.warning", "Giao dịch JOY không thể hoàn lại — kiểm tra kỹ trước khi xác nhận")}
                   </p>
 
@@ -1311,10 +1459,10 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     </button>
                     <button onClick={handleSend} style={{
                       flex: 2, padding: "13px 0", borderRadius: 14, border: "none",
-                      background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff",
+                      background: "hsl(var(--foreground))", color: "hsl(var(--background))",
                       fontSize: 13, fontWeight: 800, cursor: "pointer",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                      boxShadow: "0 4px 20px rgba(99,102,241,.4)",
+                      boxShadow: "none",
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16, fontVariationSettings: "'FILL' 1" }}>send</span>
                       {t("memberPortal.joy.particle.sendNow", "Chuyển ngay")}
@@ -1326,8 +1474,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
               {/* ── Step: PIN ── */}
               {step === "pin" && (
                 <div style={{ padding: "16px 18px 24px", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "#64748b", textAlign: "center" }} className="dark:text-slate-400">
-                    Nhập mã PIN giao dịch gồm 6 chữ số để chuyển {numAmount} JOY cho {recipient?.displayName}
+                  <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "hsl(var(--muted-foreground))", textAlign: "center" }} className="dark:text-slate-400">
+                    {t("memberPortal.joy.particle.pinHint", { amount: numAmount, name: recipient?.displayName })}
                   </p>
                   
                   {/* Password Circles */}
@@ -1340,8 +1488,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           height: 14,
                           borderRadius: "50%",
                           border: "2px solid #cbd5e1",
-                          background: pinInput.length > i ? "#6366f1" : "transparent",
-                          borderColor: pinInput.length > i ? "#6366f1" : "#cbd5e1",
+                          background: pinInput.length > i ? "hsl(var(--foreground))" : "transparent",
+                          borderColor: pinInput.length > i ? "hsl(var(--foreground))" : "hsl(var(--border))",
                           transition: "all 0.15s ease"
                         }}
                         className="dark:border-white/20 dark:bg-transparent"
@@ -1368,7 +1516,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   )}
 
                   {error && (
-                    <div style={{ color: "#ef4444", fontSize: 11, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
+                    <div style={{ color: "#ef4444", fontSize: 13, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
                       {error}
                     </div>
                   )}
@@ -1468,12 +1616,12 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
 
               {/* ── Step: Setup PIN ── */}
               {step === "setup-pin" && (
-                <div style={{ padding: "16px 18px 24px", color: "#0f172a", display: "flex", flexDirection: "column", alignItems: "center" }} className="dark:text-white">
+                <div style={{ padding: "16px 18px 24px", color: "hsl(var(--foreground))", display: "flex", flexDirection: "column", alignItems: "center" }} className="dark:text-white">
                   <span className="material-symbols-outlined text-[32px] text-amber-500 mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>lock_open</span>
-                  <p style={{ margin: "0 0 4px 0", fontSize: 13, fontWeight: 800, color: "#0f172a", textAlign: "center" }} className="dark:text-white">
+                  <p style={{ margin: "0 0 4px 0", fontSize: 13, fontWeight: 800, color: "hsl(var(--foreground))", textAlign: "center" }} className="dark:text-white">
                     {setupPinStep === 1 ? t("memberPortal.joy.particle.pinSetupHeading") : t("memberPortal.joy.particle.pinConfirmHeading")}
                   </p>
-                  <p style={{ margin: "0 0 16px 0", fontSize: 11, color: "#64748b", textAlign: "center" }} className="dark:text-slate-400">
+                  <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "hsl(var(--muted-foreground))", textAlign: "center" }} className="dark:text-slate-400">
                     {setupPinStep === 1
                       ? t("memberPortal.joy.particle.pinSetupBody")
                       : t("memberPortal.joy.particle.pinConfirmBody")}
@@ -1489,8 +1637,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                           height: 14,
                           borderRadius: "50%",
                           border: "2px solid #cbd5e1",
-                          background: pinInput.length > i ? "#8b5cf6" : "transparent",
-                          borderColor: pinInput.length > i ? "#8b5cf6" : "#cbd5e1",
+                          background: pinInput.length > i ? "hsl(var(--foreground))" : "transparent",
+                          borderColor: pinInput.length > i ? "hsl(var(--foreground))" : "hsl(var(--border))",
                           transition: "all 0.15s ease"
                         }}
                         className="dark:border-white/20 dark:bg-transparent"
@@ -1499,7 +1647,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                   </div>
 
                   {error && (
-                    <div style={{ color: "#ef4444", fontSize: 11, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
+                    <div style={{ color: "#ef4444", fontSize: 13, fontWeight: 700, margin: "0 0 16px 0", textAlign: "center" }}>
                       {error}
                     </div>
                   )}
@@ -1601,16 +1749,16 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
               {step === "sending" && (
                 <div style={{ padding: "40px 18px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
                   <div style={{ position: "relative", width: 72, height: 72 }}>
-                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid rgba(99,102,241,.2)" }} />
-                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid transparent", borderTopColor: "#6366f1", animation: "jtSpin 1s linear infinite" }} />
+                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid hsl(var(--border))" }} />
+                    <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "3px solid transparent", borderTopColor: "hsl(var(--foreground))", animation: "jtSpin 1s linear infinite" }} />
                     <span className="material-symbols-outlined" style={{
                       position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 28, color: "#6366f1", fontVariationSettings: "'FILL' 1",
+                      fontSize: 28, color: "hsl(var(--foreground) / .55)", fontVariationSettings: "'FILL' 1",
                     }}>toll</span>
                   </div>
                   <div style={{ textAlign: "center" }}>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#0f172a" }} className="dark:text-white">{t("memberPortal.joy.particle.transferring")}</p>
-                    <p style={{ margin: "4px 0 0", fontSize: 11, color: "#94a3b8" }}>{t("memberPortal.joy.particle.dontClose")}</p>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "hsl(var(--foreground))" }} className="dark:text-white">{t("memberPortal.joy.particle.transferring")}</p>
+                    <p style={{ margin: "4px 0 0", fontSize: 13, color: "hsl(var(--muted-foreground))" }}>{t("memberPortal.joy.particle.dontClose")}</p>
                   </div>
                 </div>
               )}
@@ -1628,10 +1776,10 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#fff", fontVariationSettings: "'FILL' 1" }}>check</span>
                     </div>
-                    <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "#0f172a" }} className="dark:text-white">{t("memberPortal.joy.particle.transferSuccess")}</p>
+                    <p style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "hsl(var(--foreground))" }} className="dark:text-white">{t("memberPortal.joy.particle.transferSuccess")}</p>
                     <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 4, margin: "10px 0" }}>
-                      <span style={{ fontSize: 32, fontWeight: 900, color: "#6366f1" }}>-{result.sentAmount}</span>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: "#94a3b8" }}>JOY</span>
+                      <span style={{ fontSize: 34, fontWeight: 900, color: "hsl(var(--jc-accent))" }}>-{joy.number(result.sentAmount)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: "hsl(var(--muted-foreground))" }}>{joy.code}</span>
                     </div>
                   </div>
 
@@ -1639,7 +1787,15 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     {[
                       { label: t("memberPortal.joy.particle.receiptId"), value: result.txCode, mono: true },
                       { label: t("memberPortal.joy.particle.recipientLabel"), value: result.recipientName },
-                      { label: t("memberPortal.joy.particle.receiptFee"), value: `${result.feeAmount} JOY` },
+                      { label: t("memberPortal.joy.particle.receiptFee"), value: joy.text(result.feeAmount) },
+                      ...(result.conversionFee
+                        ? [{
+                            label: t("memberPortal.joy.particle.conversionFee", {
+                              from: result.fromDenom, to: result.toDenom, percent: Math.round(CROSS_DENOM_FEE * 100),
+                            }),
+                            value: joy.text(result.conversionFee),
+                          }]
+                        : []),
                       ...(result.message ? [{ label: t("memberPortal.joy.particle.receiptNote"), value: result.message }] : []),
                     ].map(row => (
                       <div key={row.label} className="flex justify-between items-center py-1.5 border-b border-slate-200/50 dark:border-white/10 last:border-0">

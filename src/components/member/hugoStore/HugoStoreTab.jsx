@@ -1,15 +1,19 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import BackButton from "../shared/BackButton";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import { useJoyStore } from "../../../stores/joyStore";
-import StoreFeedView from "./StoreFeedView";
+import StoreHome from "./StoreHome";
+import StoreAppDetail from "./StoreAppDetail";
 import GiftSheet from "./GiftSheet";
-import { StoreFeed } from "./storeFeed";
+import { ArtDefs } from "./ui/AppArt";
 import { useStorePlans } from "./hooks/useStorePlans";
 import { useTapGuard } from "./hooks/useTapGuard";
-import { exchangeItemKey } from "./storeData";
+import { useAppInstall } from "../../../hooks/useAppInstall";
+import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
+import { STORE_ITEMS, exchangeItemKey, storeName } from "./storeData";
 import "./hugo-store.css";
 
 const API = import.meta.env.VITE_API_URL || "/api";
@@ -22,7 +26,7 @@ const postJson = async (path, body) => {
     body: JSON.stringify(body),
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || "Giao dịch không thành công.");
+  if (!r.ok) throw new Error(data.error || "");
   return data;
 };
 
@@ -34,42 +38,41 @@ const recipientField = (handle) => (
 );
 
 /**
- * Khung chờ trong lúc bảng giá về. Trước đây trang vẽ ngay bằng dữ liệu rỗng
- * nên tâm điểm hiện một app miễn phí rồi nhảy sang app khác khi giá tới.
+ * Khung chờ trong lúc bảng giá về. Vẽ ngay bằng dữ liệu rỗng thì lưới hiện một
+ * loạt app "miễn phí" rồi mới nhảy sang có giá khi bảng giá tới.
  */
 const StoreSkeleton = () => (
-  <div className="space-y-3 px-4" aria-hidden="true">
-    <div className="hgs-skeleton h-[188px] rounded-[24px]" />
-    <div className="hgs-skeleton h-[96px] rounded-[22px]" />
-    <div className="hgs-skeleton h-[96px] rounded-[22px]" />
+  <div className="hgs-grid px-3" aria-hidden="true">
+    {Array.from({ length: 9 }, (_, i) => (
+      <div key={i} className="hgs-skeleton h-[96px] rounded-[14px]" />
+    ))}
   </div>
 );
 
 /**
- * Hugo Store — ứng dụng độc lập, chiếm trọn màn hình, lối ra là nút quay lại.
+ * Hugo Chợ — ứng dụng độc lập, chiếm trọn màn hình, lối ra là nút quay lại.
  *
- * Không có giỏ hàng và KHÔNG tự dựng màn thanh toán: mọi thứ có phí đều mở
- * `JoyExchangeModal` (phiếu trao đổi JOY dùng chung toàn hệ thống) với một khoá
- * `item`, còn giá thì `/api/joy/exchange-quote` báo. Client không tính tiền.
- *
- * Nội dung trang do `StoreFeed` quyết định — xem storeFeed.js.
+ * Hai màn: lưới ứng dụng (StoreHome) và trang một ứng dụng (StoreAppDetail).
+ * Không có tab, không có giỏ hàng, và KHÔNG tự dựng màn thanh toán: mọi thứ có
+ * phí đều mở `JoyExchangeModal` (phiếu trao đổi JOY dùng chung toàn hệ thống)
+ * với một khoá `item`, còn giá thì `/api/joy/exchange-quote` báo. Client không
+ * tính tiền.
  */
 export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOpenUtility }) {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [search, setSearch] = useState("");
+  const [detailId, setDetailId] = useState(null);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [exchange, setExchange] = useState(null);
-  const [giftPlan, setGiftPlan] = useState(null);
-  // App người dùng đang muốn xem gói — cả trang xoay về app này (xem
-  // SpotlightSection.pick). Không có nó thì chỉ app tâm điểm của ngày mới có
-  // bảng bậc, những app khác không có đường nào để mua.
-  const [focus, setFocus] = useState(null);
-  const sentinelRef = useRef(null);
+  const [giftAppId, setGiftAppId] = useState(null);
+  const scrollRef = useRef(null);
   const tapGuard = useTapGuard();
 
+  const navigate = useNavigate();
   const { plans, balance, loading, reload: reloadPlans } = useStorePlans(bio?.email);
+  const { installed, progress, install } = useAppInstall({ bio, onBioUpdate });
 
   useEffect(() => {
     let alive = true;
@@ -90,34 +93,50 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
 
-  // Header chỉ kẻ viền dưới khi nội dung đã trượt lên.
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), { threshold: 1 });
-    io.observe(el);
-    return () => io.disconnect();
+  // Large title cuộn khuất thì thanh nav mới kẻ viền và hiện tiêu đề nhỏ.
+  // Ngưỡng đo bằng scrollTop chứ không bằng IntersectionObserver: mốc quan sát
+  // sẽ phải nằm trong StoreHome/StoreAppDetail, mà hai màn đó tháo lắp liên
+  // tục nên ref lúc có lúc không.
+  const handleScroll = useCallback((e) => {
+    setScrolled(e.currentTarget.scrollTop > 34);
   }, []);
 
   // Sheet/phiếu mở thì giấu mọi thanh điều hướng còn sót của portal.
-  const overlayOpen = Boolean(exchange || giftPlan);
+  const overlayOpen = Boolean(exchange || giftAppId);
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: overlayOpen } }));
     return () => window.dispatchEvent(new CustomEvent("hugo:fullsheet", { detail: { open: false } }));
   }, [overlayOpen]);
 
-  const feed = useMemo(
-    () => new StoreFeed({
-      products,
-      plans,
-      orders,
-      query: search.trim().toLowerCase(),
-      balance: balance ?? bio?.joyBalance ?? 0,
-      focus,
+  const planIndex = useMemo(() => new Map(plans.map(p => [p.appId, p])), [plans]);
+
+  /**
+   * App/game tĩnh + bậc giá động + trạng thái cài đặt, gộp thành một đơn vị cho
+   * lớp vẽ. `ladder` tra theo `planId` chứ không theo `id`: game Cờ Caro mở
+   * bằng gói Trò Chơi nên bảng giá của nó chính là bảng giá Trò Chơi.
+   */
+  const entries = useMemo(
+    () => STORE_ITEMS.map(app => {
+      const plan = app.planId ? planIndex.get(app.planId) || null : null;
+      return {
+        app,
+        ladder: plan,
+        state: plan?.state || null,
+        installed: installed.includes(app.id),
+        installable: appInstallationPolicy.canInstall(app.id),
+        progress: progress[app.id],
+      };
     }),
-    [products, plans, orders, search, balance, bio?.joyBalance, focus]
+    [planIndex, installed, progress]
   );
-  const sections = useMemo(() => feed.compose(), [feed]);
+
+  const entryOf = useCallback(
+    (appId) => entries.find(e => e.app.id === appId) || null,
+    [entries]
+  );
+
+  const detail = detailId ? entryOf(detailId) : null;
+  const giftPlan = giftAppId ? planIndex.get(giftAppId) : null;
 
   /** Sau mỗi giao dịch: đồng bộ số dư, bảng bậc và lịch sử. */
   const afterExchange = useCallback((result) => {
@@ -129,31 +148,32 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
     loadOrders();
   }, [onBioUpdate, reloadPlans, loadOrders]);
 
-  // ── Bốn hành động mua, dùng chung một phiếu ──────────────────────────────
+  // ── Mua bằng JOY: bốn hành động, dùng chung một phiếu ────────────────────
+  // Nhận thẳng đối tượng bảng bậc (`ladder`) chứ không nhận id của ô người dùng
+  // vừa bấm: game Cờ Caro mở bằng gói Trò Chơi, nên id trên ô và id của gói
+  // KHÁC nhau, và tra ngược lại bằng id ô là mua nhầm thứ.
 
-  const handleTrial = useCallback(async (appId) => {
+  const handleTrial = useCallback(async (ladder) => {
     try {
-      const result = await postJson("/store/plans/trial", { appId });
-      showToast?.(`Đã mở ${result.days} ngày dùng thử`, "success");
+      const result = await postJson("/store/plans/trial", { appId: ladder.appId });
+      showToast?.(t("utilities.store.tier.trialStarted", { count: result.days }), "success");
       reloadPlans();
     } catch (e) {
-      showToast?.(e.message, "error");
+      showToast?.(e.message || t("utilities.store.error"), "error");
     }
-  }, [showToast, reloadPlans]);
+  }, [showToast, reloadPlans, t]);
 
-  const handleRent = useCallback((appId) => {
-    const plan = feed.planOf(appId);
-    if (!plan) return;
+  const handleRent = useCallback((ladder) => {
     setExchange({
-      item: exchangeItemKey.rent(plan.featureKey),
-      confirm: () => postJson("/joy/subscribe-feature", { featureKey: plan.featureKey, months: 1 }),
+      item: exchangeItemKey.rent(ladder.featureKey),
+      confirm: () => postJson("/joy/subscribe-feature", { featureKey: ladder.featureKey, months: 1 }),
     });
-  }, [feed]);
+  }, []);
 
-  const handleOwn = useCallback((appId) => {
+  const handleOwn = useCallback((ladder) => {
     setExchange({
-      item: exchangeItemKey.own(appId),
-      confirm: () => postJson("/store/plans/own", { appId }),
+      item: exchangeItemKey.own(ladder.appId),
+      confirm: () => postJson("/store/plans/own", { appId: ladder.appId }),
     });
   }, []);
 
@@ -164,110 +184,114 @@ export default function HugoStoreTab({ bio, showToast, onBioUpdate, onBack, onOp
     });
   }, [bio?.email]);
 
-  const handleGift = useCallback((appId) => {
-    const plan = feed.planOf(appId);
-    if (plan) setGiftPlan(plan);
-  }, [feed]);
-
   /** Chọn xong người nhận → đóng sheet, mở đúng phiếu trao đổi của bậc đó. */
   const handleGiftContinue = useCallback(({ appId, tier, handle, message }) => {
-    const plan = feed.planOf(appId);
+    const plan = planIndex.get(appId);
     if (!plan) return;
-    setGiftPlan(null);
+    setGiftAppId(null);
     setExchange({
       item: tier === "own" ? exchangeItemKey.own(appId) : exchangeItemKey.rent(plan.featureKey),
-      confirm: () => postJson("/store/plans/gift", {
-        appId,
-        tier,
-        message,
-        ...recipientField(handle),
-      }),
+      confirm: () => postJson("/store/plans/gift", { appId, tier, message, ...recipientField(handle) }),
     });
-  }, [feed]);
+  }, [planIndex]);
 
-  /** App đang khoá: xoay cả trang về app đó rồi cuộn tới bảng bậc. */
-  const handlePlans = useCallback((appId) => {
-    if (!feed.planOf(appId)) { onOpenUtility?.(appId); return; }
-    setSearch("");
-    setFocus(appId);
-  }, [feed, onOpenUtility]);
+  /** Tải: cùng một cơ chế với Thư viện và Arcade (xem hooks/useAppInstall). */
+  const handleInstall = useCallback((entry) => {
+    install(entry.app.id, {
+      onDone: () => showToast?.(t("utilities.store.app.installedToast", { app: entry.app.label }), "success"),
+    });
+  }, [install, showToast, t]);
 
-  // Cuộn sau khi bảng bậc đã được vẽ. Chỉ bám `focus`: mua xong bảng giá tải
-  // lại, không có lý do gì để trang tự nhảy thêm lần nữa.
-  useEffect(() => {
-    if (!focus) return;
-    document.getElementById("hgs-ladder")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [focus]);
+  /** Mở: game đi qua Arcade — đó là nơi quản lý và chạy chúng. */
+  const handleOpen = useCallback((entry) => {
+    if (entry.app.game) {
+      navigate(`/member/utilities/arcade?game=${entry.app.id.replace("arcade_", "")}&from=store`, {
+        state: { from: "/member/utilities" },
+      });
+      return;
+    }
+    onOpenUtility?.(entry.app.id);
+  }, [navigate, onOpenUtility]);
 
-  const handlers = {
-    onOpenUtility,
-    onPlans: handlePlans,
-    onTrial: handleTrial,
-    onRent: handleRent,
-    onOwn: handleOwn,
-    onBuyPack: handleBuyPack,
-    onGift: handleGift,
-    balance: balance ?? bio?.joyBalance ?? 0,
-  };
+  /** Mở trang một app — luôn về đầu trang, không thừa hưởng chỗ cuộn của lưới. */
+  const openDetail = useCallback((appId) => {
+    setDetailId(appId);
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, []);
+
+  const leaveDetail = useCallback(() => {
+    setDetailId(null);
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, []);
 
   return (
     <div className="hgs flex h-full min-h-0 flex-col text-left">
-      {/* ── Header ứng dụng ──────────────────────────────────────────────── */}
-      <header data-scrolled={scrolled} className="hgs-header shrink-0 px-4 pb-3">
-        <div className="flex items-center gap-3">
-          <BackButton
-            onClick={onBack}
-            iconOnly
-            className="rounded-[14px] border border-[var(--hgs-line)] bg-[var(--hgs-surface)]"
-          />
-          <h1 className="hgs-ink min-w-0 flex-1 truncate text-[19px] font-bold tracking-[-0.01em]">
-            {t("utilities.store.title", "Hugo Store")}
-          </h1>
+      {/* Gradient dùng chung cho mọi hình minh hoạ — xem ui/AppArt.jsx */}
+      <ArtDefs />
+
+      {/* ── Thanh nav ────────────────────────────────────────────────────────
+          Chỉ giữ nút quay lại, số dư và một tiêu đề nhỏ hiện ra khi large
+          title đã cuộn khuất — đúng cách UINavigationController làm. Large
+          title nằm trong vùng cuộn ở dưới, không ở đây. */}
+      <header data-scrolled={scrolled} className="hgs-nav shrink-0 px-4 pb-2">
+        <div className="flex h-11 items-center gap-2">
+          <BackButton onClick={detail ? leaveDetail : onBack} iconOnly className="hgs-iconbtn" />
+          <span className="hgs-nav-title hgs-ink min-w-0 flex-1 truncate text-center">
+            {detail ? detail.app.label : storeName()}
+          </span>
           {/* JOY giữ đồng xu vàng làm dấu hiệu ngữ nghĩa, chỉ bọc lại bằng
-              viên nang phẳng cho khớp phần còn lại. */}
-          <span className="hgs-card flex h-10 shrink-0 items-center rounded-full px-3">
+              viên nang xám cho khớp phần còn lại. */}
+          <span className="flex h-8 shrink-0 items-center rounded-full bg-[var(--hgs-fill)] px-2.5">
             <JoyCoinBadge amount={balance ?? bio?.joyBalance} size="sm" />
           </span>
-        </div>
-
-        <div className="relative mt-3">
-          <span className="material-symbols-outlined hgs-dim pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[20px]">
-            search
-          </span>
-          <input
-            type="search"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder={t("utilities.store.shop.search", "Tìm ứng dụng và vật phẩm")}
-            className="hgs-input pl-11 pr-11"
-          />
-          {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              aria-label="Xoá tìm kiếm"
-              className="hgs-dim absolute right-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/[0.06] dark:bg-white/10"
-            >
-              <span className="material-symbols-outlined text-[16px]">close</span>
-            </button>
-          )}
         </div>
       </header>
 
       {/* ── Dòng nội dung ────────────────────────────────────────────────────
           `tapGuard` gắn ở đây vì mọi nút của cửa hàng đều nằm trong vùng cuộn
           này: vuốt để cuộn xong nhả tay sẽ không mở nhầm app hay phiếu mua. */}
-      <div className="hgs-scroll min-h-0 flex-1 overflow-y-auto pt-4" {...tapGuard}>
-        <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
-        {loading && plans.length === 0
-          ? <StoreSkeleton />
-          : <StoreFeedView sections={sections} {...handlers} />}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="hgs-scroll min-h-0 flex-1 overflow-y-auto"
+        {...tapGuard}
+      >
+        {loading && plans.length === 0 ? (
+          <StoreSkeleton />
+        ) : detail ? (
+          <StoreAppDetail
+            key={detail.app.id}
+            entry={detail}
+            balance={balance ?? bio?.joyBalance ?? 0}
+            onOpen={handleOpen}
+            onInstall={handleInstall}
+            onTrial={handleTrial}
+            onRent={handleRent}
+            onOwn={handleOwn}
+            onGift={setGiftAppId}
+          />
+        ) : (
+          <StoreHome
+            entries={entries}
+            packs={products}
+            orders={orders}
+            balance={balance ?? bio?.joyBalance ?? 0}
+            title={storeName()}
+            search={search}
+            onSearch={setSearch}
+            onOpenApp={openDetail}
+            onOpen={handleOpen}
+            onInstall={handleInstall}
+            onBuyPack={handleBuyPack}
+          />
+        )}
       </div>
 
       {giftPlan && (
         <GiftSheet
           plan={giftPlan}
-          onClose={() => setGiftPlan(null)}
+          appLabel={entryOf(giftAppId)?.app.label}
+          onClose={() => setGiftAppId(null)}
           onContinue={handleGiftContinue}
         />
       )}

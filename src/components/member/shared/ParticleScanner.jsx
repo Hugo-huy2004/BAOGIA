@@ -52,7 +52,7 @@ export default function ParticleScanner({
   onError,
   ignoredPayloads,
   facingMode = "environment",
-  scanBoxSize = 360,
+  scanBoxSize = 480,   // cạnh dài của khung làm việc; rộng hơn nên cần thêm điểm ảnh
   inline = false,
 }) {
   const { t } = useTranslation();
@@ -141,8 +141,8 @@ export default function ParticleScanner({
 
     if (!canvasRef.current) canvasRef.current = document.createElement("canvas");
     const canvas = canvasRef.current;
-    canvas.width = scanBoxSize;
-    canvas.height = scanBoxSize;
+    // Kích thước đặt theo khung hình thật ở lần vẽ đầu (xem `tick`), không đặt
+    // cứng thành hình vuông nữa.
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
     let barcodeDetector = null;
@@ -161,10 +161,26 @@ export default function ParticleScanner({
         return;
       }
 
-      const side = Math.min(video.videoWidth, video.videoHeight);
-      const sx = (video.videoWidth - side) / 2;
-      const sy = (video.videoHeight - side) / 2;
-      ctx.drawImage(video, sx, sy, side, side, 0, 0, scanBoxSize, scanBoxSize);
+      // QUÉT TOÀN KHUNG HÌNH.
+      //
+      // Bản cũ chỉ lấy hình vuông ở GIỮA (`side = min(w,h)`) rồi ép về
+      // scanBoxSize — trên điện thoại dọc 720×1280 nghĩa là bỏ hẳn ~44% khung
+      // hình ở trên và dưới. Mã nằm lệch khỏi vùng giữa là không quét được, và
+      // người dùng phải canh mã vào đúng ô nhỏ.
+      //
+      // Giờ thu CẢ khung về khung làm việc, giữ nguyên tỉ lệ (nên điểm ảnh vẫn
+      // vuông — hình học của bộ giải mã phụ thuộc điều đó). Chi phí mỗi khung
+      // vẫn có chặn trên vì cạnh dài luôn bằng `scanBoxSize`.
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      const shrink = Math.min(1, scanBoxSize / Math.max(vw, vh));
+      const dw = Math.max(1, Math.round(vw * shrink));
+      const dh = Math.max(1, Math.round(vh * shrink));
+      if (canvas.width !== dw || canvas.height !== dh) {
+        canvas.width = dw;
+        canvas.height = dh;
+      }
+      ctx.drawImage(video, 0, 0, vw, vh, 0, 0, dw, dh);
 
       // 1. Try Native BarcodeDetector first for instant QR code scanning
       if (barcodeDetector && !doneRef.current) {
@@ -185,7 +201,7 @@ export default function ParticleScanner({
       }
 
       // 2. Try Particle Cloud Code Frame Analysis
-      const frame = ctx.getImageData(0, 0, scanBoxSize, scanBoxSize);
+      const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const result = analyzeParticleCloudFrame(frame, DECODE_OPTS);
       const token = result ? bytesToBase64Url(result.bytes) : null;
       const isIgnored = token && (
@@ -218,102 +234,138 @@ export default function ParticleScanner({
     onClose?.();
   };
 
-  return (
-    <div style={
-      inline
-      ? { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100%", padding: "16px 0" }
-      : {
-          position: "fixed", inset: 0, zIndex: 500, background: "#000",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        }
-    }>
-      {!inline && (
-        <button onClick={handleClose} style={{
-          position: "absolute", top: 20, right: 20,
-          background: "rgba(255,255,255,.1)", border: "none", borderRadius: "50%",
-          width: 36, height: 36, cursor: "pointer", color: "#fff",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
-        </button>
-      )}
+  // ── Khung ngắm ────────────────────────────────────────────────────
+  // Bộ giải mã đọc TOÀN khung hình (xem `tick`), nên giao diện phải nói đúng
+  // điều đó: không còn cửa sổ tròn 260px với `objectFit: cover` — thứ vừa cắt
+  // mất phần lớn hình vừa bắt người dùng canh mã vào một ô nhỏ.
+  //
+  // Thay bằng bốn dấu góc ở gần mép: chúng chỉ ra "cả vùng này đều quét được"
+  // mà không che gì. Không viền phát sáng, không bóng đổ dày — nhìn hiện đại và
+  // quan trọng hơn là không làm người dùng tưởng chỉ trong viền mới ăn.
+  const corner = (position) => {
+    const thickness = 3;
+    const length = 26;
+    const radius = 10;
+    const base = { position: "absolute", width: length, height: length, borderColor: "#fff", borderStyle: "solid", borderWidth: 0 };
+    const map = {
+      tl: { top: 0, left: 0, borderTopWidth: thickness, borderLeftWidth: thickness, borderTopLeftRadius: radius },
+      tr: { top: 0, right: 0, borderTopWidth: thickness, borderRightWidth: thickness, borderTopRightRadius: radius },
+      bl: { bottom: 0, left: 0, borderBottomWidth: thickness, borderLeftWidth: thickness, borderBottomLeftRadius: radius },
+      br: { bottom: 0, right: 0, borderBottomWidth: thickness, borderRightWidth: thickness, borderBottomRightRadius: radius },
+    };
+    return { ...base, ...map[position] };
+  };
 
-      {torchSupported && status === "active" && !inline && (
-        <button onClick={toggleTorch} style={{
-          position: "absolute", top: 20, left: 20,
-          background: torchOn ? "rgba(125,211,252,.9)" : "rgba(255,255,255,.1)",
-          border: "none", borderRadius: "50%",
-          width: 36, height: 36, cursor: "pointer", color: torchOn ? "#0a1230" : "#fff",
-          display: "flex", alignItems: "center", justifyContent: "center",
+  const Frame = ({ children }) => (
+    <>
+      {children}
+      {status === "active" && (
+        <>
+          <span style={corner("tl")} />
+          <span style={corner("tr")} />
+          <span style={corner("bl")} />
+          <span style={corner("br")} />
+          {/* Vạch quét chạy hết chiều ngang — trước đây chỉ 5%→95% trong vòng tròn */}
+          <div style={{
+            position: "absolute", left: 0, right: 0, height: 2, top: "10%",
+            background: "linear-gradient(90deg,transparent,#fff,transparent)",
+            opacity: .85, zIndex: 2, animation: "pccScanLine 2.4s ease-in-out infinite",
+          }} />
+        </>
+      )}
+      {status === "init" && (
+        <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "rgba(0,0,0,.6)" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 30, color: "#fff", animation: "pccSpin 1s linear infinite" }}>progress_activity</span>
+        </div>
+      )}
+      {(status === "error" || status === "unsupported") && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: 24, textAlign: "center", background: "rgba(0,0,0,.72)" }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 30, color: "#ef4444" }}>camera_off</span>
+          <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>
+            {status === "unsupported"
+              ? t("memberPortal.joy.particle.cameraUnsupported", "Chưa hỗ trợ camera")
+              : t("memberPortal.joy.particle.cameraError", "Lỗi camera")}
+          </p>
+        </div>
+      )}
+    </>
+  );
+
+  const videoStyle = {
+    position: "absolute", inset: 0, width: "100%", height: "100%",
+    objectFit: "cover", display: status === "active" ? "block" : "none",
+  };
+
+  // Gắn trong trang: khung chữ nhật rộng (4:3) thay cho vòng tròn 200px.
+  if (inline) {
+    return (
+      <div style={{ width: "100%", padding: "8px 0" }}>
+        <div style={{
+          position: "relative", width: "100%", aspectRatio: "4 / 3",
+          borderRadius: 18, overflow: "hidden", background: "#000",
         }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+          <video ref={videoCallbackRef} style={videoStyle} playsInline muted />
+          <Frame />
+        </div>
+        <p style={{ marginTop: 12, textAlign: "center", fontSize: 13, color: "hsl(var(--muted-foreground))" }}>
+          {t("memberPortal.joy.particle.cameraHintWide", "Đưa mã vào bất kỳ đâu trong khung — không cần canh giữa.")}
+        </p>
+      </div>
+    );
+  }
+
+  // Toàn màn hình: camera tràn viền, dấu góc ở gần mép.
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "#000" }}>
+      <video ref={videoCallbackRef} style={videoStyle} playsInline muted />
+
+      {/* Vùng ngắm = gần như cả màn hình. Dấu góc nằm trong hộp này. */}
+      <div style={{ position: "absolute", top: "12%", bottom: "18%", left: "6%", right: "6%" }}>
+        <Frame />
+      </div>
+
+      <button
+        onClick={handleClose}
+        aria-label={t("arcadeGame.close", "Đóng")}
+        style={{
+          position: "absolute", top: "max(env(safe-area-inset-top, 0px), 16px)", right: 16,
+          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
+          background: "rgba(0,0,0,.45)", color: "#fff", display: "grid", placeItems: "center",
+          backdropFilter: "blur(6px)",
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: 22 }}>close</span>
+      </button>
+
+      {torchSupported && status === "active" && (
+        <button
+          onClick={toggleTorch}
+          aria-label={torchOn ? "Tắt đèn" : "Bật đèn"}
+          style={{
+            position: "absolute", top: "max(env(safe-area-inset-top, 0px), 16px)", left: 16,
+            width: 44, height: 44, borderRadius: "50%", border: "none", cursor: "pointer",
+            background: torchOn ? "#fff" : "rgba(0,0,0,.45)", color: torchOn ? "#111" : "#fff",
+            display: "grid", placeItems: "center", backdropFilter: "blur(6px)",
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 22 }}>
             {torchOn ? "flash_on" : "flash_off"}
           </span>
         </button>
       )}
 
-      {!inline && (
-        <p style={{
-          color: "rgba(255,255,255,.5)", fontSize: 11, fontWeight: 700,
-          letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 40,
-        }}>
-          {t("memberPortal.joy.particle.scanCloudCode", "Quét mã đám mây hạt")}
-        </p>
-      )}
-
-      <div style={{
-        position: "relative", width: inline ? 200 : 260, height: inline ? 200 : 260, borderRadius: "50%",
-        overflow: "hidden", border: inline ? "3px dashed rgba(99,102,241,.4)" : "2px solid rgba(56,189,248,.6)",
-        boxShadow: inline ? "0 0 20px rgba(99,102,241,.1)" : "0 0 40px rgba(56,189,248,.4)",
+      <p style={{
+        position: "absolute", left: 24, right: 24,
+        bottom: "calc(max(env(safe-area-inset-bottom, 0px), 20px) + 8px)",
+        textAlign: "center", color: "#fff", fontSize: 14, fontWeight: 600, lineHeight: 1.5,
+        textShadow: "0 1px 3px rgba(0,0,0,.6)",
       }}>
-        <video
-          ref={videoCallbackRef}
-          style={{
-            position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", display: status === "active" ? "block" : "none",
-          }}
-          playsInline
-          muted
-        />
+        {t("memberPortal.joy.particle.cameraHintWide", "Đưa mã vào bất kỳ đâu trong khung — không cần canh giữa.")}
+      </p>
 
-        {status === "active" && (
-          <div style={{
-            position: "absolute", left: "5%", right: "5%", height: inline ? 3 : 2, top: "10%",
-            background: inline ? "linear-gradient(90deg,transparent,#6366f1,transparent)" : "linear-gradient(90deg,transparent,#38bdf8,transparent)",
-            boxShadow: inline ? "0 0 8px #6366f1" : "0 0 8px #38bdf8", zIndex: 2,
-            animation: "pccScanLine 2.5s ease-in-out infinite",
-          }} />
-        )}
-
-        {status === "init" && (
-          <div style={{ position: "absolute", inset: 0, background: inline ? "rgba(99,102,241,.05)" : "#111", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, color: inline ? "#6366f1" : "#38bdf8", animation: "pccSpin 1s linear infinite" }}>progress_activity</span>
-          </div>
-        )}
-        {(status === "error" || status === "unsupported") && (
-          <div style={{ position: "absolute", inset: 0, background: inline ? "rgba(239,68,68,.05)" : "#111", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 28, color: "#ef4444", marginBottom: 8 }}>camera_off</span>
-            <p style={{ color: inline ? "#ef4444" : "#fff", fontSize: 11, fontWeight: 600, lineHeight: 1.5 }}>
-              {status === "unsupported" ? t("memberPortal.joy.particle.cameraUnsupported", "Chưa hỗ trợ camera") : t("memberPortal.joy.particle.cameraError", "Lỗi camera")}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {inline ? (
-        <p style={{ color: "#64748b", fontSize: 12, marginTop: 16, textAlign: "center", maxWidth: 260 }}>
-          {t("memberPortal.joy.particle.cameraHintInline", "Hướng camera vào mã Particle Cloud Code của người khác để kết nối.")}
-        </p>
-      ) : (
-        <p style={{ color: "rgba(255,255,255,.4)", fontSize: 12, marginTop: 24, fontWeight: 600 }}>
-          {t("memberPortal.joy.particle.cameraHint", "Hướng camera vào mã đám mây hạt")}
-        </p>
-      )}
-
-      {/* Keyframes are scoped here so the component is fully standalone. */}
       <style>{`
         @keyframes pccSpin { to { transform: rotate(360deg); } }
-        @keyframes pccScanLine { 0%,100% { top: 10%; } 50% { top: 85%; } }
+        @keyframes pccScanLine { 0%,100% { top: 8%; } 50% { top: 92%; } }
       `}</style>
     </div>
   );

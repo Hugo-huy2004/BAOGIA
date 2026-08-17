@@ -1,4 +1,15 @@
 import { ageFromBirth, bioAge, MEMBER_MIN_AGE, GUARDIAN_CONSENT_AGE } from './memberAge.js';
+import { JOY_DENOMS, DENOM_OPTIONS } from '../../shared/joyCurrency.js';
+
+// Ngôn ngữ hợp lệ = ngôn ngữ có đơn vị JOY. Mỗi ngôn ngữ giao diện buộc phải có
+// một đơn vị (shared/joyCurrency.test.js canh đúng điều đó), nên danh sách này
+// không thể lệch với SUPPORTED_LANGUAGES mà không làm test đỏ. Server không giữ
+// nhãn hiển thị — client tự dịch từ mã.
+const LANGUAGE_CODES = Object.keys(JOY_DENOMS);
+const languageCode = (value) => {
+  const code = String(value || '').toLowerCase().replace('_', '-').split('-')[0];
+  return LANGUAGE_CODES.includes(code) ? code : null;
+};
 
 /**
  * MỘT danh sách duy nhất về "hồ sơ còn thiếu gì".
@@ -14,6 +25,36 @@ import { ageFromBirth, bioAge, MEMBER_MIN_AGE, GUARDIAN_CONSENT_AGE } from './me
  * sửa modal, không phải sửa route.
  */
 export const PROFILE_FIELDS = [
+  {
+    // Hỏi TRƯỚC mọi mục khác: người dùng chọn xong là cả form đổi sang tiếng đó.
+    key: 'language',
+    type: 'choice',
+    label: 'Ngôn ngữ chính',
+    hint: 'Giao diện sẽ tự chuyển sang ngôn ngữ này.',
+    options: LANGUAGE_CODES.map((value) => ({ value })),
+    required: true,
+    isMissing: (bio) => !languageCode(bio.language),
+    apply(bio, value) {
+      const code = languageCode(value);
+      if (!code) throw new Error('Ngôn ngữ không hợp lệ.');
+      bio.language = code;
+    },
+  },
+  {
+    // Hỏi NGAY sau ngôn ngữ và chỉ hỏi một lần trong đời tài khoản. Xem chú thích
+    // ở `Bio.joyDenom`: đơn vị đổi được tuỳ ý là né được phí đổi đơn vị.
+    key: 'joyDenom',
+    type: 'choice',
+    label: 'Đơn vị JOY',
+    hint: 'Chọn một lần rồi cố định. Đổi ngôn ngữ giao diện sau này KHÔNG đổi đơn vị này.',
+    options: DENOM_OPTIONS.map(({ key }) => ({ value: key })),
+    required: true,
+    isMissing: (bio) => !JOY_DENOMS[bio.joyDenom],
+    apply(bio, value) {
+      if (!JOY_DENOMS[value]) throw new Error('Đơn vị JOY không hợp lệ.');
+      bio.joyDenom = value;
+    },
+  },
   {
     key: 'birthDate',
     type: 'birthDate',
@@ -83,8 +124,12 @@ export function missingProfileFields(bio) {
 }
 
 /** Bản rút gọn gửi xuống client để dựng form. */
-export const describeField = ({ key, type, label, hint, checkboxLabel }) => (
-  { key, type, label, hint, ...(checkboxLabel ? { checkboxLabel } : {}) }
+export const describeField = ({ key, type, label, hint, checkboxLabel, options }) => (
+  {
+    key, type, label, hint,
+    ...(checkboxLabel ? { checkboxLabel } : {}),
+    ...(options ? { options } : {}),
+  }
 );
 
 /**

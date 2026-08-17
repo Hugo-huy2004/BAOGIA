@@ -13,6 +13,7 @@ import DepressionCbtTherapy from "./DepressionCbtTherapy";
 import TherapyPanelShell from "./components/TherapyPanelShell";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import { useJoyStore } from "../../../stores/joyStore";
+import { joyText } from "../../../lib/joyDisplay";
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 const UNLOCK_COST = 150;
 
@@ -573,7 +574,7 @@ export default function TherapyTab({
   const handleUnlockFeature = async (method) => {
     if (!bio?.email || unlockingId) return;
     if (joyBalance < UNLOCK_COST) {
-      showToast?.(`Bạn cần ${UNLOCK_COST} JOY để mở khoá tính năng này. Số dư hiện tại: ${joyBalance} JOY.`, "warning");
+      showToast?.(`Cần ${joyText(UNLOCK_COST)} để mở khoá tính năng này. Số dư hiện tại: ${joyText(joyBalance)}.`, "warning");
       return;
     }
     setUnlockingId(method.id);
@@ -732,7 +733,7 @@ export default function TherapyTab({
                         disabled={claimingId !== null}
                         className="px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xl shadow-md shadow-amber-555/20 active:scale-95 transition-all"
                       >
-                        {claimingId === ch.id ? "Đang nhận..." : `Nhận +${ch.reward} JOY`}
+                        {claimingId === ch.id ? "Đang nhận..." : `Nhận +${joyText(ch.reward)}`}
                       </motion.button>
                     ) : (
                       <span className="text-[9px] font-black uppercase text-zinc-400 bg-muted px-2.5 py-1 rounded-xl">
@@ -896,11 +897,11 @@ export default function TherapyTab({
                   <div className="w-full border-t border-dashed border-border my-1" />
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Số JOY đã trừ</span>
-                    <span className="text-sm font-bold text-destructive">-{unlockReceipt.cost} JOY</span>
+                    <span className="text-sm font-bold text-destructive">-{joyText(unlockReceipt.cost)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] font-black text-foreground/80 uppercase tracking-wider">Số dư còn lại</span>
-                    <span className="text-lg font-black text-foreground">{unlockReceipt.balanceAfter} <small className="text-xs text-zinc-500 font-bold">JOY</small></span>
+                    <span className="text-lg font-black text-foreground">{joyText(unlockReceipt.balanceAfter)}</span>
                   </div>
                 </div>
                 <p className="text-[10px] text-zinc-400 text-center">Tính năng đã được mở khoá vĩnh viễn cho tài khoản của cậu. Lịch sử giao dịch đầy đủ có tại tab Ví JOY.</p>

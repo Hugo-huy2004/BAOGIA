@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchJoyHistory } from "../../../services/joyApi";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
+import { joyText } from "../../../lib/joyDisplay";
 
 // Nhãn nhóm — thuần trình bày. Khoá nhóm do máy chủ gắn (utils/joySources.js),
 // nhóm lạ rơi về "Khác" nên thêm nguồn mới ở server không làm vỡ chỗ này.
@@ -183,7 +184,7 @@ export default function JoyHistory({ limit = 50 }) {
                 </span>
                 <span className="font-mono text-[12.5px] text-muted-foreground">
                   {day.net >= 0 ? "+" : "−"}
-                  {fmt(Math.abs(day.net))} JOY
+                  {joyText(Math.abs(day.net))}
                 </span>
               </div>
               {day.items.map((tx) => (

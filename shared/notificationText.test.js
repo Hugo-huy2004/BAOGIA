@@ -34,8 +34,21 @@ describe("shared/notificationText", () => {
 
   it("dựng câu theo ngôn ngữ được yêu cầu", () => {
     expect(renderNotification("source.checkin", {}, "ko").title).toBe("일일 출석");
-    expect(renderNotification("event.adminBonus", { amount: 1500 }, "en").message)
-      .toBe("The admin just gave you 1,500 JOY.");
+    expect(renderNotification("event.adminBonus", { amount: 1500 }, "en", "en").message)
+      .toBe("The admin just gave you 1,500 JOYka.");
+  });
+
+  it("số tiền viết theo đơn vị NGƯỜI NHẬN, không theo ngôn ngữ của câu", () => {
+    // Hai thứ độc lập: câu dịch theo ngôn ngữ thiết bị, số tiền viết theo
+    // `Bio.joyDenom` của người nhận. Nếu hàm này bỏ qua tham số đơn vị thì thành
+    // viên dùng Zoma sẽ nhận thông báo ghi số của Mira — sai số tiền, không chỉ
+    // sai chữ. Mọi nơi gọi thật đều truyền đơn vị (pushNotifier, notifyMember,
+    // useNotifications).
+    const zoma = renderNotification("event.adminBonus", { amount: 1500 }, "en", "ja").message;
+    const mira = renderNotification("event.adminBonus", { amount: 1500 }, "en", "vi").message;
+    expect(zoma).toContain("JOYzo");
+    expect(mira).toContain("JOYmi");
+    expect(zoma).not.toBe(mira);
   });
 
   it("lời nhắn người dùng tự viết được giữ nguyên, không dịch", () => {

@@ -1,4 +1,17 @@
 import { MembershipFactory } from "../../../models/membershipTier.js";
+import {
+  DAILY_CASUAL_JOY, JOY_INCOME_SOURCES, dailyCeiling,
+  FEATURE_PRICES, ownFromMonthly, STUDY_STAGES, STUDY_ALL_STAGES_PRICE,
+  HUGOSO_PRICES, HUGOSO_BUNDLE_PRICE, BIO_THEME_RENTAL_PRICE,
+  EXCHANGE_TAX_RATE, TRANSFER_DAILY_CAP, TRANSFER_FEE_RATE, OWN_DISCOUNT, OWN_EQUIV_MONTHS,
+} from "../../../../shared/joyPrices.js";
+import {
+  JOY_DENOMS, DENOM_OPTIONS, CROSS_DENOM_FEE, formatDenom,
+} from "../../../../shared/joyCurrency.js";
+import { joyText } from "../../../lib/joyDisplay";
+import {
+  JOYLATER, creditLimit, loanTotal, expectedDays,
+} from "../../../../shared/joyLater.js";
 
 /**
  * Bộ tài liệu pháp lý đọc ngay trong tài khoản. Viết dưới dạng văn bản như
@@ -366,7 +379,284 @@ export function rightsAccessSections() {
   ];
 }
 
+// ── Bảng biểu JOY và quy chế ───────────────────────────────────────
+// Ưu tiên BẢNG: mỗi ô là một cụm ngắn, dịch sang ngôn ngữ khác không phải viết
+// lại cả đoạn văn. Mọi con số dựng từ `shared/joyPrices.js` — sửa giá trong bảng
+// đó là tài liệu tự đổi theo, không chép tay một số nào.
+// Mọi con số tiền trong tài liệu viết theo ĐƠN VỊ CỦA TÀI KHOẢN đang đọc —
+// bảng giá trong tài liệu và giá ngoài màn hình không được lệch cách viết.
+const joy = (n) => joyText(n);
+const days = (n) => `≈ ${(n / DAILY_CASUAL_JOY).toFixed(1)} ngày`;
+
+const INCOME_LABELS = {
+  checkin:   "Điểm danh hằng ngày",
+  arcade:    "Chơi game ở Trò Chơi",
+  focus:     "Tập trung sâu (3 giờ)",
+  ecoCaro:   "Cờ caro chế độ tiết kiệm",
+  therapy:   "Trò chuyện trị liệu (60 phút)",
+  challenge: "Hoàn thành 5 thử thách ngày",
+};
+
+const APP_LABELS = {
+  hugoProfile: "Hồ sơ công bố",
+  hugoAura:    "Tập Trung — tập trung sâu & âm thanh",
+  hugoRadio:   "Âm Thanh — tin tức & nhạc",
+  hugoChess:   "Cờ Vua",
+  hugoArcade:  "Trò Chơi — trọn bộ game",
+};
+
+const STAGE_LABELS = {
+  basic:        "Chặng 1 — Phản xạ cơ bản",
+  intermediate: "Chặng 2 — Tư duy kiến trúc",
+  advanced:     "Chặng 3 — Giải thuật & mật mã",
+  security:     "Chặng 4 — Bảo mật & tiền đề AI",
+  project:      "Chặng 5 — Đồ án full-stack",
+  devops:       "Chặng 6 — DevOps & phát hành",
+};
+
+const HUGOSO_LABELS = {
+  calendar: "Google Calendar",
+  docs:     "Google Docs",
+  sheets:   "Google Sheets",
+  gemini:   "Google Gemini",
+};
+
+export function joyRulesSections() {
+  const partsSum = STUDY_STAGES.reduce((sum, stage) => sum + stage.lifetime, 0);
+  const hugosoSum = Object.values(HUGOSO_PRICES).reduce((a, b) => a + b, 0);
+
+  return [
+    {
+      id: "joy-la-gi",
+      title: "JOY là gì",
+      blocks: [
+        {
+          type: "p",
+          text: "JOY là điểm thưởng nội bộ của Hugo Studio. Bạn nhận JOY khi dùng ứng dụng và dùng JOY để thuê hoặc mua vĩnh viễn các ứng dụng, khoá học, giao diện. JOY không phải tiền tệ và không quy đổi ngược ra tiền mặt.",
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Giá được neo theo thu nhập một ngày",
+          text: `Mọi mức giá dưới đây quy ra "mấy ngày chơi thường". Một ngày chơi thường (khoảng 20 phút) cho ${joy(DAILY_CASUAL_JOY)}, nên thuê một tháng ứng dụng nhỏ chỉ tốn khoảng một ngày chơi.`,
+        },
+      ],
+    },
+    {
+      id: "bang-thu-nhap",
+      title: "Bảng 1 — Kiếm JOY mỗi ngày",
+      blocks: [
+        {
+          type: "table",
+          head: ["Nguồn", "Tối đa mỗi ngày", "Dành cho"],
+          rows: JOY_INCOME_SOURCES.map((source) => [
+            INCOME_LABELS[source.id],
+            joy(source.max),
+            source.vietnameseOnly ? "Người dùng tiếng Việt" : "Mọi thành viên",
+          ]),
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Hai mức trần khác nhau",
+          text: `Làm hết mọi việc trong ngày: tối đa ${joy(dailyCeiling(true))}. Hai nguồn cuối nằm trong ứng dụng Tâm Trí — ứng dụng này chỉ phục vụ người dùng tiếng Việt, nên ở ngôn ngữ khác trần một ngày là ${joy(dailyCeiling(false))}.`,
+        },
+      ],
+    },
+    {
+      id: "bang-thue-app",
+      title: "Bảng 2 — Thuê tháng và mua vĩnh viễn",
+      blocks: [
+        {
+          type: "table",
+          head: ["Ứng dụng", "Thuê 1 tháng", "Mua vĩnh viễn", "Quy ra ngày chơi"],
+          rows: Object.entries(APP_LABELS).map(([key, label]) => [
+            label,
+            joy(FEATURE_PRICES[key]),
+            joy(ownFromMonthly(FEATURE_PRICES[key])),
+            days(ownFromMonthly(FEATURE_PRICES[key])),
+          ]),
+        },
+        {
+          type: "p",
+          text: `Giá mua vĩnh viễn tính bằng ${OWN_EQUIV_MONTHS} tháng thuê rồi giảm ${Math.round(OWN_DISCOUNT * 100)}%. Nghĩa là thuê khoảng tám tháng mới bằng tiền mua trọn đời, nên thuê phù hợp khi bạn chỉ cần dùng ngắn hạn.`,
+        },
+      ],
+    },
+    {
+      id: "bang-khoa-hoc",
+      title: "Bảng 3 — Khoá học sáu chặng",
+      blocks: [
+        {
+          type: "table",
+          head: ["Chặng", "Thuê 1 tháng", "Mua vĩnh viễn"],
+          rows: STUDY_STAGES.map((stage) => [
+            STAGE_LABELS[stage.tier],
+            joy(FEATURE_PRICES[stage.monthlyKey]),
+            joy(stage.lifetime),
+          ]),
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Chặng sau đắt hơn chặng trước",
+          text: "Giá tăng dần theo độ khó. Muốn mở chặng sau thì phải học xong bài cuối của chặng trước — điều kiện này ghi trong màn mở khoá của từng chặng.",
+        },
+      ],
+    },
+    {
+      id: "bang-tron-goi",
+      title: "Bảng 4 — Gói trọn bộ",
+      blocks: [
+        {
+          type: "table",
+          head: ["Gói", "Mua lẻ từng phần", "Giá trọn bộ", "Tiết kiệm"],
+          rows: [
+            ["Trọn khoá 6 chặng", joy(partsSum), joy(STUDY_ALL_STAGES_PRICE), `${Math.round((1 - STUDY_ALL_STAGES_PRICE / partsSum) * 100)}%`],
+            ["Trọn bộ 4 công cụ Google", joy(hugosoSum), joy(HUGOSO_BUNDLE_PRICE), `${Math.round((1 - HUGOSO_BUNDLE_PRICE / hugosoSum) * 100)}%`],
+          ],
+        },
+        {
+          type: "table",
+          head: ["Công cụ lẻ", "Giá"],
+          rows: [
+            ...Object.entries(HUGOSO_LABELS).map(([key, label]) => [label, joy(HUGOSO_PRICES[key])]),
+            ["Giao diện Bio (thuê)", joy(BIO_THEME_RENTAL_PRICE)],
+          ],
+        },
+      ],
+    },
+    {
+      id: "bang-phi",
+      title: "Bảng 5 — Phí và giới hạn",
+      blocks: [
+        {
+          type: "table",
+          head: ["Mục", "Mức"],
+          rows: [
+            ["Phí giao dịch khi trao đổi JOY", `${Math.round(EXCHANGE_TAX_RATE * 100)}% giá món, làm tròn xuống`],
+            ["Phí sáng tạo khi gửi JOY", `${Math.round(TRANSFER_FEE_RATE * 100)}% số gửi, người gửi trả`],
+            ["Phí đổi đơn vị khi gửi khác đơn vị", `${Math.round(CROSS_DENOM_FEE * 100)}% số gửi, người gửi trả`],
+            ["Trần chuyển JOY cho người khác", `${joy(TRANSFER_DAILY_CAP)} mỗi ngày`],
+            ["Mã PIN giao dịch", "6 chữ số, đặt trong ví"],
+            ["Trần nhận JOY từ game", `${joy(150)} mỗi ngày`],
+            ["Trần nhận JOY từ tập trung", `${joy(150)} mỗi ngày`],
+          ],
+        },
+        {
+          type: "p",
+          text: "Phí giao dịch được hiện tách dòng ngay trên màn xác nhận trước khi bạn đồng ý. Ba dòng phí nhỏ luôn cộng đúng bằng tổng phí — không có khoản nào ẩn.",
+        },
+      ],
+    },
+    {
+      id: "bang-don-vi",
+      title: "Bảng 6 — Đơn vị JOY",
+      blocks: [
+        {
+          type: "p",
+          text: `JOY chỉ có MỘT giá trị. Mỗi đơn vị là một cách viết số cho quen mắt: ${joy(1000)} của người dùng ${JOY_DENOMS.vi.code} và ${joy(1000)} của người dùng ${JOY_DENOMS.ja.code} mua được đúng những thứ như nhau, vì mọi giá trong bảng trên đều tính bằng JOY.`,
+        },
+        {
+          type: "table",
+          head: ["Đơn vị", "Tên đơn vị", `${joy(1000)} viết thành`],
+          rows: DENOM_OPTIONS.map((denom) => [
+            denom.code,
+            denom.name,
+            formatDenom(1000, denom.key, "vi-VN"),
+          ]),
+        },
+        {
+          type: "note",
+          tone: "warning",
+          title: "Chọn một lần, giữ cố định",
+          text: `Bạn chọn đơn vị ở lần đăng nhập đầu tiên và đơn vị đó gắn với tài khoản. Đổi ngôn ngữ giao diện KHÔNG đổi đơn vị. Lý do: gửi JOY cho người dùng đơn vị khác phải trả thêm ${Math.round(CROSS_DENOM_FEE * 100)}% phí đổi đơn vị — nếu ai cũng đổi đơn vị được tuỳ ý thì chỉ cần đổi cho khớp người nhận trước khi gửi là né hết phí.`,
+        },
+        {
+          type: "p",
+          text: "Phí đổi đơn vị được cộng thêm vào phần người gửi trả — người nhận luôn nhận đủ số JOY đã gửi. Hai người cùng đơn vị thì không có phí này. Tiếng Tây Ban Nha và tiếng Pháp cùng dùng JOYve nên gửi qua lại giữa hai bên cũng không tính là đổi đơn vị.",
+        },
+      ],
+    },
+    {
+      id: "joylater",
+      title: "Bảng 7 — JOYlater: mở trước, hoàn lại dần",
+      blocks: [
+        {
+          type: "p",
+          text: "JOYlater cho bạn mở khoá món mình muốn ngay hôm nay và hoàn lại dần bằng JOY kiếm được sau đó. Không có lãi chồng lãi. Hoàn một lần thì không có hạn chót; chia đợt thì mỗi đợt có ngày riêng và trễ ngày sẽ bị cộng thêm một lần.",
+        },
+        {
+          type: "table",
+          head: ["Khoản", "Mức"],
+          rows: [
+            ["Mức tối đa", `${JOYLATER.limitDays} lần JOY bạn kiếm mỗi ngày (trung vị ${JOYLATER.incomeWindowDays} ngày), tối đa ${joy(JOYLATER.hardCap)}`],
+            ["Phần cộng thêm", `${Math.round(JOYLATER.feeRate * 100)}% số mở trước nếu hoàn một lần, cộng thêm ${Math.round(JOYLATER.installmentFeeStep * 100)} điểm cho mỗi đợt chia thêm (tối đa ${JOYLATER.maxInstallments} đợt) — chốt MỘT LẦN lúc mở, không đổi về sau`],
+            ["Cách hoàn", `tự giữ lại ${Math.round(JOYLATER.garnishRate * 100)}% mỗi lần bạn nhận JOY`],
+            ["Ngày hoàn", `hoàn một lần thì không có hạn chót; chia đợt thì mỗi đợt có ngày riêng, chia đều số ngày dự kiến và chốt lúc mở`],
+            ["Trễ ngày", `quá hạn một đợt cộng ${Math.round(JOYLATER.latePenaltyRate * 100)}% CỦA ĐỢT ĐÓ, đúng một lần dù trễ bao lâu — không cộng lặp, không lãi chồng lãi`],
+            ["Hoàn sớm", "hoàn một lần: bất cứ lúc nào, không cộng thêm gì. Chia đợt: cửa hoàn chỉ mở đúng ngày tới hạn"],
+            ["Điều kiện", `đủ 18 tuổi · ví đã mở ≥ ${JOYLATER.minAccountDays} ngày · từng kiếm ≥ ${joy(JOYLATER.minLifetimeEarned)} · không còn lượt nào chưa hoàn xong`],
+            ["Khi chưa hoàn xong", "không mở trước thêm và không chuyển JOY cho người khác"],
+          ],
+        },
+        {
+          type: "table",
+          head: ["JOY kiếm mỗi ngày", "Mở trước tối đa", "Hoàn xong sau"],
+          rows: [415, 800, 1185].map((income) => [
+            `${joy(income)} mỗi ngày`,
+            joy(creditLimit(income)),
+            `${expectedDays(loanTotal(creditLimit(income)).total, income)} ngày`,
+          ]),
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Vì sao thời gian hoàn gần như bằng nhau",
+          text: `Mức tối đa tính theo JOY chính bạn kiếm được, nên người kiếm nhiều mở trước được nhiều hơn nhưng cũng hoàn xong nhanh hơn. Không ai kéo dài quá khoảng hai tuần.`,
+        },
+        {
+          type: "steps",
+          items: [
+            "JOYlater chỉ là JOY trong hệ thống. JOY không mua được bằng tiền và không đổi ra tiền được, nên đây không phải và không bao giờ trở thành một khoản tiền thật; cũng không bao giờ được chuyển sang bên thứ ba.",
+            "Số ứng cộng thẳng vào ví; bạn dùng JOY đó để mở khoá như bình thường. Món đã mở vẫn là của bạn trong lúc còn nợ.",
+            "Mỗi lần bạn nhận JOY, hệ thống tự trừ một phần cho nợ và ghi rõ trong lịch sử ví. Phần còn lại vẫn vào ví bạn để tiếp tục dùng.",
+            "Chỉ dùng để mở khoá tính năng trong hệ thống. Không dùng JOYlater để chuyển JOY cho người khác.",
+            "Hoàn chậm không bao giờ mất món đã mở và không bị đòi bằng bất cứ cách nào — chỉ là không mở trước thêm và không chuyển JOY được cho tới khi hoàn xong. Nếu đang chia đợt thì đợt trễ bị cộng thêm một lần như bảng trên.",
+            "Dùng nhiều tài khoản để ứng nhiều lần là gian lận, xử lý theo quy chế JOY ở trên.",
+          ],
+        },
+      ],
+    },
+    {
+      id: "quy-che-joy",
+      title: "Quy chế sử dụng JOY",
+      blocks: [
+        {
+          type: "steps",
+          items: [
+            "JOY chỉ có giá trị trong hệ sinh thái Hugo Studio, không phải tiền tệ, không quy đổi ra tiền mặt và không chuyển nhượng ra ngoài hệ thống.",
+            "Mọi lần cộng hoặc trừ JOY đều được ghi vào lịch sử ví, kèm lý do và thời điểm. Bạn tra lại được bất cứ lúc nào trong phần Ví.",
+            "Trần nhận JOY mỗi ngày tính theo từng nguồn, đặt lại vào 00:00 giờ Việt Nam.",
+            "Chuyển JOY cho người khác cần mã PIN sáu số và không vượt trần ngày. Giao dịch đã hoàn tất thì không hoàn lại được.",
+            "Đã thanh toán bằng JOY cho một tháng thuê hoặc một lần mua vĩnh viễn thì không hoàn JOY, trừ trường hợp lỗi hệ thống khiến bạn không dùng được tính năng đã trả.",
+            "Tạo JOY hoặc thành tích bằng gian lận, khai thác lỗi, dùng công cụ tự động hay nhiều tài khoản là căn cứ để thu hồi JOY và khoá tài khoản.",
+            "Quyền đã mua vĩnh viễn không bị mất khi giá thay đổi. Giá mới chỉ áp cho lần thuê hoặc lần mua kế tiếp.",
+            `Khi Hugo Studio điều chỉnh bảng giá, mức giá mới hiện ngay trong tài liệu này. Thắc mắc gửi về ${CONTACT_EMAIL}.`,
+          ],
+        },
+      ],
+    },
+  ];
+}
+
 export const MEMBER_DOCS = {
+  "joy-rules": {
+    id: "joy-rules",
+    title: "Bảng biểu JOY và quy chế",
+    intro: "Kiếm JOY thế nào, mỗi thứ giá bao nhiêu, phí và giới hạn — toàn bộ dưới dạng bảng.",
+    sections: joyRulesSections,
+  },
   privileges: {
     id: "privileges",
     title: "Đặc quyền thành viên",

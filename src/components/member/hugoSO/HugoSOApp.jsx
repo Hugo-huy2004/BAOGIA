@@ -11,6 +11,7 @@ import {
 } from "./hugoSOCourses";
 import "./hugo-so.css";
 import "../study/study-course-ios17.css";
+import { joyText, joyNumber, joyCode } from "../../../lib/joyDisplay";
 
 const API = import.meta.env.VITE_API_URL || "/api";
 const OWNED_KEY = "hugoso_owned_courses_v1";
@@ -124,12 +125,13 @@ function ProgressRing({ percent }) {
 }
 
 function PreviewCoach({ mode, scene }) {
+  const { t } = useTranslation();
   if (mode === 0) return null;
   return (
     <aside className={`hso-preview-coach hso-preview-coach--${mode === 1 ? "practice" : "mistake"}`}>
       <span className="material-symbols-outlined">{mode === 1 ? "touch_app" : "error"}</span>
       <div>
-        <small>{mode === 1 ? "DỪNG VÀ LÀM THEO" : "LỖI PHỔ BIẾN"}</small>
+        <small>{mode === 1 ? t("utilities.hugoso.dungVaLamTheo") : t("utilities.hugoso.loiPhoBien")}</small>
         <strong>{mode === 1 ? scene.heading : `Đừng bỏ qua: ${scene.heading}`}</strong>
         <p>{mode === 1 ? scene.checkpoint : `Đối chiếu hướng dẫn: ${scene.detail}`}</p>
       </div>
@@ -138,10 +140,11 @@ function PreviewCoach({ mode, scene }) {
 }
 
 function OfficePreview({ course, scene, mode }) {
+  const { t } = useTranslation();
   if (course.id === "calendar") {
     return (
       <div className="hso-preview hso-preview--calendar">
-        <header><b>Tháng 7</b><span>Hôm nay</span></header>
+        <header><b>{t("utilities.hugoso.thang7")}</b><span>{t("utilities.hugoso.homNay")}</span></header>
         <div className="hso-calendar-days">{["T2", "T3", "T4", "T5", "T6"].map((day) => <span key={day}>{day}</span>)}</div>
         <div className="hso-calendar-board">
           <i className="is-focus">09:00<br /><b>Focus time</b></i>
@@ -157,14 +160,14 @@ function OfficePreview({ course, scene, mode }) {
   if (course.id === "docs") {
     return (
       <div className="hso-preview hso-preview--docs">
-        <header><b>Báo cáo nghiên cứu</b><span>Đang lưu trên Drive</span></header>
+        <header><b>{t("utilities.hugoso.baoCaoNghienCuu")}</b><span>{t("utilities.hugoso.dangLuuTrenDrive")}</span></header>
         <div className="hso-doc-sheet">
           <small>STUDY WITH HUGO · HARVARD REPORT</small>
           <h4>1. Introduction</h4>
           <i /><i /><i className="is-short" />
           <h5>1.1 Research context</h5>
           <i /><i className="is-citation" />
-          <em>Nguyen (2026) cho rằng…</em>
+          <em>{t("utilities.hugoso.nguyen2026ChoRang")}</em>
         </div>
         <PreviewCoach mode={mode} scene={scene} />
         <p><strong>{scene.heading}</strong><span>{scene.detail}</span></p>
@@ -178,7 +181,7 @@ function OfficePreview({ course, scene, mode }) {
       <div className="hso-preview hso-preview--sheets">
         <header><b>Work tracker</b><span>fx =SUM(E2:E8)</span></header>
         <div className="hso-sheet-grid">
-          {cells.map((cell) => <i key={cell} className={cell === 10 ? "is-active" : ""}>{cell < 6 ? ["Task", "Owner", "Status", "Due", "JOY", "Note"][cell] : ""}</i>)}
+          {cells.map((cell) => <i key={cell} className={cell === 10 ? "is-active" : ""}>{cell < 6 ? ["Task", "Owner", "Status", "Due", joyCode(), "Note"][cell] : ""}</i>)}
         </div>
         <div className="hso-mini-chart"><i /><i /><i /><i /><i /></div>
         <PreviewCoach mode={mode} scene={scene} />
@@ -190,8 +193,8 @@ function OfficePreview({ course, scene, mode }) {
   return (
     <div className="hso-preview hso-preview--gemini">
       <header><span className="material-symbols-outlined">auto_awesome</span><b>Gemini workspace</b></header>
-      <div className="hso-chat-bubble is-user">Hãy giúp tôi lập kế hoạch, nhưng hỏi lại trước khi kết luận.</div>
-      <div className="hso-chat-bubble is-ai"><span className="material-symbols-outlined">auto_awesome</span> Mục tiêu quan trọng nhất và thời hạn của bạn là gì?</div>
+      <div className="hso-chat-bubble is-user">{t("utilities.hugoso.hayGiupToiLap")}</div>
+      <div className="hso-chat-bubble is-ai"><span className="material-symbols-outlined">auto_awesome</span> {t("utilities.hugoso.mucTieuQuanTrong")}</div>
       <PreviewCoach mode={mode} scene={scene} />
       <div className="hso-prompt-box"><span>{scene.heading}: {scene.detail}</span><i className="material-symbols-outlined">arrow_upward</i></div>
     </div>
@@ -199,6 +202,7 @@ function OfficePreview({ course, scene, mode }) {
 }
 
 function LessonStudio({ lesson, course }) {
+  const { t } = useTranslation();
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [activeClip, setActiveClip] = useState(0);
@@ -232,7 +236,7 @@ function LessonStudio({ lesson, course }) {
 
   return (
     <section className="hso-studio" style={{ "--course": course.color, "--course-soft": course.soft }}>
-      <div className="hso-studio__tabs" role="tablist" aria-label="Định dạng hướng dẫn">
+      <div className="hso-studio__tabs" role="tablist" aria-label={t("utilities.hugoso.dinhDangHuongDan")}>
         {clips.map((clip, index) => (
           <button
             type="button"
@@ -254,7 +258,7 @@ function LessonStudio({ lesson, course }) {
 
       <div className="hso-studio__stage">
         <div className="hso-studio__topline">
-          <span><i /> BẢN HƯỚNG DẪN TƯƠNG TÁC</span>
+          <span><i /> {t("utilities.hugoso.banHuongDanTuong")}</span>
           <strong>{String(activeScene + 1).padStart(2, "0")} / {String(scenes.length).padStart(2, "0")}</strong>
         </div>
         <div className="hso-studio__device">
@@ -271,7 +275,7 @@ function LessonStudio({ lesson, course }) {
             if (progress >= 100) setProgress(0);
             setPlaying((value) => !value);
           }}
-          aria-label={playing ? "Tạm dừng video minh họa" : "Phát video minh họa"}
+          aria-label={playing ? t("utilities.hugoso.tamDungVideoMinh") : t("utilities.hugoso.phatVideoMinhHoa")}
         >
           <span className="material-symbols-outlined">{playing ? "pause" : "play_arrow"}</span>
         </button>
@@ -298,7 +302,7 @@ function LessonStudio({ lesson, course }) {
             onClick={() => setProgress((index / scenes.length) * 100)}
           >
             <span>{index === activeScene ? <span className="material-symbols-outlined">play_arrow</span> : String(index + 1).padStart(2, "0")}</span>
-            <span><small>CHƯƠNG {index + 1} · KHỚP BƯỚC {index + 1}</small>{scene.heading}</span>
+            <span><small>{t("utilities.hugoso.chuong")} {index + 1} {t("utilities.hugoso.khopBuoc")} {index + 1}</small>{scene.heading}</span>
           </button>
         ))}
       </div>
@@ -307,6 +311,7 @@ function LessonStudio({ lesson, course }) {
 }
 
 function PurchaseSheet({ target, access, onClose, onConfirm, buying }) {
+  const { t } = useTranslation();
   if (!target) return null;
   const isBundle = target === "bundle";
   const course = isBundle ? null : HUGOSO_COURSES[target];
@@ -319,29 +324,29 @@ function PurchaseSheet({ target, access, onClose, onConfirm, buying }) {
 
   return (
     <div className="hso-sheet" role="dialog" aria-modal="true" aria-labelledby="hso-purchase-title">
-      <button type="button" className="hso-sheet__backdrop" onClick={onClose} aria-label="Đóng" />
+      <button type="button" className="hso-sheet__backdrop" onClick={onClose} aria-label={t("utilities.hugoso.dong")} />
       <div className="hso-sheet__panel">
         <span className="hso-sheet__handle" />
         <div className="hso-sheet__icon">
           <span className="material-symbols-outlined">{isBundle ? "workspace_premium" : course.icon}</span>
         </div>
-        <p className="hso-kicker">QUYỀN SỞ HỮU TRỌN ĐỜI</p>
+        <p className="hso-kicker">{t("utilities.hugoso.quyenSoHuuTron")}</p>
         <h2 id="hso-purchase-title">{isBundle ? HUGOSO_BUNDLE.title : course.title}</h2>
         <p className="hso-sheet__copy">
           {isBundle
-            ? "Mở toàn bộ 4 khóa, mọi bài thực hành hiện tại và các nội dung cập nhật sau này."
-            : "Mở toàn bộ lộ trình, bài thực hành và cập nhật tương lai của khóa học này."}
+            ? t("utilities.hugoso.moToanBo4")
+            : t("utilities.hugoso.moToanBoLo")}
         </p>
         <dl className="hso-invoice">
-          <div><dt>Giá khóa học</dt><dd>{quote.priceJoy.toLocaleString("vi-VN")} JOY</dd></div>
-          <div><dt>Phí sáng tạo 10%</dt><dd>{quote.tax.toLocaleString("vi-VN")} JOY</dd></div>
-          <div className="is-total"><dt>Tổng trao đổi</dt><dd>{quote.total.toLocaleString("vi-VN")} JOY</dd></div>
+          <div><dt>{t("utilities.hugoso.giaKhoaHoc")}</dt><dd>{joyText(quote.priceJoy)}</dd></div>
+          <div><dt>{t("utilities.hugoso.phiSangTao10")}</dt><dd>{joyText(quote.tax)}</dd></div>
+          <div className="is-total"><dt>{t("utilities.hugoso.tongTraoDoi")}</dt><dd>{joyText(quote.total)}</dd></div>
         </dl>
         <button type="button" className="hso-primary-action" disabled={buying} onClick={onConfirm}>
-          {buying ? "Đang xác nhận…" : `Mở khóa · ${quote.total.toLocaleString("vi-VN")} JOY`}
+          {buying ? t("utilities.hugoso.dangXacNhan") : `Mở khóa · ${joyText(quote.total)}`}
         </button>
-        <button type="button" className="hso-quiet-action" onClick={onClose}>Để sau</button>
-        <p className="hso-sheet__note">Không tự gia hạn · JOY không quy đổi thành tiền mặt</p>
+        <button type="button" className="hso-quiet-action" onClick={onClose}>{t("utilities.hugoso.deSau")}</button>
+        <p className="hso-sheet__note">{t("utilities.hugoso.khongTuGiaHan")}</p>
       </div>
     </div>
   );
@@ -541,7 +546,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
               ) : courseOwned ? (
                 <strong>{t("utilities.hugoso.daMoKhoa")}</strong>
               ) : (
-                <strong>{course.priceJoy} JOY</strong>
+                <strong>{joyText(course.priceJoy)}</strong>
               )}
             </footer>
           </article>
@@ -650,8 +655,8 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
                   <p>{t("utilities.hugoso.calendarDocsSheetsGemini")} {HUGOSO_BUNDLE.saving} {t("utilities.hugoso.joySoVoiMua")}</p>
                 </div>
                 <div className="hso-bundle__action">
-                  <small><s>{HUGOSO_BUNDLE.regularJoy.toLocaleString("vi-VN")} JOY</s></small>
-                  <strong>{HUGOSO_BUNDLE.priceJoy.toLocaleString("vi-VN")} JOY</strong>
+                  <small><s>{joyText(HUGOSO_BUNDLE.regularJoy)}</s></small>
+                  <strong>{joyText(HUGOSO_BUNDLE.priceJoy)}</strong>
                   <button type="button" onClick={() => setPurchaseTarget("bundle")}>{t("utilities.hugoso.moTronBo")}</button>
                 </div>
               </section>
@@ -769,7 +774,7 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
             <div className="hso-course-hero__offer">
               <span>{t("utilities.hugoso.baiDauTienMien")}</span>
               <button type="button" onClick={() => setPurchaseTarget(course.id)}>
-                {t("utilities.hugoso.moKhoaTronDoi")} {course.priceJoy} JOY
+                {t("utilities.hugoso.moKhoaTronDoi")} {joyText(course.priceJoy)}
               </button>
             </div>
           )}
@@ -1091,8 +1096,8 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
         </button>
         <div className="hso-wallet">
           <span className="material-symbols-outlined">toll</span>
-          <strong>{balance.toLocaleString("vi-VN")}</strong>
-          <small>JOY</small>
+          <strong>{joyNumber(balance)}</strong>
+          <small>{joyCode()}</small>
         </div>
       </header>
 

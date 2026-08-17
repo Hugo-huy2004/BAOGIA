@@ -39,7 +39,15 @@ export default function GameCaro({ difficulty = "medium", onGameOver }) {
     reportedRef.current = true;
     // Thắng nhanh được nhiều điểm hơn; bàn 10×10 nên một ván tử tế dài ~10–20
     // nước mỗi bên, khác hẳn 3×3 trước đây.
-    const score = finalStatus === "win" ? Math.max(30, 220 - totalMoves * 3) : 0;
+    // Thua/hòa vẫn có điểm dựa trên số nước đã chơi — phản ánh nỗ lực thực.
+    let score;
+    if (finalStatus === "win") {
+      score = Math.max(30, 220 - totalMoves * 3);
+    } else if (finalStatus === "draw") {
+      score = Math.max(10, Math.floor(totalMoves * 1.5));
+    } else {
+      score = Math.max(5, Math.floor(totalMoves * 1.2));
+    }
     onGameOver?.(score, finalStatus);
   }, [onGameOver]);
 

@@ -136,7 +136,27 @@ export async function awardJoy(email, amount, source, description, opts = {}) {
     if (client.readyState === 1) client.send(realtimeEvent);
   }
 
-  return { balance: bio.joyBalance, bio, notification };
+  // ── JOYlater: trả nợ tự động ─────────────────────────────────────
+  // Đặt ở ĐÂY vì awardJoy là cửa duy nhất mọi biến động JOY đi qua — không có
+  // đường nào nhận JOY mà lách được việc trừ nợ. Người không nợ thì điều kiện
+  // đầu đã false nên không tốn thêm một query nào (joyLoan đã nằm trong `bio`).
+  //
+  // `skipLoanGarnish` chặn đệ quy: chính lần trừ nợ cũng đi qua awardJoy.
+  // Nạp động để tránh vòng import (joyLaterService cần awardJoy ở đây).
+  let loanRepayment = null;
+  if (numAmount > 0 && !opts.skipLoanGarnish && Number(updatedBio.joyLoan?.outstanding) > 0) {
+    try {
+      const { repayFromIncome } = await import('./joyLaterService.js');
+      loanRepayment = await repayFromIncome(updatedBio, numAmount);
+      if (loanRepayment) bio.joyBalance = updatedBio.joyBalance - loanRepayment.repaid;
+    } catch (error) {
+      // Trả nợ lỗi thì KHÔNG được làm mất phần JOY vừa cộng cho người dùng —
+      // lần nhận JOY sau sẽ trừ tiếp.
+      console.error('[joylater repay]', error.message);
+    }
+  }
+
+  return { balance: bio.joyBalance, bio, notification, loanRepayment };
 }
 
 export async function getJoyBalance(email) {

@@ -11,7 +11,7 @@ function isChunkLoadError(error) {
 export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, autoReloading: false };
+    this.state = { hasError: false, error: null, autoReloading: false, componentStack: '' };
   }
 
   static getDerivedStateFromError(error) {
@@ -20,6 +20,10 @@ export class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
+    // Ở dev thì giữ lại để in THẲNG ra màn hình: chuỗi frame của react-dom
+    // trong console không cho biết component nào ném lỗi, còn componentStack
+    // thì có — dán một ảnh chụp màn hình là đủ để chẩn đoán.
+    if (import.meta.env.DEV) this.setState({ componentStack: errorInfo?.componentStack || '' });
     reportClientEvent({
       type: 'react-error-boundary',
       name: error?.name || 'ReactError',
@@ -64,6 +68,11 @@ export class ErrorBoundary extends React.Component {
             <p className="text-sm text-muted-foreground">
               {this.state.error?.message || 'Vui lòng làm mới trang'}
             </p>
+            {import.meta.env.DEV && this.state.componentStack && (
+              <pre className="max-h-48 overflow-auto rounded-xl bg-muted p-3 text-left text-[11px] leading-relaxed text-muted-foreground">
+                {`${this.state.error?.name || 'Error'}\n${this.state.componentStack.trim().split('\n').slice(0, 8).join('\n')}`}
+              </pre>
+            )}
             <button
               onClick={() => window.location.reload()}
               className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 rounded-xl transition-colors"

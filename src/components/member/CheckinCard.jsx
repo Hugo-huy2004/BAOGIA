@@ -5,7 +5,7 @@ import { localeForLanguage } from "../../i18n/languages";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-export default function CheckinCard({ email, showToast }) {
+export default function CheckinCard({ email, showToast, onClaimed }) {
   const { t, i18n } = useTranslation();
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +50,9 @@ export default function CheckinCard({ email, showToast }) {
           : t("memberPortal.checkin.claimSuccess", { amount: data.dailyReward });
       showToast?.(msg, "success");
       fetchStatus();
+      // Ví đang mở thẻ này ngay màn chính: sổ giao dịch và danh sách nhiệm vụ
+      // phải đổi theo ngay, không đợi lần mở app sau.
+      onClaimed?.();
     } catch (err) {
       showToast?.(err.message, "error");
     } finally {

@@ -4,6 +4,7 @@ import { useJoyStore } from "../../stores/joyStore";
 import SubUtilityHeader from "./SubUtilityHeader";
 import FeatureGate from "./shared/FeatureGate";
 import { motion } from "framer-motion";
+import { joyText } from "../../lib/joyDisplay";
 
 const LOFI_PLAYLIST = [
   { id: "stream_africa", title: "Lofi Hip Hop Radio", artist: "Stream Africa", url: "https://play.streamafrica.net/lofi" },
@@ -400,7 +401,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
                         {t(`aura.preset${preset.id.charAt(0).toUpperCase() + preset.id.slice(1)}`)}
                       </span>
                       <span className={`text-[8.5px] font-bold mt-1.5 px-2 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-muted/50 text-muted-foreground"}`}>
-                        +{preset.reward} JOY
+                        +{joyText(preset.reward)}
                       </span>
                     </div>
                   </motion.button>

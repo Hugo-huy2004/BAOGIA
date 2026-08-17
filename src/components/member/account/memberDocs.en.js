@@ -1,4 +1,17 @@
 import { MembershipFactory } from "../../../models/membershipTier.js";
+import {
+  DAILY_CASUAL_JOY, JOY_INCOME_SOURCES, dailyCeiling,
+  FEATURE_PRICES, ownFromMonthly, STUDY_STAGES, STUDY_ALL_STAGES_PRICE,
+  HUGOSO_PRICES, HUGOSO_BUNDLE_PRICE, BIO_THEME_RENTAL_PRICE,
+  EXCHANGE_TAX_RATE, TRANSFER_DAILY_CAP, TRANSFER_FEE_RATE, OWN_DISCOUNT, OWN_EQUIV_MONTHS,
+} from "../../../../shared/joyPrices.js";
+import {
+  JOY_DENOMS, DENOM_OPTIONS, CROSS_DENOM_FEE, formatDenom,
+} from "../../../../shared/joyCurrency.js";
+import { joyText } from "../../../lib/joyDisplay";
+import {
+  JOYLATER, creditLimit, loanTotal, expectedDays,
+} from "../../../../shared/joyLater.js";
 
 const CONTACT_EMAIL = "contact@hugowishpax.studio";
 
@@ -362,7 +375,283 @@ export function rightsAccessSectionsEn() {
   ];
 }
 
+// ── JOY tables and rules ───────────────────────────────────────────
+// Tables first: each cell is a short phrase, so translating this document into
+// another language never means rewriting paragraphs. Every number is derived
+// from `shared/joyPrices.js` — nothing is copied by hand.
+// Same display unit as the rest of the app — the doc must not quote prices in
+// a unit the member never sees anywhere else.
+const joyEn = (n) => joyText(n);
+const daysEn = (n) => `≈ ${(n / DAILY_CASUAL_JOY).toFixed(1)} days`;
+
+const INCOME_LABELS_EN = {
+  checkin:   "Daily check-in",
+  arcade:    "Playing arcade games",
+  focus:     "Deep focus (3 hours)",
+  ecoCaro:   "Caro in saver mode",
+  therapy:   "Therapy conversation (60 min)",
+  challenge: "Completing 5 daily challenges",
+};
+
+const APP_LABELS_EN = {
+  hugoProfile: "Published profile",
+  hugoAura:    "Focus & ambient sound",
+  hugoRadio:   "News & study radio",
+  hugoChess:   "Chess",
+  hugoArcade:  "Arcade — full game set",
+};
+
+const STAGE_LABELS_EN = {
+  basic:        "Stage 1 — Core reflexes",
+  intermediate: "Stage 2 — Architectural thinking",
+  advanced:     "Stage 3 — Algorithms & cryptography",
+  security:     "Stage 4 — Security & AI foundations",
+  project:      "Stage 5 — Full-stack capstone",
+  devops:       "Stage 6 — DevOps & release",
+};
+
+const HUGOSO_LABELS_EN = {
+  calendar: "Google Calendar",
+  docs:     "Google Docs",
+  sheets:   "Google Sheets",
+  gemini:   "Google Gemini",
+};
+
+export function joyRulesSectionsEn() {
+  const partsSum = STUDY_STAGES.reduce((sum, stage) => sum + stage.lifetime, 0);
+  const hugosoSum = Object.values(HUGOSO_PRICES).reduce((a, b) => a + b, 0);
+
+  return [
+    {
+      id: "joy-la-gi",
+      title: "What JOY is",
+      blocks: [
+        {
+          type: "p",
+          text: "JOY is the internal reward point of Hugo Studio. You earn JOY by using the apps and spend it to rent or permanently own apps, courses and themes. JOY is not a currency and cannot be converted back into money.",
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Prices are anchored to one day of income",
+          text: `Every price below is expressed in "days of ordinary play". One ordinary day (about 20 minutes) earns ${joyEn(DAILY_CASUAL_JOY)}, so renting a small app for a month costs roughly a single day of play.`,
+        },
+      ],
+    },
+    {
+      id: "bang-thu-nhap",
+      title: "Table 1 — Earning JOY each day",
+      blocks: [
+        {
+          type: "table",
+          head: ["Source", "Daily maximum", "Available to"],
+          rows: JOY_INCOME_SOURCES.map((source) => [
+            INCOME_LABELS_EN[source.id],
+            joyEn(source.max),
+            source.vietnameseOnly ? "Vietnamese-language users" : "Every member",
+          ]),
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Two different ceilings",
+          text: `Doing everything in one day: up to ${joyEn(dailyCeiling(true))}. The last two sources live inside the mental-health app, which serves Vietnamese-language users only, so in other languages the daily ceiling is ${joyEn(dailyCeiling(false))}.`,
+        },
+      ],
+    },
+    {
+      id: "bang-thue-app",
+      title: "Table 2 — Monthly rent and permanent ownership",
+      blocks: [
+        {
+          type: "table",
+          head: ["App", "1 month", "Own forever", "In days of play"],
+          rows: Object.entries(APP_LABELS_EN).map(([key, label]) => [
+            label,
+            joyEn(FEATURE_PRICES[key]),
+            joyEn(ownFromMonthly(FEATURE_PRICES[key])),
+            daysEn(ownFromMonthly(FEATURE_PRICES[key])),
+          ]),
+        },
+        {
+          type: "p",
+          text: `Permanent ownership is priced as ${OWN_EQUIV_MONTHS} months of rent minus ${Math.round(OWN_DISCOUNT * 100)}%. Renting for about eight months equals owning outright, so renting suits short-term use.`,
+        },
+      ],
+    },
+    {
+      id: "bang-khoa-hoc",
+      title: "Table 3 — The six-stage course",
+      blocks: [
+        {
+          type: "table",
+          head: ["Stage", "1 month", "Own forever"],
+          rows: STUDY_STAGES.map((stage) => [
+            STAGE_LABELS_EN[stage.tier],
+            joyEn(FEATURE_PRICES[stage.monthlyKey]),
+            joyEn(stage.lifetime),
+          ]),
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Each stage costs more than the last",
+          text: "Prices rise with difficulty. Unlocking a stage requires finishing the final lesson of the previous one — the condition is stated on each stage's unlock screen.",
+        },
+      ],
+    },
+    {
+      id: "bang-tron-goi",
+      title: "Table 4 — Bundles",
+      blocks: [
+        {
+          type: "table",
+          head: ["Bundle", "Bought separately", "Bundle price", "You save"],
+          rows: [
+            ["All 6 course stages", joyEn(partsSum), joyEn(STUDY_ALL_STAGES_PRICE), `${Math.round((1 - STUDY_ALL_STAGES_PRICE / partsSum) * 100)}%`],
+            ["All 4 Google tool courses", joyEn(hugosoSum), joyEn(HUGOSO_BUNDLE_PRICE), `${Math.round((1 - HUGOSO_BUNDLE_PRICE / hugosoSum) * 100)}%`],
+          ],
+        },
+        {
+          type: "table",
+          head: ["Single item", "Price"],
+          rows: [
+            ...Object.entries(HUGOSO_LABELS_EN).map(([key, label]) => [label, joyEn(HUGOSO_PRICES[key])]),
+            ["Bio theme (rent)", joyEn(BIO_THEME_RENTAL_PRICE)],
+          ],
+        },
+      ],
+    },
+    {
+      id: "bang-phi",
+      title: "Table 5 — Fees and limits",
+      blocks: [
+        {
+          type: "table",
+          head: ["Item", "Amount"],
+          rows: [
+            ["Transaction fee on any JOY exchange", `${Math.round(EXCHANGE_TAX_RATE * 100)}% of the price, rounded down`],
+            ["Creative fee when sending JOY", `${Math.round(TRANSFER_FEE_RATE * 100)}% of the amount, paid by the sender`],
+            ["Conversion fee when units differ", `${Math.round(CROSS_DENOM_FEE * 100)}% of the amount, paid by the sender`],
+            ["Daily cap on transfers to other members", `${joyEn(TRANSFER_DAILY_CAP)} per day`],
+            ["Transaction PIN", "6 digits, set inside the wallet"],
+            ["Daily cap on JOY from games", `${joyEn(150)} per day`],
+            ["Daily cap on JOY from focus sessions", `${joyEn(150)} per day`],
+          ],
+        },
+        {
+          type: "p",
+          text: "The transaction fee is itemised on the confirmation screen before you agree. The three small fee lines always add up to the total fee — nothing is hidden.",
+        },
+      ],
+    },
+    {
+      id: "bang-don-vi",
+      title: "Table 6 — JOY units",
+      blocks: [
+        {
+          type: "p",
+          text: `JOY has ONE value. Each unit is just a familiar way of writing the number: ${joyEn(1000)} held by a ${JOY_DENOMS.vi.code} member and ${joyEn(1000)} held by a ${JOY_DENOMS.ja.code} member buy exactly the same things, because every price in the tables above is denominated in JOY.`,
+        },
+        {
+          type: "table",
+          head: ["Unit", "Unit name", `${joyEn(1000)} written as`],
+          rows: DENOM_OPTIONS.map((denom) => [
+            denom.code,
+            denom.name,
+            formatDenom(1000, denom.key, "en-US"),
+          ]),
+        },
+        {
+          type: "note",
+          tone: "warning",
+          title: "Chosen once, then fixed",
+          text: `You pick your unit at first sign-in and it belongs to the account from then on. Changing the interface language does NOT change it. The reason: sending JOY to a member on a different unit costs an extra ${Math.round(CROSS_DENOM_FEE * 100)}% conversion fee — if anyone could switch units freely, matching the recipient's unit right before sending would avoid every fee.`,
+        },
+        {
+          type: "p",
+          text: "The conversion fee is added on top of what the sender pays — the recipient always receives the full amount sent. Two members on the same unit pay no conversion fee. Spanish and French share JOYve, so transfers between them do not count as a unit change either.",
+        },
+      ],
+    },
+    {
+      id: "joylater",
+      title: "Table 7 — JOYlater: unlock now, pay later",
+      blocks: [
+        {
+          type: "p",
+          text: "JOYlater lets you unlock what you want today and pay it back from the JOY you earn afterwards. No interest, no late fee, no deadline.",
+        },
+        {
+          type: "table",
+          head: ["Item", "Amount"],
+          rows: [
+            ["Credit limit", `${JOYLATER.limitDays}× your own daily income (median of ${JOYLATER.incomeWindowDays} days), up to ${joyEn(JOYLATER.hardCap)}`],
+            ["Service fee", `${Math.round(JOYLATER.feeRate * 100)}% of the advance, charged ONCE — never compounding`],
+            ["Repayment", `${Math.round(JOYLATER.garnishRate * 100)}% of every JOY you earn, automatically`],
+            ["Being late", "no deadline, no late fee, the balance never grows over time"],
+            ["Paying early", "allowed at any time, with no extra fee"],
+            ["Requirements", `18 or older · wallet open ≥ ${JOYLATER.minAccountDays} days · lifetime earnings ≥ ${joyEn(JOYLATER.minLifetimeEarned)} · no advance still open`],
+            ["While you owe", "no further advances and no JOY transfers to other members"],
+          ],
+        },
+        {
+          type: "table",
+          head: ["Your income", "Maximum advance", "Paid off in"],
+          rows: [415, 800, 1185].map((income) => [
+            `${joyEn(income)} per day`,
+            joyEn(creditLimit(income)),
+            `${expectedDays(loanTotal(creditLimit(income)).total, income)} days`,
+          ]),
+        },
+        {
+          type: "note",
+          tone: "info",
+          title: "Why the payoff time is nearly the same for everyone",
+          text: "The limit is derived from your own income, so heavier players can borrow more but also repay faster. Nobody carries a debt longer than roughly two weeks.",
+        },
+        {
+          type: "steps",
+          items: [
+            "JOYlater is an obligation in JOY only. It never becomes a real-money debt and is never transferred to a third party.",
+            "The advance is credited straight to your wallet; you then unlock things as usual. Whatever you unlocked stays yours while you still owe.",
+            "Each time you earn JOY, the system deducts a share towards the balance and records it in your wallet history. The rest still goes to your wallet so you can keep going.",
+            "Advances may only be used to unlock features inside the system. JOYlater cannot be used to transfer JOY to other members.",
+            "Not repaying carries no monetary penalty, no added interest and no loss of what you unlocked — you simply cannot take another advance or transfer JOY until it is cleared.",
+            "Using several accounts to take repeated advances is cheating and is handled under the JOY rules above.",
+          ],
+        },
+      ],
+    },
+    {
+      id: "quy-che-joy",
+      title: "Rules for using JOY",
+      blocks: [
+        {
+          type: "steps",
+          items: [
+            "JOY has value only inside the Hugo Studio ecosystem. It is not a currency, cannot be converted to cash, and cannot be transferred outside the system.",
+            "Every JOY credit and debit is written to your wallet history with a reason and a timestamp. You can review it at any time in the Wallet section.",
+            "Daily earning ceilings apply per source and reset at 00:00 Vietnam time.",
+            "Transferring JOY requires your six-digit PIN and must stay within the daily cap. Completed transfers cannot be reversed.",
+            "JOY spent on a month of rent or on permanent ownership is not refunded, except where a system fault prevented you from using what you paid for.",
+            "Creating JOY or achievements through cheating, exploiting bugs, automation tools or multiple accounts is grounds for reclaiming JOY and suspending the account.",
+            "Anything you already own permanently stays yours when prices change. New prices apply only to the next rental or purchase.",
+            `When Hugo Studio adjusts the price table, the new figures appear in this document immediately. Questions go to ${CONTACT_EMAIL}.`,
+          ],
+        },
+      ],
+    },
+  ];
+}
+
 export const MEMBER_DOCS_EN = {
+  "joy-rules": {
+    id: "joy-rules",
+    title: "JOY tables and rules",
+    intro: "How JOY is earned, what everything costs, fees and limits — all as tables.",
+    sections: joyRulesSectionsEn,
+  },
   privileges: {
     id: "privileges",
     title: "Member privileges",

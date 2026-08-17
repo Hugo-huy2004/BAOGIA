@@ -1,6 +1,6 @@
 {
   "aura": {
-    "title": "호구아우라 초점 및 라ifo 로지",
+    "title": "HugoAura FOCUS & LOFI LOUNGE",
     "pomodoroDesk": "포모도로 작업 공간",
     "presetLite": "초점 lite",
     "presetDeep": "깊은 초점",
@@ -22,14 +22,14 @@
     "accountThemeDescription": "전체 멤버 포털에 컬러, 패턴 및 분위기를 선택하세요.",
     "galleryTitle": "당신이 느끼는 공간",
     "galleryKicker": "HUGO 개인 공간",
-    "galleryDescription": "테마는 계정 내 배경, 유리 재료 및 탐색 투명도를 업데이트합니다. HUGOAura 이 선택을 변경할 수 없습니다.",
+    "galleryDescription": "테마는 계정 전체에 배경, 유리 재료 및 탐색 투명도를 업데이트합니다. HugoAura 이 선택을 변경할 수 없습니다.",
     "liveWeather": "실시간 날씨",
     "weatherOn": "테마와 조화로운",
     "weatherOff": "날씨 레이어가 꺼짐",
     "filterLabel": "테마 갤러리 필터링",
     "filterAll": "전체",
     "filterFree": "무료",
-    "filterStudio": "HUGO 컬렉션",
+    "filterStudio": "Hugo 콜렉션",
     "filterIdentity": "아이덴티티",
     "filterMood": "느낌",
     "badgeFree": "무료",
@@ -39,11 +39,11 @@
     "applying": "...",
     "themeUsed": "...",
     "themeApply": "...",
-    "themeRentCost": "{{price}} JOY",
+    "themeRentCost": "{{price, joy}}",
     "presetWarning": "시간을 멈추세요 전환 기록 설정 변경 중입니다.",
     "playWarning": "음악 재생 시작하기를 다시 클릭하세요.",
     "toastFocusCompleted": "축하합니다! 깊은 집중 시간이 {{minutes}} 분에 완료되었습니다!",
-    "toastJoyReceived": "+{{amount}} JOY가 보유 계정에 성공적으로 수령되었습니다.",
+    "toastJoyReceived": "+{{amount, joynum}} JOY가 보유 계정에 성공적으로 수령되었습니다.",
     "toastJoyFailed": "JOY 포인트로 지급 실패했습니다.",
     "toastBreakCompleted": "브레이크는 종료되었습니다. 새로운 작업 시스템을 시작하세요.",
     "toastLoginRequired": "비디오 렌탈 로그인 필요합니다.",
@@ -165,8 +165,8 @@
       "featured": "기고",
       "preview": "프레젠테이션",
       "safePreview": "안전한 프레젠테이션",
-      "hugoSummary": "허브 스타일 요약",
-      "readFull": "전체 읽기",
+      "hugoSummary": "프로필 포털에서 Hugo 스토리지 멤버의 요약",
+      "readFull": "전체 내용을 읽기 위해 Hugo",
       "backToFeed": "버스INESS 브리핑",
       "articleUnavailable": "이 기사가 열 수 없습니다.",
       "summaryTitle": "Detailed summary",
@@ -209,7 +209,7 @@
       "markAllReadError": "알림을 읽지 못했습니다. 다시 시도해보세요.",
       "openAction": "열기: {{title}}",
       "profileUpdated": "프로필 업데이트",
-      "balance": "{{value}} 보유금액",
+      "balance": "잔액 {{value, joy}}",
       "dismiss": "알림을 무시: {{title}}",
       "emptyFilterTitle": "이 카테고리에 아무것도 없습니다.",
       "emptyFilterDescription": "상위 카테고리를 선택하세요.",
@@ -268,7 +268,7 @@
     },
     "bioPreview": {
       "title": "bio 페이지",
-      "studioTitle": "프로필",
+      "studioTitle": "Hugo 생명",
       "subtitle": "공개 개인 페이지 예상 보기",
       "backAria": "뒤로 가기",
       "openAria": "프로필 열기",
@@ -328,7 +328,7 @@
       "settingsBtn": "알림 설정"
     },
     "joyWallet": {
-      "brand": "JOY 편의금",
+      "brand": "Hugo JOY 지갑",
       "sub": "JOY는 Hugo 시스템에서 선물, 서비스 및 경험으로 사용할 수 있습니다.",
       "statReferrals": "추천",
       "statBonusChat": "보너스 채팅",
@@ -386,7 +386,7 @@
       "servicesCount_other": "{{count}} 서비스"
     },
     "account": {
-      "appleAccount": "호구 계정",
+      "appleAccount": "Hugo 계정",
       "eduVerified": "교육 인증 완료",
       "verificationPending": "교육 인증 대기 중",
       "personalInformation": "이름, 생년월일 및 소개를 언제든지 수정할 수 있습니다.",
@@ -419,7 +419,7 @@
       "balance": "잔액",
       "missions": "업무",
       "open": "열려",
-      "pendingJoy": "{{amount}} JOY로 신청하세요",
+      "pendingJoy": "{{amount, joynum}} JOY로 신청하세요",
       "today": "오늘",
       "perks": "혜택",
       "spinAvailable": ".spin-available",
@@ -434,7 +434,7 @@
       "setPin": "거래 PIN 설정",
       "pinMissing": "거래 PIN이 설정되지 않았습니다",
       "pinDescription": "6자리 PIN을 사용하여 모든 JOY 이체를 보호하세요",
-      "claimJoy": "{{amount}} JOY을 구매하세요",
+      "claimJoy": "{{amount, joynum}} JOY을 구매하세요",
       "missionsWaiting": "{{count}} 미션에는 수령할 준비가 되어 있습니다",
       "walletSection": "JOY 편의점",
       "myPerks": "당신의 혜택",
@@ -442,7 +442,7 @@
       "perksSummary": "{{vouchers}} vouchers available · {{orders}} purchased items",
       "todayMissions": "오늘의 미션",
       "loading": "로그인 중...",
-      "pendingJoyLong": "{{amount}} JOY is ready to claim",
+      "pendingJoyLong": "{{amount, joy}} is ready to claim",
       "missionProgress": "今日 완료된 {{completed}}/{{total}}",
       "walletHistory": "통장 기록",
       "walletHistoryDetail": "전체 입금과 출금, 그리고 30일간의 통계를 포함합니다",
@@ -453,7 +453,7 @@
       "redeemReferral": "Codes and referrals",
       "redeemReferralDetail": "Gift codes, referral codes, and friend invitations",
       "redeemReferralShort": "Gift codes and friend invitations",
-      "memberSection": "Membership",
+      "memberSection": "규정과 권리",
       "manageTitle": "Service packages and Bio page",
       "manageDetail": "Owned packages, expiry dates, and Bio page deletion",
       "privacySection": "Privacy and notifications",
@@ -465,25 +465,25 @@
       "myPerksSubtitle": "주문 및 운세 포인트를 증정해 드립니다.",
       "todayMissionsSubtitle": "미션을 완료하고 JOY를 여기서 얻으세요",
       "walletHistorySubtitle": "사유로 인한 모든 금액",
-      "balanceSubtitle": "잔액: {{balance}} JOY",
+      "balanceSubtitle": "잔액: {{balance, joy}}",
       "memberDocument": "회원 문서",
       "missionCopy": {
-        "claimedJoy": "__{{amount}} JOY를 Claim했습니다.",
-        "claimedAll": "__{{count}} 미션에서 __{{total}} JOY를 Claim했습니다.",
+        "claimedJoy": "__{{amount, joynum}} JOY를 Claim했습니다.",
+        "claimedAll": "__{{count}} 미션에서 __{{total, joynum}} JOY를 Claim했습니다.",
         "claiming": "Claiming...",
-        "claimAll": "모든 기회를 얻으세요. {{amount}}",
+        "claimAll": "전체 청구 · {{amount, joy}}",
         "heading": "오늘의 미션 ({{completed}}/{{total}})",
         "loading": "미션을 로딩 중...",
         "empty": "새로운 미션이 없습니다.",
         "rewardClaimed": "보상이 받았습니다.",
-        "rewardReady": "+{{amount}} 보상",
-        "incomplete": "미션을 완료하지 않았으므로 +{{amount}} 보상",
+        "rewardReady": "전체 보상 · +{{amount, joy}}",
+        "incomplete": "미완료 · +{{amount, joy}}",
         "claimed": "획득됨",
         "claim": "획득"
       },
       "redeemCopy": {
         "giftError": "이 코드는 할인할 수 없습니다.",
-        "giftSuccess": "{{amount}}: JOY를 보관소에 추가했습니다.",
+        "giftSuccess": "{{amount, joynum}}: JOY를 보관소에 추가했습니다.",
         "referralError": "이 리베이트 코드는 유효하지 않습니다.",
         "referralSuccess": "Applied · +{{days}} days of account access.",
         "shareText": "Use code {{code}} when you sign up.",
@@ -497,7 +497,7 @@
         "apply": "...",
         "referralHint": "개인 계정은 한 번에 리fé어 코드를 등록할 수 있습니다.",
         "inviteFriends": "친구邀请",
-        "rewardPerFriend": "+100 JOY가 각자에게 등록된 코드로 등록한 사람마다",
+        "rewardPerFriend": "내 코드로 가입한 사람마다 +{{amount, joy}}",
         "referralCount": "{{count}}명의 참조자가 참조되었습니다. 코드",
         "shareLink": "邀请链接シェア"
       },
@@ -556,12 +556,12 @@
         "perk": "회원 메뉴",
         "usedOn": "Used on {{date}}",
         "expiresOn": "만료일: {{date}}",
-        "voucherHint": "프로젝트를 논의할 때 이 코드를 공유하세요. 각 코드는 한 번만 사용 가능합니다.",
+        "voucherHint": "예약할 때 연락처 단계에서 이 코드를 입력하세요. 코드는 한 번만 사용할 수 있습니다.",
         "loading": "당신의 이벤트 중에 로딩 중입니다.",
         "retry": "다시 시도해보세요",
         "luckySpin": "행운의 회전",
         "spinAvailable": "이해찬이 올해 한 번만 사용할 수 있습니다.",
-        "spunThisYear": "이해찬이 올해로 받은 {{amount}} JOY",
+        "spunThisYear": "이해찬이 올해로 받은 {{amount, joy}}",
         "opensInBirthMonth": "{{month}} 월, 당신의 생일을 열니다.",
         "addBirthday": "생년월일을 입력하여 생일 랜덤spin에 액세스하세요.",
         "spinNow": " spins now",
@@ -1087,7 +1087,10 @@
               }
             ]
           }
-        }
+        },
+        "joyRulesTitle": "JOY 표와 규정",
+        "joyRulesSubtitle": "JOY를 얻는 방법, 항목별 가격, 수수료와 한도를 표로 정리했습니다.",
+        "joyRulesDetail": "일일 획득량, 대여·구매 가격, 묶음 상품, 수수료"
       }
     },
     "bento": {
@@ -1132,10 +1135,10 @@
       "brutalismDesc": "경쾌한 드롭 색상 효과",
       "flatTitle": "색상으로 제도를 깨는 법칙을 깰 수 있다.",
       "flatDesc": "평면, 드롭 색상 없음, 3D/그라디언트 없음, 빛나는 색상과 평면 2차원 박스",
-      "rentalDescription": "JOY는 비영리 보상 잔액입니다. Brutalism과 Flat cost는 매달 {{price}} JOY를 반환합니다; 계약이 만료되면 Classic 페이지로 돌아갑니다.",
+      "rentalDescription": "JOY는 비영리 보상 잔액입니다. Brutalism과 Flat cost는 매달 {{price, joynum}} JOY를 반환합니다; 계약이 만료되면 Classic 페이지로 돌아갑니다.",
       "free": "무료",
       "daysRemaining": "{{count}} days left",
-      "pricePerMonth": "{{price}} JOY/month",
+      "pricePerMonth": "{{price, joy}}/month",
       "exchangeSuccess": "JOY는 {{template}} 스타일을 교환합니다."
     },
     "links": {
@@ -1203,7 +1206,7 @@
     },
     "toast": {
       "verifySuccessTitle": "계정이 성공적으로 인증되었습니다! 🎉",
-      "verifySuccessMsg": "교육 이메일이 인증되었습니다. 호지 스테디에어로 가입하세요!",
+      "verifySuccessMsg": "Hugo 스타일러스에 환영합니다! 교육용 이메일이 확인되었습니다.",
       "verifyPendingTitle": "요청이 처리 중입니다.",
       "verifyPendingMsg": "요청이 제출되었습니다. 관리자 확인을 기다려주세요.",
       "verifyRejectedTitle": "인증 요청이 거절되었습니다.",
@@ -1230,7 +1233,7 @@
       "descLimitExceeded": "bio는 최대 110 글자로 초과했습니다.",
       "partnerSaveSuccess": "파트너 bio가 성공적으로 저장되었습니다.",
       "saveSuccess": "프로필이 저장되었습니다.",
-      "activateSuccess": "당신의 호유 프로필은 활성화되었습니다.",
+      "activateSuccess": "Hugo 비평 프로필이 이제 활성화되었습니다.",
       "saveError": "변경사항을 저장할 수 없습니다.",
       "deleteLocalSuccess": "개인 bio가 삭제되었습니다.",
       "deletePersonalSuccess": "개인 bio를 삭제할 수 없습니다.",
@@ -1464,7 +1467,7 @@
       "phonePlaceholder": "휴대폰 번호를 입력하세요",
       "referralLabel": "참조 코드 (선택 사항)",
       "referralPlaceholder": "예: HG123456",
-      "referralHint": "+10 JOY와 +15 Bio 링크 기간의 무료 제공을 얻으세요",
+      "referralHint": "추천인 코드를 입력하면 +{{amount, joy}}와 Bio 링크 {{days}}일을 받습니다",
       "submitting": "서로 다른 사람에게 보낼 수 있습니다.",
       "submitButton": "결제 중...",
       "skipButton": "종료",
@@ -1476,13 +1479,23 @@
         "guardianConsent": {
           "label": "부모 또는 법정代理인 확인",
           "hint": "만 16세 미만인 경우, 부모 또는 가족이 개인 정보 처리에 동의해야 합니다.",
-          "checkboxLabel": "저는 개인정보 처리에 동의합니다."
+          "checkboxLabel": "부모 또는 보호자가 개인정보 처리방침을 읽고 제시된 정보를 사용하여 저는 이용할 수 있음을 동의했습니다. Hugo 스토리지."
         },
         "phone": {
           "label": "연락처",
           "hint": "contact"
+        },
+        "language": {
+          "label": "주 사용 언어",
+          "hint": "인터페이스가 이 언어로 바뀝니다."
+        },
+        "joyDenom": {
+          "label": "JOY 단위",
+          "hint": "한 번만 선택하면 고정됩니다. 나중에 언어를 바꿔도 이 단위는 바뀌지 않아 변환 수수료를 피할 수 없습니다."
         }
-      }
+      },
+      "next": "계속",
+      "stepOf": "{{total}}단계 중 {{current}}단계"
     },
     "birthdaySurprise": {
       "monthTitle": "생년월일!",
@@ -1501,7 +1514,7 @@
       "title": "One spin for you",
       "addedToWallet": "JOY has been added to your wallet.",
       "description": "One spin each year, with an equal chance for every segment.",
-      "wheelAria": "JOY 보상 구역의 토막이 {{count}}",
+      "wheelAria": " 보상 구역의 토막이 {{count}}",
       "youReceived": "받았습니다.",
       "accountDays": "+{{count}} 일간 계정 접근 권한",
       "voucherExpiry": "유효 기간: {{date}} · 프로젝트에 대한 이 코드를 공유하세요",
@@ -1522,7 +1535,7 @@
         "18세 미만의 사람들의 이름과 식별 정보는 특성화된 안전 설계가 필요한 경우 공공 검색 및 순위에서 공개되지 않습니다.",
         "로그인 시, 저장, 이메일 또는 결제 제공자가 설명된 개인정보 보호 정책에 따라 처리될 수 있습니다."
       ],
-      "commitment": "유아의 최선의 이익을 위해 우선적으로 보호를 강화합니다. 위험에 대한 위험이 있다면 계정 사용자의 나이가 올바르지 않거나 안전한 위험이 발생할 수 있으므로 확인 중인 경우 계정 접근이 중단될 수 있습니다."
+      "commitment": "Hugo 청소년의 최선의 이익을 우선하여 위험에 따른 비례적인 보호장치를 적용합니다. 잘못된 나이나 해로운 위협을 나타내는 계정이 사용될 경우 접근 권한이 일시 중지될 수 있습니다."
     },
     "locationAnomaly": {
       "title": "비상장소의 이상적인 위치가 감지되었습니다",
@@ -1549,14 +1562,14 @@
       "close": "권한 설정을 끄려면 브라우저나 장치 설정에서 재설정해주세요.",
       "browserSettingsHint": "이 권한은 차단되었습니다. 브라우저나 장치 설정에서 다시 활성화 해주세요.",
       "pushError": "포지션 등록이 완료되지 않았습니다. 연결 상태를 확인하고 다시 시도해주세요.",
-      "locationError": "위치 접근 권한이 필요합니다. 브라우저의 권한을 확인하세요."
+      "locationError": "Hugo 위치 액세스를 할 수 없습니다. 브라우저 권한을 확인해주세요."
     },
     "joy": {
       "card": {
         "copyCode": "회원 코드 복사",
         "cardName": "보유 금액",
         "availableBalance": "보유 금액",
-        "smartChip": "결제 방법",
+        "smartChip": "Hugo 멤버 티",
         "transfer": "JOY 전송",
         "flipFront": "카드를 처음으로 뒤로 넘기세요",
         "flipRules": "카드의 사용 조건을 보려면 카드를 열 수 있습니다",
@@ -1596,8 +1609,8 @@
         "verifying": "인증 코드 확인...",
         "recipientLabel": "수신자",
         "changeBtn": "변경",
-        "amountTitle": "주문 금액",
-        "amountPlaceholder": "최소 10 JOY",
+        "amountTitle": "JOY 금액",
+        "amountPlaceholder": "최소 {{amount, joy}}",
         "fee": "작성 비용",
         "total": "총액",
         "noteTitle": "메시지 (선택 사항)",
@@ -1676,12 +1689,16 @@
         "pinConfirmHeading": "거래 PIN 설정",
         "pinSetupBody": "거래 PIN 확인",
         "pinConfirmBody": "당신의 잔액을 보호하기 위해 새로운 6자리 거래 PIN을 입력해 주세요.",
-        "transferring": "최근 생성한 6자리 PIN을 재입력하여 완료합니다.",
+        "transferring": "JOY을 전송 중...",
         "dontClose": "JOY 전송 중...",
-        "transferSuccess": "이 창을 닫지 마세요",
+        "transferSuccess": "JOY 전송 완료!",
         "receiptId": "JOY 전송 성공!",
         "receiptFee": "Creative fee",
-        "receiptNote": "Note"
+        "receiptNote": "Note",
+        "cameraHintWide": "코드를 화면 어디에 두어도 인식됩니다. 가운데 맞출 필요 없습니다.",
+        "conversionFee": "{{from}} → {{to}} 변환 수수료({{percent}}%)",
+        "close": "닫기",
+        "pinHint": "6자리 PIN을 입력해 {{name}}에게 {{amount, joy}}를 보냅니다"
       },
       "exchange": {
         "exchanged": "교환",
@@ -1717,7 +1734,7 @@
         "title": "JOY 선물 코드로 선물을 받으세요",
         "placeholder": "선물 코드를 입력하세요",
         "button": "Redeem",
-        "success": "+{{amount}} JOY",
+        "success": "+{{amount, joy}}",
         "error": "이 코드는 사용할 수 없습니다."
       },
       "applyReferral": {
@@ -1725,7 +1742,7 @@
         "placeholder": "예: HG123456",
         "button": "...",
         "hint": "자신이 추천한 사람의 코드를 여기서 입력해 주세요. 두人都 JOY를 얻습니다. 각 계정은 이 기능을 한 번만 사용할 수 있습니다.",
-        "success": "추천 완료! +10 JOY와 +{{days}}일 Bio Link",
+        "success": "코드 적용 완료! +{{amount, joy}} 및 Bio Link {{days}}일.",
         "error": "이 코드는 적용되지 않았습니다."
       },
       "earnInfo": "친구를 추천하거나 치유 상담에 참석하거나 캔버스 게임을 이길 때, 또는 관리자 선물 코드로 admin gift code를 사용하여 JOY를 얻으세요.",
@@ -1741,7 +1758,7 @@
         "purchaseSuccess": "주문 성공! 주문 코드: {{code}}",
         "purchaseError": "이 제품을 구매할 수 없습니다.",
         "outOfStock": "재고가 부족합니다.",
-        "insufficientBalance": "잔액이 부족합니다.",
+        "insufficientBalance": "부족한 JOY",
         "buyButton": "즉시 구매",
         "daysUnit": "유효기간: [일련번호]",
         "chatTokens": "채팅 포인트",
@@ -1778,13 +1795,13 @@
         "notFound": "이 번호의 수신자가 없습니다.",
         "recipientLabel": "전송할 수 있는 금액",
         "amountLabel": "전송할 금액",
-        "amountPlaceholder": "한번에 최대 1,000 JOY를 전송할 수 있습니다.",
-        "feeNote": "5% 방어비: 수신자는 {{net}} JOY (수수료: {{fee}} JOY)를 받습니다.",
-        "dailyCapNote": "일주일에 1,000 JOY를 전송할 수 있습니다.",
+        "amountPlaceholder": "1회 최대 {{amount, joy}}",
+        "feeNote": "5% 방어비: 수신자는 {{net, joy}} (수수료: {{fee, joy}})를 받습니다.",
+        "dailyCapNote": "하루 보내기 한도는 {{amount, joy}}입니다.",
         "confirmButton": "전송 확인",
         "cancelButton": "취소",
         "sending": "전송 중...",
-        "success": "JOY를 {{net}}로 {{name}}에게 전송했습니다!",
+        "success": "JOY를 {{net, joynum}}로 {{name}}에게 전송했습니다!",
         "changeRecipient": "수신자 변경",
         "ageGateHint": "JOY를 전송하기 위해 최소 3일이 지나야 합니다."
       },
@@ -1794,7 +1811,7 @@
         "claimButton": "JOY 신청",
         "claimed": "획득됨",
         "notDoneYet": "작업이 아직 완료되지 않았습니다.",
-        "claimSuccess": "+{{amount}} JOY!",
+        "claimSuccess": "+{{amount, joy}}!",
         "empty": "로그인 후 이용하실 수 있는 미션을 불러오지 못했습니다."
       }
     },
@@ -1808,16 +1825,16 @@
       "claimButton": "로그인",
       "alreadyClaimed": "로그인",
       "locked": "잠금",
-      "claimSuccess": "입장 확인됨! +{{amount}} JOY",
-      "claimSuccessBonus": "입장 확인됨! +{{total}} JOY (포함 +{{bonus}} JOY 마일리지 보너스)",
+      "claimSuccess": "입장 확인됨! +{{amount, joy}}",
+      "claimSuccessBonus": "입장 확인됨! +{{total, joy}} (포함 +{{bonus, joy}} 마일리지 보너스)",
       "claimError": "현재 입장 확인이 불가능합니다.",
       "weekLockedTitle": "일기 기간이 끝났습니다. 일요일로 재개됩니다.",
-      "streakTooltip": "{{count}}-day streak · complete 7 days for +{{reward}} JOY{{milestones}}",
-      "dayReward": "일자 {{day}} · +{{amount}} JOY",
+      "streakTooltip": "{{count}}-day streak · complete 7 days for +{{reward, joy}}{{milestones}}",
+      "dayReward": "일자 {{day}} · +{{amount, joy}}",
       "claiming": "Claiming...",
       "reopensMonday": "월요일 오후 2시",
       "alreadyClaimedToday": "오늘 체크인",
-      "claimToday": "체크인 · +{{amount}} JOY"
+      "claimToday": "체크인 · +{{amount, joy}}"
     },
     "settings": {
       "title": "설정",
@@ -1826,7 +1843,7 @@
         "summary": "계정 정보, 결제, 설정",
         "bioTitle": "Hugo Bio 프로필",
         "bioDescription": "외관, 회원 카드 및 소셜 링크 맞춤 설정",
-        "publicIdentityNote": "호구 스튜디오 네트워크에서 공개적으로 표시되는 계정 이름과 이미지",
+        "publicIdentityNote": "Hugo 스토리지 네트워크에서 당신의 프로필 이름과 이미지는 공개됩니다.",
         "notifications": "알림",
         "notificationsDescription": "웹 푸시 알림 설정",
         "privacy": "プライバシー와 접근",
@@ -1896,7 +1913,7 @@
         "weatherAlertTitle": "강수 기상 팝업",
         "weatherAlertDesc": "날씨가 나빠질 때 준비해두세요 - 위치 및 알림 권한이 주어진 후 자동으로 ON합니다.",
         "soundDescShort": "오후 2시부터 새벽 7시까지 자동으로 브라우저를 멈춥니다. 오전에는 자동으로 재개됩니다.",
-        "donationDescShort": "비밀保管されているため, 당신의 일상 생활을 방해하지 않습니다; 언제든지 활성화합니다."
+        "donationDescShort": "숨겨져 있어서 당신을 방해하지 않도록 설정되어 있습니다; 지원하고 싶으시면 활성화하세요. Hugo"
       },
       "biometric": {
         "title": " fingerprints or faces instead of logging in with Google every time.",
@@ -1919,7 +1936,7 @@
         "arcade": "8 게임, 독립적인 ID",
         "cards": "모든 업데이트를 읽으시고 50 JOY를 얻으세요"
       },
-      "reward": "새로운 것을 볼 수 있습니다",
+      "reward": "전체 업그레이드를 읽으세요 — 50 JOY을 얻으세요.",
       "cta": "이제 보지 않기",
       "later": "다음으로",
       "optOut": "Don't show again"
@@ -1928,7 +1945,7 @@
       "title": "정보 및 버전",
       "desc": "Hugo Studio, 현재 버전에 대해 자세히 알아보세요. 그리고 당신에게 작은 보상만 제공합니다.",
       "aboutTitle": "Hugo Studio",
-      "aboutBody": "개인의 Bio-링 플랫폼과 다양한 도구 툴박물장이 결합된 개인적인 유연한 도구 패키지입니다. 모든 사람들이 자신의 인생 속에서 맞춤형 공간을 찾는 데 필요한 모든 것을 제공합니다 - 여기에는 일어나는 것에 대한 한계가 없습니다.",
+      "aboutBody": "Hugo 스타일은 개인의_bio_링크 플랫폼과 다양한 유용한 도구를 결합하여, 여기서는 누구나 자신만의 성격과 생활 속도에 맞는 공간을 찾을 수 있습니다 — 여기에는 하나의 크기에 모든 사람을 위한 것이 없습니다.",
       "aboutBody2": "Personal Bio 페이지와 매일의 JOY 보상 시스템, HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade 및 HugoAura 등 다양한 도구들이 하나의 장소에서 살펴볼 수 있습니다. 이 모든 도구는 당신이 개인 이미지를 만드는 데, 일하는 데, 학습하고 휴식을 취할 때 여러 앱을 바꾸지 않아도 사용할 수 있습니다.",
       "featuresTitle": "특징",
       "features": {
@@ -1937,35 +1954,35 @@
           "desc": "개인 프로필, 링크 및 서비스 페이지 — 디자인을 개인화하고 단일 링크를 통해 공유하세요."
         },
         "helpdesk": {
-          "title": "호구 도움말",
+          "title": "HugoHelpdesk",
           "desc": "빠른 연락처 공유를 위해 스마트 QR/NFC 코드와 전문 이메일 스타일로 보안된 이메일签名입니다."
         },
         "handle": {
-          "title": "호구 헤더",
+          "title": "HugoHandle",
           "desc": "비밀번호 보안으로 보호된 안전한 링크 및 온라인 이미지 변환/압축 기능."
         },
         "psychology": {
-          "title": "호구 PSY",
+          "title": "HugoPSY",
           "desc": "AI-assisted 학습 상담, 수면跟踪 및 감정 치료 지원."
         },
         "ide": {
-          "title": "호구 스터디",
+          "title": " Hugo에서 학습하기",
           "desc": "웹 개발, 디지털 생산성, 인공 지능에 대한 두 가지 원래의 컬렉션입니다."
         },
         "radio": {
-          "title": "호구 라디오",
+          "title": "HugoRadio",
           "desc": "베트남어와 국제신문 라디오를 포함하여 온라인 음악 채널이 무료입니다."
         },
         "arcade": {
-          "title": "호구 게임",
-          "desc": "2048, 카로, 체스, 호구 스네이크 등 다양한 미니 게임을 플레이하고 JOY를 얻으세요."
+          "title": "HugoArcade",
+          "desc": "2048, 캐로, 체스, Hugo 뱀과 더 많은 미니 게임 — 플레이하여 얻을 수 있는 JOY."
         },
         "aura": {
-          "title": "호구 아우라",
+          "title": "HugoAura",
           "desc": " relaxation nature sounds and therapy audio를 포함한 포미도르 집중 공간입니다."
         }
       },
-      "guideTitle": "호구 스테이션 사용 방법",
+      "guideTitle": "어떻게 Hugo 스토리지 사용할까요",
       "guide": {
         "step1": {
           "title": "자신의 BIO 프로필 완성",
@@ -1977,15 +1994,15 @@
         },
         "step3": {
           "title": "매일 JOY를 얻기",
-          "desc": "다일리로 체크인하고 미션을 완료하며 하루하루 JOY를 쌓아갑니다."
+          "desc": "HugoArcade에서 매일 체크인하고 미션을 완료하며迷你游戏를 플레이하여 JOY을 쌓아가세요."
         },
         "step4": {
           "title": "Bio 페이지를 공유하기",
-          "desc": "허브 도움말에서 제공하는 공개 링크 또는 허브 픽업 디스크코드를 사용하여 누구나에게 페이지를 공유할 수 있습니다."
+          "desc": "공유할 페이지를 사용자에게 공유하려면 HugoHelpdesk에서 제공하는 공개 링크 또는 QR/NFC 코드를 사용하세요."
         }
       },
       "versionLabel": "현재 버전",
-      "versionNote": "새로운 기능이 계속 업데이트됨 — 히어로 스테이션에 참여하는 것 감사합니다.",
+      "versionNote": "새로운 기능을 지속적으로 업데이트합니다 — Hugo 스토리지에 함께해 주셔서 감사드립니다.",
       "heroTagline": "최대 한 번의 업그레이드",
       "heroBody": "Hugo Studio 2.0은 기능이 더 많지 않아야 합니다 — 그 자체로 기반을 재정의: 로그인 방식, 데이터 보호 방법, 앱 설치 방법, 전체 시스템 내부 통신 방식입니다.",
       "highlightsTitle": "2.0에서 특징",
@@ -2103,8 +2120,8 @@
       "cardNoticeBody": "이미지 스타일로 디자인된 인증서입니다. 이는 Hugo Studio 시스템 내에서 당신의 계정 등급과 혜택을 식별하는 데 사용됩니다. 이것은 물리적 카드나 은행 카드, 결제 기능이 아닙니다. 또한 다른 곳에서는 사용되지 않습니다.",
       "readBonusTitle": "전체 업그레이드를 읽으세요.",
       "readBonusDesc": "2.0에서 변경된 모든 것을 보았습니다. 이는 50 JOY를 받을 수 있는 기회입니다.",
-      "readBonusLocked": "전체 2.0 소개를 탐색하여 이 50 JOY 보상을 획득하세요.",
-      "readBonusButton": "+50 JOY",
+      "readBonusLocked": "전체 2.0 소개를 탐색하여 이 {{amount, joy}} 보상을 획득하세요.",
+      "readBonusButton": "{{amount, joy}}",
       "readBonusLockedButton": "보기locked — 계속 읽어보세요",
       "readBonusClaiming": "획득 중...",
       "readBonusClaimed": "50 JOY획득",
@@ -2112,10 +2129,10 @@
       "readBonusError": "리워드를 획득할 수 없었습니다. 다시 시도해 보세요.",
       "bonusTitle": "발견 선물",
       "bonusDesc": "정보 및 버전에 방문하여 작은 JOY 선물을 받으세요.",
-      "bonusButton": "취약 +20 JOY",
+      "bonusButton": "취약 {{amount, joy}}",
       "bonusClaiming": "획득 중...",
       "bonusClaimed": "이미 취약입니다.",
-      "bonusSuccess": "+20 JOY 취약, 감사합니다! 탐색해 보세요!",
+      "bonusSuccess": "{{amount, joy}} 취약, 감사합니다! 탐색해 보세요!",
       "bonusError": "현제로 이 부獎금을 취약할 수 없습니다."
     },
     "team": {
@@ -2196,7 +2213,7 @@
       "submitted": "신청이 성공적으로 전송되었습니다.",
       "submit": "...",
       "devsTitle": "소프트웨어 팀 ({{count}})",
-      "devsDesc": "호그팀에 입학한 학생들. 이 커뮤니티 프로젝트에 세 년 동안의 약속을 지키는 각각의 책임감이 있습니다.",
+      "devsDesc": "HugoTeam는 세 달 동안 참여할 수 있는 프로젝트 커뮤니티에 입학한 학생들입니다. 각각은 이 커뮤니티 프로젝트에 대한 세 년의 약속을 가지고 있습니다.",
       "devsEmpty": "팀은 첫 번째 멤버를 시작합니다.",
       "devBadge": "개발자",
       "membership3y": "회원: 3년",
@@ -2214,7 +2231,7 @@
       "membershipEnds": "멤버십 만료: {{date}} ({{days}}일)",
       "welcomeBack": "환영합니다",
       "greeting": "안녕하세요 {{name}}!",
-      "welcomeDesc": "호그 팀 멤버님 — 이 커뮤니티 프로젝트를 함께 만들어 주셔서 감사합니다.",
+      "welcomeDesc": "You are a HugoTeam member — thank you for helping build this community project.",
       "membership": "Membership",
       "yearsPlus": "{{years}}년 이상",
       "endsOn": "마지막 날: {{date}}",
@@ -2280,7 +2297,7 @@
       "boardFeed": "활동",
       "feedEmpty": "아직 기록되지 않았습니다.",
       "eventHours": "로그 {{hours}}h",
-      "eventMessageAdmin": "호구 스튜디오에서 쓴 메시지",
+      "eventMessageAdmin": "Hugo 스토리지 메시지",
       "eventMessageDev": "당신이 썼습니다",
       "rules": {
         "title": "작업 규칙",
@@ -2334,8 +2351,8 @@
             "title": "당신이 얻는 것들",
             "items": [
               "VVIP 멤버십은 승인 날짜로부터 3년 동안 운영됩니다.",
-              "The 500 approved-hour mark recognises long-term contribution.",
-              "You keep full authorship of what you write and may use it in your portfolio."
+              "승인된 500시간은 장기간의 기여를 기리는 표시입니다.",
+              "직접 작성한 것의 저작권은 온전히 본인에게 있으며 포트폴리오에 사용할 수 있습니다."
             ]
           }
         ]
@@ -2345,6 +2362,202 @@
       "translating": "번역 중…",
       "translateUnavailable": "이 기기는 해당 언어 조합을 지원하지 않습니다.",
       "translateError": "이 메시지를 번역하지 못했습니다."
+    },
+    "partnerBio": {
+      "dangXacThucQuyen": "Verifying partner access...",
+      "khongCoQuyenTruy": "액세스 없음",
+      "trangTaoBioNay": "이 Bio 빌더는 Hugo Studio가 파트너에게 발급한 링크나 iframe에서만 동작합니다.",
+      "kichHoatBioLink": "브이 블류 링크 활성화",
+      "canCungCapEmail": "사용자의 이메일이 필요합니다. Hugo Studio에 로그인하지 않아도 Hugo Studio가 무료 Bio 링크를 만들고 동기화할 수 있도록 하기 위해서입니다.",
+      "emailCuaBan": "당신의 이메일...",
+      "thietKeNgay": "디자인 시작중...",
+      "dangTaiCauHinh": "브이 설정 로딩 중...",
+      "caNhanHoaBio": "개인화된 블류 링크:",
+      "sua": "수정",
+      "anhDaiDien": "프로필 사진",
+      "hinhAnhHienThi": "제휴사의 디스위치에서 중앙에 표시되는 이미지입니다。",
+      "goAnh": "사진 제거",
+      "hoVaTen": "이메일, 전화번호 및 학교는 검증 후 보호됩니다. 정확하게 입력해주세요.",
+      "bietDanh": "별명",
+      "gioiThieu": "소개",
+      "hocVan": "교육",
+      "ngheNghiep": "직업",
+      "soDienThoai": "전화번호",
+      "emailLienHe": "연락 이메일",
+      "lienKetMangXa": "SOCIAL LINKS (최대 5개)",
+      "nhanVdZaloInstagram": "마크 (예: Zalo, Instagram 등...)",
+      "themLienKetMang": "+ Add a social link",
+      "luuCaiDat": "SAVE SETTINGS",
+      "heThongDongBo": "시스템은 파트너의 클라우드 데이터를 동기화합니다.",
+      "dangLuu": "... 저장 중...",
+      "luuThongTin": "Save details",
+      "chuaNhapTen": "NO NAME YET",
+      "veBanThan": "About me",
+      "congViec": "Work",
+      "cacLienKet": "링크",
+      "chuaThemLienKet": "No links added yet...",
+      "duongDanCongKhai": "Public address:",
+      "canChinhHinhAnh": "Adjust the image",
+      "nhanVaKeoDe": "영역을 확대하기 위해 터치와 밀착하여 이동하세요.",
+      "tyLePhongTo": "확대 비율",
+      "huy": "취소",
+      "luuVungCat": "확대 영역 저장"
+    },
+    "joyLater": {
+      "title": "JOYlater",
+      "detail": "먼저 열고, 나중에 모은 JOY로 조금씩 돌려주세요",
+      "loading": "불러오는 중…",
+      "limit": "내 최대치",
+      "limitFrom": "하루에 모으는 {{income, joy}} 기준",
+      "amountLabel": "JOY를 얼마나 먼저 받을까요?",
+      "principalRow": "먼저 받는 양",
+      "feeRow": "추가 ({{percent}}%)",
+      "totalRow": "돌려줄 합계",
+      "expectedRow": "다 돌려줄 때까지",
+      "days": "{{count}}일",
+      "openNow": "지금 받기",
+      "noInterest": "이자가 불어나지 않음 · 추가분은 시작할 때 확정",
+      "overLimit": "최대치를 넘었어요",
+      "owing": "남은 양",
+      "progress": "{{total, joy}} 중 {{paid, joy}} 돌려줌 ({{percent}}%)",
+      "itemRow": "해제한 항목",
+      "garnishRow": "JOY 획득 시 차감",
+      "remainingDaysRow": "남은 기간 약",
+      "payOffNow": "지금 전부 돌려주기",
+      "payOffTitle": "전부 돌려주기",
+      "payOffConfirm": "지갑에서 {{amount, joynum}} JOY를 빼서 전부 돌려줄까요?",
+      "paidOff": "전부 돌려줬어요",
+      "opened": "{{amount, joynum}} JOY를 지갑에 넣었어요",
+      "advanceLabel": "JOY 먼저 지갑으로",
+      "noDeadline": "기한이 없어요. 남은 양이 시간이 지나도 늘지 않아요.",
+      "notEligible": "아직 JOYlater를 이용할 수 없습니다",
+      "reason": {
+        "adult": "만 18세 이상 회원만 이용 가능",
+        "accountAge": "지갑을 {{minDays}}일 이상 사용해야 합니다 (현재 {{days}}일)",
+        "earned": "누적 {{min, joy}} 이상이 필요합니다 (현재: {{earned, joy}})",
+        "openLoan": "아직 다 돌려주지 않은 게 있어요",
+        "noIncome": "아직 꾸준한 JOY 획득이 없습니다"
+      },
+      "howTitle": "JOYlater 이용 방법",
+      "how1": "먼저 받을 JOY를 고르세요 — 최대치는 본인이 모은 양으로 정해집니다.",
+      "how2": "JOY가 바로 지갑에 들어오고, 평소처럼 쓰면 됩니다.",
+      "how3": "JOY가 들어올 때마다 {{percent}}%를 남겨 두고 갚아 나가요. 날짜를 기억할 필요 없어요.",
+      "installmentsNote": "많이 나눌수록 추가되는 양이 늘어요. 금액은 시작할 때 정해지고 바뀌지 않아요.",
+      "feeShort": "+{{percent}}%",
+      "perStepRow": "회차당",
+      "stepRow": "다음 회차",
+      "stepOf": "{{of}}회 중 {{index}}회차",
+      "payStepNow": "이번 회차 돌려주기 · {{amount, joy}}",
+      "payStepTitle": "{{of}}회 중 {{index}}회차 돌려주기",
+      "payStepConfirm": "지갑에서 {{amount, joynum}} JOY를 빼서 돌려줄까요?",
+      "paidStep": "{{amount, joy}} 돌려줬어요",
+      "payOffRest": "남은 것 전부 돌려주기 · {{amount, joy}}",
+      "payModeLabel": "어떻게 돌려줄까요?",
+      "payOnce": "한 번에 돌려주기",
+      "payOnceHint": "추가 가장 적음, {{percent}}%",
+      "paySplit": "나눠서 돌려주기",
+      "paySplitHint": "최대 {{max}}회, {{percent}}%부터",
+      "perStepShort": "회차당 {{amount, joy}}",
+      "extraVsOnce": "{{amount, joy}} 더",
+      "historyTitle": "지난 기록",
+      "historyHint": "하나를 눌러 자세한 내역을 보세요",
+      "historyDone": "다 돌려줌",
+      "historyOpen": "돌려주는 중",
+      "historyAdded": "추가",
+      "historySplit": "나눈 횟수",
+      "historyReturned": "돌려준 양",
+      "historyClosedAt": "끝난 시각",
+      "historyLines": "{{count}}번 돌려줌",
+      "historyNoLines": "아직 돌려준 게 없어요.",
+      "historyAuto": "모은 JOY에서 남겨 둠",
+      "historyManual": "직접 돌려줌",
+      "dueRow": "돌려줄 날짜",
+      "penaltyRow": "늦어서 추가",
+      "lockedUntil": "{{date}}에 열림",
+      "lockedNote": "나눠 갚기는 그날에만 열려요.",
+      "lateNote": "한 회차가 늦으면 그 회차의 {{percent}}%가 한 번 붙어요.",
+      "lateWarn": "날짜를 넘기면 그 회차의 {{percent}}%가 한 번 붙어요."
+    },
+    "walletApp": {
+      "eyebrow": "지갑",
+      "title": "JOY 지갑",
+      "navAria": "지갑 내비게이션",
+      "tabOverview": "개요",
+      "tabMissions": "미션",
+      "tabHistory": "내역",
+      "tabLater": "JOYlater",
+      "sub_perks": "내 혜택",
+      "sub_store": "혜택 상점",
+      "sub_redeem": "코드 입력",
+      "balanceLabel": "잔액",
+      "sendOrReceive": "보내기 또는 받기",
+      "monthSummary": "최근 30일: 수입 {{earned}} · 지출 {{spent}}",
+      "needsYou": "확인이 필요합니다",
+      "claimReady": "받을 JOY가 있습니다",
+      "claimCount": "완료한 미션 {{count}}개",
+      "latest": "최근 거래",
+      "seeAll": "전체 보기",
+      "noTransactions": "거래가 아직 없습니다",
+      "more": "기타",
+      "checkinDetail": "매일 JOY 받기",
+      "sub_checkin": "일일 출석",
+      "cardNoName": "Hugo 회원",
+      "cardReferrals": "추천 인원",
+      "cardSince": "가입",
+      "cardQrAria": "Bio 페이지 QR — 눌러서 링크 복사",
+      "cardScanHint": "스캔하면 Bio 페이지가 열립니다",
+      "cardNeedsSlug": "Bio 링크를 설정하면 QR이 생깁니다",
+      "tabMembership": "카드",
+      "currentTier": "현재 등급",
+      "nextTier": "다음 등급",
+      "tierNeed": "{{count}}명 더 추천하면 {{tier}} 등급이 됩니다",
+      "tierTop": "최고 등급입니다",
+      "tierPerks": "등급별 혜택",
+      "tierDefault": "가입 시 기본",
+      "tierFrom": "추천 {{count}}명부터",
+      "tierOwned": "보유",
+      "tierLocked": "미달성",
+      "tree": {
+        "seed": "씨앗",
+        "sprout": "싹이 났어요",
+        "sapling": "어린 나무",
+        "young": "젊은 나무",
+        "mature": "다 자란 나무",
+        "ancient": "아름드리나무",
+        "progress": "미션 {{claimed}}/{{total}} 수령",
+        "keepGoing": "{{count}}개만 더 하면 아름드리나무가 됩니다 — 보너스 {{amount, joy}}",
+        "claimBonus": "보너스 {{amount, joy}} 받기",
+        "bonusTaken": "오늘의 나무 보너스 {{amount, joy}}를 받았습니다"
+      },
+      "sendJoy": "JOY 보내기",
+      "convert": "시세",
+      "convMyDenom": "내 JOY 단위",
+      "convLocked": "이 단위는 처음 로그인할 때 선택한 것으로 이후 고정됩니다. 인터페이스 언어를 바꿔도 단위는 바뀌지 않습니다.",
+      "convAmountIn": "금액({{code}})",
+      "convUseBalance": "잔액 전부 사용 · {{amount}}",
+      "convTableTitle": "같은 금액을 각 단위로",
+      "convFeeNote": "다른 단위로 보내면 {{percent}}% 추가",
+      "convExplain": "JOY의 가치는 하나뿐입니다. 위의 {{units}}가지 단위는 같은 금액을 쓰는 {{units}}가지 방법이므로 누구나 똑같은 것을 살 수 있습니다. 다른 단위를 쓰는 사람에게 JOY를 보내면 {{percent}}% 변환 수수료가 더해집니다.",
+      "denomPickCta": "JOY 단위 선택",
+      "denomPickTitle": "아직 JOY 단위를 선택하지 않았습니다",
+      "denomPickIntro": "JOY 숫자를 어떻게 표시할지 고르세요. 잔액과 가격은 모두 같은 JOY이며, 단위는 숫자가 읽히는 방식만 바꿉니다.",
+      "denomPickLock": "한 번 선택하면 고정되고, 인터페이스 언어를 바꿔도 변하지 않습니다. 다른 단위를 쓰는 사람에게 JOY를 보내면 {{percent}}% 변환 수수료가 붙기 때문에 단위를 오갈 수 없습니다.",
+      "denomPickYourBalance": "내 잔액",
+      "denomConfirm": "이 단위 사용",
+      "denomSaving": "저장 중…",
+      "denomSaved": "계정의 JOY 단위를 설정했습니다.",
+      "marketTitle": "오늘의 시세",
+      "marketWhy": "환율은 두 가지로 매일 움직입니다: 커뮤니티 1인당 평균 일일 수입({{income}})과 국제 금 시세({{gold}} USD/oz).",
+      "marketPricesFixed": "앱의 가격은 시세에 따라 바뀌지 않습니다. 시세는 숫자 표기만 바꿉니다.",
+      "sub_convert": "시세",
+      "range24h": "24시간",
+      "range7d": "7일",
+      "range30d": "30일",
+      "chartAria": "{{code}} 시세 차트, 선택 구간에서 {{percent}}%",
+      "chartBand": "{{low}} – {{high}}",
+      "chartLoading": "차트 불러오는 중…",
+      "chartCollecting": "데이터 수집 중 — 시간당 한 점, 몇 시간 뒤 선이 나타납니다.",
+      "chartFailed": "차트를 불러올 수 없습니다."
     }
   },
   "memberTabs": {
@@ -2387,7 +2600,7 @@
       "desc": "미완료 프로젝트를 추가합니다. 데이터는 프로필에 저장되어서 최적화된 시스템을 위해 자동으로 저장됩니다.",
       "addNew": "새로운 프로젝트 추가",
       "nameLabel": "프로젝트 이름 *",
-      "namePlaceholder": "예: 호루아 E-상점 앱",
+      "namePlaceholder": "Ex: Hugo E-Commerce App",
       "urlLabel": "URL 경로",
       "descLabel": "프로젝트 설명 *",
       "descPlaceholder": "프로젝트에 대한 짧은 설명...",
@@ -2418,7 +2631,7 @@
       "benefitsTitle": "Service Package Benefits",
       "redeemBtn": "구매 패키지",
       "publicLinkTitle": "RELEASED BIO LINK",
-      "publicLinkDesc": "공식적으로 호루아스 스튜디오 서버에서 배포됩니다.",
+      "publicLinkDesc": "Hugo 스토리지 서버를 통해 공식적으로 배포됩니다.",
       "viewLiveBtn": "실시간 페이지 보기",
       "copied": "복사됨",
       "copyLink": "복사 링크",
@@ -2558,9 +2771,9 @@
       "createShortcut": "홈 화면 캐시드 생성",
       "featured": {
         "psychology": {
-          "title": "호구이지 AI 동반자",
+          "title": "HugoPSY AI 동반자",
           "description": "개인화된 동반자가 스터디 압박을 완화하고 정중한 수면跟踪를 가르쳐줍니다.",
-          "button": "오픈 호루아스"
+          "button": "Open HugoPSY"
         },
         "ide": {
           "title": "AI 학습 작업장",
@@ -2568,7 +2781,7 @@
           "button": "시작 코딩"
         },
         "arcade": {
-          "title": "호구 게임",
+          "title": "HugoArcade",
           "description": "2048, 체스와 스페이스 게임을 플레이하고 JOY를 획득하며 랭킹에 오르세요.",
           "button": "게임을 즐기세요."
         }
@@ -2610,49 +2823,49 @@
         "description": "개인 프로필과 BIO 링크"
       },
       "library": {
-        "title": "호구 라이브러리",
-        "description": "호구 시스템의 앱 라이브러리"
+        "title": "Hugo 도서관",
+        "description": "Hugo 앱 라이브러리"
       },
       "study": {
-        "title": "호구 스터디",
+        "title": " Hugo에서 학습하기",
         "description": "웹 개발, 디지털 생산성, AI",
-        "fullDescription": "한 가지 가이드라인 학습 시스템으로, 모든 호루아 스테디의 과정에 따라 실습, 평가, 명확한 결과를 제공합니다."
+        "fullDescription": "한국어로 한정된 Hugo 스토리지 멤버 포털 인터페이스 콘텐츠를 번역합니다. 자연스러운, 간결한 인터페이스 언어를 사용하고 법적, 개인 정보 보호, 나이 및 안전과 결제 텍스트를 정확하게 번역합니다."
       },
       "ide": {
-        "title": "호구 스터디",
+        "title": " Hugo에서 학습하기",
         "description": " profesional 웹 개발 컬렉션"
       },
       "hugoso": {
-        "title": "호구 스터디",
+        "title": " Hugo에서 학습하기",
         "description": " 디지털 생산성과 AI 컬렉션",
-        "fullDescription": "호루아 학습 오피스 기술 — 가이드 비디오와 함께 실습, 직접적인 실践 및 교재 과정의 실시간 기술 검사로 구성된 일련의 일일 캘린더, 문서, 시트, 그리고 그레미언 과정"
+        "fullDescription": "Hugo 학습 사무실 기술 — 단계별 일정, 문서, 시트, 그리고 가이드 라인을 포함한 비디오, 실습 및 교육 내에서의 기술 검사와 함께 과정에 참여합니다."
       },
       "team": {
-        "title": "호루아 팀",
+        "title": "Hugo 팀",
         "description": "학생 역할과 협업 프로젝트"
       },
       "psychology": {
-        "title": "호구 PSY",
+        "title": "HugoPSY",
         "description": "AI 건강 및 수면 추적"
       },
       "radio": {
-        "title": "호구 라디오",
+        "title": "HugoRadio",
         "description": "뉴스와 집중 음악"
       },
       "helpdesk": {
-        "title": "호구 도움말",
+        "title": "HugoHelpdesk",
         "description": "QR 코드, NFC 코드 및 이메일 서명"
       },
       "handle": {
-        "title": "호구 헤더",
+        "title": "HugoHandle",
         "description": "이미지 압축 및 안전 링크"
       },
       "arcade": {
-        "title": "호구 게임",
+        "title": "HugoArcade",
         "description": "JOY을 보상하는 게임"
       },
       "aura": {
-        "title": "호구 아우라",
+        "title": "HugoAura",
         "description": " Pomodoro 집중과 배경음악"
       },
       "info": {
@@ -2686,6 +2899,10 @@
       "arcade_survivor": {
         "title": "스페이스 슈퍼맨",
         "description": "깊은 우주에서 생존하기"
+      },
+      "profile": {
+        "title": "프로필",
+        "description": "A verified record of your work, attached to your Bio"
       }
     },
     "dashboard": {
@@ -2702,27 +2919,27 @@
         "btnText": "설치하기"
       },
       "signature": {
-        "title": "호구 메일",
+        "title": "HugoSMail",
         "desc": "프로필을 위한 전문적인 이메일签名 생성.",
         "btnText": "설치하기"
       },
       "secretLink": {
-        "title": "호구 오픈",
+        "title": "HugoOcculta",
         "desc": "비밀번호 보안된 리 directs 생성",
         "btnText": "설치하기"
       },
       "fileTools": {
-        "title": "오픈 도구",
+        "title": "HugoTractare",
         "desc": "AI 의학 친구, 정신 건강 검토, 수면跟踪 및 감정 회복",
         "btnText": "오픈 도구"
       },
       "psychology": {
-        "title": "호구 PSY",
+        "title": "HugoPSY",
         "desc": "코드 제어기 (C, C++, C#, Python, 웹, PHP) 코드 추천, 기본 강의, 지역 파일 저장 가이드",
         "btnText": "Open Utility"
       },
       "ide": {
-        "title": "호구 스터디",
+        "title": " Hugo에서 학습하기",
         "desc": "호구 오픈",
         "btnText": "오픈 코드 IDE"
       },
@@ -2741,120 +2958,201 @@
     },
     "radio": {
       "categories": {
-        "vnNews": "베트남 방송",
+        "vnNews": "비즈니스 뉴스",
         "intlNews": "국제 뉴스",
         "music": "음악",
-        "chill": "휴식",
-        "found": "저장됨 ({{n}})"
+        "chill": " chilled ",
+        "found": " 저장됨 ({{n}})"
       },
       "state": {
-        "connecting": "연결 중",
-        "playing": "재생 중",
-        "paused": "일시정지",
-        "idle": "대기 중",
-        "pickStation": "들을 방송국을 선택하세요"
+        "connecting": " 연결 중",
+        "playing": " 재생 중",
+        "paused": "정지됨",
+        "idle": " 준비 됨",
+        "pickStation": " 수신할 스테이션을 선택하세요"
       },
       "control": {
-        "prev": "이전 방송국",
-        "next": "다음 방송국",
+        "prev": " 이전 스테이션",
+        "next": " 다음 스테이션",
         "play": "재생",
-        "stop": "정지",
-        "volume": "음량",
-        "shuffle": "무작위",
-        "sleep": "취침 타이머",
-        "sleepRunning": "{{time}} 후 정지",
-        "sleepArmed": "{{minutes}}분으로 설정"
+        "stop": "중지",
+        "volume": "볼륨",
+        "shuffle": "대칭",
+        "sleep": "잔상 시간",
+        "sleepRunning": "{{time}}에서 중지",
+        "sleepArmed": "{{minutes}}분 설정"
       },
       "health": {
-        "good": "이 방송국은 잘 재생돼요",
-        "shaky": "이 방송국은 불안정해요",
-        "dead": "지금은 재생할 수 없어요 — 하루 뒤 다시 시도해요",
-        "unknown": "아직 시도하지 않았어요"
+        "good": "이 스테이션은 잘 작동합니다",
+        "shaky": "이 스테이션은 불안정합니다",
+        "dead": "현재 꺼져 — 하루 후 다시 시도",
+        "unknown": "아직 시도하지 않았습니다"
       },
-      "learnedUrl": "새 주소를 기억했어요",
-      "searchPlaceholder": "방송국 검색: VOV1, NPR, FIP…",
+      "learnedUrl": "learned a new address",
+      "searchPlaceholder": "스테이션 찾기: VOV1, NPR, FIP…",
       "searchAction": "검색",
-      "searching": "검색 중…",
-      "loading": "불러오는 중…",
-      "noStations": "방송국을 찾을 수 없어요.",
-      "removeFound": "{{name}}을(를) 목록에서 삭제",
+      "searching": "검색 중……",
+      "loading": "로그인 중...",
+      "noStations": "이 카테고리에 대한 음악이 없습니다.",
+      "removeFound": "{{name}}을(를) 목록에서 제거",
       "toast": {
-        "playError": "지금은 이 방송국을 재생할 수 없어요. 다른 방송국을 시도해 보세요.",
-        "autoSkip": "{{from}}에 연결하지 못해 {{to}}(으)로 바꿨어요.",
-        "outOfTokens": "청취 토큰을 모두 썼어요. 더 구매하면 계속 들을 수 있어요.",
-        "notFound": "“{{name}}”이라는 방송국을 찾지 못했어요.",
-        "searchError": "방송국 목록 서버에 연결하지 못했어요. 네트워크를 확인한 뒤 다시 시도해 주세요.",
-        "sleepDone": "취침 타이머: HugoRadio를 정지했어요. 좋은 밤 되세요!"
+        "playError": "현재 이 방송이 재생되지 않습니다, 다른 하나로 시도해 주세요.",
+        "autoSkip": "{{from}}이 연결되지 않았습니다 — {{to}}으로 전환합니다.",
+        "outOfTokens": "사용자의 수량이 부족하여 재생할 수 없습니다. 구매하여 계속 재생하십시오.",
+        "notFound": "“{{name}}”이라는 이름의 방송국을 찾을 수 없습니다.",
+        "searchError": "서버에 접속하지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.",
+        "sleepDone": "취침 타이머: HugoRadio가 정지했습니다. 안녕히 주무세요!"
       },
       "legal": {
-        "title": "출처와 저작권",
-        "body": "HugoRadio는 재생기일 뿐입니다. 각 방송국이 스스로 공개한 실시간 스트림을 열 뿐, 내려받거나 캐시하거나 녹음하지 않습니다. 프로그램 저작권은 방송사에 있습니다.",
-        "source": "방송국 목록은 공개 데이터베이스 Radio Browser에서 가져옵니다."
+        "title": "원천 및 저작권",
+        "body": "HugoRadio는 재생기일 뿐입니다. 각 방송사가 직접 공개하는 라이브 스트림을 열어 줄 뿐, 내려받거나 캐시하거나 녹음하지 않습니다. 프로그램의 권리는 방송사에 있습니다.",
+        "source": "호구 라디오에서의 오픈 라디오 브라우저 데이터베이스에서 생성된 스테이션 목록입니다."
       },
       "token": {
-        "title": "청취 토큰",
-        "unit": "토큰",
-        "perToken": "토큰 1개 = {{minutes}}분 청취",
-        "freeLeft": "이번 주 무료: {{n}}/{{total}}",
-        "purchasedLeft": "구매분: {{n}}",
-        "resetIn": "{{when}} 충전",
-        "peakNotice": "혼잡 시간대에는 토큰 1개로 {{minutes}}분만 들을 수 있어요.",
-        "emptyDesc": "토큰이 없어요. 더 구매하면 계속 들을 수 있어요.",
-        "lastMinutes": "토큰 1개도 남지 않았어요 — 약 {{minutes}}분.",
-        "buyMore": "토큰 더 구매"
+        "title": "재생 가능",
+        "unit": "패스",
+        "perToken": "각 패스는 {{minutes}} 분을 제공합니다",
+        "freeLeft": "{{n}}/{{total}} 개의 무료 패스 남음",
+        "purchasedLeft": "{{n}} 구매한 패스",
+        "resetIn": "패스가 {{when}} 회 리셋됩니다",
+        "peakNotice": "최대 퍼포먼스 시간: 각 패스는 최대 {{minutes}} 분만 사용 가능합니다",
+        "emptyDesc": "잔여 패스 없음. 더 구매하거나 다음 주의 리셋 기간을 기다리세요.",
+        "lastMinutes": "이 패스에 남은 시간 {{minutes}}분",
+        "buyMore": "더 많은 시간 구매"
       },
       "store": {
-        "title": "청취 토큰 구매",
-        "desc": "토큰 1개 = {{minutes}}분 청취. 구매한 토큰은 매주 사라지지 않아요.",
+        "title": "구매 음원 토큰",
+        "desc": "1 토큰 = {{minutes}} 분의 재생 시간. 구매한 토큰은 주당 만료되지 않습니다.",
         "close": "닫기",
-        "balance": "내 잔액",
-        "amount": "구매할 토큰 수",
-        "decrease": "토큰 1개 줄이기",
-        "increase": "토큰 1개 늘리기",
-        "equals": "{{n}} 토큰 = {{minutes}}분 청취",
-        "preset": "{{hours}}시간",
-        "unitPrice": "토큰 1개 가격",
-        "fee": "창작 수수료 ({{percent}}%)",
-        "total": "합계",
-        "peakNotice": "혼잡 시간대 00:00–05:00, 11:00–13:00에는 토큰이 두 배로 소모돼요.",
-        "short": "{{amount}} JOY 부족해요.",
-        "buy": "{{n}} 토큰 구매 — {{total}} JOY",
-        "buying": "처리 중…",
-        "success": "청취 토큰 {{n}}개를 추가했어요.",
-        "genericError": "구매하지 못했어요. 다시 시도해 주세요."
+        "balance": "잔액",
+        "amount": "토큰 개수",
+        "decrease": "1 토큰 줄어들었어요",
+        "increase": "1 토큰 더해졌어요",
+        "equals": "{{n}} 토큰 = {{minutes}} 분의 재생 시간",
+        "preset": "{{hours}} h",
+        "unitPrice": "토큰 당 가격",
+        "fee": "작품료 ({{percent}}%)",
+        "total": "총액",
+        "peakNotice": "평균 시간 00:00–05:00 및 11:00–13:00: 토큰이 두 배 빠르게 소모됩니다.",
+        "short": "당신은 {{amount, joy}} 부족합니다.",
+        "buy": "{{n}} 토큰을 구입하세요 — {{total, joy}}",
+        "buying": "Processing…",
+        "success": "{{n}} 음원 토큰이 추가되었습니다.",
+        "genericError": "구매 실패. 다시 시도해주세요."
       }
     },
     "store": {
-      "title": "Hugo Store",
-      "tabs": {
-        "shop": "쇼핑",
-        "cart": "장바구니",
-        "orders": "역사",
-        "promos": "_PROMOS_"
+      "error": "거래를 완료하지 못했습니다.",
+      "search": {
+        "placeholder": "앱과 아이템 검색",
+        "clear": "검색 지우기",
+        "results": "앱 {{apps}}개 · 아이템 {{packs}}개",
+        "empty": "찾지 못했어요",
+        "emptyHint": "다른 낱말로 찾아보세요."
       },
-      "shop": {
-        "search": "검색...",
+      "home": {
+        "apps": "앱",
+        "appsHint": "대부분 무료, 열면 바로 씁니다",
+        "orders": "구매함",
+        "ordersHint": "최근 주문",
+        "balance": "내 잔액",
+        "balanceHint": "JOY는 공부·게임·출석으로 쌓입니다. 돈으로는 살 수 없어요.",
+        "games": "게임",
+        "gamesHint": "여기서 받아 오락실에서 즐기세요"
+      },
+      "expiring": {
+        "title": "쓰는 중",
+        "hint": "기간이 끝나면 잠깁니다. JOY가 저절로 빠지지 않아요",
+        "trial": "체험판",
+        "rent": "월 이용",
+        "today": "오늘 끝남",
+        "tomorrow": "하루 남음",
+        "days": "{{count}}일 남음",
+        "cta": "요금제 보기"
+      },
+      "app": {
         "free": "무료",
-        "addToCart": "장바구니에 추가하기",
-        "installed": "이 설치된 앱"
+        "freeHint": "이 앱은 무료예요. JOY가 필요 없습니다.",
+        "using": "사용 중",
+        "owned": "보유함",
+        "open": "열기",
+        "locked": "잠김",
+        "lockedHint": "아래에서 여는 방법을 고르세요",
+        "giftAria": "{{app}} 친구에게 선물하기",
+        "choose": "여는 방법",
+        "chooseHint": "먼저 체험, 월 이용, 또는 한 번만 결제",
+        "install": "받기",
+        "installing": "받는 중 {{percent}}%",
+        "installedToast": "{{app}} 설치함",
+        "viaPlan": "{{plan}} 요금제로 열립니다",
+        "see": "요금제 보기"
+      },
+      "tier": {
+        "trial": "{{count}}일 체험",
+        "trialNote": "JOY가 들지 않아요. 기간이 끝나면 저절로 잠깁니다.",
+        "trialUsed": "이미 체험해 보셨어요",
+        "trialStarted": "{{count}}일 체험을 시작했어요",
+        "free": "무료",
+        "start": "시작",
+        "rent": "월 이용",
+        "rentNote": "필요할 때 연장하고 언제든 멈춥니다",
+        "rentAgainNote": "더 사면 남은 기간에 이어 붙습니다",
+        "rentCta": "이용하기",
+        "renewCta": "연장",
+        "own": "평생 소장",
+        "ownNote": "월 이용으로 {{months}}개월이면 {{joy, joy}}",
+        "ownCta": "구매",
+        "save": "{{percent}}% 절약",
+        "popular": "인기",
+        "current": "사용 중",
+        "used": "사용함",
+        "short": "{{joy, joy}} 모자라요"
+      },
+      "packs": {
+        "radio_time": {
+          "title": "듣는 시간 추가",
+          "subtitle": "라디오 앱에 분을 더합니다"
+        },
+        "psy_study_tokens": {
+          "title": "대화 횟수 추가",
+          "subtitle": "채팅과 통화를 더 엽니다"
+        },
+        "system_validity": {
+          "title": "이용 기간 연장",
+          "subtitle": "계정 사용 일수를 늘립니다"
+        },
+        "general": {
+          "title": "다른 아이템",
+          "subtitle": "남은 쓸 만한 것들"
+        },
+        "soldOut": "품절",
+        "fallback": "상점 아이템",
+        "perkListenDays": "듣기 +{{count}}일",
+        "perkListenHours": "듣기 +{{count}}시간",
+        "perkValidity": "이용 +{{count}}일",
+        "perkChats": "대화 +{{count}}회",
+        "perkCalls": "통화 +{{count}}회"
+      },
+      "gift": {
+        "title": "{{app}} 선물하기",
+        "close": "닫기",
+        "to": "받는 사람",
+        "toPlaceholder": "추천 코드, 이메일 또는 전화번호",
+        "searching": "찾는 중…",
+        "notFound": "해당하는 사람이 없어요.",
+        "lookupFailed": "받는 사람을 확인하지 못했어요.",
+        "code": "코드 {{code}}",
+        "member": "Hugo 회원",
+        "tier": "선물 요금제",
+        "rentNote": "30일 사용",
+        "message": "메시지",
+        "optional": "(선택)",
+        "messagePlaceholder": "즐겁게 공부해!",
+        "continue": "계속 · {{joy, joy}}",
+        "choose": "받는 사람을 고르세요"
       },
       "cart": {
-        "empty": "장바구니는 비어 있습니다.",
-        "emptyDesc": "상점에서 제품 추가",
-        "promoPlaceholder": "할인 코드 입력",
-        "subtotal": "합계",
-        "tax": "(9%) 세금",
-        "discount": "할인",
-        "total": "총액",
         "checkout": "구매하기"
-      },
-      "orders": {
-        "empty": "아직 주문이 없어요"
-      },
-      "promos": {
-        "placeholder": "코드가 유효합니다!",
-        "valid": "유효하지 않거나 만료된 코드입니다",
-        "invalid": "Invalid or expired code"
       }
     },
     "vcard": {
@@ -3087,7 +3385,47 @@
       "xacNhanXoa": "확인해제",
       "banCoChacChan": "당신은 정말로 삭제하고 싶으시군요?",
       "thuMuc": "폴더",
-      "khongHanhDongNay": "\"? 이 Undo 불가능합니다."
+      "khongHanhDongNay": "\"? 이 Undo 불가능합니다.",
+      "dangTaiLoTrinh": "학습 경로를 로딩 중…",
+      "quayLai": "뒤로",
+      "luuTrucTiepDisk": "직접 저장 (디스크)",
+      "taiVeMayLocal": "지역으로 다운로드",
+      "xuatToanBoWorkspace": "현재 작업 공간을 ZIP 파일로 전부 내보내기",
+      "xuatZip": "ZIP 내보내기",
+      "dongBoTrucTiep": "컴퓨터의 파일 시스템 API를 통해 직접 동기화",
+      "moThuMucCuc": "지역 폴더 열기",
+      "quanLyFile": "파일 관리",
+      "khoaHocCodeMau": "과정 및 샘플 코드",
+      "deChayPhpVa": "To run PHP and manage the database through phpMyAdmin on your own computer (localhost),\n                Docker Compose is the lightest option and keeps it well away from real data.",
+      "buoc1CaiDat": "도커 컴posé가 가장 가벼운 옵션으로, 실제 데이터로부터 멀리 두고 PHP와 데이타베이스를 직접 컴퓨터에서 실행하고 관리할 수 있습니다.",
+      "taiDockerDesktopTu": "Docker Desktop을 docker.com에서 다운로드하고 컴퓨터에 설치합니다.",
+      "buoc2TaoFile": "프로젝트의 같은 폴더에 docker-compose.yml 파일을 만듭니다. 이 내용을 사용하세요:",
+      "taoFileDockerCompose": "폴더 내에서 터미널을 열고 다음 명령어를 실행합니다: ",
+      "buoc3KhoiDong": "phpMyAdmin을 열기 위해 브라우저에서 다음 주소로 이동합니다: ",
+      "chayTerminalTaiThu": "Open a terminal in that folder and run:",
+      "buoc4TruyCap": "Docker Desktop을 다운로드하고 컴퓨터에 설치하세요.",
+      "moTrinhDuyetTruy": "Open your browser at:",
+      "taiKhoanRootMat": "Username: root / Password: root. This is a local learning environment; never use these sample credentials on a real system.",
+      "khongGianSoanThao": "The editor is locked",
+      "vuiLongKichHoat": "구독을 활성화하거나 왼쪽 열에서 항상 해제를 구입하여 이 수업의 코드 작성을 시작하세요.",
+      "troLaiEditor": "Back to the editor",
+      "khongCoFileNao": "열린 파일 없음. File Explorer에서 하나를 열거나 수업을 로드하세요.",
+      "huongDanChay": "실행 방법",
+      "heThongNhanNut": "[시스템] “코드 실행”을 누르면 시뮬레이션 실행이 발생합니다.",
+      "chayThuConsole": "콘솔에서 실행하기",
+      "loi": "오류발생",
+      "dang": "실행 중",
+      "chayThuMaNguon": "브라우저 내에서 실제 슬래시에 코드를 실행합니다",
+      "chayCodeThu": "코드 실행",
+      "dungXem": "중지",
+      "fileDangWebHtml": "웹 파일 (HTML/CSS/JS). 윗 오른쪽의 **라이브 뷰어**를 누르면 바로 브라우저에서 보실 수 있습니다.",
+      "doiVoiPythonBan": "Python: 자신의 컴퓨터에 있는 다운로드된 파일 폴더에서 터미널을 열고 실행:",
+      "doiVoiNgonNgu": "C: GCC 컴파일러를 설치하고 터미널에서 실행:",
+      "doiVoiCBien": "C++: g++와 함께 컴파일:",
+      "doiVoiCHay": "C#: .NET SDK를 설치한 후 새로운 콘솔 프로젝트를 만들고 실행:",
+      "doiVoiPhpBan": "PHP: 빌드된 내부 로컬 서버를 사용하여 Apache 없이 빠른 테스트를 수행할 수 있습니다:",
+      "truyCapHttpLocalhost": "http://localhost:8000을 컴퓨터에서 열어 결과를 확인하세요.",
+      "traoDoiJoyDe": "JOY을 해제하면 웹 개발 세트에 액세스할 수 있습니다."
     },
     "hugoso": {
       "bai": "bài ·",
@@ -3124,7 +3462,7 @@
       "noiDungDaDoi": "Content_checked_against_Google's_official_documentation_on",
       "googleGoogleCalendarDocs": "Google,_Google_Calendar,Docs,Sheets_and_Gemini_are_trademarks_of_Google_LLC.\n              Study_with_Hugo_is_an_independent_learning_system_not_affiliated_with,sponsored_by_or_endorsed_by_Google.",
       "dieuHuongStudyWith": "Study_with_Hugo_navigation",
-      "homNay": "오늘",
+      "homNay": "Hôm nay",
       "khoaHoc": "Courses",
       "thucHanh": "Practice",
       "tienDo": "Progress",
@@ -3187,12 +3525,64 @@
       "nopVaMoBuoc": "제출하고 다음 단계를 열어보세요.",
       "tiepTheo": "NEXT",
       "nangSuatSoAi": "디지털 생산성 및 AI",
-      "dangTaiKhoaHoc": "강좌을 로딩 중입니다."
+      "dangTaiKhoaHoc": "강좌을 로딩 중입니다.",
+      "dungVaLamTheo": "DƯỜNG ĐI VÀ HỌC THEO",
+      "loiPhoBien": "일반 오류",
+      "thang7": "칠월",
+      "baoCaoNghienCuu": "연구 보고서",
+      "dangLuuTrenDrive": " drivetoDrive ",
+      "nguyen2026ChoRang": "Nguyen (2026)은…을 주장합니다.",
+      "hayGiupToiLap": "나의 결론을 도출하기 전에 나와 함께 계획해 주세요. 그러나 결론을 도출할 때 확인하십시오.",
+      "mucTieuQuanTrong": "당신이 가장 중요한 목표는 무엇이며, 그 목표의 마감일은 언제인가요?",
+      "dinhDangHuongDan": "구조화된 가이드",
+      "banHuongDanTuong": "INTERACTIVE GUIDE",
+      "tamDungVideoMinh": "대 demonstration video를 일시정지합니다.",
+      "phatVideoMinhHoa": "대 demonstration video를 재생합니다.",
+      "chuong": "CHAPTER",
+      "khopBuoc": "· 일치 단계",
+      "dong": "닫기",
+      "quyenSoHuuTron": " lifetime 접근",
+      "moToanBo4": "모든 4개의 코스, 현재 모든 연습 및 나중에 추가된 것들을 모두 열 수 있습니다.",
+      "moToanBoLo": "전체 경로와 그 연습과 이 코스에 대한 미래 업데이트를 열 수 있습니다.",
+      "giaKhoaHoc": "코스 가격",
+      "phiSangTao10": "생성 비용 10%",
+      "tongTraoDoi": "거래 금액을 확인해주세요",
+      "dangXacNhan": "확인 중...",
+      "deSau": "다음으로",
+      "khongTuGiaHan": "자동 갱신 없음 · JOY은 현금으로 변환할 수 없습니다"
+    },
+    "profile": {
+      "eyebrow": "검증된 활동 기록",
+      "loading": "기록을 구성 중…",
+      "generatedAt": "작성된 시간: {{date}}",
+      "publicNote": "페이지 주인이 입력한 것은 아니며, 아래 모든 숫자는 Hugo Studio가 인증한 것입니다.",
+      "sectionStudent": "인증",
+      "studentStatus": "학생 상태",
+      "verified": "인증됨",
+      "notVerified": "미인증",
+      "school": "학교",
+      "sectionLearning": "학습",
+      "lessons": "수강 과정 완료",
+      "certificate": "완료 증명서",
+      "granted": "승인",
+      "notYet": "아직 미리보기",
+      "studyCourses": "스터디 코스 소유",
+      "sectionTeam": "프로젝트 Contribute",
+      "approvedHours": "승인된 시간",
+      "tasksDone": "Tasks 확인완료",
+      "tasksDoneShort": "{{count}} Tasks 확인완료",
+      "publishTitle": "Bio에 게시",
+      "publishDesc": "이 레코드를 Bio 페이지 하단에 표시합니다. 로그인하지 않고도 방문자들이 확인할 수 있습니다.",
+      "showOnBio": "Bio 페이지에 표시",
+      "needPlan": "공개하려면 스토어에서 Hugo Profile을 대여하거나 구매해야 합니다. 자신의 기록을 보는 것은 언제나 무료입니다.",
+      "published": "대기록이 업로드되었습니다。",
+      "unpublished": "Bio 페이지에서 대기록을 제거했습니다。",
+      "saveError": "설정을 저장하는 데 실패했습니다。"
     }
   },
   "companion": {
     "tab": {
-      "title": "호구 PSY",
+      "title": "HugoPSY",
       "subtitle": "당신의 정서적 건강을 지원하는 친구입니다.",
       "today": "오늘",
       "statsDays": "동행일수",
@@ -3220,7 +3610,7 @@
       },
       "dangerZone": "위험 지역",
       "deleteChatToday": "오늘의 채팅 기록을 삭제합니다",
-      "settingsHeader": "허구 설정",
+      "settingsHeader": "HugoPSY 설정",
       "aiLimitToday": "일일 AI 제한",
       "limitChat": "대화",
       "limitCall": "상담 전화",
@@ -3349,7 +3739,7 @@
   },
   "hugoPsy": {
     "coach": {
-      "title": "호구의 프로피시스트 코치",
+      "title": "HugoPSY 코치",
       "subtitle": "지금까지의 체크인과 여행에 기반한 추천",
       "private": "개인 정보 보호",
       "insight": "저는 어떻게 나를 평가하고 싶어요?",
@@ -3358,7 +3748,7 @@
       "planDescription": "3 가지 관리 가능한 다음 단계 선택",
       "assessment": "스캐너 선택",
       "assessmentDescription": "PHQ-9, GAD-7, WHO-5",
-      "disclaimer": "호구이피지 지원하는 자기계발과는 다르게 정신건강 전문가를 대체하지 않습니다."
+      "disclaimer": "HugoPSY 자기 고민을 스스로 반영할 수 있으며 정신건강 전문가를 대체하지 않습니다."
     },
     "assessment": {
       "title": "진단 평가"
@@ -3467,7 +3857,7 @@
       "meoMoiChuKy": " **힌트:** 각 수면 주기를 90 분 (NREM, 깊은 N3 및 REM을 포함)으로 유지하면, 주기가 끝날 때 fully alert 상태를 유지하게 되며, 지치거나 머리 아플 필요가 없습니다.",
       "boCamBien": "센서:",
       "tuDongKichHoat": "자동으로 활성화됩니다 (PWA)",
-      "dangKetNoi": "Connecting",
+      "dangKetNoi": " 연결 중",
       "chuaLienKet": "연결되지 않음",
       "tuDong": "자동",
       "daLienKet": "연결됨",
@@ -3646,7 +4036,7 @@
     "quality": {
       "eyebrow": "HUGO STUDIO ORIGINAL",
       "title": "고객님의 보안 정보는 안전하게 보관됩니다. 이 정보는 고객이 사용하는 모든 서비스에 접근할 수 있습니다.",
-      "description": "학습을 위한 고유한 쿠키를 생성합니다.",
+      "description": "학습에 Hugo가 실제 강의 구조를 체크합니다: 학습 목표, 연관된 실습 및 평가 규칙입니다. 아래 그림은 현재 교육 과정에서 계산되었습니다.",
       "metricsLabel": "학습 목표, 연결된 연습 및 평가 규칙을 검사합니다.",
       "metrics": {
         "goals": "학습 목표가 명확합니다",
@@ -3705,9 +4095,9 @@
       "trenTongSo": "out of",
       "baiHocThucChien": "실습 교육",
       "soHuuTronGoi": " lifetime 보유권(무제한 유지보수 제공)",
-      "chuaKichHoatPhi": "월 유지보수가 활성화되지 않았습니다 (50 JOY)",
+      "chuaKichHoatPhi": "월 유지보수가 활성화되지 않았습니다 ( {{amount, joy}})",
       "phiBaoTriDa": "당신의 유지보수료가 만료되었습니다!",
-      "vuiLongGiaHan": "50 JOY 월 유지보수를 재구매하여 계속 학습하십시오. 전付款 납부해야 합니다.",
+      "vuiLongGiaHan": "{{amount, joy}} 월 유지보수를 재구매하여 계속 학습하십시오. 전付款 납부해야 합니다.",
       "ngay": "일",
       "dongPhiTruocKhi": "학습 진행이 다시 0으로 돌아가지 않도록 하려면",
       "phiBaoTriHang": "월 유지보수료:",
@@ -3715,31 +4105,31 @@
       "ngay2": "일 left)",
       "mucLucLoTrinh": "경로 내용",
       "vuiLongHocTuan": "학습하여 다음 수업을 열람합니다.",
-      "baiDaHoc": "수업 완료",
+      "baiDaHoc": "수강 과정 완료",
       "banSeHoc": "당신이 배울 내용들",
       "thachThuc": "挑戰：",
       "huaHen": "承諾：",
       "chucMungHoanThanh": "현재 단계를 완료하였습니다. 상점에서 보상 요청합니다.",
       "xemChiaSeGiay": "당신의 스테이지 증명서 보기 및 공유",
       "banDaHoanThanh": "당신은 현재 단계의 모든 테스트를 통과했습니다. 보상을 받으세요.",
-      "daNhanThuong800": "보상 획득 +800 JOY ✓",
-      "nhanPhanThuong800": "보상 요청 (+800 JOY)",
+      "daNhanThuong800": "보상 획득 {{amount, joy}} ✓",
+      "nhanPhanThuong800": "보상 요청 ( {{amount, joy}})",
       "hayHoanThanhDo": "프로젝트를 완료하고 프로젝트 링크를 제출하세요.",
       "bai100": "수업 100",
-      "deNhanDanhGia": "호그 스토리에서 리뷰를 받으세요.",
+      "deNhanDanhGia": "to receive a review from Hugo Studio.",
       "dangChoDuyetDo": "프로젝트 리뷰 대기 중... ⏳",
-      "hugoStudioDangRa": "호그 스토리는 프로젝트와 소스 코드를 검토하고 있습니다.",
+      "hugoStudioDangRa": "Hugo 스타일은 당신의 프로젝트와 소스 코드를 검토 중입니다.",
       "doAnChuaDat": "프로젝트 요구 사항을 충족하지 못했습니다. ❌",
       "phanHoi": "피드백:",
       "banCoTheSua": "수업 100에서 다시 수정하여 새로운 링크 제출하세요.",
       "doAnDaDuoc": "프로젝트가 승인되었습니다! 🎉",
-      "daNhanThuongHoan": "4,000 JOY 완료 보상과 VVIP 선물이 적립되었습니다.",
+      "daNhanThuongHoan": "{{amount, joy}} 완료 보상과 VVIP 선물이 적립되었습니다.",
       "nhanChungNhanHoan": "Get your completion certificate",
       "chungNhanDangDuoc": "관리자는 현재 자격증을 준비 중입니다...",
       "vuiLongHoanThanh": "이전 과정을 완료하여 이 과정을 열 수 있습니다!",
       "thucHanhLyThuyet": "실践理论",
       "noiDungBaiHoc": "이 과정은 잠겨져 있습니다. 완전한 단계를 영구적으로 해제하거나 전체 패키지를 구매하여 학습을 시작할 수 있습니다.",
-      "thueBaoBaoTri": "당신의 유지 보수 구독이 만료되었습니다. 50 JOY 월 유지보수를 재설정하면 계속 학습할 수 있습니다.",
+      "thueBaoBaoTri": "당신의 유지 보수 구독이 만료되었습니다. {{amount, joy}} 월 유지보수를 재설정하면 계속 학습할 수 있습니다.",
       "moKhoaVinhVien": "완전히 이 단계를 해제합니다",
       "moKhoaVinhVien2": "영구적으로 모든 과정을 학습하고 연습할 권리를 해제합니다",
       "trongGoiNayBan": "이 베스트 패키지에는",
@@ -3750,7 +4140,7 @@
       "muaTronGoi16k": " 베스트 패키지를 16k JOY로 구매합니다.",
       "giaHanPhiBao": " 월 유지비 재구매",
       "phiBaoTriCan": " 유지비는 매월 납부되어야 합니다. 3개월 지연 후, 학습 진행사항이 다시 0으로 초기화됩니다.",
-      "dongPhiBaoTri": "50 JOY 유지비를 결제하세요.",
+      "dongPhiBaoTri": "{{amount, joy}} 유지비를 결제하세요.",
       "hinhMinhHoaSong": "애니메이션 그림",
       "tongQuanMucTieu": "개요 및 목표",
       "thucHanhCodeMau": "수행과 단계별 샘플 코드",
@@ -3770,7 +4160,72 @@
       "chayThuDeXem": "실행하여 확인해보세요",
       "chay": "실행",
       "baiNayLaDang": "이 코스는 질문이나 뒷단 작업을 다루므로 모바일에서는 샘플 코드와 지시가 표시되고, 디탑에서는 학습 시스템이 완전한 IDE를 열어줍니다.",
-      "traoDoiJoyDe": "JOY를 거래하여 웹 개발 세트를 해제해보세요."
+      "traoDoiJoyDe": "JOY을 해제하면 웹 개발 세트에 액세스할 수 있습니다."
+    },
+    "puzzles": {
+      "thucHanhHoanTat": "Practice complete! Answer",
+      "cauDuoiDayDe": "문제를 정확히 답변하여 통과합니다.",
+      "nopBaiKiemTra": "Submit the test",
+      "baiHocDaHoan": "Lesson complete!",
+      "banDaVuotQua": "이 코스의 도전을 통과하고 JOY 보상을 획득했습니다.",
+      "nhapVaoNutDi": "Use the move buttons to put these code blocks in the right logical order:",
+      "kiemTraThuTu": "Check the order",
+      "yeuCauGiaoDien": "Interface requirements:",
+      "cardSanPham": "Product card",
+      "viDuHienThi": "Visual example",
+      "mauNen": "배경 색상:",
+      "mauChu": "텍스트 색상:",
+      "xacNhanMauSac": "색상을 확인합니다.",
+      "hayHoanThanhSu": "완료하기 위해 3번 클릭하세요:",
+      "nhapChuotClick": "클릭",
+      "boDemSoLan": "클릭 카운터:",
+      "nopBaiThucHanh": "연습을 제출합니다.",
+      "hayNhanDu3": "3번 클릭하여 완료:",
+      "bamChon1Tu": "좌측에서 키워드를 선택한 후, 우측의 정확한 매칭 항목을 선택해주세요:",
+      "tuKhoa": "Keyword",
+      "dinhNghia": "Definition",
+      "hoanThanhNoiCap": "Finish matching",
+      "dienDoanCodePhp": "Fill the blanks below with the right PHP:",
+      "xinChao": "\"Xin chào\"",
+      "nopKetQuaDien": "Submit the filled-in code",
+      "vietCodeTrenIde": "Write the code in the desktop IDE. Once it runs successfully in the browser, take a screenshot and upload it here so the system can check the format of what you submit.",
+      "daTaiAnhLen": "Image uploaded successfully!",
+      "chonHoacKeoAnh": "Choose or drag a screenshot here",
+      "dangKiemTraAnh": "Checking the submitted image...",
+      "kiemTraDinhDang": "이미지의 형식, 크기 및 완성도를 확인합니다.",
+      "tuKiemTraAnh": "자체 검사 완료",
+      "diemNayChiPhan": "이 점수는 이미지가 다음 단계에 적합한지 여부만 반영하며 실제 작업을 검토하는 교사나 관리자가 아닌 대체됩니다.",
+      "nopAnhDaKiem": "검사된 이미지를 제출해주세요",
+      "vuiLongChonAnh": "사진 선택해 주세요",
+      "dangNapBoCau": "퀴즈 질문 로딩 중...",
+      "ketQuaKiemTra": "결과: ",
+      "tuyetVoiBanDa": "정상적으로 통과하셨습니다!",
+      "ratTiecDiemSo": "아쉽게도 점수가 60% 미만입니다.",
+      "nhanThuongJoyHoan": "JOY 보상을 받고 완료하기",
+      "doiDeThiKhac": "다른_paper를 얻고 시도하기",
+      "cauHoi": "문의",
+      "daChon": "선택됨:",
+      "cau": "câu",
+      "cauTruoc": "이전",
+      "nopBaiThi": "논문 제출",
+      "cauTiep": "다음",
+      "khungMaNguon": "원본 프레임:",
+      "xacNhanDapAn": "답변 확인",
+      "doAnKetKhoa": "웹 개발 최종 프로젝트",
+      "nopSanPhamHoan": "제작한 최종 버전을 제출하여 Stage 7을 완료하고 완료 서류와 +4,000 JOY를 받으세요.",
+      "chucMungBanDa": "축하합니다! 웹 개발 세트를 완료하셨습니다! 🎉",
+      "xemChungNhanHoan": "완료 서류 보기",
+      "dangChoAdminDinh": "관리자가 서류 링크를 첨부중입니다...",
+      "duAnDangCho": "프로젝트 대기 중... ⏳",
+      "hugoStudioDangXem": "Hugo 스타일이 제출하신 내용을 검토하고 있습니다.",
+      "duAnChuaDat": "프로젝트 요구 사항을 충족하지 못했습니다. ❌",
+      "phanHoiCuaAdmin": "관리자의 피드백:",
+      "banCoTheDieu": "아래에서 수정하시면 새로운 프로젝트 링크를 다시 보내실 수 있습니다.",
+      "httpsMyprojectComHoac": "https://myproject.com 또는 https://github.com/...",
+      "ghiChuChoAdmin": "관리자용 참고사항(선택사항)",
+      "nhapGhiChuTai": "노트, 테스트 계정, 운영 상세 정보...",
+      "dangGui": "전송 중...",
+      "guiDeAnTot": "최종 프로젝트 제출"
     }
   },
   "arcadeGame": {
@@ -3829,7 +4284,7 @@
     "addedToApps": "{{game}}이 앱에 추가되었습니다.",
     "gameFallback": "게임",
     "rankTitle": "리더보드",
-    "noAds": "호구에서 바로 플레이 — 광고 없음.",
+    "noAds": "정말 재미있는 게 바로 Hugo 안에서 즐기세요 — 광고 없이요.",
     "filterGames": "게임 필터링",
     "playGame": "{{game}} 플레이",
     "spotlight": "오늘의 랜드마크",
@@ -3843,7 +4298,7 @@
     "combo": "{{count}}× 콤보",
     "multiplier": "배당 x{{value}}",
     "best": "최고",
-    "hugoMember": "호구 멤버",
+    "hugoMember": "Hugo 멤버",
     "rankSss": "RANK SSS • GRANDMASTER",
     "rankS": "RANK S • CODE WARRIOR",
     "joyByScore": "+ JOY 기반 점수",
@@ -3905,7 +4360,7 @@
     "chessInCheck": "⚠ YOUR KING IS IN CHECK!",
     "chessTurn": "턴: {{side}}",
     "chessBotThinking": "Hugo BOT( thinking…)",
-    "chessBotLevel": "호가 AI 보트 · 레벨 {{level}}",
+    "chessBotLevel": "Hugo AI BOT · 수준 {{level}}",
     "chessBlackPlayer": "검은 플레이어",
     "chessView3d": "3D 시각화",
     "chessUndo": "시행복구",
@@ -3927,7 +4382,7 @@
     "rankSs": "SS • NEON ACE",
     "rankA": "RANK A • SENIOR FIGHTER",
     "rankB": "RANK B • RISING PLAYER",
-    "shellFormula": "{{score}} 점 → {{joy}} JOY",
+    "shellFormula": "{{score}} 점 → {{joy, joy}}",
     "shellRecord": "최신 최고! {{delta}} 점 더 많은 거래.",
     "shellNear": "{{gap}} 점이 당신의 최고 {{best}}에 미치지 못해요.",
     "shellBest": "당신의 최고: {{best}} 점",
@@ -3942,7 +4397,7 @@
     "snakeCurrentMission": "현재 미션",
     "chessMovesPlayed": "게임은 {{count}} 개의 움직임 후에 종료되었습니다.",
     "chessArena": "3D 체스 아레나",
-    "chessVsBot": "호구 AI BOT 플레이하기",
+    "chessVsBot": "대화형 Hugo AI 보트를 재생합니다.",
     "chessVsBotDesc": "당신이 백색을 플레이합니다. 알고리즘과 테스트 대결",
     "chessPassPlay": "두 명의 플레이어, 하나의 장치 (패스 및 플레이)",
     "chessPassPlayDesc": "장치를 실제 보드처럼 당신 주변에 배치해주세요.",
@@ -3956,7 +4411,9 @@
     "levelEasy": "쉬움",
     "levelMid": "보통",
     "levelHard": "어려움",
-    "caroOpponent": "상대"
+    "caroOpponent": "상대",
+    "eventSaturdayTitle": "두 배 토요일",
+    "eventSaturdayDesc": "주님의 부활과 구원을 기념하며 — 2× JOY를 플레이하세요!"
   },
   "arcadeIntro": {
     "close": "앱으로 돌아가기",
@@ -4035,7 +4492,7 @@
     "userGuide": "사용 안내"
   },
   "donationUI": {
-    "title": "호그 스토리 지원",
+    "title": "Hugo 스토리지 지원",
     "description": "contribution을 이름지으세요; 아래의 숫자들은 도움이 되는 기준치에 불과합니다.",
     "open": "협찬 패널 열기",
     "hide": "悬浮 팩스인 버튼 숨기기",
@@ -4065,19 +4522,19 @@
   "intro": {
     "nav": {
       "welcome": "환영합니다",
-      "webDev": "Web Development",
+      "webDev": "웹 개발",
       "personalInfo": "개인 정보",
-      "teammateInfo": " teammate_info ",
-      "bioEdu": "자기소개서 및 교육 서비스",
-      "webService": "웹 서비스",
+      "teammateInfo": "팀원 소개",
+      "bioEdu": "Bio Edu 서비스",
+      "webService": "웹 제작 서비스",
       "hobbies": "취미",
-      "philosophy": "philosophy",
-      "contacts": "연락처",
+      "philosophy": "메시지",
+      "contacts": "링크",
       "start": "시작하기",
       "studio": "Hugo Studio",
       "partners": "창립자",
-      "about": "자기소개",
-      "discoveries": "발견"
+      "about": "소개",
+      "discoveries": "탐색"
     },
     "about": {
       "desc": "나는 Hugo — Gen Z 개발자로, 아이디어를 심도 있게 그리고 특별한 디지털 경험으로 만들어내는 데 전념합니다.",
@@ -4091,11 +4548,11 @@
       "explore": "포탈 탐색",
       "book": "회의 예약",
       "available": "프로젝트에 사용 가능",
-      "scrollDown": "下滑"
+      "scrollDown": "아래로 스크롤"
     },
     "slide2": {
       "badge": "✦ 웹 개발",
-      "title1": "Web Development",
+      "title1": "웹 개발",
       "title2": "창의적인 아이디어가 생동감 넘치는 웹 사이트로 변신하는 과정입니다.",
       "desc": "웹 개발은 창의적인 아이디어를 실현하는 여정입니다. 단순한 코딩이 아닙니다. 웹 개발에는 고급 미적 사고와 최적화된 기술 솔루션을 결합하여 완벽한 사용자 경험을 제공해야 합니다.",
       "viewProfile": "개인 프로필 보기"
@@ -4109,7 +4566,7 @@
       "highSchoolDesc": "My Tho (Collège de MyTho)",
       "uni": "Greenwich Vietnam",
       "uniDesc": "Greenwich University",
-      "hsBadge": "High School",
+      "hsBadge": "고등학교",
       "hsSub": "Where my programming mindset was forged and nurtured",
       "hsFull": " Nguyen Dinh Chieu 고등학교",
       "hsAddress": "8 황군 street, 무통, 동태평",
@@ -4129,7 +4586,7 @@
       "title2": "digital experiences.",
       "desc": "Jason Phan is my companion on the learning and project development journey. We combine system thinking and passion for technology to turn complex ideas into smooth, optimized applications.",
       "highSchool": "Cay Duong High School",
-      "highSchoolDesc": "Dynamic high school in Kien Giang.",
+      "highSchoolDesc": "끼엔장의 활기찬 고등학교입니다.",
       "highSchoolProvince": "An Giang (former Kien Giang)",
       "uniTitle": "Greenwich Vietnam",
       "uniDesc": "International training environment affiliated with Greenwich UK.",
@@ -4147,18 +4604,18 @@
       "idTitle": "학생 식별자",
       "idName": "호고 포털 시스템",
       "idEmailTitle": "필수 이메일",
-      "idBenefitTitle": "이점",
+      "idBenefitTitle": "혜택",
       "idBenefitDesc": "1개 무료 Bio 페이지",
-      "idValidityTitle": "유효 기간",
+      "idValidityTitle": "유효기간",
       "idValidityDesc": "12 개월",
-      "idAuth": "인증",
-      "benefitsTitle": "로그인 후 확인되면 다음과 같은 개인 블로그 페이지를 무료로 받으실 수 있습니다。",
+      "idAuth": "인증됨",
+      "benefitsTitle": "인증이 완료되면 다음을 받습니다:",
       "b1t": "자세한 정보는 개인정보 보호정책을 참조하세요.",
-      "b1d": "도화살, 효과, 배경 및 모든 소셜 링크 — 당신의 독특한 디트메이킹 카드를 설정합니다.",
+      "b1d": "레이아웃, 효과, 배경, 소셜 링크까지 직접 설정하는 나만의 디지털 명함.",
       "b2t": "정리된 개인화된 링크",
       "b2d": "자기소개서, 페이스북 또는 인스타그램에서 채용서나 친구 목록에 기억하기 쉬우면서도 전문적인 이름으로 사용할 수 있습니다 — bio/your-name",
       "b3t": "3-second auto verification",
-      "b3d": "Just an email ending in .edu — the system verifies instantly, no manual review.",
+      "b3d": ".edu로 끝나는 이메일만 있으면 됩니다. 수동 심사 없이 즉시 확인합니다.",
       "b4t": "Full student toolkit",
       "b4d": "Bạn Học Đường, Hugo PSY, Web IDE, Hugo Radio and Aura AI — free for a full 12 months.",
       "toolsTitle": "Free student utilities included",
@@ -4198,8 +4655,8 @@
       "p3": "인터페이스를 일관되게 유지하고 소스 코드 관리가 용이하도록 만드세요."
     },
     "slide9": {
-      "badge": "✦ 연락",
-      "title": "호지와 연결",
+      "badge": "✦ 연락처",
+      "title": "Connect_withHugo",
       "desc": "프로젝트, 기회 또는 단순히 대화를 시작하기 위해 연락해보세요.",
       "zalo": "Zalo 채팅",
       "email": "Send Email",
@@ -4207,7 +4664,7 @@
       "tiktok": "TikTok",
       "supporters": "Kindred spirits alongside Hugo Studio",
       "supporterItem": "{{name}}",
-      "supportersEmpty": "달콤한 작은 공간이 당신의 이름을 기다리고 있습니다."
+      "supportersEmpty": "당신의 이름을 기다리는 작고 사랑스러운 자리입니다."
     },
     "slide10": {
       "badge": "✦ 시작하기",
@@ -4218,10 +4675,10 @@
       "bookBtn": "웹사이트 논의하기"
     },
     "studio": {
-      "badge": "✦ 호구 Wishpax 스튜디오",
+      "badge": "✦ Hugo Wishpax 스토리지",
       "title1": "Hugo Studio",
       "title2": "사랑으로 디트라이브드 디티컬 경험을 만듭니다.",
-      "desc": "호구 스튜디오는 디티컬 웹사이트, Bio 페이지 및 학생 도구를 한 작품처럼 매끄럽고 따뜻하게 보여주는 아름다운 소품을 가공하는 디티컬 작업장입니다.",
+      "desc": "Hugo 멤버 포털은 디트리 컬래시언 웹사이트와 브이 페이지 그리고 학생용 도구를 한 눈에 볼 수 있는 디트리 셰퍼드의 디트리 공방입니다. 모든 웹사이트, 브이 페이지 및 학생 도구는 사용자에게 아름다운, 부드럽고 따뜻한 작품으로 마무리됩니다.",
       "explore": "스튜디오 탐색",
       "scrollHint": "스크롤하여 여행을 시작합니다."
     },
@@ -4239,7 +4696,7 @@
       "v1": "의무감 있는",
       "v2": "보정",
       "v3": "창의성",
-      "v4": "친절",
+      "v4": "친근함",
       "v5": "포용적"
     },
     "discoveries": {
@@ -4249,18 +4706,18 @@
       "desc": "나만의 손으로 만든 사용자 지구 — 인공지능과 음악, 정서적인 건강 지원 등 모두 학생들에게 무료입니다.",
       "auraTitle": "아우라 AI",
       "auraDesc": "학습에 집중하고 창의적 영감을 불러일으키는 도우미입니다.",
-      "psyTitle": "호그 PSY",
+      "psyTitle": "Hugo PSY",
       "psyDesc": "당신이 생각하는 모든 것에 대해 들어주는 친구 — 특히 밤 늦게 당신의 정서적인 건강을 지원합니다.",
       "hocduongTitle": "학습 공간: 문서 교환, 질문하기 및 학생 커뮤니티와 연결하기",
       "hocduongDesc": "Hugo Bio",
       "radioTitle": "HugoPSY",
       "radioDesc": "대체적으로 조용하고 편안한 라이브러리 음악을 이용한 야간 학습 세션에 적합한 스튜디오.",
       "ideTitle": "웹 인터페이스 디 타임 엘디",
-      "ideDesc": "대화와 코드를 동시에 작성하고 실행할 수 있는 기능 — 모바일에서도 가능합니다.",
+      "ideDesc": "브라우저에서 바로 코드를 작성하고 실행하세요. 휴대폰에서도 됩니다.",
       "arcadeTitle": "Hugo Arcade",
-      "arcadeDesc": "Retro games and multiplayer chess to unwind after stressful study sessions.",
+      "arcadeDesc": "공부로 지친 머리를 풀어 줄 레트로 게임과 대인 체스.",
       "joyTitle": "joy pwa",
-      "joyDesc": "joy pwallet — 포인트를 전체 생태계에서 얻고 사용하세요.",
+      "joyDesc": "대한민국의 JOY 포인트 지갑 — 전 플랫폼에서 포인트를 모아 사용하세요.",
       "bioTitle": "签名_bio",
       "bioDesc": "独一无二的个人页面，展现你的真我风格和知识。",
       "hint": "✦ 팔레트 위에 마우스를 올려보세요. 각 기능을 탐색해 보세요."
@@ -4277,24 +4734,24 @@
       "eyebrow": "遇见 Hugo",
       "title1": "七种情绪，",
       "title2": "一个Hugo",
-      "desc": "Every working moment has its mood — always caring, always fun.",
+      "desc": "일하는 순간마다 기분이 있습니다. 늘 다정하고, 늘 즐겁게.",
       "m1w": "안녕하세요!]",
-      "m1d": "Friendly from the first hi",
-      "m2w": "Coding",
-      "m2d": "Fast, clean websites",
+      "m1d": "첫 인사부터 친근하게",
+      "m2w": "코딩",
+      "m2d": "빠르고 깔끔한 웹사이트",
       "m3w": "대기중",
-      "m3d": "호지psy 마음을 위한 호지psy",
+      "m3d": "HugoPSY for your mind",
       "m4w": "질감",
       "m4d": "Detail in everything",
       "m5w": "Wow",
-      "m5d": "Always a little surprise",
+      "m5d": "언제나 작은 놀라움",
       "m6w": "대한민국 멤버 포털",
       "m6d": "함께 성장하며 더遥远",
       "m7w": "Fun",
       "m7d": "프로젝트, 하지만 즐겁게 만드세요"
     },
     "cine": {
-      "nav1": "About",
+      "nav1": "소개",
       "nav2": "유용한 도구",
       "nav3": "서비스",
       "nav4": "예약",
@@ -4302,7 +4759,7 @@
       "navPortfolio": "포트폴리오",
       "navServices": "서비스",
       "navBooking": "대여하기",
-      "heroWord": "호구스테이디 멤버 포털",
+      "heroWord": "Hugo",
       "heroEyebrow": "Hugo Lê · Portfolio",
       "heroTitle1": "I'm Hugo.",
       "heroTitle2": "I design and engineer digital products.",
@@ -4313,7 +4770,7 @@
       "heroScroll": "내 포트폴리오를 스크롤하세요",
       "previewStatus": "Online",
       "previewName": "Hugo_student",
-      "previewTagline": "One digital identity, many useful tools.",
+      "previewTagline": "하나의 디지털 신분, 여러 유용한 도구.",
       "aboutLabel": "Beyond the screen",
       "aboutH1": "Peter Hugo Wishpax Lê,",
       "aboutH2": "소프트웨어 엔지니어 학부생입니다.",
@@ -4344,12 +4801,12 @@
       "card2c4": "전체 무료 학생 툴킷과 함께 팔로우됩니다.",
       "card3Title": "웹 디자인.",
       "card3c1": "사용자 정의 랜딩 페이지.",
-      "card3c2": "전체 웹사이트를 쉽게 관리할 수 있습니다.",
+      "card3c2": "직접 관리하기 쉬운 완성형 웹사이트",
       "card3c3": "SEO, 속도 및 모바일 최적화가 잘 되어 있습니다.",
       "card4Title": "학생용 도구입니다.",
-      "card4c1": "호ogs PSY — 음악을 듣는 친구",
+      "card4c1": "Hugo PSY — 앨범을 들려주는 친구",
       "card4c2": "웹 IDE — 브라우저에서 코드 바로",
-      "card4c3": "호ogsiradio — 늦은 밤 스터디에 최적의 라이프",
+      "card4c3": "Hugo Radio — 늦은 밤 공부를 돕는 라ofi",
       "learnMore": "더 많은 정보 보기",
       "stackTitle": "학습한 내용",
       "strengthTitle": ": 강점",
@@ -4361,18 +4818,18 @@
       "stat1l": "대세대",
       "stat2v": "Greenwich",
       "stat2l": "다음 연령대 · 소셜 미디어 운영",
-      "partnerLabel": "Co-developing with",
-      "contactTitle": "Let's stay in touch.",
+      "partnerLabel": "공동 개발:",
+      "contactTitle": "계속 연락하며 지내요.",
       "marqueeTitle": "Technologies I have learned",
       "work": {
         "eyebrow": "Selected work",
-        "title": "대 Ground-up으로 만든 제품들입니다.",
+        "title": "처음부터 직접 만든 제품들.",
         "desc": "각 프로젝트는 독특한 문제 클래스를 상寛: 개인 출판, 트랜잭션 데이터 및 인터랙티브 시스템을 다룹니다. 그들은 어떻게 인터페이스 캐주얼, 애플리케이션 로직 및 모바일 첫 번째 디자인을 조화롭게 맞출지 보여줍니다.",
         "items": [
           {
             "badge": "디지털 아이덴티티",
             "kind": "웹 앱 · PWA",
-            "title": "호구 비오 .edu",
+            "title": "Hugo 교육 .edu",
             "desc": "사용자가 특정 페이지에서 자신의 배경, 프로젝트, 성취 및 주요 링크를 구성 가능한 디트리프로필 시스템을 통해 제공합니다.",
             "outcome": "대상이 되는 React 경험, 반응형 인터페이스, 멤버 인증 여행 및 Bio 내용 관리 흐름을 디자인했습니다。",
             "cta": "프로젝트를 확인해주세요."
@@ -4381,7 +4838,7 @@
             "badge": "보안",
             "kind": "제품 기반시설",
             "title": "JOY",
-            "desc": "다수의 호구 스토리 플랫폼 애플리케이션 간에 활동, 성취 및 보상이 서로 섬세하게 연결된 내부 포인트 레코드입니다.",
+            "desc": "An internal points ledger that interweaves activity, achievement and rewards across several Hugo Studio applications.",
             "outcome": "I 설계한 균형과 거래 기록, 페어 트랜스 transfers 및 서버 서명 QR 콤폰 payload가 클라이언트 측 변조를 방지합니다.",
             "cta": "프로젝트를 확인해주세요."
           },
@@ -4396,9 +4853,9 @@
         ]
       },
       "meta": {
-        "title": "피터 호구 위스파克斯 렙 — 소프트웨어 엔지니어링 및 제품 디자인 포트폴리오",
-        "description": "피터 호구 위스파克斯 렙의 개인 포트폴리오는 그린우드 베트남에서 졸업 예정인 소프트웨어 엔지니어 학생 피터 호구 위스파克斯 렙의 교육, 기술 장르 및 선택된 디트로미터 제품을 포함합니다.",
-        "keywords": "피터 호구 위스파克斯 렙, 호구 렙, 소프트웨어 엔지니어링 학생, 그린우드 베트남, 리엑트 프로젝트"
+        "title": "(Hugo) Peter Wishpax Lê — 소프트웨어 엔지니어링 및 제품 디자인 포트폴리오",
+        "description": "Peter Hugo 렙의 최종년도 소프트웨어 공학 학생으로서 그의 교육, 기술 장르 및 선택된 디 테크 제품에 대한 개인 포트폴리오가 포함됩니다.",
+        "keywords": "페테르 Hugo 위스파스 렙, Hugo 렙, 소프트웨어 엔지니어 포트폴리오, 소프트웨어 엔지니어 학생, 그린우드 베이비안, 리엑트 프로젝트"
       },
       "heroCvCta": "대량 다운로드",
       "weak3": "나의 학위는 여러 언어를 넓게 다루고 있었으며 특정한 한 가지 언어에 깊이 집중하지 않았습니다 — 코드를 읽고 수정하는 데는 능하지만 아직 어떤 단일 언어에도 전문성이 없습니다."
@@ -4407,18 +4864,18 @@
   "servicesPage": {
     "meta": {
       "title": "학생·개인·소상공인을 위한 웹사이트 상담 | Hugo Studio",
-      "description": "방법을 고르기 전에 목적부터 들려주세요. 학생·개인·소상공인을 위한 1:1 상담, 범위와 비용은 착수 전에 확정합니다.",
+      "description": "방법을 고르기 전에 목적부터 Hugo에게 들려주세요. 학생·개인·소상공인을 위한 1:1 상담, 범위와 비용은 착수 전에 확정합니다.",
       "keywords": "학생 웹사이트, 학생 포트폴리오, 개인 웹사이트, 소규모 기업 웹사이트, 웹컨설팅, Hugo 스토리"
     },
     "common": {
-      "youGet": "당신이 얻는 것들",
-      "notIncluded": "무료 포함되지 않음",
-      "discussPlan": "이 패키지를 논의하세요",
-      "discussProject": "프로젝트를 논의하세요",
-      "revealPrice": "투자 범위 확인해보세요",
-      "priceHint": "시작점입니다. 범위가 명확해지면 최종 금액이 결정됩니다.",
-      "getQuote": "당신이 필요하신 것을 말씀해주세요",
-      "quoteAfterChat": "먼저 논의 후 가격을 확인해보세요"
+      "youGet": "받는 것",
+      "notIncluded": "포함되지 않음",
+      "discussPlan": "이 패키지 상담하기",
+      "discussProject": "프로젝트 상담하기",
+      "revealPrice": "투자 범위 보기",
+      "priceHint": "시작 기준입니다. 최종 금액은 범위가 분명해진 뒤 함께 정합니다.",
+      "getQuote": "상담하고 견적 받기",
+      "quoteAfterChat": "먼저 상담 · 견적은 그다음"
     },
     "whispers": {
       "intro": "퍼fect 웹사이트는 없습니다. 올바른 웹만이 있습니다.",
@@ -4434,11 +4891,11 @@
       "badge": "1:1 직접 상담 · 학생 우선",
       "title1": "아직 패키지를 고르지 않아도 됩니다.",
       "title2": "필요한 것부터 시작하세요.",
-      "desc": "목표, 지금 걸리는 점, 만들고 싶은 것을 들려주세요. 딱 맞는 크기의 방법을 찾아 드립니다 — 학생 Bio와 포트폴리오부터 개인과 작은 가게의 웹사이트까지.",
-      "viewPricing": "내 상황 고르기",
-      "contact": "필요한 것 알려주기",
-      "swipe": "슬라이드하여 계속 진행하세요.",
-      "scroll": "상세 정보를 직접 디자이너와 개발자에게 제공해보세요.",
+      "desc": "목표, 지금 막힌 부분, 만들고 싶은 것을 알려주세요. 학생용 Bio와 포트폴리오부터 개인·작은 가게 웹사이트까지, 딱 맞는 규모의 방향을 찾아 드립니다.",
+      "viewPricing": "상황 선택하기",
+      "contact": "필요한 것을 알려주세요",
+      "swipe": "넘겨서 계속 보기",
+      "scroll": "스크롤해서 계속 보기",
       "trust": [
         "시cope, 일정과 비용은 시작부터 결정됩니다.",
         "모바일 최적화, 속도 및 발견성능을 갖춘 설계",
@@ -4476,7 +4933,7 @@
     "pricing": {
       "eyebrow": "일반적인 시작 지점",
       "title": "흔히 쓰는 세 가지 시작 방법",
-      "highlight": "not three rigid boxes",
+      "highlight": "정해진 세 가지 상자가 아니라",
       "desc": "고정된 패키지가 아니라 자주 쓰이는 작업 범위입니다. 먼저 필요한 것을 파악해 딱 알맞은 구성을 제안한 뒤 일정과 비용을 확정합니다."
     },
     "journey": {
@@ -4505,7 +4962,7 @@
       "fix": {
         "label": "빠른 해결",
         "name": "기존 사이트 수정",
-        "price": " $6.99 에서",
+        "price": "$6.99부터",
         "note": "각 작업에 대해 전문적으로 책정하고, 필요한 부분만 지불합니다 — 숨겨진 추가 요금이 없습니다.",
         "desc": "기본적인 버그가 고객을 잃게 하는 사이트를 운영 중인가요? 나는 그들이 필요로 하는 것만 수정합니다 — 큰 패키지가 필요하지 않습니다.",
         "includes": [
@@ -4524,7 +4981,7 @@
       "seo": {
         "label": "최적화",
         "name": "SEO 및 속도 향상",
-        "price": "From $36.99",
+        "price": "$36.99부터",
         "note": "React/Next.js 사이트나 구글에서 찾기 어려운 느리고 보이지 않는 웹사이트에 최적화된 브라우저입니다.",
         "desc": "Google에서 찾아보기 어려운 느린 웹사이트는 가게의 표 없음. 이 패키지는 이를 바로 잡습니다.",
         "includes": [
@@ -4543,11 +5000,11 @@
       "landing": {
         "label": "시작",
         "name": "한 페이지 랜딩 페이지",
-        "oldPrice": "80.99",
-        "price": "60.99",
+        "oldPrice": "$80.99",
+        "price": "$60.99",
         "discount": "-25%",
-        "note": "Custom design, no mass-market templates. Done in 5-7 days.",
-        "desc": "One page, one goal: visitors finish reading and want to contact you.",
+        "note": "기성 템플릿이 아닌 맞춤 디자인. 5~7일 안에 완성.",
+        "desc": "한 페이지, 하나의 목표. 끝까지 읽고 바로 연락하고 싶어지는 페이지.",
         "tagline": "시작하기 쉬움",
         "includes": [
           "1 페이지를 당신의 브랜드에 맞게 최적화된 설계로, 최대 7개의 섹션을 제공합니다.",
@@ -4568,16 +5025,16 @@
       "website": {
         "label": "Grow",
         "name": "여러 페이지 웹사이트",
-        "oldPrice": "회원 포털 202.99",
+        "oldPrice": "$202.99",
         "price": "$121.99",
         "discount": "-40%",
-        "note": "Final price depends on pages and features, tailored to your budget with step-by-step payments.",
-        "desc": "A complete online presence that makes a small shop, café or personal brand more trustworthy than a Facebook page.",
+        "note": "최종 금액은 페이지 수와 기능에 따라 달라지며, 예산에 맞춰 단계별로 나눠 결제합니다.",
+        "desc": "작은 가게, 카페, 개인 브랜드를 페이스북 페이지보다 믿음직하게 보여 주는 완성된 온라인 창구.",
         "tagline": "가장 인기",
         "includes": [
           "4-6 완료 페이지: 홈, 소개, 상품/서비스, 뉴스(선택사항), 연락처",
-          "Cohesive design matched to your brand (logo placement, colors, fonts...)",
-          "3 revision rounds based on your feedback",
+          "브랜드에 맞춘 일관된 디자인(로고 배치, 색상, 서체 등)",
+          "피드백을 반영한 3회 수정",
           "고급 키워드 최적화: Google 검색控制台, 사이트맵, 스키마 마크업",
           "Zalo, 메신저, Google 맵스 + 고급 연락 양식",
           "1개월간 무료 유지보수 (4개의 작은 수정이 포함되어 있습니다)",
@@ -4594,8 +5051,8 @@
       "system": {
         "label": "시스템",
         "name": "동적 웹 앱",
-        "price": "From $283.99",
-        "note": "Projects with payments, dashboards or multiple roles usually run 12-20 million.",
+        "price": "$283.99부터",
+        "note": "결제, 대시보드, 여러 역할이 들어가는 프로젝트는 보통 1,200만~2,000만 규모입니다.",
         "desc": "도서보다는 웹사이트: 주문 관리 및 고객 관리를 위한 장기 자산입니다.",
         "tagline": "오래 쓰는 자산",
         "includes": [
@@ -4627,9 +5084,9 @@
         "desc": "대상은 이 프로필입니다. 당신이 일과 입학서 및 장학금 지원에 사용하는 것입니다."
       },
       "bug": {
-        "label": "STUDENT",
+        "label": "학생",
         "name": "진단 및 수정",
-        "price": "120.000디",
+        "price": "$4.99",
         "unit": "/bug",
         "tagline": "마감일 근처에 있습니다",
         "note": "약정된 버그당 가격입니다. 나는 단지 부러진 부분만 만지고 — 그 외의 코드는 당신이 유지합니다.",
@@ -4648,10 +5105,10 @@
       "html": {
         "label": "HTML/CSS/JS",
         "name": "비주얼 웹 과제작",
-        "price": "490.000디",
+        "price": "$20.99",
         "tagline": "응답형 전면 디스플레이",
-        "note": "Split between 2 students: ~245.000đ each.",
-        "desc": "End-of-term web design work: responsive layout and basic DOM effects. No backend, no database.",
+        "note": "2명이 나누면 1인당 약 $10.50.",
+        "desc": "기말 웹 디자인 과제: 반응형 레이아웃과 기본 DOM 효과. 백엔드도 데이터베이스도 없습니다.",
         "includes": [
           "프로젝트의 Git 링크: 전체 소스를 클론할 수 있습니다.",
           "모바일에서도 잘 작동하는responsive 인터페이스",
@@ -4669,9 +5126,9 @@
       "php": {
         "label": "PHP/SQL",
         "name": "동적 웹 과제",
-        "price": "990.000원",
+        "price": "$40.99",
         "tagline": "CRUD 및 권한",
-        "note": "3명의 학생에게 분배: 각각 ~330.000원",
+        "note": "3명이 나누면 1인당 약 $13.66.",
         "desc": "학기말 동적 웹 작업: CRUD 데이터 처리와 등록, 기본 역할 기반 로그인 포함",
         "includes": [
           "프로젝트의 Git 링크: 전체 소스를 클론할 수 있습니다.",
@@ -4690,9 +5147,9 @@
       "react": {
         "label": "REACT/NODE",
         "name": "고급 웹 과정 강좌",
-        "price": "1.690.000đ",
+        "price": "$68.99",
         "tagline": "SPA + REST API",
-        "note": "~425.000đ 각 학생에게",
+        "note": "4명이 나누면 1인당 약 $17.25.",
         "desc": "학기말 고급 웹 작업: 리액트 SPA와 노드/Express REST API, MongoDB 또는 PostgreSQL을 기반으로 한 백엔드",
         "includes": [
           "프로젝트의 Git 링크: 전체 소스를 클론할 수 있습니다.",
@@ -4709,9 +5166,9 @@
         "compare": "43% 더 싸게 Multi-Page 웹사이트 계획보다 (2.990.000đ)."
       },
       "exclusiveBio": {
-        "label": "STUDENT",
+        "label": "학생",
         "name": "고객 맞춤 설계된 Bio",
-        "price": "99.000đ",
+        "price": "$4.99",
         "tagline": "프리뷰 버전은 무료 버전과 다릅니다.",
         "note": "이것은 에디터에서 만든 무료 버전을 기반으로 디자인했습니다.",
         "desc": "개인용 랩터 페이지입니다. CV, 학교 지원서 또는 사회 프로필에 적합한 레이아웃과 색상 팔레트가 포함되어 있습니다.",
@@ -4727,16 +5184,16 @@
         ]
       },
       "bento": {
-        "label": "STUDENT",
+        "label": "학생",
         "name": "便当式简历/作品集",
-        "price": "799.000",
+        "price": "$32.99",
         "tagline": "专为求职和奖学金设计",
         "note": "仅是一个个人资料，不涉及你的成绩。",
         "desc": "学术成果、突出的个人项目以及你的链接以干净的便当网格布局展示，在30秒内即可阅读。",
         "includes": [
           "一个页面的作品集采用便当网格布局",
           "GitHub、社交账号及联系方式已集成",
-          "Contact form feeding straight into a free Google Sheet",
+          "문의 양식은 무료 Google 스프레드시트로 바로 저장",
           "프리미엄 무료 호스팅 (Vercel/Netlify)로 배포됨"
         ],
         "cap": [
@@ -4767,8 +5224,8 @@
         },
         "jewelry": {
           "title": "金银珠宝店",
-          "short": "珠宝",
-          "subtitle": "珠宝商"
+          "short": "주얼리",
+          "subtitle": "보석 상점"
         },
         "portfolio": {
           "title": "개인 포트폴리오",
@@ -4776,12 +5233,12 @@
           "subtitle": "개인 프로필"
         },
         "ecommerce": {
-          "title": "Online Store",
+          "title": "온라인 스토어",
           "short": "온라인 쇼핑몰",
           "subtitle": "다수-industry"
         },
         "dashboard": {
-          "title": "관리 패널",
+          "title": "관리자 패널",
           "short": "대시보드",
           "subtitle": "대시보드"
         }
@@ -4795,7 +5252,7 @@
     },
     "micro": {
       "eyebrow": "기존 사이트에서 문제가 있나요?",
-      "title": "Fix only what is needed,",
+      "title": "정말 고쳐야 할 것만,",
       "highlight": "불필요한 부분만 수정합니다.",
       "desc": "필수 수정 사항만 강요하지 않습니다.",
       "costLabel": "문제 해결 후 사이트 링크 또는 문제를 설명하는 스크린샷을 보내주세요. 현재 상태를 검토하고, 수정할 수 있는 내용과 함께 제시하겠습니다.",
@@ -4806,14 +5263,14 @@
     },
     "app": {
       "badge": "그런 상황이라면 대화해보세요!",
-      "title1": "A website that",
+      "title1": "당신을 대신해",
       "title2": "대용량 프로젝트에 최적화된 온라인 결제, 다수의 역할, 고유 API 제공",
       "desc": "고객을 운영하는 사람을 대행 — 주문 받기, 시간표 예약, 보고서 작성 등 — 하지만 한 번만 지불하고 24시간 7일간 작동합니다.",
       "extendTitle": "필요한 시점에 사용할 수 있는 확장 기능 — 별도로 계약됩니다",
       "extendDesc": "12-20억 규모의 프로젝트는 작업 시작 전 작성된 사항을 확인합니다. 법인은 고유 API 제공, 여러 역할, 온라인 결제 등"
     },
     "student": {
-      "badge": "호구 스토리의 우선 순위",
+      "badge": "Hugo Studio의 우선 순위",
       "title1": "학생들에게 항상 무료 공간이 있습니다.",
       "title2": "확인되면 표준 Bio와 기본 학습 도구를 무료로 사용할 수 있습니다. 고유 디자인, 전문 포트폴리오 또는 기술적 지원은 작업 시작 전에 명확하게 논의됩니다.",
       "desc": "무료 혜택을 볼 수 있는 무료 프로필 보여주기",
@@ -4871,7 +5328,7 @@
       "eyebrow": "FAQ",
       "title": "진실된 답변들입니다.",
       "highlight": "개인 정보 보호 정책",
-      "desc": "대시튜터스 웹 프로젝트 시작 전에 자주 묻는 질문.",
+      "desc": "Hugo 스토리지와 웹 프로젝트 시작 전常见 질문.",
       "items": [
         {
           "q": "대시튜터스와 연락하기 전에 준비해야 할 사항은 무엇인가요?",
@@ -4897,77 +5354,77 @@
     },
     "finalCta": {
       "title1": "모든 프로젝트는",
-      "title2": "분명한 대화 한 번에서 시작합니다.",
-      "desc": "패키지 이름을 알 필요도, 완벽한 기획서를 준비할 필요도 없습니다. 지금 쓰는 사이트나 스크린샷, 목표를 적은 몇 줄만 보내 주시면 다음 단계를 함께 찾아 드립니다.",
-      "cta": "필요한 것 알려주기"
+      "title2": "분명한 대화 한 번으로 시작합니다.",
+      "desc": "패키지 이름을 몰라도, 완벽한 기획서를 준비하지 않아도 됩니다. 지금 쓰는 사이트나 오류 화면, 혹은 목표를 몇 줄만 보내주시면 다음 단계를 함께 정리해 드립니다.",
+      "cta": "필요한 것을 알려주세요"
     },
     "promo": {
       "title": "학생용 아름다운 생애 페이지 무료!",
-      "desc": "Got an .edu email? Claim your gorgeous ad-free personal bio page for free!",
+      "desc": ".edu 메일이 있나요? 광고 없는 예쁜 개인 Bio 페이지를 무료로 받으세요!",
       "cta": "확인해주세요!"
     },
     "tabs": {
-      "commercial": "비즈니스 / 개인",
-      "student": "학생들용",
+      "commercial": "가게 & 개인",
+      "student": "학생용",
       "micro": "빠른 수정"
     },
     "microJobs": {
       "bug-ui": {
         "name": "인터페이스 버그 수정",
         "desc": "누락된 버튼, 이미지의 잘못된 정렬, 폰트 크기 오류 또는 텍스트 요소의 겹침을 고치세요.",
-        "price": " $6.99 에서",
+        "price": "$6.99부터",
         "time": "오늘 완료!"
       },
       "style-content": {
         "name": "색상 및 콘텐츠 정리",
         "desc": "브랜드 색상을 변경하고, 글꼴을 교체하거나, 그래픽을 업데이트하거나, 텍스트 섹션을 재작성할 수 있습니다.",
-        "price": "From $8.99",
+        "price": "$8.99부터",
         "time": "오늘 완료!"
       },
       "mobile-beauty": {
         "name": "모바일 러그업",
         "desc": "모바일 화면에 맞게 간격을 조정하고, 반응형 글꼴을 업데이트하며, 콜-투-액tion 타겟 영역을 최적화합니다.",
-        "price": "From $10.99",
+        "price": "$10.99부터",
         "time": "오늘 완료!"
       },
       "web-widget": {
         "name": "달콤한 위젯",
         "desc": "장난스러운 Zalo/Messenger 플로팅 채팅, 연락처 양식, Google 맵 또는 클릭하여 전화를 걸 수 있는 화상통화를 통합합니다.",
-        "price": " $6.99 에서",
+        "price": "$6.99부터",
         "time": "오늘 완료!"
       },
       "deploy-domain": {
         "name": "웹 런시",
         "desc": "Vercel/Netlify/VPS로 사이트 배포, 커스텀 도메인 연결 및 무료 SSL 인증서로 보안 설정.",
-        "price": "From $10.99",
+        "price": "$10.99부터",
         "time": "오늘 완료!"
       },
       "seo-quick": {
         "name": "빠른 SEO 향상",
         "desc": "정확한 메타 태그 (제목/설명) 설정과 Facebook/Zalo 공유용 예쁘게 생긴 링크 표시를 구성합니다.",
-        "price": "From $8.99",
+        "price": "$8.99부터",
         "time": "오늘 완료!"
       },
       "speed-optimize": {
         "name": "속도 향상",
         "desc": "중요 이미지의 손실 없이 압축, 부적절한 JS/CSS 파일 제거 및 페이지 서프리즈 점수를 높입니다.",
-        "price": "From $12.99",
+        "price": "$12.99부터",
         "time": "오늘 완료!"
       },
       "monthly-maintenance": {
         "name": "월간 조용한 관리",
         "desc": "정기적인 백업, 보안 검사, 빠른 버그 수정 및 가벼운 컨텐츠 변경이 매달 이루어집니다.",
-        "price": "12.99/mo",
+        "price": "월 $12.99부터",
         "time": "진행 중인 치 sóc"
       }
     },
     "disclaimer": "하단의 각 옵션은 실제 필요성을 논의한 후에만 범위, 시기 및 비용이 확인됩니다.",
     "section": {
-      "newBuildsTitle": "새로운 디자인 및 개인화된 구축",
-      "newBuildsDesc": "브랜드, 크리에이터 및 기업이 새로운 웹사이트를 부모로부터 지면으로부터 다시 만드는 데 필요한 경우 사용합니다.",
-      "optimizeTitle": "SEO, 속도 및 버그 제거",
-      "optimizeDesc": "Google의 더 나은 순위, 더 빠른 로딩 시간 또는 기술적 문제 해결을 필요로 하는 이미지 웹사이트에 대한 옵션입니다.",
-      "upkeep": "included 지원 기간 후 유지보수가 필요한 경우 실제 업데이트 주기에 따라 별도로 제안됩니다. 항상 선택 사항입니다."
+      "newBuildsTitle": "개인·카페·작은 가게 웹사이트",
+      "newBuildsDesc": "아직 웹사이트가 없거나 예전 사이트가 낡았다면, 처음부터 새로 만들어 드립니다. 전용 디자인, 합리적인 가격, 빠른 완성.",
+      "optimizeTitle": "기존 웹사이트 수정 & 최적화",
+      "optimizeDesc": "작은 오류가 있거나 느리거나 구글에 잘 안 나오나요? 필요한 곳만 고칩니다. 처음부터 다시 만들 필요 없습니다.",
+      "upkeep": "포함된 지원 기간이 끝난 뒤 유지관리가 필요하면 실제 업데이트 빈도에 맞춰 따로 제안해 드립니다. 선택 사항입니다."
     },
     "devices": {
       "desktop": "Desktop",
@@ -5075,11 +5532,11 @@
         "actionText": "Claim the Student Offer"
       },
       {
-        "question": "학생 혜택 제공",
+        "question": "Hugo 스토리의 디스이 요금은如何요?",
         "answer": "호가 스토디오에서 디자인 비용은 어떻게 되나요?"
       },
       {
-        "question": "직접 1:1로 일일 작업을 처리하여 가격은 매우 저렴하며 학생이나 소규모 기업에 맞춰져 있습니다. 품질을 유지하기 위해 저는 한 번만 대기열에서 프로젝트를 수락합니다.",
+        "question": "Hugo 스타udi오 휴일에 작동합나么?",
         "answer": "호가 스토디오가 공휴일 동안 작동하나요?"
       }
     ],
@@ -5107,10 +5564,10 @@
       "networkError": "연결 오류입니다. 인터넷을 확인하고 다시 시도해 주세요.",
       "chooseProject": "대상이 되는 옵션을 선택해 주세요.",
       "chooseAge": "먼저 나이 그룹을 선택해주세요.",
-      "underAge": "호구 스토리만 14세 이상의 고객에게 문의를 받습니다."
+      "underAge": "Hugo 스타디오는 만 14세 이상의 사용자에게만 문의를 수락합니다."
     },
     "header": {
-      "eyebrow": "호구와 대화하기",
+      "eyebrow": "Hugo/direct-conversation-with-hugo-psy",
       "title": "당신이 원하는 것을 알려주세요. 나머지는 도와드릴게요.",
       "desc": "기술 용어도 필요하지 않고, 모든 세부 사항을 제공해 주셔야 합니다. 당신의 상황에 가장 가까운 질문들을 골라서, 나머지 범위를 명확히 표현하는 데 도움이 될 수 있습니다."
     },
@@ -5135,7 +5592,7 @@
     "steps": {
       "age": {
         "title": "당신은 몇 살입니까?",
-        "hint": "호구 스토리만 14세 이상의 고객에게 문의를 받습니다."
+        "hint": "Hugo 스타디오는 만 14세 이상의 사용자에게만 문의를 수락합니다."
       },
       "project": {
         "title": "무엇을 도와드릴까요?",
@@ -5181,7 +5638,7 @@
       },
       "unsure": {
         "title": "아직 확실하지 않습니다",
-        "desc": "결과를 설명하세요; 호구는 적절한 접근 방향을 결정합니다."
+        "desc": "Hugo 사용자 경험을 개선하기 위한 결과를 설명합니다."
       }
     },
     "sections": {
@@ -5227,6 +5684,10 @@
       "phoneLabel": "전화번호 / Zalo",
       "phoneHint": "필수항목 · never published",
       "phonePlaceholder": "예를 들어, 09xx xxx xxx",
+      "voucherLabel": "할인 코드",
+      "voucherHint": "선택 · 계정 → 당신의 혜택에서 확인",
+      "voucherPlaceholder": "예: HUGO20-A1B2C3",
+      "voucherInvalid": "이 할인 코드는 사용할 수 없습니다(잘못된 코드, 사용 완료 또는 기간 만료). 다시 확인하거나 비워 두세요.",
       "messagePlaceholder": "예를 들어, handmade 상품을 판매하고 있으며 고객이 컬렉션을 둘러볼 수 있는 웹사이트가 필요합니다.",
       "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
     },
@@ -5267,7 +5728,7 @@
     "age": {
       "badge": "React 및 Node.js를 사용하여 웹 앱 과제 프로젝트와 관련된 논의가 필요합니다.",
       "legend": "불필요한 요구사항",
-      "hint": "당신의 나이대",
+      "hint": "이 determines how Hugo 스토리지가 당신의 데이터를 처리하고 보호하는 방식입니다. 문서 제출이 필요하지 않습니다 — 진실을 대답하시기 바랍니다.",
       "teenTitle": "이것은 Hugo Studio가 당신의 데이터를 처리하고 보호하는 방법을 결정합니다. 문서 제출이 필요하지 않습니다 — 진실하게 대답하십시오.",
       "teenRules": {
         "supervision": "대통령과 부모님의 지시와 감독 아래 진행해주세요.",
@@ -5306,7 +5767,7 @@
       "badge": "소음이 가득한 우주를 떠나보세요. 각 웹사이트는 하나의 독특한 별입니다.",
       "title1": "핵심",
       "title2": "브랜드",
-      "desc": " nucleus",
+      "desc": "Hugo 스테이지의 우주 중심에는 6색 블랜드를 결합하는 흰색 로고가 있습니다. 무한한 창의성과 혁신적 꿈을 강력하게 전달하는 강력한 메시지를 담고 있습니다.",
       "redBold": "호구 스토리의 우주의 중심에는 6색의 샤시가 모여 있는 로고가 있습니다. 이 로고는 무한한 창조와 혁신적 꿈을 강력하게 전달하는 강력한 메시지를 담고 있습니다: ",
       "redText": "빨강:",
       "orangeBold": "코드의 각 줄마다 불타오르는 열정, 진지한 애정과 충성심을 상징합니다.",
@@ -5329,7 +5790,7 @@
     "souls": {
       "badge": "The Souls",
       "title": " 코스미크 소울",
-      "desc": "애정 어린 우주선들이 호구 스토리의 6개 기본 가치를 지닌 것입니다.",
+      "desc": "애완한 우주선들이 Hugo 스테이디움의 6개 기본 가치를 들고 있습니다.",
       "values": [
         {
           "title": "의지",
@@ -5514,7 +5975,7 @@
     }
   },
   "studentBenefitsPage": {
-    "metaTitle": "귀하의 사랑스러운 개인 블로그 페이지 — 무료 12개월! | 호구 스토리",
+    "metaTitle": "Get Your Cute Personal Bio Page — Free 12 Months! | Hugo Studio",
     "metaDesc": "광고가 없는 아름다운 배식 포트폴리오 링크를 획득하세요. 속도, 맞춤형, 그리고 .edu 이메일 주소로 인해 무료입니다!",
     "backToServices": "서비스들로 돌아가기",
     "giftSpark": "스파크의 12개월 — 무상으로!",
@@ -5523,7 +5984,7 @@
     "marketValue": "기본 가격",
     "perYear": "/년",
     "marketPrice": "$20.99",
-    "giftToYou": "호구의 선물",
+    "giftToYou": "Hugo의 선물'",
     "giftPrice": "$0.99",
     "priceless": "— 무상의 가치!",
     "verificationTitle": "확인 및 청구您的火花！",
@@ -5564,6 +6025,165 @@
       "service": "가격은 베트남 동으로 표시되며 PayOS와 베트남 은행을 통해 결제됩니다.",
       "booking": "Hugo Studio는 베트남 내 프로젝트를 맡습니다. 예산은 동 기준이며 이메일이나 Zalo로 논의합니다.",
       "donate": "후원은 베트남 동으로 PayOS와 베트남 은행을 통해 이루어집니다."
+    },
+    "vietnameseContentOnly": {
+      "title": "학습 내용은 베트남어입니다.",
+      "course": "Study with Hugo의 수업은 저자가 베트남어로 작성했습니다. 화면은 번역되었지만 수업 내용은 아직 번역되지 않았습니다."
+    }
+  },
+  "paymentGateway": {
+    "dangChuanBiThong": "결제 정보 준비 중…",
+    "giaoDichKhongHop": "유효하지 않은 거래",
+    "lienKetKhongTon": "이 링크가 존재하지 않거나 만료되었습니다.",
+    "veTrangChu": "홈으로 가기",
+    "camOnBanDa": "당신의 지원에 감사드립니다.",
+    "thanhToanThanhCong": "결제 성공",
+    "thuCamOnVa": "Hugo 스타일러에게 이메일로 감사 메시지와 정보가 도착합니다.",
+    "giaoDichDaDuoc": "PayOS 거래를 확인했습니다.",
+    "soTien": "금액",
+    "ma": "코드",
+    "veHugoStudio": "Hugo Studio",
+    "giaoDichDaHuy": "거래 취소됨",
+    "banCoTheQuay": "Hugo 스타일러로 돌아가서 새로운 기부를 시작할 수 있습니다.",
+    "khoanUngHoTu": "자발적인 기부",
+    "yeuCauThanhToan": "결제 요청",
+    "noiDung": "참조: ",
+    "moUngDungNgan": "은행 앱을 열어주세요",
+    "chonAppNganHang": "이 폰에서 수신자, 금액 및 참조가 보내져; 자동 채우기로 표시된 앱은 바로 전화된 미리 채워진 이송 화면으로 이동합니다.",
+    "dungVietqrVoiMoi": "VieQR을 사용하세요",
+    "timUngDungNgan": "은행 앱을 찾으세요",
+    "timTenNganHang": "은행 검색...",
+    "tuDien": "자동 채우기",
+    "chuaTimThayApp": "이 목록에 없는 앱입니다. 당신의 은행을 사용하여 VieQR을 여전히 사용할 수 있습니다.",
+    "danhSachDayDu": "The full list could not be loaded. Use VietQR if your banking app is not shown.",
+    "khongThayAppDung": "베이징QR 코드가 표시되지 않았나요? VietQR을 사용해주세요.",
+    "thanhToanBang": "결제하기",
+    "heThongSeTai": "QR코드를 사진에서 스캔하고, 앱 내에서 확인한 후 결제를 확정하세요. 상세 정보는 여기에 있습니다.",
+    "mo": "열려",
+    "khaNangMoTruc": "애플리케이션의 개발자와 가상화폐 편의성에 따라 직접 열리는지 확인해 보세요.",
+    "soTaiKhoan": "계좌번호",
+    "noiDung2": "참조 번호",
+    "nguoiNhan": "수신자: ",
+    "nganHangDoiTac": "PayOS 파트너 은행",
+    "khongDongTrangCho": "Do not close this page until the transaction is confirmed. Hugo Studio only displays payment data returned by the PayOS API and never stores your banking credentials.",
+    "dangHuy": "취소",
+    "huyVaXoaGiao": "취소하고 거래를 삭제합니다.",
+    "maVietqrThanhToan": "VietQR 결제 코드",
+    "quetVietqr": " VietQR 스캔",
+    "moUngDungNgan2": "VietQR을 지원하는 은행 앱 또는 지갑을 열고, 금액을 확인한 후 이송하세요.",
+    "taiMaQr": "QR 코드 다운로드",
+    "saoChepNoiDung": "참조 복사"
+  },
+  "userGuide": {
+    "huongDanSuDung": "사용자 가이드"
+  },
+  "studentPricing": {
+    "banNhanDuoc": "당신이 얻는 것들",
+    "quayLaiDichVu": "서비스들로 돌아가기",
+    "dacQuyenNguoiHoc": "학생 혜택",
+    "dacQuyenBangGia": "학생용 혜택과 가격",
+    "xacMinhEmailTruong": "모든 계정 아래에서 학교 이메일 한번만 확인하면 12개월 무료 Bio 페이지와 모든 계획의 학생 가격이 해제됩니다.",
+    "chiCourseworkCuoiMon": "단기 과제만 제출하세요",
+    "khongDoAnChuyen": "캡스톤 프로젝트, 졸업 논문 또는 직접 작성하는 보고서는 제외됩니다.",
+    "banGiaoQuaGit": "Git을 통해 배포",
+    "linkRepoDeBan": "자신이 클론한 리포지토리 링크와 실행 지시사항, 코드 설명이 포함된 문서입니다.",
+    "giaCoDinhCo": "정해진 가격에 최대치가 설정됨",
+    "moiGoiGhiRo": "모든 계획은 그 경계를 명확히 표기하고 있으므로 중간에 나타나지 않습니다.",
+    "kiemDuyetTuDong": "자동 인증됨",
+    "khongCanGuiThe": "학생 카드는 필요 없습니다.",
+    "dangNhapBangGoogle": "Google 로그인",
+    "dungTaiKhoanGoogle": "학교의 Google 계정을 사용해주세요.",
+    "kiemTraEmailGiao": "학교 이메일 확인 중...",
+    "dangDoiChieuTen": "도메인 검사중...",
+    "tenMienEduAc": ".edu / .ac 도메인 유효합니다.",
+    "khongPhaiEmailTruong": "학교 이메일이 아닙니다 — 요청은 수동적으로 검토됩니다.",
+    "tuChayNgaySau": "로그인 후 즉시 실행됩니다.",
+    "moDacQuyenHssv": "학생 혜택을 열어둡니다.",
+    "bioMienPhi12": "12개월 무료 Bio와 학생 가격 적용",
+    "bioMienPhi122": "모든 계획 아래에서 학생 가격이 적용되는 12개월 무료 Bio",
+    "nhanTrangBioMien": "자유로운 12개월 Bio 페이지를 얻으세요.",
+    "emailCuaBanKhong": "Your email is not on a school domain. Send a photo of a valid student card matching your account name through the contact form, and I will review it by hand within 24 hours.",
+    "guiTheSinhVien": "학생 카드를 보내서 손으로 검토하십시오.",
+    "01BaiDuocCham": "01 — 평가된 작업",
+    "daXacMinhGia": "확인됨 — 학생 가격이 적용되었습니다.",
+    "xacMinhEmailTruong2": "학교 이메일을 인증하여 계획을 예약하세요.",
+    "baiNangCaoReact": "고급 작업 (React, Node, 전문형)?",
+    "minhKhuyenBanTu": "저는 당신이 스스로 배우도록 더 좋습니다. 이유와 어떻게 도와드릴지 보시면 됩니다, 터치를 누르세요.",
+    "toiMucReactRest": "React 및 REST API에 도달할 때 학점을 결정하는 것은 더 이상 코드가 실행되는지 여부가 아니라 왜 실행되는지를 이해하는지 여부입니다. 이것은 또한 당신이 면접에서 구매해야 하는 것과 같습니다 — 그것은 당신이 스스로 보유해야 했던 것입니다.",
+    "nenMinhUuTien": "따라서 위의 세 가지 간단한 계획이 먼저 있습니다. 저는 전문적인 작업을 수행하지만 드물며, 필요할 때만 사용합니다 — 무료 웹 IDE에서 직접 배우고, 도움이 필요한 시점에 120.000đ 진단 및 수정 계획이 준비되어 있습니다.",
+    "soTheThreeSimpler": "따라서 위의 세 가지 간단한 계획이 먼저 있습니다. 저는 전문적인 작업을 수행하지만 드물며, 필요할 때만 사용합니다 — 무료 웹 IDE에서 직접 배우고, 도움이 필요한 시점에 120.000đ 진단 및 수정 계획이 준비되어 있습니다.",
+    "tuHocBangWeb": "자신으로부터 배웁니다.",
+    "02KhongDinhDiem": "02 — 당신의 학점을 닦는 것",
+    "quaHssv": "학생 선물",
+    "bioTuDung": "자신만을 위한 Bio를 만듭니다",
+    "banTuLamTrong": "자신만이 10분 안에 만듭니다",
+    "0d": "0đ",
+    "12Thang": "/ 12개월",
+    "chiCanEmailTruong": "위에 위임된 학교 이메일만 확인하면 됩니다. 은행 카드가 필요하지 않습니다.",
+    "trinhSoanThaoTrong": "계정 내 에디터를 변경할 수 있습니다.",
+    "chonTuCacTheme": "기본 제공 테마와 색상 팔레트 중에서 선택해 주세요.",
+    "lienKetMangXa": "소셜 링크, 프로필 사진, 짧은 소개",
+    "duongDanRiengHugowishpax": "당신의 주소: hugowishpax.studio/bio/your-name",
+    "moTrinhSoanThao": "바이오 에디터 열기",
+    "xacMinhOTren": "위에 위임된 후 이를 사용하여 해당을 확인해주세요.",
+    "03QuyTrinh": "03 — 어떻게 작동하는지",
+    "banNhanDuocGi": "당신에게 제공되는 것, 단계별로",
+    "tuLucXacMinh": "From verification to handover — everything is agreed up front, with nothing added later.",
+    "minhKhongNhanKe": "대화와 송신 — 전부 앞에서 합의하고, 나중에 추가되지 않아요."
+  },
+  "saveE": {
+    "impact": {
+      "bieuTrungCheDo": "이건 받아드릴 수 없어요. 돈을 더 주지 않는 한 말이죠.",
+      "dienThoaiNenSang": "환경 모드 로고",
+      "nenSang": "폰 화면이 밝은 배경에서 검은 배경으로 전환하며 흰색 글씨가 나옵니다.",
+      "nenDen": "Black background",
+      "cotSoSanh720": "비교 열: 정상 모드에서 720 게시물당 시각, 환경 모드에서는 24개",
+      "720Bai": "720 개수의 게시물",
+      "cheDoThuong": "정상 모드",
+      "6Luot120Bai": "6 루프 × 120 개수의 게시물",
+      "24Bai": "24 백",
+      "cheDoTietKiem": "환경 모드",
+      "1Luot24Bai": "1 루프 × 24 기사",
+      "luoiDiemAnhNen": "픽셀 그리드: 밝은 배경에서 픽셀이 켜지고, 검은색 배경에서는 대부분 꺼짐",
+      "2424DiemAnh": "24/24 픽셀이 켜져 있음",
+      "324DiemAnh": "3/24 픽셀이 켜져 있음",
+      "viSaoCheDo": "이 모드가 실제로 얼마나 절약하는지",
+      "soLieuDoTu": "수단에서 측정된 숫자들; 나머지는 아래 제시한 연구를 참조합니다.",
+      "nguonThamKhao": "참조",
+      "cacConSoTren": "이 숫자들은 추정치이며, 장치에 따라 화면 밝기와 지역 네트워크 인프라에 따라 범위가 다릅니다.\n          너무 약속하지 않기 위해 정확한 숫자 대신 범위를 제공합니다."
+    },
+    "account": {
+      "theThanhVien": "회원 카드",
+      "thanhVienHugo": "성원 Hugo",
+      "chuaLayDuocSo": "계정 잔액을 로드할 수 없습니다. 다시 페이지를 열고 시도해 주세요.",
+      "viJoy": "JOY의 계정",
+      "maQrNhanJoy": "JOY 코드 받기",
+      "layMaMoi": "새로운 코드 받기",
+      "duaMaNayCho": "Show this code to whoever is sending you JOY. It lasts about 2 minutes — after that press\n                  “Get a new code”.",
+      "diemDanhNhanJoy": "대기 ${JOY} 확인",
+      "homNayChuaDiem": "오늘 체크인 하지 않았습니다。",
+      "homNayDaDiem": "오늘 체크인",
+      "chuoiLienTiep": " streak:",
+      "ngay": "날짜",
+      "diemDanhKhongThanh": "로그인 실패.",
+      "diemDanh": "로그인",
+      "lichSuGiaoDich": "거래 기록",
+      "chuaCoGiaoDich": "아직은 거래가 없습니다.",
+      "chuyenJoy": "JOY 전송",
+      "soDienThoaiNguoi": "수신자 전화번호",
+      "soJoy": "JOY 금액",
+      "maPinGiaoDich": "거래 키보드 패턴",
+      "dangChuyen": "송신 중…",
+      "thongTinCaNhan": "개인 정보",
+      "tenHienThi": "Display name",
+      "soDienThoai": "전화번호",
+      "truongDonVi": "학교 / 조직",
+      "dangLuu": "저장 중...",
+      "luuThongTin": "Save details",
+      "anhDaiDienAnh": "프로필 사진, 커버 이미지 및 Bio 페이지 디자인이 정상 모드에서 수정됩니다. — 이는 가장 무거운 이미지 업로드이므로 여기에는 포함되지 않습니다.",
+      "caiDat": "설정",
+      "dangXuat": "로그아웃",
+      "batTatVaMuc": "전환과 '자동' 수준은 녹색 탭에 있습니다. 이 모드에서 비활성화: AI 보조, 지도, 스토어, 앱 라이브러리, 동영상 배경 및 모든 반복 서버 팔로."
     }
   }
 }

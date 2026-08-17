@@ -2,14 +2,18 @@ import { useTranslation } from "react-i18next";
 import { languageCode } from "../../i18n/languages";
 
 /**
- * Ghi chú cho phần chỉ phục vụ được ở Việt Nam: báo giá bằng đồng, thanh toán
- * qua PayOS và ngân hàng trong nước, trao đổi qua Zalo.
+ * Ghi chú cho phần chỉ dùng được ở Việt Nam hoặc chỉ có tiếng Việt.
+ *
+ * `group` chọn nhóm chữ: "regionVietnamOnly" cho dịch vụ tính bằng đồng và thu
+ * qua PayOS, "vietnameseContentOnly" cho nội dung do tác giả viết bằng tiếng
+ * Việt (giáo trình, tư vấn). Hai việc khác nhau nên hai câu khác nhau, nhưng
+ * cùng một khối hiển thị.
  *
  * Chỉ hiện với người đọc ngôn ngữ khác — với người Việt thì đó là điều hiển
  * nhiên, thêm dòng này chỉ tổ rườm rà. Đặt ngay dưới khối liên quan để người
  * đọc thấy trước khi kịp tưởng dịch vụ có ở nước mình.
  */
-export default function RegionNote({ scope = "service", className = "" }) {
+export default function RegionNote({ group = "regionVietnamOnly", scope = "service", className = "" }) {
   const { t, i18n } = useTranslation();
   if (languageCode(i18n.resolvedLanguage || i18n.language) === "vi") return null;
 
@@ -22,8 +26,8 @@ export default function RegionNote({ scope = "service", className = "" }) {
         public
       </span>
       <span>
-        <strong className="font-semibold text-foreground">{t("common.regionVietnamOnly.title")}</strong>{" "}
-        {t(`common.regionVietnamOnly.${scope}`)}
+        <strong className="font-semibold text-foreground">{t(`common.${group}.title`)}</strong>{" "}
+        {t(`common.${group}.${scope}`)}
       </span>
     </p>
   );

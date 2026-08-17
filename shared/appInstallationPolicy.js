@@ -31,8 +31,11 @@ export class AppInstallationPolicy {
     return !this.isRequired(appId);
   }
 
+  // App đã khai tử vẫn là "optional", nhưng `normalizeInstalled` lọc nó ra —
+  // nên nếu chỗ gọi tin vào `canInstall` thì nút Tải bấm xong sẽ không có gì
+  // xảy ra. Chặn ngay tại đây để mọi màn cùng hiểu một luật.
   canInstall(appId) {
-    return Boolean(appId) && this.isOptional(appId);
+    return Boolean(appId) && this.isOptional(appId) && !RETIRED_APP_SET.has(String(appId));
   }
 
   canUninstall(appId) {

@@ -1,5 +1,7 @@
 import InAppNotification from '../models/InAppNotification.js';
 import { renderNotification } from '../../shared/notificationText.js';
+import { denomKey } from '../../shared/joyCurrency.js';
+import Bio from '../models/Bio.js';
 import { sendLocalizedPush } from './pushNotifier.js';
 
 /**
@@ -32,7 +34,11 @@ export async function notifyMember({
 }) {
   if (!email) return null;
 
-  const fallback = renderNotification(key, params, 'vi');
+  // Bản lưu trong DB chỉ là DỰ PHÒNG cho thông báo cũ — client dựng lại từ
+  // khoá + tham số theo ngôn ngữ và đơn vị của người đọc. Vẫn lưu theo đúng đơn
+  // vị của chủ tài khoản để bản dự phòng không nói một con số khác.
+  const owner = await Bio.findOne({ email }).select('joyDenom').lean().catch(() => null);
+  const fallback = renderNotification(key, params, 'vi', denomKey(owner?.joyDenom));
   if (!fallback) throw new Error(`UNKNOWN_NOTIFICATION_KEY: ${key}`);
 
   const notification = await InAppNotification.create({

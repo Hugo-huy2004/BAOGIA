@@ -38,6 +38,16 @@ const BookingSchema = new mongoose.Schema(
       default: '',
       maxlength: 1600,
     },
+    // Mã ưu đãi khách nhập lúc đặt lịch. Server đã kiểm và đánh dấu đã dùng
+    // trước khi lưu, nên hai ô này là kết quả đã xác thực — không phải chữ khách gõ.
+    voucherCode: {
+      type: String,
+      default: ''
+    },
+    voucherPercent: {
+      type: Number,
+      default: 0
+    },
     contacted: {
       type: Boolean,
       default: false

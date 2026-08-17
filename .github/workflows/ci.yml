@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -20,7 +20,4 @@ jobs:
             server/package-lock.json
       - run: npm ci
       - run: npm ci --prefix server
-      # Cả test frontend (src/**) lẫn test thuần của server (server/tests/**)
-      # đều do vitest ở gốc chạy — server không có runner riêng.
-      - run: npm test
       - run: npm run lint

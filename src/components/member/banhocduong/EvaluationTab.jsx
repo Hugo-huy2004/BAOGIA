@@ -12,6 +12,7 @@ import { computeWeeklyDigest, checkPeriodicAssessmentDue } from "./utils/weeklyD
 
 // ── Big Five Radar Chart Component ───────────────────────────────────────────
 function BigFiveRadarChart({ traits, maxScore = 5 }) {
+  const { t } = useTranslation();
   const size = 170;
   const center = size / 2;
   const radius = center - 24;

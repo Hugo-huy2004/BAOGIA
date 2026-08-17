@@ -8,7 +8,26 @@
  * joy = baseJoy + floor((score - threshold) × perPoint)
  *
  * Minimum 1 JOY for any game (even score 0 on crash).
+ *
+ * calcJoy() trả về JOY GỐC, chưa nhân hệ số sự kiện — nơi hiển thị tự nhân bằng
+ * getEventMultiplier() để còn khoe được "gốc → sau nhân". Nhân sẵn ở đây thì
+ * không ai tách lại được con số gốc nữa.
  */
+
+// ─── Saturday 2× JOY Event ──────────────────────────────────────────────────
+// Every Saturday (Vietnam time, UTC+7) all arcade games award 2× JOY —
+// commemorating the Resurrection and salvation of the Son of God.
+export const EVENT_MULTIPLIER = 2;
+
+export function getEventMultiplier(date = new Date()) {
+  const vnDay = new Date(date.getTime() + 7 * 60 * 60 * 1000).getUTCDay();
+  if (vnDay === 6) return EVENT_MULTIPLIER; // Saturday
+  return 1;
+}
+
+export function isEventActive() {
+  return getEventMultiplier() > 1;
+}
 
 // ─── Per-game tiered formulas ─────────────────────────────────────
 // [scoreThreshold, baseJoy, joyPerPointAboveThreshold]
@@ -63,12 +82,9 @@ const JOY_TIERS = {
 export function calcJoy(game, score) {
   const tiers = JOY_TIERS[game];
   if (!tiers) return Math.max(1, Math.floor(score * 0.01));
-
-  // Find the highest tier whose threshold ≤ score
   let baseJoy = 1;
   let perPoint = 0;
   let threshold = 0;
-
   for (let i = tiers.length - 1; i >= 0; i--) {
     if (score >= tiers[i][0]) {
       threshold = tiers[i][0];
@@ -77,7 +93,6 @@ export function calcJoy(game, score) {
       break;
     }
   }
-
   return Math.max(1, Math.floor(baseJoy + (score - threshold) * perPoint));
 }
 

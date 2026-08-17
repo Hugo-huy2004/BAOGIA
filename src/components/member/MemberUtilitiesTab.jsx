@@ -9,6 +9,7 @@ const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard")
 const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
 const BanhocduongTab = lazy(() => import("./banhocduong/BanhocduongTab"));
 const HugoTeamTab = lazy(() => import("./HugoTeamTab"));
+const HugoProfileTab = lazy(() => import("./HugoProfileTab"));
 const MemberRadioTab = lazy(() => import("./MemberRadioTab"));
 const HugoArcadeTab = lazy(() => import("./arcade/HugoArcadeTab"));
 const MemberAuraTab = lazy(() => import("./MemberAuraTab"));
@@ -16,8 +17,9 @@ const MemberInfoVersionTab = lazy(() => import("./MemberInfoVersionTab"));
 const BioPreviewTab = lazy(() => import("./BioPreviewTab"));
 const HugoStoreTab = lazy(() => import("./hugoStore/HugoStoreTab"));
 const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
+const HugoWalletApp = lazy(() => import("./wallet/HugoWalletApp"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -38,7 +40,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = ["psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team"].includes(selectedUtility);
+  const isFullscreenLikeUtility = ["joy_wallet", "psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team"].includes(selectedUtility);
 
   // Chặn ở đây — chỗ app được render — nên mọi đường vào đều bị chặn như nhau:
   // icon ngoài Home, Thư viện, Spotlight, Hugo Store, liên kết dán tay, và cả
@@ -102,6 +104,19 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
+      {/* Ví JOY — ứng dụng riêng, toàn màn hình. Mọi panel bên trong là component
+          dùng chung với trang Tài khoản, nên không có hai bản ví trôi lệch nhau. */}
+      {selectedUtility === "joy_wallet" && (
+        <HugoWalletApp
+          bio={bio}
+          publicLink={publicLink}
+          onBack={() => onSelectUtility(null)}
+          showToast={showToast}
+          onBioUpdate={onBioUpdate}
+          onOpenParticleModal={onOpenParticleModal}
+        />
+      )}
+
       {/* Study with Hugo — cổng học tập chung. Hai ID cũ vẫn mở đúng nội dung
           để bookmark và liên kết đã chia sẻ không bị hỏng. */}
       {["study", "ide", "hugoso"].includes(selectedUtility) && (
@@ -112,6 +127,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           onBioUpdate={onBioUpdate}
           coderLessonId={ideLessonId}
         />
+      )}
+
+      {/* Hugo Profile — hồ sơ năng lực có kiểm chứng, gắn vào trang Bio */}
+      {selectedUtility === "profile" && (
+        <HugoProfileTab onBack={() => onSelectUtility(null)} publicLink={publicLink} />
       )}
 
       {/* Hugo Team — Recruitment */}

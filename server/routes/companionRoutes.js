@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import CompanionHistory from '../models/CompanionHistory.js';
 import Bio from '../models/Bio.js';
+import CheckinRecord from '../models/CheckinRecord.js';
+import { TREE_BONUS_JOY, TREE_STAGES } from '../../shared/joyPrices.js';
 import SleepLog from '../models/SleepLog.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import ScheduledPush from '../models/ScheduledPush.js';
@@ -628,12 +630,18 @@ router.post('/report/weekly', requireMember, async (req, res) => {
 
 // Base rewards x3. Expanded beyond the original 3 (all psychology-only) to
 // give members missions across other parts of the app too, per request.
+// Năm nhiệm vụ đầu nằm trong HugoPSY — app đó chỉ mở cho người dùng tiếng Việt
+// (xem psychologyGate), nên người dùng ngôn ngữ khác trước đây gần như không có
+// nhiệm vụ nào để làm. Hai nhiệm vụ cuối kiểm được từ dữ liệu chung nên MỌI
+// thành viên đều làm được.
 const DAILY_CHALLENGES = {
   breath: { amount: 45, name: 'Hít thở 4-7-8' },
   chat: { amount: 45, name: 'Trò chuyện cùng AI' },
   assessment: { amount: 60, name: 'Làm test tâm lý' },
   sleep: { amount: 30, name: 'Ghi nhật ký giấc ngủ' },
-  arcade: { amount: 25, name: 'Chơi 1 trận tại HugoArcade' }
+  arcade: { amount: 25, name: 'Chơi 1 trận tại HugoArcade' },
+  checkin: { amount: 20, name: 'Điểm danh hôm nay' },
+  focus: { amount: 30, name: 'Một phiên tập trung' }
 };
 
 // Shared by GET /challenges-status and POST /claim-challenge so the "did the
@@ -645,6 +653,17 @@ async function isChallengeCompletedToday(historyDoc, challengeId, todayStr, emai
   if (challengeId === 'sleep') {
     const log = await SleepLog.findOne({ email, date: todayStr });
     return Boolean(log);
+  }
+  // Điểm danh: CheckinRecord ghi ngày nhận gần nhất.
+  if (challengeId === 'checkin') {
+    const record = await CheckinRecord.findOne({ email }).select('lastCheckinDate').lean();
+    return record?.lastCheckinDate === todayStr;
+  }
+  // Tập trung: Bio.focusJoyDate được đặt khi phiên tập trung được thưởng JOY.
+  if (challengeId === 'focus') {
+    const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] })
+      .select('focusJoyDate').lean();
+    return bio?.focusJoyDate === todayStr;
   }
   if (challengeId === 'arcade') {
     const startOfDay = new Date(`${todayStr}T00:00:00.000Z`);
@@ -709,6 +728,49 @@ router.get('/challenges-status', requireMember, async (req, res) => {
 });
 
 // POST: Claim daily challenge reward
+// POST /api/companion/claim-tree-bonus — làm xong TẤT CẢ nhiệm vụ trong ngày thì
+// cây lớn hết và được thưởng thêm. Mỗi ngày đúng một lần: mốc ngày ghi vào
+// `treeBonusDate`, và điều kiện `$ne: today` trong chính lệnh update là thứ chặn
+// hai request song song nhận hai lần.
+router.post('/claim-tree-bonus', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const ids = Object.keys(DAILY_CHALLENGES);
+
+    const doc = await CompanionHistory.findOne({ email });
+    const claimed = doc?.activeSecondsDate === todayStr ? (doc.claimedChallengesToday || []) : [];
+    const missing = ids.filter((id) => !claimed.includes(id));
+    if (missing.length) {
+      return res.status(400).json({ error: 'Chưa hoàn thành hết nhiệm vụ hôm nay.', missing });
+    }
+
+    const claimedNow = await CompanionHistory.findOneAndUpdate(
+      { email, treeBonusDate: { $ne: todayStr } },
+      { $set: { treeBonusDate: todayStr } },
+      { new: true },
+    );
+    if (!claimedNow) {
+      return res.status(409).json({ error: 'Hôm nay đã nhận thưởng cây rồi.', alreadyClaimed: true });
+    }
+
+    try {
+      const { balance } = await awardJoy(
+        email, TREE_BONUS_JOY, 'daily_tree_bonus',
+        `Cây nhiệm vụ trưởng thành — hoàn thành ${ids.length}/${ids.length} nhiệm vụ`,
+      );
+      res.json({ awarded: TREE_BONUS_JOY, balance, stages: TREE_STAGES.length });
+    } catch (error) {
+      // Cộng JOY lỗi thì phải trả lại mốc ngày, không thì mất luôn phần thưởng.
+      await CompanionHistory.updateOne({ email }, { $set: { treeBonusDate: '' } });
+      throw error;
+    }
+  } catch (error) {
+    console.error('[companion/claim-tree-bonus]', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/claim-challenge', requireMember, async (req, res) => {
   try {
     const { challengeId } = req.body;

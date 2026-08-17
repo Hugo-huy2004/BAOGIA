@@ -7,6 +7,7 @@ import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import cloudinaryUtil from '../utils/cloudinary.js';
 import { calcExchangeTotal, EXCHANGE_TAX_RATE } from '../utils/featureSubscriptionService.js';
 import { notifyMember } from '../utils/notifyMember.js';
+import { applyProductGrant } from '../utils/productGrant.js';
 
 const router = express.Router();
 
@@ -180,6 +181,14 @@ router.post('/purchase', requireMember, async (req, res) => {
       return res.status(400).json({ error: `Số dư JOY không đủ. Cần ${totalCost} JOY (gồm ${taxes} JOY phí sáng tạo).` });
     }
 
+    // Cấp hàng TRƯỚC khi trừ JOY: sản phẩm không cấp được gì thì không bán, chứ
+    // không trừ tiền rồi im lặng (chưa lưu gì ở nhánh này nên bio giữ nguyên).
+    const grant = applyProductGrant(bio, product);
+    if (!grant) {
+      return res.status(400).json({
+        error: `"${product.name}" chưa được cấu hình để cấp quyền lợi nào. Chưa trừ JOY của bạn — báo Hugo Studio chỉnh lại sản phẩm này.`,
+      });
+    }
     const { balance } = await awardJoy(
       email,
       -totalCost,
@@ -187,48 +196,6 @@ router.post('/purchase', requireMember, async (req, res) => {
       `Mua "${product.name}" (giá ${product.priceJoy} JOY + ${taxes} JOY phí sáng tạo)`,
       { notify: false, bioDoc: bio, skipSave: true }
     );
-
-    // Type-specific fulfillment, applied to the same Bio doc before the single save below.
-    let fulfillmentNote = '';
-    if (product.productType === 'system_validity' && product.extendDays > 0) {
-      let expires = new Date(bio.expiresAt);
-      if (isNaN(expires.getTime()) || expires.getTime() < Date.now()) expires = new Date();
-      expires.setDate(expires.getDate() + product.extendDays);
-      bio.expiresAt = expires;
-      bio.history.push({
-        type: 'utility_purchase',
-        icon: 'event_available',
-        title: 'Gia hạn sử dụng',
-        detail: `+${product.extendDays} ngày hạn sử dụng từ "${product.name}"`,
-        timestamp: new Date()
-      });
-      if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
-      fulfillmentNote = ` (+${product.extendDays} ngày HSD)`;
-    } else if (product.productType === 'psy_study_tokens' && product.tokenAmount > 0) {
-      if (product.tokenType === 'call') {
-        bio.bonusCallTokens = (bio.bonusCallTokens || 0) + product.tokenAmount;
-      } else {
-        bio.bonusChatTokens = (bio.bonusChatTokens || 0) + product.tokenAmount;
-      }
-      fulfillmentNote = ` (+${product.tokenAmount} token ${product.tokenType === 'call' ? 'gọi thoại' : 'chat'})`;
-    } else if (product.productType === 'radio_time' && product.radioMinutes > 0) {
-      if (!bio.radioTokens) {
-        bio.radioTokens = { weeklyFreeMinutes: 300, weeklyUsedMinutes: 0, weeklyResetAt: null, purchasedMinutes: 0 };
-      }
-      bio.radioTokens.purchasedMinutes = (bio.radioTokens.purchasedMinutes || 0) + product.radioMinutes;
-      const hours = Math.floor(product.radioMinutes / 60);
-      const mins = product.radioMinutes % 60;
-      const timeStr = mins > 0 ? `${hours}h${mins}m` : `${hours}h`;
-      fulfillmentNote = ` (+${timeStr} thời lượng radio)`;
-      bio.history.push({
-        type: 'utility_purchase',
-        icon: 'radio',
-        title: 'Mua thời lượng HugoRadio',
-        detail: `+${timeStr} nghe radio từ "${product.name}"`,
-        timestamp: new Date()
-      });
-      if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
-    }
 
     await bio.save();
 
@@ -263,6 +230,7 @@ router.post('/purchase', requireMember, async (req, res) => {
     res.json({
       success: true,
       order,
+      granted: grant,
       newBalance: balance,
       bio: {
         bonusChatTokens: bio.bonusChatTokens,

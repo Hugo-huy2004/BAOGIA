@@ -29,6 +29,12 @@ import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
+import { joyText } from "../../../lib/joyDisplay";
+
+// Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví.
+const MAINTENANCE_PRICE = 50;
+const RETAKE_PRICE = 250;
+
 
 const MemberIdeTab = lazy(() => import("../MemberIdeTab"));
 
@@ -343,8 +349,8 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
   const payMaintenance = async () => {
     const ok = await notify.confirm({
       title: "Gia hạn lộ trình Phát triển Web",
-      message: "Dùng 50 JOY (+10% phí sáng tạo) để gia hạn 30 ngày quyền truy cập học tập?",
-      confirmText: "Gia hạn 50 JOY"
+      message: `Dùng ${joyText(MAINTENANCE_PRICE)} (+10% phí sáng tạo) để gia hạn 30 ngày quyền truy cập học tập?`,
+      confirmText: `Gia hạn ${joyText(MAINTENANCE_PRICE)}`
     });
     if (!ok) return;
     try {
@@ -403,7 +409,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
           <span className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center"><GraduationCap className="w-3.5 h-3.5 text-foreground" /></span>
           Lượt thi kiểm tra
         </h3>
-        <p className="text-[10.5px] text-muted-foreground leading-4 -mt-1">Mỗi bài thi có 1 lượt trong gói. Thi lại tốn 250 JOY/lượt.</p>
+        <p className="text-[10.5px] text-muted-foreground leading-4 -mt-1">Mỗi bài thi có 1 lượt trong gói. Thi lại tốn {joyText(RETAKE_PRICE)}/lượt.</p>
         <div className="space-y-1.5">
           {examLessons.map((exam) => {
             const used = Number(attempts[exam.id] || 0);
@@ -507,7 +513,7 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
               onClick={payMaintenance}
               className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-primary text-white text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all shadow-sm"
             >
-              <RefreshCw className="w-3 h-3" /> 50 JOY
+              <RefreshCw className="w-3 h-3" /> {joyText(MAINTENANCE_PRICE)}
             </button>
           </div>
         )}

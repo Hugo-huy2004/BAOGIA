@@ -315,6 +315,68 @@ const BioSchema = new mongoose.Schema(
       default: 0,
       min: 0
     },
+    // Ngôn ngữ chính người dùng chọn lúc onboarding. Lưu ở server vì phần dịch
+    // thông báo push và phần đơn vị JOY đều cần biết, không thể tin localStorage.
+    language: {
+      type: String,
+      default: ''
+    },
+    // Đơn vị JOY của tài khoản (khoá vào shared/joyCurrency.js: 'vi' → JOYmi…).
+    //
+    // CHỌN MỘT LẦN RỒI CỐ ĐỊNH — kể cả sau này đổi ngôn ngữ giao diện. Đây là
+    // chống gian lận, không phải chống tiện: phí đổi đơn vị 15% khi gửi xuyên
+    // đơn vị chỉ có nghĩa nếu đơn vị không đổi được tuỳ ý. Ai cũng đổi được đơn
+    // vị thì chỉ cần đổi cho khớp người nhận trước khi gửi là né sạch phí.
+    // `applyProfileValues` bỏ qua mục đã có giá trị, nên trường này write-once
+    // mà không cần khoá riêng.
+    joyDenom: {
+      type: String,
+      default: ''
+    },
+    // JOYlater — mở khoá trước, trả bằng thu nhập ngày. MỘT khoản một lúc:
+    // `outstanding > 0` là đang nợ. Không có trường "hạn chót" vì thiết kế không
+    // có hạn chót — nợ tự trừ dần từ mỗi lần nhận JOY (xem shared/joyLater.js).
+    joyLoan: {
+      principal:   { type: Number, default: 0, min: 0 },
+      fee:         { type: Number, default: 0, min: 0 },
+      outstanding: { type: Number, default: 0, min: 0 },
+      // Số đợt đã chọn lúc mở. Khoản vay cũ không có trường này nên mặc định 1
+      // — đúng với cách chúng đã hoạt động: trả một lần.
+      installments: { type: Number, default: 1, min: 1 },
+      // Tổng đã hoàn, cộng dồn. Cần lưu riêng chứ không suy từ `outstanding`:
+      // khoản trễ hạn làm outstanding TĂNG, nên `total - outstanding` không còn
+      // là số đã hoàn nữa, mà lịch đợt lại phải soi đúng con số đó.
+      paid: { type: Number, default: 0, min: 0 },
+      // Khoản trễ hạn đã cộng, cộng dồn. Tách khỏi `fee` để phiếu chi tiết nói
+      // rõ đâu là phần chốt lúc mở, đâu là phần phát sinh do trễ.
+      penalty: { type: Number, default: 0, min: 0 },
+      // Ngày tới hạn từng đợt, chốt lúc mở (xem dueSchedule).
+      dueAt: { type: [Date], default: [] },
+      // Chỉ số (0-based) các đợt ĐÃ tính khoản trễ — mỗi đợt chỉ tính một lần.
+      penalized: { type: [Number], default: [] },
+      openedAt:    { type: Date, default: null },
+      repaidAt:    { type: Date, default: null },
+      // Món đã mở bằng khoản vay — để đối soát và hiện lại trong ví.
+      itemLabel:   { type: String, default: '' },
+      itemKey:     { type: String, default: '' },
+    },
+    // Sổ tay các lượt mở trước, ghi lúc MỞ. `joyLoan` ở trên chỉ giữ lượt đang
+    // chạy và bị ghi đè mỗi lần mở lượt mới, nên không có chỗ này thì lượt đã
+    // xong biến mất khỏi lịch sử. Chỉ lưu phần KHÔNG suy được từ sổ cái JOY
+    // (tách gốc/cộng thêm, số đợt); còn từng lần hoàn thì sổ cái đã có đủ.
+    // Giữ 20 lượt gần nhất — đủ để đối soát, không phình vô hạn.
+    joyLoanHistory: {
+      type: [{
+        principal:    { type: Number, default: 0 },
+        fee:          { type: Number, default: 0 },
+        total:        { type: Number, default: 0 },
+        installments: { type: Number, default: 1 },
+        itemLabel:    { type: String, default: '' },
+        itemKey:      { type: String, default: '' },
+        openedAt:     { type: Date, default: Date.now },
+      }],
+      default: [],
+    },
     referralCode: {
       type: String,
       unique: true,
@@ -419,6 +481,12 @@ const BioSchema = new mongoose.Schema(
     activePortalTheme: {
       type: String,
       default: 'default'
+    },
+    // Hugo Profile: thành viên tự bật mới hiện hồ sơ năng lực trên trang Bio
+    // công khai. Tách khỏi hạn thuê để tắt/bật không làm mất hạn đã trả.
+    profilePublic: {
+      type: Boolean,
+      default: false
     },
     installedUtilities: {
       type: [String],

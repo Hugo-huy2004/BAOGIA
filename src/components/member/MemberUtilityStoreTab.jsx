@@ -1,19 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { exchangeTotal, exchangeFeeBreakdown } from "../../../shared/joyPrices";
 import JoyCoinBadge from "../shared/JoyCoinBadge";
-import { localeForLanguage } from "../../i18n/languages";
+import { useJoy } from "../../lib/joyDisplay";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBioUpdate, showToast }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [buyingId, setBuyingId] = useState(null);
   const [confirmProduct, setConfirmProduct] = useState(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
-  const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
+  const joy = useJoy();
   const categoryLabels = {
     all: t("memberPortal.joy.store.categories.all"),
     general: t("memberPortal.joy.store.categories.general"),
@@ -149,7 +150,7 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
       // tấm panel hẹp. Hai cột trên điện thoại, ba cột khi panel đủ rộng.
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
       {filteredProducts.map(product => {
-        const insufficient = balance < (product.priceJoy + Math.floor(product.priceJoy * 0.09));
+        const insufficient = balance < (product.priceJoy + exchangeTotal(product.priceJoy).tax);
         const outOfStock = product.stock !== -1 && product.stock <= 0;
         const lowStock = product.stock !== -1 && product.stock > 0 && product.stock <= 5;
         const perk = perkLabel(product);
@@ -246,25 +247,25 @@ export default function MemberUtilityStoreTab({ bio, balance, onPurchased, onBio
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] font-medium text-zinc-500">{t("memberPortal.joy.store.fulfillmentFee")}</span>
-                <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
+                <span className="text-xs font-medium text-foreground/80">+{joy.text(exchangeFeeBreakdown(confirmProduct.priceJoy).fulfillment)}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] font-medium text-zinc-500">{t("memberPortal.joy.store.supportFee")}</span>
-                <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.05)} JOY</span>
+                <span className="text-xs font-medium text-foreground/80">+{joy.text(exchangeFeeBreakdown(confirmProduct.priceJoy).support)}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-[10px] font-medium text-zinc-500">{t("memberPortal.joy.store.maintenanceFee")}</span>
-                <span className="text-xs font-medium text-foreground/80">+{Math.floor(confirmProduct.priceJoy * 0.02)} JOY</span>
+                <span className="text-xs font-medium text-foreground/80">+{joy.text(exchangeFeeBreakdown(confirmProduct.priceJoy).maintenance)}</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-dashed border-border">
                 <span className="text-[10px] font-black text-foreground/80 uppercase tracking-wider">{t("memberPortal.joy.store.totalPayment")}</span>
                 <span className="text-sm font-black text-foreground">
-                  {(confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09)).toLocaleString(locale)} JOY
+                  {joy.text(confirmProduct.priceJoy + exchangeTotal(confirmProduct.priceJoy).tax)}
                 </span>
               </div>
               <div className="flex items-center justify-between mt-2">
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{t("memberPortal.joy.store.confirmBalanceAfter")}</span>
-                <span className="text-xs font-bold text-muted-foreground">{(balance - (confirmProduct.priceJoy + Math.floor(confirmProduct.priceJoy * 0.09))).toLocaleString(locale)} JOY</span>
+                <span className="text-xs font-bold text-muted-foreground">{joy.text(balance - (confirmProduct.priceJoy + exchangeTotal(confirmProduct.priceJoy).tax))}</span>
               </div>
             </div>
 

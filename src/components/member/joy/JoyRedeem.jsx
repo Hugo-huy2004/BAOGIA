@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useJoyStore } from "../../../stores/joyStore";
 import { useTranslation } from "react-i18next";
 
+// Thưởng khi có người đăng ký bằng mã của bạn — server cấp đúng con số này.
+const REFERRAL_BONUS = 100;
+
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
 /** Bóc mã ra khỏi link mời (…?ref=ABC) rồi chuẩn hoá về chữ in. */
@@ -153,7 +156,7 @@ export default function JoyRedeem({ email, bio, showToast, onBioUpdate }) {
       <section className="space-y-2">
         <h3 className="px-1 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">{t("memberPortal.accountHub.redeemCopy.inviteFriends")}</h3>
         <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[15px] font-semibold text-foreground">{t("memberPortal.accountHub.redeemCopy.rewardPerFriend")}</p>
+          <p className="text-[15px] font-semibold text-foreground">{t("memberPortal.accountHub.redeemCopy.rewardPerFriend", { amount: REFERRAL_BONUS })}</p>
           <p className="mt-0.5 text-[12.5px] text-muted-foreground">{t("memberPortal.accountHub.redeemCopy.referralCount", { count: referralCount })}</p>
           <p className="mt-2 font-mono text-[19px] font-bold tracking-wider text-foreground">{referralCode || "—"}</p>
           <button

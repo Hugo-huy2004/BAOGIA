@@ -106,7 +106,7 @@ const MEMBER_ROOTS = [
 const PUBLIC_ROOTS = [
   "footer", "donationUI", "intro", "servicesPage", "faqPage",
   "bookingPage", "templatesPage", "loginPage", "customerPortal",
-  "studentBenefitsPage",
+  "studentBenefitsPage", "paymentGateway", "userGuide", "studentPricing", "saveE",
 ];
 const TRANSLATED_ROOTS = [...MEMBER_ROOTS, ...PUBLIC_ROOTS];
 // Small batches are intentionally faster overall on compact local models:
@@ -159,7 +159,12 @@ function chunkEntries(entries) {
 // Only money-shaped numbers are masked: a price such as 1.900.000 must survive
 // verbatim, while masking every single digit filled short strings with markers
 // the compact model then dropped, forcing endless retries.
-const PROTECTED = () => /{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w|\d[\d.,]*[.,]\d[\d.,]*|\d{3,}/g;
+// Tên thương hiệu đi cùng nhóm được bảo vệ. Model đã từng bẻ "Hugo" thành
+// "ฮูจู"/"ホグー" hoặc bỏ hẳn ở 399 khoá — mask thì nó không còn cơ hội đụng vào.
+// Bắt cả dạng ghép (HugoPSY, HugoArcade) bằng [A-Za-z]* ngay sau "Hugo", và
+// "Hugo Studio" phải đứng TRƯỚC trong nhánh: bảo vệ mỗi "Hugo" thì model dịch
+// nốt chữ "Studio" còn lại và cho ra "ホジスタ dio".
+const PROTECTED = () => /Hugo\s+(?:Studio|Arcade|Team|Profile|Radio|Store)|Hugo[A-Za-z]*|JOY|{{[^{}]+}}|<\/?[a-zA-Z][^>]*>|%\w|\d[\d.,]*[.,]\d[\d.,]*|\d{3,}/g;
 const tokens = (text) => [...String(text).matchAll(PROTECTED())].map((match) => match[0]).sort();
 const hasSameTokens = (source, target) => JSON.stringify(tokens(source)) === JSON.stringify(tokens(target));
 

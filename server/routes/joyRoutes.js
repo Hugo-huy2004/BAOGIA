@@ -3,8 +3,21 @@ import Bio from '../models/Bio.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { getRates, getRateHistory } from '../utils/joyRateService.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
+import {
+  HUGOSO_PRICES,
+  HUGOSO_BUNDLE_PRICE as SHARED_HUGOSO_BUNDLE_PRICE,
+  BIO_THEME_RENTAL_PRICE as SHARED_BIO_THEME_RENTAL_PRICE,
+  STUDY_LIFETIME,
+  TRANSFER_DAILY_CAP as SHARED_TRANSFER_DAILY_CAP,
+  TRANSFER_FEE_RATE as SHARED_TRANSFER_FEE_RATE,
+} from '../../shared/joyPrices.js';
+import {
+  joyLaterStatus, quoteLoan, openJoyLaterLoan, payOffJoyLater, payInstallment, joyLaterHistory,
+  hasOpenLoan,
+} from '../utils/joyLaterService.js';
 import { ownExchangeItems } from '../utils/appPlanService.js';
 import UtilityProduct from '../models/UtilityProduct.js';
 import UtilityOrder from '../models/UtilityOrder.js';
@@ -15,60 +28,62 @@ import { randomInt, randomBytes } from 'node:crypto';
 import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../utils/memberTier.js';
 import NodeCache from 'node-cache';
 import { isAuraThemeFree, isAuraThemeId } from '../../shared/auraThemes.js';
+import { denomKey, denomOf, transferBreakdown, DENOM_OPTIONS } from '../../shared/joyCurrency.js';
 
 const idempotencyCache = new NodeCache({ stdTTL: 300 });
 
-const BIO_THEME_RENTAL_PRICE = 150;
+const BIO_THEME_RENTAL_PRICE = SHARED_BIO_THEME_RENTAL_PRICE;
 const COMPRESS_CHARGE = 50;
 const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${index + 1}`);
 const CODER_QUIZ_LESSONS = new Set(['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']);
 const CODER_SCREENSHOT_LESSONS = new Set(['lesson10']);
 const HUGOSO_COURSES = Object.freeze({
-  calendar: { label: 'Google Calendar chuẩn công việc', priceJoy: 320 },
-  docs: { label: 'Google Docs & báo cáo Harvard', priceJoy: 450 },
-  sheets: { label: 'Google Sheets chuẩn vận hành', priceJoy: 520 },
-  gemini: { label: 'Google Gemini cho học tập & công việc', priceJoy: 390 }
+  calendar: { label: 'Google Calendar chuẩn công việc', priceJoy: HUGOSO_PRICES.calendar },
+  docs: { label: 'Google Docs & báo cáo Harvard', priceJoy: HUGOSO_PRICES.docs },
+  sheets: { label: 'Google Sheets chuẩn vận hành', priceJoy: HUGOSO_PRICES.sheets },
+  gemini: { label: 'Google Gemini cho học tập & công việc', priceJoy: HUGOSO_PRICES.gemini }
 });
-const HUGOSO_BUNDLE_PRICE = 1290;
+// Gói trọn bộ suy ra từ 4 phần (giảm 30%), không viết tay để khỏi lệch khi đổi giá.
+const HUGOSO_BUNDLE_PRICE = SHARED_HUGOSO_BUNDLE_PRICE;
 const HUGOSO_COURSE_IDS = Object.freeze(Object.keys(HUGOSO_COURSES));
 const CODER_STAGE_DEFINITIONS = {
   basic: {
     key: 'hugoCoderBasicLifetime',
     label: 'Chặng 1: Phản Xạ Cơ Bản',
-    priceJoy: 1500
+    priceJoy: STUDY_LIFETIME.basic
   },
   intermediate: {
     key: 'hugoCoderIntermediateLifetime',
     label: 'Chặng 2: Tư Duy Kiến Trúc',
-    priceJoy: 2600,
+    priceJoy: STUDY_LIFETIME.intermediate,
     previousTier: 'basic',
     requiredLesson: 'lesson10'
   },
   advanced: {
     key: 'hugoCoderAdvancedLifetime',
     label: 'Chặng 3: CTDL, Giải Thuật & Mật Mã',
-    priceJoy: 2600,
+    priceJoy: STUDY_LIFETIME.advanced,
     previousTier: 'intermediate',
     requiredLesson: 'lesson25'
   },
   security: {
     key: 'hugoCoderSecurityLifetime',
     label: 'Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI',
-    priceJoy: 2600,
+    priceJoy: STUDY_LIFETIME.security,
     previousTier: 'advanced',
     requiredLesson: 'lesson50'
   },
   project: {
     key: 'hugoCoderUltimateLifetime',
     label: 'Chặng 5: Siêu Đồ Án Full-Stack & AI',
-    priceJoy: 3500,
+    priceJoy: STUDY_LIFETIME.project,
     previousTier: 'security',
     requiredLesson: 'lesson70'
   },
   devops: {
     key: 'hugoCoderDevopsLifetime',
     label: 'Chặng 6: Kỹ Sư DevOps & Phát Hành',
-    priceJoy: 1500,
+    priceJoy: STUDY_LIFETIME.devops,
     previousTier: 'project',
     requiredLesson: 'lesson90'
   }
@@ -166,6 +181,7 @@ const EXCHANGE_ITEMS = {
   hugoRadio: { label: 'HugoRadio (1 tháng)', priceJoy: FEATURE_PRICES.hugoRadio },
   hugoArcade: { label: 'HugoArcade — Bứt phá & Huyền thoại (1 tháng)', priceJoy: FEATURE_PRICES.hugoArcade },
   hugoChess: { label: 'HugoChess — Cờ vua đỉnh cao (1 tháng)', priceJoy: FEATURE_PRICES.hugoChess },
+  hugoProfile: { label: 'Hugo Profile — công bố hồ sơ (1 tháng)', priceJoy: FEATURE_PRICES.hugoProfile },
   bioThemeBrutalism: { label: 'Giao diện Bio: Brutalism (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
   bioThemeFlat: { label: 'Giao diện Bio: Flat (1 tháng)', priceJoy: BIO_THEME_RENTAL_PRICE },
   fileCompression: { label: 'Nén file HugoTractare', priceJoy: COMPRESS_CHARGE },
@@ -183,8 +199,8 @@ const router = express.Router();
 // spammy transfers without acting as a platform revenue cut ("phi lợi nhuận").
 const TRANSFER_MIN = 10;
 const TRANSFER_MAX = 1000;
-const TRANSFER_DAILY_CAP = 1000;
-const TRANSFER_FEE_RATE = 0.05;
+const TRANSFER_DAILY_CAP = SHARED_TRANSFER_DAILY_CAP;
+const TRANSFER_FEE_RATE = SHARED_TRANSFER_FEE_RATE;
 const TRANSFER_MIN_ACCOUNT_AGE_DAYS = 3;
 const FOCUS_DAILY_JOY_CAP = 150;
 
@@ -1283,7 +1299,12 @@ router.get('/resolve-phone', requireMember, async (req, res) => {
     const bio = await Bio.findOne({ phone: String(phone).trim() });
     if (!bio || isMinorAge(bioAge(bio))) return res.status(404).json({ error: 'Không tìm thấy người dùng với số điện thoại này.' });
 
-    res.json({ displayName: bio.displayName || 'Người dùng Hugo Studio', avatar: bio.avatarUrl || '', slug: bio.slug || '' });
+    res.json({
+      displayName: bio.displayName || 'Người dùng Hugo Studio',
+      avatar: bio.avatarUrl || '',
+      slug: bio.slug || '',
+      joyDenom: denomKey(bio.joyDenom),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1306,7 +1327,7 @@ router.get('/search-user', requireMember, async (req, res) => {
         { contactEmail: regex }
       ]
     })
-      .select('displayName avatarUrl referralCode phone slug birthYear birthMonth')
+      .select('displayName avatarUrl referralCode phone slug birthYear birthMonth joyDenom')
       .limit(12)
       .lean();
 
@@ -1315,7 +1336,10 @@ router.get('/search-user', requireMember, async (req, res) => {
       avatarUrl: b.avatarUrl || '',
       referralCode: b.referralCode || '',
       slug: b.slug || '',
-      maskedPhone: b.phone ? b.phone.slice(0, -3).replace(/\d/g, '*') + b.phone.slice(-3) : ''
+      maskedPhone: b.phone ? b.phone.slice(0, -3).replace(/\d/g, '*') + b.phone.slice(-3) : '',
+      // Đơn vị JOY của người nhận — để màn gửi biết trước có phải đổi đơn vị (phí
+      // 15%) hay không, thay vì để người dùng bấm gửi rồi mới thấy bị trừ thêm.
+      joyDenom: denomKey(b.joyDenom),
     })));
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1447,12 +1471,121 @@ router.post('/verify-pin', requireMember, async (req, res) => {
 });
 
 // POST /api/joy/transfer  { fromEmail, toReferralCode|toEmail|toPhone, amount, message, pin, idempotencyKey }
+// ─── JOYlater: mở khoá trước, trả bằng thu nhập ngày ───────────────
+// Toàn bộ phép tính ở shared/joyLater.js (có test); route chỉ vào/ra dữ liệu.
+
+// GET /api/joy/joylater — trạng thái: đủ điều kiện chưa, hạn mức, nợ hiện tại
+router.get('/joylater', requireMember, async (req, res) => {
+  try {
+    res.json(await joyLaterStatus(req.memberEmail));
+  } catch (error) {
+    res.status(error.message === 'BIO_NOT_FOUND' ? 404 : 500).json({ error: error.message });
+  }
+});
+
+// GET /api/joy/joylater/history — mọi lượt đã mở, kèm từng dòng đã hoàn
+router.get('/joylater/history', requireMember, async (req, res) => {
+  try {
+    res.json(await joyLaterHistory(req.memberEmail));
+  } catch (error) {
+    res.status(error.message === 'BIO_NOT_FOUND' ? 404 : 500).json({ error: error.message });
+  }
+});
+
+// GET /api/joy/joylater/quote?amount=&installments= — báo giá TRƯỚC khi đồng ý
+router.get('/joylater/quote', requireMember, async (req, res) => {
+  try {
+    const amount = Number(req.query.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ error: 'Số JOY muốn mở trước không hợp lệ.' });
+    }
+    res.json(await quoteLoan(req.memberEmail, amount, req.query.installments));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/joy/joylater/open — mở khoản ứng
+router.post('/joylater/open', requireMember, async (req, res) => {
+  try {
+    const { amount, itemLabel, itemKey, installments } = req.body;
+    const numAmount = Number(amount);
+    if (!Number.isFinite(numAmount) || numAmount <= 0) {
+      return res.status(400).json({ error: 'Số JOY muốn mở trước không hợp lệ.' });
+    }
+    // `installments` không cần kiểm ở đây: `clampInstallments` ở shared/joyLater
+    // ép mọi giá trị về 1..4, và phí thì tính từ con số ĐÃ ép đó.
+    res.json(await openJoyLaterLoan(req.memberEmail, Math.round(numAmount), {
+      itemLabel: String(itemLabel || '').slice(0, 120),
+      itemKey: String(itemKey || '').slice(0, 60),
+      installments,
+    }));
+  } catch (error) {
+    const map = {
+      JOYLATER_NOT_ELIGIBLE: [403, 'Bạn chưa đủ điều kiện dùng JOYlater.'],
+      JOYLATER_OVER_LIMIT: [400, 'Số JOY muốn mở trước vượt mức tối đa của bạn.'],
+      JOYLATER_ALREADY_OPEN: [409, 'Bạn đang có một lượt JOYlater chưa hoàn xong.'],
+      BIO_NOT_FOUND: [404, 'Không tìm thấy hồ sơ.'],
+    };
+    const [status, message] = map[error.message] || [500, error.message];
+    res.status(status).json({ error: message, code: error.message, reasons: error.reasons });
+  }
+});
+
+// POST /api/joy/joylater/pay-installment — trả đúng một đợt
+// Không nhận số tiền từ client: server tự tính đợt kế tiếp từ số còn nợ.
+router.post('/joylater/pay-installment', requireMember, async (req, res) => {
+  try {
+    res.json(await payInstallment(req.memberEmail));
+  } catch (error) {
+    const map = {
+      JOYLATER_NO_LOAN: [400, 'Bạn không có lượt JOYlater nào.'],
+      INSUFFICIENT_JOY: [400, 'Số dư JOY không đủ để hoàn đợt này.'],
+      JOYLATER_NOT_DUE: [409, 'Đợt này chưa tới ngày hoàn.'],
+      JOYLATER_RACE: [409, 'Số cần hoàn vừa thay đổi, thử lại giúp mình.'],
+      BIO_NOT_FOUND: [404, 'Không tìm thấy hồ sơ.'],
+    };
+    const [status, message] = map[error.message] || [500, error.message];
+    // Kèm ngày tới hạn để giao diện nói được "mở lúc nào", không chỉ "chưa được".
+    res.status(status).json({ error: message, code: error.message, dueAt: error.dueAt });
+  }
+});
+
+// POST /api/joy/joylater/payoff — trả hết ngay, không phí thêm
+router.post('/joylater/payoff', requireMember, async (req, res) => {
+  try {
+    res.json(await payOffJoyLater(req.memberEmail));
+  } catch (error) {
+    const map = {
+      JOYLATER_NO_LOAN: [400, 'Bạn không có lượt JOYlater nào.'],
+      INSUFFICIENT_JOY: [400, 'Số dư JOY không đủ để hoàn hết.'],
+      JOYLATER_NOT_DUE: [409, 'Chia đợt thì phải tới ngày mới hoàn được.'],
+      JOYLATER_RACE: [409, 'Số cần hoàn vừa thay đổi, thử lại giúp mình.'],
+      BIO_NOT_FOUND: [404, 'Không tìm thấy hồ sơ.'],
+    };
+    const [status, message] = map[error.message] || [500, error.message];
+    res.status(status).json({ error: message, code: error.message, dueAt: error.dueAt });
+  }
+});
+
 router.post('/transfer', requireMember, async (req, res) => {
   try {
     const { toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey } = req.body;
     const fromEmail = req.memberEmail;
     if (!fromEmail || (!toPhone && !toReferralCode && !toEmail)) {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
+    }
+
+    // JOYlater: còn nợ thì không chuyển JOY đi được. Đây là lỗ hổng lớn nhất của
+    // mọi hệ tín dụng nội bộ — vay xong đẩy hết sang tài khoản phụ rồi bỏ tài
+    // khoản đang nợ. Chặn ở server, không chỉ ẩn nút.
+    const senderBio = await Bio.findOne({ $or: [{ email: fromEmail }, { contactEmail: fromEmail }] })
+      .select('joyLoan').lean();
+    if (hasOpenLoan(senderBio)) {
+      return res.status(403).json({
+        error: 'Bạn đang có khoản JOYlater chưa trả. Trả xong mới chuyển JOY cho người khác được.',
+        code: 'JOYLATER_OPEN',
+      });
     }
 
     // 1. Chống gửi lặp request (Idempotency)
@@ -1519,11 +1652,18 @@ router.post('/transfer', requireMember, async (req, res) => {
       return rejectRequest(400, `Vượt giới hạn gửi ${TRANSFER_DAILY_CAP} JOY/ngày. Cậu đã gửi ${sentTodaySoFar} JOY hôm nay.`);
     }
 
-    const feeAmount = Math.floor(numAmount * TRANSFER_FEE_RATE);
-    const totalDeducted = numAmount + feeAmount;
+    // Phí đổi đơn vị: hai bên khác đơn vị JOY thì cộng thêm 15%. Đơn vị đọc từ
+    // `Bio.joyDenom` của CẢ HAI phía — không bao giờ từ body hay header ngôn ngữ.
+    // Client khai được đơn vị là khai được "cùng đơn vị" để khỏi trả phí.
+    const bill = transferBreakdown(numAmount, sender.joyDenom, recipient.joyDenom, TRANSFER_FEE_RATE);
+    const feeAmount = bill.creativeFee;
+    const conversionFee = bill.conversionFee;
+    const totalDeducted = bill.totalDeducted;
 
     if (sender.joyBalance < totalDeducted) {
-      return rejectRequest(400, `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${feeAmount} JOY phí sáng tạo).`);
+      const parts = [`${feeAmount} JOY phí sáng tạo`];
+      if (conversionFee) parts.push(`${conversionFee} JOY phí đổi ${bill.fromCode} → ${bill.toCode}`);
+      return rejectRequest(400, `Số dư JOY không đủ. Bạn cần ${totalDeducted} JOY (bao gồm ${parts.join(' và ')}).`);
     }
 
     sender.joySentDate = today;
@@ -1545,7 +1685,9 @@ router.post('/transfer', requireMember, async (req, res) => {
     const [senderResult] = await Promise.all([
       awardJoy(
         sender.email, -totalDeducted, 'joy_gift_sent',
-        `Gửi ${numAmount} JOY cho ${recipientName}, phí sáng tạo ${feeAmount} JOY.${customMsg}`,
+        `Gửi ${numAmount} JOY cho ${recipientName}, phí sáng tạo ${feeAmount} JOY${
+          conversionFee ? `, phí đổi ${bill.fromCode} → ${bill.toCode} ${conversionFee} JOY` : ''
+        }.${customMsg}`,
         {
           refId: txCode,
           bioDoc: sender,
@@ -1571,6 +1713,11 @@ router.post('/transfer', requireMember, async (req, res) => {
       sentAmount: numAmount,
       netAmount: numAmount,
       feeAmount,
+      conversionFee,
+      crossDenom: bill.crossDenom,
+      fromDenom: bill.fromCode,
+      toDenom: bill.toCode,
+      totalDeducted,
       recipientName: recipient.displayName || '',
       senderName,
       message: message || '',
@@ -1626,6 +1773,32 @@ router.post('/exchange-chat-tokens', requireMember, async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+/**
+ * Bảng tỷ giá JOY của hôm nay.
+ *
+ * Ai đăng nhập cũng đọc được cùng một bảng — tỷ giá là của cả hệ thống, không
+ * phải của riêng ai, và không có gì nhạy cảm trong đó. Tính một lần mỗi ngày
+ * rồi cả ngày đọc lại từ bản ghi (xem joyRateService).
+ */
+router.get('/rates', requireMember, async (req, res) => {
+  const rates = await getRates();
+  // Bảng chỉ đổi một lần mỗi ngày nên cho phép cache 10 phút ở biên; hỏng tỷ
+  // giá cũng chỉ là hiển thị nên không cần no-store.
+  res.set('Cache-Control', 'private, max-age=600');
+  res.json(rates);
+});
+
+/**
+ * Chuỗi tỷ giá để vẽ biểu đồ. `hours` giới hạn 1…2160 (90 ngày, đúng bằng thời
+ * gian giữ bản ghi) để một tham số bịa không kéo cả collection lên.
+ */
+router.get('/rates/history', requireMember, async (req, res) => {
+  const hours = Math.min(2160, Math.max(1, Number(req.query.hours) || 24));
+  const points = await getRateHistory({ hours });
+  res.set('Cache-Control', 'private, max-age=300');
+  res.json({ hours, points });
 });
 
 export default router;

@@ -97,6 +97,16 @@ const safely = (fn) => {
   }
 };
 
+/**
+ * Server trả 403 PROFILE_INCOMPLETE = tài khoản chưa chọn đơn vị JOY và đang bị
+ * chặn dùng hệ thống. Phát ra sự kiện để portal mở hộp thoại chọn, thay vì để
+ * mỗi màn tự hiện một lỗi đỏ mà không nói phải làm gì.
+ */
+const publishProfileIncomplete = (payload) => {
+  if (!payload || payload.error !== "PROFILE_INCOMPLETE") return;
+  safely(() => window.dispatchEvent(new CustomEvent("hugo:profile-incomplete", { detail: payload })));
+};
+
 const publishSecurityBlock = (payload) => {
   if (!payload || payload.error !== "ACCESS_BLOCKED") return;
   safely(() => sessionStorage.setItem(SECURITY_BLOCK_STORAGE_KEY, JSON.stringify(payload)));
@@ -184,7 +194,10 @@ export function installApiAuthInterceptor() {
               blockedUntil: res.headers.get("x-security-until") || null,
             });
           } else {
-            res.clone().json().then(publishSecurityBlock).catch(() => {});
+            res.clone().json().then((payload) => {
+              publishSecurityBlock(payload);
+              publishProfileIncomplete(payload);
+            }).catch(() => {});
           }
         }
 

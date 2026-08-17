@@ -4,6 +4,7 @@ import { notify } from "../../../lib/notify";
 import { useJoyStore } from "../../../stores/joyStore";
 import { isVoucherActive } from "./voucherStatus";
 import { localeForLanguage } from "../../../i18n/languages";
+import { joyText } from "../../../lib/joyDisplay";
 
 const BirthdayWheel = React.lazy(() => import("../BirthdayWheel"));
 
@@ -51,9 +52,13 @@ function VoucherCard({ voucher, dimmed, locale, t }) {
         </div>
       </div>
       <CodeRow code={voucher.code} t={t} />
-      <p className="mt-1.5 text-[12.5px] text-muted-foreground">
-        {t("memberPortal.accountHub.perksCopy.voucherHint")}
-      </p>
+      {/* Mã BDAY-xx đời cũ cộng ngày hạn dùng, đổi ở trang Gói dịch vụ chứ không
+          giảm giá dự án — nhãn của nó đã tự nói rõ, đừng chỉ sai đường đặt lịch. */}
+      {voucher.scope !== "legacy_birthday" && (
+        <p className="mt-1.5 text-[12.5px] text-muted-foreground">
+          {t("memberPortal.accountHub.perksCopy.voucherHint")}
+        </p>
+      )}
     </div>
   );
 }
@@ -197,7 +202,7 @@ export default function JoyPerks({ perks, loading, error, onReload, email }) {
                   <div className="min-w-0 flex-1">
                     <p className="text-[15px] font-semibold leading-snug text-foreground">{o.name}</p>
                     <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleDateString(locale)} · {fmt(o.priceJoy, locale)} JOY
+                      {new Date(o.createdAt).toLocaleDateString(locale)} · {joyText(o.priceJoy)}
                       {o.status === "fulfilled"
                         ? t("memberPortal.accountHub.perksCopy.fulfilled")
                         : o.status === "cancelled"

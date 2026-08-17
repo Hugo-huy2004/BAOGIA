@@ -6,7 +6,7 @@ Nền tảng Biolink + chăm sóc sức khỏe tinh thần cho học sinh sinh v
 
 ```
 ├── src/                 # Frontend — React 18 + Vite, Tailwind, Zustand, SWR (port 3000)
-├── server/              # Backend — Express + MongoDB (Mongoose), WebSocket (port 8081)
+├── server/              # Backend — Express + MongoDB (Mongoose), WebSocket (port 8099)
 ├── python-ai-server/    # AI server — proxy AI, sleep analysis, IoT (port 8000)
 └── api/                 # Vercel serverless (redirect /pay)
 ```
@@ -21,7 +21,7 @@ Node nói chuyện với nó (qua `AI_SERVER_URL` + `INTERNAL_API_KEY`). Xem
 ```bash
 npm run setup          # cài dependencies frontend + server
 npm run dev            # frontend (Vite, port 3000)
-npm run dev:backend    # backend Node (port 8081) — cần MongoDB chạy sẵn
+npm run dev:backend    # backend Node (port 8099) — cần MongoDB chạy sẵn
 ```
 
 ## Biến môi trường
@@ -36,13 +36,12 @@ npm run dev:backend    # backend Node (port 8081) — cần MongoDB chạy sẵn
 - **WebAuthn** (vân tay/Face ID): cùng cơ chế — `login-verify` phát cùng loại token.
 - **Admin**: JWT riêng qua cookie `jwt`, middleware `requireAdmin`.
 
-## Test & CI
+## Kiểm tra & CI
 
 ```bash
-cd server && npm test   # Vitest — unit test cho auth middleware + JOY QR token
 npm run lint            # ESLint frontend
 npm run build           # Vite production build
 npm run build:analyze   # build + báo cáo kích thước bundle (dist/stats.html)
 ```
 
-CI chạy lint + test + build trên mỗi push (`.github/workflows/ci.yml`).
+CI chạy lint trên mỗi push; ngân sách hiệu năng chạy build (`.github/workflows/ci.yml`).

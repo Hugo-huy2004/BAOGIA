@@ -9,9 +9,25 @@ import path from "node:path";
 import process from "node:process";
 
 const VIETNAMESE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
-// Course material, admin-only screens and demo fixtures are Vietnamese by
-// design; they are not part of the member-facing translation surface.
-const EXCLUDED = /node_modules|\/locales\/|\/admin\/|\/demos\/|hugoCoder\/lessons\/|hugoSOCourses|studyCurriculum|ideData|intentClassifier|clinicalTests/;
+// Vietnamese by decision, not by neglect. Counting these as debt keeps the
+// number permanently scary and hides the work that is actually left.
+//
+//  * admin screens and demo fixtures — one operator, Vietnamese is enough;
+//  * the HugoCoder curriculum, Study with Hugo courses and HugoPSY content —
+//    the author teaches and counsels in Vietnamese, so the copy stays Vietnamese
+//    (HugoPSY is already gated to Vietnamese readers in lib/memberAge.js);
+//  * the public Privacy Policy and Terms pages — the binding text already
+//    exists in nine hand-written languages under Account → Full terms, and
+//    machine-translating a legal page is a risk with no upside.
+const EXCLUDED = new RegExp([
+  "node_modules", "/locales/", "/admin/", "/demos/",
+  "hugoCoder/", "hugoSO", "study/", "studyCurriculum", "ideData",
+  "banhocduong/", "intentClassifier", "clinicalTests",
+  "PrivacyPolicyPage", "TermsPage",
+  // Nguồn song ngữ có chủ đích: bản tiếng Việt của tài liệu thành viên và khối
+  // tiếng Việt trong bản điều khoản toàn văn 9 ngôn ngữ.
+  "memberDocs.js", "legalFullText.js",
+].join("|"));
 
 function sourceFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from "react";
+import RegionNote from "../../public/RegionNote";
 import { useTranslation } from "react-i18next";
 import { languageCode } from "../../../i18n/languages";
 import { useNavigate } from "react-router-dom";
@@ -196,6 +197,9 @@ export default function StudyWithHugoApp({
             <span>{copy.appName}</span>
             <h1 id="study-title">{copy.heroTitle}</h1>
             <p>{copy.intro}</p>
+            {/* Vỏ app đã dịch, nhưng bài học do tác giả viết bằng tiếng Việt.
+                Nói thẳng ra trước khi người đọc mở bài rồi mới ngỡ ngàng. */}
+            <RegionNote group="vietnameseContentOnly" scope="course" />
           </div>
           <div className="study-hero-facts">
             <div className="study-original-seal"><Sparkles aria-hidden="true" /><span><b>{copy.original}</b><small>{copy.authored}</small></span></div>

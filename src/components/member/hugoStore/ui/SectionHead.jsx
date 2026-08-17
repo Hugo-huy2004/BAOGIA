@@ -1,21 +1,31 @@
-/** Tiêu đề của một mảng nội dung trong cửa hàng. */
-export default function SectionHead({ title, subtitle, action, onAction }) {
+/**
+ * Tiêu đề một nhóm nội dung, cỡ 22px như tiêu đề nhóm của App Store.
+ *
+ * `onAction` có thì tiêu đề thành nút và mọc chevron — iOS chỉ vẽ mũi tên khi
+ * thật sự bấm được, nên đừng thêm chevron cho đẹp.
+ */
+export default function SectionHead({ title, subtitle, onAction }) {
   if (!title) return null;
-  return (
-    <div className="mb-3 flex items-end justify-between gap-3 px-4">
-      <div className="min-w-0">
-        <h2 className="hgs-ink truncate text-[18px] font-bold tracking-[-0.01em]">{title}</h2>
-        {subtitle && <p className="hgs-dim truncate text-[13px]">{subtitle}</p>}
-      </div>
-      {action && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="hgs-accent-text shrink-0 pb-0.5 text-[14px] font-semibold"
-        >
-          {action}
-        </button>
+
+  const head = (
+    <>
+      <span className="hgs-section-title">{title}</span>
+      {onAction && (
+        <span className="material-symbols-outlined hgs-dim ml-0.5 text-[22px]">chevron_right</span>
       )}
+    </>
+  );
+
+  return (
+    <div className="mb-2.5 px-4">
+      {onAction ? (
+        <button type="button" onClick={onAction} className="flex items-center">
+          {head}
+        </button>
+      ) : (
+        <div className="flex items-center">{head}</div>
+      )}
+      {subtitle && <p className="hgs-dim mt-0.5 text-[13px] leading-snug">{subtitle}</p>}
     </div>
   );
 }

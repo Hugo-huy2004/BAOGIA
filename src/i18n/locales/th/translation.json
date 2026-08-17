@@ -39,11 +39,11 @@
     "applying": "กำลังดำเนินการ...",
     "themeUsed": "ใช้งานอยู่",
     "themeApply": "สมัคร",
-    "themeRentCost": "{{price}} JOY",
+    "themeRentCost": "{{price, joy}}",
     "presetWarning": "โปรดหยุดการตั้งเวลาที่กำลังทำงาน",
     "playWarning": "โปรดคลิกอีกครั้งเพื่อเริ่มเพลงนี้",
     "toastFocusCompleted": "ดีใจที่คุณได้ทำให้ {{minutes}} นาทีของความสึ้ง",
-    "toastJoyReceived": "การรับเงินสำเร็จ +{{amount}} JOY ในกระเป๋าของคุณ!",
+    "toastJoyReceived": "การรับเงินสำเร็จ +{{amount, joy}} ในกระเป๋าของคุณ!",
     "toastJoyFailed": "ไม่สามารถมอบポイント JOY ได้.",
     "toastBreakCompleted": "เวลาผ่านไปแล้ว! ต้องการเริ่มทำงานใหม่?",
     "toastLoginRequired": "กรุณาเข้าสู่ระบบเพื่อรับภาพที่คัดสรร",
@@ -166,16 +166,16 @@
       "preview": "Preview",
       "safePreview": "Safe preview",
       "hugoSummary": "สรุปโดย Hugo Studio",
-      "readFull": "อ่านทั้งหมดในชุดฮูจู",
+      "readFull": "อ่านในทุกข้อมูลบน Hugo",
       "backToFeed": "Briefing",
       "articleUnavailable": "บทความนี้ไม่สามารถเปิดได้",
       "summaryTitle": "การสรุปที่รวดเร็ว",
       "summaryBySource": "การสรุปเขียนโดย {{source}}เอง",
-      "summaryByAi": "ฮูโก AI  rewriting ส่วนนี้ของสรุปในรูปแบบที่แตกต่างจากบทความ {{source}} ด้วยภาษาของมันเอง คลิกเพื่อดูฉบับเดิม",
+      "summaryByAi": "Hugo ช่วยปรับรูปแบบนี้ด้วยภาษาของคุณเองโดยไม่ละเมียดละไม่. เวอร์ชันที่เต็มที่ถูกต้องครับ/ค่ะซึ่งถูกจารึกข้ออนุญาตโดย {{source}}. อ่านเวอร์ชันที่แท้จริงเพื่อความครบถ้วน.",
       "contentTitle": "เนื้อหาของบทความ",
       "contentUnavailable": "ผู้จัดการสื่อไม่อนุญาตให้ใช้งานทั่วไปสำหรับเนื้อหาทั้งหมด. เปิดดูเพิ่มเติมเพื่อเข้าถึงเนื้อหาทั้งหมด.",
       "contentBySource": "เนื้อหาทั้งหมดของบทความนี้ได้รับการป้องกันโดย {{source}}. Hugo Studio แสดงเฉพาะส่วนสรุป — เปิดดูเพิ่มเติมเพื่อเข้าถึงเนื้อหาทั้งหมดในลักษณะเดียวกัน.",
-      "copyrightNotice": "บทความทั้งหมดถูกคุ้มครองโดย {{{{source}}}} ฮูโกลีสต้าแสดงแคปชันเท่านั้น เลือก \"อ่านฉบับเต็ม\" เพื่อดูบทความทั้งหมดบนหน้าเว็บอย่างเป็นทางการ.",
+      "copyrightNotice": "บทความทั้งหมดถูกคุ้มครองโดย {{source}}}} นี่เป็นการอภิปรายที่แสดงเฉพาะของ Hugo สตูดิโอ คลิก \"อ่านเนื้อหาที่แท้จริง\" เพื่อดูบทความทั้งหมดบนหน้าเว็บอย่างเป็นทางการ.",
       "sourceInfo": "Source: {{source}}{{author}} · {{date}}",
       "attribution": "เนื้อหาเป็นสิทธิบัตรของ {{source}}.",
       "licenseNotice": "เนื้อหาทั้งหมดแสดงใต้สัญญา {{source}} จาก {{license}}",
@@ -209,7 +209,7 @@
       "markAllReadError": "ไม่สามารถบันทึกความสนใจของคุณเป็นความสนใจที่อ่านแล้ว โปรดลองใหม่อีกครั้ง.",
       "openAction": "打開: {{title}}",
       "profileUpdated": "การบันทึกโปรไฟล์ถูกปรับปรุง",
-      "balance": "เงินสด {{value}} JOY",
+      "balance": "เงินสด {{value, joy}}",
       "dismiss": "ปิดข้อความ: {{title}}",
       "emptyFilterTitle": "ไม่มีสิ่งใดในหมวดนี้",
       "emptyFilterDescription": "เลือกหมวดอื่นจากบนไปด้านบน",
@@ -268,7 +268,7 @@
     },
     "bioPreview": {
       "title": "หน้าส่วนตัว",
-      "studioTitle": "โปรไฟล์ส่วนตัว",
+      "studioTitle": "Hugo บุคลากร",
       "subtitle": "ดูภาพถ่ายของฉัน",
       "backAria": "กลับไปที่หน้าจอเดิม",
       "openAria": "เปิดโปรไฟล์ส่วนตัว",
@@ -328,8 +328,8 @@
       "settingsBtn": "การตั้งค่าแจ้งเตือน"
     },
     "joyWallet": {
-      "brand": "บัญชีจ่ายของฮูโจย",
-      "sub": " joy สามารถใช้สำหรับการส่งเสริมการขาย, การใช้งานที่ดีและประสบการณ์ในแพลตฟอร์มฮูโจย",
+      "brand": "Hugo JOY บัญชี",
+      "sub": "JOY สามารถใช้สำหรับของขวัญ ประโยชน์ และประสบการณ์ในระบบนี้ (Hugo)",
       "statReferrals": "ได้รับการแนะนำ",
       "statBonusChat": "ข้อเสนอ chat",
       "statReferralCode": "รหัสแนะนำ",
@@ -404,7 +404,7 @@
       "optionalDetailsDescription": "นี่คือช่องว่างที่สามารถเลือกและเพิ่มได้ แต่จะไม่แสดงถ้าคุณเลือกว่าจะบันทึกข้อมูล",
       "saveTitle": "การแก้ไขข้อมูลผู้ใช้",
       "saveDescription": "การอัปเดตข้อมูลของผู้ใช้จะถูกส่งไปยังโปรไฟล์ของคุณอย่างปลอดภัย",
-      "membershipCard": "ชุดวัดสมาชิกฮูจู"
+      "membershipCard": "Hugo สมาชิก"
     },
     "accountHub": {
       "done": "เสร็จสิ้น",
@@ -419,7 +419,7 @@
       "balance": "บัญชี",
       "missions": "กิจกรรม",
       "open": "เปิด",
-      "pendingJoy": "{{amount}} ยินดีที่จะขอรับ",
+      "pendingJoy": "{{amount, joy}} to claim",
       "today": "ในวันนี้",
       "perks": "ข้อเสนอพิเศษ",
       "spinAvailable": "มีสิทธิ์ในการหมุน",
@@ -434,7 +434,7 @@
       "setPin": "กำหนด PIN การโอนเงิน",
       "pinMissing": "ไม่มีรหัส PIN การโอนเงิน",
       "pinDescription": "ใช้รหัส PIN ที่มี 6 หลักเพื่อป้องกันการ transfer JOY ทุกครั้ง",
-      "claimJoy": "ขอรับรางวัลของคุณสมบัติ {{amount}}",
+      "claimJoy": "ยืนยัน {{amount, joy}}",
       "missionsWaiting": "{{count}} มีรางวัลที่พร้อมให้คุณได้รับ.",
       "walletSection": "JOY 貓咪",
       "myPerks": "คุณสมบัติของฉัน",
@@ -442,7 +442,7 @@
       "perksSummary": "{{vouchers}} vouchers available · {{orders}} purchased items",
       "todayMissions": "วันนี้ทีมงาน",
       "loading": "กรุณารอโหลด...",
-      "pendingJoyLong": "{{amount}} JOY is ready to claim",
+      "pendingJoyLong": "{{amount, joy}} is ready to claim",
       "missionProgress": "สำเร็จ {{completed}}/{{total}} วันนี้",
       "walletHistory": "ประวัติการจ่ายเงิน",
       "walletHistoryDetail": "ทุกการโอนเงินและทุกการใช้จ่าย, plus your 30-day summary",
@@ -453,7 +453,7 @@
       "redeemReferral": "รหัสโค้ดและข้อเสนอแนะ",
       "redeemReferralDetail": "รหัสโค้ดที่เป็นของขวัญ, รหัสข้อเสนอแนะและคำเชิญเพื่อนบ้าน",
       "redeemReferralShort": "รหัสที่เป็นของขวัญและคำเชิญเพื่อนบ้าน",
-      "memberSection": "สมาชิก",
+      "memberSection": "กฎและสิทธิ",
       "manageTitle": "Service packages and Bio page",
       "manageDetail": "แพ็คเกจและหน้าโปรไฟล์ของฉัน",
       "privacySection": "แพ็คเกจที่ยึดอยู่, วันหมดอายุ และหน้าโปรไฟล์ของฉันถูกลบ",
@@ -465,25 +465,25 @@
       "myPerksSubtitle": "บัตรที่ให้มา, การซื้อขาย และการหมุนล้อโชค",
       "todayMissionsSubtitle": "สำเร็จการดำเนินการและขอ JOY นี้",
       "walletHistorySubtitle": "ทุกบัตรเครดิตและ debits ด้วยเหตุผล",
-      "balanceSubtitle": "บัญชี: {{balance}} JOY",
+      "balanceSubtitle": "บัญชี: {{balance, joy}}",
       "memberDocument": "เอกสารสมาชิก",
       "missionCopy": {
-        "claimedJoy": "ได้รับ {{amount}} JOY.",
-        "claimedAll": "ได้รับ {{total}} JOY จาก {{count}} ภารกิจ.",
+        "claimedJoy": "ได้รับ {{amount, joy}}.",
+        "claimedAll": "ได้รับ {{total, joy}} จาก {{count}} ภารกิจ.",
         "claiming": "กำลังขอ...",
-        "claimAll": "ขอรับทุกสิ่ง {{amount}}",
+        "claimAll": "Claim all · {{amount, joy}}",
         "heading": "วันนี้มีภาระงาน ({{completed}}/{{total}})",
         "loading": "กำลังโหลดภาระงาน...",
         "empty": "ไม่มีภาระงานใหม่นี้วันนี้.",
         "rewardClaimed": "เงินรางวัลที่ได้รับ",
-        "rewardReady": "+{{amount}} JOY reward",
-        "incomplete": "ไม่เสร็จสมบูรณ์ · +{{amount}} JOY",
+        "rewardReady": "+{{amount, joy}} reward",
+        "incomplete": "ไม่เสร็จสมบูรณ์ · +{{amount, joy}}",
         "claimed": "เข้าสู่ระบบ",
         "claim": "ขอรับ"
       },
       "redeemCopy": {
         "giftError": "รหัสที่ส่งไม่สามารถใช้งานได้",
-        "giftSuccess": "เพิ่ม {{amount}} JOY ไปในกระเป๋าของคุณ",
+        "giftSuccess": "เพิ่ม {{amount, joy}} ไปในกระเป๋าของคุณ",
         "referralError": "รหัสแนะนำไม่ใช้ได้ผล",
         "referralSuccess": "การสมัครใช้งานต้องใช้เวลา {{days}} วัน",
         "shareText": "โปรดใช้โค้ด {{code}} เมื่อคุณสมัคร",
@@ -497,7 +497,7 @@
         "apply": "สมัคร",
         "referralHint": "Each account can enter a referral code once.",
         "inviteFriends": "Invite friends",
-        "rewardPerFriend": "สมัครสมาชิกด้วยรหัสของคุณ รับ 100 JOY ต่อคน",
+        "rewardPerFriend": "+{{amount, joy}} ต่อทุกคนที่สมัครด้วยรหัสของคุณ",
         "referralCount": "{{count}} คนแนะนำ · รหัสของคุณ",
         "shareLink": "แชร์ลิงก์การเชิญชวน"
       },
@@ -556,12 +556,12 @@
         "perk": "คุณสมบัติเพื่อใช้งาน",
         "usedOn": "ใช้กับ {{date}}",
         "expiresOn": "หมด有效期: {{date}}",
-        "voucherHint": "แชร์รหัสสปินนี้เมื่อคุณพูดถึงโปรเจ็กต์ของคุณ. รหัสที่คุณแชร์สามารถใช้งานได้เพียงครั้งเดียว。",
+        "voucherHint": "กรอกรหัสนี้ในขั้นตอนติดต่อเมื่อจองคิว แต่ละรหัสใช้ได้ครั้งเดียว",
         "loading": "กำลังโหลดคุณสมบัติ...",
         "retry": "ลองอีกครั้ง",
         "luckySpin": "การหมุนลucky",
         "spinAvailable": "คุณมีสปินที่จะใช้งานในปีนี้เท่านั้น.",
-        "spunThisYear": "หมุนในปีนี้ · รับ {{amount}} JOY",
+        "spunThisYear": "หมุนในปีนี้ · รับ {{amount, joy}}",
         "opensInBirthMonth": "{{month}}, เดือนเกิดของคุณ",
         "addBirthday": "กรุณาป้อนอายุครรภัณฑ์เพื่อเปิดใช้งานการหมุนวันเกิดของคุณ",
         "spinNow": "หมุนตอนนี้",
@@ -665,7 +665,7 @@
                   {
                     "type": "list",
                     "items": [
-                      "7 วันของฮูจู อาร์แคนดี้ — ได้รับการเข้าถึงฟรีใน 7 วัน",
+                      "7 วันของ Hugo Arcade — เข้าใช้งานฟรี 7 วัน",
                       "500 JOY เอเชีย — บันทึกไว้ในกระเป๋าเงิน"
                     ]
                   }
@@ -755,8 +755,8 @@
                     "type": "list",
                     "items": [
                       "ข้อมูลที่ถูกยืนยันจะถูก recording ในบัญชีของคุณ คุณสามารถตรวจสอบสถานะ, วันหมดอายุ และเงื่อนไขที่ใช้งานได้ก่อนใช้งาน",
-                      "ถ้าฮูจูสโต้ยเปลี่ยนโครงสร้างระดับ, โครงสร้างใหม่จะมีผลต่อไป. ประโยชน์ที่ได้รับเมื่อเริ่มนั้นมีอยู่ในสถานการณ์ที่แสดงไว้เมื่อถูกส่งออก, ยกเว้นถ้าเป็นเพราะระบบขัดข้องหรือการหลอกลวง, หรือกฎหมายกำหนดว่าจะมีผลต่อไป.",
-                      "ถ้าประโยชน์ที่สามารถไม่ได้รับเนื่องจากฟังก์ชันของมันสิ้นสุด, ฮูจูสโต้ยอาจแทนที่ด้วยประโยชน์ในระบบที่ comparable ในคุณสมบัติทางปฏิบัติและจะแจ้งสมาชิกก่อนการเปลี่ยนแปลง.",
+                      "หาก Hugo Studio เปลี่ยนโครงสร้างระดับสมาชิก โครงสร้างใหม่จะมีผลนับจากนั้นเป็นต้นไป สิทธิประโยชน์ที่ยังไม่หมดอายุจะยังใช้ได้ตามเงื่อนไขที่แสดงไว้ตอนที่ได้รับ เว้นแต่เกิดจากความผิดพลาดของระบบหรือการฉ้อโกง หรือกฎหมายกำหนดเป็นอย่างอื่น",
+                      "หากสิทธิประโยชน์หนึ่งไม่สามารถให้บริการต่อได้เพราะฟีเจอร์นั้นยุติลง Hugo Studio อาจทดแทนด้วยสิทธิประโยชน์อื่นในระบบที่มีคุณค่าใช้งานใกล้เคียงกัน และจะแจ้งสมาชิกก่อนการเปลี่ยนแปลง",
                       "คุณสามารถขอรับการตรวจสอบถ้าระดับ, จำนวนการแนะนำ, เครื่องมือส่งเสริมการขายหรือ balance JOY ของคุณแสดงผิด. ข้อมูลระบบเป็นแหล่ง reconciliation primary และ evidenceที่เกี่ยวข้องที่คุณให้ยังจะถูกพิจารณา.",
                       "การใช้งานสิทธิประโยชน์ที่ไม่ได้ใช้นั้นไม่สร้างเงินสดสำรองเนื่องจาก JOY, เครดิตบัตร และเวลาเข้าร่วมเป็นสิทธิประโยชน์ภายในและไม่เป็นการฝากหรือการลงทุน"
                     ]
@@ -1087,11 +1087,14 @@
               }
             ]
           }
-        }
+        },
+        "joyRulesTitle": "ตารางและกฎ JOY",
+        "joyRulesSubtitle": "วิธีได้รับ JOY ราคาของแต่ละอย่าง ค่าธรรมเนียมและขีดจำกัด แสดงเป็นตาราง",
+        "joyRulesDetail": "รายได้ต่อวัน ราคาเช่าและซื้อ แพ็กเกจ ค่าธรรมเนียม"
       }
     },
     "bento": {
-      "profileSub": "หน้าต่างการเข้าสู่ระบบสมาชิกฮูจู",
+      "profileSub": "Avatar, name & introduction",
       "designSub": "สี, สคริปท์สำหรับภาพหลังและบอทของฉัน",
       "linksSub": "{{count}} เลื่อนลิงค์สังคม",
       "projectsSub": "{{count}} โปรเจคที่ได้รับการสนับสนุน",
@@ -1132,11 +1135,11 @@
       "brutalismDesc": "การใช้แสงสะท้อนที่ดูเก๋",
       "flatTitle": "ทำลายกฎกติกาด้วยสีที่ชัดเจน",
       "flatDesc": "ไม่มีแสงสะท้อน, ไม่มีการใช้ 3D/Gradient, สีที่ชัดเจนและรูปทรงเป็นพื้นผิว",
-      "rentalDescription": "ยังเป็นบัญชีส่วนตัวที่ไม่ได้รับค่าตอบแทนของฮูจู. ราคารวมทั้งหมด {{price}} ต่อเดือน; หน้าจอจะกลับไปเป็นแบบคลาสิกเมื่อเรียกใช้งานสิ้นสุด.",
+      "rentalDescription": "JOY is a nonprofit reward balance. Brutalism and Flat cost {{price, joy}} per month; the page returns to Classic when the rental ends.",
       "free": "Free",
       "daysRemaining": "{{count}} days left",
-      "pricePerMonth": "ราคารวมทั้งหมด {{price}} ต่อเดือน",
-      "exchangeSuccess": "เปลี่ยนสีของฮูจูโดยการแลกเปลี่ยนเป็น {{template}}"
+      "pricePerMonth": "{{price, joy}}/เดือน",
+      "exchangeSuccess": "JOYแลกเปลี่ยนสำหรับธeme {{template}}"
     },
     "links": {
       "title": "ลิงค์เพื่อแชร์และสนับสนุน",
@@ -1203,7 +1206,7 @@
     },
     "toast": {
       "verifySuccessTitle": "บัญชีได้รับการยืนยันแล้ว! 🎉",
-      "verifySuccessMsg": "การยืนยันอยู่ระหว่างรอตรวจสอบ",
+      "verifySuccessMsg": "อีเมลของคุณถูกยืนยันแล้ว กรุณาเข้าสู่ระบบที่ Hugo สตูดิโอ!",
       "verifyPendingTitle": "คำขอของคุณถูกส่งและอยู่ในขั้นตอนการตรวจสอบจากผู้ดูแลระบบ",
       "verifyPendingMsg": "การยืนยันอยู่ระหว่างรอตรวจสอบ",
       "verifyRejectedTitle": "การยืนยันการขอรับผิดชอบถูกปฏิเสธ",
@@ -1243,11 +1246,11 @@
     "achievementsLabel": "การตั้งค่า — Hugo Studio",
     "themeLabel": "主题",
     "settingsPage": {
-      "pageTitle": "บันทึก",
+      "pageTitle": "การตั้งค่า — สมาชิก Hugo สตูดิโอ",
       "editBtn": "แก้ไข",
       "saveBtn": "เงินสด balance",
       "savingBtn": "กำลังเก็บข้อมูล...",
-      "joyBalance": "ยังไม่มีข้อความเปิดตัว",
+      "joyBalance": "เงินคงเหลือของ JOY",
       "rechargeBtn": "เติมเงิน",
       "exchangeBtn": "เปลี่ยนแปลงการโอน",
       "quickSettings": "ข้อมูลส่วนตัว",
@@ -1464,7 +1467,7 @@
       "phonePlaceholder": "กรุณาป้อนเบอร์โทรศัพท์ของคุณ",
       "referralLabel": "รหัสแนะนำ (เลือกได้)",
       "referralPlaceholder": "ตัวอย่าง: HG123456",
-      "referralHint": "กรุณาส่งรหัสแนะนำของผู้แนะนำเพื่อได้ +10 JOY และ +15 วันฟรีสำหรับลิงค์ Bio",
+      "referralHint": "กรอกรหัสผู้แนะนำเพื่อรับ +{{amount, joy}} และ Bio link ฟรี {{days}} วัน",
       "submitting": "กำลังส่ง...",
       "submitButton": "เสร็จสิ้น",
       "skipButton": "เลือกที่จะไปอยู่บัดนี้",
@@ -1481,16 +1484,26 @@
         "phone": {
           "label": "เบอร์โทรศัพท์หรือ Zalo",
           "hint": "ใช้เวลาติดต่อและสร้างรหัสแนะนำของคุณเอง"
+        },
+        "language": {
+          "label": "ภาษาหลัก",
+          "hint": "อินเทอร์เฟซจะเปลี่ยนเป็นภาษานี้"
+        },
+        "joyDenom": {
+          "label": "หน่วย JOY",
+          "hint": "เลือกครั้งเดียวแล้วคงที่ การเปลี่ยนภาษาภายหลังจะไม่เปลี่ยนหน่วยนี้ เพื่อไม่ให้หลบค่าธรรมเนียมแปลงหน่วย"
         }
-      }
+      },
+      "next": "ต่อไป",
+      "stepOf": "ขั้นที่ {{current}} จาก {{total}}"
     },
     "birthdaySurprise": {
       "monthTitle": "เดือนเกิดของคุณ!",
       "dayTitle": "Happy birthday!",
       "monthGreeting": "สวัสดีครับ วันเกิดคุณ, {{name}}!",
       "dayGreeting": "{{name}} เข้าสู่เดือนวันเกิดของคุณแล้ว!",
-      "monthMessage": "ฮูเกิลสตูdio หวังว่าคุณจะมีเดือนที่ดี",
-      "dayMessage": "ฮูเกิลสตูdio หวังว่าคุณจะมีปีที่เต็มไปด้วยความสำเร็จที่นับได้ว่าเป็นประวัติศาสตร์",
+      "monthMessage": "Hugo ช่วงนี้หวังว่าคุณจะมีสิ่งดีๆในแต่ละเดือน สิทธิพิเศษรอคุณที่รอบต่อไป。",
+      "dayMessage": "Hugo ช่วงนี้หวังว่าคุณจะมีชีวิตที่สดใสและสุขภาพดีตลอดปี พร้อมกับจุดสำคัญที่ไม่ลืมได้",
       "openGift": "เปิดปีเกิด-เดือนกันยายนของคุณ",
       "acceptWish": "ดำเนินการต่อไป"
     },
@@ -1499,9 +1512,9 @@
       "kicker": "รางวัลปีเกิด-เดือนกันยายน",
       "congratulations": "Congratulations!",
       "title": "คุณได้หมุนเพียงครั้งเดียวสำหรับคุณ",
-      "addedToWallet": "ฮูจอย ได้ถูกเพิ่มเข้าไปในบัญชีของคุณ",
+      "addedToWallet": "JOY มีการเพิ่มเข้าสู่กระเป๋าเงินของคุณ.",
       "description": "หมุนเพียงครั้งละหนึ่งครั้งทุกปี มีโอกาสเท่า ๆ กันสำหรับแต่ละส่วน",
-      "wheelAria": "วงล้อที่มี {{count}} เซ็ตของรางวัล JOY",
+      "wheelAria": "วงล้อที่มี {{count}} เซ็ตของรางวัล",
       "youReceived": "คุณได้รับ",
       "accountDays": "+{{count}} วันในการเข้าถึงบัญชี",
       "voucherExpiry": "ใช้งานจนกระทั่ง {{date}} · แชร์รหัสส่งเสริมการขายเมื่อพูดคุยเกี่ยวกับโปรเจกต์ของคุณ",
@@ -1522,7 +1535,7 @@
         "ชื่อและข้อมูลที่ระบุได้เป็นผู้ร่วมไม่แสดงให้ public search และ ranking ที่ความปลอดภัยของฟังก์ชันต้องการ",
         "ข้อมูลจำเป็นอาจดำเนินการโดยผู้ใช้งาน, การเก็บรักษา, อีเมลหรือบริษัทชำระเงินตามที่กำหนดในนโยบายส่วนบุคคล"
       ],
-      "commitment": "ฮูโกสตูdioให้ความสำคัญกับความปลอดภัยของเด็กและใช้การป้องกันที่เหมาะสมตามความเสี่ยง"
+      "commitment": "Hugo Studio ให้ความสำคัญกับประโยชน์สูงสุดของเด็กและใช้วิธีป้องกันที่เหมาะสมตามความเสี่ยงในการเข้าถึงระบบ. หากบัญชีใช้ข้อมูลอายุผิดพลาดหรือแสดงความเสี่ยงต่อการได้รับความเสียหาย อาจทำการปิดการเข้าถึง."
     },
     "locationAnomaly": {
       "title": "ตำแหน่งการเข้าถึงที่ไม่寻常ได้รับการตรวจสอบ",
@@ -1534,7 +1547,7 @@
     "permissions": {
       "eyebrow": "การตั้งค่าครั้งเดียว",
       "title": "อยู่ร่วมกับสิ่งที่สำคัญ",
-      "description": "เปิดใช้งานสองสิทธิ์ที่จำเป็นเพื่อช่วยให้ฮูจูสามารถแจ้งเตือนคุณได้อย่างถูกต้องเวลา,  personalizing contentที่ใกล้เคียง และป้องกันการเข้าร่วมของคุณ",
+      "description": "อนุญาติให้มีการแจ้งเตือนที่เหมาะสมสำหรับ Hugo เพื่อส่งข้อความไปยังคุณในเวลาที่เหมาะสม ปรับแต่งเนื้อหาใกล้เคียง และปกป้องการเข้าสู่ระบบของคุณ",
       "pushTitle": "สำคัญ: แจ้งเตือน",
       "pushDescription": "รับการยืนยัน, JOY, ความปลอดภัยและข้อมูลบัญชีในเวลาหลังจากการปิดแอพพลิเคชั่น",
       "locationTitle": "ประสบการณ์ท้องถิ่น",
@@ -1575,7 +1588,7 @@
         ]
       },
       "particle": {
-        "title": "ฮูเกิ้ล สตูdio - การเชื่อมต่อทันสมัย",
+        "title": "Hugo ศูนย์ความรู้ - การเชื่อมต่อที่ฉลาด",
         "qrTitle": "JOY QR Code",
         "internalCode": "Internal code for sending JOY",
         "share": "แชร์",
@@ -1596,8 +1609,8 @@
         "verifying": "ยืนยันรหัส...",
         "recipientLabel": "ผู้รับ",
         "changeBtn": "เปลี่ยนแปลง",
-        "amountTitle": "จำนวนเงินของคุณ",
-        "amountPlaceholder": "ต้องไม่น้อยกว่า 10 JOY",
+        "amountTitle": "JOY จำนวน",
+        "amountPlaceholder": "ขั้นต่ำ {{amount, joy}}",
         "fee": "ค่าธรรมเนียม创作者",
         "total": "รวมทั้งหมด",
         "noteTitle": "ข้อความ (เลือกได้)",
@@ -1606,7 +1619,7 @@
         "chipGift": "เป็นของคุณ",
         "next": "ถัดไป",
         "totalDeduction": "การลดทั้งหมด",
-        "warning": "ยังไม่สามารถขอคืนเงินได้ — กรุณาตรวจสอบก่อนตกลง",
+        "warning": "JOY ไม่สามารถขอคืนได้ — กรุณาตรวจสอบอย่างละเอียดก่อนยืนยัน",
         "back": "กลับ",
         "sendNow": "ส่งทันที",
         "scanCloudCode": "Scanner Cloud Code",
@@ -1681,7 +1694,11 @@
         "transferSuccess": "การโอน JOY สำเร็จ!",
         "receiptId": "รหัสธุรกรรม",
         "receiptFee": "ค่าธรรมเนียมความสร้างสรรค์",
-        "receiptNote": "หมายเหตุ"
+        "receiptNote": "หมายเหตุ",
+        "cameraHintWide": "วางโค้ดที่ตำแหน่งใดก็ได้ในกรอบ ไม่ต้องจัดให้อยู่กลาง",
+        "conversionFee": "ค่าธรรมเนียมแปลง {{from}} → {{to}} ({{percent}}%)",
+        "close": "ปิด",
+        "pinHint": "กรอก PIN 6 หลักเพื่อส่ง {{amount, joy}} ให้ {{name}}"
       },
       "exchange": {
         "exchanged": "เปลี่ยนแปลง",
@@ -1717,7 +1734,7 @@
         "title": " redeem a JOY gift code",
         "placeholder": "Enter gift code",
         "button": "ใช้จ่าย",
-        "success": "Redeemed successfully! +{{amount}} JOY",
+        "success": "Redeemed successfully! +{{amount, joy}}",
         "error": "This code could not be redeemed."
       },
       "applyReferral": {
@@ -1725,7 +1742,7 @@
         "placeholder": "ตัวอย่าง: HG123456",
         "button": "สมัคร",
         "hint": "ถ้า有人推薦你，请輸入他們的代碼，這樣你和他們都可以得到 JOY。",
-        "success": "+10 JOY และ +{{days}} วันของ Bio Link",
+        "success": "ใช้รหัสสำเร็จ! +{{amount, joy}} และ Bio Link {{days}} วัน",
         "error": "นี่ไม่สามารถใช้งานได้"
       },
       "earnInfo": "สร้าง JOY ได้จาก: แนะนำเพื่อน, รับฟังการฝึกอบรม, ชนะเกมที่นั่งเล่น, หรือใช้โค้ดของผู้ดูแลสำเร็จ",
@@ -1778,13 +1795,13 @@
         "notFound": "ส่งไปยัง",
         "recipientLabel": "จำนวนเงินที่จะส่ง",
         "amountLabel": "สามารถโอนได้ต่อถึง 1,000 JOY ต่อการโอน",
-        "amountPlaceholder": "Up to 1000 JOY per transfer",
-        "feeNote": "ค่าธรรมเนียมการส่ง: 5% ของยอดส่งจะถูกหักเป็น {{net}} JOY (ค่าธรรมเนียม: {{fee}} JOY)",
-        "dailyCapNote": "ขั้นต่ำ: 1,000 JOY ที่จะส่งในวันเดียว",
+        "amountPlaceholder": "สูงสุด {{amount, joy}} ต่อครั้ง",
+        "feeNote": "ค่าธรรมเนียมการส่ง: 5% ของยอดส่งจะถูกหักเป็น {{net, joy}} (ค่าธรรมเนียม: {{fee, joy}})",
+        "dailyCapNote": "จำกัดการส่งวันละ {{amount, joy}}",
         "confirmButton": "ยืนยันการส่ง",
         "cancelButton": "Cancel",
         "sending": "กำลังส่ง...",
-        "success": "ส่งไปถึง {{net}} JOY ให้กับ {{name}}! ",
+        "success": "ส่งไปถึง {{net, joy}} ให้กับ {{name}}!",
         "changeRecipient": "เปลี่ยนผู้รับ",
         "ageGateHint": "คุณต้องมีบัญชีที่อายุไม่น้อยกว่า 3 วันเพื่อส่ง JOY"
       },
@@ -1794,7 +1811,7 @@
         "claimButton": "ขอ JOY",
         "claimed": "เข้าสู่ระบบ",
         "notDoneYet": "ยังไม่เสร็จ",
-        "claimSuccess": "+{{amount}} JOY!",
+        "claimSuccess": "+{{amount, joy}}!",
         "empty": "ไม่สามารถโหลดภารกิจได้ในขณะนี้"
       }
     },
@@ -1808,16 +1825,16 @@
       "claimButton": "ตรวจสอบเข้า",
       "alreadyClaimed": "ได้ทำการตรวจสอบเข้า",
       "locked": "ปิด",
-      "claimSuccess": "เข้ารับรองแล้ว! +{{amount}} JOY",
-      "claimSuccessBonus": "เข้าร่วมแล้ว! +{{total}} ยินดี (รวมใน +{{bonus}} โบนัสของ milestone ยินดี)]",
+      "claimSuccess": "เข้ารับรองแล้ว! +{{amount, joy}}",
+      "claimSuccessBonus": "ตรวจสอบแล้ว! +{{total, joy}} (รวมถึง +{{bonus, joy}} โบนัสระยะทาง)",
       "claimError": "ไม่สามารถตรวจสอบเข้าได้ในตอนนี้",
       "weekLockedTitle": "สัตว์เลี้ยงหยุดนิ่งแล้ว 重新開幕星期一",
-      "streakTooltip": "{{count}} วันที่สัตว์เลี้ยงหยุดนิ่งแล้ว สำเร็จ 7 วันเพื่อ +{{reward}} JOY{{milestones}}",
-      "dayReward": "วันนี้ {{day}}  · +{{amount}} JOY",
+      "streakTooltip": "{{count}} วันที่สัตว์เลี้ยงหยุดนิ่งแล้ว สำเร็จ 7 วันเพื่อ +{{reward, joy}}{{milestones}}",
+      "dayReward": "วันนี้ {{day}} · +{{amount, joy}}",
       "claiming": "กำลังขอ...",
       "reopensMonday": "เปิดรับเข้าสู่วันจันทร์",
       "alreadyClaimedToday": "ตรวจพบวันนี้",
-      "claimToday": "เข้าสู่การตรวจสอบ · +{{amount}} JOY"
+      "claimToday": "เข้าสู่การตรวจสอบ · +{{amount, joy}}"
     },
     "settings": {
       "title": "ตั้งค่า",
@@ -1826,7 +1843,7 @@
         "summary": "ข้อมูลบัญชี, การจ่ายเงินและตั้งค่า",
         "bioTitle": "โปรไฟล์ Hugo Bio",
         "bioDescription": "ปรับแต่งรูปลักษณ์ บัตรสมาชิก และลิงก์โซเชียลของคุณ",
-        "publicIdentityNote": "ชื่อและรูปภาพของคุณจะแสดงอย่างเปิดเผยทั่วชุมชนฮูเกิล",
+        "publicIdentityNote": "ชื่อและรูปภาพของโปรไฟล์ของคุณปรากฏอยู่ในเครือข่าย Hugo สตูดิโอทั่วไปเป็นสาธารณะ",
         "notifications": "เตือน",
         "notificationsDescription": "ตั้งค่าการแจ้งเตือนทางอินเทอร์เน็ต",
         "privacy": "ความลับและความสามารถในการเข้าถึง",
@@ -1851,7 +1868,7 @@
       "groupLogin": "เข้าสู่ระบบ",
       "groupPreferences": "เพิ่มสิ่งที่คุณชอบ",
       "pushTitle": "การแจ้งเตือน",
-      "pushDesc": "ขออภัย โปรดรอ一小會兒",
+      "pushDesc": "รับข้อมูลเรียบร้อยเกี่ยวกับ JOY ของคุณ แพ็คเกจ และอื่นๆ อีกมากมาย — แม้กระทั่งเมื่อแอปถูกปิด",
       "pushProcessing": "ยังไม่มีทางสำหรับการแจ้งเตือน",
       "pushOn": "เปิด",
       "pushOff": "ปิด",
@@ -1911,7 +1928,7 @@
     },
     "versionAd": {
       "eyebrow": "เวอร์ชัน 2.0 · เปิดตัวแล้ว",
-      "title": "ฮูเกิลสโตージูเพิ่มระดับ",
+      "title": "Hugo Studio just grew up a level",
       "body": "ไม่เพียงแค่เพิ่มฟีเจอร์ — 2.0 重新構築基礎：如何登入，如何保護你的數據，以及每個應用程式如何與其他應用程式交流。",
       "features": {
         "security": "ความปลอดภัยถูกสร้างขึ้นใหม่",
@@ -1919,17 +1936,17 @@
         "arcade": "8 เกม,  identity ที่ตนเอง",
         "cards": "5 ชุดบัตรสี"
       },
-      "reward": "อ่านการupgrade ทั้งหมด — รับ 50 JOY",
+      "reward": "อ่านการupgrade ทั้งหมด — รับ {{amount, joy}}",
       "cta": "เห็นอะไรใหม่ ๆ",
       "later": "ถัดไป",
       "optOut": "Don't show again"
     },
     "infoVersion": {
       "title": "ข้อมูลและเวอร์ชั่น",
-      "desc": "เกี่ยวกับฮูโจ้ สรุป, ที่นี่คือเวอร์ชั่นล่าสุด และรางวัลเล็ก ๆ สำหรับคุณเอง",
-      "aboutTitle": "ฮูโจ้ สรุป",
-      "aboutBody": "ฮูโจ้ เป็นแพลตฟอร์มบีอิสต์ที่รวมถึงเครื่องมือที่หลากหลาย ซึ่งสร้างขึ้นเพื่อให้ทุกคนสามารถหาจุดที่เหมาะสมสำหรับความเป็นตัวตนและวัฒนธรรมของชีวิตประจำวันของคุณ — มีไม่มีขนาดสินค้าแบบเดียวกัน",
-      "aboutBody2": "จากหน้าบีอิสต์ของตนเอง และระบบ JOY ที่จะให้รางวัลเล็ก ๆ สำหรับคุณเอง, ไปจนถึงเครื่องมือที่ช่วยเหลือฮูโจ้, ฮูโจ้ handle, ฮูโจ้ PSY, ศึกษาด้วยฮูโจ้, ฮูโจ้ เรียลเอนด์, ฮูโจ้ อาร์กับฮูโจ้ อัคคี, และฮูโจ้ อัลเรจ — ทุกเครื่องมืออยู่ในหนึ่งแห่ง ทำให้คุณสามารถสร้างภาพลักษณ์ของตนเอง, ทำงาน, ศึกษาและพักผ่อนหย่อนใจโดยไม่ต้องเปลี่ยนแอปพลิเคชันที่แตกต่างกัน",
+      "desc": "เกี่ยวกับ Hugo สตูดิโอ รุ่นปัจจุบัน และรางวัลเล็ก ๆ เพื่อคุณ",
+      "aboutTitle": "เกี่ยวกับ Hugo สตูดิโอ",
+      "aboutBody": "Hugo ศูนย์เรียนรู้เป็นแพลตฟอร์มที่เชื่อมโยงบุคคลและมีเครื่องมือใช้ประโยชน์หลากหลาย สร้างสรรค์เพื่อให้ทุกคนสามารถหาพื้นที่ที่เหมาะสมกับความชอบและความเร็วในการดำเนินชีวิตของตนเอง — ไม่มีอะไรที่เข้าได้ทุกคนในที่นี้.",
+      "aboutBody2": "From your personal Bio page and a daily JOY rewards system, to utilities like HugoHelpdesk, HugoHandle, HugoPSY, Study with Hugo, HugoRadio, HugoArcade and HugoAura — every tool lives in one place, so you can build your personal image, work, study and unwind without switching between different apps.",
       "featuresTitle": "ฟีเจอร์หลัก",
       "features": {
         "bio": {
@@ -1953,19 +1970,19 @@
           "desc": "สองสุดยอดคอลเลกชันที่ครอบคลุมการพัฒนาเว็บ,  productivityดิจิตอล และ AI"
         },
         "radio": {
-          "title": "ฮูเกอร์ริโอ",
+          "title": "HugoRadio",
           "desc": "ข่าวภาษาไทยและภาษาอังกฤษเพิ่มเติมสำหรับรายการวิทยุออนไลน์และช่องเพลงออนไลน์ฟรี"
         },
         "arcade": {
-          "title": "ฮูเกอร์เกมส์",
-          "desc": "2048, Caro, ตู้จักราบ, และมากกว่าเกมเล็ก ๆ — ทำให้ JOY"
+          "title": "HugoArcade",
+          "desc": "2048, คาร่า, 체스, Hugo 뱀과 더 많은 미니 게임 — 플레이하여 얻을 수 있습니다, JOY."
         },
         "aura": {
-          "title": "ฮูเกอร์อัลคาเรด",
+          "title": "HugoAura",
           "desc": "พื้นที่โฟกัสแบบ Pomodoro พร้อมเสียงธรรมชาติและเสียงรักษาสุขภาพ"
         }
       },
-      "guideTitle": "วิธีใช้งานฮูเกอร์สตูdio",
+      "guideTitle": "วิธีการใช้ Hugo สตูดิโอ",
       "guide": {
         "step1": {
           "title": "สร้าง Bio ของคุณ",
@@ -2102,20 +2119,20 @@
       "cardNoticeTitle": "ใช้งานผ่านเว็บไซต์เท่านั้น",
       "cardNoticeBody": "这是一个属于Hugo Studio系统的数字卡片，用于识别系统内的会员等级和福利。它不是实体卡、银行卡或支付工具，也没有在Hugo Studio之外使用。",
       "readBonusTitle": "อ่านทุกข้อแก้ไข",
-      "readBonusDesc": "คุณได้เห็นทุกสิ่งที่เปลี่ยนแปลงในเวอร์ชัน 2.0 นี้ พร้อมด้วย 50 JOY เพื่อขอบคุณ",
-      "readBonusLocked": "เล่นทั้งหมดในตัวอย่างการเรียนรู้ของเวอร์ชัน 2.0 เพื่อขอรับรางวัล 50 JOY นี้",
-      "readBonusButton": "ขอรับ +50 JOY",
+      "readBonusDesc": "คุณได้เห็นทุกสิ่งที่เปลี่ยนแปลงในเวอร์ชัน 2.0 นี้ พร้อมด้วย {{amount, joy}} เพื่อขอบคุณ",
+      "readBonusLocked": "เล่นทั้งหมดในตัวอย่างการเรียนรู้ของเวอร์ชัน 2.0 เพื่อขอรับรางวัล {{amount, joy}} นี้",
+      "readBonusButton": "ขอรับ {{amount, joy}}",
       "readBonusLockedButton": "Locked — ดูข้อมูลเพิ่มเติม",
       "readBonusClaiming": "ขอรับ...",
-      "readBonusClaimed": "50 JOY ขอรับ",
-      "readBonusSuccess": "+50 JOY ขอรับ. เารี่ยมทุกคนในการอ่านสิ่งนี้!",
+      "readBonusClaimed": "{{amount, joy}} ขอรับ",
+      "readBonusSuccess": "{{amount, joy}} ขอรับ. เารี่ยมทุกคนในการอ่านสิ่งนี้!",
       "readBonusError": "ไม่สามารถขอรับรางวัลได้ กรุณาลองใหม่อีกครั้ง",
       "bonusTitle": "Discovery gift",
       "bonusDesc": "ขอบคุณที่มาเยือนเว็บไซต์ ข้อเสนอ JOY น้อยนิดสำหรับการเข้าชมเวอร์ชัน 2.0",
-      "bonusButton": "Claim +20 JOY",
+      "bonusButton": "Claim {{amount, joy}}",
       "bonusClaiming": "ขอรับ...",
       "bonusClaimed": "Already claimed",
-      "bonusSuccess": "+20 JOY claimed, thanks for exploring!",
+      "bonusSuccess": "{{amount, joy}} claimed, thanks for exploring!",
       "bonusError": "Couldn't claim the bonus right now."
     },
     "team": {
@@ -2150,7 +2167,7 @@
       "benefit5Desc": "ท่านเลือกช่วงเวลาของตนเอง (ประมาณ 5-10 ชั่วโมงต่อสัปดาห์) ในช่วง Season Exam ท่านสามารถหยุดพักและให้ความสำคัญกับการศึกษา — ไม่มีแรงกดดันจากกำหนดเวลา, ไม่มี KPIs ที่แน่นอน",
       "benefit6Title": "เพื่อนในสาขาเดียวกัน",
       "benefit6Desc": "Meet like-minded IT students to swap resources and study tips, and support each other through the career ahead.",
-      "careTitle": "ช่วยให้คุณพบนักศึกษาไอทีที่มีความสนใจคล้ายกันเพื่อแลกเปลี่ยนทรัพยากรและคำแนะนำในการเรียนรู้ และสนับสนุน彼此直到职业生涯的未来。",
+      "careTitle": "Hugo Studioสนับสนุนคุณ",
       "careWeek1Label": "Your first week",
       "careWeek1": "วิธี Hugo Studio ช่วยคุณ",
       "careWeeklyLabel": "Every week",
@@ -2226,7 +2243,7 @@
       "hoursLeft": "{{hours}} ชั่วโมงที่เหลือ",
       "pendingApproval": "รอการอนุมัติจากผู้ดูแลระบบ",
       "milestoneTitle": "คุณเข้าถึง 500 ชั่วโมง!",
-      "milestoneDesc": "ติดต่อฮูโก้เพื่อรับคำขอบคุณพิเศษจากฮูโกสตูดีโอ。",
+      "milestoneDesc": "ติดต่อไปกับ Hugo เพื่อรับคำขอบคุณพิเศษจาก Hugo สตูดิโอ.",
       "statOpenTasks": "งานที่ยังไม่ได้รับการแก้ไข",
       "statDoneTasks": "ภารกิจที่เสร็จสมบูรณ์",
       "statApprovedHours": "การอนุมัติชั่วโมง",
@@ -2345,6 +2362,202 @@
       "translating": "กำลังแปล…",
       "translateUnavailable": "อุปกรณ์นี้ยังไม่รองรับคู่ภาษานี้",
       "translateError": "แปลข้อความนี้ไม่สำเร็จ"
+    },
+    "partnerBio": {
+      "dangXacThucQuyen": "ตรวจสอบการเข้าถึงผู้สนับสนุน...",
+      "khongCoQuyenTruy": "ไม่มีการเข้าถึง",
+      "trangTaoBioNay": "นี้ builder ของบิโอทำงานเพียงผ่านลิงค์หรือ iframe ที่ Hugo Studio ได้รับมอบหมายให้กับผู้สนับสนุนแล้วเท่านั้น。",
+      "kichHoatBioLink": "เปิดใช้งานลิงค์บิโอ",
+      "canCungCapEmail": "ต้องการอีเมลของผู้ใช้เพื่อให้ Hugo Studio สามารถสร้างและเชื่อมโยงลิงค์บิโอฟรีได้โดยไม่ต้องเข้าสู่ Hugo Studio。",
+      "emailCuaBan": "อีเมล...",
+      "thietKeNgay": "เริ่มออกแบบ",
+      "dangTaiCauHinh": "กำลังโหลดการตั้งค่าบิโอ...",
+      "caNhanHoaBio": "ปรับแต่งลิงค์บิโอของ:",
+      "sua": "ปรับแต่ง",
+      "anhDaiDien": "รูปโปรไฟล์",
+      "hinhAnhHienThi": "ภาพที่แสดงในศูนยงของผู้ใช้ตัวแทนบนอุปกรณ์ของผู้ใช้ตัวแทน。",
+      "goAnh": "ลบภาพ",
+      "hoVaTen": "อีเมล, หมายเลขโทรศัพท์ และโรงเรียนจะได้รับการปกป้องหลังจากการยืนยัน. กรุณากรอกข้อมูลอย่างถูกต้อง.",
+      "bietDanh": "ชื่อเล่น",
+      "gioiThieu": "การบรรยาย",
+      "hocVan": "การศึกษา",
+      "ngheNghiep": "อาชีพ",
+      "soDienThoai": "เบอร์โทรศัพท์",
+      "emailLienHe": "อีเมลในการติดต่อ",
+      "lienKetMangXa": "โซเชียลเน็ตเวิร์ก (ไม่เกิน 5)",
+      "nhanVdZaloInstagram": "แท็ก (Vd: Zalo, Instagram...)",
+      "themLienKetMang": "+ Add a social link",
+      "luuCaiDat": "SAVE SETTINGS",
+      "heThongDongBo": "ระบบจะ synchronizesข้อมูลคลาวด์ของผู้สนับสนุน",
+      "dangLuu": "กำลังเก็บข้อมูล...",
+      "luuThongTin": "Save details",
+      "chuaNhapTen": "NO NAME YET",
+      "veBanThan": "About me",
+      "congViec": "Work",
+      "cacLienKet": "รายการลิงก์",
+      "chuaThemLienKet": "__HUGHO_6__ยังไม่ได้เพิ่มลิงค์อะไรเลย...",
+      "duongDanCongKhai": "ที่อยู่สาธารณะ: ",
+      "canChinhHinhAnh": "ปรับภาพ",
+      "nhanVaKeoDe": "ยัดหยุ่นและย้ายเพื่อเปลี่ยนแปลงพื้นที่การตัดภาพ。",
+      "tyLePhongTo": "ส่วนลดในการขยายขนาด",
+      "huy": "Cancel",
+      "luuVungCat": "บันทึกการตัดภาพ"
+    },
+    "joyLater": {
+      "title": "JOYlater",
+      "detail": "ปลดล็อกก่อน แล้วค่อยคืนจาก JOY ที่คุณสะสมได้",
+      "loading": "กำลังโหลด…",
+      "limit": "เพดานของคุณ",
+      "limitFrom": "คิดจาก {{income, joy}} ที่คุณได้ต่อวัน",
+      "amountLabel": "อยากรับ JOY ล่วงหน้าเท่าไหร่?",
+      "principalRow": "รับล่วงหน้า",
+      "feeRow": "ส่วนเพิ่ม ({{percent}}%)",
+      "totalRow": "รวมที่ต้องคืน",
+      "expectedRow": "คาดว่าคืนครบใน",
+      "days": "{{count}} วัน",
+      "openNow": "รับเลย",
+      "noInterest": "ไม่ทบต้นทบดอก · ส่วนเพิ่มกำหนดตอนเริ่ม",
+      "overLimit": "เกินเพดานของคุณ",
+      "owing": "เหลือที่ต้องคืน",
+      "progress": "คืนแล้ว {{paid, joynum}} / {{total, joy}} ({{percent}}%)",
+      "itemRow": "ปลดล็อกแล้ว",
+      "garnishRow": "หักจากทุกครั้งที่ได้ JOY",
+      "remainingDaysRow": "เหลืออีกราว",
+      "payOffNow": "คืนทั้งหมดเลย",
+      "payOffTitle": "คืนทั้งหมด",
+      "payOffConfirm": "ตัด {{amount, joy}} จากกระเป๋าเพื่อคืนทั้งหมดไหม?",
+      "paidOff": "คืนครบแล้ว",
+      "opened": "ใส่ {{amount, joy}} เข้ากระเป๋าแล้ว",
+      "advanceLabel": "รับ JOY ล่วงหน้า",
+      "noDeadline": "ไม่มีกำหนดส่ง ยอดที่ต้องคืนไม่เพิ่มตามเวลา",
+      "notEligible": "ยังใช้ JOYlater ไม่ได้",
+      "reason": {
+        "adult": "สำหรับสมาชิกอายุ 18 ปีขึ้นไปเท่านั้น",
+        "accountAge": "กระเป๋าต้องเปิดครบ {{minDays}} วัน (ของคุณ {{days}} วัน)",
+        "earned": "ต้องเคยได้รับรวม {{min, joy}} (คุณ: {{earned, joy}})",
+        "openLoan": "คุณยังมีรายการที่ยังคืนไม่ครบ",
+        "noIncome": "ยังไม่มีรายได้ JOY สม่ำเสมอ"
+      },
+      "howTitle": "JOYlater ทำงานอย่างไร",
+      "how1": "เลือกว่าจะรับ JOY ล่วงหน้าเท่าไหร่ — เพดานคิดจากที่คุณสะสมได้เอง",
+      "how2": "JOY เข้ากระเป๋าทันที ใช้ได้ตามปกติ",
+      "how3": "ทุกครั้งที่คุณได้ JOY ระบบจะกันไว้ {{percent}}% เพื่อคืน ไม่ต้องจำวันที่",
+      "installmentsNote": "ยิ่งแบ่งหลายงวด ส่วนเพิ่มยิ่งมาก ตัวเลขกำหนดตอนเริ่มและไม่เปลี่ยนอีก",
+      "feeShort": "+{{percent}}%",
+      "perStepRow": "ต่องวด",
+      "stepRow": "งวดถัดไป",
+      "stepOf": "งวดที่ {{index}} จาก {{of}}",
+      "payStepNow": "คืนงวดนี้ · {{amount, joy}}",
+      "payStepTitle": "คืนงวดที่ {{index}} จาก {{of}}",
+      "payStepConfirm": "ตัด {{amount, joy}} เพื่อคืนงวดนี้ไหม?",
+      "paidStep": "คืนแล้ว {{amount, joy}}",
+      "payOffRest": "ปิดยอดที่เหลือ · {{amount, joy}}",
+      "payModeLabel": "อยากคืนแบบไหน?",
+      "payOnce": "คืนครั้งเดียว",
+      "payOnceHint": "ส่วนเพิ่มน้อยที่สุด {{percent}}%",
+      "paySplit": "แบ่งคืน",
+      "paySplitHint": "แบ่งได้ถึง {{max}} งวด เริ่มที่ {{percent}}%",
+      "perStepShort": "งวดละ {{amount, joy}}",
+      "extraVsOnce": "เพิ่มอีก {{amount, joy}}",
+      "historyTitle": "ประวัติ",
+      "historyHint": "แตะรายการเพื่อดูรายละเอียดทั้งหมด",
+      "historyDone": "คืนครบแล้ว",
+      "historyOpen": "กำลังคืน",
+      "historyAdded": "ส่วนเพิ่ม",
+      "historySplit": "แบ่งเป็น",
+      "historyReturned": "คืนแล้ว",
+      "historyClosedAt": "คืนครบเมื่อ",
+      "historyLines": "คืน {{count}} ครั้ง",
+      "historyNoLines": "ยังไม่มีการคืน",
+      "historyAuto": "กันไว้จาก JOY ที่คุณได้",
+      "historyManual": "คุณคืนเอง",
+      "dueRow": "ครบกำหนด",
+      "penaltyRow": "ส่วนเพิ่มจากการเลยกำหนด",
+      "lockedUntil": "เปิด {{date}}",
+      "lockedNote": "แบ่งจ่ายจะเปิดเฉพาะวันครบกำหนด",
+      "lateNote": "เลยกำหนดหนึ่งงวดจะบวก {{percent}}% ของงวดนั้น ครั้งเดียว",
+      "lateWarn": "เลยกำหนด: บวก {{percent}}% ของงวดนั้น ครั้งเดียว"
+    },
+    "walletApp": {
+      "eyebrow": "กระเป๋าเงิน",
+      "title": "กระเป๋า JOY",
+      "navAria": "การนำทางกระเป๋า",
+      "tabOverview": "ภาพรวม",
+      "tabMissions": "ภารกิจ",
+      "tabHistory": "ประวัติ",
+      "tabLater": "JOYlater",
+      "sub_perks": "สิทธิพิเศษของฉัน",
+      "sub_store": "ร้านสิทธิพิเศษ",
+      "sub_redeem": "กรอกโค้ด",
+      "balanceLabel": "ยอดคงเหลือ",
+      "sendOrReceive": "ส่งหรือรับ",
+      "monthSummary": "30 วันที่ผ่านมา: รับ {{earned}} · ใช้ {{spent}}",
+      "needsYou": "รอคุณอยู่",
+      "claimReady": "มี JOY รอรับ",
+      "claimCount": "ภารกิจสำเร็จ {{count}} รายการ",
+      "latest": "รายการล่าสุด",
+      "seeAll": "ดูทั้งหมด",
+      "noTransactions": "ยังไม่มีรายการ",
+      "more": "อื่น ๆ",
+      "checkinDetail": "รับ JOY ทุกวัน",
+      "sub_checkin": "เช็กอินรายวัน",
+      "cardNoName": "สมาชิก Hugo",
+      "cardReferrals": "แนะนำแล้ว",
+      "cardSince": "สมาชิกตั้งแต่",
+      "cardQrAria": "QR หน้า Bio — แตะเพื่อคัดลอกลิงก์",
+      "cardScanHint": "สแกนเพื่อเปิดหน้า Bio ของคุณ",
+      "cardNeedsSlug": "ตั้งลิงก์ Bio เพื่อรับ QR",
+      "tabMembership": "บัตร",
+      "currentTier": "ระดับปัจจุบัน",
+      "nextTier": "ระดับถัดไป",
+      "tierNeed": "แนะนำอีก {{count}} คนเพื่อขึ้นเป็น {{tier}}",
+      "tierTop": "คุณอยู่ระดับสูงสุดแล้ว",
+      "tierPerks": "สิทธิพิเศษตามระดับ",
+      "tierDefault": "ค่าเริ่มต้นเมื่อสมัคร",
+      "tierFrom": "ตั้งแต่แนะนำ {{count}} คน",
+      "tierOwned": "ได้แล้ว",
+      "tierLocked": "ยังไม่ถึง",
+      "tree": {
+        "seed": "เมล็ดพันธุ์",
+        "sprout": "งอกแล้ว",
+        "sapling": "ต้นกล้า",
+        "young": "ต้นไม้วัยรุ่น",
+        "mature": "ต้นไม้เต็มวัย",
+        "ancient": "ต้นไม้ใหญ่",
+        "progress": "รับแล้ว {{claimed}}/{{total}} ภารกิจ",
+        "keepGoing": "อีก {{count}} ภารกิจต้นไม้จะโตเต็มที่ — โบนัส {{amount, joy}}",
+        "claimBonus": "รับโบนัส {{amount, joy}}",
+        "bonusTaken": "รับโบนัสต้นไม้วันนี้ {{amount, joy}} แล้ว"
+      },
+      "sendJoy": "ส่ง JOY",
+      "convert": "อัตรา",
+      "convMyDenom": "หน่วย JOY ของคุณ",
+      "convLocked": "คุณเลือกหน่วยนี้เมื่อเข้าสู่ระบบครั้งแรก และจะคงที่ตลอดไป การเปลี่ยนภาษาของอินเทอร์เฟซไม่ทำให้หน่วยนี้เปลี่ยน",
+      "convAmountIn": "จำนวน ({{code}})",
+      "convUseBalance": "ใช้ยอดคงเหลือทั้งหมด · {{amount}}",
+      "convTableTitle": "จำนวนเดียวกันในทุกหน่วย",
+      "convFeeNote": "ส่งข้ามหน่วยเสียเพิ่ม {{percent}}%",
+      "convExplain": "JOY มีมูลค่าเดียวเท่านั้น — {{units}} หน่วยข้างต้นคือ {{units}} วิธีเขียนจำนวนเดียวกัน ทุกคนจึงซื้อของได้เหมือนกันทั้งหมด การส่ง JOY ให้ผู้ที่ใช้หน่วยอื่นจะมีค่าธรรมเนียมแปลงหน่วยเพิ่ม {{percent}}%",
+      "denomPickCta": "เลือกหน่วย JOY ของคุณ",
+      "denomPickTitle": "คุณยังไม่ได้เลือกหน่วย JOY",
+      "denomPickIntro": "เลือกวิธีเขียนตัวเลข JOY ให้คุ้นตาคุณ ยอดคงเหลือและราคายังเป็น JOY เดิมทั้งหมด หน่วยเปลี่ยนแค่วิธีอ่านตัวเลข",
+      "denomPickLock": "เลือกแล้วจะคงที่ และการเปลี่ยนภาษาของอินเทอร์เฟซจะไม่เปลี่ยนหน่วยนี้ การส่ง JOY ให้ผู้ที่ใช้หน่วยอื่นมีค่าธรรมเนียมแปลงหน่วยเพิ่ม {{percent}}% จึงสลับหน่วยไปมาไม่ได้",
+      "denomPickYourBalance": "ยอดคงเหลือของคุณ",
+      "denomConfirm": "ใช้หน่วยนี้",
+      "denomSaving": "กำลังบันทึก…",
+      "denomSaved": "ตั้งหน่วย JOY สำหรับบัญชีของคุณแล้ว",
+      "marketTitle": "ตลาดวันนี้",
+      "marketWhy": "อัตราเปลี่ยนทุกวันจากสองปัจจัย: รายได้เฉลี่ยต่อวันของชุมชน ({{income}} ต่อคน) และราคาทองคำสากล ({{gold}} USD/oz)",
+      "marketPricesFixed": "ราคาสิ่งต่าง ๆ ในแอปไม่เปลี่ยนตามอัตรา — อัตราเปลี่ยนแค่วิธีเขียนตัวเลข",
+      "sub_convert": "อัตรา",
+      "range24h": "24 ชม.",
+      "range7d": "7 วัน",
+      "range30d": "30 วัน",
+      "chartAria": "กราฟอัตรา {{code}} เปลี่ยน {{percent}}% ในช่วงที่เลือก",
+      "chartBand": "{{low}} – {{high}}",
+      "chartLoading": "กำลังโหลดกราฟ…",
+      "chartCollecting": "กำลังเก็บข้อมูล — ชั่วโมงละหนึ่งจุด เส้นจะปรากฏในไม่กี่ชั่วโมง",
+      "chartFailed": "โหลดกราฟไม่สำเร็จ"
     }
   },
   "memberTabs": {
@@ -2418,7 +2631,7 @@
       "benefitsTitle": "ข้อเสนอสิทธิ์",
       "redeemBtn": "ขอแพ็กเกจ",
       "publicLinkTitle": "ล็อคข้อมูล",
-      "publicLinkDesc": "ถูกส่งผ่านทางเซิร์ฟเวอร์ของฮูจูสตูdio",
+      "publicLinkDesc": "ข้อมูลที่ถูกจัดส่งอย่างเป็นทางการผ่านเซิร์ฟเวอร์ของ Hugo สตูดิโอ",
       "viewLiveBtn": "ดูหน้าจอแสดงผลจริง",
       "copied": "คัดลอก",
       "copyLink": "คัดลอกลิงค์",
@@ -2501,8 +2714,8 @@
     "library": {
       "installedToast": "แอปได้ติดตั้งแล้ว (มี {{size}} ล้านบนอุปกรณ์นี้!)",
       "appCount": "{{count}} apps",
-      "removedToast": "หน้าเว็บไซต์สมาชิกฮูจู ได้รับการ移除 (ยังคงใช้งานได้){{size}} MB ของคุณ!",
-      "positionUpdated": "หน้าต่างการเข้าสู่ระบบของสมาชิกฮูจู ปรับที่นิ่งลงอย่างเป็นทางการ",
+      "removedToast": "({{size}})MBถูกลบแล้ว!",
+      "positionUpdated": "ตำแหน่งแอปพลิเคชันถูกอัพเดท!",
       "radioPaused": "ลิฟท์ยังคงหยุด",
       "radioPlaying": "กำลังเล่นเพลงลูฟีโค้ด 24/7",
       "interactionRequired": " interactingกับหน้าจอก่อนที่จะเล่นเสียง",
@@ -2568,7 +2781,7 @@
           "button": "開始編程"
         },
         "arcade": {
-          "title": "ฮูเกอร์เกมส์",
+          "title": "HugoArcade",
           "description": "玩2048、國際象棋和太空遊戲，賺JOY，並攀登排行榜",
           "button": "เล่นเกม"
         }
@@ -2590,7 +2803,7 @@
         "forestRain": "ฝนต้นไม้",
         "cafe": "ร้านกาแฟ",
         "summerTrack": "ฤดูร้อนเงียบสงบ",
-        "availableJoy": "ยอดเยี่ยมสิ่งที่คุณสามารถทำได้ใน 5 วันนี้",
+        "availableJoy": "Available JOY balance",
         "fiveDayIncome": "รายได้ 5 วัน",
         "profile": "โปรไฟล์ของฉัน",
         "profileDescription": "บีลิงก์สาธารณะและทางเข้าไปยังเครื่องมือและทรัพยากรการเรียนรู้",
@@ -2599,7 +2812,7 @@
       },
       "size": {
         "small": "หน้าเว็บไซต์ของสมาชิก Hugo Studio",
-        "medium": "หน้าเว็บไซต์สมาชิกฮูจู",
+        "medium": "ความกลางแจ้ง",
         "large": "การเข้าสู่ระบบ",
         "icon": "Icon"
       }
@@ -2610,8 +2823,8 @@
         "description": "โปรไฟล์และข้อมูลส่วนตัว"
       },
       "library": {
-        "title": "ชุดอินเทอร์เฟซสำหรับฮูจู",
-        "description": "แอปพลิเคชันที่มีความรู้สึกของฮูจู"
+        "title": "Hugo ฐานข้อมูล",
+        "description": "Hugo แอพพลิเคชันสำหรับอควาเรียมระบบนี้"
       },
       "study": {
         "title": "Study with Hugo",
@@ -2636,7 +2849,7 @@
         "description": "ความสุขจากการใช้งาน AI และการติดตามการนอน"
       },
       "radio": {
-        "title": "ฮูเกอร์ริโอ",
+        "title": "HugoRadio",
         "description": "ข่าวสารและเพลงสำหรับจุดโฟกัส"
       },
       "helpdesk": {
@@ -2648,11 +2861,11 @@
         "description": "การลดขนาดรูปภาพและลิงค์ที่ปลอดภัย"
       },
       "arcade": {
-        "title": "ฮูเกอร์เกมส์",
+        "title": "HugoArcade",
         "description": "เกมที่ให้ JOY รางวัล"
       },
       "aura": {
-        "title": "ฮูเกอร์อัลคาเรด",
+        "title": "HugoAura",
         "description": "โฟกัสด้วย Pomodoro และเสียงแวดล้อม"
       },
       "info": {
@@ -2686,33 +2899,37 @@
       "arcade_survivor": {
         "title": "ผู้ช่วยภูมิภาค",
         "description": "อยู่ในอวกาศ"
+      },
+      "profile": {
+        "title": "個人檔案",
+        "description": "A verified record of your work, attached to your Bio"
       }
     },
     "dashboard": {
       "title": "การใช้งานสมาชิก",
       "desc": "HugoNFC",
       "nfc": {
-        "title": "Configure Tap Settings to Quickly Share Your Bio Link or Contact Info.",
+        "title": "HugoNFC",
         "desc": "Set Up Now",
         "btnText": "HugoVCard"
       },
       "vcard": {
-        "title": "Create Smart vCard QR Codes to Quickly Scan and Save Contacts Directly.",
+        "title": "HugoVCard",
         "desc": "Create smart vCard QR codes to quickly scan and save contacts directly.",
         "btnText": "HugoVCard"
       },
       "signature": {
-        "title": "อีเมลที่ออกแบบสำหรับธุรกิจ",
+        "title": "HugoSMail",
         "desc": "สร้างลิงก์เข้าถึงเฉพาะให้ผู้ร่วมสนับสนุน VIP",
         "btnText": "HugoVCard"
       },
       "secretLink": {
-        "title": "แปลงและปรับแต่งภาพสินค้าในเวลาจริง",
+        "title": "HugoOcculta",
         "desc": "โปรแกรมการเรียนรู้ที่ใช้ AI สำหรับการติดตามความคิดเห็น, การนอนหลับ, และการฟื้นฟูจิตใจ",
         "btnText": "HugoVCard"
       },
       "fileTools": {
-        "title": "อุปกรณ์ที่มีความสามารถในการเขียนโค้ด (C, C++, C#, Python, Web, PHP) พร้อมคำแนะนำในส่วนของรหัส, บทเรียนเบื้องต้น และการบันทึกไฟล์ที่อยู่ในพื้นที่ของตนเอง",
+        "title": "HugoTractare",
         "desc": "โปรแกรมที่มีความสามารถในการเข้าถึงข้อมูลทั้งหมด (C, C++, C#, Python, Web, PHP) พร้อมคำแนะนำในส่วนของรหัส, บทเรียนเบื้องต้น และการบันทึกไฟล์ที่อยู่ในพื้นที่ของตนเอง",
         "btnText": "โปรแกรมที่มีความสามารถในการเข้าถึงข้อมูลทั้งหมด (C, C++, C#, Python, Web, PHP) พร้อมคำแนะนำในส่วนของรหัส, บทเรียนเบื้องต้น และการบันทึกไฟล์ที่อยู่ในพื้นที่ของตนเอง"
       },
@@ -2727,7 +2944,7 @@
         "btnText": "โปรแกรมโค้ด IDE"
       },
       "chess": {
-        "desc": "ห้องเล่นเกมสตรีมบอท หรือ matchmakingแบบสุ่ม หรือสร้างห้อง private เพื่อแชร์และเล่นกับเพื่อน",
+        "desc": "ชุมชนเกมเร็วๆนี้ — เล่นกับบอท, การจับคู่สุ่ม, หรือสร้างห้องปิดเพื่อแบ่งปันและเล่นกับเพื่อนฝูง. JOY และระบบการให้คะแนน.",
         "btnText": "เข้า Lobby"
       },
       "radio": {
@@ -2741,120 +2958,201 @@
     },
     "radio": {
       "categories": {
-        "vnNews": "สถานีเวียดนาม",
+        "vnNews": "ข่าวภาษาไทย",
         "intlNews": "ข่าวต่างประเทศ",
         "music": "เพลง",
-        "chill": "ผ่อนคลาย",
-        "found": "บันทึกไว้ ({{n}})"
+        "chill": " Chill ",
+        "found": " บันทึก ({{n}}) "
       },
       "state": {
-        "connecting": "กำลังเชื่อมต่อ",
-        "playing": "กำลังเล่น",
-        "paused": "หยุดชั่วคราว",
-        "idle": "พร้อมเล่น",
-        "pickStation": "เลือกสถานีที่ต้องการฟัง"
+        "connecting": " เชื่อมต่อ ",
+        "playing": " เล่น ",
+        "paused": "หยุด",
+        "idle": " พร้อมใช้งาน ",
+        "pickStation": " เลือกสถานีเพื่อรับฟัง "
       },
       "control": {
-        "prev": "สถานีก่อนหน้า",
-        "next": "สถานีถัดไป",
+        "prev": " สถานีก่อนหน้า ",
+        "next": " สถานีถัดไป ",
         "play": "เล่น",
         "stop": "หยุด",
-        "volume": "ระดับเสียง",
-        "shuffle": "สุ่ม",
-        "sleep": "ตั้งเวลาปิด",
-        "sleepRunning": "ปิดใน {{time}}",
-        "sleepArmed": "ตั้งไว้ {{minutes}} นาที"
+        "volume": "Volume",
+        "shuffle": "สลับ",
+        "sleep": "เวลาพักผ่อน",
+        "sleepRunning": "หยุดใน {{time}}",
+        "sleepArmed": "กำหนดให้ {{minutes}} นาที"
       },
       "health": {
         "good": "สถานีนี้เล่นได้ดี",
-        "shaky": "สถานีนี้ไม่ค่อยเสถียร",
-        "dead": "ใช้งานไม่ได้ตอนนี้ — จะลองใหม่ในอีกหนึ่งวัน",
-        "unknown": "ยังไม่เคยลอง"
+        "shaky": "สถานีนี้ไม่คงเส้นคงวา",
+        "dead": "ขณะนี้ลงอยู่ — จะลองใหม่ในวันหน้า",
+        "unknown": "ยังไม่เคยทดสอบ"
       },
-      "learnedUrl": "จำที่อยู่ใหม่แล้ว",
+      "learnedUrl": "พบทางเข้าใหม่แล้ว",
       "searchPlaceholder": "ค้นหาสถานี: VOV1, NPR, FIP…",
       "searchAction": "ค้นหา",
       "searching": "กำลังค้นหา…",
-      "loading": "กำลังโหลด…",
-      "noStations": "ไม่พบสถานี",
-      "removeFound": "นำ {{name}} ออกจากรายการ",
+      "loading": "กรุณารอโหลด...",
+      "noStations": "ไม่พบสถานีในหมวดหมู่นี้",
+      "removeFound": "ลบ {{name}} จากรายการ",
       "toast": {
-        "playError": "ตอนนี้เล่นสถานีนี้ไม่ได้ ลองสถานีอื่นดูนะ",
-        "autoSkip": "{{from}} เชื่อมต่อไม่ได้ — เปลี่ยนไปที่ {{to}}",
-        "outOfTokens": "โทเคนสำหรับฟังหมดแล้ว ซื้อเพิ่มเพื่อฟังต่อ",
-        "notFound": "ไม่พบสถานีชื่อ “{{name}}”",
-        "searchError": "เชื่อมต่อไดเรกทอรีสถานีไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่",
-        "sleepDone": "ตั้งเวลาปิด: HugoRadio หยุดเล่นแล้ว ฝันดีนะ!"
+        "playError": "สถานีนี้ไม่สามารถรับฟังได้ในขณะนี้ กรุณาลองสถานีอื่นแทน",
+        "autoSkip": "{{from}} ไม่สามารถเชื่อมต่อ — การเปลี่ยนไปใช้ {{to}}.",
+        "outOfTokens": "คุณหมดสิทธิ์ในการฟังแล้ว — ซื้อเพิ่มเพื่อรักษาการฟัง",
+        "notFound": "ไม่มีสถานีที่ชื่อว่า “{{name}}”",
+        "searchError": "ไม่สามารถเชื่อมต่อไปยังรายการสถานีได้ กรุณาตรวจสอบการเชื่อมต่อและลองใหม่",
+        "sleepDone": "ปลั๊กเอาต์: HugoRadio หยุดแล้ว — นอนดี!"
       },
       "legal": {
-        "title": "แหล่งที่มาและลิขสิทธิ์",
-        "body": "HugoRadio เป็นเพียงเครื่องเล่น: เปิดสตรีมสดที่แต่ละสถานีเผยแพร่เอง ไม่ดาวน์โหลด ไม่แคช ไม่บันทึกเสียง ลิขสิทธิ์รายการเป็นของสถานีผู้กระจายเสียง",
-        "source": "รายชื่อสถานีมาจากฐานข้อมูลเปิด Radio Browser"
+        "title": "แหล่งข้อมูลและสิทธิ์ทางลิขสิทธิ์",
+        "body": "HugoRadio เป็นเพียงเครื่องเล่น: เปิดสตรีมสดที่แต่ละสถานีเผยแพร่เอง ไม่มีการดาวน์โหลด แคช หรือบันทึกใด ๆ สิทธิ์ในรายการเป็นของสถานีผู้ออกอากาศ",
+        "source": "HugoRadio คือเพียงผู้เล่น: มันเปิดเส้นทางสตรีมสดที่ broadcaster เองสร้างเอง ไม่มีการดาวน์โหลด การเก็บข้อมูลหรือบันทึกอะไรเลย ความรับผิดชอบของสิทธิในการออกอากาศอยู่กับ broadcaster"
       },
       "token": {
-        "title": "โทเคนสำหรับฟัง",
-        "unit": "โทเคน",
-        "perToken": "1 โทเคน = ฟังได้ {{minutes}} นาที",
-        "freeLeft": "ฟรีสัปดาห์นี้: {{n}}/{{total}}",
-        "purchasedLeft": "ที่ซื้อไว้: {{n}}",
-        "resetIn": "เติมใหม่{{when}}",
-        "peakNotice": "ช่วงเวลาเร่งด่วน: หนึ่งโทเคนฟังได้เพียง {{minutes}} นาที",
-        "emptyDesc": "โทเคนหมดแล้ว ซื้อเพิ่มเพื่อฟังต่อ",
-        "lastMinutes": "เหลือไม่ถึงหนึ่งโทเคน — ประมาณ {{minutes}} นาที",
-        "buyMore": "ซื้อโทเคนเพิ่ม"
+        "title": "การฟังผ่าน",
+        "unit": "ผ่าน",
+        "perToken": "แต่ละผ่านให้เวลาฟัง {{minutes}} นาที",
+        "freeLeft": "{{n}}/{{total}} ผ่านฟรีเหลืออยู่",
+        "purchasedLeft": "{{n}} ผ่านซื้อแล้ว",
+        "resetIn": "จะถูกรีเซ็ต {{when}}",
+        "peakNotice": "ช่วงเวลาที่สูง:แต่ละผ่านมีเพียง {{minutes}} นาที",
+        "emptyDesc": "ไม่มีการผูกการใช้งานเหลือ了 กรุณาซื้อเพิ่มหรือรอจนถึงการปรับใหม่ในสัปดาห์หน้า。",
+        "lastMinutes": "มีการผูกการใช้งานที่เหลือ {{minutes}} นาที ในช่วงนี้",
+        "buyMore": "หมดเวลา"
       },
       "store": {
-        "title": "ซื้อโทเคนสำหรับฟัง",
-        "desc": "1 โทเคน = ฟังได้ {{minutes}} นาที โทเคนที่ซื้อไม่หมดอายุรายสัปดาห์",
-        "close": "ปิด",
-        "balance": "ยอดคงเหลือของคุณ",
-        "amount": "จำนวนโทเคนที่ต้องการซื้อ",
-        "decrease": "ลดหนึ่งโทเคน",
-        "increase": "เพิ่มหนึ่งโทเคน",
-        "equals": "{{n}} โทเคน = ฟังได้ {{minutes}} นาที",
-        "preset": "{{hours}} ชม.",
-        "unitPrice": "ราคาต่อโทเคน",
-        "fee": "ค่าธรรมเนียมสร้างสรรค์ ({{percent}}%)",
+        "title": "ซื้อโทนส์ฟัง",
+        "desc": "1 โทนส์ = {{minutes}} นาทีของฟัง. สินค้าที่ซื้อไม่มีวันหมดอายุทุกสัปดาห์。",
+        "close": "Close",
+        "balance": "ยอดรวมของคุณ",
+        "amount": "มีโทนส์เท่าไหร่ในบัญชีของคุณ",
+        "decrease": "โทนส์ลดลงเพิ่มขึ้นหนึ่งโทนส์",
+        "increase": "โทนส์เพิ่มขึ้นหนึ่งโทนส์",
+        "equals": "{{n}} โทนส์ = {{minutes}} นาทีของฟัง",
+        "preset": "{{hours}} ชั่วโมง",
+        "unitPrice": "ราคาต่อตัวอักษร",
+        "fee": "ค่าบริการสร้างสรรค์ ({{percent}}%)",
         "total": "รวมทั้งหมด",
-        "peakNotice": "ช่วงเร่งด่วน 00:00–05:00 และ 11:00–13:00: โทเคนถูกหักเร็วขึ้นสองเท่า",
-        "short": "ยังขาดอีก {{amount}} JOY",
-        "buy": "ซื้อ {{n}} โทเคน — {{total}} JOY",
-        "buying": "กำลังดำเนินการ…",
-        "success": "เพิ่ม {{n}} โทเคนสำหรับฟังแล้ว",
-        "genericError": "ซื้อไม่สำเร็จ กรุณาลองใหม่"
+        "peakNotice": "ช่วงเวลาที่ดีที่สุด 00:00–05:00 และ 11:00–13:00: ตัวอักษรถูกใช้เร็วสองเท่า",
+        "short": "ยังขาดอีก {{amount, joy}}",
+        "buy": "ซื้อ {{n}} โทเคน — {{total, joy}}",
+        "buying": "กำลังประมวลผล…",
+        "success": "({{n}}) เสียงตัวอักษรถูกเพิ่มแล้ว",
+        "genericError": "การซื้อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง"
       }
     },
     "store": {
-      "title": "ร้านค้า Hugo",
-      "tabs": {
-        "shop": "ซื้อ",
-        "cart": "ตะกร้า",
-        "orders": "ประวัติ",
-        "promos": "Promos"
+      "error": "ทำรายการไม่สำเร็จ",
+      "search": {
+        "placeholder": "ค้นหาแอปและไอเทม",
+        "clear": "ล้างการค้นหา",
+        "results": "แอป {{apps}} · ไอเทม {{packs}}",
+        "empty": "ไม่พบอะไรเลย",
+        "emptyHint": "ลองใช้คำอื่นดู"
       },
-      "shop": {
-        "search": "ค้นหา...",
-        "free": "FREE",
-        "addToCart": "เพิ่มในตะกร้า",
-        "installed": "ติดตั้ง"
+      "home": {
+        "apps": "แอป",
+        "appsHint": "ส่วนใหญ่ฟรี เปิดใช้ได้เลย",
+        "orders": "ซื้อแล้ว",
+        "ordersHint": "รายการล่าสุด",
+        "balance": "ยอดของคุณ",
+        "balanceHint": "JOY ได้จากการเรียน เล่นเกม และเช็กชื่อ ซื้อด้วยเงินไม่ได้",
+        "games": "เกม",
+        "gamesHint": "โหลดที่นี่ แล้วไปเล่นในตู้เกม"
+      },
+      "expiring": {
+        "title": "กำลังใช้อยู่",
+        "hint": "หมดอายุแล้วจะถูกล็อก ไม่มีการตัด JOY อัตโนมัติ",
+        "trial": "รุ่นทดลอง",
+        "rent": "รายเดือน",
+        "today": "หมดวันนี้",
+        "tomorrow": "เหลืออีกหนึ่งวัน",
+        "days": "เหลืออีก {{count}} วัน",
+        "cta": "ดูแพ็กเกจ"
+      },
+      "app": {
+        "free": "ฟรี",
+        "freeHint": "แอปนี้ฟรี ไม่ต้องใช้ JOY",
+        "using": "กำลังใช้",
+        "owned": "เป็นเจ้าของแล้ว",
+        "open": "เปิด",
+        "locked": "ยังไม่ปลดล็อก",
+        "lockedHint": "เลือกวิธีปลดล็อกด้านล่าง",
+        "giftAria": "ให้{{app}}เป็นของขวัญแก่เพื่อน",
+        "choose": "วิธีปลดล็อก",
+        "chooseHint": "ทดลองก่อน จ่ายรายเดือน หรือจ่ายครั้งเดียว",
+        "install": "รับ",
+        "installing": "กำลังโหลด {{percent}}%",
+        "installedToast": "ติดตั้ง{{app}}แล้ว",
+        "viaPlan": "ปลดล็อกด้วยแพ็กเกจ{{plan}}",
+        "see": "ดูแพ็กเกจ"
+      },
+      "tier": {
+        "trial": "ทดลอง {{count}} วัน",
+        "trialNote": "ไม่เสีย JOY หมดเวลาแล้วล็อกเอง",
+        "trialUsed": "คุณเคยทดลองแล้ว",
+        "trialStarted": "เปิดทดลอง {{count}} วันแล้ว",
+        "free": "ฟรี",
+        "start": "เริ่ม",
+        "rent": "รายเดือน",
+        "rentNote": "ต่ออายุเมื่อต้องการ หยุดเมื่อไรก็ได้",
+        "rentAgainNote": "ซื้อเพิ่มจะต่อจากเวลาที่เหลือ",
+        "rentCta": "รับสิทธิ์",
+        "renewCta": "ต่ออายุ",
+        "own": "ตลอดชีพ",
+        "ownNote": "รายเดือนครบ {{months}} เดือนต้องใช้ {{joy, joy}}",
+        "ownCta": "ซื้อ",
+        "save": "ประหยัด {{percent}}%",
+        "popular": "ยอดนิยม",
+        "current": "กำลังใช้",
+        "used": "ใช้แล้ว",
+        "short": "ยังขาด {{joy, joy}}"
+      },
+      "packs": {
+        "radio_time": {
+          "title": "เพิ่มเวลาฟัง",
+          "subtitle": "เพิ่มนาทีให้แอปวิทยุ"
+        },
+        "psy_study_tokens": {
+          "title": "เพิ่มรอบสนทนา",
+          "subtitle": "เปิดรอบแชทและโทรเพิ่ม"
+        },
+        "system_validity": {
+          "title": "ต่ออายุระบบ",
+          "subtitle": "เพิ่มวันใช้งานให้บัญชี"
+        },
+        "general": {
+          "title": "ไอเทมอื่น ๆ",
+          "subtitle": "ของน่าสนใจที่เหลือ"
+        },
+        "soldOut": "หมด",
+        "fallback": "ไอเทมในร้าน",
+        "perkListenDays": "ฟังเพิ่ม +{{count}} วัน",
+        "perkListenHours": "ฟังเพิ่ม +{{count}} ชั่วโมง",
+        "perkValidity": "ใช้งานเพิ่ม +{{count}} วัน",
+        "perkChats": "แชทเพิ่ม +{{count}} ครั้ง",
+        "perkCalls": "โทรเพิ่ม +{{count}} ครั้ง"
+      },
+      "gift": {
+        "title": "มอบ{{app}}เป็นของขวัญ",
+        "close": "ปิด",
+        "to": "ส่งให้",
+        "toPlaceholder": "รหัสแนะนำ อีเมล หรือเบอร์โทร",
+        "searching": "กำลังค้นหา…",
+        "notFound": "ไม่พบผู้ใช้ที่ตรงกัน",
+        "lookupFailed": "ตรวจสอบผู้รับไม่ได้",
+        "code": "รหัส {{code}}",
+        "member": "สมาชิก Hugo",
+        "tier": "แพ็กเกจของขวัญ",
+        "rentNote": "ใช้ได้ 30 วัน",
+        "message": "ข้อความ",
+        "optional": "(ไม่บังคับ)",
+        "messagePlaceholder": "ขอให้เรียนสนุกนะ!",
+        "continue": "ต่อไป · {{joy, joy}}",
+        "choose": "เลือกผู้รับก่อน"
       },
       "cart": {
-        "empty": "ตะกร้าว่าง",
-        "emptyDesc": "เพิ่มสินค้าจากร้านค้า",
-        "promoPlaceholder": "ใส่โค้ดส่วนลด",
-        "subtotal": "ราคารวมทั้งหมด",
-        "tax": "ภาษี (9%)",
-        "discount": "ส่วนลด",
-        "total": "รวมทั้งหมด",
-        "checkout": "จ่ายเงินปลายทาง"
-      },
-      "orders": {
-        "empty": "ยังไม่มีการสั่งซื้อ"
-      },
-      "promos": {
-        "placeholder": "ใส่รหัสคืนสินค้า",
-        "valid": "รหัสคืนสินค้าใช้งานได้!",
-        "invalid": "รหัสไม่ถูกต้องหรือหมดอายุ"
+        "checkout": "ชำระเงิน"
       }
     },
     "vcard": {
@@ -2973,7 +3271,7 @@
         "levelSection": "ระดับการบดจับ",
         "levels": {
           "light": "เบา (คงที่รายละเอียด)",
-          "medium": "หน้าเว็บไซต์สมาชิกฮูจู",
+          "medium": "ความกลางแจ้ง",
           "strong": "แข็ง (น้อยที่สุด)"
         },
         "btnSubmit": "บดจับและอัตโนมัติสำรองไฟล์ทั้งหมดจากเซิร์ฟเวอร์, ไม่มีการเก็บข้อมูลเพื่อปกป้องความเป็นส่วนตัวของคุณ",
@@ -3076,7 +3374,7 @@
       "muaGoiVinhVien": "ข้อผิดพลาดในการทำธุรกรรม",
       "gom": "including",
       "joyVa": "JOY คิดสร้างเพื่อเปิดใช้งานตลอดชีพ",
-      "joyPhiSangTao": "ยืดอายุโครงการเว็บไซต์ของคุณ",
+      "joyPhiSangTao": "JOY ค่าธรรมเนียมการสร้างเพื่อความเข้าถึงตลอดชีวิต",
       "giaHanBoPhat": "(เพิ่ม 10% ค่าการคิดสร้าง) เพื่อยืดอายุโครงการเว็บไซต์ไม่กี่วันโดยไม่มีค่าใช้จ่ายการดูแลตลอดชีพ",
       "10PhiSangTao2": "การชำระค่าบริการสำเร็จ!",
       "dongPhiBaoTri": "ซื้อแพ็คเกจเต็ม 6 ขั้นตอน",
@@ -3087,7 +3385,47 @@
       "xacNhanXoa": "ยืนยันการลบ",
       "banCoChacChan": "คุณแน่ใจว่าต้องการลบ",
       "thuMuc": "folder",
-      "khongHanhDongNay": "\"? ยังไม่สามารถทำได้อีกต่อไป。"
+      "khongHanhDongNay": "\"? ยังไม่สามารถทำได้อีกต่อไป。",
+      "dangTaiLoTrinh": "โหลดการเรียนรู้ทางเส้น…",
+      "quayLai": "กลับ",
+      "luuTrucTiepDisk": "ตรงทิ้งไว้ (ดิสก์)",
+      "taiVeMayLocal": "ย้ายลงเครื่องจักรไฟฟ้าโดยตรง",
+      "xuatToanBoWorkspace": "ส่งออกทุก workspace ปัจจุบันเป็นไฟล์ ZIP",
+      "xuatZip": "ส่งออกไฟล์ ZIP",
+      "dongBoTrucTiep": "เชื่อมโยงตรงทิ้งไว้กับโฟลเดอร์บนเครื่องคอมพิวเตอร์ผ่าน API เครื่องจักรไฟฟ้า",
+      "moThuMucCuc": "เปิดโฟลเดอร์ในเครื่องจักรไฟฟ้า",
+      "quanLyFile": "การจัดการไฟล์",
+      "khoaHocCodeMau": "คอร์สและตัวอย่างโค้ด",
+      "deChayPhpVa": "To run PHP and manage the database through phpMyAdmin on your own computer (localhost),\n                Docker Compose is the lightest option and keeps it well away from real data.",
+      "buoc1CaiDat": "เพื่อรัน PHP และดูแลฐานข้อมูลผ่าน phpMyAdmin ในเครื่องของคุณ (localhost),\n                Docker Compose คือตัวเลือกที่เบากว่าและทำให้ไกลจากข้อมูลจริงอย่างดี。",
+      "taiDockerDesktopTu": "ขั้นตอนที่ 1: เริ่มต้น Docker Desktop",
+      "buoc2TaoFile": "ดาวน์โหลด Docker Desktop จาก docker.com และติดตั้งบนเครื่องของคุณ。",
+      "taoFileDockerCompose": "ขั้นตอนที่ 2: 创建 docker-compose.yml",
+      "buoc3KhoiDong": "สร้างไฟล์ docker-compose.yml ในโฟลเดอร์เดียวกับโปรเจกต์ PHP ของคุณ โดยมีเนื้อหาดังนี้:",
+      "chayTerminalTaiThu": "ขั้นตอนที่ 3: เริ่ม Stack",
+      "buoc4TruyCap": "เปิดคลาสส์ในโฟลเดอร์นั้นและเรียครับ: Open your browser at:",
+      "moTrinhDuyetTruy": "Open your browser at:",
+      "taiKhoanRootMat": "Username: root / Password: root. This is a local learning environment; never use these sample credentials on a real system.",
+      "khongGianSoanThao": "The editor is locked",
+      "vuiLongKichHoat": "Activate a subscription, or buy the permanent unlock in the left column, to start coding this lesson.",
+      "troLaiEditor": "Back to the editor",
+      "khongCoFileNao": "No file is open. Open one from the File Explorer, or load a lesson.",
+      "huongDanChay": "How to run it",
+      "heThongNhanNut": "[System] เทคโนโลยีกดปุ่ม 'Run code' เพื่อจำลองการทำงาน。",
+      "chayThuConsole": "Run in the console",
+      "loi": "มีข้อผิดพลาดเกิดขึ้น",
+      "dang": "Running",
+      "chayThuMaNguon": "Run your code in a simulated sandbox, right in the browser",
+      "chayCodeThu": "เริ่มต้นการทดสอบโค้ด",
+      "dungXem": "หยุดดูที่ previews",
+      "fileDangWebHtml": "ไฟล์เว็บ (HTML/CSS/JS) กรุณาคลิก **Preview สด** ในมุมขวาบนเพื่อดูหน้าตัวอย่างในเบราว์เซอร์เลย",
+      "doiVoiPythonBan": "สำหรับ Python, เปิดเทเลมาร์ทในคอมพิวเตอร์ของคุณในโฟลเดอร์ที่ถือไฟล์ที่ได้รับและเรียครอบ: ",
+      "doiVoiNgonNgu": "สำหรับ C, ติดตั้ง compiler GCC. เข้ารหัสและเรียครอบจากเทเลมาร์ท: ",
+      "doiVoiCBien": "สำหรับ C++, เขียนกับ g++: ",
+      "doiVoiCHay": "สำหรับ C#, ติดตั้ง SDK .NET. 创建一个新的控制台项目并运行: ",
+      "doiVoiPhpBan": "สำหรับ PHP, คุณสามารถเรียครอบเซิร์ฟเวอร์ที่สร้างในเวลาอันสั้นเพื่อดูผลลัพธ์โดยไม่ต้องใช้ Apache: ",
+      "truyCapHttpLocalhost": "เปิด http://localhost:8000 ในคอมพิวเตอร์ของคุณเพื่อดูผลลัพธ์",
+      "traoDoiJoyDe": "แลก JOY เพื่อเข้าถึงชุดการพัฒนาเว็บ"
     },
     "hugoso": {
       "bai": "bài ·",
@@ -3122,9 +3460,9 @@
       "hanhTrinhBatDau": "จำนวนบทเรียนที่ผ่าน · การอัปเดตผลทำให้สอดคล้องกับบัญชีของคุณ.",
       "baiDaDatTien": "เนื้อหาได้รับการตรวจสอบตามเอกสารทางการของ Google และ Google Calendar, Docs, Sheets และ Gemini เป็นเครื่องหมายการค้าของ Google LLC.\n              การเรียนรู้ด้วย Hugo ระบบการศึกษาที่เป็นอิสระไม่เกี่ยวข้อง, ส่งเสริมหรือสนับสนุนโดย Google.",
       "noiDungDaDoi": "การจัดการทาง Hugo Navigation",
-      "googleGoogleCalendarDocs": "หลักสูตร",
-      "dieuHuongStudyWith": "ฝึกซ้อม",
-      "homNay": "ในวันนี้",
+      "googleGoogleCalendarDocs": "เพื่อนshipกับ Hugo คือระบบที่เรียนรู้ด้วยตนเองที่ độc lậpไม่ได้เป็นส่วนหนึ่งของ,สนับสนุนโดยหรือแนะนำโดย Google LLC.",
+      "dieuHuongStudyWith": "การจัดการเพื่อนshipกับ Hugo",
+      "homNay": "Hôm nay",
       "khoaHoc": "ความก้าวหน้า",
       "thucHanh": "การประเมิน",
       "tienDo": "บทบาทของผู้ใช้และข้อกำหนดในการใช้งาน",
@@ -3187,7 +3525,59 @@
       "nopVaMoBuoc": "ยืนยันและเปิดขั้นตอนถัดไป",
       "tiepTheo": "ถัดไป",
       "nangSuatSoAi": "ความสร้างสรรค์ดิจิตอลและการประมวลผลข้อมูล",
-      "dangTaiKhoaHoc": "กำลังโหลดหลักสูตร"
+      "dangTaiKhoaHoc": "กำลังโหลดหลักสูตร",
+      "dungVaLamTheo": "DỪNG และ ติดตาม",
+      "loiPhoBien": "ข้อผิดพลาดทั่วไป",
+      "thang7": "กรกฎาคม",
+      "baoCaoNghienCuu": "รายงานวิจัย",
+      "dangLuuTrenDrive": "เก็บไว้ใน Drive",
+      "nguyen2026ChoRang": "นาย (2026)  Nguyen กล่าวว่า...",
+      "hayGiupToiLap": "ช่วยฉันวางแผนนี้แต่ตรวจสอบกับฉันก่อนที่จะสรุปผลการศึกษา",
+      "mucTieuQuanTrong": "เป้าหมายสำคัญของคุณคืออะไร และกำหนดวันสิ้นสุดเป้าหมายนั้นไว้เมื่อไหร่?",
+      "dinhDangHuongDan": "แบบฝึกหัดการนำทาง",
+      "banHuongDanTuong": "GUIDE ที่ interactive",
+      "tamDungVideoMinh": "หยุดการ演示视频",
+      "phatVideoMinhHoa": "เริ่มการ演示视频",
+      "chuong": "บทบาท",
+      "khopBuoc": "· การขว้างสมดุล",
+      "dong": "Close",
+      "quyenSoHuuTron": "การเข้าถึงตลอดชีวิต",
+      "moToanBo4": "เปิดใช้งานทั้งหมด 4 หลักสูตร รวมถึงการฝึกซ้อมที่ปัจจุบันและทุกอย่างที่เพิ่มขึ้นในอนาคต。",
+      "moToanBoLo": "เปิดใช้งานเส้นทางทั้งหมด รวมถึงการฝึกซ้อมและอัปเดตในอนาคตสำหรับหลักสูตรนี้",
+      "giaKhoaHoc": "ราคาหลักสูตร",
+      "phiSangTao10": "ค่าธรรมเนียมการสร้าง 10%",
+      "tongTraoDoi": "จำนวนที่จะแลกเปลี่ยน...",
+      "dangXacNhan": "ไม่มีการอัตโนมัติในการจ่ายเงิน · JOY ไม่สามารถแปลงเป็นเงินสด",
+      "deSau": "ถัดไป",
+      "khongTuGiaHan": "ไม่ต่ออายุอัตโนมัติ · JOY แลกเป็นเงินสดไม่ได้"
+    },
+    "profile": {
+      "eyebrow": "ประวัติที่ตรวจสอบได้",
+      "loading": "สร้างประวัติของคุณ…",
+      "generatedAt": "ได้รับการจัดทำที่ {{date}}",
+      "publicNote": "แต่ละตัวเลขด้านล่างถูกยืนยันโดย Hugo Studio ไม่ได้ป้อนโดยผู้สร้างหน้าเว็บ",
+      "sectionStudent": "การยืนยัน",
+      "studentStatus": "สถานะนักเรียน",
+      "verified": "ผ่านการตรวจสอบแล้ว",
+      "notVerified": "ยังไม่ได้ยืนยัน",
+      "school": "โรงเรียน",
+      "sectionLearning": "เรียนรู้",
+      "lessons": "การเรียนที่แล้วเสร็จ",
+      "certificate": "ใบรับรองการสำเร็จ",
+      "granted": "อนุญาตแล้ว",
+      "notYet": "ยังไม่ได้รับการอนุมัติ",
+      "studyCourses": "หลักสูตรที่คุณเป็นเจ้าของ",
+      "sectionTeam": "Contribution to Project",
+      "approvedHours": "ชั่วโมงที่อนุมัติแล้ว",
+      "tasksDone": "Tasks Approved",
+      "tasksDoneShort": "Tasks Approved ({{count}})",
+      "publishTitle": "เผยแพร่บนหน้า Bio ของคุณ",
+      "publishDesc": "เปิดใช้งานเพื่อแสดงประวัติอยู่ใต้หน้าโปรไฟล์สาธารณะบีโอของคุณ ผู้เยี่ยมชมสามารถตรวจสอบได้โดยไม่ต้องเข้าสู่ระบบ",
+      "showOnBio": "แสดงบนหน้าโปรไฟล์บีโอ",
+      "needPlan": "ต้องเช่าหรือเป็นเจ้าของ Hugo Profile ในร้านค้าจึงจะเผยแพร่ได้ ส่วนการดูบันทึกของตัวเองไม่มีค่าใช้จ่ายเสมอ",
+      "published": "บันทึกสำเร็จ。",
+      "unpublished": "ลบบันทึกออกจากหน้าโปรไฟล์ของคุณแล้ว。",
+      "saveError": "ไม่สามารถบันทึกการตั้งค่าได้"
     }
   },
   "companion": {
@@ -3358,7 +3748,7 @@
       "planDescription": "สามขั้นตอนที่สามารถทำได้ง่ายๆ",
       "assessment": "เลือกผู้เชี่ยวชาญ",
       "assessmentDescription": "PHQ-9, GAD-7, WHO-5",
-      "disclaimer": "ฮูโก้ ปีซี่สนับสนุนการวิเคราะห์ตนเองและไม่แทนที่ผู้เชี่ยวชาญด้านสุขภาพจิต"
+      "disclaimer": "HugoPSY สนับสนุนการreflectตัวเองและไม่แทนที่专业人士。"
     },
     "assessment": {
       "title": "ประเมินความรู้สึก"
@@ -3467,7 +3857,7 @@
       "meoMoiChuKy": "💡 **คำแนะนำ:** การนอนแต่ละเส้นทางจะมีความยาว 90 นาที (ผ่าน NREM, สุขภาพดี N3 และ REM). การเรียกตัวอยู่ที่สุดของเส้นทางทำให้คุณรู้สึกพร้อมอย่างเต็มที่แทนที่จะรู้สึกง่วงหรือปวดหัว",
       "boCamBien": "เซ็นเซอร์:",
       "tuDongKichHoat": "ทำงานโดยอัตโนมัติ (PWA)",
-      "dangKetNoi": "เชื่อมต่อ",
+      "dangKetNoi": " เชื่อมต่อ ",
       "chuaLienKet": "ไม่เชื่อมโยง",
       "tuDong": "อัตโนมัติ",
       "daLienKet": "เชื่อมโยง",
@@ -3595,7 +3985,7 @@
     "joyBalance": "การเงิน JOY",
     "loading": "เตรียมการเรียนของคุณ…",
     "tabs": {
-      "label": "ฝึกซ้อม",
+      "label": "การจัดการเพื่อนshipกับ Hugo",
       "learn": "เรียน",
       "lab": "ล่าม",
       "resources": "ทรัพยากร",
@@ -3675,7 +4065,7 @@
       },
       "curriculumEyebrow": " curriculum exclusive",
       "curriculumTitle": "100 บทเรียนที่เขียนโดย Hugo Studio",
-      "note": "Marks Original เป็นเครื่องหมายเฉพาะที่ระบุเนื้อหาหลักที่ถูกสร้างขึ้นเพื่อใช้งานในทางการศึกษาเฉพาะของลิงค์"
+      "note": "The Hugo Studio Original mark identifies core content authored exclusively for this learning path. External references, when used, are credited separately."
     },
     "resources": {
       "title": "ทรัพยากรเรียนรู้",
@@ -3705,9 +4095,9 @@
       "trenTongSo": "ทั้งหมด",
       "baiHocThucChien": "การฝึกอบรมแบบมืออาชีพ",
       "soHuuTronGoi": "ครอบครองแพ็คเกจชีวิตที่ยืดหยุ่น (การบำรุงรักษาฟรีตลอดชีวิต)",
-      "chuaKichHoatPhi": "การบำรุงรักษาเดือนไม่ได้เปิดใช้งาน (50 JOY)",
+      "chuaKichHoatPhi": "การบำรุงรักษาเดือนไม่ได้เปิดใช้งาน ( {{amount, joy}})",
       "phiBaoTriDa": "ค่าบริการการบำรุงรักษาของคุณหมดอายุแล้ว",
-      "vuiLongGiaHan": "โปรดทำการซื้อใหม่สำหรับการบำรุงรักษา 50 JOY เดือนเพื่อรักษาการเรียนรู้ต่อไปได้. คุณต้องจ่ายก่อนที่การเรียนรู้ของคุณจะกลับไปเป็นศูนย์",
+      "vuiLongGiaHan": "โปรดทำการซื้อใหม่สำหรับการบำรุงรักษา {{amount, joy}} เดือนเพื่อรักษาการเรียนรู้ต่อไปได้. คุณต้องจ่ายก่อนที่การเรียนรู้ของคุณจะกลับไปเป็นศูนย์",
       "ngay": "วัน",
       "dongPhiTruocKhi": "ค่าบริการการบำรุงรักษาเดือน: ",
       "phiBaoTriHang": "ทำงานอยู่ (",
@@ -3715,15 +4105,15 @@
       "ngay2": "เนื้อหาทางเส้นทาง",
       "mucLucLoTrinh": "ระยะเวลา",
       "vuiLongHocTuan": "เรียนรู้เพื่อเปิดใช้งานบทเรียนขั้นถัดไป",
-      "baiDaHoc": "บทเรียนที่เสร็จสมบูรณ์แล้ว",
+      "baiDaHoc": "การเรียนที่แล้วเสร็จ",
       "banSeHoc": "คุณจะเรียนรู้อะไรในบทเรียนนี้",
       "thachThuc": "การทดสอบ: ",
       "huaHen": "คำมั่นสัญญา:",
       "chucMungHoanThanh": "ดีใจที่ได้ผ่านบทเรียนขั้นตอนนี้แล้ว",
       "xemChiaSeGiay": "ดูและแชร์ใบรับรองของคุณในห้องแสดง",
       "banDaHoanThanh": "คุณได้ผ่านการทดสอบทุกข้อในขั้นตอนนี้แล้ว ขอรับรางวัลของคุณ",
-      "daNhanThuong800": "ได้รับรางวัล +800 JOY ✓",
-      "nhanPhanThuong800": "ขอรับรางวัล (+800 JOY)",
+      "daNhanThuong800": "ได้รับรางวัล {{amount, joy}} ✓",
+      "nhanPhanThuong800": "ขอรับรางวัล ( {{amount, joy}})",
       "hayHoanThanhDo": "โปรดสมมุติว่าคุณได้เสร็จสิ้นโครงการสุดท้ายและได้นำลิงก์ของโครงการไปยัง",
       "bai100": "การฝึกอบรมบท 100",
       "deNhanDanhGia": "เพื่อรับการตรวจสอบจาก Hugo Studio โปรดรอ",
@@ -3733,13 +4123,13 @@
       "phanHoi": "Feedback:",
       "banCoTheSua": "คุณสามารถปรับปรุงและส่งลิงค์ใหม่ที่บทเรียน 100.",
       "doAnDaDuoc": "โปรเจคของคุณถูกยินยอมแล้ว! 🎉",
-      "daNhanThuongHoan": "รางวัลการเสร็จสิ้นโครงการ JOY และของขวัญ VIPVIP ได้มอบให้กับคุณ 4,000",
+      "daNhanThuongHoan": "ได้รับรางวัลจบคอร์ส {{amount, joy}} และของขวัญ VVIP แล้ว",
       "nhanChungNhanHoan": "ได้รับใบรับรองการเสร็จสิ้น",
       "chungNhanDangDuoc": "ผู้ดูแลกำลังสร้างใบรับรองของคุณ...",
       "vuiLongHoanThanh": "ทำบทเรียนก่อนหน้านี้เพื่อเปิดใช้งานบทเรียนนี้!",
       "thucHanhLyThuyet": "ทฤษฎี-ปฏิบัติ",
       "noiDungBaiHoc": "บทเรียนนี้ถูกปิดกั้น Unlock ส่วนนี้อย่างถาวร เพื่อเริ่มเรียนรู้หรือซื้อแพ็คเกจที่ครอบคลุมเพื่อเริ่มเรียนรู้",
-      "thueBaoBaoTri": "การสมัครสมาชิกดูแลของคุณหมดอายุแล้ว ยืนยันการสมัครสมาชิกรายเดือน 50 JOY เพื่อรักษาการเรียนรู้",
+      "thueBaoBaoTri": "การสมัครสมาชิกดูแลของคุณหมดอายุแล้ว ยืนยันการสมัครสมาชิกรายเดือน {{amount, joy}} เพื่อรักษาการเรียนรู้",
       "moKhoaVinhVien": "Unlock ส่วนนี้อย่างถาวร",
       "moKhoaVinhVien2": "Unlock สิทธิ์ในการเรียนและฝึกฝนบทเรียนทุกบท",
       "trongGoiNayBan": "นี่เป็นสกุลที่รวมถึง",
@@ -3750,7 +4140,7 @@
       "muaTronGoi16k": "ซื้อแพ็คเกจสำหรับ 16k JOY",
       "giaHanPhiBao": "ยืนยันการบำรุงรักษารายเดือน",
       "phiBaoTriCan": "ค่าบำรุงรักษาจะเรียกเก็บเป็นรายเดือนเพื่อรักษาสิทธิ์เข้าถึงระบบ หากไม่ชำระภายใน 3 เดือน จะทำให้คะแนนความสำเร็จในการเรียนรู้กลับไปที่ศูนยง",
-      "dongPhiBaoTri": "ชำระค่าบำรุงรักษา 50 JOY",
+      "dongPhiBaoTri": "ชำระค่าบำรุงรักษา {{amount, joy}}",
       "hinhMinhHoaSong": "ภาพประกอบเคลื่อนไหว",
       "tongQuanMucTieu": "สรุปและเป้าหมาย",
       "thucHanhCodeMau": "การฝึกฝนและการตัวอย่างโค้ดขั้นตอนโดยละเอียด",
@@ -3770,7 +4160,72 @@
       "chayThuDeXem": "คลิกเพื่อดู",
       "chay": "คลิก",
       "baiNayLaDang": "บทนี้ครอบคลุมคำขอหรือการทำงานด้านหลังของระบบ, ดังนั้นบนมือถือคุณจะได้รับโค้ดตัวอย่างและข้อมูลการเรียนรู้ ส่วนบนเครื่องคอมพิวเตอร์ระบบการศึกษาจะเปิด IDE ที่สมบูรณ์",
-      "traoDoiJoyDe": "แลกเปลี่ยน JOY เพื่อเปิดใช้งานชุดเว็บพัฒนา"
+      "traoDoiJoyDe": "แลก JOY เพื่อเข้าถึงชุดการพัฒนาเว็บ"
+    },
+    "puzzles": {
+      "thucHanhHoanTat": "Practice complete! Answer",
+      "cauDuoiDayDe": "ตอบคำถามครบถ้วนเพื่อผ่านการทดสอบ",
+      "nopBaiKiemTra": "Submit the test",
+      "baiHocDaHoan": "Lesson complete!",
+      "banDaVuotQua": "คุณผ่านการทดสอบในบทนี้แล้วและได้รับรางวัล JOY",
+      "nhapVaoNutDi": "Use the move buttons to put these code blocks in the right logical order:",
+      "kiemTraThuTu": "Check the order",
+      "yeuCauGiaoDien": "Interface requirements:",
+      "cardSanPham": "Product card",
+      "viDuHienThi": "Visual example",
+      "mauNen": "Background colour:",
+      "mauChu": "Text colour:",
+      "xacNhanMauSac": "ยืนยันสี",
+      "hayHoanThanhSu": "Complete the click event by clicking 3 times:",
+      "nhapChuotClick": "คลิก",
+      "boDemSoLan": "Click counter:",
+      "nopBaiThucHanh": "ยืนยันการฝึกซ้อม",
+      "hayNhanDu3": "คลิก 3 ครั้งเพื่อสิ้นสุด",
+      "bamChon1Tu": "เลือกคำศัพท์จากด้านซ้ายแล้วเลือกความหมายที่ตรงกับมันจากด้านขวา:",
+      "tuKhoa": "Keyword",
+      "dinhNghia": "Definition",
+      "hoanThanhNoiCap": "Finish matching",
+      "dienDoanCodePhp": "Fill the blanks below with the right PHP:",
+      "xinChao": "\"Xin chào\"",
+      "nopKetQuaDien": "Submit the filled-in code",
+      "vietCodeTrenIde": "Write the code in the desktop IDE. Once it runs successfully in the browser, take a screenshot and upload it here so the system can check the format of what you submit.",
+      "daTaiAnhLen": "Image uploaded successfully!",
+      "chonHoacKeoAnh": "Choose or drag a screenshot here",
+      "dangKiemTraAnh": "Checking the submitted image...",
+      "kiemTraDinhDang": "ตรวจสอบรูปภาพในเรื่องของรูปร่าง,ขนาดและความสมบูรณ์",
+      "tuKiemTraAnh": "การตรวจสอบเสร็จสิ้น",
+      "diemNayChiPhan": "คะแนนนี้เพียงสะท้อนถึงว่าภาพเหมาะสมสำหรับผ่านขั้นตอนต่อไป;มันไม่ได้แทนที่การตรวจสอบจริงของครูหรือผู้ดูแล",
+      "nopAnhDaKiem": "ยืนยันรูปภาพที่ถูกตรวจสอบ",
+      "vuiLongChonAnh": "โปรดเลือกช็อตสกัด",
+      "dangNapBoCau": "กำลังโหลดคำถามทดสอบ...",
+      "ketQuaKiemTra": "ผลการทดสอบ:",
+      "tuyetVoiBanDa": "ดีมาก!คุณผ่านการทดสอบแล้ว",
+      "ratTiecDiemSo": " unfortunately คะแนนไม่ได้อยู่ในระดับ 60% ที่ต่ำที่สุด",
+      "nhanThuongJoyHoan": "ยืนยันรางวัล JOY และเสร็จสิ้น",
+      "doiDeThiKhac": "ขอรับกระดาษที่ต่างไปและลองใหม่",
+      "cauHoi": "คำถาม",
+      "daChon": "เลือก: ",
+      "cau": "câu",
+      "cauTruoc": "ปีก่อนหน้า",
+      "nopBaiThi": "ยืนยันการส่งงาน",
+      "cauTiep": "ถัดไป",
+      "khungMaNguon": "ขอบเข็มภาพ: ",
+      "xacNhanDapAn": "ยืนยันคำตอบ",
+      "doAnKetKhoa": "โปรเจคพัฒนาเว็บไซต์ภาคสุดท้าย",
+      "nopSanPhamHoan": "ยืนยันผลิตภัณฑ์ที่ดีที่สุดของคุณเพื่อสำเร็จ Stage 7 และรับใบรับรองการสำเร็จและ {{amount, joy}}.",
+      "chucMungBanDa": "สวัสดีครับ/ค่ะ! คุณได้สำเร็จชุดเว็บพัฒนาแล้ว! 🎉",
+      "xemChungNhanHoan": "ดูใบรับรองการสำเร็จ",
+      "dangChoAdminDinh": "กำลังรอผู้ดูแลเพิ่มลิงก์ใบรับรอง...",
+      "duAnDangCho": "โครงการกำลังถูกตรวจสอบ... ⏳",
+      "hugoStudioDangXem": "Hugo สตูดิโอกำลังตรวจสอบข้อมูลของคุณ.",
+      "duAnChuaDat": "โครงการไม่ได้รับการตอบสนองตามความต้องการ ❌",
+      "phanHoiCuaAdmin": "คำแนะนำจากผู้ดูแล:",
+      "banCoTheDieu": "คุณสามารถปรับและส่งลิงก์โครงการใหม่ด้านล่างได้เลย.",
+      "httpsMyprojectComHoac": "https://myproject.com หรือ https://github.com/...",
+      "ghiChuChoAdmin": "ข้อความสำหรับผู้ดูแลระบบ (เลือกใช้ได้)",
+      "nhapGhiChuTai": "หมายเหตุ บัญชีทดสอบ รายละเอียดการดำเนินงาน...",
+      "dangGui": "กำลังส่ง...",
+      "guiDeAnTot": "ยืนยันโครงการสุดท้าย"
     }
   },
   "arcadeGame": {
@@ -3793,7 +4248,7 @@
       "waveLabel": "Wave",
       "hpLeft": "{{hp}} health remaining",
       "skills": "ความสามารถที่ใช้งานได้",
-      "shield": "หน้าเว็บไซต์สมาชิกฮูจู",
+      "shield": "ป้องกันกำแพงพลังงาน",
       "rapid": "เร็ว",
       "overdrive": "อินเตอร์เน็ต",
       "bossMeta": " phase  {{phase}} ·  วัตถุ {{wave}}",
@@ -3829,7 +4284,7 @@
     "addedToApps": "{{game}} ถูกเพิ่มเข้าไปในแอปของคุณ",
     "gameFallback": "เกม",
     "rankTitle": "สถิติผู้เล่น",
-    "noAds": "เล่นตรงนี้ในฮูโก้ — ไม่มีโฆษณา。",
+    "noAds": "เล่นได้ทันทีใน Hugo — ไม่มีโฆษณา.",
     "filterGames": "กรองเกม",
     "playGame": "เล่น {{game}}",
     "spotlight": " spotlight วันนี้",
@@ -3927,7 +4382,7 @@
     "rankSs": "อันดับ SS • NEON ACE",
     "rankA": "ท็อป A • นักสู้ระดับมืออาชีพ",
     "rankB": "ท็อป B • มือใหม่ที่กำลังเติบโต",
-    "shellFormula": "{{score}} คะแนน → {{joy}} JOY",
+    "shellFormula": "{{score}} คะแนน → {{joy, joy}}",
     "shellRecord": "คุณเป็นที่หนึ่ง! เพิ่ม {{delta}} คะแนนจากครั้งก่อนๆ。",
     "shellNear": "{{gap}} คะแนนยังไม่ถึงจุดสูงสุดของคุณ ({{best}})",
     "shellBest": "ที่ดีที่สุด: {{best}}.",
@@ -3942,7 +4397,7 @@
     "snakeCurrentMission": "ภารกิจปัจจุบัน",
     "chessMovesPlayed": "เกมส์จบลงหลังการขยับ {{count}} ครั้ง。",
     "chessArena": "ชิงกีฬาสามมิติ",
-    "chessVsBot": "เล่นบอทฮูเก็ต AI",
+    "chessVsBot": "เล่น Hugo บอท AI",
     "chessVsBotDesc": "คุณเป็นผู้เล่น White · การทดสอบแข่งขันกับระบบ",
     "chessPassPlay": "สองผู้เล่นบนหนึ่งเครื่อง (ส่งและเล่น)",
     "chessPassPlayDesc": "วางเครื่องในระหว่างคุณเหมือนชั้นจริง",
@@ -3956,7 +4411,9 @@
     "levelEasy": "ง่าย",
     "levelMid": "ปกติ",
     "levelHard": "ยาก",
-    "caroOpponent": "คู่ต่อสู้"
+    "caroOpponent": "คู่ต่อสู้",
+    "eventSaturdayTitle": "เสาร์คูณสอง",
+    "eventSaturdayDesc": "เฉลิมฉลองการกลับคืนและการพยุงของพระเยซูเจ้า – เล่นเกมเพื่อ 2× JOY!"
   },
   "arcadeIntro": {
     "close": "กลับไปในแอป",
@@ -4051,7 +4508,7 @@
     "nameLabel": "ชื่อของคุณ",
     "emailLabel": "Emailเพื่อสำเนาของคุณ",
     "identityError": "กรุณาให้ข้อมูลชื่อและอีเมลที่ถูกต้อง。",
-    "recognitionNotice": "หลังจากที่การสนับสนุนของคุณได้รับการจัดเก็บอย่างปลอดภัย ชื่อของคุณจะปรากฏในสำเนาขอบคุณของฮูโกสตูดิโอ",
+    "recognitionNotice": "เมื่อการสนับสนุนของคุณถูกส่งมาอย่างปลอดภัย ชื่อบทความของคุณจะปรากฏในหน้า Roll of Thanks ของ Hugo Studio.",
     "terms": "โดยดำเนินการต่อคุณยอมรับว่าการสนับสนุนที่ volontary ไม่ซื้อฟีเจอร์หรือเข้าถึงใด ๆ และเป็นทั่วไปที่ไม่สามารถขอคืนได้ยกเว้นกรณีที่มีการผิดพลาดทางเทคนิคหรือตามที่กฎหมายกำหนดไว้",
     "termsError": "กรุณารับทราบเงื่อนไขของการสนับสนุน",
     "packs": {
@@ -4065,22 +4522,22 @@
   "intro": {
     "nav": {
       "welcome": "ยินดีต้อนรับ",
-      "webDev": "เว็บดีไซน์เนชั่น",
-      "personalInfo": "ข้อมูลส่วนตัว",
-      "teammateInfo": "ข้อมูลทีมงาน",
-      "bioEdu": "บริการการศึกษาและประสบการณ์การเรียนรู้",
-      "webService": "บริการเว็บไซต์",
-      "hobbies": " hobbies",
-      "philosophy": "ปรัชญา",
-      "contacts": "ติดต่อเรา",
-      "start": "เริ่มใช้งาน",
-      "studio": "ฮูโกสตูดิโอ",
+      "webDev": "งานเขียนเว็บ",
+      "personalInfo": "ประวัติส่วนตัว",
+      "teammateInfo": "ข้อมูลเพื่อนร่วมทีม",
+      "bioEdu": "บริการ Bio Edu",
+      "webService": "บริการทำเว็บ",
+      "hobbies": "งานอดิเรก",
+      "philosophy": "สิ่งที่อยากบอก",
+      "contacts": "ลิงก์ติดต่อ",
+      "start": "เริ่มต้น",
+      "studio": "Hugo Studio",
       "partners": "ผู้ก่อตั้ง",
       "about": "เกี่ยวกับฉัน",
-      "discoveries": "การค้นพบ"
+      "discoveries": "สิ่งที่ค้นพบ"
     },
     "about": {
-      "desc": "ฉันเป็นฮูโก้ — นักพัฒนา Gen Z ที่เปลี่ยนความคิดเห็นให้เป็นประสบการณ์ดิจิตอลที่รอบคอบและมีเอกลักษณ์",
+      "desc": "I am Hugo — a Gen Z developer who turns ideas into considered, characterful digital experiences.",
       "hello": "สวัสดีครับ/ค่ะ, ผม/ฉันคือ"
     },
     "slide1": {
@@ -4091,11 +4548,11 @@
       "explore": "สำรวจส่วนตัว",
       "book": "จองประชุม",
       "available": "พร้อมที่จะรับงาน",
-      "scrollDown": "ดูลงล่าง"
+      "scrollDown": "เลื่อนลง"
     },
     "slide2": {
       "badge": "✦ การพัฒนาเว็บไซต์",
-      "title1": "เว็บดีไซน์เนชั่น",
+      "title1": "งานเขียนเว็บ",
       "title2": "ที่ความคิดสร้างสรรค์กลายเป็นพื้นที่ interactive",
       "desc": "การพัฒนาเว็บไซต์เป็นเส้นทางของเปลี่ยนแปลงความคิดสร้างสรรค์ให้กลายเป็นเว็บไซต์ที่ชัดเจน ไม่เพียงแค่เป็นเรื่องของการเขียนโค้ด การพัฒนาเว็บไซต์ต้องมีการคิดในด้านศิลปะและเทคนิคที่เหมาะสม เพื่อให้มีประสบการณ์ใช้งานที่สมบูรณ์แบบ",
       "viewProfile": "ดูโปรไฟล์ส่วนตัวของคุณ"
@@ -4109,7 +4566,7 @@
       "highSchoolDesc": "My ทโธ (Collège de Myทโธ)",
       "uni": "กรีนวิช เวียดนาม",
       "uniDesc": "มหาวิทยาลัยกรีนวิช",
-      "hsBadge": "โรงเรียน",
+      "hsBadge": "มัธยมปลาย",
       "hsSub": "ที่ฝังรากและเติบโตความคิดเห็นทางโปรแกรมเมอร์ของฉัน",
       "hsFull": "โรงเรียนนายพล Nguyen Dinh Chieu",
       "hsAddress": "8 บุตรหง อู่วูโว่ สตรีม, มือถ่วง, ดองทัป",
@@ -4129,7 +4586,7 @@
       "title2": "Jason Phan เป็นเพื่อนในเส้นทางเรียนรู้และพัฒนาโครงการของฉัน เราผสมผสานความคิดเห็นระบบและความหลงใหลในการประยุกต์ใช้เทคโนโลยี เพื่อเปลี่ยนความซับซ้อนให้กลายเป็นแอปพลิเคชันที่ราบรื่นและปรับแต่งได้ดี",
       "desc": "โรงเรียน Cay Duong",
       "highSchool": "การศึกษา",
-      "highSchoolDesc": "โรงเรียนมัธยม Dynamic ในกิ่งไกร楼。",
+      "highSchoolDesc": "โรงเรียนมัธยมที่คึกคักในเกียนซาง",
       "highSchoolProvince": "อ่างทอง (เก่ากิ่งไกร樓)",
       "uniTitle": "กรีนวิช เวียดนาม",
       "uniDesc": "สภาพแวดล้อมการฝึกอบรมที่สอดคล้องกับ Greenwich UK ที่เชื่อมโยงเข้าด้วยกัน。",
@@ -4147,18 +4604,18 @@
       "idTitle": "การยืนยันตัวตนนักศึกษา",
       "idName": "ระบบสมาชิกโปรไฟล์ฮูโก้",
       "idEmailTitle": "อีเมลที่จำเป็น",
-      "idBenefitTitle": "ประโยชน์",
+      "idBenefitTitle": "สิทธิประโยชน์",
       "idBenefitDesc": "1 หน้าบีโอฟรี",
-      "idValidityTitle": "ความถูกต้อง",
+      "idValidityTitle": "อายุการใช้งาน",
       "idValidityDesc": "12 เดือน",
-      "idAuth": "การยืนยัน",
-      "benefitsTitle": "ตรวจสอบการยืนยันแล้วและคุณจะได้รับ:",
+      "idAuth": "ยืนยันแล้ว",
+      "benefitsTitle": "ยืนยันสำเร็จแล้วคุณจะได้รับ:",
       "b1t": "หน้าบุคลากรฟรี",
-      "b1d": "ปรับแต่งลักษณะ, สีสัน, หลัง景色 และลิงก์โซเชียลมีเดียทั้งหมดของคุณเอง — ตัวช่วยทำการตลาดออนไลน์ของคุณเอง。",
+      "b1d": "ปรับเลย์เอาต์ เอฟเฟกต์ พื้นหลัง และทุกลิงก์โซเชียล — เป็นนามบัตรดิจิทัลของคุณเอง",
       "b2t": "ลิ้งค์ที่เป็นเอกลักษณ์และสะอาด",
       "b2d": "เหมือน bio/your-name — จดจำและเป็นมืออาชีพบนประวัติการทำงาน, Facebook หรือ Instagram ของคุณ。",
       "b3t": "ยืนยันสองครั้งอัตโนมัติ 3",
-      "b3d": "แค่สิ่งที่สิ้นสุดด้วย .edu — เครื่องมือนี้ตรวจสอบอย่างรวดเร็วและไม่มีการตรวจสอบแบบมืออาชีพ。",
+      "b3d": "ใช้แค่อีเมลที่ลงท้ายด้วย .edu ระบบตรวจให้ทันที ไม่ต้องรอคนตรวจ",
       "b4t": "เครื่องมือทั้งหมดสำหรับนักศึกษา",
       "b4d": "นักศึกษา Hugo PSY, Web IDE, Hugo Radio และ Aura AI — ฟรีให้ใช้งานใน 12 เดือน",
       "toolsTitle": "เครื่องมือสำหรับนักศึกษาที่รวมอยู่ฟรี",
@@ -4178,7 +4635,7 @@
       "item2Desc": "แดชบอร์ดผู้ดูแลระบบ, การจัดการสินค้า"
     },
     "slide7": {
-      "badge": "✦ ความหลงใหลในการเล่นเกมส์",
+      "badge": "✦ งานอดิเรกส่วนตัว",
       "title1": "มุมการรักษาสุขภาพ: ",
       "title2": "พืชฟอร์น.",
       "desc": "หลังจากชั่วโมงที่เครียดจากการเขียนโค้ด, สิ่งที่ฉันชอบมากที่สุดคือการชมและดูแลกระถางพืชฟอร์น ความมีชีวิตและความงดงามที่ primitive มักจะให้ความสุขอย่างไม่มีที่สิ้นสุด"
@@ -4198,7 +4655,7 @@
       "p3": "ทำให้ Interfaces มีความสมดุลและโค้ด Source Code เป็นไปได้ที่จะบำรุงรักษา"
     },
     "slide9": {
-      "badge": "✦ ส่งข้อความ",
+      "badge": "✦ ติดต่อ",
       "title": "ติดต่อ Hugo",
       "desc": "สำหรับโครงการ, ผู้สนใจ และเพื่อสร้างความกระชับในเรื่องราว",
       "zalo": "แชท Zalo",
@@ -4207,7 +4664,7 @@
       "tiktok": "ทิก tok",
       "supporters": "เพื่อนร่วมงานด้วย Hugo Studio",
       "supporterItem": "{{name}}",
-      "supportersEmpty": "สถานที่น่ารักๆ กำลังรอชื่อคุณอยู่"
+      "supportersEmpty": "มีมุมน่ารักเล็ก ๆ รอชื่อของคุณอยู่"
     },
     "slide10": {
       "badge": "✦เริ่มเลย",
@@ -4219,7 +4676,7 @@
     },
     "studio": {
       "badge": "✦ สตูดิโอ Wishpax Hugo",
-      "title1": "ฮูโกสตูดิโอ",
+      "title1": "Hugo Studio",
       "title2": "สร้างประสบการณ์ดิจิตอลด้วยใจ.",
       "desc": "สตูดิโอยอดนิยม Hugo เป็นที่พักสำหรับงานฝีมือดิจิตอล - ทุกเว็บไซต์, สปีดบี้และเครื่องมือของนักศึกษาจะถูกตกแต่งเหมือนงานฝีมือที่สวยงาม: มีความงดงาม, เลื่อนผ่านและอบอุ่นสำหรับผู้ใช้.",
       "explore": "สำรวจสตูดิโอมากกว่า",
@@ -4231,7 +4688,7 @@
       "title2": "สร้างประสบการณ์ที่สวยงาม.",
       "desc": "ฉันคือ พีท เฮจู วิชปั๊ก เล, พัฒนาการ Gen Z ที่กำลังเรียนจบระดับปริญญาตรีในสาขาวิศวกรรมซอฟต์แวร์ที่ Greenwich Vietnam. การทำงานของฉันครอบคลุมเว็บแอพพลิเคชัน, การออกแบบหน้าจอ และความยืดหยุ่นทางกายภาพบนมือถือ Hugo Studio เป็นผลงานฝีมือ: บันทึกที่รอบคอบเกี่ยวกับโครงการ, ความสามารถ และการเปลี่ยนแปลงในอนาคต Jason Phan มีส่วนร่วมกับฉันในการทำงานที่เลือก",
       "founderRole": "นักออกแบบและพัฒนาเด็กวัย Gen Z",
-      "partnerRole": "พัฒนาการร่วมกับพาร์ทเนอร์",
+      "partnerRole": "พาร์ตเนอร์ร่วมพัฒนา",
       "openToWork": "เปิดให้มีโอกาสในการทำงานและตำแหน่งงาน",
       "finalYear": "ระดับสุดท้าย · Software Engineering",
       "motto": "สร้างประสบการณ์ด้วยใจเต็มที่",
@@ -4239,7 +4696,7 @@
       "v1": "จงเป็นผู้ที่มีความรัก",
       "v2": "จงเป็นผู้ที่มีความจริงจัง",
       "v3": "จงเป็นผู้ที่มีความเรียบร้อย",
-      "v4": "ช่วยเหลือผู้ใช้",
+      "v4": "เป็นมิตร",
       "v5": "สนับสนุน"
     },
     "discoveries": {
@@ -4249,16 +4706,16 @@
       "desc": "ผู้เข้าใจที่ช่วยให้คุณโฟกัสในการเรียนและกระตุ้นความสร้างสรรค์อย่างไม่หยุดหย่อน。",
       "auraTitle": "Hugo PSY",
       "auraDesc": "เพื่อนฟังที่ยินดีรับฟังอะไรที่คุณกำลังพิจารณา — สนับสนุนสุขภาพจิตของคุณในเวลาที่คุณต้องการอย่างมาก เช่น เย็นๆ คืน",
-      "psyTitle": "ความปลอดภัยและเงินสด",
+      "psyTitle": "Hugo ผู้ใช้สมาชิกฮูโกสตีด",
       "psyDesc": "นโยบายความเปิดเผย",
       "hocduongTitle": "บุคคลที่ศึกษา",
       "hocduongDesc": "พื้นที่เรียนรู้ร่วมกัน: แลกเปลี่ยนเอกสาร, ถามคำถาม และเชื่อมต่อกับสังคมนักศึกษา",
-      "radioTitle": "ฮูโกะรัซโซ่",
+      "radioTitle": "Hugo วิทยุ",
       "radioDesc": "สถานีวิทยุลูกฟองส้นสำหรับการเรียนรู้ดึกของคุณ",
       "ideTitle": "เว็บ IDE",
-      "ideDesc": "เขียนและรันโค้ดที่บราวเซอร์ของคุณ — แม้กระทั่งบนมือถือของคุณ",
-      "arcadeTitle": "ฮูโกะอาร์กิดี",
-      "arcadeDesc": "เกมสเกตและช็อกซ์ multiplayer เพื่อผ่อนคลายหลังจากการเรียนรู้ที่เครียด",
+      "ideDesc": "เขียนและรันโค้ดได้ในเบราว์เซอร์เลย แม้บนมือถือ",
+      "arcadeTitle": "Hugo อัคrobatิก",
+      "arcadeDesc": "เกมย้อนยุคและหมากรุกออนไลน์ ไว้พักสมองหลังอ่านหนังสือ",
       "joyTitle": "จอย PWA",
       "joyDesc": "กระเป๋าเงิน JOY รางวัล — เก็บและใช้คะแนนในระบบทั่วทั้งระบบ",
       "bioTitle": "บุคลากรบัตรประจำตัว",
@@ -4274,27 +4731,27 @@
       "cta": "เริ่มโครงการใหม่"
     },
     "mascots": {
-      "eyebrow": "พบกับฮูโก้",
+      "eyebrow": "เข้าสู่ระบบ Hugo",
       "title1": "เจ็ดอารมณ์, ",
-      "title2": "หนึ่งฮูโก้",
-      "desc": "ทุกช่วงเวลาของการทำงานมีอารมณ์—อยู่ดูแลเสมอ อยู่สนุกเสมอ。",
+      "title2": "สมาชิกหนึ่ง Hugo",
+      "desc": "ทุกช่วงเวลาของการทำงานมีอารมณ์ของมัน — ใส่ใจเสมอ สนุกเสมอ",
       "m1w": "สวัสดี!",
-      "m1d": "Friendly from the first hi",
-      "m2w": "Coding",
-      "m2d": "Fast, clean websites",
+      "m1d": "เป็นมิตรตั้งแต่คำทักทายแรก",
+      "m2w": "เขียนโค้ด",
+      "m2d": "เว็บไซต์เร็วและสะอาดตา",
       "m3w": "ความใส่ใจ",
-      "m3d": "ฮูโก้เพซให้กับจิตใจของคุณ",
+      "m3d": "HugoPSY สำหรับจินตนาการของคุณ",
       "m4w": "คุณภาพ",
       "m4d": "รายละเอียดในทุกอย่าง",
       "m5w": "Wow",
-      "m5d": "Always a little surprise",
+      "m5d": "มีเซอร์ไพรส์เล็ก ๆ อยู่เสมอ",
       "m6w": "Let's go",
       "m6d": "Growing together, far",
       "m7w": "Fun",
       "m7d": "ทำงานแต่ทำให้สนุก"
     },
     "cine": {
-      "nav1": "About",
+      "nav1": "เกี่ยวกับ",
       "nav2": "อุปกรณ์",
       "nav3": "บริการ",
       "nav4": "จอง",
@@ -4313,7 +4770,7 @@
       "heroScroll": "สำรวจผลงานของฉัน",
       "previewStatus": "ออนไลน์",
       "previewName": "นักศึกษา Hugo",
-      "previewTagline": "หนึ่งตัวตนดิจิตอล หลายเครื่องมือที่ใช้ได้",
+      "previewTagline": "หนึ่งตัวตนดิจิทัล กับเครื่องมือที่ใช้ได้จริงหลายอย่าง",
       "aboutLabel": "Beyond the screen",
       "aboutH1": "Peter Hugo Wishpax Lê,",
       "aboutH2": "นักศึกษาสาขาวิศัลymอฟดีสในระดับปีท้าย",
@@ -4344,7 +4801,7 @@
       "card2c4": "รวมกับเครื่องมือการศึกษาฟรีสำหรับนักเรียนที่สมบูรณ์แบบ",
       "card3Title": "เว็บดีไซน์。",
       "card3c1": "ลิงค์ Landing Page ที่กำหนดเอง",
-      "card3c2": "ทั้งเว็บไซต์สามารถดูแลเองได้ง่ายๆ",
+      "card3c2": "เว็บครบชุด ดูแลเองได้ง่าย",
       "card3c3": "ปรับแต่งให้เหมาะสมกับการค้นหาของเครือข่าย (SEO), ความเร็ว และมือถือ",
       "card4Title": "เครื่องมือสำหรับนักศึกษา",
       "card4c1": "Hugo PSY — เพื่อนร่วมฟังที่ดี",
@@ -4361,12 +4818,12 @@
       "stat1l": "Generation",
       "stat2v": "Greenwich",
       "stat2l": "ระดับสุดท้าย · Software Engineering",
-      "partnerLabel": "Co-developing with",
-      "contactTitle": "Let's stay in touch.",
+      "partnerLabel": "ร่วมพัฒนากับ",
+      "contactTitle": "ติดต่อกันไว้นะ",
       "marqueeTitle": "เทคโนโลยีที่ฉันได้เรียนรู้",
       "work": {
         "eyebrow": "งานที่เลือก",
-        "title": "โปรเจกต์ที่ฉันสร้างขึ้นจากพื้นฐาน",
+        "title": "ผลงานที่ผมสร้างขึ้นตั้งแต่ต้น",
         "desc": "แต่ละโครงการเผชิญกับประเภทของปัญหาที่แตกต่าง: การจัดการเนื้อหาส่วนบุคคล, ข้อมูลธุรกรรม และระบบที่ interactive. มันแสดงถึงวิธีที่ฉันสามารถรวม interface craftsmanship, logic application และการออกแบบที่มือถือเป็นหลัก",
         "items": [
           {
@@ -4388,7 +4845,7 @@
           {
             "badge": "ระบบเกม",
             "kind": "การสร้างสรรค์ด้วยมือ",
-            "title": "ฮูโกะอาร์กิดี",
+            "title": "Hugo อัคrobatิก",
             "desc": "ฐานข้อมูลเบราว์เซ็ตที่ครอบคลุม 2048, 3D ชาร์ป, สลิปส์, เบกเกอร์สและลำดับของความท้าทายที่เล็กน้อย",
             "outcome": "ผลงานของฉันเน้นไปที่การควบคุมแบบกายภาพ, สถานะเกมที่แน่นอน, การประมวลผลของการแสดงภาพ และลักษณะเว็บที่สร้างสรรค์สำหรับมือถือ",
             "cta": "ปรับแต่งข้อมูลส่วนบุคคล"
@@ -4396,9 +4853,9 @@
         ]
       },
       "meta": {
-        "title": "พีทีเรย์นิวส์วิชปั๊ก เล — โปรเจคซอฟต์แวร์และออกแบบผลิตภัณฑ์",
-        "description": "โปรไฟล์ส่วนบุคคลของ พีทีเรย์นิวส์วิชปั๊ก เล, นักศึกษาสาขาวิชาซอฟต์แวร์อีเจ้นท์ระดับสุดท้ายที่ Greenwich Vietnam ซึ่งครอบคลุมการศึกษา, ทักษะทางเทคนิค และผลิตภัณฑ์ดิจิทัลที่เลือกไว้",
-        "keywords": "พีทีเรย์นิวส์วิชปั๊ก เล, พีทีเรย์นิวส์ เล, โปรเจคซอฟต์แวร์ผลิตภัณฑ์, นักศึกษาสาขาวิชาซอฟต์แวร์อีเจ้นท์, Greenwich Vietnam, โปรเจค React"
+        "title": "เพทร์ Hugo วิชปั๊ก เล — โปรเจคเต้าหัวและการออกแบบผลิตภัณฑ์",
+        "description": "ข้อมูลส่วนบุคคลของ Hugo เวชพัสด์ ลี__, นักศึกษาปีที่สุดท้ายในสาขาวิศวกรรมซอฟต์แวร์ที่ Greenwich Vietnam, ครอบคลุมการศึกษา, ทักษะทางเทคนิค และผลิตภัณฑ์ดิจิทัลที่เลือก",
+        "keywords": "Hugo เวชพัสด์ ลี__, Hugo ลี, โปรไฟล์ของนักศึกษาปีที่สุดท้ายในสาขาวิศวกรรมซอฟต์แวร์ที่ Greenwich Vietnam, โครงการ React"
       },
       "heroCvCta": "ดาวน์โหลดเรซูเม่",
       "weak3": "หลักสูตรการปรับแต่งของเว็บไซต์ — การปรับแต่งสำหรับนักศึกษา, คนบุคคล และร้านค้าขนาดเล็ก | Hugo Studio"
@@ -4407,23 +4864,23 @@
   "servicesPage": {
     "meta": {
       "title": "ที่ปรึกษาเว็บไซต์สำหรับนักเรียน คนทำงานอิสระ และร้านเล็ก | Hugo Studio",
-      "description": "บอกความต้องการก่อนเลือกวิธีทำ ปรึกษาตัวต่อตัวสำหรับนักเรียน คนทั่วไป และร้านเล็ก ตกลงขอบเขตและค่าใช้จ่ายให้ชัดก่อนเริ่มงาน",
-      "keywords": "เว็บไซต์นักศึกษา, เว็บไซต์โปรไฟล์นักศึกษา, เว็บไซต์บุคคล, เว็บไซต์ขนาดเล็กของธุรกิจ, การปรึกษาด้านการสร้างเว็บไซต์"
+      "description": "บอก Hugo ว่าคุณต้องการอะไรก่อนเลือกวิธีทำ ปรึกษาตัวต่อตัวสำหรับนักเรียน คนทั่วไป และร้านเล็ก ตกลงขอบเขตและค่าใช้จ่ายให้ชัดก่อนเริ่มงาน",
+      "keywords": "Hugo Studio"
     },
     "common": {
-      "youGet": "สิทธิประโยชน์ของคุณ",
-      "notIncluded": "ไม่รวม",
-      "discussPlan": "พูดคุยเกี่ยวกับแพ็คเกจนี้",
-      "discussProject": "พูดคุยเกี่ยวกับโปรเจคของคุณ",
-      "revealPrice": "ดูขอบเขตการลงทุน",
-      "priceHint": "เป็นจุดเริ่มต้น จำนวนเงินสุดท้ายจะถูกตกลงเมื่อขอบเขตชัดเจนแล้ว",
-      "getQuote": "บอกฉันว่าคุณต้องการอะไร",
-      "quoteAfterChat": "พูดคุยเกี่ยวข้องก่อน · ให้ราคาหลังจากนั้น"
+      "youGet": "สิ่งที่คุณได้รับ",
+      "notIncluded": "ยังไม่รวม",
+      "discussPlan": "คุยเรื่องแพ็กเกจนี้",
+      "discussProject": "คุยเรื่องโปรเจกต์ของคุณ",
+      "revealPrice": "ดูช่วงงบประมาณ",
+      "priceHint": "เป็นจุดเริ่มต้น ตัวเลขสุดท้ายตกลงกันเมื่อขอบเขตงานชัดเจนแล้ว",
+      "getQuote": "เล่าความต้องการเพื่อรับคำแนะนำ",
+      "quoteAfterChat": "คุยก่อน · เสนอราคาทีหลัง"
     },
     "whispers": {
       "intro": "ไม่มีเว็บไซต์ที่สมบูรณ์แบบ มีเพียงเว็บไซต์ที่เหมาะสมเท่านั้น。",
       "between1": "ทุกข้อผิดพลาดคือสัญญาณ ฟังมัน",
-      "between2": "Speed isn't the goal. Speed is the prerequisite.",
+      "between2": "ความเร็วไม่ใช่เป้าหมาย แต่เป็นเงื่อนไขตั้งต้น",
       "between3": "หน้าเว็บที่โหลดช้าเหมือนภาพวาดในแสง黄昏——น่ารัก แต่ไม่มีใครเห็น",
       "between4": "จากหนึ่งหน้าไปสู่โลกทั้งหมด ขั้วแรกคือเพียงแค่ขั้วเดียวที่ต้องกังวล",
       "between5": "และเมื่อโลกสามารถหาคุณได้ คุณจึงมีความหมายในออนไลน์จริงๆ",
@@ -4431,14 +4888,14 @@
       "closing": "ทุกเลขเป็นประตู ประตูไหนคุณจะเป ou?"
     },
     "hero": {
-      "badge": "คุยตัวต่อตัว · นักเรียนมาก่อน",
-      "title1": "ยังไม่ต้องเลือกแพ็กเกจก็ได้",
-      "title2": "เริ่มจากสิ่งที่คุณต้องการจริง ๆ",
-      "desc": "บอกเป้าหมายของคุณ อุปสรรคที่เจอ หรือสิ่งที่อยากสร้าง แล้วผมจะช่วยหาขนาดงานที่พอดี ตั้งแต่หน้า Bio และพอร์ตโฟลิโอของนักเรียน ไปจนถึงเว็บไซต์ของคนทั่วไปและร้านเล็ก",
+      "badge": "คุยตรง 1 ต่อ 1 · ให้ความสำคัญกับนักเรียนนักศึกษา",
+      "title1": "ยังไม่ต้องเลือกแพ็กเกจ",
+      "title2": "เริ่มจากสิ่งที่คุณต้องการ",
+      "desc": "เล่าเป้าหมาย สิ่งที่ติดขัด หรือสิ่งที่อยากสร้างให้ฟัง ผมจะช่วยหาแนวทางขนาดพอเหมาะ ตั้งแต่ Bio และพอร์ตโฟลิโอของนักเรียน ไปจนถึงเว็บไซต์สำหรับบุคคลและร้านเล็ก ๆ",
       "viewPricing": "เลือกสถานการณ์ของคุณ",
-      "contact": "บอกสิ่งที่คุณต้องการ",
-      "swipe": "ย้ายเพื่อต่อเนื่อง",
-      "scroll": "scrollเพื่อต่อเนื่อง",
+      "contact": "เล่าให้ฟังว่าต้องการอะไร",
+      "swipe": "ปัดเพื่อดูต่อ",
+      "scroll": "เลื่อนเพื่อดูต่อ",
       "trust": [
         "ทำงานโดยตรงกับดีไซนเนอร์และพัฒนาเมอร์",
         "ข้อจำกัด, แผนเวลา และค่าใช้จ่ายได้รับการตกลงล่วงหน้า",
@@ -4505,7 +4962,7 @@
       "fix": {
         "label": "การแก้ไขที่รวดเร็ว",
         "name": "แก้ไขเว็บไซต์ที่มีอยู่แล้ว",
-        "price": "จาก $6.99",
+        "price": "เริ่มต้น $6.99",
         "note": "ทุกงานคิดราคาแยกชัดเจน จ่ายเมื่อเสร็จสิ้น —ไม่มีเงื่อนงำใดๆ",
         "desc": "เว็บไซต์กำลังทำงานแต่พบปัญหาเล็กๆทำให้คุณเสียลูกค้า? ผมจะแก้เฉพาะที่จำเป็นเท่านั้น —ไม่ต้องซื้อแพ็คเกจใหญ่",
         "includes": [
@@ -4524,7 +4981,7 @@
       "seo": {
         "label": "ปรับแต่ง",
         "name": "SEO และการเพิ่มความเร็ว",
-        "price": "จาก $36.99",
+        "price": "เริ่มต้น $36.99",
         "note": "เหมาะสมกับเว็บไซต์ React/Next.js หรือเว็บไซต์ที่ช้าและยากในการค้นหาบน Google.",
         "desc": "เว็บไซต์ที่ช้าและ看不见บน Google คือร้านที่ไม่มีป้ายสินค้า แพ็คเกจนี้แก้ไขปัญหานั้นอย่างลงตัว。",
         "includes": [
@@ -4543,8 +5000,8 @@
       "landing": {
         "label": "Start",
         "name": "แลนดิงเพจหน้าเดียว",
-        "oldPrice": "80.99",
-        "price": "60.99",
+        "oldPrice": "$80.99",
+        "price": "$60.99",
         "discount": "-25%",
         "note": "การตกแต่งด้วยตนเอง, ไม่มีแบบฟอร์มทั่วไปสำหรับตลาดขนาดใหญ่. เสร็จใน 5–7 วัน",
         "desc": "หน้าเดียว มุ่งมั่นเพียงหนึ่งเป้าหมาย: ผู้เข้าชมจบการอ่านและต้องการที่จะติดต่อคุณ.",
@@ -4568,8 +5025,8 @@
       "website": {
         "label": "เติบโต",
         "name": "เว็บไซต์หลายหน้า",
-        "oldPrice": " $202.99",
-        "price": "เข้าถึงระบบสมาชิก 121.99",
+        "oldPrice": "$202.99",
+        "price": "$121.99",
         "discount": "ข้อกำหนดความเป็นส่วนตัวของระบบสมาชิก 40",
         "note": "ราคาสุดท้ายขึ้นอยู่กับจำนวนหน้าและฟีเจอร์ ปรับให้เข้ากับงบประมาณของคุณด้วยการชำระเงินแบบช่วงๆ.",
         "desc": "ระบบสมาชิก Hugo Studio ที่ให้คุณมีการเข้าถึงออนไลน์อย่างสมบูรณ์แบบ เพื่อสร้างความเชื่อมั่นให้กับร้านค้าขนาดเล็ก, เคาสเทอร์หรือแบรนด์ส่วนตัวมากกว่าเพจเฟซบุ๊ก。",
@@ -4578,7 +5035,7 @@
           "4-6 หน้าสุดท้าย: เว็บไซต์หลัก, เกี่ยวกับเรา, สินค้า/บริการ, อัปเดต (เลือกได้), ติดต่อเรา",
           "การออกแบบที่ cohesive และเข้ากับธุรกิจของคุณ (การวางโลโก้, สี, เฟรมเวิร์ค...)",
           "3 รอบปรับปรุงตามข้อเสนอแนะจากคุณ",
-          "Advanced SEO: Google Search Console, sitemap, schema markup",
+          "SEO ขั้นสูง: Google Search Console, sitemap, schema markup",
           "Zalo, Messenger, Google Maps + แบบฟอร์มติดต่อที่ซับซ้อน",
           "1 เดือนของการบำรุงรักษาฟรี (4 การปรับเล็กน้อยรวมอยู่)",
           "การฝึกอบรมชั่วโมงละ 30 นาที + ช่วยเหลือหลังจากการส่งมอบ(14 วัน)"
@@ -4594,7 +5051,7 @@
       "system": {
         "label": "ระบบ",
         "name": "เว็บแอปแบบไดนามิก",
-        "price": "โครงการจาก $283.99",
+        "price": "เริ่มต้น $283.99",
         "note": "โครงการที่มีการจัดการเงินและการดูแลลูกค้าหลายบทบาทหรือโครงการที่มีความยาวนานจะใช้ 12–20 ล้านบาท",
         "desc": "ไม่เพียงแค่บัตรแสดง — เว็บไซต์ที่ทำงานให้คุณ: การสั่งซื้อและการจัดการลูกค้า",
         "tagline": "สินทรัพย์ระยะยาว",
@@ -4627,9 +5084,9 @@
         "desc": "ไม่เป็นการงาน ไม่มีใครประเมินผล. นี่คือโปรไฟล์ที่ใช้ในการยื่นเข้าทำงานและประชุมวิชาการ"
       },
       "bug": {
-        "label": "STUDENT",
+        "label": "นักเรียนนักศึกษา",
         "name": "วินิจฉัยและแก้ไข",
-        "price": "120.000ดี",
+        "price": "$4.99",
         "unit": "/bug",
         "tagline": "อยู่ใกล้กับกำหนดสิ้นสุดการหมดเวลา",
         "note": "คิดค่าบริการตามข้อตกลงของปัญหาที่พบเจอ ฉันจะแก้เฉพาะส่วนที่เสียหาย — ส่วนอื่นๆ จะยังคงอยู่ในโค้ดของคุณ",
@@ -4648,9 +5105,9 @@
       "html": {
         "label": "HTML/CSS/JS",
         "name": "หลักสูตรเรื่องเว็บไซต์ที่จัดเก็บข้อมูล",
-        "price": "490.000 ดอลลาร์",
+        "price": "$20.99",
         "tagline": "หน้าจอผู้ใช้ที่ตอบสนองได้",
-        "note": "แบ่งระหว่าง 2 นักเรียน: ~245.000 ดอลลาร์แต่ละคน",
+        "note": "แบ่งกัน 2 คน คนละประมาณ $10.50",
         "desc": "งานออกแบบเว็บในช่วงสิ้นปี: เวลาที่ตอบสนองและผลลัพธ์ DOM ฐานข้อมูลไม่มี",
         "includes": [
           "ลิงค์ Git ของคุณเองสำหรับการบวกตัวอย่างทั้งหมดจากแหล่ง",
@@ -4669,9 +5126,9 @@
       "php": {
         "label": "PHP/SQL",
         "name": "งานฝึกหัดเว็บที่มีความถูกต้อง",
-        "price": "990.000đ",
+        "price": "$40.99",
         "tagline": "CRUD & อนุญาต",
-        "note": "แบ่งระหว่างนักเรียนใน 3 คน: ~330.000 ท่านๆ ละ。",
+        "note": "แบ่งกัน 3 คน คนละประมาณ $13.66",
         "desc": "งานเว็บด dynamically ในสิ้นปี: การจัดการข้อมูล CRUD และการสมัครสมาชิกและอนุญาตตามบทบาทฐานะเบื้องต้น",
         "includes": [
           "ลิงค์ Git ของคุณเองสำหรับการบวกตัวอย่างทั้งหมดจากแหล่ง",
@@ -4690,9 +5147,9 @@
       "react": {
         "label": "REACT/NODE",
         "name": "การเรียนรู้ด้านเว็บที่ซับซ้อนขึ้น",
-        "price": "1.690.000 บาท",
+        "price": "$68.99",
         "tagline": "SPA + API REST",
-        "note": "แบ่งระหว่างนักเรียน 4 คน: ~425.000 บาท每人",
+        "note": "แบ่งกัน 4 คน คนละประมาณ $17.25",
         "desc": "งานด้านเว็บที่ซับซ้อนในช่วงสิ้นปี: SPA React ที่ใช้กับ API REST Node.js/Express ที่ใช้ MongoDB หรือ PostgreSQL",
         "includes": [
           "ลิงค์ Git ของคุณเองสำหรับการบวกตัวอย่างทั้งหมดจากแหล่ง",
@@ -4709,9 +5166,9 @@
         "compare": "ลดราคาถึง 43% เมื่อเทียบกับแผนเว็บไซต์หลายหน้า (2.990.000đ)."
       },
       "exclusiveBio": {
-        "label": "STUDENT",
+        "label": "นักเรียนนักศึกษา",
         "name": "บุคลากรที่ออกแบบมาเป็นพิเศษ",
-        "price": "99.000đ",
+        "price": "$4.99",
         "tagline": "การอัปเกรดจากเวอร์ชันฟรี",
         "note": "เวอร์ชันฟรีที่คุณสร้างเองใน editor นี้ฉันออกแบบมาให้รอบๆเรื่องราวของคุณ.",
         "desc": "หน้าติดต่อส่วนบุคคลที่มี Layout และ Palette ออกแบบมาให้เฉพาะคุณ ไม่ใช่ธemeมาตรฐาน",
@@ -4727,9 +5184,9 @@
         ]
       },
       "bento": {
-        "label": "STUDENT",
+        "label": "นักเรียนนักศึกษา",
         "name": "CV / Portfolio Bento",
-        "price": "799.000ตัว",
+        "price": "$32.99",
         "tagline": "สร้างสำหรับงานและทุนการศึกษา",
         "note": "เป็นโปรไฟล์ส่วนบุคคล ไม่ใช่การบ้าน — มันไม่กระทบถึงเกรดของคุณในแต่ละวิชา",
         "desc": "ผลการเรียนทางการศึกษา, โครงการส่วนตัวที่โดดเด่น และลิงก์ของคุณจัดเรียงอย่างชัดเจนใน Grid Bento ที่อ่านได้ภายใน 30 วินาที",
@@ -4763,12 +5220,12 @@
         "cafe": {
           "title": "คาเฟ่และบิสโทร",
           "short": "Cafe",
-          "subtitle": "Restaurant"
+          "subtitle": "ร้านอาหาร"
         },
         "jewelry": {
-          "title": "Gold & Jewelry Store",
-          "short": "Jewelry",
-          "subtitle": "Jeweler"
+          "title": "ร้านทองและเครื่องประดับ",
+          "short": "เครื่องประดับ",
+          "subtitle": "ร้านเครื่องประดับ"
         },
         "portfolio": {
           "title": "โปรไฟล์ส่วนบุคคล",
@@ -4776,12 +5233,12 @@
           "subtitle": "โปรไฟล์ของฉัน"
         },
         "ecommerce": {
-          "title": "Online Store",
+          "title": "ร้านค้าออนไลน์",
           "short": "ธุรกิจดิจิตอล",
           "subtitle": "หลากหลายอุตสาหกรรม"
         },
         "dashboard": {
-          "title": "ยุทธนาทีผู้ดูแลระบบ",
+          "title": "แผงผู้ดูแล",
           "short": "แดชบอร์ด",
           "subtitle": "แดชบอร์ด"
         }
@@ -4807,9 +5264,9 @@
     "app": {
       "badge": "ระบบเว็บไซต์ทั้งหมด",
       "title1": "เว็บไซต์ที่",
-      "title2": "works for you.",
+      "title2": "ทำงานแทนคุณ",
       "desc": "เปรียบเทียบการจ้างคนมาดูแลเว็บไซต์ของคุณ — รับสั่งซื้อ, จองเวลา, และรายงาน — แต่คุณจ่ายครั้งเดียวและมันจะทำงาน 24/7.",
-      "extendTitle": "Extensions when you need them — quoted separately",
+      "extendTitle": "ส่วนขยายเมื่อคุณต้องการ — คิดราคาแยก",
       "extendDesc": "การชำระเงินออนไลน์, บทบาทหลายบทบาท, อัปเดต API เฉพาะของคุณ. โครงการเหล่านี้มักจะดำเนินการ 12 - 20 ล้าน; สัดส่วนได้รับการยืนยันทางลายเซ็นก่อนที่งานจะเริ่มทำงาน。"
     },
     "student": {
@@ -4832,7 +5289,7 @@
           "desc": "เราแก้ปัญหาและอธิบายวิธีการแก้ไขให้คุณเข้าใจ"
         },
         {
-          "title": "Web project direction",
+          "title": "ให้คำแนะนำโปรเจกต์เว็บ",
           "desc": "ตรวจสอบความต้องการ,สถาปัตยกรรม และการติดตั้งเพื่อให้คุณสามารถดำเนินการสร้างโครงการเรียนรู้ได้อย่างมีความรับผิดชอบ。"
         }
       ],
@@ -4896,10 +5353,10 @@
       ]
     },
     "finalCta": {
-      "title1": "ทุกโปรเจกต์เริ่มต้นด้วย",
-      "title2": "การคุยกันให้ชัดหนึ่งครั้ง",
-      "desc": "คุณไม่ต้องรู้ชื่อแพ็กเกจ และไม่ต้องเตรียมบรีฟให้สมบูรณ์แบบ ส่งเว็บที่มีอยู่ ภาพหน้าจอ หรือเขียนสั้น ๆ ว่าอยากได้อะไร แล้วผมจะช่วยหาก้าวถัดไปที่เหมาะ",
-      "cta": "บอกสิ่งที่คุณต้องการ"
+      "title1": "ทุกโปรเจกต์เริ่มจาก",
+      "title2": "การคุยกันให้ชัดเจนหนึ่งครั้ง",
+      "desc": "ไม่ต้องรู้ชื่อแพ็กเกจ ไม่ต้องเตรียมบรีฟให้สมบูรณ์ ส่งเว็บที่ใช้อยู่ ภาพหน้าจอที่มีปัญหา หรือเขียนสองสามบรรทัดว่าต้องการอะไร แล้วผมจะช่วยหาขั้นตอนที่เหมาะ",
+      "cta": "เล่าให้ฟังว่าต้องการอะไร"
     },
     "promo": {
       "title": "บุคลากรแบบดูแลรักษาสำหรับนักศึกษาฟรี!",
@@ -4907,67 +5364,67 @@
       "cta": "ยืนยันฉัน!"
     },
     "tabs": {
-      "commercial": "ธุรกิจ / ส่วนบุคคล",
-      "student": "สำหรับนักศึกษา",
-      "micro": "การแก้ไขเร่งด่วน"
+      "commercial": "ร้านค้าและธุรกิจ",
+      "student": "สำหรับนักเรียนนักศึกษา",
+      "micro": "แก้ไขด่วน"
     },
     "microJobs": {
       "bug-ui": {
         "name": "ซ่อมแซมข้อผิดพลาดของหน้าจอ",
         "desc": "ซ่อมปุ่มที่แตก ภาพที่ไม่ถูกต้อง ขนาดอักษรที่ผิดพลาด หรือเนื้อหาอักษรที่สับสนกัน",
-        "price": "จาก $6.99",
+        "price": "เริ่มต้น $6.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "style-content": {
         "name": "สแตนด์ardeและปรับเนื้อหา",
         "desc": "ปรับเปลี่ยนสีของแบรนด์ รวมถึงการเปลี่ยนแบบ(typeface) เทคโนโลยี (typography), กราฟิกภาพ(avatars) และ rewriting ส่วนต่างๆ ของเนื้อหา(text sections).",
-        "price": "จาก $8.99",
+        "price": "เริ่มต้น $8.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "mobile-beauty": {
         "name": "แก้ไข Glow-up",
         "desc": "ปรับระยะห่างระหว่างข้อความ, เทคโนโลยีแบบตอบสนอง (responsive fonts), และจุดส่งเสริมการขาย(call-to-action touch zones) สำหรับหน้าจอสมาร์ทโฟน.",
-        "price": "จาก $10.99",
+        "price": "เริ่มต้น $10.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "web-widget": {
         "name": "ชิปปิ้งวัตถุประสงค์",
         "desc": "รวมฟังก์ชันแชท Zalo/Messenger, แบบฟอร์มติดต่อ, Google Maps และสายตรง (click-to-call hotlines) ที่สามารถคลิกได้.",
-        "price": "จาก $6.99",
+        "price": "เริ่มต้น $6.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "deploy-domain": {
         "name": "การปล่อยเว็บไซต์",
         "desc": "Deployไซต์ของคุณไปยัง Vercel/Netlify/VPS,เชื่อมโยงโดเมนที่กำหนดเอง และป้องกันด้วย SSL รับฟรีใบรับรอง.",
-        "price": "จาก $10.99",
+        "price": "เริ่มต้น $10.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "seo-quick": {
         "name": "ปรับแต่ง SEO เพิ่มขึ้น",
         "desc": "ตั้งแท็กมาร์กาตี้ (Title/Desc) และกำหนดลิงค์ที่สวยงามสำหรับแชร์บน Facebook/Zalo ให้เป็นไปตามมาตรฐาน。",
-        "price": "จาก $8.99",
+        "price": "เริ่มต้น $8.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "speed-optimize": {
         "name": "การเพิ่มความเร็ว",
         "desc": "ส่งภาพที่มีความละเอียดสูงโดยไม่ลดความละเอียด, ลบไฟล์ JS/CSS ที่ไม่มีประโยชน์ และเพิ่มคะแนน PageSpeed ขึ้น。",
-        "price": "จาก 12.99",
+        "price": "เริ่มต้น $12.99",
         "time": "ทำแล้วในวันนี้!"
       },
       "monthly-maintenance": {
         "name": "การดูแลรายเดือนที่สบายใจ",
         "desc": "การสำรองข้อมูลประจำวัน, การตรวจสอบความปลอดภัย, การแก้ไขปัญหาเร่งด่วน และการปรับเปลี่ยนเนื้อหาอย่างเบากล่องเป็นเดือน",
-        "price": "12.99/mo",
+        "price": "เริ่มต้น $12.99/เดือน",
         "time": "การดูแลระยะยาว"
       }
     },
     "disclaimer": "แต่ละตัวเลือกที่แสดงข้างล่างเป็นแนวทางเริ่มต้น ความละเอียด, เวลา และค่าใช้จ่ายจะยืนยันเพียงแค่หลังจากเราพูดคุยกับความจริงของความต้องการ",
     "section": {
-      "newBuildsTitle": "การออกแบบใหม่และปรับแต่งตามความต้องการ",
-      "newBuildsDesc": "สำหรับแบรนด์, 创作者 และธุรกิจที่ต้องการสร้างเว็บไซต์ใหม่จากพื้นฐาน",
-      "optimizeTitle": "การปรับปรุง SEO, การโหลดเร็ว และการแก้ไขปัญหาซอฟแวร์",
-      "optimizeDesc": "สำหรับเว็บไซต์ที่มีอยู่ที่ต้องการให้ Google จัดอันดับได้ดียิ่งขึ้น โหลดเร็วขึ้น และปัญหาซอฟแวร์ถูกแก้ไข",
-      "upkeep": "หากคุณต้องการการดูแลหลังจากช่วงเวลาที่มีการสนับสนุนที่มาพร้อมกับ มันจะเสนอแยกตามความถี่การอัปเดตจริงเสมอเป็นเลือกได้"
+      "newBuildsTitle": "เว็บไซต์สำหรับบุคคล ร้านกาแฟ และร้านเล็ก ๆ",
+      "newBuildsDesc": "ยังไม่มีเว็บ หรือเว็บเดิมเก่าไปแล้ว? ผมทำเว็บใหม่ให้ตั้งแต่ต้น ออกแบบเฉพาะ ราคาสมเหตุสมผล เสร็จไว",
+      "optimizeTitle": "แก้ไขและปรับปรุงเว็บที่มีอยู่",
+      "optimizeDesc": "เว็บมีข้อผิดพลาดเล็ก ๆ ช้า หรือขึ้น Google ยาก? ผมแก้ตรงจุด ไม่ต้องทำใหม่ทั้งหมด",
+      "upkeep": "หากต้องการดูแลต่อหลังหมดช่วงซัพพอร์ตที่รวมอยู่ ผมจะเสนอแยกตามความถี่การอัปเดตจริง เลือกหรือไม่ก็ได้"
     },
     "devices": {
       "desktop": "Desktop",
@@ -4976,8 +5433,8 @@
     },
     "proof": {
       "eyebrow": "Delivered work",
-      "title": "What a multi-page website looks like in production",
-      "desc": "A real client, a live website. Open it yourself — no need to trust a screenshot.",
+      "title": "เว็บไซต์หลายหน้าเมื่อใช้งานจริงเป็นอย่างไร",
+      "desc": "ลูกค้าจริง เว็บไซต์ที่ออนไลน์อยู่จริง เปิดดูเองได้เลย ไม่ต้องเชื่อแค่ภาพหน้าจอ",
       "clientLabel": "Client",
       "fieldLabel": "Industry",
       "scopeLabel": "Scope",
@@ -5075,11 +5532,11 @@
         "actionText": "ยินดีที่จะสนับสนุนการสร้างโปรไฟล์บิโอส่วนตัวที่กำหนดเองสำหรับนักศึกษาโดยไม่มีค่าใช้จ่ายใดๆ สำหรับนักศึกษาที่มีอีเมล .edu หรือ .edu.vn"
       },
       {
-        "question": "ขอรับสิทธิผู้เรียน",
+        "question": "ค่าออกแบบอยู่ที่เท่าไหร่ที่ Hugo สตูดิโอ?",
         "answer": "ราคาการออกแบบที่ Hugo Studio มีอย่างไร?"
       },
       {
-        "question": "เนื่องจากผมทำงานแบบ 1-1 ผมจัดการค่าบริการได้อย่างถูกต้องและมุ่งเน้นไปที่นักศึกษาหรือธุรกิจขนาดเล็ก ผมจะรับโปรเจ็คเพียงโปรเจ็คเดียวในลิสต์ของผมเพื่อให้คุณภาพดี",
+        "question": "(Hugo สตูดิโอมีการให้บริการในวันหยุดสุดสัปดาห์หรือไม่)?",
         "answer": "Hugo Studio ทำงานในวันหยุดหรือไม่?"
       }
     ],
@@ -5098,7 +5555,7 @@
   "bookingPage": {
     "meta": {
       "title": "ขอคำแนะนำเกี่ยวกับเว็บไซต์ | Hugo Studio",
-      "description": "ระบุความต้องการของคุณผ่านแบบฟอร์มที่ชัดเจนและได้รับการสนับสนุน ฮูโกจะตอบกลับเพื่อให้รายละเอียดเกี่ยวกับขอบเขต, การกำหนดเวลา และการลงทุนที่เหมาะสมก่อนที่งานใดๆจะเริ่มขึ้น",
+      "description": "กรอกความต้องการผ่านแบบฟอร์มที่ชัดเจนและได้รับการสนับสนุนด้วยขั้นตอนที่เข้าใจง่าย. Hugo จะตอบกลับเพื่อให้รายละเอียดเกี่ยวกับขอบเขต, ระยะเวลา และการลงทุนที่เหมาะสมก่อนงานจะเริ่ม",
       "keywords": "ขอคำแนะนำเกี่ยวกับเว็บไซต์ | โปรเจคสร้างเว็บไซต์ | Hugo Studio | เว็บไซต์ส่วนบุคคล | บริษัทขนาดเล็ก | Hugo Studio"
     },
     "toast": {
@@ -5107,10 +5564,10 @@
       "networkError": "มีปัญหาเกี่ยวกับการเชื่อมต่อ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองอีกครั้ง",
       "chooseProject": "โปรดเลือกตัวเลือกที่สอดคล้องกับความต้องการของคุณเอง。",
       "chooseAge": "โปรดระบุกลุ่มอายุของคุณเป็นอันดับแรก。",
-      "underAge": "ฮูโกสตีล์รับคำขอเพียงจากผู้ที่มีอายุ 14 ปีขึ้นไปเท่านั้น。"
+      "underAge": "Hugo สตูดิโอรับคำขอเพียงผู้ที่มีอายุมากกว่า 14 ปีเท่านั้น"
     },
     "header": {
-      "eyebrow": "การสนทนากับฮูโก่ตรงๆ",
+      "eyebrow": "การสนทนาตรงๆ กับ Hugo",
       "title": "บอกฉันว่าคุณต้องการอะไร ฉันจะช่วยกำหนดส่วนที่เหลือให้คุณเอง。",
       "desc": "คุณไม่จำเป็นต้องมีคำอธิบายทางเทคนิคหรือสรุปที่ละเอียดอ่อน แค่เลือกข้อเสนอแนะที่ใกล้เคียงกับสถานการณ์ของคุณ และฉันจะช่วยให้ส่วนที่เหลือเป็นรูปธรรม"
     },
@@ -5135,7 +5592,7 @@
     "steps": {
       "age": {
         "title": "คุณมีอายุเท่าไหร่?",
-        "hint": "ฮูโกสตีล์รับคำขอเพียงจากผู้ที่มีอายุ 14 ปีขึ้นไปเท่านั้น。"
+        "hint": "Hugo สตูดิโอรับคำขอเพียงผู้ที่มีอายุมากกว่า 14 ปีเท่านั้น"
       },
       "project": {
         "title": "ฉันสามารถช่วยอะไรกับคุณได้บ้าง?",
@@ -5227,6 +5684,10 @@
       "phoneLabel": "โทรศัพท์ / ไลน์",
       "phoneHint": "จำเป็น · จะไม่ถูกเผยแพร่",
       "phonePlaceholder": "เช่น 09xx xxx xxx",
+      "voucherLabel": "รหัสส่วนลด",
+      "voucherHint": "ไม่บังคับ · ดูได้ที่ บัญชี → คุณสมบัติของฉัน",
+      "voucherPlaceholder": "ตัวอย่าง: HUGO20-A1B2C3",
+      "voucherInvalid": "ใช้รหัสส่วนลดนี้ไม่ได้ (รหัสผิด ใช้ไปแล้ว หรือหมดอายุ) กรุณาตรวจสอบหรือเว้นว่างไว้",
       "messagePlaceholder": "เช่น ผมขายสินค้า handmade และฉันต้องการเว็บไซต์ที่ลูกค้าสามารถสำรวจผลงาน... ",
       "disclaimer": "These details are used solely to respond to your enquiry and discuss the project. Your telephone number is never displayed publicly."
     },
@@ -5267,7 +5728,7 @@
     "age": {
       "badge": "ฉันอยากพูดคุยเกี่ยวกับโครงการงานเว็บที่ใช้ React และ Node.js",
       "legend": "ข้อกำหนดทางการเงินแน่นอน",
-      "hint": "อายุของคุณ",
+      "hint": "นี่กำหนดวิธีที่ Hugo สตูดิโอจัดการและปกป้องข้อมูลของคุณ หากไม่มีเอกสาร — ให้ตอบอย่างจริงใจเท่านั้น",
       "teenTitle": "นี่เป็นสิ่งที่ Hugo Studio จัดการและปกป้องข้อมูลของคุณอย่างไร หากไม่มีเอกสาร — กรุณาตอบด้วยความจริงใจ",
       "teenRules": {
         "supervision": "โปรดดำเนินการด้วยความรู้และกำกับดูแลจากผู้ปกครองหรือผู้ดูแลเด็ก",
@@ -5306,7 +5767,7 @@
       "badge": "สำรวจ Galaksi สีนิ่ง แต่ละเว็บไซต์คือดาวดวงเดียวกันที่มีชีวิต",
       "title1": "Core",
       "title2": "แบรนด์",
-      "desc": "ศูนยง",
+      "desc": "ที่ศูนยงใจกลางของโลโก้ในจักรวาลของ[Hugo] สตูดิโอเป็นภาพที่มีสีสุดยอด 6 เส้น ซึ่งเป็นการประกาศอย่างแข็งขันเกี่ยวกับความสร้างสรรค์ที่ไม่มีที่สิ้นสุดและจินตนาการที่จะนำทาง:",
       "redBold": "ในจักรวาลของ Hugo Studio มีโลโก้ที่รวมสีสุดยอด 6 สีเข้าด้วยกัน ซึ่งเป็นการประกาศอย่างแข็งขันเกี่ยวกับความสร้างสรรค์ที่ไม่มีที่สิ้นสุดและจินตนาการที่นำหน้า",
       "redText": "แดง:",
       "orangeBold": "แทนความกระหายที่ร้อนแรง ความกระหายที่มีพลัง และความจริงใจในแต่ละบรรทัดของโค้ด",
@@ -5564,6 +6025,165 @@
       "service": "ราคาคิดเป็นเงินด่งเวียดนาม ชำระผ่าน PayOS และธนาคารในเวียดนาม",
       "booking": "Hugo Studio รับงานในเวียดนาม งบประมาณคิดเป็นเงินด่ง และพูดคุยผ่านอีเมลหรือ Zalo",
       "donate": "การสนับสนุนชำระเป็นเงินด่งเวียดนามผ่าน PayOS และธนาคารในเวียดนาม"
+    },
+    "vietnameseContentOnly": {
+      "title": "เนื้อหาเป็นภาษาเวียดนาม",
+      "course": "บทเรียนของ Study with Hugo ผู้เขียนเขียนเป็นภาษาเวียดนาม ส่วนติดต่อผู้ใช้แปลแล้ว แต่เนื้อหาบทเรียนยังไม่ได้แปล"
+    }
+  },
+  "paymentGateway": {
+    "dangChuanBiThong": "Preparing your payment details…",
+    "giaoDichKhongHop": "Invalid transaction",
+    "lienKetKhongTon": "ลิงค์นี้ไม่ยังไงหรือหมดอายุแล้ว",
+    "veTrangChu": "กลับไปที่หน้าหลัก",
+    "camOnBanDa": "ขอบคุณสำหรับการสนับสนุนของคุณ",
+    "thanhToanThanhCong": "การชำระเงินสำเร็จ",
+    "thuCamOnVa": "หมายถึงข้อความแสดงความชื่นชมและข้อมูลเกี่ยวกับ Hugo ศูนยงจะถูกส่งไปที่อีเมลที่คุณให้ไว้",
+    "giaoDichDaDuoc": "PayOS ยืนยันการทำธุรกรรมแล้ว",
+    "soTien": "จำนวนเงิน",
+    "ma": "รหัส",
+    "veHugoStudio": "เกี่ยวกับ Hugo สตูดิโอ",
+    "giaoDichDaHuy": "การยกเลิกการทำธุรกรรม",
+    "banCoTheQuay": "คุณสามารถกลับไปที่ Hugo ศูนย์และเริ่มทำบุญใหม่อีกครั้ง",
+    "khoanUngHoTu": "การบริจาค volontารี",
+    "yeuCauThanhToan": "คำขอการชำระเงิน",
+    "noiDung": "Reference:",
+    "moUngDungNgan": "เปิดแอปธนาคารของคุณ",
+    "chonAppNganHang": "ผู้รับ, จำนวน และข้อมูลที่ใช้เปรียบเทียบจะถูกส่งไปพร้อมกัน; แอปที่มีเครื่องหมาย “Auto-fill” จะเปิดไปยังหน้าจอที่ถูกปรับให้มีการกรอกข้อมูลสำหรับการโอนเงิน",
+    "dungVietqrVoiMoi": "ใช้ VietQR กับธนาคารของคุณเอง",
+    "timUngDungNgan": "หาแอปธนาคารของคุณ",
+    "timTenNganHang": "ค้นหาธนาคาร... ",
+    "tuDien": "Auto-fill",
+    "chuaTimThayApp": "แอปนี้ไม่อยู่ในรายการ. คุณยังสามารถใช้ VietQR กับธนาคารของคุณเองได้",
+    "danhSachDayDu": "The full list could not be loaded. Use VietQR if your banking app is not shown.",
+    "khongThayAppDung": "ไม่สามารถแสดงรายการทั้งหมดได้. ใช้ VietQR หากแอปการเงินของคุณยังไม่แสดง.",
+    "thanhToanBang": "ชำระด้วย",
+    "heThongSeTai": "รหัส VietQR ที่ถูกตั้งค่าไว้จะดาวน์โหลดก่อน ส่วนเราลองเปิดแอปกระเป๋าเงินของคุณ. ในแอป, ให้สแกน QR จากคลังรูปภาพของคุณและตรวจสอบรายละเอียดก่อนยืนยัน.",
+    "mo": "เปิด",
+    "khaNangMoTruc": "การเปิดแอปอาจขึ้นอยู่กับอุปกรณ์และเวอร์ชั่นของแอปกระเป๋าเงินของคุณ.",
+    "soTaiKhoan": "เลขบัญตา",
+    "noiDung2": "หมายเหตุ",
+    "nguoiNhan": "ผู้รับ:",
+    "nganHangDoiTac": "พันธมิตรธนาคาร PayOS",
+    "khongDongTrangCho": "ไม่ปิดหน้านี้จนกว่าการชำระเงินจะยืนยันได้ Hugo สตูดิโอเพียงแสดงข้อมูลการชำระเงินที่ถูกคืนโดย API PayOS และไม่เคยเก็บข้อมูลบัญชีธนาคารของคุณ",
+    "dangHuy": "ยกเลิกและลบการชำระเงิน",
+    "huyVaXoaGiao": "ยกเลิกและการลบการชำระเงิน",
+    "maVietqrThanhToan": "รหัส QR การชำระเงิน VietQR",
+    "quetVietqr": "สแกน VietQR",
+    "moUngDungNgan2": "เปิดแอปหรือกระเป๋าเงินที่สนับสนุน VietQR แล้วตรวจสอบจำนวนก่อนโอนเงิน",
+    "taiMaQr": "ดาวน์โหลดภาพ QR",
+    "saoChepNoiDung": "ทำซ้ำรหัสการเชื่อมต่อ"
+  },
+  "userGuide": {
+    "huongDanSuDung": "คู่มือผู้ใช้"
+  },
+  "studentPricing": {
+    "banNhanDuoc": "สิทธิประโยชน์ของคุณ",
+    "quayLaiDichVu": "กลับไปยังบริการ",
+    "dacQuyenNguoiHoc": "ประโยชน์ของนักศึกษา",
+    "dacQuyenBangGia": "ประโยชน์และราคาสำหรับนักศึกษาเท่านั้น",
+    "xacMinhEmailTruong": "ยืนยันอีเมลของโรงเรียนของคุณครั้งเดียวเพื่อล็อกอินฟรี 12 เดือนสำหรับหน้าบิโอและราคาผู้เรียนที่มีอยู่ในแผนทั้งหมดต่อไปนี้",
+    "chiCourseworkCuoiMon": "เฉพาะการฝึกงานสุดท้ายเท่านั้น",
+    "khongDoAnChuyen": "ไม่มีโครงการ capstone, ไม่มีวิทยานิพนธ์สำหรับจบการศึกษา และไม่ได้มอบให้เขียนรายงานแทนคุณเอง",
+    "banGiaoQuaGit": "ส่งตรงผ่าน Git",
+    "linkRepoDeBan": "ลิงก์ของ Repository ที่คุณดูแลเองพร้อมคำแนะนำในการดำเนินงานและอธิบายรหัส",
+    "giaCoDinhCo": "ราคาคงที่มี ceiling",
+    "moiGoiGhiRo": "แผนทั้งหมดระบุว่าจะหยุดอย่างไร ดังนั้นไม่มีสิ่งใดปรากฏกลางทาง",
+    "kiemDuyetTuDong": "ยืนยันอัตโนมัติ",
+    "khongCanGuiThe": "ไม่จำเป็นต้องใช้บัตรผู้เรียน",
+    "dangNhapBangGoogle": "เข้าสู่ระบบด้วย Google",
+    "dungTaiKhoanGoogle": "ใช้บัญชี Google ของโรงเรียนของคุณ",
+    "kiemTraEmailGiao": "ตรวจสอบอีเมลของโรงเรียน",
+    "dangDoiChieuTen": "กำลังตรวจสอบโดเมน...",
+    "tenMienEduAc": "โดเมน .edu / .ac เป็นที่ยอมรับเท่านั้น",
+    "khongPhaiEmailTruong": "ไม่ใช่อีเมลจากโรงเรียน — การขอร้องจะถูกส่งไปยังการตรวจสอบแบบมืออาชีพ",
+    "tuChayNgaySau": "หลังจากที่คุณเข้าสู่ระบบ กระบวนการจะดำเนินต่อไปเอง",
+    "moDacQuyenHssv": "เปิดประโยชน์สำหรับนักศึกษา",
+    "bioMienPhi12": "บิโอฟรี 12 เดือน และการเรียกเก็บเงินของนักศึกษาจะใช้",
+    "bioMienPhi122": "บิโอฟรี 12 เดือน และการเรียกเก็บเงินของนักศึกษาจะใช้ทุกแผนที่ต่ำกว่า",
+    "nhanTrangBioMien": "รับฟรีหน้าต่อส่วนบุคคล 12 เดือน",
+    "emailCuaBanKhong": "อีเมลของคุณไม่ใช่ที่อยู่อีเมลของโรงเรียน กรุณาส่งภาพหนังสือประจำนักเรียนที่มีการยืนยันและตรงกับชื่อผู้ใช้งานของคุณผ่านแบบฟอร์มติดต่อ และฉันจะตรวจสอบโดยมือภายใน 24 ชั่วโมง",
+    "guiTheSinhVien": "ส่งหนังสือประจำนักเรียนเพื่อการตรวจสอบโดยมือ",
+    "01BaiDuocCham": "01 — การทำงานที่ได้รับการประเมิน",
+    "daXacMinhGia": "ยืนยัน — ราคาสำหรับนักศึกษาถูกนำมาใช้",
+    "xacMinhEmailTruong2": "ยืนยันที่อยู่อีเมลของโรงเรียนเพื่อจองแผน",
+    "baiNangCaoReact": "งานที่ซับซ้อน (React, Node, ทั้งหมด)",
+    "minhKhuyenBanTu": "ฉันอยากให้คุณเรียนรู้ส่วนนี้เองแทนครับ/ค่ะ กรุณาคลิกดูเหตุผลและฉันจะช่วยอย่างไร้ขีดจำกัด",
+    "toiMucReactRest": "โดยเวลาที่คุณถึง React และ API REST สิ่งที่กำหนดเกรดของคุณไม่ใช้การเขียนโค้ดแล้ว แต่เป็นเพราะคุณเข้าใจว่าทำไมโค้ดนั้นทำงาน",
+    "nenMinhUuTien": "ดังนั้นแผนสามแบบง่ายๆ ข้างบนจึงมีความสำคัญสูงสุด ฉันยังทำงานที่ซับซ้อนอยู่ แต่รักษาให้น้อยลงและใช้เพียงเป็นการสนับสนุนเท่านั้น — ลองด้วยตัวเองใน IDE Web ฟรี และเมื่อคุณถูกขัดขวาง แผนวิเคราะห์และแก้ไข 120.000 จะอยู่ที่นั่น",
+    "soTheThreeSimpler": "ดังนั้นแผนสามแบบง่ายๆ ข้างบนจึงมีความสำคัญสูงสุด ฉันยังทำงานที่ซับซ้อนอยู่ แต่รักษาให้น้อยลงและใช้เพียงเป็นการสนับสนุนเท่านั้น — ลองด้วยตัวเองใน IDE Web ฟรี และเมื่อคุณถูกขัดขวาง แผนวิเคราะห์และแก้ไข 120.000 จะอยู่ที่นั่น",
+    "tuHocBangWeb": "เรียนรู้ด้วยตัวเองใน IDE Web ฟรี",
+    "02KhongDinhDiem": "02 — สิ่งใดก็ตามที่ส่งผลกระทบต่อเกรดของคุณ",
+    "quaHssv": "ชุดของขวัญสำหรับนักศึกษา",
+    "bioTuDung": "สร้างบัฟของคุณเอง",
+    "banTuLamTrong": "คุณสร้างมันเองในเวลา 10 นาที",
+    "0d": "0đ",
+    "12Thang": "/ 12 เดือน",
+    "chiCanEmailTruong": "แค่ยืนยันอีเมลโรงเรียนข้างบนเท่านั้น สิทธิ์บัตรเครดิตไม่จำเป็นต้องมี",
+    "trinhSoanThaoTrong": "ผู้편집ภายในโปรไฟล์ของคุณ สามารถเปลี่ยนแปลงได้ทุกเวลา",
+    "chonTuCacTheme": "เลือกจากธีมและสีที่มาพร้อมกับระบบ",
+    "lienKetMangXa": "เชื่อมโยงโซเชียล สโลแกน รูปโปรไฟล์สั้นๆ",
+    "duongDanRiengHugowishpax": "ที่อยู่ของคุณที่ hugowishpax.studio/bio/your-name",
+    "moTrinhSoanThao": "เปิดโหมดบิโอ",
+    "xacMinhOTren": "ยืนยันข้างบนเพื่อขอรับสิทธิ์",
+    "03QuyTrinh": "03 — วิธีการทำงาน",
+    "banNhanDuocGi": "อะไรคือสิ่งที่คุณจะได้รับ อย่างละเอียด",
+    "tuLucXacMinh": "จากการยืนยันไปจนถึงการส่งมอบ — ทุกอย่างได้รับการตกลงก่อนหน้านี้แล้ว และไม่มีอะไรเพิ่มเติมในภายหลัง。",
+    "minhKhongNhanKe": "ผมไม่รับงานเหล่านี้ — ไม่ว่าจะเป็นเงินมากขึ้น"
+  },
+  "saveE": {
+    "impact": {
+      "bieuTrungCheDo": "ปุ่มสัญลักษณ์แบบอนิเมชั่น",
+      "dienThoaiNenSang": "โทรศัพทงเปลี่ยนจากพื้นหลังสว่างเป็นดำ และมีข้อความขาว",
+      "nenSang": "พื้นหลังสว่าง",
+      "nenDen": "พื้นหลังดำ",
+      "cotSoSanh720": "(columns: 720 บทความต่อชั่วโมงในแบบปกติ ต่อไปกับ 24 ในแบบอนิเมชั่น)",
+      "720Bai": "(columns: 720 บทความ)",
+      "cheDoThuong": "แบบปกติ",
+      "6Luot120Bai": "6 เส้นรอบลูป × 120 บทความ",
+      "24Bai": "24 บทความ",
+      "cheDoTietKiem": "โหมดสิ่งแวดล้อม",
+      "1Luot24Bai": "1 เวลา × 24 บทความ",
+      "luoiDiemAnhNen": "กริดพิกเซล: ในพื้นหลังที่สว่างทุกพิกเซลจะได้รับแสง ส่วนใน黑色則大部分熄燈",
+      "2424DiemAnh": "24/24 พิกเซลสว่าง",
+      "324DiemAnh": "3/24 พิกเซลสว่าง",
+      "viSaoCheDo": "ทำไมโหมดนี้จริงๆแล้วช่วยประหยัดพลังงาน",
+      "soLieuDoTu": "ตัวเลขมาจากแหล่ง; ส่วนที่เหลืออ้างถึงการวิจัยที่列出以下。",
+      "nguonThamKhao": "ข้อมูลเชิงลึก",
+      "cacConSoTren": "ตัวเลขเหล่านี้เป็นการประมาณการกับขอบเขต; ขึ้นอยู่กับอุปกรณ์, ความสว่างของหน้าจอ และโครงสร้างพื้นฐานเครือข่ายในท้องถิ่น"
+    },
+    "account": {
+      "theThanhVien": "Membership card",
+      "thanhVienHugo": "Thành viên Hugo",
+      "chuaLayDuocSo": "ไม่สามารถโหลดยอดเงินของคุณได้ กรุณาเปิดหน้าจอใหม่อีกครั้ง",
+      "viJoy": "Ví JOY",
+      "maQrNhanJoy": "JOY รับรหัส",
+      "layMaMoi": "ขอรหัสใหม่",
+      "duaMaNayCho": "แสดงรหัสนี้ให้ผู้ที่ส่งคุณ JOY. มันมีความยาวประมาณ 2 นาที — หลังจากนั้นกด\n                  “ขอรหัสใหม่”",
+      "diemDanhNhanJoy": "เช็ควิ่งของ JOY",
+      "homNayChuaDiem": "ยังไม่ได้เช็ควิ่งวันนี้",
+      "homNayDaDiem": "ตรวจพบวันนี้",
+      "chuoiLienTiep": "Streak:",
+      "ngay": "วัน",
+      "diemDanhKhongThanh": "Check-in ไม่สำเร็จ.",
+      "diemDanh": "ตรวจสอบเข้า",
+      "lichSuGiaoDich": "ประวัติการซื้อขาย",
+      "chuaCoGiaoDich": "ยังไม่มีการโอน",
+      "chuyenJoy": "ส่ง JOY",
+      "soDienThoaiNguoi": "เบอร์โทรศัพท์ที่รับจ่าย",
+      "soJoy": "JOY จำนวน",
+      "maPinGiaoDich": "รหัส PIN สำหรับการซื้อขาย",
+      "dangChuyen": "ส่งข้อมูล…",
+      "thongTinCaNhan": "ข้อมูลส่วนบุคคล",
+      "tenHienThi": "ชื่อแสดงตัวเอง",
+      "soDienThoai": "เบอร์โทรศัพท์",
+      "truongDonVi": "โรงเรียน / องค์กร",
+      "dangLuu": "กำลังบันทึก…",
+      "luuThongTin": "Save details",
+      "anhDaiDienAnh": "รูปโปรไฟล์, ภาพปก และหน้าวิจารณ์ได้ถูกแก้ไขในโหมดปกติ —\n            มันเป็นการส่งข้อมูลภาพที่หนักที่สุด ดังนั้นมันไม่รวมอยู่ที่นี่.",
+      "caiDat": "ตั้งค่า",
+      "dangXuat": "ออกจากระบบ",
+      "batTatVaMuc": "การเปลี่ยนแปลงและระดับ “อัตโนมัติ” อยู่ในแท็บเขียว. การปิดใช้งานในโหมดนี้: เจ้าชายนักวิเคราะห์, แผนที่,\n          ร้านค้า, ฐานข้อมูลแอพพลิเคชัน, ภาพหลังสั้น และการสำรวจเซิร์ฟเวอร์ที่ซ้ำๆ."
     }
   }
 }

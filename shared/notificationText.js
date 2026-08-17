@@ -1,3 +1,5 @@
+import { DEFAULT_DENOM, formatDenom } from "./joyCurrency.js";
+
 /**
  * Chữ của thông báo — MỘT nguồn duy nhất cho cả trình duyệt lẫn máy chủ.
  *
@@ -40,6 +42,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "Mở khoá tính năng trị liệu",
     "source.daily_challenge": "Thử thách hàng ngày",
     "source.arcade_score": "Kỷ lục mới ở sân chơi",
+    "source.daily_tree_bonus": "Cây nhiệm vụ trưởng thành",
+    "source.joylater_open": "Mở khoá bằng JOYlater",
+    "source.joylater_repay": "Trả nợ JOYlater",
     "source.focus_session": "Phiên tập trung sâu",
     "source.aura_theme_rent": "Thuê giao diện tập trung",
     "source.joy_gift_sent": "Gửi JOY cho bạn bè",
@@ -75,13 +80,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} đã tặng bạn {{item}}",
     "event.appGift.message": "Mở cửa hàng để bắt đầu dùng ngay.",
     "event.adminBonus.title": "Nhận JOY thưởng",
-    "event.adminBonus.message": "Admin vừa tặng bạn {{amount}} JOY.",
+    "event.adminBonus.message": "Admin vừa tặng bạn {{amount, joy}}.",
     "event.adminBonusReason.title": "Nhận JOY thưởng",
-    "event.adminBonusReason.message": "Admin vừa tặng bạn {{amount}} JOY. Lý do: {{reason}}",
+    "event.adminBonusReason.message": "Admin vừa tặng bạn {{amount, joy}}. Lý do: {{reason}}",
     "event.cartCheckout.title": "Thanh toán thành công",
-    "event.cartCheckout.message": "{{count}} sản phẩm · {{total}} JOY · Mã đơn: {{code}}",
+    "event.cartCheckout.message": "{{count}} sản phẩm · {{total, joy}} · Mã đơn: {{code}}",
     "event.productPurchase.title": "Mua hàng thành công",
-    "event.productPurchase.message": "Bạn đã mua “{{product}}” với {{total}} JOY. Mã đơn: {{code}}",
+    "event.productPurchase.message": "Bạn đã mua “{{product}}” với {{total, joy}}. Mã đơn: {{code}}",
     "event.wellnessNudge.title": "Lời nhắn chăm sóc tinh thần",
     "event.wellnessNudge.message": "Hôm nay có một gợi ý nhỏ dành cho bạn.",
     "event.paymentRequest.title": "Yêu cầu thanh toán",
@@ -101,6 +106,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "Therapy feature unlocked",
     "source.daily_challenge": "Daily challenge",
     "source.arcade_score": "New arcade record",
+    "source.daily_tree_bonus": "Your daily tree is fully grown",
+    "source.joylater_open": "Unlocked with JOYlater",
+    "source.joylater_repay": "JOYlater repayment",
     "source.focus_session": "Deep focus session",
     "source.aura_theme_rent": "Focus theme rental",
     "source.joy_gift_sent": "JOY sent to a friend",
@@ -136,13 +144,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} gifted you {{item}}",
     "event.appGift.message": "Open the store to start using it.",
     "event.adminBonus.title": "Bonus JOY received",
-    "event.adminBonus.message": "The admin just gave you {{amount}} JOY.",
+    "event.adminBonus.message": "The admin just gave you {{amount, joy}}.",
     "event.adminBonusReason.title": "Bonus JOY received",
-    "event.adminBonusReason.message": "The admin just gave you {{amount}} JOY. Reason: {{reason}}",
+    "event.adminBonusReason.message": "The admin just gave you {{amount, joy}}. Reason: {{reason}}",
     "event.cartCheckout.title": "Payment complete",
-    "event.cartCheckout.message": "{{count}} items · {{total}} JOY · Order: {{code}}",
+    "event.cartCheckout.message": "{{count}} items · {{total, joy}} · Order: {{code}}",
     "event.productPurchase.title": "Purchase complete",
-    "event.productPurchase.message": "You bought “{{product}}” for {{total}} JOY. Order: {{code}}",
+    "event.productPurchase.message": "You bought “{{product}}” for {{total, joy}}. Order: {{code}}",
     "event.wellnessNudge.title": "A wellbeing nudge",
     "event.wellnessNudge.message": "There is a small suggestion waiting for you today.",
     "event.paymentRequest.title": "Payment request",
@@ -162,6 +170,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "解锁疗愈功能",
     "source.daily_challenge": "每日挑战",
     "source.arcade_score": "游艺厅新纪录",
+    "source.daily_tree_bonus": "今日之树已长成",
+    "source.joylater_open": "使用 JOYlater 解锁",
+    "source.joylater_repay": "JOYlater 还款",
     "source.focus_session": "深度专注时段",
     "source.aura_theme_rent": "租用专注主题",
     "source.joy_gift_sent": "赠送 JOY 给朋友",
@@ -197,13 +208,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} 送了你 {{item}}",
     "event.appGift.message": "打开商店即可开始使用。",
     "event.adminBonus.title": "收到奖励 JOY",
-    "event.adminBonus.message": "管理员刚刚赠送你 {{amount}} JOY。",
+    "event.adminBonus.message": "管理员刚刚赠送你 {{amount, joy}}。",
     "event.adminBonusReason.title": "收到奖励 JOY",
-    "event.adminBonusReason.message": "管理员刚刚赠送你 {{amount}} JOY。原因：{{reason}}",
+    "event.adminBonusReason.message": "管理员刚刚赠送你 {{amount, joy}}。原因：{{reason}}",
     "event.cartCheckout.title": "支付成功",
-    "event.cartCheckout.message": "{{count}} 件商品 · {{total}} JOY · 订单号：{{code}}",
+    "event.cartCheckout.message": "{{count}} 件商品 · {{total, joy}} · 订单号：{{code}}",
     "event.productPurchase.title": "购买成功",
-    "event.productPurchase.message": "你以 {{total}} JOY 购买了“{{product}}”。订单号：{{code}}",
+    "event.productPurchase.message": "你以 {{total, joy}} 购买了“{{product}}”。订单号：{{code}}",
     "event.wellnessNudge.title": "心理关怀提醒",
     "event.wellnessNudge.message": "今天有一个小建议等着你。",
     "event.paymentRequest.title": "付款请求",
@@ -223,6 +234,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "ปลดล็อกฟีเจอร์บำบัด",
     "source.daily_challenge": "ภารกิจประจำวัน",
     "source.arcade_score": "สถิติใหม่ในลานเล่น",
+    "source.daily_tree_bonus": "ต้นไม้ประจำวันเติบโตเต็มที่",
+    "source.joylater_open": "ปลดล็อกด้วย JOYlater",
+    "source.joylater_repay": "ชำระคืน JOYlater",
     "source.focus_session": "ช่วงสมาธิเข้มข้น",
     "source.aura_theme_rent": "เช่าธีมสมาธิ",
     "source.joy_gift_sent": "ส่ง JOY ให้เพื่อน",
@@ -258,13 +272,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} มอบ {{item}} ให้คุณ",
     "event.appGift.message": "เปิดร้านค้าเพื่อเริ่มใช้งานได้เลย",
     "event.adminBonus.title": "ได้รับ JOY พิเศษ",
-    "event.adminBonus.message": "ผู้ดูแลเพิ่งมอบ {{amount}} JOY ให้คุณ",
+    "event.adminBonus.message": "ผู้ดูแลเพิ่งมอบ {{amount, joy}} ให้คุณ",
     "event.adminBonusReason.title": "ได้รับ JOY พิเศษ",
-    "event.adminBonusReason.message": "ผู้ดูแลเพิ่งมอบ {{amount}} JOY ให้คุณ เหตุผล: {{reason}}",
+    "event.adminBonusReason.message": "ผู้ดูแลเพิ่งมอบ {{amount, joy}} ให้คุณ เหตุผล: {{reason}}",
     "event.cartCheckout.title": "ชำระเงินสำเร็จ",
-    "event.cartCheckout.message": "{{count}} รายการ · {{total}} JOY · เลขที่สั่งซื้อ: {{code}}",
+    "event.cartCheckout.message": "{{count}} รายการ · {{total, joy}} · เลขที่สั่งซื้อ: {{code}}",
     "event.productPurchase.title": "ซื้อสำเร็จ",
-    "event.productPurchase.message": "คุณซื้อ “{{product}}” ด้วย {{total}} JOY เลขที่สั่งซื้อ: {{code}}",
+    "event.productPurchase.message": "คุณซื้อ “{{product}}” ด้วย {{total, joy}} เลขที่สั่งซื้อ: {{code}}",
     "event.wellnessNudge.title": "ข้อความดูแลใจ",
     "event.wellnessNudge.message": "วันนี้มีคำแนะนำเล็ก ๆ รอคุณอยู่",
     "event.paymentRequest.title": "คำขอชำระเงิน",
@@ -284,6 +298,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "ケア機能の解放",
     "source.daily_challenge": "デイリーチャレンジ",
     "source.arcade_score": "遊技場の新記録",
+    "source.daily_tree_bonus": "デイリーツリーが育ちました",
+    "source.joylater_open": "JOYlater で解放",
+    "source.joylater_repay": "JOYlater の返済",
     "source.focus_session": "集中セッション",
     "source.aura_theme_rent": "集中テーマのレンタル",
     "source.joy_gift_sent": "友だちへJOYを送信",
@@ -319,13 +336,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}}さんが{{item}}を贈りました",
     "event.appGift.message": "ストアを開くとすぐに使えます。",
     "event.adminBonus.title": "ボーナスJOYを受け取りました",
-    "event.adminBonus.message": "管理者から{{amount}} JOYが贈られました。",
+    "event.adminBonus.message": "管理者から{{amount, joy}}が贈られました。",
     "event.adminBonusReason.title": "ボーナスJOYを受け取りました",
-    "event.adminBonusReason.message": "管理者から{{amount}} JOYが贈られました。理由：{{reason}}",
+    "event.adminBonusReason.message": "管理者から{{amount, joy}}が贈られました。理由：{{reason}}",
     "event.cartCheckout.title": "支払いが完了しました",
-    "event.cartCheckout.message": "{{count}}点 · {{total}} JOY · 注文番号：{{code}}",
+    "event.cartCheckout.message": "{{count}}点 · {{total, joy}} · 注文番号：{{code}}",
     "event.productPurchase.title": "購入が完了しました",
-    "event.productPurchase.message": "「{{product}}」を{{total}} JOYで購入しました。注文番号：{{code}}",
+    "event.productPurchase.message": "「{{product}}」を{{total, joy}}で購入しました。注文番号：{{code}}",
     "event.wellnessNudge.title": "こころのケアのお知らせ",
     "event.wellnessNudge.message": "今日はあなたに小さな提案があります。",
     "event.paymentRequest.title": "支払いリクエスト",
@@ -345,6 +362,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "돌봄 기능 해제",
     "source.daily_challenge": "일일 도전",
     "source.arcade_score": "오락실 신기록",
+    "source.daily_tree_bonus": "오늘의 나무가 다 자랐어요",
+    "source.joylater_open": "JOYlater로 잠금 해제",
+    "source.joylater_repay": "JOYlater 상환",
     "source.focus_session": "몰입 세션",
     "source.aura_theme_rent": "몰입 테마 대여",
     "source.joy_gift_sent": "친구에게 JOY 전송",
@@ -380,13 +400,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}}님이 {{item}}을(를) 선물했어요",
     "event.appGift.message": "스토어를 열면 바로 사용할 수 있어요.",
     "event.adminBonus.title": "보너스 JOY 도착",
-    "event.adminBonus.message": "관리자가 방금 {{amount}} JOY를 보냈어요.",
+    "event.adminBonus.message": "관리자가 방금 {{amount, joy}}를 보냈어요.",
     "event.adminBonusReason.title": "보너스 JOY 도착",
-    "event.adminBonusReason.message": "관리자가 방금 {{amount}} JOY를 보냈어요. 사유: {{reason}}",
+    "event.adminBonusReason.message": "관리자가 방금 {{amount, joy}}를 보냈어요. 사유: {{reason}}",
     "event.cartCheckout.title": "결제가 완료되었어요",
-    "event.cartCheckout.message": "{{count}}개 · {{total}} JOY · 주문번호: {{code}}",
+    "event.cartCheckout.message": "{{count}}개 · {{total, joy}} · 주문번호: {{code}}",
     "event.productPurchase.title": "구매가 완료되었어요",
-    "event.productPurchase.message": "“{{product}}”을(를) {{total}} JOY로 구매했어요. 주문번호: {{code}}",
+    "event.productPurchase.message": "“{{product}}”을(를) {{total, joy}}로 구매했어요. 주문번호: {{code}}",
     "event.wellnessNudge.title": "마음 돌봄 알림",
     "event.wellnessNudge.message": "오늘 당신을 위한 작은 제안이 있어요.",
     "event.paymentRequest.title": "결제 요청",
@@ -406,6 +426,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "Fitur terapi terbuka",
     "source.daily_challenge": "Tantangan harian",
     "source.arcade_score": "Rekor baru di arena",
+    "source.daily_tree_bonus": "Pohon harianmu tumbuh penuh",
+    "source.joylater_open": "Dibuka dengan JOYlater",
+    "source.joylater_repay": "Pembayaran JOYlater",
     "source.focus_session": "Sesi fokus mendalam",
     "source.aura_theme_rent": "Sewa tema fokus",
     "source.joy_gift_sent": "Kirim JOY ke teman",
@@ -441,13 +464,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} menghadiahkan {{item}}",
     "event.appGift.message": "Buka toko untuk mulai memakainya.",
     "event.adminBonus.title": "JOY bonus diterima",
-    "event.adminBonus.message": "Admin baru saja memberimu {{amount}} JOY.",
+    "event.adminBonus.message": "Admin baru saja memberimu {{amount, joy}}.",
     "event.adminBonusReason.title": "JOY bonus diterima",
-    "event.adminBonusReason.message": "Admin baru saja memberimu {{amount}} JOY. Alasan: {{reason}}",
+    "event.adminBonusReason.message": "Admin baru saja memberimu {{amount, joy}}. Alasan: {{reason}}",
     "event.cartCheckout.title": "Pembayaran berhasil",
-    "event.cartCheckout.message": "{{count}} produk · {{total}} JOY · Kode pesanan: {{code}}",
+    "event.cartCheckout.message": "{{count}} produk · {{total, joy}} · Kode pesanan: {{code}}",
     "event.productPurchase.title": "Pembelian berhasil",
-    "event.productPurchase.message": "Kamu membeli “{{product}}” seharga {{total}} JOY. Kode pesanan: {{code}}",
+    "event.productPurchase.message": "Kamu membeli “{{product}}” seharga {{total, joy}}. Kode pesanan: {{code}}",
     "event.wellnessNudge.title": "Pengingat kesejahteraan",
     "event.wellnessNudge.message": "Ada saran kecil untukmu hari ini.",
     "event.paymentRequest.title": "Permintaan pembayaran",
@@ -467,6 +490,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "Función de terapia desbloqueada",
     "source.daily_challenge": "Reto diario",
     "source.arcade_score": "Nuevo récord en los recreativos",
+    "source.daily_tree_bonus": "Tu árbol diario ha crecido",
+    "source.joylater_open": "Desbloqueado con JOYlater",
+    "source.joylater_repay": "Pago de JOYlater",
     "source.focus_session": "Sesión de concentración",
     "source.aura_theme_rent": "Alquiler de tema de enfoque",
     "source.joy_gift_sent": "JOY enviado a un amigo",
@@ -502,13 +528,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} te regaló {{item}}",
     "event.appGift.message": "Abre la tienda para empezar a usarlo.",
     "event.adminBonus.title": "JOY de regalo recibido",
-    "event.adminBonus.message": "El administrador acaba de darte {{amount}} JOY.",
+    "event.adminBonus.message": "El administrador acaba de darte {{amount, joy}}.",
     "event.adminBonusReason.title": "JOY de regalo recibido",
-    "event.adminBonusReason.message": "El administrador acaba de darte {{amount}} JOY. Motivo: {{reason}}",
+    "event.adminBonusReason.message": "El administrador acaba de darte {{amount, joy}}. Motivo: {{reason}}",
     "event.cartCheckout.title": "Pago completado",
-    "event.cartCheckout.message": "{{count}} productos · {{total}} JOY · Pedido: {{code}}",
+    "event.cartCheckout.message": "{{count}} productos · {{total, joy}} · Pedido: {{code}}",
     "event.productPurchase.title": "Compra completada",
-    "event.productPurchase.message": "Compraste «{{product}}» por {{total}} JOY. Pedido: {{code}}",
+    "event.productPurchase.message": "Compraste «{{product}}» por {{total, joy}}. Pedido: {{code}}",
     "event.wellnessNudge.title": "Recordatorio de bienestar",
     "event.wellnessNudge.message": "Hoy hay una pequeña sugerencia para ti.",
     "event.paymentRequest.title": "Solicitud de pago",
@@ -528,6 +554,9 @@ export const NOTIFICATION_TEXT = {
     "source.companion_unlock": "Fonction de thérapie débloquée",
     "source.daily_challenge": "Défi du jour",
     "source.arcade_score": "Nouveau record en salle de jeux",
+    "source.daily_tree_bonus": "Votre arbre du jour a grandi",
+    "source.joylater_open": "Débloqué avec JOYlater",
+    "source.joylater_repay": "Remboursement JOYlater",
     "source.focus_session": "Séance de concentration",
     "source.aura_theme_rent": "Location d’un thème de concentration",
     "source.joy_gift_sent": "JOY envoyé à un ami",
@@ -563,13 +592,13 @@ export const NOTIFICATION_TEXT = {
     "event.appGift.title": "{{sender}} vous a offert {{item}}",
     "event.appGift.message": "Ouvrez la boutique pour commencer à l’utiliser.",
     "event.adminBonus.title": "JOY bonus reçus",
-    "event.adminBonus.message": "L’administrateur vient de vous offrir {{amount}} JOY.",
+    "event.adminBonus.message": "L’administrateur vient de vous offrir {{amount, joy}}.",
     "event.adminBonusReason.title": "JOY bonus reçus",
-    "event.adminBonusReason.message": "L’administrateur vient de vous offrir {{amount}} JOY. Motif : {{reason}}",
+    "event.adminBonusReason.message": "L’administrateur vient de vous offrir {{amount, joy}}. Motif : {{reason}}",
     "event.cartCheckout.title": "Paiement effectué",
-    "event.cartCheckout.message": "{{count}} produits · {{total}} JOY · Commande : {{code}}",
+    "event.cartCheckout.message": "{{count}} produits · {{total, joy}} · Commande : {{code}}",
     "event.productPurchase.title": "Achat effectué",
-    "event.productPurchase.message": "Vous avez acheté « {{product}} » pour {{total}} JOY. Commande : {{code}}",
+    "event.productPurchase.message": "Vous avez acheté « {{product}} » pour {{total, joy}}. Commande : {{code}}",
     "event.wellnessNudge.title": "Rappel bien-être",
     "event.wellnessNudge.message": "Une petite suggestion vous attend aujourd’hui.",
     "event.paymentRequest.title": "Demande de paiement",
@@ -585,11 +614,18 @@ export function notificationLanguage(input) {
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}(T|$)/;
 
-/** Thay {{tham số}}; giá trị là ngày ISO thì đổi sang định dạng của ngôn ngữ. */
-function interpolate(template, params, language) {
-  return template.replace(/\{\{(\w+)\}\}/g, (whole, name) => {
+/**
+ * Thay {{tham số}}; giá trị là ngày ISO thì đổi sang định dạng của ngôn ngữ.
+ *
+ * Dạng `{{tên, joy}}` là SỐ TIỀN: nó được viết theo đơn vị của chính người nhận
+ * thông báo (`denom`), giống hệt mọi con số khác trong app. Thông báo đẩy do
+ * server dựng nên đơn vị phải đi kèm tham số, không đọc từ trình duyệt được.
+ */
+function interpolate(template, params, language, denom) {
+  return template.replace(/\{\{(\w+)(?:,\s*(\w+))?\}\}/g, (whole, name, format) => {
     const value = params?.[name];
     if (value === undefined || value === null) return whole;
+    if (format === "joy") return formatDenom(value, denom, language);
     if (typeof value === "string" && ISO_DATE.test(value)) {
       const date = new Date(value);
       if (!Number.isNaN(date.getTime())) return date.toLocaleDateString(language);
@@ -605,7 +641,7 @@ function interpolate(template, params, language) {
  * Trả `null` khi không có khoá (thông báo cũ, hoặc tin admin tự viết) — nơi gọi
  * cứ dùng tiếp `title`/`message` đã lưu trong DB.
  */
-export function renderNotification(key, params = {}, language = "vi") {
+export function renderNotification(key, params = {}, language = "vi", denom = DEFAULT_DENOM) {
   if (!key) return null;
   const lang = notificationLanguage(language);
   const dict = NOTIFICATION_TEXT[lang];
@@ -617,12 +653,12 @@ export function renderNotification(key, params = {}, language = "vi") {
   const message = pick(`${key}.message`);
 
   return {
-    title: interpolate(title, params, lang),
+    title: interpolate(title, params, lang, denom),
     // `note` là chữ người dùng tự viết (lời nhắn kèm quà, lý do của admin).
     // Không dịch được và cũng không nên dịch — nó thay hẳn câu mặc định.
     message: params?.note
       ? String(params.note)
-      : (message ? interpolate(message, params, lang) : ""),
+      : (message ? interpolate(message, params, lang, denom) : ""),
   };
 }
 

@@ -1,0 +1,768 @@
+/* Ví JOY — giao diện ví điện tử.
+   Nguyên tắc: KHÔNG bọc từng thứ trong một thẻ viền. Số dư là chữ to nhất màn
+   hình; mọi thứ khác nằm trong danh sách nhóm kiểu iOS (một khối bo góc, gạch
+   phân cách mảnh thụt vào ngang mép chữ). Phẳng, không gradient, không glow —
+   đúng quy ước app phẳng của portal, và dùng token theme nên tự lật sáng/tối. */
+
+/* ── BẢNG MÀU RIÊNG CỦA VÍ ──────────────────────────────────────────
+   Ví JOY có sắc riêng: hổ phách (JOY) làm màu chính, và bốn màu CHỨC NĂNG —
+   mỗi màu mang một nghĩa, không phải trang trí:
+     · hổ phách  = JOY, số dư, thưởng
+     · lục       = tiền vào, nhiệm vụ, cây
+     · tím       = JOYlater (mở trước trả sau)
+     · lam       = thẻ thành viên / hạng thẻ
+   Nhờ có nghĩa nên nhiều màu vẫn đọc được, không thành cầu vồng vô nghĩa. Mỗi
+   màu khai hai biến (đậm cho nền, nhạt cho nền phụ) và lật theo sáng/tối. */
+.wal {
+  --joy: 32 96% 48%;
+  --joy-soft: 32 96% 94%;
+  --in: 152 62% 36%;
+  --in-soft: 152 62% 94%;
+  --later: 268 62% 54%;
+  --later-soft: 268 62% 96%;
+  --tierc: 210 90% 48%;
+  --tierc-soft: 210 90% 96%;
+}
+:root.dark .wal {
+  --joy-soft: 32 60% 14%;
+  --in-soft: 152 40% 12%;
+  --later-soft: 268 40% 15%;
+  --tierc-soft: 210 50% 14%;
+}
+
+.wal {
+  --topbar: calc(max(env(safe-area-inset-top, 0px), 8px) + 52px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+}
+
+/* ── Không có thanh tiêu đề: đây là app ví, không phải trang web. Chỉ còn một
+      nút quay lại nổi trên nội dung. Trên ô số dư (nền sáng cố định) nó mang
+      mực tối; ở các tab khác nó mượn màu theme. ── */
+.wal .wal-back {
+  position: absolute;
+  z-index: 5;
+  top: max(env(safe-area-inset-top, 0px), 8px);
+  left: 8px;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+.wal .wal-back.is-on-hero {
+  background: hsl(0 0% 100% / .45);
+  color: hsl(28 40% 12%);
+}
+
+/* ── Vùng cuộn ── */
+.wal-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--topbar) 16px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 84px);
+}
+.wal-loading { padding: 28px 4px; color: hsl(var(--muted-foreground)); font-size: 15px; }
+.wal-empty { padding: 20px 16px; color: hsl(var(--muted-foreground)); font-size: 14px; text-align: center; }
+
+/* ── Tab Membership ─────────────────────────────────────────────────
+   Thẻ ở đây là thẻ MÀU gốc (MemberCardStack tự lo bảng màu theo hạng) — ngoại lệ
+   có chủ đích của quy ước đơn sắc, vì màu chính là nhận diện của hạng thẻ. */
+.wal-ms { display: flex; flex-direction: column; gap: 16px; padding-top: 8px; }
+
+/* Tiến độ lên hạng */
+.wal-tier-progress {
+  box-sizing: border-box;
+  padding: 14px;
+  border-radius: 14px;
+  background: hsl(var(--card));
+}
+.wal-tier-progress__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.wal-tier-progress__head span { display: flex; flex-direction: column; }
+.wal-tier-progress__head small {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+.wal-tier-progress__head strong { font-size: 19px; font-weight: 800; letter-spacing: -.4px; }
+.wal-tier-progress__next { text-align: right; }
+.wal-tier-progress__next strong { color: hsl(var(--muted-foreground)); font-size: 15px; }
+.wal-tier-progress__bar {
+  margin-top: 10px; height: 8px; border-radius: 999px; overflow: hidden;
+  background: hsl(var(--muted));
+}
+.wal-tier-progress__bar > div { height: 100%; border-radius: 999px; background: hsl(var(--foreground)); }
+.wal-tier-progress__hint { margin-top: 8px; font-size: 13px; color: hsl(var(--muted-foreground)); }
+
+/* Đặc quyền của thẻ ĐANG XEM — một khối, đổi nội dung khi lướt thẻ */
+.wal-perks { border-radius: 14px; overflow: hidden; background: hsl(var(--card)); }
+.wal-perks__head {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 60px; padding: 10px 14px;
+  border-bottom: 1px solid hsl(var(--border));
+}
+.wal-tier__dot { width: 12px; height: 12px; flex-shrink: 0; border-radius: 50%; }
+.wal-tier__name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.wal-tier__name strong { font-size: 16px; font-weight: 650; letter-spacing: -.3px; }
+.wal-tier__name small { font-size: 12px; color: hsl(var(--muted-foreground)); }
+.wal-tier__state {
+  flex-shrink: 0; padding: 3px 10px; border-radius: 999px;
+  background: hsl(var(--muted)); color: hsl(var(--muted-foreground));
+  font-size: 11px; font-weight: 700;
+}
+.wal-tier__state.is-owned { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+.wal-perks > ul { margin: 0; padding: 14px; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.wal-perks > ul li { display: flex; gap: 12px; }
+.wal-perks > ul .material-symbols-outlined { flex-shrink: 0; font-size: 20px; color: hsl(var(--muted-foreground)); }
+.wal-perks > ul li > span:last-child { display: flex; flex-direction: column; gap: 1px; }
+.wal-perks > ul strong { font-size: 14px; font-weight: 600; }
+.wal-perks > ul small { font-size: 12px; color: hsl(var(--muted-foreground)); }
+
+/* ── Số dư ────────────────────────────────────────────────────────────
+   Ô số dư là một tấm GRADIENT tràn mép, bo tròn cạnh dưới — ngoại lệ có chủ ý
+   của quy ước "app phẳng": user chọn kiểu ví này. Nền sáng cố định ở cả hai
+   theme (như thẻ ngân hàng thật), nên chữ trong ô dùng mực tối tự khai, không
+   lấy --foreground kẻo lật sang trắng trên nền hồng. */
+.wal-hero {
+  --ink: 28 40% 12%;
+  box-sizing: border-box;
+  /* Kéo ngược lên hết phần chừa cho nút quay lại: gradient chạy tới sát mép
+     trên màn hình, nút nổi lên trên nó. */
+  margin: calc(var(--topbar) * -1) -16px 0;
+  padding: var(--topbar) 20px 22px;
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(150deg, hsl(42 92% 66%), hsl(28 88% 74%) 46%, hsl(340 62% 82%));
+  color: hsl(var(--ink));
+}
+/* Bất kỳ thứ gì nằm ngay dưới ô số dư đều phải có khoảng thở: ô số dư bo góc
+   dưới 28px, thứ tiếp theo dán sát vào là hai khối bo góc chồm lên nhau. Đặt ở
+   đây một lần thay vì nhớ thêm margin cho từng khối mới. */
+.wal-hero + * { margin-top: 14px; }
+
+.wal-hero__top { display: flex; align-items: center; gap: 10px; }
+.wal-hero__top strong { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
+.wal-hero__avatar {
+  width: 36px; height: 36px; flex-shrink: 0;
+  border-radius: 50%; object-fit: cover;
+  background: hsl(var(--ink) / .12);
+}
+.wal-hero__avatar.is-empty { display: grid; place-items: center; font-size: 22px; color: hsl(var(--ink) / .6); }
+.wal-hero__label {
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: hsl(var(--ink) / .6);
+}
+.wal-hero__amount {
+  margin-top: 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: clamp(32px, 9.6vw, 42px);
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.wal-hero__amount span {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: hsl(var(--ink) / .7);
+}
+.wal-hero__sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: hsl(var(--ink) / .68);
+}
+
+/* Bốn nút tròn dưới số dư: vòng tròn mờ + nhãn nằm dưới */
+/* auto-fit: số nút ở đây đổi theo tính năng, grid cứng 4 cột để lại ô trống lệch
+   hẳn sang phải khi chỉ còn ba nút. */
+.wal-hero__actions {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 6px;
+}
+.wal-act {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-act .material-symbols-outlined {
+  width: 48px; height: 48px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: hsl(0 0% 100% / .42);
+  font-size: 23px;
+}
+.wal-act:active .material-symbols-outlined { background: hsl(0 0% 100% / .68); }
+.wal-act small {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  color: hsl(var(--ink) / .8);
+}
+
+/* ── Lưới lối tắt: bốn ô vuông, icon đơn sắc ── */
+/* auto-fit vì số ô đổi theo tính năng (thẻ điểm danh lên màn chính là mất một
+   ô); grid cứng 4 cột để lại ô trống lệch sang phải. minmax(84px,…) cho ô đủ
+   rộng để nhãn hai dòng không bị bóp. */
+.wal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; }
+.wal-tile {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 16px;
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-tile:active { background: hsl(var(--muted)); }
+.wal-tile .material-symbols-outlined { font-size: 24px; color: hsl(var(--muted-foreground)); }
+.wal-tile small { font-size: 11px; font-weight: 600; line-height: 1.25; text-align: center; }
+.wal-tile__badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: grid; place-items: center;
+  background: hsl(var(--joy));
+  color: #1a1000;
+  font-size: 11px; font-weight: 700;
+}
+
+/* ── Tiêu đề nhóm ── */
+.wal-title {
+  margin: 22px 0 8px;
+  padding-left: 4px;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -.3px;
+  color: hsl(var(--foreground) / .85);
+}
+
+/* ── Danh sách nhóm kiểu iOS ── */
+.wal-group {
+  border-radius: 14px;
+  background: hsl(var(--card));
+  overflow: hidden;
+}
+.wal-group + .wal-group { margin-top: 12px; }
+
+.wal-row {
+  position: relative;
+  width: 100%;
+  /* Khai rõ thay vì dựa vào reset của nơi nhúng: hàng giao dịch là <div>, nếu
+     host không đặt border-box thì padding cộng thêm 28px và số tiền bị đẩy
+     tràn ra khỏi khối. */
+  box-sizing: border-box;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  color: hsl(var(--foreground));
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-row.is-static { cursor: default; }
+/* Gạch phân cách thụt vào ngang mép chữ — không phải viền quanh từng hàng */
+.wal-row + .wal-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50px;
+  right: 0;
+  height: 1px;
+  background: hsl(var(--border));
+}
+.wal-row:not(.is-static):active { background: hsl(var(--muted)); }
+
+.wal-row__icon {
+  flex-shrink: 0;
+  width: 24px;
+  font-size: 22px;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+}
+.wal-row__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.wal-row__body strong {
+  font-size: 16px;
+  font-weight: 550;
+  letter-spacing: -.32px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wal-row__body small {
+  font-size: 13px;
+  color: hsl(var(--muted-foreground));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Số tiền: bám phải, chữ số đều cột */
+.wal-row__value {
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.2px;
+}
+/* Vào / ra phân biệt bằng DẤU và độ đậm, không phải bằng màu xanh–đỏ: người mù
+   màu vẫn đọc được, và portal chỉ dùng một màu nhấn. */
+.wal-row__value.is-in { color: hsl(var(--in)); }
+.wal-row__value.is-out { color: hsl(var(--foreground)); }
+
+.wal-row__badge {
+  flex-shrink: 0;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  font-size: 12px;
+  font-weight: 700;
+}
+.wal-row__chevron {
+  flex-shrink: 0;
+  font-size: 20px;
+  color: hsl(var(--muted-foreground));
+  opacity: .6;
+}
+
+
+/* ── Cây nhiệm vụ ───────────────────────────────────────────────────
+   Hình vẽ SVG, chuyển động do CSS: mỗi lớp tán lá nảy lên khi xuất hiện. Không
+   video, không ảnh động — vài KB thay vì vài trăm KB mỗi lần mở ví. */
+.joy-tree {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: hsl(var(--in-soft));
+}
+.joy-tree.is-complete { background: hsl(var(--joy-soft)); }
+.joy-tree__art { flex-shrink: 0; width: 96px; height: 96px; }
+.joy-tree__art svg { width: 100%; height: 100%; overflow: visible; }
+.joy-tree__soil { fill: hsl(var(--in) / .22); }
+.joy-tree__seed { fill: hsl(30 40% 40%); animation: tree-pop 420ms cubic-bezier(.2,.9,.3,1) both; }
+.joy-tree__trunk { fill: hsl(28 45% 34%); transition: y .5s cubic-bezier(.2,.9,.3,1), height .5s cubic-bezier(.2,.9,.3,1); }
+.joy-tree__leaf { fill: hsl(var(--in)); animation: tree-pop 420ms cubic-bezier(.2,.9,.3,1) both; }
+.joy-tree__canopy {
+  fill: hsl(var(--in));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tree-pop 480ms cubic-bezier(.2,.9,.3,1) both;
+}
+.joy-tree.is-complete .joy-tree__canopy { fill: hsl(152 55% 32%); }
+.joy-tree__fruit {
+  fill: hsl(var(--joy));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tree-pop 520ms cubic-bezier(.2,.9,.3,1) both;
+}
+@keyframes tree-pop {
+  from { opacity: 0; transform: scale(.4) translateY(6px); }
+  60%  { opacity: 1; transform: scale(1.12); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.joy-tree__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.joy-tree__stage { font-size: 17px; font-weight: 800; letter-spacing: -.35px; color: hsl(var(--foreground)); }
+.joy-tree__progress { font-size: 13px; font-weight: 600; color: hsl(var(--in)); }
+.joy-tree__pips { display: flex; gap: 4px; margin: 6px 0 2px; }
+.joy-tree__pips i {
+  width: 100%; height: 5px; border-radius: 999px;
+  background: hsl(var(--in) / .22);
+  transition: background .3s ease;
+}
+.joy-tree__pips i.is-on { background: hsl(var(--in)); }
+.joy-tree__hint, .joy-tree__done { font-size: 12px; color: hsl(var(--muted-foreground)); }
+.joy-tree__done { font-weight: 700; color: hsl(var(--joy)); }
+.joy-tree__cta {
+  margin-top: 6px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: hsl(var(--joy));
+  color: #1a1000;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.joy-tree__cta:disabled { opacity: .55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .joy-tree__seed, .joy-tree__leaf, .joy-tree__canopy, .joy-tree__fruit { animation: none; }
+  .joy-tree__trunk { transition: none; }
+}
+
+
+/* ── JOYlater ───────────────────────────────────────────────────────
+   Mang sắc tím riêng để người dùng nhận ra ngay đây là "mở trước trả sau", khác
+   với số dư (hổ phách) và nhiệm vụ (lục). Trước đây màn này chỉ là một ô nhập số
+   trơ trọi trên nền trắng — không ai hiểu mình đang vay cái gì. */
+.jl-how {
+  box-sizing: border-box;
+  padding: 14px;
+  border-radius: 16px;
+  background: hsl(var(--later-soft));
+}
+.jl-how h3 {
+  font-size: 15px; font-weight: 800; letter-spacing: -.3px;
+  color: hsl(var(--later));
+}
+.jl-how ol { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.jl-how li { display: flex; gap: 10px; align-items: flex-start; }
+.jl-how li b {
+  flex-shrink: 0;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: hsl(var(--later)); color: #fff;
+  font-size: 12px; font-weight: 800;
+}
+.jl-how li span { font-size: 13.5px; line-height: 1.45; color: hsl(var(--foreground)); }
+.jl-how__note {
+  margin-top: 12px; display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 650; color: hsl(var(--later));
+}
+.jl-how__note .material-symbols-outlined { font-size: 17px; }
+
+.jl-panel {
+  box-sizing: border-box;
+  padding: 16px;
+  border-radius: 16px;
+  background: hsl(var(--later-soft));
+}
+.jl-panel.is-owing { background: hsl(var(--joy-soft)); }
+.jl-panel__label {
+  font-size: 11px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+.jl-panel__amount {
+  margin-top: 2px;
+  font-size: 34px; font-weight: 800; letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  color: hsl(var(--later));
+}
+.jl-panel.is-owing .jl-panel__amount { color: hsl(var(--joy)); }
+.jl-panel__sub { margin-top: 2px; font-size: 12.5px; color: hsl(var(--muted-foreground)); }
+
+.jl-cta {
+  margin-top: 16px;
+  min-height: 46px;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  background: hsl(var(--later));
+  color: #fff;
+  font-size: 15px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.jl-panel.is-owing .jl-cta { background: hsl(var(--joy)); color: #1a1000; }
+.jl-cta:disabled { opacity: .5; }
+
+/* ── Thanh điều hướng dưới ── */
+.wal-nav {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  padding: 6px 8px calc(max(env(safe-area-inset-bottom, 0px), 6px) + 6px);
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+}
+.wal-nav button {
+  position: relative;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-nav button.is-active { color: hsl(var(--joy)); }
+.wal-nav .material-symbols-outlined { font-size: 24px; }
+.wal-nav small { font-size: 9.5px; font-weight: 600; letter-spacing: -.02px; }
+.wal-dot {
+  position: absolute;
+  top: 6px;
+  right: 50%;
+  transform: translateX(15px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: hsl(var(--foreground));
+}
+
+/* Màn rộng: giữ cột đọc vừa mắt, không kéo bảng ra hai mép */
+@media (min-width: 680px) {
+  .wal-main > * { max-width: 620px; margin-inline: auto; }
+}
+
+/* ── Đơn vị theo nước & bộ chuyển đổi ─────────────────────────────────────
+   Đơn vị dùng màu hổ phách của JOY, không thêm màu thứ năm: nó vẫn là JOY, chỉ
+   viết bằng cách khác. */
+.wal-hero__denom {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  padding: 4px 6px 4px 10px;
+  border: 0;
+  border-radius: 999px;
+  background: hsl(0 0% 100% / .42);
+  color: hsl(var(--ink) / .82);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-hero__denom:active { background: hsl(0 0% 100% / .68); }
+.wal-hero__denom .material-symbols-outlined { font-size: 17px; opacity: .7; }
+
+.wal-conv { display: flex; flex-direction: column; gap: 14px; padding: 4px 0 8px; }
+
+.wal-conv__mine {
+  border-radius: 18px;
+  padding: 16px;
+  background: hsl(var(--joy-soft));
+}
+.wal-conv__label { font-size: 12px; font-weight: 700; color: hsl(var(--foreground) / .6); }
+.wal-conv__code {
+  margin-top: 2px;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: hsl(var(--joy));
+}
+.wal-conv__rate { font-size: 13px; font-weight: 650; color: hsl(var(--foreground) / .75); }
+.wal-conv__locked {
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: hsl(var(--foreground) / .62);
+}
+.wal-conv__locked .material-symbols-outlined { font-size: 16px; flex: none; margin-top: 1px; }
+
+.wal-conv__box {
+  border: 1px solid hsl(var(--border));
+  border-radius: 18px;
+  padding: 14px;
+  background: hsl(var(--card));
+}
+.wal-conv__field { display: block; }
+.wal-conv__field small {
+  display: block;
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: hsl(var(--foreground) / .55);
+}
+.wal-conv__field input {
+  margin-top: 4px;
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-bottom: 2px solid hsl(var(--border));
+  border-radius: 0;
+  background: transparent;
+  font-size: 26px;
+  font-weight: 850;
+  color: hsl(var(--foreground));
+}
+.wal-conv__field input:focus { outline: none; border-bottom-color: hsl(var(--joy)); }
+.wal-conv__eq { margin-top: 10px; font-size: 15px; color: hsl(var(--foreground) / .7); }
+.wal-conv__eq strong { font-size: 20px; font-weight: 900; color: hsl(var(--foreground)); }
+.wal-conv__fill {
+  margin-top: 10px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: hsl(var(--foreground) / .8);
+  cursor: pointer;
+}
+
+.wal-conv__title { font-size: 14px; font-weight: 800; color: hsl(var(--foreground)); }
+.wal-conv__list {
+  border: 1px solid hsl(var(--border));
+  border-radius: 18px;
+  overflow: hidden;
+  background: hsl(var(--card));
+}
+.wal-conv__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+}
+.wal-conv__list li + li { border-top: 1px solid hsl(var(--border)); }
+.wal-conv__list li.is-mine { background: hsl(var(--joy-soft)); }
+.wal-conv__list-code { display: flex; flex-direction: column; }
+.wal-conv__list-code strong { font-size: 15px; font-weight: 800; color: hsl(var(--foreground)); }
+.wal-conv__list-code small { font-size: 12px; color: hsl(var(--foreground) / .6); }
+.wal-conv__list-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 15px;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  text-align: right;
+}
+.wal-conv__list-value small { font-size: 11px; font-weight: 700; color: hsl(var(--joy)); }
+
+/* Biến động trong ngày. Lên/xuống nói bằng MŨI TÊN trước, màu chỉ là lớp phụ —
+   người mù màu vẫn đọc được hướng. */
+.wal-conv__move { display: flex; align-items: center; gap: 2px; font-variant-numeric: tabular-nums; }
+.wal-conv__move .material-symbols-outlined { font-size: 14px; }
+.wal-conv__move.is-up { color: hsl(var(--in)); }
+.wal-conv__move.is-down { color: hsl(var(--destructive)); }
+
+/* ── Biểu đồ tỷ giá ─────────────────────────────────────────────────
+   Đường vẽ bằng SVG kéo giãn theo bề ngang (preserveAspectRatio="none"), nên
+   nét phải khai `vector-effect` để không bị kéo dày mỏng theo. */
+.wal-chart {
+  box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px; border-radius: 16px;
+  background: hsl(var(--card));
+}
+.wal-chart__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.wal-chart__head > span { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.wal-chart__head strong { font-size: 16px; font-weight: 800; letter-spacing: -.3px; }
+.wal-chart__head small {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.wal-chart__head small .material-symbols-outlined { font-size: 15px; }
+.wal-chart__head small.is-up { color: hsl(var(--in)); }
+.wal-chart__head small.is-down { color: hsl(var(--destructive)); }
+
+.wal-chart__ranges { display: flex; gap: 2px; padding: 2px; border-radius: 999px; background: hsl(var(--muted)); }
+.wal-chart__ranges button {
+  min-height: 28px; padding: 0 10px;
+  border: 0; border-radius: 999px; background: none;
+  color: hsl(var(--muted-foreground));
+  font-size: 11.5px; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-chart__ranges button.is-active { background: hsl(var(--card)); color: hsl(var(--foreground)); }
+
+.wal-chart__svg { width: 100%; height: 132px; display: block; overflow: visible; }
+.wal-chart__line {
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linejoin: round; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.wal-chart__area { fill: currentColor; opacity: .12; stroke: none; }
+.wal-chart__svg.is-up { color: hsl(var(--in)); }
+.wal-chart__svg.is-down { color: hsl(var(--destructive)); }
+
+.wal-chart__axis {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+  color: hsl(var(--muted-foreground));
+}
+.wal-chart__empty { padding: 26px 4px; text-align: center; font-size: 13px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
+
+/* Khối giải thích thị trường */
+.wal-conv__market {
+  box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 14px; border-radius: 16px;
+  background: hsl(var(--muted));
+}
+.wal-conv__market-note { font-size: 12.5px; line-height: 1.5; color: hsl(var(--foreground) / .75); }
+.wal-conv__market-note.is-fixed {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-weight: 650; color: hsl(var(--foreground));
+}
+.wal-conv__market-note .material-symbols-outlined { font-size: 16px; flex-shrink: 0; }
+
+.wal-conv__note { font-size: 12px; line-height: 1.5; color: hsl(var(--foreground) / .6); }
+
+/* Chọn đơn vị JOY — mỗi dòng là một nút cao 64px, có vòng tròn chọn bên phải */
+.wal-conv__pick {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wal-conv__list li:has(.wal-conv__pick) { padding: 0; }
+.wal-conv__tick { flex: none; font-size: 22px; color: hsl(var(--muted-foreground)); }
+.wal-conv__list li.is-mine .wal-conv__tick { color: hsl(var(--joy)); }
+.wal-conv__confirm {
+  width: 100%;
+  min-height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.wal-conv__confirm:disabled { opacity: .45; cursor: default; }

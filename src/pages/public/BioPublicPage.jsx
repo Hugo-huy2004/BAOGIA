@@ -1,4 +1,5 @@
 import { useMemo, useEffect, useState } from "react";
+import VerifiedProfilePanel from "../../components/public/VerifiedProfilePanel";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
 import dataApi from "../../services/dataApi";
@@ -101,9 +102,19 @@ export default function BioPublicPage() {
     );
   }
 
-  // Render chosen template
-  if (template === "flat") return <FlatTheme bio={bio} isOnline={isOnline} />;
-  if (template === "brutalism") return <BrutalismTheme bio={bio} isOnline={isOnline} />;
+  // Bảng hồ sơ có kiểm chứng nằm NGOÀI ba giao diện: nó tự ẩn khi chủ trang
+  // chưa bật công bố hoặc hết hạn thuê, nên đặt chung một chỗ là đủ cho cả ba
+  // thay vì sửa từng theme.
+  const themed = template === "flat"
+    ? <FlatTheme bio={bio} isOnline={isOnline} />
+    : template === "brutalism"
+      ? <BrutalismTheme bio={bio} isOnline={isOnline} />
+      : <DefaultTheme bio={bio} isOnline={isOnline} />;
 
-  return <DefaultTheme bio={bio} isOnline={isOnline} />;
+  return (
+    <>
+      {themed}
+      <VerifiedProfilePanel slug={slug} />
+    </>
+  );
 }

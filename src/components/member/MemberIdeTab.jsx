@@ -1,4 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { STUDY_LIFETIME } from "../../../shared/joyPrices";
 import Editor from "@monaco-editor/react";
 import { 
   FolderOpen, Folder, BookOpen, Database, Play, X, 
@@ -82,6 +84,12 @@ const getFileIcon = (fileName) => {
 
 
 import { useNavigate } from "react-router-dom";
+import { STUDY_ALL_STAGES_PRICE } from "../../../shared/joyPrices.js";
+import { joyText } from "../../lib/joyDisplay";
+
+// Phí duy trì tháng và thưởng mỗi chặng, tính bằng JOY gốc.
+const IDE_MAINTENANCE = 50;
+const IDE_PHASE_REWARD = 800;
 
 // embedded=true: chạy trong vỏ chung HugoCoderHub — bỏ FeatureGate riêng,
 // bỏ shell fullscreen và nút Back riêng (Hub đã lo các thứ đó).
@@ -93,6 +101,7 @@ export default function MemberIdeTab({
   urlLessonId,
   embedded = false,
 }) {
+  const { t } = useTranslation();
   const [isDesktop, setIsDesktop] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState("explorer"); // explorer, learn, db
 
@@ -163,15 +172,15 @@ export default function MemberIdeTab({
       hasAccess: (hasAllLifetime || lifetime) && maintenanceActive
     });
 
-    if (num <= 10) return buildTier("basic", "Chặng 1: Phản Xạ Cơ Bản (Bài 1-10)", 1500, "hugoCoderBasic", !!bio?.hugoCoderBasicLifetime);
-    if (num <= 25) return buildTier("intermediate", "Chặng 2: Tư Duy Kiến Trúc (Bài 11-25)", 2600, "hugoCoderIntermediate", !!bio?.hugoCoderIntermediateLifetime);
-    if (num <= 50) return buildTier("advanced", "Chặng 3: CTDL, Giải Thuật & Mật Mã (Bài 26-50)", 2600, "hugoCoderAdvanced", !!bio?.hugoCoderAdvancedLifetime);
+    if (num <= 10) return buildTier("basic", "Chặng 1: Phản Xạ Cơ Bản (Bài 1-10)", STUDY_LIFETIME.basic, "hugoCoderBasic", !!bio?.hugoCoderBasicLifetime);
+    if (num <= 25) return buildTier("intermediate", "Chặng 2: Tư Duy Kiến Trúc (Bài 11-25)", STUDY_LIFETIME.intermediate, "hugoCoderIntermediate", !!bio?.hugoCoderIntermediateLifetime);
+    if (num <= 50) return buildTier("advanced", "Chặng 3: CTDL, Giải Thuật & Mật Mã (Bài 26-50)", STUDY_LIFETIME.advanced, "hugoCoderAdvanced", !!bio?.hugoCoderAdvancedLifetime);
     // Chặng 4 gộp 3 gói cũ (Bảo mật + Kiểm tra + Tối ưu) — ai đã mua 1 trong 3 đều có quyền
-    if (num <= 70) return buildTier("security", "Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI (Bài 51-70)", 2600, "hugoCoderSecurity",
+    if (num <= 70) return buildTier("security", "Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI (Bài 51-70)", STUDY_LIFETIME.security, "hugoCoderSecurity",
       !!(bio?.hugoCoderSecurityLifetime || bio?.hugoCoderExamLifetime || bio?.hugoCoderOptimizeLifetime));
-    if (num <= 90) return buildTier("project", "Chặng 5: Siêu Đồ Án Full-Stack & AI (Bài 71-90)", 3500, "hugoCoderUltimate", !!bio?.hugoCoderUltimateLifetime);
+    if (num <= 90) return buildTier("project", "Chặng 5: Siêu Đồ Án Full-Stack & AI (Bài 71-90)", STUDY_LIFETIME.project, "hugoCoderUltimate", !!bio?.hugoCoderUltimateLifetime);
     // Chặng 6 tách từ gói Ultimate cũ (71-100) — ultimate cũ vẫn có quyền
-    return buildTier("devops", "Chặng 6: Kỹ Sư DevOps & Phát Hành (Bài 91-100)", 1500, "hugoCoderUltimate",
+    return buildTier("devops", "Chặng 6: Kỹ Sư DevOps & Phát Hành (Bài 91-100)", STUDY_LIFETIME.devops, "hugoCoderUltimate",
       !!(bio?.hugoCoderDevopsLifetime || bio?.hugoCoderUltimateLifetime));
   };
 
@@ -182,7 +191,7 @@ export default function MemberIdeTab({
         title={t("utilities.ide.xacNhanTraoDoi")}
         message={
           <>
-            {t("utilities.ide.banCoDongY")} <strong>{tierInfo.price} JOY</strong> {t("utilities.ide.10PhiSangTao")} <strong>{tierInfo.tierLabel}</strong> {t("utilities.ide.khong")}
+            {t("utilities.ide.banCoDongY")} <strong>{joyText(tierInfo.price)}</strong> {t("utilities.ide.10PhiSangTao")} <strong>{tierInfo.tierLabel}</strong> {t("utilities.ide.khong")}
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -232,14 +241,9 @@ export default function MemberIdeTab({
       project: 'Chặng 5: Siêu Đồ Án Full-Stack & AI (Bài 71-90)',
       devops: 'Chặng 6: Kỹ Sư DevOps & Phát Hành (Bài 91-100)'
     };
-    const tierPrices = {
-      basic: 1500,
-      intermediate: 2600,
-      advanced: 2600,
-      security: 2600,
-      project: 3500,
-      devops: 1500
-    };
+    // Giá dự phòng khi quote của server chưa về — đọc CÙNG bảng với server
+    // (shared/joyPrices.js) nên không thể lệch như bản viết tay trước đây.
+    const tierPrices = STUDY_LIFETIME;
     let quote;
     try {
       quote = await hugoCoderApi.getLifetimeUnlockQuote(tier);
@@ -261,7 +265,7 @@ export default function MemberIdeTab({
         title={t("utilities.ide.muaGoiVinhVien")}
         message={
           <>
-            {t("utilities.ide.banCoDongY")} <strong>{quote.total} JOY</strong> {t("utilities.ide.gom")} {price} {t("utilities.ide.joyVa")} {quote.tax} {t("utilities.ide.joyPhiSangTao")} <strong>{tierLabel}</strong>?
+            {t("utilities.ide.banCoDongY")} <strong>{joyText(quote.total)}</strong> {t("utilities.ide.gom")} {price} {t("utilities.ide.joyVa")} {quote.tax} {t("utilities.ide.joyPhiSangTao")} <strong>{tierLabel}</strong>?
             <span className="block mt-1.5 text-[11px] opacity-90">
               {getStageBenefits(tier).map((b, i) => (
                 <span key={i} className="block">— {b}</span>
@@ -316,7 +320,7 @@ export default function MemberIdeTab({
         title={t("utilities.ide.giaHanBoPhat")}
         message={
           <>
-            {t("utilities.ide.banCoDongY")} <strong>50 JOY</strong> {t("utilities.ide.10PhiSangTao2")}
+            {t("utilities.ide.banCoDongY")} <strong>{joyText(IDE_MAINTENANCE)}</strong> {t("utilities.ide.10PhiSangTao2")}
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -364,7 +368,7 @@ export default function MemberIdeTab({
         title={t("utilities.ide.muaTronGoi6")}
         message={
           <>
-            {t("utilities.ide.banCoDongY")} <strong>16.000 JOY</strong> {t("utilities.ide.10PhiSangTao3")}
+            {t("utilities.ide.banCoDongY")} <strong>{joyText(STUDY_ALL_STAGES_PRICE)}</strong> {t("utilities.ide.10PhiSangTao3")}
           </>
         }
         onCancel={() => notify.dismiss(t.id)}
@@ -406,7 +410,7 @@ export default function MemberIdeTab({
         conf({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
       });
 
-      notify.success(`Chúc mừng! Bạn đã nhận thưởng +800 JOY cho Chặng ${phaseNum}! 🎁`);
+      notify.success(`Chúc mừng! Bạn đã nhận thưởng +${joyText(IDE_PHASE_REWARD)} cho Chặng ${phaseNum}! 🎁`);
       useJoyStore.getState().setBalance(data.balance);
       if (onBioUpdate) {
         onBioUpdate(data.bio);
@@ -533,8 +537,8 @@ export default function MemberIdeTab({
         if (res.status === 402 && data.requiresFee) {
           const ok = await notify.confirm({
             title: "Thi lại bài kiểm tra",
-            message: `Lượt thi trong gói đã dùng (đã nộp ${data.attemptsUsed} lần). Thi lại tốn ${data.requiresFee} JOY/lần — đồng ý trừ JOY và nhận đề mới?`,
-            confirmText: `Trừ ${data.requiresFee} JOY & thi lại`,
+            message: `Lượt thi trong gói đã dùng (đã nộp ${data.attemptsUsed} lần). Thi lại tốn ${joyText(data.requiresFee)}/lần — đồng ý trừ và nhận đề mới?`,
+            confirmText: `Trừ ${joyText(data.requiresFee)} & thi lại`,
             danger: true
           });
           if (ok) return startServerExam(course, true);
@@ -547,7 +551,7 @@ export default function MemberIdeTab({
           setQuizQuestions(data.questions);
           if (data.charged > 0) {
             useJoyStore.getState().setBalance(data.balance);
-            notify.info(`Đã trừ ${data.charged} JOY cho lượt thi lại. Chúc bạn thi tốt!`);
+            notify.info(`Đã trừ ${joyText(data.charged)} cho lượt thi lại. Chúc bạn thi tốt!`);
           }
           return;
         }
@@ -1809,7 +1813,7 @@ export default function MemberIdeTab({
     return (
       <div className="flex min-h-[420px] items-center justify-center text-sm text-muted-foreground">
         <span className="material-symbols-outlined mr-2 animate-spin">progress_activity</span>
-        Đang tải lộ trình bài học…
+        {t("utilities.ide.dangTaiLoTrinh")}
       </div>
     );
   }
@@ -1903,7 +1907,7 @@ export default function MemberIdeTab({
               className="inline-flex h-11 items-center gap-1 rounded-xl pl-2 pr-3.5 text-[15px] font-medium transition-colors hover:bg-white/10"
             >
               <span className="material-symbols-outlined text-[22px]">arrow_back</span>
-              Quay lại
+              {t("utilities.ide.quayLai")}
             </button>
           )}
           <div className="flex items-center gap-1.5 font-mono text-muted-foreground">
@@ -1920,24 +1924,24 @@ export default function MemberIdeTab({
               className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white font-bold px-3 py-1.5 rounded transition-all shadow-sm"
             >
               <Save className="w-3.5 h-3.5" />
-              {activeFile.handle ? "Lưu Trực Tiếp (Disk)" : "Tải Về Máy (Local)"}
+              {activeFile.handle ? t("utilities.ide.luuTrucTiepDisk") : t("utilities.ide.taiVeMayLocal")}
             </button>
           )}
 
           <button
             onClick={handleExportProjectZip}
             className="flex items-center gap-1.5 bg-muted hover:bg-muted-foreground text-foreground font-bold px-3 py-1.5 rounded transition-all border border-border"
-            title="Xuất toàn bộ workspace hiện tại thành file ZIP"
+            title={t("utilities.ide.xuatToanBoWorkspace")}
           >
-            <Archive className="w-3.5 h-3.5" /> Xuất ZIP
+            <Archive className="w-3.5 h-3.5" /> {t("utilities.ide.xuatZip")}
           </button>
 
           <button 
             onClick={handleOpenFolder}
             className="flex items-center gap-1.5 bg-muted hover:bg-muted-foreground text-foreground font-bold px-3 py-1.5 rounded transition-all border border-border"
-            title="Đồng bộ trực tiếp với thư mục trên máy tính của bạn thông qua File System API"
+            title={t("utilities.ide.dongBoTrucTiep")}
           >
-            <FolderOpen className="w-3.5 h-3.5" /> Mở Thư Mục Cục Bộ
+            <FolderOpen className="w-3.5 h-3.5" /> {t("utilities.ide.moThuMucCuc")}
           </button>
         </div>
       </div>
@@ -1951,14 +1955,14 @@ export default function MemberIdeTab({
             <button 
               onClick={() => setActiveSidebarTab("explorer")}
               className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "explorer" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"}`}
-              title="Quản lý File"
+              title={t("utilities.ide.quanLyFile")}
             >
               <Folder className="w-5 h-5" />
             </button>
             <button 
               onClick={() => setActiveSidebarTab("learn")}
               className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "learn" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"}`}
-              title="Khóa học & Code mẫu"
+              title={t("utilities.ide.khoaHocCodeMau")}
             >
               <BookOpen className="w-5 h-5" />
             </button>
@@ -2034,19 +2038,18 @@ export default function MemberIdeTab({
             <div className="p-4 flex-1 flex flex-col overflow-y-auto space-y-4 font-sans">
               <span className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">PHP & phpMyAdmin Local</span>
               <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-                Để chạy PHP và quản lý cơ sở dữ liệu qua phpMyAdmin trên máy tính cá nhân (localhost), 
-                sử dụng Docker Compose là phương án gọn nhẹ và dễ tách khỏi dữ liệu thật.
+                {t("utilities.ide.deChayPhpVa")}
               </p>
 
               <div className="space-y-3">
                 <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-1">
-                  <p className="font-bold text-[10px] text-foreground">Bước 1: Cài đặt Docker Desktop</p>
-                  <p className="text-[9.5px] text-muted-foreground">Tải Docker Desktop từ trang chủ docker.com và cài lên máy tính.</p>
+                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc1CaiDat")}</p>
+                  <p className="text-[9.5px] text-muted-foreground">{t("utilities.ide.taiDockerDesktopTu")}</p>
                 </div>
 
                 <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-2">
-                  <p className="font-bold text-[10px] text-foreground">Bước 2: Tạo file docker-compose.yml</p>
-                  <p className="text-[9.5px] text-muted-foreground">Tạo file docker-compose.yml cùng thư mục với dự án PHP trên máy của bạn với nội dung sau:</p>
+                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc2TaoFile")}</p>
+                  <p className="text-[9.5px] text-muted-foreground">{t("utilities.ide.taoFileDockerCompose")}</p>
                   <pre className="text-[8.5px] font-mono bg-background p-2 rounded text-muted-foreground overflow-x-auto select-all max-h-32">
 {`version: '3.8'
 services:
@@ -2072,17 +2075,17 @@ services:
                 </div>
 
                 <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-1">
-                  <p className="font-bold text-[10px] text-foreground">Bước 3: Khởi động hệ thống</p>
-                  <p className="text-[9.5px] text-muted-foreground">Chạy terminal tại thư mục chứa file và gõ lệnh:</p>
+                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc3KhoiDong")}</p>
+                  <p className="text-[9.5px] text-muted-foreground">{t("utilities.ide.chayTerminalTaiThu")}</p>
                   <code className="block bg-background p-1.5 text-[9px] font-mono text-primary rounded">docker-compose up -d</code>
                 </div>
 
                 <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-1">
-                  <p className="font-bold text-[10px] text-foreground">Bước 4: Truy cập phpMyAdmin</p>
+                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc4TruyCap")}</p>
                   <p className="text-[9.5px] text-muted-foreground">
-                    Mở trình duyệt truy cập:
+                    {t("utilities.ide.moTrinhDuyetTruy")}
                     <a href="http://localhost:8080" target="_blank" rel="noreferrer" className="block text-primary font-bold mt-1">http://localhost:8080</a>
-                    Tài khoản: root / Mật khẩu: root. Đây là môi trường học tập cục bộ; không dùng mật khẩu mẫu này cho hệ thống thật.
+                    {t("utilities.ide.taiKhoanRootMat")}
                   </p>
                 </div>
               </div>
@@ -2131,9 +2134,9 @@ services:
                 <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-border flex items-center justify-center text-muted-foreground mb-4">
                   <span className="material-symbols-outlined text-2xl animate-pulse">lock</span>
                 </div>
-                <h4 className="font-bold text-xs uppercase tracking-wider text-foreground mb-1">Không gian soạn thảo bị khóa</h4>
+                <h4 className="font-bold text-xs uppercase tracking-wider text-foreground mb-1">{t("utilities.ide.khongGianSoanThao")}</h4>
                 <p className="text-[10px] text-muted-foreground max-w-xs leading-relaxed">
-                  Vui lòng kích hoạt thuê bao hoặc mua gói mở khóa vĩnh viễn ở cột bên trái để bắt đầu lập trình bài học này.
+                  {t("utilities.ide.vuiLongKichHoat")}
                 </p>
               </div>
             ) : previewMode && activeFile?.language === "html" ? (
@@ -2144,7 +2147,7 @@ services:
                     onClick={() => setPreviewMode(false)}
                     className="flex items-center gap-1 hover:text-foreground font-semibold"
                   >
-                    <Eye className="w-3.5 h-3.5" /> Trở lại Editor
+                    <Eye className="w-3.5 h-3.5" /> {t("utilities.ide.troLaiEditor")}
                   </button>
                 </div>
                 <iframe 
@@ -2183,7 +2186,7 @@ services:
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 font-sans">
                     <AlertTriangle className="w-8 h-8 text-primary/45" />
-                    <p className="text-xs">Không có file nào đang mở. Hãy mở một file từ File Explorer hoặc nạp bài học.</p>
+                    <p className="text-xs">{t("utilities.ide.khongCoFileNao")}</p>
                   </div>
                 )}
               </div>
@@ -2198,21 +2201,21 @@ services:
                   onClick={() => setTerminalTab("guide")}
                   className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all ${terminalTab === "guide" ? "border-primary text-foreground" : "border-transparent hover:text-foreground"}`}
                 >
-                  <Terminal className="w-3.5 h-3.5" /> Hướng dẫn Chạy
+                  <Terminal className="w-3.5 h-3.5" /> {t("utilities.ide.huongDanChay")}
                 </button>
                 <button 
                   onClick={() => {
                     if (!consoleOutput) {
-                      setConsoleOutput("[Hệ thống] Nhấn nút 'Chạy Code thử' để giả lập chạy code.");
+                      setConsoleOutput(t("utilities.ide.heThongNhanNut"));
                     }
                     setTerminalTab("console");
                   }}
                   className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all ${terminalTab === "console" ? "border-primary text-foreground" : "border-transparent hover:text-foreground"}`}
                 >
-                  <FileCode className="w-3.5 h-3.5" /> Chạy thử Console
+                  <FileCode className="w-3.5 h-3.5" /> {t("utilities.ide.chayThuConsole")}
                 </button>
                 <span className="mx-1 text-border">|</span>
-                <span className={`font-mono text-[9px] ${saveStatus.includes("Lỗi") ? "text-destructive" : (saveStatus.includes("Đang") ? "text-warning" : "text-success")}`}>
+                <span className={`font-mono text-[9px] ${saveStatus.includes(t("utilities.ide.loi")) ? "text-destructive" : (saveStatus.includes(t("utilities.ide.dang")) ? "text-warning" : "text-success")}`}>
                   ● {saveStatus}
                 </span>
               </div>
@@ -2222,9 +2225,9 @@ services:
                   <button 
                     onClick={handleRunSandbox}
                     className="flex items-center gap-1 px-2.5 py-1 rounded bg-success/15 hover:bg-success/25 text-success border border-success/30 text-[10px] transition-all font-bold font-sans"
-                    title="Chạy thử mã nguồn bằng Sandbox Giả lập trực tiếp trên trình duyệt"
+                    title={t("utilities.ide.chayThuMaNguon")}
                   >
-                    <Play className="w-3 h-3 text-success" /> Chạy Code thử
+                    <Play className="w-3 h-3 text-success" /> {t("utilities.ide.chayCodeThu")}
                   </button>
                 )}
                 {activeFile?.language === "html" && (
@@ -2232,7 +2235,7 @@ services:
                     onClick={() => setPreviewMode(!previewMode)}
                     className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] transition-all font-bold font-sans"
                   >
-                    <Play className="w-3 h-3" /> {previewMode ? "Dừng Xem" : "Xem Live Preview"}
+                    <Play className="w-3 h-3" /> {previewMode ? t("utilities.ide.dungXem") : "Xem Live Preview"}
                   </button>
                 )}
               </div>
@@ -2246,37 +2249,37 @@ services:
               ) : (
                 <div className="space-y-1 font-mono text-[11px]">
                   {activeFile?.language === "html" && (
-                    <p className="text-muted-foreground">File dạng Web (HTML/CSS/JS). Bạn bấm vào nút **Xem Live Preview** phía trên bên phải để trực quan hóa giao diện ngay lập trình duyệt!</p>
+                    <p className="text-muted-foreground">{t("utilities.ide.fileDangWebHtml")}</p>
                   )}
                   {activeFile?.language === "python" && (
                     <>
-                      <p className="text-muted-foreground">Đối với Python, bạn mở Terminal trên máy tính (local) của bạn tại thư mục chứa file đã tải về và gõ lệnh chạy:</p>
+                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiPythonBan")}</p>
                       <code className="block bg-background p-2 text-success rounded mt-1 border border-border">python3 {activeFile.name}</code>
                     </>
                   )}
                   {activeFile?.language === "c" && (
                     <>
-                      <p className="text-muted-foreground">Đối với ngôn ngữ C, hãy cài đặt compiler GCC. Biên dịch và thực thi bằng lệnh Terminal:</p>
+                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiNgonNgu")}</p>
                       <code className="block bg-background p-2 text-success rounded mt-1 border border-border">gcc {activeFile.name} -o output && ./output</code>
                     </>
                   )}
                   {activeFile?.language === "cpp" && (
                     <>
-                      <p className="text-muted-foreground">Đối với C++, biên dịch bằng trình biên dịch g++:</p>
+                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiCBien")}</p>
                       <code className="block bg-background p-2 text-success rounded mt-1 border border-border">g++ {activeFile.name} -o output && ./output</code>
                     </>
                   )}
                   {activeFile?.language === "csharp" && (
                     <>
-                      <p className="text-muted-foreground">Đối với C#, hãy cài đặt .NET SDK trên máy. Tạo project Console mới và chạy:</p>
+                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiCHay")}</p>
                       <code className="block bg-background p-2 text-success rounded mt-1 border border-border">dotnet run</code>
                     </>
                   )}
                   {activeFile?.language === "php" && (
                     <>
-                      <p className="text-muted-foreground">Đối với PHP, bạn có thể chạy server PHP tích hợp cục bộ để test nhanh mà không cần Apache:</p>
+                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiPhpBan")}</p>
                       <code className="block bg-background p-2 text-success rounded mt-1 border border-border">php -S localhost:8000</code>
-                      <p className="text-[10px] text-muted-foreground mt-1">Truy cập http://localhost:8000 trên máy tính của bạn để xem kết quả.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{t("utilities.ide.truyCapHttpLocalhost")}</p>
                     </>
                   )}
                 </div>
@@ -2309,7 +2312,7 @@ services:
       featureKey="hugoCoder"
       priceJoy={1500}
       icon="terminal"
-      title="Trao đổi JOY để mở khóa bộ Phát triển Web"
+      title={t("utilities.ide.traoDoiJoyDe")}
       description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
       onBioUpdate={onBioUpdate}
       onBack={onBack}

@@ -134,6 +134,9 @@ async function forwardJson(req, res) {
         'Content-Type': 'application/json',
         'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
         'X-Member-Id': serverAiUserId(req.memberEmail),
+        // Chỉ dùng để trừ token đã mua trong Bio (Mongo). KHÔNG bao giờ đi tiếp
+        // sang Gemini: payload bio gửi cho model vẫn là allow-list ở AIBot.js.
+        'X-Member-Email': req.memberEmail || '',
       },
       body: req.method === 'GET' || req.method === 'HEAD' ? undefined : JSON.stringify(upstreamBody)
     });
@@ -171,6 +174,9 @@ router.post('/analyze-report', async (req, res) => {
         'Content-Type': contentType,
         'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
         'X-Member-Id': serverAiUserId(req.memberEmail),
+        // Chỉ dùng để trừ token đã mua trong Bio (Mongo). KHÔNG bao giờ đi tiếp
+        // sang Gemini: payload bio gửi cho model vẫn là allow-list ở AIBot.js.
+        'X-Member-Email': req.memberEmail || '',
       },
       body: Readable.toWeb(req),
       duplex: 'half'
@@ -206,6 +212,9 @@ router.post('/chat/stream', async (req, res) => {
         'Content-Type': 'application/json',
         'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
         'X-Member-Id': serverAiUserId(req.memberEmail),
+        // Chỉ dùng để trừ token đã mua trong Bio (Mongo). KHÔNG bao giờ đi tiếp
+        // sang Gemini: payload bio gửi cho model vẫn là allow-list ở AIBot.js.
+        'X-Member-Email': req.memberEmail || '',
       },
       body: JSON.stringify(req.body || {})
     });
@@ -237,6 +246,9 @@ router.post('/chat/audio', async (req, res) => {
         'Content-Type': req.headers['content-type'],
         'X-Internal-Key': process.env.INTERNAL_API_KEY || '',
         'X-Member-Id': serverAiUserId(req.memberEmail),
+        // Chỉ dùng để trừ token đã mua trong Bio (Mongo). KHÔNG bao giờ đi tiếp
+        // sang Gemini: payload bio gửi cho model vẫn là allow-list ở AIBot.js.
+        'X-Member-Email': req.memberEmail || '',
       },
       body: Readable.toWeb(req),
       duplex: 'half'

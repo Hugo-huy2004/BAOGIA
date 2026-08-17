@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { QRCodeSVG } from "qrcode.react";
 import { getMemberSession, clearMemberSession } from "../services/authSession";
 import { apiFetch } from "../services/api";
@@ -10,6 +11,7 @@ import memberService from "../services/classes/MemberService";
 import EcoRadio from "./EcoRadio.jsx";
 import EcoGames from "./EcoGames";
 import EcoFold from "./EcoFold";
+import { joyText } from "../lib/joyDisplay";
 
 // Gộp Ví JOY + Thẻ thành viên + Hoạt động + Tài khoản của chế độ thường về MỘT
 // trang. Ở chế độ thường bốn tab đó gọi API riêng mỗi lần chuyển; ở đây chỉ có
@@ -29,6 +31,7 @@ const shortDate = (value) => {
 };
 
 export default function EcoAccount() {
+  const { t } = useTranslation();
   const session = getMemberSession();
   const [balance, setBalance] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -108,7 +111,7 @@ export default function EcoAccount() {
         pin: form.pin,
         idempotencyKey: `saveE-${session.email}-${Date.now()}`,
       });
-      notify.success(`Đã chuyển ${amount} JOY.`);
+      notify.success(`Đã chuyển ${joyText(amount)}.`);
       setBalance((current) => (current == null ? current : current - amount));
       setForm({ phone: "", amount: "", pin: "" });
     } catch (error) {
@@ -129,24 +132,24 @@ export default function EcoAccount() {
     <>
       {/* ── Thẻ thành viên ── */}
       <section className="save-e-section" aria-labelledby="eco-card">
-        <h2 id="eco-card">Thẻ thành viên</h2>
+        <h2 id="eco-card">{t("saveE.account.theThanhVien")}</h2>
         <div className="save-e-membercard">
-          <p className="save-e-name">{info.displayName || session?.displayName || "Thành viên Hugo"}</p>
+          <p className="save-e-name">{info.displayName || session?.displayName || t("saveE.account.thanhVienHugo")}</p>
           <small>{session?.email}</small>
           <p className="save-e-balance">
-            {balance == null ? (loadFailed ? "—" : "…") : balance.toLocaleString("vi-VN")} JOY
+            {balance == null ? (loadFailed ? "—" : "…") : joyText(balance)}
           </p>
-          {loadFailed ? <small>Chưa lấy được số dư. Mở lại trang để thử lần nữa.</small> : null}
+          {loadFailed ? <small>{t("saveE.account.chuaLayDuocSo")}</small> : null}
         </div>
       </section>
 
       {/* ── Mở ra mới gọi máy chủ ── */}
       <section className="save-e-section" aria-labelledby="eco-more">
-        <h2 id="eco-more">Ví JOY</h2>
+        <h2 id="eco-more">{t("saveE.account.viJoy")}</h2>
         <div className="save-e-card">
           <EcoFold
             icon="qr_code_2"
-            title="Mã QR nhận JOY"
+            title={t("saveE.account.maQrNhanJoy")}
             hint="Mã do máy chủ ký, lấy một lượt khi mở"
             load={() => getJoyQrPayload(session.email)}
           >
@@ -160,11 +163,10 @@ export default function EcoAccount() {
                     thì bấm lấy mã mới, đúng một lượt gọi. */}
                 <button type="button" className="save-e-chip" onClick={reload}>
                   <span className="material-symbols-outlined" aria-hidden="true">refresh</span>
-                  Lấy mã mới
+                  {t("saveE.account.layMaMoi")}
                 </button>
                 <p className="save-e-note">
-                  Đưa mã này cho người chuyển JOY cho bạn. Mã có hạn khoảng 2 phút — quá hạn thì bấm
-                  “Lấy mã mới”.
+                  {t("saveE.account.duaMaNayCho")}
                 </p>
               </div>
             ) : null)}
@@ -172,15 +174,15 @@ export default function EcoAccount() {
 
           <EcoFold
             icon="event_available"
-            title="Điểm danh nhận JOY"
+            title={t("saveE.account.diemDanhNhanJoy")}
             hint="Mỗi ngày một lần"
             load={() => apiFetch("/checkin/status")}
           >
             {({ data, setData }) => (data ? (
               <div className="save-e-row">
                 <div>
-                  <strong>{data.canClaimToday ? "Hôm nay chưa điểm danh" : "Hôm nay đã điểm danh"}</strong>
-                  <small>Chuỗi liên tiếp: {data.consecutiveDays || 0} ngày</small>
+                  <strong>{data.canClaimToday ? t("saveE.account.homNayChuaDiem") : t("saveE.account.homNayDaDiem")}</strong>
+                  <small>{t("saveE.account.chuoiLienTiep")} {data.consecutiveDays || 0} {t("saveE.account.ngay")}</small>
                 </div>
                 <button
                   type="button"
@@ -189,15 +191,15 @@ export default function EcoAccount() {
                   onClick={async () => {
                     try {
                       const result = await apiFetch("/checkin/claim", { method: "POST" });
-                      notify.success(`Đã nhận ${result.totalReward} JOY.`);
+                      notify.success(`Đã nhận ${joyText(result.totalReward)}.`);
                       bumpBalance(result.totalReward);
                       setData({ ...data, canClaimToday: false, consecutiveDays: result.consecutiveDays });
                     } catch (error) {
-                      notify.error(error.message || "Điểm danh không thành công.");
+                      notify.error(error.message || t("saveE.account.diemDanhKhongThanh"));
                     }
                   }}
                 >
-                  Điểm danh
+                  {t("saveE.account.diemDanh")}
                 </button>
               </div>
             ) : null)}
@@ -205,7 +207,7 @@ export default function EcoAccount() {
 
           <EcoFold
             icon="receipt_long"
-            title="Lịch sử giao dịch"
+            title={t("saveE.account.lichSuGiaoDich")}
             hint="10 dòng gần nhất"
             load={() => apiFetch("/joy/history?limit=10&days=0").then((data) => data.transactions || [])}
           >
@@ -219,17 +221,17 @@ export default function EcoAccount() {
                   {money(tx.amount)}
                 </span>
               </div>
-            )) : data ? <p className="save-e-note">Chưa có giao dịch nào.</p> : null)}
+            )) : data ? <p className="save-e-note">{t("saveE.account.chuaCoGiaoDich")}</p> : null)}
           </EcoFold>
         </div>
       </section>
 
       {/* ── Chuyển JOY ── */}
       <section className="save-e-section" aria-labelledby="eco-transfer">
-        <h2 id="eco-transfer">Chuyển JOY</h2>
+        <h2 id="eco-transfer">{t("saveE.account.chuyenJoy")}</h2>
         <form className="save-e-card" onSubmit={submitTransfer}>
           <label className="save-e-field">
-            <span>Số điện thoại người nhận</span>
+            <span>{t("saveE.account.soDienThoaiNguoi")}</span>
             <input
               type="tel"
               inputMode="tel"
@@ -239,7 +241,7 @@ export default function EcoAccount() {
             />
           </label>
           <label className="save-e-field">
-            <span>Số JOY</span>
+            <span>{t("saveE.account.soJoy")}</span>
             <input
               type="number"
               inputMode="numeric"
@@ -249,7 +251,7 @@ export default function EcoAccount() {
             />
           </label>
           <label className="save-e-field">
-            <span>Mã PIN giao dịch</span>
+            <span>{t("saveE.account.maPinGiaoDich")}</span>
             <input
               type="password"
               inputMode="numeric"
@@ -259,17 +261,17 @@ export default function EcoAccount() {
             />
           </label>
           <button type="submit" className="save-e-btn save-e-btn--wide" disabled={sending}>
-            {sending ? "Đang chuyển…" : "Chuyển JOY"}
+            {sending ? t("saveE.account.dangChuyen") : t("saveE.account.chuyenJoy")}
           </button>
         </form>
       </section>
 
       {/* ── Sửa thông tin ── */}
       <section className="save-e-section" aria-labelledby="eco-info">
-        <h2 id="eco-info">Thông tin cá nhân</h2>
+        <h2 id="eco-info">{t("saveE.account.thongTinCaNhan")}</h2>
         <form className="save-e-card" onSubmit={saveInfo}>
           <label className="save-e-field">
-            <span>Tên hiển thị</span>
+            <span>{t("saveE.account.tenHienThi")}</span>
             <input
               type="text"
               autoComplete="name"
@@ -278,7 +280,7 @@ export default function EcoAccount() {
             />
           </label>
           <label className="save-e-field">
-            <span>Số điện thoại</span>
+            <span>{t("saveE.account.soDienThoai")}</span>
             <input
               type="tel"
               inputMode="tel"
@@ -288,7 +290,7 @@ export default function EcoAccount() {
             />
           </label>
           <label className="save-e-field">
-            <span>Trường / đơn vị</span>
+            <span>{t("saveE.account.truongDonVi")}</span>
             <input
               type="text"
               value={info.school}
@@ -296,11 +298,10 @@ export default function EcoAccount() {
             />
           </label>
           <button type="submit" className="save-e-btn save-e-btn--wide" disabled={savingInfo || !bio?._id}>
-            {savingInfo ? "Đang lưu…" : "Lưu thông tin"}
+            {savingInfo ? t("saveE.account.dangLuu") : t("saveE.account.luuThongTin")}
           </button>
           <p className="save-e-note">
-            Ảnh đại diện, ảnh bìa và giao diện trang cá nhân chỉnh ở chế độ thường —
-            chúng là phần tải ảnh nặng nhất nên không đưa vào đây.
+            {t("saveE.account.anhDaiDienAnh")}
           </p>
         </form>
       </section>
@@ -310,21 +311,20 @@ export default function EcoAccount() {
 
       {/* ── Cài đặt cơ bản ── */}
       <section className="save-e-section" aria-labelledby="eco-settings">
-        <h2 id="eco-settings">Cài đặt</h2>
+        <h2 id="eco-settings">{t("saveE.account.caiDat")}</h2>
         <div className="save-e-card">
           <div className="save-e-row">
             <div>
-              <strong>Đăng xuất</strong>
+              <strong>{t("saveE.account.dangXuat")}</strong>
               <small>{session?.email}</small>
             </div>
             <button type="button" className="save-e-btn save-e-btn--plain" onClick={logout}>
-              Đăng xuất
+              {t("saveE.account.dangXuat")}
             </button>
           </div>
         </div>
         <p className="save-e-note">
-          Bật/tắt và mức “tự động” nằm ở tab Xanh. Đang tắt trong chế độ này: trợ lý AI, bản đồ,
-          cửa hàng, kho ứng dụng, hiệu ứng nền động và mọi lượt gọi máy chủ lặp lại theo chu kỳ.
+          {t("saveE.account.batTatVaMuc")}
         </p>
       </section>
     </>

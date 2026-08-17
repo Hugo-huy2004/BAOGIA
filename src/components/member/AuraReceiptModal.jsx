@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../i18n/languages";
+import { useJoy } from "../../lib/joyDisplay";
+
+// Giá thuê 30 ngày — server tính lại, đây chỉ là con số hiện ra để đối chiếu.
+const THIRTY_DAY_PRICE = 1200;
 
 export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, isProcessing, isSuccess }) {
   const { t, i18n } = useTranslation();
@@ -35,10 +39,12 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
     }
   }, [isSuccess]);
 
+  const joy = useJoy();
+
   if (!isOpen || !theme) return null;
 
   const themeName = t(`aura.theme${theme.id.charAt(0).toUpperCase() + theme.id.slice(1)}Name`);
-  const basePrice = duration === 'month' ? 1200 : theme.price;
+  const basePrice = duration === 'month' ? THIRTY_DAY_PRICE : theme.price;
   const creativeFee = Math.round(basePrice * 0.09 * 10) / 10;
   const totalPrice = basePrice + creativeFee;
 
@@ -84,7 +90,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                   transition={{ delay: 0.5 }}
                   className="mt-8 font-mono font-black text-2xl text-destructive bg-destructive/10 dark:bg-destructive/20 px-6 py-3 rounded-full"
                 >
-                  - {totalPrice} JOY
+                  - {joy.text(totalPrice)}
                 </motion.div>
              </div>
           ) : (
@@ -115,13 +121,13 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                     onClick={() => setDuration('day')}
                     className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-all ${duration === 'day' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}
                   >
-                    {t("aura.receipt.oneDay")} ({theme.price} JOY)
+                    {t("aura.receipt.oneDay")} ({joy.text(theme.price)})
                   </button>
                   <button 
                     onClick={() => setDuration('month')}
                     className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-all ${duration === 'month' ? 'bg-white dark:bg-zinc-600 shadow-sm' : 'text-zinc-500'}`}
                   >
-                    {t("aura.receipt.thirtyDays")} (1200 JOY)
+                    {t("aura.receipt.thirtyDays")} ({joy.text(THIRTY_DAY_PRICE)})
                   </button>
                 </div>
 
@@ -138,7 +144,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                       })})
                     </span>
                   </div>
-                  <span className="font-bold">{basePrice} JOY</span>
+                  <span className="font-bold">{joy.text(basePrice)}</span>
                 </div>
                 
                 <div className="flex justify-between items-start pt-2">
@@ -146,7 +152,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                     <span className="font-bold block text-xs">{t("aura.receipt.creativeFee")}</span>
                     <span className="text-[10px] text-zinc-500 block">{t("aura.receipt.creativeFeeDescription")}</span>
                   </div>
-                  <span className="font-bold">{creativeFee} JOY</span>
+                  <span className="font-bold">{joy.text(creativeFee)}</span>
                 </div>
               </div>
 
@@ -154,7 +160,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
               <div className="py-4 px-6 border-t border-border border-dashed font-mono bg-muted/50">
                 <div className="flex justify-between items-center text-lg font-black">
                   <span>{t("aura.receipt.total")}</span>
-                  <span>{totalPrice} JOY</span>
+                  <span>{joy.text(totalPrice)}</span>
                 </div>
               </div>
 
@@ -190,7 +196,7 @@ export default function AuraReceiptModal({ isOpen, theme, onConfirm, onCancel, i
                       onClick={() => onConfirm(theme.id, duration)}
                       className="flex-[2] py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider text-white bg-zinc-900 hover:bg-foreground dark:text-black dark:hover:bg-zinc-200 transition-colors shadow-lg"
                     >
-                      {t("aura.receipt.pay")} {totalPrice} JOY
+                      {t("aura.receipt.pay")} {joy.text(totalPrice)}
                     </button>
                   </div>
                 )}

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { money } from "./storeData";
+import { joyText } from "../../../lib/joyDisplay";
 
 const API = import.meta.env.VITE_API_URL || "/api";
 
@@ -10,7 +12,8 @@ const API = import.meta.env.VITE_API_URL || "/api";
  * Người nhận được xác minh ở server trước khi tiêu JOY, và chỉ trả về tên +
  * ảnh — không lộ email/số điện thoại của người khác.
  */
-export default function GiftSheet({ plan, onClose, onContinue }) {
+export default function GiftSheet({ plan, appLabel, onClose, onContinue }) {
+  const { t } = useTranslation();
   const [handle, setHandle] = useState("");
   const [tier, setTier] = useState("rent");
   const [message, setMessage] = useState("");
@@ -18,6 +21,8 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
   const [recipient, setRecipient] = useState(null);
   const [error, setError] = useState("");
   const debounce = useRef(null);
+
+  const label = appLabel || plan.label;
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose?.(); };
@@ -41,16 +46,16 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
         });
         const data = await r.json();
         if (data.found) setRecipient(data.recipient);
-        else setError(data.error || "Không tìm thấy ai với thông tin này.");
+        else setError(data.error || t("utilities.store.gift.notFound"));
       } catch {
-        setError("Không tra được người nhận.");
+        setError(t("utilities.store.gift.lookupFailed"));
       } finally {
         setChecking(false);
       }
     }, 450);
 
     return () => clearTimeout(debounce.current);
-  }, [handle]);
+  }, [handle, t]);
 
   const chosen = tier === "own" ? plan.own : plan.rent;
 
@@ -61,16 +66,21 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={`Tặng ${plan.label}`}
+        aria-label={t("utilities.store.gift.title", { app: label })}
         className="hgs hgs-sheet relative flex max-h-[92dvh] w-full flex-col overflow-hidden sm:max-w-md"
       >
         <div className="shrink-0 px-4 pb-3 pt-2.5">
           <div className="mx-auto mb-3 h-1 w-9 rounded-full bg-black/15 dark:bg-white/20 sm:hidden" />
           <div className="flex items-center gap-3">
             <h2 className="hgs-ink min-w-0 flex-1 text-[19px] font-bold tracking-[-0.01em]">
-              Tặng {plan.label}
+              {t("utilities.store.gift.title", { app: label })}
             </h2>
-            <button type="button" onClick={onClose} aria-label="Đóng" className="hgs-iconbtn">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={t("utilities.store.gift.close")}
+              className="hgs-iconbtn"
+            >
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
           </div>
@@ -80,19 +90,19 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
           {/* Người nhận */}
           <div>
             <label className="hgs-dim mb-1.5 block text-[13px] font-semibold" htmlFor="gift-handle">
-              Gửi tới
+              {t("utilities.store.gift.to")}
             </label>
             <input
               id="gift-handle"
               type="text"
               value={handle}
               onChange={e => setHandle(e.target.value)}
-              placeholder="Mã giới thiệu, email hoặc số điện thoại"
-              className="hgs-input px-4"
+              placeholder={t("utilities.store.gift.toPlaceholder")}
+              className="hgs-field h-[46px] px-4"
               autoComplete="off"
             />
 
-            {checking && <p className="hgs-dim mt-2 text-[13.5px]">Đang tìm…</p>}
+            {checking && <p className="hgs-dim mt-2 text-[13.5px]">{t("utilities.store.gift.searching")}</p>}
             {error && <p className="mt-2 text-[13.5px] font-semibold text-rose-500">{error}</p>}
             {recipient && (
               <div className="hgs-card mt-2 flex items-center gap-3 p-3">
@@ -106,7 +116,9 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
                 <div className="min-w-0 flex-1">
                   <p className="hgs-ink truncate text-[15px] font-semibold">{recipient.displayName}</p>
                   <p className="hgs-dim truncate text-[13.5px]">
-                    {recipient.referralCode ? `Mã ${recipient.referralCode}` : "Thành viên Hugo"}
+                    {recipient.referralCode
+                      ? t("utilities.store.gift.code", { code: recipient.referralCode })
+                      : t("utilities.store.gift.member")}
                   </p>
                 </div>
                 <span className="material-symbols-outlined shrink-0 text-[22px] text-emerald-500">
@@ -118,11 +130,21 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
 
           {/* Bậc quà */}
           <div>
-            <p className="hgs-dim mb-1.5 text-[13px] font-semibold">Bậc quà tặng</p>
+            <p className="hgs-dim mb-1.5 text-[13px] font-semibold">{t("utilities.store.gift.tier")}</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: "rent", title: "Thuê 1 tháng", price: plan.rent.total, note: "Dùng 30 ngày" },
-                { id: "own", title: "Sở hữu", price: plan.own.total, note: `Tiết kiệm ${plan.own.savePercent}%` },
+                {
+                  id: "rent",
+                  title: t("utilities.store.tier.rent"),
+                  price: plan.rent.total,
+                  note: t("utilities.store.gift.rentNote"),
+                },
+                {
+                  id: "own",
+                  title: t("utilities.store.tier.own"),
+                  price: plan.own.total,
+                  note: t("utilities.store.tier.save", { percent: plan.own.savePercent }),
+                },
               ].map(opt => (
                 <button
                   key={opt.id}
@@ -137,7 +159,7 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
                 >
                   <p className={`text-[14px] font-bold ${tier === opt.id ? "" : "hgs-ink"}`}>{opt.title}</p>
                   <p className={`mt-0.5 text-[15px] font-bold tabular-nums ${tier === opt.id ? "" : "hgs-ink"}`}>
-                    {money(opt.price)} JOY
+                    {joyText(opt.price)}
                   </p>
                   <p className={`text-[12.5px] ${tier === opt.id ? "text-white/75" : "hgs-dim"}`}>{opt.note}</p>
                 </button>
@@ -148,7 +170,8 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
           {/* Lời nhắn */}
           <div>
             <label className="hgs-dim mb-1.5 block text-[13px] font-semibold" htmlFor="gift-note">
-              Lời nhắn <span className="font-normal">(tuỳ chọn)</span>
+              {t("utilities.store.gift.message")}{" "}
+              <span className="font-normal">{t("utilities.store.gift.optional")}</span>
             </label>
             <textarea
               id="gift-note"
@@ -156,8 +179,8 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
               maxLength={200}
               value={message}
               onChange={e => setMessage(e.target.value)}
-              placeholder="Chúc cậu học vui nhé!"
-              className="hgs-input h-auto resize-none px-4 py-3"
+              placeholder={t("utilities.store.gift.messagePlaceholder")}
+              className="hgs-field resize-none px-4 py-3"
             />
           </div>
         </div>
@@ -167,9 +190,11 @@ export default function GiftSheet({ plan, onClose, onContinue }) {
             type="button"
             disabled={!recipient}
             onClick={() => onContinue?.({ appId: plan.appId, tier, handle: handle.trim(), message, recipient })}
-            className="hgs-btn hgs-btn--primary h-[52px] w-full text-[16px]"
+            className="hgs-btn hgs-btn--primary w-full"
           >
-            {recipient ? `Tiếp tục · ${money(chosen.total)} JOY` : "Chọn người nhận"}
+            {recipient
+              ? t("utilities.store.gift.continue", { joy: money(chosen.total) })
+              : t("utilities.store.gift.choose")}
           </button>
         </div>
       </div>
