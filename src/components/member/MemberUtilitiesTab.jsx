@@ -117,6 +117,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           showToast={showToast}
           onBioUpdate={onBioUpdate}
           onOpenParticleModal={onOpenParticleModal}
+          onSelectUtility={onSelectUtility}
         />
       )}
 
@@ -183,6 +184,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <HugoInvestTab
           onBack={() => onSelectUtility(null)}
           showToast={showToast}
+          onSelectUtility={onSelectUtility}
         />
       )}
 

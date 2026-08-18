@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
+import useSWR from "swr";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { useJoyStore } from "../../../stores/joyStore";
@@ -86,22 +87,29 @@ function Row({ icon, title, detail, value, valueTone, badge, onClick }) {
   );
 }
 
-export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onOpenParticleModal, publicLink }) {
+export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onOpenParticleModal, publicLink, onSelectUtility }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const joy = useJoy();
   const fmt = joy.number;
   // Đơn vị JOY của tài khoản — CHỌN MỘT LẦN rồi cố định, không theo ngôn ngữ
   // giao diện (xem Bio.joyDenom).
-  //
-  // `null` khi chưa chọn, và ví KHÔNG được tự lấp bằng đơn vị mặc định: hiện
-  // "24.621.550 JOYmi" cho người chưa hề được hỏi là ví tự quyết hộ họ một
-  // trường có khoá. Chưa chọn thì mời chọn.
   const myDenom = JOY_DENOMS[bio?.joyDenom] ? bio.joyDenom : null;
 
   const balance = useJoyStore((state) => state.balance);
   const referralCount = useJoyStore((state) => state.referralCount);
   const setBalance = useJoyStore((state) => state.setBalance);
+
+  const API = import.meta.env.VITE_API_URL || "/api";
+  const { data: stockPortfolio } = useSWR("/stock/portfolio", (path) =>
+    fetch(`${API}${path}`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+    { revalidateOnFocus: false, dedupingInterval: 30000 }
+  );
+
+  const stockTotalVal = stockPortfolio?.totalValue || 0;
+  const stockPnL = stockPortfolio?.unrealizedPnL || 0;
+  const stockPnLPct = stockPortfolio?.unrealizedPct || 0;
+  const totalNetWorth = balance + stockTotalVal;
 
   const [searchParams] = useSearchParams();
   const paramTab = searchParams.get("tab");
@@ -315,6 +323,51 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
                 onClaimed={() => { loadRecent(); loadChallenges(); }}
               />
             </Panel>
+
+            {/* Ecosystem Asset Allocation & Stock Portfolio Card */}
+            <section className="wal-group my-3">
+              <div className="p-4 rounded-3xl bg-gradient-to-br from-indigo-950/90 via-zinc-900/95 to-purple-950/80 border border-indigo-500/30 shadow-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                      <span className="material-symbols-outlined text-xl">candlestick_chart</span>
+                    </div>
+                    <div className="text-left">
+                      <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-indigo-300">Hệ Sinh Thái Hugo Invest</span>
+                      <h4 className="text-xs font-black text-white">Tài Sản & Chứng Khoán</h4>
+                    </div>
+                  </div>
+                  {onSelectUtility && (
+                    <button
+                      type="button"
+                      onClick={() => { hapticSelect(); onSelectUtility("invest"); }}
+                      className="px-3 py-1.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/30 active:scale-95 transition-all flex items-center gap-1 shrink-0"
+                    >
+                      <span>Vào Sàn Stock</span>
+                      <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-left">
+                  <div className="bg-black/40 p-2.5 rounded-2xl border border-white/5">
+                    <span className="text-[10px] text-zinc-400 font-medium block">Tổng Tài Sản Net Worth:</span>
+                    <div className="text-sm font-black text-amber-400 font-mono mt-0.5">
+                      {fmt(totalNetWorth)} <small className="text-[9.5px] font-bold text-amber-300/80">{joy.code}</small>
+                    </div>
+                  </div>
+                  <div className="bg-black/40 p-2.5 rounded-2xl border border-white/5">
+                    <span className="text-[10px] text-zinc-400 font-medium block">Giá Trị Cổ Phiếu (PnL):</span>
+                    <div className={`text-sm font-black font-mono mt-0.5 flex items-center gap-1 ${stockPnL >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                      <span>{fmt(stockTotalVal)}</span>
+                      <span className="text-[9px] px-1 py-0.2 rounded-md bg-white/10 font-sans">
+                        {stockPnL >= 0 ? "+" : ""}{(stockPnLPct * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* Lối tắt đặt TRÊN sổ giao dịch: đây là chỗ để bấm, còn sổ giao dịch
                 là chỗ để đọc — thứ bấm được phải nằm trong tầm ngón tay. */}

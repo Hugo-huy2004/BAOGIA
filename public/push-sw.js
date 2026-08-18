@@ -28,6 +28,22 @@ self.addEventListener('message', (event) => {
   // and trigger the warning when none arrives.
 });
 
+// ── Precache 404 Auto-Recovery ─────────────────────────────────────────────
+// When a new build deployment purges old hashed JS chunks, Workbox precache
+// might fail with bad-precaching-response 404. Clean up stale caches gracefully.
+self.addEventListener('error', (event) => {
+  if (String(event.message || '').includes('bad-precaching-response') || String(event.message || '').includes('404')) {
+    caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+  }
+});
+
+self.addEventListener('unhandledrejection', (event) => {
+  if (String(event.reason || '').includes('bad-precaching-response') || String(event.reason || '').includes('404')) {
+    event.preventDefault();
+    caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))).catch(() => {});
+  }
+});
+
 // ── PeriodicBackgroundSync — sleep monitor heartbeat ──────────────────────
 
 // Runs in background every 30 min (when PWA is installed + permission granted).

@@ -10,6 +10,18 @@ import { installClientMonitoring } from './utils/clientMonitoring.js'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient.js'
 
+// Dynamic import 404 auto-healing: when a new build deployment replaces hashed JS chunks,
+// Vite fires 'vite:preload-error'. Automatically reload the window to fetch new manifest.
+window.addEventListener('vite:preload-error', (event) => {
+  event.preventDefault();
+  const lastReload = sessionStorage.getItem('hugo_chunk_404_reload');
+  const now = Date.now();
+  if (!lastReload || now - parseInt(lastReload, 10) > 8000) {
+    sessionStorage.setItem('hugo_chunk_404_reload', String(now));
+    window.location.reload();
+  }
+});
+
 // Kích hoạt khiên bảo mật chống F12/Hacker
 initSecurityShield();
 

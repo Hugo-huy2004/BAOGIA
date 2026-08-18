@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import useSWR from "swr";
-import { joyText } from "../../../lib/joyDisplay";
+import { joyText, useJoy } from "../../../lib/joyDisplay";
+import { useJoyStore } from "../../../stores/joyStore";
 import { hapticSelect } from "../../../utils/haptics";
 import BackButton from "../shared/BackButton";
 import { LESSONS } from "./investLessons";
@@ -278,7 +279,9 @@ function SmartAdvisorCard({ portfolio, company, quoteCode, onHelp }) {
   );
 }
 
-export default function HugoInvestTab({ onBack, showToast }) {
+export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
+  const joy = useJoy();
+  const balance = useJoyStore((state) => state.balance);
   const [tab, setTab] = useState("market");
   const [detail, setDetail] = useState(null);
   const [lesson, setLesson] = useState(null);
@@ -350,6 +353,18 @@ export default function HugoInvestTab({ onBack, showToast }) {
               )}
             </h1>
           </div>
+
+          {onSelectUtility && (
+            <button
+              type="button"
+              onClick={() => { hapticSelect(); onSelectUtility("joy_wallet"); }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold text-emerald-400 hover:bg-emerald-500/25 transition-all shrink-0 active:scale-95"
+              title="Số dư Ví JOY — Bấm để mở Ví"
+            >
+              <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
+              <span>{joy.number(balance)} {joy.code}</span>
+            </button>
+          )}
         </div>
 
         {/* iOS 27 Segmented Control */}

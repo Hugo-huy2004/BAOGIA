@@ -3,18 +3,13 @@ import { useTranslation } from "react-i18next";
 import {
   DENOM_OPTIONS, CROSS_DENOM_FEE,
   denomKey, denomOf, toDenom, fromDenom, formatDenom, isCrossDenom,
+  transferBreakdown, factorOf,
 } from "../../../../shared/joyCurrency.js";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useJoy } from "../../../lib/joyDisplay";
 import JoyRateChart from "./JoyRateChart";
 
-// Bộ đối chiếu đơn vị.
-//
-// Một số tiền, viết theo tất cả các đơn vị. Điều quan trọng nhất để không ai đọc
-// màn này mà hiểu sai: GIÁ TRỊ KHÔNG ĐỔI — 10.000 JOYmi và 400 JOYka mua được
-// đúng những thứ như nhau, chỉ là hai cách viết cùng một số. Vì vậy màn này
-// không hiện "đơn vị tính bên trong" nữa: người dùng chỉ cần thấy số của mình
-// đọc ra sao ở đơn vị khác, còn phép tính là việc của hệ thống.
+// Bộ đối chiếu & Phân tích tỷ giá giữa các đơn vị.
 export default function JoyConverter({ balance = 0, denom }) {
   const { t, i18n } = useTranslation();
   const myDenom = denomKey(denom);
@@ -26,6 +21,18 @@ export default function JoyConverter({ balance = 0, denom }) {
   // Gõ theo đơn vị của mình, không phải gõ JOY — đây là điểm của cả tính năng.
   const [input, setInput] = useState(() => String(toDenom(balance, myDenom).amount));
   const joy = useMemo(() => fromDenom(input.replace(",", "."), myDenom), [input, myDenom]);
+
+  const [targetKey, setTargetKey] = useState(() => (myDenom === "en" ? "vi" : "en"));
+  const targetUnit = denomOf(targetKey);
+
+  const breakdown = useMemo(() => {
+    return transferBreakdown(joy, myDenom, targetKey);
+  }, [joy, myDenom, targetKey]);
+
+  const crossRateText = useMemo(() => {
+    const r = (factorOf(targetKey) / (factorOf(myDenom) || 1)).toFixed(4);
+    return `1 ${mine.code} = ${r} ${targetUnit.code}`;
+  }, [myDenom, targetKey, mine.code, targetUnit.code]);
 
   return (
     <div className="wal-conv">
