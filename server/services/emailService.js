@@ -170,12 +170,17 @@ export const sendCustomEmail = async (to, subject, html, cc = null, fromEmail = 
 };
 
 /** Gửi mã OTP đăng nhập Magic Link 1 lần (hạn 10 phút) */
-export const sendMagicLinkOtp = async (to, code) => {
-  const subject = `🔐 Mã xác thực đăng nhập Hugo Studio: ${code}`;
+export const sendMagicLinkOtp = async (to, code, purpose = 'login') => {
+  const isIdentity = purpose === 'identity';
+  const subject = isIdentity
+    ? `🪪 Mã xác minh thông tin Hugo Studio: ${code}`
+    : `🔐 Mã xác thực đăng nhập Hugo Studio: ${code}`;
   const html = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; background: #0f172a; color: #f8fafc; border-radius: 20px; border: 1px solid #1e293b;">
       <h2 style="color: #38bdf8; margin-top: 0;">Hugo Studio Authentication</h2>
-      <p style="color: #94a3b8; font-size: 14px;">Bạn vừa yêu cầu đăng nhập bằng Mã xác thực dùng một lần (Magic OTP). Dưới đây là mã xác thực của bạn:</p>
+      <p style="color: #94a3b8; font-size: 14px;">${isIdentity
+        ? 'Hugo Studio đang kiểm tra định kỳ xem hòm thư này có đúng là của bạn không. Nhập mã dưới đây vào ứng dụng để hoàn tất:'
+        : 'Bạn vừa yêu cầu đăng nhập bằng Mã xác thực dùng một lần (Magic OTP). Dưới đây là mã xác thực của bạn:'}</p>
       <div style="margin: 24px 0; text-align: center; background: #1e293b; padding: 18px; border-radius: 16px; border: 1px solid #334155;">
         <span style="font-family: monospace; font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #38bdf8;">${code}</span>
       </div>

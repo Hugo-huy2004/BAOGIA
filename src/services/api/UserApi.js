@@ -21,6 +21,24 @@ class UserApi extends BaseApi {
   async deleteBio(bioId) {
     return this.delete(`/bios/${bioId}`);
   }
+
+  async adminGetSecuritySentinel(token) {
+    return this.get('/admin/security/sentinel-summary', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  async adminResolveSecurityModeration(token, payload) {
+    return this.post('/admin/security/resolve-moderation', payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  async adminUnblockSecurityActor(token, payload) {
+    return this.post('/admin/security/unblock-actor', payload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
 }
 
 export const userApi = new UserApi();

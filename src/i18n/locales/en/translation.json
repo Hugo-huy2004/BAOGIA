@@ -1563,18 +1563,12 @@
     "adminForm": {
       "title": "Admin Login",
       "desc": "Enter developer credentials",
-      "userLabel": "Username",
-      "userPlaceholder": "Enter username...",
-      "userRequired": "Please enter your username",
-      "passLabel": "Password",
-      "passPlaceholder": "••••••••",
-      "passRequired": "Please enter your password",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password",
       "remember": "Remember me on this device",
-      "btn": "Login",
-      "submitting": "Signing in...",
-      "https": "Secure synchronization via HTTPS"
+      "https": "Secure synchronization via HTTPS",
+      "otpBtn": "Send OTP via Telegram",
+      "otpSending": "Sending code…",
+      "otpSent": "Code sent to the owner's Telegram.",
+      "otpDesc": "No password needed. Tap below and the Telegram bot sends a 6-digit code to the owner's phone — valid for 30 seconds."
     }
   },
   "customerPortal": {
@@ -3923,6 +3917,28 @@
       "chartLoading": "Loading chart…",
       "chartCollecting": "Collecting data — one point per hour, the line appears within a few hours.",
       "chartFailed": "Chart unavailable."
+    },
+    "identityCheck": {
+      "title": "Periodic identity check",
+      "ask": {
+        "phone": "To protect your account, please re-enter the phone number you registered.",
+        "birthday": "To protect your account, please re-enter your date of birth.",
+        "email": "We just sent a 6-digit code to {{email}}. Enter it to confirm this inbox is yours."
+      },
+      "placeholder": {
+        "phone": "Registered phone number",
+        "birthday": "Date of birth (e.g. 20/09/2008)",
+        "email": "6-digit code from the email"
+      },
+      "submit": "Confirm",
+      "passed": "Verified. Thank you!",
+      "wrongAnswer": "That does not match your profile.",
+      "attemptsLeft_one": "You have {{count}} attempt left.",
+      "attemptsLeft_other": "You have {{count}} attempts left.",
+      "lastChance": "One more wrong answer will lock your account.",
+      "networkError": "Could not submit your answer. Check your connection and try again.",
+      "otpSendFailed": "Could not send the verification code. Please try again later.",
+      "warning": "Providing false information will lock your account. To appeal, email us explaining the discrepancy; an administrator may request documents to verify your identity."
     }
   },
   "memberTabs": {

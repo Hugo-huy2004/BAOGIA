@@ -2558,6 +2558,28 @@
       "chartLoading": "차트 불러오는 중…",
       "chartCollecting": "데이터 수집 중 — 시간당 한 점, 몇 시간 뒤 선이 나타납니다.",
       "chartFailed": "차트를 불러올 수 없습니다."
+    },
+    "identityCheck": {
+      "title": "정기 본인 확인",
+      "ask": {
+        "phone": "계정 보호를 위해 등록하신 전화번호를 다시 입력해 주세요.",
+        "birthday": "계정 보호를 위해 생년월일을 다시 입력해 주세요.",
+        "email": "{{email}} 로 6자리 인증 코드를 보냈습니다. 이 메일함이 본인의 것임을 확인하려면 코드를 입력하세요."
+      },
+      "placeholder": {
+        "phone": "등록된 전화번호",
+        "birthday": "생년월일 (예: 20/09/2008)",
+        "email": "이메일의 6자리 코드"
+      },
+      "submit": "확인",
+      "passed": "확인되었습니다. 감사합니다!",
+      "wrongAnswer": "프로필 정보와 일치하지 않습니다.",
+      "attemptsLeft_one": "{{count}}번 더 시도할 수 있습니다.",
+      "attemptsLeft_other": "{{count}}번 더 시도할 수 있습니다.",
+      "lastChance": "한 번 더 틀리면 계정이 잠깁니다.",
+      "networkError": "답변을 전송하지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.",
+      "otpSendFailed": "인증 코드를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
+      "warning": "허위 정보를 기재하면 계정이 잠깁니다. 해제를 원하시면 사유를 적어 이메일로 보내주세요. 관리자는 확인을 위해 서류를 요구할 수 있습니다."
     }
   },
   "memberTabs": {
@@ -5917,18 +5939,12 @@
     "adminForm": {
       "title": "관리 로그인",
       "desc": "Masukkan kredensial pengembang",
-      "userLabel": "Nama Pengguna",
-      "userPlaceholder": "Silakan masukkan nama pengguna...••••••••",
-      "userRequired": "Harap masukkan nama pengguna••••••••",
-      "passLabel": "비밀번호",
-      "passPlaceholder": "Kebutuhan Alamat Email Pendidikan (.edu)",
-      "passRequired": "비밀번호를 입력해주세요.",
-      "showPassword": "비밀번호 표시",
-      "hidePassword": "비밀번호 숨기기",
       "remember": "이 장치에서 기억하기",
-      "btn": "로그인",
-      "submitting": "인증 중...",
-      "https": "HTTPS을 통해 안전한 동기화"
+      "https": "HTTPS을 통해 안전한 동기화",
+      "otpBtn": "Telegram으로 코드 보내기",
+      "otpSending": "보내는 중…",
+      "otpSent": "관리자 Telegram으로 코드를 보냈습니다.",
+      "otpDesc": "비밀번호가 필요 없습니다. 아래 버튼을 누르면 Telegram 봇이 6자리 코드를 관리자 휴대폰으로 보냅니다 — 30초간 유효합니다."
     }
   },
   "customerPortal": {

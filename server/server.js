@@ -573,10 +573,12 @@ server.listen(PORT, () => {
 
   // Initialize the HugoCommunication AI auto-poster (every 15m, max 20/day, 7-day TTL)
 
-  // Auto-start Telegram Butler & Remote Control Long Polling
-  import('./routes/telegramWebhookRoutes.js').then(({ startTelegramLongPolling }) => {
-    startTelegramLongPolling();
-  }).catch(() => {});
+  // Telegram: chế độ do initTelegramBot() ở trên quyết định (webhook khi có URL
+  // công khai, long-polling khi TELEGRAM_ENABLE_POLLING=true, còn lại là chỉ
+  // gửi). Trước đây chỗ này gọi thẳng startTelegramLongPolling() không kèm điều
+  // kiện nào, nên mọi máy dev đều bật polling bất chấp cấu hình — máy dev gỡ
+  // mất webhook của production (bot thật câm) và log dev đầy "getUpdates lỗi
+  // 409" mỗi phút.
 
   // Keep-warm is deliberately NOT done here any more. A self-ping kept the free
   // instance awake 24/7 (~730h of the 750h monthly quota) and could never wake

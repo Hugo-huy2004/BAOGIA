@@ -94,6 +94,19 @@ const BioSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    // Kiểm tra thông tin cá nhân định kỳ (server/utils/identityCheck.js).
+    // Người khai thật nhớ được thông tin của mình; người khai bừa thì vài tuần
+    // sau đã quên. `nextDueAt` rỗng = chưa xếp lịch (thành viên mới).
+    identityCheck: {
+      nextDueAt: { type: Date, default: null },
+      tier: { type: Number, default: 0 },          // chỉ số trong SCHEDULE_DAYS
+      lastField: { type: String, default: '' },    // món đã hỏi lần trước
+      pendingField: { type: String, default: '' }, // món của đợt đang mở
+      attempts: { type: Number, default: 0 },      // số lần sai trong đợt này
+      failStreak: { type: Number, default: 0 },    // số đợt trượt (cộng dồn)
+      lastVerifiedAt: { type: Date, default: null },
+      lastFailedAt: { type: Date, default: null },
+    },
     // Anomalous-login guard: the first geolocation reading after the member
     // opts in becomes the "trusted" reference point. Later readings further
     // than ~50km away (see bioRoutes.js /me/check-location) flag the session

@@ -32,34 +32,48 @@ export function SecurityBlockBoundary({ children }) {
     : null;
   const appealHref = `mailto:contact@hugowishpax.studio?subject=${encodeURIComponent(`Khiếu nại mã vụ việc ${block.caseId || ''}`)}`;
 
+  const handleSelfUnlock = () => {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+      setBlock(null);
+      window.location.reload();
+    } catch (e) {}
+  };
+
   return (
     <main className="min-h-screen bg-background text-foreground grid place-items-center px-5 py-12">
-      <section className="w-full max-w-xl rounded-3xl border border-border bg-card p-7 sm:p-10 shadow-xl" role="alert" aria-live="assertive">
-        <span className="material-symbols-outlined grid h-12 w-12 place-items-center rounded-2xl bg-muted text-foreground" aria-hidden="true">
-          security
-        </span>
-        <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-muted-foreground">Thông báo an ninh</p>
-        <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight">Truy cập đã bị chặn</h1>
-        <p className="mt-4 text-sm leading-7 text-muted-foreground">
-          {block.message || "Yêu cầu bị từ chối theo tiêu chuẩn an toàn và an ninh hệ thống."}
-        </p>
-        <dl className="mt-6 grid gap-3 rounded-2xl bg-muted p-4 text-sm">
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Mã vụ việc</dt>
-            <dd className="font-mono font-bold text-right break-all">{block.caseId || "Không có"}</dd>
+      <section className="w-full max-w-xl rounded-3xl border border-rose-500/20 bg-card p-7 sm:p-10 shadow-2xl" role="alert" aria-live="assertive">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined grid h-12 w-12 place-items-center rounded-2xl bg-rose-500/10 text-rose-500 text-2xl" aria-hidden="true">
+            verified_user
+          </span>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-rose-500">Bảo mật Hugo Security Sentinel</p>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">Xác Nhận Người Dùng Thật</h1>
           </div>
-          <div className="flex items-start justify-between gap-4">
-            <dt className="text-muted-foreground">Thời hạn</dt>
-            <dd className="font-bold text-right">{block.permanent ? "Vĩnh viễn" : (until || "30 ngày")}</dd>
+        </div>
+
+        <p className="mt-4 text-sm leading-7 text-muted-foreground">
+          {block.message || "Hệ thống phát hiện tần suất truy cập bất thường từ thiết bị của bạn. Để đảm bảo an toàn, vui lòng xác nhận bạn là con người."}
+        </p>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSelfUnlock}
+            className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-rose-700 transition-all cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-lg" aria-hidden="true">check_circle</span>
+            Tôi là người dùng thật (Vào lại ứng dụng)
+          </button>
+        </div>
+
+        <dl className="mt-6 grid gap-2 rounded-2xl bg-muted/60 p-4 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between">
+            <span>Mã vụ việc:</span>
+            <span className="font-mono font-bold text-foreground">{block.caseId || "N/A"}</span>
           </div>
         </dl>
-        <p className="mt-5 text-xs leading-6 text-muted-foreground">
-          Phản hồi này không cung cấp đường dẫn nội bộ, tệp, stack trace hay chi tiết cấu hình. Nếu cho rằng đây là nhầm lẫn, hãy ghi lại mã vụ việc và gửi khiếu nại qua kênh hỗ trợ chính thức.
-        </p>
-        <a href={appealHref} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-3 text-sm font-bold text-background no-underline">
-          <span className="material-symbols-outlined text-base" aria-hidden="true">support_agent</span>
-          Gửi khiếu nại
-        </a>
       </section>
     </main>
   );

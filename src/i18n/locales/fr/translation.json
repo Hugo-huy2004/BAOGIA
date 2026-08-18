@@ -2558,6 +2558,28 @@
       "chartLoading": "Chargement du graphique…",
       "chartCollecting": "Collecte des données : un point par heure, la courbe apparaîtra sous quelques heures.",
       "chartFailed": "Graphique indisponible."
+    },
+    "identityCheck": {
+      "title": "Vérification périodique d'identité",
+      "ask": {
+        "phone": "Pour protéger votre compte, veuillez saisir à nouveau le numéro de téléphone enregistré.",
+        "birthday": "Pour protéger votre compte, veuillez saisir à nouveau votre date de naissance.",
+        "email": "Nous venons d'envoyer un code à 6 chiffres à {{email}}. Saisissez-le pour confirmer que cette boîte mail est la vôtre."
+      },
+      "placeholder": {
+        "phone": "Numéro de téléphone enregistré",
+        "birthday": "Date de naissance (ex. 20/09/2008)",
+        "email": "Code à 6 chiffres reçu par e-mail"
+      },
+      "submit": "Confirmer",
+      "passed": "Vérifié. Merci !",
+      "wrongAnswer": "Cela ne correspond pas à votre profil.",
+      "attemptsLeft_one": "Il vous reste {{count}} tentative.",
+      "attemptsLeft_other": "Il vous reste {{count}} tentatives.",
+      "lastChance": "Une erreur de plus et votre compte sera verrouillé.",
+      "networkError": "Impossible d'envoyer votre réponse. Vérifiez votre connexion et réessayez.",
+      "otpSendFailed": "Impossible d'envoyer le code de vérification. Réessayez plus tard.",
+      "warning": "Toute fausse déclaration entraîne le verrouillage du compte. Pour faire appel, envoyez-nous un e-mail expliquant l'écart ; un administrateur peut exiger des justificatifs."
     }
   },
   "memberTabs": {
@@ -5924,18 +5946,12 @@
     "adminForm": {
       "title": "Connexion Admin",
       "desc": "Entrez les identifiants de développeur",
-      "userLabel": "Nom d'utilisateur",
-      "userPlaceholder": "Entrez un nom d'utilisateur...",
-      "userRequired": "Veuillez entrer votre nom d'utilisateur",
-      "passLabel": "Mot de passe",
-      "passPlaceholder": "••••••••",
-      "passRequired": "Veuillez entrer votre mot de passe",
-      "showPassword": "Afficher le mot de passe",
-      "hidePassword": "Cacher le mot de passe",
       "remember": "Se souvenir de moi sur cet appareil",
-      "btn": "Se connecter",
-      "submitting": "Connexion en cours...",
-      "https": "Synchronisation sécurisée via HTTPS"
+      "https": "Synchronisation sécurisée via HTTPS",
+      "otpBtn": "Envoyer le code par Telegram",
+      "otpSending": "Envoi du code…",
+      "otpSent": "Code envoyé sur le Telegram du propriétaire.",
+      "otpDesc": "Sans mot de passe. Appuyez sur le bouton : le bot Telegram envoie un code à 6 chiffres au téléphone du propriétaire — valable 30 secondes."
     }
   },
   "customerPortal": {

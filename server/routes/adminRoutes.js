@@ -52,6 +52,90 @@ const adminLoginLimiter = rateLimit({
   message: { error: 'Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau 15 phút.' }
 });
 
+// Cửa gửi mã OTP: ai cũng gọi được (không cần mật khẩu), nên phải chặn chặt —
+// mỗi lần gọi là một tin nhắn Telegram vào máy Boss. 5 lần / 15 phút / IP.
+const otpRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Bạn đã yêu cầu mã quá nhiều lần. Thử lại sau 15 phút.' },
+});
+
+/**
+ * Phát một mã OTP mới cho tài khoản quản trị và gửi qua Telegram.
+ *
+ * Mã 6 chữ số (trước là 4): từ khi bỏ bước mật khẩu, OTP là lớp bảo vệ DUY
+ * NHẤT, nên không gian đoán phải đủ rộng. Kèm theo đó là `attempts`: sai 5 lần
+ * là huỷ mã, để không ai dò hết 10^6 khả năng trong 5 phút.
+ */
+const OTP_TTL_MS = 30 * 1000;
+
+async function issueAdminOtp(admin) {
+  const otpCode = String(crypto.randomInt(100000, 1000000));
+  const tempToken = crypto.randomBytes(24).toString('hex');
+
+  if (!global.ADMIN_2FA_OTPS) global.ADMIN_2FA_OTPS = new Map();
+  global.ADMIN_2FA_OTPS.set(tempToken, {
+    adminId: admin._id,
+    adminUsername: admin.username || 'admin',
+    otpCode,
+    attempts: 0,
+    // 30 giây theo yêu cầu của chủ hệ thống: mã bị đọc lỏm trên màn hình khoá
+    // điện thoại thì gần như không kịp dùng lại. Đổi số ở ĐÂY thôi — client đọc
+    // hạn dùng từ `expiresIn` máy chủ trả về, không tự chép hằng số.
+    expiresAt: Date.now() + OTP_TTL_MS,
+  });
+
+  const { sendTelegramAlert } = await import('../services/telegramService.js');
+  const otpHtml = `
+🔑 <b>[HUGO ADMIN OTP]</b>
+
+Mã đăng nhập Admin Dashboard: <b>${otpCode}</b>
+
+⏱️ <i>Hiệu lực 30 giây. Không chia sẻ mã này cho bất kỳ ai. Nếu không phải bạn yêu cầu, hãy bỏ qua.</i>
+  `.trim();
+
+  // ponytail: không nuốt lỗi — Telegram hỏng mà vẫn báo "đã gửi" thì Boss ngồi
+  // chờ mã không bao giờ tới. Mã vẫn nằm trong log server để cứu hộ.
+  const sent = await sendTelegramAlert(otpHtml).catch((e) => ({ success: false, error: e.message }));
+  const delivered = Boolean(sent.success && !sent.simulated);
+  if (!delivered) {
+    console.warn(`⚠️ Admin OTP không gửi được qua Telegram (${sent.error || 'chưa cấu hình TELEGRAM_BOT_TOKEN/CHAT_ID'}). Mã: ${otpCode}`);
+  }
+  return { tempToken, delivered, expiresIn: Math.round(OTP_TTL_MS / 1000) };
+}
+
+/**
+ * POST /api/admin/request-otp — đăng nhập quản trị chỉ bằng OTP Telegram.
+ *
+ * Không có mật khẩu: yếu tố xác thực là QUYỀN ĐỌC được tin nhắn gửi tới đúng
+ * một chat Telegram của chủ hệ thống (TELEGRAM_CHAT_ID cố định trong .env).
+ * Người lạ bấm nút này chỉ làm máy Boss kêu một tiếng, họ không đọc được mã.
+ */
+router.post('/request-otp', otpRequestLimiter, async (req, res) => {
+  try {
+    // Hệ thống một chủ: lấy tài khoản quản trị gần nhất làm danh tính cho phiên.
+    const admin = await Admin.findOne({}).sort({ updatedAt: -1 });
+    if (!admin) {
+      return res.status(503).json({ error: 'Chưa có tài khoản quản trị nào. Chạy: node server/scripts/reset-admin.mjs <tên> <mật-khẩu>' });
+    }
+
+    const { tempToken, delivered, expiresIn } = await issueAdminOtp(admin);
+    res.json({
+      success: true,
+      tempToken,
+      telegramDelivered: delivered,
+      expiresIn,
+      message: delivered
+        ? 'Đã gửi mã 6 chữ số tới Telegram của Boss — dùng trong 30 giây.'
+        : 'Không gửi được qua Telegram (bot chưa cấu hình hoặc lỗi mạng). Xem mã trong log máy chủ.',
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -63,8 +147,19 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
     let matchingAdmin = null;
 
     if (username && typeof username === 'string') {
-      const cleanUser = username.trim().toLowerCase();
-      const adminCandidate = await Admin.findOne({ username: cleanUser });
+      // Bản ghi Admin lưu username dưới dạng BĂM tra cứu SHA-256 (xem phần seed
+      // trong server.js), còn chỗ này lại đi tìm đúng chữ người dùng gõ — nên
+      // findOne luôn trượt và mọi lượt đăng nhập đều trả 401, kể cả khi mật
+      // khẩu đúng. Tìm theo cả ba dạng: băm của chữ gõ nguyên văn, băm của bản
+      // viết thường, và chữ trần cho tài khoản tạo từ trước quy ước băm.
+      const raw = username.trim();
+      const cleanUser = raw.toLowerCase();
+      const lookups = [...new Set([
+        crypto.createHash('sha256').update(raw).digest('hex'),
+        crypto.createHash('sha256').update(cleanUser).digest('hex'),
+        cleanUser,
+      ])];
+      const adminCandidate = await Admin.findOne({ username: { $in: lookups } });
       if (adminCandidate && (await verifyAndUpgrade(adminCandidate, password))) {
         matchingAdmin = adminCandidate;
       }
@@ -83,44 +178,18 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Tên đăng nhập hoặc mật khẩu không đúng' });
     }
 
-    // ─── 2FA TELEGRAM OTP REQUIREMENT ─────────────────────────────────────────────
-    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
-    const tempToken = crypto.randomBytes(24).toString('hex');
-    const expiresAt = Date.now() + 5 * 60 * 1000; // 5-minute TTL
-
-    if (!global.ADMIN_2FA_OTPS) global.ADMIN_2FA_OTPS = new Map();
-    global.ADMIN_2FA_OTPS.set(tempToken, {
-      adminId: matchingAdmin._id,
-      adminUsername: matchingAdmin.username || 'admin',
-      otpCode,
-      expiresAt,
-    });
-
-    // Send 4-digit OTP directly to Boss's Telegram phone app
-    const { sendTelegramAlert } = await import('../services/telegramService.js');
-    const otpHtml = `
-🔑 <b>[HUGO ADMIN 2FA OTP]</b>
-
-Mã OTP đăng nhập Admin Dashboard của bạn là: <b>${otpCode}</b>
-
-⏱️ <i>Mã này có hiệu lực trong vòng 5 phút. Vui lòng không chia sẻ mã cho bất kỳ ai.</i>
-    `.trim();
-
-    // ponytail: không nuốt lỗi — Telegram hỏng mà vẫn báo "đã gửi" thì Boss ngồi
-    // chờ mã không bao giờ tới. Mã vẫn nằm trong log server để cứu hộ.
-    const sent = await sendTelegramAlert(otpHtml).catch((e) => ({ success: false, error: e.message }));
-    if (!sent.success || sent.simulated) {
-      console.warn(`⚠️ Admin 2FA OTP không gửi được qua Telegram (${sent.error || 'chưa cấu hình TELEGRAM_BOT_TOKEN/CHAT_ID trong server/.env'}). Mã: ${otpCode}`);
-    }
-
+    // Đường mật khẩu vẫn giữ làm lối vào dự phòng khi Telegram hỏng, nhưng nó
+    // cũng phải qua đúng một cửa OTP như nút "Gửi mã" ở trang đăng nhập.
+    const { tempToken, delivered, expiresIn } = await issueAdminOtp(matchingAdmin);
     return res.json({
       success: true,
       requireOtp: true,
       tempToken,
-      telegramDelivered: Boolean(sent.success && !sent.simulated),
-      message: sent.success && !sent.simulated
-        ? 'Mã OTP 4 chữ số đã được gửi tới Telegram của Boss. Vui lòng nhập mã để hoàn tất đăng nhập.'
-        : 'Không gửi được OTP qua Telegram (bot chưa cấu hình hoặc lỗi mạng). Xem mã trong log server.',
+      telegramDelivered: delivered,
+      expiresIn,
+      message: delivered
+        ? 'Đã gửi mã 6 chữ số tới Telegram của Boss — dùng trong 30 giây.'
+        : 'Không gửi được OTP qua Telegram. Xem mã trong log máy chủ.',
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -132,21 +201,28 @@ router.post('/verify-otp', async (req, res) => {
   try {
     const { tempToken, otpCode } = req.body;
     if (!tempToken || !otpCode) {
-      return res.status(400).json({ error: 'Vui lòng cung cấp mã OTP 4 chữ số.' });
+      return res.status(400).json({ error: 'Vui lòng cung cấp mã OTP 6 chữ số.' });
     }
 
     if (!global.ADMIN_2FA_OTPS || !global.ADMIN_2FA_OTPS.has(tempToken)) {
-      return res.status(400).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng quay lại nhập mật khẩu.' });
+      return res.status(400).json({ error: 'Phiên đăng nhập đã hết hạn. Hãy yêu cầu mã OTP mới.' });
     }
 
     const record = global.ADMIN_2FA_OTPS.get(tempToken);
     if (Date.now() > record.expiresAt) {
       global.ADMIN_2FA_OTPS.delete(tempToken);
-      return res.status(400).json({ error: 'Mã OTP đã hết hạn (quá 5 phút). Vui lòng thử lại.' });
+      return res.status(400).json({ error: 'Mã OTP đã hết hạn (quá 30 giây). Hãy bấm gửi lại mã.' });
     }
 
     if (String(otpCode).trim() !== String(record.otpCode)) {
-      return res.status(401).json({ error: 'Mã OTP không chính xác. Vui lòng kiểm tra lại Telegram.' });
+      // OTP giờ là lớp bảo vệ duy nhất, nên phải có trần số lần đoán: không có
+      // nó thì 5 phút đủ để thử hết mọi mã 6 chữ số bằng script.
+      record.attempts = (record.attempts || 0) + 1;
+      if (record.attempts >= 5) {
+        global.ADMIN_2FA_OTPS.delete(tempToken);
+        return res.status(429).json({ error: 'Sai mã 5 lần. Mã đã bị huỷ — hãy yêu cầu mã mới.' });
+      }
+      return res.status(401).json({ error: `Mã OTP không chính xác (còn ${5 - record.attempts} lần thử).` });
     }
 
     // OTP Verified successfully -> Issue 14-day Admin JWT
@@ -1689,6 +1765,82 @@ router.post('/ai-support/mark-read', requireAdmin, async (req, res) => {
     res.json({ success: true, message: 'Đã đánh dấu đã đọc báo cáo AI thành công' });
   } catch (err) {
     console.error('Error marking AI briefing read:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── BOT SECURITY SENTINEL TELEMETRY ROUTES ──────────────────────────────────
+router.get('/security/sentinel-summary', requireAdmin, async (req, res) => {
+  try {
+    const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+    const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+    const SecurityEvent = (await import('../models/SecurityEvent.js')).default;
+
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const [pendingCount, activeBlocksCount, events24hCount, pendingModerations, activeBlocks, recentEvents] = await Promise.all([
+      SecurityModeration.countDocuments({ status: 'pending' }),
+      SecurityBlock.countDocuments(),
+      SecurityEvent.countDocuments({ createdAt: { $gte: since24h } }),
+      SecurityModeration.find({ status: 'pending' }).sort({ createdAt: -1 }).limit(20).lean(),
+      SecurityBlock.find().sort({ createdAt: -1 }).limit(50).lean(),
+      SecurityEvent.find().sort({ createdAt: -1 }).limit(30).lean(),
+    ]);
+
+    res.json({
+      success: true,
+      pendingCount,
+      activeBlocksCount,
+      events24hCount,
+      pendingModerations,
+      activeBlocks,
+      recentEvents,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/security/resolve-moderation', requireAdmin, async (req, res) => {
+  try {
+    const { caseId, action } = req.body || {};
+    if (!caseId || !['approve', 'dismiss'].includes(action)) {
+      return res.status(400).json({ error: 'Yêu cầu không hợp lệ' });
+    }
+
+    const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+    const mod = await SecurityModeration.findOne({ caseId });
+    if (!mod) return res.status(404).json({ error: 'Không tìm thấy yêu cầu' });
+
+    if (action === 'approve') {
+      const { applyActorBlock } = await import('../services/securityEnforcement.js');
+      await applyActorBlock({ ip: mod.ip, email: mod.email, phone: mod.phone, caseId: mod.caseId, reasonCode: mod.category });
+      mod.status = 'approved';
+    } else {
+      mod.status = 'dismissed';
+    }
+    mod.decidedBy = req.admin?.username || 'Admin_Panel';
+    mod.decidedAt = new Date();
+    await mod.save();
+
+    res.json({ success: true, message: action === 'approve' ? 'Đã thực thi khóa 24h' : 'Đã bỏ qua ca vi phạm' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/security/unblock-actor', requireAdmin, async (req, res) => {
+  try {
+    const { blockId, actorKey } = req.body || {};
+    const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+
+    let query = {};
+    if (blockId) query = { _id: blockId };
+    else if (actorKey) query = { actorKey };
+    else return res.status(400).json({ error: 'Thiếu thông tin unblock' });
+
+    const deleted = await SecurityBlock.deleteMany(query);
+    res.json({ success: true, deletedCount: deleted.deletedCount, message: 'Đã giải khóa thành công' });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

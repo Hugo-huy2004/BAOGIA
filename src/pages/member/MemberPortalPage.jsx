@@ -15,6 +15,8 @@ import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
 import { useLocationGuard } from "../../hooks/useLocationGuard";
 import LocationAnomalyDialog from "../../components/member/LocationAnomalyDialog";
+import IdentityCheckDialog from "../../components/member/IdentityCheckDialog";
+import { useIdentityCheck } from "../../hooks/useIdentityCheck";
 import WeatherAlertWatcher from "../../components/weather/WeatherAlertWatcher";
 import WeatherLayer from "../../components/weather/WeatherLayer";
 import { isWeatherBgEnabled } from "../../utils/weatherPrefs";
@@ -306,6 +308,7 @@ function MemberPortalPage() {
   // HugoPSY > Sleep sub-tab, which nobody does while actually asleep.
   const [pendingSleepCycle, setPendingSleepCycle] = useState(null);
   const [locationAnomaly, setLocationAnomaly] = useState(null);
+  const [identityChallenge, setIdentityChallenge] = useIdentityCheck({ email: memberSession?.email });
   const handleSleepAutoDetect = React.useCallback((cycle) => {
     setPendingSleepCycle(cycle);
     showToast(t("memberPortal.toast.sleepDetected"), "success");
@@ -1165,6 +1168,16 @@ function MemberPortalPage() {
         <TourSystem />
 
       </div>
+
+    {identityChallenge && (
+      <IdentityCheckDialog
+        field={identityChallenge.field}
+        attemptsLeft={identityChallenge.attemptsLeft}
+        emailHint={identityChallenge.emailHint}
+        onPassed={() => setIdentityChallenge(null)}
+        onBlocked={() => window.location.reload()}
+      />
+    )}
 
     {locationAnomaly && (
       <LocationAnomalyDialog

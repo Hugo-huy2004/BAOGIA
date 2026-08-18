@@ -185,6 +185,30 @@ export const loginDevLocal = async (email = 'dev.member@hugowishpax.studio', nam
 
 // Returns { session, error } instead of throwing/null so the caller can show
 // a specific message (wrong credentials vs. network/server failure).
+/**
+ * Xin mã OTP đăng nhập quản trị (không cần mật khẩu).
+ *
+ * Yếu tố xác thực là quyền đọc Telegram của chủ hệ thống: người lạ bấm nút này
+ * chỉ làm máy chủ gửi một tin nhắn cho Boss, họ không đọc được mã.
+ */
+export const requestAdminOtp = async () => {
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+    const response = await fetch(`${API_BASE_URL}/admin/request-otp`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.tempToken) {
+      return { tempToken: null, error: data.error || 'request_failed' };
+    }
+    return { tempToken: data.tempToken, telegramDelivered: data.telegramDelivered, message: data.message, expiresIn: data.expiresIn };
+  } catch {
+    return { tempToken: null, error: 'network' };
+  }
+};
+
 export const loginAdmin = async (credentials, { remember = true } = {}) => {
   try {
     const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';

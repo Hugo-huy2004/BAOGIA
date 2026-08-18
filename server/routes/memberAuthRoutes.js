@@ -95,9 +95,6 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
   }
 });
 
-// ─── Magic Link OTP Store (Single Use, 10-minute expiry) ──────────────────────
-const otpStore = new Map();
-
 // POST /api/auth/member/request-otp  { email }
 router.post('/request-otp', googleLoginLimiter, async (req, res) => {
   try {
@@ -106,14 +103,8 @@ router.post('/request-otp', googleLoginLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Vui lòng nhập địa chỉ email.' });
     }
     const cleanEmail = email.trim().toLowerCase();
-    const cryptoMod = await import('crypto');
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const codeHash = cryptoMod.createHash('sha256').update(code).digest('hex');
-
-    otpStore.set(cleanEmail, {
-      codeHash,
-      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-    });
+    const { issueEmailOtp } = await import('../utils/emailOtp.js');
+    const code = issueEmailOtp(cleanEmail, 'login');
 
     const { sendMagicLinkOtp } = await import('../services/emailService.js');
     await sendMagicLinkOtp(cleanEmail, code);
@@ -133,22 +124,16 @@ router.post('/verify-otp', googleLoginLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Thiếu email hoặc mã OTP.' });
     }
     const cleanEmail = String(email).trim().toLowerCase();
-    const entry = otpStore.get(cleanEmail);
+    const { verifyEmailOtp } = await import('../utils/emailOtp.js');
+    const check = verifyEmailOtp(cleanEmail, code, 'login');
 
-    if (!entry || Date.now() > entry.expiresAt) {
-      otpStore.delete(cleanEmail);
-      return res.status(401).json({ error: 'Mã OTP không hợp lệ hoặc đã hết hạn (10 phút).' });
+    if (!check.ok) {
+      return res.status(401).json({
+        error: check.reason === 'expired'
+          ? 'Mã OTP không hợp lệ hoặc đã hết hạn (10 phút).'
+          : 'Mã OTP không chính xác.',
+      });
     }
-
-    const cryptoMod = await import('crypto');
-    const inputHash = cryptoMod.createHash('sha256').update(String(code).trim()).digest('hex');
-
-    if (inputHash !== entry.codeHash) {
-      return res.status(401).json({ error: 'Mã OTP không chính xác.' });
-    }
-
-    // Single-use: delete immediately upon verification
-    otpStore.delete(cleanEmail);
 
     const securityBlock = await findActiveSecurityBlock({ email: cleanEmail });
     if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);

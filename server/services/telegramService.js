@@ -4,6 +4,32 @@
  * hoặc ticket bực tức 🤬 / nghi vấn gian lận.
  */
 
+/**
+ * Gửi 1 lần. Trả { ok, description } để nơi gọi tự quyết định có thử lại không.
+ */
+async function postMessage(token, payload) {
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return response.json();
+}
+
+/**
+ * Telegram chỉ nhận một nhúm thẻ HTML. Câu trả lời do AI sinh ra rất hay lọt
+ * <h3>, <ul> hay một thẻ mở chưa đóng — Telegram trả "can't parse entities" và
+ * VỨT NGUYÊN CẢ TIN. Với con bot trò chuyện thì đó là im lặng không lời giải
+ * thích, tệ hơn nhiều so với một tin mất định dạng. Nên: hỏng cú pháp thì gửi
+ * lại dạng chữ trơn.
+ */
+function stripHtml(text) {
+  return String(text)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+}
+
 export async function sendTelegramAlert(message, parseMode = 'HTML', replyMarkup = null) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -14,7 +40,6 @@ export async function sendTelegramAlert(message, parseMode = 'HTML', replyMarkup
   }
 
   try {
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const payload = {
       chat_id: chatId,
       text: message,
@@ -25,13 +50,10 @@ export async function sendTelegramAlert(message, parseMode = 'HTML', replyMarkup
       payload.reply_markup = replyMarkup;
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
+    let data = await postMessage(token, payload);
+    if (!data.ok && /parse|entit|tag/i.test(data.description || '')) {
+      data = await postMessage(token, { ...payload, text: stripHtml(message), parse_mode: undefined });
+    }
     if (!data.ok) {
       console.warn('⚠️ Telegram Bot API returned error:', data.description);
       return { success: false, error: data.description };
@@ -55,7 +77,6 @@ export async function sendTelegramMessage(targetChatId, message, parseMode = 'HT
   }
 
   try {
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const payload = {
       chat_id: destChatId,
       text: message,
@@ -66,13 +87,10 @@ export async function sendTelegramMessage(targetChatId, message, parseMode = 'HT
       payload.reply_markup = replyMarkup;
     }
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
+    let data = await postMessage(token, payload);
+    if (!data.ok && /parse|entit|tag/i.test(data.description || '')) {
+      data = await postMessage(token, { ...payload, text: stripHtml(message), parse_mode: undefined });
+    }
     if (!data.ok) {
       console.warn('⚠️ Telegram Bot API returned error:', data.description);
       return { success: false, error: data.description };

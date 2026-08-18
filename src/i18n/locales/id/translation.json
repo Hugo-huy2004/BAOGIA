@@ -2558,6 +2558,28 @@
       "chartLoading": "Memuat grafik…",
       "chartCollecting": "Mengumpulkan data — satu titik per jam, garis muncul dalam beberapa jam.",
       "chartFailed": "Grafik tidak tersedia."
+    },
+    "identityCheck": {
+      "title": "Pemeriksaan identitas berkala",
+      "ask": {
+        "phone": "Demi keamanan akun, masukkan kembali nomor telepon yang Anda daftarkan.",
+        "birthday": "Demi keamanan akun, masukkan kembali tanggal lahir Anda.",
+        "email": "Kami baru mengirim kode 6 digit ke {{email}}. Masukkan kode tersebut untuk memastikan email ini milik Anda."
+      },
+      "placeholder": {
+        "phone": "Nomor telepon terdaftar",
+        "birthday": "Tanggal lahir (mis. 20/09/2008)",
+        "email": "Kode 6 digit dari email"
+      },
+      "submit": "Konfirmasi",
+      "passed": "Terverifikasi. Terima kasih!",
+      "wrongAnswer": "Data tidak cocok dengan profil Anda.",
+      "attemptsLeft_one": "Anda punya {{count}} kesempatan lagi.",
+      "attemptsLeft_other": "Anda punya {{count}} kesempatan lagi.",
+      "lastChance": "Satu kesalahan lagi dan akun Anda akan dikunci.",
+      "networkError": "Jawaban gagal dikirim. Periksa koneksi lalu coba lagi.",
+      "otpSendFailed": "Kode verifikasi gagal dikirim. Coba lagi nanti.",
+      "warning": "Memberikan informasi palsu akan mengunci akun Anda. Untuk mengajukan banding, kirim email dengan alasan yang jelas; admin berhak meminta dokumen untuk verifikasi."
     }
   },
   "memberTabs": {
@@ -5917,18 +5939,12 @@
     "adminForm": {
       "title": "Login Admin",
       "desc": "Masukkan kredensial pengembang.",
-      "userLabel": "Nama Pengguna",
-      "userPlaceholder": "Silakan masukkan nama pengguna Anda...",
-      "userRequired": "Silakan masukkan username Anda",
-      "passLabel": "Kata Sandi",
-      "passPlaceholder": "••••••••",
-      "passRequired": "Masukkan kata sandi Anda",
-      "showPassword": "Tampilkan kata sandi",
-      "hidePassword": "Sembunyikan kata sandi",
       "remember": "Ingat saya di perangkat ini",
-      "btn": "Masuk",
-      "submitting": "Masuk...",
-      "https": "Penyinkapan melalui HTTPS yang aman"
+      "https": "Penyinkapan melalui HTTPS yang aman",
+      "otpBtn": "Kirim OTP lewat Telegram",
+      "otpSending": "Mengirim kode…",
+      "otpSent": "Kode terkirim ke Telegram pemilik.",
+      "otpDesc": "Tanpa kata sandi. Tekan tombol di bawah dan bot Telegram mengirim kode 6 digit ke ponsel pemilik — berlaku 30 detik."
     }
   },
   "customerPortal": {

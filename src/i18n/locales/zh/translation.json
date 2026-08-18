@@ -2558,6 +2558,28 @@
       "chartLoading": "正在加载图表…",
       "chartCollecting": "正在收集数据 —— 每小时一个点，几小时后曲线就会出现。",
       "chartFailed": "暂时无法加载图表。"
+    },
+    "identityCheck": {
+      "title": "定期身份核验",
+      "ask": {
+        "phone": "为保护您的账户，请再次输入您注册时填写的手机号码。",
+        "birthday": "为保护您的账户，请再次输入您的出生年月日。",
+        "email": "我们已向 {{email}} 发送 6 位验证码。请输入验证码，确认该邮箱属于您本人。"
+      },
+      "placeholder": {
+        "phone": "注册手机号码",
+        "birthday": "出生日期（例：20/09/2008）",
+        "email": "邮件中的 6 位验证码"
+      },
+      "submit": "确认",
+      "passed": "核验通过，谢谢！",
+      "wrongAnswer": "与您的资料不一致。",
+      "attemptsLeft_one": "您还有 {{count}} 次机会。",
+      "attemptsLeft_other": "您还有 {{count}} 次机会。",
+      "lastChance": "再错一次，账户将被锁定。",
+      "networkError": "提交失败。请检查网络后重试。",
+      "otpSendFailed": "验证码发送失败，请稍后再试。",
+      "warning": "填报虚假信息将导致账户被锁定。如需解锁，请发送邮件并说明原因；管理员有权要求提供证件以核实身份。"
     }
   },
   "memberTabs": {
@@ -5917,18 +5939,12 @@
     "adminForm": {
       "title": "管理员登录",
       "desc": "输入开发者凭证",
-      "userLabel": "用户名",
-      "userPlaceholder": "请输入您的用户名",
-      "userRequired": "••••••••",
-      "passLabel": "密码",
-      "passPlaceholder": "••••••••",
-      "passRequired": "请输入您的密码",
-      "showPassword": "显示密码",
-      "hidePassword": "隐藏密码",
       "remember": "记住本设备上的登录信息",
-      "btn": "登录",
-      "submitting": "正在登录...",
-      "https": "通过HTTPS进行安全同步"
+      "https": "通过HTTPS进行安全同步",
+      "otpBtn": "通过 Telegram 发送验证码",
+      "otpSending": "正在发送…",
+      "otpSent": "验证码已发送到管理员的 Telegram。",
+      "otpDesc": "无需密码。点击下方按钮，Telegram 机器人会发送 6 位验证码到管理员手机 — 有效期 30 秒。"
     }
   },
   "customerPortal": {

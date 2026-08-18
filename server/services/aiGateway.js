@@ -25,12 +25,26 @@ const KEYS = () => {
 
 let currentKeyIndex = 0;
 
+// Khóa bị Google từ chối ("API key not valid") — loại khỏi vòng xoay cho tới
+// lần khởi động sau. Trước đây một khóa chết trong pool 3 khóa làm HỎNG 1/3 số
+// lần gọi AI của TOÀN hệ thống: 400 không được thử lại, hàm trả null, và mỗi
+// nơi gọi lại rơi vào câu trả lời dự phòng của mình — nhìn từ ngoài y như "AI
+// lúc hiểu lúc không".
+const deadKeys = new Set();
+
 function getNextKey() {
-  const pool = KEYS();
+  const pool = KEYS().filter((k) => !deadKeys.has(k));
   if (pool.length === 0) return null;
   const key = pool[currentKeyIndex % pool.length];
   currentKeyIndex++;
   return key;
+}
+
+function markKeyDead(key, reason) {
+  if (!key || deadKeys.has(key)) return;
+  deadKeys.add(key);
+  const live = KEYS().filter((k) => !deadKeys.has(k)).length;
+  console.error(`❌ Gemini: loại 1 khóa hỏng (${reason}). Còn ${live}/${KEYS().length} khóa dùng được — sửa GEMINI_API_KEY* trong server/.env.`);
 }
 
 const GEN_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -132,6 +146,13 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
       } catch (e) {
         lastErr = e; consecFailures++;
         console.warn(`[AI Gateway] Model ${currentModel} failed with key (Status ${e.status}).`);
+        // Khóa hỏng thì lỗi nằm ở KHÓA, không phải ở câu hỏi — đổi khóa rồi thử
+        // lại ngay, đừng bỏ cuộc và trả null.
+        if (e.status === 400 && /API key not valid|API_KEY_INVALID/i.test(e.body || '')) {
+          markKeyDead(key, 'API key not valid');
+          if (KEYS().some((k) => !deadKeys.has(k))) { attempt--; continue; }
+          return null;
+        }
         const isRetryable = e.status === 429 || e.status >= 500;
         if (!isRetryable) {
           return null; // Don't retry client errors like 400 Bad Request

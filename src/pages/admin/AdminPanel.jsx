@@ -21,6 +21,7 @@ import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminBrainTab from "../../components/admin/AdminBrainTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
+import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 
 function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
@@ -500,6 +501,17 @@ export default function AdminPanel() {
 
         {/* ── CORE HUB: ADMIN BỘ NÃO MÁY TÍNH AI ── */}
         {activeTab === "brain" && <AdminBrainTab />}
+
+        {/* ── CORE HUB: BOT SECURITY SENTINEL TELEMETRY ── */}
+        {activeTab === "sentinel" && (
+          <AdminSecuritySentinelTab
+            token={adminToken}
+            onShowToast={(msg) => {
+              setToastState({ open: true, type: "success", message: msg });
+              setTimeout(() => setToastState(prev => ({ ...prev, open: false })), 4000);
+            }}
+          />
+        )}
 
         {/* ── CORE HUB: NHẬT KÝ KIỂM TOÁN TỰ ĐỘNG ── */}
         {activeTab === "audit" && <AdminAuditLogTab />}

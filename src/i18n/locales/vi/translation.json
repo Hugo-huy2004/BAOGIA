@@ -1563,18 +1563,12 @@
     "adminForm": {
       "title": "Đăng nhập Quản trị",
       "desc": "Nhập thông tin xác thực nhà phát triển",
-      "userLabel": "Tên đăng nhập",
-      "userPlaceholder": "Nhập tên đăng nhập...",
-      "userRequired": "Vui lòng nhập tên đăng nhập",
-      "passLabel": "Mật khẩu",
-      "passPlaceholder": "••••••••",
-      "passRequired": "Vui lòng nhập mật khẩu",
-      "showPassword": "Hiện mật khẩu",
-      "hidePassword": "Ẩn mật khẩu",
       "remember": "Ghi nhớ đăng nhập trên thiết bị này",
-      "btn": "Đăng Nhập",
-      "submitting": "Đang đăng nhập...",
-      "https": "Đồng bộ an toàn qua HTTPS"
+      "https": "Đồng bộ an toàn qua HTTPS",
+      "otpBtn": "Gửi mã OTP qua Telegram",
+      "otpSending": "Đang gửi mã…",
+      "otpSent": "Đã gửi mã tới Telegram của Boss.",
+      "otpDesc": "Không cần mật khẩu. Bấm nút bên dưới, bot Telegram gửi mã 6 chữ số về máy Boss — mã sống 30 giây."
     }
   },
   "customerPortal": {
@@ -3927,6 +3921,28 @@
       "chartLoading": "Đang tải biểu đồ…",
       "chartCollecting": "Đang thu thập dữ liệu — mỗi giờ một điểm, đường sẽ hiện ra sau vài giờ.",
       "chartFailed": "Chưa tải được biểu đồ."
+    },
+    "identityCheck": {
+      "title": "Kiểm tra thông tin định kỳ",
+      "ask": {
+        "phone": "Để bảo vệ tài khoản, vui lòng nhập lại số điện thoại bạn đã đăng ký.",
+        "birthday": "Để bảo vệ tài khoản, vui lòng nhập lại ngày/tháng/năm sinh của bạn.",
+        "email": "Chúng tôi vừa gửi mã xác minh 6 số tới {{email}}. Vui lòng nhập mã để xác nhận hòm thư là của bạn."
+      },
+      "placeholder": {
+        "phone": "Số điện thoại đã đăng ký",
+        "birthday": "Ngày/Tháng/Năm sinh (vd: 20/09/2008)",
+        "email": "Mã 6 số trong email"
+      },
+      "submit": "Xác nhận",
+      "passed": "Đã xác minh. Cảm ơn bạn!",
+      "wrongAnswer": "Thông tin không khớp với hồ sơ.",
+      "attemptsLeft_one": "Bạn còn {{count}} lần thử.",
+      "attemptsLeft_other": "Bạn còn {{count}} lần thử.",
+      "lastChance": "Sai thêm một lần nữa, tài khoản sẽ bị khoá.",
+      "networkError": "Không gửi được câu trả lời. Kiểm tra kết nối rồi thử lại.",
+      "otpSendFailed": "Không gửi được mã xác minh. Vui lòng thử lại sau.",
+      "warning": "Khai báo thông tin không đúng sự thật sẽ bị khoá tài khoản. Muốn mở khoá, hãy gửi email nêu rõ lý do; quản trị viên có quyền yêu cầu giấy tờ để xác minh."
     }
   },
   "memberTabs": {

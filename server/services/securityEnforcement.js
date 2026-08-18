@@ -141,18 +141,28 @@ async function applySubjectBlock(type, value, { caseId, reasonCode, permanent = 
   if (!hash) return null;
   const key = actorKey(type, hash);
   const expiresAt = new Date(Date.now() + BLOCK_MS);
-  const update = {
-    $set: {
-      subjectType: type,
-      subjectHash: hash,
-      reasonCode,
-      lastCaseId: caseId,
-      lastLockedAt: new Date(),
-      ...(permanent ? { permanent: true, expiresAt: null } : { expiresAt }),
-    },
-    $setOnInsert: { actorKey: key, permanent: false, lockCount: 0 },
-    ...(countLock ? { $inc: { lockCount: 1 } } : {}),
+  const $set = {
+    subjectType: type,
+    subjectHash: hash,
+    reasonCode,
+    lastCaseId: caseId,
+    lastLockedAt: new Date(),
+    ...(permanent ? { permanent: true, expiresAt: null } : { expiresAt }),
   };
+  const $inc = countLock ? { lockCount: 1 } : null;
+
+  // MongoDB từ chối NGUYÊN CẢ LỆNH nếu một trường xuất hiện ở hai toán tử
+  // ("would create a conflict at '<field>'"). Giá trị mồi lúc chèn mới chỉ có
+  // nghĩa với trường mà $set/$inc không đụng tới, nên lọc ở đây một lần thay vì
+  // mỗi lần thêm trường lại phải nhớ luật này — đã trượt hai lần với
+  // `lockCount` (khoá tài khoản) và `permanent` (khoá vĩnh viễn), cả hai đều
+  // ném lỗi thay vì khoá, và lỗi ẩn được lâu vì khoá theo IP không dùng $inc.
+  const defaults = { actorKey: key, permanent: false, lockCount: 0 };
+  const $setOnInsert = Object.fromEntries(
+    Object.entries(defaults).filter(([field]) => !(field in $set) && !(field in ($inc || {}))),
+  );
+
+  const update = { $set, $setOnInsert, ...($inc ? { $inc } : {}) };
   let block = await SecurityBlock.findOneAndUpdate({ actorKey: key }, update, { upsert: true, new: true });
 
   // Only accounts escalate after two distinct lock decisions. IPs remain a
@@ -221,23 +231,59 @@ export async function recordSecurityViolation({
   const ipHash = securityHash('ip', ip);
   const emailHash = securityHash('email', email);
   const phoneHash = securityHash('phone', phone);
-  let shouldBlock = enforcement === 'immediate';
-
-  if (enforcement === 'threshold') {
-    const since = new Date(Date.now() - CONTENT_STRIKE_WINDOW_MS);
-    const subjectMatch = emailHash ? { emailHash } : { ipHash };
-    const prior = await SecurityEvent.countDocuments({
-      ...subjectMatch,
-      category,
-      action: 'rejected',
-      createdAt: { $gte: since },
-    });
-    shouldBlock = prior >= 1;
-  }
+  // 'identity_fraud': trượt đợt kiểm tra thông tin định kỳ. Khoá thẳng chứ
+  // không đưa vào hàng chờ duyệt — thông tin khai man là thứ chỉ chính chủ mới
+  // đính chính được, và đường kháng nghị qua email đã nằm sẵn trong màn khoá.
+  const isEmergency = severity === 'critical' && ['intrusion', 'violent_facilitation', 'identity_fraud'].includes(category);
+  let shouldBlock = isEmergency && enforcement === 'immediate';
 
   let block = null;
   if (shouldBlock) {
     block = await applyActorBlock({ ip, email, phone, caseId, reasonCode: category });
+  } else {
+    // Normal / Suspicious case -> Create SecurityModeration request and send Telegram Moderation Card to Boss
+    try {
+      const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+      await SecurityModeration.create({
+        caseId,
+        subjectType: email ? 'email' : 'ip',
+        subjectValue: email || ip,
+        ip,
+        email,
+        phone,
+        category,
+        severity,
+        ruleId,
+        evidence: String(evidence || '').slice(0, 1000),
+        path: compactPath(req?.originalUrl),
+        status: 'pending',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      });
+
+      import('./telegramService.js').then(({ sendTelegramAlert }) => {
+        const modMsg = `
+🛡️ <b>[BOT SECURITY: BÁO CÁO VI PHẠM KHẢ NGHI]</b>
+
+📌 <b>Case ID:</b> <code>${caseId}</code>
+👤 <b>Đối tượng:</b> <code>${email || ip}</code>
+🌐 <b>IP Address:</b> <code>${ip}</code>
+⚠️ <b>Hành vi:</b> <code>${category} (${ruleId})</code>
+📍 <b>Đường dẫn:</b> <code>${compactPath(req?.originalUrl)}</code>
+💡 <b>Đánh giá BOT Security:</b> Vi phạm mức độ <b>${severity.toUpperCase()}</b>. Đã giữ nguyên truy cập, chờ chỉ thị của Boss:
+        `.trim();
+        const inlineButtons = {
+          inline_keyboard: [
+            [
+              { text: '🚫 Đồng Ý Khóa 24h', callback_data: `cb_sec_approve:${caseId}` },
+              { text: '🟢 Bỏ Qua & Cho Phép', callback_data: `cb_sec_dismiss:${caseId}` }
+            ]
+          ]
+        };
+        sendTelegramAlert(modMsg, 'HTML', inlineButtons).catch(() => {});
+      }).catch(() => {});
+    } catch (e) {
+      console.error('[BOT Security Moderation Error]', e.message);
+    }
   }
 
   const action = block?.permanent
@@ -259,6 +305,27 @@ export async function recordSecurityViolation({
     phoneHash,
     evidenceHash: evidenceDigest(evidence),
   });
+
+  if (shouldBlock && block) {
+    import('./telegramService.js').then(({ sendTelegramAlert }) => {
+      const alertMsg = `
+🚨 <b>[BOT SECURITY: NGUY CẤP - ĐÃ KHÓA KHẨN CẤP]</b>
+⚠️ <b>Case ID:</b> <code>${caseId}</code>
+📌 <b>Lý do:</b> <code>${category} (${ruleId})</code>
+🌐 <b>IP Address:</b> <code>${ip}</code>
+📍 <b>Đường dẫn:</b> <code>${compactPath(req?.originalUrl)}</code>
+💡 <i>Nếu đây là thao tác của Boss hoặc nhầm lẫn, hãy nhấn nút dưới đây để giải khóa ngay 1-Click:</i>
+      `.trim();
+      const inlineButtons = {
+        inline_keyboard: [
+          [
+            { text: `🔓 1-Click Giải Khóa IP (${ip})`, callback_data: `cb_unblock_ip:${ipHash}` }
+          ]
+        ]
+      };
+      sendTelegramAlert(alertMsg, 'HTML', inlineButtons).catch(() => {});
+    }).catch(() => {});
+  }
 
   sendAlert('Security policy enforcement', {
     source: 'security',
@@ -395,8 +462,37 @@ export function assessHugoPsyContent(text) {
   return null;
 }
 
+// Webhook máy-với-máy: mỗi cái có cách tự xác thực riêng (Telegram gửi kèm
+// secret token, PayOS ký checksum) và IP gọi tới là hạ tầng dùng chung của họ.
+// Body ở đây là TIN NHẮN được chuyển tiếp, không phải tham số API — quét thấy
+// chữ "tăng joy" trong tin của Boss rồi khoá IP là khoá luôn máy chủ Telegram,
+// đúng nghĩa tự bắn vào chân: bot câm lặng 30 ngày mà không ai hiểu vì sao.
+const MACHINE_WEBHOOK_PATHS = new Set([
+  '/api/telegram/webhook',
+  '/api/payos/webhook',
+]);
+const isMachineWebhook = (req) => MACHINE_WEBHOOK_PATHS.has(req.path);
+
+const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1', 'localhost']);
+const isDevMode = process.env.NODE_ENV !== 'production';
+
+function hasValidUserToken(req) {
+  const authHeader = String(req.headers?.authorization || '');
+  const cookies = req.cookies || {};
+  return Boolean(
+    (authHeader.startsWith('Bearer ') && authHeader.length > 15) ||
+    cookies.hugo_member_token ||
+    cookies.hugo_admin_token
+  );
+}
+
 export async function securityIpGate(req, res, next) {
   try {
+    if (isMachineWebhook(req) || hasValidUserToken(req)) return next();
+    const ip = String(req.ip || '').replace(/^::ffff:/, '');
+    if (isDevMode || LOCALHOST_IPS.has(ip) || ip.startsWith('192.168.') || ip.startsWith('10.') || /^172\.(1[6-9]|2\d|3[01])\./.test(ip)) {
+      return next();
+    }
     const block = await findActiveSecurityBlock({ ip: req.ip });
     if (block) return sendSecurityBlockResponse(res, block);
   } catch (error) {
@@ -405,16 +501,22 @@ export async function securityIpGate(req, res, next) {
   return next();
 }
 
+const BOT_PROBE_REGEX = /^\/(\.git|\.env|wp-admin|phpmyadmin|admin\.php|\.well-known\/.*\.php|actuator|console|config\.json|xmlrpc\.php)/i;
+
 export async function requestThreatGuard(req, res, next) {
   try {
+    const pathOnly = String(req.originalUrl || '').split('?')[0];
+    if (BOT_PROBE_REGEX.test(pathOnly)) {
+      return res.status(404).send('Not Found');
+    }
+
+    if (isMachineWebhook(req) || hasValidUserToken(req)) return next();
     const threat = assessRequestThreat(req);
     if (!threat) return next();
-    const result = await recordSecurityViolation({ req, ...threat, enforcement: 'immediate' });
-    return sendSecurityBlockResponse(res, result.block || {
-      reasonCode: threat.category,
-      lastCaseId: result.caseId,
-      expiresAt: new Date(Date.now() + BLOCK_MS),
-    });
+
+    // In Zero Auto-Block Mode: record moderation event and report to Telegram for Boss approval (no auto IP ban)
+    await recordSecurityViolation({ req, ...threat, enforcement: 'threshold' });
+    return next();
   } catch (error) {
     console.error('[request threat guard]', error.message);
     return next();

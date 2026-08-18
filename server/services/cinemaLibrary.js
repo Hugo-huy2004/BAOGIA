@@ -55,9 +55,9 @@ export const PUBLIC_DOMAIN_FILMS = [
   { id: 'TheLittlePrincess1939', category: 'classic' },
   { id: 'royal_wedding', category: 'classic' },
   { id: 'Kilimanjaro', category: 'classic' },
-  { id: 'TheOutlaw1943Colorized', category: 'classic' },
-  { id: 'MeetJohnDoe1941', category: 'classic' },
-  { id: 'PennySerenade1941', category: 'classic' },
+  { id: 'the-outlaw-1943-western-old-movie', category: 'classic' },
+  { id: 'meet_john_doe', category: 'classic' },
+  { id: 'penny_serenade', category: 'classic' },
   { id: 'MyFavoriteBrunette1947', category: 'classic' },
   // Charade (1963) mất bản quyền vì bản chiếu rạp thiếu ghi chú © — bản 720p màu.
   { id: 'charade-1963-cary-grant-audrey-hepburn-comedy-mystery-romance-thriller-full-movie', category: 'classic' },
@@ -83,19 +83,18 @@ export const PUBLIC_DOMAIN_FILMS = [
   { id: 'LastWonanOnEarthColor', category: 'scifi' },
   { id: 'SantaClausConquerstheMartians1964', category: 'scifi' },
   { id: 'TheBrainThatWouldNotDie1962', category: 'scifi' },
-  { id: 'FirstSpaceshipOnVenus1960Color', category: 'scifi' },
+  { id: 'FirstSpaceshipOnVenusMPEG', category: 'scifi' },
 
   // ── Hoạt hình kinh điển (Fleischer: Superman & Betty Boop đã hết bản quyền) ──
   { id: 'superman_1941', category: 'cartoon' },
   { id: 'bb_snow_white', category: 'cartoon' },
   { id: 'bb_minnie_the_moocher', category: 'cartoon' },
-  { id: 'felix_the_cat_cartoons', category: 'cartoon' },
-  { id: 'popeye_ali_baba_1937', category: 'cartoon' },
 
   // ── Phim ngắn 3D mở của Blender Foundation (CC-BY 4K/1080p Màu) ──
-  { id: 'BigBuckBunny_124', category: 'shorts' },
+  { id: 'big-buck-bunny-4k', category: 'shorts' },
   { id: 'Sintel', category: 'shorts' },
-  { id: 'ElephantsDream', category: 'shorts' },
+  { id: 'elephants-dream', category: 'shorts' },
+  { id: 'GlassHalf1080p', category: 'shorts' },
   { id: 'Tears-of-Steel', category: 'shorts' },
   { id: 'Sita_Sings_the_Blues', category: 'shorts' },
   { id: 'CosmosLaundromatFirstCycle', category: 'shorts' },
@@ -107,20 +106,17 @@ export const PUBLIC_DOMAIN_FILMS = [
   { id: 'CaminandesLlamigos', category: 'shorts' },
   // Bản 4K (3840×1608) của Blender Studio — phim nét nhất trong kho.
   { id: 'charge-blender-open-movie-1608p', category: 'shorts' },
-  { id: 'spring_open_movie_4k', category: 'shorts' },
-  { id: 'gullivers_travels_1939_color', category: 'cartoon' },
-  { id: 'aladdin_and_his_wonderful_lamp_1939', category: 'cartoon' },
-  { id: 'popeye_meets_sinbad_the_sailor_1936', category: 'cartoon' },
+  { id: 'springblenderopenmoviedownloadlagump3.com', category: 'shorts' },
+  { id: 'GulliversTravels1939_201509', category: 'cartoon' },
+  { id: 'popeye-meets-sinbad', category: 'cartoon' },
 
   // ── Tài liệu: Prelinger Archives & phim NASA ──
   { id: 'Apollo1116mmOnboardFilm', category: 'doc' },
   { id: 'Apollo15And1616mmOnboardFilm', category: 'doc' },
   { id: 'MercurygeminiapolloOverview', category: 'doc' },
   { id: 'DuckandC1951', category: 'doc' },
-  { id: 'isforAto1953', category: 'doc' },
   { id: 'Despotis1946', category: 'doc' },
   { id: 'Operatio1955', category: 'doc' },
-  { id: 'NASA_Apollo_11_Moon_Landing_1969', category: 'doc' },
 ];
 
 /** Fetch JSON có timeout + thử lại: Internet Archive hay treo kết nối lẻ. */

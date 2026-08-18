@@ -2558,6 +2558,28 @@
       "chartLoading": "チャートを読み込み中…",
       "chartCollecting": "データ収集中 — 1 時間に 1 点、数時間で線が現れます。",
       "chartFailed": "チャートを表示できません。"
+    },
+    "identityCheck": {
+      "title": "定期的な本人確認",
+      "ask": {
+        "phone": "アカウント保護のため、登録した電話番号をもう一度入力してください。",
+        "birthday": "アカウント保護のため、生年月日をもう一度入力してください。",
+        "email": "{{email}} に6桁の確認コードを送信しました。このメールがご本人のものであることを確認するため、コードを入力してください。"
+      },
+      "placeholder": {
+        "phone": "登録済みの電話番号",
+        "birthday": "生年月日（例：20/09/2008）",
+        "email": "メールに記載の6桁コード"
+      },
+      "submit": "確認",
+      "passed": "確認できました。ありがとうございます。",
+      "wrongAnswer": "登録情報と一致しません。",
+      "attemptsLeft_one": "残り {{count}} 回です。",
+      "attemptsLeft_other": "残り {{count}} 回です。",
+      "lastChance": "もう一度間違えるとアカウントがロックされます。",
+      "networkError": "回答を送信できませんでした。通信環境を確認してもう一度お試しください。",
+      "otpSendFailed": "確認コードを送信できませんでした。しばらくしてからお試しください。",
+      "warning": "虚偽の情報を登録するとアカウントがロックされます。解除を希望する場合は理由を明記してメールでご連絡ください。管理者は本人確認のため書類の提出を求めることがあります。"
     }
   },
   "memberTabs": {
@@ -5917,18 +5939,12 @@
     "adminForm": {
       "title": "管理者ログイン",
       "desc": "ユーザー名...",
-      "userLabel": "ユーザーネームを入力してください",
-      "userPlaceholder": "••••••••",
-      "userRequired": "Googleコンポーネントのロード中…",
-      "passLabel": "パスワード",
-      "passPlaceholder": "••••••••",
-      "passRequired": "パスワードを入力してください",
-      "showPassword": "パスワードを表示する",
-      "hidePassword": "パスワードを隠す",
       "remember": "このデバイスでログイン情報を記憶する",
-      "btn": "ログイン",
-      "submitting": "ログイン中...",
-      "https": "HTTPSを使用したセキュア同期"
+      "https": "HTTPSを使用したセキュア同期",
+      "otpBtn": "Telegram でコードを送信",
+      "otpSending": "送信中…",
+      "otpSent": "オーナーの Telegram にコードを送信しました。",
+      "otpDesc": "パスワードは不要です。下のボタンを押すと Telegram ボットが 6 桁のコードをオーナーの端末へ送ります — 有効期限は 30 秒。"
     }
   },
   "customerPortal": {

@@ -12,6 +12,7 @@ import { cleanupExpiredBirthdayNotifications } from '../utils/birthdayAutomation
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { ensureReferralCode, applyReferral } from '../utils/referralService.js';
 import { isEduEmail } from '../utils/eduEmail.js';
+import { maskEmail } from '../utils/piiMasker.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { getStageCertificate } from '../utils/coderExamService.js';
 import InAppNotification from '../models/InAppNotification.js';
@@ -1454,6 +1455,134 @@ router.delete('/contacts/:id/:contactId', requireMember, async (req, res) => {
     clearCache(`bio_slug_${bio.slug}`);
 
     res.json({ success: true, contacts: bio.backedUpContacts });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ─── KIỂM TRA THÔNG TIN CÁ NHÂN ĐỊNH KỲ ──────────────────────────────────────
+// Chống khai man: hỏi lại một món thông tin vào những mốc thưa dần. Xem
+// server/utils/identityCheck.js để hiểu lịch và vòng xoay câu hỏi.
+
+// GET /api/bios/me/identity-check — tới hạn chưa, đang hỏi món gì.
+router.get('/me/identity-check', requireMember, async (req, res) => {
+  try {
+    const IC = await import('../utils/identityCheck.js');
+    const bio = await Bio.findOne({ email: req.memberEmail });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
+
+    // Thành viên chưa có lịch: hẹn mốc đầu tiên, chưa hỏi gì ngay lúc này.
+    if (!bio.identityCheck?.nextDueAt) {
+      IC.scheduleNext(bio, { advance: false });
+      await bio.save();
+      return res.json({ success: true, due: false, nextDueAt: bio.identityCheck.nextDueAt });
+    }
+
+    if (!IC.isDue(bio)) {
+      return res.json({ success: true, due: false, nextDueAt: bio.identityCheck.nextDueAt });
+    }
+
+    // Giữ nguyên món đã mở để người dùng không "quay lại" đổi sang câu dễ hơn.
+    const field = bio.identityCheck.pendingField || IC.nextField(bio);
+    if (!field) {
+      // Hồ sơ chưa khai gì để đối chiếu — hoãn sang mốc sau, không khoá ai cả.
+      IC.scheduleNext(bio, { advance: false });
+      await bio.save();
+      return res.json({ success: true, due: false, nextDueAt: bio.identityCheck.nextDueAt });
+    }
+
+    if (bio.identityCheck.pendingField !== field) {
+      bio.identityCheck.pendingField = field;
+      await bio.save();
+    }
+
+    res.json({
+      success: true,
+      due: true,
+      field,
+      attemptsLeft: Math.max(0, IC.MAX_ATTEMPTS - (bio.identityCheck.attempts || 0)),
+      // Gợi ý nhận dạng hòm thư mà không lộ nguyên địa chỉ cho người mượn máy.
+      emailHint: field === 'email' ? maskEmail(bio.email) : undefined,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/bios/me/identity-check/send-otp — gửi mã tới chính hòm thư đã đăng ký.
+router.post('/me/identity-check/send-otp', requireMember, async (req, res) => {
+  try {
+    const IC = await import('../utils/identityCheck.js');
+    const bio = await Bio.findOne({ email: req.memberEmail });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
+    if (!IC.isDue(bio) || bio.identityCheck?.pendingField !== 'email') {
+      return res.status(400).json({ error: 'Đợt kiểm tra hiện tại không yêu cầu mã email.' });
+    }
+
+    const { issueEmailOtp } = await import('../utils/emailOtp.js');
+    const { sendMagicLinkOtp } = await import('../services/emailService.js');
+    const code = issueEmailOtp(bio.email, 'identity');
+    await sendMagicLinkOtp(bio.email, code, 'identity');
+
+    res.json({ success: true, emailHint: maskEmail(bio.email) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/bios/me/identity-check/answer  { value }
+router.post('/me/identity-check/answer', requireMember, async (req, res) => {
+  try {
+    const IC = await import('../utils/identityCheck.js');
+    const bio = await Bio.findOne({ email: req.memberEmail });
+    if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ' });
+    if (!IC.isDue(bio)) return res.json({ success: true, due: false });
+
+    const field = bio.identityCheck?.pendingField || IC.nextField(bio);
+    const value = String(req.body?.value || '').trim();
+    if (!field) return res.json({ success: true, due: false });
+    if (!value) return res.status(400).json({ error: 'Vui lòng nhập câu trả lời.' });
+
+    let correct;
+    if (field === 'email') {
+      const { verifyEmailOtp } = await import('../utils/emailOtp.js');
+      correct = verifyEmailOtp(bio.email, value, 'identity').ok;
+    } else {
+      correct = IC.matchesProfile(bio, field, value);
+    }
+
+    if (correct) {
+      await IC.recordPass(bio, field);
+      return res.json({ success: true, correct: true, nextDueAt: bio.identityCheck.nextDueAt });
+    }
+
+    const result = await IC.recordFail(bio, field);
+    if (!result.exhausted) {
+      return res.status(400).json({
+        success: true,
+        correct: false,
+        attemptsLeft: result.attemptsLeft,
+        error: 'Thông tin không khớp với hồ sơ. Bạn còn 1 lần thử.',
+      });
+    }
+
+    // Hết lượt: khoá tài khoản bằng đúng cơ chế an ninh đang chạy, nên người
+    // dùng thấy màn khoá kèm đường kháng nghị và admin có sẵn nút gỡ.
+    const { recordSecurityViolation, sendSecurityBlockResponse, findActiveSecurityBlock } =
+      await import('../services/securityEnforcement.js');
+    await recordSecurityViolation({
+      req,
+      email: bio.email,
+      phone: bio.phone || '',
+      category: 'identity_fraud',
+      severity: 'critical',
+      ruleId: `identity_check_failed_${field}`,
+      evidence: `Sai ${IC.MAX_ATTEMPTS} lần liên tiếp ở mục "${field}"`,
+      enforcement: 'immediate',
+    });
+    const block = await findActiveSecurityBlock({ email: bio.email });
+    if (block) return sendSecurityBlockResponse(res, block);
+    return res.status(403).json({ error: 'ACCESS_BLOCKED' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

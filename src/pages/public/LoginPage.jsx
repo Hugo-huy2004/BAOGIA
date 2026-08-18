@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { loginAdmin, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
+import { requestAdminOtp, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
@@ -26,16 +26,14 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
-  const [adminForm, setAdminForm] = useState({ username: "admin", password: "" });
-  const [adminFieldErrors, setAdminFieldErrors] = useState({ username: "", password: "" });
   const [adminSubmitting, setAdminSubmitting] = useState(false);
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [rememberAdmin, setRememberAdmin] = useState(true);
   // 2FA OTP gửi qua Telegram (POST /api/admin/login -> requireOtp)
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [tempToken, setTempToken] = useState("");
-  const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
+  const [otpSecondsLeft, setOtpSecondsLeft] = useState(0);
   const [otpSubmitting, setOtpSubmitting] = useState(false);
   const [customerCode, setCustomerCode] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
@@ -194,51 +192,51 @@ export default function LoginPage() {
     showToast(t("loginPage.toast.useGoogleBtn"), "warning");
   };
 
+  // Đăng nhập quản trị KHÔNG còn mật khẩu: bấm nút → máy chủ gửi mã 6 số qua
+  // Telegram của Boss → nhập mã là vào. Mật khẩu cũ chỉ còn là lối dự phòng ở
+  // phía máy chủ (POST /api/admin/login) cho lúc Telegram hỏng.
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setToast({ message: "", type: "" });
-
-    const fieldErrors = {
-      password: adminForm.password ? "" : t("loginPage.adminForm.passRequired")
-    };
-    setAdminFieldErrors(fieldErrors);
-    if (fieldErrors.password) return;
-
     setAdminSubmitting(true);
     try {
-      const res = await loginAdmin({ username: "admin", password: adminForm.password }, { remember: rememberAdmin });
-      if (res?.requireOtp) {
-        setTempToken(res.tempToken);
-        setOtpDigits(["", "", "", ""]);
-        setOtpError("");
-        setOtpModalOpen(true);
-        showToast(res.message || "🔑 Mã OTP 4 chữ số đã gửi qua Telegram của Boss!", res.telegramDelivered ? "info" : "error");
+      const res = await requestAdminOtp();
+      if (!res.tempToken) {
+        showToast(
+          res.error === "network" ? t("loginPage.toast.adminNetworkError") : res.error || t("loginPage.toast.adminServerError"),
+          "error"
+        );
         return;
       }
-
-      if (!res?.session) {
-        if (res?.error === "network") {
-          showToast(t("loginPage.toast.adminNetworkError"), "error");
-        } else if (res?.error === "server_error") {
-          showToast(t("loginPage.toast.adminServerError"), "error");
-        } else {
-          setAdminFieldErrors({ username: "", password: " " });
-          showToast(t("loginPage.toast.adminError"), "error");
-        }
-        return;
-      }
-      navigate("/admin");
+      setTempToken(res.tempToken);
+      setOtpDigits(["", "", "", "", "", ""]);
+      setOtpError("");
+      setOtpSecondsLeft(res.expiresIn || 30);
+      setOtpModalOpen(true);
+      showToast(res.message || t("loginPage.adminForm.otpSent"), res.telegramDelivered ? "info" : "error");
     } finally {
       setAdminSubmitting(false);
     }
   };
 
+  // Mã OTP chỉ sống 30 giây. Không đếm ngược thì người dùng gõ xong mới biết
+  // mã đã chết, và lỗi trông y hệt "nhập sai mã".
+  useEffect(() => {
+    if (!otpModalOpen || otpSecondsLeft <= 0) return undefined;
+    const timer = window.setInterval(() => setOtpSecondsLeft((n) => Math.max(0, n - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [otpModalOpen, otpSecondsLeft]);
+
   const handleVerifyAdminOtp = async (e) => {
     e?.preventDefault();
     setOtpError("");
     const fullOtp = otpDigits.join("").trim();
-    if (fullOtp.length !== 4) {
-      setOtpError("Vui lòng nhập đủ 4 chữ số mã OTP.");
+    if (fullOtp.length !== 6) {
+      setOtpError("Vui lòng nhập đủ 6 chữ số mã OTP.");
+      return;
+    }
+    if (otpSecondsLeft <= 0) {
+      setOtpError("Mã đã hết hạn (30 giây). Đóng cửa sổ này và bấm gửi lại mã.");
       return;
     }
     setOtpSubmitting(true);
@@ -504,37 +502,14 @@ export default function LoginPage() {
                 <p className="text-[11px] text-muted-foreground">{t("loginPage.adminForm.desc")}</p>
               </div>
 
-              {/* Password Only Admin Login Form */}
-
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">{t("loginPage.adminForm.passLabel")}</label>
-                <div className="relative">
-                  <input
-                    type={showAdminPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    value={adminForm.password}
-                    onChange={(e) => {
-                      setAdminForm((prev) => ({ ...prev, password: e.target.value }));
-                      setAdminFieldErrors((prev) => ({ ...prev, password: "" }));
-                    }}
-                    placeholder={t("loginPage.adminForm.passPlaceholder")}
-                    aria-invalid={Boolean(adminFieldErrors.password)}
-                    className={`w-full pl-4 pr-10 py-3 rounded-xl border bg-muted/50 text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 transition-all text-xs ${
-                      adminFieldErrors.password ? "border-destructive focus:ring-destructive" : "border-border/50 focus:ring-primary"
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowAdminPassword((prev) => !prev)}
-                    aria-label={showAdminPassword ? t("loginPage.adminForm.hidePassword") : t("loginPage.adminForm.showPassword")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">{showAdminPassword ? "visibility_off" : "visibility"}</span>
-                  </button>
-                </div>
-                {adminFieldErrors.password.trim() && (
-                  <p className="text-[10px] text-destructive pl-1">{adminFieldErrors.password}</p>
-                )}
+              {/* Đăng nhập bằng OTP Telegram — không còn ô mật khẩu. Yếu tố xác
+                  thực là quyền đọc tin nhắn của đúng một chat Telegram: người lạ
+                  bấm nút này chỉ làm máy Boss kêu một tiếng. */}
+              <div className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-muted/40 p-3">
+                <span className="material-symbols-outlined text-[18px] text-muted-foreground">send</span>
+                <p className="text-[11px] leading-relaxed text-muted-foreground">
+                  {t("loginPage.adminForm.otpDesc")}
+                </p>
               </div>
 
               <label className="flex items-center gap-2 pl-1 cursor-pointer select-none">
@@ -555,7 +530,7 @@ export default function LoginPage() {
                 {adminSubmitting && (
                   <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
                 )}
-                {adminSubmitting ? t("loginPage.adminForm.submitting") : t("loginPage.adminForm.btn")}
+                {adminSubmitting ? t("loginPage.adminForm.otpSending") : t("loginPage.adminForm.otpBtn")}
               </button>
 
               <p className="text-[10px] text-center text-muted-foreground">{t("loginPage.adminForm.https")}</p>
@@ -588,14 +563,18 @@ export default function LoginPage() {
                 🔐 BẢO MẬT 2 LỚP ADMIN (2FA)
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Mã OTP <span className="text-cyan-400 font-bold">4 chữ số</span> đã gửi trực tiếp tới điện thoại của Boss qua Telegram.
+                Mã OTP <span className="text-cyan-400 font-bold">6 chữ số</span> đã gửi tới Telegram của Boss.
               </p>
             </div>
 
+            <p className={`text-xs font-bold ${otpSecondsLeft > 10 ? "text-cyan-400" : "text-rose-400"}`}>
+              {otpSecondsLeft > 0 ? `Mã hết hạn sau ${otpSecondsLeft} giây` : "Mã đã hết hạn — hãy đóng và bấm gửi lại"}
+            </p>
+
             <form onSubmit={handleVerifyAdminOtp} className="space-y-6">
-              {/* 4-Digit Input Boxes */}
-              <div className="flex justify-center gap-3">
-                {[0, 1, 2, 3].map((idx) => (
+              {/* 6 ô nhập mã */}
+              <div className="flex justify-center gap-2">
+                {[0, 1, 2, 3, 4, 5].map((idx) => (
                   <input
                     key={idx}
                     id={`otp-input-${idx}`}
@@ -608,10 +587,19 @@ export default function LoginPage() {
                       const next = [...otpDigits];
                       next[idx] = val;
                       setOtpDigits(next);
-                      if (val && idx < 3) {
+                      if (val && idx < 5) {
                         const nextEl = document.getElementById(`otp-input-${idx + 1}`);
                         if (nextEl) nextEl.focus();
                       }
+                    }}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                      if (!pasted) return;
+                      e.preventDefault();
+                      const next = ["", "", "", "", "", ""];
+                      pasted.split("").forEach((digit, i) => { next[i] = digit; });
+                      setOtpDigits(next);
+                      document.getElementById(`otp-input-${Math.min(5, pasted.length - 1)}`)?.focus();
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Backspace" && !otpDigits[idx] && idx > 0) {
@@ -619,7 +607,7 @@ export default function LoginPage() {
                         if (prevEl) prevEl.focus();
                       }
                     }}
-                    className="w-14 h-16 text-center text-2xl font-black bg-slate-900/90 border border-slate-700/80 rounded-2xl text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-inner"
+                    className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black bg-slate-900/90 border border-slate-700/80 rounded-2xl text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-inner"
                   />
                 ))}
               </div>

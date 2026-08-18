@@ -10,6 +10,27 @@ import crypto from 'crypto';
 
 const router = express.Router();
 
+// Trí nhớ hội thoại của quản gia: 8 lượt gần nhất mỗi khung chat, để trong RAM.
+// ponytail: mất khi khởi động lại — chấp nhận được cho một cuộc trò chuyện qua
+// Telegram. Muốn nhớ dài hạn thì đổ vào Mongo, nhưng đừng làm trước khi thấy
+// thiếu thật.
+const CHAT_MEMORY = new Map();
+const MAX_TURNS = 8;
+
+function recentTurns(chatId) {
+  return CHAT_MEMORY.get(String(chatId)) || [];
+}
+
+function rememberTurn(chatId, userText, botText) {
+  const key = String(chatId);
+  const turns = CHAT_MEMORY.get(key) || [];
+  turns.push(
+    { role: 'user', parts: [{ text: userText }] },
+    { role: 'model', parts: [{ text: String(botText).replace(/<[^>]+>/g, '') }] },
+  );
+  CHAT_MEMORY.set(key, turns.slice(-MAX_TURNS * 2));
+}
+
 /**
  * Super-Admin Telegram Remote Control Engine & AI Butler Companion
  * Tiếp nhận lệnh NLU, trò chuyện AI Butler và Callback Query từ Telegram.
@@ -74,6 +95,52 @@ export async function processTelegramUpdate(update) {
         await bio.save();
         await sendTelegramAlert(`✅ <b>Đã mở khóa ví JOY của:</b> <code>${targetEmail}</code>`);
       }
+      return;
+    }
+
+    if (cbData.startsWith('cb_unblock_ip:')) {
+      const ipHash = cbData.replace('cb_unblock_ip:', '');
+      const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+      const res = await SecurityBlock.deleteMany({ actorKey: `ip:${ipHash}` });
+      await sendTelegramAlert(`✅ <b>ĐÃ GIẢI KHÓA IP THÀNH CÔNG!</b>\n📌 Đã gỡ bỏ ${res.deletedCount || 0} bản ghi khóa IP cho Boss.`);
+      return;
+    }
+
+    if (cbData.startsWith('cb_sec_approve:')) {
+      const caseId = cbData.replace('cb_sec_approve:', '');
+      const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+      const mod = await SecurityModeration.findOne({ caseId });
+      if (!mod) {
+        await sendTelegramAlert(`⚠️ <b>Không tìm thấy yêu cầu duyệt:</b> <code>${caseId}</code>`);
+        return;
+      }
+      if (mod.status !== 'pending') {
+        await sendTelegramAlert(`ℹ️ <b>Yêu cầu này đã được xử lý từ trước:</b> Trạng thái <code>${mod.status}</code>`);
+        return;
+      }
+
+      const { applyActorBlock } = await import('../services/securityEnforcement.js');
+      await applyActorBlock({ ip: mod.ip, email: mod.email, phone: mod.phone, caseId: mod.caseId, reasonCode: mod.category });
+      mod.status = 'approved';
+      mod.decidedBy = 'Boss_Telegram';
+      mod.decidedAt = new Date();
+      await mod.save();
+
+      await sendTelegramAlert(`🚫 <b>BOT SECURITY ĐÃ THỰC THI KHÓA 24H!</b>\n📌 Đối tượng: <code>${mod.email || mod.ip}</code>\n⚠️ Lý do: <code>${mod.category} (${mod.ruleId})</code>`);
+      return;
+    }
+
+    if (cbData.startsWith('cb_sec_dismiss:')) {
+      const caseId = cbData.replace('cb_sec_dismiss:', '');
+      const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+      const mod = await SecurityModeration.findOne({ caseId });
+      if (mod) {
+        mod.status = 'dismissed';
+        mod.decidedBy = 'Boss_Telegram';
+        mod.decidedAt = new Date();
+        await mod.save();
+      }
+      await sendTelegramAlert(`🟢 <b>BOT SECURITY ĐÃ BỎ QUA & CHO PHÉP TRUY CẬP!</b>\n📌 Case ID: <code>${caseId}</code>`);
       return;
     }
   }
@@ -355,7 +422,7 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
 
   // ─── 5. SMART LIVE SYSTEM CONTEXT & AI BUTLER NLU ENGINE ──────────────────────
   try {
-    const [totalUsers, latestUsers, topJoyUsers, pendingTickets, totalMovies, maintenance] = await Promise.all([
+    const [totalUsers, latestUsers, topJoyUsers, pendingTickets, totalMovies, maintenance, pendingMods, activeBlocks] = await Promise.all([
       Bio.countDocuments(),
       Bio.find().sort({ createdAt: -1 }).limit(5).lean(),
       Bio.find().sort({ joyBalance: -1 }).limit(5).lean(),
@@ -367,6 +434,18 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
         } catch { return 0; }
       })(),
       global.IS_SYSTEM_MAINTENANCE || false,
+      (async () => {
+        try {
+          const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+          return await SecurityModeration.find({ status: 'pending' }).limit(5).lean();
+        } catch { return []; }
+      })(),
+      (async () => {
+        try {
+          const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+          return await SecurityBlock.countDocuments();
+        } catch { return 0; }
+      })(),
     ]);
 
     // Flexible multi-field database search (name, email, slug)
@@ -392,6 +471,11 @@ ${latestUsers.map(u => `  • ${u.displayName || 'Khách'} (${u.email}) | Ví: $
 - Top 5 Thành viên nhiều JOY nhất:
 ${topJoyUsers.map((u, i) => `  ${i + 1}. ${u.displayName || u.email} | ${u.joyBalance?.toLocaleString() || 0} JOY`).join('\n')}
 
+🛡️ [BOT SECURITY SENTINEL STATUS]:
+- Số bản ghi khóa đang hoạt động: ${activeBlocks}
+- Trường hợp nghi vấn chờ Boss duyệt: ${pendingMods.length} vụ
+${pendingMods.length ? pendingMods.map(m => `  • Case ${m.caseId}: ${m.email || m.ip} (${m.category})`).join('\n') : '  • Không có vi phạm nào chờ duyệt'}
+
 - Support Ticket đang chờ xử lý: ${pendingTickets} ticket
 - Kho phim Hugo Cinema: ${totalMovies} bộ phim HD/4K
 - Trạng thái Bảo trì: ${maintenance ? 'ĐANG BẬT 🔴' : 'HOẠT ĐỘNG BÌNH THƯỜNG 🟢'}
@@ -400,9 +484,9 @@ ${topJoyUsers.map((u, i) => `  ${i + 1}. ${u.displayName || u.email} | ${u.joyBa
 ${searchResults.length ? searchResults.map(u => `• ${u.displayName || 'Chưa đặt tên'} (${u.email}) | Slug: /bio/${u.slug || 'demo'} | Ví: ${u.joyBalance?.toLocaleString()} JOY | Khóa ví: ${u.isJoyWalletFrozen ? 'CÓ' : 'KHÔNG'}`).join('\n') : 'Không có thành viên nào trùng khớp từ khóa.'}
     `.trim();
 
-    const { generateAiResponse } = await import('../services/aiGateway.js');
-    const aiResult = await generateAiResponse({
-      systemInstruction: `
+    const { generateRaw } = await import('../services/aiGateway.js');
+    const aiReply = await generateRaw({
+      systemInstruction: { parts: [{ text: `
 Bạn là AI Butler Quản Gia siêu cấp toàn năng của Hugo Studio.
 Boss vừa gửi cho bạn một tin nhắn.
 
@@ -411,12 +495,16 @@ Giải đáp đầy đủ mọi thắc mắc về người dùng, số dư JOY, 
 Định dạng câu trả lời bằng Telegram HTML cơ bản (<b>bold</b>, <code>code</code>, 👑, 📊, ⚡). Không dùng Markdown **bold** mà dùng HTML <b>bold</b>.
 
 ${liveContext}
-      `.trim(),
-      contents: [{ role: 'user', parts: [{ text }] }],
-      temperature: 0.7,
+      `.trim() }] },
+      // Kèm vài lượt gần nhất thì mới là TRÒ CHUYỆN: không có nó, mỗi tin của
+      // Boss là một người lạ mới, hỏi "còn cái kia thì sao?" là quản gia ngơ.
+      contents: [...recentTurns(chatId), { role: 'user', parts: [{ text }] }],
+      generationConfig: { temperature: 0.7 },
     });
 
-    const replyText = aiResult?.text || '🤖 <b>Quản Gia Hugo:</b> Dạ thưa Boss, em đã ghi nhận chỉ thị!';
+    const replyText = aiReply
+      || '🤖 <b>Quản Gia Hugo:</b> Dạ thưa Boss, AI đang quá tải hoặc hết hạn mức nên em chưa nghĩ ra câu trả lời. Boss thử lại sau ít phút, hoặc dùng lệnh <code>Báo cáo</code> / <code>Kiểm tra email@…</code> nhé.';
+    rememberTurn(chatId, text, replyText);
 
     // Attach 1-click action buttons if search found exact member matches
     let inlineButtons = null;
@@ -561,7 +649,12 @@ export async function initTelegramBot() {
     return currentMode;
   }
 
-  if (process.env.TELEGRAM_ENABLE_POLLING === 'true' || process.env.NODE_ENV !== 'production') {
+  // Chỉ bật khi được YÊU CẦU rõ ràng. Trước đây điều kiện còn kèm
+  // `NODE_ENV !== 'production'`, nghĩa là mọi máy dev đều tự bật long-polling —
+  // trái hẳn với chú thích ngay trên, và tệ hơn: dòng deleteWebhook bên dưới gỡ
+  // luôn webhook của production, làm bot thật câm cho tới lần deploy sau. Triệu
+  // chứng nhìn thấy được là log dev đầy "getUpdates lỗi 409" mỗi phút.
+  if (process.env.TELEGRAM_ENABLE_POLLING === 'true') {
     await fetch(`https://api.telegram.org/bot${token}/deleteWebhook`).catch(() => {});
     startTelegramLongPolling();
     return currentMode;
@@ -575,6 +668,7 @@ export async function initTelegramBot() {
 // ─── Long Polling Background Engine ──────────────────────────────────────────
 let isPollingStarted = false;
 let lastUpdateId = 0;
+let lastPollErrorLog = 0;
 
 export function startTelegramLongPolling() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -599,8 +693,15 @@ export function startTelegramLongPolling() {
         }
       } else if (!data.ok) {
         // 409 = có webhook đang bật, Telegram từ chối getUpdates. Nuốt im lặng
-        // thì bot "chết" mà log sạch bong — phải nói ra.
-        console.warn(`⚠️ Telegram getUpdates lỗi ${data.error_code}: ${data.description}`);
+        // thì bot "chết" mà log sạch bong — phải nói ra, nhưng mỗi giây một
+        // dòng thì lại nhấn chìm mọi log khác, nên 1 phút nhắc 1 lần.
+        if (Date.now() - lastPollErrorLog > 60000) {
+          lastPollErrorLog = Date.now();
+          console.warn(`⚠️ Telegram getUpdates lỗi ${data.error_code}: ${data.description}`);
+          if (data.error_code === 409) {
+            console.warn('   → Đang có webhook (thường là production). Máy dev và production KHÔNG dùng chung một bot được: tắt TELEGRAM_ENABLE_POLLING, hoặc gỡ webhook nếu muốn nhận lệnh dưới máy.');
+          }
+        }
       }
     } catch (err) {
       // Ignore network dropouts

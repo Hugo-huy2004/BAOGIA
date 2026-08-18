@@ -10,6 +10,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
       items: [
         { id: "dashboard", label: "Tổng quan", icon: "dashboard", accent: "from-blue-500 to-indigo-600" },
         { id: "brain", label: "Bộ Não AI Admin", icon: "psychology", accent: "from-cyan-500 to-blue-600", glow: true },
+        { id: "sentinel", label: "BOT Security Sentinel", icon: "shield_person", accent: "from-indigo-600 to-purple-600", glow: true },
         { id: "users", label: "Thành viên & Hỗ trợ", icon: "group", count: counts.users, accent: "from-emerald-500 to-teal-600" },
         { id: "ecosystem", label: "Cửa hàng & Dịch vụ", icon: "storefront", count: counts.utilityStore, accent: "from-purple-500 to-pink-600" },
         { id: "cinema", label: "Quản trị Phim Cinema", icon: "movie", accent: "from-rose-500 to-pink-600" },
