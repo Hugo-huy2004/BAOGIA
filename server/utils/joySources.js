@@ -56,7 +56,10 @@ export const JOY_SOURCES = {
   portal_theme_rent: 'Thuê giao diện portal',
   member_transfer_out: 'Chuyển JOY cho thành viên',
   member_transfer_in: 'Nhận JOY từ thành viên',
-  admin_telegram_button: 'Admin thưởng qua Telegram'
+  admin_telegram_button: 'Admin thưởng qua Telegram',
+  stock_buy: 'Mua cổ phiếu sàn ảo',
+  stock_sell: 'Bán cổ phiếu sàn ảo',
+  stock_dividend: 'Cổ tức sàn ảo'
 };
 
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);
@@ -75,6 +78,9 @@ export const JOY_SOURCE_GROUPS = {
   member_transfer_in: 'banbe',
   member_transfer_out: 'banbe',
   arcade_score: 'choi',
+  stock_buy: 'choi',
+  stock_sell: 'choi',
+  stock_dividend: 'choi',
   chess_win: 'choi',
   chess_match: 'choi',
   ide_learning: 'hoc',

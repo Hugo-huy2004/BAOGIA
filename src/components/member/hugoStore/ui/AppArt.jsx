@@ -138,6 +138,24 @@ const SCENES = {
   ),
 
   // Phim Ảnh & Giải Trí — Clapperboard Tím Indigo Độc Quyền
+  invest: (
+    <>
+      <rect x="36" y="24" width="128" height="82" rx="18" fill="url(#invest-art-grad)" />
+      <defs>
+        <linearGradient id="invest-art-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#0d9488" />
+          <stop offset="100%" stopColor="#0f766e" />
+        </linearGradient>
+      </defs>
+      <rect x="62" y="52" width="14" height="40" rx="4" fill="#ffffff" />
+      <rect x="66.5" y="42" width="5" height="60" rx="2.5" fill="#ffffff" />
+      <rect x="94" y="64" width="14" height="28" rx="4" fill="#fca5a5" />
+      <rect x="98.5" y="54" width="5" height="48" rx="2.5" fill="#fca5a5" />
+      <rect x="126" y="46" width="14" height="46" rx="4" fill="#ffffff" />
+      <rect x="130.5" y="36" width="5" height="66" rx="2.5" fill="#ffffff" />
+    </>
+  ),
+
   cinema: (
     <>
       <rect x="36" y="24" width="128" height="82" rx="18" fill="#000" opacity="0.25" />

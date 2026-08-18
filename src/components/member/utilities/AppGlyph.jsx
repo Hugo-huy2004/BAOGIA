@@ -187,6 +187,24 @@ const SCENES = {
     </>
   ),
 
+  // Sàn ảo (Invest) — hai cây nến giá trên nền lục, đọc một cái là biết chứng khoán
+  invest: () => (
+    <>
+      <rect x="7" y="7" width="34" height="34" rx="9" fill="#000" opacity="0.2" />
+      <rect x="7" y="7" width="34" height="34" rx="9" fill="url(#invest-glyph-grad)" />
+      <defs>
+        <linearGradient id="invest-glyph-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#0d9488" />
+          <stop offset="100%" stopColor="#0f766e" />
+        </linearGradient>
+      </defs>
+      <rect x="17" y="17" width="4" height="14" rx="1.4" fill="#ffffff" />
+      <rect x="18.4" y="14" width="1.2" height="20" rx="0.6" fill="#ffffff" />
+      <rect x="27" y="22" width="4" height="10" rx="1.4" fill="#fca5a5" />
+      <rect x="28.4" y="19" width="1.2" height="16" rx="0.6" fill="#fca5a5" />
+    </>
+  ),
+
   // Phim (Cinema) — Clapperboard Điện Ảnh & Cuộn Phim Tím Indigo Độc Quyền
   cinema: (f) => (
     <>

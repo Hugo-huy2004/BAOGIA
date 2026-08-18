@@ -38,6 +38,21 @@ const CORS = {
   'Access-Control-Expose-Headers': 'Content-Length, Content-Range, Accept-Ranges',
 };
 
+
+/**
+ * Đổi qua lại giữa hai đường lấy ảnh xem trước của Internet Archive:
+ *   https://archive.org/download/<id>/__ia_thumb.jpg
+ *   https://archive.org/services/img/<id>
+ * Trả về null nếu URL không phải ảnh xem trước (phim thì không có đường thay thế).
+ */
+function siblingThumbUrl(url) {
+  const thumb = url.pathname.match(/^\/download\/([^/]+)\/__ia_thumb\.jpg$/);
+  if (thumb) return `https://archive.org/services/img/${thumb[1]}`;
+  const service = url.pathname.match(/^\/services\/img\/([^/]+)\/?$/);
+  if (service) return `https://archive.org/download/${service[1]}/__ia_thumb.jpg`;
+  return null;
+}
+
 export default {
   async fetch(request) {
     if (request.method === 'OPTIONS') {
@@ -65,7 +80,7 @@ export default {
     // Range phải đi kèm: trình phát tua bằng chính header này. Bỏ Range đi là
     // buộc tải cả file từ đầu mỗi lần người xem kéo thanh thời gian.
     const range = request.headers.get('Range');
-    const response = await fetch(upstream.toString(), {
+    const fetchUpstream = (url) => fetch(url, {
       method: request.method,
       headers: range ? { Range: range } : {},
       redirect: 'follow',
@@ -76,6 +91,22 @@ export default {
         cacheTtlByStatus: { '200-299': CACHE_TTL_SECONDS, '300-399': 0, '400-499': 60, '500-599': 0 },
       },
     });
+
+    let response = await fetchUpstream(upstream.toString());
+
+    // Internet Archive sặc 5xx từng lúc, và mỗi cú sặc là một ô poster vỡ trong
+    // lưới phim. Thử lại một nhịp; vẫn hỏng thì đổi sang ĐƯỜNG ẢNH CÒN LẠI của
+    // họ — `/download/<id>/__ia_thumb.jpg` và `/services/img/<id>` cùng trả một
+    // tấm ảnh nhưng do hai hệ thống khác nhau phục vụ, hiếm khi hỏng cùng lúc.
+    if (response.status >= 500 && request.method === 'GET') {
+      await new Promise((r) => setTimeout(r, 300));
+      response = await fetchUpstream(upstream.toString());
+
+      if (response.status >= 500) {
+        const sibling = siblingThumbUrl(upstream);
+        if (sibling) response = await fetchUpstream(sibling);
+      }
+    }
 
     const headers = new Headers(CORS);
     for (const name of ['Content-Type', 'Content-Length', 'Content-Range', 'Accept-Ranges', 'ETag', 'Last-Modified']) {

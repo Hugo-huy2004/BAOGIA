@@ -808,7 +808,7 @@ function MemberPortalPage() {
     // Danh sách này phải khớp `isFullscreenLikeUtility` trong MemberUtilitiesTab.
     // Thiếu một id ở đây thì app vẫn dựng vỏ `h-full` của mình nhưng nằm trong
     // trang có đệm và tự cuộn — hai vùng cuộn lồng nhau làm hỏng vuốt/chạm.
-    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "joy_wallet", "cinema"].includes(subTab) ||
+    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "joy_wallet", "cinema", "invest"].includes(subTab) ||
     (subTab === "psychology" && isMobileView)
   ));
 

@@ -16,7 +16,7 @@ import { maskEmail } from '../utils/piiMasker.js';
 import { broadcastToEmail } from '../utils/realtime.js';
 import { getStageCertificate } from '../utils/coderExamService.js';
 import InAppNotification from '../models/InAppNotification.js';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 
@@ -32,7 +32,10 @@ const checkLocationLimiter = rateLimit({
 const identityAnswerLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  keyGenerator: (req) => req.memberEmail || req.ip,
+  // `req.ip` thô là lỗ hổng với IPv6: một người thường được cấp cả dải /64, đổi
+  // địa chỉ trong dải đó là có ngay một khoá đếm mới. `ipKeyGenerator` gom cả
+  // dải về một khoá. Chỉ dùng khi chưa biết email (chưa qua requireMember).
+  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
   message: { error: 'Bạn đang trả lời quá nhanh. Vui lòng đợi ít phút rồi thử lại.' },
 });
 
@@ -42,7 +45,7 @@ const identityAnswerLimiter = rateLimit({
 const identityOtpLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 3,
-  keyGenerator: (req) => req.memberEmail || req.ip,
+  keyGenerator: (req) => req.memberEmail || ipKeyGenerator(req.ip),
   message: { error: 'Bạn đã yêu cầu mã quá nhiều lần. Vui lòng đợi 15 phút.' },
 });
 

@@ -22,11 +22,25 @@ export function mediaUrl(url) {
 }
 
 export function videoSources(movie) {
+  // Cổng token đứng đầu: nó vừa giữ hàng rào thành viên (link tự huỷ sau 2h),
+  // vừa đã nhanh — máy chủ tự chuyển hướng nó qua biên. Xếp link trần lên trước
+  // là vô hiệu hoá chính cái cổng đó.
   const secureUrl = movie?.secureStreamUrl || movie?.streamUrl;
-  const direct = [secureUrl, movie?.videoUrl, movie?.videoFallbackUrl].filter(Boolean);
-  const viaEdge = direct.map(mediaUrl).filter((url) => !direct.includes(url));
-  // Direct CDN links first for 0ms latency, edge fallback if direct is blocked
-  return [...new Set([...direct, ...viaEdge])];
+  const rawUrls = [movie?.videoUrl, movie?.videoFallbackUrl].filter(Boolean);
+  const viaEdge = rawUrls.map(mediaUrl).filter((url, i) => url !== rawUrls[i]);
+
+  // Cửa trung chuyển đứng TRƯỚC, không phải dự phòng.
+  //
+  // Thứ tự cũ để link thẳng lên đầu với lý do "0ms latency". Đo thật từ Việt
+  // Nam thì ngược hẳn: đi thẳng mất 10,1s mới có byte đầu và chạy 74 KB/s, còn
+  // qua biên đã cache là 0,33s và 2,1 MB/s. Tệ hơn, 74 KB/s vẫn nhỉnh hơn nhịp
+  // 64 KB/s của bản 512kb nên phim VẪN chạy — chỉ là giật liên tục — nên bộ
+  // canh đứng hình không bao giờ nổ để đổi nguồn. Người xem mắc kẹt ở đường
+  // chậm nhất, đúng nghĩa "chậm quá, lỗi hoài".
+  //
+  // Link thẳng giữ lại phía sau: khi Worker hỏng hoặc chưa cấu hình thì vẫn có
+  // đường xem được.
+  return [...new Set([secureUrl, ...viaEdge, ...rawUrls].filter(Boolean))];
 }
 
 /**

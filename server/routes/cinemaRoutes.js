@@ -140,6 +140,16 @@ router.get('/movies/:id', requireMember, async (req, res) => {
   }
 });
 
+// Cửa trung chuyển phim ở biên Cloudflare (workers/media-proxy). Bỏ trống thì
+// phát thẳng từ archive.org — chạy được, nhưng chậm tới mức không xem nổi ở VN.
+const MEDIA_PROXY = (process.env.CINEMA_MEDIA_PROXY || '').replace(/\/+$/, '');
+const ARCHIVE_URL = /^https:\/\/([a-z0-9-]+\.)*archive\.org\//i;
+
+function edgeUrl(url) {
+  if (!url || !MEDIA_PROXY || !ARCHIVE_URL.test(url)) return url;
+  return `${MEDIA_PROXY}/?u=${encodeURIComponent(url)}`;
+}
+
 // POST /api/cinema/stream-token — Sinh token phát phim bảo mật 2h cho thành viên
 router.post('/stream-token', requireMember, async (req, res) => {
   try {
@@ -180,7 +190,13 @@ router.get('/stream/:token', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy nguồn phim' });
     }
 
-    res.redirect(302, movie.videoUrl);
+    // Chuyển hướng qua cửa trung chuyển ở biên, KHÔNG thẳng ra archive.org.
+    // Đo từ Việt Nam trên chính máy dev: đi thẳng mất 10,1s mới có byte đầu và
+    // chạy 74 KB/s — trong khi phim 512kb cần ~64 KB/s, tức là vừa đủ để buffer
+    // liên tục chứ không đủ để xem. Qua Worker đã cache: 0,33s và 2,1 MB/s.
+    // Đây là nguồn phát SỐ MỘT của trình phát, nên nó quyết định trải nghiệm;
+    // các nguồn dự phòng phía sau chỉ chạy sau hai lần chờ đứng hình 12 giây.
+    res.redirect(302, edgeUrl(movie.videoUrl));
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

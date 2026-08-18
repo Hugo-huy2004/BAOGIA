@@ -49,6 +49,16 @@ function qualityLabel(height) {
   return "";
 }
 
+function handleImageFallback(event, rawUrl) {
+  const img = event.currentTarget;
+  if (rawUrl && !img.dataset.triedDirect) {
+    img.dataset.triedDirect = "true";
+    img.src = rawUrl;
+  } else {
+    img.style.visibility = "hidden";
+  }
+}
+
 function getNetworkState() {
   if (typeof navigator === "undefined") return { type: "Wi-Fi", speed: "Tốt", mbps: 25, recommended: "1080p" };
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -182,13 +192,13 @@ export default function HugoCinemaTab({ bio, onBack, showToast }) {
     hapticSelect();
     setDetail(movie);
     setFullDescription(false);
-    if (movie?.videoUrl) prefetchStream(movie.videoUrl);
+    if (movie?.videoUrl) prefetchStream(mediaUrl(movie.videoUrl));
 
     // Thư viện đã có đủ trường để vẽ ngay; lượt gọi này chỉ để lấy bản mới nhất.
     const { movie: fresh } = await cinemaService.getMovie(movie.id);
     if (fresh) {
       setDetail((current) => (current?.id === fresh.id ? fresh : current));
-      if (fresh?.videoUrl) prefetchStream(fresh.videoUrl);
+      if (fresh?.videoUrl) prefetchStream(mediaUrl(fresh.videoUrl));
     }
   }, [prefetchStream]);
 
@@ -200,7 +210,9 @@ export default function HugoCinemaTab({ bio, onBack, showToast }) {
     hapticSelect();
     setSourceIndex(0);
     setVideoFailed(false);
-    if (movie?.videoUrl) prefetchStream(movie.videoUrl);
+    // Nạp trước ĐÚNG đường sắp dùng (qua biên), không phải link thẳng — nạp
+    // trước đường chậm chỉ tốn băng thông mà chẳng làm ấm được gì.
+    if (movie?.videoUrl) prefetchStream(mediaUrl(movie.videoUrl));
 
     const tokenUrl = await cinemaService.getStreamToken(movie.id);
     const playableMovie = tokenUrl ? { ...movie, secureStreamUrl: tokenUrl } : movie;
@@ -600,11 +612,14 @@ function Hero({ movie, inList, onPlay, onDetail, onToggleList }) {
 
   return (
     <section className="relative">
+      {/* Ảnh của Internet Archive sặc 5xx từng lúc. Tấm nào hỏng thì ẩn đi để lộ
+          nền bên dưới, thay vì để trình duyệt vẽ biểu tượng ảnh vỡ giữa trang. */}
       <img
         src={mediaUrl(movie.poster)}
         alt=""
         loading="eager"
         decoding="async"
+        onError={(event) => handleImageFallback(event, movie.poster)}
         className="aspect-[4/5] w-full object-cover sm:aspect-[16/9]"
       />
       {movie.preview && (
@@ -714,7 +729,7 @@ const PosterCard = memo(function PosterCard({ movie, onOpen, watched = 0 }) {
           loading="lazy"
           decoding="async"
           className="h-full w-full object-cover"
-          onError={(event) => { event.currentTarget.style.visibility = "hidden"; }}
+          onError={(event) => handleImageFallback(event, movie.poster)}
         />
         {movie.duration && (
           <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-white">
@@ -751,7 +766,13 @@ function DetailScreen({
   return (
     <div className="absolute inset-0 z-[110] flex flex-col overflow-y-auto bg-background">
       <div className="relative shrink-0">
-        <img src={mediaUrl(movie.preview || movie.poster)} alt="" decoding="async" className="aspect-video w-full object-cover" />
+        <img
+          src={mediaUrl(movie.preview || movie.poster)}
+          alt=""
+          decoding="async"
+          onError={(event) => handleImageFallback(event, movie.preview || movie.poster)}
+          className="aspect-video w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-black/40" />
         <div
           className="absolute inset-x-0 top-0 flex items-center justify-between px-2"

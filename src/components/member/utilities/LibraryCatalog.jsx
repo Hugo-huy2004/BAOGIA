@@ -20,7 +20,8 @@ const APP_STORAGE_MB = {
   bio: 1.5,
   info: 0.8,
   hugoso: 3.6,
-  cinema: 4.8
+  cinema: 4.8,
+  invest: 5.0
 };
 
 const APP_VERSIONS = {
@@ -37,7 +38,8 @@ const APP_VERSIONS = {
   hugoso: "1.0.0",
   // 2.0.0: đổi tên thành Chill Premium, dựng lại theo lối Netflix, kệ phim
   // chuyển sang phim công cộng thật lấy từ Internet Archive.
-  cinema: "2.0.0"
+  cinema: "2.0.0",
+  invest: "1.0.0"
 };
 
 export default function LibraryCatalog({

@@ -281,6 +281,7 @@ import presenceRoutes from './routes/presenceRoutes.js';
 import radioRoutes from './routes/radioRoutes.js';
 import arcadeRoutes from './routes/arcadeRoutes.js';
 import cinemaRoutes from './routes/cinemaRoutes.js';
+import stockRoutes from './routes/stockRoutes.js';
 import telegramWebhookRoutes, { initTelegramBot } from './routes/telegramWebhookRoutes.js';
 import metaWebhookRoutes from './routes/metaWebhookRoutes.js';
 import webauthnRoutes from './routes/webauthnRoutes.js';
@@ -343,6 +344,7 @@ app.use('/api/presence', presenceRoutes);
 app.use('/api/radio', radioRoutes);
 app.use('/api/arcade', arcadeRoutes);
 app.use('/api/cinema', cinemaRoutes);
+app.use('/api/stock', stockRoutes);
 app.use('/api/telegram', telegramWebhookRoutes);
 // Bot Telegram của admin (OTP 2FA + điều khiển từ xa). Gọi tường minh ở đây
 // thay vì tự khởi động lúc import: import ESM chạy TRƯỚC dotenv.config() nên
