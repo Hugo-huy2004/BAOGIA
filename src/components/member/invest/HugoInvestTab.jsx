@@ -327,7 +327,10 @@ export default function HugoInvestTab({ onBack, showToast }) {
       <InfoModalPopup topicKey={helpTopic} onClose={() => setHelpTopic(null)} />
 
       {/* iOS 27 Translucent Frosted Glass Header */}
-      <header className="shrink-0 sticky top-0 z-30 border-b border-white/10 bg-zinc-950/70 backdrop-blur-2xl px-3 py-2.5 transition-all">
+      <header
+        className="shrink-0 sticky top-0 z-30 border-b border-white/10 bg-zinc-950/80 backdrop-blur-2xl px-3 pb-2.5 transition-all"
+        style={{ paddingTop: "max(12px, calc(env(safe-area-inset-top, 0px) + 8px))" }}
+      >
         <div className="flex items-center gap-2">
           <BackButton onClick={detail ? () => setDetail(null) : lesson ? () => setLesson(null) : onBack} label="Quay lại" iconOnly />
           <div className="min-w-0 flex-1">
