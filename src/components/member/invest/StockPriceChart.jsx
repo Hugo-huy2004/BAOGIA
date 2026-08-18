@@ -37,8 +37,10 @@ const MUTED = "hsl(var(--muted-foreground))";
 const MA_FAST = "hsl(var(--primary))";
 const MA_SLOW = "hsl(var(--muted-foreground))";
 
-const axisText = (joy) =>
-  (Number(joy || 0) * joyFactor()).toLocaleString(LOCALE, { maximumFractionDigits: 2 });
+const axisText = (joy) => {
+  const shown = Number(joy || 0) * joyFactor();
+  return shown.toLocaleString(LOCALE, { maximumFractionDigits: Math.abs(shown) >= 1000 ? 0 : 2 });
+};
 const priceText = (joy) => `${axisText(joy)} ${joyCode()}`;
 const timeText = (ms, withDate) =>
   new Date(ms).toLocaleString(LOCALE, withDate
@@ -64,7 +66,7 @@ export default function StockPriceChart({ company, trades = [] }) {
 
   // ── Khung vẽ ────────────────────────────────────────────────────────────────
   const width = 480;
-  const gutter = 46;          // chỗ cho thang giá bên phải, như mọi app chứng khoán
+  const gutter = 62;          // chỗ cho thang giá bên phải, như mọi app chứng khoán
   const padX = 8;
   const priceTop = 12;
   const priceBottom = 186;
@@ -132,10 +134,10 @@ export default function StockPriceChart({ company, trades = [] }) {
   };
 
   return (
-    <div className="mt-3 space-y-2 rounded-2xl border border-border bg-card p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="mt-3 min-w-0 space-y-2 overflow-hidden rounded-2xl border border-border bg-card p-3">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
         {shown ? (
-          <div className="flex items-center gap-2.5 text-xs font-black tabular-nums">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] font-bold tabular-nums">
             <span className="text-muted-foreground">{timeText(shown.time, !frame.perCandle)}</span>
             <span className="text-muted-foreground">M <span className="text-foreground">{axisText(shown.open)}</span></span>
             <span className="text-muted-foreground">C <span className="text-foreground">{axisText(shown.high)}</span></span>
@@ -172,7 +174,7 @@ export default function StockPriceChart({ company, trades = [] }) {
           {gridLines.map((line) => (
             <g key={line.y}>
               <line x1={padX} y1={line.y} x2={width - gutter} y2={line.y} stroke={GRID} strokeWidth="1" />
-              <text x={width - gutter + 5} y={line.y + 3.5} fill={MUTED} className="text-[11px] font-bold tabular-nums">
+              <text x={width - gutter + 6} y={line.y + 3.5} fill={MUTED} className="text-[13px] font-bold tabular-nums">
                 {axisText(line.price)}
               </text>
             </g>
@@ -222,7 +224,7 @@ export default function StockPriceChart({ company, trades = [] }) {
                 x={width - gutter + 1} y={yOf(latest.close) - 9} width={gutter - 3} height="18" rx="3"
                 fill={latest.close >= latest.open ? UP : DOWN}
               />
-              <text x={width - gutter / 2 - 1} y={yOf(latest.close) + 4} textAnchor="middle" fill="hsl(var(--success-foreground))" className="text-[11px] font-black tabular-nums">
+              <text x={width - gutter / 2 - 1} y={yOf(latest.close) + 4} textAnchor="middle" fill={latest.close >= latest.open ? "hsl(var(--success-foreground))" : "hsl(var(--destructive-foreground))"} className="text-[13px] font-bold tabular-nums">
                 {axisText(latest.close)}
               </text>
             </g>
@@ -232,7 +234,7 @@ export default function StockPriceChart({ company, trades = [] }) {
           {marks.map((mark, index) => (
             <g key={`${mark.at || index}-${index}`}>
               <circle cx={mark.x} cy={mark.y} r="4.5" fill={mark.side === "buy" ? UP : DOWN} stroke="hsl(var(--card))" strokeWidth="1.6" />
-              <text x={mark.x} y={mark.y - 9} textAnchor="middle" fill={mark.side === "buy" ? UP : DOWN} className="text-[11px] font-black">
+              <text x={mark.x} y={mark.y - 9} textAnchor="middle" fill={mark.side === "buy" ? UP : DOWN} className="text-[13px] font-bold">
                 {mark.side === "buy" ? "MUA" : "BÁN"}
               </text>
             </g>

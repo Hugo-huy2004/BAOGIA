@@ -28,7 +28,17 @@ const pctText = (value) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%
  * nguyên như số dư ví sẽ xoá mất chính nhịp sóng mà biểu đồ đang vẽ.
  */
 const LOCALE = "vi-VN";
-const priceText = (joy) => `${(Number(joy || 0) * joyFactor()).toLocaleString(LOCALE, { maximumFractionDigits: 2 })} ${joyCode()}`;
+/**
+ * Hai chữ số lẻ CHỈ khi con số còn nhỏ. Đơn vị ví to (JOYlu: 1 JOYka ≈ 1.400)
+ * biến giá một cổ phiếu thành "158.682,62" — sáu chữ số cộng hai số lẻ không
+ * lọt hàng OHLC trên điện thoại, mà hai số lẻ đó cũng chẳng nói thêm gì ở thang
+ * đó. Ví đơn vị nhỏ vẫn giữ số lẻ vì mất nó là mất luôn nhịp sóng.
+ */
+const shortNumber = (value) => {
+  const shown = Number(value || 0);
+  return shown.toLocaleString(LOCALE, { maximumFractionDigits: Math.abs(shown) >= 1000 ? 0 : 2 });
+};
+const priceText = (joy) => `${shortNumber(Number(joy || 0) * joyFactor())} ${joyCode()}`;
 const moneyText = (joy) => joyText(joy);
 const quoteText = (joy) => `${(Math.round(Number(joy || 0) * 100) / 100).toLocaleString(LOCALE)} ${STOCK_QUOTE_CODE}`;
 
@@ -136,7 +146,8 @@ function HelpIcon({ topicKey, onClick }) {
         onClick?.(topicKey);
       }}
       title="Bấm xem giải thích chi tiết"
-      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-muted text-[11.5px] font-bold text-foreground border border-border hover:bg-muted hover:text-foreground transition-all transform active:scale-95 ml-1 shrink-0 cursor-pointer"
+      aria-label="Giải thích"
+      className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[12px] font-bold text-muted-foreground transition-colors hover:text-foreground"
     >
       ?
     </button>
@@ -166,7 +177,8 @@ function InfoModalPopup({ topicKey, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            aria-label="Đóng"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground"
           >
             <span className="material-symbols-outlined text-sm">close</span>
           </button>
@@ -177,7 +189,7 @@ function InfoModalPopup({ topicKey, onClose }) {
         </p>
 
         <div className="space-y-2">
-          <h4 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground">Chi tiết cần biết:</h4>
+          <h4 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground">Chi tiết cần biết</h4>
           <ul className="space-y-2">
             {item.details.map((desc, idx) => (
               <li key={idx} className="flex items-start gap-2 text-[13.5px] text-foreground leading-relaxed font-sans">
@@ -197,9 +209,9 @@ function InfoModalPopup({ topicKey, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="h-11 w-full rounded-2xl bg-muted hover:bg-zinc-700 text-[13.5px] font-bold text-foreground border border-border shadow-card active:scale-95 transition-all"
+          className="h-12 w-full rounded-xl bg-primary text-[14px] font-bold text-primary-foreground transition-transform active:scale-[0.99]"
         >
-          ĐÃ HỂU
+          Đã hiểu
         </button>
       </div>
     </div>
@@ -259,13 +271,13 @@ function ReceiptSheet({ receipt, onClose }) {
           <div>
             <p className="text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground">Hoá đơn khớp lệnh</p>
             <h3 className="text-base font-bold text-foreground">
-              {buy ? "MUA" : "BÁN"} {receipt.quantity.toLocaleString(LOCALE)} {receipt.symbol}
+              {buy ? "Mua" : "Bán"} {receipt.quantity.toLocaleString(LOCALE)} {receipt.symbol}
             </h3>
             <p className="text-[12.5px] text-muted-foreground font-sans">
               {at.toLocaleString(LOCALE)}{receipt.session ? ` · phiên ${receipt.session}` : ""}
             </p>
           </div>
-          <span className={`rounded-lg border px-2.5 py-1 text-[11.5px] font-bold uppercase ${buy ? "border-success/25 bg-success/10 text-success" : "border-destructive/25 bg-destructive/10 text-destructive"}`}>
+          <span className={`rounded-lg border px-2.5 py-1 text-[11.5px] font-bold ${buy ? "border-success/25 bg-success/10 text-success" : "border-destructive/25 bg-destructive/10 text-destructive"}`}>
             {buy ? "Tiền ra" : "Tiền về"}
           </span>
         </div>
@@ -308,9 +320,9 @@ function ReceiptSheet({ receipt, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="h-11 w-full rounded-2xl border border-border bg-muted text-[13.5px] font-bold text-foreground transition-all active:scale-95 hover:bg-zinc-700"
+          className="h-12 w-full rounded-xl border border-border bg-muted text-[14px] font-bold text-foreground transition-transform active:scale-[0.99]"
         >
-          ĐÓNG HOÁ ĐƠN
+          Đóng hoá đơn
         </button>
       </div>
     </div>
@@ -465,7 +477,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
   }, [reloadPortfolio, reloadMarket]);
 
   return (
-    <div className="flex h-full flex-col bg-muted/40 text-foreground font-sans relative">
+    <div className="flex h-full flex-col bg-background text-foreground">
       {/* Help Info Popup Modal */}
       <InfoModalPopup topicKey={helpTopic} onClose={() => setHelpTopic(null)} />
 
@@ -498,7 +510,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
             <button
               type="button"
               onClick={() => { hapticSelect(); onSelectUtility("joy_wallet"); }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 border border-success/25 text-[13.5px] font-mono font-bold text-success hover:bg-success/10 transition-all shrink-0 active:scale-95"
+              className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border bg-muted px-3 text-[13px] font-bold tabular-nums text-foreground transition-transform active:scale-95"
               title="Số dư Ví JOY — Bấm để mở Ví"
             >
               <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
@@ -522,7 +534,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
                   type="button"
                   onClick={() => { hapticSelect(); setTab(item.id); }}
                   aria-current={selected}
-                  className={`relative flex-1 py-2 flex items-center justify-center gap-1.5 rounded-xl text-[13.5px] font-bold transition-all duration-300 ${
+                  className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg text-[13px] font-bold transition-colors ${
                     selected
                       ? "bg-card text-foreground shadow-card border border-border"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -570,10 +582,7 @@ function Market({ market, portfolio, onOpen, onHelp }) {
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-card space-y-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
-              </span>
+              <span className="h-2 w-2 rounded-full bg-success" />
               <span className="text-[13.5px] font-bold uppercase tracking-wider text-success flex items-center">
                 Xu Hướng Realtime 1s: {featuredCompany.symbol}
                 <HelpIcon topicKey="second_price" onClick={onHelp} />
@@ -662,8 +671,8 @@ function MiniSparkline({ company, isUp }) {
     .join(" ");
 
   return (
-    <svg viewBox="0 0 96 32" className="h-8 w-full overflow-visible">
-      <path d={path} fill="none" stroke={isUp ? "#10b981" : "#f43f5e"} strokeWidth="1.8" strokeLinecap="round" />
+    <svg viewBox="0 0 96 32" className={`h-8 w-full overflow-visible ${isUp ? "text-success" : "text-destructive"}`}>
+      <path d={path} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -736,26 +745,26 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
       {/* Stock Header & Price Banner */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[28px] font-bold tabular-nums tracking-tight text-foreground">{priceText(company.price)}</span>
+          <div className="min-w-0 flex-1">
+            <div className="text-[28px] font-bold leading-none tabular-nums tracking-tight text-foreground">
+              {priceText(company.price)}
             </div>
-            <p className="mt-0.5 text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground">
+            <p className="mt-1.5 text-[12px] text-muted-foreground">
               Niêm yết {quoteText(company.price)} · quy về ví bạn theo tỷ giá hôm nay
             </p>
-            <div className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-[13.5px] font-bold tabular-nums border ${toneBg(company.change)}`}>
-              <span className="material-symbols-outlined text-[13.5px]">{company.change >= 0 ? "arrow_drop_up" : "arrow_drop_down"}</span>
-              <span>{pctText(company.change)} ({priceText(company.prevPrice)})</span>
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className={`inline-flex items-center gap-0.5 rounded-lg border px-2 py-0.5 text-[13.5px] font-bold tabular-nums ${toneBg(company.change)}`}>
+                <span className="material-symbols-outlined text-[16px]">{company.change >= 0 ? "arrow_drop_up" : "arrow_drop_down"}</span>
+                <span>{pctText(company.change)}</span>
+              </span>
+              <span className="text-[12px] text-muted-foreground">tham chiếu {priceText(company.prevPrice)}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 border border-success/25 text-success">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-            </span>
-            <span className="text-[11.5px] font-bold tracking-wider uppercase flex items-center">
-              REALTIME 1S
+          <div className="flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-muted px-2 py-1 text-muted-foreground">
+            <span className="h-2 w-2 rounded-full bg-success" />
+            <span className="flex items-center text-[11.5px] font-bold">
+              Realtime 1s
               <HelpIcon topicKey="second_price" onClick={onHelp} />
             </span>
           </div>
@@ -800,37 +809,37 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
 
       {/* iOS 27 Order Execution Sheet */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-card">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Đặt Lệnh Khớp Ngay</h3>
+        <h3 className="text-[14.5px] font-bold text-foreground">Đặt lệnh khớp ngay</h3>
 
         {/* Side Selector */}
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/40 p-1 border border-border">
+        <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted p-1">
           <button
             type="button"
             onClick={() => { hapticSelect(); setSide("buy"); }}
-            className={`py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`h-11 rounded-lg text-[14px] font-bold transition-colors ${
               side === "buy"
-                ? "bg-success text-foreground shadow-card"
+                ? "bg-success text-white"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            MUA {company.symbol}
+            Mua
           </button>
           <button
             type="button"
             onClick={() => { hapticSelect(); setSide("sell"); }}
-            className={`py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`h-11 rounded-lg text-[14px] font-bold transition-colors ${
               side === "sell"
-                ? "bg-destructive text-foreground shadow-card"
+                ? "bg-destructive text-white"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            BÁN {company.symbol}
+            Bán
           </button>
         </div>
 
         {/* Quantity Input */}
         <div className="space-y-2">
-          <label className="block text-[13.5px] font-bold text-muted-foreground">Số Lượng Cổ Phiếu</label>
+          <label className="block text-[12.5px] font-semibold text-muted-foreground">Số lượng cổ phiếu</label>
           <div className="relative">
             <input
               type="number"
@@ -838,9 +847,9 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
               inputMode="numeric"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-border bg-muted/40 px-4 text-base font-bold tabular-nums text-foreground outline-none focus:border-success transition-colors"
+              className="h-12 w-full rounded-xl border border-border bg-background px-3.5 pr-20 text-[16px] font-bold tabular-nums text-foreground outline-none focus:border-primary"
             />
-            <span className="absolute right-4 top-3 text-[13.5px] font-bold text-muted-foreground">Cổ phiếu</span>
+            <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[12.5px] font-semibold text-muted-foreground">cổ phiếu</span>
           </div>
 
           {/* Quick Amount Presets */}
@@ -850,7 +859,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
                 key={num}
                 type="button"
                 onClick={() => { hapticSelect(); setQuantity(num); }}
-                className="flex-1 py-1.5 rounded-xl bg-muted hover:bg-muted border border-border text-[13.5px] font-bold text-foreground transition-all active:scale-95"
+                className="h-11 flex-1 rounded-xl border border-border bg-muted text-[13px] font-bold text-foreground transition-transform active:scale-95"
               >
                 +{num}
               </button>
@@ -876,7 +885,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
           {conversionRate > 0 && (
             <>
               <Row label={`Phí đổi đơn vị (${(conversionRate * 100).toFixed(0)}%)`} value={moneyText(conversionFee)} onHelp={onHelp} helpKey="conversion_fee" />
-              <div className="mt-2 rounded-xl border border-warning/25 bg-warning/10 p-2.5 text-[12.5px] leading-snug text-warning flex items-start justify-between gap-1">
+              <div className="mt-2 rounded-xl border border-warning/25 bg-warning/10 p-3 text-[13px] leading-relaxed text-foreground flex items-start justify-between gap-1">
                 <span>
                   <strong>Ví khác đơn vị gốc:</strong> phí quy đổi 15% thu cả chiều <strong>MUA và BÁN</strong>, nên giá phải tăng{" "}
                   <strong>{(breakEvenPct(true) * 100).toFixed(1)}%</strong> thì bán mới hoà vốn.
@@ -909,11 +918,11 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
           }`}
         >
           {busy ? (
-            <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+            <span className="inline-block h-4 w-4 rounded-full border-2 border-white/90 border-t-transparent animate-spin" />
           ) : (
             <>
               <span className="material-symbols-outlined text-lg">{side === "buy" ? "shopping_cart" : "sell"}</span>
-              <span>{side === "buy" ? `XÁC NHẬN MUA (${qty} cổ)` : `XÁC NHẬN BÁN (${qty} cổ)`}</span>
+              <span>{side === "buy" ? `Xác nhận mua ${qty.toLocaleString(LOCALE)} cổ` : `Xác nhận bán ${qty.toLocaleString(LOCALE)} cổ`}</span>
             </>
           )}
         </button>
@@ -960,7 +969,6 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
 
       {/* Prominent Profit / Loss (PnL) Executive Summary Card */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card space-y-4">
-        <div className="absolute -top-12 -right-12 h-36 w-36 rounded-full bg-success/10 pointer-events-none" />
 
         {/* Top Header */}
         <div className="flex items-center justify-between">
@@ -969,7 +977,7 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
             <HelpIcon topicKey="pnl" onClick={onHelp} />
           </p>
           <span className={`rounded-md bg-muted border border-border px-2.5 py-0.5 text-[11.5px] font-bold uppercase tracking-wider ${toneOf(unrealizedVal)}`}>
-            {isProfit ? "LỜI RÒNG" : "LỖ RÒNG"}
+            {isProfit ? "Đang lời" : "Đang lỗ"}
           </span>
         </div>
 
@@ -997,7 +1005,7 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
 
         {/* Cross Denom Fee Warning */}
         {crossDenom && (
-          <div className="rounded-2xl border border-warning/25 bg-warning/10 p-3 text-[13.5px] leading-relaxed text-warning flex items-center justify-between">
+          <div className="rounded-2xl border border-warning/25 bg-warning/10 p-3 text-[13px] leading-relaxed text-foreground flex items-center justify-between">
             <span>
               <strong>Ví khác đơn vị gốc:</strong> mỗi chiều chịu thêm 15% phí quy đổi, nên giá phải tăng{" "}
               <strong>{(breakEvenPct(true) * 100).toFixed(1)}%</strong> mới hoà vốn — không phải 15%.
@@ -1059,8 +1067,8 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`rounded-md px-2 py-0.5 text-[11.5px] font-bold uppercase ${trade.side === "buy" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
-                        {trade.side === "buy" ? "MUA" : "BÁN"}
+                      <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${trade.side === "buy" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
+                        {trade.side === "buy" ? "Mua" : "Bán"}
                       </span>
                       <span className="truncate text-foreground">
                         {trade.quantity.toLocaleString(LOCALE)} {trade.symbol} @ {priceText(trade.price)}
