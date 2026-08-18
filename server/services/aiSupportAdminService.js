@@ -63,7 +63,7 @@ export async function autoProcessTicket(ticket) {
         adminUsername: 'AI_Support_Butler',
         action: 'escalate_ticket',
         targetEmail: ticket.email,
-        details: { ticketId: ticket._id, sentiment, reason: 'High severity / Angry sentiment' },
+        details: `Ticket #${ticket._id} | Cảm xúc: ${sentiment} | Chuyển Boss do nhạy cảm`,
       });
       return;
     }
@@ -79,33 +79,22 @@ export async function autoProcessTicket(ticket) {
       }
     }
 
-    // 3. Nếu chưa có trong KB, gọi AI Gateway sinh phản hồi
+    // 3. Nếu chưa có trong KB -> Dùng Gemini AI để tự sáng tạo câu trả lời chuẩn xác
     if (!reply) {
-      const prompt = `
-Bạn là Trợ Lý AI Support Butler Agent (Quản gia AI) của Hugo Studio.
-Thành viên có email (${ticket.email}) vừa gửi thắc mắc:
-"${messageText}"
-
-Hãy đưa ra câu trả lời chuyên nghiệp, ngắn gọn (dưới 140 từ), vô cùng lịch sự và chu đáo bằng Tiếng Việt.
-`;
-      reply = await aiGenerateRaw(prompt).catch(() => null);
+      const { generateRaw } = await import('./aiGateway.js');
+      const aiResponse = await generateRaw({
+        systemInstruction: { parts: [{ text: 'Bạn là Trợ lý Hỗ trợ Khách hàng tự động của Hugo Studio. Trả lời ngắn gọn, lịch sự, thân thiện, giải quyết vấn đề cho khách.' }] },
+        contents: [{ role: 'user', parts: [{ text: messageText }] }],
+        generationConfig: { temperature: 0.3 },
+      });
+      reply = aiResponse || 'Cảm ơn bạn đã phản hồi! Yêu cầu của bạn đã được ghi nhận và đội ngũ hỗ trợ sẽ xử lý sớm nhất.';
     }
 
-    if (!reply || reply.includes('API Key') || reply.length < 10) {
-      reply = 'Cảm ơn bạn đã liên hệ Hugo Studio! Yêu cầu của bạn đã được ghi nhận. Bạn có thể kiểm tra các mục hướng dẫn Bio Editor & Booking trong trang cổng thành viên.';
-    }
-
-    // 4. Tự động cập nhật Ticket & Lưu Log
-    await SupportTicket.updateOne(
-      { _id: ticket._id },
-      {
-        $set: {
-          status: 'resolved',
-          adminReply: `🤖 [AI Support Butler]: ${reply}`,
-          repliedAt: new Date(),
-        },
-      }
-    );
+    // 4. Cập nhật Ticket & tạo Nhật ký
+    ticket.status = 'resolved';
+    ticket.adminReply = `🤖 [AI Support Butler]: ${reply}`;
+    ticket.resolvedAt = new Date();
+    await ticket.save();
 
     await AISupportLog.create({
       actionType: 'ticket_reply',
@@ -121,7 +110,7 @@ Hãy đưa ra câu trả lời chuyên nghiệp, ngắn gọn (dưới 140 từ)
       adminUsername: 'AI_Support_Butler',
       action: 'auto_reply_ticket',
       targetEmail: ticket.email,
-      details: { ticketId: ticket._id, sentiment },
+      details: `Ticket #${ticket._id} | Cảm xúc: ${sentiment} | Đã tự động trả lời`,
     });
   } catch (error) {
     console.error('[AI Support Butler autoProcessTicket]', error);

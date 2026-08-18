@@ -14,7 +14,7 @@ const FIELD_META = {
  * Đợt kiểm tra thông tin định kỳ. Không có nút "để sau": bỏ qua được thì
  * người khai man chỉ việc bỏ qua mãi mãi, và cả tính năng thành đồ trang trí.
  */
-export default function IdentityCheckDialog({ field, attemptsLeft: initialAttempts, emailHint, onPassed, onBlocked }) {
+export default function IdentityCheckDialog({ field, attemptsLeft: initialAttempts, emailHint, onPassed, onBlocked, onSwitched }) {
   const { t } = useTranslation();
   const [value, setValue] = useState("");
   const [busy, setBusy] = useState(false);
@@ -28,8 +28,14 @@ export default function IdentityCheckDialog({ field, attemptsLeft: initialAttemp
     if (field !== "email" || otpSent) return;
     setOtpSent(true);
     fetch(`${apiBase}/bios/me/identity-check/send-otp`, { method: "POST", credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => {
+        // Máy chủ không gửi được thư thì nó đã tự đổi sang hỏi mục khác — nạp
+        // lại câu hỏi thay vì bắt người dùng chờ một mã không bao giờ tới.
+        if (d?.error === "EMAIL_UNAVAILABLE") onSwitched?.();
+      })
       .catch(() => setError(t("memberPortal.identityCheck.otpSendFailed")));
-  }, [field, otpSent, t]);
+  }, [field, otpSent, t, onSwitched]);
 
   const submit = async (e) => {
     e?.preventDefault();
@@ -41,7 +47,7 @@ export default function IdentityCheckDialog({ field, attemptsLeft: initialAttemp
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ value: value.trim() }),
+        body: JSON.stringify({ value: value.trim(), field }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -53,6 +59,15 @@ export default function IdentityCheckDialog({ field, attemptsLeft: initialAttemp
       // Hết lượt: server đã khoá tài khoản và trả về màn chặn.
       if (res.status === 403 || data.error === "ACCESS_BLOCKED") {
         onBlocked?.(data);
+        return;
+      }
+      // Câu hỏi vừa đổi dưới chân người dùng — nạp lại, không trừ lượt.
+      if (data.error === "QUESTION_CHANGED") { onSwitched?.(); return; }
+      // Mã hết hạn / chưa gửi: KHÔNG phải trả lời sai, không trừ lượt.
+      if (data.error === "NO_ACTIVE_CODE") {
+        setOtpSent(false);
+        setError(t("memberPortal.identityCheck.codeExpired"));
+        setValue("");
         return;
       }
       setAttemptsLeft(data.attemptsLeft ?? 0);

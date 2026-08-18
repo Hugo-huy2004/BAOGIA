@@ -2579,7 +2579,8 @@
       "lastChance": "Une erreur de plus et votre compte sera verrouillé.",
       "networkError": "Impossible d'envoyer votre réponse. Vérifiez votre connexion et réessayez.",
       "otpSendFailed": "Impossible d'envoyer le code de vérification. Réessayez plus tard.",
-      "warning": "Toute fausse déclaration entraîne le verrouillage du compte. Pour faire appel, envoyez-nous un e-mail expliquant l'écart ; un administrateur peut exiger des justificatifs."
+      "warning": "Toute fausse déclaration entraîne le verrouillage du compte. Pour faire appel, envoyez-nous un e-mail expliquant l'écart ; un administrateur peut exiger des justificatifs.",
+      "codeExpired": "Le code a expiré ou n'a jamais été envoyé. Demandez-en un nouveau."
     }
   },
   "memberTabs": {
@@ -6269,5 +6270,20 @@
       "title": "Impossible de charger le film",
       "desc": "Aucune source ne répond. C’est souvent le réseau qui n’atteint pas le serveur d’archive : réessayez ou changez de réseau."
     }
+  },
+  "joyRate": {
+    "baseUnit": "unité de base",
+    "yourUnit": "la vôtre",
+    "boardTitle": "Tableau des taux · pour 1 {{base}}",
+    "updated": "Mis à jour {{time}}",
+    "low": "Bas",
+    "high": "Haut",
+    "points": "{{count}} points réels",
+    "chartLabel": "{{code}} face à {{base}}",
+    "empty": {
+      "title": "Pas encore assez de données",
+      "desc": "Le graphique ne trace que des points réellement enregistrés. Revenez dans quelques heures."
+    },
+    "note": "Les taux proviennent de la circulation interne des JOY et ne sont indexés sur aucune monnaie réelle. Les prix de l’app sont toujours en JOY de base : le taux ne change donc pas le pouvoir d’achat."
   }
 }

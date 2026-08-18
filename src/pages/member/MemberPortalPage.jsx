@@ -1176,6 +1176,7 @@ function MemberPortalPage() {
         emailHint={identityChallenge.emailHint}
         onPassed={() => setIdentityChallenge(null)}
         onBlocked={() => window.location.reload()}
+        onSwitched={() => window.location.reload()}
       />
     )}
 

@@ -568,6 +568,10 @@ server.listen(PORT, () => {
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
 
+  // Nạp bảng tỷ giá JOY ngay khi khởi động: lần chuyển JOY đầu tiên sau mỗi lần
+  // restart cũng phải tính bằng tỷ giá đang chạy, không phải hệ số nền.
+  import('./utils/joyRateService.js').then(({ ensureLiveFactors }) => ensureLiveFactors()).catch(() => {});
+
   // Weekly wellness digest → CompanionHistory.longTermMemories (Sunday 22:00)
   initCompanionMemoryCron();
 

@@ -73,15 +73,29 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
     const ua = req.headers['user-agent'] || '';
     const uaHash = cryptoMod.createHash('sha256').update(ua).digest('hex');
     const BioMod = (await import('../models/Bio.js')).default;
-    // Set lastUserAgentHash and clear locationAnomaly since they just re-logged in successfully
-    await BioMod.updateOne({ email }, { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } });
+    
+    // Set lastUserAgentHash and clear locationAnomaly. Upsert if first-time login.
+    await BioMod.updateOne(
+      { email },
+      {
+        $set: { lastUserAgentHash: uaHash, locationAnomaly: false },
+        $setOnInsert: {
+          email,
+          displayName: claims.name || email.split('@')[0],
+          avatarUrl: claims.picture || '',
+          provider: 'google',
+          joyBalance: 1000,
+        }
+      },
+      { upsert: true }
+    );
 
     const token = signMemberToken(email, req);
     setMemberCookie(res, token);
 
     res.json({
       success: true,
-      token, // Bearer fallback for cross-origin deployments where the cookie can't flow
+      token,
       member: {
         email,
         displayName: claims.name || email,
@@ -90,8 +104,8 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Member Google login error:', error);
-    res.status(500).json({ error: 'Đăng nhập thất bại, vui lòng thử lại.' });
+    console.error('Member Google login error:', error.message || error);
+    res.status(500).json({ error: error.message || 'Đăng nhập thất bại, vui lòng thử lại.' });
   }
 });
 

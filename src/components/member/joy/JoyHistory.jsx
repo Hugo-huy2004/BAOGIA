@@ -186,7 +186,7 @@ export default function JoyHistory({ limit = 50 }) {
                 </span>
                 <span className="font-mono text-[12.5px] text-muted-foreground">
                   {day.net >= 0 ? "+" : "−"}
-                  {joyText(Math.abs(day.net))}
+                  {fmt(day.net)}
                 </span>
               </div>
               {day.items.map((tx) => (

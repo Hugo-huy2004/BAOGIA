@@ -5,6 +5,40 @@ import { useJoy } from "../../lib/joyDisplay";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
+// Quay 6 vòng trọn trong 4,6 giây: đủ lâu để ra cảm giác "quay thật", đủ ngắn
+// để không ai phải ngồi chờ. Người bật "giảm chuyển động" được bỏ qua hoàn toàn.
+const TURNS = 6;
+const SPIN_MS = 4600;
+
+// Chỉ để VẼ KHUNG trong lúc chờ server trả danh sách thật. Không bao giờ là
+// phần thưởng: server mới là nơi bốc (POST /api/joy/birthday-spin), client chỉ
+// dừng kim đúng ô server đã chọn.
+const FALLBACK_PRIZES = [200, 500, 1000, 2000, 5000, 10000];
+
+/**
+ * Màu ô sáng dần đều quanh vòng thay vì lấy từ một bảng màu cố định: số ô do
+ * server quyết định, mà bảng cố định thì hễ số ô không chia hết là hai ô cạnh
+ * nhau ở chỗ khép vòng bị trùng màu. Dải liên tục luôn đúng với mọi số ô, và
+ * giữ đúng một tông màu thương hiệu.
+ */
+function segmentFill(index, count) {
+  return `hsl(243 58% ${34 + (index / Math.max(1, count)) * 26}%)`;
+}
+
+/** Toạ độ trên đường tròn, 0° ở vị trí 12 giờ và tăng theo chiều kim đồng hồ. */
+function polar(cx, cy, r, angleDeg) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+}
+
+/** Hình quạt từ tâm, dùng cùng quy ước góc với polar() và targetAngle(). */
+function segmentPath(cx, cy, r, fromDeg, toDeg) {
+  const [x1, y1] = polar(cx, cy, r, fromDeg);
+  const [x2, y2] = polar(cx, cy, r, toDeg);
+  const largeArc = toDeg - fromDeg > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+}
+
 /**
  * Góc phải xoay để ô thứ `index` dừng dưới kim (12 giờ).
  *
@@ -171,7 +205,7 @@ export default function BirthdayWheel({ onClose, onAwarded }) {
               const textAngle = mid > 90 && mid < 270 ? mid + 180 : mid;
               return (
                 <g key={index}>
-                  <path d={segmentPath(wheel.cx, wheel.cy, wheel.r, from, from + segment)} fill={SEGMENT_COLORS[index % SEGMENT_COLORS.length]} />
+                  <path d={segmentPath(wheel.cx, wheel.cy, wheel.r, from, from + segment)} fill={segmentFill(index, prizes.length)} />
                   <text
                     x={tx}
                     y={ty}

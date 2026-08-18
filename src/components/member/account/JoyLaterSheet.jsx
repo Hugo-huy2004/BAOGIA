@@ -157,20 +157,10 @@ export default function JoyLaterSheet({ onBalanceChange }) {
             <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.itemRow")}</dt><dd className="font-semibold">{loan.itemLabel || "—"}</dd></div>
             <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.garnishRow")}</dt><dd className="font-semibold">{Math.round(status.garnishRate * 100)}%</dd></div>
             {loan.installments > 1 && (
-              <>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("memberPortal.joyLater.stepRow")}</dt>
-                  <dd className="font-semibold">
-                    {t("memberPortal.joyLater.stepOf", { index: loan.next.index, of: loan.next.of })}
-                    {" · "}
-                    {money(loan.next.due)}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("memberPortal.joyLater.dueRow")}</dt>
-                  <dd className="font-semibold">{day(loan.next.dueAt)}</dd>
-                </div>
-              </>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">{t("memberPortal.joyLater.dueRow")}</dt>
+                <dd className="font-semibold">{day(loan.next.dueAt)}</dd>
+              </div>
             )}
             {loan.penalty > 0 && (
               <div className="flex justify-between">
@@ -180,6 +170,34 @@ export default function JoyLaterSheet({ onBalanceChange }) {
             )}
             <div className="flex justify-between"><dt className="text-muted-foreground">{t("memberPortal.joyLater.remainingDaysRow")}</dt><dd className="font-semibold">{t("memberPortal.joyLater.days", { count: loan.remainingDays })}</dd></div>
           </dl>
+
+          {/* TOÀN BỘ lịch đợt. Chọn chia 4 đợt mà chỉ thấy đợt kế tiếp thì
+              không kiểm được mình đã hoàn tới đâu và còn mấy mốc nữa. */}
+          {loan.installments > 1 && (loan.steps || []).length > 0 && (
+            <ul className="mt-3 space-y-1">
+              {loan.steps.map((item) => (
+                <li
+                  key={item.index}
+                  className={`flex items-center gap-2.5 rounded-xl border px-3 py-2 text-sm ${
+                    item.index === loan.next.index && item.due > 0
+                      ? "border-foreground/25 bg-background"
+                      : "border-transparent bg-background/50"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px] text-muted-foreground" aria-hidden="true">
+                    {item.due === 0 ? "check_circle" : item.late ? "error" : "schedule"}
+                  </span>
+                  <span className="flex-1 font-semibold text-foreground">
+                    {t("memberPortal.joyLater.stepOf", { index: item.index, of: loan.installments })}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{day(item.dueAt)}</span>
+                  <span className={`font-semibold tabular-nums ${item.due === 0 ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                    {money(item.amount)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* Chia đợt thì cửa hoàn chỉ mở đúng ngày — cả nút hoàn đợt lẫn nút
               hoàn hết. Khoá thì nói rõ MỞ LÚC NÀO, đừng chỉ làm mờ nút đi. */}

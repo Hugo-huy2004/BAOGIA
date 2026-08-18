@@ -2579,7 +2579,8 @@
       "lastChance": "Satu kesalahan lagi dan akun Anda akan dikunci.",
       "networkError": "Jawaban gagal dikirim. Periksa koneksi lalu coba lagi.",
       "otpSendFailed": "Kode verifikasi gagal dikirim. Coba lagi nanti.",
-      "warning": "Memberikan informasi palsu akan mengunci akun Anda. Untuk mengajukan banding, kirim email dengan alasan yang jelas; admin berhak meminta dokumen untuk verifikasi."
+      "warning": "Memberikan informasi palsu akan mengunci akun Anda. Untuk mengajukan banding, kirim email dengan alasan yang jelas; admin berhak meminta dokumen untuk verifikasi.",
+      "codeExpired": "Kode kedaluwarsa atau belum terkirim. Minta kode baru."
     }
   },
   "memberTabs": {
@@ -6262,5 +6263,20 @@
       "title": "Film gagal dimuat",
       "desc": "Kedua sumber tidak merespons. Biasanya jaringan tidak bisa menjangkau server arsip — coba lagi atau ganti jaringan."
     }
+  },
+  "joyRate": {
+    "baseUnit": "satuan dasar",
+    "yourUnit": "milikmu",
+    "boardTitle": "Papan kurs · per 1 {{base}}",
+    "updated": "Diperbarui {{time}}",
+    "low": "Terendah",
+    "high": "Tertinggi",
+    "points": "{{count}} titik data nyata",
+    "chartLabel": "{{code}} terhadap {{base}}",
+    "empty": {
+      "title": "Data belum cukup",
+      "desc": "Grafik hanya menggambar titik yang benar-benar tercatat. Cek lagi beberapa jam lagi."
+    },
+    "note": "Kurs berasal dari peredaran JOY internal, tidak dipatok ke mata uang nyata mana pun. Harga di aplikasi selalu dalam JOY dasar, jadi kurs naik-turun tidak mengubah daya beli."
   }
 }

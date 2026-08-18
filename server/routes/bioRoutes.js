@@ -26,6 +26,26 @@ const checkLocationLimiter = rateLimit({
   message: { error: 'Bạn đang cập nhật vị trí quá nhanh. Vui lòng đợi vài phút.' }
 });
 
+// Đợt kiểm tra thông tin: giới hạn theo TÀI KHOẢN chứ không theo IP. Kẻ đoán mò
+// đổi IP dễ hơn đổi tài khoản, mà chặn theo IP thì cả phòng ký túc xá dùng chung
+// một NAT sẽ chặn nhầm nhau.
+const identityAnswerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => req.memberEmail || req.ip,
+  message: { error: 'Bạn đang trả lời quá nhanh. Vui lòng đợi ít phút rồi thử lại.' },
+});
+
+// Gửi mã xác minh: mỗi lần bấm là một email thật rời máy chủ. Không chặn thì
+// một vòng lặp gọi API biến hòm thư của thành viên thành bãi rác — và đốt sạch
+// hạn mức SendGrid.
+const identityOtpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  keyGenerator: (req) => req.memberEmail || req.ip,
+  message: { error: 'Bạn đã yêu cầu mã quá nhiều lần. Vui lòng đợi 15 phút.' },
+});
+
 const router = express.Router();
 
 const TWELVE_MONTHS_MS = 1000 * 60 * 60 * 24 * 365;
@@ -1510,7 +1530,7 @@ router.get('/me/identity-check', requireMember, async (req, res) => {
 });
 
 // POST /api/bios/me/identity-check/send-otp — gửi mã tới chính hòm thư đã đăng ký.
-router.post('/me/identity-check/send-otp', requireMember, async (req, res) => {
+router.post('/me/identity-check/send-otp', requireMember, identityOtpLimiter, async (req, res) => {
   try {
     const IC = await import('../utils/identityCheck.js');
     const bio = await Bio.findOne({ email: req.memberEmail });
@@ -1519,10 +1539,37 @@ router.post('/me/identity-check/send-otp', requireMember, async (req, res) => {
       return res.status(400).json({ error: 'Đợt kiểm tra hiện tại không yêu cầu mã email.' });
     }
 
-    const { issueEmailOtp } = await import('../utils/emailOtp.js');
+    const { issueEmailOtp, hasLiveEmailOtp } = await import('../utils/emailOtp.js');
+    // Mã cũ còn hiệu lực thì giữ nguyên: cấp mã mới sẽ vô hiệu hoá đúng cái mã
+    // người dùng đang gõ dở, và mỗi lần cấp là thêm một email rời máy chủ.
+    if (hasLiveEmailOtp(bio.email, 'identity')) {
+      return res.json({ success: true, alreadySent: true, emailHint: maskEmail(bio.email) });
+    }
+
     const { sendMagicLinkOtp } = await import('../services/emailService.js');
     const code = issueEmailOtp(bio.email, 'identity');
-    await sendMagicLinkOtp(bio.email, code, 'identity');
+    const mail = await sendMagicLinkOtp(bio.email, code, 'identity');
+
+    // Thư CHỈ được mô phỏng (chưa cấu hình SendGrid) hoặc gửi hỏng: tuyệt đối
+    // không được để đợt này chạy tiếp. Người dùng sẽ không bao giờ nhận được mã,
+    // gõ sai hai lần rồi bị khoá tài khoản vì một lá thư chưa từng rời máy chủ.
+    // Đổi sang mục khác để đợt kiểm tra vẫn diễn ra, chỉ là hỏi thứ khác.
+    if (!mail?.success || mail.simulated) {
+      console.warn(`⚠️ Kiểm tra thông tin: không gửi được mã tới ${maskEmail(bio.email)} — chuyển sang hỏi mục khác.`);
+      const IC2 = await import('../utils/identityCheck.js');
+      const fallback = IC2.availableFields(bio).find((f) => f !== 'email');
+      bio.identityCheck.pendingField = fallback || '';
+      if (!fallback) IC2.scheduleNext(bio, { advance: false });
+      await bio.save();
+      // 409 chứ không 503: safeServerErrors viết đè mọi thân 5xx thành câu chung
+      // chung, nên mã EMAIL_UNAVAILABLE không tới được giao diện.
+      return res.status(409).json({
+        success: false,
+        error: 'EMAIL_UNAVAILABLE',
+        switchedTo: fallback || null,
+        message: 'Không gửi được mã xác minh. Hệ thống sẽ hỏi bằng cách khác.',
+      });
+    }
 
     res.json({ success: true, emailHint: maskEmail(bio.email) });
   } catch (error) {
@@ -1531,7 +1578,7 @@ router.post('/me/identity-check/send-otp', requireMember, async (req, res) => {
 });
 
 // POST /api/bios/me/identity-check/answer  { value }
-router.post('/me/identity-check/answer', requireMember, async (req, res) => {
+router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, async (req, res) => {
   try {
     const IC = await import('../utils/identityCheck.js');
     const bio = await Bio.findOne({ email: req.memberEmail });
@@ -1543,9 +1590,32 @@ router.post('/me/identity-check/answer', requireMember, async (req, res) => {
     if (!field) return res.json({ success: true, due: false });
     if (!value) return res.status(400).json({ error: 'Vui lòng nhập câu trả lời.' });
 
+    // Giao diện gửi kèm câu hỏi nó đang hiển thị. Lệch nhau nghĩa là câu hỏi vừa
+    // đổi (vd: gửi mã email hỏng nên hệ thống chuyển sang hỏi số điện thoại) và
+    // người dùng bấm gửi trước khi màn hình kịp cập nhật — tính đó là một lần
+    // sai là ghi nợ oan cho người trả lời đúng câu hỏi cũ.
+    const askedField = String(req.body?.field || '').trim();
+    if (askedField && askedField !== field) {
+      return res.status(409).json({
+        success: false,
+        error: 'QUESTION_CHANGED',
+        field,
+        message: 'Câu hỏi đã thay đổi. Vui lòng trả lời câu hỏi mới.',
+      });
+    }
+
     let correct;
     if (field === 'email') {
-      const { verifyEmailOtp } = await import('../utils/emailOtp.js');
+      const { verifyEmailOtp, hasLiveEmailOtp } = await import('../utils/emailOtp.js');
+      // Không có mã nào đang sống thì đây không phải câu trả lời sai — chưa
+      // từng có câu hỏi. Đếm nó là một lần sai là khoá người vô tội.
+      if (!hasLiveEmailOtp(bio.email, 'identity')) {
+        return res.status(409).json({
+          success: false,
+          error: 'NO_ACTIVE_CODE',
+          message: 'Mã đã hết hạn hoặc chưa được gửi. Vui lòng yêu cầu mã mới.',
+        });
+      }
       correct = verifyEmailOtp(bio.email, value, 'identity').ok;
     } else {
       correct = IC.matchesProfile(bio, field, value);
@@ -1570,7 +1640,7 @@ router.post('/me/identity-check/answer', requireMember, async (req, res) => {
     // dùng thấy màn khoá kèm đường kháng nghị và admin có sẵn nút gỡ.
     const { recordSecurityViolation, sendSecurityBlockResponse, findActiveSecurityBlock } =
       await import('../services/securityEnforcement.js');
-    await recordSecurityViolation({
+    const { caseId } = await recordSecurityViolation({
       req,
       email: bio.email,
       phone: bio.phone || '',
@@ -1580,6 +1650,36 @@ router.post('/me/identity-check/answer', requireMember, async (req, res) => {
       evidence: `Sai ${IC.MAX_ATTEMPTS} lần liên tiếp ở mục "${field}"`,
       enforcement: 'immediate',
     });
+
+    // Sổ kiểm toán là NƠI DUY NHẤT còn giữ email dạng đọc được cho ca này:
+    // SecurityEvent chỉ lưu bản băm. Nút xử lý trên Telegram tra ngược qua đây.
+    const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
+    await AdminAuditLog.create({
+      adminId: 'SYSTEM_IDENTITY_CHECK',
+      adminUsername: 'Kiểm tra thông tin định kỳ',
+      action: 'identity_check_blocked',
+      targetEmail: bio.email,
+      details: { caseId, field, attempts: IC.MAX_ATTEMPTS },
+    });
+
+    // Báo Boss kèm hai nút xử lý — kháng nghị thường tới qua email, nhưng người
+    // bị khoá oan thì nhắn ngay, và Boss cần gỡ được từ điện thoại.
+    const { sendTelegramAlert } = await import('../services/telegramService.js');
+    sendTelegramAlert(
+      `🪪 <b>[KIỂM TRA THÔNG TIN: ĐÃ KHOÁ TÀI KHOẢN]</b>\n\n`
+      + `👤 <b>Thành viên:</b> <code>${bio.email}</code> (${bio.displayName || 'chưa đặt tên'})\n`
+      + `❓ <b>Hỏi mục:</b> ${field}\n`
+      + `❌ <b>Sai:</b> ${IC.MAX_ATTEMPTS} lần liên tiếp\n`
+      + `📁 <b>Case:</b> <code>${caseId}</code>`,
+      'HTML',
+      {
+        inline_keyboard: [[
+          { text: '🔓 Gỡ khoá', callback_data: `cb_id_unlock:${caseId}` },
+          { text: '📄 Đòi giấy tờ', callback_data: `cb_id_docs:${caseId}` },
+        ]],
+      },
+    ).catch(() => {});
+
     const block = await findActiveSecurityBlock({ email: bio.email });
     if (block) return sendSecurityBlockResponse(res, block);
     return res.status(403).json({ error: 'ACCESS_BLOCKED' });

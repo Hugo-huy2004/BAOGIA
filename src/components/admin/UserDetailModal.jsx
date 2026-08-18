@@ -422,6 +422,29 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                     </div>
 
                     <div className="p-4 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm">
+                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Kiểm tra thông tin định kỳ</div>
+                      {(() => {
+                        const ic = bio.identityCheck || {};
+                        const failed = (ic.failStreak || 0) > 0;
+                        const overdue = ic.nextDueAt && new Date(ic.nextDueAt) <= new Date();
+                        return (
+                          <>
+                            <div className={`text-sm font-black mt-1 flex items-center gap-1.5 ${failed ? 'text-rose-500' : overdue ? 'text-amber-500' : 'text-emerald-500'}`}>
+                              <span className="material-symbols-outlined text-base">{failed ? 'gpp_bad' : overdue ? 'pending' : 'verified_user'}</span>
+                              <span>{failed ? `Đã trượt ${ic.failStreak} đợt` : overdue ? 'Đang chờ trả lời' : 'Bình thường'}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              {ic.lastVerifiedAt
+                                ? `Xác minh gần nhất: ${new Date(ic.lastVerifiedAt).toLocaleDateString('vi-VN')}${ic.lastField ? ` (${ic.lastField})` : ''}`
+                                : 'Chưa từng xác minh'}
+                              {ic.nextDueAt ? ` · Đợt kế: ${new Date(ic.nextDueAt).toLocaleDateString('vi-VN')}` : ''}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    <div className="p-4 rounded-3xl bg-slate-100/60 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 shadow-sm">
                       <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Ưu đãi Sinh viên EDU</div>
                       <div className={`text-sm font-black mt-1 flex items-center gap-1.5 ${bio.isEduVerified ? 'text-indigo-500' : 'text-slate-400'}`}>
                         <span className="material-symbols-outlined text-base">school</span>

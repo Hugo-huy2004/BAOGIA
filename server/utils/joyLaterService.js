@@ -145,6 +145,23 @@ function describeLoan(loan, medianDaily) {
   // chặn người muốn xong sớm là điều không ai hiểu được.
   const locked = state.installments > 1 && !stepDue(state.dueAt, step.index - 1);
 
+  // Cả LỊCH đợt, không chỉ đợt kế tiếp: chọn chia 4 đợt mà màn hình chỉ hiện
+  // một đợt thì người dùng không thấy được thứ mình vừa chọn. Số tiền từng đợt
+  // do server chia (client không được tự chia tổng cho số đợt).
+  let covered = 0;
+  const steps = state.schedule.map((amount, i) => {
+    const paidHere = Math.max(0, Math.min(amount, state.paid - covered));
+    covered += amount;
+    return {
+      index: i + 1,
+      amount,
+      paid: paidHere,
+      due: amount - paidHere,
+      dueAt: state.dueAt[i] || null,
+      late: state.penalized.includes(i),
+    };
+  });
+
   return {
     principal: loan.principal,
     fee: loan.fee,
@@ -155,6 +172,7 @@ function describeLoan(loan, medianDaily) {
     itemLabel: loan.itemLabel,
     installments: state.installments,
     dueAt: state.dueAt,
+    steps,
     lateCount: state.penalized.length,
     next: {
       ...step,

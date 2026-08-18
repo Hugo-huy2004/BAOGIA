@@ -3942,7 +3942,8 @@
       "lastChance": "Sai thêm một lần nữa, tài khoản sẽ bị khoá.",
       "networkError": "Không gửi được câu trả lời. Kiểm tra kết nối rồi thử lại.",
       "otpSendFailed": "Không gửi được mã xác minh. Vui lòng thử lại sau.",
-      "warning": "Khai báo thông tin không đúng sự thật sẽ bị khoá tài khoản. Muốn mở khoá, hãy gửi email nêu rõ lý do; quản trị viên có quyền yêu cầu giấy tờ để xác minh."
+      "warning": "Khai báo thông tin không đúng sự thật sẽ bị khoá tài khoản. Muốn mở khoá, hãy gửi email nêu rõ lý do; quản trị viên có quyền yêu cầu giấy tờ để xác minh.",
+      "codeExpired": "Mã đã hết hạn hoặc chưa được gửi. Hãy yêu cầu mã mới."
     }
   },
   "memberTabs": {
@@ -6508,5 +6509,20 @@
       "title": "Không tải được phim",
       "desc": "Cả hai nguồn phát đều không tới nơi. Thường là mạng chặn máy chủ lưu trữ — thử lại hoặc đổi mạng."
     }
+  },
+  "joyRate": {
+    "baseUnit": "đơn vị chuẩn",
+    "yourUnit": "của bạn",
+    "boardTitle": "Bảng biến động · quy về 1 {{base}}",
+    "updated": "Cập nhật {{time}}",
+    "low": "Thấp",
+    "high": "Cao",
+    "points": "{{count}} mốc thật",
+    "chartLabel": "Biến động {{code}} so với {{base}}",
+    "empty": {
+      "title": "Chưa đủ dữ liệu để vẽ",
+      "desc": "Bảng chỉ vẽ từ mốc tỷ giá có thật. Quay lại sau vài giờ khi hệ thống ghi thêm mốc."
+    },
+    "note": "Tỷ giá sinh từ nhịp lưu thông JOY nội bộ, không neo theo bất kỳ đồng tiền thật nào. Giá trong app luôn niêm yết bằng JOY gốc, nên tỷ giá lên xuống không làm ai mua được nhiều hay ít hơn."
   }
 }

@@ -4,7 +4,7 @@ import { JOY_DENOMS } from '../../shared/joyCurrency.js';
 import { awardJoy, getJoyHistory, getJoySummary } from '../utils/joyService.js';
 import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
-import { getRates, getRateHistory } from '../utils/joyRateService.js';
+import { getRates, getRateHistory, ensureLiveFactors } from '../utils/joyRateService.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import {
@@ -1735,6 +1735,10 @@ router.post('/transfer', requireMember, async (req, res) => {
     // Phí đổi đơn vị: hai bên khác đơn vị JOY thì cộng thêm 15%. Đơn vị đọc từ
     // `Bio.joyDenom` của CẢ HAI phía — không bao giờ từ body hay header ngôn ngữ.
     // Client khai được đơn vị là khai được "cùng đơn vị" để khỏi trả phí.
+    // Nạp bảng tỷ giá của giờ hiện tại TRƯỚC khi lập hoá đơn: hoá đơn phải
+    // dùng đúng con số bảng biến động đang bày cho người dùng xem, không phải
+    // hệ số nền tĩnh.
+    await ensureLiveFactors();
     const bill = transferBreakdown(numAmount, sender.joyDenom, recipient.joyDenom, TRANSFER_FEE_RATE);
     const feeAmount = bill.creativeFee;
     const conversionFee = bill.conversionFee;

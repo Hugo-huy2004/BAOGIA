@@ -506,10 +506,7 @@ export default function AdminPanel() {
         {activeTab === "sentinel" && (
           <AdminSecuritySentinelTab
             token={adminToken}
-            onShowToast={(msg) => {
-              setToastState({ open: true, type: "success", message: msg });
-              setTimeout(() => setToastState(prev => ({ ...prev, open: false })), 4000);
-            }}
+            onShowToast={(msg) => showNotification(msg)}
           />
         )}
 

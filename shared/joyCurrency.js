@@ -41,6 +41,18 @@ export const JOY_DENOMS = {
 export const DEFAULT_DENOM = "vi";
 
 /**
+ * ĐƠN VỊ CHUẨN của cả hệ thống: Kavo (bản tiếng Anh), hệ số 1 — tức 1 Kavo
+ * đúng bằng 1 JOY gốc, không hơn không kém. Mọi đơn vị khác đều được NIÊM YẾT
+ * theo nó, đúng cách bảng tỷ giá quốc tế lấy một đồng làm gốc rồi quy mọi đồng
+ * còn lại về đó.
+ *
+ * Vì sao là bản tiếng Anh: nó là đơn vị MẠNH NHẤT trong bảng (một Kavo đổi được
+ * 1350 Luno, 25 Mira…), nên mọi tỷ giá quy về nó đều là số ≥ 1 — đọc bảng không
+ * phải nhìn số 0,00074. Đây cũng là lý do bảng tỷ giá thật lấy đồng mạnh làm gốc.
+ */
+export const BASE_DENOM = "en";
+
+/**
  * Danh sách để người dùng CHỌN đơn vị, gộp trùng theo mã: es và fr cùng JOYve
  * nên chỉ là một lựa chọn. Người dùng chọn ĐƠN VỊ, không phải chọn ngôn ngữ lần
  * hai.
@@ -106,6 +118,25 @@ export function formatDenom(joy, language, locale) {
   return `${amount.toLocaleString(locale || language || "vi")} ${code}`;
 }
 
+/**
+ * Tỷ giá của một đơn vị so với ĐƠN VỊ CHUẨN: "1 Kavo = ? đơn vị này".
+ * Đây là con số bảng biến động hiển thị, và cũng là con số dùng để quy đổi khi
+ * gửi JOY cho người dùng đơn vị khác — một nguồn duy nhất cho cả hai việc.
+ */
+export function rateAgainstBase(language) {
+  const base = factorOf(BASE_DENOM) || 1;
+  return factorOf(language) / base;
+}
+
+/**
+ * Đổi một số tiền ĐANG HIỂN THỊ ở đơn vị này sang số hiển thị ở đơn vị kia,
+ * theo đúng tỷ giá đang chạy. Đi vòng qua JOY gốc chứ không nhân chéo hai hệ
+ * số đã làm tròn.
+ */
+export function convertDenom(amount, fromLanguage, toLanguage) {
+  return toDenom(fromDenom(amount, fromLanguage), toLanguage).amount;
+}
+
 /** Hai đơn vị này có phải đổi tiền không (es/fr cùng JOY€ nên KHÔNG tính). */
 export const isCrossDenom = (a, b) => denomOf(a).code !== denomOf(b).code;
 
@@ -134,5 +165,16 @@ export function transferBreakdown(joy, fromDenomLang, toDenomLang, creativeFeeRa
     conversionFeeRate: crossDenom ? CROSS_DENOM_FEE : 0,
     fromCode: denomOf(fromDenomLang).code,
     toCode: denomOf(toDenomLang).code,
+    // Tỷ giá ĐANG CHẠY tại thời điểm lập hoá đơn, kèm số tiền mỗi bên nhìn thấy
+    // bằng đơn vị của mình. Thiếu ba con số này thì màn xác nhận phải tự tính
+    // lại bằng hệ số nền, và đó là lúc "màn hình nói một đằng, ví trừ một nẻo".
+    rate: {
+      base: denomOf(BASE_DENOM).code,
+      fromPerBase: Math.round(rateAgainstBase(fromDenomLang) * 1e4) / 1e4,
+      toPerBase: Math.round(rateAgainstBase(toDenomLang) * 1e4) / 1e4,
+    },
+    sentDisplay: toDenom(sent, fromDenomLang).amount,
+    receivedDisplay: toDenom(sent, toDenomLang).amount,
+    totalDeductedDisplay: toDenom(sent + creativeFee + conversionFee, fromDenomLang).amount,
   };
 }

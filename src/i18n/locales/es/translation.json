@@ -2579,7 +2579,8 @@
       "lastChance": "Un error más y tu cuenta quedará bloqueada.",
       "networkError": "No se pudo enviar tu respuesta. Comprueba la conexión e inténtalo de nuevo.",
       "otpSendFailed": "No se pudo enviar el código de verificación. Inténtalo más tarde.",
-      "warning": "Declarar información falsa bloqueará tu cuenta. Para apelar, escríbenos explicando el motivo; un administrador puede solicitar documentos para verificar tu identidad."
+      "warning": "Declarar información falsa bloqueará tu cuenta. Para apelar, escríbenos explicando el motivo; un administrador puede solicitar documentos para verificar tu identidad.",
+      "codeExpired": "El código caducó o nunca se envió. Solicita uno nuevo."
     }
   },
   "memberTabs": {
@@ -6269,5 +6270,20 @@
       "title": "No se pudo cargar la película",
       "desc": "Ninguna fuente respondió. Suele ser la red bloqueando el servidor del archivo: reinténtalo o cambia de red."
     }
+  },
+  "joyRate": {
+    "baseUnit": "unidad base",
+    "yourUnit": "la tuya",
+    "boardTitle": "Tabla de cambio · por 1 {{base}}",
+    "updated": "Actualizado {{time}}",
+    "low": "Mín.",
+    "high": "Máx.",
+    "points": "{{count}} puntos reales",
+    "chartLabel": "{{code}} frente a {{base}}",
+    "empty": {
+      "title": "Aún no hay datos suficientes",
+      "desc": "El gráfico solo dibuja puntos realmente registrados. Vuelve en unas horas."
+    },
+    "note": "Las tasas surgen de la circulación interna de JOY y no se anclan a ninguna moneda real. Los precios de la app siempre están en JOY base, así que la tasa no cambia el poder de compra."
   }
 }

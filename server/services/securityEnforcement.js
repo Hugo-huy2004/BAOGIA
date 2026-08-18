@@ -319,7 +319,11 @@ export async function recordSecurityViolation({
       const inlineButtons = {
         inline_keyboard: [
           [
-            { text: `🔓 1-Click Giải Khóa IP (${ip})`, callback_data: `cb_unblock_ip:${ipHash}` }
+            // callback_data tối đa 64 byte. Nhét mã băm 64 KÝ TỰ vào là 78 byte,
+            // Telegram từ chối NGUYÊN CẢ TIN (BUTTON_DATA_INVALID) — nên cảnh báo
+            // khoá khẩn cấp không bao giờ tới được Boss, im lặng, suốt thời gian
+            // qua. Case ID ngắn và tra ngược được đúng bản ghi.
+            { text: `🔓 1-Click Giải Khóa IP (${ip})`, callback_data: `cb_unblock_ip:${caseId}` }
           ]
         ]
       };

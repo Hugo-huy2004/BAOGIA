@@ -66,6 +66,11 @@ export async function processTelegramUpdate(update) {
       }).catch(() => {});
     }
 
+    // Bảng điều khiển bấm nút (k:*). Các cb_* cũ bên dưới vẫn sống: chúng nằm
+    // trong những thẻ cảnh báo đã gửi từ trước, bấm lại phải còn tác dụng.
+    const { handleConsoleCallback } = await import('../services/telegramConsole.js');
+    if (await handleConsoleCallback({ chatId, messageId: cb.message?.message_id, data: cbData })) return;
+
     if (cbData.startsWith('cb_award_1000:')) {
       const targetEmail = cbData.replace('cb_award_1000:', '');
       const bio = await Bio.findOne({ email: targetEmail });
@@ -98,10 +103,77 @@ export async function processTelegramUpdate(update) {
       return;
     }
 
+    // ─── Xử lý ca khoá do kiểm tra thông tin định kỳ ─────────────────────────
+    // Tra email qua sổ kiểm toán: SecurityEvent chỉ lưu bản băm, còn nhét email
+    // vào callback_data thì vượt giới hạn 64 byte của Telegram với địa chỉ dài.
+    if (cbData.startsWith('cb_id_unlock:') || cbData.startsWith('cb_id_docs:')) {
+      const caseId = cbData.split(':')[1];
+      const entry = await AdminAuditLog.findOne({ action: 'identity_check_blocked', 'details.caseId': caseId });
+      if (!entry) {
+        await sendTelegramAlert(`❌ Không tìm thấy ca <code>${caseId}</code>.`);
+        return;
+      }
+      const targetEmail = entry.targetEmail;
+      const bio = await Bio.findOne({ email: targetEmail });
+
+      if (cbData.startsWith('cb_id_unlock:')) {
+        const { findActiveSecurityBlock, revokeSecurityBlock } = await import('../services/securityEnforcement.js');
+        for (const subject of [{ email: targetEmail }, { phone: bio?.phone || '' }]) {
+          const blk = subject.phone === '' ? null : await findActiveSecurityBlock(subject);
+          if (blk?._id) await revokeSecurityBlock(blk._id);
+        }
+        if (bio) {
+          // Gỡ khoá xong phải xoá luôn ngòi nổ: còn attempts cũ thì lần hỏi kế
+          // tiếp chỉ cần sai MỘT lần là khoá lại ngay.
+          const IC = await import('../utils/identityCheck.js');
+          bio.identityCheck = { ...(bio.identityCheck?.toObject?.() || {}), attempts: 0, failStreak: 0, pendingField: '' };
+          IC.scheduleNext(bio, { advance: false });
+          await bio.save();
+        }
+        await AdminAuditLog.create({
+          adminId: 'TELEGRAM_BOT_ADMIN',
+          adminUsername: 'SuperAdmin_Telegram',
+          action: 'identity_check_unblocked',
+          targetEmail,
+          details: { caseId },
+        });
+        await sendTelegramAlert(`🔓 <b>Đã gỡ khoá:</b> <code>${targetEmail}</code>\nHẹn kiểm tra lại sau 7 ngày, bộ đếm sai đã xoá.`);
+        return;
+      }
+
+      // Đòi giấy tờ: gửi thư cho chính thành viên, Boss không phải tự soạn.
+      const { sendCustomEmail } = await import('../services/emailService.js');
+      const html = `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0f172a;">
+          <h2 style="margin-top:0;">Yêu cầu xác minh thông tin tài khoản</h2>
+          <p>Tài khoản <strong>${targetEmail}</strong> đang tạm khoá vì thông tin khai báo không khớp trong đợt kiểm tra định kỳ.</p>
+          <p>Để mở khoá, vui lòng trả lời email này kèm:</p>
+          <ul>
+            <li>Ảnh giấy tờ tuỳ thân có ngày sinh (che số định danh, chỉ để lộ họ tên và ngày sinh);</li>
+            <li>Số điện thoại đang dùng, và lý do thông tin trước đó không đúng.</li>
+          </ul>
+          <p style="color:#475569;font-size:13px;">Mã hồ sơ: <code>${caseId}</code>. Chúng tôi chỉ dùng giấy tờ để đối chiếu và xoá sau khi xác minh xong.</p>
+        </div>`;
+      await sendCustomEmail(targetEmail, 'Yêu cầu xác minh thông tin tài khoản Hugo Studio', html);
+      await AdminAuditLog.create({
+        adminId: 'TELEGRAM_BOT_ADMIN',
+        adminUsername: 'SuperAdmin_Telegram',
+        action: 'identity_check_docs_requested',
+        targetEmail,
+        details: { caseId },
+      });
+      await sendTelegramAlert(`📄 <b>Đã gửi thư đòi giấy tờ tới:</b> <code>${targetEmail}</code>\nTài khoản vẫn khoá tới khi Boss bấm "Gỡ khoá".`);
+      return;
+    }
+
     if (cbData.startsWith('cb_unblock_ip:')) {
-      const ipHash = cbData.replace('cb_unblock_ip:', '');
+      const ref = cbData.replace('cb_unblock_ip:', '');
       const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
-      const res = await SecurityBlock.deleteMany({ actorKey: `ip:${ipHash}` });
+      // Thẻ cũ gửi mã băm, thẻ mới gửi Case ID — nhận cả hai để những thẻ đã
+      // nằm sẵn trong khung chat vẫn bấm được.
+      const res = await SecurityBlock.deleteMany(
+        ref.startsWith('SEC-') ? { subjectType: 'ip', lastCaseId: ref } : { actorKey: `ip:${ref}` },
+      );
       await sendTelegramAlert(`✅ <b>ĐÃ GIẢI KHÓA IP THÀNH CÔNG!</b>\n📌 Đã gỡ bỏ ${res.deletedCount || 0} bản ghi khóa IP cho Boss.`);
       return;
     }
@@ -160,8 +232,21 @@ export async function processTelegramUpdate(update) {
   if (!text) return;
   const lowerText = text.toLowerCase();
 
-  // ─── LỆNH CHÀO MỪNG / START ──────────────────────────────────────────────────
-  if (lowerText === '/start' || lowerText === 'start' || lowerText === 'xin chào' || lowerText === 'hello') {
+  const CONSOLE = await import('../services/telegramConsole.js');
+
+  // Boss vừa gõ vào ô nhập của một nút đã bấm — chữ này là CÂU TRẢ LỜI, không
+  // phải lệnh mới, nên chặn trước khi nó rơi xuống bộ lệnh gõ tay và AI.
+  if (await CONSOLE.handlePendingInput(chatId, text)) return;
+
+  // ─── MÀN HÌNH CHÍNH ──────────────────────────────────────────────────────────
+  if (['/start', 'start', 'menu', '/menu', 'bảng điều khiển', 'bang dieu khien'].includes(lowerText)) {
+    const screen = await CONSOLE.homeScreen();
+    await sendTelegramMessage(chatId, screen.text, 'HTML', screen.markup);
+    return;
+  }
+
+  // ─── LỆNH CHÀO CŨ (giữ cho ai quen gõ) ──────────────────────────────────────
+  if (lowerText === 'xin chào' || lowerText === 'hello') {
     const welcomeHtml = `
 👑 <b>[HUGO SUPER-ADMIN TELEGRAM CONTROLLER]</b>
 
@@ -540,8 +625,15 @@ function webhookSecret() {
 }
 
 // POST /api/telegram/webhook
+// Cùng lý do như so mã OTP: `!==` rò rỉ độ dài khớp qua thời gian phản hồi.
+function sameSecret(a, b) {
+  const bufA = Buffer.from(String(a || ''));
+  const bufB = Buffer.from(String(b || ''));
+  return bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+}
+
 router.post('/webhook', async (req, res) => {
-  if (req.get('X-Telegram-Bot-Api-Secret-Token') !== webhookSecret()) {
+  if (!sameSecret(req.get('X-Telegram-Bot-Api-Secret-Token'), webhookSecret())) {
     console.warn(`⚠️ Telegram webhook: sai secret token, từ chối (IP ${req.ip}).`);
     return res.status(403).send('Forbidden');
   }

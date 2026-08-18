@@ -17,6 +17,15 @@ const OTP_TTL_MS = 10 * 60 * 1000;
 const store = new Map();
 
 const hash = (code) => crypto.createHash('sha256').update(String(code).trim()).digest('hex');
+
+// So sánh chuỗi bằng `===` dừng ngay ký tự đầu khác nhau, nên thời gian trả lời
+// rò rỉ "đúng được mấy ký tự" — đủ để dò dần từng ký tự qua mạng ổn định. Băm
+// luôn dài bằng nhau nên timingSafeEqual dùng được thẳng.
+const sameSecret = (a, b) => {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  return bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+};
 const keyOf = (email, scope) => `${scope}:${String(email).trim().toLowerCase()}`;
 
 /** Tạo mã 6 số mới cho (email, scope). Mã cũ của cùng cặp đó bị thay thế. */
@@ -37,7 +46,7 @@ export function verifyEmailOtp(email, code, scope = 'login') {
     store.delete(key);
     return { ok: false, reason: 'expired' };
   }
-  if (hash(code) !== entry.codeHash) return { ok: false, reason: 'mismatch' };
+  if (!sameSecret(hash(code), entry.codeHash)) return { ok: false, reason: 'mismatch' };
   store.delete(key);
   return { ok: true };
 }

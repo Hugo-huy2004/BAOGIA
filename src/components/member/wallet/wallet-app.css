@@ -65,6 +65,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scroll-padding-top: 24px;
   padding: var(--topbar) 16px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 84px);
 }
 .wal-loading { padding: 28px 4px; color: hsl(var(--muted-foreground)); font-size: 15px; }
@@ -130,10 +131,8 @@
 .wal-hero {
   --ink: 28 40% 12%;
   box-sizing: border-box;
-  /* Kéo ngược lên hết phần chừa cho nút quay lại: gradient chạy tới sát mép
-     trên màn hình, nút nổi lên trên nó. */
   margin: calc(var(--topbar) * -1) -16px 0;
-  padding: var(--topbar) 20px 22px;
+  padding: calc(var(--topbar) + 16px) 20px 24px;
   border-radius: 0 0 28px 28px;
   background: linear-gradient(150deg, hsl(42 92% 66%), hsl(28 88% 74%) 46%, hsl(340 62% 82%));
   color: hsl(var(--ink));
@@ -187,6 +186,8 @@
    hẳn sang phải khi chỉ còn ba nút. */
 .wal-hero__actions {
   margin-top: 16px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 6px;

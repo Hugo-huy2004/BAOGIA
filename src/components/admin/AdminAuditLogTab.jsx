@@ -24,11 +24,24 @@ export default function AdminAuditLogTab() {
     fetchLogs();
   }, []);
 
+  const getDetailsString = (details) => {
+    if (!details) return '';
+    if (typeof details === 'object') {
+      try {
+        return JSON.stringify(details);
+      } catch {
+        return String(details);
+      }
+    }
+    return String(details);
+  };
+
   const filteredLogs = logs.filter((item) => {
+    const detailsStr = getDetailsString(item.details);
     const matchesAction = filterAction === 'ALL' || item.action === filterAction;
     const matchesSearch =
       !searchTerm.trim() ||
-      (item.details && item.details.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      detailsStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (item.targetUserEmail && item.targetUserEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.adminEmail && item.adminEmail.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (item.action && item.action.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -138,8 +151,8 @@ export default function AdminAuditLogTab() {
                     <td className="px-6 py-4 font-mono text-[11px] text-slate-700 dark:text-slate-300">
                       {item.targetUserEmail || item.targetUserId || '—'}
                     </td>
-                    <td className="px-6 py-4 text-slate-900 dark:text-white font-semibold">
-                      {item.details}
+                    <td className="px-6 py-4 text-slate-900 dark:text-white font-semibold max-w-xs break-words">
+                      {getDetailsString(item.details)}
                     </td>
                     <td className="px-6 py-4 text-right font-mono text-[10px] text-slate-400">
                       {item.ipAddress || '—'}

@@ -51,7 +51,12 @@ export const JOY_SOURCES = {
   ide_phase_5_completion: 'Hoàn thành phần 5 · Phát triển Web',
   ide_phase_6_completion: 'Hoàn thành phần 6 · Phát triển Web',
   ide_phase_7_completion: 'Hoàn thành bộ Phát triển Web',
-  birthday_spin: 'Vòng quay tháng sinh nhật'
+  birthday_spin: 'Vòng quay tháng sinh nhật',
+  admin_voucher: 'Nhận voucher quà tặng',
+  portal_theme_rent: 'Thuê giao diện portal',
+  member_transfer_out: 'Chuyển JOY cho thành viên',
+  member_transfer_in: 'Nhận JOY từ thành viên',
+  admin_telegram_button: 'Admin thưởng qua Telegram'
 };
 
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);
@@ -67,6 +72,8 @@ export const JOY_SOURCE_GROUPS = {
   referral_referee: 'banbe',
   joy_gift_received: 'banbe',
   joy_gift_sent: 'banbe',
+  member_transfer_in: 'banbe',
+  member_transfer_out: 'banbe',
   arcade_score: 'choi',
   chess_win: 'choi',
   chess_match: 'choi',
@@ -87,10 +94,13 @@ export const JOY_SOURCE_GROUPS = {
   feature_subscription: 'muasam',
   bio_theme_rental: 'muasam',
   aura_theme_rent: 'muasam',
+  portal_theme_rent: 'muasam',
   file_compression: 'muasam',
   chat_tokens_exchange: 'muasam',
   gift_code: 'khuyenmai',
+  admin_voucher: 'khuyenmai',
   admin_direct_add: 'khuyenmai',
+  admin_telegram_button: 'khuyenmai',
   admin_adjustment: 'khuyenmai'
 };
 

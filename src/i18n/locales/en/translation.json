@@ -3938,7 +3938,8 @@
       "lastChance": "One more wrong answer will lock your account.",
       "networkError": "Could not submit your answer. Check your connection and try again.",
       "otpSendFailed": "Could not send the verification code. Please try again later.",
-      "warning": "Providing false information will lock your account. To appeal, email us explaining the discrepancy; an administrator may request documents to verify your identity."
+      "warning": "Providing false information will lock your account. To appeal, email us explaining the discrepancy; an administrator may request documents to verify your identity.",
+      "codeExpired": "The code expired or was never sent. Please request a new one."
     }
   },
   "memberTabs": {
@@ -6509,5 +6510,20 @@
       "title": "Could not load the film",
       "desc": "Neither source responded. Usually the network is blocking the archive host — try again or switch network."
     }
+  },
+  "joyRate": {
+    "baseUnit": "base unit",
+    "yourUnit": "yours",
+    "boardTitle": "Rate board · per 1 {{base}}",
+    "updated": "Updated {{time}}",
+    "low": "Low",
+    "high": "High",
+    "points": "{{count}} real ticks",
+    "chartLabel": "{{code}} against {{base}}",
+    "empty": {
+      "title": "Not enough data yet",
+      "desc": "The chart only draws real recorded ticks. Check back in a few hours."
+    },
+    "note": "Rates come from internal JOY circulation, never pegged to any real currency. Prices in the app are always quoted in base JOY, so a moving rate never changes what anyone can buy."
   }
 }
