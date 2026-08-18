@@ -1,10 +1,12 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import useSWR from "swr";
-import { joyText, useJoy } from "../../../lib/joyDisplay";
+import { joyText, joyCode, joyFactor, joyDenom, useJoy } from "../../../lib/joyDisplay";
 import { useJoyStore } from "../../../stores/joyStore";
 import { hapticSelect } from "../../../utils/haptics";
 import BackButton from "../shared/BackButton";
 import { LESSONS } from "./investLessons";
+import { priceAt, tradeCosts, breakEvenPct, STOCK_QUOTE_CODE } from "../../../../shared/stockPricing";
+import StockPriceChart from "./StockPriceChart";
 
 const API = import.meta.env.VITE_API_URL || "/api";
 
@@ -13,34 +15,43 @@ const fetcher = (path) => fetch(`${API}${path}`, { credentials: "include" }).the
 const pctText = (value) => `${value >= 0 ? "+" : ""}${(value * 100).toFixed(2)}%`;
 
 /**
- * Tính giá cổ phiếu theo từng GIÂY (Deterministic Time Harmonic Algorithm).
- * Cả client và server dùng CHUNG một công thức thuần theo timestamp.
+ * TIỀN TRÊN MÀN HÌNH LUÔN LÀ ĐƠN VỊ CỦA VÍ NGƯỜI DÙNG.
+ *
+ * Sàn niêm yết bằng đơn vị gốc (JOYka) vì cả sàn chỉ được có một bảng giá, còn
+ * ví mỗi người một đơn vị. Bản trước in thẳng số JOYka kèm chữ "JOYka" cho mọi
+ * con số — trong khi ví, cửa hàng và thông báo của cùng người đó viết bằng Mira
+ * — nên "lãi 600" trên sàn và "lãi 15.000" trong ví là cùng một khoản tiền mà
+ * nhìn như hai. Ở đây mọi số đi qua joyDisplay; giá niêm yết gốc chỉ hiện thêm
+ * một dòng phụ để người học biết sàn đang tính bằng gì.
+ *
+ * `priceText` giữ hai chữ số lẻ vì GIÁ MỘT CỔ PHIẾU là số nhỏ: làm tròn về số
+ * nguyên như số dư ví sẽ xoá mất chính nhịp sóng mà biểu đồ đang vẽ.
  */
-export function calculateSecondPrice(company, timestampSec = Math.floor(Date.now() / 1000)) {
-  if (!company) return 0;
-  const base = company.price || company.basePrice || 100;
-  const vol = company.volatility || 0.05;
-  const symbol = company.symbol || 'HFILM';
+const LOCALE = "vi-VN";
+const priceText = (joy) => `${(Number(joy || 0) * joyFactor()).toLocaleString(LOCALE, { maximumFractionDigits: 2 })} ${joyCode()}`;
+const moneyText = (joy) => joyText(joy);
+const quoteText = (joy) => `${(Math.round(Number(joy || 0) * 100) / 100).toLocaleString(LOCALE)} ${STOCK_QUOTE_CODE}`;
 
-  const waveLong = Math.sin((timestampSec % 3600) / 3600 * 2 * Math.PI) * 0.03;
-  const waveMedium = Math.sin((timestampSec % 300) / 300 * 2 * Math.PI) * 0.015;
-  const waveShort = Math.cos((timestampSec % 15) / 15 * 2 * Math.PI) * 0.008;
+/**
+ * Định giá lại một vị thế theo giá đang chạy. Cùng công thức máy chủ dùng
+ * (shared/stockPricing.positionPL), nhưng chạy mỗi giây trên máy người dùng để
+ * bảng lãi/lỗ không đứng hình sau ảnh chụp SWR.
+ */
+const livePL = (holding, price) => {
+  const cost = holding.avgCost * holding.quantity;
+  const value = (price || holding.price || holding.avgCost) * holding.quantity;
+  const unrealized = Math.round(value - cost);
+  return {
+    price: price || holding.price,
+    cost: Math.round(cost),
+    value: Math.round(value),
+    unrealized,
+    unrealizedPct: cost > 0 ? Math.round((unrealized / cost) * 1e4) / 1e4 : 0,
+  };
+};
 
-  const hashSeed = Math.abs(
-    (symbol.charCodeAt(0) * 31 + symbol.charCodeAt(symbol.length - 1)) ^ timestampSec
-  ) % 1000 / 1000;
-  const microNoise = (hashSeed - 0.5) * 0.004;
-
-  const totalRate = (waveLong + waveMedium + waveShort + microNoise) * (vol / 0.05);
-  const raw = base * (1 + totalRate);
-  const currentPrice = Math.max((company.basePrice || 50) * 0.2, Math.min((company.basePrice || 50) * 5, raw));
-
-  return Math.round(currentPrice * 100) / 100;
-}
-
-const quoteText = (value, code = "JOYka") => `${Math.round(value).toLocaleString("vi-VN")} ${code}`;
-const toneOf = (value) => (value >= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400");
-const toneBg = (value) => (value >= 0 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20");
+const toneOf = (value) => (value >= 0 ? "text-success dark:text-success" : "text-destructive dark:text-destructive");
+const toneBg = (value) => (value >= 0 ? "bg-success/10 text-success dark:text-success border-success/25" : "bg-destructive/10 text-destructive dark:text-destructive border-destructive/25");
 
 export const INVEST_HELP_DICTIONARY = {
   pnl: {
@@ -53,19 +64,20 @@ export const INVEST_HELP_DICTIONARY = {
       "Giá trị hiện tại: Số tiền bạn thu về được nếu lập tức bán hết toàn bộ cổ phiếu theo giá thị trường thời gian thực.",
       "Lời/Lỗ ròng (Unrealized PnL): Lấy Giá trị hiện tại trừ Vốn đầu tư. Số dương (+) là bạn đang LỜI, số âm (-) là bạn đang LỖ."
     ],
-    example: "Ví dụ: Bạn bỏ ra 100,000 Mira mua cổ phiếu HFILM. Hiện tại cổ phiếu tăng giá và số cổ phiếu đó trị giá 125,000 Mira ➔ Bạn LỜI +25,000 Mira (+25%)."
+    example: "Ví dụ: bỏ ra 100.000 mua HFILM, nay số cổ phiếu đó trị giá 125.000 ➔ đang LỜI +25.000 (+25%) trên giấy. Chỉ khi BÁN, trừ hết phí, nó mới thành lãi thật trong ví."
   },
   second_price: {
-    title: "Giá Khớp Lệnh Realtime 1 Giây",
+    title: "Giá chạy liên tục trong phiên",
     icon: "bolt",
-    badge: "Công nghệ thời gian thực",
-    summary: "Giá cổ phiếu thay đổi từng giây liên tục theo chuỗi thuật toán hài hòa (Deterministic Time Harmonic).",
+    badge: "Không đoán trước được",
+    summary: "Đường giá đi theo bước 60 giây, do máy chủ dựng bằng một hạt giống bí mật — mọi thành viên nhìn cùng một đường.",
     details: [
-      "Mô phỏng sóng thị trường tài chính thực tế với các nhịp sóng ngắn (15s), sóng trung (5 phút) và sóng dài (1 giờ).",
-      "Giá cả hoàn toàn đồng bộ thời gian thực giữa tất cả các thành viên mà không gây giật lag hay quá tải máy chủ.",
-      "Bạn có thể canh nhịp sóng giảm để Mua vào và canh nhịp sóng tăng đỉnh để Bán ra."
+      "Mỗi bước là một mức giá mới; máy chủ gửi cả đường giá xuống nên biểu đồ bạn thấy đúng bằng giá dùng để khớp lệnh.",
+      "Thị trường đổi trạng thái mỗi 15 phút: đi ngang, xu hướng lên, xu hướng xuống, bùng nổ, sập, hoặc một cú sốc tin tức.",
+      "KHÔNG ai đoán trước được bước kế tiếp — hạt giống nằm ở máy chủ và không bao giờ gửi ra ngoài. Đừng tin bất cứ ai nói họ biết trước đáy hay đỉnh.",
+      "Giá luôn bị kéo về mốc neo của phiên (mức do kết quả kinh doanh quyết định), nên xu hướng chạy được hàng giờ nhưng không đi mãi một chiều."
     ],
-    example: "Ví dụ: Cổ phiếu HFILM có nhịp sóng dâng lên 150 JOYka lúc 10:00:15 và lùi về 142 JOYka lúc 10:00:22."
+    example: "Muốn có lãi thật, giá phải chạy đủ xa để bù phí hai chiều — nhấp nhô vài phút thì phí ăn hết."
   },
   conversion_fee: {
     title: "Phí Quy Đổi Đơn Vị 15%",
@@ -75,9 +87,10 @@ export const INVEST_HELP_DICTIONARY = {
     details: [
       "Sàn ảo Hugo niêm yết giá theo đơn vị chuẩn JOYka (Kavo).",
       "Nếu tài khoản của bạn đang chọn đơn vị ví khác (như Mira, Luno, Velu...), hệ thống tự động quy đổi và áp dụng 15% phí quy đổi ở cả 2 chiều MUA và BÁN.",
-      "Lời khuyên Quản Gia: Bạn nên giữ cổ phiếu đến khi mức LỜI > 15-20% để vừa hòa vốn phí quy đổi, vừa chốt lãi thực sự vào ví!"
+      "Phí thu Ở CẢ HAI CHIỀU nên mốc hoà vốn KHÔNG phải 15%: mua trả thêm 20,5%, bán bị trừ 20,5%, tính ra giá phải tăng 51,6% thì bán mới về đúng số vốn bỏ ra.",
+      "Muốn tránh khoản này thì để ví ở đúng đơn vị gốc (Kavo) — khi đó mốc hoà vốn chỉ còn 11,6%."
     ],
-    example: "Ví dụ: Bạn mua cổ phiếu và tăng giá +20%. Sau khi trừ 15% phí quy đổi, bạn vẫn còn LỜI ròng +5% thực nhận về ví."
+    example: "Ví dụ: mua 1.000, ví trừ 1.205. Giá tăng 20% thành 1.200 nhưng bán chỉ nhận 954 — vẫn LỖ 251. Phải tăng tới ~1.516 mới huề."
   },
   brokerage_fee: {
     title: "Phí Môi Giới & Phí Sáng Tạo",
@@ -106,9 +119,9 @@ export const INVEST_HELP_DICTIONARY = {
     badge: "Trợ lý đầu tư tự động",
     summary: "Hệ thống AI tự động phân tích thị trường và danh mục của bạn để đưa ra lời khuyên tối ưu.",
     details: [
-      "🟢 NÊN CHỐT LỜI: Đưa ra khi lợi nhuận cổ phiếu đã vượt mốc an toàn và thắng phí quy đổi.",
-      "🔴 CẢNH BÁO CẮT LỖ: Đưa ra khi cổ phiếu giảm sâu quá ngưỡng quản trị rủi ro (10-15%).",
-      "🟡 GIỮ TIẾP / THỜI ĐIỂM CHỜ: Đưa ra khi lợi nhuận đang dương nhưng chưa đủ bù chi phí quy đổi."
+      "NÊN CHỐT LỜI: khi lãi đã vượt mốc hoà vốn của CHÍNH ví bạn (11,6% với ví đơn vị gốc, 51,6% với ví khác đơn vị).",
+      "CẢNH BÁO CẮT LỖ: khi cổ phiếu giảm quá 10%.",
+      "GIỮ TIẾP: khi đang lãi nhưng chưa qua mốc hoà vốn — bán lúc đó vẫn là lỗ."
     ]
   }
 };
@@ -123,7 +136,7 @@ function HelpIcon({ topicKey, onClick }) {
         onClick?.(topicKey);
       }}
       title="Bấm xem giải thích chi tiết"
-      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white/10 text-[9px] font-bold text-zinc-300 border border-white/15 hover:bg-white/20 hover:text-white transition-all transform active:scale-95 ml-1 shrink-0 cursor-pointer"
+      className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-muted text-[11.5px] font-bold text-foreground border border-border hover:bg-muted hover:text-foreground transition-all transform active:scale-95 ml-1 shrink-0 cursor-pointer"
     >
       ?
     </button>
@@ -136,39 +149,39 @@ function InfoModalPopup({ topicKey, onClose }) {
   if (!item) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-zinc-900/95 p-5 shadow-2xl space-y-4 animate-scaleUp text-left">
-        <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/40">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card space-y-4 text-left">
+        <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-zinc-200 border border-white/15">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-muted text-foreground border border-border">
               <span className="material-symbols-outlined text-xl">{item.icon}</span>
             </div>
             <div>
-              <span className="inline-block rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-zinc-400 border border-white/10">
+              <span className="inline-block rounded-full bg-muted px-2 py-0.5 text-[11.5px] font-bold text-muted-foreground border border-border">
                 {item.badge}
               </span>
-              <h3 className="text-base font-black text-white">{item.title}</h3>
+              <h3 className="text-base font-bold text-foreground">{item.title}</h3>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <span className="material-symbols-outlined text-sm">close</span>
           </button>
         </div>
 
-        <p className="text-xs font-bold text-zinc-200 leading-relaxed bg-white/5 p-3 rounded-2xl border border-white/10 font-sans">
-          💡 {item.summary}
+        <p className="text-[13.5px] font-bold text-foreground leading-relaxed bg-muted p-3 rounded-2xl border border-border font-sans">
+          {item.summary}
         </p>
 
         <div className="space-y-2">
-          <h4 className="text-xs font-black uppercase tracking-wider text-zinc-400">Chi tiết cần biết:</h4>
+          <h4 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground">Chi tiết cần biết:</h4>
           <ul className="space-y-2">
             {item.details.map((desc, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-xs text-zinc-300 leading-relaxed font-sans">
-                <span className="text-zinc-400 font-bold mt-0.5">•</span>
+              <li key={idx} className="flex items-start gap-2 text-[13.5px] text-foreground leading-relaxed font-sans">
+                <span className="text-muted-foreground font-bold mt-0.5">•</span>
                 <span>{desc}</span>
               </li>
             ))}
@@ -176,7 +189,7 @@ function InfoModalPopup({ topicKey, onClose }) {
         </div>
 
         {item.example && (
-          <div className="rounded-2xl bg-white/5 border border-white/10 p-3 text-xs leading-relaxed text-zinc-300 font-sans">
+          <div className="rounded-2xl bg-muted border border-border p-3 text-[13.5px] leading-relaxed text-foreground font-sans">
             <strong>Ví dụ thực tế:</strong> {item.example}
           </div>
         )}
@@ -184,7 +197,7 @@ function InfoModalPopup({ topicKey, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="h-11 w-full rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-xs font-black text-white border border-white/15 shadow-lg active:scale-95 transition-all"
+          className="h-11 w-full rounded-2xl bg-muted hover:bg-zinc-700 text-[13.5px] font-bold text-foreground border border-border shadow-card active:scale-95 transition-all"
         >
           ĐÃ HỂU
         </button>
@@ -193,10 +206,127 @@ function InfoModalPopup({ topicKey, onClose }) {
   );
 }
 
-function SmartAdvisorCard({ portfolio, company, quoteCode, onHelp }) {
+const feeLabel = (name, rate, digits) => (rate ? `${name} (${(rate * 100).toFixed(digits)}%)` : name);
+
+/** Một dòng trong sổ lệnh → đúng hoá đơn đã in lúc khớp. */
+function TradeReceiptModal({ trade, onClose }) {
+  if (!trade) return null;
+  const itemised = Boolean(trade.brokerage || trade.creativeFee || trade.conversionFee);
+  return (
+    <ReceiptSheet
+      onClose={onClose}
+      receipt={{
+        at: trade.at,
+        session: trade.session || "",
+        symbol: trade.symbol,
+        side: trade.side,
+        quantity: trade.quantity,
+        price: trade.price,
+        gross: Math.round(trade.price * trade.quantity),
+        brokerage: trade.brokerage || 0,
+        creativeFee: trade.creativeFee || 0,
+        conversionFee: trade.conversionFee || 0,
+        fees: trade.fee || 0,
+        total: trade.total,
+        realizedPL: trade.realizedPL || 0,
+        balanceAfter: trade.balanceAfter || 0,
+        quoteCode: STOCK_QUOTE_CODE,
+        walletCode: trade.walletCode || joyCode(),
+        itemised,
+      }}
+    />
+  );
+}
+
+/**
+ * Hoá đơn của một lệnh đã khớp — TỪNG khoản, không gộp thành một chữ "phí".
+ *
+ * Số liệu lấy nguyên từ máy chủ (`receipt`), không tính lại ở client: hoá đơn
+ * phải là bản ghi của cái ĐÃ xảy ra với ví, không phải một ước lượng vẽ lại.
+ */
+function ReceiptSheet({ receipt, onClose }) {
+  if (!receipt) return null;
+  const buy = receipt.side === "buy";
+  const at = new Date(receipt.at);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center" onClick={onClose}>
+      <div
+        className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-card p-5 text-left shadow-card"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
+          <div>
+            <p className="text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground">Hoá đơn khớp lệnh</p>
+            <h3 className="text-base font-bold text-foreground">
+              {buy ? "MUA" : "BÁN"} {receipt.quantity.toLocaleString(LOCALE)} {receipt.symbol}
+            </h3>
+            <p className="text-[12.5px] text-muted-foreground font-sans">
+              {at.toLocaleString(LOCALE)}{receipt.session ? ` · phiên ${receipt.session}` : ""}
+            </p>
+          </div>
+          <span className={`rounded-lg border px-2.5 py-1 text-[11.5px] font-bold uppercase ${buy ? "border-success/25 bg-success/10 text-success" : "border-destructive/25 bg-destructive/10 text-destructive"}`}>
+            {buy ? "Tiền ra" : "Tiền về"}
+          </span>
+        </div>
+
+        <dl className="space-y-1.5 text-[13.5px] font-sans">
+          <Row label="Giá khớp mỗi cổ phiếu" value={priceText(receipt.price)} />
+          <Row label={`Giá trị ${receipt.quantity.toLocaleString(LOCALE)} cổ phiếu`} value={moneyText(receipt.gross)} />
+          {receipt.itemised === false ? (
+            // Lệnh đặt trước khi sổ lệnh tách phí: chỉ có tổng, và nói thẳng là
+            // chỉ có tổng — bịa lại ba khoản từ tỷ lệ hôm nay là in một hoá đơn
+            // không đúng với cái đã trừ ví.
+            <Row label="Tổng phí (lệnh cũ, không tách khoản)" value={`− ${moneyText(receipt.fees)}`} />
+          ) : (
+            <>
+              <Row label={feeLabel("Phí môi giới", receipt.rates?.brokerage, 1)} value={`− ${moneyText(receipt.brokerage)}`} />
+              <Row label={feeLabel("Phí sáng tạo", receipt.rates?.creative, 0)} value={`− ${moneyText(receipt.creativeFee)}`} />
+              {receipt.conversionFee > 0 && (
+                <Row label={feeLabel("Phí đổi đơn vị", receipt.rates?.conversion, 0)} value={`− ${moneyText(receipt.conversionFee)}`} />
+              )}
+            </>
+          )}
+          <div className="my-1 border-t border-border" />
+          <Row label={buy ? "Tổng đã trừ ví" : "Tổng đã về ví"} value={moneyText(receipt.total)} strong />
+          {!buy && (
+            <Row
+              label="Lãi/lỗ đã chốt (sau phí)"
+              value={`${receipt.realizedPL >= 0 ? "+" : "−"}${moneyText(Math.abs(receipt.realizedPL))}`}
+              tone={receipt.realizedPL}
+              strong
+            />
+          )}
+          {receipt.balanceAfter > 0 && <Row label="Số dư ví sau lệnh" value={moneyText(receipt.balanceAfter)} />}
+        </dl>
+
+        <p className="rounded-2xl border border-border bg-muted p-2.5 text-[11.5px] leading-relaxed text-muted-foreground font-sans">
+          Sàn niêm yết bằng {receipt.quoteCode} ({quoteText(receipt.price)}/cổ phiếu). Ví của bạn dùng {receipt.walletCode},
+          nên mọi con số ở trên đã quy về đơn vị ví theo tỷ giá lúc khớp.
+        </p>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="h-11 w-full rounded-2xl border border-border bg-muted text-[13.5px] font-bold text-foreground transition-all active:scale-95 hover:bg-zinc-700"
+        >
+          ĐÓNG HOÁ ĐƠN
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SmartAdvisorCard({ portfolio, company, onHelp }) {
   if (!portfolio) return null;
 
   const { holdings = [], crossDenom = false } = portfolio;
+  // Mốc hoà vốn THẬT của chính ví này (11,6% với ví đơn vị gốc · 51,6% với ví
+  // khác đơn vị). Bản trước khuyên chốt lời ở 15% cho tất cả mọi người: người
+  // dùng ví Mira nghe theo là bán lúc đang lỗ gần một phần tư số vốn.
+  const breakEven = breakEvenPct(crossDenom) * 100;
+  const cutLoss = -10;
+
   let iconName = "psychology";
   let title = "Tư vấn Quản gia";
   let message = "";
@@ -206,75 +336,76 @@ function SmartAdvisorCard({ portfolio, company, quoteCode, onHelp }) {
     const holding = holdings.find((h) => h.symbol === company.symbol);
     if (holding) {
       const pct = holding.unrealizedPct * 100;
-      if (pct >= 15) {
+      if (pct >= breakEven) {
         iconName = "trending_up";
         title = `Chốt lời ${company.symbol}`;
         badgeText = "Khuyến nghị Bán";
-        message = `Mức lời +${pct.toFixed(1)}% đã bù đủ phí quy đổi (${crossDenom ? "15%" : "0%"}). Bạn nên chốt lời bảo toàn vốn.`;
-      } else if (pct < -10) {
+        message = `Lời +${pct.toFixed(1)}% đã vượt mốc hoà vốn ${breakEven.toFixed(1)}% (đủ bù cả phí mua lẫn phí bán). Bán bây giờ là lãi thật vào ví.`;
+      } else if (pct < cutLoss) {
         iconName = "warning";
         title = `Cắt lỗ ${company.symbol}`;
         badgeText = "Cảnh báo rủi ro";
-        message = `Cổ phiếu đang giảm -${Math.abs(pct).toFixed(1)}%. Hãy chú ý quản trị vốn hoặc cân nhắc cắt lỗ.`;
-      } else if (pct >= 0 && pct < 15 && crossDenom) {
+        message = `Cổ phiếu đang giảm ${pct.toFixed(1)}%. Hãy chú ý quản trị vốn hoặc cân nhắc cắt lỗ.`;
+      } else if (pct >= 0) {
         iconName = "hourglass_empty";
         title = `Tiếp tục giữ ${company.symbol}`;
         badgeText = "Nắm giữ";
-        message = `Lời +${pct.toFixed(1)}% chưa đủ bù 15% phí quy đổi. Nên tiếp tục giữ chờ mốc tăng >15%.`;
+        message = `Lời +${pct.toFixed(1)}% CHƯA đủ hoà vốn: bán lúc này vẫn lỗ vì phí hai chiều. Mốc hoà vốn của ví bạn là +${breakEven.toFixed(1)}%.`;
       } else {
         iconName = "insights";
         title = `Nắm giữ ${company.symbol}`;
         badgeText = "Vị thế tốt";
-        message = `Vị thế ${company.symbol} đang ổn định với ${holding.quantity.toLocaleString()} cổ phiếu.`;
+        message = `Vị thế ${company.symbol} đang ổn định với ${holding.quantity.toLocaleString(LOCALE)} cổ phiếu.`;
       }
     } else {
       iconName = "show_chart";
-      title = `Cơ hội đầu tư ${company.symbol}`;
-      badgeText = "Theo dõi 1s";
-      message = `Giá hiện tại ${quoteText(company.price, quoteCode)}. Bạn có thể căn nhịp sóng 1s để chọn điểm MUA đẹp.`;
+      title = `Theo dõi ${company.symbol}`;
+      badgeText = "Chưa nắm giữ";
+      message = `Giá hiện tại ${priceText(company.price)}. Mua vào thì cần giá tăng ${breakEven.toFixed(1)}% mới hoà được phí hai chiều.`;
     }
   } else if (holdings.length > 0) {
-    const topProfitable = [...holdings].sort((a, b) => b.unrealizedPct - a.unrealizedPct)[0];
-    const topLosing = [...holdings].sort((a, b) => a.unrealizedPct - b.unrealizedPct)[0];
+    const sorted = [...holdings].sort((a, b) => b.unrealizedPct - a.unrealizedPct);
+    const topProfitable = sorted[0];
+    const topLosing = sorted[sorted.length - 1];
 
-    if (topProfitable && topProfitable.unrealizedPct >= 0.15) {
+    if (topProfitable && topProfitable.unrealizedPct * 100 >= breakEven) {
       iconName = "trending_up";
       title = `Chốt lời ${topProfitable.symbol}`;
       badgeText = "Điểm chốt đẹp";
-      message = `Cổ phiếu ${topProfitable.symbol} đang tăng +${(topProfitable.unrealizedPct * 100).toFixed(1)}%. Thời điểm thích hợp để chốt lãi về ví!`;
-    } else if (topLosing && topLosing.unrealizedPct <= -0.1) {
+      message = `${topProfitable.symbol} đang lời +${(topProfitable.unrealizedPct * 100).toFixed(1)}%, đã qua mốc hoà vốn ${breakEven.toFixed(1)}%.`;
+    } else if (topLosing && topLosing.unrealizedPct * 100 <= cutLoss) {
       iconName = "warning";
       title = `Quản trị rủi ro ${topLosing.symbol}`;
       badgeText = "Cảnh báo";
-      message = `Cổ phiếu ${topLosing.symbol} đang giảm -${Math.abs(topLosing.unrealizedPct * 100).toFixed(1)}%. Cân nhắc hạ tỷ trọng bảo toàn vốn.`;
+      message = `${topLosing.symbol} đang giảm ${(topLosing.unrealizedPct * 100).toFixed(1)}%. Cân nhắc hạ tỷ trọng bảo toàn vốn.`;
     } else {
       iconName = "psychology";
-      title = `Tư vấn Quản gia tổng quan`;
+      title = "Tư vấn Quản gia tổng quan";
       badgeText = "Tự động";
-      message = `Danh mục đang duy trì mức ổn định. Hãy kiên nhẫn nắm giữ chờ nhịp sóng tăng mạnh!`;
+      message = `Danh mục chưa mã nào qua mốc hoà vốn +${breakEven.toFixed(1)}%. Bán sớm là trả phí hai lần cho một lần đi.`;
     }
   } else {
     iconName = "smart_toy";
-    title = `Sàn ảo Hugo Pro`;
+    title = "Sàn Ảo Hugo";
     badgeText = "Hướng dẫn";
-    message = `Chưa có cổ phiếu trong danh mục. Hãy sang tab Bảng Giá chọn các mã chứng khoán tiềm năng để bắt đầu tích lũy!`;
+    message = "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.";
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/60 p-3 backdrop-blur-xl shadow-lg space-y-1 text-left">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-card space-y-1 text-left">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="material-symbols-outlined text-sm text-zinc-400 shrink-0">{iconName}</span>
-          <span className="text-xs font-bold text-zinc-200 truncate flex items-center">
+          <span className="material-symbols-outlined text-sm text-muted-foreground shrink-0">{iconName}</span>
+          <span className="text-[13.5px] font-bold text-foreground truncate flex items-center">
             {title}
             <HelpIcon topicKey="smart_advice" onClick={onHelp} />
           </span>
         </div>
-        <span className="rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-zinc-400 shrink-0">
+        <span className="rounded-md bg-muted border border-border px-2 py-0.5 text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground shrink-0">
           {badgeText}
         </span>
       </div>
-      <p className="text-[11px] font-sans leading-relaxed text-zinc-400 pl-0.5">{message}</p>
+      <p className="text-[12.5px] font-sans leading-relaxed text-muted-foreground pl-0.5">{message}</p>
     </div>
   );
 }
@@ -293,31 +424,40 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
     return () => clearInterval(timer);
   }, []);
 
+  // Đường giá máy chủ gửi xuống chỉ chạy TRƯỚC hiện tại một bước (60 giây);
+  // hết mảng là priceAt giữ nguyên mốc cuối. Không nạp lại đều đặn thì giá trên
+  // màn hình đứng hình sau một phút, rồi lệch quá 3% và mọi lệnh bị từ chối.
   const { data: market, mutate: reloadMarket } = useSWR("/stock/market", fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 120000,
+    refreshInterval: 30000,
+    dedupingInterval: 15000,
   });
   const { data: portfolio, mutate: reloadPortfolio } = useSWR("/stock/portfolio", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
   });
 
-  const rawCompanies = market?.companies || [];
+  // Lệch giờ giữa máy người dùng và máy chủ được bù một lần lúc tải bảng giá:
+  // đọc đường giá bằng đồng hồ máy mình là đọc ở một điểm khác với điểm máy chủ
+  // dùng để khớp lệnh.
+  const clockSkew = useMemo(
+    () => (market?.serverTime ? Math.round(market.serverTime / 1000) - Math.floor(Date.now() / 1000) : 0),
+    [market?.serverTime],
+  );
+
   const companies = useMemo(() => {
-    return rawCompanies.map((c) => {
-      const livePrice = calculateSecondPrice(c, nowSec);
+    const at = nowSec + clockSkew;
+    return (market?.companies || []).map((c) => {
+      const price = priceAt(c, at);
       const prev = c.prevPrice || c.basePrice || 100;
-      const change = prev ? Math.round(((livePrice - prev) / prev) * 1e4) / 1e4 : 0;
-      return { ...c, price: livePrice, change };
+      return { ...c, price, change: prev ? Math.round(((price - prev) / prev) * 1e4) / 1e4 : 0 };
     });
-  }, [rawCompanies, nowSec]);
+  }, [market, nowSec, clockSkew]);
 
   const liveMarket = useMemo(() => {
     if (!market) return null;
     return { ...market, companies };
   }, [market, companies]);
 
-  const quoteCode = market?.quoteCode || "JOYka";
   const active = companies.find((c) => c.symbol === detail) || null;
 
   const afterTrade = useCallback(async () => {
@@ -325,30 +465,30 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
   }, [reloadPortfolio, reloadMarket]);
 
   return (
-    <div className="flex h-full flex-col bg-zinc-950 text-white font-sans selection:bg-emerald-500/30 relative">
+    <div className="flex h-full flex-col bg-muted/40 text-foreground font-sans relative">
       {/* Help Info Popup Modal */}
       <InfoModalPopup topicKey={helpTopic} onClose={() => setHelpTopic(null)} />
 
       {/* iOS 27 Translucent Frosted Glass Header */}
       <header
-        className="shrink-0 sticky top-0 z-30 border-b border-white/10 bg-zinc-950/80 backdrop-blur-2xl px-3 pb-2.5 transition-all"
+        className="shrink-0 sticky top-0 z-30 border-b border-border bg-muted/40 px-3 pb-2.5 transition-all"
         style={{ paddingTop: "max(12px, calc(env(safe-area-inset-top, 0px) + 8px))" }}
       >
         <div className="flex items-center gap-2">
           <BackButton onClick={detail ? () => setDetail(null) : lesson ? () => setLesson(null) : onBack} label="Quay lại" iconOnly />
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-black tracking-tight text-white flex items-center gap-2">
+            <h1 className="truncate text-base font-bold tracking-tight text-foreground flex items-center gap-2">
               {active ? (
                 <>
-                  <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">{active.symbol}</span>
-                  <span className="text-zinc-400 text-xs font-normal font-sans">· {active.name}</span>
+                  <span className="bg-card">{active.symbol}</span>
+                  <span className="text-muted-foreground text-[13.5px] font-normal font-sans">· {active.name}</span>
                 </>
               ) : lesson ? (
                 lesson.title
               ) : (
                 <>
                   <span>Sàn Ảo Hugo</span>
-                  <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">Hugo Pro</span>
+                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-[11.5px] font-bold text-success border border-success/25">Hugo Pro</span>
                 </>
               )}
             </h1>
@@ -358,7 +498,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
             <button
               type="button"
               onClick={() => { hapticSelect(); onSelectUtility("joy_wallet"); }}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold text-emerald-400 hover:bg-emerald-500/25 transition-all shrink-0 active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 border border-success/25 text-[13.5px] font-mono font-bold text-success hover:bg-success/10 transition-all shrink-0 active:scale-95"
               title="Số dư Ví JOY — Bấm để mở Ví"
             >
               <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
@@ -369,7 +509,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
 
         {/* iOS 27 Segmented Control */}
         {!active && !lesson && (
-          <nav className="mt-2.5 flex rounded-2xl bg-zinc-900/80 p-1 border border-white/5 backdrop-blur-md">
+          <nav className="mt-2.5 flex gap-1 rounded-xl border border-border bg-muted p-1">
             {[
               { id: "market", label: "Bảng giá", icon: "show_chart" },
               { id: "portfolio", label: "Danh mục", icon: "account_balance_wallet" },
@@ -382,10 +522,10 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
                   type="button"
                   onClick={() => { hapticSelect(); setTab(item.id); }}
                   aria-current={selected}
-                  className={`relative flex-1 py-2 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition-all duration-300 ${
+                  className={`relative flex-1 py-2 flex items-center justify-center gap-1.5 rounded-xl text-[13.5px] font-bold transition-all duration-300 ${
                     selected
-                      ? "bg-gradient-to-b from-white/20 to-white/10 text-white shadow-lg shadow-black/40 border border-white/20"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5"
+                      ? "bg-card text-foreground shadow-card border border-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   <span className="material-symbols-outlined text-sm">{item.icon}</span>
@@ -400,13 +540,13 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
       {/* Main Content Area */}
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4 space-y-4" style={{ paddingBottom: "calc(32px + env(safe-area-inset-bottom, 0px))" }}>
         {active ? (
-          <CompanyDetail company={active} portfolio={portfolio} market={liveMarket} nowSec={nowSec} onTraded={afterTrade} showToast={showToast} onHelp={setHelpTopic} />
+          <CompanyDetail company={active} portfolio={portfolio} market={liveMarket} onTraded={afterTrade} showToast={showToast} onHelp={setHelpTopic} />
         ) : lesson ? (
           <LessonView lesson={lesson} />
         ) : tab === "market" ? (
-          <Market market={liveMarket} portfolio={portfolio} onOpen={setDetail} quoteCode={quoteCode} nowSec={nowSec} onHelp={setHelpTopic} />
+          <Market market={liveMarket} portfolio={portfolio} onOpen={setDetail} onHelp={setHelpTopic} />
         ) : tab === "portfolio" ? (
-          <Portfolio portfolio={portfolio} onOpen={setDetail} quoteCode={quoteCode} onHelp={setHelpTopic} />
+          <Portfolio portfolio={portfolio} companies={companies} onOpen={setDetail} onHelp={setHelpTopic} />
         ) : (
           <Learn onOpen={setLesson} />
         )}
@@ -415,7 +555,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
   );
 }
 
-function Market({ market, portfolio, onOpen, quoteCode, nowSec, onHelp }) {
+function Market({ market, portfolio, onOpen, onHelp }) {
   if (!market) return <Skeleton rows={4} />;
 
   const featuredCompany = market.companies[0] || null;
@@ -423,18 +563,18 @@ function Market({ market, portfolio, onOpen, quoteCode, nowSec, onHelp }) {
   return (
     <div className="space-y-4">
       {/* Smart AI Butler Investment Advisor */}
-      <SmartAdvisorCard portfolio={portfolio} quoteCode={quoteCode} onHelp={onHelp} />
+      <SmartAdvisorCard portfolio={portfolio} onHelp={onHelp} />
 
       {/* Featured Realtime Chart Card on Market Home */}
       {featuredCompany && (
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/90 via-zinc-900/60 to-zinc-950/90 p-4 backdrop-blur-xl shadow-2xl space-y-2">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-card space-y-2">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
               </span>
-              <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center">
+              <span className="text-[13.5px] font-bold uppercase tracking-wider text-success flex items-center">
                 Xu Hướng Realtime 1s: {featuredCompany.symbol}
                 <HelpIcon topicKey="second_price" onClick={onHelp} />
               </span>
@@ -442,20 +582,20 @@ function Market({ market, portfolio, onOpen, quoteCode, nowSec, onHelp }) {
             <button
               type="button"
               onClick={() => { hapticSelect(); onOpen(featuredCompany.symbol); }}
-              className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1"
+              className="text-[13.5px] font-bold text-success hover:underline flex items-center gap-1"
             >
               <span>Xem chi tiết</span>
               <span className="material-symbols-outlined text-sm">chevron_right</span>
             </button>
           </div>
 
-          <StockPriceChart company={featuredCompany} nowSec={nowSec} quoteCode={quoteCode} />
+          <StockPriceChart company={featuredCompany} />
         </div>
       )}
 
       {/* Ticker List Tiles */}
       <div className="space-y-2">
-        <h3 className="text-xs font-black uppercase tracking-wider text-zinc-400 px-1 flex items-center">
+        <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">
           Danh Sách Mã Chứng Khoán
           <HelpIcon topicKey="second_price" onClick={onHelp} />
         </h3>
@@ -467,28 +607,28 @@ function Market({ market, portfolio, onOpen, quoteCode, nowSec, onHelp }) {
                 key={company.symbol}
                 type="button"
                 onClick={() => { hapticSelect(); onOpen(company.symbol); }}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/40 p-3.5 text-left backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:bg-zinc-900/70 active:scale-[0.98] shadow-lg shadow-black/20"
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card p-3.5 text-left transition-all duration-300 hover:border-border hover:bg-card active:scale-[0.98] shadow-card"
               >
                 <div className="flex items-center justify-between gap-2.5">
                   {/* Left: Symbol & Name */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-base font-black text-white group-hover:text-emerald-400 transition-colors tracking-tight">{company.symbol}</span>
-                      <span className="rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-zinc-400 border border-white/5">{company.sector}</span>
+                      <span className="text-base font-bold text-foreground group-hover:text-success transition-colors tracking-tight">{company.symbol}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11.5px] font-bold text-muted-foreground border border-border">{company.sector}</span>
                     </div>
-                    <p className="mt-0.5 truncate text-[11px] text-zinc-400 font-sans">{company.name}</p>
+                    <p className="mt-0.5 truncate text-[12.5px] text-muted-foreground font-sans">{company.name}</p>
                   </div>
 
                   {/* Center: Mini Sparkline Wave (Visible on Mobile & Desktop) */}
                   <div className="w-20 sm:w-28 shrink-0 opacity-90 group-hover:opacity-100 transition-opacity">
-                    <MiniSparkline company={company} nowSec={nowSec} isUp={isUp} />
+                    <MiniSparkline company={company} isUp={isUp} />
                   </div>
 
                   {/* Right: Price & Percent Pill */}
                   <div className="shrink-0 text-right min-w-[76px]">
-                    <div className="text-sm font-black tabular-nums text-white tracking-tight">{quoteText(company.price, quoteCode)}</div>
-                    <div className={`mt-0.5 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-black tabular-nums border ${toneBg(company.change)}`}>
-                      <span className="material-symbols-outlined text-[12px]">{isUp ? "arrow_drop_up" : "arrow_drop_down"}</span>
+                    <div className="text-sm font-bold tabular-nums text-foreground tracking-tight">{priceText(company.price)}</div>
+                    <div className={`mt-0.5 inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[12.5px] font-bold tabular-nums border ${toneBg(company.change)}`}>
+                      <span className="material-symbols-outlined text-[12.5px]">{isUp ? "arrow_drop_up" : "arrow_drop_down"}</span>
                       <span>{pctText(company.change)}</span>
                     </div>
                   </div>
@@ -502,16 +642,12 @@ function Market({ market, portfolio, onOpen, quoteCode, nowSec, onHelp }) {
   );
 }
 
-function MiniSparkline({ company, nowSec, isUp }) {
-  const points = useMemo(() => {
-    const pts = [];
-    const baseTime = nowSec || Math.floor(Date.now() / 1000);
-    for (let i = 12; i >= 0; i--) {
-      const t = baseTime - i * 3;
-      pts.push(calculateSecondPrice(company, t));
-    }
-    return pts;
-  }, [company, nowSec]);
+function MiniSparkline({ company, isUp }) {
+  // 20 mốc cuối của ĐƯỜNG GIÁ THẬT do máy chủ gửi xuống. Bản trước tự sinh 13
+  // điểm bằng công thức của riêng client, nên hình sóng ở đây không liên quan
+  // gì tới giá đã khớp.
+  const points = useMemo(() => (company.ticks?.prices || []).slice(-20), [company.ticks]);
+  if (points.length < 2) return null;
 
   const min = Math.min(...points);
   const max = Math.max(...points);
@@ -532,24 +668,39 @@ function MiniSparkline({ company, nowSec, isUp }) {
   );
 }
 
-function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast, onHelp }) {
-  const quoteCode = market?.quoteCode || "JOYka";
+function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp }) {
   const feeRate = market?.feeRate ?? 0.005;
   const creativeRate = market?.creativeFeeRate ?? 0.05;
   const conversionRate = portfolio?.crossDenom ? (market?.conversionFeeRate ?? 0.15) : 0;
-  const holding = portfolio?.holdings?.find((h) => h.symbol === company.symbol);
   const cash = portfolio?.cash ?? 0;
   const [side, setSide] = useState("buy");
   const [quantity, setQuantity] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+
+  // Vị thế phải định giá lại theo GIÁ ĐANG CHẠY, không dùng lại ảnh chụp lúc
+  // /portfolio trả về: SWR giữ bản đó tới 30 giây trong khi giá nhảy từng giây,
+  // nên bản trước hiện "lãi 600" ngay bên dưới một mức giá đã khác hẳn.
+  const holding = useMemo(() => {
+    const raw = portfolio?.holdings?.find((h) => h.symbol === company.symbol);
+    if (!raw) return null;
+    return { ...raw, ...livePL(raw, company.price) };
+  }, [portfolio, company.symbol, company.price]);
 
   const qty = Math.max(1, Math.floor(Number(quantity) || 0));
-  const gross = Math.round(company.price * qty);
-  const brokerage = Math.max(1, Math.round(gross * feeRate));
-  const creativeFee = Math.floor(gross * creativeRate);
-  const conversionFee = Math.floor(gross * conversionRate);
-  const fee = brokerage + creativeFee + conversionFee;
-  const total = side === "buy" ? gross + fee : gross - fee;
+  // Phí tính bằng CHÍNH hàm máy chủ dùng để trừ ví (shared/stockPricing.js).
+  // Bản trước chép lại công thức ở đây, và chép sai thì màn xác nhận nói một
+  // đằng ví trừ một nẻo.
+  const costs = tradeCosts({
+    price: company.price,
+    quantity: qty,
+    side,
+    // Ưu tiên đơn vị máy chủ khẳng định; chưa tải xong thì dùng đơn vị đang
+    // hiển thị, đừng mặc định thành "khác đơn vị" rồi doạ người ta một khoản
+    // phí 15% không có thật.
+    memberDenom: portfolio?.walletDenom || joyDenom(),
+  });
+  const { gross, brokerage, creativeFee, conversionFee, total } = costs;
 
   const submit = async () => {
     setBusy(true);
@@ -558,11 +709,16 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: company.symbol, side, quantity: qty }),
+        // Giá gửi kèm CHỈ để máy chủ đối chiếu rồi từ chối khi lệch quá 3% —
+        // giá khớp luôn do máy chủ tự tính.
+        body: JSON.stringify({ symbol: company.symbol, side, quantity: qty, expectedPrice: company.price }),
       });
       const data = await res.json();
+      if (data.success) {
+        setReceipt(data.receipt || null);
+        await onTraded();
+      }
       showToast?.(data.message || (data.success ? "Đã khớp lệnh thành công" : "Không đặt được lệnh"), data.success ? "success" : "error");
-      if (data.success) await onTraded();
     } catch (error) {
       showToast?.(error.message, "error");
     } finally {
@@ -572,28 +728,33 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
 
   return (
     <div className="space-y-4">
+      <ReceiptSheet receipt={receipt} onClose={() => setReceipt(null)} />
+
       {/* Smart AI Financial Advisor Card */}
-      <SmartAdvisorCard portfolio={portfolio} company={company} quoteCode={quoteCode} onHelp={onHelp} />
+      <SmartAdvisorCard portfolio={portfolio} company={company} onHelp={onHelp} />
 
       {/* Stock Header & Price Banner */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/70 p-5 backdrop-blur-2xl shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-3xl font-black tabular-nums tracking-tight text-white">{quoteText(company.price, quoteCode)}</span>
+              <span className="text-[28px] font-bold tabular-nums tracking-tight text-foreground">{priceText(company.price)}</span>
             </div>
-            <div className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-black tabular-nums border ${toneBg(company.change)}`}>
-              <span className="material-symbols-outlined text-xs">{company.change >= 0 ? "arrow_drop_up" : "arrow_drop_down"}</span>
-              <span>{pctText(company.change)} ({quoteText(company.prevPrice, quoteCode)})</span>
+            <p className="mt-0.5 text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground">
+              Niêm yết {quoteText(company.price)} · quy về ví bạn theo tỷ giá hôm nay
+            </p>
+            <div className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-[13.5px] font-bold tabular-nums border ${toneBg(company.change)}`}>
+              <span className="material-symbols-outlined text-[13.5px]">{company.change >= 0 ? "arrow_drop_up" : "arrow_drop_down"}</span>
+              <span>{pctText(company.change)} ({priceText(company.prevPrice)})</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1.5 border border-emerald-500/20 text-emerald-400">
+          <div className="flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 border border-success/25 text-success">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
-            <span className="text-[10px] font-black tracking-wider uppercase flex items-center">
+            <span className="text-[11.5px] font-bold tracking-wider uppercase flex items-center">
               REALTIME 1S
               <HelpIcon topicKey="second_price" onClick={onHelp} />
             </span>
@@ -601,18 +762,18 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
         </div>
 
         {/* Biểu đồ biến động giá theo giây + vị thế MUA - BÁN */}
-        <StockPriceChart company={company} trades={portfolio?.trades} nowSec={nowSec} quoteCode={quoteCode} />
+        <StockPriceChart company={company} trades={portfolio?.trades} />
       </div>
 
       {/* Info Stats */}
-      <div className="rounded-3xl border border-white/10 bg-zinc-900/50 p-4 backdrop-blur-xl space-y-3">
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
         <div>
-          <h3 className="text-sm font-black text-white">{company.name}</h3>
-          <p className="mt-1 text-xs text-zinc-400 leading-relaxed font-sans">{company.description}</p>
+          <h3 className="text-sm font-bold text-foreground">{company.name}</h3>
+          <p className="mt-1 text-[13.5px] text-muted-foreground leading-relaxed font-sans">{company.description}</p>
         </div>
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
           <Stat label="Cổ phiếu phát hành" value={company.sharesOutstanding.toLocaleString("vi-VN")} />
-          <Stat label="Vốn hoá thị trường" value={quoteText(company.marketCap, quoteCode)} onHelp={onHelp} helpKey="market_cap" />
+          <Stat label="Vốn hoá thị trường" value={moneyText(company.marketCap)} onHelp={onHelp} helpKey="market_cap" />
           <Stat label="Biên độ dao động" value={`${(company.volatility * 100).toFixed(0)}%`} />
           <Stat label="Cổ tức mỗi phiên" value={company.dividendRate ? `${(company.dividendRate * 100).toFixed(2)}%` : "Không trả"} />
         </div>
@@ -620,36 +781,36 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
 
       {/* User Holding Info */}
       {holding && (
-        <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 backdrop-blur-xl text-xs space-y-1">
-          <p className="font-black text-emerald-400 text-sm flex items-center">
+        <div className="rounded-2xl border border-success/25 bg-success/10 p-4 text-[13.5px] space-y-1">
+          <p className="font-bold text-success text-sm flex items-center">
             Bạn đang nắm {holding.quantity.toLocaleString("vi-VN")} cổ phiếu {company.symbol}
             <HelpIcon topicKey="pnl" onClick={onHelp} />
           </p>
-          <p className="text-zinc-300 font-sans">
-            Giá vốn: <strong className="text-white">{quoteText(holding.avgCost, quoteCode)}</strong> · Giá trị hiện tại: <strong className="text-white">{quoteText(holding.value, quoteCode)}</strong>
+          <p className="text-foreground font-sans">
+            Giá vốn: <strong className="text-foreground">{priceText(holding.avgCost)}</strong> · Giá trị hiện tại: <strong className="text-foreground">{moneyText(holding.value)}</strong>
           </p>
           <p className="pt-1 flex items-center">
             Lãi/lỗ trên giấy:{" "}
-            <strong className={`font-black text-sm ml-1 ${toneOf(holding.unrealized)}`}>
-              {holding.unrealized >= 0 ? "+" : ""}{quoteText(holding.unrealized, quoteCode)} ({pctText(holding.unrealizedPct)})
+            <strong className={`font-bold text-sm ml-1 ${toneOf(holding.unrealized)}`}>
+              {holding.unrealized >= 0 ? "+" : ""}{moneyText(holding.unrealized)} ({pctText(holding.unrealizedPct)})
             </strong>
           </p>
         </div>
       )}
 
       {/* iOS 27 Order Execution Sheet */}
-      <div className="rounded-3xl border border-white/10 bg-zinc-900/80 p-5 backdrop-blur-2xl space-y-4 shadow-2xl">
-        <h3 className="text-sm font-black uppercase tracking-wider text-zinc-300">Đặt Lệnh Khớp Ngay</h3>
+      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-card">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Đặt Lệnh Khớp Ngay</h3>
 
         {/* Side Selector */}
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-zinc-950 p-1 border border-white/5">
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/40 p-1 border border-border">
           <button
             type="button"
             onClick={() => { hapticSelect(); setSide("buy"); }}
-            className={`py-2.5 rounded-xl text-sm font-black transition-all ${
+            className={`py-2.5 rounded-xl text-sm font-bold transition-all ${
               side === "buy"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/20"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-success text-foreground shadow-card"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             MUA {company.symbol}
@@ -657,10 +818,10 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
           <button
             type="button"
             onClick={() => { hapticSelect(); setSide("sell"); }}
-            className={`py-2.5 rounded-xl text-sm font-black transition-all ${
+            className={`py-2.5 rounded-xl text-sm font-bold transition-all ${
               side === "sell"
-                ? "bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/20"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-destructive text-foreground shadow-card"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             BÁN {company.symbol}
@@ -669,7 +830,7 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
 
         {/* Quantity Input */}
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-zinc-400">Số Lượng Cổ Phiếu</label>
+          <label className="block text-[13.5px] font-bold text-muted-foreground">Số Lượng Cổ Phiếu</label>
           <div className="relative">
             <input
               type="number"
@@ -677,9 +838,9 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
               inputMode="numeric"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              className="h-12 w-full rounded-2xl border border-white/10 bg-zinc-950/80 px-4 text-base font-black tabular-nums text-white outline-none focus:border-emerald-500 transition-colors"
+              className="h-12 w-full rounded-2xl border border-border bg-muted/40 px-4 text-base font-bold tabular-nums text-foreground outline-none focus:border-success transition-colors"
             />
-            <span className="absolute right-4 top-3 text-xs font-bold text-zinc-500">Cổ phiếu</span>
+            <span className="absolute right-4 top-3 text-[13.5px] font-bold text-muted-foreground">Cổ phiếu</span>
           </div>
 
           {/* Quick Amount Presets */}
@@ -689,7 +850,7 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
                 key={num}
                 type="button"
                 onClick={() => { hapticSelect(); setQuantity(num); }}
-                className="flex-1 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-xs font-bold text-zinc-300 transition-all active:scale-95"
+                className="flex-1 py-1.5 rounded-xl bg-muted hover:bg-muted border border-border text-[13.5px] font-bold text-foreground transition-all active:scale-95"
               >
                 +{num}
               </button>
@@ -698,7 +859,7 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
               <button
                 type="button"
                 onClick={() => { hapticSelect(); setSide("sell"); setQuantity(holding.quantity); }}
-                className="flex-1 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 text-xs font-bold text-rose-300 transition-all active:scale-95"
+                className="flex-1 py-1.5 rounded-xl bg-destructive/10 hover:bg-destructive/10 border border-destructive/25 text-[13.5px] font-bold text-destructive transition-all active:scale-95"
               >
                 Tất cả
               </button>
@@ -707,28 +868,33 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
         </div>
 
         {/* Fees & Summary Breakdown */}
-        <dl className="space-y-1.5 rounded-2xl bg-zinc-950/60 p-3.5 border border-white/5 text-xs font-sans">
-          <Row label={`Giá trị thực (${qty.toLocaleString("vi-VN")} cổ)`} value={quoteText(gross, quoteCode)} />
-          <Row label={`Phí môi giới (${(feeRate * 100).toFixed(1)}%)`} value={quoteText(brokerage, quoteCode)} onHelp={onHelp} helpKey="brokerage_fee" />
-          <Row label={`Phí sáng tạo (${(creativeRate * 100).toFixed(0)}%)`} value={quoteText(creativeFee, quoteCode)} onHelp={onHelp} helpKey="brokerage_fee" />
+        <dl className="space-y-1.5 rounded-2xl bg-muted/40 p-3.5 border border-border text-[13.5px] font-sans">
+          <Row label={`Giá khớp mỗi cổ phiếu`} value={priceText(company.price)} />
+          <Row label={`Giá trị ${qty.toLocaleString(LOCALE)} cổ phiếu`} value={moneyText(gross)} />
+          <Row label={`Phí môi giới (${(feeRate * 100).toFixed(1)}%)`} value={moneyText(brokerage)} onHelp={onHelp} helpKey="brokerage_fee" />
+          <Row label={`Phí sáng tạo (${(creativeRate * 100).toFixed(0)}%)`} value={moneyText(creativeFee)} onHelp={onHelp} helpKey="brokerage_fee" />
           {conversionRate > 0 && (
             <>
-              <Row label={`Phí đổi đơn vị (${(conversionRate * 100).toFixed(0)}%)`} value={quoteText(conversionFee, quoteCode)} onHelp={onHelp} helpKey="conversion_fee" />
-              <div className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-2.5 text-[11px] leading-snug text-amber-200 flex items-start justify-between gap-1">
+              <Row label={`Phí đổi đơn vị (${(conversionRate * 100).toFixed(0)}%)`} value={moneyText(conversionFee)} onHelp={onHelp} helpKey="conversion_fee" />
+              <div className="mt-2 rounded-xl border border-warning/25 bg-warning/10 p-2.5 text-[12.5px] leading-snug text-warning flex items-start justify-between gap-1">
                 <span>
-                  ⚠️ <strong>Lưu ý ví khác đơn vị gốc:</strong> Khác đơn vị ví sẽ áp dụng phí quy đổi 15% cho cả 2 chiều <strong>MUA và BÁN</strong>.
+                  <strong>Ví khác đơn vị gốc:</strong> phí quy đổi 15% thu cả chiều <strong>MUA và BÁN</strong>, nên giá phải tăng{" "}
+                  <strong>{(breakEvenPct(true) * 100).toFixed(1)}%</strong> thì bán mới hoà vốn.
                 </span>
                 <HelpIcon topicKey="conversion_fee" onClick={onHelp} />
               </div>
             </>
           )}
-          <div className="my-1 border-t border-white/10" />
+          <div className="my-1 border-t border-border" />
           <Row
-            label={side === "buy" ? "Tổng trừ ví JOY" : "Tổng thực nhận về ví JOY"}
-            value={joyText(total)}
+            label={side === "buy" ? `Tổng trừ ví (${costs.walletCode})` : `Tổng về ví (${costs.walletCode})`}
+            value={moneyText(total)}
             strong
           />
-          {side === "buy" && <Row label="Số dư JOY khả dụng" value={joyText(cash)} />}
+          {side === "buy" && <Row label="Số dư ví khả dụng" value={moneyText(cash)} />}
+          <p className="pt-1 text-[11.5px] leading-snug text-muted-foreground font-sans">
+            Sàn niêm yết bằng {STOCK_QUOTE_CODE}: {quoteText(gross)} cho lệnh này. Số trên đã quy về đơn vị ví của bạn.
+          </p>
         </dl>
 
         {/* Action Button */}
@@ -736,10 +902,10 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
           type="button"
           disabled={busy || (side === "buy" && total > cash) || (side === "sell" && (!holding || holding.quantity < qty))}
           onClick={submit}
-          className={`h-13 w-full rounded-2xl font-black text-sm text-white shadow-xl transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 ${
+          className={`h-12 w-full rounded-2xl font-bold text-sm text-foreground shadow-card transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 ${
             side === "buy"
-              ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 shadow-emerald-500/30 hover:brightness-110"
-              : "bg-gradient-to-r from-rose-500 via-red-500 to-rose-600 shadow-rose-500/30 hover:brightness-110"
+              ? "bg-success"
+              : "bg-destructive"
           }`}
         >
           {busy ? (
@@ -756,55 +922,85 @@ function CompanyDetail({ company, portfolio, market, nowSec, onTraded, showToast
   );
 }
 
-function Portfolio({ portfolio, onOpen, quoteCode, onHelp }) {
+function Portfolio({ portfolio, companies, onOpen, onHelp }) {
+  const [openTrade, setOpenTrade] = useState(null);
+
+  // Toàn bộ bảng này định giá lại theo GIÁ ĐANG CHẠY. Bản trước hiển thị thẳng
+  // các con số máy chủ chốt lúc gọi /portfolio (SWR giữ 30 giây), nên tổng lãi
+  // ở đây và giá trên bảng giá là hai thời điểm khác nhau — người học không có
+  // cách nào biết mình đang nhìn số nào.
+  const live = useMemo(() => {
+    const raw = portfolio?.holdings || [];
+    const priceOf = Object.fromEntries((companies || []).map((c) => [c.symbol, c.price]));
+    const holdings = raw.map((h) => ({ ...h, ...livePL(h, priceOf[h.symbol]) }));
+    const invested = holdings.reduce((sum, h) => sum + h.cost, 0);
+    const value = holdings.reduce((sum, h) => sum + h.value, 0);
+    return {
+      holdings,
+      invested,
+      value,
+      unrealized: value - invested,
+      unrealizedPct: invested > 0 ? (value - invested) / invested : 0,
+    };
+  }, [portfolio, companies]);
+
   if (!portfolio) return <Skeleton rows={3} />;
 
-  const { holdings = [], trades = [], crossDenom = false } = portfolio;
-  const unrealizedVal = portfolio.unrealized || 0;
+  const { trades = [], crossDenom = false } = portfolio;
+  const { holdings } = live;
+  const unrealizedVal = live.unrealized;
   const isProfit = unrealizedVal >= 0;
 
   return (
     <div className="space-y-4">
+      <TradeReceiptModal trade={openTrade} onClose={() => setOpenTrade(null)} />
+
       {/* Smart AI Financial Advisor Card */}
-      <SmartAdvisorCard portfolio={portfolio} quoteCode={quoteCode} onHelp={onHelp} />
+      <SmartAdvisorCard portfolio={{ ...portfolio, holdings }} onHelp={onHelp} />
 
       {/* Prominent Profit / Loss (PnL) Executive Summary Card */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900/90 via-zinc-900/70 to-zinc-950/90 p-5 backdrop-blur-2xl shadow-2xl space-y-4">
-        <div className="absolute -top-12 -right-12 h-36 w-36 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card space-y-4">
+        <div className="absolute -top-12 -right-12 h-36 w-36 rounded-full bg-success/10 pointer-events-none" />
 
         {/* Top Header */}
         <div className="flex items-center justify-between">
-          <p className="text-xs font-black uppercase tracking-wider text-zinc-400 flex items-center">
+          <p className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground flex items-center">
             Tổng Lời / Lỗ Ròng (PnL)
             <HelpIcon topicKey="pnl" onClick={onHelp} />
           </p>
-          <span className={`rounded-md bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${toneOf(unrealizedVal)}`}>
+          <span className={`rounded-md bg-muted border border-border px-2.5 py-0.5 text-[11.5px] font-bold uppercase tracking-wider ${toneOf(unrealizedVal)}`}>
             {isProfit ? "LỜI RÒNG" : "LỖ RÒNG"}
           </span>
         </div>
 
         {/* Big Profit / Loss Display */}
         <div className="space-y-1">
-          <div className={`text-3xl font-black tabular-nums tracking-tight ${toneOf(unrealizedVal)}`}>
-            {isProfit ? "+" : ""}{quoteText(unrealizedVal, quoteCode)}
+          <div className={`text-[28px] font-bold tabular-nums tracking-tight ${toneOf(unrealizedVal)}`}>
+            {isProfit ? "+" : "−"}{moneyText(Math.abs(unrealizedVal))}
           </div>
-          <div className="text-xs font-bold text-zinc-300 font-sans">
-            Tỷ lệ sinh lời: <span className={toneOf(unrealizedVal)}>{pctText(portfolio.unrealizedPct)}</span>
+          <div className="text-[13.5px] font-bold text-foreground font-sans">
+            Tỷ lệ sinh lời: <span className={toneOf(unrealizedVal)}>{pctText(live.unrealizedPct)}</span>
           </div>
         </div>
 
         {/* 3 Key Stats Breakdown */}
-        <div className="grid grid-cols-3 gap-2 border-t border-white/5 pt-3 text-center">
-          <Stat label="Vốn Đầu Tư" value={quoteText(portfolio.invested, quoteCode)} onHelp={onHelp} helpKey="pnl" />
-          <Stat label="Giá Trị Hiện Tại" value={quoteText(portfolio.value, quoteCode)} onHelp={onHelp} helpKey="pnl" />
-          <Stat label="Lãi Đã Chốt" value={quoteText(portfolio.realized, quoteCode)} tone={portfolio.realized} onHelp={onHelp} helpKey="pnl" />
+        <div className="grid grid-cols-3 gap-2 border-t border-border pt-3 text-center">
+          <Stat label="Vốn Đầu Tư" value={moneyText(live.invested)} onHelp={onHelp} helpKey="pnl" />
+          <Stat label="Giá Trị Hiện Tại" value={moneyText(live.value)} onHelp={onHelp} helpKey="pnl" />
+          <Stat label="Lãi Đã Chốt" value={moneyText(portfolio.realized)} tone={portfolio.realized} onHelp={onHelp} helpKey="pnl" />
         </div>
+        {portfolio.dividends > 0 && (
+          <p className="text-[12.5px] text-muted-foreground font-sans">
+            Cổ tức đã nhận tới nay: <strong className="text-success">{moneyText(portfolio.dividends)}</strong>
+          </p>
+        )}
 
         {/* Cross Denom Fee Warning */}
         {crossDenom && (
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs leading-relaxed text-amber-200 flex items-center justify-between">
+          <div className="rounded-2xl border border-warning/25 bg-warning/10 p-3 text-[13.5px] leading-relaxed text-warning flex items-center justify-between">
             <span>
-              ⚠️ <strong>Ví khác đơn vị gốc:</strong> Áp dụng 15% phí quy đổi 2 chiều. Nên chốt lời khi lãi {">"} 15%!
+              <strong>Ví khác đơn vị gốc:</strong> mỗi chiều chịu thêm 15% phí quy đổi, nên giá phải tăng{" "}
+              <strong>{(breakEvenPct(true) * 100).toFixed(1)}%</strong> mới hoà vốn — không phải 15%.
             </span>
             <HelpIcon topicKey="conversion_fee" onClick={onHelp} />
           </div>
@@ -813,15 +1009,15 @@ function Portfolio({ portfolio, onOpen, quoteCode, onHelp }) {
 
       {/* Holdings List */}
       <div className="space-y-2">
-        <h3 className="text-xs font-black uppercase tracking-wider text-zinc-400 px-1 flex items-center">
+        <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">
           Danh Mục Đang Nắm Giữ
           <HelpIcon topicKey="pnl" onClick={onHelp} />
         </h3>
         {holdings.length === 0 ? (
-          <div className="rounded-3xl border border-white/5 bg-zinc-900/40 p-8 text-center backdrop-blur-xl space-y-3">
-            <span className="material-symbols-outlined text-4xl text-emerald-500/60">auto_graph</span>
-            <p className="text-xs text-zinc-400 leading-relaxed font-sans max-w-xs mx-auto">
-              Chưa nắm giữ cổ phiếu nào. Hãy chuyển sang tab <strong className="text-white">Bảng giá</strong> để chọn cổ phiếu và tích lũy lợi nhuận!
+          <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-3">
+            <span className="material-symbols-outlined text-4xl text-success/60">auto_graph</span>
+            <p className="text-[13.5px] text-muted-foreground leading-relaxed font-sans max-w-xs mx-auto">
+              Chưa nắm giữ cổ phiếu nào. Hãy chuyển sang tab <strong className="text-foreground">Bảng giá</strong> để chọn cổ phiếu và tích lũy lợi nhuận!
             </p>
           </div>
         ) : (
@@ -830,17 +1026,17 @@ function Portfolio({ portfolio, onOpen, quoteCode, onHelp }) {
               key={holding.symbol}
               type="button"
               onClick={() => { hapticSelect(); onOpen(holding.symbol); }}
-              className="flex w-full items-center justify-between gap-3 rounded-3xl border border-white/10 bg-zinc-900/40 p-4 text-left backdrop-blur-xl transition-all hover:bg-zinc-900/70 active:scale-[0.98]"
+              className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-all hover:bg-card active:scale-[0.98]"
             >
               <div>
-                <span className="text-base font-black text-white">{holding.symbol}</span>
-                <span className="block text-xs text-zinc-400 mt-0.5 font-sans">
-                  {holding.quantity.toLocaleString("vi-VN")} cổ · vốn {quoteText(holding.avgCost, quoteCode)}
+                <span className="text-base font-bold text-foreground">{holding.symbol}</span>
+                <span className="block text-[13.5px] text-muted-foreground mt-0.5 font-sans">
+                  {holding.quantity.toLocaleString("vi-VN")} cổ · vốn {priceText(holding.avgCost)}
                 </span>
               </div>
               <div className="text-right">
-                <span className="block text-base font-black tabular-nums text-white">{quoteText(holding.value, quoteCode)}</span>
-                <span className={`block text-xs font-bold tabular-nums ${toneOf(holding.unrealized)}`}>
+                <span className="block text-base font-bold tabular-nums text-foreground">{moneyText(holding.value)}</span>
+                <span className={`block text-[13.5px] font-bold tabular-nums ${toneOf(holding.unrealized)}`}>
                   {pctText(holding.unrealizedPct)}
                 </span>
               </div>
@@ -851,22 +1047,35 @@ function Portfolio({ portfolio, onOpen, quoteCode, onHelp }) {
 
       {/* Recent Trades Audit List */}
       {trades.length > 0 && (
-        <div className="rounded-3xl border border-white/10 bg-zinc-900/40 backdrop-blur-xl overflow-hidden">
-          <p className="border-b border-white/5 px-4 py-3 text-xs font-black uppercase tracking-wider text-zinc-300">Nhật Ký Khớp Lệnh</p>
-          <ul className="divide-y divide-white/5">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <p className="border-b border-border px-4 py-3 text-[13.5px] font-bold uppercase tracking-wider text-foreground">Nhật Ký Khớp Lệnh</p>
+          <ul className="divide-y divide-border">
             {trades.map((trade, index) => (
-              <li key={index} className="flex items-center justify-between gap-2 px-4 py-3 text-xs font-sans">
-                <div className="flex items-center gap-2">
-                  <span className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase ${trade.side === "buy" ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"}`}>
-                    {trade.side === "buy" ? "MUA" : "BÁN"}
+              <li key={index}>
+                <button
+                  type="button"
+                  onClick={() => { hapticSelect(); setOpenTrade(trade); }}
+                  className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left text-[13.5px] font-sans transition-colors hover:bg-muted"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`rounded-md px-2 py-0.5 text-[11.5px] font-bold uppercase ${trade.side === "buy" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
+                        {trade.side === "buy" ? "MUA" : "BÁN"}
+                      </span>
+                      <span className="truncate text-foreground">
+                        {trade.quantity.toLocaleString(LOCALE)} {trade.symbol} @ {priceText(trade.price)}
+                      </span>
+                    </div>
+                    <span className="mt-0.5 block text-[11.5px] text-muted-foreground">
+                      {new Date(trade.at).toLocaleString(LOCALE)} · phí {moneyText(trade.fee)} · bấm xem hoá đơn
+                    </span>
+                  </div>
+                  <span className={`shrink-0 tabular-nums font-bold ${trade.side === "sell" ? toneOf(trade.realizedPL) : "text-muted-foreground"}`}>
+                    {trade.side === "sell"
+                      ? `${trade.realizedPL >= 0 ? "+" : "−"}${moneyText(Math.abs(trade.realizedPL))}`
+                      : `−${moneyText(trade.total)}`}
                   </span>
-                  <span className="text-zinc-200">
-                    {trade.quantity} {trade.symbol} @ {quoteText(trade.price, quoteCode)}
-                  </span>
-                </div>
-                <span className={`tabular-nums font-bold ${trade.side === "sell" ? toneOf(trade.realizedPL) : "text-zinc-400"}`}>
-                  {trade.side === "sell" ? joyText(trade.realizedPL) : `−${joyText(trade.total)}`}
-                </span>
+                </button>
               </li>
             ))}
           </ul>
@@ -879,8 +1088,8 @@ function Portfolio({ portfolio, onOpen, quoteCode, onHelp }) {
 function Learn({ onOpen }) {
   return (
     <div className="space-y-3">
-      <div className="rounded-3xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur-xl">
-        <p className="text-xs leading-relaxed text-zinc-300 font-sans">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
+        <p className="text-[13.5px] leading-relaxed text-muted-foreground">
           Mười bài học thực chiến thiết kế chuẩn Hugo Studio — giải thích từ cơ bản tới nâng cao với ví dụ bằng số thật.
         </p>
       </div>
@@ -889,12 +1098,12 @@ function Learn({ onOpen }) {
           key={item.id}
           type="button"
           onClick={() => { hapticSelect(); onOpen(item); }}
-          className="w-full rounded-3xl border border-white/10 bg-zinc-900/40 p-4 text-left backdrop-blur-xl transition-all hover:bg-zinc-900/70 active:scale-[0.98]"
+          className="w-full rounded-2xl border border-border bg-card p-4 text-left transition-all hover:bg-card active:scale-[0.98]"
         >
-          <p className="text-sm font-bold text-white">
+          <p className="text-sm font-bold text-foreground">
             {index + 1}. {item.title}
           </p>
-          <p className="mt-1 text-xs text-zinc-400 font-sans">{item.summary}</p>
+          <p className="mt-1 text-[13.5px] text-muted-foreground font-sans">{item.summary}</p>
         </button>
       ))}
     </div>
@@ -903,266 +1112,26 @@ function Learn({ onOpen }) {
 
 function LessonView({ lesson }) {
   return (
-    <article className="space-y-4 rounded-3xl border border-white/10 bg-zinc-900/60 p-5 backdrop-blur-2xl">
-      <h2 className="text-xl font-black text-white">{lesson.title}</h2>
-      <p className="text-xs font-bold text-emerald-400">{lesson.summary}</p>
-      <div className="space-y-3 border-t border-white/5 pt-3">
+    <article className="space-y-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+      <h2 className="text-[19px] font-bold leading-tight text-foreground">{lesson.title}</h2>
+      <p className="text-[13.5px] font-bold text-success">{lesson.summary}</p>
+      <div className="space-y-3 border-t border-border pt-3">
         {lesson.body.map((paragraph, index) => (
-          <p key={index} className="text-xs leading-relaxed text-zinc-300 font-sans">{paragraph}</p>
+          <p key={index} className="text-[13.5px] leading-relaxed text-foreground font-sans">{paragraph}</p>
         ))}
       </div>
     </article>
   );
 }
 
-function StockPriceChart({ company, trades = [], nowSec, quoteCode }) {
-  const [timeframe, setTimeframe] = useState("live");
-  const [scrubIndex, setScrubIndex] = useState(null);
-
-  const chartPoints = useMemo(() => {
-    if (timeframe === "session" && company.history?.length >= 2) {
-      return company.history.map((h) => ({
-        label: new Date(h.at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-        price: h.price,
-        time: new Date(h.at).getTime(),
-      }));
-    }
-    const points = [];
-    const baseTime = nowSec || Math.floor(Date.now() / 1000);
-    for (let i = 29; i >= 0; i--) {
-      const t = baseTime - i * 2;
-      const price = calculateSecondPrice(company, t);
-      points.push({
-        label: new Date(t * 1000).toLocaleTimeString("vi-VN", { minute: "2-digit", second: "2-digit" }),
-        price,
-        time: t * 1000,
-      });
-    }
-    return points;
-  }, [company, timeframe, nowSec]);
-
-  const prices = chartPoints.map((p) => p.price);
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
-  const priceSpan = maxPrice - minPrice || 1;
-  const isUp = (prices[prices.length - 1] || 0) >= (prices[0] || 0);
-
-  const width = 460;
-  const height = 200;
-  const paddingY = 38; // Increased padding so top/bottom badges never get clipped
-  const paddingX = 18;
-  const graphWidth = width - paddingX * 2;
-  const graphHeight = height - paddingY * 2;
-
-  const coords = useMemo(() => {
-    return chartPoints.map((pt, idx) => {
-      const x = paddingX + (idx / Math.max(1, chartPoints.length - 1)) * graphWidth;
-      const y = height - paddingY - ((pt.price - minPrice) / priceSpan) * graphHeight;
-      return { ...pt, x, y };
-    });
-  }, [chartPoints, minPrice, priceSpan, graphWidth, graphHeight]);
-
-  const linePath = useMemo(() => {
-    if (coords.length < 2) return "";
-    return coords.reduce((acc, pt, i) => `${acc} ${i === 0 ? "M" : "L"} ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`, "");
-  }, [coords]);
-
-  const areaPath = useMemo(() => {
-    if (coords.length < 2) return "";
-    const firstX = coords[0].x.toFixed(1);
-    const lastX = coords[coords.length - 1].x.toFixed(1);
-    const bottomY = (height - paddingY).toFixed(1);
-    return `${linePath} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
-  }, [linePath, coords]);
-
-  const symbolTrades = useMemo(() => {
-    return (trades || []).filter((t) => t.symbol === company.symbol).slice(-4);
-  }, [trades, company.symbol]);
-
-  const tradeMarkers = useMemo(() => {
-    if (!symbolTrades.length || !coords.length) return [];
-    const minTime = chartPoints[0]?.time || Date.now() - 60000;
-    const maxTime = chartPoints[chartPoints.length - 1]?.time || Date.now();
-    const timeSpan = maxTime - minTime || 1;
-
-    return symbolTrades.map((trade) => {
-      const tradeTime = new Date(trade.at || Date.now()).getTime();
-      const inWindow = tradeTime >= minTime && tradeTime <= maxTime;
-      const timeRatio = inWindow ? (tradeTime - minTime) / timeSpan : 0.18;
-      const x = paddingX + timeRatio * graphWidth;
-      const rawY = height - paddingY - ((trade.price - minPrice) / priceSpan) * graphHeight;
-      const y = Math.max(paddingY + 8, Math.min(height - paddingY - 8, rawY));
-      return { ...trade, x, y, rawY, inWindow };
-    });
-  }, [symbolTrades, coords, minPrice, priceSpan, graphHeight, graphWidth, chartPoints]);
-
-  const activePoint = scrubIndex !== null ? coords[scrubIndex] : null;
-  const strokeColor = isUp ? "#34c759" : "#ff3b30";
-  const gradientId = `chartGradPro_${company.symbol}`;
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const touchX = e.clientX - rect.left;
-    const ratio = Math.max(0, Math.min(1, (touchX - paddingX) / graphWidth));
-    const index = Math.round(ratio * (coords.length - 1));
-    setScrubIndex(index);
-  };
-
-  return (
-    <div className="mt-3 space-y-2 rounded-2xl border border-white/10 bg-zinc-950/70 p-4 backdrop-blur-2xl shadow-xl">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">
-            {activePoint ? `${activePoint.label} · ${quoteText(activePoint.price, quoteCode)}` : timeframe === "live" ? "Sóng Giá Trực Tiếp (1s)" : "Các Phiên Chốt Lịch Sử"}
-          </span>
-        </div>
-
-        <div className="flex gap-1 rounded-lg bg-zinc-900 p-0.5 border border-white/5">
-          <button
-            type="button"
-            onClick={() => setTimeframe("live")}
-            className={`rounded-md px-2.5 py-0.5 text-[10px] font-bold transition-all ${
-              timeframe === "live" ? "bg-white/20 text-white shadow-xs" : "text-zinc-500 hover:text-zinc-300"
-            }`}
-          >
-            1s
-          </button>
-          <button
-            type="button"
-            onClick={() => setTimeframe("session")}
-            className={`rounded-md px-2.5 py-0.5 text-[10px] font-bold transition-all ${
-              timeframe === "session" ? "bg-white/20 text-white shadow-xs" : "text-zinc-500 hover:text-zinc-300"
-            }`}
-          >
-            Phiên
-          </button>
-        </div>
-      </div>
-
-      <div
-        className="relative touch-none overflow-visible"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => setScrubIndex(null)}
-      >
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48 overflow-visible">
-          <defs>
-            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={strokeColor} stopOpacity="0.32" />
-              <stop offset="100%" stopColor={strokeColor} stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
-          {/* Reference Lines */}
-          <line x1={paddingX} y1={paddingY} x2={width - paddingX} y2={paddingY} stroke="currentColor" strokeDasharray="3 3" className="text-white/15" strokeWidth="1" />
-          <text x={width - paddingX} y={paddingY - 6} textAnchor="end" className="fill-zinc-400 text-[10px] font-black">
-            Đỉnh: {quoteText(maxPrice, quoteCode)}
-          </text>
-
-          <line x1={paddingX} y1={height - paddingY} x2={width - paddingX} y2={height - paddingY} stroke="currentColor" strokeDasharray="3 3" className="text-white/15" strokeWidth="1" />
-          <text x={width - paddingX} y={height - paddingY + 16} textAnchor="end" className="fill-zinc-400 text-[10px] font-black">
-            Đáy: {quoteText(minPrice, quoteCode)}
-          </text>
-
-          {/* Fill Area */}
-          {areaPath && <path d={areaPath} fill={`url(#${gradientId})`} />}
-
-          {/* Main Price Curve */}
-          {linePath && <path d={linePath} fill="none" stroke={strokeColor} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />}
-
-          {/* Trade Positions: Dashed Price Level Line + Smart Flipping Badge Capsule */}
-          {tradeMarkers.map((trade, idx) => {
-            const isBuy = trade.side === "buy";
-            const badgeColor = isBuy ? "#34c759" : "#ff3b30";
-            // Flip badge downwards if point is near the top edge (< paddingY + 22)
-            const badgeY = trade.y < paddingY + 22 ? trade.y + 10 : trade.y - 23;
-
-            return (
-              <g key={idx}>
-                {/* Horizontal Entry Price Dashed Line */}
-                <line
-                  x1={paddingX}
-                  y1={trade.y}
-                  x2={width - paddingX}
-                  y2={trade.y}
-                  stroke={badgeColor}
-                  strokeDasharray="4 3"
-                  strokeWidth="1.2"
-                  opacity="0.8"
-                />
-
-                {/* Point Marker Circle */}
-                <circle cx={trade.x} cy={trade.y} r="5.5" fill={badgeColor} stroke="#ffffff" strokeWidth="2" />
-
-                {/* Badge Capsule with Smart Direction */}
-                <rect
-                  x={trade.x - 22}
-                  y={badgeY}
-                  width="44"
-                  height="15"
-                  rx="4.5"
-                  fill={badgeColor}
-                  className="shadow-md"
-                />
-                <text
-                  x={trade.x}
-                  y={badgeY + 10.5}
-                  textAnchor="middle"
-                  fill="#ffffff"
-                  className="text-[8.5px] font-black pointer-events-none tracking-wider"
-                >
-                  {isBuy ? "▲ MUA" : "▼ BÁN"}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Live Pulse Circle */}
-          {coords.length > 0 && !activePoint && (
-            <g transform={`translate(${coords[coords.length - 1].x}, ${coords[coords.length - 1].y})`}>
-              <circle r="7" fill={strokeColor} className="animate-ping opacity-75" />
-              <circle r="4.5" fill={strokeColor} stroke="#ffffff" strokeWidth="2" />
-            </g>
-          )}
-
-          {/* Interactive Touch/Hover Scrub Line */}
-          {activePoint && (
-            <g transform={`translate(${activePoint.x}, 0)`}>
-              <line x1="0" y1={paddingY} x2="0" y2={height - paddingY} stroke="#ffffff" strokeDasharray="2 2" strokeWidth="1.5" opacity="0.8" />
-              <circle cx="0" cy={activePoint.y} r="5" fill={strokeColor} stroke="#ffffff" strokeWidth="2" />
-            </g>
-          )}
-        </svg>
-      </div>
-
-      <div className="flex items-center justify-between border-t border-white/10 pt-2 text-xs text-zinc-400 font-sans">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 font-black text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" /> ▲ Lệnh MUA
-          </span>
-          <span className="flex items-center gap-1.5 font-black text-rose-400">
-            <span className="h-2 w-2 rounded-full bg-rose-500" /> ▼ Lệnh BÁN
-          </span>
-        </div>
-        <span className="font-bold text-zinc-300">
-          {symbolTrades.length > 0 ? `${symbolTrades.length} lệnh đã khớp` : "Chưa có lệnh giao dịch"}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function Stat({ label, value, tone, onHelp, helpKey }) {
   return (
-    <div className="rounded-2xl bg-zinc-950/70 p-2.5 border border-white/5">
-      <dt className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center justify-between">
+    <div className="rounded-2xl bg-muted/40 p-2.5 border border-border">
+      <dt className="text-[11.5px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
         <span>{label}</span>
         {helpKey && <HelpIcon topicKey={helpKey} onClick={onHelp} />}
       </dt>
-      <dd className={`text-xs font-black tabular-nums mt-0.5 ${tone === undefined ? "text-white" : toneOf(tone)}`}>{value}</dd>
+      <dd className={`text-[13.5px] font-bold tabular-nums mt-0.5 ${tone === undefined ? "text-foreground" : toneOf(tone)}`}>{value}</dd>
     </div>
   );
 }
@@ -1170,11 +1139,11 @@ function Stat({ label, value, tone, onHelp, helpKey }) {
 function Row({ label, value, strong, tone, onHelp, helpKey }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <dt className="text-zinc-400 flex items-center">
+      <dt className="text-muted-foreground flex items-center">
         <span>{label}</span>
         {helpKey && <HelpIcon topicKey={helpKey} onClick={onHelp} />}
       </dt>
-      <dd className={`tabular-nums ${strong ? "text-sm font-black text-white" : "font-bold text-zinc-200"} ${tone === undefined ? "" : toneOf(tone)}`}>
+      <dd className={`tabular-nums ${strong ? "text-sm font-bold text-foreground" : "font-bold text-foreground"} ${tone === undefined ? "" : toneOf(tone)}`}>
         {value}
       </dd>
     </div>
@@ -1185,7 +1154,7 @@ function Skeleton({ rows = 3 }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: rows }, (_, index) => (
-        <div key={index} className="h-24 animate-pulse rounded-3xl bg-zinc-900/60 border border-white/5" />
+        <div key={index} className="h-24 animate-pulse rounded-2xl bg-card border border-border" />
       ))}
     </div>
   );

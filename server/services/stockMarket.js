@@ -2,11 +2,38 @@ import StockCompany from '../models/StockCompany.js';
 import StockPosition from '../models/StockPosition.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import JoyLedger from '../models/JoyLedger.js';
-import Bio from '../models/Bio.js';
+import UtilityOrder from '../models/UtilityOrder.js';
 import { awardJoy } from '../utils/joyService.js';
-import { sessionKey, sessionStart } from '../utils/joyRateService.js';
-import { BASE_DENOM, CROSS_DENOM_FEE, denomOf, isCrossDenom, toDenom } from '../../shared/joyCurrency.js';
-import { TRANSFER_FEE_RATE } from '../../shared/joyPrices.js';
+
+/**
+ * ĐỒNG HỒ PHIÊN CỦA RIÊNG SÀN — 09:00 · 15:00 · 21:00 giờ Việt Nam.
+ *
+ * Trước đây sàn mượn `sessionKey` của joyRateService. Hai thứ chỉ TÌNH CỜ chung
+ * lịch: tỷ giá JOY có thể đổi sang nhịp khác bất cứ lúc nào, và hôm đó cổ tức
+ * HBANK sẽ trả theo nhịp mới — 24 lần một ngày thay vì 3 — còn "kết quả kinh
+ * doanh" cũng cộng vào giá 24 lần. Một mốc phiên là một quyết định của SÀN, nên
+ * nó phải nằm ở đây.
+ */
+export const SESSION_HOURS_VN = [9, 15, 21];
+const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+/** Khoá phiên: "2026-08-18-09". Trước 09:00 vẫn thuộc phiên 21:00 hôm trước. */
+export function sessionKey(date = new Date()) {
+  const vn = new Date(date.getTime() + VN_OFFSET_MS);
+  const hour = vn.getUTCHours();
+  let session = [...SESSION_HOURS_VN].reverse().find((h) => hour >= h);
+  if (session === undefined) {
+    vn.setUTCDate(vn.getUTCDate() - 1);
+    session = SESSION_HOURS_VN[SESSION_HOURS_VN.length - 1];
+  }
+  return `${vn.toISOString().slice(0, 10)}-${String(session).padStart(2, '0')}`;
+}
+
+/** Mốc bắt đầu (UTC) của một phiên. */
+export function sessionStart(key) {
+  const [date, hour] = [key.slice(0, 10), Number(key.slice(11, 13))];
+  return new Date(new Date(`${date}T00:00:00.000Z`).getTime() + hour * 3600000 - VN_OFFSET_MS);
+}
 
 /**
  * Sàn chứng khoán ảo Hugo — bốn công ty, giá chạy bằng SỐ LIỆU THẬT.
@@ -23,64 +50,96 @@ import { TRANSFER_FEE_RATE } from '../../shared/joyPrices.js';
  *    động mạnh nhất — lời nhanh, lỗ cũng nhanh; HBANK dao động thấp nhất nhưng
  *    trả cổ tức đều. Đây là bài học người mới hay trả giá đắt nhất để học.
  *
- * 3. BA PHIÊN MỘT NGÀY. Giá khớp lúc 09:00 · 15:00 · 21:00 giờ Việt Nam, dùng
- *    chung mốc phiên với tỷ giá JOY. Giữa hai phiên giá đứng yên: người học
- *    nhìn thấy rõ "chốt phiên" là gì, và máy chủ chỉ tính 3 lần/ngày.
+ * 3. BA PHIÊN MỘT NGÀY, GIÁ CHẠY LIÊN TỤC. Kết quả kinh doanh chốt lúc 09:00 ·
+ *    15:00 · 21:00 giờ Việt Nam (chung mốc phiên với tỷ giá JOY) và đặt MỐC NEO
+ *    của phiên. Trong phiên, giá đi theo đường ngẫu nhiên có hạt giống bí mật
+ *    trong shared/stockPricing.js — hạt giống nằm ở máy chủ nên không ai đoán
+ *    trước được, và mỗi bước bị chặn dưới mức phí khứ hồi.
+ *
+ * Toán giá và toán phí nằm ở shared/stockPricing.js — client dùng CHUNG file
+ * đó, nên màn xác nhận và ví không bao giờ ra hai con số khác nhau.
  */
+export {
+  TRADING_FEE_RATE, MIN_FEE, STOCK_QUOTE_DENOM, STOCK_QUOTE_CODE, CREATIVE_FEE_RATE,
+  TICK_WINDOW, MAX_SEGMENT_MOVE, tradingFee, tradeCosts, positionPL,
+} from '../../shared/stockPricing.js';
 
-// Phí giao dịch mỗi chiều — sàn thật cũng thu, và nó là lý do "lướt sóng" liên
-// tục thường lỗ dù giá không đổi.
-export const TRADING_FEE_RATE = 0.005;
-export const MIN_FEE = 1;
+import { buildTicks, priceAt, SEGMENT_SEC } from '../../shared/stockPricing.js';
+
+export { buildTicks, priceAt, SEGMENT_SEC };
 
 /**
- * MỌI CỔ PHIẾU NIÊM YẾT BẰNG ĐƠN VỊ GỐC (Kavo, bản tiếng Anh) — xem BASE_DENOM
- * trong shared/joyCurrency.js. Sàn chỉ có MỘT bảng giá cho tất cả mọi người,
- * đúng như một sàn thật niêm yết bằng một đồng tiền duy nhất.
+ * HẠT GIỐNG của đường giá — thứ DUY NHẤT giữ cho sàn không đoán trước được.
  *
- * Hệ quả: ai để ví ở đơn vị khác thì mỗi lệnh là một lần ĐỔI TIỀN, nên phải
- * chịu phí chuyển đổi 15% — y hệt việc mua cổ phiếu Mỹ bằng tiền Việt ngoài
- * đời. Cộng thêm phí sáng tạo 5% như mọi giao dịch JOY khác.
+ * Công thức giá nằm trong bundle trình duyệt (client cần nó để nội suy), nên
+ * bí mật không thể nằm ở công thức. Nếu hạt giống lộ, ai cũng dựng lại được
+ * toàn bộ đường giá của phiên rồi mua đúng đáy bán đúng đỉnh — biên độ một
+ * phiên tới ±45%, tức là in JOY. Nó KHÔNG BAO GIỜ được gửi xuống client.
+ *
+ * Trên production máy chủ không khởi động nổi nếu thiếu JWT_SECRET (xem
+ * utils/secrets.js), nên nhánh dự phòng chỉ dùng được ở máy dev.
  */
-export const STOCK_QUOTE_DENOM = BASE_DENOM;
-export const STOCK_QUOTE_CODE = denomOf(BASE_DENOM).code;
-export const CREATIVE_FEE_RATE = TRANSFER_FEE_RATE;
+const MARKET_SEED = process.env.STOCK_MARKET_SEED || process.env.JWT_SECRET || 'hugo-invest-dev';
+const seedFor = (key) => `${MARKET_SEED}|${key}`;
+
+const secondsOf = (date) => Math.floor(date.getTime() / 1000);
 
 /**
- * Toàn bộ chi phí của một lệnh — HÀM THUẦN, dùng chung cho màn xác nhận và lệnh
- * trừ ví. Hai bên phải ra CÙNG một con số, nếu không sẽ có ngày "màn hình nói
- * 1.050, ví trừ 1.200".
- *
- * Mua:  trừ ví = giá trị + phí môi giới + phí sáng tạo + phí chuyển đổi
- * Bán:  về ví  = giá trị − phí môi giới − phí sáng tạo − phí chuyển đổi
+ * Đường giá của một mã trong một phiên. Hàm thuần theo (hạt giống, phiên, mốc
+ * neo) nên khởi động lại máy chủ không làm giá nhảy, và không cần ghi gì thêm.
  */
-export function tradeCosts({ price, quantity, side, memberDenom }) {
-  const gross = Math.round(price * quantity);
-  const brokerage = tradingFee(gross);
-  const creativeFee = Math.floor(gross * CREATIVE_FEE_RATE);
-  const crossDenom = isCrossDenom(memberDenom, BASE_DENOM);
-  const conversionFee = crossDenom ? Math.floor(gross * CROSS_DENOM_FEE) : 0;
-  const fees = brokerage + creativeFee + conversionFee;
+export function ticksFor(company, { key = sessionKey(), nowSec = Math.floor(Date.now() / 1000) } = {}) {
+  return buildTicks({
+    symbol: company.symbol,
+    anchor: company.price,
+    basePrice: company.basePrice,
+    volatility: company.volatility,
+    seed: seedFor(key),
+    startSec: secondsOf(sessionStart(key)),
+    nowSec,
+  });
+}
 
-  return {
-    gross,
-    brokerage,
-    creativeFee,
-    conversionFee,
-    crossDenom,
-    fees,
-    // Số JOY gốc thật sự rời ví (mua) hoặc về ví (bán).
-    total: side === 'buy' ? gross + fees : gross - fees,
-    rates: {
-      brokerage: TRADING_FEE_RATE,
-      creative: CREATIVE_FEE_RATE,
-      conversion: crossDenom ? CROSS_DENOM_FEE : 0,
-    },
-    quoteCode: STOCK_QUOTE_CODE,
-    walletCode: denomOf(memberDenom).code,
-    // Cùng số tiền đó viết theo đơn vị ví của người dùng, để họ đối chiếu được.
-    totalInWallet: toDenom(side === 'buy' ? gross + fees : gross - fees, memberDenom).amount,
-  };
+/** Giá đang khớp của một mã — mốc neo + đường giá của phiên hiện tại. */
+export function livePrice(company, { key = sessionKey(), nowSec = Math.floor(Date.now() / 1000) } = {}) {
+  return priceAt({ ...company, ticks: ticksFor(company, { key, nowSec }) }, nowSec);
+}
+
+/**
+ * Lịch sử phiên, MỖI MỐC THỜI GIAN ĐÚNG MỘT ĐIỂM, cũ trước mới sau.
+ *
+ * Mốc phiên từng đổi (sàn mượn đồng hồ của bảng tỷ giá JOY, bên đó chuyển sang
+ * nhịp giờ), nên dữ liệu cũ có hai điểm trùng giờ — biểu đồ nhận hai nến cùng
+ * `time` và React kêu trùng key. Dọn ở CẢ hai đầu: chỗ ghi không đẻ thêm điểm
+ * trùng, chỗ đọc chữa lành dữ liệu đã lỡ có, khỏi phải chạy migration.
+ */
+export function tidyHistory(history) {
+  const byTime = new Map();
+  for (const point of history || []) {
+    const at = new Date(point.at).getTime();
+    if (!Number.isFinite(at)) continue;
+    // Điểm ghi sau thắng: nó là lần chốt phiên gần nhất của mốc đó.
+    byTime.set(at, { at: new Date(at), price: point.price });
+  }
+  return [...byTime.entries()].sort((a, b) => a[0] - b[0]).map(([, point]) => point);
+}
+
+/** Phiên liền trước một phiên. */
+export function previousSession(key) {
+  return sessionKey(new Date(sessionStart(key).getTime() - 1000));
+}
+
+/**
+ * Giá ĐÓNG CỬA của phiên trước: mốc cuối cùng của đường giá phiên đó. Phiên mới
+ * phải nối tiếp từ đây chứ không quay về mốc neo cũ — nếu không, mỗi lần chốt
+ * phiên giá lại búng ngược về chỗ cũ và mọi lãi/lỗ trong phiên bốc hơi.
+ */
+function closeOf(company, key) {
+  const ticks = ticksFor(company, {
+    key: previousSession(key),
+    nowSec: secondsOf(sessionStart(key)) - SEGMENT_SEC,
+  });
+  return ticks.prices[ticks.prices.length - 1] ?? company.price;
 }
 
 // Trần dao động một phiên: ±10% quanh giá phiên trước.
@@ -94,19 +153,19 @@ export const COMPANIES = [
     name: 'Hugo Film',
     sector: 'Giải trí · Rạp phim',
     description:
-      'Vận hành rạp Chill Premium. Doanh thu đo bằng số phút thành viên thật sự ngồi xem phim — càng nhiều người xem, công ty càng khoẻ.',
+      'Vận hành rạp Chill Premium và HugoRadio. Doanh thu đo bằng số JOY thành viên chi ra mua token xem/nghe trong kỳ — bán được nhiều vé thì công ty khoẻ.',
     sharesOutstanding: 120000,
     basePrice: 100,
     volatility: 0.05,
     dividendRate: 0,
-    signal: 'watchMinutes',
+    signal: 'mediaRevenue',
   },
   {
     symbol: 'HARC',
     name: 'Hugo Arcade',
     sector: 'Trò chơi',
     description:
-      'Sở hữu toàn bộ trò chơi trong HugoArcade. Doanh thu đo bằng số lượt chơi có ghi điểm. Đây là mã BIẾN ĐỘNG MẠNH NHẤT sàn: lượt chơi lên xuống theo mùa thi, nghỉ hè, game mới.',
+      'Sở hữu toàn bộ trò chơi trong HugoArcade. Doanh thu đo bằng số người chơi có ghi điểm trong kỳ. Đây là mã BIẾN ĐỘNG MẠNH NHẤT sàn: lượt chơi lên xuống theo mùa thi, nghỉ hè, game mới.',
     sharesOutstanding: 80000,
     basePrice: 60,
     volatility: 0.09,
@@ -139,39 +198,6 @@ export const COMPANIES = [
   },
 ];
 
-/** Phí một lệnh: 0,5% giá trị, tối thiểu 1 JOY. */
-export function tradingFee(value) {
-  return Math.max(MIN_FEE, Math.round(Math.abs(value) * TRADING_FEE_RATE));
-}
-
-/**
- * Tính giá cổ phiếu theo từng GIÂY (Deterministic Time Harmonic Algorithm).
- * Cả client và server dùng CHUNG một công thức thuần theo timestamp.
- * 0 ghi DB, 0 timer background, 0 quá tải server.
- */
-export function calculateSecondPrice(company, timestampSec = Math.floor(Date.now() / 1000)) {
-  const base = company.price || company.basePrice || 100;
-  const vol = company.volatility || 0.05;
-  const symbol = company.symbol || 'HFILM';
-
-  // Sóng điều hoà 3 chu kỳ: 60 min, 5 min, 15 sec
-  const waveLong = Math.sin((timestampSec % 3600) / 3600 * 2 * Math.PI) * 0.03;
-  const waveMedium = Math.sin((timestampSec % 300) / 300 * 2 * Math.PI) * 0.015;
-  const waveShort = Math.cos((timestampSec % 15) / 15 * 2 * Math.PI) * 0.008;
-
-  // Micro-noise ngẫu nhiên theo hash của (symbol + timestampSec)
-  const hashSeed = Math.abs(
-    (symbol.charCodeAt(0) * 31 + symbol.charCodeAt(symbol.length - 1)) ^ timestampSec
-  ) % 1000 / 1000;
-  const microNoise = (hashSeed - 0.5) * 0.004;
-
-  const totalRate = (waveLong + waveMedium + waveShort + microNoise) * (vol / 0.05);
-  const raw = base * (1 + totalRate);
-  const currentPrice = Math.max(company.basePrice * 0.2, Math.min(company.basePrice * 5, raw));
-
-  return Math.round(currentPrice * 100) / 100;
-}
-
 /**
  * Giá phiên kế tiếp — HÀM THUẦN, để kiểm chứng không cần database.
  *
@@ -194,23 +220,6 @@ export function nextPrice({ price, basePrice, volatility, activity, average, mar
     price: Math.round(next * 100) / 100,
     surprise: Math.round(clampedSurprise * 1e4) / 1e4,
     move: Math.round(move * 1e4) / 1e4,
-  };
-}
-
-/**
- * Lãi/lỗ của một vị thế. Đây là công thức người học phải thuộc:
- *   lãi/lỗ = (giá hiện tại − giá vốn bình quân) × số lượng
- *   % lãi/lỗ = lãi/lỗ / (giá vốn × số lượng)
- */
-export function positionPL(position, price) {
-  const cost = position.avgCost * position.quantity;
-  const value = price * position.quantity;
-  const unrealized = Math.round(value - cost);
-  return {
-    cost: Math.round(cost),
-    value: Math.round(value),
-    unrealized,
-    unrealizedPct: cost > 0 ? Math.round((unrealized / cost) * 1e4) / 1e4 : 0,
   };
 }
 
@@ -253,39 +262,58 @@ async function ledgerVolume(sources, days) {
 }
 
 async function measure(days) {
-  const [arcade, news, bank, tokens] = await Promise.all([
-    ArcadeScore.countDocuments({ createdAt: { $gte: new Date(Date.now() - days * 86400000) } }),
+  const since = new Date(Date.now() - days * 86400000);
+  const [arcade, news, bank, media] = await Promise.all([
+    // ArcadeScore KHÔNG có `createdAt` (schema không bật timestamps), nên bản
+    // trước lọc theo trường đó và luôn đếm được 0 — HARC đứng giá vĩnh viễn.
+    // `lastPlayedAt` là mốc duy nhất có thật trong tài liệu đó.
+    ArcadeScore.countDocuments({ lastPlayedAt: { $gte: since } }),
     ledgerVolume(['info_read_bonus', 'info_bonus'], days),
     ledgerVolume(['joylater_open', 'joylater_repay', 'joy_gift_sent', 'joy_gift_received', 'member_transfer_out', 'member_transfer_in'], days),
-    Bio.aggregate([{ $group: { _id: null, minutes: { $sum: '$radioTokens.weeklyUsedMinutes' } } }]),
+    // Doanh thu bán token xem/nghe (rạp + radio dùng chung kho token). Bản
+    // trước cộng `radioTokens.weeklyUsedMinutes` của mọi Bio — một con số TÍCH
+    // LUỸ, không có mốc thời gian, nên cửa sổ 7 ngày và nền 30 ngày ra ĐÚNG
+    // BẰNG NHAU: surprise = 30/7 − 1 → luôn bị kẹp ở +1, tức HFILM tăng kịch
+    // trần mỗi phiên, mãi mãi. Đơn hàng có createdAt nên đo được thật.
+    UtilityOrder.aggregate([
+      { $match: { createdAt: { $gte: since }, status: { $ne: 'cancelled' }, productName: /token/i } },
+      { $group: { _id: null, total: { $sum: '$priceJoy' } } },
+    ]),
   ]);
 
   return {
     arcadePlays: arcade,
     newsReads: news.count,
     bankFlow: bank.total,
-    // Phút xem/nghe đã dùng trong tuần — kho token dùng chung của rạp và radio.
-    watchMinutes: Math.round(tokens[0]?.minutes || 0),
+    mediaRevenue: Math.round(media[0]?.total || 0),
   };
 }
 
-/** Tạo bốn công ty ở lần chạy đầu tiên. */
+/**
+ * Tạo bốn công ty ở lần chạy đầu tiên, và giữ HỒ SƠ công ty khớp với mã nguồn.
+ *
+ * Phần mô tả/ngành/beta là cấu hình do tác giả viết nên luôn ghi đè; giá, lịch
+ * sử và số cổ phần đang lưu hành thì chỉ đặt lúc tạo — ghi đè mấy thứ đó là xoá
+ * sạch diễn biến thị trường mỗi lần khởi động lại máy chủ.
+ */
 export async function seedCompanies() {
   for (const company of COMPANIES) {
     await StockCompany.findOneAndUpdate(
       { symbol: company.symbol },
       {
-        $setOnInsert: {
-          symbol: company.symbol,
+        $set: {
           name: company.name,
           sector: company.sector,
           description: company.description,
+          volatility: company.volatility,
+          dividendRate: company.dividendRate,
+        },
+        $setOnInsert: {
+          symbol: company.symbol,
           sharesOutstanding: company.sharesOutstanding,
           basePrice: company.basePrice,
           price: company.basePrice,
           prevPrice: company.basePrice,
-          volatility: company.volatility,
-          dividendRate: company.dividendRate,
           history: [{ at: new Date(), price: company.basePrice }],
         },
       },
@@ -322,20 +350,24 @@ export async function runSession({ force = false } = {}) {
     // Trung bình một tuần trong 30 ngày, để so cùng đơn vị với cửa sổ 7 ngày.
     const average = (baseline[meta.signal] || 0) * (WINDOW_DAYS / BASELINE_DAYS);
 
+    // Kết quả kinh doanh tác động lên GIÁ ĐÓNG CỬA phiên trước, không lên mốc
+    // neo cũ: bản trước bỏ qua toàn bộ đường giá trong phiên, nên cứ tới giờ
+    // chốt là giá búng về chỗ cũ và người đang lãi trong phiên mất trắng.
+    const close = closeOf(company, key);
     const { price, surprise, move } = nextPrice({
-      price: company.price,
+      price: close,
       basePrice: company.basePrice,
       volatility: company.volatility,
       activity,
       average,
     });
 
-    company.prevPrice = company.price;
+    company.prevPrice = close;
     company.price = price;
     company.lastSignal = { activity, average: Math.round(average), surprise, market: 0, move, sessionKey: key };
-    company.history.push({ at, price });
     // Giữ 90 phiên gần nhất (khoảng một tháng) — đủ vẽ biểu đồ, không phình.
-    if (company.history.length > 90) company.history = company.history.slice(-90);
+    company.history = tidyHistory([...(company.history || []), { at, price }]).slice(-90);
+    company.markModified('history');
     await company.save();
 
     // Cổ tức tính trên giá VỪA CHỐT của phiên này.

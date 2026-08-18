@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 
-/** Sổ lệnh: mỗi lần mua/bán một dòng, để người học xem lại mình đã làm gì. */
+/**
+ * Sổ lệnh: mỗi lần mua/bán một dòng — và dòng đó phải in lại được thành HOÁ
+ * ĐƠN, nên lưu đủ TỪNG khoản phí chứ không chỉ tổng `fee`. Trước đây chỉ có
+ * tổng, nên màn nhật ký không thể nói cho người học biết họ mất bao nhiêu vào
+ * môi giới, bao nhiêu vào phí đổi đơn vị.
+ */
 const StockTradeSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, index: true },
@@ -9,7 +14,15 @@ const StockTradeSchema = new mongoose.Schema(
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
     fee: { type: Number, default: 0 },
+    brokerage: { type: Number, default: 0 },
+    creativeFee: { type: Number, default: 0 },
+    conversionFee: { type: Number, default: 0 },
+    // Đơn vị ví của người đặt lệnh LÚC ĐÓ: hoá đơn cũ phải đọc lại được đúng
+    // như lúc in, kể cả sau này họ đổi đơn vị.
+    walletCode: { type: String, default: '' },
+    session: { type: String, default: '' },
     total: { type: Number, required: true },
+    balanceAfter: { type: Number, default: 0 },
     realizedPL: { type: Number, default: 0 },
     at: { type: Date, default: Date.now },
   },

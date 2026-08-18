@@ -60,7 +60,7 @@ assert.equal(transferBreakdown(-500, 'vi', 'en', 0.05).sent, 0);
 assert.equal(transferBreakdown('abc', 'vi', 'en', 0.05).totalDeducted, 0);
 
 // ── 4. Luật biến động tỷ giá (hàm thuần, không chạm database) ────────────────
-const { nextFactors, sessionKey, sessionStart, SESSION_HOURS_VN } = await import('../utils/joyRateService.js');
+const { nextFactors, sessionKey, sessionStart, SESSION_EVERY_HOURS } = await import('../utils/joyRateService.js');
 
 const baselines = Object.fromEntries(Object.entries(JOY_DENOMS).map(([k, d]) => [k, d.factor]));
 const run = (opts) => nextFactors({ baselines, baseKey: BASE_DENOM, feeRate: CROSS_DENOM_FEE, ...opts });
@@ -106,15 +106,30 @@ for (const key of Object.keys(baselines)) {
   assert.ok(extreme.factors[key] <= baselines[key] * 1.15 + 1e-9, `${key} không được vọt quá 15%`);
 }
 
-// ── 5. Ba phiên mỗi ngày: 09:00, 15:00, 21:00 giờ Việt Nam ───────────────────
-assert.deepEqual(SESSION_HOURS_VN, [9, 15, 21]);
+// ── 5. Mỗi giờ một phiên, mốc theo giờ Việt Nam ──────────────────────────────
+assert.equal(SESSION_EVERY_HOURS, 1);
 const at = (iso) => sessionKey(new Date(iso));
 assert.equal(at('2026-08-18T02:30:00Z'), '2026-08-18-09', '09:30 giờ VN thuộc phiên 09:00');
-assert.equal(at('2026-08-18T07:59:00Z'), '2026-08-18-09', '14:59 giờ VN vẫn là phiên 09:00');
-assert.equal(at('2026-08-18T08:00:00Z'), '2026-08-18-15', '15:00 giờ VN sang phiên mới');
-assert.equal(at('2026-08-18T14:00:00Z'), '2026-08-18-21', '21:00 giờ VN sang phiên tối');
-assert.equal(at('2026-08-18T01:00:00Z'), '2026-08-17-21', 'trước 09:00 vẫn dùng giá phiên tối hôm trước');
+assert.equal(at('2026-08-18T02:59:59Z'), '2026-08-18-09', 'còn trong giờ thì vẫn một phiên');
+assert.equal(at('2026-08-18T03:00:00Z'), '2026-08-18-10', 'sang giờ mới là sang phiên mới');
+assert.equal(at('2026-08-18T16:30:00Z'), '2026-08-18-23', '23:30 giờ VN');
+// Qua nửa đêm giờ VN phải sang NGÀY MỚI, không được lùi về hôm trước.
+assert.equal(at('2026-08-18T17:00:00Z'), '2026-08-19-00', '00:00 giờ VN 19/8 = 17:00 UTC 18/8');
+assert.equal(at('2026-08-18T18:15:00Z'), '2026-08-19-01', '01:15 giờ VN 19/8');
+
+// 24 phiên khác nhau trong một ngày — đây là mục đích của lần đổi này.
+const keys = new Set();
+for (let h = 0; h < 24; h += 1) keys.add(at(`2026-08-18T${String(h).padStart(2, '0')}:00:00Z`));
+assert.equal(keys.size, 24, 'một ngày phải có đúng 24 phiên tỷ giá');
+
+// Mốc bắt đầu phiên quy ngược về UTC đúng bằng −7 giờ.
 assert.equal(sessionStart('2026-08-18-09').toISOString(), '2026-08-18T02:00:00.000Z', 'phiên 09:00 VN = 02:00 UTC');
+assert.equal(sessionStart('2026-08-19-00').toISOString(), '2026-08-18T17:00:00.000Z', 'phiên 00:00 VN = 17:00 UTC hôm trước');
+// Khoá phiên và mốc phiên phải là hai chiều của cùng một phép tính, nếu không
+// biểu đồ tỷ giá vẽ mỗi điểm lệch một giờ so với lúc nó thật sự được chốt.
+for (const key of ['2026-08-18-00', '2026-08-18-09', '2026-08-18-23']) {
+  assert.equal(sessionKey(sessionStart(key)), key, `${key}: khoá ⇄ mốc phải khớp`);
+}
 
 setLiveFactors(null);
 console.log('check-joy-currency: đạt.');

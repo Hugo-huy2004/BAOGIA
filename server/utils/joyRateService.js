@@ -17,12 +17,17 @@ import { JOY_DENOMS, DEFAULT_DENOM, denomKey, setLiveFactors, BASE_DENOM, CROSS_
  */
 
 /**
- * ── LUẬT BIẾN ĐỘNG (chốt 18/8/2026) ──────────────────────────────────────────
+ * ── LUẬT BIẾN ĐỘNG (chốt 18/8/2026, đổi sang mỗi giờ 19/8/2026) ──────────────
  *
- * Giá cập nhật ĐÚNG BA PHIÊN MỘT NGÀY theo giờ Việt Nam: 09:00, 15:00, 21:00.
- * Ngoài ba mốc đó không có phép tính nào chạy — mọi lượt xem đều đọc lại bản
- * ghi của phiên gần nhất, nên bảng tỷ giá không thêm một chút tải nào cho máy
- * chủ dù bao nhiêu người mở ví cùng lúc.
+ * Giá cập nhật MỖI GIỜ MỘT PHIÊN, đúng đầu giờ theo giờ Việt Nam. Ba phiên một
+ * ngày làm bảng tỷ giá gần như đứng yên: tín hiệu đo trên cửa sổ 7 ngày nên
+ * giữa hai phiên cách nhau 6 tiếng nó gần như không kịp đổi, và người dùng mở
+ * ví ba lần trong ngày thì thấy đúng một con số. Mỗi giờ một phiên cho 24 mốc
+ * mỗi ngày: cùng một luật, cùng trần ±15%, nhưng đường tỷ giá có hình.
+ *
+ * Ngoài đầu giờ không có phép tính nào chạy — mọi lượt xem đều đọc lại bản ghi
+ * của phiên gần nhất, nên bảng tỷ giá không thêm một chút tải nào cho máy chủ
+ * dù bao nhiêu người mở ví cùng lúc.
  *
  * Mỗi phiên, hệ số của từng đơn vị (trừ đơn vị chuẩn) đổi theo TRUNG BÌNH của
  * ba tín hiệu, rồi nhân thêm phần phí đổi đơn vị:
@@ -59,30 +64,26 @@ const RATE_WEIGHT = 0.3;
 const FLOW_WEIGHT = 0.3;
 // Biên độ lệch tối đa ±15% quanh hệ số nền: thị trường có điên thì ví vẫn không loạn.
 const MAX_DRIFT = 0.15;
-// Giữ lại bao nhiêu phần của phiên trước. Ba phiên/ngày nên làm mượt nhẹ tay
-// hơn bản cũ (0.92 theo giờ) — nếu không thì giá gần như đứng yên.
+// Giữ lại bao nhiêu phần của phiên trước. 0.6 mỗi giờ ⇒ tỷ giá bám theo tín
+// hiệu trong khoảng ba tiếng. Bản cũ để 0.92 theo giờ và bảng đứng yên gần như
+// cả ngày; đừng nâng lại lên đó.
 const SMOOTHING = 0.6;
 const INCOME_WINDOW_DAYS = 7;
 
-// Ba phiên trong ngày, giờ Việt Nam (UTC+7).
-export const SESSION_HOURS_VN = [9, 15, 21];
+// Mỗi giờ một phiên, mốc tính theo giờ Việt Nam (UTC+7).
+export const SESSION_EVERY_HOURS = 1;
 const VN_OFFSET_MS = 7 * 60 * 60 * 1000;
 
 const clamp = (value, limit) => Math.max(-limit, Math.min(limit, value));
 
 /**
- * Khoá phiên của một thời điểm: "2026-08-18-09" theo giờ Việt Nam. Trước 09:00
- * thì thuộc phiên 21:00 của HÔM QUA — giá phiên tối vẫn có hiệu lực tới sáng.
+ * Khoá phiên của một thời điểm: "2026-08-18-09" = giờ thứ 09 ngày 18/8 giờ VN.
+ * Cắt tròn xuống đầu giờ, nên mọi thời điểm trong cùng một giờ dùng chung một
+ * bảng tỷ giá — đó là thứ giữ cho ví và màn hình không lệch nhau.
  */
 export function sessionKey(date = new Date()) {
   const vn = new Date(date.getTime() + VN_OFFSET_MS);
-  const hour = vn.getUTCHours();
-  let session = [...SESSION_HOURS_VN].reverse().find((h) => hour >= h);
-  if (session === undefined) {
-    vn.setUTCDate(vn.getUTCDate() - 1);
-    session = SESSION_HOURS_VN[SESSION_HOURS_VN.length - 1];
-  }
-  return `${vn.toISOString().slice(0, 10)}-${String(session).padStart(2, '0')}`;
+  return `${vn.toISOString().slice(0, 10)}-${String(vn.getUTCHours()).padStart(2, '0')}`;
 }
 
 /** Mốc bắt đầu (UTC) của một phiên, để lưu và vẽ biểu đồ. */
@@ -368,7 +369,7 @@ export async function getRateHistory({ hours = 24, points = 120 } = {}) {
     }
 
     const remember = (list) => {
-      // Một khoá cho mỗi phiên: sang phiên mới thì khoá cũ không ai hỏi nữa,
+      // Một khoá cho mỗi phiên: sang giờ mới thì khoá cũ không ai hỏi nữa,
       // xoá sạch cho khỏi phình.
       if (historyCache.size > 12) historyCache = new Map();
       historyCache.set(cacheKey, list);
@@ -411,7 +412,7 @@ const shapePoint = (row) => {
 };
 
 /**
- * Bảng tỷ giá chỉ đổi ba lần mỗi ngày, nên giữ nguyên câu trả lời trong bộ nhớ
+ * Bảng tỷ giá chỉ đổi mỗi giờ một lần, nên giữ nguyên câu trả lời trong bộ nhớ
  * tiến trình cho tới phiên sau. Không có lớp này thì mỗi lần một người mở ví là
  * hai lượt đọc MongoDB cho một con số cả hệ thống dùng chung.
  */
@@ -477,7 +478,7 @@ export async function getRates() {
       baseCode: JOY_DENOMS[BASE_DENOM].code,
       board,
       sessionKey: cacheKey,
-      nextSessionsVN: SESSION_HOURS_VN,
+      sessionEveryHours: SESSION_EVERY_HOURS,
     };
     ratesCache = { key: cacheKey, payload };
     return payload;
