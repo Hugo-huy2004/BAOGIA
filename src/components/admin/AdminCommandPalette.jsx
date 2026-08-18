@@ -46,6 +46,7 @@ export default function AdminCommandPalette({ isOpen, onOpen, onClose, onExecute
 
   const TAB_NAVIGATIONS = [
     { label: "Đi tới Control Hub & AI Terminal", icon: "dashboard", tab: "dashboard" },
+    { label: "Đi tới Điều Khiển Robot & Live Camera Feed", icon: "precision_manufacturing", tab: "robot" },
     { label: "Đi tới Quản lý Thành Viên & Support", icon: "group", tab: "users" },
     { label: "Đi tới Cửa Hàng & Dịch Vụ VIP", icon: "storefront", tab: "ecosystem" },
     { label: "Đi tới quản lý Study · Web Dev", icon: "school", tab: "coder" },

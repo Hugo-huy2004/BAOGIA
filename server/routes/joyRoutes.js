@@ -1867,11 +1867,14 @@ router.post('/exchange-chat-tokens', requireMember, async (req, res) => {
  * rồi cả ngày đọc lại từ bản ghi (xem joyRateService).
  */
 router.get('/rates', requireMember, async (req, res) => {
-  const rates = await getRates();
-  // Bảng chỉ đổi một lần mỗi ngày nên cho phép cache 10 phút ở biên; hỏng tỷ
-  // giá cũng chỉ là hiển thị nên không cần no-store.
-  res.set('Cache-Control', 'private, max-age=600');
-  res.json(rates);
+  try {
+    const rates = await getRates();
+    res.set('Cache-Control', 'private, max-age=600');
+    return res.json(rates);
+  } catch (error) {
+    console.error('Error fetching JOY rates:', error);
+    return res.status(500).json({ error: 'Lỗi tải tỷ giá JOY' });
+  }
 });
 
 /**
@@ -1879,10 +1882,15 @@ router.get('/rates', requireMember, async (req, res) => {
  * gian giữ bản ghi) để một tham số bịa không kéo cả collection lên.
  */
 router.get('/rates/history', requireMember, async (req, res) => {
-  const hours = Math.min(2160, Math.max(1, Number(req.query.hours) || 24));
-  const points = await getRateHistory({ hours });
-  res.set('Cache-Control', 'private, max-age=300');
-  res.json({ hours, points });
+  try {
+    const hours = Math.min(2160, Math.max(1, Number(req.query.hours) || 24));
+    const points = await getRateHistory({ hours });
+    res.set('Cache-Control', 'private, max-age=300');
+    return res.json({ hours, points });
+  } catch (error) {
+    console.error('Error fetching JOY rate history:', error);
+    return res.status(500).json({ error: 'Lỗi tải lịch sử tỷ giá' });
+  }
 });
 
 export default router;

@@ -230,14 +230,13 @@ export default function AdminBrainTab() {
               )}
 
               <div
-                className={`max-w-[80%] p-4 rounded-2xl ${
+                className={`max-w-[85%] p-4 rounded-2xl ${
                   msg.role === 'user'
                     ? 'bg-blue-600 text-white font-medium rounded-tr-none shadow-md'
-                    : 'bg-slate-100/90 dark:bg-black/50 text-slate-900 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 rounded-tl-none whitespace-pre-wrap shadow-sm'
+                    : 'bg-slate-100/90 dark:bg-black/50 text-slate-900 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 rounded-tl-none shadow-sm text-xs leading-relaxed space-y-1'
                 }`}
-              >
-                {msg.text}
-              </div>
+                dangerouslySetInnerHTML={{ __html: msg.text.replace(/\n/g, '<br/>') }}
+              />
 
               {msg.role === 'user' && (
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 dark:bg-purple-600/20 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
@@ -256,7 +255,7 @@ export default function AdminBrainTab() {
             placeholder="Nhập câu hỏi hoặc chỉ thị cho Bộ Não Máy Tính (Ví dụ: 'Phân tích hệ thống hôm nay' hoặc 'Soạn email chào mừng')..."
             value={inputPrompt}
             onChange={(e) => setInputPrompt(e.target.value)}
-            className="flex-grow px-5 py-3 rounded-full bg-slate-100/80 dark:bg-black/60 border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-inner"
+            className="flex-grow px-5 py-3 rounded-2xl bg-slate-100/80 dark:bg-black/60 border border-slate-200/80 dark:border-white/10 text-slate-900 dark:text-white text-xs outline-none focus:border-blue-500 focus:bg-black/80 transition-all shadow-inner"
           />
           <button
             type="submit"

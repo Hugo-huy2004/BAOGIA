@@ -72,116 +72,113 @@ const LOCAL_FAQ = [
 
 // POST: Chat with H-Bot AI Support
 router.post('/chat', async (req, res) => {
-  const { message, history = [] } = req.body;
+  try {
+    const { message, history = [] } = req.body || {};
 
-  if (!message) {
-    return res.status(400).json({ error: 'Message is required' });
-  }
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
 
-  const ip = req.ip || req.connection?.remoteAddress || 'unknown';
-  const today = new Date().toDateString();
-  const limitKey = `${ip}_${today}`;
-  
-  let currentUsage = consultantRateLimit.get(limitKey) || 0;
-  if (currentUsage >= 5) {
-    return res.json({ reply: 'Bạn đã đạt giới hạn 5 câu hỏi tư vấn viên trong ngày hôm nay để tránh hệ thống bị lag. Vui lòng quay lại vào ngày mai nhé!' });
-  }
-  consultantRateLimit.set(limitKey, currentUsage + 1);
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const today = new Date().toDateString();
+    const limitKey = `${ip}_${today}`;
+    
+    let currentUsage = consultantRateLimit.get(limitKey) || 0;
+    if (currentUsage >= 5) {
+      return res.json({ reply: 'Bạn đã đạt giới hạn 5 câu hỏi tư vấn viên trong ngày hôm nay để tránh hệ thống bị lag. Vui lòng quay lại vào ngày mai nhé!' });
+    }
+    consultantRateLimit.set(limitKey, currentUsage + 1);
 
-  const useLocalAi = process.env.USE_LOCAL_AI === 'true';
-  const localAiUrl = process.env.LOCAL_AI_URL || 'http://localhost:11434/api/chat';
-  const localAiModel = process.env.LOCAL_AI_MODEL || 'qwen2.5:3b';
-  const geminiApiKey = process.env.GEMINI_API_KEY;
+    const useLocalAi = process.env.USE_LOCAL_AI === 'true';
+    const localAiUrl = process.env.LOCAL_AI_URL || 'http://localhost:11434/api/chat';
+    const localAiModel = process.env.LOCAL_AI_MODEL || 'qwen2.5:3b';
+    const geminiApiKey = process.env.GEMINI_API_KEY;
 
-  if (useLocalAi) {
-    try {
-      // Build OpenAI/Ollama compatible messages format
-      const messages = history.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.text
-      }));
-      
-      // Prepend system instruction
-      messages.unshift({
-        role: 'system',
-        content: SYSTEM_INSTRUCTION
-      });
+    if (useLocalAi) {
+      try {
+        const messages = history.map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'assistant',
+          content: msg.text
+        }));
+        
+        messages.unshift({
+          role: 'system',
+          content: SYSTEM_INSTRUCTION
+        });
 
-      // Append current message
-      messages.push({
-        role: 'user',
-        content: message
-      });
+        messages.push({
+          role: 'user',
+          content: message
+        });
 
-      const response = await fetch(localAiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: localAiModel,
-          messages,
-          stream: false
-        })
-      });
+        const response = await fetch(localAiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: localAiModel,
+            messages,
+            stream: false
+          })
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        const botText = data.message?.content || '';
-        return res.json({ reply: botText.trim() });
-      } else {
-        throw new Error(`Local AI (Ollama) returned status ${response.status}`);
+        if (response.ok) {
+          const data = await response.json();
+          const botText = data.message?.content || '';
+          return res.json({ reply: botText.trim() });
+        } else {
+          throw new Error(`Local AI (Ollama) returned status ${response.status}`);
+        }
+      } catch (err) {
+        console.error('Error calling Local AI (Ollama), trying Gemini or FAQ:', err);
       }
-    } catch (err) {
-      console.error('Error calling Local AI (Ollama), trying Gemini or FAQ:', err);
     }
-  }
 
-  if (geminiApiKey) {
-    try {
-      // Build request contents format for Gemini API
-      // Map frontend message history format to Gemini role: "user" | "model"
-      const contents = history.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }]
-      }));
+    if (geminiApiKey) {
+      try {
+        const contents = history.map(msg => ({
+          role: msg.sender === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.text }]
+        }));
 
-      // Append current message
-      contents.push({
-        role: 'user',
-        parts: [{ text: message }]
-      });
+        contents.push({
+          role: 'user',
+          parts: [{ text: message }]
+        });
 
-      const botText = await aiGenerateRaw({
-        contents,
-        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-      });
-      if (botText == null) throw new Error('Gemini unavailable (no key / quota / error)');
+        const botText = await aiGenerateRaw({
+          contents,
+          systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+        });
+        if (botText == null) throw new Error('Gemini unavailable (no key / quota / error)');
 
-      return res.json({ reply: botText.trim() });
-    } catch (err) {
-      console.error('Error calling Gemini API, falling back to local FAQ engine:', err);
-      // Fallback below
+        return res.json({ reply: botText.trim() });
+      } catch (err) {
+        console.error('Error calling Gemini API, falling back to local FAQ engine:', err);
+      }
     }
-  }
 
-  // Local rule-based FAQ Engine Fallback
-  const lowerMsg = message.toLowerCase();
-  let matchedAnswer = '';
+    const lowerMsg = message.toLowerCase();
+    let matchedAnswer = '';
 
-  for (const faq of LOCAL_FAQ) {
-    const hasKeyword = faq.keywords.some(keyword => lowerMsg.includes(keyword));
-    if (hasKeyword) {
-      matchedAnswer = faq.answer;
-      break;
+    for (const faq of LOCAL_FAQ) {
+      const hasKeyword = faq.keywords.some(keyword => lowerMsg.includes(keyword));
+      if (hasKeyword) {
+        matchedAnswer = faq.answer;
+        break;
+      }
     }
-  }
 
-  if (!matchedAnswer) {
-    matchedAnswer = "Chào bạn! Tôi là H-Bot Studio, trợ lý hỗ trợ trực tuyến của Hugo Studio. Bạn có thể hỏi tôi về cách tạo Bio Link, xem gói dịch vụ hoặc cài đặt lịch hẹn. Nếu bạn gặp vấn đề cần xử lý riêng hoặc muốn gặp nhân viên hỗ trợ trực tiếp 1:1, hãy nói 'tôi muốn gặp nhân viên hỗ trợ' nhé!";
-  }
+    if (!matchedAnswer) {
+      matchedAnswer = "Chào bạn! Tôi là H-Bot Studio, trợ lý hỗ trợ trực tuyến của Hugo Studio. Bạn có thể hỏi tôi về cách tạo Bio Link, xem gói dịch vụ hoặc cài đặt lịch hẹn. Nếu bạn gặp vấn đề cần xử lý riêng hoặc muốn gặp nhân viên hỗ trợ trực tiếp 1:1, hãy nói 'tôi muốn gặp nhân viên hỗ trợ' nhé!";
+    }
 
-  return res.json({ reply: matchedAnswer });
+    return res.json({ reply: matchedAnswer });
+  } catch (error) {
+    console.error('Error in support /chat route:', error);
+    return res.status(500).json({ error: 'Lỗi hệ thống hỗ trợ AI' });
+  }
 });
 
 // POST: Create a support ticket

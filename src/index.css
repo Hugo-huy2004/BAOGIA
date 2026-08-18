@@ -6,6 +6,20 @@
    CSS DESIGN TOKENS — Light & Dark Mode Variables
    ========================================================= */
 
+/* GPU Hardware Acceleration & Mobile Glassmorphism Optimizations */
+.gpu-scroll {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, scroll-position;
+  contain: content;
+}
+
+@media (max-width: 768px) {
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+}
+
 @layer base {
   :root {
     /* One interaction accent. App identity colors are scoped to app icons only. */

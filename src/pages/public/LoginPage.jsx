@@ -541,39 +541,38 @@ export default function LoginPage() {
 
       {/* ── 2FA TELEGRAM OTP MODAL ── */}
       {otpModalOpen && (
-        <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 animate-fadeIn">
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.94, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-full max-w-md bg-[#0b0f19] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/50 space-y-6 text-center relative overflow-hidden"
+            className="w-full max-w-sm sm:max-w-md bg-zinc-950/95 border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 text-center relative overflow-hidden text-white font-sans"
           >
-            {/* Top Glow Decor */}
-            <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+            {/* Ambient Frosted Glow */}
+            <div className="absolute -top-20 -left-20 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Telegram Lock Icon */}
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 p-0.5 shadow-lg shadow-cyan-500/30 flex items-center justify-center">
-              <div className="w-full h-full bg-[#0f172a] rounded-[14px] flex items-center justify-center text-cyan-400">
-                <span className="material-symbols-outlined text-3xl">lock_reset</span>
-              </div>
+            {/* Lock Icon */}
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-zinc-900 border border-white/15 shadow-xl flex items-center justify-center text-emerald-400">
+              <span className="material-symbols-outlined text-2xl">shield_lock</span>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-white tracking-wide">
-                🔐 BẢO MẬT 2 LỚP ADMIN (2FA)
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
+                XÁC THỰC BẢO MẬT 2FA
               </h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Mã OTP <span className="text-cyan-400 font-bold">6 chữ số</span> đã gửi tới Telegram của Boss.
+              <p className="text-xs text-zinc-400 font-sans leading-relaxed">
+                Mã OTP <strong className="text-emerald-400 font-bold">6 chữ số</strong> đã được gửi tới Telegram của Boss.
               </p>
             </div>
 
-            <p className={`text-xs font-bold ${otpSecondsLeft > 10 ? "text-cyan-400" : "text-rose-400"}`}>
-              {otpSecondsLeft > 0 ? `Mã hết hạn sau ${otpSecondsLeft} giây` : "Mã đã hết hạn — hãy đóng và bấm gửi lại"}
-            </p>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-xs font-bold font-sans border border-white/10 text-zinc-300">
+              <span className="material-symbols-outlined text-xs text-emerald-400">timer</span>
+              <span>{otpSecondsLeft > 0 ? `Mã hết hạn sau ${otpSecondsLeft}s` : "Mã hết hạn — Hãy gửi lại mã"}</span>
+            </div>
 
-            <form onSubmit={handleVerifyAdminOtp} className="space-y-6">
-              {/* 6 ô nhập mã */}
-              <div className="flex justify-center gap-2">
+            <form onSubmit={handleVerifyAdminOtp} className="space-y-5">
+              {/* 6 OTP Input Boxes - Perfectly Aligned Square-ish Rounded Rectangles */}
+              <div className="flex justify-center gap-2 sm:gap-2.5">
                 {[0, 1, 2, 3, 4, 5].map((idx) => (
                   <input
                     key={idx}
@@ -607,7 +606,7 @@ export default function LoginPage() {
                         if (prevEl) prevEl.focus();
                       }
                     }}
-                    className="w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black bg-slate-900/90 border border-slate-700/80 rounded-2xl text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-inner"
+                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black tabular-nums bg-zinc-900/90 border border-white/15 rounded-xl text-white outline-none focus:border-emerald-500 focus:bg-zinc-900 transition-all duration-200 shadow-sm"
                   />
                 ))}
               </div>
@@ -616,11 +615,11 @@ export default function LoginPage() {
                 <p className="text-xs text-rose-400 font-semibold animate-pulse">{otpError}</p>
               )}
 
-              <div className="space-y-3">
+              <div className="space-y-2.5 pt-1">
                 <button
                   type="submit"
                   disabled={otpSubmitting}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white font-black text-sm tracking-wider shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="h-12 w-full rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-40"
                 >
                   {otpSubmitting ? (
                     <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
@@ -635,7 +634,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setOtpModalOpen(false)}
-                  className="text-xs text-slate-400 hover:text-white font-medium transition-colors"
+                  className="text-xs text-zinc-400 hover:text-white font-bold transition-colors block mx-auto py-1"
                 >
                   Hủy bỏ & Nhập lại mật khẩu
                 </button>

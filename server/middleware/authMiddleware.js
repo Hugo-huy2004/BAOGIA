@@ -44,7 +44,24 @@ export const requireAdmin = (req, res, next) => {
     if (decoded.role !== 'admin') {
       return res.status(403).json({ error: 'Forbidden - Not an admin role' });
     }
+
+    // UA Fingerprint Binding Verification (if signed into token)
+    if (decoded.uaHash) {
+      const currentUa = req.headers['user-agent'] || '';
+      const currentUaHash = crypto.createHash('sha256').update(currentUa).digest('hex');
+      if (decoded.uaHash !== currentUaHash) {
+        return res.status(403).json({ error: 'Forbidden - Admin session device fingerprint mismatch' });
+      }
+    }
+
     req.admin = decoded;
+
+    // Admin Security Armor Response Headers
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+
     next();
   } catch (error) {
     return res.status(403).json({ error: 'Forbidden - Invalid or expired admin token' });

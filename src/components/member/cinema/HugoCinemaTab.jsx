@@ -764,7 +764,7 @@ function DetailScreen({
   const isLong = description.length > 240;
 
   return (
-    <div className="absolute inset-0 z-[110] flex flex-col overflow-y-auto bg-background">
+    <div className="absolute inset-0 z-[110] flex flex-col overflow-y-auto bg-background gpu-scroll transform-gpu">
       <div className="relative shrink-0">
         <img
           src={mediaUrl(movie.preview || movie.poster)}

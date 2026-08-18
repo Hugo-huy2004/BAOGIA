@@ -32,6 +32,60 @@ function rememberTurn(chatId, userText, botText) {
 }
 
 /**
+ * Tạo thẻ báo cáo chi tiết thành viên cho AI Butler kèm nút tương tác 1-click
+ */
+async function buildButlerMemberReport(bioDoc) {
+  const bio = typeof bioDoc.toObject === 'function' ? bioDoc.toObject() : bioDoc;
+  const customDenom = bio.joyDenom || 'JOY';
+  const rawJoy = Number(bio.joyBalance || 0);
+
+  let formattedCustom = `${rawJoy.toLocaleString('vi-VN')} JOY`;
+  try {
+    const { toDenom } = await import('../../shared/joyCurrency.js');
+    const customAmountObj = toDenom(rawJoy, customDenom);
+    formattedCustom = `${customAmountObj.amount.toLocaleString('vi-VN')} ${customAmountObj.code}`;
+  } catch (_) {}
+
+  const isFrozen = bio.isJoyWalletFrozen ? '❄️ <b>Đóng bằng (Frozen)</b>' : '✅ <b>Hoạt động (Active)</b>';
+  const isEdu = bio.isEduVerified ? '🎓 <b>Đã xác minh Sinh viên</b>' : '❌ <b>Chưa xác minh</b>';
+  const accStatus = bio.status === 'suspended' ? '🔴 <b>Tạm đình chỉ (Suspended)</b>' : '🟢 <b>Hoạt động (Active)</b>';
+  const activeSessions = bio.securitySessions?.length || 0;
+  const joinDate = new Date(bio.createdAt || Date.now()).toLocaleDateString('vi-VN');
+
+  const reportText = `
+👑 <b>[BÁO CÁO THÀNH VIÊN TỪ QUẢN GIA HUGO]</b>
+
+👤 <b>Thành viên:</b> <b>${bio.displayName || 'Chưa đặt tên'}</b>
+📧 <b>Email:</b> <code>${bio.email}</code>
+🔗 <b>Trang Bio:</b> <code>/bio/${bio.slug || 'demo'}</code>
+
+💰 <b>Số dư JOY gốc:</b> <b>${rawJoy.toLocaleString('vi-VN')} JOY</b>
+🪙 <b>Đơn vị hiển thị:</b> <b>${formattedCustom}</b>
+
+🛡️ <b>Trạng thái ví:</b> ${isFrozen}
+🎓 <b>Trạng thái Edu:</b> ${isEdu}
+🚪 <b>Trạng thái tài khoản:</b> ${accStatus}
+📱 <b>Phiên kết nối:</b> ${activeSessions} thiết bị tin cậy
+📅 <b>Ngày gia nhập:</b> ${joinDate}
+  `.trim();
+
+  const inlineButtons = {
+    inline_keyboard: [
+      [
+        { text: '🎁 +1,000 JOY', callback_data: `cb_award_1000:${bio.email}` },
+        { text: bio.isJoyWalletFrozen ? '✅ Mở Khóa Ví' : '❄️ Khóa Ví', callback_data: bio.isJoyWalletFrozen ? `cb_unfreeze:${bio.email}` : `cb_freeze:${bio.email}` },
+      ],
+      [
+        { text: bio.isEduVerified ? '🎓 Hủy Edu' : '🎓 Bật Edu', callback_data: `cb_toggle_edu:${bio.email}` },
+        { text: '🔄 Cập nhật thẻ', callback_data: `cb_lookup:${bio.email}` },
+      ]
+    ]
+  };
+
+  return { text: reportText, markup: inlineButtons };
+}
+
+/**
  * Super-Admin Telegram Remote Control Engine & AI Butler Companion
  * Tiếp nhận lệnh NLU, trò chuyện AI Butler và Callback Query từ Telegram.
  */
@@ -75,8 +129,9 @@ export async function processTelegramUpdate(update) {
       const targetEmail = cbData.replace('cb_award_1000:', '');
       const bio = await Bio.findOne({ email: targetEmail });
       if (bio) {
-        const updated = await awardJoy(targetEmail, 1000, 'admin_telegram_button', 'Thưởng 1,000 JOY qua Telegram Button', { bioDoc: bio });
-        await sendTelegramAlert(`🎁 <b>Đã thưởng +1,000 JOY cho:</b> <code>${targetEmail}</code>\n📈 Số dư mới: <b>${updated.joyBalance.toLocaleString()} JOY</b>`);
+        await awardJoy(targetEmail, 1000, 'admin_telegram_button', 'Thưởng 1,000 JOY qua Telegram Button', { bioDoc: bio });
+        const rpt = await buildButlerMemberReport(bio);
+        await editTelegramMessage(chatId, cb.message?.message_id, `🎁 <b>ĐÃ THƯỞNG +1,000 JOY CHO MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
       }
       return;
     }
@@ -87,7 +142,8 @@ export async function processTelegramUpdate(update) {
       if (bio) {
         bio.isJoyWalletFrozen = true;
         await bio.save();
-        await sendTelegramAlert(`❄️ <b>Đã đóng băng ví JOY của:</b> <code>${targetEmail}</code>`);
+        const rpt = await buildButlerMemberReport(bio);
+        await editTelegramMessage(chatId, cb.message?.message_id, `❄️ <b>ĐÃ ĐÓNG BẰNG VÍ JOY CỦA MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
       }
       return;
     }
@@ -98,7 +154,30 @@ export async function processTelegramUpdate(update) {
       if (bio) {
         bio.isJoyWalletFrozen = false;
         await bio.save();
-        await sendTelegramAlert(`✅ <b>Đã mở khóa ví JOY của:</b> <code>${targetEmail}</code>`);
+        const rpt = await buildButlerMemberReport(bio);
+        await editTelegramMessage(chatId, cb.message?.message_id, `✅ <b>ĐÃ MỞ KHÓA VÍ JOY CỦA MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
+      }
+      return;
+    }
+
+    if (cbData.startsWith('cb_toggle_edu:')) {
+      const targetEmail = cbData.replace('cb_toggle_edu:', '');
+      const bio = await Bio.findOne({ email: targetEmail });
+      if (bio) {
+        bio.isEduVerified = !bio.isEduVerified;
+        await bio.save();
+        const rpt = await buildButlerMemberReport(bio);
+        await editTelegramMessage(chatId, cb.message?.message_id, `🎓 <b>ĐÃ CẬP NHẬT TRẠNG THÁI EDU CỦA MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
+      }
+      return;
+    }
+
+    if (cbData.startsWith('cb_lookup:')) {
+      const targetEmail = cbData.replace('cb_lookup:', '');
+      const bio = await Bio.findOne({ email: targetEmail });
+      if (bio) {
+        const rpt = await buildButlerMemberReport(bio);
+        await editTelegramMessage(chatId, cb.message?.message_id, rpt.text, rpt.markup);
       }
       return;
     }
@@ -245,24 +324,15 @@ export async function processTelegramUpdate(update) {
     return;
   }
 
-  // ─── LỆNH CHÀO CŨ (giữ cho ai quen gõ) ──────────────────────────────────────
-  if (lowerText === 'xin chào' || lowerText === 'hello') {
-    const welcomeHtml = `
-👑 <b>[HUGO SUPER-ADMIN TELEGRAM CONTROLLER]</b>
+  // ─── THỰC THI QUA BỘ NÃO EXECUTIVE AUTONOMOUS ENGINE ĐỒNG BỘ ─────────────────
+  const { executeAutonomousCommand } = await import('../services/executiveAutonomousEngine.js');
+  const execResult = await executeAutonomousCommand(text, {
+    adminUsername: 'SuperAdmin_Telegram',
+    source: 'telegram'
+  });
 
-Xin chào Boss! Tôi là AI Butler quản gia toàn năng của Hugo Studio.
-
-⚡ <b>CÚ PHÁP ĐIỀU KHIỂN SIÊU QUYỀN LỰC:</b>
-• <b>Tra cứu user:</b> <code>Kiểm tra user@gmail.com</code>
-• <b>Đăng xuất cưỡng chế:</b> <code>Đăng xuất user@gmail.com</code>
-• <b>Cộng JOY:</b> <code>Gửi đến user@gmail.com 3000 JOY</code>
-• <b>Trừ JOY:</b> <code>Trừ 500 JOY của user@gmail.com</code>
-• <b>Khóa ví:</b> <code>Khóa ví user@gmail.com</code>
-• <b>Bật/Tắt Bảo trì:</b> <code>Bật bảo trì</code> / <code>Tắt bảo trì</code>
-• <b>Xem Audit Log:</b> <code>Nhật ký</code>
-• <b>Báo cáo tổng quan:</b> <code>Báo cáo</code>
-    `.trim();
-    await sendTelegramAlert(welcomeHtml);
+  if (execResult && execResult.reply) {
+    await sendTelegramMessage(chatId, execResult.reply, 'HTML', execResult.markup);
     return;
   }
 
@@ -278,32 +348,87 @@ Xin chào Boss! Tôi là AI Butler quản gia toàn năng của Hugo Studio.
       return;
     }
 
-    const customDenom = bio.joyDenom || 'JOY';
-    const activeSessions = bio.securitySessions?.length || 0;
-    const isFrozen = bio.isJoyWalletFrozen ? '❄️ <b>Đóng băng</b>' : '✅ <b>Hoạt động</b>';
+    const rpt = await buildButlerMemberReport(bio);
+    await sendTelegramMessage(chatId, rpt.text, 'HTML', rpt.markup);
+    return;
+  }
 
-    const infoHtml = `
-🔍 <b>THÔNG TIN CHI TIẾT THÀNH VIÊN</b>
+  // ─── LỆNH BỘ LỌC ĐA DỤNG: LỌC / TÌM KIẾM THÀNH VIÊN NÂNG CAO ────────────────
+  const filterRegex = /(lọc|loc|bộ lọc|bo loc|filter|tìm|tim|tìm kiếm|tim kiem)\s+(.+)/i;
+  const filterMatch = text.match(filterRegex);
+  if (filterMatch) {
+    const filterQuery = filterMatch[2].trim();
+    const lowerQuery = filterQuery.toLowerCase();
 
-👤 <b>Tên hiển thị:</b> ${bio.displayName || 'Chưa đặt'}
-📧 <b>Email:</b> <code>${bio.email}</code>
-🔗 <b>Slug Bio:</b> <code>/bio/${bio.slug || 'demo'}</code>
-💰 <b>Số dư JOY:</b> <b>${bio.joyBalance.toLocaleString()} JOY</b> (${customDenom})
-🛡️ <b>Trạng thái ví:</b> ${isFrozen}
-📱 <b>Thiết bị đăng nhập:</b> ${activeSessions} thiết bị
-📅 <b>Ngày tham gia:</b> ${new Date(bio.createdAt || Date.now()).toLocaleDateString('vi-VN')}
-    `.trim();
+    let queryObj = {};
+    let sortObj = { createdAt: -1 };
+    let filterLabel = filterQuery;
 
-    const inlineButtons = {
-      inline_keyboard: [
-        [
-          { text: '🎁 Thưởng 1,000 JOY', callback_data: `cb_award_1000:${bio.email}` },
-          { text: bio.isJoyWalletFrozen ? '✅ Mở Khóa Ví' : '❄️ Khóa Ví', callback_data: bio.isJoyWalletFrozen ? `cb_unfreeze:${bio.email}` : `cb_freeze:${bio.email}` }
+    if (/ví đóng băng|ví khóa|vi dong bang|vi khoa|frozen/i.test(lowerQuery)) {
+      queryObj = { isJoyWalletFrozen: true };
+      filterLabel = 'Ví JOY bị đóng băng (isJoyWalletFrozen = true)';
+    } else if (/ví mở|vi mo|unfrozen/i.test(lowerQuery)) {
+      queryObj = { isJoyWalletFrozen: false };
+      filterLabel = 'Ví JOY đang mở (isJoyWalletFrozen = false)';
+    } else if (/sinh viên|edu|học đường|hoc duong/i.test(lowerQuery)) {
+      queryObj = { isEduVerified: true };
+      filterLabel = 'Đã xác minh sinh viên Edu (isEduVerified = true)';
+    } else if (/chưa edu|chua edu|no edu/i.test(lowerQuery)) {
+      queryObj = { isEduVerified: false };
+      filterLabel = 'Chưa xác minh sinh viên Edu (isEduVerified = false)';
+    } else if (/bị khóa|bị đình chỉ|bi khoa|bi dinh chi|suspended/i.test(lowerQuery)) {
+      queryObj = { status: 'suspended' };
+      filterLabel = 'Tài khoản bị tạm đình chỉ (status = suspended)';
+    } else if (/hoạt động|active/i.test(lowerQuery)) {
+      queryObj = { status: 'active' };
+      filterLabel = 'Tài khoản đang hoạt động (status = active)';
+    } else if (/vip|star vip|danh dự/i.test(lowerQuery)) {
+      queryObj = { starVip: true };
+      filterLabel = 'Thành viên VIP / Danh dự (starVip = true)';
+    } else if (/nhiều joy|top joy|đại gia/i.test(lowerQuery)) {
+      sortObj = { joyBalance: -1 };
+      filterLabel = 'Top thành viên nhiều JOY nhất';
+    } else if (/mới|mới nhất|newest/i.test(lowerQuery)) {
+      sortObj = { createdAt: -1 };
+      filterLabel = 'Thành viên mới đăng ký gần đây';
+    } else {
+      // Tìm kiếm đa trường: Email, Tên, Slug, Số điện thoại, Đơn vị
+      const esc = filterQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const rgx = new RegExp(esc, 'i');
+      queryObj = {
+        $or: [
+          { email: rgx },
+          { displayName: rgx },
+          { slug: rgx },
+          { phone: rgx },
+          { joyDenom: rgx },
         ]
-      ]
-    };
+      };
+      filterLabel = `Từ khóa: "${filterQuery}"`;
+    }
 
-    await sendTelegramAlert(infoHtml, 'HTML', inlineButtons);
+    const matchedBios = await Bio.find(queryObj).sort(sortObj).limit(8).lean();
+
+    if (!matchedBios.length) {
+      await sendTelegramAlert(`🔍 <b>KHÔNG TÌM THẤY THÀNH VIÊN NÀO!</b>\n📌 Bộ lọc: <code>${filterLabel}</code>`);
+      return;
+    }
+
+    let filterReport = `🔍 <b>[BỘ LỌC THÀNH VIÊN ĐA NĂNG]</b>\n📌 <b>Tiêu chí:</b> ${filterLabel}\n📊 <b>Kết quả:</b> Tìm thấy ${matchedBios.length} thành viên\n\n`;
+
+    const inlineRow = [];
+    matchedBios.forEach((u, i) => {
+      const isFrozenIcon = u.isJoyWalletFrozen ? '❄️' : '✅';
+      const isEduIcon = u.isEduVerified ? '🎓' : '';
+      filterReport += `${i + 1}. <b>${u.displayName || 'Chưa đặt tên'}</b> (${isFrozenIcon}${isEduIcon})\n   • Email: <code>${u.email}</code> | Slug: <code>/bio/${u.slug || 'demo'}</code>\n   • Ví: <b>${(u.joyBalance || 0).toLocaleString('vi-VN')} JOY</b> (${u.joyDenom || 'JOY'})\n\n`;
+
+      if (i < 4) {
+        inlineRow.push({ text: `👤 ${u.displayName || u.email.split('@')[0]}`, callback_data: `cb_lookup:${u.email}` });
+      }
+    });
+
+    const markup = { inline_keyboard: [inlineRow] };
+    await sendTelegramMessage(chatId, filterReport.trim(), 'HTML', markup);
     return;
   }
 
@@ -387,69 +512,260 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
     return;
   }
 
-  // ─── LỆNH 1: CỘNG / TRỪ / GỬI JOY CHO THÀNH VIÊN ─────────────────────────────
-  const joyEmailFirstRegex = /(gửi|cộng|tặng|thưởng|trừ|chuyển)\s+(?:đến|cho|vào|của)?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s+([+-]?\d+)\s*(joy|xu|điểm|gem|gold)?/i;
-  const joyAmountFirstRegex = /(gửi|cộng|tặng|thưởng|trừ|chuyển)\s+([+-]?\d+)\s*(joy|xu|điểm|gem|gold)?\s+(?:đến|cho|vào|của)?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
+  // ─── THƯ VIỆN ĐƠN VỊ HUGO STUDIO (CUSTOM DENOMINATIONS) ─────────────────────
+  const DENOM_UNIT_MAP = {
+    joyka: { code: 'JOYka', name: 'Kavo', key: 'en', factor: 1 },
+    joyve: { code: 'JOYve', name: 'Velu', key: 'es', factor: 5 },
+    joyra: { code: 'JOYra', name: 'Rami', key: 'zh', factor: 10 },
+    joyse: { code: 'JOYse', name: 'Sela', key: 'id', factor: 16 },
+    joymi: { code: 'JOYmi', name: 'Mira', key: 'vi', factor: 25 },
+    joyti: { code: 'JOYti', name: 'Tinu', key: 'th', factor: 50 },
+    joyzo: { code: 'JOYzo', name: 'Zoma', key: 'ja', factor: 150 },
+    joylu: { code: 'JOYlu', name: 'Luno', key: 'ko', factor: 1350 },
+    kavo:  { code: 'JOYka', name: 'Kavo', key: 'en', factor: 1 },
+    velu:  { code: 'JOYve', name: 'Velu', key: 'es', factor: 5 },
+    rami:  { code: 'JOYra', name: 'Rami', key: 'zh', factor: 10 },
+    sela:  { code: 'JOYse', name: 'Sela', key: 'id', factor: 16 },
+    mira:  { code: 'JOYmi', name: 'Mira', key: 'vi', factor: 25 },
+    tinu:  { code: 'JOYti', name: 'Tinu', key: 'th', factor: 50 },
+    zoma:  { code: 'JOYzo', name: 'Zoma', key: 'ja', factor: 150 },
+    luno:  { code: 'JOYlu', name: 'Luno', key: 'ko', factor: 1350 },
+    joy:   { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
+    xu:    { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
+    điểm:  { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
+    diem:  { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
+    gem:   { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
+    gold:  { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
+  };
 
-  let match = text.match(joyEmailFirstRegex);
-  let actionWord = '', targetEmail = '', rawAmount = 0;
+  const DENOM_PATTERN = 'joy|xu|điểm|diem|gem|gold|joyka|joyve|joyra|joyse|joymi|joyti|joyzo|joylu|kavo|velu|rami|sela|mira|tinu|zoma|luno';
 
-  if (match) {
-    actionWord = match[1].toLowerCase();
-    targetEmail = match[2].trim().toLowerCase();
-    rawAmount = parseInt(match[3], 10);
+  // ─── LỆNH 1: CỘNG / TRỪ / GỬI JOY CHO THÀNH VIÊN (HIỂU ĐƠN VỊ CÁ NHÂN HÓA) ─────
+  const joyEmailFirstRegex = new RegExp(`(gửi|cộng|tặng|thưởng|trừ|chuyển)\\s+(?:đến|cho|vào|của)?\\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})\\s+([+-]?\\d+(?:[.,]\\d+)?)\\s*(${DENOM_PATTERN})?`, 'i');
+  const joyAmountFirstRegex = new RegExp(`(gửi|cộng|tặng|thưởng|trừ|chuyển)\\s+([+-]?\d+(?:[.,]\\d+)?)\\s*(${DENOM_PATTERN})?\\s+(?:đến|cho|vào|của)?\\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})`, 'i');
+
+  let joyMatch = text.match(joyEmailFirstRegex);
+  let actionWord = '', targetEmail = '', inputAmountNum = 0, unitStr = '';
+
+  if (joyMatch) {
+    actionWord = joyMatch[1].toLowerCase();
+    targetEmail = joyMatch[2].trim().toLowerCase();
+    inputAmountNum = parseFloat(joyMatch[3].replace(',', '.'));
+    unitStr = (joyMatch[4] || '').toLowerCase();
   } else {
-    match = text.match(joyAmountFirstRegex);
-    if (match) {
-      actionWord = match[1].toLowerCase();
-      rawAmount = parseInt(match[2], 10);
-      targetEmail = match[3].trim().toLowerCase();
+    joyMatch = text.match(joyAmountFirstRegex);
+    if (joyMatch) {
+      actionWord = joyMatch[1].toLowerCase();
+      inputAmountNum = parseFloat(joyMatch[2].replace(',', '.'));
+      unitStr = (joyMatch[3] || '').toLowerCase();
+      targetEmail = joyMatch[4].trim().toLowerCase();
     }
   }
 
-  if (targetEmail && !isNaN(rawAmount) && rawAmount !== 0) {
-    let finalAmount = Math.abs(rawAmount);
-    if (actionWord === 'trừ') finalAmount = -finalAmount;
-
+  if (targetEmail && !isNaN(inputAmountNum) && inputAmountNum !== 0) {
     const bio = await Bio.findOne({ email: targetEmail });
     if (!bio) {
       await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
       return;
     }
 
+    const matchedUnit = DENOM_UNIT_MAP[unitStr];
+    const unitFactor = matchedUnit ? matchedUnit.factor : 1;
+    const unitName = matchedUnit ? matchedUnit.name : (bio.joyDenom || 'JOY');
+
+    // Quy đổi số lượng gõ theo đơn vị custom sang JOY gốc để lưu DB
+    let rawJoyCalculated = Math.round(Math.abs(inputAmountNum) * unitFactor);
+    if (actionWord === 'trừ') rawJoyCalculated = -rawJoyCalculated;
+
     const updatedBio = await awardJoy(
       targetEmail,
-      finalAmount,
+      rawJoyCalculated,
       'admin_adjustment',
       `Admin chuyển qua Telegram Bot: "${text}"`,
       { bioDoc: bio }
     );
 
-    const customDenom = bio.joyDenom || 'JOY';
-    const formattedAmount = finalAmount > 0 ? `+${finalAmount.toLocaleString()}` : `${finalAmount.toLocaleString()}`;
+    const sign = rawJoyCalculated > 0 ? '+' : '';
+    const formattedRawJoy = `${sign}${rawJoyCalculated.toLocaleString('vi-VN')}`;
+    const formattedInputUnit = `${sign}${Math.abs(inputAmountNum).toLocaleString('vi-VN')} ${unitName}`;
 
     await AdminAuditLog.create({
       adminId: 'TELEGRAM_BOT_ADMIN',
       adminUsername: 'SuperAdmin_Telegram',
       action: 'telegram_joy_transfer',
       targetEmail: bio.email,
-      details: { command: text, finalAmount, newBalance: updatedBio.joyBalance },
+      details: { command: text, inputAmountNum, unitStr, rawJoyCalculated, newBalance: updatedBio.joyBalance },
     });
 
     const replyHtml = `
 ✅ <b>ĐÃ THỰC THI THÀNH CÔNG!</b>
 
-👤 <b>Thành viên:</b> <code>${bio.email}</code> (${bio.displayName})
-💰 <b>Biến động JOY:</b> <b>${formattedAmount} JOY</b>
-🪙 <b>Đơn vị cá nhân hoá:</b> ${formattedAmount} ${customDenom}
-📈 <b>Số dư mới:</b> <b>${updatedBio.joyBalance.toLocaleString()} JOY</b>
+👤 <b>Thành viên:</b> <code>${bio.email}</code> (${bio.displayName || 'Chưa đặt tên'})
+🪙 <b>Đơn vị nhận lệnh:</b> <b>${formattedInputUnit}</b>
+💰 <b>Biến động JOY gốc:</b> <b>${formattedRawJoy} JOY</b>
+📈 <b>Số dư mới:</b> <b>${updatedBio.joyBalance.toLocaleString('vi-VN')} JOY</b> (${bio.joyDenom || 'JOY'})
     `.trim();
 
     await sendTelegramAlert(replyHtml);
     return;
   }
 
-  // ─── LỆNH 2: KHÓA / MỞ KHÓA VÍ JOY ──────────────────────────────────────────
+  // ─── LỆNH 2: ĐỔI TÊN THÀNH VIÊN ──────────────────────────────────────────────
+  const renameRegex = /(đổi tên|doi ten|change name)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s+(?:thành|thanh|to|=|:)?\s*(.+)/i;
+  const renameMatch = text.match(renameRegex);
+  if (renameMatch) {
+    const targetEmail = renameMatch[2].trim().toLowerCase();
+    const newName = renameMatch[3].trim();
+    const bio = await Bio.findOne({ email: targetEmail });
+    if (!bio) {
+      await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
+      return;
+    }
+    const oldName = bio.displayName;
+    bio.displayName = newName;
+    await bio.save();
+
+    await AdminAuditLog.create({
+      adminId: 'TELEGRAM_BOT_ADMIN',
+      adminUsername: 'SuperAdmin_Telegram',
+      action: 'telegram_rename_user',
+      targetEmail: bio.email,
+      details: { oldName, newName },
+    });
+
+    await sendTelegramAlert(`✏️ <b>ĐÃ ĐỔI TÊN THÀNH VIÊN!</b>\n📧 Email: <code>${bio.email}</code>\n👤 Tên cũ: <i>${oldName || 'Chưa đặt'}</i>\n✨ Tên mới: <b>${newName}</b>`);
+    return;
+  }
+
+  // ─── LỆNH 3: ĐỔI SLUG BIO ───────────────────────────────────────────────────
+  const reslugRegex = /(đổi slug|doi slug|change slug)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s+(?:thành|thanh|to|=|:)?\s*([a-zA-Z0-9_-]+)/i;
+  const reslugMatch = text.match(reslugRegex);
+  if (reslugMatch) {
+    const targetEmail = reslugMatch[2].trim().toLowerCase();
+    const newSlug = reslugMatch[3].trim().toLowerCase();
+    const bio = await Bio.findOne({ email: targetEmail });
+    if (!bio) {
+      await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
+      return;
+    }
+    const existing = await Bio.findOne({ slug: newSlug, email: { $ne: targetEmail } });
+    if (existing) {
+      await sendTelegramAlert(`⚠️ <b>Slug <code>${newSlug}</code> đã được sử dụng bởi tài khoản khác!</b>`);
+      return;
+    }
+    const oldSlug = bio.slug;
+    bio.slug = newSlug;
+    await bio.save();
+
+    try {
+      const { addSlug, deleteSlug } = await import('../services/redisSlugService.js');
+      if (oldSlug) await deleteSlug(oldSlug);
+      await addSlug(newSlug);
+    } catch (_) {}
+
+    await AdminAuditLog.create({
+      adminId: 'TELEGRAM_BOT_ADMIN',
+      adminUsername: 'SuperAdmin_Telegram',
+      action: 'telegram_reslug_user',
+      targetEmail: bio.email,
+      details: { oldSlug, newSlug },
+    });
+
+    await sendTelegramAlert(`🔗 <b>ĐÃ ĐỔI SLUG BIO THÀNH CÔNG!</b>\n📧 Email: <code>${bio.email}</code>\n📌 Slug cũ: <code>/bio/${oldSlug || 'none'}</code>\n✨ Slug mới: <b>/bio/${newSlug}</b>`);
+    return;
+  }
+
+  // ─── LỆNH 4: BẬT / TẮT XÁC MINH EDU ─────────────────────────────────────────
+  const eduRegex = /(bật edu|bat edu|duyệt edu|duyet edu|xác minh edu|xac minh edu|tắt edu|tat edu)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
+  const eduMatch = text.match(eduRegex);
+  if (eduMatch) {
+    const eduCmd = eduMatch[1].toLowerCase();
+    const targetEmail = eduMatch[2].trim().toLowerCase();
+    const enableEdu = !eduCmd.includes('tắt') && !eduCmd.includes('tat');
+    const bio = await Bio.findOne({ email: targetEmail });
+    if (!bio) {
+      await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
+      return;
+    }
+    bio.isEduVerified = enableEdu;
+    await bio.save();
+
+    await AdminAuditLog.create({
+      adminId: 'TELEGRAM_BOT_ADMIN',
+      adminUsername: 'SuperAdmin_Telegram',
+      action: enableEdu ? 'telegram_enable_edu' : 'telegram_disable_edu',
+      targetEmail: bio.email,
+    });
+
+    await sendTelegramAlert(`🎓 <b>ĐÃ CẬP NHẬT XÁC MINH EDU!</b>\n📧 Email: <code>${bio.email}</code>\n🎓 Trạng thái: ${enableEdu ? '✅ <b>ĐÃ XÁC MINH SINH VIÊN</b>' : '❌ <b>HỦY XÁC MINH</b>'}`);
+    return;
+  }
+
+  // ─── LỆNH 5: GỬI THÔNG BÁO CÁ NHÂN (IN-APP NOTIFICATION) ──────────────────────
+  const notifyRegex = /(gửi thông báo|gui thong bao|thông báo|thong bao|notify)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\s+(?:nội dung|noi dung|content|=|:)?\s*(.+)/i;
+  const notifyMatch = text.match(notifyRegex);
+  if (notifyMatch) {
+    const targetEmail = notifyMatch[2].trim().toLowerCase();
+    const noteContent = notifyMatch[3].trim();
+    const bio = await Bio.findOne({ email: targetEmail });
+    if (!bio) {
+      await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
+      return;
+    }
+
+    const InAppNotification = (await import('../models/InAppNotification.js')).default;
+    await InAppNotification.create({
+      email: bio.email,
+      title: '📢 Thông báo từ Quản Trị Viên',
+      message: noteContent,
+      icon: 'campaign',
+      direction: 'none',
+    });
+
+    await AdminAuditLog.create({
+      adminId: 'TELEGRAM_BOT_ADMIN',
+      adminUsername: 'SuperAdmin_Telegram',
+      action: 'telegram_send_notification',
+      targetEmail: bio.email,
+      details: { noteContent },
+    });
+
+    await sendTelegramAlert(`📩 <b>ĐÃ GỬI THÔNG BÁO VÀO ỨNG DỤNG!</b>\n📧 Gửi tới: <code>${bio.email}</code>\n📝 Nội dung: <i>"${noteContent}"</i>`);
+    return;
+  }
+
+  // ─── LỆNH 6: KHÓA / MỞ KHÓA TÀI KHOẢN TOÀN PHẦN ─────────────────────────────
+  const accLockRegex = /(khóa tài khoản|khoa tai khoan|mở tài khoản|mo tai khoan)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
+  const accLockMatch = text.match(accLockRegex);
+  if (accLockMatch) {
+    const cmd = accLockMatch[1].toLowerCase();
+    const targetEmail = accLockMatch[2].trim().toLowerCase();
+    const shouldSuspend = cmd.includes('khóa') || cmd.includes('khoa');
+    const bio = await Bio.findOne({ email: targetEmail });
+    if (!bio) {
+      await sendTelegramAlert(`❌ <b>Không tìm thấy thành viên:</b> <code>${targetEmail}</code>`);
+      return;
+    }
+    bio.status = shouldSuspend ? 'suspended' : 'active';
+    await bio.save();
+
+    if (shouldSuspend) {
+      const { revokeMemberSession } = await import('../utils/memberSession.js');
+      await revokeMemberSession(bio, 'Boss khóa tài khoản qua Telegram');
+    }
+
+    await AdminAuditLog.create({
+      adminId: 'TELEGRAM_BOT_ADMIN',
+      adminUsername: 'SuperAdmin_Telegram',
+      action: shouldSuspend ? 'telegram_suspend_account' : 'telegram_activate_account',
+      targetEmail: bio.email,
+    });
+
+    await sendTelegramAlert(`🛡️ <b>ĐÃ CẬP NHẬT TRẠNG THÁI TÀI KHOẢN!</b>\n📧 Email: <code>${bio.email}</code>\n📌 Trạng thái: ${shouldSuspend ? '🔴 <b>TẠM ĐÌNH CHỈ (SUSPENDED)</b>' : '🟢 <b>HOẠT ĐỘNG (ACTIVE)</b>'}`);
+    return;
+  }
+
+  // ─── LỆNH 7: KHÓA / MỞ KHÓA VÍ JOY ──────────────────────────────────────────
   const walletLockRegex = /(khóa ví|mở khóa ví|khoa vi|mo khoa vi)\s+([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
   const lockMatch = text.match(walletLockRegex);
   if (lockMatch) {
@@ -595,14 +911,8 @@ ${liveContext}
     let inlineButtons = null;
     if (searchResults.length === 1) {
       const match = searchResults[0];
-      inlineButtons = {
-        inline_keyboard: [
-          [
-            { text: '🎁 Thưởng 1,000 JOY', callback_data: `cb_award_1000:${match.email}` },
-            { text: match.isJoyWalletFrozen ? '✅ Mở Khóa Ví' : '❄️ Khóa Ví', callback_data: match.isJoyWalletFrozen ? `cb_unfreeze:${match.email}` : `cb_freeze:${match.email}` }
-          ]
-        ]
-      };
+      const rpt = await buildButlerMemberReport(match);
+      inlineButtons = rpt.markup;
     }
 
     await sendTelegramMessage(chatId, replyText, 'HTML', inlineButtons);
@@ -627,8 +937,9 @@ function webhookSecret() {
 // POST /api/telegram/webhook
 // Cùng lý do như so mã OTP: `!==` rò rỉ độ dài khớp qua thời gian phản hồi.
 function sameSecret(a, b) {
-  const bufA = Buffer.from(String(a || ''));
-  const bufB = Buffer.from(String(b || ''));
+  if (!a || !b) return false;
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
   return bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
 }
 

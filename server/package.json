@@ -5,7 +5,7 @@
   "description": "Backend server for Hugo Wishpax Portal with MongoDB NoSQL",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --max-old-space-size=256 server.js",
     "dev": "nodemon server.js"
   },
   "dependencies": {

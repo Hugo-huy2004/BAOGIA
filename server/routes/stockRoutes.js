@@ -8,7 +8,7 @@ import { requireMember } from '../middleware/authMiddleware.js';
 import { sessionKey } from '../utils/joyRateService.js';
 import {
   runSession, seedCompanies, positionPL, applyBuy, applySell, tradeCosts,
-  TRADING_FEE_RATE, CREATIVE_FEE_RATE, STOCK_QUOTE_CODE,
+  TRADING_FEE_RATE, CREATIVE_FEE_RATE, STOCK_QUOTE_CODE, calculateSecondPrice,
 } from '../services/stockMarket.js';
 import { CROSS_DENOM_FEE, denomKey } from '../../shared/joyCurrency.js';
 
@@ -19,46 +19,44 @@ const router = express.Router();
 const MAX_OWNERSHIP = 0.5;
 const MAX_ORDER_QTY = 100000;
 
-/** Bảng giá chỉ đổi 3 phiên/ngày nên giữ nguyên câu trả lời tới phiên sau. */
-let marketCache = { key: null, payload: null };
-
 async function loadMarket() {
   const key = sessionKey();
-  if (marketCache.key === key && marketCache.payload) return marketCache.payload;
-
   await runSession();
   const companies = await StockCompany.find({}).lean();
+  const nowSec = Math.floor(Date.now() / 1000);
   const payload = {
     session: key,
-    // Sàn niêm yết bằng đơn vị gốc tiếng Anh, một bảng giá cho tất cả.
     quoteCode: STOCK_QUOTE_CODE,
     feeRate: TRADING_FEE_RATE,
     creativeFeeRate: CREATIVE_FEE_RATE,
     conversionFeeRate: CROSS_DENOM_FEE,
-    companies: companies.map((c) => ({
-      symbol: c.symbol,
-      name: c.name,
-      sector: c.sector,
-      description: c.description,
-      price: c.price,
-      prevPrice: c.prevPrice,
-      change: c.prevPrice ? Math.round(((c.price - c.prevPrice) / c.prevPrice) * 1e4) / 1e4 : 0,
-      volatility: c.volatility,
-      dividendRate: c.dividendRate,
-      sharesOutstanding: c.sharesOutstanding,
-      marketCap: Math.round(c.price * c.sharesOutstanding),
-      signal: c.lastSignal,
-      history: (c.history || []).slice(-60),
-    })),
+    companies: companies.map((c) => {
+      const currentPrice = calculateSecondPrice(c, nowSec);
+      const prevPrice = c.prevPrice || c.basePrice || 100;
+      return {
+        symbol: c.symbol,
+        name: c.name,
+        sector: c.sector,
+        description: c.description,
+        price: currentPrice,
+        prevPrice,
+        change: prevPrice ? Math.round(((currentPrice - prevPrice) / prevPrice) * 1e4) / 1e4 : 0,
+        volatility: c.volatility,
+        dividendRate: c.dividendRate,
+        sharesOutstanding: c.sharesOutstanding,
+        marketCap: Math.round(currentPrice * c.sharesOutstanding),
+        signal: c.lastSignal,
+        history: (c.history || []).slice(-60),
+      };
+    }),
   };
-  marketCache = { key, payload };
   return payload;
 }
 
 // GET /api/stock/market — bảng giá bốn công ty
 router.get('/market', requireMember, async (req, res) => {
   try {
-    res.set('Cache-Control', 'private, max-age=120');
+    res.set('Cache-Control', 'no-store');
     res.json({ success: true, ...(await loadMarket()) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -143,7 +141,7 @@ router.post('/trade', requireMember, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy mã cổ phiếu.' });
     }
 
-    const price = company.price;
+    const price = calculateSecondPrice(company, Math.floor(Date.now() / 1000));
     const member = await Bio.findOne({ email }).select('joyDenom').lean();
     const costs = tradeCosts({ price, quantity, side, memberDenom: member?.joyDenom });
     const fee = costs.fees;

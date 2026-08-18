@@ -6,6 +6,8 @@ import { requireMember } from '../middleware/authMiddleware.js';
 import { minorEmailSet } from '../utils/memberAge.js';
 import rateLimit from 'express-rate-limit';
 
+import { getVietnamDateString } from '../utils/timeUtils.js';
+
 const router = express.Router();
 
 // Per-game score ceilings — reject obviously implausible/forged values outright.
@@ -17,7 +19,7 @@ const router = express.Router();
 // Đây cũng là danh sách trắng game duy nhất của server: 3 game gỡ khỏi hệ thống
 // (tetris/flappy/wordguess) không còn ở đây nên điểm mới bị từ chối. Điểm CŨ
 // trong DB vẫn đọc được bình thường — không xoá dữ liệu người chơi đã đạt.
-const SCORE_CEILINGS = { '2048': 1000000, caro: 200, survivor: 80000, snake: 8000, chess: 3000 };
+const SCORE_CEILINGS = { '2048': 1000000, caro: 200, survivor: 80000, snake: 8000, chess: 3000, pinball: 500000 };
 
 const RESULTS = ['win', 'lose', 'draw'];
 const ARCADE_DAILY_JOY_CAP = 150;
@@ -30,21 +32,33 @@ const scoreLimiter = rateLimit({
 });
 
 async function reserveDailyArcadeJoy(email, amount) {
-  if (amount <= 0 || amount > ARCADE_DAILY_JOY_CAP) return null;
-  const today = new Date().toISOString().slice(0, 10);
+  if (amount <= 0) return null;
+  const today = getVietnamDateString();
   const owner = { $or: [{ email }, { contactEmail: email }] };
   await Bio.updateOne(
     { ...owner, arcadeJoyDate: { $ne: today } },
     { $set: { arcadeJoyDate: today, arcadeJoyToday: 0 } },
   );
-  return Bio.findOneAndUpdate(
-    { ...owner, arcadeJoyDate: today, arcadeJoyToday: { $lte: ARCADE_DAILY_JOY_CAP - amount } },
-    { $inc: { arcadeJoyToday: amount } },
+
+  const bio = await Bio.findOne(owner, 'arcadeJoyToday').lean();
+  if (!bio) return null;
+
+  const currentToday = bio.arcadeJoyToday || 0;
+  const available = Math.max(0, ARCADE_DAILY_JOY_CAP - currentToday);
+  const grantAmount = Math.min(amount, available);
+  if (grantAmount <= 0) return null;
+
+  const updated = await Bio.findOneAndUpdate(
+    { _id: bio._id },
+    { $inc: { arcadeJoyToday: grantAmount } },
     { new: true, projection: { arcadeJoyToday: 1 } },
   ).lean();
+
+  return { granted: grantAmount, arcadeJoyToday: updated?.arcadeJoyToday || currentToday + grantAmount };
 }
 
 async function releaseDailyArcadeJoy(email, amount) {
+  if (amount <= 0) return;
   const today = new Date().toISOString().slice(0, 10);
   await Bio.updateOne(
     { $or: [{ email }, { contactEmail: email }], arcadeJoyDate: today, arcadeJoyToday: { $gte: amount } },
@@ -67,12 +81,6 @@ function getEventMultiplier() {
 }
 
 // ─── JOY Calculation — per-game tiered formulas (must match src/utils/joyCalculation.js) ─
-// Each game defines score→JOY tiers: [threshold, baseJoy, perPoint]
-// joy = baseJoy + floor((score - threshold) × perPoint)
-// 2026-07-27 — thang điểm trong game đã đổi (combo/hệ số nhân/thưởng cấp). Các
-// mốc dưới đây nhân theo hệ số lạm phát của từng game và chia lại perPoint, nên
-// JOY cho cùng một trình độ chơi không đổi.
-// Hệ số: snake ×6, survivor ×3, 2048 ×2.
 const JOY_TIERS = {
   snake: [
     [0,    2,  0.0833333],  [60,   7,  0.0583333],  [240, 17,  0.0333333],  [600, 29,  0.0200],  [1200,41,  0.0133333],
@@ -88,6 +96,9 @@ const JOY_TIERS = {
   ],
   chess: [
     [0,   2,  0.03],   [100, 5,  0.015],  [500,11,  0.008],  [2000,23, 0.004],
+  ],
+  pinball: [
+    [0,   2,  0.0001], [10000, 5, 0.00008], [50000, 10, 0.00005], [200000, 20, 0.00003],
   ],
 };
 
@@ -147,29 +158,24 @@ router.post('/score', requireMember, scoreLimiter, async (req, res) => {
     joyDelta = numScore > 0 ? calcJoy(game, numScore) : 0;
     const joyBase = joyDelta;
 
-    // Nhân đôi thứ Bảy, rồi KẸP xuống trần ngày: reserveDailyArcadeJoy từ chối
-    // thẳng (trả null) khoản lớn hơn trần, nên không kẹp thì ván điểm cao vào
-    // thứ Bảy mất sạch JOY thay vì nhận tối đa.
     const multiplier = getEventMultiplier();
     joyDelta = Math.min(joyDelta * multiplier, ARCADE_DAILY_JOY_CAP);
 
     const reservation = await reserveDailyArcadeJoy(email, joyDelta);
-    if (!reservation) joyDelta = 0;
+    const grantedAmount = reservation ? reservation.granted : 0;
+    joyDelta = grantedAmount;
 
-    if (joyDelta > 0) {
+    if (grantedAmount > 0) {
       try {
-        // Câu mô tả KHÔNG nhắc lại số JOY: `amount` đã là field riêng trên thông
-        // báo và được hiện thành "+N JOY" ở cột phải, viết vào đây nữa là người
-        // dùng thấy hai lần cùng một con số.
         await awardJoy(
-          email, joyDelta, 'arcade_score',
+          email, grantedAmount, 'arcade_score',
           `${game} — ${numScore.toLocaleString('vi-VN')} điểm`,
           { refId: game }
         );
         joyAwarded = true;
       } catch (e) {
         console.error('[arcade joy award]', e.message);
-        await releaseDailyArcadeJoy(email, joyDelta);
+        await releaseDailyArcadeJoy(email, grantedAmount);
       }
     }
 

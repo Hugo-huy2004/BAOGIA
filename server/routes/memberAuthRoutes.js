@@ -74,6 +74,13 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
     const uaHash = cryptoMod.createHash('sha256').update(ua).digest('hex');
     const BioMod = (await import('../models/Bio.js')).default;
     
+    const baseSlug = (claims.name || email.split('@')[0])
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '') || `user-${Date.now()}`;
+    const slug = `${baseSlug}-${cryptoMod.randomBytes(3).toString('hex')}`;
+
     // Set lastUserAgentHash and clear locationAnomaly. Upsert if first-time login.
     await BioMod.updateOne(
       { email },
@@ -82,9 +89,11 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
         $setOnInsert: {
           email,
           displayName: claims.name || email.split('@')[0],
+          slug,
           avatarUrl: claims.picture || '',
           provider: 'google',
           joyBalance: 1000,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         }
       },
       { upsert: true }

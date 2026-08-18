@@ -22,6 +22,7 @@ import AdminBrainTab from "../../components/admin/AdminBrainTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
+import AdminRobotTab from "../../components/admin/AdminRobotTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 
 function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
@@ -78,7 +79,12 @@ export default function AdminPanel() {
   useEffect(() => {
     const apiBase = import.meta.env.VITE_API_URL || "/api";
     const fetchAlerts = () => {
-      fetch(`${apiBase}/companion/admin/crisis-alerts`, { credentials: "include" })
+      const headers = {};
+      const session = getAdminSession();
+      if (session && session.token) {
+        headers["Authorization"] = `Bearer ${session.token}`;
+      }
+      fetch(`${apiBase}/companion/admin/crisis-alerts`, { headers, credentials: "include" })
         .then(r => r.ok ? r.json() : [])
         .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
         .catch(() => {});
@@ -88,11 +94,33 @@ export default function AdminPanel() {
     return () => clearInterval(interval);
   }, []);
 
+  // Admin Super Security Armor: F12 / DevTools Inspection Trap
+  useEffect(() => {
+    if (import.meta.env.DEV) return;
+    const handleKeyDown = (e) => {
+      if (
+        e.key === 'F12' ||
+        (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J' || e.key === 'c' || e.key === 'C')) ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleResolveCrisisAlert = (alert) => {
     const apiBase = import.meta.env.VITE_API_URL || "/api";
+    const headers = { "Content-Type": "application/json" };
+    const session = getAdminSession();
+    if (session && session.token) {
+      headers["Authorization"] = `Bearer ${session.token}`;
+    }
     fetch(`${apiBase}/companion/crisis/resolve`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       credentials: "include",
       body: JSON.stringify({ email: alert.email, flagId: alert.flagId })
     })
@@ -498,6 +526,9 @@ export default function AdminPanel() {
             onResolveCrisisAlert={handleResolveCrisisAlert}
           />
         )}
+
+        {/* ── CORE HUB: ĐIỀU KHIỂN ROBOT & LIVE CAMERA ── */}
+        {activeTab === "robot" && <AdminRobotTab />}
 
         {/* ── CORE HUB: ADMIN BỘ NÃO MÁY TÍNH AI ── */}
         {activeTab === "brain" && <AdminBrainTab />}

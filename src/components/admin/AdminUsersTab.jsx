@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import UserDetailModal from './UserDetailModal';
-import { formatJoyDual } from '../../utils/joyFormatter';
+import { formatJoyDual, formatJoyCompact } from '../../utils/joyFormatter';
 import { toDenom } from '../../../shared/joyCurrency.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -225,11 +225,9 @@ const AdminUsersTab = ({
           </div>
         </div>
       </div>
-
-      {/* Main Users Table / List Card */}
-      <div className="bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-2xl rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.3)] overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200/60 dark:border-white/10 bg-slate-100/40 dark:bg-white/5 flex justify-between items-center">
-          <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center gap-2">
+      <div className="bg-slate-900/70 dark:bg-[#12131e]/90 backdrop-blur-3xl rounded-[28px] border border-slate-200/40 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-300">
+        <div className="px-6 py-4 border-b border-slate-200/40 dark:border-white/10 bg-slate-100/30 dark:bg-white/[0.03] flex justify-between items-center">
+          <h3 className="font-extrabold text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-500 text-base">group</span>
             {t("admin.texts.txt_229")} ({totalMatchedUsers.toLocaleString()})
           </h3>
@@ -241,7 +239,7 @@ const AdminUsersTab = ({
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-100/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-b border-slate-200/60 dark:border-white/10 font-black uppercase tracking-widest text-[9px]">
+                  <tr className="bg-slate-100/50 dark:bg-white/[0.02] text-slate-500 dark:text-slate-400 border-b border-slate-200/40 dark:border-white/10 font-black uppercase tracking-widest text-[9px]">
                     <th className="px-6 py-4">{t("admin.texts.txt_44")}</th>
                     <th className="px-6 py-4">Bio Link</th>
                     <th className="px-6 py-4">Ví JOY</th>
@@ -250,11 +248,11 @@ const AdminUsersTab = ({
                     <th className="px-6 py-4 text-center">{t("admin.texts.txt_47")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-200/40 dark:divide-slate-800/60 font-medium">
                   {users.map((user) => {
                     const bioUrl = `${window.location.origin}/bio/${user.slug}`;
                     return (
-                      <tr key={user._id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/20 transition-colors">
+                      <tr key={user._id} className="hover:bg-slate-100/40 dark:hover:bg-white/[0.03] transition-all duration-200">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="relative w-9 h-9 shrink-0">
@@ -267,7 +265,7 @@ const AdminUsersTab = ({
                               </div>
                               <span
                                 title={onlineStatuses[user.email] ? 'Online' : 'Offline'}
-                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12111a] ${onlineStatuses[user.email] ? 'bg-emerald-500' : 'bg-zinc-400'}`}
+                                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12111a] ${onlineStatuses[user.email] ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-zinc-400'}`}
                               />
                             </div>
                             <div className="min-w-0">
@@ -278,24 +276,24 @@ const AdminUsersTab = ({
                         </td>
                         <td className="px-6 py-4 font-mono text-[11px]">
                           <div className="flex items-center gap-2">
-                            <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold truncate">
+                            <a href={bioUrl} target="_blank" rel="noreferrer" className="text-blue-500 hover:text-blue-400 hover:underline font-bold truncate">
                               /bio/{user.slug}
                             </a>
                             <button
                               onClick={() => handleCopyText(bioUrl, user._id)}
-                              className="text-slate-400 hover:text-slate-600 dark:hover:text-white shrink-0 flex items-center justify-center w-6 h-6 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                              className="text-slate-400 hover:text-white shrink-0 flex items-center justify-center w-6 h-6 rounded-md hover:bg-slate-800 transition-colors"
                               title={t("admin.texts.txt_58")}
                             >
-                              <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
+                              <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-400 font-bold" : ""}`}>
                                 {copiedUserId === user._id ? "check" : "content_copy"}
                               </span>
                             </button>
                           </div>
                         </td>
-                        <td className="px-6 py-4 font-mono text-xs font-black text-amber-600 dark:text-amber-400 whitespace-nowrap">
+                        <td className="px-6 py-4 font-mono text-xs font-black text-amber-500 dark:text-amber-400 whitespace-nowrap">
                           <div>{formatJoyDual(user.joyBalance || 0)}</div>
                           {user.joyDenom && (
-                            <div className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold font-sans">
+                            <div className="text-[10px] text-purple-400 font-semibold font-sans">
                               {toDenom(user.joyBalance || 0, user.joyDenom).amount.toLocaleString()} {toDenom(user.joyBalance || 0, user.joyDenom).code}
                             </div>
                           )}
@@ -303,72 +301,72 @@ const AdminUsersTab = ({
                         <td className="px-6 py-4 whitespace-nowrap">
                           {formatExpiration(user.expiresAt)}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           {user.status === 'locked' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-500 border border-rose-100 dark:border-rose-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                               {t("admin.texts.txt_48")}
                             </span>
                           ) : user.status === 'pending' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                               Chờ duyệt
                             </span>
                           ) : user.status === 'rejected' ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-500 border border-rose-100 dark:border-rose-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                               Từ chối
                             </span>
                           ) : user.verificationRequest?.submitted && !user.isEduVerified ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-950/20 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                               Thử 30 ngày · Chờ duyệt
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.15)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                               {t("admin.texts.txt_49")}
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0">
                             <button
                               onClick={() => setInspectingUser(user)}
-                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-blue-600 hover:bg-blue-500 text-white shadow-md active:scale-95 flex items-center gap-1"
+                              className="px-3.5 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white shadow-[0_4px_16px_rgba(59,130,246,0.35)] hover:shadow-[0_6px_22px_rgba(59,130,246,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 whitespace-nowrap shrink-0"
                               title="Soi hồ sơ chi tiết, ví JOY & gửi Email"
                             >
                               <span className="material-symbols-outlined text-[14px]">visibility</span>
-                              Soi chi tiết
+                              <span>Soi chi tiết</span>
                             </button>
                             {user.verificationRequest?.submitted && (
                               <button
                                 onClick={() => setSelectedVerificationUser(user)}
-                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm active:scale-95 flex items-center gap-1.5"
+                                className="px-3.5 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white shadow-[0_4px_16px_rgba(168,85,247,0.35)] hover:shadow-[0_6px_22px_rgba(168,85,247,0.5)] transition-all duration-300 active:scale-95 flex items-center gap-1.5 whitespace-nowrap shrink-0"
                                 title="Xem hồ sơ yêu cầu xác minh sinh viên"
                               >
                                 <span className="material-symbols-outlined text-[14px]">school</span>
-                                Hồ sơ
+                                <span>Hồ sơ</span>
                               </button>
                             )}
                             {user.status === 'locked' || user.status === 'rejected' ? (
                               <button
                                 onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
-                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm active:scale-95"
+                                className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 hover:border-emerald-500 shadow-[0_2px_10px_rgba(16,185,129,0.15)] transition-all duration-300 active:scale-95 whitespace-nowrap shrink-0"
                               >
                                 Kích hoạt
                               </button>
                             ) : (user.status === 'pending' || (user.status === 'active' && user.verificationRequest?.submitted && !user.isEduVerified)) ? (
                               <button
                                 onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
-                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm active:scale-95"
+                                className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/15 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 hover:border-emerald-500 shadow-[0_2px_10px_rgba(16,185,129,0.15)] transition-all duration-300 active:scale-95 whitespace-nowrap shrink-0"
                               >
                                 Duyệt
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleToggleBioStatus(user._id, 'active', 'locked')}
-                                className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-rose-600 hover:bg-rose-700 text-white shadow-sm active:scale-95"
+                                className="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500/15 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 hover:border-rose-500 shadow-[0_2px_10px_rgba(244,63,94,0.15)] transition-all duration-300 active:scale-95 whitespace-nowrap shrink-0"
                               >
                                 Khóa
                               </button>
@@ -376,20 +374,20 @@ const AdminUsersTab = ({
                             <button
                               onClick={() => handleToggleVip?.(user._id, user.starVip)}
                               title={user.starVip ? "Gỡ hạng danh dự Star-VIP" : "Gắn hạng danh dự Star-VIP"}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase shadow-sm active:scale-95 flex items-center gap-1.5 ${
+                              className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all duration-300 active:scale-95 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                                 user.starVip
-                                  ? "bg-amber-500 hover:bg-amber-600 text-white"
-                                  : "bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground"
+                                  ? "bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-500 text-slate-950 shadow-[0_4px_16px_rgba(245,158,11,0.35)]"
+                                  : "bg-slate-800/80 hover:bg-amber-500/20 text-slate-300 hover:text-amber-400 border border-slate-700 hover:border-amber-500/30"
                               }`}
                             >
                               <span className="material-symbols-outlined text-[14px]">workspace_premium</span>
-                              {user.starVip ? "Star-VIP" : "VIP"}
+                              <span>{user.starVip ? "Star-VIP" : "VIP"}</span>
                             </button>
                             <button
                               onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
-                              className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground transition-all shadow-sm active:scale-95"
+                              className="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-800/90 hover:bg-rose-900/80 text-slate-400 hover:text-rose-200 border border-slate-700/80 hover:border-rose-500/40 transition-all duration-300 active:scale-95 whitespace-nowrap shrink-0"
                             >
-                              {t("admin.texts.txt_231")}
+                              Xóa
                             </button>
                           </div>
                         </td>
@@ -400,110 +398,113 @@ const AdminUsersTab = ({
               </table>
             </div>
 
-            {/* Compressed Mobile List View */}
-            <div className="md:hidden divide-y divide-slate-200 dark:divide-slate-800/60 px-4">
+            {/* Ultra-Compact Mobile Card List View */}
+            <div className="md:hidden p-3 space-y-2.5">
               {users.map((user) => {
                 const bioUrl = `${window.location.origin}/bio/${user.slug}`;
                 const expDays = getExpirationDaysOnly(user.expiresAt);
                 return (
-                  <div key={user._id} className="py-4 space-y-3 first:pt-2 last:pb-2">
-                    {/* Top info row */}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="relative w-8 h-8 shrink-0">
-                          <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-[#221b2b] overflow-hidden border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                  <div key={user._id} className="p-3 rounded-2xl bg-slate-900/60 dark:bg-black/50 border border-white/10 shadow-md space-y-2">
+                    {/* Header Row: Avatar, Name, Status, JOY */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="relative w-7 h-7 shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-slate-800 overflow-hidden border border-white/10 flex items-center justify-center">
                             {user.avatarUrl ? (
                               <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                             ) : (
                               <span className="material-symbols-outlined text-slate-400 text-xs">person</span>
                             )}
                           </div>
-                          <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#12111a] ${onlineStatuses[user.email] ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+                          <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-black ${onlineStatuses[user.email] ? 'bg-emerald-500' : 'bg-zinc-500'}`} />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-bold text-foreground text-xs truncate leading-tight">{user.displayName}</h4>
-                          <p className="text-[10px] text-slate-400 truncate leading-none mt-0.5">{user.email}</p>
+                          <div className="font-bold text-white text-xs truncate leading-tight">{user.displayName}</div>
+                          <div className="text-[9.5px] text-slate-400 truncate leading-none">{user.email}</div>
                         </div>
                       </div>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] font-extrabold border shrink-0 ${
-                        user.status === 'locked'
-                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30"
-                          : user.status === 'pending'
-                          ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
-                          : user.status === 'rejected'
-                          ? "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-950/20 dark:text-rose-500 dark:border-rose-900/30"
-                          : user.verificationRequest?.submitted && !user.isEduVerified
-                          ? "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/30"
-                          : "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
-                      }`}>
-                        {user.status === 'locked' ? t("admin.texts.txt_61") : user.status === 'pending' ? 'Chờ duyệt' : user.status === 'rejected' ? 'Từ chối' : (user.verificationRequest?.submitted && !user.isEduVerified) ? 'Thử 30 ngày' : t("admin.texts.txt_62")}
-                      </span>
-                    </div>
-
-                    {/* Copy Link Pill Row */}
-                    <div className="flex items-center justify-between bg-slate-100/60 dark:bg-[#1a1626]/80 px-3 py-1.5 rounded-xl border border-slate-200/40 dark:border-slate-800/80">
-                      <a href={bioUrl} target="_blank" rel="noreferrer" className="text-primary text-xs font-mono font-bold truncate hover:underline flex-1">
-                        /bio/{user.slug}
-                      </a>
-                      <button
-                        onClick={() => handleCopyText(bioUrl, user._id)}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-white shrink-0 ml-2"
-                        title={t("admin.texts.txt_63")}
-                      >
-                        <span className={`material-symbols-outlined text-xs ${copiedUserId === user._id ? "text-emerald-500 font-bold" : ""}`}>
-                          {copiedUserId === user._id ? "check" : "content_copy"}
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Metadata & Mini Actions Row */}
-                    <div className="flex items-center justify-between text-xs gap-4 pt-1">
-                      <div className="text-[10px] font-medium text-slate-400 dark:text-slate-400">
-                        {user.expiresAt ? (
-                          <span>{t("admin.texts.txt_50")} <strong className="text-slate-700 dark:text-slate-200">{new Date(user.expiresAt).toLocaleDateString('vi-VN')}</strong> ({expDays <= 0 ? t("admin.texts.txt_64") : `${t("admin.texts.txt_235")} ${expDays} ${t("admin.texts.txt_236")}`})</span>
-                        ) : (
-                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{t("admin.texts.txt_51")}</span>
-                        )}
-                      </div>
                       
-                      <div className="flex gap-2 shrink-0">
-                        {user.verificationRequest?.submitted && (
-                          <button
-                            onClick={() => setSelectedVerificationUser(user)}
-                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-indigo-500 border-indigo-500 text-white transition-all"
-                          >
-                            Hồ sơ
-                          </button>
-                        )}
-                        {user.status === 'locked' || user.status === 'rejected' ? (
-                          <button
-                            onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
-                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-emerald-500 border-emerald-500 text-white transition-all"
-                          >
-                            Kích hoạt
-                          </button>
-                        ) : (user.status === 'pending' || (user.status === 'active' && user.verificationRequest?.submitted && !user.isEduVerified)) ? (
-                          <button
-                            onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
-                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-emerald-500 border-emerald-500 text-white transition-all"
-                          >
-                            Duyệt
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleToggleBioStatus(user._id, 'active', 'locked')}
-                            className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-white border-rose-300 text-rose-600 hover:bg-rose-50 dark:bg-slate-800 dark:border-rose-900/45 dark:text-rose-500 transition-all"
-                          >
-                            Khóa
-                          </button>
-                        )}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] font-mono font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                          {formatJoyCompact(user.joyBalance || 0)}
+                        </span>
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8.5px] font-extrabold border ${
+                          user.status === 'locked'
+                            ? "bg-rose-500/15 text-rose-400 border-rose-500/30"
+                            : user.status === 'pending'
+                            ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                            : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                        }`}>
+                          {user.status === 'locked' ? 'Khóa' : user.status === 'pending' ? 'Chờ' : 'Active'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bio Link & Expiration Info Row */}
+                    <div className="flex items-center justify-between text-[10px] bg-slate-950/60 px-2.5 py-1 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-1.5 min-w-0 font-mono">
+                        <a href={bioUrl} target="_blank" rel="noreferrer" className="text-blue-400 font-bold truncate">
+                          /bio/{user.slug}
+                        </a>
                         <button
-                          onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
-                          className="px-2.5 py-1 rounded-md text-[9.5px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-800 dark:text-slate-300 transition-all"
+                          onClick={() => handleCopyText(bioUrl, user._id)}
+                          className="text-slate-400 hover:text-white shrink-0"
+                          title="Copy link"
                         >
-                          {t("admin.texts.txt_231")}
+                          <span className={`material-symbols-outlined text-[12px] ${copiedUserId === user._id ? "text-emerald-400" : ""}`}>
+                            {copiedUserId === user._id ? "check" : "content_copy"}
+                          </span>
                         </button>
                       </div>
+
+                      <div className="text-slate-400 text-[9px] font-medium shrink-0 ml-2">
+                        {user.expiresAt ? (
+                          <span>Hạn: <strong className="text-slate-200">{expDays <= 0 ? 'Hết hạn' : `${expDays} ngày`}</strong></span>
+                        ) : (
+                          <span className="text-emerald-400 font-bold">Vĩnh viễn</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Compact Action Buttons */}
+                    <div className="flex items-center justify-end gap-1.5 pt-0.5">
+                      <button
+                        onClick={() => setInspectingUser(user)}
+                        className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm active:scale-95 flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-[12px]">visibility</span>
+                        <span>Soi</span>
+                      </button>
+                      
+                      {user.status === 'locked' || user.status === 'rejected' ? (
+                        <button
+                          onClick={() => handleToggleBioStatus(user._id, user.status, 'active')}
+                          className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                        >
+                          Mở
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleToggleBioStatus(user._id, 'active', 'locked')}
+                          className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                        >
+                          Khóa
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleToggleVip?.(user._id, user.starVip)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${user.starVip ? "bg-amber-400 text-black font-extrabold" : "bg-slate-800 text-slate-300 border border-white/10"}`}
+                      >
+                        {user.starVip ? "Star-VIP" : "VIP"}
+                      </button>
+
+                      <button
+                        onClick={() => triggerConfirm(t("admin.texts.txt_230", { name: user.displayName }), () => setDeleteTarget(user))}
+                        className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-white/10 hover:text-rose-400"
+                      >
+                        Xóa
+                      </button>
                     </div>
                   </div>
                 );

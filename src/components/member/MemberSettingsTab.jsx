@@ -248,7 +248,8 @@ export default function MemberSettingsTab({
   // không giữ bản ví thứ hai để hai nơi không trôi lệch nhau.
   const openWalletApp = (query = "") => {
     hapticSelect();
-    if (onSelectUtility) onSelectUtility(`joy_wallet${query}`);
+    const queryString = typeof query === "string" ? query : "";
+    if (onSelectUtility) onSelectUtility(`joy_wallet${queryString}`);
     else if (onSelectTab) onSelectTab("utilities");
   };
 
@@ -359,7 +360,7 @@ export default function MemberSettingsTab({
           </section>
 
           <section className="hugo-account-quickbar" aria-label={t("memberPortal.accountHub.quickActionsAria")}>
-            <button type="button" onClick={openWalletApp}>
+            <button type="button" onClick={() => openWalletApp()}>
               <span className="material-symbols-outlined">account_balance_wallet</span><small>{t("memberPortal.accountHub.center")}</small>
             </button>
             {quickActions.map((action) => (

@@ -11,21 +11,21 @@ import "./info-showcase.css";
 // [id, icon, biến màu neon] — icon là Material Symbols đơn sắc, màu do CSS
 // custom property `--tone` quyết định nên không cần class Tailwind động.
 const HIGHLIGHTS = [
+  ["denom", "currency_exchange", "var(--neon-cyan)"],
+  ["invest", "show_chart", "var(--neon-lime)"],
+  ["telegram", "smart_toy", "var(--neon-violet)"],
   ["security", "shield_lock", "var(--neon-teal)"],
-  ["store", "grid_view", "var(--neon-cyan)"],
-  ["ai", "hub", "var(--neon-violet)"],
   ["arcade", "sports_esports", "var(--neon-amber)"],
-  ["offline", "cloud_off", "var(--neon-pink)"],
-  ["wallet", "account_balance_wallet", "var(--neon-lime)"],
+  ["search", "search", "var(--neon-pink)"],
 ];
 
 const COMPARE_ROWS = [
   ["architecture", "account_tree"],
-  ["auth", "lock"],
-  ["ai", "neurology"],
+  ["denom", "payments"],
+  ["invest", "show_chart"],
+  ["telegram", "smart_toy"],
   ["arcade", "stadium"],
-  ["offline", "wifi_off"],
-  ["notify", "notifications"],
+  ["search", "manage_search"],
 ];
 
 const SEMVER_PARTS = [
@@ -60,51 +60,73 @@ function Mock({ id, label }) {
     </div>
   );
 
+  if (id === "denom") {
+    return (
+      <div className="mock" aria-hidden="true">
+        {head}
+        <div className="mock-rows">
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">currency_exchange</span>
+            <span>Mira · Luno · Kavo · Velu</span><span>9 đơn vị</span>
+          </div>
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">sync_alt</span>
+            <span>Tự động quy đổi ví</span><span>realtime</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (id === "invest") {
+    return (
+      <div className="mock" aria-hidden="true">
+        {head}
+        <div className="mock-rows">
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">bolt</span>
+            <span>Sóng giá 1s Harmonic</span><span>live</span>
+          </div>
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">psychology</span>
+            <span>AI Advisor chốt lời</span><span>active</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (id === "telegram") {
+    return (
+      <div className="mock" aria-hidden="true">
+        {head}
+        <div className="mock-rows">
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">chat</span>
+            <span>NLU Remote Commands</span><span>bot</span>
+          </div>
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">badge</span>
+            <span>Executive Card 1-Click</span><span>ready</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (id === "security") {
     return (
       <div className="mock" aria-hidden="true">
         {head}
         <div className="mock-rows">
           <div className="mock-row mock-row--pass">
-            <span className="material-symbols-outlined">verified_user</span>
-            <span>Google token</span><span>verified</span>
-          </div>
-          <div className="mock-row mock-row--block">
-            <span className="material-symbols-outlined">block</span>
-            <span>?email=admin</span><span>denied</span>
+            <span className="material-symbols-outlined">shield_lock</span>
+            <span>Security Sentinel</span><span>active</span>
           </div>
           <div className="mock-row mock-row--pass">
             <span className="material-symbols-outlined">key</span>
-            <span>QR · HMAC</span><span>signed</span>
+            <span>Timing-Safe HMAC</span><span>signed</span>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (id === "store") {
-    return (
-      <div className="mock" aria-hidden="true">
-        {head}
-        <div className="mock-apps">
-          {["badge", "code", "radio", "stadium", "blur_on", "support_agent", "handyman", "explore", "chair", "face"].map((icon, i) => (
-            <i key={icon} className={i < 4 ? "on" : i === 4 ? "load on" : ""}>
-              <span className="material-symbols-outlined">{icon}</span>
-            </i>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (id === "ai") {
-    return (
-      <div className="mock" aria-hidden="true">
-        {head}
-        <div className="mock-flow">
-          <div className="mock-flow__src"><span>PSY</span><span>CODER</span><span>BOT</span></div>
-          <div className="mock-flow__wires"><i /><i /><i /></div>
-          <div className="mock-flow__gate"><b>GATEWAY</b><small>quota · cache</small></div>
         </div>
       </div>
     );
@@ -115,7 +137,7 @@ function Mock({ id, label }) {
       <div className="mock" aria-hidden="true">
         {head}
         <div className="mock-games">
-          {["castle", "rocket_launch", "bolt", "view_compact", "grid_view", "close", "spellcheck", "route"].map((icon) => (
+          {["sports_esports", "rocket_launch", "bolt", "grid_view", "view_compact", "sports_score"].map((icon) => (
             <i key={icon}><span className="material-symbols-outlined">{icon}</span></i>
           ))}
         </div>
@@ -123,18 +145,14 @@ function Mock({ id, label }) {
     );
   }
 
-  if (id === "offline") {
+  if (id === "search") {
     return (
       <div className="mock" aria-hidden="true">
         {head}
-        <div className="mock-sync">
-          <div className="mock-sync__state">
-            <span className="material-symbols-outlined">wifi_off</span>
-            <span>Offline · đã lưu cục bộ</span>
-          </div>
-          <div className="mock-sync__queue">
-            <span>Blocks · 12,480<b>chờ</b></span>
-            <span>Snake · 8,120<b>chờ</b></span>
+        <div className="mock-rows">
+          <div className="mock-row mock-row--pass">
+            <span className="material-symbols-outlined">filter_list</span>
+            <span>Lọc Ví, Edu, VIP, Top JOY</span><span>8 tiêu chí</span>
           </div>
         </div>
       </div>

@@ -61,9 +61,9 @@ export default function NotificationRow({ item, index = 0, onOpen, onAction, onD
         )}
 
         {/* Số liệu là field riêng, không phải chữ bóc từ câu ra. */}
-        {(item.balanceAfter != null || item.refCode) && (
+        {(Number.isFinite(Number(item.balanceAfter)) || item.refCode) && (
           <span className="hgn-dim mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11.5px]">
-            {item.balanceAfter != null && (
+            {Number.isFinite(Number(item.balanceAfter)) && (
               <span>
                 {t("memberPortal.notificationCenter.balance", {
                   value: joyText(item.balanceAfter),

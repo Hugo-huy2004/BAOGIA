@@ -3,6 +3,7 @@ import adminBrainApi from '../../services/api/AdminBrainApi';
 import { notify } from '../../lib/notify';
 import { formatJoy, formatJoyCompact, formatJoyDual, formatJoyFullWithFiat, parseJoyInput, JOY_UNITS } from '../../utils/joyFormatter';
 import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency.js';
+import { maskPhone } from '../../utils/phoneSecurity';
 
 export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
 
   // Profile Edit & Expiration Extension State
   const [editingProfile, setEditingProfile] = useState(false);
+  const [showFullPhone, setShowFullPhone] = useState(false);
   const [profileForm, setProfileForm] = useState({
     displayName: '', headline: '', phone: '', address: '', jobTitle: '', education: ''
   });
@@ -80,7 +82,8 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
           phone: data.bio.phone || '',
           address: data.bio.address || '',
           jobTitle: data.bio.jobTitle || '',
-          education: data.bio.education || ''
+          education: data.bio.education || '',
+          joyDenom: data.bio.joyDenom || 'vi'
         });
       }
       fetchReconciliation();
@@ -537,13 +540,25 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Số điện thoại</label>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                            Số điện thoại <span className="text-[10px] text-emerald-500 font-extrabold">(Bảo Mật)</span>
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setShowFullPhone(!showFullPhone)}
+                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-xs">{showFullPhone ? 'visibility_off' : 'visibility'}</span>
+                            <span>{showFullPhone ? 'Che Số' : 'Hiện Số Thật'}</span>
+                          </button>
+                        </div>
                         <input
                           type="text"
                           disabled={!editingProfile}
-                          value={profileForm.phone}
+                          value={editingProfile || showFullPhone ? profileForm.phone : maskPhone(profileForm.phone)}
                           onChange={(e) => setProfileForm(p => ({ ...p, phone: e.target.value }))}
-                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
+                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-mono font-bold outline-none disabled:opacity-80"
                         />
                       </div>
                       <div>
@@ -575,6 +590,23 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                           onChange={(e) => setProfileForm(p => ({ ...p, education: e.target.value }))}
                           className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-sm">payments</span> Đơn vị JOY Hiển Thị
+                        </label>
+                        <select
+                          disabled={!editingProfile}
+                          value={profileForm.joyDenom || 'vi'}
+                          onChange={(e) => setProfileForm(p => ({ ...p, joyDenom: e.target.value }))}
+                          className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-purple-500/40 text-purple-700 dark:text-purple-300 font-extrabold outline-none disabled:opacity-80 cursor-pointer"
+                        >
+                          {Object.entries(JOY_DENOMS).map(([key, denom]) => (
+                            <option key={key} value={key} className="dark:bg-slate-900 text-slate-900 dark:text-white">
+                              {denom.code} — {denom.name} (Hệ số: x{denom.factor})
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
@@ -783,21 +815,18 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Đơn vị quy đổi</label>
-                        <div className="flex items-center p-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10">
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Đơn vị quy đổi (12 Đơn vị)</label>
+                        <select
+                          value={joyUnit}
+                          onChange={(e) => setJoyUnit(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-full bg-white dark:bg-black/40 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white text-xs font-bold outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                        >
                           {Object.values(JOY_UNITS).map((u) => (
-                            <button
-                              key={u.key}
-                              type="button"
-                              onClick={() => setJoyUnit(u.key)}
-                              className={`flex-1 py-1.5 rounded-full text-xs font-black transition-all ${
-                                joyUnit === u.key ? 'bg-amber-500 text-black shadow-md' : 'text-slate-600 dark:text-slate-400'
-                              }`}
-                            >
-                              {u.label}
-                            </button>
+                            <option key={u.key} value={u.key} className="bg-slate-900 text-white py-1">
+                              {u.label} — {u.desc}
+                            </option>
                           ))}
-                        </div>
+                        </select>
                       </div>
 
                       <div>

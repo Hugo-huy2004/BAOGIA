@@ -99,8 +99,10 @@ export function factorOf(language) {
 
 /** JOY gốc → số hiển thị theo đơn vị của người đó (luôn là số nguyên). */
 export function toDenom(joy, language) {
+  const parsed = Number(joy);
+  const safeJoy = Number.isFinite(parsed) ? parsed : 0;
   return {
-    amount: Math.round(Number(joy || 0) * factorOf(language)),
+    amount: Math.round(safeJoy * factorOf(language)),
     code: denomOf(language).code,
   };
 }

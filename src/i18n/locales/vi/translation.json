@@ -3365,71 +3365,71 @@
         }
       },
       "versionLabel": "Phiên bản hiện tại",
-      "versionNote": "Cập nhật liên tục với các tính năng mới — cảm ơn bạn đã đồng hành cùng Hugo Studio.",
-      "heroTagline": "Một chương nâng cấp mới của hệ thống",
-      "heroBody": "Hugo Studio 2.0 không chỉ thêm tính năng — nó viết lại phần móng: cách bạn đăng nhập, cách dữ liệu được bảo vệ, cách các ứng dụng được cài đặt và cách toàn bộ hệ thống nói chuyện với nhau.",
-      "highlightsTitle": "Nổi bật ở 2.0",
+      "versionNote": "Hugo Studio 2.0.0 Master Engine — Cập nhật liên tục với các tính năng mới.",
+      "heroTagline": "Chương nâng cấp v2.0.0 Master Engine Ultra",
+      "heroBody": "Hugo Studio 2.0.0 Master Engine là bước tiến vượt bậc: quy đổi 9 đơn vị JOY cá nhân hóa, sàn chứng khoán ảo 1s Harmonic với AI tư vấn đầu tư, bộ điều khiển từ xa Telegram NLU và hệ thống bảo mật Security Sentinel tối tân.",
+      "highlightsTitle": "Nổi bật ở 2.0.0 Master Engine",
       "highlights": {
+        "denom": {
+          "title": "Động Cơ 9 Đơn Vị JOY Cá Nhân Hóa",
+          "desc": "Tự do chuyển đổi 9 đơn vị ví cá nhân hóa (Mira, Luno, Kavo, Velu, Rami, Sela, Tinu, Zoma, JOY) với hệ số quy đổi nguyên tử tức thì."
+        },
+        "invest": {
+          "title": "Sàn Ảo Hugo Pro 2.0 & AI Advisor",
+          "desc": "Khớp lệnh sóng giá 1s Harmonic, AI Quản gia khuyến nghị Chốt lời / Cắt lỗ, phí quy đổi 15% và Pop-up Từ điển '?' đơn sắc dễ hiểu."
+        },
+        "telegram": {
+          "title": "Telegram Remote Control & AI Butler NLU",
+          "desc": "Điều khiển toàn bộ hệ thống qua tin nhắn Telegram tự nhiên: quy đổi đơn vị tự động, cấp Edu, khóa ví, đổi tên/slug và gửi báo cáo 1-click."
+        },
         "security": {
-          "title": "Bảo mật viết lại từ gốc",
-          "desc": "Máy chủ tự xác minh danh tính Google thay vì tin vào thông tin trình duyệt gửi lên. Mã QR ví JOY được ký bằng chữ ký số, không thể chế ra từ bên ngoài."
-        },
-        "store": {
-          "title": "Kho ứng dụng thật sự",
-          "desc": "Cài và gỡ từng tiện ích như app trên điện thoại. Màn hình chính của bạn chỉ hiện thứ bạn chọn, kèm widget lớn nhỏ tuỳ ý."
-        },
-        "ai": {
-          "title": "Một cổng AI tập trung",
-          "desc": "Mọi tính năng AI đi qua một cổng chung có hạn mức, bộ nhớ đệm, tự thử lại và công tắc ngắt khẩn cấp — không còn mỗi nơi gọi một kiểu."
+          "title": "Hạ Tầng Security Sentinel & HMAC",
+          "desc": "Tự động phát hiện bất thường vị trí đăng nhập, mã hóa QR chữ ký số HMAC, ngăn chặn bypass 0-byte buffer và bảo vệ webhook an toàn."
         },
         "arcade": {
-          "title": "HugoArcade 8 trò chơi",
-          "desc": "Mỗi trò chơi có màn giới thiệu và bộ nhận diện riêng, thống nhất từ intro đến lúc chơi, có tạm dừng và ghi điểm cả khi mất mạng."
+          "title": "HugoArcade 10/10 & Particle Confetti",
+          "desc": "Nâng cấp trọn bộ 6 game đỉnh cao (Chess 3D, Space Survivor, Pinball 3D, Caro AI, 2048, Snake) với pháo hoa mừng lập kỷ lục."
         },
-        "offline": {
-          "title": "Chạy được khi offline",
-          "desc": "Cài Hugo Studio thành app độc lập, mở khi không có mạng, nhận thông báo đẩy và tự đồng bộ lại khi mạng trở lại."
-        },
-        "wallet": {
-          "title": "Ví JOY thời gian thực",
-          "desc": "Số dư và thông báo cập nhật ngay qua kết nối trực tiếp, không cần tải lại trang."
+        "search": {
+          "title": "Bộ Lọc Tra Cứu Thành Viên Đa Năng",
+          "desc": "Tìm kiếm nguyên tử theo 8 tiêu chí: Trạng thái Ví đóng băng/mở, Xác minh Edu, Hạng VIP, Top JOY, Email, Slug, SĐT và Đơn vị."
         }
       },
-      "compareTitle": "So sánh 1.0 và 2.0",
-      "compareHint": "Những gì thay đổi khi hệ thống bước qua mốc phiên bản lớn.",
-      "compareOld": "Phiên bản 1.0",
-      "compareNew": "Phiên bản 2.0",
-      "compareAspect": "Hạng mục",
+      "compareTitle": "So sánh 1.0 và 2.0.0",
+      "compareHint": "Những thay đổi cốt lõi khi hệ thống bước sang mốc phiên bản lớn 2.0.0 Master Engine.",
+      "compareOld": "Phiên bản 1.0 (Cũ)",
+      "compareNew": "Phiên bản 2.0.0 (Mới)",
+      "compareAspect": "Hạng mục nâng cấp",
       "compare": {
         "architecture": {
-          "aspect": "Kiến trúc",
-          "old": "Một trang Bio kèm vài tiện ích rời rạc",
-          "new": "Nền tảng nhiều ứng dụng, có kho cài đặt riêng"
+          "aspect": "Kiến trúc hệ thống",
+          "old": "Trang Bio đơn lập kèm tiện ích rời rạc",
+          "new": "Nền tảng NLU, Realtime Engine, 9 đơn vị JOY & Cloud Sync"
         },
-        "auth": {
-          "aspect": "Đăng nhập",
-          "old": "Tin vào email do trình duyệt gửi lên",
-          "new": "Máy chủ tự xác minh Google, khoá phiên trong cookie an toàn"
+        "denom": {
+          "aspect": "Đơn vị tiền tệ",
+          "old": "1 đơn vị JOY cố định",
+          "new": "9 đơn vị JOY cá nhân hóa quy đổi tự động (Mira, Luno, Kavo...)"
         },
-        "ai": {
-          "aspect": "Tính năng AI",
-          "old": "Mỗi nơi gọi thẳng tới nhà cung cấp",
-          "new": "Một cổng chung: hạn mức, đệm, tự hạ cấp, ngắt khẩn cấp"
+        "invest": {
+          "aspect": "Sàn chứng khoán ảo",
+          "old": "Giá cố định thủ công",
+          "new": "Sóng giá 1s Harmonic, AI Advisor chốt lời & pop-up '?' từ điển"
+        },
+        "telegram": {
+          "aspect": "Điều khiển Admin",
+          "old": "Thao tác trên web admin",
+          "new": "Remote Control qua Telegram NLU & Thẻ báo cáo 1-Click"
         },
         "arcade": {
-          "aspect": "Trò chơi",
-          "old": "3 trò chơi dùng chung một giao diện",
-          "new": "8 trò chơi, mỗi trò một bộ nhận diện và có tạm dừng"
+          "aspect": "HugoArcade Mini-Game",
+          "old": "Trò chơi đơn giản không hiệu ứng",
+          "new": "10/10 Game rực rỡ với hiệu ứng pháo hoa Particle Confetti"
         },
-        "offline": {
-          "aspect": "Ngoại tuyến",
-          "old": "Phải luôn có mạng",
-          "new": "Cài như app, chạy offline, tự đồng bộ điểm sau"
-        },
-        "notify": {
-          "aspect": "Thông báo",
-          "old": "Nhiều kiểu hộp thoại lẫn lộn",
-          "new": "Một hệ thống thông báo dùng chung toàn bộ"
+        "search": {
+          "aspect": "Tra cứu thành viên",
+          "old": "Tìm theo email thủ công",
+          "new": "Bộ lọc đa dụng 8 tiêu chí (Ví, Edu, VIP, Top JOY, SĐT...)"
         }
       },
       "semverTitle": "Cách đọc số phiên bản",
@@ -6159,10 +6159,10 @@
     "rankSs": "HẠNG SS • CAO THỦ NEON",
     "rankA": "HẠNG A • CHIẾN BINH CẤP CAO",
     "rankB": "HẠNG B • GAME THỦ TRIỂN VỌNG",
-    "shellFormula": "{{score}} điểm → {{joy, joy}}",
+    "shellFormula": "{{score}} điểm → {{joy}}",
     "shellRecord": "Kỷ lục mới! Hơn lần trước {{delta}} điểm.",
     "shellNear": "Thiếu {{gap}} điểm nữa là phá kỷ lục {{best}}.",
-    "shellBest": "Kỷ lục của bạn: {{best}}.",
+    "shellBest": "Kỷ lục của bạn: {{best}}",
     "lbWinner": "{{name}} là quán quân!",
     "lbRealtime": "Tổng điểm cập nhật thời gian thực • {{date}}",
     "lbBoard": "BẢNG VÀNG THẾ GIỚI HUGO (TOP 10)",

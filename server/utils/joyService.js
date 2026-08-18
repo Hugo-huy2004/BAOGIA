@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Bio from '../models/Bio.js';
 import JoyLedger from '../models/JoyLedger.js';
 import ChessRating from '../models/ChessRating.js';
@@ -231,9 +232,13 @@ export async function getJoySummary(email, days = 30) {
 /**
  * Reconciliation check & Auto-fix for user JOY balance vs JoyLedger sum.
  */
-export async function reconcileJoyBalance(email, autoFix = false) {
-  if (!email) throw new Error('MISSING_EMAIL');
-  const bio = await Bio.findOne({ $or: [{ email }, { contactEmail: email }] });
+export async function reconcileJoyBalance(identifier, autoFix = false) {
+  if (!identifier) throw new Error('MISSING_IDENTIFIER');
+  const queryConditions = [{ email: identifier }, { contactEmail: identifier }];
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    queryConditions.push({ _id: identifier });
+  }
+  const bio = await Bio.findOne({ $or: queryConditions });
   if (!bio) throw new Error('BIO_NOT_FOUND');
 
   const ledgerResult = await JoyLedger.aggregate([

@@ -9,6 +9,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
       title: "QUẢN TRỊ TRUNG TÂM",
       items: [
         { id: "dashboard", label: "Tổng quan", icon: "dashboard", accent: "from-blue-500 to-indigo-600" },
+        { id: "robot", label: "Điều khiển Robot & Cam", icon: "precision_manufacturing", accent: "from-emerald-500 to-cyan-600", glow: true },
         { id: "brain", label: "Bộ Não AI Admin", icon: "psychology", accent: "from-cyan-500 to-blue-600", glow: true },
         { id: "sentinel", label: "BOT Security Sentinel", icon: "shield_person", accent: "from-indigo-600 to-purple-600", glow: true },
         { id: "users", label: "Thành viên & Hỗ trợ", icon: "group", count: counts.users, accent: "from-emerald-500 to-teal-600" },
@@ -91,23 +92,43 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
         </div>
       </aside>
 
-      {/* ── MOBILE BOTTOM NAV ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-[#10121e]/85 backdrop-blur-3xl border-t border-white/10 px-3 py-2 flex items-center justify-around shadow-2xl">
-        {navigationGroups[0].items.map(tab => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all ${
-                isActive ? "text-blue-500 scale-110 font-bold" : "text-slate-400"
-              }`}
-            >
-              <span className="material-symbols-outlined text-xl">{tab.icon}</span>
-              <span className="text-[9px] font-extrabold mt-0.5 max-w-[65px] truncate">{tab.label.split(" ")[0]}</span>
-            </button>
-          );
-        })}
+      {/* ── MOBILE BOTTOM NAV (iOS 27 Liquid Glass Scrollable Dock) ── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/90 backdrop-blur-3xl border-t border-white/10 px-2 py-2.5 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none px-1 py-0.5">
+          {navigationGroups[0].items.map(tab => {
+            const isActive = activeTab === tab.id;
+            const mobileShortLabels = {
+              dashboard: "Tổng quan",
+              robot: "Robot Cam",
+              brain: "Bộ não AI",
+              sentinel: "Sentinel",
+              users: "Thành viên",
+              ecosystem: "HugoStore",
+              cinema: "Phim Phim",
+              coder: "Study",
+              audit: "Kiểm toán",
+              system: "Cài đặt"
+            };
+            const mobileLabel = mobileShortLabels[tab.id] || tab.label;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap shrink-0 transition-all duration-300 active:scale-95 ${
+                  isActive
+                    ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_4px_16px_rgba(59,130,246,0.35)] font-black"
+                    : "bg-white/[0.05] text-slate-400 hover:text-white border border-white/5"
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+                <span>{mobileLabel}</span>
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </>
   );

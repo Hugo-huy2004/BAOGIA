@@ -906,7 +906,7 @@ function MemberPortalPage() {
     <>
       <WeatherAlertWatcher />
       <div
-        className={`member-portal-shell ${isMobileView ? "portal-mobile-layout" : "portal-workspace-layout"} relative isolate min-h-[100dvh] bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300`}
+        className={`member-portal-shell ${isMobileView ? "portal-mobile-layout" : "portal-workspace-layout"} relative isolate min-h-[100dvh] bg-background text-foreground font-body selection:bg-primary/20 transition-colors duration-300 gpu-scroll transform-gpu`}
         data-portal-area={portalArea}
         data-aura-theme={activePortalTheme}
       >

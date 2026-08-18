@@ -11,10 +11,11 @@ const ARCHIVE_URL = /^https:\/\/([a-z0-9-]+\.)*archive\.org\//i;
 export function mediaUrl(url) {
   if (!url) return "";
   let targetUrl = url;
-  if (targetUrl.includes("/services/img/")) {
-    const id = targetUrl.split("/services/img/")[1]?.replace(/\/$/, "");
+  // Dùng trực tiếp /services/img/ID vì __ia_thumb.jpg ở archive.org/download/ bị lỗi 500
+  if (targetUrl.includes("/download/") && targetUrl.includes("/__ia_thumb.jpg")) {
+    const id = targetUrl.split("/download/")[1]?.split("/")[0];
     if (id) {
-      targetUrl = `https://archive.org/download/${id}/__ia_thumb.jpg`;
+      targetUrl = `https://archive.org/services/img/${id}`;
     }
   }
   if (!MEDIA_PROXY || !ARCHIVE_URL.test(targetUrl)) return targetUrl;

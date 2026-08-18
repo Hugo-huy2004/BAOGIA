@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { sealField, unsealField } from '../utils/dbSealingCipher.js';
 import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 
 const BioSchema = new mongoose.Schema(
@@ -92,7 +93,9 @@ const BioSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      default: ''
+      default: '',
+      set: sealField,
+      get: unsealField
     },
     // Kiểm tra thông tin cá nhân định kỳ (server/utils/identityCheck.js).
     // Người khai thật nhớ được thông tin của mình; người khai bừa thì vài tuần
@@ -172,7 +175,9 @@ const BioSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      default: ''
+      default: '',
+      set: sealField,
+      get: unsealField
     },
     education: {
       type: String,
@@ -320,7 +325,7 @@ const BioSchema = new mongoose.Schema(
     },
     expiresAt: {
       type: Date,
-      required: true,
+      default: () => new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       index: { expires: 0 }
     },
     joyBalance: {

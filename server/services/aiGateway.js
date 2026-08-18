@@ -132,8 +132,10 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
         lastErr = new Error('No API keys available in the pool');
         break;
       }
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${key}`;
-      const body = { contents, ...(systemInstruction ? { systemInstruction } : {}), ...(generationConfig ? { generationConfig } : {}) };
+      const formattedSystemInstruction = typeof systemInstruction === 'string'
+        ? { parts: [{ text: systemInstruction }] }
+        : systemInstruction;
+      const body = { contents, ...(formattedSystemInstruction ? { systemInstruction: formattedSystemInstruction } : {}), ...(generationConfig ? { generationConfig } : {}) };
 
       try {
         minuteHits.push(Date.now()); dayCount++;

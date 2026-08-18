@@ -101,36 +101,18 @@ Hãy đưa ra đánh giá tóm tắt ngắn gọn:
  */
 export async function processAdminPrompt(adminPrompt, extraContext = {}) {
   try {
-    // Thu thập thêm context thực tế từ database nếu admin yêu cầu
-    const pendingTickets = await SupportTicket.find({ status: 'pending' }).limit(5).lean();
-    const recentBlocks = await SecurityBlock.find({}).sort({ lastLockedAt: -1 }).limit(5).lean();
-    const userCount = await Bio.countDocuments();
-
-    const fullPrompt = `
-Yêu cầu/Câu hỏi từ Admin: "${adminPrompt}"
-
-Ngữ cảnh hệ thống hiện tại:
-- Tổng số người dùng: ${userCount}
-- Số ticket đang chờ xử lý: ${pendingTickets.length}
-- Các lệnh chặn an ninh gần đây: ${recentBlocks.length}
-${extraContext ? `- Bổ sung: ${JSON.stringify(extraContext)}` : ''}
-
-Hãy đưa ra câu trả lời chi tiết, chính xác. Nếu yêu cầu có chứa quyết định thực thi (ví dụ: gửi email, khóa tài khoản, duyệt ticket), hãy đính kèm khối JSON hành động có cấu trúc ở cuối câu trả lời dạng:
-\`\`\`json
-{
-  "action": "send_email" | "adjust_joy" | "reply_ticket" | "lock_user" | "none",
-  "payload": { ... }
-}
-\`\`\`
-`;
-
-    const response = await generate(fullPrompt, {
-      systemInstruction: SYSTEM_PROMPT,
-      temperature: 0.4
+    const { executeAutonomousCommand } = await import('./executiveAutonomousEngine.js');
+    const result = await executeAutonomousCommand(adminPrompt, {
+      adminUsername: 'Admin_Dashboard',
+      source: 'admin_dashboard',
+      extraContext
     });
 
     return {
-      reply: response || 'Bộ Não Máy Tính đã nhận lệnh nhưng không thể tạo câu phản hồi từ mô hình AI.'
+      reply: result.reply || 'Bộ Não Máy Tính đã tiếp nhận và thực thi thành công.',
+      action: result.action || 'none',
+      data: result.data || null,
+      markup: result.markup || null
     };
   } catch (error) {
     console.error('Error in processAdminPrompt:', error);

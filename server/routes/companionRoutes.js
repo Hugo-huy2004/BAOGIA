@@ -14,6 +14,8 @@ import { encryptText, decryptText } from '../utils/cryptoUtils.js';
 import { generateWeeklyReportForUser } from '../services/companionReportService.js';
 import { nextAllowedSendTime } from '../services/pushGuard.js';
 
+import { getVietnamDateString } from '../utils/timeUtils.js';
+
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -711,7 +713,7 @@ router.get('/challenges-status', requireMember, async (req, res) => {
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
     const historyDoc = await CompanionHistory.findOne({ email });
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getVietnamDateString();
     const claimedToday = historyDoc?.activeSecondsDate === todayStr
       ? (historyDoc.claimedChallengesToday || [])
       : [];

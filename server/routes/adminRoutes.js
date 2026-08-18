@@ -1186,7 +1186,7 @@ router.put('/account-settings', requireAdmin, async (req, res) => {
 // PUT /admin/users/:id/update-profile - Chỉnh sửa thông tin hồ sơ & Gia hạn ngày hết hạn (expiresAt)
 router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
   try {
-    const { displayName, headline, phone, address, jobTitle, education, expiresAt, addDays } = req.body;
+    const { displayName, headline, phone, address, jobTitle, education, expiresAt, addDays, joyDenom } = req.body;
     const Bio = (await import('../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
@@ -1199,6 +1199,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (address !== undefined) bio.address = address;
     if (jobTitle !== undefined) bio.jobTitle = jobTitle;
     if (education !== undefined) bio.education = education;
+    if (joyDenom !== undefined) bio.joyDenom = joyDenom;
 
     if (addDays && !isNaN(Number(addDays))) {
       const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();
@@ -1208,17 +1209,25 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
       bio.expiresAt = new Date(expiresAt);
     }
 
+    if (!Array.isArray(bio.history)) {
+      bio.history = [];
+    }
+
+    const expDateStr = bio.expiresAt && !isNaN(new Date(bio.expiresAt).getTime())
+      ? new Date(bio.expiresAt).toLocaleDateString('vi-VN')
+      : 'Vĩnh viễn';
+
     bio.history.push({
       type: 'info',
       icon: 'edit_note',
       title: 'Hồ sơ cập nhật bởi Admin',
-      detail: `Admin đã điều chỉnh thông tin cá nhân và thời hạn sử dụng (${new Date(bio.expiresAt).toLocaleDateString('vi-VN')}).`,
+      detail: `Admin đã điều chỉnh thông tin cá nhân và thời hạn sử dụng (${expDateStr}).`,
       timestamp: new Date()
     });
     if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
     await bio.save();
 
-    logAdminAuditAction(req, 'UPDATE_USER_PROFILE', bio._id, bio.email, `Cập nhật hồ sơ & thời hạn HSD (${new Date(bio.expiresAt).toLocaleDateString('vi-VN')}) cho ${bio.displayName}`);
+    logAdminAuditAction(req, 'UPDATE_USER_PROFILE', bio._id, bio.email, `Cập nhật hồ sơ & thời hạn HSD (${expDateStr}) cho ${bio.displayName}`);
 
     res.json({
       success: true,
@@ -1312,7 +1321,8 @@ router.post('/users/:id/reconcile-joy', requireAdmin, async (req, res) => {
     const bio = await Bio.findById(req.params.id);
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy người dùng' });
 
-    const recon = await reconcileJoyBalance(bio.email, true);
+    const userEmail = bio.email || bio.contactEmail || bio._id;
+    const recon = await reconcileJoyBalance(userEmail, true);
 
     logAdminAuditAction(req, 'RECONCILE_JOY', bio._id, bio.email, `Đồng bộ chuẩn hóa Ví JOY từ ${recon.currentBalance} thành ${recon.totalLedgerSum} JOY`, {
       oldBalance: recon.currentBalance,

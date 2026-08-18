@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import confetti from "canvas-confetti";
 import { playGameMove, playGameMerge, playGameLose } from "../../../utils/audio";
 import { hapticMove, hapticMerge, hapticLose } from "../../../utils/haptics";
 import { levelFor, ramp, createCombo } from "./arcadeProgression";
@@ -282,9 +283,12 @@ export default function Game2048({ paused = false, onGameOver }) {
   }, [tripleScore]);
 
 
-  // Milestone celebration auto-dismiss
+  // Milestone celebration auto-dismiss + Particle Confetti
   useEffect(() => {
     if (!milestone) return;
+    try {
+      confetti({ particleCount: 90, spread: 80, origin: { y: 0.55 } });
+    } catch (_) {}
     const t = setTimeout(() => setMilestone(null), 2200);
     return () => clearTimeout(t);
   }, [milestone]);

@@ -145,6 +145,34 @@ export function tradingFee(value) {
 }
 
 /**
+ * Tính giá cổ phiếu theo từng GIÂY (Deterministic Time Harmonic Algorithm).
+ * Cả client và server dùng CHUNG một công thức thuần theo timestamp.
+ * 0 ghi DB, 0 timer background, 0 quá tải server.
+ */
+export function calculateSecondPrice(company, timestampSec = Math.floor(Date.now() / 1000)) {
+  const base = company.price || company.basePrice || 100;
+  const vol = company.volatility || 0.05;
+  const symbol = company.symbol || 'HFILM';
+
+  // Sóng điều hoà 3 chu kỳ: 60 min, 5 min, 15 sec
+  const waveLong = Math.sin((timestampSec % 3600) / 3600 * 2 * Math.PI) * 0.03;
+  const waveMedium = Math.sin((timestampSec % 300) / 300 * 2 * Math.PI) * 0.015;
+  const waveShort = Math.cos((timestampSec % 15) / 15 * 2 * Math.PI) * 0.008;
+
+  // Micro-noise ngẫu nhiên theo hash của (symbol + timestampSec)
+  const hashSeed = Math.abs(
+    (symbol.charCodeAt(0) * 31 + symbol.charCodeAt(symbol.length - 1)) ^ timestampSec
+  ) % 1000 / 1000;
+  const microNoise = (hashSeed - 0.5) * 0.004;
+
+  const totalRate = (waveLong + waveMedium + waveShort + microNoise) * (vol / 0.05);
+  const raw = base * (1 + totalRate);
+  const currentPrice = Math.max(company.basePrice * 0.2, Math.min(company.basePrice * 5, raw));
+
+  return Math.round(currentPrice * 100) / 100;
+}
+
+/**
  * Giá phiên kế tiếp — HÀM THUẦN, để kiểm chứng không cần database.
  *
  * surprise = hoạt động 7 ngày / trung bình 30 ngày − 1

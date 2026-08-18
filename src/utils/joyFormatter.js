@@ -4,9 +4,18 @@
  */
 
 export const JOY_UNITS = {
-  JOY: { key: 'JOY', label: 'JOY', multiplier: 1, desc: 'Đơn vị cơ sở' },
-  K_JOY: { key: 'kJOY', label: 'kJOY', multiplier: 1000, desc: 'Kilo JOY (1,000 JOY)' },
-  M_JOY: { key: 'MJOY', label: 'MJOY', multiplier: 1000000, desc: 'Mega JOY (1,000,000 JOY)' }
+  JOY: { key: 'JOY', label: 'JOY', multiplier: 1, desc: 'Đơn vị cơ sở (1 JOY)' },
+  kJOY: { key: 'kJOY', label: 'kJOY', multiplier: 1000, desc: 'Kilo JOY (1,000 JOY)' },
+  MJOY: { key: 'MJOY', label: 'MJOY', multiplier: 1000000, desc: 'Mega JOY (1,000,000 JOY)' },
+  GJOY: { key: 'GJOY', label: 'GJOY', multiplier: 1000000000, desc: 'Giga JOY (1,000,000,000 JOY)' },
+  JOYmi: { key: 'JOYmi', label: 'Mira (JOYmi)', multiplier: 25, desc: 'Mira (25 JOY)' },
+  JOYlu: { key: 'JOYlu', label: 'Luno (JOYlu)', multiplier: 1350, desc: 'Luno (1,350 JOY)' },
+  JOYka: { key: 'JOYka', label: 'Kavo (JOYka)', multiplier: 1, desc: 'Kavo (1 JOY)' },
+  JOYve: { key: 'JOYve', label: 'Velu (JOYve)', multiplier: 5, desc: 'Velu (5 JOY)' },
+  JOYra: { key: 'JOYra', label: 'Rami (JOYra)', multiplier: 10, desc: 'Rami (10 JOY)' },
+  JOYse: { key: 'JOYse', label: 'Sela (JOYse)', multiplier: 16, desc: 'Sela (16 JOY)' },
+  JOYti: { key: 'JOYti', label: 'Tinu (JOYti)', multiplier: 50, desc: 'Tinu (50 JOY)' },
+  JOYzo: { key: 'JOYzo', label: 'Zoma (JOYzo)', multiplier: 150, desc: 'Zoma (150 JOY)' }
 };
 
 export const FIAT_EXCHANGE_RATES = {

@@ -132,8 +132,8 @@ app.use(helmet({
         "https://*.vnecdn.net", "https://*.tuoitre.vn", "https://*.thanhnien.vn",
         "https://ichef.bbci.co.uk", "https://*.bbci.co.uk",
       ],
-      connectSrc: ["'self'", "wss:", "ws:", "https://api.cloudinary.com", "https://accounts.google.com", "https://api.exchangerate-api.com"],
-      frameSrc: ["'self'", "https://accounts.google.com"],
+      connectSrc: ["'self'", "wss:", "ws:", "https://api.cloudinary.com", "https://accounts.google.com", "https://api.exchangerate-api.com", "https://*.trycloudflare.com"],
+      frameSrc: ["'self'", "https://accounts.google.com", "https://*.trycloudflare.com", "https://trycloudflare.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
@@ -216,9 +216,9 @@ const globalLimiter = rateLimit({
 });
 app.use('/api', globalLimiter);
 
-// MongoDB Connection (Pool size 25 suited for Render 512MB RAM limits)
+// MongoDB Connection (Pool size 5 suited for low-memory Render 512MB RAM limits)
 mongoose.connect(MONGODB_URI, {
-  maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 25,
+  maxPoolSize: process.env.MAX_DB_POOL ? parseInt(process.env.MAX_DB_POOL, 10) : 5,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 })
@@ -230,12 +230,8 @@ mongoose.connect(MONGODB_URI, {
     // NOTE: per-process — if the API ever runs multiple instances, move this
     // to Redis (redisClient.js already exists).
     try {
-      const Bio = (await import('./models/Bio.js')).default;
-      // .lean() → plain objects, no Mongoose document hydration for a
-      // throwaway boot scan of every slug.
-      const bios = await Bio.find({}, 'slug').lean();
-      global.validSlugs = new Set(bios.map(b => b.slug));
-      console.log(`🛡️ Valid-slug set initialized with ${global.validSlugs.size} slugs`);
+      const { redisSlugService } = await import('./services/redisSlugService.js');
+      await redisSlugService.init();
     } catch(err) {
       console.error('Valid-slug set error:', err);
     }
@@ -297,6 +293,7 @@ import todayRoutes from './routes/todayRoutes.js';
 import storeCartRoutes from './routes/storeCartRoutes.js';
 import storePromoRoutes from './routes/storePromoRoutes.js';
 import storePlanRoutes from './routes/storePlanRoutes.js';
+import robotRoutes from './routes/robotRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
@@ -318,6 +315,7 @@ app.use('/api/packages', packageRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/brain', adminBrainRoutes);
+app.use('/api/admin/robot', robotRoutes);
 app.use('/api/coder-resources', coderResourceRoutes);
 app.use('/api/coder-lessons', coderLessonRoutes);
 app.use('/api/today', todayRoutes);

@@ -272,14 +272,13 @@ export default function StandaloneGameShell({ gameId, bio, onClose }) {
               <span className="material-symbols-outlined">toll</span>
               {(resultData?.multiplier > 1 && resultData?.joyBase != null && resultData.joyBase !== resultData.joyDelta) ? (
                 <>
-                  <b>{resultData.joyBase}</b>
+                  <b>{joy.text(resultData.joyBase)}</b>
                   <span className="gshell__reward-arrow">→</span>
                   <b>{signedJoy}</b>
                 </>
               ) : (
                 <b>{signedJoy}</b>
               )}
-              <span>{joyCode()}</span>
               {resultData?.multiplier > 1 && (
                 <span className="gshell__event-badge">
                   <span className="material-symbols-outlined" style={{ fontSize: 14 }}>auto_awesome</span>

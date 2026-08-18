@@ -19,6 +19,7 @@ import InAppNotification from '../models/InAppNotification.js';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
+import redisSlugService from '../services/redisSlugService.js';
 
 const checkLocationLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
@@ -470,7 +471,7 @@ router.get('/me', requireMember, async (req, res) => {
       });
       
       await bioDoc.save();
-      if (global.validSlugs) global.validSlugs.add(bioDoc.slug);
+      redisSlugService.addSlug(bioDoc.slug);
       // NOTE: referralCode is intentionally NOT generated here — it's generated
       // lazily after the onboarding modal has a chance to collect the phone
       // number, so phone-derived codes are the common case (see ensureReferralCode).
@@ -648,7 +649,37 @@ router.post('/me/verification', requireMember, async (req, res) => {
       submitted: true,
       notifiedStatus: 'none'
     };
-    bio.phone = phoneZalo;
+    if (phoneZalo) bio.phone = phoneZalo;
+    if (fullName) bio.displayName = fullName;
+
+    if (birthday) {
+      bio.birthday = birthday;
+      const parts = String(birthday).trim().split(/[-/]/);
+      if (parts.length === 3) {
+        if (parts[0].length === 4) {
+          bio.birthYear = parseInt(parts[0], 10) || bio.birthYear || 0;
+          bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
+          bio.birthDay = parseInt(parts[2], 10) || bio.birthDay || 0;
+        } else if (parts[2].length === 4) {
+          bio.birthDay = parseInt(parts[0], 10) || bio.birthDay || 0;
+          bio.birthMonth = parseInt(parts[1], 10) || bio.birthMonth || 0;
+          bio.birthYear = parseInt(parts[2], 10) || bio.birthYear || 0;
+        }
+      }
+    }
+
+    if (!bio.slug) {
+      const baseSlug = (bio.displayName || email.split('@')[0])
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || `user-${Date.now()}`;
+      bio.slug = `${baseSlug}-${createHash('md5').update(email).digest('hex').slice(0, 6)}`;
+    }
+    if (!bio.expiresAt) {
+      const createdTime = bio.createdAt ? new Date(bio.createdAt).getTime() : Date.now();
+      bio.expiresAt = new Date(createdTime + TWELVE_MONTHS_MS);
+    }
 
     const isEdu = await isEduEmail(email);
     if (isEdu) {
@@ -661,7 +692,7 @@ router.post('/me/verification', requireMember, async (req, res) => {
       }
       bio.verificationRequest.notifiedStatus = 'approved';
       bio.isEduVerified = true;
-      bio.expiresAt = new Date(new Date(bio.createdAt).getTime() + TWELVE_MONTHS_MS);
+      bio.expiresAt = new Date((bio.createdAt ? new Date(bio.createdAt).getTime() : Date.now()) + TWELVE_MONTHS_MS);
     }
 
     await bio.save();
@@ -673,6 +704,7 @@ router.post('/me/verification', requireMember, async (req, res) => {
 
     res.json({ success: true, bio });
   } catch (error) {
+    console.error('POST /me/verification error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -995,7 +1027,7 @@ router.get('/slug/:slug', async (req, res) => {
 
     if (!bio) {
       // Nếu không tìm thấy, xóa khỏi Bloom Filter
-      if (global.validSlugs) global.validSlugs.delete(slug);
+      redisSlugService.deleteSlug(slug);
       return res.status(404).json({ error: 'Bio not found' });
     }
 
@@ -1111,8 +1143,8 @@ router.post('/', requireMember, async (req, res) => {
 
     const savedBio = await newBio.save();
     
-    // Cập nhật Bloom Filter
-    if (global.validSlugs) global.validSlugs.add(savedBio.slug);
+    await savedBio.save();
+    redisSlugService.addSlug(savedBio.slug);
 
     return res.status(201).json(savedBio);
   } catch (error) {
@@ -1385,9 +1417,9 @@ router.put('/:id', requireMember, async (req, res) => {
 
     // Keep the in-memory valid-slug set consistent on rename — otherwise the
     // new slug 404s (not in set) while the old one stays "valid" forever.
-    if (global.validSlugs && previousSlug !== existing.slug) {
-      global.validSlugs.delete(previousSlug);
-      global.validSlugs.add(existing.slug);
+    if (previousSlug !== existing.slug) {
+      redisSlugService.deleteSlug(previousSlug);
+      redisSlugService.addSlug(existing.slug);
     }
 
     return res.json({ bio: existing });
@@ -1410,7 +1442,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     
     // Xóa khỏi Cache và Bloom Filter
     clearCache(`bio_slug_${existing.slug}`);
-    if (global.validSlugs) global.validSlugs.delete(existing.slug);
+    redisSlugService.deleteSlug(existing.slug);
 
     res.json({ message: 'Bio deleted successfully' });
   } catch (error) {
@@ -1688,6 +1720,21 @@ router.post('/me/identity-check/answer', requireMember, identityAnswerLimiter, a
     return res.status(403).json({ error: 'ACCESS_BLOCKED' });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /bios/:id — Admin xóa tài khoản người dùng
+router.delete('/:id', requireAdmin, async (req, res) => {
+  try {
+    const bio = await Bio.findById(req.params.id);
+    if (!bio) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản người dùng' });
+    }
+    await Bio.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: `Đã xóa tài khoản ${bio.email}` });
+  } catch (err) {
+    console.error('Error deleting bio user:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
