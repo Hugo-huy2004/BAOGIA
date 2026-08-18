@@ -140,7 +140,7 @@ app.use(helmet({
     },
   },
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginOpenerPolicy: false,
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
