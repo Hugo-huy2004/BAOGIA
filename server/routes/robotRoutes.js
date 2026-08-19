@@ -107,9 +107,10 @@ async function getOrCreateEncryptedConfig() {
 
 /**
  * 📲 POST /api/admin/robot/request-otp
- * Yêu cầu mã OTP 6 chữ số (hiệu lực 5 phút)
+ * Yêu cầu mã OTP 6 chữ số gửi qua Telegram (hiệu lực 5 phút)
+ * Không cần admin JWT — OTP gửi về Telegram của Boss là yếu tố xác thực.
  */
-router.post('/request-otp', requireAdmin, robotOtpLimiter, async (req, res) => {
+router.post('/request-otp', robotOtpLimiter, async (req, res) => {
   try {
     if (global.ROBOT_KILL_SWITCH) {
       return res.status(503).json({ success: false, message: 'Emergency Kill-Switch active.' });
@@ -133,8 +134,9 @@ router.post('/request-otp', requireAdmin, robotOtpLimiter, async (req, res) => {
 /**
  * ✅ POST /api/admin/robot/verify-otp
  * Xác thực mã OTP → trả về session token hiệu lực 5 phút
+ * Không cần admin JWT — mã OTP là yếu tố xác thực duy nhất.
  */
-router.post('/verify-otp', requireAdmin, async (req, res) => {
+router.post('/verify-otp', async (req, res) => {
   try {
     const { tempToken, otpCode } = req.body;
     if (!tempToken || !otpCode) {

@@ -21,15 +21,15 @@ const handleAuthError = async (response) => {
 
 export const robotApi = {
   /**
-   * Yêu cầu mã OTP 6 chữ số (hiệu lực 5 phút)
+   * Yêu cầu mã OTP 6 chữ số gửi qua Telegram (hiệu lực 5 phút)
+   * Không cần admin JWT — OTP gửi về Telegram là yếu tố xác thực.
    */
   async requestOtp() {
     const response = await fetch(`${API_BASE}/admin/robot/request-otp`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include'
     });
-    await handleAuthError(response);
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.error || data.message || `Lỗi gửi OTP: ${response.status}`);
@@ -39,15 +39,15 @@ export const robotApi = {
 
   /**
    * Xác thực mã OTP → trả về session token hiệu lực 5 phút
+   * Không cần admin JWT — mã OTP là yếu tố xác thực duy nhất.
    */
   async verifyOtp(tempToken, otpCode) {
     const response = await fetch(`${API_BASE}/admin/robot/verify-otp`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tempToken, otpCode }),
       credentials: 'include'
     });
-    await handleAuthError(response);
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.error || data.message || `Lỗi xác thực OTP: ${response.status}`);
