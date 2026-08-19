@@ -16,16 +16,16 @@ const ROBOT_SUB_TABS = [
   { id: "about", label: "Giới thiệu", icon: "info", hash: "#about", color: "from-indigo-500 to-purple-600" },
 ];
 
-export default function AdminRobotTab() {
+export default function AdminRobotTab({ deepLinkToken = "" }) {
   // OTP Auth States
-  const [otpStep, setOtpStep] = useState("idle"); // idle | requesting | verifying | unlocked
+  const [otpStep, setOtpStep] = useState(() => (deepLinkToken ? "unlocked" : "idle"));
   const [otpTempToken, setOtpTempToken] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
   const [otpCountdown, setOtpCountdown] = useState(0);
   const [otpDelivered, setOtpDelivered] = useState(null);
-  const [sessionToken, setSessionToken] = useState("");
-  const [sessionCountdown, setSessionCountdown] = useState(0);
+  const [sessionToken, setSessionToken] = useState(deepLinkToken);
+  const [sessionCountdown, setSessionCountdown] = useState(deepLinkToken ? 600 : 0);
   const [isKillSwitchActive, setIsKillSwitchActive] = useState(false);
 
   // Ephemeral Stream Token State
@@ -55,6 +55,17 @@ export default function AdminRobotTab() {
     window.addEventListener("keydown", handleDevToolsKey);
     return () => window.removeEventListener("keydown", handleDevToolsKey);
   }, []);
+
+  // Deep-link: auto-request stream token when unlocked via Telegram link
+  useEffect(() => {
+    if (deepLinkToken && otpStep === "unlocked") {
+      // Clean URL (remove robotToken param)
+      const url = new URL(window.location);
+      url.searchParams.delete("robotToken");
+      window.history.replaceState({}, "", url.pathname + url.search);
+      requestStreamToken(deepLinkToken);
+    }
+  }, [deepLinkToken]);
 
   // OTP request countdown (resend cooldown)
   useEffect(() => {

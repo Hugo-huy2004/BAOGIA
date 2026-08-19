@@ -44,7 +44,10 @@ export default function AdminPanel() {
   // <AdminPanel /> không kèm prop nào — nên `data` là undefined và mọi công
   // tắc trong tab Cài đặt ném "updateSystemSettings is not a function".
   const { data = {}, updateSystemSettings = () => {}, updateAdvertisement = () => {} } = useData() || {};
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tab") || "dashboard";
+  });
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
   // Sub-view Tab States for Consolidated Core Hubs
@@ -58,6 +61,12 @@ export default function AdminPanel() {
   const [adminToken, setAdminToken] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+
+  // Telegram deep-link: auto-activate robot tab + pass token
+  const [robotDeepLinkToken] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("robotToken") || "";
+  });
   const [loginLoading, setLoginLoading] = useState(false);
 
   // Counts & Stats
@@ -528,7 +537,7 @@ export default function AdminPanel() {
         )}
 
         {/* ── CORE HUB: ĐIỀU KHIỂN ROBOT & LIVE CAMERA ── */}
-        {activeTab === "robot" && <AdminRobotTab />}
+        {activeTab === "robot" && <AdminRobotTab deepLinkToken={robotDeepLinkToken} />}
 
         {/* ── CORE HUB: ADMIN BỘ NÃO MÁY TÍNH AI ── */}
         {activeTab === "brain" && <AdminBrainTab />}

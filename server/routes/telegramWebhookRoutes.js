@@ -324,6 +324,27 @@ export async function processTelegramUpdate(update) {
     return;
   }
 
+  // ─── LỆNH: MỞ ROBOT / CAMERA ────────────────────────────────────────────────
+  if (/^(mở vector|mo vector|open robot|mở robot|mo robot|mở cam|mở camera|mở cam|open cam)$/i.test(lowerText)) {
+    try {
+      const { createTelegramLinkSession } = await import('../routes/robotRoutes.js');
+      const { link, expiresIn } = createTelegramLinkSession();
+      const replyHtml = `
+🤖 <b>ĐIỀU KHIỂN ROBOT CAMERA</b>
+
+🔗 <b>Link truy cập trực tiếp:</b>
+<a href="${link}">${link}</a>
+
+⏱️ <i>Hiệu lực ${Math.round(expiresIn / 60)} phút. Nhấn vào link để mở điều khiển.</i>
+      `.trim();
+      await sendTelegramMessage(chatId, replyHtml, 'HTML');
+    } catch (err) {
+      console.error('[Telegram] Robot link error:', err.message);
+      await sendTelegramAlert('❌ Lỗi kết nối server khi tạo link Robot.');
+    }
+    return;
+  }
+
   // ─── THỰC THI QUA BỘ NÃO EXECUTIVE AUTONOMOUS ENGINE ĐỒNG BỘ ─────────────────
   const { executeAutonomousCommand } = await import('../services/executiveAutonomousEngine.js');
   const execResult = await executeAutonomousCommand(text, {

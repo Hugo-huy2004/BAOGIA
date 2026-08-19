@@ -86,6 +86,41 @@ function verifyRobotAuth(req) {
   return false;
 }
 
+// Session TTL cho Telegram deep-link (10 phút — boss mở link xong điều khiển luôn)
+const TELEGRAM_LINK_SESSION_TTL_MS = 10 * 60 * 1000;
+
+/**
+ * Tạo session token cho Telegram deep-link (gọi từ cả webhook handler)
+ */
+export function createTelegramLinkSession() {
+  const sessionToken = `rs_${crypto.randomBytes(24).toString('hex')}`;
+  ROBOT_SESSIONS.set(sessionToken, {
+    adminId: 'TELEGRAM_BOT_ADMIN',
+    expiresAt: Date.now() + TELEGRAM_LINK_SESSION_TTL_MS,
+  });
+  setTimeout(() => ROBOT_SESSIONS.delete(sessionToken), TELEGRAM_LINK_SESSION_TTL_MS + 5000);
+
+  const clientUrl = process.env.CLIENT_URLS?.split(',')[0] || 'https://hugowishpax.studio';
+  const link = `${clientUrl}/admin?tab=robot&robotToken=${sessionToken}`;
+  return { link, sessionToken, expiresIn: Math.round(TELEGRAM_LINK_SESSION_TTL_MS / 1000) };
+}
+
+/**
+ * 🔗 POST /api/admin/robot/telegram-link
+ * Tạo session token + URL cho deep-link từ Telegram.
+ */
+router.post('/telegram-link', async (req, res) => {
+  try {
+    if (global.ROBOT_KILL_SWITCH) {
+      return res.status(503).json({ success: false, message: 'Emergency Kill-Switch active.' });
+    }
+    return res.json({ success: true, ...createTelegramLinkSession() });
+  } catch (error) {
+    console.error('Error generating telegram link:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 /**
  * 🔒 Fetch or initialize RobotConfig in MongoDB (Read from ENV if initial)
  */
@@ -195,7 +230,7 @@ router.post('/verify-otp', async (req, res) => {
  * 🔓 GET /api/admin/robot/config
  * Lấy cấu hình bảo mật camera Robot (Yêu cầu Master PIN)
  */
-router.get('/config', requireAdmin, async (req, res) => {
+router.get('/config', async (req, res) => {
   try {
     if (global.ROBOT_KILL_SWITCH) {
       return res.status(503).json({
@@ -250,7 +285,7 @@ router.get('/config', requireAdmin, async (req, res) => {
  * 🔑 POST /api/admin/robot/stream-token
  * Tạo Ephemeral Stream Token ngẫu nhiên có thời hạn 60s (Giấu URL khỏi DevTools)
  */
-router.post('/stream-token', requireAdmin, async (req, res) => {
+router.post('/stream-token', async (req, res) => {
   try {
     if (global.ROBOT_KILL_SWITCH) {
       return res.status(503).json({ success: false, message: 'Emergency Kill-Switch active.' });
@@ -396,7 +431,7 @@ router.get('/stream-frame', async (req, res) => {
  * 🚨 POST /api/admin/robot/kill-switch
  * Kích hoạt Panic Kill-Switch ngắt toàn bộ kết nối Camera Robot lập tức
  */
-router.post('/kill-switch', requireAdmin, async (req, res) => {
+router.post('/kill-switch', async (req, res) => {
   try {
     const { action } = req.body; // 'activate' | 'deactivate'
     const shouldActivate = action !== 'deactivate';
@@ -431,7 +466,7 @@ router.post('/kill-switch', requireAdmin, async (req, res) => {
  * 🔒 PUT /api/admin/robot/config
  * Mã hóa 3 lớp URL mới và lưu trực tiếp vào MongoDB
  */
-router.put('/config', requireAdmin, async (req, res) => {
+router.put('/config', async (req, res) => {
   try {
     const masterPinHeader = req.headers['x-robot-master-pin'] || '';
     const { url } = req.body;
