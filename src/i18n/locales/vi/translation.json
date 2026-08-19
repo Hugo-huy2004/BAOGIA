@@ -1568,10 +1568,10 @@
       "desc": "Nhập thông tin xác thực nhà phát triển",
       "remember": "Ghi nhớ đăng nhập trên thiết bị này",
       "https": "Đồng bộ an toàn qua HTTPS",
-      "otpBtn": "Gửi mã OTP qua Telegram",
+      "otpBtn": "Gửi mã OTP",
       "otpSending": "Đang gửi mã…",
-      "otpSent": "Đã gửi mã tới Telegram của Boss.",
-      "otpDesc": "Không cần mật khẩu. Bấm nút bên dưới, bot Telegram gửi mã 6 chữ số về máy Boss — mã sống 30 giây."
+      "otpSent": "Đã gửi mã.",
+      "otpDesc": "Bấm nút bên dưới để nhận mã 6 chữ số — mã sống 30 giây."
     }
   },
   "customerPortal": {

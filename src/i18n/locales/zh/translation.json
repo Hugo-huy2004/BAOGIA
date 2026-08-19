@@ -5968,10 +5968,10 @@
       "desc": "输入开发者凭证",
       "remember": "记住本设备上的登录信息",
       "https": "通过HTTPS进行安全同步",
-      "otpBtn": "通过 Telegram 发送验证码",
+      "otpBtn": "发送验证码",
       "otpSending": "正在发送…",
-      "otpSent": "验证码已发送到管理员的 Telegram。",
-      "otpDesc": "无需密码。点击下方按钮，Telegram 机器人会发送 6 位验证码到管理员手机 — 有效期 30 秒。"
+      "otpSent": "验证码已发送。",
+      "otpDesc": "点击下方按钮接收6位验证码 — 有效期30秒。"
     }
   },
   "customerPortal": {

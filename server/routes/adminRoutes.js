@@ -125,11 +125,11 @@ router.post('/request-otp', otpRequestLimiter, async (req, res) => {
     res.json({
       success: true,
       tempToken,
-      telegramDelivered: delivered,
+      otpDelivered: delivered,
       expiresIn,
       message: delivered
-        ? 'Đã gửi mã 6 chữ số tới Telegram của Boss — dùng trong 30 giây.'
-        : 'Không gửi được qua Telegram (bot chưa cấu hình hoặc lỗi mạng). Xem mã trong log máy chủ.',
+        ? 'Đã gửi mã 6 chữ số — dùng trong 30 giây.'
+        : 'Không gửi được mã (bot chưa cấu hình hoặc lỗi mạng). Xem mã trong log máy chủ.',
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -185,11 +185,11 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
       success: true,
       requireOtp: true,
       tempToken,
-      telegramDelivered: delivered,
+      otpDelivered: delivered,
       expiresIn,
       message: delivered
-        ? 'Đã gửi mã 6 chữ số tới Telegram của Boss — dùng trong 30 giây.'
-        : 'Không gửi được OTP qua Telegram. Xem mã trong log máy chủ.',
+        ? 'Đã gửi mã 6 chữ số — dùng trong 30 giây.'
+        : 'Không gửi được mã. Xem mã trong log máy chủ.',
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

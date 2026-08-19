@@ -188,7 +188,7 @@ export const loginDevLocal = async (email = 'dev.member@hugowishpax.studio', nam
 /**
  * Xin mã OTP đăng nhập quản trị (không cần mật khẩu).
  *
- * Yếu tố xác thực là quyền đọc Telegram của chủ hệ thống: người lạ bấm nút này
+ * Yếu tố xác thực là quyền đọc tin nhắn của chủ hệ thống: người lạ bấm nút này
  * chỉ làm máy chủ gửi một tin nhắn cho Boss, họ không đọc được mã.
  */
 export const requestAdminOtp = async () => {
@@ -203,7 +203,7 @@ export const requestAdminOtp = async () => {
     if (!response.ok || !data.tempToken) {
       return { tempToken: null, error: data.error || 'request_failed' };
     }
-    return { tempToken: data.tempToken, telegramDelivered: data.telegramDelivered, message: data.message, expiresIn: data.expiresIn };
+    return { tempToken: data.tempToken, otpDelivered: data.otpDelivered, message: data.message, expiresIn: data.expiresIn };
   } catch {
     return { tempToken: null, error: 'network' };
   }
@@ -235,14 +235,14 @@ export const loginAdmin = async (credentials, { remember = true } = {}) => {
       return { session: null, error: 'invalid_credentials' };
     }
 
-    // Handle 2FA Telegram OTP step
+    // Handle 2FA OTP step
     if (data.requireOtp) {
       return {
         session: null,
         requireOtp: true,
         tempToken: data.tempToken,
-        telegramDelivered: data.telegramDelivered !== false,
-        message: data.message || 'Mã OTP 4 chữ số đã được gửi qua Telegram.',
+        otpDelivered: data.otpDelivered !== false,
+        message: data.message || 'Mã OTP 4 chữ số đã được gửi.',
       };
     }
 

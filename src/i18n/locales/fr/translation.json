@@ -5970,10 +5970,10 @@
       "desc": "Entrez les identifiants de développeur",
       "remember": "Se souvenir de moi sur cet appareil",
       "https": "Synchronisation sécurisée via HTTPS",
-      "otpBtn": "Envoyer le code par Telegram",
+      "otpBtn": "Envoyer le code",
       "otpSending": "Envoi du code…",
-      "otpSent": "Code envoyé sur le Telegram du propriétaire.",
-      "otpDesc": "Sans mot de passe. Appuyez sur le bouton : le bot Telegram envoie un code à 6 chiffres au téléphone du propriétaire — valable 30 secondes."
+      "otpSent": "Code envoyé.",
+      "otpDesc": "Appuyez sur le bouton pour recevoir un code à 6 chiffres — valable 30 secondes."
     }
   },
   "customerPortal": {

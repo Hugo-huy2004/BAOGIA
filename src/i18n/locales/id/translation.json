@@ -5968,10 +5968,10 @@
       "desc": "Masukkan kredensial pengembang.",
       "remember": "Ingat saya di perangkat ini",
       "https": "Penyinkapan melalui HTTPS yang aman",
-      "otpBtn": "Kirim OTP lewat Telegram",
+      "otpBtn": "Kirim OTP",
       "otpSending": "Mengirim kode…",
-      "otpSent": "Kode terkirim ke Telegram pemilik.",
-      "otpDesc": "Tanpa kata sandi. Tekan tombol di bawah dan bot Telegram mengirim kode 6 digit ke ponsel pemilik — berlaku 30 detik."
+      "otpSent": "Kode terkirim.",
+      "otpDesc": "Tekan tombol di bawah untuk menerima kode 6 digit — berlaku 30 detik."
     }
   },
   "customerPortal": {

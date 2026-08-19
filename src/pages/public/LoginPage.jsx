@@ -28,7 +28,7 @@ export default function LoginPage() {
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
   const [adminSubmitting, setAdminSubmitting] = useState(false);
   const [rememberAdmin, setRememberAdmin] = useState(true);
-  // 2FA OTP gửi qua Telegram (POST /api/admin/login -> requireOtp)
+  // 2FA OTP (POST /api/admin/login -> requireOtp)
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [tempToken, setTempToken] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
@@ -192,9 +192,9 @@ export default function LoginPage() {
     showToast(t("loginPage.toast.useGoogleBtn"), "warning");
   };
 
-  // Đăng nhập quản trị KHÔNG còn mật khẩu: bấm nút → máy chủ gửi mã 6 số qua
-  // Telegram của Boss → nhập mã là vào. Mật khẩu cũ chỉ còn là lối dự phòng ở
-  // phía máy chủ (POST /api/admin/login) cho lúc Telegram hỏng.
+  // Đăng nhập quản trị KHÔNG còn mật khẩu: bấm nút → máy chủ gửi mã 6 số
+  // đến Boss → nhập mã là vào. Mật khẩu cũ chỉ còn là lối dự phòng ở
+  // phía máy chủ (POST /api/admin/login).
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setToast({ message: "", type: "" });
@@ -213,7 +213,7 @@ export default function LoginPage() {
       setOtpError("");
       setOtpSecondsLeft(res.expiresIn || 30);
       setOtpModalOpen(true);
-      showToast(res.message || t("loginPage.adminForm.otpSent"), res.telegramDelivered ? "info" : "error");
+      showToast(res.message || t("loginPage.adminForm.otpSent"), res.otpDelivered ? "info" : "error");
     } finally {
       setAdminSubmitting(false);
     }
@@ -246,7 +246,7 @@ export default function LoginPage() {
         setOtpError(error || "Mã OTP không chính xác.");
         return;
       }
-      showToast("Xác thực 2FA Telegram thành công! 🔐", "success");
+      showToast("Xác thực 2FA thành công! 🔐", "success");
       navigate("/admin");
     } finally {
       setOtpSubmitting(false);
@@ -502,8 +502,8 @@ export default function LoginPage() {
                 <p className="text-[11px] text-muted-foreground">{t("loginPage.adminForm.desc")}</p>
               </div>
 
-              {/* Đăng nhập bằng OTP Telegram — không còn ô mật khẩu. Yếu tố xác
-                  thực là quyền đọc tin nhắn của đúng một chat Telegram: người lạ
+              {/* Đăng nhập bằng OTP — không còn ô mật khẩu. Yếu tố xác
+                  thực là quyền đọc tin nhắn của Boss: người lạ
                   bấm nút này chỉ làm máy Boss kêu một tiếng. */}
               <div className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-muted/40 p-3">
                 <span className="material-symbols-outlined text-[18px] text-muted-foreground">send</span>
@@ -539,7 +539,7 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* ── 2FA TELEGRAM OTP MODAL ── */}
+      {/* ── 2FA OTP MODAL ── */}
       {otpModalOpen && (
         <div className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 animate-fadeIn">
           <motion.div
@@ -561,7 +561,7 @@ export default function LoginPage() {
                 XÁC THỰC BẢO MẬT 2FA
               </h3>
               <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-                Mã OTP <strong className="text-emerald-400 font-bold">6 chữ số</strong> đã được gửi tới Telegram của Boss.
+                Mã OTP <strong className="text-emerald-400 font-bold">6 chữ số</strong> đã được gửi đến Boss.
               </p>
             </div>
 

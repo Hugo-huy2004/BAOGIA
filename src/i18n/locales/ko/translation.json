@@ -5968,10 +5968,10 @@
       "desc": "Masukkan kredensial pengembang",
       "remember": "이 장치에서 기억하기",
       "https": "HTTPS을 통해 안전한 동기화",
-      "otpBtn": "Telegram으로 코드 보내기",
+      "otpBtn": "코드 보내기",
       "otpSending": "보내는 중…",
-      "otpSent": "관리자 Telegram으로 코드를 보냈습니다.",
-      "otpDesc": "비밀번호가 필요 없습니다. 아래 버튼을 누르면 Telegram 봇이 6자리 코드를 관리자 휴대폰으로 보냅니다 — 30초간 유효합니다."
+      "otpSent": "코드를 보냈습니다.",
+      "otpDesc": "아래 버튼을 눌러 6자리 코드를 받으세요 — 30초간 유효합니다."
     }
   },
   "customerPortal": {

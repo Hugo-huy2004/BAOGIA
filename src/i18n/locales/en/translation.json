@@ -1568,10 +1568,10 @@
       "desc": "Enter developer credentials",
       "remember": "Remember me on this device",
       "https": "Secure synchronization via HTTPS",
-      "otpBtn": "Send OTP via Telegram",
+      "otpBtn": "Send OTP",
       "otpSending": "Sending code…",
-      "otpSent": "Code sent to the owner's Telegram.",
-      "otpDesc": "No password needed. Tap below and the Telegram bot sends a 6-digit code to the owner's phone — valid for 30 seconds."
+      "otpSent": "Code sent.",
+      "otpDesc": "Tap below to receive a 6-digit code — valid for 30 seconds."
     }
   },
   "customerPortal": {

@@ -1,8 +1,8 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import robotApi from "../../services/api/RobotApi";
+import { logoutAuth } from "../../services/authSession";
 
 const DEFAULT_ROBOT_URL = "";
-const DEFAULT_MASTER_PIN = ""; // Configured server-side via process.env.ROBOT_MASTER_PIN
 
 const ROBOT_SUB_TABS = [
   { id: "control", label: "Điều khiển (Beta)", icon: "sports_esports", hash: "#control", color: "from-emerald-500 to-teal-600" },
@@ -17,20 +17,20 @@ const ROBOT_SUB_TABS = [
 ];
 
 export default function AdminRobotTab() {
-  // Master Lock & Security States
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [pinInput, setPinInput] = useState(["", "", "", "", "", ""]);
-  const [pinError, setPinError] = useState("");
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [masterPin, setMasterPin] = useState(() => {
-    return localStorage.getItem("hugo_robot_master_pin") || DEFAULT_MASTER_PIN;
-  });
-  const [isChangingPin, setIsChangingPin] = useState(false);
-  const [newPinInput, setNewPinInput] = useState("");
+  // OTP Auth States
+  const [otpStep, setOtpStep] = useState("idle"); // idle | requesting | verifying | unlocked
+  const [otpTempToken, setOtpTempToken] = useState("");
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [otpError, setOtpError] = useState("");
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [otpDelivered, setOtpDelivered] = useState(null);
+  const [sessionToken, setSessionToken] = useState("");
+  const [sessionCountdown, setSessionCountdown] = useState(0);
   const [isKillSwitchActive, setIsKillSwitchActive] = useState(false);
 
-  // Ephemeral Stream Token State (Zero URL Leak in DevTools)
+  // Ephemeral Stream Token State
   const [streamToken, setStreamToken] = useState("");
+  const [streamTokenError, setStreamTokenError] = useState("");
   const [baseUrl, setBaseUrl] = useState(() => {
     const saved = localStorage.getItem("hugo_admin_robot_stream_url") || DEFAULT_ROBOT_URL;
     return saved.replace(/#.*$/, '');
@@ -42,12 +42,10 @@ export default function AdminRobotTab() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [refreshCounter, setRefreshCounter] = useState(0);
 
-  // Auto-Lock Timer (Lock after 5 mins of inactivity)
-  const [autoLockSeconds, setAutoLockSeconds] = useState(300);
   const containerRef = useRef(null);
-  const pinInputRefs = useRef([]);
+  const otpInputRefs = useRef([]);
 
-  // Anti-Console / Anti-DevTools Inspection Trap
+  // Anti-DevTools
   useEffect(() => {
     const handleDevToolsKey = (e) => {
       if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.metaKey && e.altKey && e.key === "I")) {
@@ -58,102 +56,121 @@ export default function AdminRobotTab() {
     return () => window.removeEventListener("keydown", handleDevToolsKey);
   }, []);
 
-  // Auto Countdown Timer when unlocked
+  // OTP request countdown (resend cooldown)
   useEffect(() => {
-    if (!isUnlocked) return;
+    if (otpCountdown <= 0) return;
     const timer = setInterval(() => {
-      setAutoLockSeconds((prev) => {
+      setOtpCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCountdown]);
+
+  // Session expiry countdown (auto-lock after 5 min)
+  useEffect(() => {
+    if (otpStep !== "unlocked" || sessionCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setSessionCountdown((prev) => {
         if (prev <= 1) {
-          setIsUnlocked(false);
-          return 300;
+          handleInstantLock();
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isUnlocked]);
+  }, [otpStep, sessionCountdown]);
 
-  // Request Ephemeral Token upon Unlock or Refresh
-  const requestStreamToken = async (enteredPin = masterPin) => {
+  // ── OTP Flow Handlers ──────────────────────────────────────────────────
+
+  const handleRequestOtp = async () => {
     try {
-      const res = await robotApi.getStreamToken(enteredPin);
-      if (res.success && res.streamToken) {
-        setStreamToken(res.streamToken);
+      setOtpError("");
+      setOtpStep("requesting");
+      const res = await robotApi.requestOtp();
+      if (res.success && res.tempToken) {
+        setOtpTempToken(res.tempToken);
+        setOtpDelivered(res.otpDelivered);
+        setOtpCountdown(res.expiresIn || 300);
+        setOtpStep("verifying");
+        setTimeout(() => otpInputRefs.current[0]?.focus(), 100);
       }
     } catch (err) {
-      console.warn("Failed fetching stream token:", err.message);
+      setOtpError(err.message || "Lỗi gửi mã OTP");
+      setOtpStep("idle");
     }
   };
 
-  // Biometric WebAuthn Touch ID / Face ID Handler
-  const handleBiometricAuthenticate = async () => {
-    try {
-      if (!window.PublicKeyCredential) {
-        alert("Thiết bị hoặc trình duyệt không hỗ trợ WebAuthn sinh trắc học.");
-        return;
-      }
-      setIsUnlocked(true);
-      setPinError("");
-      setFailedAttempts(0);
-      setAutoLockSeconds(300);
-      await requestStreamToken(masterPin);
-    } catch (err) {
-      console.error("Biometric authentication error:", err);
-    }
-  };
-
-  // Handle PIN Input Digit change
-  const handlePinDigitChange = async (index, value) => {
+  const handleOtpDigitChange = async (index, value) => {
     if (value.length > 1) value = value.slice(-1);
-    const newPin = [...pinInput];
-    newPin[index] = value;
-    setPinInput(newPin);
-    setPinError("");
+    const newDigits = [...otpDigits];
+    newDigits[index] = value;
+    setOtpDigits(newDigits);
+    setOtpError("");
 
     if (value && index < 5) {
-      pinInputRefs.current[index + 1]?.focus();
+      otpInputRefs.current[index + 1]?.focus();
     }
 
-    if (newPin.every(digit => digit !== "")) {
-      const enteredCode = newPin.join("");
-      if (enteredCode === masterPin) {
-        setIsUnlocked(true);
-        setPinError("");
-        setFailedAttempts(0);
-        setAutoLockSeconds(300);
-        await requestStreamToken(enteredCode);
-      } else {
-        const newFailed = failedAttempts + 1;
-        setFailedAttempts(newFailed);
-        setPinError(`Mã PIN không đúng (${newFailed}/3 lần)!`);
-        setPinInput(["", "", "", "", "", ""]);
-        pinInputRefs.current[0]?.focus();
-
-        if (newFailed >= 3) {
-          setPinError("🚨 CẢNH BÁO: Đã thử sai 3 lần! Thao tác bị tạm ngắt.");
+    if (newDigits.every((d) => d !== "")) {
+      const code = newDigits.join("");
+      try {
+        const res = await robotApi.verifyOtp(otpTempToken, code);
+        if (res.success && res.sessionToken) {
+          setSessionToken(res.sessionToken);
+          setSessionCountdown(res.expiresIn || 300);
+          setOtpStep("unlocked");
+          setOtpDigits(["", "", "", "", "", ""]);
+          await requestStreamToken(res.sessionToken);
         }
+      } catch (err) {
+        const newFailed = otpDigits.filter((d) => d !== "").length;
+        setOtpError(err.message || "Mã OTP không chính xác");
+        setOtpDigits(["", "", "", "", "", ""]);
+        otpInputRefs.current[0]?.focus();
       }
     }
   };
 
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !pinInput[index] && index > 0) {
-      pinInputRefs.current[index - 1]?.focus();
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleInstantLock = () => {
-    setIsUnlocked(false);
+    setOtpStep("idle");
+    setSessionToken("");
     setStreamToken("");
-    setPinInput(["", "", "", "", "", ""]);
-    setPinError("");
-    setAutoLockSeconds(300);
+    setOtpDigits(["", "", "", "", "", ""]);
+    setOtpError("");
+    setOtpTempToken("");
+    setSessionCountdown(0);
   };
+
+  // ── Stream Token ───────────────────────────────────────────────────────
+
+  const requestStreamToken = async (token = sessionToken) => {
+    try {
+      setStreamTokenError("");
+      const res = await robotApi.getStreamToken(token);
+      if (res.success && res.streamToken) {
+        setStreamToken(res.streamToken);
+      }
+    } catch (err) {
+      if (err.message.includes("Phiên đăng nhập đã hết hạn")) {
+        setStreamTokenError("Phiên đăng nhập đã hết hạn. Đang chuyển về trang đăng nhập...");
+        return;
+      }
+      setStreamTokenError(err.message || "Lỗi khởi tạo phiên bảo mật");
+    }
+  };
+
+  // ── Action Handlers ────────────────────────────────────────────────────
 
   const handleActivateKillSwitch = async () => {
     if (window.confirm("🚨 BẠN CÓ CHẮC CHẮN MUỐN KÍCH HOẠT EMERGENCY KILL-SWITCH CẮT TOÀN BỘ CAMERA ROBOT TỨC THÌ?")) {
       try {
-        const res = await robotApi.toggleKillSwitch(masterPin, 'activate');
+        const res = await robotApi.toggleKillSwitch(sessionToken, "activate");
         setIsKillSwitchActive(true);
         handleInstantLock();
         alert(res.message || "Đã ngắt kết nối Camera Robot khẩn cấp!");
@@ -163,40 +180,21 @@ export default function AdminRobotTab() {
     }
   };
 
-  const handleChangeMasterPinSubmit = (e) => {
-    e.preventDefault();
-    if (newPinInput.length === 6 && /^\d+$/.test(newPinInput)) {
-      setMasterPin(newPinInput);
-      localStorage.setItem("hugo_robot_master_pin", newPinInput);
-      setIsChangingPin(false);
-      setNewPinInput("");
-      alert("Đã cập nhật Mã Master PIN mới thành công!");
-    } else {
-      alert("Mã PIN mới phải gồm đúng 6 chữ số!");
-    }
+  const handleRefreshStream = async () => {
+    await requestStreamToken(sessionToken);
+    setRefreshCounter((prev) => prev + 1);
   };
-
-  // Secure Proxied Frame URL (Zero URL leakage in Chrome DevTools)
-  const secureFrameSrc = useMemo(() => {
-    if (!streamToken) return "";
-    return `/api/admin/robot/stream-frame?token=${streamToken}&tab=${activeSubTab}&r=${refreshCounter}`;
-  }, [streamToken, activeSubTab, refreshCounter]);
-
-  const maskedUrl = useMemo(() => {
-    return baseUrl.replace(/(https?:\/\/)[^.]+\.(.*)/, "$1********.$2");
-  }, [baseUrl]);
 
   const handleSaveUrl = async (e) => {
     e?.preventDefault();
-    const cleanUrl = tempUrlInput.trim().replace(/#.*$/, '');
+    const cleanUrl = tempUrlInput.trim().replace(/#.*$/, "");
     if (cleanUrl) {
       setBaseUrl(cleanUrl);
       localStorage.setItem("hugo_admin_robot_stream_url", cleanUrl);
-      setRefreshCounter(prev => prev + 1);
-
+      setRefreshCounter((prev) => prev + 1);
       try {
-        await robotApi.updateConfig(masterPin, cleanUrl);
-        await requestStreamToken(masterPin);
+        await robotApi.updateConfig(sessionToken, cleanUrl);
+        await requestStreamToken(sessionToken);
         alert("Đã mã hóa 3 lớp và lưu URL mới vào MongoDB!");
       } catch (err) {
         console.error("Failed persisting triple encrypted URL to DB:", err);
@@ -206,17 +204,12 @@ export default function AdminRobotTab() {
   };
 
   const handleResetDefaultUrl = () => {
-    const defaultClean = DEFAULT_ROBOT_URL.replace(/#.*$/, '');
+    const defaultClean = DEFAULT_ROBOT_URL.replace(/#.*$/, "");
     setBaseUrl(defaultClean);
     setTempUrlInput(defaultClean);
     localStorage.setItem("hugo_admin_robot_stream_url", defaultClean);
-    setRefreshCounter(prev => prev + 1);
+    setRefreshCounter((prev) => prev + 1);
     setIsEditingUrl(false);
-  };
-
-  const handleRefreshStream = async () => {
-    await requestStreamToken(masterPin);
-    setRefreshCounter(prev => prev + 1);
   };
 
   const toggleFullscreenContainer = () => {
@@ -228,13 +221,26 @@ export default function AdminRobotTab() {
     }
   };
 
-  // ─── IF LOCKED: RENDER HIGH SECURITY PIN & BIOMETRIC VAULT ──────────────────
-  if (!isUnlocked) {
+  // ── Derived ────────────────────────────────────────────────────────────
+
+  const secureFrameSrc = useMemo(() => {
+    if (!streamToken) return "";
+    return `/api/admin/robot/stream-frame?token=${streamToken}&tab=${activeSubTab}&r=${refreshCounter}`;
+  }, [streamToken, activeSubTab, refreshCounter]);
+
+  const maskedUrl = useMemo(() => {
+    return baseUrl.replace(/(https?:\/\/)[^.]+\.(.*)/, "$1********.$2");
+  }, [baseUrl]);
+
+  const formatCountdown = (s) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
+  // ─── IF LOCKED: RENDER OTP VAULT ───────────────────────────────────────
+  if (otpStep !== "unlocked") {
     return (
       <div className="min-h-[620px] flex items-center justify-center p-4 animate-fadeIn select-none">
         <div className="relative w-full max-w-md p-8 rounded-3xl bg-slate-950/95 border border-emerald-500/40 backdrop-blur-3xl shadow-[0_32px_80px_rgba(0,0,0,0.9)] text-white text-center space-y-6">
           <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-          
+
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 border border-emerald-400/40 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
             <span className="material-symbols-outlined text-white text-3xl">shield_locked</span>
           </div>
@@ -242,51 +248,96 @@ export default function AdminRobotTab() {
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-black uppercase tracking-widest">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              Gia Cố Bảo Mật Camera Gia Đình 3 Lớp
+              Bảo Mật Camera — OTP Telegram
             </div>
             <h2 className="text-xl font-black text-white tracking-tight">
-              Xác Thực Mã An Ninh Master PIN
+              {otpStep === "idle" && "Xác Thúc Camera Robot"}
+              {otpStep === "requesting" && "Đang Gửi Mã OTP..."}
+              {otpStep === "verifying" && "Nhập Mã OTP 6 Chữ Số"}
             </h2>
             <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
-              Luồng camera tư gia được mã hóa 3 lớp & chống quét DevTools. Nhập Mã Master PIN 6 số hoặc quét sinh trắc học để mở.
+              {otpStep === "idle" && "Bấm nút bên dưới để nhận mã OTP 6 chữ số qua Telegram. Mã có hiệu lực 5 phút."}
+              {otpStep === "requesting" && "Đang gửi mã xác thực qua Telegram..."}
+              {otpStep === "verifying" && (
+                <>
+                  Mã đã gửi tới Telegram.
+                  {otpCountdown > 0 && <span className="text-emerald-400 font-mono"> Còn {formatCountdown(otpCountdown)}</span>}
+                </>
+              )}
             </p>
           </div>
 
-          {/* 6-Digit Passcode Input */}
-          <div className="flex justify-center gap-2 py-1">
-            {pinInput.map((digit, idx) => (
-              <input
-                key={idx}
-                ref={(el) => (pinInputRefs.current[idx] = el)}
-                type="password"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handlePinDigitChange(idx, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(idx, e)}
-                disabled={failedAttempts >= 3}
-                className="w-10 h-12 text-center text-lg font-black rounded-xl bg-white/5 border border-white/15 text-emerald-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition-all"
-              />
-            ))}
-          </div>
+          {/* Step: Idle — Request OTP Button */}
+          {otpStep === "idle" && (
+            <button
+              type="button"
+              onClick={handleRequestOtp}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-sm shadow-lg shadow-emerald-500/20 hover:opacity-95 transition-all flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-base">send</span>
+              Gửi Mã OTP Qua Telegram
+            </button>
+          )}
 
-          {/* Biometric WebAuthn Button */}
-          <button
-            type="button"
-            onClick={handleBiometricAuthenticate}
-            className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/20 hover:opacity-95 transition-all flex items-center justify-center gap-2"
-          >
-            <span className="material-symbols-outlined text-base">fingerprint</span>
-            <span>Mở Khóa Bằng Face ID / Touch ID</span>
-          </button>
+          {/* Step: Requesting — Loading */}
+          {otpStep === "requesting" && (
+            <div className="flex items-center justify-center gap-3 py-3">
+              <div className="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs text-emerald-400 font-bold">Đang gửi mã...</span>
+            </div>
+          )}
 
-          {pinError && (
+          {/* Step: Verifying — OTP Input */}
+          {otpStep === "verifying" && (
+            <>
+              <div className="flex justify-center gap-2 py-1">
+                {otpDigits.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={(el) => (otpInputRefs.current[idx] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpDigitChange(idx, e.target.value.replace(/\D/g, ""))}
+                    onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                    className="w-11 h-13 text-center text-xl font-black rounded-xl bg-white/5 border border-white/15 text-emerald-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40 transition-all"
+                  />
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleRequestOtp}
+                disabled={otpCountdown > 0}
+                className={`w-full py-3 rounded-2xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 ${
+                  otpCountdown > 0
+                    ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                    : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/20 hover:opacity-95"
+                }`}
+              >
+                <span className="material-symbols-outlined text-base">refresh</span>
+                {otpCountdown > 0 ? `Gửi lại sau ${formatCountdown(otpCountdown)}` : "Gửi lại mã OTP"}
+              </button>
+            </>
+          )}
+
+          {/* Error */}
+          {otpError && (
             <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold animate-pulse">
-              {pinError}
+              {otpError}
+            </div>
+          )}
+
+          {/* Delivery status */}
+          {otpStep === "verifying" && otpDelivered === false && (
+            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px]">
+              Telegram chưa cấu hình. Xem mã OTP trong log server.
             </div>
           )}
 
           <div className="text-[11px] text-slate-500 font-mono">
-            Mã an ninh được bảo vệ & mã hóa bởi Server Administrator.
+            Mã OTP hết hiệu lực sau 5 phút. Bảo vệ bởi Server Administrator.
           </div>
         </div>
       </div>
@@ -296,12 +347,12 @@ export default function AdminRobotTab() {
   // ─── IF UNLOCKED: RENDER FULL NATIVE ROBOT SUITE ────────────────────────────
   return (
     <div className="space-y-5 animate-fadeIn select-none">
-      
+
       {/* Top Telemetry Header & Status Deck */}
       <div className="relative overflow-hidden p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-slate-950 via-zinc-900 to-black border border-emerald-500/30 shadow-2xl text-white">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        
+
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black uppercase tracking-widest">
@@ -310,22 +361,20 @@ export default function AdminRobotTab() {
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
               <span className="material-symbols-outlined text-emerald-400 text-3xl sm:text-4xl">precision_manufacturing</span>
-              Trung Tâm Điều Khiển Robot (Bảo Mật 3 Lớp Active)
+              Trung Tâm Điều Khiển Robot (OTP Verified)
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
               Tích hợp toàn bộ hệ điều hành Robot, camera FPV, AI Xiaozhi, lệnh thoại & nhật ký kiểm soát từ xa.
             </p>
           </div>
 
-          {/* Quick Security & Metrics Bar */}
           <div className="flex flex-wrap items-center gap-3">
-            
-            {/* Auto Lock Countdown */}
+            {/* Session Countdown */}
             <div className="px-3.5 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-md flex items-center gap-2 text-emerald-400">
               <span className="material-symbols-outlined text-lg">timer</span>
               <div>
-                <div className="text-[9px] text-slate-400 uppercase font-black">Tự Khóa Sau</div>
-                <div className="text-xs font-mono font-extrabold">{Math.floor(autoLockSeconds / 60)}:{(autoLockSeconds % 60).toString().padStart(2, '0')}</div>
+                <div className="text-[9px] text-slate-400 uppercase font-black">Phiên Còn</div>
+                <div className="text-xs font-mono font-extrabold">{formatCountdown(sessionCountdown)}</div>
               </div>
             </div>
 
@@ -350,7 +399,7 @@ export default function AdminRobotTab() {
         </div>
       </div>
 
-      {/* iOS 26 Segmented Sub-Tab Control Pills */}
+      {/* Sub-Tab Pills */}
       <div className="p-2 rounded-2xl bg-white/80 dark:bg-[#141624] border border-slate-200/80 dark:border-white/10 shadow-lg backdrop-blur-2xl">
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 px-0.5">
           {ROBOT_SUB_TABS.map((tab) => {
@@ -373,10 +422,8 @@ export default function AdminRobotTab() {
         </div>
       </div>
 
-      {/* Stream Controls & Security Toolbar */}
+      {/* Stream Controls */}
       <div className="p-3.5 rounded-2xl bg-white/80 dark:bg-[#141624] border border-slate-200/80 dark:border-white/10 shadow-lg flex flex-wrap items-center justify-between gap-3 text-xs">
-        
-        {/* Stream URL Security Status */}
         <div className="flex items-center gap-2.5 flex-1 min-w-[260px] truncate">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
           <div className="truncate font-mono text-slate-700 dark:text-slate-300">
@@ -393,17 +440,7 @@ export default function AdminRobotTab() {
           </button>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => setIsChangingPin(!isChangingPin)}
-            className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 font-bold hover:bg-amber-500/20 transition-all flex items-center gap-1.5"
-            title="Đổi mã Master PIN 6 số"
-          >
-            <span className="material-symbols-outlined text-base">password</span>
-            <span className="hidden sm:inline">Đổi PIN</span>
-          </button>
-
           <button
             onClick={() => setIsEditingUrl(!isEditingUrl)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-200 dark:hover:bg-white/10 transition-all flex items-center gap-1.5"
@@ -432,32 +469,6 @@ export default function AdminRobotTab() {
           </button>
         </div>
       </div>
-
-      {/* Change PIN Form */}
-      {isChangingPin && (
-        <form onSubmit={handleChangeMasterPinSubmit} className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3 animate-fadeIn">
-          <div className="text-xs font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-base">key</span> Cập Nhật Mã Master PIN 6 Số Mới
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="password"
-              maxLength={6}
-              value={newPinInput}
-              onChange={(e) => setNewPinInput(e.target.value)}
-              placeholder="Nhập 6 chữ số PIN mới..."
-              className="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-black/50 border border-amber-500/30 text-xs text-slate-900 dark:text-white font-mono focus:outline-none"
-              required
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-black hover:bg-amber-400 transition-all shadow-md"
-            >
-              Lưu PIN Mới
-            </button>
-          </div>
-        </form>
-      )}
 
       {/* Edit URL Form */}
       {isEditingUrl && (
@@ -494,30 +505,28 @@ export default function AdminRobotTab() {
         </form>
       )}
 
-      {/* Seamless Full-Bleed Robot Application Frame (Proxied Single-Use Token Frame) */}
-      <div 
+      {/* Robot Application Frame */}
+      <div
         ref={containerRef}
         className={`relative w-full rounded-3xl overflow-hidden border border-slate-200/80 dark:border-white/10 shadow-2xl bg-black transition-all ${
           isFullscreen ? "h-screen p-0" : "h-[calc(100vh-210px)] min-h-[750px]"
         }`}
       >
-        {/* Top Header Overlay */}
         <div className="absolute top-0 left-0 right-0 z-20 px-4 py-2.5 bg-gradient-to-b from-black/90 via-black/50 to-transparent backdrop-blur-md flex items-center justify-between text-white pointer-events-auto">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
             <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-sm">memory</span>
-              HUGO-ROBOT-01 · {ROBOT_SUB_TABS.find(t => t.id === activeSubTab)?.label}
+              HUGO-ROBOT-01 · {ROBOT_SUB_TABS.find((t) => t.id === activeSubTab)?.label}
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-[11px] text-slate-300 bg-black/70 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
             <span className="material-symbols-outlined text-xs text-emerald-400">shield</span>
-            <span>Ephemeral Token Ephemeral Proxy Frame</span>
+            <span>OTP Verified Session</span>
           </div>
         </div>
 
-        {/* Embedded Robot Web Application Frame (Inspect DevTools will ONLY see /api/admin/robot/stream-frame?token=...) */}
         {secureFrameSrc ? (
           <iframe
             key={`${secureFrameSrc}-${refreshCounter}`}
@@ -528,6 +537,20 @@ export default function AdminRobotTab() {
             allow="camera; microphone; display-capture; autoplay; encrypted-media; fullscreen; clipboard-read; clipboard-write; gamepad; geolocation"
             sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
           />
+        ) : streamTokenError ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-rose-400">
+            <span className="material-symbols-outlined text-5xl">error</span>
+            <div className="text-center space-y-2">
+              <p className="text-sm font-bold">{streamTokenError}</p>
+              <p className="text-xs text-slate-500">Phiên OTP đã hết hạn. Vui lòng xác thực lại.</p>
+            </div>
+            <button
+              onClick={handleInstantLock}
+              className="px-4 py-2 rounded-xl bg-rose-500 text-white text-xs font-bold hover:bg-rose-400 transition-all"
+            >
+              Xác thực lại
+            </button>
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-500 text-xs font-mono">
             Đang khởi tạo Secure Ephemeral Token...
