@@ -333,8 +333,8 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
                       <span className="material-symbols-outlined text-xl">candlestick_chart</span>
                     </div>
                     <div className="text-left">
-                      <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-indigo-300">Hệ Sinh Thái Hugo Invest</span>
-                      <h4 className="text-xs font-black text-white">Tài Sản & Chứng Khoán</h4>
+                      <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-indigo-300">{t("walletApp.investCard.ecosystem", "Hệ Sinh Thái Hugo Invest")}</span>
+                      <h4 className="text-xs font-black text-white">{t("walletApp.investCard.title", "Tài Sản & Chứng Khoán")}</h4>
                     </div>
                   </div>
                   {onSelectUtility && (
@@ -343,7 +343,7 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
                       onClick={() => { hapticSelect(); onSelectUtility("invest"); }}
                       className="px-3 py-1.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/30 active:scale-95 transition-all flex items-center gap-1 shrink-0"
                     >
-                      <span>Vào Sàn Stock</span>
+                      <span>{t("walletApp.investCard.enterBtn", "Vào Sàn Stock")}</span>
                       <span className="material-symbols-outlined text-xs">arrow_forward</span>
                     </button>
                   )}
@@ -351,13 +351,13 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
 
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-left">
                   <div className="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span className="text-[10px] text-zinc-400 font-medium block">Tổng Tài Sản Net Worth:</span>
+                    <span className="text-[10px] text-zinc-400 font-medium block">{t("walletApp.investCard.netWorth", "Tổng Tài Sản Net Worth:")}</span>
                     <div className="text-sm font-black text-amber-400 font-mono mt-0.5">
                       {fmt(totalNetWorth)} <small className="text-[9.5px] font-bold text-amber-300/80">{joy.code}</small>
                     </div>
                   </div>
                   <div className="bg-black/40 p-2.5 rounded-2xl border border-white/5">
-                    <span className="text-[10px] text-zinc-400 font-medium block">Giá Trị Cổ Phiếu (PnL):</span>
+                    <span className="text-[10px] text-zinc-400 font-medium block">{t("walletApp.investCard.pnl", "Giá Trị Cổ Phiếu (PnL):")}</span>
                     <div className={`text-sm font-black font-mono mt-0.5 flex items-center gap-1 ${stockPnL >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                       <span>{fmt(stockTotalVal)}</span>
                       <span className="text-[9px] px-1 py-0.2 rounded-md bg-white/10 font-sans">

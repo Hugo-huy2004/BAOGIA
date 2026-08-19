@@ -22,9 +22,6 @@ const VIETNAMESE = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽ
 const EXCLUDED = new RegExp([
   "node_modules", "/locales/", "/admin/", "/demos/",
   "hugoCoder/", "hugoSO", "study/", "studyCurriculum", "ideData",
-  // Sàn ảo dạy đầu tư: tác giả dạy bằng tiếng Việt, dịch máy một công thức
-  // tài chính là người học mang cái sai ra sàn thật.
-  "member/invest/",
   "banhocduong/", "intentClassifier", "clinicalTests",
   "PrivacyPolicyPage", "TermsPage",
   // Nguồn song ngữ có chủ đích: bản tiếng Việt của tài liệu thành viên và khối

@@ -74,26 +74,32 @@ async function deliver(email, textFor, url) {
       return;
     }
 
-    const sendPromises = subscriptions.map(sub => {
-      const text = textFor(sub);
-      if (!text?.title) return Promise.resolve();
-      const payload = JSON.stringify({
-        title: text.title,
-        body: text.body || '',
-        icon: '/image/avt7.png',
-        url: url || '/member/today'
-      });
-      return webpush.sendNotification(sub.subscription, payload)
-        .catch(err => {
-          console.error(`[Push Notifier] Gửi thất bại cho ${email} tại endpoint: ${sub.subscription.endpoint}`, err.message);
-          // Nếu quyền bị hủy hoặc endpoint hỏng, xóa đăng ký
-          if (err.statusCode === 410 || err.statusCode === 404) {
-            return NotificationSubscription.deleteOne({ _id: sub._id }).catch(console.error);
-          }
+    const sendPromises = [];
+    // Gửi theo batch để tránh bị chặn (ví dụ Apple Push rate limit) khi user có hàng trăm thiết bị
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < subscriptions.length; i += BATCH_SIZE) {
+      const batch = subscriptions.slice(i, i + BATCH_SIZE);
+      const batchPromises = batch.map(sub => {
+        const text = textFor(sub);
+        if (!text?.title) return Promise.resolve();
+        const payload = JSON.stringify({
+          title: text.title,
+          body: text.body || '',
+          icon: '/image/avt7.png',
+          url: url || '/member/today'
         });
-    });
-
-    await Promise.all(sendPromises);
+        return webpush.sendNotification(sub.subscription, payload)
+          .catch(err => {
+            console.error(`[Push Notifier] Gửi thất bại cho ${email} tại endpoint: ${sub.subscription.endpoint}`, err.message);
+            // Nếu quyền bị hủy hoặc endpoint hỏng, xóa đăng ký
+            if (err.statusCode === 410 || err.statusCode === 404 || err.message.includes('unexpected response code')) {
+              return NotificationSubscription.deleteOne({ _id: sub._id }).catch(console.error);
+            }
+          });
+      });
+      await Promise.all(batchPromises);
+    }
+    
     console.log(`[Push Notifier] Đã gửi thông báo đến ${subscriptions.length} thiết bị của ${email}`);
   } catch (error) {
     console.error('[Push Notifier] Lỗi gửi thông báo đẩy:', error);

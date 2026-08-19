@@ -2991,3 +2991,157 @@ html.standalone-pwa .animate-bounce-gentle {
 @media (prefers-reduced-motion: reduce) {
   .pwa-login-rise { animation: none; }
 }
+
+/* =========================================================
+   INTERNATIONALIZATION (i18n) TYPOGRAPHY
+   ========================================================= */
+
+/* Thai: Handwritten font */
+html[lang="th"],
+html[lang="th-TH"] {
+  font-size: 16px; /* Base size */
+}
+html[lang="th"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="th-TH"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  font-family: 'Mali', cursive, sans-serif !important;
+}
+
+/* Chinese: Calligraphy font */
+html[lang="zh"],
+html[lang="zh-CN"],
+html[lang="zh-TW"] {
+  font-size: 17px; /* Calligraphy fonts need slightly more space */
+}
+html[lang="zh"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="zh-CN"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="zh-TW"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  font-family: 'Zhi Mang Xing', cursive, sans-serif !important;
+  letter-spacing: 0.05em; /* Breathing room for calligraphy */
+}
+
+/* Japanese: Handwriting font */
+html[lang="ja"],
+html[lang="ja-JP"] {
+  font-size: 17px;
+}
+html[lang="ja"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="ja-JP"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  font-family: 'Klee One', cursive, sans-serif !important;
+}
+
+/* Korean: Handwriting font */
+html[lang="ko"],
+html[lang="ko-KR"] {
+  font-size: 21px; /* Nanum Pen Script is visually small, this scales up all REM values safely without cascading bugs */
+  line-height: 1.4; /* Set a comfortable base line-height for handwriting */
+}
+html[lang="ko"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab),
+html[lang="ko-KR"] *:not(.material-symbols-outlined):not(i):not(.fas):not(.far):not(.fal):not(.fab) {
+  font-family: 'Nanum Pen Script', cursive, sans-serif !important;
+  letter-spacing: 0.04em;
+  word-break: keep-all; /* Keep Korean words together to prevent horizontal scrunching */
+}
+
+/* =========================================================
+   CULTURAL THEME COLORS (Overrides :root and .dark)
+   ========================================================= */
+
+/* VIETNAM: Crimson & Gold */
+html[lang="vi"], html[lang="vi-VN"] {
+  --primary: 354 84% 43%;
+  --primary-muted: 354 84% 43% / 0.12;
+  --accent: 43 100% 50%;
+  --radius: 0.875rem;
+}
+html[lang="vi"].dark, html[lang="vi-VN"].dark {
+  --primary: 354 84% 60%;
+  --primary-muted: 354 84% 60% / 0.12;
+  --accent: 43 100% 60%;
+}
+
+/* CHINA: Imperial Red & Yellow */
+html[lang="zh"], html[lang="zh-CN"], html[lang="zh-TW"] {
+  --primary: 0 100% 40%;
+  --primary-muted: 0 100% 40% / 0.12;
+  --accent: 45 100% 51%;
+  --radius: 0.5rem;
+}
+html[lang="zh"].dark, html[lang="zh-CN"].dark, html[lang="zh-TW"].dark {
+  --primary: 0 100% 55%;
+  --primary-muted: 0 100% 55% / 0.12;
+  --accent: 45 100% 60%;
+}
+
+/* Chinese Seal Logo Effect */
+html[lang="zh"] .education-logo,
+html[lang="zh-CN"] .education-logo,
+html[lang="zh-TW"] .education-logo {
+  filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(5) contrast(1.5) drop-shadow(0 0 2px rgba(255,0,0,0.3));
+  mix-blend-mode: multiply;
+  opacity: 0.85;
+}
+
+/* JAPAN: Sakura Pink & Indigo */
+html[lang="ja"], html[lang="ja-JP"] {
+  --primary: 340 82% 62%;
+  --primary-muted: 340 82% 62% / 0.12;
+  --accent: 230 60% 40%;
+  --radius: 0;
+}
+html[lang="ja"].dark, html[lang="ja-JP"].dark {
+  --primary: 340 82% 75%;
+  --primary-muted: 340 82% 75% / 0.12;
+  --accent: 230 60% 70%;
+}
+
+/* KOREA: K-Pop Purple & Cyber Pink */
+html[lang="ko"], html[lang="ko-KR"] {
+  --primary: 250 85% 65%;
+  --primary-muted: 250 85% 65% / 0.12;
+  --accent: 330 85% 60%;
+  --radius: 1.5rem;
+}
+html[lang="ko"].dark, html[lang="ko-KR"].dark {
+  --primary: 250 85% 75%;
+  --primary-muted: 250 85% 75% / 0.12;
+  --accent: 330 85% 70%;
+}
+
+/* THAILAND: Royal Gold & Earthy Orange */
+html[lang="th"], html[lang="th-TH"] {
+  --primary: 43 100% 45%;
+  --primary-muted: 43 100% 45% / 0.12;
+  --accent: 25 100% 50%;
+  --radius: 1rem;
+}
+html[lang="th"].dark, html[lang="th-TH"].dark {
+  --primary: 43 100% 55%;
+  --primary-muted: 43 100% 55% / 0.12;
+  --accent: 25 100% 60%;
+}
+
+/* FRANCE: Bordeaux & Champagne */
+html[lang="fr"], html[lang="fr-FR"] {
+  --primary: 345 50% 30%;
+  --primary-muted: 345 50% 30% / 0.12;
+  --accent: 40 40% 60%;
+  --radius: 0.25rem;
+}
+html[lang="fr"].dark, html[lang="fr-FR"].dark {
+  --primary: 345 50% 50%;
+  --primary-muted: 345 50% 50% / 0.12;
+  --accent: 40 40% 75%;
+}
+
+/* SPAIN: Fiery Orange & Yellow */
+html[lang="es"], html[lang="es-ES"] {
+  --primary: 15 100% 50%;
+  --primary-muted: 15 100% 50% / 0.12;
+  --accent: 45 100% 50%;
+  --radius: 0.75rem;
+}
+html[lang="es"].dark, html[lang="es-ES"].dark {
+  --primary: 15 100% 60%;
+  --primary-muted: 15 100% 60% / 0.12;
+  --accent: 45 100% 60%;
+}

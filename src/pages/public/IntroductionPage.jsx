@@ -23,9 +23,11 @@ import {
   StudentBioScene,
 } from "../../components/public/IntroScenes";
 import CodeHeroFilm from "../../components/public/CodeHeroFilm";
+import CodeHorseFilm from "../../components/public/CodeHorseFilm";
 import {
   ACCENT,
   AboutCard,
+  AmbientAuraParticles,
   CINE_CSS,
   CoverColorShift,
   EASE,
@@ -52,7 +54,7 @@ const JASON_PHOTO =
 
 const EDUCATION_LOGOS = {
   highSchool: "https://eduoka.com/uploads/0000/1/2023/08/14/logo-cua-truong-thpt-nguyen-dinh-chieu-my-tho.png",
-  university: "https://static.topcv.vn/company_logos/DPX1OIsPVO0j1cUvuirtL2L9E3N2pa4z_1633611636____044ccea5a7dcffdbbddfd5dda49c077a.png",
+  university: "https://cdn.haitrieu.com/wp-content/uploads/2022/12/Icon-Truong-Dai-hoc-Greenwich-Viet-Nam.png",
 };
 
 const DEVICON = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons";
@@ -165,20 +167,32 @@ function StatsStrip({ t }) {
   ];
   return (
     <section className="px-4 pb-4 pt-2 md:px-6 md:pb-6 md:pt-3">
-      <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border">
+      <div className="cine-card-bg mx-auto grid max-w-6xl grid-cols-2 overflow-hidden rounded-[1.75rem] border perspective-1000">
         {stats.map((s, i) => (
           <motion.div
             key={s.l}
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, margin: "-40px" }}
-            transition={{ delay: i * 0.1, duration: 0.6, ease: EASE }}
-            className={`space-y-1.5 px-5 py-6 sm:px-7 sm:py-8 ${i === 0 ? "border-r border-border/55" : ""}`}
+            whileHover={{ 
+              scale: 1.04, 
+              y: -4, 
+              rotate: i === 0 ? -1 : 1,
+              boxShadow: "0 10px 30px -10px rgba(0,0,0,0.15)",
+              zIndex: 10
+            }}
+            transition={{ 
+              delay: i * 0.1, 
+              duration: 0.6, 
+              ease: EASE,
+              hover: { type: "spring", stiffness: 300, damping: 15 }
+            }}
+            className={`relative space-y-1.5 px-5 py-6 sm:px-7 sm:py-8 transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${i === 0 ? "border-r border-border/55" : ""}`}
           >
-            <p className="text-2xl font-extrabold tracking-[-0.035em] text-foreground sm:text-3xl">
+            <p className="text-2xl font-extrabold tracking-[-0.035em] text-foreground sm:text-3xl relative z-10">
               {s.v}
             </p>
-            <p className="cine-faint text-[11px] sm:text-xs leading-snug">{s.l}</p>
+            <p className="cine-faint text-[11px] sm:text-xs leading-snug relative z-10">{s.l}</p>
           </motion.div>
         ))}
       </div>
@@ -239,12 +253,23 @@ function SelectedWorkSection({ t }) {
             return (
               <motion.article
                 key={item.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ delay: index * 0.1, duration: 0.55, ease: EASE }}
-                whileHover={{ y: -3 }}
-                className="cine-card-bg cine-border-c cine-hover-border group flex min-h-[330px] flex-col overflow-hidden rounded-[2rem] border p-5 transition-colors sm:p-6"
+                transition={{ 
+                  delay: index * 0.15, 
+                  duration: 0.6, 
+                  ease: [0.22, 1, 0.36, 1], // easeOutQuint
+                  hover: { type: "spring", stiffness: 400, damping: 17 }
+                }}
+                whileHover={{ 
+                  y: -12, 
+                  scale: 1.03, 
+                  rotate: index % 2 === 0 ? 1 : -1,
+                  boxShadow: "0 20px 40px -15px rgba(0,122,255,0.15)",
+                  zIndex: 10
+                }}
+                className="cine-card-bg cine-border-c cine-hover-border relative group flex min-h-[330px] flex-col overflow-hidden rounded-[2rem] border p-5 transition-colors sm:p-6"
               >
                 <WorkScenePreview Scene={Scene} Icon={Icon} badge={item.badge} index={index} />
                 <p className="cine-accent-t text-[9px] font-bold uppercase tracking-[0.2em]">{item.kind}</p>
@@ -312,7 +337,7 @@ function AboutSection({ t, jasonPhoto }) {
                   height="64"
                   loading="lazy"
                   referrerPolicy="no-referrer"
-                  className="h-full w-full object-contain"
+                  className={`education-logo h-full w-full object-contain ${item === "university" ? "animate-[spin_8s_linear_infinite]" : ""}`}
                 />
               </span>
               <div className="min-w-0">
@@ -464,54 +489,103 @@ function ContactSection({ t }) {
 
   return (
     <section className="px-4 pb-14 md:px-6 md:pb-20">
-      <AboutCard className="mx-auto max-w-4xl space-y-6 px-5 py-8 text-center sm:px-8 sm:py-10">
-        <div className="space-y-2.5">
-          <p className="ios-kicker">
-            {t("intro.slide9.badge")}
-          </p>
-          <h2 className="text-2xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-3xl">
-            <WordsPullUp text={t("intro.cine.contactTitle")} center wordClassName="cine-grad" />
-          </h2>
-          <p className="cine-muted mx-auto max-w-lg text-xs leading-relaxed">
-            {t("intro.slide9.desc")}
-          </p>
-        </div>
-
-        {/* Contact tiles — trên thiết bị cảm ứng, email dùng mailto để mở app Mail */}
-        <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4">
-          {contacts.map((c, i) => {
-            const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
-            const href = c.fallback && isTouch ? c.fallback : c.href;
-            return (
-            <motion.a
-              key={c.label}
-              href={href}
-              target={href.startsWith("http") ? "_blank" : undefined}
-              rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5, ease: EASE }}
-              whileHover={{ y: -2 }}
-              className="group cine-card2-bg cine-border-c cine-hover-border flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 transition-colors"
+      
+      {/* SINGLE UNIFIED FINAL SLIDE */}
+      <div className="mx-auto max-w-5xl space-y-10 pt-10 pb-8 relative z-10">
+        
+        {/* 1. HORSE */}
+        <CodeHorseFilm />
+        
+        {/* 2. DONATE PROMPT */}
+        <div className="mx-auto max-w-2xl text-center space-y-5">
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="text-base font-medium sm:text-lg text-foreground/80 tracking-tight"
+          >
+            "{t("intro.cine.horsePrompt")}"
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 28, scale: 0.92 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.8, ease: EASE }}
+            className="flex justify-center"
+          >
+            <motion.button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))}
+              whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(0,122,255,0.35)" }}
+              whileTap={{ scale: 0.97 }}
+              animate={{
+                boxShadow: [
+                  "0 10px 25px rgba(0,122,255,0.2)",
+                  "0 18px 35px rgba(175,82,222,0.35)",
+                  "0 10px 25px rgba(0,122,255,0.2)",
+                ],
+              }}
+              transition={{
+                boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+              }}
+              className="group relative inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 px-6 py-2.5 text-sm font-bold text-white shadow-xl transition-all"
             >
-              <c.Icon size={17} className="cine-contact-ic" />
-              <span className="text-xs font-medium" style={{ color: INK }}>{c.label}</span>
-            </motion.a>
-            );
-          })}
+              <span className="material-symbols-outlined text-[18px] text-white/90 animate-bounce" aria-hidden="true">
+                volunteer_activism
+              </span>
+              <span>{t("intro.cine.donateBtn")}</span>
+              <Heart className="w-4 h-4 text-white/90 fill-transparent transition-transform group-hover:scale-125 group-hover:fill-white/40" />
+            </motion.button>
+          </motion.div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))}
-          className="cine-border-c mx-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-full border px-4 text-xs font-bold transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:hover:bg-white/5"
-        >
-          <span className="material-symbols-outlined text-[18px]" aria-hidden="true">volunteer_activism</span>
-          {t("footer.supportServer")}
-        </button>
+        {/* 3. CONTACT SECTION (KẾT NỐI VỚI MÌNH) */}
+        <div className="mx-auto max-w-4xl space-y-6 pt-10 text-center border-t border-black/5 dark:border-white/5">
+          <div className="space-y-2.5 pt-4">
+            <p className="ios-kicker">
+              {t("intro.slide9.badge")}
+            </p>
+            <h2 className="text-2xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-3xl">
+              <WordsPullUp text={t("intro.cine.contactTitle")} center wordClassName="cine-grad" />
+            </h2>
+            <p className="cine-muted mx-auto max-w-lg text-xs leading-relaxed">
+              {t("intro.slide9.desc")}
+            </p>
+          </div>
 
-      </AboutCard>
+          <div className="mx-auto grid max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4">
+            {contacts.map((c, i) => {
+              const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+              const href = c.fallback && isTouch ? c.fallback : c.href;
+              return (
+              <motion.a
+                key={c.label}
+                href={href}
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ 
+                  delay: i * 0.08, 
+                  duration: 0.5, 
+                  ease: EASE,
+                  hover: { type: "spring", stiffness: 400, damping: 10 }
+                }}
+                whileHover={{ y: -6, scale: 1.05, boxShadow: "0 10px 20px -10px rgba(0,0,0,0.15)" }}
+                className="group cine-card2-bg cine-border-c cine-hover-border flex min-h-11 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 transition-colors relative z-10"
+              >
+                <c.Icon size={17} className="cine-contact-ic" />
+                <span className="text-xs font-medium" style={{ color: INK }}>{c.label}</span>
+              </motion.a>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
+
       <SupporterMarquee t={t} />
     </section>
   );
@@ -587,6 +661,7 @@ export default function IntroductionPage() {
   return (
     <div className="cine-root relative min-h-screen">
       <style>{CINE_CSS}</style>
+      <AmbientAuraParticles />
       <ScrollProgressBar />
       <HeroSection t={t} />
       <StatsStrip t={t} />
@@ -597,3 +672,4 @@ export default function IntroductionPage() {
     </div>
   );
 }
+

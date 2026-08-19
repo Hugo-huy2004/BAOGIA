@@ -134,8 +134,9 @@
     "connect": "Kết nối",
     "partner": "Đối tác",
     "privacyPolicy": "Chính sách bảo mật",
-    "supportServer": "Ủng Hộ Server",
-    "userGuide": "Hướng dẫn sử dụng"
+    "supportServer": "Ủng hộ máy chủ",
+    "userGuide": "Hướng dẫn sử dụng",
+    "terms": "Điều khoản sử dụng"
   },
   "donationUI": {
     "title": "Ủng hộ Hugo Studio",
@@ -431,7 +432,7 @@
         },
         "university": {
           "label": "Đại học",
-          "name": "Greenwich Việt Nam",
+          "name": "University of Greenwich",
           "detail": "Kỹ thuật Phần mềm · Năm cuối",
           "slogan": "Education without Boundaries",
           "logoAlt": "Logo Greenwich Việt Nam liên kết FPT Education"
@@ -468,9 +469,9 @@
       "contactTitle": "Kết nối với mình.",
       "marqueeTitle": "Công nghệ mình được học",
       "work": {
-        "eyebrow": "Dự án tiêu biểu",
-        "title": "Những sản phẩm mình đã trực tiếp xây dựng.",
-        "desc": "Mỗi dự án dưới đây đánh dấu một nhóm bài toán khác nhau: hồ sơ cá nhân, dữ liệu giao dịch và trải nghiệm tương tác. Chúng cũng cho thấy cách mình kết hợp giao diện, logic hệ thống và thiết kế cho điện thoại.",
+        "eyebrow": "Hệ sinh thái ứng dụng",
+        "title": "Những dự án trực thuộc quản lý của Hugo Studio.",
+        "desc": "Hiện tại, hệ thống của mình đã được tách ra thành nhiều ứng dụng độc lập. Mỗi ứng dụng được xem như một dự án nhỏ giải quyết một bài toán riêng, và được Hugo Studio quản lý dữ liệu tập trung.",
         "items": [
           {
             "badge": "Hồ sơ số",
@@ -504,7 +505,9 @@
         "keywords": "Peter Hugo Wishpax Lê, Hugo Lê, portfolio lập trình viên, sinh viên kỹ thuật phần mềm, Greenwich Việt Nam, dự án React"
       },
       "heroCvCta": "Tải CV",
-      "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào."
+      "weak3": "Chương trình học của mình đi rộng qua nhiều ngôn ngữ hơn là đi sâu một cái — mình đọc hiểu và sửa được, nhưng chưa chuyên sâu ngôn ngữ nào.",
+      "horsePrompt": "MÃ ĐÁO THÀNH NGỰA HÍ HÍ . ỦNG HỘ TỚ NHA",
+      "donateBtn": "Ủng hộ Hugo (Donate)"
     }
   },
   "servicesPage": {
@@ -3396,6 +3399,22 @@
         "search": {
           "title": "Bộ Lọc Tra Cứu Thành Viên Đa Năng",
           "desc": "Tìm kiếm nguyên tử theo 8 tiêu chí: Trạng thái Ví đóng băng/mở, Xác minh Edu, Hạng VIP, Top JOY, Email, Slug, SĐT và Đơn vị."
+        },
+        "store": {
+          "desc": "Cài đặt và gỡ bỏ từng tiện ích như một ứng dụng điện thoại. Màn hình chính của bạn chỉ hiển thị những gì bạn đã chọn, với các tiện ích có kích thước bạn muốn.",
+          "title": "Một cửa hàng ứng dụng thực sự"
+        },
+        "ai": {
+          "title": "Một cổng AI",
+          "desc": "Mọi tính năng AI đều đi qua một cổng chia sẻ với hạn ngạch, bộ nhớ đệm, số lần thử lại tự động và tính năng tắt khẩn cấp — không còn các cuộc gọi một lần rải rác xung quanh nữa."
+        },
+        "offline": {
+          "desc": "Cài đặt Hugo Studio dưới dạng một ứng dụng độc lập, mở nó mà không cần kết nối, nhận thông báo đẩy và tự động đồng bộ lại khi bạn trực tuyến trở lại.",
+          "title": "Hoạt động ngoại tuyến"
+        },
+        "wallet": {
+          "desc": "Số dư và thông báo cập nhật ngay lập tức qua kết nối trực tiếp — không cần tải lại trang.",
+          "title": "Ví JOY thời gian thực"
         }
       },
       "compareTitle": "So sánh 1.0 và 2.0.0",
@@ -3433,6 +3452,26 @@
           "aspect": "Tra cứu thành viên",
           "old": "Tìm theo email thủ công",
           "new": "Bộ lọc đa dụng 8 tiêu chí (Ví, Edu, VIP, Top JOY, SĐT...)"
+        },
+        "auth": {
+          "aspect": "Đăng nhập",
+          "old": "Tin cậy email trình duyệt đã gửi",
+          "new": "Máy chủ tự xác minh Google, khóa phiên trong cookie an toàn"
+        },
+        "ai": {
+          "aspect": "Tính năng AI",
+          "new": "Một cổng: hạn ngạch, bộ đệm, hạ cấp, dừng khẩn cấp",
+          "old": "Mỗi chỗ gọi trực tiếp nhà cung cấp"
+        },
+        "offline": {
+          "aspect": "Ngoại tuyến",
+          "new": "Cài đặt như một ứng dụng, chạy ngoại tuyến, đồng bộ hóa điểm số sau",
+          "old": "Luôn cần sự kết nối"
+        },
+        "notify": {
+          "aspect": "Thông báo",
+          "new": "Một hệ thống thông báo được chia sẻ ở mọi nơi",
+          "old": "Sự kết hợp của các kiểu hộp thoại khác nhau"
         }
       },
       "semverTitle": "Cách đọc số phiên bản",
@@ -4947,7 +4986,12 @@
         "perkListenHours": "+{{count}} giờ nghe",
         "perkValidity": "+{{count}} ngày sử dụng",
         "perkChats": "+{{count}} lượt trò chuyện",
-        "perkCalls": "+{{count}} lượt gọi"
+        "perkCalls": "+{{count}} lượt gọi",
+        "perkValidity_one": "+1 ngày truy cập",
+        "perkListenDays_one": "+1 ngày nghe",
+        "perkListenHours_one": "+1 giờ nghe",
+        "perkChats_one": "+1 cuộc trò chuyện",
+        "perkCalls_one": "+1 cuộc gọi"
       },
       "gift": {
         "title": "Tặng {{app}}",
@@ -6527,5 +6571,347 @@
       "desc": "Bảng chỉ vẽ từ mốc tỷ giá có thật. Quay lại sau vài giờ khi hệ thống ghi thêm mốc."
     },
     "note": "Tỷ giá sinh từ nhịp lưu thông JOY nội bộ, không neo theo bất kỳ đồng tiền thật nào. Giá trong app luôn niêm yết bằng JOY gốc, nên tỷ giá lên xuống không làm ai mua được nhiều hay ít hơn."
+  },
+  "invest": {
+    "lessons": {
+      "co-phieu": {
+        "title": "Cổ phiếu là gì",
+        "summary": "Mua cổ phiếu là mua một phần công ty, không phải mua một con số.",
+        "body": [
+          "Hugo Film phát hành 120.000 cổ phiếu. Bạn mua 100 cổ phiếu tức là bạn sở hữu 100/120.000 công ty đó — khoảng 0,08%.",
+          "Giá cổ phiếu × số cổ phiếu đã phát hành = VỐN HOÁ, tức thị trường đang định giá cả công ty bao nhiêu. Nhìn vốn hoá để biết công ty lớn cỡ nào, đừng nhìn mỗi giá một cổ phiếu: một mã giá 45 JOY chưa chắc rẻ hơn mã giá 100 JOY."
+        ]
+      },
+      "gia-dong": {
+        "title": "Vì sao giá lên xuống",
+        "summary": "Giá chạy theo việc công ty làm TỐT HƠN hay KÉM HƠN kỳ vọng.",
+        "body": [
+          "Mỗi phiên, sàn đo hoạt động 7 ngày gần nhất của từng công ty rồi so với mức trung bình 30 ngày của chính nó. Chênh lệch đó gọi là bất ngờ (surprise).",
+          "Hugo Arcade tuần này có 150 lượt chơi, trung bình là 100 ⇒ surprise = +50%. Nhân với biên độ riêng của mã (9%) ⇒ giá tăng 4,5% phiên đó.",
+          "Bài học mang ra đời thật: thị trường không thưởng cho công ty làm ăn tốt, nó thưởng cho công ty làm tốt HƠN MỨC MỌI NGƯỜI ĐANG CHỜ ĐỢI. Đó là lý do một công ty báo lãi kỷ lục mà cổ phiếu vẫn giảm."
+        ]
+      },
+      "rui-ro": {
+        "title": "Rủi ro đi cùng lợi nhuận",
+        "summary": "Mã chạy nhanh khi lên cũng là mã rơi nhanh khi xuống.",
+        "body": [
+          "Bốn mã trên sàn có biên độ khác nhau: HARC 9% (mạnh nhất), HNEWS 7%, HFILM 5%, HBANK 3% (êm nhất).",
+          "Cùng một tin tốt +50% surprise: HARC tăng 4,5% còn HBANK chỉ tăng 1,5%. Nhưng khi tin xấu, HARC cũng mất 4,5% còn HBANK chỉ mất 1,5%.",
+          "Không có mã nào 'lời nhiều mà an toàn'. Ai chào bạn thứ đó ngoài đời thật thì gần như chắc chắn là lừa đảo."
+        ]
+      },
+      "gia-von": {
+        "title": "Giá vốn bình quân",
+        "summary": "Mua thêm ở giá khác thì giá vốn được tính lại, không phải giá lần cuối.",
+        "body": [
+          "Mua 10 cổ phiếu giá 100, rồi mua thêm 10 cổ phiếu giá 200. Giá vốn = (10×100 + 10×200) / 20 = 150 JOY.",
+          "Lãi/lỗ luôn đo từ 150 chứ không phải từ 200. Nhiều người mới nhìn nhầm chỗ này rồi tưởng mình đang lỗ trong khi thật ra đang lãi — hoặc ngược lại."
+        ]
+      },
+      "lai-lo": {
+        "title": "Tính lãi/lỗ cho đúng",
+        "summary": "Lãi/lỗ = (giá hiện tại − giá vốn) × số lượng. Phần trăm mới là thứ đáng nhìn.",
+        "body": [
+          "Đang nắm 20 cổ phiếu giá vốn 150, giá hiện tại 180 ⇒ lãi = (180 − 150) × 20 = 600 JOY.",
+          "Vốn bỏ ra = 150 × 20 = 3.000 JOY ⇒ lãi 20%. Con số 600 tự nó không nói gì: lãi 600 trên vốn 3.000 khác hẳn lãi 600 trên vốn 60.000.",
+          "Lãi khi CHƯA BÁN gọi là lãi trên giấy. Nó chỉ thành tiền thật khi bạn bán — và giá có thể quay đầu trước khi bạn kịp bán."
+        ]
+      },
+      "phi": {
+        "title": "Phí ăn mòn lợi nhuận",
+        "summary": "Mua rồi bán ngay ở đúng giá cũ, bạn vẫn LỖ đúng bằng hai lần phí.",
+        "body": [
+          "Sàn thu 0,5% mỗi chiều, tối thiểu 1 JOY — sàn thật cũng thu phí như vậy, cộng thuế.",
+          "Mua 10 cổ phiếu giá 100 (phí 5 JOY), bán lại cũng giá 100 (phí 5 JOY) ⇒ lỗ 10 JOY dù giá không hề đổi.",
+          "Đây là lý do mua đi bán lại liên tục thường thua người mua rồi giữ: mỗi vòng lướt là một lần trả phí, còn giá thì chưa chắc đi đâu."
+        ]
+      },
+      "phi-chuyen-doi": {
+        "title": "Phí chuyển đổi khi mua tài sản niêm yết bằng đơn vị khác",
+        "summary": "Sàn niêm yết bằng JOYka. Ví bạn ở đơn vị khác thì mỗi lệnh là một lần đổi tiền.",
+        "body": [
+          "Toàn sàn dùng MỘT bảng giá bằng JOYka — đơn vị JOY gốc. Ví bạn để ở Mira, Luno hay Zoma thì màn hình tự viết lại con số đó theo đơn vị của bạn, KHÔNG mất phí: đơn vị chỉ là cách viết, số JOY gốc vẫn y nguyên.",
+          "Một lệnh 1.000 JOYka với ví khác đơn vị: 5 phí môi giới + 50 phí sáng tạo + 150 phí chuyển đổi = 205, tức hơn 20% giá trị lệnh. Mua rồi bán ngay là mất hơn 40%.",
+          "Ngoài đời y hệt: mua cổ phiếu Mỹ bằng tiền Việt thì ngoài phí môi giới còn mất phí đổi ngoại tệ hai chiều. Đó là lý do nhà đầu tư dài hạn ít giao dịch, còn người lướt sóng xuyên tiền tệ thường thua ngay từ bảng phí — trước khi giá kịp chạy.",
+          "Bài học rút ra: trước khi đặt lệnh, hãy cộng đủ MỌI khoản phí rồi mới xem mình cần giá chạy bao nhiêu phần trăm mới hoà vốn."
+        ]
+      },
+      "co-tuc": {
+        "title": "Cổ tức",
+        "summary": "Có công ty trả tiền cho cổ đông đều đặn thay vì chỉ trông vào giá.",
+        "body": [
+          "Hugo Bank trả 0,15% giá cổ phiếu mỗi phiên cho người đang nắm giữ. Giá ít chạy, nhưng dòng tiền về đều.",
+          "Ngoài đời, cổ phiếu ngân hàng và tiện ích thường như vậy: tăng giá chậm, bù lại trả cổ tức. Cổ phiếu công nghệ thì ngược lại.",
+          "Chọn kiểu nào là tuỳ mục tiêu của bạn — cần tiền đều hay chấp nhận chờ để giá lên."
+        ]
+      },
+      "da-dang-hoa": {
+        "title": "Đừng bỏ hết trứng vào một giỏ",
+        "summary": "Chia vốn cho nhiều mã khác ngành thì một tin xấu không quét sạch tài khoản.",
+        "body": [
+          "Bốn công ty trên sàn thuộc bốn ngành khác nhau: rạp phim, trò chơi, truyền thông, tài chính. Tin xấu của ngành game không kéo ngân hàng xuống theo.",
+          "Thử tự làm một lần: bỏ toàn bộ JOY vào HARC trong một tuần, rồi tuần sau chia đều bốn mã. So hai kết quả — cảm giác khi tài khoản rung lắc cũng là bài học."
+        ]
+      },
+      "ky-luat": {
+        "title": "Kỷ luật quan trọng hơn dự đoán",
+        "summary": "Quyết định trước điểm bán, đừng để cảm xúc quyết hộ.",
+        "body": [
+          "Trước khi mua, viết ra hai con số: lãi bao nhiêu thì bán, lỗ bao nhiêu thì cắt. Rồi làm đúng như đã viết.",
+          "Người mới thường làm ngược: lãi một chút đã bán vì sợ mất, lỗ thì giữ mãi vì tiếc — kết quả là lãi nhỏ, lỗ lớn.",
+          "Sàn này dùng JOY nên sai không mất tiền thật. Hãy sai ở đây cho đủ, trước khi mang tiền thật ra sàn thật."
+        ]
+      },
+      "canh-bao": {
+        "title": "Sàn ảo khác sàn thật ở đâu",
+        "summary": "Hiểu giới hạn của mô phỏng để không mang ảo tưởng ra đời thật.",
+        "body": [
+          "Ở đây giá khớp 3 phiên/ngày (09:00 · 15:00 · 21:00) và luôn khớp đủ số lượng bạn đặt. Sàn thật khớp liên tục, và có lúc không ai mua để bạn bán.",
+          "Ở đây công ty không phá sản, giá không về 0. Sàn thật thì có — và cổ đông là người mất cuối cùng.",
+          "JOY không phải tiền thật, không quy đổi ra tiền. Kết quả trong app không phải lời hứa cho bất kỳ khoản đầu tư nào ngoài đời."
+        ]
+      }
+    },
+    "dictionary": {
+      "pnl": {
+        "title": "Tổng Lời / Lỗ Ròng (PnL & ROI)",
+        "badge": "Chỉ số quan trọng nhất",
+        "summary": "Cho biết bạn đang thắng hay thua bao nhiêu tiền sau khi trừ mọi chi phí.",
+        "details": [
+          "Vốn đầu tư: Tổng số tiền bạn đã bỏ ra để mua các cổ phiếu hiện tại.",
+          "Giá trị hiện tại: Số tiền bạn thu về được nếu lập tức bán hết toàn bộ cổ phiếu theo giá thị trường thời gian thực.",
+          "Lời/Lỗ ròng (Unrealized PnL): Lấy Giá trị hiện tại trừ Vốn đầu tư. Số dương (+) là bạn đang LỜI, số âm (-) là bạn đang LỖ."
+        ],
+        "example": "Ví dụ: bỏ ra 100.000 mua HFILM, nay số cổ phiếu đó trị giá 125.000 ➔ đang LỜI +25.000 (+25%) trên giấy. Chỉ khi BÁN, trừ hết phí, nó mới thành lãi thật trong ví."
+      },
+      "second_price": {
+        "title": "Giá chạy liên tục trong phiên",
+        "badge": "Không đoán trước được",
+        "summary": "Đường giá đi theo bước 60 giây, do máy chủ dựng bằng một hạt giống bí mật — mọi thành viên nhìn cùng một đường.",
+        "details": [
+          "Mỗi bước là một mức giá mới; máy chủ gửi cả đường giá xuống nên biểu đồ bạn thấy đúng bằng giá dùng để khớp lệnh.",
+          "Thị trường đổi trạng thái mỗi 15 phút: đi ngang, xu hướng lên, xu hướng xuống, bùng nổ, sập, hoặc một cú sốc tin tức.",
+          "KHÔNG ai đoán trước được bước kế tiếp — hạt giống nằm ở máy chủ và không bao giờ gửi ra ngoài. Đừng tin bất cứ ai nói họ biết trước đáy hay đỉnh.",
+          "Giá luôn bị kéo về mốc neo của phiên (mức do kết quả kinh doanh quyết định), nên xu hướng chạy được hàng giờ nhưng không đi mãi một chiều."
+        ],
+        "example": "Muốn có lãi thật, giá phải chạy đủ xa để bù phí hai chiều — nhấp nhô vài phút thì phí ăn hết."
+      },
+      "conversion_fee": {
+        "title": "Đơn Vị Ví Không Ảnh Hưởng Giá",
+        "badge": "Đã bỏ phí quy đổi",
+        "summary": "Ví bạn để ở đơn vị nào cũng mua bán đúng một giá — sàn không thu phí đổi đơn vị nữa.",
+        "details": [
+          "Sàn niêm yết giá theo đơn vị chuẩn JOYka (Kavo), còn ví bạn hiện số theo đơn vị bạn chọn (Mira, Luno, Velu...). Đó chỉ là hai cách VIẾT của cùng một số JOY gốc.",
+          "Trước đây mỗi lệnh bị tính 15% phí quy đổi ở cả hai chiều, đẩy mốc hoà vốn của ví khác đơn vị lên 51,6% — phải đoán trúng một cú tăng hơn nửa giá trị công ty mới huề vốn.",
+          "Khoản đó đã bỏ: sổ cái ghi JOY gốc từ đầu tới cuối nên chưa từng có lần đổi tiền nào thật sự xảy ra. Nay mọi ví đều hoà vốn ở ~1,01%."
+        ],
+        "example": "Ví dụ: mua 1.000, ví trừ 1.005. Giá lên 1.011 là bán đã huề; lên 1.100 thì bán về 1.094, lãi thật 89."
+      },
+      "brokerage_fee": {
+        "title": "Phí Môi Giới 0,5%",
+        "badge": "Chi phí giao dịch",
+        "summary": "Sàn chỉ thu một khoản duy nhất: 0,5% giá trị lệnh, mỗi chiều.",
+        "details": [
+          "Phí môi giới: 0,5% giá trị lệnh, tối thiểu 1 JOY, thu cả khi mua lẫn khi bán — đúng mức các công ty chứng khoán ngoài đời thu.",
+          "Phí sáng tạo 5% mỗi chiều đã BỎ: đó là phí chuyển JOY giữa hai người, mà mua cổ phiếu thì không chuyển tiền cho ai cả.",
+          "Vì thu hai chiều nên mốc hoà vốn là 1,01% chứ không phải 0,5%: mua trả thêm 0,5%, bán bị trừ 0,5%.",
+          "Toàn bộ phí hiện rõ trước khi bạn bấm Xác nhận đặt lệnh."
+        ]
+      },
+      "market_cap": {
+        "title": "Vốn Hóa Thị Trường (Market Cap)",
+        "badge": "Định giá doanh nghiệp",
+        "summary": "Tổng giá trị tiền tệ của toàn bộ số cổ phiếu mà công ty đã phát hành.",
+        "details": [
+          "Công thức: Vốn hóa = (Giá cổ phiếu hiện tại) × (Tổng số cổ phiếu phát hành).",
+          "Công ty có vốn hóa lớn thường biến động ổn định, an toàn. Công ty vốn hóa nhỏ dễ tăng vọt nhưng biến động cao hơn."
+        ]
+      },
+      "smart_advice": {
+        "title": "Tín Hiệu Tư Vấn AI Quản Gia",
+        "badge": "Trợ lý đầu tư tự động",
+        "summary": "Hệ thống AI tự động phân tích thị trường và danh mục của bạn để đưa ra lời khuyên tối ưu.",
+        "details": [
+          "NÊN CHỐT LỜI: khi lãi đã vượt mốc hoà vốn 1,01% — dưới mốc đó, bán ra vẫn là lỗ vì phí thu cả hai chiều.",
+          "CẢNH BÁO CẮT LỖ: khi cổ phiếu giảm quá 10%.",
+          "GIỮ TIẾP: khi đang lãi nhưng chưa qua mốc hoà vốn — bán lúc đó vẫn là lỗ."
+        ]
+      }
+    },
+    "ui": {
+      "explain": "Giải thích",
+      "close": "Đóng",
+      "detailsToKnow": "Chi tiết cần biết",
+      "realWorldExample": "Ví dụ thực tế:",
+      "gotIt": "Đã hiểu",
+      "lessonHeader": "Mười bài học thực chiến thiết kế chuẩn Hugo Studio — giải thích từ cơ bản tới nâng cao với ví dụ bằng số thật.",
+      "receiptTitle": "Biên nhận Giao dịch",
+      "buy": "MUA",
+      "sell": "BÁN",
+      "walletBalance": "Số dư ví",
+      "available": "Khả dụng",
+      "invested": "Vốn đầu tư",
+      "currentValue": "Giá trị hiện tại",
+      "netPnL": "Lãi / Lỗ ròng",
+      "quantity": "Số lượng",
+      "avgCost": "Giá vốn",
+      "marketPrice": "Giá thị trường",
+      "chartTitle": "Biểu đồ Thị trường",
+      "orderBook": "Sổ lệnh",
+      "tradeHistory": "Lịch sử Giao dịch",
+      "simulatedVol": "KL mô phỏng",
+      "2m": "2 phút",
+      "5m": "5 phút",
+      "15m": "15 phút",
+      "session": "Phiên",
+      "candles": "nến",
+      "openShort": "M",
+      "highShort": "C",
+      "lowShort": "T",
+      "closeShort": "Đ",
+      "notEnoughData": "Chưa đủ dữ liệu để vẽ nến",
+      "invest.ui.2min": "2 phút",
+      "invest.ui.5min": "5 phút",
+      "invest.ui.session": "Phiên họp",
+      "invest.ui.15min": "15 phút",
+      "auto": "TỰ ĐỘNG",
+      "viewDetail": "Xem chi tiết",
+      "realtimeTrend": "Xu hướng 1 giây theo thời gian thực:",
+      "smartAdvisorTitle": "Tổng quan Lời khuyên của quản gia",
+      "30candles": "30 ngọn nến",
+      "smartAdvisorWarning": "Chưa có cổ phiếu nào vượt qua mốc hòa vốn +1,0%. Bán sớm đồng nghĩa với việc phải trả phí hai lần cho một chuyến đi.",
+      "realizedProfit": "Lợi nhuận thực hiện",
+      "losing": "THUA",
+      "profitable": "CÓ LỢI NHUẬN",
+      "investedCapital": "Vốn đầu tư",
+      "stockList": "Danh sách thị trường chứng khoán",
+      "holdingPortfolio": "Nắm giữ danh mục đầu tư",
+      "roi": "Lợi tức đầu tư:",
+      "dividendsReceived": "Cổ tức nhận được tính đến thời điểm hiện tại:",
+      "totalPnl": "Tổng lãi / lỗ ròng (PnL)",
+      "breakevenNote": "Điểm hòa vốn: Phí môi giới được tính cho cả hai bên là 0,5% nên giá phải tăng thêm 1,01% mới hòa vốn - bán sớm hơn là lỗ.",
+      "shares": "cổ phần",
+      "capital": "thủ đô",
+      "invest.ui.buy": "Mua",
+      "fee": "phí",
+      "invest.ui.sell": "Bán",
+      "viewReceipt": "bấm vào để xem biên lai",
+      "viewReceiptShort": "xem biên lai",
+      "orderHistory": "Lịch sử thực hiện lệnh",
+      "referencePrice": "tham chiếu",
+      "sharesOf": "phiếu bầu",
+      "dividendRate": "Cổ tức mỗi phiên",
+      "orderSuccess": "Member command match",
+      "marketCap": "End field",
+      "orderFailed": "Could not set command",
+      "sharesOutstanding": "hành động gửi phiếu",
+      "noDividend": "No return",
+      "holdingNoticePart1": "Bạn đang ghi lại",
+      "volatility": "Dao động biên độ",
+      "brokerageFeeLbl": "Giới hạn môi trường ({{feeRate}}%)",
+      "creativeFeeLbl": "Tạo phí ({{creativeRate}}%)",
+      "conversionFeeLbl": "Đơn vị đổi ({{conversionRate}}%)",
+      "availableBalance": "Số dư khả dụng",
+      "totalDeducted": "Tổng trừ ví ({{walletCode}})",
+      "totalAdded": "Tổng về ví ({{walletCode}})",
+      "placeOrder": "Set match command ngay",
+      "paperPnL": "Core/lỗi trên giấy:",
+      "noWallet": "Chưa có ví dụ JOY",
+      "diffWalletNotice": "Ví dụ khác đơn vị gốc: phí quy đổi 15% thu cả chiều MUA và BÁN, nên giá phải tăng {{breakEven}}% thì bán mới hòa vốn.",
+      "loading": "Đang tải…",
+      "shortageNotice1": "Missing",
+      "confirmSell": "Xác nhận bán {{qty}} cổ",
+      "shortageNotice2": "for set command này. Giảm số lượng hoặc tải thêm vào ví.",
+      "confirmBuy": "Xác nhận mua cổ {{qty}}",
+      "noWalletError": "Tài khoản này chưa có ví JOY nên lệnh chưa được thiết lập. Mở tài khoản ứng dụng để tạo hồ sơ trước đó.",
+      "quoteCurrencyNotice1": "Sàn niêm yết",
+      "isProfitFalse": "Đang gặp lỗi",
+      "quoteCurrencyNotice2": "for this command. Số trên đã quy định về đơn vị ví dụ của bạn.",
+      "isProfitTrue": "Lời bài hát",
+      "feeText": "phí",
+      "sharesShort": "cổ",
+      "capitalShort": "vốn",
+      "marketTab": "Giá bảng",
+      "emptyPortfolio2": "để chọn phiếu bầu và tích lũy lợi nhuận!",
+      "emptyPortfolio1": "Chưa có phiếu bầu nào được giữ lại Please move to tab",
+      "viewReceiptAction": "nhấn xem đơn vị",
+      "breakEvenNotice": "mốc hòa vốn: phí môi giới 0,5% thu cả hai chiều, nên giá phải tăng {{breakEven}}% thì bán mới huề vốn — bán sớm hơn là lỗi.",
+      "advisorTakeProfit": "Afterly",
+      "advisorCutLoss": "Lỗi cắt",
+      "advisorKeepHolding": "Tiếp tục giữ",
+      "advisorRecSell": "Khuyến nghị bán hàng",
+      "advisorRiskWarning": "Cảnh báo rủi ro",
+      "advisorHolding": "Giữ chặt",
+      "advisorHold": "Giữ chặt",
+      "advisorTakeProfitMsg": "Lời +{{pct}}% đã vượt qua đèn pha {{breakEven}}% (đủ bù cả phí mua sắm phí bán). Bán hiện tại là lãi thật vào ví.",
+      "advisorKeepHoldingMsg": "Lời +{{pct}}% CHƯA đủ vốn hòa vốn: bán lúc này vẫn lỗi vì phí hai chiều. mực hòa vốn của ví bạn là +{{breakEven}}%.",
+      "advisorCutLossMsg": "Cổ phiếu đang giảm {{pct}}%. Vui lòng chú ý quản trị vốn hoặc cân cắt lỗi.",
+      "advisorWarning": "Cảnh báo",
+      "advisorWatch": "Theo dõi",
+      "advisorRiskMgmt": "Rủi ro quản trị",
+      "advisorGoodExit": "Điểm đẹp",
+      "advisorRiskMgmtMsg": "{{symbol}} đang giảm {{pct}}%. Cân nhắc tỷ lệ bảo đảm an toàn vốn.",
+      "advisorGoodExitMsg": "{{symbol}} đang trả lời +{{pct}}%, đã qua đêm hòa vốn {{breakEven}}%.",
+      "advisorGoodPositionMsg": "Vị trí {{symbol}} đang ổn định với {{quantity}} cổ phiếu.",
+      "advisorGoodPosition": "Vị trí tốt",
+      "advisorNotHolding": "Chưa được nắm giữ",
+      "advisorWatchMsg": "Giá hiện tại {{price}}. Mua vào thì cần phải tăng giá {{breakEven}}% bộ hòa mới được miễn phí cho hai chiều.",
+      "advisorGuide": "Hướng dẫn",
+      "advisorAuto": "Auto",
+      "advisorEmptyMsg": "Không có phiếu bầu trong danh mục. Sang tab Bảng giá, chọn một mã hóa để bắt đầu.",
+      "advisorMarketTitle": "Sàn ảo Hugo",
+      "advisorNoBreakEvenMsg": "Danh mục chưa có mã hóa qua vốn hòa vốn +{{breakEven}}%. Bán sớm là trả phí hai lần cho một lần đi."
+    },
+    "companies": {
+      "HFILM": {
+        "name": "Phim Hugo",
+        "sector": "Giải thích · Tải lại phim",
+        "description": "Vận hành rạp Chill Premium và HugoRadio. Doanh thu đo bằng số JOY thành viên chi ra mua token xem/nghe trong kỳ — bán được nhiều vé thì công ty khỏe."
+      },
+      "HARC": {
+        "sector": "Trò chơi",
+        "name": "Hugo Arcade",
+        "description": "Sở hữu toàn bộ trò chơi trong HugoArcade. Doanh thu đo bằng số người chơi có điểm trong kỳ. Đây là mã BIẾN ĐỘNG MẠNH NHẤT sàn: như chơi lên xuống theo mùa thi, nghỉ hè, game mới."
+      },
+      "HNEWS": {
+        "sector": "Truyền thông",
+        "name": "tin tức Hugo",
+        "description": "Toàn bộ tab soạn thảo của ngày hôm nay Không. Doanh thu đo bằng số lượt xem được ghi nhận. Ngành truyền thông thông tin sống bằng lượng đọc, nên có thể đẩy giá lên nhanh và nguội cũng nhanh."
+      },
+      "HBANK": {
+        "name": "Ngân hàng Hugo",
+        "sector": "Tài chính",
+        "description": "Giữ ví JOY, cho vay JOYlat và thu phí chuyển đổi. Doanh thu đo bằng lượng JOY luân chuyển qua vay và chuyển tiền. Biến động thấp nhất sàn nhưng TRẢ CỔ TỨC mỗi phiên — đúng kiểu cổ phiếu ngân hàng ngoài đời."
+      },
+      "HCODE": {
+        "sector": "Giáo dục",
+        "name": "Hugo học tập",
+        "description": "Vận hành Study with Hugo và Phát triển Web. Doanh thu đo bằng JOY luân chuyển xung quanh việc học: hoàn thành bài, tốt nghiệp, mua như thi lại, mở khoá vĩnh viễn. Ngành giáo dục theo mùa — vào mùa thi thì mong, nghỉ hè thì nhạt."
+      },
+      "HSTORE": {
+        "sector": "Bán lẻ",
+        "description": "Cửa hàng và các gói ứng dụng trong cổng thông tin. Doanh thu đo bằng JOY chi cho mua hàng, gói ứng dụng, tài năng và nén file. Bán lẻ chạy theo thời gian: có đá hàng mới thì doanh số tăng lên rồi lắng xuống.",
+        "name": "Cửa hàngHugo"
+      },
+      "HSTYLE": {
+        "name": "Studio Hugo",
+        "sector": "Thiết kế · Giao diện",
+        "description": "Cho thuê giao diện Bio, Aura và Portal. Doanh thu đo bằng JOY chi cho giao diện. Công ty nhỏ nên một giao diện mới cũng đủ làm giá nhảy — mã hóa đầu cơ mạnh nhất sàn."
+      },
+      "HFRIEND": {
+        "name": "Hugo xã hội",
+        "sector": "Thành viên mạng lưới",
+        "description": "Sống bằng việc làm thành viên chào nhau vào cổng thông tin: quà giới thiệu, tặng JOY, điểm danh cùng nhau. Doanh thu đo bằng JOY luân chuyển giữa người — mạng lưới càng đông thì càng khỏe."
+      }
+    }
+  },
+  "walletApp": {
+    "investCard": {
+      "ecosystem": "Hệ Sinh Thái Hugo Invest",
+      "title": "Tài Sản & Chứng Khoán",
+      "enterBtn": "Vào Sàn Stock",
+      "netWorth": "Tổng Tài Sản Net Worth:",
+      "pnl": "Giá Trị Cổ Phiếu (PnL):"
+    }
   }
 }

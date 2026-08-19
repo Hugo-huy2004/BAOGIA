@@ -17,8 +17,6 @@ const trustContent = {
     capabilityLabel: "Năng lực",
     capabilities: ["PWA", "Offline", "Mobile & safe area", "SEO + JSON-LD", "Reduce Motion", "Xác thực máy chủ"],
     referencesTitle: "Liên kết kiểm tra & chính sách",
-    // Câu "không phải tất cả đều là chứng nhận" là phần miễn trừ, đừng cắt:
-    // nó tách bạch dấu do bên thứ ba cấp với công cụ tự kiểm tra.
     referencesDescription: "Công cụ kiểm tra và trang chính sách — bấm để tự đối chiếu. Không phải mục nào cũng là chứng nhận của bên thứ ba.",
     referencesLabel: "Các liên kết kiểm tra, chính sách và thông tin tham chiếu",
   },
@@ -29,6 +27,41 @@ const trustContent = {
     referencesDescription: "Public checkers and policy pages — click to verify for yourself. Not every item is a third-party certification.",
     referencesLabel: "Website checks, policies and reference information",
   },
+  es: {
+    capabilityLabel: "Capacidades",
+    capabilities: ["PWA", "Offline", "Áreas móviles y seguras", "SEO + JSON-LD", "Movimiento Reducido", "Verificación del Servidor"],
+    referencesTitle: "Controles, Políticas y Referencias",
+    referencesDescription: "Herramientas de verificación pública y páginas de políticas — haz clic para verificar por ti mismo. No todos los elementos son certificaciones de terceros.",
+    referencesLabel: "Verificaciones de sitio, políticas e información de referencia",
+  },
+  fr: {
+    capabilityLabel: "Capacités",
+    capabilities: ["PWA", "Hors Ligne", "Zones mobiles et sécurisées", "SEO + JSON-LD", "Mouvement Réduit", "Vérification Serveur"],
+    referencesTitle: "Vérifications, Politiques & Références",
+    referencesDescription: "Vérificateurs publics et pages de politiques — cliquez pour vérifier par vous-même. Tous les éléments ne sont pas des certifications tierces.",
+    referencesLabel: "Vérifications de site, politiques et informations de référence",
+  },
+  ko: {
+    capabilityLabel: "기능",
+    capabilities: ["PWA", "오프라인", "모바일 및 안전 영역", "SEO + JSON-LD", "움직임 줄이기", "서버 확인"],
+    referencesTitle: "확인, 정책 및 참조",
+    referencesDescription: "공개 검사기 및 정책 페이지 — 직접 클릭하여 확인해 보세요. 모든 항목이 타사 인증은 아닙니다.",
+    referencesLabel: "웹사이트 검사, 정책 및 참조 정보",
+  },
+  th: {
+    capabilityLabel: "ความสามารถ",
+    capabilities: ["PWA", "ออฟไลน์", "พื้นที่มือถือและปลอดภัย", "SEO + JSON-LD", "ลดการเคลื่อนไหว", "การตรวจสอบเซิร์ฟเวอร์"],
+    referencesTitle: "การตรวจสอบ นโยบาย & การอ้างอิง",
+    referencesDescription: "เครื่องมือตรวจสอบสาธารณะและหน้านโยบาย — คลิกเพื่อตรวจสอบด้วยตัวคุณเอง ไม่ใช่ทุกรายการจะเป็นการรับรองจากบุคคลที่สาม",
+    referencesLabel: "การตรวจสอบเว็บไซต์ นโยบาย และข้อมูลอ้างอิง",
+  },
+  zh: {
+    capabilityLabel: "功能",
+    capabilities: ["PWA", "离线", "移动与安全区域", "SEO + JSON-LD", "减少动画", "服务器验证"],
+    referencesTitle: "检查、政策与参考",
+    referencesDescription: "公共检查工具和政策页面 — 点击自行验证。并非所有项目都是第三方认证。",
+    referencesLabel: "网站检查、政策和参考信息",
+  }
 };
 
 function LogoMarquee({ trust }) {
@@ -98,7 +131,8 @@ export default function Footer() {
   const { data } = useData();
   const { t, i18n } = useTranslation();
   const email = "contact@hugowishpax.studio";
-  const locale = isVietnameseLanguage(i18n.resolvedLanguage || i18n.language) ? "vi" : "en";
+  const resolvedLang = i18n.resolvedLanguage || i18n.language || "vi";
+  const locale = trustContent[resolvedLang] ? resolvedLang : (isVietnameseLanguage(resolvedLang) ? "vi" : "en");
   const trust = trustContent[locale];
 
   return (

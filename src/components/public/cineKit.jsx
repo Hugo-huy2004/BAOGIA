@@ -650,3 +650,81 @@ export function CineSectionHeading({ eyebrow, title, highlight, desc, align = "s
     </div>
   );
 }
+
+// Hiệu ứng hạt bụi sáng / aura lung linh trôi lơ lửng cho nền trang
+export function AmbientAuraParticles() {
+  const canvasRef = useRef(null);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (reduceMotion) return undefined;
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return undefined;
+
+    let animId;
+    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
+
+    const onResize = () => {
+      if (!canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
+    };
+    window.addEventListener("resize", onResize);
+
+    const particles = Array.from({ length: 42 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 2.2 + 0.8,
+      speedX: (Math.random() - 0.5) * 0.3,
+      speedY: -Math.random() * 0.35 - 0.1,
+      alpha: Math.random() * 0.6 + 0.2,
+      phase: Math.random() * Math.PI * 2,
+    }));
+
+    const render = (time) => {
+      ctx.clearRect(0, 0, width, height);
+      const isDark = document.documentElement.classList.contains("dark");
+
+      particles.forEach((p) => {
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        if (p.y < 0) {
+          p.y = height;
+          p.x = Math.random() * width;
+        }
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+
+        const dynamicAlpha = p.alpha * (0.5 + 0.5 * Math.sin(time * 0.002 + p.phase));
+        ctx.fillStyle = isDark
+          ? `rgba(147, 197, 253, ${dynamicAlpha * 0.75})`
+          : `rgba(59, 130, 246, ${dynamicAlpha * 0.45})`;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [reduceMotion]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-60"
+    />
+  );
+}
+

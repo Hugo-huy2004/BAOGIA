@@ -56,11 +56,21 @@ export default function StockPriceChart({ company, trades = [] }) {
 
   const frame = CANDLE_FRAMES.find((item) => item.key === timeframe) || CANDLE_FRAMES[0];
 
+  // `company.price` là giá nội suy, đổi MỖI GIÂY ở component cha — nó nằm trong
+  // deps để cây nến bên phải lớn dần theo thời gian thực. Thiếu nó thì biểu đồ
+  // chỉ nhúc nhích mỗi 30 giây, lúc máy chủ gửi mốc mới, nhìn như treo.
+  const MAX_CANDLES = 30;
   const candles = useMemo(() => {
-    if (!frame.perCandle) return candlesFromHistory(company?.history);
-    const closed = candlesFromTicks(company?.ticks, frame.perCandle, SEGMENT_SEC);
-    const forming = formingCandle(company?.ticks, frame.perCandle, company?.price, SEGMENT_SEC);
-    return forming ? [...closed, forming] : closed;
+    let result = [];
+    if (!frame.perCandle) {
+      result = candlesFromHistory(company?.history);
+    } else {
+      const closed = candlesFromTicks(company?.ticks, frame.perCandle, SEGMENT_SEC);
+      const forming = formingCandle(company?.ticks, frame.perCandle, company?.price, SEGMENT_SEC);
+      result = forming ? [...closed, forming] : closed;
+    }
+    // Chỉ lấy 30 nến gần nhất để biểu đồ không bị nén chặt và không tính High/Low của dữ liệu khuất
+    return result.slice(-MAX_CANDLES);
   }, [company?.ticks, company?.history, company?.price, frame.perCandle]);
 
   const closes = useMemo(() => candles.map((c) => c.close), [candles]);
@@ -79,22 +89,17 @@ export default function StockPriceChart({ company, trades = [] }) {
   const height = 262;
   const plotWidth = width - gutter - padX;
 
-  // Thêm padding cho trục Y để biểu đồ "thở", biến động (fluctuations) nhìn rõ và thật hơn
-  const dataHigh = candles.length ? Math.max(...candles.map((c) => c.high)) : 0;
-  const dataLow = candles.length ? Math.min(...candles.map((c) => c.low)) : 0;
-  const padding = (dataHigh - dataLow) * 0.15 || (dataHigh * 0.001);
-  const high = dataHigh + padding;
-  const low = dataLow - padding;
-  
+  const high = candles.length ? Math.max(...candles.map((c) => c.high)) : 0;
+  const low = candles.length ? Math.min(...candles.map((c) => c.low)) : 0;
   const span = high - low || 1;
   const maxVolume = volumes.length ? Math.max(...volumes) : 1;
 
-  // Nếu quá ít nến, giữ tối thiểu 25 slot để nến không bị dãn mập ú (khắc phục lỗi 'không giống biểu đồ thật')
-  // Bắt đầu vẽ từ lề trái
-  const slotsCount = Math.max(candles.length, 25);
-  const slot = plotWidth / slotsCount;
+  // Giữ nguyên slot = plotWidth / MAX_CANDLES để độ rộng nến luôn cố định dù chưa đủ 30 nến
+  const slot = plotWidth / MAX_CANDLES;
   const bodyWidth = Math.max(1.5, Math.min(14, slot * 0.62));
-  const xOf = (index) => padX + (index + 0.5) * slot;
+  // Đẩy nến sang phải để nến mới nhất luôn bám biên phải
+  const offset = MAX_CANDLES - candles.length;
+  const xOf = (index) => padX + (index + offset + 0.5) * slot;
   const yOf = (price) => priceBottom - ((price - low) / span) * (priceBottom - priceTop);
 
   const maPath = (series) => {
@@ -141,7 +146,8 @@ export default function StockPriceChart({ company, trades = [] }) {
   const handleMove = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const x = ((event.clientX ?? event.touches?.[0]?.clientX ?? 0) - rect.left) / rect.width * width;
-    const index = Math.floor((x - padX) / slot);
+    const visualIndex = Math.floor((x - padX) / slot);
+    const index = visualIndex - offset;
     setScrubIndex(index >= 0 && index < candles.length ? index : null);
   };
 
@@ -205,10 +211,8 @@ export default function StockPriceChart({ company, trades = [] }) {
             const yOpen = yOf(candle.open);
             const yClose = yOf(candle.close);
             const top = Math.min(yOpen, yClose);
-            // Thêm -1 để chừa một khe hở nhỏ (1px) giữa các nến, giúp mắt nhận ra 
-            // đây là các thân nến xếp liền nhau chứ không phải một khối dính liền.
-            const rawHeight = Math.abs(yClose - yOpen);
-            const bodyHeight = Math.max(1, rawHeight > 2 ? rawHeight - 1 : rawHeight);
+            // Nến không đổi giá vẫn phải thấy được: cho thân dày tối thiểu 1px.
+            const bodyHeight = Math.max(1, Math.abs(yClose - yOpen));
 
             return (
               <g key={candle.time}>

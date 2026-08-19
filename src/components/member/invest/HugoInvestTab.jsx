@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 import { joyText, joyCode, joyFactor, joyDenom, useJoy } from "../../../lib/joyDisplay";
 import { useJoyStore } from "../../../stores/joyStore";
 import { hapticSelect } from "../../../utils/haptics";
 import BackButton from "../shared/BackButton";
-import { LESSONS } from "./investLessons";
+import { getLessons } from "./investLessons";
 import { priceAt, tradeCosts, breakEvenPct, STOCK_QUOTE_CODE } from "../../../../shared/stockPricing";
 import StockPriceChart from "./StockPriceChart";
 
@@ -63,80 +64,8 @@ const livePL = (holding, price) => {
 const toneOf = (value) => (value >= 0 ? "text-success dark:text-success" : "text-destructive dark:text-destructive");
 const toneBg = (value) => (value >= 0 ? "bg-success/10 text-success dark:text-success border-success/25" : "bg-destructive/10 text-destructive dark:text-destructive border-destructive/25");
 
-export const INVEST_HELP_DICTIONARY = {
-  pnl: {
-    title: "Tổng Lời / Lỗ Ròng (PnL & ROI)",
-    icon: "trending_up",
-    badge: "Chỉ số quan trọng nhất",
-    summary: "Cho biết bạn đang thắng hay thua bao nhiêu tiền sau khi trừ mọi chi phí.",
-    details: [
-      "Vốn đầu tư: Tổng số tiền bạn đã bỏ ra để mua các cổ phiếu hiện tại.",
-      "Giá trị hiện tại: Số tiền bạn thu về được nếu lập tức bán hết toàn bộ cổ phiếu theo giá thị trường thời gian thực.",
-      "Lời/Lỗ ròng (Unrealized PnL): Lấy Giá trị hiện tại trừ Vốn đầu tư. Số dương (+) là bạn đang LỜI, số âm (-) là bạn đang LỖ."
-    ],
-    example: "Ví dụ: bỏ ra 100.000 mua HFILM, nay số cổ phiếu đó trị giá 125.000 ➔ đang LỜI +25.000 (+25%) trên giấy. Chỉ khi BÁN, trừ hết phí, nó mới thành lãi thật trong ví."
-  },
-  second_price: {
-    title: "Giá chạy liên tục trong phiên",
-    icon: "bolt",
-    badge: "Không đoán trước được",
-    summary: "Đường giá đi theo bước 60 giây, do máy chủ dựng bằng một hạt giống bí mật — mọi thành viên nhìn cùng một đường.",
-    details: [
-      "Mỗi bước là một mức giá mới; máy chủ gửi cả đường giá xuống nên biểu đồ bạn thấy đúng bằng giá dùng để khớp lệnh.",
-      "Thị trường đổi trạng thái mỗi 15 phút: đi ngang, xu hướng lên, xu hướng xuống, bùng nổ, sập, hoặc một cú sốc tin tức.",
-      "KHÔNG ai đoán trước được bước kế tiếp — hạt giống nằm ở máy chủ và không bao giờ gửi ra ngoài. Đừng tin bất cứ ai nói họ biết trước đáy hay đỉnh.",
-      "Giá luôn bị kéo về mốc neo của phiên (mức do kết quả kinh doanh quyết định), nên xu hướng chạy được hàng giờ nhưng không đi mãi một chiều."
-    ],
-    example: "Muốn có lãi thật, giá phải chạy đủ xa để bù phí hai chiều — nhấp nhô vài phút thì phí ăn hết."
-  },
-  conversion_fee: {
-    title: "Đơn Vị Ví Không Ảnh Hưởng Giá",
-    icon: "currency_exchange",
-    badge: "Đã bỏ phí quy đổi",
-    summary: "Ví bạn để ở đơn vị nào cũng mua bán đúng một giá — sàn không thu phí đổi đơn vị nữa.",
-    details: [
-      "Sàn niêm yết giá theo đơn vị chuẩn JOYka (Kavo), còn ví bạn hiện số theo đơn vị bạn chọn (Mira, Luno, Velu...). Đó chỉ là hai cách VIẾT của cùng một số JOY gốc.",
-      "Trước đây mỗi lệnh bị tính 15% phí quy đổi ở cả hai chiều, đẩy mốc hoà vốn của ví khác đơn vị lên 51,6% — phải đoán trúng một cú tăng hơn nửa giá trị công ty mới huề vốn.",
-      "Khoản đó đã bỏ: sổ cái ghi JOY gốc từ đầu tới cuối nên chưa từng có lần đổi tiền nào thật sự xảy ra. Nay mọi ví đều hoà vốn ở ~1,01%."
-    ],
-    example: "Ví dụ: mua 1.000, ví trừ 1.005. Giá lên 1.011 là bán đã huề; lên 1.100 thì bán về 1.094, lãi thật 89."
-  },
-  brokerage_fee: {
-    title: "Phí Môi Giới 0,5%",
-    icon: "receipt_long",
-    badge: "Chi phí giao dịch",
-    summary: "Sàn chỉ thu một khoản duy nhất: 0,5% giá trị lệnh, mỗi chiều.",
-    details: [
-      "Phí môi giới: 0,5% giá trị lệnh, tối thiểu 1 JOY, thu cả khi mua lẫn khi bán — đúng mức các công ty chứng khoán ngoài đời thu.",
-      "Phí sáng tạo 5% mỗi chiều đã BỎ: đó là phí chuyển JOY giữa hai người, mà mua cổ phiếu thì không chuyển tiền cho ai cả.",
-      "Vì thu hai chiều nên mốc hoà vốn là 1,01% chứ không phải 0,5%: mua trả thêm 0,5%, bán bị trừ 0,5%.",
-      "Toàn bộ phí hiện rõ trước khi bạn bấm Xác nhận đặt lệnh."
-    ]
-  },
-  market_cap: {
-    title: "Vốn Hóa Thị Trường (Market Cap)",
-    icon: "domain",
-    badge: "Định giá doanh nghiệp",
-    summary: "Tổng giá trị tiền tệ của toàn bộ số cổ phiếu mà công ty đã phát hành.",
-    details: [
-      "Công thức: Vốn hóa = (Giá cổ phiếu hiện tại) × (Tổng số cổ phiếu phát hành).",
-      "Công ty có vốn hóa lớn thường biến động ổn định, an toàn. Công ty vốn hóa nhỏ dễ tăng vọt nhưng biến động cao hơn."
-    ]
-  },
-  smart_advice: {
-    title: "Tín Hiệu Tư Vấn AI Quản Gia",
-    icon: "psychology",
-    badge: "Trợ lý đầu tư tự động",
-    summary: "Hệ thống AI tự động phân tích thị trường và danh mục của bạn để đưa ra lời khuyên tối ưu.",
-    details: [
-      "NÊN CHỐT LỜI: khi lãi đã vượt mốc hoà vốn 1,01% — dưới mốc đó, bán ra vẫn là lỗ vì phí thu cả hai chiều.",
-      "CẢNH BÁO CẮT LỖ: khi cổ phiếu giảm quá 10%.",
-      "GIỮ TIẾP: khi đang lãi nhưng chưa qua mốc hoà vốn — bán lúc đó vẫn là lỗ."
-    ]
-  }
-};
-
 function HelpIcon({ topicKey, onClick }) {
+  const { t } = useTranslation();
   return (
     <button
       type="button"
@@ -145,8 +74,8 @@ function HelpIcon({ topicKey, onClick }) {
         hapticSelect();
         onClick?.(topicKey);
       }}
-      title="Bấm xem giải thích chi tiết"
-      aria-label="Giải thích"
+      title={t("invest.ui.explain")}
+      aria-label={t("invest.ui.explain")}
       className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[12px] font-bold text-muted-foreground transition-colors hover:text-foreground"
     >
       ?
@@ -155,9 +84,10 @@ function HelpIcon({ topicKey, onClick }) {
 }
 
 function InfoModalPopup({ topicKey, onClose }) {
+  const { t } = useTranslation();
   if (!topicKey) return null;
-  const item = INVEST_HELP_DICTIONARY[topicKey];
-  if (!item) return null;
+  const item = t(`invest.dictionary.${topicKey}`, { returnObjects: true });
+  if (!item || typeof item !== "object" || !item.title) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/40">
@@ -177,7 +107,7 @@ function InfoModalPopup({ topicKey, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            aria-label="Đóng"
+            aria-label={t("invest.ui.close")}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground"
           >
             <span className="material-symbols-outlined text-sm">close</span>
@@ -189,7 +119,7 @@ function InfoModalPopup({ topicKey, onClose }) {
         </p>
 
         <div className="space-y-2">
-          <h4 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground">Chi tiết cần biết</h4>
+          <h4 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground">{t("invest.ui.detailsToKnow")}</h4>
           <ul className="space-y-2">
             {item.details.map((desc, idx) => (
               <li key={idx} className="flex items-start gap-2 text-[13.5px] text-foreground leading-relaxed font-sans">
@@ -202,7 +132,7 @@ function InfoModalPopup({ topicKey, onClose }) {
 
         {item.example && (
           <div className="rounded-2xl bg-muted border border-border p-3 text-[13.5px] leading-relaxed text-foreground font-sans">
-            <strong>Ví dụ thực tế:</strong> {item.example}
+            <strong>{t("invest.ui.realWorldExample")}</strong> {item.example}
           </div>
         )}
 
@@ -222,6 +152,7 @@ const feeLabel = (name, rate, digits) => (rate ? `${name} (${(rate * 100).toFixe
 
 /** Một dòng trong sổ lệnh → đúng hoá đơn đã in lúc khớp. */
 function TradeReceiptModal({ trade, onClose }) {
+  const { t } = useTranslation();
   if (!trade) return null;
   const itemised = Boolean(trade.brokerage || trade.creativeFee || trade.conversionFee);
   return (
@@ -251,12 +182,13 @@ function TradeReceiptModal({ trade, onClose }) {
 }
 
 /**
- * Hoá đơn của một lệnh đã khớp — TỪNG khoản, không gộp thành một chữ "phí".
+ * Hoá đơn của một lệnh đã khớp — TỪNG khoản, không gộp thành một chữ t('invest.ui.fee', 'phí').
  *
  * Số liệu lấy nguyên từ máy chủ (`receipt`), không tính lại ở client: hoá đơn
  * phải là bản ghi của cái ĐÃ xảy ra với ví, không phải một ước lượng vẽ lại.
  */
 function ReceiptSheet({ receipt, onClose }) {
+  const { t } = useTranslation();
   if (!receipt) return null;
   const buy = receipt.side === "buy";
   const at = new Date(receipt.at);
@@ -313,7 +245,7 @@ function ReceiptSheet({ receipt, onClose }) {
         </dl>
 
         <p className="rounded-2xl border border-border bg-muted p-2.5 text-[11.5px] leading-relaxed text-muted-foreground font-sans">
-          Sàn niêm yết bằng {receipt.quoteCode} ({quoteText(receipt.price)}/cổ phiếu). Ví của bạn dùng {receipt.walletCode},
+          Sàn niêm yết bằng {receipt.quoteCode} ({quoteText(receipt.price)}/cổ phiếu). {t("invest.ui.walletBalance")} dùng {receipt.walletCode},
           nên mọi con số ở trên đã quy về đơn vị ví theo tỷ giá lúc khớp.
         </p>
 
@@ -330,6 +262,7 @@ function ReceiptSheet({ receipt, onClose }) {
 }
 
 function SmartAdvisorCard({ portfolio, company, onHelp }) {
+  const { t } = useTranslation();
   if (!portfolio) return null;
 
   const { holdings = [], crossDenom = false } = portfolio;
@@ -349,30 +282,30 @@ function SmartAdvisorCard({ portfolio, company, onHelp }) {
       const pct = holding.unrealizedPct * 100;
       if (pct >= breakEven) {
         iconName = "trending_up";
-        title = `Chốt lời ${company.symbol}`;
-        badgeText = "Khuyến nghị Bán";
-        message = `Lời +${pct.toFixed(1)}% đã vượt mốc hoà vốn ${breakEven.toFixed(1)}% (đủ bù cả phí mua lẫn phí bán). Bán bây giờ là lãi thật vào ví.`;
+        title = `${t("invest.ui.advisorTakeProfit", "Chốt lời")} ${company.symbol}`;
+        badgeText = t("invest.ui.advisorRecSell", "Khuyến nghị Bán");
+        message = t("invest.ui.advisorTakeProfitMsg", { pct: pct.toFixed(1), breakEven: breakEven.toFixed(1), defaultValue: `Lời +${pct.toFixed(1)}% đã vượt mốc hoà vốn ${breakEven.toFixed(1)}% (đủ bù cả phí mua lẫn phí bán). Bán bây giờ là lãi thật vào ví.` });
       } else if (pct < cutLoss) {
         iconName = "warning";
-        title = `Cắt lỗ ${company.symbol}`;
-        badgeText = "Cảnh báo rủi ro";
-        message = `Cổ phiếu đang giảm ${pct.toFixed(1)}%. Hãy chú ý quản trị vốn hoặc cân nhắc cắt lỗ.`;
+        title = `${t("invest.ui.advisorCutLoss", "Cắt lỗ")} ${company.symbol}`;
+        badgeText = t("invest.ui.advisorRiskWarning", "Cảnh báo rủi ro");
+        message = t("invest.ui.advisorCutLossMsg", { pct: pct.toFixed(1), defaultValue: `Cổ phiếu đang giảm ${pct.toFixed(1)}%. Hãy chú ý quản trị vốn hoặc cân nhắc cắt lỗ.` });
       } else if (pct >= 0) {
         iconName = "hourglass_empty";
-        title = `Tiếp tục giữ ${company.symbol}`;
-        badgeText = "Nắm giữ";
-        message = `Lời +${pct.toFixed(1)}% CHƯA đủ hoà vốn: bán lúc này vẫn lỗ vì phí hai chiều. Mốc hoà vốn của ví bạn là +${breakEven.toFixed(1)}%.`;
+        title = `${t("invest.ui.advisorKeepHolding", "Tiếp tục giữ")} ${company.symbol}`;
+        badgeText = t("invest.ui.advisorHolding", "Nắm giữ");
+        message = t("invest.ui.advisorKeepHoldingMsg", { pct: pct.toFixed(1), breakEven: breakEven.toFixed(1), defaultValue: `Lời +${pct.toFixed(1)}% CHƯA đủ hoà vốn: bán lúc này vẫn lỗ vì phí hai chiều. Mốc hoà vốn của ví bạn là +${breakEven.toFixed(1)}%.` });
       } else {
         iconName = "insights";
-        title = `Nắm giữ ${company.symbol}`;
-        badgeText = "Vị thế tốt";
-        message = `Vị thế ${company.symbol} đang ổn định với ${holding.quantity.toLocaleString(LOCALE)} cổ phiếu.`;
+        title = `${t("invest.ui.advisorHold", "Nắm giữ")} ${company.symbol}`;
+        badgeText = t("invest.ui.advisorGoodPosition", "Vị thế tốt");
+        message = t("invest.ui.advisorGoodPositionMsg", { symbol: company.symbol, quantity: holding.quantity.toLocaleString(LOCALE), defaultValue: `Vị thế ${company.symbol} đang ổn định với ${holding.quantity.toLocaleString(LOCALE)} cổ phiếu.` });
       }
     } else {
       iconName = "show_chart";
-      title = `Theo dõi ${company.symbol}`;
-      badgeText = "Chưa nắm giữ";
-      message = `Giá hiện tại ${priceText(company.price)}. Mua vào thì cần giá tăng ${breakEven.toFixed(1)}% mới hoà được phí hai chiều.`;
+      title = `${t("invest.ui.advisorWatch", "Theo dõi")} ${company.symbol}`;
+      badgeText = t("invest.ui.advisorNotHolding", "Chưa nắm giữ");
+      message = t("invest.ui.advisorWatchMsg", { price: priceText(company.price), breakEven: breakEven.toFixed(1), defaultValue: `Giá hiện tại ${priceText(company.price)}. Mua vào thì cần giá tăng ${breakEven.toFixed(1)}% mới hoà được phí hai chiều.` });
     }
   } else if (holdings.length > 0) {
     const sorted = [...holdings].sort((a, b) => b.unrealizedPct - a.unrealizedPct);
@@ -381,25 +314,25 @@ function SmartAdvisorCard({ portfolio, company, onHelp }) {
 
     if (topProfitable && topProfitable.unrealizedPct * 100 >= breakEven) {
       iconName = "trending_up";
-      title = `Chốt lời ${topProfitable.symbol}`;
-      badgeText = "Điểm chốt đẹp";
-      message = `${topProfitable.symbol} đang lời +${(topProfitable.unrealizedPct * 100).toFixed(1)}%, đã qua mốc hoà vốn ${breakEven.toFixed(1)}%.`;
+      title = `${t("invest.ui.advisorTakeProfit", "Chốt lời")} ${topProfitable.symbol}`;
+      badgeText = t("invest.ui.advisorGoodExit", "Điểm chốt đẹp");
+      message = t("invest.ui.advisorGoodExitMsg", { symbol: topProfitable.symbol, pct: (topProfitable.unrealizedPct * 100).toFixed(1), breakEven: breakEven.toFixed(1), defaultValue: `${topProfitable.symbol} đang lời +${(topProfitable.unrealizedPct * 100).toFixed(1)}%, đã qua mốc hoà vốn ${breakEven.toFixed(1)}%.` });
     } else if (topLosing && topLosing.unrealizedPct * 100 <= cutLoss) {
       iconName = "warning";
-      title = `Quản trị rủi ro ${topLosing.symbol}`;
-      badgeText = "Cảnh báo";
-      message = `${topLosing.symbol} đang giảm ${(topLosing.unrealizedPct * 100).toFixed(1)}%. Cân nhắc hạ tỷ trọng bảo toàn vốn.`;
+      title = `${t("invest.ui.advisorRiskMgmt", "Quản trị rủi ro")} ${topLosing.symbol}`;
+      badgeText = t("invest.ui.advisorWarning", "Cảnh báo");
+      message = t("invest.ui.advisorRiskMgmtMsg", { symbol: topLosing.symbol, pct: (topLosing.unrealizedPct * 100).toFixed(1), defaultValue: `${topLosing.symbol} đang giảm ${(topLosing.unrealizedPct * 100).toFixed(1)}%. Cân nhắc hạ tỷ trọng bảo toàn vốn.` });
     } else {
       iconName = "psychology";
-      title = "Tư vấn Quản gia tổng quan";
-      badgeText = "Tự động";
-      message = `Danh mục chưa mã nào qua mốc hoà vốn +${breakEven.toFixed(1)}%. Bán sớm là trả phí hai lần cho một lần đi.`;
+      title = t('invest.ui.smartAdvisorTitle', 'Tư vấn Quản gia tổng quan');
+      badgeText = t("invest.ui.advisorAuto", "Tự động");
+      message = t("invest.ui.advisorNoBreakEvenMsg", { breakEven: breakEven.toFixed(1), defaultValue: `Danh mục chưa mã nào qua mốc hoà vốn +${breakEven.toFixed(1)}%. Bán sớm là trả phí hai lần cho một lần đi.` });
     }
   } else {
     iconName = "smart_toy";
-    title = "Sàn Ảo Hugo";
-    badgeText = "Hướng dẫn";
-    message = "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.";
+    title = t("invest.ui.advisorMarketTitle", "Sàn Ảo Hugo");
+    badgeText = t("invest.ui.advisorGuide", "Hướng dẫn");
+    message = t("invest.ui.advisorEmptyMsg", "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.");
   }
 
   return (
@@ -422,6 +355,8 @@ function SmartAdvisorCard({ portfolio, company, onHelp }) {
 }
 
 export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
+  const { t } = useTranslation();
+  const LESSONS = useMemo(() => getLessons(t), [t]);
   const joy = useJoy();
   const balance = useJoyStore((state) => state.balance);
   const [tab, setTab] = useState("market");
@@ -555,7 +490,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
         ) : tab === "portfolio" ? (
           <Portfolio portfolio={portfolio} companies={companies} onOpen={setDetail} onHelp={setHelpTopic} />
         ) : (
-          <Learn onOpen={setLesson} />
+          <Learn onOpen={setLesson} lessons={LESSONS} />
         )}
       </div>
     </div>
@@ -563,6 +498,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
 }
 
 function Market({ market, portfolio, onOpen, onHelp }) {
+  const { t } = useTranslation();
   if (!market) return <Skeleton rows={4} />;
 
   const featuredCompany = market.companies[0] || null;
@@ -588,7 +524,7 @@ function Market({ market, portfolio, onOpen, onHelp }) {
               onClick={() => { hapticSelect(); onOpen(featuredCompany.symbol); }}
               className="text-[13.5px] font-bold text-success hover:underline flex items-center gap-1"
             >
-              <span>Xem chi tiết</span>
+              <span>{t('invest.ui.viewDetail', 'Xem chi tiết')}</span>
               <span className="material-symbols-outlined text-sm">chevron_right</span>
             </button>
           </div>
@@ -599,9 +535,7 @@ function Market({ market, portfolio, onOpen, onHelp }) {
 
       {/* Ticker List Tiles */}
       <div className="space-y-2">
-        <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">
-          Danh Sách Mã Chứng Khoán
-          <HelpIcon topicKey="second_price" onClick={onHelp} />
+        <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">{t('invest.ui.stockList', 'Danh Sách Mã Chứng Khoán')}<HelpIcon topicKey="second_price" onClick={onHelp} />
         </h3>
         <div className="grid grid-cols-1 gap-2.5">
           {market.companies.map((company) => {
@@ -618,9 +552,9 @@ function Market({ market, portfolio, onOpen, onHelp }) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <span className="text-base font-bold text-foreground group-hover:text-success transition-colors tracking-tight">{company.symbol}</span>
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11.5px] font-bold text-muted-foreground border border-border">{company.sector}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11.5px] font-bold text-muted-foreground border border-border">{t(`invest.companies.${company.symbol}.sector`, company.sector)}</span>
                     </div>
-                    <p className="mt-0.5 truncate text-[12.5px] text-muted-foreground font-sans">{company.name}</p>
+                    <p className="mt-0.5 truncate text-[12.5px] text-muted-foreground font-sans">{t(`invest.companies.${company.symbol}.name`, company.name)}</p>
                   </div>
 
                   {/* Center: Mini Sparkline Wave (Visible on Mobile & Desktop) */}
@@ -673,6 +607,7 @@ function MiniSparkline({ company, isUp }) {
 }
 
 function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp }) {
+  const { t } = useTranslation();
   const feeRate = market?.feeRate ?? 0.005;
   const creativeRate = market?.creativeFeeRate ?? 0.05;
   const conversionRate = portfolio?.crossDenom ? (market?.conversionFeeRate ?? 0.15) : 0;
@@ -727,7 +662,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
         setReceipt(data.receipt || null);
         await onTraded();
       }
-      showToast?.(data.message || (data.success ? "Đã khớp lệnh thành công" : "Không đặt được lệnh"), data.success ? "success" : "error");
+      showToast?.(data.message || (data.success ? t("invest.ui.orderSuccess", "Đã khớp lệnh thành công") : t("invest.ui.orderFailed", "Không đặt được lệnh")), data.success ? "success" : "error");
     } catch (error) {
       showToast?.(error.message, "error");
     } finally {
@@ -757,7 +692,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
                 <span className="material-symbols-outlined text-[16px]">{company.change >= 0 ? "arrow_drop_up" : "arrow_drop_down"}</span>
                 <span>{pctText(company.change)}</span>
               </span>
-              <span className="text-[12px] text-muted-foreground">tham chiếu {priceText(company.prevPrice)}</span>
+              <span className="text-[12px] text-muted-foreground">{t('invest.ui.referencePrice', 'tham chiếu')} {priceText(company.prevPrice)}</span>
             </div>
           </div>
 
@@ -777,14 +712,14 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
       {/* Info Stats */}
       <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
         <div>
-          <h3 className="text-sm font-bold text-foreground">{company.name}</h3>
-          <p className="mt-1 text-[13.5px] text-muted-foreground leading-relaxed font-sans">{company.description}</p>
+          <h3 className="text-sm font-bold text-foreground">{t(`invest.companies.${company.symbol}.name`, company.name)}</h3>
+          <p className="mt-1 text-[13.5px] text-muted-foreground leading-relaxed font-sans">{t(`invest.companies.${company.symbol}.description`, company.description)}</p>
         </div>
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
-          <Stat label="Cổ phiếu phát hành" value={company.sharesOutstanding.toLocaleString("vi-VN")} />
-          <Stat label="Vốn hoá thị trường" value={moneyText(company.marketCap)} onHelp={onHelp} helpKey="market_cap" />
-          <Stat label="Biên độ dao động" value={`${(company.volatility * 100).toFixed(0)}%`} />
-          <Stat label="Cổ tức mỗi phiên" value={company.dividendRate ? `${(company.dividendRate * 100).toFixed(2)}%` : "Không trả"} />
+          <Stat label={t("invest.ui.sharesOutstanding", "Cổ phiếu phát hành")} value={company.sharesOutstanding.toLocaleString("vi-VN")} />
+          <Stat label={t("invest.ui.marketCap", "Vốn hoá thị trường")} value={moneyText(company.marketCap)} onHelp={onHelp} helpKey="market_cap" />
+          <Stat label={t("invest.ui.volatility", "Biên độ dao động")} value={`${(company.volatility * 100).toFixed(0)}%`} />
+          <Stat label={t("invest.ui.dividendRate", "Cổ tức mỗi phiên")} value={company.dividendRate ? `${(company.dividendRate * 100).toFixed(2)}%` : t("invest.ui.noDividend", "Không trả")} />
         </div>
       </div>
 
@@ -792,14 +727,14 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
       {holding && (
         <div className="rounded-2xl border border-success/25 bg-success/10 p-4 text-[13.5px] space-y-1">
           <p className="font-bold text-success text-sm flex items-center">
-            Bạn đang nắm {holding.quantity.toLocaleString("vi-VN")} cổ phiếu {company.symbol}
+            {t("invest.ui.holdingNoticePart1", "Bạn đang nắm")} {holding.quantity.toLocaleString("vi-VN")} {t("invest.ui.sharesOf", "cổ phiếu")} {company.symbol}
             <HelpIcon topicKey="pnl" onClick={onHelp} />
           </p>
           <p className="text-foreground font-sans">
-            Giá vốn: <strong className="text-foreground">{priceText(holding.avgCost)}</strong> · Giá trị hiện tại: <strong className="text-foreground">{moneyText(holding.value)}</strong>
+            {t("invest.ui.avgCost")}: <strong className="text-foreground">{priceText(holding.avgCost)}</strong> · {t("invest.ui.currentValue")}: <strong className="text-foreground">{moneyText(holding.value)}</strong>
           </p>
           <p className="pt-1 flex items-center">
-            Lãi/lỗ trên giấy:{" "}
+            {t("invest.ui.paperPnL", "Lãi/lỗ trên giấy:")}{" "}
             <strong className={`font-bold text-sm ml-1 ${toneOf(holding.unrealized)}`}>
               {holding.unrealized >= 0 ? "+" : ""}{moneyText(holding.unrealized)} ({pctText(holding.unrealizedPct)})
             </strong>
@@ -809,7 +744,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
 
       {/* iOS 27 Order Execution Sheet */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-card">
-        <h3 className="text-[14.5px] font-bold text-foreground">Đặt lệnh khớp ngay</h3>
+        <h3 className="text-[14.5px] font-bold text-foreground">{t("invest.ui.placeOrder", "Đặt lệnh khớp ngay")}</h3>
 
         {/* Side Selector */}
         <div className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted p-1">
@@ -839,7 +774,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
 
         {/* Quantity Input */}
         <div className="space-y-2">
-          <label className="block text-[12.5px] font-semibold text-muted-foreground">Số lượng cổ phiếu</label>
+          <label className="block text-[12.5px] font-semibold text-muted-foreground">{t("invest.ui.quantity")} cổ phiếu</label>
           <div className="relative">
             <input
               type="number"
@@ -880,15 +815,14 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
         <dl className="space-y-1.5 rounded-2xl bg-muted/40 p-3.5 border border-border text-[13.5px] font-sans">
           <Row label={`Giá khớp mỗi cổ phiếu`} value={priceText(company.price)} />
           <Row label={`Giá trị ${qty.toLocaleString(LOCALE)} cổ phiếu`} value={moneyText(gross)} />
-          <Row label={`Phí môi giới (${(feeRate * 100).toFixed(1)}%)`} value={moneyText(brokerage)} onHelp={onHelp} helpKey="brokerage_fee" />
-          <Row label={`Phí sáng tạo (${(creativeRate * 100).toFixed(0)}%)`} value={moneyText(creativeFee)} onHelp={onHelp} helpKey="brokerage_fee" />
+          <Row label={t("invest.ui.brokerageFeeLbl", { feeRate: (feeRate * 100).toFixed(1), defaultValue: `Phí môi giới (${(feeRate * 100).toFixed(1)}%)` })} value={moneyText(brokerage)} onHelp={onHelp} helpKey="brokerage_fee" />
+          <Row label={t("invest.ui.creativeFeeLbl", { creativeRate: (creativeRate * 100).toFixed(0), defaultValue: `Phí sáng tạo (${(creativeRate * 100).toFixed(0)}%)` })} value={moneyText(creativeFee)} onHelp={onHelp} helpKey="brokerage_fee" />
           {conversionRate > 0 && (
             <>
-              <Row label={`Phí đổi đơn vị (${(conversionRate * 100).toFixed(0)}%)`} value={moneyText(conversionFee)} onHelp={onHelp} helpKey="conversion_fee" />
+              <Row label={t("invest.ui.conversionFeeLbl", { conversionRate: (conversionRate * 100).toFixed(0), defaultValue: `Phí đổi đơn vị (${(conversionRate * 100).toFixed(0)}%)` })} value={moneyText(conversionFee)} onHelp={onHelp} helpKey="conversion_fee" />
               <div className="mt-2 rounded-xl border border-warning/25 bg-warning/10 p-3 text-[13px] leading-relaxed text-foreground flex items-start justify-between gap-1">
                 <span>
-                  <strong>Ví khác đơn vị gốc:</strong> phí quy đổi 15% thu cả chiều <strong>MUA và BÁN</strong>, nên giá phải tăng{" "}
-                  <strong>{(breakEvenPct(true) * 100).toFixed(1)}%</strong> thì bán mới hoà vốn.
+                  {t('invest.ui.diffWalletNotice', { breakEven: (breakEvenPct(true) * 100).toFixed(1), defaultValue: `Ví khác đơn vị gốc: phí quy đổi 15% thu cả chiều MUA và BÁN, nên giá phải tăng ${(breakEvenPct(true) * 100).toFixed(1)}% thì bán mới hoà vốn.` })}
                 </span>
                 <HelpIcon topicKey="conversion_fee" onClick={onHelp} />
               </div>
@@ -896,29 +830,29 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
           )}
           <div className="my-1 border-t border-border" />
           <Row
-            label={side === "buy" ? `Tổng trừ ví (${costs.walletCode})` : `Tổng về ví (${costs.walletCode})`}
+            label={side === "buy" ? t("invest.ui.totalDeducted", { walletCode: costs.walletCode, defaultValue: `Tổng trừ ví (${costs.walletCode})` }) : t("invest.ui.totalAdded", { walletCode: costs.walletCode, defaultValue: `Tổng về ví (${costs.walletCode})` })}
             value={moneyText(total)}
             strong
           />
           {side === "buy" && (
             <Row
-              label="Số dư ví khả dụng"
-              value={cash === null ? (walletLoaded ? "Chưa có ví JOY" : "Đang tải…") : moneyText(cash)}
+              label={t("invest.ui.availableBalance", "Số dư ví khả dụng")}
+              value={cash === null ? (walletLoaded ? t("invest.ui.noWallet", "Chưa có ví JOY") : t("invest.ui.loading", "Đang tải…")) : moneyText(cash)}
               tone={cash !== null && total > cash ? -1 : undefined}
             />
           )}
           {side === "buy" && cash !== null && total > cash && (
             <p className="pt-1 text-[11.5px] leading-snug text-destructive font-sans">
-              Thiếu {moneyText(total - cash)} để đặt lệnh này. Giảm số lượng hoặc nạp thêm vào ví.
+              {t("invest.ui.shortageNotice1", "Thiếu")} {moneyText(total - cash)} {t("invest.ui.shortageNotice2", "để đặt lệnh này. Giảm số lượng hoặc nạp thêm vào ví.")}
             </p>
           )}
           {side === "buy" && walletLoaded && !hasWallet && (
             <p className="pt-1 text-[11.5px] leading-snug text-destructive font-sans">
-              Tài khoản này chưa có ví JOY nên chưa đặt lệnh được. Mở app Tài khoản để tạo hồ sơ trước.
+              {t("invest.ui.noWalletError", "Tài khoản này chưa có ví JOY nên chưa đặt lệnh được. Mở app Tài khoản để tạo hồ sơ trước.")}
             </p>
           )}
           <p className="pt-1 text-[11.5px] leading-snug text-muted-foreground font-sans">
-            Sàn niêm yết bằng {STOCK_QUOTE_CODE}: {quoteText(gross)} cho lệnh này. Số trên đã quy về đơn vị ví của bạn.
+            {t("invest.ui.quoteCurrencyNotice1", "Sàn niêm yết bằng")} {STOCK_QUOTE_CODE}: {quoteText(gross)} {t("invest.ui.quoteCurrencyNotice2", "cho lệnh này. Số trên đã quy về đơn vị ví của bạn.")}
           </p>
         </dl>
 
@@ -944,7 +878,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
           ) : (
             <>
               <span className="material-symbols-outlined text-lg">{side === "buy" ? "shopping_cart" : "sell"}</span>
-              <span>{side === "buy" ? `Xác nhận mua ${qty.toLocaleString(LOCALE)} cổ` : `Xác nhận bán ${qty.toLocaleString(LOCALE)} cổ`}</span>
+              <span>{side === "buy" ? t("invest.ui.confirmBuy", { qty: qty.toLocaleString(LOCALE), defaultValue: `Xác nhận mua ${qty.toLocaleString(LOCALE)} cổ` }) : t("invest.ui.confirmSell", { qty: qty.toLocaleString(LOCALE), defaultValue: `Xác nhận bán ${qty.toLocaleString(LOCALE)} cổ` })}</span>
             </>
           )}
         </button>
@@ -954,6 +888,7 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
 }
 
 function Portfolio({ portfolio, companies, onOpen, onHelp }) {
+  const { t } = useTranslation();
   const [openTrade, setOpenTrade] = useState(null);
 
   // Toàn bộ bảng này định giá lại theo GIÁ ĐANG CHẠY. Bản trước hiển thị thẳng
@@ -994,12 +929,10 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
 
         {/* Top Header */}
         <div className="flex items-center justify-between">
-          <p className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground flex items-center">
-            Tổng Lời / Lỗ Ròng (PnL)
-            <HelpIcon topicKey="pnl" onClick={onHelp} />
+          <p className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground flex items-center">{t('invest.ui.totalPnl', 'Tổng Lời / Lỗ Ròng (PnL)')}<HelpIcon topicKey="pnl" onClick={onHelp} />
           </p>
           <span className={`rounded-md bg-muted border border-border px-2.5 py-0.5 text-[11.5px] font-bold uppercase tracking-wider ${toneOf(unrealizedVal)}`}>
-            {isProfit ? "Đang lời" : "Đang lỗ"}
+            {isProfit ? t("invest.ui.isProfitTrue", "Đang lời") : t("invest.ui.isProfitFalse", "Đang lỗ")}
           </span>
         </div>
 
@@ -1008,20 +941,18 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
           <div className={`text-[28px] font-bold tabular-nums tracking-tight ${toneOf(unrealizedVal)}`}>
             {isProfit ? "+" : "−"}{moneyText(Math.abs(unrealizedVal))}
           </div>
-          <div className="text-[13.5px] font-bold text-foreground font-sans">
-            Tỷ lệ sinh lời: <span className={toneOf(unrealizedVal)}>{pctText(live.unrealizedPct)}</span>
+          <div className="text-[13.5px] font-bold text-foreground font-sans">{t('invest.ui.roi', 'Tỷ lệ sinh lời:')}<span className={toneOf(unrealizedVal)}>{pctText(live.unrealizedPct)}</span>
           </div>
         </div>
 
         {/* 3 Key Stats Breakdown */}
         <div className="grid grid-cols-3 gap-2 border-t border-border pt-3 text-center">
-          <Stat label="Vốn Đầu Tư" value={moneyText(live.invested)} onHelp={onHelp} helpKey="pnl" />
-          <Stat label="Giá Trị Hiện Tại" value={moneyText(live.value)} onHelp={onHelp} helpKey="pnl" />
-          <Stat label="Lãi Đã Chốt" value={moneyText(portfolio.realized)} tone={portfolio.realized} onHelp={onHelp} helpKey="pnl" />
+          <Stat label={t('invest.ui.investedCapital', 'Vốn Đầu Tư')} value={moneyText(live.invested)} onHelp={onHelp} helpKey="pnl" />
+          <Stat label={t('invest.ui.currentValue', 'Giá Trị Hiện Tại')} value={moneyText(live.value)} onHelp={onHelp} helpKey="pnl" />
+          <Stat label={t('invest.ui.realizedProfit', 'Lãi Đã Chốt')} value={moneyText(portfolio.realized)} tone={portfolio.realized} onHelp={onHelp} helpKey="pnl" />
         </div>
         {portfolio.dividends > 0 && (
-          <p className="text-[12.5px] text-muted-foreground font-sans">
-            Cổ tức đã nhận tới nay: <strong className="text-success">{moneyText(portfolio.dividends)}</strong>
+          <p className="text-[12.5px] text-muted-foreground font-sans">{t('invest.ui.dividendsReceived', 'Cổ tức đã nhận tới nay:')}<strong className="text-success">{moneyText(portfolio.dividends)}</strong>
           </p>
         )}
 
@@ -1029,8 +960,7 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
             Con số lấy từ breakEvenPct nên sửa phí ở một chỗ là chữ đổi theo. */}
         <div className="rounded-2xl border border-border bg-muted/40 p-3 text-[13px] leading-relaxed text-foreground flex items-center justify-between">
           <span>
-            <strong>Mốc hoà vốn:</strong> phí môi giới 0,5% thu cả hai chiều, nên giá phải tăng{" "}
-            <strong>{(breakEvenPct(false) * 100).toFixed(2)}%</strong> thì bán mới huề vốn — bán sớm hơn là lỗ.
+            {t('invest.ui.breakEvenNotice', { breakEven: (breakEvenPct(false) * 100).toFixed(2), defaultValue: `Mốc hoà vốn: phí môi giới 0,5% thu cả hai chiều, nên giá phải tăng ${(breakEvenPct(false) * 100).toFixed(2)}% thì bán mới huề vốn — bán sớm hơn là lỗ.` })}
           </span>
           <HelpIcon topicKey="brokerage_fee" onClick={onHelp} />
         </div>
@@ -1038,15 +968,13 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
 
       {/* Holdings List */}
       <div className="space-y-2">
-        <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">
-          Danh Mục Đang Nắm Giữ
-          <HelpIcon topicKey="pnl" onClick={onHelp} />
+        <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">{t('invest.ui.holdingPortfolio', 'Danh Mục Đang Nắm Giữ')}<HelpIcon topicKey="pnl" onClick={onHelp} />
         </h3>
         {holdings.length === 0 ? (
           <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-3">
             <span className="material-symbols-outlined text-4xl text-success/60">auto_graph</span>
             <p className="text-[13.5px] text-muted-foreground leading-relaxed font-sans max-w-xs mx-auto">
-              Chưa nắm giữ cổ phiếu nào. Hãy chuyển sang tab <strong className="text-foreground">Bảng giá</strong> để chọn cổ phiếu và tích lũy lợi nhuận!
+              {t('invest.ui.emptyPortfolio1', 'Chưa nắm giữ cổ phiếu nào. Hãy chuyển sang tab')} <strong className="text-foreground">{t('invest.ui.marketTab', 'Bảng giá')}</strong> {t('invest.ui.emptyPortfolio2', 'để chọn cổ phiếu và tích lũy lợi nhuận!')}
             </p>
           </div>
         ) : (
@@ -1060,7 +988,7 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
               <div>
                 <span className="text-base font-bold text-foreground">{holding.symbol}</span>
                 <span className="block text-[13.5px] text-muted-foreground mt-0.5 font-sans">
-                  {holding.quantity.toLocaleString("vi-VN")} cổ · vốn {priceText(holding.avgCost)}
+                  {holding.quantity.toLocaleString("vi-VN")} {t("invest.ui.sharesShort", "cổ")} · {t("invest.ui.capitalShort", "vốn")} {priceText(holding.avgCost)}
                 </span>
               </div>
               <div className="text-right">
@@ -1077,7 +1005,7 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
       {/* Recent Trades Audit List */}
       {trades.length > 0 && (
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          <p className="border-b border-border px-4 py-3 text-[13.5px] font-bold uppercase tracking-wider text-foreground">Nhật Ký Khớp Lệnh</p>
+          <p className="border-b border-border px-4 py-3 text-[13.5px] font-bold uppercase tracking-wider text-foreground">{t('invest.ui.orderHistory', 'Nhật Ký Khớp Lệnh')}</p>
           <ul className="divide-y divide-border">
             {trades.map((trade, index) => (
               <li key={index}>
@@ -1089,14 +1017,14 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${trade.side === "buy" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
-                        {trade.side === "buy" ? "Mua" : "Bán"}
+                        {trade.side === "buy" ? t("invest.ui.buy", "Mua") : t("invest.ui.sell", "Bán")}
                       </span>
                       <span className="truncate text-foreground">
                         {trade.quantity.toLocaleString(LOCALE)} {trade.symbol} @ {priceText(trade.price)}
                       </span>
                     </div>
                     <span className="mt-0.5 block text-[11.5px] text-muted-foreground">
-                      {new Date(trade.at).toLocaleString(LOCALE)} · phí {moneyText(trade.fee)} · bấm xem hoá đơn
+                      {new Date(trade.at).toLocaleString(LOCALE)} · {t("invest.ui.feeText", "phí")} {moneyText(trade.fee)} · {t("invest.ui.viewReceiptAction", "bấm xem hoá đơn")}
                     </span>
                   </div>
                   <span className={`shrink-0 tabular-nums font-bold ${trade.side === "sell" ? toneOf(trade.realizedPL) : "text-muted-foreground"}`}>
@@ -1114,15 +1042,16 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
   );
 }
 
-function Learn({ onOpen }) {
+function Learn({ onOpen, lessons }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-3">
       <div className="rounded-2xl border border-border bg-card p-4 shadow-card">
         <p className="text-[13.5px] leading-relaxed text-muted-foreground">
-          Mười bài học thực chiến thiết kế chuẩn Hugo Studio — giải thích từ cơ bản tới nâng cao với ví dụ bằng số thật.
+          {t("invest.ui.lessonHeader")}
         </p>
       </div>
-      {LESSONS.map((item, index) => (
+      {lessons.map((item, index) => (
         <button
           key={item.id}
           type="button"
@@ -1140,6 +1069,7 @@ function Learn({ onOpen }) {
 }
 
 function LessonView({ lesson }) {
+  const { t } = useTranslation();
   return (
     <article className="space-y-3 rounded-2xl border border-border bg-card p-4 shadow-card">
       <h2 className="text-[19px] font-bold leading-tight text-foreground">{lesson.title}</h2>
@@ -1154,6 +1084,7 @@ function LessonView({ lesson }) {
 }
 
 function Stat({ label, value, tone, onHelp, helpKey }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-2xl bg-muted/40 p-2.5 border border-border">
       <dt className="text-[11.5px] font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
@@ -1166,6 +1097,7 @@ function Stat({ label, value, tone, onHelp, helpKey }) {
 }
 
 function Row({ label, value, strong, tone, onHelp, helpKey }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between gap-2">
       <dt className="text-muted-foreground flex items-center">

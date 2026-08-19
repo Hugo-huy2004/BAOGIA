@@ -1,0 +1,163 @@
+19: * TIỀN TRÊN MÀN HÌNH LUÔN LÀ ĐƠN VỊ CỦA VÍ NGƯỜI DÙNG.
+21: * Sàn niêm yết bằng đơn vị gốc (JOYka) vì cả sàn chỉ được có một bảng giá, còn
+22: * ví mỗi người một đơn vị. Bản trước in thẳng số JOYka kèm chữ "JOYka" cho mọi
+23: * con số — trong khi ví, cửa hàng và thông báo của cùng người đó viết bằng Mira
+24: * — nên "lãi 600" trên sàn và "lãi 15.000" trong ví là cùng một khoản tiền mà
+25: * nhìn như hai. Ở đây mọi số đi qua joyDisplay; giá niêm yết gốc chỉ hiện thêm
+26: * một dòng phụ để người học biết sàn đang tính bằng gì.
+28: * `priceText` giữ hai chữ số lẻ vì GIÁ MỘT CỔ PHIẾU là số nhỏ: làm tròn về số
+29: * nguyên như số dư ví sẽ xoá mất chính nhịp sóng mà biểu đồ đang vẽ.
+33: * Hai chữ số lẻ CHỈ khi con số còn nhỏ. Đơn vị ví to (JOYlu: 1 JOYka ≈ 1.400)
+34: * biến giá một cổ phiếu thành "158.682,62" — sáu chữ số cộng hai số lẻ không
+35: * lọt hàng OHLC trên điện thoại, mà hai số lẻ đó cũng chẳng nói thêm gì ở thang
+36: * đó. Ví đơn vị nhỏ vẫn giữ số lẻ vì mất nó là mất luôn nhịp sóng.
+47: * Định giá lại một vị thế theo giá đang chạy. Cùng công thức máy chủ dùng
+48: * (shared/stockPricing.positionPL), nhưng chạy mỗi giây trên máy người dùng để
+49: * bảng lãi/lỗ không đứng hình sau ảnh chụp SWR.
+126: <span className="text-muted-foreground font-bold mt-0.5">•</span>
+144: Đã hiểu
+153: /** Một dòng trong sổ lệnh → đúng hoá đơn đã in lúc khớp. */
+185: * Hoá đơn của một lệnh đã khớp — TỪNG khoản, không gộp thành một chữ t('invest.ui.fee', 'phí').
+187: * Số liệu lấy nguyên từ máy chủ (`receipt`), không tính lại ở client: hoá đơn
+188: * phải là bản ghi của cái ĐÃ xảy ra với ví, không phải một ước lượng vẽ lại.
+204: <p className="text-[11.5px] font-bold uppercase tracking-wider text-muted-foreground">Hoá đơn khớp lệnh</p>
+206: {buy ? "Mua" : "Bán"} {receipt.quantity.toLocaleString(LOCALE)} {receipt.symbol}
+209: {at.toLocaleString(LOCALE)}{receipt.session ? ` · phiên ${receipt.session}` : ""}
+213: {buy ? "Tiền ra" : "Tiền về"}
+218: <Row label="Giá khớp mỗi cổ phiếu" value={priceText(receipt.price)} />
+219: <Row label={`Giá trị ${receipt.quantity.toLocaleString(LOCALE)} cổ phiếu`} value={moneyText(receipt.gross)} />
+221: // Lệnh đặt trước khi sổ lệnh tách phí: chỉ có tổng, và nói thẳng là
+222: // chỉ có tổng — bịa lại ba khoản từ tỷ lệ hôm nay là in một hoá đơn
+223: // không đúng với cái đã trừ ví.
+224: <Row label="Tổng phí (lệnh cũ, không tách khoản)" value={`− ${moneyText(receipt.fees)}`} />
+227: <Row label={feeLabel("Phí môi giới", receipt.rates?.brokerage, 1)} value={`− ${moneyText(receipt.brokerage)}`} />
+228: <Row label={feeLabel("Phí sáng tạo", receipt.rates?.creative, 0)} value={`− ${moneyText(receipt.creativeFee)}`} />
+230: <Row label={feeLabel("Phí đổi đơn vị", receipt.rates?.conversion, 0)} value={`− ${moneyText(receipt.conversionFee)}`} />
+235: <Row label={buy ? "Tổng đã trừ ví" : "Tổng đã về ví"} value={moneyText(receipt.total)} strong />
+238: label="Lãi/lỗ đã chốt (sau phí)"
+239: value={`${receipt.realizedPL >= 0 ? "+" : "−"}${moneyText(Math.abs(receipt.realizedPL))}`}
+244: {receipt.balanceAfter > 0 && <Row label="Số dư ví sau lệnh" value={moneyText(receipt.balanceAfter)} />}
+248: Sàn niêm yết bằng {receipt.quoteCode} ({quoteText(receipt.price)}/cổ phiếu). {t("invest.ui.walletBalance")} dùng {receipt.walletCode},
+249: nên mọi con số ở trên đã quy về đơn vị ví theo tỷ giá lúc khớp.
+257: Đóng hoá đơn
+269: // Mốc hoà vốn THẬT, tính từ phí đang thu chứ không viết tay: 1,01% với mọi
+270: // ví. Khuyên chốt lời ở một mốc sai là bảo người ta bán lúc đang lỗ.
+275: let title = "Tư vấn Quản gia";
+285: title = `Chốt lời ${company.symbol}`;
+286: badgeText = "Khuyến nghị Bán";
+287: message = `Lời +${pct.toFixed(1)}% đã vượt mốc hoà vốn ${breakEven.toFixed(1)}% (đủ bù cả phí mua lẫn phí bán). Bán bây giờ là lãi thật vào ví.`;
+290: title = `Cắt lỗ ${company.symbol}`;
+291: badgeText = "Cảnh báo rủi ro";
+292: message = `Cổ phiếu đang giảm ${pct.toFixed(1)}%. Hãy chú ý quản trị vốn hoặc cân nhắc cắt lỗ.`;
+295: title = `Tiếp tục giữ ${company.symbol}`;
+296: badgeText = "Nắm giữ";
+297: message = `Lời +${pct.toFixed(1)}% CHƯA đủ hoà vốn: bán lúc này vẫn lỗ vì phí hai chiều. Mốc hoà vốn của ví bạn là +${breakEven.toFixed(1)}%.`;
+300: title = `Nắm giữ ${company.symbol}`;
+301: badgeText = "Vị thế tốt";
+302: message = `Vị thế ${company.symbol} đang ổn định với ${holding.quantity.toLocaleString(LOCALE)} cổ phiếu.`;
+306: title = `Theo dõi ${company.symbol}`;
+307: badgeText = "Chưa nắm giữ";
+308: message = `Giá hiện tại ${priceText(company.price)}. Mua vào thì cần giá tăng ${breakEven.toFixed(1)}% mới hoà được phí hai chiều.`;
+317: title = `Chốt lời ${topProfitable.symbol}`;
+318: badgeText = "Điểm chốt đẹp";
+319: message = `${topProfitable.symbol} đang lời +${(topProfitable.unrealizedPct * 100).toFixed(1)}%, đã qua mốc hoà vốn ${breakEven.toFixed(1)}%.`;
+322: title = `Quản trị rủi ro ${topLosing.symbol}`;
+323: badgeText = "Cảnh báo";
+324: message = `${topLosing.symbol} đang giảm ${(topLosing.unrealizedPct * 100).toFixed(1)}%. Cân nhắc hạ tỷ trọng bảo toàn vốn.`;
+327: title = t('invest.ui.smartAdvisorTitle', 'Tư vấn Quản gia tổng quan');
+328: badgeText = "Tự động";
+329: message = `Danh mục chưa mã nào qua mốc hoà vốn +${breakEven.toFixed(1)}%. Bán sớm là trả phí hai lần cho một lần đi.`;
+333: title = "Sàn Ảo Hugo";
+334: badgeText = "Hướng dẫn";
+335: message = "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.";
+373: // Đường giá máy chủ gửi xuống chỉ chạy TRƯỚC hiện tại một bước (60 giây);
+374: // hết mảng là priceAt giữ nguyên mốc cuối. Không nạp lại đều đặn thì giá trên
+375: // màn hình đứng hình sau một phút, rồi lệch quá 3% và mọi lệnh bị từ chối.
+385: // Lệch giờ giữa máy người dùng và máy chủ được bù một lần lúc tải bảng giá:
+386: // đọc đường giá bằng đồng hồ máy mình là đọc ở một điểm khác với điểm máy chủ
+387: // dùng để khớp lệnh.
+410: { id: "market", label: "Bảng giá" },
+411: { id: "portfolio", label: "Danh mục" },
+412: { id: "learn", label: "Giáo trình" },
+429: <BackButton onClick={detail ? () => setDetail(null) : lesson ? () => setLesson(null) : onBack} label="Quay lại" iconOnly />
+431: {active ? active.symbol : lesson ? lesson.title : "Sàn ảo Hugo"}
+439: title="Số dư ví JOY — bấm để mở ví"
+447: Segmented control kiểu iOS: rãnh nền mờ, mục đang chọn là "viên" nổi
+448: màu thẻ có bóng nhẹ, và vạch tóc chỉ hiện giữa hai mục CÙNG chưa chọn
+449: — đúng chi tiết của UISegmentedControl. Cao 40px + 2px đệm = 44px, vẫn
+450: đủ ngưỡng chạm của portal.
+518: Xu Hướng Realtime 1s: {featuredCompany.symbol}
+527: <span>{t('invest.ui.viewDetail', 'Xem chi tiết')}</span>
+538: <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">{t('invest.ui.stockList', 'Danh Sách Mã Chứng Khoán')}<HelpIcon topicKey="second_price" onClick={onHelp} />
+584: // 20 mốc cuối của ĐƯỜNG GIÁ THẬT do máy chủ gửi xuống. Bản trước tự sinh 13
+585: // điểm bằng công thức của riêng client, nên hình sóng ở đây không liên quan
+586: // gì tới giá đã khớp.
+614: // Ba trạng thái khác nhau, đừng gộp thành số 0:
+615: //   chưa tải xong  → không biết số dư, KHÔNG được khoá nút
+616: //   không có ví    → nói thẳng lý do
+617: //   có ví          → dùng số thật
+626: // Vị thế phải định giá lại theo GIÁ ĐANG CHẠY, không dùng lại ảnh chụp lúc
+627: // /portfolio trả về: SWR giữ bản đó tới 30 giây trong khi giá nhảy từng giây,
+628: // nên bản trước hiện "lãi 600" ngay bên dưới một mức giá đã khác hẳn.
+636: // Phí tính bằng CHÍNH hàm máy chủ dùng để trừ ví (shared/stockPricing.js).
+637: // Bản trước chép lại công thức ở đây, và chép sai thì màn xác nhận nói một
+638: // đằng ví trừ một nẻo.
+643: // Đơn vị ví không còn làm đổi giá (phí quy đổi đã bỏ), nhưng vẫn gửi đúng
+644: // đơn vị để hoá đơn hiện tiền theo đúng thứ người dùng đang nhìn.
+656: // Giá gửi kèm CHỈ để máy chủ đối chiếu rồi từ chối khi lệch quá 3% —
+657: // giá khớp luôn do máy chủ tự tính.
+665: showToast?.(data.message || (data.success ? t("invest.ui.orderSuccess", "Đã khớp lệnh thành công") : t("invest.ui.orderFailed", "Không đặt được lệnh")), data.success ? "success" : "error");
+688: Niêm yết {quoteText(company.price)} · quy về ví bạn theo tỷ giá hôm nay
+695: <span className="text-[12px] text-muted-foreground">{t('invest.ui.referencePrice', 'tham chiếu')} {priceText(company.prevPrice)}</span>
+708: {/* Biểu đồ biến động giá theo giây + vị thế MUA - BÁN */}
+719: <Stat label={t("invest.ui.sharesOutstanding", "Cổ phiếu phát hành")} value={company.sharesOutstanding.toLocaleString("vi-VN")} />
+720: <Stat label={t("invest.ui.marketCap", "Vốn hoá thị trường")} value={moneyText(company.marketCap)} onHelp={onHelp} helpKey="market_cap" />
+721: <Stat label={t("invest.ui.volatility", "Biên độ dao động")} value={`${(company.volatility * 100).toFixed(0)}%`} />
+722: <Stat label={t("invest.ui.dividendRate", "Cổ tức mỗi phiên")} value={company.dividendRate ? `${(company.dividendRate * 100).toFixed(2)}%` : t("invest.ui.noDividend", "Không trả")} />
+730: {t("invest.ui.holdingNoticePart1", "Bạn đang nắm")} {holding.quantity.toLocaleString("vi-VN")} {t("invest.ui.sharesOf", "cổ phiếu")} {company.symbol}
+734: {t("invest.ui.avgCost")}: <strong className="text-foreground">{priceText(holding.avgCost)}</strong> · {t("invest.ui.currentValue")}: <strong className="text-foreground">{moneyText(holding.value)}</strong>
+737: {t("invest.ui.paperPnL", "Lãi/lỗ trên giấy:")}{" "}
+747: <h3 className="text-[14.5px] font-bold text-foreground">{t("invest.ui.placeOrder", "Đặt lệnh khớp ngay")}</h3>
+771: Bán
+777: <label className="block text-[12.5px] font-semibold text-muted-foreground">{t("invest.ui.quantity")} cổ phiếu</label>
+787: <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[12.5px] font-semibold text-muted-foreground">cổ phiếu</span>
+808: Tất cả
+816: <Row label={`Giá khớp mỗi cổ phiếu`} value={priceText(company.price)} />
+817: <Row label={`Giá trị ${qty.toLocaleString(LOCALE)} cổ phiếu`} value={moneyText(gross)} />
+818: <Row label={t("invest.ui.brokerageFeeLbl", `Phí môi giới (${(feeRate * 100).toFixed(1)}%)`)} value={moneyText(brokerage)} onHelp={onHelp} helpKey="brokerage_fee" />
+819: <Row label={t("invest.ui.creativeFeeLbl", `Phí sáng tạo (${(creativeRate * 100).toFixed(0)}%)`)} value={moneyText(creativeFee)} onHelp={onHelp} helpKey="brokerage_fee" />
+822: <Row label={t("invest.ui.conversionFeeLbl", `Phí đổi đơn vị (${(conversionRate * 100).toFixed(0)}%)`)} value={moneyText(conversionFee)} onHelp={onHelp} helpKey="conversion_fee" />
+825: {t('invest.ui.diffWalletNotice', `Ví khác đơn vị gốc: phí quy đổi 15% thu cả chiều MUA và BÁN, nên giá phải tăng ${(breakEvenPct(true) * 100).toFixed(1)}% thì bán mới hoà vốn.`)}
+833: label={side === "buy" ? t("invest.ui.totalDeducted", `Tổng trừ ví (${costs.walletCode})`) : t("invest.ui.totalAdded", `Tổng về ví (${costs.walletCode})`)}
+839: label={t("invest.ui.availableBalance", "Số dư ví khả dụng")}
+840: value={cash === null ? (walletLoaded ? t("invest.ui.noWallet", "Chưa có ví JOY") : t("invest.ui.loading", "Đang tải…")) : moneyText(cash)}
+846: {t("invest.ui.shortageNotice1", "Thiếu")} {moneyText(total - cash)} {t("invest.ui.shortageNotice2", "để đặt lệnh này. Giảm số lượng hoặc nạp thêm vào ví.")}
+851: {t("invest.ui.noWalletError", "Tài khoản này chưa có ví JOY nên chưa đặt lệnh được. Mở app Tài khoản để tạo hồ sơ trước.")}
+855: {t("invest.ui.quoteCurrencyNotice1", "Sàn niêm yết bằng")} {STOCK_QUOTE_CODE}: {quoteText(gross)} {t("invest.ui.quoteCurrencyNotice2", "cho lệnh này. Số trên đã quy về đơn vị ví của bạn.")}
+862: // Chỉ khoá khi ĐÃ BIẾT là không đủ. Chưa tải xong số dư mà đã khoá thì
+863: // người dùng ngồi nhìn một nút chết không hiểu vì sao; máy chủ vẫn là
+864: // nơi chặn cuối cùng và nó trả lời rõ ràng.
+881: <span>{side === "buy" ? t("invest.ui.confirmBuy", `Xác nhận mua ${qty.toLocaleString(LOCALE)} cổ`) : t("invest.ui.confirmSell", `Xác nhận bán ${qty.toLocaleString(LOCALE)} cổ`)}</span>
+894: // Toàn bộ bảng này định giá lại theo GIÁ ĐANG CHẠY. Bản trước hiển thị thẳng
+895: // các con số máy chủ chốt lúc gọi /portfolio (SWR giữ 30 giây), nên tổng lãi
+896: // ở đây và giá trên bảng giá là hai thời điểm khác nhau — người học không có
+897: // cách nào biết mình đang nhìn số nào.
+932: <p className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground flex items-center">{t('invest.ui.totalPnl', 'Tổng Lời / Lỗ Ròng (PnL)')}<HelpIcon topicKey="pnl" onClick={onHelp} />
+935: {isProfit ? t("invest.ui.isProfitTrue", "Đang lời") : t("invest.ui.isProfitFalse", "Đang lỗ")}
+942: {isProfit ? "+" : "−"}{moneyText(Math.abs(unrealizedVal))}
+944: <div className="text-[13.5px] font-bold text-foreground font-sans">{t('invest.ui.roi', 'Tỷ lệ sinh lời:')}<span className={toneOf(unrealizedVal)}>{pctText(live.unrealizedPct)}</span>
+950: <Stat label={t('invest.ui.investedCapital', 'Vốn Đầu Tư')} value={moneyText(live.invested)} onHelp={onHelp} helpKey="pnl" />
+951: <Stat label={t('invest.ui.currentValue', 'Giá Trị Hiện Tại')} value={moneyText(live.value)} onHelp={onHelp} helpKey="pnl" />
+952: <Stat label={t('invest.ui.realizedProfit', 'Lãi Đã Chốt')} value={moneyText(portfolio.realized)} tone={portfolio.realized} onHelp={onHelp} helpKey="pnl" />
+955: <p className="text-[12.5px] text-muted-foreground font-sans">{t('invest.ui.dividendsReceived', 'Cổ tức đã nhận tới nay:')}<strong className="text-success">{moneyText(portfolio.dividends)}</strong>
+959: {/* Mốc hoà vốn — hiện cho MỌI ví, vì đơn vị ví không còn làm đổi phí.
+960: Con số lấy từ breakEvenPct nên sửa phí ở một chỗ là chữ đổi theo. */}
+963: {t('invest.ui.breakEvenNotice', `Mốc hoà vốn: phí môi giới 0,5% thu cả hai chiều, nên giá phải tăng ${(breakEvenPct(false) * 100).toFixed(2)}% thì bán mới huề vốn — bán sớm hơn là lỗ.`)}
+971: <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center">{t('invest.ui.holdingPortfolio', 'Danh Mục Đang Nắm Giữ')}<HelpIcon topicKey="pnl" onClick={onHelp} />
+977: {t('invest.ui.emptyPortfolio1', 'Chưa nắm giữ cổ phiếu nào. Hãy chuyển sang tab')} <strong className="text-foreground">{t('invest.ui.marketTab', 'Bảng giá')}</strong> {t('invest.ui.emptyPortfolio2', 'để chọn cổ phiếu và tích lũy lợi nhuận!')}
+991: {holding.quantity.toLocaleString("vi-VN")} {t("invest.ui.sharesShort", "cổ")} · {t("invest.ui.capitalShort", "vốn")} {priceText(holding.avgCost)}
+1008: <p className="border-b border-border px-4 py-3 text-[13.5px] font-bold uppercase tracking-wider text-foreground">{t('invest.ui.orderHistory', 'Nhật Ký Khớp Lệnh')}</p>
+1020: {trade.side === "buy" ? "Mua" : "Bán"}
+1027: {new Date(trade.at).toLocaleString(LOCALE)} · {t("invest.ui.feeText", "phí")} {moneyText(trade.fee)} · {t("invest.ui.viewReceiptAction", "bấm xem hoá đơn")}
+1032: ? `${trade.realizedPL >= 0 ? "+" : "−"}${moneyText(Math.abs(trade.realizedPL))}`
+1033: : `−${moneyText(trade.total)}`}
