@@ -1,10 +1,13 @@
 // Toán nến của biểu đồ sàn ảo — HÀM THUẦN, tách khỏi phần vẽ để kiểm chứng
 // được bằng node: server/scripts/check-invest-chart.mjs
 
+// perCandle đếm theo BƯỚC GIÁ (SEGMENT_SEC = 30 giây), không phải theo phút.
+// Đổi SEGMENT_SEC thì phải đổi luôn mấy con số này, nếu không nhãn "5 phút"
+// nói một đằng mà nến gộp một nẻo.
 export const CANDLE_FRAMES = [
-  { key: "2m", label: "2 phút", perCandle: 2 },
-  { key: "5m", label: "5 phút", perCandle: 5 },
-  { key: "15m", label: "15 phút", perCandle: 15 },
+  { key: "2m", label: "2 phút", perCandle: 4 },
+  { key: "5m", label: "5 phút", perCandle: 10 },
+  { key: "15m", label: "15 phút", perCandle: 30 },
   { key: "session", label: "Phiên", perCandle: 0 },
 ];
 
@@ -37,6 +40,41 @@ export function candlesFromTicks(ticks, perCandle, segmentSec = 60) {
     });
   }
   return out;
+}
+
+/**
+ * NẾN ĐANG HÌNH THÀNH — phần đuôi chưa đủ một nến, cộng giá đang chạy.
+ *
+ * `candlesFromTicks` chỉ trả về nến ĐÃ ĐÓNG (nhóm đủ `perCandle` mốc), nên
+ * biểu đồ chỉ nhúc nhích mỗi lần máy chủ gửi mốc mới — nhìn như đứng hình.
+ * Cây nến này là cây bên phải cùng, lớn dần theo từng giây đúng như app chứng
+ * khoán thật: mở tại mốc biên gần nhất, đóng tại GIÁ ĐANG KHỚP.
+ *
+ * Trả `null` khi không có gì đang hình thành — đừng vẽ một cây nến rỗng.
+ */
+export function formingCandle(ticks, perCandle, livePrice, segmentSec = 60) {
+  const prices = ticks?.prices;
+  const size = Math.max(1, Math.floor(perCandle) || 1);
+  if (!Array.isArray(prices) || prices.length < 2) return null;
+
+  const step = Number(ticks.step) || segmentSec;
+  const start = Number(ticks.start) || 0;
+  // Mốc biên của nến cuối cùng đã đóng; phần từ đó trở đi là nến đang chạy.
+  const closedCount = Math.floor((prices.length - 1) / size);
+  const from = closedCount * size;
+  const span = prices.slice(from);
+  const live = Number(livePrice);
+  const points = Number.isFinite(live) && live > 0 ? [...span, live] : span;
+  if (points.length < 2) return null;
+
+  return {
+    time: (start + from * step) * 1000,
+    open: points[0],
+    close: points[points.length - 1],
+    high: Math.max(...points),
+    low: Math.min(...points),
+    live: true,
+  };
 }
 
 /**

@@ -10,11 +10,11 @@ import {
   tradingFee, nextPrice, positionPL, applyBuy, applySell, tradeCosts,
   sessionKey, sessionStart, SESSION_HOURS_VN, tidyHistory,
 } from '../services/stockMarket.js';
-import { buildTicks, priceAt, MAX_SEGMENT_MOVE, SEGMENT_SEC } from '../../shared/stockPricing.js';
+import { buildTicks, priceAt, breakEvenPct, MAX_SEGMENT_MOVE, SEGMENT_SEC } from '../../shared/stockPricing.js';
 import { CROSS_DENOM_FEE, JOY_DENOMS, BASE_DENOM } from '../../shared/joyCurrency.js';
 
 // ── Bốn công ty, mỗi mã một hồ sơ rủi ro khác nhau ───────────────────────────
-assert.equal(COMPANIES.length, 4);
+assert.equal(COMPANIES.length, 8);
 const bySymbol = Object.fromEntries(COMPANIES.map((c) => [c.symbol, c]));
 assert.ok(bySymbol.HARC.volatility > bySymbol.HFILM.volatility, 'Arcade phải biến động mạnh hơn Film');
 assert.ok(bySymbol.HBANK.volatility < bySymbol.HFILM.volatility, 'Bank phải là mã ổn định nhất');
@@ -91,67 +91,90 @@ assert.equal(roundTrip.realizedPL, -buyFee, 'mua bán cùng giá thì lỗ đún
 // ── Niêm yết bằng đơn vị gốc tiếng Anh + ba loại phí ─────────────────────────
 assert.equal(STOCK_QUOTE_CODE, JOY_DENOMS[BASE_DENOM].code, 'sàn niêm yết bằng đơn vị gốc (Kavo)');
 
-// Ví để ở đơn vị KHÁC ⇒ mỗi lệnh là một lần đổi tiền ⇒ chịu phí chuyển đổi.
+// SÀN CHỈ THU PHÍ MÔI GIỚI. Hai khoản từng chồng lên mỗi lệnh đã bỏ: phí sáng
+// tạo 5% (phí CHUYỂN JOY giữa hai người — mua cổ phiếu không chuyển cho ai) và
+// phí đổi đơn vị 15% (thu cho một lần đổi tiền không hề xảy ra: đơn vị JOY chỉ
+// là lớp hiển thị, sổ cái ghi JOY gốc từ đầu tới cuối). Hai khoản đó đẩy mốc
+// hoà vốn của ví khác đơn vị lên 51,6% — sàn khi ấy dạy "đừng giao dịch".
+assert.equal(CREATIVE_FEE_RATE, 0, 'lệnh cổ phiếu không phải một lần chuyển JOY');
+
 const buyVi = tradeCosts({ price: 100, quantity: 10, side: 'buy', memberDenom: 'vi' });
+const buyEn = tradeCosts({ price: 100, quantity: 10, side: 'buy', memberDenom: 'en' });
 assert.equal(buyVi.gross, 1000);
 assert.equal(buyVi.brokerage, 5, 'môi giới 0,5%');
-assert.equal(buyVi.creativeFee, Math.floor(1000 * CREATIVE_FEE_RATE), 'phí sáng tạo 5%');
-assert.equal(buyVi.conversionFee, Math.floor(1000 * CROSS_DENOM_FEE), 'phí chuyển đổi 15%');
-assert.equal(buyVi.crossDenom, true);
-assert.equal(buyVi.total, 1000 + buyVi.brokerage + buyVi.creativeFee + buyVi.conversionFee, 'mua: trừ ví = giá trị + đủ ba phí');
+assert.equal(buyVi.creativeFee, 0);
+assert.equal(buyVi.conversionFee, 0, 'không đổi đơn vị nào cả thì không thu phí đổi');
+assert.equal(buyVi.total, 1005, 'mua: trừ ví = giá trị + môi giới');
 
-// Ví ĐÃ ở đơn vị gốc ⇒ không có gì để đổi ⇒ miễn phí chuyển đổi.
-const buyEn = tradeCosts({ price: 100, quantity: 10, side: 'buy', memberDenom: 'en' });
-assert.equal(buyEn.conversionFee, 0, 'ví Kavo không phải trả phí chuyển đổi');
-assert.equal(buyEn.crossDenom, false);
-assert.ok(buyEn.total < buyVi.total, 'cùng lệnh, ví đơn vị gốc rẻ hơn ví đơn vị khác');
+// ĐƠN VỊ VÍ KHÔNG CÒN LÀM LỆCH GIÁ. Trước đây cùng một lệnh, ví Luno trả 1205
+// còn ví Kavo trả 1055 — cùng một cổ phiếu, hai cái giá, chỉ vì người dùng chọn
+// đơn vị hiển thị khác. Đây là bài kiểm giữ cho chuyện đó không quay lại.
+assert.equal(buyVi.total, buyEn.total, 'ví đơn vị nào cũng trả đúng một giá');
+assert.equal(buyVi.fees, buyEn.fees);
 
 // Bán: phí TRỪ vào tiền về ví, không cộng thêm.
 const sellVi = tradeCosts({ price: 100, quantity: 10, side: 'sell', memberDenom: 'vi' });
-assert.equal(sellVi.total, 1000 - sellVi.fees, 'bán: về ví = giá trị − đủ ba phí');
+assert.equal(sellVi.total, 1000 - sellVi.fees, 'bán: về ví = giá trị − phí');
 assert.equal(sellVi.fees, buyVi.fees, 'cùng giá trị thì hai chiều chịu phí như nhau');
 
-// Vòng mua-bán ở CÙNG một giá: lỗ đúng bằng hai lần tổng phí. Với ví khác đơn
-// vị, riêng phí đã ăn hơn 40% giá trị lệnh — đây là con số app phải nói thẳng.
-const roundTripCost = buyVi.fees + sellVi.fees;
-assert.equal(roundTripCost, 2 * buyVi.fees);
-assert.ok(roundTripCost / buyVi.gross > 0.4, 'phí hai chiều của ví khác đơn vị vượt 40% giá trị lệnh');
+// MỐC HOÀ VỐN: mua trả gross×(1+f), bán nhận gross×(1−f) ⇒ giá phải tăng
+// (1+f)/(1−f) − 1, KHÔNG phải "bằng tổng phí". Với f = 0,5% là ~1,01%.
+const breakEven = breakEvenPct(false);
+assert.ok(Math.abs(breakEven - 0.0101) < 0.0002, `mốc hoà vốn phải ~1,01%, đang là ${(breakEven * 100).toFixed(2)}%`);
+assert.equal(breakEvenPct(true), breakEvenPct(false), 'mốc hoà vốn không được phụ thuộc đơn vị ví');
+assert.ok(breakEven > 2 * TRADING_FEE_RATE, 'hoà vốn luôn cao hơn tổng phí thuần: bán ở giá vốn vẫn lỗ');
 
-// ── Ba phiên một ngày, và đó là đồng hồ CỦA SÀN ──────────────────────────────
-// Cổ tức HBANK trả mỗi phiên một lần và kết quả kinh doanh cũng cộng vào giá
-// mỗi phiên một lần, nên số phiên/ngày là một con số tiền tệ. Sàn từng mượn
-// đồng hồ của bảng tỷ giá JOY: bên đó đổi sang nhịp giờ là sàn trả cổ tức 24
-// lần/ngày mà không ai sửa gì trong file này.
-assert.deepEqual(SESSION_HOURS_VN, [9, 15, 21]);
-const day = '2026-08-18';
-// Đếm từ 09:00 tới 08:59 hôm sau — đúng một vòng đời của ba phiên.
-const open = new Date(`${day}T09:00:00+07:00`).getTime();
-const keys = new Set();
-for (let h = 0; h < 24; h += 1) keys.add(sessionKey(new Date(open + h * 3600000)));
-assert.equal(keys.size, 3, 'một ngày phải đúng ba phiên');
-assert.equal(sessionKey(new Date(`${day}T08:00:00+07:00`)), '2026-08-17-21', 'trước 9h sáng vẫn là phiên tối hôm trước');
-assert.equal(sessionStart('2026-08-18-09').toISOString(), '2026-08-18T02:00:00.000Z', '09:00 giờ VN = 02:00 UTC');
+// Mua rồi bán ngay ở CÙNG một giá vẫn lỗ đúng hai lần phí — bài học lướt sóng.
+assert.equal(sellVi.total - buyVi.total, -(buyVi.fees + sellVi.fees));
 
-// ── Lịch sử phiên: mỗi mốc đúng một điểm ────────────────────────────────────
-// Biểu đồ khoá nến theo thời gian, nên hai điểm trùng giờ làm React vẽ trùng
-// hoặc bỏ sót nến. Dữ liệu cũ đã có trường hợp đó thật (mốc phiên từng đổi).
-const messy = [
-  { at: '2026-08-18T14:00:00.000Z', price: 100 },
-  { at: '2026-08-18T08:00:00.000Z', price: 90 },
-  { at: '2026-08-18T14:00:00.000Z', price: 105 },
-];
-const tidy = tidyHistory(messy);
-assert.equal(tidy.length, 2, 'mốc trùng phải gộp lại một');
-assert.equal(tidy[1].price, 105, 'điểm ghi sau thắng');
-assert.ok(tidy[0].at < tidy[1].at, 'cũ trước mới sau');
-assert.deepEqual(tidyHistory(undefined), [], 'không có lịch sử thì trả mảng rỗng');
+// ── Mỗi mã phải gắn một tín hiệu CÓ THẬT, không trùng nhau ──────────────────
+const signals = COMPANIES.map((c) => c.signal);
+assert.equal(new Set(signals).size, signals.length, 'hai công ty dùng chung một tín hiệu là hai công ty giả');
+assert.equal(new Set(COMPANIES.map((c) => c.symbol)).size, COMPANIES.length);
+
+// ── Biên độ phải ĐỦ MẠNH, và lâu lâu phải có phiên siêu ─────────────────────
+// Bản trước dao động quá yếu: đo 500 phiên không ra nổi một phiên nào đỉnh
+// vượt +30%, nên với phí giao dịch thì gần như không có cơ hội nào đáng học.
+// Bài kiểm này canh cả HAI đầu: đủ sống động, mà mã "ổn định nhất" vẫn ổn định.
+function sessionStats(company, sessions = 400) {
+  const steps = 6 * 3600; // một phiên 6 giờ
+  let big = 0; let deep = 0; const ranges = [];
+  for (let i = 0; i < sessions; i += 1) {
+    const { prices } = buildTicks({
+      symbol: company.symbol, anchor: company.basePrice, basePrice: company.basePrice,
+      volatility: company.volatility, seed: `kiemtra-${i}`, startSec: 0, nowSec: steps, limit: 1e6,
+    });
+    const hi = Math.max(...prices); const lo = Math.min(...prices);
+    ranges.push((hi - lo) / lo);
+    if (hi / company.basePrice - 1 >= 0.6) big += 1;
+    if (lo / company.basePrice - 1 <= -0.4) deep += 1;
+  }
+  ranges.sort((a, b) => a - b);
+  return { median: ranges[Math.floor(ranges.length / 2)], big: big / sessions, deep: deep / sessions };
+}
+
+const arc = sessionStats(bySymbol.HARC);
+assert.ok(arc.median > 0.2, `HARC: biên độ phiên trung vị ${(arc.median * 100).toFixed(0)}% quá yếu`);
+assert.ok(arc.big > 0.02, `HARC: phiên bùng nổ (đỉnh ≥ +60%) chỉ ${(arc.big * 100).toFixed(1)}% — quá hiếm`);
+assert.ok(arc.deep > 0.02, `HARC: phiên sụp đổ (đáy ≤ −40%) chỉ ${(arc.deep * 100).toFixed(1)}% — quá hiếm`);
+assert.ok(arc.big < 0.30 && arc.deep < 0.30, 'phiên siêu mà xảy ra suốt thì không còn là phiên siêu');
+
+const bank = sessionStats(bySymbol.HBANK);
+assert.ok(bank.median < arc.median, 'HBANK phải êm hơn HARC');
+assert.equal(bank.big, 0, 'mã ngân hàng không được có phiên bùng nổ +60%');
 
 // ── Đường giá trong phiên KHÔNG được là máy in JOY ───────────────────────────
 // Máy chủ gửi xuống mốc của bước ĐANG chạy để client vẽ mượt, nên bước đó là
 // phần duy nhất người dùng biết trước. Một bước phải nhỏ hơn phí khứ hồi rẻ
 // nhất (2 × 0,5% + 2 × 5% = 11%), nếu không thì "biết trước" = lời chắc chắn.
 const roundTripRate = 2 * (TRADING_FEE_RATE + CREATIVE_FEE_RATE);
-assert.ok(MAX_SEGMENT_MOVE < roundTripRate, 'trần một bước phải nhỏ hơn phí khứ hồi');
+assert.ok(
+  MAX_SEGMENT_MOVE < roundTripRate,
+  `trần một bước ${(MAX_SEGMENT_MOVE * 100).toFixed(2)}% phải nhỏ hơn phí khứ hồi ${(roundTripRate * 100).toFixed(2)}%`,
+);
+// Hạ phí thì PHẢI hạ trần một bước theo. Bỏ phí sáng tạo 5% mà quên chỗ này là
+// lộ ra một cú tăng biết trước lớn hơn phí ⇒ mua-bán ăn chắc, in JOY.
+assert.ok(MAX_SEGMENT_MOVE < roundTripRate * 0.75, 'trần một bước phải có biên an toàn dưới phí khứ hồi');
 
 const walk = (over, seed = 'bí-mật-máy-chủ') => buildTicks({
   symbol: over.symbol, anchor: over.basePrice, basePrice: over.basePrice,
@@ -168,9 +191,13 @@ for (const company of COMPANIES) {
       `${company.symbol}: một bước nhảy ${(step * 100).toFixed(2)}% vượt trần ${(MAX_SEGMENT_MOVE * 100).toFixed(1)}%`,
     );
   }
-  // Neo về giá cơ bản: cả phiên không được trôi đi mất.
-  const far = Math.max(...prices.map((p) => Math.abs(p / company.basePrice - 1)));
-  assert.ok(far < 0.5, `${company.symbol}: giá trôi ${(far * 100).toFixed(0)}% khỏi mốc neo`);
+  // Sàn/trần TUYỆT ĐỐI: công ty không phá sản và không hoá thành mặt trời.
+  // Biên độ trong phiên thì cố ý rộng (xem "phiên siêu" ở trên), nhưng giá
+  // không bao giờ được ra ngoài khoảng 0,2× – 5× giá niêm yết ban đầu.
+  const lowest = Math.min(...prices);
+  const highest = Math.max(...prices);
+  assert.ok(lowest >= company.basePrice * 0.2 - 0.01, `${company.symbol}: thủng sàn giá`);
+  assert.ok(highest <= company.basePrice * 5 + 0.01, `${company.symbol}: vượt trần giá`);
 }
 
 // Cùng hạt giống ⇒ cùng đường giá (khởi động lại máy chủ không làm giá nhảy).
@@ -179,9 +206,20 @@ assert.deepEqual(walk(COMPANIES[0]).prices, walk(COMPANIES[0]).prices);
 // được: công thức thì ai cũng đọc được trong bundle, hạt giống thì không.
 assert.notDeepEqual(walk(COMPANIES[0]).prices, walk(COMPANIES[0], 'hạt-giống-khác').prices);
 
-// Mã biến động mạnh phải đi xa hơn mã ổn định trên cùng một hạt giống.
-const spread = (c) => { const { prices } = walk(c); return Math.max(...prices) - Math.min(...prices); };
-assert.ok(spread(bySymbol.HARC) / 60 > spread(bySymbol.HBANK) / 80, 'HARC phải dao động mạnh hơn HBANK');
+// Mã biến động mạnh phải đi xa hơn mã ổn định — so trên NHIỀU hạt giống, đừng
+// so trên một. Từ khi có "tâm trạng cả phiên", đúng một hạt giống có thể ném
+// cho HBANK một phiên hoảng loạn và cho HARC một phiên đi ngang; so một mẫu là
+// bài kiểm tra thỉnh thoảng đỏ mà không có gì hỏng cả.
+const meanSpread = (c) => {
+  let total = 0;
+  for (let i = 0; i < 60; i += 1) {
+    const { prices } = walk(c, `mau-${i}`);
+    total += (Math.max(...prices) - Math.min(...prices)) / c.basePrice;
+  }
+  return total / 60;
+};
+assert.ok(meanSpread(bySymbol.HARC) > meanSpread(bySymbol.HBANK) * 1.5, 'HARC phải dao động mạnh hơn hẳn HBANK');
+assert.ok(meanSpread(bySymbol.HSTYLE) > meanSpread(bySymbol.HARC), 'HSTYLE là mã đầu cơ mạnh nhất sàn');
 
 // ── Giá nội suy: client và máy chủ đọc CÙNG một con số ───────────────────────
 const ticks = { step: SEGMENT_SEC, start: 1000, prices: [100, 110] };

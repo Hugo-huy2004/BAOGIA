@@ -479,7 +479,10 @@
         "rewardReady": "+{{amount, joy}} reward",
         "incomplete": "ไม่เสร็จสมบูรณ์ · +{{amount, joy}}",
         "claimed": "เข้าสู่ระบบ",
-        "claim": "ขอรับ"
+        "claim": "ขอรับ",
+        "goTo": "เปิด {{app}}",
+        "goOverview": "เช็คอินที่แท็บภาพรวม",
+        "noTarget": "ทำในแอปได้เลย"
       },
       "redeemCopy": {
         "giftError": "รหัสที่ส่งไม่สามารถใช้งานได้",

@@ -2340,7 +2340,10 @@
         "rewardReady": "Thưởng +{{amount, joy}}",
         "incomplete": "Chưa hoàn thành · +{{amount, joy}}",
         "claimed": "Đã nhận",
-        "claim": "Nhận"
+        "claim": "Nhận",
+        "goTo": "Mở {{app}}",
+        "goOverview": "Điểm danh ở tab Tổng quan",
+        "noTarget": "Làm ngay trong ứng dụng"
       },
       "redeemCopy": {
         "giftError": "Mã không dùng được.",

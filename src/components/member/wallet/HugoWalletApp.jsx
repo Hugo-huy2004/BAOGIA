@@ -462,6 +462,8 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
               email={email} showToast={showToast} challenges={challenges}
               loading={challengesLoading}
               onReload={() => { loadChallenges(); loadRecent(); }}
+              onSelectUtility={onSelectUtility}
+              onGoToWalletTab={setTab}
             />
           </Panel>
         )}

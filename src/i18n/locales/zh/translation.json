@@ -479,7 +479,10 @@
         "rewardReady": "+{{amount, joy}} 奖励",
         "incomplete": "未完成 · +{{amount, joy}}",
         "claimed": "已获取",
-        "claim": "Claim"
+        "claim": "Claim",
+        "goTo": "打开{{app}}",
+        "goOverview": "在“总览”标签签到",
+        "noTarget": "在应用内完成"
       },
       "redeemCopy": {
         "giftError": "这个代码无法兑换",

@@ -479,7 +479,10 @@
         "rewardReady": "Récompense +{{amount, joy}}",
         "incomplete": "Non terminé · +{{amount, joy}}",
         "claimed": "Connexion",
-        "claim": "Réclamation"
+        "claim": "Réclamation",
+        "goTo": "Ouvrir {{app}}",
+        "goOverview": "Pointage dans l'onglet Aperçu",
+        "noTarget": "À faire dans l'app"
       },
       "redeemCopy": {
         "giftError": "Ce code ne peut pas être récompensé.",

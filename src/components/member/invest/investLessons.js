@@ -72,7 +72,7 @@ export const LESSONS = [
     title: "Phí chuyển đổi khi mua tài sản niêm yết bằng đơn vị khác",
     summary: "Sàn niêm yết bằng JOYka. Ví bạn ở đơn vị khác thì mỗi lệnh là một lần đổi tiền.",
     body: [
-      "Toàn sàn dùng MỘT bảng giá bằng JOYka — đơn vị JOY gốc. Nếu ví bạn đang để ở Mira, Luno hay Zoma thì mỗi lệnh mua/bán phải đổi qua JOYka, và lần đổi đó tốn 15% phí chuyển đổi.",
+      "Toàn sàn dùng MỘT bảng giá bằng JOYka — đơn vị JOY gốc. Ví bạn để ở Mira, Luno hay Zoma thì màn hình tự viết lại con số đó theo đơn vị của bạn, KHÔNG mất phí: đơn vị chỉ là cách viết, số JOY gốc vẫn y nguyên.",
       "Một lệnh 1.000 JOYka với ví khác đơn vị: 5 phí môi giới + 50 phí sáng tạo + 150 phí chuyển đổi = 205, tức hơn 20% giá trị lệnh. Mua rồi bán ngay là mất hơn 40%.",
       "Ngoài đời y hệt: mua cổ phiếu Mỹ bằng tiền Việt thì ngoài phí môi giới còn mất phí đổi ngoại tệ hai chiều. Đó là lý do nhà đầu tư dài hạn ít giao dịch, còn người lướt sóng xuyên tiền tệ thường thua ngay từ bảng phí — trước khi giá kịp chạy.",
       "Bài học rút ra: trước khi đặt lệnh, hãy cộng đủ MỌI khoản phí rồi mới xem mình cần giá chạy bao nhiêu phần trăm mới hoà vốn.",

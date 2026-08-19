@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { joyCode, joyFactor } from "../../../lib/joyDisplay";
 import { SEGMENT_SEC } from "../../../../shared/stockPricing";
-import { CANDLE_FRAMES, candlesFromHistory, candlesFromTicks, movingAverage, volumeOf } from "./candles";
+import { CANDLE_FRAMES, candlesFromHistory, candlesFromTicks, formingCandle, movingAverage, volumeOf } from "./candles";
 
 /**
  * Biểu đồ nến của sàn ảo — dựng đúng bộ phận của một biểu đồ chứng khoán thật:
@@ -53,11 +53,15 @@ export default function StockPriceChart({ company, trades = [] }) {
 
   const frame = CANDLE_FRAMES.find((item) => item.key === timeframe) || CANDLE_FRAMES[0];
 
-  const candles = useMemo(() => (
-    frame.perCandle
-      ? candlesFromTicks(company?.ticks, frame.perCandle, SEGMENT_SEC)
-      : candlesFromHistory(company?.history)
-  ), [company?.ticks, company?.history, frame.perCandle]);
+  // `company.price` là giá nội suy, đổi MỖI GIÂY ở component cha — nó nằm trong
+  // deps để cây nến bên phải lớn dần theo thời gian thực. Thiếu nó thì biểu đồ
+  // chỉ nhúc nhích mỗi 30 giây, lúc máy chủ gửi mốc mới, nhìn như treo.
+  const candles = useMemo(() => {
+    if (!frame.perCandle) return candlesFromHistory(company?.history);
+    const closed = candlesFromTicks(company?.ticks, frame.perCandle, SEGMENT_SEC);
+    const forming = formingCandle(company?.ticks, frame.perCandle, company?.price, SEGMENT_SEC);
+    return forming ? [...closed, forming] : closed;
+  }, [company?.ticks, company?.history, company?.price, frame.perCandle]);
 
   const closes = useMemo(() => candles.map((c) => c.close), [candles]);
   const ma10 = useMemo(() => movingAverage(closes, 10), [closes]);

@@ -33,6 +33,7 @@ const AUTH = { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKE
 
 await Bio.create({ email: EMAIL, slug: 'e2e', displayName: 'E2E', joyBalance: 1_000_000, joyDenom: 'vi' });
 
+const { COMPANIES } = await import('../services/stockMarket.js');
 const routes = (await import('../routes/stockRoutes.js')).default;
 const app = express();
 app.use(express.json());
@@ -43,7 +44,7 @@ const api = (p, opts = {}) => fetch(`http://localhost:4599/api/stock${p}`, { ...
 // ── bảng giá ────────────────────────────────────────────────────────────────
 const market = await api('/market');
 assert.ok(market.success, market.message);
-assert.equal(market.companies.length, 4);
+assert.equal(market.companies.length, COMPANIES.length, 'bảng giá phải có đủ mọi mã đang niêm yết');
 const hfilm = market.companies.find((c) => c.symbol === 'HFILM');
 assert.ok(hfilm.ticks?.prices?.length >= 2, 'phải gửi đường giá xuống client');
 assert.ok(!JSON.stringify(market).includes('e2e-secret'), 'HẠT GIỐNG KHÔNG ĐƯỢC LỘ RA CLIENT');
@@ -58,9 +59,12 @@ assert.ok(Math.abs(clientPrice - hfilm.price) < 0.01, `client ${clientPrice} vs 
 const buy = await api('/trade', { method: 'POST',   body: JSON.stringify({ symbol: 'HFILM', side: 'buy', quantity: 10, expectedPrice: hfilm.price }) });
 assert.ok(buy.success, buy.message);
 const r = buy.receipt;
-assert.equal(r.fees, r.brokerage + r.creativeFee + r.conversionFee, 'tổng phí = ba khoản');
+assert.equal(r.fees, r.brokerage, 'sàn chỉ thu phí môi giới');
 assert.equal(r.total, r.gross + r.fees, 'mua: trừ ví = giá trị + phí');
-assert.ok(r.conversionFee > 0, 'ví Mira phải chịu phí đổi đơn vị');
+// Ví Mira KHÔNG phải chịu phí đổi đơn vị: đơn vị JOY chỉ là lớp hiển thị,
+// sổ cái ghi JOY gốc từ đầu tới cuối nên không có lần đổi tiền nào xảy ra.
+assert.equal(r.conversionFee, 0, 'không đổi đơn vị nào cả thì không thu phí đổi');
+assert.equal(r.creativeFee, 0, 'mua cổ phiếu không phải một lần chuyển JOY');
 assert.equal(r.balanceAfter, 1_000_000 - r.total, 'ví trừ đúng con số trên hoá đơn');
 assert.equal((await Bio.findOne({ email: EMAIL })).joyBalance, r.balanceAfter);
 console.log('mua :', JSON.stringify(r));
@@ -101,6 +105,32 @@ assert.equal(pf.holdings.length, 1);
 assert.ok(pf.trades.every((t) => t.walletCode === 'JOYmi' && t.session), 'mỗi lệnh phải lưu đơn vị ví + phiên');
 assert.ok(pf.trades.some((t) => t.brokerage > 0), 'sổ lệnh phải tách được phí');
 console.log('danh mục:', pf.holdings.length, 'mã ·', pf.trades.length, 'lệnh · lãi chốt', pf.realized);
+
+// ── Đăng nhập bằng EMAIL LIÊN HỆ vẫn phải thấy ví ───────────────────────────
+// Cả app tra hồ sơ theo email HOẶC contactEmail (awardJoy cũng vậy). Sàn từng
+// chỉ tra `email`, nên ai đăng nhập bằng email liên hệ thấy "Số dư 0", nút Mua
+// bị khoá — trong khi ví họ có tiền và lệnh vẫn trừ được. Lỗi này đã có thật.
+const CONTACT = 'lienhe@hugo.test';
+await Bio.create({
+  email: 'chinh@hugo.test', contactEmail: CONTACT, slug: 'e2e-2',
+  displayName: 'E2E 2', joyBalance: 4289, joyDenom: 'ko',
+});
+const token2 = jwt.sign({ email: CONTACT, role: 'member' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+const pf2 = await fetch('http://localhost:4599/api/stock/portfolio', {
+  headers: { Authorization: `Bearer ${token2}` },
+}).then((r) => r.json());
+assert.equal(pf2.cash, 4289, 'đăng nhập bằng email liên hệ phải thấy đúng số dư');
+assert.equal(pf2.hasWallet, true);
+assert.equal(pf2.walletCode, 'JOYlu', 'và đúng đơn vị ví, để không tính nhầm phí đổi đơn vị');
+console.log('email liên hệ:', pf2.cash, pf2.walletCode);
+
+// Không có hồ sơ ⇒ `cash: null` + hasWallet false, KHÁC HẲN "ví đang có 0".
+const token3 = jwt.sign({ email: 'khongtonvtai@hugo.test', role: 'member' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+const pf3 = await fetch('http://localhost:4599/api/stock/portfolio', {
+  headers: { Authorization: `Bearer ${token3}` },
+}).then((r) => r.json());
+assert.equal(pf3.cash, null, 'chưa có ví thì trả null chứ không phải 0');
+assert.equal(pf3.hasWallet, false);
 
 await mongoose.connection.dropDatabase();
 server.close();

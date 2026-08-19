@@ -90,27 +90,27 @@ export const INVEST_HELP_DICTIONARY = {
     example: "Muốn có lãi thật, giá phải chạy đủ xa để bù phí hai chiều — nhấp nhô vài phút thì phí ăn hết."
   },
   conversion_fee: {
-    title: "Phí Quy Đổi Đơn Vị 15%",
+    title: "Đơn Vị Ví Không Ảnh Hưởng Giá",
     icon: "currency_exchange",
-    badge: "Quy tắc ví cá nhân hóa",
-    summary: "Áp dụng khi đơn vị hiển thị mặc định của ví khác với đơn vị niêm yết của sàn (JOYka).",
+    badge: "Đã bỏ phí quy đổi",
+    summary: "Ví bạn để ở đơn vị nào cũng mua bán đúng một giá — sàn không thu phí đổi đơn vị nữa.",
     details: [
-      "Sàn ảo Hugo niêm yết giá theo đơn vị chuẩn JOYka (Kavo).",
-      "Nếu tài khoản của bạn đang chọn đơn vị ví khác (như Mira, Luno, Velu...), hệ thống tự động quy đổi và áp dụng 15% phí quy đổi ở cả 2 chiều MUA và BÁN.",
-      "Phí thu Ở CẢ HAI CHIỀU nên mốc hoà vốn KHÔNG phải 15%: mua trả thêm 20,5%, bán bị trừ 20,5%, tính ra giá phải tăng 51,6% thì bán mới về đúng số vốn bỏ ra.",
-      "Muốn tránh khoản này thì để ví ở đúng đơn vị gốc (Kavo) — khi đó mốc hoà vốn chỉ còn 11,6%."
+      "Sàn niêm yết giá theo đơn vị chuẩn JOYka (Kavo), còn ví bạn hiện số theo đơn vị bạn chọn (Mira, Luno, Velu...). Đó chỉ là hai cách VIẾT của cùng một số JOY gốc.",
+      "Trước đây mỗi lệnh bị tính 15% phí quy đổi ở cả hai chiều, đẩy mốc hoà vốn của ví khác đơn vị lên 51,6% — phải đoán trúng một cú tăng hơn nửa giá trị công ty mới huề vốn.",
+      "Khoản đó đã bỏ: sổ cái ghi JOY gốc từ đầu tới cuối nên chưa từng có lần đổi tiền nào thật sự xảy ra. Nay mọi ví đều hoà vốn ở ~1,01%."
     ],
-    example: "Ví dụ: mua 1.000, ví trừ 1.205. Giá tăng 20% thành 1.200 nhưng bán chỉ nhận 954 — vẫn LỖ 251. Phải tăng tới ~1.516 mới huề."
+    example: "Ví dụ: mua 1.000, ví trừ 1.005. Giá lên 1.011 là bán đã huề; lên 1.100 thì bán về 1.094, lãi thật 89."
   },
   brokerage_fee: {
-    title: "Phí Môi Giới & Phí Sáng Tạo",
+    title: "Phí Môi Giới 0,5%",
     icon: "receipt_long",
     badge: "Chi phí giao dịch",
-    summary: "Phí nhỏ khấu trừ khi đặt lệnh để duy trì thanh khoản sàn và ủng hộ tác giả.",
+    summary: "Sàn chỉ thu một khoản duy nhất: 0,5% giá trị lệnh, mỗi chiều.",
     details: [
-      "Phí môi giới sàn: 0.5% tổng giá trị giao dịch (dùng duy trì khớp lệnh tự động).",
-      "Phí sáng tạo: 5% ủng hộ các nhà tạo nội dung và doanh nghiệp phát hành cổ phiếu.",
-      "Tất cả khoản phí được tính công khai trước khi bạn bấm nút Xác nhận đặt lệnh."
+      "Phí môi giới: 0,5% giá trị lệnh, tối thiểu 1 JOY, thu cả khi mua lẫn khi bán — đúng mức các công ty chứng khoán ngoài đời thu.",
+      "Phí sáng tạo 5% mỗi chiều đã BỎ: đó là phí chuyển JOY giữa hai người, mà mua cổ phiếu thì không chuyển tiền cho ai cả.",
+      "Vì thu hai chiều nên mốc hoà vốn là 1,01% chứ không phải 0,5%: mua trả thêm 0,5%, bán bị trừ 0,5%.",
+      "Toàn bộ phí hiện rõ trước khi bạn bấm Xác nhận đặt lệnh."
     ]
   },
   market_cap: {
@@ -129,7 +129,7 @@ export const INVEST_HELP_DICTIONARY = {
     badge: "Trợ lý đầu tư tự động",
     summary: "Hệ thống AI tự động phân tích thị trường và danh mục của bạn để đưa ra lời khuyên tối ưu.",
     details: [
-      "NÊN CHỐT LỜI: khi lãi đã vượt mốc hoà vốn của CHÍNH ví bạn (11,6% với ví đơn vị gốc, 51,6% với ví khác đơn vị).",
+      "NÊN CHỐT LỜI: khi lãi đã vượt mốc hoà vốn 1,01% — dưới mốc đó, bán ra vẫn là lỗ vì phí thu cả hai chiều.",
       "CẢNH BÁO CẮT LỖ: khi cổ phiếu giảm quá 10%.",
       "GIỮ TIẾP: khi đang lãi nhưng chưa qua mốc hoà vốn — bán lúc đó vẫn là lỗ."
     ]
@@ -333,9 +333,8 @@ function SmartAdvisorCard({ portfolio, company, onHelp }) {
   if (!portfolio) return null;
 
   const { holdings = [], crossDenom = false } = portfolio;
-  // Mốc hoà vốn THẬT của chính ví này (11,6% với ví đơn vị gốc · 51,6% với ví
-  // khác đơn vị). Bản trước khuyên chốt lời ở 15% cho tất cả mọi người: người
-  // dùng ví Mira nghe theo là bán lúc đang lỗ gần một phần tư số vốn.
+  // Mốc hoà vốn THẬT, tính từ phí đang thu chứ không viết tay: 1,01% với mọi
+  // ví. Khuyên chốt lời ở một mốc sai là bảo người ta bán lúc đang lỗ.
   const breakEven = breakEvenPct(crossDenom) * 100;
   const cutLoss = -10;
 
@@ -472,6 +471,12 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
 
   const active = companies.find((c) => c.symbol === detail) || null;
 
+  const TABS = [
+    { id: "market", label: "Bảng giá" },
+    { id: "portfolio", label: "Danh mục" },
+    { id: "learn", label: "Giáo trình" },
+  ];
+
   const afterTrade = useCallback(async () => {
     await Promise.all([reloadPortfolio(), reloadMarket()]);
   }, [reloadPortfolio, reloadMarket]);
@@ -481,68 +486,58 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
       {/* Help Info Popup Modal */}
       <InfoModalPopup topicKey={helpTopic} onClose={() => setHelpTopic(null)} />
 
-      {/* iOS 27 Translucent Frosted Glass Header */}
       <header
-        className="shrink-0 sticky top-0 z-30 border-b border-border bg-muted/40 px-3 pb-2.5 transition-all"
+        className="sticky top-0 z-30 shrink-0 border-b border-border bg-card px-3 pb-2.5"
         style={{ paddingTop: "max(12px, calc(env(safe-area-inset-top, 0px) + 8px))" }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex h-11 items-center gap-2">
           <BackButton onClick={detail ? () => setDetail(null) : lesson ? () => setLesson(null) : onBack} label="Quay lại" iconOnly />
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-bold tracking-tight text-foreground flex items-center gap-2">
-              {active ? (
-                <>
-                  <span className="bg-card">{active.symbol}</span>
-                  <span className="text-muted-foreground text-[13.5px] font-normal font-sans">· {active.name}</span>
-                </>
-              ) : lesson ? (
-                lesson.title
-              ) : (
-                <>
-                  <span>Sàn Ảo Hugo</span>
-                  <span className="rounded-full bg-success/10 px-2 py-0.5 text-[11.5px] font-bold text-success border border-success/25">Hugo Pro</span>
-                </>
-              )}
-            </h1>
-          </div>
+          <h1 className="min-w-0 flex-1 truncate text-[17px] font-bold text-foreground">
+            {active ? active.symbol : lesson ? lesson.title : "Sàn ảo Hugo"}
+          </h1>
 
           {onSelectUtility && (
             <button
               type="button"
               onClick={() => { hapticSelect(); onSelectUtility("joy_wallet"); }}
-              className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border bg-muted px-3 text-[13px] font-bold tabular-nums text-foreground transition-transform active:scale-95"
-              title="Số dư Ví JOY — Bấm để mở Ví"
+              className="-mr-2 flex h-11 shrink-0 items-center px-2 text-[14px] font-bold tabular-nums text-muted-foreground"
+              title="Số dư ví JOY — bấm để mở ví"
             >
-              <span className="material-symbols-outlined text-sm">account_balance_wallet</span>
-              <span>{joy.number(balance)} {joy.code}</span>
+              {joy.number(balance)} {joy.code}
             </button>
           )}
         </div>
 
-        {/* iOS 27 Segmented Control */}
+        {/*
+          Segmented control kiểu iOS: rãnh nền mờ, mục đang chọn là "viên" nổi
+          màu thẻ có bóng nhẹ, và vạch tóc chỉ hiện giữa hai mục CÙNG chưa chọn
+          — đúng chi tiết của UISegmentedControl. Cao 40px + 2px đệm = 44px, vẫn
+          đủ ngưỡng chạm của portal.
+        */}
         {!active && !lesson && (
-          <nav className="mt-2.5 flex gap-1 rounded-xl border border-border bg-muted p-1">
-            {[
-              { id: "market", label: "Bảng giá", icon: "show_chart" },
-              { id: "portfolio", label: "Danh mục", icon: "account_balance_wallet" },
-              { id: "learn", label: "Giáo trình", icon: "menu_book" },
-            ].map((item) => {
+          <nav className="mt-2 flex rounded-[10px] bg-muted p-0.5" role="tablist">
+            {TABS.map((item, index) => {
               const selected = tab === item.id;
+              const prevSelected = index > 0 && tab === TABS[index - 1].id;
               return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => { hapticSelect(); setTab(item.id); }}
-                  aria-current={selected}
-                  className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg text-[13px] font-bold transition-colors ${
-                    selected
-                      ? "bg-card text-foreground shadow-card border border-border"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
+                <div key={item.id} className="relative flex-1">
+                  {index > 0 && !selected && !prevSelected && (
+                    <span className="pointer-events-none absolute left-0 top-1/2 h-4 w-px -translate-y-1/2 bg-border" />
+                  )}
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => { hapticSelect(); setTab(item.id); }}
+                    className={`h-10 w-full rounded-lg text-[13.5px] transition-colors ${
+                      selected
+                        ? "bg-card font-semibold text-foreground shadow-[0_3px_8px_rgb(0_0_0/0.12),0_1px_1px_rgb(0_0_0/0.04)]"
+                        : "font-medium text-muted-foreground"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                </div>
               );
             })}
           </nav>
@@ -681,7 +676,13 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
   const feeRate = market?.feeRate ?? 0.005;
   const creativeRate = market?.creativeFeeRate ?? 0.05;
   const conversionRate = portfolio?.crossDenom ? (market?.conversionFeeRate ?? 0.15) : 0;
-  const cash = portfolio?.cash ?? 0;
+  // Ba trạng thái khác nhau, đừng gộp thành số 0:
+  //   chưa tải xong  → không biết số dư, KHÔNG được khoá nút
+  //   không có ví    → nói thẳng lý do
+  //   có ví          → dùng số thật
+  const walletLoaded = Boolean(portfolio);
+  const hasWallet = portfolio ? portfolio.hasWallet !== false : true;
+  const cash = typeof portfolio?.cash === "number" ? portfolio.cash : null;
   const [side, setSide] = useState("buy");
   const [quantity, setQuantity] = useState(1);
   const [busy, setBusy] = useState(false);
@@ -704,9 +705,8 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
     price: company.price,
     quantity: qty,
     side,
-    // Ưu tiên đơn vị máy chủ khẳng định; chưa tải xong thì dùng đơn vị đang
-    // hiển thị, đừng mặc định thành "khác đơn vị" rồi doạ người ta một khoản
-    // phí 15% không có thật.
+    // Đơn vị ví không còn làm đổi giá (phí quy đổi đã bỏ), nhưng vẫn gửi đúng
+    // đơn vị để hoá đơn hiện tiền theo đúng thứ người dùng đang nhìn.
     memberDenom: portfolio?.walletDenom || joyDenom(),
   });
   const { gross, brokerage, creativeFee, conversionFee, total } = costs;
@@ -900,7 +900,23 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
             value={moneyText(total)}
             strong
           />
-          {side === "buy" && <Row label="Số dư ví khả dụng" value={moneyText(cash)} />}
+          {side === "buy" && (
+            <Row
+              label="Số dư ví khả dụng"
+              value={cash === null ? (walletLoaded ? "Chưa có ví JOY" : "Đang tải…") : moneyText(cash)}
+              tone={cash !== null && total > cash ? -1 : undefined}
+            />
+          )}
+          {side === "buy" && cash !== null && total > cash && (
+            <p className="pt-1 text-[11.5px] leading-snug text-destructive font-sans">
+              Thiếu {moneyText(total - cash)} để đặt lệnh này. Giảm số lượng hoặc nạp thêm vào ví.
+            </p>
+          )}
+          {side === "buy" && walletLoaded && !hasWallet && (
+            <p className="pt-1 text-[11.5px] leading-snug text-destructive font-sans">
+              Tài khoản này chưa có ví JOY nên chưa đặt lệnh được. Mở app Tài khoản để tạo hồ sơ trước.
+            </p>
+          )}
           <p className="pt-1 text-[11.5px] leading-snug text-muted-foreground font-sans">
             Sàn niêm yết bằng {STOCK_QUOTE_CODE}: {quoteText(gross)} cho lệnh này. Số trên đã quy về đơn vị ví của bạn.
           </p>
@@ -909,7 +925,13 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
         {/* Action Button */}
         <button
           type="button"
-          disabled={busy || (side === "buy" && total > cash) || (side === "sell" && (!holding || holding.quantity < qty))}
+          // Chỉ khoá khi ĐÃ BIẾT là không đủ. Chưa tải xong số dư mà đã khoá thì
+          // người dùng ngồi nhìn một nút chết không hiểu vì sao; máy chủ vẫn là
+          // nơi chặn cuối cùng và nó trả lời rõ ràng.
+          disabled={busy
+            || (side === "buy" && cash !== null && total > cash)
+            || (side === "buy" && walletLoaded && !hasWallet)
+            || (side === "sell" && (!holding || holding.quantity < qty))}
           onClick={submit}
           className={`h-12 w-full rounded-2xl font-bold text-sm text-foreground shadow-card transition-all duration-300 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 ${
             side === "buy"
@@ -955,7 +977,7 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
 
   if (!portfolio) return <Skeleton rows={3} />;
 
-  const { trades = [], crossDenom = false } = portfolio;
+  const { trades = [] } = portfolio;
   const { holdings } = live;
   const unrealizedVal = live.unrealized;
   const isProfit = unrealizedVal >= 0;
@@ -1003,16 +1025,15 @@ function Portfolio({ portfolio, companies, onOpen, onHelp }) {
           </p>
         )}
 
-        {/* Cross Denom Fee Warning */}
-        {crossDenom && (
-          <div className="rounded-2xl border border-warning/25 bg-warning/10 p-3 text-[13px] leading-relaxed text-foreground flex items-center justify-between">
-            <span>
-              <strong>Ví khác đơn vị gốc:</strong> mỗi chiều chịu thêm 15% phí quy đổi, nên giá phải tăng{" "}
-              <strong>{(breakEvenPct(true) * 100).toFixed(1)}%</strong> mới hoà vốn — không phải 15%.
-            </span>
-            <HelpIcon topicKey="conversion_fee" onClick={onHelp} />
-          </div>
-        )}
+        {/* Mốc hoà vốn — hiện cho MỌI ví, vì đơn vị ví không còn làm đổi phí.
+            Con số lấy từ breakEvenPct nên sửa phí ở một chỗ là chữ đổi theo. */}
+        <div className="rounded-2xl border border-border bg-muted/40 p-3 text-[13px] leading-relaxed text-foreground flex items-center justify-between">
+          <span>
+            <strong>Mốc hoà vốn:</strong> phí môi giới 0,5% thu cả hai chiều, nên giá phải tăng{" "}
+            <strong>{(breakEvenPct(false) * 100).toFixed(2)}%</strong> thì bán mới huề vốn — bán sớm hơn là lỗ.
+          </span>
+          <HelpIcon topicKey="brokerage_fee" onClick={onHelp} />
+        </div>
       </div>
 
       {/* Holdings List */}

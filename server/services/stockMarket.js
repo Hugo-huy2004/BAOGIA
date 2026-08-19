@@ -61,6 +61,7 @@ export function sessionStart(key) {
  */
 export {
   TRADING_FEE_RATE, MIN_FEE, STOCK_QUOTE_DENOM, STOCK_QUOTE_CODE, CREATIVE_FEE_RATE,
+  STOCK_CONVERSION_FEE_RATE, breakEvenPct,
   TICK_WINDOW, MAX_SEGMENT_MOVE, tradingFee, tradeCosts, positionPL,
 } from '../../shared/stockPricing.js';
 
@@ -196,6 +197,54 @@ export const COMPANIES = [
     dividendRate: 0.0015,
     signal: 'bankFlow',
   },
+  {
+    symbol: 'HCODE',
+    name: 'Hugo Learning',
+    sector: 'Giáo dục',
+    description:
+      'Vận hành Study with Hugo và bộ Phát triển Web. Doanh thu đo bằng JOY luân chuyển quanh việc học: hoàn thành bài, tốt nghiệp chặng, mua lượt thi lại, mở khoá vĩnh viễn. Ngành giáo dục theo mùa — vào mùa thi thì bùng, nghỉ hè thì nguội.',
+    sharesOutstanding: 90000,
+    basePrice: 55,
+    volatility: 0.08,
+    dividendRate: 0,
+    signal: 'learnFlow',
+  },
+  {
+    symbol: 'HSTORE',
+    name: 'Hugo Store',
+    sector: 'Bán lẻ',
+    description:
+      'Cửa hàng và các gói ứng dụng trong portal. Doanh thu đo bằng JOY chi cho mua hàng, gói ứng dụng, thuê tính năng và nén file. Bán lẻ chạy theo đợt: có đợt hàng mới thì doanh số vọt lên rồi lắng xuống.',
+    sharesOutstanding: 110000,
+    basePrice: 70,
+    volatility: 0.06,
+    dividendRate: 0.0008,
+    signal: 'storeFlow',
+  },
+  {
+    symbol: 'HSTYLE',
+    name: 'Hugo Studio',
+    sector: 'Thiết kế · Giao diện',
+    description:
+      'Cho thuê giao diện Bio, Aura và portal. Doanh thu đo bằng JOY chi cho thuê giao diện. Công ty nhỏ nên một đợt giao diện mới cũng đủ làm giá nhảy — mã đầu cơ mạnh nhất sàn.',
+    sharesOutstanding: 45000,
+    basePrice: 30,
+    volatility: 0.14,
+    dividendRate: 0,
+    signal: 'styleFlow',
+  },
+  {
+    symbol: 'HFRIEND',
+    name: 'Hugo Social',
+    sector: 'Mạng lưới thành viên',
+    description:
+      'Sống bằng việc thành viên rủ nhau vào portal: quà giới thiệu, tặng JOY, điểm danh cùng nhau. Doanh thu đo bằng JOY luân chuyển giữa người với người — mạng lưới càng đông thì càng khoẻ.',
+    sharesOutstanding: 130000,
+    basePrice: 40,
+    volatility: 0.07,
+    dividendRate: 0.0005,
+    signal: 'socialFlow',
+  },
 ];
 
 /**
@@ -263,13 +312,23 @@ async function ledgerVolume(sources, days) {
 
 async function measure(days) {
   const since = new Date(Date.now() - days * 86400000);
-  const [arcade, news, bank, media] = await Promise.all([
+  const [arcade, news, bank, learn, store, style, social, media] = await Promise.all([
     // ArcadeScore KHÔNG có `createdAt` (schema không bật timestamps), nên bản
     // trước lọc theo trường đó và luôn đếm được 0 — HARC đứng giá vĩnh viễn.
     // `lastPlayedAt` là mốc duy nhất có thật trong tài liệu đó.
     ArcadeScore.countDocuments({ lastPlayedAt: { $gte: since } }),
     ledgerVolume(['info_read_bonus', 'info_bonus'], days),
-    ledgerVolume(['joylater_open', 'joylater_repay', 'joy_gift_sent', 'joy_gift_received', 'member_transfer_out', 'member_transfer_in'], days),
+    ledgerVolume(['joylater_open', 'joylater_repay', 'member_transfer_out', 'member_transfer_in'], days),
+    ledgerVolume([
+      'ide_learning', 'ide_course_completion', 'hugoso_course', 'coder_exam_retake',
+      'lifetime_unlock', 'lifetime_unlock_all',
+      'ide_phase_1_completion', 'ide_phase_2_completion', 'ide_phase_3_completion',
+      'ide_phase_4_completion', 'ide_phase_5_completion', 'ide_phase_6_completion',
+      'ide_phase_7_completion',
+    ], days),
+    ledgerVolume(['store_purchase', 'app_plan', 'app_plan_gift', 'feature_subscription', 'file_compression', 'chat_tokens_exchange'], days),
+    ledgerVolume(['bio_theme_rental', 'aura_theme_rent', 'portal_theme_rent'], days),
+    ledgerVolume(['referral_referrer', 'referral_referee', 'joy_gift_sent', 'joy_gift_received', 'checkin', 'daily_challenge'], days),
     // Doanh thu bán token xem/nghe (rạp + radio dùng chung kho token). Bản
     // trước cộng `radioTokens.weeklyUsedMinutes` của mọi Bio — một con số TÍCH
     // LUỸ, không có mốc thời gian, nên cửa sổ 7 ngày và nền 30 ngày ra ĐÚNG
@@ -285,6 +344,10 @@ async function measure(days) {
     arcadePlays: arcade,
     newsReads: news.count,
     bankFlow: bank.total,
+    learnFlow: learn.total,
+    storeFlow: store.total,
+    styleFlow: style.total,
+    socialFlow: social.total,
     mediaRevenue: Math.round(media[0]?.total || 0),
   };
 }

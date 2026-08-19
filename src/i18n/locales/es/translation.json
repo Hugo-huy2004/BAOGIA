@@ -479,7 +479,10 @@
         "rewardReady": "Recompensa +{{amount, joy}}",
         "incomplete": "No completado · +{{amount, joy}}",
         "claimed": "Miembro Portal de Hugo Studio",
-        "claim": "Cuenta"
+        "claim": "Cuenta",
+        "goTo": "Abrir {{app}}",
+        "goOverview": "Regístrate en la pestaña Resumen",
+        "noTarget": "Hazlo dentro de la app"
       },
       "redeemCopy": {
         "giftError": "Este código no puede ser reembolsado.",

@@ -479,7 +479,10 @@
         "rewardReady": "[{{amount, joy}} 奖励]",
         "incomplete": "未完成 · +{{amount, joy}}",
         "claimed": "登録済み",
-        "claim": "ログイン"
+        "claim": "ログイン",
+        "goTo": "{{app}}を開く",
+        "goOverview": "「概要」タブでチェックイン",
+        "noTarget": "アプリ内で実行"
       },
       "redeemCopy": {
         "giftError": "このコードは返金できません。",

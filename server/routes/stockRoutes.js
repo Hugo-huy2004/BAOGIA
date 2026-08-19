@@ -8,9 +8,10 @@ import { requireMember } from '../middleware/authMiddleware.js';
 import { runSession, seedCompanies, ticksFor, livePrice, sessionKey, tidyHistory } from '../services/stockMarket.js';
 import {
   positionPL, tradeCosts, priceAt,
-  TRADING_FEE_RATE, CREATIVE_FEE_RATE, STOCK_QUOTE_CODE, MAX_SEGMENT_MOVE, SEGMENT_SEC,
+  TRADING_FEE_RATE, CREATIVE_FEE_RATE, STOCK_CONVERSION_FEE_RATE, STOCK_QUOTE_CODE,
+  MAX_SEGMENT_MOVE, SEGMENT_SEC,
 } from '../../shared/stockPricing.js';
-import { CROSS_DENOM_FEE, denomKey, denomOf, toDenom } from '../../shared/joyCurrency.js';
+import { denomKey, denomOf, toDenom } from '../../shared/joyCurrency.js';
 
 const router = express.Router();
 
@@ -26,6 +27,19 @@ const MAX_ORDER_QTY = 100000;
  */
 const PRICE_TOLERANCE = 0.03;
 
+/**
+ * Hồ sơ của thành viên đang đăng nhập — tra theo `email` HOẶC `contactEmail`.
+ *
+ * Cả app dùng cặp đó (bioRoutes, radioRoutes, và quan trọng nhất là awardJoy).
+ * Sàn thì chỉ tra `email`, nên ai đăng nhập bằng email liên hệ sẽ thấy "Số dư
+ * ví khả dụng: 0" và nút Mua bị khoá — trong khi ví họ có tiền và awardJoy vẫn
+ * trừ được bình thường. Tệ hơn: `joyDenom` cũng rơi về mặc định, tức là màn
+ * xác nhận tính nhầm phí đổi đơn vị 15% cho một cái ví không hề phải đổi.
+ */
+function memberBio(email, fields) {
+  return Bio.findOne({ $or: [{ email }, { contactEmail: email }] }).select(fields).lean();
+}
+
 async function loadMarket() {
   const key = sessionKey();
   await runSession();
@@ -37,7 +51,7 @@ async function loadMarket() {
     quoteCode: STOCK_QUOTE_CODE,
     feeRate: TRADING_FEE_RATE,
     creativeFeeRate: CREATIVE_FEE_RATE,
-    conversionFeeRate: CROSS_DENOM_FEE,
+    conversionFeeRate: STOCK_CONVERSION_FEE_RATE,
     maxSegmentMove: MAX_SEGMENT_MOVE,
     segmentSec: SEGMENT_SEC,
     // Đồng hồ máy chủ: client lấy nó làm gốc nội suy thay vì đồng hồ máy mình,
@@ -91,7 +105,7 @@ router.get('/portfolio', requireMember, async (req, res) => {
     const [market, positions, bio, trades] = await Promise.all([
       loadMarket(),
       StockPosition.find({ email }).lean(),
-      Bio.findOne({ email }).select('joyBalance joyDenom').lean(),
+      memberBio(email, 'joyBalance joyDenom'),
       StockTrade.find({ email }).sort({ at: -1 }).limit(30).lean(),
     ]);
 
@@ -127,7 +141,10 @@ router.get('/portfolio', requireMember, async (req, res) => {
       walletDenom,
       walletCode: denomOf(walletDenom).code,
       crossDenom: walletDenom !== 'en',
-      cash: bio?.joyBalance || 0,
+      // `null` = KHÔNG TÌM THẤY VÍ (khác hẳn "ví đang có 0"). Client cần phân
+      // biệt hai chuyện đó để hiện đúng lý do nút Mua bị khoá.
+      cash: bio ? bio.joyBalance || 0 : null,
+      hasWallet: Boolean(bio),
       invested,
       value,
       unrealized: value - invested,
@@ -227,7 +244,7 @@ router.post('/trade', requireMember, async (req, res) => {
       });
     }
 
-    const member = await Bio.findOne({ email }).select('joyDenom').lean();
+    const member = await memberBio(email, 'joyDenom');
     const costs = tradeCosts({ price, quantity, side, memberDenom: member?.joyDenom });
     const walletCode = costs.walletCode;
 

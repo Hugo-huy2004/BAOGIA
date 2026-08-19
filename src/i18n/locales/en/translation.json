@@ -2340,7 +2340,10 @@
         "rewardReady": "+{{amount, joy}} reward",
         "incomplete": "Not completed · +{{amount, joy}}",
         "claimed": "Claimed",
-        "claim": "Claim"
+        "claim": "Claim",
+        "goTo": "Open {{app}}",
+        "goOverview": "Check in on the Overview tab",
+        "noTarget": "Do it inside the app"
       },
       "redeemCopy": {
         "giftError": "This code cannot be redeemed.",

@@ -479,7 +479,10 @@
         "rewardReady": "+{{amount, joy}} gaji",
         "incomplete": "Belum selesai · +{{amount, joy}}",
         "claimed": "Klaim",
-        "claim": "Klaim"
+        "claim": "Klaim",
+        "goTo": "Buka {{app}}",
+        "goOverview": "Absen di tab Ringkasan",
+        "noTarget": "Lakukan di dalam aplikasi"
       },
       "redeemCopy": {
         "giftError": "Ini kode tidak dapat dibayarkan",
