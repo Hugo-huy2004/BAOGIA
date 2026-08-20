@@ -1,5 +1,5 @@
 import { ageFromBirth, bioAge, MEMBER_MIN_AGE, GUARDIAN_CONSENT_AGE } from './memberAge.js';
-import { JOY_DENOMS, DENOM_OPTIONS } from '../../shared/joyCurrency.js';
+import { JOY_DENOMS, DENOM_ACCOUNT_OPTIONS } from '../../shared/joyCurrency.js';
 
 // Ngôn ngữ hợp lệ = ngôn ngữ có đơn vị JOY. Mỗi ngôn ngữ giao diện buộc phải có
 // một đơn vị (shared/joyCurrency.test.js canh đúng điều đó), nên danh sách này
@@ -47,7 +47,7 @@ export const PROFILE_FIELDS = [
     type: 'choice',
     label: 'Đơn vị JOY',
     hint: 'Chọn một lần rồi cố định. Đổi ngôn ngữ giao diện sau này KHÔNG đổi đơn vị này.',
-    options: DENOM_OPTIONS.map(({ key }) => ({ value: key })),
+    options: DENOM_ACCOUNT_OPTIONS.map(({ key }) => ({ value: key })),
     required: true,
     isMissing: (bio) => !JOY_DENOMS[bio.joyDenom],
     apply(bio, value) {

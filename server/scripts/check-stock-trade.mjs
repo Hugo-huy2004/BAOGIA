@@ -89,7 +89,8 @@ const bank = await StockPosition.findOne({ email: EMAIL, symbol: 'HBANK' });
 assert.equal(bank.quantity, 20, '4 lệnh × 5 cổ = 20, không lệnh nào bị ghi đè');
 const paid = (await JoyLedger.find({ email: EMAIL, source: 'stock_buy', refId: 'HBANK' })).reduce((s, l) => s + Math.abs(l.amount), 0);
 const basis = bank.avgCost * bank.quantity;
-assert.ok(basis > 0 && basis < paid, 'giá vốn phải nằm dưới tổng đã trả (phí không tính vào vốn)');
+// Vốn = đúng số ví đã trừ (gồm phí mua); chỉ chênh phần làm tròn avgCost 2 số lẻ.
+assert.ok(basis > 0 && Math.abs(basis - paid) <= 0.005 * bank.quantity * 4, 'giá vốn phải bằng tổng ví đã trừ');
 console.log('giá vốn HBANK:', bank.avgCost, '· đã trả', paid);
 
 // ── sổ ví khớp số dư ────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { API_BASE } from '../../config/apiBase';
 
 export default function CustomerProfileTab({ project, setProject }) {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ export default function CustomerProfileTab({ project, setProject }) {
     setSuccess(false);
     
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/profile`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

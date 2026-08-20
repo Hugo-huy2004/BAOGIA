@@ -4,8 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { HugoInlineNotice, HugoNoticeToast } from "../../shared/HugoNotice";
 import { joyText } from "../../../lib/joyDisplay";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
+import { API_BASE } from "../../../config/apiBase";
 
 const ticketStyles = `
 @keyframes joyTicketSpin { to { transform: rotate(360deg); } }

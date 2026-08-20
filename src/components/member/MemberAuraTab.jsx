@@ -67,7 +67,14 @@ const THEME_ACCENTS = {
   }
 };
 
-export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
+export default function MemberAuraTab({
+  onBack,
+  bio,
+  showToast,
+  onBioUpdate,
+  canUseAccountFeatures = true,
+  requireAccount,
+}) {
   const { t } = useTranslation();
   const fetchJoyBalance = useJoyStore((s) => s.fetchBalance);
 
@@ -493,6 +500,10 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
 
         {/* Lofi is the only subscription feature left in HugoAura. Portal
             backgrounds are managed independently from Account. */}
+        <div
+          className="lg:col-span-5"
+          onClickCapture={canUseAccountFeatures ? undefined : requireAccount}
+        >
         <FeatureGate
           bio={bio}
           featureKey="hugoAura"
@@ -501,9 +512,9 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
           title="Mở khóa Lofi Focus bằng JOY"
           description="Pomodoro tập trung vẫn luôn miễn phí cho mọi người."
           onBioUpdate={onBioUpdate}
-          className="lg:col-span-5"
+          className="h-full"
         >
-        <div className="lg:col-span-5 flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
 
           {/* Lofi Lounge Player Card */}
           <div className="bg-card/40 backdrop-blur-3xl border border-border/20 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
@@ -609,6 +620,7 @@ export default function MemberAuraTab({ onBack, bio, showToast, onBioUpdate }) {
 
         </div>
         </FeatureGate>
+        </div>
       </div>
     </div>
   );

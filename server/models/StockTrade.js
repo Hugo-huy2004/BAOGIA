@@ -20,6 +20,10 @@ const StockTradeSchema = new mongoose.Schema(
     // Đơn vị ví của người đặt lệnh LÚC ĐÓ: hoá đơn cũ phải đọc lại được đúng
     // như lúc in, kể cả sau này họ đổi đơn vị.
     walletCode: { type: String, default: '' },
+    // `total` quy về đơn vị ví THEO TỶ GIÁ LÚC KHỚP. Không có nó, hoá đơn cũ
+    // phải quy đổi lại bằng tỷ giá hôm nay và ra một con số ví chưa từng thấy.
+    // 0 = lệnh cũ chưa lưu — client rơi về quy đổi sống.
+    walletAmount: { type: Number, default: 0 },
     session: { type: String, default: '' },
     total: { type: Number, required: true },
     balanceAfter: { type: Number, default: 0 },

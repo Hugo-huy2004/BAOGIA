@@ -443,6 +443,8 @@ export default function TherapyTab({
   healingActive,
   showToast,
   onBioUpdate,
+  canUseAccountFeatures = true,
+  requireAccount,
   initialMethod
 }) {
   const [activePanel, setActivePanel] = useState(initialMethod || null);
@@ -572,7 +574,11 @@ export default function TherapyTab({
   const isUnlocked = (method) => unlocked[method.lockKey] ?? false;
 
   const handleUnlockFeature = async (method) => {
-    if (!bio?.email || unlockingId) return;
+    if (!canUseAccountFeatures || !bio?.email) {
+      requireAccount?.();
+      return;
+    }
+    if (unlockingId) return;
     if (joyBalance < UNLOCK_COST) {
       showToast?.(`Cần ${joyText(UNLOCK_COST)} để mở khoá tính năng này. Số dư hiện tại: ${joyText(joyBalance)}.`, "warning");
       return;
@@ -617,6 +623,11 @@ export default function TherapyTab({
 
   // ── Complete handler ──
   const handleCompleteActivity = (name, desc) => {
+    if (!onUpdateCompanionState) {
+      requireAccount?.();
+      setActivePanel(null);
+      return;
+    }
     const newEntry = { date: new Date().toISOString(), type: "therapy_activity", name, desc };
     onUpdateCompanionState({ historyLogs: [...historyLogs, newEntry] });
     showToast?.("Đã ghi nhận hoạt động!", "success");
@@ -779,6 +790,7 @@ export default function TherapyTab({
           {ALL_METHODS.map((method) => {
             const ok = isUnlocked(method);
             const showJoyUnlock = method.joyLockable && !ok;
+            const needsAccount = showJoyUnlock && !canUseAccountFeatures;
             const isUnlockingThis = unlockingId === method.id;
             return (
               <motion.div
@@ -802,6 +814,10 @@ export default function TherapyTab({
                   {ok ? (
                     <span className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${method.badge}`}>
                       <Unlock className="w-2.5 h-2.5" /> Mở
+                    </span>
+                  ) : needsAccount ? (
+                    <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-primary/10 text-primary">
+                      <Lock className="w-2.5 h-2.5" /> Tài khoản
                     </span>
                   ) : showJoyUnlock ? (
                     <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">
@@ -848,7 +864,12 @@ export default function TherapyTab({
                     disabled={isUnlockingThis}
                     className="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[9.5px] font-black uppercase tracking-wider shadow-sm active:scale-95 transition-all disabled:opacity-50"
                   >
-                    {isUnlockingThis ? "Đang xử lý..." : (
+                    {needsAccount ? (
+                      <>
+                        <Lock className="w-3 h-3" />
+                        <span>Đăng nhập để mở</span>
+                      </>
+                    ) : isUnlockingThis ? "Đang xử lý..." : (
                       <>
                         <JoyCoinBadge amount={UNLOCK_COST} size="sm" className="[&_span]:text-white" />
                         <span>Mở khoá</span>

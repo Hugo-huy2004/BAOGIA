@@ -75,7 +75,9 @@ export const DataProvider = ({ children }) => {
       try {
         setLoading(true);
         const fetchedData = await dataApi.getData();
-        setData(fetchedData);
+        // Backend có thể trả thiếu trường (hoặc một shape lạ) — merge lên
+        // fallback để data.profile.* luôn tồn tại thay vì trắng trang.
+        setData({ ...initialData, ...(fetchedData || {}), profile: { ...initialData.profile, ...(fetchedData?.profile || {}) } });
         setError(null);
       } catch (err) {
         // Suppress console spam for expected missing backend in local dev/demo

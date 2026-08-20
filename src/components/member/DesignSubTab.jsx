@@ -1,7 +1,7 @@
 import { useState } from "react";
 import JoyExchangeModal from "./shared/JoyExchangeModal";
+import { API_BASE } from "../../config/apiBase";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8081/api";
 const RENTAL_PRICE = 150;
 const EXCHANGE_ITEM_BY_TEMPLATE = { brutalism: "bioThemeBrutalism", flat: "bioThemeFlat" };
 

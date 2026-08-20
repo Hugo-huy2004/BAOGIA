@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DENOM_OPTIONS, CROSS_DENOM_FEE, formatDenom } from "../../../../shared/joyCurrency.js";
-import { localeForLanguage } from "../../../i18n/languages";
+import { DENOM_ACCOUNT_OPTIONS, CROSS_DENOM_FEE, formatDenom } from "../../../../shared/joyCurrency.js";
+import { languageLabel, localeForLanguage } from "../../../i18n/languages";
 import { chooseJoyDenom } from "../../../services/joyApi";
 import { setJoyDenom } from "../../../lib/joyDisplay";
 import { notify } from "../../../lib/notify";
@@ -14,7 +14,7 @@ import { notify } from "../../../lib/notify";
 //
 // Chọn xong là cố định (server bỏ qua lần ghi thứ hai) nên phải nói rõ điều đó
 // TRƯỚC khi bấm, không phải sau.
-export default function JoyDenomPicker({ balance = 0, onChosen }) {
+export default function JoyDenomPicker({ balance = 0, email = "", onChosen }) {
   const { t, i18n } = useTranslation();
   const locale = localeForLanguage(i18n.resolvedLanguage || i18n.language);
   const [picked, setPicked] = useState(null);
@@ -25,7 +25,7 @@ export default function JoyDenomPicker({ balance = 0, onChosen }) {
     setBusy(true);
     try {
       await chooseJoyDenom(picked);
-      setJoyDenom(picked);
+      setJoyDenom(picked, email);
       notify.success(t("memberPortal.walletApp.denomSaved"));
       onChosen?.(picked);
     } catch (error) {
@@ -47,12 +47,12 @@ export default function JoyDenomPicker({ balance = 0, onChosen }) {
       </section>
 
       <ul className="wal-conv__list">
-        {DENOM_OPTIONS.map((option) => (
-          <li key={option.code} className={picked === option.key ? "is-mine" : ""}>
+        {DENOM_ACCOUNT_OPTIONS.map((option) => (
+          <li key={option.key} className={picked === option.key ? "is-mine" : ""}>
             <button type="button" className="wal-conv__pick" onClick={() => setPicked(option.key)} aria-pressed={picked === option.key}>
               <span className="wal-conv__list-code">
                 <strong>{option.code}</strong>
-                <small>{option.name}</small>
+                <small>{option.name} · {option.localeKeys.map(languageLabel).join(" / ")}</small>
               </span>
               <span className="wal-conv__list-value">
                 {formatDenom(balance, option.key, locale)}

@@ -3939,6 +3939,8 @@
       "convMyDenom": "Đơn vị JOY của bạn",
       "convLocked": "Đơn vị này bạn đã chọn lúc đăng nhập lần đầu và được giữ cố định. Đổi ngôn ngữ giao diện không làm đổi đơn vị.",
       "convAmountIn": "Số tiền ({{code}})",
+      "convTarget": "Quy đổi sang",
+      "convTransferSimulation": "Nếu gửi: người nhận có {{amount}}. Phí đổi đơn vị {{percent}}% là {{fee}}; tổng trừ ví {{total}}.",
       "convUseBalance": "Dùng hết số dư · {{amount}}",
       "convTableTitle": "Số này viết theo từng đơn vị",
       "convFeeNote": "gửi sang mất thêm {{percent}}%",
@@ -3952,7 +3954,7 @@
       "denomSaving": "Đang lưu…",
       "denomSaved": "Đã chọn đơn vị JOY cho tài khoản của bạn.",
       "marketTitle": "Thị trường hôm nay",
-      "marketWhy": "Tỷ giá đổi mỗi ngày theo hai thứ: thu nhập trung bình của cộng đồng ({{income}} mỗi người mỗi ngày) và giá vàng quốc tế ({{gold}} USD/oz).",
+      "marketWhy": "Tỷ giá cập nhật mỗi giờ từ ba tín hiệu nội bộ: JOY kiếm được trung bình ({{income}} mỗi người/ngày), phí và khoản hoàn JOYlater, cùng dòng JOY ra/vào hệ thống.",
       "marketPricesFixed": "Giá của mọi thứ trong app KHÔNG đổi theo tỷ giá — tỷ giá chỉ đổi cách viết con số.",
       "sub_convert": "Tỷ Giá",
       "range24h": "24 giờ",
@@ -6787,7 +6789,7 @@
       "stockList": "Danh sách thị trường chứng khoán",
       "holdingPortfolio": "Nắm giữ danh mục đầu tư",
       "roi": "Lợi tức đầu tư:",
-      "dividendsReceived": "Cổ tức nhận được tính đến thời điểm hiện tại:",
+      "dividendsReceived": "Cổ tức đã nhận",
       "totalPnl": "Tổng lãi / lỗ ròng (PnL)",
       "breakevenNote": "Điểm hòa vốn: Phí môi giới được tính cho cả hai bên là 0,5% nên giá phải tăng thêm 1,01% mới hòa vốn - bán sớm hơn là lỗ.",
       "shares": "cổ phần",
@@ -6860,7 +6862,8 @@
       "advisorAuto": "Auto",
       "advisorEmptyMsg": "Không có phiếu bầu trong danh mục. Sang tab Bảng giá, chọn một mã hóa để bắt đầu.",
       "advisorMarketTitle": "Sàn ảo Hugo",
-      "advisorNoBreakEvenMsg": "Danh mục chưa có mã hóa qua vốn hòa vốn +{{breakEven}}%. Bán sớm là trả phí hai lần cho một lần đi."
+      "advisorNoBreakEvenMsg": "Danh mục chưa có mã hóa qua vốn hòa vốn +{{breakEven}}%. Bán sớm là trả phí hai lần cho một lần đi.",
+      "feesPaid": "Tổng phí đã trả"
     },
     "companies": {
       "HFILM": {

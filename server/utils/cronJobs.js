@@ -5,6 +5,52 @@ import { FEATURE_PRICES } from './featureSubscriptionService.js';
 import { computeRates } from './joyRateService.js';
 
 export function initCronJobs() {
+  // Nhắc "vượt mốc hoà vốn" của sàn ảo — giá bước 30s nhưng nhắc thì 5 phút là
+  // đủ: đây là bài học chốt lời, không phải tín hiệu giao dịch tần suất cao.
+  // Mỗi vị thế nhắc đúng MỘT lần mỗi phiên (notifiedSession), update có điều
+  // kiện nên hai tiến trình chạy song song cũng không gửi trùng.
+  cron.schedule('*/5 * * * *', async () => {
+    try {
+      const [{ default: StockPosition }, { default: StockCompany }, market, pricing, { notifyMember }] = await Promise.all([
+        import('../models/StockPosition.js'),
+        import('../models/StockCompany.js'),
+        import('../services/stockMarket.js'),
+        import('../../shared/stockPricing.js'),
+        import('./notifyMember.js'),
+      ]);
+      await market.runSession();
+      const session = market.sessionKey();
+      const positions = await StockPosition.find({ quantity: { $gt: 0 }, avgCost: { $gt: 0 }, notifiedSession: { $ne: session } }).lean();
+      if (!positions.length) return;
+
+      const symbols = [...new Set(positions.map((p) => p.symbol))];
+      const companies = await StockCompany.find({ symbol: { $in: symbols } }).lean();
+      const priceOf = Object.fromEntries(companies.map((c) => [c.symbol, market.livePrice(c, { key: session })]));
+      const threshold = 1 + pricing.breakEvenPct(false);
+
+      for (const pos of positions) {
+        const price = priceOf[pos.symbol];
+        if (!price || price < pos.avgCost * threshold) continue;
+        const claimed = await StockPosition.updateOne(
+          { _id: pos._id, notifiedSession: { $ne: session } },
+          { $set: { notifiedSession: session } },
+        );
+        if (!claimed.modifiedCount) continue;
+        const pct = Math.round((price / pos.avgCost - 1) * 1000) / 10;
+        await notifyMember({
+          email: pos.email,
+          key: 'event.stockBreakEven',
+          params: { symbol: pos.symbol, pct: String(pct) },
+          category: 'joy',
+          actionUrl: '/member/utilities/invest',
+          push: true,
+        }).catch((err) => console.error('[CRON] Nhắc hoà vốn:', err.message));
+      }
+    } catch (error) {
+      console.error('[CRON] Nhắc hoà vốn sàn ảo:', error.message);
+    }
+  });
+
   // Một điểm tỷ giá JOY mỗi giờ — đây là thứ vẽ nên đường trong màn Tỷ Giá.
   //
   // Job riêng vì nó gọi ra Internet (giá vàng): mạng treo cũng không được kéo
@@ -15,8 +61,8 @@ export function initCronJobs() {
     try {
       const rates = await computeRates({ force: true });
       if (new Date().getUTCHours() % 6 === 0) {
-        console.log(`[CRON] Tỷ giá JOY ${rates.key}: vàng ${Math.round(rates.gold.price)} USD/oz`
-          + `${rates.gold.stale ? ' (dùng lại giá cũ)' : ''}, thu nhập TB ${Math.round(rates.income.overall)} JOY/ngày`);
+        // `gold` đã gỡ khỏi joyRateService — log theo tín hiệu nội bộ còn lại.
+        console.log(`[CRON] Tỷ giá JOY ${rates.key}: thu nhập TB ${Math.round(rates.income?.overall || 0)} JOY/ngày, netFlow ${rates.flows?.netFlow ?? 0}`);
       }
     } catch (error) {
       console.error('[CRON] Không tính được tỷ giá JOY:', error.message);

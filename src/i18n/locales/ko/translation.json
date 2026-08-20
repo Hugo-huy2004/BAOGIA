@@ -2537,6 +2537,8 @@
       "convMyDenom": "내 JOY 단위",
       "convLocked": "이 단위는 처음 로그인할 때 선택한 것으로 이후 고정됩니다. 인터페이스 언어를 바꿔도 단위는 바뀌지 않습니다.",
       "convAmountIn": "금액({{code}})",
+      "convTarget": "환산 단위",
+      "convTransferSimulation": "보낼 경우 수신자는 {{amount}}을 받습니다. {{percent}}% 환산 수수료는 {{fee}}, 총 차감액은 {{total}}입니다.",
       "convUseBalance": "잔액 전부 사용 · {{amount}}",
       "convTableTitle": "같은 금액을 각 단위로",
       "convFeeNote": "다른 단위로 보내면 {{percent}}% 추가",
@@ -2550,7 +2552,7 @@
       "denomSaving": "저장 중…",
       "denomSaved": "계정의 JOY 단위를 설정했습니다.",
       "marketTitle": "오늘의 시세",
-      "marketWhy": "환율은 두 가지로 매일 움직입니다: 커뮤니티 1인당 평균 일일 수입({{income}})과 국제 금 시세({{gold}} USD/oz).",
+      "marketWhy": "환율은 1인당 일평균 JOY 수입({{income}}), 수수료와 JOYlater 상환, JOY 순유입·유출의 세 가지 내부 신호로 매시간 갱신됩니다.",
       "marketPricesFixed": "앱의 가격은 시세에 따라 바뀌지 않습니다. 시세는 숫자 표기만 바꿉니다.",
       "sub_convert": "시세",
       "range24h": "24시간",
@@ -6477,7 +6479,7 @@
       "invest.ui.5min": "5분",
       "profitable": "유리한",
       "losing": "지는",
-      "dividendsReceived": "지금까지 받은 배당금:",
+      "dividendsReceived": "받은 배당금",
       "stockList": "주식 시장 목록",
       "breakevenNote": "손익분기점: 양측 모두 0.5%의 중개 수수료가 부과되므로 손익분기점을 달성하려면 가격이 1.01% 증가해야 합니다. 조기 매도는 손실입니다.",
       "investedCapital": "투자 자본",
@@ -6565,7 +6567,8 @@
       "advisorGuide": "흐엉댕",
       "advisorAuto": "Tự động",
       "advisorNoBreakEvenMsg": "+{{breakEven}}%를 더 많이 계산하세요. Bán sớm là trả phí hai lần cho một lần đi.",
-      "advisorEmptyMsg": "Chua có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu."
+      "advisorEmptyMsg": "Chua có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.",
+      "feesPaid": "지불한 총 수수료"
     },
     "companies": {
       "HFILM": {

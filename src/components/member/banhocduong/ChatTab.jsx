@@ -30,6 +30,7 @@ import { useChatEngine } from "./hooks/useChatEngine";
 import { joyText } from "../../../lib/joyDisplay";
 
 import BotManager from "../../../services/classes/CompanionBot/BotManager";
+import { buildLocalReply } from "../../../services/classes/CompanionBot/localFallback";
 import { computeAdaptivePersona } from "./utils/adaptivePersonaEngine";
 import { findMatchingIntent, removeVietnameseTones } from "./constants/intentClassifier";
 import { checkPeriodicAssessmentDue } from "./utils/weeklyDigestHelper";
@@ -108,7 +109,9 @@ export default function ChatTab({
   onExitFullscreen,
   journeyProgress,
   sleepAutoDetect,
-  onClaimChallenge
+  onClaimChallenge,
+  isGuestMode = false,
+  requireAccount
 }) {
   const { t } = useTranslation();
   const [completedMessageIds, setCompletedMessageIds] = useState(new Set());
@@ -237,6 +240,7 @@ export default function ChatTab({
   // away with enough context to call the member back without digging through
   // history — bypasses the slower chatDistressCount accumulation entirely.
   const reportCrisisToAdmin = useCallback((triggerText, recentMessages) => {
+    if (isGuestMode || !bio?.email) return;
     const apiBase = import.meta.env.VITE_API_URL || "/api";
     const summary = recentMessages
       .slice(-6)
@@ -247,7 +251,7 @@ export default function ChatTab({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: bio?.email, trigger: triggerText, conversationSummary: summary })
     }).catch(() => {});
-  }, [bio?.email]);
+  }, [bio?.email, isGuestMode]);
 
   // Local intents now return an array of 2-3 short chunks instead of one long
   // paragraph — this drips them in one at a time (with a human-ish pause
@@ -504,17 +508,18 @@ export default function ChatTab({
   // Server (rate_limit_service) is the source of truth for the daily chat budget —
   // refresh from it instead of guessing locally, so the badge never goes stale.
   const refreshRemainingTokens = useCallback(async () => {
+    if (isGuestMode) return;
     const data = await botManager.getRemainingTokens();
     if (data && typeof data.remaining === "number") {
       setRemainingChatTokens(data.remaining);
       if (typeof data.max === "number") setMaxChatTokens(data.max);
       setTokenLockMinutes(data.locked ? (data.lockMinutes || 180) : 0);
     }
-  }, [botManager]);
+  }, [botManager, isGuestMode]);
 
   useEffect(() => {
-    refreshRemainingTokens();
-  }, [refreshRemainingTokens]);
+    if (!isGuestMode) refreshRemainingTokens();
+  }, [refreshRemainingTokens, isGuestMode]);
 
   const messagesEndRef = useRef(null);
   const lastSavedMessageIdRef = useRef("");
@@ -1006,7 +1011,7 @@ export default function ChatTab({
       setTypingLabel(getTypingLabel(text, matched.id));
       setLoading(true);
       // Telemetry only — lets us measure real local-match coverage vs. AI/fallback tiers.
-      botManager.logLocalMatch(text, matched.id);
+      if (!isGuestMode) botManager.logLocalMatch(text, matched.id);
 
       // Save auto-collected emotional check-in status if returned by the intent
       if (matched.companionUpdate?.newLog && onUpdateCompanionState) {
@@ -1049,6 +1054,20 @@ export default function ChatTab({
     setMessages(prev => [...prev, userMsg]);
     setTypingLabel(getTypingLabel(text, null));
     setLoading(true);
+
+    // Public visitors use the deterministic on-device assistant. The cloud AI
+    // routes require an adult member session, so calling them here would always
+    // return 401 and disguise a local fallback as an online response.
+    if (isGuestMode) {
+      const localResponse = buildLocalReply(text, { bio, historyLogs });
+      const localChunks = localResponse.rawReplyArray || [localResponse.reply];
+      await pushBotMessageChunks(localChunks, localResponse);
+      setLoading(false);
+      setChatQuickReplies(
+        deriveSmartFollowUps(text, localResponse.reply, currentMood),
+      );
+      return;
+    }
 
     // 4. Streaming conversational LLM AI server (costs 3 tokens on success).
     const bonusTokens = bio?.bonusChatTokens || 0;
@@ -1222,7 +1241,7 @@ export default function ChatTab({
             HugoPSY
           </p>
           <p className="text-[9.5px] text-emerald-500 dark:text-emerald-400 font-semibold leading-none mt-0.5">
-            {loading ? typingLabel : t("hugoPsy.chat.trucTuyen")}
+            {loading ? typingLabel : isGuestMode ? "● Dùng thử cục bộ" : t("hugoPsy.chat.trucTuyen")}
           </p>
         </div>
 
@@ -1248,7 +1267,7 @@ export default function ChatTab({
         {/* Right actions */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Token progress ring capsule */}
-          {(() => {
+          {!isGuestMode && (() => {
             const totalTokens = remainingChatTokens + (bio?.bonusChatTokens || 0);
             const percentage = Math.min(100, Math.max(0, (totalTokens / maxChatTokens) * 100));
             const radius = 8;
@@ -1449,7 +1468,7 @@ export default function ChatTab({
           </button>
           <button
             type="button"
-            onClick={() => setActiveModalDrawer("sleep")}
+            onClick={() => isGuestMode ? requireAccount?.() : setActiveModalDrawer("sleep")}
             className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <MoonStar className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
@@ -1457,7 +1476,7 @@ export default function ChatTab({
           </button>
           <button
             type="button"
-            onClick={() => setActiveModalDrawer("evaluation")}
+            onClick={() => isGuestMode ? requireAccount?.() : setActiveModalDrawer("evaluation")}
             className="min-w-0 px-2.5 py-2 rounded-xl text-[10px] font-bold text-foreground/80 border border-border/70 bg-background/65 transition-all flex items-center justify-center gap-1.5 active:scale-95"
           >
             <ClipboardCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
@@ -1527,7 +1546,7 @@ export default function ChatTab({
         >
           <div className="pointer-events-auto max-w-3xl mx-auto space-y-2">
             {/* Quick Purchase Ribbon when out of tokens */}
-            {(remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 && (
+            {!isGuestMode && (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 && (
               <div className="mx-2 px-4 py-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-500/20 dark:to-orange-500/20 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl flex items-center justify-between shadow-sm animate-fadeIn">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-amber-500 text-sm animate-pulse">bolt</span>
@@ -1549,9 +1568,11 @@ export default function ChatTab({
                 value={inputText}
                 onChange={setInputText}
                 onSend={handleSendFreeText}
-                disabled={tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0 || loading}
+                disabled={(!isGuestMode && (tokenLockMinutes > 0 || (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0)) || loading}
                 placeholder={
-                  tokenLockMinutes > 0
+                  isGuestMode
+                    ? "Hỏi về cách học, kế hoạch hoặc điều đang làm cậu bối rối..."
+                    : tokenLockMinutes > 0
                     ? `Token PSY bị khóa ~${tokenLockMinutes} phút...`
                     : (remainingChatTokens + (bio?.bonusChatTokens || 0)) <= 0
                     ? t("hugoPsy.chat.hetTokenHomNay")
@@ -1573,7 +1594,7 @@ export default function ChatTab({
         </div>
       )}
       <TokenExchangeModal
-        isOpen={showTokenExchangeModal}
+        isOpen={!isGuestMode && showTokenExchangeModal}
         onClose={() => setShowTokenExchangeModal(false)}
         email={bio?.email}
         onSuccess={() => {

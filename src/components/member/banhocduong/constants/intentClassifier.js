@@ -293,6 +293,20 @@ export const INTENT_DATABASE = [
     }
   },
   {
+    id: "study_planning",
+    tier: "free",
+    patterns: [
+      "lập kế hoạch học tập", "lên kế hoạch học", "sắp xếp lịch học",
+      "học thế nào hiệu quả", "cách học hiệu quả", "chia thời gian học",
+      "ôn bài như thế nào", "tạo thời khóa biểu học"
+    ],
+    generateResponse: () => [
+      "Mình bắt đầu bằng cách ghi tất cả môn và deadline ra một chỗ, rồi chọn đúng một việc quan trọng nhất cho hôm nay.",
+      "Chia việc đó thành phiên 25 phút: 20 phút học chủ động, 5 phút tự kiểm tra không nhìn tài liệu. Sau mỗi hai phiên, nghỉ 10 phút.",
+      "Cuối buổi, ghi lại phần chưa nhớ và xếp nó vào phiên đầu tiên ngày mai. Nếu cậu gửi môn học, deadline và số giờ rảnh, tớ sẽ giúp chia nhỏ cụ thể hơn."
+    ]
+  },
+  {
     id: "academic_stress",
     tier: "paid",
     patterns: [
@@ -1725,6 +1739,7 @@ const STATIC_RULES = [
   { id: "perfectionism",       regex: /(cau toan|muon hoan hao|so lam sai|khong dam bat dau|tu chinh minh qua|phai lam cho hoan hao)/ },
   { id: "body_image",          regex: /(tu ti ngoai hinh|beo qua|xau qua|ghet co the|khong hai long voi ngoai hinh|tu ti can nang)/ },
   { id: "phone_addiction",     regex: /(nghien dien thoai|nghien tiktok|nghien mxh|luot mang xa hoi nhieu|nghien game|screen time)/ },
+  { id: "study_planning",      regex: /(lap ke hoach hoc|len ke hoach hoc|sap xep lich hoc|cach hoc hieu qua|hoc the nao hieu qua|chia thoi gian hoc|on bai nhu the nao|thoi khoa bieu hoc)/ },
   { id: "social_anxiety",      regex: /(so noi truoc dam dong|so bi phan xet|ngai tiep xuc nguoi la|social anxiety|so ra ngoai|khong dam phat bieu)/ },
   { id: "homesickness",        regex: /(nho nha|xa nha|nho bo me|di hoc xa|nho que huong|xa gia dinh)/ },
   { id: "first_love",          regex: /(thich ai do|co crush|dang yeu ai|tinh cam dau tien|thich ban trong lop|to tinh)/ },

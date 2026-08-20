@@ -197,7 +197,6 @@ export default function CodeHorseFilm({ onNeighTrigger }) {
         alt="Hugo Running Horse"
         loading="lazy"
         decoding="async"
-        fetchPriority="low"
         className="relative z-10 w-auto h-40 sm:h-56 md:h-64 object-contain cursor-pointer transition-transform hover:scale-110 active:scale-90"
         style={{ mixBlendMode: 'multiply', willChange: 'transform' }}
         onClick={handleHorseClick}

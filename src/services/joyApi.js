@@ -93,7 +93,10 @@ export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail,
  */
 export async function fetchJoyRates() {
   try {
-    const res = await fetch(`${getApiUrl()}/joy/rates`, { credentials: "include" });
+    const res = await fetch(`${getApiUrl()}/joy/rates`, {
+      credentials: "include",
+      cache: "no-cache",
+    });
     if (!res.ok) return null;
     return await res.json();
   } catch {

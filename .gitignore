@@ -29,3 +29,7 @@ ota/
 # Hồ sơ người dùng tải lên — KHÔNG BAO GIỜ commit. Đây là dữ liệu cá nhân
 # (CV ứng viên HugoTeam), và mỗi lượt nộp mới sẽ làm repo phình thêm.
 server/uploads/
+
+# Playwright E2E
+test-results/
+playwright-report/

@@ -6,7 +6,7 @@ import logos from "./logos";
 import { API_BASE } from "../config/apiBase";
 import { isVietnameseLanguage } from "../i18n/languages";
 
-const linkClass = "inline-flex min-h-9 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const linkClass = "inline-flex min-h-11 items-center text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnBase = "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const btnClass = `${btnBase} border-border text-foreground hover:bg-muted`;
 const btnPrimaryClass = `${btnBase} border-foreground bg-foreground text-background hover:opacity-90`;
@@ -142,7 +142,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-[1.2fr_1fr_1fr] md:gap-8">
           <div className="col-span-2 max-w-sm md:col-span-1">
-            <Link to="/introduction" className="text-lg font-extrabold tracking-[-0.03em] text-foreground">
+            <Link to="/introduction" className="inline-flex min-h-11 items-center text-lg font-extrabold tracking-[-0.03em] text-foreground">
               Hugo Studio
             </Link>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

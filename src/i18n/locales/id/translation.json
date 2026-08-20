@@ -2537,6 +2537,8 @@
       "convMyDenom": "Satuan JOY kamu",
       "convLocked": "Satuan ini kamu pilih saat pertama kali masuk dan tetap terkunci. Mengganti bahasa antarmuka tidak mengubahnya.",
       "convAmountIn": "Jumlah ({{code}})",
+      "convTarget": "Konversi ke",
+      "convTransferSimulation": "Jika dikirim: penerima mendapat {{amount}}. Biaya konversi {{percent}}% adalah {{fee}}; total potongan {{total}}.",
       "convUseBalance": "Pakai seluruh saldo · {{amount}}",
       "convTableTitle": "Jumlah yang sama dalam tiap unit",
       "convFeeNote": "kirim ke satuan ini +{{percent}}%",
@@ -2550,7 +2552,7 @@
       "denomSaving": "Menyimpan…",
       "denomSaved": "Satuan JOY untuk akunmu sudah disetel.",
       "marketTitle": "Pasar hari ini",
-      "marketWhy": "Kurs berubah tiap hari dari dua masukan: rata-rata pendapatan harian komunitas ({{income}} per orang) dan harga emas internasional ({{gold}} USD/oz).",
+      "marketWhy": "Kurs diperbarui tiap jam dari tiga sinyal internal: rata-rata JOY yang diperoleh ({{income}} per orang/hari), biaya dan pembayaran JOYlater, serta arus bersih JOY.",
       "marketPricesFixed": "Harga di aplikasi TIDAK ikut berubah — kurs hanya mengubah cara angka ditulis.",
       "sub_convert": "Kurs",
       "range24h": "24 jam",
@@ -6475,7 +6477,7 @@
       "invest.ui.2min": "2 menit",
       "viewDetail": "Lihat Detail",
       "invest.ui.5min": "5 menit",
-      "dividendsReceived": "Dividen yang diterima sejauh ini:",
+      "dividendsReceived": "Dividen diterima",
       "breakevenNote": "Titik impas: Biaya perantara dibebankan pada kedua sisi sebesar 0,5%, sehingga harga harus naik sebesar 1,01% untuk mencapai titik impas — menjual lebih awal berarti rugi.",
       "totalPnl": "Jumlah Laba/Rugi Bersih (PnL)",
       "losing": "KEKALAHAN",
@@ -6565,7 +6567,8 @@
       "advisorMarketTitle": "San Ảo Hugo",
       "advisorGuide": "Itu saja",
       "advisorAuto": "Tidak",
-      "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục. Tab ini tidak dapat diakses lagi."
+      "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục. Tab ini tidak dapat diakses lagi.",
+      "feesPaid": "Total biaya dibayar"
     },
     "companies": {
       "HFILM": {

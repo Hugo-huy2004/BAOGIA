@@ -77,7 +77,7 @@ export default function OnboardingProfileModal({ email, onDone, onSkip }) {
   const optionLabel = (fieldKey, value) => {
     if (fieldKey === "language") return languageLabel(value);
     const denom = JOY_DENOMS[value];
-    return denom ? `${denom.code} — ${denom.name}` : value;
+    return denom ? `${denom.code} — ${denom.name} · ${languageLabel(value)}` : value;
   };
 
   // Chọn ngôn ngữ là đổi giao diện NGAY (thấy liền kết quả, không phải đoán), và

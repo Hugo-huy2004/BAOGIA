@@ -2537,6 +2537,8 @@
       "convMyDenom": "あなたの JOY 単位",
       "convLocked": "この単位は初回ログイン時に選んだもので、以後固定されます。表示言語を変えても単位は変わりません。",
       "convAmountIn": "金額（{{code}}）",
+      "convTarget": "換算先",
+      "convTransferSimulation": "送る場合：受取人は {{amount}} を受け取ります。換算手数料 {{percent}}% は {{fee}}、合計引落額は {{total}} です。",
       "convUseBalance": "残高すべてを使う · {{amount}}",
       "convTableTitle": "同じ金額を各単位で表記",
       "convFeeNote": "単位をまたぐ送金は {{percent}}% 追加",
@@ -2550,7 +2552,7 @@
       "denomSaving": "保存中…",
       "denomSaved": "アカウントの JOY 単位を設定しました。",
       "marketTitle": "本日の相場",
-      "marketWhy": "レートは 2 つの指標で毎日動きます: コミュニティの 1 人あたり平均日収 ({{income}}) と国際金価格 ({{gold}} USD/oz)。",
+      "marketWhy": "レートは、平均獲得 JOY（1人1日 {{income}}）、手数料と JOYlater 返済、JOY の純流入出という3つの内部指標から毎時更新されます。",
       "marketPricesFixed": "アプリ内の価格はレートで変わりません。レートは数字の書き方だけを変えます。",
       "sub_convert": "レート",
       "range24h": "24時間",
@@ -6483,7 +6485,7 @@
       "holdingPortfolio": "保有ポートフォリオ",
       "stockList": "株式市場リスト",
       "profitable": "収益性の高い",
-      "dividendsReceived": "これまでに受け取った配当金:",
+      "dividendsReceived": "受け取った配当",
       "totalPnl": "純損益合計 (PnL)",
       "2m": "2分",
       "invest.ui.buy": "買う",
@@ -6565,7 +6567,8 @@
       "advisorEmptyMsg": "あなたのことを考えてください。 「Bảng giá chọn một mã để bắt đầu」というタブを歌いました。",
       "advisorMarketTitle": "サン・オ・ヒューゴ",
       "advisorAuto": "トゥ ドン",
-      "advisorGuide": "フン・ディン"
+      "advisorGuide": "フン・ディン",
+      "feesPaid": "支払った手数料の合計"
     },
     "companies": {
       "HFILM": {

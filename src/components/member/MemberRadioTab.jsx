@@ -13,6 +13,8 @@ import { useRadioStore, getRadioAudio, hlsHandle } from "../../stores/radioStore
 // Đài hỏng thì tự nhảy sang đài khác, nhưng có trần: mỗi lần nhảy là một lượt
 // dò trên máy chủ, mất sóng cả cụm thì đừng biến thành vòng lặp gọi mạng.
 const MAX_AUTO_SKIP = 3;
+const GUEST_DEMO_LIMIT_SECONDS = 15 * 60;
+const GUEST_DEMO_STORAGE_KEY = "hugo_radio_demo_seconds_v1";
 
 const FOUND_CATEGORY = "found";
 const STATUS_DOT = {
@@ -52,10 +54,10 @@ const toStation = (found) => ({
 });
 
 const RADIO_CATEGORIES = [
-  { id: "vn_news", icon: "newspaper", labelKey: "utilities.radio.categories.vnNews", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
-  { id: "intl_news", icon: "public", labelKey: "utilities.radio.categories.intlNews", names: ["NPR 24 Hour Program Stream", "RTE1", "CBC Radio One", "Radio France Internationale"] },
-  { id: "music", icon: "music_note", labelKey: "utilities.radio.categories.music", names: ["M Radio Vietnam", "Cherry Radio Music 247", "SWR3"] },
-  { id: "lofi_chill", icon: "headphones", labelKey: "utilities.radio.categories.chill", names: ["FIP", "France Musique", "Smooth Jazz 247", "Chillout Lounge"] },
+  { id: "vn_news", icon: "newspaper", labelKey: "utilities.radio.categories.vnNews", activeClass: "from-red-500 to-orange-500 shadow-red-500/20", panelClass: "from-red-500/14 via-orange-400/8 to-card", names: ["VOV1", "VOV2", "VOV3", "VOV Giao thông Hà Nội", "VOV5 WORLD RADIO", "RFI Tiếng Việt", "VOH FM 87.7"] },
+  { id: "intl_news", icon: "public", labelKey: "utilities.radio.categories.intlNews", activeClass: "from-blue-500 to-cyan-500 shadow-blue-500/20", panelClass: "from-blue-500/14 via-cyan-400/8 to-card", names: ["NPR 24 Hour Program Stream", "RTE1", "CBC Radio One", "Radio France Internationale"] },
+  { id: "music", icon: "music_note", labelKey: "utilities.radio.categories.music", activeClass: "from-fuchsia-500 to-violet-600 shadow-fuchsia-500/20", panelClass: "from-fuchsia-500/14 via-violet-400/8 to-card", names: ["M Radio Vietnam", "Cherry Radio Music 247", "SWR3"] },
+  { id: "lofi_chill", icon: "headphones", labelKey: "utilities.radio.categories.chill", activeClass: "from-teal-500 to-emerald-500 shadow-teal-500/20", panelClass: "from-teal-500/14 via-emerald-400/8 to-card", names: ["FIP", "France Musique", "Smooth Jazz 247", "Chillout Lounge"] },
 ];
 
 const FALLBACK_STATIONS = {
@@ -91,7 +93,24 @@ const FALLBACK_STATIONS = {
 
 const SLEEP_STEPS = [15, 30, 60];
 
-export default function MemberRadioTab({ onBack, showToast, bio }) {
+const readGuestDemoSeconds = () => {
+  try {
+    const value = Number(localStorage.getItem(GUEST_DEMO_STORAGE_KEY) || 0);
+    return Number.isFinite(value) ? Math.min(GUEST_DEMO_LIMIT_SECONDS, Math.max(0, value)) : 0;
+  } catch {
+    return 0;
+  }
+};
+
+const writeGuestDemoSeconds = (seconds) => {
+  try {
+    localStorage.setItem(GUEST_DEMO_STORAGE_KEY, String(Math.round(seconds)));
+  } catch { /* Storage can be unavailable in private browsing. */ }
+};
+
+const formatDemoTime = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+
+export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = false, requireAccount }) {
   const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
   const [stationsByCategory, setStationsByCategory] = useState({});
@@ -107,6 +126,10 @@ export default function MemberRadioTab({ onBack, showToast, bio }) {
   const setIsPlaying = useRadioStore((s) => s.setPlaying);
   const setIsBuffering = useRadioStore((s) => s.setBuffering);
   const setVolume = useRadioStore((s) => s.setVolume);
+  const guestMode = Boolean(isGuestMode || !bio?.email);
+  const [guestDemoSeconds, setGuestDemoSeconds] = useState(readGuestDemoSeconds);
+  const guestDemoRemaining = Math.max(0, GUEST_DEMO_LIMIT_SECONDS - guestDemoSeconds);
+  const guestDemoExpired = guestMode && guestDemoRemaining <= 0;
 
   const [sleepTimer, setSleepTimer] = useState(null);
   const [sleepTimeLeft, setSleepTimeLeft] = useState(0);

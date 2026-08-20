@@ -51,29 +51,31 @@ const crash = nextPrice({ price: 21, basePrice: 100, volatility: 5, activity: 0,
 assert.ok(crash.price >= 20, 'giá không rơi dưới 20% giá niêm yết đầu');
 
 // ── Giá vốn bình quân ────────────────────────────────────────────────────────
+// Giá vốn TÍNH CẢ PHÍ MUA — ví trừ bao nhiêu thì vốn ghi bấy nhiêu, để lãi/lỗ
+// chốt luôn khớp đúng biến động ví.
 let position = { quantity: 0, avgCost: 0 };
-position = { ...position, ...applyBuy(position, 10, 100) };
-assert.deepEqual(position, { quantity: 10, avgCost: 100 });
-position = { ...position, ...applyBuy(position, 10, 200) };
-assert.equal(position.avgCost, 150, 'mua 10 giá 100 rồi 10 giá 200 ⇒ giá vốn 150');
+position = { ...position, ...applyBuy(position, 10, 100, tradingFee(100 * 10)) };
+assert.deepEqual(position, { quantity: 10, avgCost: 100.5 }, 'vốn = (1000 + phí 5) / 10');
+position = { ...position, ...applyBuy(position, 10, 200, tradingFee(200 * 10)) };
+assert.equal(position.avgCost, 150.75, 'mua 10 giá 100 rồi 10 giá 200, cộng phí ⇒ vốn 150,75');
 
 // ── Lãi/lỗ đang nắm giữ ──────────────────────────────────────────────────────
 const up = positionPL(position, 180);
-assert.equal(up.cost, 3000);
+assert.equal(up.cost, 3015);
 assert.equal(up.value, 3600);
-assert.equal(up.unrealized, 600, 'lãi = (180 − 150) × 20');
-assert.equal(up.unrealizedPct, 0.2, 'lãi 20% so với vốn bỏ ra');
+assert.equal(up.unrealized, 585, 'lãi = 3600 − vốn 3015 (vốn đã gồm phí mua)');
+assert.equal(up.unrealizedPct, 0.194, 'lãi so với TOÀN BỘ tiền đã bỏ ra');
 
 const down = positionPL(position, 120);
-assert.equal(down.unrealized, -600);
-assert.equal(down.unrealizedPct, -0.2);
+assert.equal(down.unrealized, -615);
+assert.equal(down.unrealizedPct, -0.204);
 
 // ── Bán và lãi/lỗ đã chốt ────────────────────────────────────────────────────
 const fee = tradingFee(180 * 10);
 const sold = applySell(position, 10, 180, fee);
 assert.equal(sold.quantity, 10, 'bán 10 trong 20 thì còn 10');
-assert.equal(sold.avgCost, 150, 'giá vốn phần còn lại không đổi khi bán bớt');
-assert.equal(sold.realizedPL, 300 - fee, 'lãi chốt = (180 − 150) × 10 trừ phí');
+assert.equal(sold.avgCost, 150.75, 'giá vốn phần còn lại không đổi khi bán bớt');
+assert.equal(sold.realizedPL, Math.round(1800 - 1507.5 - fee), 'lãi chốt = tiền bán − vốn (gồm phí mua) − phí bán');
 assert.equal(sold.proceeds, 1800 - fee, 'tiền về ví = giá bán × số lượng trừ phí');
 
 // Bán hết thì giá vốn về 0 để lần mua sau bắt đầu lại từ đầu.
@@ -83,10 +85,13 @@ assert.equal(cleared.avgCost, 0);
 assert.ok(cleared.realizedPL < 0, 'bán dưới giá vốn là lỗ đã chốt');
 
 // Mua rồi bán ngay ở CÙNG một giá vẫn lỗ đúng bằng hai lần phí — bài học đắt
-// nhất của người mới lướt sóng.
+// nhất của người mới lướt sóng. Trước đây vốn không gồm phí mua nên hoá đơn
+// chỉ báo lỗ MỘT lần phí trong khi ví mất hai — giờ hai con số khớp nhau.
 const buyFee = tradingFee(100 * 10);
-const roundTrip = applySell({ quantity: 10, avgCost: 100 }, 10, 100, tradingFee(100 * 10));
-assert.equal(roundTrip.realizedPL, -buyFee, 'mua bán cùng giá thì lỗ đúng bằng phí');
+const sellFee = tradingFee(100 * 10);
+const bought = applyBuy({ quantity: 0, avgCost: 0 }, 10, 100, buyFee);
+const roundTrip = applySell(bought, 10, 100, sellFee);
+assert.equal(roundTrip.realizedPL, -(buyFee + sellFee), 'mua bán cùng giá thì lỗ đúng bằng HAI lần phí');
 
 // ── Niêm yết bằng đơn vị gốc tiếng Anh + ba loại phí ─────────────────────────
 assert.equal(STOCK_QUOTE_CODE, JOY_DENOMS[BASE_DENOM].code, 'sàn niêm yết bằng đơn vị gốc (Kavo)');

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from '../../config/apiBase';
 
 const STATUS_OPTIONS = ['Đang liên hệ', 'Đang lên thiết kế', 'Đang thực hiện', 'Đang Kiểm tra', 'Hoàn tất'];
 
@@ -45,7 +46,7 @@ export default function AdminProjectsTab({ showNotification }) {
 
   const fetchProjects = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects`, {
+      const res = await fetch(`${API_BASE}/customer-projects`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
@@ -63,7 +64,7 @@ export default function AdminProjectsTab({ showNotification }) {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects`, {
+      const res = await fetch(`${API_BASE}/customer-projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -101,7 +102,7 @@ export default function AdminProjectsTab({ showNotification }) {
     
     try {
       // Verify admin password
-      const verifyRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/admin/verify-password`, {
+      const verifyRes = await fetch(`${API_BASE}/admin/verify-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -116,7 +117,7 @@ export default function AdminProjectsTab({ showNotification }) {
       }
       
       // Proceed to delete
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${deleteTarget._id}`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${deleteTarget._id}`, {
         method: 'DELETE',
         credentials: 'include'
       });

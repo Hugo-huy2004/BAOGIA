@@ -52,13 +52,18 @@ export const DEFAULT_DENOM = "vi";
  */
 export const BASE_DENOM = "en";
 
-/**
- * Danh sách để người dùng CHỌN đơn vị, gộp trùng theo mã: es và fr cùng JOYve
- * nên chỉ là một lựa chọn. Người dùng chọn ĐƠN VỊ, không phải chọn ngôn ngữ lần
- * hai.
- */
+/** Danh sách chọn theo trải nghiệm ngôn ngữ/quốc gia — giữ cả Pháp và Tây Ban Nha. */
+export const DENOM_ACCOUNT_OPTIONS = Object.entries(JOY_DENOMS).map(([key, denom]) => ({
+  key,
+  ...denom,
+  localeKeys: [key],
+}));
+
+/** Danh sách bảng tỷ giá — gộp các vùng dùng chung đúng một mã đơn vị. */
 export const DENOM_OPTIONS = Object.entries(JOY_DENOMS).reduce((list, [key, denom]) => {
-  if (!list.some((item) => item.code === denom.code)) list.push({ key, ...denom });
+  const existing = list.find((item) => item.code === denom.code);
+  if (existing) existing.localeKeys.push(key);
+  else list.push({ key, ...denom, localeKeys: [key] });
   return list;
 }, []);
 

@@ -102,12 +102,18 @@ router.get('/market', requireMember, async (req, res) => {
 router.get('/portfolio', requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const [market, positions, bio, trades] = await Promise.all([
+    const [market, positions, bio, trades, feeRows] = await Promise.all([
       loadMarket(),
       StockPosition.find({ email }).lean(),
       memberBio(email, 'joyBalance joyDenom'),
       StockTrade.find({ email }).sort({ at: -1 }).limit(30).lean(),
+      // Tổng phí đã trả theo mã — bài học "phí ăn bao nhiêu" phải có số thật.
+      StockTrade.aggregate([
+        { $match: { email } },
+        { $group: { _id: '$symbol', fees: { $sum: '$fee' } } },
+      ]),
     ]);
+    const feesOf = Object.fromEntries(feeRows.map((r) => [r._id, r.fees]));
 
     const walletDenom = denomKey(bio?.joyDenom);
     const priceOf = Object.fromEntries(market.companies.map((c) => [c.symbol, c.price]));
@@ -124,6 +130,7 @@ router.get('/portfolio', requireMember, async (req, res) => {
           ...positionPL(p, price),
           realizedPL: p.realizedPL || 0,
           dividendReceived: p.dividendReceived || 0,
+          feesPaid: feesOf[p.symbol] || 0,
         };
       });
 
@@ -201,6 +208,7 @@ function receiptOf({ company, side, quantity, price, costs, realizedPL, balanceA
     balanceAfter,
     quoteCode: costs.quoteCode,
     walletCode: costs.walletCode,
+    walletAmount: costs.totalInWallet,
     rates: costs.rates,
   };
 }
@@ -273,6 +281,9 @@ router.post('/trade', requireMember, async (req, res) => {
       // đọc-rồi-ghi như bản trước làm hai lệnh mua song song ghi đè nhau, giá
       // vốn bình quân ra sai và người học nhìn thấy một mức lãi không có thật.
       // Trần sở hữu nằm trong BỘ LỌC, nên nó cũng được kiểm nguyên tử.
+      //
+      // Giá vốn cộng bằng costs.total (giá trị + phí mua) chứ không phải gross:
+      // ví bị trừ total, nên lãi/lỗ chốt sau này mới khớp đúng biến động ví.
       const position = await StockPosition.findOneAndUpdate(
         { email, symbol, quantity: { $lte: cap - quantity } },
         [{
@@ -281,7 +292,7 @@ router.post('/trade', requireMember, async (req, res) => {
             avgCost: {
               $round: [{
                 $divide: [
-                  { $add: [{ $multiply: [{ $ifNull: ['$avgCost', 0] }, { $ifNull: ['$quantity', 0] }] }, costs.gross] },
+                  { $add: [{ $multiply: [{ $ifNull: ['$avgCost', 0] }, { $ifNull: ['$quantity', 0] }] }, costs.total] },
                   { $add: [{ $ifNull: ['$quantity', 0] }, quantity] },
                 ],
               }, 2],
@@ -305,7 +316,7 @@ router.post('/trade', requireMember, async (req, res) => {
       await StockTrade.create({
         email, symbol, side, quantity, price,
         fee: costs.fees, brokerage: costs.brokerage, creativeFee: costs.creativeFee,
-        conversionFee: costs.conversionFee, walletCode, session,
+        conversionFee: costs.conversionFee, walletCode, walletAmount: costs.totalInWallet, session,
         total: costs.total, balanceAfter: balance, realizedPL: 0, at: receipt.at,
       });
 
@@ -362,7 +373,7 @@ router.post('/trade', requireMember, async (req, res) => {
     await StockTrade.create({
       email, symbol, side, quantity, price,
       fee: costs.fees, brokerage: costs.brokerage, creativeFee: costs.creativeFee,
-      conversionFee: costs.conversionFee, walletCode, session,
+      conversionFee: costs.conversionFee, walletCode, walletAmount: costs.totalInWallet, session,
       total: costs.total, balanceAfter: balance, realizedPL, at: receipt.at,
     });
 

@@ -3899,6 +3899,8 @@
       "convMyDenom": "Your JOY unit",
       "convLocked": "You picked this unit when you first signed in and it stays fixed. Changing the interface language does not change it.",
       "convAmountIn": "Amount ({{code}})",
+      "convTarget": "Convert to",
+      "convTransferSimulation": "If sent: the recipient gets {{amount}}. The {{percent}}% conversion fee is {{fee}}; total debited is {{total}}.",
       "convUseBalance": "Use full balance · {{amount}}",
       "convTableTitle": "The same amount in every unit",
       "convFeeNote": "sending costs {{percent}}% more",
@@ -3912,7 +3914,7 @@
       "denomSaving": "Saving…",
       "denomSaved": "JOY unit set for your account.",
       "marketTitle": "Today's market",
-      "marketWhy": "Rates move daily on two inputs: the community's average daily earnings ({{income}} per person) and the international gold price ({{gold}} USD/oz).",
+      "marketWhy": "Rates update hourly from three internal signals: average JOY earned ({{income}} per person/day), fees and JOYlater repayments, and net JOY flow.",
       "marketPricesFixed": "Prices in the app do NOT move with the rate — the rate only changes how numbers are written.",
       "sub_convert": "Rates",
       "range24h": "24h",
@@ -6709,7 +6711,7 @@
       "roi": "Return on Investment:",
       "investedCapital": "Invested Capital",
       "realizedProfit": "Realized Profit",
-      "dividendsReceived": "Dividends received so far:",
+      "dividendsReceived": "Dividends received",
       "breakevenNote": "Breakeven mark: 0.5% brokerage fee is charged on both sides, so the price must increase by 1.01% to break even — selling earlier is a loss.",
       "holdingPortfolio": "Holding Portfolio",
       "orderHistory": "Order Execution History",
@@ -6792,7 +6794,8 @@
       "advisorNoBreakEvenMsg": "Danh mục chưa mã nào qua mốc hoà vốn +{{breakEven}}%. Bán sớm là trả phí hai lần cho một lần đi.",
       "advisorMarketTitle": "Sàn Ảo Hugo",
       "advisorGuide": "Hướng dẫn",
-      "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu."
+      "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.",
+      "feesPaid": "Total fees paid"
     },
     "companies": {
       "HFILM": {

@@ -231,7 +231,8 @@ export const CINE_CSS = `
   }
   .ios-primary-button {
     color: #fff;
-    background: hsl(var(--primary));
+    /* Keep white labels above WCAG AA on the portfolio's bright red accent. */
+    background: color-mix(in srgb, hsl(var(--primary)) 86%, #000);
     box-shadow: 0 10px 26px hsl(var(--primary) / 0.22);
   }
   .ios-secondary-button {
@@ -727,4 +728,3 @@ export function AmbientAuraParticles() {
     />
   );
 }
-

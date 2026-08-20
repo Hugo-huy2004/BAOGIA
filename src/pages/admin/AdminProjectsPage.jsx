@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminProjectsTab from '../../components/admin/AdminProjectsTab';
 import { logoutAuth } from '../../services/authSession';
 import { HugoNoticeToast } from '../../components/shared/HugoNotice';
+import { API_BASE } from '../../config/apiBase';
 
 export default function AdminProjectsPage() {
   const { t } = useTranslation();
@@ -15,7 +16,7 @@ export default function AdminProjectsPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/data/admin`, {
+        const res = await fetch(`${API_BASE}/data/admin`, {
           credentials: 'include'
         });
         if (res.status === 401 || res.status === 403) {

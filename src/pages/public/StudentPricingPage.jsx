@@ -8,6 +8,7 @@ import { getMemberSession, loginMemberWithGoogle } from "../../services/authSess
 import { isEduEmail } from "../../utils/eduEmail";
 import { notify } from "../../lib/notify";
 import { isVietnameseLanguage } from "../../i18n/languages";
+import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -217,14 +218,15 @@ export default function StudentPricingPage() {
     let cancelled = false;
     let timer = null;
     let timeout = null;
+    let initialized = false;
+    let rendered = false;
 
-    const tryInitGoogle = () => {
-      if (cancelled) return;
-      const googleId = window.google?.accounts?.id;
+    const tryInitGoogle = (loadedGoogleId) => {
+      if (cancelled || rendered) return;
+      const googleId = loadedGoogleId || window.google?.accounts?.id;
       if (!googleId || !googleButtonRef.current) return;
 
-      setGisReady(true);
-      if (!window.__googleInitializedForStudent) {
+      if (!initialized) {
         googleId.initialize({
           client_id: clientId,
           callback: (res) => credentialHandler.current(res),
@@ -232,7 +234,7 @@ export default function StudentPricingPage() {
           cancel_on_tap_outside: true,
           itp_support: true,
         });
-        window.__googleInitializedForStudent = true;
+        initialized = true;
         googleId.prompt();
       }
 
@@ -248,13 +250,22 @@ export default function StudentPricingPage() {
         });
       } catch {
         setGoogleConfigError(`Google Sign-In chưa được cấp quyền cho origin ${window.location.origin}.`);
+        window.clearInterval(timer);
+        return;
       }
+      rendered = true;
+      setGisReady(true);
 
       window.clearInterval(timer);
       window.clearTimeout(timeout);
     };
 
     timer = window.setInterval(tryInitGoogle, 250);
+    loadGoogleIdentity().then(tryInitGoogle).catch(() => {
+      if (!cancelled) {
+        setGoogleConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}.`);
+      }
+    });
     timeout = window.setTimeout(() => {
       if (cancelled) return;
       setGoogleConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}. Hãy thêm origin này vào Google Cloud Console.`);
@@ -266,7 +277,7 @@ export default function StudentPricingPage() {
       cancelled = true;
       window.clearInterval(timer);
       window.clearTimeout(timeout);
-      window.__googleInitializedForStudent = false;
+      window.google?.accounts?.id?.cancel?.();
     };
   }, [session?.email]);
 

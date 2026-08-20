@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { API_BASE } from '../../config/apiBase';
 
 export default function CustomerRequestsTab({ project }) {
   const { t } = useTranslation();
@@ -12,7 +13,7 @@ export default function CustomerRequestsTab({ project }) {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages`, {
         credentials: 'include'
       });
       const data = await res.json();
@@ -36,7 +37,7 @@ export default function CustomerRequestsTab({ project }) {
 
   const markMessagesAsRead = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages/read`, {
+      await fetch(`${API_BASE}/customer-projects/${project._id}/messages/read`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -56,7 +57,7 @@ export default function CustomerRequestsTab({ project }) {
     if (!newMessage.trim()) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

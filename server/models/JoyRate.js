@@ -6,17 +6,18 @@ import mongoose from 'mongoose';
  *
  * Giữ đầu vào cạnh kết quả là cố ý: khi ai đó hỏi "sao Mira tụt 2%" thì trả lời
  * được bằng chính bản ghi đó, không phải dựng lại phép tính từ trí nhớ. Bản ghi
- * cũng là bộ nhớ đệm: trong một giờ chỉ tính một lần, và giá vàng chỉ gọi ra
- * ngoài một lần mỗi giờ.
+ * cũng là bộ nhớ đệm: trong một giờ chỉ tính một lần từ dòng JOY nội bộ.
  */
 const JoyRateSchema = new mongoose.Schema({
   // YYYY-MM-DDTHH theo giờ UTC — khoá tự nhiên, chống tính trùng trong một giờ.
   //
   // Nhịp GIỜ chứ không phải ngày: biểu đồ tỷ giá cần đường đi, mà một điểm mỗi
-  // ngày thì phải chờ một tuần mới thành hình. Giá vàng nhúc nhích liên tục nên
-  // nhịp giờ có chuyển động thật, không phải nhiễu bịa ra.
+  // ngày thì phải chờ một tuần mới thành hình. Dòng JOY nội bộ được chốt theo
+  // phiên giờ để tạo chuyển động thật, không phải nhiễu bịa ra.
   key: { type: String, required: true, unique: true, index: true },
-  at: { type: Date, required: true, index: true },
+  // Chỉ khai index TTL ở cuối schema. `index: true` tại đây tạo thêm một index
+  // thường trùng khoá và Mongoose cảnh báo mỗi lần tiến trình khởi động.
+  at: { type: Date, required: true },
 
   // Hệ số đang có hiệu lực: { vi: 24.6, en: 1.02, ... }
   factors: { type: Map, of: Number, required: true },
@@ -29,12 +30,25 @@ const JoyRateSchema = new mongoose.Schema({
     members: { type: Number, default: 0 },
   },
 
-  // Đầu vào 2 — giá vàng quốc tế (USD/oz) và mức trung bình 30 ngày gần nhất.
-  gold: {
-    price: { type: Number, default: 0 },
-    average: { type: Number, default: 0 },
-    drift: { type: Number, default: 0 },
-    stale: { type: Boolean, default: false },
+  // Tín hiệu và dòng tiền dùng để giải thích vì sao một tỷ giá đổi. Trước đây
+  // service có ghi hai khối này nhưng schema không khai báo nên Mongoose âm
+  // thầm loại bỏ, khiến bản ghi không còn dữ liệu để đối soát.
+  signals: {
+    type: Map,
+    of: new mongoose.Schema({
+      income: { type: Number, default: 0 },
+      feeShare: { type: Number, default: 0 },
+      netFlow: { type: Number, default: 0 },
+      movement: { type: Number, default: 0 },
+    }, { _id: false }),
+    default: () => ({}),
+  },
+  flows: {
+    inflow: { type: Number, default: 0 },
+    outflow: { type: Number, default: 0 },
+    feeFlow: { type: Number, default: 0 },
+    feeShare: { type: Number, default: 0 },
+    netFlow: { type: Number, default: 0 },
   },
 
   createdAt: { type: Date, default: Date.now },

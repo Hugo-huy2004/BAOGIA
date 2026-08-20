@@ -23,12 +23,15 @@
     "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
     "native:ios": "npm run native:sync && npx cap open ios",
     "native:android": "npm run native:sync && npx cap open android",
-    "cv:pdf": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy.pdf docs/cv.html",
+    "cv:pdf": "npm run cv:pdf:vi && npm run cv:pdf:en",
+    "cv:pdf:vi": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy.pdf \"file://$PWD/docs/cv.html?lang=vi\"",
+    "cv:pdf:en": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless --disable-gpu --no-pdf-header-footer --print-to-pdf=public/cv-le-gia-huy-en.pdf \"file://$PWD/docs/cv.html?lang=en\"",
     "check:imports": "node scripts/check-tracked-imports.mjs",
     "check:stock": "node server/scripts/check-stock-market.mjs && node server/scripts/check-stock-trade.mjs",
     "check:chart": "node server/scripts/check-invest-chart.mjs",
     "ota:bundle": "node scripts/ota-bundle.mjs",
-    "dev:frontend": "vite"
+    "dev:frontend": "vite",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",
@@ -78,6 +81,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/typography": "^0.5.20",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",

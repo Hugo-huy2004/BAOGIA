@@ -619,8 +619,23 @@
   color: hsl(var(--foreground));
 }
 .wal-conv__field input:focus { outline: none; border-bottom-color: hsl(var(--joy)); }
-.wal-conv__eq { margin-top: 10px; font-size: 15px; color: hsl(var(--foreground) / .7); }
+.wal-conv__target { display: block; margin-top: 14px; }
+.wal-conv__target small {
+  display: block; margin-bottom: 5px; font-size: 11px; font-weight: 750;
+  text-transform: uppercase; letter-spacing: .04em; color: hsl(var(--foreground) / .55);
+}
+.wal-conv__target select {
+  width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid hsl(var(--border));
+  border-radius: 12px; background: hsl(var(--background)); color: hsl(var(--foreground));
+  font-size: 14px; font-weight: 750;
+}
+.wal-conv__eq { margin-top: 12px; display: flex; flex-direction: column; font-size: 15px; color: hsl(var(--foreground) / .7); }
 .wal-conv__eq strong { font-size: 20px; font-weight: 900; color: hsl(var(--foreground)); }
+.wal-conv__eq small { margin-top: 2px; font-size: 12px; font-weight: 650; color: hsl(var(--foreground) / .6); }
+.wal-conv__simulation {
+  margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: hsl(var(--muted));
+  font-size: 12px; line-height: 1.5; color: hsl(var(--foreground) / .72);
+}
 .wal-conv__fill {
   margin-top: 10px;
   width: 100%;

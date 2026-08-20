@@ -4,269 +4,571 @@
 <meta charset="utf-8">
 <title>CV — Lê Gia Huy</title>
 <style>
-  /* Nguồn CV song ngữ. Sửa file này rồi chạy `npm run cv:pdf`.
-     Trang 1 tiếng Việt, trang 2 tiếng Anh — một link tải, hai đối tượng đọc.
-     Màu nhấn lấy từ brand của web: hsl(211 100% 50%), tối lại chút cho in giấy. */
-  @page { size: A4; margin: 11mm 13mm; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root { --accent: #0B63CE; --ink: #16181d; --dim: #5a6068; --faint: #8d939b; }
+  /* Hai bản CV một trang, dùng chung một nguồn.
+     `npm run cv:pdf` xuất riêng tiếng Việt và tiếng Anh. */
+  @page { size: A4; margin: 9mm 10mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #0a6fe8;
+    --blue-dark: #0a4fa8;
+    --ink: #14181f;
+    --body: #3d434c;
+    --muted: #6d7580;
+    --faint: #949ca8;
+    --line: #e3e8ef;
+    --card: #f6f8fb;
+    --blue-wash: #eef5fe;
+  }
 
+  html, body { background: #fff; }
   body {
-    font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 9.1pt; line-height: 1.42; color: var(--ink);
+    color: var(--ink);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.2pt;
+    line-height: 1.38;
     -webkit-font-smoothing: antialiased;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   a { color: inherit; text-decoration: none; }
-  .page { page-break-after: always; }
-  .page:last-child { page-break-after: auto; }
+  .page { position: static; }
+  .page:not(:last-child) { page-break-after: always; }
 
-  /* header */
-  header { border-bottom: 2.5px solid var(--accent); padding-bottom: 8px; margin-bottom: 10px; }
-  h1 { font-size: 24pt; font-weight: 600; letter-spacing: -0.7px; line-height: 1; }
-  .role { font-size: 10pt; font-weight: 600; color: var(--accent); margin-top: 4px; letter-spacing: 0.3px; }
-  .contact { font-size: 8.5pt; color: var(--dim); margin-top: 6px; }
-  .contact span + span::before { content: "·"; color: #c3c8cf; margin: 0 7px; }
-
-  /* dải điểm nổi bật — thứ nhà tuyển dụng đọc trong 5 giây đầu */
-  .highlights { background: #f2f7fd; border-left: 2.5px solid var(--accent); padding: 7px 11px; margin-bottom: 11px; }
-  .highlights p { margin-bottom: 2.5px; }
-  .highlights p:last-child { margin-bottom: 0; }
-  .highlights b { color: var(--accent); font-weight: 700; }
-
-  /* sections */
-  section { margin-bottom: 10px; }
-  section:last-child { margin-bottom: 0; }
-  h2 {
-    font-size: 7.6pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--accent); padding-bottom: 2.5px; margin-bottom: 6px;
-    border-bottom: 0.6px solid #dde3ea;
+  /* ── Header ─────────────────────────────────────────── */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 14px;
+    padding-bottom: 9px;
+    border-bottom: 2.5px solid var(--blue);
   }
-  .summary { font-size: 9.2pt; line-height: 1.5; color: #33383f; }
+  .kicker {
+    color: var(--blue);
+    font-size: 7.3pt;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+  }
+  h1 {
+    margin-top: 2px;
+    font-size: 26pt;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1;
+  }
+  .role { margin-top: 4px; color: var(--blue-dark); font-size: 10.2pt; font-weight: 700; }
+  .contact { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .contact a { color: var(--body); font-size: 8pt; }
+  .contact a b { color: var(--blue); font-weight: 700; }
+  .stats { display: flex; gap: 14px; margin-top: 7px; }
+  .stat { display: flex; align-items: baseline; gap: 4px; }
+  .stat b { color: var(--blue); font-size: 11.5pt; font-weight: 700; }
+  .stat span { color: var(--muted); font-size: 7.3pt; }
 
-  /* skills */
-  .skill { display: flex; gap: 8px; margin-bottom: 3.5px; }
-  .skill dt { flex: 0 0 70px; font-weight: 700; }
-  .skill dd { flex: 1; color: #33383f; }
-  .skill em { font-style: normal; color: var(--faint); }
+  /* ── Layout ─────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: 30% minmax(0, 70%);
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .sidebar { display: flex; flex-direction: column; gap: 9px; }
+  .side-card {
+    padding: 9px 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+    break-inside: avoid;
+  }
+  .side-card.profile-card { border-color: #cfe2f8; background: var(--blue-wash); }
+  .section-label {
+    margin-bottom: 6px;
+    color: var(--blue);
+    font-size: 7.3pt;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .profile-text { color: var(--body); font-size: 8.5pt; line-height: 1.46; }
+  .skill-group { margin-bottom: 7px; }
+  .skill-group:last-of-type { margin-bottom: 0; }
+  .skill-group h3 { margin-bottom: 3px; font-size: 8pt; font-weight: 700; }
+  .tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .tag {
+    padding: 1.5px 6px;
+    border: 1px solid #dde3ea;
+    border-radius: 999px;
+    background: #fff;
+    color: #4a525d;
+    font-size: 7.1pt;
+    line-height: 1.3;
+  }
+  .foundation { margin-top: 6px; color: var(--muted); font-size: 7.3pt; line-height: 1.4; }
+  .skill-note { margin-top: 3px; color: var(--muted); font-size: 7pt; line-height: 1.35; font-style: italic; }
+  .fact { margin-bottom: 6px; }
+  .fact:last-child { margin-bottom: 0; }
+  .fact-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .fact b { font-size: 8.2pt; font-weight: 700; }
+  .fact .level { color: var(--blue); font-size: 7.2pt; font-weight: 700; white-space: nowrap; }
+  .fact p { margin-top: 1px; color: var(--muted); font-size: 7.4pt; line-height: 1.38; }
 
-  /* projects */
-  .job { margin-bottom: 8px; }
-  .job:last-child { margin-bottom: 0; }
-  .job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .job-title { font-weight: 700; font-size: 9.6pt; }
-  .job-date { font-size: 8.1pt; color: var(--faint); white-space: nowrap; }
-  .job-meta { font-size: 8.6pt; color: var(--dim); margin: 1px 0 3px; }
-  .job-meta b { color: var(--accent); font-weight: 700; }
+  /* ── Main ───────────────────────────────────────────── */
+  .main { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+  .main-section { break-inside: avoid; }
+  .main-section > .section-label { margin-bottom: 5px; }
+
+  .project {
+    padding: 9px 11px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--blue);
+    border-radius: 10px;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .project-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .project h3 { font-size: 9.6pt; font-weight: 700; line-height: 1.2; }
+  .date { color: var(--faint); font-size: 7.3pt; white-space: nowrap; }
+  .project-meta { margin: 2px 0 5px; color: var(--blue-dark); font-size: 7.5pt; font-weight: 700; }
+  .project-meta a { color: var(--muted); font-weight: 400; border-bottom: 1px solid #ccd4dd; }
   ul { list-style: none; }
-  li { position: relative; padding-left: 10px; margin-bottom: 1.5px; color: #33383f; }
-  li::before { content: "▪"; position: absolute; left: 0; top: 3.5px; font-size: 6pt; color: var(--accent); }
-  li b { font-weight: 700; color: var(--ink); }
+  .project li {
+    position: relative;
+    margin-bottom: 2px;
+    padding-left: 10px;
+    color: var(--body);
+    font-size: 8.1pt;
+    line-height: 1.4;
+  }
+  .project li:last-child { margin-bottom: 0; }
+  .project li::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 1px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--blue);
+  }
+  .project li b { color: var(--ink); font-weight: 700; }
 
-  .row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 1.5px; }
-  .row span:last-child { color: var(--faint); font-size: 8.1pt; white-space: nowrap; }
+  /* Demo grid — mỗi app đã tách URL public riêng */
+  .demo-note { margin: -2px 0 5px; color: var(--muted); font-size: 7.4pt; }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .demo-tile {
+    padding: 7px 9px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .demo-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .demo-tile h3 { font-size: 8.4pt; font-weight: 700; line-height: 1.2; }
+  .demo-tile p { margin-top: 2px; color: var(--body); font-size: 7.3pt; line-height: 1.34; }
+  .demo-tile.featured { grid-column: 1 / -1; }
+  .kit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px 12px;
+    margin-top: 5px;
+  }
+  .kit-item b { display: block; font-size: 7.7pt; line-height: 1.25; }
+  .kit-item p { margin-top: 1px; color: var(--muted); font-size: 7.1pt; line-height: 1.32; }
+  .demo-link {
+    display: inline-block;
+    margin-top: 3px;
+    color: var(--blue);
+    font-size: 7pt;
+    font-weight: 700;
+  }
+  .badge {
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: var(--blue-wash);
+    color: var(--blue-dark);
+    font-size: 6.6pt;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Kinh nghiệm */
+  .exp-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 8px;
+    margin-bottom: 6px;
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: #fff;
+    break-inside: avoid;
+  }
+  .exp-item:last-child { margin-bottom: 0; }
+  .exp-item b { font-size: 8.3pt; }
+  .exp-item .exp-role { color: var(--blue-dark); font-weight: 700; font-size: 7.4pt; }
+  .exp-item p { grid-column: 1 / -1; color: var(--muted); font-size: 7.5pt; line-height: 1.36; }
+  .exp-item p a { color: var(--blue); font-weight: 700; }
+
+  .platform-strip {
+    padding: 7px 10px;
+    border: 1px solid #cfe2f8;
+    border-radius: 9px;
+    background: var(--blue-wash);
+    color: #3f4a58;
+    font-size: 7.4pt;
+    line-height: 1.38;
+  }
+  .platform-strip b { color: var(--blue-dark); font-weight: 700; }
 </style>
 </head>
 <body>
 
-<!-- ══════════════ TRANG 1 — TIẾNG VIỆT ══════════════ -->
-<div class="page">
-<header>
-  <h1>Lê Gia Huy</h1>
-  <div class="role">UI/UX Designer · Frontend Developer</div>
-  <div class="contact">
-    <span>contact@hugowishpax.studio</span><span>GitHub · available on request</span><span>hugowishpax.studio</span>
-  </div>
-</header>
-
-<div class="highlights">
-  <p><b>4 sản phẩm đang chạy thật</b>, mỗi cái một tên miền riêng — mình thiết kế, lập trình giao diện và tự vận hành.</p>
-  <p><b>Đã làm với khách hàng thật</b> và trong nhóm theo quy trình Scrum, ở cả vai trò thiết kế lẫn frontend.</p>
-  <p><b>Tự vận hành production</b> — xử lý sự cố khiến hệ thống ngừng chạy, cắt 25% mức tiêu thụ hạ tầng để về trong hạn mức.</p>
-</div>
-
-<section>
-  <h2>Tóm tắt</h2>
-  <p class="summary">
-    Sinh viên Công nghệ Thông tin, Đại học Greenwich Việt Nam (dự kiến tốt nghiệp 10/2027).
-    Mình thiết kế giao diện và tự hiện thực hoá được bằng React — không dừng ở bản vẽ mà đưa
-    sản phẩm chạy thật đến tay người dùng. Đang tìm cơ hội thực tập UI/UX hoặc Frontend để
-    học quy trình làm việc trong một đội ngũ chuyên nghiệp.
-  </p>
-</section>
-
-<section>
-  <h2>Kỹ năng</h2>
-  <dl>
-    <div class="skill"><dt>Thiết kế</dt><dd>Figma · UI Design · UX Research · Design System · Responsive &amp; Mobile-first · Wireframe · Prototype</dd></div>
-    <div class="skill"><dt>Lập trình</dt><dd>React · JavaScript · HTML/CSS · Tailwind CSS · Git &nbsp;<em>— đã học qua: C#, Python, PHP, MySQL, Node.js, MongoDB, Unity</em></dd></div>
-    <div class="skill"><dt>Sản phẩm</dt><dd>Scrum / Agile · Triển khai &amp; vận hành (Vercel, Render, Cloudflare) · Lập trình cùng công cụ AI</dd></div>
-    <div class="skill"><dt>Ngoại ngữ</dt><dd>Tiếng Anh <b>VSTEP bậc 4 (B2, 2024)</b> — đọc hiểu tài liệu kỹ thuật · Tiếng Việt bản ngữ</dd></div>
-  </dl>
-</section>
-
-<section>
-  <h2>Dự án &amp; Kinh nghiệm</h2>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">HWJ — Nền tảng trang sức cao cấp</span>
-      <span class="job-date">01/2026 – 04/2026</span>
+<!-- TIẾNG VIỆT -->
+<main class="page" data-language="vi">
+  <header class="hero">
+    <div>
+      <p class="kicker">Hugo Studio · Portfolio CV 2026</p>
+      <h1>Lê Gia Huy</h1>
+      <p class="role">Product &amp; UI/UX Designer · Frontend Developer</p>
+      <div class="stats" aria-label="Điểm nổi bật">
+        <div class="stat"><b>20</b><span>ứng dụng &amp; game</span></div>
+        <div class="stat"><b>04</b><span>công cụ HugoKit</span></div>
+        <div class="stat"><b>09</b><span>ngôn ngữ giao diện</span></div>
+      </div>
     </div>
-    <div class="job-meta"><b>Frontend Developer + UI/UX</b> · Đồ án môn Web Programming · demohwj.hugowishpax.studio</div>
-    <ul>
-      <li><b>Trực tiếp lập trình toàn bộ frontend</b>, chuyển thiết kế thành sản phẩm chạy thật và phối hợp với thành viên phụ trách backend.</li>
-      <li>Xây phong cách tối giản sang trọng cho ngành vàng bạc đá quý — tối ưu hiển thị và rút gọn luồng thao tác trên di động.</li>
-    </ul>
-  </div>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">Proplay Hub — Hệ thống quản lý</span>
-      <span class="job-date">08/2025 – 12/2025</span>
+    <div class="contact">
+      <a href="mailto:contact@hugowishpax.studio"><b>Email</b> · contact@hugowishpax.studio</a>
+      <a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a>
+      <a href="https://www.hugowishpax.studio/introduction"><b>Portfolio</b> · hugowishpax.studio/introduction</a>
     </div>
-    <div class="job-meta"><b>Thiết kế UI/UX</b> · Dự án nhóm, môn Scrum &amp; Agile · app.hwagfu.dev</div>
-    <ul>
-      <li>Làm việc trọn chu kỳ <b>Scrum</b> cùng nhóm: chia sprint, họp định kỳ, bàn giao thiết kế theo từng vòng.</li>
-      <li>Thiết kế màn hình quản lý đơn hàng từ góc nhìn người vận hành nội bộ, giúp theo dõi luồng thông tin rõ ràng và hạn chế sai sót.</li>
-    </ul>
-  </div>
+  </header>
 
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">Mình Ơi Media — Dự án với khách hàng</span>
-      <span class="job-date">03/2026 – 04/2026</span>
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="side-card profile-card">
+        <h2 class="section-label">Hồ sơ</h2>
+        <p class="profile-text">
+          Mình là người nghĩ bằng sản phẩm: bắt đầu từ luồng người dùng, thiết kế giao diện, rồi đưa nó
+          chạy thật bằng React kết hợp công cụ AI — cách làm giúp mình một mình vận hành Hugo Studio,
+          portal 20 ứng dụng &amp; game với giao diện 9 ngôn ngữ. Điểm mạnh là biến ý tưởng thành thứ
+          dùng được: đặc tả yêu cầu, kiểm thử, tích hợp và tự chạy production từ tên miền đến xử lý sự cố.
+        </p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Kỹ năng</h2>
+        <div class="skill-group">
+          <h3>Product &amp; UI/UX</h3>
+          <div class="tags">
+            <span class="tag">Figma</span><span class="tag">User Flow</span><span class="tag">Wireframe</span>
+            <span class="tag">Prototype</span><span class="tag">Responsive</span><span class="tag">Design System</span>
+          </div>
+          <p class="skill-note">Rèn qua 2 dự án có khách hàng &amp; nhóm thật: từ khảo sát yêu cầu đến bàn giao cho dev.</p>
+        </div>
+        <div class="skill-group">
+          <h3>Frontend</h3>
+          <div class="tags">
+            <span class="tag">React</span><span class="tag">JavaScript</span><span class="tag">HTML/CSS</span>
+            <span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span><span class="tag">Git</span>
+          </div>
+          <p class="skill-note">Học tại Greenwich (Web Programming) và dùng trực tiếp trong đồ án HWJ, Hugo Studio.</p>
+        </div>
+        <div class="skill-group">
+          <h3>AI-assisted development &amp; vận hành</h3>
+          <div class="tags">
+            <span class="tag">Đặc tả &amp; review code</span><span class="tag">Testing</span><span class="tag">Deployment</span>
+            <span class="tag">Log analysis</span><span class="tag">Scrum / Agile</span>
+          </div>
+          <p class="skill-note">Cách làm chính ở Hugo Studio: mình đặc tả và review, AI viết phần lớn code, mình kiểm thử, tích hợp và triển khai.</p>
+        </div>
+        <p class="foundation">Nền tảng từ trường: C#, Python, PHP, MySQL, Node.js, MongoDB — đủ để đọc hiểu và tích hợp backend. Triển khai trên Vercel, Render, Cloudflare.</p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Ngôn ngữ</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Tiếng Anh</b><span class="level">VSTEP B2</span></div>
+          <p>Bậc 4, 2024 · đọc hiểu tài liệu kỹ thuật.</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>Tiếng Trung</b><span class="level">Sơ cấp</span></div>
+          <p>Năng lực tương đương HSK 2 · chưa có chứng chỉ.</p>
+        </div>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Học vấn &amp; hoạt động</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2022–2027</span></div>
+          <p>Công nghệ Thông tin · chương trình liên kết University of Greenwich (UK) và Đại học FPT.</p>
+        </div>
+        <div class="fact">
+          <b>Huynh trưởng – Giáo lý viên cấp 2</b>
+          <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông và quản lý nhóm.</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <section class="main-section">
+        <h2 class="section-label">Dự án tiêu biểu</h2>
+        <article class="project">
+          <div class="project-top">
+            <h3>Hugo Studio — Hệ sinh thái công cụ số cho sinh viên</h3>
+            <span class="date">04/2026 – nay</span>
+          </div>
+          <p class="project-meta">Product owner · UI/UX · Tích hợp frontend · Vận hành · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p>
+          <ul>
+            <li>Thiết kế và vận hành portal PWA/native với <b>20 ứng dụng &amp; game</b>, 9 ngôn ngữ, định danh thành viên, Hugo Store, ví JOY và thông báo realtime.</li>
+            <li>Phát triển <b>Bio Studio</b>: thành viên tự tạo trang cá nhân tại <b>/bio/{slug}</b>, chọn 3 theme, live preview trước khi xuất bản, SEO động.</li>
+            <li>Xây <b>HugoKit</b> (xử lý ZIP, nén ảnh/video bằng Sharp/FFmpeg) với xác thực server, giới hạn an toàn và tự dọn file tạm.</li>
+            <li>Tự vận hành production: tên miền, triển khai đa nền tảng, đọc log xử lý sự cố và tách kiến trúc theo hạn mức từng nhà cung cấp.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="main-section">
+        <h2 class="section-label">Demo trực tuyến</h2>
+        <p class="demo-note">Chạy trực tiếp trên trình duyệt, không cần cài đặt — HugoKit chỉ cần đăng nhập Google; Radio và Aura dùng ngay.</p>
+        <div class="demo-grid" aria-label="Các ứng dụng demo">
+          <article class="demo-tile featured">
+            <div class="demo-top"><h3>HugoKit — Bộ công cụ xử lý file trên web</h3><span class="badge">Đăng nhập Google · tối đa 50 MB</span></div>
+            <div class="kit-grid">
+              <div class="kit-item">
+                <b>ZIP workspace — giải nén online</b>
+                <p>Đọc nội dung ZIP, xem cây thư mục và giải nén/tải từng tệp ngay trên web.</p>
+              </div>
+              <div class="kit-item">
+                <b>Nén ảnh &amp; video</b>
+                <p>JPG, PNG, WebP và video ở 3 mức chất lượng bằng Sharp/FFmpeg.</p>
+              </div>
+              <div class="kit-item">
+                <b>Tạo mã QR</b>
+                <p>QR cho URL, vCard, Wi-Fi và văn bản; tải về dạng PNG.</p>
+              </div>
+              <div class="kit-item">
+                <b>Chữ ký email &amp; link bảo mật</b>
+                <p>Chữ ký Rich Text/HTML cho Gmail, Outlook; link chia sẻ có mật khẩu, đếm lượt truy cập.</p>
+              </div>
+            </div>
+            <a class="demo-link" href="https://www.hugowishpax.studio/member/utilities/handle">hugowishpax.studio/member/utilities/handle</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Nghe thử ngay</span></div>
+            <p>Đài lofi &amp; tin tức cho học tập; đăng nhập để lưu đài và đồng bộ thời lượng.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/radio">hugowishpax.studio/radio</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>HugoAura</h3><span class="badge">Miễn phí</span></div>
+            <p>Pomodoro kết hợp nhạc lofi; lưu nhịp tập trung và đồng bộ thiết bị khi đăng nhập.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/aura">hugowishpax.studio/aura</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="main-section">
+        <h2 class="section-label">Kinh nghiệm dự án khác</h2>
+        <div class="exp-item">
+          <b>Mình Ơi Media — Website studio chụp ảnh (khách hàng thật)</b>
+          <span class="date">03–04/2026</span>
+          <span class="exp-role">Thiết kế UI/UX</span>
+          <p>Làm việc trực tiếp với khách hàng; bố cục portfolio và luồng đặt lịch · <a href="https://minhoimedia.digital">minhoimedia.digital</a></p>
+        </div>
+        <div class="exp-item">
+          <b>HWJ — Nền tảng trang sức cao cấp (đồ án nhóm)</b>
+          <span class="date">01–04/2026</span>
+          <span class="exp-role">Frontend Developer · UI/UX</span>
+          <p>Trực tiếp lập trình frontend responsive, phối hợp thành viên backend · <a href="https://demohwj.hugowishpax.studio">demohwj.hugowishpax.studio</a></p>
+        </div>
+      </section>
+
+      <div class="platform-strip">
+        <b>Nền tảng:</b> React · PWA/Capacitor · Express/MongoDB · WebSocket · Python AI · Vercel/Render/Cloudflare
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ENGLISH -->
+<main class="page" data-language="en" lang="en">
+  <header class="hero">
+    <div>
+      <p class="kicker">Hugo Studio · Portfolio CV 2026</p>
+      <h1>Le Gia Huy</h1>
+      <p class="role">Product &amp; UI/UX Designer · Frontend Developer</p>
+      <div class="stats" aria-label="Highlights">
+        <div class="stat"><b>20</b><span>apps &amp; games</span></div>
+        <div class="stat"><b>04</b><span>HugoKit tools</span></div>
+        <div class="stat"><b>09</b><span>interface languages</span></div>
+      </div>
     </div>
-    <div class="job-meta"><b>Thiết kế UI/UX</b> · minhoimedia.digital</div>
-    <ul>
-      <li>Làm việc trực tiếp với khách hàng để chốt yêu cầu, rồi định hình toàn bộ giao diện website theo nhận diện của studio.</li>
-      <li>Thiết kế luồng xem portfolio và đặt lịch từ góc nhìn người đi tìm dịch vụ chụp ảnh; bàn giao đầy đủ cho đội lập trình triển khai.</li>
-    </ul>
-  </div>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">Hugo Studio — Sản phẩm cá nhân</span>
-      <span class="job-date">04/2026 – nay</span>
+    <div class="contact">
+      <a href="mailto:contact@hugowishpax.studio"><b>Email</b> · contact@hugowishpax.studio</a>
+      <a href="https://github.com/Hugo-huy2004"><b>GitHub</b> · github.com/Hugo-huy2004</a>
+      <a href="https://www.hugowishpax.studio/introduction"><b>Portfolio</b> · hugowishpax.studio/introduction</a>
     </div>
-    <div class="job-meta"><b>Chủ sản phẩm · UI/UX · Vận hành</b> · hugowishpax.studio</div>
-    <ul>
-      <li>Tự định hình và thiết kế một nền tảng tiện ích miễn phí cho sinh viên — PWA, có app native, chạy trên tên miền riêng.</li>
-      <li>Thiết kế luồng xác thực email .edu, <b>rút quy trình đăng ký xuống còn vài giây</b>.</li>
-      <li><b>Tự vận hành production</b>: quản lý tên miền, triển khai, đọc log truy nguyên sự cố. Khi hệ thống bị nhà cung cấp ngắt do vượt hạn mức, đã tách kiến trúc theo cách tính phí của từng nền tảng và <b>cắt 25% mức tiêu thụ</b>.</li>
-      <li>Dùng công cụ AI làm đòn bẩy lập trình — mình phụ trách đặc tả yêu cầu, kiểm thử, tích hợp và triển khai. Nhờ vậy một mình vẫn đưa được sản phẩm ra production.</li>
-    </ul>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="side-card profile-card">
+        <h2 class="section-label">Profile</h2>
+        <p class="profile-text">
+          I think in products: I start from the user flow, design the interface, then ship it for real with
+          React and AI pair-programming — the workflow that lets me run Hugo Studio, a 20-app portal in
+          9 languages, on my own. My strength is turning ideas into things people can use: specifying
+          requirements, testing, integrating, and running production from domains to incident debugging.
+        </p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Skills</h2>
+        <div class="skill-group">
+          <h3>Product &amp; UI/UX</h3>
+          <div class="tags">
+            <span class="tag">Figma</span><span class="tag">User Flows</span><span class="tag">Wireframing</span>
+            <span class="tag">Prototyping</span><span class="tag">Responsive</span><span class="tag">Design Systems</span>
+          </div>
+          <p class="skill-note">Sharpened on 2 real client &amp; team projects — from requirements gathering to developer hand-off.</p>
+        </div>
+        <div class="skill-group">
+          <h3>Frontend</h3>
+          <div class="tags">
+            <span class="tag">React</span><span class="tag">JavaScript</span><span class="tag">HTML/CSS</span>
+            <span class="tag">Tailwind CSS</span><span class="tag">PWA</span><span class="tag">Capacitor</span><span class="tag">Git</span>
+          </div>
+          <p class="skill-note">Learned at Greenwich (Web Programming) and used hands-on in the HWJ coursework and Hugo Studio.</p>
+        </div>
+        <div class="skill-group">
+          <h3>AI-assisted development &amp; operations</h3>
+          <div class="tags">
+            <span class="tag">Spec &amp; code review</span><span class="tag">Testing</span><span class="tag">Deployment</span>
+            <span class="tag">Log analysis</span><span class="tag">Scrum / Agile</span>
+          </div>
+          <p class="skill-note">My core workflow on Hugo Studio: I spec and review, AI writes most of the code, I test, integrate, and deploy.</p>
+        </div>
+        <p class="foundation">University foundation: C#, Python, PHP, MySQL, Node.js, MongoDB — enough to read and integrate backend code. Deployed on Vercel, Render, and Cloudflare.</p>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Languages</h2>
+        <div class="fact">
+          <div class="fact-top"><b>English</b><span class="level">VSTEP B2</span></div>
+          <p>Level 4, 2024 · able to read technical documentation.</p>
+        </div>
+        <div class="fact">
+          <div class="fact-top"><b>Mandarin Chinese</b><span class="level">Elementary</span></div>
+          <p>Approximately HSK 2 level · not certified.</p>
+        </div>
+      </section>
+
+      <section class="side-card">
+        <h2 class="section-label">Education &amp; leadership</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2022–2027</span></div>
+          <p>Information Technology · programme delivered with the University of Greenwich (UK) and FPT University.</p>
+        </div>
+        <div class="fact">
+          <b>Volunteer Youth Group Leader &amp; Instructor, Level 2</b>
+          <p>Led children's activities, spoke to groups, and coordinated teams.</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="main">
+      <section class="main-section">
+        <h2 class="section-label">Flagship project</h2>
+        <article class="project">
+          <div class="project-top">
+            <h3>Hugo Studio — Digital toolkit ecosystem for students</h3>
+            <span class="date">04/2026 – present</span>
+          </div>
+          <p class="project-meta">Product owner · UI/UX · Frontend integration · Operations · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p>
+          <ul>
+            <li>Designed and operated a PWA/native portal with <b>20 apps &amp; games</b>, 9 languages, member identity, Hugo Store, JOY wallet, and realtime notifications.</li>
+            <li>Developed <b>Bio Studio</b>: members publish personal pages at <b>/bio/{slug}</b> with 3 themes, live preview before publishing, and dynamic SEO.</li>
+            <li>Built <b>HugoKit</b> (ZIP workspace, image/video compression via Sharp/FFmpeg) with server-side authentication, safety limits, and temp-file cleanup.</li>
+            <li>Run production end to end: domains, multi-platform deploys, log-driven incident debugging, and re-architecting around each provider's billing limits.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="main-section">
+        <h2 class="section-label">Live demos</h2>
+        <p class="demo-note">Runs right in the browser, nothing to install — HugoKit just needs a Google sign-in; Radio and Aura work instantly.</p>
+        <div class="demo-grid" aria-label="Demo apps">
+          <article class="demo-tile featured">
+            <div class="demo-top"><h3>HugoKit — Web-based file toolkit</h3><span class="badge">Google sign-in · up to 50 MB</span></div>
+            <div class="kit-grid">
+              <div class="kit-item">
+                <b>ZIP workspace — online extraction</b>
+                <p>Inspect ZIP contents, browse the file tree, and extract/download individual entries on the web.</p>
+              </div>
+              <div class="kit-item">
+                <b>Image &amp; video compression</b>
+                <p>JPG, PNG, WebP, and video at 3 quality levels via Sharp/FFmpeg.</p>
+              </div>
+              <div class="kit-item">
+                <b>QR code generator</b>
+                <p>QR codes for URLs, vCards, Wi-Fi, and text; downloadable as PNG.</p>
+              </div>
+              <div class="kit-item">
+                <b>Email signatures &amp; secure links</b>
+                <p>Rich Text/HTML signatures for Gmail and Outlook; password-protected share links with visit tracking.</p>
+              </div>
+            </div>
+            <a class="demo-link" href="https://www.hugowishpax.studio/member/utilities/handle">hugowishpax.studio/member/utilities/handle</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Listen free</span></div>
+            <p>Lofi &amp; news stations for studying; sign in to save stations and sync listening time.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/radio">hugowishpax.studio/radio</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>HugoAura</h3><span class="badge">Free</span></div>
+            <p>Pomodoro timer with lofi music; save focus streaks and sync devices when signed in.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/aura">hugowishpax.studio/aura</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="main-section">
+        <h2 class="section-label">Other project experience</h2>
+        <div class="exp-item">
+          <b>Minh Oi Media — Photo studio website (real client)</b>
+          <span class="date">Mar–Apr 2026</span>
+          <span class="exp-role">UI/UX Design</span>
+          <p>Worked directly with the client; portfolio layout and booking flow · <a href="https://minhoimedia.digital">minhoimedia.digital</a></p>
+        </div>
+        <div class="exp-item">
+          <b>HWJ — Fine jewellery platform (team coursework)</b>
+          <span class="date">Jan–Apr 2026</span>
+          <span class="exp-role">Frontend Developer · UI/UX</span>
+          <p>Built the responsive frontend, coordinating with the backend teammate · <a href="https://demohwj.hugowishpax.studio">demohwj.hugowishpax.studio</a></p>
+        </div>
+      </section>
+
+      <div class="platform-strip">
+        <b>Platform:</b> React · PWA/Capacitor · Express/MongoDB · WebSocket · Python AI · Vercel/Render/Cloudflare
+      </div>
+    </section>
   </div>
-</section>
+</main>
 
-<section>
-  <h2>Học vấn &amp; Hoạt động</h2>
-  <div class="row"><span><b>Đại học Greenwich Việt Nam</b> — Công nghệ Thông tin</span><span>08/2022 – dự kiến TN 10/2027</span></div>
-  <div class="row"><span><b>THPT Nguyễn Đình Chiểu</b>, Mỹ Tho</span><span>tốt nghiệp 06/2022</span></div>
-  <ul style="margin-top:4px">
-    <li><b>Huynh trưởng – Giáo lý viên cấp 2</b> (đã hoàn tất chương trình huấn luyện) — hướng dẫn và tổ chức hoạt động cho nhóm thiếu nhi; rèn kỹ năng nói trước đám đông, quản lý nhóm và giữ cam kết dài hạn.</li>
-  </ul>
-</section>
-</div>
-
-<!-- ══════════════ TRANG 2 — ENGLISH ══════════════ -->
-<div class="page" lang="en">
-<header>
-  <h1>Le Gia Huy</h1>
-  <div class="role">UI/UX Designer · Frontend Developer</div>
-  <div class="contact">
-    <span>contact@hugowishpax.studio</span><span>GitHub · available on request</span><span>hugowishpax.studio</span>
-  </div>
-</header>
-
-<div class="highlights">
-  <p><b>4 products live in production</b>, each on its own domain — I designed them, built the frontend, and run them myself.</p>
-  <p><b>Worked with real clients</b> and inside a Scrum team, in both design and frontend roles.</p>
-  <p><b>Operate production systems</b> — resolved an outage caused by exceeding provider quotas and cut infrastructure usage by 25%.</p>
-</div>
-
-<section>
-  <h2>Summary</h2>
-  <p class="summary">
-    Information Technology student at Greenwich University Vietnam (expected graduation 10/2027).
-    I design interfaces and build them myself in React — I don't stop at mockups, I ship products
-    people actually use. Looking for a UI/UX or Frontend internship to learn how a professional
-    team works.
-  </p>
-</section>
-
-<section>
-  <h2>Skills</h2>
-  <dl>
-    <div class="skill"><dt>Design</dt><dd>Figma · UI Design · UX Research · Design Systems · Responsive &amp; Mobile-first · Wireframing · Prototyping</dd></div>
-    <div class="skill"><dt>Engineering</dt><dd>React · JavaScript · HTML/CSS · Tailwind CSS · Git &nbsp;<em>— coursework: C#, Python, PHP, MySQL, Node.js, MongoDB, Unity</em></dd></div>
-    <div class="skill"><dt>Product</dt><dd>Scrum / Agile · Deployment &amp; operations (Vercel, Render, Cloudflare) · AI-assisted development</dd></div>
-    <div class="skill"><dt>Languages</dt><dd>English <b>VSTEP Level 4 (B2, 2024)</b> — reads technical documentation · Vietnamese (native)</dd></div>
-  </dl>
-</section>
-
-<section>
-  <h2>Projects &amp; Experience</h2>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">HWJ — Fine Jewellery Platform</span>
-      <span class="job-date">01/2026 – 04/2026</span>
-    </div>
-    <div class="job-meta"><b>Frontend Developer + UI/UX</b> · Web Programming capstone · demohwj.hugowishpax.studio</div>
-    <ul>
-      <li><b>Built the entire frontend</b>, turning designs into a working product while coordinating with the backend teammate.</li>
-      <li>Defined a refined minimalist style for the jewellery category; optimised rendering and shortened key flows on mobile.</li>
-    </ul>
-  </div>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">Proplay Hub — Management System</span>
-      <span class="job-date">08/2025 – 12/2025</span>
-    </div>
-    <div class="job-meta"><b>UI/UX Design</b> · Team project, Scrum &amp; Agile course · app.hwagfu.dev</div>
-    <ul>
-      <li>Ran a full <b>Scrum</b> cycle with the team: sprint planning, standups, and design handoff each iteration.</li>
-      <li>Designed the order-management screens from the internal operator's perspective, making information flow clear and reducing mistakes.</li>
-    </ul>
-  </div>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">Minh Oi Media — Client Project</span>
-      <span class="job-date">03/2026 – 04/2026</span>
-    </div>
-    <div class="job-meta"><b>UI/UX Design</b> · minhoimedia.digital</div>
-    <ul>
-      <li>Worked directly with the client to lock down requirements, then shaped the full website interface around the studio's identity.</li>
-      <li>Designed the portfolio-browsing and booking flow from the perspective of someone shopping for a photographer; handed off complete specs to the dev team.</li>
-    </ul>
-  </div>
-
-  <div class="job">
-    <div class="job-top">
-      <span class="job-title">Hugo Studio — Personal Product</span>
-      <span class="job-date">04/2026 – present</span>
-    </div>
-    <div class="job-meta"><b>Product Owner · UI/UX · Operations</b> · hugowishpax.studio</div>
-    <ul>
-      <li>Conceived and designed a free utility platform for students — a PWA with a native app, running on its own domain.</li>
-      <li>Designed .edu email verification that <b>cut signup down to a few seconds</b>.</li>
-      <li><b>Run it in production</b>: domain management, deployments, reading logs to trace incidents. When the provider suspended the service for exceeding quota, I split the architecture along each platform's billing model and <b>cut usage by 25%</b>.</li>
-      <li>Use AI tooling as engineering leverage — I own the requirements, testing, integration and deployment. That is how one person ships a product this size.</li>
-    </ul>
-  </div>
-</section>
-
-<section>
-  <h2>Education &amp; Activities</h2>
-  <div class="row"><span><b>Greenwich University Vietnam</b> — Information Technology</span><span>08/2022 – expected 10/2027</span></div>
-  <div class="row"><span><b>Nguyen Dinh Chieu High School</b>, My Tho</span><span>graduated 06/2022</span></div>
-  <ul style="margin-top:4px">
-    <li><b>Youth Group Leader &amp; Instructor, Level 2</b> (certified training programme) — led and organised activities for groups of children; built public speaking, group management and long-term commitment.</li>
-  </ul>
-</section>
-</div>
-
+<script>
+  const requestedLanguage = new URLSearchParams(window.location.search).get("lang");
+  if (requestedLanguage === "vi" || requestedLanguage === "en") {
+    document.querySelectorAll(".page").forEach((page) => {
+      if (page.dataset.language !== requestedLanguage) page.remove();
+    });
+    document.documentElement.lang = requestedLanguage;
+    document.title = requestedLanguage === "vi" ? "CV — Lê Gia Huy" : "CV — Le Gia Huy";
+  }
+</script>
 </body>
 </html>

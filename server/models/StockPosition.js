@@ -16,6 +16,9 @@ const StockPositionSchema = new mongoose.Schema(
     // Lãi/lỗ ĐÃ CHỐT (chỉ ghi nhận khi bán) và cổ tức đã nhận.
     realizedPL: { type: Number, default: 0 },
     dividendReceived: { type: Number, default: 0 },
+    // Phiên gần nhất đã nhắc "vượt mốc hoà vốn" — mỗi vị thế một lần mỗi phiên,
+    // để cron 5 phút không dội cùng một thông báo suốt buổi.
+    notifiedSession: { type: String, default: '' },
   },
   { timestamps: true }
 );

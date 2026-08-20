@@ -2537,6 +2537,8 @@
       "convMyDenom": "Votre unité JOY",
       "convLocked": "Vous avez choisi cette unité lors de votre première connexion et elle reste fixe. Changer la langue de l'interface ne la modifie pas.",
       "convAmountIn": "Montant ({{code}})",
+      "convTarget": "Convertir vers",
+      "convTransferSimulation": "En cas d'envoi : le destinataire reçoit {{amount}}. Les frais de conversion de {{percent}} % sont de {{fee}} ; débit total : {{total}}.",
       "convUseBalance": "Utiliser tout le solde · {{amount}}",
       "convTableTitle": "Le même montant dans chaque unité",
       "convFeeNote": "envoyer coûte {{percent}}% de plus",
@@ -2550,7 +2552,7 @@
       "denomSaving": "Enregistrement…",
       "denomSaved": "Unité JOY définie pour votre compte.",
       "marketTitle": "Marché du jour",
-      "marketWhy": "Les taux évoluent chaque jour selon deux données : les gains quotidiens moyens de la communauté ({{income}} par personne) et le cours international de l'or ({{gold}} USD/oz).",
+      "marketWhy": "Les taux sont actualisés chaque heure à partir de trois signaux internes : JOY moyen gagné ({{income}} par personne/jour), frais et remboursements JOYlater, et flux net de JOY.",
       "marketPricesFixed": "Les prix de l'app NE bougent PAS avec le taux : le taux change seulement l'écriture des nombres.",
       "sub_convert": "Taux",
       "range24h": "24 h",
@@ -6480,7 +6482,7 @@
       "losing": "PERDANT",
       "profitable": "RENTABLE",
       "totalPnl": "Bénéfice/Perte Net Total (PnL)",
-      "dividendsReceived": "Dividendes reçus jusqu'à présent :",
+      "dividendsReceived": "Dividendes reçus",
       "breakevenNote": "Seuil de rentabilité : des frais de courtage de 0,5 % sont facturés des deux côtés, le prix doit donc augmenter de 1,01 % pour atteindre le seuil de rentabilité – vendre plus tôt est une perte.",
       "investedCapital": "Capital investi",
       "stockList": "Liste boursière",
@@ -6567,7 +6569,8 @@
       "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục. Sang tab Bảng giá chọn một mã để bắt đầu.",
       "advisorGuide": "Hướng dẫn",
       "advisorMarketTitle": "San Ảo Hugo",
-      "advisorAuto": "Tự động"
+      "advisorAuto": "Tự động",
+      "feesPaid": "Frais totaux payés"
     },
     "companies": {
       "HFILM": {

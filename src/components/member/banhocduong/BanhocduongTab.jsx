@@ -442,7 +442,7 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
 }
 
 // ── Main BanhocduongTab ────────────────────────────────────────────────────────
-export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp, onSubTabChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect }) {
+export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp, onSubTabChange, defaultPresetTest = null, bio, showToast, setFormData, handleSave, sleepAutoDetect, isGuestMode = false, requireAccount }) {
   const { t } = useTranslation();
   useCompanionSessionTimer({ email: bio?.email, enabled: !!bio?.email });
 
@@ -800,6 +800,8 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
                     showToast={showToast}
                     healingActive={healingActive}
                     onClaimChallenge={handleClaimChallenge}
+                    isGuestMode={isGuestMode}
+                    requireAccount={requireAccount}
                     onProfileUpdate={(newFields) => {
                       if (setFormData && handleSave) {
                         setFormData(prev => {

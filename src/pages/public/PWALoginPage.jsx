@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loginMember, loginMemberWithGoogle, isMemberAuthenticated } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { IS_NATIVE } from "../../config/platform";
+import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
+import { getSafeMemberRedirect } from "../../utils/safeRedirect";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -40,6 +42,9 @@ export default function PWALoginPage() {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const memberRedirectRef = useRef(getSafeMemberRedirect(location.search));
+  memberRedirectRef.current = getSafeMemberRedirect(location.search);
   const googleButtonRef = useRef(null);
   const initedRef = useRef(false);
   const [gisReady, setGisReady] = useState(false);
@@ -60,7 +65,7 @@ export default function PWALoginPage() {
 
   // Already signed in? Skip the login screen entirely.
   useEffect(() => {
-    if (isMemberAuthenticated()) navigate("/member", { replace: true });
+    if (isMemberAuthenticated()) navigate(memberRedirectRef.current, { replace: true });
   }, [navigate]);
 
   const showToast = (message, type = "error") => setToast({ message, type });
@@ -99,7 +104,7 @@ export default function PWALoginPage() {
         showToast("Tài khoản nên dùng email .edu để mở khóa đầy đủ quyền lợi sinh viên.", "warning");
       }
       localStorage.setItem(LAST_EMAIL_KEY, session.email);
-      navigate("/member");
+      navigate(memberRedirectRef.current, { replace: true });
     } catch {
       showToast("Đăng nhập Google thất bại. Thử lại nhé.", "error");
     }
@@ -158,7 +163,7 @@ export default function PWALoginPage() {
       const member = await webauthnHelper.loginWithBiometric(biometricEmail);
       loginMember(member);
       localStorage.setItem(LAST_EMAIL_KEY, biometricEmail);
-      navigate("/member");
+      navigate(memberRedirectRef.current, { replace: true });
     } catch (err) {
       if (err?.code === "NO_CREDENTIALS") {
         showToast("Thiết bị này chưa bật đăng nhập vân tay cho email đó.", "warning");
@@ -179,10 +184,11 @@ export default function PWALoginPage() {
     let timer = null;
     let timeout = null;
     let kick = null;
+    let rendered = false;
 
-    const tryInit = () => {
-      if (cancelled) return;
-      const googleId = window.google?.accounts?.id;
+    const tryInit = (loadedGoogleId) => {
+      if (cancelled || rendered) return;
+      const googleId = loadedGoogleId || window.google?.accounts?.id;
       if (!googleId || !googleButtonRef.current) return;
 
       if (!initedRef.current) {
@@ -212,6 +218,7 @@ export default function PWALoginPage() {
         if (timer) window.clearInterval(timer);
         return;
       }
+      rendered = true;
       setGisReady(true);
 
       if (introFinished) googleId.prompt();
@@ -224,6 +231,11 @@ export default function PWALoginPage() {
     // updates never trigger a cascading render.
     kick = window.setTimeout(tryInit, 0);
     timer = window.setInterval(tryInit, 250);
+    loadGoogleIdentity().then(tryInit).catch(() => {
+      if (!cancelled) {
+        setConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}.`);
+      }
+    });
     timeout = window.setTimeout(() => {
       if (!cancelled && !initedRef.current) {
         setConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}.`);
@@ -236,6 +248,7 @@ export default function PWALoginPage() {
       window.clearTimeout(kick);
       window.clearInterval(timer);
       window.clearTimeout(timeout);
+      window.google?.accounts?.id?.cancel?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [introFinished]); // Re-run when intro finishes to trigger prompt

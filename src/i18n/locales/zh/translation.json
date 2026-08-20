@@ -2537,6 +2537,8 @@
       "convMyDenom": "你的 JOY 单位",
       "convLocked": "这个单位是你首次登录时选定的，此后固定不变。更换界面语言不会改变它。",
       "convAmountIn": "金额（{{code}}）",
+      "convTarget": "换算为",
+      "convTransferSimulation": "如发送：收款人得到 {{amount}}。{{percent}}% 换算费为 {{fee}}；总扣款为 {{total}}。",
       "convUseBalance": "使用全部余额 · {{amount}}",
       "convTableTitle": "同一金额在各单位下的写法",
       "convFeeNote": "跨单位转账另加 {{percent}}%",
@@ -2550,7 +2552,7 @@
       "denomSaving": "正在保存…",
       "denomSaved": "已为你的账户设定 JOY 单位。",
       "marketTitle": "今日行情",
-      "marketWhy": "汇率每日依两项数据变动：社区人均日收入（{{income}}）与国际金价（{{gold}} 美元/盎司）。",
+      "marketWhy": "汇率每小时按三项内部信号更新：人均每日 JOY 收入（{{income}}）、费用与 JOYlater 偿还，以及 JOY 净流入流出。",
       "marketPricesFixed": "应用内的价格不随汇率变动，汇率只改变数字的写法。",
       "sub_convert": "汇率",
       "range24h": "24小时",
@@ -6482,7 +6484,7 @@
       "losing": "失败",
       "stockList": "股票市场名单",
       "holdingPortfolio": "持有投资组合",
-      "dividendsReceived": "截至目前已收到的股息：",
+      "dividendsReceived": "已收股息",
       "realizedProfit": "已实现利润",
       "breakevenNote": "盈亏平衡点：双方各收取0.5%的经纪费，因此价格必须上涨1.01%才能达到盈亏平衡——早卖就是亏损。",
       "invest.ui.buy": "买",
@@ -6565,7 +6567,8 @@
       "advisorAuto": "东同",
       "advisorGuide": "香丹",
       "advisorMarketTitle": "雨果",
-      "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục。 Sang tab Bảng giá chọn một mã để bắt đầu。"
+      "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục。 Sang tab Bảng giá chọn một mã để bắt đầu。",
+      "feesPaid": "已付总费用"
     },
     "companies": {
       "HFILM": {

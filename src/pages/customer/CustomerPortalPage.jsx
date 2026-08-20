@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CustomerProfileTab from '../../components/customer/CustomerProfileTab';
 import CustomerServiceTab from '../../components/customer/CustomerServiceTab';
 import CustomerRequestsTab from '../../components/customer/CustomerRequestsTab';
+import { API_BASE } from '../../config/apiBase';
 
 export default function CustomerPortalPage() {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ export default function CustomerPortalPage() {
     if (project && project._id) {
       const fetchUnreadCount = async () => {
         try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages/unread-count`, {
+          const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages/unread-count`, {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include'
           });

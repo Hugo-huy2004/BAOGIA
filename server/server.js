@@ -120,7 +120,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+      // API không serve trang HTML nào cần chạy script inline — đừng mở cửa đó.
+      scriptSrc: ["'self'", "https://accounts.google.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
       // CDN ảnh của các toà soạn trong PUBLISHER_FEEDS (studentNewsService).
       // Allowlist đúng domain thay vì mở "https:" — và ảnh tải trực tiếp từ CDN

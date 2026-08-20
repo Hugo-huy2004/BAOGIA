@@ -272,9 +272,14 @@ export function nextPrice({ price, basePrice, volatility, activity, average, mar
   };
 }
 
-/** Giá vốn bình quân sau khi mua thêm — bình quân gia quyền, như sàn thật. */
-export function applyBuy(position, quantity, price) {
-  const totalCost = position.avgCost * position.quantity + price * quantity;
+/**
+ * Giá vốn bình quân sau khi mua thêm — bình quân gia quyền, TÍNH CẢ PHÍ MUA.
+ * Phí mua mà đứng ngoài giá vốn thì lãi/lỗ chốt bỏ sót nó: mua rồi bán ngay
+ * cùng giá, ví mất hai lần phí nhưng hoá đơn chỉ báo lỗ một — đúng khoản
+ * applySell thề là "đã trừ TOÀN BỘ phí".
+ */
+export function applyBuy(position, quantity, price, fee = 0) {
+  const totalCost = position.avgCost * position.quantity + price * quantity + fee;
   const totalQty = position.quantity + quantity;
   return {
     quantity: totalQty,

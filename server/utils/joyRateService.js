@@ -302,7 +302,6 @@ export async function computeRates({ force = false } = {}) {
   const doc = {
     key,
     at: tickStart(key),
-    date: tickStart(key),
     factors,
     signals,
     income: { overall: income.overall, byDenom: income.byDenom, members: income.members },

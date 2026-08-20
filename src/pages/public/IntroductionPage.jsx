@@ -77,7 +77,7 @@ const LEARNED_TECH = [
    SECTION 1 — HERO (mascot chuyển động dựng hoàn toàn bằng code)
    ------------------------------------------------------------------------- */
 
-function HeroSection({ t }) {
+function HeroSection({ t, cvHref }) {
   const sectionRef = useRef(null);
   const scrollRootRef = useRef(typeof document === "undefined" ? null : document.getElementById("root"));
   const reduceMotion = useReducedMotion();
@@ -134,7 +134,7 @@ function HeroSection({ t }) {
                     <ArrowRight size={15} />
                   </a>
                   <a
-                    href="/cv-le-gia-huy.pdf"
+                    href={cvHref}
                     download
                     className="ios-secondary-button inline-flex items-center gap-2"
                   >
@@ -646,8 +646,12 @@ function SupporterMarquee({ t }) {
    ------------------------------------------------------------------------- */
 
 export default function IntroductionPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useCineScrollSnap();
+
+  const cvHref = i18n.resolvedLanguage?.startsWith("vi")
+    ? "/cv-le-gia-huy.pdf"
+    : "/cv-le-gia-huy-en.pdf";
 
   useHeadMeta({
     title: t("intro.cine.meta.title"),
@@ -663,7 +667,7 @@ export default function IntroductionPage() {
       <style>{CINE_CSS}</style>
       <AmbientAuraParticles />
       <ScrollProgressBar />
-      <HeroSection t={t} />
+      <HeroSection t={t} cvHref={cvHref} />
       <StatsStrip t={t} />
       <AboutSection t={t} jasonPhoto={jasonPhoto} />
       <TechMarquee t={t} />
@@ -672,4 +676,3 @@ export default function IntroductionPage() {
     </div>
   );
 }
-

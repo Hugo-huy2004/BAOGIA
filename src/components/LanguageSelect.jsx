@@ -34,7 +34,7 @@ export default function LanguageSelect({ compact = false, className = "", onChan
         disabled={changing}
         aria-label={t("navbar.chooseLanguage")}
         className={compact
-          ? "h-8 min-w-[3.25rem] cursor-pointer appearance-none rounded-full bg-muted/75 px-2 text-center text-[10px] font-bold uppercase text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary"
+          ? "h-11 min-w-11 cursor-pointer appearance-none rounded-full bg-muted/75 px-2 text-center text-[10px] font-bold uppercase text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary"
           : "min-h-11 w-full cursor-pointer appearance-none rounded-[1rem] border border-border/60 bg-card/75 py-2 pl-10 pr-8 text-xs font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
         }
       >

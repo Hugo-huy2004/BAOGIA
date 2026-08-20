@@ -59,6 +59,31 @@ export default function JoyConverter({ balance = 0, denom }) {
         <button type="button" className="wal-conv__fill" onClick={() => setInput(String(toDenom(balance, myDenom).amount))}>
           {t("memberPortal.walletApp.convUseBalance", { amount: formatDenom(balance, myDenom, locale) })}
         </button>
+
+        <label className="wal-conv__target">
+          <small>{t("memberPortal.walletApp.convTarget")}</small>
+          <select value={targetKey} onChange={(event) => setTargetKey(event.target.value)}>
+            {DENOM_OPTIONS.filter((option) => option.code !== mine.code).map((option) => (
+              <option key={option.code} value={option.key}>{option.code} · {option.name}</option>
+            ))}
+          </select>
+        </label>
+
+        <p className="wal-conv__eq">
+          <strong>{formatDenom(joy, targetKey, locale)}</strong>
+          <small>{crossRateText}</small>
+        </p>
+
+        {breakdown.crossDenom && joy > 0 && (
+          <p className="wal-conv__simulation">
+            {t("memberPortal.walletApp.convTransferSimulation", {
+              amount: formatDenom(joy, targetKey, locale),
+              fee: formatDenom(breakdown.conversionFee, myDenom, locale),
+              total: formatDenom(breakdown.totalDeducted, myDenom, locale),
+              percent: Math.round(CROSS_DENOM_FEE * 100),
+            })}
+          </p>
+        )}
       </section>
 
       {/* Đường tỷ giá của chính đơn vị người dùng đang dùng — thứ đầu tiên họ
@@ -67,13 +92,12 @@ export default function JoyConverter({ balance = 0, denom }) {
 
       {/* Vì sao con số nhúc nhích mỗi ngày — nói thẳng, kèm đúng hai đầu vào.
           Không nói thì người dùng mở ví thấy số khác hôm qua và tưởng bị trừ. */}
-      {rates?.gold && (
+      {rates && (
         <section className="wal-conv__market">
           <p className="wal-conv__label">{t("memberPortal.walletApp.marketTitle")}</p>
           <p className="wal-conv__market-note">
             {t("memberPortal.walletApp.marketWhy", {
               income: Math.round(rates.dailyIncome || 0).toLocaleString(locale),
-              gold: Math.round(rates.gold.price || 0).toLocaleString(locale),
             })}
           </p>
           <p className="wal-conv__market-note is-fixed">

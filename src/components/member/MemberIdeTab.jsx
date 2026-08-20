@@ -15,6 +15,7 @@ import { TEMPLATES, INITIAL_WORKSPACE, QUIZ_POOL_1, QUIZ_POOL_2 } from "./ideDat
 import { getStageBenefitsFromCatalog, useCoderLessons } from "../../hooks/useCoderLessons";
 import { verifyLessonCode } from "../../services/coderLessonsApi";
 import { hugoCoderApi } from "../../services/hugoCoderApi";
+import { API_BASE } from "../../config/apiBase";
 import { getMobileVisualSet } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";
 import CertificateModal from "./hugoCoder/CertificateModal";
@@ -100,6 +101,7 @@ export default function MemberIdeTab({
   onBioUpdate,
   urlLessonId,
   embedded = false,
+  publicMode = false,
 }) {
   const { t } = useTranslation();
   const [isDesktop, setIsDesktop] = useState(true);
@@ -126,12 +128,13 @@ export default function MemberIdeTab({
   }, [urlLessonId]);
 
   useEffect(() => {
+    if (publicMode) return;
     if (activeCourseId) {
       navigate(`/member/utilities/ide/${activeCourseId}`, { replace: true });
     } else {
       navigate(`/member/utilities/ide`, { replace: true });
     }
-  }, [activeCourseId, navigate]);
+  }, [activeCourseId, navigate, publicMode]);
 
   const [mobileStudyMode, setMobileStudyMode] = useState("story");
   const [completedLessons, setCompletedLessons] = useState(() => {
@@ -426,11 +429,12 @@ export default function MemberIdeTab({
     const loadProgressFromServer = async () => {
       try {
         const token = getMemberSession()?.token;
+        if (!token) return;
         const headers = {};
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
         }
-        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/member/progress`, {
+        const res = await fetch(`${API_BASE}/member/progress`, {
           headers
         });
         if (res.ok) {
@@ -499,16 +503,31 @@ export default function MemberIdeTab({
     const course = WEB_COURSES.find(c => c.id === targetCourseId);
     if (!course) return;
 
-    if (course.practiceType === "drag_drop_html") {
+    // Catalog rows only contain lightweight metadata. Wait for the selected
+    // lesson detail before touching practice payloads such as dragBlocks or
+    // quizPool; otherwise the public route can crash while that detail request
+    // is still in flight.
+    if (course.practiceType === "drag_drop_html" && Array.isArray(course.dragBlocks)) {
       const shuffled = [...course.dragBlocks].sort(() => Math.random() - 0.5);
       setHtmlBlocks(shuffled);
-    } else if (course.practiceType === "drag_drop_sql") {
+    } else if (course.practiceType === "drag_drop_sql" && Array.isArray(course.dragBlocks)) {
       const shuffled = [...course.dragBlocks].sort(() => Math.random() - 0.5);
       setSqlBlocks(shuffled);
-    } else if (course.practiceType === "quiz") {
+    } else if (
+      course.practiceType === "quiz"
+      && Number.isFinite(course.quizSize)
+      && Array.isArray(course.quizPool || (course.id === "lesson6" ? QUIZ_POOL_1 : QUIZ_POOL_2))
+    ) {
       startServerExam(course);
     }
-  }, [activeCourseId, selectedLesson?.id, selectedLesson?.practiceType]);
+  }, [
+    activeCourseId,
+    selectedLesson?.id,
+    selectedLesson?.practiceType,
+    selectedLesson?.dragBlocks,
+    selectedLesson?.quizPool,
+    selectedLesson?.quizSize,
+  ]);
 
   useEffect(() => {
     setTimeLeft(0);
@@ -525,8 +544,7 @@ export default function MemberIdeTab({
     const session = getMemberSession();
     if (session?.email) {
       try {
-        const apiBase = import.meta.env.VITE_API_URL || "/api";
-        const res = await fetch(`${apiBase}/joy/coder-exam/start`, {
+        const res = await fetch(`${API_BASE}/joy/coder-exam/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ lessonId: course.id, confirmRetake })
@@ -601,8 +619,7 @@ export default function MemberIdeTab({
       if (session?.email) {
         if (!completedLessons.includes(course.id)) {
           try {
-            const apiBase = import.meta.env.VITE_API_URL || '/api';
-            const r = await fetch(`${apiBase}/joy/award-learning`, {
+            const r = await fetch(`${API_BASE}/joy/award-learning`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -639,11 +656,13 @@ export default function MemberIdeTab({
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
         }
-        fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/member/progress/lesson/${course.id}/complete`, { 
-          method: "POST",
-          headers
-        })
-          .catch(err => console.error("Failed to sync progress:", err));
+        if (token) {
+          fetch(`${API_BASE}/member/progress/lesson/${course.id}/complete`, {
+            method: "POST",
+            headers
+          })
+            .catch(err => console.error("Failed to sync progress:", err));
+        }
       }
     } else {
       setVerificationStatus("failed");
@@ -1600,8 +1619,7 @@ export default function MemberIdeTab({
       if (examId) {
         // Máy chủ chấm — client chỉ gửi lựa chọn, không gửi điểm
         try {
-          const apiBase = import.meta.env.VITE_API_URL || "/api";
-          const res = await fetch(`${apiBase}/joy/coder-exam/submit`, {
+          const res = await fetch(`${API_BASE}/joy/coder-exam/submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -1676,8 +1694,7 @@ export default function MemberIdeTab({
     if (session?.email) {
       if (!completedLessons.includes(course.id)) {
         try {
-          const apiBase = import.meta.env.VITE_API_URL || '/api';
-          const r = await fetch(`${apiBase}/joy/award-learning`, {
+          const r = await fetch(`${API_BASE}/joy/award-learning`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1715,11 +1732,13 @@ export default function MemberIdeTab({
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
-      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8081/api"}/member/progress/lesson/${course.id}/complete`, { 
-        method: "POST",
-        headers
-      })
-        .catch(err => console.error("Failed to sync progress:", err));
+      if (token) {
+        fetch(`${API_BASE}/member/progress/lesson/${course.id}/complete`, {
+          method: "POST",
+          headers
+        })
+          .catch(err => console.error("Failed to sync progress:", err));
+      }
     }
   };
 
@@ -1821,7 +1840,7 @@ export default function MemberIdeTab({
   if (!isDesktop) {
     return (
       <MobileGuidebook
-        embedded={embedded}
+        embedded={embedded || publicMode}
         onExitLesson={onExitLesson}
         activeCourseId={activeCourseId}
         bio={bio}
@@ -1897,11 +1916,11 @@ export default function MemberIdeTab({
   }
 
   const desktopBody = (
-    <div className={`flex flex-col bg-background text-foreground relative overflow-hidden ${embedded ? "h-full w-full" : "h-screen w-screen"}`}>
+    <div className={`flex flex-col bg-background text-foreground relative overflow-hidden ${embedded || publicMode ? "h-full w-full" : "h-screen w-screen"}`}>
       {/* Top IDE Header Control Bar */}
       <div className="bg-card border-b border-border px-4 py-2.5 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-3">
-          {!embedded && (
+          {!embedded && !publicMode && (
             <button
               onClick={onBack}
               className="inline-flex h-11 items-center gap-1 rounded-xl pl-2 pr-3.5 text-[15px] font-medium transition-colors hover:bg-white/10"
@@ -2304,7 +2323,7 @@ services:
   );
 
   // Embedded trong Hub: Hub đã lo FeatureGate — trả thẳng body.
-  if (embedded) return desktopBody;
+  if (embedded || publicMode) return desktopBody;
 
   return (
     <FeatureGate

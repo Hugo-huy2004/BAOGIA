@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getMemberSession } from '../../services/authSession';
 import { dataApi } from '../../services/dataApi';
 import { useHeadMeta } from '../../hooks/useHeadMeta';
+import { API_BASE } from '../../config/apiBase';
 
 const SupportRequestPage = () => {
   useHeadMeta({
@@ -32,11 +33,7 @@ const SupportRequestPage = () => {
   const isValidAccess = session && location.state?.fromBot;
 
   useEffect(() => {
-    // Check if the user is logged in AND request is routed from the Bot. If not, redirect immediately.
-    if (!isValidAccess) {
-      navigate('/', { replace: true });
-      return;
-    }
+    if (!isValidAccess) return;
 
     // 2. Prefill info from session
     if (session) {
@@ -67,7 +64,42 @@ const SupportRequestPage = () => {
   }, []);
 
   if (!isValidAccess) {
-    return null;
+    const needsLogin = !session;
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+        <section className="w-full max-w-lg rounded-3xl border border-border bg-card/90 p-6 sm:p-10 text-center shadow-xl space-y-5">
+          <span className="material-symbols-outlined text-4xl text-primary" aria-hidden="true">
+            {needsLogin ? 'lock' : 'support_agent'}
+          </span>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight">
+              {needsLogin ? 'Đăng nhập để yêu cầu hỗ trợ' : 'Mở yêu cầu từ trợ lý thành viên'}
+            </h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {needsLogin
+                ? 'Trang hỗ trợ 1:1 chỉ dành cho thành viên đã đăng nhập. Sau khi đăng nhập, hãy mở trợ lý trong khu vực thành viên để gửi yêu cầu.'
+                : 'Yêu cầu hỗ trợ cần được tạo từ cuộc trò chuyện với trợ lý để đội ngũ nhận đủ nội dung sự cố.'}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(needsLogin ? '/login?redirect=/member&reason=support_login_required' : '/member')}
+              className="min-h-11 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95"
+            >
+              {needsLogin ? 'Đăng nhập thành viên' : 'Đến khu vực thành viên'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="min-h-11 rounded-2xl border border-border px-6 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted"
+            >
+              Về trang chủ
+            </button>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   const handleSubmit = async (e) => {
@@ -96,7 +128,7 @@ const SupportRequestPage = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/support/tickets`, {
+      const res = await fetch(`${API_BASE}/support/tickets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

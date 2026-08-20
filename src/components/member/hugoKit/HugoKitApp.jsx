@@ -42,7 +42,9 @@ function useDarkScheme() {
   return dark;
 }
 
-export default function HugoKitApp({ bio, publicLink, showToast, onBack, setFormData, handleSave }) {
+// `guardTool(id)` — bản public /hugokit dùng để chặn/đếm demo trước khi mở
+// một công cụ; trả false là không mở. Portal thành viên không truyền gì.
+export default function HugoKitApp({ bio, publicLink, showToast, onBack, setFormData, handleSave, guardTool }) {
   const { t } = useTranslation();
   const dark = useDarkScheme();
   const [toolId, setToolId] = useState(null);
@@ -52,6 +54,7 @@ export default function HugoKitApp({ bio, publicLink, showToast, onBack, setForm
   const View = tool ? VIEWS[tool.id] : null;
 
   const openTool = (id) => {
+    if (id && guardTool && !guardTool(id)) return;
     setToolId(id);
     setScrolled(false);
   };

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { requestAdminOtp, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -9,6 +9,9 @@ import { isEduEmail } from "../../utils/eduEmail";
 import { webauthnHelper } from "../../utils/webauthnHelper";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import { isStandalone } from "../../config/platform";
+import { API_BASE } from "../../config/apiBase";
+import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
+import { getSafeMemberRedirect } from "../../utils/safeRedirect";
 
 const LAST_EMAIL_KEY = "hugo_last_member_email";
 
@@ -25,6 +28,10 @@ export default function LoginPage() {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const memberRedirect = getSafeMemberRedirect(location.search);
+  const memberRedirectRef = useRef(memberRedirect);
+  memberRedirectRef.current = memberRedirect;
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
   const [adminSubmitting, setAdminSubmitting] = useState(false);
   const [rememberAdmin, setRememberAdmin] = useState(true);
@@ -99,8 +106,10 @@ export default function LoginPage() {
     }
 
     localStorage.setItem(LAST_EMAIL_KEY, session.email);
-    navigate("/member");
+    navigate(memberRedirectRef.current, { replace: true });
   };
+  const googleCredentialHandlerRef = useRef(handleGoogleCredential);
+  googleCredentialHandlerRef.current = handleGoogleCredential;
 
   const handleBiometricLogin = async () => {
     if (!biometricEmail) return;
@@ -109,7 +118,7 @@ export default function LoginPage() {
       const member = await webauthnHelper.loginWithBiometric(biometricEmail);
       loginMember(member);
       localStorage.setItem(LAST_EMAIL_KEY, biometricEmail);
-      navigate("/member");
+      navigate(memberRedirectRef.current, { replace: true });
     } catch (err) {
       if (err?.code === 'NO_CREDENTIALS') {
         showToast(t("loginPage.biometric.notEnabled"), "warning");
@@ -132,21 +141,22 @@ export default function LoginPage() {
     let cancelled = false;
     let timer = null;
     let timeout = null;
+    let initialized = false;
+    let rendered = false;
 
-    const tryInitGoogle = () => {
-      if (cancelled) return;
+    const tryInitGoogle = (loadedGoogleId) => {
+      if (cancelled || rendered) return;
 
-      const googleId = window.google?.accounts?.id;
-      if (!googleId) return;
+      const googleId = loadedGoogleId || window.google?.accounts?.id;
+      if (!googleId || !googleButtonRef.current) return;
 
-      setGisReady(true);
-      if (!window.__googleInitialized) {
+      if (!initialized) {
         googleId.initialize({
           client_id: clientId,
-          callback: handleGoogleCredential,
+          callback: (response) => googleCredentialHandlerRef.current(response),
           use_fedcm_for_prompt: false
         });
-        window.__googleInitialized = true;
+        initialized = true;
       }
 
       googleButtonRef.current.innerHTML = "";
@@ -157,11 +167,13 @@ export default function LoginPage() {
           width: 320,
           text: "continue_with"
         });
-      } catch (error) {
+      } catch {
         setGoogleConfigError(`Google Sign-In chưa được cấp quyền cho origin ${window.location.origin}.`);
         if (timer) window.clearInterval(timer);
         return;
       }
+      rendered = true;
+      setGisReady(true);
 
       if (timer) {
         window.clearInterval(timer);
@@ -172,6 +184,11 @@ export default function LoginPage() {
     };
 
     timer = window.setInterval(tryInitGoogle, 250);
+    loadGoogleIdentity().then(tryInitGoogle).catch(() => {
+      if (!cancelled) {
+        setGoogleConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}.`);
+      }
+    });
     timeout = window.setTimeout(() => {
       if (!cancelled) {
         setGoogleConfigError(`Google Sign-In chưa sẵn sàng cho origin ${window.location.origin}. Hãy thêm origin này vào Google Cloud Console.`);
@@ -262,7 +279,7 @@ export default function LoginPage() {
     }
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/auth`, {
+      const response = await fetch(`${API_BASE}/customer-projects/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -291,11 +308,14 @@ export default function LoginPage() {
     if (params.get("reason") === "location_anomaly") {
       showToast(t("loginPage.toast.locationAnomaly"), "warning");
     }
+    if (params.get("reason") === "support_login_required") {
+      showToast("Vui lòng đăng nhập thành viên để tiếp tục yêu cầu hỗ trợ.", "warning");
+    }
   }, []);
 
   const autoLoginCustomer = async (code) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/auth`, {
+      const response = await fetch(`${API_BASE}/customer-projects/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

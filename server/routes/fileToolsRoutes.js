@@ -19,6 +19,48 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+
+// ── Chế độ demo: HugoKit có trang public /hugokit — khách chưa đăng nhập được
+// 3 lượt xử lý file mỗi ngày (đếm theo IP), muốn hơn phải đăng nhập.
+// ponytail: đếm trong RAM, mất khi restart; chuyển sang Mongo nếu thấy bị lách.
+const DEMO_USES_PER_DAY = 3;
+const demoUsage = new Map(); // ip -> { day, count }
+const demoDay = () => new Date().toISOString().slice(0, 10);
+
+const hasAuthToken = (req) => Boolean(
+  req.headers.authorization?.startsWith('Bearer ')
+  || req.cookies?.member_jwt
+  || req.cookies?.jwt
+);
+
+// consume=true cho thao tác tốn tài nguyên (upload ZIP, nén); các bước phụ
+// (tải từng tệp, dọn dẹp) chỉ cần danh tính demo để khớp chủ sở hữu file tạm.
+const memberOrDemo = (consume) => (req, res, next) => {
+  if (hasAuthToken(req)) return requireMember(req, res, next);
+
+  const ip = req.ip || 'unknown';
+  const usage = demoUsage.get(ip);
+  const count = usage?.day === demoDay() ? usage.count : 0;
+  if (consume) {
+    if (count >= DEMO_USES_PER_DAY) {
+      return res.status(401).json({
+        error: `Bạn đã dùng hết ${DEMO_USES_PER_DAY} lượt demo hôm nay. Đăng nhập Google (miễn phí) để dùng không giới hạn.`,
+        code: 'DEMO_LIMIT',
+      });
+    }
+    if (demoUsage.size > 5000) {
+      for (const [key, value] of demoUsage) {
+        if (value.day !== demoDay()) demoUsage.delete(key);
+      }
+    }
+    demoUsage.set(ip, { day: demoDay(), count: count + 1 });
+  }
+  // serverAiUserId chỉ HMAC chuỗi này nên cùng IP luôn ra cùng chủ sở hữu file.
+  req.memberEmail = `demo:${ip}`;
+  req.isDemoActor = true;
+  next();
+};
+
 const MAX_ZIP_ENTRIES = 1000;
 const MAX_ZIP_UNCOMPRESSED_BYTES = 200 * 1024 * 1024;
 const MAX_ZIP_ENTRY_BYTES = 50 * 1024 * 1024;
@@ -60,7 +102,7 @@ const ownsTempFile = (req, fileId) => (
 
 // 1. EXTRACT API
 // Upload a ZIP file and return its contents
-router.post('/extract/upload', requireMember, upload.single('file'), (req, res) => {
+router.post('/extract/upload', memberOrDemo(true), upload.single('file'), (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Không tìm thấy file tải lên.' });
     
@@ -101,7 +143,7 @@ router.post('/extract/upload', requireMember, upload.single('file'), (req, res) 
 });
 
 // Download a specific file from the uploaded ZIP
-router.get('/extract/download/:fileId', requireMember, (req, res) => {
+router.get('/extract/download/:fileId', memberOrDemo(false), (req, res) => {
   try {
     const { fileId } = req.params;
     const { entryName } = req.query; // The path of the file inside the zip
@@ -139,7 +181,7 @@ router.get('/extract/download/:fileId', requireMember, (req, res) => {
 });
 
 // Delete ZIP file when user is done (or let cron job clean it up later)
-router.delete('/extract/cleanup/:fileId', requireMember, (req, res) => {
+router.delete('/extract/cleanup/:fileId', memberOrDemo(false), (req, res) => {
   const { fileId } = req.params;
   if (!fileId || typeof fileId !== 'string' || fileId !== path.basename(fileId) || fileId.includes('..') || !ownsTempFile(req, fileId)) {
     return res.status(400).json({ error: 'ID file không hợp lệ.' });
@@ -151,13 +193,22 @@ router.delete('/extract/cleanup/:fileId', requireMember, (req, res) => {
 
 // 2. COMPRESS API
 // Upload a file, compress it, and stream back
-router.post('/compress', requireMember, upload.single('file'), async (req, res) => {
+router.post('/compress', memberOrDemo(true), upload.single('file'), async (req, res) => {
   let outputFilePath = null;
-  
+
   try {
     if (!req.file) return res.status(400).json({ error: 'Không tìm thấy file tải lên.' });
 
     const level = req.body.level || 'medium'; // light, medium, strong
+
+    // Khách demo không có ví JOY — chỉ được mức nén miễn phí.
+    if (req.isDemoActor && level !== 'light') {
+      cleanupFile(req.file.path);
+      return res.status(401).json({
+        error: 'Mức nén Vừa/Mạnh cần tài khoản Hugo Studio. Đăng nhập Google để mở đủ 3 mức.',
+        code: 'DEMO_LOGIN',
+      });
+    }
     const email = req.memberEmail;
     const willCharge = level !== 'light';
     const inputPath = req.file.path;

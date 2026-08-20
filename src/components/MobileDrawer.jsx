@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { isMemberAuthenticated, isAdminAuthenticated } from "../services/authSession";
 import { useData } from "../context/DataContext";
@@ -7,6 +7,9 @@ import LanguageSelect from "./LanguageSelect";
 
 export default function MobileDrawer() {
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef(null);
+  const drawerRef = useRef(null);
+  const restoreFocusRef = useRef(null);
   const location = useLocation();
 
   const { t } = useTranslation();
@@ -28,20 +31,78 @@ export default function MobileDrawer() {
 
   useEffect(() => {
     if (!isOpen) return undefined;
+
+    restoreFocusRef.current = document.activeElement;
+    const triggerElement = triggerRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusableSelector = [
+      "a[href]",
+      "button:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "input:not([disabled])",
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(",");
+
+    const focusFirstControl = window.requestAnimationFrame(() => {
+      drawerRef.current?.querySelector(focusableSelector)?.focus();
+    });
+
     const onKeyDown = (event) => {
-      if (event.key === "Escape") setIsOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !drawerRef.current) return;
+      const controls = [...drawerRef.current.querySelectorAll(focusableSelector)]
+        .filter((element) => !element.hasAttribute("disabled"));
+      if (controls.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFirstControl);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      const focusTarget = restoreFocusRef.current;
+      if (focusTarget instanceof HTMLElement && focusTarget.isConnected) {
+        focusTarget.focus();
+      } else {
+        triggerElement?.focus();
+      }
+    };
   }, [isOpen]);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
       <button
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-muted/60 text-foreground transition-transform active:scale-95 lg:hidden"
+        ref={triggerRef}
+        type="button"
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-muted/60 text-foreground transition-transform active:scale-95 lg:hidden"
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? t("navbar.closeMenu") : t("navbar.openMenu")}
         aria-expanded={isOpen}
+        aria-controls="mobile-main-menu"
       >
         <span className="material-symbols-outlined text-[19px] leading-none">{isOpen ? "close" : "menu"}</span>
       </button>
@@ -55,10 +116,13 @@ export default function MobileDrawer() {
       )}
 
       <aside
+        ref={drawerRef}
+        id="mobile-main-menu"
         role="dialog"
         aria-modal="true"
         aria-label={t("navbar.mainMenu", "Menu chính")}
         aria-hidden={!isOpen}
+        inert={isOpen ? undefined : ""}
         className={`fixed inset-x-2 bottom-2 z-[210] max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-[2rem] border border-white/50 bg-background/90 px-3 pb-3 shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-3xl backdrop-saturate-150 transition-all duration-300 dark:border-white/10 lg:hidden ${
           isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-[110%] opacity-0"
         }`}
@@ -74,8 +138,9 @@ export default function MobileDrawer() {
             <p className="mt-0.5 text-[11px] text-muted-foreground">{t("navbar.hello", "Xin chào")}</p>
           </div>
           <button
+            type="button"
             onClick={() => setIsOpen(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-foreground"
             aria-label={t("navbar.closeMenu")}
           >
             <span className="material-symbols-outlined text-[18px]">close</span>

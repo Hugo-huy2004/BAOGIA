@@ -17,6 +17,9 @@
  *   "result" — usable straight away; producing a saved/exportable result needs a
  *              signed-in account whose student verification has been approved
  *              (bio.status is neither "pending" nor "rejected").
+ *   "demo"   — guests get 3 demo uses per day (client counter for pure-client
+ *              tools, per-IP counter on the server for file endpoints); signing
+ *              in lifts the limit.
  */
 
 export const PUBLIC_TOOLS = {
@@ -32,12 +35,12 @@ export const PUBLIC_TOOLS = {
   therapy: {
     gate: "result",
     aliases: ["psychology"],
-    title: "HugoPSY — Không Gian Trò Chuyện Và Theo Dõi Cảm Xúc",
+    title: "HugoPSY — Phương Pháp Thư Giãn Và Tự Chăm Sóc",
     description:
-      "HugoPSY là không gian trò chuyện, ghi nhận cảm xúc và thực hành tự chăm sóc tinh thần trong hệ sinh thái Hugo Studio.",
+      "Khám phá các bài thở, thư giãn, viết cảm xúc và hoạt động tự chăm sóc tinh thần trong HugoPSY.",
     heading: "HugoPSY",
     summary:
-      "Không gian trò chuyện và ghi nhận cảm xúc, thiết kế để dễ bắt đầu. Trò chuyện được ngay; lưu nhật ký cảm xúc thì cần tài khoản đã xác minh.",
+      "Xem danh sách phương pháp tự chăm sóc; đăng nhập tài khoản đã xác minh để mở bài tập và lưu tiến độ.",
   },
   radio: {
     gate: "open",
@@ -45,16 +48,16 @@ export const PUBLIC_TOOLS = {
     description:
       "Nghe nhạc lofi và các chương trình âm thanh của Hugo Radio khi học tập, làm việc hoặc nghỉ ngơi.",
     heading: "Hugo Radio",
-    summary: "Nhạc lofi cho giờ học và giờ nghỉ. Mở là nghe, không cần đăng nhập.",
+    summary: "Nghe thử các kênh tin tức, âm nhạc và lofi trong 15 phút. Đăng nhập Google để lưu đài, đồng bộ thời lượng và mở trải nghiệm thành viên.",
   },
   aura: {
     gate: "result",
-    title: "Aura AI — Tạo Hình Nền Năng Lượng | Hugo Studio",
+    title: "HugoAura — Pomodoro Và Nhạc Lofi Tập Trung | Hugo Studio",
     description:
-      "Khám phá Aura AI, tiện ích tạo hình nền theo màu sắc, cảm xúc và phong cách cá nhân trong Hugo Studio.",
-    heading: "Aura AI",
+      "HugoAura kết hợp đồng hồ Pomodoro và nhạc lofi để hỗ trợ học tập, làm việc và nghỉ ngơi có nhịp điệu.",
+    heading: "HugoAura Focus & Lofi",
     summary:
-      "Tạo hình nền theo màu sắc và cảm xúc của bạn. Xem thử thoải mái; tải về bản của mình thì cần tài khoản đã xác minh.",
+      "Bắt đầu phiên Pomodoro miễn phí. Xác thực hoặc đăng ký để lưu nhịp tập trung, đồng bộ thiết bị và trải nghiệm đầy đủ.",
   },
   arcade: {
     gate: "level",
@@ -64,6 +67,16 @@ export const PUBLIC_TOOLS = {
     heading: "Hugo Arcade",
     summary:
       "Game nhẹ chạy thẳng trên trình duyệt, không cài đặt. Chơi ngay được; mở màn mới thì cần tài khoản sinh viên.",
+  },
+  hugokit: {
+    gate: "demo",
+    aliases: ["handle"],
+    title: "HugoKit — Giải Nén ZIP, Nén Ảnh Video, Tạo QR Online | Hugo Studio",
+    description:
+      "Bộ công cụ xử lý file trên trình duyệt: giải nén ZIP online, nén ảnh JPG/PNG/WebP, nén video và tạo mã QR, chữ ký email.",
+    heading: "HugoKit",
+    summary:
+      "Giải nén ZIP, nén ảnh/video, tạo mã QR và chữ ký email ngay trên web. Khách được 3 lượt demo mỗi ngày; đăng nhập để dùng không giới hạn.",
   },
   ide: {
     gate: "open",

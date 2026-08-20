@@ -9,7 +9,7 @@ import { useHealingJourney } from "../../hooks/useHealingJourney";
 import { useTourStore } from "../../stores/tourStore";
 import TourSystem from "../../components/TourSystem";
 import { useJoyStore } from "../../stores/joyStore";
-import { setJoyDenom, setJoyRates } from "../../lib/joyDisplay";
+import { selectJoyAccount, setJoyDenom, setJoyRates } from "../../lib/joyDisplay";
 import { fetchJoyRates } from "../../services/joyApi";
 import { usePresenceHeartbeat } from "../../hooks/usePresenceHeartbeat";
 import { useSleepAutoDetect } from "../../hooks/useSleepAutoDetect";
@@ -216,7 +216,8 @@ function MemberPortalPage() {
   const patchMemberBio = React.useCallback((patch) => {
     if (!patch) return;
     if (patch.joyDenom) {
-      setJoyDenom(patch.joyDenom);
+      setJoyDenom(patch.joyDenom, memberSession?.email);
+      fetchJoyRates().then((rates) => rates && setJoyRates(rates));
     }
     setBio((previous) => previous ? { ...previous, ...patch } : patch);
     queryClient.setQueryData(
@@ -226,6 +227,32 @@ function MemberPortalPage() {
         : current,
     );
   }, [memberSession?.email, queryClient]);
+
+  // Cache đơn vị theo đúng tài khoản. Hai người dùng chung một thiết bị không
+  // được nhìn thấy đơn vị của nhau trong lúc chờ hồ sơ máy chủ tải về.
+  React.useEffect(() => {
+    selectJoyAccount(memberSession?.email);
+  }, [memberSession?.email]);
+
+  // Tỷ giá là trạng thái sống của cả hệ thống, không phải ảnh chụp lúc đăng
+  // nhập. Đồng bộ định kỳ và khi người dùng quay lại tab để ví, bảng tỷ giá và
+  // sàn đầu tư luôn dùng cùng phiên gần nhất.
+  React.useEffect(() => {
+    if (!memberSession?.email) return undefined;
+    let alive = true;
+    const syncRates = () => fetchJoyRates().then((rates) => {
+      if (alive && rates) setJoyRates(rates);
+    });
+    syncRates();
+    const timer = window.setInterval(syncRates, 5 * 60 * 1000);
+    const onVisibility = () => { if (document.visibilityState === "visible") syncRates(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [memberSession?.email]);
 
   const activeTab = tab || (isGuestMode ? "apps" : "today");
   const portalArea = useMemo(() => {
@@ -442,10 +469,7 @@ function MemberPortalPage() {
           setBio(b);
           // Đơn vị hiển thị JOY của tài khoản — đặt MỘT chỗ này rồi cả app đọc
           // theo (src/lib/joyDisplay.js), không truyền prop qua từng màn.
-          setJoyDenom(b.joyDenom);
-          // Tỷ giá ngày: nạp một lần, mọi con số trong app đi theo. Không await —
-          // ví hiện bằng hệ số nền trước, thị trường về thì tự vẽ lại.
-          fetchJoyRates().then((rates) => rates && setJoyRates(rates));
+          setJoyDenom(b.joyDenom, memberSession.email);
           // Defer balance/referral-code fetch until onboarding (phone capture) is done —
           // GET /api/joy/balance eagerly calls ensureReferralCode, and we want phone
           // saved first so the generated code is phone-derived, not random.
@@ -889,7 +913,7 @@ function MemberPortalPage() {
             onDone={(result) => {
               setShowOnboarding(false);
               const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
-              if (nextDenom) setJoyDenom(nextDenom);
+              if (nextDenom) setJoyDenom(nextDenom, memberSession?.email);
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
               if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);
               fetchJoyBalance(memberSession.email);
@@ -1157,7 +1181,7 @@ function MemberPortalPage() {
             onDone={(result) => {
               setShowOnboarding(false);
               const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
-              if (nextDenom) setJoyDenom(nextDenom);
+              if (nextDenom) setJoyDenom(nextDenom, memberSession?.email);
 
               if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
               if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);

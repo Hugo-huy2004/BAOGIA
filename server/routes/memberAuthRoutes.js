@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { signMemberToken } from '../middleware/authMiddleware.js';
 import { GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
+import { isEduEmail } from '../utils/eduEmail.js';
 
 const router = express.Router();
 
@@ -65,6 +66,8 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
 
     const email = String(claims.email || '').toLowerCase();
     if (!email) return res.status(401).json({ error: 'Không đọc được email từ Google.' });
+    const isStudent = await isEduEmail(email);
+    const accessDays = isStudent ? 365 : 30;
 
     const securityBlock = await findActiveSecurityBlock({ email });
     if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
@@ -92,8 +95,10 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
           slug,
           avatarUrl: claims.picture || '',
           provider: 'google',
+          status: 'active',
+          isEduVerified: isStudent,
           joyBalance: 1000,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          expiresAt: new Date(Date.now() + accessDays * 24 * 60 * 60 * 1000),
         }
       },
       { upsert: true }
@@ -110,6 +115,8 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
         displayName: claims.name || email,
         avatarUrl: claims.picture || '',
         provider: 'google',
+        isEduVerified: isStudent,
+        accessDays,
       },
     });
   } catch (error) {

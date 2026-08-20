@@ -2537,6 +2537,8 @@
       "convMyDenom": "Tu unidad JOY",
       "convLocked": "Elegiste esta unidad al iniciar sesión por primera vez y queda fija. Cambiar el idioma de la interfaz no la modifica.",
       "convAmountIn": "Importe ({{code}})",
+      "convTarget": "Convertir a",
+      "convTransferSimulation": "Al enviar: la persona recibe {{amount}}. La comisión de conversión del {{percent}}% es {{fee}}; el débito total es {{total}}.",
       "convUseBalance": "Usar todo el saldo · {{amount}}",
       "convTableTitle": "La misma cantidad en cada unidad",
       "convFeeNote": "enviar cuesta {{percent}}% más",
@@ -2550,7 +2552,7 @@
       "denomSaving": "Guardando…",
       "denomSaved": "Unidad JOY establecida para tu cuenta.",
       "marketTitle": "Mercado de hoy",
-      "marketWhy": "Las tasas cambian a diario según dos datos: las ganancias diarias medias de la comunidad ({{income}} por persona) y el precio internacional del oro ({{gold}} USD/oz).",
+      "marketWhy": "Las tasas se actualizan cada hora con tres señales internas: JOY medio ganado ({{income}} por persona/día), comisiones y pagos de JOYlater, y el flujo neto de JOY.",
       "marketPricesFixed": "Los precios de la app NO cambian con la tasa: la tasa solo cambia cómo se escriben los números.",
       "sub_convert": "Tipos",
       "range24h": "24 h",
@@ -6486,7 +6488,7 @@
       "totalPnl": "Ganancia/pérdida neta total (PnL)",
       "realizedProfit": "Beneficio realizado",
       "stockList": "Lista del mercado de valores",
-      "dividendsReceived": "Dividendos recibidos hasta el momento:",
+      "dividendsReceived": "Dividendos recibidos",
       "capital": "capital",
       "shares": "acciones",
       "2m": "2 minutos",
@@ -6567,7 +6569,8 @@
       "advisorEmptyMsg": "Chưa có cổ phiếu trong danh mục. Cantó la pestaña Bảng giá chọn một mã để bắt đầu.",
       "advisorGuide": "Hướng dẫn",
       "advisorAuto": "Tự động",
-      "advisorMarketTitle": "Sàn Ảo Hugo"
+      "advisorMarketTitle": "Sàn Ảo Hugo",
+      "feesPaid": "Comisiones pagadas"
     },
     "companies": {
       "HFILM": {

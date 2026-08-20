@@ -106,8 +106,8 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
     { revalidateOnFocus: false, dedupingInterval: 30000 }
   );
 
-  const stockTotalVal = stockPortfolio?.totalValue || 0;
-  const stockPnL = stockPortfolio?.unrealizedPnL || 0;
+  const stockTotalVal = stockPortfolio?.value || 0;
+  const stockPnL = stockPortfolio?.unrealized || 0;
   const stockPnLPct = stockPortfolio?.unrealizedPct || 0;
   const totalNetWorth = balance + stockTotalVal;
 
@@ -236,6 +236,7 @@ export default function HugoWalletApp({ bio, onBack, showToast, onBioUpdate, onO
               ? <JoyConverter balance={balance} denom={myDenom} />
               : <JoyDenomPicker
                   balance={balance}
+                  email={email}
                   onChosen={(denom) => { onBioUpdate?.({ joyDenom: denom }); setSub(null); }}
                 />}
           </Panel>

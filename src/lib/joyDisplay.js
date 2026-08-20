@@ -20,13 +20,17 @@ import { localeForLanguage } from "../i18n/languages";
  * Đơn vị được nhớ trong localStorage để lần mở sau hiện đúng ngay từ khung hình
  * đầu, không chờ `/bio` trả về rồi mới nhảy số.
  */
-const LS_KEY = "joy_denom";
+const LEGACY_LS_KEY = "joy_denom";
+const LS_KEY = (subject) => `joy_denom:${subject}`;
+const normalizeSubject = (subject) => String(subject || "").trim().toLowerCase();
 
 // Chỉ nhận lại đơn vị đã lưu khi nó THẬT SỰ là một đơn vị hợp lệ — tài khoản
 // chưa chọn thì không có gì để nhớ cả.
-const readStored = () => {
+const readStored = (subject) => {
+  const normalized = normalizeSubject(subject);
+  if (!normalized) return '';
   try {
-    const saved = localStorage.getItem(LS_KEY);
+    const saved = localStorage.getItem(LS_KEY(normalized));
     return saved && JOY_DENOMS[denomKey(saved)] && saved === denomKey(saved) ? saved : '';
   } catch {
     return '';
@@ -37,21 +41,42 @@ const readStored = () => {
 // (để màn onboarding và mọi khung sườn không vỡ), nhưng `chosen` là false để
 // giao diện biết mà từ chối cho tiêu tiền — hệ thống không được tự quyết hộ
 // người dùng đơn vị nào rồi hiển thị như thể họ đã chọn.
-let active = readStored();
+// Không đọc khoá dùng chung của bản cũ: nó có thể thuộc về người đăng nhập
+// trước trên cùng thiết bị. Chỉ nạp cache sau khi biết đúng tài khoản.
+let active = '';
+let activeSubject = '';
 let liveRates = null;
 let i18nRef = null;
 const listeners = new Set();
+let revision = 0;
+
+const publish = () => {
+  revision += 1;
+  listeners.forEach((fn) => fn());
+};
+
+/** Chọn phạm vi cá nhân hoá trước khi hồ sơ server tải xong. */
+export function selectJoyAccount(subject) {
+  const nextSubject = normalizeSubject(subject);
+  if (nextSubject === activeSubject) return;
+  activeSubject = nextSubject;
+  active = readStored(nextSubject);
+  try { localStorage.removeItem(LEGACY_LS_KEY); } catch { /* private mode */ }
+  publish();
+}
 
 /** Đơn vị của tài khoản đang đăng nhập. Gọi khi `/bio` về. */
-export function setJoyDenom(value) {
+export function setJoyDenom(value, subject = activeSubject) {
+  const nextSubject = normalizeSubject(subject);
+  if (nextSubject && nextSubject !== activeSubject) activeSubject = nextSubject;
   const next = JOY_DENOMS[value] ? value : '';
-  if (next === active) return;
+  if (next === active && !nextSubject) return;
   active = next;
   try {
-    if (next) localStorage.setItem(LS_KEY, next);
-    else localStorage.removeItem(LS_KEY);
+    if (activeSubject && next) localStorage.setItem(LS_KEY(activeSubject), next);
+    else if (activeSubject) localStorage.removeItem(LS_KEY(activeSubject));
   } catch { /* private mode */ }
-  listeners.forEach((fn) => fn());
+  publish();
 }
 
 /** Tài khoản đã thật sự chọn đơn vị chưa. `false` = chưa được hỏi. */
@@ -64,7 +89,7 @@ export const joyDenomChosen = () => Boolean(active);
 export function setJoyRates(rates) {
   setLiveFactors(rates?.factors || null);
   liveRates = rates || null;
-  listeners.forEach((fn) => fn());
+  publish();
 }
 
 /** Bảng tỷ giá đang dùng (cho màn hình thị trường). `null` khi chưa nạp. */
@@ -113,7 +138,7 @@ export function registerJoyFormat(i18n) {
 }
 
 const subscribe = (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
-const snapshot = () => `${active}@${liveRates?.date || ""}`;
+const snapshot = () => revision;
 
 /**
  * Hook cho component: trả về bộ định dạng gắn với đơn vị hiện tại và tự vẽ lại
@@ -121,7 +146,9 @@ const snapshot = () => `${active}@${liveRates?.date || ""}`;
  */
 export function useJoy() {
   // Mốc thay đổi gộp cả đơn vị lẫn tỷ giá: đổi cái nào cũng phải vẽ lại số tiền.
-  const denom = useSyncExternalStore(subscribe, snapshot, snapshot).split("@")[0];
+  // Snapshot chỉ là số phiên bản để ép vẽ lại; đơn vị đọc thẳng từ module state.
+  useSyncExternalStore(subscribe, snapshot, snapshot);
+  const denom = active;
   return {
     denom,
     chosen: Boolean(denom),

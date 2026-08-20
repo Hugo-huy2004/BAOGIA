@@ -6,7 +6,10 @@ import { useJoyStore } from "../../../stores/joyStore";
 import { hapticSelect } from "../../../utils/haptics";
 import BackButton from "../shared/BackButton";
 import { getLessons } from "./investLessons";
-import { priceAt, tradeCosts, breakEvenPct, STOCK_QUOTE_CODE } from "../../../../shared/stockPricing";
+import {
+  priceAt, tradeCosts, breakEvenPct, STOCK_QUOTE_CODE,
+  TRADING_FEE_RATE, CREATIVE_FEE_RATE, STOCK_CONVERSION_FEE_RATE,
+} from "../../../../shared/stockPricing";
 import StockPriceChart from "./StockPriceChart";
 
 const API = import.meta.env.VITE_API_URL || "/api";
@@ -175,6 +178,7 @@ function TradeReceiptModal({ trade, onClose }) {
         balanceAfter: trade.balanceAfter || 0,
         quoteCode: STOCK_QUOTE_CODE,
         walletCode: trade.walletCode || joyCode(),
+        walletAmount: trade.walletAmount || 0,
         itemised,
       }}
     />
@@ -232,7 +236,13 @@ function ReceiptSheet({ receipt, onClose }) {
             </>
           )}
           <div className="my-1 border-t border-border" />
-          <Row label={buy ? "Tổng đã trừ ví" : "Tổng đã về ví"} value={moneyText(receipt.total)} strong />
+          <Row
+            label={buy ? "Tổng đã trừ ví" : "Tổng đã về ví"}
+            value={receipt.walletAmount
+              ? `${receipt.walletAmount.toLocaleString(LOCALE)} ${receipt.walletCode}`
+              : moneyText(receipt.total)}
+            strong
+          />
           {!buy && (
             <Row
               label="Lãi/lỗ đã chốt (sau phí)"
@@ -245,8 +255,10 @@ function ReceiptSheet({ receipt, onClose }) {
         </dl>
 
         <p className="rounded-2xl border border-border bg-muted p-2.5 text-[11.5px] leading-relaxed text-muted-foreground font-sans">
-          Sàn niêm yết bằng {receipt.quoteCode} ({quoteText(receipt.price)}/cổ phiếu). {t("invest.ui.walletBalance")} dùng {receipt.walletCode},
-          nên mọi con số ở trên đã quy về đơn vị ví theo tỷ giá lúc khớp.
+          Sàn niêm yết bằng {receipt.quoteCode} ({quoteText(receipt.price)}/cổ phiếu). {t("invest.ui.walletBalance")} dùng {receipt.walletCode}
+          {receipt.walletAmount
+            ? " — dòng tổng chốt đúng số ví lúc khớp, các dòng còn lại quy theo tỷ giá hiện tại."
+            : " — các con số được quy về đơn vị ví theo tỷ giá hiện tại."}
         </p>
 
         <button
@@ -370,7 +382,7 @@ export default function HugoInvestTab({ onBack, showToast, onSelectUtility }) {
     return () => clearInterval(timer);
   }, []);
 
-  // Đường giá máy chủ gửi xuống chỉ chạy TRƯỚC hiện tại một bước (60 giây);
+  // Đường giá máy chủ gửi xuống chỉ chạy TRƯỚC hiện tại một bước (30 giây);
   // hết mảng là priceAt giữ nguyên mốc cuối. Không nạp lại đều đặn thì giá trên
   // màn hình đứng hình sau một phút, rồi lệch quá 3% và mọi lệnh bị từ chối.
   const { data: market, mutate: reloadMarket } = useSWR("/stock/market", fetcher, {
@@ -608,9 +620,11 @@ function MiniSparkline({ company, isUp }) {
 
 function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp }) {
   const { t } = useTranslation();
-  const feeRate = market?.feeRate ?? 0.005;
-  const creativeRate = market?.creativeFeeRate ?? 0.05;
-  const conversionRate = portfolio?.crossDenom ? (market?.conversionFeeRate ?? 0.15) : 0;
+  const feeRate = market?.feeRate ?? TRADING_FEE_RATE;
+  const creativeRate = market?.creativeFeeRate ?? CREATIVE_FEE_RATE;
+  const conversionRate = portfolio?.crossDenom
+    ? (market?.conversionFeeRate ?? STOCK_CONVERSION_FEE_RATE)
+    : 0;
   // Ba trạng thái khác nhau, đừng gộp thành số 0:
   //   chưa tải xong  → không biết số dư, KHÔNG được khoá nút
   //   không có ví    → nói thẳng lý do
@@ -660,6 +674,11 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
       const data = await res.json();
       if (data.success) {
         setReceipt(data.receipt || null);
+        // Số dư trên header lấy từ joyStore (WS cập nhật); WS rớt thì hoá đơn
+        // là nguồn đúng gần nhất — đồng bộ ngay, khỏi hiện số cũ.
+        if (Number.isFinite(data.receipt?.balanceAfter)) {
+          useJoyStore.getState().setBalance(data.receipt.balanceAfter);
+        }
         await onTraded();
       }
       showToast?.(data.message || (data.success ? t("invest.ui.orderSuccess", "Đã khớp lệnh thành công") : t("invest.ui.orderFailed", "Không đặt được lệnh")), data.success ? "success" : "error");
@@ -739,6 +758,15 @@ function CompanyDetail({ company, portfolio, market, onTraded, showToast, onHelp
               {holding.unrealized >= 0 ? "+" : ""}{moneyText(holding.unrealized)} ({pctText(holding.unrealizedPct)})
             </strong>
           </p>
+          {/* Bài học "phí ăn bao nhiêu" cần con số thật, không phải tỷ lệ trừu tượng. */}
+          {(holding.feesPaid > 0 || holding.dividendReceived > 0) && (
+            <p className="text-[12.5px] text-muted-foreground font-sans">
+              {t("invest.ui.feesPaid", "Tổng phí đã trả")}: <strong className="text-foreground">{moneyText(holding.feesPaid || 0)}</strong>
+              {holding.dividendReceived > 0 && (
+                <> · {t("invest.ui.dividendsReceived", "Cổ tức đã nhận")}: <strong className="text-foreground">{moneyText(holding.dividendReceived)}</strong></>
+              )}
+            </p>
+          )}
         </div>
       )}
 

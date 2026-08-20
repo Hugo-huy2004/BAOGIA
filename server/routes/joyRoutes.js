@@ -29,7 +29,7 @@ import { randomInt, randomBytes } from 'node:crypto';
 import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../utils/memberTier.js';
 import NodeCache from 'node-cache';
 import { isAuraThemeFree, isAuraThemeId } from '../../shared/auraThemes.js';
-import { denomKey, denomOf, transferBreakdown, DENOM_OPTIONS } from '../../shared/joyCurrency.js';
+import { denomKey, denomOf, transferBreakdown } from '../../shared/joyCurrency.js';
 
 const idempotencyCache = new NodeCache({ stdTTL: 300 });
 

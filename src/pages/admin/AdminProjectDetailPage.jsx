@@ -5,6 +5,7 @@ import { logoutAuth } from '../../services/authSession';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { HugoNoticeToast } from '../../components/shared/HugoNotice';
+import { API_BASE } from '../../config/apiBase';
 
 export default function AdminProjectDetailPage() {
   const { t } = useTranslation();
@@ -146,7 +147,7 @@ export default function AdminProjectDetailPage() {
 
   const markMessagesAsRead = React.useCallback(async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${id}/messages/read`, {
+      await fetch(`${API_BASE}/customer-projects/${id}/messages/read`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -160,7 +161,7 @@ export default function AdminProjectDetailPage() {
   const fetchProjectDetail = React.useCallback(async () => {
     try {
       // First verify admin
-      const adminRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/data/admin`, {
+      const adminRes = await fetch(`${API_BASE}/data/admin`, {
         credentials: 'include'
       });
       if (adminRes.status === 401 || adminRes.status === 403) {
@@ -172,7 +173,7 @@ export default function AdminProjectDetailPage() {
       // Then fetch project
       // Wait, there's no GET /api/customer-projects/:id in backend yet. Let's fetch all and filter, or just use the list.
       // But we can just use GET /api/customer-projects and find by id for now, as it requires admin anyway.
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects`, {
+      const res = await fetch(`${API_BASE}/customer-projects`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
@@ -198,7 +199,7 @@ export default function AdminProjectDetailPage() {
 
   const fetchMessages = React.useCallback(async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${id}/messages`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${id}/messages`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
       });
@@ -242,7 +243,7 @@ export default function AdminProjectDetailPage() {
     setIsVerifying(true);
     setPasswordError('');
     try {
-      const verifyRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/admin/verify-password`, {
+      const verifyRes = await fetch(`${API_BASE}/admin/verify-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -255,7 +256,7 @@ export default function AdminProjectDetailPage() {
         return;
       }
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -289,7 +290,7 @@ export default function AdminProjectDetailPage() {
     e.preventDefault();
     if (!newMessage.trim()) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8081/api'}/customer-projects/${project._id}/messages`, {
+      const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

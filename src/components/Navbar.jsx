@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSelect from "./LanguageSelect";
 
 function NavLink({ to, active, children }) {
-  const className = `inline-flex h-8 items-center rounded-full px-3.5 text-[12px] font-semibold leading-none transition-all duration-200 select-none ${
+  const className = `inline-flex h-11 items-center rounded-full px-3.5 text-[12px] font-semibold leading-none transition-all duration-200 select-none ${
     active
       ? "bg-card text-foreground shadow-[0_1px_5px_hsl(var(--shadow)/0.09),inset_0_1px_0_rgba(255,255,255,0.7)]"
       : "text-muted-foreground hover:text-foreground"
@@ -31,7 +31,7 @@ export default function Navbar() {
         {/* Brand */}
         <Link
           to="/introduction"
-          className="flex h-9 flex-shrink-0 items-center gap-2 text-sm font-extrabold leading-none tracking-[-0.02em] text-foreground transition-opacity hover:opacity-75 sm:text-base"
+          className="flex h-11 flex-shrink-0 items-center gap-2 text-sm font-extrabold leading-none tracking-[-0.02em] text-foreground transition-opacity hover:opacity-75 sm:text-base"
           aria-label="Hugo Studio Home"
         >
           <span>Hugo Studio</span>
@@ -57,12 +57,12 @@ export default function Navbar() {
         </nav>
 
         {/* Right controls */}
-        <div className="ml-auto flex h-9 flex-shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="ml-auto flex h-11 flex-shrink-0 items-center gap-1.5 sm:gap-2">
 
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent("open-donation"))}
-            className="hidden h-8 items-center gap-1.5 rounded-full border border-border/70 px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-muted lg:inline-flex"
+            className="hidden h-11 items-center gap-1.5 rounded-full border border-border/70 px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-muted lg:inline-flex"
             aria-label={t("footer.supportServer", "Ủng hộ Hugo Studio")}
           >
             <span className="material-symbols-outlined text-[17px]" aria-hidden="true">volunteer_activism</span>
@@ -74,7 +74,7 @@ export default function Navbar() {
 
           <Link
             to={accountPath}
-            className="hidden h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+            className="hidden h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
             aria-label={t("navbar.account", "Tài khoản")}
           >
             <span className="material-symbols-outlined text-[18px]">person</span>
@@ -83,7 +83,7 @@ export default function Navbar() {
           {/* Một CTA duy nhất, đi thẳng tới cuộc trao đổi. */}
           <Link
             to="/booking"
-            className="hidden h-9 items-center justify-center rounded-full bg-primary px-4 text-[11px] font-bold text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.2)] transition-all hover:-translate-y-px hover:bg-primary/90 active:scale-[0.98] sm:inline-flex"
+            className="hidden h-11 items-center justify-center rounded-full bg-primary px-4 text-[11px] font-bold text-primary-foreground shadow-[0_8px_20px_hsl(var(--primary)/0.2)] transition-all hover:-translate-y-px hover:bg-primary/90 active:scale-[0.98] sm:inline-flex"
           >
             {t("navbar.booking", "Trao đổi")}
           </Link>
