@@ -28,7 +28,13 @@ function AppForm({ initial, submitLabel, onSubmit, onCancel }) {
   const submit = async (event) => {
     event.preventDefault();
     setSaving(true);
-    try { await onSubmit(form); } finally { setSaving(false); }
+    try {
+      await onSubmit(form);
+    } catch (error) {
+      notify.error(error.message || "Không thể kết nối tới máy chủ.");
+    } finally {
+      setSaving(false);
+    }
   };
   return (
     <form onSubmit={submit} className="space-y-4">

@@ -95,7 +95,10 @@ app.use('/api/oauth', cors({
       .then((exists) => callback(null, Boolean(exists)))
       .catch(() => callback(null, false));
   },
-  credentials: false,
+  // Admin UI ở www.* gọi API host với cookie/Bearer và credentials=include.
+  // ACAO luôn là origin cụ thể đã allowlist (không phải *), nên bật credentials
+  // vẫn an toàn cho public PKCE clients dùng fetch không kèm cookie.
+  credentials: true,
 }));
 
 app.use(cors({
