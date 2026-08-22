@@ -6,41 +6,7 @@ import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy"
 import { Search, X } from "lucide-react";
 import UtilityAppIcon from "./UtilityAppIcon";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
-
-// Kept in sync with the same map in MemberUtilitiesDashboard.jsx
-const APP_STORAGE_MB = {
-  study: 8.1,
-  ide: 4.5,
-  psychology: 3.2,
-  arcade: 5.1,
-  radio: 1.9,
-  handle: 1.6,
-  aura: 1.8,
-  team: 1.6,
-  bio: 1.5,
-  info: 0.8,
-  hugoso: 3.6,
-  cinema: 4.8,
-  invest: 5.0
-};
-
-const APP_VERSIONS = {
-  bio: "3.2.0",
-  study: "1.0.0",
-  ide: "2.8.1",
-  team: "1.4.0",
-  psychology: "4.1.0",
-  radio: "1.6.0",
-  handle: "2.0.0",
-  arcade: "3.5.0",
-  aura: "2.1.0",
-  info: "2.0.0",
-  hugoso: "1.0.0",
-  // 2.0.0: đổi tên thành Chill Premium, dựng lại theo lối Netflix, kệ phim
-  // chuyển sang phim công cộng thật lấy từ Internet Archive.
-  cinema: "2.0.0",
-  invest: "1.0.0"
-};
+import { getAppStorageMb, getAppVersion } from "../../../../shared/appRegistry";
 
 export default function LibraryCatalog({
   searchQuery,
@@ -210,7 +176,7 @@ export default function LibraryCatalog({
             const isInstalled = installedApps.includes(app.id);
             const isDownloading = downloadingAppId === app.id;
             const progress = downloadProgress[app.id] || 0;
-            const appSize = (APP_STORAGE_MB[app.id] || 2.0).toFixed(1);
+            const appSize = getAppStorageMb(app.id).toFixed(1);
             const isRequired = appInstallationPolicy.isRequired(app.id);
 
             return (
@@ -347,7 +313,7 @@ export default function LibraryCatalog({
                   <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-md">
                     {categoryLabel(selectedApp.category)}
                   </span>
-                  <span className="text-xs font-mono text-muted-foreground">v{APP_VERSIONS[selectedApp.id] || "1.0.0"}</span>
+                  <span className="text-xs font-mono text-muted-foreground">v{getAppVersion(selectedApp.id)}</span>
                   {appInstallationPolicy.isRequired(selectedApp.id) ? (
                     <span className="text-xs font-medium text-success">
                       {t("utilities.library.included")}
@@ -382,7 +348,7 @@ export default function LibraryCatalog({
             <div className="grid grid-cols-3 gap-2 py-2 border-y border-border/50 text-center">
               <div className="p-2 rounded-xl bg-muted/40">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.storage")}</span>
-                <span className="text-sm font-semibold text-foreground font-mono">{APP_STORAGE_MB[selectedApp.id] || 2.0} MB</span>
+                <span className="text-sm font-semibold text-foreground font-mono">{getAppStorageMb(selectedApp.id)} MB</span>
               </div>
               <div className="p-2 rounded-xl bg-muted/40">
                 <span className="text-xs text-muted-foreground block">{t("utilities.library.age")}</span>

@@ -582,7 +582,9 @@ export default class AIBot extends BaseBot {
       // Server errored (or streamed nothing usable) → compose a warm local
       // reply and stream it in, so the user always gets a real answer.
       if (serverError || !replyText.trim()) {
-        if (serverError) console.warn("AIBot chatStream server error:", serverErrorDetail);
+        if (serverError && serverErrorDetail !== "AI_UNAVAILABLE") {
+          console.warn("AIBot chatStream server error:", serverErrorDetail);
+        }
         const local = buildLocalReply(message);
         onChunk?.(local.reply);
         onDone?.(local);

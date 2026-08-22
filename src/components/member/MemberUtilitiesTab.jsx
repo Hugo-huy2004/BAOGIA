@@ -4,6 +4,8 @@ import { changeAppLanguage } from "../../i18n/config";
 import { psychologyGate } from "../../lib/memberAge";
 import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
+import { trackOpen } from "./os/appUsage";
+import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
@@ -20,9 +22,9 @@ const StudyWithHugoApp = lazy(() => import("./study/StudyWithHugoApp"));
 const HugoWalletApp = lazy(() => import("./wallet/HugoWalletApp"));
 const HugoCinemaTab = lazy(() => import("./cinema/HugoCinemaTab"));
 const HugoInvestTab = lazy(() => import("./invest/HugoInvestTab"));
-const HugoSupporterApp = lazy(() => import("./utilities/HugoSupporterApp"));
+const SupportCenterApp = lazy(() => import("./support/SupportCenterApp"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, ideLessonId, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -41,9 +43,19 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
     }
   }, [data?.systemSettings?.blockUtilities, selectedUtility, onSelectUtility, showToast, t]);
 
+  // Ghi nhật ký "vừa mở" ở đây — chỗ duy nhất mọi đường vào đều đi qua (icon
+  // Home, Thư viện, Spotlight, Hugo Store, URL dán tay). Ghi ở từng nút bấm thì
+  // thiếu một chỗ là Spotlight xếp sai thứ tự.
+  useEffect(() => {
+    if (selectedUtility) trackOpen(selectedUtility);
+  }, [selectedUtility]);
+
   const fallback = <TabFallbackSkeleton />;
 
-  const isFullscreenLikeUtility = ["joy_wallet", "psychology", "study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "cinema", "supporter", "invest"].includes(selectedUtility);
+  // Cùng một nguồn với MemberPortalPage (shared/appRegistry.js). HugoPSY thêm
+  // vào đây vì trên điện thoại nó cũng dựng vỏ toàn màn hình.
+  const isFullscreenLikeUtility = selectedUtility === "psychology"
+    || FULLSCREEN_APP_IDS.includes(selectedUtility);
 
   // Chặn ở đây — chỗ app được render — nên mọi đường vào đều bị chặn như nhau:
   // icon ngoài Home, Thư viện, Spotlight, Hugo Store, liên kết dán tay, và cả
@@ -145,7 +157,14 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
 
       {/* HugoRadio */}
       {selectedUtility === "radio" && (
-        <MemberRadioTab onBack={() => onSelectUtility(null)} showToast={showToast} bio={bio} onBioUpdate={onBioUpdate} />
+        <MemberRadioTab
+          onBack={() => onSelectUtility(null)}
+          showToast={showToast}
+          bio={bio}
+          onBioUpdate={onBioUpdate}
+          activePage={radioPage || "home"}
+          onPageChange={onSelectRadioPage}
+        />
       )}
 
       {/* HugoArcade */}
@@ -197,11 +216,14 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         />
       )}
 
-      {(selectedUtility === "supporter" || selectedUtility === "helpdesk") && (
-        <HugoSupporterApp
+      {/* Trung Tâm Hỗ Trợ — hướng dẫn viết sẵn và yêu cầu gửi thẳng cho quản
+          trị viên. Id cũ "helpdesk" KHÔNG vào đây: nó đã sáp nhập vào HugoKit ở
+          trên, và khi cả hai nhánh cùng nhận "helpdesk" thì hai app dựng chồng
+          lên nhau trong cùng một màn. */}
+      {selectedUtility === "supporter" && (
+        <SupportCenterApp
           bio={bio}
           onClose={() => onSelectUtility(null)}
-          showToast={showToast}
         />
       )}
       </Suspense>

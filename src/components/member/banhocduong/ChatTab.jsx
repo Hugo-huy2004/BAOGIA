@@ -44,6 +44,15 @@ import { useJoyStore } from "../../../stores/joyStore";
 // the AI leans on those aggregated indicators to still feel like it
 // remembers the user well beyond the 7-day chat window.
 const CHAT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+function localDateKey(value = new Date()) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function pruneOldMessages(msgs) {
   if (!Array.isArray(msgs)) return msgs;
   const cutoff = Date.now() - CHAT_RETENTION_MS;
@@ -367,48 +376,90 @@ export default function ChatTab({
     }
   }, [bio, onProfileUpdate, pushBotMessageChunks, showToast]);
 
-  // Mood check-in handler — instant local response, no AI call, contextual therapy chips.
-  const handleMoodSelect = useCallback((moodValue) => {
+  // Daily Pulse handler — saves mood + energy + pressure + current need as one
+  // daily signal, then turns it into a concrete next step without claiming a
+  // diagnosis. Re-checking on the same day replaces that day's pulse.
+  const handleMoodSelect = useCallback(async (pulseInput) => {
+    if (isGuestMode || !bio?.email) {
+      requireAccount?.();
+      throw new Error("ACCOUNT_REQUIRED");
+    }
+    const pulse = typeof pulseInput === "number"
+      ? { mood: pulseInput, energy: 3, stress: 3, need: "talk" }
+      : pulseInput;
+    const moodValue = Number(pulse?.mood || 3);
+    const energy = Number(pulse?.energy || 3);
+    const stress = Number(pulse?.stress || 3);
+    const need = ["calm", "focus", "rest", "talk"].includes(pulse?.need) ? pulse.need : "talk";
+
+    const today = localDateKey();
+    const newLog = {
+      date: new Date().toISOString(),
+      type: "checkin",
+      mood: moodValue,
+      energy,
+      stress,
+      need,
+      source: "daily_pulse",
+      note: "Daily Pulse",
+    };
+    const previousLogs = historyLogs || [];
+    const updatedLogs = [
+      ...previousLogs.filter((log) => !(log?.type === "checkin" && localDateKey(log.date) === today)),
+      newLog,
+    ];
+
+    // Do not show a false success state if persistence failed.
+    const saved = await onUpdateCompanionState?.({ lastCheckinDate: today, historyLogs: updatedLogs });
+    if (!saved) throw new Error("DAILY_PULSE_SAVE_FAILED");
+
     setCurrentMood(moodValue);
     setMoodCheckinDone(true);
-    // Strip the picker from the init message so it saves cleanly to localStorage
-    setMessages(prev => prev.map(m => m.id === "init" ? { ...m, type: undefined } : m));
+    // Strip the completed picker from whichever daily greeting owns it so it
+    // saves as a normal message instead of reopening after remount.
+    setMessages(prev => prev.map(m => m.type === "mood_checkin" ? { ...m, type: undefined } : m));
 
     const name = bio?.displayName?.trim().split(" ").pop() || "bạn";
     const MOOD_LABELS = { 5: "Rất vui", 4: "Tốt", 3: "Bình thường", 2: "Mỏi mệt", 1: "Kiệt sức" };
-    const MOOD_RESPONSES = {
-      5: [`Woah, ${name} đang vibe xịn vậy!`, `Điều gì làm cậu vui vậy — kể tớ nghe nha?`],
-      4: [`Nghe ổn rồi đó!`, `Hôm nay cậu muốn làm gì — tâm sự hay thư giãn một chút?`],
-      3: [`Bình thường thôi hả — đôi khi thế cũng ổn mà.`, `Có điều gì cậu đang suy nghĩ không, kể tớ nghe nha?`],
-      2: [`Hơi xìu xìu... không sao, tớ ở đây nè ${name}`, `Cậu muốn tâm sự hay thư giãn xíu?`],
-      1: [`Ugh, kiệt sức rồi à. Tớ nghe thấy cậu.`, `Có điều gì muốn nói ra không — tớ đang ở đây hết nha.`],
+    const NEED_LABELS = { calm: "bình tâm", focus: "tập trung", rest: "nghỉ ngơi", talk: "được lắng nghe" };
+    const NEED_PLANS = {
+      calm: ["Thả lỏng vai và thở chậm trong 2 phút", "Tạm rời màn hình 5 phút", "Quay lại với đúng một việc nhỏ"],
+      focus: ["Chọn một việc quan trọng nhất", "Tập trung 15 phút và tắt thông báo", "Nghỉ 3 phút rồi mới quyết định vòng tiếp theo"],
+      rest: ["Uống nước và rời màn hình", "Cho phép bản thân nghỉ 10 phút không cảm thấy có lỗi", "Giảm một việc không bắt buộc hôm nay"],
+      talk: ["Gọi tên điều đang nặng nhất", "Chọn một người an toàn để nhắn tin", "Kể HugoPSY một chuyện, từng phần nhỏ cũng được"],
     };
-    const MOOD_CHIPS = {
-      5: ["Kể thêm đi", "Xem streak của tớ", "Chia sẻ điều tốt hôm nay"],
-      4: ["Tâm sự thêm đi", "Cho tớ bài thư giãn", "Xem tiến triển của tớ"],
-      3: ["Kể thêm cho tớ nghe", "Cho tớ bài tập thư giãn", "Tớ đang suy nghĩ về..."],
-      2: ["Kể thêm cho tớ", "Cho tớ bài tập thở", "Tớ cần nghỉ ngơi"],
-      1: ["Tớ muốn tâm sự", "Cho tớ bài tập thở", "Tớ cần không gian yên tĩnh"],
+    const NEED_CHIPS = {
+      calm: ["Bài thở 2 phút", "Giúp tớ hạ áp lực", "Mở không gian yên tĩnh"],
+      focus: ["Chia nhỏ việc cần làm", "Bắt đầu 15 phút", "Giảm kế hoạch hôm nay"],
+      rest: ["Cho tớ bài thư giãn", "Lập kế hoạch nghỉ", "Xem giấc ngủ của tớ"],
+      talk: ["Tớ muốn kể rõ hơn", "Cứ lắng nghe tớ", "Giúp tớ gọi tên cảm xúc"],
     };
 
-    // Log check-in
-    const newLog = { date: new Date().toISOString(), type: "checkin", mood: moodValue, note: "Daily mood check-in" };
-    if (onUpdateCompanionState) {
-      onUpdateCompanionState({ historyLogs: [...(historyLogs || []), newLog] });
-    }
-
-    // Show user's mood as a message
-    const userMsg = { id: `mood-${Date.now()}`, sender: "user", text: MOOD_LABELS[moodValue], time: new Date() };
+    const userMsg = {
+      id: `mood-${Date.now()}`,
+      sender: "user",
+      text: `Daily Pulse · ${MOOD_LABELS[moodValue]} · Năng lượng ${energy}/5 · Áp lực ${stress}/5`,
+      time: new Date(),
+    };
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
     setTimeout(() => {
-      pushBotMessageChunks(MOOD_RESPONSES[moodValue] || MOOD_RESPONSES[3]).then(() => {
+      const plan = NEED_PLANS[need];
+      const observation = stress >= 4
+        ? `${name} đang ghi nhận mức áp lực khá cao; hôm nay mình sẽ ưu tiên giảm tải trước.`
+        : energy <= 2
+          ? `Năng lượng của ${name} đang thấp; kế hoạch hôm nay nên ngắn và có khoảng nghỉ.`
+          : `Nhịp hôm nay đã được lưu. HugoPSY sẽ dùng nó để so xu hướng theo tuần.`;
+      pushBotMessageChunks([
+        observation,
+        `Cậu cần **${NEED_LABELS[need]}** nhất. Kế hoạch nhẹ hôm nay:\n1. ${plan[0]}\n2. ${plan[1]}\n3. ${plan[2]}`,
+      ]).then(() => {
         setLoading(false);
-        setChatQuickReplies(MOOD_CHIPS[moodValue] || []);
+        setChatQuickReplies(NEED_CHIPS[need] || NEED_CHIPS.talk);
       });
     }, 500);
-  }, [bio, historyLogs, onUpdateCompanionState, pushBotMessageChunks]);
+  }, [bio, historyLogs, isGuestMode, onUpdateCompanionState, pushBotMessageChunks, requireAccount]);
 
   // Buy-now from the chat's "unlock" quick action (see therapy_locked intent
   // in intentClassifier.js) — same endpoint/flow as TherapyTab's own unlock
@@ -561,18 +612,36 @@ export default function ChatTab({
     const initBot = async () => {
       if (bio?.email) {
       const localMsgs = localStorage.getItem("banhocduong_chat_messages");
+      const today = localDateKey();
+      const storedCheckinDate = localStorage.getItem("banhocduong_last_checkin_date") || "";
+      const checkedInToday = storedCheckinDate === today || storedCheckinDate === new Date().toDateString();
       if (localMsgs) {
         try {
           const parsed = JSON.parse(localMsgs);
           if (parsed.length > 0) {
             const mapped = pruneOldMessages(parsed.map(m => ({ ...m, time: new Date(m.time) })));
             if (mapped.length > 0) {
-              setMessages(mapped);
-              setMoodCheckinDone(true); // Existing chat — picker already answered
-              lastSavedMessageIdRef.current = mapped[mapped.length - 1].id;
+              // HMR/remounts from older builds may have inserted the same daily
+              // card more than once. De-duplicate persisted messages and remove
+              // today's old card before adding the single live picker.
+              const uniqueMapped = [...new Map(mapped.map((message) => [message.id, message])).values()];
+              const dailyPulseId = `daily-pulse-${today}`;
+              const withoutStalePicker = uniqueMapped
+                .filter((message) => message.id !== dailyPulseId)
+                .map((message) => message.type === "mood_checkin" ? { ...message, type: undefined } : message);
+              const dailyMessages = checkedInToday ? withoutStalePicker : [...withoutStalePicker, {
+                id: dailyPulseId,
+                sender: "bot",
+                type: "mood_checkin",
+                text: "Trước khi mình bắt đầu, cho tớ bắt nhịp hôm nay của cậu nhé.",
+                time: new Date(),
+              }];
+              setMessages(dailyMessages);
+              setMoodCheckinDone(checkedInToday);
+              lastSavedMessageIdRef.current = dailyMessages[dailyMessages.length - 1].id;
 
               // Mark all existing loaded messages as completed immediately
-              const ids = mapped.map(m => m.id);
+              const ids = dailyMessages.map(m => m.id);
               setCompletedMessageIds(new Set(ids));
               return;
             }
@@ -591,11 +660,11 @@ export default function ChatTab({
         id: "init",
         sender: "bot",
         type: "mood_checkin",
-        text: `Chào ${name}! 🌸 Hôm nay cậu đang cảm thấy thế nào?`,
+        text: `Chào ${name}! Trước khi mình bắt đầu, cho tớ bắt nhịp hôm nay của cậu nhé.`,
         time: new Date()
       };
-      setMessages([initMsg]);
-      setMoodCheckinDone(false);
+      setMessages(checkedInToday ? [{ ...initMsg, type: undefined }] : [initMsg]);
+      setMoodCheckinDone(checkedInToday);
       setCompletedMessageIds(new Set(["init"]));
       lastSavedMessageIdRef.current = "init";
     }
@@ -1153,11 +1222,11 @@ export default function ChatTab({
   if (showTherapyOverlay) {
     return (
       <div className="flex flex-col min-h-0 h-full bg-zinc-50/30 dark:bg-[#0a0a0f]/30 animate-fadeIn relative overflow-hidden">
-        <div className="psy-chat-safe-header shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white/95 dark:bg-[#0e0e12]/95 backdrop-blur-sm border-b border-border/60">
+        <div className="psy-chat-safe-header psy-liquid-glass shrink-0 flex items-center gap-2 px-4 py-2.5 border-x-0 border-t-0 rounded-none">
           <button
             type="button"
             onClick={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
-            className="w-8 h-8 -ml-1 rounded-full flex items-center justify-center text-muted-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
+            className="w-11 h-11 -ml-1 rounded-full flex items-center justify-center text-muted-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-95 transition-all shrink-0"
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
           </button>
@@ -1217,12 +1286,12 @@ export default function ChatTab({
 
       {/* ── Header — redesigned ────────────────────────────────────────────────── */}
       <div
-        className="psy-chat-safe-header shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 bg-gradient-to-b from-white/90 via-white/50 to-transparent dark:from-[#060609]/90 dark:via-[#060609]/50 dark:to-transparent pb-8"
+        className="psy-chat-safe-header psy-liquid-glass shrink-0 z-20 flex items-center gap-3 px-3 sm:px-4 py-3 border-x-0 border-t-0 rounded-none"
       >
         {/* Back button (mobile fullscreen only) */}
         {onExitFullscreen && (
           <button type="button" onClick={onExitFullscreen}
-            className="md:hidden -ml-1 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:bg-zinc-100 dark:hover:bg-white/[0.07] active:scale-90 transition-all shrink-0">
+            className="md:hidden -ml-1 w-11 h-11 rounded-full flex items-center justify-center text-foreground/80 bg-white/45 dark:bg-white/[0.08] border border-white/40 dark:border-white/10 hover:bg-white/70 dark:hover:bg-white/[0.13] active:scale-90 transition-all shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-[22px]">chevron_left</span>
           </button>
         )}
@@ -1279,7 +1348,7 @@ export default function ChatTab({
               <button 
                 type="button"
                 onClick={() => setShowTokenExchangeModal(true)}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-full text-[10px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
+                className="flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black text-foreground/80 transition-all bg-white/70 dark:bg-white/[0.03] border border-zinc-200/60 dark:border-zinc-800/40 shadow-sm active:scale-95"
                 title={tokenLockMinutes > 0 ? `Bị khóa trong ~${tokenLockMinutes} phút` : `Token: ${totalTokens}/${maxChatTokens} (Click để đổi thêm)`}
               >
                 <div className="relative w-4 h-4 flex items-center justify-center">
@@ -1335,7 +1404,7 @@ export default function ChatTab({
             type="button"
             onClick={() => setShowCoachMenu((open) => !open)}
             title={t("hugoPsy.coach.title")}
-            className={`h-8 w-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+            className={`h-11 w-11 rounded-full flex items-center justify-center transition-all active:scale-90 ${
               showCoachMenu
                 ? "bg-foreground/10 text-foreground ring-1 ring-foreground/10"
                 : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
@@ -1347,7 +1416,7 @@ export default function ChatTab({
           {/* Venting mode toggle */}
           <button type="button" onClick={toggleVentingMode}
             title={isVentingMode ? t("hugoPsy.chat.thoatCheDoTrut") : t("hugoPsy.chat.cheDoTrutGian")}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90 ${
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-90 ${
               isVentingMode
                 ? "bg-foreground/10 text-foreground border border-foreground/15"
                 : "text-muted-foreground/70 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
@@ -1365,7 +1434,8 @@ export default function ChatTab({
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            className="absolute left-3 right-3 top-[76px] z-30 mx-auto max-w-xl rounded-[24px] border border-white/60 bg-white/88 p-3 shadow-[0_24px_70px_rgba(31,41,55,0.18)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#17171b]/92"
+            className="absolute left-3 right-3 z-30 mx-auto max-w-xl rounded-[24px] border border-white/60 bg-white/88 p-3 shadow-[0_24px_70px_rgba(31,41,55,0.18)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#17171b]/92"
+            style={{ top: "calc(env(safe-area-inset-top, 0px) + 76px)" }}
           >
             <div className="mb-2 flex items-center justify-between px-1">
               <div>
@@ -1428,7 +1498,8 @@ export default function ChatTab({
       {showTestsMenu && (
         <div className="absolute inset-0 z-30 flex flex-col justify-end bg-black/50 backdrop-blur-sm"
           onClick={() => setShowTestsMenu(false)}>
-          <div className="bg-white dark:bg-card rounded-t-3xl px-5 pt-4 pb-6 space-y-2.5"
+          <div className="bg-white dark:bg-card rounded-t-3xl px-5 pt-4 space-y-2.5"
+            style={{ paddingBottom: "max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px))" }}
             onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-1">
               <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{t("hugoPsy.assessment.title")}</p>
@@ -1457,7 +1528,7 @@ export default function ChatTab({
       )}
 
       {/* Mobile quick actions keep every HugoPSY capability reachable from chat. */}
-      <div className="md:hidden grid grid-cols-3 gap-2 px-3 py-2 bg-muted/35 border-b border-border/50 z-20 shrink-0">
+      <div className="psy-chat-quick-actions psy-liquid-glass md:hidden grid grid-cols-3 gap-2 px-3 py-2 border-x-0 border-t-0 rounded-none z-20 shrink-0">
           <button
             type="button"
             onClick={() => setActiveModalDrawer("therapy")}
@@ -1533,12 +1604,16 @@ export default function ChatTab({
             // compositor thread, so the bar rides the keyboard animation 1:1
             // with zero jank — no JS transform, no transition needed.
             bottom: "env(keyboard-inset-height, 0px)",
+            left: "env(safe-area-inset-left, 0px)",
+            right: "env(safe-area-inset-right, 0px)",
             paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
           } : {
             // iOS Safari fallback: lift with a GPU transform. iOS fires a
             // single late viewport resize (not per-frame), so a short ease
             // makes the jump feel animated instead of teleporting.
             bottom: 0,
+            left: "env(safe-area-inset-left, 0px)",
+            right: "env(safe-area-inset-right, 0px)",
             transform: keyboardInset > 0 ? `translateY(-${keyboardInset}px)` : "none",
             transition: "transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
             paddingBottom: keyboardInset > 0 ? "8px" : "max(16px, env(safe-area-inset-bottom))",
@@ -1562,7 +1637,7 @@ export default function ChatTab({
               </div>
             )}
 
-            <div className="bg-white/60 dark:bg-[#060609]/60 backdrop-blur-3xl rounded-[32px] border border-border/50/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-1.5 transition-all">
+            <div className="psy-liquid-composer p-1.5 transition-all">
               <ChatInputBar
                 inputRef={inputRef}
                 value={inputText}
@@ -1605,12 +1680,13 @@ export default function ChatTab({
       {/* Interactive Modal Drawer overlay for Therapy, Sleep, or Evaluation in PWA / Chat mode */}
       <AnimatePresence>
         {activeModalDrawer && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md">
+          <div className="psy-modal-safe-layer fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-card border border-border rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative text-left"
+              className="bg-card border border-border rounded-3xl w-full max-w-4xl flex flex-col shadow-2xl overflow-hidden relative text-left"
+              style={{ maxHeight: "calc(100dvh - max(16px, env(safe-area-inset-top, 0px)) - max(16px, env(safe-area-inset-bottom, 0px)))" }}
             >
               <div className="flex items-center justify-between p-4 border-b border-border/60 bg-muted/30">
                 <span className="flex min-w-0 items-center gap-2 text-xs font-black uppercase tracking-wider text-foreground">
@@ -1621,7 +1697,7 @@ export default function ChatTab({
                 <button
                   type="button"
                   onClick={() => setActiveModalDrawer(null)}
-                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
+                  className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-all"
                 >
                   ✕
                 </button>

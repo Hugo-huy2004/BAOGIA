@@ -92,6 +92,13 @@ const FALLBACK_STATIONS = {
 };
 
 const SLEEP_STEPS = [15, 30, 60];
+const RADIO_APP_PAGES = [
+  { id: "home", icon: "home", label: "Trang chủ" },
+  { id: "stations", icon: "radio", label: "Đài phát" },
+  { id: "discover", icon: "travel_explore", label: "Khám phá" },
+  { id: "sleep", icon: "bedtime", label: "Hẹn giờ" },
+  { id: "about", icon: "info", label: "Thông tin" },
+];
 
 const readGuestDemoSeconds = () => {
   try {
@@ -110,8 +117,18 @@ const writeGuestDemoSeconds = (seconds) => {
 
 const formatDemoTime = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 
-export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = false, requireAccount }) {
+export default function MemberRadioTab({
+  onBack,
+  showToast,
+  bio,
+  isGuestMode = false,
+  requireAccount,
+  activePage = "stations",
+  onPageChange,
+}) {
   const { t } = useTranslation();
+  const standaloneApp = typeof onPageChange === "function";
+  const page = RADIO_APP_PAGES.some((item) => item.id === activePage) ? activePage : "home";
   const [activeCategory, setActiveCategory] = useState(RADIO_CATEGORIES[0].id);
   const [stationsByCategory, setStationsByCategory] = useState({});
   const [loadingCategory, setLoadingCategory] = useState(null);
@@ -511,16 +528,119 @@ export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = f
         : t("utilities.radio.state.idle");
 
   return (
-    <div className="text-foreground">
-      <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
+    <div className={standaloneApp
+      ? "h-full min-h-0 overflow-hidden bg-[radial-gradient(circle_at_20%_0%,rgba(45,212,191,0.14),transparent_34rem),radial-gradient(circle_at_90%_70%,rgba(59,130,246,0.1),transparent_30rem)] text-foreground flex flex-col"
+      : "text-foreground"}
+    >
+      {standaloneApp ? (
+        <>
+          <header
+            className="relative z-30 shrink-0 border-b border-white/50 bg-background/72 px-3 pb-3 shadow-[0_12px_38px_rgba(15,23,42,0.08)] backdrop-blur-3xl dark:border-white/10 dark:bg-[#06090d]/72"
+            style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
+          >
+            <div className="mx-auto flex max-w-7xl items-center gap-3">
+              <button
+                type="button"
+                onClick={onBack}
+                aria-label="Quay lại kho ứng dụng"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/60 bg-white/55 text-foreground shadow-sm transition active:scale-95 dark:border-white/10 dark:bg-white/[0.07]"
+              >
+                <span className="material-symbols-outlined">arrow_back</span>
+              </button>
+              <button type="button" onClick={() => onPageChange("home")} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white shadow-lg shadow-teal-500/20">
+                  <span className="material-symbols-outlined">radio</span>
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[16px] font-black tracking-tight">HugoRadio</span>
+                  <span className="block truncate text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Radio trực tuyến · Hugo Studio</span>
+                </span>
+              </button>
+              {nowPlaying && (
+                <span className="hidden min-w-0 items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-2 sm:flex">
+                  <span className={`h-2 w-2 shrink-0 rounded-full ${isPlaying ? "animate-pulse bg-emerald-400" : "bg-muted-foreground/50"}`} />
+                  <span className="max-w-40 truncate text-[11px] font-bold">{nowPlaying.name}</span>
+                </span>
+              )}
+            </div>
+          </header>
 
-      <div className="mb-4">
+          <nav className="relative z-20 shrink-0 border-b border-border/60 bg-background/58 px-3 py-2 backdrop-blur-2xl">
+            <div className="mx-auto flex max-w-4xl items-center gap-1 overflow-x-auto no-scrollbar">
+              {RADIO_APP_PAGES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onPageChange(item.id)}
+                  aria-current={page === item.id ? "page" : undefined}
+                  className={`flex h-11 shrink-0 items-center gap-2 rounded-2xl px-3.5 text-[12px] font-bold transition-all ${
+                    page === item.id
+                      ? "bg-foreground text-background shadow-md"
+                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        </>
+      ) : (
+        <SubUtilityHeader title="HugoRadio" icon="radio" colorClass="text-info" onBack={onBack} />
+      )}
+
+      <main className={standaloneApp
+        ? "min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-5 sm:px-6"
+        : ""}
+      >
+      <div className={standaloneApp ? "mx-auto w-full max-w-7xl" : ""}>
+
+      {standaloneApp && page === "home" && (
+        <section className="mb-5 overflow-hidden rounded-[28px] border border-white/60 bg-card/65 p-5 shadow-[0_22px_65px_rgba(15,23,42,0.1)] backdrop-blur-3xl dark:border-white/10 sm:p-7">
+          <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-teal-600 dark:text-teal-300">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" /> Đang phát trực tiếp
+              </span>
+              <h1 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.04em] sm:text-5xl">Một không gian nghe riêng của Hugo Studio.</h1>
+              <p className="mt-3 max-w-xl text-[13px] font-semibold leading-relaxed text-muted-foreground sm:text-[15px]">
+                Tin tức Việt Nam, radio quốc tế, âm nhạc và không gian tập trung — phát xuyên suốt khi cậu chuyển sang ứng dụng khác.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                <button type="button" onClick={() => onPageChange("stations")} className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-foreground px-5 text-[13px] font-black text-background shadow-lg transition active:scale-95">
+                  <span className="material-symbols-outlined text-[19px]">play_circle</span> Chọn đài để nghe
+                </button>
+                <button type="button" onClick={playRandom} className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-border bg-card/70 px-5 text-[13px] font-black transition active:scale-95">
+                  <span className="material-symbols-outlined text-[19px]">shuffle</span> Phát ngẫu nhiên
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {RADIO_APP_PAGES.filter((item) => !["home", "about"].includes(item.id)).map((item) => (
+                <button key={item.id} type="button" onClick={() => onPageChange(item.id)} className="group min-h-32 rounded-3xl border border-border/70 bg-background/55 p-4 text-left transition hover:-translate-y-0.5 hover:border-teal-500/35 hover:shadow-lg active:scale-[0.98]">
+                  <span className="grid h-10 w-10 place-items-center rounded-2xl bg-teal-500/10 text-teal-600 transition group-hover:bg-teal-500 group-hover:text-white dark:text-teal-300">
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </span>
+                  <span className="mt-4 block text-[13px] font-black">{item.label}</span>
+                  <span className="mt-1 block text-[10px] font-semibold text-muted-foreground">
+                    {item.id === "stations" ? "Danh mục đài chọn lọc" : item.id === "discover" ? "Tìm đài trên toàn cầu" : "Nghe rồi tự động tắt"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {(!standaloneApp || page !== "about") && <div className="mb-4">
         <RadioTokenStatus status={tokenStatus} loading={tokenLoading} onBuyMore={() => setShowStore(true)} />
-      </div>
+      </div>}
 
       {/* ─── Đang phát ────────────────────────────────────────────────────────
           Phẳng và tĩnh: nền đặc, viền mảnh, một màu nhấn duy nhất (info). */}
-      <div className="mb-5 rounded-2xl bg-card border border-border p-4 md:p-5 flex flex-col gap-4">
+      {(!standaloneApp || ["home", "stations", "sleep"].includes(page)) && (
+      <div className="mb-5 rounded-[26px] bg-card/75 border border-border/80 p-4 md:p-5 flex flex-col gap-4 shadow-sm backdrop-blur-2xl">
         <div className="flex items-center gap-3">
           <div className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center ${
             isPlaying ? "bg-info text-info-foreground" : "bg-muted text-muted-foreground"
@@ -595,8 +715,10 @@ export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = f
           </button>
         </div>
       </div>
+      )}
 
       {/* ─── Tìm đài bất kỳ ────────────────────────────────────────────────── */}
+      {(!standaloneApp || page === "discover") && (
       <form onSubmit={submitSearch} className="flex items-center gap-2 mb-4">
         <div className="flex-1 flex items-center gap-2 px-4 h-12 rounded-xl bg-card border border-border">
           <span className="material-symbols-outlined text-lg text-muted-foreground">search</span>
@@ -613,8 +735,11 @@ export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = f
           {searching ? t("utilities.radio.searching") : t("utilities.radio.searchAction")}
         </button>
       </form>
+      )}
 
       {/* ─── Danh mục ──────────────────────────────────────────────────────── */}
+      {(!standaloneApp || ["stations", "discover"].includes(page)) && (
+      <>
       <div className="flex items-center gap-2 overflow-x-auto mb-5 pb-1 no-scrollbar">
         {foundList.length > 0 && (
           <button onClick={() => setActiveCategory(FOUND_CATEGORY)}
@@ -690,9 +815,37 @@ export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = f
           })}
         </div>
       )}
+      </>
+      )}
 
       {/* ─── Nguồn & bản quyền ─────────────────────────────────────────────── */}
-      <div className="mt-6 rounded-2xl border border-border bg-muted p-4 flex items-start gap-3">
+      {(!standaloneApp || page === "about") && (
+      <div className="space-y-4">
+      {standaloneApp && (
+        <div className="rounded-[28px] border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-2xl sm:p-7">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-300">
+            <span className="material-symbols-outlined">info</span>
+          </span>
+          <h1 className="mt-4 text-2xl font-black tracking-tight">Về HugoRadio</h1>
+          <p className="mt-2 max-w-2xl text-[13px] font-semibold leading-relaxed text-muted-foreground">
+            Trình phát radio trực tuyến của Hugo Studio. Audio tiếp tục phát khi cậu chuyển app, hỗ trợ Media Session trên màn hình khóa và tự chuyển đài khi luồng hiện tại mất tín hiệu.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              ["verified", "Luồng công khai", "Không tải xuống hay ghi âm"],
+              ["headphones", "Phát nền", "Điều khiển từ màn hình khóa"],
+              ["health_and_safety", "Tự phục hồi", "Học URL tốt và bỏ qua đài lỗi"],
+            ].map(([icon, title, desc]) => (
+              <div key={title} className="rounded-2xl border border-border/60 bg-background/50 p-4">
+                <span className="material-symbols-outlined text-teal-500">{icon}</span>
+                <p className="mt-2 text-[12px] font-black">{title}</p>
+                <p className="mt-1 text-[10px] font-semibold text-muted-foreground">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="rounded-2xl border border-border bg-muted p-4 flex items-start gap-3">
         <span className="material-symbols-outlined text-lg text-muted-foreground shrink-0">gavel</span>
         <div className="text-[13px] text-muted-foreground leading-relaxed">
           <p className="font-bold text-foreground">{t("utilities.radio.legal.title")}</p>
@@ -700,6 +853,42 @@ export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = f
           <p className="mt-1">{t("utilities.radio.legal.source")}</p>
         </div>
       </div>
+      </div>
+      )}
+
+      {standaloneApp && page === "sleep" && (
+        <section className="rounded-[28px] border border-border/70 bg-card/70 p-5 shadow-sm backdrop-blur-2xl sm:p-7">
+          <div className="flex items-start gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-indigo-500/10 text-indigo-500">
+              <span className="material-symbols-outlined">bedtime</span>
+            </span>
+            <div>
+              <h2 className="text-lg font-black">Nghe rồi ngủ</h2>
+              <p className="mt-1 text-[11px] font-semibold leading-relaxed text-muted-foreground">Chọn thời lượng. Mười lăm giây cuối âm lượng sẽ hạ dần trước khi dừng.</p>
+            </div>
+          </div>
+          <div className="mt-5 grid grid-cols-3 gap-2.5">
+            {SLEEP_STEPS.map((minutes) => (
+              <button
+                key={minutes}
+                type="button"
+                onClick={() => setSleepTimer(sleepTimer === minutes ? null : minutes)}
+                className={`min-h-16 rounded-2xl border text-[13px] font-black transition active:scale-95 ${sleepTimer === minutes ? "border-indigo-500 bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" : "border-border bg-background/55 text-foreground"}`}
+              >
+                {minutes} phút
+              </button>
+            ))}
+          </div>
+          <p className="mt-4 rounded-2xl bg-muted/60 p-3 text-center text-[11px] font-bold text-muted-foreground">
+            {sleepTimer
+              ? sleepTimeLeft > 0 ? `Còn ${formatSleepTime(sleepTimeLeft)} trước khi tự tắt` : `Đã đặt ${sleepTimer} phút · bộ đếm chạy khi radio phát`
+              : "Chưa đặt hẹn giờ"}
+          </p>
+        </section>
+      )}
+
+      </div>
+      </main>
 
       {showStore && (
         <RadioStoreModal
@@ -709,6 +898,6 @@ export default function MemberRadioTab({ onBack, showToast, bio, isGuestMode = f
           onPurchased={refetchTokens}
         />
       )}
-    </div>
+      </div>
   );
 }

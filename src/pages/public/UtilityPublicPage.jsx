@@ -18,6 +18,9 @@ const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab")
 const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 const HugoKitApp = lazy(() => import("../../components/member/hugoKit/HugoKitApp"));
+const SupportCenterApp = lazy(() => import("../../components/member/support/SupportCenterApp"));
+const StandaloneGameShell = lazy(() => import("../../components/member/arcade/StandaloneGameShell"));
+const StudyWithHugoApp = lazy(() => import("../../components/member/study/StudyWithHugoApp"));
 
 // Khách chưa đăng nhập được 3 lượt demo HugoKit mỗi ngày. Các tool thuần client
 // (QR, chữ ký) đếm bằng localStorage; endpoint file phía server tự đếm theo IP.
@@ -241,6 +244,18 @@ export default function UtilityPublicPage() {
       onBioUpdate: handleBioUpdate,
     };
 
+    // Game một-URL: mọi mục có `game` dùng chung một nhánh, thêm game mới chỉ
+    // là thêm một mục trong publicTools.js chứ không phải một `case` nữa.
+    if (toolConfig?.game) {
+      return (
+        <StandaloneGameShell
+          gameId={toolConfig.game}
+          bio={player}
+          onClose={() => navigate("/arcade")}
+        />
+      );
+    }
+
     switch (tool) {
       case "banhocduong":
         return <BanhocduongTab {...commonProps} activeSubTab="chat" onSubTabChange={() => handleIntercept(new Event('click'))} sleepAutoDetect={{}} />;
@@ -253,6 +268,31 @@ export default function UtilityPublicPage() {
             chatMessages={therapyState.chatMessages}
             claimedChallengesToday={therapyState.claimedChallengesToday}
             onUpdateCompanionState={handleTherapyStateUpdate}
+          />
+        );
+      // Hướng dẫn đọc được không cần tài khoản; tab Yêu cầu tự đổi thành thẻ
+      // mời đăng nhập khi `isGuestMode`, nên không cần chặn gì thêm ở đây.
+      case "support":
+      case "supporter":
+        return (
+          <SupportCenterApp
+            bio={player}
+            isGuestMode={!isAuthenticated}
+            requireAccount={handleIntercept}
+            onClose={() => navigate("/introduction")}
+          />
+        );
+      // Study đứng riêng được: xem trọn lộ trình 100 bài và học thật 10 bài đầu
+      // mà không cần tài khoản; bài 11 trở đi mới hiện thẻ đăng nhập + mở gói.
+      case "study":
+      case "hugoso":
+        return (
+          <StudyWithHugoApp
+            bio={player}
+            showToast={commonProps.showToast}
+            onBioUpdate={handleBioUpdate}
+            previewLessons={toolConfig.previewLessons}
+            onBack={() => navigate("/introduction")}
           />
         );
       case "radio":

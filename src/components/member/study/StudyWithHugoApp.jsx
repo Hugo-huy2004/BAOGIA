@@ -64,6 +64,9 @@ export default function StudyWithHugoApp({
   onBioUpdate,
   onBack,
   coderLessonId = null,
+  // > 0 trên trang công khai /study: học thật được `previewLessons` bài đầu rồi
+  // mới phải đăng nhập và mua gói. Portal thành viên để 0, hành vi giữ nguyên.
+  previewLessons = 0,
 }) {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
@@ -154,6 +157,7 @@ export default function StudyWithHugoApp({
           onBioUpdate={onBioUpdate}
           urlLessonId={coderStartLesson}
           unifiedHome
+          previewLessons={previewLessons}
           onBack={backToStudy}
         />
       </Suspense>

@@ -1,5 +1,6 @@
 import i18n from "../../../i18n/config";
 import { joyNumber, joyText } from "../../../lib/joyDisplay";
+import { APP_GRADIENTS, APP_STORE_MANIFESTS } from "../../../../shared/appRegistry";
 
 /**
  * Dữ liệu tĩnh của Hugo Store.
@@ -13,17 +14,7 @@ import { joyNumber, joyText } from "../../../lib/joyDisplay";
  */
 
 /** Bảng gradient icon app — trùng khoá màu với MemberUtilitiesDashboard. */
-export const GRADIENTS = {
-  indigo: "from-indigo-500 to-indigo-600",
-  rose: "from-rose-400 to-rose-600",
-  cyan: "from-cyan-400 to-teal-500",
-  blue: "from-blue-500 to-indigo-600",
-  teal: "from-teal-400 to-emerald-500",
-  orange: "from-amber-400 to-orange-500",
-  purple: "from-violet-500 to-purple-600",
-  slate: "from-slate-500 to-slate-700",
-  pink: "from-pink-400 to-fuchsia-600",
-};
+export const GRADIENTS = APP_GRADIENTS;
 
 /**
  * Hàng bày trong Chợ. `id` khớp `selectedUtility` của MemberUtilitiesTab (với
@@ -36,51 +27,25 @@ export const GRADIENTS = {
  * biến đồ đang cho không thành đồ thu phí là quyết định sản phẩm, không phải
  * việc của lớp hiển thị.
  *
- * ponytail: danh sách id ở đây trùng ý với `APP_CATALOG` trong
- * MemberUtilitiesDashboard. Gộp lại khi nào có app thứ ba cần cùng danh mục —
- * lúc này gộp thì phải kéo theo cả icon/badge/hạng mục của Thư viện.
- *
  * `study` và `hugoso` cố tình KHÔNG có mặt: cả ba cùng tên "Học Tập" trong
  * danh mục dịch, và `ide` là cái duy nhất có thứ để bán.
  */
-const RAW_APPS = [
-  { id: "profile", color: "indigo" },
-  { id: "bio", color: "purple" },
-  { id: "ide", color: "blue" },
-  { id: "psychology", color: "cyan" },
-  { id: "radio", color: "teal" },
-  { id: "handle", color: "indigo" },
-  { id: "team", color: "teal" },
-  { id: "arcade", color: "orange" },
-  { id: "aura", color: "purple" },
-  { id: "cinema", color: "purple" },
-  { id: "invest", color: "teal" },
-];
-
-const RAW_GAMES = [
-  { id: "arcade_chess", color: "slate", planId: "chess" },
-  { id: "arcade_survivor", color: "indigo", planId: "arcade" },
-  { id: "arcade_snake", color: "teal", planId: "arcade" },
-  { id: "arcade_caro", color: "blue", planId: "arcade" },
-  { id: "arcade_2048", color: "orange", planId: null },
-];
-
 /**
  * Tên và mô tả lấy từ danh mục dịch dùng chung (`utilities.catalog.*`, nguồn là
  * memberAppTranslations): mỗi ngôn ngữ gọi app theo tiếng của mình, và cửa hàng
  * không được gọi khác Trang chủ hay Thư viện.
  */
-const decorate = ({ id, color, planId = null }, game) => ({
+const decorate = ({ id, tint, store: { game, planId } }) => ({
   id,
-  color,
+  color: tint,
   game,
-  planId: game ? planId : id,
+  planId,
   get label() { return i18n.t(`utilities.catalog.${id}.title`); },
   get tagline() { return i18n.t(`utilities.catalog.${id}.description`); },
 });
 
-export const STORE_APPS = RAW_APPS.map(app => decorate(app, false));
-export const STORE_GAMES = RAW_GAMES.map(game => decorate(game, true));
+export const STORE_APPS = APP_STORE_MANIFESTS.filter(app => !app.store.game).map(decorate);
+export const STORE_GAMES = APP_STORE_MANIFESTS.filter(app => app.store.game).map(decorate);
 export const STORE_ITEMS = [...STORE_APPS, ...STORE_GAMES];
 
 const APP_INDEX = new Map(STORE_ITEMS.map(app => [app.id, app]));

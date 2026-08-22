@@ -481,6 +481,16 @@ const BioSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    // Đề tài tốt nghiệp học viên đã chọn cho chặng đồ án (bài 71–90).
+    // Giá trị là id trong shared/capstoneTracks.js; rỗng nghĩa là chưa chọn.
+    capstoneTrack: {
+      type: String,
+      default: ''
+    },
+    capstoneTrackChosenAt: {
+      type: Date,
+      default: null
+    },
     // One-time JOY bonus for opening the Info & Version utility — see joyRoutes.js claim-info-bonus.
     infoBonusClaimed: {
       type: Boolean,

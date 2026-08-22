@@ -69,6 +69,38 @@
       "destination": "/ide/index.html"
     },
     {
+      "source": "/hugokit",
+      "destination": "/hugokit/index.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support/index.html"
+    },
+    {
+      "source": "/study",
+      "destination": "/study/index.html"
+    },
+    {
+      "source": "/chess",
+      "destination": "/chess/index.html"
+    },
+    {
+      "source": "/caro",
+      "destination": "/caro/index.html"
+    },
+    {
+      "source": "/snake",
+      "destination": "/snake/index.html"
+    },
+    {
+      "source": "/2048",
+      "destination": "/2048/index.html"
+    },
+    {
+      "source": "/survivor",
+      "destination": "/survivor/index.html"
+    },
+    {
       "source": "/((?!assets/|image/|public/|.*\\..*$).*)",
       "destination": "/index.html"
     }

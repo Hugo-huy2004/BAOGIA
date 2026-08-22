@@ -122,7 +122,10 @@ function AppContent() {
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
   const isPayRoute = location.pathname.startsWith("/pay/");
   const isIdeRoute = location.pathname === "/member/ide";
-  const isChessRoute = location.pathname.startsWith("/chess");
+  // `/chess` giờ là trang game công khai của riêng nó (config/publicTools.js):
+  // vào là chơi được ngay. Chỉ liên kết PHÒNG `/chess/<id>` mới cần đi đường cũ
+  // vào Arcade của thành viên, nên đừng bắt cả tiền tố nữa.
+  const isChessRoute = /^\/chess\/[^/]+/.test(location.pathname);
   // /arcade is now a standalone public page (see config/publicTools.js), so it
   // must not be captured here — that branch redirects guests to /login, which
   // is exactly what the "play first, sign in to unlock levels" rule forbids.
@@ -147,8 +150,8 @@ function AppContent() {
           <Route path="/customer-portal" element={<CustomerPortalPage />} />
           <Route path="/pay/:id" element={<PaymentGatewayPage />} />
           <Route path="/member/ide" element={<Navigate to="/member/utilities/ide" replace />} />
-          {/* Chess now lives inside HugoArcade — old /chess links resolve into Arcade with the room preserved */}
-          <Route path="/chess" element={<Navigate to="/member/utilities/arcade?game=chess" replace />} />
+          {/* Liên kết phòng cũ vẫn mở đúng ván trong Arcade của thành viên. Bản
+              `/chess` trần đã thành trang game công khai, không còn ở đây. */}
           <Route path="/chess/:roomId" element={<Navigate to={`/member/utilities/arcade?game=chess&room=${window.location.pathname.split("/").pop()}`} replace />} />
           <Route path="/member/utilities/arcade" element={isMemberAuthenticated() ? <ArcadePage /> : <Navigate to="/login" replace />} />
         </Routes>

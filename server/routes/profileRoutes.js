@@ -3,12 +3,21 @@ import Bio from '../models/Bio.js';
 import HugoTeamDev from '../models/HugoTeamDev.js';
 import { requireMember } from '../middleware/authMiddleware.js';
 import { isFeatureActive } from '../utils/featureSubscriptionService.js';
+import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
+import {
+  deletePrivateEvidence,
+  listPrivateEvidence,
+} from '../services/learningEvidenceService.js';
 
 const router = express.Router();
 
 // Tổng số bài của bộ Phát triển Web — dùng để ra tỉ lệ "x/100", không phải để
 // khoe con số tròn.
 const CODER_TOTAL_LESSONS = 100;
+
+const findMemberBio = (email) => Bio.findOne({
+  $or: [{ email }, { contactEmail: email }],
+});
 
 /**
  * Hồ sơ năng lực: chỉ ĐỌC LẠI những gì hệ thống đã ghi nhận.
@@ -56,7 +65,7 @@ async function buildProfile(bio) {
 /** Hồ sơ của chính mình — luôn xem được, kể cả khi chưa thuê ứng dụng. */
 router.get('/me', requireMember, async (req, res) => {
   try {
-    const bio = await Bio.findOne({ email: req.memberEmail });
+    const bio = await findMemberBio(req.memberEmail);
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
 
     res.json({
@@ -66,6 +75,9 @@ router.get('/me', requireMember, async (req, res) => {
         entitled: isFeatureActive(bio, 'hugoProfile'),
         enabled: Boolean(bio.profilePublic),
       },
+      capabilities: {
+        learningEvidence: isLearningEvidenceEnabledFor(bio),
+      },
     });
   } catch (error) {
     console.error('GET /profile/me error:', error);
@@ -73,10 +85,54 @@ router.get('/me', requireMember, async (req, res) => {
   }
 });
 
+/** Minh chứng riêng tư của chính thành viên; không có route public tương ứng. */
+router.get('/me/evidence', requireMember, async (req, res) => {
+  try {
+    const bio = await findMemberBio(req.memberEmail);
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    if (!isLearningEvidenceEnabledFor(bio)) {
+      return res.status(404).json({ error: 'FEATURE_NOT_AVAILABLE' });
+    }
+
+    return res.json(await listPrivateEvidence({
+      ownerMemberId: bio._id,
+      cursor: req.query.cursor,
+      limit: req.query.limit,
+    }));
+  } catch (error) {
+    if (error?.statusCode === 400) {
+      return res.status(400).json({ error: error.message });
+    }
+    console.error('GET /profile/me/evidence error:', error);
+    return res.status(500).json({ error: 'Failed to load learning evidence' });
+  }
+});
+
+/** Xoá mềm và scrub nội dung; tombstone còn lại để dữ liệu cũ không dựng lại. */
+router.delete('/me/evidence/:id', requireMember, async (req, res) => {
+  try {
+    const bio = await findMemberBio(req.memberEmail);
+    if (!bio) return res.status(404).json({ error: 'Bio not found' });
+    if (!isLearningEvidenceEnabledFor(bio)) {
+      return res.status(404).json({ error: 'FEATURE_NOT_AVAILABLE' });
+    }
+
+    const deleted = await deletePrivateEvidence({
+      ownerMemberId: bio._id,
+      evidenceId: req.params.id,
+    });
+    if (!deleted) return res.status(404).json({ error: 'EVIDENCE_NOT_FOUND' });
+    return res.status(204).end();
+  } catch (error) {
+    console.error('DELETE /profile/me/evidence error:', error);
+    return res.status(500).json({ error: 'Failed to delete learning evidence' });
+  }
+});
+
 /** Bật/tắt hiển thị hồ sơ trên trang Bio công khai. */
 router.patch('/me/publish', requireMember, async (req, res) => {
   try {
-    const bio = await Bio.findOne({ email: req.memberEmail });
+    const bio = await findMemberBio(req.memberEmail);
     if (!bio) return res.status(404).json({ error: 'Bio not found' });
     if (!isFeatureActive(bio, 'hugoProfile')) {
       return res.status(402).json({ error: 'Hugo Profile subscription required' });

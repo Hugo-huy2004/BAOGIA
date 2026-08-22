@@ -6,6 +6,8 @@ import { notify } from "../../../lib/notify";
 import { STAGE_THEME } from "./stageThemes";
 import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
 import { joyText } from "../../../lib/joyDisplay";
+import QuizQuestion from "./QuizQuestion";
+import { isQuizAnswerCorrect } from "../../../../shared/quizKinds";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
 const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;
@@ -76,10 +78,12 @@ export default function LessonsSidebar({
   const [expandedPhases, setExpandedPhases] = useState({ basic: true });
   // Trắc nghiệm chốt bài trên desktop — bắt buộc trước khi Kiểm tra bài học
   const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizReviewed, setQuizReviewed] = useState(false);
   const [checkedItems, setCheckedItems] = useState({});
 
   useEffect(() => {
     setQuizAnswers({});
+    setQuizReviewed(false);
     setCheckedItems({});
   }, [activeCourseId]);
 
@@ -103,7 +107,8 @@ export default function LessonsSidebar({
         notify.error(`Hãy trả lời đủ ${course.miniQuiz.length} câu trắc nghiệm chốt bài trước!`);
         return;
       }
-      const allCorrect = course.miniQuiz.every((q, i) => quizAnswers[i] === q.a);
+      const allCorrect = course.miniQuiz.every((q, i) => isQuizAnswerCorrect(q, quizAnswers[i]));
+      setQuizReviewed(true);
       if (!allCorrect) {
         notify.error("Một số câu trắc nghiệm chưa đúng — đọc lại Kiến thức cốt lõi và thử lại!");
         return;
@@ -153,14 +158,16 @@ export default function LessonsSidebar({
                   </span>
                 </div>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  {!tierInfo.lifetime
+                  {!tierInfo.progressionUnlocked
+                    ? `Bạn cần hoàn thành toàn bộ level trước theo đúng thứ tự. Còn thiếu ${tierInfo.missingLessonCount} bài; bắt đầu từ ${tierInfo.firstMissingLesson}.`
+                    : !tierInfo.lifetime
                     ? "Nội dung bài học này đang bị khóa. Vui lòng mở khóa vĩnh viễn chặng học tập này hoặc sở hữu trọn gói 6 chặng để bắt đầu."
                     : `Thuê bao bảo trì đã hết hạn. Vui lòng gia hạn ${joyText(MAINTENANCE_PRICE)} bảo trì hàng tháng để tiếp tục học tập.`}
                 </p>
               </div>
 
               {/* Trong gói này bạn nhận được gì — minh bạch trước khi trả JOY */}
-              {!tierInfo.lifetime && (
+              {!tierInfo.lifetime && tierInfo.progressionUnlocked && (
                 <div className="border border-border bg-card/50 rounded-xl p-3.5 space-y-2">
                   <span className="text-[9px] font-black uppercase tracking-widest text-primary">Trong gói này bạn nhận được</span>
                   <ul className="space-y-1.5">
@@ -175,7 +182,7 @@ export default function LessonsSidebar({
               )}
 
               <div className="space-y-3.5">
-                {!tierInfo.lifetime && (
+                {!tierInfo.lifetime && tierInfo.progressionUnlocked && (
                   <>
                     <div className="border border-border bg-card/50 rounded-xl p-3.5 space-y-2.5">
                       <div className="flex justify-between items-center text-[10.5px]">
@@ -397,26 +404,14 @@ export default function LessonsSidebar({
                   Trắc nghiệm chốt bài ({course.miniQuiz.length} câu — trả lời đúng hết để qua bài)
                 </span>
                 {course.miniQuiz.map((q, qIdx) => (
-                  <div key={qIdx} className="space-y-1.5">
-                    <p className="text-[10.5px] font-bold text-foreground leading-5">
-                      <span className="text-primary mr-1">{qIdx + 1}.</span>{q.q}
-                    </p>
-                    <div className="space-y-1 pl-1">
-                      {q.o.map((opt, oIdx) => (
-                        <button
-                          key={oIdx}
-                          onClick={() => setQuizAnswers((prev) => ({ ...prev, [qIdx]: oIdx }))}
-                          className={`w-full text-left px-2 py-1.5 rounded-lg border text-[10px] transition-all active:scale-[0.99] ${
-                            quizAnswers[qIdx] === oIdx
-                              ? "bg-primary border-primary text-white font-bold"
-                              : "bg-background border-border text-muted-foreground hover:bg-muted"
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <QuizQuestion
+                    key={qIdx}
+                    question={q}
+                    index={qIdx}
+                    value={quizAnswers[qIdx]}
+                    onChange={(answer) => setQuizAnswers((prev) => ({ ...prev, [qIdx]: answer }))}
+                    reviewed={quizReviewed && !isQuizAnswerCorrect(q, quizAnswers[qIdx])}
+                  />
                 ))}
               </div>
             )}

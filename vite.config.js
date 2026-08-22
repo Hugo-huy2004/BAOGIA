@@ -4,6 +4,7 @@ import viteCompression from 'vite-plugin-compression'
 import { VitePWA } from 'vite-plugin-pwa'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 
 /* Cổng backend cục bộ. KHÔNG dùng 8081: đó là cổng mặc định của Metro/Expo, nên
    bất cứ dự án React Native nào đang mở cũng chiếm mất — và Metro trả về HTML
@@ -28,6 +29,9 @@ export default defineConfig(({ mode }) => {
   // Capacitor WebView pins the app to a cached shell, so store updates never
   // reach the device. The web build keeps it.
   const isNative = process.env.VITE_BUILD_TARGET === "native";
+  const sentryBuildEnabled = Boolean(
+    process.env.SENTRY_AUTH_TOKEN && process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+  );
 
   // A native WebView has no shared origin with the API, so a relative "/api"
   // would resolve against capacitor://localhost. Fail the build rather than
@@ -192,16 +196,13 @@ export default defineConfig(({ mode }) => {
         id: '/member/',
         theme_color: '#0b0a0f',
         background_color: '#0b0a0f',
-        // `standalone` vẫn chừa thanh trạng thái của hệ điều hành, tô bằng
-        // theme_color — đó là dải đen ở mép trên khi cài trên Android. Xin
-        // `fullscreen` trước để nội dung tràn hết màn; trình duyệt nào không
-        // hiểu display_override thì rơi về `display` bên dưới.
-        //
-        // iOS bỏ qua cả hai: ở đó quyết định nằm ở meta
+        // Chuẩn PWA dùng `standalone`: hệ điều hành vẫn sở hữu status bar /
+        // Dynamic Island, còn nội dung ứng dụng dùng CSS safe-area. `fullscreen`
+        // làm mất vùng hệ thống trên Android và dễ đặt nút dưới camera cutout.
+        // iOS quyết định thêm bằng meta
         // apple-mobile-web-app-capable + status-bar-style=black-translucent
         // trong index.html, cộng viewport-fit=cover — đã có sẵn.
         display: 'standalone',
-        display_override: ['fullscreen', 'standalone'],
         orientation: 'any',
         scope: '/',
         start_url: '/member/today?source=pwa',
@@ -236,6 +237,16 @@ export default defineConfig(({ mode }) => {
         lang: 'vi',
       },
     }),
+    sentryBuildEnabled ? sentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      release: process.env.SENTRY_RELEASE
+        ? { name: process.env.SENTRY_RELEASE }
+        : undefined,
+      sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] },
+      telemetry: false,
+    }) : null,
   ],
   customLogger: quietLogger,
   server: {
@@ -269,7 +280,7 @@ export default defineConfig(({ mode }) => {
     minify: 'oxc',
     cssMinify: 'lightningcss',
     chunkSizeWarningLimit: 1000,
-    sourcemap: false,
+    sourcemap: sentryBuildEnabled ? 'hidden' : false,
     rollupOptions: {
       output: {
         manualChunks(id) {

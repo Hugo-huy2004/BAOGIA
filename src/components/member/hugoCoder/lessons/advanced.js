@@ -96,7 +96,7 @@ class Node {
     theory: `### KIẾN THỨC CỐT LÕI
 > **Stack — LIFO** (Last In First Out): vào sau ra trước. Ứng dụng: nút Back trình duyệt, Call Stack của JS, undo.
 > **Queue — FIFO** (First In First Out): vào trước ra trước. Ứng dụng: hàng chờ gửi email, hàng đợi in, message queue backend.
-> **Hash Table**: hàm băm biến key thành chỉ số ô nhớ → tra cứu theo key **O(1)** trung bình. Object và Map của JS chính là hash table.
+> **Hash Table**: hàm băm biến key thành vị trí lưu trữ → tra cứu theo key **O(1)** trung bình. \`Map\`/\`Object\` cho phép tra cứu theo khóa, nhưng đặc tả JavaScript không bắt buộc engine phải cài đặt chúng bằng đúng một loại hash table.
 
 \`\`\`javascript
 class Stack {
@@ -150,7 +150,7 @@ Queue tương tự nhưng lấy ra từ đầu: \`shift()\` (hoặc con trỏ đ
       { q: "Nút Back của trình duyệt dùng cấu trúc nào?", o: ["Queue", "Stack", "Hash Table", "Tree"], a: 1 },
       { q: "Hàng chờ gửi email backend dùng cơ chế nào?", o: ["LIFO", "FIFO", "Random", "Ưu tiên chữ cái"], a: 1 },
       { q: "Tra cứu theo key trong Hash Table trung bình mất?", o: ["O(n)", "O(1)", "O(n log n)", "O(n²)"], a: 1 },
-      { q: "Object và Map trong JS bản chất là gì?", o: ["Mảng 2 chiều", "Hash Table", "Linked List", "Stack"], a: 1 }
+      { q: "Cấu trúc JavaScript nào cung cấp tra cứu dữ liệu theo khóa?", o: ["Map/Object", "Chỉ Linked List", "Chỉ Stack", "Chỉ Queue"], a: 0 }
     ]
   },
   {
@@ -469,8 +469,8 @@ const key = await crypto.subtle.generateKey(
     },
     miniQuiz: [
       { q: "AES thuộc họ mã hóa nào?", o: ["Bất đối xứng", "Đối xứng — một khóa dùng chung", "Hàm băm", "Encoding"], a: 1 },
-      { q: "Trong HTTPS, RSA đảm nhiệm việc gì?", o: ["Mã hóa toàn bộ dữ liệu", "Trao đổi an toàn khóa phiên AES", "Nén dữ liệu", "Tạo cookie"], a: 1 },
-      { q: "Public key dùng để làm gì?", o: ["Giải mã", "Mã hóa (ai cũng có thể dùng)", "Ký tên miền", "Lưu mật khẩu"], a: 1 },
+      { q: "Trong TLS hiện đại, cơ chế nào thường thiết lập khóa phiên có tính forward secrecy?", o: ["RSA mã hóa toàn bộ dữ liệu", "Trao đổi khóa (EC)DHE", "Nén HTTP", "Cookie phiên"], a: 1 },
+      { q: "Trong mật mã bất đối xứng, public key có thể dùng vào việc nào tùy thuật toán?", o: ["Giải mã mọi ciphertext", "Mã hóa cho chủ khóa hoặc xác minh chữ ký của họ", "Lưu mật khẩu", "Tạo salt bí mật"], a: 1 },
       { q: "Vì sao dữ liệu lớn không mã hóa bằng RSA?", o: ["Không an toàn", "RSA chậm hơn AES rất nhiều", "RSA chỉ cho chữ", "Bị cấm"], a: 1 }
     ]
   },
@@ -547,7 +547,7 @@ Cùng mật khẩu "123456", hai người dùng có 2 mã băm khác nhau → b�
     miniQuiz: [
       { q: "Đặc điểm quan trọng nhất của hàm băm?", o: ["Có thể giải mã", "Một chiều — không dịch ngược được", "Kết quả ngẫu nhiên", "Chỉ nhận số"], a: 1 },
       { q: "Đổi 1 ký tự đầu vào, mã băm thay đổi thế nào?", o: ["Đổi 1 ký tự", "Khác hoàn toàn (avalanche effect)", "Không đổi", "Chỉ đổi độ dài"], a: 1 },
-      { q: "Đăng nhập kiểm tra mật khẩu bằng cách nào?", o: ["Giải mã hash trong DB", "Băm mật khẩu nhập vào rồi so hai mã băm", "So chuỗi thô", "Hỏi lại email"], a: 1 },
+      { q: "Đăng nhập kiểm tra mật khẩu đã băm và có salt bằng cách nào?", o: ["Giải mã hash trong DB", "Dùng hàm verify của thuật toán (ví dụ password_verify), hàm tự đọc salt/tham số trong hash", "So chuỗi thô", "Băm lại không dùng salt rồi so"], a: 1 },
       { q: "Salt phải như thế nào?", o: ["Cố định toàn hệ thống", "Ngẫu nhiên riêng cho mỗi người dùng", "Giữ bí mật tuyệt đối ở file .env", "Trùng với mật khẩu"], a: 1 }
     ]
   },
@@ -620,7 +620,7 @@ if (password_verify($inputPassword, $hash)) { /* đúng mật khẩu */ }
       correctIdx: 1
     },
     miniQuiz: [
-      { q: "Vì sao bcrypt CHẬM lại là ưu điểm?", o: ["Tiết kiệm điện", "Làm brute-force hàng tỷ lần thử trở nên bất khả thi", "Dễ debug", "Không phải ưu điểm"], a: 1 },
+      { q: "Vì sao bcrypt cố ý chạy chậm?", o: ["Tiết kiệm điện", "Tăng chi phí mỗi lần đoán, làm brute-force chậm hơn đáng kể", "Dễ debug", "Để hash ngắn hơn"], a: 1 },
       { q: "Hai lần password_hash cùng một mật khẩu cho kết quả?", o: ["Giống hệt nhau", "Khác nhau vì salt tự sinh mỗi lần", "Lỗi", "Chuỗi rỗng"], a: 1 },
       { q: "Thuật toán nào KHÔNG được dùng cho mật khẩu?", o: ["bcrypt", "Argon2", "md5", "PASSWORD_DEFAULT"], a: 2 },
       { q: "Quy trình quên mật khẩu đúng chuẩn?", o: ["Gửi lại mật khẩu cũ qua email", "Gửi link đặt lại kèm token có hạn", "Đọc mật khẩu qua điện thoại", "Xoá tài khoản tạo lại"], a: 1 }
@@ -1328,7 +1328,7 @@ EXPLAIN SELECT * FROM products WHERE category = 'electronics';
       correctIdx: 1
     },
     miniQuiz: [
-      { q: "Index của database dựa trên cấu trúc nào?", o: ["Mảng thường", "B-Tree — họ hàng của binary search", "Stack", "Chuỗi"], a: 1 },
+      { q: "Loại cấu trúc nào thường được database dùng cho index có sắp thứ tự?", o: ["Mảng thường", "B-Tree/B+Tree", "Stack", "Chuỗi thuần"], a: 1 },
       { q: "Lệnh nào soi kế hoạch thực thi truy vấn?", o: ["SHOW", "EXPLAIN", "DESCRIBE PLAN", "TRACE"], a: 1 },
       { q: "Cột nào đáng đánh index nhất?", o: ["Cột ghi chú tự do", "Cột xuất hiện trong WHERE/JOIN của truy vấn chạy thường xuyên", "Mọi cột", "Cột mới thêm"], a: 1 },
       { q: "UNIQUE INDEX trên email có 2 công dụng nào?", o: ["Nén + mã hóa", "Tra cứu nhanh + chặn giá trị trùng lặp", "Backup + restore", "Sắp xếp + nhóm"], a: 1 }

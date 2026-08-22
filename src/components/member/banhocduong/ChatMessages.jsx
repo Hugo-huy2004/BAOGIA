@@ -277,7 +277,7 @@ function InlineTherapyReportCard() {
 }
 
 // ─── Single message bubble content ────────────────────────────────────────────
-// ─── Inline mood check-in picker ─────────────────────────────────────────────
+// ─── Daily Pulse — 60-second multi-signal check-in ───────────────────────────
 const MOOD_OPTS = [
   { value: 1, icon: Frown, label: "Kiệt sức" },
   { value: 2, icon: Frown, label: "Mỏi mệt" },
@@ -285,18 +285,84 @@ const MOOD_OPTS = [
   { value: 4, icon: Smile, label: "Ổn" },
   { value: 5, icon: Sparkles, label: "Rất vui" },
 ];
+
+const NEED_OPTS = [
+  { value: "calm", icon: "air", label: "Bình tâm" },
+  { value: "focus", icon: "center_focus_strong", label: "Tập trung" },
+  { value: "rest", icon: "bedtime", label: "Nghỉ ngơi" },
+  { value: "talk", icon: "forum", label: "Được lắng nghe" },
+];
+
+function PulseScale({ label, value, onChange, lowLabel, highLabel, tone }) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[9px] font-black uppercase tracking-wider text-foreground/70">{label}</span>
+        <span className="text-[9px] font-bold text-muted-foreground">{value}/5</span>
+      </div>
+      <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label={label}>
+        {[1, 2, 3, 4, 5].map((score) => (
+          <button
+            key={score}
+            type="button"
+            role="radio"
+            aria-checked={value === score}
+            aria-label={`${label}: ${score}/5`}
+            onClick={() => onChange(score)}
+            className={`h-8 rounded-xl text-[10px] font-black transition-all active:scale-90 ${
+              value === score
+                ? `${tone} text-white shadow-sm scale-[1.03]`
+                : "bg-background/80 text-muted-foreground border border-border/60 hover:border-indigo-300"
+            }`}
+          >
+            {score}
+          </button>
+        ))}
+      </div>
+      <div className="flex justify-between text-[8px] font-semibold text-muted-foreground/75">
+        <span>{lowLabel}</span><span>{highLabel}</span>
+      </div>
+    </div>
+  );
+}
+
 function MoodCheckinCard({ onMoodSelect }) {
   const [selected, setSelected] = React.useState(null);
+  const [energy, setEnergy] = React.useState(3);
+  const [stress, setStress] = React.useState(3);
+  const [need, setNeed] = React.useState(null);
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState("");
+
+  const handleSubmit = async () => {
+    if (!selected || !need || saving) return;
+    setSaving(true);
+    setError("");
+    try {
+      await onMoodSelect?.({ mood: selected, energy, stress, need });
+    } catch {
+      setError("Chưa thể lưu Daily Pulse. Cậu thử lại nhé.");
+      setSaving(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 6, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
-      className="mt-2.5 p-3 rounded-2xl bg-gradient-to-br from-indigo-50/90 to-violet-50/70 dark:from-indigo-950/35 dark:to-violet-950/20 border border-indigo-100/80 dark:border-indigo-800/25 w-full"
+      className="mt-2.5 p-3.5 rounded-3xl bg-gradient-to-br from-indigo-50/95 via-violet-50/75 to-sky-50/80 dark:from-indigo-950/40 dark:via-violet-950/25 dark:to-sky-950/20 border border-indigo-100/80 dark:border-indigo-800/25 w-full sm:min-w-[320px] shadow-sm space-y-3.5"
     >
-      <p className="text-[9px] font-black uppercase tracking-widest text-indigo-400 dark:text-indigo-500 mb-2.5">
-        Chạm để check-in hôm nay
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Daily Pulse · 60 giây</p>
+          <p className="text-[10px] font-semibold text-muted-foreground mt-0.5">Để HugoPSY hiểu hôm nay, không phải để chẩn đoán.</p>
+        </div>
+        <span className="material-symbols-outlined text-[18px] text-indigo-500">vital_signs</span>
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-[9px] font-black uppercase tracking-wider text-foreground/70">Tâm trạng lúc này</p>
       <div className="flex justify-between gap-1">
         {MOOD_OPTS.map(opt => {
           const Icon = opt.icon;
@@ -304,13 +370,10 @@ function MoodCheckinCard({ onMoodSelect }) {
             <button
               key={opt.value}
               type="button"
-              disabled={selected !== null}
-              onClick={() => { setSelected(opt.value); onMoodSelect?.(opt.value); }}
+              onClick={() => setSelected(opt.value)}
               className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-2xl transition-all duration-200 active:scale-90 ${
                 selected === opt.value
                   ? "bg-indigo-500 shadow-lg shadow-indigo-500/25 scale-105"
-                  : selected !== null
-                  ? "opacity-30"
                   : "hover:bg-white/70 dark:hover:bg-white/[0.08] hover:shadow-sm"
               }`}
             >
@@ -322,6 +385,44 @@ function MoodCheckinCard({ onMoodSelect }) {
           );
         })}
       </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <PulseScale label="Năng lượng" value={energy} onChange={setEnergy} lowLabel="Cạn pin" highLabel="Dồi dào" tone="bg-sky-500" />
+        <PulseScale label="Áp lực" value={stress} onChange={setStress} lowLabel="Nhẹ" highLabel="Rất cao" tone="bg-violet-500" />
+      </div>
+
+      <div className="space-y-1.5">
+        <p className="text-[9px] font-black uppercase tracking-wider text-foreground/70">Cậu cần nhất điều gì?</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {NEED_OPTS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setNeed(option.value)}
+              className={`min-h-9 px-2.5 rounded-xl flex items-center gap-1.5 text-[9px] font-bold transition-all active:scale-[0.97] ${
+                need === option.value
+                  ? "bg-indigo-500 text-white shadow-sm"
+                  : "bg-background/75 border border-border/60 text-foreground/75"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[14px]">{option.icon}</span>
+              <span>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {error && <p role="alert" className="text-[9px] font-bold text-rose-600 dark:text-rose-400">{error}</p>}
+
+      <button
+        type="button"
+        disabled={!selected || !need || saving}
+        onClick={handleSubmit}
+        className="w-full min-h-10 rounded-2xl bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[10px] font-black uppercase tracking-wider shadow-md shadow-indigo-500/20 disabled:opacity-40 disabled:shadow-none transition-all active:scale-[0.98]"
+      >
+        {saving ? "Đang lưu nhịp hôm nay..." : "Lưu và tạo kế hoạch hôm nay"}
+      </button>
     </motion.div>
   );
 }
@@ -588,6 +689,13 @@ function ChatMessages({
   const [showScrollBtn, setShowScrollBtn] = React.useState(false);
   const containerRef = React.useRef(null);
   const userScrolledUpRef = React.useRef(false);
+  const renderMessages = React.useMemo(() => {
+    const byId = new Map();
+    (messages || []).forEach((message, index) => {
+      byId.set(message?.id || `legacy-message-${index}`, message);
+    });
+    return [...byId.values()];
+  }, [messages]);
 
   const handleScroll = () => {
     const el = containerRef.current;
@@ -621,7 +729,7 @@ function ChatMessages({
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 space-y-1"
+        className="psy-chat-message-list h-full overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 space-y-1"
         style={{
           scrollbarWidth: "thin",
           // Extra clearance so the last message clears the keyboard-lifted input.
@@ -638,9 +746,9 @@ function ChatMessages({
         </div>
 
         <AnimatePresence mode="popLayout">
-          {messages.map((msg, index) => {
+          {renderMessages.map((msg, index) => {
             const isBot = msg.sender === "bot";
-            const isPrecedingBotTyping = messages.slice(0, index).some(
+            const isPrecedingBotTyping = renderMessages.slice(0, index).some(
               m => m.sender === "bot" && m.id !== "init" && !completedMessageIds.has(m.id)
             );
             if (isPrecedingBotTyping) return null;

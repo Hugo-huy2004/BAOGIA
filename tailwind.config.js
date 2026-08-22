@@ -3,6 +3,10 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    // App palette lives in the shared registry. Without scanning this folder,
+    // Tailwind removes gradients that happen not to be repeated under /src,
+    // making cyan/teal/slate app icons fall back to a pale transparent tile.
+    "./shared/**/*.{js,ts}",
   ],
   darkMode: "class",
   theme: {

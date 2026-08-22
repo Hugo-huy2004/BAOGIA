@@ -44,9 +44,14 @@ export const IOS_FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF P
 
 export const vnd = (n) => `${Number(n || 0).toLocaleString("vi-VN")}đ`;
 
-/** Khung ứng dụng: đặt token màu, font và nền hệ thống. */
-export function IosApp({ scheme = "light", accent = "#0A84FF", children, className = "" }) {
-  const vars = { ...SCHEMES[scheme] || SCHEMES.light, "--ax": accent, fontFamily: IOS_FONT };
+/**
+ * Khung ứng dụng: đặt token màu, font và nền hệ thống.
+ *
+ * `vars` đè lên bảng màu mặc định — HugoOS dùng nó để mỗi app sơn nền theo màu
+ * riêng thay vì dùng chung một bảng xám. Demo không truyền gì thì không đổi.
+ */
+export function IosApp({ scheme = "light", accent = "#0A84FF", vars: overrides, children, className = "" }) {
+  const vars = { ...SCHEMES[scheme] || SCHEMES.light, ...overrides, "--ax": accent, fontFamily: IOS_FONT };
   return (
     <div
       style={{ ...vars, background: "var(--ios-bg)", color: "var(--ios-label)", colorScheme: scheme }}

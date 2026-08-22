@@ -83,6 +83,7 @@ export default function MobileGuidebook({
   quizQuestions,
   quizCompleted,
   quizScore,
+  quizReview,
   quizCurrentIndex,
   setQuizCurrentIndex,
   quizAnswers,
@@ -892,6 +893,7 @@ export default function MobileGuidebook({
                       quizQuestions={quizQuestions}
                       quizCompleted={quizCompleted}
                       quizScore={quizScore}
+                      quizReview={quizReview}
                       quizCurrentIndex={quizCurrentIndex}
                       setQuizCurrentIndex={setQuizCurrentIndex}
                       quizAnswers={quizAnswers}

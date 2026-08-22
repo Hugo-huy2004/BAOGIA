@@ -700,7 +700,7 @@ function getDistance(x1, y1, x2, y2) {
     miniQuiz: [
       { q: "Trục Y trên màn hình web tăng theo hướng nào?", o: ["Lên trên", "Xuống dưới", "Sang phải", "Tuỳ trình duyệt"], a: 1 },
       { q: "Khoảng cách Euclid dựa trên định lý nào?", o: ["Thales", "Pythagoras", "Newton", "Euler"], a: 1 },
-      { q: "Hai hình tròn va chạm khi nào?", o: ["Cùng màu", "Khoảng cách tâm < tổng hai bán kính", "Cùng tọa độ x", "Bán kính bằng nhau"], a: 1 },
+      { q: "Hai hình tròn chạm hoặc giao nhau khi nào?", o: ["Cùng màu", "Khoảng cách tâm ≤ tổng hai bán kính", "Cùng tọa độ x", "Bán kính bằng nhau"], a: 1 },
       { q: "Dịch chuyển vị trí bằng phép toán vector nào?", o: ["Nhân", "Cộng vector độ dời", "Chia", "Nghịch đảo"], a: 1 }
     ]
   },
@@ -851,7 +851,7 @@ echo json_encode(["status" => "secured"]);
     },
     miniQuiz: [
       { q: "CORS viết tắt của gì?", o: ["Cross-Origin Resource Sharing", "Common Object Routing Suite", "Client Origin Redirect Service", "Cross Origin Request Security"], a: 0 },
-      { q: "Vì sao không nên dùng Allow-Origin: * cho API có đăng nhập?", o: ["Chạy chậm", "Mọi website lạ đều gọi được API của bạn", "Sai cú pháp", "Tốn băng thông"], a: 1 },
+      { q: "Vì sao không dùng Allow-Origin: * cho request CORS có credentials?", o: ["Chạy chậm", "Trình duyệt không chấp nhận wildcard origin khi gửi credentials; phải cho phép origin cụ thể", "Sai cú pháp HTTP", "Tốn băng thông"], a: 1 },
       { q: "CSP giúp chặn kiểu tấn công nào là chính?", o: ["DDoS", "XSS — script lạ không được phép chạy", "SQL Injection", "Brute force"], a: 1 },
       { q: "Lệnh header() trong PHP phải đặt ở đâu?", o: ["Cuối file", "Trước mọi output (echo/HTML)", "Trong thẻ script", "Sau json_encode"], a: 1 }
     ]
@@ -1109,7 +1109,7 @@ Thiếu og:image = chia sẻ link chỉ ra chữ trơ trọi — mất 80% lư�
     miniQuiz: [
       { q: "Meta description nên dài bao nhiêu?", o: ["30-50 ký tự", "150-160 ký tự", "500 ký tự", "Không giới hạn"], a: 1 },
       { q: "Thẻ og:image có vai trò gì?", o: ["Ảnh nền trang", "Ảnh xem trước khi chia sẻ link lên mạng xã hội", "Favicon", "Ảnh SEO ẩn"], a: 1 },
-      { q: "Mỗi trang nên có bao nhiêu thẻ h1?", o: ["Càng nhiều càng tốt", "Đúng một", "Tối thiểu ba", "Không cần h1"], a: 1 },
+      { q: "Cách dùng h1 nào rõ ràng nhất cho cấu trúc một trang thông thường?", o: ["Càng nhiều càng tốt", "Một h1 chính mô tả chủ đề trang; các mục con dùng heading theo cấp", "Tối thiểu ba h1", "Không cần heading"], a: 1 },
       { q: "Robot Google đọc file nào để biết được phép thu thập trang nào?", o: ["sitemap.html", "robots.txt", "index.php", "manifest.json"], a: 1 }
     ]
   },

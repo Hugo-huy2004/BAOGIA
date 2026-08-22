@@ -42,7 +42,7 @@ export async function diagnoseSystemHealth() {
 
     const AdminAuditLog = (await import('../models/AdminAuditLog.js')).default;
     const auditLogs24h = await AdminAuditLog.countDocuments({
-      timestamp: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
     });
 
     const todayJoyStats = await JoyLedger.aggregate([

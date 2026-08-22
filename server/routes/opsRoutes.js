@@ -1,7 +1,12 @@
 import express from 'express';
-import { createHash } from 'crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+import rateLimit from 'express-rate-limit';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import ClientMetric from '../models/ClientMetric.js';
+import {
+  reportSpecialistIncident,
+  specialistForClientEvent,
+} from '../services/aiIncidentResponseService.js';
 
 const router = express.Router();
 const events = [];
@@ -16,6 +21,14 @@ const ALLOWED_TYPES = new Set([
   'api-network-error',
   'api-summary',
 ]);
+
+const telemetryLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: process.env.NODE_ENV === 'production' ? 60 : 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều sự kiện telemetry' },
+});
 
 function clean(value, limit = 500) {
   return String(value || '').replace(/[\r\n\t]+/g, ' ').slice(0, limit);
@@ -53,7 +66,7 @@ function normalizeEvent(body = {}, req) {
   };
 }
 
-router.post('/client-event', (req, res) => {
+router.post('/client-event', telemetryLimiter, (req, res) => {
   try {
     const event = normalizeEvent(req.body, req);
     
@@ -81,9 +94,65 @@ router.post('/client-event', (req, res) => {
       console.warn('[client-event]', event.type, event.method || '', event.status || '', event.durationMs || '', event.path || event.name || '');
     }
     res.status(204).end();
+
+    const specialist = specialistForClientEvent(event);
+    if (specialist) {
+      queueMicrotask(() => {
+        reportSpecialistIncident({ specialist, event })
+          .catch((error) => console.warn('[specialist-incident]', error.message));
+      });
+    }
   } catch {
     res.status(204).end();
   }
+});
+
+function validSentrySignature(req) {
+  const secret = process.env.SENTRY_WEBHOOK_SECRET;
+  const signature = String(req.get('sentry-hook-signature') || '');
+  if (!secret || !signature || !req.rawBody) return false;
+  const expected = createHmac('sha256', secret).update(req.rawBody).digest('hex');
+  const receivedBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  return receivedBuffer.length === expectedBuffer.length &&
+    timingSafeEqual(receivedBuffer, expectedBuffer);
+}
+
+function sentryEvent(body = {}) {
+  const data = body.data || {};
+  const issue = data.issue || body.issue || {};
+  const event = data.event || body.event || {};
+  const project = data.project || body.project || event.project || {};
+  const platform = String(project.platform || event.platform || '').toLowerCase();
+  const message = issue.title || event.title || event.message || 'Sentry production issue';
+  const specialist = /javascript|react|browser/.test(platform)
+    ? 'ui_specialist'
+    : 'server_specialist';
+  return {
+    specialist,
+    event: {
+      type: 'sentry-issue',
+      name: event.type || 'SentryIssue',
+      message,
+      stack: issue.culprit || event.culprit || '',
+      path: issue.culprit || event.location || '',
+      source: 'sentry-webhook',
+      sentryIssueId: issue.id || event.groupID || event.groupId || '',
+      sentryUrl: issue.permalink || issue.webUrl || '',
+    },
+  };
+}
+
+router.post('/sentry-hook', telemetryLimiter, (req, res) => {
+  if (!validSentrySignature(req)) {
+    return res.status(401).json({ error: 'Sentry signature không hợp lệ' });
+  }
+  const incident = sentryEvent(req.body);
+  res.status(202).json({ accepted: true });
+  queueMicrotask(() => {
+    reportSpecialistIncident(incident)
+      .catch((error) => console.warn('[sentry-specialist-incident]', error.message));
+  });
 });
 
 router.get('/metrics/summary', requireAdmin, async (req, res) => {

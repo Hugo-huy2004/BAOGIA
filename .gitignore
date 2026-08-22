@@ -5,6 +5,7 @@ build
 
 # Python
 __pycache__/
+.venv_gif/
 *.py[cod]
 *$py.class
 *.pyo

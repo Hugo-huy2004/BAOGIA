@@ -35,5 +35,19 @@
     "privacyPolicy": "Privacy Policy",
     "supportServer": "Support the Server",
     "userGuide": "User Guide"
+  },
+  "os": {
+    "home": "Home",
+    "tools": "Tools",
+    "recent": "Recent",
+    "all": "All",
+    "seeAll": "See all",
+    "continue": "Continue",
+    "quickActions": "Quick actions",
+    "allFeatures": "All features",
+    "noRecent": "Nothing recent yet",
+    "noRecentBody": "What you open shows up here for quick access.",
+    "activity": "Activity",
+    "overview": "Overview"
   }
 }

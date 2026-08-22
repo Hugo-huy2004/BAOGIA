@@ -22,7 +22,9 @@ const SupportTicketSchema = new mongoose.Schema(
       type: String,
       enum: ['pending', 'resolved'],
       default: 'pending'
-    }
+    },
+    adminReply: { type: String, default: '', maxlength: 5000 },
+    resolvedAt: { type: Date, default: null }
   },
   { timestamps: true }
 );

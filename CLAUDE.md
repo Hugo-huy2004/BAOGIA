@@ -69,3 +69,26 @@ The app is a PWA: `vite-plugin-pwa` generates `dist/sw.js` and imports the hand-
 - **Icons**: monochrome Material Symbols only (`bg-muted`, `text-foreground`) on public pages — no emoji, no colorful icon badges.
 - **Public portfolio pages** (`src/pages/public/IntroductionPage.jsx`, `ServicesPage.jsx`): prices and copy are author-written — don't change them without asking; UI-only changes are fine.
 - **JOY wallet/QR**: QR payloads are opaque server-signed HMAC tokens (`server/utils/joyQrToken.js`); the client never constructs or parses them.
+
+## gstack
+
+Gstack is installed for Codex with namespaced skills (`gstack-*`) so it does
+not shadow the repo's existing skills. Use the gstack workflow for substantial
+product work:
+
+- Product discovery or a new idea: `gstack-office-hours`
+- Strategy and scope: `gstack-plan-ceo-review`
+- Architecture and failure modes: `gstack-plan-eng-review`
+- Design planning: `gstack-plan-design-review` or `gstack-design-consultation`
+- End-to-end planning: `gstack-autoplan`
+- Bug investigation: `gstack-investigate`
+- Code review: `gstack-review`
+- Browser QA: `gstack-qa` or report-only `gstack-qa-only`
+- Security audit: `gstack-cso`
+- Release: `gstack-ship` or `gstack-land-and-deploy`
+- Retrospective: `gstack-retro`
+
+Gstack is the virtual product and engineering team used to build this repo. It
+is not imported into the production application. Production AI employees live
+behind Node admin routes, use `server/services/aiGateway.js`, and must follow
+the approval and audit rules in `docs/ai-workforce.md`.

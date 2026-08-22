@@ -30,6 +30,16 @@ import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } f
 import NodeCache from 'node-cache';
 import { isAuraThemeFree, isAuraThemeId } from '../../shared/auraThemes.js';
 import { denomKey, denomOf, transferBreakdown } from '../../shared/joyCurrency.js';
+import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
+import {
+  createLessonEvidence,
+  privateEvidenceDto,
+} from '../services/learningEvidenceService.js';
+import {
+  getCoderLessonGate,
+  getCoderStageCompletion,
+  getCoderStageGate,
+} from '../../shared/coderProgression.js';
 
 const idempotencyCache = new NodeCache({ stdTTL: 300 });
 
@@ -58,35 +68,30 @@ const CODER_STAGE_DEFINITIONS = {
     label: 'Chặng 2: Tư Duy Kiến Trúc',
     priceJoy: STUDY_LIFETIME.intermediate,
     previousTier: 'basic',
-    requiredLesson: 'lesson10'
   },
   advanced: {
     key: 'hugoCoderAdvancedLifetime',
     label: 'Chặng 3: CTDL, Giải Thuật & Mật Mã',
     priceJoy: STUDY_LIFETIME.advanced,
     previousTier: 'intermediate',
-    requiredLesson: 'lesson25'
   },
   security: {
     key: 'hugoCoderSecurityLifetime',
     label: 'Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI',
     priceJoy: STUDY_LIFETIME.security,
     previousTier: 'advanced',
-    requiredLesson: 'lesson50'
   },
   project: {
     key: 'hugoCoderUltimateLifetime',
     label: 'Chặng 5: Siêu Đồ Án Full-Stack & AI',
     priceJoy: STUDY_LIFETIME.project,
     previousTier: 'security',
-    requiredLesson: 'lesson70'
   },
   devops: {
     key: 'hugoCoderDevopsLifetime',
     label: 'Chặng 6: Kỹ Sư DevOps & Phát Hành',
     priceJoy: STUDY_LIFETIME.devops,
     previousTier: 'project',
-    requiredLesson: 'lesson90'
   }
 };
 
@@ -142,16 +147,16 @@ function getCoderStageQuote(bio, tier) {
     };
   }
 
-  if (
-    definition.requiredLesson
-    && !(bio.completedLessons || []).includes(definition.requiredLesson)
-  ) {
+  const stageGate = getCoderStageGate(bio.completedLessons || [], tier);
+  if (!stageGate.unlocked) {
     const previous = CODER_STAGE_DEFINITIONS[definition.previousTier];
     return {
       ...base,
       eligible: false,
       code: 'PREVIOUS_STAGE_INCOMPLETE',
-      error: `Bạn cần hoàn thành ${previous.label} trước khi mở khóa chặng tiếp theo.`
+      firstMissingLesson: stageGate.missingLessons[0],
+      missingLessonCount: stageGate.missingLessons.length,
+      error: `Bạn cần hoàn thành đủ ${previous.label} trước khi mở khóa chặng tiếp theo. Còn thiếu ${stageGate.missingLessons.length} bài.`
     };
   }
 
@@ -538,6 +543,16 @@ router.post('/coder-exam/start', requireMember, async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (!bio) return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng.' });
 
+    const lessonGate = getCoderLessonGate(bio.completedLessons || [], lessonId);
+    if (!lessonGate.unlocked && !(bio.completedLessons || []).includes(lessonId)) {
+      return res.status(409).json({
+        code: lessonGate.code,
+        error: `Bạn cần hoàn thành các bài trước theo đúng thứ tự. Bài đầu tiên còn thiếu: ${lessonGate.missingLessons[0]}.`,
+        firstMissingLesson: lessonGate.missingLessons[0],
+        missingLessonCount: lessonGate.missingLessons.length,
+      });
+    }
+
     const attemptsUsed = Number(bio.hugoCoderExamAttempts?.[lessonId] || 0);
     const alreadyCompleted = (bio.completedLessons || []).includes(lessonId);
     const needsFee = !alreadyCompleted && attemptsUsed >= 1; // đã hoàn thành thì ôn tập miễn phí
@@ -626,14 +641,14 @@ router.post('/award-learning', requireMember, async (req, res) => {
       return res.json({ success: true, alreadyCompleted: true, balance: bio.joyBalance });
     }
 
-    if (lessonIndex > 0) {
-      const requiredPreviousLesson = CODER_LESSON_IDS[lessonIndex - 1];
-      if (!bio.completedLessons.includes(requiredPreviousLesson)) {
-        return res.status(400).json({
-          error: `Bạn cần hoàn thành ${requiredPreviousLesson} trước khi nhận thưởng bài này.`,
-          requiredPreviousLesson
-        });
-      }
+    const lessonGate = getCoderLessonGate(bio.completedLessons, lessonId);
+    if (!lessonGate.unlocked) {
+      return res.status(409).json({
+        code: lessonGate.code,
+        error: `Bạn cần hoàn thành đủ các bài trước theo đúng thứ tự. Bài đầu tiên còn thiếu: ${lessonGate.missingLessons[0]}.`,
+        firstMissingLesson: lessonGate.missingLessons[0],
+        missingLessonCount: lessonGate.missingLessons.length,
+      });
     }
 
 
@@ -653,11 +668,26 @@ router.post('/award-learning', requireMember, async (req, res) => {
 
 
 
-    bio.completedLessons.push(lessonId);
-    bio.markModified('completedLessons');
-    await bio.save();
+    let privateEvidence = null;
+    if (isLearningEvidenceEnabledFor(bio)) {
+      try {
+        const result = await createLessonEvidence({ bio, lessonId });
+        privateEvidence = privateEvidenceDto(result.evidence);
+      } catch (error) {
+        if (error?.statusCode === 410) {
+          return res.status(410).json({ error: 'EVIDENCE_DELETED' });
+        }
+        throw error;
+      }
+    }
 
-    res.json({ success: true, balance: bio.joyBalance });
+    // $addToSet giữ tiến độ không trùng khi hai thiết bị hoàn thành cùng lúc.
+    await Bio.updateOne(
+      { _id: bio._id },
+      { $addToSet: { completedLessons: lessonId } },
+    );
+
+    res.json({ success: true, balance: bio.joyBalance, evidence: privateEvidence });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -718,16 +748,20 @@ router.post('/claim-milestone-reward', requireMember, async (req, res) => {
       return res.status(400).json({ error: `Bạn đã nhận phần thưởng cho Chặng ${phaseNum} rồi.` });
     }
 
-    // Check completion
-    const completed = bio.completedLessons || [];
-    let requiredLesson = '';
-    if (phaseNum === 3) requiredLesson = 'lesson50';
-    else if (phaseNum === 4) requiredLesson = 'lesson70';
-    else if (phaseNum === 5) requiredLesson = 'lesson90';
-
-    if (!completed.includes(requiredLesson)) {
-      return res.status(400).json({ error: `Bạn cần hoàn thành Chặng ${phaseNum} (đến bài ${requiredLesson.replace('lesson', 'Bài ')}) để nhận thưởng.` });
+    const stageIdByPhase = { 3: 'advanced', 4: 'security', 5: 'project' };
+    const stageProgress = getCoderStageCompletion(
+      bio.completedLessons || [],
+      stageIdByPhase[phaseNum],
+    );
+    if (stageProgress.missingLessons.length > 0) {
+      return res.status(409).json({
+        code: 'STAGE_INCOMPLETE',
+        error: `Bạn cần hoàn thành đủ Chặng ${phaseNum} để nhận thưởng. Còn thiếu ${stageProgress.missingLessons.length} bài.`,
+        firstMissingLesson: stageProgress.missingLessons[0],
+      });
     }
+
+    const requiredLesson = `lesson${stageProgress.stage.to}`;
 
     const rewardAmount = 800;
     const result = await awardJoy(

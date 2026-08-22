@@ -1,35 +1,53 @@
 import { Sparkles, Activity, Calendar } from "lucide-react";
 
+function localDayKey(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 export default function AuraMoodMap({ historyLogs = [] }) {
-  const checkins = (historyLogs || []).filter(l => l.type === "checkin");
+  // Keep one (the newest) pulse per local calendar day so a re-check does not
+  // distort the weekly chart or count as another streak day.
+  const pulseByDay = new Map();
+  (historyLogs || [])
+    .filter((log) => log.type === "checkin" && Number.isFinite(Number(log.mood)))
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .forEach((log) => pulseByDay.set(localDayKey(log.date), log));
+  const checkins = [...pulseByDay.values()];
   const recent = checkins.slice(-7);
   
-  // Calculate average mood
-  let avgMood = 3.5;
-  if (recent.length > 0) {
-    const sum = recent.reduce((acc, curr) => acc + (curr.mood || 3), 0);
-    avgMood = sum / recent.length;
-  }
+  const averageOf = (field) => {
+    const values = recent.map((log) => Number(log[field])).filter(Number.isFinite);
+    return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+  };
+  const avgMood = averageOf("mood");
+  const avgEnergy = averageOf("energy");
+  const avgStress = averageOf("stress");
 
-  // Determine Aura Theme & Colors based on average mood
-  let auraTitle = "Hào Quang Cân Bằng (Balanced Teal Aura)";
-  let auraDesc = "Tâm trí cậu đang ở trạng thái cân bằng và tĩnh tại. Là thời điểm tuyệt vời để tự chiêm nghiệm và học tập.";
+  // Visual trend only — this is deliberately descriptive, not a clinical
+  // interpretation of the member's mental health.
+  let auraTitle = "Chưa đủ Daily Pulse";
+  let auraDesc = "Check-in vài ngày để HugoPSY hiển thị xu hướng từ dữ liệu cậu tự ghi nhận.";
   let auraGlow = "rgba(20, 184, 166, 0.35)"; // Teal
   let glowClasses = "from-teal-500 via-cyan-400 to-emerald-400";
   let moodBadgeColor = "text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20";
 
-  if (avgMood <= 2.2) {
-    auraTitle = "Hào Quang Lắng Đọng (Deep Violet Aura)";
-    auraDesc = "Cậu đang trải qua những cảm xúc dồn nén hoặc áp lực. Hào quang nhắc nhở cậu hãy thả lỏng và tìm sự nâng đỡ.";
+  if (avgMood !== null && avgMood <= 2.2) {
+    auraTitle = "Xu hướng cảm xúc đang thấp";
+    auraDesc = "Các check-in gần đây nghiêng về mệt mỏi. Đây là tín hiệu tự ghi nhận để cậu cân nhắc giảm tải và tìm sự nâng đỡ phù hợp.";
     auraGlow = "rgba(139, 92, 246, 0.35)"; // Violet
     glowClasses = "from-violet-500 via-purple-400 to-indigo-500";
     moodBadgeColor = "text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/20";
-  } else if (avgMood >= 3.8) {
-    auraTitle = "Hào Quang Rạng Rỡ (Radiant Emerald Gold)";
-    auraDesc = "Tâm trí cậu tràn ngập năng lượng tích cực và sự ấm áp. Hãy lan tỏa niềm vui và sự lạc quan này nhé!";
+  } else if (avgMood !== null && avgMood >= 3.8) {
+    auraTitle = "Xu hướng cảm xúc đang tích cực";
+    auraDesc = "Các check-in gần đây khá tích cực. Cậu có thể ghi lại điều đang giúp mình để dùng lại vào những ngày khó hơn.";
     auraGlow = "rgba(16, 185, 129, 0.35)"; // Emerald
     glowClasses = "from-emerald-500 via-teal-400 to-amber-400";
     moodBadgeColor = "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+  } else if (avgMood !== null) {
+    auraTitle = "Xu hướng cảm xúc tương đối ổn định";
+    auraDesc = "Các check-in gần đây ở vùng giữa. Tiếp tục ghi nhận năng lượng và áp lực để thấy điều gì đang ảnh hưởng đến nhịp của cậu.";
   }
 
   return (
@@ -55,6 +73,22 @@ export default function AuraMoodMap({ historyLogs = [] }) {
         </span>
       </div>
 
+      {/* Three independent signals prevent one mood number from pretending to
+          explain the member's whole day. */}
+      <div className="relative z-10 grid grid-cols-3 gap-2">
+        {[
+          { label: "Tâm trạng", value: avgMood, icon: "mood", cls: "text-indigo-600 bg-indigo-500/10" },
+          { label: "Năng lượng", value: avgEnergy, icon: "battery_5_bar", cls: "text-sky-600 bg-sky-500/10" },
+          { label: "Áp lực", value: avgStress, icon: "speed", cls: "text-violet-600 bg-violet-500/10" },
+        ].map((metric) => (
+          <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/70 p-2.5 text-center">
+            <span className={`material-symbols-outlined inline-flex h-7 w-7 items-center justify-center rounded-xl text-[15px] ${metric.cls}`}>{metric.icon}</span>
+            <p className="mt-1 text-[8px] font-black uppercase tracking-wider text-muted-foreground">{metric.label}</p>
+            <p className="text-sm font-black text-foreground">{metric.value === null ? "—" : metric.value.toFixed(1)}<span className="text-[8px] text-muted-foreground"> / 5</span></p>
+          </div>
+        ))}
+      </div>
+
       {/* Floating Glowing Aura Core */}
       <div className="relative z-10 flex flex-col items-center py-2 space-y-3">
         <div className="relative flex items-center justify-center">
@@ -63,7 +97,7 @@ export default function AuraMoodMap({ historyLogs = [] }) {
           >
             <div className="w-full h-full rounded-full bg-white dark:bg-zinc-950 backdrop-blur-md flex flex-col items-center justify-center text-center p-2">
               <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider">Chỉ Số Mood</span>
-              <span className="text-2xl font-black text-foreground mt-0.5">{avgMood.toFixed(1)}</span>
+              <span className="text-2xl font-black text-foreground mt-0.5">{avgMood === null ? "—" : avgMood.toFixed(1)}</span>
               <span className="text-[8px] font-bold text-muted-foreground">/ 5.0</span>
             </div>
           </div>
@@ -145,8 +179,8 @@ export default function AuraMoodMap({ historyLogs = [] }) {
             {Array.from({ length: 140 }).map((_, i) => {
               const d = new Date();
               d.setDate(d.getDate() - (139 - i));
-              const dateKey = d.toISOString().split("T")[0];
-              const matchedLog = checkins.find((c) => (c.date || "").startsWith(dateKey));
+              const dateKey = localDayKey(d);
+              const matchedLog = checkins.find((c) => localDayKey(c.date) === dateKey);
 
               let color = "bg-muted-foreground/20";
               if (matchedLog) {

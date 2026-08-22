@@ -168,6 +168,84 @@
   -webkit-backdrop-filter: saturate(160%) blur(26px);
 }
 
+/* Layered glass instead of a flat translucent fill. The highlight and inner
+   edge remain visible on both bright aura gradients and dark mode. */
+.psy-liquid-glass,
+.psy-liquid-composer {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  background: rgba(248, 250, 255, 0.66);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 32px rgba(31, 41, 55, 0.08);
+  backdrop-filter: blur(30px) saturate(165%);
+  -webkit-backdrop-filter: blur(30px) saturate(165%);
+}
+
+.psy-liquid-glass::before,
+.psy-liquid-composer::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.72;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), transparent 36%);
+}
+
+.psy-liquid-glass > *,
+.psy-liquid-composer > * {
+  position: relative;
+  z-index: 1;
+}
+
+.dark .psy-liquid-glass,
+.dark .psy-liquid-composer {
+  border-color: rgba(255, 255, 255, 0.13);
+  background: rgba(14, 14, 30, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 38px rgba(0, 0, 0, 0.3);
+}
+
+.dark .psy-liquid-glass::before,
+.dark .psy-liquid-composer::before {
+  opacity: 0.55;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 42%);
+}
+
+.psy-liquid-composer {
+  border-radius: 32px;
+}
+
+.psy-liquid-composer-inner {
+  border-color: rgba(255, 255, 255, 0.72) !important;
+  background: rgba(255, 255, 255, 0.52) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), 0 4px 18px rgba(31, 41, 55, 0.07) !important;
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+}
+
+.dark .psy-liquid-composer-inner {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(20, 20, 28, 0.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 5px 20px rgba(0, 0, 0, 0.28) !important;
+}
+
+.dark .psy-chat-safe-header.psy-liquid-glass {
+  background: rgba(13, 12, 31, 0.76);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .psy-chat-quick-actions.psy-liquid-glass {
+  background: rgba(15, 14, 34, 0.62);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
 @media (max-width: 767px) {
   .hugo-psy-shell {
     background: #f7f7f9;
@@ -184,8 +262,26 @@
   }
 
   .psy-chat-safe-header {
-    padding-top: calc(constant(safe-area-inset-top) + 10px) !important;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
+    /* The OS owns the cutout. Keep another 14px of optical breathing room
+       below it so the first control never hugs the Dynamic Island. */
+    padding-top: calc(constant(safe-area-inset-top) + 14px) !important;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+    padding-bottom: 12px !important;
+    padding-right: max(12px, calc(env(safe-area-inset-right, 0px) + 8px)) !important;
+    padding-left: max(12px, calc(env(safe-area-inset-left, 0px) + 8px)) !important;
+  }
+
+  .psy-chat-quick-actions,
+  .psy-chat-message-list {
+    padding-right: max(12px, calc(env(safe-area-inset-right, 0px) + 8px)) !important;
+    padding-left: max(12px, calc(env(safe-area-inset-left, 0px) + 8px)) !important;
+  }
+
+  .psy-modal-safe-layer {
+    padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+    padding-right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    padding-left: max(8px, env(safe-area-inset-left, 0px)) !important;
   }
 
   .psy-workspace {

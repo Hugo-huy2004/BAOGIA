@@ -7,6 +7,7 @@ import { languageCode } from './i18n/languages.js'
 import { initSecurityShield } from './utils/security.js'
 import { installApiAuthInterceptor } from './services/apiAuthInterceptor.js'
 import { installClientMonitoring } from './utils/clientMonitoring.js'
+import { initSentryMonitoring } from './utils/sentryMonitoring.js'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './lib/queryClient.js'
 
@@ -28,6 +29,7 @@ initSecurityShield();
 // Gắn member token vào mọi request API — phải chạy trước khi App render
 // để không có fetch nào lọt qua trước lúc patch.
 installApiAuthInterceptor();
+initSentryMonitoring();
 installClientMonitoring();
 
 if (import.meta.env.DEV && 'serviceWorker' in navigator) {

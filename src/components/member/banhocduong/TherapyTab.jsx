@@ -543,7 +543,7 @@ export default function TherapyTab({
     setClaimingId(id);
     try {
       const res = await onClaimChallenge?.(id);
-      if (res && res.success) {
+      if (res && res.success && !res.alreadyClaimed) {
         confetti({
           particleCount: 120,
           spread: 70,

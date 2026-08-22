@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 /* ============================================================================
    RUNNING HORSE FILM — Transparent Cartoon Running Horse GIF + Automatic Audio
    ==========================================================================
-   - Clean transparent GIF (/images/horse/running_horse_clean2.gif) with zero white box.
+   - Clean transparent GIF (/images/horse/running_horse_perfect.gif) with zero white box.
    - NO background, NO card styling, runs directly on the website's background.
    - Web Audio API realistic horse whinny / neigh sound synthesizer (100% automatic sound).
    ========================================================================== */

@@ -147,7 +147,7 @@ router.post('/heartbeat', requireMember, async (req, res) => {
       { upsert: true }
     );
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getVietnamDateString();
     await CompanionHistory.updateOne(
       { email, activeSecondsDate: { $ne: today } },
       { $set: { activeSecondsDate: today, activeSecondsToday: 0, joyAwardedSecondsToday: 0, dailyJoyCapReached: false, claimedChallengesToday: [] } }
@@ -218,7 +218,7 @@ router.get('/history', requireMember, async (req, res) => {
       }
     );
 
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getVietnamDateString();
     if (historyDoc.activeSecondsDate !== todayStr) {
       // Atomic update — avoids racing with a concurrent heartbeat save on
       // the same document (which would throw a Mongoose VersionError here).
@@ -303,15 +303,26 @@ router.post('/history', requireMember, async (req, res) => {
     }
     if (healingStartDate !== undefined) $set.healingStartDate = healingStartDate;
     if (lastCheckinDate !== undefined) $set.lastCheckinDate = lastCheckinDate;
+    if (lastTestDate !== undefined) $set.lastTestDate = lastTestDate;
     if (chatDistressCount !== undefined) {
       const val = Number(chatDistressCount);
       $set.chatDistressCount = !isNaN(val) ? val : 0;
     }
-    if (historyLogs !== undefined) $set.historyLogs = historyLogs;
+    if (historyLogs !== undefined) {
+      if (!Array.isArray(historyLogs)) {
+        return res.status(400).json({ error: 'historyLogs must be an array' });
+      }
+      // Bound sensitive wellness history so one malformed client cannot grow a
+      // member document indefinitely. Keep the newest entries.
+      $set.historyLogs = historyLogs.slice(-1500);
+    }
     if (req.body.incognito === true || req.body.incognitoMode === true) {
       delete $set.chatMessages;
     } else if (chatMessages !== undefined) {
-      $set.chatMessages = encryptChatMessages(chatMessages);
+      if (!Array.isArray(chatMessages)) {
+        return res.status(400).json({ error: 'chatMessages must be an array' });
+      }
+      $set.chatMessages = encryptChatMessages(chatMessages.slice(-500));
     }
 
     let historyDoc = await CompanionHistory.findOneAndUpdate(
@@ -328,7 +339,7 @@ router.post('/history', requireMember, async (req, res) => {
       }
     );
 
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getVietnamDateString();
     if (historyDoc.activeSecondsDate !== todayStr) {
       // Atomic update — historyDoc here was just returned by a $set
       // findOneAndUpdate above, so calling .save() again risks a Mongoose
@@ -348,7 +359,7 @@ router.post('/history', requireMember, async (req, res) => {
     if (historyLogs && Array.isArray(historyLogs)) {
       const latestLog = historyLogs[historyLogs.length - 1];
       if (latestLog && latestLog.type === 'checkin') {
-        const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+        const today = getVietnamDateString(); // 'YYYY-MM-DD' in product timezone
         const streaks = historyDoc.streaks || {};
         const lastStreakDate = streaks.lastStreakDate || null;
         let currentStreak = streaks.currentCheckinStreak || 0;
@@ -357,7 +368,7 @@ router.post('/history', requireMember, async (req, res) => {
 
         if (lastStreakDate !== today) {
           // Only update streak if this is a new day's checkin
-          const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+          const yesterday = getVietnamDateString(new Date(Date.now() - 86400000));
           if (lastStreakDate === yesterday) {
             currentStreak += 1;
           } else if (!lastStreakDate) {
@@ -671,7 +682,7 @@ async function isChallengeCompletedToday(historyDoc, challengeId, todayStr, emai
     return bio?.focusJoyDate === todayStr;
   }
   if (challengeId === 'arcade') {
-    const startOfDay = new Date(`${todayStr}T00:00:00.000Z`);
+    const startOfDay = new Date(`${todayStr}T00:00:00+07:00`);
     const played = await ArcadeScore.findOne({ email, lastPlayedAt: { $gte: startOfDay } });
     return Boolean(played);
   }
@@ -679,7 +690,7 @@ async function isChallengeCompletedToday(historyDoc, challengeId, todayStr, emai
 
   const isLogToday = (logDate) => {
     if (!logDate) return false;
-    return new Date(logDate).toISOString().slice(0, 10) === todayStr;
+    return getVietnamDateString(new Date(logDate)) === todayStr;
   };
 
   if (challengeId === 'breath') {
@@ -740,7 +751,7 @@ router.get('/challenges-status', requireMember, async (req, res) => {
 router.post('/claim-tree-bonus', requireMember, async (req, res) => {
   try {
     const email = req.memberEmail;
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getVietnamDateString();
     const ids = Object.keys(DAILY_CHALLENGES);
 
     const doc = await CompanionHistory.findOne({ email });
@@ -799,7 +810,7 @@ router.post('/claim-challenge', requireMember, async (req, res) => {
       { upsert: true, new: true }
     );
 
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = getVietnamDateString();
     if (historyDoc.activeSecondsDate !== todayStr) {
       // Atomic — avoids racing with a concurrent heartbeat save.
       await CompanionHistory.updateOne(
@@ -811,7 +822,14 @@ router.post('/claim-challenge', requireMember, async (req, res) => {
 
     const claimedToday = historyDoc.claimedChallengesToday || [];
     if (claimedToday.includes(challengeId)) {
-      return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
+      // Idempotent success: a repeated tap, React retry, or slow-network retry
+      // must not turn an already completed action into a UI error.
+      return res.json({
+        success: true,
+        alreadyClaimed: true,
+        awarded: 0,
+        claimedChallengesToday: claimedToday
+      });
     }
 
     if (!(await isChallengeCompletedToday(historyDoc, challengeId, todayStr, email))) {
@@ -826,7 +844,13 @@ router.post('/claim-challenge', requireMember, async (req, res) => {
       { $addToSet: { claimedChallengesToday: challengeId } }
     );
     if (claimResult.modifiedCount === 0) {
-      return res.status(400).json({ error: 'Bạn đã nhận phần thưởng cho thử thách này hôm nay rồi.' });
+      const latestHistory = await CompanionHistory.findOne({ email }).select('claimedChallengesToday').lean();
+      return res.json({
+        success: true,
+        alreadyClaimed: true,
+        awarded: 0,
+        claimedChallengesToday: latestHistory?.claimedChallengesToday || claimedToday
+      });
     }
 
     const { balance } = await awardJoy(

@@ -20,6 +20,7 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { appInstallationPolicy } from '../../shared/appInstallationPolicy.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import redisSlugService from '../services/redisSlugService.js';
+import LearningEvidence from '../models/LearningEvidence.js';
 
 const checkLocationLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
@@ -129,6 +130,7 @@ const createUniqueSlug = async (baseSlug, ignoreId = null) => {
 
 const removeExpiredBioIfNeeded = async (bio) => {
   if (bio && bio.expiresAt && new Date(bio.expiresAt).getTime() <= Date.now()) {
+    await LearningEvidence.deleteMany({ ownerMemberId: existing._id });
     await Bio.deleteOne({ _id: bio._id });
     return null;
   }
@@ -397,6 +399,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     const userDisplayName = bio.displayName;
 
     // 1. Xóa hồ sơ Bio
+    await LearningEvidence.deleteMany({ ownerMemberId: bio._id });
     await Bio.deleteOne({ _id: id });
 
     // 2. Xóa toàn bộ điểm Arcade liên quan (xoá triệt để khỏi Bảng xếp hạng)
@@ -1438,6 +1441,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     if (existing.avatarUrl) {
       await deleteAvatar(existing.avatarUrl);
     }
+    await LearningEvidence.deleteMany({ ownerMemberId: bio._id });
     await Bio.findByIdAndDelete(req.params.id);
     
     // Xóa khỏi Cache và Bloom Filter

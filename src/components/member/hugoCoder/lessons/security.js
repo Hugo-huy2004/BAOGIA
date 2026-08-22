@@ -582,7 +582,7 @@ Mỗi câu 4 lựa chọn, 1 đáp án đúng. Đạt **15/25 (60%)** để vư�
       { q: "Muốn cookie chỉ truyền qua HTTPS, bật thuộc tính nào?", o: ["HttpOnly", "Secure", "SameSite", "Expires"], a: 1 },
       { q: "Trong BEM, 'card__title--active' thì '--active' là gì?", o: ["Block", "Element", "Modifier", "Helper"], a: 2 },
       { q: "Thẻ JSDoc nào mô tả giá trị trả về của hàm?", o: ["@param", "@return", "@type", "@output"], a: 1 },
-      { q: "$_POST khác $_GET thế nào?", o: ["$_POST truyền qua URL", "$_POST truyền ẩn trong Request Body", "$_POST kém bảo mật hơn", "$_POST chỉ nhận file"], a: 1 },
+      { q: "$_POST khác $_GET chủ yếu ở vị trí dữ liệu được gửi thế nào?", o: ["$_POST luôn nằm trên URL", "Dữ liệu POST thường nằm trong request body, không nằm trong query string", "POST tự mã hóa dữ liệu", "POST chỉ nhận file"], a: 1 },
       { q: "Hash bcrypt có thể dịch ngược về mật khẩu gốc không?", o: ["Có, bằng khóa bí mật", "Không — hàm băm một chiều", "Có, bằng Rainbow Table", "Có nếu biết salt"], a: 1 },
       { q: "Xoá nhanh toàn bộ dữ liệu bảng nhưng giữ cấu trúc?", o: ["DELETE FROM t", "DROP TABLE t", "TRUNCATE TABLE t", "REMOVE t"], a: 2 },
       { q: "Từ khóa 'const' trong JS dùng để?", o: ["Biến thay đổi thoải mái", "Hằng số không gán lại được", "Biến toàn cục", "Khai báo class"], a: 1 },
@@ -596,7 +596,7 @@ Mỗi câu 4 lựa chọn, 1 đáp án đúng. Đạt **15/25 (60%)** để vư�
       { q: "Lấy độ dài mảng trong JS?", o: ["arr.size", "arr.count", "arr.length", "arr.total"], a: 2 },
       { q: "'SELECT * FROM users WHERE age > 18' làm gì?", o: ["Lấy mọi cột của người dùng trên 18 tuổi", "Xoá người dưới 18", "Cập nhật tuổi", "Đếm người trên 18"], a: 0 },
       { q: "Giao thức kết nối dòng lệnh an toàn tới VPS?", o: ["FTP", "SSH", "HTTP", "Telnet"], a: 1 },
-      { q: "'await' chỉ dùng được ở đâu?", o: ["Mọi hàm", "Trong hàm async", "Ngoài cùng file HTML", "Trong CSS"], a: 1 },
+      { q: "`await` hợp lệ ở đâu trong JavaScript hiện đại?", o: ["Trong mọi hàm thường", "Trong hàm async hoặc ở top-level của ES module được hỗ trợ", "Trong CSS", "Chỉ trong vòng lặp"], a: 1 },
       { q: "Thư mục /src/pages trong dự án React chứa gì?", o: ["Ảnh tĩnh", "Component trang chính theo định tuyến URL", "Cấu hình database", "Unit test"], a: 1 },
       { q: "CSRF xảy ra khi nào?", o: ["Server bị DDoS", "Nạn nhân bị dụ kích hoạt request trái phép tại trang đã đăng nhập", "Database bị xoá", "Mật khẩu bị lộ"], a: 1 },
       { q: "Thẻ HTML5 cho thanh bên/nội dung phụ?", o: ["<main>", "<section>", "<aside>", "<article>"], a: 2 },
@@ -769,7 +769,7 @@ const users = Array.from({ length: 1000 }, (_, i) => makeUser(i + 1));
     miniQuiz: [
       { q: "Seeding là gì?", o: ["Xoá database", "Nạp dữ liệu mẫu ban đầu vào database", "Nén dữ liệu", "Sao lưu"], a: 1 },
       { q: "Mock data tốt phải thế nào?", o: ["Càng đẹp càng tốt", "Giống thật về hình dạng, phân phối và có ca biên", "Toàn chữ a", "Ít nhất có thể"], a: 1 },
-      { q: "Nên test hiệu năng với lượng dữ liệu bao nhiêu?", o: ["Đúng bằng hiện tại", "Gấp ~10 lần kỳ vọng production", "10 dòng đủ", "1 dòng"], a: 1 },
+      { q: "Bộ dữ liệu test hiệu năng nên được chọn thế nào?", o: ["Luôn chỉ 1 dòng", "Đại diện tải dự kiến và có thêm kịch bản tải đỉnh/ca biên", "Luôn đúng 10 dòng", "Dùng dữ liệu thật chưa ẩn danh"], a: 1 },
       { q: "Có được dùng dữ liệu thật của người dùng để test không?", o: ["Được nếu tiện", "Không — vi phạm quyền riêng tư, phải dùng dữ liệu giả", "Được nếu ẩn tên", "Tuỳ dự án"], a: 1 }
     ]
   },

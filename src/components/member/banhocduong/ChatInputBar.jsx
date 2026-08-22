@@ -56,7 +56,7 @@ function ChatInputBar({
       </AnimatePresence>
 
       {/* Composer pill */}
-      <div className={`flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[22px] bg-card/80 backdrop-blur-xl border transition-all duration-200 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.2)] ${
+      <div className={`psy-liquid-composer-inner flex items-end gap-1.5 pl-3.5 pr-1.5 py-1.5 rounded-[22px] border transition-all duration-200 ${
         disabled
           ? "border-border/50/[0.04] opacity-60"
           : "border-border/60/[0.1] focus-within:border-blue-500/50 dark:focus-within:border-blue-500/30 focus-within:shadow-[0_4px_20px_rgba(59,130,246,0.15)]"
@@ -82,7 +82,7 @@ function ChatInputBar({
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
-          className="flex-1 bg-transparent text-[13px] text-foreground placeholder-zinc-400 dark:placeholder-zinc-600 outline-none resize-none leading-snug py-1.5 max-h-[80px] overflow-y-auto"
+          className="flex-1 bg-transparent text-[13px] text-foreground placeholder-zinc-500 dark:placeholder-zinc-400 outline-none resize-none leading-snug py-1.5 max-h-[80px] overflow-y-auto"
           style={{ height: "30px" }}
         />
 

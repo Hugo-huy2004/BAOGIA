@@ -83,7 +83,7 @@ ssh-copy-id hugo@<ip_vps>          # đẩy public key lên VPS
       correctIdx: 1
     },
     miniQuiz: [
-      { q: "VPS là gì?", o: ["Hosting chia sẻ", "Máy chủ ảo riêng có toàn quyền root", "Tên miền", "CDN"], a: 1 },
+      { q: "VPS là gì?", o: ["Hosting chia sẻ một tài khoản", "Máy chủ ảo riêng với tài nguyên và quyền quản trị độc lập", "Tên miền", "CDN"], a: 1 },
       { q: "Hệ điều hành khuyên dùng cho VPS đồ án?", o: ["Windows 11", "Ubuntu Server LTS", "macOS", "Android"], a: 1 },
       { q: "Vì sao không làm việc hằng ngày bằng root?", o: ["Root chạy chậm", "Một lệnh sai là phá cả máy, không có lớp chặn — dùng user thường + sudo", "Root tốn phí", "Ubuntu cấm"], a: 1 },
       { q: "Việc ĐẦU TIÊN sau khi ssh vào VPS mới?", o: ["Cài game", "apt update && apt upgrade — vá lỗ hổng hệ thống", "Đổi hostname", "Cài GUI"], a: 1 }
@@ -281,7 +281,7 @@ FLUSH PRIVILEGES;
       ]
     },
     theory: `### KIẾN THỨC CỐT LÕI
-**Reverse proxy** — client chỉ thấy Nginx; Node trốn sau cổng nội bộ 8081:
+**Reverse proxy** — client chỉ thấy Nginx; Node trốn sau cổng nội bộ 8099:
 
 \`\`\`nginx
 # /etc/nginx/sites-available/doan
@@ -360,7 +360,7 @@ Kích hoạt: \`ln -s\` sang sites-enabled → \`nginx -t\` (kiểm cú pháp �
     },
     miniQuiz: [
       { q: "Reverse proxy nghĩa là gì?", o: ["Proxy quay ngược DNS", "Nginx đứng cổng công khai, chuyển tiếp vào dịch vụ nội bộ phía sau", "VPN", "Trình duyệt ẩn danh"], a: 1 },
-      { q: "Vì sao Node nghe cổng nội bộ 8081 thay vì 80 trực tiếp?", o: ["Node không mở được 80", "Nginx lo TLS/gzip/tĩnh/điều phối tốt hơn — Node chỉ lo logic", "Cổng 80 tốn phí", "Thói quen"], a: 1 },
+      { q: "Vì sao Node nghe cổng nội bộ 8099 thay vì 80 trực tiếp?", o: ["Node không mở được 80", "Nginx lo TLS/gzip/tĩnh/điều phối tốt hơn — Node chỉ lo logic", "Cổng 80 tốn phí", "Thói quen"], a: 1 },
       { q: "Lệnh nào kiểm tra cú pháp config trước khi reload?", o: ["nginx -v", "nginx -t", "nginx --check", "systemctl test"], a: 1 },
       { q: "WebSocket qua Nginx cần gì đặc biệt?", o: ["Không cần gì", "proxy_http_version 1.1 + header Upgrade/Connection", "Cổng riêng 9000", "Tắt gzip toàn cục"], a: 1 }
     ]
@@ -629,7 +629,7 @@ PM2 tự restart khi app crash (watchdog). Stack PHP tương đương: php-fpm �
     },
     miniQuiz: [
       { q: "Vì sao không chạy node server.js trực tiếp trong SSH cho production?", o: ["Chạy chậm hơn", "Đóng terminal là app chết; crash không ai hồi sinh", "Tốn RAM hơn PM2", "Node cấm"], a: 1 },
-      { q: "PM2 cluster mode (-i max) làm gì?", o: ["Tạo nhiều VPS", "Chạy nhiều instance app trên các CPU core, chia tải + restart không downtime", "Nén code", "Tăng RAM"], a: 1 },
+      { q: "PM2 cluster mode (-i max) làm gì?", o: ["Tạo nhiều VPS", "Chạy nhiều instance app trên các CPU core và chia tải; zero-downtime cần dùng reload đúng cách", "Nén code", "Tăng RAM"], a: 1 },
       { q: "Log không xoay vòng dẫn đến hậu quả gì?", o: ["Log bị mã hóa", "Ăn dần sạch ổ đĩa — đến lúc DB không ghi nổi là sập cả hệ thống", "Không sao", "PM2 tự xoá"], a: 1 },
       { q: "Cách kiểm chứng cấu hình 'sống sót reboot' đúng?", o: ["Đọc lại docs", "Diễn tập: reboot thật và xem pm2 status sau khi máy dậy", "Tin vào pm2 save", "Hỏi nhà cung cấp"], a: 1 }
     ]

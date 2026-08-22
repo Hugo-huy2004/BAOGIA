@@ -502,7 +502,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
 
   // ── Unified state updater ─────────────────────────────────────────────────────
   const handleUpdateCompanionState = useCallback(async (updates) => {
-    if (!memberEmail) return;
+    if (!memberEmail) return null;
     try {
       const isActive   = updates.healingActive ?? healingActive;
       const dur        = Math.max(1, Number(updates.healingDuration ?? healingDuration) || 30);
@@ -521,8 +521,13 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
       if (res?.companionHistory) {
         applyCompanionSnapshot(res.companionHistory);
       }
-    } catch (e) { console.error("BHD handleUpdateCompanionState:", e); }
-  }, [memberEmail, healingActive, healingDuration, healingStartDate, historyLogs, chatMessages, applyCompanionSnapshot]);
+      return res?.companionHistory || null;
+    } catch (e) {
+      console.error("BHD handleUpdateCompanionState:", e);
+      showToast?.("HugoPSY chưa thể đồng bộ dữ liệu. Vui lòng thử lại.", "error");
+      return null;
+    }
+  }, [memberEmail, healingActive, healingDuration, healingStartDate, historyLogs, chatMessages, applyCompanionSnapshot, showToast]);
 
   // ── Adaptation alert ──────────────────────────────────────────────────────────
   useEffect(() => {

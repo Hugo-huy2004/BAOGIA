@@ -31,6 +31,7 @@ import { HugoNoticeToast } from "../../components/shared/HugoNotice";
 import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
+import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
 import { setPortalTheme as syncPortalTheme } from "../../services/portalThemeApi";
 import {
   clearPendingPortalThemeSync,
@@ -273,6 +274,7 @@ function MemberPortalPage() {
   );
   const utilitySelection = activeTab === "utilities" && !retiredUtility ? (subTab || null) : null;
   const psychologySubTabFromUrl = activeTab === "utilities" && subTab === "psychology" ? (psychTab || "chat") : "chat";
+  const radioPageFromUrl = activeTab === "utilities" && subTab === "radio" ? (psychTab || "home") : "home";
   const [defaultPsychologyPresetTest, setDefaultPsychologyPresetTest] = useState(null);
 
   const handleSelectUtility = (utilityId) => {
@@ -284,6 +286,9 @@ function MemberPortalPage() {
   }, [retiredUtility, navigate]);
   const handleSelectPsychologySubTab = (subTabId) => {
     navigate(`/member/utilities/psychology/${subTabId}`);
+  };
+  const handleSelectRadioPage = (pageId) => {
+    navigate(pageId && pageId !== "home" ? `/member/utilities/radio/${pageId}` : "/member/utilities/radio");
   };
 
   const { notifications, unreadCount: loadedUnreadCount, toast, setToast,
@@ -829,10 +834,9 @@ function MemberPortalPage() {
   // any psychology sub-tab gets the fullscreen takeover there. Desktop is
   // unchanged from before — normal sidebar+tabs UI, never fullscreen.
   const isFullscreenUtility = (activeTab === "utilities" && (
-    // Danh sách này phải khớp `isFullscreenLikeUtility` trong MemberUtilitiesTab.
-    // Thiếu một id ở đây thì app vẫn dựng vỏ `h-full` của mình nhưng nằm trong
-    // trang có đệm và tự cuộn — hai vùng cuộn lồng nhau làm hỏng vuốt/chạm.
-    ["study", "ide", "arcade", "store", "hugoso", "handle", "helpdesk", "team", "joy_wallet", "cinema", "invest"].includes(subTab) ||
+    // Danh sách nằm ở shared/appRegistry.js — MemberUtilitiesTab đọc cùng một
+    // bản. Trước đây mỗi file giữ một mảng hardcode và chúng đã lệch nhau.
+    FULLSCREEN_APP_IDS.includes(subTab) ||
     (subTab === "psychology" && isMobileView)
   ));
 
@@ -895,6 +899,8 @@ function MemberPortalPage() {
                 onSelectUtility={handleSelectUtility}
                 psychologySubTab={psychologySubTabFromUrl}
                 onSelectPsychologySubTab={handleSelectPsychologySubTab}
+                radioPage={radioPageFromUrl}
+                onSelectRadioPage={handleSelectRadioPage}
                 defaultPsychologyPresetTest={defaultPsychologyPresetTest}
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
@@ -995,7 +1001,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1060,7 +1066,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (

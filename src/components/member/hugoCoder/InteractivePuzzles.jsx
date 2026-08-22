@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { notify } from "../../../lib/notify";
+import QuizQuestion from "./QuizQuestion";
+import { isQuizAnswerCorrect } from "../../../../shared/quizKinds";
 
 export default function InteractivePuzzles({
   course,
@@ -32,6 +34,7 @@ export default function InteractivePuzzles({
   quizQuestions,
   quizCompleted,
   quizScore,
+  quizReview,
   quizCurrentIndex,
   setQuizCurrentIndex,
   quizAnswers,
@@ -45,6 +48,11 @@ export default function InteractivePuzzles({
 }) {
   const { t } = useTranslation();
   const isCompleted = completedLessons.includes(course.id);
+  const [miniQuizReviewed, setMiniQuizReviewed] = useState(false);
+
+  useEffect(() => {
+    setMiniQuizReviewed(false);
+  }, [course.id]);
 
   if (course.practiceType === "graduation_submission") {
     return (
@@ -59,7 +67,8 @@ export default function InteractivePuzzles({
 
   if (course.miniQuiz && interactivePassed && !isCompleted) {
     const handleSubmitMiniQuiz = () => {
-      const allCorrect = course.miniQuiz.every((q, i) => miniQuizAnswers[i] === q.a);
+      setMiniQuizReviewed(true);
+      const allCorrect = course.miniQuiz.every((q, i) => isQuizAnswerCorrect(q, miniQuizAnswers[i]));
       if (allCorrect) {
         setMiniQuizPassed(true);
         handleRewardMobileLesson(course);
@@ -76,29 +85,14 @@ export default function InteractivePuzzles({
         
         <div className="space-y-6">
           {course.miniQuiz.map((q, qIdx) => (
-            <div key={qIdx} className="space-y-3">
-              <p className="text-xs font-black text-foreground leading-relaxed">
-                <span className="text-primary mr-1">{qIdx + 1}.</span> {q.q}
-              </p>
-              <div className="space-y-2 pl-2">
-                {q.o.map((opt, oIdx) => {
-                  const isSelected = miniQuizAnswers[qIdx] === oIdx;
-                  return (
-                    <button
-                      key={oIdx}
-                      onClick={() => setMiniQuizAnswers(prev => ({ ...prev, [qIdx]: oIdx }))}
-                      className={`w-full text-left p-2.5 rounded-lg border text-xs transition-all active:scale-[0.98] ${
-                        isSelected
-                          ? "bg-primary border-primary text-white shadow-sm font-bold"
-                          : "bg-background border-border text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <QuizQuestion
+              key={qIdx}
+              question={q}
+              index={qIdx}
+              value={miniQuizAnswers[qIdx]}
+              onChange={(answer) => setMiniQuizAnswers((prev) => ({ ...prev, [qIdx]: answer }))}
+              reviewed={miniQuizReviewed && !isQuizAnswerCorrect(q, miniQuizAnswers[qIdx])}
+            />
           ))}
         </div>
 
@@ -206,6 +200,20 @@ export default function InteractivePuzzles({
             </div>
           </div>
 
+          {Array.isArray(quizReview) && quizReview.length > 0 && (
+            <div className="space-y-2 text-left">
+              {quizReview.map((item) => (
+                <div
+                  key={item.questionIndex}
+                  className={`rounded-lg border p-2.5 text-[11px] ${item.correct ? "border-success/30 bg-success/10" : "border-destructive/30 bg-destructive/10"}`}
+                >
+                  <span className="font-black">Câu {item.questionIndex + 1}: </span>
+                  <span>{item.correct ? "Đúng" : `Sai — đáp án đúng: ${item.correctText}`}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div>
             <p className="text-[10px] font-black uppercase text-muted-foreground mb-1.5">{t("hugoCoderLearning.puzzles.mauChu")}</p>
             <div className="flex gap-2">
@@ -261,8 +269,15 @@ export default function InteractivePuzzles({
   }
 
   if (course.practiceType === "php_match") {
-    const keys = ["$ (Đô-la)", "echo", "PDO", ". (Dấu chấm)"];
-    const scrambledVals = ["In dữ liệu ra HTML", "Kết nối Cơ sở dữ liệu", "Khai báo biến", "Ghép hai chuỗi ký tự"];
+    const pairs = Array.isArray(course.matchPairs) ? course.matchPairs : [];
+    const keys = pairs.map((pair) => pair.key);
+    const values = pairs.map((pair) => pair.val);
+    // Lấy trực tiếp từ dữ liệu bài học để UI và bộ chấm không thể lệch nhau.
+    // Xoay một vị trí giữ thứ tự ổn định qua mỗi render nhưng không đặt đáp án
+    // ngay cùng hàng với từ khóa tương ứng.
+    const scrambledVals = values.length > 1
+      ? [...values.slice(1), values[0]]
+      : values;
     return (
       <div className="space-y-4 font-sans">
         <p className="text-xs text-muted-foreground">{t("hugoCoderLearning.puzzles.bamChon1Tu")}</p>
@@ -316,7 +331,7 @@ export default function InteractivePuzzles({
 
         <button
           onClick={verifyInteractivePractice}
-          disabled={Object.keys(matchedPairs).filter(k => k !== "activeLeft").length < 4}
+          disabled={Object.keys(matchedPairs).filter(k => k !== "activeLeft").length < pairs.length}
           className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
         >
           {t("hugoCoderLearning.puzzles.hoanThanhNoiCap")}

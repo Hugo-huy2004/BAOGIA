@@ -4,6 +4,7 @@ import { WebSocketServer } from 'ws';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import * as Sentry from '@sentry/node';
 import dataRoutes from './routes/dataRoutes.js';
 import bioRoutes from './routes/bioRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
@@ -38,6 +39,7 @@ import {
   securityIpGate,
   sendSecurityBlockResponse,
 } from './services/securityEnforcement.js';
+import { reportSpecialistIncident } from './services/aiIncidentResponseService.js';
 
 dotenv.config();
 
@@ -126,7 +128,16 @@ app.use(cookieParser());
 // Reject blocked networks before parsing or buffering their request bodies.
 app.use(securityIpGate);
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buffer) => {
+    // Sentry signs the exact webhook bytes. Preserve them only for this small
+    // endpoint instead of retaining a second copy of every JSON request.
+    if (req.originalUrl?.split('?')[0] === '/api/ops/sentry-hook') {
+      req.rawBody = Buffer.from(buffer);
+    }
+  },
+}));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // High-confidence exploit and server-owned JOY-field detection.
@@ -315,6 +326,7 @@ import storeCartRoutes from './routes/storeCartRoutes.js';
 import storePromoRoutes from './routes/storePromoRoutes.js';
 import storePlanRoutes from './routes/storePlanRoutes.js';
 import robotRoutes from './routes/robotRoutes.js';
+import aiWorkforceRoutes from './routes/aiWorkforceRoutes.js';
 
 // Routes
 app.use('/api/ops', opsRoutes);
@@ -339,6 +351,7 @@ app.use('/api/support', supportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/brain', adminBrainRoutes);
 app.use('/api/admin/robot', robotRoutes);
+app.use('/api/admin/workforce', aiWorkforceRoutes);
 app.use('/api/coder-resources', coderResourceRoutes);
 app.use('/api/coder-lessons', coderLessonRoutes);
 app.use('/api/today', todayRoutes);
@@ -398,9 +411,28 @@ app.get('/api/health', healthHandler);
 // System dashboard, then returns a clean 500. Must be after all routes.
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
-  logError({ level: 'error', source: 'route', message: err?.message || 'Unhandled route error', stack: err?.stack, path: req?.originalUrl, email: req?.memberEmail || '' });
+  const status = err?.status || 500;
+  Sentry.captureException(err, {
+    tags: { source: 'express', status: String(status) },
+    extra: { method: req?.method, path: req?.originalUrl },
+  });
+  if (status >= 500) {
+    reportSpecialistIncident({
+      specialist: 'server_specialist',
+      event: {
+        type: 'server-error',
+        name: err?.name,
+        message: err?.message || 'Unhandled route error',
+        stack: err?.stack,
+        method: req?.method,
+        path: req?.originalUrl,
+        status,
+        source: 'express',
+      },
+    }).catch((incidentError) => console.warn('[server-specialist]', incidentError.message));
+  }
   console.error('[Route Error]', req?.originalUrl, err?.message);
-  res.status(err?.status || 500).json({ error: 'Đã xảy ra lỗi máy chủ.' });
+  res.status(status).json({ error: 'Đã xảy ra lỗi máy chủ.' });
 });
 
 import { runBirthdayAutomation } from './utils/birthdayAutomation.js';
@@ -410,12 +442,21 @@ import { initSmartNotificationService } from './services/smartNotificationServic
 import { initChessWS } from './services/chessWS.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCompanionMemoryCron } from './services/companionMemoryCron.js';
-import { sendAlert, logError } from './utils/alert.js';
-
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
 // must not crash the whole server — log + alert instead.
 process.on('unhandledRejection', (reason) => {
-  sendAlert('unhandledRejection', { reason: String(reason?.stack || reason?.message || reason).slice(0, 500) });
+  const error = reason instanceof Error ? reason : new Error(String(reason));
+  Sentry.captureException(error, { tags: { source: 'unhandledRejection' } });
+  reportSpecialistIncident({
+    specialist: 'server_specialist',
+    event: {
+      type: 'unhandled-rejection',
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      source: 'node-process',
+    },
+  }).catch((incidentError) => console.warn('[server-specialist]', incidentError.message));
 });
 
 // Create HTTP server so WebSocket can share the same port
@@ -534,31 +575,6 @@ wss.on('connection', (ws, req) => {
 
   ws.on('error', (err) => {
     console.error('[WebSocket] Error:', err.message);
-  });
-});
-
-// Express Global Error Interceptor with AI Self-Healing Telemetry Alert
-app.use((err, req, res, next) => {
-  console.error('[Unhandled Express Error]', err);
-  const status = err.status || 500;
-
-  if (status >= 500) {
-    import('./services/telegramService.js').then(({ sendTelegramAlert }) => {
-      const alertMsg = `
-🚨 <b>[HUGO AI SELF-HEALING TELEMETRY]</b>
-⚠️ <b>Server Error 500 Detected!</b>
-
-📌 <b>Route:</b> <code>${req.method} ${req.originalUrl}</code>
-❌ <b>Message:</b> <code>${(err.message || 'Unknown error').slice(0, 150)}</code>
-💡 <b>Diagnostic:</b> AI Self-Healing Telemetry intercepted stack trace for Boss review.
-      `.trim();
-      sendTelegramAlert(alertMsg).catch(() => {});
-    }).catch(() => {});
-  }
-
-  res.status(status).json({
-    error: err.message || 'Internal Server Error',
-    ...(isDev ? { stack: err.stack } : {})
   });
 });
 

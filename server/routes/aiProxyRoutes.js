@@ -26,6 +26,17 @@ const MEMORY_RECALL_MIN_SCORE = 0.55;
 const MEMORY_RECALL_TOP_K = 2;
 const MAX_REPORT_REQUEST_BYTES = 11 * 1024 * 1024;
 
+// Streaming chat can recover fully on-device. Respond with a valid SSE event
+// and HTTP 200 when the private AI service is down, so browsers do not print a
+// noisy failed-fetch stack for an outage the client handles gracefully.
+function sendStreamFallback(res) {
+  res.status(200);
+  res.set('Content-Type', 'text/event-stream; charset=utf-8');
+  res.set('Cache-Control', 'no-store');
+  res.set('Connection', 'keep-alive');
+  return res.end(`data: ${JSON.stringify({ error: 'AI_UNAVAILABLE' })}\n\n`);
+}
+
 // Node owns both identity and enforcement. The browser-supplied userId can be
 // changed in DevTools, so it must never be the key for quota or abuse history.
 // Political criticism, discussion of war, profanity and distress disclosures
@@ -225,7 +236,7 @@ router.post('/chat/stream', async (req, res) => {
       body: JSON.stringify(req.body || {})
     });
     if (upstream.status >= 500) {
-      return res.status(upstream.status).json({ error: 'Dịch vụ AI tạm thời không khả dụng.' });
+      return sendStreamFallback(res);
     }
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'text/event-stream');
@@ -235,7 +246,7 @@ router.post('/chat/stream', async (req, res) => {
     Readable.fromWeb(upstream.body).pipe(res);
   } catch (err) {
     console.error('AI proxy stream error:', targetUrl, err.message);
-    res.status(502).json({ error: 'AI server unreachable' });
+    return sendStreamFallback(res);
   }
 });
 

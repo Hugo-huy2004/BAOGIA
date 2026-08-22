@@ -414,8 +414,15 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
 
   // ── Auto-detection ──
 
-  const { state: detectState, sleepStart, confidence, recentSignals, caps,
-    pendingCycle: autoPendingCycle, clearPendingCycle } = sleepAutoDetect || {};
+  const {
+    state: detectState = "monitoring",
+    sleepStart = null,
+    confidence = 0,
+    recentSignals = [],
+    caps = {},
+    pendingCycle: autoPendingCycle,
+    clearPendingCycle,
+  } = sleepAutoDetect || {};
 
   useEffect(() => {
     if (autoPendingCycle) {

@@ -19,6 +19,4 @@ const AISupportKBSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-AISupportKBSchema.index({ keywords: 1 });
-
 export default mongoose.models.AISupportKB || mongoose.model('AISupportKB', AISupportKBSchema);

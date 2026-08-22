@@ -5,19 +5,23 @@ import { ADVANCED_LESSONS } from "./advanced.js";
 import { SECURITY_LESSONS } from "./security.js";
 import { PROJECT_LESSONS } from "./project.js";
 import { DEVOPS_LESSONS } from "./devops.js";
+import { withVariedQuestions } from "./variedQuestions.js";
 
 // 6 chặng — 100 bài:
 // 1 (1-10) Phản xạ cơ bản • 2 (11-25) Tư duy kiến trúc
 // 3 (26-50) CTDL, giải thuật & mật mã • 4 (51-70) Bảo mật & tiền đề AI
 // 5 (71-90) Siêu đồ án Full-Stack & AI • 6 (91-100) DevOps & phát hành
-export const WEB_COURSES = [
+// Lớp câu hỏi đa dạng ghép ở đây (xem variedQuestions.js): nội dung bài giảng
+// và hình thức kiểm tra đổi theo nhịp khác nhau, trộn lẫn thì mỗi lần thêm một
+// dạng câu hỏi lại phải mở sáu file dài hai nghìn dòng.
+export const WEB_COURSES = withVariedQuestions([
   ...BASIC_LESSONS,
   ...INTERMEDIATE_LESSONS,
   ...ADVANCED_LESSONS,
   ...SECURITY_LESSONS,
   ...PROJECT_LESSONS,
   ...DEVOPS_LESSONS
-];
+]);
 
 // Ranh giới 6 chặng dùng chung cho sidebar/guidebook/tier.
 // intro: hiển thị trước bài đầu tiên của chặng — kiến thức sẽ học,

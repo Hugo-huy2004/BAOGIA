@@ -39,8 +39,19 @@ const CompanionHistorySchema = new mongoose.Schema(
       type: [{
         date: { type: Date, default: Date.now },
         type: { type: String }, // 'checkin' | 'clinical_test' | 'therapy_activity' | 'chat_anomaly' | 'upload_anomaly' | 'duration_change'
+        // Daily Pulse signals. These fields used to be missing from the
+        // embedded schema, so Mongoose silently removed them on save and the
+        // 7-day mood report became empty again after a reload.
+        mood: { type: Number, min: 1, max: 5 },
+        energy: { type: Number, min: 1, max: 5 },
+        stress: { type: Number, min: 1, max: 5 },
+        need: { type: String, maxlength: 32 },
+        source: { type: String, maxlength: 32 },
         test: { type: String }, // 'phq9' | 'gad7' | 'who5' | 'bigfive' | 'dass42' | 'mmpi30'
         score: { type: Number },
+        // PHQ-9/GAD-7 store one severity label. Without this declaration the
+        // label was also stripped, leaving the Evaluation screen at "Chưa đo".
+        severity: { type: String, maxlength: 64 },
         scores: {
           D: { type: Number },
           A: { type: Number },

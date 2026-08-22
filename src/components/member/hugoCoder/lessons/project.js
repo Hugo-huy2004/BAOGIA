@@ -599,7 +599,7 @@ Mọi component từ nay chỉ gọi apiCall — đổi cách auth, thêm log, t
     miniQuiz: [
       { q: "Header Authorization chỉ nên đính khi nào?", o: ["Luôn luôn kể cả rỗng", "Khi có token — spread điều kiện", "Chỉ với GET", "Không bao giờ"], a: 1 },
       { q: "Vì sao ApiError cần trường status?", o: ["Cho đẹp", "Nơi bắt lỗi phân nhánh theo mã (401 khác 429 khác 500)", "Console yêu cầu", "Để retry vô hạn"], a: 1 },
-      { q: "Retry tự động chỉ nên áp cho method nào?", o: ["POST", "GET — an toàn khi lặp lại (idempotent)", "DELETE", "Mọi method"], a: 1 },
+      { q: "Retry tự động mặc định an toàn nhất cho request nào?", o: ["POST tạo thanh toán không có idempotency key", "GET; các method khác cần xét idempotency và tác dụng phụ", "Mọi DELETE trong mọi tình huống", "Mọi method"], a: 1 },
       { q: "Response 204 xử lý thế nào?", o: ["res.json() bình thường", "Trả null — không có body để parse", "Ném lỗi", "Đợi body 5s"], a: 1 }
     ]
   },
@@ -845,7 +845,7 @@ TODO 4: button { min-height: 44px; } */
     miniQuiz: [
       { q: "clamp(1rem, 2.5vw, 1.5rem) nghĩa là gì?", o: ["Chọn ngẫu nhiên", "Co giãn theo 2.5vw nhưng không nhỏ hơn 1rem, không lớn hơn 1.5rem", "Luôn 2.5vw", "Lỗi cú pháp"], a: 1 },
       { q: "repeat(auto-fit, minmax(280px, 1fr)) có gì hay?", o: ["Đẹp code", "Lưới tự tính số cột theo bề rộng — thường khỏi cần media query", "Chạy nhanh", "Chỉ cho ảnh"], a: 1 },
-      { q: "Vùng chạm tối thiểu trên màn cảm ứng?", o: ["24px", "44×44px", "100px", "8px"], a: 1 },
+      { q: "Kích thước vùng chạm thường được khuyến nghị để thao tác thoải mái trên di động?", o: ["8×8px", "Khoảng 44×44 CSS px", "100×100px bắt buộc", "Không cần giới hạn"], a: 1 },
       { q: "Mobile-first dùng loại media query nào?", o: ["max-width", "min-width", "orientation", "aspect-ratio"], a: 1 }
     ]
   },
@@ -1013,7 +1013,7 @@ Nguyên tắc bất di bất dịch: đo Lighthouse TRƯỚC và SAU (bài 59) �
       { q: "Ảnh nào KHÔNG được lazy load?", o: ["Ảnh footer", "Ảnh hero trên màn hình đầu (ảnh LCP)", "Ảnh bình luận", "Ảnh trang 5"], a: 1 },
       { q: "loading=\"lazy\" là kỹ thuật cấp nào?", o: ["Thư viện ngoài", "Native của trình duyệt — một thuộc tính là xong", "Chỉ có ở React", "Cần Service Worker"], a: 1 },
       { q: "Sau khi ảnh đã nạp, observer nên làm gì?", o: ["Quan sát tiếp", "unobserve phần tử đó — xong việc thì buông (tránh lãng phí)", "Xoá ảnh", "Nạp lại"], a: 1 },
-      { q: "WebP so với JPEG?", o: ["Nặng hơn", "Nhẹ hơn 25-50% cùng chất lượng hiển thị", "Chỉ chạy trên iOS", "Không hỗ trợ trong suốt"], a: 1 }
+      { q: "Lợi ích thường gặp của WebP so với JPEG là gì?", o: ["Luôn nặng hơn", "Có thể cho file nhỏ hơn ở chất lượng tương đương, nhưng phải đo theo từng ảnh", "Chỉ chạy trên iOS", "Không hỗ trợ trong suốt"], a: 1 }
     ]
   },
   {
@@ -1202,7 +1202,7 @@ Luồng upload ảnh chuẩn:
 if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return err("Chỉ nhận ảnh");
 if (file.size > 5 * 1024 * 1024) return err("Tối đa 5MB");
 
-// 2. Nén bằng canvas (giảm 60-80% trước khi tốn băng thông)
+// 2. Nén bằng canvas (mức giảm tùy ảnh; đo kích thước trước/sau)
 async function compressImage(file, maxW = 1280, quality = 0.8) {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, maxW / bitmap.width);
@@ -1262,8 +1262,8 @@ await fetch(API_BASE + "/upload", { method: "POST", headers: { Authorization: "B
       correctIdx: 1
     },
     miniQuiz: [
-      { q: "Vì sao nén ảnh phía client trước khi upload?", o: ["Server cấm ảnh to", "Tiết kiệm băng thông người dùng và dung lượng lưu trữ — giảm 60-80%", "Bắt buộc của fetch", "Ảnh đẹp hơn"], a: 1 },
-      { q: "Vì sao server phải đổi tên file upload?", o: ["Cho gọn", "Tên gốc có thể chứa đuôi thực thi (shell.php.jpg) — hiểm họa RCE", "Dễ tìm kiếm", "Unicode lỗi"], a: 1 },
+      { q: "Vì sao nén ảnh phía client trước khi upload?", o: ["Server cấm ảnh to", "Tiết kiệm băng thông và dung lượng; mức giảm phải đo theo từng ảnh", "Bắt buộc của fetch", "Luôn làm ảnh đẹp hơn"], a: 1 },
+      { q: "Server cần làm gì để xử lý upload ảnh an toàn?", o: ["Chỉ đổi tên file là đủ", "Xác minh nội dung/định dạng, giới hạn kích thước, tự sinh tên và lưu ngoài vùng thực thi", "Tin MIME từ client", "Giữ nguyên mọi tên file"], a: 1 },
       { q: "API nào vẽ ảnh để resize trên client?", o: ["WebGL bắt buộc", "canvas.getContext('2d').drawImage", "CSS transform", "Service Worker"], a: 1 },
       { q: "Preview ảnh ngay không cần chờ upload bằng gì?", o: ["Base64 luôn luôn", "URL.createObjectURL(blob)", "Tải lại trang", "iframe"], a: 1 }
     ]

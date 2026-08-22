@@ -1,5 +1,6 @@
 import React from 'react';
 import { reportClientEvent } from '../utils/clientMonitoring';
+import { captureClientException } from '../utils/sentryMonitoring';
 
 const CHUNK_ERROR_PATTERN = /failed to fetch dynamically imported module|importing a module script failed|error loading dynamically imported module/i;
 const RELOAD_FLAG = 'chunk_reload_attempted';
@@ -29,6 +30,10 @@ export class ErrorBoundary extends React.Component {
       name: error?.name || 'ReactError',
       message: error?.message,
       stack: `${error?.stack || ''}\n${errorInfo?.componentStack || ''}`,
+    });
+    captureClientException(error, {
+      source: 'react-error-boundary',
+      componentStack: errorInfo?.componentStack,
     });
 
     // A new deploy replaced the hashed JS chunk files, but this tab is still

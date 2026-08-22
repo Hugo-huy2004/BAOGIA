@@ -28,6 +28,9 @@ import { getMemberSession } from "../../../services/authSession";
 import { hugoCoderApi } from "../../../services/hugoCoderApi";
 import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
+import { useFeatureGate } from "../../../hooks/useFeatureGate";
+import CapstoneTrackPicker from "./CapstoneTrackPicker";
+import { CAPSTONE_PICK_LESSON } from "../../../../shared/capstoneTracks";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
 import { joyText } from "../../../lib/joyDisplay";
@@ -317,6 +320,9 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
     () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),
     [bio?.completedLessons, courses]
   );
+  // Học viên đã học tới chặng đồ án chưa? Đếm số bài đã xong thay vì đợi đúng
+  // `lesson70`: người mua trọn gói có thể hoàn thành lệch thứ tự.
+  const reachedCapstone = (bio?.completedLessons || []).length >= CAPSTONE_PICK_LESSON - 1;
   const hasAll = !!bio?.hugoCoderAll7Lifetime;
   const maintenanceExpires = bio?.featureSubscriptions?.hugoCoder?.expiresAt;
   const maintenanceActive = hasAll || (maintenanceExpires ? new Date(maintenanceExpires).getTime() > Date.now() : false);
@@ -403,6 +409,14 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
           </div>
         </div>
       </section>
+
+      {/* Đề tài tốt nghiệp — chỉ hiện khi đã tới chặng đồ án, trước đó chọn cũng
+          chưa dùng vào việc gì. */}
+      {reachedCapstone && (
+        <section className="rounded-2xl border border-border bg-card p-4">
+          <CapstoneTrackPicker />
+        </section>
+      )}
 
       {/* Lượt thi trong gói */}
       <section className="rounded-2xl border border-border bg-card p-4 space-y-3">
@@ -526,7 +540,11 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
 // ====== Vỏ 4 tab thống nhất của HugoCoder ======
 // Shell fullscreen DUY NHẤT: header + tab bar dùng chung cho cả 4 tab.
 // Gate JOY một lần ở đây; MemberIdeTab/MobileGuidebook chạy embedded (không tự bọc shell).
-export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", unifiedHome = false }) {
+// `previewLessons > 0` mở chế độ học thử (số bài miễn phí khai báo ở
+// config/publicTools.js): không bọc cả app trong FeatureGate
+// nữa mà khoá theo từng bài, nên khách thấy trọn lộ trình 100 bài và học ngay
+// được phần đầu. Portal thành viên không truyền gì, hành vi giữ nguyên.
+export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", unifiedHome = false, previewLessons = 0 }) {
   const { t } = useTranslation();
   const joy = useJoy();
   const navigate = useNavigate();
@@ -535,6 +553,7 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
   const [selectedLessonId, setSelectedLessonId] = useState(urlLessonId || null);
   const joyBalance = useJoyStore((s) => s.balance);
   const { courses, stages, loading } = useCoderLessons(selectedLessonId);
+  const { active: hasCoderAccess } = useFeatureGate(bio, "hugoCoder");
   const onBioUpdateRef = useRef(onBioUpdate);
 
   useEffect(() => {
@@ -587,7 +606,7 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
     if (nextTab === "learning") setLearningView(unifiedHome ? "lesson" : "journey");
   };
 
-  return (
+  const gate = (extra) => (
     <FeatureGate
       bio={bio}
       featureKey="hugoCoder"
@@ -598,8 +617,17 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
       onBioUpdate={onBioUpdate}
       onBack={onBack}
       className="max-w-lg mx-auto mt-10"
-    >
-      <div className="hugo-coder-shell fixed inset-0 z-50 flex flex-col text-foreground">
+      {...extra}
+    />
+  );
+
+  // Bài đang mở nằm ngoài phần học thử? `courses` đã theo đúng thứ tự lộ trình.
+  const lessonLocked = previewLessons > 0
+    && !hasCoderAccess
+    && courses.findIndex((course) => course.id === selectedLessonId) >= previewLessons;
+
+  const shell = (
+    <div className="hugo-coder-shell fixed inset-0 z-50 flex flex-col text-foreground">
         <header className="coder-hub-header shrink-0">
           <div className="coder-hub-titlebar">
             <button
@@ -642,17 +670,23 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
             </div>
           )}
           {tab === "learning" && learningView === "lesson" && (
-            <Suspense fallback={<HubLoading />}>
-              <MemberIdeTab
-                embedded
-                onBack={onBack}
-                bio={bio}
-                showToast={showToast}
-                onBioUpdate={onBioUpdate}
-                urlLessonId={selectedLessonId}
-                onExitLesson={exitLesson}
-              />
-            </Suspense>
+            lessonLocked ? (
+              <div className="h-full overflow-y-auto px-4">
+                {gate({ onBack: exitLesson })}
+              </div>
+            ) : (
+              <Suspense fallback={<HubLoading />}>
+                <MemberIdeTab
+                  embedded
+                  onBack={onBack}
+                  bio={bio}
+                  showToast={showToast}
+                  onBioUpdate={onBioUpdate}
+                  urlLessonId={selectedLessonId}
+                  onExitLesson={exitLesson}
+                />
+              </Suspense>
+            )
           )}
           {tab === "resources" && (
             <div className="h-full overflow-y-auto">
@@ -674,9 +708,11 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
             </div>
           )}
         </div>
-      </div>
-    </FeatureGate>
+    </div>
   );
+
+  // Học thử: khoá theo từng bài ở trên, không dựng bức tường trước cả app.
+  return previewLessons > 0 ? shell : gate({ children: shell });
 }
 
 function HubLoading() {

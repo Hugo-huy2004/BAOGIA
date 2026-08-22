@@ -35,5 +35,19 @@
     "privacyPolicy": "Chính sách bảo mật",
     "supportServer": "Ủng Hộ Server",
     "userGuide": "Hướng dẫn sử dụng"
+  },
+  "os": {
+    "home": "Trang chủ",
+    "tools": "Công cụ",
+    "recent": "Gần đây",
+    "all": "Tất cả",
+    "seeAll": "Xem tất cả",
+    "continue": "Tiếp tục",
+    "quickActions": "Truy cập nhanh",
+    "allFeatures": "Tất cả tính năng",
+    "noRecent": "Chưa có gì gần đây",
+    "noRecentBody": "Những gì bạn mở sẽ hiện ở đây để mở lại nhanh.",
+    "activity": "Hoạt động",
+    "overview": "Tổng quan"
   }
 }

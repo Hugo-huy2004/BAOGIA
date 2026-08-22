@@ -24,6 +24,7 @@ import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
 import AdminRobotTab from "../../components/admin/AdminRobotTab";
 import AdminOAuthAppsTab from "../../components/admin/AdminOAuthAppsTab";
+import AdminAIWorkforceTab from "../../components/admin/AdminAIWorkforceTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 
 function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
@@ -542,6 +543,9 @@ export default function AdminPanel() {
 
         {/* ── CORE HUB: ADMIN BỘ NÃO MÁY TÍNH AI ── */}
         {activeTab === "brain" && <AdminBrainTab />}
+
+        {/* ── CORE HUB: AI WORKFORCE ── */}
+        {activeTab === "workforce" && <AdminAIWorkforceTab />}
 
         {/* ── CORE HUB: BOT SECURITY SENTINEL TELEMETRY ── */}
         {activeTab === "sentinel" && (

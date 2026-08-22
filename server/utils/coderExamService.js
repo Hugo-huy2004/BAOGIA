@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 // Dùng chung bộ đề với client — một nguồn sự thật, không nhân bản câu hỏi.
 import { WEB_COURSES, STAGES } from '../../src/components/member/hugoCoder/lessons/index.js';
+import { getCoderStageCompletion } from '../../shared/coderProgression.js';
 
 export const PASS_PERCENT = 60;
 const EXAM_TTL_MS = 30 * 60 * 1000;   // 30 phút làm bài
@@ -47,10 +48,12 @@ export function startExam(email, lessonId) {
   const picked = indices.slice(0, size);
 
   const examId = crypto.randomUUID();
+  const questions = picked.map((i) => ({ q: pool[i].q, o: pool[i].o }));
   exams.set(examId, {
     email,
     lessonId,
     answerKey: picked.map((i) => pool[i].a),
+    questions,
     expiresAt: Date.now() + EXAM_TTL_MS
   });
 
@@ -59,7 +62,7 @@ export function startExam(email, lessonId) {
     lessonId,
     total: size,
     passPercent: PASS_PERCENT,
-    questions: picked.map((i) => ({ q: pool[i].q, o: pool[i].o }))
+    questions
   };
 }
 
@@ -83,12 +86,26 @@ export function submitExam(email, examId, answers) {
   );
   const score = Math.round((correctCount / exam.answerKey.length) * 100);
   const passed = score >= PASS_PERCENT;
+  const review = exam.answerKey.map((correctAnswer, index) => ({
+    questionIndex: index,
+    selectedAnswer: Number(answers[index]),
+    correctAnswer,
+    correct: Number(answers[index]) === correctAnswer,
+    correctText: exam.questions[index]?.o?.[correctAnswer] || '',
+  }));
 
   if (passed) {
     passes.set(`${email}:${exam.lessonId}`, { score, expiresAt: Date.now() + PASS_TTL_MS });
   }
 
-  return { lessonId: exam.lessonId, score, passed, correctCount, total: exam.answerKey.length };
+  return {
+    lessonId: exam.lessonId,
+    score,
+    passed,
+    correctCount,
+    total: exam.answerKey.length,
+    review,
+  };
 }
 
 /** Vé đậu dùng một lần: award-learning đọc là xoá. Trả null nếu chưa đậu tại server. */
@@ -108,10 +125,11 @@ export function getStageCertificate(bio, phaseNumber) {
   if (!stage) return null;
 
   const completed = bio?.completedLessons || [];
-  const lastLessonId = `lesson${stage.to}`;
-  const earned = stage.phaseNumber === 6
-    ? (completed.includes(lastLessonId) || bio?.hugoCoderProjectStatus === 'approved')
-    : completed.includes(lastLessonId);
+  const stageProgress = getCoderStageCompletion(completed, stage.id);
+  const missingLessons = stage.phaseNumber === 6 && bio?.hugoCoderProjectStatus === 'approved'
+    ? stageProgress.missingLessons.filter((lessonId) => lessonId !== 'lesson100')
+    : stageProgress.missingLessons;
+  const earned = missingLessons.length === 0;
   if (!earned) return null;
 
   return {

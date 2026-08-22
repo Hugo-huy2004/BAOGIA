@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { STUDY_LIFETIME } from "../../../shared/joyPrices";
+import { getCoderStageGate } from "../../../shared/coderProgression.js";
 import Editor from "@monaco-editor/react";
 import { 
   FolderOpen, Folder, BookOpen, Database, Play, X, 
@@ -11,7 +12,7 @@ import confetti from "canvas-confetti";
 import { HugoConfirmNotice } from "../shared/HugoNotice";
 import { getMemberSession } from "../../services/authSession";
 import { useJoyStore } from "../../stores/joyStore";
-import { TEMPLATES, INITIAL_WORKSPACE, QUIZ_POOL_1, QUIZ_POOL_2 } from "./ideData";
+import { TEMPLATES, INITIAL_WORKSPACE } from "./ideData";
 import { getStageBenefitsFromCatalog, useCoderLessons } from "../../hooks/useCoderLessons";
 import { verifyLessonCode } from "../../services/coderLessonsApi";
 import { hugoCoderApi } from "../../services/hugoCoderApi";
@@ -138,6 +139,7 @@ export default function MemberIdeTab({
 
   const [mobileStudyMode, setMobileStudyMode] = useState("story");
   const [completedLessons, setCompletedLessons] = useState(() => {
+    if (Array.isArray(bio?.completedLessons)) return bio.completedLessons;
     try {
       return JSON.parse(localStorage.getItem("student_ide_progress") || "[]");
     } catch (_) {
@@ -168,12 +170,21 @@ export default function MemberIdeTab({
       ? new Date(bio.featureSubscriptions.hugoCoder.expiresAt).getTime() > Date.now()
       : false);
 
-    const buildTier = (tier, tierLabel, price, subKey, lifetime) => ({
-      tier, tierLabel, price, subKey,
-      lifetime: hasAllLifetime || lifetime,
-      maintenanceActive,
-      hasAccess: (hasAllLifetime || lifetime) && maintenanceActive
-    });
+    const buildTier = (tier, tierLabel, price, subKey, lifetime) => {
+      const stageGate = getCoderStageGate(completedLessons, tier);
+      return {
+        tier,
+        tierLabel,
+        price,
+        subKey,
+        lifetime: hasAllLifetime || lifetime,
+        maintenanceActive,
+        progressionUnlocked: stageGate.unlocked,
+        firstMissingLesson: stageGate.missingLessons[0] || null,
+        missingLessonCount: stageGate.missingLessons.length,
+        hasAccess: (hasAllLifetime || lifetime) && maintenanceActive && stageGate.unlocked,
+      };
+    };
 
     if (num <= 10) return buildTier("basic", "Chặng 1: Phản Xạ Cơ Bản (Bài 1-10)", STUDY_LIFETIME.basic, "hugoCoderBasic", !!bio?.hugoCoderBasicLifetime);
     if (num <= 25) return buildTier("intermediate", "Chặng 2: Tư Duy Kiến Trúc (Bài 11-25)", STUDY_LIFETIME.intermediate, "hugoCoderIntermediate", !!bio?.hugoCoderIntermediateLifetime);
@@ -476,6 +487,7 @@ export default function MemberIdeTab({
   const [quizAnswers, setQuizAnswers] = useState({}); // { questionIndex: optionIndex }
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
+  const [quizReview, setQuizReview] = useState([]);
 
   useEffect(() => {
     const targetCourseId = activeCourseId || WEB_COURSES[0]?.id;
@@ -496,6 +508,7 @@ export default function MemberIdeTab({
     setQuizAnswers({});
     setQuizCompleted(false);
     setQuizScore(0);
+    setQuizReview([]);
     setInteractivePassed(false);
     setMiniQuizPassed(false);
     setMiniQuizAnswers({});
@@ -516,7 +529,7 @@ export default function MemberIdeTab({
     } else if (
       course.practiceType === "quiz"
       && Number.isFinite(course.quizSize)
-      && Array.isArray(course.quizPool || (course.id === "lesson6" ? QUIZ_POOL_1 : QUIZ_POOL_2))
+      && Array.isArray(course.quizPool)
     ) {
       startServerExam(course);
     }
@@ -583,7 +596,12 @@ export default function MemberIdeTab({
         console.error("Không lấy được đề từ máy chủ, dùng đề luyện tập cục bộ:", e);
       }
     }
-    const pool = course.quizPool || (course.id === "lesson6" ? QUIZ_POOL_1 : QUIZ_POOL_2);
+    const pool = Array.isArray(course.quizPool) ? course.quizPool : [];
+    if (pool.length === 0) {
+      notify.error("Bài thi chưa có ngân hàng câu hỏi hợp lệ. Hệ thống đã chặn để tránh phát đề sai.");
+      setQuizQuestions([]);
+      return;
+    }
     const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, course.quizSize);
     setQuizQuestions(shuffled);
   };
@@ -616,6 +634,7 @@ export default function MemberIdeTab({
       });
       
       const session = getMemberSession();
+      let completionAccepted = true;
       if (session?.email) {
         if (!completedLessons.includes(course.id)) {
           try {
@@ -632,9 +651,12 @@ export default function MemberIdeTab({
             if (!r.ok) {
               throw new Error(resData.error || `API award-learning failed with status ${r.status}`);
             }
-            notify.success("Chính xác! Bài học đã được xác minh hoàn thành.");
+            notify.success(resData.evidence
+              ? "Đã hoàn thành! Minh chứng mới đã được lưu vào Hugo Profile."
+              : "Chính xác! Bài học đã được xác minh hoàn thành.");
             recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "accepted" });
           } catch (e) {
+            completionAccepted = false;
             console.error("Error awarding joy for learning:", e);
             recordCoderLessonEvent({ lessonId: course.id, type: "desktop_award", status: "failed", message: e.message });
             notify.error(e.message || "Không thể ghi nhận phần thưởng JOY, vui lòng thử lại.");
@@ -646,23 +668,12 @@ export default function MemberIdeTab({
         notify.success("Chính xác! Đăng nhập để nhận thưởng JOY.");
       }
       
-      if (!completedLessons.includes(course.id)) {
+      if (completionAccepted && !completedLessons.includes(course.id)) {
         const nextCompleted = [...completedLessons, course.id];
         setCompletedLessons(nextCompleted);
         localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
-        // Sync progress to server (cross-device sync)
-        const token = getMemberSession()?.token;
-        const headers = {};
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        if (token) {
-          fetch(`${API_BASE}/member/progress/lesson/${course.id}/complete`, {
-            method: "POST",
-            headers
-          })
-            .catch(err => console.error("Failed to sync progress:", err));
-        }
+      } else if (!completionAccepted) {
+        setVerificationStatus(null);
       }
     } else {
       setVerificationStatus("failed");
@@ -1634,6 +1645,7 @@ export default function MemberIdeTab({
             return;
           }
           score = data.score;
+          setQuizReview(Array.isArray(data.review) ? data.review : []);
           setExamId(null); // đề dùng một lần
         } catch (e) {
           notify.error("Mất kết nối máy chủ chấm thi, hãy thử lại.");
@@ -1646,6 +1658,13 @@ export default function MemberIdeTab({
           if (quizAnswers[idx] === q.a) correct++;
         });
         score = Math.round((correct / quizQuestions.length) * 100);
+        setQuizReview(quizQuestions.map((question, index) => ({
+          questionIndex: index,
+          selectedAnswer: quizAnswers[index] ?? -1,
+          correctAnswer: question.a,
+          correct: quizAnswers[index] === question.a,
+          correctText: question.o?.[question.a] || "",
+        })));
       }
       setQuizScore(score);
       setQuizCompleted(true);
@@ -1679,7 +1698,7 @@ export default function MemberIdeTab({
         status: "failed"
       });
       if (course.practiceType === "quiz") {
-        notify.error(`Bài thi chưa đạt yêu cầu! Điểm của bạn: ${Math.round((quizQuestions.filter((q, idx) => quizAnswers[idx] === q.a).length / quizQuestions.length) * 100)}% (Yêu cầu >60%)`);
+        notify.error(`Bài thi chưa đạt yêu cầu! Điểm của bạn: ${verifiedScore}% (Yêu cầu ≥60%). Xem đáp án đúng bên dưới để ôn lại.`);
       } else {
         notify.error("Yêu cầu thực hành chưa chính xác, hãy xem lại đề bài!");
       }
@@ -1691,6 +1710,7 @@ export default function MemberIdeTab({
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     
     const session = getMemberSession();
+    let completionAccepted = true;
     if (session?.email) {
       if (!completedLessons.includes(course.id)) {
         try {
@@ -1710,8 +1730,11 @@ export default function MemberIdeTab({
           if (!r.ok) {
             throw new Error(resData.error || `API award-learning failed with status ${r.status}`);
           }
-          notify.success("Chính xác! Bạn đã hoàn thành bài học.");
+          notify.success(resData.evidence
+            ? "Đã hoàn thành! Minh chứng mới đã được lưu vào Hugo Profile."
+            : "Chính xác! Bạn đã hoàn thành bài học.");
         } catch (e) {
+          completionAccepted = false;
           console.error("Error awarding joy:", e);
           recordCoderLessonEvent({ lessonId: course.id, type: "mobile_award", status: "failed", message: e.message });
           notify.error(e.message || "Lỗi lưu tiến trình, vui lòng thử lại.");
@@ -1723,22 +1746,12 @@ export default function MemberIdeTab({
       notify.success("Chính xác! Bạn đã hoàn thành bài học.");
     }
 
-    if (!completedLessons.includes(course.id)) {
+    if (completionAccepted && !completedLessons.includes(course.id)) {
       const nextCompleted = [...completedLessons, course.id];
       setCompletedLessons(nextCompleted);
       localStorage.setItem("student_ide_progress", JSON.stringify(nextCompleted));
-      const token = getMemberSession()?.token;
-      const headers = {};
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-      if (token) {
-        fetch(`${API_BASE}/member/progress/lesson/${course.id}/complete`, {
-          method: "POST",
-          headers
-        })
-          .catch(err => console.error("Failed to sync progress:", err));
-      }
+    } else if (!completionAccepted) {
+      setVerificationStatus(null);
     }
   };
 
@@ -1746,6 +1759,7 @@ export default function MemberIdeTab({
     setQuizAnswers({});
     setQuizCompleted(false);
     setQuizScore(0);
+    setQuizReview([]);
     setQuizCurrentIndex(0);
     setVerificationStatus(null);
     const course = WEB_COURSES.find(c => c.id === activeCourseId);
@@ -1788,6 +1802,7 @@ export default function MemberIdeTab({
         quizQuestions={quizQuestions}
         quizCompleted={quizCompleted}
         quizScore={quizScore}
+        quizReview={quizReview}
         quizCurrentIndex={quizCurrentIndex}
         setQuizCurrentIndex={setQuizCurrentIndex}
         quizAnswers={quizAnswers}
@@ -1903,6 +1918,7 @@ export default function MemberIdeTab({
         quizQuestions={quizQuestions}
         quizCompleted={quizCompleted}
         quizScore={quizScore}
+        quizReview={quizReview}
         quizCurrentIndex={quizCurrentIndex}
         setQuizCurrentIndex={setQuizCurrentIndex}
         quizAnswers={quizAnswers}

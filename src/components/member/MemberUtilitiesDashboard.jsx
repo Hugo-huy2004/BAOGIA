@@ -21,35 +21,14 @@ import {
 } from "../../hooks/useAppInstall";
 import { Search, X } from "lucide-react";
 import UtilityAppIcon from "./utilities/UtilityAppIcon";
-
-// Dynamic On-Demand PWA App Storage Footprint (MB)
-export const APP_STORAGE_MB = {
-  study: 8.1,
-  ide: 4.5,
-  psychology: 3.2,
-  arcade: 5.1,
-  radio: 1.9,
-  handle: 1.6,
-  aura: 1.8,
-  team: 1.6,
-  bio: 1.5,
-  info: 0.8,
-  hugoso: 3.6,
-  joy_wallet: 1.4
-};
-
-// Styling constants
-const GRADIENTS = {
-  indigo:  "from-indigo-500 to-indigo-600",
-  rose:    "from-rose-400 to-rose-600",
-  cyan:    "from-cyan-400 to-teal-500",
-  blue:    "from-blue-500 to-indigo-600",
-  teal:    "from-teal-400 to-emerald-500",
-  orange:  "from-amber-400 to-orange-500",
-  purple:  "from-violet-500 to-purple-600",
-  slate:   "from-slate-500 to-slate-700",
-  pink:    "from-pink-400 to-fuchsia-600",
-};
+import {
+  APP_CATALOG_MANIFESTS,
+  APP_DESTINATIONS,
+  APP_GRADIENTS as GRADIENTS,
+  getAppStorageMb,
+} from "../../../shared/appRegistry";
+import { openDestination } from "./os/appIntent";
+import { appOpenOrder } from "./os/appUsage";
 
 const DEFAULT_INSTALLED = appInstallationPolicy.normalizeInstalled();
 
@@ -74,29 +53,6 @@ const normalizeUtilitySizes = (sizes = {}) => Object.fromEntries(
   Object.entries(sizes).filter(([, size]) => USER_WIDGET_SIZES.has(size)),
 );
 
-const APP_CATALOG = [
-  ["bio", "badge", "purple", "edu", "4.9", "12k", "hot"],
-  ["profile", "verified_user", "indigo", "edu", "5.0", "1k", "new"],
-  ["study", "school", "purple", "edu", "5.0", "11k", "new"],
-  ["team", "groups", "teal", "edu", "4.7", "2k", "join"],
-  ["psychology", "psychology", "cyan", "wellness", "5.0", "15k", "ai"],
-  ["radio", "radio", "teal", "wellness", "4.6", "5k", "lofi"],
-  ["handle", "handyman", "indigo", "tools", "4.9", "10k", "utility"],
-  ["arcade", "stadium", "orange", "arcade", "4.9", "18k", "games"],
-  ["aura", "blur_on", "purple", "arcade", "5.0", "11k", "focus"],
-  ["cinema", "movie", "purple", "arcade", "5.0", "30k", "cinema"],
-  ["invest", "trending_up", "teal", "edu", "5.0", "1k", "new"],
-  ["info", "info", "slate", "tools", "4.8", "6k", "system"],
-  ["joy_wallet", "account_balance_wallet", "orange", "tools", "5.0", "20k", "utility"],
-  ["store", "store", "blue", "tools", "5.0", "50k", "store"],
-  ["supporter", "support_agent", "teal", "tools", "5.0", "100k", "ai"],
-  ["arcade_chess", "castle", "slate", "arcade", "4.9", "8k", "game"],
-  ["arcade_2048", "casino", "orange", "arcade", "4.8", "12k", "game"],
-  ["arcade_caro", "swords", "blue", "arcade", "4.7", "6k", "game"],
-  ["arcade_snake", "all_inclusive", "teal", "arcade", "4.8", "9k", "game"],
-  ["arcade_survivor", "rocket_launch", "indigo", "arcade", "5.0", "18k", "game"],
-];
-
 export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelectedUtility, showToast, initialTab = "my-apps", isVisible = true }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -117,16 +73,11 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
   // Thành viên dưới 18 không thấy app 18+ trong danh mục (server vẫn là chốt chặn).
   const minor = isMinorMember(bio);
   const allUtilities = useMemo(
-    () => APP_CATALOG.filter(([id]) => !(minor && ADULT_ONLY_APPS.has(id))).map(([id, icon, tint, category, rating, users, badge]) => ({
-      id,
-      icon,
-      tint,
-      category,
-      rating,
-      users,
-      badge: t(`utilities.badges.${badge}`),
-      title: t(`utilities.catalog.${id}.title`, id === 'supporter' ? 'Supporter AI' : id),
-      subLabel: t(`utilities.catalog.${id}.description`, id === 'supporter' ? 'Trợ lý AI hỗ trợ trực tuyến 24/7' : ''),
+    () => APP_CATALOG_MANIFESTS.filter(({ id }) => !(minor && ADULT_ONLY_APPS.has(id))).map((app) => ({
+      ...app,
+      badge: t(`utilities.badges.${app.badge}`),
+      title: t(`utilities.catalog.${app.id}.title`, app.id),
+      subLabel: t(`utilities.catalog.${app.id}.description`, ''),
     })),
     [t, minor],
   );
@@ -395,17 +346,41 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
     };
   }, []);
 
+  // Spotlight tìm cả màn hình bên trong app, không chỉ tên app: gõ "QR" phải ra
+  // thẳng công cụ QR của HugoKit chứ không bắt người dùng mở HugoKit rồi tự dò.
   const spotlightFilteredApps = useMemo(() => {
+    const byId = new Map(allUtilities.map((util) => [util.id, util]));
+    const destinations = APP_DESTINATIONS.flatMap((destination) => {
+      const parent = byId.get(destination.appId);
+      if (!parent || !installedApps.includes(parent.id)) return [];
+      return [{
+        ...parent,
+        key: `${destination.appId}:${destination.id}`,
+        title: t(destination.labelKey),
+        subLabel: parent.title,
+        destination: destination.id,
+      }];
+    });
+
+    const apps = allUtilities.map((util) => ({ ...util, key: util.id }));
+
     if (!spotlightQuery.trim()) {
-      return allUtilities.filter((util) => installedApps.includes(util.id));
+      // Không gõ gì thì gợi ý app đã cài, app vừa dùng đứng trước.
+      const recency = appOpenOrder();
+      const rank = (id) => {
+        const index = recency.indexOf(id);
+        return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+      };
+      return apps
+        .filter((util) => installedApps.includes(util.id))
+        .sort((a, b) => rank(a.id) - rank(b.id));
     }
+
     const query = spotlightQuery.toLowerCase();
-    return allUtilities.filter(
-      (util) =>
-        util.title.toLowerCase().includes(query) ||
-        util.subLabel.toLowerCase().includes(query)
-    );
-  }, [allUtilities, installedApps, spotlightQuery]);
+    const matches = (entry) =>
+      entry.title.toLowerCase().includes(query) || entry.subLabel.toLowerCase().includes(query);
+    return [...apps.filter(matches), ...destinations.filter(matches)];
+  }, [allUtilities, installedApps, spotlightQuery, t]);
 
   const handleLaunchSpotlightApp = (app) => {
     setIsSpotlightOpen(false);
@@ -414,11 +389,8 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       setSearchQuery(app.title);
       return;
     }
-    if (app.id === "store") {
-      setSelectedUtility("store");
-    } else {
-      setSelectedUtility(app.id);
-    }
+    setSelectedUtility(app.id);
+    if (app.destination) openDestination(app.id, app.destination);
   };
 
   // Keyboard shortcut listener for toggle Cmd/Ctrl + K
@@ -499,7 +471,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         clearInterval(interval);
         setDownloadProgress((prev) => ({ ...prev, [appId]: 100 }));
 
-        const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
+        const appSizeMb = getAppStorageMb(appId).toFixed(1);
 
         setTimeout(() => {
           // Ghi ba kho + bio + bắn sự kiện: xem src/hooks/useAppInstall.js.
@@ -525,7 +497,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       showToast?.(t("utilities.library.requiredAppNotice"), "info");
       return;
     }
-    const appSizeMb = (APP_STORAGE_MB[appId] || 2.0).toFixed(1);
+    const appSizeMb = getAppStorageMb(appId).toFixed(1);
 
     const { installed, homeScreen } = commitUninstall(appId, { bio, onBioUpdate });
     setInstalledApps(installed);
@@ -1056,7 +1028,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
                   const gradient = GRADIENTS[app.tint] || GRADIENTS.indigo;
                   return (
                     <div
-                      key={app.id}
+                      key={app.key || app.id}
                       onClick={() => handleLaunchSpotlightApp(app)}
                       onMouseEnter={() => setSpotlightSelectedIndex(index)}
                       className={`flex items-center justify-between p-2.5 rounded-2xl cursor-pointer transition-colors ${
