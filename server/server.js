@@ -14,6 +14,8 @@ import packageRoutes from './routes/packageRoutes.js';
 import supportRoutes from './routes/supportRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import adminBrainRoutes from './routes/adminBrainRoutes.js';
+import oauthRoutes, { oauthMetadata } from './routes/oauthRoutes.js';
+import OAuthClient from './models/OAuthClient.js';
 import coderResourceRoutes from './routes/coderResourceRoutes.js';
 import fileToolsRoutes from './routes/fileToolsRoutes.js';
 import companionRoutes from './routes/companionRoutes.js';
@@ -80,6 +82,21 @@ const localOriginRegex = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+
 // Origin lạ đã bị từ chối, ghi nhớ để không lặp lại log. Reset khi restart —
 // đủ dùng, và không phình theo thời gian như một bản ghi mỗi request.
 const corsRejected = new Set();
+
+// Public SPA OAuth clients exchange their PKCE code directly from their own
+// registered origin. CORS is derived from redirect URIs saved by Admin; it is
+// not a wildcard and does not replace OAuth client/PKCE authentication.
+app.use('/api/oauth', cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || (isDev && localOriginRegex.test(origin))) {
+      return callback(null, true);
+    }
+    OAuthClient.exists({ status: 'active', clientType: 'public', allowedOrigins: origin })
+      .then((exists) => callback(null, Boolean(exists)))
+      .catch(() => callback(null, false));
+  },
+  credentials: false,
+}));
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -303,6 +320,8 @@ app.use('/api/security', securityRoutes);
 // in, and it only ever returns the public release pointer.
 app.use('/api/ota', otaRoutes);
 app.use('/api/auth/member', memberAuthRoutes);
+app.use('/api/oauth', oauthRoutes);
+app.get('/.well-known/oauth-authorization-server', oauthMetadata);
 app.use('/api/member/progress', memberProgressRoutes);
 app.use('/api/hugoteam', hugoTeamRoutes);
 app.use('/api/email', emailRoutes);

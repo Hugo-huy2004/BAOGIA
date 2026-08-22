@@ -83,6 +83,34 @@ export const signMemberToken = (email, req = null) => {
   );
 };
 
+// OAuth consent chỉ cần biết người đang đăng nhập là ai. Không dùng
+// requireMember ở đây vì cổng hồ sơ/đơn vị JOY không liên quan đến việc một
+// người cho phép app khác đọc tên/email của họ. Middleware này vẫn kiểm JWT và
+// danh sách khoá vĩnh viễn, đồng thời tuyệt đối không cho token admin giả làm
+// một thành viên.
+export const requireMemberSession = async (req, res, next) => {
+  // Cookie member thắng Authorization header để một Bearer admin cũ do client
+  // interceptor gắn vào không che mất phiên member hợp lệ trên consent page.
+  const token = req.cookies?.member_jwt || extractToken(req, 'member_jwt');
+  if (!token) {
+    return res.status(401).json({ error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'member' || !decoded.email) {
+      return res.status(403).json({ error: 'Forbidden - Invalid member role' });
+    }
+    const securityBlock = await findActiveSecurityBlock({ email: decoded.email });
+    if (securityBlock) return sendSecurityBlockResponse(res, securityBlock);
+    req.memberEmail = decoded.email;
+    req.member = decoded;
+    return next();
+  } catch {
+    return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
+  }
+};
+
 // Customer portal session — issued only after a valid loginCode exchange.
 // The token pins the holder to exactly one project; identity is the token's
 // projectId, NEVER a client-supplied :id. So knowing another customer's

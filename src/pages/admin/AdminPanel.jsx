@@ -23,6 +23,7 @@ import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
 import AdminCinemaTab from "../../components/admin/AdminCinemaTab";
 import AdminSecuritySentinelTab from "../../components/admin/AdminSecuritySentinelTab";
 import AdminRobotTab from "../../components/admin/AdminRobotTab";
+import AdminOAuthAppsTab from "../../components/admin/AdminOAuthAppsTab";
 import AISupportBriefingModal from "../../components/admin/AISupportBriefingModal";
 
 function HugoNoticeToast({ open, type, message, zIndex = 150 }) {
@@ -552,6 +553,8 @@ export default function AdminPanel() {
 
         {/* ── CORE HUB: NHẬT KÝ KIỂM TOÁN TỰ ĐỘNG ── */}
         {activeTab === "audit" && <AdminAuditLogTab />}
+
+        {activeTab === "oauth" && <AdminOAuthAppsTab />}
 
         {/* ── CORE HUB 2: USER & SUPPORT HUB ── */}
         {activeTab === "users" && (

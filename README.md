@@ -35,6 +35,7 @@ npm run dev:backend    # backend Node (port 8099) — cần MongoDB chạy sẵn
 - **Member**: Google Identity Services → gửi ID token lên `POST /api/auth/member/google` → server xác minh với Google (signature/expiry/audience) → phát JWT member (HttpOnly cookie `member_jwt` + Bearer fallback). Mọi route member dùng middleware `requireMember` ([server/middleware/authMiddleware.js](server/middleware/authMiddleware.js)) — danh tính lấy từ token, **không bao giờ** từ `?email=` do client gửi. Frontend gắn Bearer token tự động qua [src/services/apiAuthInterceptor.js](src/services/apiAuthInterceptor.js).
 - **WebAuthn** (vân tay/Face ID): cùng cơ chế — `login-verify` phát cùng loại token.
 - **Admin**: JWT riêng qua cookie `jwt`, middleware `requireAdmin`.
+- **Đăng nhập bằng Hugo Studio**: OAuth 2.0 Authorization Code + PKCE cho app/web bên ngoài; admin quản lý client ở `/admin?tab=oauth`. Xem [hướng dẫn tích hợp](docs/hugo-studio-oauth.md).
 
 ## Kiểm tra & CI
 

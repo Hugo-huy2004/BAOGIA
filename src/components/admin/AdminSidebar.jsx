@@ -17,6 +17,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
         { id: "cinema", label: "Quản trị Phim Cinema", icon: "movie", accent: "from-rose-500 to-pink-600" },
         { id: "coder", label: "Study & Web Dev", icon: "school", accent: "from-amber-500 to-orange-600" },
         { id: "audit", label: "Nhật ký Kiểm toán", icon: "history_edu", accent: "from-blue-600 to-indigo-700" },
+        { id: "oauth", label: "Ứng dụng đăng nhập", icon: "passkey", accent: "from-sky-500 to-blue-700" },
         { id: "system", label: "Giám sát & Cài đặt", icon: "tune", count: counts.openTickets, alert: counts.openTickets > 0, accent: "from-rose-500 to-red-600" },
       ]
     }
@@ -107,6 +108,7 @@ export default function AdminSidebar({ activeTab, setActiveTab, counts = {}, han
               cinema: "Phim Phim",
               coder: "Study",
               audit: "Kiểm toán",
+              oauth: "Đăng nhập",
               system: "Cài đặt"
             };
             const mobileLabel = mobileShortLabels[tab.id] || tab.label;

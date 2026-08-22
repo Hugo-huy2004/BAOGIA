@@ -67,6 +67,7 @@ const ArcadePage = lazyRoute(() => import("./pages/member/ArcadePage"));
 // Chế độ Bảo vệ môi trường sống tách hẳn trong src/Save_E/, không đụng portal thường.
 const EcoPortal = lazyRoute(() => import("./Save_E/EcoPortal"));
 const UtilityPublicPage = lazyRoute(() => import("./pages/public/UtilityPublicPage"));
+const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorizePage"));
 
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
@@ -110,11 +111,12 @@ function AppContent() {
     !location.pathname.startsWith("/admin") &&
     // Login is a focused, form-only screen (esp. as an installed PWA) — the full
     // marketing footer below it is noise, like every major sign-in page.
-    !location.pathname.startsWith("/login");
+    !location.pathname.startsWith("/login") &&
+    !location.pathname.startsWith("/oauth");
 
   const isMaintenanceMode = data?.systemSettings?.maintenanceMode === true;
   const isVacationMode = data?.systemSettings?.vacationMode === true;
-  const isAdminOrLoginRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/login');
+  const isAdminOrLoginRoute = location.pathname.startsWith('/admin') || location.pathname.startsWith('/login') || location.pathname.startsWith('/oauth');
 
   const isCustomerPortalRoute = location.pathname.startsWith("/customer-portal");
   const isSecretLinkRoute = location.pathname.startsWith("/s/");
@@ -168,7 +170,7 @@ function AppContent() {
   // In the installed PWA we want a focused, app-like dashboard: never show the
   // marketing top navbar / tab-bar — those are web-only. But keep HBot for support.
   const isMemberRoute = location.pathname.startsWith("/member");
-  const hideNavbar = isEmbed || isFullscreenUtility || isPWA || isMemberRoute;
+  const hideNavbar = isEmbed || isFullscreenUtility || isPWA || isMemberRoute || location.pathname.startsWith('/oauth');
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
@@ -220,6 +222,7 @@ function AppContent() {
             {/* Installed PWA (standalone) gets the app-style, member-only Google
                 login; the web keeps the full 3-tab LoginPage. */}
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
+            <Route path="/oauth/authorize" element={<OAuthAuthorizePage />} />
             <Route path="/member" element={<Navigate to="/member/today" replace />} />
             <Route path="/member/eco" element={
               isMemberAuthenticated() ? <EcoPortal /> : <Navigate to="/login" replace />

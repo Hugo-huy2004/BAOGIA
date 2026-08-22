@@ -111,6 +111,13 @@ export default defineConfig(({ mode }) => {
           '**/splash/**',
         ],
         runtimeCaching: [
+          // Authorization codes, tokens, consent context and userinfo are
+          // security credentials/personal data. They must never enter the
+          // service-worker cache, even briefly.
+          {
+            urlPattern: /\/api\/oauth\//,
+            handler: 'NetworkOnly',
+          },
           // Arcade leaderboard — StaleWhileRevalidate for instant UI render
           {
             urlPattern: /\/api\/arcade\/leaderboard/,

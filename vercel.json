@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/.well-known/oauth-authorization-server",
+      "destination": "https://api.hugowishpax.studio/.well-known/oauth-authorization-server"
+    },
+    {
       "source": "/api/:path*",
       "destination": "https://api.hugowishpax.studio/api/:path*"
     },
@@ -119,7 +123,7 @@
       ]
     },
     {
-      "source": "/(admin|member|partner|customer-portal|pay|s|certificate|login|support-request|joy|preview)(.*)",
+      "source": "/(admin|member|partner|customer-portal|pay|s|certificate|login|oauth|support-request|joy|preview)(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",
