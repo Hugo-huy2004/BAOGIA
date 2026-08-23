@@ -425,6 +425,8 @@ router.get('/system-storage', requireAdmin, async (req, res) => {
 });
 
 import Bio from '../models/Bio.js';
+import ReadingSession from '../models/ReadingSession.js';
+import { CODER_STAGE_SEQUENCE, isCoderLessonId } from '../../shared/coderProgression.js';
 
 router.get('/users/search', requireAdmin, async (req, res) => {
   try {
@@ -527,16 +529,141 @@ router.get('/system-overview', requireAdmin, async (req, res) => {
 // GET /admin/coder-submissions
 router.get('/coder-submissions', requireAdmin, async (req, res) => {
   try {
-    // Find all bios who completed lesson62 (which is the last lesson of Chặng 5, indicating they reached Chặng 6+)
+    // Trước đây lọc `completedLessons: 'lesson62'` kèm chú thích "bài cuối của
+    // Chặng 5". Sai với lộ trình hiện tại: chặng 5 là bài 71–90, còn bài 62 nằm
+    // giữa chặng 4 — nên danh sách duyệt đồ án hiện cả những người còn cách
+    // ngày tốt nghiệp gần bốn mươi bài.
+    //
+    // Trang này để DUYỆT ĐỒ ÁN, nên điều kiện đúng là đã nộp đồ án.
     const submissions = await Bio.find({
-      completedLessons: 'lesson62'
-    }).select('email displayName avatarUrl completedLessons hugoCoderProjectUrl hugoCoderProjectStatus hugoCoderCertificateUrl hugoCoderProjectSubmittedAt hugoCoderProjectNote hugoCoderProjectAdminNote')
+      hugoCoderProjectUrl: { $exists: true, $nin: [null, ''] },
+    }).select('email displayName avatarUrl completedLessons capstoneTrack hugoCoderProjectUrl hugoCoderProjectStatus hugoCoderCertificateUrl hugoCoderProjectSubmittedAt hugoCoderProjectNote hugoCoderProjectAdminNote')
       .sort({ hugoCoderProjectSubmittedAt: -1 })
       .lean();
 
     res.json({ success: true, data: submissions });
   } catch (error) {
     console.error('Error fetching coder submissions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /admin/learners — bảng theo dõi người học.
+ *
+ * Trước đây admin chỉ có trang duyệt đồ án, tức chỉ nhìn thấy người đã đi tới
+ * cuối. Ai đang học dở, ai kẹt ở đâu, ai bỏ giữa chừng thì không có chỗ nào xem.
+ *
+ * `stuckAt` là thứ đáng nhìn nhất: bài đầu tiên chưa hoàn thành. Ba người cùng
+ * kẹt ở một bài nghĩa là bài đó có vấn đề, không phải ba người đó lười.
+ */
+router.get('/learners', requireAdmin, async (req, res) => {
+  try {
+    const { q = '', track = '', status = 'all', page = 1, limit = 25 } = req.query;
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.min(100, Math.max(1, Number(limit) || 25));
+
+    const filter = { completedLessons: { $exists: true, $ne: [] } };
+    if (q.trim()) {
+      // Người dùng nhập, nên thoát ký tự đặc biệt trước khi dựng biểu thức —
+      // một dấu ngoặc lạc vào là truy vấn ném lỗi.
+      const safe = String(q).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { email: { $regex: safe, $options: 'i' } },
+        { displayName: { $regex: safe, $options: 'i' } },
+      ];
+    }
+    if (track) filter.capstoneTrack = track;
+    if (status === 'graduating') filter.hugoCoderProjectStatus = 'pending';
+    if (status === 'graduated') filter.hugoCoderProjectStatus = 'approved';
+
+    const [rows, total] = await Promise.all([
+      Bio.find(filter)
+        .select('email displayName avatarUrl completedLessons capstoneTrack capstoneTrackChosenAt hugoCoderProjectStatus hugoCoderProjectSubmittedAt hugoCoderExamAttempts featureSubscriptions updatedAt')
+        .sort({ updatedAt: -1 })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum)
+        .lean(),
+      Bio.countDocuments(filter),
+    ]);
+
+    const emails = rows.map((row) => row.email).filter(Boolean);
+    const readings = emails.length
+      ? await ReadingSession.aggregate([
+        { $match: { memberEmail: { $in: emails }, completedAt: { $ne: null } } },
+        { $group: { _id: '$memberEmail', count: { $sum: 1 } } },
+      ])
+      : [];
+    const readingByEmail = new Map(readings.map((item) => [item._id, item.count]));
+
+    const learners = rows.map((row) => {
+      const coderDone = (row.completedLessons || []).filter(isCoderLessonId);
+      const stage = CODER_STAGE_SEQUENCE.find(
+        (item) => coderDone.length >= item.from - 1 && coderDone.length < item.to,
+      ) || CODER_STAGE_SEQUENCE.at(-1);
+
+      // Bài đầu tiên chưa xong — nơi người học đang đứng.
+      let stuckAt = null;
+      for (let number = 1; number <= 100; number += 1) {
+        if (!coderDone.includes(`lesson${number}`)) { stuckAt = number; break; }
+      }
+
+      return {
+        email: row.email,
+        displayName: row.displayName || '',
+        avatarUrl: row.avatarUrl || '',
+        lessonsDone: coderDone.length,
+        stageId: stage?.id || null,
+        stuckAt,
+        capstoneTrack: row.capstoneTrack || '',
+        readingsDone: readingByEmail.get(row.email) || 0,
+        examAttempts: Object.values(row.hugoCoderExamAttempts || {}).reduce((sum, n) => sum + Number(n || 0), 0),
+        projectStatus: row.hugoCoderProjectStatus || '',
+        projectSubmittedAt: row.hugoCoderProjectSubmittedAt || null,
+        maintenanceUntil: row.featureSubscriptions?.hugoCoder?.expiresAt || null,
+        // `updatedAt` đổi theo MỌI thay đổi hồ sơ, không riêng việc học — nên
+        // gọi đúng tên nó là "hồ sơ đổi lần cuối", đừng bày ra như "học lần cuối".
+        profileUpdatedAt: row.updatedAt || null,
+      };
+    });
+
+    res.json({
+      learners,
+      pagination: { total, page: pageNum, limit: limitNum, pages: Math.ceil(total / limitNum) },
+    });
+  } catch (error) {
+    console.error('Error fetching learners:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/** GET /admin/learners/stuck — những bài đang chặn nhiều người nhất. */
+router.get('/learners/stuck', requireAdmin, async (req, res) => {
+  try {
+    const rows = await Bio.find({ completedLessons: { $exists: true, $ne: [] } })
+      .select('completedLessons')
+      .lean();
+
+    const counts = new Map();
+    for (const row of rows) {
+      const done = new Set((row.completedLessons || []).filter(isCoderLessonId));
+      if (!done.size) continue;
+      for (let number = 1; number <= 100; number += 1) {
+        if (!done.has(`lesson${number}`)) {
+          counts.set(number, (counts.get(number) || 0) + 1);
+          break;
+        }
+      }
+    }
+
+    const stuck = [...counts.entries()]
+      .map(([lesson, learners]) => ({ lesson, learners }))
+      .sort((a, b) => b.learners - a.learners)
+      .slice(0, 10);
+
+    res.json({ stuck, totalLearners: rows.length });
+  } catch (error) {
+    console.error('Error computing stuck lessons:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -101,6 +101,33 @@ export default function CoderCertificatePage() {
               </div>
             </div>
 
+            {/* Điểm và xếp loại: tờ giấy phải phân biệt được người 92% ngay lần
+                đầu với người 61% ở lần thứ tư. */}
+            {typeof cert.score === "number" && (
+              <div className="pt-2">
+                <div className="inline-flex items-baseline gap-2 px-4 py-2 rounded-2xl bg-muted border border-border">
+                  <span className="text-3xl font-black text-foreground tabular-nums">{cert.score}</span>
+                  <span className="text-xs font-bold text-muted-foreground">/100</span>
+                  <span className="mx-1 w-px h-5 bg-border" />
+                  <span className="text-sm font-black text-foreground">{cert.gradeLabel}</span>
+                </div>
+                {cert.gradeNote && (
+                  <p className="mt-1.5 text-[10.5px] text-muted-foreground">{cert.gradeNote}</p>
+                )}
+                {cert.breakdown && (
+                  <p className="mt-1 text-[10px] text-muted-foreground">
+                    {cert.breakdown.exam !== null && `Bài thi ${cert.breakdown.exam}% · `}
+                    Hoàn tất {cert.breakdown.completedInStage}/{cert.breakdown.lessonsInStage} bài
+                    {cert.breakdown.examCount > 0 && (
+                      cert.breakdown.attempts <= cert.breakdown.examCount
+                        ? " · đỗ ngay lần đầu"
+                        : ` · ${cert.breakdown.attempts} lượt thi`
+                    )}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex items-center justify-center gap-6 pt-2">
               <div className="text-center">
                 <p className="text-lg font-black text-foreground">{cert.totalCompleted}/100</p>

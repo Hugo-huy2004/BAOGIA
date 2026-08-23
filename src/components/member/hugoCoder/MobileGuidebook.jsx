@@ -89,8 +89,6 @@ export default function MobileGuidebook({
   quizAnswers,
   setQuizAnswers,
   handleRetakeQuiz,
-  mobilePuzzleAnswer,
-  setMobilePuzzleAnswer,
   verifyInteractivePractice
 }) {
   const { t } = useTranslation();
@@ -899,8 +897,6 @@ export default function MobileGuidebook({
                       quizAnswers={quizAnswers}
                       setQuizAnswers={setQuizAnswers}
                       handleRetakeQuiz={handleRetakeQuiz}
-                      mobilePuzzleAnswer={mobilePuzzleAnswer}
-                      setMobilePuzzleAnswer={setMobilePuzzleAnswer}
                       verifyInteractivePractice={verifyInteractivePractice}
                     />
                   )}

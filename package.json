@@ -19,7 +19,7 @@
     "setup": "npm install && npm run server:install",
     "check:api-auth": "node scripts/check-api-auth.mjs",
     "check:coder-content": "node scripts/check-coder-content.mjs",
-    "check:all": "npm run lint && npm run check:imports && npm run check:api-auth && npm run check:coder-content && npm run check:stock && npm run check:chart && npm run build && npm run check:seo && npm run check:performance",
+    "check:all": "npm run lint && npm run check:imports && npm run check:api-auth && npm run check:coder-content && npm run check:reading && npm run check:exam && npm run check:grading && npm run check:stock && npm run check:chart && npm run build && npm run check:seo && npm run check:performance",
     "build:native": "VITE_BUILD_TARGET=native vite build --outDir dist-native",
     "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
     "native:ios": "npm run native:sync && npx cap open ios",
@@ -32,7 +32,10 @@
     "check:chart": "node server/scripts/check-invest-chart.mjs",
     "ota:bundle": "node scripts/ota-bundle.mjs",
     "dev:frontend": "vite",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "check:reading": "cd server && node scripts/check-reading-gate.mjs",
+    "check:exam": "cd server && node scripts/check-exam-flow.mjs",
+    "check:grading": "cd server && node scripts/check-stage-grading.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",

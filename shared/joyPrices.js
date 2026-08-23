@@ -97,7 +97,7 @@ export const HUGOSO_PRICES = {
   calendar: 400,
   docs:     400,
   sheets:   400,
-  gemini:   400,
+  ai:       400,
 };
 export const HUGOSO_BUNDLE_PRICE = bundleFromParts(Object.values(HUGOSO_PRICES));
 

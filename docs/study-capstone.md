@@ -76,6 +76,129 @@ Ràng buộc bộ kiểm tra bắt được: câu `truefalse` và `bug` **phải
 `match` không được trùng vế phải (trùng thì câu hỏi có nhiều lời giải đúng mà bộ
 chấm chỉ nhận một); câu `multi` không được đúng hết mọi phương án.
 
+## Bản đồ kho báu
+
+`CoderLearningJourney.jsx`. Sáu chặng trình bày thành sáu **vùng đất**; mỗi bài
+là một bước chân trên đường mòn uốn lượn đã có sẵn. Hai thứ mới:
+
+- **Mốc rương cuối mỗi vùng đất** (`.coder-treasure-stop`) — viền nét đứt khi
+  chưa mở, nền đặc theo màu chặng khi đã mở. Nó là hình ảnh của giấy chứng nhận
+  chặng vốn đã tồn tại, không phải một phần thưởng mới.
+- **Thẻ "kho báu tiếp theo"** (`NextTreasure`) — rương gần nhất chưa mở và còn
+  bao nhiêu bước, bấm vào thì mở đúng vùng đất đó.
+
+Vì sao đếm bước thay vì phần trăm: "còn 3 bước" cụ thể hơn "62%", và mốc gần
+nhất luôn cách tối đa một chặng nên nó luôn nằm trong tầm với.
+
+Bản đồ **không** đẻ thêm màu: mốc rương dùng lại `--stage-color`/`--stage-soft`
+của chặng, và các token chữ dùng `--coder-secondary`. Vẫn khối đặc, không
+gradient — cùng ngôn ngữ với phần còn lại của lộ trình.
+
+Từ vựng ở `hugoCoderLearning.treasure.*`, đủ 9 ngôn ngữ.
+
+## Gỡ IDE khỏi bài học
+
+Trình soạn thảo Monaco, cây thư mục và khung xem trước đã gỡ hẳn. Học viên gõ
+code trong công cụ thật của mình — đúng như khi đi làm.
+
+`MemberIdeTab.jsx` đổi tên thành **`LessonView.jsx`**: nó không còn là IDE, và
+nhánh desktop (428 dòng Monaco + workspace) đã xoá. Màn hình bài học giờ dùng
+chung `MobileGuidebook` cho mọi kích thước — thành phần đó vốn đã là màn hình
+bài học đầy đủ không có trình soạn thảo, nên không phải dựng mới.
+
+88 bài `code_challenge` chuyển sang `PracticeSteps`: mã khởi đầu để chép, các
+bước thực hành đánh dấu từng cái, khối lỗi hay gặp, rồi mở phần câu hỏi chốt bài.
+**Không phải soạn nội dung mới** — cả 88 bài đã có sẵn `labSteps`, `starterCode`,
+`checklist`, `commonMistakes`, `miniQuiz`.
+
+Bản cũ trên điện thoại chỉ có đúng MỘT nút tự khai *"Tôi đã hoàn thành yêu cầu
+thực hành / Bỏ qua bài này"* dùng chung cho cả 88 bài, nên đổi sang bảng bước
+không làm mất tính nghiêm túc nào — nó nghiêm hơn.
+
+Ngân sách: `member-ide-shell` 389.8 kB → `member-lesson-view` **313.3 kB**.
+
+Id `ide` **vẫn giữ** trong `FULLSCREEN_APP_IDS` và nhánh mở app: bookmark cũ
+`/member/utilities/ide/lesson12` phải tiếp tục mở đúng bài trong Study. Nghỉ hưu
+một id không có nghĩa là làm gãy link đã chia sẻ. Đã gỡ: trang công khai `/ide`,
+rewrite Vercel, manifest `ide` trong registry và Store, nhánh `case "ide"` ở
+trang công khai.
+
+## Trang lộ trình theo lối Duolingo
+
+Trước đây phải cuộn qua bốn khối mới thấy con đường học: hero có cảnh phòng thí
+nghiệm, bảng giải thích quy trình ba bước, dải chỉ số, thanh tiến độ tổng.
+Duolingo mở app ra là thấy ngay đường đi.
+
+Giờ còn: một **dải chỉ số bám đỉnh** (chuỗi ngày, XP, số bài, thanh tiến độ),
+thẻ "kho báu tiếp theo" làm nút tiếp tục, rồi bản đồ. Trang từ 342 xuống 183
+dòng.
+
+Màu lấy từ token Hugo Studio (`--coder-blue`, `--coder-secondary`,
+`--stage-color`), **không** mượn bảng xanh lá của Duolingo. Lối tương tác thì
+theo Duolingo: nút tròn vát nổi lún khi bấm, đường đi lượn, rương cuối chặng.
+
+## Bài qua bằng đọc
+
+Không phải bài nào cũng nên có câu hỏi qua môn. "Vì sao mô hình bịa ra thứ nghe
+thuyết phục" hay "khi nào KHÔNG nên dùng agent" là hiểu biết cần đọc kỹ, và mọi
+cách đặt câu hỏi bốn lựa chọn cho chúng đều biến thành mẹo nhớ từ khoá.
+
+`shared/readingLessons.js` khai bài nào qua bằng đọc và đọc bài viết nào. Hiện
+có năm bài, đều thuộc phần AI: 61, 62, 86, 87, 88.
+
+**Thời gian do máy chủ đo.** `ReadingSession` ghi mốc bắt đầu khi mở bài;
+`POST /read/finish` tự trừ và trả 425 kèm số giây còn thiếu nếu chưa đủ. Client
+chỉ được nói "tôi bắt đầu" và "tôi xong" — nếu tin `startedAt` trong body thì
+bấm mở rồi khai lùi năm phút là qua bài.
+
+`requiredMinutes` chốt lại tại thời điểm bắt đầu, không đọc lại từ học liệu lúc
+kết thúc: admin sửa số phút giữa chừng thì người đang đọc dở không bị đổi luật.
+
+**Cửa kiểm ở hai nơi, và nơi thật là server.** Giao diện khoá nút cho tới khi
+hết giờ, nhưng `POST /api/joy/award-learning` cũng tự kiểm lại — khoá nút chỉ
+ngăn bấm nhầm, không ngăn ai gọi thẳng API.
+
+Đây **không** phải bằng chứng người học thực sự đọc: mở tab rồi đi pha trà vẫn
+tính. Nó chặn đúng một thứ — bấm qua bài trong hai giây. Muốn đo hiểu thì phải
+hỏi, mà hỏi thì lại quay về trắc nghiệm.
+
+Không đo vị trí cuộn: đo cuộn chỉ chặn được người lười, không chặn được người
+muốn gian, mà lại phạt oan người đọc trên màn hình lớn — cả bài hiện ra không
+cần cuộn.
+
+Kiểm tra: `npm run check:reading` (đã nằm trong `check:all`) đối chiếu mọi tiêu
+đề khai trong `readingLessons.js` với bài viết thật trong kho, và thử lại luật
+thời gian ở cả hai chiều.
+
+## Quản lý người học
+
+Admin trước đây chỉ có trang duyệt đồ án, tức chỉ thấy người đã đi tới cuối. Ai
+đang học dở, ai kẹt ở đâu, ai bỏ giữa chừng thì không có chỗ nào xem.
+
+`AdminLearnersTab` (tab Coder → **Người Học**) dựa trên hai endpoint:
+
+- `GET /admin/learners` — danh sách có phân trang, lọc theo đề tài và trạng thái
+  đồ án, tìm theo tên hoặc email. Mỗi dòng: số bài đã xong, chặng đang ở, **bài
+  đang kẹt**, đề tài, số bài đọc đã hoàn thành, trạng thái đồ án.
+- `GET /admin/learners/stuck` — mười bài đang chặn nhiều người nhất.
+
+Khối "bài đang chặn nhiều người nhất" đặt trên cùng vì nó là thứ hành động được:
+**ba người cùng kẹt ở một bài nghĩa là bài đó có vấn đề**, không phải ba người đó
+lười. Đề mơ hồ, bộ chấm quá chặt, hoặc thiếu kiến thức dẫn nhập.
+
+Cột "Hồ sơ đổi" cố tình **không** gọi là "học lần cuối": `Bio.updatedAt` đổi theo
+mọi thay đổi hồ sơ, không riêng việc học. `completedLessons` là mảng chuỗi không
+có mốc thời gian, nên hiện chưa có ngày học chính xác cho mọi người —
+`LearningEvidence.occurredAt` có, nhưng chỉ với những ai đã bật minh chứng.
+
+### Lỗi sửa kèm
+
+`GET /admin/coder-submissions` lọc `completedLessons: 'lesson62'` với chú thích
+"bài cuối của Chặng 5". Sai với lộ trình hiện tại: chặng 5 là bài **71–90**, còn
+bài 62 nằm giữa chặng 4 — nên danh sách duyệt đồ án hiện cả những người còn cách
+ngày tốt nghiệp gần bốn mươi bài. Trang này để duyệt đồ án, nên điều kiện đúng là
+**đã nộp đồ án** (`hugoCoderProjectUrl` có giá trị).
+
 ## Học liệu do Hugo Studio biên soạn
 
 `CoderResource` có thêm `type: 'article'`: toàn văn trong `body` (Markdown),

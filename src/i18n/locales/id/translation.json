@@ -4268,6 +4268,21 @@
       "nhapGhiChuTai": "Catatan, akun uji, detail operasional...",
       "dangGui": "Sedang mengirim...",
       "guiDeAnTot": "Kirim proyek terakhir"
+    },
+    "treasure": {
+      "eyebrow": "PETA HARTA KARUN",
+      "title": "Perjalananmu",
+      "description": "Setiap pelajaran adalah satu langkah. Selesaikan satu wilayah, satu peti harta terbuka.",
+      "land": "Wilayah {{number}}",
+      "next": "Harta berikutnya",
+      "stepsLeft": "{{count}} langkah lagi",
+      "atLast": "langkah terakhir",
+      "opened": "Terbuka",
+      "locked": "Tersegel",
+      "chest": "Peti tahap {{number}}",
+      "allOpened": "Kamu sudah membuka semua peti.",
+      "reward": "Membuka: sertifikat tahap {{number}}",
+      "here": "Kamu di sini"
     }
   },
   "arcadeGame": {

@@ -10,7 +10,7 @@ const PREFETCH_MAP = {
   banhocduong: () => import("../components/member/banhocduong/BanhocduongTab"),
   radio: () => import("../components/member/MemberRadioTab"),
   aura: () => import("../components/member/MemberAuraTab"),
-  ide: () => import("../components/member/MemberIdeTab"),
+  ide: () => import("../components/member/LessonView"),
   arcade: () => import("../components/member/arcade/GameChess3D")
 };
 

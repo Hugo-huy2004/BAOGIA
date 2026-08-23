@@ -652,6 +652,13 @@ const BioSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {}
     },
+    // Kết quả từng bài thi: lessonId -> { best, firstTry, last, attempts, at }.
+    // Chứng chỉ chặng xếp loại theo ĐIỂM chứ không chỉ đạt/không đạt, nên điểm
+    // phải được giữ lại; trước đây submitExam trả điểm rồi vứt đi.
+    hugoCoderExamScores: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
+    },
     courseCompletionAwardClaimed: {
       type: Boolean,
       default: false

@@ -4270,6 +4270,21 @@
       "nhapGhiChuTai": "Ingrese notas, cuentas de prueba, información operativa...",
       "dangGui": "Transferiendo...",
       "guiDeAnTot": ": Enviar Trabajo de Graduación"
+    },
+    "treasure": {
+      "eyebrow": "MAPA DEL TESORO",
+      "title": "Tu expedición",
+      "description": "Cada lección es un paso. Al cruzar una tierra se abre un cofre del tesoro.",
+      "land": "Tierra {{number}}",
+      "next": "Próximo tesoro",
+      "stepsLeft": "faltan {{count}} pasos",
+      "atLast": "último paso",
+      "opened": "Abierto",
+      "locked": "Sellado",
+      "chest": "Cofre de la etapa {{number}}",
+      "allOpened": "Has abierto todos los cofres.",
+      "reward": "Desbloquea: certificado de la etapa {{number}}",
+      "here": "Estás aquí"
     }
   },
   "arcadeGame": {

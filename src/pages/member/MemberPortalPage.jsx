@@ -904,7 +904,7 @@ function MemberPortalPage() {
                 defaultPsychologyPresetTest={defaultPsychologyPresetTest}
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
-                ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null}
+                studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null}
               />
             </React.Suspense>
           </ErrorBoundary>
@@ -1001,7 +1001,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1066,7 +1066,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} ideLessonId={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (

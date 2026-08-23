@@ -2,10 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { STUDY_LIFETIME } from "../../../shared/joyPrices";
 import { getCoderStageGate } from "../../../shared/coderProgression.js";
-import Editor from "@monaco-editor/react";
-import { 
-  FolderOpen, Folder, BookOpen, Database, Play, X, 
-  Terminal, AlertTriangle, Save, Eye, FileCode, FileText, FileJson, Globe, Archive
+import { FileCode, FileText, FileJson
 } from "lucide-react";
 import { notify } from "../../lib/notify";
 import confetti from "canvas-confetti";
@@ -19,12 +16,8 @@ import { hugoCoderApi } from "../../services/hugoCoderApi";
 import { API_BASE } from "../../config/apiBase";
 import { getMobileVisualSet } from "./hugoCoder/VisualIllustrations";
 import InteractivePuzzles from "./hugoCoder/InteractivePuzzles";
-import CertificateModal from "./hugoCoder/CertificateModal";
 import MobileGuidebook from "./hugoCoder/MobileGuidebook";
-import LessonsSidebar from "./hugoCoder/LessonsSidebar";
-import FileExplorerSidebar from "./hugoCoder/FileExplorerSidebar";
 import { runMockSql, runMockPhp } from "./hugoCoder/mockRunner";
-import FeatureGate from "./shared/FeatureGate";
 import {
   CODER_STORAGE_KEYS,
   buildLessonEvidence,
@@ -95,7 +88,7 @@ const IDE_PHASE_REWARD = 800;
 
 // embedded=true: chạy trong vỏ chung HugoCoderHub — bỏ FeatureGate riêng,
 // bỏ shell fullscreen và nút Back riêng (Hub đã lo các thứ đó).
-export default function MemberIdeTab({
+export default function LessonView({
   onBack,
   onExitLesson,
   bio,
@@ -103,6 +96,7 @@ export default function MemberIdeTab({
   urlLessonId,
   embedded = false,
   publicMode = false,
+  basePath = "/member/utilities/ide",
 }) {
   const { t } = useTranslation();
   const [isDesktop, setIsDesktop] = useState(true);
@@ -128,14 +122,25 @@ export default function MemberIdeTab({
     }
   }, [urlLessonId]);
 
+  // Địa chỉ phải đi theo bài đang học, và phải giữ đúng nhánh người học vào.
+  // Trước đây chỗ này ghi cứng `/member/utilities/ide`: vào từ Study là bị đẩy
+  // sang nhánh ide, nên nút quay lại và tab đang sáng chỉ về hai nơi khác nhau.
   useEffect(() => {
     if (publicMode) return;
-    if (activeCourseId) {
-      navigate(`/member/utilities/ide/${activeCourseId}`, { replace: true });
-    } else {
-      navigate(`/member/utilities/ide`, { replace: true });
+    navigate(activeCourseId ? `${basePath}/${activeCourseId}` : basePath, { replace: true });
+  }, [activeCourseId, navigate, publicMode, basePath]);
+
+  // Nhớ bài đang học để lần mở sau vào thẳng, không bắt bấm "tiếp tục" lại từ
+  // trang chủ Study. Ghi ở máy vì đây là chỗ đang đọc dở, không phải tiến độ đã
+  // được máy chủ chấm — tiến độ thật nằm ở `completedLessons`.
+  useEffect(() => {
+    if (!activeCourseId) return;
+    try {
+      localStorage.setItem(CODER_STORAGE_KEYS.lastLesson, activeCourseId);
+    } catch {
+      /* chế độ riêng tư hoặc hết quota: mất chỗ đang đọc dở không đáng làm vỡ bài học */
     }
-  }, [activeCourseId, navigate, publicMode]);
+  }, [activeCourseId]);
 
   const [mobileStudyMode, setMobileStudyMode] = useState("story");
   const [completedLessons, setCompletedLessons] = useState(() => {
@@ -154,7 +159,6 @@ export default function MemberIdeTab({
     setCertificateType(type);
     setShowCertificateModal(true);
   };
-  const [mobilePuzzleAnswer, setMobilePuzzleAnswer] = useState(null);
   // Đề thi do máy chủ ra (chống gian lận) — null nghĩa là đang dùng đề cục bộ (khách/offline)
   const [examId, setExamId] = useState(null);
   const [exchangeSubmitting, setExchangeSubmitting] = useState(false);
@@ -544,7 +548,6 @@ export default function MemberIdeTab({
 
   useEffect(() => {
     setTimeLeft(0);
-    setMobilePuzzleAnswer(null);
   }, [activeCourseId]);
 
 
@@ -1808,8 +1811,6 @@ export default function MemberIdeTab({
         quizAnswers={quizAnswers}
         setQuizAnswers={setQuizAnswers}
         handleRetakeQuiz={handleRetakeQuiz}
-        mobilePuzzleAnswer={mobilePuzzleAnswer}
-        setMobilePuzzleAnswer={setMobilePuzzleAnswer}
         verifyInteractivePractice={verifyInteractivePractice}
       />
     );
@@ -1852,508 +1853,81 @@ export default function MemberIdeTab({
     );
   }
 
-  if (!isDesktop) {
-    return (
-      <MobileGuidebook
-        embedded={embedded || publicMode}
-        onExitLesson={onExitLesson}
-        activeCourseId={activeCourseId}
-        bio={bio}
-        onBioUpdate={onBioUpdate}
-        onBack={onBack}
-        completedLessons={completedLessons}
-        mobileProgress={mobileProgress}
-        mobileCourse={mobileCourse}
-        mobileCompletedCount={mobileCompletedCount}
-        WEB_COURSES={WEB_COURSES}
-        STAGES={STAGES}
-        getStageBenefits={getStageBenefits}
-        setActiveCourseId={setActiveCourseId}
-        setMobileStudyMode={setMobileStudyMode}
-        setVerificationStatus={setVerificationStatus}
-        getLessonTierAndAccess={getLessonTierAndAccess}
-        handleExchangeSubscription={handleExchangeSubscription}
-        exchangeSubmitting={exchangeSubmitting}
-        handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
-        handleClaimMilestoneReward={handleClaimMilestoneReward}
-        handlePayMaintenance={handlePayMaintenance}
-        handleBuyAllStagesBundle={handleBuyAllStagesBundle}
-        mobileStudyMode={mobileStudyMode}
-        mobileVisualSet={mobileVisualSet}
-        mobileExtra={mobileExtra}
-        timeLeft={timeLeft}
-        verificationStatus={verificationStatus}
-        mobileRunKey={mobileRunKey}
-        setMobileRunKey={setMobileRunKey}
-        mobileDemoCode={mobileDemoCode}
-        canPreviewMobileCourse={canPreviewMobileCourse}
-        currentMobileCourseIndex={currentMobileCourseIndex}
-        handlePrevMobileLesson={handlePrevMobileLesson}
-        handleNextMobileLesson={handleNextMobileLesson}
-        onShowCertificate={handleShowCertificate}
-        // Puzzle props
-        interactivePassed={interactivePassed}
-        miniQuizAnswers={miniQuizAnswers}
-        setMiniQuizAnswers={setMiniQuizAnswers}
-        setMiniQuizPassed={setMiniQuizPassed}
-        handleRewardMobileLesson={handleRewardMobileLesson}
-        htmlBlocks={htmlBlocks}
-        sqlBlocks={sqlBlocks}
-        moveBlock={moveBlock}
-        themeBg={themeBg}
-        setThemeBg={setThemeBg}
-        themeText={themeText}
-        setThemeText={setThemeText}
-        clickCount={clickCount}
-        setClickCount={setClickCount}
-        matchedPairs={matchedPairs}
-        handlePairMatch={handlePairMatch}
-        blankAnswers={blankAnswers}
-        setBlankAnswers={setBlankAnswers}
-        screenshotFile={screenshotFile}
-        handleScreenshotSelect={handleScreenshotSelect}
-        isScanning={isScanning}
-        scanProgress={scanProgress}
-        scanScore={scanScore}
-        quizQuestions={quizQuestions}
-        quizCompleted={quizCompleted}
-        quizScore={quizScore}
-        quizReview={quizReview}
-        quizCurrentIndex={quizCurrentIndex}
-        setQuizCurrentIndex={setQuizCurrentIndex}
-        quizAnswers={quizAnswers}
-        setQuizAnswers={setQuizAnswers}
-        handleRetakeQuiz={handleRetakeQuiz}
-        mobilePuzzleAnswer={mobilePuzzleAnswer}
-        setMobilePuzzleAnswer={setMobilePuzzleAnswer}
-        verifyInteractivePractice={verifyInteractivePractice}
-      />
-    );
-  }
-
-  const desktopBody = (
-    <div className={`flex flex-col bg-background text-foreground relative overflow-hidden ${embedded || publicMode ? "h-full w-full" : "h-screen w-screen"}`}>
-      {/* Top IDE Header Control Bar */}
-      <div className="bg-card border-b border-border px-4 py-2.5 flex items-center justify-between text-xs text-muted-foreground">
-        <div className="flex items-center gap-3">
-          {!embedded && !publicMode && (
-            <button
-              onClick={onBack}
-              className="inline-flex h-11 items-center gap-1 rounded-xl pl-2 pr-3.5 text-[15px] font-medium transition-colors hover:bg-white/10"
-            >
-              <span className="material-symbols-outlined text-[22px]">arrow_back</span>
-              {t("utilities.ide.quayLai")}
-            </button>
-          )}
-          <div className="flex items-center gap-1.5 font-mono text-muted-foreground">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-            <span>STUDENT WORKSPACE</span>
-          </div>
-        </div>
-
-        {/* Global Toolbar */}
-        <div className="flex items-center gap-2">
-          {activeFile && (
-            <button 
-              onClick={handleSaveFile}
-              className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white font-bold px-3 py-1.5 rounded transition-all shadow-sm"
-            >
-              <Save className="w-3.5 h-3.5" />
-              {activeFile.handle ? t("utilities.ide.luuTrucTiepDisk") : t("utilities.ide.taiVeMayLocal")}
-            </button>
-          )}
-
-          <button
-            onClick={handleExportProjectZip}
-            className="flex items-center gap-1.5 bg-muted hover:bg-muted-foreground text-foreground font-bold px-3 py-1.5 rounded transition-all border border-border"
-            title={t("utilities.ide.xuatToanBoWorkspace")}
-          >
-            <Archive className="w-3.5 h-3.5" /> {t("utilities.ide.xuatZip")}
-          </button>
-
-          <button 
-            onClick={handleOpenFolder}
-            className="flex items-center gap-1.5 bg-muted hover:bg-muted-foreground text-foreground font-bold px-3 py-1.5 rounded transition-all border border-border"
-            title={t("utilities.ide.dongBoTrucTiep")}
-          >
-            <FolderOpen className="w-3.5 h-3.5" /> {t("utilities.ide.moThuMucCuc")}
-          </button>
-        </div>
-      </div>
-
-      {/* Main IDE Workspace */}
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* Left Side Icon Navigation Menu */}
-        <div className="w-14 bg-card border-r border-border flex flex-col items-center py-4 justify-between">
-          <div className="flex flex-col items-center gap-5 w-full">
-            <button 
-              onClick={() => setActiveSidebarTab("explorer")}
-              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "explorer" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"}`}
-              title={t("utilities.ide.quanLyFile")}
-            >
-              <Folder className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => setActiveSidebarTab("learn")}
-              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "learn" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"}`}
-              title={t("utilities.ide.khoaHocCodeMau")}
-            >
-              <BookOpen className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => setActiveSidebarTab("db")}
-              className={`p-2.5 rounded-lg transition-all ${activeSidebarTab === "db" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground"}`}
-              title="PHP & phpMyAdmin localhost"
-            >
-              <Database className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="flex flex-col items-center gap-4 text-[9px] text-muted-foreground font-mono">
-            <span>v1.1</span>
-          </div>
-        </div>
-
-        {/* Sidebar Tab Panels */}
-        <div className="w-64 bg-card border-r border-border flex flex-col text-xs">
-          
-          {/* TAB 1: File Explorer */}
-          {activeSidebarTab === "explorer" && (
-            <FileExplorerSidebar
-              workspaceTree={workspaceTree}
-              activeTabPath={activeTabPath}
-              expandedFolders={expandedFolders}
-              setExpandedFolders={setExpandedFolders}
-              inlineAction={inlineAction}
-              setInlineAction={setInlineAction}
-              inputRef={inputRef}
-              dirHandle={dirHandle}
-              toggleFolder={toggleFolder}
-              handleOpenFile={handleOpenFile}
-              getFileIcon={getFileIcon}
-              handleInlineInputKeyDown={handleInlineInputKeyDown}
-              handleInlineInputBlur={handleInlineInputBlur}
-              handleDeleteEntry={handleDeleteEntry}
-              getActiveFolder={getActiveFolder}
-            />
-          )}
-
-          {/* TAB 2: Tutorials & Learning */}
-          {activeSidebarTab === "learn" && (
-            <LessonsSidebar
-              WEB_COURSES={WEB_COURSES}
-              completedLessons={completedLessons}
-              activeCourseId={activeCourseId}
-              setActiveCourseId={setActiveCourseId}
-              setVerificationStatus={setVerificationStatus}
-              getLessonTierAndAccess={getLessonTierAndAccess}
-              handleExchangeSubscription={handleExchangeSubscription}
-              exchangeSubmitting={exchangeSubmitting}
-              handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
-              handleClaimMilestoneReward={handleClaimMilestoneReward}
-              bio={bio}
-              STAGES={STAGES}
-              getStageBenefits={getStageBenefits}
-              workspaceFiles={workspaceFiles}
-              setWorkspaceFiles={setWorkspaceFiles}
-              openTabs={openTabs}
-              setOpenTabs={setOpenTabs}
-              setActiveTabPath={setActiveTabPath}
-              handleVerifyLesson={handleVerifyLesson}
-              verificationStatus={verificationStatus}
-              onShowCertificate={handleShowCertificate}
-              handlePayMaintenance={handlePayMaintenance}
-              handleBuyAllStagesBundle={handleBuyAllStagesBundle}
-              onExitLesson={onExitLesson}
-            />
-          )}
-
-          {/* TAB 3: phpMyAdmin Local Database Setup */}
-          {activeSidebarTab === "db" && (
-            <div className="p-4 flex-1 flex flex-col overflow-y-auto space-y-4 font-sans">
-              <span className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">PHP & phpMyAdmin Local</span>
-              <p className="text-[10.5px] text-muted-foreground leading-relaxed">
-                {t("utilities.ide.deChayPhpVa")}
-              </p>
-
-              <div className="space-y-3">
-                <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-1">
-                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc1CaiDat")}</p>
-                  <p className="text-[9.5px] text-muted-foreground">{t("utilities.ide.taiDockerDesktopTu")}</p>
-                </div>
-
-                <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-2">
-                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc2TaoFile")}</p>
-                  <p className="text-[9.5px] text-muted-foreground">{t("utilities.ide.taoFileDockerCompose")}</p>
-                  <pre className="text-[8.5px] font-mono bg-background p-2 rounded text-muted-foreground overflow-x-auto select-all max-h-32">
-{`version: '3.8'
-services:
-  web:
-    image: php:8.2-apache
-    ports:
-      - "8000:80"
-    volumes:
-      - ./src:/var/www/html
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
-  phpmyadmin:
-    image: phpmyadmin:latest
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: db`}
-                  </pre>
-                </div>
-
-                <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-1">
-                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc3KhoiDong")}</p>
-                  <p className="text-[9.5px] text-muted-foreground">{t("utilities.ide.chayTerminalTaiThu")}</p>
-                  <code className="block bg-background p-1.5 text-[9px] font-mono text-primary rounded">docker-compose up -d</code>
-                </div>
-
-                <div className="bg-muted/30 border border-border p-2.5 rounded-lg space-y-1">
-                  <p className="font-bold text-[10px] text-foreground">{t("utilities.ide.buoc4TruyCap")}</p>
-                  <p className="text-[9.5px] text-muted-foreground">
-                    {t("utilities.ide.moTrinhDuyetTruy")}
-                    <a href="http://localhost:8080" target="_blank" rel="noreferrer" className="block text-primary font-bold mt-1">http://localhost:8080</a>
-                    {t("utilities.ide.taiKhoanRootMat")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        {/* Editor Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-background">
-
-          <div className="flex items-center bg-card border-b border-border px-2 overflow-x-auto gap-0.5 select-none scrollbar-hide">
-            {openTabs.map((path) => {
-              if (!path || typeof path !== "string") return null;
-              const fileObj = workspaceFiles.find(f => f && f.path === path);
-              const name = fileObj ? fileObj.name : path.split("/").pop();
-              const isActive = path === activeTabPath;
-
-              return (
-                <div 
-                  key={path}
-                  onClick={() => setActiveTabPath(path)}
-                  className={`flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold border-t-2 cursor-pointer transition-all ${
-                    isActive 
-                      ? "bg-background border-primary text-primary"
-                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-background/50"
-                  }`}
-                >
-                  <FileCode className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span>{name}</span>
-                  <button
-                    onClick={(e) => handleCloseTab(path, e)}
-                    className="hover:text-destructive p-0.5 rounded transition-all ml-1"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Monaco Editor or Live Preview */}
-          <div className="flex-1 relative flex flex-col min-h-0">
-            {activeCourseId && !getLessonTierAndAccess(activeCourseId).hasAccess ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-zinc-50/50 dark:bg-zinc-950/20 backdrop-blur-sm select-none font-sans">
-                <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-border flex items-center justify-center text-muted-foreground mb-4">
-                  <span className="material-symbols-outlined text-2xl animate-pulse">lock</span>
-                </div>
-                <h4 className="font-bold text-xs uppercase tracking-wider text-foreground mb-1">{t("utilities.ide.khongGianSoanThao")}</h4>
-                <p className="text-[10px] text-muted-foreground max-w-xs leading-relaxed">
-                  {t("utilities.ide.vuiLongKichHoat")}
-                </p>
-              </div>
-            ) : previewMode && activeFile?.language === "html" ? (
-              <div className="flex-1 flex flex-col bg-white h-full">
-                <div className="bg-muted border-b border-border px-4 py-1.5 flex items-center justify-between text-xs text-foreground">
-                  <span className="font-bold flex items-center gap-1"><Globe className="w-4 h-4" /> Web Frame Live Preview</span>
-                  <button 
-                    onClick={() => setPreviewMode(false)}
-                    className="flex items-center gap-1 hover:text-foreground font-semibold"
-                  >
-                    <Eye className="w-3.5 h-3.5" /> {t("utilities.ide.troLaiEditor")}
-                  </button>
-                </div>
-                <iframe 
-                  src={previewUrl}
-                  title="Web Live Preview"
-                  className="w-full flex-1 border-0 bg-white"
-                  sandbox="allow-scripts allow-modals"
-                />
-              </div>
-            ) : (
-              <div className="w-full h-full">
-                {activeFile ? (
-                  <Editor
-                    height="100%"
-                    language={activeFile.language}
-                    theme={isDarkTheme ? "vs-dark" : "light"}
-                    value={activeFile.content}
-                    onChange={(val) => {
-                      setWorkspaceFiles(prev => prev.map(f => {
-                        if (f.path === activeTabPath) {
-                          return { ...f, content: val || "" };
-                        }
-                        return f;
-                      }));
-                    }}
-                    options={{
-                      fontSize: 13,
-                      fontFamily: "Fira Code, Source Code Pro, Consolas, monospace",
-                      minimap: { enabled: false },
-                      automaticLayout: true,
-                      scrollBeyondLastLine: false,
-                      tabSize: 4,
-                      suggestOnTriggerCharacters: true
-                    }}
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2 font-sans">
-                    <AlertTriangle className="w-8 h-8 text-primary/45" />
-                    <p className="text-xs">{t("utilities.ide.khongCoFileNao")}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Execution Panel / Output Panel */}
-          <div className="bg-card border-t border-border px-5 py-4 min-h-[160px] max-h-[190px] flex flex-col font-sans">
-            <div className="flex items-center justify-between pb-2 border-b border-border text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={() => setTerminalTab("guide")}
-                  className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all ${terminalTab === "guide" ? "border-primary text-foreground" : "border-transparent hover:text-foreground"}`}
-                >
-                  <Terminal className="w-3.5 h-3.5" /> {t("utilities.ide.huongDanChay")}
-                </button>
-                <button 
-                  onClick={() => {
-                    if (!consoleOutput) {
-                      setConsoleOutput(t("utilities.ide.heThongNhanNut"));
-                    }
-                    setTerminalTab("console");
-                  }}
-                  className={`flex items-center gap-1.5 pb-1 border-b-2 transition-all ${terminalTab === "console" ? "border-primary text-foreground" : "border-transparent hover:text-foreground"}`}
-                >
-                  <FileCode className="w-3.5 h-3.5" /> {t("utilities.ide.chayThuConsole")}
-                </button>
-                <span className="mx-1 text-border">|</span>
-                <span className={`font-mono text-[9px] ${saveStatus.includes(t("utilities.ide.loi")) ? "text-destructive" : (saveStatus.includes(t("utilities.ide.dang")) ? "text-warning" : "text-success")}`}>
-                  ● {saveStatus}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                {(activeFile?.name?.endsWith(".php") || activeFile?.name?.endsWith(".sql") || activeFile?.language === "php" || activeFile?.language === "sql") && (
-                  <button 
-                    onClick={handleRunSandbox}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-success/15 hover:bg-success/25 text-success border border-success/30 text-[10px] transition-all font-bold font-sans"
-                    title={t("utilities.ide.chayThuMaNguon")}
-                  >
-                    <Play className="w-3 h-3 text-success" /> {t("utilities.ide.chayCodeThu")}
-                  </button>
-                )}
-                {activeFile?.language === "html" && (
-                  <button 
-                    onClick={() => setPreviewMode(!previewMode)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 text-[10px] transition-all font-bold font-sans"
-                  >
-                    <Play className="w-3 h-3" /> {previewMode ? t("utilities.ide.dungXem") : "Xem Live Preview"}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pt-3 text-xs leading-relaxed text-muted-foreground">
-              {terminalTab === "console" ? (
-                <pre className="h-full bg-zinc-950/90 text-emerald-400 rounded-lg p-3 font-mono text-[10.5px] overflow-y-auto leading-relaxed whitespace-pre-wrap select-text border border-zinc-800/80 shadow-inner">
-                  {consoleOutput}
-                </pre>
-              ) : (
-                <div className="space-y-1 font-mono text-[11px]">
-                  {activeFile?.language === "html" && (
-                    <p className="text-muted-foreground">{t("utilities.ide.fileDangWebHtml")}</p>
-                  )}
-                  {activeFile?.language === "python" && (
-                    <>
-                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiPythonBan")}</p>
-                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">python3 {activeFile.name}</code>
-                    </>
-                  )}
-                  {activeFile?.language === "c" && (
-                    <>
-                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiNgonNgu")}</p>
-                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">gcc {activeFile.name} -o output && ./output</code>
-                    </>
-                  )}
-                  {activeFile?.language === "cpp" && (
-                    <>
-                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiCBien")}</p>
-                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">g++ {activeFile.name} -o output && ./output</code>
-                    </>
-                  )}
-                  {activeFile?.language === "csharp" && (
-                    <>
-                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiCHay")}</p>
-                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">dotnet run</code>
-                    </>
-                  )}
-                  {activeFile?.language === "php" && (
-                    <>
-                      <p className="text-muted-foreground">{t("utilities.ide.doiVoiPhpBan")}</p>
-                      <code className="block bg-background p-2 text-success rounded mt-1 border border-border">php -S localhost:8000</code>
-                      <p className="text-[10px] text-muted-foreground mt-1">{t("utilities.ide.truyCapHttpLocalhost")}</p>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ── Certificate Modal ────────────────────────────────────────────────── */}
-      <CertificateModal
-        open={showCertificateModal}
-        bio={bio}
-        onClose={() => setShowCertificateModal(false)}
-        certType={certificateType}
-        onBioUpdate={onBioUpdate}
-      />
-
-    </div>
-  );
-
-  // Embedded trong Hub: Hub đã lo FeatureGate — trả thẳng body.
-  if (embedded || publicMode) return desktopBody;
-
+  // Một màn hình bài học duy nhất cho mọi kích thước. Nhánh desktop trước đây
+  // là trình soạn thảo Monaco kèm cây thư mục và khung xem trước — đã gỡ theo
+  // yêu cầu: học viên gõ code trong công cụ thật của mình, phần thực hành ở
+  // đây là bảng bước (PracticeSteps) rồi tới câu hỏi chốt bài.
   return (
-    <FeatureGate
+    <MobileGuidebook
+      embedded={embedded || publicMode}
+      onExitLesson={onExitLesson}
+      activeCourseId={activeCourseId}
       bio={bio}
-      featureKey="hugoCoder"
-      priceJoy={1500}
-      icon="terminal"
-      title={t("utilities.ide.traoDoiJoyDe")}
-      description="Soạn code, học bài tương tác và nhận JOY khi hoàn thành bài học."
       onBioUpdate={onBioUpdate}
       onBack={onBack}
-      className="max-w-lg mx-auto mt-10"
-    >
-      {desktopBody}
-    </FeatureGate>
-  );
-}
+      completedLessons={completedLessons}
+      mobileProgress={mobileProgress}
+      mobileCourse={mobileCourse}
+      mobileCompletedCount={mobileCompletedCount}
+      WEB_COURSES={WEB_COURSES}
+      STAGES={STAGES}
+      getStageBenefits={getStageBenefits}
+      setActiveCourseId={setActiveCourseId}
+      setMobileStudyMode={setMobileStudyMode}
+      setVerificationStatus={setVerificationStatus}
+      getLessonTierAndAccess={getLessonTierAndAccess}
+      handleExchangeSubscription={handleExchangeSubscription}
+      exchangeSubmitting={exchangeSubmitting}
+      handleBuyLifetimeUnlock={handleBuyLifetimeUnlock}
+      handleClaimMilestoneReward={handleClaimMilestoneReward}
+      handlePayMaintenance={handlePayMaintenance}
+      handleBuyAllStagesBundle={handleBuyAllStagesBundle}
+      mobileStudyMode={mobileStudyMode}
+      mobileVisualSet={mobileVisualSet}
+      mobileExtra={mobileExtra}
+      timeLeft={timeLeft}
+      verificationStatus={verificationStatus}
+      mobileRunKey={mobileRunKey}
+      setMobileRunKey={setMobileRunKey}
+      mobileDemoCode={mobileDemoCode}
+      canPreviewMobileCourse={canPreviewMobileCourse}
+      currentMobileCourseIndex={currentMobileCourseIndex}
+      handlePrevMobileLesson={handlePrevMobileLesson}
+      handleNextMobileLesson={handleNextMobileLesson}
+      onShowCertificate={handleShowCertificate}
+      // Puzzle props
+      interactivePassed={interactivePassed}
+      miniQuizAnswers={miniQuizAnswers}
+      setMiniQuizAnswers={setMiniQuizAnswers}
+      setMiniQuizPassed={setMiniQuizPassed}
+      handleRewardMobileLesson={handleRewardMobileLesson}
+      htmlBlocks={htmlBlocks}
+      sqlBlocks={sqlBlocks}
+      moveBlock={moveBlock}
+      themeBg={themeBg}
+      setThemeBg={setThemeBg}
+      themeText={themeText}
+      setThemeText={setThemeText}
+      clickCount={clickCount}
+      setClickCount={setClickCount}
+      matchedPairs={matchedPairs}
+      handlePairMatch={handlePairMatch}
+      blankAnswers={blankAnswers}
+      setBlankAnswers={setBlankAnswers}
+      screenshotFile={screenshotFile}
+      handleScreenshotSelect={handleScreenshotSelect}
+      isScanning={isScanning}
+      scanProgress={scanProgress}
+      scanScore={scanScore}
+      quizQuestions={quizQuestions}
+      quizCompleted={quizCompleted}
+      quizScore={quizScore}
+      quizReview={quizReview}
+      quizCurrentIndex={quizCurrentIndex}
+      setQuizCurrentIndex={setQuizCurrentIndex}
+      quizAnswers={quizAnswers}
+      setQuizAnswers={setQuizAnswers}
+      handleRetakeQuiz={handleRetakeQuiz}
+      verifyInteractivePractice={verifyInteractivePractice}
+    />
+  );}

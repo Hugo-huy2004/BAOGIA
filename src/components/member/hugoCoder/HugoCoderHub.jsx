@@ -1,14 +1,12 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Award,
-  BarChart3,
   BookOpenCheck,
   Braces,
   ChevronLeft,
   Coins,
   FileText,
   GraduationCap,
-  Library,
   Lock,
   MonitorPlay,
   RefreshCw,
@@ -22,6 +20,8 @@ import { notify } from "../../../lib/notify";
 import { useJoy } from "../../../lib/joyDisplay";
 import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import { STAGE_THEME } from "./stageThemes";
+import { CODER_STORAGE_KEYS } from "./workspaceUtils";
+import { COURSE_MAP_ROUTE } from "../study/studyCurriculum";
 import CoderLearningJourney from "./CoderLearningJourney";
 import { ResourcePreview } from "../../admin/AdminCoderResourcesTab";
 import { getMemberSession } from "../../../services/authSession";
@@ -30,6 +30,7 @@ import { useJoyStore } from "../../../stores/joyStore";
 import FeatureGate from "../shared/FeatureGate";
 import { useFeatureGate } from "../../../hooks/useFeatureGate";
 import CapstoneTrackPicker from "./CapstoneTrackPicker";
+import LessonPlayer from "./LessonPlayer";
 import { CAPSTONE_PICK_LESSON } from "../../../../shared/capstoneTracks";
 import "../../../styles/hugoCoderLearning.css";
 import "../study/study-course-ios17.css";
@@ -40,20 +41,11 @@ const MAINTENANCE_PRICE = 50;
 const RETAKE_PRICE = 250;
 
 
-const MemberIdeTab = lazy(() => import("../MemberIdeTab"));
-
-const TABS = [
-  { id: "learning", labelKey: "hugoCoderLearning.tabs.learn", icon: BookOpenCheck },
-  { id: "resources", labelKey: "hugoCoderLearning.tabs.resources", icon: Library },
-  { id: "quality", labelKey: "hugoCoderLearning.tabs.quality", icon: ShieldCheck },
-  { id: "progress", labelKey: "hugoCoderLearning.tabs.progress", icon: BarChart3 },
-];
-
 function percentage(part, total) {
   return total > 0 ? Math.round((part / total) * 100) : 0;
 }
 
-function HugoStudioQuality({ courses, stages }) {
+export function HugoStudioQuality({ courses, stages }) {
   const { t } = useTranslation();
   const quality = useMemo(() => {
     const total = courses.length;
@@ -171,7 +163,7 @@ function ResourceSkeleton() {
 }
 
 // ====== Tab Video / Tài liệu — học liệu admin đăng, có preview trực quan ======
-function ResourceGrid({ type, stages }) {
+export function ResourceGrid({ type, stages }) {
   const [items, setItems] = useState(null);
   const [stage, setStage] = useState("all");
   const apiBase = import.meta.env.VITE_API_URL || "/api";
@@ -314,7 +306,7 @@ function LearningResources({ stages }) {
 }
 
 // ====== Tab Quản lý — gói, chứng chỉ, hồ sơ học thuật ======
-function ManageTab({ bio, onBioUpdate, courses, stages }) {
+export function ManageTab({ bio, onBioUpdate, courses, stages }) {
   const apiBase = import.meta.env.VITE_API_URL || "/api";
   const completed = useMemo(
     () => (bio?.completedLessons || []).filter((id) => courses.some((c) => c.id === id)),
@@ -537,23 +529,31 @@ function ManageTab({ bio, onBioUpdate, courses, stages }) {
   );
 }
 
-// ====== Vỏ 4 tab thống nhất của HugoCoder ======
-// Shell fullscreen DUY NHẤT: header + tab bar dùng chung cho cả 4 tab.
-// Gate JOY một lần ở đây; MemberIdeTab/MobileGuidebook chạy embedded (không tự bọc shell).
+// ====== Vỏ toàn màn hình của HugoCoder ======
+// Hai màn: BẢN ĐỒ khoá học và TRÌNH PHÁT bài; địa chỉ quyết định đang ở màn nào.
+// Ba bảng Học liệu/Chất lượng/Tiến độ đã dời ra trang chủ Study (chúng nói về cả
+// chương trình chứ không riêng khoá này), nên ở đây không còn thanh tab.
+// Gate JOY một lần ở đây.
 // `previewLessons > 0` mở chế độ học thử (số bài miễn phí khai báo ở
 // config/publicTools.js): không bọc cả app trong FeatureGate
 // nữa mà khoá theo từng bài, nên khách thấy trọn lộ trình 100 bài và học ngay
 // được phần đầu. Portal thành viên không truyền gì, hành vi giữ nguyên.
-export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", unifiedHome = false, previewLessons = 0 }) {
+export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlLessonId, basePath = "/member/utilities/ide", previewLessons = 0, externalCourses, externalStages }) {
   const { t } = useTranslation();
   const joy = useJoy();
   const navigate = useNavigate();
-  const [tab, setTab] = useState("learning");
-  const [learningView, setLearningView] = useState(urlLessonId ? "lesson" : "journey");
-  const [selectedLessonId, setSelectedLessonId] = useState(urlLessonId || null);
+  // Bài đang mở đọc THẲNG từ địa chỉ (`basePath/lessonN`). Giữ thêm một bản
+  // trong state thì hai nguồn lệch nhau: bấm vào bài chỉ đổi state, địa chỉ vẫn
+  // là bản đồ, và tải lại trang là mất chỗ đang học.
+  const selectedLessonId = urlLessonId || null;
   const joyBalance = useJoyStore((s) => s.balance);
-  const { courses, stages, loading } = useCoderLessons(selectedLessonId);
-  const { active: hasCoderAccess } = useFeatureGate(bio, "hugoCoder");
+  // Office courses dùng data tĩnh, không gọi API coder.
+  const coderData = useCoderLessons(selectedLessonId, { enabled: !externalCourses });
+  const courses = externalCourses || coderData.courses;
+  const stages = externalStages || coderData.stages;
+  const loading = externalCourses ? false : coderData.loading;
+  const isOffice = Boolean(externalCourses);
+  const { active: hasCoderAccess } = useFeatureGate(bio, isOffice ? null : "hugoCoder");
   const onBioUpdateRef = useRef(onBioUpdate);
 
   useEffect(() => {
@@ -577,34 +577,12 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
     };
   }, []);
 
-  useEffect(() => {
-    if (urlLessonId) {
-      setSelectedLessonId(urlLessonId);
-      setTab("learning");
-      setLearningView("lesson");
-    }
-  }, [urlLessonId]);
+  const openLesson = (lessonId) => navigate(`${basePath}/${lessonId}`);
 
-  const openLesson = (lessonId) => {
-    setSelectedLessonId(lessonId);
-    setTab("learning");
-    setLearningView("lesson");
-  };
-
-  const exitLesson = () => {
-    if (unifiedHome) {
-      onBack?.();
-      return;
-    }
-    setLearningView("journey");
-    setSelectedLessonId(null);
-    navigate(basePath, { replace: true });
-  };
-
-  const selectTab = (nextTab) => {
-    setTab(nextTab);
-    if (nextTab === "learning") setLearningView(unifiedHome ? "lesson" : "journey");
-  };
+  // Thoát bài học thì về BẢN ĐỒ khoá học, không văng thẳng ra ngoài Study.
+  // Trước đây ở chế độ `unifiedHome` nó gọi `onBack()` — nên bản đồ không bao
+  // giờ hiện ra và người học mất chỗ đứng sau mỗi bài.
+  const exitLesson = () => navigate(`${basePath}/${COURSE_MAP_ROUTE}`);
 
   const gate = (extra) => (
     <FeatureGate
@@ -626,122 +604,135 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
     && !hasCoderAccess
     && courses.findIndex((course) => course.id === selectedLessonId) >= previewLessons;
 
+
+  /**
+   * Ghi nhận hoàn thành bài sau khi đi hết các bước trong LessonPlayer.
+   *
+   * Tiến độ thật do MÁY CHỦ giữ (`completedLessons` trên hồ sơ); bản trong máy
+   * chỉ để bản đồ vẽ ngay mà không phải đợi tải lại. Máy chủ vẫn tự kiểm thứ tự
+   * bài, bài thi và bài đọc bắt buộc — client không tự khai qua được.
+   */
+  const apiBase = import.meta.env.VITE_API_URL || "/api";
+
+  const rewardLesson = async (course) => {
+    const session = getMemberSession();
+    if (!session?.email) {
+      notify.success('Đã hoàn thành bài học.');
+      return;
+    }
+
+    // Office courses dùng hệ thống tiến độ riêng (localStorage + server endpoint khác).
+    if (isOffice) {
+      const lessonId = `hugoso-${course.id}`;
+      try {
+        const key = "hugoso_completed_steps_v1";
+        const done = JSON.parse(localStorage.getItem(key) || "[]");
+        if (Array.isArray(done) && !done.includes(lessonId)) {
+          localStorage.setItem(key, JSON.stringify([...done, lessonId]));
+        }
+      } catch {
+        /* hết quota */
+      }
+      fetch(`${apiBase}/member/progress/lesson/${lessonId}/complete`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      }).catch(() => {});
+      notify.success("Đã hoàn thành bài học.");
+      onBioUpdate?.({ ...bio, completedLessons: [...(bio?.completedLessons || []), lessonId] });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiBase}/joy/award-learning`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lessonId: course.id, evidence: { channel: 'player', score: 100 } }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Chưa lưu được tiến độ.');
+
+      try {
+        const key = CODER_STORAGE_KEYS.progress;
+        const done = JSON.parse(localStorage.getItem(key) || '[]');
+        if (Array.isArray(done) && !done.includes(course.id)) {
+          localStorage.setItem(key, JSON.stringify([...done, course.id]));
+        }
+      } catch {
+        /* hết quota: bản đồ sẽ tự đúng lại ở lần tải sau, không đáng chặn bài học */
+      }
+
+      notify.success(data.evidence
+        ? 'Đã hoàn thành! Minh chứng mới đã lưu vào Hugo Profile.'
+        : 'Đã hoàn thành bài học.');
+      onBioUpdate?.({ ...bio, completedLessons: [...(bio?.completedLessons || []), course.id] });
+    } catch (error) {
+      notify.error(error.message || 'Chưa lưu được tiến độ, hãy thử lại.');
+    }
+  };
+
+  const currentCourse = courses.find((course) => course.id === selectedLessonId) || null;
+  // Bài kế tiếp theo đúng thứ tự lộ trình; bài cuối thì không có nút "Bài tiếp".
+  const nextLessonId = (() => {
+    const at = courses.findIndex((course) => course.id === selectedLessonId);
+    return at >= 0 ? courses[at + 1]?.id || null : null;
+  })();
+
   const shell = (
     <div className="hugo-coder-shell fixed inset-0 z-50 flex flex-col text-foreground">
-        <header className="coder-hub-header shrink-0">
-          <div className="coder-hub-titlebar">
-            <button
-              onClick={learningView === "lesson" && tab === "learning" ? exitLesson : onBack}
-              className="coder-hub-back"
-              aria-label={
-                !unifiedHome && learningView === "lesson" && tab === "learning"
-                  ? t("hugoCoderLearning.lesson.path")
-                  : t("hugoCoderLearning.back")
-              }
-            >
-              <ChevronLeft />
-              <span>
-                {!unifiedHome && learningView === "lesson" && tab === "learning"
-                  ? t("hugoCoderLearning.lesson.path")
-                  : t("hugoCoderLearning.back")}
-              </span>
-            </button>
-            <div className="coder-hub-brand">
-              <span><Braces /></span>
-              <h2>Study with Hugo</h2>
+      {currentCourse && !lessonLocked ? (
+        <LessonPlayer
+          course={currentCourse}
+          onExit={exitLesson}
+          onFinished={() => rewardLesson(currentCourse)}
+          onNextLesson={nextLessonId ? () => openLesson(nextLessonId) : undefined}
+          certificateUrl={isOffice && bio?.slug ? `/certificate/${bio.slug}/office-${currentCourse.id}` : undefined}
+        />
+      ) : (
+        <>
+          <header className="coder-hub-header shrink-0">
+            <div className="coder-hub-titlebar">
+              <button onClick={onBack} className="coder-hub-back" aria-label={t("hugoCoderLearning.back")}>
+                <ChevronLeft />
+                <span>{t("hugoCoderLearning.back")}</span>
+              </button>
+              <div className="coder-hub-brand">
+                <span><Braces /></span>
+                <h2>Study with Hugo</h2>
+              </div>
+              <div className="coder-hub-balance" aria-label={t("hugoCoderLearning.joyBalance")}>
+                <Coins />
+                <span>{joy.text(joyBalance ?? bio?.joyBalance ?? 0)}</span>
+              </div>
             </div>
-            <div className="coder-hub-balance" aria-label={t("hugoCoderLearning.joyBalance")}>
-              <Coins />
-              <span>{joy.text(joyBalance ?? bio?.joyBalance ?? 0)}</span>
-            </div>
-          </div>
-          <HubTabBar tab={tab} setTab={selectTab} t={t} />
-        </header>
+          </header>
 
-        <div className="flex-1 min-h-0">
-          {!unifiedHome && tab === "learning" && learningView === "journey" && (
-            <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
-              <CoderLearningJourney
-                courses={courses}
-                stages={stages}
-                loading={loading}
-                onOpenLesson={openLesson}
-              />
-            </div>
-          )}
-          {tab === "learning" && learningView === "lesson" && (
-            lessonLocked ? (
+          <div className="flex-1 min-h-0">
+            {lessonLocked ? (
               <div className="h-full overflow-y-auto px-4">
                 {gate({ onBack: exitLesson })}
               </div>
             ) : (
-              <Suspense fallback={<HubLoading />}>
-                <MemberIdeTab
-                  embedded
-                  onBack={onBack}
+              <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
+                <CoderLearningJourney
                   bio={bio}
-                  showToast={showToast}
-                  onBioUpdate={onBioUpdate}
-                  urlLessonId={selectedLessonId}
-                  onExitLesson={exitLesson}
+                  courses={courses}
+                  stages={stages}
+                  loading={loading}
+                  onOpenLesson={openLesson}
+                  isOffice={isOffice}
                 />
-              </Suspense>
-            )
-          )}
-          {tab === "resources" && (
-            <div className="h-full overflow-y-auto">
-              <div className="max-w-3xl mx-auto px-4 py-5">
-                <LearningResources stages={stages} />
               </div>
-            </div>
-          )}
-          {tab === "quality" && (
-            <div className="h-full overflow-x-hidden overflow-y-auto overscroll-y-contain">
-              <HugoStudioQuality courses={courses} stages={stages} />
-            </div>
-          )}
-          {tab === "progress" && (
-            <div className="h-full overflow-y-auto">
-              <div className="max-w-3xl mx-auto px-4 py-5">
-                <ManageTab bio={bio} onBioUpdate={onBioUpdate} courses={courses} stages={stages} />
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 
   // Học thử: khoá theo từng bài ở trên, không dựng bức tường trước cả app.
-  return previewLessons > 0 ? shell : gate({ children: shell });
-}
-
-function HubLoading() {
-  return (
-    <div className="flex items-center justify-center h-full">
-      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-    </div>
-  );
-}
-
-function HubTabBar({ tab, setTab, t }) {
-  return (
-    <nav className="coder-hub-tabs" aria-label={t("hugoCoderLearning.tabs.label")}>
-      {TABS.map((item) => {
-        const Icon = item.icon;
-        const active = tab === item.id;
-        return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setTab(item.id)}
-            className={active ? "is-active" : ""}
-            aria-current={active ? "page" : undefined}
-          >
-            <Icon />
-            <span>{t(item.labelKey)}</span>
-          </button>
-        );
-      })}
-    </nav>
-  );
+  // Office courses không cần feature gate — chúng có hệ thống mua riêng.
+  if (previewLessons > 0 || isOffice) return shell;
+  return gate({ children: shell });
 }

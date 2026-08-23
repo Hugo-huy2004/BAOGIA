@@ -5,23 +5,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
-import dataRoutes from './routes/dataRoutes.js';
-import bioRoutes from './routes/bioRoutes.js';
-import profileRoutes from './routes/profileRoutes.js';
-import bookingRoutes from './routes/bookingRoutes.js';
-import contactRoutes from './routes/contactRoutes.js';
-import partnerRoutes from './routes/partnerRoutes.js';
-import packageRoutes from './routes/packageRoutes.js';
-import supportRoutes from './routes/supportRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-import adminBrainRoutes from './routes/adminBrainRoutes.js';
 import oauthRoutes, { oauthMetadata } from './routes/oauthRoutes.js';
 import OAuthClient from './models/OAuthClient.js';
-import coderResourceRoutes from './routes/coderResourceRoutes.js';
-import fileToolsRoutes from './routes/fileToolsRoutes.js';
-import companionRoutes from './routes/companionRoutes.js';
-import aiProxyRoutes from './routes/aiProxyRoutes.js';
-import iotRoutes from './routes/iotRoutes.js';
 import { isEduEmail } from './utils/eduEmail.js';
 import helmet from 'helmet';
 import jwt from 'jsonwebtoken';
@@ -31,6 +16,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import { requireAdultMember } from './middleware/authMiddleware.js';
+import { mountServices } from './services.manifest.js';
 import {
   findActiveSecurityBlock,
   recordSecurityViolation,
@@ -294,92 +280,22 @@ mongoose.connect(MONGODB_URI, {
   })
   .catch(err => console.error(' MongoDB connection failed:', err));
 
-import customerRoutes from './routes/customerRoutes.js';
-import payosRoutes from './routes/payosRoutes.js';
-import notificationRoutes from './routes/notificationRoutes.js';
-import sleepRoutes from './routes/sleepRoutes.js';
-import inboxRoutes from './routes/inboxRoutes.js';
-import chessRoutes from './routes/chessRoutes.js';
-import joyRoutes from './routes/joyRoutes.js';
-import referralRoutes from './routes/referralRoutes.js';
-import utilityStoreRoutes from './routes/utilityStoreRoutes.js';
-import joyGiftCardRoutes from './routes/joyGiftCardRoutes.js';
-import checkinRoutes from './routes/checkinRoutes.js';
-import presenceRoutes from './routes/presenceRoutes.js';
-import radioRoutes from './routes/radioRoutes.js';
-import arcadeRoutes from './routes/arcadeRoutes.js';
-import cinemaRoutes from './routes/cinemaRoutes.js';
-import stockRoutes from './routes/stockRoutes.js';
-import telegramWebhookRoutes, { initTelegramBot } from './routes/telegramWebhookRoutes.js';
-import metaWebhookRoutes from './routes/metaWebhookRoutes.js';
-import webauthnRoutes from './routes/webauthnRoutes.js';
-import memberAuthRoutes from './routes/memberAuthRoutes.js';
-import memberProgressRoutes from './routes/memberProgressRoutes.js';
-import hugoTeamRoutes from './routes/hugoTeamRoutes.js';
-import emailRoutes from './routes/emailRoutes.js';
-import opsRoutes from './routes/opsRoutes.js';
-import otaRoutes from './routes/otaRoutes.js';
-import securityRoutes from './routes/securityRoutes.js';
-import coderLessonRoutes from './routes/coderLessonRoutes.js';
-import todayRoutes from './routes/todayRoutes.js';
-import storeCartRoutes from './routes/storeCartRoutes.js';
-import storePromoRoutes from './routes/storePromoRoutes.js';
-import storePlanRoutes from './routes/storePlanRoutes.js';
-import robotRoutes from './routes/robotRoutes.js';
-import aiWorkforceRoutes from './routes/aiWorkforceRoutes.js';
+import { initTelegramBot } from './routes/telegramWebhookRoutes.js';
 
-// Routes
-app.use('/api/ops', opsRoutes);
-app.use('/api/security', securityRoutes);
-// Unauthenticated on purpose: the store builds hit this before anyone signs
-// in, and it only ever returns the public release pointer.
-app.use('/api/ota', otaRoutes);
-app.use('/api/auth/member', memberAuthRoutes);
-app.use('/api/oauth', oauthRoutes);
+// ── CỔNG API ────────────────────────────────────────────────────────────────
+// 48 dòng `app.use('/api/...')` viết tay đã chuyển vào services.manifest.js.
+// Thêm tính năng = thêm một dòng ở BẢN KHAI đó, không sửa tệp này nữa.
+//
+// `GUARDS` là cầu nối giữa tên middleware trong bản khai và hàm thật. Bản khai
+// cố ý không import gì để `gen-nginx.mjs` đọc được nó mà không phải dựng cả
+// app; đổi lại, guard phải tra qua bảng này.
+const GUARDS = { requireAdultMember };
+const mounted = await mountServices(app, GUARDS);
+console.log(`🚪 Cổng API: đã mount ${mounted.length} service`);
+
+// Đứng ngoài bản khai: đây là MỘT handler ở đường tuyệt đối, không phải router
+// gắn theo prefix — không có gì cho nginx định tuyến.
 app.get('/.well-known/oauth-authorization-server', oauthMetadata);
-app.use('/api/member/progress', memberProgressRoutes);
-app.use('/api/hugoteam', hugoTeamRoutes);
-app.use('/api/email', emailRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/data', dataRoutes);
-app.use('/api/bios', bioRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/partners', partnerRoutes);
-app.use('/api/packages', packageRoutes);
-app.use('/api/support', supportRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/admin/brain', adminBrainRoutes);
-app.use('/api/admin/robot', robotRoutes);
-app.use('/api/admin/workforce', aiWorkforceRoutes);
-app.use('/api/coder-resources', coderResourceRoutes);
-app.use('/api/coder-lessons', coderLessonRoutes);
-app.use('/api/today', todayRoutes);
-app.use('/api/files', fileToolsRoutes);
-app.use('/api/companion', companionRoutes);
-app.use('/api/ai', requireAdultMember, aiProxyRoutes);
-app.use('/api/customer-projects', customerRoutes);
-app.use('/api/payos', payosRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/iot', iotRoutes);
-app.use('/api/sleep', sleepRoutes);
-app.use('/api/inbox', inboxRoutes);
-app.use('/api/chess', chessRoutes);
-app.use('/api/joy', joyRoutes);
-app.use('/api/referral', referralRoutes);
-app.use('/api/utility-store', utilityStoreRoutes);
-app.use('/api/store', storeCartRoutes);
-app.use('/api/store', storePromoRoutes);
-app.use('/api/store', storePlanRoutes);
-app.use('/api/joy-gift-cards', joyGiftCardRoutes);
-app.use('/api/checkin', checkinRoutes);
-app.use('/api/webauthn', webauthnRoutes);
-app.use('/api/presence', presenceRoutes);
-app.use('/api/radio', radioRoutes);
-app.use('/api/arcade', arcadeRoutes);
-app.use('/api/cinema', cinemaRoutes);
-app.use('/api/stock', stockRoutes);
-app.use('/api/telegram', telegramWebhookRoutes);
 // Bot Telegram của admin (OTP 2FA + điều khiển từ xa). Gọi tường minh ở đây
 // thay vì tự khởi động lúc import: import ESM chạy TRƯỚC dotenv.config() nên
 // khi đó process.env.TELEGRAM_BOT_TOKEN còn rỗng và bot im lặng chết.

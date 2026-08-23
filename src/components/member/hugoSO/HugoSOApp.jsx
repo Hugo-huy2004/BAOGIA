@@ -4,7 +4,6 @@ import BackButton from "../shared/BackButton";
 import { useJoyStore } from "../../../stores/joyStore";
 import {
   HUGOSO_BUNDLE,
-  HUGOSO_CONTENT_AUDIT,
   HUGOSO_COURSE_ORDER,
   HUGOSO_COURSES,
   getCourseProgress,
@@ -12,6 +11,9 @@ import {
 import "./hugo-so.css";
 import "../study/study-course-ios17.css";
 import { joyText, joyNumber, joyCode } from "../../../lib/joyDisplay";
+import { academyOf } from "./courseAcademy";
+import { buildOfficeSteps } from "./officeLessonSteps";
+import LessonPlayer from "../hugoCoder/LessonPlayer";
 
 const API = import.meta.env.VITE_API_URL || "/api";
 const OWNED_KEY = "hugoso_owned_courses_v1";
@@ -46,14 +48,19 @@ const OFFICE_LAB = {
     soft: "#eaf9f1",
     template: "Tracker công việc",
   },
-  gemini: {
-    label: "Gemini",
-    action: "Mở trợ lý Gemini",
+  ai: {
+    label: "Trợ lý AI",
+    action: "Mở Gemini",
     href: "https://gemini.google.com/app",
-    icon: "auto_awesome",
+    icon: "neurology",
     color: "#9a7cf2",
     soft: "#f2edff",
-    template: "Prompt canvas",
+    template: "Bảng so ba trợ lý",
+    // Học phần yêu cầu chạy cùng một nhiệm vụ trên cả ba, nên mở được cả ba.
+    alsoOpen: [
+      { label: "ChatGPT", href: "https://chatgpt.com/" },
+      { label: "Claude", href: "https://claude.ai/" },
+    ],
   },
 };
 
@@ -66,31 +73,8 @@ const readList = (key) => {
   }
 };
 
-const normalizeEvidence = (value = "") => value
-  .toLocaleLowerCase("vi-VN")
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/đ/g, "d")
-  .replace(/[^a-z0-9]+/g, " ")
-  .trim();
 
-const evidenceLabel = (keyword) => {
-  const labels = {
-    ho_chi_minh: "Ho Chi Minh",
-    all_tabs: "All tabs",
-    không_tìm_thấy: "Không tìm thấy",
-  };
-  return labels[keyword] || keyword.replaceAll("_", " ");
-};
 
-const getPracticeEvidence = (lesson, value) => {
-  const normalizedValue = normalizeEvidence(value);
-  return lesson.practice.keywords.map((keyword) => ({
-    keyword,
-    label: evidenceLabel(keyword),
-    matched: normalizedValue.includes(normalizeEvidence(keyword)),
-  }));
-};
 
 const postJson = async (path, body) => {
   const response = await fetch(`${API}${path}`, {
@@ -103,6 +87,67 @@ const postJson = async (path, body) => {
   if (!response.ok) throw new Error(data.error || "Không thể hoàn tất yêu cầu.");
   return data;
 };
+
+/**
+ * Khối học thuật của một học phần: điều kiện tiên quyết, chuẩn đầu ra, cách
+ * đánh giá và thư mục tham khảo.
+ *
+ * Trước đây trang khoá chỉ có một đường liên kết tới trang trợ giúp của Google.
+ * Giáo trình do Hugo Studio biên soạn, nên phải nói được ba điều mà một học phần
+ * thật nào cũng phải nói: học xong LÀM ĐƯỢC gì, CHẤM bằng cách nào, và luận điểm
+ * dựa trên CÔNG TRÌNH nào. Trích dẫn ghi theo Harvard (Cite Them Right, ấn bản 12).
+ */
+function CourseAcademy({ course }) {
+  const academy = academyOf(course.id);
+  // Sắp bảng chữ cái tại chỗ hiển thị, không bắt file dữ liệu giữ thứ tự bằng
+  // tay — thêm một tài liệu mới là nó tự vào đúng chỗ.
+  const references = useMemo(
+    () => [...(academy?.references || [])].sort((a, b) => a.citation.localeCompare(b.citation, "vi")),
+    [academy],
+  );
+  if (!academy) return null;
+
+  return (
+    <section className="hso-academy">
+      <div className="hso-academy-grid">
+        <article className="hso-academy-block">
+          <h3>Chuẩn đầu ra</h3>
+          <p className="hso-academy-lead">Học xong học phần, người học có thể:</p>
+          <ol className="hso-academy-outcomes">
+            {academy.outcomes.map((item) => <li key={item}>{item}</li>)}
+          </ol>
+        </article>
+
+        <details className="hso-academy-block">
+          <summary><h3>Điều kiện và đánh giá</h3></summary>
+          <dl className="hso-academy-facts">
+            <dt>Tiên quyết</dt><dd>{academy.prerequisite}</dd>
+            <dt>Hình thức đánh giá</dt><dd>{academy.assessment}</dd>
+            <dt>Biên soạn</dt><dd>Hugo Studio Academy — nội dung độc quyền, trích dẫn theo chuẩn Harvard.</dd>
+          </dl>
+        </details>
+      </div>
+
+      <details className="hso-academy-block hso-academy-refs">
+        <summary>
+          <h3>Tài liệu tham khảo</h3>
+          <span>{references.length} công trình · chuẩn Harvard</span>
+        </summary>
+        <p className="hso-academy-lead">
+          Xếp theo thứ tự bảng chữ cái tên tác giả. Mỗi mục kèm một dòng nói rõ nó chống đỡ luận điểm nào trong học phần.
+        </p>
+        <ol>
+          {references.map((item) => (
+            <li key={item.citation}>
+              <span className="hso-ref-citation">{item.citation}</span>
+              <span className="hso-ref-note">{item.note}</span>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </section>
+  );
+}
 
 function ProductMark({ course, size = "normal" }) {
   return (
@@ -124,191 +169,8 @@ function ProgressRing({ percent }) {
   );
 }
 
-function PreviewCoach({ mode, scene }) {
-  const { t } = useTranslation();
-  if (mode === 0) return null;
-  return (
-    <aside className={`hso-preview-coach hso-preview-coach--${mode === 1 ? "practice" : "mistake"}`}>
-      <span className="material-symbols-outlined">{mode === 1 ? "touch_app" : "error"}</span>
-      <div>
-        <small>{mode === 1 ? t("utilities.hugoso.dungVaLamTheo") : t("utilities.hugoso.loiPhoBien")}</small>
-        <strong>{mode === 1 ? scene.heading : `Đừng bỏ qua: ${scene.heading}`}</strong>
-        <p>{mode === 1 ? scene.checkpoint : `Đối chiếu hướng dẫn: ${scene.detail}`}</p>
-      </div>
-    </aside>
-  );
-}
 
-function OfficePreview({ course, scene, mode }) {
-  const { t } = useTranslation();
-  if (course.id === "calendar") {
-    return (
-      <div className="hso-preview hso-preview--calendar">
-        <header><b>{t("utilities.hugoso.thang7")}</b><span>{t("utilities.hugoso.homNay")}</span></header>
-        <div className="hso-calendar-days">{["T2", "T3", "T4", "T5", "T6"].map((day) => <span key={day}>{day}</span>)}</div>
-        <div className="hso-calendar-board">
-          <i className="is-focus">09:00<br /><b>Focus time</b></i>
-          <i className="is-meeting">13:30<br /><b>Weekly sync</b></i>
-          <i className="is-task">16:00<br /><b>Review task</b></i>
-        </div>
-        <PreviewCoach mode={mode} scene={scene} />
-        <p><strong>{scene.heading}</strong><span>{scene.detail}</span></p>
-      </div>
-    );
-  }
 
-  if (course.id === "docs") {
-    return (
-      <div className="hso-preview hso-preview--docs">
-        <header><b>{t("utilities.hugoso.baoCaoNghienCuu")}</b><span>{t("utilities.hugoso.dangLuuTrenDrive")}</span></header>
-        <div className="hso-doc-sheet">
-          <small>STUDY WITH HUGO · HARVARD REPORT</small>
-          <h4>1. Introduction</h4>
-          <i /><i /><i className="is-short" />
-          <h5>1.1 Research context</h5>
-          <i /><i className="is-citation" />
-          <em>{t("utilities.hugoso.nguyen2026ChoRang")}</em>
-        </div>
-        <PreviewCoach mode={mode} scene={scene} />
-        <p><strong>{scene.heading}</strong><span>{scene.detail}</span></p>
-      </div>
-    );
-  }
-
-  if (course.id === "sheets") {
-    const cells = Array.from({ length: 24 }, (_, index) => index);
-    return (
-      <div className="hso-preview hso-preview--sheets">
-        <header><b>Work tracker</b><span>fx =SUM(E2:E8)</span></header>
-        <div className="hso-sheet-grid">
-          {cells.map((cell) => <i key={cell} className={cell === 10 ? "is-active" : ""}>{cell < 6 ? ["Task", "Owner", "Status", "Due", joyCode(), "Note"][cell] : ""}</i>)}
-        </div>
-        <div className="hso-mini-chart"><i /><i /><i /><i /><i /></div>
-        <PreviewCoach mode={mode} scene={scene} />
-        <p><strong>{scene.heading}</strong><span>{scene.detail}</span></p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="hso-preview hso-preview--gemini">
-      <header><span className="material-symbols-outlined">auto_awesome</span><b>Gemini workspace</b></header>
-      <div className="hso-chat-bubble is-user">{t("utilities.hugoso.hayGiupToiLap")}</div>
-      <div className="hso-chat-bubble is-ai"><span className="material-symbols-outlined">auto_awesome</span> {t("utilities.hugoso.mucTieuQuanTrong")}</div>
-      <PreviewCoach mode={mode} scene={scene} />
-      <div className="hso-prompt-box"><span>{scene.heading}: {scene.detail}</span><i className="material-symbols-outlined">arrow_upward</i></div>
-    </div>
-  );
-}
-
-function LessonStudio({ lesson, course }) {
-  const { t } = useTranslation();
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [activeClip, setActiveClip] = useState(0);
-
-  useEffect(() => {
-    setPlaying(false);
-    setProgress(0);
-    setActiveClip(0);
-  }, [lesson.id]);
-
-  useEffect(() => {
-    if (!playing || progress >= 100) return undefined;
-    const timer = window.setInterval(() => {
-      setProgress((current) => Math.min(100, current + 0.8));
-    }, 180);
-    return () => window.clearInterval(timer);
-  }, [playing, progress]);
-
-  useEffect(() => {
-    if (progress >= 100) setPlaying(false);
-  }, [progress]);
-
-  const clips = [
-    { label: "Demo thao tác", icon: "play_circle", note: "Xem quy trình hoàn chỉnh" },
-    { label: "Làm cùng Hugo", icon: "touch_app", note: "Dừng ở từng thao tác" },
-    { label: "Lỗi thường gặp", icon: "error", note: "Nhận biết và sửa nhanh" },
-  ];
-  const scenes = lesson.video.scenes;
-  const activeScene = Math.min(scenes.length - 1, Math.floor((progress / 100) * scenes.length));
-  const scene = scenes[(activeScene + activeClip) % scenes.length];
-
-  return (
-    <section className="hso-studio" style={{ "--course": course.color, "--course-soft": course.soft }}>
-      <div className="hso-studio__tabs" role="tablist" aria-label={t("utilities.hugoso.dinhDangHuongDan")}>
-        {clips.map((clip, index) => (
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeClip === index}
-            key={clip.label}
-            className={activeClip === index ? "is-active" : ""}
-            onClick={() => {
-              setActiveClip(index);
-              setProgress(0);
-              setPlaying(false);
-            }}
-          >
-            <span className="material-symbols-outlined">{clip.icon}</span>
-            <span><b>{clip.label}</b><small>{clip.note}</small></span>
-          </button>
-        ))}
-      </div>
-
-      <div className="hso-studio__stage">
-        <div className="hso-studio__topline">
-          <span><i /> {t("utilities.hugoso.banHuongDanTuong")}</span>
-          <strong>{String(activeScene + 1).padStart(2, "0")} / {String(scenes.length).padStart(2, "0")}</strong>
-        </div>
-        <div className="hso-studio__device">
-          <div className="hso-studio__browser">
-            <span /><span /><span />
-            <p>{course.shortTitle} · Practice Lab</p>
-          </div>
-          <OfficePreview course={course} scene={scene} mode={activeClip} />
-        </div>
-        <button
-          type="button"
-          className="hso-studio__play"
-          onClick={() => {
-            if (progress >= 100) setProgress(0);
-            setPlaying((value) => !value);
-          }}
-          aria-label={playing ? t("utilities.hugoso.tamDungVideoMinh") : t("utilities.hugoso.phatVideoMinhHoa")}
-        >
-          <span className="material-symbols-outlined">{playing ? "pause" : "play_arrow"}</span>
-        </button>
-      </div>
-
-      <div className="hso-studio__meta">
-        <div>
-          <p>{clips[activeClip].label.toLocaleUpperCase("vi-VN")}</p>
-          <h2>{lesson.video.title}</h2>
-        </div>
-        <span><span className="material-symbols-outlined">schedule</span>{lesson.duration}</span>
-      </div>
-
-      <div className="hso-studio__timeline">
-        <i style={{ width: `${progress}%` }} />
-      </div>
-
-      <div className="hso-studio__chapters">
-        {scenes.map((scene, index) => (
-          <button
-            type="button"
-            key={scene.id}
-            className={index === activeScene ? "is-active" : ""}
-            onClick={() => setProgress((index / scenes.length) * 100)}
-          >
-            <span>{index === activeScene ? <span className="material-symbols-outlined">play_arrow</span> : String(index + 1).padStart(2, "0")}</span>
-            <span><small>{t("utilities.hugoso.chuong")} {index + 1} {t("utilities.hugoso.khopBuoc")} {index + 1}</small>{scene.heading}</span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 function PurchaseSheet({ target, access, onClose, onConfirm, buying }) {
   const { t } = useTranslation();
@@ -368,10 +230,6 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
   const [loading, setLoading] = useState(true);
   const [purchaseTarget, setPurchaseTarget] = useState(null);
   const [buying, setBuying] = useState(false);
-  const [quizAnswer, setQuizAnswer] = useState(null);
-  const [practiceText, setPracticeText] = useState("");
-  const [didPractice, setDidPractice] = useState(false);
-  const [submissionError, setSubmissionError] = useState("");
 
   const balance = walletBalance || Number(bio?.joyBalance) || 0;
 
@@ -413,13 +271,6 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
   }, [purchaseTarget]);
 
   useEffect(() => {
-    setQuizAnswer(null);
-    setPracticeText("");
-    setDidPractice(false);
-    setSubmissionError("");
-  }, [view.stepId]);
-
-  useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       const app = document.querySelector(".hso-app");
       app?.scrollTo({ top: 0, behavior: "auto" });
@@ -451,48 +302,42 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
   const openCourse = (courseId) => setView({ name: "course", courseId, stepId: null });
   const openStep = (courseId, stepId) => setView({ name: "lesson", courseId, stepId });
 
+  // Bước của bài đang mở, dựng từ chính giáo trình — giáo trình không phải sửa.
+  const officeSteps = useMemo(
+    () => (selectedStep ? buildOfficeSteps(selectedStep) : null),
+    [selectedStep],
+  );
+  const nextOfficeStep = selectedCourse && selectedStep
+    ? selectedCourse.steps[selectedCourse.steps.findIndex((step) => step.id === selectedStep.id) + 1]
+    : null;
+
+  /**
+   * Ghi nhận hoàn thành khi đi hết các bước trong trình học.
+   *
+   * Trình học đã tự chặn: câu hỏi phải trả lời đúng mới qua, bước nộp phải đủ từ
+   * khoá mới mở nút. Nên tới được đây nghĩa là đã đạt — không kiểm lại lần nữa
+   * bằng bộ chấm cũ, vì hai bộ luật khác nhau sẽ có ngày lệch nhau.
+   */
+  const completeStepFromPlayer = () => {
+    if (!selectedStep) return;
+    const lessonId = `hugoso-${selectedStep.id}`;
+    const next = new Set(completed);
+    next.add(lessonId);
+    setCompleted(next);
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify([...next]));
+    } catch {
+      /* hết quota: tiến độ máy chủ vẫn đúng ở lần tải sau */
+    }
+    postJson(`/member/progress/lesson/${lessonId}/complete`, {}).catch(() => {});
+  };
+
   const canOpenStep = (course, step, index) => {
     if (!step.free && !isOwned(course.id)) return false;
     if (index === 0) return true;
     return completed.has(`hugoso-${course.steps[index - 1].id}`);
   };
 
-  const markCompleted = async () => {
-    if (!selectedStep) return;
-    const quizPassed = quizAnswer === selectedStep.quiz.correct;
-    const evidence = getPracticeEvidence(selectedStep, practiceText);
-    const keywordCount = evidence.filter((item) => item.matched).length;
-    const practicePassed = keywordCount >= selectedStep.practice.minimumKeywords;
-
-    if (!quizPassed) {
-      setSubmissionError("Câu trắc nghiệm chưa đúng. Chọn lại đáp án theo phần giải thích phía trên.");
-      return;
-    }
-    if (!practicePassed) {
-      const missing = evidence
-        .filter((item) => !item.matched)
-        .slice(0, Math.max(1, selectedStep.practice.minimumKeywords - keywordCount))
-        .map((item) => item.label)
-        .join(", ");
-      setSubmissionError(
-        `Phần mô tả mới đạt ${keywordCount}/${selectedStep.practice.minimumKeywords} ý cần thiết. Bổ sung: ${missing}.`,
-      );
-      return;
-    }
-    if (!didPractice) {
-      setSubmissionError(`Hãy thực hiện trên ${selectedCourse.shortTitle}, sau đó bật ô xác nhận “Tôi đã thực hiện”.`);
-      return;
-    }
-
-    setSubmissionError("");
-    const lessonId = `hugoso-${selectedStep.id}`;
-    const next = new Set(completed);
-    next.add(lessonId);
-    setCompleted(next);
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify([...next]));
-    showToast?.("Đạt yêu cầu! Bước tiếp theo đã được mở.", "success");
-    postJson(`/member/progress/lesson/${lessonId}/complete`, {}).catch(() => {});
-  };
 
   const buyCourse = async () => {
     if (!purchaseTarget || buying) return;
@@ -758,17 +603,33 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
           <button type="button" className="hso-inline-back" onClick={unifiedHome ? onBack : () => setView({ name: "home" })}>
             <span className="material-symbols-outlined">arrow_back</span> {t("utilities.hugoso.tatCaKhoaHoc")}
           </button>
+          {/* Giới thiệu học phần: mã · tên · một câu đầu ra · một dòng số liệu.
+              Bốn thẻ cũ bên dưới đã bỏ — một thẻ chép nguyên câu đầu ra ở đây,
+              một thẻ lặp lại mã học phần, hai thẻ còn lại quảng cáo "video" và
+              "demo" không còn tồn tại sau khi chuyển sang trình học chung. */}
           <div className="hso-course-hero__body">
+            {/* Icon nằm cùng hàng với mã và tên, không chiếm một dòng riêng —
+                phần giới thiệu phải vừa màn chứ không bắt lướt mới thấy bài học. */}
             <ProductMark course={course} size="hero" />
-            <div>
-              <p className="hso-kicker">{course.eyebrow}</p>
-              <h1>{course.title}</h1>
-              <p>{course.outcome}</p>
-              <div className="hso-course-hero__tags">
-                <span>{course.level}</span><span>{course.duration}</span><span>{course.steps.length} {t("utilities.hugoso.baiDanhGia")}</span>
+            <p className="hso-course-code">{course.eyebrow}</p>
+            <h1>{course.title}</h1>
+
+            <p className="hso-course-outcome">{course.outcome}</p>
+
+            {/* Số liệu gộp một dòng: giá trị đã tự nói nghĩa ("2 tín chỉ",
+                "9 bài"), thêm nhãn chỉ tốn thêm một dòng mà không rõ hơn. */}
+            <p className="hso-course-facts">
+              <span>{course.level}</span>
+              <span>{course.duration}</span>
+              <span>{course.steps.length} bài</span>
+            </p>
+
+            {progress.percent > 0 && (
+              <div className="hso-course-progress" role="img" aria-label={`Tiến độ ${progress.percent}%`}>
+                <span><i style={{ width: `${progress.percent}%` }} /></span>
+                <b>{progress.percent}%</b>
               </div>
-            </div>
-            <ProgressRing percent={progress.percent} />
+            )}
           </div>
           {!courseOwned && (
             <div className="hso-course-hero__offer">
@@ -780,35 +641,14 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
           )}
         </section>
 
-        <section className="hso-course-value-grid">
-          <article>
-            <span className="material-symbols-outlined">flag</span>
-            <small>{t("utilities.hugoso.sanPhamCuoiKhoa")}</small>
-            <strong>{course.outcome}</strong>
-          </article>
-          <article>
-            <span className="material-symbols-outlined">touch_app</span>
-            <small>{t("utilities.hugoso.phuongPhap")}</small>
-            <strong>{t("utilities.hugoso.xemDemoLamTren")}</strong>
-          </article>
-          <article>
-            <span className="material-symbols-outlined">verified</span>
-            <small>{t("utilities.hugoso.noiDung")}</small>
-            <strong>{t("utilities.hugoso.doiChieuHuongDan")} {VERIFIED_AT}</strong>
-          </article>
-          <article>
-            <span className="material-symbols-outlined">fact_check</span>
-            <small>{t("utilities.hugoso.kiemDinhDongBo")}</small>
-            <strong>{HUGOSO_CONTENT_AUDIT.passed}/{HUGOSO_CONTENT_AUDIT.total} {t("utilities.hugoso.baiKhopVideoNoi")}</strong>
-          </article>
-        </section>
+        <CourseAcademy course={course} />
 
         <section className="hso-syllabus">
           <div className="hso-section-heading">
-            <div><p className="hso-kicker">STEP BY STEP</p><h2>{t("utilities.hugoso.giaoTrinhVaBai")}</h2></div>
+            <div><p className="hso-kicker">ĐỀ CƯƠNG</p><h2>{t("utilities.hugoso.giaoTrinhVaBai")}</h2></div>
             <a href={course.sourceUrl} target="_blank" rel="noreferrer">
               <span className="material-symbols-outlined">verified</span>
-              {t("utilities.hugoso.nguonChinhThucGoogle")}
+              {course.sourceLabel}
             </a>
           </div>
           <div className="hso-step-list">
@@ -846,244 +686,14 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
     );
   };
 
-  const renderLesson = () => {
-    const course = selectedCourse;
-    const lesson = selectedStep;
-    const index = course.steps.findIndex((step) => step.id === lesson.id);
-    const done = completed.has(`hugoso-${lesson.id}`);
-    const nextStep = course.steps[index + 1];
-    const practiceEvidence = getPracticeEvidence(lesson, practiceText);
-    const matchedEvidence = practiceEvidence.filter((item) => item.matched).length;
-    return (
-      <div className="hso-lesson">
-        <nav className="hso-lesson__nav">
-          <button type="button" onClick={() => openCourse(course.id)}>
-            <span className="material-symbols-outlined">arrow_back</span>
-            {t("utilities.hugoso.giaoTrinh")}
-          </button>
-          <span>{t("utilities.hugoso.buoc2")} {index + 1}/{course.steps.length}</span>
-          <strong style={{ color: course.color }}>{course.shortTitle}</strong>
-        </nav>
 
-        <header className="hso-lesson__header">
-          <p className="hso-kicker">{lesson.stage.toLocaleUpperCase("vi-VN")} {t("utilities.hugoso.buoc")} {String(index + 1).padStart(2, "0")} · {lesson.duration}</p>
-          <h1>{lesson.title}</h1>
-          <p>{lesson.summary}</p>
-        </header>
-
-        <section className="hso-lesson-contract" style={{ "--course": course.color, "--course-soft": course.soft }}>
-          <div className="hso-lesson-contract__mission">
-            <span className="material-symbols-outlined">flag</span>
-            <div><small>{t("utilities.hugoso.nhiemVuBaiHoc")}</small><strong>{lesson.mission}</strong></div>
-          </div>
-          <div className="hso-lesson-contract__flow" aria-label={t("utilities.hugoso.bonPhanDongBo")}>
-            {[
-              ["01", "smart_display", "Xem", `${lesson.video.scenes.length} thao tác`],
-              ["02", "menu_book", t("utilities.hugoso.hieu"), `${lesson.guide.length} bước chi tiết`],
-              ["03", "touch_app", t("utilities.hugoso.lam"), t("utilities.hugoso.motSanPhamThat")],
-              ["04", "quiz", t("utilities.hugoso.kiemTra"), t("utilities.hugoso.motCauHoiLien")],
-            ].map(([number, icon, title, detail]) => (
-              <article key={number}>
-                <span>{number}</span>
-                <i className="material-symbols-outlined">{icon}</i>
-                <div><strong>{title}</strong><small>{detail}</small></div>
-              </article>
-            ))}
-          </div>
-          <p><span className="material-symbols-outlined">inventory_2</span><strong>{t("utilities.hugoso.sanPhamCanNop")}</strong> {lesson.deliverable}</p>
-        </section>
-
-        <section className="hso-lesson-workbench" style={{ "--course": course.color, "--course-soft": course.soft }}>
-          <div>
-            <span className="material-symbols-outlined">{OFFICE_LAB[course.id].icon}</span>
-            <p><small>{t("utilities.hugoso.chuanBiThucHanh")}</small><strong>{t("utilities.hugoso.mo")} {course.shortTitle} {t("utilities.hugoso.canhBaiHocNay")}</strong></p>
-          </div>
-          <a href={OFFICE_LAB[course.id].href} target="_blank" rel="noreferrer">
-            {OFFICE_LAB[course.id].action}
-            <span className="material-symbols-outlined">north_east</span>
-          </a>
-        </section>
-
-        <LessonStudio lesson={lesson} course={course} />
-
-        <section className="hso-guide" style={{ "--course": course.color, "--course-soft": course.soft }}>
-          <header>
-            <span className="material-symbols-outlined">format_list_numbered</span>
-            <div>
-              <p className="hso-kicker">{t("utilities.hugoso.huongDanChiTiet")}</p>
-              <h2>{t("utilities.hugoso.lamLanLuotKhong")}</h2>
-            </div>
-            <a href={lesson.sourceUrl} target="_blank" rel="noreferrer">
-              {t("utilities.hugoso.nguonGoogle")}
-              <span className="material-symbols-outlined">north_east</span>
-            </a>
-          </header>
-          <aside>
-            <span className="material-symbols-outlined">info</span>
-            <p><strong>{t("utilities.hugoso.khaDungTinhNang")}</strong>{lesson.availability}</p>
-          </aside>
-          <div className="hso-guide__steps">
-            {lesson.guide.map((guideStep, guideIndex) => (
-              <article key={guideStep.heading}>
-                <span>{String(guideIndex + 1).padStart(2, "0")}</span>
-                <div>
-                  <div className="hso-guide__links"><i>VIDEO {guideIndex + 1}</i><i>CHECKLIST {guideIndex + 1}</i></div>
-                  <h3>{guideStep.heading}</h3>
-                  <p>{guideStep.detail}</p>
-                  <small><span className="material-symbols-outlined">task_alt</span>{guideStep.checkpoint}</small>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="hso-learning-block">
-          <div className="hso-learning-block__title">
-            <span className="material-symbols-outlined">menu_book</span>
-            <div><p className="hso-kicker">{t("utilities.hugoso.noiDungTrongTam")}</p><h2>{t("utilities.hugoso.sauBuocNayBan")}</h2></div>
-          </div>
-          <ol>
-            {lesson.learn.map((item, itemIndex) => (
-              <li key={item}>
-                <span>{String(itemIndex + 1).padStart(2, "0")}</span><p>{item}</p>
-              </li>
-            ))}
-          </ol>
-          <aside><span className="material-symbols-outlined">lightbulb</span><div><strong>{t("utilities.hugoso.goiYHocTap")}</strong><p>{lesson.tip}</p></div></aside>
-        </section>
-
-        <section className="hso-assessment" style={{ "--course": course.color }}>
-          <header>
-            <span className="material-symbols-outlined">verified_user</span>
-            <div><p className="hso-kicker">SKILL CHECK</p><h2>{t("utilities.hugoso.lamTruocKiemTra")}</h2><p>{t("utilities.hugoso.thucHienDungSan")}</p></div>
-          </header>
-
-          <div className="hso-check-part hso-check-part--quiz">
-            <span className="hso-check-part__label">{t("utilities.hugoso.02TracNghiemLien")}</span>
-            <p className="hso-quiz-source"><span className="material-symbols-outlined">link</span>{t("utilities.hugoso.kiemTraKienThuc")} {lesson.quiz.guideIndex + 1}: <strong>{lesson.quiz.guideHeading}</strong></p>
-            <h3>{lesson.quiz.question}</h3>
-            <div className="hso-options">
-              {lesson.quiz.options.map((option, optionIndex) => (
-                <button
-                  type="button"
-                  key={option}
-                  className={quizAnswer === optionIndex ? "is-selected" : ""}
-                  onClick={() => setQuizAnswer(optionIndex)}
-                >
-                  <span>{String.fromCharCode(65 + optionIndex)}</span>{option}
-                </button>
-              ))}
-            </div>
-            {quizAnswer != null && (
-              <p className={`hso-quiz-feedback ${quizAnswer === lesson.quiz.correct ? "is-correct" : "is-wrong"}`}>
-                <span className="material-symbols-outlined">
-                  {quizAnswer === lesson.quiz.correct ? "check_circle" : "cancel"}
-                </span>
-                {quizAnswer === lesson.quiz.correct ? t("utilities.hugoso.chinhXac") : t("utilities.hugoso.chuaChinhXac")}
-                {lesson.quiz.explanation}
-              </p>
-            )}
-          </div>
-
-          <div className="hso-check-part hso-check-part--practice">
-            <span className="hso-check-part__label">{t("utilities.hugoso.01ThucHanhBat")}</span>
-            <h3>{lesson.practice.prompt}</h3>
-            <div className="hso-practice-how">
-              <div>
-                <span>1</span>
-                <p><strong>{t("utilities.hugoso.mo")} {course.shortTitle}</strong>{t("utilities.hugoso.lamTrucTiepTren")}</p>
-              </div>
-              <div>
-                <span>2</span>
-                <p><strong>{t("utilities.hugoso.lamDuChecklist")}</strong>{t("utilities.hugoso.hoanThanhDung")} {lesson.practice.checklist.length} {t("utilities.hugoso.thaoTacDaXem")}</p>
-              </div>
-              <div>
-                <span>3</span>
-                <p><strong>{t("utilities.hugoso.ghiKetQua")}</strong>{t("utilities.hugoso.dienVaoOTra")}</p>
-              </div>
-            </div>
-            <a className="hso-practice-open" href={OFFICE_LAB[course.id].href} target="_blank" rel="noreferrer">
-              <span className="material-symbols-outlined">{OFFICE_LAB[course.id].icon}</span>
-              {t("utilities.hugoso.mo")} {course.shortTitle} {t("utilities.hugoso.deThucHanh")}
-              <span className="material-symbols-outlined">north_east</span>
-            </a>
-            <p className="hso-practice-caption">{t("utilities.hugoso.checklistThaoTacKhop")}</p>
-            <ul className="hso-practice-criteria">
-              {lesson.practice.checklist.map((criterion, criterionIndex) => (
-                <li key={criterion.id}>
-                  <span>{criterionIndex + 1}</span>
-                  <p><strong>{criterion.heading}</strong><small>Video {criterionIndex + 1} {t("utilities.hugoso.huongDan")} {criterion.guideIndex + 1}</small></p>
-                </li>
-              ))}
-            </ul>
-            <aside className="hso-practice-example">
-              <div><strong>{t("utilities.hugoso.khungThamKhaoKhong")}</strong><p>{lesson.practice.placeholder}</p></div>
-            </aside>
-            <textarea
-              value={practiceText}
-              onChange={(event) => {
-                setPracticeText(event.target.value);
-                setSubmissionError("");
-              }}
-              placeholder={t("utilities.hugoso.ghiKetQuaBan")}
-              rows={5}
-            />
-            <div className="hso-evidence">
-              <p>
-                <span>{matchedEvidence}/{lesson.practice.minimumKeywords}</span>
-                {t("utilities.hugoso.yToiThieuDa")}
-              </p>
-              <div>
-                {practiceEvidence.map((item) => (
-                  <span key={item.keyword} className={item.matched ? "is-matched" : ""}>
-                    <span className="material-symbols-outlined">{item.matched ? "check" : "add"}</span>
-                    {item.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={didPractice}
-              className={`hso-practice-check ${didPractice ? "is-checked" : ""}`}
-              onClick={() => {
-                setDidPractice((checked) => !checked);
-                setSubmissionError("");
-              }}
-            >
-              <span className="material-symbols-outlined">check</span>
-              {t("utilities.hugoso.toiXacNhanDa")} {course.shortTitle}.
-            </button>
-          </div>
-
-          <footer>
-            <div><span className="material-symbols-outlined">shield</span><p>{t("utilities.hugoso.baiLamDuocDanh")}</p></div>
-            {submissionError && (
-              <p className="hso-submit-error" role="alert">
-                <span className="material-symbols-outlined">error</span>
-                {submissionError}
-              </p>
-            )}
-            <button type="button" onClick={markCompleted} disabled={done}>
-              {done ? t("utilities.hugoso.daHoanThanh") : t("utilities.hugoso.nopVaMoBuoc")}
-              <span className="material-symbols-outlined">{done ? "verified" : "arrow_forward"}</span>
-            </button>
-          </footer>
-        </section>
-
-        {done && nextStep && canOpenStep(course, nextStep, index + 1) && (
-          <button type="button" className="hso-next-lesson" onClick={() => openStep(course.id, nextStep.id)}>
-            <span><small>{t("utilities.hugoso.tiepTheo")}</small><strong>{nextStep.title}</strong></span>
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </button>
-        )}
-      </div>
-    );
-  };
+  const inLesson = view.name === "lesson" && selectedCourse && selectedStep;
 
   return (
-    <div className="hso-app">
+    // Đang học thì ẩn vỏ ứng dụng: trình học chiếm trọn màn, mà thanh đầu app
+    // (z-index 80) lại nằm trên nó (z-index 60) nên đè ngang mặt bài học.
+    // Khoá Web cũng ẩn vỏ khi vào bài — giờ hai bên giống nhau.
+    <div className={`hso-app${inLesson ? " is-lesson" : ""}`}>
       <header className="hso-topbar">
         <BackButton iconOnly onClick={view.name === "lesson"
           ? () => openCourse(view.courseId)
@@ -1110,10 +720,21 @@ export default function HugoSOApp({ bio, showToast, onBioUpdate, onBack, initial
           <>
             {!unifiedHome && view.name === "home" && renderHome()}
             {view.name === "course" && selectedCourse && renderCourse()}
-            {view.name === "lesson" && selectedCourse && selectedStep && renderLesson()}
           </>
         )}
       </main>
+
+      {/* Trình học đứng NGOÀI <main>: nó chiếm trọn màn, còn <main> bị ẩn khi
+          đang học để vỏ ứng dụng không đè lên. */}
+      {inLesson && (
+        <LessonPlayer
+          course={{ id: selectedStep.id, title: selectedStep.title, file: selectedCourse.shortTitle }}
+          steps={officeSteps}
+          onExit={() => openCourse(selectedCourse.id)}
+          onFinished={completeStepFromPlayer}
+          onNextLesson={nextOfficeStep ? () => openStep(selectedCourse.id, nextOfficeStep.id) : undefined}
+        />
+      )}
 
       <PurchaseSheet
         target={purchaseTarget}

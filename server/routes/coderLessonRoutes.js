@@ -1,5 +1,8 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
+import LessonFeedback from "../models/LessonFeedback.js";
+import { requireMember } from "../middleware/authMiddleware.js";
+import { sendTelegramAlert } from "../services/telegramService.js";
 import {
   MOBILE_GUIDE_EXTRAS,
   STAGES,
@@ -11,6 +14,15 @@ const router = express.Router();
 const verifyLimiter = rateLimit({
   windowMs: 60_000,
   max: 40,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Góp ý siết chặt hơn nhiều so với chấm bài: nó bắn thẳng sang Telegram của
+// người vận hành, nên đây vừa là chống spam vừa là chống quấy rối.
+const feedbackLimiter = rateLimit({
+  windowMs: 10 * 60_000,
+  max: 5,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -90,6 +102,54 @@ router.post("/:lessonId/verify", verifyLimiter, (req, res) => {
     return res.json({ passed });
   } catch {
     return res.json({ passed: false });
+  }
+});
+
+/**
+ * POST /api/coder-lessons/:lessonId/feedback  { stepIndex, stepKind, message }
+ *
+ * Góp ý của học viên về đúng bước họ đang vấp. Lưu vào kho rồi bắn sang Telegram
+ * — tin nhắn để biết ngay, bản ghi để về sau còn đếm được bước nào bị góp ý
+ * nhiều nhất.
+ *
+ * Danh tính lấy từ JWT, không nhận email trong body: góp ý mà mạo danh người
+ * khác thì vừa vô nghĩa vừa là một đường quấy rối.
+ */
+router.post("/:lessonId/feedback", feedbackLimiter, requireMember, async (req, res) => {
+  try {
+    const course = WEB_COURSES.find((item) => item.id === req.params.lessonId);
+    if (!course) return res.status(404).json({ error: "Không tìm thấy bài học." });
+
+    const message = String(req.body?.message || "").trim();
+    if (message.length < 5) {
+      return res.status(400).json({ error: "Hãy mô tả rõ hơn một chút." });
+    }
+
+    const stepIndex = Number(req.body?.stepIndex);
+    const record = await LessonFeedback.create({
+      memberEmail: req.memberEmail,
+      lessonId: course.id,
+      stepIndex: Number.isInteger(stepIndex) && stepIndex >= 0 ? stepIndex : 0,
+      stepKind: String(req.body?.stepKind || "").slice(0, 20),
+      message: message.slice(0, 2000),
+    });
+
+    // Telegram hỏng thì góp ý vẫn phải được lưu — người học đã bấm gửi rồi.
+    const escape = (value) => String(value).replace(/[<>&]/g, (ch) => (
+      { "<": "&lt;", ">": "&gt;", "&": "&amp;" }[ch]
+    ));
+    sendTelegramAlert(
+      `<b>Góp ý bài học</b>\n`
+      + `${escape(course.title)}\n`
+      + `Bước ${record.stepIndex + 1}${record.stepKind ? ` · ${escape(record.stepKind)}` : ""}\n`
+      + `Người học: ${escape(req.memberEmail)}\n\n`
+      + escape(message),
+    ).catch((error) => console.error("[lesson feedback telegram]", error.message));
+
+    res.status(201).json({ success: true });
+  } catch (error) {
+    console.error("Lesson feedback error:", error);
+    res.status(500).json({ error: "Chưa gửi được góp ý. Vui lòng thử lại." });
   }
 });
 

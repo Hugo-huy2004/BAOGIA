@@ -1,6 +1,6 @@
 {
   "//": "Mỗi lần lưu file là nodemon khởi động lại backend, và mỗi lần khởi động lại thì WebSocket /ws của trình duyệt đứt giữa chừng ('Connection closed before receiving a handshake response'), kèm vài request /api rơi 502. Hai chỉnh dưới đây làm nó im hơn hẳn mà vẫn tự nạp lại code: gom một loạt lần lưu liên tiếp thành MỘT lần khởi động, và không khởi động lại vì những file backend không hề nạp lúc chạy (scripts/, uploads/).",
-  "watch": ["server.js", "routes", "services", "models", "middleware", "utils", "../shared", ".env"],
+  "watch": ["server.js", "routes", "services", "models", "middleware", "utils", "../shared", "../src/components/member/hugoCoder/lessons", ".env"],
   "ignore": ["scripts/**", "uploads/**", "docs/**", "node_modules/**", "*.log"],
   "delay": 1500,
   "ext": "js,mjs,json"

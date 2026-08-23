@@ -73,10 +73,6 @@ export const APP_REGISTRY = Object.freeze([
   manifest({ id: "arcade_caro", icon: "swords", tint: "blue", category: "arcade", rating: "4.7", users: "6k", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 14 }),
   manifest({ id: "arcade_snake", icon: "all_inclusive", tint: "teal", category: "arcade", rating: "4.8", users: "9k", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 13 }),
   manifest({ id: "arcade_survivor", icon: "rocket_launch", tint: "indigo", category: "arcade", rating: "5.0", users: "18k", badge: "game", store: true, game: true, storePlanId: "arcade", storeOrder: 12 }),
-
-  // IDE vẫn là mặt hàng quyền truy cập trong Store nhưng không còn là app cài
-  // độc lập; đường dẫn cũ tiếp tục được MemberUtilitiesTab chuyển sang Study.
-  manifest({ id: "ide", icon: "code", tint: "blue", category: "edu", storageMb: 4.5, version: "2.8.1", catalog: false, store: true, storeOrder: 2 }),
 ]);
 
 export const APP_REGISTRY_BY_ID = new Map(APP_REGISTRY.map((app) => [app.id, app]));

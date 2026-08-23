@@ -6,7 +6,7 @@ export function getStageBenefitsFromCatalog(stageId, stages = []) {
   return stages.find((stage) => stage.id === stageId)?.benefits || [];
 }
 
-export function useCoderLessons(activeCourseId) {
+export function useCoderLessons(activeCourseId, { enabled = true } = {}) {
   const catalogQuery = useInfiniteQuery({
     queryKey: ["coder-lessons", "catalog"],
     queryFn: ({ pageParam, signal }) => fetchLessonPage(pageParam, signal),
@@ -15,19 +15,22 @@ export function useCoderLessons(activeCourseId) {
       lastPage.pagination?.hasNextPage ? lastPage.pagination.page + 1 : undefined
     ),
     staleTime: 10 * 60_000,
+    enabled,
   });
 
   // The lightweight catalog is paginated at the API boundary. Fetch remaining
   // summary pages progressively; full lesson bodies stay strictly on-demand.
   useEffect(() => {
     if (
-      catalogQuery.hasNextPage
+      enabled
+      && catalogQuery.hasNextPage
       && !catalogQuery.isFetchingNextPage
       && !catalogQuery.isLoading
     ) {
       catalogQuery.fetchNextPage();
     }
   }, [
+    enabled,
     catalogQuery.hasNextPage,
     catalogQuery.isFetchingNextPage,
     catalogQuery.isLoading,
@@ -45,7 +48,7 @@ export function useCoderLessons(activeCourseId) {
   const detailQuery = useQuery({
     queryKey: ["coder-lessons", "detail", selectedId],
     queryFn: ({ signal }) => fetchLesson(selectedId, signal),
-    enabled: Boolean(selectedId),
+    enabled: enabled && Boolean(selectedId),
     placeholderData: summary ? { lesson: summary } : undefined,
     staleTime: 10 * 60_000,
   });

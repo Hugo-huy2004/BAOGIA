@@ -4268,6 +4268,21 @@
       "nhapGhiChuTai": "노트, 테스트 계정, 운영 상세 정보...",
       "dangGui": "전송 중...",
       "guiDeAnTot": "최종 프로젝트 제출"
+    },
+    "treasure": {
+      "eyebrow": "보물 지도",
+      "title": "당신의 여정",
+      "description": "한 수업이 한 걸음입니다. 한 지역을 지나면 보물 상자가 열립니다.",
+      "land": "{{number}}번째 지역",
+      "next": "다음 보물",
+      "stepsLeft": "{{count}}걸음 남음",
+      "atLast": "마지막 한 걸음",
+      "opened": "열림",
+      "locked": "잠김",
+      "chest": "{{number}}단계 상자",
+      "allOpened": "모든 상자를 열었습니다.",
+      "reward": "열면: {{number}}단계 수료증",
+      "here": "현재 위치"
     }
   },
   "arcadeGame": {

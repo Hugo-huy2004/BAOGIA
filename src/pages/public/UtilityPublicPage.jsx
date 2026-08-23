@@ -15,7 +15,6 @@ const BanhocduongTab = lazy(() => import("../../components/member/banhocduong/Ba
 const TherapyTab = lazy(() => import("../../components/member/banhocduong/TherapyTab"));
 const MemberRadioTab = lazy(() => import("../../components/member/MemberRadioTab"));
 const MemberAuraTab = lazy(() => import("../../components/member/MemberAuraTab"));
-const MemberIdeTab = lazy(() => import("../../components/member/MemberIdeTab"));
 const HugoArcadeTab = lazy(() => import("../../components/member/arcade/HugoArcadeTab"));
 const HugoKitApp = lazy(() => import("../../components/member/hugoKit/HugoKitApp"));
 const SupportCenterApp = lazy(() => import("../../components/member/support/SupportCenterApp"));
@@ -67,14 +66,6 @@ const PUBLIC_TOOL_VISUALS = Object.freeze({
     line: "from-violet-500 via-indigo-500 to-blue-600",
     button: "from-violet-500 to-indigo-600 shadow-violet-500/25",
   },
-  ide: {
-    icon: "terminal",
-    page: "from-cyan-500/14 via-blue-400/8 to-background",
-    glowA: "bg-cyan-400/25",
-    glowB: "bg-blue-300/20",
-    line: "from-cyan-500 via-blue-500 to-indigo-600",
-    button: "from-cyan-500 to-blue-600 shadow-cyan-500/25",
-  },
   hugokit: {
     icon: "folder_zip",
     page: "from-blue-500/14 via-indigo-400/8 to-background",
@@ -89,7 +80,7 @@ const DEFAULT_TOOL_VISUAL = PUBLIC_TOOL_VISUALS.banhocduong;
 
 
 export default function UtilityPublicPage() {
-  const { tool } = useParams();
+  const { tool, page } = useParams();
   const navigate = useNavigate();
   const [activeSession, setActiveSession] = useState(() => getMemberSession());
   const isAuthenticated = !!activeSession?.email;
@@ -292,6 +283,7 @@ export default function UtilityPublicPage() {
             showToast={commonProps.showToast}
             onBioUpdate={handleBioUpdate}
             previewLessons={toolConfig.previewLessons}
+            studyRoute={page || null}
             onBack={() => navigate("/introduction")}
           />
         );
@@ -299,8 +291,6 @@ export default function UtilityPublicPage() {
         return <MemberRadioTab {...commonProps} />;
       case "aura":
         return <MemberAuraTab {...commonProps} />;
-      case "ide":
-        return <MemberIdeTab publicMode bio={player} onBioUpdate={handleBioUpdate} />;
       case "hugokit":
       case "handle":
         return (

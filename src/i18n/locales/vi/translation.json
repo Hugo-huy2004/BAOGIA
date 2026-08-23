@@ -6066,6 +6066,21 @@
       "nhapGhiChuTai": "Nhập ghi chú, tài khoản test, thông tin vận hành...",
       "dangGui": "Đang gửi...",
       "guiDeAnTot": "Gửi Đề Án Tốt Nghiệp"
+    },
+    "treasure": {
+      "eyebrow": "BẢN ĐỒ KHO BÁU",
+      "title": "Hành trình của bạn",
+      "description": "Mỗi bài là một bước chân. Đi hết một vùng đất là mở được một rương kho báu.",
+      "land": "Vùng đất {{number}}",
+      "next": "Kho báu tiếp theo",
+      "stepsLeft": "còn {{count}} bước",
+      "atLast": "bước cuối cùng",
+      "opened": "Đã mở",
+      "locked": "Chưa mở",
+      "chest": "Rương chặng {{number}}",
+      "allOpened": "Bạn đã mở hết mọi rương kho báu.",
+      "reward": "Mở ra: giấy chứng nhận chặng {{number}}",
+      "here": "Bạn đang ở đây"
     }
   },
   "arcadeGame": {

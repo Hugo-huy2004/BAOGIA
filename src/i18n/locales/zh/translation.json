@@ -4268,6 +4268,21 @@
       "nhapGhiChuTai": "备注，测试账户，操作详情…",
       "dangGui": "正在发送...",
       "guiDeAnTot": "提交最终项目。:submit-final-project:"
+    },
+    "treasure": {
+      "eyebrow": "藏宝图",
+      "title": "你的远征",
+      "description": "每一课都是一步。走完一片大陆，就开启一个宝箱。",
+      "land": "第 {{number}} 片大陆",
+      "next": "下一个宝藏",
+      "stepsLeft": "还差 {{count}} 步",
+      "atLast": "最后一步",
+      "opened": "已开启",
+      "locked": "未开启",
+      "chest": "第 {{number}} 阶段宝箱",
+      "allOpened": "你已开启全部宝箱。",
+      "reward": "开启后获得：第 {{number}} 阶段证书",
+      "here": "你在这里"
     }
   },
   "arcadeGame": {

@@ -4270,6 +4270,21 @@
       "nhapGhiChuTai": "Notes, comptes de test, détails d'exploitation...",
       "dangGui": "Envoi en cours...",
       "guiDeAnTot": "Soumettre le projet final"
+    },
+    "treasure": {
+      "eyebrow": "CARTE AU TRÉSOR",
+      "title": "Votre expédition",
+      "description": "Chaque leçon est un pas. Traversez une terre et un coffre s'ouvre.",
+      "land": "Terre {{number}}",
+      "next": "Prochain trésor",
+      "stepsLeft": "encore {{count}} pas",
+      "atLast": "dernier pas",
+      "opened": "Ouvert",
+      "locked": "Scellé",
+      "chest": "Coffre de l'étape {{number}}",
+      "allOpened": "Vous avez ouvert tous les coffres.",
+      "reward": "Débloque : certificat de l'étape {{number}}",
+      "here": "Vous êtes ici"
     }
   },
   "arcadeGame": {

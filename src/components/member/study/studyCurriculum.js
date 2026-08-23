@@ -1,3 +1,18 @@
+import { HUGOSO_COURSES } from "../hugoSO/hugoSOCourses";
+
+// ── STUDY ROUTE — đoạn thứ ba của địa chỉ Study ─────────────────────────
+// <base>            → trang chủ Study (thư viện khoá học)
+// <base>/web        → bản đồ 100 bài của bộ Phát triển Web
+// <base>/lessonN    → đang học bài N
+// <base>/<courseId> → một khoá trong bộ Năng suất & AI (HUGOSO_COURSES)
+//
+// `<base>` là /member/utilities/study trong portal, /study (hoặc /hugoso) khi mở
+// riêng. Mọi màn đều có địa chỉ nên tải lại trang ở đâu thì ở nguyên đó.
+export const COURSE_MAP_ROUTE = "web";
+export const LESSON_PATTERN = /^lesson(?:[1-9]|[1-9]\d|100)$/;
+/** Office lesson IDs: calendar-01, docs-01b, sheets-02, slides-03, etc. */
+const OFFICE_LESSON_PATTERN = /^(?:calendar|docs|sheets|slides)-\d+[a-z]?$/;
+
 const text = (vi, en) => Object.freeze({ vi, en });
 
 const part = ({ id, icon, tone, from, to, duration, title, summary, knowledge, guidance, outcomes, deliverable }) => Object.freeze({
@@ -11,7 +26,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
     kind: "coder",
     icon: "code_blocks",
     tone: "blue",
-    title: text("Bộ Phát triển Web Chuyên nghiệp", "Professional Web Development Collection"),
+    title: text("Chương trình Kỹ sư Phát triển Web", "Web Development Engineering Programme"),
     summary: text(
       "Một lộ trình liền mạch từ nền tảng web đến kiến trúc, bảo mật, AI, đồ án và phát hành sản phẩm thật.",
       "A continuous path from web foundations to architecture, security, AI, a production project, and real-world release.",
@@ -20,7 +35,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
     parts: Object.freeze([
       part({
         id: "basic", icon: "terminal", tone: "blue", from: 1, to: 10, duration: text("12 giờ", "12 hours"),
-        title: text("Phần 1 · Nền tảng và phản xạ lập trình", "Part 1 · Programming foundations and fluency"),
+        title: text("WEB 101 · Nền tảng và Phản xạ Lập trình", "WEB 101 · Programming Foundations and Fluency"),
         summary: text("Nắm cú pháp cốt lõi và tự dựng một trang web có dữ liệu mà không phụ thuộc vào mã mẫu.", "Build core syntax fluency and create a data-backed web page without relying on copied code."),
         knowledge: text(["HTML ngữ nghĩa và cấu trúc tài liệu", "CSS Box Model, responsive và BEM", "JavaScript DOM, SQL CRUD và PHP/PDO"], ["Semantic HTML and document structure", "CSS Box Model, responsive design, and BEM", "JavaScript DOM, SQL CRUD, and PHP/PDO"]),
         guidance: text(["Học theo thứ tự bài 1–10", "Gõ lại ví dụ tối thiểu hai lần", "Hoàn thành bài tập và tự giải thích từng dòng"], ["Follow lessons 1–10 in order", "Retype each example at least twice", "Complete the exercise and explain every important line"]),
@@ -29,7 +44,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "intermediate", icon: "account_tree", tone: "green", from: 11, to: 25, duration: text("18 giờ", "18 hours"),
-        title: text("Phần 2 · Tư duy kiến trúc", "Part 2 · Architecture thinking"),
+        title: text("WEB 102 · Tư duy Kiến trúc Hệ thống", "WEB 102 · Systems Architecture Thinking"),
         summary: text("Chuyển từ viết từng màn hình sang thiết kế hệ thống có dữ liệu, API và giao diện nhất quán.", "Move from isolated screens to systems with coherent data, APIs, and interfaces."),
         knowledge: text(["Schema, JOIN và transaction", "MVC, REST API và JSON", "WCAG, CORS, CSP, DRY và SEO kỹ thuật"], ["Schemas, JOINs, and transactions", "MVC, REST APIs, and JSON", "WCAG, CORS, CSP, DRY, and technical SEO"]),
         guidance: text(["Vẽ luồng dữ liệu trước khi code", "Viết hợp đồng API cho từng chức năng", "Đánh giá accessibility và bảo mật sau mỗi phần"], ["Diagram data flow before coding", "Define an API contract for each feature", "Review accessibility and security after every section"]),
@@ -38,7 +53,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "advanced", icon: "data_object", tone: "purple", from: 26, to: 50, duration: text("32 giờ", "32 hours"),
-        title: text("Phần 3 · Giải thuật, dữ liệu và mật mã", "Part 3 · Algorithms, data, and cryptography"),
+        title: text("WEB 201 · Giải thuật, Dữ liệu và Mật mã", "WEB 201 · Algorithms, Data, and Cryptography"),
         summary: text("Hiểu phần lõi khoa học máy tính để chọn cấu trúc dữ liệu, đo hiệu năng và bảo vệ thông tin đúng cách.", "Learn the computer-science core needed to choose data structures, measure performance, and protect information correctly."),
         knowledge: text(["Array, linked list, stack, queue và hash table", "Tìm kiếm, sắp xếp và Big O", "AES/RSA, hash, salt, Web Crypto, PWA và unit test"], ["Arrays, linked lists, stacks, queues, and hash tables", "Search, sorting, and Big O", "AES/RSA, hashing, salting, Web Crypto, PWAs, and unit tests"]),
         guidance: text(["Tự cài đặt trước khi dùng thư viện", "Đo thời gian và bộ nhớ bằng dữ liệu thật", "Ghi rõ mô hình đe dọa trước bài mật mã"], ["Implement concepts before using libraries", "Measure time and memory with real data", "Write a threat model before cryptography exercises"]),
@@ -47,7 +62,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "security", icon: "shield_lock", tone: "pink", from: 51, to: 70, duration: text("28 giờ", "28 hours"),
-        title: text("Phần 4 · Bảo mật ứng dụng và AI", "Part 4 · Application security and AI"),
+        title: text("WEB 202 · Bảo mật Ứng dụng và AI", "WEB 202 · Application Security and AI"),
         summary: text("Bảo vệ ứng dụng web trước các lỗi phổ biến và tích hợp AI theo quy trình có kiểm soát.", "Protect web applications against common weaknesses and integrate AI through a controlled workflow."),
         knowledge: text(["TLS, XSS, CSRF, JWT và OAuth2", "OWASP Top 10 và kiểm thử bảo mật", "Gemini API, dữ liệu đa phương thức và structured output"], ["TLS, XSS, CSRF, JWT, and OAuth2", "OWASP Top 10 and security testing", "Gemini API, multimodal data, and structured output"]),
         guidance: text(["Lập threat model cho từng chức năng", "Kiểm tra cả luồng thành công và thất bại", "Không gửi bí mật hoặc dữ liệu vượt phạm vi cho AI"], ["Create a threat model for each feature", "Test both success and failure paths", "Never send secrets or out-of-scope data to AI"]),
@@ -56,7 +71,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "project", icon: "rocket_launch", tone: "indigo", from: 71, to: 90, duration: text("40 giờ", "40 hours"),
-        title: text("Phần 5 · Đồ án Full-stack và AI", "Part 5 · Full-stack and AI capstone"),
+        title: text("WEB 301 · Đồ án Full-stack và AI", "WEB 301 · Full-stack and AI Capstone"),
         summary: text("Ghép toàn bộ kiến thức thành một sản phẩm có người dùng, dữ liệu, realtime, AI và quy trình phát hành.", "Combine everything into a product with users, data, realtime features, AI, and a release workflow."),
         knowledge: text(["Backend OOP, CRUD và JWT", "Frontend router, state, i18n và responsive", "WebSocket, upload, moderation AI và kiểm thử"], ["OOP backend, CRUD, and JWT", "Frontend routing, state, i18n, and responsive design", "WebSockets, uploads, AI moderation, and testing"]),
         guidance: text(["Mỗi bài hoàn thành một mốc sản phẩm", "Commit có nội dung và bằng chứng kiểm thử", "Review theo yêu cầu, rủi ro và tiêu chí chấp nhận"], ["Each lesson completes one product milestone", "Use meaningful commits with test evidence", "Review requirements, risks, and acceptance criteria"]),
@@ -65,7 +80,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "devops", icon: "cloud_upload", tone: "orange", from: 91, to: 100, duration: text("20 giờ", "20 hours"),
-        title: text("Phần 6 · DevOps và phát hành", "Part 6 · DevOps and release"),
+        title: text("WEB 302 · DevOps và Phát hành Sản phẩm", "WEB 302 · DevOps and Product Release"),
         summary: text("Đưa sản phẩm lên môi trường thật, quan sát hệ thống và phục hồi an toàn khi phát hành lỗi.", "Take a product to production, observe the system, and recover safely from failed releases."),
         knowledge: text(["Linux, Nginx, DNS và TLS", "Firewall, Fail2ban, PM2 và log", "Load test, CI/CD, backup và rollback"], ["Linux, Nginx, DNS, and TLS", "Firewalls, Fail2ban, PM2, and logs", "Load testing, CI/CD, backups, and rollback"]),
         guidance: text(["Thử trên staging trước production", "Lưu lệnh, cấu hình và bằng chứng vận hành", "Luôn chuẩn bị backup và kịch bản rollback"], ["Test on staging before production", "Record commands, configuration, and operating evidence", "Always prepare backups and a rollback procedure"]),
@@ -77,15 +92,18 @@ export const STUDY_COLLECTIONS = Object.freeze([
   Object.freeze({
     id: "digital-productivity-ai",
     kind: "office",
+    // Bốn học phần này ĐỘC LẬP: mua riêng, học riêng, không có thứ tự bắt buộc.
+    // Mỗi học phần mở ra là một CourseMap visual path riêng, giống Web Dev.
+    splitCourses: true,
     icon: "auto_awesome",
     tone: "purple",
-    title: text("Bộ Năng suất số và AI", "Digital Productivity and AI Collection"),
+    title: text("Chương trình Năng suất số và AI ứng dụng", "Digital Productivity and Applied AI Programme"),
     summary: text("Làm chủ lịch, tài liệu, dữ liệu và AI bằng quy trình thực hành có kiểm chứng trên công cụ thật.", "Master schedules, documents, data, and AI through verified practice in real tools."),
     duration: text("17 giờ 42 phút hướng dẫn", "17 hours 42 minutes of guided learning"),
     parts: Object.freeze([
       part({
         id: "calendar", icon: "calendar_month", tone: "blue", from: 1, to: 9, duration: text("4 giờ 11 phút", "4 hours 11 minutes"),
-        title: text("Phần 1 · Quản trị thời gian với Calendar", "Part 1 · Time management with Calendar"),
+        title: text("CAL 101 · Quản trị Thời gian và Lịch làm việc", "CAL 101 · Time and Calendar Management"),
         summary: text("Tổ chức thời gian cá nhân, lịch nhóm và quy trình đặt hẹn không trùng.", "Organize personal time, team calendars, and conflict-free appointment workflows."),
         knowledge: text(["Event, Task, múi giờ và nhắc việc", "Lịch nhóm, quyền chia sẻ và Focus time", "Appointment schedule và booking page"], ["Events, Tasks, time zones, and reminders", "Team calendars, sharing permissions, and Focus time", "Appointment schedules and booking pages"]),
         guidance: text(["Làm trực tiếp trên Calendar", "Kiểm thử với múi giờ và tài khoản khác", "Nộp mô tả cấu hình kèm kết quả kiểm tra"], ["Work directly in Calendar", "Test with another time zone and account", "Submit the configuration and test results"]),
@@ -94,7 +112,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "docs", icon: "description", tone: "blue", from: 1, to: 9, duration: text("4 giờ 13 phút", "4 hours 13 minutes"),
-        title: text("Phần 2 · Tài liệu và báo cáo học thuật", "Part 2 · Documents and academic reports"),
+        title: text("DOC 102 · Soạn thảo Học thuật và Bố cục Báo cáo", "DOC 102 · Academic Writing and Report Design"),
         summary: text("Xây tài liệu có cấu trúc, cộng tác an toàn, trích dẫn kiểm chứng được và xuất bản đúng chuẩn.", "Create structured documents with safe collaboration, verifiable citations, and standards-based publishing."),
         knowledge: text(["Pages, Pageless, heading và mục lục", "Comment, suggestion, version history và quyền chia sẻ", "Trích dẫn Harvard, accessibility và PDF"], ["Pages, Pageless, headings, and tables of contents", "Comments, suggestions, version history, and sharing", "Harvard citations, accessibility, and PDF output"]),
         guidance: text(["Bắt đầu bằng dàn ý và tiêu chí đầu ra", "Dùng style thay vì định dạng thủ công", "Kiểm tra nguồn, quyền truy cập và bản PDF cuối"], ["Start with an outline and output criteria", "Use styles instead of manual formatting", "Verify sources, access permissions, and the final PDF"]),
@@ -103,7 +121,7 @@ export const STUDY_COLLECTIONS = Object.freeze([
       }),
       part({
         id: "sheets", icon: "table_view", tone: "green", from: 1, to: 8, duration: text("4 giờ 33 phút", "4 hours 33 minutes"),
-        title: text("Phần 3 · Dữ liệu và báo cáo với Sheets", "Part 3 · Data and reporting with Sheets"),
+        title: text("SHE 201 · Dữ liệu và Báo cáo Vận hành", "SHE 201 · Operational Data and Reporting"),
         summary: text("Biến dữ liệu thô thành tracker sạch, công thức đáng tin cậy và dashboard có thể bàn giao.", "Turn raw data into a clean tracker, reliable formulas, and a handover-ready dashboard."),
         knowledge: text(["Cấu trúc bảng, validation và dữ liệu sạch", "Formula, lookup, Pivot và xử lý lỗi", "Biểu đồ, dashboard, bảo vệ và bàn giao"], ["Table structure, validation, and clean data", "Formulas, lookups, pivots, and error handling", "Charts, dashboards, protection, and handover"]),
         guidance: text(["Xác định một hàng đại diện cho điều gì", "Kiểm thử công thức với dữ liệu biên", "Khóa vùng công thức và viết hướng dẫn sử dụng"], ["Define what one row represents", "Test formulas with edge-case data", "Protect formula ranges and document usage"]),
@@ -111,13 +129,13 @@ export const STUDY_COLLECTIONS = Object.freeze([
         deliverable: text("Tracker vận hành có validation, phân tích, dashboard và hướng dẫn bàn giao.", "An operational tracker with validation, analysis, a dashboard, and handover instructions."),
       }),
       part({
-        id: "gemini", icon: "auto_awesome", tone: "purple", from: 1, to: 9, duration: text("4 giờ 45 phút", "4 hours 45 minutes"),
-        title: text("Phần 4 · AI có kiểm chứng với Gemini", "Part 4 · Verified AI workflows with Gemini"),
-        summary: text("Dùng AI để nghiên cứu, tạo bản nháp và tự động hóa mà vẫn giữ nguồn, quyền riêng tư và người chịu trách nhiệm.", "Use AI for research, drafting, and automation while preserving sources, privacy, and human accountability."),
-        knowledge: text(["Prompt có mục tiêu, ngữ cảnh, ràng buộc và rubric", "Gems, Canvas, Deep Research và kiểm chứng nguồn", "Workflow Sheets–AI–Docs–Calendar có audit"], ["Prompts with goals, context, constraints, and rubrics", "Gems, Canvas, Deep Research, and source verification", "Auditable Sheets–AI–Docs–Calendar workflows"]),
+        id: "ai", icon: "neurology", tone: "purple", from: 1, to: 10, duration: text("5 giờ 12 phút", "5 hours 12 minutes"),
+        title: text("AIA 202 · Trợ lý AI: Gemini, ChatGPT và Claude", "AIA 202 · AI Assistants: Gemini, ChatGPT, and Claude"),
+        summary: text("Hiểu mô hình sinh câu trả lời bằng cách nào, so ba trợ lý trên chính công việc của bạn, và dựng quy trình có người chịu trách nhiệm.", "Understand how models generate answers, benchmark three assistants on your own work, and build a workflow with clear human accountability."),
+        knowledge: text(["Cơ chế sinh văn bản, ảo giác và giới hạn ngữ cảnh", "Yêu cầu bốn phần, tiêu chí đo được và vòng sửa có kiểm soát", "So sánh ba mô hình, đưa nguồn vào ngữ cảnh và kiểm chứng khẳng định"], ["Text generation, hallucination, and context limits", "Four-part prompts, measurable criteria, and controlled iteration", "Model benchmarking, grounding in your sources, and claim verification"]),
         guidance: text(["Không nhập dữ liệu nhạy cảm", "Kiểm tra từng claim bằng nguồn gốc", "Ghi lại prompt, phiên bản và người phê duyệt"], ["Never enter sensitive data", "Verify every claim against a source", "Record prompts, versions, and the approver"]),
-        outcomes: text(["Viết prompt lặp lại được", "Phân biệt bản nháp AI với kết luận đã kiểm chứng", "Xây workflow có checkpoint và người phê duyệt"], ["Write repeatable prompts", "Separate AI drafts from verified conclusions", "Build workflows with checkpoints and human approval"]),
-        deliverable: text("Quy trình AI tám bước có nguồn, nhật ký quyết định, checkpoint và phê duyệt cuối.", "An eight-step AI workflow with sources, a decision log, checkpoints, and final approval."),
+        outcomes: text(["Viết yêu cầu cho ra kết quả lặp lại được", "Chọn trợ lý theo phép thử của chính mình, không theo bảng xếp hạng", "Tách bản nháp máy sinh khỏi kết luận đã xác minh"], ["Write prompts that produce repeatable results", "Choose an assistant from your own benchmark, not a leaderboard", "Separate machine drafts from verified conclusions"]),
+        deliverable: text("Hồ sơ quy trình AI có nhật ký quyết định, bảng khẳng định đã kiểm, giới hạn và người phê duyệt có tên.", "An AI workflow dossier with a decision log, verified-claims table, stated limits, and a named approver."),
       }),
     ]),
   }),
@@ -129,27 +147,55 @@ export const STUDY_COPY = Object.freeze({
     heroTitle: "Học đúng lộ trình.\nLàm được sản phẩm.",
     intro: "Bài học có thứ tự, thực hành có mục tiêu và đầu ra có thể kiểm chứng.",
     collections: "bộ lộ trình", parts: "phần", lessons: "bài học", continue: "Học tiếp", start: "Bắt đầu",
-    suggested: "Đề xuất tiếp theo", completed: "đã hoàn thành", library: "Lộ trình của bạn", search: "Tìm kiến thức hoặc kỹ năng",
-    all: "Tất cả", web: "Phát triển Web", digital: "Năng suất & AI", learning: "Đang học", noResults: "Không tìm thấy nội dung phù hợp.",
+    suggested: "Đề xuất tiếp theo", completed: "đã hoàn thành", library: "Khoá học của bạn", search: "Tìm kiến thức hoặc kỹ năng",
+    all: "Khoá học", tabResources: "Học liệu", tabQuality: "Chất lượng", tabProgress: "Tiến độ", web: "Phát triển Web", digital: "Năng suất & AI", learning: "Đang học", noResults: "Không tìm thấy nội dung phù hợp.",
     original: "Hugo Studio Original", authored: "Lộ trình độc quyền · Biên soạn bởi Hugo Studio", selfPaced: "Tự học có hướng dẫn",
     partCount: "{{count}} phần", lessonCount: "{{count}} bài", viewPart: "Xem nội dung phần", close: "Thu gọn",
     knowledge: "Kiến thức trọng tâm", guidance: "Cách học phần này", outcomes: "Kết quả đầu ra", deliverable: "Sản phẩm hoàn thành",
     openPart: "Vào phần học", progress: "Tiến độ", back: "Quay lại", estimated: "Thời lượng ước tính",
+    remaining: "Còn lại", done: "Đã xong",
   }),
   en: Object.freeze({
     appName: "Study with Hugo", subtitle: "Hugo Studio Learning", largeTitle: "Study",
     heroTitle: "Follow the path.\nBuild real work.",
     intro: "Sequenced lessons, purposeful practice, and verifiable outcomes.",
     collections: "collections", parts: "parts", lessons: "lessons", continue: "Continue", start: "Start",
-    suggested: "Recommended next", completed: "completed", library: "Your learning paths", search: "Search knowledge or skills",
-    all: "All", web: "Web Development", digital: "Productivity & AI", learning: "In progress", noResults: "No matching learning content found.",
+    suggested: "Recommended next", completed: "completed", library: "Your courses", search: "Search knowledge or skills",
+    all: "Courses", tabResources: "Library", tabQuality: "Quality", tabProgress: "Progress", web: "Web Development", digital: "Productivity & AI", learning: "In progress", noResults: "No matching learning content found.",
     original: "Hugo Studio Original", authored: "Exclusive learning path · Authored by Hugo Studio", selfPaced: "Guided self-paced study",
     partCount: "{{count}} parts", lessonCount: "{{count}} lessons", viewPart: "View part details", close: "Collapse",
     knowledge: "Core knowledge", guidance: "How to study this part", outcomes: "Learning outcomes", deliverable: "Completion deliverable",
     openPart: "Open learning part", progress: "Progress", back: "Back", estimated: "Estimated duration",
+    remaining: "Remaining", done: "Done",
   }),
 });
 
 export function localize(value, locale) {
   return value?.[locale] ?? value?.vi ?? value;
+}
+
+/**
+ * Suy ra Study đang mở màn nào, chỉ từ ĐỊA CHỈ.
+ *
+ * `segment` là đoạn thứ ba của đường dẫn (xem STUDY ROUTE ở đầu tệp). Trả về
+ * `basePath` đã cắt đoạn đó ra, vì app chạy ở hai gốc khác nhau
+ * (/member/utilities/study và /study) và viết cứng một gốc thì gốc kia hỏng.
+ *
+ * Đoạn lạ (gõ sai, liên kết cũ) coi như không có: về trang chủ Study thay vì
+ * dựng một màn trống.
+ */
+export function resolveStudyRoute(pathname, segment) {
+  const isLesson = LESSON_PATTERN.test(segment || "") || OFFICE_LESSON_PATTERN.test(segment || "");
+  const known = segment === COURSE_MAP_ROUTE
+    || isLesson
+    || Boolean(HUGOSO_COURSES[segment]);
+  const route = known ? segment : null;
+  const path = String(pathname || "").replace(/\/+$/, "");
+  return {
+    route,
+    lessonId: isLesson ? route : null,
+    officeCourseId: HUGOSO_COURSES[route] ? route : null,
+    view: route ? "coder" : null,
+    basePath: (route && path.endsWith(`/${route}`) ? path.slice(0, -(route.length + 1)) : path) || "/study",
+  };
 }

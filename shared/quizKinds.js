@@ -232,3 +232,43 @@ export function validateQuizQuestion(question, path = "question") {
 
   return issues;
 }
+
+/**
+ * Xáo vị trí phương án và ánh xạ lại đáp án.
+ *
+ * Đo trên giáo trình: 352/377 câu có đáp án nằm ở vị trí B (93,4%), và vị trí D
+ * chưa bao giờ đúng. Người học bấm B là qua mà không cần đọc — bộ câu hỏi đo
+ * được đúng một thứ: khả năng nhận ra thói quen soạn đề.
+ *
+ * Xáo lúc trình bày thay vì đi sửa 377 câu: sửa tay thì lần soạn sau lại lệch,
+ * còn xáo thì vị trí đúng đổi mỗi lượt học nên không có mẹo nào bám vào được.
+ *
+ * KHÔNG xáo:
+ *   - `bug`   — phương án là các DÒNG mã, thứ tự chính là số dòng.
+ *   - `order` — bản thân bài đã là sắp thứ tự.
+ *   - `match` — bộ dựng đã xáo sẵn cột phải.
+ *   - `truefalse`, `blank` — không có danh sách phương án.
+ */
+export function shuffleQuizOptions(question, random = Math.random) {
+  const kind = quizKind(question);
+  if (!["mcq", "output", "multi"].includes(kind)) return question;
+  if (!Array.isArray(question.o) || question.o.length < 2) return question;
+
+  const order = question.o.map((_, index) => index);
+  for (let i = order.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  // `order[newIndex] = oldIndex`, nên muốn biết phương án cũ nằm ở đâu sau khi
+  // xáo thì phải tra ngược.
+  const positionOf = new Map(order.map((oldIndex, newIndex) => [oldIndex, newIndex]));
+
+  return {
+    ...question,
+    o: order.map((oldIndex) => question.o[oldIndex]),
+    a: kind === "multi"
+      ? question.a.map((oldIndex) => positionOf.get(oldIndex)).sort((x, y) => x - y)
+      : positionOf.get(question.a),
+  };
+}

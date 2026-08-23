@@ -2,22 +2,72 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import RegionNote from "../../public/RegionNote";
 import { useTranslation } from "react-i18next";
 import { languageCode } from "../../../i18n/languages";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
-  ChevronDown,
   Clock3,
   Search,
-  Sparkles,
 } from "lucide-react";
-import { HUGOSO_COURSES } from "../hugoSO/hugoSOCourses";
-import { STUDY_COLLECTIONS, STUDY_COPY, localize } from "./studyCurriculum";
+import { HUGOSO_COURSES, HUGOSO_COURSE_ORDER } from "../hugoSO/hugoSOCourses";
+import {
+  COURSE_MAP_ROUTE,
+  STUDY_COLLECTIONS,
+  STUDY_COPY,
+  localize,
+  resolveStudyRoute,
+} from "./studyCurriculum";
+import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import "./study-with-hugo.css";
 
 const WebLearningApp = lazy(() => import("../hugoCoder/HugoCoderHub"));
 const ProductivityLearningApp = lazy(() => import("../hugoSO/HugoSOApp"));
+
+/**
+ * Các bảng ở trang chủ Study — KHAI BÁO MỘT CHỖ.
+ *
+ * Trước đây thêm một bảng phải sửa ba nơi rời nhau: mảng nút bấm, một nhánh
+ * `filter === "..." && <Panel/>`, và một dòng import lười. Giờ một mục ở đây là
+ * đủ; `pick` nói bảng cần gì từ dữ liệu chung, nên vỏ app không phải biết bên
+ * trong bảng có gì.
+ *
+ * Mục không có `Panel` là lưới khoá học (mặc định) — không nạp lười, không cần
+ * dữ liệu gì thêm.
+ */
+const HOME_PANELS = Object.freeze([
+  { id: "all", labelKey: "all" },
+  {
+    id: "resources",
+    labelKey: "tabResources",
+    Panel: lazy(() => import("../hugoCoder/HugoCoderHub").then((m) => ({ default: m.ResourceGrid }))),
+    pick: ({ stages }) => ({ stages }),
+  },
+  {
+    id: "quality",
+    labelKey: "tabQuality",
+    Panel: lazy(() => import("../hugoCoder/HugoCoderHub").then((m) => ({ default: m.HugoStudioQuality }))),
+    pick: ({ courses, stages }) => ({ courses, stages }),
+  },
+  {
+    id: "progress",
+    labelKey: "tabProgress",
+    Panel: lazy(() => import("../hugoCoder/HugoCoderHub").then((m) => ({ default: m.ManageTab }))),
+    pick: ({ bio, onBioUpdate, courses, stages }) => ({ bio, onBioUpdate, courses, stages }),
+  },
+]);
+
+/**
+ * Ba chỉ số của NGƯỜI HỌC (không phải của tủ sách).
+ *
+ * `tone` là tên sắc trong study-with-hugo.css, dùng chung bảng màu với các phần
+ * học — thêm chỉ số mới chỉ cần một dòng ở đây, không phải viết luật CSS riêng.
+ */
+const LEARNER_STATS = Object.freeze([
+  { id: "done", tone: "green", labelKey: "done", value: (s) => s.completed },
+  { id: "active", tone: "blue", labelKey: "learning", value: (s) => s.inProgress },
+  { id: "left", tone: "indigo", labelKey: "remaining", value: (s) => s.total - s.completed },
+]);
 
 const OFFICE_PROGRESS_KEY = "hugoso_completed_steps_v1";
 
@@ -41,6 +91,71 @@ function format(template, values) {
   );
 }
 
+/** Số bài đã xong của một phần — hai loại bộ lộ trình đếm theo hai nguồn khác nhau. */
+function countPartProgress(part, kind, coderDone, officeDone) {
+  if (kind === "coder") {
+    return Array.from({ length: part.lessonCount }, (_, index) => `lesson${part.from + index}`)
+      .filter((id) => coderDone.has(id)).length;
+  }
+  return HUGOSO_COURSES[part.id].steps.filter((step) => officeDone.has(`hugoso-${step.id}`)).length;
+}
+
+/**
+ * Chuyển đổi MỘT học phần office thành định dạng `{ courses, stages }` mà
+ * CourseMap và HugoCoderHub kỳ vọng. Mỗi học phần = 1 "chặng" trên bản đồ.
+ *
+ * Bài cuối cùng được đánh dấu là bài kiểm tra (`practiceType: "quiz"`):
+ * gộp toàn bộ câu hỏi quiz từ các bài trước thành đề thi, đạt >=60% là cấp
+ * chứng nhận.
+ */
+function adaptOfficePartToCoderFormat(part, locale) {
+  const officeCourse = HUGOSO_COURSES[part.id];
+  if (!officeCourse) return null;
+
+  // Thu thập toàn bộ câu hỏi quiz từ tất cả bài thành quizPool cho đề thi cuối.
+  const quizPool = officeCourse.steps.flatMap((step) => {
+    if (!step.quiz) return [];
+    return [{
+      q: step.quiz.question,
+      o: step.quiz.options,
+      a: step.quiz.correct,
+    }];
+  });
+
+  const courses = officeCourse.steps.map((step, index) => {
+    const isLast = index === officeCourse.steps.length - 1;
+    return {
+      id: step.id,
+      title: step.title,
+      duration: step.duration,
+      summary: step.summary,
+      overview: { description: step.summary, outcomes: [] },
+      // Dữ liệu thô để LessonPlayer dùng buildOfficeSteps thay vì buildSteps.
+      _officeLesson: step,
+      // Bài cuối = bài kiểm tra tổng hợp.
+      ...(isLast ? {
+        practiceType: "quiz",
+        quizPool,
+        quizSize: quizPool.length,
+      } : {}),
+    };
+  });
+
+  const stages = [{
+    id: part.id,
+    tone: part.tone,
+    phaseNumber: 1,
+    title: localize(part.title, locale),
+    rangeText: `1 - ${courses.length}`,
+    from: 0,
+    to: courses.length,
+  }];
+
+  return { courses, stages };
+}
+
+// ── Mảnh giao diện dùng lại ────────────────────────────────────────────────
+
 function AppLoading({ copy }) {
   return (
     <div className="study-app-loading" aria-label={copy.continue}>
@@ -58,12 +173,273 @@ function ProgressRing({ value }) {
   );
 }
 
+/** Biểu tượng vuông bo góc, mang sắc của phần học nó đại diện. */
+function ToneSymbol({ tone, icon }) {
+  return (
+    <span className={`study-part-symbol is-${tone}`}>
+      <span className="material-symbols-outlined">{icon}</span>
+    </span>
+  );
+}
+
+function StudyTopBar({ copy, percent, onBack }) {
+  return (
+    <header className="study-topbar">
+      <button type="button" className="study-back" onClick={onBack} aria-label={copy.back}>
+        <ArrowLeft aria-hidden="true" />
+      </button>
+      <div className="study-nav-title">
+        <strong>{copy.largeTitle}</strong>
+      </div>
+      <div className="study-nav-progress" aria-label={`${copy.progress}: ${percent}%`}>
+        <b>{percent}%</b>
+        <small>{copy.progress}</small>
+      </div>
+    </header>
+  );
+}
+
+function StudyHero({ copy }) {
+  return (
+    <section className="study-intro" aria-labelledby="study-title">
+      <div className="study-hero-copy">
+        <span>{copy.appName}</span>
+        <h1 id="study-title">{copy.heroTitle}</h1>
+        <p>{copy.intro}</p>
+        {/* Vỏ app đã dịch, nhưng bài học do tác giả viết bằng tiếng Việt.
+            Nói thẳng ra trước khi người đọc mở bài rồi mới ngỡ ngàng. */}
+        <RegionNote group="vietnameseContentOnly" scope="course" />
+      </div>
+    </section>
+  );
+}
+
+function ResumeCard({ copy, part, locale, onOpen }) {
+  return (
+    <section className={`study-resume is-${part.tone}`} aria-label={copy.suggested}>
+      <ToneSymbol tone={part.tone} icon={part.icon} />
+      <div className="study-resume-copy">
+        <small>{copy.suggested}</small>
+        <h2>{localize(part.title, locale)}</h2>
+        <p>{part.completed}/{part.lessonCount} {copy.completed} · {localize(part.duration, locale)}</p>
+        <div className="study-resume-progress" aria-label={`${copy.progress}: ${part.progress}%`}>
+          <span style={{ width: `${part.progress}%` }} />
+          <b>{part.progress}%</b>
+        </div>
+      </div>
+      <button type="button" onClick={onOpen}>
+        {part.progress ? copy.continue : copy.start}<ArrowRight aria-hidden="true" />
+      </button>
+    </section>
+  );
+}
+
+function LearnerStats({ copy, totals }) {
+  return (
+    <div className="study-stats">
+      {LEARNER_STATS.map((stat) => (
+        <span key={stat.id} className={`is-${stat.tone}`}>
+          <b>{stat.value(totals)}</b>
+          <small>{copy[stat.labelKey]}</small>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Nhóm nút chọn bảng. KHÔNG phải tablist: các bảng bên dưới không có
+ * `role="tabpanel"`, khai tab là hứa với trình đọc màn hình một thứ không tồn
+ * tại. `aria-pressed` mô tả đúng cái đang xảy ra.
+ */
+function PanelSwitch({ copy, activeId, onSelect }) {
+  return (
+    <div className="study-filters" role="group" aria-label={copy.library}>
+      {HOME_PANELS.map((panel) => (
+        <button
+          key={panel.id}
+          type="button"
+          aria-pressed={activeId === panel.id}
+          className={activeId === panel.id ? "is-active" : ""}
+          onClick={() => onSelect(panel.id)}
+        >
+          {copy[panel.labelKey]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Thẻ MỘT học phần độc lập.
+ *
+ * Chương trình Năng suất gồm bốn học phần mua riêng và học riêng, không có thứ
+ * tự bắt buộc — gộp vào một thẻ thì trang chủ trông như chỉ có hai khoá học.
+ * Thẻ này hiển thị mã học phần lấy từ tiêu đề ("CAL 101 · …") thành một nhãn
+ * riêng, đúng lối trường lớp.
+ */
+function CourseCard({ copy, course, locale, onOpen, onSyllabus }) {
+  const full = localize(course.title, locale);
+  const [, code, name] = /^([A-Z]{2,4}\s?\d{3})\s·\s(.+)$/.exec(full) || [null, "", full];
+
+  return (
+    <article className={`study-collection study-course is-${course.tone}`}>
+      <header className="study-collection-header">
+        <span className="study-collection-icon">
+          <span className="material-symbols-outlined">{course.icon}</span>
+        </span>
+        <div>
+          {code && <span className="study-course-code">{code}</span>}
+          <h3>{name}</h3>
+          <p>{localize(course.summary, locale)}</p>
+          <div className="study-collection-meta">
+            <span>{format(copy.lessonCount, { count: course.lessonCount })}</span>
+            <span>{localize(course.duration, locale)}</span>
+          </div>
+        </div>
+        <ProgressRing value={course.progress} />
+      </header>
+
+      <footer className="study-collection-foot">
+        <button type="button" className="study-collection-open" onClick={onOpen}>
+          {course.progress ? copy.continue : copy.start}
+          <ArrowRight aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="study-collection-help"
+          onClick={onSyllabus}
+          aria-label={`${copy.knowledge} — ${name}`}
+        >
+          ?
+        </button>
+      </footer>
+    </article>
+  );
+}
+
+function CollectionCard({ copy, collection, locale, onOpen, onSyllabus }) {
+  return (
+    <article className={`study-collection is-${collection.tone}`}>
+      <header className="study-collection-header">
+        <span className="study-collection-icon">
+          <span className="material-symbols-outlined">{collection.icon}</span>
+        </span>
+        <div>
+          <h3>{localize(collection.title, locale)}</h3>
+          <p>{localize(collection.summary, locale)}</p>
+          <div className="study-collection-meta">
+            {/* Dấu chấm phân cách là ::before của mục sau, không phải thẻ riêng:
+                mục nào xuống dòng thì mang theo dấu của nó, thay vì bỏ lại một
+                dấu "·" lơ lửng cuối dòng trên. */}
+            <span>{format(copy.partCount, { count: collection.parts.length })}</span>
+            <span>{format(copy.lessonCount, { count: collection.total })}</span>
+            <span>{localize(collection.duration, locale)}</span>
+          </div>
+        </div>
+        <ProgressRing value={collection.progress} />
+      </header>
+
+      <footer className="study-collection-foot">
+        <button type="button" className="study-collection-open" onClick={onOpen}>
+          {collection.progress ? copy.continue : copy.start}
+          <ArrowRight aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="study-collection-help"
+          onClick={onSyllabus}
+          aria-label={`${copy.knowledge} — ${localize(collection.title, locale)}`}
+        >
+          ?
+        </button>
+      </footer>
+    </article>
+  );
+}
+
+function SyllabusPart({ copy, part, index, locale }) {
+  return (
+    <section className={`study-syllabus-part is-${part.tone}`}>
+      <h4>
+        <ToneSymbol tone={part.tone} icon={part.icon} />
+        <span>
+          <small>
+            {String(index + 1).padStart(2, "0")}
+            {" · "}{format(copy.lessonCount, { count: part.lessonCount })}
+            {" · "}{localize(part.duration, locale)}
+          </small>
+          <strong>{localize(part.title, locale)}</strong>
+        </span>
+        <b>{part.progress}%</b>
+      </h4>
+      <p>{localize(part.summary, locale)}</p>
+      <ul>
+        {localize(part.knowledge, locale).map((item) => (
+          <li key={item}><Check aria-hidden="true" />{item}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * Nội dung TOÀN KHOÁ — mở từ nút ? trên thẻ khoá. Đặt ở popup thay vì liệt kê
+ * ra trang: sắp tới còn nhiều khoá, mỗi khoá sáu dòng thì trang danh sách thành
+ * một mục lục không ai đọc.
+ */
+function SyllabusSheet({ copy, collection, locale, onClose, onOpen }) {
+  return (
+    <div
+      className="study-syllabus-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label={localize(collection.title, locale)}
+      onClick={onClose}
+    >
+      <div className={`study-syllabus is-${collection.tone}`} onClick={(event) => event.stopPropagation()}>
+        <header>
+          <ToneSymbol tone={collection.tone} icon={collection.icon} />
+          <div>
+            <small>
+              {format(copy.partCount, { count: collection.parts.length })}
+              {" · "}
+              {format(copy.lessonCount, { count: collection.total })}
+            </small>
+            <h3>{localize(collection.title, locale)}</h3>
+          </div>
+          <button type="button" onClick={onClose} aria-label={copy.back}>
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
+        <div className="study-syllabus-body">
+          <p className="study-part-summary">{localize(collection.summary, locale)}</p>
+          {collection.parts.map((part, partIndex) => (
+            <SyllabusPart key={part.id} copy={copy} part={part} index={partIndex} locale={locale} />
+          ))}
+        </div>
+
+        <footer>
+          <span><Clock3 aria-hidden="true" />{copy.estimated}: {localize(collection.duration, locale)}</span>
+          <button type="button" onClick={onOpen}>
+            {copy.openPart}<ArrowRight aria-hidden="true" />
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+// ── Vỏ ứng dụng ────────────────────────────────────────────────────────────
+
 export default function StudyWithHugoApp({
   bio,
   showToast,
   onBioUpdate,
   onBack,
-  coderLessonId = null,
+  // Đoạn thứ ba của địa chỉ — xem STUDY ROUTE trong studyCurriculum.js.
+  studyRoute = null,
   // > 0 trên trang công khai /study: học thật được `previewLessons` bài đầu rồi
   // mới phải đăng nhập và mua gói. Portal thành viên để 0, hành vi giữ nguyên.
   previewLessons = 0,
@@ -72,14 +448,19 @@ export default function StudyWithHugoApp({
   const { i18n } = useTranslation();
   const locale = languageCode(i18n.resolvedLanguage || i18n.language) === "vi" ? "vi" : "en";
   const copy = STUDY_COPY[locale];
-  const validLessonId = /^lesson(?:[1-9]|[1-9]\d|100)$/.test(coderLessonId || "") ? coderLessonId : null;
 
-  const [activeExperience, setActiveExperience] = useState(() => (validLessonId ? "coder" : null));
-  const [officeCourseId, setOfficeCourseId] = useState(null);
-  const [coderStartLesson, setCoderStartLesson] = useState(() => validLessonId);
-  const [filter, setFilter] = useState("all");
+  // Màn đang mở SUY RA TỪ ĐỊA CHỈ, không giữ trong state — xem resolveStudyRoute.
+  const { view, lessonId, officeCourseId, basePath } =
+    resolveStudyRoute(useLocation().pathname, studyRoute);
+
+  const [panelId, setPanelId] = useState(HOME_PANELS[0].id);
   const [query, setQuery] = useState("");
-  const [expandedPart, setExpandedPart] = useState(null);
+  // Khoá đang xem nội dung trong popup; null là đang đóng.
+  const [syllabusCollection, setSyllabusCollection] = useState(null);
+
+  // Danh mục bài dùng chung cho các bảng ở trang chủ. Hook có bộ nhớ đệm nên mở
+  // bảng nào cũng không gọi lại mạng.
+  const { courses: coderCourses, stages: coderStages } = useCoderLessons(null);
 
   const completedIds = useMemo(() => new Set(bio?.completedLessons || []), [bio?.completedLessons]);
   const officeCompletedIds = useMemo(
@@ -89,245 +470,167 @@ export default function StudyWithHugoApp({
 
   const collections = useMemo(() => STUDY_COLLECTIONS.map((collection) => {
     const parts = collection.parts.map((part) => {
-      const completed = collection.kind === "coder"
-        ? Array.from({ length: part.lessonCount }, (_, index) => `lesson${part.from + index}`)
-          .filter((lessonId) => completedIds.has(lessonId)).length
-        : HUGOSO_COURSES[part.id].steps
-          .filter((step) => officeCompletedIds.has(`hugoso-${step.id}`)).length;
-      return { ...part, kind: collection.kind, completed, progress: percentage(completed, part.lessonCount) };
+      const completed = countPartProgress(part, collection.kind, completedIds, officeCompletedIds);
+      return { ...part, kind: collection.kind, collectionId: collection.id, completed, progress: percentage(completed, part.lessonCount) };
     });
     const completed = parts.reduce((sum, part) => sum + part.completed, 0);
     const total = parts.reduce((sum, part) => sum + part.lessonCount, 0);
     return { ...collection, parts, completed, total, progress: percentage(completed, total) };
   }), [completedIds, officeCompletedIds]);
 
-  const totalCompleted = collections.reduce((sum, collection) => sum + collection.completed, 0);
-  const totalLessons = collections.reduce((sum, collection) => sum + collection.total, 0);
-  const overallPercent = percentage(totalCompleted, totalLessons);
-  const allParts = collections.flatMap((collection) => collection.parts.map((part) => ({ ...part, collection })));
+  const allParts = collections.flatMap((collection) => collection.parts);
+  const totals = {
+    completed: collections.reduce((sum, collection) => sum + collection.completed, 0),
+    total: collections.reduce((sum, collection) => sum + collection.total, 0),
+    inProgress: allParts.filter((part) => part.progress > 0 && part.progress < 100).length,
+  };
   const continuePart = allParts.find((part) => part.progress > 0 && part.progress < 100)
     || allParts.find((part) => part.progress < 100)
     || allParts[0];
 
   const visibleCollections = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase(locale === "en" ? "en-US" : "vi-VN");
-    return collections.map((collection) => {
-      const parts = collection.parts.filter((part) => {
-        const matchesFilter = filter === "all"
-          || filter === collection.kind
-          || (filter === "progress" && part.progress > 0 && part.progress < 100);
-        const searchText = [
-          localize(collection.title, locale),
-          localize(part.title, locale),
-          localize(part.summary, locale),
-          ...localize(part.knowledge, locale),
-          ...localize(part.outcomes, locale),
-        ].join(" ").toLocaleLowerCase(locale === "en" ? "en-US" : "vi-VN");
-        return matchesFilter && (!normalizedQuery || searchText.includes(normalizedQuery));
-      });
-      return { ...collection, parts };
-    }).filter((collection) => collection.parts.length > 0);
-  }, [collections, filter, locale, query]);
+    const collator = locale === "en" ? "en-US" : "vi-VN";
+    const normalizedQuery = query.trim().toLocaleLowerCase(collator);
+    if (!normalizedQuery) return collections;
+    return collections.map((collection) => ({
+      ...collection,
+      parts: collection.parts.filter((part) => [
+        localize(collection.title, locale),
+        localize(part.title, locale),
+        localize(part.summary, locale),
+        ...localize(part.knowledge, locale),
+        ...localize(part.outcomes, locale),
+      ].join(" ").toLocaleLowerCase(collator).includes(normalizedQuery)),
+    })).filter((collection) => collection.parts.length > 0);
+  }, [collections, locale, query]);
 
-  const openPart = (part) => {
-    if (part.kind === "coder") {
-      const nextLesson = Math.min(part.to, part.from + part.completed);
-      const lessonId = `lesson${nextLesson}`;
-      setCoderStartLesson(lessonId);
-      setActiveExperience("coder");
-      navigate(`/member/utilities/study/${lessonId}`);
-      return;
-    }
-    setOfficeCourseId(part.id);
-    setActiveExperience("office");
-  };
+  // Mở BẢN ĐỒ khoá học, không nhảy thẳng vào một bài. Người học phải thấy mình
+  // đang ở đâu trên con đường trước khi bước tiếp — nhảy thẳng vào bài là lý do
+  // trước giờ không ai nhìn thấy bản đồ. Cả coder lẫn office đều mở CourseMap.
+  const openPart = (part, collection) => navigate(`${basePath}/${COURSE_MAP_ROUTE}`, {
+    state: { collectionId: collection?.id || part.collectionId || "web-development", courseId: part.id },
+  });
+  const backToStudy = () => navigate(basePath);
 
-  const backToStudy = () => {
-    navigate("/member/utilities/study", { replace: true });
-    setOfficeCourseId(null);
-    setActiveExperience(null);
-  };
+  // Xác định bộ sưu tập + học phần đang xem qua navigation state.
+  const locationState = useLocation().state;
+  const viewedCollectionId = locationState?.collectionId || "web-development";
+  const viewedCourseId = locationState?.courseId;
+  const viewedCollection = collections.find((c) => c.id === viewedCollectionId) || collections[0];
+  const isOfficeCollection = viewedCollection.kind === "office";
 
-  if (activeExperience === "coder") {
+  // Office: chỉ chuyển học phần đang chọn sang định dạng CourseMap.
+  const viewedPart = isOfficeCollection
+    ? viewedCollection.parts.find((p) => p.id === viewedCourseId) || viewedCollection.parts[0]
+    : null;
+  const officeAdaptedData = useMemo(
+    () => viewedPart ? adaptOfficePartToCoderFormat(viewedPart, locale) : null,
+    [viewedPart, locale],
+  );
+
+  if (view === "coder") {
     return (
       <Suspense fallback={<AppLoading copy={copy} />}>
         <WebLearningApp
           bio={bio}
           showToast={showToast}
           onBioUpdate={onBioUpdate}
-          urlLessonId={coderStartLesson}
-          unifiedHome
+          urlLessonId={lessonId}
           previewLessons={previewLessons}
+          basePath={basePath}
           onBack={backToStudy}
+          externalCourses={officeAdaptedData?.courses}
+          externalStages={officeAdaptedData?.stages}
         />
       </Suspense>
     );
   }
 
-  if (activeExperience === "office") {
-    return (
-      <Suspense fallback={<AppLoading copy={copy} />}>
-        <ProductivityLearningApp
-          bio={bio}
-          showToast={showToast}
-          onBioUpdate={onBioUpdate}
-          initialCourseId={officeCourseId}
-          unifiedHome
-          onBack={backToStudy}
-        />
-      </Suspense>
-    );
-  }
+  const panel = HOME_PANELS.find((item) => item.id === panelId) || HOME_PANELS[0];
+  const panelProps = panel.pick?.({
+    bio,
+    onBioUpdate,
+    courses: coderCourses,
+    stages: coderStages,
+  });
 
   return (
     <div className="study-app" data-locale={locale}>
-      <header className="study-topbar">
-        <button type="button" className="study-back" onClick={onBack} aria-label={copy.back}>
-          <ArrowLeft aria-hidden="true" />
-        </button>
-        <div className="study-nav-title">
-          <strong>{copy.largeTitle}</strong>
-          <small>{copy.appName}</small>
-        </div>
-        <div className="study-nav-progress" aria-label={`${copy.progress}: ${overallPercent}%`}>
-          <b>{overallPercent}%</b>
-          <small>{copy.progress}</small>
-        </div>
-      </header>
+      <StudyTopBar copy={copy} percent={percentage(totals.completed, totals.total)} onBack={onBack} />
 
       <main className="study-main">
-        <section className="study-intro" aria-labelledby="study-title">
-          <div className="study-hero-copy">
-            <span>{copy.appName}</span>
-            <h1 id="study-title">{copy.heroTitle}</h1>
-            <p>{copy.intro}</p>
-            {/* Vỏ app đã dịch, nhưng bài học do tác giả viết bằng tiếng Việt.
-                Nói thẳng ra trước khi người đọc mở bài rồi mới ngỡ ngàng. */}
-            <RegionNote group="vietnameseContentOnly" scope="course" />
-          </div>
-          <div className="study-hero-facts">
-            <div className="study-original-seal"><Sparkles aria-hidden="true" /><span><b>{copy.original}</b><small>{copy.authored}</small></span></div>
-            <div className="study-summary-stats">
-              <span><b>2</b><small>{copy.collections}</small></span>
-              <span><b>10</b><small>{copy.parts}</small></span>
-              <span><b>{totalLessons}</b><small>{copy.lessons}</small></span>
-            </div>
-          </div>
-        </section>
-
-        <section className="study-resume" aria-label={copy.suggested}>
-          <div className="study-resume-top">
-            <span className={`study-part-symbol is-${continuePart.tone}`}><span className="material-symbols-outlined">{continuePart.icon}</span></span>
-            <div className="study-resume-copy">
-              <small>{copy.suggested}</small>
-              <h2>{localize(continuePart.title, locale)}</h2>
-              <p>{continuePart.completed}/{continuePart.lessonCount} {copy.completed} · {localize(continuePart.duration, locale)}</p>
-            </div>
-            <button type="button" onClick={() => openPart(continuePart)}>
-              {continuePart.progress ? copy.continue : copy.start}<ArrowRight aria-hidden="true" />
-            </button>
-          </div>
-          <div className="study-resume-progress" aria-label={`${copy.progress}: ${continuePart.progress}%`}>
-            <span style={{ width: `${continuePart.progress}%` }} />
-            <b>{continuePart.progress}%</b>
-          </div>
-          <button type="button" className="study-resume-mobile-action" onClick={() => openPart(continuePart)}>
-            {continuePart.progress ? copy.continue : copy.start}<ArrowRight aria-hidden="true" />
-          </button>
-        </section>
+        <StudyHero copy={copy} />
+        <ResumeCard copy={copy} part={continuePart} locale={locale} onOpen={() => openPart(continuePart, collections.find((c) => c.id === continuePart.collectionId))} />
+        <LearnerStats copy={copy} totals={totals} />
 
         <section className="study-library" aria-labelledby="study-library-title">
           <div className="study-library-heading">
             <h2 id="study-library-title">{copy.library}</h2>
-            <label className="study-search">
-              <Search aria-hidden="true" />
-              <span className="sr-only">{copy.search}</span>
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.search} />
-            </label>
+            {/* Ô tìm kiếm chỉ lọc lưới khoá học; các bảng khác không dùng đến nó. */}
+            {!panel.Panel && (
+              <label className="study-search">
+                <Search aria-hidden="true" />
+                <span className="sr-only">{copy.search}</span>
+                <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.search} />
+              </label>
+            )}
           </div>
 
-          <div className="study-filters" role="tablist" aria-label={copy.library}>
-            {[
-              ["all", copy.all],
-              ["coder", copy.web],
-              ["office", copy.digital],
-              ["progress", copy.learning],
-            ].map(([id, label]) => (
-              <button key={id} type="button" role="tab" aria-selected={filter === id} className={filter === id ? "is-active" : ""} onClick={() => setFilter(id)}>{label}</button>
-            ))}
-          </div>
+          <PanelSwitch copy={copy} activeId={panel.id} onSelect={setPanelId} />
 
-          {visibleCollections.length ? visibleCollections.map((collection) => (
-            <article key={collection.id} className={`study-collection is-${collection.tone}`}>
-              <header className="study-collection-header">
-                <span className="study-collection-icon"><span className="material-symbols-outlined">{collection.icon}</span></span>
-                <div>
-                  <span className="study-original-chip"><Sparkles aria-hidden="true" />{copy.original}</span>
-                  <h3>{localize(collection.title, locale)}</h3>
-                  <p>{localize(collection.summary, locale)}</p>
-                  <div className="study-collection-meta">
-                    <span>{format(copy.partCount, { count: collection.parts.length })}</span>
-                    <i />
-                    <span>{format(copy.lessonCount, { count: collection.total })}</span>
-                    <i />
-                    <span>{localize(collection.duration, locale)}</span>
-                  </div>
-                </div>
-                <ProgressRing value={collection.progress} />
-              </header>
-
-              <div className="study-part-list">
-                {collection.parts.map((part, index) => {
-                  const key = `${collection.id}:${part.id}`;
-                  const expanded = expandedPart === key;
-                  return (
-                    <section key={part.id} className={`study-part ${expanded ? "is-expanded" : ""}`}>
-                      <button type="button" className="study-part-row" onClick={() => setExpandedPart(expanded ? null : key)} aria-expanded={expanded}>
-                        <span className={`study-part-symbol is-${part.tone}`}><span className="material-symbols-outlined">{part.icon}</span></span>
-                        <span className="study-part-number">{String(index + 1).padStart(2, "0")}</span>
-                        <span className="study-part-title">
-                          <strong>{localize(part.title, locale)}</strong>
-                          <small>{format(copy.lessonCount, { count: part.lessonCount })} · {localize(part.duration, locale)}</small>
-                        </span>
-                        <span className="study-part-percent">{part.progress}%</span>
-                        <ChevronDown className="study-part-chevron" aria-hidden="true" />
-                      </button>
-
-                      {expanded && (
-                        <div className="study-part-detail">
-                          <p className="study-part-summary">{localize(part.summary, locale)}</p>
-                          <div className="study-detail-grid">
-                            <div>
-                              <h4><span className="material-symbols-outlined">menu_book</span>{copy.knowledge}</h4>
-                              <ul>{localize(part.knowledge, locale).map((item) => <li key={item}><Check aria-hidden="true" />{item}</li>)}</ul>
-                            </div>
-                            <div>
-                              <h4><span className="material-symbols-outlined">route</span>{copy.guidance}</h4>
-                              <ol>{localize(part.guidance, locale).map((item, itemIndex) => <li key={item}><span>{itemIndex + 1}</span>{item}</li>)}</ol>
-                            </div>
-                            <div>
-                              <h4><span className="material-symbols-outlined">verified</span>{copy.outcomes}</h4>
-                              <ul>{localize(part.outcomes, locale).map((item) => <li key={item}><Check aria-hidden="true" />{item}</li>)}</ul>
-                            </div>
-                            <div className="study-deliverable">
-                              <h4><span className="material-symbols-outlined">inventory_2</span>{copy.deliverable}</h4>
-                              <p>{localize(part.deliverable, locale)}</p>
-                            </div>
-                          </div>
-                          <footer className="study-part-actions">
-                            <span><Clock3 aria-hidden="true" />{copy.estimated}: {localize(part.duration, locale)}</span>
-                            <button type="button" onClick={() => openPart(part)}>{copy.openPart}<ArrowRight aria-hidden="true" /></button>
-                          </footer>
-                        </div>
-                      )}
-                    </section>
-                  );
-                })}
-              </div>
-            </article>
-          )) : <div className="study-empty"><Search aria-hidden="true" /><p>{copy.noResults}</p></div>}
+          {/* Các bảng này nói về CẢ chương trình, không riêng khoá nào — nên
+              chúng thuộc về trang chủ, không phải thanh tab bên trong một khoá. */}
+          {panel.Panel ? (
+            <Suspense fallback={<AppLoading copy={copy} />}>
+              <panel.Panel {...panelProps} />
+            </Suspense>
+          ) : visibleCollections.length ? (
+            <div className="study-collection-grid">
+              {visibleCollections.flatMap((collection) => (
+                // Chương trình gồm các học phần độc lập thì hiện từng thẻ; lộ
+                // trình liền mạch thì vẫn là một thẻ duy nhất.
+                collection.splitCourses
+                  ? collection.parts.map((course) => (
+                    <CourseCard
+                      key={`${collection.id}-${course.id}`}
+                      copy={copy}
+                      course={course}
+                      locale={locale}
+                      onOpen={() => openPart(course, collection)}
+                      onSyllabus={() => setSyllabusCollection({ ...collection, parts: [course] })}
+                    />
+                  ))
+                  : [(
+                    <CollectionCard
+                      key={collection.id}
+                      copy={copy}
+                      collection={collection}
+                      locale={locale}
+                      onOpen={() => openPart(collection.parts[0], collection)}
+                      onSyllabus={() => setSyllabusCollection(collection)}
+                    />
+                  )]
+              ))}
+            </div>
+          ) : (
+            <div className="study-empty"><Search aria-hidden="true" /><p>{copy.noResults}</p></div>
+          )}
         </section>
       </main>
+
+      {syllabusCollection && (
+        <SyllabusSheet
+          copy={copy}
+          collection={syllabusCollection}
+          locale={locale}
+          onClose={() => setSyllabusCollection(null)}
+          onOpen={() => {
+            const target = syllabusCollection;
+            setSyllabusCollection(null);
+            openPart(target.parts[0], target);
+          }}
+        />
+      )}
     </div>
   );
 }

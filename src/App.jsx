@@ -271,6 +271,10 @@ function AppContent() {
             
             {/* Dynamic Public Utility Route */}
             <Route path="/:tool" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
+            {/* Đường thứ hai bên trong một app công khai — ví dụ /study/lesson7.
+                Không có nhánh này thì mở app rồi tải lại trang là văng ra
+                /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
+            <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
             
             <Route path="*" element={<Navigate to="/introduction" replace />} />
           </Routes>

@@ -103,14 +103,6 @@ export const PUBLIC_TOOLS = {
     summary:
       "Giải nén ZIP, nén ảnh/video, tạo mã QR và chữ ký email ngay trên web. Khách được 3 lượt demo mỗi ngày; đăng nhập để dùng không giới hạn.",
   },
-  ide: {
-    gate: "open",
-    title: "Hugo Web IDE — Viết Và Chạy Code Trên Trình Duyệt",
-    description:
-      "Trình soạn thảo code chạy trực tiếp trên trình duyệt: viết HTML, CSS, JavaScript và xem kết quả ngay, không cần cài đặt.",
-    heading: "Hugo Web IDE",
-    summary: "Viết và chạy code ngay trên trình duyệt, không cần cài gì. Dùng tự do.",
-  },
 
   // Từng game một URL. `StandaloneGameShell` vốn đã tự chạy độc lập (Arcade và
   // màn hình chính đều dựng nó trực tiếp), nên đây chỉ là thêm đường vào —
@@ -175,9 +167,16 @@ export function resolvePublicTool(slug) {
   return found ? { slug: found[0], ...found[1] } : undefined;
 }
 
-/** True when `pathname` is one of the standalone app URLs. */
+/**
+ * True when `pathname` is one of the standalone app URLs.
+ *
+ * Only the FIRST segment decides. Apps that navigate inside themselves need a
+ * second segment to survive a reload (`/study/lesson7` is a real address, not a
+ * typo) — matching the whole path sent those straight to /introduction.
+ */
 export function isPublicToolPath(pathname) {
-  return PUBLIC_TOOL_SLUGS.includes(String(pathname).replace(/^\/+|\/+$/g, ""));
+  const [slug] = String(pathname).replace(/^\/+|\/+$/g, "").split("/");
+  return PUBLIC_TOOL_SLUGS.includes(slug);
 }
 
 // ponytail: a plain object beats a schema here — the list changes when a tool

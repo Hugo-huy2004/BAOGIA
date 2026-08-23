@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { notify } from "../../../lib/notify";
 import QuizQuestion from "./QuizQuestion";
+import ArticleReader from "./ArticleReader";
+import PracticeSteps from "./PracticeSteps";
 import { isQuizAnswerCorrect } from "../../../../shared/quizKinds";
+import { requiredReadingFor } from "../../../../shared/readingLessons";
 
 export default function InteractivePuzzles({
   course,
@@ -40,8 +43,6 @@ export default function InteractivePuzzles({
   quizAnswers,
   setQuizAnswers,
   handleRetakeQuiz,
-  mobilePuzzleAnswer,
-  setMobilePuzzleAnswer,
   verifyInteractivePractice,
   bio,
   onBioUpdate
@@ -61,6 +62,18 @@ export default function InteractivePuzzles({
         onBioUpdate={onBioUpdate}
         handleRewardMobileLesson={handleRewardMobileLesson}
         course={course}
+      />
+    );
+  }
+
+  // Bài qua bằng đọc: thay hẳn phần thực hành, không kèm trắc nghiệm. Có nội
+  // dung mà mọi cách đặt câu hỏi bốn lựa chọn đều biến thành mẹo nhớ từ khoá.
+  const readingTitle = requiredReadingFor(course.id);
+  if (readingTitle && !isCompleted) {
+    return (
+      <ArticleReader
+        title={readingTitle}
+        onCompleted={() => handleRewardMobileLesson(course)}
       />
     );
   }
@@ -545,64 +558,12 @@ export default function InteractivePuzzles({
     );
   }
 
+  // Thực hành không còn chạy trong trình soạn thảo nhúng. Học viên làm bài ở
+  // công cụ thật của mình rồi đánh dấu từng bước; phần chấm nằm ở bộ câu hỏi
+  // chốt bài phía sau. Bản cũ ở đây chỉ có đúng MỘT nút tự khai dùng chung
+  // cho cả 88 bài, nên đổi sang bảng bước không làm mất tính nghiêm túc nào.
   if (course.practiceType === "code_challenge" || course.practiceType === "capstone") {
-    // Câu đố thực hành gắn liền từng bài học (khai báo trong lessons/*.js)
-    const puzzle = course.mobilePuzzle || {
-      prompt: "Hoàn thành yêu cầu thực hành của bài học trong trình soạn thảo:",
-      snippet: "// Sửa mã nguồn theo phần Thực hành & Code mẫu",
-      options: [
-        { text: "Tôi đã hoàn thành yêu cầu thực hành", correct: true },
-        { text: "Bỏ qua bài này", correct: false }
-      ],
-      correctIdx: 0
-    };
-
-    const handleVerifyPuzzle = () => {
-      if (mobilePuzzleAnswer === puzzle.correctIdx) {
-        notify.success("Chính xác! Lựa chọn của bạn đã vá lỗi thành công.");
-        verifyInteractivePractice();
-      } else {
-        notify.error("Lựa chọn chưa chính xác, hãy suy nghĩ lại nhé!");
-      }
-    };
-
-    return (
-      <div className="space-y-4 font-sans">
-        <p className="text-xs text-muted-foreground">{puzzle.prompt}</p>
-        
-        <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 font-mono text-xs text-center space-y-2 select-none">
-          <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">{t("hugoCoderLearning.puzzles.khungMaNguon")}</span>
-          <span className="text-amber-400 font-bold block">{puzzle.snippet}</span>
-        </div>
-
-        <div className="space-y-2">
-          {puzzle.options.map((opt, idx) => {
-            const isSelected = mobilePuzzleAnswer === idx;
-            return (
-              <button
-                key={idx}
-                onClick={() => setMobilePuzzleAnswer(idx)}
-                className={`w-full text-left p-3 rounded-xl border text-xs transition-all active:scale-[0.98] ${
-                  isSelected
-                    ? "bg-primary border-primary text-white shadow-sm font-bold"
-                    : "bg-background border-border text-foreground hover:bg-muted/50"
-                }`}
-              >
-                {opt.text}
-              </button>
-            );
-          })}
-        </div>
-
-        <button
-          onClick={handleVerifyPuzzle}
-          disabled={mobilePuzzleAnswer === null}
-          className="w-full py-2.5 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none mt-2"
-        >
-          {t("hugoCoderLearning.puzzles.xacNhanDapAn")}
-        </button>
-      </div>
-    );
+    return <PracticeSteps course={course} onAllStepsDone={verifyInteractivePractice} />;
   }
 
   return null;

@@ -12,7 +12,7 @@
     { "name": "pwa-permission-css", "pattern": "^PWAPermissionOnboarding-.*\\.css$", "maxBytes": 7000 },
     { "name": "member-radio", "pattern": "^MemberRadioTab-.*\\.js$", "maxBytes": 30000 },
     { "name": "ban-hoc-duong", "pattern": "^BanhocduongTab-.*\\.js$", "maxBytes": 50000 },
-    { "name": "member-ide-shell", "pattern": "^MemberIdeTab-.*\\.js$", "maxBytes": 410000 }
+    { "name": "member-lesson-view", "pattern": "^LessonView-.*\\.js$", "maxBytes": 410000 }
   ],
   "forbiddenAssets": [
     {

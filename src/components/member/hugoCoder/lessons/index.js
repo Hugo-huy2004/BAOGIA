@@ -6,6 +6,7 @@ import { SECURITY_LESSONS } from "./security.js";
 import { PROJECT_LESSONS } from "./project.js";
 import { DEVOPS_LESSONS } from "./devops.js";
 import { withVariedQuestions } from "./variedQuestions.js";
+import { withExamBanks } from "./examBanks/index.js";
 
 // 6 chặng — 100 bài:
 // 1 (1-10) Phản xạ cơ bản • 2 (11-25) Tư duy kiến trúc
@@ -14,21 +15,21 @@ import { withVariedQuestions } from "./variedQuestions.js";
 // Lớp câu hỏi đa dạng ghép ở đây (xem variedQuestions.js): nội dung bài giảng
 // và hình thức kiểm tra đổi theo nhịp khác nhau, trộn lẫn thì mỗi lần thêm một
 // dạng câu hỏi lại phải mở sáu file dài hai nghìn dòng.
-export const WEB_COURSES = withVariedQuestions([
+export const WEB_COURSES = withExamBanks(withVariedQuestions([
   ...BASIC_LESSONS,
   ...INTERMEDIATE_LESSONS,
   ...ADVANCED_LESSONS,
   ...SECURITY_LESSONS,
   ...PROJECT_LESSONS,
   ...DEVOPS_LESSONS
-]);
+]));
 
 // Ranh giới 6 chặng dùng chung cho sidebar/guidebook/tier.
 // intro: hiển thị trước bài đầu tiên của chặng — kiến thức sẽ học,
 // thách thức và lời hứa khi hoàn thành.
 export const STAGES = [
   {
-    id: "basic", phaseNumber: 1, title: "Chặng 1: Phản Xạ Cơ Bản", rangeText: "Bài 1 - 10", from: 0, to: 10,
+    id: "basic", tone: "blue", phaseNumber: 1, title: "WEB 101 · Nền tảng và Phản xạ Lập trình", rangeText: "Bài 1 - 10", from: 0, to: 10,
     intro: {
       tagline: "Gõ đi gõ lại cho đến khi thuộc lòng — nền móng của mọi kỹ sư.",
       learn: ["Semantic HTML & khung tài liệu chuẩn", "CSS Box Model & code sạch chuẩn BEM", "JavaScript ES6+ & DOM Events", "SQL CRUD, PHP + PDO & kỹ thuật debug"],
@@ -38,7 +39,7 @@ export const STAGES = [
     }
   },
   {
-    id: "intermediate", phaseNumber: 2, title: "Chặng 2: Tư Duy Kiến Trúc", rangeText: "Bài 11 - 25", from: 10, to: 25,
+    id: "intermediate", tone: "green", phaseNumber: 2, title: "WEB 102 · Tư duy Kiến trúc Hệ thống", rangeText: "Bài 11 - 25", from: 10, to: 25,
     intro: {
       tagline: "Thoát ly code thô — bắt đầu suy nghĩ như người thiết kế hệ thống.",
       learn: ["Thiết kế schema, JOIN & transaction ACID", "MVC, RESTful API & JSON chuẩn", "UI/UX theo chuẩn WCAG + toán ứng dụng", "CORS/CSP, DRY & SEO kỹ thuật"],
@@ -48,7 +49,7 @@ export const STAGES = [
     }
   },
   {
-    id: "advanced", phaseNumber: 3, title: "Chặng 3: CTDL, Giải Thuật & Mật Mã", rangeText: "Bài 26 - 50", from: 25, to: 50,
+    id: "advanced", tone: "purple", phaseNumber: 3, title: "WEB 201 · Giải thuật, Dữ liệu và Mật mã", rangeText: "Bài 26 - 50", from: 25, to: 50,
     intro: {
       tagline: "Phần lõi khoa học máy tính — thứ phân biệt kỹ sư với thợ code.",
       learn: ["Array, Linked List, Stack, Queue, Hash Table", "Tìm kiếm, sắp xếp & phân tích Big O", "AES/RSA, hash & salt, encoding, tam giác CIA", "Event Loop, WebSockets, hiệu năng, PWA & unit test"],
@@ -58,7 +59,7 @@ export const STAGES = [
     }
   },
   {
-    id: "security", phaseNumber: 4, title: "Chặng 4: Kỹ Sư Bảo Mật & Tiền Đề AI", rangeText: "Bài 51 - 70", from: 50, to: 70,
+    id: "security", tone: "pink", phaseNumber: 4, title: "WEB 202 · Bảo mật Ứng dụng và AI", rangeText: "Bài 51 - 70", from: 50, to: 70,
     intro: {
       tagline: "Chống lại tấn công mạng thật và đưa trí tuệ nhân tạo vào sản phẩm.",
       learn: ["HTTPS/TLS, XSS, CSRF, JWT & OAuth2 theo chuẩn OWASP", "2 kỳ thi tổng hợp 25 câu rà toàn bộ kiến thức", "Gemini API, multimodal & Structured Outputs", "SRS, kiến trúc, Git chuyên nghiệp, seeding & tài liệu"],
@@ -68,7 +69,7 @@ export const STAGES = [
     }
   },
   {
-    id: "project", phaseNumber: 5, title: "Chặng 5: Siêu Đồ Án Full-Stack & AI", rangeText: "Bài 71 - 90", from: 70, to: 90,
+    id: "project", tone: "indigo", phaseNumber: 5, title: "WEB 301 · Đồ án Full-stack và AI", rangeText: "Bài 71 - 90", from: 70, to: 90,
     intro: {
       tagline: "20 cột mốc — một sản phẩm: tự tay code toàn bộ hệ thống từ số 0.",
       learn: ["Backend OOP + CRUD + JWT auth hoàn chỉnh", "Frontend hiện đại: router, store, i18n, responsive", "Chat realtime WebSocket + upload ảnh có nén", "AI moderation, chatbot, insights + kiểm thử & release v1.0.0"],
@@ -79,7 +80,7 @@ export const STAGES = [
     elite: true
   },
   {
-    id: "devops", phaseNumber: 6, title: "Chặng 6: Kỹ Sư DevOps & Phát Hành", rangeText: "Bài 91 - 100", from: 90, to: 100,
+    id: "devops", tone: "orange", phaseNumber: 6, title: "WEB 302 · DevOps và Phát hành Sản phẩm", rangeText: "Bài 91 - 100", from: 90, to: 100,
     intro: {
       tagline: "Đưa sản phẩm ra Internet thật — đón người dùng thật.",
       learn: ["Thuê & cứng hóa VPS, môi trường Node/MySQL production", "Nginx reverse proxy, DNS + SSL Let's Encrypt", "Tường lửa UFW/Fail2ban, PM2 & quản lý log", "Load test, deploy có rollback & bảo vệ đồ án"],

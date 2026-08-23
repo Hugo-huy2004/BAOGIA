@@ -65,10 +65,6 @@
       "destination": "/arcade/index.html"
     },
     {
-      "source": "/ide",
-      "destination": "/ide/index.html"
-    },
-    {
       "source": "/hugokit",
       "destination": "/hugokit/index.html"
     },

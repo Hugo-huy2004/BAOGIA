@@ -6,6 +6,9 @@ import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { getRates, getRateHistory, ensureLiveFactors } from '../utils/joyRateService.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
+import CoderResource from '../models/CoderResource.js';
+import ReadingSession from '../models/ReadingSession.js';
+import { requiredReadingFor } from '../../shared/readingLessons.js';
 import { FEATURE_PRICES, chargeFeatureSubscription, calcExchangeTotal } from '../utils/featureSubscriptionService.js';
 import {
   HUGOSO_PRICES,
@@ -49,11 +52,15 @@ const CODER_LESSON_IDS = Array.from({ length: 100 }, (_, index) => `lesson${inde
 const CODER_QUIZ_LESSONS = new Set(['lesson6', 'lesson25', 'lesson50', 'lesson57', 'lesson58']);
 const CODER_SCREENSHOT_LESSONS = new Set(['lesson10']);
 const HUGOSO_COURSES = Object.freeze({
-  calendar: { label: 'Google Calendar chuẩn công việc', priceJoy: HUGOSO_PRICES.calendar },
-  docs: { label: 'Google Docs & báo cáo Harvard', priceJoy: HUGOSO_PRICES.docs },
-  sheets: { label: 'Google Sheets chuẩn vận hành', priceJoy: HUGOSO_PRICES.sheets },
-  gemini: { label: 'Google Gemini cho học tập & công việc', priceJoy: HUGOSO_PRICES.gemini }
+  calendar: { label: 'CAL 101 · Quản trị Thời gian và Lịch làm việc', priceJoy: HUGOSO_PRICES.calendar },
+  docs: { label: 'DOC 102 · Soạn thảo Học thuật và Bố cục Báo cáo', priceJoy: HUGOSO_PRICES.docs },
+  sheets: { label: 'SHE 201 · Dữ liệu và Báo cáo Vận hành', priceJoy: HUGOSO_PRICES.sheets },
+  ai: { label: 'AIA 202 · Trợ lý AI: Gemini, ChatGPT và Claude', priceJoy: HUGOSO_PRICES.ai }
 });
+// Học phần AI trước đây mang id 'gemini'. Ai đã mua thì bản ghi vẫn ghi tên cũ,
+// nên phải quy về tên mới khi kiểm quyền — nếu không họ mất học phần đã trả tiền.
+const HUGOSO_LEGACY_IDS = Object.freeze({ gemini: 'ai' });
+const canonicalCourseId = (id) => HUGOSO_LEGACY_IDS[id] || id;
 // Gói trọn bộ suy ra từ 4 phần (giảm 30%), không viết tay để khỏi lệch khi đổi giá.
 const HUGOSO_BUNDLE_PRICE = SHARED_HUGOSO_BUNDLE_PRICE;
 const HUGOSO_COURSE_IDS = Object.freeze(Object.keys(HUGOSO_COURSES));
@@ -309,7 +316,7 @@ router.get('/balance', requireMember, async (req, res) => {
 });
 
 function hugoSOPricing(bio) {
-  const owned = new Set(bio?.hugoSOCourses || []);
+  const owned = new Set((bio?.hugoSOCourses || []).map(canonicalCourseId));
   const remaining = HUGOSO_COURSE_IDS.filter((courseId) => !owned.has(courseId));
   const remainingListPrice = remaining.reduce(
     (sum, courseId) => sum + HUGOSO_COURSES[courseId].priceJoy,
@@ -341,7 +348,9 @@ router.get('/hugoso-access', requireMember, async (req, res) => {
 
     const { pricing } = hugoSOPricing(bio);
     return res.json({
-      ownedCourses: bio.hugoSOCourses || [],
+      // Quy id cũ về id mới trước khi trả xuống: người mua học phần 'gemini'
+      // ngày trước vẫn phải mở được 'ai'.
+      ownedCourses: [...new Set((bio.hugoSOCourses || []).map(canonicalCourseId))],
       pricing,
       balance: Number(bio.joyBalance) || 0
     });
@@ -402,7 +411,7 @@ router.post('/buy-hugoso-course', requireMember, async (req, res) => {
     return res.json({
       success: true,
       balance: result.balance,
-      ownedCourses: bio.hugoSOCourses,
+      ownedCourses: [...new Set(bio.hugoSOCourses.map(canonicalCourseId))],
       unlockedCourses: targetIds
     });
   } catch (error) {
@@ -605,9 +614,26 @@ router.post('/coder-exam/submit', requireMember, async (req, res) => {
     if (!bio) bio = await Bio.findOne({ contactEmail: email });
     if (bio && !(bio.completedLessons || []).includes(result.lessonId)) {
       const attempts = { ...(bio.hugoCoderExamAttempts || {}) };
-      attempts[result.lessonId] = Number(attempts[result.lessonId] || 0) + 1;
+      const attemptNo = Number(attempts[result.lessonId] || 0) + 1;
+      attempts[result.lessonId] = attemptNo;
       bio.hugoCoderExamAttempts = attempts;
       bio.markModified('hugoCoderExamAttempts');
+
+      // Giữ lại điểm để chứng chỉ chặng xếp loại được. `firstTry` chỉ ghi một
+      // lần: nó là thước đo trung thực nhất, thi lại nhiều lần thì `best` cao
+      // dần nhưng lần đầu vẫn nói đúng năng lực lúc học xong.
+      const scores = { ...(bio.hugoCoderExamScores || {}) };
+      const previous = scores[result.lessonId] || {};
+      scores[result.lessonId] = {
+        best: Math.max(Number(previous.best || 0), result.score),
+        firstTry: previous.firstTry === undefined ? result.score : previous.firstTry,
+        last: result.score,
+        attempts: attemptNo,
+        at: new Date().toISOString(),
+      };
+      bio.hugoCoderExamScores = scores;
+      bio.markModified('hugoCoderExamScores');
+
       await bio.save();
     }
 
@@ -658,6 +684,24 @@ router.post('/award-learning', requireMember, async (req, res) => {
       const serverScore = consumeExamPass(email, lessonId);
       if (serverScore === null) {
         return res.status(400).json({ error: 'Bài thi phải được chấm tại máy chủ. Hãy làm bài trong phần Thực hành tương tác và đạt tối thiểu 60%.' });
+      }
+    } else if (requiredReadingFor(lessonId)) {
+      // Bài qua bằng đọc: kiểm ở đây chứ không chỉ khoá nút bên giao diện —
+      // khoá nút chỉ ngăn người dùng bấm nhầm, không ngăn ai gọi thẳng API.
+      const articleTitle = requiredReadingFor(lessonId);
+      const article = await CoderResource.findOne({ type: 'article', title: articleTitle })
+        .select('_id')
+        .lean();
+      const done = article && await ReadingSession.exists({
+        memberEmail: email,
+        resourceId: article._id,
+        completedAt: { $ne: null },
+      });
+      if (!done) {
+        return res.status(400).json({
+          code: 'READING_REQUIRED',
+          error: `Bài này qua bằng đọc: hãy đọc hết “${articleTitle}” trong phần Học liệu rồi quay lại.`,
+        });
       }
     } else if (CODER_SCREENSHOT_LESSONS.has(lessonId)) {
       const score = Number(evidence.score);

@@ -9,7 +9,7 @@ import { API_BASE } from "../../../config/apiBase";
 
 // Reusable monthly-subscription paywall. Wraps gated content; renders a
 // "trao đổi JOY" unlock card instead when the subscription isn't active.
-// Used by MemberIdeTab (whole tab), MemberRadioTab (whole tab), and
+// Used by LessonView (whole tab), MemberRadioTab (whole tab), and
 // MemberAuraTab (Lofi section only — Pomodoro and Account themes stay outside).
 export default function FeatureGate({ bio, featureKey, priceJoy, icon, title, description, onBioUpdate, onBack, className = "", children }) {
   const { active } = useFeatureGate(bio, featureKey);

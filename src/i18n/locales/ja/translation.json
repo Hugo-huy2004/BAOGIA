@@ -4268,6 +4268,21 @@
       "nhapGhiChuTai": "管理者、テストアカウント、運営詳細...",
       "dangGui": "送信中...",
       "guiDeAnTot": "最終プロジェクトを提出する"
+    },
+    "treasure": {
+      "eyebrow": "宝の地図",
+      "title": "あなたの冒険",
+      "description": "1 レッスンが 1 歩です。ひとつの地を渡りきると宝箱が開きます。",
+      "land": "第 {{number}} の地",
+      "next": "次の宝",
+      "stepsLeft": "あと {{count}} 歩",
+      "atLast": "最後の一歩",
+      "opened": "開封済み",
+      "locked": "未開封",
+      "chest": "第 {{number}} 章の宝箱",
+      "allOpened": "すべての宝箱を開けました。",
+      "reward": "開くと: 第 {{number}} 章の修了証",
+      "here": "現在地"
     }
   },
   "arcadeGame": {

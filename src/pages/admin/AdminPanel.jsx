@@ -17,6 +17,7 @@ import AdminProjectsTab from "../../components/admin/AdminProjectsTab";
 import AdminHugoTeamTab from "../../components/admin/AdminHugoTeamTab";
 import AdminCoderSubmissionsTab from "../../components/admin/AdminCoderSubmissionsTab";
 import AdminCoderResourcesTab from "../../components/admin/AdminCoderResourcesTab";
+import AdminLearnersTab from "../../components/admin/AdminLearnersTab";
 import AdminSettingsTab from "../../components/admin/AdminSettingsTab";
 import AdminBrainTab from "../../components/admin/AdminBrainTab";
 import AdminAuditLogTab from "../../components/admin/AdminAuditLogTab";
@@ -55,7 +56,7 @@ export default function AdminPanel() {
   // Sub-view Tab States for Consolidated Core Hubs
   const [userSubView, setUserSubView]   = useState("roster");     // roster | support | hugoteam
   const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | community
-  const [coderSubView, setCoderSubView] = useState("submissions");// submissions | resources
+  const [coderSubView, setCoderSubView] = useState("submissions");// submissions | resources | learners
   const [systemSubView, setSystemSubView] = useState("monitor");  // monitor | projects | settings
 
   const [authChecking, setAuthChecking] = useState(true);
@@ -663,10 +664,18 @@ export default function AdminPanel() {
                 <span className="material-symbols-outlined text-sm">video_library</span>
                 <span>Quản Lý Học Liệu & Video</span>
               </button>
+              <button
+                onClick={() => setCoderSubView("learners")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${coderSubView === "learners" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">groups</span>
+                <span>Người Học</span>
+              </button>
             </div>
 
             {coderSubView === "submissions" && <AdminCoderSubmissionsTab />}
             {coderSubView === "resources" && <AdminCoderResourcesTab />}
+            {coderSubView === "learners" && <AdminLearnersTab />}
           </div>
         )}
 

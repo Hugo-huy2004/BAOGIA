@@ -6026,6 +6026,21 @@
       "nhapGhiChuTai": "Notes, test accounts, operating details...",
       "dangGui": "Sending...",
       "guiDeAnTot": "Submit the final project"
+    },
+    "treasure": {
+      "eyebrow": "TREASURE MAP",
+      "title": "Your expedition",
+      "description": "Every lesson is a step. Cross a land and a treasure chest opens.",
+      "land": "Land {{number}}",
+      "next": "Next treasure",
+      "stepsLeft": "{{count}} steps to go",
+      "atLast": "final step",
+      "opened": "Opened",
+      "locked": "Sealed",
+      "chest": "Chest of stage {{number}}",
+      "allOpened": "You have opened every chest.",
+      "reward": "Unlocks: certificate for stage {{number}}",
+      "here": "You are here"
     }
   },
   "arcadeGame": {

@@ -1241,3 +1241,1603 @@
   .coder-quality-points, .coder-quality-stage-grid { grid-template-columns: 1fr; }
   .coder-quality-standard, .coder-quality-curriculum { padding: 18px; }
 }
+
+/* ── Bản đồ kho báu ─────────────────────────────────────────────────────────
+   Mốc rương ở cuối mỗi vùng đất và thẻ "kho báu tiếp theo". Dùng lại đúng
+   --stage-color của chặng nên bản đồ không đẻ thêm màu nào ngoài bảng đã có,
+   và giữ khối đặc, không gradient — cùng ngôn ngữ với phần còn lại của lộ trình. */
+.coder-treasure-stop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 26px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 2px dashed rgba(118, 118, 128, 0.34);
+}
+
+.coder-treasure-stop.is-opened {
+  border-style: solid;
+  border-color: var(--stage-color);
+  background: var(--stage-soft);
+}
+
+.coder-treasure-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  color: rgba(118, 118, 128, 0.72);
+  background: rgba(118, 118, 128, 0.16);
+}
+
+.coder-treasure-stop.is-opened .coder-treasure-icon,
+.coder-next-treasure.is-done .coder-treasure-icon {
+  color: #fff;
+  background: var(--stage-color, var(--coder-blue));
+}
+
+.coder-treasure-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.4;
+}
+
+.coder-treasure-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.coder-treasure-copy small {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--coder-secondary);
+}
+
+.coder-treasure-copy strong {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.coder-next-treasure {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 16px;
+  text-align: left;
+  border: 1px solid var(--coder-border);
+  border-radius: 20px;
+  background: var(--coder-surface-solid);
+  transition: transform 120ms ease;
+}
+
+.coder-next-treasure:active {
+  transform: scale(0.99);
+}
+
+.coder-next-treasure-copy {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 3px;
+}
+
+.coder-next-treasure-copy small {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--coder-secondary);
+}
+
+.coder-next-treasure-copy strong {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.coder-next-treasure-copy em {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--coder-blue);
+}
+
+.coder-next-treasure-copy .coder-progress-track {
+  height: 6px;
+  margin-top: 5px;
+}
+
+.coder-next-treasure > svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: var(--coder-secondary);
+}
+
+.coder-next-treasure.is-done {
+  justify-content: flex-start;
+  --stage-color: var(--coder-blue);
+}
+
+/* ── Bản đồ khoá học ────────────────────────────────────────────────────────
+   Chiều sâu dựng bằng CSS, không WebGL: mặt vát là `box-shadow: 0 Npx 0` màu
+   tối hơn, bấm thì lún xuống đúng độ dày đó. Cùng kỹ thuật mà đường mòn cũ đã
+   dùng, nên hai phần nhìn như một hệ. */
+.course-map {
+  display: grid;
+  gap: 26px;
+  padding-bottom: 40px;
+}
+
+.course-map-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: start;
+  min-height: 44px;
+  padding: 0 12px 0 6px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--coder-blue);
+}
+
+.course-unit {
+  --unit-color: var(--stage-color, #007aff);
+  --unit-dark: color-mix(in srgb, var(--unit-color) 72%, #000);
+  display: grid;
+  gap: 14px;
+}
+
+.course-tone-blue    { --stage-color: #007aff; --stage-soft: rgba(0, 122, 255, 0.1); }
+.course-tone-green   { --stage-color: #34c759; --stage-soft: rgba(52, 199, 89, 0.12); }
+.course-tone-purple  { --stage-color: #af52de; --stage-soft: rgba(175, 82, 222, 0.12); }
+.course-tone-pink    { --stage-color: #ff2d55; --stage-soft: rgba(255, 45, 85, 0.1); }
+.course-tone-indigo  { --stage-color: #5856d6; --stage-soft: rgba(88, 86, 214, 0.12); }
+.course-tone-orange  { --stage-color: #ff9500; --stage-soft: rgba(255, 149, 0, 0.12); }
+
+/* Biển tên chặng — khối đặc, bám dính khi cuộn để luôn biết đang ở chặng nào. */
+.course-unit-banner {
+  position: sticky;
+  top: 6px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  color: #fff;
+  background: var(--unit-color);
+  box-shadow: 0 5px 0 var(--unit-dark);
+}
+
+.course-unit-heading {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.course-unit-heading small {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.course-unit-heading strong {
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.course-unit-guide {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.course-unit-guide svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 160ms ease;
+}
+
+.course-unit-guidebook {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--coder-border);
+  background: var(--coder-surface-solid);
+}
+
+.course-unit-tagline {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.course-unit-guidebook ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-unit-guidebook li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--coder-secondary);
+}
+
+.course-unit-guidebook li::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--unit-color);
+}
+
+.course-unit-promise {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--coder-border);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--coder-secondary);
+}
+
+.course-path {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  padding: 8px 0;
+}
+
+.course-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  transform: translateX(calc(var(--offset, 0) * 64px));
+}
+
+.course-step > button {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--unit-color);
+  box-shadow: 0 8px 0 var(--unit-dark);
+  /* Nghiêng nhẹ về phía người xem — chiều sâu thật, không phải ảnh giả lập. */
+  transform: perspective(520px) rotateX(9deg);
+  transition: transform 130ms ease, box-shadow 130ms ease;
+}
+
+.course-step > button:active:not(:disabled) {
+  transform: perspective(520px) rotateX(9deg) translateY(6px);
+  box-shadow: 0 2px 0 var(--unit-dark);
+}
+
+.course-step > button svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 3;
+}
+
+.course-step.is-current > button {
+  outline: 7px solid var(--stage-soft);
+}
+
+/* Bài chưa mở vẫn nhuốm màu chặng — nếu để xám trung tính thì gần cả bản đồ
+   là xám và màu riêng của từng chặng coi như không thấy. Nhạt + icon ổ khoá
+   vẫn đủ nói "chưa tới lượt". */
+.course-step.is-locked > button {
+  color: color-mix(in srgb, var(--unit-color) 55%, #8e8e93);
+  background: color-mix(in srgb, var(--unit-color) 17%, #ececf0);
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--unit-color) 22%, #c7c7cc);
+}
+
+.dark .course-step.is-locked > button {
+  color: color-mix(in srgb, var(--unit-color) 60%, #6f6f76);
+  background: color-mix(in srgb, var(--unit-color) 20%, #2a2a2e);
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--unit-color) 16%, #1c1c1f);
+}
+
+.course-step-bubble {
+  padding: 5px 12px;
+  border-radius: 10px;
+  border: 2px solid var(--coder-border);
+  background: var(--coder-surface-solid);
+  color: var(--unit-color);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.course-step-name {
+  max-width: 210px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--coder-secondary);
+}
+
+.course-chest {
+  width: 74px;
+  height: 64px;
+  color: #b9bac0;
+}
+
+.course-step-chest.is-opened .course-chest {
+  color: var(--unit-color);
+}
+
+/* Nắp bật lên khi cả chặng đã xong — phần thưởng phải thấy được, không chỉ đọc được. */
+.course-step-chest.is-opened .course-chest-lid {
+  transform: rotate(-24deg) translateY(-2px);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.course-step-trophy {
+  justify-items: center;
+  padding-top: 8px;
+}
+
+.course-step-trophy > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  color: #fff;
+  background: #b9bac0;
+  box-shadow: 0 8px 0 #97989e;
+}
+
+.course-step-trophy.is-opened > span:first-child {
+  background: #ff9500;
+  box-shadow: 0 8px 0 #c26f00;
+}
+
+.course-step-trophy svg {
+  width: 32px;
+  height: 32px;
+}
+
+@media (max-width: 480px) {
+  .course-step { transform: translateX(calc(var(--offset, 0) * 46px)); }
+  .course-step > button { width: 62px; height: 62px; }
+  .course-step-name { max-width: 160px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-step > button,
+  .course-chest-lid,
+  .course-unit-guide svg { transition: none; }
+}
+
+/* ── Dải chỉ số trên cùng ───────────────────────────────────────────────────
+   Lối Duolingo: mở app ra là thấy ngay con đường học, mọi chỉ số nén vào một
+   dải mỏng bám trên đỉnh. Màu lấy từ token Hugo Studio (--coder-blue,
+   --coder-secondary), không mượn bảng màu xanh lá của Duolingo. */
+.coder-status-strip {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 12px 16px 14px;
+  background: var(--coder-surface-solid);
+  border-bottom: 1px solid var(--coder-border);
+}
+
+.coder-status-strip > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.coder-status-strip svg {
+  width: 17px;
+  height: 17px;
+  align-self: center;
+  color: var(--coder-blue);
+}
+
+.coder-status-strip b {
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.coder-status-strip small {
+  font-size: 11px;
+  color: var(--coder-secondary);
+}
+
+/* Thanh tiến độ tổng chiếm phần còn lại của dải — thay cho cả một khối riêng. */
+.coder-status-progress {
+  flex: 1;
+  min-width: 60px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.16);
+}
+
+.coder-status-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--coder-blue);
+  transition: width 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (max-width: 480px) {
+  .coder-status-strip { gap: 12px; padding: 10px 12px 12px; }
+  .coder-status-strip small { display: none; }
+  .coder-status-progress { min-width: 40px; }
+}
+
+
+/* ── Trình phát bài học ─────────────────────────────────────────────────────
+   Mỗi bước chiếm trọn màn và KHÔNG cuộn. Bước nào tràn là dấu hiệu phải cắt nhỏ
+   hơn, không phải cho cuộn — cuộn được là quay lại đúng cái trang dài đã bỏ.
+
+   Nội dung căn giữa theo chiều dọc: bước ngắn thì đứng giữa màn thay vì dính
+   lên đỉnh rồi bỏ trống nửa dưới. */
+.lesson-player {
+  /* Trình học dùng chung cho cả khoá Web lẫn các học phần Năng suất, nên nó
+     phải TỰ MANG bảng màu. Trước đây bảng màu chỉ khai trong `.hugo-coder-shell`
+     — mở trình học ở app khác là `var(--coder-blue)` rỗng, `color-mix()` hỏng
+     theo và nhân vật hiện ra một khối đen. */
+  --coder-blue: #007aff;
+  --coder-blue-pressed: #0066d6;
+  --coder-card: #fff;
+  --coder-surface-solid: #fff;
+  --coder-border: rgba(15, 23, 42, 0.09);
+  --coder-secondary: #667085;
+
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--coder-surface-solid, #fff);
+  color: #0f172a;
+}
+
+.dark .lesson-player {
+  --coder-card: #1c1c1f;
+  --coder-surface-solid: #121214;
+  --coder-border: rgba(255, 255, 255, 0.12);
+  --coder-secondary: #98989f;
+  color: #f2f2f5;
+}
+
+.lesson-player-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: max(14px, env(safe-area-inset-top, 0px)) 16px 14px;
+}
+
+.lesson-player-top > button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--coder-secondary);
+  cursor: pointer;
+}
+
+.lesson-player-top > button:hover { background: rgba(118, 118, 128, 0.12); }
+.lesson-player-top > button svg { width: 21px; height: 21px; }
+
+.lesson-player-track {
+  flex: 1;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.16);
+}
+
+.lesson-player-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--coder-blue);
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lesson-player-count {
+  flex: 0 0 auto;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--coder-secondary);
+}
+
+.lesson-player-flag { color: var(--coder-secondary); }
+
+/* Ngoại lệ DUY NHẤT của luật "màn cố định, không cuộn": bài thi cuối chặng.
+   Đề 8–25 câu không nhét vừa một màn, và người học phải xem lại được câu trước
+   khi nộp. Các bước khác vẫn cấm cuộn như cũ. */
+/* Chỗ CẮT nằm ở `.lesson-player-content` (overflow: hidden + min-height: 0),
+   không phải ở body — cho body cuộn thôi thì đề vẫn bị xén và không ai vuốt
+   được. Ở bước thi, chính ô nội dung là thứ phải cuộn. */
+.lesson-player-body:has(.lesson-exam) .lesson-player-content,
+.lesson-player-body:has(.lesson-exam-result) .lesson-player-content {
+  overflow-y: auto;
+  justify-content: flex-start;
+  /* Chừa chỗ cho ngón tay và thanh cuộn trên iOS. */
+  padding-right: 2px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.lesson-player-body {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 18px;
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 6px 22px 20px;
+}
+
+.lesson-player-head { display: grid; gap: 10px; justify-items: start; }
+
+/* Huy hiệu lớn đầu mỗi bước — thứ cho biết ngay đang ở chế độ nào mà không
+   phải đọc chữ. */
+.lesson-player-badge {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  color: #fff;
+  background: var(--step-tone, #0a84ff);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--step-tone, #0a84ff) 70%, #000);
+}
+
+.lesson-player-badge svg { width: 26px; height: 26px; stroke-width: 2.2; }
+
+.lesson-player-kind {
+  padding: 5px 11px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--step-tone, #0a84ff) 12%, transparent);
+  color: var(--step-tone, #0a84ff);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Tiêu đề bước tách khỏi Markdown nên nó mới nổi lên được. Trước đây nó nằm lẫn
+   trong thân bài và hiện ra như một dòng chữ hoa giữa đoạn văn. */
+.lesson-player-title {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+}
+
+.lesson-player-content {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.lesson-player-prose { font-size: 16px; line-height: 1.62; }
+.lesson-player-prose > :first-child { margin-top: 0; }
+.lesson-player-prose > :last-child { margin-bottom: 0; }
+.lesson-player-prose p { margin: 0 0 12px; }
+.lesson-player-prose strong { font-weight: 700; }
+
+.lesson-player-prose ul,
+.lesson-player-prose ol { margin: 0 0 12px; padding-left: 20px; }
+.lesson-player-prose li { margin-bottom: 6px; }
+
+.lesson-player-prose code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(118, 118, 128, 0.14);
+  font-size: 0.9em;
+}
+
+.lesson-player-prose pre {
+  overflow-x: auto;
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(118, 118, 128, 0.12);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.lesson-player-prose pre code { padding: 0; background: none; }
+
+.lesson-player-lead {
+  margin: 0;
+  font-size: 14px;
+  color: var(--coder-secondary);
+}
+
+.lesson-player-code {
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(118, 118, 128, 0.12);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* Bước thực hành chỉ có MỘT câu — cho nó cỡ chữ của một lời chỉ dẫn, không phải
+   cỡ chữ của một đoạn văn. */
+.lesson-player-do {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+}
+
+.lesson-player-warn { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+.lesson-player-warn li {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border-left: 4px solid #ff9500;
+  background: rgba(255, 149, 0, 0.09);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* Ba trường của một lỗi: triệu chứng đậm, rồi nguyên nhân, rồi cách sửa — đọc
+   dọc xuống đúng thứ tự người học gặp trên máy. */
+.lesson-player-warn b { font-weight: 700; }
+
+.lesson-player-warn .warn-cause,
+.lesson-player-warn .warn-fix {
+  padding-left: 22px;
+  font-size: 14px;
+  color: var(--coder-secondary);
+  text-indent: -22px;
+}
+
+.lesson-player-warn .warn-cause::before { content: "Vì: "; font-weight: 650; }
+.lesson-player-warn .warn-fix::before { content: "Sửa: "; font-weight: 650; }
+
+.lesson-player-foot {
+  padding: 14px 22px max(16px, env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--coder-border);
+}
+
+.lesson-player-foot > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  max-width: 620px;
+  min-height: 54px;
+  margin: 0 auto;
+  border: 0;
+  border-radius: 16px;
+  background: var(--coder-blue);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--coder-blue-pressed);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.lesson-player-foot > button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--coder-blue-pressed);
+}
+
+.lesson-player-foot > button:disabled {
+  background: rgba(118, 118, 128, 0.2);
+  color: var(--coder-secondary);
+  box-shadow: none;
+  cursor: default;
+}
+
+.lesson-player-foot svg { width: 19px; height: 19px; }
+
+/* ── Ô góp ý ────────────────────────────────────────────────────────────── */
+.lesson-feedback-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.44);
+}
+
+.lesson-feedback {
+  width: 100%;
+  max-width: 520px;
+  padding: 22px 22px max(20px, env(safe-area-inset-bottom, 0px));
+  border-radius: 24px 24px 0 0;
+  background: var(--coder-surface-solid, #fff);
+}
+
+.lesson-feedback h3 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+.lesson-feedback p { margin: 6px 0 14px; font-size: 14px; line-height: 1.5; color: var(--coder-secondary); }
+
+.lesson-feedback textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--coder-border);
+  border-radius: 14px;
+  background: rgba(118, 118, 128, 0.08);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.lesson-feedback textarea:focus { border-color: var(--coder-blue); }
+
+.lesson-feedback-actions { display: flex; gap: 10px; margin-top: 14px; }
+
+.lesson-feedback-actions button {
+  flex: 1;
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--coder-blue);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lesson-feedback-actions button:disabled { opacity: 0.45; cursor: default; }
+
+.lesson-feedback-actions .is-ghost {
+  flex: 0 0 auto;
+  padding: 0 20px;
+  background: rgba(118, 118, 128, 0.14);
+  color: inherit;
+}
+
+@media (min-width: 720px) {
+  .lesson-feedback-backdrop { align-items: center; padding: 24px; }
+  .lesson-feedback { border-radius: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-player-track i,
+  .lesson-player-foot > button { transition: none; }
+}
+
+/* Blockquote trong giáo trình là chỗ đặt định nghĩa và quy tắc — chiếm phần lớn
+   nội dung "khô khan" trước đây vì nó hiện ra y hệt đoạn văn thường. Cho nó
+   hình dạng thẻ để mắt bám được. */
+.lesson-player-prose blockquote {
+  margin: 0 0 12px;
+  padding: 14px 16px;
+  border: 0;
+  border-left: 4px solid var(--step-tone, #0a84ff);
+  border-radius: 0 14px 14px 0;
+  background: color-mix(in srgb, var(--step-tone, #0a84ff) 8%, transparent);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+.lesson-player-prose blockquote > :last-child { margin-bottom: 0; }
+
+/* Giáo trình dùng ### và #, không dùng ##. Style cả ba mức để tiêu đề phụ nằm
+   lại trong thân bài vẫn có hình dạng riêng. */
+.lesson-player-prose h1,
+.lesson-player-prose h2,
+.lesson-player-prose h3,
+.lesson-player-prose h4 {
+  margin: 16px 0 8px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--step-tone, #0a84ff);
+  text-transform: uppercase;
+}
+
+.lesson-player-prose h1:first-child,
+.lesson-player-prose h2:first-child,
+.lesson-player-prose h3:first-child,
+.lesson-player-prose h4:first-child { margin-top: 0; }
+
+.lesson-player-prose table {
+  width: 100%;
+  margin: 0 0 12px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.lesson-player-prose th,
+.lesson-player-prose td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--coder-border);
+  text-align: left;
+}
+
+.lesson-player-prose th { font-weight: 700; color: var(--coder-secondary); }
+
+/* Bước thực hành và bước chép mã cũng ăn màu của loại bước. */
+.lesson-player-code {
+  border-left: 4px solid var(--step-tone, #5856d6);
+  border-radius: 0 16px 16px 0;
+}
+
+.lesson-player-warn li { border-left-color: var(--step-tone, #f76b15); }
+
+.lesson-player-do::before {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 4px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  background: var(--step-tone, #12a594);
+}
+
+/* ── Card mã mẫu kiểu cửa sổ soạn thảo ──────────────────────────────────────
+   Học viên gõ code ở máy mình; card này để NHÌN và CHÉP, không phải để sửa.
+   Thanh tiêu đề giả lập cửa sổ soạn thảo cho biết ngay đây là mã nguồn. */
+.lesson-ide {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--coder-border);
+  border-radius: 16px;
+  background: #0f1117;
+}
+
+.lesson-ide-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  background: #171a22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.lesson-ide-dots { display: inline-flex; gap: 5px; flex: 0 0 auto; }
+.lesson-ide-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
+.lesson-ide-dots i:first-child { background: #ff5f57; }
+.lesson-ide-dots i:nth-child(2) { background: #febc2e; }
+.lesson-ide-dots i:last-child { background: #28c840; }
+
+.lesson-ide-file {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.lesson-ide-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lesson-ide-bar button:hover { background: rgba(255, 255, 255, 0.18); }
+.lesson-ide-bar button svg { width: 14px; height: 14px; }
+
+/* Card cuộn được BÊN TRONG — đây là ngoại lệ có chủ đích của luật "màn không
+   cuộn": mã nguồn dài là bản chất của nó, và cuộn trong một khung có viền thì
+   người học vẫn thấy mình đang đứng ở đâu trong bước. */
+.lesson-ide-code {
+  min-height: 0;
+  max-height: 34vh;
+  overflow: auto;
+  margin: 0;
+  padding: 14px 16px;
+  color: #e6e8ee;
+  font-size: 13px;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.lesson-ide-code code { color: inherit; background: none; }
+
+/* ── Màn chúc mừng ──────────────────────────────────────────────────────── */
+.lesson-done {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 24px 26px max(24px, env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+
+.lesson-done h2 {
+  margin: 10px 0 0;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.lesson-done > p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--coder-secondary);
+}
+
+.lesson-done-count {
+  margin-top: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.14);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--coder-secondary);
+}
+
+.lesson-done-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 26px;
+}
+
+.lesson-done-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--coder-blue);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 5px 0 var(--coder-blue-pressed);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.lesson-done-actions button:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--coder-blue-pressed);
+}
+
+.lesson-done-actions .is-ghost {
+  background: rgba(118, 118, 128, 0.16);
+  color: inherit;
+  box-shadow: 0 5px 0 rgba(118, 118, 128, 0.28);
+}
+
+.lesson-done-actions svg { width: 18px; height: 18px; }
+
+/* ── Hugo — nhân vật đồng hành ──────────────────────────────────────────────
+   Vẽ hoàn toàn bằng SVG: nhẹ gần bằng không, nét sắc ở mọi cỡ, đổi biểu cảm
+   bằng vài đường thay vì thêm một tấm ảnh. */
+.lesson-buddy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lesson-buddy-art { flex: 0 0 auto; width: 64px; height: 64px; }
+.lesson-buddy.is-lg .lesson-buddy-art { width: 132px; height: 132px; }
+
+.buddy-disc { fill: color-mix(in srgb, var(--coder-blue) 10%, transparent); }
+.buddy-hair { fill: #23252d; }
+.buddy-skin { fill: #ffd9b8; }
+.buddy-shirt { fill: #b9cbe8; }
+.buddy-collar { stroke: #97b0d6; }
+.buddy-sleeve { stroke: #b9cbe8; }
+.buddy-hand { fill: #ffd9b8; }
+.buddy-thumb { stroke: #ffd9b8; }
+.buddy-glasses rect { fill: #1f2330; }
+.buddy-glasses path { stroke: #1f2330; }
+.buddy-blush { fill: #ffb0a6; opacity: 0.75; }
+.buddy-mouth-line { stroke: #7a3b32; stroke-width: 3.4; stroke-linecap: round; fill: none; }
+.buddy-mouth-open { fill: #7a3b32; stroke: none; }
+.buddy-spark { stroke: #ffc531; fill: none; }
+
+/* Bong bóng thoại — mũi nhọn chỉ về phía nhân vật. */
+.lesson-buddy-bubble {
+  position: relative;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(118, 118, 128, 0.13);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.lesson-buddy-bubble::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: -6px;
+  width: 12px;
+  height: 12px;
+  transform: rotate(45deg);
+  background: inherit;
+}
+
+.lesson-buddy.is-correct .lesson-buddy-bubble {
+  background: rgba(18, 165, 148, 0.15);
+  color: #0e7f72;
+  font-weight: 700;
+}
+
+.lesson-buddy.is-wrong .lesson-buddy-bubble {
+  background: rgba(229, 72, 77, 0.13);
+  color: #c0333a;
+}
+
+.dark .lesson-buddy.is-correct .lesson-buddy-bubble { color: #4fd6c4; }
+.dark .lesson-buddy.is-wrong .lesson-buddy-bubble { color: #ff8a8f; }
+
+.lesson-buddy.is-lg {
+  flex-direction: column;
+  gap: 14px;
+  text-align: center;
+}
+
+.lesson-buddy.is-lg .lesson-buddy-bubble { font-size: 16px; }
+.lesson-buddy.is-lg .lesson-buddy-bubble::before { top: -6px; left: calc(50% - 6px); }
+
+/* Nảy một nhịp khi đổi biểu cảm — mừng đúng lúc rồi thôi, không nhấp nháy mãi. */
+@media (prefers-reduced-motion: no-preference) {
+  .lesson-buddy.is-correct .lesson-buddy-art,
+  .lesson-buddy.is-done .lesson-buddy-art {
+    animation: buddy-pop 460ms cubic-bezier(0.22, 1.3, 0.36, 1) both;
+  }
+  @keyframes buddy-pop {
+    from { transform: scale(0.72) rotate(-7deg); }
+    to { transform: scale(1) rotate(0); }
+  }
+}
+
+/* ── Bài kiểm tra cuối chặng ────────────────────────────────────────────────
+   Khác các bước khác ở một điểm: bước này ĐƯỢC cuộn. Đề 8–25 câu không thể nhét
+   vừa một màn, mà cắt nhỏ thì người học mất khả năng xem lại câu trước trước
+   khi nộp — điều kiện tối thiểu của một bài thi. */
+.lesson-exam { display: grid; gap: 16px; }
+
+.lesson-exam-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(194, 65, 12, 0.09);
+  font-size: 14px;
+  font-weight: 600;
+  color: #9a3412;
+}
+
+.dark .lesson-exam-note { color: #fdba74; }
+.lesson-exam-note svg { width: 17px; height: 17px; flex: 0 0 auto; }
+
+.lesson-exam-questions {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
+.lesson-exam-questions > li > p {
+  margin: 0 0 10px;
+  font-size: 15.5px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.lesson-exam-questions > li > div { display: grid; gap: 8px; }
+
+.lesson-exam-questions button {
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 2px solid var(--coder-border);
+  border-radius: 12px;
+  background: var(--coder-card);
+  font-size: 15px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.lesson-exam-questions button.is-picked {
+  border-color: var(--coder-blue);
+  background: rgba(0, 122, 255, 0.1);
+  font-weight: 650;
+}
+
+.lesson-exam-submit,
+.lesson-exam.is-error button,
+.lesson-exam-result button {
+  min-height: 50px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: var(--coder-blue);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.lesson-exam-submit:disabled { background: rgba(118, 118, 128, 0.22); color: var(--coder-secondary); }
+
+.lesson-exam-pass-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.lesson-exam-cert-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: #12a594;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.lesson-exam-cert-link:active { opacity: 0.8; }
+.lesson-exam-cert-link svg { width: 18px; height: 18px; }
+
+.lesson-exam.is-loading,
+.lesson-exam.is-error {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.lesson-exam.is-loading span {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(118, 118, 128, 0.25);
+  border-top-color: var(--coder-blue);
+  border-radius: 50%;
+  animation: lesson-exam-spin 720ms linear infinite;
+}
+
+@keyframes lesson-exam-spin { to { transform: rotate(360deg); } }
+
+.lesson-exam-result {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+}
+
+.lesson-exam-result svg { width: 52px; height: 52px; }
+.lesson-exam-result.is-pass svg { color: #12a594; }
+.lesson-exam-result.is-fail svg { color: #f76b15; }
+.lesson-exam-result strong { font-size: 40px; font-weight: 800; letter-spacing: -0.02em; }
+.lesson-exam-result p { margin: 0; font-size: 15px; color: var(--coder-secondary); }
+
+.lesson-exam-review {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.lesson-exam-review li {
+  display: flex;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(118, 118, 128, 0.09);
+  font-size: 14px;
+}
+
+.lesson-exam-review li.is-right { background: rgba(18, 165, 148, 0.1); }
+.lesson-exam-review li.is-wrong { background: rgba(247, 107, 21, 0.1); }
+.lesson-exam-review b { flex: 0 0 auto; font-weight: 700; }
+.lesson-exam-review span { color: var(--coder-secondary); }
+
+/* Nhãn nhóm câu hỏi và đoạn mã của câu đọc–điền code. */
+.lesson-exam-group {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.14);
+  font-size: 11.5px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--coder-secondary);
+}
+
+.lesson-exam-code {
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--coder-border);
+  background: #1e1e28;
+  color: #e6e6f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  /* Mã dài phải cuộn trong khung của nó, không đẩy cả trang trượt ngang. */
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── Huy hiệu xếp loại chặng ────────────────────────────────────────────────
+   Hiện ngay trên biển tên khi người học đã thi, để không phải đợi tới lúc nhận
+   chứng chỉ mới biết mình đứng ở đâu. */
+.course-unit-grade {
+  display: inline-flex;
+  align-items: center;
+  align-self: start;
+  margin-top: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  background: rgba(118, 118, 128, 0.16);
+  color: var(--coder-secondary);
+}
+
+.course-unit-grade.is-excellent { background: rgba(18, 165, 148, 0.16); color: #0d7d70; }
+.course-unit-grade.is-great     { background: rgba(0, 122, 255, 0.14);  color: #0a5fc0; }
+.course-unit-grade.is-good      { background: rgba(255, 149, 0, 0.16);  color: #9a5b00; }
+.course-unit-grade.is-pass      { background: rgba(142, 78, 198, 0.14); color: #6b34a0; }
+.course-unit-grade.is-none      { background: rgba(247, 107, 21, 0.15); color: #a63d05; }
+
+.dark .course-unit-grade.is-excellent { color: #5fd6c6; }
+.dark .course-unit-grade.is-great     { color: #7ab5ff; }
+.dark .course-unit-grade.is-good      { color: #ffc06b; }
+.dark .course-unit-grade.is-pass      { color: #c99bf0; }
+.dark .course-unit-grade.is-none      { color: #ff9d5c; }
+
+/* ── Chuyển động ────────────────────────────────────────────────────────────
+   Nguyên tắc: chỉ animate `transform` và `opacity` (chạy trên GPU, không bắt
+   trình duyệt tính lại bố cục), và mọi thứ đều tắt sạch khi người dùng bật
+   giảm chuyển động. Không có gì nhấp nháy vô hạn ngoài hai chỗ có chủ đích:
+   bước đang học và rương chưa mở — hai thứ cần mắt tìm ra ngay. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Bản đồ: từng chặng trồi lên khi cuộn tới. `animation-timeline` chưa phổ
+     cập nên dùng độ trễ theo thứ tự — đủ để bản đồ "dựng lên" chứ không bày
+     sẵn cả trăm bài cùng lúc. */
+  .course-unit {
+    animation: course-unit-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .course-unit:nth-child(2) { animation-delay: 60ms; }
+  .course-unit:nth-child(3) { animation-delay: 120ms; }
+  .course-unit:nth-child(4) { animation-delay: 180ms; }
+  .course-unit:nth-child(5) { animation-delay: 240ms; }
+  .course-unit:nth-child(6) { animation-delay: 300ms; }
+
+  @keyframes course-unit-in {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Bước đang học thở nhẹ — đây là thứ duy nhất trên bản đồ được phép động
+     mãi, vì nó là chỗ người học phải nhìn thấy đầu tiên. */
+  .course-step.is-current > button {
+    animation: course-step-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes course-step-pulse {
+    0%, 100% { transform: perspective(520px) rotateX(9deg) scale(1); }
+    50%      { transform: perspective(520px) rotateX(9deg) scale(1.06); }
+  }
+
+  .course-step-bubble {
+    animation: course-bubble-in 520ms cubic-bezier(0.22, 1.3, 0.36, 1) both;
+  }
+
+  @keyframes course-bubble-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.9); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Bài vừa học xong: dấu tích nảy lên một nhịp rồi thôi. */
+  .course-step.is-done > button svg {
+    animation: course-check-in 420ms cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+
+  @keyframes course-check-in {
+    from { transform: scale(0.4) rotate(-25deg); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+
+  /* Rương chưa mở lắc nhẹ theo nhịp chậm — mời gọi đi tiếp. Rương đã mở thì
+     đứng yên: phần thưởng đã nhận rồi, không cần đòi chú ý nữa. */
+  .course-step-chest.is-locked .course-chest {
+    animation: course-chest-tease 3.6s ease-in-out infinite;
+    transform-origin: 50% 85%;
+  }
+
+  @keyframes course-chest-tease {
+    0%, 88%, 100% { transform: rotate(0); }
+    91%           { transform: rotate(-5deg); }
+    94%           { transform: rotate(5deg); }
+    97%           { transform: rotate(-2deg); }
+  }
+
+  .course-step-chest.is-opened .course-chest {
+    animation: course-chest-open 620ms cubic-bezier(0.22, 1.3, 0.36, 1) both;
+  }
+
+  @keyframes course-chest-open {
+    from { transform: scale(0.7); }
+    to   { transform: none; }
+  }
+
+  /* Biển tên chặng đã hoàn thành: huy hiệu xếp loại nảy vào. */
+  .course-unit-grade {
+    animation: course-grade-in 480ms cubic-bezier(0.22, 1.35, 0.36, 1) both;
+  }
+
+  @keyframes course-grade-in {
+    from { opacity: 0; transform: translateX(-10px) scale(0.86); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Phần "chặng này học gì" mở ra bằng chiều cao thật, không giật. */
+  .course-unit-guidebook {
+    animation: course-guide-in 300ms ease-out both;
+  }
+
+  @keyframes course-guide-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── Giao diện học ──────────────────────────────────────────────────────
+     Mỗi bước là một màn mới: nội dung trượt vào, huy hiệu loại bước nảy lên,
+     thanh tiến độ chạy mượt. Khoá theo `key` của bước ở React nên đổi bước là
+     animation chạy lại. */
+  .lesson-player-content {
+    animation: lesson-step-in 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes lesson-step-in {
+    from { opacity: 0; transform: translateX(22px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .lesson-player-badge {
+    animation: lesson-badge-in 420ms cubic-bezier(0.22, 1.35, 0.36, 1) both;
+  }
+
+  @keyframes lesson-badge-in {
+    from { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .lesson-player-title {
+    animation: lesson-title-in 380ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+  }
+
+  @keyframes lesson-title-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Câu trả lời sai: rung ngang một nhịp — nói "chưa đúng" nhanh hơn đọc chữ. */
+  .lesson-player-body.is-wrong .lesson-player-content {
+    animation: lesson-shake 420ms ease-in-out both;
+  }
+
+  @keyframes lesson-shake {
+    0%, 100%      { transform: translateX(0); }
+    20%, 60%      { transform: translateX(-9px); }
+    40%, 80%      { transform: translateX(9px); }
+  }
+
+  /* Card mã mẫu trượt lên sau phần chữ, để mắt đọc lời dẫn trước rồi mới tới
+     code chứ không nhảy thẳng vào khối đen. */
+  .lesson-player-content .lesson-ide {
+    animation: lesson-code-in 420ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+  }
+
+  @keyframes lesson-code-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Danh sách lỗi hay gặp: từng dòng vào lệch nhịp. */
+  .lesson-player-warn li {
+    animation: lesson-warn-in 360ms ease-out both;
+  }
+  .lesson-player-warn li:nth-child(2) { animation-delay: 70ms; }
+  .lesson-player-warn li:nth-child(3) { animation-delay: 140ms; }
+  .lesson-player-warn li:nth-child(4) { animation-delay: 210ms; }
+  .lesson-player-warn li:nth-child(n + 5) { animation-delay: 280ms; }
+
+  @keyframes lesson-warn-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Bài thi: câu hỏi vào lần lượt, phương án vừa chọn nảy nhẹ. */
+  .lesson-exam-questions > li {
+    animation: lesson-warn-in 320ms ease-out both;
+  }
+  .lesson-exam-questions > li:nth-child(2) { animation-delay: 40ms; }
+  .lesson-exam-questions > li:nth-child(3) { animation-delay: 80ms; }
+  .lesson-exam-questions > li:nth-child(n + 4) { animation-delay: 120ms; }
+
+  .lesson-exam-questions button.is-picked {
+    animation: lesson-pick 260ms cubic-bezier(0.22, 1.4, 0.36, 1);
+  }
+
+  @keyframes lesson-pick {
+    50% { transform: scale(1.025); }
+  }
+
+  .lesson-exam-result strong {
+    animation: lesson-score-in 560ms cubic-bezier(0.22, 1.3, 0.36, 1) both;
+  }
+
+  @keyframes lesson-score-in {
+    from { opacity: 0; transform: scale(0.5); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .lesson-exam-review li {
+    animation: lesson-warn-in 300ms ease-out both;
+  }
+  .lesson-exam-review li:nth-child(n + 4) { animation-delay: 90ms; }
+}
+
+/* Thanh tiến độ luôn chạy mượt, kể cả khi tắt chuyển động: nó truyền tải THÔNG
+   TIN (đi được bao xa) chứ không phải trang trí. */
+.lesson-player-track > i { transition: width 380ms cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Bước thực hành của học phần Năng suất: việc phải tự kiểm sau khi thao tác. */
+.lesson-player-checkpoint {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(18, 165, 148, 0.1);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #0d7d70;
+}
+
+.dark .lesson-player-checkpoint { color: #5fd6c6; }
+
+.lesson-player-checkpoint svg { width: 17px; height: 17px; flex: 0 0 auto; margin-top: 2px; }
+
+/* Bước nộp bằng chứng. */
+.lesson-player-submit {
+  width: 100%;
+  padding: 13px 15px;
+  border: 2px solid var(--coder-border);
+  border-radius: 14px;
+  background: var(--coder-card);
+  color: inherit;
+  font: inherit;
+  font-size: 15.5px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.lesson-player-submit:focus-visible {
+  outline: none;
+  border-color: var(--step-tone, var(--coder-blue));
+}
+
+/* Thanh bằng chứng: nói rõ còn thiếu ý nào, thay vì một nút mờ không giải thích. */
+.lesson-player-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lesson-player-evidence li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(118, 118, 128, 0.14);
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--coder-secondary);
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.lesson-player-evidence li.is-matched {
+  background: rgba(18, 165, 148, 0.16);
+  color: #0d7d70;
+}
+
+.dark .lesson-player-evidence li.is-matched { color: #5fd6c6; }
+
+.lesson-player-evidence svg { width: 14px; height: 14px; stroke-width: 3; }
