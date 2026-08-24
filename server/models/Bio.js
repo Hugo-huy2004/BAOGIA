@@ -476,7 +476,9 @@ const BioSchema = new mongoose.Schema(
       default: []
     },
     // Lifetime HugoSO course entitlements purchased with JOY.
-    // Values are stable curriculum ids: calendar, docs, sheets, gemini.
+    // Values are stable curriculum ids: calendar, docs, sheets, ai.
+    // Bản ghi cũ có thể còn 'gemini' (tên trước của học phần AI) — joyRoutes
+    // quy về 'ai' khi kiểm quyền, đừng viết migration xoá nó.
     hugoSOCourses: {
       type: [String],
       default: []

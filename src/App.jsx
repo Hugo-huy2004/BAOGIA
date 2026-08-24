@@ -2,7 +2,7 @@ import { useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
 import { isPublicToolPath } from "./config/publicTools";
-import { isStandalone } from "./config/platform";
+import { APP_DISPLAY_QUERY, detectInstallTarget, isStandalone } from "./config/platform";
 import { ensureTranslations } from "./i18n/config";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
@@ -19,6 +19,7 @@ import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
 import NativeShell from "./components/NativeShell";
+import MobileInstallGate from "./components/ui/MobileInstallGate";
 import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
 import { LazyMotion } from "framer-motion";
@@ -49,6 +50,7 @@ const PWALoginPage = lazyRoute(() => import("./pages/public/PWALoginPage"));
 const MemberPortalPage = lazyRoute(() => import("./pages/member/MemberPortalPage"));
 const BioPublicPage = lazyRoute(() => import("./pages/public/BioPublicPage"));
 const CoderCertificatePage = lazyRoute(() => import("./pages/public/CoderCertificatePage"));
+const HugoLearningPage = lazyRoute(() => import("./pages/public/HugoLearningPage"));
 const AdminPanel = lazyRoute(() => import("./pages/admin/AdminPanel"));
 const PartnerBioPage = lazyRoute(() => import("./pages/member/PartnerBioPage"));
 const FAQPage = lazyRoute(() => import("./pages/public/FAQPage"));
@@ -133,15 +135,38 @@ function AppContent() {
   // Allowed standalone-app paths come from the registry so this can no longer
   // drift out of sync with the tools UtilityPublicPage actually renders.
   const isPublicUtilityRoute = isPublicToolPath(location.pathname);
+  // Hugo Learning là một dịch vụ ĐỨNG RIÊNG: nó có đầu trang, chân trang và
+  // điều hướng của chính nó, nên cả cây /study không dùng navbar/footer chung
+  // của Hugo Studio — kể cả khi đã đăng nhập.
+  const isLearningRoute = /^\/(?:study|hugoso)(?:\/|$)/.test(location.pathname);
+
+  // Trên điện thoại, khu vực thành viên chỉ chạy trong app đã cài: trình duyệt
+  // di động bị khoá và thay bằng hướng dẫn cài đặt bám theo đúng thiết bị.
+  // Miễn trừ ?embed=true (portal tự nhúng app của nó bằng iframe) — đó không
+  // phải người dùng đang duyệt web.
+  if (
+    location.pathname.startsWith("/member") &&
+    detectInstallTarget().isMobile &&
+    !isStandalone() &&
+    new URLSearchParams(location.search).get("embed") !== "true"
+  ) {
+    return <MobileInstallGate />;
+  }
 
   if (isMaintenanceMode && !isAdminOrLoginRoute && !isCustomerPortalRoute && !isSecretLinkRoute && !isPayRoute && !isIdeRoute && !isChessRoute && !isArcadeRoute) {
     return <MaintenancePage />;
   }
 
-  if (isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
+  if (isLearningRoute || isBioRoute || isPartnerBioRoute || isPreviewRoute || isCustomerPortalRoute || isSecretLinkRoute || isPayRoute || isIdeRoute || isChessRoute || isArcadeRoute) {
     return (
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div></div>}>
         <Routes>
+          <Route path="/study" element={<HugoLearningPage />} />
+          <Route path="/study/:page" element={<HugoLearningPage />} />
+          <Route path="/study/:page/:sub" element={<HugoLearningPage />} />
+          <Route path="/hugoso" element={<HugoLearningPage />} />
+          <Route path="/hugoso/:page" element={<HugoLearningPage />} />
+          <Route path="/hugoso/:page/:sub" element={<HugoLearningPage />} />
           <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
           <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
@@ -245,6 +270,13 @@ function AppContent() {
                 ? <MemberPortalPage />
                 : <Navigate to="/login" replace />
             } />
+            {/* Đoạn thứ năm — /member/utilities/study/<khoá>/<bài>. Thiếu nhánh
+                này thì mở bài trong portal rồi tải lại là rơi xuống "*". */}
+            <Route path="/member/:tab/:subTab/:psychTab/:deepTab" element={
+              (isMemberAuthenticated() || new URLSearchParams(window.location.search).get("embed") === "true")
+                ? <MemberPortalPage />
+                : <Navigate to="/login" replace />
+            } />
             <Route path="/bio/:slug" element={<BioPublicPage />} />
           <Route path="/certificate/:slug/:phase" element={<CoderCertificatePage />} />
             <Route path="/s/:slug/:linkId" element={<SecretLinkUnlock />} />
@@ -275,6 +307,9 @@ function AppContent() {
                 Không có nhánh này thì mở app rồi tải lại trang là văng ra
                 /introduction, vì địa chỉ hai đoạn rơi xuống route "*". */}
             <Route path="/:tool/:page" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
+            {/* Đường thứ ba — /study/<khoá>/<bài>. Khoá nằm trong địa chỉ nên
+                không phải suy bài thuộc khoá nào. */}
+            <Route path="/:tool/:page/:sub" element={isPublicUtilityRoute ? <UtilityPublicPage /> : <Navigate to="/introduction" replace />} />
             
             <Route path="*" element={<Navigate to="/introduction" replace />} />
           </Routes>
@@ -318,7 +353,7 @@ export default function App() {
     const root = document.documentElement;
     const sync = () => root.classList.toggle("standalone-pwa", isStandalone());
     sync();
-    const mq = window.matchMedia("(display-mode: standalone)");
+    const mq = window.matchMedia(APP_DISPLAY_QUERY);
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);

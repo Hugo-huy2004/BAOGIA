@@ -68,4 +68,22 @@ export default [
     files: ['**/*.test.{js,jsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
+  {
+    // ── Mã chạy trên Node ────────────────────────────────────────────────
+    // Trước đây `npm run lint` chỉ quét `src`, nên backend KHÔNG hề được lint.
+    // Hậu quả thật: dataRoutes.js ôm 130 dòng hàm chết cùng nhiều import mồ
+    // côi mà không có gì báo, và một `'process' is not defined` nằm im trong
+    // khối VAPID. Chỗ này khai globals Node và tắt các luật React vô nghĩa với
+    // mã máy chủ, để phần còn lại của cấu hình áp dụng được cho cả backend.
+    files: ['server/**/*.js', 'scripts/**/*.js', 'scripts/**/*.mjs', 'workers/**/*.js', '*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: { ...globals.node },
+    },
+    rules: {
+      'react-refresh/only-export-components': 'off',
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
 ]

@@ -10,7 +10,7 @@ import {
   Clock3,
   Search,
 } from "lucide-react";
-import { HUGOSO_COURSES, HUGOSO_COURSE_ORDER } from "../hugoSO/hugoSOCourses";
+import { HUGOSO_COURSES } from "../hugoSO/hugoSOCourses";
 import {
   COURSE_MAP_ROUTE,
   STUDY_COLLECTIONS,
@@ -22,7 +22,6 @@ import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import "./study-with-hugo.css";
 
 const WebLearningApp = lazy(() => import("../hugoCoder/HugoCoderHub"));
-const ProductivityLearningApp = lazy(() => import("../hugoSO/HugoSOApp"));
 
 /**
  * Các bảng ở trang chủ Study — KHAI BÁO MỘT CHỖ.
@@ -252,10 +251,10 @@ function LearnerStats({ copy, totals }) {
  * `role="tabpanel"`, khai tab là hứa với trình đọc màn hình một thứ không tồn
  * tại. `aria-pressed` mô tả đúng cái đang xảy ra.
  */
-function PanelSwitch({ copy, activeId, onSelect }) {
+function PanelSwitch({ copy, activeId, onSelect, hide = [] }) {
   return (
     <div className="study-filters" role="group" aria-label={copy.library}>
-      {HOME_PANELS.map((panel) => (
+      {HOME_PANELS.filter((item) => !hide.includes(item.id)).map((panel) => (
         <button
           key={panel.id}
           type="button"
@@ -440,9 +439,25 @@ export default function StudyWithHugoApp({
   onBack,
   // Đoạn thứ ba của địa chỉ — xem STUDY ROUTE trong studyCurriculum.js.
   studyRoute = null,
+  // Đoạn thứ tư: bài học trong khoá — xem STUDY ROUTE trong studyCurriculum.js.
+  studySub = null,
   // > 0 trên trang công khai /study: học thật được `previewLessons` bài đầu rồi
   // mới phải đăng nhập và mua gói. Portal thành viên để 0, hành vi giữ nguyên.
   previewLessons = 0,
+  // Nhúng trong vỏ Hugo Learning: vỏ đó đã có thanh thương hiệu và tab-bar
+  // riêng, nên app không dựng thêm thanh đầu của mình — hai tầng tab chồng nhau
+  // là thứ làm màn hình rối nhất.
+  embedded = false,
+  // GỐC của các khoá học, khi nó KHÁC địa chỉ đang đứng.
+  //
+  // Vỏ Hugo Learning treo thư viện ở /study/khoa-hoc, nhưng khoá học vẫn phải ở
+  // /study/<khoá> vì địa chỉ chỉ có ba đoạn (xem STUDY ROUTE). Suy gốc từ
+  // pathname như mặc định thì gốc thành "/study/khoa-hoc", "Bắt đầu" đi tới
+  // /study/khoa-hoc/web — một địa chỉ không phải khoá nào cả, nên màn hình chỉ
+  // vẽ lại chính thư viện: không khoá nào mở được.
+  studyBasePath = null,
+  // Nơi "thoát khoá" quay về — thư viện, không phải gốc dịch vụ.
+  studyHomePath = null,
 }) {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
@@ -450,8 +465,9 @@ export default function StudyWithHugoApp({
   const copy = STUDY_COPY[locale];
 
   // Màn đang mở SUY RA TỪ ĐỊA CHỈ, không giữ trong state — xem resolveStudyRoute.
-  const { view, lessonId, officeCourseId, basePath } =
-    resolveStudyRoute(useLocation().pathname, studyRoute);
+  const { view, courseId, lessonId, basePath: routeBasePath } =
+    resolveStudyRoute(useLocation().pathname, studyRoute, studySub);
+  const basePath = studyBasePath || routeBasePath;
 
   const [panelId, setPanelId] = useState(HOME_PANELS[0].id);
   const [query, setQuery] = useState("");
@@ -507,15 +523,21 @@ export default function StudyWithHugoApp({
   // Mở BẢN ĐỒ khoá học, không nhảy thẳng vào một bài. Người học phải thấy mình
   // đang ở đâu trên con đường trước khi bước tiếp — nhảy thẳng vào bài là lý do
   // trước giờ không ai nhìn thấy bản đồ. Cả coder lẫn office đều mở CourseMap.
-  const openPart = (part, collection) => navigate(`${basePath}/${COURSE_MAP_ROUTE}`, {
-    state: { collectionId: collection?.id || part.collectionId || "web-development", courseId: part.id },
-  });
-  const backToStudy = () => navigate(basePath);
+  // Địa chỉ mang đúng tên khoá, không phải lúc nào cũng "web": mở CAL 101 mà
+  // thanh địa chỉ ghi /study/web thì chia sẻ hay tải lại đều ra khoá khác.
+  const openPart = (part, collection) => {
+    const kind = collection?.kind || (HUGOSO_COURSES[part.id] ? "office" : "coder");
+    navigate(`${basePath}/${kind === "office" ? part.id : COURSE_MAP_ROUTE}`);
+  };
+  const backToStudy = () => navigate(studyHomePath || basePath);
 
-  // Xác định bộ sưu tập + học phần đang xem qua navigation state.
-  const locationState = useLocation().state;
-  const viewedCollectionId = locationState?.collectionId || "web-development";
-  const viewedCourseId = locationState?.courseId;
+  // Khoá đang xem lấy THẲNG từ địa chỉ — `resolveStudyRoute` đã xác định và đã
+  // kiểm bài có thuộc khoá đó không. Không còn suy từ navigation state, vì state
+  // mất khi tải lại trang và địa chỉ sẽ nói một đằng, màn hình hiện một nẻo.
+  const officeCollection = STUDY_COLLECTIONS.find((item) => item.kind === "office");
+  const isOfficeCourse = Boolean(courseId) && courseId !== COURSE_MAP_ROUTE;
+  const viewedCollectionId = isOfficeCourse ? officeCollection?.id : "web-development";
+  const viewedCourseId = isOfficeCourse ? courseId : null;
   const viewedCollection = collections.find((c) => c.id === viewedCollectionId) || collections[0];
   const isOfficeCollection = viewedCollection.kind === "office";
 
@@ -528,7 +550,10 @@ export default function StudyWithHugoApp({
     [viewedPart, locale],
   );
 
-  if (view === "coder") {
+  // CẢ HAI loại khoá đều render qua đây: học phần Năng suất đã được
+  // `adaptOfficePartToCoderFormat` chuyển sang đúng định dạng bản đồ, nên chỉ
+  // cần biết địa chỉ có trỏ vào một khoá hay không.
+  if (view) {
     return (
       <Suspense fallback={<AppLoading copy={copy} />}>
         <WebLearningApp
@@ -537,7 +562,7 @@ export default function StudyWithHugoApp({
           onBioUpdate={onBioUpdate}
           urlLessonId={lessonId}
           previewLessons={previewLessons}
-          basePath={basePath}
+          basePath={`${basePath}/${courseId || COURSE_MAP_ROUTE}`}
           onBack={backToStudy}
           externalCourses={officeAdaptedData?.courses}
           externalStages={officeAdaptedData?.stages}
@@ -556,7 +581,9 @@ export default function StudyWithHugoApp({
 
   return (
     <div className="study-app" data-locale={locale}>
-      <StudyTopBar copy={copy} percent={percentage(totals.completed, totals.total)} onBack={onBack} />
+      {!embedded && (
+        <StudyTopBar copy={copy} percent={percentage(totals.completed, totals.total)} onBack={onBack} />
+      )}
 
       <main className="study-main">
         <StudyHero copy={copy} />
@@ -576,7 +603,12 @@ export default function StudyWithHugoApp({
             )}
           </div>
 
-          <PanelSwitch copy={copy} activeId={panel.id} onSelect={setPanelId} />
+          <PanelSwitch
+            copy={copy}
+            activeId={panel.id}
+            onSelect={setPanelId}
+            hide={embedded ? ["progress"] : []}
+          />
 
           {/* Các bảng này nói về CẢ chương trình, không riêng khoá nào — nên
               chúng thuộc về trang chủ, không phải thanh tab bên trong một khoá. */}

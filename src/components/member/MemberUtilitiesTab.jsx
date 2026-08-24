@@ -24,7 +24,7 @@ const HugoCinemaTab = lazy(() => import("./cinema/HugoCinemaTab"));
 const HugoInvestTab = lazy(() => import("./invest/HugoInvestTab"));
 const SupportCenterApp = lazy(() => import("./support/SupportCenterApp"));
 
-export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, onOpenParticleModal }) {
+export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
   const { data } = useData();
 
@@ -142,6 +142,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
           showToast={showToast}
           onBioUpdate={onBioUpdate}
           studyRoute={studyRoute}
+          studySub={studySub}
         />
       )}
 

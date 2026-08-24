@@ -3,7 +3,6 @@ import AISupportKB from '../models/AISupportKB.js';
 import SupportTicket from '../models/SupportTicket.js';
 import AdminAuditLog from '../models/AdminAuditLog.js';
 import { sendTelegramAlert } from './telegramService.js';
-import { generateRaw as aiGenerateRaw } from './aiGateway.js';
 
 /**
  * Service Trợ Lý AI Support Admin Butler Agent (Quản gia AI tự động)

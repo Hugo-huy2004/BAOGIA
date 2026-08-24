@@ -13,13 +13,13 @@
     "check:performance": "node scripts/check-performance-budget.mjs",
     "ci:seo": "npm run build && npm run check:seo",
     "ci:performance": "npm run build && npm run check:performance",
-    "lint": "eslint src",
+    "lint": "eslint src server scripts workers",
     "preview": "vite preview",
     "server:install": "cd server && npm install",
     "setup": "npm install && npm run server:install",
     "check:api-auth": "node scripts/check-api-auth.mjs",
     "check:coder-content": "node scripts/check-coder-content.mjs",
-    "check:all": "npm run lint && npm run check:imports && npm run check:api-auth && npm run check:coder-content && npm run check:reading && npm run check:exam && npm run check:grading && npm run check:stock && npm run check:chart && npm run build && npm run check:seo && npm run check:performance",
+    "check:all": "npm run lint && npm run check:imports && npm run check:gateway && npm run check:guards && npm run check:api-auth && npm run check:coder-content && npm run check:reading && npm run check:exam && npm run check:grading && npm run check:catalog && npm run check:stock && npm run check:chart && npm run build && npm run check:seo && npm run check:performance",
     "build:native": "VITE_BUILD_TARGET=native vite build --outDir dist-native",
     "native:sync": "VITE_API_URL=https://api.hugowishpax.studio/api npm run build:native && npx cap sync",
     "native:ios": "npm run native:sync && npx cap open ios",
@@ -35,7 +35,11 @@
     "test:e2e": "playwright test",
     "check:reading": "cd server && node scripts/check-reading-gate.mjs",
     "check:exam": "cd server && node scripts/check-exam-flow.mjs",
-    "check:grading": "cd server && node scripts/check-stage-grading.mjs"
+    "check:grading": "cd server && node scripts/check-stage-grading.mjs",
+    "gen:nginx": "node server/scripts/gen-nginx.mjs",
+    "check:gateway": "node server/scripts/check-gateway.mjs",
+    "check:catalog": "cd server && node scripts/check-course-catalog.mjs",
+    "check:guards": "node server/scripts/check-route-guards.mjs"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",

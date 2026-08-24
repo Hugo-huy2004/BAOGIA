@@ -414,7 +414,7 @@ const HUGOSO_LABELS_EN = {
   calendar: "Google Calendar",
   docs:     "Google Docs",
   sheets:   "Google Sheets",
-  gemini:   "Google Gemini",
+  ai:       "AIA 202 · AI Assistants",
 };
 
 export function joyRulesSectionsEn() {

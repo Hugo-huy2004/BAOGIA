@@ -1,0 +1,192 @@
+/* Hugo Learning — trang giới thiệu.
+   Khung, màu và chữ do cineKit (CINE_CSS) lo, giống hệt Introduction và
+   Services — không dựng ngôn ngữ hình ảnh thứ hai. File này chỉ thêm những
+   mảnh riêng của Hugo Learning: dải số liệu, thẻ, huy hiệu xếp loại, câu hỏi,
+   chân trang. */
+
+.learning-landing { color: var(--cine-ink); }
+
+/* Dải số liệu dưới phần mở đầu. */
+.learning-stats { display: flex; flex-wrap: wrap; gap: 14px 36px; margin: 0; }
+.learning-stats dt {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cine-dim);
+}
+.learning-stats dd {
+  margin: 3px 0 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--cine-ink);
+}
+
+/* Nút phụ — cùng hình viên thuốc với PillButton của cineKit nhưng nền rỗng,
+   để nút chính vẫn là thứ nổi bật duy nhất. */
+.learning-ghost-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--cine-border, rgba(15, 23, 42, 0.12));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cine-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Thẻ nội dung: cách học, hệ sinh thái và pháp lý dùng chung một hình dạng. */
+.learning-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 22px 24px;
+  border-radius: 20px;
+}
+
+.learning-card h3 { margin: 0; font-size: 16px; font-weight: 750; letter-spacing: -0.01em; }
+.learning-card p { margin: 0; font-size: 14px; line-height: 1.62; color: var(--cine-dim); }
+
+.learning-step,
+.learning-eco-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--cine-accent) 13%, transparent);
+  color: var(--cine-accent);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Huy hiệu xếp loại — cùng bảng màu với huy hiệu chặng trong bài học. */
+.learning-grade {
+  display: grid;
+  gap: 2px;
+  padding: 11px 18px;
+  border-radius: 15px;
+  background: rgba(118, 118, 128, 0.12);
+}
+
+.learning-grade b { font-size: 15px; font-weight: 800; }
+.learning-grade small { font-size: 11.5px; opacity: 0.8; }
+
+.learning-grade.is-excellent { background: rgba(18, 165, 148, 0.14); color: #0d7d70; }
+.learning-grade.is-great     { background: rgba(0, 122, 255, 0.13);  color: #0a5fc0; }
+.learning-grade.is-good      { background: rgba(255, 149, 0, 0.15);  color: #9a5b00; }
+.learning-grade.is-pass      { background: rgba(142, 78, 198, 0.13); color: #6b34a0; }
+
+.dark .learning-grade.is-excellent { color: #5fd6c6; }
+.dark .learning-grade.is-great     { color: #7ab5ff; }
+.dark .learning-grade.is-good      { color: #ffc06b; }
+.dark .learning-grade.is-pass      { color: #c99bf0; }
+
+/* Ghi chú ranh giới pháp lý — viền trái để mắt không lướt qua. */
+.learning-note {
+  padding: 14px 18px;
+  border-left: 3px solid color-mix(in srgb, var(--cine-accent) 45%, transparent);
+  border-radius: 0 12px 12px 0;
+  background: rgba(118, 118, 128, 0.08);
+  font-size: 14px;
+  line-height: 1.62;
+  color: var(--cine-dim);
+}
+
+.learning-note strong { color: var(--cine-ink); }
+
+/* Câu hỏi thường gặp. */
+.learning-faq {
+  border-radius: 16px;
+}
+
+.learning-faq summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.learning-faq summary::-webkit-details-marker { display: none; }
+
+.learning-faq summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0.45;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 180ms ease;
+}
+
+.learning-faq[open] summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+
+.learning-faq p {
+  margin: 0;
+  padding: 0 20px 18px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--cine-dim);
+}
+
+/* Điều khoản ủng hộ. */
+.learning-terms { display: grid; gap: 10px; margin: 0; padding-left: 20px; max-width: 70ch; }
+.learning-terms li { font-size: 14.5px; line-height: 1.6; color: var(--cine-dim); }
+
+/* Chân trang riêng của Hugo Learning. */
+.learning-footer {
+  display: grid;
+  gap: 18px;
+  /* Chân trang cũng tràn hết chiều ngang, cùng nhịp với tab-bar. */
+  width: 100%;
+  margin: 0;
+  padding: 32px max(20px, env(safe-area-inset-left, 0px)) 60px;
+  border-top: 1px solid var(--cine-border, rgba(15, 23, 42, 0.12));
+}
+
+.learning-footer strong { display: block; font-size: 15.5px; font-weight: 800; }
+.learning-footer > div p { margin: 4px 0 0; font-size: 14px; color: var(--cine-dim); }
+
+.learning-footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.learning-footer nav a { font-size: 14px; font-weight: 600; color: var(--cine-dim); text-decoration: none; }
+.learning-footer nav a:hover { color: var(--cine-accent); }
+
+.learning-copyright { margin: 0; font-size: 13px; line-height: 1.6; color: var(--cine-dim); }
+
+/* Mỗi mục là một màn trượt: cao tối thiểu một màn hình và là điểm bám khi
+   cuộn. Nội dung canh giữa theo chiều dọc để màn nào cũng cân. */
+.learning-slide {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+/* Màn quá cao thì thôi ép chiều cao, để nội dung tự trôi — ép cứng sẽ cắt mất
+   phần dưới trên máy màn thấp. */
+@media (max-height: 720px) {
+  .learning-slide { min-height: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-slide { scroll-snap-align: none; }
+}

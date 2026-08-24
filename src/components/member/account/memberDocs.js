@@ -418,7 +418,7 @@ const HUGOSO_LABELS = {
   calendar: "Google Calendar",
   docs:     "Google Docs",
   sheets:   "Google Sheets",
-  gemini:   "Google Gemini",
+  ai:       "Trợ lý AI (Gemini/ChatGPT/Claude)",
 };
 
 export function joyRulesSections() {

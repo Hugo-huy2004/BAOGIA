@@ -3,7 +3,6 @@ import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import RobotConfig from '../models/RobotConfig.js';
 import AdminAuditLog from '../models/AdminAuditLog.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
 import { encryptTriple, decryptTriple } from '../utils/tripleCrypto.js';
 import { sendTelegramAlert } from '../services/telegramService.js';
 
@@ -433,6 +432,11 @@ router.get('/stream-frame', async (req, res) => {
  */
 router.post('/kill-switch', async (req, res) => {
   try {
+    // Thiếu cổng: bất kỳ ai cũng ngắt được camera robot và bắn cảnh báo Telegram
+    // cho chủ nhà. Dùng đúng cổng mà /config và /stream-token đang dùng.
+    if (!verifyRobotAuth(req)) {
+      return res.status(403).json({ success: false, message: 'Xác thực thất bại. Vui lòng nhập mã OTP mới.' });
+    }
     const { action } = req.body; // 'activate' | 'deactivate'
     const shouldActivate = action !== 'deactivate';
     global.ROBOT_KILL_SWITCH = shouldActivate;

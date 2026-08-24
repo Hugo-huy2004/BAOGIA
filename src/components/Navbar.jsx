@@ -25,7 +25,7 @@ export default function Navbar() {
   const isAt = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 w-full items-center border-b border-border/50 bg-background/95 px-3 sm:px-4 md:px-6">
+    <header className="sticky top-0 z-50 flex h-[calc(4rem+env(safe-area-inset-top,0px))] w-full items-center border-b border-border/50 bg-background/95 px-3 pt-[env(safe-area-inset-top,0px)] sm:px-4 md:px-6">
       <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between gap-3">
 
         {/* Brand */}

@@ -32,6 +32,53 @@ const extractToken = (req, cookieName) => {
   return req.cookies?.[cookieName] || null;
 };
 
+/**
+ * Bộ nhớ đệm cho hai cổng chặn mà `requireMember` đọc từ Bio.
+ *
+ * VÌ SAO: mỗi request đã xác thực tốn MỘT round-trip tới Atlas chỉ để đọc hai
+ * trường bé xíu. Đo thật (Atlas Singapore): /health không chạm DB là 0ms,
+ * /joy/balance là 153ms cho 2 truy vấn — tức riêng cổng chặn này ăn khoảng một
+ * nửa độ trễ của endpoint đã-xác-thực rẻ nhất.
+ *
+ * VÌ SAO ĐỆM ĐƯỢC: `joyDenom` chốt một lần lúc onboarding rồi khoá.
+ * `locationAnomaly` là cờ bảo mật, nên đệm có rủi ro — bù lại (a) TTL 30 giây,
+ * đúng bằng TTL mà securityEnforcement.js đã dùng cho chính quyết định chặn
+ * tài khoản, và (b) mọi nơi ghi cờ đều gọi `invalidateMemberGate()`. Cửa sổ xấu
+ * nhất là 30s, và chỉ khi việc vô hiệu hoá thất bại.
+ *
+ * ponytail: Map + TTL, sao chép đúng khuôn của securityEnforcement.js thay vì
+ * thêm Redis. Đệm theo TỪNG PROCESS, và như vậy là ĐỦ kể cả khi tách nhiều
+ * process: mỗi process tự đọc một lần mỗi 30 giây cho mỗi người, còn cửa sổ dữ
+ * liệu cũ vẫn là 30 giây y như bây giờ — không xấu đi. Khác với socket
+ * (utils/realtime.js) vốn BẮT BUỘC phải loan tin qua Redis, chỗ này không cần.
+ */
+const GATE_CACHE_MS = 30 * 1000;
+const GATE_CACHE_MAX = 5000;
+const gateCache = new Map();
+
+/** Xoá bản đệm của một email. Gọi ở MỌI nơi ghi locationAnomaly hoặc joyDenom. */
+export function invalidateMemberGate(email) {
+  if (email) gateCache.delete(String(email).toLowerCase());
+}
+
+async function readMemberGate(email) {
+  const key = String(email).toLowerCase();
+  const cached = gateCache.get(key);
+  if (cached && cached.until > Date.now()) return cached.value;
+
+  const Bio = (await import('../models/Bio.js')).default;
+  // Một truy vấn cho cả hai cổng chặn — đừng tách thành hai lượt đọc.
+  const bio = await Bio.findOne({ email }, 'locationAnomaly joyDenom').lean();
+  const value = bio ? { locationAnomaly: !!bio.locationAnomaly, joyDenom: bio.joyDenom } : null;
+
+  if (gateCache.size >= GATE_CACHE_MAX) {
+    const oldest = gateCache.keys().next().value;
+    if (oldest) gateCache.delete(oldest);
+  }
+  gateCache.set(key, { value, until: Date.now() + GATE_CACHE_MS });
+  return value;
+}
+
 export const requireAdmin = (req, res, next) => {
   const token = extractToken(req, 'jwt');
 
@@ -183,9 +230,7 @@ export const requireMember = async (req, res, next) => {
       if (!isBypass) {
         const mongoose = (await import('mongoose')).default;
         if (mongoose.connection.readyState === 1) {
-          const Bio = (await import('../models/Bio.js')).default;
-          // Một truy vấn cho cả hai cổng chặn — đừng tách thành hai lượt đọc.
-          const bio = await Bio.findOne({ email: decoded.email }, 'locationAnomaly joyDenom').lean();
+          const bio = await readMemberGate(decoded.email);
           if (bio && bio.locationAnomaly) {
             return res.status(401).json({
               error: 'PHAT_HIEN_VI_TRI_BAT_THUONG',

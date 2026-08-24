@@ -37,7 +37,62 @@ export const IS_WEB = !IS_NATIVE;
  * A function, not a const: display-mode flips when the user installs the PWA
  * mid-session.
  */
+/**
+ * Media query list nhận diện "đang chạy như một app".
+ *
+ * Phải có CẢ `fullscreen`: manifest dùng display_override: ['fullscreen'] nên
+ * Android chạy PWA ở chế độ fullscreen và `(display-mode: standalone)` là
+ * FALSE ở đó. Chỉ bắt standalone thì mọi nhánh app-only (màn đăng nhập PWA,
+ * ẩn navbar marketing, "đã cài rồi nên đừng mời cài nữa") lặng lẽ rơi về bản
+ * web ngay trong app đã cài.
+ */
+export const APP_DISPLAY_QUERY =
+  "(display-mode: standalone), (display-mode: fullscreen)";
+
 export const isStandalone = () =>
   IS_NATIVE ||
-  window.matchMedia?.("(display-mode: standalone)").matches === true ||
+  window.matchMedia?.(APP_DISPLAY_QUERY).matches === true ||
   window.navigator.standalone === true;
+
+/**
+ * Nhận diện thiết bị/trình duyệt đủ chi tiết để hướng dẫn cài PWA cho ĐÚNG
+ * chỗ bấm. Chỉ đọc user agent — không có API nào khác trả lời được "người này
+ * đang ở Safari hay ở trình duyệt trong Zalo".
+ */
+export function detectInstallTarget() {
+  const ua = navigator.userAgent || "";
+  // iPadOS 13+ khai user agent y hệt macOS; maxTouchPoints là điểm khác duy nhất.
+  const iOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+
+  // Trình duyệt nhúng trong app khác: KHÔNG có menu "Thêm vào màn hình chính",
+  // nên bước đầu tiên luôn là thoát ra trình duyệt hệ thống.
+  const inApp =
+    /FBAN|FBAV|FB_IAB|Instagram|Zalo|TikTok|Line\/|Messenger|MicroMessenger|Twitter|Snapchat/i.test(
+      ua,
+    );
+
+  let browser;
+  if (iOS) {
+    // Trên iOS mọi trình duyệt đều là WebKit, nhưng menu Chia sẻ nằm khác chỗ.
+    browser = /CriOS/.test(ua)
+      ? "chrome"
+      : /EdgiOS/.test(ua)
+        ? "edge"
+        : /FxiOS/.test(ua)
+          ? "firefox"
+          : "safari";
+  } else {
+    browser = /SamsungBrowser/.test(ua)
+      ? "samsung"
+      : /EdgA/.test(ua)
+        ? "edge"
+        : /Firefox/.test(ua)
+          ? "firefox"
+          : "chrome";
+  }
+
+  return { iOS, android, inApp, browser, isMobile: iOS || android };
+}

@@ -55,7 +55,12 @@ function localExam(course) {
   });
 }
 
-export default function LessonExam({ course, onPassed, certificateUrl }) {
+/**
+ * @param {boolean} [serverGraded] Máy chủ ra đề và chấm. Chỉ đúng với 5 bài thi
+ * của khoá Web; bài kiểm tra của học phần Năng suất chấm tại chỗ, vì máy chủ
+ * không biết id `calendar-04b` và sẽ trả 400.
+ */
+export default function LessonExam({ course, onPassed, certificateUrl, serverGraded = true }) {
   const { playWin, playLose } = useArcadeSound();
   const [state, setState] = useState({ status: "loading" });
   const [answers, setAnswers] = useState({});
@@ -67,7 +72,7 @@ export default function LessonExam({ course, onPassed, certificateUrl }) {
     setResult(null);
     setState({ status: "loading" });
 
-    if (!getMemberSession()?.email) {
+    if (!serverGraded || !getMemberSession()?.email) {
       setState({ status: "local", questions: localExam(course) });
       return;
     }
@@ -107,7 +112,7 @@ export default function LessonExam({ course, onPassed, certificateUrl }) {
       setState({ status: "local", questions: localExam(course) });
     }
     return undefined;
-  }, [course]);
+  }, [course, serverGraded]);
 
   useEffect(() => { start(); }, [start]);
 
@@ -219,9 +224,15 @@ export default function LessonExam({ course, onPassed, certificateUrl }) {
     <div className="lesson-exam">
       <p className="lesson-exam-note">
         <ShieldCheck aria-hidden="true" />
+        {/* Ba trường hợp khác nhau, đừng gộp: máy chủ chấm; học phần Năng suất
+            chấm tại chỗ nhưng VẪN tính; và bản luyện tập khi mất kết nối hoặc
+            chưa đăng nhập thì không tính. Nói \"chưa tính tiến độ\" cho trường
+            hợp giữa là nói sai với người học. */}
         {state.status === "server"
           ? `Đề do máy chủ ra và chấm · ${questions.length} câu · đạt từ ${PASS_PERCENT}%`
-          : `Đề luyện tập trong máy · ${questions.length} câu · chưa tính tiến độ`}
+          : serverGraded
+            ? `Đề luyện tập trong máy · ${questions.length} câu · chưa tính tiến độ`
+            : `Đề tổng hợp cuối học phần · ${questions.length} câu · đạt từ ${PASS_PERCENT}%`}
       </p>
 
       <ol className="lesson-exam-questions">

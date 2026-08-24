@@ -49,12 +49,12 @@ export const PUBLIC_TOOLS = {
     // mới phải quyết định. Hằng số nằm ở đây chứ không trong HugoCoderHub: trang
     // công khai chỉ cần con số, import từ hub sẽ kéo cả bộ học vào bundle.
     previewLessons: 10,
-    title: "Study with Hugo — Học Lập Trình Web 100 Bài",
+    title: "Hugo Learning — Tự học có hướng dẫn, by Hugo Studio",
     description:
-      "Lộ trình 100 bài từ HTML, CSS, JavaScript, SQL đến bảo mật, đồ án full-stack và deploy VPS. Học 10 bài đầu miễn phí, không cần tài khoản.",
-    heading: "Study with Hugo",
+      "Dự án học tập phi lợi nhuận: bài đi từng bước một màn hình, thực hành trên công cụ thật, bài thi do máy chủ chấm và giấy chứng nhận có xếp loại.",
+    heading: "Hugo Learning",
     summary:
-      "Học 10 bài đầu ngay, không cần tài khoản. Đăng nhập và mở gói để đi hết 100 bài và làm đồ án CRUD hoàn chỉnh.",
+      "Học theo lộ trình, đánh giá bằng bài làm. Đăng nhập để mở nội dung từng khoá và theo dõi tiến độ.",
   },
   support: {
     gate: "demo",

@@ -17,7 +17,10 @@ router.post('/heartbeat', requireMember, async (req, res) => {
 });
 
 // GET /api/presence/status?email=x@y.com  OR  ?emails=a@x.com,b@y.com
-router.get('/status', async (req, res) => {
+// Cần đăng nhập: dò `?email=` không cổng cho phép người lạ vừa dò xem một email
+// có tồn tại, vừa theo dõi giờ giấc online của họ. Trang Bio công khai dùng
+// /status-by-slug bên dưới, không đi qua đây.
+router.get('/status', requireMember, async (req, res) => {
   try {
     const { email, emails } = req.query;
     if (email) {

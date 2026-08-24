@@ -123,7 +123,7 @@ function CourseAcademy({ course }) {
           <dl className="hso-academy-facts">
             <dt>Tiên quyết</dt><dd>{academy.prerequisite}</dd>
             <dt>Hình thức đánh giá</dt><dd>{academy.assessment}</dd>
-            <dt>Biên soạn</dt><dd>Hugo Studio Academy — nội dung độc quyền, trích dẫn theo chuẩn Harvard.</dd>
+            <dt>Biên soạn</dt><dd>Hugo Learning (by Hugo Studio) — nội dung độc quyền, trích dẫn theo chuẩn Harvard.</dd>
           </dl>
         </details>
       </div>

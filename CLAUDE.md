@@ -9,8 +9,8 @@ npm run setup            # install frontend + server deps
 npm run dev              # frontend + backend cùng lúc — mở http://localhost:3000 (cổng DUY NHẤT)
 npm run dev:frontend     # chỉ Vite, port 3000
 npm run dev:backend      # chỉ Node backend, port 8099 (needs MongoDB running)
-npm run lint             # ESLint over src/
-npm run build            # production build (also regenerates dist/, which is committed)
+npm run lint             # ESLint over src/ + server/ + scripts/ + workers/
+npm run build            # production build (dist/ KHÔNG commit — .gitignore chặn)
 npm run build:analyze    # build + bundle treemap at dist/stats.html
 
 npm run check:all        # lint + import check + build + SEO + performance budget

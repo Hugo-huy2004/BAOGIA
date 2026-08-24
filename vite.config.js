@@ -196,12 +196,18 @@ export default defineConfig(({ mode }) => {
         id: '/member/',
         theme_color: '#0b0a0f',
         background_color: '#0b0a0f',
-        // Chuẩn PWA dùng `standalone`: hệ điều hành vẫn sở hữu status bar /
-        // Dynamic Island, còn nội dung ứng dụng dùng CSS safe-area. `fullscreen`
-        // làm mất vùng hệ thống trên Android và dễ đặt nút dưới camera cutout.
-        // iOS quyết định thêm bằng meta
+        // Chủ sở hữu yêu cầu app LUÔN full màn hình. `display_override` được
+        // ưu tiên hơn `display`, nên Android ẩn cả status bar lẫn thanh điều
+        // hướng; `display: 'standalone'` là bản dự phòng cho trình duyệt chưa
+        // hiểu display_override. iOS bỏ qua cả hai và full màn bằng meta
         // apple-mobile-web-app-capable + status-bar-style=black-translucent
         // trong index.html, cộng viewport-fit=cover — đã có sẵn.
+        //
+        // Đánh đổi đã biết: fullscreen giấu đồng hồ/pin trên Android (vuốt từ
+        // mép để gọi lại). Camera cutout vẫn được trình duyệt báo qua
+        // env(safe-area-inset-*), và toàn bộ CSS ở đây đã dùng env() nên nút
+        // không chui xuống dưới cutout.
+        display_override: ['fullscreen', 'standalone'],
         display: 'standalone',
         orientation: 'any',
         scope: '/',

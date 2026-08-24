@@ -136,6 +136,12 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
         ? { parts: [{ text: systemInstruction }] }
         : systemInstruction;
       const body = { contents, ...(formattedSystemInstruction ? { systemInstruction: formattedSystemInstruction } : {}), ...(generationConfig ? { generationConfig } : {}) };
+      // Thiếu hẳn dòng này: `rawFetch(url, body)` bên dưới gọi một biến chưa
+      // khai báo, nên MỌI lời gọi generateRaw đều ném ReferenceError. Lỗi đó
+      // rơi đúng vào catch bên dưới và bị ghi log thành "Model X failed", nên
+      // nhìn như Gemini lỗi chứ không phải code sai — vòng thử lại chạy hết 5
+      // model rồi mới chịu thua. Dựng URL theo đúng khuôn của embed() bên dưới.
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${key}`;
 
       try {
         minuteHits.push(Date.now()); dayCount++;

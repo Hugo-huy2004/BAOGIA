@@ -21,7 +21,6 @@ import { useJoy } from "../../../lib/joyDisplay";
 import { useCoderLessons } from "../../../hooks/useCoderLessons";
 import { STAGE_THEME } from "./stageThemes";
 import { CODER_STORAGE_KEYS } from "./workspaceUtils";
-import { COURSE_MAP_ROUTE } from "../study/studyCurriculum";
 import CoderLearningJourney from "./CoderLearningJourney";
 import { ResourcePreview } from "../../admin/AdminCoderResourcesTab";
 import { getMemberSession } from "../../../services/authSession";
@@ -582,7 +581,9 @@ export default function HugoCoderHub({ onBack, bio, showToast, onBioUpdate, urlL
   // Thoát bài học thì về BẢN ĐỒ khoá học, không văng thẳng ra ngoài Study.
   // Trước đây ở chế độ `unifiedHome` nó gọi `onBack()` — nên bản đồ không bao
   // giờ hiện ra và người học mất chỗ đứng sau mỗi bài.
-  const exitLesson = () => navigate(`${basePath}/${COURSE_MAP_ROUTE}`);
+  // `basePath` đã trỏ sẵn vào khoá đang học (…/study/web, …/study/calendar), nên
+  // thoát bài là về đúng gốc đó — không nối thêm "web" vào sau tên khoá.
+  const exitLesson = () => navigate(basePath);
 
   const gate = (extra) => (
     <FeatureGate

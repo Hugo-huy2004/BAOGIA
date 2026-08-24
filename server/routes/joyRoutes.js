@@ -32,7 +32,7 @@ import { randomInt, randomBytes } from 'node:crypto';
 import { memberTier, tierGifts, TIER_LABELS, VOUCHER_VALID_DAYS, voucherCode } from '../utils/memberTier.js';
 import NodeCache from 'node-cache';
 import { isAuraThemeFree, isAuraThemeId } from '../../shared/auraThemes.js';
-import { denomKey, denomOf, transferBreakdown } from '../../shared/joyCurrency.js';
+import { denomKey, transferBreakdown } from '../../shared/joyCurrency.js';
 import { isLearningEvidenceEnabledFor } from '../utils/hugoV1Features.js';
 import {
   createLessonEvidence,
@@ -1472,7 +1472,10 @@ router.get('/resolve-phone', requireMember, async (req, res) => {
 // Returns limited public info only (no email exposed).
 router.get('/search-user', requireMember, async (req, res) => {
   try {
-    const { q, email } = req.query;
+    const { q } = req.query;
+    // Loại chính mình khỏi kết quả bằng danh tính đã xác thực. Bản cũ nhận
+    // `?email=` từ client — một tham số người gọi tự đặt thì không loại đúng ai.
+    const email = req.memberEmail;
     if (!q || !q.trim()) return res.json([]);
     const term = q.trim();
     const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');

@@ -5,7 +5,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
-import oauthRoutes, { oauthMetadata } from './routes/oauthRoutes.js';
+import { oauthMetadata } from './routes/oauthRoutes.js';
 import OAuthClient from './models/OAuthClient.js';
 import { isEduEmail } from './utils/eduEmail.js';
 import helmet from 'helmet';
@@ -299,7 +299,9 @@ app.get('/.well-known/oauth-authorization-server', oauthMetadata);
 // Bot Telegram của admin (OTP 2FA + điều khiển từ xa). Gọi tường minh ở đây
 // thay vì tự khởi động lúc import: import ESM chạy TRƯỚC dotenv.config() nên
 // khi đó process.env.TELEGRAM_BOT_TOKEN còn rỗng và bot im lặng chết.
-initTelegramBot();
+// Cũng chỉ MỘT process: hai nơi cùng long-polling thì Telegram trả 409 mỗi
+// phút và bot thật câm tiếng (bẫy đã gặp, xem chú thích ở cuối tệp).
+if (process.env.RUN_CRON !== 'false') initTelegramBot();
 
 // Educational Email Validation
 app.get('/api/auth/verify-edu', async (req, res) => {
@@ -356,6 +358,7 @@ import { initCompanionScheduler } from './utils/companionScheduler.js';
 import { initProactivePushService } from './services/proactivePushService.js';
 import { initSmartNotificationService } from './services/smartNotificationService.js';
 import { initChessWS } from './services/chessWS.js';
+import { initRealtimeFanout } from './utils/realtime.js';
 import { initCronJobs } from './utils/cronJobs.js';
 import { initCompanionMemoryCron } from './services/companionMemoryCron.js';
 // Safety net: a stray promise rejection (e.g. a background fire-and-forget task)
@@ -494,10 +497,35 @@ wss.on('connection', (ws, req) => {
   });
 });
 
+/**
+ * CHỈ MỘT process được chạy cron.
+ *
+ * Mọi việc định kỳ bên dưới đều CÓ TÁC DỤNG PHỤ ra thế giới thật: trừ tiền, gửi
+ * push, gửi email, dọn sổ cái. Chạy hai bản song song là trừ hai lần và người
+ * dùng nhận hai thông báo. Hôm nay chỉ có một process nên chưa ai thấy, nhưng
+ * đây đúng là thứ vỡ đầu tiên khi tách service — nên chốt nó lại ngay bây giờ.
+ *
+ * Mặc định BẬT, để hành vi hiện tại không đổi. Khi tách:
+ *   - process web:   RUN_CRON=false
+ *   - đúng MỘT worker: để trống (hoặc RUN_CRON=true)
+ */
+const RUN_CRON = process.env.RUN_CRON !== 'false';
+
 // Start server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`WebSocket server listening on ws://localhost:${PORT}/ws`);
+  console.log(`⏰ Cron: ${RUN_CRON ? 'BẬT ở process này' : 'tắt (RUN_CRON=false)'}`);
+
+  // Loan tin realtime giữa các process (chỉ hoạt động khi có REDIS_URL).
+  initRealtimeFanout();
+
+  // Tỷ giá JOY nạp ở MỌI process, không nằm trong khối cron: đây là đọc dữ liệu
+  // vào bộ nhớ, không có tác dụng phụ, và process web nào cũng cần nó để quy đổi
+  // tiền cho đúng.
+  import('./utils/joyRateService.js').then(({ ensureLiveFactors }) => ensureLiveFactors()).catch(() => {});
+
+  if (!RUN_CRON) return;
 
   // Initialize birthday automation check
   let lastCheckedDay = null;
@@ -522,10 +550,6 @@ server.listen(PORT, () => {
 
   // Initialize daily cron jobs (e.g. JoyLedger 14-day cleanup)
   initCronJobs();
-
-  // Nạp bảng tỷ giá JOY ngay khi khởi động: lần chuyển JOY đầu tiên sau mỗi lần
-  // restart cũng phải tính bằng tỷ giá đang chạy, không phải hệ số nền.
-  import('./utils/joyRateService.js').then(({ ensureLiveFactors }) => ensureLiveFactors()).catch(() => {});
 
   // Weekly wellness digest → CompanionHistory.longTermMemories (Sunday 22:00)
   initCompanionMemoryCron();

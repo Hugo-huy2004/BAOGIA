@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import Admin from '../models/Admin.js';
-import { requireAdmin } from '../middleware/authMiddleware.js';
+import { requireAdmin, invalidateMemberGate } from '../middleware/authMiddleware.js';
 import { awardJoy } from '../utils/joyService.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -452,7 +452,6 @@ router.get('/users/search', requireAdmin, async (req, res) => {
 });
 
 // ─── Admin: thông báo, AI, nhật ký lỗi ───────────────────────────────────────
-import InAppNotification from '../models/InAppNotification.js';
 import { sendPushNotification } from '../utils/pushNotifier.js';
 import { getQuotaStatus, generate } from '../services/aiGateway.js';
 import ErrorLog from '../models/ErrorLog.js';
@@ -1327,6 +1326,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (jobTitle !== undefined) bio.jobTitle = jobTitle;
     if (education !== undefined) bio.education = education;
     if (joyDenom !== undefined) bio.joyDenom = joyDenom;
+    if (joyDenom !== undefined) invalidateMemberGate(bio.email);
 
     if (addDays && !isNaN(Number(addDays))) {
       const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();

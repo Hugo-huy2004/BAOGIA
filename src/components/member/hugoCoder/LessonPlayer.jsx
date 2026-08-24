@@ -266,10 +266,20 @@ function LessonDone({ course, stepCount, onExit, onNext }) {
  * một trình học duy nhất cho mọi khoá, thay vì mỗi khoá một giao diện.
  */
 export default function LessonPlayer({ course, steps: givenSteps, onExit, onFinished, onNextLesson, certificateUrl }) {
-  const steps = useMemo(
-    () => givenSteps || (course._officeLesson ? buildOfficeSteps(course._officeLesson) : buildSteps(course)),
-    [course, givenSteps],
-  );
+  const steps = useMemo(() => {
+    if (givenSteps) return givenSteps;
+    if (!course._officeLesson) return buildSteps(course);
+
+    // Bài cuối của học phần Năng suất được khai là bài kiểm tra tổng hợp
+    // (`practiceType: "quiz"` + `quizPool` gom câu từ mọi bài). Nhánh này
+    // trước đây rẽ thẳng sang buildOfficeSteps nên bài kiểm tra ấy chưa bao giờ
+    // hiện ra — một tính năng được khai báo mà không chạy.
+    const officeSteps = buildOfficeSteps(course._officeLesson);
+    if (course.practiceType === "quiz" && course.quizPool?.length) {
+      officeSteps.push({ kind: "exam", title: "Bài kiểm tra tổng hợp" });
+    }
+    return officeSteps;
+  }, [course, givenSteps]);
   const [index, setIndex] = useState(() => Math.min(readStep(course.id), Math.max(0, steps.length - 1)));
   const [answers, setAnswers] = useState({});
   const [checked, setChecked] = useState(false);
@@ -470,8 +480,15 @@ export default function LessonPlayer({ course, steps: givenSteps, onExit, onFini
             />
           )}
 
+          {/* Máy chủ chỉ ra đề và chấm 5 bài thi của khoá Web. Bài kiểm tra của
+              học phần Năng suất chấm tại chỗ từ quizPool đã gom sẵn. */}
           {step.kind === "exam" && (
-            <LessonExam course={course} onPassed={() => advance(true)} certificateUrl={certificateUrl} />
+            <LessonExam
+              course={course}
+              serverGraded={!course._officeLesson}
+              onPassed={() => advance(true)}
+              certificateUrl={certificateUrl}
+            />
           )}
 
           {step.kind === "submit" && (

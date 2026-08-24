@@ -111,6 +111,19 @@ export const SERVICES = Object.freeze([
 ]);
 
 /**
+ * Tệp trong `routes/` CỐ Ý không mount — phải nêu lý do.
+ *
+ * Không có danh sách này thì một tệp route quên khai trông y hệt một tệp cố ý
+ * để đó: cả hai đều im lặng, không route nào chạy, không có gì báo. Bắt khai
+ * tường minh nghĩa là "quên" luôn làm check-gateway đỏ, còn "cố ý" thì đọc
+ * được lý do ngay tại đây.
+ *
+ * Đang rỗng — và nên giữ vậy. `metaWebhookRoutes.js` từng nằm đây, đã xoá hẳn
+ * ngày 2026-08-24 vì không có một tham chiếu nào; cần lại thì lấy từ git.
+ */
+export const UNMOUNTED = Object.freeze({});
+
+/**
  * Kênh WebSocket. nginx cần khối `Upgrade` riêng cho từng đường — proxy_pass
  * thường sẽ nuốt mất handshake và client treo ở trạng thái "connecting".
  *

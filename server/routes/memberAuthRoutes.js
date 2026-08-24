@@ -1,6 +1,6 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import { signMemberToken } from '../middleware/authMiddleware.js';
+import { signMemberToken, invalidateMemberGate } from '../middleware/authMiddleware.js';
 import { GOOGLE_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { isEduEmail } from '../utils/eduEmail.js';
@@ -103,6 +103,7 @@ router.post('/google', googleLoginLimiter, async (req, res) => {
       },
       { upsert: true }
     );
+    invalidateMemberGate(email);
 
     const token = signMemberToken(email, req);
     setMemberCookie(res, token);

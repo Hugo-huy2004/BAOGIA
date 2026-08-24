@@ -24,7 +24,12 @@ router.get('/leaderboard', async (req, res) => {
       ChessRating.find({})
         .sort({ rating: -1 })
         .limit(limit)
-        .select('-__v')
+        // Chọn TƯỜNG MINH các trường công khai. Bản cũ dùng `-__v`, tức là giữ
+        // lại tất cả trường còn lại — kể cả `email`, nên bảng xếp hạng mở này
+        // phát email của mọi người chơi cho bất kỳ ai gọi. Danh sách cho phép
+        // an toàn hơn danh sách loại trừ: thêm trường mới vào model sẽ không tự
+        // động lọt ra ngoài.
+        .select('displayName avatar rating wins losses draws gamesPlayed lastPlayedAt')
         .lean()
     );
 
@@ -36,9 +41,11 @@ router.get('/leaderboard', async (req, res) => {
 });
 
 // GET /api/chess/history?email=X&limit=10
-router.get('/history', async (req, res) => {
+// Xem lịch sử CỦA MÌNH. Trước đây route này không có cổng nào: ai biết email
+// người khác là đọc được toàn bộ ván cờ của họ.
+router.get('/history', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'email query parameter is required' });
     }
@@ -59,9 +66,9 @@ router.get('/history', async (req, res) => {
 });
 
 // GET /api/chess/stats?email=X
-router.get('/stats', async (req, res) => {
+router.get('/stats', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'email query parameter is required' });
     }

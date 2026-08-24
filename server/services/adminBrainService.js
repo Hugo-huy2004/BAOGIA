@@ -1,4 +1,4 @@
-import { generate, generateRaw } from './aiGateway.js';
+import { generate } from './aiGateway.js';
 import SecurityEvent from '../models/SecurityEvent.js';
 import SecurityBlock from '../models/SecurityBlock.js';
 import SupportTicket from '../models/SupportTicket.js';

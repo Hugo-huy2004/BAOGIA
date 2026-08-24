@@ -1,7 +1,5 @@
 import Bio from '../models/Bio.js';
 import AdminAuditLog from '../models/AdminAuditLog.js';
-import JoyLedger from '../models/JoyLedger.js';
-import SecurityEvent from '../models/SecurityEvent.js';
 import SecurityBlock from '../models/SecurityBlock.js';
 import SupportTicket from '../models/SupportTicket.js';
 import { awardJoy } from '../utils/joyService.js';

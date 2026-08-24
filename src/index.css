@@ -76,19 +76,32 @@
     --shadow:              240 22% 12%;
   }
 
-  /* Apple iOS HIG Safe Area Insets for PWA Standalone Mode */
+  /* Safe area: <body> chỉ đệm inset TRÊN, và chỉ trong tab trình duyệt (nơi
+     header sticky sẽ chui vào notch nếu không đệm). KHÔNG bao giờ đệm inset
+     DƯỚI ở đây: mọi thứ fixed ở đáy trong repo này (tab bar, footer, banner
+     cài PWA, modal) đều đã tự cộng env(safe-area-inset-bottom) — đệm ở body là
+     bản sao thứ hai, và nó letterbox cả app lên trên vạch Home. */
   body {
     padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* iOS PWA: the fixed bottom tab bar already accounts for safe-area-inset-bottom.
-     Keeping padding-bottom on <body> double-counts the inset, pushing the entire
-     layout upward and squeezing the content area (tab bar appears raised). */
+  /* App đã cài vẽ tràn viền; mỗi màn tự lo inset của nó. Bắt bằng media query
+     display-mode (native, iOS hiểu ngay lúc paint) chứ KHÔNG chỉ bằng class
+     .standalone-pwa do useEffect gắn: class chỉ có sau khi React mount, nên
+     paint đầu — và mọi trường hợp effect không chạy — vẫn dính đệm safe-area
+     và app bị đẩy khỏi hai mép màn hình. */
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    body {
+      padding-top: 0;
+      min-height: 100dvh;
+    }
+  }
+
+  /* Bản đóng gói Capacitor báo display-mode: browser nên vẫn cần class. */
   html.standalone-pwa body {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -2167,9 +2180,12 @@ html.standalone-pwa .member-portal-shell {
   touch-action: pan-x pan-y;
 }
 
+/* Không trừ inset trên nữa: <body> trong app đã cài KHÔNG còn đệm safe-area,
+   nên phép trừ này chỉ làm layout ngắn hơn màn hình đúng bằng chiều cao notch
+   và để lại một dải trống ở đáy. DesktopAppleLayout tự có h-[100dvh]. */
 html.standalone-pwa .desktop-apple-layout {
-  height: calc(100dvh - env(safe-area-inset-top, 0px));
-  min-height: calc(100dvh - env(safe-area-inset-top, 0px));
+  height: 100dvh;
+  min-height: 100dvh;
 }
 
 .mobile-portal-content {

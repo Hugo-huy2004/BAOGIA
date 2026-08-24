@@ -80,7 +80,7 @@ const DEFAULT_TOOL_VISUAL = PUBLIC_TOOL_VISUALS.banhocduong;
 
 
 export default function UtilityPublicPage() {
-  const { tool, page } = useParams();
+  const { tool, page, sub } = useParams();
   const navigate = useNavigate();
   const [activeSession, setActiveSession] = useState(() => getMemberSession());
   const isAuthenticated = !!activeSession?.email;
@@ -284,6 +284,7 @@ export default function UtilityPublicPage() {
             onBioUpdate={handleBioUpdate}
             previewLessons={toolConfig.previewLessons}
             studyRoute={page || null}
+            studySub={sub || null}
             onBack={() => navigate("/introduction")}
           />
         );

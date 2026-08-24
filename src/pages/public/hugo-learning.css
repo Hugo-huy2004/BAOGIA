@@ -1,0 +1,664 @@
+/* Vỏ dịch vụ Hugo Learning — thanh thương hiệu, tab-bar 4 mục, và hai bảng
+   Tiến độ / Tài khoản. Màu và chữ lấy THẲNG từ cineKit (`--cine-*`, nạp ở
+   HugoLearningPage), nên mọi màn của /study — giới thiệu, thư viện, tiến độ,
+   tài khoản — nằm trong cùng một ngôn ngữ thị giác với Introduction và
+   Services. Không còn bảng màu riêng viết cứng ở đây. */
+.hugo-learning-shell {
+  --landing-accent: var(--cine-accent, hsl(var(--primary)));
+  --landing-ink: var(--cine-ink, hsl(var(--foreground)));
+  --landing-muted: var(--cine-muted, hsl(var(--muted-foreground)));
+  --landing-card: var(--cine-card, hsl(var(--card)));
+  --landing-border: var(--cine-border, hsl(var(--border)));
+  min-height: 100vh;
+  color: var(--landing-ink);
+}
+
+.hugo-learning-loading {
+  display: block;
+  width: 100%;
+  min-height: 60vh;
+}
+
+.learning-bar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 4vw, 44px);
+  width: 100%;
+  padding: 10px max(18px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--cine-bg, hsl(var(--background))) 86%, transparent);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border-bottom: 1px solid var(--cine-border, rgba(15, 23, 42, 0.12));
+}
+
+.learning-wordmark {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--cine-ink, hsl(var(--foreground)));
+  text-decoration: none;
+}
+
+/* Chữ mang dải màu thương hiệu — cùng `cine-grad` mà Introduction và Services
+   dùng cho chữ nhấn, nên logo Hugo Learning nằm đúng bảng màu Hugo Studio. */
+.learning-wordmark-name {
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background-image: linear-gradient(100deg, #007aff 0%, #32ade6 46%, #af52de 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* Nép ở góc phải trên của tên, không phải một dòng thứ hai. */
+.learning-wordmark-by {
+  top: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--cine-dim, hsl(var(--muted-foreground)));
+}
+
+/* ── Tab-bar ────────────────────────────────────────────────────────────── */
+/* ── Tab-bar: một khai báo, hai dạng ────────────────────────────────────────
+   Desktop  → nằm trong thanh đầu, cạnh logo, dạng viên thuốc có nhãn chữ.
+   PWA/điện thoại → thanh cố định dưới đáy, icon trên nhãn dưới, đúng tầm ngón
+   cái và tôn trọng vùng an toàn của máy có tai thỏ.
+
+   Ranh giới 860px: hẹp hơn thì logo + 4 tab không còn đủ chỗ trên một hàng. */
+.learning-tabs {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.learning-tabs::-webkit-scrollbar { display: none; }
+
+.learning-tabs a {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--cine-dim, hsl(var(--muted-foreground)));
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.learning-tabs a.is-active {
+  background: color-mix(in srgb, var(--cine-accent, hsl(var(--primary))) 12%, transparent);
+  color: var(--cine-accent, hsl(var(--primary)));
+}
+
+.learning-tab-icon { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* Chấm báo tab cần đăng nhập — nói trước, thay vì để bấm vào mới gặp tường. */
+.learning-tab-lock {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+}
+
+/* Bản dưới đáy chỉ hiện trên màn hẹp. */
+.learning-tabs.is-bottom { display: none; }
+
+@media (max-width: 860px) {
+  /* Thanh đầu chỉ còn logo. */
+  .learning-tabs.is-top { display: none; }
+
+  .learning-tabs.is-bottom {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0;
+    overflow: visible;
+    /* Vùng an toàn dùng max(), KHÔNG cộng dồn — cộng thêm vào padding có sẵn là
+       thanh bị đội lên một khoảng trống trên máy không có tai thỏ. */
+    padding: 6px 8px max(8px, env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--cine-bg, hsl(var(--background))) 92%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-top: 1px solid var(--cine-border, hsl(var(--border)));
+  }
+
+  .learning-tabs.is-bottom a {
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    min-height: 52px;
+    padding: 6px 4px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .learning-tabs.is-bottom .learning-tab-icon { width: 21px; height: 21px; }
+
+  /* Chấm khoá nép vào góc icon thay vì đẩy nhãn lệch. */
+  .learning-tabs.is-bottom a { position: relative; }
+  .learning-tabs.is-bottom .learning-tab-lock {
+    position: absolute;
+    top: 7px;
+    left: calc(50% + 8px);
+  }
+
+  /* Chừa chỗ cho thanh đáy: nội dung cuối trang không bị nó che. */
+  .hugo-learning-shell { padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Đang học thì trình học chiếm trọn màn (position: fixed) — thanh đáy nằm đè
+   lên nút "Tiếp tục". Ẩn nó đi; thoát bài là hiện lại. */
+.hugo-learning-shell:has(.lesson-player) .learning-tabs.is-bottom { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-tabs a { transition: none; }
+}
+
+
+
+
+
+
+
+
+.landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 4px;
+  color: var(--cine-accent);
+  font-size: 0.6875rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.landing-eyebrow::before {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
+}
+
+/* ── Bảng nội dung ──────────────────────────────────────────────────────── */
+.learning-panel,
+.learning-gate {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 48px) 20px 72px;
+}
+
+.learning-panel h2,
+.learning-gate h2 {
+  margin: 0 0 12px;
+  font-size: clamp(24px, 3.4vw, 34px);
+  line-height: 1.14;
+  letter-spacing: -0.028em;
+  font-weight: 800;
+}
+
+.learning-gate p { max-width: 60ch; margin: 0 0 18px; font-size: 16px; line-height: 1.65; color: var(--landing-muted); }
+
+.learning-gate-steps { display: grid; gap: 9px; max-width: 60ch; margin: 0 0 24px; padding-left: 20px; }
+.learning-gate-steps li { font-size: 15px; line-height: 1.6; color: var(--landing-muted); }
+
+/* ── Tiến độ ────────────────────────────────────────────────────────────── */
+.learning-summary { display: flex; flex-wrap: wrap; gap: 14px 36px; margin-bottom: 26px; }
+.learning-summary dt { margin: 0; font-size: 11.5px; font-weight: 750; letter-spacing: 0.06em; text-transform: uppercase; color: var(--landing-muted); }
+.learning-summary dd { margin: 2px 0 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+
+.learning-progress-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+.learning-progress-list a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--landing-border);
+  border-radius: 20px;
+  background: var(--landing-card);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065);
+  transition: border-color 160ms ease;
+}
+
+.learning-progress-list a:hover {
+  border-color: color-mix(in srgb, var(--cine-accent) 28%, var(--cine-border));
+}
+
+.learning-course-code {
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--cine-accent) 13%, transparent);
+  color: var(--cine-accent);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.learning-course-name { font-size: 15.5px; font-weight: 700; min-width: 0; }
+.learning-course-count { font-size: 13.5px; color: var(--landing-muted); font-variant-numeric: tabular-nums; }
+
+.learning-course-bar {
+  grid-column: 1 / 3;
+  height: 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cine-accent) 15%, transparent);
+  overflow: hidden;
+}
+
+.learning-course-bar i { display: block; height: 100%; border-radius: 999px; background: var(--cine-accent); }
+
+.learning-progress-list b { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ── Tài khoản ──────────────────────────────────────────────────────────────
+   Hai khối thẻ rồi tới hàng nút, cùng hình dạng với thẻ khoá học ở thư viện.
+   Trước đây phần này là chữ trần trên nền trang: nhãn, giá trị và hai cái nút
+   dính nhau trôi giữa một màn hình trống — không ra một trang hồ sơ. */
+.learning-account-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding: 20px 22px;
+  border: 1px solid var(--landing-border);
+  border-radius: 20px;
+  background: var(--landing-card);
+  box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065);
+}
+
+.learning-avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--landing-accent) 13%, transparent);
+  color: var(--landing-accent);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.learning-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.learning-account-card > div { min-width: 0; }
+.learning-account-card strong { display: block; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.learning-account-card span { display: block; overflow: hidden; font-size: 14px; color: var(--landing-muted); text-overflow: ellipsis; }
+
+/* Ba dòng dữ kiện là MỘT thẻ có vạch ngăn, không phải ba đoạn rời. */
+.learning-account-facts {
+  display: grid;
+  max-width: 70ch;
+  margin: 0 0 22px;
+  padding: 0 20px;
+  border: 1px solid var(--landing-border);
+  border-radius: 20px;
+  background: var(--landing-card);
+  box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065);
+}
+
+.learning-account-facts dt {
+  padding-top: 16px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cine-accent);
+}
+
+.learning-account-facts dd {
+  margin: 4px 0 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--landing-border);
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--landing-muted);
+}
+
+.learning-account-facts dd:last-of-type { border-bottom: 0; }
+
+.dark .learning-account-card,
+.dark .learning-account-facts,
+.dark .learning-progress-list a { box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2); }
+
+/* Hàng nút — lớp này trước giờ KHÔNG có luật nào, nên hai nút dính sát nhau. */
+.landing-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+
+/* ── Bố cục full màn ────────────────────────────────────────────────────────
+   Study vốn được thiết kế làm MỘT TAB trong portal nên nội dung bó trong cột
+   1120px. Là một trang riêng thì cột hẹp giữa màn rộng trông như trang chưa
+   dựng xong. Ở đây nới ra hết bề ngang, chừa lề đủ để dòng chữ không quá dài. */
+.hugo-learning-shell .study-main,
+.hugo-learning-shell .coder-journey,
+.hugo-learning-shell .hso-main {
+  width: 100%;
+  max-width: none;
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+}
+
+/* Lưới khoá học trải theo bề ngang thật, không dừng ở hai cột. */
+.hugo-learning-shell .study-collection-grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+/* Bảng và tiêu đề bên trong cũng theo nhịp đó. */
+.hugo-learning-shell .study-library,
+.hugo-learning-shell .study-resume,
+.hugo-learning-shell .study-stats { max-width: none; }
+
+/* Bản đồ khoá vẫn giữ cột hẹp: con đường các bài đọc theo chiều dọc, kéo rộng
+   ra chỉ làm mắt phải quét ngang vô ích. */
+.hugo-learning-shell .course-map { width: min(920px, 100%); margin: 0 auto; }
+
+/* Màn nội dung cao tối thiểu một màn hình trừ thanh đầu, để trang không hụt
+   đáy khi khoá ít bài. */
+.hugo-learning-shell .learning-panel,
+.hugo-learning-shell .learning-gate { min-height: calc(100svh - 66px); }
+
+/* ── Nút của các bảng trong dịch vụ ─────────────────────────────────────────
+   Lớp `landing-btn` cũ đã bỏ khi trang giới thiệu chuyển sang cineKit, nhưng
+   tường chắn và bảng Tài khoản vẫn dùng — nút biến thành chữ trơn. Định nghĩa
+   lại ở đây theo đúng hình viên thuốc của PillButton. */
+.landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1px solid var(--cine-border, hsl(var(--border)));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cine-ink, hsl(var(--foreground)));
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+
+.landing-btn:hover { transform: translateY(-1px); }
+.landing-btn:active { transform: none; }
+
+.landing-btn--primary {
+  border-color: transparent;
+  background: hsl(var(--primary));
+  color: #fff;
+  box-shadow: 0 10px 24px hsl(var(--primary) / 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-btn { transition: none; }
+  .landing-btn:hover { transform: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THƯ VIỆN KHOÁ HỌC THEO NGÔN NGỮ HUGO STUDIO
+
+   `study-with-hugo.css` dựng app học theo lối kính lỏng đa sắc — mỗi phần học
+   một màu, mặt kính mờ trên quầng bốn màu. Trong portal thành viên nó vẫn giữ
+   nguyên; ở /study thì không: đây là một TRANG của Hugo Studio, đứng ngay sau
+   trang giới thiệu dùng cineKit, nên hai màn liền nhau mà lệch hệ màu là thấy
+   ngay.
+
+   Vá ở tầng biến thay vì viết lại app: `--tone` về một màu nhấn duy nhất,
+   `--glass-*` trỏ vào thẻ cineKit, quầng nền tắt đi vì `.cine-root` đã có
+   quầng riêng. Chỉ những chỗ đã cứng hoá (bo góc, nút, phân đoạn) mới phải
+   viết đè.
+
+   Bộ chọn bắt đầu bằng `.cine-root.hugo-learning-shell` — hai lớp trên CÙNG
+   một thẻ, để thắng `.dark .study-app .is-blue` dù CSS của app (nạp lười) vào
+   DOM sau file này. */
+
+.cine-root.hugo-learning-shell .study-app {
+  --tone: var(--primary);
+  --glass-bg: var(--cine-card);
+  --glass-edge: var(--cine-border);
+  --glass-shine: rgba(255, 255, 255, 0.55);
+  --glass-shadow: 0 12px 36px hsl(var(--shadow) / 0.065);
+  --study-secondary: var(--cine-muted);
+  --study-muted: var(--cine-muted);
+  --study-border: var(--cine-border);
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.dark .cine-root.hugo-learning-shell .study-app {
+  --glass-shine: rgba(255, 255, 255, 0.045);
+  --glass-shadow: 0 18px 44px rgba(0, 0, 0, 0.2);
+}
+
+/* Quầng bốn màu của app tắt — `.cine-root` đã có nền riêng, chồng hai lớp là
+   ra một màu bùn không thuộc bảng nào. */
+.cine-root.hugo-learning-shell .study-app::before { display: none; }
+
+/* Mọi sắc phần học về MỘT màu nhấn. Khoá học phân biệt nhau bằng biểu tượng và
+   tên, không bằng sáu màu — đó là luật của các trang hệ thống. */
+.cine-root.hugo-learning-shell .study-app .is-blue,
+.cine-root.hugo-learning-shell .study-app .is-green,
+.cine-root.hugo-learning-shell .study-app .is-purple,
+.cine-root.hugo-learning-shell .study-app .is-pink,
+.cine-root.hugo-learning-shell .study-app .is-indigo,
+.cine-root.hugo-learning-shell .study-app .is-orange { --tone: var(--primary); }
+
+/* ── Thẻ: mặt kính → thẻ cineKit ────────────────────────────────────────── */
+.cine-root.hugo-learning-shell .study-resume,
+.cine-root.hugo-learning-shell .study-stats > span,
+.cine-root.hugo-learning-shell .study-collection,
+.cine-root.hugo-learning-shell .study-empty,
+.cine-root.hugo-learning-shell .study-syllabus {
+  border: 1px solid var(--cine-border);
+  border-radius: 20px;
+  background: var(--cine-card);
+  box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dark .cine-root.hugo-learning-shell .study-resume,
+.dark .cine-root.hugo-learning-shell .study-stats > span,
+.dark .cine-root.hugo-learning-shell .study-collection,
+.dark .cine-root.hugo-learning-shell .study-empty,
+.dark .cine-root.hugo-learning-shell .study-syllabus {
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+.cine-root.hugo-learning-shell .study-collection:hover {
+  border-color: color-mix(in srgb, var(--cine-accent) 28%, var(--cine-border));
+}
+
+/* ── Mở đầu: nhãn nhỏ có chấm + tiêu đề đúng nhịp chữ của trang hệ thống ─── */
+.cine-root.hugo-learning-shell .study-hero-copy > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--cine-accent);
+  font-size: 0.6875rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.cine-root.hugo-learning-shell .study-hero-copy > span::before {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
+}
+
+.cine-root.hugo-learning-shell .study-hero-copy h1 {
+  max-width: 22ch;
+  margin: 14px 0 14px;
+  font-size: clamp(2rem, 4.6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.cine-root.hugo-learning-shell .study-hero-copy p {
+  color: var(--cine-muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.cine-root.hugo-learning-shell .study-library-heading h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* ── Ba chỉ số: cùng dạng dải số liệu của trang giới thiệu ──────────────── */
+.cine-root.hugo-learning-shell .study-stats > span { padding: 16px 10px; }
+
+.cine-root.hugo-learning-shell .study-stats b {
+  color: var(--cine-ink);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.cine-root.hugo-learning-shell .study-stats small {
+  color: var(--cine-dim);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* ── Nút chính: viên thuốc, giống PillButton ────────────────────────────── */
+.cine-root.hugo-learning-shell .study-resume > button,
+.cine-root.hugo-learning-shell .study-collection-open,
+.cine-root.hugo-learning-shell .study-syllabus > footer > button {
+  min-height: 2.875rem;
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  border-radius: 9999px;
+  background: color-mix(in srgb, hsl(var(--primary)) 86%, #000);
+  box-shadow: 0 10px 26px hsl(var(--primary) / 0.22);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.cine-root.hugo-learning-shell .study-resume > button:hover,
+.cine-root.hugo-learning-shell .study-collection-open:hover,
+.cine-root.hugo-learning-shell .study-syllabus > footer > button:hover { transform: translateY(-1px); }
+
+/* Nút "?" — nút phụ rỗng ruột, đúng cặp với nút chính đặc. */
+.cine-root.hugo-learning-shell .study-collection-help {
+  border: 1px solid var(--cine-border);
+  border-radius: 9999px;
+  background: color-mix(in srgb, hsl(var(--card)) 72%, transparent);
+  font-weight: 700;
+}
+
+/* ── Ô tìm kiếm và bộ lọc: viên thuốc thay cho phân đoạn kiểu iOS ───────── */
+.cine-root.hugo-learning-shell .study-search {
+  border: 1px solid var(--cine-border);
+  border-radius: 9999px;
+  background: color-mix(in srgb, hsl(var(--card)) 72%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.cine-root.hugo-learning-shell .study-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.cine-root.hugo-learning-shell .study-filters button {
+  min-height: 2.375rem;
+  padding: 0 1.05rem;
+  border: 1px solid var(--cine-border);
+  border-radius: 9999px;
+  color: var(--cine-muted);
+  font-size: 13.5px;
+  font-weight: 650;
+}
+
+.cine-root.hugo-learning-shell .study-filters button.is-active {
+  border-color: transparent;
+  color: #fff;
+  background: color-mix(in srgb, hsl(var(--primary)) 86%, #000);
+  box-shadow: 0 8px 20px hsl(var(--primary) / 0.2);
+}
+
+/* ── Biểu tượng khoá học: ô bo góc nhạt màu nhấn, như .ios-icon-surface ─── */
+.cine-root.hugo-learning-shell .study-collection-icon,
+.cine-root.hugo-learning-shell .study-part-symbol {
+  border: 0;
+  border-radius: 0.9rem;
+  color: var(--cine-accent);
+  background: color-mix(in srgb, var(--cine-accent) 13%, transparent);
+  box-shadow: none;
+}
+
+.cine-root.hugo-learning-shell .study-course-code {
+  background: color-mix(in srgb, var(--cine-accent) 12%, transparent);
+  color: var(--cine-accent);
+}
+
+/* ── Popup nội dung khoá ────────────────────────────────────────────────── */
+.cine-root.hugo-learning-shell .study-syllabus-backdrop {
+  background: hsl(var(--background) / 0.55);
+}
+
+.cine-root.hugo-learning-shell .study-syllabus { border-radius: 24px 24px 0 0; }
+
+.cine-root.hugo-learning-shell .study-syllabus > header > button {
+  border: 1px solid var(--cine-border);
+  border-radius: 9999px;
+  background: transparent;
+}
+
+@media (min-width: 720px) {
+  .cine-root.hugo-learning-shell .study-syllabus { border-radius: 24px; }
+}
+
+/* ── Các bảng lấy từ HugoCoderHub (Tài nguyên, Chất lượng, Tiến độ) ─────── */
+.cine-root.hugo-learning-shell .coder-quality-hero,
+.cine-root.hugo-learning-shell .coder-quality-standard,
+.cine-root.hugo-learning-shell .coder-quality-curriculum,
+.cine-root.hugo-learning-shell .coder-quality-metrics article {
+  border: 1px solid var(--cine-border);
+  border-radius: 20px;
+  background: var(--cine-card);
+  box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cine-root.hugo-learning-shell .study-resume > button,
+  .cine-root.hugo-learning-shell .study-collection-open,
+  .cine-root.hugo-learning-shell .study-syllabus > footer > button { transition: none; }
+}

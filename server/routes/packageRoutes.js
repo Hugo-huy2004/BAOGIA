@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import Package from '../models/Package.js';
 import Bio from '../models/Bio.js';
 import JoyGiftCard from '../models/JoyGiftCard.js';
@@ -7,6 +8,15 @@ import { sendPushNotification } from '../utils/pushNotifier.js';
 import { fetchWithCache } from '../utils/cacheHelper.js';
 
 const router = express.Router();
+
+/**
+ * CẢNH BÁO LỊCH SỬ: cả tệp này từng KHÔNG có một cổng xác thực nào — gồm cả
+ * `POST /user` (cấp gói trả phí), `POST /assign-all` và `DELETE /:id`. Bất kỳ ai
+ * biết đường dẫn đều tự cấp gói cho mình được. Sửa 2026-08-24.
+ *
+ * Luật từ nay: mọi route ở đây phải có cổng, trừ `GET /` (danh mục công khai).
+ * `npm run check:guards` canh việc này.
+ */
 
 // ─── Reuse same capped-history helper ────────────────────────────────────────
 const pushHistory = (bio, entry) => {
@@ -56,7 +66,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST create package template (color is randomized from logo colors)
-router.post('/', async (req, res) => {
+router.post('/', requireAdmin, async (req, res) => {
   try {
     const { name, duration, durationUnit = 'months', benefits = [] } = req.body;
     if (!name || !duration) {
@@ -85,9 +95,12 @@ router.post('/', async (req, res) => {
 // ----------------------------------------------------
 
 // GET packages for specific user by email
-router.get('/user', async (req, res) => {
+router.get('/user', requireMember, async (req, res) => {
   try {
-    const { email } = req.query;
+    // Thành viên chỉ xem được gói CỦA MÌNH: requireMember lấy email từ token và
+    // bỏ qua `?email=`. Quản trị viên vẫn tra người khác được — với vai admin,
+    // requireMember đọc email từ query đúng như trước.
+    const email = req.memberEmail;
     if (!email) {
       return res.status(400).json({ error: 'Email query param is required' });
     }
@@ -105,7 +118,7 @@ router.get('/user', async (req, res) => {
 });
 
 // POST assign a package template to a user's Bio and extend their expiration date
-router.post('/user', async (req, res) => {
+router.post('/user', requireAdmin, async (req, res) => {
   try {
     const { email, packageId, customDuration } = req.body;
     if (!email || !packageId) {
@@ -177,7 +190,7 @@ router.post('/user', async (req, res) => {
 });
 
 // POST assign package to ALL users
-router.post('/assign-all', async (req, res) => {
+router.post('/assign-all', requireAdmin, async (req, res) => {
   try {
     const { packageId, customDuration } = req.body;
     if (!packageId) {
@@ -238,9 +251,12 @@ router.post('/assign-all', async (req, res) => {
 });
 
 // POST redeem gift code by member
-router.post('/redeem', async (req, res) => {
+router.post('/redeem', requireMember, async (req, res) => {
   try {
-    const { email, giftCode } = req.body;
+    // Đổi quà cho CHÍNH MÌNH. Trước đây `email` lấy từ body nên người lạ đổi hộ
+    // (hoặc đổi mất) voucher sinh nhật của người khác được.
+    const email = req.memberEmail;
+    const { giftCode } = req.body;
     if (!email || !giftCode) {
       return res.status(400).json({ error: 'Email and giftCode are required' });
     }
@@ -403,7 +419,7 @@ router.post('/redeem', async (req, res) => {
 
 
 // DELETE remove an assigned package from a user's Bio and reduce their expiration date
-router.delete('/user', async (req, res) => {
+router.delete('/user', requireAdmin, async (req, res) => {
   try {
     const { email, packageInstanceId } = req.body;
     if (!email || !packageInstanceId) {
@@ -459,7 +475,7 @@ router.delete('/user', async (req, res) => {
 // ----------------------------------------------------
 
 // PUT update package template
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, duration, durationUnit, benefits } = req.body;
@@ -482,7 +498,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // POST regenerate gift code for a package template
-router.post('/:id/regenerate-code', async (req, res) => {
+router.post('/:id/regenerate-code', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const pkg = await Package.findById(id);
@@ -499,7 +515,7 @@ router.post('/:id/regenerate-code', async (req, res) => {
 });
 
 // DELETE package template
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await Package.findByIdAndDelete(id);

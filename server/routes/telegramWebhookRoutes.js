@@ -3,7 +3,7 @@ import Bio from '../models/Bio.js';
 import AdminAuditLog from '../models/AdminAuditLog.js';
 import SupportTicket from '../models/SupportTicket.js';
 import { awardJoy } from '../utils/joyService.js';
-import { sendTelegramAlert, sendTelegramMessage } from '../services/telegramService.js';
+import { sendTelegramAlert, sendTelegramMessage, editTelegramMessage } from '../services/telegramService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import crypto from 'crypto';
@@ -563,7 +563,10 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
 
   // ─── LỆNH 1: CỘNG / TRỪ / GỬI JOY CHO THÀNH VIÊN (HIỂU ĐƠN VỊ CÁ NHÂN HÓA) ─────
   const joyEmailFirstRegex = new RegExp(`(gửi|cộng|tặng|thưởng|trừ|chuyển)\\s+(?:đến|cho|vào|của)?\\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})\\s+([+-]?\\d+(?:[.,]\\d+)?)\\s*(${DENOM_PATTERN})?`, 'i');
-  const joyAmountFirstRegex = new RegExp(`(gửi|cộng|tặng|thưởng|trừ|chuyển)\\s+([+-]?\d+(?:[.,]\\d+)?)\\s*(${DENOM_PATTERN})?\\s+(?:đến|cho|vào|của)?\\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})`, 'i');
+  // `\d` một gạch trong template literal biến thành `d`, tức regex đòi CHỮ CÁI
+  // "d" chứ không phải chữ số — dạng lệnh "cộng 500 joy cho a@b.com" không bao
+  // giờ khớp. Dòng trên (joyEmailFirstRegex) viết đúng `\\d`.
+  const joyAmountFirstRegex = new RegExp(`(gửi|cộng|tặng|thưởng|trừ|chuyển)\\s+([+-]?\\d+(?:[.,]\\d+)?)\\s*(${DENOM_PATTERN})?\\s+(?:đến|cho|vào|của)?\\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})`, 'i');
 
   let joyMatch = text.match(joyEmailFirstRegex);
   let actionWord = '', targetEmail = '', inputAmountNum = 0, unitStr = '';

@@ -63,7 +63,7 @@ router.post('/', requireAdmin, async (req, res) => {
     for (let i = 0; i < total; i++) {
       let code = generateCode();
       // collision check is astronomically unlikely within a single batch, but guard anyway
-      // eslint-disable-next-line no-await-in-loop
+       
       while (await JoyGiftCard.exists({ code })) {
         code = generateCode();
       }

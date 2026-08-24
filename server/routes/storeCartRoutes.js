@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import StoreCart from '../models/StoreCart.js';
 import UtilityProduct from '../models/UtilityProduct.js';
 import UtilityOrder from '../models/UtilityOrder.js';

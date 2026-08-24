@@ -8,7 +8,7 @@ import {
 import Bio from '../models/Bio.js';
 import WebAuthnCredential from '../models/WebAuthnCredential.js';
 import { saveChallenge, consumeChallenge } from '../utils/webauthnChallengeStore.js';
-import { requireMember } from '../middleware/authMiddleware.js';
+import { requireMember, invalidateMemberGate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -185,6 +185,7 @@ router.post('/login-verify', async (req, res) => {
     if (bio) {
       bio.lastUserAgentHash = uaHash;
       bio.locationAnomaly = false;
+      invalidateMemberGate(bio.email);
       await bio.save();
     }
 
@@ -217,9 +218,12 @@ router.post('/login-verify', async (req, res) => {
 
 // GET /api/webauthn/credentials/:email — list registered devices (for the
 // member's own security settings screen).
-router.get('/credentials/:email', async (req, res) => {
+// Danh tính lấy từ token, KHÔNG từ `:email` trên đường dẫn. Bản cũ không có cổng
+// nào: người lạ vừa dò được một email có khoá bảo mật hay không, vừa lấy được id
+// của khoá — mà id đó chính là thứ DELETE bên dưới cần.
+router.get('/credentials/:email', requireMember, async (req, res) => {
   try {
-    const creds = await WebAuthnCredential.find({ email: req.params.email })
+    const creds = await WebAuthnCredential.find({ email: req.memberEmail })
       .select('deviceName createdAt lastUsedAt _id')
       .sort({ createdAt: -1 });
     res.json({ credentials: creds });
@@ -229,10 +233,11 @@ router.get('/credentials/:email', async (req, res) => {
 });
 
 // DELETE /api/webauthn/credentials/:id — remove a registered device.
-router.delete('/credentials/:id', async (req, res) => {
+// Xoá khoá bảo mật là thao tác HẠ CẤP bảo vệ tài khoản. Bản cũ nhận `email` từ
+// body và không kiểm gì — bất kỳ ai cũng gỡ passkey của người khác được.
+router.delete('/credentials/:id', requireMember, async (req, res) => {
   try {
-    const { email } = req.body;
-    await WebAuthnCredential.deleteOne({ _id: req.params.id, email });
+    await WebAuthnCredential.deleteOne({ _id: req.params.id, email: req.memberEmail });
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to remove credential' });

@@ -103,7 +103,7 @@
       if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
         document.documentElement.classList.add("dark");
       }
-      if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
+      if (window.matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches || window.navigator.standalone === true) {
         document.documentElement.classList.add("standalone-pwa");
       }
       // ponytail: LƯỚI AN TOÀN cho ảnh khởi động. Máy nào khớp một thẻ

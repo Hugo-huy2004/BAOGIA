@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import Bio from '../models/Bio.js';
 import ArcadeScore from '../models/ArcadeScore.js';
 import { uploadAvatar, deleteAvatar } from '../utils/cloudinary.js';
-import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
+import { requireAdmin, requireMember, invalidateMemberGate } from '../middleware/authMiddleware.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
 import { missingProfileFields, applyProfileValues, describeField } from '../utils/profileRequirements.js';
 import { fetchWithCache, clearCache } from '../utils/cacheHelper.js';
@@ -130,7 +130,9 @@ const createUniqueSlug = async (baseSlug, ignoreId = null) => {
 
 const removeExpiredBioIfNeeded = async (bio) => {
   if (bio && bio.expiresAt && new Date(bio.expiresAt).getTime() <= Date.now()) {
-    await LearningEvidence.deleteMany({ ownerMemberId: existing._id });
+    // `existing` là tên của biến ở hàm gọi, không tồn tại trong phạm vi này —
+    // nhánh xoá Bio hết hạn ném ReferenceError thay vì dọn dữ liệu.
+    await LearningEvidence.deleteMany({ ownerMemberId: bio._id });
     await Bio.deleteOne({ _id: bio._id });
     return null;
   }
@@ -822,6 +824,8 @@ router.post('/me/revoke-sessions', requireMember, async (req, res) => {
       { email },
       { $set: { lastUserAgentHash: uaHash, locationAnomaly: false } }
     );
+    // Cache cổng chặn giữ 30s — xoá ngay để lần gọi kế tiếp thấy cờ đã tắt.
+    invalidateMemberGate(req.memberEmail);
 
     res.json({
       success: true,
@@ -901,6 +905,7 @@ router.post('/me/check-location', requireMember, checkLocationLimiter, async (re
     const isAnomaly = distance > 50;
     if (isAnomaly) {
       bio.locationAnomaly = true;
+      invalidateMemberGate(bio.email);
       await bio.save();
     }
 
@@ -1441,7 +1446,9 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     if (existing.avatarUrl) {
       await deleteAvatar(existing.avatarUrl);
     }
-    await LearningEvidence.deleteMany({ ownerMemberId: bio._id });
+    // Biến ở đây tên `existing`; `bio` không tồn tại nên nhánh xoá của admin
+    // ném ReferenceError TRƯỚC khi kịp xoá, để lại minh chứng học tập mồ côi.
+    await LearningEvidence.deleteMany({ ownerMemberId: existing._id });
     await Bio.findByIdAndDelete(req.params.id);
     
     // Xóa khỏi Cache và Bloom Filter

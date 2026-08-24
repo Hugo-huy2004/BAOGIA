@@ -1265,3 +1265,53 @@
   font-variant-numeric: tabular-nums;
   color: var(--course);
 }
+
+/* Hai khối phụ gập được: thư mục tham khảo 9 mục kèm chú thích là phần dài nhất
+   trang, để mở sẵn thì bài học bị đẩy xuống rất xa. Chuẩn đầu ra vẫn mở — đó là
+   thứ người ta cần đọc trước khi quyết định học. */
+details.hso-academy-block { padding: 0; }
+
+details.hso-academy-block > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+  /* Đủ 44px cho ngón tay. */
+  min-height: 44px;
+}
+
+details.hso-academy-block > summary::-webkit-details-marker { display: none; }
+
+details.hso-academy-block > summary h3 { margin: 0; flex: 0 0 auto; }
+
+details.hso-academy-block > summary span {
+  font-size: 12.5px;
+  color: var(--hso-muted);
+}
+
+/* Mũi chỉ hướng vẽ bằng CSS, xoay khi mở — không thêm một icon nữa vào gói. */
+details.hso-academy-block > summary::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0.5;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 180ms ease;
+}
+
+details.hso-academy-block[open] > summary::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+details.hso-academy-block > *:not(summary) {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+details.hso-academy-block > *:last-child { margin-bottom: 18px; }

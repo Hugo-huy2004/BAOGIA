@@ -1,5 +1,5 @@
 /**
- * Tầng học thuật của các học phần Hugo Studio Academy.
+ * Tầng học thuật của các học phần Hugo Learning.
  *
  * Tách khỏi `hugoSOCourses.js` vì hai thứ đổi theo hai nhịp khác nhau: nội dung
  * thao tác đổi khi công cụ ra tính năng mới, còn mã học phần, chuẩn đầu ra và

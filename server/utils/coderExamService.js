@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 // Dùng chung bộ đề với client — một nguồn sự thật, không nhân bản câu hỏi.
 import { WEB_COURSES, STAGES } from '../../src/components/member/hugoCoder/lessons/index.js';
-import { getCoderStageCompletion } from '../../shared/coderProgression.js';
 import { EXAM_BLUEPRINT, matchesSlot } from '../../shared/examBlueprint.js';
 import { gradeStage } from '../../shared/stageGrading.js';
+import { resolveStageKey, WEB_COURSE_ID } from '../../shared/courseCatalog.js';
 
 export const PASS_PERCENT = 60;
 const EXAM_TTL_MS = 30 * 60 * 1000;   // 30 phút làm bài
@@ -169,41 +169,56 @@ export function consumeExamPass(email, lessonId) {
   return pass.score;
 }
 
-// ==== Chứng chỉ chặng công khai ====
-// Điều kiện cấp: hoàn thành bài cuối chặng (chặng 6 cần đồ án được duyệt hoặc bài 100).
-export function getStageCertificate(bio, phaseNumber) {
-  const stage = STAGES.find((s) => s.phaseNumber === Number(phaseNumber));
-  if (!stage) return null;
+// ==== Chứng chỉ công khai ====
+/**
+ * Giấy chứng nhận cho MỘT chặng bất kỳ trong danh mục.
+ *
+ * `key` nhận nhiều dạng để liên kết cũ không chết: số chặng của khoá Web ("1"),
+ * id học phần ("calendar"), hay dạng cũ "office-calendar". Trước đây hàm chỉ tra
+ * theo `phaseNumber`, nên mọi khoá Năng suất đều ra NaN và không bao giờ cấp
+ * được chứng nhận — đó là lý do bấm "Nhận chứng nhận" không hiện gì.
+ *
+ * Danh mục tự dựng từ giáo trình, nên thêm khoá mới là có chứng nhận ngay,
+ * không phải sửa hàm này.
+ */
+export function getStageCertificate(bio, key) {
+  const found = resolveStageKey(key);
+  if (!found) return null;
+  const { course, stage } = found;
 
   const completed = bio?.completedLessons || [];
-  const stageProgress = getCoderStageCompletion(completed, stage.id);
-  const missingLessons = stage.phaseNumber === 6 && bio?.hugoCoderProjectStatus === 'approved'
-    ? stageProgress.missingLessons.filter((lessonId) => lessonId !== 'lesson100')
-    : stageProgress.missingLessons;
-  const earned = missingLessons.length === 0;
-  if (!earned) return null;
+  const done = new Set(completed);
+  let missing = stage.lessonIds.filter((id) => !done.has(id));
+
+  // Chặng cuối khoá Web: đồ án được duyệt thay cho bài 100.
+  if (course.id === WEB_COURSE_ID && stage.phaseNumber === 6 && bio?.hugoCoderProjectStatus === 'approved') {
+    missing = missing.filter((lessonId) => lessonId !== 'lesson100');
+  }
+  if (missing.length) return null;
 
   // Chứng chỉ phải nói ra NĂNG LỰC, không chỉ nói "đã học hết". Hai người cùng
   // đi hết chặng nhưng một người 92% ngay lần đầu, người kia 61% ở lần thứ tư —
   // tờ giấy phải phân biệt được.
-  const lessonIds = WEB_COURSES.slice(stage.from, stage.to).map((course) => course.id);
-  const examIds = lessonIds.filter((id) => QUIZ_COURSES.has(id));
   const assessment = gradeStage({
-    lessonIds,
-    examIds,
+    lessonIds: stage.lessonIds,
+    examIds: stage.examIds,
     completedLessons: completed,
     examScores: bio?.hugoCoderExamScores || {},
   });
 
+  const source = STAGES.find((item) => item.id === stage.id);
   return {
     displayName: bio.displayName,
     slug: bio.slug,
+    courseId: course.id,
+    courseCode: course.code,
+    courseTitle: course.title,
     phaseNumber: stage.phaseNumber,
     stageTitle: stage.title,
-    rangeText: stage.rangeText,
-    tagline: stage.intro?.tagline || '',
-    skills: stage.intro?.learn || [],
-    lessonsInStage: stage.to - stage.from,
+    rangeText: source?.rangeText || `${stage.lessonIds.length} bài`,
+    tagline: source?.intro?.tagline || '',
+    skills: source?.intro?.learn || [],
+    lessonsInStage: stage.lessonIds.length,
     totalCompleted: completed.length,
     graduated: bio?.hugoCoderProjectStatus === 'approved',
     score: assessment.score,

@@ -9,14 +9,15 @@
  *
  * Chạy: npm run check:gateway
  */
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const serverDir = path.resolve(here, "..");
 
-const { SERVICES, WS_CHANNELS, prefixRoutingTable } = await import(
+const { SERVICES, WS_CHANNELS, UNMOUNTED, prefixRoutingTable } = await import(
   path.join(serverDir, "services.manifest.js")
 );
 
@@ -73,6 +74,52 @@ for (const channel of WS_CHANNELS) {
   if (!serverSource.includes(`'${channel.path}'`)) {
     fail(`kênh WS "${channel.path}" có trong bản khai nhưng server.js không xử lý upgrade cho nó`);
   }
+}
+
+// ── 6. Mọi tệp trong routes/ phải được khai, hoặc nêu lý do không khai ──────
+// Đây là lỗi hay gặp nhất khi thêm tính năng: viết xong routes/abcRoutes.js rồi
+// quên khai. Không có bước này thì tệp đó nằm im, không route nào chạy, và
+// không có gì báo — người viết tưởng backend hỏng.
+const routeFiles = (await readdir(path.join(serverDir, "routes")))
+  .filter((name) => name.endsWith(".js"));
+const declared = new Set(SERVICES.map((service) => path.basename(service.module)));
+for (const file of routeFiles) {
+  if (declared.has(file) || file in UNMOUNTED) continue;
+  fail(`routes/${file} không có trong bản khai — thêm vào SERVICES, hoặc vào UNMOUNTED kèm lý do`);
+}
+for (const file of Object.keys(UNMOUNTED)) {
+  if (!routeFiles.includes(file)) fail(`UNMOUNTED nhắc tới routes/${file} nhưng tệp đó không còn`);
+  if (declared.has(file)) fail(`routes/${file} vừa nằm trong SERVICES vừa nằm trong UNMOUNTED`);
+}
+
+// ── 7. nginx/gateway.conf phải khớp với bản khai ────────────────────────────
+// File đó do máy sinh. Hai kiểu trôi cần bắt: sửa tay vào file sinh (lần chạy
+// sau ghi đè, mất công), và đổi manifest mà quên sinh lại (deploy nginx cũ).
+// Không kiểm được cú pháp nginx ở đây — máy CI không có nginx — nên chỉ đối
+// chiếu nội dung và kiểm ngoặc cân.
+const confPath = path.resolve(serverDir, "../nginx/gateway.conf");
+try {
+  const committed = await readFile(confPath, "utf8");
+  const generated = execFileSync(
+    process.execPath,
+    [path.join(serverDir, "scripts/gen-nginx.mjs")],
+    { encoding: "utf8" },
+  );
+  if (committed.trim() !== generated.trim()) {
+    fail("nginx/gateway.conf lệch với bản khai — chạy `npm run gen:nginx -- --write`");
+  }
+  const open = (committed.match(/\{/g) || []).length;
+  const close = (committed.match(/\}/g) || []).length;
+  if (open !== close) fail(`nginx/gateway.conf lệch ngoặc: ${open} "{" vs ${close} "}"`);
+
+  for (const { prefix } of prefixRoutingTable()) {
+    if (!committed.includes(`location ^~ ${prefix} {`)) {
+      fail(`nginx/gateway.conf thiếu location cho "${prefix}"`);
+    }
+  }
+} catch (error) {
+  if (error.code === "ENOENT") fail("chưa có nginx/gateway.conf — chạy `npm run gen:nginx -- --write`");
+  else fail(`đối chiếu nginx/gateway.conf lỗi: ${error.message}`);
 }
 
 if (problems.length) {

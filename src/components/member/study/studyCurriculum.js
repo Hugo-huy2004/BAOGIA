@@ -1,17 +1,25 @@
 import { HUGOSO_COURSES } from "../hugoSO/hugoSOCourses";
 
-// ── STUDY ROUTE — đoạn thứ ba của địa chỉ Study ─────────────────────────
-// <base>            → trang chủ Study (thư viện khoá học)
-// <base>/web        → bản đồ 100 bài của bộ Phát triển Web
-// <base>/lessonN    → đang học bài N
-// <base>/<courseId> → một khoá trong bộ Năng suất & AI (HUGOSO_COURSES)
+// ── STUDY ROUTE ────────────────────────────────────────────────────────────
+// <base>                     → trang chủ Study (thư viện khoá học)
+// <base>/<khoá>              → bản đồ của khoá đó
+// <base>/<khoá>/<bài>        → đang học một bài CỦA khoá đó
+//
+//   /study/web/lesson7          · Chương trình Kỹ sư Phát triển Web
+//   /study/calendar/calendar-01 · học phần CAL 101
+//
+// Khoá luôn nằm trong địa chỉ nên không phải suy bài thuộc khoá nào, và bài
+// không khớp khoá thì bị bỏ qua chứ không mở nhầm khoá khác.
+//
+// Địa chỉ MỘT đoạn kiểu cũ (/study/lesson7, /study/ai-01) vẫn chạy để liên kết
+// và dấu trang cũ không chết — khoá suy ra từ chính id bài.
 //
 // `<base>` là /member/utilities/study trong portal, /study (hoặc /hugoso) khi mở
 // riêng. Mọi màn đều có địa chỉ nên tải lại trang ở đâu thì ở nguyên đó.
 export const COURSE_MAP_ROUTE = "web";
 export const LESSON_PATTERN = /^lesson(?:[1-9]|[1-9]\d|100)$/;
 /** Office lesson IDs: calendar-01, docs-01b, sheets-02, slides-03, etc. */
-const OFFICE_LESSON_PATTERN = /^(?:calendar|docs|sheets|slides)-\d+[a-z]?$/;
+const OFFICE_LESSON_PATTERN = /^(?:calendar|docs|sheets|ai)-\d+[a-z]?$/;
 
 const text = (vi, en) => Object.freeze({ vi, en });
 
@@ -177,25 +185,47 @@ export function localize(value, locale) {
 /**
  * Suy ra Study đang mở màn nào, chỉ từ ĐỊA CHỈ.
  *
- * `segment` là đoạn thứ ba của đường dẫn (xem STUDY ROUTE ở đầu tệp). Trả về
- * `basePath` đã cắt đoạn đó ra, vì app chạy ở hai gốc khác nhau
- * (/member/utilities/study và /study) và viết cứng một gốc thì gốc kia hỏng.
+ * @param pathname đường dẫn đầy đủ, để cắt ra `basePath`
+ * @param segment  đoạn khoá học  (`web`, `calendar`, …)
+ * @param sub      đoạn bài học trong khoá đó (tuỳ chọn)
+ *
+ * Bài phải THUỘC khoá ghi trong địa chỉ; không khớp thì bỏ qua bài và mở bản đồ
+ * khoá, thay vì lặng lẽ mở bài của khoá khác.
  *
  * Đoạn lạ (gõ sai, liên kết cũ) coi như không có: về trang chủ Study thay vì
  * dựng một màn trống.
  */
-export function resolveStudyRoute(pathname, segment) {
-  const isLesson = LESSON_PATTERN.test(segment || "") || OFFICE_LESSON_PATTERN.test(segment || "");
-  const known = segment === COURSE_MAP_ROUTE
-    || isLesson
-    || Boolean(HUGOSO_COURSES[segment]);
-  const route = known ? segment : null;
+export function resolveStudyRoute(pathname, segment, sub) {
   const path = String(pathname || "").replace(/\/+$/, "");
+  const cut = (base, part) => (part && base.endsWith(`/${part}`) ? base.slice(0, -(part.length + 1)) : base);
+
+  /** Khoá mà một id bài thuộc về; null nếu id không hợp lệ. */
+  const courseOfLesson = (id) => {
+    if (LESSON_PATTERN.test(id || "")) return COURSE_MAP_ROUTE;
+    const prefix = String(id || "").split("-")[0];
+    return OFFICE_LESSON_PATTERN.test(id || "") && HUGOSO_COURSES[prefix] ? prefix : null;
+  };
+
+  const isCourse = segment === COURSE_MAP_ROUTE || Boolean(HUGOSO_COURSES[segment]);
+
+  // Dạng cũ một đoạn: /study/lesson7 hoặc /study/ai-01.
+  if (!isCourse) {
+    const owner = courseOfLesson(segment);
+    if (!owner) return { view: null, courseId: null, lessonId: null, basePath: cut(path, segment) || "/study" };
+    return {
+      view: owner === COURSE_MAP_ROUTE ? "coder" : "office",
+      courseId: owner,
+      lessonId: segment,
+      basePath: cut(path, segment) || "/study",
+    };
+  }
+
+  // Bài chỉ được nhận khi đúng là bài của khoá trong địa chỉ.
+  const lessonId = sub && courseOfLesson(sub) === segment ? sub : null;
   return {
-    route,
-    lessonId: isLesson ? route : null,
-    officeCourseId: HUGOSO_COURSES[route] ? route : null,
-    view: route ? "coder" : null,
-    basePath: (route && path.endsWith(`/${route}`) ? path.slice(0, -(route.length + 1)) : path) || "/study",
+    view: segment === COURSE_MAP_ROUTE ? "coder" : "office",
+    courseId: segment,
+    lessonId,
+    basePath: cut(cut(path, sub), segment) || "/study",
   };
 }

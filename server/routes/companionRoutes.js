@@ -1,6 +1,6 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 import CompanionHistory from '../models/CompanionHistory.js';
 import Bio from '../models/Bio.js';
 import CheckinRecord from '../models/CheckinRecord.js';

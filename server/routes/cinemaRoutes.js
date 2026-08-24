@@ -208,7 +208,7 @@ router.get('/stream/:token', async (req, res) => {
 router.use('/admin', requireAdmin);
 
 // GET /api/cinema/admin/movies — toàn bộ phim, kể cả phim đang ẩn
-router.get('/admin/movies', async (req, res) => {
+router.get('/admin/movies', requireAdmin, async (req, res) => {
   try {
     const movies = await CinemaMovie.find({}).sort({ views: -1, createdAt: -1 }).lean();
     res.json({ success: true, count: movies.length, movies: movies.map((m) => ({ ...m, id: m.movieId })) });
@@ -218,7 +218,7 @@ router.get('/admin/movies', async (req, res) => {
 });
 
 // POST /api/cinema/admin/sync — đồng bộ lại thư viện phim công cộng
-router.post('/admin/sync', async (req, res) => {
+router.post('/admin/sync', requireAdmin, async (req, res) => {
   try {
     const result = await syncCinemaLibrary();
     catalogCache.clear();
@@ -235,7 +235,7 @@ router.post('/admin/sync', async (req, res) => {
 });
 
 // POST /api/cinema/admin/movies — admin thêm/sửa một phim
-router.post('/admin/movies', async (req, res) => {
+router.post('/admin/movies', requireAdmin, async (req, res) => {
   try {
     const {
       id,
@@ -307,7 +307,7 @@ router.post('/admin/movies', async (req, res) => {
  * mặc định do code cũ tự sinh). Để admin bấm chứ không xoá ngầm trong lúc sync:
  * trong đó có thể lẫn phim admin tự thêm thật.
  */
-router.delete('/admin/legacy', async (req, res) => {
+router.delete('/admin/legacy', requireAdmin, async (req, res) => {
   try {
     const result = await CinemaMovie.deleteMany({ source: { $exists: false } });
     catalogCache.clear();
@@ -318,7 +318,7 @@ router.delete('/admin/legacy', async (req, res) => {
 });
 
 // DELETE /api/cinema/admin/movies/:id
-router.delete('/admin/movies/:id', async (req, res) => {
+router.delete('/admin/movies/:id', requireAdmin, async (req, res) => {
   try {
     const targetId = req.params.id;
     const filter = mongoose.Types.ObjectId.isValid(targetId)
