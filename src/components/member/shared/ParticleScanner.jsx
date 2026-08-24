@@ -149,7 +149,7 @@ export default function ParticleScanner({
     if (typeof window !== "undefined" && "BarcodeDetector" in window) {
       try {
         barcodeDetector = new window.BarcodeDetector({ formats: ["qr_code"] });
-      } catch (_) {}
+      } catch {}
     }
 
     let win = null;
@@ -197,7 +197,7 @@ export default function ParticleScanner({
               return;
             }
           }
-        } catch (_) {}
+        } catch {}
       }
 
       // 2. Try Particle Cloud Code Frame Analysis

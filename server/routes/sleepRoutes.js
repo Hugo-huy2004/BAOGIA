@@ -23,7 +23,7 @@ router.post('/analyze', requireAdultMember, async (req, res) => {
     res.status(upstream.status);
     res.set('Content-Type', upstream.headers.get('content-type') || 'application/json');
     res.send(text);
-  } catch (e) {
+  } catch {
     res.status(502).json({ error: 'AI server unreachable' });
   }
 });

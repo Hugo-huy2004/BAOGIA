@@ -42,17 +42,27 @@
   text-decoration: none;
 }
 
-/* Chữ mang dải màu thương hiệu — cùng `cine-grad` mà Introduction và Services
-   dùng cho chữ nhấn, nên logo Hugo Learning nằm đúng bảng màu Hugo Studio. */
+/* Chữ mang dải màu thương hiệu.
+   Dải màu LẤY TỪ THEME (`--primary` → `--accent`), không viết cứng xanh–tím.
+   index.css đổi màu chủ đạo theo ngôn ngữ (tiếng Việt: đỏ son – vàng), nên một
+   dải xanh viết cứng làm logo và mọi tiêu đề nhấn của /study lệch hẳn khỏi màu
+   của chính trang — nút đỏ, chữ xanh, nhìn như hai trang dán vào nhau. */
+.hugo-learning-shell .cine-grad,
+.learning-wordmark-name {
+  background-image: linear-gradient(100deg,
+    hsl(var(--primary)) 0%,
+    color-mix(in srgb, hsl(var(--primary)) 45%, hsl(var(--accent))) 52%,
+    hsl(var(--accent)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .learning-wordmark-name {
   font-size: clamp(20px, 2.4vw, 26px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
-  background-image: linear-gradient(100deg, #007aff 0%, #32ade6 46%, #af52de 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 /* Nép ở góc phải trên của tên, không phải một dòng thứ hai. */
 .learning-wordmark-by {
@@ -312,7 +322,6 @@
 /* Ba dòng dữ kiện là MỘT thẻ có vạch ngăn, không phải ba đoạn rời. */
 .learning-account-facts {
   display: grid;
-  max-width: 70ch;
   margin: 0 0 22px;
   padding: 0 20px;
   border: 1px solid var(--landing-border);
@@ -348,6 +357,233 @@
 /* Hàng nút — lớp này trước giờ KHÔNG có luật nào, nên hai nút dính sát nhau. */
 .landing-cta { display: flex; flex-wrap: wrap; gap: 12px; }
 
+
+/* ── Liên kết tài khoản (/study/login) ──────────────────────────────────────
+   Hai cột: bên trái nói LIÊN KẾT ĐỂ ĐƯỢC GÌ và lấy những gì của người dùng,
+   bên phải mới là nút. Trước đây màn này chỉ có một thẻ nhỏ trôi giữa màn
+   trống — hỏi email của người ta mà không nói đổi lại được gì. */
+.learning-link {
+  display: grid;
+  grid-template-areas: "head" "card" "benefits";
+  gap: clamp(24px, 4vw, 40px);
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 64px) 20px 72px;
+  min-height: calc(100svh - 66px);
+  align-content: center;
+}
+
+.learning-link-head { grid-area: head; }
+.learning-link-benefits { grid-area: benefits; }
+.learning-link-card { grid-area: card; }
+
+@media (min-width: 940px) {
+  .learning-link {
+    grid-template-columns: 1.05fr 0.95fr;
+    grid-template-areas: "head card" "benefits card";
+    align-items: start;
+    column-gap: clamp(32px, 5vw, 64px);
+  }
+  .learning-link-card { align-self: center; }
+}
+
+.learning-link-head h1 {
+  margin: 6px 0 14px;
+  font-size: clamp(26px, 3.6vw, 40px);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.03em;
+}
+
+.learning-link-lead {
+  max-width: 52ch;
+  margin: 0 0 26px;
+  font-size: 15.5px;
+  line-height: 1.68;
+  color: var(--landing-muted);
+}
+
+.learning-link-benefits { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+
+.learning-link-benefits li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+/* Icon đơn sắc, ô nền nhạt — cùng quy ước với mọi trang công khai khác. */
+.learning-link-benefits .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cine-accent) 12%, transparent);
+  color: var(--cine-accent);
+  font-size: 21px;
+}
+
+.learning-link-benefits strong { display: block; font-size: 15.5px; font-weight: 750; letter-spacing: -0.01em; }
+.learning-link-benefits div span { display: block; margin-top: 3px; font-size: 14px; line-height: 1.6; color: var(--landing-muted); }
+
+.learning-link-card {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  padding: clamp(24px, 3vw, 34px);
+  border: 1px solid var(--landing-border);
+  border-radius: 26px;
+  background: var(--landing-card);
+  box-shadow: 0 18px 50px hsl(var(--shadow) / 0.08);
+  text-align: center;
+}
+
+.dark .learning-link-card { box-shadow: 0 22px 54px rgba(0, 0, 0, 0.24); }
+
+/* "Hugo Studio ── Google": nói ngay tài khoản nối với ai. */
+.learning-link-brands {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--landing-muted);
+}
+
+.learning-link-brands b { color: var(--cine-ink); }
+.learning-link-brands i { width: 26px; height: 1px; background: var(--landing-border); }
+
+.learning-link-google { display: flex; min-height: 44px; justify-content: center; }
+
+.learning-link-note { margin: 0; font-size: 12px; color: var(--landing-muted); }
+.learning-link-note a { color: var(--cine-accent); font-weight: 650; }
+.learning-link-alert code { font-size: 11.5px; word-break: break-all; }
+
+.learning-link-error {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: hsl(var(--destructive));
+}
+
+/* Nút Google hỏng âm thầm thì phải nói ra — im lặng là người dùng ngồi nhìn
+   một khoảng trống và bỏ đi. */
+.learning-link-alert {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, hsl(var(--destructive)) 30%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, hsl(var(--destructive)) 7%, transparent);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--landing-muted);
+}
+
+.learning-link-alert strong { font-size: 14px; color: var(--cine-ink); }
+
+.learning-link-new {
+  width: 100%;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--cine-accent) 8%, transparent);
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--landing-muted);
+  text-align: left;
+}
+
+.learning-link-new strong { color: var(--cine-ink); }
+
+.learning-link-terms { margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--landing-muted); }
+.learning-link-terms a { color: var(--cine-accent); }
+
+/* ── Các liên kết của tài khoản (tab Tài khoản) ─────────────────────────── */
+.learning-subhead {
+  margin: 26px 0 12px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--landing-muted);
+}
+
+.learning-links { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+
+.learning-links li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 6px 14px;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px solid var(--landing-border);
+  border-radius: 20px;
+  background: var(--landing-card);
+  box-shadow: 0 12px 36px hsl(var(--shadow) / 0.065);
+}
+
+.learning-links .material-symbols-outlined {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cine-accent) 12%, transparent);
+  color: var(--cine-accent);
+  font-size: 21px;
+}
+
+.learning-links strong { display: block; font-size: 15.5px; font-weight: 750; }
+.learning-links div span { display: block; margin-top: 3px; font-size: 13.5px; line-height: 1.6; color: var(--landing-muted); }
+
+.learning-linked {
+  justify-self: end;
+  max-width: 16rem;
+  overflow: hidden;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cine-accent) 12%, transparent);
+  color: var(--cine-accent);
+  font-size: 12px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Trạng thái quyền truy cập, đứng ngay cạnh tên — không phải một dòng chữ dưới
+   đáy trang. */
+.learning-access {
+  margin-left: auto;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.learning-access--ok    { background: rgba(18, 165, 148, 0.14); color: #0d7d70; }
+.learning-access--wait  { background: rgba(255, 149, 0, 0.15);  color: #9a5b00; }
+/* Bản dùng thử mang màu chủ đạo của theme — index.css đổi màu theo ngôn ngữ,
+   nên một mã xanh viết cứng sẽ chỏi giữa trang. */
+.learning-access--trial {
+  background: color-mix(in srgb, hsl(var(--primary)) 12%, transparent);
+  color: hsl(var(--primary));
+}
+
+.dark .learning-access--ok    { color: #5fd6c6; }
+.dark .learning-access--wait  { color: #ffc06b; }
+
+@media (max-width: 620px) {
+  .learning-links li { grid-template-columns: 42px minmax(0, 1fr); }
+  .learning-linked { grid-column: 2; justify-self: start; max-width: 100%; }
+  .learning-account-card { flex-wrap: wrap; }
+  .learning-access { margin-left: 0; }
+}
 
 /* ── Bố cục full màn ────────────────────────────────────────────────────────
    Study vốn được thiết kế làm MỘT TAB trong portal nên nội dung bó trong cột

@@ -20,6 +20,7 @@ import { Toaster } from "react-hot-toast";
 import PWARealtimeBridge from "./components/PWARealtimeBridge";
 import NativeShell from "./components/NativeShell";
 import MobileInstallGate from "./components/ui/MobileInstallGate";
+import SafeAreaProbe from "./components/ui/SafeAreaProbe";
 import PWAQuickLogin from "./components/PWAQuickLogin";
 import DonationModal from "./components/ui/DonationModal";
 import { LazyMotion } from "framer-motion";
@@ -372,6 +373,7 @@ export default function App() {
             <TooltipProvider>
               <RouteSeoPolicy />
               <NativeShell />
+              {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
               <PWARealtimeBridge />
               <PWAQuickLogin />
               <OfflineBanner />

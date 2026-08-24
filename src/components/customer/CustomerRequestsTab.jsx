@@ -45,7 +45,7 @@ export default function CustomerRequestsTab({ project }) {
       });
       // Fire an event to update badge immediately if possible
       window.dispatchEvent(new Event('messagesRead'));
-    } catch (err) {}
+    } catch {}
   };
 
   useEffect(() => {

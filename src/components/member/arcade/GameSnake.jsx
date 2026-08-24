@@ -738,7 +738,7 @@ export default function GameSnake({ paused = false, onGameOver }) {
             s.stage = nextStage;
             try {
               confetti({ particleCount: 75, spread: 70, origin: { y: 0.5 } });
-            } catch (_) {}
+            } catch {}
             const nextTheme = stageThemeFor(nextStage);
             const endlessBonus = Math.floor((nextStage - 1) / STAGES.length);
             const wanted = nextTheme.mines + endlessBonus;

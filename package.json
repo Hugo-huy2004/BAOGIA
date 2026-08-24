@@ -39,12 +39,12 @@
     "gen:nginx": "node server/scripts/gen-nginx.mjs",
     "check:gateway": "node server/scripts/check-gateway.mjs",
     "check:catalog": "cd server && node scripts/check-course-catalog.mjs",
-    "check:guards": "node server/scripts/check-route-guards.mjs"
+    "check:guards": "node server/scripts/check-route-guards.mjs",
+    "check:audit": "npm audit --omit=dev --audit-level=high && npm audit --omit=dev --audit-level=high --prefix server"
   },
   "dependencies": {
     "@capacitor/android": "8.4.2",
     "@capacitor/app": "^8.1.1",
-    "@capacitor/cli": "8.4.2",
     "@capacitor/core": "8.4.2",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/ios": "8.4.2",
@@ -73,6 +73,7 @@
     "motion": "^12.43.0",
     "p-limit": "^7.3.0",
     "qrcode.react": "^4.2.0",
+    "quill-delta": "^5.1.0",
     "react": "^18.3.1",
     "react-confetti": "^6.4.0",
     "react-dom": "^18.3.1",
@@ -80,8 +81,8 @@
     "react-hot-toast": "^2.6.0",
     "react-i18next": "^17.0.8",
     "react-markdown": "^10.1.0",
-    "react-quill": "^2.0.0",
-    "react-router-dom": "^6.30.4",
+    "react-quill-new": "^3.8.3",
+    "react-router-dom": "^7.18.2",
     "remark-gfm": "^4.0.1",
     "swr": "^2.4.2",
     "tailwind-merge": "^3.6.0",
@@ -89,6 +90,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.4.2",
     "@eslint/js": "^9.15.0",
     "@playwright/test": "^1.62.1",
     "@sentry/vite-plugin": "^5.4.0",

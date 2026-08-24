@@ -92,7 +92,7 @@ router.get('/:id/messages/unread-count', requireCustomer, async (req, res) => {
     const other = req.customerRole === 'admin' ? 'customer' : 'admin';
     const count = await CustomerMessage.countDocuments({ projectId: req.projectId, sender: other, isRead: false });
     res.json({ count });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
@@ -102,7 +102,7 @@ router.get('/:id/messages', requireCustomer, async (req, res) => {
   try {
     const messages = await CustomerMessage.find({ projectId: req.projectId }).sort({ createdAt: 1 });
     res.json(messages);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
@@ -129,7 +129,7 @@ router.post('/:id/messages', requireCustomer, async (req, res) => {
     });
 
     res.json(newMessage);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
@@ -144,7 +144,7 @@ router.put('/:id/messages/read', requireCustomer, async (req, res) => {
       { $set: { isRead: true } }
     );
     res.json({ success: true });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi máy chủ' });
   }
 });
@@ -158,7 +158,7 @@ router.get('/unread-total', requireAdmin, async (req, res) => {
   try {
     const total = await CustomerMessage.countDocuments({ sender: 'customer', isRead: false });
     res.json({ total });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi' });
   }
 });
@@ -182,7 +182,7 @@ router.get('/', requireAdmin, async (req, res) => {
     });
 
     res.json(projects);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi lấy danh sách dự án' });
   }
 });
@@ -257,7 +257,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
 
     await project.save();
     res.json(project);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi cập nhật dự án' });
   }
 });
@@ -268,7 +268,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     await CustomerMessage.deleteMany({ projectId: req.params.id });
     await CustomerProject.findByIdAndDelete(req.params.id);
     res.json({ success: true });
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Lỗi xóa dự án' });
   }
 });

@@ -2304,7 +2304,13 @@ html.standalone-pwa .desktop-apple-layout {
 }
 
 .mobile-portal-nav {
-  position: absolute;
+  /* `fixed` chứ KHÔNG `absolute`: absolute neo vào .portal-mobile-main, nên
+     chỉ cần ô đó thấp hơn màn hình một chút (một anh em flex chiếm chỗ, một
+     phép trừ safe-area ở tổ tiên) là thanh tab đứng lơ lửng và chừa một dải
+     nền trống bên dưới. .member-portal-shell là `fixed; inset: 0` và có
+     transform-gpu, nên nó CHÍNH LÀ khối chứa của `fixed` ở đây — đáy thanh
+     luôn là đáy màn, không phụ thuộc chiều cao của bất kỳ ô trung gian nào. */
+  position: fixed;
   right: 0;
   bottom: 0;
   left: 0;
@@ -2377,7 +2383,9 @@ html.standalone-pwa .desktop-apple-layout {
  * Dùng chung công thức kính với tab bar: nền ở lớp ::before + translateZ.
  * ------------------------------------------------------------------------- */
 .radio-mini {
-  position: absolute;
+  /* Neo cùng hệ quy chiếu với .mobile-portal-nav, nếu không hai thanh trôi
+     lệch nhau ngay khi ô trung gian đổi chiều cao. */
+  position: fixed;
   right: 0;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
   left: 0;

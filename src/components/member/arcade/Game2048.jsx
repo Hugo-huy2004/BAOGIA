@@ -288,7 +288,7 @@ export default function Game2048({ paused = false, onGameOver }) {
     if (!milestone) return;
     try {
       confetti({ particleCount: 90, spread: 80, origin: { y: 0.55 } });
-    } catch (_) {}
+    } catch {}
     const t = setTimeout(() => setMilestone(null), 2200);
     return () => clearTimeout(t);
   }, [milestone]);

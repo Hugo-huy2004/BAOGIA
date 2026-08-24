@@ -118,16 +118,16 @@ function startAmbientSound(type) {
 function stopAmbientSound() {
   if (ambientNodes) {
     if (ambientNodes.source) {
-      try { ambientNodes.source.stop(); } catch (e) {}
+      try { ambientNodes.source.stop(); } catch {}
     }
     if (ambientNodes.modulator) {
-      try { ambientNodes.modulator.stop(); } catch (e) {}
+      try { ambientNodes.modulator.stop(); } catch {}
     }
     if (ambientNodes.interval) {
       clearInterval(ambientNodes.interval);
     }
     if (ambientNodes.gain) {
-      try { ambientNodes.gain.disconnect(); } catch (e) {}
+      try { ambientNodes.gain.disconnect(); } catch {}
     }
     ambientNodes = null;
   }

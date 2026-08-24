@@ -77,7 +77,7 @@ const SEVERITY_LABELS = { normal: "Ổn định", mild: "Nhẹ", moderate: "Trun
 function phq9Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; if (score <= 19) return "severe"; return "extremely_severe"; }
 function gad7Severity(score) { if (score == null) return null; if (score <= 4) return "normal"; if (score <= 9) return "mild"; if (score <= 14) return "moderate"; return "severe"; }
 function who5Severity(score) { if (score == null) return null; return score >= 13 ? "normal" : score >= 9 ? "mild" : score >= 5 ? "moderate" : "severe"; }
-function formatVnDate(d) { try { return new Date(d).toLocaleDateString("vi-VN"); } catch (_) { return ""; } }
+function formatVnDate(d) { try { return new Date(d).toLocaleDateString("vi-VN"); } catch { return ""; } }
 
 // Latest completed Big Five test traits (each 1.0–5.0, see clinicalTests.js bigfive
 // getInterpretation) — the only real per-user personality signal already computed

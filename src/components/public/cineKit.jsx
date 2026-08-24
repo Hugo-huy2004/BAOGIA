@@ -623,7 +623,7 @@ export function CineSectionHeading({ eyebrow, title, highlight, desc, align = "s
     return (
       <div className="mx-auto max-w-3xl text-center">
         <p className="ios-kicker">{eyebrow}</p>
-        <h2 className="mt-4 text-3xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:text-[2.75rem]" style={{ color: INK }}>
+        <h2 className="mt-4 text-3xl font-extrabold leading-[1.22] tracking-[-0.035em] sm:text-4xl md:text-[2.75rem]" style={{ color: INK }}>
           <WordsPullUpMultiStyle
             segments={[{ text: title }, ...(highlight ? [{ text: highlight, className: "cine-serif cine-grad" }] : [])]}
           />
@@ -636,7 +636,7 @@ export function CineSectionHeading({ eyebrow, title, highlight, desc, align = "s
     <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-end">
       <div>
         <p className="ios-kicker">{eyebrow}</p>
-        <h2 className="mt-4 text-3xl font-extrabold leading-[1.08] tracking-[-0.035em] sm:text-4xl md:text-[2.75rem]" style={{ color: INK }}>
+        <h2 className="mt-4 text-3xl font-extrabold leading-[1.22] tracking-[-0.035em] sm:text-4xl md:text-[2.75rem]" style={{ color: INK }}>
           <WordsPullUp text={title} />
           {highlight && (
             <span className="block cine-serif cine-grad">

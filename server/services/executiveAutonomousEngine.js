@@ -52,7 +52,7 @@ export async function buildButlerMemberReport(bioDoc) {
   try {
     const customAmountObj = toDenom(rawJoy, customDenom);
     formattedCustom = `${customAmountObj.amount.toLocaleString('vi-VN')} ${customAmountObj.code}`;
-  } catch (_) {}
+  } catch {}
 
   const isFrozen = bio.isJoyWalletFrozen ? '❄️ <b>Đóng băng (Frozen)</b>' : '✅ <b>Hoạt động (Active)</b>';
   const isEdu = bio.isEduVerified ? '🎓 <b>Đã xác minh Sinh viên</b>' : '❌ <b>Chưa xác minh</b>';

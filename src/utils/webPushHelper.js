@@ -183,7 +183,7 @@ export const webPushHelper = {
       if (!registration) return false;
       const sub = await registration.pushManager.getSubscription();
       return !!sub;
-    } catch (_) {
+    } catch {
       return false;
     }
   },

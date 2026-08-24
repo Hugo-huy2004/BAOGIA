@@ -285,7 +285,7 @@ export default function MemberInfoVersionTab({ bio, onBioUpdate, showToast, onBa
         showToast?.(t(successKey, { amount }), "success");
         useJoyStore.getState().fetchBalance(bio.email, undefined, { force: true });
       }
-    } catch (_) {
+    } catch {
       showToast?.(t(errorKey), "error");
     } finally {
       claimLocksRef.current.delete(bioField);

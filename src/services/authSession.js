@@ -112,7 +112,7 @@ export const requestMagicLinkOtp = async (email) => {
       return { success: false, error: data.error || 'Không thể gửi mã OTP' };
     }
     return { success: true, message: data.message };
-  } catch (error) {
+  } catch {
     return { success: false, error: 'Lỗi kết nối mạng' };
   }
 };
@@ -133,7 +133,7 @@ export const verifyMagicLinkOtp = async (email, code) => {
     }
     const session = loginMember({ ...data.member, token: data.token });
     return { session, error: null };
-  } catch (error) {
+  } catch {
     return { session: null, error: 'Lỗi kết nối mạng' };
   }
 };
@@ -154,7 +154,7 @@ export const loginMemberWithApple = async (identityToken, email) => {
     }
     const session = loginMember({ ...data.member, token: data.token });
     return { session, error: null };
-  } catch (error) {
+  } catch {
     return { session: null, error: 'Lỗi kết nối mạng' };
   }
 };
@@ -178,7 +178,7 @@ export const loginDevLocal = async (email = 'dev.member@hugowishpax.studio', nam
     }
     const session = loginMember({ ...data.member, token: data.token });
     return { session, error: null };
-  } catch (error) {
+  } catch {
     return { session: null, error: 'Lỗi kết nối mạng' };
   }
 };
@@ -295,7 +295,7 @@ export const verifyAdminOtp = async (tempToken, otpCode, { remember = true } = {
 
     writeSession(ADMIN_SESSION_KEY, session, remember);
     return { session, error: null };
-  } catch (error) {
+  } catch {
     return { session: null, error: 'Lỗi mạng khi xác thực OTP' };
   }
 };

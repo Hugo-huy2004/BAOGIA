@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";

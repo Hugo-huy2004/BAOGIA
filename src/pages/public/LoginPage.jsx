@@ -326,7 +326,7 @@ export default function LoginPage() {
       
       sessionStorage.setItem('customerProject', JSON.stringify(data.project));
       navigate("/customer-portal");
-    } catch (error) {
+    } catch {
       showToast(t("loginPage.toast.invalidLink"), "error");
     }
   };

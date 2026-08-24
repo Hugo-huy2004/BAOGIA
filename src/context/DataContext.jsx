@@ -79,7 +79,7 @@ export const DataProvider = ({ children }) => {
         // fallback để data.profile.* luôn tồn tại thay vì trắng trang.
         setData({ ...initialData, ...(fetchedData || {}), profile: { ...initialData.profile, ...(fetchedData?.profile || {}) } });
         setError(null);
-      } catch (err) {
+      } catch {
         // Suppress console spam for expected missing backend in local dev/demo
         // console.error("Failed to fetch data from API, using local cache:", err);
         // Use initial data as fallback

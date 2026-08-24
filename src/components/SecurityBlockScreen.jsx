@@ -37,7 +37,7 @@ export function SecurityBlockBoundary({ children }) {
       sessionStorage.removeItem(STORAGE_KEY);
       setBlock(null);
       window.location.reload();
-    } catch (e) {}
+    } catch {}
   };
 
   return (

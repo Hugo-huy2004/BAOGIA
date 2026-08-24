@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function AISupportBriefingModal({ isOpen, briefingData, onClose }) {
   if (!isOpen || !briefingData || !briefingData.hasBriefing) return null;

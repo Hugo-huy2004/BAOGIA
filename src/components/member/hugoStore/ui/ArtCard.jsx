@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import UtilityAppIcon from "../../utilities/UtilityAppIcon";
 import AppArt from "./AppArt";
-import { GRADIENTS, money, moneyUnit, tileAction } from "../storeData";
+import { GRADIENTS, moneyUnit, tileAction } from "../storeData";
 
 /**
  * Thẻ minh hoạ trong băng cuộn ngang — cỡ trung, nền là gradient của chính app

@@ -376,7 +376,7 @@ async function handleAuth(ws, msg) {
         }
         client.email = decoded.email;
       }
-    } catch (_) { /* fall through as guest */ }
+    } catch { /* fall through as guest */ }
   }
   client.displayName = msg.displayName || 'Guest';
   client.guestId = msg.guestId || client.guestId;
@@ -389,7 +389,7 @@ async function handleAuth(ws, msg) {
       let bio = await Bio.findOne({ email: client.email });
       if (!bio) bio = await Bio.findOne({ contactEmail: client.email });
       client.rating = bio?.joyBalance || 0;
-    } catch (_) {
+    } catch {
       client.rating = 0;
     }
   } else {
@@ -582,7 +582,7 @@ function handleMove(ws, msg) {
   let moveResult;
   try {
     moveResult = room.chess.move({ from: msg.from, to: msg.to, promotion: msg.promotion || 'q' });
-  } catch (_) {
+  } catch {
     return send(ws, { type: 'error', message: 'Illegal move' });
   }
 
@@ -822,7 +822,7 @@ export function initChessWS(options) {
       let msg;
       try {
         msg = JSON.parse(data.toString());
-      } catch (_) {
+      } catch {
         return send(ws, { type: 'error', message: 'Invalid JSON' });
       }
 

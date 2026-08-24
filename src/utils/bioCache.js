@@ -13,7 +13,7 @@ export function getCachedBio(email) {
     if (!raw) return null;
     const { bio } = JSON.parse(raw);
     return bio || null;
-  } catch (_) {
+  } catch {
     return null;
   }
 }
@@ -22,12 +22,12 @@ export function setCachedBio(email, bio) {
   if (!email || !bio) return;
   try {
     localStorage.setItem(PREFIX + email, JSON.stringify({ bio, cachedAt: Date.now() }));
-  } catch (_) {
+  } catch {
     // localStorage full/unavailable (private browsing) — just skip caching.
   }
 }
 
 export function clearCachedBio(email) {
   if (!email) return;
-  try { localStorage.removeItem(PREFIX + email); } catch (_) { /* ignore */ }
+  try { localStorage.removeItem(PREFIX + email); } catch { /* ignore */ }
 }

@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { hapticSelect } from "../../../utils/haptics";

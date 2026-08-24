@@ -449,11 +449,11 @@ wss.on('connection', (ws, req) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.email) email = decoded.email;
-  } catch (err) {
+  } catch {
     try {
       const decoded = jwt.decode(token);
       if (decoded?.email) email = decoded.email;
-    } catch (_) {}
+    } catch {}
   }
 
   if (!email) {
@@ -478,7 +478,7 @@ wss.on('connection', (ws, req) => {
           }
         }
       }
-    } catch (_) {
+    } catch {
       // Ignore malformed messages
     }
   });

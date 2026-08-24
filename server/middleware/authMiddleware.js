@@ -110,7 +110,7 @@ export const requireAdmin = (req, res, next) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
     next();
-  } catch (error) {
+  } catch {
     return res.status(403).json({ error: 'Forbidden - Invalid or expired admin token' });
   }
 };
@@ -186,7 +186,7 @@ export const requireCustomer = (req, res, next) => {
       return next();
     }
     return res.status(403).json({ error: 'Forbidden - Invalid role' });
-  } catch (error) {
+  } catch {
     return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
   }
 };
@@ -264,7 +264,7 @@ export const requireMember = async (req, res, next) => {
       return next();
     }
     return res.status(403).json({ error: 'Forbidden - Invalid role' });
-  } catch (error) {
+  } catch {
     return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
   }
 };

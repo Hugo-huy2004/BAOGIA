@@ -444,7 +444,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       setStats(res.data.stats || null);
       setAnalytics(res.data.analytics || null);
       setDidFetch(true);
-    } catch (_) {
+    } catch {
     } finally {
       setLoading(false);
       fetchRef.current = false;
@@ -488,7 +488,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       await dataApi.delete(`/api/sleep/${date}?email=${encodeURIComponent(email)}`);
       showToastMsg("Đã xóa!", "success");
       setLogs(prev => prev.filter(l => l.date !== date));
-    } catch (_) {
+    } catch {
       showToastMsg("Lỗi xóa dữ liệu.", "error");
     } finally {
       setDeleting(null);
@@ -509,7 +509,7 @@ export default function SleepTracker({ bio, sleepAutoDetect }) {
       });
       const data = await res.json();
       setAnalysis(data);
-    } catch (_) {
+    } catch {
       showToastMsg("Không thể phân tích lúc này, thử lại sau.", "error");
     } finally {
       setAnalyzing(false);

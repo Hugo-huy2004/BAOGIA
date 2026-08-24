@@ -16,7 +16,7 @@ import { isEventActive } from "../../../utils/joyCalculation";
 import { useAppInstall, readStoredList, HOME_SCREEN_APPS_KEY } from "../../../hooks/useAppInstall";
 import JoyExchangeModal from "../shared/JoyExchangeModal";
 import "./arcade-theme.css";
-import { joyText, joyCode } from "../../../lib/joyDisplay";
+import { joyText } from "../../../lib/joyDisplay";
 
 // Cổng 8081 là mặc định của Metro/Expo và nó trả HTML 200 cho MỌI đường dẫn,
 // nên gọi API "thành công" mà nhận về một trang web. Backend là 8099, và ở dev

@@ -555,7 +555,7 @@ export default function TherapyTab({
           fetchJoyBalance(bio.email);
         }
       }
-    } catch (err) {
+    } catch {
       // already handles error showing toast
     } finally {
       setClaimingId(null);

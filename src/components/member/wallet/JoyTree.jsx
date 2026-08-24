@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TREE_STAGES, TREE_BONUS_JOY, treeStage } from "../../../../shared/joyPrices.js";
 

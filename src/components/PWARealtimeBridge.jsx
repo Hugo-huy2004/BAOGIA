@@ -79,7 +79,7 @@ export default function PWARealtimeBridge() {
               });
             }
           }
-        } catch (_) {}
+        } catch {}
       });
       socket.addEventListener('error', () => {
         // Suppress console spam on server 503 / network downtime

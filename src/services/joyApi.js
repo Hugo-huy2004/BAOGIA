@@ -49,7 +49,7 @@ export async function resolveJoyQr(payload) {
     try {
       const u = new URL(cleanPayload, window.location.origin);
       cleanPayload = u.searchParams.get("ref") || u.pathname.split("/").pop() || cleanPayload;
-    } catch (_) {}
+    } catch {}
   }
 
   // 1. Try 14-char signed token
@@ -58,7 +58,7 @@ export async function resolveJoyQr(payload) {
       const res = await fetch(`${getApiUrl()}/joy/resolve-qr?payload=${encodeURIComponent(cleanPayload)}`);
       const data = await parseOrThrow(res);
       if (data && data.success !== false) return data;
-    } catch (_) {}
+    } catch {}
   }
 
   // 2. Fallback: Search user by Referral Code / Email / Query
@@ -67,7 +67,7 @@ export async function resolveJoyQr(payload) {
     if (searchResults && searchResults.length > 0) {
       return searchResults[0];
     }
-  } catch (_) {}
+  } catch {}
 
   throw new Error("Mã JOY không hợp lệ hoặc không tìm thấy người nhận.");
 }

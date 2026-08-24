@@ -185,7 +185,7 @@ export default function HugoCinemaTab({ bio, onBack, showToast }) {
         link.href = url;
         document.head.appendChild(link);
       }
-    } catch (e) {}
+    } catch {}
   }, []);
 
   const openDetail = useCallback(async (movie) => {

@@ -85,7 +85,7 @@ export function useArcadeSound() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.08);
-    } catch (_) {}
+    } catch {}
   }, []);
 
   const playMove = useCallback(() => {
@@ -102,7 +102,7 @@ export function useArcadeSound() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.06);
-    } catch (_) {}
+    } catch {}
   }, []);
 
   return { playWin, playLose, playBeep, playMove };

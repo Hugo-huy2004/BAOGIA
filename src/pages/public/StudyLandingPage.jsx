@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { ArrowRight, GraduationCap, Heart, ShieldCheck, Sparkles } from "lucide-react";
 import CodeHeroFilm from "../../components/public/CodeHeroFilm";
 import {
@@ -67,6 +66,10 @@ const METHOD = [
     body: "Mỗi bước đều có nút góp ý. Chỗ nào khó hiểu hoặc sai, bạn nói ngay lúc vấp chứ không phải nhớ để phản ánh sau.",
   },
 ];
+
+/* Ba điều người học hỏi đầu tiên, trả lời ngay dưới nút — không bắt cuộn
+   xuống mục Câu hỏi mới biết. */
+const TRUST = ["Không thu học phí", "Không quảng cáo", "Tiến độ lưu theo tài khoản"];
 
 const GRADES = [
   { key: "excellent", label: "Xuất sắc", from: "từ 90 điểm" },
@@ -156,8 +159,6 @@ const ECOSYSTEM = [
 ];
 
 export default function StudyLandingPage() {
-  const { t } = useTranslation();
-
   const stats = useMemo(() => ([
     { label: "Khoá học", value: COURSE_CATALOG.length },
     { label: "Bài học", value: COURSE_CATALOG.reduce((sum, c) => sum + c.lessonIds.length, 0) },
@@ -180,14 +181,14 @@ export default function StudyLandingPage() {
         </div>
 
         <div className="code-film-content studio-cover-grid grid items-center gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
-          <div className="studio-cover-copy max-w-3xl">
+          <div className="studio-cover-copy learning-hero-copy max-w-3xl">
             <p className="ios-kicker mb-5">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               Dự án phi lợi nhuận · Hugo Studio
             </p>
 
             <h1
-              className="text-[clamp(2.2rem,5.4vw,4.8rem)] font-extrabold leading-[1.05] tracking-[-0.04em]"
+              className="text-[clamp(2rem,4.3vw,3.7rem)] font-extrabold leading-[1.18] tracking-[-0.04em]"
               style={{ color: INK, fontFamily: "'Plus Jakarta Sans', 'Segoe UI', sans-serif" }}
             >
               <WordsPullUp text="Học theo lộ trình." />
@@ -201,7 +202,7 @@ export default function StudyLandingPage() {
               thật, và kết quả được đánh giá bằng bài làm chứ không bằng thời gian ngồi xem.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
               <PillButton to="/study/login" Icon={ArrowRight}>Tạo tài khoản / Đăng nhập</PillButton>
               <button type="button" className="learning-ghost-pill" onClick={donate}>
                 <Heart className="h-4 w-4" aria-hidden="true" />
@@ -209,15 +210,23 @@ export default function StudyLandingPage() {
               </button>
             </div>
 
-            <dl className="learning-stats mt-9">
+            <ul className="learning-trust mt-6">
+              {TRUST.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+
+            <dl className="learning-stats mt-8">
               {stats.map((stat) => (
                 <div key={stat.label}>
-                  <dt>{stat.label}</dt>
                   <dd>{stat.value}</dd>
+                  <dt>{stat.label}</dt>
                 </div>
               ))}
             </dl>
           </div>
+
+          {/* Chỗ trống dành cho phim nền — giống Introduction. Thiếu nó thì trên
+              điện thoại chữ và nút nằm đè lên hình minh hoạ. */}
+          <div className="code-film-stage-space" aria-hidden="true" />
         </div>
       </section>
 
@@ -242,64 +251,76 @@ export default function StudyLandingPage() {
       </section>
 
       <section className="learning-slide px-4 md:px-6" id="chung-nhan">
-        <AboutCard className="mx-auto max-w-6xl px-6 sm:px-10 md:px-14 py-12 sm:py-16 space-y-6">
-          <p className="ios-kicker"><GraduationCap className="h-3.5 w-3.5" aria-hidden="true" /> Chứng nhận</p>
-          <h2
-            className="max-w-3xl text-2xl font-extrabold leading-[1.12] tracking-[-0.03em] sm:text-3xl md:text-4xl"
-            style={{ color: INK }}
-          >
-            <WordsPullUpMultiStyle
-              segments={[
-                { text: "Một tờ giấy", className: "font-normal" },
-                { text: "nói đúng năng lực.", className: "cine-serif cine-grad" },
-              ]}
+        <AboutCard className="learning-split mx-auto max-w-6xl px-6 sm:px-10 md:px-14 py-12 sm:py-16">
+          {/* Hai cột: lời bên trái, tấm giấy mẫu bên phải. Trước đây cả mục là
+              một cột chữ nằm nép trái, để trống nửa thẻ. */}
+          <div className="space-y-5">
+            <p className="ios-kicker"><GraduationCap className="h-3.5 w-3.5" aria-hidden="true" /> Chứng nhận</p>
+            <h2
+              className="text-2xl font-extrabold leading-[1.24] tracking-[-0.03em] sm:text-3xl md:text-4xl"
+              style={{ color: INK }}
+            >
+              <WordsPullUpMultiStyle
+                segments={[
+                  { text: "Một tờ giấy", className: "font-normal" },
+                  { text: "nói đúng năng lực.", className: "cine-serif cine-grad" },
+                ]}
+              />
+            </h2>
+            <ScrollRevealParagraph
+              text="Hoàn thành một chặng thì nhận giấy chứng nhận có điểm số và xếp loại, kèm phần phân tích cho biết điểm đến từ đâu: bài thi, mức hoàn thành, và bạn có đỗ ngay lần đầu hay không. Mỗi giấy có một địa chỉ công khai để người khác tự kiểm."
+              className="text-sm md:text-base leading-relaxed"
+              style={{ color: INK }}
             />
-          </h2>
-          <ScrollRevealParagraph
-            text="Hoàn thành một chặng thì nhận giấy chứng nhận có điểm số và xếp loại, kèm phần phân tích cho biết điểm đến từ đâu: bài thi, mức hoàn thành, và bạn có đỗ ngay lần đầu hay không. Mỗi giấy có một địa chỉ công khai để người khác tự kiểm."
-            className="max-w-3xl text-xs sm:text-sm md:text-base leading-relaxed"
-            style={{ color: INK }}
-          />
 
-          <div className="flex flex-wrap gap-2.5">
-            {GRADES.map((grade) => (
-              <span key={grade.key} className={`learning-grade is-${grade.key}`}>
-                <b>{grade.label}</b>
-                <small>{grade.from}</small>
-              </span>
-            ))}
+            {/* Ranh giới pháp lý quan trọng nhất — đứng ngay cạnh phần chứng
+                nhận, không giấu xuống cuối trang. */}
+            <p className="learning-note">
+              Giấy chứng nhận do Hugo Studio cấp để ghi nhận kết quả học trên nền tảng. Đây
+              <strong> không phải văn bằng, chứng chỉ quốc gia</strong> và không thay thế bằng cấp do
+              cơ sở giáo dục được cấp phép cấp.
+            </p>
           </div>
 
-          {/* Ranh giới pháp lý quan trọng nhất — đứng ngay cạnh phần chứng nhận,
-              không giấu xuống cuối trang. */}
-          <p className="learning-note">
-            Giấy chứng nhận do Hugo Studio cấp để ghi nhận kết quả học trên nền tảng. Đây
-            <strong> không phải văn bằng, chứng chỉ quốc gia</strong> và không thay thế bằng cấp do
-            cơ sở giáo dục được cấp phép cấp.
-          </p>
+          <div className="learning-cert">
+            <span className="learning-cert-seal" aria-hidden="true">
+              <GraduationCap className="h-5 w-5" />
+            </span>
+            <p className="learning-cert-label">Giấy chứng nhận hoàn thành chặng</p>
+            <p className="learning-cert-owner">Tên của bạn</p>
+            <p className="learning-cert-meta">Hugo Studio cấp · có địa chỉ công khai để đối chiếu</p>
+            <ul className="learning-cert-grades">
+              {GRADES.map((grade) => (
+                <li key={grade.key} className={`learning-grade is-${grade.key}`}>
+                  <b>{grade.label}</b>
+                  <small>{grade.from}</small>
+                </li>
+              ))}
+            </ul>
+          </div>
         </AboutCard>
       </section>
 
-      {/* Về mình — dùng ĐÚNG nội dung của trang Introduction (cùng khoá i18n),
-          nên sửa một nơi là hai trang cùng đổi. */}
+      {/* Về mình — viết THẲNG bằng tiếng Việt. Trước đây mục này lấy chuỗi i18n
+          của trang Introduction, nên người dùng ngôn ngữ khác thấy một mục
+          tiếng Anh chen giữa một trang tiếng Việt. Cả /study là một ngôn ngữ. */}
       <section className="learning-slide px-4 md:px-6" id="ve-minh">
-        <AboutCard className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 py-14 sm:py-20 text-center space-y-8">
-          <p className="ios-kicker mx-auto">{t("intro.cine.aboutLabel")}</p>
+        <AboutCard className="mx-auto max-w-4xl px-6 sm:px-10 md:px-16 py-14 sm:py-20 text-center space-y-7">
+          <p className="ios-kicker mx-auto">Về người làm</p>
           <h2
-            className="mx-auto max-w-3xl text-2xl font-extrabold leading-[1.1] tracking-[-0.035em] sm:text-3xl md:text-4xl"
+            className="mx-auto max-w-3xl text-2xl font-extrabold leading-[1.26] tracking-[-0.035em] sm:text-3xl md:text-4xl"
             style={{ color: INK }}
           >
             <WordsPullUpMultiStyle
               segments={[
-                { text: t("intro.cine.aboutH1"), className: "font-normal" },
-                { text: t("intro.cine.aboutH2"), className: "cine-serif cine-grad" },
-                { text: t("intro.cine.aboutH3"), className: "font-normal" },
+                { text: "Peter Hugo Wishpax Lê,", className: "font-normal" },
+                { text: "sinh viên năm cuối Kỹ thuật Phần mềm.", className: "cine-serif cine-grad" },
               ]}
             />
           </h2>
           <ScrollRevealParagraph
-            text={t("intro.partners.desc")}
-            className="mx-auto max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed"
+            text="Mình học tốt nhất khi tự tay biến kiến thức thành sản phẩm chạy được, nên Hugo Learning cũng được dựng theo lối đó: học tới đâu làm tới đó. Hugo Studio là portfolio ghi lại các dự án, kỹ năng và hướng phát triển của mình; Jason Phan đồng hành trong một số hạng mục."
+            className="mx-auto max-w-2xl text-sm md:text-base leading-relaxed"
             style={{ color: INK }}
           />
           <div className="flex justify-center">
@@ -335,7 +356,7 @@ export default function StudyLandingPage() {
           title="Những điều nên biết"
           highlight="trước khi bắt đầu"
         />
-        <div className="mt-8 grid max-w-4xl gap-2.5">
+        <div className="mt-8 grid gap-2.5 lg:grid-cols-2">
           {FAQ.map((item) => (
             <details key={item.q} className="cine-card-bg cine-border-c learning-faq border">
               <summary style={{ color: INK }}>{item.q}</summary>
@@ -347,24 +368,29 @@ export default function StudyLandingPage() {
       </section>
 
       <section className="learning-slide px-4 md:px-6" id="ung-ho">
-        <AboutCard className="mx-auto max-w-4xl px-6 sm:px-10 md:px-14 py-12 sm:py-16 space-y-6">
-          <p className="ios-kicker"><Heart className="h-3.5 w-3.5" aria-hidden="true" /> Ủng hộ</p>
-          <h2 className="text-2xl font-extrabold tracking-[-0.03em] sm:text-3xl" style={{ color: INK }}>
-            Giữ máy chủ chạy
-          </h2>
-          <p className="max-w-2xl text-sm leading-relaxed" style={{ color: INK }}>
-            Nền tảng này không bán khoá học và không chạy quảng cáo. Chi phí máy chủ, tên miền và
-            dịch vụ gửi thư do người vận hành tự chi trả. Nếu thấy có ích, bạn có thể ủng hộ.
-          </p>
+        <AboutCard className="learning-split mx-auto max-w-5xl px-6 sm:px-10 md:px-14 py-12 sm:py-16">
+          <div className="space-y-5">
+            <p className="ios-kicker"><Heart className="h-3.5 w-3.5" aria-hidden="true" /> Ủng hộ</p>
+            <h2 className="text-2xl font-extrabold leading-[1.24] tracking-[-0.03em] sm:text-3xl" style={{ color: INK }}>
+              Giữ máy chủ chạy
+            </h2>
+            <p className="text-sm leading-relaxed" style={{ color: INK }}>
+              Nền tảng này không bán khoá học và không chạy quảng cáo. Chi phí máy chủ, tên miền và
+              dịch vụ gửi thư do người vận hành tự chi trả. Nếu thấy có ích, bạn có thể ủng hộ.
+            </p>
+            <button type="button" className="learning-ghost-pill" onClick={donate}>
+              <Heart className="h-4 w-4" aria-hidden="true" />
+              Ủng hộ máy chủ
+            </button>
+          </div>
+
+          {/* Năm điều khoản đứng thành một khối riêng: đây là phần người ta đọc
+              KỸ trước khi trả tiền, không phải phần đọc lướt. */}
           <ul className="learning-terms">
             {DONATE_TERMS.map(([head, rest]) => (
               <li key={head}><strong style={{ color: INK }}>{head}</strong> {rest}</li>
             ))}
           </ul>
-          <button type="button" className="learning-ghost-pill" onClick={donate}>
-            <Heart className="h-4 w-4" aria-hidden="true" />
-            Ủng hộ máy chủ
-          </button>
         </AboutCard>
       </section>
 
@@ -392,8 +418,10 @@ export default function StudyLandingPage() {
         </div>
       </section>
 
-      <section className="learning-slide px-4 md:px-6">
-        <AboutCard className="mx-auto max-w-4xl px-6 py-14 text-center space-y-5">
+      {/* Màn chốt KHÔNG cao cả màn hình: một thẻ nhỏ giữa một màn trống trông
+          như trang bị hụt nội dung. Nó đứng sát chân trang là vừa. */}
+      <section className="learning-slide learning-slide--end px-4 md:px-6">
+        <AboutCard className="mx-auto max-w-3xl px-6 py-12 text-center space-y-5">
           <h2 className="text-2xl font-extrabold tracking-[-0.03em] sm:text-3xl" style={{ color: INK }}>
             Sẵn sàng bắt đầu?
           </h2>

@@ -197,7 +197,7 @@ function JourneyCard({ duration, startDate, getProgressDay, onCancel, historyLog
       } else if (perm === 'denied') {
         showToast?.(t('companion.tab.pushDenied', 'Quyền thông báo bị từ chối. Bật lại trong cài đặt trình duyệt.'), 'warning');
       }
-    } catch (_) { showToast?.(t('companion.tab.pushError', 'Không thể đăng ký thông báo lúc này.'), 'error'); }
+    } catch { showToast?.(t('companion.tab.pushError', 'Không thể đăng ký thông báo lúc này.'), 'error'); }
   };
 
   return (
@@ -307,7 +307,7 @@ function SettingsPanel({ onClose, bio, showToast, historyLogs, onClearMessages }
         await webPushHelper.registerAndSubscribe(bio.email);
         showToast?.(t('companion.tab.reminderEnabledToast', 'Đã bật nhắc nhở!'), 'success');
       }
-    } catch (_) {}
+    } catch {}
   };
 
   const handleClearChat = async () => {
@@ -540,7 +540,7 @@ export default function BanhocduongTab({ onBack, activeSubTab: activeSubTabProp,
         localStorage.removeItem("banhocduong_duration_adaptation_alert");
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#34d399','#f472b6','#38bdf8','#fbbf24'] });
         syncWithDb();
-      } catch (_) {}
+      } catch {}
     };
     check();
     const t = setInterval(check, 1500);

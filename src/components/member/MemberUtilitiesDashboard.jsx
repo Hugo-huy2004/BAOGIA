@@ -183,7 +183,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         if (res?.bio && onBioUpdate) {
           onBioUpdate(res.bio);
         }
-      } catch (err) {
+      } catch {
         // Soft fail open — local storage maintains installed apps state
       }
     }
@@ -524,7 +524,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         if (res?.bio && onBioUpdate) {
           onBioUpdate(res.bio);
         }
-      } catch (err) { /* soft fail open */ }
+      } catch { /* soft fail open */ }
     }
   };
 
@@ -679,7 +679,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         if (navigator.vibrate) {
           navigator.vibrate(35);
         }
-      } catch (err) {
+      } catch {
         // Silently catch browser policy intervention warnings
       }
     }, 550);
@@ -768,7 +768,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         case "bio": import("./BioPreviewTab"); break;
         default: break;
       }
-    } catch (err) {
+    } catch {
       // Fail silently for prefetching
     }
   };

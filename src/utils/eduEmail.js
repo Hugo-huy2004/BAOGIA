@@ -16,7 +16,7 @@ export async function isEduEmail(email) {
     if (!response.ok) return false;
     const data = await response.json();
     return !!data.isEduEmail;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

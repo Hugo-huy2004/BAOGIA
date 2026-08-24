@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import UtilityAppIcon from "../../utilities/UtilityAppIcon";
-import { GRADIENTS, money, moneyUnit, tileAction } from "../storeData";
+import { GRADIENTS, moneyUnit, tileAction } from "../storeData";
 
 /**
  * Một ô trong lưới.

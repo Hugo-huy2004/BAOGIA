@@ -507,7 +507,7 @@ function MemberPortalPage() {
           }
           setFormData(bioToFormData(b, memberSession.displayName, emptyTheme));
         }
-      } catch (err) { showToast(t("memberPortal.toast.loadError"), "error"); }
+      } catch { showToast(t("memberPortal.toast.loadError"), "error"); }
       finally { setLoading(false); }
     };
     load();
@@ -714,7 +714,7 @@ function MemberPortalPage() {
     triggerConfirm(t("memberPortal.confirm.deletePersonal"), async () => {
       setSaving(true);
       try { await memberService.deleteMemberBio(bio._id); if (memberSession?.email) clearCachedBio(memberSession.email); setBio(null); setFormData(emptyFormReset(false)); showToast(t("memberPortal.toast.deletePersonalSuccess"), "success"); navigate("/member/account"); }
-      catch (_) { showToast(t("memberPortal.toast.deletePersonalError"), "error"); }
+      catch { showToast(t("memberPortal.toast.deletePersonalError"), "error"); }
       finally { setSaving(false); }
     });
   };

@@ -144,7 +144,7 @@ export default function AdminContactSupportTab({ showNotification, triggerConfir
       await supportTicketApi.resolveTicket(ticketId);
       showNotification(t("admin.texts.txt_155"));
       setSupportTickets(prev => prev.map(t => t._id === ticketId ? { ...t, status: 'resolved' } : t));
-    } catch (err) {
+    } catch {
       showNotification(t("admin.texts.txt_157"), "error");
     }
   };

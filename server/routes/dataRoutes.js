@@ -15,7 +15,7 @@ if (vapidKeys.publicKey && vapidKeys.privateKey) {
       vapidKeys.publicKey,
       vapidKeys.privateKey
     );
-  } catch (_) {}
+  } catch {}
 }
 
 const router = express.Router();

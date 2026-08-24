@@ -4,25 +4,50 @@ import { loginMemberWithGoogle } from "../../services/authSession";
 import { loadGoogleIdentity } from "../../utils/loadGoogleIdentity";
 
 /**
- * Đăng nhập ngay trong Hugo Learning — `/study/login`.
+ * Liên kết tài khoản — `/study/login`.
  *
- * Trước đây nút đăng nhập ném người dùng sang `/login` của Hugo Studio: đang ở
- * một dịch vụ riêng mà bị đá sang trang khác, quay lại thì mất chỗ đang đứng.
- * Ở đây người học ở nguyên trong Hugo Learning, trên cùng một tab.
+ * Đây không phải "một cái nút Google giữa màn hình trống". Với người mới, đây
+ * là chỗ họ quyết định có giao email của mình cho một dịch vụ lạ hay không, nên
+ * màn này phải trả lời ba câu trước khi hỏi: liên kết để được gì, lấy những gì
+ * của tôi, và ai đứng sau.
  *
  * TÀI KHOẢN VẪN LÀ MỘT: nút Google gọi đúng `POST /api/auth/member/google` mà
  * Hugo Studio dùng; máy chủ xác minh token và phát JWT thành viên. Không có
  * đường xác thực thứ hai — thêm một đường là thêm một chỗ để thủng.
- *
- * Bố cục và sắc màu chép theo trang đăng nhập chính (LoginPage): nền quầng sáng,
- * thẻ kính mờ bo tròn, chữ ký mờ ở góc. Cùng một hành động thì phải trông giống
- * nhau, dù ở hai dịch vụ.
  */
+
+const BENEFITS = [
+  {
+    icon: "sync_alt",
+    title: "Tiến độ đi theo bạn",
+    body: "Học dở trên điện thoại, mở máy tính là học tiếp đúng chỗ đó. Tiến độ lưu theo tài khoản chứ không theo trình duyệt.",
+  },
+  {
+    icon: "workspace_premium",
+    title: "Chứng nhận đứng tên bạn",
+    body: "Điểm thi, xếp loại và giấy chứng nhận gắn với tài khoản, có địa chỉ công khai để người khác tự đối chiếu.",
+  },
+  {
+    icon: "apps",
+    title: "Một tài khoản, cả hệ sinh thái",
+    body: "Cùng tài khoản dùng được Hugo Learning và các sản phẩm khác của Hugo Studio. Đăng nhập một lần là xong.",
+  },
+  {
+    icon: "lock",
+    title: "Chỉ lấy thứ cần thiết",
+    body: "Google chỉ chuyển tên, email và ảnh đại diện. Hugo Studio không thấy mật khẩu của bạn và không đăng gì thay bạn.",
+  },
+];
+
 export default function LearningLogin({ onSignedIn, reason = null }) {
   const buttonRef = useRef(null);
   const handlerRef = useRef(() => {});
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  // Nút Google dựng bên trong một iframe của Google. Nó hỏng ÂM THẦM khi tên
+  // miền đang mở chưa nằm trong "Authorized JavaScript origins" của client ID —
+  // không ném lỗi, chỉ không có gì hiện ra. Đo bằng chiều cao thật của khung.
+  const [buttonBlocked, setButtonBlocked] = useState(false);
 
   handlerRef.current = async (response) => {
     if (!response?.credential || busy) return;
@@ -47,6 +72,7 @@ export default function LearningLogin({ onSignedIn, reason = null }) {
     }
 
     let cancelled = false;
+    let checkTimer;
 
     // Thư viện Google KHÔNG nạp sẵn trong index.html — dùng bộ nạp dùng chung
     // thay vì tự dò `window.google` (dò mãi mà không ai nạp thì nút không hiện).
@@ -65,59 +91,89 @@ export default function LearningLogin({ onSignedIn, reason = null }) {
           width: 320,
           text: "continue_with",
         });
+        checkTimer = setTimeout(() => {
+          if (!cancelled) setButtonBlocked((buttonRef.current?.offsetHeight || 0) < 20);
+        }, 2500);
       })
       .catch(() => {
-        if (!cancelled) setError("Không tải được dịch vụ đăng nhập của Google. Kiểm tra kết nối rồi thử lại.");
+        if (!cancelled) setButtonBlocked(true);
       });
 
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(checkTimer); };
   }, []);
 
   return (
-    <div className="relative flex min-h-[calc(100svh-66px)] items-center justify-center overflow-hidden px-4 py-12 text-foreground">
-      {/* Quầng sáng nền — cùng công thức với trang đăng nhập chính. */}
-      <div className="pointer-events-none absolute left-[-10%] top-[-10%] h-[50%] w-[50%] rounded-full bg-gradient-to-tr from-primary/10 to-accent/10 blur-[130px]" />
-      <div className="pointer-events-none absolute bottom-[-10%] right-[-10%] h-[45%] w-[45%] rounded-full bg-gradient-to-tr from-info/10 to-primary/10 blur-[130px]" />
-
-      <div className="cine-card-bg cine-border-c relative z-10 w-full max-w-md rounded-[1.75rem] border p-6 transition-all sm:p-8">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="ios-kicker">Hugo Learning · Hugo Studio</p>
-          <h1 className="text-2xl font-extrabold tracking-[-0.035em] text-foreground">
-            {reason ? `${reason} cần đăng nhập` : "Đăng nhập Hugo Learning"}
-          </h1>
-          <p className="cine-muted text-xs leading-relaxed">
-            Dùng chung tài khoản với Hugo Studio. Đăng nhập một lần là dùng được cả hai, và tiến độ
-            học theo tài khoản chứ không theo thiết bị.
-          </p>
-        </div>
-
-        <div className="flex flex-col items-center gap-3 py-6">
-          <div ref={buttonRef} aria-busy={busy} className="flex min-h-[44px] justify-center" />
-          {busy && <p className="text-[11px] text-muted-foreground">Đang xác thực với máy chủ…</p>}
-        </div>
-
-        {error && (
-          <p className="mb-4 text-center text-[11px] font-medium text-destructive" role="alert">
-            {error}
-          </p>
-        )}
-
-        <div className="flex gap-3 rounded-2xl border border-primary/20 bg-primary/[0.07] p-4 text-left text-[11px] leading-relaxed text-primary">
-          <span className="material-symbols-outlined mt-0.5 shrink-0 select-none text-lg text-primary">school</span>
-          <div>
-            <span className="mb-0.5 block font-bold text-primary">Tài khoản mới</span>
-            Bạn sẽ điền vài thông tin bắt buộc để tạo hồ sơ học viên. Email trường học được duyệt mở
-            quyền dài hạn; email thường dùng thử 30 ngày.
-          </div>
-        </div>
-
-        <p className="mt-5 text-center text-[10.5px] leading-relaxed text-muted-foreground">
-          Khi đăng nhập, bạn đồng ý với{" "}
-          <Link to="/terms" className="text-primary hover:underline">Điều khoản sử dụng</Link> và{" "}
-          <Link to="/privacy-policy" className="text-primary hover:underline">Chính sách bảo mật</Link>{" "}
-          của Hugo Studio.
+    <section className="learning-link">
+      {/* Ba khối anh em, KHÔNG lồng nhau: trên điện thoại lưới xếp lại thành
+          tiêu đề → nút → lý do, để việc cần làm không bị bốn đoạn giải thích
+          đẩy xuống dưới màn. */}
+      <div className="learning-link-head">
+        <p className="landing-eyebrow">Liên kết tài khoản</p>
+        <h1>{reason ? `${reason} cần tài khoản Hugo Studio` : "Liên kết tài khoản Hugo Studio"}</h1>
+        <p className="learning-link-lead">
+          Hugo Learning không có tài khoản riêng. Bạn liên kết bằng tài khoản Hugo Studio — đăng nhập
+          một lần là dùng được cả hai, và việc học của bạn không còn phụ thuộc vào chiếc máy đang ngồi.
         </p>
       </div>
-    </div>
+
+      <ul className="learning-link-benefits">
+        {BENEFITS.map((item) => (
+          <li key={item.icon}>
+            <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+            <div>
+              <strong>{item.title}</strong>
+              <span>{item.body}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="learning-link-card">
+        <p className="learning-link-brands">
+          <b>Hugo Studio</b>
+          <i aria-hidden="true" />
+          <span>Google</span>
+        </p>
+
+        <div ref={buttonRef} aria-busy={busy} className="learning-link-google" />
+        {busy && <p className="learning-link-note">Đang xác thực với máy chủ…</p>}
+
+        {buttonBlocked && (
+          <div className="learning-link-alert" role="alert">
+            <strong>Chưa hiện được nút Google</strong>
+            Dịch vụ đăng nhập của Google không dựng được nút ở địa chỉ đang mở
+            (<code>{window.location.origin}</code>). Thường là do tiện ích chặn quảng cáo, hoặc do
+            địa chỉ này chưa được khai báo cho ứng dụng Google của Hugo Studio.
+            <button type="button" className="landing-btn" onClick={() => window.location.reload()}>
+              Tải lại trang
+            </button>
+          </div>
+        )}
+
+        {error && <p className="learning-link-error" role="alert">{error}</p>}
+
+        <p className="learning-link-new">
+          <strong>Lần đầu dùng?</strong> Bạn sẽ điền vài thông tin để tạo hồ sơ học viên. Email
+          trường học được duyệt mở quyền dài hạn; email thường dùng thử 30 ngày.
+        </p>
+
+        {/* Cửa thứ hai, luôn có mặt: nút Google hỏng (chặn quảng cáo, sai khai báo
+            tên miền, cookie bên thứ ba) thì vẫn còn đường vào bằng trang đăng
+            nhập của chính Hugo Studio. Một màn đăng nhập chỉ có đúng một lối
+            là một ngõ cụt chờ sẵn. */}
+        <p className="learning-link-note">
+          Không đăng nhập được ở đây?{" "}
+          <a href="/login?redirect=%2Fstudy%2Fkhoa-hoc" target="_blank" rel="noopener">
+            Mở trang đăng nhập Hugo Studio
+          </a>
+        </p>
+
+        <p className="learning-link-terms">
+          Khi liên kết, bạn đồng ý với{" "}
+          <Link to="/terms">Điều khoản sử dụng</Link> và{" "}
+          <Link to="/privacy-policy">Chính sách bảo mật</Link> của Hugo Studio.
+        </p>
+      </div>
+    </section>
   );
 }

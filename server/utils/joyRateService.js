@@ -258,7 +258,7 @@ export async function cleanupJoyRateIndexes() {
       }
     }
     legacyIndexesCleaned = true;
-  } catch (err) {
+  } catch {
     // Ignore if collection doesn't exist yet or index already dropped
   }
 }

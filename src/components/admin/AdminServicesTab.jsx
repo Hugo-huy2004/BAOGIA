@@ -54,7 +54,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       const response = await fetch(`${API_BASE_URL}/payos/all`, { headers: getHeaders(), credentials: 'include' });
       const data = await response.json();
       if (data.success) setLinks(data.data);
-    } catch (err) {}
+    } catch {}
   };
 
   const fetchCards = async () => {
@@ -63,7 +63,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       const r = await fetch(`${API_BASE_URL}/joy-gift-cards`, { headers: getHeaders(), credentials: 'include' });
       const data = await r.json();
       setCards(Array.isArray(data) ? data : []);
-    } catch (_) {} finally { setJoyLoading(false); }
+    } catch {} finally { setJoyLoading(false); }
   };
 
   const fetchPackageTemplates = async () => {
@@ -135,7 +135,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       } else {
         notify.error(data.error || 'Lỗi khi tạo link');
       }
-    } catch (err) {
+    } catch {
       notify.error('Lỗi kết nối server');
     } finally {
       setPayosLoading(false);
@@ -161,7 +161,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       } else {
         notify.error(data.error || 'Lỗi khi hủy giao dịch', { id: loadId });
       }
-    } catch (err) {
+    } catch {
       notify.error('Lỗi kết nối khi hủy giao dịch', { id: loadId });
     }
   };
@@ -272,7 +272,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         await packageApi.deletePackage(id);
         notify.success("Đã xoá gói");
         fetchPackageTemplates();
-      } catch (err) { notify.error("Lỗi xoá gói"); }
+      } catch { notify.error("Lỗi xoá gói"); }
       return;
     }
     triggerConfirm("Bạn chắc chắn muốn xoá gói này?", async () => {
@@ -280,7 +280,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         await packageApi.deletePackage(id);
         notify.success("Đã xoá gói");
         fetchPackageTemplates();
-      } catch (err) { notify.error("Lỗi xoá gói"); }
+      } catch { notify.error("Lỗi xoá gói"); }
     });
   };
 
@@ -290,7 +290,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         const data = await packageApi.regenerateCode(packageId);
         notify.success("Tạo mã mới thành công");
         setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
-      } catch (err) { notify.error("Lỗi tạo mã"); }
+      } catch { notify.error("Lỗi tạo mã"); }
       return;
     }
     triggerConfirm("Tạo lại mã Gift Code?", async () => {
@@ -298,7 +298,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
         const data = await packageApi.regenerateCode(packageId);
         notify.success("Tạo mã mới thành công");
         setPackageTemplates(prev => prev.map(pkg => pkg._id === packageId ? data.package : pkg));
-      } catch (err) { notify.error("Lỗi tạo mã"); }
+      } catch { notify.error("Lỗi tạo mã"); }
     });
   };
 
@@ -320,7 +320,7 @@ export default function AdminServicesTab({ showNotification, triggerConfirm }) {
       const data = await userApi.getBioByEmail(email);
       if (data && data.bio) setSearchedMemberBio(data.bio);
       else notify.error("Không tìm thấy");
-    } catch (err) { notify.error("Lỗi tìm kiếm"); }
+    } catch { notify.error("Lỗi tìm kiếm"); }
   };
 
   const formatExpiration = (expiresAt) => {

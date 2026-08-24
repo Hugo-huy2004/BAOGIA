@@ -514,7 +514,7 @@ export default function ChatTab({
         if (stats.avgDuration && stats.avgDuration < 6) lines.push("Cậu đang ngủ khá ít so với mức khuyến nghị (7–9 giờ) — thử ngủ sớm hơn vài đêm xem sao nhé.");
         await pushBotMessageChunks(lines);
       }
-    } catch (_) {
+    } catch {
       await pushBotMessageChunks(["Tớ chưa lấy được dữ liệu giấc ngủ lúc này, cậu thử lại sau nhé."]);
     } finally {
       setLoading(false);

@@ -97,7 +97,7 @@ async function pseudonymizeUserId(rawUserId) {
       const hex = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
       return `u_${hex.slice(0, 32)}`;
     }
-  } catch (_) {
+  } catch {
     /* fall through to non-PII deterministic fallback */
   }
   return `u_${fallbackHash(input)}`;
@@ -116,7 +116,7 @@ async function fetchWithRetry(url, options, retries = 1) {
         continue;
       }
       return null;
-    } catch (err) {
+    } catch {
       if (attempt === retries) return null;
       await new Promise(r => setTimeout(r, 800));
     }
@@ -184,7 +184,7 @@ export default class AIBot extends BaseBot {
       formData.append("userId", await this._aiUserId());
       const res = await fetchWithRetry(`${API_URL}/chat/audio`, { method: "POST", body: formData });
       if (res?.ok) return await res.json();
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
     return null;
   }
 
@@ -314,7 +314,7 @@ export default class AIBot extends BaseBot {
       }
 
       return parts.join(" ");
-    } catch (_) {
+    } catch {
       return "";
     }
   }
@@ -402,7 +402,7 @@ export default class AIBot extends BaseBot {
         const updateRegex = /\[UPDATE_PROFILE:\s*({.*?})\]/i;
         const match = replyText.match(updateRegex);
         if (match?.[1]) {
-          try { bioUpdate = JSON.parse(match[1]); } catch (_) { /* ignore */ }
+          try { bioUpdate = JSON.parse(match[1]); } catch { /* ignore */ }
           replyText = replyText.replace(updateRegex, "").trim();
         }
         const { flags, cleanText } = extractSuggestions(replyText);
@@ -528,13 +528,13 @@ export default class AIBot extends BaseBot {
                   serverError = true;
                   serverErrorDetail = p.error;
                 }
-              } catch (_) {
+              } catch {
                 if (rawContent) {
                   fullReply += rawContent;
                   onChunk?.(fullReply);
                 }
               }
-            } catch (_) { /* ignore */ }
+            } catch { /* ignore */ }
           }
         }
       }
@@ -553,20 +553,20 @@ export default class AIBot extends BaseBot {
                 serverErrorDetail = p.error;
               }
             }
-          } catch (_) {
+          } catch {
             if (rawContent) {
               fullReply += rawContent;
               onChunk?.(fullReply);
             }
           }
-        } catch (_) { /* ignore */ }
+        } catch { /* ignore */ }
       }
 
       let replyText = fullReply, bioUpdate = null;
       const updateRegex = /\[UPDATE_PROFILE:\s*({.*?})\]/i;
       const match = replyText.match(updateRegex);
       if (match?.[1]) {
-        try { bioUpdate = JSON.parse(match[1]); } catch (_) { /* ignore */ }
+        try { bioUpdate = JSON.parse(match[1]); } catch { /* ignore */ }
         replyText = replyText.replace(updateRegex, "").trim();
       }
 
@@ -623,7 +623,7 @@ export default class AIBot extends BaseBot {
       if (res?.ok) {
         return await res.json();
       }
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
     return { intent: "fallback" };
   }
 
@@ -648,7 +648,7 @@ export default class AIBot extends BaseBot {
       if (res?.ok) {
         return await res.json();
       }
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
     return null;
   }
 
@@ -660,7 +660,7 @@ export default class AIBot extends BaseBot {
         body: JSON.stringify({ testName, scores, validity, clinical, lang, bio: this._bioWithSummary() })
       });
       if (res?.ok) { const data = await res.json(); return data.analysis; }
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
     return null;
   }
 }

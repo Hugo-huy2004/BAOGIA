@@ -36,7 +36,7 @@ export default function CustomerPortalPage() {
             const data = await res.json();
             setUnreadCount(data.count || 0);
           }
-        } catch (err) {}
+        } catch {}
       };
       
       // Fetch immediately

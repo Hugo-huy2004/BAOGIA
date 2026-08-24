@@ -34,7 +34,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
     try {
       const raw = localStorage.getItem('banhocduong_history');
       setHistoryLogs(raw ? JSON.parse(raw) : []);
-    } catch (_) {}
+    } catch {}
     const startDateStr = localStorage.getItem('banhocduong_healing_start_date') || '';
     const duration = parseInt(localStorage.getItem('banhocduong_healing_duration') || '30', 10);
     const lastCheckIn = localStorage.getItem('banhocduong_last_checkin_date') || '';
@@ -62,7 +62,7 @@ export function useHealingJourney({ email, onNavigate, showToast, sendNotificati
         localStorage.removeItem('banhocduong_duration_adaptation_alert');
         const histRaw = localStorage.getItem('banhocduong_history');
         setHistoryLogs(histRaw ? JSON.parse(histRaw) : []);
-      } catch (_) {}
+      } catch {}
     };
     check();
     window.addEventListener('storage', check);

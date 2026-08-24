@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 /* ============================================================================
    RUNNING HORSE FILM — Transparent Cartoon Running Horse GIF + Automatic Audio
@@ -148,7 +148,7 @@ export default function CodeHorseFilm({ onNeighTrigger }) {
       const realAudio = new Audio("https://actions.google.com/sounds/v1/animals/horse_whinny.ogg");
       realAudio.volume = 1.0;
       realAudio.play().catch(() => {});
-    } catch (e) {}
+    } catch {}
 
     if (onNeighTrigger) onNeighTrigger();
   };

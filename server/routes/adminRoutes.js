@@ -389,7 +389,7 @@ async function getDirSize(dirPath) {
         size += stats.size;
       }
     }
-  } catch (err) {
+  } catch {
     // Ignore errors for missing directories
   }
   return size;
@@ -1046,7 +1046,7 @@ Be smart:
       const fallbackResult = localFallbackInterpret(req.body.text);
       console.log('[AI CLI Fallback after catch] Result:', fallbackResult);
       return res.json(fallbackResult);
-    } catch (fbErr) {
+    } catch {
       res.status(500).json({ error: error.message });
     }
   }

@@ -113,7 +113,7 @@ export const uploadAdImage = async (base64Str, oldUrl = '') => {
     if (oldPublicId) {
       try {
         await cloudinary.uploader.destroy(oldPublicId);
-      } catch (err) {}
+      } catch {}
     }
   }
 
@@ -144,7 +144,7 @@ export const uploadProductImage = async (base64Str, oldUrl = '') => {
     if (oldPublicId) {
       try {
         await cloudinary.uploader.destroy(oldPublicId);
-      } catch (err) {}
+      } catch {}
     }
   }
 

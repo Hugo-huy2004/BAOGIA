@@ -33,7 +33,7 @@ function scrubUrl(value) {
   try {
     const url = new URL(value, window.location.origin);
     return `${url.origin === window.location.origin ? "" : url.origin}${url.pathname}`;
-  } catch (_) {
+  } catch {
     return String(value).split("?")[0].slice(0, 180);
   }
 }

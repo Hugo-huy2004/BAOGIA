@@ -22,7 +22,7 @@ function getDynamicOriginAndRPID(req) {
   let rpID = 'localhost';
   try {
     rpID = new URL(origin).hostname;
-  } catch (e) {
+  } catch {
     console.warn("Invalid origin URL:", origin);
   }
   return { expectedOrigin: origin, rpID };
@@ -227,7 +227,7 @@ router.get('/credentials/:email', requireMember, async (req, res) => {
       .select('deviceName createdAt lastUsedAt _id')
       .sort({ createdAt: -1 });
     res.json({ credentials: creds });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to list credentials' });
   }
 });
@@ -239,7 +239,7 @@ router.delete('/credentials/:id', requireMember, async (req, res) => {
   try {
     await WebAuthnCredential.deleteOne({ _id: req.params.id, email: req.memberEmail });
     res.json({ success: true });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to remove credential' });
   }
 });

@@ -6,7 +6,7 @@ import HeroCard from "./ui/HeroCard";
 import ArtCard from "./ui/ArtCard";
 import AppTile from "./ui/AppTile";
 import PackRow from "./ui/PackRow";
-import { PRODUCT_GROUPS, perkLabel, money, moneyUnit, formatDate, remainingLabel } from "./storeData";
+import { PRODUCT_GROUPS, perkLabel, moneyUnit, formatDate, remainingLabel } from "./storeData";
 
 const norm = (value) => String(value || "").toLowerCase();
 const daysUntil = (value) => Math.ceil((new Date(value).getTime() - Date.now()) / 86400000);

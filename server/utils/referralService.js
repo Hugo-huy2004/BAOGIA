@@ -62,7 +62,7 @@ export async function applyReferral(bio, referrerCodeRaw) {
     try {
       const parsed = new URL(referrerCode, 'https://hugowishpax.local');
       referrerCode = parsed.searchParams.get('ref') || referrerCode;
-    } catch (_) {}
+    } catch {}
   }
   referrerCode = referrerCode.toUpperCase().replace(/\s+/g, '');
   if (!referrerCode) throw new Error('Mã giới thiệu không hợp lệ.');

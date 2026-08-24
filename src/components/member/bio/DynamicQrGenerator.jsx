@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 /**
  * Trình Tạo Mã QR Động Chuyên Nghiệp (Dynamic QR Code Generator)
@@ -26,7 +26,7 @@ export default function DynamicQrGenerator({ bioSlug = '', displayName = 'Hugo S
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
-    } catch (e) {
+    } catch {
       window.open(qrApiUrl, '_blank');
     }
   };

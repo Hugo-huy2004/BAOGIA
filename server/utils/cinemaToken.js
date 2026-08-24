@@ -45,7 +45,7 @@ export function verifyCinemaStreamToken(tokenString) {
     if (sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf)) {
       return { movieId, email, expiresAt };
     }
-  } catch (err) {
+  } catch {
     return null;
   }
   return null;

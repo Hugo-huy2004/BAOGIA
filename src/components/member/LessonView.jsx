@@ -147,7 +147,7 @@ export default function LessonView({
     if (Array.isArray(bio?.completedLessons)) return bio.completedLessons;
     try {
       return JSON.parse(localStorage.getItem("student_ide_progress") || "[]");
-    } catch (_) {
+    } catch {
       return [];
     }
   });
@@ -861,7 +861,7 @@ export default function LessonView({
                 if (Array.isArray(parsedFolders)) {
                   setFolders(parsedFolders.filter(f => typeof f === "string"));
                 }
-              } catch (_) {
+              } catch {
                 // Ignore corrupt folder cache and keep the recovered files.
               }
             }
@@ -1097,7 +1097,7 @@ export default function LessonView({
       let entryHandle;
       try {
         entryHandle = await parentDir.getFileHandle(oldName);
-      } catch (_) {
+      } catch {
         entryHandle = await parentDir.getDirectoryHandle(oldName);
       }
       
@@ -1650,7 +1650,7 @@ export default function LessonView({
           score = data.score;
           setQuizReview(Array.isArray(data.review) ? data.review : []);
           setExamId(null); // đề dùng một lần
-        } catch (e) {
+        } catch {
           notify.error("Mất kết nối máy chủ chấm thi, hãy thử lại.");
           return;
         }

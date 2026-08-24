@@ -21,3 +21,14 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix server
       - run: npm run lint
+
+      # Cổng chặn cấu trúc: bản khai service, cổng xác thực từng route.
+      # Cả hai đều từng bắt lỗi thật ngay lần chạy đầu.
+      - run: npm run check:gateway
+      - run: npm run check:guards
+
+      # Lỗ hổng phụ thuộc. Chỉ chặn ở mức high trở lên — moderate/low vẫn hiện
+      # trong log nhưng không dựng tường, vì nhiều cái phải chờ bản vá thượng
+      # nguồn (ví dụ quill 2.0.3 hiện chưa có bản sửa).
+      # Để riêng khỏi `npm run lint` vì bước này cần mạng.
+      - run: npm run check:audit

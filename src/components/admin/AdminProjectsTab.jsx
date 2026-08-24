@@ -78,7 +78,7 @@ export default function AdminProjectsTab({ showNotification }) {
         const errorData = await res.json();
         showNotification(errorData.error || t("admin.texts.txt_78"), 'error');
       }
-    } catch (err) {
+    } catch {
       showNotification(t("admin.texts.txt_79"), 'error');
     }
   };
@@ -130,7 +130,7 @@ export default function AdminProjectsTab({ showNotification }) {
       } else {
         showNotification(t("admin.texts.txt_83"), 'error');
       }
-    } catch (err) {
+    } catch {
       setDeleteError(t("admin.texts.txt_84"));
     } finally {
       setIsDeleting(false);

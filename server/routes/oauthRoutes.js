@@ -508,7 +508,7 @@ router.post('/admin/clients/:id/revoke-tokens', requireAdmin, async (req, res) =
     const result = await OAuthToken.updateMany({ clientId: client.clientId, revokedAt: null }, { $set: { revokedAt: new Date() } });
     audit(req, 'oauth_client_revoke_tokens', client, { revoked: result.modifiedCount });
     return res.json({ success: true, revoked: result.modifiedCount });
-  } catch (error) {
+  } catch {
     return res.status(500).json({ error: 'Không thể thu hồi token.' });
   }
 });

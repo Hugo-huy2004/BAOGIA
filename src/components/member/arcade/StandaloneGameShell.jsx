@@ -10,7 +10,7 @@ import { calcJoy, getEventMultiplier } from "../../../utils/joyCalculation";
 import { getBest, recordBest, nearMissGap } from "./arcadeBest";
 import GameIntroScreen from "./GameIntroScreen";
 import "./game-shell.css";
-import { useJoy, joyCode } from "../../../lib/joyDisplay";
+import { useJoy } from "../../../lib/joyDisplay";
 
 // ─── Per-game lazy imports ─────────────────────────────────────────
 const GAME_COMPONENTS = {

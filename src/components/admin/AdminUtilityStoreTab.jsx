@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import adminBrainApi from '../../services/api/AdminBrainApi';
 import { notify } from '../../lib/notify';
-import { formatJoyDual, formatJoyCompact } from '../../utils/joyFormatter';
+import { formatJoyDual } from '../../utils/joyFormatter';
 
 const EMPTY_FORM = {
   name: '', description: '', priceJoy: '', category: 'general', stock: -1, imageUrl: '',

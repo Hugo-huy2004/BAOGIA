@@ -82,7 +82,7 @@ export function useNotifications(
       ));
       commitItems(next);
       commitUnreadCount(countUnread(next));
-    } catch (_) {}
+    } catch {}
   }, [commitItems, commitUnreadCount, email]);
 
   // Bootstrap là nguồn dữ liệu đầu tiên; không gọi lại /inbox ngay sau đó.
@@ -205,7 +205,7 @@ export function useNotifications(
       if (previous.some(item => item._id === notification._id)) return;
       commitItems([notification, ...previous]);
       if (!notification.read) commitUnreadCount(count => count + 1);
-    } catch (_) {}
+    } catch {}
   }, [commitItems, commitUnreadCount, email, showToast]);
 
   const markRead = useCallback(async (id) => {
@@ -222,7 +222,7 @@ export function useNotifications(
     try {
       await dataApi.markNotificationRead(id);
       return true;
-    } catch (_) {
+    } catch {
       if (mutationRevisionRef.current === revision) {
         locallyReadIdsRef.current.delete(id);
         commitItems(previousItems);
@@ -249,7 +249,7 @@ export function useNotifications(
     try {
       await dataApi.markAllNotificationsRead();
       return true;
-    } catch (_) {
+    } catch {
       if (mutationRevisionRef.current === revision) {
         newlyReadIds.forEach(id => locallyReadIdsRef.current.delete(id));
         commitItems(previousItems);
@@ -272,7 +272,7 @@ export function useNotifications(
     try {
       await dataApi.deleteNotification(id);
       return true;
-    } catch (_) {
+    } catch {
       if (mutationRevisionRef.current === revision) {
         commitItems(previousItems);
         commitUnreadCount(previousUnreadCount);

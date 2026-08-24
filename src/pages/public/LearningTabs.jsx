@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Home, TrendingUp, UserRound } from "lucide-react";
 import { COURSE_CATALOG, completedInCourse } from "../../../shared/courseCatalog";
-import { logoutAuth } from "../../services/authSession";
+import { detectInstallTarget, isStandalone } from "../../config/platform";
 
 /**
  * Bốn tab của Hugo Learning, cùng phần "Tiến độ" và "Tài khoản".
@@ -113,12 +113,39 @@ export function LearningProgress({ learner }) {
   );
 }
 
-/** Tài khoản: thông tin, trạng thái quyền truy cập, đăng xuất. */
+/**
+ * Tài khoản: hồ sơ, các liên kết của tài khoản, quyền truy cập, đăng xuất.
+ *
+ * Đây là màn trả lời "tài khoản này là cái gì, nối với đâu": Hugo Learning
+ * không có tài khoản riêng, nó mượn tài khoản Hugo Studio, và tài khoản đó lại
+ * đăng nhập bằng Google. Nói thẳng chuỗi liên kết đó ra, kèm nút gỡ (đăng
+ * xuất), thay vì để người học đoán.
+ */
 export function LearningAccount({ learner, onSignOut }) {
   // Email trường được duyệt mở quyền dài hạn; email thường dùng thử 30 ngày cho
   // tới khi hồ sơ xác minh được duyệt. Đây là cùng một luật với Hugo Studio.
   const eduVerified = Boolean(learner?.isEduVerified);
   const pending = learner?.verificationRequest?.submitted && !eduVerified;
+  const access = eduVerified
+    ? { tone: "ok", label: "Dài hạn", body: "Đã xác thực email trường học — quyền truy cập dài hạn." }
+    : pending
+      ? { tone: "wait", label: "Chờ duyệt", body: "Hồ sơ xác minh đã gửi, đang chờ duyệt. Trong lúc chờ bạn vẫn học bằng bản 30 ngày." }
+      : { tone: "trial", label: "Bản 30 ngày", body: "Gửi hồ sơ xác minh học sinh – sinh viên để mở quyền dài hạn." };
+
+  // Trên trình duyệt điện thoại, /member/* bị thay bằng hướng dẫn cài app
+  // (MobileInstallGate). Nói trước điều đó ngay trên nhãn nút, thay vì để người
+  // học bấm vào rồi rơi vào một màn không liên quan tới việc học.
+  const needsApp = detectInstallTarget().isMobile && !isStandalone();
+
+  // MỘT CHIỀU, CÓ CHỦ Ý: Hugo Studio mở thẳng được Hugo Learning, nhưng chiều
+  // ngược lại thì không. Từ đây là đi qua trang đăng nhập của Hugo Studio chứ
+  // KHÔNG nhảy thẳng vào trang hồ sơ — máy công cộng hay máy mượn thì phiên học
+  // không tự biến thành quyền vào ví và giấy tờ tuỳ thân.
+  //
+  // Mở TAB MỚI bằng thẻ <a>, không dùng <Link>: Hugo Studio là một app riêng,
+  // rời khỏi nó không được làm mất chỗ đang học ở đây. Đừng đổi thành liên kết
+  // thẳng tới /member/account.
+  const profileHref = `/login?redirect=${encodeURIComponent("/member/account")}`;
 
   return (
     <section className="learning-panel">
@@ -135,30 +162,52 @@ export function LearningAccount({ learner, onSignOut }) {
           <strong>{learner?.displayName || "Học viên"}</strong>
           <span>{learner?.email}</span>
         </div>
+        <span className={`learning-access learning-access--${access.tone}`}>{access.label}</span>
       </div>
 
+      <h3 className="learning-subhead">Liên kết tài khoản</h3>
+      <ul className="learning-links">
+        <li>
+          <span className="material-symbols-outlined" aria-hidden="true">hub</span>
+          <div>
+            <strong>Hugo Studio</strong>
+            <span>Tài khoản chính. Hugo Learning dùng chung hồ sơ, ví và quyền truy cập với nó — đổi thông tin ở một nơi là áp dụng cho cả hai.</span>
+          </div>
+          <b className="learning-linked">Đã liên kết</b>
+        </li>
+        <li>
+          <span className="material-symbols-outlined" aria-hidden="true">key</span>
+          <div>
+            <strong>Google</strong>
+            <span>Cách bạn đăng nhập. Google chỉ chuyển tên, email và ảnh đại diện; Hugo Studio không giữ mật khẩu của bạn.</span>
+          </div>
+          <b className="learning-linked">{learner?.email || "Đã liên kết"}</b>
+        </li>
+      </ul>
+
+      <h3 className="learning-subhead">Quyền truy cập &amp; dữ liệu</h3>
       <dl className="learning-account-facts">
         <dt>Quyền truy cập</dt>
-        <dd>
-          {eduVerified
-            ? "Đã xác thực email trường học — quyền truy cập dài hạn."
-            : pending
-              ? "Hồ sơ xác minh đã gửi, đang chờ duyệt. Trong lúc chờ bạn dùng bản 30 ngày."
-              : "Đang dùng bản 30 ngày. Gửi hồ sơ xác minh học sinh – sinh viên để mở quyền dài hạn."}
-        </dd>
-        <dt>Tài khoản</dt>
-        <dd>Dùng chung với Hugo Studio. Đổi thông tin ở một nơi là áp dụng cho cả hai.</dd>
+        <dd>{access.body}</dd>
         <dt>Dữ liệu học</dt>
-        <dd>Tiến độ, điểm thi và chứng nhận lưu theo tài khoản này.</dd>
+        <dd>Tiến độ, điểm thi và chứng nhận lưu theo tài khoản này, không theo thiết bị.</dd>
+        <dt>Gỡ liên kết</dt>
+        <dd>Đăng xuất chỉ gỡ liên kết trên thiết bị này. Muốn xoá hẳn tài khoản và dữ liệu học, gửi yêu cầu ở trang Hỗ trợ.</dd>
+        <dt>Vào trang hồ sơ</dt>
+        <dd>Hugo Studio là một app riêng và Hugo Learning KHÔNG mang phiên đăng nhập sang đó. Nút bên dưới mở Hugo Studio ở tab mới và bạn đăng nhập lại một lần nữa — cố ý như vậy để phiên học trên máy lạ không mở luôn được ví và thông tin cá nhân. Chỗ đang học ở tab này vẫn còn nguyên.</dd>
       </dl>
 
       <div className="landing-cta">
-        <Link className="landing-btn landing-btn--primary" to="/member/account">Quản lý tài khoản</Link>
-        <button
-          type="button"
-          className="landing-btn"
-          onClick={onSignOut}
+        <a
+          className="landing-btn landing-btn--primary"
+          href={profileHref}
+          target="_blank"
+          rel="noopener"
         >
+          {needsApp ? "Mở Hugo Studio trong app" : "Mở Hugo Studio để quản lý"}
+        </a>
+        <Link className="landing-btn" to="/support-request">Yêu cầu hỗ trợ</Link>
+        <button type="button" className="landing-btn" onClick={onSignOut}>
           Đăng xuất
         </button>
       </div>

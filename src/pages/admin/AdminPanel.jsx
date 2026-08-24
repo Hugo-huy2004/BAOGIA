@@ -208,7 +208,7 @@ export default function AdminPanel() {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.15);
-    } catch (e) {}
+    } catch {}
   };
 
   const showNotification = (msg, type = "success") => {
@@ -285,7 +285,7 @@ export default function AdminPanel() {
         totalProjects: projectsCount,
         projects: projectsCount
       }));
-    } catch (e) {}
+    } catch {}
   };
 
   // Fetch Users
@@ -356,7 +356,7 @@ export default function AdminPanel() {
       setDeleteTarget(null);
       setConfirmPassword("");
       handleRefreshUsers();
-    } catch (err) {
+    } catch {
       setConfirmError(t("admin.texts.txt_142", "Mật khẩu Admin không đúng hoặc lỗi hệ thống"));
     }
   };
@@ -396,7 +396,7 @@ export default function AdminPanel() {
       await userApi.setVip(bioId, !currentVip);
       setUsers(prev => prev.map(u => u._id === bioId ? { ...u, starVip: !currentVip } : u));
       showNotification(!currentVip ? "Đã gắn hạng Star-VIP!" : "Đã gỡ hạng Star-VIP.");
-    } catch (e) {
+    } catch {
       showNotification("Lỗi cập nhật hạng thành viên", "error");
     }
   };
@@ -407,7 +407,7 @@ export default function AdminPanel() {
       await userApi.updateStatus(bioId, newStatus);
       setUsers(prev => prev.map(u => u._id === bioId ? { ...u, status: newStatus } : u));
       showNotification(`Đã ${newStatus === "active" ? "mở khóa" : "khóa"} thành viên!`);
-    } catch (e) {
+    } catch {
       showNotification("Lỗi cập nhật trạng thái", "error");
     }
   };

@@ -66,7 +66,7 @@ export const decryptText = (text) => {
       let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
       decrypted += decipher.final('utf8');
       return decrypted;
-    } catch (err) {
+    } catch {
       // Retry GCM decryption using the fallback key
       try {
         let iv = Buffer.from(textParts[2], 'hex');
@@ -93,7 +93,7 @@ export const decryptText = (text) => {
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
-  } catch (err) {
+  } catch {
     // Retry CBC decryption using the fallback key
     try {
       let iv = Buffer.from(textParts[1], 'hex');

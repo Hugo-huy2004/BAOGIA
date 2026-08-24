@@ -61,7 +61,7 @@ async function checkUrl(url) {
     clearTimeout(id);
     controller.abort();
     return true;
-  } catch (e) {
+  } catch {
     clearTimeout(id);
     return false;
   }
@@ -83,7 +83,7 @@ async function getWorkingStation(stations, excludeUrl, strict = false) {
         throw new Error('dead');
       })
     );
-  } catch (e) {
+  } catch {
     if (strict) return null;
     return stations.find(s => (s.url_resolved || s.url) !== excludeUrl) || stations[0];
   }

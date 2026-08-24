@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import UtilityAppIcon from "../../utilities/UtilityAppIcon";
 import AppArt from "./AppArt";
-import { GRADIENTS, money, moneyUnit, tileAction } from "../storeData";
+import { GRADIENTS, moneyUnit, tileAction } from "../storeData";
 
 /**
  * Thẻ lớn nhiều màu ở đầu trang — mảng nội dung bắt mắt nhất của cửa hàng.

@@ -162,7 +162,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
         lastActivityAt: R.current.lastActivityAt,
         savedAt:        Date.now(),
       }));
-    } catch (_) {}
+    } catch {}
   }, []);
 
   /** Write current state to CacheStorage so the Service Worker can read it. */
@@ -176,7 +176,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
         sleepStart: R.current.sleepStart,
         savedAt:    Date.now(),
       }), { headers: { "Content-Type": "application/json" } }));
-    } catch (_) {}
+    } catch {}
   }, [email]);
 
   // ── Restore state on mount ─────────────────────────────────────────────
@@ -195,7 +195,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
         setSleepStart(saved.sleepStart);
       }
       R.current.lastActivityAt = saved.lastActivityAt || Date.now();
-    } catch (_) {}
+    } catch {}
   }, [enabled, email]);  
 
   // ── Core: process one signal ───────────────────────────────────────────
@@ -282,7 +282,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
         setState("awake");
         setConfidence(0);
 
-        try { localStorage.removeItem(LS_KEY); } catch (_) {}
+        try { localStorage.removeItem(LS_KEY); } catch {}
         saveSWCache();
 
         const wakeConfidence = Math.min(95, 70 + (R.current.uniqueSignals.size * 5));
@@ -395,9 +395,9 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
         // 30-minute idle threshold
         await detector.start({ threshold: 30 * 60_000 });
         setCaps(c => ({ ...c, idleDetector: true }));
-      } catch (_) {}
+      } catch {}
     })();
-    return () => { try { detector?.abort(); } catch (_) {} };
+    return () => { try { detector?.abort(); } catch {} };
   }, [enabled, email, fire]);
 
   // 5. Battery API — plugged in at night
@@ -473,7 +473,7 @@ export function useSleepAutoDetect({ email, onAutoDetect, enabled = true }) {
           await reg.periodicSync.register("sleep-monitor", { minInterval: 30 * 60_000 });
         }
         setCaps(c => ({ ...c, periodicSync: true }));
-      } catch (_) {}
+      } catch {}
     })();
   }, [enabled, email]);  
 

@@ -23,7 +23,7 @@ export default function AdminProjectsPage() {
           await logoutAuth();
           navigate('/login');
         }
-      } catch (err) {
+      } catch {
         // network error, let it be
       }
     };

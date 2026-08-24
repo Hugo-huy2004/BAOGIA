@@ -74,7 +74,7 @@ export function useLocationGuard({ email, enabled = true, onAnomaly }) {
                 lng: pos.coords.longitude,
               });
             }
-          } catch (_) {
+          } catch {
             // Network failure — fail open, never block on connectivity issues.
           } finally {
             checkingRef.current = false;

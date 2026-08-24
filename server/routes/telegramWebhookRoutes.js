@@ -44,7 +44,7 @@ async function buildButlerMemberReport(bioDoc) {
     const { toDenom } = await import('../../shared/joyCurrency.js');
     const customAmountObj = toDenom(rawJoy, customDenom);
     formattedCustom = `${customAmountObj.amount.toLocaleString('vi-VN')} ${customAmountObj.code}`;
-  } catch (_) {}
+  } catch {}
 
   const isFrozen = bio.isJoyWalletFrozen ? '❄️ <b>Đóng bằng (Frozen)</b>' : '✅ <b>Hoạt động (Active)</b>';
   const isEdu = bio.isEduVerified ? '🎓 <b>Đã xác minh Sinh viên</b>' : '❌ <b>Chưa xác minh</b>';
@@ -685,7 +685,7 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
       const { addSlug, deleteSlug } = await import('../services/redisSlugService.js');
       if (oldSlug) await deleteSlug(oldSlug);
       await addSlug(newSlug);
-    } catch (_) {}
+    } catch {}
 
     await AdminAuditLog.create({
       adminId: 'TELEGRAM_BOT_ADMIN',
@@ -1130,7 +1130,7 @@ export function startTelegramLongPolling() {
           }
         }
       }
-    } catch (err) {
+    } catch {
       // Ignore network dropouts
     } finally {
       setTimeout(poll, 1000);

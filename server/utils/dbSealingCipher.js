@@ -54,7 +54,7 @@ export function unsealField(cipherText) {
     let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
-  } catch (err) {
+  } catch {
     // Return original if decryption fails
     return cipherText;
   }

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { logoutAuth } from '../../services/authSession';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+// react-quill (Quill 1) có lỗ XSS chưa vá và không còn được bảo trì.
+// react-quill-new là bản fork dùng Quill 2, API giữ nguyên — chỉ đổi đường dẫn.
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { HugoNoticeToast } from '../../components/shared/HugoNotice';
 import { API_BASE } from '../../config/apiBase';
 
@@ -279,7 +281,7 @@ export default function AdminProjectDetailPage() {
       } else {
         setPasswordError(t("adminProjectDetail.updateError"));
       }
-    } catch (err) {
+    } catch {
       setPasswordError(t("adminProjectDetail.connError"));
     } finally {
       setIsVerifying(false);
@@ -300,7 +302,7 @@ export default function AdminProjectDetailPage() {
         setNewMessage('');
         fetchMessages();
       }
-    } catch (err) {
+    } catch {
       showNotification(t("adminProjectDetail.msgError"), 'error');
     }
   };

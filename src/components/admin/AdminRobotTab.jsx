@@ -1,6 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import robotApi from "../../services/api/RobotApi";
-import { logoutAuth } from "../../services/authSession";
 
 const DEFAULT_ROBOT_URL = "";
 

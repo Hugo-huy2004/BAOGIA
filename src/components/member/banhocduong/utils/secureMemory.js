@@ -25,7 +25,7 @@ function obfuscate(text, key) {
       binary += String.fromCharCode(resultBytes[i]);
     }
     return btoa(binary);
-  } catch (e) {
+  } catch {
     return btoa(unescape(encodeURIComponent(text)));
   }
 }
@@ -42,10 +42,10 @@ function deobfuscate(encoded, key) {
     }
 
     return new TextDecoder().decode(resultBytes);
-  } catch (e) {
+  } catch {
     try {
       return decodeURIComponent(escape(atob(encoded)));
-    } catch (_) {
+    } catch {
       return null;
     }
   }
@@ -78,7 +78,7 @@ export function loadSecureMemory(bio) {
   if (!decrypted) return null;
   try {
     return JSON.parse(decrypted);
-  } catch (_) {
+  } catch {
     return null;
   }
 }

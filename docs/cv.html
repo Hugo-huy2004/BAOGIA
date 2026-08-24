@@ -25,7 +25,7 @@
     color: var(--ink);
     font-family: Arial, Helvetica, sans-serif;
     font-size: 9.2pt;
-    line-height: 1.38;
+    line-height: 1.42;
     -webkit-font-smoothing: antialiased;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -73,9 +73,9 @@
     gap: 12px;
     margin-top: 10px;
   }
-  .sidebar { display: flex; flex-direction: column; gap: 9px; }
+  .sidebar { display: flex; flex-direction: column; gap: 11px; }
   .side-card {
-    padding: 9px 10px;
+    padding: 10px 11px;
     border: 1px solid var(--line);
     border-radius: 10px;
     background: var(--card);
@@ -114,12 +114,12 @@
   .fact p { margin-top: 1px; color: var(--muted); font-size: 7.4pt; line-height: 1.38; }
 
   /* ── Main ───────────────────────────────────────────── */
-  .main { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+  .main { display: flex; flex-direction: column; gap: 11px; min-width: 0; }
   .main-section { break-inside: avoid; }
   .main-section > .section-label { margin-bottom: 5px; }
 
   .project {
-    padding: 9px 11px;
+    padding: 10px 12px;
     border: 1px solid var(--line);
     border-left: 3px solid var(--blue);
     border-radius: 10px;
@@ -158,10 +158,10 @@
   .demo-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+    gap: 5px;
   }
   .demo-tile {
-    padding: 7px 9px;
+    padding: 8px 10px;
     border: 1px solid var(--line);
     border-radius: 9px;
     background: #fff;
@@ -201,8 +201,8 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 2px 8px;
-    margin-bottom: 6px;
-    padding: 6px 9px;
+    margin-bottom: 7px;
+    padding: 8px 10px;
     border: 1px solid var(--line);
     border-radius: 9px;
     background: #fff;
@@ -214,16 +214,6 @@
   .exp-item p { grid-column: 1 / -1; color: var(--muted); font-size: 7.5pt; line-height: 1.36; }
   .exp-item p a { color: var(--blue); font-weight: 700; }
 
-  .platform-strip {
-    padding: 7px 10px;
-    border: 1px solid #cfe2f8;
-    border-radius: 9px;
-    background: var(--blue-wash);
-    color: #3f4a58;
-    font-size: 7.4pt;
-    line-height: 1.38;
-  }
-  .platform-strip b { color: var(--blue-dark); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -232,12 +222,12 @@
 <main class="page" data-language="vi">
   <header class="hero">
     <div>
-      <p class="kicker">Hugo Studio · Portfolio CV 2026</p>
+      <p class="kicker">Ứng tuyển thực tập · UI/UX &amp; Frontend</p>
       <h1>Lê Gia Huy</h1>
       <p class="role">Product &amp; UI/UX Designer · Frontend Developer</p>
       <div class="stats" aria-label="Điểm nổi bật">
         <div class="stat"><b>20</b><span>ứng dụng &amp; game</span></div>
-        <div class="stat"><b>04</b><span>công cụ HugoKit</span></div>
+        <div class="stat"><b>13</b><span>ứng dụng có URL riêng</span></div>
         <div class="stat"><b>09</b><span>ngôn ngữ giao diện</span></div>
       </div>
     </div>
@@ -257,6 +247,7 @@
           chạy thật bằng React kết hợp công cụ AI — cách làm giúp mình một mình vận hành Hugo Studio,
           portal 20 ứng dụng &amp; game với giao diện 9 ngôn ngữ. Điểm mạnh là biến ý tưởng thành thứ
           dùng được: đặc tả yêu cầu, kiểm thử, tích hợp và tự chạy production từ tên miền đến xử lý sự cố.
+          <b>Đang tìm vị trí thực tập UI/UX hoặc Frontend</b> để học quy trình làm việc trong đội ngũ chuyên nghiệp.
         </p>
       </section>
 
@@ -286,7 +277,7 @@
           </div>
           <p class="skill-note">Cách làm chính ở Hugo Studio: mình đặc tả và review, AI viết phần lớn code, mình kiểm thử, tích hợp và triển khai.</p>
         </div>
-        <p class="foundation">Nền tảng từ trường: C#, Python, PHP, MySQL, Node.js, MongoDB — đủ để đọc hiểu và tích hợp backend. Triển khai trên Vercel, Render, Cloudflare.</p>
+        <p class="foundation">Nền tảng từ trường: C#, Python, PHP, MySQL, Node.js/Express, MongoDB, WebSocket — đủ để đọc hiểu và tích hợp backend. Triển khai trên Vercel, Render, Cloudflare.</p>
       </section>
 
       <section class="side-card">
@@ -295,23 +286,8 @@
           <div class="fact-top"><b>Tiếng Anh</b><span class="level">VSTEP B2</span></div>
           <p>Bậc 4, 2024 · đọc hiểu tài liệu kỹ thuật.</p>
         </div>
-        <div class="fact">
-          <div class="fact-top"><b>Tiếng Trung</b><span class="level">Sơ cấp</span></div>
-          <p>Năng lực tương đương HSK 2 · chưa có chứng chỉ.</p>
-        </div>
       </section>
 
-      <section class="side-card">
-        <h2 class="section-label">Học vấn &amp; hoạt động</h2>
-        <div class="fact">
-          <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2022–2027</span></div>
-          <p>Công nghệ Thông tin · chương trình liên kết University of Greenwich (UK) và Đại học FPT.</p>
-        </div>
-        <div class="fact">
-          <b>Huynh trưởng – Giáo lý viên cấp 2</b>
-          <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông và quản lý nhóm.</p>
-        </div>
-      </section>
     </aside>
 
     <section class="main">
@@ -333,33 +309,35 @@
       </section>
 
       <section class="main-section">
-        <h2 class="section-label">Demo trực tuyến</h2>
-        <p class="demo-note">Chạy trực tiếp trên trình duyệt, không cần cài đặt — HugoKit chỉ cần đăng nhập Google; Radio và Aura dùng ngay.</p>
-        <div class="demo-grid" aria-label="Các ứng dụng demo">
+        <h2 class="section-label">Sản phẩm tách ra từ Hugo Studio</h2>
+        <p class="demo-note">Mỗi ứng dụng có URL công khai riêng, chạy thẳng trên trình duyệt — dùng thử được ngay, không cần tài khoản.</p>
+        <div class="demo-grid" aria-label="Các ứng dụng chạy độc lập">
           <article class="demo-tile featured">
-            <div class="demo-top"><h3>HugoKit — Bộ công cụ xử lý file trên web</h3><span class="badge">Đăng nhập Google · tối đa 50 MB</span></div>
+            <div class="demo-top"><h3>Hugo Learning — Nền tảng tự học lập trình</h3><span class="badge">10 bài đầu miễn phí</span></div>
             <div class="kit-grid">
               <div class="kit-item">
-                <b>ZIP workspace — giải nén online</b>
-                <p>Đọc nội dung ZIP, xem cây thư mục và giải nén/tải từng tệp ngay trên web.</p>
+                <b>Bài học từng bước, một màn hình</b>
+                <p>Lộ trình HTML, CSS, JavaScript, SQL, PHP; thực hành ngay trong bài, không cần cài môi trường.</p>
               </div>
               <div class="kit-item">
-                <b>Nén ảnh &amp; video</b>
-                <p>JPG, PNG, WebP và video ở 3 mức chất lượng bằng Sharp/FFmpeg.</p>
-              </div>
-              <div class="kit-item">
-                <b>Tạo mã QR</b>
-                <p>QR cho URL, vCard, Wi-Fi và văn bản; tải về dạng PNG.</p>
-              </div>
-              <div class="kit-item">
-                <b>Chữ ký email &amp; link bảo mật</b>
-                <p>Chữ ký Rich Text/HTML cho Gmail, Outlook; link chia sẻ có mật khẩu, đếm lượt truy cập.</p>
+                <b>Bài thi máy chủ chấm · chứng nhận</b>
+                <p>Chấm phía server nên không sửa được kết quả; cấp giấy chứng nhận có xếp loại.</p>
               </div>
             </div>
-            <a class="demo-link" href="https://www.hugowishpax.studio/member/utilities/handle">hugowishpax.studio/member/utilities/handle</a>
+            <a class="demo-link" href="https://www.hugowishpax.studio/study">hugowishpax.studio/study</a>
           </article>
           <article class="demo-tile">
-            <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Nghe thử ngay</span></div>
+            <div class="demo-top"><h3>HugoKit — Xử lý file trên web</h3><span class="badge">3 lượt/ngày cho khách</span></div>
+            <p>Giải nén ZIP, nén ảnh/video bằng Sharp/FFmpeg, tạo QR và chữ ký email — xử lý phía server, có giới hạn an toàn.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/hugokit">hugowishpax.studio/hugokit</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>Cờ Vua 3D &amp; Cờ Caro</h3><span class="badge">Bot tự viết</span></div>
+            <p>Máy tự nghĩ nước đi: negamax + cắt tỉa alpha-beta, tìm kiếm yên tĩnh và bảng điểm theo ô, nhiều cấp độ.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/chess">hugowishpax.studio/chess</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Nghe ngay</span></div>
             <p>Đài lofi &amp; tin tức cho học tập; đăng nhập để lưu đài và đồng bộ thời lượng.</p>
             <a class="demo-link" href="https://www.hugowishpax.studio/radio">hugowishpax.studio/radio</a>
           </article>
@@ -387,9 +365,17 @@
         </div>
       </section>
 
-      <div class="platform-strip">
-        <b>Nền tảng:</b> React · PWA/Capacitor · Express/MongoDB · WebSocket · Python AI · Vercel/Render/Cloudflare
-      </div>
+      <section class="side-card">
+        <h2 class="section-label">Học vấn &amp; hoạt động</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Greenwich Việt Nam</b><span class="level">2022–2027</span></div>
+          <p>Công nghệ Thông tin · liên kết University of Greenwich (UK) và Đại học FPT · dự kiến tốt nghiệp 10/2027.</p>
+        </div>
+        <div class="fact">
+          <b>Huynh trưởng – Giáo lý viên cấp 2</b>
+          <p>Hướng dẫn hoạt động thiếu nhi, nói trước đám đông và quản lý nhóm.</p>
+        </div>
+      </section>
     </section>
   </div>
 </main>
@@ -398,12 +384,12 @@
 <main class="page" data-language="en" lang="en">
   <header class="hero">
     <div>
-      <p class="kicker">Hugo Studio · Portfolio CV 2026</p>
+      <p class="kicker">Applying for an internship · UI/UX &amp; Frontend</p>
       <h1>Le Gia Huy</h1>
       <p class="role">Product &amp; UI/UX Designer · Frontend Developer</p>
       <div class="stats" aria-label="Highlights">
         <div class="stat"><b>20</b><span>apps &amp; games</span></div>
-        <div class="stat"><b>04</b><span>HugoKit tools</span></div>
+        <div class="stat"><b>13</b><span>standalone app URLs</span></div>
         <div class="stat"><b>09</b><span>interface languages</span></div>
       </div>
     </div>
@@ -423,6 +409,7 @@
           React and AI pair-programming — the workflow that lets me run Hugo Studio, a 20-app portal in
           9 languages, on my own. My strength is turning ideas into things people can use: specifying
           requirements, testing, integrating, and running production from domains to incident debugging.
+          <b>Looking for a UI/UX or Frontend internship</b> to learn how a professional team works.
         </p>
       </section>
 
@@ -452,7 +439,7 @@
           </div>
           <p class="skill-note">My core workflow on Hugo Studio: I spec and review, AI writes most of the code, I test, integrate, and deploy.</p>
         </div>
-        <p class="foundation">University foundation: C#, Python, PHP, MySQL, Node.js, MongoDB — enough to read and integrate backend code. Deployed on Vercel, Render, and Cloudflare.</p>
+        <p class="foundation">University foundation: C#, Python, PHP, MySQL, Node.js/Express, MongoDB, WebSocket — enough to read and integrate backend code. Deployed on Vercel, Render, and Cloudflare.</p>
       </section>
 
       <section class="side-card">
@@ -461,23 +448,8 @@
           <div class="fact-top"><b>English</b><span class="level">VSTEP B2</span></div>
           <p>Level 4, 2024 · able to read technical documentation.</p>
         </div>
-        <div class="fact">
-          <div class="fact-top"><b>Mandarin Chinese</b><span class="level">Elementary</span></div>
-          <p>Approximately HSK 2 level · not certified.</p>
-        </div>
       </section>
 
-      <section class="side-card">
-        <h2 class="section-label">Education &amp; leadership</h2>
-        <div class="fact">
-          <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2022–2027</span></div>
-          <p>Information Technology · programme delivered with the University of Greenwich (UK) and FPT University.</p>
-        </div>
-        <div class="fact">
-          <b>Volunteer Youth Group Leader &amp; Instructor, Level 2</b>
-          <p>Led children's activities, spoke to groups, and coordinated teams.</p>
-        </div>
-      </section>
     </aside>
 
     <section class="main">
@@ -499,30 +471,32 @@
       </section>
 
       <section class="main-section">
-        <h2 class="section-label">Live demos</h2>
-        <p class="demo-note">Runs right in the browser, nothing to install — HugoKit just needs a Google sign-in; Radio and Aura work instantly.</p>
-        <div class="demo-grid" aria-label="Demo apps">
+        <h2 class="section-label">Products spun out of Hugo Studio</h2>
+        <p class="demo-note">Each app ships on its own public URL and runs right in the browser — try any of them without an account.</p>
+        <div class="demo-grid" aria-label="Standalone apps">
           <article class="demo-tile featured">
-            <div class="demo-top"><h3>HugoKit — Web-based file toolkit</h3><span class="badge">Google sign-in · up to 50 MB</span></div>
+            <div class="demo-top"><h3>Hugo Learning — Self-paced coding platform</h3><span class="badge">First 10 lessons free</span></div>
             <div class="kit-grid">
               <div class="kit-item">
-                <b>ZIP workspace — online extraction</b>
-                <p>Inspect ZIP contents, browse the file tree, and extract/download individual entries on the web.</p>
+                <b>One step, one screen</b>
+                <p>HTML, CSS, JavaScript, SQL, and PHP tracks; hands-on practice inside the lesson, nothing to install.</p>
               </div>
               <div class="kit-item">
-                <b>Image &amp; video compression</b>
-                <p>JPG, PNG, WebP, and video at 3 quality levels via Sharp/FFmpeg.</p>
-              </div>
-              <div class="kit-item">
-                <b>QR code generator</b>
-                <p>QR codes for URLs, vCards, Wi-Fi, and text; downloadable as PNG.</p>
-              </div>
-              <div class="kit-item">
-                <b>Email signatures &amp; secure links</b>
-                <p>Rich Text/HTML signatures for Gmail and Outlook; password-protected share links with visit tracking.</p>
+                <b>Server-graded exams · certificates</b>
+                <p>Grading runs server-side so results can't be edited; certificates are issued with a grade band.</p>
               </div>
             </div>
-            <a class="demo-link" href="https://www.hugowishpax.studio/member/utilities/handle">hugowishpax.studio/member/utilities/handle</a>
+            <a class="demo-link" href="https://www.hugowishpax.studio/study">hugowishpax.studio/study</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>HugoKit — Web file toolkit</h3><span class="badge">3 free runs/day</span></div>
+            <p>ZIP extraction, image/video compression via Sharp/FFmpeg, QR codes, and email signatures — server-side with safety limits.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/hugokit">hugowishpax.studio/hugokit</a>
+          </article>
+          <article class="demo-tile">
+            <div class="demo-top"><h3>3D Chess &amp; Gomoku</h3><span class="badge">Engine written from scratch</span></div>
+            <p>The bot searches for itself: negamax with alpha-beta pruning, quiescence search, and piece-square tables across difficulty levels.</p>
+            <a class="demo-link" href="https://www.hugowishpax.studio/chess">hugowishpax.studio/chess</a>
           </article>
           <article class="demo-tile">
             <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Listen free</span></div>
@@ -553,9 +527,17 @@
         </div>
       </section>
 
-      <div class="platform-strip">
-        <b>Platform:</b> React · PWA/Capacitor · Express/MongoDB · WebSocket · Python AI · Vercel/Render/Cloudflare
-      </div>
+      <section class="side-card">
+        <h2 class="section-label">Education &amp; leadership</h2>
+        <div class="fact">
+          <div class="fact-top"><b>Greenwich Vietnam</b><span class="level">2022–2027</span></div>
+          <p>Information Technology · with the University of Greenwich (UK) and FPT University · expected graduation 10/2027.</p>
+        </div>
+        <div class="fact">
+          <b>Volunteer Youth Group Leader &amp; Instructor, Level 2</b>
+          <p>Led children's activities, spoke to groups, and coordinated teams.</p>
+        </div>
+      </section>
     </section>
   </div>
 </main>
