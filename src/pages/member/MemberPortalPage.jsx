@@ -7,7 +7,6 @@ import memberService from "../../services/classes/MemberService";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useHealingJourney } from "../../hooks/useHealingJourney";
 import { useTourStore } from "../../stores/tourStore";
-import TourSystem from "../../components/TourSystem";
 import { useJoyStore } from "../../stores/joyStore";
 import { selectJoyAccount, setJoyDenom, setJoyRates } from "../../lib/joyDisplay";
 import { fetchJoyRates } from "../../services/joyApi";
@@ -24,11 +23,12 @@ import { isAuraThemeFree, resolveActivePortalTheme } from "../../data/auraThemes
 import { useIsMobile } from "../../hooks/useIsMobile";
 import { useQueryClient } from "@tanstack/react-query";
 import { memberBootstrapKey, useMemberBootstrap } from "../../hooks/useMemberBootstrap";
-import DesktopAppleLayout from "../../components/desktop/DesktopAppleLayout";
 import AuraBackground from "../../components/member/portal/AuraBackground";
 import VersionAnnouncement from "../../components/member/portal/VersionAnnouncement";
 import { HugoNoticeToast } from "../../components/shared/HugoNotice";
-import OnboardingProfileModal from "../../components/member/OnboardingProfileModal";
+const TourSystem = React.lazy(() => import("../../components/TourSystem"));
+const DesktopAppleLayout = React.lazy(() => import("../../components/desktop/DesktopAppleLayout"));
+const OnboardingProfileModal = React.lazy(() => import("../../components/member/OnboardingProfileModal"));
 import PaymentRequestModal from "../../components/member/PaymentRequestModal";
 import { getCachedBio, setCachedBio, clearCachedBio } from "../../utils/bioCache";
 import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
@@ -45,14 +45,37 @@ import "../../styles/memberPortal27.css";
 // Maps a raw Bio document onto the editable formData shape — pulled out so
 // both the lazy-cache hydrate (instant paint) and the real fetch (revalidate)
 // build the exact same shape.
+function cleanDecryptedValue(val) {
+  if (typeof val !== "string" || !val) return val || "";
+  if (val.startsWith("$enc$") || val.startsWith("enc:")) return "";
+  return val;
+}
+
 function bioToFormData(b, fallbackDisplayName, emptyTheme) {
   return {
-    email: b.email||"", displayName: b.displayName||fallbackDisplayName||"", headline: b.headline||"",
-    bio: b.bio||"", birthday: b.birthday||"", phone: b.phone||"", hobbies: b.hobbies||"",
+    email: b.email||"",
+    displayName: cleanDecryptedValue(b.displayName||fallbackDisplayName||""),
+    headline: cleanDecryptedValue(b.headline||""),
+    bio: cleanDecryptedValue(b.bio||""),
+    birthday: cleanDecryptedValue(b.birthday||""),
+    phone: cleanDecryptedValue(b.phone||""),
+    hobbies: cleanDecryptedValue(b.hobbies||""),
     birthYear: b.birthYear||0, birthMonth: b.birthMonth||0, birthDay: b.birthDay||0,
-    height: b.height||"", weight: b.weight||"", measurements: b.measurements||"",
-    address: b.address||"", education: b.education||"", skills: b.skills||"",
-    jobTitle: b.jobTitle||"", contactEmail: b.contactEmail||"", avatarUrl: b.avatarUrl||"",
+    height: cleanDecryptedValue(b.height||""),
+    weight: cleanDecryptedValue(b.weight||""),
+    measurements: cleanDecryptedValue(b.measurements||""),
+    address: cleanDecryptedValue(b.address||""),
+    exactAddress: cleanDecryptedValue(b.exactAddress||""),
+    locality: cleanDecryptedValue(b.locality||""),
+    adminArea: cleanDecryptedValue(b.adminArea||""),
+    countryCode: cleanDecryptedValue(b.countryCode||""),
+    religion: cleanDecryptedValue(b.religion||""),
+    ethnicity: cleanDecryptedValue(b.ethnicity||""),
+    education: cleanDecryptedValue(b.education||""),
+    skills: cleanDecryptedValue(b.skills||""),
+    jobTitle: cleanDecryptedValue(b.jobTitle||""),
+    contactEmail: cleanDecryptedValue(b.contactEmail||""),
+    avatarUrl: b.avatarUrl||"",
     links: b.links||[], theme: { ...emptyTheme, ...b.theme }, tabs: b.tabs||[],
     projects: b.projects||[], services: b.services||[], secretLinks: b.secretLinks||[], slug: b.slug||"",
     antiDeepfakeLock: b.antiDeepfakeLock || false,
@@ -122,6 +145,7 @@ import VerificationForm from "../../components/member/VerificationForm";
 import VerificationModal from "../../components/member/VerificationModal";
 import PendingVerification from "../../components/member/PendingVerification";
 import PersonalInfoSubTab from "../../components/member/PersonalInfoSubTab";
+import StudentRewardCard from "../../components/member/StudentRewardCard";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
 import RadioMiniPlayer from "../../components/member/portal/RadioMiniPlayer";
@@ -130,7 +154,7 @@ const AchievementsSubTab = React.lazy(() => import("../../components/member/Achi
 const MemberHistoryTab   = React.lazy(() => import("../../components/member/MemberHistoryTab"));
 const MemberPartnerTab   = React.lazy(() => import("../../components/member/MemberPartnerTab"));
 const MemberUtilitiesTab = React.lazy(() => import("../../components/member/MemberUtilitiesTab"));
-const MemberSettingsTab  = React.lazy(() => import("../../components/member/MemberSettingsTab"));
+const MemberSettingsTab  = React.lazy(() => import("../../components/member/remade/MemberSettingsTab"));
 const MemberTodayTab     = React.lazy(() => import("../../components/member/MemberTodayTab"));
 const TodayArticleReader = React.lazy(() => import("../../components/member/TodayArticleReader"));
 const ParticleConnectModal = React.lazy(() => import("../../components/member/shared/ParticleConnectModal"));
@@ -403,7 +427,7 @@ function MemberPortalPage() {
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
   const renderAccountForm = (tabId, opts = {}) => {
     switch(tabId) {
-      case 'profile':      return <PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} handleSave={handleSave} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} bio={bio} hideAvatarSection={opts.hideAvatarSection} t={t} />;
+      case 'profile':      return <><PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} handleSave={handleSave} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} bio={bio} hideAvatarSection={opts.hideAvatarSection} t={t} /><StudentRewardCard bio={bio} onBioUpdate={patchMemberBio} showToast={showToast} /></>;
       case 'design':       return <DesignSubTab formData={formData} setFormData={setFormData} t={t} bio={bio} onBioUpdate={setBio} showToast={showToast} />;
       case 'links':        return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
       case 'achievements': return <AchievementsSubTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;
@@ -946,6 +970,7 @@ function MemberPortalPage() {
         {/* ── 💻 DESKTOP APPLE WORKSPACE (hidden md:block) ────────────────── */}
         {!isMobileView && (
         <div>
+        <React.Suspense fallback={null}>
         <DesktopAppleLayout
           memberSession={memberSession}
           bio={bio}
@@ -1019,6 +1044,7 @@ function MemberPortalPage() {
             </React.Suspense>
           </ErrorBoundary>
         </DesktopAppleLayout>
+        </React.Suspense>
       </div>
       )}
 
@@ -1181,21 +1207,25 @@ function MemberPortalPage() {
           </React.Suspense>
         )}
         {showOnboarding && !isGuestMode && memberSession?.email && (
-          <OnboardingProfileModal
-            email={memberSession.email}
-            onSkip={() => setShowOnboarding(false)}
-            onDone={(result) => {
-              setShowOnboarding(false);
-              const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
-              if (nextDenom) setJoyDenom(nextDenom, memberSession?.email);
+          <React.Suspense fallback={null}>
+            <OnboardingProfileModal
+              email={memberSession.email}
+              onSkip={() => setShowOnboarding(false)}
+              onDone={(result) => {
+                setShowOnboarding(false);
+                const nextDenom = result?.profile?.joyDenom || result?.joyDenom;
+                if (nextDenom) setJoyDenom(nextDenom, memberSession?.email);
 
-              if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
-              if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);
-              fetchJoyBalance(memberSession.email);
-            }}
-          />
+                if (result?.referralCode) setBio(prev => prev ? { ...prev, referralCode: result.referralCode, onboardingCompleted: true } : prev);
+                if (result?.profile) setBio(prev => prev ? { ...prev, ...result.profile } : prev);
+                fetchJoyBalance(memberSession.email);
+              }}
+            />
+          </React.Suspense>
         )}
-        <TourSystem />
+        <React.Suspense fallback={null}>
+          <TourSystem />
+        </React.Suspense>
 
       </div>
 

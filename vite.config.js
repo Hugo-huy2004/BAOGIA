@@ -89,7 +89,7 @@ export default defineConfig(({ mode }) => {
     }),
     isNative ? null : VitePWA({
       registerType: 'autoUpdate',
-      // Assets are automatically matched by workbox globPatterns (**/*.{js,css,html,ico,svg,woff2,png})
+      // Workbox selects the shell assets below; no separate static includes.
       includeAssets: [],
       workbox: {
         cleanupOutdatedCaches: true,
@@ -99,21 +99,16 @@ export default defineConfig(({ mode }) => {
         importScripts: ['/push-sw.js'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//, /^\/ws\//],
-        globPatterns: ['**/*.{js,css,html,ico,svg,woff2,png}'],
-        // Heavy member applications are cached on first use by the runtime
-        // app-assets rule below. Keeping them out of install-time precache
-        // avoids downloading several megabytes before the member opens them.
-        globIgnores: [
-          '**/Admin*',
-          '**/MemberRadioTab-*',
-          '**/MemberIdeTab-*',
-          '**/BanhocduongTab-*',
-          '**/lessons-*',
-          '**/hls-*',
-          '**/favicon/**',
-          '**/image/**',
-          '**/splash/**',
+        // Precache only the shell. Route/app chunks are already cached on first
+        // use by app-assets-chunks below; precaching all of them made every PWA
+        // install/update download the whole product before a user opened an app.
+        globPatterns: [
+          '**/*.{html,ico,svg,woff2,png}',
+          'assets/index-*.{js,css}',
+          'assets/vendor-*.js',
+          'assets/i18n-*.js',
         ],
+        globIgnores: ['**/favicon/**', '**/image/**', '**/splash/**'],
         runtimeCaching: [
           // Authorization codes, tokens, consent context and userinfo are
           // security credentials/personal data. They must never enter the

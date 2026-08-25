@@ -41,6 +41,7 @@ const manifest = ({
 export const APP_REGISTRY = Object.freeze([
   manifest({ id: "bio", icon: "badge", tint: "purple", category: "edu", rating: "4.9", users: "12k", badge: "hot", storageMb: 1.5, version: "3.2.0", store: true, storeOrder: 1 }),
   manifest({ id: "profile", icon: "verified_user", tint: "indigo", category: "edu", rating: "5.0", users: "1k", badge: "new", store: true, storeOrder: 0 }),
+  manifest({ id: "friends", icon: "group", tint: "blue", category: "tools", rating: "5.0", users: "1k", badge: "new", storageMb: 2.0, version: "1.1.0", store: true, storeOrder: 2 }),
   manifest({ id: "study", icon: "school", tint: "purple", category: "edu", rating: "5.0", users: "11k", badge: "new", storageMb: 8.1 }),
   manifest({ id: "team", icon: "groups", tint: "teal", category: "edu", rating: "4.7", users: "2k", badge: "join", storageMb: 1.6, version: "1.4.0", store: true, storeOrder: 6 }),
   manifest({ id: "psychology", icon: "psychology", tint: "cyan", category: "wellness", rating: "5.0", users: "15k", badge: "ai", storageMb: 3.2, version: "5.0.0", store: true, storeOrder: 3 }),
@@ -113,6 +114,7 @@ export const FULLSCREEN_APP_IDS = Object.freeze([
   "study",
   "arcade",
   "store",
+  "friends",
   "handle",
   "team",
   "cinema",

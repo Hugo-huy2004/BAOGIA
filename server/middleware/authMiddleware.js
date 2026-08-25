@@ -16,6 +16,7 @@ const PROFILE_SETUP_ROUTES = [
   '/api/bios/me',              // portal nạp hồ sơ → biết còn thiếu gì
   '/api/bios/me/profile-gaps', // danh sách mục còn thiếu
   '/api/bios/me/onboarding',   // nơi ghi lựa chọn
+  '/api/bios/me/profile-options/ethnicities',
 ];
 // Riêng đăng nhập/đăng xuất thì theo tiền tố: người dùng phải thoát ra được.
 export const isProfileSetupRoute = (url = '') => {
@@ -67,9 +68,16 @@ async function readMemberGate(email) {
   if (cached && cached.until > Date.now()) return cached.value;
 
   const Bio = (await import('../models/Bio.js')).default;
-  // Một truy vấn cho cả hai cổng chặn — đừng tách thành hai lượt đọc.
-  const bio = await Bio.findOne({ email }, 'locationAnomaly joyDenom').lean();
-  const value = bio ? { locationAnomaly: !!bio.locationAnomaly, joyDenom: bio.joyDenom } : null;
+  // Một truy vấn cho mọi cổng chặn — chỉ cần biết các trường có giá trị hay chưa,
+  // không giải mã nội dung nhạy cảm ở middleware.
+  const bio = await Bio.findOne({ email }, 'locationAnomaly joyDenom countryCode adminArea locality exactAddress verifiedLatitude verifiedLongitude locationVerifiedAt religion ethnicity').lean();
+  const value = bio ? {
+    locationAnomaly: !!bio.locationAnomaly,
+    joyDenom: bio.joyDenom,
+    profileIncomplete: !bio.countryCode || !bio.adminArea || !bio.locality || !bio.exactAddress
+      || !bio.verifiedLatitude || !bio.verifiedLongitude || !bio.locationVerifiedAt
+      || !bio.religion || !bio.ethnicity,
+  } : null;
 
   if (gateCache.size >= GATE_CACHE_MAX) {
     const oldest = gateCache.keys().next().value;
@@ -243,11 +251,10 @@ export const requireMember = async (req, res, next) => {
           // đọc một mặc định mà người dùng chưa từng đồng ý.
           //
           // `bio` rỗng thì bỏ qua: tài khoản chưa có hồ sơ, chưa có gì để chọn.
-          if (bio && !JOY_DENOMS[bio.joyDenom] && !isProfileSetupRoute(req.originalUrl)) {
+          if (bio && (!JOY_DENOMS[bio.joyDenom] || bio.profileIncomplete) && !isProfileSetupRoute(req.originalUrl)) {
             return res.status(403).json({
               error: 'PROFILE_INCOMPLETE',
-              missing: 'joyDenom',
-              message: 'Bạn cần chọn đơn vị JOY trước khi dùng Hugo Studio.'
+              message: 'Bạn cần hoàn tất thông tin hồ sơ bắt buộc trước khi dùng Hugo Studio.'
             });
           }
         }

@@ -49,15 +49,23 @@ export default function AdminPanel() {
   const { data = {}, updateSystemSettings = () => {}, updateAdvertisement = () => {} } = useData() || {};
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get("tab") || "dashboard";
+    const initial = params.get("tab");
+    if (!initial) return "dashboard";
+    if (["brain", "workforce", "sentinel", "robot"].includes(initial)) return "ai_sentinel";
+    if (["cinema", "coder"].includes(initial)) return "ecosystem";
+    if (["oauth", "projects"].includes(initial)) return "system";
+    if (["audit"].includes(initial)) return "dashboard";
+    return initial;
   });
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
-  // Sub-view Tab States for Consolidated Core Hubs
+  // Sub-view Tab States for Consolidated 5 Multi-Purpose Hubs
+  const [dashSubView, setDashSubView]   = useState("overview");   // overview | audit
+  const [aiSubView, setAiSubView]       = useState("brain");      // brain | workforce | sentinel | robot
   const [userSubView, setUserSubView]   = useState("roster");     // roster | support | hugoteam
-  const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | community
+  const [ecoSubView, setEcoSubView]     = useState("store");      // store | services | cinema | coder
   const [coderSubView, setCoderSubView] = useState("submissions");// submissions | resources | learners
-  const [systemSubView, setSystemSubView] = useState("monitor");  // monitor | projects | settings
+  const [systemSubView, setSystemSubView] = useState("settings"); // settings | oauth | monitor | projects
 
   const [authChecking, setAuthChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -525,64 +533,109 @@ export default function AdminPanel() {
         {/* MAIN WORKSPACE CONTENT */}
         <section className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-[calc(env(safe-area-inset-bottom,0px)+2rem)] relative min-h-0">
         
-        {/* ── CORE HUB 1: CONTROL HUB & AI TERMINAL ── */}
+        {/* ── HUB 1: DASHBOARD & COMMAND ANALYTICS ── */}
         {activeTab === "dashboard" && (
-          <AdminDashboard
-            stats={userStats}
-            bookings={recentBookings}
-            totalProjects={counts.totalProjects}
-            totalPackages={counts.packages}
-            openTickets={counts.openTickets}
-            loading={loading}
-            crisisAlerts={crisisAlerts}
-            onResolveCrisisAlert={handleResolveCrisisAlert}
-          />
-        )}
-
-        {/* ── CORE HUB: ĐIỀU KHIỂN ROBOT & LIVE CAMERA ── */}
-        {activeTab === "robot" && <AdminRobotTab deepLinkToken={robotDeepLinkToken} />}
-
-        {/* ── CORE HUB: ADMIN BỘ NÃO MÁY TÍNH AI ── */}
-        {activeTab === "brain" && <AdminBrainTab />}
-
-        {/* ── CORE HUB: AI WORKFORCE ── */}
-        {activeTab === "workforce" && <AdminAIWorkforceTab />}
-
-        {/* ── CORE HUB: BOT SECURITY SENTINEL TELEMETRY ── */}
-        {activeTab === "sentinel" && (
-          <AdminSecuritySentinelTab
-            token={adminToken}
-            onShowToast={(msg) => showNotification(msg)}
-          />
-        )}
-
-        {/* ── CORE HUB: NHẬT KÝ KIỂM TOÁN TỰ ĐỘNG ── */}
-        {activeTab === "audit" && <AdminAuditLogTab />}
-
-        {activeTab === "oauth" && <AdminOAuthAppsTab />}
-
-        {/* ── CORE HUB 2: USER & SUPPORT HUB ── */}
-        {activeTab === "users" && (
           <div className="space-y-6">
-            {/* iOS 26 Segmented Control Capsule */}
             <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
               <button
+                onClick={() => setDashSubView("overview")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${dashSubView === "overview" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">dashboard</span>
+                <span>Tổng quan</span>
+              </button>
+              <button
+                onClick={() => setDashSubView("audit")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${dashSubView === "audit" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">history_edu</span>
+                <span>Nhật ký Kiểm toán</span>
+              </button>
+            </div>
+
+            {dashSubView === "overview" && (
+              <AdminDashboard
+                stats={userStats}
+                bookings={recentBookings}
+                totalProjects={counts.totalProjects}
+                totalPackages={counts.packages}
+                openTickets={counts.openTickets}
+                loading={loading}
+                crisisAlerts={crisisAlerts}
+                onResolveCrisisAlert={handleResolveCrisisAlert}
+              />
+            )}
+            {dashSubView === "audit" && <AdminAuditLogTab />}
+          </div>
+        )}
+
+        {/* ── HUB 2: AI INTELLIGENCE & SECURITY SENTINEL ── */}
+        {activeTab === "ai_sentinel" && (
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
+              <button
+                onClick={() => setAiSubView("brain")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${aiSubView === "brain" ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">psychology</span>
+                <span>Bộ não AI</span>
+              </button>
+              <button
+                onClick={() => setAiSubView("workforce")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${aiSubView === "workforce" ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">groups</span>
+                <span>Đội ngũ AI</span>
+              </button>
+              <button
+                onClick={() => setAiSubView("sentinel")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${aiSubView === "sentinel" ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">shield_person</span>
+                <span>BOT Security Sentinel</span>
+              </button>
+              <button
+                onClick={() => setAiSubView("robot")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${aiSubView === "robot" ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
+                <span>Robot &amp; Security Cam</span>
+              </button>
+            </div>
+
+            {aiSubView === "brain" && <AdminBrainTab />}
+            {aiSubView === "workforce" && <AdminAIWorkforceTab />}
+            {aiSubView === "sentinel" && (
+              <AdminSecuritySentinelTab
+                token={adminToken}
+                onShowToast={(msg) => showNotification(msg)}
+              />
+            )}
+            {aiSubView === "robot" && <AdminRobotTab deepLinkToken={robotDeepLinkToken} />}
+          </div>
+        )}
+
+        {/* ── HUB 3: SMART USER & SUPPORT HUB ── */}
+        {activeTab === "users" && (
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
+              <button
                 onClick={() => setUserSubView("roster")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "roster" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "roster" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">group</span>
                 <span>Thành viên ({totalMatchedUsers.toLocaleString()})</span>
               </button>
               <button
                 onClick={() => setUserSubView("support")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "support" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "support" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">support_agent</span>
                 <span>Hỗ trợ &amp; Tickets</span>
               </button>
               <button
                 onClick={() => setUserSubView("hugoteam")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "hugoteam" ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${userSubView === "hugoteam" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">badge</span>
                 <span>Tuyển Dụng Hugo Team</span>
@@ -614,11 +667,10 @@ export default function AdminPanel() {
           </div>
         )}
 
-        {/* ── CORE HUB 3: ECOSYSTEM & STORE HUB ── */}
+        {/* ── HUB 4: ECOSYSTEM & MEDIA STUDIO HUB ── */}
         {activeTab === "ecosystem" && (
           <div className="space-y-6">
-            {/* iOS 26 Segmented Control Capsule */}
-            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
               <button
                 onClick={() => setEcoSubView("store")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "store" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
@@ -631,65 +683,81 @@ export default function AdminPanel() {
                 className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "services" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">card_membership</span>
-                <span>Dịch Vụ & Gói Cước VIP</span>
+                <span>Dịch Vụ &amp; Gói VIP</span>
+              </button>
+              <button
+                onClick={() => setEcoSubView("cinema")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "cinema" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">movie</span>
+                <span>Quản Trị Phim Cinema</span>
+              </button>
+              <button
+                onClick={() => setEcoSubView("coder")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${ecoSubView === "coder" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">school</span>
+                <span>Study &amp; Coder Hub</span>
               </button>
             </div>
 
             {ecoSubView === "store" && <AdminUtilityStoreTab />}
             {ecoSubView === "services" && <AdminServicesTab triggerConfirm={triggerConfirm} />}
+            {ecoSubView === "cinema" && <AdminCinemaTab showNotice={showNotification} />}
+            {ecoSubView === "coder" && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-1.5 p-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit">
+                  <button
+                    onClick={() => setCoderSubView("submissions")}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${coderSubView === "submissions" ? "bg-amber-600 text-white" : "text-slate-500 dark:text-slate-400"}`}
+                  >
+                    Bài Nộp Đồ Án
+                  </button>
+                  <button
+                    onClick={() => setCoderSubView("resources")}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${coderSubView === "resources" ? "bg-amber-600 text-white" : "text-slate-500 dark:text-slate-400"}`}
+                  >
+                    Học Liệu &amp; Video
+                  </button>
+                  <button
+                    onClick={() => setCoderSubView("learners")}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${coderSubView === "learners" ? "bg-amber-600 text-white" : "text-slate-500 dark:text-slate-400"}`}
+                  >
+                    Người Học
+                  </button>
+                </div>
+                {coderSubView === "submissions" && <AdminCoderSubmissionsTab />}
+                {coderSubView === "resources" && <AdminCoderResourcesTab />}
+                {coderSubView === "learners" && <AdminLearnersTab />}
+              </div>
+            )}
           </div>
         )}
 
-        {/* ── CORE HUB CINEMA: QUẢN TRỊ PHIM HỆ THỐNG ── */}
-        {activeTab === "cinema" && (
-          <AdminCinemaTab showNotice={showNotification} />
-        )}
-
-        {/* ── CORE HUB 4: HUGOCODER PORTAL ── */}
-        {activeTab === "coder" && (
-          <div className="space-y-6">
-            {/* iOS 26 Segmented Control Capsule */}
-            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
-              <button
-                onClick={() => setCoderSubView("submissions")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${coderSubView === "submissions" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
-              >
-                <span className="material-symbols-outlined text-sm">assignment_turned_in</span>
-                <span>Duyệt Bài Nộp Đồ Án</span>
-              </button>
-              <button
-                onClick={() => setCoderSubView("resources")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${coderSubView === "resources" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
-              >
-                <span className="material-symbols-outlined text-sm">video_library</span>
-                <span>Quản Lý Học Liệu & Video</span>
-              </button>
-              <button
-                onClick={() => setCoderSubView("learners")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${coderSubView === "learners" ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
-              >
-                <span className="material-symbols-outlined text-sm">groups</span>
-                <span>Người Học</span>
-              </button>
-            </div>
-
-            {coderSubView === "submissions" && <AdminCoderSubmissionsTab />}
-            {coderSubView === "resources" && <AdminCoderResourcesTab />}
-            {coderSubView === "learners" && <AdminLearnersTab />}
-          </div>
-        )}
-
-        {/* ── CORE HUB 5: SYSTEM COMMAND & CONFIG ── */}
+        {/* ── HUB 5: SECURITY SENTINEL & SYSTEM CONFIG ── */}
         {activeTab === "system" && (
           <div className="space-y-6">
-            {/* iOS 26 Segmented Control Capsule */}
-            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 w-fit backdrop-blur-xl shadow-inner">
+              <button
+                onClick={() => setSystemSubView("settings")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "settings" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">settings</span>
+                <span>Cài Đặt Admin</span>
+              </button>
+              <button
+                onClick={() => setSystemSubView("oauth")}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "oauth" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
+              >
+                <span className="material-symbols-outlined text-sm">passkey</span>
+                <span>OAuth Apps &amp; Passkey</span>
+              </button>
               <button
                 onClick={() => setSystemSubView("monitor")}
                 className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "monitor" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
               >
                 <span className="material-symbols-outlined text-sm">monitor_heart</span>
-                <span>Giám Sát & Logs Hệ Thống</span>
+                <span>Giám Sát Cổng API 8099</span>
               </button>
               <button
                 onClick={() => setSystemSubView("projects")}
@@ -698,17 +766,8 @@ export default function AdminPanel() {
                 <span className="material-symbols-outlined text-sm">folder_open</span>
                 <span>Quản Lý Dự Án</span>
               </button>
-              <button
-                onClick={() => setSystemSubView("settings")}
-                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 ${systemSubView === "settings" ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30 scale-[1.02]" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}
-              >
-                <span className="material-symbols-outlined text-sm">settings</span>
-                <span>Cài Đặt Admin</span>
-              </button>
             </div>
 
-            {systemSubView === "monitor" && <AdminSystemTab showNotification={showNotification} />}
-            {systemSubView === "projects" && <AdminProjectsTab showNotification={showNotification} />}
             {systemSubView === "settings" && (
               <AdminSettingsTab
                 data={data} updateSystemSettings={updateSystemSettings} updateAdvertisement={updateAdvertisement}
@@ -716,6 +775,9 @@ export default function AdminPanel() {
                 handleAdImageUpload={handleAdImageUpload} handleAdDelete={handleAdDelete}
               />
             )}
+            {systemSubView === "oauth" && <AdminOAuthAppsTab />}
+            {systemSubView === "monitor" && <AdminSystemTab showNotification={showNotification} />}
+            {systemSubView === "projects" && <AdminProjectsTab showNotification={showNotification} />}
           </div>
         )}
 

@@ -6,6 +6,7 @@ import { useData } from "../../context/DataContext";
 import { TabFallbackSkeleton } from "../ui/SkeletonLayouts";
 import { trackOpen } from "./os/appUsage";
 import { FULLSCREEN_APP_IDS } from "../../../shared/appRegistry";
+import { readInstalledApps } from "../../hooks/useAppInstall";
 
 const MemberUtilitiesDashboard = lazy(() => import("./MemberUtilitiesDashboard"));
 const HugoKitApp = lazy(() => import("./hugoKit/HugoKitApp"));
@@ -23,6 +24,7 @@ const HugoWalletApp = lazy(() => import("./wallet/HugoWalletApp"));
 const HugoCinemaTab = lazy(() => import("./cinema/HugoCinemaTab"));
 const HugoInvestTab = lazy(() => import("./invest/HugoInvestTab"));
 const SupportCenterApp = lazy(() => import("./support/SupportCenterApp"));
+const FriendsApp = lazy(() => import("./FriendsApp"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -51,6 +53,7 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
   }, [selectedUtility]);
 
   const fallback = <TabFallbackSkeleton />;
+  const friendsInstalled = readInstalledApps(bio).includes("friends");
 
   // Cùng một nguồn với MemberPortalPage (shared/appRegistry.js). HugoPSY thêm
   // vào đây vì trên điện thoại nó cũng dựng vỏ toàn màn hình.
@@ -151,6 +154,17 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
         <HugoProfileTab onBack={() => onSelectUtility(null)} publicLink={publicLink} />
       )}
 
+      {selectedUtility === "friends" && friendsInstalled && (
+        <FriendsApp onBack={() => onSelectUtility(null)} />
+      )}
+
+      {selectedUtility === "friends" && !friendsInstalled && (
+        <FriendsInstallNotice
+          onBack={() => onSelectUtility(null)}
+          onOpenStore={() => onSelectUtility("store")}
+        />
+      )}
+
       {/* Hugo Team — Recruitment */}
       {selectedUtility === "team" && (
         <HugoTeamTab onBack={() => onSelectUtility(null)} />
@@ -229,6 +243,23 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       )}
       </Suspense>
 
+    </div>
+  );
+}
+
+function FriendsInstallNotice({ onBack, onOpenStore }) {
+  const { t } = useTranslation();
+  return (
+    <div className="mx-auto grid min-h-[60dvh] max-w-md place-items-center px-4 py-12 text-center">
+      <div>
+        <span className="material-symbols-outlined text-[56px] text-primary" aria-hidden="true">download_for_offline</span>
+        <h1 className="mt-4 text-xl font-black text-foreground">{t("friends.installRequiredTitle")}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t("friends.installRequiredBody")}</p>
+        <div className="mt-6 flex justify-center gap-2">
+          <button type="button" onClick={onBack} className="min-h-11 rounded-xl border border-border px-4 text-sm font-bold text-foreground hover:bg-muted">{t("friends.back")}</button>
+          <button type="button" onClick={onOpenStore} className="min-h-11 rounded-xl bg-foreground px-4 text-sm font-black text-background hover:opacity-90">{t("friends.openStore")}</button>
+        </div>
+      </div>
     </div>
   );
 }

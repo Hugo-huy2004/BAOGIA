@@ -55,6 +55,10 @@ class MemberService {
     }
   }
 
+  async reviewStudentReward(type, file) {
+    return this.api.reviewStudentReward(type, file);
+  }
+
   // Dismiss verification notification banner (API Wrapper)
   async dismissVerificationNotification(email) {
     try {

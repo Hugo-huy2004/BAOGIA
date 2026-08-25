@@ -96,7 +96,7 @@ function CompactRowItem({ icon: Icon, title, detail, value, badge, onClick, href
   return <button type="button" className={className} onClick={onClick}>{content}</button>;
 }
 
-export default function MemberSettingsTab({
+export default function MemberSettingsTabRemade({
   memberSession,
   showToast,
   handleLogout,
@@ -503,7 +503,7 @@ export default function MemberSettingsTab({
       {activeSheet === "manage" && (
         <AccountSheet title={t("memberPortal.accountProfile.manageProfile", "Quản lý hồ sơ")} onClose={closeSheet} wide>
           <React.Suspense fallback={<SheetFallback />}>
-            <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleDeleteBio} handleDeleteBio={handleDeleteBio} saving={saving} />
+            <MemberManageTab bio={bio} publicLink={publicLink} handleCopyLink={handleCopyLink} handleDeleteBio={handleDeleteBio} saving={saving} />
           </React.Suspense>
         </AccountSheet>
       )}

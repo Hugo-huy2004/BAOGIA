@@ -40,39 +40,59 @@ export async function getCachedGeolocation({ fresh = false, ask = false } = {}) 
 
   if (pendingPromise) return pendingPromise;
 
-  pendingPromise = new Promise((resolve, reject) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      reject(new Error("Geolocation not supported by this browser"));
-      return;
-    }
+  const tryGetPosition = (options) => {
+    return new Promise((resolve, reject) => {
+      if (typeof navigator === "undefined" || !navigator.geolocation) {
+        reject(new Error("Geolocation not supported by this browser"));
+        return;
+      }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        cachedPos = {
-          coords: {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy
-          }
-        };
-        lastFetchTime = Date.now();
-        pendingPromise = null;
-        resolve(cachedPos);
-      },
-      (err) => {
-        pendingPromise = null;
-        if (err.code === err.PERMISSION_DENIED) {
-          if (typeof sessionStorage !== "undefined") {
-            sessionStorage.setItem("pwa_location_denied", "true");
-          }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve(pos),
+        (err) => reject(err),
+        options
+      );
+    });
+  };
+
+  pendingPromise = (async () => {
+    try {
+      const options = fresh
+        ? { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        : { enableHighAccuracy: false, timeout: 6000, maximumAge: CACHE_DURATION };
+
+      let pos;
+      try {
+        pos = await tryGetPosition(options);
+      } catch (err) {
+        // If high-accuracy or short-timeout failed on macOS / desktop (kCLErrorLocationUnknown / POSITION_UNAVAILABLE), retry with low accuracy
+        if (fresh && (err.code === 2 || err.code === 3 || err.code === err?.POSITION_UNAVAILABLE)) {
+          pos = await tryGetPosition({ enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
+        } else {
+          throw err;
         }
-        reject(err);
-      },
-      fresh
-        ? { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        : { enableHighAccuracy: false, timeout: 6000, maximumAge: CACHE_DURATION }
-    );
-  });
+      }
+
+      cachedPos = {
+        coords: {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        }
+      };
+      lastFetchTime = Date.now();
+      return cachedPos;
+    } catch (err) {
+      if (err?.code === err?.PERMISSION_DENIED) {
+        if (typeof sessionStorage !== "undefined") {
+          sessionStorage.setItem("pwa_location_denied", "true");
+        }
+      }
+      throw err;
+    } finally {
+      pendingPromise = null;
+    }
+  })();
 
   return pendingPromise;
 }

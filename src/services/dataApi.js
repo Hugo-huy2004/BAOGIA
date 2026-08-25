@@ -293,6 +293,19 @@ export const dataApi = {
     }
   },
 
+  async reviewStudentReward(type, file) {
+    const body = new FormData();
+    body.append('type', type);
+    body.append('evidence', file);
+    const response = await safeFetch(`${API_BASE_URL}/bios/me/student-rewards/review`, {
+      method: 'POST',
+      body,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.reason || data.error || 'Không thể xét duyệt hồ sơ.');
+    return data;
+  },
+
   // Dismiss verification notification banner
   async dismissVerificationNotification(email) {
     try {

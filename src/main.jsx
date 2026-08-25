@@ -2,8 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
-import i18n, { ensureTranslations } from './i18n/config.js'
-import { languageCode } from './i18n/languages.js'
+import './i18n/config.js'
 import { initSecurityShield } from './utils/security.js'
 import { installApiAuthInterceptor } from './services/apiAuthInterceptor.js'
 import { installClientMonitoring } from './utils/clientMonitoring.js'
@@ -51,9 +50,7 @@ const renderApp = () => {
   )
 }
 
-// The eager VI/EN bundle only covers the public shell. Account and Member
-// Portal keys live in the full pack, so every language must be ready before
-// mounting React; otherwise the first account frame can leak an English
-// fallback (for example “Hugo Bio profile”).
-const initialLanguage = languageCode(i18n.resolvedLanguage || i18n.language)
-ensureTranslations(initialLanguage).finally(renderApp)
+// Route components already wait for their language pack in App.lazyRoute.
+// Mount the shell immediately so a large translation file never blocks the
+// first paint; the eager core bundle covers the navbar/footer shown meanwhile.
+renderApp()
