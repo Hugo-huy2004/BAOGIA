@@ -166,24 +166,17 @@ export default function ScreenProtection() {
       }
     };
 
-    // Khi người dùng bấm tổ hợp phím chụp màn hình (như Win+Shift+S hay Alt+PrtScn), cửa sổ thường bị mất focus (blur)
-    let modifierActive = false;
-    const handleModifierDown = (e) => {
-      if (e.key === "Meta" || e.key === "Control" || e.key === "Shift" || e.key === "Alt") {
-        modifierActive = true;
-      }
-    };
-    const handleModifierUp = (e) => {
-      if (e.key === "Meta" || e.key === "Control" || e.key === "Shift" || e.key === "Alt") {
-        modifierActive = false;
+    // 4. Kích hoạt Màn hình đen lập tức khi mất focus / chuyển tab / mở Screenshot tool (iOS/Android App Switcher)
+    const handleVisibilityChange = () => {
+      if (document.hidden || document.visibilityState === "hidden") {
+        triggerBlackout();
       }
     };
 
     const handleWindowBlur = () => {
-      if (modifierActive) {
-        triggerBlackout();
-        modifierActive = false;
-      }
+      // Trên PWA, khi bấm phím cứng chụp màn hình hoặc tổ hợp phím OS, ứng dụng lập tức blur.
+      // Kích hoạt màn hình đen ngay để ảnh chụp của OS chỉ nhận được màn hình đen.
+      triggerBlackout();
     };
 
     // Đăng ký event listeners toàn cục
@@ -196,9 +189,8 @@ export default function ScreenProtection() {
     document.addEventListener("gestureend", handleGesture, { passive: false });
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
-    window.addEventListener("keydown", handleModifierDown, true);
-    window.addEventListener("keyup", handleModifierUp, true);
-    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("visibilitychange", handleVisibilityChange, true);
+    window.addEventListener("blur", handleWindowBlur, true);
 
     return () => {
       document.removeEventListener("copy", handleCopyCut, true);
@@ -210,9 +202,8 @@ export default function ScreenProtection() {
       document.removeEventListener("gestureend", handleGesture);
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp, true);
-      window.removeEventListener("keydown", handleModifierDown, true);
-      window.removeEventListener("keyup", handleModifierUp, true);
-      window.removeEventListener("blur", handleWindowBlur);
+      document.removeEventListener("visibilitychange", handleVisibilityChange, true);
+      window.removeEventListener("blur", handleWindowBlur, true);
     };
   }, [triggerBlackout]);
 
