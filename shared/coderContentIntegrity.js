@@ -1,6 +1,12 @@
 import { validateQuizQuestion } from "./quizKinds.js";
 
 const text = (value) => typeof value === "string" && value.trim().length > 0;
+const questionKey = (value) => String(value || "")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, " ")
+  .trim();
 
 // Luật hợp lệ của từng dạng câu hỏi nằm ở quizKinds.js — cùng một file mà giao
 // diện dùng để chấm. Giữ bản sao ở đây thì sớm muộn hai bên cũng lệch nhau.
@@ -11,6 +17,7 @@ function validateQuestion(question, path, issues) {
 export function auditCoderContent(courses, stages) {
   const issues = [];
   const ids = new Set();
+  const questions = new Map();
   let questionCount = 0;
 
   if (!Array.isArray(courses) || courses.length !== 100) {
@@ -38,6 +45,14 @@ export function auditCoderContent(courses, stages) {
       bank.forEach((question, questionIndex) => {
         questionCount += 1;
         validateQuestion(question, `${path}.${bankName}[${questionIndex}]`, issues);
+        const key = questionKey(question?.q);
+        if (!key) return;
+        const first = questions.get(key);
+        if (first) {
+          issues.push(`${path}.${bankName}[${questionIndex}]: đề bài trùng ${first}.`);
+        } else {
+          questions.set(key, `${path}.${bankName}[${questionIndex}]`);
+        }
       });
     }
 

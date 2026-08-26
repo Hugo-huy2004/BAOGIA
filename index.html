@@ -2,11 +2,11 @@
 <html lang="vi" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
-    <!-- Zoom stays enabled for low-vision users (a11y); accidental double-tap
-         zoom is already prevented by CSS touch-action: manipulation -->
+    <!-- Khóa zoom theo yêu cầu của ứng dụng; ScreenProtection chặn thêm
+         phím tắt, Ctrl/Cmd + cuộn và pinch gesture trong WebView/PWA. -->
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"
     />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -211,10 +211,6 @@
       html.ios-launch-blank body { visibility: hidden; }
 
       body {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
         /* Prevent horizontal scrolling */
         overflow-x: hidden;
       }

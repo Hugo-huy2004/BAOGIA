@@ -759,6 +759,17 @@
 }
 .animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1); }
 
+@keyframes account-sheet-slide-down {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(100%); }
+}
+@keyframes account-sheet-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.account-sheet-slide-down { animation: account-sheet-slide-down 0.26s ease-in forwards; }
+.account-sheet-backdrop-out { animation: account-sheet-backdrop-out 0.26s ease-in forwards; }
+
 /* Gradient shift — for animated gradient text */
 @keyframes gradient-shift {
   0%   { background-position: 0% 50%; }
@@ -1532,11 +1543,21 @@
 
 .today-news-search,
 .today-news-filter-btn {
-  border: 1px solid hsl(var(--border) / .5);
-  background: hsl(var(--card) / .82);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: 0 6px 20px hsl(var(--shadow) / .1);
+  border: 1px solid hsl(0 0% 100% / 0.55);
+  background: hsl(var(--card) / 0.62);
+  -webkit-backdrop-filter: saturate(190%) blur(24px);
+  backdrop-filter: saturate(190%) blur(24px);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.65),
+    0 8px 24px hsl(var(--shadow) / 0.08);
+}
+.dark .today-news-search,
+.dark .today-news-filter-btn {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 12% / 0.58);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    0 8px 28px rgba(0, 0, 0, 0.32);
 }
 
 .today-news-search {
@@ -1551,8 +1572,12 @@
   color: hsl(var(--muted-foreground));
 }
 .today-news-search:focus-within {
-  border-color: hsl(var(--primary) / .55);
-  background: hsl(var(--card));
+  border-color: rgb(var(--portal-glass-tint, 10 132 255) / 0.6);
+  background: hsl(var(--card) / 0.78);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.8),
+    0 0 0 3.5px rgb(var(--portal-glass-tint, 10 132 255) / 0.18),
+    0 10px 28px hsl(var(--shadow) / 0.1);
 }
 .today-news-search > .material-symbols-outlined { font-size: 18px; }
 .today-news-search input {
@@ -1641,16 +1666,28 @@
   max-width: 100%;
   margin: auto auto 0;
   padding: 0;
-  border: 0;
-  border-radius: 26px 26px 0 0;
-  background: hsl(var(--card));
+  border: 1px solid hsl(0 0% 100% / 0.5);
+  border-radius: 28px 28px 0 0;
+  background: hsl(var(--card) / 0.72);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  backdrop-filter: blur(36px) saturate(200%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.75),
+    0 24px 60px rgba(0, 0, 0, 0.3);
   color: hsl(var(--foreground));
   animation: today-sheet-rise 260ms cubic-bezier(.2, .9, .2, 1);
 }
+.dark .today-filter-sheet {
+  border-color: hsl(0 0% 100% / 0.14);
+  background: hsl(240 18% 11% / 0.75);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.15),
+    0 28px 70px rgba(0, 0, 0, 0.55);
+}
 .today-filter-sheet::backdrop {
   background: rgb(0 0 0 / .38);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 @keyframes today-sheet-rise {
   from { transform: translateY(14px); opacity: 0; }
@@ -1660,7 +1697,7 @@
   .today-filter-sheet { animation: none; }
 }
 @media (min-width: 640px) {
-  .today-filter-sheet { margin: auto; border-radius: 26px; }
+  .today-filter-sheet { margin: auto; border-radius: 28px; }
 }
 
 .today-filter-body {
@@ -1704,20 +1741,29 @@
   gap: 6px;
   min-height: 38px;
   padding: 0 13px;
-  border: 1px solid hsl(var(--border) / .55);
+  border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 999px;
-  background: hsl(var(--muted) / .5);
+  background: hsl(var(--card) / 0.55);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.45);
   color: hsl(var(--foreground));
   font-size: 13.5px;
   font-weight: 600;
-  /* Chủ đề rút từ tiêu đề nên luôn là chữ thường; hoa đầu chip cho gọn mắt. */
   text-transform: none;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+.dark .today-filter-chips button {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 13% / 0.55);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.12);
 }
 .today-filter-chips button:first-letter { text-transform: uppercase; }
 .today-filter-chips button.is-active {
-  border-color: transparent;
-  background: hsl(var(--foreground));
-  color: hsl(var(--background));
+  border-color: rgb(var(--portal-glass-tint, 10 132 255) / 0.6);
+  background: rgb(var(--portal-glass-tint, 10 132 255) / 0.9);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.5), 0 8px 24px rgb(var(--portal-glass-tint, 10 132 255) / 0.35);
+  color: white;
 }
 .today-filter-chips .material-symbols-outlined { font-size: 18px; }
 .today-filter-chips b {
@@ -1753,33 +1799,65 @@
 .today-news-card {
   width: 100%;
   display: grid;
-  /* Không còn cột ảnh 86px: bề ngang đó trả hết cho tiêu đề, nên tít dài không
-     bị cắt giữa chừng. Nhận diện chuyên mục chuyển sang vạch màu bên trái. */
   grid-template-columns: minmax(0, 1fr) 18px;
   align-items: start;
   gap: 12px;
-  padding: 13px 14px;
-  border-left: 3px solid var(--today-accent, hsl(var(--primary)));
-  border: 1px solid hsl(var(--border) / 0.55);
-  /* 20px: bo tròn cỡ iOS cho thẻ nội dung. Thẻ vẫn ĐẶC (không kính) — chữ
-     nhiều nằm trên nền mờ là thứ khó đọc nhất, và mỗi thẻ một lớp blur là
-     hàng chục layer cho compositor khi cuộn. */
+  padding: 14px 16px;
+  border-left: 3.5px solid var(--today-accent, hsl(var(--primary)));
+  border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 20px;
-  background: hsl(var(--card));
+  background: hsl(var(--card) / 0.65);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.68),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.05),
+    0 10px 32px hsl(var(--shadow) / 0.08);
   text-align: left;
-  transition: background 160ms ease, transform 160ms ease;
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.dark .today-news-card {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 12% / 0.62);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.35),
+    0 12px 36px rgba(0, 0, 0, 0.4);
 }
 
 .today-news-card:active { transform: scale(.985); }
-.today-news-card:hover { background: hsl(var(--muted) / .45); }
+.today-news-card:hover {
+  transform: translateY(-2px);
+  background: hsl(var(--card) / 0.78);
+  border-color: hsl(0 0% 100% / 0.78);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.85),
+    0 14px 40px rgb(var(--portal-glass-tint, 10 132 255) / 0.15);
+}
+.dark .today-news-card:hover {
+  background: hsl(240 18% 15% / 0.76);
+  border-color: hsl(0 0% 100% / 0.22);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.2),
+    0 16px 44px rgb(var(--portal-glass-tint, 10 132 255) / 0.22);
+}
 
-/* Mọi ô của thẻ phải co lại được. Ô lưới mặc định min-width:auto — chỉ cần một
-   tiêu đề dài là cả thẻ phình ra ngoài khung. Không trông cậy vào class
-   `min-w-0` trong markup vì chỉ cần sửa JSX quên nó là vỡ. */
+.today-news-card.is-lead {
+  background: linear-gradient(135deg, hsl(var(--card) / 0.75), hsl(var(--card) / 0.58));
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.82),
+    0 14px 42px hsl(var(--shadow) / 0.12);
+}
+.dark .today-news-card.is-lead {
+  background: linear-gradient(135deg, hsl(240 18% 14% / 0.72), hsl(240 18% 10% / 0.58));
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.16),
+    0 16px 48px rgba(0, 0, 0, 0.48);
+}
+
+/* Mọi ô của thẻ phải co lại được. */
 .today-news-card > * { min-width: 0; }
 
-/* Một biến màu cho cả vạch trái lẫn icon chuyên mục — đổi một chỗ, hai nơi
-   theo. Giữ đúng bảng màu portal, không thêm màu mới. */
 .today-news-card[data-category="community"] { --today-accent: hsl(var(--success)); }
 .today-news-card[data-category="world"] { --today-accent: hsl(var(--warning)); }
 
@@ -1801,25 +1879,18 @@
   font-size: 15px;
 }
 .today-news-card strong {
-  /* `anywhere` cắt giữa từ: "chuyển đổi" thành "chuy/ển đổi". Tiếng Việt có
-     rất nhiều từ ngắn nên chỉ cần `break-word` cho URL/từ dài bất thường. */
   overflow-wrap: break-word;
   display: -webkit-box;
   margin-top: 3px;
   overflow: hidden;
   color: hsl(var(--foreground));
-  /* 15.5px: cột ảnh biến mất nên tiêu đề vừa rộng hơn vừa đọc được ở khoảng
-     cách cầm điện thoại — cùng ngưỡng "chữ ≥ 15px" của portal. */
   font-size: 15.5px;
   font-weight: 620;
-  /* 1.45 chứ không 1.35: dấu tiếng Việt xếp tầng (Ằ, ệ, ỗ) cao hơn chữ Latin,
-     line-height chặt + overflow:hidden là cụt dấu ở dòng đầu và dòng cuối. */
   line-height: 1.45;
   letter-spacing: -.01em;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
-/* Sapo của bài đầu ấn bản: hai dòng, đủ để quyết định có mở hay không. */
 .today-news-dek {
   display: -webkit-box;
   margin-top: 6px;
@@ -1843,9 +1914,6 @@
 }
 .today-news-chevron { color: hsl(var(--muted-foreground) / 0.55); font-size: 17px; }
 
-/* Bài đầu ấn bản: nổi bật bằng CHỮ (tiêu đề lớn + sapo), không bằng ảnh lớn.
-   Trước đây chỗ này là khung ảnh 16:9 của toà soạn; bỏ ảnh đi rồi thì khung
-   đó chỉ còn là một mảng màu trống cao 200px, xấu hơn là không có. */
 .today-news-card.is-lead small { font-size: 11.5px; }
 .today-news-card.is-lead strong {
   font-size: 19px;
@@ -1855,14 +1923,34 @@
 }
 
 .today-news-more {
-  min-height: 46px;
-  margin-top: 4px;
-  border: 1px solid hsl(var(--border) / 0.55);
+  min-height: 48px;
+  margin-top: 6px;
+  border: 1px solid hsl(0 0% 100% / 0.55);
   border-radius: 20px;
-  background: hsl(var(--card));
+  background: hsl(var(--card) / 0.65);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.65),
+    0 8px 24px hsl(var(--shadow) / 0.08);
   color: hsl(var(--primary));
-  font-size: 13.5px;
-  font-weight: 620;
+  font-size: 14px;
+  font-weight: 650;
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.dark .today-news-more {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 12% / 0.62);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.35);
+}
+.today-news-more:hover {
+  background: hsl(var(--card) / 0.8);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.85),
+    0 12px 32px rgb(var(--portal-glass-tint, 10 132 255) / 0.18);
 }
 
 .today-news-grid {
@@ -1907,13 +1995,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 8px;
-  padding: 6px 0;
-  /* Cùng chất kính với tab bar: chữ bài báo trôi mờ dần dưới thanh quay lại
-     thay vì bị một dải đặc chặn ngang. */
-  background: hsl(var(--background) / .62);
-  -webkit-backdrop-filter: saturate(190%) blur(24px);
-  backdrop-filter: saturate(190%) blur(24px);
+  margin-bottom: 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid hsl(0 0% 100% / 0.45);
+  background: hsl(var(--background) / 0.62);
+  -webkit-backdrop-filter: saturate(190%) blur(28px);
+  backdrop-filter: saturate(190%) blur(28px);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.5), 0 8px 24px hsl(var(--shadow) / 0.08);
+}
+.dark .today-article-topbar {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 9% / 0.62);
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.12), 0 10px 28px rgba(0,0,0,0.35);
 }
 
 .today-article-origin {
@@ -1950,7 +2044,6 @@
   line-height: 1.22;
   letter-spacing: -0.015em;
   color: hsl(var(--foreground));
-  /* Không để tiêu đề rớt lại một chữ trơ trọi ở dòng cuối. */
   text-wrap: balance;
 }
 
@@ -1983,10 +2076,24 @@
 
 .today-article-summary {
   margin-bottom: 28px;
-  padding: 18px 20px;
-  border: 1px solid hsl(var(--border));
-  border-radius: 18px;
-  background: hsl(var(--card));
+  padding: 20px 22px;
+  border: 1px solid hsl(0 0% 100% / 0.55);
+  border-radius: 22px;
+  background: hsl(var(--card) / 0.65);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.68),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.05),
+    0 12px 36px hsl(var(--shadow) / 0.08);
+}
+.dark .today-article-summary {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 12% / 0.62);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.35),
+    0 14px 40px rgba(0, 0, 0, 0.42);
 }
 
 .today-article-summary h2,
@@ -2038,13 +2145,11 @@
   text-wrap: pretty;
 }
 
-/* Đoạn mở đầu to hơn một nhịp, mắt bám vào bài dễ hơn. */
 .today-article-text p:first-of-type {
   font-size: 1.06em;
   font-weight: 550;
 }
 
-/* Ảnh minh hoạ giữa bài, xếp như trang báo. */
 .today-article-figure {
   margin: 0 0 1.15em;
 }
@@ -2069,12 +2174,25 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px;
-  border: 1px dashed hsl(var(--border));
-  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid hsl(0 0% 100% / 0.45);
+  border-radius: 20px;
+  background: hsl(var(--card) / 0.58);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.6),
+    0 8px 28px hsl(var(--shadow) / 0.06);
   color: hsl(var(--muted-foreground));
   font-size: 15px;
   line-height: 1.6;
+}
+.dark .today-article-locked {
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 12% / 0.55);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    0 10px 32px rgba(0,0,0,0.35);
 }
 
 .today-article-locked p { margin: 0; flex: 1; min-width: 0; }

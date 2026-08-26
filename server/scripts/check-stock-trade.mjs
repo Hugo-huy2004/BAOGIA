@@ -31,7 +31,12 @@ const jwt = (await import('jsonwebtoken')).default;
 const TOKEN = jwt.sign({ email: EMAIL, role: 'member' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 const AUTH = { 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` };
 
-await Bio.create({ email: EMAIL, slug: 'e2e', displayName: 'E2E', joyBalance: 1_000_000, joyDenom: 'vi' });
+await Bio.create({
+  email: EMAIL, slug: 'e2e', displayName: 'E2E', joyBalance: 1_000_000, joyDenom: 'vi',
+  countryCode: 'VN', adminArea: 'Hanoi', locality: 'Ba Dinh', exactAddress: '1 Hoang Hoa Tham',
+  verifiedLatitude: 21.03, verifiedLongitude: 105.83, locationVerifiedAt: new Date(),
+  religion: 'none', ethnicity: 'Kinh',
+});
 
 const { COMPANIES } = await import('../services/stockMarket.js');
 const routes = (await import('../routes/stockRoutes.js')).default;
@@ -115,6 +120,9 @@ const CONTACT = 'lienhe@hugo.test';
 await Bio.create({
   email: 'chinh@hugo.test', contactEmail: CONTACT, slug: 'e2e-2',
   displayName: 'E2E 2', joyBalance: 4289, joyDenom: 'ko',
+  countryCode: 'VN', adminArea: 'Hanoi', locality: 'Ba Dinh', exactAddress: '1 Hoang Hoa Tham',
+  verifiedLatitude: 21.03, verifiedLongitude: 105.83, locationVerifiedAt: new Date(),
+  religion: 'none', ethnicity: 'Kinh',
 });
 const token2 = jwt.sign({ email: CONTACT, role: 'member' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 const pf2 = await fetch('http://localhost:4599/api/stock/portfolio', {

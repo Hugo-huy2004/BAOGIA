@@ -8,6 +8,7 @@ import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
 import { joyText } from "../../../lib/joyDisplay";
 import QuizQuestion from "./QuizQuestion";
 import { isQuizAnswerCorrect } from "../../../../shared/quizKinds";
+import { getLessonReading } from "./lessons";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
 const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;
@@ -355,7 +356,7 @@ export default function LessonsSidebar({
               const num = parseInt(String(course.id).replace("lesson", ""), 10);
               const stage = STAGES.find((s) => num > s.from && num <= s.to);
               const stageReading = stage?.intro?.reading || [];
-              const lessonReading = course.resources || [];
+              const lessonReading = getLessonReading(course);
               if (stageReading.length === 0 && lessonReading.length === 0) return null;
               return (
                 <section className="space-y-1.5">
@@ -366,7 +367,7 @@ export default function LessonsSidebar({
                     {lessonReading.map((r, i) => (
                       <a key={`l${i}`} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-1.5 text-[10.5px] leading-5 text-muted-foreground hover:text-foreground transition-colors">
                         <span className="material-symbols-outlined text-[13px] mt-px shrink-0">open_in_new</span>
-                        <span className="font-bold text-foreground">{r.title}</span>
+                        <span><strong className="text-foreground font-bold">{r.title}</strong>{r.author && ` — ${r.author}`}{r.note && <small className="block text-muted-foreground">{r.note}</small>}</span>
                       </a>
                     ))}
                     {stageReading.map((r, i) => (

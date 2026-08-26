@@ -93,6 +93,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} đang cao hơn giá vốn của bạn {{pct}}% — đã qua mốc hoà vốn sau phí. Chốt lời hay giữ tiếp là bài học hôm nay.",
     "event.paymentRequest.title": "Yêu cầu thanh toán",
     "event.paymentRequest.message": "Admin gửi một yêu cầu thanh toán {{amount}} ₫. Lý do: {{reason}}",
+    "event.friendRequest.title": "{{sender}} muốn kết bạn",
+    "event.friendRequest.message": "Mở ứng dụng Bạn bè để trả lời lời mời.",
+    "event.friendAccepted.title": "{{friend}} đã chấp nhận lời mời",
+    "event.friendAccepted.message": "Hai bạn giờ đã có thể xem hồ sơ và kết nối với nhau.",
   },
 
   en: {
@@ -159,6 +163,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} is {{pct}}% above your cost basis — past the after-fee break-even point. To sell or to hold is today's lesson.",
     "event.paymentRequest.title": "Payment request",
     "event.paymentRequest.message": "The admin sent a payment request for {{amount}} ₫. Reason: {{reason}}",
+    "event.friendRequest.title": "{{sender}} sent you a friend request",
+    "event.friendRequest.message": "Open Friends to respond.",
+    "event.friendAccepted.title": "{{friend}} accepted your request",
+    "event.friendAccepted.message": "You can now view each other's profiles and connect.",
   },
 
   zh: {
@@ -225,6 +233,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} 已高于你的成本 {{pct}}%，超过扣费后的盈亏平衡点。卖出还是持有，就是今天的功课。",
     "event.paymentRequest.title": "付款请求",
     "event.paymentRequest.message": "管理员发来一笔 {{amount}} ₫ 的付款请求。原因：{{reason}}",
+    "event.friendRequest.title": "{{sender}} 想添加你为好友",
+    "event.friendRequest.message": "打开好友应用即可回复邀请。",
+    "event.friendAccepted.title": "{{friend}} 已接受你的邀请",
+    "event.friendAccepted.message": "你们现在可以查看彼此的个人资料并互动。",
   },
 
   th: {
@@ -291,6 +303,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} สูงกว่าต้นทุนของคุณ {{pct}}% — ผ่านจุดคุ้มทุนหลังหักค่าธรรมเนียมแล้ว จะขายหรือถือต่อคือบทเรียนของวันนี้",
     "event.paymentRequest.title": "คำขอชำระเงิน",
     "event.paymentRequest.message": "ผู้ดูแลส่งคำขอชำระเงิน {{amount}} ₫ เหตุผล: {{reason}}",
+    "event.friendRequest.title": "{{sender}} ส่งคำขอเป็นเพื่อน",
+    "event.friendRequest.message": "เปิดแอปเพื่อนเพื่อตอบรับคำขอ",
+    "event.friendAccepted.title": "{{friend}} ยอมรับคำขอแล้ว",
+    "event.friendAccepted.message": "ตอนนี้คุณสามารถดูโปรไฟล์และเชื่อมต่อกันได้แล้ว",
   },
 
   ja: {
@@ -357,6 +373,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} が取得単価より {{pct}}% 高くなり、手数料込みの損益分岐点を超えました。売るか持ち続けるか、それが今日の学びです。",
     "event.paymentRequest.title": "支払いリクエスト",
     "event.paymentRequest.message": "管理者から{{amount}} ₫の支払いリクエストが届きました。理由：{{reason}}",
+    "event.friendRequest.title": "{{sender}}さんから友達リクエストが届きました",
+    "event.friendRequest.message": "友達アプリを開いて返信できます。",
+    "event.friendAccepted.title": "{{friend}}さんがリクエストを承認しました",
+    "event.friendAccepted.message": "お互いのプロフィールを見て交流できるようになりました。",
   },
 
   ko: {
@@ -423,6 +443,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}}이(가) 매입 단가보다 {{pct}}% 높아져 수수료 포함 손익분기점을 넘었습니다. 팔지 들고 갈지가 오늘의 공부입니다.",
     "event.paymentRequest.title": "결제 요청",
     "event.paymentRequest.message": "관리자가 {{amount}} ₫ 결제를 요청했어요. 사유: {{reason}}",
+    "event.friendRequest.title": "{{sender}}님이 친구 요청을 보냈어요",
+    "event.friendRequest.message": "친구 앱을 열어 요청에 응답하세요.",
+    "event.friendAccepted.title": "{{friend}}님이 요청을 수락했어요",
+    "event.friendAccepted.message": "이제 서로의 프로필을 보고 교류할 수 있어요.",
   },
 
   id: {
@@ -489,6 +513,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} kini {{pct}}% di atas harga modalmu — sudah melewati titik impas setelah biaya. Jual atau tahan, itulah pelajaran hari ini.",
     "event.paymentRequest.title": "Permintaan pembayaran",
     "event.paymentRequest.message": "Admin mengirim permintaan pembayaran {{amount}} ₫. Alasan: {{reason}}",
+    "event.friendRequest.title": "{{sender}} mengirim permintaan pertemanan",
+    "event.friendRequest.message": "Buka aplikasi Teman untuk merespons.",
+    "event.friendAccepted.title": "{{friend}} menerima permintaanmu",
+    "event.friendAccepted.message": "Sekarang kalian dapat melihat profil dan terhubung.",
   },
 
   es: {
@@ -555,6 +583,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} está {{pct}}% por encima de tu costo — superó el punto de equilibrio tras comisiones. Vender o mantener es la lección de hoy.",
     "event.paymentRequest.title": "Solicitud de pago",
     "event.paymentRequest.message": "El administrador envió una solicitud de pago de {{amount}} ₫. Motivo: {{reason}}",
+    "event.friendRequest.title": "{{sender}} te envió una solicitud de amistad",
+    "event.friendRequest.message": "Abre Amigos para responder.",
+    "event.friendAccepted.title": "{{friend}} aceptó tu solicitud",
+    "event.friendAccepted.message": "Ahora pueden ver sus perfiles y conectar.",
   },
 
   fr: {
@@ -621,6 +653,10 @@ export const NOTIFICATION_TEXT = {
     "event.stockBreakEven.message": "{{symbol}} dépasse votre prix de revient de {{pct}}% — au-delà du seuil de rentabilité après frais. Vendre ou garder, voilà la leçon du jour.",
     "event.paymentRequest.title": "Demande de paiement",
     "event.paymentRequest.message": "L’administrateur a envoyé une demande de paiement de {{amount}} ₫. Motif : {{reason}}",
+    "event.friendRequest.title": "{{sender}} vous a envoyé une demande d’amitié",
+    "event.friendRequest.message": "Ouvrez Amis pour répondre.",
+    "event.friendAccepted.title": "{{friend}} a accepté votre demande",
+    "event.friendAccepted.message": "Vous pouvez maintenant consulter vos profils et échanger.",
   },
 };
 

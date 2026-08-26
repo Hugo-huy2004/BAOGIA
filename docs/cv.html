@@ -24,8 +24,8 @@
   body {
     color: var(--ink);
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 9.2pt;
-    line-height: 1.42;
+    font-size: 10pt;
+    line-height: 1.46;
     -webkit-font-smoothing: antialiased;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -153,49 +153,6 @@
   }
   .project li b { color: var(--ink); font-weight: 700; }
 
-  /* Demo grid — mỗi app đã tách URL public riêng */
-  .demo-note { margin: -2px 0 5px; color: var(--muted); font-size: 7.4pt; }
-  .demo-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px;
-  }
-  .demo-tile {
-    padding: 8px 10px;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-    background: #fff;
-    break-inside: avoid;
-  }
-  .demo-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
-  .demo-tile h3 { font-size: 8.4pt; font-weight: 700; line-height: 1.2; }
-  .demo-tile p { margin-top: 2px; color: var(--body); font-size: 7.3pt; line-height: 1.34; }
-  .demo-tile.featured { grid-column: 1 / -1; }
-  .kit-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px 12px;
-    margin-top: 5px;
-  }
-  .kit-item b { display: block; font-size: 7.7pt; line-height: 1.25; }
-  .kit-item p { margin-top: 1px; color: var(--muted); font-size: 7.1pt; line-height: 1.32; }
-  .demo-link {
-    display: inline-block;
-    margin-top: 3px;
-    color: var(--blue);
-    font-size: 7pt;
-    font-weight: 700;
-  }
-  .badge {
-    padding: 1px 5px;
-    border-radius: 999px;
-    background: var(--blue-wash);
-    color: var(--blue-dark);
-    font-size: 6.6pt;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
   /* Kinh nghiệm */
   .exp-item {
     display: grid;
@@ -222,13 +179,13 @@
 <main class="page" data-language="vi">
   <header class="hero">
     <div>
-      <p class="kicker">Ứng tuyển thực tập · UI/UX &amp; Frontend</p>
+      <p class="kicker">Ứng tuyển thực tập · Product &amp; UI/UX Design</p>
       <h1>Lê Gia Huy</h1>
-      <p class="role">Product &amp; UI/UX Designer · Frontend Developer</p>
+      <p class="role">Product &amp; UI/UX Designer · Có khả năng triển khai Frontend</p>
       <div class="stats" aria-label="Điểm nổi bật">
-        <div class="stat"><b>20</b><span>ứng dụng &amp; game</span></div>
-        <div class="stat"><b>13</b><span>ứng dụng có URL riêng</span></div>
-        <div class="stat"><b>09</b><span>ngôn ngữ giao diện</span></div>
+        <div class="stat"><b>01</b><span>sản phẩm đang vận hành</span></div>
+        <div class="stat"><b>02</b><span>dự án khách hàng &amp; nhóm</span></div>
+        <div class="stat"><b>B2</b><span>tiếng Anh VSTEP</span></div>
       </div>
     </div>
     <div class="contact">
@@ -243,11 +200,10 @@
       <section class="side-card profile-card">
         <h2 class="section-label">Hồ sơ</h2>
         <p class="profile-text">
-          Mình là người nghĩ bằng sản phẩm: bắt đầu từ luồng người dùng, thiết kế giao diện, rồi đưa nó
-          chạy thật bằng React kết hợp công cụ AI — cách làm giúp mình một mình vận hành Hugo Studio,
-          portal 20 ứng dụng &amp; game với giao diện 9 ngôn ngữ. Điểm mạnh là biến ý tưởng thành thứ
-          dùng được: đặc tả yêu cầu, kiểm thử, tích hợp và tự chạy production từ tên miền đến xử lý sự cố.
-          <b>Đang tìm vị trí thực tập UI/UX hoặc Frontend</b> để học quy trình làm việc trong đội ngũ chuyên nghiệp.
+          Mình thiết kế sản phẩm từ bài toán và luồng người dùng đến giao diện có thể triển khai. Kinh nghiệm
+          thực tế gồm làm việc với khách hàng, bàn giao cho đội nhóm và tự vận hành Hugo Studio trên production.
+          Thế mạnh là kết nối thiết kế với kỹ thuật: prototype rõ, responsive tốt và chủ động kiểm thử sau bàn giao.
+          <b>Đang tìm vị trí thực tập Product/UI/UX Design</b>, với Frontend là năng lực bổ trợ.
         </p>
       </section>
 
@@ -275,7 +231,7 @@
             <span class="tag">Đặc tả &amp; review code</span><span class="tag">Testing</span><span class="tag">Deployment</span>
             <span class="tag">Log analysis</span><span class="tag">Scrum / Agile</span>
           </div>
-          <p class="skill-note">Cách làm chính ở Hugo Studio: mình đặc tả và review, AI viết phần lớn code, mình kiểm thử, tích hợp và triển khai.</p>
+          <p class="skill-note">Dùng AI để tăng tốc nghiên cứu và triển khai; tự chịu trách nhiệm đặc tả, review, kiểm thử và chất lượng đầu ra.</p>
         </div>
         <p class="foundation">Nền tảng từ trường: C#, Python, PHP, MySQL, Node.js/Express, MongoDB, WebSocket — đủ để đọc hiểu và tích hợp backend. Triển khai trên Vercel, Render, Cloudflare.</p>
       </section>
@@ -300,53 +256,11 @@
           </div>
           <p class="project-meta">Product owner · UI/UX · Tích hợp frontend · Vận hành · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p>
           <ul>
-            <li>Thiết kế và vận hành portal PWA/native với <b>20 ứng dụng &amp; game</b>, 9 ngôn ngữ, định danh thành viên, Hugo Store, ví JOY và thông báo realtime.</li>
-            <li>Phát triển <b>Bio Studio</b>: thành viên tự tạo trang cá nhân tại <b>/bio/{slug}</b>, chọn 3 theme, live preview trước khi xuất bản, SEO động.</li>
-            <li>Xây <b>HugoKit</b> (xử lý ZIP, nén ảnh/video bằng Sharp/FFmpeg) với xác thực server, giới hạn an toàn và tự dọn file tạm.</li>
-            <li>Tự vận hành production: tên miền, triển khai đa nền tảng, đọc log xử lý sự cố và tách kiến trúc theo hạn mức từng nhà cung cấp.</li>
+            <li>Thiết kế hệ thống trải nghiệm dùng chung cho portal PWA/native: định danh thành viên, cửa hàng, ví điểm thưởng và thông báo realtime.</li>
+            <li>Thiết kế <b>Bio Studio</b>: luồng tạo trang cá nhân, 3 theme, live preview trước xuất bản và URL công khai có SEO động.</li>
+            <li>Đưa thiết kế vào React, kiểm thử responsive và tự vận hành production từ tên miền, triển khai đến xử lý sự cố.</li>
           </ul>
         </article>
-      </section>
-
-      <section class="main-section">
-        <h2 class="section-label">Sản phẩm tách ra từ Hugo Studio</h2>
-        <p class="demo-note">Mỗi ứng dụng có URL công khai riêng, chạy thẳng trên trình duyệt — dùng thử được ngay, không cần tài khoản.</p>
-        <div class="demo-grid" aria-label="Các ứng dụng chạy độc lập">
-          <article class="demo-tile featured">
-            <div class="demo-top"><h3>Hugo Learning — Nền tảng tự học lập trình</h3><span class="badge">10 bài đầu miễn phí</span></div>
-            <div class="kit-grid">
-              <div class="kit-item">
-                <b>Bài học từng bước, một màn hình</b>
-                <p>Lộ trình HTML, CSS, JavaScript, SQL, PHP; thực hành ngay trong bài, không cần cài môi trường.</p>
-              </div>
-              <div class="kit-item">
-                <b>Bài thi máy chủ chấm · chứng nhận</b>
-                <p>Chấm phía server nên không sửa được kết quả; cấp giấy chứng nhận có xếp loại.</p>
-              </div>
-            </div>
-            <a class="demo-link" href="https://www.hugowishpax.studio/study">hugowishpax.studio/study</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>HugoKit — Xử lý file trên web</h3><span class="badge">3 lượt/ngày cho khách</span></div>
-            <p>Giải nén ZIP, nén ảnh/video bằng Sharp/FFmpeg, tạo QR và chữ ký email — xử lý phía server, có giới hạn an toàn.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/hugokit">hugowishpax.studio/hugokit</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>Cờ Vua 3D &amp; Cờ Caro</h3><span class="badge">Bot tự viết</span></div>
-            <p>Máy tự nghĩ nước đi: negamax + cắt tỉa alpha-beta, tìm kiếm yên tĩnh và bảng điểm theo ô, nhiều cấp độ.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/chess">hugowishpax.studio/chess</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Nghe ngay</span></div>
-            <p>Đài lofi &amp; tin tức cho học tập; đăng nhập để lưu đài và đồng bộ thời lượng.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/radio">hugowishpax.studio/radio</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>HugoAura</h3><span class="badge">Miễn phí</span></div>
-            <p>Pomodoro kết hợp nhạc lofi; lưu nhịp tập trung và đồng bộ thiết bị khi đăng nhập.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/aura">hugowishpax.studio/aura</a>
-          </article>
-        </div>
       </section>
 
       <section class="main-section">
@@ -384,13 +298,13 @@
 <main class="page" data-language="en" lang="en">
   <header class="hero">
     <div>
-      <p class="kicker">Applying for an internship · UI/UX &amp; Frontend</p>
+      <p class="kicker">Applying for an internship · Product &amp; UI/UX Design</p>
       <h1>Le Gia Huy</h1>
-      <p class="role">Product &amp; UI/UX Designer · Frontend Developer</p>
+      <p class="role">Product &amp; UI/UX Designer · Frontend-capable</p>
       <div class="stats" aria-label="Highlights">
-        <div class="stat"><b>20</b><span>apps &amp; games</span></div>
-        <div class="stat"><b>13</b><span>standalone app URLs</span></div>
-        <div class="stat"><b>09</b><span>interface languages</span></div>
+        <div class="stat"><b>01</b><span>live product</span></div>
+        <div class="stat"><b>02</b><span>client &amp; team projects</span></div>
+        <div class="stat"><b>B2</b><span>VSTEP English</span></div>
       </div>
     </div>
     <div class="contact">
@@ -405,11 +319,10 @@
       <section class="side-card profile-card">
         <h2 class="section-label">Profile</h2>
         <p class="profile-text">
-          I think in products: I start from the user flow, design the interface, then ship it for real with
-          React and AI pair-programming — the workflow that lets me run Hugo Studio, a 20-app portal in
-          9 languages, on my own. My strength is turning ideas into things people can use: specifying
-          requirements, testing, integrating, and running production from domains to incident debugging.
-          <b>Looking for a UI/UX or Frontend internship</b> to learn how a professional team works.
+          I design products from problem framing and user flows through to implementation-ready interfaces.
+          My hands-on experience includes client collaboration, team hand-off, and running Hugo Studio in
+          production. I bridge design and engineering through clear prototypes, responsive execution, and
+          post-handoff QA. <b>I am seeking a Product/UI/UX Design internship</b>, with frontend as a supporting skill.
         </p>
       </section>
 
@@ -437,7 +350,7 @@
             <span class="tag">Spec &amp; code review</span><span class="tag">Testing</span><span class="tag">Deployment</span>
             <span class="tag">Log analysis</span><span class="tag">Scrum / Agile</span>
           </div>
-          <p class="skill-note">My core workflow on Hugo Studio: I spec and review, AI writes most of the code, I test, integrate, and deploy.</p>
+          <p class="skill-note">I use AI to accelerate research and delivery while owning the specification, review, testing, and final quality.</p>
         </div>
         <p class="foundation">University foundation: C#, Python, PHP, MySQL, Node.js/Express, MongoDB, WebSocket — enough to read and integrate backend code. Deployed on Vercel, Render, and Cloudflare.</p>
       </section>
@@ -462,53 +375,11 @@
           </div>
           <p class="project-meta">Product owner · UI/UX · Frontend integration · Operations · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p>
           <ul>
-            <li>Designed and operated a PWA/native portal with <b>20 apps &amp; games</b>, 9 languages, member identity, Hugo Store, JOY wallet, and realtime notifications.</li>
-            <li>Developed <b>Bio Studio</b>: members publish personal pages at <b>/bio/{slug}</b> with 3 themes, live preview before publishing, and dynamic SEO.</li>
-            <li>Built <b>HugoKit</b> (ZIP workspace, image/video compression via Sharp/FFmpeg) with server-side authentication, safety limits, and temp-file cleanup.</li>
-            <li>Run production end to end: domains, multi-platform deploys, log-driven incident debugging, and re-architecting around each provider's billing limits.</li>
+            <li>Designed a shared experience system for a PWA/native portal covering member identity, store, rewards wallet, and realtime notifications.</li>
+            <li>Designed <b>Bio Studio</b>: personal-page creation flow, 3 themes, live preview before publishing, and public URLs with dynamic SEO.</li>
+            <li>Translated designs into React, verified responsive behavior, and operated production from domains and deployments to incident resolution.</li>
           </ul>
         </article>
-      </section>
-
-      <section class="main-section">
-        <h2 class="section-label">Products spun out of Hugo Studio</h2>
-        <p class="demo-note">Each app ships on its own public URL and runs right in the browser — try any of them without an account.</p>
-        <div class="demo-grid" aria-label="Standalone apps">
-          <article class="demo-tile featured">
-            <div class="demo-top"><h3>Hugo Learning — Self-paced coding platform</h3><span class="badge">First 10 lessons free</span></div>
-            <div class="kit-grid">
-              <div class="kit-item">
-                <b>One step, one screen</b>
-                <p>HTML, CSS, JavaScript, SQL, and PHP tracks; hands-on practice inside the lesson, nothing to install.</p>
-              </div>
-              <div class="kit-item">
-                <b>Server-graded exams · certificates</b>
-                <p>Grading runs server-side so results can't be edited; certificates are issued with a grade band.</p>
-              </div>
-            </div>
-            <a class="demo-link" href="https://www.hugowishpax.studio/study">hugowishpax.studio/study</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>HugoKit — Web file toolkit</h3><span class="badge">3 free runs/day</span></div>
-            <p>ZIP extraction, image/video compression via Sharp/FFmpeg, QR codes, and email signatures — server-side with safety limits.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/hugokit">hugowishpax.studio/hugokit</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>3D Chess &amp; Gomoku</h3><span class="badge">Engine written from scratch</span></div>
-            <p>The bot searches for itself: negamax with alpha-beta pruning, quiescence search, and piece-square tables across difficulty levels.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/chess">hugowishpax.studio/chess</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>Hugo Radio</h3><span class="badge">Listen free</span></div>
-            <p>Lofi &amp; news stations for studying; sign in to save stations and sync listening time.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/radio">hugowishpax.studio/radio</a>
-          </article>
-          <article class="demo-tile">
-            <div class="demo-top"><h3>HugoAura</h3><span class="badge">Free</span></div>
-            <p>Pomodoro timer with lofi music; save focus streaks and sync devices when signed in.</p>
-            <a class="demo-link" href="https://www.hugowishpax.studio/aura">hugowishpax.studio/aura</a>
-          </article>
-        </div>
       </section>
 
       <section class="main-section">

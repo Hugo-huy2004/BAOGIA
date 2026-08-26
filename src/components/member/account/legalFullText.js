@@ -107,6 +107,8 @@ export const LEGAL_FULL_TEXT = {
         items: [
           "Tài khoản: email, tên và ảnh đại diện từ Google; thời điểm đăng nhập; khoá công khai của thiết bị nếu bạn dùng WebAuthn.",
           "Hồ sơ và nội dung: Bio, liên kết, ảnh, ghi chú, nhật ký giấc ngủ và nội dung bạn chủ động tạo.",
+          "Hồ sơ riêng tư: quốc gia, tỉnh/thành, phường/xã, địa chỉ chi tiết, toạ độ đã xác minh và câu trả lời về tôn giáo/tín ngưỡng, dân tộc/bản sắc sắc tộc. Các mục nhạy cảm có lựa chọn “Không muốn tiết lộ”, được mã hoá và không xuất hiện trên Bio công khai. Sau khi lưu, thay đổi phải được yêu cầu qua admin.",
+          "Quà HSSV: file bằng chứng bạn chọn được gửi tới Google Gemini để xét tức thời rồi huỷ; Hugo Studio chỉ lưu năm, loại phần thưởng và số ngày đã cộng, không lưu ảnh/PDF.",
           "HugoPSY và AI: câu hỏi, nội dung trò chuyện và bài tự đánh giá cần thiết để tạo câu trả lời. Bản lưu hội thoại HugoPSY trong cơ sở dữ liệu được mã hoá.",
           "JOY và hoạt động: số dư, lịch sử thay đổi, điểm game, tiến độ học, ván cờ và thành tích.",
           "Đặt lịch và Donate: tên, email, nội dung yêu cầu, số tiền, mã giao dịch và trạng thái PayOS trả về.",
@@ -263,6 +265,8 @@ export const LEGAL_FULL_TEXT = {
         items: [
           "Account: email, name and avatar from Google; sign-in times; your device's public key if you use WebAuthn.",
           "Profile and content: Bio, links, photos, notes, sleep journal and anything you actively create.",
+          "Private profile: country, state/province, local area, detailed address, verified coordinates, and your answers about religion or belief and ethnicity. Sensitive questions include a “Prefer not to say” option, are encrypted, and never appear on your public Bio. Changes after saving must be requested through an administrator.",
+          "Student rewards: evidence you choose is sent to Google Gemini for an immediate review and then discarded; Hugo Studio stores only the year, reward type and days credited, not the image or PDF.",
           "HugoPSY and AI: the questions, conversation content and self-assessments needed to produce a reply. Stored HugoPSY conversations are encrypted in the database.",
           "JOY and activity: balance, change history, game scores, learning progress, chess games and achievements.",
           "Booking and donations: name, email, request details, amount, transaction code and the status PayOS returns.",

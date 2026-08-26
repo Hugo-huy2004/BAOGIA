@@ -51,6 +51,12 @@ export default function EditionMark({ language }) {
           strokeLinejoin="round"
           opacity="0.45"
         />
+        {language === "vi" && (
+          <g fill={identity.accent} opacity="0.88" fontSize="26" fontWeight="700" fontFamily="sans-serif">
+            <text x="1055" y="980" textAnchor="start">QĐ. Hoàng Sa</text>
+            <text x="1060" y="1565" textAnchor="start">QĐ. Trường Sa</text>
+          </g>
+        )}
       </svg>
       <figcaption lang={identity.lang}>{identity.name}</figcaption>
     </figure>

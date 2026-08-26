@@ -1243,10 +1243,11 @@ router.get('/users/:id/details', requireAdmin, async (req, res) => {
     const SupportTicket = (await import('../models/SupportTicket.js')).default;
     const UtilityOrder = (await import('../models/UtilityOrder.js')).default;
 
-    const bio = await Bio.findById(req.params.id).lean();
-    if (!bio) {
+    const bioDoc = await Bio.findById(req.params.id);
+    if (!bioDoc) {
       return res.status(404).json({ error: 'Không tìm thấy hồ sơ người dùng' });
     }
+    const bio = bioDoc.toObject({ getters: true });
 
     const [joyLedger, tickets, securityCount, orders] = await Promise.all([
       JoyLedger.find({ email: bio.email }).sort({ createdAt: -1 }).limit(20).lean(),
@@ -1312,7 +1313,11 @@ router.put('/account-settings', requireAdmin, async (req, res) => {
 // PUT /admin/users/:id/update-profile - Chỉnh sửa thông tin hồ sơ & Gia hạn ngày hết hạn (expiresAt)
 router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
   try {
-    const { displayName, headline, phone, address, jobTitle, education, expiresAt, addDays, joyDenom } = req.body;
+    const {
+      displayName, headline, phone, address, jobTitle, education, expiresAt, addDays, joyDenom,
+      countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude,
+      locationVerifiedAt, ethnicity, religion,
+    } = req.body;
     const Bio = (await import('../models/Bio.js')).default;
     const bio = await Bio.findById(req.params.id);
     if (!bio) {
@@ -1325,8 +1330,17 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     if (address !== undefined) bio.address = address;
     if (jobTitle !== undefined) bio.jobTitle = jobTitle;
     if (education !== undefined) bio.education = education;
+    if (countryCode !== undefined) bio.countryCode = String(countryCode).toUpperCase();
+    if (adminArea !== undefined) bio.adminArea = adminArea;
+    if (locality !== undefined) bio.locality = locality;
+    if (exactAddress !== undefined) bio.exactAddress = exactAddress;
+    if (verifiedLatitude !== undefined) bio.verifiedLatitude = verifiedLatitude;
+    if (verifiedLongitude !== undefined) bio.verifiedLongitude = verifiedLongitude;
+    if (locationVerifiedAt !== undefined) bio.locationVerifiedAt = locationVerifiedAt ? new Date(locationVerifiedAt) : null;
+    if (ethnicity !== undefined) bio.ethnicity = ethnicity;
+    if (religion !== undefined) bio.religion = religion;
     if (joyDenom !== undefined) bio.joyDenom = joyDenom;
-    if (joyDenom !== undefined) invalidateMemberGate(bio.email);
+    const memberGateChanged = [joyDenom, countryCode, adminArea, locality, exactAddress, verifiedLatitude, verifiedLongitude, locationVerifiedAt, ethnicity, religion].some((value) => value !== undefined);
 
     if (addDays && !isNaN(Number(addDays))) {
       const currentExp = bio.expiresAt ? new Date(bio.expiresAt).getTime() : Date.now();
@@ -1353,6 +1367,7 @@ router.put('/users/:id/update-profile', requireAdmin, async (req, res) => {
     });
     if (bio.history.length > 50) bio.history = bio.history.slice(bio.history.length - 50);
     await bio.save();
+    if (memberGateChanged) invalidateMemberGate(bio.email);
 
     logAdminAuditAction(req, 'UPDATE_USER_PROFILE', bio._id, bio.email, `Cập nhật hồ sơ & thời hạn HSD (${expDateStr}) cho ${bio.displayName}`);
 
@@ -1983,4 +1998,3 @@ router.post('/security/unblock-actor', requireAdmin, async (req, res) => {
 });
 
 export default router;
-

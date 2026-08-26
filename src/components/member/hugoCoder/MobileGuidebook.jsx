@@ -13,6 +13,7 @@ import FeatureGate from "../shared/FeatureGate";
 import { notify } from "../../../lib/notify";
 import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
 import { joyText } from "../../../lib/joyDisplay";
+import { getLessonReading } from "./lessons";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
 const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;
@@ -923,7 +924,7 @@ export default function MobileGuidebook({
                   const num = parseInt(String(mobileCourse.id).replace("lesson", ""), 10);
                   const stage = STAGES.find((s) => num > s.from && num <= s.to);
                   const stageReading = stage?.intro?.reading || [];
-                  const lessonReading = mobileCourse.resources || [];
+                  const lessonReading = getLessonReading(mobileCourse);
                   if (stageReading.length === 0 && lessonReading.length === 0) return null;
                   return (
                     <section className="bg-white dark:bg-zinc-900 border border-border rounded-lg p-4 space-y-3 font-sans">
@@ -937,7 +938,7 @@ export default function MobileGuidebook({
                           {lessonReading.map((r, i) => (
                             <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="flex items-start gap-2 text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
                               <span className="material-symbols-outlined text-base mt-0.5 shrink-0">open_in_new</span>
-                              <span className="font-bold text-foreground">{r.title}</span>
+                              <span><span className="font-bold text-foreground">{r.title}</span>{r.author && ` — ${r.author}`}{r.note && <small className="block text-muted-foreground">{r.note}</small>}</span>
                             </a>
                           ))}
                         </div>

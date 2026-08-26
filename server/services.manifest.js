@@ -53,6 +53,7 @@ export const SERVICES = Object.freeze([
   { id: "data", prefix: "/api/data", module: "./routes/dataRoutes.js", cacheable: true },
   { id: "bios", prefix: "/api/bios", module: "./routes/bioRoutes.js", cacheable: true },
   { id: "profile", prefix: "/api/profile", module: "./routes/profileRoutes.js" },
+  { id: "friends", prefix: "/api/friends", module: "./routes/friendRoutes.js" },
   { id: "bookings", prefix: "/api/bookings", module: "./routes/bookingRoutes.js" },
   { id: "partners", prefix: "/api/partners", module: "./routes/partnerRoutes.js" },
   { id: "packages", prefix: "/api/packages", module: "./routes/packageRoutes.js", cacheable: true },

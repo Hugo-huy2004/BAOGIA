@@ -1,5 +1,6 @@
 import { memberTier, TierBadge } from "../../lib/memberTier";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
+import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from "../../lib/profileDisplay";
 import OptimizedInput from "../common/OptimizedInput";
 
 const FIELD_CLASS =
@@ -23,12 +24,12 @@ function EditableRow({ icon, label, name, value, onChange, placeholder, type = "
   );
 }
 
-function VerifiedRow({ icon, label, value, lockLabel }) {
+function VerifiedRow({ icon, label, value, lockLabel, multiline = false }) {
   return (
     <div className="apple-account-row apple-account-row--verified">
       <span className="apple-account-row-icon material-symbols-outlined" aria-hidden="true">{icon}</span>
       <span className="apple-account-row-label">{label}</span>
-      <span className="min-w-0 flex-1 truncate text-[15px] font-medium text-foreground">
+      <span className={`min-w-0 flex-1 text-[15px] font-medium text-foreground ${multiline ? "whitespace-normal text-right leading-snug" : "truncate"}`}>
         {value || "—"}
       </span>
       <span className="apple-account-lock" title={lockLabel}>
@@ -39,10 +40,6 @@ function VerifiedRow({ icon, label, value, lockLabel }) {
   );
 }
 
-// Tháng/năm sinh quyết định quyền dùng các tính năng 18+, nên khai một lần là
-// khoá luôn — sửa được thì cổng độ tuổi chỉ còn là hình thức. Không hỏi ngày
-// sinh vì việc chặn chỉ cần tới tháng.
-// Hạng Star tự suy ra từ ngày sinh nên không có gì để sửa ở đây — chỉ hiển thị.
 function TierRow({ bio, formData, t }) {
   const tier = memberTier({ ...formData, starVip: bio?.starVip });
   if (!tier) return null;
@@ -144,14 +141,25 @@ export default function PersonalInfoSubTab({
   hideAvatarSection,
   t,
 }) {
+  const cleanVal = (val) => {
+    if (typeof val !== "string" || !val) return "";
+    if (val.startsWith("$enc$") || val.startsWith("enc:")) return "";
+    return val;
+  };
+
   const verifiedSchool =
-    formData.education ||
-    bio?.verificationRequest?.schoolName ||
+    cleanVal(formData.education) ||
+    cleanVal(bio?.verificationRequest?.schoolName) ||
     "";
   const verifiedPhone =
-    formData.phone ||
-    bio?.verificationRequest?.phoneZalo ||
+    cleanVal(formData.phone) ||
+    cleanVal(bio?.verificationRequest?.phoneZalo) ||
+    cleanVal(bio?.phone) ||
     "";
+  const profileLanguage = bio?.language || "vi";
+  const isVietnamese = String(profileLanguage).toLowerCase().startsWith("vi");
+  const privateAddress = formatFullAddress(formData, profileLanguage);
+  const identityLockLabel = isVietnamese ? "Muốn thay đổi, vui lòng liên hệ admin" : "Contact an administrator to make changes";
 
   return (
     <form className="apple-account-shell apple-account-shell--ios27 animate-fadeIn" onSubmit={handleSave}>
@@ -306,6 +314,46 @@ export default function PersonalInfoSubTab({
       </AccountGroup>
 
       <AccountGroup
+        title={isVietnamese ? "Thông tin cư trú & bản sắc" : "Residence & identity"}
+        description={isVietnamese ? "Thông tin riêng tư đã xác minh và được khóa sau khi lưu." : "Verified private information, locked after it is saved."}
+        icon="shield_lock"
+      >
+        <VerifiedRow
+          icon="home_pin"
+          label={isVietnamese ? "Địa chỉ cư trú" : "Residence address"}
+          value={privateAddress}
+          lockLabel={identityLockLabel}
+          multiline
+        />
+
+        <VerifiedRow
+          icon="location_on"
+          label={isVietnamese ? "Định vị" : "Location"}
+          value={bio?.locationVerifiedAt ? (isVietnamese ? "Đã xác minh trên bản đồ" : "Verified on map") : "—"}
+          lockLabel={identityLockLabel}
+        />
+
+        <VerifiedRow
+          icon="diversity_3"
+          label={isVietnamese ? "Dân tộc" : "Ethnicity"}
+          value={profileAnswerDisplayName(formData.ethnicity, profileLanguage)}
+          lockLabel={identityLockLabel}
+          multiline
+        />
+        <VerifiedRow
+          icon="account_balance"
+          label={isVietnamese ? "Tôn giáo / hệ phái" : "Religion / denomination"}
+          value={religionDisplayName(formData.religion, profileLanguage)}
+          lockLabel={identityLockLabel}
+          multiline
+        />
+        <div className="apple-account-security-note">
+          <span className="material-symbols-outlined" aria-hidden="true">lock</span>
+          <p>{identityLockLabel}. {isVietnamese ? "Các thông tin này không hiển thị trên Bio công khai." : "This information is never shown on your public Bio."}</p>
+        </div>
+      </AccountGroup>
+
+      <AccountGroup
         title={t("memberPortal.career.title")}
         description={t("memberPortal.career.placeholderSkills")}
         icon="work"
@@ -335,10 +383,11 @@ export default function PersonalInfoSubTab({
         icon="tune"
         optional
       >
+        <EditableRow icon="palette" label="Sở thích & Thói quen" name="hobbies" value={formData.hobbies} onChange={handleFieldChange} placeholder="Ví dụ: Đọc sách, Chơi cờ, Lập trình..." />
         <EditableRow icon="height" label={t("memberPortal.physical.height")} name="height" value={formData.height} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderHeight")} />
         <EditableRow icon="monitor_weight" label={t("memberPortal.physical.weight")} name="weight" value={formData.weight} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderWeight")} />
         <EditableRow icon="straighten" label={t("memberPortal.physical.measurements")} name="measurements" value={formData.measurements} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderMeasure")} />
-        <EditableRow icon="location_on" label={t("memberPortal.physical.location")} name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} />
+        <EditableRow icon="location_on" label={isVietnamese ? "Địa điểm hiển thị công khai" : "Public display location"} name="address" value={formData.address} onChange={handleFieldChange} placeholder={t("memberPortal.physical.placeholderLocation")} />
       </AccountGroup>
 
       <div className="apple-account-savebar">

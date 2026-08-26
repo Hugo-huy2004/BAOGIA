@@ -4,6 +4,7 @@ import { notify } from '../../lib/notify';
 import { formatJoy, formatJoyCompact, formatJoyDual, parseJoyInput, JOY_UNITS } from '../../utils/joyFormatter';
 import { JOY_DENOMS, toDenom } from '../../../shared/joyCurrency.js';
 import { maskPhone } from '../../utils/phoneSecurity';
+import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from '../../lib/profileDisplay';
 
 export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,9 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
   const [editingProfile, setEditingProfile] = useState(false);
   const [showFullPhone, setShowFullPhone] = useState(false);
   const [profileForm, setProfileForm] = useState({
-    displayName: '', headline: '', phone: '', address: '', jobTitle: '', education: ''
+    displayName: '', headline: '', phone: '', address: '', jobTitle: '', education: '',
+    countryCode: '', adminArea: '', locality: '', exactAddress: '', verifiedLatitude: '',
+    verifiedLongitude: '', locationVerifiedAt: '', ethnicity: '', religion: ''
   });
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -83,6 +86,15 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
           address: data.bio.address || '',
           jobTitle: data.bio.jobTitle || '',
           education: data.bio.education || '',
+          countryCode: data.bio.countryCode || '',
+          adminArea: data.bio.adminArea || '',
+          locality: data.bio.locality || '',
+          exactAddress: data.bio.exactAddress || '',
+          verifiedLatitude: data.bio.verifiedLatitude || '',
+          verifiedLongitude: data.bio.verifiedLongitude || '',
+          locationVerifiedAt: data.bio.locationVerifiedAt || '',
+          ethnicity: data.bio.ethnicity || '',
+          religion: data.bio.religion || '',
           joyDenom: data.bio.joyDenom || 'vi'
         });
       }
@@ -266,6 +278,9 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
 
   if (!user) return null;
   const bio = details?.bio || user;
+  const privateAddress = formatFullAddress(profileForm, 'vi');
+  const hasVerifiedCoordinates = Number.isFinite(Number(profileForm.verifiedLatitude))
+    && Number.isFinite(Number(profileForm.verifiedLongitude));
 
   const calculatedBaseJoy = parseJoyInput(joyAmount, joyUnit);
   const currentBalance = bio?.joyBalance ?? 0;
@@ -562,7 +577,7 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Địa chỉ</label>
+                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Địa điểm công khai trên Bio</label>
                         <input
                           type="text"
                           disabled={!editingProfile}
@@ -571,6 +586,52 @@ export default function UserDetailModal({ user, onClose, onRefresh }) {
                           className="w-full px-3.5 py-2 rounded-full bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white outline-none disabled:opacity-80"
                         />
                       </div>
+                      {!editingProfile && (
+                        <div className="md:col-span-2 rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
+                          <div className="flex items-start gap-3">
+                            <span className="material-symbols-outlined mt-0.5 text-blue-500">home_pin</span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-400">Địa chỉ riêng tư đã xác minh</p>
+                              <p className="mt-1 text-sm font-bold leading-relaxed text-slate-900 dark:text-white">{privateAddress || 'Chưa cung cấp'}</p>
+                              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400">
+                                <span><strong>Dân tộc:</strong> {profileAnswerDisplayName(profileForm.ethnicity, 'vi') || '—'}</span>
+                                <span><strong>Tôn giáo:</strong> {religionDisplayName(profileForm.religion, 'vi') || '—'}</span>
+                              </div>
+                              {hasVerifiedCoordinates && (
+                                <a
+                                  href={`https://www.openstreetmap.org/?mlat=${profileForm.verifiedLatitude}&mlon=${profileForm.verifiedLongitude}#map=18/${profileForm.verifiedLatitude}/${profileForm.verifiedLongitude}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 hover:underline dark:text-blue-400"
+                                >
+                                  <span className="material-symbols-outlined text-sm">location_on</span>
+                                  Xem vị trí đã xác minh trên bản đồ
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {editingProfile && [
+                        ['countryCode', 'Mã quốc gia ISO'],
+                        ['adminArea', 'Tỉnh / Thành phố / Bang'],
+                        ['locality', 'Phường / Xã / Khu vực'],
+                        ['exactAddress', 'Số nhà, đường, tòa nhà'],
+                        ['verifiedLatitude', 'Vĩ độ đã xác minh'],
+                        ['verifiedLongitude', 'Kinh độ đã xác minh'],
+                        ['ethnicity', 'Dân tộc / bản sắc sắc tộc'],
+                        ['religion', 'Mã tôn giáo / hệ phái'],
+                      ].map(([field, label]) => (
+                        <div key={field}>
+                          <label className="mb-1 block text-[11px] font-bold text-slate-500 dark:text-slate-400">{label}</label>
+                          <input
+                            type="text"
+                            value={profileForm[field] || ''}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, [field]: e.target.value }))}
+                            className="w-full rounded-full border border-slate-200 bg-white px-3.5 py-2 text-slate-900 outline-none dark:border-white/10 dark:bg-black/40 dark:text-white"
+                          />
+                        </div>
+                      ))}
                       <div>
                         <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Chức danh / Công việc</label>
                         <input

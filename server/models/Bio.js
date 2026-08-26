@@ -179,6 +179,16 @@ const BioSchema = new mongoose.Schema(
       set: sealField,
       get: unsealField
     },
+    // Riêng tư: không thuộc danh sách trường của trang Bio công khai.
+    exactAddress: { type: String, default: '' },
+    adminArea: { type: String, default: '' },
+    locality: { type: String, default: '' },
+    countryCode: { type: String, default: '' },
+    verifiedLatitude: { type: String, default: '' },
+    verifiedLongitude: { type: String, default: '' },
+    locationVerifiedAt: { type: Date, default: null },
+    religion: { type: String, default: '' },
+    ethnicity: { type: String, default: '' },
     education: {
       type: String,
       default: ''
@@ -315,6 +325,15 @@ const BioSchema = new mongoose.Schema(
       avatarUrl: { type: String, default: '' },
       submitted: { type: Boolean, default: false },
       notifiedStatus: { type: String, default: 'none' }
+    },
+    studentRewards: {
+      type: [{
+        year: { type: Number, required: true },
+        type: { type: String, enum: ['achievement', 'transcript'], required: true },
+        awardedDays: { type: Number, required: true },
+        verifiedAt: { type: Date, default: Date.now }
+      }],
+      default: []
     },
     // True for academic-email signups (instant 1-year access). False means the
     // member is on the 30-day non-edu trial until an admin approves their
@@ -768,7 +787,14 @@ const SENSITIVE_FIELDS = [
   'education',
   'skills',
   'jobTitle',
-  'birthday'
+  'birthday',
+  'exactAddress',
+  'adminArea',
+  'locality',
+  'verifiedLatitude',
+  'verifiedLongitude',
+  'religion',
+  'ethnicity'
 ];
 
 const SENSITIVE_VERIFICATION_FIELDS = [
@@ -798,15 +824,33 @@ BioSchema.pre('save', function (next) {
 
 function decryptBioFields(doc) {
   if (!doc) return;
-  for (const field of SENSITIVE_FIELDS) {
-    if (typeof doc[field] === 'string' && doc[field]) {
-      doc[field] = decryptText(doc[field]);
+  const target = doc._doc || doc;
+  for (const key of Object.keys(target)) {
+    if (typeof target[key] === 'string' && target[key]) {
+      if (target[key].startsWith('$enc$a256gcm$v1$')) {
+        target[key] = unsealField(target[key]);
+      } else if (target[key].startsWith('enc:')) {
+        target[key] = decryptText(target[key]);
+      }
     }
   }
-  if (doc.verificationRequest) {
+  for (const field of SENSITIVE_FIELDS) {
+    if (typeof target[field] === 'string' && target[field]) {
+      if (target[field].startsWith('$enc$a256gcm$v1$')) {
+        target[field] = unsealField(target[field]);
+      } else if (target[field].startsWith('enc:')) {
+        target[field] = decryptText(target[field]);
+      }
+    }
+  }
+  if (target.verificationRequest) {
     for (const field of SENSITIVE_VERIFICATION_FIELDS) {
-      if (typeof doc.verificationRequest[field] === 'string' && doc.verificationRequest[field]) {
-        doc.verificationRequest[field] = decryptText(doc.verificationRequest[field]);
+      if (typeof target.verificationRequest[field] === 'string' && target.verificationRequest[field]) {
+        if (target.verificationRequest[field].startsWith('$enc$a256gcm$v1$')) {
+          target.verificationRequest[field] = unsealField(target.verificationRequest[field]);
+        } else if (target.verificationRequest[field].startsWith('enc:')) {
+          target.verificationRequest[field] = decryptText(target.verificationRequest[field]);
+        }
       }
     }
   }
@@ -817,6 +861,20 @@ BioSchema.post('init', function (doc) {
 });
 
 BioSchema.post('save', function (doc) {
+  decryptBioFields(doc);
+});
+
+BioSchema.post('find', function (docs) {
+  if (Array.isArray(docs)) {
+    docs.forEach(decryptBioFields);
+  }
+});
+
+BioSchema.post('findOne', function (doc) {
+  decryptBioFields(doc);
+});
+
+BioSchema.post('findOneAndUpdate', function (doc) {
   decryptBioFields(doc);
 });
 

@@ -258,9 +258,9 @@ export default [
   },
   {
     group: "code",
-    q: "Điền vào chỗ trống để chỉ cho phép trang tải script từ chính nó:",
-    code: "helmet.contentSecurityPolicy({\n  directives: { \"script-src\": [____] },\n});",
-    o: ["\"'self'\"", "\"*\"", "\"'unsafe-inline'\"", "\"data:\""],
+    q: "Điền vào chỗ trống để chặn Flash, Java applet và các plugin cũ mà trang không dùng:",
+    code: "helmet.contentSecurityPolicy({\n  directives: { \"object-src\": [____] },\n});",
+    o: ["\"'none'\"", "\"*\"", "\"'unsafe-inline'\"", "\"data:\""],
     a: 0,
   },
   {

@@ -11,7 +11,7 @@
  */
 export const EXAM_SIZE = 20;
 export const EXAM_BANK_SIZE = 40;
-export const EXAM_PASS_PERCENT = 60;
+export const EXAM_PASS_PERCENT = 70;
 
 /** Nhóm câu hỏi, kèm nhãn hiển thị cho người học. */
 export const EXAM_GROUPS = Object.freeze({

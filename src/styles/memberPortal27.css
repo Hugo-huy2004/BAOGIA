@@ -692,18 +692,28 @@
 .activity-artifact:first-child {
   min-height: 92px;
   padding: 15px 16px;
-  border-color: hsl(var(--border) / .48);
-  border-radius: 18px;
-  background: hsl(var(--card) / .96);
-  box-shadow: 0 4px 14px hsl(var(--shadow) / .055);
+  border: 1px solid hsl(0 0% 100% / 0.55);
+  border-radius: 20px;
+  background: hsl(var(--card) / 0.65);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.68),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.05),
+    0 10px 32px hsl(var(--shadow) / 0.08);
   cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
 .activity-artifact-number { display: none; }
 
 .activity-artifact:hover {
-  transform: translateY(-1px);
-  border-color: hsl(var(--border) / .72);
+  transform: translateY(-2px);
+  background: hsl(var(--card) / 0.78);
+  border-color: hsl(0 0% 100% / 0.78);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.85),
+    0 14px 40px rgb(var(--portal-glass-tint, 255 55 95) / 0.16);
 }
 
 .activity-artifact.is-unread::before {
@@ -756,9 +766,20 @@
 
 .dark .activity-artifact,
 .dark .activity-artifact:first-child {
-  border-color: rgb(255 255 255 / .09);
-  background: rgb(28 28 30 / .94);
-  box-shadow: 0 8px 26px rgb(0 0 0 / .24);
+  border-color: hsl(0 0% 100% / 0.12);
+  background: hsl(240 18% 12% / 0.62);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.12),
+    inset 0 -1px 0 hsl(0 0% 0% / 0.35),
+    0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+.dark .activity-artifact:hover {
+  background: hsl(240 18% 15% / 0.76);
+  border-color: hsl(0 0% 100% / 0.22);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.2),
+    0 16px 44px rgb(var(--portal-glass-tint, 255 55 95) / 0.25);
 }
 
 /* Hugo Account — danh sách inset kiểu Cài đặt iOS: chữ 17px, hàng 52px,
@@ -923,118 +944,376 @@
 
 /* Account remake — one glance first, details only after intent. */
 .hugo-account-shell--remade {
-  width: min(100%, 760px);
+  width: min(100%, 780px);
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .hugo-account-shell--remade > :not([hidden]) ~ :not([hidden]) { margin-top: 0; }
 
-.hugo-account-shell--remade .hugo-account-header { padding: 3px 2px 0; }
-.hugo-account-shell--remade .hugo-account-titlebar { min-height: auto; margin-bottom: 12px; }
-.hugo-account-titlebar > span { display: grid; gap: 2px; }
-.hugo-account-titlebar small { color: hsl(var(--primary)); font-size: 9px; font-weight: 850; letter-spacing: .14em; }
-.hugo-account-titlebar strong { color: hsl(var(--foreground)); font-size: clamp(27px, 5vw, 38px); font-weight: 760; line-height: 1.04; letter-spacing: -.045em; }
-.hugo-account-titlebar em { color: hsl(var(--muted-foreground)); font-size: 12px; font-style: normal; font-weight: 450; }
+.hugo-account-shell--remade .hugo-account-header { padding: 4px 4px 0; }
+.hugo-account-shell--remade .hugo-account-titlebar { min-height: auto; margin-bottom: 14px; }
+.hugo-account-titlebar > span { display: grid; gap: 3px; }
+.hugo-account-titlebar small { color: hsl(var(--primary)); font-size: 10px; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+.hugo-account-titlebar strong { color: hsl(var(--foreground)); font-size: clamp(28px, 5.5vw, 40px); font-weight: 800; line-height: 1.05; letter-spacing: -.045em; }
+.hugo-account-titlebar em { color: hsl(var(--muted-foreground)); font-size: 13px; font-style: normal; font-weight: 450; }
 
+/* Hero Spatial Glass Card */
 .hugo-account-shell--remade .hugo-account-member {
-  min-height: 92px;
-  padding: 15px 17px;
-  border-radius: 25px;
+  position: relative;
+  min-height: 100px;
+  padding: 18px 22px;
+  border-radius: 28px;
+  border: 1px solid hsl(var(--border) / .65);
   background:
-    radial-gradient(circle at 94% 12%, hsl(var(--primary) / .11), transparent 34%),
-    hsl(var(--card));
-  box-shadow: 0 14px 34px rgb(15 23 42 / .07);
+    radial-gradient(circle at 92% 10%, hsl(var(--primary) / .15), transparent 45%),
+    linear-gradient(135deg, hsl(var(--card) / .88), hsl(var(--card) / .95));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 18px 45px -10px rgb(15 23 42 / .08),
+    inset 0 1px 0 0 rgb(255 255 255 / .35);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
-.dark .hugo-account-shell--remade .hugo-account-member { box-shadow: 0 14px 34px rgb(0 0 0 / .22); }
-.hugo-account-shell--remade .hugo-account-avatar { width: 62px; height: 62px; box-shadow: 0 0 0 4px hsl(var(--background)), 0 0 0 5px hsl(var(--border) / .6); }
 
-.hugo-account-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.dark .hugo-account-shell--remade .hugo-account-member {
+  background:
+    radial-gradient(circle at 92% 10%, hsl(var(--primary) / .22), transparent 45%),
+    linear-gradient(135deg, hsl(var(--card) / .65), hsl(240 18% 11% / .85));
+  box-shadow: 
+    0 20px 48px -10px rgb(0 0 0 / .45),
+    inset 0 1px 0 0 rgb(255 255 255 / .12);
+}
+
+.hugo-account-shell--remade .hugo-account-member:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--primary) / .4);
+  box-shadow: 
+    0 24px 54px -10px rgb(15 23 42 / .14),
+    inset 0 1px 0 0 rgb(255 255 255 / .45);
+}
+
+.hugo-account-shell--remade .hugo-account-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 3px hsl(var(--background)), 0 0 0 6px hsl(var(--primary) / .4), 0 8px 24px rgb(0 0 0 / .15);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.hugo-account-shell--remade .hugo-account-member:hover .hugo-account-avatar {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px hsl(var(--background)), 0 0 0 6px hsl(var(--primary) / .7), 0 10px 28px rgb(0 0 0 / .2);
+}
+
+.hugo-account-member-kicker {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--primary));
+}
+
+.hugo-account-member-statuses {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.hugo-account-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: hsl(var(--primary) / .12);
+  color: hsl(var(--primary));
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.hugo-account-verified .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.hugo-account-member-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: hsl(var(--muted) / .7);
+  border: 1px solid hsl(var(--border) / .6);
+  color: hsl(var(--foreground));
+  font-size: 12.5px;
+  font-weight: 650;
+  transition: all 180ms ease;
+}
+
+.hugo-account-member:hover .hugo-account-member-edit {
+  background: hsl(var(--primary));
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Bento Overview Cards */
+.hugo-account-overview { 
+  display: grid; 
+  grid-template-columns: repeat(3, minmax(0, 1fr)); 
+  gap: 12px; 
+}
+
 .hugo-account-overview > button {
   position: relative;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   min-width: 0;
-  min-height: 112px;
-  align-content: start;
-  gap: 3px;
-  padding: 14px;
+  min-height: 118px;
+  padding: 16px;
   overflow: hidden;
-  border: 1px solid hsl(var(--border) / .55);
-  border-radius: 21px;
-  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / .6);
+  border-radius: 24px;
+  background: linear-gradient(145deg, hsl(var(--card) / .9), hsl(var(--card) / .75));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: hsl(var(--foreground));
   text-align: left;
-  transition: transform 150ms ease, background 150ms ease;
+  box-shadow: 0 10px 28px -6px rgb(15 23 42 / .05);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
-.hugo-account-overview > button:active { transform: scale(.975); background: hsl(var(--muted) / .55); }
-.hugo-account-overview .material-symbols-outlined { position: absolute; top: 13px; right: 13px; color: hsl(var(--primary)); font-size: 19px; }
-.hugo-account-overview small { color: hsl(var(--muted-foreground)); font-size: 8px; font-weight: 850; letter-spacing: .1em; }
-.hugo-account-overview strong { margin-top: 10px; overflow: hidden; font-size: 24px; line-height: 1; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
-.hugo-account-overview em { overflow: hidden; margin-top: 3px; color: hsl(var(--muted-foreground)); font-size: 9px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
 
+.dark .hugo-account-overview > button {
+  background: linear-gradient(145deg, hsl(var(--card) / .7), hsl(240 16% 12% / .6));
+  box-shadow: 0 12px 32px -6px rgb(0 0 0 / .3);
+}
+
+.hugo-account-overview > button:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--primary) / .45);
+  box-shadow: 0 16px 36px -6px rgb(15 23 42 / .12);
+}
+
+.hugo-account-overview > button:active { 
+  transform: scale(.97); 
+}
+
+.hugo-account-overview .material-symbols-outlined { 
+  position: absolute; 
+  top: 14px; 
+  right: 14px; 
+  color: hsl(var(--primary)); 
+  font-size: 22px; 
+  opacity: 0.9;
+  transition: transform 200ms ease;
+}
+
+.hugo-account-overview > button:hover .material-symbols-outlined {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.hugo-account-overview small { 
+  color: hsl(var(--muted-foreground)); 
+  font-size: 9.5px; 
+  font-weight: 800; 
+  letter-spacing: .12em; 
+  text-transform: uppercase;
+}
+
+.hugo-account-overview strong { 
+  margin-top: 8px; 
+  overflow: hidden; 
+  font-size: 26px; 
+  line-height: 1.05; 
+  font-weight: 800;
+  letter-spacing: -.04em; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+}
+
+.hugo-account-overview em { 
+  overflow: hidden; 
+  margin-top: 4px; 
+  color: hsl(var(--muted-foreground)); 
+  font-size: 11px; 
+  font-style: normal; 
+  font-weight: 500;
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+}
+
+/* Quick Bar Pills */
 .hugo-account-quickbar {
   display: grid;
-  /* auto-fit, không phải repeat(4): số nút ở đây đổi theo tính năng (gộp ba nút
-     gửi/nhận/quét thành một là mất hai ô), grid cứng 4 cột sẽ để lại hai ô trống. */
-  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
-  gap: 1px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
   overflow: hidden;
-  border: 1px solid hsl(var(--border) / .55);
-  border-radius: 19px;
-  background: hsl(var(--border) / .5);
+  border: 1px solid hsl(var(--border) / .6);
+  border-radius: 22px;
+  background: hsl(var(--border) / .35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 4px;
 }
-.hugo-account-quickbar > button { display: grid; min-height: 65px; place-items: center; align-content: center; gap: 5px; padding: 9px 4px; background: hsl(var(--card)); color: hsl(var(--foreground)); }
-.hugo-account-quickbar > button:active { background: hsl(var(--muted) / .6); }
-.hugo-account-quickbar .material-symbols-outlined { color: hsl(var(--primary)); font-size: 21px; }
-.hugo-account-quickbar small { font-size: 10px; font-weight: 650; }
 
-.hugo-account-attention { overflow: hidden; border: 1px solid rgb(245 158 11 / .28); border-radius: 20px; background: rgb(245 158 11 / .065); }
-.hugo-account-attention > header { display: flex; align-items: center; gap: 7px; padding: 11px 14px 7px; color: #b66b00; }
+.hugo-account-quickbar > button { 
+  display: flex; 
+  flex-direction: column;
+  min-height: 68px; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 5px; 
+  padding: 8px 3px; 
+  border-radius: 18px;
+  background: hsl(var(--card) / .85); 
+  color: hsl(var(--foreground)); 
+  transition: all 160ms ease;
+  min-width: 0;
+  width: 100%;
+}
+
+.hugo-account-quickbar > button:hover { 
+  background: hsl(var(--card)); 
+  transform: translateY(-1px);
+}
+
+.hugo-account-quickbar > button:active { 
+  transform: scale(.96);
+  background: hsl(var(--muted) / .8);
+}
+
+.hugo-account-quickbar .material-symbols-outlined { 
+  color: hsl(var(--primary)); 
+  font-size: 22px; 
+}
+
+.hugo-account-quickbar small { 
+  font-size: 11px; 
+  font-weight: 700; 
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
+}
+
+/* Attention Banner */
+.hugo-account-attention { 
+  overflow: hidden; 
+  border: 1px solid rgb(245 158 11 / .35); 
+  border-radius: 24px; 
+  background: linear-gradient(135deg, rgb(245 158 11 / .12), rgb(245 158 11 / .04)); 
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px -6px rgb(245 158 11 / .12);
+}
+
+.hugo-account-attention > header { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 13px 18px 8px; 
+  color: #d97706; 
+}
+
 .dark .hugo-account-attention > header { color: #fbbf24; }
-.hugo-account-attention > header .material-symbols-outlined { font-size: 17px; }
-.hugo-account-attention > header strong { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-.hugo-account-attention > button { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; width: 100%; padding: 11px 14px; color: hsl(var(--foreground)); text-align: left; }
+.hugo-account-attention > header .material-symbols-outlined { font-size: 19px; }
+.hugo-account-attention > header strong { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 800; }
+
+.hugo-account-attention > button { 
+  display: grid; 
+  grid-template-columns: auto 1fr auto; 
+  align-items: center; 
+  gap: 14px; 
+  width: 100%; 
+  padding: 13px 18px; 
+  color: hsl(var(--foreground)); 
+  text-align: left; 
+  transition: background 150ms ease;
+}
+
+.hugo-account-attention > button:hover {
+  background: rgb(245 158 11 / .1);
+}
+
 .hugo-account-attention > button + button { border-top: 1px solid rgb(245 158 11 / .18); }
-.hugo-account-attention > button > .material-symbols-outlined { font-size: 21px; color: #d97706; }
+.hugo-account-attention > button > .material-symbols-outlined { font-size: 24px; color: #d97706; }
 .hugo-account-attention > button > span:nth-child(2) { display: grid; gap: 2px; }
-.hugo-account-attention > button strong { font-size: 13px; }
-.hugo-account-attention > button small { color: hsl(var(--muted-foreground)); font-size: 10px; }
-.hugo-account-attention > button svg { width: 16px; color: hsl(var(--muted-foreground)); }
+.hugo-account-attention > button strong { font-size: 14px; font-weight: 700; }
+.hugo-account-attention > button small { color: hsl(var(--muted-foreground)); font-size: 11.5px; }
+.hugo-account-attention > button svg { width: 18px; color: hsl(var(--muted-foreground)); }
+
+/* Settings Cards Group */
+.hugo-account-glass-group {
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / .6);
+  border-radius: 26px;
+  background: hsl(var(--card) / .85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 12px 34px -8px rgb(15 23 42 / .06);
+}
+
+.dark .hugo-account-glass-group {
+  background: hsl(var(--card) / .6);
+  box-shadow: 0 14px 38px -8px rgb(0 0 0 / .35);
+}
+
+.hugo-account-group-header {
+  padding: 14px 20px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border) / .35);
+  background: hsl(var(--muted) / .25);
+}
 
 .hugo-account-shell--remade .hugo-account-section { margin: 0; }
 .hugo-account-section-summary {
   display: flex;
-  min-height: 58px;
+  min-height: 60px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 16px;
-  border: 1px solid hsl(var(--border) / .5);
-  border-radius: 19px;
-  background: hsl(var(--card));
+  gap: 14px;
+  padding: 0 20px;
+  border: 1px solid hsl(var(--border) / .6);
+  border-radius: 22px;
+  background: hsl(var(--card) / .85);
+  backdrop-filter: blur(16px);
   color: hsl(var(--foreground));
   cursor: pointer;
   list-style: none;
-  font-size: 15px;
-  font-weight: 680;
+  font-size: 15.5px;
+  font-weight: 700;
+  transition: all 180ms ease;
 }
+
+.hugo-account-section-summary:hover {
+  border-color: hsl(var(--primary) / .4);
+  background: hsl(var(--card));
+}
+
 .hugo-account-section-summary::-webkit-details-marker { display: none; }
 .hugo-account-section-summary svg { width: 18px; height: 18px; color: hsl(var(--muted-foreground)); transition: transform 180ms ease; }
-.hugo-account-section[open] .hugo-account-section-summary { border-radius: 19px 19px 10px 10px; }
+.hugo-account-section[open] .hugo-account-section-summary { border-radius: 22px 22px 10px 10px; }
 .hugo-account-section[open] .hugo-account-section-summary svg { transform: rotate(90deg); }
-.hugo-account-section > .hugo-account-group { margin-top: 5px; border-radius: 10px 10px 19px 19px; }
+.hugo-account-section > .hugo-account-group { margin-top: 5px; border-radius: 10px 10px 22px 22px; }
 
-.hugo-account-eco-inset { padding: 9px; border-top: 1px solid hsl(var(--border) / .45); }
+.hugo-account-eco-inset { padding: 12px 18px; border-top: 1px solid hsl(var(--border) / .45); }
 .hugo-account-eco-inset > * { margin: 0; }
 
-.hugo-account-wallet-sheet { display: grid; gap: 13px; }
+.hugo-account-wallet-sheet { display: grid; gap: 14px; }
 .hugo-account-wallet-sheet .hugo-account-quickbar { grid-template-columns: repeat(3, 1fr); }
-.hugo-account-wallet-pin { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; width: 100%; padding: 13px 14px; border: 1px solid rgb(245 158 11 / .28); border-radius: 17px; background: rgb(245 158 11 / .07); color: hsl(var(--foreground)); text-align: left; }
-.hugo-account-wallet-pin > .material-symbols-outlined { color: #d97706; font-size: 22px; }
+.hugo-account-wallet-pin { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 1px solid rgb(245 158 11 / .3); border-radius: 20px; background: rgb(245 158 11 / .08); color: hsl(var(--foreground)); text-align: left; }
+.hugo-account-wallet-pin > .material-symbols-outlined { color: #d97706; font-size: 24px; }
 .hugo-account-wallet-pin > span:nth-child(2) { display: grid; gap: 2px; }
-.hugo-account-wallet-pin strong { font-size: 13px; }
-.hugo-account-wallet-pin small { color: hsl(var(--muted-foreground)); font-size: 10px; }
-.hugo-account-wallet-pin svg { width: 16px; color: hsl(var(--muted-foreground)); }
+.hugo-account-wallet-pin strong { font-size: 14px; font-weight: 700; }
+.hugo-account-wallet-pin small { color: hsl(var(--muted-foreground)); font-size: 11px; }
+.hugo-account-wallet-pin svg { width: 18px; color: hsl(var(--muted-foreground)); }
 
 @media (max-width: 767px) {
   .portal-mobile-layout {

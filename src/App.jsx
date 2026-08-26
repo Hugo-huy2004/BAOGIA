@@ -28,6 +28,7 @@ const loadMotionFeatures = () => import("./config/motionFeatures").then((mod) =>
 import { initGlobalHaptics } from "./utils/haptics";
 import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
+import ScreenProtection from "./components/security/ScreenProtection";
 import { StorageSafeguard } from "./utils/storageSafeguard";
 import { PWAKeepAlive } from "./utils/pwaKeepAlive";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
@@ -203,6 +204,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
+      <ScreenProtection />
       
       {/* Static Top-Navigation Header bar */}
       {!hideNavbar && <Navbar />}
