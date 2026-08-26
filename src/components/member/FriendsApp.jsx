@@ -348,11 +348,19 @@ function FriendsMap({ center, friends, hasLocation, source, focusedSlug, onOpen 
       worldRef.current.style.transform = `scale(${scale})`;
       if (!last) return;
       const delta = Math.round(Math.log2(scale));
-      setZoom((value) => Math.max(5, Math.min(18, value + delta)));
-      requestAnimationFrame(() => {
-        if (worldRef.current) { worldRef.current.style.transform = ""; worldRef.current.style.transformOrigin = ""; }
-        pinchingRef.current = false;
+      const nextZoom = Math.max(5, Math.min(18, zoom + delta));
+      const rect = mapRef.current.getBoundingClientRect();
+      const offsetX = origin[0] - rect.left - (rect.width / 2);
+      const offsetY = origin[1] - rect.top - (rect.height / 2);
+      const anchor = unproject(map.point.x + offsetX, map.point.y + offsetY, zoom);
+      const nextAnchor = project(anchor.lat, anchor.lng, nextZoom);
+      flushSync(() => {
+        setZoom(nextZoom);
+        setViewportCenter(unproject(nextAnchor.x - offsetX, nextAnchor.y - offsetY, nextZoom));
       });
+      worldRef.current.style.transform = "";
+      worldRef.current.style.transformOrigin = "";
+      pinchingRef.current = false;
     },
   }, {
     drag: { filterTaps: true, threshold: 2 },

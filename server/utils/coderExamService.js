@@ -1,11 +1,11 @@
 import crypto from 'crypto';
 // Dùng chung bộ đề với client — một nguồn sự thật, không nhân bản câu hỏi.
 import { WEB_COURSES, STAGES } from '../../src/components/member/hugoCoder/lessons/index.js';
-import { EXAM_BLUEPRINT, matchesSlot } from '../../shared/examBlueprint.js';
+import { EXAM_BLUEPRINT, EXAM_PASS_PERCENT, matchesSlot } from '../../shared/examBlueprint.js';
 import { gradeStage } from '../../shared/stageGrading.js';
 import { resolveStageKey, WEB_COURSE_ID } from '../../shared/courseCatalog.js';
 
-export const PASS_PERCENT = 60;
+export const PASS_PERCENT = EXAM_PASS_PERCENT;
 const EXAM_TTL_MS = 30 * 60 * 1000;   // 30 phút làm bài
 const PASS_TTL_MS = 15 * 60 * 1000;   // 15 phút để gọi award-learning sau khi đậu
 

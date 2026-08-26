@@ -88,7 +88,7 @@ Yêu cầu: khung HTML5 chuẩn + đủ header, nav, main, article, footer -->
     file: "src/lesson2.html",
     duration: "45 phút",
     overview: {
-      description: "Lãm nhảm về 4 lớp hộp padding – margin – border – content cho đến khi nhắm mắt cũng đọc được thứ tự, và viết quy tắc CSS đầu tiên đạt chuẩn tương phản.",
+      description: "Nắm chắc 4 lớp hộp padding – margin – border – content qua một card có thể nhìn và đo được, rồi viết quy tắc CSS đầu tiên đạt chuẩn tương phản.",
       outcomes: [
         "Thuộc lòng 4 lớp Box Model từ trong ra ngoài không nhìn tài liệu",
         "Viết được quy tắc CSS: bộ chọn { thuộc tính: giá trị; }",

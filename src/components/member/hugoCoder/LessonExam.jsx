@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 import { notify } from "../../../lib/notify";
 import { getMemberSession } from "../../../services/authSession";
 import { useArcadeSound } from "../../../hooks/useArcadeSound";
-import { EXAM_BLUEPRINT, EXAM_GROUPS, matchesSlot } from "../../../../shared/examBlueprint";
+import { EXAM_BLUEPRINT, EXAM_GROUPS, EXAM_PASS_PERCENT, matchesSlot } from "../../../../shared/examBlueprint";
 
 /**
  * Bài kiểm tra cuối chặng, chấm tại MÁY CHỦ.
@@ -19,7 +19,7 @@ import { EXAM_BLUEPRINT, EXAM_GROUPS, matchesSlot } from "../../../../shared/exa
  * thưởng và không ghi tiến độ.
  */
 const API = import.meta.env.VITE_API_URL || "/api";
-const PASS_PERCENT = 60;
+const PASS_PERCENT = EXAM_PASS_PERCENT;
 
 function shuffled(list) {
   const copy = [...list];

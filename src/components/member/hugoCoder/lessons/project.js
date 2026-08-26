@@ -85,7 +85,7 @@ Cây thư mục chuẩn: \`src/controllers\`, \`src/models\` (repository), \`src
     miniQuiz: [
       { q: "Tầng nào là nơi DUY NHẤT chứa câu SQL?", o: ["Controller", "Repository (Model)", "Route", "View"], a: 1 },
       { q: "Mẫu Singleton đảm bảo điều gì?", o: ["Chạy nhanh nhất", "Cả ứng dụng chỉ có một thể hiện của class", "Không cần class", "Tự backup"], a: 1 },
-      { q: "Controller có nhiệm vụ gì?", o: ["Viết SQL", "Nhận request, validate, gọi repository, trả response", "Render HTML", "Quản lý git"], a: 1 },
+      { q: "Một route gọi Controller; Controller cần làm gì trước khi gọi Repository để tạo đơn hàng?", o: ["Kiểm tra dữ liệu đầu vào và danh tính người dùng", "Viết SQL trực tiếp trong route", "Để browser tự tính giá cuối", "Tạo một kết nối database mới cho mỗi trường"], a: 0 },
       { q: "Thư mục middlewares dùng để chứa gì?", o: ["Ảnh tĩnh", "Các lớp xử lý xen giữa request (auth, rate limit...)", "File CSS", "Unit test"], a: 1 }
     ]
   },

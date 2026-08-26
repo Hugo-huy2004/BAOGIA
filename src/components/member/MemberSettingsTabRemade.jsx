@@ -43,16 +43,16 @@ const DOCUMENTS = {
 function Row({ icon: Icon, title, detail, value, onClick, href }) {
   const content = (
     <>
-      <Icon className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+      <Icon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
       <span className="min-w-0 flex-1 text-left">
-        <strong className="block truncate text-[14px] font-semibold text-foreground">{title}</strong>
-        {detail && <small className="mt-0.5 block truncate text-[11.5px] text-muted-foreground">{detail}</small>}
+        <strong className="block truncate text-[15px] font-semibold text-foreground">{title}</strong>
+        {detail && <small className="mt-0.5 hidden truncate text-[12px] text-muted-foreground sm:block">{detail}</small>}
       </span>
-      {value && <span className="max-w-[36%] truncate text-[12px] font-medium text-muted-foreground">{value}</span>}
+      {value && <span className="max-w-[38%] truncate text-[13px] font-medium text-muted-foreground">{value}</span>}
       {href ? <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
     </>
   );
-  const className = "flex min-h-[54px] w-full items-center gap-3 px-4 py-2.5 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset";
+  const className = "flex min-h-14 w-full items-center gap-3 px-4 py-2.5 transition-colors hover:bg-black/[.035] dark:hover:bg-white/[.055] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset";
   if (href) return <a className={className} href={href} target="_blank" rel="noreferrer">{content}</a>;
   return <button type="button" className={className} onClick={onClick}>{content}</button>;
 }
@@ -60,8 +60,8 @@ function Row({ icon: Icon, title, detail, value, onClick, href }) {
 function Info({ label, value, wide = false }) {
   return (
     <div className={wide ? "col-span-2 min-w-0" : "min-w-0"}>
-      <span className="block text-[10px] sm:text-[10.5px] font-extrabold uppercase tracking-wider text-muted-foreground">{label}</span>
-      <strong className="mt-0.5 block text-[13px] sm:text-[13.5px] font-bold leading-snug text-foreground">{value || "—"}</strong>
+      <span className="block text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground">{label}</span>
+      <strong className="mt-1 block text-[14px] font-semibold leading-snug text-foreground">{value || "—"}</strong>
     </div>
   );
 }
@@ -177,30 +177,28 @@ export default function MemberSettingsTabRemade({
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 pb-28 text-left animate-fadeIn px-2 sm:px-0">
-      <section className="relative overflow-hidden rounded-[28px] border border-white/40 dark:border-white/15 bg-white/70 dark:bg-slate-900/70 p-4 sm:p-6 shadow-[0_16px_48px_rgba(0,0,0,0.16)] backdrop-blur-3xl space-y-4 transition-all duration-300" aria-label={t("memberPortal.accountHub.overviewAria")}>
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/35 dark:from-white/10 via-white/10 to-transparent rounded-t-[28px]" />
-        <div className="pointer-events-none absolute -top-16 -left-16 w-56 h-56 rounded-full bg-blue-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -right-16 w-56 h-56 rounded-full bg-emerald-500/15 blur-3xl" />
+    <div className="mx-auto max-w-xl px-2 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] text-left animate-fadeIn sm:px-0">
+      <section className="overflow-hidden rounded-[26px] border border-black/[.07] bg-white/90 shadow-[0_12px_32px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-[#121620]/92" aria-label={t("memberPortal.accountHub.overviewAria")}>
+        <div className="space-y-4 p-4 sm:p-6">
 
         {/* 1. Header Row (@username & Settings Button) */}
-        <div className="relative flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <span className="text-[14px] font-black tracking-tight text-foreground/80 flex items-center gap-1.5">
             <span className="text-primary font-extrabold">@</span>{bio?.slug || "member"}
           </span>
           <button
             type="button"
             onClick={() => openSheet("personal")}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/30 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 font-extrabold text-[12px] text-foreground hover:bg-white/80 dark:hover:bg-slate-700/80 active:scale-95 transition-all shadow-xs"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-black/[.05] dark:hover:bg-white/[.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             <Settings2 className="w-4 h-4 text-foreground/80" />
           </button>
         </div>
 
         {/* 2. Avatar + Stats Row */}
-        <div className="relative flex items-center justify-between gap-4 pt-1">
+        <div className="flex items-center justify-between gap-4 pt-1">
           {/* Avatar */}
-          <div className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-blue-500 to-sky-400 shadow-lg shrink-0">
+          <div className="relative h-20 w-20 shrink-0 rounded-full border-2 border-primary p-0.5">
             <div className="w-full h-full rounded-full bg-card overflow-hidden relative flex items-center justify-center">
               {formData.avatarUrl ? (
                 <img className="w-full h-full object-cover" src={formData.avatarUrl} alt={displayName} />
@@ -228,23 +226,21 @@ export default function MemberSettingsTabRemade({
         </div>
 
         {/* 3. Name, Email, Badge & Bio Info */}
-        <div className="relative space-y-2 pt-1">
+        <div className="space-y-2 pt-1">
           <div className="space-y-0.5">
             <h1 className="text-[18px] sm:text-[20px] font-black text-foreground tracking-tight">{displayName}</h1>
             <p className="text-[12px] sm:text-[12.5px] font-semibold text-muted-foreground truncate">{email}</p>
           </div>
 
           {schoolName && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11.5px] font-extrabold border border-primary/20 max-w-full truncate">
+            <div className="inline-flex max-w-full items-center gap-1.5 text-[13px] font-semibold text-foreground">
               <GraduationCap className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">{t("memberPortal.accountProfile.studentBadge", { school: schoolName })}</span>
             </div>
           )}
 
           {profileBio && (
-            <p className="text-[12.5px] font-medium text-foreground/90 leading-relaxed italic bg-white/40 dark:bg-slate-800/40 p-2.5 rounded-xl border border-white/20 dark:border-white/10 mt-1">
-              "{profileBio}"
-            </p>
+            <p className="text-[14px] leading-relaxed text-muted-foreground">{profileBio}</p>
           )}
 
           {formData.jobTitle && <div className="mt-2"><Info label={t("memberPortal.accountProfile.jobTitle")} value={formData.jobTitle} wide /></div>}
@@ -252,8 +248,8 @@ export default function MemberSettingsTabRemade({
         </div>
 
         {/* 4. Verification and Details */}
-        <div className="relative mt-4 pt-4 border-t border-white/20 dark:border-white/10">
-          <button type="button" onClick={() => openSheet("identity-info")} className={`absolute right-0 top-3 flex h-8 w-8 items-center justify-center rounded-full transition-colors ${identityComplete ? "text-emerald-500 bg-emerald-500/10" : "text-amber-500 bg-amber-500/10"}`} aria-label={t("memberPortal.accountProfile.verificationTitle")}>
+        <div className="relative mt-4 border-t border-black/[.07] pt-4 dark:border-white/10">
+          <button type="button" onClick={() => openSheet("identity-info")} className={`absolute right-0 top-3 flex h-10 w-10 items-center justify-center rounded-full transition-colors ${identityComplete ? "text-emerald-500 hover:bg-emerald-500/10" : "text-amber-500 hover:bg-amber-500/10"}`} aria-label={t("memberPortal.accountProfile.verificationTitle")}>
             <ShieldCheck className="h-4 w-4" />
           </button>
           
@@ -263,17 +259,17 @@ export default function MemberSettingsTabRemade({
             <Info label={t("memberPortal.accountProfile.religion")} value={religion} />
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/20 dark:border-white/10 flex items-center gap-2 text-[12px] font-medium text-muted-foreground">
+          <div className="mt-4 flex items-center gap-2 border-t border-black/[.07] pt-4 text-[12px] font-medium text-muted-foreground dark:border-white/10">
             <MapPin className="h-4 w-4 shrink-0" />
             <span className="flex-1 truncate">{t(locationVerified ? "memberPortal.accountProfile.locationVerified" : "memberPortal.accountProfile.noVerifiedLocation")}</span>
             {mapUrl && <a className="font-bold text-primary hover:underline shrink-0" href={mapUrl} target="_blank" rel="noreferrer">{t("memberPortal.accountProfile.viewLocation")}</a>}
           </div>
         </div>
-      </section>
+        </div>
 
-      <section className="overflow-hidden rounded-[26px] border border-white/20 bg-card/60 shadow-[0_14px_40px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-[24px]" aria-label={t("memberPortal.accountProfile.settings")}>
-        <h2 className="border-b border-white/15 px-4 py-3 text-[12px] font-bold uppercase tracking-[0.08em] text-muted-foreground">{t("memberPortal.accountProfile.settings")}</h2>
-        <div className="divide-y divide-white/10">
+        <div className="border-t border-black/[.07] dark:border-white/10" aria-label={t("memberPortal.accountProfile.settings")}>
+        <h2 className="px-4 pb-2 pt-4 text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">{t("memberPortal.accountProfile.settings")}</h2>
+        <div className="divide-y divide-black/[.06] dark:divide-white/[.08]">
           <Row icon={UserRound} title={t("memberPortal.accountProfile.hugoBio")} detail={t("memberPortal.accountProfile.personalBioPageDetail")} onClick={() => openUtility("bio")} />
           <Row icon={WalletCards} title={t("memberPortal.accountProfile.joyWalletTitle")} detail={t("memberPortal.accountProfile.joyAppDetail")} onClick={() => openUtility("joy_wallet")} />
           <Row icon={Palette} title={t("memberPortal.accountProfile.personalTheme")} value={t(auraThemeTranslationKey(resolveActivePortalTheme(bio), "Name"))} onClick={() => openSheet("themes")} />
@@ -283,15 +279,16 @@ export default function MemberSettingsTabRemade({
           <Row icon={Fingerprint} title={t("memberPortal.accountProfile.biometrics")} detail={t("memberPortal.accountProfile.biometricsDetail")} onClick={() => openSheet("security")} />
           <Row icon={Settings2} title={t("memberPortal.accountProfile.manageProfile")} detail={t("memberPortal.accountProfile.manageProfileDetail")} onClick={() => openSheet("manage")} />
         </div>
-        <details className="border-t border-white/15">
+        <details className="border-t border-black/[.06] dark:border-white/[.08]">
           <summary className="flex min-h-[52px] cursor-pointer list-none items-center justify-between px-4 text-[14px] font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
             <span className="flex items-center gap-3"><FileText className="h-[18px] w-[18px] text-muted-foreground" />{t("memberPortal.accountProfile.documentsAndLegalGroup")}</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </summary>
-          <div className="divide-y divide-white/10 border-t border-white/10">
+          <div className="divide-y divide-black/[.06] border-t border-black/[.06] dark:divide-white/[.08] dark:border-white/[.08]">
             {Object.entries(DOCUMENTS).map(([id, key]) => <Row key={id} icon={FileText} title={t(key)} onClick={() => navigate(`/member/account/${id}`)} />)}
           </div>
         </details>
+        </div>
       </section>
 
       <button type="button" onClick={handleLogout} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[18px] text-[14px] font-semibold text-red-500 transition-colors hover:bg-red-500/10">
