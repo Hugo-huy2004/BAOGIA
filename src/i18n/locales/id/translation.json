@@ -451,7 +451,17 @@
       "biometricsDetail": "Otentikasi FaceID, TouchID & WebAuthn",
       "documentsAndLegalGroup": "Dokumen & Hukum",
       "logout": "Keluar Akun",
-      "memberDocuments": "Dokumen Anggota"
+      "memberDocuments": "Dokumen Anggota",
+      "projects": "Proyek",
+      "requests": "Permintaan",
+      "residenceAddress": "Alamat tempat tinggal",
+      "locationVerified": "Lokasi terverifikasi di peta",
+      "noVerifiedLocation": "Belum ada lokasi terverifikasi",
+      "viewLocation": "Lihat lokasi",
+      "verificationTitle": "Verifikasi informasi",
+      "verifiedDescription": "Alamat tempat tinggal, etnis, dan agama Anda telah diverifikasi serta dikunci untuk menjaga keakuratan.",
+      "incompleteDescription": "Alamat tempat tinggal, etnis, atau agama Anda belum diverifikasi sepenuhnya.",
+      "adminChangeDescription": "Untuk meminta perubahan, silakan hubungi administrator Hugo Studio."
     },
     "settings": {
       "customizeThemeDesc": "Kustomisasi tema tampilan portal",

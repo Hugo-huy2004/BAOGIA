@@ -1,7 +1,7 @@
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import DocsLayout from "./DocsLayout";
 
-const UPDATED_AT = "25/08/2026";
+const UPDATED_AT = "26/08/2026";
 const CONTACT_EMAIL = "contact@hugowishpax.studio";
 
 export default function PrivacyPolicyPage() {
@@ -137,7 +137,7 @@ export default function PrivacyPolicyPage() {
             ["HugoPSY và bài tự đánh giá", "Nội dung trò chuyện và câu trả lời liên quan tới sức khoẻ tinh thần.", "Không dùng tính năng, hoặc xoá lịch sử trò chuyện trong phần cài đặt."],
             ["Theo dõi giấc ngủ, phân tích chỉ số sức khoẻ", "Thông tin về giấc ngủ và chỉ số cơ thể bạn tự nhập hoặc thiết bị gửi.", "Tắt tính năng và xoá nhật ký đã lưu."],
             ["Thời tiết", "Vị trí gần đúng của bạn.", "Tắt quyền vị trí trong trình duyệt hoặc hệ điều hành."],
-            ["Bạn bè gần bạn và bản đồ bạn bè", "Vị trí được làm tròn khoảng 100 m khi bạn chủ động định vị.", "Tắt chia sẻ trong ứng dụng Bạn bè để không ai thấy; chỉ bạn bè đã chấp nhận và cũng đang chia sẻ mới xem được điểm ghim gần đúng."],
+            ["Bạn bè gần bạn và bản đồ bạn bè", "GPS được làm tròn khoảng 100 m; khi GPS không dùng được, IP mạng có thể được gửi tới ipwho.is để suy ra khu vực cấp thành phố và được lưu ở độ chính xác thấp hơn.", "Tắt chia sẻ trong ứng dụng Bạn bè để không ai thấy; chỉ bạn bè đã chấp nhận và cũng đang chia sẻ mới xem được điểm ghim gần đúng. IP có thể sai khi dùng VPN hoặc mạng di động."],
             ["Xác minh địa chỉ tài khoản", "Toạ độ chính xác khi bạn chủ động bấm định vị; điểm ghim được hiển thị bằng bản đồ OpenStreetMap.", "Không cấp quyền định vị thì chưa thể hoàn tất bước xác minh; sau khi lưu, liên hệ admin để yêu cầu sửa hoặc xoá."],
             ["Cá nhân hoá văn hoá", "Câu trả lời về tôn giáo/tín ngưỡng và dân tộc/bản sắc sắc tộc.", "Chọn “Không muốn tiết lộ”, hoặc gửi yêu cầu sửa/xoá dữ liệu đã cung cấp."],
             ["Xét quà HSSV", "Nội dung giấy khen, chứng chỉ hoặc bảng điểm trong file bạn chủ động chọn.", "Không gửi file; file đã gửi chỉ được xử lý tức thời và không được Hugo Studio lưu lại."],
@@ -236,6 +236,7 @@ export default function PrivacyPolicyPage() {
             ["Redis", "Bộ nhớ đệm và hàng đợi tạm.", "Dữ liệu phiên và kết quả tạm, tự hết hạn sau thời gian ngắn."],
             ["SendGrid và dịch vụ email", "Gửi thư xác minh, thông báo hoặc cảm ơn.", "Địa chỉ email và nội dung thư cần gửi."],
             ["Open-Meteo", "Cung cấp thời tiết.", "Toạ độ gần đúng khi bạn bật tính năng liên quan."],
+            ["ipwho.is", "Ước lượng khu vực khi GPS không dùng được.", "Địa chỉ IP mạng; kết quả cấp thành phố được lưu đệm 24 giờ trên thiết bị."],
             ["Radio Browser", "Danh bạ đài phát thanh công khai.", "Tên đài bạn tìm; không gửi kèm danh tính."],
             ["GNews, NewsAPI, arXiv và RSS của các toà soạn", "Nguồn bản tin hôm nay.", "Chỉ chuyên mục và ngôn ngữ bạn chọn; không gửi kèm danh tính."],
           ],

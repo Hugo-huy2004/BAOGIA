@@ -451,7 +451,17 @@
       "biometricsDetail": "FaceID、TouchID、WebAuthn 認証",
       "documentsAndLegalGroup": "ドキュメントと規約",
       "logout": "ログアウト",
-      "memberDocuments": "会員ドキュメント"
+      "memberDocuments": "会員ドキュメント",
+      "projects": "プロジェクト",
+      "requests": "リクエスト",
+      "residenceAddress": "居住住所",
+      "locationVerified": "地図上の位置を認証済み",
+      "noVerifiedLocation": "認証済みの位置はありません",
+      "viewLocation": "位置を表示",
+      "verificationTitle": "情報の認証",
+      "verifiedDescription": "居住住所、民族、宗教は正確性を保つために認証され、ロックされています。",
+      "incompleteDescription": "居住住所、民族、宗教のいずれかがまだ完全に認証されていません。",
+      "adminChangeDescription": "変更を希望する場合は、Hugo Studio の管理者にお問い合わせください。"
     },
     "settings": {
       "customizeThemeDesc": "ポータルのテーマカスタマイズ",

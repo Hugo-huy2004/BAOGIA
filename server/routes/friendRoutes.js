@@ -194,7 +194,15 @@ router.get('/discover', requireMember, async (req, res) => {
       const matches = await Bio.find({
         email: { $ne: email },
         status: 'approved',
-        $or: [{ displayName: pattern }, { slug: pattern }, { headline: pattern }],
+        // Search every public profile field; private contact/address fields stay excluded.
+        $or: [
+          { displayName: pattern },
+          { slug: pattern },
+          { headline: pattern },
+          { bio: pattern },
+          { hobbies: pattern },
+          { 'links.label': pattern },
+        ],
       }).select('email').limit(50).lean();
       const visible = await SocialProfile.find({
         email: { $in: matches.map((bio) => bio.email) },
@@ -237,6 +245,7 @@ router.post('/discover/nearby', requireMember, actionLimiter, async (req, res) =
       { email },
       { $set: {
         discoverable: true,
+        shareLocation: true,
         location: { type: 'Point', coordinates },
         locationSource: source,
         locationPrecisionKm,

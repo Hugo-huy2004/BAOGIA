@@ -451,7 +451,17 @@
       "biometricsDetail": "Autenticación FaceID, TouchID y WebAuthn",
       "documentsAndLegalGroup": "Documentos y Legales",
       "logout": "Cerrar sesión",
-      "memberDocuments": "Documentos del Miembro"
+      "memberDocuments": "Documentos del Miembro",
+      "projects": "Proyectos",
+      "requests": "Solicitudes",
+      "residenceAddress": "Dirección de residencia",
+      "locationVerified": "Ubicación verificada en el mapa",
+      "noVerifiedLocation": "No hay una ubicación verificada",
+      "viewLocation": "Ver ubicación",
+      "verificationTitle": "Verificación de información",
+      "verifiedDescription": "Tu dirección de residencia, etnia y religión han sido verificadas y bloqueadas para garantizar su exactitud.",
+      "incompleteDescription": "Tu dirección de residencia, etnia o religión aún no se han verificado por completo.",
+      "adminChangeDescription": "Para solicitar un cambio, contacta con un administrador de Hugo Studio."
     },
     "settings": {
       "customizeThemeDesc": "Personalizar el tema de la interfaz del portal",

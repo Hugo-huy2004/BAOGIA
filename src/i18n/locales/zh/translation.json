@@ -451,7 +451,17 @@
       "biometricsDetail": "FaceID、TouchID 及 WebAuthn 验证",
       "documentsAndLegalGroup": "文档与法律",
       "logout": "退出登录",
-      "memberDocuments": "会员文档"
+      "memberDocuments": "会员文档",
+      "projects": "项目",
+      "requests": "请求",
+      "residenceAddress": "居住地址",
+      "locationVerified": "地图位置已验证",
+      "noVerifiedLocation": "尚无已验证位置",
+      "viewLocation": "查看位置",
+      "verificationTitle": "信息验证",
+      "verifiedDescription": "您的居住地址、民族和宗教信息已完成验证并锁定，以确保准确性。",
+      "incompleteDescription": "您的居住地址、民族或宗教信息尚未完成验证。",
+      "adminChangeDescription": "如需修改，请联系 Hugo Studio 管理员。"
     },
     "settings": {
       "customizeThemeDesc": "自定义门户界面主题",

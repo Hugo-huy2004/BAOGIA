@@ -65,6 +65,7 @@ const SECURITY_TRANSLATIONS = [
 export default function ScreenProtection() {
   const [blackout, setBlackout] = useState(false);
   const [countdown, setCountdown] = useState(6);
+  const [obfuscated, setObfuscated] = useState(false);
 
   const triggerBlackout = useCallback(() => {
     setBlackout(true);
@@ -166,17 +167,14 @@ export default function ScreenProtection() {
       }
     };
 
-    // 4. Kích hoạt Màn hình đen lập tức khi mất focus / chuyển tab / mở Screenshot tool (iOS/Android App Switcher)
+    // 4. Chỉ che khi tài liệu thật sự chuyển nền. `window.blur` cũng chạy khi
+    // người dùng bấm DevTools hoặc hộp thoại hệ thống và từng làm app đen vĩnh viễn.
     const handleVisibilityChange = () => {
       if (document.hidden || document.visibilityState === "hidden") {
-        triggerBlackout();
+        setObfuscated(true);
+      } else {
+        setObfuscated(false);
       }
-    };
-
-    const handleWindowBlur = () => {
-      // Trên PWA, khi bấm phím cứng chụp màn hình hoặc tổ hợp phím OS, ứng dụng lập tức blur.
-      // Kích hoạt màn hình đen ngay để ảnh chụp của OS chỉ nhận được màn hình đen.
-      triggerBlackout();
     };
 
     // Đăng ký event listeners toàn cục
@@ -190,7 +188,6 @@ export default function ScreenProtection() {
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
     document.addEventListener("visibilitychange", handleVisibilityChange, true);
-    window.addEventListener("blur", handleWindowBlur, true);
 
     return () => {
       document.removeEventListener("copy", handleCopyCut, true);
@@ -203,12 +200,19 @@ export default function ScreenProtection() {
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp, true);
       document.removeEventListener("visibilitychange", handleVisibilityChange, true);
-      window.removeEventListener("blur", handleWindowBlur, true);
     };
   }, [triggerBlackout]);
 
   return (
     <>
+      {/* ── MÀN HÌNH ĐEN ẨN DANH KHI MẤT FOCUS ── */}
+      {obfuscated && !blackout && (
+        <div
+          className="fixed inset-0 z-[9999999] bg-black pointer-events-none"
+          style={{ backgroundColor: "#000000" }}
+        />
+      )}
+
       {/* ── MÀN HÌNH ĐEN FULLSCREEN NẾU PHÁT HIỆN CHỤP MÀN HÌNH ── */}
       {blackout && (
         <div

@@ -292,7 +292,17 @@
       "biometricsDetail": "ยืนยันตัวตนด้วย FaceID, TouchID และ WebAuthn",
       "documentsAndLegalGroup": "เอกสารและข้อกฎหมาย",
       "logout": "ออกจากระบบ",
-      "memberDocuments": "เอกสารสมาชิก"
+      "memberDocuments": "เอกสารสมาชิก",
+      "projects": "โปรเจกต์",
+      "requests": "คำขอ",
+      "residenceAddress": "ที่อยู่ปัจจุบัน",
+      "locationVerified": "ยืนยันตำแหน่งบนแผนที่แล้ว",
+      "noVerifiedLocation": "ยังไม่มีตำแหน่งที่ยืนยันแล้ว",
+      "viewLocation": "ดูตำแหน่ง",
+      "verificationTitle": "การยืนยันข้อมูล",
+      "verifiedDescription": "ที่อยู่ปัจจุบัน ชาติพันธุ์ และศาสนาของคุณได้รับการยืนยันและล็อกไว้เพื่อความถูกต้อง",
+      "incompleteDescription": "ที่อยู่ปัจจุบัน ชาติพันธุ์ หรือศาสนาของคุณยังไม่ได้รับการยืนยันอย่างครบถ้วน",
+      "adminChangeDescription": "หากต้องการแก้ไข โปรดติดต่อผู้ดูแล Hugo Studio"
     },
     "settings": {
       "customizeThemeDesc": "ปรับแต่งธีมการแสดงผลพอร์ทัล",

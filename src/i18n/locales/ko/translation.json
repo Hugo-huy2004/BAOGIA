@@ -451,7 +451,17 @@
       "biometricsDetail": "FaceID, TouchID 및 WebAuthn 인증",
       "documentsAndLegalGroup": "문서 및 약관",
       "logout": "로그아웃",
-      "memberDocuments": "회원 문서"
+      "memberDocuments": "회원 문서",
+      "projects": "프로젝트",
+      "requests": "요청",
+      "residenceAddress": "거주지 주소",
+      "locationVerified": "지도 위치 인증 완료",
+      "noVerifiedLocation": "인증된 위치 없음",
+      "viewLocation": "위치 보기",
+      "verificationTitle": "정보 인증",
+      "verifiedDescription": "거주지 주소, 민족 및 종교 정보는 정확성을 위해 인증되고 잠겨 있습니다.",
+      "incompleteDescription": "거주지 주소, 민족 또는 종교 정보가 아직 완전히 인증되지 않았습니다.",
+      "adminChangeDescription": "변경하려면 Hugo Studio 관리자에게 문의해 주세요."
     },
     "settings": {
       "customizeThemeDesc": "포털 테마 맞춤 설정",

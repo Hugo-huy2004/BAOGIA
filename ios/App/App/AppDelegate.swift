@@ -5,15 +5,23 @@ import Capacitor
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    private var privacyShield: UIView?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(screenCaptureDidChange),
+            name: UIScreen.capturedDidChangeNotification,
+            object: nil
+        )
+        DispatchQueue.main.async { [weak self] in
+            self?.updatePrivacyShield()
+        }
         return true
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
-        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+        showPrivacyShield()
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -26,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        updatePrivacyShield()
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -44,6 +52,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Feel free to add additional processing here, but if you want the App API to support
         // tracking app url opens, make sure to keep this call
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+    }
+
+    @objc private func screenCaptureDidChange() {
+        updatePrivacyShield()
+    }
+
+    private func updatePrivacyShield() {
+        if UIScreen.main.isCaptured || UIApplication.shared.applicationState != .active {
+            showPrivacyShield()
+        } else {
+            hidePrivacyShield()
+        }
+    }
+
+    private func showPrivacyShield() {
+        guard let window else { return }
+
+        let shield = privacyShield ?? UIView(frame: window.bounds)
+        shield.backgroundColor = .black
+        shield.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        shield.frame = window.bounds
+        privacyShield = shield
+
+        if shield.superview == nil {
+            window.addSubview(shield)
+        }
+        window.bringSubviewToFront(shield)
+    }
+
+    private func hidePrivacyShield() {
+        privacyShield?.removeFromSuperview()
     }
 
 }
