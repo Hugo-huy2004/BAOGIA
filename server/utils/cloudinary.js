@@ -131,6 +131,23 @@ export const uploadAdImage = async (base64Str, oldUrl = '') => {
   return uploadResponse.secure_url;
 };
 
+// Ảnh kháng nghị mở khoá (selfie người dùng TỰ NGUYỆN gửi). Thư mục riêng,
+// gắn tag để dọn định kỳ — đây là dữ liệu nhạy cảm, chỉ giữ tới khi Boss quyết.
+export const uploadAppealImage = async (base64Str) => {
+  const isConfigured = process.env.CLOUDINARY_URL ||
+    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+  if (!isConfigured) throw new Error('Cloudinary is not configured.');
+  const uploadResponse = await cloudinary.uploader.upload(base64Str, {
+    folder: 'hugo_wishpax/appeals',
+    public_id: `appeal_${Date.now()}`,
+    overwrite: true,
+    resource_type: 'image',
+    quality: 'auto',
+    tags: ['appeal'],
+  });
+  return uploadResponse.secure_url;
+};
+
 export const uploadProductImage = async (base64Str, oldUrl = '') => {
   const isConfigured = process.env.CLOUDINARY_URL ||
     (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);

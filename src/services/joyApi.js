@@ -72,14 +72,19 @@ export async function resolveJoyQr(payload) {
   throw new Error("Mã JOY không hợp lệ hoặc không tìm thấy người nhận.");
 }
 
-export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }) {
+export async function transferJoy({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey }) {
   const res = await fetch(`${getApiUrl()}/joy/transfer`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey }),
+    body: JSON.stringify({ fromEmail, toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey }),
     credentials: "include"
   });
-  return parseOrThrow(res);
+  const data = await res.json();
+  // Server đòi thêm lớp xác thực (PIN/OTP) không phải LỖI — trả `code` để UI mở
+  // đúng bước nhập, thay vì ném ra một thông báo đỏ.
+  if (res.status === 428 && data.code) return { stepUp: data.code, message: data.error };
+  if (!res.ok) throw new Error(data.error || "Đã có lỗi xảy ra.");
+  return data;
 }
 
 /**

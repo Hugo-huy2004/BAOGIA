@@ -382,7 +382,11 @@ router.get('/supporters', async (req, res) => {
       .select({ donorDisplayName: 1, paidAt: 1, _id: 0 })
       .lean();
 
-    res.set('Cache-Control', 'no-store');
+    // Danh sách tên người ủng hộ đã tự chọn công khai (publicRecognition), đổi
+    // nhiều lắm vài lần một ngày. 'no-store' ở đây bắt MỌI khách đang mở trang
+    // /introduction nện thẳng vào MongoDB — và client còn poll 30 giây một lần.
+    // Cho phép cache: khách nán lại 1 tiếng đi từ ~120 request xuống 1.
+    res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
     res.json({
       success: true,
       data: supporters.map((supporter) => ({

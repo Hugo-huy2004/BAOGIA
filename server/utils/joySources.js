@@ -59,10 +59,28 @@ export const JOY_SOURCES = {
   admin_telegram_button: 'Admin thưởng qua Telegram',
   stock_buy: 'Mua cổ phiếu sàn ảo',
   stock_sell: 'Bán cổ phiếu sàn ảo',
-  stock_dividend: 'Cổ tức sàn ảo'
+  stock_dividend: 'Cổ tức sàn ảo',
+  vocab_essay_retake: 'Thi lại bài viết luận tiếng Trung'
 };
 
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);
+
+/**
+ * Nguồn "nhiễu" — phần thưởng trò chơi hoá, khối lượng lớn, không phải dòng
+ * tiền thật. Ngân hàng giữ sao kê tiền VĨNH VIỄN, nhưng điểm cờ vua hay điểm
+ * danh mỗi ngày thì không đáng giữ mãi. Chỉ những nguồn LIỆT KÊ Ở ĐÂY mới bị
+ * dọn sau 90 ngày; mọi nguồn khác (chuyển khoản, mua bán, nạp/rút, cổ phiếu,
+ * voucher, điều chỉnh admin…) giữ mãi. Nguồn MỚI mặc định được GIỮ — an toàn
+ * cho tiền; thấy nó là nhiễu thì thêm vào đây.
+ */
+export const JOY_NOISE_SOURCES = new Set([
+  'chess_win', 'chess_match', 'checkin', 'daily_challenge', 'arcade_score',
+  'daily_tree_bonus', 'focus_session', 'info_bonus', 'info_read_bonus',
+  'ide_learning', 'ide_course_completion', 'birthday_spin',
+  'ide_phase_1_completion', 'ide_phase_2_completion', 'ide_phase_3_completion',
+  'ide_phase_4_completion', 'ide_phase_5_completion', 'ide_phase_6_completion',
+  'ide_phase_7_completion',
+]);
 
 /**
  * Nhóm nguồn — dùng cho phần "JOY đến từ đâu" trong ví. Nguồn không khai báo ở

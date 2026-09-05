@@ -1,11 +1,14 @@
 import { validateQuizQuestion } from "./quizKinds.js";
 
 const text = (value) => typeof value === "string" && value.trim().length > 0;
+// Giữ lại toán tử: đây là khoá so trùng cho khoá học LẬP TRÌNH, mà ký hiệu
+// chính là nội dung câu hỏi. Xoá sạch ký hiệu thì "0 ?? 100" và "0 || 100"
+// — hai câu dạy đúng cái khác nhau giữa ?? và || — thành cùng một chuỗi.
 const questionKey = (value) => String(value || "")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .toLowerCase()
-  .replace(/[^a-z0-9]+/g, " ")
+  .replace(/[^a-z0-9?|&!=<>+\-*/%.]+/g, " ")
   .trim();
 
 // Luật hợp lệ của từng dạng câu hỏi nằm ở quizKinds.js — cùng một file mà giao

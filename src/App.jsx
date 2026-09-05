@@ -17,7 +17,11 @@ import { isMemberAuthenticated } from "./services/authSession";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import { TooltipProvider } from "./components/ui/Tooltip";
 import { Toaster } from "react-hot-toast";
-import PWARealtimeBridge from "./components/PWARealtimeBridge";
+// Lazy: component này chỉ chạy hiệu ứng phụ rồi return null, không vẽ gì cho
+// lần sơn đầu. Import tĩnh ở đây kéo webPushHelper vào chunk entry, khiến
+// dynamic import trong i18n/config.js thành vô nghĩa — Rollup báo đúng lỗi
+// INEFFECTIVE_DYNAMIC_IMPORT. Lazy ở đây thì ý định bên đó mới thành thật.
+const PWARealtimeBridge = lazy(() => import("./components/PWARealtimeBridge"));
 import NativeShell from "./components/NativeShell";
 import MobileInstallGate from "./components/ui/MobileInstallGate";
 import SafeAreaProbe from "./components/ui/SafeAreaProbe";
@@ -30,7 +34,6 @@ import { useInputFocusScroll } from "./hooks/useInputFocusScroll";
 import { BackgroundSyncEngine } from "./utils/backgroundSyncEngine";
 import ScreenProtection from "./components/security/ScreenProtection";
 import { StorageSafeguard } from "./utils/storageSafeguard";
-import { PWAKeepAlive } from "./utils/pwaKeepAlive";
 import PWAUpdateBanner from "./components/ui/PWAUpdateBanner";
 import PWAInstallModal from "./components/ui/PWAInstallModal";
 import RouteSeoPolicy from "./components/RouteSeoPolicy";
@@ -85,9 +88,12 @@ function AppContent() {
     const disposeBackgroundSync = BackgroundSyncEngine.initListener();
     const runMaintenance = () => {
       StorageSafeguard.checkAndOptimizeStorage().catch(() => {});
-      if (isMemberAuthenticated()) {
-        PWAKeepAlive.startKeepAlive();
-      }
+      // Đã bỏ PWAKeepAlive.startKeepAlive(): Worker cron ở workers/keepalive
+      // ping /health mỗi 10 phút trong khung 06:00–23:59 giờ VN, bao trọn khung
+      // 08:00–23:00 mà file kia tự đặt. Ping từ máy người dùng chỉ thêm một
+      // request mỗi lần mở app cho một server đã thức — và không hề "tiết kiệm
+      // 270 giờ/tháng" như chú thích cũ nói: gọi Render là TỐN giờ, không phải
+      // tiết kiệm.
     };
 
     let idleId;
@@ -376,7 +382,7 @@ export default function App() {
               <RouteSeoPolicy />
               <NativeShell />
               {new URLSearchParams(window.location.search).get("safearea") === "1" && <SafeAreaProbe />}
-              <PWARealtimeBridge />
+              <Suspense fallback={null}><PWARealtimeBridge /></Suspense>
               <PWAQuickLogin />
               <OfflineBanner />
               <AppContent />

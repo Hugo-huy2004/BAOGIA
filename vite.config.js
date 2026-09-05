@@ -1,6 +1,5 @@
 import { defineConfig, createLogger } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteCompression from 'vite-plugin-compression'
 import { VitePWA } from 'vite-plugin-pwa'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -72,14 +71,18 @@ export default defineConfig(({ mode }) => {
     react(),
     // npm run build:analyze → dist/stats.html (treemap of bundle composition)
     process.env.ANALYZE ? visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true }) : null,
-    viteCompression({
-      algorithm: 'gzip',
-      ext: '.gz',
-    }),
-    viteCompression({
-      algorithm: 'brotliCompress',
-      ext: '.br',
-    }),
+    // Đã bỏ vite-plugin-compression (cả gzip lẫn brotli).
+    //
+    // Nó sinh 207 tệp .gz (2,9 MB — 20% dung lượng dist) mà KHÔNG AI phục vụ:
+    // frontend do Vercel chạy, và Vercel tự nén ở biên; Node chỉ làm API, không
+    // express.static thư mục dist; gen-nginx.mjs không bật gzip_static; bản
+    // native thì Capacitor đọc tệp từ ổ đĩa, không qua HTTP. Trình duyệt xin
+    // /assets/x.js chứ không bao giờ xin /assets/x.js.gz.
+    //
+    // Nửa brotli còn hỏng âm thầm: log in "compressed file successfully" nhưng
+    // không đẻ ra tệp .br nào. Không ai phát hiện suốt thời gian dài, vì cả hai
+    // nửa đều vô dụng như nhau. Cần nén thật ở tầng gốc thì bật gzip_static/
+    // brotli_static trong nginx rồi hẵng thêm lại.
     ViteImageOptimizer({
       png: { quality: 80 },
       jpeg: { quality: 80 },

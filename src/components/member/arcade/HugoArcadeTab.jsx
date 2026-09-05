@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { localeForLanguage } from "../../../i18n/languages";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
 import { Blocks, Swords, Castle, Infinity as InfinityIcon, Rocket, Disc } from "lucide-react";
 import ArcadeLeaderboard from "./ArcadeLeaderboard";
-import StandaloneGameShell from "./StandaloneGameShell";
+// Lazy: vỏ game kéo theo game-shell.css (73 KB) + mã game. UtilityPublicPage
+// vốn đã lazy nó; import tĩnh ở đây bắt mọi thành viên chỉ mở tab Arcade phải
+// tải hết dù chưa bấm chơi. Chỗ dùng nằm sau điều kiện nên lazy được.
+const StandaloneGameShell = lazy(() => import("./StandaloneGameShell"));
 import BackButton from "../shared/BackButton";
 
 import { fetchProfile } from "../../../services/arcadeApi";
@@ -383,6 +386,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
       </div>
 
       {/* ── Active Game (standalone shell) ── */}
+      <Suspense fallback={<div className="fixed inset-0 z-50 grid place-items-center bg-black"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white" /></div>}>
       {activeGame && (
         <StandaloneGameShell
           gameId={activeGame}
@@ -390,6 +394,7 @@ export default function HugoArcadeTab({ onBack, bio, onBioUpdate, showToast }) {
           onClose={closeGame}
         />
       )}
+      </Suspense>
 
       <JoyExchangeModal
         open={showInvoice} bio={bio} item="hugoArcade"

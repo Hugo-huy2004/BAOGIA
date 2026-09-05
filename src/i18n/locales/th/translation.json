@@ -2940,7 +2940,6 @@
         "fiveDayIncome": "รายได้ 5 วัน",
         "profile": "โปรไฟล์ของฉัน",
         "profileDescription": "บีลิงก์สาธารณะและทางเข้าไปยังเครื่องมือและทรัพยากรการเรียนรู้",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "กดที่เพื่อปรับแต่ง"
       },
       "size": {
@@ -6093,7 +6092,9 @@
       "otpBtn": "ส่งรหัส OTP",
       "otpSending": "กำลังส่งรหัส…",
       "otpSent": "ส่งรหัสแล้ว",
-      "otpDesc": "กดปุ่มด้านล่างเพื่อรับรหัส 6 หลัก — ใช้ได้ 30 วินาที"
+      "usernameLabel": "ชื่อผู้ใช้",
+      "passwordLabel": "รหัสผ่าน",
+      "otpDesc": "กรอกชื่อผู้ใช้และรหัสผ่าน — เซิร์ฟเวอร์จะส่งรหัส 6 หลักไปที่ Telegram ใช้ได้ 30 วินาที"
     }
   },
   "customerPortal": {

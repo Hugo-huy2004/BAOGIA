@@ -278,7 +278,7 @@ export default function TermsPage() {
             ["chess.js", "BSD"],
             ["hls.js", "Apache 2.0"],
             ["lucide-react", "ISC"],
-            ["Material Symbols, Plus Jakarta Sans, Quicksand", "Apache 2.0 / SIL Open Font License 1.1"],
+            ["Material Symbols, Plus Jakarta Sans, Mali, Zhi Mang Xing, Klee One, Nanum Pen Script", "Apache 2.0 / SIL Open Font License 1.1"],
           ],
         },
         {

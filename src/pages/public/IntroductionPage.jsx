@@ -597,7 +597,7 @@ function SupporterMarquee({ t }) {
   useEffect(() => {
     const controller = new AbortController();
     const loadSupporters = () => {
-      fetch(`${API_BASE}/payos/supporters?limit=30`, { signal: controller.signal, cache: "no-store" })
+      fetch(`${API_BASE}/payos/supporters?limit=30`, { signal: controller.signal })
         .then((response) => response.ok ? response.json() : Promise.reject(new Error("supporters_unavailable")))
         .then((payload) => setSupporters(Array.isArray(payload.data) ? payload.data : []))
         .catch((error) => {
@@ -605,9 +605,11 @@ function SupporterMarquee({ t }) {
         });
     };
     loadSupporters();
-    const refreshTimer = window.setInterval(loadSupporters, 30000);
+    // Bỏ poll 30 giây: đây là trang giới thiệu công khai, khách nán lại vài
+    // phút là chuyện thường, và danh sách ủng hộ không đổi trong lúc họ đọc.
+    // Poll ở đây nhân số request lên theo số khách đang mở trang — đúng cái
+    // làm sập server. Server đã cho phép cache, tải một lần là đủ.
     return () => {
-      window.clearInterval(refreshTimer);
       controller.abort();
     };
   }, []);

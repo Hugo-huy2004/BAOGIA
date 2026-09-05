@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { requestAdminOtp, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
+import { loginAdmin, verifyAdminOtp, loginMember, loginMemberWithGoogle } from "../../services/authSession";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
 import { useTranslation } from "react-i18next";
 import { useData } from "../../context/DataContext";
@@ -35,6 +35,8 @@ export default function LoginPage() {
   const [activeMode, setActiveMode] = useState(allowRegistration ? "member" : "customer");
   const [adminSubmitting, setAdminSubmitting] = useState(false);
   const [rememberAdmin, setRememberAdmin] = useState(true);
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
   // 2FA OTP (POST /api/admin/login -> requireOtp)
   const [otpModalOpen, setOtpModalOpen] = useState(false);
   const [tempToken, setTempToken] = useState("");
@@ -209,18 +211,24 @@ export default function LoginPage() {
     showToast(t("loginPage.toast.useGoogleBtn"), "warning");
   };
 
-  // Đăng nhập quản trị KHÔNG còn mật khẩu: bấm nút → máy chủ gửi mã 6 số
-  // đến Boss → nhập mã là vào. Mật khẩu cũ chỉ còn là lối dự phòng ở
-  // phía máy chủ (POST /api/admin/login).
+  // Đăng nhập quản trị = mật khẩu ĐÚNG rồi mới tới OTP Telegram (hai yếu tố).
+  //
+  // Trước đây form này chỉ có một cái nút: gọi thẳng /admin/request-otp, một
+  // endpoint không xác thực gì cả. Nghĩa là toàn bộ bảo mật admin rút gọn
+  // thành đoán 6 chữ số, mà trần chặn lại tính theo IP — với một pool proxy
+  // vài nghìn địa chỉ thì đoán ra trong vài giờ. Mật khẩu không nằm trên
+  // đường tấn công vì kẻ tấn công không cần đi qua nó.
   const handleAdminLogin = async (e) => {
     e.preventDefault();
     setToast({ message: "", type: "" });
     setAdminSubmitting(true);
     try {
-      const res = await requestAdminOtp();
+      const res = await loginAdmin({ username: adminUsername.trim(), password: adminPassword });
       if (!res.tempToken) {
         showToast(
-          res.error === "network" ? t("loginPage.toast.adminNetworkError") : res.error || t("loginPage.toast.adminServerError"),
+          res.error === "network" ? t("loginPage.toast.adminNetworkError")
+            : res.error === "invalid_credentials" ? t("loginPage.toast.adminInvalid", "Tên đăng nhập hoặc mật khẩu không đúng.")
+            : res.error || t("loginPage.toast.adminServerError"),
           "error"
         );
         return;
@@ -230,6 +238,7 @@ export default function LoginPage() {
       setOtpError("");
       setOtpSecondsLeft(res.expiresIn || 30);
       setOtpModalOpen(true);
+      setAdminPassword("");
       showToast(res.message || t("loginPage.adminForm.otpSent"), res.otpDelivered ? "info" : "error");
     } finally {
       setAdminSubmitting(false);
@@ -522,14 +531,42 @@ export default function LoginPage() {
                 <p className="text-[11px] text-muted-foreground">{t("loginPage.adminForm.desc")}</p>
               </div>
 
-              {/* Đăng nhập bằng OTP — không còn ô mật khẩu. Yếu tố xác
-                  thực là quyền đọc tin nhắn của Boss: người lạ
-                  bấm nút này chỉ làm máy Boss kêu một tiếng. */}
-              <div className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-muted/40 p-3">
-                <span className="material-symbols-outlined text-[18px] text-muted-foreground">send</span>
-                <p className="text-[11px] leading-relaxed text-muted-foreground">
-                  {t("loginPage.adminForm.otpDesc")}
-                </p>
+              {/* Hai yếu tố: mật khẩu (biết) + mã Telegram (sở hữu). Bỏ ô mật
+                  khẩu đi thì yếu tố duy nhất còn lại là một số 6 chữ số gõ vào
+                  một endpoint công khai — đoán được. */}
+              <div className="space-y-3">
+                <label className="block">
+                  <span className="mb-1 block pl-1 text-[11px] font-medium text-muted-foreground">
+                    {t("loginPage.adminForm.usernameLabel")}
+                  </span>
+                  <input
+                    type="text"
+                    value={adminUsername}
+                    onChange={(e) => setAdminUsername(e.target.value)}
+                    autoComplete="username"
+                    required
+                    className="w-full rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block pl-1 text-[11px] font-medium text-muted-foreground">
+                    {t("loginPage.adminForm.passwordLabel")}
+                  </span>
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    autoComplete="current-password"
+                    required
+                    className="w-full rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </label>
+                <div className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-muted/40 p-3">
+                  <span className="material-symbols-outlined text-[18px] text-muted-foreground">send</span>
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    {t("loginPage.adminForm.otpDesc")}
+                  </p>
+                </div>
               </div>
 
               <label className="flex items-center gap-2 pl-1 cursor-pointer select-none">

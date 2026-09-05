@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import Admin from '../models/Admin.js';
 import { JWT_SECRET } from '../utils/secrets.js';
 import { findActiveSecurityBlock, sendSecurityBlockResponse } from '../services/securityEnforcement.js';
 import { getMemberAge, isAdultAge, isMinorAge, ADULT_AGE } from '../utils/memberAge.js';
@@ -87,7 +88,7 @@ async function readMemberGate(email) {
   return value;
 }
 
-export const requireAdmin = (req, res, next) => {
+export const requireAdmin = async (req, res, next) => {
   const token = extractToken(req, 'jwt');
 
   if (!token) {
@@ -106,6 +107,31 @@ export const requireAdmin = (req, res, next) => {
       const currentUaHash = crypto.createHash('sha256').update(currentUa).digest('hex');
       if (decoded.uaHash !== currentUaHash) {
         return res.status(403).json({ error: 'Forbidden - Admin session device fingerprint mismatch' });
+      }
+    }
+
+    // Thu hồi phiên. JWT tự nó không rút lại được, nên đăng xuất chỉ xoá cookie
+    // ở trình duyệt — token đã bị chép ra vẫn sống hết 14 ngày. Đối chiếu thời
+    // điểm phát token (iat) với mốc sessionsValidFrom trên bản ghi Admin: đăng
+    // xuất hoặc đổi mật khẩu đẩy mốc lên, mọi token cũ chết ngay.
+    //
+    // ponytail: đọc thẳng DB, không đệm. Lưu lượng admin là một người và vài
+    // dashboard 15 giây/lần — vài chục truy vấn mỗi phút. Đệm ở đây chỉ đổi
+    // lấy một cửa sổ mà token đã thu hồi vẫn dùng được, không đáng.
+    const admin = await Admin.findById(decoded.id).select({ sessionsValidFrom: 1 }).lean();
+    if (!admin) {
+      return res.status(403).json({ error: 'Forbidden - Admin account no longer exists' });
+    }
+    // So theo GIÂY, không theo mili-giây: `iat` của JWT chỉ có độ phân giải một
+    // giây. Đăng xuất lúc 12:00:00.700 rồi đăng nhập lại lúc 12:00:00.900 sẽ
+    // sinh token có iat = 12:00:00.000 — so bằng mili-giây thì token vừa phát
+    // bị coi là cũ hơn mốc và người dùng bị đá ra ngay sau khi đăng nhập.
+    // Đổi lại: token phát trong CÙNG GIÂY với lúc đăng xuất thì sống sót. Cửa
+    // sổ đó tối đa một giây, và đây là cách thu hồi theo iat vẫn thường làm.
+    if (admin.sessionsValidFrom) {
+      const revokedAtSec = Math.floor(new Date(admin.sessionsValidFrom).getTime() / 1000);
+      if (decoded.iat < revokedAtSec) {
+        return res.status(403).json({ error: 'Forbidden - Admin session has been revoked' });
       }
     }
 

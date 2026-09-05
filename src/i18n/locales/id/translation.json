@@ -2899,7 +2899,6 @@
         "fiveDayIncome": "Pendapatan 5 hari",
         "profile": "Profil Saya",
         "profileDescription": "Biolink Publik dan jalan keluar ke alat-alat dan layanan pembelajaran",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "Klik dan tekan untuk mengubah"
       },
       "size": {
@@ -6052,7 +6051,9 @@
       "otpBtn": "Kirim OTP",
       "otpSending": "Mengirim kode…",
       "otpSent": "Kode terkirim.",
-      "otpDesc": "Tekan tombol di bawah untuk menerima kode 6 digit — berlaku 30 detik."
+      "usernameLabel": "Nama pengguna",
+      "passwordLabel": "Kata sandi",
+      "otpDesc": "Masukkan nama pengguna dan kata sandi — server mengirim kode 6 digit ke Telegram, berlaku 30 detik."
     }
   },
   "customerPortal": {

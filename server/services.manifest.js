@@ -72,6 +72,7 @@ export const SERVICES = Object.freeze([
   { id: "coder-resources", prefix: "/api/coder-resources", module: "./routes/coderResourceRoutes.js" },
   { id: "coder-lessons", prefix: "/api/coder-lessons", module: "./routes/coderLessonRoutes.js", cacheable: true },
   { id: "today", prefix: "/api/today", module: "./routes/todayRoutes.js" },
+  { id: "vocab", prefix: "/api/vocab", module: "./routes/vocabRoutes.js" },
 
   // ── Tiện ích & AI ─────────────────────────────────────────────────────────
   { id: "files", prefix: "/api/files", module: "./routes/fileToolsRoutes.js" },

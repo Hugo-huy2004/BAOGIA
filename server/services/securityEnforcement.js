@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import jwt from 'jsonwebtoken';
+import dns from 'node:dns/promises';
 import SecurityBlock from '../models/SecurityBlock.js';
 import SecurityEvent from '../models/SecurityEvent.js';
 import { JWT_SECRET } from '../utils/secrets.js';
@@ -136,11 +138,11 @@ export function sendSecurityBlockResponse(res, block) {
   return res.status(403).json(payload);
 }
 
-async function applySubjectBlock(type, value, { caseId, reasonCode, permanent = false, countLock = true }) {
+async function applySubjectBlock(type, value, { caseId, reasonCode, permanent = false, countLock = true, durationMs = BLOCK_MS }) {
   const hash = securityHash(type, value);
   if (!hash) return null;
   const key = actorKey(type, hash);
-  const expiresAt = new Date(Date.now() + BLOCK_MS);
+  const expiresAt = new Date(Date.now() + durationMs);
   const $set = {
     subjectType: type,
     subjectHash: hash,
@@ -199,14 +201,38 @@ async function resolvePhone(email, suppliedPhone) {
 // khoá tài khoản để dành cho vi phạm nội dung/xâm nhập, nơi có chủ ý thật.
 const NETWORK_ONLY_CATEGORIES = new Set(['availability_attack']);
 
-async function applyActorBlock({ ip, email, phone, caseId, reasonCode }) {
+// Chống lụt thẻ duyệt trên Telegram: 1 thẻ / (đối tượng + nhóm vi phạm) / giờ.
+// Máy quét internet nện hàng chục đường dẫn (`/api/.git/config`, `/@fs/etc/passwd`…)
+// trong đúng một giây; mỗi đường dẫn một tin là Boss nhận 10+ tin/ngày cho CÙNG
+// một con bot, và hàng chờ duyệt đầy case không ai bấm. SecurityEvent vẫn ghi
+// đủ từng lần nên không mất dấu vết để tra.
+// ponytail: bộ nhớ trong tiến trình — restart Render thì cùng lắm thừa một tin;
+// cần chính xác xuyên nhiều instance thì chuyển sang Redis (redisClient.js).
+const CARD_THROTTLE_MS = 60 * 60 * 1000;
+const cardSentAt = new Map();
+
+function shouldSendModerationCard(key) {
+  const now = Date.now();
+  for (const [k, at] of cardSentAt) if (now - at > CARD_THROTTLE_MS) cardSentAt.delete(k);
+  if (cardSentAt.has(key)) return false;
+  cardSentAt.set(key, now);
+  return true;
+}
+
+// `durationMs` + `escalate` để nút "Khóa 24h" trên Telegram nói đúng việc nó làm.
+//
+// Trước đây nút ghi 24 GIỜ nhưng gọi thẳng vào đây, tức khoá 30 NGÀY — và vì
+// email có đếm `lockCount`, bấm lần thứ hai là khoá VĨNH VIỄN. Boss tưởng đang
+// phạt nguội một ngày, thực tế đang xoá sổ một tài khoản. Phạt nguội thì không
+// được đếm vào bậc thang khoá vĩnh viễn: `escalate: false`.
+export async function applyActorBlock({ ip, email, phone, caseId, reasonCode, durationMs = BLOCK_MS, escalate = true }) {
   if (NETWORK_ONLY_CATEGORIES.has(reasonCode)) {
-    return applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false });
+    return applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false, durationMs });
   }
 
   const [ipBlock, emailBlock] = await Promise.all([
-    applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false }),
-    applySubjectBlock('email', email, { caseId, reasonCode }),
+    applySubjectBlock('ip', ip, { caseId, reasonCode, countLock: false, durationMs }),
+    applySubjectBlock('email', email, { caseId, reasonCode, countLock: escalate, durationMs }),
   ]);
   const accountPermanent = Boolean(emailBlock?.permanent);
   const resolvedPhone = accountPermanent ? await resolvePhone(email, phone) : '';
@@ -225,6 +251,8 @@ export async function recordSecurityViolation({
   ruleId,
   evidence = '',
   enforcement = 'immediate',
+  notify = true,
+  network = '',
 }) {
   const caseId = makeCaseId();
   const ip = req?.ip || '';
@@ -237,10 +265,32 @@ export async function recordSecurityViolation({
   const isEmergency = severity === 'critical' && ['intrusion', 'violent_facilitation', 'identity_fraud'].includes(category);
   let shouldBlock = isEmergency && enforcement === 'immediate';
 
+  // `threshold` = "lần đầu từ chối và ghi sổ, lần thứ hai trong 24 giờ mới
+  // chặn". Luật này được ghi trong chú thích ngay dưới PSY_RULES từ đầu, nhưng
+  // CHƯA BAO GIỜ ĐƯỢC VIẾT: `shouldBlock` chỉ nhìn `immediate`, nên mọi luật
+  // threshold (đánh sập hệ thống, trộm JOY, moi system prompt, hướng dẫn bạo
+  // lực, bão request) tái phạm bao nhiêu lần cũng không tự khoá ai.
+  // `CONTENT_STRIKE_WINDOW_MS` khai báo rồi bỏ không chính là mảnh còn sót lại
+  // của luật đó — cái cảnh báo lint duy nhất trong tệp này.
+  //
+  // Đếm theo email nếu biết là ai, không thì theo IP. Sự kiện lần này chưa ghi
+  // vào sổ ở thời điểm này, nên `>= 1` đúng nghĩa "đây là lần thứ hai".
+  if (!shouldBlock && enforcement === 'threshold') {
+    const subject = emailHash ? { emailHash } : (ipHash ? { ipHash } : null);
+    if (subject) {
+      const priors = await SecurityEvent.countDocuments({
+        ...subject,
+        category,
+        createdAt: { $gte: new Date(Date.now() - CONTENT_STRIKE_WINDOW_MS) },
+      });
+      if (priors >= 1) shouldBlock = true;
+    }
+  }
+
   let block = null;
   if (shouldBlock) {
     block = await applyActorBlock({ ip, email, phone, caseId, reasonCode: category });
-  } else {
+  } else if (notify && shouldSendModerationCard(`${email || ip}:${category}`)) {
     // Normal / Suspicious case -> Create SecurityModeration request and send Telegram Moderation Card to Boss
     try {
       const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
@@ -303,6 +353,7 @@ export async function recordSecurityViolation({
     ipHash,
     emailHash,
     phoneHash,
+    network,
     evidenceHash: evidenceDigest(evidence),
   });
 
@@ -331,7 +382,7 @@ export async function recordSecurityViolation({
     }).catch(() => {});
   }
 
-  sendAlert('Security policy enforcement', {
+  if (notify) sendAlert('Security policy enforcement', {
     source: 'security',
     caseId,
     category,
@@ -480,19 +531,38 @@ const isMachineWebhook = (req) => MACHINE_WEBHOOK_PATHS.has(req.path);
 const LOCALHOST_IPS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1', 'localhost']);
 const isDevMode = process.env.NODE_ENV !== 'production';
 
-function hasValidUserToken(req) {
+// Ai đang gõ cửa? — phải XÁC MINH chữ ký, không được nhìn hình dạng.
+//
+// Bản cũ coi là "người dùng hợp lệ" khi header chỉ cần bắt đầu bằng "Bearer "
+// và dài hơn 15 ký tự, hoặc có cookie `hugo_member_token`/`hugo_admin_token`.
+// Hai lỗi nặng:
+//   1. `Authorization: Bearer aaaaaaaaaaaaaaaa` — mười sáu chữ a — là đủ để đi
+//      thẳng qua `securityIpGate`. Nghĩa là MỌI lệnh khoá theo IP đều gỡ được
+//      bằng một dòng header bịa, kể cả khoá 30 ngày vừa ban ra.
+//   2. Hai tên cookie đó không tồn tại ở đâu trong repo — cookie thật là
+//      `member_jwt` / `jwt` / `customer_jwt`. Nhánh cookie chưa từng chạy đúng.
+// Giờ giải mã thật: có chữ ký của mình mới tính là người, và biết luôn là ai.
+const ACTOR_COOKIES = ['member_jwt', 'jwt', 'customer_jwt'];
+
+export function verifiedActor(req) {
   const authHeader = String(req.headers?.authorization || '');
+  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
   const cookies = req.cookies || {};
-  return Boolean(
-    (authHeader.startsWith('Bearer ') && authHeader.length > 15) ||
-    cookies.hugo_member_token ||
-    cookies.hugo_admin_token
-  );
+  for (const token of [bearer, ...ACTOR_COOKIES.map((name) => cookies[name])]) {
+    if (!token) continue;
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      return { email: decoded.email || '', role: decoded.role || '' };
+    } catch {
+      // chữ ký sai / hết hạn → thử nguồn tiếp theo, cuối cùng coi là khách lạ
+    }
+  }
+  return null;
 }
 
 export async function securityIpGate(req, res, next) {
   try {
-    if (isMachineWebhook(req) || hasValidUserToken(req)) return next();
+    if (isMachineWebhook(req) || verifiedActor(req)) return next();
     const ip = String(req.ip || '').replace(/^::ffff:/, '');
     if (isDevMode || LOCALHOST_IPS.has(ip) || ip.startsWith('192.168.') || ip.startsWith('10.') || /^172\.(1[6-9]|2\d|3[01])\./.test(ip)) {
       return next();
@@ -505,8 +575,144 @@ export async function securityIpGate(req, res, next) {
   return next();
 }
 
+// Kẻ tấn công đến từ mạng nào? — tra tên miền ngược của IP.
+//
+// Đây là thứ biến "một IP lạ" thành "máy quét của Censys", "VPS DigitalOcean ở
+// Đức", "AWS us-east". Log của server ta, không cần ai cho phép, và là câu trả
+// lời thật cho "ai đang xâm phạm" — khác hẳn ảnh chụp mặt mà trình duyệt không
+// bao giờ cho lấy lén.
+//
+// Có TTL cache vì một đợt quét là hàng chục request cùng IP trong một giây;
+// tra DNS lại từng cái là tự tay làm chậm mình. Timeout ngắn: không có PTR thì
+// bản thân điều đó đã là tín hiệu (hosting/VPS thường trần trụi không tên).
+const netCache = new Map();
+const NET_CACHE_MS = 60 * 60 * 1000;
+
+export async function resolveNetwork(rawIp) {
+  const ip = String(rawIp || '').replace(/^::ffff:/, '');
+  if (!ip || ip === '127.0.0.1' || ip === '::1') return '';
+  const hit = netCache.get(ip);
+  if (hit && hit.until > Date.now()) return hit.value;
+
+  // Hai nguồn, chạy song song: tên miền ngược (DNS builtin, luôn có) và
+  // geo/ASN (ip-api free, không cần key). Nhãn cuối ghép "Nhà mạng · Thành phố,
+  // Nước · AS####" — đúng thứ Boss cần: "23 vụ từ DigitalOcean, Frankfurt".
+  const [rdns, geo] = await Promise.all([reverseDomain(ip), geoAsn(ip)]);
+  const label = [geo?.org || rdns, geo?.place, geo?.asn].filter(Boolean).join(' · ')
+    || 'không rõ nguồn (hosting/VPS trần)';
+
+  if (netCache.size >= 2000) netCache.delete(netCache.keys().next().value);
+  netCache.set(ip, { value: label, until: Date.now() + NET_CACHE_MS });
+  return label;
+}
+
+async function reverseDomain(ip) {
+  try {
+    const names = await Promise.race([
+      dns.reverse(ip),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 800)),
+    ]);
+    if (!names?.length) return '';
+    // "scan-99.sub.censys.io" → "censys.io"; "ec2-x.compute-1.amazonaws.com"
+    // → "amazonaws.com". Gộp mọi máy con của cùng một mạng về một nhãn.
+    const parts = names[0].replace(/\.$/, '').split('.').filter(Boolean);
+    return parts.slice(-2).join('.');
+  } catch {
+    return '';
+  }
+}
+
+// Geo + ASN. ip-api.com free: không key, 45 req/phút — thừa sức cho vài IP mỗi
+// bản tổng kết. Đặt IPINFO_TOKEN thì tự chuyển sang ipinfo.io (HTTPS, hạn mức
+// cao hơn) mà không đổi nơi gọi.
+async function geoAsn(ip) {
+  try {
+    const withTimeout = (p) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1200))]);
+    if (process.env.IPINFO_TOKEN) {
+      const d = await withTimeout(fetch(`https://ipinfo.io/${ip}?token=${process.env.IPINFO_TOKEN}`).then((r) => r.json()));
+      const place = [d.city, d.country].filter(Boolean).join(', ');
+      const asn = (d.org || '').match(/^AS\d+/)?.[0] || '';
+      const org = (d.org || '').replace(/^AS\d+\s*/, '');
+      return { org, place, asn };
+    }
+    const d = await withTimeout(
+      fetch(`http://ip-api.com/json/${ip}?fields=status,country,city,isp,org,as`).then((r) => r.json()),
+    );
+    if (d.status !== 'success') return null;
+    return {
+      org: d.org || d.isp || '',
+      place: [d.city, d.country].filter(Boolean).join(', '),
+      asn: (d.as || '').match(/^AS\d+/)?.[0] || '',
+    };
+  } catch {
+    return null;
+  }
+}
+
 const BOT_PROBE_REGEX = /^\/(\.git|\.env|wp-admin|phpmyadmin|admin\.php|\.well-known\/.*\.php|actuator|console|config\.json|xmlrpc\.php)/i;
 
+// Chặn một IP tái phạm — ngưỡng đếm theo giờ, chỉnh bằng ENV
+// SECURITY_AUTOBLOCK (mặc định 8). Đặt 0 để tắt hẳn tự chặn.
+// Dedup bằng cache: một đợt quét là hàng chục request, không thể mỗi cái lại
+// gọi Cloudflare và báo Telegram một lần.
+const autoBlocked = new Map();
+async function maybeAutoBlock(req, network) {
+  const threshold = process.env.SECURITY_AUTOBLOCK != null ? Number(process.env.SECURITY_AUTOBLOCK) : 8;
+  if (!threshold || threshold < 1) return;
+  const ip = String(req.ip || '').replace(/^::ffff:/, '');
+  if (!ip) return;
+
+  const now = Date.now();
+  for (const [k, at] of autoBlocked) if (now - at > 60 * 60 * 1000) autoBlocked.delete(k);
+  if (autoBlocked.has(ip)) return;
+
+  const ipHash = securityHash('ip', ip);
+  const priors = await SecurityEvent.countDocuments({
+    ipHash,
+    category: 'intrusion',
+    createdAt: { $gte: new Date(now - 60 * 60 * 1000) },
+  });
+  if (priors < threshold) return;
+  autoBlocked.set(ip, now);
+
+  const caseId = makeCaseId();
+  const note = `Hugo auto-block: ${priors} lượt dò/giờ · ${network}`;
+  const { blockIpAtEdge } = await import('./cloudflareFirewall.js');
+  const edge = await blockIpAtEdge(ip, note);
+  // Luôn ghi thêm lệnh chặn tầng ứng dụng: nó là lưới đỡ khi CF chưa cấu hình,
+  // và là bản ghi (dạng băm) để bản tổng kết đếm được "đã tự chặn N".
+  await applySubjectBlock('ip', ip, { caseId, reasonCode: 'auto_probe_block', countLock: false, durationMs: 7 * 24 * 60 * 60 * 1000 });
+  await SecurityBlock.updateOne(
+    { actorKey: actorKey('ip', ipHash) },
+    { $set: { edgeIp: ip, edgeRuleId: edge.ruleId || '' } },
+  ).catch(() => {});
+
+  import('./telegramService.js').then(({ sendTelegramAlert }) => {
+    sendTelegramAlert(
+      `🧱 <b>[TỰ CHẶN KẺ DÒ QUÉT]</b>\n\n`
+      + `🌐 <b>${network}</b>\n`
+      + `📊 <b>${priors}</b> lượt dò trong 1 giờ\n`
+      + `🛡️ Chặn tại: <b>${edge.edge ? 'Tường lửa Cloudflare (ngoài cổng)' : 'Tầng ứng dụng'}</b>\n`
+      + `📌 Case: <code>${caseId}</code>`,
+      'HTML',
+      { inline_keyboard: [[{ text: '🔓 Gỡ chặn (bấm nếu nhầm)', callback_data: `cb_unblock_ip:${caseId}` }]] },
+    ).catch(() => {});
+  }).catch(() => {});
+}
+
+// Cổng này chỉ nhìn thấy KHÁCH LẠ (chưa đăng nhập). Mà khách lạ gõ vào
+// `/api/.git/config` hay `/@fs/etc/passwd` thì gần như luôn là máy quét dạo
+// khắp internet, không phải người: nó không có tài khoản để khoá, không có
+// email để cảnh cáo, và ngày mai đổi IP. Hỏi Boss "có khoá con bot này không?"
+// là hỏi một câu không ai trả lời khác đi được — trong khi mỗi lần quét là hàng
+// chục đường dẫn trong một giây, tức hàng chục tin nhắn cho đúng một con bot.
+//
+// Nên: trả 404, GHI SỔ đầy đủ (SecurityEvent), và im lặng. Bản tổng kết 24h
+// dưới `securityDigest()` nói lại toàn bộ trong một tin duy nhất mỗi sáng.
+//
+// Thông báo tức thời để dành cho nơi có NGƯỜI THẬT sau lưng hành vi — chat của
+// thành viên (aiProxyRoutes), kiểm tra thông tin định kỳ (bioRoutes), bão
+// request từ một IP (rate limiter). Ở đó nút "Khoá / Bỏ qua" mới có nghĩa.
 export async function requestThreatGuard(req, res, next) {
   try {
     const pathOnly = String(req.originalUrl || '').split('?')[0];
@@ -514,17 +720,83 @@ export async function requestThreatGuard(req, res, next) {
       return res.status(404).send('Not Found');
     }
 
-    if (isMachineWebhook(req) || hasValidUserToken(req)) return next();
+    if (isMachineWebhook(req) || verifiedActor(req)) return next();
     const threat = assessRequestThreat(req);
     if (!threat) return next();
 
-    // In Zero Auto-Block Mode: record moderation event and report to Telegram for Boss approval (no auto IP ban)
-    await recordSecurityViolation({ req, ...threat, enforcement: 'threshold' });
-    return next();
+    // `observe`: ghi sổ, không chặn, không báo. Máy quét dạo đến từ IP dùng
+    // chung sau NAT của cả nhà mạng — khoá theo hai lần mò là khoá nhầm người
+    // thật, mà chặn được nó cũng chẳng để làm gì: 404 đã là câu trả lời đủ.
+    // Kèm nhãn MẠNG để bản tổng kết nói được "chúng đến từ đâu".
+    const network = await resolveNetwork(req.ip);
+    await recordSecurityViolation({ req, ...threat, enforcement: 'observe', notify: false, network });
+
+    // Nhưng một IP nện nhiều lần thì KHÔNG còn là "cả nhà mạng dùng chung" —
+    // một bà nội trợ sau NAT không gõ /etc/passwd tám lần. Vượt ngưỡng thì
+    // chặn thẳng, ưu tiên đẩy ra tường lửa Cloudflare (kẻ tấn công bị dập
+    // ngoài cổng, không tốn băng thông Render). Chạy nền: đừng để tra CF làm
+    // chậm cú 404 trả về cho con bot.
+    maybeAutoBlock(req, network).catch((e) => console.error('[auto-block]', e.message));
+    return res.status(404).send('Not Found');
   } catch (error) {
     console.error('[request threat guard]', error.message);
     return next();
   }
+}
+
+// Một tin mỗi sáng thay cho hàng chục tin mỗi ngày: nói rõ đêm qua có gì, cái
+// gì máy tự xử, cái gì còn chờ người. Vẫn gửi khi yên tĩnh — biết bộ canh còn
+// sống mới là thứ làm người ta an tâm, im lặng thì không phân biệt được "không
+// có gì" với "hỏng mà không ai hay".
+export async function securityDigest(hours = 24) {
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+  const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
+  const [events, pending, autoBlocks] = await Promise.all([
+    SecurityEvent.find({ createdAt: { $gte: since } }, 'category action path ipHash emailHash network').lean(),
+    SecurityModeration.countDocuments({ status: 'pending' }),
+    SecurityBlock.countDocuments({ reasonCode: 'auto_probe_block', lastLockedAt: { $gte: since } }),
+  ]);
+
+  if (!events.length && !pending && !autoBlocks) {
+    return `🛡️ <b>[BOT SECURITY: BÁO CÁO ${hours}H]</b>\n\n✅ Yên tĩnh. Không có sự kiện nào, không có ca nào chờ duyệt.`;
+  }
+
+  const ips = new Set(events.map((e) => e.ipHash).filter(Boolean));
+  const scanners = events.filter((e) => !e.emailHash);
+  const humans = events.filter((e) => e.emailHash);
+  const blocked = events.filter((e) => e.action !== 'rejected');
+
+  const tally = (rows, key) => {
+    const m = new Map();
+    for (const r of rows) { const v = r[key]; if (v) m.set(v, (m.get(v) || 0) + 1); }
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+  };
+  const topPaths = tally(scanners, 'path').map(([p, n]) => `   • <code>${p}</code> ×${n}`).join('\n');
+  const netRank = tally(scanners, 'network');
+  const topNets = netRank.map(([net, n]) => `   • <b>${net}</b> ×${n}`).join('\n');
+
+  // Gợi ý (KHÔNG tự bấm cò): một mạng ôm phần lớn lượt dò và có ASN rõ thì mách
+  // Boss lệnh chặn cả ASN. Quyết định chặn diện rộng luôn là của con người.
+  let suggest = '';
+  const [topNet, topCount] = netRank[0] || [];
+  if (topNet && scanners.length >= 10 && topCount >= scanners.length * 0.5) {
+    const asn = String(topNet).match(/AS\d+/)?.[0];
+    if (asn) suggest = `\n\n💡 <i>${topNet} chiếm ${Math.round((topCount / scanners.length) * 100)}% lượt dò. Cân nhắc:</i> <code>Chặn ASN ${asn}</code>`;
+  }
+
+  return [
+    `🛡️ <b>[BOT SECURITY: BÁO CÁO ${hours}H]</b>`,
+    '',
+    `📊 <b>${events.length}</b> sự kiện từ <b>${ips.size}</b> IP`,
+    `🤖 <b>${scanners.length}</b> lượt máy quét dạo — đã trả 404, không ảnh hưởng ai`,
+    `👤 <b>${humans.length}</b> sự kiện từ tài khoản đã đăng nhập`,
+    `🚫 <b>${blocked.length}</b> lượt khoá theo luật`,
+    `🧱 <b>${autoBlocks}</b> IP dò quét bị tự chặn ở tường lửa`,
+    `📋 <b>${pending}</b> ca đang chờ Boss duyệt`,
+    topNets ? `\n🌐 <b>Kẻ xâm phạm đến từ đâu:</b>\n${topNets}` : null,
+    topPaths ? `\n🔎 <b>Đường dẫn bị mò nhiều nhất:</b>\n${topPaths}` : null,
+    suggest || null,
+  ].filter((line) => line !== null).join('\n');
 }
 
 export function safeServerErrors(req, res, next) {

@@ -74,6 +74,13 @@ export const NOTIFICATION_TEXT = {
     "source.birthday_spin": "Vòng quay tháng sinh nhật",
     "source.credit": "Nhận JOY",
     "source.debit": "Dùng JOY",
+    "source.transfer_held": "Giao dịch đang được rà soát an toàn",
+    "source.transfer_rejected": "Giao dịch lớn chưa được duyệt",
+    "source.vocab_essay_retake": "Phí thi lại bài viết luận",
+    "vocab.reminder.title": "Đến giờ ôn từ vựng ✍️",
+    "vocab.reminder.message": "Bạn có {{count}} thẻ tiếng Trung cần ôn. Ôn ngay 2 phút để không quên nhé!",
+    "vocab.word.title": "{{hanzi}} · {{pinyin}}",
+    "vocab.word.message": "{{meaning}} — chạm để học thêm từ mới hôm nay.",
 
     "event.trialStarted.title": "Đã mở dùng thử {{app}}",
     "event.trialStarted.message": "Bạn có {{days}} ngày dùng thử miễn phí, hết hạn ngày {{date}}.",

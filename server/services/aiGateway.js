@@ -108,7 +108,10 @@ async function rawFetch(url, body) {
 // `lowPriority:true` (bot / bulk jobs) is dropped when quota is saturated, but
 // interactive calls (HugoPSY, support, moderation) always attempt so background
 // work can never starve a user talking to the AI.
-export async function generateRaw({ contents, systemInstruction, generationConfig, model, cacheKey, cacheTtlMs = 0, lowPriority = false } = {}) {
+// `tools` + `returnParts`: cần cho quản gia Telegram gọi công cụ. Không có
+// chúng thì mỗi tin nhắn phải nhét sẵn MỌI dữ liệu model có thể cần vào prompt,
+// tức 8 truy vấn Mongo cho cả câu "chào em".
+export async function generateRaw({ contents, systemInstruction, generationConfig, model, cacheKey, cacheTtlMs = 0, lowPriority = false, tools, toolConfig, returnParts = false } = {}) {
   if (cacheKey) { const c = cacheGet(cacheKey); if (c != null) return c; }
 
   const q = getQuotaStatus();
@@ -135,7 +138,13 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
       const formattedSystemInstruction = typeof systemInstruction === 'string'
         ? { parts: [{ text: systemInstruction }] }
         : systemInstruction;
-      const body = { contents, ...(formattedSystemInstruction ? { systemInstruction: formattedSystemInstruction } : {}), ...(generationConfig ? { generationConfig } : {}) };
+      const body = {
+        contents,
+        ...(formattedSystemInstruction ? { systemInstruction: formattedSystemInstruction } : {}),
+        ...(generationConfig ? { generationConfig } : {}),
+        ...(tools ? { tools } : {}),
+        ...(toolConfig ? { toolConfig } : {}),
+      };
       // Thiếu hẳn dòng này: `rawFetch(url, body)` bên dưới gọi một biến chưa
       // khai báo, nên MỌI lời gọi generateRaw đều ném ReferenceError. Lỗi đó
       // rơi đúng vào catch bên dưới và bị ghi log thành "Model X failed", nên
@@ -148,7 +157,11 @@ export async function generateRaw({ contents, systemInstruction, generationConfi
         const data = await rawFetch(url, body);
         tokensToday += data?.usageMetadata?.totalTokenCount || 0;
         consecFailures = 0;
-        const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+        // Khi gọi công cụ, câu trả lời KHÔNG nằm ở parts[0].text — nó là một
+        // functionCall ở part bất kỳ. Lấy text kiểu cũ là mất trắng lượt đó.
+        if (returnParts) return data?.candidates?.[0]?.content || null;
+        const text = (data?.candidates?.[0]?.content?.parts || [])
+          .map((p) => p?.text || '').join('').trim();
         if (cacheKey && cacheTtlMs > 0) cacheSet(cacheKey, text, cacheTtlMs);
         return text;
       } catch (e) {

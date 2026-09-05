@@ -17,6 +17,11 @@ const SecurityEventSchema = new mongoose.Schema({
   method: { type: String, default: '' },
   path: { type: String, default: '' },
   ipHash: { type: String, default: '', index: true },
+  // Nhãn MẠNG của kẻ gõ cửa (tên miền ngược / nhà cung cấp), suy ra từ IP tấn
+  // công lúc xảy ra sự kiện. Không phải dữ liệu cá nhân của người dùng — đây là
+  // hạ tầng của bên tấn công, và là thứ trả lời "chúng đến từ đâu". Ta vẫn chỉ
+  // lưu IP dạng băm (ipHash), không giữ IP thô.
+  network: { type: String, default: '', index: true },
   emailHash: { type: String, default: '', index: true },
   phoneHash: { type: String, default: '', index: true },
   evidenceHash: { type: String, default: '' },

@@ -6,6 +6,9 @@ import { ensureReferralCode } from '../utils/referralService.js';
 import { requireAdmin, requireMember } from '../middleware/authMiddleware.js';
 import { getRates, getRateHistory, ensureLiveFactors } from '../utils/joyRateService.js';
 import { bioAge, isMinorAge } from '../utils/memberAge.js';
+import { checkMoneyStepUp, sendMoneyOtpEmail } from '../services/moneyStepUp.js';
+import { assessTransferHold } from '../services/transferHold.js';
+import PendingTransfer from '../models/PendingTransfer.js';
 import CoderResource from '../models/CoderResource.js';
 import ReadingSession from '../models/ReadingSession.js';
 import { requiredReadingFor } from '../../shared/readingLessons.js';
@@ -435,60 +438,6 @@ router.get('/history', requireMember, async (req, res) => {
     res.json({ transactions, summary });
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-});
-
-// POST /api/joy/transfer-p2p  { targetEmail, amount, note }
-// Chuyển JOY P2P giữa hai thành viên kèm thiệp chúc mừng & đổi đơn vị cá nhân hoá.
-router.post('/transfer-p2p', requireMember, async (req, res) => {
-  try {
-    const senderEmail = req.memberEmail;
-    const { targetEmail, amount, note } = req.body;
-
-    if (!targetEmail || !amount || Number(amount) <= 0) {
-      return res.status(400).json({ error: 'Vui lòng nhập địa chỉ email người nhận và số JOY hợp lệ (> 0).' });
-    }
-
-    const cleanTarget = String(targetEmail).trim().toLowerCase();
-    if (cleanTarget === senderEmail.toLowerCase()) {
-      return res.status(400).json({ error: 'Bạn không thể tự chuyển JOY cho chính mình.' });
-    }
-
-    const recipientBio = await Bio.findOne({ email: cleanTarget });
-    if (!recipientBio) {
-      return res.status(404).json({ error: 'Không tìm thấy tài khoản người nhận.' });
-    }
-
-    const numAmount = Math.round(Number(amount));
-
-    // Trừ JOY từ người gửi (atomic operation, kiểm tra đủ số dư)
-    await awardJoy(
-      senderEmail,
-      -numAmount,
-      'member_transfer_out',
-      `Tặng ${numAmount} JOY cho ${recipientBio.displayName} (${cleanTarget})`
-    );
-
-    // Cộng JOY cho người nhận
-    const updatedRecipient = await awardJoy(
-      cleanTarget,
-      numAmount,
-      'member_transfer_in',
-      `Nhận ${numAmount} JOY từ ${senderEmail}: "${note || 'Chúc bạn ngày mới vui vẻ!'}"`
-    );
-
-    res.json({
-      success: true,
-      amountTransferred: numAmount,
-      recipient: {
-        email: cleanTarget,
-        displayName: recipientBio.displayName,
-        customDenom: recipientBio.joyDenom || 'JOY',
-      },
-      message: `Đã tặng ${numAmount.toLocaleString()} JOY cho ${recipientBio.displayName} thành công!`,
-    });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
   }
 });
 
@@ -1731,7 +1680,7 @@ router.post('/joylater/payoff', requireMember, async (req, res) => {
 
 router.post('/transfer', requireMember, async (req, res) => {
   try {
-    const { toPhone, toReferralCode, toEmail, amount, message, pin, idempotencyKey } = req.body;
+    const { toPhone, toReferralCode, toEmail, amount, message, pin, otp, idempotencyKey } = req.body;
     const fromEmail = req.memberEmail;
     if (!fromEmail || (!toPhone && !toReferralCode && !toEmail)) {
       return res.status(400).json({ error: 'Thiếu thông tin người gửi hoặc người nhận.' });
@@ -1758,12 +1707,12 @@ router.post('/transfer', requireMember, async (req, res) => {
       idempotencyCache.set(cacheKey, true);
     }
 
-    const rejectRequest = (status, errorMsg) => {
+    const rejectRequest = (status, errorMsg, code) => {
       if (idempotencyKey) {
         const cacheKey = `idempotency:${fromEmail}:${idempotencyKey}`;
         idempotencyCache.del(cacheKey);
       }
-      return res.status(status).json({ error: errorMsg });
+      return res.status(status).json({ error: errorMsg, ...(code ? { code } : {}) });
     };
 
     const numAmount = Number(amount);
@@ -1774,16 +1723,13 @@ router.post('/transfer', requireMember, async (req, res) => {
     const sender = await Bio.findOne({ email: fromEmail });
     if (!sender) return rejectRequest(404, 'Không tìm thấy hồ sơ người gửi.');
 
-    // 2. Xác thực PIN giao dịch (nếu đã cài đặt)
-    if (sender.transactionPin) {
-      if (!pin) {
-        return rejectRequest(400, 'Vui lòng cung cấp mã PIN để thực hiện giao dịch.');
-      }
-      const isPinValid = await bcrypt.compare(String(pin), sender.transactionPin);
-      if (!isPinValid) {
-        return rejectRequest(400, 'Mã PIN giao dịch không chính xác.');
-      }
-    }
+    // 2. Xác thực 2 lớp — dưới ngưỡng giữ luật cũ (PIN nếu đã cài), từ ngưỡng
+    // lên bắt buộc PIN + OTP email. `numAmount` là JOY gốc nên so ngưỡng trực
+    // tiếp. Trả kèm `code` để client biết cần nhập PIN hay OTP.
+    const step = await checkMoneyStepUp({
+      senderBio: sender, amountBaseJoy: numAmount, pin, otp, sendOtp: sendMoneyOtpEmail,
+    });
+    if (!step.ok) return rejectRequest(step.status, step.error, step.code);
 
     if (sender.joyBalance < 20) {
       return rejectRequest(400, 'Số dư của bạn phải có ít nhất 20 JOY mới được phép chuyển.');
@@ -1841,6 +1787,48 @@ router.post('/transfer', requireMember, async (req, res) => {
     // Short, human-readable transaction code shared by both ledger rows —
     // lets the receipt/notification on either side reference the same transfer.
     const txCode = `JOY${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
+
+    // Giữ giao dịch đáng ngờ: qua được 2FA nhưng KHÁC hành vi thường ngày (lần
+    // đầu chuyển lớn, hoặc gấp nhiều lần mức cũ) thì không cho đi ngay — tạo
+    // lệnh chờ, báo người dùng + Boss, Boss duyệt mới chạy. Không trừ tiền lúc
+    // này: tiền chỉ rời ví khi được duyệt (executeHeldTransfer).
+    const holdCheck = await assessTransferHold({ senderEmail: sender.email, amountBaseJoy: numAmount });
+    if (holdCheck.hold) {
+      await PendingTransfer.create({
+        txCode, fromEmail: sender.email, toEmail: recipient.email,
+        fromName: senderName, toName: recipientName,
+        numAmount, totalDeducted, feeAmount, conversionFee,
+        fromDenom: bill.fromCode, toDenom: bill.toCode, message: message || '',
+        reason: holdCheck.reason,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      });
+      // Báo người dùng: giao dịch đang được xem xét, KHÔNG phải thất bại.
+      const { notifyMember } = await import('../utils/notifyMember.js');
+      await notifyMember({
+        email: sender.email, type: 'info', category: 'joy',
+        key: 'source.transfer_held', actionUrl: '/member/account', push: true,
+        amount: -totalDeducted, refCode: txCode, counterparty: recipientName,
+      }).catch(() => {});
+      // Báo Boss kèm nút duyệt/từ chối.
+      import('../services/telegramService.js').then(({ sendTelegramAlert }) => {
+        sendTelegramAlert(
+          `🔍 <b>[GIỮ GIAO DỊCH LỚN CHỜ RÀ SOÁT]</b>\n\n`
+          + `👤 <code>${sender.email}</code> → <code>${recipient.email}</code>\n`
+          + `💰 <b>${numAmount.toLocaleString('vi-VN')} JOY</b>\n`
+          + `⚠️ ${holdCheck.reason}\n`
+          + `📌 Mã: <code>${txCode}</code>`,
+          'HTML',
+          { inline_keyboard: [[
+            { text: '✅ Duyệt & chuyển', callback_data: `cb_hold_ok:${txCode}` },
+            { text: '🚫 Từ chối', callback_data: `cb_hold_no:${txCode}` },
+          ]] },
+        ).catch(() => {});
+      }).catch(() => {});
+      return res.json({
+        success: true, held: true, txCode,
+        message: 'Giao dịch lớn đang được rà soát an toàn. Chúng tôi sẽ thông báo ngay khi hoàn tất (thường trong ít phút).',
+      });
+    }
 
     // Execute concurrently for instant real-time websocket delivery.
     // Pass bioDoc to skip redundant DB reads inside awardJoy.

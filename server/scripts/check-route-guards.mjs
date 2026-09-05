@@ -29,11 +29,10 @@ const { SERVICES } = await import(path.join(serverDir, "services.manifest.js"));
  * hãy gắn cổng.
  */
 const PUBLIC_ROUTES = {
+  "securityRoutes.js POST /appeal": "kháng nghị mở khoá: người dùng đang bị khoá NGOÀI cổng, không thể có token; chỉ nhận khi có lệnh khoá khớp email",
   // ── Đăng nhập: chính là cửa để lấy token, không thể yêu cầu token ────────
   "adminRoutes.js POST /login": "cửa đăng nhập admin",
-  "adminRoutes.js POST /request-otp": "bước 1 của 2FA admin",
   "adminRoutes.js POST /verify-otp": "bước 2 của 2FA admin",
-  "adminRoutes.js POST /logout": "xoá cookie, không đọc dữ liệu gì",
   "memberAuthRoutes.js POST /google": "đổi Google ID token lấy member JWT",
   "memberAuthRoutes.js POST /apple": "đổi Apple token lấy member JWT",
   "memberAuthRoutes.js POST /request-otp": "đăng nhập bằng OTP email, bước 1",

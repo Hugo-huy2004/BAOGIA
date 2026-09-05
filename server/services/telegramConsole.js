@@ -74,6 +74,10 @@ export async function homeScreen() {
           { text: '❄️ Ví đóng băng', callback_data: 'k:frozen' },
         ],
         [
+          { text: '🛡️ An ninh 24h', callback_data: 'k:sec' },
+          { text: '🐞 Lỗi máy chủ', callback_data: 'k:err' },
+        ],
+        [
           { text: '📋 Nhật ký', callback_data: 'k:log' },
           {
             text: global.IS_SYSTEM_MAINTENANCE ? '🟢 Tắt bảo trì' : '🔧 Bật bảo trì',
@@ -266,6 +270,19 @@ export async function handleConsoleCallback({ chatId, messageId, data }) {
       await show(listScreen('❄️ <b>Ví đang đóng băng</b>',
         await Bio.find({ isJoyWalletFrozen: true }).limit(8).lean(), 'Không có ví nào bị đóng băng.'));
       return true;
+
+    // Hai màn "đọc tình hình" mà trước đây chỉ có nếu Boss nhớ gõ đúng chữ.
+    case 'sec': {
+      const { securityDigest } = await import('./securityEnforcement.js');
+      await show({ text: await securityDigest(24), markup: backOnly() });
+      return true;
+    }
+
+    case 'err': {
+      const { errorDigest } = await import('../utils/alert.js');
+      await show({ text: await errorDigest(6), markup: backOnly() });
+      return true;
+    }
 
     case 'log': {
       const logs = await AdminAuditLog.find().sort({ createdAt: -1 }).limit(8).lean();

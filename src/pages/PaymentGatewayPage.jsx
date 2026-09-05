@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import dataApi from "../services/dataApi";
+import useVisiblePoll from "../hooks/useVisiblePoll";
 import HugoLogo from "../components/HugoLogo";
 import { isAdminAuthenticated } from "../services/authSession";
 import { notify } from "../lib/notify";
@@ -77,43 +78,41 @@ export default function PaymentGatewayPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  const [pollActive, setPollActive] = useState(true);
   const [bankApps, setBankApps] = useState(FALLBACK_BANK_APPS);
   const [bankAppsSource, setBankAppsSource] = useState("fallback");
   const [bankSearch, setBankSearch] = useState("");
   const mobileBankPlatform = useMemo(() => getMobileBankPlatform(), []);
 
-  useEffect(() => {
-    let alive = true;
-    let timer;
-
-    const fetchInfo = async () => {
-      try {
-        const response = await dataApi.get(`/api/payos/info/${id}`);
-        if (!alive) return;
-        if (!response.data.success) throw new Error(response.data.error);
-        setPaymentInfo(response.data.data);
-        setError("");
-        if (response.data.data.status !== "PENDING") clearInterval(timer);
-      } catch (requestError) {
-        if (!alive) return;
-        setError(requestError?.message || "Không tìm thấy giao dịch.");
-        clearInterval(timer);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    };
-
-    const initialize = async () => {
-      await fetchInfo();
-      timer = setInterval(fetchInfo, 5000);
-    };
-
-    initialize();
-    return () => {
-      alive = false;
-      clearInterval(timer);
-    };
+  // Poll trạng thái giao dịch: 5 giây, nhưng CHỈ khi tab đang hiện, và dừng
+  // hẳn khi giao dịch đã chốt (khác PENDING) hoặc gặp lỗi.
+  //
+  // Người trả tiền hầu như luôn chuyển sang app ngân hàng để quét QR — lúc đó
+  // tab này bị ẩn, và bản cũ vẫn nện server 12 lần/phút cho một màn hình không
+  // ai nhìn. Dừng lúc ẩn rồi gọi NGAY khi họ quay lại còn báo "đã thanh toán"
+  // nhanh hơn chờ hết nhịp 5 giây.
+  const fetchInfo = useCallback(async () => {
+    try {
+      const response = await dataApi.get(`/api/payos/info/${id}`);
+      if (!response.data.success) throw new Error(response.data.error);
+      setPaymentInfo(response.data.data);
+      setError("");
+      if (response.data.data.status !== "PENDING") setPollActive(false);
+    } catch (requestError) {
+      setError(requestError?.message || "Không tìm thấy giao dịch.");
+      setPollActive(false);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  // Mã giao dịch đổi thì mở lại vòng poll cho giao dịch mới.
+  useEffect(() => {
+    setPollActive(true);
+    setLoading(true);
+  }, [id]);
+
+  useVisiblePoll(fetchInfo, 5000, pollActive);
 
   useEffect(() => {
     if (!mobileBankPlatform) return undefined;

@@ -14,6 +14,11 @@ const SecurityBlockSchema = new mongoose.Schema({
   reasonCode: { type: String, default: 'security_policy' },
   lastCaseId: { type: String, default: '' },
   lastLockedAt: { type: Date, default: Date.now },
+  // CHỈ cho auto-block IP kẻ tấn công: giữ IP thô + id rule Cloudflare để nút
+  // "gỡ chặn" trên Telegram gỡ được cả ở tường lửa edge. Đây là hạ tầng của
+  // bên tấn công, không phải dữ liệu người dùng.
+  edgeIp: { type: String, default: '' },
+  edgeRuleId: { type: String, default: '' },
 }, { timestamps: true });
 
 SecurityBlockSchema.index({ subjectType: 1, subjectHash: 1 }, { unique: true });

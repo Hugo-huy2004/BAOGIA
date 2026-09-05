@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, lazy, Suspense } from "react";
 import VerifiedProfilePanel from "../../components/public/VerifiedProfilePanel";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
@@ -7,10 +7,13 @@ import { useHeadMeta } from "../../hooks/useHeadMeta";
 
 const apiBase = import.meta.env.VITE_API_URL || "/api";
 
-// Themes
-import DefaultTheme from "../../components/themes/DefaultTheme";
-import BrutalismTheme from "../../components/themes/BrutalismTheme";
-import FlatTheme from "../../components/themes/FlatTheme";
+// Themes — lazy: một trang bio chỉ dùng ĐÚNG MỘT giao diện, nhưng import tĩnh
+// bắt khách tải cả ba (70 KB) trên một trang công khai. LivePreviewPage vốn đã
+// lazy đúng ba file này. Fallback dùng lại BioProfileSkeleton nên khách thấy
+// liền mạch một khung xương, không phải màn trắng.
+const DefaultTheme = lazy(() => import("../../components/themes/DefaultTheme"));
+const BrutalismTheme = lazy(() => import("../../components/themes/BrutalismTheme"));
+const FlatTheme = lazy(() => import("../../components/themes/FlatTheme"));
 
 import { BioProfileSkeleton } from "../../components/ui/SkeletonLayouts";
 
@@ -112,9 +115,9 @@ export default function BioPublicPage() {
       : <DefaultTheme bio={bio} isOnline={isOnline} />;
 
   return (
-    <>
+    <Suspense fallback={<BioProfileSkeleton />}>
       {themed}
       <VerifiedProfilePanel slug={slug} />
-    </>
+    </Suspense>
   );
 }

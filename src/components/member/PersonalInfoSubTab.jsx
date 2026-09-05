@@ -1,3 +1,4 @@
+import "./apple-account.css";
 import { memberTier, TierBadge } from "../../lib/memberTier";
 import { optimizeCloudinaryUrl } from "../../utils/imageOptimizer";
 import { formatFullAddress, profileAnswerDisplayName, religionDisplayName } from "../../lib/profileDisplay";

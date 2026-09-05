@@ -52,14 +52,15 @@ const adminLoginLimiter = rateLimit({
   message: { error: 'Quá nhiều lần đăng nhập thất bại. Vui lòng thử lại sau 15 phút.' }
 });
 
-// Cửa gửi mã OTP: ai cũng gọi được (không cần mật khẩu), nên phải chặn chặt —
-// mỗi lần gọi là một tin nhắn Telegram vào máy Boss. 5 lần / 15 phút / IP.
-const otpRequestLimiter = rateLimit({
+// Trần đoán OTP. Trước đây /verify-otp không có limiter nào: chặn duy nhất là
+// bộ đếm 5 lần/token, nên chỉ cần xin token mới là đoán tiếp. Limiter này chặn
+// luôn ở tầng IP để một máy không thể vừa xin token vừa đoán liên tục.
+const otpVerifyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: process.env.NODE_ENV === 'production' ? 20 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Bạn đã yêu cầu mã quá nhiều lần. Thử lại sau 15 phút.' },
+  message: { error: 'Quá nhiều lần nhập mã. Vui lòng thử lại sau 15 phút.' }
 });
 
 /**
@@ -76,6 +77,12 @@ async function issueAdminOtp(admin) {
   const tempToken = crypto.randomBytes(24).toString('hex');
 
   if (!global.ADMIN_2FA_OTPS) global.ADMIN_2FA_OTPS = new Map();
+  // Quét rác trước khi thêm: mã hết hạn mà không ai gọi verify-otp thì nằm lại
+  // trong Map vĩnh viễn. Trên máy 512MB của Render free đó là rò bộ nhớ chậm.
+  const nowMs = Date.now();
+  for (const [key, entry] of global.ADMIN_2FA_OTPS) {
+    if (entry.expiresAt <= nowMs) global.ADMIN_2FA_OTPS.delete(key);
+  }
   global.ADMIN_2FA_OTPS.set(tempToken, {
     adminId: admin._id,
     adminUsername: admin.username || 'admin',
@@ -106,36 +113,16 @@ Mã đăng nhập Admin Dashboard: <b>${otpCode}</b>
   return { tempToken, delivered, expiresIn: Math.round(OTP_TTL_MS / 1000) };
 }
 
-/**
- * POST /api/admin/request-otp — đăng nhập quản trị chỉ bằng OTP Telegram.
- *
- * Không có mật khẩu: yếu tố xác thực là QUYỀN ĐỌC được tin nhắn gửi tới đúng
- * một chat Telegram của chủ hệ thống (TELEGRAM_CHAT_ID cố định trong .env).
- * Người lạ bấm nút này chỉ làm máy Boss kêu một tiếng, họ không đọc được mã.
- */
-router.post('/request-otp', otpRequestLimiter, async (req, res) => {
-  try {
-    // Hệ thống một chủ: lấy tài khoản quản trị gần nhất làm danh tính cho phiên.
-    const admin = await Admin.findOne({}).sort({ updatedAt: -1 });
-    if (!admin) {
-      return res.status(503).json({ error: 'Chưa có tài khoản quản trị nào. Chạy: node server/scripts/reset-admin.mjs <tên> <mật-khẩu>' });
-    }
-
-    const { tempToken, delivered, expiresIn } = await issueAdminOtp(admin);
-    res.json({
-      success: true,
-      tempToken,
-      otpDelivered: delivered,
-      expiresIn,
-      message: delivered
-        ? 'Đã gửi mã 6 chữ số — dùng trong 30 giây.'
-        : 'Không gửi được mã (bot chưa cấu hình hoặc lỗi mạng). Xem mã trong log máy chủ.',
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
+// Đã xoá POST /api/admin/request-otp.
+//
+// Nó phát OTP cho BẤT KỲ AI gọi, không cần mật khẩu — nên toàn bộ bảo mật
+// admin rút gọn thành đoán 6 chữ số (900.000 khả năng), với trần chặn tính
+// theo IP. Một pool proxy vài nghìn địa chỉ đoán ra trong vài giờ. Tệ hơn:
+// mỗi lần gọi gửi một tin Telegram, nhưng Telegram giới hạn ~1 tin/giây/chat
+// nên khi tấn công tăng quy mô thì tin ngừng tới — mã VẪN phát ra và vẫn hợp
+// lệ. Cuộc tấn công càng mạnh càng im lặng.
+//
+// /login bên dưới đã làm đúng việc này: mật khẩu ĐÚNG rồi mới phát OTP.
 router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -164,14 +151,11 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
         matchingAdmin = adminCandidate;
       }
     } else {
-      // Fallback if username was omitted
-      const admins = await Admin.find({});
-      for (const admin of admins) {
-        if (await verifyAndUpgrade(admin, password)) {
-          matchingAdmin = admin;
-          break;
-        }
-      }
+      // Bắt buộc có tên đăng nhập. Nhánh cũ bỏ trống username thì duyệt MỌI
+      // bản ghi admin và bcrypt.compare từng cái — 12 vòng ≈ 250ms mỗi lần,
+      // nên một request rỗng ghim CPU nhiều giây trên Render free. Nó cũng thu
+      // hẹp thông tin cần đoán xuống chỉ còn mật khẩu.
+      return res.status(400).json({ error: 'Vui lòng nhập tên đăng nhập.' });
     }
 
     if (!matchingAdmin) {
@@ -197,7 +181,7 @@ router.post('/login', adminLoginLimiter, async (req, res) => {
 });
 
 // POST /api/admin/verify-otp  { tempToken, otpCode }
-router.post('/verify-otp', async (req, res) => {
+router.post('/verify-otp', otpVerifyLimiter, async (req, res) => {
   try {
     const { tempToken, otpCode } = req.body;
     if (!tempToken || !otpCode) {
@@ -228,8 +212,18 @@ router.post('/verify-otp', async (req, res) => {
     // OTP Verified successfully -> Issue 14-day Admin JWT
     global.ADMIN_2FA_OTPS.delete(tempToken);
 
+    // requireAdmin đã có sẵn phần đối chiếu uaHash, nhưng CHỈ chạy khi token
+    // mang trường đó — mà trước giờ không chỗ nào ký nó vào token admin, nên
+    // lớp ràng buộc thiết bị là code chết. Nghịch lý: thành viên thường
+    // (signMemberToken) có ràng buộc, còn admin — mục tiêu giá trị hơn hẳn —
+    // thì không. Ký vào đây để token bị lấy cắp không dùng được ở máy khác.
+    const uaHash = crypto
+      .createHash('sha256')
+      .update(req.headers['user-agent'] || '')
+      .digest('hex');
+
     const token = jwt.sign(
-      { id: record.adminId, role: 'admin' },
+      { id: record.adminId, role: 'admin', uaHash },
       JWT_SECRET,
       { expiresIn: '14d' }
     );
@@ -269,8 +263,15 @@ router.post('/verify-otp', async (req, res) => {
 
 
 // Logout route
-router.post('/logout', (req, res) => {
+router.post('/logout', requireAdmin, async (req, res) => {
   res.clearCookie('jwt');
+  // Đẩy mốc thu hồi: xoá cookie chỉ dọn TRÌNH DUYỆT NÀY, token đã bị chép ra
+  // vẫn sống tới hết 14 ngày. Đăng xuất giờ cắt mọi phiên admin đang mở.
+  try {
+    await Admin.findByIdAndUpdate(req.admin.id, { sessionsValidFrom: new Date() });
+  } catch (error) {
+    console.error('[admin logout revoke]', error.message);
+  }
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
@@ -325,6 +326,9 @@ router.post('/change-password', requireAdmin, async (req, res) => {
 
     // Completely wipe old password hash & save fresh 12-round bcrypt hash
     admin.password = await bcrypt.hash(newPassword, 12);
+    // Đổi mật khẩu mà phiên cũ vẫn chạy thì việc đổi gần như vô nghĩa khi lý do
+    // đổi là NGHI BỊ LỘ. Cắt hết, kể cả phiên đang thao tác.
+    admin.sessionsValidFrom = new Date();
     admin.markModified('password');
     await admin.save();
 

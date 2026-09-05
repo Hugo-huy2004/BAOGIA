@@ -32,6 +32,28 @@ function portInUse(port) {
   });
 }
 
+function waitForPort(port, timeoutMs = 30000) {
+  const startedAt = Date.now();
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      const probe = net.createConnection({ port, host: "127.0.0.1" });
+      probe.once("connect", () => {
+        probe.destroy();
+        resolve();
+      });
+      probe.once("error", () => {
+        probe.destroy();
+        if (Date.now() - startedAt >= timeoutMs) {
+          reject(new Error(`Backend không lắng nghe cổng ${port} sau ${timeoutMs / 1000}s.`));
+          return;
+        }
+        setTimeout(check, 250);
+      });
+    };
+    check();
+  });
+}
+
 // Cái bẫy đắt nhất của thiết lập này: một tiến trình LẠ đang giữ cổng backend.
 // Metro/Expo (mặc định 8081) trả HTML kèm status 200 cho mọi đường dẫn, nên
 // `/api/*` không báo lỗi — nó "thành công" với một trang web. Thà dừng ngay và
@@ -81,6 +103,14 @@ process.on("SIGTERM", () => shutdown(0));
 // mới toanh trả 404 y như chưa từng viết — mất cả buổi đi tìm lỗi trong code
 // đúng. Cùng họ với vụ PayOS "lỗi code" hoá ra là tiến trình cũ chưa chết.
 run("backend", "npm", ["run", "dev"], { cwd: "server", env: { ...process.env, PORT: String(BACKEND_PORT) } });
+
+try {
+  await waitForPort(BACKEND_PORT);
+} catch (error) {
+  console.error(`\n✖ ${error.message}`);
+  shutdown(1);
+}
+
 run("vite", "npx", ["vite"], {
   env: { ...process.env, VITE_DEV_BACKEND_URL: process.env.VITE_DEV_BACKEND_URL || `http://localhost:${BACKEND_PORT}` },
 });

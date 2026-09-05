@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,9 +17,14 @@ import { CLINICAL_TESTS } from "./clinicalTests";
 import ChatMessages from "./ChatMessages";
 import ClinicalTestPanel from "./ClinicalTestPanel";
 import ClinicScanner from "./ClinicScanner";
-import TherapyTab from "./TherapyTab";
-import EvaluationTab from "./EvaluationTab";
-import SleepTracker from "./SleepTracker";
+// BanhocduongTab đã React.lazy đúng ba component này, nhưng import tĩnh ở đây
+// kéo cả 167 KB (SleepTracker 80 + TherapyTab 47 + EvaluationTab 40) vào chunk
+// chat — người chỉ nhắn tin, không mở ngăn nào, vẫn phải tải hết. Cả bốn chỗ
+// dùng đều nằm sau điều kiện nên lazy được; Suspense đặt tại chỗ để mở ngăn
+// không làm cả khung chat nháy fallback của BanhocduongTab.
+const TherapyTab = lazy(() => import("./TherapyTab"));
+const EvaluationTab = lazy(() => import("./EvaluationTab"));
+const SleepTracker = lazy(() => import("./SleepTracker"));
 import ChatInputBar from "./ChatInputBar";
 import TokenExchangeModal from "./TokenExchangeModal";
 import { CrisisSosCountdown } from "./EmergencySiren";
@@ -1233,6 +1238,7 @@ export default function ChatTab({
           <p className="text-[13px] font-extrabold text-foreground">{t("hugoPsy.chat.thuGianTuCham")}</p>
         </div>
         <div className="flex-1 overflow-y-auto">
+          <Suspense fallback={null}>
           <TherapyTab
             onClaimChallenge={onClaimChallenge}
             bio={bio}
@@ -1245,6 +1251,7 @@ export default function ChatTab({
             onNavigateToTab={() => { setShowTherapyOverlay(false); setTherapyInitialMethod(null); }}
             initialMethod={therapyInitialMethod}
           />
+          </Suspense>
         </div>
         <TokenExchangeModal
           isOpen={showTokenExchangeModal}
@@ -1704,6 +1711,7 @@ export default function ChatTab({
               </div>
 
               <div className="flex-1 overflow-y-auto p-4">
+                <Suspense fallback={null}>
                 {activeModalDrawer === "therapy" && (
                   <TherapyTab
                     onNavigateToTab={onNavigateToTab}
@@ -1722,6 +1730,7 @@ export default function ChatTab({
                 {activeModalDrawer === "evaluation" && (
                   <EvaluationTab onNavigateToTab={onNavigateToTab} bio={bio} historyLogs={historyLogs} showToast={showToast} />
                 )}
+                </Suspense>
               </div>
             </motion.div>
           </div>

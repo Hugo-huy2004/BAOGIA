@@ -12,6 +12,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "Tất cả", education: "Học tập", wellness: "Sức khỏe", tools: "Công cụ", entertainment: "Giải trí" },
     badges: { hot: "NỔI BẬT", new: "MỚI", join: "THAM GIA", ai: "AI", lofi: "LOFI", free: "MIỄN PHÍ", utility: "TIỆN ÍCH", games: "TRÒ CHƠI", focus: "TẬP TRUNG", system: "HỆ THỐNG", store: "CỬA HÀNG", game: "TRÒ CHƠI" },
     catalog: catalog([
+      ["vocab", "Học Từ Vựng", "Thẻ từ vựng tiếng Trung HSK & TOCFL, ôn tập khoa học"],
       ["profile", "Hồ Sơ", "Hồ sơ năng lực có kiểm chứng, gắn vào trang Bio"],
       ["bio", "Trang Bio", "Hồ sơ cá nhân và liên kết Bio"],
       ["library", "Thư Viện", "Thư viện ứng dụng trong hệ sinh thái Hugo"],
@@ -41,6 +42,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "All", education: "Learning", wellness: "Wellness", tools: "Tools", entertainment: "Entertainment" },
     badges: { hot: "HOT", new: "NEW", join: "JOIN", ai: "AI", lofi: "LOFI", free: "FREE", utility: "UTILITY", games: "GAMES", focus: "FOCUS", system: "SYSTEM", store: "STORE", game: "GAME" },
     catalog: catalog([
+      ["vocab", "Vocabulary", "Chinese HSK & TOCFL flashcards with smart review"],
       ["profile", "Profile", "A verified record of your work, attached to your Bio"],
       ["bio", "Bio", "Personal profile and Bio link"],
       ["library", "Library", "The app library for the Hugo ecosystem"],
@@ -70,6 +72,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "全部", education: "学习", wellness: "身心健康", tools: "工具", entertainment: "娱乐" },
     badges: { hot: "热门", new: "新品", join: "加入", ai: "AI", lofi: "LOFI", free: "免费", utility: "工具", games: "游戏", focus: "专注", system: "系统", store: "商店", game: "游戏" },
     catalog: catalog([
+      ["vocab", "生词卡", "HSK 与 TOCFL 中文单词卡，科学复习"],
       ["profile", "履历", "可验证的能力记录，附在 Bio 页面上"],
       ["bio", "个人页", "个人资料与 Bio 链接"],
       ["library", "应用库", "Hugo 生态系统的应用库"],
@@ -99,6 +102,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "ทั้งหมด", education: "การเรียนรู้", wellness: "สุขภาวะ", tools: "เครื่องมือ", entertainment: "ความบันเทิง" },
     badges: { hot: "ยอดนิยม", new: "ใหม่", join: "เข้าร่วม", ai: "AI", lofi: "LOFI", free: "ฟรี", utility: "เครื่องมือ", games: "เกม", focus: "โฟกัส", system: "ระบบ", store: "ร้านค้า", game: "เกม" },
     catalog: catalog([
+      ["vocab", "คำศัพท์", "แฟลชการ์ดภาษาจีน HSK & TOCFL ทบทวนอัจฉริยะ"],
       ["profile", "โปรไฟล์", "บันทึกความสามารถที่ตรวจสอบได้ แนบกับหน้า Bio"],
       ["bio", "ไบโอ", "โปรไฟล์ส่วนตัวและลิงก์ Bio"],
       ["library", "คลังแอป", "คลังแอปสำหรับระบบนิเวศ Hugo"],
@@ -128,6 +132,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "すべて", education: "学習", wellness: "ウェルネス", tools: "ツール", entertainment: "エンタメ" },
     badges: { hot: "注目", new: "新着", join: "参加", ai: "AI", lofi: "LOFI", free: "無料", utility: "ツール", games: "ゲーム", focus: "集中", system: "システム", store: "ストア", game: "ゲーム" },
     catalog: catalog([
+      ["vocab", "単語学習", "HSK・TOCFL 中国語単語カード、賢い復習"],
       ["profile", "実績", "検証できる実績の記録。Bio ページに添えて表示"],
       ["bio", "プロフィール", "個人プロフィールと Bio リンク"],
       ["library", "ライブラリ", "Hugo エコシステムのアプリライブラリ"],
@@ -157,6 +162,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "전체", education: "학습", wellness: "웰니스", tools: "도구", entertainment: "엔터테인먼트" },
     badges: { hot: "인기", new: "신규", join: "참여", ai: "AI", lofi: "LOFI", free: "무료", utility: "도구", games: "게임", focus: "집중", system: "시스템", store: "스토어", game: "게임" },
     catalog: catalog([
+      ["vocab", "어휘 학습", "HSK·TOCFL 중국어 단어 카드, 스마트 복습"],
       ["profile", "이력", "검증 가능한 활동 기록, Bio 페이지에 첨부"],
       ["bio", "프로필", "개인 프로필과 Bio 링크"],
       ["library", "라이브러리", "Hugo 생태계의 앱 라이브러리"],
@@ -186,6 +192,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "Semua", education: "Belajar", wellness: "Kebugaran", tools: "Alat", entertainment: "Hiburan" },
     badges: { hot: "POPULER", new: "BARU", join: "GABUNG", ai: "AI", lofi: "LOFI", free: "GRATIS", utility: "UTILITAS", games: "GIM", focus: "FOKUS", system: "SISTEM", store: "TOKO", game: "GIM" },
     catalog: catalog([
+      ["vocab", "Kosakata", "Kartu kosakata Mandarin HSK & TOCFL dengan ulasan cerdas"],
       ["profile", "Profil", "Catatan kemampuan terverifikasi, menempel di halaman Bio"],
       ["bio", "Bio", "Profil pribadi dan tautan Bio"],
       ["library", "Pustaka", "Pustaka aplikasi untuk ekosistem Hugo"],
@@ -215,6 +222,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "Todo", education: "Aprendizaje", wellness: "Bienestar", tools: "Herramientas", entertainment: "Entretenimiento" },
     badges: { hot: "POPULAR", new: "NUEVA", join: "ÚNETE", ai: "IA", lofi: "LOFI", free: "GRATIS", utility: "UTILIDAD", games: "JUEGOS", focus: "ENFOQUE", system: "SISTEMA", store: "TIENDA", game: "JUEGO" },
     catalog: catalog([
+      ["vocab", "Vocabulario", "Tarjetas de chino HSK y TOCFL con repaso inteligente"],
       ["profile", "Perfil", "Un registro verificado de tu trabajo, junto a tu Bio"],
       ["bio", "Bio", "Perfil personal y enlace Bio"],
       ["library", "Biblioteca", "Biblioteca de aplicaciones del ecosistema Hugo"],
@@ -244,6 +252,7 @@ export const MEMBER_APP_TRANSLATIONS = {
     categories: { all: "Tout", education: "Apprentissage", wellness: "Bien-être", tools: "Outils", entertainment: "Divertissement" },
     badges: { hot: "POPULAIRE", new: "NOUVEAU", join: "REJOINDRE", ai: "IA", lofi: "LOFI", free: "GRATUIT", utility: "OUTIL", games: "JEUX", focus: "FOCUS", system: "SYSTÈME", store: "BOUTIQUE", game: "JEU" },
     catalog: catalog([
+      ["vocab", "Vocabulaire", "Cartes de chinois HSK et TOCFL avec révision intelligente"],
       ["profile", "Profil", "Un relevé vérifié de votre travail, joint à votre Bio"],
       ["bio", "Bio", "Profil personnel et lien Bio"],
       ["library", "Bibliothèque", "Bibliothèque d’applications de l’écosystème Hugo"],

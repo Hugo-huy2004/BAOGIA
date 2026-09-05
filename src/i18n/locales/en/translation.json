@@ -1571,7 +1571,9 @@
       "otpBtn": "Send OTP",
       "otpSending": "Sending code…",
       "otpSent": "Code sent.",
-      "otpDesc": "Tap below to receive a 6-digit code — valid for 30 seconds."
+      "usernameLabel": "Username",
+      "passwordLabel": "Password",
+      "otpDesc": "Enter your username and password — the server sends a 6-digit code to Telegram, valid for 30 seconds."
     }
   },
   "customerPortal": {
@@ -4776,7 +4778,6 @@
         "fiveDayIncome": "5-day income",
         "profile": "Personal profile",
         "profileDescription": "Your public Biolink and gateway to tools and learning utilities.",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "Press and hold to customize"
       },
       "size": {

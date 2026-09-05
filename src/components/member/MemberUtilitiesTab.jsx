@@ -25,6 +25,7 @@ const HugoCinemaTab = lazy(() => import("./cinema/HugoCinemaTab"));
 const HugoInvestTab = lazy(() => import("./invest/HugoInvestTab"));
 const SupportCenterApp = lazy(() => import("./support/SupportCenterApp"));
 const FriendsApp = lazy(() => import("./FriendsApp"));
+const HugoVocabApp = lazy(() => import("./vocab/HugoVocabApp"));
 
 export default function MemberUtilitiesTab({ bio, publicLink, showToast, setFormData, handleSave, renderAccountForm, selectedUtility, onSelectUtility, psychologySubTab, onSelectPsychologySubTab, radioPage, onSelectRadioPage, defaultPsychologyPresetTest, sleepAutoDetect, onBioUpdate, studyRoute, studySub, onOpenParticleModal }) {
   const { t, i18n } = useTranslation();
@@ -152,6 +153,11 @@ export default function MemberUtilitiesTab({ bio, publicLink, showToast, setForm
       {/* Hugo Profile — hồ sơ năng lực có kiểm chứng, gắn vào trang Bio */}
       {selectedUtility === "profile" && (
         <HugoProfileTab onBack={() => onSelectUtility(null)} publicLink={publicLink} />
+      )}
+
+      {/* Học Từ Vựng — tiếng Trung theo thẻ, có test xếp lớp + test đầu ra */}
+      {selectedUtility === "vocab" && (
+        <HugoVocabApp onBack={() => onSelectUtility(null)} />
       )}
 
       {selectedUtility === "friends" && friendsInstalled && (

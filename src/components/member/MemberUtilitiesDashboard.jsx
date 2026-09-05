@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { isMinorMember, ADULT_ONLY_APPS } from "../../lib/memberAge";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,10 @@ import memberService from "../../services/classes/MemberService";
 import WidgetRenderer from "./utilities/WidgetRenderer";
 import AppIconRenderer from "./utilities/AppIconRenderer";
 import LibraryCatalog from "./utilities/LibraryCatalog";
-import StandaloneGameShell from "./arcade/StandaloneGameShell";
+// Lazy: vỏ game kéo theo game-shell.css (73 KB) + mã game. UtilityPublicPage
+// vốn đã lazy nó; import tĩnh ở đây bắt mọi thành viên chỉ mở thư viện app
+// phải tải hết dù không chơi. Chỗ dùng nằm sau điều kiện nên lazy được.
+const StandaloneGameShell = lazy(() => import("./arcade/StandaloneGameShell"));
 import { appInstallationPolicy } from "../../../shared/appInstallationPolicy";
 import {
   INSTALLED_APPS_KEY,
@@ -763,6 +766,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
         case "profile": import("./HugoProfileTab"); break;
         case "friends": import("./FriendsApp"); break;
         case "radio": import("./MemberRadioTab"); break;
+        case "vocab": import("./vocab/HugoVocabApp"); break;
         case "arcade": import("./arcade/HugoArcadeTab"); break;
         case "aura": import("./MemberAuraTab"); break;
         case "info": import("./MemberInfoVersionTab"); break;
@@ -1094,6 +1098,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
       )}
 
       {/* 🎮 Standalone Arcade Mini-Game Sheet Launcher */}
+      <Suspense fallback={<div className="fixed inset-0 z-50 grid place-items-center bg-black"><div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white" /></div>}>
       {activeArcadeGame && (
         <StandaloneGameShell
           gameId={activeArcadeGame.replace("arcade_", "")}
@@ -1101,6 +1106,7 @@ export default function MemberUtilitiesDashboard({ bio, onBioUpdate, setSelected
           onClose={() => setActiveArcadeGame(null)}
         />
       )}
+      </Suspense>
 
       {/* 🌌 CSS Keyframe Animations Block */}
       <style>{`

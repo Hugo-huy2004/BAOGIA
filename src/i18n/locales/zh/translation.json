@@ -2899,7 +2899,6 @@
         "fiveDayIncome": "五天收入",
         "profile": "个人资料",
         "profileDescription": "您的公共生物链接和通往工具和学习实用工具的门户",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "点击并保持以自定义"
       },
       "size": {
@@ -6052,7 +6051,9 @@
       "otpBtn": "发送验证码",
       "otpSending": "正在发送…",
       "otpSent": "验证码已发送。",
-      "otpDesc": "点击下方按钮接收6位验证码 — 有效期30秒。"
+      "usernameLabel": "用户名",
+      "passwordLabel": "密码",
+      "otpDesc": "请输入用户名和密码 — 服务器会向 Telegram 发送 6 位验证码，有效期 30 秒。"
     }
   },
   "customerPortal": {

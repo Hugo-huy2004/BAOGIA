@@ -1,0 +1,367 @@
+/* Apple Account — CSS của màn Thông tin cá nhân (PersonalInfoSubTab).
+   Trước đây nằm trong index.css, tức là mọi khách vào /services cũng tải.
+   Họ hàng .apple-account-section* vốn đã ở memberPortal27.css, nên cụm này
+   bị chẻ làm đôi giữa hai tệp. Giờ đi cùng chính component dùng nó. */
+/* Apple Account — quiet grouped settings, one portal accent and system type. */
+.apple-account-shell {
+  width: min(100%, 760px);
+  max-width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+  display: grid;
+  gap: var(--portal-space-6, 24px);
+}
+
+.apple-account-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--portal-space-6, 24px);
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid hsl(var(--border) / 0.68);
+  border-radius: var(--portal-radius-xl, 28px);
+  background: hsl(var(--card) / 0.88);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.06);
+}
+
+.apple-account-avatar-control {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  flex: 0 0 112px;
+}
+
+.apple-account-avatar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid hsl(var(--background));
+  border-radius: 999px;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground) / 0.55);
+  box-shadow: 0 0 0 1px hsl(var(--border)), 0 12px 30px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.apple-account-avatar:hover,
+.apple-account-avatar:focus-visible,
+.apple-account-avatar.is-dragging {
+  transform: scale(1.025);
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.28), 0 14px 34px rgba(0, 0, 0, 0.14);
+  outline: none;
+}
+
+.apple-account-avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.apple-account-avatar > .material-symbols-outlined {
+  font-size: 52px;
+}
+
+.apple-account-avatar-action {
+  position: absolute;
+  z-index: 2;
+  right: -9px;
+  bottom: 3px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 3px solid hsl(var(--card));
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  color: white;
+  box-shadow: 0 5px 16px hsl(var(--shadow) / .22);
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.apple-account-avatar-action .material-symbols-outlined { font-size: 18px; }
+.apple-account-avatar-action:active { transform: scale(.94); }
+.apple-account-avatar-action:disabled { cursor: not-allowed; opacity: .55; }
+
+.apple-account-avatar-control--compact {
+  width: 88px;
+  height: 88px;
+  flex-basis: 88px;
+}
+
+.apple-account-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: hsl(var(--warning) / 0.12);
+  color: hsl(var(--warning));
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.apple-account-status.is-verified {
+  background: hsl(var(--success) / 0.12);
+  color: hsl(var(--success));
+}
+
+.apple-account-status .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.apple-account-group {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border) / 0.68);
+  border-radius: var(--portal-radius-lg, 20px);
+  background: hsl(var(--card) / 0.92);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.035);
+}
+
+.apple-account-shell > section,
+.apple-account-hero,
+.apple-account-savebar {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.apple-account-row {
+  min-height: 60px;
+  display: grid;
+  grid-template-columns: 34px minmax(112px, 0.55fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+}
+
+.apple-account-row + .apple-account-row,
+.apple-account-row + .apple-account-security-note {
+  border-top: 1px solid hsl(var(--border) / 0.55);
+}
+
+.apple-account-row-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-size: 17px;
+}
+
+.apple-account-row-label {
+  color: hsl(var(--muted-foreground));
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.apple-account-row--textarea {
+  align-items: start;
+}
+
+.apple-account-row--textarea .apple-account-row-icon,
+.apple-account-row--textarea .apple-account-row-label {
+  margin-top: 3px;
+}
+
+.apple-account-row--verified {
+  grid-template-columns: 34px minmax(112px, 0.55fr) minmax(0, 1fr) 24px;
+  background: hsl(var(--muted) / 0.26);
+}
+
+.apple-account-lock {
+  color: hsl(var(--muted-foreground) / 0.65);
+  line-height: 0;
+}
+
+.apple-account-lock .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.apple-account-security-note {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  background: hsl(var(--primary) / 0.055);
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+/* Điện thoại: nhãn nằm trên, ô nhập chiếm trọn bề ngang. Lưới ba cột
+   (icon | nhãn 112px | ô nhập) ép ô nhập còn ~150px trên máy 360px, nhãn dài
+   như "Số điện thoại / Zalo" thì xuống dòng loạn cả hàng.
+   Cỡ chữ ô nhập để 17px: dưới 16px là Safari tự phóng to trang khi bấm vào. */
+@media (max-width: 480px) {
+  .apple-account-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-areas: "icon label" "value value";
+    row-gap: 6px;
+    padding: 12px 15px;
+  }
+
+  .apple-account-row > :nth-child(1) { grid-area: icon; }
+  .apple-account-row > :nth-child(2) { grid-area: label; }
+  .apple-account-row > :nth-child(3) { grid-area: value; }
+
+  .apple-account-row--verified {
+    grid-template-columns: 30px minmax(0, 1fr) 22px;
+    grid-template-areas: "icon label lock" "value value value";
+  }
+
+  .apple-account-row--verified > :nth-child(3) { grid-area: value; }
+  .apple-account-row--verified > :nth-child(4) { grid-area: lock; }
+
+  .apple-account-row-label { font-size: 13px; }
+
+  .apple-account-input,
+  .apple-account-row input,
+  .apple-account-row select,
+  .apple-account-row textarea {
+    font-size: 17px;
+    padding-block: 2px;
+  }
+}
+
+.apple-account-security-note .material-symbols-outlined {
+  color: hsl(var(--primary));
+  font-size: 18px;
+}
+
+.apple-account-savebar {
+  position: sticky;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 16px;
+  border: 1px solid hsl(var(--border) / 0.74);
+  border-radius: var(--portal-radius-lg, 20px);
+  background: hsl(var(--background) / 0.86);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: 0 16px 46px rgba(0, 0, 0, 0.12);
+}
+
+.apple-account-savebar > div {
+  display: grid;
+  gap: 2px;
+}
+
+.apple-account-savebar strong {
+  font-size: 13px;
+}
+
+.apple-account-savebar small {
+  color: hsl(var(--muted-foreground));
+  font-size: 11px;
+}
+
+.apple-account-save {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 17px;
+  border-radius: 999px;
+  background: hsl(var(--primary));
+  color: white;
+  font-size: 13px;
+  font-weight: 650;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.apple-account-save:active { transform: scale(0.97); }
+.apple-account-save:disabled { opacity: 0.62; cursor: wait; }
+.apple-account-save .material-symbols-outlined { font-size: 17px; }
+
+.apple-account-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: white;
+  border-radius: 999px;
+  animation: spin 0.7s linear infinite;
+}
+
+@media (min-width: 769px) {
+  .apple-account-savebar { bottom: 20px; }
+}
+
+@media (max-width: 639px) {
+  .apple-account-hero {
+    flex-direction: column;
+    padding: 24px 18px;
+  }
+
+  .apple-account-avatar--compact {
+    width: 100%;
+    height: 100%;
+    flex-basis: auto;
+  }
+
+  .apple-account-status { margin-inline: auto; }
+
+  .apple-account-row,
+  .apple-account-row--verified {
+    grid-template-columns: 32px minmax(0, 1fr) 22px;
+    gap: 10px;
+  }
+
+  .apple-account-row:not(.apple-account-row--verified) {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .apple-account-row-label {
+    grid-column: 2;
+    align-self: end;
+    font-size: 11px;
+  }
+
+  .apple-account-row .apple-account-input,
+  .apple-account-row--verified > :nth-child(3) {
+    grid-column: 2;
+    align-self: start;
+  }
+
+  .apple-account-row--verified .apple-account-lock {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .apple-account-row-icon {
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (max-height: 500px) and (pointer: coarse) {
+  .portal-mobile-layout .apple-account-hero {
+    flex-direction: row;
+    padding: 16px 18px;
+  }
+
+  .portal-mobile-layout .apple-account-avatar {
+    width: 100%;
+    height: 100%;
+    flex-basis: auto;
+  }
+
+  .portal-mobile-layout .apple-account-avatar-control {
+    width: 76px;
+    height: 76px;
+    flex-basis: 76px;
+  }
+
+  .portal-mobile-layout .apple-account-status {
+    margin-inline: 0;
+  }
+}

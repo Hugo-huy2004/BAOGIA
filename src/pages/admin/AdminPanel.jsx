@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import useVisiblePoll from "../../hooks/useVisiblePoll";
 import { useTranslation } from "react-i18next";
 import { userApi } from "../../services/api/UserApi";
 import { useData } from "../../context/DataContext";
@@ -96,23 +97,23 @@ export default function AdminPanel() {
 
   // Crisis Alerts
   const [crisisAlerts, setCrisisAlerts] = useState([]);
-  useEffect(() => {
+  // Cảnh báo khủng hoảng là tính năng AN TOÀN — vẫn giữ nhịp 15 giây, chỉ bỏ
+  // phần chạy lúc tab bị ẩn (admin có nhìn đâu mà cảnh báo). Quay lại tab là
+  // nạp ngay, nên thời gian admin thực sự biết tin không chậm đi chút nào.
+  const fetchCrisisAlerts = useCallback(() => {
     const apiBase = import.meta.env.VITE_API_URL || "/api";
-    const fetchAlerts = () => {
-      const headers = {};
-      const session = getAdminSession();
-      if (session && session.token) {
-        headers["Authorization"] = `Bearer ${session.token}`;
-      }
-      fetch(`${apiBase}/companion/admin/crisis-alerts`, { headers, credentials: "include" })
-        .then(r => r.ok ? r.json() : [])
-        .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
-        .catch(() => {});
-    };
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 15000);
-    return () => clearInterval(interval);
+    const headers = {};
+    const session = getAdminSession();
+    if (session && session.token) {
+      headers["Authorization"] = `Bearer ${session.token}`;
+    }
+    fetch(`${apiBase}/companion/admin/crisis-alerts`, { headers, credentials: "include" })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setCrisisAlerts(Array.isArray(data) ? data : []))
+      .catch(() => {});
   }, []);
+
+  useVisiblePoll(fetchCrisisAlerts, 15000);
 
   // Admin Super Security Armor: F12 / DevTools Inspection Trap
   useEffect(() => {

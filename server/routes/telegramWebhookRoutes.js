@@ -3,32 +3,89 @@ import Bio from '../models/Bio.js';
 import AdminAuditLog from '../models/AdminAuditLog.js';
 import SupportTicket from '../models/SupportTicket.js';
 import { awardJoy } from '../utils/joyService.js';
-import { sendTelegramAlert, sendTelegramMessage, editTelegramMessage } from '../services/telegramService.js';
+import { sendTelegramAlert, sendTelegramMessage, editTelegramMessage, fetchTelegramFile } from '../services/telegramService.js';
 import { requireAdmin } from '../middleware/authMiddleware.js';
 import { JWT_SECRET } from '../utils/secrets.js';
+import {
+  DENOM_PATTERN, findCommand, helpScreen,
+  stashCommand, takeCommand, inverseCommand, typedConfirmFor,
+} from '../services/telegramCommands.js';
+import TelegramState from '../models/TelegramState.js';
 import crypto from 'crypto';
 
 const router = express.Router();
 
-// Trí nhớ hội thoại của quản gia: 8 lượt gần nhất mỗi khung chat, để trong RAM.
-// ponytail: mất khi khởi động lại — chấp nhận được cho một cuộc trò chuyện qua
-// Telegram. Muốn nhớ dài hạn thì đổ vào Mongo, nhưng đừng làm trước khi thấy
-// thiếu thật.
-const CHAT_MEMORY = new Map();
+// Trí nhớ hội thoại của quản gia: 8 lượt gần nhất mỗi khung chat, nằm dưới
+// Mongo với TTL 24 giờ. Để trong RAM thì mỗi lần Render restart là quản gia
+// quên sạch chuyện đang nói dở giữa chừng — Boss hỏi "còn cái kia thì sao?" và
+// nhận về một người lạ.
 const MAX_TURNS = 8;
+const MEMORY_TTL_MS = 24 * 60 * 60 * 1000;
 
-function recentTurns(chatId) {
-  return CHAT_MEMORY.get(String(chatId)) || [];
+async function recentTurns(chatId) {
+  const doc = await TelegramState.findOne({ key: `memory:${chatId}` }).lean().catch(() => null);
+  return doc?.data?.turns || [];
 }
 
-function rememberTurn(chatId, userText, botText) {
-  const key = String(chatId);
-  const turns = CHAT_MEMORY.get(key) || [];
-  turns.push(
+async function rememberTurn(chatId, userText, botText) {
+  const turns = [
+    ...(await recentTurns(chatId)),
     { role: 'user', parts: [{ text: userText }] },
     { role: 'model', parts: [{ text: String(botText).replace(/<[^>]+>/g, '') }] },
-  );
-  CHAT_MEMORY.set(key, turns.slice(-MAX_TURNS * 2));
+  ].slice(-MAX_TURNS * 2);
+  await TelegramState.findOneAndUpdate(
+    { key: `memory:${chatId}` },
+    { $set: { kind: 'memory', data: { turns }, expiresAt: new Date(Date.now() + MEMORY_TTL_MS) } },
+    { upsert: true },
+  ).catch(() => {});
+}
+
+// Ảnh chụp trạng thái trước khi đổi — không có nó thì "Đổi tên" không hoàn tác
+// được, vì chẳng ai biết tên cũ là gì.
+async function snapshotFor(command) {
+  const email = String(command || '').match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0];
+  if (!email) return {};
+  const bio = await Bio.findOne({ email: email.toLowerCase() }, 'displayName slug').lean();
+  return { displayName: bio?.displayName || '', slug: bio?.slug || '' };
+}
+
+// Thẻ xác nhận cho Boss thấy MÌNH SẮP ĐỘNG VÀO AI, trước khi bấm. Một câu AI
+// hiểu nhầm thì hiện ra ở đây — đúng người hay nhầm người, nhìn là biết.
+async function previewTarget(command) {
+  const email = String(command || '').match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0];
+  if (!email) return '';
+  const bio = await Bio.findOne({ email: email.toLowerCase() }, 'displayName joyBalance isJoyWalletFrozen status').lean();
+  if (!bio) return `\n\n⚠️ <b>Không tìm thấy tài khoản</b> <code>${email}</code> — em sẽ không làm gì cả.`;
+  return `\n\n🎯 <b>Đối tượng:</b> ${bio.displayName || 'chưa đặt tên'} (<code>${email}</code>)`
+    + `\n   Ví <b>${Number(bio.joyBalance || 0).toLocaleString('vi-VN')} JOY</b>`
+    + ` · ${bio.isJoyWalletFrozen ? '❄️ ví đang khoá' : '✅ ví đang mở'}`
+    + ` · ${bio.status === 'suspended' ? '🔴 tài khoản đang đình chỉ' : '🟢 tài khoản hoạt động'}`;
+}
+
+// Chạy một lệnh Boss đã duyệt, rồi mời hoàn tác trong 5 phút.
+//
+// Nghịch đảo phải tính TRƯỚC khi chạy (tên cũ, slug cũ mất ngay sau lệnh đổi).
+// Việc nào không đảo ngược được — gửi thông báo, thu hồi phiên — thì không hiện
+// nút: thà không có nút còn hơn có nút bấm vào chẳng trả lại được gì.
+// ponytail: hoàn tác gắn ở đường lệnh do AI dịch, vì đó là chỗ có thể hiểu sai
+// ý Boss. Lệnh Boss tự gõ là đúng chữ Boss viết, chưa cần tới.
+async function runApprovedCommand(chatId, command) {
+  const before = await snapshotFor(command);
+  await AdminAuditLog.create({
+    adminId: 'BOSS_TELEGRAM',
+    adminUsername: 'Boss (duyệt lệnh AI)',
+    action: 'telegram_ai_command_approved',
+    details: { command },
+  }).catch(() => {});
+
+  await processTelegramUpdate({ message: { chat: { id: chatId }, text: command } }, { allowAi: false });
+
+  const inverse = inverseCommand(command, before);
+  if (!inverse) return;
+  const undoId = await stashCommand(inverse, 'undo', 5 * 60 * 1000);
+  await sendTelegramMessage(chatId, '↩️ <i>Lỡ tay? Bấm để trả lại như cũ (5 phút).</i>', 'HTML', {
+    inline_keyboard: [[{ text: '↩️ Hoàn tác', callback_data: `cb_undo:${undoId}` }]],
+  });
 }
 
 /**
@@ -89,7 +146,7 @@ async function buildButlerMemberReport(bioDoc) {
  * Super-Admin Telegram Remote Control Engine & AI Butler Companion
  * Tiếp nhận lệnh NLU, trò chuyện AI Butler và Callback Query từ Telegram.
  */
-export async function processTelegramUpdate(update) {
+export async function processTelegramUpdate(update, { allowAi = true } = {}) {
   if (!update) return;
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -133,6 +190,62 @@ export async function processTelegramUpdate(update) {
         const rpt = await buildButlerMemberReport(bio);
         await editTelegramMessage(chatId, cb.message?.message_id, `🎁 <b>ĐÃ THƯỞNG +1,000 JOY CHO MEMBER!</b>\n\n${rpt.text}`, rpt.markup);
       }
+      return;
+    }
+
+    if (cbData === 'cb_run_cancel') {
+      await editTelegramMessage(chatId, cb.message?.message_id, '✋ <b>Đã huỷ.</b> Em không làm gì cả ạ.');
+      return;
+    }
+
+    if (cbData.startsWith('cb_run:')) {
+      const command = await takeCommand(cbData.replace('cb_run:', ''));
+      if (!command) {
+        await editTelegramMessage(chatId, cb.message?.message_id, '⌛ <b>Lệnh đã hết hạn hoặc đã chạy rồi.</b> Boss nói lại giúp em ạ.');
+        return;
+      }
+      // Mọi thứ AI đề xuất đều phải qua lại hàng rào một lần nữa ngay trước khi
+      // chạy: mã trong callback_data là thứ đến từ ngoài, không tin sẵn được.
+      if (!findCommand(command)) {
+        await editTelegramMessage(chatId, cb.message?.message_id, '🚫 <b>Lệnh không hợp lệ,</b> em từ chối thực thi ạ.');
+        return;
+      }
+
+      // Việc đóng cửa cả hệ thống thì một cú bấm nhầm là quá rẻ.
+      const phrase = typedConfirmFor(command);
+      if (phrase) {
+        await TelegramState.findOneAndUpdate(
+          { key: `typed:${chatId}` },
+          { $set: { kind: 'pending', data: { command, phrase }, expiresAt: new Date(Date.now() + 5 * 60 * 1000) } },
+          { upsert: true },
+        );
+        await editTelegramMessage(chatId, cb.message?.message_id,
+          `⚠️ <b>Việc này ảnh hưởng toàn hệ thống.</b>\n\nGõ đúng dòng dưới đây để xác nhận (5 phút):\n<code>${phrase}</code>`);
+        return;
+      }
+
+      await editTelegramMessage(chatId, cb.message?.message_id, `✅ <b>Boss đã duyệt.</b> Đang chạy:\n<code>${command}</code>`);
+      await runApprovedCommand(chatId, command);
+      return;
+    }
+
+    if (cbData.startsWith('cb_undo:')) {
+      const inverse = await takeCommand(cbData.replace('cb_undo:', ''), 'undo');
+      if (!inverse) {
+        await editTelegramMessage(chatId, cb.message?.message_id, '⌛ <b>Quá hạn hoàn tác</b> (5 phút) hoặc đã hoàn tác rồi ạ.');
+        return;
+      }
+      await editTelegramMessage(chatId, cb.message?.message_id, `↩️ <b>Đang hoàn tác:</b>\n<code>${inverse}</code>`);
+      await AdminAuditLog.create({
+        adminId: 'BOSS_TELEGRAM',
+        adminUsername: 'Boss (hoàn tác)',
+        action: 'telegram_command_undo',
+        details: { command: inverse },
+      }).catch(() => {});
+      await processTelegramUpdate(
+        { message: { chat: { id: chatId }, text: inverse } },
+        { allowAi: false },
+      );
       return;
     }
 
@@ -250,10 +363,106 @@ export async function processTelegramUpdate(update) {
       const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
       // Thẻ cũ gửi mã băm, thẻ mới gửi Case ID — nhận cả hai để những thẻ đã
       // nằm sẵn trong khung chat vẫn bấm được.
-      const res = await SecurityBlock.deleteMany(
-        ref.startsWith('SEC-') ? { subjectType: 'ip', lastCaseId: ref } : { actorKey: `ip:${ref}` },
-      );
-      await sendTelegramAlert(`✅ <b>ĐÃ GIẢI KHÓA IP THÀNH CÔNG!</b>\n📌 Đã gỡ bỏ ${res.deletedCount || 0} bản ghi khóa IP cho Boss.`);
+      const filter = ref.startsWith('SEC-') ? { subjectType: 'ip', lastCaseId: ref } : { actorKey: `ip:${ref}` };
+      // Gỡ ở tường lửa Cloudflare TRƯỚC khi xoá bản ghi — sau khi xoá là mất
+      // luôn edgeIp/edgeRuleId, không còn gì để gỡ ngoài edge.
+      const { unblockIpAtEdge } = await import('../services/cloudflareFirewall.js');
+      let edgeMsg = '';
+      for (const b of await SecurityBlock.find(filter).lean()) {
+        if (b.edgeIp || b.edgeRuleId) {
+          const r = await unblockIpAtEdge({ ip: b.edgeIp, ruleId: b.edgeRuleId });
+          if (r.edge) edgeMsg = '\n🌐 Đã gỡ khỏi tường lửa Cloudflare.';
+        }
+      }
+      const res = await SecurityBlock.deleteMany(filter);
+      await sendTelegramAlert(`✅ <b>ĐÃ GIẢI KHÓA IP THÀNH CÔNG!</b>\n📌 Đã gỡ bỏ ${res.deletedCount || 0} bản ghi khóa IP cho Boss.${edgeMsg}`);
+      return;
+    }
+
+    if (cbData.startsWith('cb_hold_ok:') || cbData.startsWith('cb_hold_no:')) {
+      const approve = cbData.startsWith('cb_hold_ok:');
+      const txCode = cbData.replace(/^cb_hold_(ok|no):/, '');
+      const PendingTransfer = (await import('../models/PendingTransfer.js')).default;
+      const pending = await PendingTransfer.findOne({ txCode });
+      if (!pending || pending.status !== 'pending') {
+        await sendTelegramAlert('ℹ️ <b>Giao dịch này đã được xử lý hoặc hết hạn.</b>');
+        return;
+      }
+      const { notifyMember } = await import('../utils/notifyMember.js');
+      if (approve) {
+        try {
+          const { executeHeldTransfer } = await import('../services/transferHold.js');
+          await executeHeldTransfer(pending);
+          pending.status = 'approved';
+          await sendTelegramAlert(`✅ <b>ĐÃ DUYỆT & CHUYỂN:</b> ${pending.numAmount.toLocaleString('vi-VN')} JOY\n<code>${pending.fromEmail}</code> → <code>${pending.toEmail}</code>`);
+        } catch (e) {
+          await sendTelegramAlert(`❌ <b>Không chuyển được:</b> ${e.message}\nMã: <code>${txCode}</code>`);
+          return;
+        }
+      } else {
+        pending.status = 'rejected';
+        await notifyMember({
+          email: pending.fromEmail, type: 'warning', category: 'joy',
+          key: 'source.transfer_rejected', actionUrl: '/member/account', push: true,
+          refCode: pending.txCode, counterparty: pending.toName,
+        }).catch(() => {});
+        await sendTelegramAlert(`🚫 <b>ĐÃ TỪ CHỐI giao dịch:</b> <code>${txCode}</code> (tiền chưa rời ví người gửi)`);
+      }
+      pending.decidedBy = 'Boss_Telegram';
+      pending.decidedAt = new Date();
+      await pending.save();
+      await AdminAuditLog.create({
+        adminId: 'BOSS_TELEGRAM', adminUsername: 'Boss (rà soát giao dịch)',
+        action: approve ? 'transfer_hold_approved' : 'transfer_hold_rejected',
+        targetEmail: pending.fromEmail, details: { txCode, amount: pending.numAmount },
+      }).catch(() => {});
+      return;
+    }
+
+    if (cbData.startsWith('cb_appeal_ok:') || cbData.startsWith('cb_appeal_no:')) {
+      const approve = cbData.startsWith('cb_appeal_ok:');
+      const id = cbData.replace(/^cb_appeal_(ok|no):/, '');
+      const SecurityAppeal = (await import('../models/SecurityAppeal.js')).default;
+      const appeal = await SecurityAppeal.findById(id);
+      if (!appeal || appeal.status !== 'pending') {
+        await sendTelegramAlert('ℹ️ <b>Kháng nghị này đã được xử lý hoặc hết hạn.</b>');
+        return;
+      }
+      appeal.status = approve ? 'approved' : 'rejected';
+      appeal.decidedBy = 'Boss_Telegram';
+      appeal.decidedAt = new Date();
+      await appeal.save();
+
+      if (approve) {
+        // Gỡ mọi lệnh khoá đang treo trên email này (và IP/edge kèm theo).
+        const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
+        const { securityHash } = await import('../services/securityEnforcement.js');
+        const { unblockIpAtEdge } = await import('../services/cloudflareFirewall.js');
+        const emailKey = `email:${securityHash('email', appeal.email)}`;
+        for (const b of await SecurityBlock.find({ actorKey: emailKey }).lean()) {
+          if (b.edgeIp || b.edgeRuleId) await unblockIpAtEdge({ ip: b.edgeIp, ruleId: b.edgeRuleId });
+        }
+        await SecurityBlock.deleteMany({ actorKey: emailKey });
+      }
+
+      // Dọn ảnh nhạy cảm khỏi Cloudinary ngay khi có quyết định — không giữ
+      // selfie của người ta lâu hơn mức cần để xét duyệt.
+      if (appeal.imageUrl) {
+        const { deleteAvatar } = await import('../utils/cloudinary.js');
+        await deleteAvatar(appeal.imageUrl).catch(() => {});
+      }
+
+      await AdminAuditLog.create({
+        adminId: 'BOSS_TELEGRAM',
+        adminUsername: 'Boss (xét kháng nghị)',
+        action: approve ? 'appeal_approved' : 'appeal_rejected',
+        targetEmail: appeal.email,
+        details: { caseId: appeal.caseId },
+      }).catch(() => {});
+
+      await sendTelegramAlert(approve
+        ? `✅ <b>ĐÃ MỞ KHOÁ theo kháng nghị:</b> <code>${appeal.email}</code>`
+        : `🚫 <b>ĐÃ TỪ CHỐI kháng nghị:</b> <code>${appeal.email}</code> (tài khoản vẫn khoá)`);
       return;
     }
 
@@ -271,7 +480,14 @@ export async function processTelegramUpdate(update) {
       }
 
       const { applyActorBlock } = await import('../services/securityEnforcement.js');
-      await applyActorBlock({ ip: mod.ip, email: mod.email, phone: mod.phone, caseId: mod.caseId, reasonCode: mod.category });
+      // Nút ghi "24h" thì phải khoá đúng 24 giờ, và KHÔNG được đếm vào bậc
+      // thang dẫn tới khoá vĩnh viễn — phạt nguội không phải bản án.
+      await applyActorBlock({
+        ip: mod.ip, email: mod.email, phone: mod.phone,
+        caseId: mod.caseId, reasonCode: mod.category,
+        durationMs: 24 * 60 * 60 * 1000,
+        escalate: false,
+      });
       mod.status = 'approved';
       mod.decidedBy = 'Boss_Telegram';
       mod.decidedAt = new Date();
@@ -308,6 +524,31 @@ export async function processTelegramUpdate(update) {
     return;
   }
 
+  // ─── BOSS GỬI ẢNH ──────────────────────────────────────────────────────────
+  // Chụp màn hình lỗi rồi hỏi thẳng, không phải gõ lại nội dung lỗi bằng tay.
+  if (message.photo?.length) {
+    const largest = message.photo[message.photo.length - 1];
+    const file = await fetchTelegramFile(largest.file_id);
+    if (!file) {
+      await sendTelegramMessage(chatId, '📷 <b>Em không tải được ảnh này ạ</b> (quá nặng hoặc Telegram từ chối).');
+      return;
+    }
+    const { generateRaw } = await import('../services/aiGateway.js');
+    const answer = await generateRaw({
+      systemInstruction: { parts: [{ text: 'Bạn là Quản Gia AI của Hugo Studio. Boss gửi một ảnh. Đọc kỹ rồi trả lời ngắn gọn, đúng trọng tâm, bằng tiếng Việt, định dạng HTML Telegram (<b>, <code>). Nếu là ảnh chụp lỗi thì chỉ ra nguyên nhân khả dĩ và việc nên làm tiếp.' }] },
+      contents: [{
+        role: 'user',
+        parts: [
+          { inline_data: { mime_type: file.mime, data: file.base64 } },
+          { text: String(message.caption || 'Boss gửi ảnh này, em xem giúp.').slice(0, 1000) },
+        ],
+      }],
+      generationConfig: { temperature: 0.4 },
+    });
+    await sendTelegramMessage(chatId, answer || '🤖 Dạ thưa Boss, em chưa đọc được ảnh này (AI đang quá tải). Boss thử lại sau ít phút ạ.');
+    return;
+  }
+
   if (!text) return;
   const lowerText = text.toLowerCase();
 
@@ -316,6 +557,19 @@ export async function processTelegramUpdate(update) {
   // Boss vừa gõ vào ô nhập của một nút đã bấm — chữ này là CÂU TRẢ LỜI, không
   // phải lệnh mới, nên chặn trước khi nó rơi xuống bộ lệnh gõ tay và AI.
   if (await CONSOLE.handlePendingInput(chatId, text)) return;
+
+  // Boss đang được yêu cầu gõ lại một câu để xác nhận việc ảnh hưởng toàn hệ
+  // thống — chữ này là CÂU XÁC NHẬN, không phải lệnh mới.
+  const typed = await TelegramState.findOneAndDelete({ key: `typed:${chatId}` }).lean().catch(() => null);
+  if (typed) {
+    if (text.trim().toUpperCase() !== String(typed.data?.phrase || '').toUpperCase()) {
+      await sendTelegramMessage(chatId, '✋ <b>Gõ không khớp — em đã huỷ,</b> không làm gì cả ạ.');
+      return;
+    }
+    await sendTelegramMessage(chatId, `✅ <b>Xác nhận đúng.</b> Đang chạy:\n<code>${typed.data.command}</code>`);
+    await runApprovedCommand(chatId, typed.data.command);
+    return;
+  }
 
   // ─── MÀN HÌNH CHÍNH ──────────────────────────────────────────────────────────
   if (['/start', 'start', 'menu', '/menu', 'bảng điều khiển', 'bang dieu khien'].includes(lowerText)) {
@@ -558,8 +812,6 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
     gem:   { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
     gold:  { code: 'JOY',   name: 'JOY',  key: 'vi', factor: 1 },
   };
-
-  const DENOM_PATTERN = 'joy|xu|điểm|diem|gem|gold|joyka|joyve|joyra|joyse|joymi|joyti|joyzo|joylu|kavo|velu|rami|sela|mira|tinu|zoma|luno';
 
   // ─── LỆNH 1: CỘNG / TRỪ / GỬI JOY CHO THÀNH VIÊN (HIỂU ĐƠN VỊ CÁ NHÂN HÓA) ─────
   const joyEmailFirstRegex = new RegExp(`(gửi|cộng|tặng|thưởng|trừ|chuyển)\\s+(?:đến|cho|vào|của)?\\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})\\s+([+-]?\\d+(?:[.,]\\d+)?)\\s*(${DENOM_PATTERN})?`, 'i');
@@ -825,6 +1077,50 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
   }
 
   // ─── LỆNH 3: BÁO CÁO / BRIEFING ──────────────────────────────────────────────
+  // ─── LỆNH: TRỢ GIÚP ─────────────────────────────────────────────────────────
+  if (findCommand(text)?.id === 'help') {
+    await sendTelegramMessage(chatId, helpScreen());
+    return;
+  }
+
+  // ─── LỆNH: CHẶN / BỎ CHẶN QUỐC GIA · ASN ────────────────────────────────────
+  const geoCmd = findCommand(text)?.id;
+  if (geoCmd === 'geoblock' || geoCmd === 'geounblock') {
+    const m = text.match(/(quốc gia|quoc gia|country|asn)\s+(\S+)/i);
+    const target = /asn/i.test(m?.[1] || '') ? 'asn' : 'country';
+    const value = m?.[2] || '';
+    const { blockScopeAtEdge, unblockScopeAtEdge, edgeFirewallEnabled } = await import('../services/cloudflareFirewall.js');
+    if (!edgeFirewallEnabled()) {
+      await sendTelegramMessage(chatId, '⚠️ <b>Chưa bật được tường lửa Cloudflare.</b>\nCần cấp token CLOUDFLARE_API_TOKEN quyền <i>Zone → Firewall Services → Edit</i> thì lệnh này mới chạy.');
+      return;
+    }
+    const r = geoCmd === 'geoblock'
+      ? await blockScopeAtEdge({ target, value, note: 'Boss geo-block qua Telegram' })
+      : await unblockScopeAtEdge({ target, value });
+    await sendTelegramMessage(chatId, r.edge
+      ? `✅ <b>${geoCmd === 'geoblock' ? 'Đã chặn' : 'Đã bỏ chặn'}</b> ${target === 'asn' ? 'ASN' : 'quốc gia'} <code>${r.value || value}</code> ở tường lửa Cloudflare.`
+      : `❌ <b>Không thực hiện được:</b> ${r.error || (r.notFound ? 'không tìm thấy lệnh chặn' : 'lỗi không rõ')}`);
+    return;
+  }
+
+  // ─── LỆNH: TỔNG KẾT AN NINH ─────────────────────────────────────────────────
+  // Cùng bản tin mà cron gửi 08:00 mỗi sáng — Boss gọi lại bất cứ lúc nào.
+  if (findCommand(text)?.id === 'security') {
+    const hours = Math.min(168, Number(text.match(/\d{1,3}/)?.[0] || 24));
+    const { securityDigest } = await import('../services/securityEnforcement.js');
+    await sendTelegramMessage(chatId, await securityDigest(hours));
+    return;
+  }
+
+  // ─── LỆNH: LỖI MÁY CHỦ GẦN NHẤT ─────────────────────────────────────────────
+  // Gộp theo nội dung: một lỗi lặp 200 lần là MỘT dòng kèm số đếm, chứ không
+  // phải 200 dòng giống hệt nhau đẩy hết những lỗi khác ra khỏi màn hình.
+  if (findCommand(text)?.id === 'errors') {
+    const { errorDigest } = await import('../utils/alert.js');
+    await sendTelegramMessage(chatId, await errorDigest(Number(text.match(/\d{1,2}/)?.[0] || 5)));
+    return;
+  }
+
   if (lowerText === 'báo cáo' || lowerText === 'bao cao' || lowerText === 'briefing' || lowerText === 'status') {
     const [totalUsers, pendingTickets, frozenWallets] = await Promise.all([
       Bio.countDocuments(),
@@ -845,104 +1141,58 @@ ${askedForPassword ? '\nℹ️ <i>Tài khoản thành viên đăng nhập bằng
     return;
   }
 
-  // ─── 5. SMART LIVE SYSTEM CONTEXT & AI BUTLER NLU ENGINE ──────────────────────
+  // ─── 5. QUẢN GIA AI: DỊCH TIẾNG NGƯỜI THÀNH HÀNH ĐỘNG ───────────────────────
+  // Lệnh gõ tay ở trên đòi ĐÚNG cú pháp; nhớ hết 17 mẫu là việc của máy, không
+  // phải của Boss. Ở đây quản gia đọc câu nói thường rồi CHỌN một lệnh trong
+  // danh mục (telegramCommands.js) — chọn, chứ không tự chế ra lệnh mới.
+  //
+  // Việc chỉ đọc thì chạy luôn. Việc có ghi (tiền, khoá, danh tính, gửi cho
+  // người dùng) thì dừng lại ở một nút xác nhận: đúng luật "hành động ghi phải
+  // có người duyệt" của docs/ai-workforce.md, và cũng là cái đảm bảo một câu
+  // hiểu nhầm không bao giờ tự trừ tiền của ai.
+  if (!allowAi) return;
   try {
-    const [totalUsers, latestUsers, topJoyUsers, pendingTickets, totalMovies, maintenance, pendingMods, activeBlocks] = await Promise.all([
-      Bio.countDocuments(),
-      Bio.find().sort({ createdAt: -1 }).limit(5).lean(),
-      Bio.find().sort({ joyBalance: -1 }).limit(5).lean(),
-      SupportTicket.countDocuments({ status: 'pending' }),
-      (async () => {
-        try {
-          const CinemaMovie = (await import('../models/CinemaMovie.js')).default;
-          return await CinemaMovie.countDocuments();
-        } catch { return 0; }
-      })(),
-      global.IS_SYSTEM_MAINTENANCE || false,
-      (async () => {
-        try {
-          const SecurityModeration = (await import('../models/SecurityModeration.js')).default;
-          return await SecurityModeration.find({ status: 'pending' }).limit(5).lean();
-        } catch { return []; }
-      })(),
-      (async () => {
-        try {
-          const SecurityBlock = (await import('../models/SecurityBlock.js')).default;
-          return await SecurityBlock.countDocuments();
-        } catch { return 0; }
-      })(),
-    ]);
-
-    // Flexible multi-field database search (name, email, slug)
-    const words = text.split(/\s+/).filter(w => w.length >= 2);
-    let searchResults = [];
-    if (words.length > 0) {
-      const searchRegex = new RegExp(words.join('|'), 'i');
-      searchResults = await Bio.find({
-        $or: [
-          { email: searchRegex },
-          { displayName: searchRegex },
-          { slug: searchRegex },
-        ]
-      }).limit(5).lean();
-    }
-
-    const liveContext = `
-📊 [THÔNG TIN HỆ THỐNG THỜI GIAN THỰC HUGO STUDIO]:
-- Tổng số thành viên: ${totalUsers.toLocaleString()} người
-- Thành viên mới đăng ký gần đây:
-${latestUsers.map(u => `  • ${u.displayName || 'Khách'} (${u.email}) | Ví: ${u.joyBalance?.toLocaleString() || 0} JOY`).join('\n') || 'Chưa có'}
-
-- Top 5 Thành viên nhiều JOY nhất:
-${topJoyUsers.map((u, i) => `  ${i + 1}. ${u.displayName || u.email} | ${u.joyBalance?.toLocaleString() || 0} JOY`).join('\n')}
-
-🛡️ [BOT SECURITY SENTINEL STATUS]:
-- Số bản ghi khóa đang hoạt động: ${activeBlocks}
-- Trường hợp nghi vấn chờ Boss duyệt: ${pendingMods.length} vụ
-${pendingMods.length ? pendingMods.map(m => `  • Case ${m.caseId}: ${m.email || m.ip} (${m.category})`).join('\n') : '  • Không có vi phạm nào chờ duyệt'}
-
-- Support Ticket đang chờ xử lý: ${pendingTickets} ticket
-- Kho phim Hugo Cinema: ${totalMovies} bộ phim HD/4K
-- Trạng thái Bảo trì: ${maintenance ? 'ĐANG BẬT 🔴' : 'HOẠT ĐỘNG BÌNH THƯỜNG 🟢'}
-
-🔍 [KẾT QUẢ TÌM KIẾM THEO TỪ KHÓA TỰ NHIÊN CỦA BOSS]:
-${searchResults.length ? searchResults.map(u => `• ${u.displayName || 'Chưa đặt tên'} (${u.email}) | Slug: /bio/${u.slug || 'demo'} | Ví: ${u.joyBalance?.toLocaleString()} JOY | Khóa ví: ${u.isJoyWalletFrozen ? 'CÓ' : 'KHÔNG'}`).join('\n') : 'Không có thành viên nào trùng khớp từ khóa.'}
-    `.trim();
-
-    const { generateRaw } = await import('../services/aiGateway.js');
-    const aiReply = await generateRaw({
-      systemInstruction: { parts: [{ text: `
-Bạn là AI Butler Quản Gia siêu cấp toàn năng của Hugo Studio.
-Boss vừa gửi cho bạn một tin nhắn.
-
-Hãy dùng dữ liệu hệ thống thời gian thực dưới đây để trả lời Boss một cách thông minh nhất, tinh tế, đa dụng và lịch sự ("Dạ thưa Boss", "Dạ thưa Boss, em đã kiểm tra...").
-Giải đáp đầy đủ mọi thắc mắc về người dùng, số dư JOY, tình hình hệ thống, kho phim, hoặc trò chuyện công việc / đời sống tự do.
-Định dạng câu trả lời bằng Telegram HTML cơ bản (<b>bold</b>, <code>code</code>, 👑, 📊, ⚡). Không dùng Markdown **bold** mà dùng HTML <b>bold</b>.
-
-${liveContext}
-      `.trim() }] },
-      // Kèm vài lượt gần nhất thì mới là TRÒ CHUYỆN: không có nó, mỗi tin của
-      // Boss là một người lạ mới, hỏi "còn cái kia thì sao?" là quản gia ngơ.
-      contents: [...recentTurns(chatId), { role: 'user', parts: [{ text }] }],
-      generationConfig: { temperature: 0.7 },
+    // Quản gia TỰ tra dữ liệu nó cần (askButler gọi công cụ), thay vì mỗi tin
+    // nhắn — kể cả "chào em" — đều nã 8 truy vấn Mongo dựng sẵn một cục ngữ
+    // cảnh. Vẫn trả về { reply, command }; command phải khớp danh mục mới chạy.
+    const { askButler } = await import('../services/telegramButler.js');
+    const { reply, command: proposed } = await askButler({
+      text,
+      history: await recentTurns(chatId),
     });
 
-    const replyText = aiReply
-      || '🤖 <b>Quản Gia Hugo:</b> Dạ thưa Boss, AI đang quá tải hoặc hết hạn mức nên em chưa nghĩ ra câu trả lời. Boss thử lại sau ít phút, hoặc dùng lệnh <code>Báo cáo</code> / <code>Kiểm tra email@…</code> nhé.';
-    rememberTurn(chatId, text, replyText);
+    const replyText = reply
+      || '🤖 <b>Quản Gia Hugo:</b> Dạ thưa Boss, AI đang quá tải hoặc hết hạn mức nên em chưa nghĩ ra câu trả lời. Boss thử lại sau ít phút, hoặc gõ <code>Trợ giúp</code> nhé.';
+    await rememberTurn(chatId, text, replyText);
 
-    // Attach 1-click action buttons if search found exact member matches
-    let inlineButtons = null;
-    if (searchResults.length === 1) {
-      const match = searchResults[0];
-      const rpt = await buildButlerMemberReport(match);
-      inlineButtons = rpt.markup;
+    // Lệnh AI đề xuất phải khớp trọn vẹn một mẫu trong danh mục. Không khớp thì
+    // coi như AI chỉ đang trò chuyện — thà bỏ sót một hành động còn hơn chạy
+    // một câu tự chế lên dữ liệu thật.
+    const command = findCommand(proposed);
+
+    if (command && !command.danger) {
+      // Việc chỉ đọc: làm luôn, không bắt Boss bấm thêm nút nào.
+      await sendTelegramMessage(chatId, replyText);
+      return processTelegramUpdate(
+        { message: { chat: { id: chatId }, text: proposed } },
+        { allowAi: false },
+      );
     }
 
-    await sendTelegramMessage(chatId, replyText, 'HTML', inlineButtons);
+    let inlineButtons = null;
+    let finalReply = replyText;
+    if (command) {
+      inlineButtons = { inline_keyboard: [[
+        { text: '✅ Đồng ý, làm đi', callback_data: `cb_run:${await stashCommand(proposed)}` },
+        { text: '✋ Thôi', callback_data: 'cb_run_cancel' },
+      ]] };
+      finalReply += `\n\n⚡ <b>Em sẽ chạy lệnh:</b>\n<code>${proposed}</code>${await previewTarget(proposed)}`;
+    }
+
+    await sendTelegramMessage(chatId, finalReply, 'HTML', inlineButtons);
   } catch (err) {
     console.error('[Telegram AI Butler Error]', err);
-    await sendTelegramMessage(chatId, `🤖 <b>Quản Gia Hugo:</b> Dạ thưa Boss, em đã nhận được lệnh: <code>${text}</code> và sẵn sàng hỗ trợ!`);
+    await sendTelegramMessage(chatId, `🤖 <b>Quản Gia Hugo:</b> Dạ thưa Boss, em đã nhận lệnh <code>${text}</code> nhưng gặp trục trặc. Boss gõ <code>Trợ giúp</code> để dùng lệnh trực tiếp nhé.`);
   }
 }
 

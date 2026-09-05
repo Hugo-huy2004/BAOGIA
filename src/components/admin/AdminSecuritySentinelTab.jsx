@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import useVisiblePoll from "../../hooks/useVisiblePoll";
 import { userApi } from "../../services/api/UserApi";
 
 export default function AdminSecuritySentinelTab({ token, onShowToast }) {
@@ -24,11 +25,10 @@ export default function AdminSecuritySentinelTab({ token, onShowToast }) {
     }
   }, [token]);
 
-  useEffect(() => {
-    fetchSentinelData();
-    const interval = setInterval(fetchSentinelData, 15000);
-    return () => clearInterval(interval);
-  }, [fetchSentinelData]);
+  // Dashboard admin hay bị để mở qua đêm. setInterval trần vẫn chạy lúc tab
+  // ẩn: 15 giây = 5.760 request/ngày cho màn hình không ai nhìn — đúng dạng
+  // đã từng đốt bandwidth Render. Ẩn thì dừng, quay lại thì nạp ngay.
+  useVisiblePoll(fetchSentinelData, 15000);
 
   const handleResolve = async (caseId, action) => {
     try {

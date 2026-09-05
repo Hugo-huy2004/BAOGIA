@@ -144,7 +144,11 @@ import RejectedVerification from "../../components/member/RejectedVerification";
 import VerificationForm from "../../components/member/VerificationForm";
 import VerificationModal from "../../components/member/VerificationModal";
 import PendingVerification from "../../components/member/PendingVerification";
-import PersonalInfoSubTab from "../../components/member/PersonalInfoSubTab";
+// React.lazy, không import tĩnh: MemberSettingsTab và MemberSettingsTabRemade
+// đều đã lazy-load component này, nhưng một import tĩnh ở đây kéo nó (và
+// apple-account.css) vào chunk portal cho MỌI thành viên, kể cả người không
+// bao giờ mở Thông tin cá nhân — làm vô hiệu cả hai chỗ lazy kia.
+const PersonalInfoSubTab = React.lazy(() => import("../../components/member/PersonalInfoSubTab"));
 import StudentRewardCard from "../../components/member/StudentRewardCard";
 import DesignSubTab from "../../components/member/DesignSubTab";
 import LinksSubTab from "../../components/member/LinksSubTab";
@@ -427,7 +431,7 @@ function MemberPortalPage() {
   // ── Render account sub-tab form (shared desktop + mobile) ────────────────────
   const renderAccountForm = (tabId, opts = {}) => {
     switch(tabId) {
-      case 'profile':      return <><PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} handleSave={handleSave} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} bio={bio} hideAvatarSection={opts.hideAvatarSection} t={t} /><StudentRewardCard bio={bio} onBioUpdate={patchMemberBio} showToast={showToast} /></>;
+      case 'profile':      return <React.Suspense fallback={null}><PersonalInfoSubTab formData={formData} handleFieldChange={handleFieldChange} handleSave={handleSave} saving={saving} isDragOver={isDragOver} setIsDragOver={setIsDragOver} processFile={processFile} avatarInputRef={avatarInputRef} handleAvatarChange={handleAvatarChange} handleRemoveAvatar={handleRemoveAvatar} memberSession={memberSession} bio={bio} hideAvatarSection={opts.hideAvatarSection} t={t} /><StudentRewardCard bio={bio} onBioUpdate={patchMemberBio} showToast={showToast} /></React.Suspense>;
       case 'design':       return <DesignSubTab formData={formData} setFormData={setFormData} t={t} bio={bio} onBioUpdate={setBio} showToast={showToast} />;
       case 'links':        return <LinksSubTab formData={formData} newLinkLabel={newLinkLabel} setNewLinkLabel={setNewLinkLabel} newLinkUrl={newLinkUrl} setNewLinkUrl={setNewLinkUrl} handleLinkInputKeyDown={handleLinkInputKeyDown} addSocialLink={addSocialLink} removeSocialLink={removeSocialLink} handleFieldChange={handleFieldChange} bioTextareaRef={bioTextareaRef} t={t} />;
       case 'achievements': return <AchievementsSubTab formData={formData} setFormData={setFormData} handleSave={handleSave} showToast={showToast} isGuestMode={isGuestMode} bio={bio} />;

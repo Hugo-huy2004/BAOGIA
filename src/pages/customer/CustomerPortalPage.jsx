@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import CustomerProfileTab from '../../components/customer/CustomerProfileTab';
 import CustomerServiceTab from '../../components/customer/CustomerServiceTab';
 import CustomerRequestsTab from '../../components/customer/CustomerRequestsTab';
 import { API_BASE } from '../../config/apiBase';
+import useVisiblePoll from '../../hooks/useVisiblePoll';
 
 export default function CustomerPortalPage() {
   const { t } = useTranslation();
@@ -23,39 +24,34 @@ export default function CustomerPortalPage() {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    let interval;
-    if (project && project._id) {
-      const fetchUnreadCount = async () => {
-        try {
-          const res = await fetch(`${API_BASE}/customer-projects/${project._id}/messages/unread-count`, {
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include'
-          });
-          if (res.ok) {
-            const data = await res.json();
-            setUnreadCount(data.count || 0);
-          }
-        } catch {}
-      };
-      
-      // Fetch immediately
-      fetchUnreadCount();
-      
-      // Poll every 10 seconds
-      interval = setInterval(fetchUnreadCount, 10000);
-    }
-    const handleMessagesRead = () => {
-      setUnreadCount(0);
-    };
-    
-    window.addEventListener('messagesRead', handleMessagesRead);
+  const projectId = project?._id;
 
-    return () => {
-      if (interval) clearInterval(interval);
-      window.removeEventListener('messagesRead', handleMessagesRead);
-    };
-  }, [project]);
+  // Đếm tin chưa đọc: 60 giây, chỉ khi tab đang hiện.
+  //
+  // Bản cũ poll 10 giây kể cả lúc tab bị ẩn — một khách để cổng mở suốt buổi
+  // làm là 360 request/giờ cho một CON SỐ nhỏ trên badge. Khách quay lại tab
+  // thì gọi ngay, nên vẫn thấy số đúng lúc họ thực sự nhìn.
+  const fetchUnreadCount = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const res = await fetch(`${API_BASE}/customer-projects/${projectId}/messages/unread-count`, {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(data.count || 0);
+      }
+    } catch {}
+  }, [projectId]);
+
+  useVisiblePoll(fetchUnreadCount, 60000, Boolean(projectId));
+
+  useEffect(() => {
+    const handleMessagesRead = () => setUnreadCount(0);
+    window.addEventListener('messagesRead', handleMessagesRead);
+    return () => window.removeEventListener('messagesRead', handleMessagesRead);
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.removeItem('customerProject');

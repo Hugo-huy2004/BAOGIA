@@ -2899,7 +2899,6 @@
         "fiveDayIncome": "Ingresos de 5 días",
         "profile": "Perfil personal",
         "profileDescription": "Tu Bilink público y puerta al acceso a herramientas y utilidades educativas",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "Presiona y suéltalo para personalizar"
       },
       "size": {
@@ -6054,7 +6053,9 @@
       "otpBtn": "Enviar OTP",
       "otpSending": "Enviando código…",
       "otpSent": "Código enviado.",
-      "otpDesc": "Pulsa el botón para recibir un código de 6 dígitos — válido 30 segundos."
+      "usernameLabel": "Nombre de usuario",
+      "passwordLabel": "Contraseña",
+      "otpDesc": "Introduce tu usuario y contraseña — el servidor envía un código de 6 dígitos a Telegram, válido 30 segundos."
     }
   },
   "customerPortal": {

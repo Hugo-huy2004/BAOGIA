@@ -6,6 +6,12 @@ dotenv.config();
 // Initialize SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// Email chỉ tới người dùng thật khi SendGrid có key thật; nếu không, sendCustomEmail
+// im lặng "mô phỏng" và trả success. Lớp xác thực tiền phải BIẾT điều này để
+// không bao giờ coi một mã OTP không hề được gửi là đã gửi.
+export const isEmailDeliverable = () =>
+  Boolean(process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY.startsWith('SG.'));
+
 // Email templates
 const templates = {
   hugoTeamApplyConfirm: (name, email) => ({

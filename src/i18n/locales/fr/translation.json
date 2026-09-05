@@ -2899,7 +2899,6 @@
         "fiveDayIncome": "Rendement de 5 jours",
         "profile": "Profil personnel",
         "profileDescription": "Votre bilan public BioLink et accès à des outils et utilités de formation",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "Appuyez et maintenez pour personnaliser"
       },
       "size": {
@@ -6054,7 +6053,9 @@
       "otpBtn": "Envoyer le code",
       "otpSending": "Envoi du code…",
       "otpSent": "Code envoyé.",
-      "otpDesc": "Appuyez sur le bouton pour recevoir un code à 6 chiffres — valable 30 secondes."
+      "usernameLabel": "Nom d'utilisateur",
+      "passwordLabel": "Mot de passe",
+      "otpDesc": "Saisissez votre identifiant et mot de passe — le serveur envoie un code à 6 chiffres sur Telegram, valable 30 secondes."
     }
   },
   "customerPortal": {

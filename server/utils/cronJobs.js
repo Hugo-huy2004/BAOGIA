@@ -69,20 +69,105 @@ export function initCronJobs() {
     }
   });
 
+  // Nhắc ôn từ vựng — 08:00 & 20:00 giờ VN (01:00 & 13:00 UTC). CHỈ nhắc người
+  // ĐANG học (có thẻ tới hạn), nên tập gửi luôn nhỏ và tự thu hẹp khi ai ngừng
+  // học. Kèm một từ mẫu để vừa nhắc vừa "lâu lâu hiện một từ dễ nhớ".
+  cron.schedule('0 1,13 * * *', async () => {
+    try {
+      const [{ default: VocabProgress }, { default: VocabCard }, { notifyMember }] = await Promise.all([
+        import('../models/VocabProgress.js'),
+        import('../models/VocabCard.js'),
+        import('./notifyMember.js'),
+      ]);
+      // Nhóm số thẻ tới hạn theo người dùng (giới hạn để một lượt cron không kéo dài).
+      const due = await VocabProgress.aggregate([
+        { $match: { dueAt: { $lte: new Date() } } },
+        { $group: { _id: '$email', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 500 },
+      ]);
+      // Người có thẻ tới hạn → nhắc ôn; kèm actionUrl mở thẳng app.
+      for (const u of due) {
+        await notifyMember({
+          email: u._id, type: 'info', category: 'study',
+          key: 'vocab.reminder', params: { count: String(u.count) },
+          actionUrl: '/member/utilities/vocab', push: true,
+        }).catch(() => {});
+      }
+
+      // "Lâu lâu hiện một từ dễ nhớ": buổi tối (13:00 UTC), gửi MỘT từ ngẫu nhiên
+      // cho người đã ôn xong (không còn thẻ tới hạn) — giữ tương tác, thấy là
+      // nhớ. Người đang có thẻ tới hạn đã nhận nhắc ôn ở trên rồi, không gửi kép.
+      if (new Date().getUTCHours() === 13) {
+        const sample = await VocabCard.aggregate([{ $match: { status: 'approved' } }, { $sample: { size: 1 } }]);
+        const word = sample[0];
+        if (word) {
+          const dueSet = new Set(due.map((u) => u._id));
+          const learners = await VocabProgress.distinct('email');
+          const caughtUp = learners.filter((e) => !dueSet.has(e)).slice(0, 500);
+          for (const email of caughtUp) {
+            await notifyMember({
+              email, type: 'info', category: 'study',
+              key: 'vocab.word', params: { hanzi: word.hanzi, pinyin: word.pinyin, meaning: word.meaning },
+              actionUrl: '/member/utilities/vocab', push: true,
+            }).catch(() => {});
+          }
+          console.log(`[CRON] Từ trong ngày "${word.hanzi}" gửi ${caughtUp.length} người đã ôn xong.`);
+        }
+      }
+      console.log(`[CRON] Nhắc ôn từ vựng: ${due.length} người.`);
+    } catch (error) {
+      console.error('[CRON] Nhắc ôn từ vựng:', error.message);
+    }
+  });
+
+  // Bot tự gọi Boss khi có chuyện — 15 phút một lượt soát. Ngưỡng và lý do
+  // chọn ngưỡng nằm trong services/anomalyWatch.js.
+  cron.schedule('*/15 * * * *', async () => {
+    try {
+      const { runAnomalyWatch } = await import('../services/anomalyWatch.js');
+      await runAnomalyWatch();
+    } catch (error) {
+      console.error('[CRON] Soát bất thường:', error.message);
+    }
+  });
+
+  // 08:00 giờ Việt Nam (01:00 UTC — Render chạy giờ UTC): một tin tổng kết an
+  // ninh mỗi sáng. Thay cho kiểu bắn từng tin theo từng request, vốn biến máy
+  // quét dạo thành 10+ thông báo/ngày và khiến tin thật lẫn vào tin rác.
+  cron.schedule('0 1 * * *', async () => {
+    try {
+      const [{ securityDigest }, { sendTelegramAlert }] = await Promise.all([
+        import('../services/securityEnforcement.js'),
+        import('../services/telegramService.js'),
+      ]);
+      await sendTelegramAlert(await securityDigest(24));
+    } catch (error) {
+      console.error('[CRON] Tổng kết an ninh 24h:', error.message);
+    }
+  });
+
   // Chạy mỗi đêm lúc 00:00
   cron.schedule('0 0 * * *', async () => {
     try {
-      console.log('[CRON] Đang bắt đầu dọn dẹp lịch sử JOY quá 14 ngày...');
-      const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+      console.log('[CRON] Dọn nhiễu JOY quá 90 ngày (giữ giao dịch tiền vĩnh viễn)...');
+      const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
-      // 1. Xoá JoyLedger cũ hơn 14 ngày
-      const ledgerResult = await JoyLedger.deleteMany({ createdAt: { $lt: fourteenDaysAgo } });
-      console.log(`[CRON] Đã xoá ${ledgerResult.deletedCount} giao dịch từ JoyLedger.`);
+      // 1. CHỈ xoá các bản ghi "nhiễu" (điểm trò chơi, điểm danh…) cũ hơn 90
+      // ngày. Chuyển khoản, mua bán, nạp/rút, cổ phiếu — dòng tiền thật — GIỮ
+      // MÃI như sao kê ngân hàng. Danh mục nhiễu ở utils/joySources.js.
+      const { JOY_NOISE_SOURCES } = await import('./joySources.js');
+      const ledgerResult = await JoyLedger.deleteMany({
+        createdAt: { $lt: ninetyDaysAgo },
+        source: { $in: [...JOY_NOISE_SOURCES] },
+      });
+      console.log(`[CRON] Đã dọn ${ledgerResult.deletedCount} bản ghi nhiễu; sao kê tiền được giữ nguyên.`);
 
-      // 2. Xoá các lịch sử cũ trong mảng Bio.history
+      // 2. Dọn lịch sử hiển thị trong Bio.history cũ hơn 90 ngày (đây KHÔNG phải
+      // sao kê tiền — sao kê nằm ở JoyLedger).
       const bioResult = await Bio.updateMany(
         {},
-        { $pull: { history: { timestamp: { $lt: fourteenDaysAgo } } } }
+        { $pull: { history: { timestamp: { $lt: ninetyDaysAgo } } } }
       );
       console.log(`[CRON] Đã làm sạch Bio.history cho các tài khoản.`);
 

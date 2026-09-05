@@ -5,6 +5,7 @@ import { triggerPWAInstallDirectly } from "../../../utils/pwaInstallTrigger";
 import { appInstallationPolicy } from "../../../../shared/appInstallationPolicy";
 import { Search, X } from "lucide-react";
 import UtilityAppIcon from "./UtilityAppIcon";
+import BackButton from "../shared/BackButton";
 import JoyCoinBadge from "../../shared/JoyCoinBadge";
 import { getAppStorageMb, getAppVersion } from "../../../../shared/appRegistry";
 
@@ -66,18 +67,14 @@ export default function LibraryCatalog({
       <div className="sticky top-0 z-40 flex items-center justify-between border-b border-border/30 bg-background/92 px-1 py-2.5 backdrop-blur-xl">
         <div className="flex items-center gap-2.5">
           {onBack && (
-            <button
-              type="button"
+            <BackButton
+              iconOnly
+              label={t("utilities.library.back")}
               onClick={() => {
                 if (onBack) onBack();
                 if (setSelectedUtility) setSelectedUtility(null);
               }}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-foreground transition-colors hover:bg-muted"
-              title={t("utilities.library.back")}
-              aria-label={t("utilities.library.back")}
-            >
-              <span className="material-symbols-outlined text-[22px]" aria-hidden="true">arrow_back</span>
-            </button>
+            />
           )}
 
           <div className="flex items-center gap-2">
@@ -199,11 +196,6 @@ export default function LibraryCatalog({
                     {app.subLabel}
                   </p>
                   <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80 mt-1 truncate">
-                    <span className="flex items-center gap-0.5">
-                      <span className="material-symbols-outlined text-[13px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                      {app.rating}
-                    </span>
-                    <span>·</span>
                     <span>{categoryLabel(app.category)}</span>
                     <span>·</span>
                     <span>{appSize} MB</span>

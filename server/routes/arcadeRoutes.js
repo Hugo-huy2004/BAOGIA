@@ -357,6 +357,10 @@ router.get('/leaderboard', async (req, res) => {
       })
       .slice(0, cap);
 
+    // Bảng xếp hạng công khai, mỗi lần gọi là một vòng aggregate + tra Bio.
+    // Nhiều người chơi cùng mở thì tất cả nhận CÙNG một kết quả, nên cho phép
+    // cache chung: proxy/CDN gộp được, và trình duyệt tự trả lời lần lặp lại.
+    res.set('Cache-Control', 'public, max-age=15, stale-while-revalidate=60');
     res.json({ leaderboard: finalList });
   } catch (error) {
     // Đừng nuốt im: một ReferenceError ở đây từng làm bảng xếp hạng rỗng cả tháng.

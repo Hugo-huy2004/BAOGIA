@@ -17,6 +17,22 @@ export async function logError({ level = 'error', source = 'server', message, st
   }
 }
 
+// Tóm tắt lỗi 24h cho bot Telegram (lệnh "Lỗi" và nút 🐞 trên bảng điều khiển).
+// Gộp theo nội dung: một lỗi lặp 200 lần là MỘT dòng kèm số đếm, chứ không phải
+// 200 dòng giống hệt nhau đẩy mọi lỗi khác ra khỏi màn hình.
+export async function errorDigest(limit = 5, hours = 24) {
+  const rows = await ErrorLog.aggregate([
+    { $match: { createdAt: { $gte: new Date(Date.now() - hours * 60 * 60 * 1000) } } },
+    { $group: { _id: '$message', n: { $sum: 1 }, last: { $max: '$createdAt' }, path: { $last: '$path' } } },
+    { $sort: { last: -1 } },
+    { $limit: Math.min(20, Math.max(1, limit)) },
+  ]);
+  const body = rows.length
+    ? rows.map((r) => `• <b>×${r.n}</b> <code>${String(r._id).slice(0, 120)}</code>${r.path ? `\n   <i>${r.path}</i>` : ''}`).join('\n')
+    : `✅ Không có lỗi nào trong ${hours} giờ qua.`;
+  return `🐞 <b>LỖI MÁY CHỦ ${hours}H QUA</b>\n\n${body}`;
+}
+
 // High-level alert: log to stderr + persist + (throttled) webhook.
 export async function sendAlert(title, detail = {}) {
   console.error(`[ALERT] ${title}`, JSON.stringify(detail));

@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import UtilityAppIcon from "./UtilityAppIcon";
+import { getAppStorageMb } from "../../../../shared/appRegistry";
 
 export default function WidgetRenderer({
   myWidgets,
@@ -359,7 +360,11 @@ export default function WidgetRenderer({
                   {!["psychology", "ide", "aura", "radio", "bio"].includes(app.id) && (
                     <div className="bg-muted/40 border border-border/30 rounded-2xl p-3.5 text-xs text-muted-foreground space-y-1">
                       <p className="text-[10px] leading-relaxed italic">"{app.subLabel}"</p>
-                      <div className="text-[10.5px] font-black text-warning pt-1">★ {t("utilities.library.widget.ratingUsers", { rating: app.rating, users: app.users })}</div>
+                      {/* Trước đây là "★ 4.9 · 12k người dùng" gắn cứng trong
+                          appRegistry. Không có hệ thống đánh giá nào sau lưng con
+                          số đó, nên thay bằng hai dữ liệu có thật: phiên bản app
+                          và dung lượng cài. Không cần khoá dịch mới. */}
+                      <div className="text-[10.5px] font-black text-muted-foreground pt-1">v{app.version} · {getAppStorageMb(app.id).toFixed(1)} MB</div>
                     </div>
                   )}
                 </div>

@@ -2899,7 +2899,6 @@
         "fiveDayIncome": "5日分の収入",
         "profile": "個人プロフィール",
         "profileDescription": "あなたの共有Biolinkとツールや学習ユーティリティへの通路",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "操作を長押ししてカスタマイズします"
       },
       "size": {
@@ -6052,7 +6051,9 @@
       "otpBtn": "コードを送信",
       "otpSending": "送信中…",
       "otpSent": "コードを送信しました。",
-      "otpDesc": "下のボタンを押して6桁のコードを受け取ってください — 有効期限は30秒。"
+      "usernameLabel": "ユーザー名",
+      "passwordLabel": "パスワード",
+      "otpDesc": "ユーザー名とパスワードを入力してください — サーバーが6桁のコードをTelegramに送信します（有効期限30秒）。"
     }
   },
   "customerPortal": {

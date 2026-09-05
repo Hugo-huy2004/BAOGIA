@@ -2899,7 +2899,6 @@
         "fiveDayIncome": "5일 수입",
         "profile": "개인 프로필",
         "profileDescription": "공개된 Bio 및 도구와 학습 기능의 입찰 경로",
-        "ratingUsers": "{{rating}} rating · {{users}} users",
         "holdToCustomize": "접기/열기 버튼을 누르세요"
       },
       "size": {
@@ -6052,7 +6051,9 @@
       "otpBtn": "코드 보내기",
       "otpSending": "보내는 중…",
       "otpSent": "코드를 보냈습니다.",
-      "otpDesc": "아래 버튼을 눌러 6자리 코드를 받으세요 — 30초간 유효합니다."
+      "usernameLabel": "사용자 이름",
+      "passwordLabel": "비밀번호",
+      "otpDesc": "사용자 이름과 비밀번호를 입력하세요 — 서버가 6자리 코드를 Telegram으로 보냅니다(30초 유효)."
     }
   },
   "customerPortal": {

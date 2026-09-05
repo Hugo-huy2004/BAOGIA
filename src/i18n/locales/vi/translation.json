@@ -1571,7 +1571,9 @@
       "otpBtn": "Gửi mã OTP",
       "otpSending": "Đang gửi mã…",
       "otpSent": "Đã gửi mã.",
-      "otpDesc": "Bấm nút bên dưới để nhận mã 6 chữ số — mã sống 30 giây."
+      "usernameLabel": "Tên đăng nhập",
+      "passwordLabel": "Mật khẩu",
+      "otpDesc": "Nhập tên đăng nhập và mật khẩu — máy chủ sẽ gửi mã 6 chữ số về Telegram, mã sống 30 giây."
     }
   },
   "customerPortal": {

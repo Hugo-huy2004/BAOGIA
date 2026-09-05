@@ -8,7 +8,7 @@ import { STUDY_ALL_STAGES_PRICE } from "../../../../shared/joyPrices.js";
 import { joyText } from "../../../lib/joyDisplay";
 import QuizQuestion from "./QuizQuestion";
 import { isQuizAnswerCorrect } from "../../../../shared/quizKinds";
-import { getLessonReading } from "./lessons";
+import { getLessonReading } from "./lessons/reading.js";
 
 // Giá học tập tính bằng JOY gốc — server tính lại khi trừ ví, đây là số hiện ra.
 const ALL_STAGES_PRICE = STUDY_ALL_STAGES_PRICE;

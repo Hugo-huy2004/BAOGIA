@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import useVisiblePoll from "../../hooks/useVisiblePoll";
 import { api } from "../../services/api/BaseApi";
 
 // Admin "Giám sát hệ thống" — the supreme control panel: live vitals, AI quota,
@@ -76,11 +77,10 @@ export default function AdminSystemTab({ showNotification }) {
   useEffect(() => { loadOverview(); }, [loadOverview]);
   useEffect(() => { loadTelegram(); }, [loadTelegram]);
   useEffect(() => { loadLogs(); }, [loadLogs]);
-  // Auto-refresh vitals + logs every 15s.
-  useEffect(() => {
-    const t = setInterval(() => { loadOverview(); loadLogs(); }, 15000);
-    return () => clearInterval(t);
-  }, [loadOverview, loadLogs]);
+  // Dashboard admin hay bị để mở qua đêm. setInterval trần vẫn chạy lúc tab
+  // ẩn: 15 giây = 5.760 request/ngày cho màn hình không ai nhìn — đúng dạng
+  // đã từng đốt bandwidth Render. Ẩn thì dừng, quay lại thì nạp ngay.
+  useVisiblePoll(() => { loadOverview(); loadLogs(); }, 15000);
 
   const clearLogs = async () => {
     if (!window.confirm(levelFilter ? `Xóa toàn bộ log mức "${levelFilter}"?` : "Xóa TẤT CẢ log lỗi?")) return;

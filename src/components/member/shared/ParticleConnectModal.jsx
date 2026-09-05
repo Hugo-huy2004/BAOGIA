@@ -677,6 +677,8 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
   const [pinInput, setPinInput] = useState("");
   const [setupPinStep, setSetupPinStep] = useState(1);
   const [tempPin, setTempPin] = useState("");
+  const [lastPin, setLastPin] = useState("");
+  const [otpInput, setOtpInput] = useState("");
   const debounceRef = useRef(null);
   const scanResolvingRef = useRef(false);
   // A live, spinning particle code (or decode noise) yields a *different*
@@ -842,7 +844,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
     }
   }, [ignoredScanPayloads, playBeep, playLose, selectRecipient, t]);
 
-  const handleVerifyAndSend = async (enteredPin) => {
+  const handleVerifyAndSend = async (enteredPin, enteredOtp) => {
     setStep("sending");
     setError("");
     const idempotencyKey = crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -853,8 +855,19 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
         amount: numAmount,
         message: note.trim(),
         pin: enteredPin,
+        otp: enteredOtp,
         idempotencyKey
       });
+      // Giao dịch lớn: server đã gửi OTP về email, mở bước nhập mã. Nhớ PIN vừa
+      // nhập để gửi kèm khi xác nhận OTP.
+      if (data?.stepUp === "OTP_SENT") {
+        setLastPin(enteredPin);
+        setOtpInput("");
+        setError("");
+        setStep("otp");
+        return;
+      }
+      if (data?.stepUp) { setError(data.message || t("memberPortal.joy.particle.needMoreAuth", "Cần xác thực thêm.")); setStep("pin"); return; }
       setResult(data);
       saveRecent({ displayName: recipient.displayName, avatarUrl: recipient.avatarUrl, referralCode: recipient.referralCode });
       playWin();
@@ -1014,6 +1027,7 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                     {step === "invoice" && t("memberPortal.joy.particle.confirm", "Xác nhận")}
                     {step === "pin" && t("memberPortal.joy.particle.pinTitle")}
                     {step === "setup-pin" && t("memberPortal.joy.particle.pinSetupTitle")}
+                    {step === "otp" && t("memberPortal.joy.particle.otpTitle", "Nhập mã xác nhận")}
                     {step === "sending" && t("memberPortal.joy.particle.sending", "Đang xử lý...")}
                     {step === "success" && t("memberPortal.joy.particle.success", "Thành công!")}
                   </p>
@@ -1614,6 +1628,38 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                 </div>
               )}
 
+              {/* ── Step: OTP email (giao dịch lớn) ── */}
+              {step === "otp" && (
+                <div style={{ padding: "16px 18px 28px", display: "flex", flexDirection: "column", alignItems: "center" }} className="text-slate-900 dark:text-white">
+                  <span className="material-symbols-outlined text-[32px] text-indigo-500 mb-2" style={{ fontVariationSettings: "'FILL' 1" }}>mark_email_read</span>
+                  <p style={{ margin: "0 0 16px 0", fontSize: 13, textAlign: "center" }} className="text-slate-500 dark:text-slate-400">
+                    {t("memberPortal.joy.particle.otpHint", "Giao dịch lớn cần xác nhận thêm. Chúng tôi đã gửi một mã 6 số tới email của bạn.")}
+                  </p>
+                  <input
+                    value={otpInput}
+                    onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    inputMode="numeric"
+                    autoFocus
+                    placeholder="••••••"
+                    className="w-full max-w-[220px] text-center tracking-[0.5em] text-2xl font-black rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 py-3 outline-none focus:border-indigo-500"
+                  />
+                  {error && <div style={{ color: "#ef4444", fontSize: 13, fontWeight: 700, margin: "14px 0 0", textAlign: "center" }}>{error}</div>}
+                  <button
+                    onClick={() => { if (otpInput.length === 6) handleVerifyAndSend(lastPin, otpInput); }}
+                    disabled={otpInput.length !== 6}
+                    className="mt-5 w-full max-w-[220px] rounded-xl bg-indigo-600 text-white font-bold py-3 disabled:opacity-50 hover:bg-indigo-700 active:scale-95 transition-all cursor-pointer"
+                  >
+                    {t("memberPortal.joy.particle.otpConfirm", "Xác nhận & gửi")}
+                  </button>
+                  <button
+                    onClick={() => { setStep("pin"); setError(""); setOtpInput(""); }}
+                    className="mt-2 text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {t("memberPortal.joy.particle.back", "Quay lại")}
+                  </button>
+                </div>
+              )}
+
               {/* ── Step: Setup PIN ── */}
               {step === "setup-pin" && (
                 <div style={{ padding: "16px 18px 24px", color: "hsl(var(--foreground))", display: "flex", flexDirection: "column", alignItems: "center" }} className="dark:text-white">
@@ -1763,8 +1809,36 @@ export default function ParticleConnectModal({ open, bio, onClose, onSuccess, in
                 </div>
               )}
 
+              {/* ── Step: Success — GIỮ CHỜ RÀ SOÁT ── */}
+              {step === "success" && result?.held && (
+                <div style={{ padding: "28px 20px 20px", textAlign: "center" }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: "50%",
+                    background: "linear-gradient(135deg,#6366f1,#4f46e5)",
+                    display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px",
+                    boxShadow: "0 0 24px rgba(99,102,241,.35)",
+                  }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 32, color: "#fff", fontVariationSettings: "'FILL' 1" }}>shield_person</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 16, fontWeight: 900 }} className="text-slate-900 dark:text-white">
+                    {t("memberPortal.joy.particle.heldTitle", "Đang rà soát an toàn")}
+                  </p>
+                  <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.6 }} className="text-slate-500 dark:text-slate-400">
+                    {result.message || t("memberPortal.joy.particle.heldBody", "Giao dịch lớn này đang được rà soát để bảo vệ ví của bạn. Chúng tôi sẽ thông báo ngay khi hoàn tất, thường trong ít phút. Tiền chưa bị trừ.")}
+                  </p>
+                  {result.txCode && (
+                    <p style={{ margin: "14px 0 0", fontSize: 11, fontFamily: "monospace" }} className="text-slate-400">
+                      {t("memberPortal.joy.particle.receiptId", "Mã GD")}: {result.txCode}
+                    </p>
+                  )}
+                  <button onClick={onClose} className="mt-5 w-full py-3 rounded-xl bg-indigo-600 text-white font-black text-xs hover:bg-indigo-700 transition-all cursor-pointer">
+                    {t("memberPortal.joy.particle.understood", "Đã hiểu")}
+                  </button>
+                </div>
+              )}
+
               {/* ── Step: Success ── */}
-              {step === "success" && result && (
+              {step === "success" && result && !result.held && (
                 <div style={{ padding: "20px 18px 18px" }}>
                   <div style={{ textAlign: "center", marginBottom: 20 }}>
                     <div style={{

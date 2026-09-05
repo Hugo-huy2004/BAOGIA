@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import MemberTodayTab from "../components/member/MemberTodayTab";
-import TodayArticleReader from "../components/member/TodayArticleReader";
+// Lazy: MemberPortalPage vốn đã React.lazy hai component này. Import tĩnh ở
+// đây nhân đôi CSS của chúng sang chunk EcoPortal (10 KB thừa) và bắt chế độ
+// tiết kiệm tải cả trình đọc bài dù người dùng chưa mở bài nào — đúng thứ chế
+// độ này sinh ra để tránh.
+const MemberTodayTab = lazy(() => import("../components/member/MemberTodayTab"));
+const TodayArticleReader = lazy(() => import("../components/member/TodayArticleReader"));
 import EcoAccount from "./EcoAccount";
 import EcoBadge from "./EcoBadge";
 import EcoSaved from "./EcoSaved";
@@ -92,6 +96,7 @@ export default function EcoPortal() {
       </header>
 
       <main className="save-e-main">
+        <Suspense fallback={null}>
         {tab === "today" ? (
           articleId ? (
             <>
@@ -111,6 +116,7 @@ export default function EcoPortal() {
             </>
           )
         ) : null}
+        </Suspense>
         {tab === "saved" ? <EcoSaved /> : null}
         {tab === "account" ? <EcoAccount /> : null}
         {tab === "green" ? <EcoGreen onExitEco={exit} /> : null}

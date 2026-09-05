@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import useVisiblePoll from '../../hooks/useVisiblePoll';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '../../config/apiBase';
 
@@ -26,14 +27,14 @@ export default function CustomerRequestsTab({ project }) {
   };
 
   useEffect(() => {
-    fetchMessages();
     markMessagesAsRead();
-    // Polling every 10 seconds for new messages
-    const interval = setInterval(() => {
-      fetchMessages();
-    }, 10000);
-    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project._id]);
+
+  // 10 giây là hợp lý cho khung tin nhắn ĐANG mở, nhưng bản cũ chạy cả lúc tab
+  // bị ẩn — khách để cổng mở cả ngày vẫn nện server 360 lần/giờ cho màn hình
+  // không ai nhìn. Ẩn thì dừng, quay lại thì nạp ngay.
+  useVisiblePoll(fetchMessages, 10000, Boolean(project._id));
 
   const markMessagesAsRead = async () => {
     try {

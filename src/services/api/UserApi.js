@@ -22,21 +22,24 @@ class UserApi extends BaseApi {
     return this.delete(`/bios/${bioId}`);
   }
 
+  // token rỗng trên web là ĐÚNG: cookie admin httpOnly mang danh tính, và
+  // BaseApi luôn gửi credentials:"include". Chỉ bản native (khác origin) mới
+  // có token thật. Gửi "Bearer " rỗng là header dị dạng, proxy có thể chặn.
   async adminGetSecuritySentinel(token) {
     return this.get('/admin/security/sentinel-summary', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
   }
 
   async adminResolveSecurityModeration(token, payload) {
     return this.post('/admin/security/resolve-moderation', payload, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
   }
 
   async adminUnblockSecurityActor(token, payload) {
     return this.post('/admin/security/unblock-actor', payload, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
   }
 }

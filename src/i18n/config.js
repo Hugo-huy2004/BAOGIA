@@ -24,6 +24,7 @@ import {
 } from './languages';
 import { MEMBER_TODAY_TRANSLATIONS } from './locales/memberTodayTranslations';
 import { MEMBER_APP_TRANSLATIONS } from './locales/memberAppTranslations';
+import { ensureLanguageFont } from './languageFont';
 
 const FULL_LOCALES = {
   vi: () => import('./locales/vi/translation.json'),
@@ -147,7 +148,11 @@ export function ensureTranslations(language = i18n.language) {
 
 const syncDocumentLanguage = (language) => {
   if (typeof document === 'undefined') return;
-  document.documentElement.lang = languageCode(language);
+  const code = languageCode(language);
+  document.documentElement.lang = code;
+  // Font viết tay của th/zh/ja/ko nạp TẠI ĐÂY, không nằm sẵn trong index.html.
+  // Đây là chỗ duy nhất biết ngôn ngữ hiện tại ở cả lúc khởi động lẫn lúc đổi.
+  ensureLanguageFont(code);
 };
 
 // Kick the fetch immediately: by the time the first route chunk arrives this

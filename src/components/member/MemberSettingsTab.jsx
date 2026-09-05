@@ -39,6 +39,7 @@ import { useJoy } from "../../lib/joyDisplay";
 import { fetchJoyPerks, fetchChallengeStatus } from "../../services/joyApi";
 import { isVoucherActive } from "./joy/voucherStatus";
 import BiometricLoginCard from "./BiometricLoginCard";
+import SecurityCenter from "./account/SecurityCenter";
 import ToggleSwitch from "../common/ToggleSwitch";
 import EcoToggle from "../../Save_E/EcoToggle";
 
@@ -529,12 +530,17 @@ export default function MemberSettingsTab({
       )}
 
       {activeSheet === "security" && (
-        <AccountSheet title={t("memberPortal.accountProfile.biometrics", "Bảo mật sinh trắc học")} onClose={closeSheet}>
-          {biometricSupported && email ? (
-            <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
-          ) : (
-            <p className="text-[13px] text-muted-foreground">{t("memberPortal.settings.biometricNotSupported", "Thiết bị không hỗ trợ đăng nhập sinh trắc học")}</p>
-          )}
+        <AccountSheet title={t("memberPortal.accountProfile.security", "Bảo mật")} onClose={closeSheet}>
+          <div className="space-y-5">
+            <SecurityCenter />
+            <div className="border-t border-border pt-4">
+              {biometricSupported && email ? (
+                <BiometricLoginCard memberSession={memberSession} showToast={showToast} bare />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">{t("memberPortal.settings.biometricNotSupported", "Thiết bị không hỗ trợ đăng nhập sinh trắc học")}</p>
+              )}
+            </div>
+          </div>
         </AccountSheet>
       )}
 

@@ -166,3 +166,56 @@ export default {
   askTelegramInput,
   sendTelegramMessage,
 };
+
+// Tải một tệp Boss gửi vào khung chat (ảnh chụp màn hình lỗi, ảnh giấy tờ…).
+// Telegram không đưa URL trực tiếp: phải hỏi getFile lấy file_path trước, và
+// file_path đó có kèm token trong URL nên KHÔNG được log ra ngoài.
+export async function fetchTelegramFile(fileId, maxBytes = 4 * 1024 * 1024) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token || token.includes('YOUR_')) return null;
+  try {
+    const meta = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(fileId)}`).then((r) => r.json());
+    const path = meta?.result?.file_path;
+    if (!path) return null;
+    if (Number(meta.result.file_size || 0) > maxBytes) return null;
+    const res = await fetch(`https://api.telegram.org/file/bot${token}/${path}`);
+    if (!res.ok) return null;
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.length > maxBytes) return null;
+    const ext = path.split('.').pop()?.toLowerCase();
+    const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+    return { base64: buffer.toString('base64'), mime };
+  } catch (error) {
+    console.error('[Telegram getFile]', error.message);
+    return null;
+  }
+}
+
+// Gửi một ảnh (kèm chú thích + nút) tới Boss. Dùng cho kháng nghị mở khoá:
+// người dùng TỰ NGUYỆN chụp ảnh xác minh, Boss xem rồi bấm Duyệt/Từ chối.
+export async function sendTelegramPhoto(photoUrl, caption = '', replyMarkup = null) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId || token.includes('YOUR_')) {
+    console.log(`[TELEGRAM PHOTO SIMULATED] ${caption}\n${photoUrl}`);
+    return { success: true, simulated: true };
+  }
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: photoUrl,
+        caption: caption.slice(0, 1024),
+        parse_mode: 'HTML',
+        ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
+      }),
+    });
+    const data = await res.json();
+    if (!data.ok) return { success: false, error: data.description };
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

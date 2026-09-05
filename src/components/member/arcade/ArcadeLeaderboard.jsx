@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import useVisiblePoll from "../../../hooks/useVisiblePoll";
 import { fetchLeaderboard } from "../../../services/arcadeApi";
 
 // Tên mặc định truyền từ ngoài vào: hàm này thuần xử lý chuỗi, không được
@@ -100,7 +101,6 @@ export default function ArcadeLeaderboard({ active = true }) {
   const memberFallback = t("arcadeGame.hugoMember");
   const [lb, setLb]           = useState([]);
   const [loading, setLoading] = useState(true);
-  const intervalRef           = useRef(null);
 
   const fetchLb = useCallback(async () => {
     const list = await fetchLeaderboard("all", 20);
@@ -108,21 +108,13 @@ export default function ArcadeLeaderboard({ active = true }) {
     setLoading(false);
   }, []);
 
-  // Real-Time Polling every 5 seconds
-  useEffect(() => {
-    if (!active) { clearInterval(intervalRef.current); return; }
-    setLoading(true);
-    fetchLb();
-    intervalRef.current = setInterval(fetchLb, 5000);
-    return () => clearInterval(intervalRef.current);
-  }, [active, fetchLb]);
-
-  useEffect(() => {
-    if (!active) return;
-    const onVisible = () => { if (!document.hidden) fetchLb(); };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [active, fetchLb]);
+  // Bảng xếp hạng làm mới mỗi 30 giây, và CHỈ khi tab đang hiện.
+  //
+  // Bản cũ poll 5 giây và chạy cả lúc tab bị ẩn: mỗi người mở bảng xếp hạng là
+  // 12 request/phút, nhân với số người chơi. Bảng top 20 toàn server không đổi
+  // nhanh tới mức đó — 30 giây vẫn thấy điểm mới gần như tức thì, mà tải xuống
+  // 1/6. Quay lại tab thì nạp ngay nên không ai thấy số cũ.
+  useVisiblePoll(fetchLb, 30000, active);
 
   // Guaranteed 100% Unique Roster (Strict Top 10 Players)
   const uniqueRoster = useMemo(() => {
