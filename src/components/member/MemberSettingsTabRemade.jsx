@@ -178,7 +178,7 @@ export default function MemberSettingsTabRemade({
 
   return (
     <div className="mx-auto max-w-xl px-2 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] text-left animate-fadeIn sm:px-0">
-      <section className="overflow-hidden rounded-[26px] border border-black/[.07] bg-white/90 shadow-[0_12px_32px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-[#121620]/92" aria-label={t("memberPortal.accountHub.overviewAria")}>
+      <section className="overflow-hidden rounded-[26px] border border-black/[.07] bg-card shadow-[0_12px_32px_rgba(15,23,42,0.12)] dark:border-white/10" aria-label={t("memberPortal.accountHub.overviewAria")}>
         <div className="space-y-4 p-4 sm:p-6">
 
         {/* 1. Header Row (@username & Settings Button) */}

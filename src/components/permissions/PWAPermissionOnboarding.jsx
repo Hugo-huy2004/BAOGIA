@@ -61,12 +61,15 @@ export default function PWAPermissionOnboarding({ email, enabled = true }) {
   // vì đây là hành động chủ động của người dùng.
   useEffect(() => {
     const open = () => {
-      refresh().catch(() => {});
+      // KHÔNG dùng refresh() ở đây: refresh tự setVisible(false) khi quyền đã đủ,
+      // nên với người đã cấp hết (complete), bấm nút sẽ nháy rồi tắt ngay = "nút
+      // không phản ứng". Mở thủ công phải luôn hiện để xem/đổi trạng thái quyền.
       setVisible(true);
+      pwaPermissionService.getSnapshot().then(setSnapshot).catch(() => {});
     };
     window.addEventListener("hugo:show-permission-primer", open);
     return () => window.removeEventListener("hugo:show-permission-primer", open);
-  }, [refresh]);
+  }, []);
 
   const dismiss = () => setVisible(false);
 
