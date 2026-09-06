@@ -24,6 +24,8 @@ const VocabProfileSchema = new mongoose.Schema({
   dailyGoal: { type: Number, default: 20 },
   goalDays: { type: Number, default: 30 },   // mục tiêu "1 tháng có kết quả"
   essayAttempts: { type: Number, default: 0 }, // lượt thi viết (lần 2+ tốn JOY)
+  langPair: { type: String, enum: ['vi_zh', 'en_zh'], default: 'vi_zh' }, // ngôn ngữ học nghĩa
+  pushEnabled: { type: Boolean, default: true },
   // Theo dõi tốc độ học → phát hiện người học nhanh để mời vượt cấp.
   reviews: { type: Number, default: 0 },
   easyReviews: { type: Number, default: 0 },   // chấm "Dễ"

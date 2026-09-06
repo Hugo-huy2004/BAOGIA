@@ -7,6 +7,7 @@
 export const GRAMMAR_LESSONS = [
   {
     id: 'le', title: 'Trợ từ 了 (le)', icon: 'check_circle',
+    practice: { tokens: ["我", "吃", "了", "饭"], vi: "Tôi ăn cơm rồi." },
     diff: 'Tiếng Việt chỉ có "rồi"; 了 vừa báo HOÀN THÀNH vừa báo THAY ĐỔI trạng thái, và vị trí đặt khác.',
     rule: 'Động từ + 了 = việc đã hoàn thành. Cuối câu + 了 = tình huống MỚI xuất hiện.',
     examples: [
@@ -17,6 +18,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'ba', title: 'Câu chữ 把 (bǎ)', icon: 'swap_horiz',
+    practice: { tokens: ["我", "把", "书", "放", "在", "桌子", "上"], vi: "Tôi đặt sách lên bàn." },
     diff: 'Tiếng Việt không có cấu trúc này. 把 đưa tân ngữ LÊN TRƯỚC động từ để nhấn "xử lý cái gì".',
     rule: 'Chủ ngữ + 把 + tân ngữ + động từ + (kết quả/nơi chốn). Dùng khi tác động làm đối tượng thay đổi.',
     examples: [
@@ -27,6 +29,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'shide', title: 'Cấu trúc 是…的 (shì…de)', icon: 'font_download',
+    practice: { tokens: ["我", "是", "昨天", "来", "的"], vi: "Tôi đến từ hôm qua." },
     diff: 'Để nhấn THỜI GIAN / NƠI CHỐN / CÁCH THỨC của một việc ĐÃ xảy ra — tiếng Việt chỉ nhấn bằng ngữ điệu.',
     rule: '是 + (thời gian/nơi/cách) + động từ + 的. Nhấn vào phần nằm giữa 是…的.',
     examples: [
@@ -37,6 +40,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'de-degree', title: 'Bổ ngữ trình độ 得 (de)', icon: 'trending_up',
+    practice: { tokens: ["他", "说", "得", "很", "好"], vi: "Anh ấy nói rất giỏi." },
     diff: 'Muốn nói "làm việc gì đó tốt/nhanh/…" phải chèn 得 giữa động từ và mức độ — khác trật tự tiếng Việt.',
     rule: 'Động từ + 得 + tính từ chỉ mức độ. Nếu có tân ngữ: lặp động từ (V tân ngữ + V + 得…).',
     examples: [
@@ -47,6 +51,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'complement', title: 'Bổ ngữ kết quả & xu hướng', icon: 'east',
+    practice: { tokens: ["我", "看", "完", "了"], vi: "Tôi xem xong rồi." },
     diff: 'Tiếng Trung ghép kết quả/hướng NGAY SAU động từ thành một khối; tiếng Việt tách thành nhiều từ.',
     rule: 'Động từ + (完/好/到/见…) = kết quả; Động từ + (出来/进去/上/下…) = hướng di chuyển.',
     examples: [
@@ -57,6 +62,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'bi', title: 'So sánh với 比 (bǐ)', icon: 'compare_arrows',
+    practice: { tokens: ["我", "比", "他", "高"], vi: "Tôi cao hơn anh ấy." },
     diff: 'Tiếng Việt: "A cao HƠN B". Tiếng Trung KHÔNG thêm "hơn" sau tính từ — dùng 比 trước tính từ.',
     rule: 'A + 比 + B + tính từ. Muốn nói hơn bao nhiêu: A 比 B + adj + (số lượng).',
     examples: [
@@ -67,6 +73,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'three-de', title: 'Ba chữ "de": 的 / 地 / 得', icon: 'spellcheck',
+    practice: { tokens: ["跑", "得", "很", "快"], vi: "chạy rất nhanh" },
     diff: 'Tiếng Việt chỉ một cách; tiếng Trung ba chữ đồng âm "de" cho ba vai trò khác nhau.',
     rule: '的 = sở hữu/định ngữ (danh từ). 地 = trạng ngữ (trước động từ). 得 = bổ ngữ (sau động từ).',
     examples: [
@@ -78,6 +85,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'zai-place', title: 'Nơi chốn với 在 đứng TRƯỚC động từ', icon: 'place',
+    practice: { tokens: ["我", "在", "家", "吃", "饭"], vi: "Tôi ăn cơm ở nhà." },
     diff: 'Tiếng Việt đặt nơi chốn ở cuối ("ăn cơm Ở NHÀ"); tiếng Trung đặt 在+nơi chốn TRƯỚC động từ.',
     rule: 'Chủ ngữ + 在 + nơi chốn + động từ + tân ngữ.',
     examples: [
@@ -88,6 +96,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'measure', title: 'Lượng từ bắt buộc', icon: 'tag',
+    practice: { tokens: ["一", "本", "书"], vi: "một quyển sách" },
     diff: 'Cả hai đều có lượng từ, nhưng tiếng Trung BẮT BUỘC dùng và chọn đúng lượng từ cho từng loại.',
     rule: 'Số + lượng từ + danh từ. 个 dùng chung; 本 (sách), 张 (tờ/phẳng), 只 (con vật), 杯 (cốc)…',
     examples: [
@@ -98,6 +107,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'liang', title: '两 (liǎng) vs 二 (èr)', icon: 'looks_two',
+    practice: { tokens: ["两", "个", "人"], vi: "hai người" },
     diff: 'Tiếng Việt chỉ có "hai"; tiếng Trung phân biệt 两 (số lượng) và 二 (số đếm/thứ tự).',
     rule: 'Đếm số lượng đồ vật → 两 + lượng từ. Đọc con số, số thứ tự, số điện thoại → 二.',
     examples: [
@@ -108,6 +118,7 @@ export const GRAMMAR_LESSONS = [
   },
   {
     id: 'zheng-fan', title: 'Câu hỏi chính–phản', icon: 'help',
+    practice: { tokens: ["你", "去", "不", "去"], vi: "Bạn đi hay không?" },
     diff: 'Ngoài 吗, tiếng Trung hỏi bằng cách ghép "động từ + 不 + động từ" — cấu trúc tiếng Việt không có.',
     rule: 'V + 不 + V (hoặc adj + 不 + adj) = hỏi "có… không". Tương đương thêm 吗 nhưng tự nhiên hơn.',
     examples: [

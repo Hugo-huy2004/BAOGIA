@@ -29,15 +29,32 @@ const DECKS = [...TRACKS.simplified.decks, ...TRACKS.traditional.decks];
 // Bắt đầu từ trình độ đã xếp lớp, tìm bậc đầu tiên CÓ nội dung và CHƯA thuộc
 // hết. Nếu từ bậc đó lên không có nội dung (bậc cao chưa soạn), lùi về bậc thấp
 // nhất còn nội dung chưa thuộc — người học luôn có cái để học, không kẹt.
-async function deckStats(email, ladder) {
-  const [contentRows, masteredRows] = await Promise.all([
-    VocabCard.aggregate([{ $match: { status: 'approved', deck: { $in: ladder } } }, { $group: { _id: '$deck', n: { $sum: 1 } } }]),
-    VocabProgress.aggregate([{ $match: { email, status: 'mastered', deck: { $in: ladder } } }, { $group: { _id: '$deck', n: { $sum: 1 } } }]),
+// Số thẻ đã duyệt mỗi cấp là DÙNG CHUNG cho mọi người và ít đổi — cache 5 phút
+// để khỏi quét cả kho (10k thẻ) mỗi lần mở app. Nạp thêm nội dung thì hết TTL
+// là tự cập nhật.
+let _contentCache = { at: 0, data: null };
+async function contentTotals() {
+  if (_contentCache.data && Date.now() - _contentCache.at < 5 * 60 * 1000) return _contentCache.data;
+  const rows = await VocabCard.aggregate([{ $match: { status: 'approved' } }, { $group: { _id: '$deck', n: { $sum: 1 } } }]);
+  _contentCache = { at: Date.now(), data: Object.fromEntries(rows.map((r) => [r._id, r.n])) };
+  return _contentCache.data;
+}
+async function deckStats(email) {
+  const [total, masteredRows] = await Promise.all([
+    contentTotals(),
+    VocabProgress.aggregate([{ $match: { email, status: 'mastered' } }, { $group: { _id: '$deck', n: { $sum: 1 } } }]),
   ]);
-  return {
-    total: Object.fromEntries(contentRows.map((r) => [r._id, r.n])),
-    mastered: Object.fromEntries(masteredRows.map((r) => [r._id, r.n])),
-  };
+  return { total, mastered: Object.fromEntries(masteredRows.map((r) => [r._id, r.n])) };
+}
+// Chọn bậc đang học từ số liệu CÓ SẴN (thuần, không truy vấn) — để /status khỏi
+// tính deckStats hai lần.
+function pickActiveDeck(total, mastered, ladder, testedOutThrough) {
+  const startIdx = ladder.indexOf(testedOutThrough || '') + 1;
+  for (let i = startIdx; i < ladder.length; i++) {
+    const d = ladder[i];
+    if ((total[d] || 0) > 0 && (mastered[d] || 0) < total[d]) return d;
+  }
+  return null;
 }
 
 // Bậc NÊN học lúc này. Bắt đầu từ bậc KẾ bậc đã vượt (testedOutThrough) — không
@@ -45,13 +62,8 @@ async function deckStats(email, ladder) {
 // KHÔNG lùi xuống bậc đã vượt. Chưa có nội dung ở bậc kế → trả null (bậc mới
 // "sắp ra mắt", người học đã sẵn sàng, không có gì để cày lại).
 async function computeActiveDeck(email, ladder, testedOutThrough) {
-  const { total, mastered } = await deckStats(email, ladder);
-  const startIdx = ladder.indexOf(testedOutThrough || '') + 1; // '' → 0 = cấp đầu
-  for (let i = startIdx; i < ladder.length; i++) {
-    const d = ladder[i];
-    if ((total[d] || 0) > 0 && (mastered[d] || 0) < total[d]) return d;
-  }
-  return null;
+  const { total, mastered } = await deckStats(email);
+  return pickActiveDeck(total, mastered, ladder, testedOutThrough);
 }
 
 // GET /api/vocab/decks — danh sách bộ + số thẻ đã duyệt + tiến độ của người dùng.
@@ -158,13 +170,17 @@ router.get('/progress', requireMember, async (req, res) => {
     const profile0 = await VocabProfile.findOne({ email }, 'streak lastStudyDay reviewsToday dailyGoal testedOutThrough track').lean();
     const track = trackOf(profile0?.track);
     const GOAL_DECKS = track.decks;
-    const [byStatus, goalTotal, goalMastered, dueNow] = await Promise.all([
+    // Số liệu kho lấy từ CACHE (không quét thẻ). Tiến độ người dùng: gộp còn 2 truy vấn.
+    const [content, byStatus, byDeckMastered, dueNow] = await Promise.all([
+      contentTotals(),
       VocabProgress.aggregate([{ $match: { email } }, { $group: { _id: '$status', n: { $sum: 1 } } }]),
-      VocabCard.countDocuments({ deck: { $in: GOAL_DECKS }, status: 'approved' }),
-      VocabProgress.countDocuments({ email, deck: { $in: GOAL_DECKS }, status: 'mastered' }),
+      VocabProgress.aggregate([{ $match: { email, status: 'mastered' } }, { $group: { _id: '$deck', n: { $sum: 1 } } }]),
       VocabProgress.countDocuments({ email, dueAt: { $lte: new Date() } }),
     ]);
     const profile = profile0;
+    const goalTotal = GOAL_DECKS.reduce((a, d) => a + (content[d] || 0), 0);
+    const masteredByDeck = Object.fromEntries(byDeckMastered.map((r) => [r._id, r.n]));
+    const goalMastered = GOAL_DECKS.reduce((a, d) => a + (masteredByDeck[d] || 0), 0);
     const counts = Object.fromEntries(byStatus.map((s) => [s._id, s.n]));
     const learned = (counts.learning || 0) + (counts.review || 0) + (counts.mastered || 0);
     // Chuỗi chỉ còn giá trị nếu học hôm nay hoặc hôm qua; bỏ cách ngày thì coi như 0.
@@ -172,12 +188,9 @@ router.get('/progress', requireMember, async (req, res) => {
     const liveStreak = (profile?.lastStudyDay === today || profile?.lastStudyDay === yesterday) ? (profile.streak || 0) : 0;
     const reviewsToday = profile?.lastStudyDay === today ? (profile.reviewsToday || 0) : 0;
     const dailyGoal = profile?.dailyGoal || 20;
-    // Bậc đã VƯỢT ở test xếp lớp tính 100% vào tiến độ tới HSK6 (không cày lại).
+    // Bậc đã VƯỢT ở test xếp lớp tính 100% vào tiến độ (không cày lại).
     const toIdx = GOAL_DECKS.indexOf(profile?.testedOutThrough || '');
-    let testedOutCards = 0;
-    if (toIdx >= 0) {
-      testedOutCards = await VocabCard.countDocuments({ status: 'approved', deck: { $in: GOAL_DECKS.slice(0, toIdx + 1) } });
-    }
+    const testedOutCards = toIdx >= 0 ? GOAL_DECKS.slice(0, toIdx + 1).reduce((a, d) => a + (content[d] || 0), 0) : 0;
     const effectiveMastered = Math.min(goalTotal, goalMastered + testedOutCards);
     res.json({
       learned,
@@ -253,6 +266,22 @@ router.post('/track', requireMember, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// POST /api/vocab/reset-placement — thi lại test đầu vào (xoá xếp lớp, giữ tiến độ học).
+router.post('/reset-placement', requireMember, async (req, res) => {
+  await VocabProfile.updateOne({ email: req.memberEmail }, { $set: { placed: false, testedOutThrough: '', level: '' } }, { upsert: true });
+  res.json({ success: true });
+});
+
+// POST /api/vocab/prefs { langPair?, pushEnabled? } — cài đặt.
+router.post('/prefs', requireMember, async (req, res) => {
+  const set = {};
+  if (['vi_zh', 'en_zh'].includes(req.body?.langPair)) set.langPair = req.body.langPair;
+  if (typeof req.body?.pushEnabled === 'boolean') set.pushEnabled = req.body.pushEnabled;
+  if (!Object.keys(set).length) return res.status(400).json({ error: 'Không có cài đặt hợp lệ.' });
+  await VocabProfile.updateOne({ email: req.memberEmail }, { $set: set, $setOnInsert: { email: req.memberEmail } }, { upsert: true });
+  res.json({ success: true, ...set });
+});
+
 // GET /api/vocab/status — cổng của app: đã test đầu vào chưa, trình độ, đã đủ
 // điều kiện thi đầu ra chưa, đã hoàn tất chưa.
 router.get('/status', requireMember, async (req, res) => {
@@ -266,10 +295,13 @@ router.get('/status', requireMember, async (req, res) => {
     }
     const track = trackOf(profile.track);
     const LADDER = track.decks;
-    const ex = await eligibleForExit(email);
     const testedOut = profile.testedOutThrough || '';
-    const activeDeck = await computeActiveDeck(email, LADDER, testedOut);
-    const { total, mastered } = await deckStats(email, LADDER);
+    // MỘT lần deckStats cho tất cả: chọn bậc đang học, dựng ladder, xét thi đầu ra.
+    const { total, mastered } = await deckStats(email);
+    const activeDeck = pickActiveDeck(total, mastered, LADDER, testedOut);
+    const masteredTotal = Object.values(mastered).reduce((a, b) => a + b, 0);
+    const days = profile.startedAt ? (Date.now() - new Date(profile.startedAt).getTime()) / 86400000 : 0;
+    const ex = { eligible: profile.placed && !profile.completed && masteredTotal >= EXIT_MIN_MASTERED && days >= EXIT_MIN_DAYS, mastered: masteredTotal };
     const toIdx = LADDER.indexOf(testedOut); // -1 nếu chưa vượt bậc nào
     // Bậc ≤ testedOut = ĐÃ ĐẠT (100%) dù chưa cày từng thẻ — người dùng đã test qua.
     const ladder = LADDER.map((d, i) => {
@@ -322,6 +354,8 @@ router.get('/status', requireMember, async (req, res) => {
       needsTrack: false,
       goal,
       tracker,
+      langPair: profile.langPair || 'vi_zh',
+      pushEnabled: profile.pushEnabled !== false,
       canSkipLevel: tracker.canSkipLevel,
       track: profile.track,
       trackLabel: track.label,
@@ -442,12 +476,12 @@ router.get('/hanviet', requireMember, async (req, res) => {
     let deck = req.query.deck;
     if (!LADDER.includes(deck)) deck = await computeActiveDeck(req.memberEmail, LADDER, profile?.testedOutThrough) || LADDER[0];
     const norm = (x) => String(x || '').toLowerCase().replace(/[^a-zàáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ ]/gi, '').trim();
-    const cards = await VocabCard.find({ deck, status: 'approved', hanViet: { $ne: '' } }, 'hanzi pinyin hanViet meaning').sort({ order: 1 }).limit(400).lean();
+    const cards = await VocabCard.find({ deck, status: 'approved', hanViet: { $ne: '' } }, 'hanzi pinyin hanViet meaning meaningEn').sort({ order: 1 }).limit(400).lean();
     const items = cards.map((c) => {
       const hv = norm(c.hanViet);
       const mn = norm(c.meaning);
       const cognate = hv.length > 1 && (mn === hv || mn.split(/[,;/]| hoặc | và /).map(norm).includes(hv) || mn.includes(hv));
-      return { hanzi: c.hanzi, pinyin: c.pinyin, hanViet: c.hanViet, meaning: c.meaning, cognate };
+      return { hanzi: c.hanzi, pinyin: c.pinyin, hanViet: c.hanViet, meaning: c.meaning, meaningEn: c.meaningEn, cognate };
     });
     res.json({ deck, items, cognateCount: items.filter((i) => i.cognate).length });
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -459,7 +493,7 @@ router.get('/history', requireMember, async (req, res) => {
     const limit = Math.min(500, Number(req.query.limit) || 200);
     const prog = await VocabProgress.find({ email: req.memberEmail, status: 'mastered' })
       .sort({ lastReviewedAt: -1 }).limit(limit).lean();
-    const cards = prog.length ? await VocabCard.find({ _id: { $in: prog.map((p) => p.cardId) } }, 'hanzi pinyin meaning deck hanViet').lean() : [];
+    const cards = prog.length ? await VocabCard.find({ _id: { $in: prog.map((p) => p.cardId) } }, 'hanzi pinyin meaning deck hanViet meaningEn').lean() : [];
     const byId = Object.fromEntries(cards.map((c) => [String(c._id), c]));
     const items = prog.map((p) => ({ ...byId[String(p.cardId)], learnedAt: p.lastReviewedAt })).filter((x) => x.hanzi);
     res.json({ total: await VocabProgress.countDocuments({ email: req.memberEmail, status: 'mastered' }), items });

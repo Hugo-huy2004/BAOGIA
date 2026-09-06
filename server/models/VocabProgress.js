@@ -17,5 +17,6 @@ const VocabProgressSchema = new mongoose.Schema({
 
 VocabProgressSchema.index({ email: 1, cardId: 1 }, { unique: true });
 VocabProgressSchema.index({ email: 1, dueAt: 1 });
+VocabProgressSchema.index({ email: 1, status: 1 }); // thống kê mastered nhanh
 
 export default mongoose.model('VocabProgress', VocabProgressSchema);

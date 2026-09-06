@@ -37,6 +37,7 @@ const JoyLedgerSchema = new mongoose.Schema({
 });
 
 JoyLedgerSchema.index({ email: 1, createdAt: -1 });
+JoyLedgerSchema.index({ createdAt: 1 }); // aggregate soát bất thường + dọn theo ngày
 
 const JoyLedger = mongoose.model('JoyLedger', JoyLedgerSchema);
 export default JoyLedger;

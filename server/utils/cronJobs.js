@@ -86,8 +86,12 @@ export function initCronJobs() {
         { $sort: { count: -1 } },
         { $limit: 500 },
       ]);
+      // Bỏ ai đã TẮT push trong cài đặt app từ vựng.
+      const VP = (await import('../models/VocabProfile.js')).default;
+      const off = new Set(await VP.find({ pushEnabled: false }, 'email').distinct('email'));
       // Người có thẻ tới hạn → nhắc ôn; kèm actionUrl mở thẳng app.
       for (const u of due) {
+        if (off.has(u._id)) continue;
         await notifyMember({
           email: u._id, type: 'info', category: 'study',
           key: 'vocab.reminder', params: { count: String(u.count) },
@@ -121,9 +125,9 @@ export function initCronJobs() {
     }
   });
 
-  // Bot tự gọi Boss khi có chuyện — 15 phút một lượt soát. Ngưỡng và lý do
-  // chọn ngưỡng nằm trong services/anomalyWatch.js.
-  cron.schedule('*/15 * * * *', async () => {
+  // Bot tự gọi Boss khi có chuyện — MỖI GIỜ (anomalyWatch tự throttle 1h/lần nên
+  // chạy dày hơn chỉ tốn DB vô ích; free tier cần nhẹ tải).
+  cron.schedule('0 * * * *', async () => {
     try {
       const { runAnomalyWatch } = await import('../services/anomalyWatch.js');
       await runAnomalyWatch();

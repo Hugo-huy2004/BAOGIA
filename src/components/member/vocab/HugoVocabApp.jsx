@@ -13,18 +13,30 @@ const apiUrl = () => {
 const api = (path, opts = {}) =>
   fetch(`${apiUrl()}${path}`, { credentials: "include", ...opts }).then((r) => r.json());
 
-// Phát âm bằng giọng đọc sẵn của trình duyệt (miễn phí). Ưu tiên giọng Trung.
+// Phát âm bằng giọng đọc sẵn của trình duyệt (miễn phí). Đọc CHẬM và chọn giọng
+// tiếng Trung chất lượng cao nếu có (Ting-Ting/Mei-Jia/Google) — dễ nghe, dễ nhại.
+function pickZhVoice(voices) {
+  const pref = [/Tingting|Ting-Ting/i, /Meijia|Mei-Jia/i, /Google\s*普通话|Google.*(Mandarin|Chinese)/i, /Yaoyao|Sinji|Li-?mu/i, /zh[-_]CN/i, /zh[-_]TW/i, /zh|cmn|Chinese/i];
+  for (const re of pref) { const v = voices.find((x) => re.test(x.name) || re.test(x.lang)); if (v) return v; }
+  return null;
+}
 function speak(text) {
   try {
     const synth = window.speechSynthesis;
     if (!synth) return;
     synth.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "zh-CN";
-    const zh = synth.getVoices().find((v) => /zh|cmn|Chinese/i.test(v.lang || v.name));
-    if (zh) u.voice = zh;
-    u.rate = 0.85;
-    synth.speak(u);
+    const go = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "zh-CN";
+      const v = pickZhVoice(synth.getVoices() || []);
+      if (v) u.voice = v;
+      u.rate = 0.65;   // chậm, rõ từng âm
+      u.pitch = 1.0;
+      synth.speak(u);
+    };
+    // Danh sách giọng đôi khi nạp trễ — chờ một nhịp nếu chưa có.
+    if (!synth.getVoices().length) { synth.onvoiceschanged = go; setTimeout(go, 250); }
+    else go();
   } catch { /* im lặng nếu trình duyệt chặn */ }
 }
 
@@ -47,16 +59,14 @@ function PinyinText({ text, className, style }) {
   );
 }
 
+// Chọn nghĩa theo ngôn ngữ học: en_zh → tiếng Anh (nếu có), còn lại tiếng Việt.
+const mn = (c, lang) => (lang === "en_zh" && c?.meaningEn ? c.meaningEn : c?.meaning) || "";
+
 function HanVietChip({ text }) {
   if (!text) return null;
   return <span className="mt-1 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[12px] font-bold" style={{ background: CHIP, color: LABEL }}><Icon name="compare_arrows" size={13} /> Hán-Việt: {text}</span>;
 }
 
-const MODES = [
-  { id: "recognize", label: "Nhận diện", icon: "visibility", hint: "Nhìn chữ → nhớ nghĩa" },
-  { id: "produce", label: "Nhớ ngược", icon: "translate", hint: "Nhìn nghĩa → nhớ chữ" },
-  { id: "listen", label: "Nghe", icon: "hearing", hint: "Nghe → đoán nghĩa" },
-];
 const DECK_LABELS = {
   hsk1: "HSK 1", hsk2: "HSK 2", hsk3: "HSK 3", hsk4: "HSK 4", hsk5: "HSK 5", hsk6: "HSK 6",
   tocfl1: "TOCFL 1", tocfl2: "TOCFL 2", tocfl3: "TOCFL 3", tocfl4: "TOCFL 4", tocfl5: "TOCFL 5", tocfl6: "TOCFL 6",
@@ -98,15 +108,71 @@ function IconChip({ name, size = 22 }) {
 function SectionTitle({ children }) {
   return <p className="mb-2 mt-1 px-1 text-[12px] font-black uppercase tracking-wider" style={{ color: LABEL2 }}>{children}</p>;
 }
-function QuickTile({ icon, title, sub, onClick, disabled }) {
+const CARD_COLORS = ["#8b5cf6", "#f97316", "#22c55e", "#ec4899", "#3b82f6", "#14b8a6"];
+// Thẻ TÍNH NĂNG (trò chơi/hoạt động) — đầu màu + mặt cười, thân có icon + mô tả.
+function FeatureCard({ color, icon, title, sub, onClick, disabled }) {
   return (
     <button onClick={onClick} disabled={disabled}
-      className="flex flex-col items-start gap-2.5 rounded-[22px] border p-4 text-left active:scale-[0.97] transition-transform disabled:opacity-45"
-      style={{ ...CARD, borderColor: SEP }}>
-      <IconChip name={icon} />
-      <div>
-        <div className="text-[13.5px] font-black" style={{ color: LABEL }}>{title}</div>
-        <div className="text-[11px] leading-tight" style={{ color: LABEL2 }}>{sub}</div>
+      className="overflow-hidden rounded-[24px] text-left shadow-sm active:scale-[0.97] transition-transform disabled:opacity-45"
+      style={{ ...CARD, border: `1px solid ${SEP}` }}>
+      <div className="flex h-[70px] items-center justify-center" style={{ background: color }}><Face /></div>
+      <div className="flex items-start gap-2 p-3.5">
+        <Icon name={icon} size={20} color={color} fill />
+        <div className="min-w-0">
+          <div className="text-[14px] font-black" style={{ color: LABEL }}>{title}</div>
+          <div className="text-[11px] leading-tight" style={{ color: LABEL2 }}>{sub}</div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// Vòng tiến độ tròn (SVG) — hiện % tổng ở giữa.
+function Ring({ pct = 0, size = 62, stroke = 7, color = ACCENT }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  return (
+    <svg width={size} height={size} className="shrink-0">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
+        strokeDasharray={c} strokeDashoffset={c * (1 - Math.min(100, pct) / 100)} transform={`rotate(-90 ${size / 2} ${size / 2})`} />
+      <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" style={{ fontWeight: 900, fontSize: size * 0.26, fill: LABEL }}>{pct}%</text>
+    </svg>
+  );
+}
+
+// Mặt cười ngộ nghĩnh (SVG trắng) cho đầu thẻ khoá học — vui, sinh động.
+function Face() {
+  return (
+    <svg width="62" height="40" viewBox="0 0 62 40" aria-hidden="true">
+      <ellipse cx="22" cy="16" rx="11" ry="12" fill="#fff" />
+      <ellipse cx="44" cy="16" rx="11" ry="12" fill="#fff" />
+      <circle cx="24" cy="17" r="4.5" fill="#1f2937" />
+      <circle cx="42" cy="17" r="4.5" fill="#1f2937" />
+      <path d="M22 33 Q31 40 40 33" stroke="#fff" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// Thẻ khoá học nhiều màu (kiểu Duolingo): đầu màu + mặt cười, thân trắng có tiến độ.
+function LessonCard({ color, title, sub, done, total, pct, onClick, disabled }) {
+  const hasNum = Number.isFinite(done) && Number.isFinite(total) && total > 0;
+  const p = pct ?? (hasNum ? Math.round((done / total) * 100) : 0);
+  return (
+    <button onClick={onClick} disabled={disabled}
+      className="overflow-hidden rounded-[24px] text-left shadow-sm active:scale-[0.97] transition-transform disabled:opacity-45"
+      style={{ ...CARD, border: `1px solid ${SEP}` }}>
+      <div className="flex h-[76px] items-center justify-center" style={{ background: color }}><Face /></div>
+      <div className="p-3.5">
+        <div className="text-[15px] font-black" style={{ color: LABEL }}>{title}</div>
+        <div className="mt-0.5 truncate text-[11.5px]" style={{ color: LABEL2 }}>{sub}</div>
+        <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-black/10">
+          <div className="h-full rounded-full transition-all" style={{ width: `${p}%`, background: color }} />
+        </div>
+        <div className="mt-1.5 flex items-center justify-between text-[11px] font-bold" style={{ color: LABEL2 }}>
+          <span>{hasNum ? `${done}/${total} bài` : sub && ""}</span>
+          <span style={{ color: LABEL }}>{p}%</span>
+        </div>
       </div>
     </button>
   );
@@ -119,14 +185,16 @@ export default function HugoVocabApp({ onBack }) {
   const [mode, setMode] = useState("recognize");
   const [status, setStatus] = useState(null);
   const [progress, setProgress] = useState(null);
+  const [langPair, setLangPair] = useState("vi_zh");
   // Trạng thái màn nằm trong URL (?v=&deck=&mode=) để RELOAD vẫn ở đúng chỗ.
   const initial = useRef(new URLSearchParams(typeof window !== "undefined" ? window.location.search : ""));
 
   const loadHome = useCallback(async () => {
-    const st = await api("/vocab/status");
+    // Gọi SONG SONG cho nhanh; /progress bỏ đi nếu chưa chọn khoá/chưa test.
+    const [st, p] = await Promise.all([api("/vocab/status"), api("/vocab/progress").catch(() => null)]);
     setStatus(st || null);
     if (st?.needsTrack) { setProgress(null); setView("track"); return; }
-    const p = await api("/vocab/progress");
+    if (st?.langPair) setLangPair(st.langPair);
     setProgress(p || null);
     if (st && !st.placed) { setView("placement"); return; }
     // Khôi phục màn/bộ/chế độ từ URL (một lần) — cổng gating ở trên luôn thắng.
@@ -156,6 +224,7 @@ export default function HugoVocabApp({ onBack }) {
     : view === "grammar" ? "Ngữ pháp trọng điểm"
     : view === "history" ? "Từ đã thuộc"
     : view === "hanviet" ? "Từ gốc Hán-Việt"
+    : view === "settings" ? "Cài đặt"
     : (status?.trackLabel || "Tiếng Trung theo thẻ");
 
   return (
@@ -163,7 +232,8 @@ export default function HugoVocabApp({ onBack }) {
       appId="vocab"
       title={t("memberApps.vocab.name", "Học Từ Vựng")}
       subtitle={subtitle}
-      onBack={["review", "exit", "grammar", "essay", "skip", "history", "hanviet"].includes(view) ? () => { setView("home"); loadHome(); } : onBack}
+      actions={view === "home" ? <button onClick={() => setView("settings")} aria-label="Cài đặt" className="grid h-9 w-9 place-items-center rounded-full" style={{ background: CHIP }}><Icon name="settings" size={20} /></button> : null}
+      onBack={["review", "exit", "grammar", "essay", "skip", "history", "hanviet", "settings"].includes(view) ? () => { setView("home"); loadHome(); } : onBack}
     >
       {view === "loading" && <div className="mt-10 h-72 animate-pulse rounded-[28px] bg-black/5" />}
       {view === "track" && <TrackPicker tracks={status?.tracks || []} onDone={() => loadHome()} />}
@@ -172,56 +242,75 @@ export default function HugoVocabApp({ onBack }) {
       {view === "exit" && <Quiz type="exit" onFinish={() => loadHome()} />}
       {view === "essay" && <Essay onDone={() => { setView("home"); loadHome(); }} />}
       {view === "skip" && <Quiz type="skip" onFinish={() => loadHome()} />}
-      {view === "history" && <History />}
-      {view === "hanviet" && <HanViet />}
+      {view === "history" && <History lang={langPair} />}
+      {view === "hanviet" && <HanViet lang={langPair} />}
+      {view === "settings" && <Settings status={status} onDone={() => { setView("home"); loadHome(); }} />}
       {view === "home" && (
-        <Home progress={progress} status={status} mode={mode}
-          onPickMode={setMode} onStart={() => setView("review")}
-          onExitTest={() => setView("exit")} onGrammar={() => setView("grammar")} onEssay={() => setView("essay")}
+        <Home progress={progress} status={status}
+          onStudyDeck={(d) => { setMode("recognize"); setDeck(d); setView("review"); }}
+          onStudyMode={(m) => { setMode(m); if (status?.activeDeck) setDeck(status.activeDeck); setView("review"); }}
+          onGrammar={() => setView("grammar")} onEssay={() => setView("essay")}
           onSkip={() => setView("skip")} onHistory={() => setView("history")} onHanViet={() => setView("hanviet")} />
       )}
-      {view === "review" && <Review deck={deck} mode={mode} onDone={() => { setView("home"); loadHome(); }} />}
+      {view === "review" && <Review deck={deck} mode={mode} lang={langPair} onDone={() => { setView("home"); loadHome(); }} />}
     </AppFrame>
   );
 }
 
-function Home({ progress, status, mode, onPickMode, onStart, onExitTest, onGrammar, onEssay, onSkip, onHistory, onHanViet }) {
+function Home({ progress, status, onStudyDeck, onStudyMode, onGrammar, onEssay, onSkip, onHistory, onHanViet }) {
   const cal = calendarLinks(20);
   const ladder = status?.ladder || [];
-  const goal = status?.goal || null;
   const activeDeck = status?.activeDeck || "hsk1";
-  const activeHasContent = ladder.find((d) => d.deck === activeDeck)?.hasContent ?? true;
-  const goalRing = Math.min(100, progress?.dailyGoal ? Math.round(((progress?.reviewsToday || 0) / progress.dailyGoal) * 100) : 0);
+
+  const FEATURES = [
+    { id: "grammar", color: "#8b5cf6", icon: "menu_book", title: "Ngữ pháp", sub: "Bài học + thực hành", onClick: onGrammar },
+    { id: "hanviet", color: "#22c55e", icon: "compare_arrows", title: "Từ Hán-Việt", sub: "国家 → quốc gia", onClick: onHanViet },
+    { id: "essay", color: "#14b8a6", icon: "edit_note", title: "Thi viết", sub: "AI chấm bản xứ", onClick: onEssay },
+    { id: "listen", color: "#3b82f6", icon: "hearing", title: "Luyện nghe", sub: "Nghe → đoán nghĩa", onClick: () => onStudyMode("listen") },
+    { id: "guess", color: "#f97316", icon: "quiz", title: "Đoán từ", sub: "Trò chơi trắc nghiệm", onClick: () => onStudyMode("meaning") },
+    { id: "history", color: "#ec4899", icon: "history", title: "Từ đã thuộc", sub: `${progress?.mastered ?? 0} từ nắm chắc`, onClick: onHistory },
+  ];
+
+  // Mỗi thẻ khoá = MỘT CẤP (HSK1, HSK2… / TOCFL1…). Bấm vào học đúng cấp đó.
+  const LESSONS = ladder.map((d, i) => ({
+    id: d.deck,
+    color: CARD_COLORS[i % CARD_COLORS.length],
+    title: DECK_LABELS[d.deck] || d.deck,
+    sub: d.passed ? "Đã đạt · ôn lại" : d.deck === activeDeck ? "Đang học" : d.hasContent ? `Chuẩn ${d.target} từ` : "Sắp ra mắt",
+    done: d.mastered, total: d.total, pct: d.passed ? 100 : d.percent,
+    onClick: () => onStudyDeck(d.deck),
+    disabled: !d.hasContent,
+  }));
 
   return (
     <div className="space-y-4 pt-2">
-      {/* HERO — gradient tươi mới + khối trang trí mềm */}
-      <div className="relative overflow-hidden rounded-[32px] p-5 text-white shadow-xl" style={{ background: GRAD }}>
-        <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full" style={{ background: "rgba(255,255,255,0.16)" }} />
-        <div className="pointer-events-none absolute -bottom-16 -left-8 h-36 w-36 rounded-full" style={{ background: "rgba(255,255,255,0.10)" }} />
-        <div className="relative flex items-start justify-between">
-          <div>
-            <div className="text-[12px] font-bold uppercase tracking-wider text-white/85">Tiến độ tới {DECK_LABELS[progress?.goalDeck] || progress?.goalDeck || ""}</div>
-            <div className="mt-1 text-[48px] font-black leading-none tracking-tight">{progress?.goalPercent ?? 0}%</div>
+      {/* Lời chào */}
+      <div className="flex items-center gap-3">
+        <div className="grid h-11 w-11 place-items-center rounded-full" style={{ background: GRAD_SOFT }}><Icon name="sentiment_satisfied" size={24} color={ACCENT} fill /></div>
+        <div className="flex-1">
+          <div className="text-[17px] font-black" style={{ color: LABEL }}>Xin chào 👋</div>
+          <div className="text-[12.5px]" style={{ color: LABEL2 }}>Cùng luyện tiếng Trung nào!</div>
+        </div>
+        <span className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-black" style={{ background: CHIP, color: LABEL }}>
+          <Icon name="local_fire_department" size={15} color={ACCENT} fill /> {progress?.streak ?? 0}
+        </span>
+      </div>
+
+      {/* Tổng quan: vòng tiến độ tới đích */}
+      <div className="flex items-center gap-4 rounded-[24px] border p-4 shadow-sm" style={{ ...CARD, borderColor: SEP }}>
+        <div className="flex-1">
+          <div className="text-[16px] font-black" style={{ color: LABEL }}>{(progress?.goalPercent ?? 0) >= 60 ? "Tuyệt vời!" : "Cố lên nhé!"}</div>
+          <div className="mt-0.5 text-[12.5px]" style={{ color: LABEL2 }}>
+            Hôm nay đã ôn <b style={{ color: LABEL }}>{progress?.reviewsToday ?? 0}</b> lượt · tới {DECK_LABELS[progress?.goalDeck] || "đích"}
           </div>
-          <div className="flex flex-col items-end gap-1.5">
-            <span className="flex items-center gap-1 rounded-full bg-white/25 px-3 py-1 text-[13px] font-black backdrop-blur-sm">
-              <Icon name="local_fire_department" size={16} color="#fff" fill /> {progress?.streak ?? 0}
-            </span>
-            <span className="text-[11px] font-semibold text-white/85">{status?.trackLabel}</span>
-          </div>
         </div>
-        <div className="relative mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/25">
-          <div className="h-full rounded-full bg-white transition-all" style={{ width: `${progress?.goalPercent ?? 0}%` }} />
-        </div>
-        <div className="relative mt-4 grid grid-cols-3 gap-2 text-center">
-          {[["Đã học", progress?.learned], ["Đã thuộc", progress?.mastered], ["Cần ôn", progress?.dueNow]].map(([k, v]) => (
-            <div key={k} className="rounded-2xl bg-white/20 py-2 backdrop-blur-sm">
-              <div className="text-[20px] font-black leading-none">{v ?? 0}</div>
-              <div className="mt-1 text-[10.5px] font-bold text-white/85">{k}</div>
-            </div>
-          ))}
-        </div>
+        <Ring pct={progress?.goalPercent ?? 0} />
+      </div>
+
+      {/* Các khoá học — thẻ nhiều màu */}
+      <SectionTitle>Khoá học của bạn</SectionTitle>
+      <div className="grid grid-cols-2 gap-3">
+        {LESSONS.map((l) => <LessonCard key={l.id} {...l} />)}
       </div>
 
       {/* HỌC NHANH → mời VƯỢT CẤP ngay */}
@@ -236,78 +325,13 @@ function Home({ progress, status, mode, onPickMode, onStart, onExitTest, onGramm
         </button>
       )}
 
-      {/* ── KHU: HỌC (hành động chính + chọn cách học) ── */}
-      <SectionTitle>Học ngay</SectionTitle>
-      {status?.noContentYet ? (
+      {status?.noContentYet && (
         <div className="rounded-[24px] border p-5 text-center" style={{ ...CARD, borderColor: SEP }}>
           <div className="mx-auto mb-2 grid h-14 w-14 place-items-center rounded-full" style={{ background: GRAD_SOFT }}><Icon name="rocket_launch" size={30} color={ACCENT} fill /></div>
           <div className="text-[15px] font-black" style={{ color: LABEL }}>Bạn đã vượt {DECK_LABELS[status?.testedOutThrough] || "các cấp hiện có"}!</div>
           <p className="mt-1 text-[12.5px]" style={{ color: LABEL2 }}>Nội dung {DECK_LABELS[status?.nextLevel] || "cấp kế tiếp"} sắp ra mắt.</p>
         </div>
-      ) : (
-        <button onClick={onStart} disabled={!activeHasContent}
-          className="flex w-full items-center justify-center gap-2 rounded-[22px] text-[16px] font-black text-white active:scale-[0.98] transition-transform disabled:opacity-50"
-          style={{ background: GRAD, paddingTop: 18, paddingBottom: 18, boxShadow: "0 10px 24px rgba(225,29,72,0.35)" }}>
-          <Icon name="play_arrow" size={22} color="#fff" fill />
-          {activeHasContent ? `Học ${DECK_LABELS[activeDeck] || activeDeck}` : "Chưa có nội dung"}
-        </button>
       )}
-      <div className="grid grid-cols-3 gap-2">
-        {MODES.map((m) => {
-          const on = mode === m.id;
-          return (
-            <button key={m.id} onClick={() => onPickMode(m.id)}
-              className="rounded-2xl border p-3 text-center transition-all active:scale-95"
-              style={on ? { background: GRAD, borderColor: "transparent" } : { ...CARD, borderColor: SEP }}>
-              <Icon name={m.icon} size={22} color={on ? "#fff" : LABEL2} />
-              <div className="mt-0.5 text-[12px] font-black" style={{ color: on ? "#fff" : LABEL }}>{m.label}</div>
-            </button>
-          );
-        })}
-      </div>
-      <p className="-mt-2 text-center text-[11.5px]" style={{ color: LABEL2 }}>{MODES.find((m) => m.id === mode)?.hint}</p>
-
-      {/* ── KHU: TIẾN ĐỘ (mục tiêu 30 ngày + hôm nay) ── */}
-      <SectionTitle>Tiến độ</SectionTitle>
-      {goal && activeHasContent && (
-        <div className="rounded-[24px] border p-4" style={{ ...CARD, borderColor: SEP }}>
-          <div className="flex items-center gap-2">
-            <Icon name="flag" size={20} />
-            <div className="text-[14px] font-black" style={{ color: LABEL }}>Mục tiêu {goal.days} ngày</div>
-            <span className="ml-auto rounded-full px-2.5 py-0.5 text-[11px] font-black" style={{ background: CHIP, color: LABEL }}>còn {goal.daysLeft} ngày</span>
-          </div>
-          <p className="mt-2 text-[12.5px]" style={{ color: LABEL2 }}>
-            Hoàn thành <b style={{ color: LABEL }}>{DECK_LABELS[goal.deck]}</b> ({goal.mastered}/{goal.target} từ). Mỗi ngày thuộc <b style={{ color: LABEL }}>{goal.dailyTarget}</b> từ là kịp.
-          </p>
-          <div className="mt-2 flex items-center gap-2">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/10">
-              <div className="h-full rounded-full transition-all" style={{ width: `${goal.target ? Math.round((goal.mastered / goal.target) * 100) : 0}%`, background: ACCENT }} />
-            </div>
-            <span className="text-[11px] font-bold" style={{ color: goal.onTrack ? "#16a34a" : "#d97706" }}>{goal.onTrack ? "Đúng nhịp" : "Cố hơn"}</span>
-          </div>
-        </div>
-      )}
-      <div className="flex items-center gap-3 rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
-        <IconChip name={progress?.goalMet ? "task_alt" : "bolt"} />
-        <div className="flex-1">
-          <div className="text-[13.5px] font-black" style={{ color: LABEL }}>
-            {progress?.goalMet ? "Đã đạt mục tiêu hôm nay" : `Hôm nay: ${progress?.reviewsToday ?? 0}/${progress?.dailyGoal ?? 20} lượt ôn`}
-          </div>
-          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-black/10">
-            <div className="h-full rounded-full transition-all" style={{ width: `${goalRing}%`, background: progress?.goalMet ? "#16a34a" : ACCENT }} />
-          </div>
-        </div>
-      </div>
-
-      {/* ── KHU: THAO TÁC NHANH (lưới gọn) ── */}
-      <SectionTitle>Khám phá & luyện thêm</SectionTitle>
-      <div className="grid grid-cols-2 gap-2">
-        <QuickTile icon="quiz" title="Thi đoán từ" sub={status?.eligibleForExit ? "Sẵn sàng thi" : "Cần học thêm"} onClick={onExitTest} disabled={!status?.eligibleForExit} />
-        <QuickTile icon="edit_note" title="Thi viết luận" sub="AI chấm bản xứ" onClick={onEssay} />
-        <QuickTile icon="compare_arrows" title="Từ giống tiếng Việt" sub="Âm Hán-Việt: 国家 → quốc gia" onClick={onHanViet} />
-        <QuickTile icon="menu_book" title="Ngữ pháp" sub={`${GRAMMAR_LESSONS.length} điểm khác tiếng Việt`} onClick={onGrammar} />
-        <QuickTile icon="history" title="Từ đã thuộc" sub={`${progress?.mastered ?? 0} từ đã nắm chắc`} onClick={onHistory} />
-      </div>
 
       {status?.completed && (
         <div className="flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
@@ -316,35 +340,10 @@ function Home({ progress, status, mode, onPickMode, onStart, onExitTest, onGramm
         </div>
       )}
 
-      {/* Lộ trình */}
-      <div>
-        <SectionTitle>Lộ trình</SectionTitle>
-        <div className="space-y-2">
-          {ladder.length === 0 && <div className="h-14 animate-pulse rounded-2xl bg-black/5" />}
-          {ladder.map((d) => {
-            const isActive = d.deck === activeDeck && !d.passed;
-            return (
-              <div key={d.deck} className="flex items-center gap-3 rounded-2xl border px-4 py-3"
-                style={{ ...CARD, ...(isActive ? { borderColor: "transparent", boxShadow: `0 0 0 2px ${ACCENT}` } : { borderColor: SEP }), opacity: d.hasContent || d.passed ? 1 : 0.55 }}>
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[13px] font-black"
-                  style={{ background: CHIP, color: LABEL }}>
-                  {d.passed ? <Icon name="check" size={18} /> : (DECK_LABELS[d.deck] || d.deck).replace(/\D/g, "")}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-[14px] font-black" style={{ color: LABEL }}>
-                    {DECK_LABELS[d.deck] || d.deck}
-                    {isActive && <span className="rounded-full px-2 py-0.5 text-[9.5px] font-black text-white" style={{ background: ACCENT }}>ĐANG HỌC</span>}
-                    {!d.hasContent && !d.passed && <Icon name="lock" size={15} color="#c4c4c6" />}
-                  </div>
-                  <div className="text-[11.5px]" style={{ color: LABEL2 }}>
-                    {d.passed ? "Đã đạt (test xếp lớp)" : d.hasContent ? `${d.mastered}/${d.total} đã thuộc · chuẩn ${d.target} từ` : `Sắp ra mắt · chuẩn ${d.target} từ`}
-                  </div>
-                </div>
-                <span className="text-[13px] font-black" style={{ color: d.passed ? "#16a34a" : LABEL2 }}>{d.percent ?? 0}%</span>
-              </div>
-            );
-          })}
-        </div>
+      {/* ── TÍNH NĂNG (trò chơi/luyện tập) ── */}
+      <SectionTitle>Tính năng</SectionTitle>
+      <div className="grid grid-cols-2 gap-3">
+        {FEATURES.map((f) => <FeatureCard key={f.id} {...f} />)}
       </div>
 
       {/* Nhắc lịch */}
@@ -363,31 +362,36 @@ const rand = (arr) => arr.map((v) => [Math.random(), v]).sort((a, b) => a[0] - b
 
 // Ôn tập = TRÒ CHƠI trắc nghiệm (đoán nghĩa / đoán từ / nghe chọn), tự chấm.
 // Từ MỚI: học nhanh rồi chọn "Đã thuộc" (vào lịch sử) hoặc "Học tiếp".
-function Review({ deck, mode = "recognize", onDone }) {
+function Review({ deck, mode = "recognize", lang = "vi_zh", onDone }) {
   const [queue, setQueue] = useState(null);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState(null); // đáp án đã chọn (game)
+  const [flip, setFlip] = useState(false);    // lật thẻ (học từ mới)
   const [done, setDone] = useState(0);
 
   useEffect(() => {
     let alive = true;
-    api(`/vocab/due?deck=${deck}`).then((d) => { if (alive) { setQueue(d.queue || []); setIdx(0); setPicked(null); } });
+    api(`/vocab/due?deck=${deck}`).then((d) => { if (alive) { setQueue(d.queue || []); setIdx(0); setPicked(null); setFlip(false); } });
     return () => { alive = false; };
   }, [deck]);
 
   const card = queue && idx < queue.length ? queue[idx] : null;
   // Loại game theo chế độ: nhận diện=đoán nghĩa, nhớ ngược=đoán từ, nghe=nghe chọn.
   const game = mode === "produce" ? "word" : mode === "listen" ? "listen" : "meaning";
-  useEffect(() => { if (card && card.kind !== "new" && game === "listen") speak(card.hanzi); }, [card, game]);
+  // Mở thẻ là TỰ ĐỌC một lần — trừ game "đoán từ" (chữ Hán là đáp án, đọc sẽ lộ).
+  useEffect(() => {
+    if (!card) return;
+    if (card.kind === "new" || game === "meaning" || game === "listen") speak(card.hanzi);
+  }, [card, game]);
 
   const post = (cardId, g) => api("/vocab/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cardId, grade: g }) }).catch(() => {});
-  const advance = () => { setPicked(null); setDone((n) => n + 1); setIdx((i) => i + 1); };
+  const advance = () => { setPicked(null); setFlip(false); setDone((n) => n + 1); setIdx((i) => i + 1); };
   const learn = (g) => { post(card._id, g); advance(); };
   const answer = (opt, correct) => {
     if (picked) return;
     setPicked({ opt, right: opt === correct });
     post(card._id, opt === correct ? 2 : 0);
-    setTimeout(advance, opt === correct ? 750 : 1600);
+    setTimeout(advance, opt === correct ? 550 : 1300);
   };
 
   if (queue === null) return <div className="mt-10 h-72 animate-pulse rounded-[28px] bg-black/5" />;
@@ -405,43 +409,65 @@ function Review({ deck, mode = "recognize", onDone }) {
     </>
   );
 
-  // ── TỪ MỚI: học nhanh rồi chọn đã thuộc / học tiếp ──
+  // ── TỪ MỚI: FLASHCARD lật đẹp (mặt trước chữ, lật ra nghĩa) ──
   if (card.kind === "new") {
     return (
       <div className="flex flex-col items-center pt-2">
         {progress}
-        <div className="flex min-h-[280px] w-full flex-col items-center justify-center rounded-[32px] border p-6 text-center shadow-sm" style={{ ...CARD, borderColor: SEP }}>
-          <div className="flex items-center gap-2">
-            <div className="text-[72px] font-black leading-none" style={{ color: LABEL }} lang="zh">{card.hanzi}</div>
-            <span onClick={() => speak(card.hanzi)}><Icon name="volume_up" /></span>
+        {/* Thẻ trên nền gradient cho nổi bật, giống mẫu */}
+        <div className="w-full overflow-hidden rounded-[28px] p-4" style={{ background: GRAD }}>
+          <div className="mx-auto flex min-h-[300px] w-full flex-col items-center justify-center rounded-[22px] p-6 text-center" style={{ background: "#fff" }}>
+            {!flip ? (
+              <>
+                <div className="text-[88px] font-black leading-none" style={{ color: LABEL }} lang="zh">{card.hanzi}</div>
+                <div className="mt-4 flex items-center gap-2">
+                  <PinyinText text={card.pinyin} className="text-[24px] font-black" />
+                  <span onClick={() => speak(card.hanzi)}><Icon name="volume_up" size={24} color={ACCENT} /></span>
+                </div>
+                <div className="mt-3 text-[12px] font-bold" style={{ color: LABEL2 }}>Chạm nút bên dưới để lật</div>
+              </>
+            ) : (
+              <div className="w-full">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="text-[44px] font-black leading-none" style={{ color: LABEL }} lang="zh">{card.hanzi}</div>
+                  <span onClick={() => speak(card.hanzi)}><Icon name="volume_up" size={22} color={ACCENT} /></span>
+                </div>
+                <PinyinText text={card.pinyin} className="mt-1.5 block text-[18px] font-black" />
+                <div className="mt-2 text-[20px] font-black" style={{ color: LABEL }}>{mn(card, lang)}</div>
+                <div className="mt-1 flex justify-center"><HanVietChip text={card.hanViet} /></div>
+                {card.example && (
+                  <div className="mt-3 border-t pt-3 text-[13px]" style={{ borderColor: SEP, color: LABEL2 }}>
+                    <div className="text-[16px] font-bold" style={{ color: LABEL }} lang="zh">{card.example}</div>
+                    {card.examplePinyin && <PinyinText text={card.examplePinyin} className="block text-[12.5px] font-semibold" />}
+                    {card.exampleMeaning && <div>{card.exampleMeaning}</div>}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <PinyinText text={card.pinyin} className="mt-2 text-[20px] font-black" />
-          <div className="mt-1 text-[16px] font-semibold" style={{ color: LABEL }}>{card.meaning}</div>
-          <HanVietChip text={card.hanViet} />
-          {card.example && (
-            <div className="mt-3 border-t pt-3 text-[13px]" style={{ borderColor: SEP, color: LABEL2 }}>
-              <div className="text-[15px] font-bold" style={{ color: LABEL }} lang="zh">{card.example}</div>
-              {card.examplePinyin && <PinyinText text={card.examplePinyin} className="block text-[12.5px] font-semibold" />}
-              {card.exampleMeaning && <div>{card.exampleMeaning}</div>}
-            </div>
-          )}
         </div>
-        <div className="mt-4 grid w-full grid-cols-2 gap-2">
-          <button onClick={() => learn(3)} className="rounded-2xl border py-3.5 text-[14px] font-black active:scale-95 transition-transform" style={{ borderColor: SEP, color: LABEL, ...CARD }}>Đã thuộc luôn</button>
-          <button onClick={() => learn(2)} className="rounded-2xl py-3.5 text-[14px] font-black text-white active:scale-95 transition-transform" style={{ background: ACCENT }}>Học từ này</button>
-        </div>
+        {!flip ? (
+          <button onClick={() => { setFlip(true); speak(card.hanzi); }} className="mt-4 w-full rounded-2xl py-4 text-[15px] font-black text-white active:scale-[0.98] transition-transform" style={{ background: GRAD }}>
+            Lật thẻ
+          </button>
+        ) : (
+          <div className="mt-4 grid w-full grid-cols-2 gap-2">
+            <button onClick={() => learn(3)} className="rounded-2xl border py-3.5 text-[14px] font-black active:scale-95 transition-transform" style={{ borderColor: SEP, color: LABEL, ...CARD }}>Đã thuộc luôn</button>
+            <button onClick={() => learn(2)} className="rounded-2xl py-3.5 text-[14px] font-black text-white active:scale-95 transition-transform" style={{ background: GRAD }}>Học từ này</button>
+          </div>
+        )}
       </div>
     );
   }
 
   // ── ÔN LẠI = TRÒ CHƠI TRẮC NGHIỆM ──
   const pool = queue.filter((c) => c._id !== card._id);
-  const key = game === "word" ? "hanzi" : "meaning";
-  const correct = card[key];
-  const distractors = rand([...new Set(pool.map((c) => c[key]).filter((v) => v && v !== correct))]).slice(0, 3);
+  const val = (c) => (game === "word" ? c.hanzi : mn(c, lang));
+  const correct = val(card);
+  const distractors = rand([...new Set(pool.map(val).filter((v) => v && v !== correct))]).slice(0, 3);
   const options = rand([correct, ...distractors]);
   const prompt = game === "word"
-    ? <div className="px-4 text-[24px] font-black" style={{ color: LABEL }}>{card.meaning}</div>
+    ? <div className="px-4 text-[24px] font-black" style={{ color: LABEL }}>{mn(card, lang)}</div>
     : game === "listen"
       ? <button onClick={() => speak(card.hanzi)} className="grid h-24 w-24 place-items-center rounded-full" style={{ background: CHIP }}><Icon name="volume_up" size={44} /></button>
       : (<><div className="text-[64px] font-black leading-none" style={{ color: LABEL }} lang="zh">{card.hanzi}</div><PinyinText text={card.pinyin} className="mt-2 block text-[18px] font-black" /></>);
@@ -473,7 +499,7 @@ function Review({ deck, mode = "recognize", onDone }) {
         <div className="mt-3 w-full rounded-2xl p-3 text-center" style={{ background: CHIP }}>
           <span className="text-[18px] font-black" style={{ color: LABEL }} lang="zh">{card.hanzi}</span>
           <PinyinText text={card.pinyin} className="ml-2 text-[14px] font-bold" />
-          <div className="text-[13px]" style={{ color: LABEL2 }}>{card.meaning}</div>
+          <div className="text-[13px]" style={{ color: LABEL2 }}>{mn(card, lang)}</div>
           <HanVietChip text={card.hanViet} />
         </div>
       )}
@@ -505,6 +531,9 @@ function Quiz({ type, onFinish }) {
     api(`/vocab/test?type=${type}`).then((d) => { if (!alive) return; if (d.error) setError(d.error); else setQuestions(d.questions || []); });
     return () => { alive = false; };
   }, [type]);
+
+  // Mỗi câu hiện là tự đọc chữ Hán một lần.
+  useEffect(() => { if (questions && questions[i] && !result) speak(questions[i].hanzi); }, [questions, i, result]);
 
   const choose = async (choice) => {
     if (locked) return;
@@ -704,6 +733,7 @@ function Grammar() {
           </div>
           {g.tip && <div className="mt-4 flex items-start gap-2 rounded-2xl p-3 text-[13px]" style={{ background: CHIP, color: LABEL }}><Icon name="lightbulb" size={18} /> <span>{g.tip}</span></div>}
         </div>
+        {g.practice && <GrammarPractice practice={g.practice} />}
       </div>
     );
   }
@@ -722,7 +752,7 @@ function Grammar() {
 }
 
 // ── Lịch sử: các từ đã thuộc (không học lại, lưu ở đây) ─────────────────────
-function History() {
+function History({ lang = "vi_zh" }) {
   const [data, setData] = useState(null);
   useEffect(() => { api("/vocab/history").then((d) => setData(d?.error ? { items: [], total: 0 } : d)); }, []);
   if (!data) return <div className="mt-10 h-72 animate-pulse rounded-[28px] bg-black/5" />;
@@ -735,7 +765,7 @@ function History() {
           <div className="text-[24px] font-black" style={{ color: LABEL }} lang="zh">{c.hanzi}</div>
           <div className="min-w-0 flex-1">
             <PinyinText text={c.pinyin} className="block text-[13px] font-bold" />
-            <div className="truncate text-[13px]" style={{ color: LABEL2 }}>{c.meaning}</div>
+            <div className="truncate text-[13px]" style={{ color: LABEL2 }}>{mn(c, lang)}</div>
             <HanVietChip text={c.hanViet} />
           </div>
           <span onClick={() => speak(c.hanzi)}><Icon name="volume_up" size={20} /></span>
@@ -746,7 +776,7 @@ function History() {
 }
 
 // ── Từ giống tiếng Việt (âm Hán-Việt) ───────────────────────────────────────
-function HanViet() {
+function HanViet({ lang = "vi_zh" }) {
   const [data, setData] = useState(null);
   const [onlyCognate, setOnlyCognate] = useState(false);
   useEffect(() => { api("/vocab/hanviet").then((d) => setData(d?.error ? { items: [] } : d)); }, []);
@@ -772,11 +802,144 @@ function HanViet() {
               <span className="rounded-full px-2 py-0.5 text-[11px] font-black" style={{ background: CHIP, color: LABEL }}>{c.hanViet}</span>
               {c.cognate && <Icon name="verified" size={15} color={ACCENT} fill />}
             </div>
-            <div className="truncate text-[12.5px]" style={{ color: LABEL2 }}>{c.meaning}</div>
+            <div className="truncate text-[12.5px]" style={{ color: LABEL2 }}>{mn(c, lang)}</div>
           </div>
           <span onClick={() => speak(c.hanzi)}><Icon name="volume_up" size={20} /></span>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ── Cài đặt ──────────────────────────────────────────────────────────────────
+function Settings({ status, onDone }) {
+  const cal = calendarLinks(20);
+  const [track, setTrack] = useState(status?.track || "simplified");
+  const [lang, setLang] = useState(status?.langPair || "vi_zh");
+  const [push, setPush] = useState(status?.pushEnabled !== false);
+  const [busy, setBusy] = useState("");
+  const [msg, setMsg] = useState("");
+
+  const savePrefs = (patch) => api("/vocab/prefs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) }).catch(() => {});
+
+  const retake = async () => {
+    setBusy("retake");
+    await api("/vocab/reset-placement", { method: "POST" }).catch(() => {});
+    onDone(); // về home → gặp test đầu vào
+  };
+  const switchTrack = async (tId) => {
+    setTrack(tId);
+    setBusy("track");
+    await api("/vocab/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ track: tId }) }).catch(() => {});
+    setMsg("Đã đổi thể chữ — bạn sẽ test xếp lớp lại cho khoá mới.");
+    setBusy("");
+  };
+  const pickLang = (l) => { setLang(l); savePrefs({ langPair: l }); };
+  const togglePush = () => { const v = !push; setPush(v); savePrefs({ pushEnabled: v }); };
+
+  const Row = ({ icon, title, children }) => (
+    <div className="rounded-[22px] border p-4" style={{ ...CARD, borderColor: SEP }}>
+      <div className="mb-2 flex items-center gap-2"><Icon name={icon} size={18} /><span className="text-[13.5px] font-black" style={{ color: LABEL }}>{title}</span></div>
+      {children}
+    </div>
+  );
+  const Seg = ({ options, value, onPick }) => (
+    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${options.length},1fr)` }}>
+      {options.map((o) => {
+        const on = o.id === value;
+        return (
+          <button key={o.id} onClick={() => onPick(o.id)}
+            className="rounded-xl py-2.5 text-[13px] font-black transition-all"
+            style={on ? { background: GRAD, color: "#fff" } : { ...CARD, border: `1px solid ${SEP}`, color: LABEL }}>{o.label}</button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div className="space-y-3 pt-2">
+      <Row icon="restart_alt" title="Kiểm tra trình độ">
+        <p className="mb-2 text-[12px]" style={{ color: LABEL2 }}>Làm lại bài test đầu vào để xếp lại cấp phù hợp.</p>
+        <button onClick={retake} disabled={busy === "retake"} className="w-full rounded-xl py-2.5 text-[13px] font-black text-white" style={{ background: GRAD }}>Test lại đầu vào</button>
+      </Row>
+
+      <Row icon="translate" title="Dạng thể chữ">
+        <Seg value={track} onPick={switchTrack} options={[{ id: "simplified", label: "Giản thể · HSK" }, { id: "traditional", label: "Phồn thể · TOCFL" }]} />
+      </Row>
+
+      <Row icon="language" title="Ngôn ngữ học nghĩa">
+        <Seg value={lang} onPick={pickLang} options={[{ id: "vi_zh", label: "Việt – Trung" }, { id: "en_zh", label: "Anh – Trung" }]} />
+      </Row>
+
+      <Row icon="event" title="Áp dụng lịch">
+        <p className="mb-2 text-[12px]" style={{ color: LABEL2 }}>Gắn buổi ôn 20:00 hằng ngày vào lịch thiết bị của bạn.</p>
+        <div className="flex gap-2">
+          <a href={cal.icsUrl} download="hugo-vocab.ics" className="flex-1 rounded-xl border py-2.5 text-center text-[12.5px] font-bold" style={{ borderColor: SEP, color: LABEL }}>Thêm vào lịch</a>
+          <a href={cal.gcal} target="_blank" rel="noreferrer" className="flex-1 rounded-xl border py-2.5 text-center text-[12.5px] font-bold" style={{ borderColor: SEP, color: LABEL }}>Google Calendar</a>
+        </div>
+      </Row>
+
+      <Row icon="notifications" title="Thông báo nhắc ôn">
+        <button onClick={togglePush} className="flex w-full items-center justify-between">
+          <span className="text-[12.5px]" style={{ color: LABEL2 }}>Nhận nhắc ôn đúng giờ (push)</span>
+          <span className="relative inline-block h-6 w-11 rounded-full transition-all" style={{ background: push ? "#16a34a" : "#cbd5e1" }}>
+            <span className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all" style={{ left: push ? 22 : 2 }} />
+          </span>
+        </button>
+      </Row>
+
+      {msg && <p className="px-1 text-[12px] font-semibold" style={{ color: ACCENT }}>{msg}</p>}
+      <button onClick={onDone} className="w-full rounded-2xl py-3.5 text-[15px] font-black text-white" style={{ background: GRAD }}>Xong</button>
+    </div>
+  );
+}
+
+// ── Thực hành ngữ pháp: SẮP XẾP CÂU (chạm từ theo đúng thứ tự) ──────────────
+function GrammarPractice({ practice }) {
+  const answerKey = practice.tokens;
+  const [pool, setPool] = useState(() => rand(answerKey.map((t, i) => ({ t, i }))));
+  const [chosen, setChosen] = useState([]); // {t, i}
+  const done = chosen.length === answerKey.length;
+  const correct = done && chosen.every((c, k) => c.t === answerKey[k]);
+
+  const pick = (item) => { if (done) return; setChosen([...chosen, item]); setPool(pool.filter((x) => x.i !== item.i)); };
+  const undo = (item) => { setChosen(chosen.filter((x) => x.i !== item.i)); setPool([...pool, item]); };
+  const reset = () => { setChosen([]); setPool(rand(answerKey.map((t, i) => ({ t, i })))); };
+
+  return (
+    <div className="rounded-[28px] border p-5 shadow-sm" style={{ ...CARD, borderColor: SEP }}>
+      <div className="mb-1 flex items-center gap-2"><Icon name="extension" size={18} color={ACCENT} /><span className="text-[14px] font-black" style={{ color: LABEL }}>Thực hành: sắp xếp câu</span></div>
+      <p className="mb-3 text-[12.5px]" style={{ color: LABEL2 }}>Chạm các từ theo đúng thứ tự để tạo câu: <b style={{ color: LABEL }}>{practice.vi}</b></p>
+
+      {/* Hàng đáp án */}
+      <div className="min-h-[52px] rounded-2xl border p-2 flex flex-wrap gap-2" style={{ borderColor: done ? (correct ? "#16a34a" : "#ef4444") : SEP, background: "rgba(0,0,0,0.02)" }}>
+        {chosen.length === 0 && <span className="self-center px-2 text-[12px]" style={{ color: LABEL2 }}>Chạm từ bên dưới…</span>}
+        {chosen.map((item) => (
+          <button key={item.i} onClick={() => undo(item)} className="rounded-xl px-3 py-2 text-[18px] font-black" style={{ background: CHIP, color: LABEL }} lang="zh">{item.t}</button>
+        ))}
+      </div>
+
+      {/* Kho từ xáo trộn */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {pool.map((item) => (
+          <button key={item.i} onClick={() => pick(item)} className="rounded-xl px-3 py-2 text-[18px] font-black active:scale-95 transition-transform" style={{ ...CARD, border: `1.5px solid ${SEP}`, color: LABEL }} lang="zh">{item.t}</button>
+        ))}
+      </div>
+
+      {done && (
+        <div className="mt-3 rounded-2xl p-3 text-center" style={{ background: correct ? "rgba(22,163,74,0.1)" : "rgba(239,68,68,0.1)" }}>
+          <div className="flex items-center justify-center gap-1.5 text-[14px] font-black" style={{ color: correct ? "#16a34a" : "#ef4444" }}>
+            <Icon name={correct ? "check_circle" : "cancel"} size={18} color={correct ? "#16a34a" : "#ef4444"} fill />
+            {correct ? "Chính xác!" : "Chưa đúng"}
+          </div>
+          {!correct && (
+            <div className="mt-1 text-[16px] font-black" style={{ color: LABEL }} lang="zh">
+              {answerKey.join(" ")} <span onClick={() => speak(answerKey.join(""))}><Icon name="volume_up" size={16} color={ACCENT} /></span>
+            </div>
+          )}
+          <button onClick={reset} className="mt-2 rounded-xl px-4 py-2 text-[12.5px] font-black text-white" style={{ background: GRAD }}>Làm lại</button>
+        </div>
+      )}
     </div>
   );
 }

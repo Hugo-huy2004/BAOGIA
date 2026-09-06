@@ -9,7 +9,8 @@ const VocabCardSchema = new mongoose.Schema({
   hanzi: { type: String, required: true },
   pinyin: { type: String, required: true },
   meaning: { type: String, required: true },
-  hanViet: { type: String, default: '' }, // âm Hán-Việt (国家 → "quốc gia")           // nghĩa tiếng Việt
+  hanViet: { type: String, default: '' }, // âm Hán-Việt (国家 → "quốc gia")
+  meaningEn: { type: String, default: '' }, // nghĩa tiếng Anh (cho khoá Anh/Trung)           // nghĩa tiếng Việt
   example: { type: String, default: '' },
   examplePinyin: { type: String, default: '' },
   exampleMeaning: { type: String, default: '' },
@@ -21,5 +22,6 @@ const VocabCardSchema = new mongoose.Schema({
 
 // Không cho trùng cùng một chữ trong cùng một bộ.
 VocabCardSchema.index({ deck: 1, hanzi: 1 }, { unique: true });
+VocabCardSchema.index({ status: 1, deck: 1 }); // đếm approved theo cấp nhanh
 
 export default mongoose.model('VocabCard', VocabCardSchema);
