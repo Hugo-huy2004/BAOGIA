@@ -69,3 +69,45 @@ export function nextStreak({ streak = 0, lastStudyDay = '', reviewsToday = 0 } =
 export function dayKey(ts = Date.now()) {
   return new Date(ts).toISOString().slice(0, 10);
 }
+
+// ── BỘ THEO DÕI THÍCH ỨNG + CỐ VẤN (hàm thuần) ──────────────────────────────
+
+// Trung bình động hàm mũ: mượt, nhớ gần đây hơn, không cần lưu cả chuỗi.
+export function ewma(prev, x, alpha = 0.25) {
+  if (!Number.isFinite(x)) return prev || 0;
+  return prev ? Math.round(((1 - alpha) * prev + alpha * x) * 1000) / 1000 : x;
+}
+
+// Cộng dồn vào nhật ký ngày (tối đa `cap` mục). Bất biến — trả mảng mới.
+export function bumpHistory(history = [], today, { r = 0, c = 0, n = 0 } = {}, cap = 60) {
+  const out = Array.isArray(history) ? history.slice(-cap) : [];
+  const last = out[out.length - 1];
+  if (last && last.d === today) {
+    out[out.length - 1] = { d: today, r: (last.r || 0) + r, c: (last.c || 0) + c, n: (last.n || 0) + n };
+  } else {
+    out.push({ d: today, r, c, n });
+  }
+  return out.slice(-cap);
+}
+
+// Số ngày dự kiến để thuộc hết phần còn lại, theo nhịp thuộc/ngày gần đây.
+export function projectDaysToGoal(remaining, masteredPerDay) {
+  if (remaining <= 0) return 0;
+  if (!masteredPerDay || masteredPerDay <= 0) return Infinity;
+  return Math.ceil(remaining / masteredPerDay);
+}
+
+// Cố vấn: chọn LỜI KHUYÊN khoa học theo trạng thái người học. Thứ tự ưu tiên =
+// việc quan trọng nhất lúc này. Thuần → dễ test, chạy giống nhau mọi nơi.
+// state: { streakAlive, studiedToday, dueNow, overdue, weakCount, accuracy,
+//          onTrack, remaining, newRec, reviewRec }
+export function coachTip(s = {}) {
+  if (!s.studiedToday && s.streakAlive) return { tone: 'warn', key: 'keepStreak' };   // giữ chuỗi kẻo mất
+  if (s.overdue >= 20) return { tone: 'warn', key: 'clearBacklog' };                   // ôn tồn trước khi học mới
+  if (s.weakCount >= 5) return { tone: 'warn', key: 'drillWeak' };                     // luyện từ hay quên
+  if (s.accuracy && s.accuracy < 0.6) return { tone: 'info', key: 'slowDown' };        // chậm lại, chắc từng từ
+  if (s.dueNow > 0) return { tone: 'info', key: 'reviewFirst' };                       // ôn đến hạn đã
+  if (s.remaining <= 0) return { tone: 'good', key: 'levelDone' };                     // xong bậc → thi/vượt
+  if (s.accuracy && s.accuracy >= 0.9) return { tone: 'good', key: 'learnMore' };      // đang tốt, thêm từ mới
+  return { tone: 'info', key: 'steady' };                                              // đều đặn mỗi ngày
+}

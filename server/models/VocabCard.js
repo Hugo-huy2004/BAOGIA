@@ -23,5 +23,6 @@ const VocabCardSchema = new mongoose.Schema({
 // Không cho trùng cùng một chữ trong cùng một bộ.
 VocabCardSchema.index({ deck: 1, hanzi: 1 }, { unique: true });
 VocabCardSchema.index({ status: 1, deck: 1 }); // đếm approved theo cấp nhanh
+VocabCardSchema.index({ hanzi: 1 }); // tra từ theo chữ Hán ($in) cho Today chế độ tiếng Trung
 
 export default mongoose.model('VocabCard', VocabCardSchema);

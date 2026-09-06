@@ -3,7 +3,9 @@ import VocabCard from '../models/VocabCard.js';
 import VocabProgress from '../models/VocabProgress.js';
 import VocabProfile from '../models/VocabProfile.js';
 import { requireMember, requireAdmin } from '../middleware/authMiddleware.js';
-import { schedule, nextStreak, dayKey } from '../services/vocabSrs.js';
+import { schedule, nextStreak, dayKey, ewma, bumpHistory, projectDaysToGoal, coachTip } from '../services/vocabSrs.js';
+import Friendship from '../models/Friendship.js';
+import Bio from '../models/Bio.js';
 
 const router = express.Router();
 
@@ -11,12 +13,12 @@ const router = express.Router();
 // tích luỹ của mỗi kỳ thi). Mỗi khoá có hệ cấp riêng, người học chọn một.
 const TRACKS = {
   simplified: {
-    label: 'Giản thể · HSK',
+    label: '简体字 · HSK',
     decks: ['hsk1', 'hsk2', 'hsk3', 'hsk4', 'hsk5', 'hsk6'],
     target: { hsk1: 150, hsk2: 300, hsk3: 600, hsk4: 1200, hsk5: 2500, hsk6: 5000 },
   },
   traditional: {
-    label: 'Phồn thể · TOCFL',
+    label: '繁體字 · TOCFL',
     decks: ['tocfl1', 'tocfl2', 'tocfl3', 'tocfl4', 'tocfl5', 'tocfl6'],
     target: { tocfl1: 500, tocfl2: 1000, tocfl3: 2500, tocfl4: 5000, tocfl5: 8000, tocfl6: 8000 },
   },
@@ -146,16 +148,25 @@ router.post('/review', requireMember, async (req, res) => {
       { upsert: true, new: true },
     ).lean();
 
-    // Chuỗi ngày: mỗi lượt ôn cập nhật streak + số lượt hôm nay (tính theo mốc
-    // ngày UTC). Đây là động lực giữ thói quen — thứ quyết định kết quả dài hạn.
-    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'streak lastStudyDay reviewsToday').lean();
+    // Chuỗi ngày + BỘ THEO DÕI THÍCH ỨNG: mỗi lượt ôn cập nhật streak, độ chính
+    // xác/tốc độ (EWMA) và nhật ký ngày cho biểu đồ tiến độ.
+    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'streak lastStudyDay reviewsToday accuracy avgMs history').lean();
     const today = dayKey();
     const yesterday = dayKey(Date.now() - 86400000);
     const st = nextStreak(profile || {}, today, yesterday);
     const g = Number(grade);
+    const correct = g >= 2 ? 1 : 0;
+    const isNew = !prior;                         // lần đầu gặp thẻ này = học từ mới
+    const ms = Number(req.body?.ms);
+    const set = {
+      ...st,
+      accuracy: ewma(profile?.accuracy, correct),
+      history: bumpHistory(profile?.history, today, { r: 1, c: correct, n: isNew ? 1 : 0 }),
+    };
+    if (Number.isFinite(ms) && ms > 200 && ms < 60000) set.avgMs = ewma(profile?.avgMs, ms);
     await VocabProfile.updateOne(
       { email: req.memberEmail },
-      { $set: st, $inc: { reviews: 1, easyReviews: g === 3 ? 1 : 0, againReviews: g === 0 ? 1 : 0 }, $setOnInsert: { email: req.memberEmail } },
+      { $set: set, $inc: { reviews: 1, easyReviews: g === 3 ? 1 : 0, againReviews: g === 0 ? 1 : 0 }, $setOnInsert: { email: req.memberEmail } },
       { upsert: true },
     );
 
@@ -207,6 +218,189 @@ router.get('/progress', requireMember, async (req, res) => {
       dailyGoal,
       goalMet: reviewsToday >= dailyGoal,
     });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/vocab/insights — CỐ VẤN THÔNG MINH: tiến độ khoa học + định hướng
+// "hôm nay học gì" + từ hay quên + dự phóng ngày đạt mục tiêu.
+router.get('/insights', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const profile = await VocabProfile.findOne({ email }).lean();
+    if (!profile?.track) return res.json({ needsTrack: true });
+    const track = trackOf(profile.track);
+    const ladder = track.decks;
+    const now = new Date();
+    const in7 = new Date(Date.now() + 7 * 86400000);
+
+    const [content, byStatus, byDeckMastered, overdue, dueSoon, weakProg] = await Promise.all([
+      contentTotals(),
+      VocabProgress.aggregate([{ $match: { email } }, { $group: { _id: '$status', n: { $sum: 1 } } }]),
+      VocabProgress.aggregate([{ $match: { email, status: 'mastered' } }, { $group: { _id: '$deck', n: { $sum: 1 } } }]),
+      VocabProgress.countDocuments({ email, dueAt: { $lte: now } }),
+      VocabProgress.aggregate([
+        { $match: { email, dueAt: { $gt: now, $lte: in7 } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$dueAt' } }, n: { $sum: 1 } } },
+      ]),
+      VocabProgress.find({ email, lapses: { $gte: 2 }, status: { $ne: 'mastered' } }).sort({ lapses: -1, dueAt: 1 }).limit(8).lean(),
+    ]);
+
+    const counts = Object.fromEntries(byStatus.map((s) => [s._id, s.n]));
+    const statusCounts = { new: counts.new || 0, learning: counts.learning || 0, review: counts.review || 0, mastered: counts.mastered || 0 };
+    // Mục tiêu = tổng từ khoá; đã thuộc + bậc đã vượt tính 100% (như /progress).
+    const goalTotal = ladder.reduce((a, d) => a + (content[d] || 0), 0);
+    const masteredByDeck = Object.fromEntries(byDeckMastered.map((r) => [r._id, r.n]));
+    const goalMasteredRaw = ladder.reduce((a, d) => a + (masteredByDeck[d] || 0), 0);
+    const toIdx = ladder.indexOf(profile.testedOutThrough || '');
+    const testedOutCards = toIdx >= 0 ? ladder.slice(0, toIdx + 1).reduce((a, d) => a + (content[d] || 0), 0) : 0;
+    const mastered = Math.min(goalTotal, goalMasteredRaw + testedOutCards);
+    const remaining = Math.max(0, goalTotal - mastered);
+
+    // Nhịp học gần đây từ nhật ký → dự phóng ngày đạt mục tiêu (thận trọng).
+    const hist = Array.isArray(profile.history) ? profile.history.slice(-7) : [];
+    const activeDays = hist.filter((h) => (h.r || 0) > 0).length || 1;
+    const newPerDay = hist.reduce((a, h) => a + (h.n || 0), 0) / activeDays;
+    const elapsedDays = profile.startedAt ? Math.max(1, (Date.now() - new Date(profile.startedAt).getTime()) / 86400000) : 1;
+    const masteredPerDay = Math.max(newPerDay * 0.7, mastered / elapsedDays);
+    const daysToGoal = projectDaysToGoal(remaining, masteredPerDay);
+    const etaDate = Number.isFinite(daysToGoal) ? new Date(Date.now() + daysToGoal * 86400000).toISOString().slice(0, 10) : null;
+
+    // Dự báo 7 ngày (kể cả 0) để vẽ cột.
+    const dueMap = Object.fromEntries(dueSoon.map((r) => [r._id, r.n]));
+    const forecast = [];
+    for (let i = 1; i <= 7; i++) { const d = new Date(Date.now() + i * 86400000).toISOString().slice(0, 10); forecast.push({ d, n: dueMap[d] || 0 }); }
+
+    // Từ hay quên → luyện lại.
+    const weakCards = weakProg.length ? await VocabCard.find({ _id: { $in: weakProg.map((w) => w.cardId) } }).lean() : [];
+    const byId = Object.fromEntries(weakCards.map((c) => [String(c._id), c]));
+    const weak = weakProg.map((w) => { const c = byId[String(w.cardId)]; return c && { _id: c._id, hanzi: c.hanzi, pinyin: c.pinyin, meaning: c.meaning, meaningEn: c.meaningEn, hanViet: c.hanViet, lapses: w.lapses }; }).filter(Boolean);
+
+    const today = dayKey(); const yesterday = dayKey(Date.now() - 86400000);
+    const streakAlive = profile.lastStudyDay === today || profile.lastStudyDay === yesterday;
+    const studiedToday = profile.lastStudyDay === today;
+    const dailyGoal = profile.dailyGoal || 20;
+    const reviewsToday = studiedToday ? (profile.reviewsToday || 0) : 0;
+    // "Hôm nay học gì": ôn hết đến hạn + học mới bù cho đủ mục tiêu ngày.
+    const reviewRec = overdue;
+    const newRec = Math.max(0, Math.min(20, dailyGoal - reviewsToday - Math.min(overdue, dailyGoal)));
+    const tip = coachTip({ streakAlive, studiedToday, dueNow: overdue, overdue, weakCount: weak.length, accuracy: profile.accuracy, remaining, newRec, reviewRec });
+
+    res.json({
+      track: profile.track, trackLabel: track.label,
+      goalDeck: ladder[ladder.length - 1], goalTotal, mastered, remaining,
+      percent: goalTotal ? Math.round((mastered / goalTotal) * 100) : 0,
+      statusCounts,
+      accuracy: profile.accuracy ? Math.round(profile.accuracy * 100) : null,
+      avgSec: profile.avgMs ? Math.round(profile.avgMs / 100) / 10 : null,
+      streak: streakAlive ? (profile.streak || 0) : 0, studiedToday,
+      dailyGoal, reviewsToday, goalMet: reviewsToday >= dailyGoal,
+      dueNow: overdue, forecast, weak,
+      plan: { review: reviewRec, learn: newRec },
+      etaDays: Number.isFinite(daysToGoal) ? daysToGoal : null, etaDate,
+      history: (profile.history || []).slice(-14),
+      tip,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/vocab/board — bảng "Bạn học": tiến độ của bạn + bạn bè để cùng cố gắng.
+router.get('/board', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const links = await Friendship.find({ members: email, status: 'accepted' }).select('members').lean();
+    const emails = [...new Set([email, ...links.flatMap((l) => l.members)])];
+    const [profiles, masteredRows, bios] = await Promise.all([
+      VocabProfile.find({ email: { $in: emails }, track: { $ne: null } }).select('email track streak lastStudyDay history').lean(),
+      VocabProgress.aggregate([{ $match: { email: { $in: emails }, status: 'mastered' } }, { $group: { _id: '$email', n: { $sum: 1 } } }]),
+      Bio.find({ email: { $in: emails } }).select('email displayName slug avatarUrl').lean(),
+    ]);
+    const masteredBy = Object.fromEntries(masteredRows.map((r) => [r._id, r.n]));
+    const bioBy = Object.fromEntries(bios.map((b) => [b.email, b]));
+    const today = dayKey(); const yesterday = dayKey(Date.now() - 86400000);
+    const rows = profiles.map((p) => {
+      const alive = p.lastStudyDay === today || p.lastStudyDay === yesterday;
+      const weekly = (p.history || []).slice(-7).reduce((a, h) => a + (h.r || 0), 0);
+      const b = bioBy[p.email] || {};
+      return {
+        me: p.email === email,
+        email: p.email === email ? p.email : undefined, // chỉ lộ email của chính mình
+        name: b.displayName || (p.email === email ? 'Bạn' : p.email.split('@')[0]),
+        avatar: b.avatarUrl || '', slug: b.slug || '',
+        track: p.track, mastered: masteredBy[p.email] || 0,
+        streak: alive ? (p.streak || 0) : 0, weekly,
+      };
+    }).sort((a, b) => b.mastered - a.mastered || b.streak - a.streak || b.weekly - a.weekly);
+    res.json({ rows, friendCount: Math.max(0, emails.length - 1) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/vocab/friends — danh sách bạn bè (để chọn khi gửi từ). Chỉ bạn đã kết.
+router.get('/friends', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const links = await Friendship.find({ members: email, status: 'accepted' }).select('members').lean();
+    const others = [...new Set(links.flatMap((l) => l.members).filter((m) => m !== email))];
+    if (!others.length) return res.json({ friends: [] });
+    const bios = await Bio.find({ email: { $in: others } }).select('email displayName avatarUrl').lean();
+    const bioBy = Object.fromEntries(bios.map((b) => [b.email, b]));
+    const online = global.wsClients || {};
+    res.json({ friends: others.map((e) => ({ email: e, name: bioBy[e]?.displayName || e.split('@')[0], avatar: bioBy[e]?.avatarUrl || '', online: Boolean(online[e]?.size) })) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/vocab/toss-friend { to, card } — tung một thẻ sang BẠN đang online.
+router.post('/toss-friend', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const to = String(req.body?.to || '').toLowerCase().trim();
+    const card = req.body?.card;
+    if (!to || !card?.hanzi) return res.status(400).json({ error: 'Thiếu người nhận hoặc thẻ.' });
+    const friend = await Friendship.findOne({ members: { $all: [email, to] }, status: 'accepted' }).lean();
+    if (!friend) return res.status(403).json({ error: 'Chỉ tung được cho bạn bè.' });
+    const me = await Bio.findOne({ email }).select('displayName').lean();
+    const s = (v) => (v == null ? undefined : String(v).slice(0, 160));
+    const payload = JSON.stringify({ type: 'vocab:toss', from: me?.displayName || 'Một người bạn', card: {
+      hanzi: s(card.hanzi), pinyin: s(card.pinyin), meaning: s(card.meaning), meaningEn: s(card.meaningEn),
+      hanViet: s(card.hanViet), example: s(card.example), examplePinyin: s(card.examplePinyin), exampleMeaning: s(card.exampleMeaning),
+    } });
+    let delivered = 0;
+    const sockets = global.wsClients?.[to];
+    if (sockets) for (const ws of sockets) { if (ws.readyState === 1) { ws.send(payload); delivered += 1; } }
+    res.json({ success: true, delivered });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/vocab/lookup { words: [...] } — tra pinyin/nghĩa cho các từ Hán xuất
+// hiện trong bài Today (chế độ tiếng Trung). Chỉ trả từ CÓ trong giáo trình để
+// mỗi từ gạch chân đều bấm ra được cách đọc + nghĩa + "học".
+router.post('/lookup', requireMember, async (req, res) => {
+  try {
+    const words = Array.isArray(req.body?.words)
+      ? [...new Set(req.body.words.filter((w) => typeof w === 'string' && w))].slice(0, 300)
+      : [];
+    if (!words.length) return res.json({ found: {} });
+    const cards = await VocabCard.find({ hanzi: { $in: words }, status: 'approved' })
+      .select('hanzi pinyin meaning meaningEn hanViet deck').lean();
+    const found = {};
+    for (const c of cards) if (!found[c.hanzi]) {
+      found[c.hanzi] = { cardId: c._id, hanzi: c.hanzi, pinyin: c.pinyin, meaning: c.meaning, meaningEn: c.meaningEn, hanViet: c.hanViet, deck: c.deck };
+    }
+    res.json({ found });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/vocab/queue-card { cardId } — thêm một từ (gặp khi đọc báo) vào hàng ôn.
+router.post('/queue-card', requireMember, async (req, res) => {
+  try {
+    const cardId = req.body?.cardId;
+    const card = cardId && await VocabCard.findOne({ _id: cardId, status: 'approved' }).select('deck').lean();
+    if (!card) return res.status(404).json({ error: 'Không tìm thấy thẻ.' });
+    await VocabProgress.updateOne(
+      { email: req.memberEmail, cardId },
+      { $setOnInsert: { email: req.memberEmail, cardId, deck: card.deck, status: 'new', dueAt: new Date() } },
+      { upsert: true },
+    );
+    res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -518,14 +712,27 @@ const topicFor = (deck) => {
   return list[Math.floor(Math.random() * list.length)];
 };
 
-// GET /api/vocab/essay/prompt — đề bài + cho biết lần thi này có tốn phí không.
+// Mục tiêu số chữ Hán theo cấp — bài dài dần theo trình độ.
+const ESSAY_MIN_CHARS = { hsk1: 20, hsk2: 30, hsk3: 50, hsk4: 80, hsk5: 120, hsk6: 150, tocfl1: 20, tocfl2: 30, tocfl3: 50, tocfl4: 80, tocfl5: 120, tocfl6: 150 };
+
+// GET /api/vocab/essay/prompt — đề bài + gợi ý từ đã học để dùng + mục tiêu chữ.
 router.get('/essay/prompt', requireMember, async (req, res) => {
   try {
-    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'essayAttempts track testedOutThrough').lean();
+    const email = req.memberEmail;
+    const profile = await VocabProfile.findOne({ email }, 'essayAttempts track testedOutThrough').lean();
     const LADDER = trackOf(profile?.track).decks;
-    const deck = await computeActiveDeck(req.memberEmail, LADDER, profile?.testedOutThrough) || LADDER[0];
+    const deck = await computeActiveDeck(email, LADDER, profile?.testedOutThrough) || LADDER[0];
     const willCharge = (profile?.essayAttempts || 0) >= 1;
-    res.json({ topic: topicFor(deck), deck, willCharge, cost: ESSAY_RETAKE_COST });
+    // Gợi ý vài từ ĐÃ HỌC của bậc này để khuyến khích dùng lại khi viết → ôn qua
+    // sản sinh (viết) là cách nhớ sâu nhất.
+    const prog = await VocabProgress.find({ email, deck, status: { $in: ['learning', 'review', 'mastered'] } })
+      .sort({ lastReviewedAt: -1 }).limit(40).lean();
+    let words = [];
+    if (prog.length) {
+      const cards = await VocabCard.find({ _id: { $in: prog.map((p) => p.cardId) } }, 'hanzi pinyin meaning meaningEn').lean();
+      words = shuffle(cards).slice(0, 5).map((c) => ({ hanzi: c.hanzi, pinyin: c.pinyin, meaning: c.meaning, meaningEn: c.meaningEn }));
+    }
+    res.json({ topic: topicFor(deck), deck, willCharge, cost: ESSAY_RETAKE_COST, words, minChars: ESSAY_MIN_CHARS[deck] || 40 });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -554,15 +761,27 @@ router.post('/essay/grade', requireMember, async (req, res) => {
       }
     }
 
+    // Các từ được KHUYẾN KHÍCH dùng (client gửi lại từ /essay/prompt) — AI kiểm
+    // từ nào đã dùng đúng để thưởng điểm "vận dụng từ đã học".
+    const suggested = Array.isArray(req.body?.words)
+      ? req.body.words.filter((w) => typeof w === 'string' && w).slice(0, 10)
+      : [];
+
     const { generateRaw } = await import('../services/aiGateway.js');
     const raw = await generateRaw({
       systemInstruction: { parts: [{ text:
         'Bạn là giám khảo tiếng Trung bản xứ, nghiêm túc và khích lệ. Chấm bài viết của học viên. '
         + 'Trả về DUY NHẤT một object JSON: {"score": 0-100, "level": "ước lượng trình độ HSK", '
+        + '"dimensions": {"grammar": 0-100, "vocabulary": 0-100, "coherence": 0-100}, '
+        + '"usedWords": ["từ trong danh sách khuyến khích mà học viên ĐÃ dùng ĐÚNG"], '
+        + '"strengths": ["điểm làm tốt, bằng tiếng Việt, ngắn"], '
         + '"errors": [{"original":"câu/cụm sai","correction":"sửa lại","explanation":"giải thích NGẮN bằng tiếng Việt"}], '
         + '"suggestions": ["gợi ý bằng tiếng Việt để câu tự nhiên hơn như người bản xứ"], '
         + '"nativeVersion":"viết lại cả bài theo cách bản xứ tự nhiên (tiếng Trung)", "comment":"nhận xét chung bằng tiếng Việt"}.' }] },
-      contents: [{ role: 'user', parts: [{ text: `Đề bài: ${topic || '(tự do)'}\n\nBài viết của học viên:\n${text}` }] }],
+      contents: [{ role: 'user', parts: [{ text:
+        `Đề bài: ${topic || '(tự do)'}\n`
+        + (suggested.length ? `Từ khuyến khích dùng: ${suggested.join('、')}\n` : '')
+        + `\nBài viết của học viên:\n${text}` }] }],
       generationConfig: { temperature: 0.3, responseMimeType: 'application/json' },
     });
 
@@ -579,6 +798,76 @@ router.post('/essay/grade', requireMember, async (req, res) => {
 
     await VocabProfile.updateOne({ email }, { $inc: { essayAttempts: 1 } });
     res.json({ feedback, charged: willCharge ? ESSAY_RETAKE_COST : 0, attempt: attempts + 1 });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── DẠY ĐẶT CÂU (造句) ────────────────────────────────────────────────────────
+// GET /api/vocab/sentence/task — một TỪ (ưu tiên đã học) để tập đặt câu.
+router.get('/sentence/task', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const profile = await VocabProfile.findOne({ email }, 'track testedOutThrough').lean();
+    const LADDER = trackOf(profile?.track).decks;
+    const deck = await computeActiveDeck(email, LADDER, profile?.testedOutThrough) || LADDER[0];
+    const prog = await VocabProgress.find({ email, deck, status: { $in: ['learning', 'review', 'mastered'] } }).limit(80).lean();
+    let card = null;
+    if (prog.length) {
+      const pick = prog[Math.floor(Math.random() * prog.length)];
+      card = await VocabCard.findOne({ _id: pick.cardId }, 'hanzi pinyin meaning meaningEn example examplePinyin exampleMeaning').lean();
+    }
+    if (!card) {
+      const arr = await VocabCard.aggregate([{ $match: { deck, status: 'approved' } }, { $sample: { size: 1 } }]);
+      card = arr[0] || null;
+    }
+    if (!card) return res.json({ word: null });
+    res.json({ word: {
+      hanzi: card.hanzi, pinyin: card.pinyin, meaning: card.meaning, meaningEn: card.meaningEn,
+      example: card.example, examplePinyin: card.examplePinyin, exampleMeaning: card.exampleMeaning,
+    } });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/vocab/sentence/check { word?, pattern?, text } — AI kiểm câu học viên đặt.
+router.post('/sentence/check', requireMember, async (req, res) => {
+  try {
+    const word = String(req.body?.word || '').slice(0, 20);
+    const pattern = String(req.body?.pattern || '').slice(0, 40);
+    const text = String(req.body?.text || '').trim().slice(0, 300);
+    const hanzi = (text.match(/[一-鿿]/g) || []).length;
+    if (hanzi < 2) return res.status(400).json({ error: 'Câu quá ngắn.' });
+    const usesWord = word ? text.includes(word) : true;
+
+    let result = null;
+    try {
+      const { generateRaw } = await import('../services/aiGateway.js');
+      const raw = await generateRaw({
+        systemInstruction: { parts: [{ text:
+          'Bạn là giáo viên tiếng Trung tận tâm. Kiểm tra CÂU học viên đặt. Trả về DUY NHẤT JSON: '
+          + '{"ok": true/false (đúng ngữ pháp, tự nhiên, và đúng yêu cầu), "score":0-100, '
+          + '"correction":"câu sửa lại bằng chữ Hán nếu có lỗi, để rỗng nếu đã đúng", '
+          + '"pinyin":"pinyin có dấu thanh của câu đúng", "comment":"nhận xét NGẮN bằng tiếng Việt", '
+          + '"nativeExample":"một câu mẫu bản xứ khác dùng cùng từ/mẫu (chữ Hán)"}.' }] },
+        contents: [{ role: 'user', parts: [{ text:
+          `Yêu cầu: đặt câu${word ? ` có dùng từ 「${word}」` : ''}${pattern ? ` theo mẫu 「${pattern}」` : ''}.\nCâu của học viên: ${text}` }] }],
+        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+      });
+      result = JSON.parse(String(raw || '').replace(/^```(?:json)?|```$/g, '').trim());
+    } catch { result = null; }
+
+    if (!result) {
+      // AI bận → kiểm sơ (có dùng từ + đủ dài), báo rõ là chấm tạm.
+      const ended = /[。！？.!?]$/.test(text);
+      return res.json({
+        ok: usesWord && hanzi >= 3,
+        score: usesWord ? 70 : 40,
+        correction: '', pinyin: '', nativeExample: '', fallback: true,
+        comment: !usesWord ? `Câu chưa dùng từ 「${word}」.`
+          : ended ? 'AI đang bận — câu có dùng đúng từ, tạm ổn. Thử lại sau để chấm kỹ hơn.'
+            : 'AI đang bận. Nhớ kết thúc câu bằng 。 rồi thử lại.',
+      });
+    }
+    if (word && !usesWord) { result.ok = false; result.comment = `Câu chưa dùng từ 「${word}」. ${result.comment || ''}`.trim(); }
+    res.json(result);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

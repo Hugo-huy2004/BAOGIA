@@ -1,11 +1,12 @@
 import "./today-article.css";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTodayArticle } from "../../hooks/useTodayArticle";
 
 import BackButton from "./shared/BackButton";
 import { languageCode } from "../../i18n/languages";
+import { useZhVocab, ZhText, ZhWordPopup, primeZhSpeech } from "./TodayZhAnnotate";
 
 export default function TodayArticleReader({ articleId, onBack }) {
   const { t, i18n } = useTranslation();
@@ -40,6 +41,18 @@ export default function TodayArticleReader({ articleId, onBack }) {
   const article = data?.article || cachedArticle;
   const summary = data?.summary
     || (article?.description ? { points: [article.description] } : null);
+
+  // ── ĐẶC QUYỀN CHẾ ĐỘ TIẾNG TRUNG: học qua bài báo ──
+  // Khi ngôn ngữ app là tiếng Trung, ấn bản Today là báo tiếng Trung — gạch chân
+  // các từ trong giáo trình, chạm ra pinyin/nghĩa/phát âm/thêm vào ôn.
+  const isZh = language === "zh";
+  const zhTexts = useMemo(
+    () => (isZh ? [article?.title, ...((summary?.points) || [])].filter(Boolean) : []),
+    [isZh, article?.title, summary],
+  );
+  const zhKnown = useZhVocab(zhTexts);
+  const [zhWord, setZhWord] = useState(null);
+  const openZhWord = (w) => { primeZhSpeech(); setZhWord(w); };
 
   const dateLabel = article?.publishedAt
     ? new Intl.DateTimeFormat(language, { day: "numeric", month: "short", year: "numeric" })
@@ -81,7 +94,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
               {article.author ? <span>· {article.author}</span> : null}
               {dateLabel ? <span>· {dateLabel}</span> : null}
             </p>
-            <h1 className="today-article-title">{article.title}</h1>
+            <h1 className="today-article-title">{isZh ? <ZhText text={article.title} known={zhKnown} onTap={openZhWord} /> : article.title}</h1>
           </div>
 
           {/* ── PHẦN 1: TÓM TẮT NGẮN ── */}
@@ -90,8 +103,16 @@ export default function TodayArticleReader({ articleId, onBack }) {
               <span className="material-symbols-outlined" aria-hidden="true">summarize</span>
               {t("memberPortal.today.summaryTitle")}
             </h2>
+            {isZh && Object.keys(zhKnown).length > 0 && (
+              <p className="today-article-zh-hint" style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 0 10px", fontSize: 12.5, fontWeight: 600, color: "#e11d48" }}>
+                <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 16 }}>touch_app</span>
+                点击带下划线的词：看拼音、释义与发音
+              </p>
+            )}
             <ul>
-              {(summary?.points || []).map((point, index) => <li key={index}>{point}</li>)}
+              {(summary?.points || []).map((point, index) => (
+                <li key={index}>{isZh ? <ZhText text={point} known={zhKnown} onTap={openZhWord} /> : point}</li>
+              ))}
             </ul>
             {/* Thông tin nguồn: tên nguồn, tác giả, ngày đăng */}
             <p className="today-article-source-info">
@@ -126,6 +147,7 @@ export default function TodayArticleReader({ articleId, onBack }) {
           </section>
         </>
       )}
+      {zhWord && <ZhWordPopup word={zhWord} lang={language === "en" ? "en" : "vi"} onClose={() => setZhWord(null)} />}
     </section>
   );
 }

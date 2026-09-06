@@ -1,6 +1,6 @@
 // Soát engine lặp lại ngắt quãng — thuần, không DB. Sai lịch ôn là hỏng đúng
 // thứ cốt lõi của app (nhớ được hay không), nên phải có test chạy đứng một mình.
-import { schedule, MASTERED_INTERVAL_DAYS, nextStreak } from '../services/vocabSrs.js';
+import { schedule, MASTERED_INTERVAL_DAYS, nextStreak, ewma, bumpHistory, projectDaysToGoal, coachTip } from '../services/vocabSrs.js';
 
 let failed = 0;
 const check = (ok, label) => { console.log(`${ok ? '✅' : '❌'} ${label}`); if (!ok) failed++; };
@@ -44,6 +44,28 @@ check(nextStreak({ streak: 3, lastStudyDay: '2026-09-03' }, '2026-09-04', '2026-
 check(nextStreak({ streak: 5, lastStudyDay: '2026-09-04', reviewsToday: 2 }, '2026-09-04', '2026-09-03').streak === 5, 'chuỗi: học tiếp trong ngày → giữ nguyên');
 check(nextStreak({ streak: 5, lastStudyDay: '2026-09-04', reviewsToday: 2 }, '2026-09-04', '2026-09-03').reviewsToday === 3, 'chuỗi: học tiếp trong ngày → +1 lượt');
 check(nextStreak({ streak: 9, lastStudyDay: '2026-09-01' }, '2026-09-04', '2026-09-03').streak === 1, 'chuỗi: bỏ cách ngày → reset về 1');
+
+// ─── Cố vấn thích ứng (hàm thuần) ───────────────────────────────────────────
+check(ewma(0, 1) === 1, 'ewma: giá trị đầu = chính nó');
+check(Math.abs(ewma(1, 0, 0.25) - 0.75) < 1e-9, 'ewma: trộn theo alpha (0.75)');
+
+let h = bumpHistory([], '2026-09-06', { r: 1, c: 1, n: 1 });
+check(h.length === 1 && h[0].r === 1, 'history: thêm mục ngày mới');
+h = bumpHistory(h, '2026-09-06', { r: 1, c: 0, n: 0 });
+check(h.length === 1 && h[0].r === 2 && h[0].c === 1, 'history: cùng ngày → cộng dồn');
+h = bumpHistory(h, '2026-09-07', { r: 1, c: 1, n: 1 });
+check(h.length === 2, 'history: ngày khác → mục mới');
+check(bumpHistory(Array.from({ length: 80 }, (_, i) => ({ d: `d${i}`, r: 1, c: 1, n: 0 })), 'x', { r: 1 }, 60).length === 60, 'history: cắt còn tối đa cap');
+
+check(projectDaysToGoal(0, 5) === 0, 'dự phóng: hết phần còn lại = 0 ngày');
+check(projectDaysToGoal(100, 0) === Infinity, 'dự phóng: chưa có nhịp = vô hạn');
+check(projectDaysToGoal(100, 10) === 10, 'dự phóng: 100 từ / 10 mỗi ngày = 10 ngày');
+
+check(coachTip({ streakAlive: true, studiedToday: false }).key === 'keepStreak', 'cố vấn: có chuỗi mà chưa học → giữ chuỗi');
+check(coachTip({ studiedToday: true, overdue: 30 }).key === 'clearBacklog', 'cố vấn: tồn nhiều → ôn tồn trước');
+check(coachTip({ studiedToday: true, overdue: 0, weakCount: 6 }).key === 'drillWeak', 'cố vấn: nhiều từ yếu → luyện từ yếu');
+check(coachTip({ studiedToday: true, overdue: 0, weakCount: 0, accuracy: 0.5 }).key === 'slowDown', 'cố vấn: chính xác thấp → chậm lại');
+check(coachTip({ studiedToday: true, overdue: 0, weakCount: 0, accuracy: 0.95, remaining: 0 }).key === 'levelDone', 'cố vấn: xong bậc → thi/vượt');
 
 console.log(failed ? `\n❌ ${failed} mục KHÔNG đạt` : '\n✅ Engine ôn tập chạy đúng');
 process.exit(failed ? 1 : 0);

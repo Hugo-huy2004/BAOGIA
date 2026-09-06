@@ -470,12 +470,25 @@ wss.on('connection', (ws, req) => {
     // Devices can also push vitals via WebSocket
     try {
       const msg = JSON.parse(data.toString());
+      // Relay thiết-bị-tới-thiết-bị trong cùng tài khoản: vitals IoT, và "tung
+      // thẻ" vocab (presence = báo máy đang mở; toss = gửi 1 thẻ qua máy kia).
+      let relay = null;
       if (msg.type === 'vitals' && msg.data) {
-        // Broadcast to all other clients with same email
+        relay = msg;
+      } else if (msg.type === 'vocab:presence') {
+        relay = { type: 'vocab:presence' };
+      } else if (msg.type === 'vocab:toss' && msg.card) {
+        const s = (v) => (v == null ? undefined : String(v).slice(0, 160));
+        const c = msg.card;
+        relay = { type: 'vocab:toss', card: {
+          hanzi: s(c.hanzi), pinyin: s(c.pinyin), meaning: s(c.meaning), meaningEn: s(c.meaningEn),
+          hanViet: s(c.hanViet), example: s(c.example), examplePinyin: s(c.examplePinyin), exampleMeaning: s(c.exampleMeaning),
+        } };
+      }
+      if (relay) {
+        const payload = JSON.stringify(relay);
         for (const client of global.wsClients[email]) {
-          if (client !== ws && client.readyState === 1 /* OPEN */) {
-            client.send(JSON.stringify(msg));
-          }
+          if (client !== ws && client.readyState === 1 /* OPEN */) client.send(payload);
         }
       }
     } catch {

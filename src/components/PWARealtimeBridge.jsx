@@ -66,6 +66,16 @@ export default function PWARealtimeBridge() {
             return;
           }
 
+          // Tung thẻ vocab giữa các thiết bị cùng tài khoản (relay từ server).
+          if (data.type === 'vocab:toss') {
+            window.dispatchEvent(new CustomEvent('hugo:vocab-toss', { detail: data }));
+            return;
+          }
+          if (data.type === 'vocab:presence') {
+            window.dispatchEvent(new Event('hugo:vocab-presence'));
+            return;
+          }
+
           if (data.type !== 'joy_update') return;
           useJoyStore.getState().setBalance(Number(data.balance) || 0);
           window.dispatchEvent(new CustomEvent('hugo:notification', { detail: data.notification }));
@@ -100,6 +110,12 @@ export default function PWARealtimeBridge() {
     connect();
     sync();
 
+    // Cho phép mọi component gửi qua socket dùng chung (vd: tung thẻ vocab).
+    const handleRealtimeSend = (e) => {
+      try { if (socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(e.detail)); } catch {}
+    };
+    window.addEventListener('hugo:realtime-send', handleRealtimeSend);
+
     const handleResume = () => {
       if (document.visibilityState === 'visible') sync();
     };
@@ -127,6 +143,7 @@ export default function PWARealtimeBridge() {
       abortRef.current?.abort();
       window.clearTimeout(retryTimer.current);
       if (stableTimer) window.clearTimeout(stableTimer);
+      window.removeEventListener('hugo:realtime-send', handleRealtimeSend);
       // Only close if past CONNECTING (readyState 0) to avoid the
       // "WebSocket is closed before the connection is established" warning
       // that React StrictMode triggers by double-invoking effects.

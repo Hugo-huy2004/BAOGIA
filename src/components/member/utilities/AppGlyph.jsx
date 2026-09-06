@@ -35,6 +35,17 @@ const Slab = ({ x, y, w, h, r = 4, fill, d = 1.6 }) => (
 // chừa ~7px lề để icon không chạm mép ô bo góc.
 
 const SCENES = {
+  // Hoa Ngữ — chữ Hán 華 to, tượng hình, trắng nổi trên ô nền của app.
+  vocab: () => {
+    const font = '"Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Songti SC",serif';
+    return (
+      <>
+        <text x="24.9" y="25.6" textAnchor="middle" dominantBaseline="central" fontFamily={font} fontSize="31" fontWeight="700" fill="#000" opacity="0.2">華</text>
+        <text x="24" y="24.4" textAnchor="middle" dominantBaseline="central" fontFamily={font} fontSize="31" fontWeight="700" fill="#fff">華</text>
+      </>
+    );
+  },
+
   // Trang Bio — thẻ hồ sơ
   bio: (f) => (
     <>

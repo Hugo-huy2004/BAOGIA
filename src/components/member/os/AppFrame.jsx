@@ -35,12 +35,16 @@ export default function AppFrame({
   scrollKey,
   className = "",
   contentClassName = "px-4",
+  forceScheme,
   children,
 }) {
   const { t } = useTranslation();
   const dark = useDarkScheme();
+  // Vài app cố tình khoá MỘT hệ màu (vd: app học = nền giấy sáng luôn, chữ mực
+  // đậm, không lật theo dark mode để chữ Hán không chìm trên thẻ trắng).
+  const effectiveDark = forceScheme ? forceScheme === "dark" : dark;
   const [scrolled, setScrolled] = useState(false);
-  const palette = useMemo(() => appPalette(appId, dark), [appId, dark]);
+  const palette = useMemo(() => appPalette(appId, effectiveDark), [appId, effectiveDark]);
 
   // Đổi tab thì cuộn về đầu — nếu không, tab mới mở ra ở giữa trang vì vùng
   // cuộn dùng chung. `scrollKey` cho app tự ép cuộn lên khi đổi màn con.
@@ -50,7 +54,7 @@ export default function AppFrame({
 
   return (
     <IosApp
-      scheme={dark ? "dark" : "light"}
+      scheme={effectiveDark ? "dark" : "light"}
       accent={palette.accent}
       vars={palette.vars}
       className={`relative ${className}`}

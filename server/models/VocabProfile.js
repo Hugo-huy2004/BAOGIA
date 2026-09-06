@@ -30,6 +30,14 @@ const VocabProfileSchema = new mongoose.Schema({
   reviews: { type: Number, default: 0 },
   easyReviews: { type: Number, default: 0 },   // chấm "Dễ"
   againReviews: { type: Number, default: 0 },  // chấm "Quên"
+  // ── Bộ theo dõi thích ứng (Cố vấn thông minh) ──
+  // Độ chính xác (đúng = grade≥2) và tốc độ phản hồi trung bình động (EWMA) —
+  // nhanh + đúng ⇒ cho vượt nhanh hơn; chậm + sai ⇒ giảm tải, ôn kỹ.
+  accuracy: { type: Number, default: 0 },      // 0..1 EWMA
+  avgMs: { type: Number, default: 0 },         // ms EWMA thời gian trả lời
+  // Nhật ký ngày (tối đa 60 mục) cho biểu đồ tiến độ: d=ngày, r=lượt ôn,
+  // c=đúng, n=từ mới học lần đầu.
+  history: { type: [{ d: String, r: Number, c: Number, n: Number, _id: false }], default: [] },
 }, { timestamps: true });
 
 export default mongoose.model('VocabProfile', VocabProfileSchema);
