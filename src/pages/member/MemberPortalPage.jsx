@@ -309,6 +309,19 @@ function MemberPortalPage() {
     navigate(utilityId ? `/member/utilities/${utilityId}` : "/member/utilities");
   };
 
+  const vocabRouteFromUrl = activeTab === "utilities" && subTab === "vocab"
+    ? (psychTab || "home")
+    : null;
+  const handleVocabRouteChange = useCallback((route, options = {}) => {
+    const path = route && route !== "home" ? `/member/utilities/vocab/${route}` : "/member/utilities/vocab";
+    const params = new URLSearchParams();
+    if (route === "review") {
+      if (options.deck) params.set("deck", options.deck);
+      if (options.mode) params.set("mode", options.mode);
+    }
+    navigate(`${path}${params.toString() ? `?${params.toString()}` : ""}`);
+  }, [navigate]);
+
   useEffect(() => {
     if (retiredUtility) navigate("/member/apps", { replace: true });
   }, [retiredUtility, navigate]);
@@ -933,6 +946,8 @@ function MemberPortalPage() {
                 sleepAutoDetect={sleepAutoDetect}
                 onBioUpdate={(patch) => setBio(prev => prev ? { ...prev, ...patch } : prev)}
                 studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null}
+                vocabRoute={vocabRouteFromUrl}
+                onVocabRouteChange={handleVocabRouteChange}
               />
             </React.Suspense>
           </ErrorBoundary>
@@ -1030,7 +1045,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} />
+                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (
@@ -1096,7 +1111,7 @@ function MemberPortalPage() {
                   )}
                   {(activeTab === "utilities" || activeTab === "apps") && (
                     <div style={{ padding: "0 12px"  }}>
-                      <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} />
+                        <MemberUtilitiesTab onOpenParticleModal={openParticleModal} bio={bio} publicLink={publicLink} showToast={showToast} setFormData={setFormData} handleSave={handleSave} renderAccountForm={renderAccountForm} selectedUtility={utilitySelection} onSelectUtility={handleSelectUtility} psychologySubTab={psychologySubTabFromUrl} onSelectPsychologySubTab={handleSelectPsychologySubTab} radioPage={radioPageFromUrl} onSelectRadioPage={handleSelectRadioPage} defaultPsychologyPresetTest={defaultPsychologyPresetTest} sleepAutoDetect={sleepAutoDetect} onBioUpdate={patchMemberBio} studyRoute={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? psychTab : null} studySub={activeTab === "utilities" && (subTab === "ide" || subTab === "study") ? deepTab : null} vocabRoute={vocabRouteFromUrl} onVocabRouteChange={handleVocabRouteChange} />
                     </div>
                   )}
                   {(activeTab === "history" || activeTab === "activity") && (

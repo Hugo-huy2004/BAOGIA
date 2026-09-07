@@ -6,6 +6,8 @@ import { requireMember, requireAdmin } from '../middleware/authMiddleware.js';
 import { schedule, nextStreak, dayKey, ewma, bumpHistory, projectDaysToGoal, coachTip } from '../services/vocabSrs.js';
 import Friendship from '../models/Friendship.js';
 import Bio from '../models/Bio.js';
+import { VOCAB_READING_LESSONS } from '../data/vocabReadingLessons.js';
+import { VOCAB_HANZI_META } from '../data/vocabHanziMeta.js';
 
 const router = express.Router();
 
@@ -25,6 +27,95 @@ const TRACKS = {
 };
 const trackOf = (t) => TRACKS[t] || TRACKS.simplified;
 const DECKS = [...TRACKS.simplified.decks, ...TRACKS.traditional.decks];
+
+const readingLessonFor = (track, requestedId) => {
+  const lessons = VOCAB_READING_LESSONS.filter((lesson) => lesson.track === track);
+  return requestedId ? lessons.find((lesson) => lesson.id === requestedId) : lessons[0];
+};
+
+const hanziFor = (value) => String(value || '').trim().slice(0, 1);
+
+// GET /api/vocab/hanzi/:hanzi — dữ liệu học chữ, không để client tự đoán bộ thủ.
+router.get('/hanzi/:hanzi', requireMember, async (req, res) => {
+  try {
+    const hanzi = hanziFor(decodeURIComponent(req.params.hanzi));
+    if (!hanzi || !/[\u3400-\u9fff]/.test(hanzi)) return res.status(400).json({ error: 'Chữ Hán không hợp lệ.' });
+    const [card, alternatives] = await Promise.all([
+      VocabCard.findOne({ hanzi, status: 'approved' }).select('hanzi pinyin meaning meaningEn hanViet').lean(),
+      VocabCard.find({ hanzi: { $ne: hanzi }, status: 'approved' }).select('hanzi').limit(3).lean(),
+    ]);
+    const meta = VOCAB_HANZI_META[hanzi] || { radical: null, components: [hanzi], explanation: '这个字的详细构造资料正在整理中。', strokeCount: null };
+    const quizOptions = [...new Set([meta.radical, ...alternatives.map((item) => VOCAB_HANZI_META[item.hanzi]?.radical).filter(Boolean)])].slice(0, 4);
+    res.json({ character: { ...meta, hanzi, pinyin: card?.pinyin || '', meaning: card?.meaning || card?.meaningEn || '', hanViet: card?.hanViet || '', quizOptions } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/hanzi/quiz', requireMember, async (req, res) => {
+  const hanzi = hanziFor(req.body?.hanzi);
+  const answer = String(req.body?.radical || '').trim();
+  const correct = Boolean(hanzi && VOCAB_HANZI_META[hanzi]?.radical && answer === VOCAB_HANZI_META[hanzi].radical);
+  res.json({ correct, answer: correct ? answer : VOCAB_HANZI_META[hanzi]?.radical || null });
+});
+
+// GET /api/vocab/missions — nhiệm vụ ngày/tuần đọc từ cùng nhật ký SRS.
+router.get('/missions', requireMember, async (req, res) => {
+  try {
+    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'history reviewsToday dailyGoal').lean();
+    const today = dayKey();
+    const todayLog = (profile?.history || []).find((item) => item.d === today) || { r: 0, c: 0, n: 0 };
+    const weeklyKeys = new Set(Array.from({ length: 7 }, (_, index) => dayKey(Date.now() - index * 86400000)));
+    const week = (profile?.history || []).filter((item) => weeklyKeys.has(item.d));
+    const weekly = week.reduce((sum, item) => sum + (item.r || 0), 0);
+    const missions = [
+      { id: 'daily-review', period: 'daily', icon: 'replay', title: '复习 20 个词', progress: todayLog.r, target: 20, reward: 50 },
+      { id: 'daily-new', period: 'daily', icon: 'new_releases', title: '学习 5 个新词', progress: todayLog.n, target: 5, reward: 20 },
+      { id: 'daily-accuracy', period: 'daily', icon: 'target', title: '保持正确率 80%', progress: todayLog.r ? Math.round((todayLog.c / todayLog.r) * 100) : 0, target: 80, reward: 20 },
+      { id: 'weekly-review', period: 'weekly', icon: 'calendar_month', title: '本周复习 100 次', progress: weekly, target: 100, reward: 100 },
+    ].map((mission) => ({ ...mission, complete: mission.progress >= mission.target }));
+    res.json({ missions, reviewsToday: profile?.reviewsToday || 0, dailyGoal: profile?.dailyGoal || 20 });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/vocab/reading — bài đọc ngắn theo khoá, câu hỏi được server giữ đáp án.
+router.get('/reading', requireMember, async (req, res) => {
+  try {
+    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'track').lean();
+    const track = profile?.track || 'simplified';
+    const lesson = readingLessonFor(track, String(req.query.lessonId || ''));
+    if (!lesson) return res.status(404).json({ error: 'Chưa có bài đọc phù hợp với khoá học.' });
+    res.json({
+      lesson: {
+        id: lesson.id,
+        track: lesson.track,
+        deck: lesson.deck,
+        title: lesson.title,
+        subtitle: lesson.subtitle,
+        body: lesson.body,
+        questions: lesson.questions.map(({ id, prompt, options }) => ({ id, prompt, options })),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/vocab/reading/complete — chấm hiểu bài, không nhận đáp án đúng từ client.
+router.post('/reading/complete', requireMember, async (req, res) => {
+  try {
+    const lesson = VOCAB_READING_LESSONS.find((item) => item.id === String(req.body?.lessonId || ''));
+    if (!lesson) return res.status(404).json({ error: 'Không tìm thấy bài đọc.' });
+    const answers = req.body?.answers && typeof req.body.answers === 'object' ? req.body.answers : {};
+    const correct = lesson.questions.reduce((count, question) => count + (answers[question.id] === question.answer ? 1 : 0), 0);
+    const total = lesson.questions.length;
+    res.json({ success: true, score: total ? Math.round((correct / total) * 100) : 0, correct, total });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 // Bậc NÊN học lúc này — học theo trình độ, và KHÔNG bao giờ trỏ vào bậc rỗng.
@@ -131,6 +222,7 @@ router.get('/due', requireMember, async (req, res) => {
 });
 
 // POST /api/vocab/review { cardId, grade } — chấm một thẻ, cập nhật lịch ôn.
+const DAILY_GOAL_JOY = 50; // thưởng JOY khi đạt mục tiêu học trong ngày (1 lần/ngày)
 router.post('/review', requireMember, async (req, res) => {
   try {
     const { cardId, grade } = req.body || {};
@@ -139,6 +231,16 @@ router.post('/review', requireMember, async (req, res) => {
     }
     const card = await VocabCard.findOne({ _id: cardId, status: 'approved' }).lean();
     if (!card) return res.status(404).json({ error: 'Không tìm thấy thẻ.' });
+
+    const clientEventId = String(req.body?.clientEventId || '').trim().slice(0, 80);
+    if (clientEventId) {
+      const claimed = await VocabProfile.findOneAndUpdate(
+        { email: req.memberEmail, reviewEventIds: { $ne: clientEventId } },
+        { $push: { reviewEventIds: { $each: [clientEventId], $slice: -200 } }, $setOnInsert: { email: req.memberEmail } },
+        { upsert: true, new: true },
+      ).lean();
+      if (!claimed) return res.json({ success: true, duplicate: true, queued: false });
+    }
 
     const prior = await VocabProgress.findOne({ email: req.memberEmail, cardId }).lean();
     const next = schedule(prior || {}, Number(grade));
@@ -150,7 +252,7 @@ router.post('/review', requireMember, async (req, res) => {
 
     // Chuỗi ngày + BỘ THEO DÕI THÍCH ỨNG: mỗi lượt ôn cập nhật streak, độ chính
     // xác/tốc độ (EWMA) và nhật ký ngày cho biểu đồ tiến độ.
-    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'streak lastStudyDay reviewsToday accuracy avgMs history').lean();
+    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'streak lastStudyDay reviewsToday accuracy avgMs history dailyGoal lastGoalRewardDay').lean();
     const today = dayKey();
     const yesterday = dayKey(Date.now() - 86400000);
     const st = nextStreak(profile || {}, today, yesterday);
@@ -170,7 +272,25 @@ router.post('/review', requireMember, async (req, res) => {
       { upsert: true },
     );
 
-    res.json({ success: true, progress: saved, streak: st.streak, reviewsToday: st.reviewsToday, known: saved.status === 'mastered' });
+    // THƯỞNG JOY khi ĐẠT MỤC TIÊU NGÀY (một lần/ngày). Đặt mốc ngày atomically
+    // (filter lastGoalRewardDay ≠ hôm nay) để không thưởng trùng dù bấm nhanh.
+    let dailyReward = 0;
+    const dailyGoal = profile?.dailyGoal || 20;
+    if (st.reviewsToday >= dailyGoal && profile?.lastGoalRewardDay !== today) {
+      const claim = await VocabProfile.findOneAndUpdate(
+        { email: req.memberEmail, lastGoalRewardDay: { $ne: today } },
+        { $set: { lastGoalRewardDay: today } },
+      ).lean();
+      if (claim) {
+        try {
+          const { awardJoy } = await import('../utils/joyService.js');
+          await awardJoy(req.memberEmail, DAILY_GOAL_JOY, 'vocab_daily_goal', 'Hoàn thành mục tiêu học từ vựng hôm nay', { pushNotify: false });
+          dailyReward = DAILY_GOAL_JOY;
+        } catch { /* thưởng lỗi thì bỏ qua, không chặn việc học */ }
+      }
+    }
+
+    res.json({ success: true, progress: saved, streak: st.streak, reviewsToday: st.reviewsToday, known: saved.status === 'mastered', dailyReward });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -440,6 +560,44 @@ async function eligibleForExit(email) {
   return { eligible: mastered >= EXIT_MIN_MASTERED && days >= EXIT_MIN_DAYS, profile, mastered, days: Math.floor(days) };
 }
 
+// ── THI THỬ (模拟考) — mô phỏng đề HSK/TOCFL, KHÔNG phải cổng gating ──
+// Lấy câu từ mọi bậc TỚI trình độ hiện tại; chia 2 phần nghe/đọc; chấm ở server.
+router.get('/exam', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const profile = await VocabProfile.findOne({ email }, 'track testedOutThrough').lean();
+    const ladder = trackOf(profile?.track).decks;
+    const active = await computeActiveDeck(email, ladder, profile?.testedOutThrough) || ladder[0];
+    const decks = ladder.slice(0, Math.max(0, ladder.indexOf(active)) + 1);
+    const N = 24;
+    const qs = await buildQuiz(decks, N);
+    if (!qs.length) return res.json({ questions: [], durationSec: 0, decks });
+    const half = Math.ceil(qs.length / 2);
+    const questions = qs.map((q, i) => ({ ...q, section: i < half ? 'listen' : 'read' }));
+    res.json({ questions, durationSec: qs.length * 25, decks });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST /api/vocab/exam/submit { answers:[{cardId,choice}] } — chấm điểm thi thử.
+router.post('/exam/submit', requireMember, async (req, res) => {
+  try {
+    const answers = Array.isArray(req.body?.answers) ? req.body.answers.slice(0, 80) : [];
+    if (!answers.length) return res.status(400).json({ error: 'Chưa có câu trả lời.' });
+    const cards = await VocabCard.find({ _id: { $in: answers.map((a) => a.cardId).filter(Boolean) } }, 'meaning deck').lean();
+    const byId = Object.fromEntries(cards.map((c) => [String(c._id), c]));
+    let correct = 0; const perDeck = {};
+    for (const a of answers) {
+      const c = byId[String(a.cardId)];
+      if (!c) continue;
+      perDeck[c.deck] = perDeck[c.deck] || { correct: 0, total: 0 };
+      perDeck[c.deck].total += 1;
+      if (a.choice === c.meaning) { correct += 1; perDeck[c.deck].correct += 1; }
+    }
+    const total = answers.length;
+    res.json({ score: Math.round((correct / total) * 100), correct, total, perDeck });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // POST /api/vocab/track { track } — chọn khoá học (Giản thể/HSK · Phồn thể/TOCFL).
 // Chọn một lần khi mới vào; đổi khoá làm lại test xếp lớp cho khoá mới.
 router.post('/track', requireMember, async (req, res) => {
@@ -691,6 +849,45 @@ router.get('/history', requireMember, async (req, res) => {
     const byId = Object.fromEntries(cards.map((c) => [String(c._id), c]));
     const items = prog.map((p) => ({ ...byId[String(p.cardId)], learnedAt: p.lastReviewedAt })).filter((x) => x.hanzi);
     res.json({ total: await VocabProgress.countDocuments({ email: req.memberEmail, status: 'mastered' }), items });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET /api/vocab/expand?char= — MỞ RỘNG VỐN TỪ theo HỌ CHỮ (字族): chọn một chữ
+// từ những từ đã học, trả về mọi từ trong khoá CÓ chữ đó. Tiếng Trung ghép chữ
+// nên học theo họ chữ là cách mở rộng nhanh nhất (学 → 学生/学校/学习/同学).
+router.get('/expand', requireMember, async (req, res) => {
+  try {
+    const email = req.memberEmail;
+    const profile = await VocabProfile.findOne({ email }, 'track testedOutThrough').lean();
+    const decks = trackOf(profile?.track).decks;
+    const activeDeck = await computeActiveDeck(email, decks, profile?.testedOutThrough) || decks[0];
+
+    // Nguồn chữ: các chữ trong từ ĐÃ HỌC; nếu chưa có thì lấy từ kho bậc đang học.
+    let charPool = [];
+    const prog = await VocabProgress.find({ email, status: { $in: ['learning', 'review', 'mastered'] } }).limit(200).lean();
+    if (prog.length) {
+      const cards = await VocabCard.find({ _id: { $in: prog.map((p) => p.cardId) } }, 'hanzi').lean();
+      charPool = cards.flatMap((c) => [...String(c.hanzi)]).filter((ch) => /[一-鿿]/.test(ch));
+    }
+    if (!charPool.length) {
+      const arr = await VocabCard.aggregate([{ $match: { deck: activeDeck, status: 'approved' } }, { $sample: { size: 8 } }, { $project: { hanzi: 1 } }]);
+      charPool = arr.flatMap((c) => [...String(c.hanzi)]).filter((ch) => /[一-鿿]/.test(ch));
+    }
+    if (!charPool.length) return res.json({ char: null, family: [] });
+
+    const wanted = String(req.query.char || '').trim();
+    const char = (wanted && /^[一-鿿]$/.test(wanted)) ? wanted : charPool[Math.floor(Math.random() * charPool.length)];
+
+    const fam = await VocabCard.find({ deck: { $in: decks }, status: 'approved', hanzi: { $regex: char } }, 'hanzi pinyin meaning meaningEn deck')
+      .limit(40).lean();
+    const knownIds = fam.length
+      ? await VocabProgress.find({ email, cardId: { $in: fam.map((c) => c._id) }, status: 'mastered' }).distinct('cardId')
+      : [];
+    const knownSet = new Set(knownIds.map(String));
+    const family = fam
+      .map((c) => ({ cardId: c._id, hanzi: c.hanzi, pinyin: c.pinyin, meaning: c.meaning, meaningEn: c.meaningEn, known: knownSet.has(String(c._id)) }))
+      .sort((a, b) => a.hanzi.length - b.hanzi.length); // từ ngắn (thường cơ bản) trước
+    res.json({ char, family });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

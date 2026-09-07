@@ -61,7 +61,7 @@ export const BackgroundSyncEngine = {
 
   async enqueueOfflineRequest(endpoint, payload) {
     try {
-      await IndexedDBStorage.enqueueSyncItem(endpoint, payload);
+      await IndexedDBStorage.enqueuePendingSync(endpoint, payload);
       if (navigator.onLine) {
         await this.flushPendingQueue();
       }

@@ -47,6 +47,8 @@ export function appPalette(appId, dark) {
         "--ios-surface": "#fffdf8",
         "--ios-surface-2": "#efe8da",
         "--ios-chrome": "rgba(244,239,228,0.86)",
+        "--ios-glass": "rgba(255,253,248,0.68)",
+        "--ios-glass-border": "rgba(255,255,255,0.76)",
       },
     };
   }

@@ -24,6 +24,8 @@ const SCHEMES = {
     "--ios-fill": "rgba(120,120,128,0.12)",
     "--ios-fill-2": "rgba(120,120,128,0.08)",
     "--ios-chrome": "rgba(249,249,249,0.82)",
+    "--ios-glass": "rgba(255,255,255,0.62)",
+    "--ios-glass-border": "rgba(255,255,255,0.72)",
   },
   dark: {
     "--ios-bg": "#000000",
@@ -37,6 +39,8 @@ const SCHEMES = {
     "--ios-fill": "rgba(120,120,128,0.24)",
     "--ios-fill-2": "rgba(120,120,128,0.16)",
     "--ios-chrome": "rgba(28,28,30,0.8)",
+    "--ios-glass": "rgba(35,35,38,0.62)",
+    "--ios-glass-border": "rgba(255,255,255,0.16)",
   },
 };
 
@@ -90,22 +94,20 @@ export function StatusBar({ show = true }) {
 export function NavBar({ title, subtitle, large = true, left, right, scrolled = false }) {
   return (
     <header
-      className="sticky top-0 z-30 shrink-0 px-4 transition-all"
+      className="sticky top-0 z-30 shrink-0 px-3 transition-all"
       style={{
-        background: scrolled ? "var(--ios-chrome)" : "transparent",
-        backdropFilter: scrolled ? "blur(24px) saturate(180%)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(24px) saturate(180%)" : "none",
-        borderBottom: `0.5px solid ${scrolled ? "var(--ios-sep)" : "transparent"}`,
+        background: large && !scrolled ? "transparent" : "var(--ios-glass)",
+        backdropFilter: large && !scrolled ? "none" : "blur(24px) saturate(180%)",
+        WebkitBackdropFilter: large && !scrolled ? "none" : "blur(24px) saturate(180%)",
+        borderBottom: `0.5px solid ${large && !scrolled ? "transparent" : "var(--ios-glass-border)"}`,
       }}
     >
-      <div className="flex min-h-[44px] items-center justify-between gap-2">
+      <div className="flex min-h-[48px] items-center justify-between gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-1">{left}</div>
-        <span
-          className="pointer-events-none max-w-[55%] truncate text-[17px] font-semibold transition-opacity duration-200"
-          style={{ opacity: large ? (scrolled ? 1 : 0) : 1 }}
-        >
-          {title}
-        </span>
+        <div className="pointer-events-none min-w-0 max-w-[58%] text-center">
+          <span className="block truncate text-[17px] font-semibold">{title}</span>
+          {!large && subtitle && <span className="block truncate text-[11px] font-medium" style={{ color: "var(--ios-label-2)" }}>{subtitle}</span>}
+        </div>
         <div className="flex min-w-0 flex-1 items-center justify-end gap-3">{right}</div>
       </div>
       {large && (
@@ -133,16 +135,16 @@ export function Scroll({ onScrolledChange, children, className = "" }) {
   );
 }
 
-/** Thanh tab dưới cùng, mờ nền như iOS. */
-export function TabBar({ items, value, onChange }) {
+/** Thanh tab dùng chung, có thể đặt dưới cùng hoặc nhúng vào glass header. */
+export function TabBar({ items, value, onChange, embedded = false }) {
   return (
     <nav
-      className="relative z-30 flex shrink-0 items-start justify-around px-2 pb-5 pt-2"
+      className={`relative z-30 flex shrink-0 items-start justify-around px-2 ${embedded ? "pb-2 pt-0" : "pb-5 pt-2"}`}
       style={{
-        background: "var(--ios-chrome)",
-        backdropFilter: "blur(24px) saturate(180%)",
-        WebkitBackdropFilter: "blur(24px) saturate(180%)",
-        borderTop: "0.5px solid var(--ios-sep)",
+        background: embedded ? "transparent" : "var(--ios-glass)",
+        backdropFilter: embedded ? "none" : "blur(24px) saturate(180%)",
+        WebkitBackdropFilter: embedded ? "none" : "blur(24px) saturate(180%)",
+        borderTop: embedded ? "none" : "0.5px solid var(--ios-glass-border)",
       }}
     >
       {items.map((item) => {

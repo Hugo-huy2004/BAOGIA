@@ -60,7 +60,8 @@ export const JOY_SOURCES = {
   stock_buy: 'Mua cổ phiếu sàn ảo',
   stock_sell: 'Bán cổ phiếu sàn ảo',
   stock_dividend: 'Cổ tức sàn ảo',
-  vocab_essay_retake: 'Thi lại bài viết luận tiếng Trung'
+  vocab_essay_retake: 'Thi lại bài viết luận tiếng Trung',
+  vocab_daily_goal: 'Hoàn thành mục tiêu học từ vựng trong ngày',
 };
 
 export const JOY_SOURCE_KEYS = Object.keys(JOY_SOURCES);

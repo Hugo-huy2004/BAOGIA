@@ -22,6 +22,7 @@ const VocabProfileSchema = new mongoose.Schema({
   lastStudyDay: { type: String, default: '' },
   reviewsToday: { type: Number, default: 0 },
   dailyGoal: { type: Number, default: 20 },
+  lastGoalRewardDay: { type: String, default: '' }, // ngày đã thưởng JOY mục tiêu (chống trùng)
   goalDays: { type: Number, default: 30 },   // mục tiêu "1 tháng có kết quả"
   essayAttempts: { type: Number, default: 0 }, // lượt thi viết (lần 2+ tốn JOY)
   langPair: { type: String, enum: ['vi_zh', 'en_zh'], default: 'vi_zh' }, // ngôn ngữ học nghĩa
@@ -38,6 +39,8 @@ const VocabProfileSchema = new mongoose.Schema({
   // Nhật ký ngày (tối đa 60 mục) cho biểu đồ tiến độ: d=ngày, r=lượt ôn,
   // c=đúng, n=từ mới học lần đầu.
   history: { type: [{ d: String, r: Number, c: Number, n: Number, _id: false }], default: [] },
+  // Client event IDs prevent an offline review from being applied twice.
+  reviewEventIds: { type: [String], default: [] },
 }, { timestamps: true });
 
 export default mongoose.model('VocabProfile', VocabProfileSchema);

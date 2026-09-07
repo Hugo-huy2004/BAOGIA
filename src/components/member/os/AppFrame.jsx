@@ -31,11 +31,11 @@ export default function AppFrame({
   tab,
   onTabChange,
   actions,
-  largeTitle = true,
   scrollKey,
   className = "",
   contentClassName = "px-4",
   forceScheme,
+  bgLayer,
   children,
 }) {
   const { t } = useTranslation();
@@ -57,12 +57,25 @@ export default function AppFrame({
       scheme={effectiveDark ? "dark" : "light"}
       accent={palette.accent}
       vars={palette.vars}
-      className={`relative ${className}`}
+      className={`relative ${bgLayer ? "isolate" : ""} ${className}`}
     >
-      <div style={{ paddingTop: "max(4px, env(safe-area-inset-top, 0px))" }} className="shrink-0">
+      {/* Lớp NỀN của app (đứng sau nội dung, trên nền giấy) — chỉ khi app truyền vào.
+          isolate + z-index âm để nằm dưới nav/nội dung nhưng trên --ios-bg. */}
+      {bgLayer ? <div className="pointer-events-none absolute inset-0 overflow-hidden" style={{ zIndex: -10 }} aria-hidden="true">{bgLayer}</div> : null}
+      <div
+        className="relative z-40 shrink-0 rounded-b-[26px]"
+        style={{
+          paddingTop: "max(4px, env(safe-area-inset-top, 0px))",
+          background: "var(--ios-glass)",
+          backdropFilter: "blur(26px) saturate(180%)",
+          WebkitBackdropFilter: "blur(26px) saturate(180%)",
+          borderBottom: "0.5px solid var(--ios-glass-border)",
+          boxShadow: "0 10px 30px rgba(46, 38, 28, 0.08)",
+        }}
+      >
         <NavBar
           scrolled={scrolled}
-          large={largeTitle}
+          large={false}
           title={title}
           subtitle={subtitle}
           left={onBack ? <BackButton onClick={onBack} label={backLabel || t("utilities.library.back", "Quay lại")} /> : null}
@@ -76,11 +89,10 @@ export default function AppFrame({
         </div>
       </Scroll>
 
-      {/* TabBar của iosKit đã có sẵn 20px đệm dưới cho khung điện thoại giả ở
-          trang Dịch vụ. Ở PWA thật chỉ bù thêm phần safe-area vượt quá 20px,
-          không cộng dồn hai lớp. */}
+      {/* Tab-bar Ở DƯỚI (kiểu app iOS). TabBar tự có nền kính + đệm 20px; chỉ bù
+          thêm phần safe-area vượt 20px, không cộng dồn. */}
       {tabs?.length > 1 && (
-        <div className="shrink-0" style={{ paddingBottom: "max(0px, calc(env(safe-area-inset-bottom, 0px) - 20px))" }}>
+        <div className="relative z-40 shrink-0" style={{ paddingBottom: "max(0px, calc(env(safe-area-inset-bottom, 0px) - 20px))" }}>
           <TabBar items={tabs} value={tab} onChange={onTabChange} />
         </div>
       )}

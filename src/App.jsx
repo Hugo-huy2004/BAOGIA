@@ -1,5 +1,5 @@
 import { useEffect, Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import { DataProvider, useData } from "./context/DataContext";
 import { isPublicToolPath } from "./config/publicTools";
 import { APP_DISPLAY_QUERY, detectInstallTarget, isStandalone } from "./config/platform";
@@ -79,6 +79,11 @@ const OAuthAuthorizePage = lazyRoute(() => import("./pages/public/OAuthAuthorize
 const Cursor = lazy(() =>
   import("@hwagfu/cursor").then((module) => ({ default: module.CursorEffect })),
 );
+
+function VocabPathRedirect() {
+  const { view } = useParams();
+  return <Navigate to={`/member/utilities/vocab/${encodeURIComponent(view || "home")}`} replace />;
+}
 
 function AppContent() {
   const location = useLocation();
@@ -261,6 +266,8 @@ function AppContent() {
             <Route path="/login" element={isPWA ? <PWALoginPage /> : <LoginPage />} />
             <Route path="/oauth/authorize" element={<OAuthAuthorizePage />} />
             <Route path="/member" element={<Navigate to="/member/today" replace />} />
+            <Route path="/vocab" element={<Navigate to="/member/utilities/vocab" replace />} />
+            <Route path="/vocab/:view" element={<VocabPathRedirect />} />
             <Route path="/member/eco" element={
               isMemberAuthenticated() ? <EcoPortal /> : <Navigate to="/login" replace />
             } />
