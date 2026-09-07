@@ -5,6 +5,8 @@ import { GRAMMAR_LESSONS } from "./grammarLessons";
 import { SENTENCE_PATTERNS } from "./sentencePatterns";
 import { startPresence, stopPresence, subscribeNearby, subscribeToss, tossCard } from "./vocabToss";
 import vocabApi from "../../../services/classes/VocabService";
+import { IndexedDBStorage } from "../../../utils/indexedDBStorage";
+import { BackgroundSyncEngine } from "../../../utils/backgroundSyncEngine";
 
 const api = (path, opts = {}) => vocabApi.request(path, opts);
 
@@ -71,10 +73,13 @@ const TONE_MARK = {
   à: 4, è: 4, ì: 4, ò: 4, ù: 4, ǜ: 4,
 };
 const toneOf = (syl) => { for (const ch of String(syl)) if (TONE_MARK[ch]) return TONE_MARK[ch]; return 0; };
+// Pinyin LUÔN dùng font sạch (không theo kiểu chữ Hán đã chọn) để 行书/报刊 không
+// làm phần latin khó đọc. Chỉ chữ Hán mới đổi theo lựa chọn.
+const PINYIN_FONT = '-apple-system,"Segoe UI",Roboto,sans-serif';
 function PinyinText({ text, className, style }) {
   const tokens = String(text || "").split(/(\s+)/);
   return (
-    <span className={className} style={style}>
+    <span className={className} style={{ fontFamily: PINYIN_FONT, ...style }}>
       {tokens.map((tok, i) => (tok.trim() === "" ? tok : <span key={i} style={{ color: TONE_COLOR[toneOf(tok)] }}>{tok}</span>))}
     </span>
   );
@@ -459,7 +464,7 @@ export default function HugoVocabApp({ onBack, routeView, onRouteChange }) {
       bgLayer={status?.track ? <VocabBg track={status.track} /> : null}
       onBack={["review", "exit", "grammar", "essay", "skip", "history", "hanviet", "settings", "coach", "practice", "reading", "conversation", "hanzi", "sentence", "expand", "tones", "cloze"].includes(view) ? () => { setView("home"); loadHome(); } : onBack}
     >
-      <div key={view} className="animate-fadeIn">
+      <div key={view} className="animate-fadeIn" style={{ fontFamily: "var(--vocab-zh, inherit)" }}>
       {view === "loading" && <LoadingState />}
       {view === "error" && <LoadError message={loadError} onRetry={loadHome} onBack={onBack} />}
       {view === "track" && <TrackPicker tracks={status?.tracks || []} onDone={() => loadHome()} />}
@@ -483,6 +488,7 @@ export default function HugoVocabApp({ onBack, routeView, onRouteChange }) {
           onGuess={() => { setMode("meaning"); if (status?.activeDeck) setDeck(status.activeDeck); setView("review"); }}
           onHanViet={() => setView("hanviet")} onHistory={() => setView("history")}
           onReading={() => setView("reading")} onConversation={() => setView("conversation")} onHanzi={() => setView("hanzi")}
+          onExam={() => setView("exam")}
         />
       )}
       {view === "home" && (
@@ -536,7 +542,6 @@ function LoadError({ message, onRetry, onBack }) {
 }
 
 function Home({ progress, status, onStudyDeck, onSkip, onCoach }) {
-  const cal = calendarLinks(20);
   const ladder = status?.ladder || [];
   const activeDeck = status?.activeDeck || "hsk1";
 
@@ -611,15 +616,6 @@ function Home({ progress, status, onStudyDeck, onSkip, onCoach }) {
           <span className="text-[14px] font-black text-emerald-600">课程已完成！</span>
         </div>
       )}
-
-      {/* Nhắc lịch */}
-      <div className="rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
-        <div className="flex items-center gap-2"><Icon name="alarm" size={18} /><span className="text-[13px] font-black" style={{ color: LABEL }}>加入日历提醒</span></div>
-        <div className="mt-3 flex gap-2">
-          <a href={cal.icsUrl} download="hugo-vocab.ics" className="flex-1 rounded-xl border py-2.5 text-center text-[12.5px] font-bold" style={{ borderColor: SEP, color: LABEL }}>加入日历</a>
-          <a href={cal.gcal} target="_blank" rel="noreferrer" className="flex-1 rounded-xl border py-2.5 text-center text-[12.5px] font-bold" style={{ borderColor: SEP, color: LABEL }}>Google 日历</a>
-        </div>
-      </div>
     </div>
   );
 }
@@ -636,7 +632,7 @@ function Reading() {
   useEffect(() => {
     let alive = true;
     Promise.all([
-      api("/vocab/reading"),
+      vocabApi.cachedGet("/vocab/reading", "reading-current"),
     ]).then(([data]) => {
       if (!alive) return;
       if (data?.error || !data?.lesson) throw new Error(data?.error || "暂无阅读内容");
@@ -813,7 +809,7 @@ function HanziLab() {
     setLoading(false);
     if (data?.character?.hanzi) speak(data.character.hanzi);
   };
-  useEffect(() => { load("学"); }, []);
+  useEffect(() => { load("学"); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const answer = async (radical) => {
     if (!character || quiz) return;
@@ -872,44 +868,52 @@ function HanziLab() {
   );
 }
 
-function PracticeRow({ icon, color, title, sub, onClick, badge }) {
+// Ô luyện GỌN (icon + 1 nhãn) — thay danh sách dòng dài để đỡ rối.
+function PracticeTile({ icon, color, title, onClick }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-2xl border p-3 text-left active:scale-[0.99] transition-transform" style={{ ...CARD, borderColor: SEP }}>
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ background: `${color}18` }}>
-        <Icon name={icon} size={21} color={color} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[14px] font-black" style={{ color: LABEL }}>{title}</span>
-        <span className="block truncate text-[12px]" style={{ color: LABEL2 }}>{sub}</span>
-      </span>
-      {badge && <span className="rounded-full px-2 py-1 text-[10px] font-black" style={{ background: CHIP, color: LABEL2 }}>{badge}</span>}
-      <Icon name="chevron_right" size={20} color={LABEL2} />
+    <button onClick={onClick} className="flex flex-col items-center gap-1.5 rounded-2xl border p-3 active:scale-95 transition-transform" style={{ ...CARD, borderColor: SEP }}>
+      <span className="grid h-11 w-11 place-items-center rounded-xl" style={{ background: `${color}18` }}><Icon name={icon} size={22} color={color} /></span>
+      <span className="text-[12.5px] font-black leading-tight" style={{ color: LABEL }} lang="zh">{title}</span>
     </button>
   );
 }
 
-function PracticeHub({ onGrammar, onEssay, onSentence, onExpand, onTones, onCloze, onListen, onGuess, onHanViet, onHistory, onReading, onConversation, onHanzi }) {
+// Gom nhóm cho gọn: 输入 (nạp) · 词汇 · 练习 · 测验. Lưới 3 cột, nhãn ngắn.
+function PracticeHub({ onGrammar, onEssay, onSentence, onExpand, onTones, onCloze, onListen, onGuess, onHanViet, onHistory, onReading, onConversation, onHanzi, onExam }) {
+  const groups = [
+    { title: "输入", items: [
+      { icon: "menu_book", color: "#e11d48", title: "阅读", onClick: onReading },
+      { icon: "forum", color: "#2563eb", title: "对话", onClick: onConversation },
+      { icon: "translate", color: "#0f766e", title: "汉字", onClick: onHanzi },
+      { icon: "school", color: "#8b5cf6", title: "语法", onClick: onGrammar },
+    ] },
+    { title: "词汇", items: [
+      { icon: "hub", color: "#14b8a6", title: "扩展", onClick: onExpand },
+      { icon: "compare_arrows", color: "#22c55e", title: "汉越", onClick: onHanViet },
+      { icon: "history", color: "#ec4899", title: "已掌握", onClick: onHistory },
+    ] },
+    { title: "练习", items: [
+      { icon: "format_quote", color: "#0ea5e9", title: "造句", onClick: onSentence },
+      { icon: "hearing", color: "#3b82f6", title: "听力", onClick: onListen },
+      { icon: "graphic_eq", color: "#a855f7", title: "声调", onClick: onTones },
+      { icon: "short_text", color: "#f59e0b", title: "完形", onClick: onCloze },
+      { icon: "quiz", color: "#f97316", title: "猜词", onClick: onGuess },
+    ] },
+    { title: "测验", items: [
+      { icon: "edit_note", color: "#0d9488", title: "写作", onClick: onEssay },
+      { icon: "fact_check", color: "#e11d48", title: "模拟考", onClick: onExam },
+    ] },
+  ];
   return (
     <div className="space-y-4 pt-2">
-      <div>
-        <div className="text-[22px] font-black" style={{ color: LABEL }} lang="zh">练习</div>
-        <div className="mt-1 text-[13px]" style={{ color: LABEL2 }} lang="zh">选择一个方向，马上开始。</div>
-      </div>
-      <div className="space-y-2.5">
-        <PracticeRow icon="menu_book" color="#e11d48" title="阅读" sub="分级短文 · 点词学习" onClick={onReading} />
-        <PracticeRow icon="forum" color="#2563eb" title="对话" sub="和 AI 老师练习真实场景" onClick={onConversation} />
-        <PracticeRow icon="translate" color="#0f766e" title="汉字" sub="部首、结构和字义" onClick={onHanzi} />
-        <PracticeRow icon="menu_book" color="#8b5cf6" title="语法" sub="课程与练习" onClick={onGrammar} />
-        <PracticeRow icon="format_quote" color="#0ea5e9" title="造句" sub="句型与 AI 检查" onClick={onSentence} />
-        <PracticeRow icon="hub" color="#14b8a6" title="扩展词汇" sub="按字族学习更多词" onClick={onExpand} />
-        <PracticeRow icon="compare_arrows" color="#22c55e" title="汉越词" sub="连接中文与越南语词义" onClick={onHanViet} />
-        <PracticeRow icon="edit_note" color="#14b8a6" title="写作" sub="AI 母语点评" onClick={onEssay} />
-        <PracticeRow icon="hearing" color="#3b82f6" title="听力" sub="听音选择词义" onClick={onListen} />
-        <PracticeRow icon="graphic_eq" color="#a855f7" title="声调" sub="听音辨别声调" onClick={onTones} />
-        <PracticeRow icon="short_text" color="#f59e0b" title="完形填空" sub="根据句意选择词语" onClick={onCloze} />
-        <PracticeRow icon="quiz" color="#f97316" title="猜词" sub="快速选择正确词义" onClick={onGuess} />
-        <PracticeRow icon="history" color="#ec4899" title="已掌握" sub="查看已经记住的词" onClick={onHistory} />
-      </div>
+      {groups.map((g) => (
+        <div key={g.title}>
+          <SectionTitle>{g.title}</SectionTitle>
+          <div className="grid grid-cols-3 gap-2.5">
+            {g.items.filter((it) => it.onClick).map((it) => <PracticeTile key={it.title} {...it} />)}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -919,8 +923,6 @@ const rand = (arr) => arr.map((v) => [Math.random(), v]).sort((a, b) => a[0] - b
 // Ôn tập = TRÒ CHƠI trắc nghiệm (đoán nghĩa / đoán từ / nghe chọn), tự chấm.
 // Từ MỚI: học nhanh rồi chọn "Đã thuộc" (vào lịch sử) hoặc "Học tiếp".
 // ── CỐ VẤN HỌC TẬP (tiến độ khoa học + định hướng + bạn học) ──────────────────
-const WD = ["日", "一", "二", "三", "四", "五", "六"];
-const wd = (iso) => WD[new Date(iso + "T00:00:00").getDay()];
 const fmtDate = (iso) => { const p = String(iso).split("-"); return `${p[2]}/${p[1]}`; };
 const TIP_TEXT = {
   keepStreak: { t: "保持连续学习！", s: "今天还没学 — 复习几个词，别断了连续天数。" },
@@ -944,14 +946,23 @@ function StatChip({ icon, value, label, color = LABEL }) {
 
 function Missions() {
   const [data, setData] = useState(null);
-  useEffect(() => { api("/vocab/missions").then(setData).catch(() => setData({ missions: [] })); }, []);
+  const [busy, setBusy] = useState("");
+  const load = () => api("/vocab/missions").then(setData).catch(() => setData({ missions: [] }));
+  useEffect(() => { load(); }, []);
   if (!data?.missions?.length) return null;
+  const claim = async (m) => {
+    setBusy(m.id);
+    await api("/vocab/missions/claim", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: m.id }) }).catch(() => {});
+    setBusy("");
+    load(); // làm mới trạng thái đã nhận (server là nguồn thật)
+  };
   return (
     <div>
       <SectionTitle>今日任务</SectionTitle>
       <div className="space-y-2">
         {data.missions.map((mission) => {
           const percent = Math.min(100, Math.round((mission.progress / mission.target) * 100));
+          const canClaim = mission.complete && !mission.claimed && !mission.auto;
           return (
             <div key={mission.id} className="rounded-2xl border p-3" style={{ ...CARD, borderColor: mission.complete ? "rgba(22,163,74,.35)" : SEP }}>
               <div className="flex items-center gap-2">
@@ -960,7 +971,14 @@ function Missions() {
                 <span className="text-[11px] font-black" style={{ color: mission.complete ? "#16a34a" : LABEL2 }}>{mission.progress}/{mission.target}</span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/5"><div className="h-full rounded-full transition-all" style={{ width: `${percent}%`, background: mission.complete ? "#16a34a" : ACCENT }} /></div>
-              <div className="mt-1 text-right text-[10px] font-bold" style={{ color: LABEL2 }}>{mission.period === "weekly" ? "本周" : "今日"} · +{mission.reward} JOY</div>
+              <div className="mt-1.5 flex items-center justify-between">
+                <span className="text-[10px] font-bold" style={{ color: LABEL2 }}>{mission.period === "weekly" ? "本周" : "今日"} · +{mission.reward} JOY{mission.auto ? " · 自动" : ""}</span>
+                {canClaim ? (
+                  <button onClick={() => claim(mission)} disabled={busy === mission.id} className="rounded-full px-3 py-1 text-[11px] font-black text-white active:scale-95 transition-transform disabled:opacity-50" style={{ background: "#16a34a" }} lang="zh">{busy === mission.id ? "…" : "领取"}</button>
+                ) : mission.claimed ? (
+                  <span className="text-[10px] font-black" style={{ color: "#16a34a" }} lang="zh">已领取 ✓</span>
+                ) : null}
+              </div>
             </div>
           );
         })}
@@ -992,7 +1010,6 @@ function Coach({ lang, onStart }) {
   if (d.needsTrack || d.error) return <div className="mt-12 text-center text-[14px] font-semibold" style={{ color: LABEL2 }}>选择课程并完成分级测试即可开启学习顾问。</div>;
   const tip = TIP_TEXT[d.tip?.key] || TIP_TEXT.steady;
   const tone = { warn: "#f59e0b", info: ACCENT, good: "#16a34a" }[d.tip?.tone] || ACCENT;
-  const maxF = Math.max(1, ...d.forecast.map((f) => f.n));
   const sc = d.statusCounts; const scTotal = Math.max(1, sc.new + sc.learning + sc.review + sc.mastered);
   const seg = [
     { n: sc.mastered, c: "#16a34a", label: "已掌握" },
@@ -1056,18 +1073,6 @@ function Coach({ lang, onStart }) {
         </div>
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11.5px] font-bold" style={{ color: LABEL2 }}>
           {seg.map((s, i) => <span key={i} className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full" style={{ background: s.c }} />{s.label}: {s.n}</span>)}
-        </div>
-      </div>
-
-      <div>
-        <SectionTitle>未来7天复习量</SectionTitle>
-        <div className="flex items-end justify-between gap-1.5 rounded-[18px] border p-3" style={{ ...CARD, borderColor: SEP, height: 92 }}>
-          {d.forecast.map((f) => (
-            <div key={f.d} className="flex flex-1 flex-col items-center justify-end gap-1">
-              <div className="w-full rounded-md transition-all" style={{ height: `${Math.max(4, (f.n / maxF) * 52)}px`, background: f.n ? ACCENT : "rgba(0,0,0,.08)" }} />
-              <span className="text-[9.5px] font-bold" style={{ color: LABEL2 }}>{wd(f.d)}</span>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -1314,7 +1319,24 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
     if (phase === "teach" || game === "meaning" || game === "listen") speak(card.hanzi);
   }, [card, phase, game]);
 
-  const post = (cardId, g) => api("/vocab/review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cardId, grade: g, ms: Date.now() - shownAt.current }) }).catch(() => {});
+  const post = async (cardId, g) => {
+    const payload = {
+      cardId,
+      grade: g,
+      ms: Date.now() - shownAt.current,
+      clientEventId: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    };
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      await IndexedDBStorage.enqueuePendingSync("vocab/review", payload);
+      return;
+    }
+    try {
+      const response = await vocabApi.post("/vocab/review", payload);
+      if (!response._ok) throw new Error(response.error || "REVIEW_FAILED");
+    } catch {
+      await BackgroundSyncEngine.enqueueOfflineRequest("vocab/review", payload);
+    }
+  };
 
   const answer = (opt, correctVal) => {
     if (picked || !card) return;
@@ -1409,7 +1431,7 @@ function Review({ deck, mode = "recognize", lang = "vi_zh", onDone, onSkip, canS
         <div className="text-[11.5px]" style={{ color: LABEL2 }}>Thi vượt cấp để lên ngay · 去做跳级测试</div>
       </div>
       <button onClick={onSkip} className="shrink-0 rounded-full px-3 py-1.5 text-[12px] font-black text-white" style={{ background: ACCENT }} lang="zh">测试</button>
-      <button onClick={() => setSkipOffered(false)} className="shrink-0" aria-label="Đóng"><Icon name="close" size={18} color={LABEL2} /></button>
+      <button onClick={() => setSkipOffered(false)} className="shrink-0" aria-label="关闭"><Icon name="close" size={18} color={LABEL2} /></button>
     </div>
   ) : null;
 
@@ -1639,7 +1661,7 @@ function Essay({ onDone }) {
         </div>
         {feedback.dimensions && (
           <div className="rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
-            {[["grammar", "语法 · Ngữ pháp"], ["vocabulary", "词汇 · Từ vựng"], ["coherence", "连贯 · Mạch lạc"]].map(([k, label]) => {
+            {[["grammar", "语法"], ["vocabulary", "词汇"], ["coherence", "连贯"]].map(([k, label]) => {
               const v = Math.max(0, Math.min(100, Number(feedback.dimensions[k]) || 0));
               return (
                 <div key={k} className="mb-2 last:mb-0">
@@ -1759,7 +1781,7 @@ function SentencePatterns() {
   const [open, setOpen] = useState(null);
   return (
     <div className="space-y-2.5">
-      <p className="text-[12.5px]" style={{ color: LABEL2 }}>Nắm {SENTENCE_PATTERNS.length} mẫu câu cốt lõi — khung để đặt câu đúng.</p>
+      <p className="text-[12.5px]" style={{ color: LABEL2 }}>掌握 {SENTENCE_PATTERNS.length} 个核心句型，是造句的框架。</p>
       {SENTENCE_PATTERNS.map((p) => (
         <div key={p.id} className="rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
           <button onClick={() => setOpen(open === p.id ? null : p.id)} className="flex w-full items-center gap-2 text-left">
@@ -1799,11 +1821,11 @@ function SentencePractice() {
   useEffect(() => { load(); }, []);
   const check = async () => {
     setChecking(true); setResult(null);
-    const r = await api("/vocab/sentence/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: word?.hanzi, text }) }).catch(() => ({ error: "Lỗi mạng, thử lại." }));
+    const r = await api("/vocab/sentence/check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ word: word?.hanzi, text }) }).catch(() => ({ error: "网络错误，请重试。" }));
     setResult(r?.error ? { error: r.error } : r); setChecking(false);
   };
   if (loading) return <div className="mt-6 h-56 animate-pulse rounded-[28px] bg-black/5" />;
-  if (!word) return <div className="mt-6 text-center text-[13px]" style={{ color: LABEL2 }}>Chưa có từ để luyện. Học vài từ trước nhé.</div>;
+  if (!word) return <div className="mt-6 text-center text-[13px]" style={{ color: LABEL2 }}>还没有词可练，先学几个词吧。</div>;
   return (
     <div className="space-y-3">
       <div className="rounded-2xl border p-4 text-center" style={{ ...CARD, borderColor: SEP }}>
@@ -1919,7 +1941,7 @@ function Cloze() {
     return rand([card.hanzi, ...rand(pool).slice(0, 3)]);
   }, [card, queue]);
   if (queue === null) return <div className="mt-10 h-72 animate-pulse rounded-[28px] bg-black/5" />;
-  if (!card) return <Finish icon="edit_note" title="太棒了！" body="Chưa có câu ví dụ để điền, hoặc đã xong. Học thêm từ có ví dụ rồi quay lại nhé." onDone={() => {}} />;
+  if (!card) return <Finish icon="edit_note" title="太棒了！" body="还没有例句可填，或已完成。学一些带例句的词后再来。" onDone={() => {}} />;
   const blanked = card.example.split(card.hanzi).join("﹍");
   return (
     <div className="flex flex-col items-center pt-2">
@@ -1958,7 +1980,7 @@ function Expand({ lang = "vi_zh" }) {
     await api("/vocab/queue-card", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cardId: w.cardId }) }).catch(() => {});
   };
   if (loading) return <div className="mt-6 h-72 animate-pulse rounded-[28px] bg-black/5" />;
-  if (!data?.char) return <div className="mt-10 text-center text-[14px] font-semibold" style={{ color: LABEL2 }}>Học vài từ trước để mở rộng theo họ chữ nhé.</div>;
+  if (!data?.char) return <div className="mt-10 text-center text-[14px] font-semibold" style={{ color: LABEL2 }}>先学几个词，再按字族扩展。</div>;
   return (
     <div className="space-y-3 pt-1">
       <div className="flex items-center gap-4 rounded-[26px] p-4" style={{ background: GRAD }}>
@@ -1966,9 +1988,9 @@ function Expand({ lang = "vi_zh" }) {
           <span className="text-[52px] font-black leading-none text-white" lang="zh">{data.char}</span>
         </button>
         <div className="min-w-0 flex-1 text-white">
-          <div className="text-[12.5px] font-bold opacity-90">字族 · họ chữ</div>
+          <div className="text-[12.5px] font-bold opacity-90">字族</div>
           <div className="text-[18px] font-black leading-tight" lang="zh">{data.family.length} 个含「{data.char}」的词</div>
-          <div className="text-[12px] font-semibold opacity-90">Chạm để nghe · thêm từ mới vào ôn</div>
+          <div className="text-[12px] font-semibold opacity-90">点击听音 · 把新词加入学习</div>
         </div>
       </div>
       <button onClick={() => load()} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border py-2.5 text-[13px] font-black active:scale-[.99] transition-transform" style={{ borderColor: SEP, color: LABEL, ...CARD }} lang="zh">
@@ -2011,7 +2033,7 @@ function MockExam({ onDone }) {
   const submit = useCallback(async (ans) => {
     if (submittedRef.current) return; submittedRef.current = true;
     setSubmitting(true);
-    const r = await api("/vocab/exam/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: ans }) }).catch(() => ({ error: "Lỗi chấm bài, thử lại." }));
+    const r = await api("/vocab/exam/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: ans }) }).catch(() => ({ error: "评分出错，请重试。" }));
     setResult(r); setSubmitting(false);
   }, []);
 
@@ -2025,21 +2047,21 @@ function MockExam({ onDone }) {
   useEffect(() => { if (q && q.section === "listen") speak(q.hanzi); }, [q]);
 
   if (!data) return <div className="mt-10 h-72 animate-pulse rounded-[28px] bg-black/5" />;
-  if (!data.questions?.length) return <Finish icon="fact_check" title="Chưa mở được" body="Chưa đủ nội dung để thi thử. Học thêm rồi quay lại nhé." onDone={onDone} />;
+  if (!data.questions?.length) return <Finish icon="fact_check" title="暂时无法开始" body="内容还不够，学多一点再来考。" onDone={onDone} />;
 
   if (result) {
-    if (result.error) return <Finish icon="error" title="Lỗi" body={result.error} onDone={onDone} />;
+    if (result.error) return <Finish icon="error" title="出错" body={result.error} onDone={onDone} />;
     const pass = result.score >= 60;
     return (
       <div className="mt-6 space-y-4">
         <div className="rounded-[28px] border p-8 text-center shadow-sm" style={{ ...CARD, borderColor: SEP }}>
           <div className="text-[56px] font-black leading-none" style={{ color: pass ? "#16a34a" : "#ef4444" }}>{result.score}%</div>
           <div className="mt-2 text-[15px] font-black" style={{ color: LABEL }} lang="zh">{pass ? "合格！" : "继续加油"}</div>
-          <div className="mt-1 text-[13px]" style={{ color: LABEL2 }}>Đúng {result.correct}/{result.total} câu</div>
+          <div className="mt-1 text-[13px]" style={{ color: LABEL2 }}>答对 {result.correct}/{result.total} 题</div>
         </div>
         {result.perDeck && Object.keys(result.perDeck).length > 0 && (
           <div className="rounded-2xl border p-4" style={{ ...CARD, borderColor: SEP }}>
-            <div className="mb-2 text-[13px] font-black" style={{ color: LABEL }}>Theo cấp</div>
+            <div className="mb-2 text-[13px] font-black" style={{ color: LABEL }}>按级别</div>
             {Object.entries(result.perDeck).map(([d, s]) => (
               <div key={d} className="mb-1.5 flex items-center gap-2">
                 <span className="w-16 shrink-0 text-[12px] font-bold" style={{ color: LABEL2 }}>{DECK_LABELS[d] || d}</span>
@@ -2264,7 +2286,7 @@ function Settings({ status, fontStyle = "modern", onFont, onDone }) {
 
   return (
     <div className="space-y-3 pt-2">
-      <Row icon="font_download" title="字体 · Kiểu chữ">
+      <Row icon="font_download" title="字体">
         <div className="grid grid-cols-3 gap-2">
           {[["modern", "现代"], ["print", "报刊"], ["cal", "行书"]].map(([id, label]) => (
             <button key={id} onClick={() => onFont && onFont(id)} lang="zh"

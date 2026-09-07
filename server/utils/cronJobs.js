@@ -79,22 +79,29 @@ export function initCronJobs() {
         import('../models/VocabCard.js'),
         import('./notifyMember.js'),
       ]);
-      // Nhóm số thẻ tới hạn theo người dùng (giới hạn để một lượt cron không kéo dài).
+      // Nhóm số thẻ tới hạn theo người dùng + LẤY 3 THẺ ĐẾN HẠN SỚM NHẤT để kèm
+      // vào nội dung nhắc ("hôm nay ôn: 学、书、我"). Giới hạn để cron không kéo dài.
       const due = await VocabProgress.aggregate([
         { $match: { dueAt: { $lte: new Date() } } },
-        { $group: { _id: '$email', count: { $sum: 1 } } },
+        { $sort: { dueAt: 1 } },
+        { $group: { _id: '$email', count: { $sum: 1 }, cards: { $firstN: { input: '$cardId', n: 3 } } } },
         { $sort: { count: -1 } },
         { $limit: 500 },
       ]);
+      // Nạp chữ Hán cho toàn bộ cardId (một truy vấn) rồi map theo người.
+      const wantIds = [...new Set(due.flatMap((u) => u.cards || []))];
+      const wordCards = wantIds.length ? await VocabCard.find({ _id: { $in: wantIds } }, 'hanzi').lean() : [];
+      const hanziById = Object.fromEntries(wordCards.map((c) => [String(c._id), c.hanzi]));
       // Bỏ ai đã TẮT push trong cài đặt app từ vựng.
       const VP = (await import('../models/VocabProfile.js')).default;
       const off = new Set(await VP.find({ pushEnabled: false }, 'email').distinct('email'));
       // Người có thẻ tới hạn → nhắc ôn; kèm actionUrl mở thẳng app.
       for (const u of due) {
         if (off.has(u._id)) continue;
+        const words = (u.cards || []).map((id) => hanziById[String(id)]).filter(Boolean).join('、');
         await notifyMember({
           email: u._id, type: 'info', category: 'study',
-          key: 'vocab.reminder', params: { count: String(u.count) },
+          key: 'vocab.reminder', params: { count: String(u.count), words },
           actionUrl: '/member/utilities/vocab', push: true,
         }).catch(() => {});
       }

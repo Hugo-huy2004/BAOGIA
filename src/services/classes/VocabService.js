@@ -1,3 +1,5 @@
+import { IndexedDBStorage } from "../../utils/indexedDBStorage";
+
 const DEFAULT_TIMEOUT_MS = 12000;
 
 class VocabService {
@@ -27,6 +29,19 @@ class VocabService {
 
   get(path, options) {
     return this.request(path, { ...options, method: "GET" });
+  }
+
+  async cachedGet(path, cacheKey, options) {
+    try {
+      const data = await this.get(path, options);
+      if (data?._ok) {
+        await IndexedDBStorage.saveCache(cacheKey, data);
+        return data;
+      }
+    } catch {
+      // Fall through to the last successful response.
+    }
+    return IndexedDBStorage.getCache(cacheKey);
   }
 
   post(path, body, options) {

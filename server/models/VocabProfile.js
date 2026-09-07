@@ -41,6 +41,8 @@ const VocabProfileSchema = new mongoose.Schema({
   history: { type: [{ d: String, r: Number, c: Number, n: Number, _id: false }], default: [] },
   // Client event IDs prevent an offline review from being applied twice.
   reviewEventIds: { type: [String], default: [] },
+  // Nhiệm vụ đã NHẬN THƯỞNG (khoá "id:periodKey") — chống nhận trùng ngày/tuần.
+  claimedMissions: { type: [String], default: [] },
 }, { timestamps: true });
 
 export default mongoose.model('VocabProfile', VocabProfileSchema);

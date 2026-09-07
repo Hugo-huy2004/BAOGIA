@@ -78,7 +78,7 @@ export const NOTIFICATION_TEXT = {
     "source.transfer_rejected": "Giao dịch lớn chưa được duyệt",
     "source.vocab_essay_retake": "Phí thi lại bài viết luận",
     "vocab.reminder.title": "Đến giờ ôn từ vựng ✍️",
-    "vocab.reminder.message": "Bạn có {{count}} thẻ tiếng Trung cần ôn. Ôn ngay 2 phút để không quên nhé!",
+    "vocab.reminder.message": "Bạn có {{count}} thẻ cần ôn: {{words}} — ôn ngay 2 phút để không quên nhé!",
     "vocab.word.title": "{{hanzi}} · {{pinyin}}",
     "vocab.word.message": "{{meaning}} — chạm để học thêm từ mới hôm nay.",
 

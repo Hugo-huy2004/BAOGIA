@@ -59,22 +59,58 @@ router.post('/hanzi/quiz', requireMember, async (req, res) => {
   res.json({ correct, answer: correct ? answer : VOCAB_HANZI_META[hanzi]?.radical || null });
 });
 
-// GET /api/vocab/missions — nhiệm vụ ngày/tuần đọc từ cùng nhật ký SRS.
+// Nhiệm vụ suy từ nhật ký SRS (thuần theo profile). `periodKey` để chống nhận
+// thưởng trùng trong cùng ngày/tuần. `auto` = thưởng đã tự phát qua mục tiêu ngày
+// (không cho claim để khỏi trả hai lần).
+function buildMissions(profile) {
+  const today = dayKey();
+  const weekBucket = Math.floor(Date.now() / (7 * 86400000)); // mốc tuần ổn định
+  const todayLog = (profile?.history || []).find((item) => item.d === today) || { r: 0, c: 0, n: 0 };
+  const weeklyKeys = new Set(Array.from({ length: 7 }, (_, i) => dayKey(Date.now() - i * 86400000)));
+  const weekly = (profile?.history || []).filter((item) => weeklyKeys.has(item.d)).reduce((s, item) => s + (item.r || 0), 0);
+  return [
+    { id: 'daily-review', period: 'daily', periodKey: today, auto: true, icon: 'replay', title: '复习 20 个词', progress: todayLog.r, target: 20, reward: 50 },
+    { id: 'daily-new', period: 'daily', periodKey: today, icon: 'new_releases', title: '学习 5 个新词', progress: todayLog.n, target: 5, reward: 20 },
+    { id: 'daily-accuracy', period: 'daily', periodKey: today, icon: 'target', title: '保持正确率 80%', progress: todayLog.r ? Math.round((todayLog.c / todayLog.r) * 100) : 0, target: 80, reward: 20 },
+    { id: 'weekly-review', period: 'weekly', periodKey: `w${weekBucket}`, icon: 'calendar_month', title: '本周复习 100 次', progress: weekly, target: 100, reward: 100 },
+  ].map((m) => ({ ...m, complete: m.progress >= m.target }));
+}
+
+// GET /api/vocab/missions — nhiệm vụ ngày/tuần + trạng thái đã nhận thưởng.
 router.get('/missions', requireMember, async (req, res) => {
   try {
-    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'history reviewsToday dailyGoal').lean();
-    const today = dayKey();
-    const todayLog = (profile?.history || []).find((item) => item.d === today) || { r: 0, c: 0, n: 0 };
-    const weeklyKeys = new Set(Array.from({ length: 7 }, (_, index) => dayKey(Date.now() - index * 86400000)));
-    const week = (profile?.history || []).filter((item) => weeklyKeys.has(item.d));
-    const weekly = week.reduce((sum, item) => sum + (item.r || 0), 0);
-    const missions = [
-      { id: 'daily-review', period: 'daily', icon: 'replay', title: '复习 20 个词', progress: todayLog.r, target: 20, reward: 50 },
-      { id: 'daily-new', period: 'daily', icon: 'new_releases', title: '学习 5 个新词', progress: todayLog.n, target: 5, reward: 20 },
-      { id: 'daily-accuracy', period: 'daily', icon: 'target', title: '保持正确率 80%', progress: todayLog.r ? Math.round((todayLog.c / todayLog.r) * 100) : 0, target: 80, reward: 20 },
-      { id: 'weekly-review', period: 'weekly', icon: 'calendar_month', title: '本周复习 100 次', progress: weekly, target: 100, reward: 100 },
-    ].map((mission) => ({ ...mission, complete: mission.progress >= mission.target }));
+    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'history reviewsToday dailyGoal claimedMissions').lean();
+    const claimed = new Set(profile?.claimedMissions || []);
+    const missions = buildMissions(profile).map((m) => ({ ...m, claimed: claimed.has(`${m.id}:${m.periodKey}`) }));
     res.json({ missions, reviewsToday: profile?.reviewsToday || 0, dailyGoal: profile?.dailyGoal || 20 });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/vocab/missions/claim { id } — NHẬN thưởng JOY khi nhiệm vụ hoàn thành.
+// Chấm lại ở server (không tin client) + khoá theo "id:periodKey" (atomic, 1 lần).
+router.post('/missions/claim', requireMember, async (req, res) => {
+  try {
+    const id = String(req.body?.id || '');
+    const profile = await VocabProfile.findOne({ email: req.memberEmail }, 'history claimedMissions').lean();
+    const mission = buildMissions(profile).find((m) => m.id === id);
+    if (!mission) return res.status(404).json({ error: 'Nhiệm vụ không hợp lệ.' });
+    if (mission.auto) return res.status(400).json({ error: 'Nhiệm vụ này tự phát thưởng khi đạt mục tiêu ngày.' });
+    if (!mission.complete) return res.status(400).json({ error: 'Nhiệm vụ chưa hoàn thành.' });
+    const key = `${mission.id}:${mission.periodKey}`;
+    // KHÔNG upsert: nếu đã có key thì filter không khớp → trả null (đã nhận rồi).
+    // Trả về là doc TRƯỚC khi push (chưa có key) → ta chính là người vừa thêm.
+    const claim = await VocabProfile.findOneAndUpdate(
+      { email: req.memberEmail, claimedMissions: { $ne: key } },
+      { $push: { claimedMissions: { $each: [key], $slice: -60 } } },
+    ).lean();
+    if (!claim) return res.status(409).json({ error: 'Đã nhận thưởng nhiệm vụ này rồi.', claimed: true });
+    try {
+      const { awardJoy } = await import('../utils/joyService.js');
+      await awardJoy(req.memberEmail, mission.reward, 'vocab_mission', `Thưởng nhiệm vụ: ${mission.title}`, { pushNotify: false });
+    } catch { /* thưởng lỗi thì bỏ qua, không chặn */ }
+    res.json({ success: true, reward: mission.reward });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

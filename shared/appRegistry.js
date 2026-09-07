@@ -88,6 +88,7 @@ export const REQUIRED_APP_IDS = Object.freeze([
   "bio",
   "study",
   "vocab",
+  "friends",
   "team",
   "psychology",
   "radio",

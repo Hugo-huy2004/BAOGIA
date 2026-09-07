@@ -106,5 +106,28 @@ export const IndexedDBStorage = {
     } catch {
       return null;
     }
+  },
+  async saveCache(key, data) {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_BOOTSTRAP_CACHE, "readwrite");
+      tx.objectStore(STORE_BOOTSTRAP_CACHE).put({ key: `cache:${key}`, data, updatedAt: Date.now() });
+    } catch (e) {
+      console.warn("Lỗi save vocab cache IndexedDB:", e);
+    }
+  },
+
+  async getCache(key) {
+    try {
+      const db = await openDB();
+      const tx = db.transaction(STORE_BOOTSTRAP_CACHE, "readonly");
+      return new Promise((resolve) => {
+        const req = tx.objectStore(STORE_BOOTSTRAP_CACHE).get(`cache:${key}`);
+        req.onsuccess = () => resolve(req.result?.data || null);
+        req.onerror = () => resolve(null);
+      });
+    } catch {
+      return null;
+    }
   }
 };
