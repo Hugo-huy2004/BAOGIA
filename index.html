@@ -155,8 +155,19 @@
     />
     <style>
       /* Hide icon ligature text until the Material Symbols CSS arrives
-         (display=block then keeps glyphs invisible while the font file loads) */
-      html:not(.msym-ready) .material-symbols-outlined { opacity: 0; }
+         (display=block then keeps glyphs invisible while the font file loads)
+
+         LƯỚI AN TOÀN: `.msym-ready` CHỈ được gắn bởi `onload` của thẻ link trên.
+         Google Fonts chặn/rớt/mạng lởm → onload không bao giờ chạy → mọi icon
+         trong app `opacity: 0` VĨNH VIỄN: nút trống trơn, không cả chữ ligature
+         để đoán. Đó chính là "icon mất luôn". Animation dưới đây hiện icon lại
+         sau 3 giây bất kể chuyện gì xảy ra — xấu (hiện chữ "home", "settings")
+         còn hơn là mù. 3s khớp luôn với block period của `display=block`. */
+      html:not(.msym-ready) .material-symbols-outlined {
+        opacity: 0;
+        animation: msym-fallback 0s 3s forwards;
+      }
+      @keyframes msym-fallback { to { opacity: 1; } }
     </style>
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />

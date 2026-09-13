@@ -32,7 +32,11 @@ export function useTodayFeed(language, category = "all") {
     queryFn: ({ signal }) => todayFeedApi.getFeed({
       language,
       category,
-      limit: eco ? 36 : 180,
+      // ponytail: giao diện lộ ra 15 bài một lượt (PAGE_SIZE trong MemberTodayTab),
+      // nên 180 bài = ~125 KB JSON mà người dùng gần như không bao giờ cuộn hết.
+      // 60 vẫn là 4 lượt "xem thêm" mà gói nhỏ đi ~3 lần. Muốn dài hơn thì nối
+      // phân trang thật (`page` đã có sẵn ở cả client lẫn server) chứ đừng nâng số này.
+      limit: eco ? 36 : 60,
       signal,
     }),
     initialData: cached?.data,

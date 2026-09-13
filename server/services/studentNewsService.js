@@ -1162,6 +1162,12 @@ export class StudentNewsService {
     this.providers = providers;
     this.cache = new Map();
     this.readerCache = new Map();
+    // ponytail: một lượt dựng lại cache = fan-out ra 5 provider + hàng chục
+    // feed RSS, mất ~5 giây trên Render free (0,1 CPU). Không có khoá này thì
+    // N người mở tab TODAY đúng lúc cache hết hạn = N lượt fan-out song song,
+    // event loop nghẽn, và MỌI API khác (ví, từ vựng, icon…) xếp hàng chờ
+    // theo. Giữ đúng một lời hứa đang bay cho mỗi ấn bản; ai đến sau chờ ké.
+    this.inflight = new Map();
   }
 
   // Client chỉ gửi id — server tự tra ra URL. Nhờ vậy endpoint đọc bài KHÔNG
@@ -1272,58 +1278,67 @@ export class StudentNewsService {
     if (cached && cached.expiresAt > Date.now()) {
       ({ articles, providerStatus } = cached);
     } else {
-      const available = this.providers.filter((provider) => provider.isAvailable());
-      const settled = await Promise.allSettled(
-        available.map((provider) => provider.fetchArticles({
-          language: normalizedLanguage,
-          category: normalizedCategory,
-          country: normalizedCountry,
-          limit: MAX_ARTICLES,
-        })),
-      );
-      providerStatus = settled.map((result, index) => ({
-        name: available[index].name,
-        status: result.status === 'fulfilled' ? 'available' : 'unavailable',
-      }));
-      const policy = resolveNewsPolicy(normalizedCountry);
-      const merged = settled
-        .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
-        .filter((article) => articleBelongsToEdition(article, normalizedLanguage))
-        .map((article) => ({
-          ...article,
-          language: normalizedLanguage,
-          country: normalizedCountry,
-          title: truncateAtBoundary(article.title, policy.headlineMaxChars),
-          description: truncateAtBoundary(article.description, policy.excerptMaxChars),
-        }));
-      // Dedupe theo tiêu đề, không theo URL: cùng một tin qua hai nguồn có URL
-      // khác nhau. Giữ bản gặp trước — thứ tự provider đã là thứ tự ưu tiên.
-      // (Trước đây ưu tiên bản CÓ ẢNH; bỏ ảnh của toà soạn rồi thì tiêu chí đó
-      // luôn sai vì không bản nào còn ảnh.)
-      const byTitle = new Map();
-      for (const article of merged) {
-        const key = article.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
-        if (!byTitle.has(key)) byTitle.set(key, article);
+      // Chỉ MỘT lượt dựng cho mỗi ấn bản; mọi request đến trong lúc đó chờ ké.
+      let job = this.inflight.get(cacheKey);
+      if (!job) {
+        job = (async () => {
+          const available = this.providers.filter((provider) => provider.isAvailable());
+          const settled = await Promise.allSettled(
+            available.map((provider) => provider.fetchArticles({
+              language: normalizedLanguage,
+              category: normalizedCategory,
+              country: normalizedCountry,
+              limit: MAX_ARTICLES,
+            })),
+          );
+          const status = settled.map((result, index) => ({
+            name: available[index].name,
+            status: result.status === 'fulfilled' ? 'available' : 'unavailable',
+          }));
+          const policy = resolveNewsPolicy(normalizedCountry);
+          const merged = settled
+            .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
+            .filter((article) => articleBelongsToEdition(article, normalizedLanguage))
+            .map((article) => ({
+              ...article,
+              language: normalizedLanguage,
+              country: normalizedCountry,
+              title: truncateAtBoundary(article.title, policy.headlineMaxChars),
+              description: truncateAtBoundary(article.description, policy.excerptMaxChars),
+            }));
+          // Dedupe theo tiêu đề, không theo URL: cùng một tin qua hai nguồn có URL
+          // khác nhau. Giữ bản gặp trước — thứ tự provider đã là thứ tự ưu tiên.
+          // (Trước đây ưu tiên bản CÓ ẢNH; bỏ ảnh của toà soạn rồi thì tiêu chí đó
+          // luôn sai vì không bản nào còn ảnh.)
+          const byTitle = new Map();
+          for (const article of merged) {
+            const key = article.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+            if (!byTitle.has(key)) byTitle.set(key, article);
+          }
+          const at = (article) => {
+            const time = article.publishedAt ? new Date(article.publishedAt).getTime() : NaN;
+            return Number.isNaN(time) ? -Infinity : time; // không rõ ngày thì xếp cuối
+          };
+          const deduplicated = [...byTitle.values()].sort((a, b) => at(b) - at(a));
+          // Luân phiên nguồn sau khi xếp mới-cũ: không giảm số bài, nhưng tránh một
+          // toà soạn chiếm trọn màn hình đầu khi feed của họ cập nhật dồn dập.
+          const built = diversifyArticles(deduplicated);
+          this.cache.set(cacheKey, {
+            articles: built,
+            providerStatus: status,
+            expiresAt: Date.now() + FEED_REFRESH_MS,
+          });
+          if (this.cache.size > 240) {
+            for (const [key, value] of this.cache) {
+              if (value.expiresAt <= Date.now()) this.cache.delete(key);
+            }
+            while (this.cache.size > 240) this.cache.delete(this.cache.keys().next().value);
+          }
+          return { articles: built, providerStatus: status };
+        })().finally(() => this.inflight.delete(cacheKey));
+        this.inflight.set(cacheKey, job);
       }
-      const at = (article) => {
-        const time = article.publishedAt ? new Date(article.publishedAt).getTime() : NaN;
-        return Number.isNaN(time) ? -Infinity : time; // không rõ ngày thì xếp cuối
-      };
-      const deduplicated = [...byTitle.values()].sort((a, b) => at(b) - at(a));
-      // Luân phiên nguồn sau khi xếp mới-cũ: không giảm số bài, nhưng tránh một
-      // toà soạn chiếm trọn màn hình đầu khi feed của họ cập nhật dồn dập.
-      articles = diversifyArticles(deduplicated);
-      this.cache.set(cacheKey, {
-        articles,
-        providerStatus,
-        expiresAt: Date.now() + FEED_REFRESH_MS,
-      });
-      if (this.cache.size > 240) {
-        for (const [key, value] of this.cache) {
-          if (value.expiresAt <= Date.now()) this.cache.delete(key);
-        }
-        while (this.cache.size > 240) this.cache.delete(this.cache.keys().next().value);
-      }
+      ({ articles, providerStatus } = await job);
     }
 
     const start = (normalizedPage - 1) * normalizedLimit;

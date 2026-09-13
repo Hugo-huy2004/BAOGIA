@@ -42,9 +42,13 @@ router.get('/feed', feedLimiter, async (req, res) => {
     if (feed.meta.language !== expectedEdition.language || feed.meta.country !== expectedEdition.country) {
       throw new Error(`Edition mismatch: expected ${expectedEdition.language}-${expectedEdition.country}`);
     }
-    // Cache nội bộ của service đã tránh fan-out nguồn tin. Tắt cache HTTP để
-    // CDN/service worker không giữ nhầm ấn bản khi người dùng đổi ngôn ngữ.
-    res.set('Cache-Control', 'private, no-store');
+    // `private` = chỉ trình duyệt của chính người đó, không qua CDN/proxy dùng
+    // chung — nên không có chuyện giữ nhầm ấn bản của người khác. Ấn bản nào là
+    // ấn bản nào đã nằm ngay trong URL (`lang` + `edition`), nên đổi ngôn ngữ là
+    // đổi luôn khoá cache; client còn tự đối chiếu lại bằng assertTodayFeedEdition.
+    // `no-store` trước đây khiến MỖI lượt mở tab TODAY tải lại trọn gói JSON —
+    // đúng khoản băng thông + CPU đã làm nghẽn API cho mọi người.
+    res.set('Cache-Control', 'private, max-age=300');
     res.set('Content-Language', expectedEdition.locale);
     res.set('X-Today-Edition', expectedEdition.country);
     return res.json(feed);

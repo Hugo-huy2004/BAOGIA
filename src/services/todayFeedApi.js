@@ -66,7 +66,9 @@ export const todayFeedApi = {
       page: String(page),
       limit: String(limit),
     });
-    return apiFetch(`/today/feed?${params}`, { auth: false, signal, cache: "no-store" })
+    // Không đặt `cache: "no-store"`: nó vô hiệu hoá luôn Cache-Control của server,
+    // nên mỗi lần mở tab là một lượt tải lại đầy đủ. Ấn bản đã nằm trong URL.
+    return apiFetch(`/today/feed?${params}`, { auth: false, signal })
       .then((feed) => assertTodayFeedEdition(feed, edition.language));
   },
 
@@ -77,7 +79,7 @@ export const todayFeedApi = {
     // Trang đọc đã có sẵn dữ liệu bài từ cache feed để dựng tạm, nên hỏng ở
     // đây KHÔNG phải lỗi chặn người dùng — trả null thay vì ném stack đỏ.
     if (readerEndpointMissing) return Promise.resolve(null);
-    return apiFetch(`/today/article/${encodeURIComponent(id)}?${params}`, { signal, cache: "no-store" })
+    return apiFetch(`/today/article/${encodeURIComponent(id)}?${params}`, { signal })
       .then((payload) => {
         if (!isTodayArticleForLanguage(payload, language)) {
           throw new Error("Today article edition mismatch");
