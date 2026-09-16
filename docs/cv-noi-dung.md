@@ -100,18 +100,19 @@ MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản
 > Bản trước viết theo lối cảm xúc ("khoảnh khắc người dùng khựng lại…") — đọc hay
 > nhưng không nói được mình làm gì bằng công cụ gì. CV không phải chỗ để gợi mở.
 
-## Kỹ năng
+## Kỹ năng — xếp theo tầng kỹ thuật
 
-- **Thiết kế giao diện** — Bố cục · Phân cấp thị giác · Nhịp chữ · Hệ màu & token · Responsive · Chế độ tối · Đa ngôn ngữ
-  (ghi chú in kèm: *dựng thẳng trong trình duyệt bằng React + Tailwind rồi chỉnh trên bản chạy thật — không qua Figma*)
-- **Lập trình** — React · Next.js · TypeScript · React Native · Node.js · MongoDB · Firebase · Tailwind · PWA · Git
-- **Vận hành** — Triển khai · Đọc log & xử lý sự cố · Tối ưu hiệu năng · SEO kỹ thuật · Review code
-- Nền từ trường: Python · Express · WebSocket · SQLite · triển khai trên Vercel, Render, Cloudflare, Netlify.
+- **Ngôn ngữ** — JavaScript · TypeScript · Java · Python · HTML/CSS · SQL
+- **Frontend** — React · Next.js · React Native (Expo) · Tailwind CSS · PWA · Capacitor
+  (ghi chú in kèm: *responsive, chế độ tối, đa ngôn ngữ VI/EN/ZH; dựng giao diện thẳng trong trình duyệt*)
+- **Backend & dữ liệu** — Node.js · Express · REST API · WebSocket · MongoDB · Firebase/Firestore · SQLite
+- **DevOps & tích hợp** — Git · Vercel · Render · Cloudflare · Netlify · Google OAuth · Cloudinary · Facebook Graph API
+  (ghi chú in kèm: *tự triển khai và vận hành sáu dự án trên production*)
 
-> Bản trước ghi Figma, User Flow, Wireframe, Prototype, Design System cùng C#,
-> PHP, MySQL. Chủ hồ sơ xác nhận không dùng bộ công cụ thiết kế đó, và ba ngôn
-> ngữ kia không để lại dấu vết nào trong repo — CV ghi thứ mình không dùng thì
-> hỏng ngay ở câu hỏi đầu tiên của vòng phỏng vấn.
+> Bản trước trộn chữ nghề thiết kế ("phân cấp thị giác", "nhịp chữ") với tên
+> công nghệ, nên người sàng hồ sơ kỹ thuật không tìm ra thứ cần trong ba giây.
+> Quy tắc giữ lại: **chỉ liệt kê thứ có dấu vết thật trong sáu dự án của tờ CV
+> này** — không có dự án nào chứng minh được thì không ghi.
 
 ## Học vấn & hoạt động (kèm mục Ngôn ngữ)
 
