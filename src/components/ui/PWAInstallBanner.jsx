@@ -45,14 +45,25 @@ export default function PWAInstallBanner() {
   const guideTriggerRef = useRef(null);
   const { ios, standalone } = detectPlatform();
 
+  // Lời mời cài app chỉ hợp lệ ở nơi CÓ app: khu vực thành viên. Trước đây nó
+  // nổi lên ở mọi đường dẫn, nên người vào đọc trang giới thiệu, bảng giá hay
+  // trang dự án — những người chỉ muốn xem một website — bị chặn ngang bằng
+  // một tấm thẻ mời cài phần mềm họ chưa có lý do gì để cài.
+  const offersApp = location.pathname.startsWith('/member');
+
   useEffect(() => {
-    if (standalone || wasDismissed()) return;
+    if (!offersApp || standalone || wasDismissed()) return undefined;
     // Let the visitor read the page first; installation is a secondary action.
     const t = setTimeout(() => {
       if (ios || canInstall) setVisible(true);
     }, 8000);
     return () => clearTimeout(t);
-  }, [canInstall, ios, standalone]);
+  }, [canInstall, ios, standalone, offersApp]);
+
+  // Rời khỏi khu vực thành viên thì thẻ mời phải biến mất cùng.
+  useEffect(() => {
+    if (!offersApp) setVisible(false);
+  }, [offersApp]);
 
   useEffect(() => {
     if (!showGuide) return undefined;

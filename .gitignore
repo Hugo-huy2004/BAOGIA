@@ -1,7 +1,13 @@
 node_modules
 dist
 build
-.env
+# Mọi biến thể .env — không chỉ mỗi ".env". Vite còn đọc .env.local và
+# .env.production.local, đúng chỗ người ta hay nhét khoá thật; trước đây hai
+# tệp đó không bị chặn nên chỉ cần một lần `git add -A` là khoá lên GitHub.
+.env*
+!.env.example
+!**/.env.example
+!/.env.production
 
 # Python
 __pycache__/
