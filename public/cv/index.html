@@ -29,6 +29,11 @@
     line-height: 1.5;
   }
   [lang="zh"] .tag { letter-spacing: 0; }
+  /* Chữ Hán gói cùng nội dung vào ít chỗ hơn, nên bản này còn dư gần 5cm cuối
+     trang. Trả chỗ đó cho cỡ chữ thay vì để trang hụt hơi ở nửa dưới. */
+  [lang="zh"] .project li { font-size: 10.7pt; }
+  [lang="zh"] .profile-text { font-size: 10.6pt; }
+  [lang="zh"] .project h3 { font-size: 12.2pt; }
 
   html, body { background: #fff; }
   body {
@@ -90,7 +95,7 @@
     gap: 12px;
     margin-top: 10px;
   }
-  .sidebar { display: flex; flex-direction: column; gap: 14px; }
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
   .side-card {
     padding: 0;
     border: 0;
@@ -107,14 +112,14 @@
     letter-spacing: 1.2px;
     text-transform: uppercase;
   }
-  .profile-text { color: var(--body); font-size: 9.1pt; line-height: 1.46; }
+  .profile-text { color: var(--body); font-size: 10.1pt; line-height: 1.52; }
   .tag + .tag::before {
     content: " · ";
     color: var(--faint);
   }
   .skill-group { margin-bottom: 7px; }
   .skill-group:last-of-type { margin-bottom: 0; }
-  .skill-group h3 { margin-bottom: 3px; font-size: 8pt; font-weight: 700; }
+  .skill-group h3 { margin-bottom: 3px; font-size: 8.6pt; font-weight: 700; }
   .tags { display: block; margin-top: 1px; }
   .tag {
     display: inline;
@@ -122,20 +127,20 @@
     border: 0;
     background: none;
     color: #4a525d;
-    font-size: 7.1pt;
-    line-height: 1.3;
+    font-size: 8.2pt;
+    line-height: 1.5;
   }
-  .foundation { margin-top: 6px; color: var(--muted); font-size: 7.8pt; line-height: 1.4; }
-  .skill-note { margin-top: 2px; color: var(--muted); font-size: 7.8pt; line-height: 1.35; font-style: italic; }
+  .foundation { margin-top: 8px; color: var(--muted); font-size: 8.2pt; line-height: 1.4; }
+  .skill-note { margin-top: 4px; color: var(--muted); font-size: 8.4pt; line-height: 1.35; font-style: italic; }
   .fact { margin-bottom: 6px; }
   .fact:last-child { margin-bottom: 0; }
   .fact-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
-  .fact b { font-size: 8.2pt; font-weight: 700; }
+  .fact b { font-size: 8.8pt; font-weight: 700; }
   .fact .level { color: var(--blue); font-size: 7.2pt; font-weight: 700; white-space: nowrap; }
-  .fact p { margin-top: 2px; color: var(--muted); font-size: 8pt; line-height: 1.38; }
+  .fact p { margin-top: 2px; color: var(--muted); font-size: 8.3pt; line-height: 1.38; }
 
   /* ── Main ───────────────────────────────────────────── */
-  .main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
   /* KHÔNG chống cắt ở cả mục: mục dự án nay có sáu khối, ép nguyên mục nằm
      gọn một trang thì nó nhảy hẳn sang trang sau, để trang đầu trống nửa dưới.
      Chống cắt ở từng dự án là đủ. */
@@ -143,7 +148,7 @@
   .main-section > .section-label { margin-bottom: 5px; }
 
   .project {
-    padding: 0 0 10px;
+    padding: 0 0 15px;
     border: 0;
     border-bottom: 1px solid var(--line);
     background: none;
@@ -151,9 +156,9 @@
   }
   .main-section .project:last-child { border-bottom: 0; }
   .project-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-  .project h3 { font-size: 10.2pt; font-weight: 700; line-height: 1.2; }
+  .project h3 { font-size: 11.8pt; font-weight: 700; line-height: 1.2; }
   .date { color: var(--faint); font-size: 7.3pt; white-space: nowrap; }
-  .project-meta { margin: 3px 0 5px; color: var(--blue-dark); font-size: 7.5pt; font-weight: 700; }
+  .project-meta { margin: 3px 0 6px; color: var(--blue-dark); font-size: 7.9pt; font-weight: 700; }
   .project-meta a { color: var(--muted); font-weight: 400; border-bottom: 1px solid #ccd4dd; }
   ul { list-style: none; }
   .project li {
@@ -161,8 +166,8 @@
     margin-bottom: 2px;
     padding-left: 10px;
     color: var(--body);
-    font-size: 8.9pt;
-    line-height: 1.45;
+    font-size: 10.1pt;
+    line-height: 1.5;
   }
   .project li:last-child { margin-bottom: 0; }
   .project li::before {
@@ -294,7 +299,7 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">Hồ sơ</h2>
-        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. Mình dựng giao diện thẳng trong trình duyệt bằng React và Tailwind, rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b> — bố cục, nhịp chữ, luồng thao tác, responsive; viết được cả phía máy chủ (Node.js, MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản vẽ treo đó. <b>Đang tìm vị trí thực tập Công nghệ Thông tin.</b></p>
+        <p class="profile-text">Sinh viên CNTT Greenwich Việt Nam. <b>Sáu dự án đã bàn giao</b>, phần lớn tự làm trọn gói: giao diện, máy chủ, rồi tự đưa lên chạy thật. Mạnh nhất ở phần <b>giao diện</b>. <b>Đang tìm vị trí thực tập Công nghệ Thông tin.</b></p>
       </section>
 
       <section class="side-card">
@@ -323,7 +328,7 @@
     <section class="main">
       <section class="main-section">
         <h2 class="section-label">Dự án</h2>
-        <article class="project"><div class="project-top"><h3>Hugo Studio — Hệ sinh thái công cụ số</h3><span class="date">04/2026 – nay</span></div><p class="project-meta">Dự án cá nhân · Thiết kế &amp; lập trình toàn phần · Vận hành · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p><ul><li>Dựng một <b>khung dùng chung</b> cho cả hệ thống: một lớp định danh, một ví điểm, một kênh thông báo thời gian thực và một bộ vỏ giao diện — thêm ứng dụng mới là thêm nội dung vào khung, không dựng lại từ móng.</li><li>Chạy dạng <b>PWA cài về máy</b> và tự vận hành production: truy ra sự cố vượt hạn mức nhà cung cấp là do một vòng lặp gọi API mỗi 10 giây, giãn còn 5 phút rồi chia lại kiến trúc theo cách tính phí của từng nền tảng.</li></ul></article><article class="project"><div class="project-top"><h3>Xứ Đoàn Chánh Tòa Mỹ Tho — Cổng thông tin giáo xứ</h3><span class="date">08/2026 – nay</span></div><p class="project-meta">Người dùng thật · Thiết kế &amp; lập trình toàn phần · <a href="https://chanhtoa.tnttgiaophanmytho.online">Demo · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">Mã nguồn · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js, React, TypeScript, Tailwind, Node.js, Firestore. Tra <b>giờ lễ 27 giáo phận</b> theo định vị, Kinh Thánh trọn bộ chia theo chương, vấn đáp đức tin — nội dung kết xuất phía máy chủ để tìm kiếm đọc được.</li><li>Nối thẳng với <b>fanpage Facebook</b> của giáo xứ qua Graph API: đăng một lần, tin hiện ở cả hai nơi; khoá truy cập giữ lại trên máy chủ và chặn thêm bằng Firestore rules.</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike — Ứng dụng đi bộ đường dài (iOS &amp; Android)</h3><span class="date">06–09/2026</span></div><p class="project-meta">Bài tập môn phát triển di động · Thiết kế &amp; lập trình toàn phần · <a href="https://hiking.hugowishpax.studio">Demo · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">Mã nguồn · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li>Làm <b>hai bản</b>: React Native trên Expo với TypeScript, và một bản Android thuần bằng Java — để so hai cách làm chứ không chọn bừa một bên.</li><li><b>Chạy được khi mất sóng</b>: SQLite trên máy là kho chính, Firebase chỉ đồng bộ nền. Ghi hành trình GPS chia pha, nhật ký thực địa gắn theo chuyến, màn hình SOS lấy toạ độ và nháy Morse ban đêm.</li></ul></article><article class="project"><div class="project-top"><h3>HWJ — Nền tảng trang sức cao cấp</h3><span class="date">01–04/2026</span></div><p class="project-meta">Dự án cá nhân · Thiết kế &amp; lập trình toàn phần · <a href="https://hwj-demo.hugowishpax.studio">Demo · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">Mã nguồn · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React, Tailwind, Node.js, MongoDB, Cloudinary, Google OAuth. <b>Giá bám thị trường</b>: lấy từ API giá vàng – bạc thời gian thực rồi hiện thành bảng bán ra – mua lại theo chỉ.</li><li>Ngôn ngữ thiết kế kiểu <b>ấn phẩm</b> cho hàng xa xỉ: không một nút “mua ngay”, thay bằng lời mời đặt lịch tư vấn sở hữu — tiết chế hợp với món hàng cân nhắc hàng tháng trời.</li></ul></article><article class="project"><div class="project-top"><h3>Mình Ơi Media — Website studio phóng sự cưới</h3><span class="date">03–04/2026</span></div><p class="project-meta">Khách hàng thật · Thiết kế &amp; lập trình toàn phần · <a href="https://minhoimedia.digital">Demo · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">Mã nguồn · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>Làm trực tiếp với khách từ buổi lấy yêu cầu tới lúc bàn giao. Đặt <b>bảng giá năm gói ngay trên đường đi</b> thay vì bắt khách nhắn tin hỏi — khách đang mở ba studio cùng lúc.</li><li>HTML, CSS, JavaScript thuần, không khung: trang nhẹ, mở nhanh trên 4G, và chính chủ studio sửa được chữ mà không phải gọi cho ai.</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee — Website quán cà phê</h3><span class="date">2026</span></div><p class="project-meta">Làm cùng Jason Phan · Thiết kế UI/UX · <a href="https://legocoffee.hwagfu.dev">legocoffee.hwagfu.dev</a></p><ul><li>Phụ trách <b>UI/UX</b>: hệ thống màu, nhịp chữ, luồng xem thực đơn và cách cắt ảnh không gian; phần dữ liệu và triển khai do đối tác — ranh giới rõ từ đầu.</li><li>Thực đơn 68 món <b>lọc theo tâm trạng</b> thay vì theo danh mục: cần tỉnh, muốn dịu lòng, ngồi lâu với bạn — chọn nhanh hơn đọc hết một bảng dài.</li></ul></article>
+        <article class="project"><div class="project-top"><h3>Hugo Studio — Hệ sinh thái công cụ số</h3><span class="date">04/2026 – nay</span></div><p class="project-meta">Dự án cá nhân · Thiết kế &amp; lập trình toàn phần · Vận hành · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p><ul><li>Dựng <b>khung dùng chung</b> cho cả hệ thống: định danh, ví điểm, thông báo thời gian thực, vỏ giao diện.</li><li>Chạy dạng <b>PWA cài về máy</b>. Tự vận hành production và xử lý sự cố vượt hạn mức nhà cung cấp.</li></ul></article><article class="project"><div class="project-top"><h3>Xứ Đoàn Chánh Tòa Mỹ Tho — Cổng thông tin giáo xứ</h3><span class="date">08/2026 – nay</span></div><p class="project-meta">Người dùng thật · Thiết kế &amp; lập trình toàn phần · <a href="https://chanhtoa.tnttgiaophanmytho.online">Demo · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">Mã nguồn · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js, TypeScript, Firestore, kết xuất phía máy chủ. Tra <b>giờ lễ 27 giáo phận</b> theo định vị; Kinh Thánh trọn bộ.</li><li>Đồng bộ bài viết từ <b>fanpage Facebook</b> qua Graph API; khoá truy cập giữ lại trên máy chủ.</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike — Ứng dụng đi bộ đường dài (iOS &amp; Android)</h3><span class="date">06–09/2026</span></div><p class="project-meta">Bài tập môn phát triển di động · Thiết kế &amp; lập trình toàn phần · <a href="https://hiking.hugowishpax.studio">Demo · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">Mã nguồn · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li><b>Hai bản</b>: React Native (Expo, TypeScript) và Android thuần bằng Java.</li><li><b>Chạy được khi mất sóng</b> — SQLite là kho chính, Firebase đồng bộ nền. Hành trình GPS và màn hình SOS.</li></ul></article><article class="project"><div class="project-top"><h3>HWJ — Nền tảng trang sức cao cấp</h3><span class="date">01–04/2026</span></div><p class="project-meta">Dự án cá nhân · Thiết kế &amp; lập trình toàn phần · <a href="https://hwj-demo.hugowishpax.studio">Demo · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">Mã nguồn · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React, Node.js, MongoDB, Cloudinary, Google OAuth: tài khoản, lịch hẹn tư vấn và giỏ hàng.</li><li><b>Giá bám thị trường</b>: suy từ API giá vàng – bạc, hiện thành bảng bán ra – mua lại.</li></ul></article><article class="project"><div class="project-top"><h3>Mình Ơi Media — Website studio phóng sự cưới</h3><span class="date">03–04/2026</span></div><p class="project-meta">Khách hàng thật · Thiết kế &amp; lập trình toàn phần · <a href="https://minhoimedia.digital">Demo · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">Mã nguồn · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>Làm trực tiếp với khách, từ buổi lấy yêu cầu tới lúc bàn giao.</li><li>HTML, CSS, JavaScript thuần. Bảng giá năm gói đặt ngay trang chủ, dựng cho màn hình dọc.</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee — Website quán cà phê</h3><span class="date">2026</span></div><p class="project-meta">Làm cùng Jason Phan · Thiết kế UI/UX · <a href="https://legocoffee.hwagfu.dev">legocoffee.hwagfu.dev</a></p><ul><li>Phụ trách <b>UI/UX</b>: hệ màu, nhịp chữ, luồng xem thực đơn, cách cắt ảnh không gian.</li><li>Thực đơn 68 món <b>lọc theo tâm trạng</b> thay vì theo danh mục.</li></ul></article>
       </section>
     </section>
   </div>
@@ -345,7 +350,7 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">Profile</h2>
-        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>: I build the interface in React and Tailwind, straight in the browser, and ship it myself. My strength is the <b>interface</b> — layout, type, user flow, responsive; I write the server side too (Node.js, MongoDB, Firebase), so what I design gets built. <b>Seeking an Information Technology internship.</b></p>
+        <p class="profile-text">IT student at Greenwich Vietnam. <b>Six projects delivered</b>, most of them end to end: interface, server, then shipped and run by me. Strongest on the <b>interface</b>. <b>Seeking an Information Technology internship.</b></p>
       </section>
 
       <section class="side-card">
@@ -374,7 +379,7 @@
     <section class="main">
       <section class="main-section">
         <h2 class="section-label">Projects</h2>
-        <article class="project"><div class="project-top"><h3>Hugo Studio — An ecosystem of digital tools</h3><span class="date">04/2026 – now</span></div><p class="project-meta">Personal project · Design &amp; full-stack development · Operations · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p><ul><li>Built the <b>shared frame</b> the system rests on: one identity layer, one points wallet, one real-time notification channel, one interface shell — a new app is content poured in, not another foundation dug.</li><li>Runs as an <b>installable PWA</b>, operated by me: traced a provider quota overrun to a loop calling an API every 10 seconds, moved it to 5 minutes, then split the architecture along how each platform bills.</li></ul></article><article class="project"><div class="project-top"><h3>Chanh Toa My Tho — Parish information portal</h3><span class="date">08/2026 – now</span></div><p class="project-meta">Real users · Design &amp; full-stack development · <a href="https://chanhtoa.tnttgiaophanmytho.online">Demo · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">Source · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js, React, TypeScript, Tailwind, Node.js, Firestore. <b>Mass times across 27 dioceses</b> found by location, the full Bible, a faith Q&amp;A — server-rendered so search engines can read it.</li><li>Wired straight into the parish <b>Facebook page</b> through the Graph API: post once and it appears in both places; the access key stays on the server, guarded by Firestore rules.</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike — Hiking app for iOS &amp; Android</h3><span class="date">06–09/2026</span></div><p class="project-meta">Mobile development coursework · Design &amp; full-stack development · <a href="https://hiking.hugowishpax.studio">Demo · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">Source · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li>Built <b>twice</b>: React Native on Expo with TypeScript, and a native Android build in Java — to compare the two approaches properly rather than pick one on faith.</li><li><b>Works with no signal</b>: SQLite on the device is the primary store, Firebase syncs in the background. GPS journeys replayed in phases, field notes bound to each hike, an SOS screen with coordinates and Morse flashing.</li></ul></article><article class="project"><div class="project-top"><h3>HWJ — Fine jewellery platform</h3><span class="date">01–04/2026</span></div><p class="project-meta">Personal project · Design &amp; full-stack development · <a href="https://hwj-demo.hugowishpax.studio">Demo · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">Source · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React, Tailwind, Node.js, MongoDB, Cloudinary, Google OAuth. <b>Priced against the market</b>: live gold and silver rates from an API, shown as a sell and buyback table per mace.</li><li>A <b>publication</b> design language for luxury: not one “buy now” button, replaced by an invitation to book an acquisition consultation — restraint suits a purchase considered for months.</li></ul></article><article class="project"><div class="project-top"><h3>Minh Oi Media — Wedding studio website</h3><span class="date">03–04/2026</span></div><p class="project-meta">Real client · Design &amp; full-stack development · <a href="https://minhoimedia.digital">Demo · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">Source · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>Worked directly with the client from first conversation to handover. Put <b>five packages and their prices right on the path</b> instead of forcing an enquiry — couples compare three studios at once.</li><li>Plain HTML, CSS and JavaScript, no framework: light, fast on 4G, and the studio edits the words in the file without calling anyone.</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee — Café website</h3><span class="date">2026</span></div><p class="project-meta">With Jason Phan · UI/UX design · <a href="https://legocoffee.hwagfu.dev">legocoffee.hwagfu.dev</a></p><ul><li>Owned the <b>UI/UX</b>: colour system, typographic rhythm, the menu flow and how the room is cropped; data and deployment were my partner's.</li><li>Sixty-eight items <b>filtered by mood</b> rather than by category: need to wake up, want to settle down, staying a while with friends — faster than reading a long table.</li></ul></article>
+        <article class="project"><div class="project-top"><h3>Hugo Studio — An ecosystem of digital tools</h3><span class="date">04/2026 – now</span></div><p class="project-meta">Personal project · Design &amp; full-stack development · Operations · <a href="https://www.hugowishpax.studio">hugowishpax.studio</a></p><ul><li>Built the <b>shared frame</b> for the whole system: identity, points wallet, real-time notifications, interface shell.</li><li>Runs as an <b>installable PWA</b>. Operated in production by me, including a provider quota overrun.</li></ul></article><article class="project"><div class="project-top"><h3>Chanh Toa My Tho — Parish information portal</h3><span class="date">08/2026 – now</span></div><p class="project-meta">Real users · Design &amp; full-stack development · <a href="https://chanhtoa.tnttgiaophanmytho.online">Demo · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">Source · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js, TypeScript, Firestore, server-rendered. <b>Mass times across 27 dioceses</b> by location; the full Bible.</li><li>Posts sync from the parish <b>Facebook page</b> through the Graph API; the access key stays server-side.</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike — Hiking app for iOS &amp; Android</h3><span class="date">06–09/2026</span></div><p class="project-meta">Mobile development coursework · Design &amp; full-stack development · <a href="https://hiking.hugowishpax.studio">Demo · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">Source · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li><b>Two builds</b>: React Native (Expo, TypeScript) and native Android in Java.</li><li><b>Works with no signal</b> — SQLite is the primary store, Firebase syncs in the background. GPS journeys and an SOS screen.</li></ul></article><article class="project"><div class="project-top"><h3>HWJ — Fine jewellery platform</h3><span class="date">01–04/2026</span></div><p class="project-meta">Personal project · Design &amp; full-stack development · <a href="https://hwj-demo.hugowishpax.studio">Demo · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">Source · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React, Node.js, MongoDB, Cloudinary, Google OAuth: accounts, consultation bookings and the cart.</li><li><b>Priced against the market</b>: live gold and silver rates, shown as sell and buyback.</li></ul></article><article class="project"><div class="project-top"><h3>Minh Oi Media — Wedding studio website</h3><span class="date">03–04/2026</span></div><p class="project-meta">Real client · Design &amp; full-stack development · <a href="https://minhoimedia.digital">Demo · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">Source · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>Worked directly with the client, from requirements through to handover.</li><li>Plain HTML, CSS and JavaScript. Five packages priced on the home page, built portrait-first.</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee — Café website</h3><span class="date">2026</span></div><p class="project-meta">With Jason Phan · UI/UX design · <a href="https://legocoffee.hwagfu.dev">legocoffee.hwagfu.dev</a></p><ul><li>Owned the <b>UI/UX</b>: colour system, type rhythm, menu flow, how the room is cropped.</li><li>Sixty-eight items <b>filtered by mood</b> instead of by category.</li></ul></article>
       </section>
     </section>
   </div>
@@ -396,7 +401,7 @@
     <aside class="sidebar">
       <section class="side-card profile-card">
         <h2 class="section-label">简介</h2>
-        <p class="profile-text">格林威治越南大学信息技术专业在读。<b>已交付六个项目</b>：界面直接在浏览器里用 React 与 Tailwind 做出来，再由我自己上线。最强的是<b>界面</b>——版式、文字节奏、操作流程、响应式；服务端也写得了（Node.js、MongoDB、Firebase），所以设计出来的东西是能落地的，而不是停在稿子上。<b>正在寻找信息技术实习岗位。</b></p>
+        <p class="profile-text">格林威治越南大学信息技术专业在读。<b>已交付六个项目</b>，多数从头做到尾：界面、服务端，再由我自己上线。最强的是<b>界面</b>。<b>正在寻找信息技术实习岗位。</b></p>
       </section>
 
       <section class="side-card">
@@ -425,7 +430,7 @@
     <section class="main">
       <section class="main-section">
         <h2 class="section-label">项目</h2>
-        <article class="project"><div class="project-top"><h3>Hugo Studio —— 数字工具生态</h3><span class="date">2026/04 – 至今</span></div><p class="project-meta">个人项目 · 设计与全栈开发 · 运营 · <a href="https://www.hugowishpax.studio">演示 · hugowishpax.studio</a></p><ul><li>先搭起整套系统共用的<b>骨架</b>：一层身份、一个积分钱包、一条实时通知通道、一套界面外壳——新增应用只是往骨架里填内容，而不是重新打地基。</li><li>以<b>可安装的 PWA</b> 运行，并由我自己运维：把超出服务商配额的原因追到一个每十秒调用一次的循环，放宽到五分钟，再按各平台真正的计费方式重新切分架构。</li></ul></article><article class="project"><div class="project-top"><h3>美萩主教座堂青年团 —— 堂区信息门户</h3><span class="date">2026/08 – 至今</span></div><p class="project-meta">真实用户 · 设计与全栈开发 · <a href="https://chanhtoa.tnttgiaophanmytho.online">演示 · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">源码 · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js、React、TypeScript、Tailwind、Node.js、Firestore。按定位查询<b>27 个教区</b>的弥撒时间、全本圣经分章阅读、信仰问答——服务端渲染，便于搜索引擎读取。</li><li>通过 Graph API 与堂区 <b>Facebook 主页</b>直接打通：发一次，两边同时出现；访问密钥留在服务器上，并由 Firestore 规则把守。</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike —— 徒步应用（iOS 与 Android）</h3><span class="date">2026/06–09</span></div><p class="project-meta">移动开发课程作业 · 设计与全栈开发 · <a href="https://hiking.hugowishpax.studio">演示 · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">源码 · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li>做了<b>两个版本</b>：Expo 上的 React Native（TypeScript），以及一版 Java 原生 Android——为了真正比较两种做法，而不是凭感觉选一边。</li><li><b>没有信号也能用</b>：设备上的 SQLite 是主数据库，Firebase 只在后台同步。GPS 行程按阶段回放，实地记录绑定到每次行程，SOS 页面抓取坐标并在夜间闪烁摩尔斯电码。</li></ul></article><article class="project"><div class="project-top"><h3>HWJ —— 高端珠宝平台</h3><span class="date">2026/01–04</span></div><p class="project-meta">个人项目 · 设计与全栈开发 · <a href="https://hwj-demo.hugowishpax.studio">演示 · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">源码 · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React、Tailwind、Node.js、MongoDB、Cloudinary、Google OAuth。<b>价格随市场浮动</b>：取自金银实时行情接口，按“钱”换算成卖出与回购两栏。</li><li>为奢侈品采用<b>刊物式</b>的设计语言：没有一个“立即购买”按钮，取而代之的是预约洽购——克制更配得上需要斟酌数月的东西。</li></ul></article><article class="project"><div class="project-top"><h3>Mình Ơi Media —— 婚礼纪实工作室网站</h3><span class="date">2026/03–04</span></div><p class="project-meta">真实客户 · 设计与全栈开发 · <a href="https://minhoimedia.digital">演示 · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">源码 · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>从第一次需求沟通到交付，全程直接对接客户。把<b>五个套餐与价格放在必经之路上</b>，而不是逼客户先私信询问——新人往往同时比较三家。</li><li>纯 HTML、CSS 与 JavaScript，不用框架：页面轻、4G 下打开快，店主自己就能改文件里的文字。</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee —— 咖啡馆网站</h3><span class="date">2026</span></div><p class="project-meta">与 Jason Phan 合作 · UI/UX 设计 · <a href="https://legocoffee.hwagfu.dev">演示 · legocoffee.hwagfu.dev</a></p><ul><li>我负责 <b>UI/UX</b>：色彩系统、文字节奏、看菜单的流程，以及空间照片的裁切方式；数据与上线由合作方负责。</li><li>六十八款饮品<b>按心情筛选</b>，而不是按分类：需要清醒、想安静下来、和朋友久坐——比读完一张长表更快。</li></ul></article>
+        <article class="project"><div class="project-top"><h3>Hugo Studio —— 数字工具生态</h3><span class="date">2026/04 – 至今</span></div><p class="project-meta">个人项目 · 设计与全栈开发 · 运营 · <a href="https://www.hugowishpax.studio">演示 · hugowishpax.studio</a></p><ul><li>搭建全系统共用的<b>骨架</b>：身份、积分钱包、实时通知、界面外壳。</li><li>以<b>可安装的 PWA</b> 运行。生产环境由我自己运维，包括一次服务商配额超限。</li></ul></article><article class="project"><div class="project-top"><h3>美萩主教座堂青年团 —— 堂区信息门户</h3><span class="date">2026/08 – 至今</span></div><p class="project-meta">真实用户 · 设计与全栈开发 · <a href="https://chanhtoa.tnttgiaophanmytho.online">演示 · chanhtoa.tnttgiaophanmytho.online</a> · <a href="https://github.com/HuynhDutruong/FAQ">源码 · github.com/HuynhDutruong/FAQ</a></p><ul><li>Next.js、TypeScript、Firestore，服务端渲染。按定位查<b>27 个教区</b>的弥撒时间；全本圣经。</li><li>通过 Graph API 从堂区 <b>Facebook 主页</b>同步文章；访问密钥留在服务器上。</li></ul></article><article class="project"><div class="project-top"><h3>M-Hike —— 徒步应用（iOS 与 Android）</h3><span class="date">2026/06–09</span></div><p class="project-meta">移动开发课程作业 · 设计与全栈开发 · <a href="https://hiking.hugowishpax.studio">演示 · hiking.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/Hiking_App">源码 · github.com/Hugo-huy2004/Hiking_App</a></p><ul><li><b>两个版本</b>：React Native（Expo、TypeScript）与 Java 原生 Android。</li><li><b>没有信号也能用</b>——SQLite 为主库，Firebase 后台同步。GPS 行程与 SOS 页面。</li></ul></article><article class="project"><div class="project-top"><h3>HWJ —— 高端珠宝平台</h3><span class="date">2026/01–04</span></div><p class="project-meta">个人项目 · 设计与全栈开发 · <a href="https://hwj-demo.hugowishpax.studio">演示 · hwj-demo.hugowishpax.studio</a> · <a href="https://github.com/Hugo-huy2004/HWJ_demo">源码 · github.com/Hugo-huy2004/HWJ_demo</a></p><ul><li>React、Node.js、MongoDB、Cloudinary、Google OAuth：账户、洽购预约与购物车。</li><li><b>价格随市场浮动</b>：取自金银实时行情接口，按卖出与回购两栏呈现。</li></ul></article><article class="project"><div class="project-top"><h3>Mình Ơi Media —— 婚礼纪实工作室网站</h3><span class="date">2026/03–04</span></div><p class="project-meta">真实客户 · 设计与全栈开发 · <a href="https://minhoimedia.digital">演示 · minhoimedia.digital</a> · <a href="https://github.com/Hugo-huy2004/job_01_MinhOi_Media_studio">源码 · github.com/Hugo-huy2004/job_01_MinhOi_Media_studio</a></p><ul><li>从需求沟通到交付，全程直接对接客户。</li><li>纯 HTML、CSS 与 JavaScript。五个套餐价格直接放在首页，竖屏优先。</li></ul></article><article class="project"><div class="project-top"><h3>L3GO Coffee —— 咖啡馆网站</h3><span class="date">2026</span></div><p class="project-meta">与 Jason Phan 合作 · UI/UX 设计 · <a href="https://legocoffee.hwagfu.dev">演示 · legocoffee.hwagfu.dev</a></p><ul><li>负责 <b>UI/UX</b>：色彩系统、文字节奏、菜单流程、空间照片裁切。</li><li>六十八款饮品<b>按心情筛选</b>，而非按分类。</li></ul></article>
       </section>
     </section>
   </div>

@@ -35,7 +35,16 @@ rồi nhặt hai mươi hai vật thể rời — đó là cảm giác "rối". 
 
 - Không còn khung: mỗi mục phân tách bằng một nét kẻ mảnh dưới nhãn và khoảng trắng.
 - Chip kỹ năng thành **một dòng chữ** nối bằng dấu chấm giữa — cùng chừng ấy chữ, đọc một hơi là hết.
-- Chỗ tiết kiệm được trả lại cho **cỡ chữ**: gạch đầu dòng dự án từ 7.95pt lên 8.9pt, phần hồ sơ từ 8.5 lên 9.1pt.
+- Chỗ tiết kiệm được trả lại cho **cỡ chữ**: gạch đầu dòng dự án từ 7.95pt lên **10.1pt**, phần hồ sơ từ 8.5 lên **10.1pt**. Bản tiếng Trung nhích thêm một nấc nữa vì chữ vuông gói cùng nội dung vào ít chỗ hơn.
+
+## Độ dài câu chữ
+
+Mỗi gạch đầu dòng **một ý, ≤20 từ**. Bản trước dài 25–48 từ vì giọng kể chuyện
+của trang `/project` lọt sang: ở đó kể lý do và hậu trường là đúng, trên tờ CV
+thì người đọc quét chứ không đọc. Phần hồ sơ giữ ~40 từ.
+
+Muốn biết có đang phình ra không thì đếm: mở CV trong trình duyệt, đếm số từ của
+mỗi `.project li`. Trên 20 từ là phải cắt.
 
 ## Ba luật giữ tờ CV vừa một trang
 
