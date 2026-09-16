@@ -27,6 +27,23 @@ phục vụ công khai trên web. Khi gửi thẳng cho một công ty (nhất l
 Nam — họ gọi điện), thêm một dòng SĐT vào `.contact` rồi xuất một tệp riêng,
 đừng ghi đè bản công khai.
 
+## Kỷ luật cắt
+
+Tiêu chuẩn giữ lại: **không nói hai lần**. Những thứ đã cắt và lý do:
+
+| Đã bỏ | Vì sao |
+|---|---|
+| Dãy "6 dự án · 4 đang chạy thật" ở đầu trang | Đếm lại đúng thứ mục Dự án bày ra ngay bên dưới. Con số tự quảng cáo làm người đọc nghi; sáu khối dự án thì không. |
+| Dòng nhỏ phía trên tên | Nói cùng chuyện với dòng chức danh dưới tên. Gộp làm một. |
+| Hai dòng ghi chú nghiêng ở mục Kỹ năng | Hứa những điều mà sáu dự án đã chứng minh xong. |
+| Gạch "phối hợp nhóm với ranh giới trách nhiệm rõ ràng" | Ai cũng viết được câu đó mà không cần làm gì. |
+| URL repo dài 46 ký tự | Rút còn "GitHub" — liên kết vẫn bấm được, chữ không còn chiếm chỗ. |
+| Dòng hoạt động ngoại khoá | Thứ yếu nhất trên một hồ sơ kỹ thuật. Cắt theo đúng kỷ luật; muốn giữ thì thêm lại một dòng. |
+| Câu "đang tìm thực tập" trong phần Hồ sơ | Đã nằm ngay dưới tên. |
+
+Chỗ dôi ra **không nhồi thêm chữ** mà trả cho khoảng thở giữa các mục — đó mới
+là thứ làm tờ giấy trông đắt.
+
 ## Bố cục: ít hộp, nhiều khoảng trắng
 
 Bản trước có **chín khung viền** trên một trang A4 (ba thẻ cột trái, sáu thẻ dự
@@ -114,7 +131,7 @@ MongoDB, Firebase) nên thiết kế ra là dựng được, không phải bản
 > Quy tắc giữ lại: **chỉ liệt kê thứ có dấu vết thật trong sáu dự án của tờ CV
 > này** — không có dự án nào chứng minh được thì không ghi.
 
-## Học vấn & hoạt động (kèm mục Ngôn ngữ)
+## Học vấn (kèm mục Ngôn ngữ)
 
 - **Greenwich Việt Nam** (2022–2027) — Công nghệ Thông tin, liên kết University of
   Greenwich (UK) và Đại học FPT, dự kiến tốt nghiệp 10/2027.
