@@ -14,6 +14,8 @@ import { ChevronRight, Globe2, Layers3, MousePointer2, Search, Sparkles } from "
 import BrutalismTheme from "../../themes/BrutalismTheme";
 import { Link } from "./RouterLink";
 import { useFilm } from "./useFilm";
+import { playHapticTick } from "../../../utils/CinematicSoundEngine";
+import { studentBioDemo } from "../../../data/studentBioDemo";
 
 type Chapter = {
   eyebrow: string;
@@ -41,38 +43,6 @@ type ServicesStoryProps = {
 
 const spring = { stiffness: 145, damping: 20, mass: 0.58 };
 const vivid = ["#17EAD9", "#35CFE1", "#4CB5E7", "#6078EA", "#7B8FF2", "#FFD166", "#FF6B8A"];
-export const studentBioDemo = {
-  displayName: "Minh Anh",
-  headline: "Student · UI/UX & Frontend",
-  avatarUrl: "/image/avt5.png",
-  bio: "Mình là sinh viên thiết kế sản phẩm số, thích biến ý tưởng nhỏ thành trải nghiệm có thể dùng thật. Đây là nơi mình lưu hành trình học, dự án và những điều đang khám phá.",
-  jobTitle: "Product Design Intern",
-  education: "Sinh viên Thiết kế truyền thông · 2024–2028",
-  skills: "UI/UX, React, Figma, Illustration, Design System",
-  hobbies: "Vẽ minh hoạ, làm side project, chụp ảnh đường phố",
-  birthday: "18 · 09 · 2006",
-  address: "TP. Hồ Chí Minh",
-  contactEmail: "minhanh.student@example.edu",
-  theme: { template: "brutalism", bgColor: "#17EAD9", accentColor: "#6078EA", pattern: "dots" },
-  projects: [
-    { title: "Study Space", description: "Ứng dụng giúp sinh viên lên kế hoạch học và giữ nhịp tập trung.", imageUrl: "/project-screenshots/hugo-studio/tasks.webp", link: "/student-pricing" },
-    { title: "Portfolio 2026", description: "Tuyển tập bài tập thương hiệu, UI và minh hoạ trong năm học.", imageUrl: "/project-screenshots/hugo-studio/apps.webp", link: "/project" },
-    { title: "Hugo Kit", description: "Bộ công cụ web nhỏ phục vụ học tập và làm dự án nhóm.", imageUrl: "/project-screenshots/hugo-studio/arcade.webp", link: "/member" },
-  ],
-  services: [
-    { name: "Thiết kế giao diện", description: "Landing page & mobile UI", icon: "draw", price: "Nhận dự án" },
-    { name: "Minh hoạ", description: "Poster & social artwork", icon: "palette", price: "Trao đổi" },
-  ],
-  links: [
-    { label: "Xem portfolio", url: "https://www.hugowishpax.studio/project" },
-    { label: "Dự án tiêu biểu", url: "https://www.hugowishpax.studio/student-pricing" },
-    { label: "Không gian học tập", url: "https://www.hugowishpax.studio/member" },
-  ],
-  tabs: [
-    { title: "Mục tiêu năm nay", content: "Hoàn thiện ba sản phẩm có người dùng thật và chia sẻ lại toàn bộ quá trình." },
-    { title: "Đang học", content: "Motion design · React · Thiết kế hệ thống · Tiếng Anh chuyên ngành" },
-  ],
-};
 
 /**
  * One continuous, scroll-scrubbed product film: a MacBook turns into an
@@ -194,10 +164,11 @@ export default function ServicesStory({
             style={{ opacity: introOpacity }}
             className="absolute inset-x-5 top-[clamp(4.75rem,9svh,7rem)] z-30 text-center sm:inset-x-8"
           >
-            <p className="font-mono text-[0.65rem] font-medium tracking-[0.18em] text-foreground/50 uppercase sm:text-xs">
-              {label} · Hugo Studio
-            </p>
-            <h2 className="mx-auto mt-3 max-w-4xl text-[clamp(1.85rem,1.2rem+2.7vw,4rem)] leading-[1.02] font-semibold tracking-[-0.055em] text-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-2">
+              <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+              <span>{standalone ? "SCENE 02 · PRODUCT FILM" : "SCENE 03 · THE MACHINERY"}</span>
+            </div>
+            <h2 className="mx-auto mt-2 max-w-4xl text-[clamp(1.85rem,1.2rem+2.7vw,4rem)] leading-[1.04] font-bold tracking-[-0.04em] text-foreground">
               {heading}
             </h2>
           </motion.header>
@@ -284,9 +255,10 @@ export default function ServicesStory({
             </div>
             <Link
               href={ctaHref}
-              className="group ml-auto inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-foreground text-sm font-semibold text-background shadow-[0_8px_30px_rgb(0_0_0/0.2)] transition-transform hover:scale-[1.04] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground sm:h-auto dark:shadow-[0_8px_30px_rgb(0_0_0/0.35)] sm:w-auto sm:px-5 sm:py-3"
+              onClick={() => playHapticTick()}
+              className="group ml-auto inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-[#00f0ff] text-sm font-bold text-black shadow-[0_0_24px_rgba(0,240,255,0.35)] transition-all hover:scale-[1.05] hover:shadow-[0_0_36px_rgba(0,240,255,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground sm:h-auto sm:w-auto sm:px-5 sm:py-3"
             >
-              <span className="sr-only sm:not-sr-only">{cta}</span>
+              <span className="sr-only sm:not-sr-only uppercase tracking-wider text-xs">{cta}</span>
               <ChevronRight className="size-5 transition-transform group-hover:translate-x-0.5 sm:ml-1" aria-hidden />
             </Link>
           </div>

@@ -17,6 +17,7 @@ import { techStack, type Tech, type TechCategory } from "./tech-stack";
 import Icon from "./Icon";
 import { useFilm } from "./useFilm";
 import { useScrub } from "./useScrub";
+import { playHapticTick } from "../../../utils/CinematicSoundEngine";
 
 export type EducationEntry = {
   period: string;
@@ -159,8 +160,11 @@ export default function ProfileStory({
             <Timeline progress={progress} milestones={milestones} />
 
             <FilmHeader progress={progress} range={T.intro}>
-              <p className="kicker text-hue-orange">{kicker}</p>
-              <p className="headline-section mt-2">{heading}</p>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-2">
+                <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+                <span>SCENE 04 · {kicker}</span>
+              </div>
+              <p className="headline-section mt-1">{heading}</p>
             </FilmHeader>
             <FilmHeader progress={progress} range={T.edu}>
               <p className="headline-section">{educationHeading}</p>
@@ -185,9 +189,10 @@ export default function ProfileStory({
             </div>
             <Link
               href="/cv"
-              className="group ml-auto inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background shadow-[0_8px_30px_rgb(0_0_0/0.2)] transition-transform hover:scale-[1.04] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground dark:shadow-[0_8px_30px_rgb(0_0_0/0.35)]"
+              onClick={() => playHapticTick()}
+              className="group ml-auto inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-[#00f0ff] px-5 text-sm font-bold text-black shadow-[0_0_24px_rgba(0,240,255,0.35)] transition-all hover:scale-[1.04] hover:shadow-[0_0_36px_rgba(0,240,255,0.6)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
             >
-              {cvLabel}
+              <span className="uppercase tracking-wider text-xs">{cvLabel}</span>
               <ChevronRight className="ml-1 size-5 transition-transform group-hover:translate-x-0.5" aria-hidden />
             </Link>
           </motion.div>

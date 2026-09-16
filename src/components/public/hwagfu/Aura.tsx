@@ -17,12 +17,12 @@ export default function Aura({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="animate-aura absolute top-[12%] left-[18%] size-[26rem] rounded-full bg-[#17EAD9]/50 blur-3xl sm:size-[32rem]" />
-      <div className="animate-aura absolute top-[4%] right-[16%] size-[24rem] rounded-full bg-[#6078EA]/48 blur-3xl [animation-delay:-7s] sm:size-[30rem]" />
-      <div className="animate-aura absolute top-[34%] left-[38%] size-[22rem] rounded-full bg-[#35CFE1]/42 blur-3xl [animation-delay:-13s] sm:size-[28rem]" />
+      <div className="animate-aura absolute top-[12%] left-[18%] size-[26rem] rounded-full bg-[#00f0ff]/30 blur-3xl sm:size-[32rem]" />
+      <div className="animate-aura absolute top-[4%] right-[16%] size-[24rem] rounded-full bg-[#2997ff]/25 blur-3xl [animation-delay:-7s] sm:size-[30rem]" />
+      <div className="animate-aura absolute top-[34%] left-[38%] size-[22rem] rounded-full bg-[#00f0ff]/20 blur-3xl [animation-delay:-13s] sm:size-[28rem]" />
       {/* Two more layers on a wider orbit, so the colour keeps shifting. */}
-      <div className="animate-aura-orbit absolute top-[22%] left-[46%] size-[18rem] rounded-full bg-[#498FE8]/36 blur-3xl [animation-delay:-5s] sm:size-[24rem]" />
-      <div className="animate-aura-orbit absolute top-[48%] left-[10%] size-[16rem] rounded-full bg-[#17EAD9]/28 blur-3xl [animation-delay:-17s] sm:size-[22rem]" />
+      <div className="animate-aura-orbit absolute top-[22%] left-[46%] size-[18rem] rounded-full bg-[#2997ff]/20 blur-3xl [animation-delay:-5s] sm:size-[24rem]" />
+      <div className="animate-aura-orbit absolute top-[48%] left-[10%] size-[16rem] rounded-full bg-[#00f0ff]/15 blur-3xl [animation-delay:-17s] sm:size-[22rem]" />
     </div>
   );
 }

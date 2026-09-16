@@ -13,11 +13,11 @@ export type DropletPalette = {
 
 // Shared with the whirlpool film, which picks these same drops up.
 export const dropletPalettes: DropletPalette[] = [
-  { colors: ["#17EAD9", "#6078EA"], shadow: "#35CFE1", shape: "44% 56% 59% 41% / 48% 45% 55% 52%" },
-  { colors: ["#35CFE1", "#6078EA"], shadow: "#6078EA", shape: "53% 47% 45% 55% / 42% 52% 48% 58%" },
-  { colors: ["#17EAD9", "#498FE8"], shadow: "#498FE8", shape: "47% 53% 61% 39% / 57% 41% 59% 43%" },
-  { colors: ["#7B8FF2", "#6078EA"], shadow: "#6078EA", shape: "55% 45% 48% 52% / 43% 57% 43% 57%" },
-  { colors: ["#7CF4E8", "#35CFE1"], shadow: "#17EAD9", shape: "42% 58% 52% 48% / 55% 46% 54% 45%" },
+  { colors: ["#00f0ff", "#2997ff"], shadow: "rgba(0,240,255,0.45)", shape: "44% 56% 59% 41% / 48% 45% 55% 52%" },
+  { colors: ["#2997ff", "#00f0ff"], shadow: "rgba(41,151,255,0.45)", shape: "53% 47% 45% 55% / 42% 52% 48% 58%" },
+  { colors: ["#00f0ff", "#38bdf8"], shadow: "rgba(0,240,255,0.45)", shape: "47% 53% 61% 39% / 57% 41% 59% 43%" },
+  { colors: ["#38bdf8", "#2997ff"], shadow: "rgba(41,151,255,0.45)", shape: "55% 45% 48% 52% / 43% 57% 43% 57%" },
+  { colors: ["#00f0ff", "#2997ff"], shadow: "rgba(0,240,255,0.45)", shape: "42% 58% 52% 48% / 55% 46% 54% 45%" },
 ];
 
 type Orb = {

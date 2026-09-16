@@ -17,6 +17,7 @@ from services.rate_limit_service import rate_limiter
 from services.intent_insights_service import intent_insights, normalize
 from services.warning_sentinel import warning_sentinel
 from services.vector_service import vector_service
+from services.film_engine_service import film_engine
 from middleware.auth import verify_internal_key
 
 class VectorUpsertRequest(BaseModel):
@@ -708,6 +709,18 @@ async def vector_query(req: VectorQueryRequest):
             filter_dict=req.filter_dict
         )
         return {"matches": matches, "count": len(matches)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ---------------------------------------------------------------------------
+# Film Engine Cinematic Soundscape & Cue Manifest
+# ---------------------------------------------------------------------------
+
+@app.get("/api/ai/film/manifest")
+async def get_film_manifest():
+    """Returns cinematic scene cues, harmonic tuning, and frequency maps for scroll audio."""
+    try:
+        return film_engine.get_film_manifest()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

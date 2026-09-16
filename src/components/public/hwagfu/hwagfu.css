@@ -1,19 +1,19 @@
 .hwagfu-copy {
-  --background: 0 0% 100%;
-  --foreground: 240 3% 12%;
-  --muted-foreground: 240 3% 42%;
-  --border: 240 3% 87%;
-  --hw-band: #f5f5f7;
-  --hw-tile: #fff;
-  --brand-start: #17ead9;
-  --brand-end: #6078ea;
-  --hw-hue-blue: #6078ea;
-  --hw-hue-purple: #6078ea;
-  --hw-hue-green: #047857;
-  --hw-hue-orange: #c2410c;
-  --hw-hue-pink: #be185d;
-  --action: #6078ea;
-  --action-hover: #4f68dc;
+  --background: 240 10% 98%;
+  --foreground: 240 8% 10%;
+  --muted-foreground: 240 4% 44%;
+  --border: 240 6% 90%;
+  --hw-band: #f5f6f8;
+  --hw-tile: #ffffff;
+  --brand-start: #00f0ff;
+  --brand-end: #2997ff;
+  --hw-hue-blue: #007aff;
+  --hw-hue-purple: #2997ff;
+  --hw-hue-green: #007aff;
+  --hw-hue-orange: #007aff;
+  --hw-hue-pink: #2997ff;
+  --action: #007aff;
+  --action-hover: #0062cc;
 
   /* ── Cảnh Sài Gòn ở cuối ProfileStory — ban ngày ──────────────
      Toàn bộ màu của CitySkyline đi qua đây. Trước kia mã màu nằm thẳng
@@ -55,17 +55,21 @@
 }
 
 .dark .hwagfu-copy {
-  --background: 0 0% 6%;
-  --foreground: 0 0% 97%;
-  --muted-foreground: 0 0% 67%;
-  --border: 0 0% 20%;
-  --hw-band: #1c1c1e;
-  --hw-tile: #2c2c2e;
-  --hw-hue-blue: #2997ff;
-  --hw-hue-purple: #b58cff;
-  --hw-hue-green: #34d399;
-  --hw-hue-orange: #fb923c;
-  --hw-hue-pink: #f472b6;
+  --background: 240 12% 4%;
+  --foreground: 0 0% 98%;
+  --muted-foreground: 240 5% 65%;
+  --border: 240 8% 14%;
+  --hw-band: #0c0e15;
+  --hw-tile: #121522;
+  --brand-start: #00f0ff;
+  --brand-end: #2997ff;
+  --hw-hue-blue: #00f0ff;
+  --hw-hue-purple: #2997ff;
+  --hw-hue-green: #00f0ff;
+  --hw-hue-orange: #00f0ff;
+  --hw-hue-pink: #2997ff;
+  --action: #00f0ff;
+  --action-hover: #38bdf8;
 
   /* ── Cùng cảnh đó, ban đêm ────────────────────────────────────
      Nhà tối lại để cửa sổ nổi lên; cửa sổ chuyển vàng neon và tự phát
@@ -154,35 +158,114 @@
   #services[data-standalone="true"] .hw-services-copy > div > div { margin-top: .5rem; }
 }
 
-.headline-hero { white-space: pre-line; font-weight: 600; font-size: clamp(2rem, 1rem + 4.6vw, 5rem); line-height: 1.15; letter-spacing: -.03em; text-wrap: balance; }
-.headline-section { white-space: pre-line; font-weight: 600; font-size: clamp(2rem, 1.45rem + 2.4vw, 3.5rem); line-height: 1.18; letter-spacing: -.025em; text-wrap: balance; }
-.headline-card { font-weight: 600; font-size: clamp(1.25rem, 1.1rem + .5vw, 1.5rem); line-height: 1.3; letter-spacing: -.015em; }
-.kicker { font-size: 1rem; line-height: 1.5; font-weight: 600; }
-.lede { font-size: clamp(1.0625rem, .98rem + .4vw, 1.3125rem); line-height: 1.6; color: hsl(var(--muted-foreground)); text-wrap: balance; }
-.headline-quiet { color: color-mix(in oklab, hsl(var(--foreground)) 55%, hsl(var(--background))); }
-.btn-primary,.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding-inline:1.375rem;border-radius:9999px;font-weight:500;text-decoration:none}.btn-primary{background:var(--action);color:#fff}.btn-primary:hover{background:var(--action-hover)}.btn-secondary{box-shadow:inset 0 0 0 1px hsl(var(--border));color:hsl(var(--foreground))}.btn-secondary:hover{background:color-mix(in oklab,hsl(var(--foreground)) 6%,transparent)}
-.link-more{display:inline-flex;align-items:center;gap:.25rem;font-weight:500;color:var(--hw-hue-blue);text-underline-offset:4px}.link-more:hover{text-decoration:underline}
+.headline-hero {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  white-space: pre-line;
+  font-weight: 700;
+  font-size: clamp(2.25rem, 1.2rem + 4.6vw, 5.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.headline-section {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  white-space: pre-line;
+  font-weight: 700;
+  font-size: clamp(2rem, 1.35rem + 2.5vw, 3.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.headline-card {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.1rem + .5vw, 1.5rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+.kicker, .cine-slate {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.lede {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: clamp(1.0625rem, .98rem + .4vw, 1.25rem);
+  line-height: 1.68;
+  color: hsl(var(--muted-foreground));
+  text-wrap: balance;
+}
+.headline-quiet { color: color-mix(in oklab, hsl(var(--foreground)) 50%, hsl(var(--background))); }
+.btn-primary, .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.875rem;
+  padding-inline: 1.5rem;
+  border-radius: 9999px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-primary {
+  background: var(--action);
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 32px rgba(0, 240, 255, 0.6);
+}
+.btn-secondary {
+  box-shadow: inset 0 0 0 1px hsl(var(--border));
+  color: hsl(var(--foreground));
+  background: color-mix(in srgb, hsl(var(--foreground)) 4%, transparent);
+}
+.btn-secondary:hover {
+  background: color-mix(in srgb, hsl(var(--foreground)) 8%, transparent);
+  transform: translateY(-1px);
+}
+.link-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--hw-hue-blue);
+  text-underline-offset: 4px;
+}
+.link-more:hover { text-decoration: underline; }
 
-@keyframes rise-in{from{opacity:0;transform:translateY(.45em)}to{opacity:1;transform:none}}.animate-rise{animation:rise-in 1s cubic-bezier(.16,1,.3,1) both}
-@keyframes aura-drift{from{transform:translate3d(-4%,-3%,0) scale(1)}to{transform:translate3d(4%,3%,0) scale(1.08)}}.animate-aura{animation:aura-drift 20s ease-in-out infinite alternate}
-@keyframes aura-orbit{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(10%,-8%,0) scale(1.12)}66%{transform:translate3d(-8%,6%,0) scale(.94)}}.animate-aura-orbit{animation:aura-orbit 26s ease-in-out infinite}
-@keyframes orb-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(8deg)}}@keyframes orb-morph{0%,100%{border-radius:44% 56% 59% 41%/48% 45% 55% 52%}33%{border-radius:58% 42% 44% 56%/41% 58% 42% 59%}66%{border-radius:40% 60% 55% 45%/56% 40% 60% 44%}}@keyframes orb-glint{0%,70%{transform:translateX(0) skewX(-12deg)}100%{transform:translateX(400%) skewX(-12deg)}}.animate-orb-liquid{animation:orb-float 6s ease-in-out infinite,orb-morph 9s ease-in-out infinite}.animate-orb-glint{animation:orb-glint 5.5s ease-in-out infinite}
-@keyframes star-twinkle{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.12)}}.animate-twinkle{animation:star-twinkle 3.2s ease-in-out infinite}
+@keyframes rise-in { from { opacity: 0; transform: translateY(0.45em); } to { opacity: 1; transform: none; } }
+.animate-rise { animation: rise-in 1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes aura-drift { from { transform: translate3d(-4%, -3%, 0) scale(1); } to { transform: translate3d(4%, 3%, 0) scale(1.08); } }
+.animate-aura { animation: aura-drift 20s ease-in-out infinite alternate; }
+@keyframes aura-orbit { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 33% { transform: translate3d(10%, -8%, 0) scale(1.12); } 66% { transform: translate3d(-8%, 6%, 0) scale(0.94); } }
+.animate-aura-orbit { animation: aura-orbit 26s ease-in-out infinite; }
+@keyframes orb-float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-14px) rotate(8deg); } }
+@keyframes orb-morph { 0%, 100% { border-radius: 44% 56% 59% 41% / 48% 45% 55% 52%; } 33% { border-radius: 58% 42% 44% 56% / 41% 58% 42% 59%; } 66% { border-radius: 40% 60% 55% 45% / 56% 40% 60% 44%; } }
+@keyframes orb-glint { 0%, 70% { transform: translateX(0) skewX(-12deg); } 100% { transform: translateX(400%) skewX(-12deg); } }
+.animate-orb-liquid { animation: orb-float 6s ease-in-out infinite, orb-morph 9s ease-in-out infinite; }
+.animate-orb-glint { animation: orb-glint 5.5s ease-in-out infinite; }
+@keyframes star-twinkle { 0%, 100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.12); } }
+.animate-twinkle { animation: star-twinkle 3.2s ease-in-out infinite; }
 
 /* Tailwind 4's size/gradient shorthands used by the original source. */
 [class~="size-full"]{width:100%;height:100%}[class~="size-1.5"]{width:.375rem;height:.375rem}[class~="size-2"]{width:.5rem;height:.5rem}[class~="size-3"]{width:.75rem;height:.75rem}[class~="size-3.5"]{width:.875rem;height:.875rem}[class~="size-4"]{width:1rem;height:1rem}[class~="size-5"]{width:1.25rem;height:1.25rem}[class~="size-8"]{width:2rem;height:2rem}[class~="size-10"]{width:2.5rem;height:2.5rem}[class~="size-11"]{width:2.75rem;height:2.75rem}[class~="size-12"]{width:3rem;height:3rem}[class~="size-14"]{width:3.5rem;height:3.5rem}[class~="size-16"]{width:4rem;height:4rem}[class~="size-18"]{width:4.5rem;height:4.5rem}[class~="size-20"]{width:5rem;height:5rem}[class~="size-24"]{width:6rem;height:6rem}[class~="size-36"]{width:9rem;height:9rem}[class~="size-40"]{width:10rem;height:10rem}[class~="size-[0.28rem]"]{width:.28rem;height:.28rem}[class~="size-[13%]"]{width:13%;height:13%}[class~="size-[14%]"]{width:14%;height:14%}[class~="size-[18%]"]{width:18%;height:18%}[class~="size-[32rem]"]{width:32rem;height:32rem}[class~="size-[36%]"]{width:36%;height:36%}[class~="size-[43%]"]{width:43%;height:43%}[class~="size-[82%]"]{width:82%;height:82%}[class~="size-[84%]"]{width:84%;height:84%}[class~="size-[min(67vw,25rem)]"]{width:min(67vw,25rem);height:min(67vw,25rem)}[class~="size-(--vs)"]{width:var(--vs);height:var(--vs)}
-/* Cùng lý do với khối trên: nguồn gốc viết bằng tên lớp của Tailwind v4,
-   repo chạy v3.4. Lớp không có thật thì Tailwind bỏ qua trong im lặng — thẻ
-   dự án từng sập cao 0px vì `aspect-16/10`. Khai ở đây thay vì mở rộng
-   theme: mở rộng `spacing`/`opacity` sinh ra hàng trăm tiện ích không ai
-   dùng và đẩy ngân sách CSS lên hơn 4 KB. */
 [class~="bg-linear-to-r"]{background-image:linear-gradient(to right,var(--tw-gradient-stops))}[class~="bg-linear-to-l"]{background-image:linear-gradient(to left,var(--tw-gradient-stops))}[class~="bg-linear-to-t"]{background-image:linear-gradient(to top,var(--tw-gradient-stops))}[class~="bg-linear-to-b"]{background-image:linear-gradient(to bottom,var(--tw-gradient-stops))}[class~="bg-linear-to-br"]{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}
 [class~="aspect-16/10"]{aspect-ratio:16/10}
 [class~="rotate-8"]{--tw-rotate:8deg;transform:translate(var(--tw-translate-x,0),var(--tw-translate-y,0)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x,0)) skewY(var(--tw-skew-y,0)) scaleX(var(--tw-scale-x,1)) scaleY(var(--tw-scale-y,1))}
 [class~="-rotate-7"]{--tw-rotate:-7deg;transform:translate(var(--tw-translate-x,0),var(--tw-translate-y,0)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x,0)) skewY(var(--tw-skew-y,0)) scaleX(var(--tw-scale-x,1)) scaleY(var(--tw-scale-y,1))}
 [class~="z-25"]{z-index:25}[class~="z-35"]{z-index:35}
-[class~="bg-[#6078EA]/48"]{background-color:#6078ea7a}[class~="bg-[#35CFE1]/42"]{background-color:#35cfe16b}
-[class~="bg-[#498FE8]/36"]{background-color:#498fe85c}[class~="bg-[#17EAD9]/28"]{background-color:#17ead947}
+[class~="bg-[#6078EA]/48"]{background-color:#00f0ff30}
+[class~="bg-[#35CFE1]/42"]{background-color:#00f0ff25}
+[class~="bg-[#498FE8]/36"]{background-color:#2997ff25}
+[class~="bg-[#17EAD9]/28"]{background-color:#00f0ff20}
 [class~="bg-white/12"]{background-color:#ffffff1f}[class~="border-white/24"]{border-color:#ffffff3d}
 [class~="bg-black/12"]{background-color:#0000001f}
 [class~="bg-foreground/12"]{background-color:hsl(var(--foreground)/.12)}
@@ -191,8 +274,117 @@
 @media(min-width:640px){[class~="sm:-top-18"]{top:-4.5rem}[class~="sm:-left-18"]{left:-4.5rem}}
 @media(min-width:640px){[class~="sm:size-8"]{width:2rem;height:2rem}[class~="sm:size-9"]{width:2.25rem;height:2.25rem}[class~="sm:size-10"]{width:2.5rem;height:2.5rem}[class~="sm:size-12"]{width:3rem;height:3rem}[class~="sm:size-14"]{width:3.5rem;height:3.5rem}[class~="sm:size-16"]{width:4rem;height:4rem}[class~="sm:size-20"]{width:5rem;height:5rem}[class~="sm:size-24"]{width:6rem;height:6rem}[class~="sm:w-auto"]{width:auto}[class~="sm:h-auto"]{height:auto}}
 
-.hwagfu-contact{background:var(--hw-band);padding:5rem max(2rem,calc((100% - 72rem)/2))}.hwagfu-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem}.hwagfu-contact h2{font-size:clamp(3rem,5vw,4.5rem);font-weight:600;line-height:1;letter-spacing:-.05em}.hwagfu-contact h2 span{color:hsl(var(--muted-foreground))}.hwagfu-contact p{margin-top:1.75rem;font-size:1.2rem;color:hsl(var(--muted-foreground))}.hwagfu-contact-card{display:grid;gap:1.1rem;padding:0;border-radius:0;background:transparent}.hwagfu-contact-card label{font-size:.875rem}.hwagfu-contact-card input,.hwagfu-contact-card textarea{display:block;width:100%;margin-top:.45rem;border:0;border-radius:.9rem;background:var(--hw-tile);padding:.8rem;color:inherit}.hwagfu-contact-card textarea{height:7.5rem;resize:vertical}.hwagfu-contact-card button{height:2.8rem;border:0;border-radius:999px;background:var(--action);color:#fff}.hwagfu-email{display:inline-flex;align-items:center;gap:1rem;margin-top:2rem;color:inherit;text-decoration:none}.hwagfu-email i{display:grid;place-items:center;width:3rem;height:3rem;border-radius:50%;background:#e1edfb;color:#0071e3}.hwagfu-email span{display:flex;flex-direction:column;color:hsl(var(--muted-foreground))}.hwagfu-email b{color:hsl(var(--foreground))}
-@media(max-width:700px){.hwagfu-contact{padding:4rem 1.25rem}.hwagfu-contact-grid{grid-template-columns:1fr;gap:2.5rem}.hwagfu-contact-card{padding:0}}
+/* ── Form liên hệ chuẩn Epilogue điện ảnh ────────────────────────── */
+.hwagfu-contact {
+  position: relative;
+  background: var(--hw-band);
+  padding: clamp(5rem, 10vh, 8rem) max(1.5rem, calc((100% - 72rem) / 2));
+  border-top: 1px solid color-mix(in srgb, hsl(var(--border)) 60%, transparent);
+}
+.hwagfu-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(2.5rem, 6vw, 5rem);
+  align-items: start;
+}
+.hwagfu-contact h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 4.25rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+.hwagfu-contact h2 span { color: hsl(var(--muted-foreground)); }
+.hwagfu-contact p {
+  margin-top: 1.5rem;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+.hwagfu-contact-card {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, hsl(var(--card)) 85%, transparent);
+  backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, hsl(var(--border)) 80%, transparent);
+  box-shadow: 0 24px 64px -20px rgba(0, 0, 0, 0.45);
+}
+.hwagfu-contact-card label {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+}
+.hwagfu-contact-card input, .hwagfu-contact-card textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.45rem;
+  border: 1px solid color-mix(in srgb, hsl(var(--border)) 65%, transparent);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, hsl(var(--background)) 60%, transparent);
+  padding: 0.85rem 1.1rem;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+.hwagfu-contact-card input:focus, .hwagfu-contact-card textarea:focus {
+  outline: none;
+  border-color: #00f0ff;
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.18);
+  background: hsl(var(--background));
+}
+.hwagfu-contact-card textarea { height: 7.5rem; resize: vertical; }
+.hwagfu-contact-card button {
+  height: 3rem;
+  margin-top: 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: #00f0ff;
+  color: #000;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hwagfu-contact-card button:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 0 36px rgba(0, 240, 255, 0.6);
+}
+.hwagfu-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+.hwagfu-email:hover { opacity: 0.85; }
+.hwagfu-email i {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.12);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+}
+.hwagfu-email span { display: flex; flex-direction: column; color: hsl(var(--muted-foreground)); font-size: 0.85rem; }
+.hwagfu-email b { color: hsl(var(--foreground)); font-size: 1rem; }
+@media(max-width:768px){
+  .hwagfu-contact { padding: 4rem 1.25rem; }
+  .hwagfu-contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hwagfu-contact-card { padding: 1.5rem; }
+}
 @media(prefers-reduced-motion:reduce){.animate-rise,.animate-aura,.animate-aura-orbit,.animate-orb-liquid,.animate-orb-glint,.animate-twinkle{animation:none!important}.scroll-fx{opacity:1!important;transform:none!important}}
 
 /* ── Câu thần chú trong cảnh dự án ────────────────────────────────────

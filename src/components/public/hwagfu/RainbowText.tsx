@@ -18,11 +18,11 @@ const RainbowText = ({ children, className }: RainbowTextProps) => {
   return (
     <span
       className={cn(
-        "animate-rainbow bg-size-[200%_auto] bg-clip-text text-transparent py-[0.14em] my-[-0.14em] [filter:drop-shadow(0_1px_14px_rgb(72_105_255/0.2))]",
+        "animate-rainbow bg-size-[200%_auto] bg-clip-text text-transparent py-[0.14em] my-[-0.14em] [filter:drop-shadow(0_0_18px_rgba(0,240,255,0.4))]",
         className,
       )}
       style={{
-        backgroundImage: "linear-gradient(110deg, #17EAD9, #35CFE1, #498FE8, #6078EA, #17EAD9)",
+        backgroundImage: "linear-gradient(110deg, #00f0ff, #2997ff, #38bdf8, #00f0ff)",
       }}
     >
       {children}

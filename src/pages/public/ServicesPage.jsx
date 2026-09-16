@@ -1,12 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useScroll, useMotionValueEvent } from "motion/react";
 import Aura from "../../components/public/hwagfu/Aura";
 import FloatingOrbs from "../../components/public/hwagfu/FloatingOrbs";
 import HeroScrollFx from "../../components/public/hwagfu/HeroScrollFx";
 import RainbowText from "../../components/public/hwagfu/RainbowText";
 import ServicesStory from "../../components/public/hwagfu/ServicesStory";
+import CinematicAtmosphere from "../../components/public/cine/CinematicAtmosphere";
+import { syncScrollFilmBeat, playHapticTick } from "../../utils/CinematicSoundEngine";
 import "../../components/public/hwagfu/hwagfu.css";
 import { servicePackages } from "../../data/servicePackages";
 import { useHeadMeta } from "../../hooks/useHeadMeta";
@@ -39,8 +42,13 @@ function Hero() {
       <Aura />
       <FloatingOrbs />
       <HeroScrollFx className="relative z-10 mx-auto flex max-w-6xl flex-col items-center text-center">
-        <p className="animate-rise kicker text-hue-blue">{t("servicePkg.page.heroKicker")}</p>
-        <h1 className="headline-hero mt-4 text-foreground">
+        {/* Cinematic Slate Timecode */}
+        <div className="animate-rise inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:border-white/10 dark:bg-black/30 mb-6">
+          <span className="size-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
+          <span>SCENE 01 · THE BLUEPRINT</span>
+        </div>
+
+        <h1 className="headline-hero text-foreground">
           <span className="animate-rise block">{t("servicePkg.page.heroLine1")}</span>
           <span className="animate-rise block" style={{ animationDelay: "110ms" }}>{t("servicePkg.page.heroLine2")}</span>
           <span className="animate-rise block" style={{ animationDelay: "220ms" }}><RainbowText>{t("servicePkg.page.heroLine3")}</RainbowText></span>
@@ -49,11 +57,23 @@ function Hero() {
           {t("servicePkg.page.heroLede")}
         </p>
         <div className="animate-rise mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animationDelay: "470ms" }}>
-          <Link to="/booking" className="btn-primary">{t("servicePkg.page.heroCta")} <CalendarCheck size={17} /></Link>
-          <Link to="/project" className="btn-secondary">{t("servicePkg.page.heroCtaAlt")} <ArrowRight size={17} /></Link>
+          <Link
+            to="/booking"
+            onClick={() => playHapticTick()}
+            className="btn-primary"
+          >
+            {t("servicePkg.page.heroCta")} <CalendarCheck size={17} />
+          </Link>
+          <Link
+            to="/project"
+            onClick={() => playHapticTick()}
+            className="btn-secondary"
+          >
+            {t("servicePkg.page.heroCtaAlt")} <ArrowRight size={17} className="text-[#00f0ff]" />
+          </Link>
         </div>
-        <span className="animate-rise mt-14 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[.16em] text-muted-foreground" style={{ animationDelay: "580ms" }}>
-          {t("servicePkg.page.scrollHint")} <span className="material-symbols-outlined text-base">south</span>
+        <span className="animate-rise mt-14 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[.18em] text-muted-foreground/70" style={{ animationDelay: "580ms" }}>
+          {t("servicePkg.page.scrollHint")} <span className="material-symbols-outlined text-base text-[#00f0ff]">south</span>
         </span>
       </HeroScrollFx>
     </section>
@@ -65,22 +85,26 @@ function LandingFocus() {
   const points = t("servicePkg.page.landingPoints", { returnObjects: true });
 
   return (
-    <section className="bg-background px-5 py-24 sm:px-8 sm:py-36">
+    <section className="relative isolate bg-background px-5 py-24 sm:px-8 sm:py-36 border-t border-border/40">
       <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
         <div>
-          <p className="kicker text-hue-blue">{t("servicePkg.page.landingKicker")}</p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-4">
+            <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+            <span>SCENE 03 · THE CODE OF CRAFT</span>
+          </div>
           <h2 className="headline-section mt-3 max-w-4xl">
             {t("servicePkg.page.landingTitle1")}
-            <span className="headline-quiet block">{t("servicePkg.page.landingTitle2")}</span>
+            <span className="headline-quiet block mt-1">{t("servicePkg.page.landingTitle2")}</span>
           </h2>
           <p className="lede mt-7 max-w-2xl">
             {t("servicePkg.page.landingLede")}
           </p>
         </div>
-        <ul className="border-t border-border">
+        <ul className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-lg p-6 shadow-xl space-y-2">
           {points.map((point) => (
-            <li key={point} className="flex gap-3 border-b border-border py-5 text-sm leading-6 text-foreground/75">
-              <Check className="mt-1 size-4 shrink-0 text-hue-blue" /> {point}
+            <li key={point} className="flex items-start gap-3 py-3 text-sm leading-6 text-foreground/80 border-b border-border/40 last:border-b-0">
+              <Check className="mt-1 size-4 shrink-0 text-[#00f0ff]" />
+              <span>{point}</span>
             </li>
           ))}
         </ul>
@@ -93,16 +117,29 @@ function Process() {
   const { t } = useTranslation();
   const steps = t("servicePkg.page.process", { returnObjects: true });
   return (
-    <section className="bg-band px-5 py-24 sm:px-8 sm:py-36">
+    <section className="relative isolate bg-band px-5 py-24 sm:px-8 sm:py-36 border-t border-border/40">
       <div className="mx-auto max-w-6xl">
-        <p className="kicker text-hue-blue">{t("servicePkg.page.processKicker")}</p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-4">
+          <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+          <span>SCENE 04 · FOUR-BEAT SYMPHONY</span>
+        </div>
         <h2 className="headline-section mt-3 max-w-3xl">{t("servicePkg.page.processTitle")}</h2>
-        <div className="mt-14 border-t border-border">
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
           {steps.map(({ title, body }, i) => (
-            <div key={title} className="grid gap-4 border-b border-border py-7 sm:grid-cols-[4rem_1fr_1.2fr] sm:items-start sm:gap-8">
-              <span className="font-mono text-xs tracking-[.16em] text-hue-blue">{String(i + 1).padStart(2, "0")}</span>
-              <h3 className="text-xl font-semibold tracking-[-.02em]">{title}</h3>
-              <p className="text-sm leading-7 text-muted-foreground">{body}</p>
+            <div
+              key={title}
+              className="group relative rounded-2xl border border-border/60 bg-card/40 p-7 backdrop-blur-md transition-all duration-300 hover:border-[#00f0ff]/40 hover:shadow-[0_0_30px_rgba(0,240,255,0.08)]"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold tracking-[0.2em] text-[#00f0ff]">
+                  PHASE 0{i + 1}
+                </span>
+                <span className="font-mono text-[10px] text-muted-foreground/60 uppercase">
+                  {(i + 1) * 25}% MILESTONE
+                </span>
+              </div>
+              <h3 className="mt-4 text-xl font-bold tracking-tight text-foreground">{title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </div>
           ))}
         </div>
@@ -114,15 +151,35 @@ function Process() {
 function Closing() {
   const { t } = useTranslation();
   return (
-    <section className="relative isolate overflow-hidden bg-background px-5 py-28 text-center sm:px-8 sm:py-40">
+    <section className="relative isolate overflow-hidden bg-background px-5 py-28 text-center sm:px-8 sm:py-40 border-t border-border/40">
       <Aura />
       <div className="relative z-10 mx-auto max-w-5xl">
-        <p className="kicker text-hue-blue">{t("servicePkg.page.closingKicker")}</p>
-        <h2 className="headline-hero mt-3">{t("servicePkg.page.closingTitle1")}<span className="block"><RainbowText>{t("servicePkg.page.closingTitle2")}</RainbowText></span></h2>
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-6">
+          <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+          <span>SCENE 05 · THE GREENLIGHT</span>
+        </div>
+        <h2 className="headline-hero mt-3">
+          {t("servicePkg.page.closingTitle1")}
+          <span className="block text-[#00f0ff] [text-shadow:0_0_24px_rgba(0,240,255,0.45)]">
+            {t("servicePkg.page.closingTitle2")}
+          </span>
+        </h2>
         <p className="lede mx-auto mt-7 max-w-2xl">{t("servicePkg.page.closingLede")}</p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link to="/booking" className="btn-primary">{t("servicePkg.page.closingCta")} <ArrowRight size={17} /></Link>
-          <Link to="/project" className="btn-secondary">{t("servicePkg.page.closingCtaAlt")}</Link>
+          <Link
+            to="/booking"
+            onClick={() => playHapticTick()}
+            className="btn-primary"
+          >
+            {t("servicePkg.page.closingCta")} <ArrowRight size={17} />
+          </Link>
+          <Link
+            to="/project"
+            onClick={() => playHapticTick()}
+            className="btn-secondary"
+          >
+            {t("servicePkg.page.closingCtaAlt")}
+          </Link>
         </div>
       </div>
     </section>
@@ -132,6 +189,13 @@ function Closing() {
 export default function ServicesPage() {
   const { t } = useTranslation();
   const chapters = useChapters();
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll();
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    syncScrollFilmBeat(latest, [0.15, 0.45, 0.72, 0.9]);
+  });
+
   useHeadMeta({ title: t("servicesPage.meta.title"), description: t("servicesPage.meta.description"), keywords: t("servicesPage.meta.keywords"), canonicalUrl: "https://www.hugowishpax.studio/services" });
   useJsonLd("services-schema", useMemo(() => ({
     "@context": "https://schema.org",
@@ -152,7 +216,8 @@ export default function ServicesPage() {
   }), [chapters, t]));
 
   return (
-    <div className="hwagfu-copy">
+    <div ref={containerRef} className="hwagfu-copy relative">
+      <CinematicAtmosphere />
       <Hero />
       <ServicesStory
         standalone
@@ -160,9 +225,6 @@ export default function ServicesPage() {
         heading={t("servicePkg.page.filmHeading")}
         chapters={chapters}
         progressLabels={["Hugo One", "Hugo Story", "Hugo Flow+", "Hugo Edu+"]}
-        // Chuỗi này là CỜ NHẬN DẠNG NGÔN NGỮ bên trong ServicesStory
-        // (`isVietnamese = speedUnit === "điểm hiệu năng"`), chỉ có tác dụng ở
-        // các cảnh của trang giới thiệu. Dịch nó ra là tắt nhầm một nhánh.
         speedUnit="điểm hiệu năng"
         mergeLabel="Hugo Story"
         seoBurst={["HUGO", "FLOW"]}

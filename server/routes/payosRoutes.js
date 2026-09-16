@@ -541,6 +541,7 @@ router.post('/webhook', async (req, res) => {
 // Background loop to poll PayOS API for PENDING links (created in the last 24 hours)
 const autoVerifyPendingPayments = async () => {
   try {
+    if (mongoose.connection.readyState !== 1) return;
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const pendingLinks = await PaymentLink.find({ 
       status: 'PENDING',

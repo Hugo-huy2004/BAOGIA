@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { FileText, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useScroll, useMotionValueEvent } from "motion/react";
 import { useData } from "../../context/DataContext";
 import { featuredProjects, shotUrl } from "../../data/projects";
 import Aura from "../../components/public/hwagfu/Aura";
@@ -10,6 +11,8 @@ import RainbowText from "../../components/public/hwagfu/RainbowText";
 import WorkStory from "../../components/public/hwagfu/WorkStory";
 import ServicesStory from "../../components/public/hwagfu/ServicesStory";
 import ProfileStory from "../../components/public/hwagfu/ProfileStory";
+import CinematicAtmosphere from "../../components/public/cine/CinematicAtmosphere";
+import { syncScrollFilmBeat, playHapticTick } from "../../utils/CinematicSoundEngine";
 import "../../components/public/hwagfu/hwagfu.css";
 
 /**
@@ -30,6 +33,12 @@ function Hero({ name, t }) {
       <Aura />
       <FloatingOrbs />
       <HeroScrollFx className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
+        {/* Cinematic Slate / Shot Index */}
+        <div className="animate-rise inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:border-white/10 dark:bg-black/30 mb-6">
+          <span className="size-1.5 rounded-full bg-[#00f0ff] animate-pulse" />
+          <span>SCENE 01 · THE HORIZON</span>
+        </div>
+
         <h1 className="headline-hero text-foreground">
           {[t("intro.story.hero.line1"), t("intro.story.hero.line2")].map((line, index) => (
             <span key={line} className="animate-rise block text-foreground/90 dark:text-white" style={{ animationDelay: `${index * 110}ms` }}>
@@ -48,13 +57,24 @@ function Hero({ name, t }) {
             .flatMap((chunk, index) =>
               index === 0
                 ? [chunk]
-                : [<span key="name" className="font-medium text-foreground">{name}</span>, chunk],
+                : [<span key="name" className="font-semibold text-foreground underline decoration-[#00f0ff]/40 underline-offset-4">{name}</span>, chunk],
             )}
         </p>
         <div className="animate-rise mt-10 flex flex-col items-center gap-3 sm:flex-row" style={{ animationDelay: "495ms" }}>
-          <a href="#contact" className="btn-primary">{t("intro.story.hero.ctaStart")}</a>
-          <a href="/cv/index.html" className="btn-secondary" aria-label={t("intro.story.hero.ctaCvAria", { name })}>
-            {t("intro.story.hero.ctaCv")} <FileText className="h-4 w-4" />
+          <a
+            href="#contact"
+            onClick={() => playHapticTick()}
+            className="btn-primary"
+          >
+            {t("intro.story.hero.ctaStart")}
+          </a>
+          <a
+            href="/cv/index.html"
+            onClick={() => playHapticTick()}
+            className="btn-secondary"
+            aria-label={t("intro.story.hero.ctaCvAria", { name })}
+          >
+            {t("intro.story.hero.ctaCv")} <FileText className="h-4 w-4 text-[#00f0ff]" />
           </a>
         </div>
       </HeroScrollFx>
@@ -65,23 +85,28 @@ function Hero({ name, t }) {
 function Contact({ email, t }) {
   const submit = (event) => {
     event.preventDefault();
+    playHapticTick();
     const form = new FormData(event.currentTarget);
     const subject = t("intro.story.contact.mailSubject", { name: form.get("name") });
     const body = `${form.get("message")}\n\nEmail: ${form.get("email")}`;
     window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
   return (
-    <section id="contact" className="hwagfu-contact">
-      <div className="hwagfu-contact-grid">
+    <section id="contact" className="hwagfu-contact relative isolate overflow-hidden">
+      <div className="hwagfu-contact-grid max-w-6xl mx-auto">
         <div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-5">
+            <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+            <span>SCENE 05 · EPILOGUE</span>
+          </div>
           <h2>
             {t("intro.story.contact.heading1")}
             <br />
             <span>{t("intro.story.contact.heading2")}</span>
           </h2>
           <p>{t("intro.story.contact.desc")}</p>
-          <a className="hwagfu-email" href={`mailto:${email}`}>
-            <i><Mail size={20} /></i>
+          <a className="hwagfu-email group" href={`mailto:${email}`} onClick={() => playHapticTick()}>
+            <i><Mail size={20} className="group-hover:scale-110 transition-transform" /></i>
             <span>{t("intro.story.contact.emailLabel")}<b>{email}</b></span>
           </a>
         </div>
@@ -165,8 +190,16 @@ export default function IntroductionPage() {
     [t],
   );
 
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll();
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    syncScrollFilmBeat(latest, [0.12, 0.38, 0.65, 0.88]);
+  });
+
   return (
-    <div className="hwagfu-copy">
+    <div ref={containerRef} className="hwagfu-copy relative">
+      <CinematicAtmosphere />
       <Hero name={name} t={t} />
       <WorkStory
         label={t("intro.story.work.label")}
@@ -213,3 +246,4 @@ export default function IntroductionPage() {
     </div>
   );
 }
+

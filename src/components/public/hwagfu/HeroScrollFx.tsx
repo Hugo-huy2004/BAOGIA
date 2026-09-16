@@ -27,13 +27,19 @@ export default function HeroScrollFx({
     target: ref,
     offset: ["start start", "end start"],
   });
-  const opacity = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
-  const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const rotateX = useTransform(scrollYProgress, [0, 1], [0, 7]);
+  const z = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const filter = useTransform(scrollYProgress, [0, 0.75], ["blur(0px)", "blur(10px)"]);
 
   return (
-    <div ref={ref}>
-      <motion.div style={{ opacity, scale, y }} className={cn("scroll-fx", className)}>
+    <div ref={ref} className="[perspective:1200px] transform-gpu">
+      <motion.div
+        style={{ opacity, scale, y, rotateX, z, filter, transformStyle: "preserve-3d" }}
+        className={cn("scroll-fx", className)}
+      >
         {children}
       </motion.div>
     </div>

@@ -176,8 +176,11 @@ function Header({
       style={{ opacity, y }}
       className="scroll-fx absolute inset-x-5 top-[clamp(4.75rem,9svh,7rem)] z-40 mx-auto max-w-4xl text-center sm:inset-x-8 motion-reduce:static"
     >
-      <p className="kicker text-hue-blue">{label}</p>
-      <h2 className="headline-section mt-2 text-foreground">{heading}</h2>
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.68rem] font-mono font-semibold tracking-[0.22em] text-[#00f0ff] uppercase backdrop-blur-md dark:bg-black/30 mb-3">
+        <span className="size-1.5 rounded-full bg-[#00f0ff]" />
+        <span>SCENE 02 · {label}</span>
+      </div>
+      <h2 className="headline-section mt-1 text-foreground">{heading}</h2>
       <p className="lede mx-auto mt-3 hidden max-w-2xl lg:block motion-reduce:block">{subtitle}</p>
     </motion.div>
   );
